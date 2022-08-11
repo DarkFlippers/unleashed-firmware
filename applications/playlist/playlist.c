@@ -192,6 +192,23 @@ static int playlist_worker_process(
     return status;
 }
 
+// true - the worker can continue
+// false - the worker should exit
+static bool playlist_worker_wait_pause(PlaylistWorker* worker) {
+    // wait if paused
+    while(worker->ctl_pause && !worker->ctl_request_exit) {
+        furi_delay_ms(50);
+    }
+    // exit loop if requested to stop
+    if(worker->ctl_request_exit) {
+        FURI_LOG_I(TAG, "Requested to exit. Exiting loop...");
+        return false;
+    }
+    return true;
+}
+
+// TODO: - starten crasht
+// TODO: - exit waerend Senden crasht
 static int32_t playlist_worker_thread(void* ctx) {
     PlaylistWorker* worker = ctx;
     if(!flipper_format_file_open_existing(worker->format, string_get_cstr(worker->file_path))) {
@@ -207,19 +224,13 @@ static int32_t playlist_worker_thread(void* ctx) {
     string_init(protocol);
 
     while(flipper_format_read_string(worker->format, "sub", data)) {
-        worker->meta->current_single_repetition = 0;
-
-        // wait if paused
-        while(worker->ctl_pause && !worker->ctl_request_exit) {
-            furi_delay_ms(50);
-        }
-        // exit loop if requested to stop
-        if(worker->ctl_request_exit) {
-            FURI_LOG_I(TAG, "Requested to exit. Exiting loop...");
+        if(!playlist_worker_wait_pause(worker)) {
             break;
         }
 
+        worker->meta->current_single_repetition = 0;
         ++worker->meta->current_count;
+
         const char* str = string_get_cstr(data);
 
         FURI_LOG_I(TAG, "(worker) Sending %s", str);
@@ -235,6 +246,10 @@ static int32_t playlist_worker_thread(void* ctx) {
         string_set_str(worker->meta->prev_0_path, str);
 
         for(int i = 0; i < MAX(1, worker->meta->single_repetitions); i++) {
+            if(!playlist_worker_wait_pause(worker)) {
+                break;
+            }
+
             ++worker->meta->current_single_repetition;
 
             FURI_LOG_I(
@@ -272,9 +287,7 @@ static int32_t playlist_worker_thread(void* ctx) {
     string_clear(preset);
     string_clear(protocol);
 
-    FURI_LOG_I(TAG, "  Cleaning up FFF");
-    flipper_format_file_close(worker->format);
-    flipper_format_file_close(fff_data);
+    flipper_format_free(fff_data);
 
     FURI_LOG_I(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
     worker->is_running = false;
@@ -300,7 +313,7 @@ DisplayMeta* playlist_meta_alloc() {
     string_init(instance->prev_2_path);
     string_init(instance->prev_3_path);
     playlist_meta_reset(instance);
-    instance->single_repetitions = 2;
+    instance->single_repetitions = 1;
     return instance;
 }
 
@@ -640,9 +653,11 @@ exit_cleanup:
             FURI_LOG_I(TAG, "Thread is still running. Requesting thread to finish ...");
             playlist_worker_stop(app->worker);
         }
+        FURI_LOG_I(TAG, "Freeing Worker ...");
         playlist_worker_free(app->worker);
     }
 
+    FURI_LOG_I(TAG, "Freeing Playlist ...");
     playlist_free(app);
     return 0;
 }
