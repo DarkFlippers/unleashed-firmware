@@ -297,9 +297,9 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
     const char* path = request->content.storage_read_request.path;
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(fs_api);
-    bool result = false;
+    bool fs_operation_success = storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING);
 
-    if(storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING)) {
+    if(fs_operation_success) {
         size_t size_left = storage_file_size(file);
         do {
             response->command_id = request->command_id;
@@ -310,28 +310,25 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
             if(read_size) {
                 response->content.storage_read_response.has_file = true;
                 response->content.storage_read_response.file.data =
-                    malloc(PB_BYTES_ARRAY_T_ALLOCSIZE());
-                uint8_t* buffer = response->content.storage_read_response.file.data->bytes;
+                    malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(read_size));
+                uint8_t* buffer = &response->content.storage_read_response.file.data->bytes[0];
                 uint16_t* read_size_msg = &response->content.storage_read_response.file.data->size;
 
                 *read_size_msg = storage_file_read(file, buffer, read_size);
-                size_left -= read_size;
-                result = (*read_size_msg == read_size);
+                size_left -= *read_size_msg;
+                fs_operation_success = (*read_size_msg == read_size);
 
-                response->has_next = result && (size_left > 0);
+                response->has_next = fs_operation_success && (size_left > 0);
             } else {
                 response->content.storage_read_response.has_file = false;
                 response->has_next = false;
-                result = true;
+                fs_operation_success = true;
             }
+        } while((size_left != 0) && fs_operation_success);
+    }
 
-            rpc_send_and_release(session, response);
-        } while((size_left != 0) && result);
-
-        if(!result) {
-            rpc_send_and_release_empty(
-                session, request->command_id, rpc_system_storage_get_file_error(file));
-        }
+    if(fs_operation_success) {
+        rpc_send_and_release(session, response);
     } else {
         rpc_send_and_release_empty(
             session, request->command_id, rpc_system_storage_get_file_error(file));
@@ -384,7 +381,9 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
     bool send_response = false;
 
     if(fs_operation_success) {
-        if(request->content.storage_write_request.has_file) {
+        if(request->content.storage_write_request.has_file &&
+           request->content.storage_write_request.file.data &&
+           request->content.storage_write_request.file.data->size) {
             uint8_t* buffer = request->content.storage_write_request.file.data->bytes;
             size_t buffer_size = request->content.storage_write_request.file.data->size;
             uint16_t written_size = storage_file_write(file, buffer, buffer_size);
