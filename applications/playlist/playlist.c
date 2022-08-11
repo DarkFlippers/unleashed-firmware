@@ -125,7 +125,6 @@ static int playlist_worker_process(
     if(!furi_hal_subghz_is_tx_allowed(frequency)) {
         return -2;
     }
-    FURI_LOG_I(TAG, "  (TX) Frequency: %u", frequency);
 
     // check if preset is present
     if(!flipper_format_read_string(fff_file, "Preset", preset)) {
@@ -138,7 +137,6 @@ static int playlist_worker_process(
         FURI_LOG_E(TAG, "  (TX) Missing Protocol");
         return -4;
     }
-    FURI_LOG_I(TAG, "  (TX) Protocol: %s", string_get_cstr(protocol));
 
     if(!string_cmp_str(protocol, "RAW")) {
         subghz_protocol_raw_gen_fff_data(fff_data, path);
@@ -207,12 +205,17 @@ static bool playlist_worker_wait_pause(PlaylistWorker* worker) {
     return true;
 }
 
-// TODO: - starten crasht
-// TODO: - exit waerend Senden crasht
 static int32_t playlist_worker_thread(void* ctx) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperFormat* fff_head = flipper_format_file_alloc(storage);
+
     PlaylistWorker* worker = ctx;
-    if(!flipper_format_file_open_existing(worker->format, string_get_cstr(worker->file_path))) {
+    if(!flipper_format_file_open_existing(fff_head, string_get_cstr(worker->file_path))) {
+        FURI_LOG_E(TAG, "Failed to open %s", string_get_cstr(worker->file_path));
         worker->is_running = false;
+
+        furi_record_close(RECORD_STORAGE);
+        flipper_format_free(fff_head);
         return 0;
     }
 
@@ -223,7 +226,7 @@ static int32_t playlist_worker_thread(void* ctx) {
     string_init(preset);
     string_init(protocol);
 
-    while(flipper_format_read_string(worker->format, "sub", data)) {
+    while(flipper_format_read_string(fff_head, "sub", data)) {
         if(!playlist_worker_wait_pause(worker)) {
             break;
         }
@@ -232,8 +235,6 @@ static int32_t playlist_worker_thread(void* ctx) {
         ++worker->meta->current_count;
 
         const char* str = string_get_cstr(data);
-
-        FURI_LOG_I(TAG, "(worker) Sending %s", str);
 
         // it's not fancy, but it works for now :)
         string_reset(worker->meta->prev_3_path);
@@ -259,7 +260,7 @@ static int32_t playlist_worker_thread(void* ctx) {
                 worker->meta->current_single_repetition,
                 worker->meta->single_repetitions);
 
-            FlipperFormat* fff_file = flipper_format_file_alloc(worker->storage);
+            FlipperFormat* fff_file = flipper_format_file_alloc(storage);
 
             int status =
                 playlist_worker_process(worker, fff_file, fff_data, str, preset, protocol);
@@ -282,7 +283,9 @@ static int32_t playlist_worker_thread(void* ctx) {
         }
     } // end of loop
 
-    FURI_LOG_I(TAG, "Exited Loop. Clean Up.");
+    furi_record_close(RECORD_STORAGE);
+    flipper_format_free(fff_head);
+
     string_clear(data);
     string_clear(preset);
     string_clear(protocol);
@@ -291,6 +294,7 @@ static int32_t playlist_worker_thread(void* ctx) {
 
     FURI_LOG_I(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
     worker->is_running = false;
+
     return 0;
 }
 
@@ -300,10 +304,10 @@ void playlist_meta_reset(DisplayMeta* instance) {
     instance->current_count = 0;
     instance->current_single_repetition = 0;
 
-    string_clear(instance->prev_0_path);
-    string_clear(instance->prev_1_path);
-    string_clear(instance->prev_2_path);
-    string_clear(instance->prev_3_path);
+    string_reset(instance->prev_0_path);
+    string_reset(instance->prev_1_path);
+    string_reset(instance->prev_2_path);
+    string_reset(instance->prev_3_path);
 }
 
 DisplayMeta* playlist_meta_alloc() {
@@ -336,10 +340,7 @@ PlaylistWorker* playlist_worker_alloc(DisplayMeta* meta) {
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, playlist_worker_thread);
 
-    instance->storage = furi_record_open(RECORD_STORAGE);
-    instance->format = flipper_format_file_alloc(instance->storage);
     instance->meta = meta;
-
     instance->ctl_pause = true; // require the user to manually start the worker
 
     string_init(instance->file_path);
@@ -349,13 +350,8 @@ PlaylistWorker* playlist_worker_alloc(DisplayMeta* meta) {
 
 void playlist_worker_free(PlaylistWorker* instance) {
     furi_assert(instance);
-
     furi_thread_free(instance->thread);
-    flipper_format_free(instance->format);
-    furi_record_close(RECORD_STORAGE);
-
     string_clear(instance->file_path);
-
     free(instance);
 }
 
@@ -382,6 +378,7 @@ void playlist_worker_start(PlaylistWorker* instance, const char* file_path) {
     // reset meta (current/total)
     playlist_meta_reset(instance->meta);
 
+    FURI_LOG_I(TAG, "Starting thread...");
     furi_thread_start(instance->thread);
 }
 
@@ -553,6 +550,19 @@ Playlist* playlist_alloc(DisplayMeta* meta) {
     return app;
 }
 
+void playlist_start_worker(Playlist* app, DisplayMeta* meta) {
+    app->worker = playlist_worker_alloc(meta);
+
+    // count playlist items
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    app->meta->total_count =
+        playlist_count_playlist_items(storage, string_get_cstr(app->file_path));
+    furi_record_close(RECORD_STORAGE);
+
+    // start thread
+    playlist_worker_start(app->worker, string_get_cstr(app->file_path));
+}
+
 void playlist_free(Playlist* app) {
     string_clear(app->file_path);
 
@@ -599,19 +609,7 @@ int32_t playlist_app(void* p) {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    app->worker = playlist_worker_alloc(meta);
-
-    // count playlist items
-    {
-        Storage* storage = furi_record_open(RECORD_STORAGE);
-        app->meta->total_count =
-            playlist_count_playlist_items(storage, string_get_cstr(app->file_path));
-        furi_record_close(RECORD_STORAGE);
-    }
-
-    // start thread
-    playlist_worker_start(app->worker, string_get_cstr(app->file_path));
-
+    playlist_start_worker(app, meta);
     app->state = STATE_OVERVIEW;
 
     bool exit_loop = false;
@@ -624,6 +622,8 @@ int32_t playlist_app(void* p) {
         case InputKeyOk:
             // toggle pause state
             if(!app->worker->is_running) {
+                app->worker->ctl_pause = false;
+                app->worker->ctl_request_exit = false;
                 playlist_worker_start(app->worker, string_get_cstr(app->file_path));
             } else {
                 app->worker->ctl_pause = !app->worker->ctl_pause;
