@@ -12,13 +12,11 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
     // Setup view
     Popup* popup = subghz->popup;
     popup_set_icon(popup, 67, 12, &I_DolphinFirstStart7_61x51);
-    popup_set_text(
-        popup,
-        "This frequency can\nonly be used for RX\nin your region",
-        38,
-        40,
-        AlignCenter,
-        AlignBottom);
+    const char* text = "This frequency can\nonly be used for RX\nin your region";
+    if(!furi_hal_region_is_provisioned()) {
+        text = "Update Flipper to unlock frequencies allowed in your region";
+    }
+    popup_set_text(popup, text, 38, 40, AlignCenter, AlignBottom);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, subghz);
     popup_set_callback(popup, subghz_scene_show_only_rx_popup_callback);
