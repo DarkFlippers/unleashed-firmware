@@ -29,7 +29,7 @@ bool ibutton_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         if(event.event == iButtonCustomEventRpcLoad) {
             const char* arg = rpc_system_app_get_data(ibutton->rpc_ctx);
             bool result = false;
-            if(arg) {
+            if(arg && (string_empty_p(ibutton->file_path))) {
                 string_set_str(ibutton->file_path, arg);
                 if(ibutton_load_key_data(ibutton, ibutton->file_path, false)) {
                     ibutton_worker_emulate_start(ibutton->key_worker, ibutton->key);
@@ -51,17 +51,17 @@ bool ibutton_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
                     string_clear(key_name);
                     result = true;
+                } else {
+                    string_reset(ibutton->file_path);
                 }
             }
             rpc_system_app_confirm(ibutton->rpc_ctx, RpcAppEventLoadFile, result);
         } else if(event.event == iButtonCustomEventRpcExit) {
             rpc_system_app_confirm(ibutton->rpc_ctx, RpcAppEventAppExit, true);
-            ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
+            scene_manager_stop(ibutton->scene_manager);
             view_dispatcher_stop(ibutton->view_dispatcher);
         } else if(event.event == iButtonCustomEventRpcSessionClose) {
-            rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
-            ibutton->rpc_ctx = NULL;
-            ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
+            scene_manager_stop(ibutton->scene_manager);
             view_dispatcher_stop(ibutton->view_dispatcher);
         }
     }
