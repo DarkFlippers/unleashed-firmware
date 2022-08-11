@@ -59,7 +59,6 @@ App(
         "clock",
         "spectrum_analyzer",
         "unirfremix",
-        "playlist"
     ],
 )
 
@@ -79,5 +78,6 @@ App(
         "wifi_scanner",
         "wav_player",
         "dec_hex_converter",
+        "sub_playlist",
     ],
 )
