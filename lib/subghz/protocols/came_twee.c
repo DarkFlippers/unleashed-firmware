@@ -455,7 +455,7 @@ void subghz_protocol_decoder_came_twee_get_string(void* context, string_t output
 
     string_cat_printf(
         output,
-        "%s %dbit\r\n"
+        "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"
         "Btn:%lX\r\n"
         "DIP:" DIP_PATTERN "\r\n",
