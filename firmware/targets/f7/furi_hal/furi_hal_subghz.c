@@ -1,6 +1,7 @@
 #include "furi_hal_subghz.h"
 #include "furi_hal_subghz_configs.h"
 
+#include <furi_hal_region.h>
 #include <furi_hal_version.h>
 #include <furi_hal_rtc.h>
 #include <furi_hal_gpio.h>
@@ -308,52 +309,8 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
     return value;
 }
 
-bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
-    //checking regional settings
-    bool is_allowed = false;
-    switch(furi_hal_version_get_hw_region()) {
-    case FuriHalVersionRegionEuRu:
-        //433,05..434,79; 868,15..868,55
-        if(!(value >= 433050000 && value <= 434790000) &&
-           !(value >= 868150000 && value <= 868550000)) {
-        } else {
-            is_allowed = true;
-        }
-        break;
-    case FuriHalVersionRegionUsCaAu:
-        //304,10..321,95; 433,05..434,79; 915,00..928,00
-        if(!(value >= 304100000 && value <= 321950000) &&
-           !(value >= 433050000 && value <= 434790000) &&
-           !(value >= 915000000 && value <= 928000000)) {
-        } else {
-            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                if((value >= 304100000 && value <= 321950000) &&
-                   ((furi_hal_subghz.preset == FuriHalSubGhzPresetOok270Async) ||
-                    (furi_hal_subghz.preset == FuriHalSubGhzPresetOok650Async))) {
-                    furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable_au);
-                }
-            }
-            is_allowed = true;
-        }
-        break;
-    case FuriHalVersionRegionJp:
-        //312,00..315,25; 920,50..923,50
-        if(!(value >= 312000000 && value <= 315250000) &&
-           !(value >= 920500000 && value <= 923500000)) {
-        } else {
-            is_allowed = true;
-        }
-        break;
-
-    default:
-        is_allowed = true;
-        break;
-    }
-    return is_allowed;
-}
-
 uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
-    if(furi_hal_subghz_is_tx_allowed(value)) {
+    if(furi_hal_region_is_frequency_allowed(value)) {
         furi_hal_subghz.regulation = SubGhzRegulationTxRx;
     } else {
         furi_hal_subghz.regulation = SubGhzRegulationOnlyRx;
