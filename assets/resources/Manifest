@@ -1,5 +1,5 @@
 V:0
-T:1659888302
+T:1660218073
 D:badusb
 D:dolphin
 D:infrared
@@ -8,7 +8,7 @@ D:nfc
 D:subghz
 D:u2f
 F:0e41ba26498b7511d7c9e6e6b5e3b149:1592:badusb/demo_macos.txt
-F:e538ad2ce5a06ec45e1b5b24824901b1:1552:badusb/demo_windows.txt
+F:46a332993ca94b9aa692030ebaa19c70:1552:badusb/demo_windows.txt
 D:dolphin/L1_Boxing_128x64
 D:dolphin/L1_Cry_128x64
 D:dolphin/L1_Furippa1_128x64

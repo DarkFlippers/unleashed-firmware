@@ -13,7 +13,7 @@ STRING Hello World!
 ENTER
 DEFAULT_DELAY 50
 
-REM Copy-Paste previuos string
+REM Copy-Paste previous string
 UP
 HOME
 SHIFT DOWN
