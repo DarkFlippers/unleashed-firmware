@@ -18,12 +18,15 @@
 #include <lib/subghz/protocols/raw.h>
 
 #include "playlist_file.h"
+#include "canvas_helper.h"
 
 #define PLAYLIST_FOLDER "/ext/playlist"
 #define PLAYLIST_EXT ".txt"
 #define TAG "Playlist"
 
-#define STATE_OVERVIEW 2
+#define STATE_NONE 0
+#define STATE_OVERVIEW 1
+#define STATE_SENDING 2
 
 #define WIDTH 128
 #define HEIGHT 64
@@ -40,6 +43,8 @@ typedef struct {
     string_t prev_1_path; // previous file
     string_t prev_2_path; // previous previous file
     string_t prev_3_path; // you get the idea
+
+    int state; // current state
 } DisplayMeta;
 
 typedef struct {
@@ -67,8 +72,6 @@ typedef struct {
     PlaylistWorker* worker;
 
     string_t file_path; // Path to the playlist file
-
-    int state; // Current state for rendering
 } Playlist;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +234,9 @@ static int32_t playlist_worker_thread(void* ctx) {
             break;
         }
 
+        // update state to sending
+        worker->meta->state = STATE_SENDING;
+
         worker->meta->current_single_repetition = 0;
         ++worker->meta->current_count;
 
@@ -295,6 +301,9 @@ static int32_t playlist_worker_thread(void* ctx) {
     FURI_LOG_I(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
     worker->is_running = false;
 
+    // update state to overview
+    worker->meta->state = STATE_OVERVIEW;
+
     return 0;
 }
 
@@ -318,6 +327,7 @@ DisplayMeta* playlist_meta_alloc() {
     string_init(instance->prev_3_path);
     playlist_meta_reset(instance);
     instance->single_repetitions = 1;
+    instance->state = STATE_NONE;
     return instance;
 }
 
@@ -389,9 +399,65 @@ static void render_callback(Canvas* canvas, void* ctx) {
     furi_check(furi_mutex_acquire(app->mutex, FuriWaitForever) == FuriStatusOk);
 
     canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontSecondary);
 
-    switch(app->state) {
+    switch(app->meta->state) {
+    case STATE_NONE:
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str_aligned(
+            canvas, WIDTH / 2, HEIGHT / 2, AlignCenter, AlignCenter, "No playlist loaded");
+        break;
+
     case STATE_OVERVIEW:
+        // draw file name
+        {
+            string_t playlist_name;
+            string_init(playlist_name);
+            path_extract_filename(app->file_path, playlist_name, true);
+
+            canvas_set_font(canvas, FontPrimary);
+            draw_centered_boxed_str(canvas, 1, 1, 15, 6, string_get_cstr(playlist_name));
+
+            string_clear(playlist_name);
+        }
+
+        canvas_set_font(canvas, FontSecondary);
+
+        // draw loaded count
+        {
+            string_t str;
+            string_init_printf(str, "%d Items in playlist", app->meta->total_count);
+            canvas_draw_str_aligned(canvas, 1, 19, AlignLeft, AlignTop, string_get_cstr(str));
+            string_printf(str, "Repetitions: (single) %d", app->meta->single_repetitions);
+            canvas_draw_str_aligned(canvas, 1, 29, AlignLeft, AlignTop, string_get_cstr(str));
+            string_clear(str);
+        }
+
+        // draw buttons
+        draw_corner_aligned(canvas, 40, 15, AlignCenter, AlignBottom);
+
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_str_aligned(canvas, WIDTH / 2 - 7, HEIGHT - 11, AlignLeft, AlignTop, "Start");
+        canvas_draw_disc(canvas, WIDTH / 2 - 14, HEIGHT - 8, 3);
+
+        //
+        canvas_set_color(canvas, ColorBlack);
+        draw_corner_aligned(canvas, 20, 15, AlignLeft, AlignBottom);
+
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_str_aligned(canvas, 4, HEIGHT - 11, AlignLeft, AlignTop, "R-");
+
+        //
+        canvas_set_color(canvas, ColorBlack);
+        draw_corner_aligned(canvas, 20, 15, AlignRight, AlignBottom);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_str_aligned(canvas, WIDTH - 4, HEIGHT - 11, AlignRight, AlignTop, "R+");
+
+        canvas_set_color(canvas, ColorBlack);
+
+        break;
+    case STATE_SENDING:
         // draw progress bar
         {
             double progress = (double)app->meta->current_count / (double)app->meta->total_count;
@@ -527,8 +593,6 @@ static void input_callback(InputEvent* event, void* ctx) {
 
 Playlist* playlist_alloc(DisplayMeta* meta) {
     Playlist* app = malloc(sizeof(Playlist));
-    app->state = 0;
-
     string_init(app->file_path);
     string_set_str(app->file_path, PLAYLIST_FOLDER);
 
@@ -610,7 +674,7 @@ int32_t playlist_app(void* p) {
     ////////////////////////////////////////////////////////////////////////////////
 
     playlist_start_worker(app, meta);
-    app->state = STATE_OVERVIEW;
+    app->meta->state = STATE_OVERVIEW;
 
     bool exit_loop = false;
     InputEvent input;
@@ -619,14 +683,28 @@ int32_t playlist_app(void* p) {
             furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
 
         switch(input.key) {
+        case InputKeyLeft:
+            if(input.type == InputTypeShort && app->meta->single_repetitions > 1) {
+                --app->meta->single_repetitions;
+            }
+            break;
+
+        case InputKeyRight:
+            if(input.type == InputTypeShort) {
+                ++app->meta->single_repetitions;
+            }
+            break;
+
         case InputKeyOk:
-            // toggle pause state
-            if(!app->worker->is_running) {
-                app->worker->ctl_pause = false;
-                app->worker->ctl_request_exit = false;
-                playlist_worker_start(app->worker, string_get_cstr(app->file_path));
-            } else {
-                app->worker->ctl_pause = !app->worker->ctl_pause;
+            if(input.type == InputTypeShort) {
+                // toggle pause state
+                if(!app->worker->is_running) {
+                    app->worker->ctl_pause = false;
+                    app->worker->ctl_request_exit = false;
+                    playlist_worker_start(app->worker, string_get_cstr(app->file_path));
+                } else {
+                    app->worker->ctl_pause = !app->worker->ctl_pause;
+                }
             }
             break;
         case InputKeyBack:

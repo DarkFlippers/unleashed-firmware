@@ -1,5 +1,0 @@
-SUB: /ext/subghz/Garages/deBruijn/Binary/deBruijn300AllBit.sub
-SUB: /ext/subghz/Garages/deBruijn/Binary/deBruijn310AllBit.sub
-SUB: /ext/subghz/Garages/deBruijn/Binary/deBruijn315AllBit.sub
-SUB: /ext/subghz/Garages/deBruijn/Binary/deBruijn318AllBit.sub
-SUB: /ext/subghz/Garages/deBruijn/Binary/deBruijn390AllBit.sub
