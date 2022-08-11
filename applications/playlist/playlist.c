@@ -45,6 +45,8 @@ typedef struct {
     string_t prev_3_path; // you get the idea
 
     int state; // current state
+
+    ViewPort* view_port;
 } DisplayMeta;
 
 typedef struct {
@@ -75,6 +77,11 @@ typedef struct {
 } Playlist;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void meta_set_state(DisplayMeta* meta, int state) {
+    meta->state = state;
+    view_port_update(meta->view_port);
+}
 
 static FuriHalSubGhzPreset str_to_preset(string_t preset) {
     if(string_cmp_str(preset, "FuriHalSubGhzPresetOok270Async") == 0) {
@@ -235,7 +242,7 @@ static int32_t playlist_worker_thread(void* ctx) {
         }
 
         // update state to sending
-        worker->meta->state = STATE_SENDING;
+        meta_set_state(worker->meta, STATE_SENDING);
 
         worker->meta->current_single_repetition = 0;
         ++worker->meta->current_count;
@@ -251,6 +258,7 @@ static int32_t playlist_worker_thread(void* ctx) {
         string_set_str(worker->meta->prev_1_path, string_get_cstr(worker->meta->prev_0_path));
         string_reset(worker->meta->prev_0_path);
         string_set_str(worker->meta->prev_0_path, str);
+        view_port_update(worker->meta->view_port);
 
         for(int i = 0; i < MAX(1, worker->meta->single_repetitions); i++) {
             if(!playlist_worker_wait_pause(worker)) {
@@ -258,6 +266,7 @@ static int32_t playlist_worker_thread(void* ctx) {
             }
 
             ++worker->meta->current_single_repetition;
+            view_port_update(worker->meta->view_port);
 
             FURI_LOG_I(
                 TAG,
@@ -302,7 +311,7 @@ static int32_t playlist_worker_thread(void* ctx) {
     worker->is_running = false;
 
     // update state to overview
-    worker->meta->state = STATE_OVERVIEW;
+    meta_set_state(worker->meta, STATE_OVERVIEW);
 
     return 0;
 }
@@ -657,6 +666,7 @@ int32_t playlist_app(void* p) {
     // create app
     DisplayMeta* meta = playlist_meta_alloc();
     Playlist* app = playlist_alloc(meta);
+    meta->view_port = app->view_port;
 
     // select playlist file
     {
@@ -674,7 +684,7 @@ int32_t playlist_app(void* p) {
     ////////////////////////////////////////////////////////////////////////////////
 
     playlist_start_worker(app, meta);
-    app->meta->state = STATE_OVERVIEW;
+    meta_set_state(app->meta, STATE_OVERVIEW);
 
     bool exit_loop = false;
     InputEvent input;
