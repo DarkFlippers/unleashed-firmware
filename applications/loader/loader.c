@@ -466,9 +466,9 @@ int32_t loader_srv(void* p) {
 
     furi_record_create(RECORD_LOADER, loader_instance);
 
-#ifdef LOADER_AUTOSTART
-    loader_start(loader_instance, LOADER_AUTOSTART, NULL);
-#endif
+    if(FLIPPER_AUTORUN_APP_NAME && strlen(FLIPPER_AUTORUN_APP_NAME)) {
+        loader_start(loader_instance, FLIPPER_AUTORUN_APP_NAME, NULL);
+    }
 
     while(1) {
         uint32_t flags =
