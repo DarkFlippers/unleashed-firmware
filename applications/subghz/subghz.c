@@ -32,6 +32,8 @@ static void subghz_rpc_command_callback(RpcAppSystemEvent event, void* context) 
     if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventSceneRpcSessionClose);
+        rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
+        subghz->rpc_ctx = NULL;
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
     } else if(event == RpcAppEventLoadFile) {

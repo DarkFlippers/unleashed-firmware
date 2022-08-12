@@ -21,6 +21,8 @@ static void nfc_rpc_command_callback(RpcAppSystemEvent event, void* context) {
 
     if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventRpcSessionClose);
+        rpc_system_app_set_callback(nfc->rpc_ctx, NULL, NULL);
+        nfc->rpc_ctx = NULL;
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);
     } else if(event == RpcAppEventLoadFile) {
