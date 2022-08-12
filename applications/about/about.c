@@ -5,6 +5,7 @@
 #include <gui/modules/empty_screen.h>
 #include <m-string.h>
 #include <furi_hal_version.h>
+#include <furi_hal_region.h>
 #include <furi_hal_bt.h>
 
 typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMessage* message);
@@ -83,12 +84,13 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
 
     string_cat_printf(
         buffer,
-        "%d.F%dB%dC%d %s %s\n",
+        "%d.F%dB%dC%d %s:%s %s\n",
         furi_hal_version_get_hw_version(),
         furi_hal_version_get_hw_target(),
         furi_hal_version_get_hw_body(),
         furi_hal_version_get_hw_connect(),
         furi_hal_version_get_hw_region_name(),
+        furi_hal_region_get_name(),
         my_name ? my_name : "Unknown");
 
     string_cat_printf(buffer, "Serial Number:\n");
