@@ -200,8 +200,9 @@ class ApplicationsCGenerator:
         FlipperAppType.STARTUP: ("FlipperOnStartHook", "FLIPPER_ON_SYSTEM_START"),
     }
 
-    def __init__(self, buildset: AppBuildset):
+    def __init__(self, buildset: AppBuildset, autorun_app: str = ""):
         self.buildset = buildset
+        self.autorun = autorun_app
 
     def get_app_ep_forward(self, app: FlipperApplication):
         if app.apptype == FlipperAppType.STARTUP:
@@ -219,7 +220,11 @@ class ApplicationsCGenerator:
      .flags = {'|'.join(f"FlipperApplicationFlag{flag}" for flag in app.flags)} }}"""
 
     def generate(self):
-        contents = ['#include "applications.h"', "#include <assets_icons.h>"]
+        contents = [
+            '#include "applications.h"',
+            "#include <assets_icons.h>",
+            f'const char* FLIPPER_AUTORUN_APP_NAME = "{self.autorun}";',
+        ]
         for apptype in self.APP_TYPE_MAP:
             contents.extend(
                 map(self.get_app_ep_forward, self.buildset.get_apps_of_type(apptype))
