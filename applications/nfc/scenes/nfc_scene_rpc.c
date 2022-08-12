@@ -4,10 +4,10 @@ void nfc_scene_rpc_on_enter(void* context) {
     Nfc* nfc = context;
     Popup* popup = nfc->popup;
 
-    popup_set_header(popup, "NFC", 82, 28, AlignCenter, AlignBottom);
-    popup_set_text(popup, "RPC mode", 82, 32, AlignCenter, AlignTop);
+    popup_set_header(popup, "NFC", 89, 42, AlignCenter, AlignBottom);
+    popup_set_text(popup, "RPC mode", 89, 44, AlignCenter, AlignTop);
 
-    popup_set_icon(popup, 2, 14, &I_Warning_30x23); // TODO: icon
+    popup_set_icon(popup, 0, 12, &I_RFIDDolphinSend_97x61);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
 
@@ -31,13 +31,11 @@ bool nfc_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         consumed = true;
         if(event.event == NfcCustomEventViewExit) {
             rpc_system_app_confirm(nfc->rpc_ctx, RpcAppEventAppExit, true);
+            scene_manager_stop(nfc->scene_manager);
             view_dispatcher_stop(nfc->view_dispatcher);
-            nfc_blink_stop(nfc);
         } else if(event.event == NfcCustomEventRpcSessionClose) {
-            rpc_system_app_set_callback(nfc->rpc_ctx, NULL, NULL);
-            nfc->rpc_ctx = NULL;
+            scene_manager_stop(nfc->scene_manager);
             view_dispatcher_stop(nfc->view_dispatcher);
-            nfc_blink_stop(nfc);
         } else if(event.event == NfcCustomEventRpcLoad) {
             bool result = false;
             const char* arg = rpc_system_app_get_data(nfc->rpc_ctx);
@@ -66,7 +64,7 @@ bool nfc_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
                     nfc_blink_start(nfc);
                     nfc_text_store_set(nfc, "emulating\n%s", nfc->dev->dev_name);
-                    popup_set_text(popup, nfc->text_store, 82, 32, AlignCenter, AlignTop);
+                    popup_set_text(popup, nfc->text_store, 89, 44, AlignCenter, AlignTop);
                 }
             }
 

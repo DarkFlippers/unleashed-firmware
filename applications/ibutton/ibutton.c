@@ -87,6 +87,8 @@ static void ibutton_rpc_command_callback(RpcAppSystemEvent event, void* context)
     if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(
             ibutton->view_dispatcher, iButtonCustomEventRpcSessionClose);
+        rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
+        ibutton->rpc_ctx = NULL;
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
     } else if(event == RpcAppEventLoadFile) {
