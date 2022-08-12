@@ -10,6 +10,7 @@ LfRfidDebugApp::~LfRfidDebugApp() {
 }
 
 void LfRfidDebugApp::run() {
+    view_controller.attach_to_gui(ViewDispatcherTypeFullscreen);
     scene_controller.add_scene(SceneType::Start, new LfRfidDebugAppSceneStart());
     scene_controller.add_scene(SceneType::TuneScene, new LfRfidDebugAppSceneTune());
     scene_controller.process(100);

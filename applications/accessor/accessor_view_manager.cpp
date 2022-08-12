@@ -15,7 +15,7 @@ AccessorAppViewManager::AccessorAppViewManager() {
     popup = popup_alloc();
     add_view(ViewType::Popup, popup_get_view(popup));
 
-    gui = static_cast<Gui*>(furi_record_open("gui"));
+    gui = static_cast<Gui*>(furi_record_open(RECORD_GUI));
     view_dispatcher_attach_to_gui(view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
     // set previous view callback for all views
@@ -31,6 +31,7 @@ AccessorAppViewManager::~AccessorAppViewManager() {
         view_dispatcher, static_cast<uint32_t>(AccessorAppViewManager::ViewType::Popup));
 
     // free view modules
+    furi_record_close(RECORD_GUI);
     submenu_free(submenu);
     popup_free(popup);
 

@@ -17,3 +17,11 @@
  * @return Reverse data
  */
 uint64_t subghz_protocol_blocks_reverse_key(uint64_t key, uint8_t count_bit);
+
+/**
+ * Get parity the data bitwise.
+ * @param key In data
+ * @param count_bit number of data bits
+ * @return parity
+ */
+uint8_t subghz_protocol_blocks_get_parity(uint64_t key, uint8_t count_bit);

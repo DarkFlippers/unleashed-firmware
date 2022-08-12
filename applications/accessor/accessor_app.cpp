@@ -32,14 +32,14 @@ void AccessorApp::run(void) {
 }
 
 AccessorApp::AccessorApp() {
-    notification = static_cast<NotificationApp*>(furi_record_open("notification"));
+    notification = static_cast<NotificationApp*>(furi_record_open(RECORD_NOTIFICATION));
     onewire_host = onewire_host_alloc();
     furi_hal_power_enable_otg();
 }
 
 AccessorApp::~AccessorApp() {
     furi_hal_power_disable_otg();
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     onewire_host_free(onewire_host);
 }
 

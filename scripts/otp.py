@@ -24,6 +24,7 @@ OTP_REGIONS = {
     "eu_ru": 0x01,
     "us_ca_au": 0x02,
     "jp": 0x03,
+    "world": 0x04,
 }
 
 OTP_DISPLAYS = {
