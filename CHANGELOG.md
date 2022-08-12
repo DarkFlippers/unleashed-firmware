@@ -1,11 +1,6 @@
 ### New changes
-* Update Frequency analyzer by ClusterM - OFW PR 1557 & PR #43
-* OFW: Fix Null Pointer Dereference errors in IR & Fix IR green LED bug
-* OFW: RPC APPs fixes & RPC storage fixes (qFlipper & mobile apps file interaction)
-* OFW: SubGhz: fix bett decoder (false positives)
-* OFW: Skip empty lines in favorites.txt
-* OFW: SubGhz: add protocol Honeywell_WDB / Doorbell
-* OFW: Other changes
+* Fix HID Analyzer plugin
+* All same changes from previous release
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 
