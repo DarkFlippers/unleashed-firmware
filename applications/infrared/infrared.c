@@ -46,6 +46,8 @@ static void infrared_rpc_command_callback(RpcAppSystemEvent event, void* context
     if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(
             infrared->view_dispatcher, InfraredCustomEventTypeRpcSessionClose);
+        rpc_system_app_set_callback(infrared->rpc_ctx, NULL, NULL);
+        infrared->rpc_ctx = NULL;
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(
             infrared->view_dispatcher, InfraredCustomEventTypeRpcExit);
