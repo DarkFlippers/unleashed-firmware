@@ -320,7 +320,7 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
     bool is_extended = false;
 
     // TODO: !!! Move file check to another place
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_existing(fff_data_file, "/ext/subghz/assets/dangerous_settings")) {
@@ -329,7 +329,7 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
     }
 
     flipper_format_free(fff_data_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     if(!(value >= 299999755 && value <= 348000335) &&
        !(value >= 386999938 && value <= 464000000) &&
