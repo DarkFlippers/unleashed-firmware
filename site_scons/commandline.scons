@@ -174,6 +174,12 @@ vars.Add(
     default="update_default",
 )
 
+vars.Add(
+    "LOADER_AUTOSTART",
+    help="Application name to automatically run on Flipper boot",
+    default="",
+)
+
 
 vars.Add(
     "FIRMWARE_APPS",
