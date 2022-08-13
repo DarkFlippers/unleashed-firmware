@@ -369,7 +369,7 @@ SpectrumAnalyzer* spectrum_analyzer_alloc() {
     view_port_input_callback_set(instance->view_port, spectrum_analyzer_input_callback, instance);
 
     // Open GUI and register view_port
-    instance->gui = furi_record_open("gui");
+    instance->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(instance->gui, instance->view_port, GuiLayerFullscreen);
 
     return instance;
@@ -378,7 +378,7 @@ SpectrumAnalyzer* spectrum_analyzer_alloc() {
 void spectrum_analyzer_free(SpectrumAnalyzer* instance) {
     // view_port_enabled_set(view_port, false);
     gui_remove_view_port(instance->gui, instance->view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     view_port_free(instance->view_port);
 
     spectrum_analyzer_worker_free(instance->worker);
