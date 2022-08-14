@@ -16,6 +16,7 @@ HIDApp::~HIDApp() {
 void HIDApp::run(void* _args) {
     UNUSED(_args);
 
+    view_controller.attach_to_gui(ViewDispatcherTypeFullscreen);
     scene_controller.add_scene(SceneType::Read, new HIDAppSceneRead());
     scene_controller.add_scene(SceneType::ReadSuccess, new HIDAppSceneReadSuccess());
     scene_controller.process(100, SceneType::Read);

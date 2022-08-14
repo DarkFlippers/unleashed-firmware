@@ -44,8 +44,6 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             if(arg && (state == InfraredRpcStateIdle)) {
                 string_set_str(infrared->file_path, arg);
                 result = infrared_remote_load(infrared->remote, infrared->file_path);
-                infrared_worker_tx_set_get_signal_callback(
-                    infrared->worker, infrared_worker_tx_get_signal_steady_callback, infrared);
                 if(result) {
                     scene_manager_set_scene_state(
                         infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateLoaded);
