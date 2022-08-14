@@ -529,10 +529,10 @@ bool unirf_key_load(
             break;
         }
         if(!string_cmp_str(temp_str, "RAW")) {
-            FURI_LOG_I(TAG, "RAW protocol");
+            FURI_LOG_I(TAG, "-> RAW protocol");
             subghz_protocol_raw_gen_fff_data(fff_data, path);
         } else {
-            FURI_LOG_E(TAG, "Other protocol");
+            FURI_LOG_I(TAG, "-> Other protocol");
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
         }
@@ -572,10 +572,12 @@ bool unirf_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_file_n
         flipper_format_delete_key(fff_file, "Manufacture");
 
         if(!storage_simply_mkdir(storage, string_get_cstr(file_dir))) {
+            FURI_LOG_E(TAG, "(save) Cannot mkdir");
             break;
         }
 
         if(!storage_simply_remove(storage, dev_file_name)) {
+            FURI_LOG_E(TAG, "(save) Cannot remove");
             break;
         }
         //ToDo check Write
@@ -583,6 +585,7 @@ bool unirf_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_file_n
         stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
 
         saved = true;
+        FURI_LOG_I(TAG, "(save) OK Save");
     } while(0);
     string_clear(file_dir);
     furi_record_close(RECORD_STORAGE);
@@ -628,6 +631,7 @@ static bool unirfremix_send_sub(
     string_t temp_str;
     string_init(temp_str);
 
+    bool res = false;
     do {
         if(!flipper_format_rewind(fff_file)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -678,6 +682,8 @@ static bool unirfremix_send_sub(
                 subghz_transmitter_stop(transmitter);
                 subghz_transmitter_free(transmitter);
 
+                flipper_format_file_close(fff_file);
+
                 FURI_LOG_I(TAG, "Checking if protocol is dynamic");
                 const SubGhzProtocol* registry_protocol =
                     subghz_protocol_registry_get_by_name(string_get_cstr(temp_str));
@@ -694,13 +700,15 @@ static bool unirfremix_send_sub(
             furi_hal_subghz_sleep();
             furi_hal_power_suppress_charge_exit();
         }
+
+        res = true;
     } while(0);
 
     string_clear(temp_str);
     unirfremix_end_send(app);
 
     subghz_environment_free(environment);
-    return true;
+    return res;
 }
 
 static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, string_t signal) {
