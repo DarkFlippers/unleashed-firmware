@@ -106,6 +106,10 @@ static void furi_hal_version_set_name(const char* name) {
 
     // BLE Mac address
     uint32_t udn = LL_FLASH_GetUDN();
+    if(version_get_custom_name(NULL) != NULL) {
+        udn = (uint32_t)*version_get_custom_name(NULL);
+    }
+
     uint32_t company_id = LL_FLASH_GetSTCompanyID();
     uint32_t device_id = LL_FLASH_GetDeviceID();
     furi_hal_version.ble_mac[0] = (uint8_t)(udn & 0x000000FF);
@@ -129,7 +133,11 @@ static void furi_hal_version_load_otp_v0() {
     furi_hal_version.board_body = otp->board_body;
     furi_hal_version.board_connect = otp->board_connect;
 
-    furi_hal_version_set_name(otp->name);
+    if(version_get_custom_name(NULL) != NULL) {
+        furi_hal_version_set_name(version_get_custom_name(NULL));
+    } else {
+        furi_hal_version_set_name(otp->name);
+    }
 }
 
 static void furi_hal_version_load_otp_v1() {
@@ -143,7 +151,11 @@ static void furi_hal_version_load_otp_v1() {
     furi_hal_version.board_color = otp->board_color;
     furi_hal_version.board_region = otp->board_region;
 
-    furi_hal_version_set_name(otp->name);
+    if(version_get_custom_name(NULL) != NULL) {
+        furi_hal_version_set_name(version_get_custom_name(NULL));
+    } else {
+        furi_hal_version_set_name(otp->name);
+    }
 }
 
 static void furi_hal_version_load_otp_v2() {
@@ -163,7 +175,11 @@ static void furi_hal_version_load_otp_v2() {
     if(otp->board_color != 0xFF) {
         furi_hal_version.board_color = otp->board_color;
         furi_hal_version.board_region = otp->board_region;
-        furi_hal_version_set_name(otp->name);
+        if(version_get_custom_name(NULL) != NULL) {
+            furi_hal_version_set_name(version_get_custom_name(NULL));
+        } else {
+            furi_hal_version_set_name(otp->name);
+        }
     } else {
         furi_hal_version.board_color = 0;
         furi_hal_version.board_region = 0;
@@ -301,5 +317,8 @@ size_t furi_hal_version_uid_size() {
 }
 
 const uint8_t* furi_hal_version_uid() {
+    if(version_get_custom_name(NULL) != NULL) {
+        return (const uint8_t*)((uint32_t)*version_get_custom_name(NULL));
+    }
     return (const uint8_t*)UID64_BASE;
 }

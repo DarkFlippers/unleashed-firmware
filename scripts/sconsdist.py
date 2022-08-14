@@ -2,7 +2,7 @@
 
 from flipper.app import App
 from os.path import join, exists
-from os import makedirs
+from os import makedirs, environ
 from update import Main as UpdateMain
 import shutil
 
@@ -134,6 +134,15 @@ class Main(App):
             self.logger.info(
                 f"Use this directory to self-update your Flipper:\n\t{bundle_dir}"
             )
+            log_custom_fz_name = (
+                environ.get("CUSTOM_FLIPPER_NAME", None)
+                or ""
+            )
+            if (log_custom_fz_name != ""):
+                self.logger.info(
+                    f"Flipper Custom Name is set:\n\tName: {log_custom_fz_name} : length - {len(log_custom_fz_name)} chars"
+                )
+
             return UpdateMain(no_exit=True)(bundle_args)
 
         return 0
