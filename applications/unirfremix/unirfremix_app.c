@@ -13,6 +13,8 @@
 #include <applications/subghz/subghz_i.h>
 
 #include <lib/subghz/protocols/raw.h>
+#include <lib/subghz/protocols/registry.h>
+#include <lib/subghz/types.h>
 
 #define UNIRFMAP_FOLDER "/ext/unirf"
 #define UNIRFMAP_EXTENSION ".txt"
@@ -26,6 +28,8 @@ typedef struct {
 
     ViewPort* view_port;
     Gui* gui;
+
+    SubGhzSetting* setting;
 
     string_t up_file;
     string_t down_file;
@@ -68,6 +72,20 @@ typedef struct {
 
 } UniRFRemix;
 
+typedef struct {
+    uint32_t frequency;
+    string_t name;
+
+    uint8_t* data;
+    size_t data_size;
+} UniRFPreset;
+
+UniRFPreset* unirf_preset_alloc(void) {
+    UniRFPreset* preset = malloc(sizeof(UniRFPreset));
+    string_init(preset->name);
+    return preset;
+}
+
 static char* char_to_str(char* str, int i) {
     char* converted = malloc(sizeof(char) * i + 1);
     memcpy(converted, str, i);
@@ -104,37 +122,6 @@ static const char* int_to_char(int number) {
     }
 }
 
-/*Decided not to use this
-//check name for special characters and length
-static char* check_special(char* filename)
-{
-	char stripped[11];
-	
-	//grab length of string
-	int len = strlen(filename);
-
-	int c = 0;
-	int i;
-
-	//remove special characters
-	for (i = 0; i < len; i++)
-	{
-		if (isalnum((unsigned)filename[i]))
-		{
-			if(c < 11)
-			{
-				stripped[c] = filename[i];
-				c++;
-			}
-		}
-	}
-	
-	stripped[c] = '\0';
-	
-	return char_to_str(stripped, 10);
-}
-*/
-
 //get filename without path
 static char* extract_filename(const char* name, int len) {
     string_t tmp;
@@ -156,7 +143,7 @@ static char* extract_filename(const char* name, int len) {
 */
 
 void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
     app->file_result = 3;
@@ -352,7 +339,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
     }
 
     flipper_format_free(fff_data_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     //File Existence Check
     //Check each file definition if not already set to "N/A"
@@ -374,7 +361,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         //if button is still enabled, check that file exists
         if(app->up_enabled == 1) {
             string_set(file_name, app->up_file);
-            storage = furi_record_open("storage");
+            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -388,12 +375,12 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
 
             //close the file
             flipper_format_free(fff_data_file);
-            furi_record_close("storage");
+            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->down_enabled == 1) {
             string_set(file_name, app->down_file);
-            storage = furi_record_open("storage");
+            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -405,12 +392,12 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             }
 
             flipper_format_free(fff_data_file);
-            furi_record_close("storage");
+            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->left_enabled == 1) {
             string_set(file_name, app->left_file);
-            storage = furi_record_open("storage");
+            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -422,12 +409,12 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             }
 
             flipper_format_free(fff_data_file);
-            furi_record_close("storage");
+            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->right_enabled == 1) {
             string_set(file_name, app->right_file);
-            storage = furi_record_open("storage");
+            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -439,12 +426,12 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             }
 
             flipper_format_free(fff_data_file);
-            furi_record_close("storage");
+            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->ok_enabled == 1) {
             string_set(file_name, app->ok_file);
-            storage = furi_record_open("storage");
+            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -456,7 +443,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             }
 
             flipper_format_free(fff_data_file);
-            furi_record_close("storage");
+            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->file_blank == 5) {
@@ -471,34 +458,141 @@ static void unirfremix_end_send(UniRFRemix* app) {
     app->processing = 0;
 }
 
-static FuriHalSubGhzPreset str_to_preset(string_t preset) {
-    if(string_cmp_str(preset, "FuriHalSubGhzPresetOok270Async") == 0) {
-        return FuriHalSubGhzPresetOok270Async;
+bool unirf_set_preset(UniRFPreset* p, const char* preset) {
+    if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
+        string_set(p->name, "AM270");
+    } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
+        string_set(p->name, "AM650");
+    } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev238Async")) {
+        string_set(p->name, "FM238");
+    } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
+        string_set(p->name, "FM476");
+    } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
+        string_set(p->name, "CUSTOM");
+    } else {
+        FURI_LOG_E(TAG, "Unsupported preset");
+        return false;
     }
-    if(string_cmp_str(preset, "FuriHalSubGhzPresetOok650Async") == 0) {
-        return FuriHalSubGhzPresetOok650Async;
+    return true;
+}
+
+bool unirf_key_load(
+    UniRFPreset* preset,
+    FlipperFormat* fff_file,
+    FlipperFormat* fff_data,
+    SubGhzSetting* setting,
+    SubGhzReceiver* receiver,
+    const char* path) {
+    //
+    if(!flipper_format_rewind(fff_file)) {
+        FURI_LOG_E(TAG, "Rewind error");
+        return NULL;
     }
-    if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev238Async") == 0) {
-        return FuriHalSubGhzPreset2FSKDev238Async;
-    }
-    if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev476Async") == 0) {
-        return FuriHalSubGhzPreset2FSKDev476Async;
-    }
-    if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
-        return FuriHalSubGhzPresetMSK99_97KbAsync;
-    }
-    if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
-        return FuriHalSubGhzPresetMSK99_97KbAsync;
-    }
-    return FuriHalSubGhzPresetCustom;
+
+    string_t temp_str;
+    string_init(temp_str);
+
+    bool res = false;
+
+    do {
+        // load frequency from file
+        uint32_t frequency = 0;
+        if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
+            FURI_LOG_W(TAG, "Cannot read frequency. Defaulting to 433.92 MHz");
+            frequency = 433920000;
+        }
+        preset->frequency = frequency;
+
+        // load preset from file
+        if(!flipper_format_read_string(fff_file, "Preset", temp_str)) {
+            FURI_LOG_W(TAG, "Could not read Preset. Defaulting to Ook650Async");
+            string_set(temp_str, "FuriHalSubGhzPresetOok650Async");
+        }
+        if(!unirf_set_preset(preset, string_get_cstr(temp_str))) {
+            FURI_LOG_E(TAG, "Could not set preset");
+            break;
+        }
+        if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+            // TODO: check if preset is custom
+        }
+        size_t preset_index =
+            subghz_setting_get_inx_preset_by_name(setting, string_get_cstr(preset->name));
+        FURI_LOG_I(TAG, "Preset index: %d", preset_index);
+        preset->data = subghz_setting_get_preset_data(setting, preset_index);
+        FURI_LOG_I(TAG, "Preset data: %p", preset->data);
+        preset->data_size = subghz_setting_get_preset_data_size(setting, preset_index);
+        FURI_LOG_I(TAG, "Preset data size: %d", preset->data_size);
+
+        // load protocol from file
+        if(!flipper_format_read_string(fff_file, "Protocol", temp_str)) {
+            FURI_LOG_W(TAG, "Could not read Protocol.");
+            break;
+        }
+        if(!string_cmp_str(temp_str, "RAW")) {
+            FURI_LOG_I(TAG, "RAW protocol");
+            subghz_protocol_raw_gen_fff_data(fff_data, path);
+        } else {
+            FURI_LOG_E(TAG, "Other protocol");
+            stream_copy_full(
+                flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
+        }
+        SubGhzProtocolDecoderBase* decoder_res =
+            subghz_receiver_search_decoder_base_by_name(receiver, string_get_cstr(temp_str));
+        if(decoder_res) {
+            if(!subghz_protocol_decoder_base_deserialize(decoder_res, fff_data)) {
+                break;
+            }
+        } else {
+            FURI_LOG_E(TAG, "Protocol %s not found", string_get_cstr(temp_str));
+        }
+
+        res = true;
+    } while(0);
+
+    string_clear(temp_str);
+
+    return res;
+}
+
+// method modified from subghz_i.c
+bool unirf_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_file_name) {
+    furi_assert(fff_file);
+    furi_assert(dev_file_name);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    Stream* flipper_format_stream = flipper_format_get_raw_stream(fff_file);
+
+    bool saved = false;
+    string_t file_dir;
+    string_init(file_dir);
+
+    path_extract_dirname(dev_file_name, file_dir);
+    do {
+        flipper_format_delete_key(fff_file, "Repeat");
+        flipper_format_delete_key(fff_file, "Manufacture");
+
+        if(!storage_simply_mkdir(storage, string_get_cstr(file_dir))) {
+            break;
+        }
+
+        if(!storage_simply_remove(storage, dev_file_name)) {
+            break;
+        }
+        //ToDo check Write
+        stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
+        stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
+
+        saved = true;
+    } while(0);
+    string_clear(file_dir);
+    furi_record_close(RECORD_STORAGE);
+    return saved;
 }
 
 static bool unirfremix_send_sub(
     UniRFRemix* app,
     FlipperFormat* fff_file,
     FlipperFormat* fff_data,
-    string_t protocol,
-    string_t preset,
     const char* path) {
     //
     if(!flipper_format_file_open_existing(fff_file, path)) {
@@ -506,68 +600,106 @@ static bool unirfremix_send_sub(
         return false;
     }
 
-    uint32_t frequency = 0;
-    if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
-        FURI_LOG_W(TAG, "Cannot read frequency. Defaulting to 433.92 MHz");
-        frequency = 433920000;
-    }
-    if(!furi_hal_subghz_is_tx_allowed(frequency)) {
-        printf(
-            "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
-            "the actual operation of the unirf app is not possible\r\n ",
-            frequency);
-        app->tx_not_allowed = true;
-        unirfremix_end_send(app);
-        return false;
-    } else {
-        app->tx_not_allowed = false;
-    }
-
-    if(!flipper_format_read_string(fff_file, "Preset", preset)) {
-        FURI_LOG_W(TAG, "Could not read Preset. Defaulting to Ook650Async");
-        string_set(preset, "FuriHalSubGhzPresetOok650Async");
-    }
-
-    if(!flipper_format_read_string(fff_file, "Protocol", protocol)) {
-        FURI_LOG_W(TAG, "Could not read Protocol. Defaulting to RAW");
-        string_set(protocol, "RAW");
-    }
-
-    if(!string_cmp_str(protocol, "RAW")) {
-        subghz_protocol_raw_gen_fff_data(fff_data, path);
-    } else {
-        stream_copy_full(
-            flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
-    }
-    flipper_format_free(fff_file);
-
     SubGhzEnvironment* environment = subghz_environment_alloc();
-    SubGhzTransmitter* transmitter =
-        subghz_transmitter_alloc_init(environment, string_get_cstr(protocol));
+    SubGhzReceiver* subghz_receiver = subghz_receiver_alloc_init(environment);
 
-    subghz_transmitter_deserialize(transmitter, fff_data);
-
-    furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(str_to_preset(preset));
-
-    frequency = furi_hal_subghz_set_frequency_and_path(frequency);
-
-    furi_hal_power_suppress_charge_enter();
-    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
-
-    FURI_LOG_I(TAG, "Sending...");
-    while(!furi_hal_subghz_is_async_tx_complete()) {
-        fflush(stdout);
-        furi_delay_ms(333);
+    UniRFPreset* preset = unirf_preset_alloc();
+    if(!unirf_key_load(preset, fff_file, fff_data, app->setting, subghz_receiver, path)) {
+        FURI_LOG_E(TAG, "Could not load key");
+        return false;
     }
-    FURI_LOG_I(TAG, "  Done!");
+    FURI_LOG_I(TAG, "Loaded preset.");
 
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_sleep();
+    // TODO: reimplement this later:
+    /*
+        if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+            printf(
+                "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
+                "the actual operation of the unirf app is not possible\r\n ",
+                frequency);
+            app->tx_not_allowed = true;
+            unirfremix_end_send(app);
+            return false;
+        } else {
+            app->tx_not_allowed = false;
+        }
+    */
 
-    furi_hal_power_suppress_charge_exit();
+    string_t temp_str;
+    string_init(temp_str);
 
-    subghz_transmitter_free(transmitter);
+    do {
+        if(!flipper_format_rewind(fff_file)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        if(!flipper_format_read_string(fff_file, "Protocol", temp_str)) {
+            FURI_LOG_E(TAG, "Could not read Protocol");
+            break;
+        }
+
+        uint32_t repeat = 200;
+        if(!flipper_format_insert_or_update_uint32(fff_file, "Repeat", &repeat, 1)) {
+            FURI_LOG_E(TAG, "Unable to insert or update Repeat");
+            break;
+        }
+
+        SubGhzTransmitter* transmitter =
+            subghz_transmitter_alloc_init(environment, string_get_cstr(temp_str));
+        FURI_LOG_I(TAG, "Got transmitter for %s", string_get_cstr(temp_str));
+
+        if(transmitter) {
+            subghz_transmitter_deserialize(transmitter, fff_data);
+
+            furi_hal_subghz_reset();
+            furi_hal_subghz_idle();
+            furi_hal_subghz_load_custom_preset(preset->data);
+            furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+
+            furi_hal_subghz_set_frequency_and_path(preset->frequency);
+            furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+            furi_hal_gpio_write(&gpio_cc1101_g0, true);
+
+            furi_hal_power_suppress_charge_enter();
+
+            if(furi_hal_subghz_tx()) {
+                furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
+
+                FURI_LOG_I(TAG, "Sending...");
+                while(!furi_hal_subghz_is_async_tx_complete()) {
+                    // fflush(stdout);
+                    furi_delay_ms(33);
+                }
+                FURI_LOG_I(TAG, "  Done!");
+
+                furi_hal_subghz_stop_async_tx();
+
+                subghz_transmitter_stop(transmitter);
+                subghz_transmitter_free(transmitter);
+
+                FURI_LOG_I(TAG, "Checking if protocol is dynamic");
+                const SubGhzProtocol* registry_protocol =
+                    subghz_protocol_registry_get_by_name(string_get_cstr(temp_str));
+                if(registry_protocol && registry_protocol->type == SubGhzProtocolTypeDynamic) {
+                    FURI_LOG_I(TAG, "  Protocol is dynamic. Updating Repeat");
+                    unirf_save_protocol_to_file(fff_file, path);
+                }
+            } else {
+                FURI_LOG_E(TAG, "Sending not allowed");
+            }
+
+            FURI_LOG_I(TAG, "Cleaning up.");
+            furi_hal_subghz_idle();
+            furi_hal_subghz_sleep();
+            furi_hal_power_suppress_charge_exit();
+        }
+    } while(0);
+
+    string_clear(temp_str);
+    unirfremix_end_send(app);
+
+    subghz_environment_free(environment);
     return true;
 }
 
@@ -582,8 +714,7 @@ static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, string_t s
 
     for(int x = 0; x < app->repeat; ++x) {
         FlipperFormat* fff_file = flipper_format_file_alloc(storage);
-        bool res = unirfremix_send_sub(
-            app, fff_file, fff_data, protocol, preset, string_get_cstr(signal));
+        bool res = unirfremix_send_sub(app, fff_file, fff_data, string_get_cstr(signal));
 
         if(!res) { // errored
             flipper_format_free(fff_file);
@@ -709,7 +840,6 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
 static void input_callback(InputEvent* input_event, void* ctx) {
     UniRFRemix* app = ctx;
-
     furi_message_queue_put(app->input_queue, input_event, 0);
 }
 
@@ -727,6 +857,9 @@ UniRFRemix* unirfremix_alloc() {
     // Open GUI and register view_port
     app->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(app->gui, app->view_port, GuiLayerFullscreen);
+
+    app->setting = subghz_setting_alloc();
+    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
 
     return app;
 }
@@ -780,11 +913,11 @@ int32_t unirfremix_app(void* p) {
 
     app->file_result = 3;
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     if(!storage_simply_mkdir(storage, UNIRFMAP_FOLDER)) {
         FURI_LOG_E(TAG, "Could not create folder %s", UNIRFMAP_FOLDER);
     }
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     string_set_str(app->file_path, UNIRFMAP_FOLDER);
 
