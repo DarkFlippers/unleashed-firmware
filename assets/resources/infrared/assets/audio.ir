@@ -259,6 +259,20 @@ type: parsed
 protocol: NECext
 address: 83 22 00 00
 command: 08 F7 00 00
+#
+# COMHEAR
+# 
+name: MUTE
+type: parsed
+protocol: NECext
+address: 0A 1D 00 00
+command: 03 FC 00 00
+# 
+name: POWER
+type: parsed
+protocol: NECext
+address: 0A 1D 00 00
+command: 01 FE 00 00
 # 
 # KLIPSCH
 # 
