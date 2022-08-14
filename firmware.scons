@@ -139,7 +139,7 @@ fwenv.AppendUnique(
 # Depends on virtual value-only node, so it only gets rebuilt when set of apps changes
 apps_c = fwenv.ApplicationsC(
     "applications/applications.c",
-    Value(fwenv["APPS"]),
+    [Value(fwenv["APPS"]), Value(fwenv["LOADER_AUTOSTART"])],
 )
 # Adding dependency on manifest files so apps.c is rebuilt when any manifest is changed
 fwenv.Depends(apps_c, fwenv.GlobRecursive("*.fam", "#/applications"))
@@ -210,11 +210,19 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
 Depends(fwelf, lib_targets)
 # Output extra details after building firmware
 AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
-AddPostAction(fwelf, Action("@$SIZECOM"))
+AddPostAction(
+    fwelf,
+    Action('${PYTHON3} "${ROOT_DIR}/scripts/fwsize.py" elf ${TARGET}', "Firmware size"),
+)
 
 # Produce extra firmware files
 fwhex = fwenv["FW_HEX"] = fwenv.HEXBuilder("${FIRMWARE_BUILD_CFG}")
 fwbin = fwenv["FW_BIN"] = fwenv.BINBuilder("${FIRMWARE_BUILD_CFG}")
+AddPostAction(
+    fwbin,
+    Action('@${PYTHON3} "${ROOT_DIR}/scripts/fwsize.py" bin ${TARGET}'),
+)
+
 fwdfu = fwenv["FW_DFU"] = fwenv.DFUBuilder("${FIRMWARE_BUILD_CFG}")
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_dfu", fwdfu)
 

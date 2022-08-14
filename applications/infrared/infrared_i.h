@@ -43,6 +43,7 @@
 #define INFRARED_APP_EXTENSION ".ir"
 
 #define INFRARED_DEFAULT_REMOTE_NAME "Remote"
+#define INFRARED_LOG_TAG "InfraredApp"
 
 typedef enum {
     InfraredButtonIndexNone = -1,
@@ -63,6 +64,7 @@ typedef enum {
 typedef struct {
     bool is_learning_new_remote;
     bool is_debug_enabled;
+    bool is_transmitting;
     InfraredEditTarget edit_target : 8;
     InfraredEditMode edit_mode : 8;
     int32_t current_button_index;

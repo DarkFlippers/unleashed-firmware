@@ -295,6 +295,13 @@ bool infrared_rename_current_remote(Infrared* infrared, const char* name) {
 }
 
 void infrared_tx_start_signal(Infrared* infrared, InfraredSignal* signal) {
+    if(infrared->app_state.is_transmitting) {
+        FURI_LOG_D(INFRARED_LOG_TAG, "Transmitter is already active");
+        return;
+    } else {
+        infrared->app_state.is_transmitting = true;
+    }
+
     if(infrared_signal_is_raw(signal)) {
         InfraredRawSignal* raw = infrared_signal_get_raw_signal(signal);
         infrared_worker_set_raw_signal(infrared->worker, raw->timings, raw->timings_size);
@@ -304,8 +311,11 @@ void infrared_tx_start_signal(Infrared* infrared, InfraredSignal* signal) {
     }
 
     DOLPHIN_DEED(DolphinDeedIrSend);
-    infrared_worker_tx_start(infrared->worker);
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
+
+    infrared_worker_tx_set_get_signal_callback(
+        infrared->worker, infrared_worker_tx_get_signal_steady_callback, infrared);
+    infrared_worker_tx_start(infrared->worker);
 }
 
 void infrared_tx_start_button_index(Infrared* infrared, size_t button_index) {
@@ -324,7 +334,16 @@ void infrared_tx_start_received(Infrared* infrared) {
 }
 
 void infrared_tx_stop(Infrared* infrared) {
+    if(!infrared->app_state.is_transmitting) {
+        FURI_LOG_D(INFRARED_LOG_TAG, "Transmitter is already stopped");
+        return;
+    } else {
+        infrared->app_state.is_transmitting = false;
+    }
+
     infrared_worker_tx_stop(infrared->worker);
+    infrared_worker_tx_set_get_signal_callback(infrared->worker, NULL, NULL);
+
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStop);
 }
 

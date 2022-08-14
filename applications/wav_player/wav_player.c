@@ -96,7 +96,7 @@ static WavPlayerApp* app_alloc() {
     WavPlayerApp* app = malloc(sizeof(WavPlayerApp));
     app->samples_count_half = 1024 * 4;
     app->samples_count = app->samples_count_half * 2;
-    app->storage = furi_record_open("storage");
+    app->storage = furi_record_open(RECORD_STORAGE);
     app->stream = file_stream_alloc(app->storage);
     app->parser = wav_parser_alloc();
     app->sample_buffer = malloc(sizeof(uint16_t) * app->samples_count);
@@ -106,7 +106,7 @@ static WavPlayerApp* app_alloc() {
     app->volume = 10.0f;
     app->play = true;
 
-    app->gui = furi_record_open("gui");
+    app->gui = furi_record_open(RECORD_GUI);
     app->view_dispatcher = view_dispatcher_alloc();
     app->view = wav_player_view_alloc();
 
@@ -124,14 +124,14 @@ static void app_free(WavPlayerApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, 0);
     view_dispatcher_free(app->view_dispatcher);
     wav_player_view_free(app->view);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     furi_message_queue_free(app->queue);
     free(app->tmp_buffer);
     free(app->sample_buffer);
     wav_parser_free(app->parser);
     stream_free(app->stream);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     notification_message(app->notification, &sequence_display_backlight_enforce_auto);
     furi_record_close("notification");
@@ -296,11 +296,11 @@ int32_t wav_player_app(void* p) {
     UNUSED(p);
     WavPlayerApp* app = app_alloc();
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     if(!storage_simply_mkdir(storage, WAVPLAYER_FOLDER)) {
         FURI_LOG_E(TAG, "Could not create folder %s", WAVPLAYER_FOLDER);
     }
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     app_run(app);
     app_free(app);

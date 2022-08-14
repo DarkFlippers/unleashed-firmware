@@ -1,7 +1,9 @@
 ### New changes
-* Fix qFlipper and other apps causes flipper crash while trying to interact with files - see commit `b2bd13`
-* NRF24 Sniffer update
-* Other fixes
+* Add extra frequencies and modulations in SubGHz
+* Allow setting custom flipper name - details -> [How to change Flipper name](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/CustomFlipperName.md)
+* Updated Universal remote assets
+* Some small changes, use record defines in apps
+* OFW: fbt: support for LOADER_AUTOSTART; post-build size stats
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 

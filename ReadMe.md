@@ -83,6 +83,8 @@ See changelog in releases for latest updates!
 
 ## [- BadUSB: how to add new keyboard layouts](https://github.com/dummy-decoy/flipperzero_badusb_kl)
 
+## [- How to change Flipper name](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/CustomFlipperName.md)
+
 ### **Plugins**
 
 ## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
@@ -121,7 +123,7 @@ See changelog in releases for latest updates!
 # Where I can find IR, SubGhz, ... files, DBs, and other stuff?
 ## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
 ## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
-## [CAME, NICE, PT-2240, PT-2262 - SubGHz fixed code bruteforce](https://github.com/tobiabocchi/flipperzero-bruteforce)
+## [CAME-12bit, NICE-12bit, Linear-10bit, PT-2240 - SubGHz fixed code bruteforce](https://github.com/tobiabocchi/flipperzero-bruteforce)
 
 <br>
 <br>
