@@ -32,8 +32,10 @@ Frequency: 418000000
 Frequency: 433075000
 Frequency: 433220000
 Frequency: 433420000
+Frequency: 433657070
 Frequency: 433889000
 Frequency: 433920000
+Frequency: 434176948
 Frequency: 434420000
 Frequency: 434775000
 Frequency: 438900000
@@ -65,3 +67,13 @@ Hopper_frequency: 868350000
 #Custom_preset_name: AM_2
 #Custom_preset_module: CC1101
 #Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
+
+Custom_preset_name: HND_1
+Custom_preset_module: CC1101
+#                                                          G2    G3    G4    D                 L0    L1    L2
+Custom_preset_data: 02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 36 10 69 15 32 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00
+
+Custom_preset_name: HND_2
+Custom_preset_module: CC1101
+#                                                          G2    G3    G4    D                 L0    L1    L2
+Custom_preset_data: 02 0D 0B 06 08 32 07 04 14 00 13 02 12 07 11 36 10 E9 15 32 18 18 19 16 1D 92 1C 40 1B 03 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00
