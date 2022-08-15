@@ -542,6 +542,8 @@ bool unirf_key_load(
             if(!subghz_protocol_decoder_base_deserialize(decoder_res, fff_data)) {
                 break;
             }
+            subghz_protocol_decoder_base_get_string(decoder_res, temp_str);
+            FURI_LOG_I(TAG, "Protocol-Des: %s", string_get_cstr(temp_str));
         } else {
             FURI_LOG_E(TAG, "Protocol %s not found", string_get_cstr(temp_str));
         }
@@ -661,6 +663,7 @@ static bool unirfremix_send_sub(
             furi_hal_subghz_load_custom_preset(preset->data);
             furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
+            furi_hal_subghz_idle();
             furi_hal_subghz_set_frequency_and_path(preset->frequency);
             furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
             furi_hal_gpio_write(&gpio_cc1101_g0, true);
@@ -689,7 +692,7 @@ static bool unirfremix_send_sub(
                     subghz_protocol_registry_get_by_name(string_get_cstr(temp_str));
                 if(registry_protocol && registry_protocol->type == SubGhzProtocolTypeDynamic) {
                     FURI_LOG_I(TAG, "  Protocol is dynamic. Updating Repeat");
-                    unirf_save_protocol_to_file(fff_file, path);
+                    unirf_save_protocol_to_file(fff_data, path);
                 }
             } else {
                 FURI_LOG_E(TAG, "Sending not allowed");
