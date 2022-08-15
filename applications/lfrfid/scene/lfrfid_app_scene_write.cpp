@@ -41,7 +41,7 @@ bool LfRfidAppSceneWrite::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
         case RfidWorker::WriteResult::NotWritable:
             if(!card_not_supported) {
                 auto popup = app->view_controller.get<PopupVM>();
-                popup->set_icon(72, 14, &I_DolphinFirstStart8_56x51);
+                popup->set_icon(72, 17, &I_DolphinCommon_56x48);
                 popup->set_header("Still trying to write...", 64, 3, AlignCenter, AlignTop);
                 popup->set_text(
                     "Make sure this\ncard is writable\nand not\nprotected.",
