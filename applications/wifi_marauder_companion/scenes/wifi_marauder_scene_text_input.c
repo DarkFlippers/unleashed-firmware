@@ -24,7 +24,20 @@ void wifi_marauder_scene_text_input_on_enter(void* context) {
 
     // Setup view
     TextInput* text_input = app->text_input;
-    text_input_set_header_text(text_input, "Add command arguments");
+    // Add help message to header
+    if(0 == strncmp("ssid -a -g", app->selected_tx_string, strlen("ssid -a -g"))) {
+        text_input_set_header_text(text_input, "Enter # SSIDs to generate");
+    } else if(0 == strncmp("ssid -a -n", app->selected_tx_string, strlen("ssid -a -n"))) {
+        text_input_set_header_text(text_input, "Enter SSID name to add");
+    } else if(0 == strncmp("ssid -r", app->selected_tx_string, strlen("ssid -r"))) {
+        text_input_set_header_text(text_input, "Remove target from SSID list");
+    } else if(0 == strncmp("select -a", app->selected_tx_string, strlen("select -a"))) {
+        text_input_set_header_text(text_input, "Add target from AP list");
+    } else if(0 == strncmp("select -s", app->selected_tx_string, strlen("select -s"))) {
+        text_input_set_header_text(text_input, "Add target from SSID list");
+    } else {
+        text_input_set_header_text(text_input, "Add command arguments");
+    }
     text_input_set_result_callback(
         text_input,
         wifi_marauder_scene_text_input_callback,
