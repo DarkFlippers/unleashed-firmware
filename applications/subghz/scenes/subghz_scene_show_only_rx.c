@@ -13,7 +13,7 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
     Popup* popup = subghz->popup;
 
     const char* header_text = "Transmission is blocked";
-    const char* message_text = "Frequency\nis outside of\ndefault range.\nCheck docs.";
+    const char* message_text = "This frequency is\noutside of default\nrange";
 
     popup_set_header(popup, header_text, 63, 3, AlignCenter, AlignTop);
     popup_set_text(popup, message_text, 0, 17, AlignLeft, AlignTop);
