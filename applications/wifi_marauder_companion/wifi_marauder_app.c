@@ -24,7 +24,7 @@ static void wifi_marauder_app_tick_event_callback(void* context) {
 WifiMarauderApp* wifi_marauder_app_alloc() {
     WifiMarauderApp* app = malloc(sizeof(WifiMarauderApp));
 
-    app->gui = furi_record_open("gui");
+    app->gui = furi_record_open(RECORD_GUI);
 
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&wifi_marauder_scene_handlers, app);
@@ -45,6 +45,10 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
         app->view_dispatcher,
         WifiMarauderAppViewVarItemList,
         variable_item_list_get_view(app->var_item_list));
+
+    for(int i = 0; i < NUM_MENU_ITEMS; ++i) {
+        app->selected_option_index[i] = 0;
+    }
 
     app->text_box = text_box_alloc();
     view_dispatcher_add_view(
@@ -79,7 +83,7 @@ void wifi_marauder_app_free(WifiMarauderApp* app) {
     wifi_marauder_uart_free(app->uart);
 
     // Close records
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     free(app);
 }

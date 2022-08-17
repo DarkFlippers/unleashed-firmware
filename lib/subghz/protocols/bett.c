@@ -94,7 +94,7 @@ void* subghz_protocol_encoder_bett_alloc(SubGhzEnvironment* environment) {
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -174,7 +174,7 @@ bool subghz_protocol_encoder_bett_deserialize(void* context, FlipperFormat* flip
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_encoder_bett_get_upload(instance);
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -184,14 +184,14 @@ bool subghz_protocol_encoder_bett_deserialize(void* context, FlipperFormat* flip
 
 void subghz_protocol_encoder_bett_stop(void* context) {
     SubGhzProtocolEncoderBETT* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_bett_yield(void* context) {
     SubGhzProtocolEncoderBETT* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 
@@ -231,16 +231,16 @@ void subghz_protocol_decoder_bett_feed(void* context, bool level, uint32_t durat
 
     switch(instance->decoder.parser_step) {
     case BETTDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_bett_const.te_short * 42) <
-                        subghz_protocol_bett_const.te_delta * 21)) {
+        if((!level) && (DURATION_DIFF(duration, subghz_protocol_bett_const.te_short * 44) <
+                        (subghz_protocol_bett_const.te_delta * 15))) {
             //Found Preambula
             instance->decoder.parser_step = BETTDecoderStepCheckDuration;
         }
         break;
     case BETTDecoderStepSaveDuration:
         if(!level) {
-            if(duration >= ((uint32_t)subghz_protocol_bett_const.te_short * 10 +
-                            subghz_protocol_bett_const.te_delta)) {
+            if(DURATION_DIFF(duration, subghz_protocol_bett_const.te_short * 44) <
+               (subghz_protocol_bett_const.te_delta * 15)) {
                 instance->decoder.parser_step = BETTDecoderStepSaveDuration;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_bett_const.min_count_bit_for_found) {

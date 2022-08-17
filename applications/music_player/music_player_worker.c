@@ -79,7 +79,7 @@ static int32_t music_player_worker_thread_callback(void* context) {
             furi_hal_speaker_stop();
             furi_hal_speaker_start(frequency, volume);
             while(instance->should_work && furi_get_tick() < next_tick) {
-                volume *= 1.0000000;
+                volume *= 0.9945679;
                 furi_hal_speaker_set_volume(volume);
                 furi_delay_ms(2);
             }

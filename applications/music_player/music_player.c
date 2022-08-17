@@ -30,7 +30,7 @@ typedef struct {
 
 typedef struct {
     MusicPlayerModel* model;
-    FuriMutex* model_mutex;
+    FuriMutex** model_mutex;
 
     FuriMessageQueue* input_queue;
 
@@ -256,7 +256,7 @@ MusicPlayer* music_player_alloc() {
     instance->model = malloc(sizeof(MusicPlayerModel));
     memset(instance->model->duration_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
     memset(instance->model->semitone_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
-    instance->model->volume = 1;
+    instance->model->volume = 3;
 
     instance->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 

@@ -43,7 +43,7 @@ void nfc_scene_mf_ultralight_read_auth_set_state(Nfc* nfc, NfcSceneMfUlReadState
                 22,
                 AlignLeft,
                 AlignTop);
-            popup_set_icon(nfc->popup, 73, 17, &I_DolphinFirstStart8_56x51);
+            popup_set_icon(nfc->popup, 73, 20, &I_DolphinCommon_56x48);
         }
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfUltralightReadAuth, state);
     }

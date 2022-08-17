@@ -2,6 +2,8 @@
 
 enum SubmenuIndex {
     SubmenuIndexSave,
+    SubmenuIndexEmulateUid,
+    SubmenuIndexInfo,
 };
 
 void nfc_scene_mf_desfire_menu_submenu_callback(void* context, uint32_t index) {
@@ -16,6 +18,15 @@ void nfc_scene_mf_desfire_menu_on_enter(void* context) {
 
     submenu_add_item(
         submenu, "Save", SubmenuIndexSave, nfc_scene_mf_desfire_menu_submenu_callback, nfc);
+    submenu_add_item(
+        submenu,
+        "Emulate UID",
+        SubmenuIndexEmulateUid,
+        nfc_scene_mf_desfire_menu_submenu_callback,
+        nfc);
+    submenu_add_item(
+        submenu, "Info", SubmenuIndexInfo, nfc_scene_mf_desfire_menu_submenu_callback, nfc);
+
     submenu_set_selected_item(
         nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireMenu));
 
@@ -34,6 +45,12 @@ bool nfc_scene_mf_desfire_menu_on_event(void* context, SceneManagerEvent event) 
             // Clear device name
             nfc_device_set_name(nfc->dev, "");
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
+            consumed = true;
+        } else if(event.event == SubmenuIndexEmulateUid) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
+            consumed = true;
+        } else if(event.event == SubmenuIndexInfo) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcDataInfo);
             consumed = true;
         }
     }

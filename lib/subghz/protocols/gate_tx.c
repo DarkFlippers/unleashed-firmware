@@ -78,7 +78,7 @@ void* subghz_protocol_encoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -148,7 +148,7 @@ bool subghz_protocol_encoder_gate_tx_deserialize(void* context, FlipperFormat* f
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_encoder_gate_tx_get_upload(instance);
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -158,14 +158,14 @@ bool subghz_protocol_encoder_gate_tx_deserialize(void* context, FlipperFormat* f
 
 void subghz_protocol_encoder_gate_tx_stop(void* context) {
     SubGhzProtocolEncoderGateTx* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_gate_tx_yield(void* context) {
     SubGhzProtocolEncoderGateTx* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 

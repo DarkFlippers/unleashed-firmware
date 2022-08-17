@@ -1,15 +1,22 @@
 #include "../subghz_i.h"
 
+typedef enum {
+    SubGhzRpcStateIdle,
+    SubGhzRpcStateLoaded,
+} SubGhzRpcState;
+
 void subghz_scene_rpc_on_enter(void* context) {
     SubGhz* subghz = context;
     Popup* popup = subghz->popup;
 
-    popup_set_header(popup, "Sub-GHz", 82, 28, AlignCenter, AlignBottom);
-    popup_set_text(popup, "RPC mode", 82, 32, AlignCenter, AlignTop);
+    popup_set_header(popup, "Sub-GHz", 89, 42, AlignCenter, AlignBottom);
+    popup_set_text(popup, "RPC mode", 89, 44, AlignCenter, AlignTop);
 
-    popup_set_icon(popup, 2, 14, &I_Warning_30x23); // TODO: icon
+    popup_set_icon(popup, 0, 12, &I_RFIDDolphinSend_97x61);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdPopup);
+
+    scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneRpc, SubGhzRpcStateIdle);
 
     notification_message(subghz->notifications, &sequence_display_backlight_on);
 }
@@ -18,28 +25,21 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     Popup* popup = subghz->popup;
     bool consumed = false;
+    SubGhzRpcState state = scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneRpc);
 
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == SubGhzCustomEventSceneExit) {
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
-                subghz_tx_stop(subghz);
-                subghz_sleep(subghz);
-            }
+            scene_manager_stop(subghz->scene_manager);
             view_dispatcher_stop(subghz->view_dispatcher);
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventAppExit, true);
         } else if(event.event == SubGhzCustomEventSceneRpcSessionClose) {
-            rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
-            subghz->rpc_ctx = NULL;
-            subghz_blink_stop(subghz);
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
-                subghz_tx_stop(subghz);
-                subghz_sleep(subghz);
-            }
-            view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
+            scene_manager_stop(subghz->scene_manager);
+            view_dispatcher_stop(subghz->view_dispatcher);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonPress) {
             bool result = false;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateSleep) {
+            if((subghz->txrx->txrx_state == SubGhzTxRxStateSleep) &&
+               (state == SubGhzRpcStateLoaded)) {
                 subghz_blink_start(subghz);
                 result = subghz_tx_start(subghz, subghz->txrx->fff_data);
                 result = true;
@@ -57,8 +57,10 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubGhzCustomEventSceneRpcLoad) {
             bool result = false;
             const char* arg = rpc_system_app_get_data(subghz->rpc_ctx);
-            if(arg) {
+            if(arg && (state == SubGhzRpcStateIdle)) {
                 if(subghz_key_load(subghz, arg, false)) {
+                    scene_manager_set_scene_state(
+                        subghz->scene_manager, SubGhzSceneRpc, SubGhzRpcStateLoaded);
                     string_set_str(subghz->file_path, arg);
                     result = true;
                     string_t file_name;
@@ -70,7 +72,7 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                         SUBGHZ_MAX_LEN_NAME,
                         "loaded\n%s",
                         string_get_cstr(file_name));
-                    popup_set_text(popup, subghz->file_name_tmp, 82, 32, AlignCenter, AlignTop);
+                    popup_set_text(popup, subghz->file_name_tmp, 89, 44, AlignCenter, AlignTop);
 
                     string_clear(file_name);
                 }
@@ -83,6 +85,13 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_rpc_on_exit(void* context) {
     SubGhz* subghz = context;
+
+    if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+        subghz_tx_stop(subghz);
+        subghz_sleep(subghz);
+        subghz_blink_stop(subghz);
+    }
+
     Popup* popup = subghz->popup;
 
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
