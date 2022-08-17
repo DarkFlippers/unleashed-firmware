@@ -1,5 +1,5 @@
 #include <furi.h>
-#include "u2f_hid.h"
+#include "u2f_data.h"
 #include <furi_hal.h>
 #include <storage/storage.h>
 #include <furi_hal_random.h>
@@ -28,7 +28,8 @@
 #define U2F_DEVICE_KEY_VERSION 1
 
 #define U2F_COUNTER_FILE_TYPE "Flipper U2F Counter File"
-#define U2F_COUNTER_VERSION 1
+#define U2F_COUNTER_VERSION 2
+#define U2F_COUNTER_VERSION_OLD 1
 
 #define U2F_COUNTER_CONTROL_VAL 0xAA5500FF
 
@@ -359,6 +360,7 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
     furi_assert(cnt_val);
 
     bool state = false;
+    bool old_counter = false;
     uint8_t iv[16];
     U2fCounterData cnt;
     uint8_t cnt_encr[48];
@@ -376,9 +378,16 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
                 FURI_LOG_E(TAG, "Missing or incorrect header");
                 break;
             }
-            if(strcmp(string_get_cstr(filetype), U2F_COUNTER_FILE_TYPE) != 0 ||
-               version != U2F_COUNTER_VERSION) {
-                FURI_LOG_E(TAG, "Type or version mismatch");
+            if(strcmp(string_get_cstr(filetype), U2F_COUNTER_FILE_TYPE) != 0) {
+                FURI_LOG_E(TAG, "Type mismatch");
+                break;
+            }
+            if(version == U2F_COUNTER_VERSION_OLD) {
+                // Counter is from previous U2F app version with endianness bug
+                FURI_LOG_W(TAG, "Counter from old version");
+                old_counter = true;
+            } else if(version != U2F_COUNTER_VERSION) {
+                FURI_LOG_E(TAG, "Version mismatch");
                 break;
             }
             if(!flipper_format_read_hex(flipper_format, "IV", iv, 16)) {
@@ -409,6 +418,13 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
     flipper_format_free(flipper_format);
     furi_record_close(RECORD_STORAGE);
     string_clear(filetype);
+
+    if(old_counter && state) {
+        // Change counter endianness and rewrite counter file
+        *cnt_val = __REV(cnt.counter);
+        state = u2f_data_cnt_write(*cnt_val);
+    }
+
     return state;
 }
 

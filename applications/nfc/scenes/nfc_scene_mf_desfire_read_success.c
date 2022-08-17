@@ -1,90 +1,85 @@
 #include "../nfc_i.h"
 #include <dolphin/dolphin.h>
 
-#define NFC_SCENE_READ_SUCCESS_SHIFT "              "
-
-enum {
-    MfDesfireReadSuccessStateShowUID,
-    MfDesfireReadSuccessStateShowData,
-};
-
-void nfc_scene_mf_desfire_read_success_dialog_callback(DialogExResult result, void* context) {
+void nfc_scene_mf_desfire_read_success_widget_callback(
+    GuiButtonType result,
+    InputType type,
+    void* context) {
     Nfc* nfc = context;
 
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    if(type == InputTypeShort) {
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    }
 }
 
 void nfc_scene_mf_desfire_read_success_on_enter(void* context) {
     Nfc* nfc = context;
 
+    FuriHalNfcDevData* nfc_data = &nfc->dev->dev_data.nfc_data;
     MifareDesfireData* data = &nfc->dev->dev_data.mf_df_data;
-    DialogEx* dialog_ex = nfc->dialog_ex;
-    dialog_ex_set_left_button_text(dialog_ex, "Retry");
-    dialog_ex_set_center_button_text(dialog_ex, "Data");
-    dialog_ex_set_right_button_text(dialog_ex, "More");
-    dialog_ex_set_icon(dialog_ex, 8, 16, &I_Medium_chip_22x21);
+    Widget* widget = nfc->widget;
+
+    // Prepare string for data display
+    string_t temp_str;
+    string_init_printf(temp_str, "\e#MIFARE DESfire\n");
+    string_cat_printf(temp_str, "UID:");
+    for(size_t i = 0; i < nfc_data->uid_len; i++) {
+        string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
+    }
+
+    uint32_t bytes_total = 1 << (data->version.sw_storage >> 1);
+    uint32_t bytes_free = data->free_memory ? data->free_memory->bytes : 0;
+    string_cat_printf(temp_str, "\n%d", bytes_total);
+    if(data->version.sw_storage & 1) {
+        string_push_back(temp_str, '+');
+    }
+    string_cat_printf(temp_str, " bytes, %d bytes free\n", bytes_free);
 
     uint16_t n_apps = 0;
     uint16_t n_files = 0;
-
     for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
         n_apps++;
         for(MifareDesfireFile* file = app->file_head; file; file = file->next) {
             n_files++;
         }
     }
+    string_cat_printf(temp_str, "%d Application", n_apps);
+    if(n_apps != 1) {
+        string_push_back(temp_str, 's');
+    }
+    string_cat_printf(temp_str, ", %d file", n_files);
+    if(n_files != 1) {
+        string_push_back(temp_str, 's');
+    }
 
-    // TODO rework info view
-    nfc_text_store_set(
-        nfc,
-        NFC_SCENE_READ_SUCCESS_SHIFT "Mifare DESFire\n" NFC_SCENE_READ_SUCCESS_SHIFT
-                                     "%d%s bytes\n" NFC_SCENE_READ_SUCCESS_SHIFT "%d bytes free\n"
-                                     "%d application%s, %d file%s",
-        1 << (data->version.sw_storage >> 1),
-        (data->version.sw_storage & 1) ? "+" : "",
-        data->free_memory ? data->free_memory->bytes : 0,
-        n_apps,
-        n_apps == 1 ? "" : "s",
-        n_files,
-        n_files == 1 ? "" : "s");
-    dialog_ex_set_text(dialog_ex, nfc->text_store, 8, 6, AlignLeft, AlignTop);
-    dialog_ex_set_context(dialog_ex, nfc);
-    dialog_ex_set_result_callback(dialog_ex, nfc_scene_mf_desfire_read_success_dialog_callback);
+    // Add text scroll element
+    widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
+    string_clear(temp_str);
 
-    scene_manager_set_scene_state(
-        nfc->scene_manager, NfcSceneMfDesfireReadSuccess, MfDesfireReadSuccessStateShowUID);
-    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
+    // Add button elements
+    widget_add_button_element(
+        widget, GuiButtonTypeLeft, "Retry", nfc_scene_mf_desfire_read_success_widget_callback, nfc);
+    widget_add_button_element(
+        widget, GuiButtonTypeRight, "More", nfc_scene_mf_desfire_read_success_widget_callback, nfc);
+
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
 bool nfc_scene_mf_desfire_read_success_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = context;
     bool consumed = false;
-    uint32_t state =
-        scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireReadSuccess);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(state == MfDesfireReadSuccessStateShowUID && event.event == DialogExResultLeft) {
+        if(event.event == GuiButtonTypeLeft) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRetryConfirm);
             consumed = true;
-        } else if(state == MfDesfireReadSuccessStateShowUID && event.event == DialogExResultCenter) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfDesfireData);
-            consumed = true;
-        } else if(state == MfDesfireReadSuccessStateShowUID && event.event == DialogExResultRight) {
+        } else if(event.event == GuiButtonTypeRight) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfDesfireMenu);
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        if(state == MfDesfireReadSuccessStateShowData) {
-            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
-            scene_manager_set_scene_state(
-                nfc->scene_manager,
-                NfcSceneMfDesfireReadSuccess,
-                MfDesfireReadSuccessStateShowUID);
-            consumed = true;
-        } else {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneExitConfirm);
-            consumed = true;
-        }
+        scene_manager_next_scene(nfc->scene_manager, NfcSceneExitConfirm);
+        consumed = true;
     }
 
     return consumed;
@@ -94,5 +89,5 @@ void nfc_scene_mf_desfire_read_success_on_exit(void* context) {
     Nfc* nfc = context;
 
     // Clean dialog
-    dialog_ex_reset(nfc->dialog_ex);
+    widget_reset(nfc->widget);
 }

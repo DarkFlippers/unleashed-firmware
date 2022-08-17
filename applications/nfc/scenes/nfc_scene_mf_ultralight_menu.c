@@ -4,6 +4,7 @@ enum SubmenuIndex {
     SubmenuIndexUnlock,
     SubmenuIndexSave,
     SubmenuIndexEmulate,
+    SubmenuIndexInfo,
 };
 
 void nfc_scene_mf_ultralight_menu_submenu_callback(void* context, uint32_t index) {
@@ -33,6 +34,9 @@ void nfc_scene_mf_ultralight_menu_on_enter(void* context) {
         SubmenuIndexEmulate,
         nfc_scene_mf_ultralight_menu_submenu_callback,
         nfc);
+    submenu_add_item(
+        submenu, "Info", SubmenuIndexInfo, nfc_scene_mf_ultralight_menu_submenu_callback, nfc);
+
     submenu_set_selected_item(
         nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfUltralightMenu));
 
@@ -55,6 +59,9 @@ bool nfc_scene_mf_ultralight_menu_on_event(void* context, SceneManagerEvent even
             consumed = true;
         } else if(event.event == SubmenuIndexUnlock) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
+            consumed = true;
+        } else if(event.event == SubmenuIndexInfo) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcDataInfo);
             consumed = true;
         }
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfUltralightMenu, event.event);

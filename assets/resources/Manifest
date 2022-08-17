@@ -1,5 +1,5 @@
 V:0
-T:1660513221
+T:1660631306
 D:badusb
 D:dolphin
 D:infrared
@@ -242,14 +242,14 @@ F:f267f0654781049ca323b11bb4375519:581:dolphin/L3_Lab_research_128x54/frame_9.bm
 F:41106c0cbc5144f151b2b2d3daaa0527:727:dolphin/L3_Lab_research_128x54/meta.txt
 D:infrared/assets
 F:cedef6d481ec8a10072168bfe82b9ec4:60995:infrared/assets/ac.ir
-F:a995899f908bb8ceed1cfc308f8dec21:25778:infrared/assets/audio.ir
+F:36aa7f5091da97b5ebde068f87273673:46941:infrared/assets/audio.ir
 F:8c76edec36ff5ea6681e125018b73d77:123998:infrared/assets/tv.ir
 F:a157a80f5a668700403d870c23b9567d:470:music_player/Marble_Machine.fmf
 D:nfc/assets
 F:81dc04c7b181f94b644079a71476dff4:4742:nfc/assets/aid.nfc
 F:86efbebdf41bb6bf15cc51ef88f069d5:2565:nfc/assets/country_code.nfc
 F:41b4f08774249014cb8d3dffa5f5c07d:1757:nfc/assets/currency_code.nfc
-F:12674515290ad9edcabc82f7695350f8:50737:nfc/assets/mf_classic_dict.nfc
+F:5f57e2ecfc850efb74c7d2677eb75a2e:51832:nfc/assets/mf_classic_dict.nfc
 D:subghz/assets
 F:dda1ef895b8a25fde57c874feaaef997:650:subghz/assets/came_atomo
 F:50cf77ba8b935ee6cb3b6f111cf2d93d:286:subghz/assets/dangerous_settings
