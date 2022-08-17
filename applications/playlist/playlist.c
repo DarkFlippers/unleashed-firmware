@@ -350,6 +350,7 @@ static int32_t playlist_worker_thread(void* ctx) {
 
 void playlist_meta_reset(DisplayMeta* instance) {
     instance->current_count = 0;
+    instance->current_playlist_repetition = 0;
 
     string_reset(instance->prev_0_path);
     string_reset(instance->prev_1_path);
@@ -365,6 +366,7 @@ DisplayMeta* playlist_meta_alloc() {
     string_init(instance->prev_3_path);
     playlist_meta_reset(instance);
     instance->state = STATE_NONE;
+    instance->playlist_repetitions = 1;
     return instance;
 }
 
@@ -439,6 +441,9 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
 
+    string_t temp_str;
+    string_init(temp_str);
+
     switch(app->meta->state) {
     case STATE_NONE:
         canvas_set_font(canvas, FontPrimary);
@@ -449,33 +454,27 @@ static void render_callback(Canvas* canvas, void* ctx) {
     case STATE_OVERVIEW:
         // draw file name
         {
-            string_t playlist_name;
-            string_init(playlist_name);
-            path_extract_filename(app->file_path, playlist_name, true);
+            path_extract_filename(app->file_path, temp_str, true);
 
             canvas_set_font(canvas, FontPrimary);
-            draw_centered_boxed_str(canvas, 1, 1, 15, 6, string_get_cstr(playlist_name));
-
-            string_clear(playlist_name);
+            draw_centered_boxed_str(canvas, 1, 1, 15, 6, string_get_cstr(temp_str));
         }
 
         canvas_set_font(canvas, FontSecondary);
 
         // draw loaded count
         {
-            string_t str;
-            string_init_printf(str, "%d Items in playlist", app->meta->total_count);
-            canvas_draw_str_aligned(canvas, 1, 19, AlignLeft, AlignTop, string_get_cstr(str));
+            string_printf(temp_str, "%d Items in playlist", app->meta->total_count);
+            canvas_draw_str_aligned(canvas, 1, 19, AlignLeft, AlignTop, string_get_cstr(temp_str));
 
             if(app->meta->playlist_repetitions <= 0) {
-                string_printf(str, "Repeat: yes", app->meta->playlist_repetitions);
+                string_printf(temp_str, "Repeat: yes", app->meta->playlist_repetitions);
             } else if(app->meta->playlist_repetitions == 1) {
-                string_printf(str, "Repeat: no", app->meta->playlist_repetitions);
+                string_printf(temp_str, "Repeat: no", app->meta->playlist_repetitions);
             } else {
-                string_printf(str, "Repeat: %dx", app->meta->playlist_repetitions);
+                string_printf(temp_str, "Repeat: %dx", app->meta->playlist_repetitions);
             }
-            canvas_draw_str_aligned(canvas, 1, 29, AlignLeft, AlignTop, string_get_cstr(str));
-            string_clear(str);
+            canvas_draw_str_aligned(canvas, 1, 29, AlignLeft, AlignTop, string_get_cstr(temp_str));
         }
 
         // draw buttons
@@ -502,131 +501,90 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
         break;
     case STATE_SENDING:
-        // draw progress bar
+        canvas_set_color(canvas, ColorBlack);
+        if(app->worker->ctl_pause) {
+            canvas_draw_icon(canvas, 2, HEIGHT - 8, &I_ButtonRight_4x7);
+        } else {
+            canvas_draw_box(canvas, 2, HEIGHT - 8, 2, 7);
+            canvas_draw_box(canvas, 5, HEIGHT - 8, 2, 7);
+        }
+
+        // draw progress text
         {
-            double progress = (double)app->meta->current_count / (double)app->meta->total_count;
-            canvas_set_color(canvas, ColorBlack);
-            canvas_draw_rframe(canvas, 1, HEIGHT - 12, WIDTH - 2, 11, 2);
-
-            if(progress > 0) {
-                int progress_width = (int)(progress * (double)(WIDTH - 2));
-                canvas_draw_rbox(canvas, 1, HEIGHT - 12, progress_width, 11, 2);
-            }
-
-            // draw progress text
-            string_t progress_text;
-            string_init(progress_text);
-            string_printf(
-                progress_text, "%d/%d", app->meta->current_count, app->meta->total_count);
-
-            if(progress >= (double).5) {
-                canvas_set_color(canvas, ColorWhite);
-            } else {
-                canvas_set_color(canvas, ColorBlack);
-            }
             canvas_set_font(canvas, FontSecondary);
+            string_printf(temp_str, "[%d/%d]", app->meta->current_count, app->meta->total_count);
             canvas_draw_str_aligned(
-                canvas,
-                WIDTH / 2,
-                HEIGHT - 3,
-                AlignCenter,
-                AlignBottom,
-                string_get_cstr(progress_text));
+                canvas, 11, HEIGHT - 8, AlignLeft, AlignTop, string_get_cstr(temp_str));
 
-            canvas_set_color(canvas, ColorBlack);
+            int h = canvas_string_width(canvas, string_get_cstr(temp_str));
+            int xs = 11 + h + 2;
+            int w = WIDTH - xs - 1;
+            canvas_draw_box(canvas, xs, HEIGHT - 5, w, 1);
+
+            float progress = (float)app->meta->current_count / (float)app->meta->total_count;
+            int wp = (int)(progress * w);
+            canvas_draw_box(canvas, xs + wp - 1, HEIGHT - 7, 2, 5);
+        }
+
+        {
             if(app->meta->playlist_repetitions <= 0) {
-                string_printf(progress_text, "[%d/Inf]", app->meta->current_playlist_repetition);
+                string_printf(temp_str, "[%d/Inf]", app->meta->current_playlist_repetition);
             } else {
                 string_printf(
-                    progress_text,
+                    temp_str,
                     "[%d/%d]",
                     app->meta->current_playlist_repetition,
                     app->meta->playlist_repetitions);
             }
+            canvas_set_color(canvas, ColorBlack);
+            int w = canvas_string_width(canvas, string_get_cstr(temp_str));
+            draw_corner_aligned(canvas, w + 6, 13, AlignRight, AlignTop);
+            canvas_set_color(canvas, ColorWhite);
             canvas_draw_str_aligned(
-                canvas, WIDTH - 1, 1, AlignRight, AlignTop, string_get_cstr(progress_text));
-
-            string_clear(progress_text);
+                canvas, WIDTH - 3, 3, AlignRight, AlignTop, string_get_cstr(temp_str));
         }
 
         // draw last and current file
         {
             canvas_set_color(canvas, ColorBlack);
-
-            string_t path;
-            string_init(path);
-
             canvas_set_font(canvas, FontSecondary);
 
             // current
             if(!string_empty_p(app->meta->prev_0_path)) {
-                path_extract_filename(app->meta->prev_0_path, path, true);
-                int w = canvas_string_width(canvas, string_get_cstr(path));
+                path_extract_filename(app->meta->prev_0_path, temp_str, true);
+                int w = canvas_string_width(canvas, string_get_cstr(temp_str));
                 canvas_set_color(canvas, ColorBlack);
                 canvas_draw_rbox(canvas, 1, 1, w + 4, 12, 2);
                 canvas_set_color(canvas, ColorWhite);
-                canvas_draw_str_aligned(canvas, 3, 3, AlignLeft, AlignTop, string_get_cstr(path));
-                string_reset(path);
+                canvas_draw_str_aligned(
+                    canvas, 3, 3, AlignLeft, AlignTop, string_get_cstr(temp_str));
             }
 
             // last 3
             canvas_set_color(canvas, ColorBlack);
 
             if(!string_empty_p(app->meta->prev_1_path)) {
-                path_extract_filename(app->meta->prev_1_path, path, true);
-                canvas_draw_str_aligned(canvas, 3, 15, AlignLeft, AlignTop, string_get_cstr(path));
-                string_reset(path);
+                path_extract_filename(app->meta->prev_1_path, temp_str, true);
+                canvas_draw_str_aligned(
+                    canvas, 3, 15, AlignLeft, AlignTop, string_get_cstr(temp_str));
             }
 
             if(!string_empty_p(app->meta->prev_2_path)) {
-                path_extract_filename(app->meta->prev_2_path, path, true);
-                canvas_draw_str_aligned(canvas, 3, 26, AlignLeft, AlignTop, string_get_cstr(path));
-                string_reset(path);
+                path_extract_filename(app->meta->prev_2_path, temp_str, true);
+                canvas_draw_str_aligned(
+                    canvas, 3, 26, AlignLeft, AlignTop, string_get_cstr(temp_str));
             }
 
             if(!string_empty_p(app->meta->prev_3_path)) {
-                path_extract_filename(app->meta->prev_3_path, path, true);
-                canvas_draw_str_aligned(canvas, 3, 37, AlignLeft, AlignTop, string_get_cstr(path));
-                string_reset(path);
-            }
-
-            string_clear(path);
-        }
-
-        // draw controls
-        {
-            canvas_set_font(canvas, FontSecondary);
-
-            const int ctl_w = 24;
-            const int ctl_h = 18;
-
-            // draw background
-            canvas_set_color(canvas, ColorBlack);
-            canvas_draw_rbox(canvas, WIDTH - ctl_w, HEIGHT / 2 - ctl_h / 2, ctl_w, ctl_h, 3);
-            canvas_draw_box(canvas, WIDTH - 3, HEIGHT / 2 - ctl_h / 2, 3, ctl_h); // right corner
-
-            // draw circle (OK)
-            canvas_set_color(canvas, ColorWhite);
-
-            const int disc_r = 3;
-            canvas_draw_disc(
-                canvas, WIDTH - ctl_w / 2, HEIGHT / 2 - ctl_h / 2 + disc_r + 1, disc_r);
-
-            // draw texts
-            if(!app->worker->is_running) {
+                path_extract_filename(app->meta->prev_3_path, temp_str, true);
                 canvas_draw_str_aligned(
-                    canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "STA");
-            } else if(app->worker->ctl_pause) {
-                canvas_draw_str_aligned(
-                    canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "RES");
-            } else {
-                canvas_draw_str_aligned(
-                    canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "PAU");
+                    canvas, 3, 37, AlignLeft, AlignTop, string_get_cstr(temp_str));
             }
         }
         break;
     }
 
+    string_clear(temp_str);
     furi_mutex_release(app->mutex);
 }
 
