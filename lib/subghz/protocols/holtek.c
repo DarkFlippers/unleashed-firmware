@@ -89,7 +89,7 @@ void* subghz_protocol_encoder_holtek_alloc(SubGhzEnvironment* environment) {
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -161,7 +161,7 @@ bool subghz_protocol_encoder_holtek_deserialize(void* context, FlipperFormat* fl
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_encoder_holtek_get_upload(instance);
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -171,14 +171,14 @@ bool subghz_protocol_encoder_holtek_deserialize(void* context, FlipperFormat* fl
 
 void subghz_protocol_encoder_holtek_stop(void* context) {
     SubGhzProtocolEncoderHoltek* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_holtek_yield(void* context) {
     SubGhzProtocolEncoderHoltek* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 

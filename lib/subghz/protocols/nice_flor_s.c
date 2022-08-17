@@ -98,7 +98,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 2976; //max upload 186*16 = 2976
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -208,7 +208,7 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
             break;
         }
 
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -218,14 +218,14 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
 
 void subghz_protocol_encoder_nice_flor_s_stop(void* context) {
     SubGhzProtocolEncoderNiceFlorS* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_nice_flor_s_yield(void* context) {
     SubGhzProtocolEncoderNiceFlorS* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 

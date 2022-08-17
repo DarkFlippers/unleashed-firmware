@@ -1,9 +1,8 @@
 ### New changes
-* Add extra frequencies and modulations in SubGHz
-* Allow setting custom flipper name - details -> [How to change Flipper name](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/CustomFlipperName.md)
-* Updated Universal remote assets
-* Some small changes, use record defines in apps
-* OFW: fbt: support for LOADER_AUTOSTART; post-build size stats
+* Added Volume buttons support for Universal audio remote
+* Updated Universal remote assets and nfc dict
+* Added some extra checks for custom flipper names
+* OFW: replaced icon and some gui changes
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 

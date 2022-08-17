@@ -46,6 +46,10 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
         WifiMarauderAppViewVarItemList,
         variable_item_list_get_view(app->var_item_list));
 
+    for(int i = 0; i < NUM_MENU_ITEMS; ++i) {
+        app->selected_option_index[i] = 0;
+    }
+
     app->text_box = text_box_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, WifiMarauderAppViewConsoleOutput, text_box_get_view(app->text_box));

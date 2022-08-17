@@ -4,6 +4,7 @@
 #include "u2f_data.h"
 #include <furi_hal.h>
 #include <furi_hal_random.h>
+#include <littlefs/lfs_util.h> // for lfs_tobe32
 
 #include "toolbox/sha256.h"
 #include "toolbox/hmac_sha256.h"
@@ -256,6 +257,7 @@ static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
     uint8_t flags = 0;
     uint8_t hash[32];
     uint8_t signature[64];
+    uint32_t be_u2f_counter;
 
     if(u2f_data_check(false) == false) {
         U2F->ready = false;
@@ -275,11 +277,14 @@ static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
     }
     U2F->user_present = false;
 
+    // The 4 byte counter is represented in big endian. Increment it before use
+    be_u2f_counter = lfs_tobe32(U2F->counter + 1);
+
     // Generate hash
     sha256_start(&sha_ctx);
     sha256_update(&sha_ctx, req->app_id, 32);
     sha256_update(&sha_ctx, &flags, 1);
-    sha256_update(&sha_ctx, (uint8_t*)&(U2F->counter), 4);
+    sha256_update(&sha_ctx, (uint8_t*)&(be_u2f_counter), 4);
     sha256_update(&sha_ctx, req->challenge, 32);
     sha256_finish(&sha_ctx, hash);
 
@@ -309,12 +314,12 @@ static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
     uECC_sign(priv_key, hash, 32, signature, U2F->p_curve);
 
     resp->user_present = flags;
-    resp->counter = U2F->counter;
+    resp->counter = be_u2f_counter;
     uint8_t signature_len = u2f_der_encode_signature(resp->signature, signature);
     memcpy(resp->signature + signature_len, state_no_error, 2);
 
-    FURI_LOG_D(TAG, "Counter: %lu", U2F->counter);
     U2F->counter++;
+    FURI_LOG_D(TAG, "Counter: %lu", U2F->counter);
     u2f_data_cnt_write(U2F->counter);
 
     if(U2F->callback != NULL) U2F->callback(U2fNotifyAuthSuccess, U2F->context);

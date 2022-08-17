@@ -81,7 +81,7 @@ void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 4096; //approx max buffer size
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -245,7 +245,7 @@ bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat
             break;
         }
 
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -255,14 +255,14 @@ bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat
 
 void subghz_protocol_encoder_came_atomo_stop(void* context) {
     SubGhzProtocolEncoderCameAtomo* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context) {
     SubGhzProtocolEncoderCameAtomo* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 

@@ -42,7 +42,7 @@ class GitVersion:
             or ""
         )
 
-        if (custom_fz_name != "") and (len(custom_fz_name) <= 8):
+        if (custom_fz_name != "") and (len(custom_fz_name) <= 8) and (custom_fz_name.isalnum()) and (custom_fz_name.isascii()):
             return {
                 "GIT_COMMIT": commit,
                 "GIT_BRANCH": branch,

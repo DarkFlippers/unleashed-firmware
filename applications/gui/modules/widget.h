@@ -105,6 +105,27 @@ void widget_add_text_box_element(
     const char* text,
     bool strip_to_dots);
 
+/** Add Text Scroll Element
+ *
+ * @param      widget           Widget instance
+ * @param      x                x coordinate
+ * @param      y                y coordinate
+ * @param      width            width to fit text
+ * @param      height           height to fit text
+ * @param[in]  text             Formatted text. Default format: align left, Secondary font.
+ *                              The following formats are available:
+ *                               "\e#Bold text" - sets bold font before until next '\n' symbol
+ *                               "\ecBold text" - sets center horizontal align before until next '\n' symbol
+ *                               "\erBold text" - sets right horizontal align before until next '\n' symbol
+ */
+void widget_add_text_scroll_element(
+    Widget* widget,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    const char* text);
+
 /** Add Button Element
  *
  * @param      widget       Widget instance
