@@ -296,7 +296,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
 
         if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
             //Todo add Custom_preset_module
-            //delete peset if it already exists
+            //delete preset if it already exists
             subghz_setting_delete_custom_preset(
                 subghz->setting, string_get_cstr(subghz->txrx->preset->name));
             //load custom preset from file
