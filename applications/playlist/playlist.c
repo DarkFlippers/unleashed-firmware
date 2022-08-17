@@ -35,8 +35,8 @@ typedef struct {
     int current_count; // number of processed files
     int total_count; // number of items in the playlist
 
-    int single_repetitions; // number of times to repeat items in the playlist
-    int current_single_repetition; // current single repetition
+    int playlist_repetitions; // number of times to repeat the whole playlist
+    int current_playlist_repetition; // current playlist repetition
 
     // last 3 files
     string_t prev_0_path; // current file
@@ -215,27 +215,19 @@ static bool playlist_worker_wait_pause(PlaylistWorker* worker) {
     return true;
 }
 
-static int32_t playlist_worker_thread(void* ctx) {
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    FlipperFormat* fff_head = flipper_format_file_alloc(storage);
-
-    PlaylistWorker* worker = ctx;
-    if(!flipper_format_file_open_existing(fff_head, string_get_cstr(worker->file_path))) {
-        FURI_LOG_E(TAG, "Failed to open %s", string_get_cstr(worker->file_path));
-        worker->is_running = false;
-
-        furi_record_close(RECORD_STORAGE);
-        flipper_format_free(fff_head);
-        return 0;
+static bool playlist_worker_play_playlist_once(
+    PlaylistWorker* worker,
+    Storage* storage,
+    FlipperFormat* fff_head,
+    FlipperFormat* fff_data,
+    string_t data,
+    string_t preset,
+    string_t protocol) {
+    //
+    if(!flipper_format_rewind(fff_head)) {
+        FURI_LOG_E(TAG, "Failed to rewind file");
+        return false;
     }
-
-    FlipperFormat* fff_data = flipper_format_string_alloc();
-
-    string_t data, preset, protocol;
-    string_init(data);
-    string_init(preset);
-    string_init(protocol);
-
     while(flipper_format_read_string(fff_head, "sub", data)) {
         if(!playlist_worker_wait_pause(worker)) {
             break;
@@ -244,9 +236,7 @@ static int32_t playlist_worker_thread(void* ctx) {
         // update state to sending
         meta_set_state(worker->meta, STATE_SENDING);
 
-        worker->meta->current_single_repetition = 0;
         ++worker->meta->current_count;
-
         const char* str = string_get_cstr(data);
 
         // it's not fancy, but it works for now :)
@@ -260,20 +250,14 @@ static int32_t playlist_worker_thread(void* ctx) {
         string_set_str(worker->meta->prev_0_path, str);
         view_port_update(worker->meta->view_port);
 
-        for(int i = 0; i < MAX(1, worker->meta->single_repetitions); i++) {
+        for(int i = 0; i < 1; i++) {
             if(!playlist_worker_wait_pause(worker)) {
                 break;
             }
 
-            ++worker->meta->current_single_repetition;
             view_port_update(worker->meta->view_port);
 
-            FURI_LOG_I(
-                TAG,
-                "(worker) Sending %s (%d/%d)",
-                str,
-                worker->meta->current_single_repetition,
-                worker->meta->single_repetitions);
+            FURI_LOG_I(TAG, "(worker) Sending %s", str);
 
             FlipperFormat* fff_file = flipper_format_file_alloc(storage);
 
@@ -293,10 +277,56 @@ static int32_t playlist_worker_thread(void* ctx) {
                 break;
                 // exited, exit loop
             } else if(status == 2) {
-                break;
+                return false;
             }
         }
     } // end of loop
+    return true;
+}
+
+static int32_t playlist_worker_thread(void* ctx) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperFormat* fff_head = flipper_format_file_alloc(storage);
+
+    PlaylistWorker* worker = ctx;
+    if(!flipper_format_file_open_existing(fff_head, string_get_cstr(worker->file_path))) {
+        FURI_LOG_E(TAG, "Failed to open %s", string_get_cstr(worker->file_path));
+        worker->is_running = false;
+
+        furi_record_close(RECORD_STORAGE);
+        flipper_format_free(fff_head);
+        return 0;
+    }
+
+    playlist_worker_wait_pause(worker);
+    FlipperFormat* fff_data = flipper_format_string_alloc();
+
+    string_t data, preset, protocol;
+    string_init(data);
+    string_init(preset);
+    string_init(protocol);
+
+    for(int i = 0; i < MAX(1, worker->meta->playlist_repetitions); i++) {
+        // infinite repetitions if playlist_repetitions is 0
+        if(worker->meta->playlist_repetitions <= 0) {
+            --i;
+        }
+        ++worker->meta->current_playlist_repetition;
+        // send playlist
+        worker->meta->current_count = 0;
+
+        FURI_LOG_I(
+            TAG,
+            "Sending playlist (i %d rep %d b %d)",
+            i,
+            worker->meta->current_playlist_repetition,
+            worker->meta->playlist_repetitions);
+
+        if(!playlist_worker_play_playlist_once(
+               worker, storage, fff_head, fff_data, data, preset, protocol)) {
+            break;
+        }
+    }
 
     furi_record_close(RECORD_STORAGE);
     flipper_format_free(fff_head);
@@ -320,7 +350,6 @@ static int32_t playlist_worker_thread(void* ctx) {
 
 void playlist_meta_reset(DisplayMeta* instance) {
     instance->current_count = 0;
-    instance->current_single_repetition = 0;
 
     string_reset(instance->prev_0_path);
     string_reset(instance->prev_1_path);
@@ -335,7 +364,6 @@ DisplayMeta* playlist_meta_alloc() {
     string_init(instance->prev_2_path);
     string_init(instance->prev_3_path);
     playlist_meta_reset(instance);
-    instance->single_repetitions = 1;
     instance->state = STATE_NONE;
     return instance;
 }
@@ -438,7 +466,14 @@ static void render_callback(Canvas* canvas, void* ctx) {
             string_t str;
             string_init_printf(str, "%d Items in playlist", app->meta->total_count);
             canvas_draw_str_aligned(canvas, 1, 19, AlignLeft, AlignTop, string_get_cstr(str));
-            string_printf(str, "Repetitions: (single) %d", app->meta->single_repetitions);
+
+            if(app->meta->playlist_repetitions <= 0) {
+                string_printf(str, "Repeat: yes", app->meta->playlist_repetitions);
+            } else if(app->meta->playlist_repetitions == 1) {
+                string_printf(str, "Repeat: no", app->meta->playlist_repetitions);
+            } else {
+                string_printf(str, "Repeat: %dx", app->meta->playlist_repetitions);
+            }
             canvas_draw_str_aligned(canvas, 1, 29, AlignLeft, AlignTop, string_get_cstr(str));
             string_clear(str);
         }
@@ -498,6 +533,19 @@ static void render_callback(Canvas* canvas, void* ctx) {
                 AlignBottom,
                 string_get_cstr(progress_text));
 
+            canvas_set_color(canvas, ColorBlack);
+            if(app->meta->playlist_repetitions <= 0) {
+                string_printf(progress_text, "[%d/Inf]", app->meta->current_playlist_repetition);
+            } else {
+                string_printf(
+                    progress_text,
+                    "[%d/%d]",
+                    app->meta->current_playlist_repetition,
+                    app->meta->playlist_repetitions);
+            }
+            canvas_draw_str_aligned(
+                canvas, WIDTH - 1, 1, AlignRight, AlignTop, string_get_cstr(progress_text));
+
             string_clear(progress_text);
         }
 
@@ -513,17 +561,6 @@ static void render_callback(Canvas* canvas, void* ctx) {
             // current
             if(!string_empty_p(app->meta->prev_0_path)) {
                 path_extract_filename(app->meta->prev_0_path, path, true);
-
-                // add repetition to current file
-                if(app->meta->single_repetitions > 1) {
-                    string_printf(
-                        path,
-                        "%s [%d/%d]",
-                        string_get_cstr(path),
-                        app->meta->current_single_repetition,
-                        app->meta->single_repetitions);
-                }
-
                 int w = canvas_string_width(canvas, string_get_cstr(path));
                 canvas_set_color(canvas, ColorBlack);
                 canvas_draw_rbox(canvas, 1, 1, w + 4, 12, 2);
@@ -694,14 +731,18 @@ int32_t playlist_app(void* p) {
 
         switch(input.key) {
         case InputKeyLeft:
-            if(input.type == InputTypeShort && app->meta->single_repetitions > 1) {
-                --app->meta->single_repetitions;
+            if(app->meta->state == STATE_OVERVIEW) {
+                if(input.type == InputTypeShort && app->meta->playlist_repetitions > 0) {
+                    --app->meta->playlist_repetitions;
+                }
             }
             break;
 
         case InputKeyRight:
-            if(input.type == InputTypeShort) {
-                ++app->meta->single_repetitions;
+            if(app->meta->state == STATE_OVERVIEW) {
+                if(input.type == InputTypeShort) {
+                    ++app->meta->playlist_repetitions;
+                }
             }
             break;
 
