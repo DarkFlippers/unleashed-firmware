@@ -57,13 +57,6 @@ typedef enum {
 } MfUltralightType;
 
 typedef enum {
-    MfUltralightAuthLimitUnknown,
-    MfUltralightAuthLimitNotSupported,
-    MfUltralightAuthLimitConfigured,
-    MfUltralightAuthLimitNotConfigured,
-} MfUltralightAuthLimit;
-
-typedef enum {
     MfUltralightSupportNone = 0,
     MfUltralightSupportFastRead = 1 << 0,
     MfUltralightSupportTearingFlags = 1 << 1,
@@ -244,11 +237,6 @@ bool mf_ul_prepare_emulation_response(
     uint16_t* buff_tx_len,
     uint32_t* data_type,
     void* context);
-
-int16_t mf_ultralight_get_authlim(
-    FuriHalNfcTxRxContext* tx_rx,
-    MfUltralightReader* reader,
-    MfUltralightData* data);
 
 uint32_t mf_ul_pwdgen_amiibo(FuriHalNfcDevData* data);
 

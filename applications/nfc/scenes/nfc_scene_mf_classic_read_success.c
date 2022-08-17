@@ -17,8 +17,6 @@ void nfc_scene_mf_classic_read_success_on_enter(void* context) {
     Nfc* nfc = context;
     NfcDeviceData* dev_data = &nfc->dev->dev_data;
     MfClassicData* mf_data = &dev_data->mf_classic_data;
-    string_t str_tmp;
-    string_init(str_tmp);
 
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
@@ -29,48 +27,27 @@ void nfc_scene_mf_classic_read_success_on_enter(void* context) {
     widget_add_button_element(
         widget, GuiButtonTypeRight, "More", nfc_scene_mf_classic_read_success_widget_callback, nfc);
 
+    string_t temp_str;
     if(string_size(nfc->dev->dev_data.parsed_data)) {
-        widget_add_text_box_element(
-            nfc->widget,
-            0,
-            0,
-            128,
-            32,
-            AlignLeft,
-            AlignTop,
-            string_get_cstr(nfc->dev->dev_data.parsed_data),
-            true);
+        string_init_set(temp_str, nfc->dev->dev_data.parsed_data);
     } else {
-        widget_add_string_element(
-            widget,
-            0,
-            0,
-            AlignLeft,
-            AlignTop,
-            FontSecondary,
-            mf_classic_get_type_str(mf_data->type));
-        widget_add_string_element(
-            widget, 0, 11, AlignLeft, AlignTop, FontSecondary, "ISO 14443-3 (Type A)");
-        string_printf(str_tmp, "UID:");
+        string_init_printf(temp_str, "\e#%s\n", nfc_mf_classic_type(mf_data->type));
+        string_cat_printf(temp_str, "UID:");
         for(size_t i = 0; i < dev_data->nfc_data.uid_len; i++) {
-            string_cat_printf(str_tmp, " %02X", dev_data->nfc_data.uid[i]);
+            string_cat_printf(temp_str, " %02X", dev_data->nfc_data.uid[i]);
         }
-        widget_add_string_element(
-            widget, 0, 22, AlignLeft, AlignTop, FontSecondary, string_get_cstr(str_tmp));
         uint8_t sectors_total = mf_classic_get_total_sectors_num(mf_data->type);
         uint8_t keys_total = sectors_total * 2;
         uint8_t keys_found = 0;
         uint8_t sectors_read = 0;
         mf_classic_get_read_sectors_and_keys(mf_data, &sectors_read, &keys_found);
-        string_printf(str_tmp, "Keys Found: %d/%d", keys_found, keys_total);
-        widget_add_string_element(
-            widget, 0, 33, AlignLeft, AlignTop, FontSecondary, string_get_cstr(str_tmp));
-        string_printf(str_tmp, "Sectors Read: %d/%d", sectors_read, sectors_total);
-        widget_add_string_element(
-            widget, 0, 44, AlignLeft, AlignTop, FontSecondary, string_get_cstr(str_tmp));
+        string_cat_printf(temp_str, "\nKeys Found: %d/%d", keys_found, keys_total);
+        string_cat_printf(temp_str, "\nSectors Read: %d/%d", sectors_read, sectors_total);
     }
 
-    string_clear(str_tmp);
+    widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
+    string_clear(temp_str);
+
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
