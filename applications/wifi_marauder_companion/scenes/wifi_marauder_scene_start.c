@@ -23,7 +23,7 @@ typedef struct {
 
 // NUM_MENU_ITEMS defined in wifi_marauder_app_i.h - if you add an entry here, increment it!
 const WifiMarauderItem items[NUM_MENU_ITEMS] = {
-    {"View Log from", {"start", "end"}, 2, {}, NO_ARGS, FOCUS_CONSOLE_TOGGLE, NO_TIP},
+    {"View Log from", {"start", "end"}, 2, {"", ""}, NO_ARGS, FOCUS_CONSOLE_TOGGLE, NO_TIP},
     {"Scan AP", {""}, 1, {"scanap"}, NO_ARGS, FOCUS_CONSOLE_END, SHOW_STOPSCAN_TIP},
     {"SSID",
      {"add random", "add name", "remove"},
@@ -96,20 +96,23 @@ const WifiMarauderItem items[NUM_MENU_ITEMS] = {
 static void wifi_marauder_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
     WifiMarauderApp* app = context;
-    if(app->selected_option_index[index] < items[index].num_options_menu) {
-        app->selected_tx_string = items[index].actual_commands[app->selected_option_index[index]];
-    }
+
+    furi_assert(index < NUM_MENU_ITEMS);
+    const WifiMarauderItem* item = &items[index];
+
+    const int selected_option_index = app->selected_option_index[index];
+    furi_assert(selected_option_index < item->num_options_menu);
+    app->selected_tx_string = item->actual_commands[selected_option_index];
     app->is_command = (1 <= index);
     app->is_custom_tx_string = false;
     app->selected_menu_index = index;
-    app->focus_console_start = (items[index].focus_console == FOCUS_CONSOLE_TOGGLE) ?
-                                   (app->selected_option_index[index] == 0) :
-                                   items[index].focus_console;
-    app->show_stopscan_tip = items[index].show_stopscan_tip;
+    app->focus_console_start = (item->focus_console == FOCUS_CONSOLE_TOGGLE) ?
+                                   (selected_option_index == 0) :
+                                   item->focus_console;
+    app->show_stopscan_tip = item->show_stopscan_tip;
 
-    bool needs_keyboard = (items[index].needs_keyboard == TOGGLE_ARGS) ?
-                              (app->selected_option_index[index] != 0) :
-                              items[index].needs_keyboard;
+    bool needs_keyboard = (item->needs_keyboard == TOGGLE_ARGS) ? (selected_option_index != 0) :
+                                                                  item->needs_keyboard;
     if(needs_keyboard) {
         view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventStartKeyboard);
     } else {
@@ -145,11 +148,9 @@ void wifi_marauder_scene_start_on_enter(void* context) {
             items[i].num_options_menu,
             wifi_marauder_scene_start_var_list_change_callback,
             app);
-        if(items[i].num_options_menu) {
-            variable_item_set_current_value_index(item, app->selected_option_index[i]);
-            variable_item_set_current_value_text(
-                item, items[i].options_menu[app->selected_option_index[i]]);
-        }
+        variable_item_set_current_value_index(item, app->selected_option_index[i]);
+        variable_item_set_current_value_text(
+            item, items[i].options_menu[app->selected_option_index[i]]);
     }
 
     variable_item_list_set_selected_item(
