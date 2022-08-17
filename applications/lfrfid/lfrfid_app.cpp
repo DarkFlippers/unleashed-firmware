@@ -56,6 +56,9 @@ static void rpc_command_callback(RpcAppSystemEvent rpc_event, void* context) {
         LfRfidApp::Event event;
         event.type = LfRfidApp::EventType::RpcSessionClose;
         app->view_controller.send_event(&event);
+        // Detach RPC
+        rpc_system_app_set_callback(app->rpc_ctx, NULL, NULL);
+        app->rpc_ctx = NULL;
     } else if(rpc_event == RpcAppEventAppExit) {
         LfRfidApp::Event event;
         event.type = LfRfidApp::EventType::Exit;
@@ -80,16 +83,19 @@ void LfRfidApp::run(void* _args) {
             rpc_ctx = (RpcAppSystem*)rpc_ctx_ptr;
             rpc_system_app_set_callback(rpc_ctx, rpc_command_callback, this);
             rpc_system_app_send_started(rpc_ctx);
+            view_controller.attach_to_gui(ViewDispatcherTypeDesktop);
             scene_controller.add_scene(SceneType::Rpc, new LfRfidAppSceneRpc());
             scene_controller.process(100, SceneType::Rpc);
         } else {
             string_set_str(file_path, args);
             load_key_data(file_path, &worker.key, true);
+            view_controller.attach_to_gui(ViewDispatcherTypeFullscreen);
             scene_controller.add_scene(SceneType::Emulate, new LfRfidAppSceneEmulate());
             scene_controller.process(100, SceneType::Emulate);
         }
 
     } else {
+        view_controller.attach_to_gui(ViewDispatcherTypeFullscreen);
         scene_controller.add_scene(SceneType::Start, new LfRfidAppSceneStart());
         scene_controller.add_scene(SceneType::Read, new LfRfidAppSceneRead());
         scene_controller.add_scene(SceneType::RetryConfirm, new LfRfidAppSceneRetryConfirm());

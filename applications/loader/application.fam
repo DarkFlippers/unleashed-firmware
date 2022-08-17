@@ -5,6 +5,6 @@ App(
     entry_point="loader_srv",
     cdefines=["SRV_LOADER"],
     requires=["gui"],
-    stack_size=1 * 1024,
+    stack_size=2 * 1024,
     order=90,
 )

@@ -41,6 +41,7 @@ typedef enum {
     FuriHalVersionRegionEuRu = 0x01,
     FuriHalVersionRegionUsCaAu = 0x02,
     FuriHalVersionRegionJp = 0x03,
+    FuriHalVersionRegionWorld = 0x04,
 } FuriHalVersionRegion;
 
 /** Device Display */

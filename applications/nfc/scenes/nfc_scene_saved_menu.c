@@ -44,8 +44,6 @@ void nfc_scene_saved_menu_on_enter(void* context) {
     }
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, nfc_scene_saved_menu_submenu_callback, nfc);
-    submenu_set_selected_item(
-        nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSavedMenu));
     if(nfc->dev->shadow_file_exist) {
         submenu_add_item(
             submenu,
@@ -58,12 +56,15 @@ void nfc_scene_saved_menu_on_enter(void* context) {
         submenu, "Rename", SubmenuIndexRename, nfc_scene_saved_menu_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Delete", SubmenuIndexDelete, nfc_scene_saved_menu_submenu_callback, nfc);
+    submenu_set_selected_item(
+        nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSavedMenu));
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
 bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = context;
+    NfcDeviceData* dev_data = &nfc->dev->dev_data;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -87,7 +88,18 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDelete);
             consumed = true;
         } else if(event.event == SubmenuIndexInfo) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
+            bool application_info_present = false;
+            if(dev_data->protocol == NfcDeviceProtocolEMV) {
+                application_info_present = true;
+            } else if(dev_data->protocol == NfcDeviceProtocolMifareClassic) {
+                application_info_present = nfc_supported_card_verify_and_parse(dev_data);
+            }
+
+            if(application_info_present) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
+            } else {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcDataInfo);
+            }
             consumed = true;
         } else if(event.event == SubmenuIndexRestoreOriginal) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRestoreOriginalConfirm);

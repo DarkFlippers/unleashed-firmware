@@ -8,6 +8,7 @@ struct Version {
     const char* git_branch;
     const char* git_branch_num;
     const char* build_date;
+    const char* custom_flipper_name;
     const char* version;
     const uint8_t target;
     const bool build_is_dirty;
@@ -19,6 +20,11 @@ static const Version version = {
     .git_branch = GIT_BRANCH,
     .git_branch_num = GIT_BRANCH_NUM,
     .build_date = BUILD_DATE,
+#ifdef FURI_CUSTOM_FLIPPER_NAME
+    .custom_flipper_name = FURI_CUSTOM_FLIPPER_NAME,
+#else
+    .custom_flipper_name = NULL,
+#endif
     .version = VERSION
 #ifdef FURI_RAM_EXEC
     " (RAM)"
@@ -50,6 +56,10 @@ const char* version_get_builddate(const Version* v) {
 
 const char* version_get_version(const Version* v) {
     return v ? v->version : version.version;
+}
+
+const char* version_get_custom_name(const Version* v) {
+    return v ? v->custom_flipper_name : version.custom_flipper_name;
 }
 
 uint8_t version_get_target(const Version* v) {

@@ -87,7 +87,7 @@ void* subghz_protocol_encoder_power_smart_alloc(SubGhzEnvironment* environment) 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 1024;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -212,7 +212,7 @@ bool subghz_protocol_encoder_power_smart_deserialize(void* context, FlipperForma
 
         subghz_protocol_power_smart_remote_controller(&instance->generic);
         subghz_protocol_encoder_power_smart_get_upload(instance);
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -222,14 +222,14 @@ bool subghz_protocol_encoder_power_smart_deserialize(void* context, FlipperForma
 
 void subghz_protocol_encoder_power_smart_stop(void* context) {
     SubGhzProtocolEncoderPowerSmart* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_power_smart_yield(void* context) {
     SubGhzProtocolEncoderPowerSmart* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 

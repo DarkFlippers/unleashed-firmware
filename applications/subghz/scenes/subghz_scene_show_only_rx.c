@@ -11,9 +11,14 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
 
     // Setup view
     Popup* popup = subghz->popup;
-    popup_set_icon(popup, 67, 12, &I_DolphinFirstStart7_61x51);
-    popup_set_text(
-        popup, "This frequency is\noutside of default\nrange", 38, 40, AlignCenter, AlignBottom);
+
+    const char* header_text = "Transmission is blocked";
+    const char* message_text = "This frequency is\noutside of default\nrange";
+
+    popup_set_header(popup, header_text, 63, 3, AlignCenter, AlignTop);
+    popup_set_text(popup, message_text, 0, 17, AlignLeft, AlignTop);
+    popup_set_icon(popup, 72, 17, &I_DolphinCommon_56x48);
+
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, subghz);
     popup_set_callback(popup, subghz_scene_show_only_rx_popup_callback);

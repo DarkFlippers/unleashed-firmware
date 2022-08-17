@@ -1,19 +1,27 @@
 #include "../infrared_i.h"
 #include "gui/canvas.h"
 
+typedef enum {
+    InfraredRpcStateIdle,
+    InfraredRpcStateLoaded,
+    InfraredRpcStateSending,
+} InfraredRpcState;
+
 void infrared_scene_rpc_on_enter(void* context) {
     Infrared* infrared = context;
     Popup* popup = infrared->popup;
 
-    popup_set_header(popup, "Infrared", 82, 28, AlignCenter, AlignBottom);
-    popup_set_text(popup, "RPC mode", 82, 32, AlignCenter, AlignTop);
+    popup_set_header(popup, "Infrared", 89, 42, AlignCenter, AlignBottom);
+    popup_set_text(popup, "RPC mode", 89, 44, AlignCenter, AlignTop);
 
-    popup_set_icon(popup, 2, 14, &I_Warning_30x23); // TODO: icon
+    popup_set_icon(popup, 0, 12, &I_RFIDDolphinSend_97x61);
 
     popup_set_context(popup, context);
     popup_set_callback(popup, infrared_popup_closed_callback);
 
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewPopup);
+
+    scene_manager_set_scene_state(infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateIdle);
 
     notification_message(infrared->notifications, &sequence_display_backlight_on);
 }
@@ -24,6 +32,8 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
+        InfraredRpcState state =
+            scene_manager_get_scene_state(infrared->scene_manager, InfraredSceneRpc);
         if(event.event == InfraredCustomEventTypeBackPressed) {
             view_dispatcher_stop(infrared->view_dispatcher);
         } else if(event.event == InfraredCustomEventTypePopupClosed) {
@@ -31,39 +41,49 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == InfraredCustomEventTypeRpcLoad) {
             bool result = false;
             const char* arg = rpc_system_app_get_data(infrared->rpc_ctx);
-            if(arg) {
+            if(arg && (state == InfraredRpcStateIdle)) {
                 string_set_str(infrared->file_path, arg);
                 result = infrared_remote_load(infrared->remote, infrared->file_path);
-                infrared_worker_tx_set_get_signal_callback(
-                    infrared->worker, infrared_worker_tx_get_signal_steady_callback, infrared);
+                if(result) {
+                    scene_manager_set_scene_state(
+                        infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateLoaded);
+                }
             }
             const char* remote_name = infrared_remote_get_name(infrared->remote);
 
             infrared_text_store_set(infrared, 0, "loaded\n%s", remote_name);
             popup_set_text(
-                infrared->popup, infrared->text_store[0], 82, 32, AlignCenter, AlignTop);
+                infrared->popup, infrared->text_store[0], 89, 44, AlignCenter, AlignTop);
 
             rpc_system_app_confirm(infrared->rpc_ctx, RpcAppEventLoadFile, result);
         } else if(event.event == InfraredCustomEventTypeRpcButtonPress) {
             bool result = false;
             const char* arg = rpc_system_app_get_data(infrared->rpc_ctx);
-            if(arg) {
+            if(arg && (state == InfraredRpcStateLoaded)) {
                 size_t button_index = 0;
                 if(infrared_remote_find_button_by_name(infrared->remote, arg, &button_index)) {
                     infrared_tx_start_button_index(infrared, button_index);
                     result = true;
+                    scene_manager_set_scene_state(
+                        infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateSending);
                 }
             }
             rpc_system_app_confirm(infrared->rpc_ctx, RpcAppEventButtonRelease, result);
         } else if(event.event == InfraredCustomEventTypeRpcButtonRelease) {
-            infrared_tx_stop(infrared);
-            rpc_system_app_confirm(infrared->rpc_ctx, RpcAppEventButtonRelease, true);
+            bool result = false;
+            if(state == InfraredRpcStateSending) {
+                infrared_tx_stop(infrared);
+                result = true;
+                scene_manager_set_scene_state(
+                    infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateLoaded);
+            }
+            rpc_system_app_confirm(infrared->rpc_ctx, RpcAppEventButtonRelease, result);
         } else if(event.event == InfraredCustomEventTypeRpcExit) {
+            scene_manager_stop(infrared->scene_manager);
             view_dispatcher_stop(infrared->view_dispatcher);
             rpc_system_app_confirm(infrared->rpc_ctx, RpcAppEventAppExit, true);
         } else if(event.event == InfraredCustomEventTypeRpcSessionClose) {
-            rpc_system_app_set_callback(infrared->rpc_ctx, NULL, NULL);
-            infrared->rpc_ctx = NULL;
+            scene_manager_stop(infrared->scene_manager);
             view_dispatcher_stop(infrared->view_dispatcher);
         }
     }
@@ -72,6 +92,9 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
 void infrared_scene_rpc_on_exit(void* context) {
     Infrared* infrared = context;
-    infrared_tx_stop(infrared);
+    if(scene_manager_get_scene_state(infrared->scene_manager, InfraredSceneRpc) ==
+       InfraredRpcStateSending) {
+        infrared_tx_stop(infrared);
+    }
     popup_reset(infrared->popup);
 }

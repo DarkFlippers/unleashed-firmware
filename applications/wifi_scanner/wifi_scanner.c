@@ -685,7 +685,7 @@ int32_t wifi_scanner_app(void* p) {
     view_port_input_callback_set(view_port, wifi_module_input_callback, event_queue);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     //notification_message(app->notification, &sequence_set_only_blue_255);
@@ -831,7 +831,7 @@ int32_t wifi_scanner_app(void* p) {
     gui_remove_view_port(gui, view_port);
 
     // Close gui record
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     furi_record_close("notification");
     app->m_gui = NULL;
 

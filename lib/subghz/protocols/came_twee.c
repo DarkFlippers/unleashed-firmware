@@ -112,7 +112,7 @@ void* subghz_protocol_encoder_came_twee_alloc(SubGhzEnvironment* environment) {
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 1536; //max upload 92*14 = 1288 !!!!
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -261,7 +261,7 @@ bool subghz_protocol_encoder_came_twee_deserialize(void* context, FlipperFormat*
 
         subghz_protocol_came_twee_remote_controller(&instance->generic);
         subghz_protocol_encoder_came_twee_get_upload(instance);
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -271,14 +271,14 @@ bool subghz_protocol_encoder_came_twee_deserialize(void* context, FlipperFormat*
 
 void subghz_protocol_encoder_came_twee_stop(void* context) {
     SubGhzProtocolEncoderCameTwee* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_came_twee_yield(void* context) {
     SubGhzProtocolEncoderCameTwee* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 
@@ -455,7 +455,7 @@ void subghz_protocol_decoder_came_twee_get_string(void* context, string_t output
 
     string_cat_printf(
         output,
-        "%s %dbit\r\n"
+        "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"
         "Btn:%lX\r\n"
         "DIP:" DIP_PATTERN "\r\n",

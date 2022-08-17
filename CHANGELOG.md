@@ -1,7 +1,10 @@
 ### New changes
-* Fix qFlipper and other apps causes flipper crash while trying to interact with files - see commit `b2bd13`
-* NRF24 Sniffer update
-* Other fixes
+* Wifi Marauder app update (by @0xchocolate)
+* Updated Universal remote assets (by @Amec0e)
+* Fixed music player
+* Fixed typos in subghz encoders
+* OFW: New NFC info screens
+* OFW: U2F fixes
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 
