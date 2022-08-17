@@ -1217,6 +1217,7 @@ void nfc_device_data_clear(NfcDeviceData* dev_data) {
 void nfc_device_clear(NfcDevice* dev) {
     furi_assert(dev);
 
+    nfc_device_set_name(dev, "");
     nfc_device_data_clear(&dev->dev_data);
     dev->format = NfcDeviceSaveFormatUid;
     string_reset(dev->load_path);

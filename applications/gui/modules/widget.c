@@ -162,6 +162,19 @@ void widget_add_text_box_element(
     widget_add_element(widget, text_box_element);
 }
 
+void widget_add_text_scroll_element(
+    Widget* widget,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    const char* text) {
+    furi_assert(widget);
+    WidgetElement* text_scroll_element =
+        widget_element_text_scroll_create(x, y, width, height, text);
+    widget_add_element(widget, text_scroll_element);
+}
+
 void widget_add_button_element(
     Widget* widget,
     GuiButtonType button_type,
