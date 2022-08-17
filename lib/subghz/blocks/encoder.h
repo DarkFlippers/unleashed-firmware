@@ -7,7 +7,7 @@
 #include <lib/toolbox/level_duration.h>
 
 typedef struct {
-    bool is_runing;
+    bool is_running;
     size_t repeat;
     size_t front;
     size_t size_upload;

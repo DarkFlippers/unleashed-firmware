@@ -89,11 +89,6 @@ Nfc* nfc_alloc() {
     nfc->widget = widget_alloc();
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewWidget, widget_get_view(nfc->widget));
 
-    // Bank Card
-    nfc->bank_card = bank_card_alloc();
-    view_dispatcher_add_view(
-        nfc->view_dispatcher, NfcViewBankCard, bank_card_get_view(nfc->bank_card));
-
     // Mifare Classic Dict Attack
     nfc->dict_attack = dict_attack_alloc();
     view_dispatcher_add_view(
@@ -158,10 +153,6 @@ void nfc_free(Nfc* nfc) {
     // Custom Widget
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewWidget);
     widget_free(nfc->widget);
-
-    // Bank Card
-    view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewBankCard);
-    bank_card_free(nfc->bank_card);
 
     // Mifare Classic Dict Attack
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewDictAttack);

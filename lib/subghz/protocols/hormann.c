@@ -81,7 +81,7 @@ void* subghz_protocol_encoder_hormann_alloc(SubGhzEnvironment* environment) {
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 2048;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
     return instance;
 }
 
@@ -164,7 +164,7 @@ bool subghz_protocol_encoder_hormann_deserialize(void* context, FlipperFormat* f
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_encoder_hormann_get_upload(instance);
-        instance->encoder.is_runing = true;
+        instance->encoder.is_running = true;
 
         res = true;
     } while(false);
@@ -174,14 +174,14 @@ bool subghz_protocol_encoder_hormann_deserialize(void* context, FlipperFormat* f
 
 void subghz_protocol_encoder_hormann_stop(void* context) {
     SubGhzProtocolEncoderHormann* instance = context;
-    instance->encoder.is_runing = false;
+    instance->encoder.is_running = false;
 }
 
 LevelDuration subghz_protocol_encoder_hormann_yield(void* context) {
     SubGhzProtocolEncoderHormann* instance = context;
 
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
-        instance->encoder.is_runing = false;
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
         return level_duration_reset();
     }
 
