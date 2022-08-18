@@ -23,11 +23,12 @@ void desktop_debug_render(Canvas* canvas, void* model) {
     const Version* ver;
     char buffer[64];
 
-    static const char* headers[] = {"FW Version Info:", "Dolphin Info:"};
+    static const char* headers[] = {"Device Info:", "Dolphin Info:"};
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 9 + STATUS_BAR_Y_SHIFT, headers[m->screen]);
+    canvas_draw_str_aligned(
+        canvas, 64, 1 + STATUS_BAR_Y_SHIFT, AlignCenter, AlignTop, headers[m->screen]);
     canvas_set_font(canvas, FontSecondary);
 
     if(m->screen != DesktopViewStatsMeta) {
@@ -44,7 +45,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             furi_hal_version_get_hw_region_name(),
             furi_hal_region_get_name(),
             my_name ? my_name : "Unknown");
-        canvas_draw_str(canvas, 5, 19 + STATUS_BAR_Y_SHIFT, buffer);
+        canvas_draw_str(canvas, 0, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
         ver = furi_hal_version_get_firmware_version();
         const BleGlueC2Info* c2_ver = NULL;
@@ -52,7 +53,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
         c2_ver = ble_glue_get_c2_info();
 #endif
         if(!ver) {
-            canvas_draw_str(canvas, 5, 29 + STATUS_BAR_Y_SHIFT, "No info");
+            canvas_draw_str(canvas, 0, 30 + STATUS_BAR_Y_SHIFT, "No info");
             return;
         }
 
@@ -62,7 +63,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             "%s [%s]",
             version_get_version(ver),
             version_get_builddate(ver));
-        canvas_draw_str(canvas, 5, 28 + STATUS_BAR_Y_SHIFT, buffer);
+        canvas_draw_str(canvas, 0, 30 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
             buffer,
@@ -72,11 +73,11 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             version_get_githash(ver),
             version_get_gitbranchnum(ver),
             c2_ver ? c2_ver->StackTypeString : "<none>");
-        canvas_draw_str(canvas, 5, 39 + STATUS_BAR_Y_SHIFT, buffer);
+        canvas_draw_str(canvas, 0, 40 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
             buffer, sizeof(buffer), "[%d] %s", version_get_target(ver), version_get_gitbranch(ver));
-        canvas_draw_str(canvas, 5, 50 + STATUS_BAR_Y_SHIFT, buffer);
+        canvas_draw_str(canvas, 0, 50 + STATUS_BAR_Y_SHIFT, buffer);
 
     } else {
         Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
