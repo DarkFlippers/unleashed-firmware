@@ -35,8 +35,9 @@ static bool desktop_view_slideshow_input(InputEvent* event, void* context) {
     furi_assert(event);
     DesktopSlideshowView* instance = context;
 
+    DesktopSlideshowViewModel* model = view_get_model(instance->view);
+    bool update_view = false;
     if(event->type == InputTypeShort) {
-        DesktopSlideshowViewModel* model = view_get_model(instance->view);
         bool end_slideshow = false;
         switch(event->key) {
         case InputKeyLeft:
@@ -54,15 +55,18 @@ static bool desktop_view_slideshow_input(InputEvent* event, void* context) {
         if(end_slideshow) {
             instance->callback(DesktopSlideshowCompleted, instance->context);
         }
-        view_commit_model(instance->view, true);
+        update_view = true;
     } else if(event->key == InputKeyOk) {
         if(event->type == InputTypePress) {
             furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_SHORT);
         } else if(event->type == InputTypeRelease) {
             furi_timer_stop(instance->timer);
-            furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
+            if(!slideshow_is_one_page(model->slideshow)) {
+                furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
+            }
         }
     }
+    view_commit_model(instance->view, update_view);
 
     return true;
 }
@@ -79,12 +83,12 @@ static void desktop_view_slideshow_enter(void* context) {
     instance->timer =
         furi_timer_alloc(desktop_first_start_timer_callback, FuriTimerTypeOnce, instance);
 
-    furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
-
     DesktopSlideshowViewModel* model = view_get_model(instance->view);
     model->slideshow = slideshow_alloc();
     if(!slideshow_load(model->slideshow, SLIDESHOW_FS_PATH)) {
         instance->callback(DesktopSlideshowCompleted, instance->context);
+    } else if(!slideshow_is_one_page(model->slideshow)) {
+        furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
     }
     view_commit_model(instance->view, false);
 }
