@@ -8,6 +8,8 @@
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 
+**Build naming has been changed - all same as before but `cg - codegrabber` changed to `un - unleashed`**
+
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip`
 
 DFU for update using qFlipper - `flipper-z-f7-full-(version).dfu`
