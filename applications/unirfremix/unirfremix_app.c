@@ -78,6 +78,8 @@ typedef struct {
 
     uint8_t* data;
     size_t data_size;
+
+    SubGhzProtocolDecoderBase* decoder;
 } UniRFPreset;
 
 UniRFPreset* unirf_preset_alloc(void) {
@@ -517,11 +519,8 @@ bool unirf_key_load(
         }
         size_t preset_index =
             subghz_setting_get_inx_preset_by_name(setting, string_get_cstr(preset->name));
-        FURI_LOG_I(TAG, "Preset index: %d", preset_index);
         preset->data = subghz_setting_get_preset_data(setting, preset_index);
-        FURI_LOG_I(TAG, "Preset data: %p", preset->data);
         preset->data_size = subghz_setting_get_preset_data_size(setting, preset_index);
-        FURI_LOG_I(TAG, "Preset data size: %d", preset->data_size);
 
         // load protocol from file
         if(!flipper_format_read_string(fff_file, "Protocol", temp_str)) {
@@ -529,21 +528,18 @@ bool unirf_key_load(
             break;
         }
         if(!string_cmp_str(temp_str, "RAW")) {
-            FURI_LOG_I(TAG, "-> RAW protocol");
             subghz_protocol_raw_gen_fff_data(fff_data, path);
         } else {
-            FURI_LOG_I(TAG, "-> Other protocol");
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
         }
-        SubGhzProtocolDecoderBase* decoder_res =
+
+        preset->decoder =
             subghz_receiver_search_decoder_base_by_name(receiver, string_get_cstr(temp_str));
-        if(decoder_res) {
-            if(!subghz_protocol_decoder_base_deserialize(decoder_res, fff_data)) {
+        if(preset->decoder) {
+            if(!subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data)) {
                 break;
             }
-            subghz_protocol_decoder_base_get_string(decoder_res, temp_str);
-            FURI_LOG_I(TAG, "Protocol-Des: %s", string_get_cstr(temp_str));
         } else {
             FURI_LOG_E(TAG, "Protocol %s not found", string_get_cstr(temp_str));
         }
@@ -606,6 +602,13 @@ static bool unirfremix_send_sub(
     }
 
     SubGhzEnvironment* environment = subghz_environment_alloc();
+    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
+    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+    subghz_environment_set_came_atomo_rainbow_table_file_name(
+        environment, EXT_PATH("subghz/assets/came_atomo"));
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+        environment, EXT_PATH("subghz/assets/nice_flor_s"));
+
     SubGhzReceiver* subghz_receiver = subghz_receiver_alloc_init(environment);
 
     UniRFPreset* preset = unirf_preset_alloc();
@@ -687,6 +690,10 @@ static bool unirfremix_send_sub(
 
                 flipper_format_file_close(fff_file);
 
+                subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
+                subghz_protocol_decoder_base_get_string(preset->decoder, temp_str);
+                FURI_LOG_I(TAG, "Decoded: %s", string_get_cstr(temp_str));
+
                 FURI_LOG_I(TAG, "Checking if protocol is dynamic");
                 const SubGhzProtocol* registry_protocol =
                     subghz_protocol_registry_get_by_name(string_get_cstr(temp_str));
@@ -714,8 +721,8 @@ static bool unirfremix_send_sub(
     return res;
 }
 
-static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, string_t signal) {
-    FURI_LOG_I(TAG, "Sending: %s", string_get_cstr(signal));
+static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, const char* path) {
+    FURI_LOG_I(TAG, "Sending: %s", path);
 
     FlipperFormat* fff_data = flipper_format_string_alloc();
 
@@ -725,7 +732,7 @@ static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, string_t s
 
     for(int x = 0; x < app->repeat; ++x) {
         FlipperFormat* fff_file = flipper_format_file_alloc(storage);
-        bool res = unirfremix_send_sub(app, fff_file, fff_data, string_get_cstr(signal));
+        bool res = unirfremix_send_sub(app, fff_file, fff_data, path);
 
         if(!res) { // errored
             flipper_format_free(fff_file);
@@ -748,7 +755,7 @@ static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
 
     if(strlen(string_get_cstr(signal)) > 12) {
         Storage* storage = furi_record_open(RECORD_STORAGE);
-        unirfremix_send_signal(app, storage, signal);
+        unirfremix_send_signal(app, storage, string_get_cstr(signal));
         furi_record_close(RECORD_STORAGE);
     } else if(strlen(string_get_cstr(signal)) < 10) {
         unirfremix_end_send(app);
