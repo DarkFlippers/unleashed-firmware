@@ -134,7 +134,8 @@ BtHid* bt_hid_app_alloc() {
         app->view_dispatcher, BtHidViewMouse, bt_hid_mouse_get_view(app->bt_hid_mouse));
 
     // TODO switch to menu after Media is done
-    view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeynote);
+    app->view_id = BtHidViewKeynote;
+    view_dispatcher_switch_to_view(app->view_dispatcher, app->view_id);
 
     return app;
 }
