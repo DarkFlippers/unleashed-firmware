@@ -17,7 +17,6 @@
 /applications/gui/ @skotopes @DrZlo13 @hedger
 /applications/ibutton/ @skotopes @DrZlo13 @hedger @gsurkov
 /applications/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
-/applications/infrared_monitor/ @skotopes @DrZlo13 @hedger @gsurkov
 /applications/input/ @skotopes @DrZlo13 @hedger
 /applications/lfrfid/ @skotopes @DrZlo13 @hedger
 /applications/lfrfid_debug/ @skotopes @DrZlo13 @hedger
@@ -46,11 +45,11 @@
 /debug/ @skotopes @DrZlo13 @hedger
 
 # Docker
-/docker/ @skotopes @DrZlo13 @hedger @aprosvetova
-/docker-compose.yml @skotopes @DrZlo13 @hedger @aprosvetova
+/docker/ @skotopes @DrZlo13 @hedger @drunkbatya
+/docker-compose.yml @skotopes @DrZlo13 @hedger @drunkbatya
 
 # Documentation
-/documentation/ @skotopes @DrZlo13 @hedger @aprosvetova
+/documentation/ @skotopes @DrZlo13 @hedger @drunkbatya
 
 # Firmware targets
 /firmware/ @skotopes @DrZlo13 @hedger
@@ -83,9 +82,6 @@
 /lib/toolbox/ @skotopes @DrZlo13 @hedger
 /lib/u8g2/ @skotopes @DrZlo13 @hedger
 /lib/update_util/ @skotopes @DrZlo13 @hedger
-
-# Make tools
-/make/ @skotopes @DrZlo13 @hedger @aprosvetova
 
 # Helper scripts
 /scripts/ @skotopes @DrZlo13 @hedger
