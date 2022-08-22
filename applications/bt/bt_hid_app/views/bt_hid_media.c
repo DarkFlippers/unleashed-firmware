@@ -49,7 +49,9 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
 
     // Up
     if(model->up_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 93, 9, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 96, 12, &I_Volup_8x6);
@@ -57,7 +59,9 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
 
     // Down
     if(model->down_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 93, 41, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 96, 45, &I_Voldwn_6x6);
@@ -65,7 +69,9 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
 
     // Left
     if(model->left_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 77, 25, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     bt_hid_media_draw_arrow(canvas, 82, 31, CanvasDirectionRightToLeft);
@@ -74,7 +80,9 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
 
     // Right
     if(model->right_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 109, 25, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     bt_hid_media_draw_arrow(canvas, 112, 31, CanvasDirectionLeftToRight);
@@ -89,6 +97,12 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
     bt_hid_media_draw_arrow(canvas, 96, 31, CanvasDirectionLeftToRight);
     canvas_draw_line(canvas, 100, 29, 100, 33);
     canvas_draw_line(canvas, 102, 29, 102, 33);
+    canvas_set_color(canvas, ColorBlack);
+
+    // Exit
+    canvas_draw_icon(canvas, 0, 54, &I_Pin_back_arrow_10x8);
+    canvas_set_font(canvas, FontSecondary);
+    elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Hold to exit");
 }
 
 static void bt_hid_media_process_press(BtHidMedia* bt_hid_media, InputEvent* event) {
