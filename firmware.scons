@@ -244,6 +244,8 @@ if should_gen_cdb_and_link_dir(fwenv, BUILD_TARGETS):
     # without filtering, both updater & firmware commands would be generated
     fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
     AlwaysBuild(fwcdb)
+    Precious(fwcdb)
+    NoClean(fwcdb)
     Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
     fw_artifacts.append(fwcdb)
 
