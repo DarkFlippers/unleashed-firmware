@@ -35,7 +35,9 @@ void rpc_system_gui_free(void* ctx);
 void* rpc_system_gpio_alloc(RpcSession* session);
 void rpc_system_gpio_free(void* ctx);
 
-void rpc_print_message(const PB_Main* message);
+void rpc_debug_print_message(const PB_Main* message);
+void rpc_debug_print_data(const char* prefix, uint8_t* buffer, size_t size);
+
 void rpc_cli_command_start_session(Cli* cli, string_t args, void* context);
 
 PB_CommandStatus rpc_system_storage_get_error(FS_Error fs_error);

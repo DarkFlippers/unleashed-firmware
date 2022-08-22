@@ -37,6 +37,7 @@ static void rpc_system_storage_reset_state(
     RpcSession* session,
     bool send_error) {
     furi_assert(rpc_storage);
+    furi_assert(session);
 
     if(rpc_storage->state != RpcStorageStateIdle) {
         if(send_error) {
@@ -177,6 +178,8 @@ static void rpc_system_storage_stat_process(const PB_Main* request, void* contex
 }
 
 static void rpc_system_storage_list_root(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(context);
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -411,6 +414,8 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
 }
 
 static bool rpc_system_storage_is_dir_is_empty(Storage* fs_api, const char* path) {
+    furi_assert(fs_api);
+    furi_assert(path);
     FileInfo fileinfo;
     bool is_dir_is_empty = true;
     FS_Error error = storage_common_stat(fs_api, path, &fileinfo);
@@ -605,6 +610,7 @@ static void rpc_system_storage_rename_process(const PB_Main* request, void* cont
 static void rpc_system_storage_backup_create_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_backup_create_request_tag);
+    furi_assert(context);
 
     FURI_LOG_D(TAG, "BackupCreate");
 
@@ -626,6 +632,7 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
 static void rpc_system_storage_backup_restore_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_backup_restore_request_tag);
+    furi_assert(context);
 
     FURI_LOG_D(TAG, "BackupRestore");
 
@@ -695,6 +702,7 @@ void* rpc_system_storage_alloc(RpcSession* session) {
 }
 
 void rpc_system_storage_free(void* context) {
+    furi_assert(context);
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
