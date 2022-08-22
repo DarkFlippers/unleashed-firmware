@@ -1,10 +1,11 @@
-#include "utilities_common.h"
-
 #include "app_common.h"
 #include "app_debug.h"
-#include "shci.h"
-#include "tl.h"
-#include "dbg_trace.h"
+#include <interface/patterns/ble_thread/tl/tl.h>
+#include <interface/patterns/ble_thread/tl/mbox_def.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
+#include <utilities/dbg_trace.h>
+#include <utilities/utilities_common.h>
+
 #include <furi_hal.h>
 
 typedef PACKED_STRUCT {

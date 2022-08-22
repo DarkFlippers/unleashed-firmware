@@ -3,6 +3,11 @@ Import("env")
 env.Append(LINT_SOURCES=["firmware"])
 
 libenv = env.Clone(FW_LIB_NAME="flipper${TARGET_HW}")
+libenv.Append(
+    CPPPATH=[
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl",
+    ]
+)
 libenv.ApplyLibFlags()
 
 
