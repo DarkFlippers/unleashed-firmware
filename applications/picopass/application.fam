@@ -5,7 +5,7 @@ App(
     entry_point="picopass_app",
     cdefines=["APP_PICOPASS"],
     requires=["storage", "gui"],
-    stack_size=1 * 1024,
+    stack_size=4 * 1024,
     icon="A_Plugins_14",
     order=30,
 )

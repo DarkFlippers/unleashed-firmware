@@ -1,23 +1,9 @@
 #include "picopass_worker_i.h"
-#include <furi_hal.h>
-
-#include <stdlib.h>
-#include <st25r3916.h>
-#include <rfal_analogConfig.h>
-#include <rfal_rf.h>
-#include <rfal_nfc.h>
-
-#include <mbedtls/des.h>
-#include <loclass/optimized_ikeys.h>
-#include <loclass/optimized_cipher.h>
-
-#include <platform.h>
 
 #define TAG "PicopassWorker"
 
 const uint8_t picopass_iclass_key[] = {0xaf, 0xa7, 0x85, 0xa7, 0xda, 0xb3, 0x33, 0x78};
-const uint8_t picopass_iclass_decryptionkey[] =
-    {0xb4, 0x21, 0x2c, 0xca, 0xb7, 0xed, 0x21, 0x0f, 0x7b, 0x93, 0xd4, 0x59, 0x39, 0xc7, 0xdd, 0x36};
+const uint8_t picopass_factory_key[] = {0x76, 0x65, 0x54, 0x43, 0x32, 0x21, 0x10, 0x00};
 
 static void picopass_worker_enable_field() {
     st25r3916TxRxOn();
@@ -29,44 +15,6 @@ static ReturnCode picopass_worker_disable_field(ReturnCode rc) {
     st25r3916TxRxOff();
     rfalLowPowerModeStart();
     return rc;
-}
-
-static ReturnCode picopass_worker_decrypt(uint8_t* enc_data, uint8_t* dec_data) {
-    uint8_t key[32] = {0};
-    memcpy(key, picopass_iclass_decryptionkey, sizeof(picopass_iclass_decryptionkey));
-    mbedtls_des3_context ctx;
-    mbedtls_des3_init(&ctx);
-    mbedtls_des3_set2key_dec(&ctx, key);
-    mbedtls_des3_crypt_ecb(&ctx, enc_data, dec_data);
-    mbedtls_des3_free(&ctx);
-    return ERR_NONE;
-}
-
-static ReturnCode picopass_worker_parse_wiegand(uint8_t* data, PicopassWiegandRecord* record) {
-    uint32_t* halves = (uint32_t*)data;
-    if(halves[0] == 0) {
-        uint8_t leading0s = __builtin_clz(REVERSE_BYTES_U32(halves[1]));
-        record->bitLength = 31 - leading0s;
-    } else {
-        uint8_t leading0s = __builtin_clz(REVERSE_BYTES_U32(halves[0]));
-        record->bitLength = 63 - leading0s;
-    }
-    FURI_LOG_D(TAG, "bitLength: %d", record->bitLength);
-
-    if(record->bitLength == 26) {
-        uint8_t* v4 = data + 4;
-        uint32_t bot = v4[3] | (v4[2] << 8) | (v4[1] << 16) | (v4[0] << 24);
-
-        record->CardNumber = (bot >> 1) & 0xFFFF;
-        record->FacilityCode = (bot >> 17) & 0xFF;
-        FURI_LOG_D(TAG, "FC:%u CN: %u\n", record->FacilityCode, record->CardNumber);
-        record->valid = true;
-    } else {
-        record->CardNumber = 0;
-        record->FacilityCode = 0;
-        record->valid = false;
-    }
-    return ERR_NONE;
 }
 
 /***************************** Picopass Worker API *******************************/
@@ -272,46 +220,15 @@ void picopass_worker_detect(PicopassWorker* picopass_worker) {
                 FURI_LOG_E(TAG, "picopass_read_card error %d", err);
             }
 
-            // Thank you proxmark!
-            pacs->legacy = (memcmp(AA1[5].data, "\xff\xff\xff\xff\xff\xff\xff\xff", 8) == 0);
-            pacs->se_enabled = (memcmp(AA1[5].data, "\xff\xff\xff\x00\x06\xff\xff\xff", 8) == 0);
-
-            pacs->biometrics = AA1[6].data[4];
-            pacs->pin_length = AA1[6].data[6] & 0x0F;
-            pacs->encryption = AA1[6].data[7];
-
-            if(pacs->encryption == PicopassDeviceEncryption3DES) {
-                FURI_LOG_D(TAG, "3DES Encrypted");
-                err = picopass_worker_decrypt(AA1[7].data, pacs->credential);
-                if(err != ERR_NONE) {
-                    FURI_LOG_E(TAG, "decrypt error %d", err);
-                    break;
-                }
-
-                err = picopass_worker_decrypt(AA1[8].data, pacs->pin0);
-                if(err != ERR_NONE) {
-                    FURI_LOG_E(TAG, "decrypt error %d", err);
-                    break;
-                }
-
-                err = picopass_worker_decrypt(AA1[9].data, pacs->pin1);
-                if(err != ERR_NONE) {
-                    FURI_LOG_E(TAG, "decrypt error %d", err);
-                    break;
-                }
-            } else if(pacs->encryption == PicopassDeviceEncryptionNone) {
-                FURI_LOG_D(TAG, "No Encryption");
-                memcpy(pacs->credential, AA1[7].data, PICOPASS_BLOCK_LEN);
-                memcpy(pacs->pin0, AA1[8].data, PICOPASS_BLOCK_LEN);
-                memcpy(pacs->pin1, AA1[9].data, PICOPASS_BLOCK_LEN);
-            } else if(pacs->encryption == PicopassDeviceEncryptionDES) {
-                FURI_LOG_D(TAG, "DES Encrypted");
-            } else {
-                FURI_LOG_D(TAG, "Unknown encryption");
-                break;
+            err = picopass_device_parse_credential(AA1, pacs);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_device_parse_credential error %d", err);
             }
 
-            picopass_worker_parse_wiegand(pacs->credential, &pacs->record);
+            err = picopass_device_parse_wiegand(pacs->credential, &pacs->record);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_device_parse_wiegand error %d", err);
+            }
 
             // Notify caller and exit
             if(picopass_worker->callback) {
