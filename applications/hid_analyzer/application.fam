@@ -1,9 +1,0 @@
-App(
-    appid="hid_analyzer",
-    name="HID Analyzer",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="hid_analyzer_app",
-    cdefines=["APP_HID_ANALYZER"],
-    stack_size=2 * 1024,
-    order=40,
-)
