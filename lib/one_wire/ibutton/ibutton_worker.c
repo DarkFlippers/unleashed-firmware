@@ -29,19 +29,13 @@ iButtonWorker* ibutton_worker_alloc() {
     worker->slave = onewire_slave_alloc();
     worker->writer = ibutton_writer_alloc(worker->host);
     worker->device = onewire_device_alloc(0, 0, 0, 0, 0, 0, 0, 0);
-    worker->pulse_decoder = pulse_decoder_alloc();
-    worker->protocol_cyfral = protocol_cyfral_alloc();
-    worker->protocol_metakom = protocol_metakom_alloc();
     worker->messages = furi_message_queue_alloc(1, sizeof(iButtonMessage));
+
     worker->mode_index = iButtonWorkerIdle;
-    worker->last_dwt_value = 0;
     worker->read_cb = NULL;
     worker->write_cb = NULL;
     worker->emulate_cb = NULL;
     worker->cb_ctx = NULL;
-
-    worker->encoder_cyfral = encoder_cyfral_alloc();
-    worker->encoder_metakom = encoder_metakom_alloc();
 
     worker->thread = furi_thread_alloc();
     furi_thread_set_name(worker->thread, "ibutton_worker");
@@ -49,14 +43,7 @@ iButtonWorker* ibutton_worker_alloc() {
     furi_thread_set_context(worker->thread, worker);
     furi_thread_set_stack_size(worker->thread, 2048);
 
-    pulse_decoder_add_protocol(
-        worker->pulse_decoder,
-        protocol_cyfral_get_protocol(worker->protocol_cyfral),
-        PulseProtocolCyfral);
-    pulse_decoder_add_protocol(
-        worker->pulse_decoder,
-        protocol_metakom_get_protocol(worker->protocol_metakom),
-        PulseProtocolMetakom);
+    worker->protocols = protocol_dict_alloc(ibutton_protocols, iButtonProtocolMax);
 
     return worker;
 }
@@ -113,10 +100,6 @@ void ibutton_worker_stop(iButtonWorker* worker) {
 }
 
 void ibutton_worker_free(iButtonWorker* worker) {
-    pulse_decoder_free(worker->pulse_decoder);
-    protocol_metakom_free(worker->protocol_metakom);
-    protocol_cyfral_free(worker->protocol_cyfral);
-
     ibutton_writer_free(worker->writer);
 
     onewire_slave_free(worker->slave);
@@ -124,8 +107,7 @@ void ibutton_worker_free(iButtonWorker* worker) {
     onewire_host_free(worker->host);
     onewire_device_free(worker->device);
 
-    encoder_cyfral_free(worker->encoder_cyfral);
-    encoder_metakom_free(worker->encoder_metakom);
+    protocol_dict_free(worker->protocols);
 
     furi_message_queue_free(worker->messages);
 

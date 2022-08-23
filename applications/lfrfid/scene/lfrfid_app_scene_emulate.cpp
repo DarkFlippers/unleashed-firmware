@@ -3,28 +3,21 @@
 #include <dolphin/dolphin.h>
 
 void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool /* need_restore */) {
-    string_init(data_string);
-
     DOLPHIN_DEED(DolphinDeedRfidEmulate);
-    const uint8_t* data = app->worker.key.get_data();
-
-    for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
-        string_cat_printf(data_string, "%02X", data[i]);
-    }
-
     auto popup = app->view_controller.get<PopupVM>();
 
     popup->set_header("Emulating", 89, 30, AlignCenter, AlignTop);
-    if(strlen(app->worker.key.get_name())) {
-        popup->set_text(app->worker.key.get_name(), 89, 43, AlignCenter, AlignTop);
+    if(string_size(app->file_name)) {
+        popup->set_text(string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
     } else {
-        popup->set_text(string_get_cstr(data_string), 89, 43, AlignCenter, AlignTop);
+        popup->set_text(
+            protocol_dict_get_name(app->dict, app->protocol_id), 89, 43, AlignCenter, AlignTop);
     }
     popup->set_icon(0, 3, &I_RFIDDolphinSend_97x61);
 
     app->view_controller.switch_to<PopupVM>();
-    app->worker.start_emulate();
-
+    lfrfid_worker_start_thread(app->lfworker);
+    lfrfid_worker_emulate_start(app->lfworker, (LFRFIDProtocol)app->protocol_id);
     notification_message(app->notification, &sequence_blink_start_magenta);
 }
 
@@ -37,7 +30,7 @@ bool LfRfidAppSceneEmulate::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
 
 void LfRfidAppSceneEmulate::on_exit(LfRfidApp* app) {
     app->view_controller.get<PopupVM>()->clean();
-    app->worker.stop_emulate();
-    string_clear(data_string);
+    lfrfid_worker_stop(app->lfworker);
+    lfrfid_worker_stop_thread(app->lfworker);
     notification_message(app->notification, &sequence_blink_stop);
 }

@@ -21,6 +21,11 @@
 #include "scene/lfrfid_app_scene_delete_confirm.h"
 #include "scene/lfrfid_app_scene_delete_success.h"
 #include "scene/lfrfid_app_scene_rpc.h"
+#include "scene/lfrfid_app_scene_extra_actions.h"
+#include "scene/lfrfid_app_scene_raw_info.h"
+#include "scene/lfrfid_app_scene_raw_name.h"
+#include "scene/lfrfid_app_scene_raw_read.h"
+#include "scene/lfrfid_app_scene_raw_success.h"
 
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
@@ -28,24 +33,44 @@
 #include <rpc/rpc_app.h>
 
 const char* LfRfidApp::app_folder = ANY_PATH("lfrfid");
+const char* LfRfidApp::app_sd_folder = EXT_PATH("lfrfid");
 const char* LfRfidApp::app_extension = ".rfid";
 const char* LfRfidApp::app_filetype = "Flipper RFID key";
 
 LfRfidApp::LfRfidApp()
     : scene_controller{this}
-    , notification{"notification"}
-    , storage{"storage"}
-    , dialogs{"dialogs"}
+    , notification{RECORD_NOTIFICATION}
+    , storage{RECORD_STORAGE}
+    , dialogs{RECORD_DIALOGS}
     , text_store(40) {
+    string_init(file_name);
+    string_init(raw_file_name);
     string_init_set_str(file_path, app_folder);
+
+    dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+
+    size_t size = protocol_dict_get_max_data_size(dict);
+    new_key_data = (uint8_t*)malloc(size);
+    old_key_data = (uint8_t*)malloc(size);
+
+    lfworker = lfrfid_worker_alloc(dict);
 }
 
 LfRfidApp::~LfRfidApp() {
+    string_clear(raw_file_name);
+    string_clear(file_name);
     string_clear(file_path);
+    protocol_dict_free(dict);
+
+    lfrfid_worker_free(lfworker);
+
     if(rpc_ctx) {
         rpc_system_app_set_callback(rpc_ctx, NULL, NULL);
         rpc_system_app_send_exited(rpc_ctx);
     }
+
+    free(new_key_data);
+    free(old_key_data);
 }
 
 static void rpc_command_callback(RpcAppSystemEvent rpc_event, void* context) {
@@ -88,7 +113,7 @@ void LfRfidApp::run(void* _args) {
             scene_controller.process(100, SceneType::Rpc);
         } else {
             string_set_str(file_path, args);
-            load_key_data(file_path, &worker.key, true);
+            load_key_data(file_path, true);
             view_controller.attach_to_gui(ViewDispatcherTypeFullscreen);
             scene_controller.add_scene(SceneType::Emulate, new LfRfidAppSceneEmulate());
             scene_controller.process(100, SceneType::Emulate);
@@ -114,11 +139,16 @@ void LfRfidApp::run(void* _args) {
         scene_controller.add_scene(SceneType::SavedInfo, new LfRfidAppSceneSavedInfo());
         scene_controller.add_scene(SceneType::DeleteConfirm, new LfRfidAppSceneDeleteConfirm());
         scene_controller.add_scene(SceneType::DeleteSuccess, new LfRfidAppSceneDeleteSuccess());
+        scene_controller.add_scene(SceneType::ExtraActions, new LfRfidAppSceneExtraActions());
+        scene_controller.add_scene(SceneType::RawInfo, new LfRfidAppSceneRawInfo());
+        scene_controller.add_scene(SceneType::RawName, new LfRfidAppSceneRawName());
+        scene_controller.add_scene(SceneType::RawRead, new LfRfidAppSceneRawRead());
+        scene_controller.add_scene(SceneType::RawSuccess, new LfRfidAppSceneRawSuccess());
         scene_controller.process(100);
     }
 }
 
-bool LfRfidApp::save_key(RfidKey* key) {
+bool LfRfidApp::save_key() {
     bool result = false;
 
     make_app_folder();
@@ -128,9 +158,9 @@ bool LfRfidApp::save_key(RfidKey* key) {
         string_left(file_path, filename_start);
     }
 
-    string_cat_printf(file_path, "/%s%s", key->get_name(), app_extension);
+    string_cat_printf(file_path, "/%s%s", string_get_cstr(file_name), app_extension);
 
-    result = save_key_data(file_path, key);
+    result = save_key_data(file_path);
     return result;
 }
 
@@ -143,55 +173,26 @@ bool LfRfidApp::load_key_from_file_select(bool need_restore) {
         dialogs, file_path, file_path, app_extension, true, &I_125_10px, true);
 
     if(result) {
-        result = load_key_data(file_path, &worker.key, true);
+        result = load_key_data(file_path, true);
     }
 
     return result;
 }
 
-bool LfRfidApp::delete_key(RfidKey* key) {
-    UNUSED(key);
+bool LfRfidApp::delete_key() {
     return storage_simply_remove(storage, string_get_cstr(file_path));
 }
 
-bool LfRfidApp::load_key_data(string_t path, RfidKey* key, bool show_dialog) {
-    FlipperFormat* file = flipper_format_file_alloc(storage);
+bool LfRfidApp::load_key_data(string_t path, bool show_dialog) {
     bool result = false;
-    string_t str_result;
-    string_init(str_result);
 
     do {
-        if(!flipper_format_file_open_existing(file, string_get_cstr(path))) break;
+        protocol_id = lfrfid_dict_file_load(dict, string_get_cstr(path));
+        if(protocol_id == PROTOCOL_NO) break;
 
-        // header
-        uint32_t version;
-        if(!flipper_format_read_header(file, str_result, &version)) break;
-        if(string_cmp_str(str_result, app_filetype) != 0) break;
-        if(version != 1) break;
-
-        // key type
-        LfrfidKeyType type;
-        RfidKey loaded_key;
-
-        if(!flipper_format_read_string(file, "Key type", str_result)) break;
-        if(!lfrfid_key_get_string_type(string_get_cstr(str_result), &type)) break;
-        loaded_key.set_type(type);
-
-        // key data
-        uint8_t key_data[loaded_key.get_type_data_count()] = {};
-        if(!flipper_format_read_hex(file, "Data", key_data, loaded_key.get_type_data_count()))
-            break;
-        loaded_key.set_data(key_data, loaded_key.get_type_data_count());
-
-        path_extract_filename(path, str_result, true);
-        loaded_key.set_name(string_get_cstr(str_result));
-
-        *key = loaded_key;
+        path_extract_filename(path, file_name, true);
         result = true;
     } while(0);
-
-    flipper_format_free(file);
-    string_clear(str_result);
 
     if((!result) && (show_dialog)) {
         dialog_message_show_storage_error(dialogs, "Cannot load\nkey file");
@@ -200,27 +201,8 @@ bool LfRfidApp::load_key_data(string_t path, RfidKey* key, bool show_dialog) {
     return result;
 }
 
-bool LfRfidApp::save_key_data(string_t path, RfidKey* key) {
-    FlipperFormat* file = flipper_format_file_alloc(storage);
-    bool result = false;
-
-    do {
-        if(!flipper_format_file_open_always(file, string_get_cstr(path))) break;
-        if(!flipper_format_write_header_cstr(file, app_filetype, 1)) break;
-        if(!flipper_format_write_comment_cstr(file, "Key type can be EM4100, H10301 or I40134"))
-            break;
-        if(!flipper_format_write_string_cstr(
-               file, "Key type", lfrfid_key_get_type_string(key->get_type())))
-            break;
-        if(!flipper_format_write_comment_cstr(
-               file, "Data size for EM4100 is 5, for H10301 is 3, for I40134 is 3"))
-            break;
-        if(!flipper_format_write_hex(file, "Data", key->get_data(), key->get_type_data_count()))
-            break;
-        result = true;
-    } while(0);
-
-    flipper_format_free(file);
+bool LfRfidApp::save_key_data(string_t path) {
+    bool result = lfrfid_dict_file_save(dict, protocol_id, string_get_cstr(path));
 
     if(!result) {
         dialog_message_show_storage_error(dialogs, "Cannot save\nkey file");

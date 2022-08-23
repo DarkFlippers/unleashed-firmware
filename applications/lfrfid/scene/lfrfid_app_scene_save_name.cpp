@@ -4,9 +4,9 @@
 #include <lib/toolbox/path.h>
 
 void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool /* need_restore */) {
-    const char* key_name = app->worker.key.get_name();
+    const char* key_name = string_get_cstr(app->file_name);
 
-    bool key_name_empty = !strcmp(key_name, "");
+    bool key_name_empty = (string_size(app->file_name) == 0);
     if(key_name_empty) {
         string_set_str(app->file_path, app->app_folder);
         set_random_name(app->text_store.text, app->text_store.text_size);
@@ -18,11 +18,7 @@ void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool /* need_restore */) {
     text_input->set_header_text("Name the card");
 
     text_input->set_result_callback(
-        save_callback,
-        app,
-        app->text_store.text,
-        app->worker.key.get_name_length(),
-        key_name_empty);
+        save_callback, app, app->text_store.text, LFRFID_KEY_NAME_SIZE, key_name_empty);
 
     string_t folder_path;
     string_init(folder_path);
@@ -42,13 +38,13 @@ bool LfRfidAppSceneSaveName::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
     bool consumed = false;
 
     if(event->type == LfRfidApp::EventType::Next) {
-        if(strlen(app->worker.key.get_name())) {
-            app->delete_key(&app->worker.key);
+        if(string_size(app->file_name) > 0) {
+            app->delete_key();
         }
 
-        app->worker.key.set_name(app->text_store.text);
+        string_set_str(app->file_name, app->text_store.text);
 
-        if(app->save_key(&app->worker.key)) {
+        if(app->save_key()) {
             app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::SaveSuccess);
         } else {
             app->scene_controller.search_and_switch_to_previous_scene(
