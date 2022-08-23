@@ -11,7 +11,7 @@ const SubGhzProtocol* subghz_protocol_registry[] = {
     &subghz_protocol_secplus_v1,    &subghz_protocol_megacode,    &subghz_protocol_holtek,
     &subghz_protocol_chamb_code,    &subghz_protocol_power_smart, &subghz_protocol_marantec,
     &subghz_protocol_bett,          &subghz_protocol_doitrand,    &subghz_protocol_phoenix_v2,
-    &subghz_protocol_honeywell_wdb,
+    &subghz_protocol_honeywell_wdb, &subghz_protocol_magellen,
 
 };
 

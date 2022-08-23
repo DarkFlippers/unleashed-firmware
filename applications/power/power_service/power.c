@@ -55,13 +55,14 @@ Power* power_alloc() {
 
     // Gui
     power->view_dispatcher = view_dispatcher_alloc();
-    power->popup = popup_alloc();
-    popup_set_header(
-        power->popup, "Disconnect USB for safe\nshutdown", 64, 26, AlignCenter, AlignTop);
-    view_dispatcher_add_view(power->view_dispatcher, PowerViewPopup, popup_get_view(power->popup));
     power->power_off = power_off_alloc();
     view_dispatcher_add_view(
         power->view_dispatcher, PowerViewOff, power_off_get_view(power->power_off));
+    power->power_unplug_usb = power_unplug_usb_alloc();
+    view_dispatcher_add_view(
+        power->view_dispatcher,
+        PowerViewUnplugUsb,
+        power_unplug_usb_get_view(power->power_unplug_usb));
     view_dispatcher_attach_to_gui(
         power->view_dispatcher, power->gui, ViewDispatcherTypeFullscreen);
 
@@ -78,8 +79,9 @@ void power_free(Power* power) {
     // Gui
     view_dispatcher_remove_view(power->view_dispatcher, PowerViewOff);
     power_off_free(power->power_off);
-    view_dispatcher_remove_view(power->view_dispatcher, PowerViewPopup);
-    popup_free(power->popup);
+    view_dispatcher_remove_view(power->view_dispatcher, PowerViewUnplugUsb);
+    power_unplug_usb_free(power->power_unplug_usb);
+
     view_port_free(power->battery_view_port);
 
     // State

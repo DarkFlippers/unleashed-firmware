@@ -57,7 +57,6 @@ static void rpc_system_gpio_set_pin_mode(const PB_Main* request, void* context) 
     furi_assert(request->which_content == PB_Main_gpio_set_pin_mode_tag);
 
     RpcSession* session = context;
-    furi_assert(session);
 
     PB_Gpio_SetPinMode cmd = request->content.gpio_set_pin_mode;
     const GpioPin* pin = rpc_pin_to_hal_pin(cmd.pin);
@@ -77,7 +76,6 @@ static void rpc_system_gpio_write_pin(const PB_Main* request, void* context) {
     furi_assert(request->which_content == PB_Main_gpio_write_pin_tag);
 
     RpcSession* session = context;
-    furi_assert(session);
 
     PB_Gpio_WritePin cmd = request->content.gpio_write_pin;
     const GpioPin* pin = rpc_pin_to_hal_pin(cmd.pin);
@@ -105,7 +103,6 @@ static void rpc_system_gpio_read_pin(const PB_Main* request, void* context) {
     furi_assert(request->which_content == PB_Main_gpio_read_pin_tag);
 
     RpcSession* session = context;
-    furi_assert(session);
 
     PB_Gpio_ReadPin cmd = request->content.gpio_read_pin;
     const GpioPin* pin = rpc_pin_to_hal_pin(cmd.pin);
@@ -133,7 +130,6 @@ void rpc_system_gpio_get_pin_mode(const PB_Main* request, void* context) {
     furi_assert(request->which_content == PB_Main_gpio_get_pin_mode_tag);
 
     RpcSession* session = context;
-    furi_assert(session);
 
     PB_Gpio_GetPinMode cmd = request->content.gpio_get_pin_mode;
     const GpioPin* pin = rpc_pin_to_hal_pin(cmd.pin);
@@ -170,7 +166,6 @@ void rpc_system_gpio_set_input_pull(const PB_Main* request, void* context) {
     furi_assert(request->which_content == PB_Main_gpio_set_input_pull_tag);
 
     RpcSession* session = context;
-    furi_assert(session);
 
     PB_Gpio_SetInputPull cmd = request->content.gpio_set_input_pull;
     const GpioPin* pin = rpc_pin_to_hal_pin(cmd.pin);

@@ -6,7 +6,7 @@
 #include <stm32wbxx_ll_rtc.h>
 
 #include <stdio.h>
-#include "ble.h"
+#include <ble/ble.h>
 
 #define TAG "FuriHalVersion"
 

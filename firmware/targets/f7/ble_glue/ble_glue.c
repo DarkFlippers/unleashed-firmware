@@ -1,14 +1,14 @@
 #include "ble_glue.h"
 #include "app_common.h"
 #include "ble_app.h"
-#include "ble.h"
-#include "tl.h"
-#include "shci.h"
-#include "shci_tl.h"
+#include <ble/ble.h>
+
+#include <interface/patterns/ble_thread/tl/tl.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
+#include <interface/patterns/ble_thread/tl/shci_tl.h>
 #include "app_debug.h"
 
 #include <furi_hal.h>
-#include <shci/shci.h>
 
 #define TAG "Core2"
 

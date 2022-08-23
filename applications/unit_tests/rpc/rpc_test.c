@@ -215,7 +215,7 @@ static void test_rpc_print_message_list(MsgList_t msg_list) {
     MsgList_reverse(msg_list);
     for
         M_EACH(msg, msg_list, MsgList_t) {
-            rpc_print_message(msg);
+            rpc_debug_print_message(msg);
         }
     MsgList_reverse(msg_list);
 #else
