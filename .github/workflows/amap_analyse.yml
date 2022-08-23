@@ -15,6 +15,7 @@ env:
 jobs:
   amap_analyse:
     runs-on: [self-hosted,FlipperZeroMacShell]
+    timeout-minutes: 15
     steps:
       - name: 'Wait Build workflow'
         uses: fountainhead/action-wait-for-check@v1.0.0
