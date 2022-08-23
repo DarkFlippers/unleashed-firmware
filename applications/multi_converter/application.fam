@@ -1,8 +1,8 @@
 App(
-    appid="dec_hex_converter",
-    name="Dec/Hex Converter",
+    appid="multi_converter",
+    name="Multi Converter",
     apptype=FlipperAppType.PLUGIN,
-    entry_point="dec_hex_converter_app",
+    entry_point="multi_converter_app",
     cdefines=["APP_DEC_HEX_CONVERTER"],
     requires=["gui"],
     stack_size=1 * 1024,

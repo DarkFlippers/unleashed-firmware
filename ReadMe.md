@@ -1,6 +1,8 @@
-# Flipper Zero Unleashed Firmware
-
-<img src="https://i.ibb.co/wQ12PVc/fzCUSTOM.png" alt="fzCUSTOM" border="0">
+<h3 align="center">
+<a href="https://github.com/Eng1n33r/flipperzero-firmware">
+<img src="https://user-images.githubusercontent.com/10697207/186202043-26947e28-b1cc-459a-8f20-ffcc7fc0c71c.png" align="center" alt="fzCUSTOM" border="0">
+</a>
+</h3>
 
 Welcome to Flipper Zero's Custom Firmware repo! 
 Our goal is to make any features possible in this device without any limitations! 
@@ -57,7 +59,7 @@ See changelog in releases for latest updates!
 
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
-- Dec/Hex Converter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff/tree/main/applications/dec_hex_converter)
+- MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
 - WAV player plugin (fixed) [(OFW: DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
 - UPC-A Barcode generator plugin [(by McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
 - GPIO: Sentry Safe plugin [(by H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
@@ -90,6 +92,8 @@ See changelog in releases for latest updates!
 ## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
 
 ## [- Barcode Generator](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
+
+## [- Multi Converter](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/MultiConverter.md)
 
 ## [- WAV Player sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
 
