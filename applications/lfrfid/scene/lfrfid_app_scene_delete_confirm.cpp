@@ -5,7 +5,6 @@
 
 void LfRfidAppSceneDeleteConfirm::on_enter(LfRfidApp* app, bool /* need_restore */) {
     string_init(string_data);
-    string_init(string_decrypted);
     string_init(string_header);
 
     auto container = app->view_controller.get<ContainerVM>();
@@ -21,49 +20,26 @@ void LfRfidAppSceneDeleteConfirm::on_enter(LfRfidApp* app, bool /* need_restore 
     auto line_1 = container->add<StringElement>();
     auto line_2 = container->add<StringElement>();
     auto line_3 = container->add<StringElement>();
-    auto line_4 = container->add<StringElement>();
 
-    RfidKey& key = app->worker.key;
-    const uint8_t* data = key.get_data();
-
-    for(uint8_t i = 0; i < key.get_type_data_count(); i++) {
+    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    uint8_t* data = (uint8_t*)malloc(size);
+    protocol_dict_get_data(app->dict, app->protocol_id, data, size);
+    for(uint8_t i = 0; i < MIN(size, (size_t)8); i++) {
         if(i != 0) {
             string_cat_printf(string_data, " ");
         }
+
         string_cat_printf(string_data, "%02X", data[i]);
     }
+    free(data);
 
-    string_printf(string_header, "Delete %s?", key.get_name());
+    string_printf(string_header, "Delete %s?", string_get_cstr(app->file_name));
     line_1->set_text(
-        string_get_cstr(string_header), 64, 19, 128 - 2, AlignCenter, AlignBottom, FontPrimary);
+        string_get_cstr(string_header), 64, 0, 128 - 2, AlignCenter, AlignTop, FontPrimary);
     line_2->set_text(
-        string_get_cstr(string_data), 64, 29, 0, AlignCenter, AlignBottom, FontSecondary);
-
-    switch(key.get_type()) {
-    case LfrfidKeyType::KeyEM4100:
-        string_printf(
-            string_decrypted, "%03u,%05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
-
-        break;
-    case LfrfidKeyType::KeyH10301:
-    case LfrfidKeyType::KeyI40134:
-        string_printf(
-            string_decrypted, "FC: %u    ID: %u", data[0], (uint16_t)((data[1] << 8) | (data[2])));
-        break;
-    case LfrfidKeyType::KeyIoProxXSF:
-        string_printf(
-            string_decrypted,
-            "FC: %u   VC: %u   ID: %u",
-            data[0],
-            data[1],
-            (uint16_t)((data[2] << 8) | (data[3])));
-        break;
-    }
+        string_get_cstr(string_data), 64, 19, 0, AlignCenter, AlignTop, FontSecondary);
     line_3->set_text(
-        string_get_cstr(string_decrypted), 64, 39, 0, AlignCenter, AlignBottom, FontSecondary);
-
-    line_4->set_text(
-        lfrfid_key_get_type_string(key.get_type()),
+        protocol_dict_get_name(app->dict, app->protocol_id),
         64,
         49,
         0,
@@ -78,7 +54,7 @@ bool LfRfidAppSceneDeleteConfirm::on_event(LfRfidApp* app, LfRfidApp::Event* eve
     bool consumed = false;
 
     if(event->type == LfRfidApp::EventType::Next) {
-        app->delete_key(&app->worker.key);
+        app->delete_key();
         app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::DeleteSuccess);
         consumed = true;
     } else if(event->type == LfRfidApp::EventType::Stay) {
@@ -94,7 +70,6 @@ bool LfRfidAppSceneDeleteConfirm::on_event(LfRfidApp* app, LfRfidApp::Event* eve
 void LfRfidAppSceneDeleteConfirm::on_exit(LfRfidApp* app) {
     app->view_controller.get<ContainerVM>()->clean();
     string_clear(string_data);
-    string_clear(string_decrypted);
     string_clear(string_header);
 }
 

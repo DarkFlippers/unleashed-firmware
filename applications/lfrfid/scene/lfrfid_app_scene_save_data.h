@@ -9,25 +9,4 @@ public:
 
 private:
     static void save_callback(void* context);
-    uint8_t old_key_data[LFRFID_KEY_SIZE] = {
-        0xAA,
-        0xAA,
-        0xAA,
-        0xAA,
-        0xAA,
-        0xAA,
-        0xAA,
-        0xAA,
-    };
-
-    uint8_t new_key_data[LFRFID_KEY_SIZE] = {
-        0xBB,
-        0xBB,
-        0xBB,
-        0xBB,
-        0xBB,
-        0xBB,
-        0xBB,
-        0xBB,
-    };
 };

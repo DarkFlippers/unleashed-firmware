@@ -41,7 +41,7 @@
  * Writing:
  * 
  * ~~~~~~~~~~~~~~~~~~~~~
- * FlipperFormat format = flipper_format_file_alloc(storage);
+ * FlipperFormat* format = flipper_format_file_alloc(storage);
  * 
  * do {
  *     const uint32_t version = 1;
@@ -66,7 +66,7 @@
  * Reading:
  * 
  * ~~~~~~~~~~~~~~~~~~~~~
- * FlipperFormat file = flipper_format_file_alloc(storage);
+ * FlipperFormat* file = flipper_format_file_alloc(storage);
  * 
  * do {
  *     uint32_t version = 1;

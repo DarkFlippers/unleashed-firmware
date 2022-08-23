@@ -240,6 +240,18 @@ bool storage_file_eof(File* file) {
     return S_RETURN_BOOL;
 }
 
+bool storage_file_exists(Storage* storage, const char* path) {
+    bool exist = false;
+    FileInfo fileinfo;
+    FS_Error error = storage_common_stat(storage, path, &fileinfo);
+
+    if(error == FSE_OK && !(fileinfo.flags & FSF_DIRECTORY)) {
+        exist = true;
+    }
+
+    return exist;
+}
+
 /****************** DIR ******************/
 
 static bool storage_dir_open_internal(File* file, const char* path) {

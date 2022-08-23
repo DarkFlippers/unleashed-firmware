@@ -13,5 +13,4 @@ private:
 
     string_t string_header;
     string_t string_data;
-    string_t string_decrypted;
 };
