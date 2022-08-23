@@ -68,7 +68,6 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "picopass",
-        "hid_analyzer",
         "barcode_generator",
         "mouse_jacker",
         "nrf_sniff",
@@ -77,6 +76,6 @@ App(
         "esp8266_deauth",
         "wifi_scanner",
         "wav_player",
-        "dec_hex_converter",
+        "multi_converter",
     ],
 )

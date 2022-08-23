@@ -3,7 +3,7 @@
 #include <applications/cli/cli.h>
 #include <lib/toolbox/args.h>
 
-#include "ble.h"
+#include <ble/ble.h>
 #include "bt_settings.h"
 #include "bt_service/bt.h"
 

@@ -14,23 +14,23 @@ typedef struct {
 
 #define CLI_READ_BUFFER_SIZE 64
 
-static void rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t bytes_len) {
+static void rpc_cli_send_bytes_callback(void* context, uint8_t* bytes, size_t bytes_len) {
     furi_assert(context);
     furi_assert(bytes);
-    furi_assert(bytes_len);
+    furi_assert(bytes_len > 0);
     CliRpc* cli_rpc = context;
 
     cli_write(cli_rpc->cli, bytes, bytes_len);
 }
 
-static void rpc_session_close_callback(void* context) {
+static void rpc_cli_session_close_callback(void* context) {
     furi_assert(context);
     CliRpc* cli_rpc = context;
 
     cli_rpc->session_close_request = true;
 }
 
-static void rpc_session_terminated_callback(void* context) {
+static void rpc_cli_session_terminated_callback(void* context) {
     furi_check(context);
     CliRpc* cli_rpc = context;
 
@@ -39,6 +39,8 @@ static void rpc_session_terminated_callback(void* context) {
 
 void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     UNUSED(args);
+    furi_assert(cli);
+    furi_assert(context);
     Rpc* rpc = context;
 
     uint32_t mem_before = memmgr_get_free_heap();
@@ -55,9 +57,9 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     CliRpc cli_rpc = {.cli = cli, .session_close_request = false};
     cli_rpc.terminate_semaphore = furi_semaphore_alloc(1, 0);
     rpc_session_set_context(rpc_session, &cli_rpc);
-    rpc_session_set_send_bytes_callback(rpc_session, rpc_send_bytes_callback);
-    rpc_session_set_close_callback(rpc_session, rpc_session_close_callback);
-    rpc_session_set_terminated_callback(rpc_session, rpc_session_terminated_callback);
+    rpc_session_set_send_bytes_callback(rpc_session, rpc_cli_send_bytes_callback);
+    rpc_session_set_close_callback(rpc_session, rpc_cli_session_close_callback);
+    rpc_session_set_terminated_callback(rpc_session, rpc_cli_session_terminated_callback);
 
     uint8_t* buffer = malloc(CLI_READ_BUFFER_SIZE);
     size_t size_received = 0;

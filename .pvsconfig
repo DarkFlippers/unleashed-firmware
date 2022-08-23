@@ -1,0 +1,22 @@
+# MLib macros we can't do much about.
+//-V:M_EACH:1048,1044
+//-V:ARRAY_DEF:760,747,568,776,729,712,654
+//-V:LIST_DEF:760,747,568,712,729,654,776
+//-V:BPTREE_DEF2:779,1086,557,773,512
+//-V:DICT_DEF2:779,524,776,760,1044,1001,729,590,568,747,685
+//-V:ALGO_DEF:1048,747,1044
+
+# Non-severe malloc/null pointer deref warnings
+//-V::522:2,3
+
+# Warning about headers with copyleft license
+//-V::1042
+
+# Potentially null argument warnings
+//-V:memset:575
+//-V:memcpy:575
+//-V:strcpy:575
+//-V:strchr:575
+
+# For loop warning on M_FOREACH
+//-V:for:1044

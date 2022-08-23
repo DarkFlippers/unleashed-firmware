@@ -36,7 +36,11 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
     canvas_set_font(canvas, FontSecondary);
 
     if(model->left_mouse_held == true) {
-        elements_multiline_text_aligned(canvas, 0, 60, AlignLeft, AlignBottom, "Selecting...");
+        elements_multiline_text_aligned(canvas, 0, 62, AlignLeft, AlignBottom, "Selecting...");
+    } else {
+        canvas_draw_icon(canvas, 0, 54, &I_Pin_back_arrow_10x8);
+        canvas_set_font(canvas, FontSecondary);
+        elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Hold to exit");
     }
 
     // Keypad circles
@@ -44,7 +48,9 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Up
     if(model->up_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 81, 9, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 84, 10, &I_Pin_arrow_up7x9);
@@ -52,7 +58,9 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Down
     if(model->down_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 81, 41, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 84, 43, &I_Pin_arrow_down_7x9);
@@ -60,7 +68,9 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Left
     if(model->left_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 65, 25, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 67, 28, &I_Pin_arrow_left_9x7);
@@ -68,7 +78,9 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Right
     if(model->right_pressed) {
+        canvas_set_bitmap_mode(canvas, 1);
         canvas_draw_icon(canvas, 97, 25, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 99, 28, &I_Pin_arrow_right_9x7);
@@ -76,18 +88,17 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Ok
     if(model->left_mouse_pressed) {
-        canvas_draw_icon(canvas, 81, 25, &I_Pressed_Button_13x13);
-        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_icon(canvas, 81, 25, &I_Ok_btn_pressed_13x13);
+    } else {
+        canvas_draw_icon(canvas, 83, 27, &I_Left_mouse_icon_9x9);
     }
-    canvas_draw_icon(canvas, 83, 27, &I_Ok_btn_9x9);
-    canvas_set_color(canvas, ColorBlack);
 
     // Back
     if(model->right_mouse_pressed) {
-        canvas_draw_icon(canvas, 108, 48, &I_Pressed_Button_13x13);
-        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_icon(canvas, 108, 48, &I_Ok_btn_pressed_13x13);
+    } else {
+        canvas_draw_icon(canvas, 110, 50, &I_Right_mouse_icon_9x9);
     }
-    canvas_draw_icon(canvas, 110, 50, &I_Ok_btn_9x9);
 }
 
 static void bt_hid_mouse_process(BtHidMouse* bt_hid_mouse, InputEvent* event) {

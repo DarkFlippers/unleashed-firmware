@@ -3,31 +3,29 @@
 
 void LfRfidAppSceneSaveData::on_enter(LfRfidApp* app, bool need_restore) {
     auto byte_input = app->view_controller.get<ByteInputVM>();
-    RfidKey& key = app->worker.key;
-
-    if(need_restore) printf("restored\r\n");
+    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
 
     if(need_restore) {
-        key.set_data(old_key_data, key.get_type_data_count());
+        protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
     } else {
-        memcpy(old_key_data, key.get_data(), key.get_type_data_count());
+        protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
     }
 
-    memcpy(new_key_data, key.get_data(), key.get_type_data_count());
+    protocol_dict_get_data(app->dict, app->protocol_id, app->new_key_data, size);
+
     byte_input->set_header_text("Enter the data in hex");
 
-    byte_input->set_result_callback(
-        save_callback, NULL, app, new_key_data, app->worker.key.get_type_data_count());
+    byte_input->set_result_callback(save_callback, NULL, app, app->new_key_data, size);
 
     app->view_controller.switch_to<ByteInputVM>();
 }
 
 bool LfRfidAppSceneSaveData::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
     bool consumed = false;
-    RfidKey& key = app->worker.key;
 
     if(event->type == LfRfidApp::EventType::Next) {
-        key.set_data(new_key_data, key.get_type_data_count());
+        size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+        protocol_dict_set_data(app->dict, app->protocol_id, app->new_key_data, size);
         DOLPHIN_DEED(DolphinDeedRfidAdd);
         app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::SaveName);
     }

@@ -1,8 +1,8 @@
 #include "ble_app.h"
 
-#include "hci_tl.h"
-#include "ble.h"
-#include "shci.h"
+#include <ble/ble.h>
+#include <interface/patterns/ble_thread/tl/hci_tl.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
 #include "gap.h"
 
 #include <furi_hal.h>

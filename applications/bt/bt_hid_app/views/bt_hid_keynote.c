@@ -43,7 +43,10 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
     }
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keynote");
+
+    canvas_draw_icon(canvas, 68, 2, &I_Pin_back_arrow_10x8);
     canvas_set_font(canvas, FontSecondary);
+    elements_multiline_text_aligned(canvas, 127, 3, AlignRight, AlignTop, "Hold to exit");
 
     // Up
     canvas_draw_icon(canvas, 21, 24, &I_Button_18x18);
@@ -97,8 +100,8 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
         elements_slightly_rounded_box(canvas, 66, 47, 60, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 110, 49, &I_Ok_btn_9x9);
-    elements_multiline_text_aligned(canvas, 76, 56, AlignLeft, AlignBottom, "Back");
+    canvas_draw_icon(canvas, 74, 49, &I_Pin_back_arrow_10x8);
+    elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Back");
 }
 
 static void bt_hid_keynote_process(BtHidKeynote* bt_hid_keynote, InputEvent* event) {

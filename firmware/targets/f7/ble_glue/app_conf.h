@@ -1,9 +1,10 @@
 #pragma once
 
-#include "hw.h"
 #include "hw_conf.h"
 #include "hw_if.h"
-#include "ble_bufsize.h"
+
+#include <interface/patterns/ble_thread/hw.h>
+#include <ble/core/ble_bufsize.h>
 
 #define CFG_TX_POWER (0x19) /* +0dBm */
 

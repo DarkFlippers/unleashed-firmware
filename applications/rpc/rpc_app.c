@@ -299,6 +299,7 @@ void* rpc_system_app_alloc(RpcSession* session) {
 
 void rpc_system_app_free(void* context) {
     RpcAppSystem* rpc_app = context;
+    furi_assert(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 

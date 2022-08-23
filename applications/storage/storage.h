@@ -136,6 +136,15 @@ bool storage_file_sync(File* file);
  */
 bool storage_file_eof(File* file);
 
+/**
+ * @brief Check that file exists
+ * 
+ * @param storage 
+ * @param path 
+ * @return true if file exists
+ */
+bool storage_file_exists(Storage* storage, const char* path);
+
 /******************* Dir Functions *******************/
 
 /** Opens a directory to get objects from it

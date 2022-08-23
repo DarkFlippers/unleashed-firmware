@@ -170,8 +170,7 @@ static bool update_task_check_file_exists(UpdateTask* update_task, string_t file
     string_t tmp_path;
     string_init_set(tmp_path, update_task->update_path);
     path_append(tmp_path, string_get_cstr(filename));
-    bool exists =
-        (storage_common_stat(update_task->storage, string_get_cstr(tmp_path), NULL) == FSE_OK);
+    bool exists = storage_file_exists(update_task->storage, string_get_cstr(tmp_path));
     string_clear(tmp_path);
     return exists;
 }
