@@ -690,9 +690,14 @@ static bool unirfremix_send_sub(
 
                 flipper_format_file_close(fff_file);
 
-                subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
-                subghz_protocol_decoder_base_get_string(preset->decoder, temp_str);
-                FURI_LOG_I(TAG, "Decoded: %s", string_get_cstr(temp_str));
+                {
+                    string_t decode_str;
+                    string_init(decode_str);
+                    subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
+                    subghz_protocol_decoder_base_get_string(preset->decoder, decode_str);
+                    FURI_LOG_I(TAG, "Decoded: %s", string_get_cstr(decode_str));
+                    string_clear(decode_str);
+                }
 
                 FURI_LOG_I(TAG, "Checking if protocol is dynamic");
                 const SubGhzProtocol* registry_protocol =
