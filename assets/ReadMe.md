@@ -9,12 +9,6 @@
 ./fbt icons proto dolphin_internal dolphin_blocking dolphin_ext resources
 ```
 
-# Compiling with Docker-Compose
-
-```bash
-docker-compose exec dev ./fbt icons proto dolphin_internal dolphin_blocking dolphin_ext resources
-```
-
 # Asset naming rules
 
 ## Images and Animations

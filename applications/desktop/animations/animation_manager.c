@@ -220,8 +220,7 @@ static bool animation_manager_check_blocking(AnimationManager* animation_manager
             furi_assert(blocking_animation);
             animation_manager->sd_shown_sd_ok = true;
         } else if(!animation_manager->sd_shown_no_db) {
-            bool db_exists = storage_common_stat(storage, EXT_PATH("Manifest"), NULL) == FSE_OK;
-            if(!db_exists) {
+            if(!storage_file_exists(storage, EXT_PATH("Manifest"))) {
                 blocking_animation = animation_storage_find_animation(NO_DB_ANIMATION_NAME);
                 furi_assert(blocking_animation);
                 animation_manager->sd_shown_no_db = true;

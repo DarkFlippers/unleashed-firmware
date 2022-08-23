@@ -37,12 +37,13 @@ bool LfRfidAppSceneRpc::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
         bool result = false;
         if(arg && !emulating) {
             string_set_str(app->file_path, arg);
-            if(app->load_key_data(app->file_path, &(app->worker.key), false)) {
-                app->worker.start_emulate();
+            if(app->load_key_data(app->file_path, false)) {
+                lfrfid_worker_start_thread(app->lfworker);
+                lfrfid_worker_emulate_start(app->lfworker, (LFRFIDProtocol)app->protocol_id);
                 emulating = true;
 
                 auto popup = app->view_controller.get<PopupVM>();
-                app->text_store.set("emulating\n%s", app->worker.key.get_name());
+                app->text_store.set("emulating\n%s", string_get_cstr(app->file_name));
                 popup->set_text(app->text_store.text, 89, 44, AlignCenter, AlignTop);
 
                 notification_message(app->notification, &sequence_blink_start_magenta);
@@ -57,7 +58,8 @@ bool LfRfidAppSceneRpc::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
 
 void LfRfidAppSceneRpc::on_exit(LfRfidApp* app) {
     if(emulating) {
-        app->worker.stop_emulate();
+        lfrfid_worker_stop(app->lfworker);
+        lfrfid_worker_stop_thread(app->lfworker);
         notification_message(app->notification, &sequence_blink_stop);
     }
     app->view_controller.get<PopupVM>()->clean();

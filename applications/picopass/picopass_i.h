@@ -14,6 +14,7 @@
 
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/loading.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/widget.h>
 
@@ -55,6 +56,7 @@ struct Picopass {
     // Common Views
     Submenu* submenu;
     Popup* popup;
+    Loading* loading;
     TextInput* text_input;
     Widget* widget;
 };
@@ -62,6 +64,7 @@ struct Picopass {
 typedef enum {
     PicopassViewMenu,
     PicopassViewPopup,
+    PicopassViewLoading,
     PicopassViewTextInput,
     PicopassViewWidget,
 } PicopassView;
@@ -75,3 +78,5 @@ void picopass_text_store_clear(Picopass* picopass);
 void picopass_blink_start(Picopass* picopass);
 
 void picopass_blink_stop(Picopass* picopass);
+
+void picopass_show_loading_popup(void* context, bool show);

@@ -146,7 +146,6 @@ See changelog in releases for latest updates!
 - `assets`          - Assets used by applications and services
 - `furi`            - Furi Core: os level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
-- `docker`          - Docker image sources (used for firmware build automation)
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
 - `lib`             - Our and 3rd party libraries, drivers and etc...

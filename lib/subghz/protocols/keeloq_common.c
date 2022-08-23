@@ -5,6 +5,10 @@
 #include <m-string.h>
 #include <m-array.h>
 
+#define bit(x, n) (((x) >> (n)) & 1)
+#define g5(x, a, b, c, d, e) \
+    (bit(x, a) + bit(x, b) * 2 + bit(x, c) * 4 + bit(x, d) * 8 + bit(x, e) * 16)
+
 /** Simple Learning Encrypt
  * @param data - 0xBSSSCCCC, B(4bit) key, S(10bit) serial&0x3FF, C(16bit) counter
  * @param key - manufacture (64bit)
