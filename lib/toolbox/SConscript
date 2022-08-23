@@ -29,6 +29,7 @@ build_version = libenv.VersionBuilder(
 fw_version_json = libenv.InstallAs(
     "${BUILD_DIR}/${FIRMWARE_BUILD_CFG}.json", "version.json"
 )
+Alias("version_json", fw_version_json)
 env.Append(FW_VERSION_JSON=fw_version_json)
 
 # Default(fw_version_json)
@@ -40,7 +41,7 @@ if not version_depends:
 
 sources = libenv.GlobRecursive("*.c")
 
-libenv.Append(CPPPATH=["."])
+libenv.Append(CPPPATH=[libenv.Dir(".")])
 
 lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
 libenv.Install("${LIB_DIST_DIR}", lib)

@@ -77,6 +77,7 @@ static void rpc_system_system_device_info_callback(
     furi_assert(key);
     furi_assert(value);
     RpcSystemContext* ctx = context;
+    furi_assert(ctx);
 
     furi_assert(key);
     furi_assert(value);
@@ -233,6 +234,7 @@ static void rpc_system_system_power_info_callback(
     furi_assert(key);
     furi_assert(value);
     RpcSystemContext* ctx = context;
+    furi_assert(ctx);
 
     furi_assert(key);
     furi_assert(value);
@@ -297,6 +299,8 @@ static void rpc_system_system_update_request_process(const PB_Main* request, voi
 #endif
 
 void* rpc_system_system_alloc(RpcSession* session) {
+    furi_assert(session);
+
     RpcHandler rpc_handler = {
         .message_handler = NULL,
         .decode_submessage = NULL,

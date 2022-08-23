@@ -370,18 +370,15 @@ ArchiveBrowserView* browser_alloc() {
             return true;
         });
 
-    browser->worker = file_browser_worker_alloc(browser->path, "*", false);
-    archive_file_browser_set_callbacks(browser);
-
-    file_browser_worker_set_callback_context(browser->worker, browser);
-
     return browser;
 }
 
 void browser_free(ArchiveBrowserView* browser) {
     furi_assert(browser);
 
-    file_browser_worker_free(browser->worker);
+    if(browser->worker_running) {
+        file_browser_worker_free(browser->worker);
+    }
 
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {

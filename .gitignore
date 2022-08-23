@@ -51,3 +51,7 @@ build/
 
 # openocd output file
 openocd.log
+
+# PVS Studio temporary files
+.PVS-Studio/
+PVS-Studio.log
