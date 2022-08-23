@@ -103,13 +103,15 @@ jobs:
           export COMMIT_HASH="${{steps.names.outputs.commit-hash}}"
           export COMMIT_MSG="${{steps.names.outputs.commit-msg}}"
           export BRANCH_NAME="${{steps.names.outputs.branch-name}}"
-          export PULL_ID="${{steps.names.outputs.pull-id}}"
-          export PULL_NAME="${{steps.names.outputs.pull-name}}"
           export BSS_SIZE="$(get_size ".bss")"
           export TEXT_SIZE="$(get_size ".text")"
           export RODATA_SIZE="$(get_size ".rodata")"
           export DATA_SIZE="$(get_size ".data")"
           export FREE_FLASH_SIZE="$(get_size ".free_flash")"
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            export PULL_ID="${{steps.names.outputs.pull-id}}"
+            export PULL_NAME="${{steps.names.outputs.pull-name}}"
+          fi
           python3 -m pip install mariadb
           python3 scripts/amap_mariadb_insert.py \
             ${{ secrets.AMAP_MARIADB_USER }} \
