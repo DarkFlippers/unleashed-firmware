@@ -24,8 +24,8 @@ bool LfRfidAppSceneReadKeyMenu::on_event(LfRfidApp* app, LfRfidApp::Event* event
     bool consumed = false;
 
     if(event->type == LfRfidApp::EventType::MenuSelected) {
-        submenu_item_selected = event->payload.menu_index;
-        switch(event->payload.menu_index) {
+        submenu_item_selected = event->payload.signed_int;
+        switch(event->payload.signed_int) {
         case SubmenuWrite:
             app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::Write);
             break;
@@ -54,7 +54,7 @@ void LfRfidAppSceneReadKeyMenu::submenu_callback(void* context, uint32_t index) 
     LfRfidApp::Event event;
 
     event.type = LfRfidApp::EventType::MenuSelected;
-    event.payload.menu_index = index;
+    event.payload.signed_int = index;
 
     app->view_controller.send_event(&event);
 }

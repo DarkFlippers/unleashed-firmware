@@ -92,6 +92,8 @@ extern "C" {
 #define FURI_BIT_CLEAR(x, n) ((x) &= ~(1 << (n)))
 #endif
 
+#define FURI_SW_MEMBARRIER() asm volatile("" : : : "memory")
+
 #ifdef __cplusplus
 }
 #endif
