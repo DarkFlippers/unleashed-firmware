@@ -2,6 +2,7 @@
 #include <furi_hal.h>
 #include "ibutton_worker_i.h"
 #include "ibutton_key_command.h"
+#include <stream_buffer.h>
 
 void ibutton_worker_mode_idle_start(iButtonWorker* worker);
 void ibutton_worker_mode_idle_tick(iButtonWorker* worker);
@@ -62,58 +63,85 @@ void ibutton_worker_mode_idle_stop(iButtonWorker* worker) {
 
 /*********************** READ ***********************/
 
+typedef struct {
+    uint32_t last_dwt_value;
+    StreamBufferHandle_t stream;
+} iButtonReadContext;
+
 void ibutton_worker_comparator_callback(bool level, void* context) {
-    iButtonWorker* worker = context;
+    iButtonReadContext* read_context = context;
 
     uint32_t current_dwt_value = DWT->CYCCNT;
 
-    pulse_decoder_process_pulse(
-        worker->pulse_decoder, level, current_dwt_value - worker->last_dwt_value);
+    LevelDuration data =
+        level_duration_make(level, current_dwt_value - read_context->last_dwt_value);
+    xStreamBufferSend(read_context->stream, &data, sizeof(LevelDuration), 0);
 
-    worker->last_dwt_value = current_dwt_value;
+    read_context->last_dwt_value = current_dwt_value;
 }
 
 bool ibutton_worker_read_comparator(iButtonWorker* worker) {
     bool result = false;
 
-    pulse_decoder_reset(worker->pulse_decoder);
+    protocol_dict_decoders_start(worker->protocols);
 
     furi_hal_rfid_pins_reset();
     // pulldown pull pin, we sense the signal through the analog part of the RFID schematic
     furi_hal_rfid_pin_pull_pulldown();
-    furi_hal_rfid_comp_set_callback(ibutton_worker_comparator_callback, worker);
-    worker->last_dwt_value = DWT->CYCCNT;
+
+    iButtonReadContext read_context = {
+        .last_dwt_value = DWT->CYCCNT,
+        .stream = xStreamBufferCreate(sizeof(LevelDuration) * 512, 1),
+    };
+
+    furi_hal_rfid_comp_set_callback(ibutton_worker_comparator_callback, &read_context);
     furi_hal_rfid_comp_start();
 
-    // TODO: rework with thread events, "pulse_decoder_get_decoded_index_with_timeout"
-    furi_delay_ms(100);
-    int32_t decoded_index = pulse_decoder_get_decoded_index(worker->pulse_decoder);
-    if(decoded_index >= 0) {
-        pulse_decoder_get_data(
-            worker->pulse_decoder, decoded_index, worker->key_data, ibutton_key_get_max_size());
-    }
+    uint32_t tick_start = furi_get_tick();
+    while(true) {
+        LevelDuration level;
+        size_t ret = xStreamBufferReceive(read_context.stream, &level, sizeof(LevelDuration), 100);
 
-    switch(decoded_index) {
-    case PulseProtocolCyfral:
-        furi_check(worker->key_p != NULL);
-        ibutton_key_set_type(worker->key_p, iButtonKeyCyfral);
-        ibutton_key_set_data(worker->key_p, worker->key_data, ibutton_key_get_max_size());
-        result = true;
-        break;
-    case PulseProtocolMetakom:
-        furi_check(worker->key_p != NULL);
-        ibutton_key_set_type(worker->key_p, iButtonKeyMetakom);
-        ibutton_key_set_data(worker->key_p, worker->key_data, ibutton_key_get_max_size());
-        result = true;
-        break;
-        break;
-    default:
-        break;
+        if((furi_get_tick() - tick_start) > 100) {
+            break;
+        }
+
+        if(ret > 0) {
+            ProtocolId decoded_index = protocol_dict_decoders_feed(
+                worker->protocols,
+                level_duration_get_level(level),
+                level_duration_get_duration(level));
+
+            if(decoded_index == PROTOCOL_NO) continue;
+
+            protocol_dict_get_data(
+                worker->protocols, decoded_index, worker->key_data, ibutton_key_get_max_size());
+
+            switch(decoded_index) {
+            case iButtonProtocolCyfral:
+                furi_check(worker->key_p != NULL);
+                ibutton_key_set_type(worker->key_p, iButtonKeyCyfral);
+                ibutton_key_set_data(worker->key_p, worker->key_data, ibutton_key_get_max_size());
+                result = true;
+                break;
+            case iButtonProtocolMetakom:
+                furi_check(worker->key_p != NULL);
+                ibutton_key_set_type(worker->key_p, iButtonKeyMetakom);
+                ibutton_key_set_data(worker->key_p, worker->key_data, ibutton_key_get_max_size());
+                result = true;
+                break;
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     furi_hal_rfid_comp_stop();
     furi_hal_rfid_comp_set_callback(NULL, NULL);
     furi_hal_rfid_pins_reset();
+
+    vStreamBufferDelete(read_context.stream);
 
     return result;
 }
@@ -207,21 +235,12 @@ void ibutton_worker_emulate_timer_cb(void* context) {
     furi_assert(context);
     iButtonWorker* worker = context;
 
-    bool polarity;
-    uint32_t length;
+    LevelDuration level =
+        protocol_dict_encoder_yield(worker->protocols, worker->protocol_to_encode);
 
-    switch(worker->emulate_mode) {
-    case iButtonEmulateModeCyfral:
-        encoder_cyfral_get_pulse(worker->encoder_cyfral, &polarity, &length);
-        break;
-    case iButtonEmulateModeMetakom:
-        encoder_metakom_get_pulse(worker->encoder_metakom, &polarity, &length);
-        break;
-    }
+    furi_hal_ibutton_emulate_set_next(level_duration_get_duration(level));
 
-    furi_hal_ibutton_emulate_set_next(length);
-
-    if(polarity) {
+    if(level_duration_get_level(level)) {
         furi_hal_ibutton_pin_high();
     } else {
         furi_hal_ibutton_pin_low();
@@ -238,16 +257,15 @@ void ibutton_worker_emulate_timer_start(iButtonWorker* worker) {
         return;
         break;
     case iButtonKeyCyfral:
-        worker->emulate_mode = iButtonEmulateModeCyfral;
-        encoder_cyfral_reset(worker->encoder_cyfral);
-        encoder_cyfral_set_data(worker->encoder_cyfral, key_id, key_size);
+        worker->protocol_to_encode = iButtonProtocolCyfral;
         break;
     case iButtonKeyMetakom:
-        worker->emulate_mode = iButtonEmulateModeMetakom;
-        encoder_metakom_reset(worker->encoder_metakom);
-        encoder_metakom_set_data(worker->encoder_metakom, key_id, key_size);
+        worker->protocol_to_encode = iButtonProtocolMetakom;
         break;
     }
+
+    protocol_dict_set_data(worker->protocols, worker->protocol_to_encode, key_id, key_size);
+    protocol_dict_encoder_start(worker->protocols, worker->protocol_to_encode);
 
     furi_hal_ibutton_start_drive();
     furi_hal_ibutton_emulate_start(0, ibutton_worker_emulate_timer_cb, worker);

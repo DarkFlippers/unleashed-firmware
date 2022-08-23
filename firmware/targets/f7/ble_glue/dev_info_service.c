@@ -1,6 +1,6 @@
 #include "dev_info_service.h"
 #include "app_common.h"
-#include "ble.h"
+#include <ble/ble.h>
 
 #include <furi.h>
 #include <m-string.h>

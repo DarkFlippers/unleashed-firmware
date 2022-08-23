@@ -10,6 +10,6 @@ public:
 private:
     static void submenu_callback(void* context, uint32_t index);
     uint32_t submenu_item_selected = 0;
-    static const uint8_t keys_count = static_cast<uint8_t>(LfrfidKeyType::KeyIoProxXSF);
-    string_t submenu_name[keys_count + 1];
+    static const uint8_t keys_count = static_cast<uint8_t>(LFRFIDProtocol::LFRFIDProtocolMax);
+    string_t submenu_name[keys_count];
 };

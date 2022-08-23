@@ -1,8 +1,8 @@
 #include <furi_hal_flash.h>
 #include <furi_hal_bt.h>
 #include <furi.h>
-#include <ble.h>
-#include <shci.h>
+#include <ble/ble.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
 
 #include <stm32wbxx.h>
 

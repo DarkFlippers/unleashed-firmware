@@ -17,6 +17,8 @@ void picopass_scene_start_on_enter(void* context) {
     Submenu* submenu = picopass->submenu;
     submenu_add_item(
         submenu, "Read Card", SubmenuIndexRead, picopass_scene_start_submenu_callback, picopass);
+    submenu_add_item(
+        submenu, "Saved", SubmenuIndexSaved, picopass_scene_start_submenu_callback, picopass);
 
     submenu_set_selected_item(
         submenu, scene_manager_get_scene_state(picopass->scene_manager, PicopassSceneStart));
@@ -31,6 +33,9 @@ bool picopass_scene_start_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexRead) {
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneReadCard);
+            consumed = true;
+        } else if(event.event == SubmenuIndexSaved) {
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneFileSelect);
             consumed = true;
         }
         scene_manager_set_scene_state(picopass->scene_manager, PicopassSceneStart, event.event);

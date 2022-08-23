@@ -4,10 +4,37 @@
 #include "../view/elements/string_element.h"
 
 void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool /* need_restore */) {
-    string_init(string[0]);
-    string_init(string[1]);
-    string_init(string[2]);
-    string_init(string[3]);
+    string_init(string_info);
+    string_init(string_header);
+
+    string_init_printf(
+        string_header,
+        "%s[%s]",
+        protocol_dict_get_name(app->dict, app->protocol_id),
+        protocol_dict_get_manufacturer(app->dict, app->protocol_id));
+
+    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    uint8_t* data = (uint8_t*)malloc(size);
+    protocol_dict_get_data(app->dict, app->protocol_id, data, size);
+    for(uint8_t i = 0; i < size; i++) {
+        if(i != 0) {
+            string_cat_printf(string_info, " ");
+        }
+
+        if(i >= 9) {
+            string_cat_printf(string_info, "...");
+            break;
+        } else {
+            string_cat_printf(string_info, "%02X", data[i]);
+        }
+    }
+    free(data);
+
+    string_t render_data;
+    string_init(render_data);
+    protocol_dict_render_brief_data(app->dict, render_data, app->protocol_id);
+    string_cat_printf(string_info, "\r\n%s", string_get_cstr(render_data));
+    string_clear(render_data);
 
     auto container = app->view_controller.get<ContainerVM>();
 
@@ -19,90 +46,11 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool /* need_restore */
     button->set_type(ButtonElement::Type::Right, "More");
     button->set_callback(app, LfRfidAppSceneReadSuccess::more_callback);
 
-    auto icon = container->add<IconElement>();
-    icon->set_icon(3, 12, &I_RFIDBigChip_37x36);
-
     auto header = container->add<StringElement>();
-    header->set_text(app->worker.key.get_type_text(), 89, 3, 0, AlignCenter);
+    header->set_text(string_get_cstr(string_header), 0, 2, 0, AlignLeft, AlignTop, FontPrimary);
 
-    auto line_1_text = container->add<StringElement>();
-    auto line_2l_text = container->add<StringElement>();
-    auto line_2r_text = container->add<StringElement>();
-    auto line_3_text = container->add<StringElement>();
-
-    auto line_1_value = container->add<StringElement>();
-    auto line_2l_value = container->add<StringElement>();
-    auto line_2r_value = container->add<StringElement>();
-    auto line_3_value = container->add<StringElement>();
-
-    const uint8_t* data = app->worker.key.get_data();
-
-    switch(app->worker.key.get_type()) {
-    case LfrfidKeyType::KeyEM4100:
-        line_1_text->set_text("HEX:", 65, 23, 0, AlignRight, AlignBottom, FontSecondary);
-        line_2l_text->set_text("Mod:", 65, 35, 0, AlignRight, AlignBottom, FontSecondary);
-        line_3_text->set_text("ID:", 65, 47, 0, AlignRight, AlignBottom, FontSecondary);
-
-        for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
-            string_cat_printf(string[0], "%02X", data[i]);
-        }
-
-        string_printf(string[1], "Manchester");
-        string_printf(string[2], "%03u,%05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
-
-        line_1_value->set_text(
-            string_get_cstr(string[0]), 68, 23, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_2l_value->set_text(
-            string_get_cstr(string[1]), 68, 35, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_3_value->set_text(
-            string_get_cstr(string[2]), 68, 47, 0, AlignLeft, AlignBottom, FontSecondary);
-        break;
-    case LfrfidKeyType::KeyH10301:
-    case LfrfidKeyType::KeyI40134:
-        line_1_text->set_text("HEX:", 65, 23, 0, AlignRight, AlignBottom, FontSecondary);
-        line_2l_text->set_text("FC:", 65, 35, 0, AlignRight, AlignBottom, FontSecondary);
-        line_3_text->set_text("Card:", 65, 47, 0, AlignRight, AlignBottom, FontSecondary);
-
-        for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
-            string_cat_printf(string[0], "%02X", data[i]);
-        }
-
-        string_printf(string[1], "%u", data[0]);
-        string_printf(string[2], "%u", (uint16_t)((data[1] << 8) | (data[2])));
-
-        line_1_value->set_text(
-            string_get_cstr(string[0]), 68, 23, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_2l_value->set_text(
-            string_get_cstr(string[1]), 68, 35, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_3_value->set_text(
-            string_get_cstr(string[2]), 68, 47, 0, AlignLeft, AlignBottom, FontSecondary);
-        break;
-
-    case LfrfidKeyType::KeyIoProxXSF:
-        line_1_text->set_text("HEX:", 65, 23, 0, AlignRight, AlignBottom, FontSecondary);
-        line_2l_text->set_text("FC:", 65, 35, 0, AlignRight, AlignBottom, FontSecondary);
-        line_2r_text->set_text("VС:", 95, 35, 0, AlignRight, AlignBottom, FontSecondary);
-        line_3_text->set_text("Card:", 65, 47, 0, AlignRight, AlignBottom, FontSecondary);
-
-        for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
-            string_cat_printf(string[0], "%02X", data[i]);
-        }
-
-        string_printf(string[1], "%u", data[0]);
-        string_printf(string[2], "%u", (uint16_t)((data[2] << 8) | (data[3])));
-        string_printf(string[3], "%u", data[1]);
-
-        line_1_value->set_text(
-            string_get_cstr(string[0]), 68, 23, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_2l_value->set_text(
-            string_get_cstr(string[1]), 68, 35, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_2r_value->set_text(
-            string_get_cstr(string[3]), 98, 35, 0, AlignLeft, AlignBottom, FontSecondary);
-        line_3_value->set_text(
-            string_get_cstr(string[2]), 68, 47, 0, AlignLeft, AlignBottom, FontSecondary);
-
-        break;
-    }
+    auto text = container->add<StringElement>();
+    text->set_text(string_get_cstr(string_info), 0, 16, 0, AlignLeft, AlignTop, FontSecondary);
 
     app->view_controller.switch_to<ContainerVM>();
 
@@ -129,9 +77,8 @@ bool LfRfidAppSceneReadSuccess::on_event(LfRfidApp* app, LfRfidApp::Event* event
 void LfRfidAppSceneReadSuccess::on_exit(LfRfidApp* app) {
     notification_message_block(app->notification, &sequence_reset_green);
     app->view_controller.get<ContainerVM>()->clean();
-    string_clear(string[0]);
-    string_clear(string[1]);
-    string_clear(string[2]);
+    string_clear(string_info);
+    string_clear(string_header);
 }
 
 void LfRfidAppSceneReadSuccess::back_callback(void* context) {

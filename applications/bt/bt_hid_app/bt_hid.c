@@ -89,8 +89,7 @@ BtHid* bt_hid_app_alloc() {
         app->submenu, "Keynote", BtHidSubmenuIndexKeynote, bt_hid_submenu_callback, app);
     submenu_add_item(
         app->submenu, "Keyboard", BtHidSubmenuIndexKeyboard, bt_hid_submenu_callback, app);
-    submenu_add_item(
-        app->submenu, "Media Player", BtHidSubmenuIndexMedia, bt_hid_submenu_callback, app);
+    submenu_add_item(app->submenu, "Media", BtHidSubmenuIndexMedia, bt_hid_submenu_callback, app);
     submenu_add_item(app->submenu, "Mouse", BtHidSubmenuIndexMouse, bt_hid_submenu_callback, app);
     view_set_previous_callback(submenu_get_view(app->submenu), bt_hid_exit);
     view_dispatcher_add_view(
@@ -134,7 +133,8 @@ BtHid* bt_hid_app_alloc() {
         app->view_dispatcher, BtHidViewMouse, bt_hid_mouse_get_view(app->bt_hid_mouse));
 
     // TODO switch to menu after Media is done
-    view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeynote);
+    app->view_id = BtHidViewSubmenu;
+    view_dispatcher_switch_to_view(app->view_dispatcher, app->view_id);
 
     return app;
 }

@@ -4,7 +4,7 @@
 #include <furi_hal_bt.h>
 #include <furi_hal_crypto.h>
 
-#include <shci.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
 #include <m-string.h>
 #include <protobuf_version.h>
 

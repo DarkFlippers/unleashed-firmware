@@ -6,6 +6,7 @@
 
 #include <stm32wbxx_ll_tim.h>
 #include <stm32wbxx_ll_comp.h>
+#include <stm32wbxx_ll_dma.h>
 
 #define FURI_HAL_RFID_READ_TIMER TIM1
 #define FURI_HAL_RFID_READ_TIMER_CHANNEL LL_TIM_CHANNEL_CH1N
@@ -16,8 +17,14 @@
 #define FURI_HAL_RFID_EMULATE_TIMER_IRQ FuriHalInterruptIdTIM2
 #define FURI_HAL_RFID_EMULATE_TIMER_CHANNEL LL_TIM_CHANNEL_CH3
 
+#define RFID_CAPTURE_TIM TIM2
+#define RFID_CAPTURE_IND_CH LL_TIM_CHANNEL_CH3
+#define RFID_CAPTURE_DIR_CH LL_TIM_CHANNEL_CH4
+
 typedef struct {
     FuriHalRfidEmulateCallback callback;
+    FuriHalRfidDMACallback dma_callback;
+    FuriHalRfidReadCaptureCallback read_capture_callback;
     void* context;
 } FuriHalRfid;
 
@@ -210,6 +217,185 @@ void furi_hal_rfid_tim_emulate_stop() {
     LL_TIM_DisableCounter(FURI_HAL_RFID_EMULATE_TIMER);
     LL_TIM_DisableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
     furi_hal_interrupt_set_isr(FURI_HAL_RFID_EMULATE_TIMER_IRQ, NULL, NULL);
+}
+
+static void furi_hal_capture_dma_isr(void* context) {
+    UNUSED(context);
+
+    // Channel 3, positive level
+    if(LL_TIM_IsActiveFlag_CC3(RFID_CAPTURE_TIM)) {
+        LL_TIM_ClearFlag_CC3(RFID_CAPTURE_TIM);
+        furi_hal_rfid->read_capture_callback(
+            true, LL_TIM_IC_GetCaptureCH3(RFID_CAPTURE_TIM), furi_hal_rfid->context);
+    }
+
+    // Channel 4, overall level
+    if(LL_TIM_IsActiveFlag_CC4(RFID_CAPTURE_TIM)) {
+        LL_TIM_ClearFlag_CC4(RFID_CAPTURE_TIM);
+        LL_TIM_SetCounter(RFID_CAPTURE_TIM, 0);
+        furi_hal_rfid->read_capture_callback(
+            false, LL_TIM_IC_GetCaptureCH4(RFID_CAPTURE_TIM), furi_hal_rfid->context);
+    }
+}
+
+void furi_hal_rfid_tim_read_capture_start(FuriHalRfidReadCaptureCallback callback, void* context) {
+    FURI_CRITICAL_ENTER();
+    LL_TIM_DeInit(RFID_CAPTURE_TIM);
+    FURI_CRITICAL_EXIT();
+
+    furi_assert(furi_hal_rfid);
+
+    furi_hal_rfid->read_capture_callback = callback;
+    furi_hal_rfid->context = context;
+
+    // Timer: base
+    LL_TIM_InitTypeDef TIM_InitStruct = {0};
+    TIM_InitStruct.Prescaler = 64 - 1;
+    TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+    TIM_InitStruct.Autoreload = UINT32_MAX;
+    TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+    LL_TIM_Init(RFID_CAPTURE_TIM, &TIM_InitStruct);
+
+    // Timer: advanced
+    LL_TIM_SetClockSource(RFID_CAPTURE_TIM, LL_TIM_CLOCKSOURCE_INTERNAL);
+    LL_TIM_DisableARRPreload(RFID_CAPTURE_TIM);
+    LL_TIM_SetTriggerInput(RFID_CAPTURE_TIM, LL_TIM_TS_TI2FP2);
+    LL_TIM_SetSlaveMode(RFID_CAPTURE_TIM, LL_TIM_SLAVEMODE_DISABLED);
+    LL_TIM_SetTriggerOutput(RFID_CAPTURE_TIM, LL_TIM_TRGO_RESET);
+    LL_TIM_EnableMasterSlaveMode(RFID_CAPTURE_TIM);
+    LL_TIM_DisableDMAReq_TRIG(RFID_CAPTURE_TIM);
+    LL_TIM_DisableIT_TRIG(RFID_CAPTURE_TIM);
+    LL_TIM_SetRemap(RFID_CAPTURE_TIM, LL_TIM_TIM2_TI4_RMP_COMP1);
+
+    // Timer: channel 3 indirect
+    LL_TIM_IC_SetActiveInput(RFID_CAPTURE_TIM, RFID_CAPTURE_IND_CH, LL_TIM_ACTIVEINPUT_INDIRECTTI);
+    LL_TIM_IC_SetPrescaler(RFID_CAPTURE_TIM, RFID_CAPTURE_IND_CH, LL_TIM_ICPSC_DIV1);
+    LL_TIM_IC_SetPolarity(RFID_CAPTURE_TIM, RFID_CAPTURE_IND_CH, LL_TIM_IC_POLARITY_FALLING);
+    LL_TIM_IC_SetFilter(RFID_CAPTURE_TIM, RFID_CAPTURE_IND_CH, LL_TIM_IC_FILTER_FDIV1);
+
+    // Timer: channel 4 direct
+    LL_TIM_IC_SetActiveInput(RFID_CAPTURE_TIM, RFID_CAPTURE_DIR_CH, LL_TIM_ACTIVEINPUT_DIRECTTI);
+    LL_TIM_IC_SetPrescaler(RFID_CAPTURE_TIM, RFID_CAPTURE_DIR_CH, LL_TIM_ICPSC_DIV1);
+    LL_TIM_IC_SetPolarity(RFID_CAPTURE_TIM, RFID_CAPTURE_DIR_CH, LL_TIM_IC_POLARITY_RISING);
+    LL_TIM_IC_SetFilter(RFID_CAPTURE_TIM, RFID_CAPTURE_DIR_CH, LL_TIM_IC_FILTER_FDIV1);
+
+    furi_hal_interrupt_set_isr(FURI_HAL_RFID_EMULATE_TIMER_IRQ, furi_hal_capture_dma_isr, NULL);
+
+    LL_TIM_EnableIT_CC3(RFID_CAPTURE_TIM);
+    LL_TIM_EnableIT_CC4(RFID_CAPTURE_TIM);
+    LL_TIM_CC_EnableChannel(RFID_CAPTURE_TIM, RFID_CAPTURE_IND_CH);
+    LL_TIM_CC_EnableChannel(RFID_CAPTURE_TIM, RFID_CAPTURE_DIR_CH);
+    LL_TIM_SetCounter(RFID_CAPTURE_TIM, 0);
+    LL_TIM_EnableCounter(RFID_CAPTURE_TIM);
+
+    furi_hal_rfid_comp_start();
+}
+
+void furi_hal_rfid_tim_read_capture_stop() {
+    furi_hal_rfid_comp_stop();
+
+    furi_hal_interrupt_set_isr(FURI_HAL_RFID_EMULATE_TIMER_IRQ, NULL, NULL);
+
+    FURI_CRITICAL_ENTER();
+    LL_TIM_DeInit(RFID_CAPTURE_TIM);
+    FURI_CRITICAL_EXIT();
+}
+
+static void furi_hal_rfid_dma_isr() {
+    if(LL_DMA_IsActiveFlag_HT1(DMA1)) {
+        LL_DMA_ClearFlag_HT1(DMA1);
+        furi_hal_rfid->dma_callback(true, furi_hal_rfid->context);
+    }
+
+    if(LL_DMA_IsActiveFlag_TC1(DMA1)) {
+        LL_DMA_ClearFlag_TC1(DMA1);
+        furi_hal_rfid->dma_callback(false, furi_hal_rfid->context);
+    }
+}
+
+void furi_hal_rfid_tim_emulate_dma_start(
+    uint32_t* duration,
+    uint32_t* pulse,
+    size_t length,
+    FuriHalRfidDMACallback callback,
+    void* context) {
+    furi_assert(furi_hal_rfid);
+
+    // setup interrupts
+    furi_hal_rfid->dma_callback = callback;
+    furi_hal_rfid->context = context;
+
+    // setup pins
+    furi_hal_rfid_pins_emulate();
+
+    // configure timer
+    furi_hal_rfid_tim_emulate(125000);
+    LL_TIM_OC_SetPolarity(
+        FURI_HAL_RFID_EMULATE_TIMER, FURI_HAL_RFID_EMULATE_TIMER_CHANNEL, LL_TIM_OCPOLARITY_HIGH);
+    LL_TIM_EnableDMAReq_UPDATE(FURI_HAL_RFID_EMULATE_TIMER);
+
+    // configure DMA "mem -> ARR" channel
+    LL_DMA_InitTypeDef dma_config = {0};
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (FURI_HAL_RFID_EMULATE_TIMER->ARR);
+    dma_config.MemoryOrM2MDstAddress = (uint32_t)duration;
+    dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+    dma_config.Mode = LL_DMA_MODE_CIRCULAR;
+    dma_config.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+    dma_config.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+    dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
+    dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
+    dma_config.NbData = length;
+    dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
+    dma_config.Priority = LL_DMA_MODE_NORMAL;
+    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &dma_config);
+    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
+
+    // configure DMA "mem -> CCR3" channel
+#if FURI_HAL_RFID_EMULATE_TIMER_CHANNEL == LL_TIM_CHANNEL_CH3
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (FURI_HAL_RFID_EMULATE_TIMER->CCR3);
+#else
+#error Update this code. Would you kindly?
+#endif
+    dma_config.MemoryOrM2MDstAddress = (uint32_t)pulse;
+    dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+    dma_config.Mode = LL_DMA_MODE_CIRCULAR;
+    dma_config.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+    dma_config.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+    dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
+    dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
+    dma_config.NbData = length;
+    dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
+    dma_config.Priority = LL_DMA_MODE_NORMAL;
+    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_2, &dma_config);
+    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_2);
+
+    // attach interrupt to one of DMA channels
+    furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, furi_hal_rfid_dma_isr, NULL);
+    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_1);
+
+    // start
+    LL_TIM_EnableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
+
+    LL_TIM_SetCounter(FURI_HAL_RFID_EMULATE_TIMER, 0);
+    LL_TIM_EnableCounter(FURI_HAL_RFID_EMULATE_TIMER);
+}
+
+void furi_hal_rfid_tim_emulate_dma_stop() {
+    LL_TIM_DisableCounter(FURI_HAL_RFID_EMULATE_TIMER);
+    LL_TIM_DisableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
+
+    furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, NULL, NULL);
+    LL_DMA_DisableIT_TC(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_DisableIT_HT(DMA1, LL_DMA_CHANNEL_1);
+
+    FURI_CRITICAL_ENTER();
+
+    LL_DMA_DeInit(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_DeInit(DMA1, LL_DMA_CHANNEL_2);
+    LL_TIM_DeInit(FURI_HAL_RFID_EMULATE_TIMER);
+
+    FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_rfid_tim_reset() {

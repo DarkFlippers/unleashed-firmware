@@ -94,6 +94,10 @@ bool slideshow_is_loaded(Slideshow* slideshow) {
     return slideshow->loaded;
 }
 
+bool slideshow_is_one_page(Slideshow* slideshow) {
+    return slideshow->loaded && (slideshow->icon.frame_count == 1);
+}
+
 bool slideshow_advance(Slideshow* slideshow) {
     uint8_t next_frame = slideshow->current_frame + 1;
     if(next_frame < slideshow->icon.frame_count) {

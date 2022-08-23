@@ -8,8 +8,8 @@ void power_off(Power* power) {
     furi_hal_power_off();
     // Notify user if USB is plugged
     view_dispatcher_send_to_front(power->view_dispatcher);
-    view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewPopup);
-    furi_delay_ms(10);
+    view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewUnplugUsb);
+    furi_delay_ms(100);
     furi_halt("Disconnect USB for safe shutdown");
 }
 

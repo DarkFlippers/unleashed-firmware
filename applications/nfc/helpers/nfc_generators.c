@@ -25,6 +25,39 @@ static void nfc_generate_mf_ul_uid(uint8_t* uid) {
     uid[6] |= 0x80;
 }
 
+static void nfc_generate_mf_classic_uid(uint8_t* uid, uint8_t length) {
+    uid[0] = NXP_MANUFACTURER_ID;
+    furi_hal_random_fill_buf(&uid[1], length - 1);
+}
+
+static void nfc_generate_mf_classic_block_0(uint8_t* block, uint8_t uid_len) {
+    // Block length is always 16 bytes, and the UID can be either 4 or 7 bytes
+    furi_assert(uid_len == 4 || uid_len == 7);
+    furi_assert(block);
+    nfc_generate_mf_classic_uid(block, uid_len);
+    for(int i = uid_len; i < 16; i++) {
+        block[i] = 0xFF;
+    }
+}
+
+static void nfc_generate_mf_classic_sector_trailer(MfClassicData* data, uint8_t block) {
+    // All keys are set to FFFF FFFF FFFFh at chip delivery and the bytes 6, 7 and 8 are set to FF0780h.
+    MfClassicSectorTrailer* sec_tr = (MfClassicSectorTrailer*)data->block[block].value;
+    sec_tr->access_bits[0] = 0xFF;
+    sec_tr->access_bits[1] = 0x07;
+    sec_tr->access_bits[2] = 0x80;
+    sec_tr->access_bits[3] = 0x69; // Nice
+
+    memset(sec_tr->key_a, 0xff, sizeof(sec_tr->key_a));
+    memset(sec_tr->key_b, 0xff, sizeof(sec_tr->key_b));
+
+    mf_classic_set_block_read(data, block, &data->block[block]);
+    mf_classic_set_key_found(
+        data, mf_classic_get_sector_by_block(block), MfClassicKeyA, 0xFFFFFFFFFFFF);
+    mf_classic_set_key_found(
+        data, mf_classic_get_sector_by_block(block), MfClassicKeyB, 0xFFFFFFFFFFFF);
+}
+
 static void nfc_generate_mf_ul_common(NfcDeviceData* data) {
     data->nfc_data.type = FuriHalNfcTypeA;
     data->nfc_data.interface = FuriHalNfcInterfaceRf;
@@ -34,6 +67,19 @@ static void nfc_generate_mf_ul_common(NfcDeviceData* data) {
     data->nfc_data.atqa[1] = 0x00;
     data->nfc_data.sak = 0x00;
     data->protocol = NfcDeviceProtocolMifareUl;
+}
+
+static void
+    nfc_generate_mf_classic_common(NfcDeviceData* data, uint8_t uid_len, MfClassicType type) {
+    data->nfc_data.type = FuriHalNfcTypeA;
+    data->nfc_data.interface = FuriHalNfcInterfaceRf;
+    data->nfc_data.uid_len = uid_len;
+    nfc_generate_mf_classic_block_0(data->mf_classic_data.block[0].value, uid_len);
+    data->nfc_data.atqa[0] = 0x44;
+    data->nfc_data.atqa[1] = 0x00;
+    data->nfc_data.sak = 0x08;
+    data->protocol = NfcDeviceProtocolMifareClassic;
+    data->mf_classic_data.type = type;
 }
 
 static void nfc_generate_calc_bcc(uint8_t* uid, uint8_t* bcc0, uint8_t* bcc1) {
@@ -268,70 +314,161 @@ static void nfc_generate_ntag_i2c_plus_2k(NfcDeviceData* data) {
     mful->version.storage_size = 0x15;
 }
 
+static void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType type) {
+    nfc_generate_common_start(data);
+    nfc_generate_mf_classic_common(data, uid_len, type);
+
+    // Set the UID
+    data->nfc_data.uid[0] = NXP_MANUFACTURER_ID;
+    for(int i = 1; i < uid_len; i++) {
+        data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+    }
+
+    MfClassicData* mfc = &data->mf_classic_data;
+    mf_classic_set_block_read(mfc, 0, &mfc->block[0]);
+
+    if(type == MfClassicType4k) {
+        // Set every block to 0xFF
+        for(uint16_t i = 1; i < 256; i += 1) {
+            if(mf_classic_is_sector_trailer(i)) {
+                nfc_generate_mf_classic_sector_trailer(mfc, i);
+            } else {
+                memset(&mfc->block[i].value, 0xFF, 16);
+            }
+            mf_classic_set_block_read(mfc, i, &mfc->block[i]);
+        }
+    } else if(type == MfClassicType1k) {
+        // Set every block to 0xFF
+        for(uint16_t i = 1; i < MF_CLASSIC_1K_TOTAL_SECTORS_NUM * 4; i += 1) {
+            if(mf_classic_is_sector_trailer(i)) {
+                nfc_generate_mf_classic_sector_trailer(mfc, i);
+            } else {
+                memset(&mfc->block[i].value, 0xFF, 16);
+            }
+            mf_classic_set_block_read(mfc, i, &mfc->block[i]);
+        }
+    }
+
+    mfc->type = type;
+}
+
+static void nfc_generate_mf_classic_1k_4b_uid(NfcDeviceData* data) {
+    nfc_generate_mf_classic(data, 4, MfClassicType1k);
+}
+
+static void nfc_generate_mf_classic_1k_7b_uid(NfcDeviceData* data) {
+    nfc_generate_mf_classic(data, 7, MfClassicType1k);
+}
+
+static void nfc_generate_mf_classic_4k_4b_uid(NfcDeviceData* data) {
+    nfc_generate_mf_classic(data, 4, MfClassicType4k);
+}
+
+static void nfc_generate_mf_classic_4k_7b_uid(NfcDeviceData* data) {
+    nfc_generate_mf_classic(data, 7, MfClassicType4k);
+}
+
 static const NfcGenerator mf_ul_generator = {
     .name = "Mifare Ultralight",
     .generator_func = nfc_generate_mf_ul_orig,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator mf_ul_11_generator = {
     .name = "Mifare Ultralight EV1 11",
     .generator_func = nfc_generate_mf_ul_11,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator mf_ul_h11_generator = {
     .name = "Mifare Ultralight EV1 H11",
     .generator_func = nfc_generate_mf_ul_h11,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator mf_ul_21_generator = {
     .name = "Mifare Ultralight EV1 21",
     .generator_func = nfc_generate_mf_ul_21,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator mf_ul_h21_generator = {
     .name = "Mifare Ultralight EV1 H21",
     .generator_func = nfc_generate_mf_ul_h21,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag203_generator = {
     .name = "NTAG203",
     .generator_func = nfc_generate_mf_ul_ntag203,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag213_generator = {
     .name = "NTAG213",
     .generator_func = nfc_generate_ntag213,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag215_generator = {
     .name = "NTAG215",
     .generator_func = nfc_generate_ntag215,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag216_generator = {
     .name = "NTAG216",
     .generator_func = nfc_generate_ntag216,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag_i2c_1k_generator = {
     .name = "NTAG I2C 1k",
     .generator_func = nfc_generate_ntag_i2c_1k,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag_i2c_2k_generator = {
     .name = "NTAG I2C 2k",
     .generator_func = nfc_generate_ntag_i2c_2k,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag_i2c_plus_1k_generator = {
     .name = "NTAG I2C Plus 1k",
     .generator_func = nfc_generate_ntag_i2c_plus_1k,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
 
 static const NfcGenerator ntag_i2c_plus_2k_generator = {
     .name = "NTAG I2C Plus 2k",
     .generator_func = nfc_generate_ntag_i2c_plus_2k,
-    .next_scene = NfcSceneMfUltralightMenu};
+    .next_scene = NfcSceneMfUltralightMenu,
+};
+
+static const NfcGenerator mifare_classic_1k_4b_uid_generator = {
+    .name = "Mifare Classic 1k 4byte UID",
+    .generator_func = nfc_generate_mf_classic_1k_4b_uid,
+    .next_scene = NfcSceneMfClassicMenu,
+};
+
+static const NfcGenerator mifare_classic_1k_7b_uid_generator = {
+    .name = "Mifare Classic 1k 7byte UID",
+    .generator_func = nfc_generate_mf_classic_1k_7b_uid,
+    .next_scene = NfcSceneMfClassicMenu,
+};
+
+static const NfcGenerator mifare_classic_4k_4b_uid_generator = {
+    .name = "Mifare Classic 4k 4byte UID",
+    .generator_func = nfc_generate_mf_classic_4k_4b_uid,
+    .next_scene = NfcSceneMfClassicMenu,
+};
+
+static const NfcGenerator mifare_classic_4k_7b_uid_generator = {
+    .name = "Mifare Classic 4k 7byte UID",
+    .generator_func = nfc_generate_mf_classic_4k_7b_uid,
+    .next_scene = NfcSceneMfClassicMenu,
+};
 
 const NfcGenerator* const nfc_generators[] = {
     &mf_ul_generator,
@@ -347,5 +484,9 @@ const NfcGenerator* const nfc_generators[] = {
     &ntag_i2c_2k_generator,
     &ntag_i2c_plus_1k_generator,
     &ntag_i2c_plus_2k_generator,
+    &mifare_classic_1k_4b_uid_generator,
+    &mifare_classic_1k_7b_uid_generator,
+    &mifare_classic_4k_4b_uid_generator,
+    &mifare_classic_4k_7b_uid_generator,
     NULL,
 };

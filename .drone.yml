@@ -44,6 +44,7 @@ steps:
       - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
       - cp assets/resources/infrared/assets/tv.ir sd-card/infrared/assets/tv.ir
       - cp assets/resources/infrared/assets/ac.ir sd-card/infrared/assets/ac.ir
+      - cp assets/resources/infrared/assets/projectors.ir sd-card/infrared/assets/projectors.ir
       - cp assets/resources/infrared/assets/audio.ir sd-card/infrared/assets/audio.ir
       - cp assets/resources/unirf/unirf_map_example.txt sd-card/unirf/unirf_map_example.txt
       - cp assets/resources/Manifest sd-card/Manifest

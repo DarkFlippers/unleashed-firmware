@@ -1,0 +1,1 @@
+--rules-config .pvsconfig -e lib/fatfs -e lib/fnv1a-hash -e lib/FreeRTOS-Kernel -e lib/heatshrink -e lib/libusb_stm32 -e lib/littlefs -e lib/mbedtls -e lib/micro-ecc -e lib/microtar -e lib/mlib -e lib/qrcode -e lib/ST25RFAL002 -e lib/STM32CubeWB -e lib/u8g2 -e */arm-none-eabi/*

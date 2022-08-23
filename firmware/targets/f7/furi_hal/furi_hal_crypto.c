@@ -4,7 +4,7 @@
 #include <stm32wbxx_ll_cortex.h>
 #include <stm32wbxx_ll_bus.h>
 #include <furi.h>
-#include <shci.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
 
 #define TAG "FuriHalCrypto"
 
