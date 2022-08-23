@@ -1,5 +1,11 @@
 #include "../picopass_i.h"
 
+enum SubmenuIndex {
+    SubmenuIndexDelete,
+    SubmenuIndexInfo,
+    SubmenuIndexWrite,
+};
+
 void picopass_scene_saved_menu_submenu_callback(void* context, uint32_t index) {
     Picopass* picopass = context;
 
@@ -8,6 +14,16 @@ void picopass_scene_saved_menu_submenu_callback(void* context, uint32_t index) {
 
 void picopass_scene_saved_menu_on_enter(void* context) {
     Picopass* picopass = context;
+    Submenu* submenu = picopass->submenu;
+
+    submenu_add_item(
+        submenu,
+        "Delete",
+        SubmenuIndexDelete,
+        picopass_scene_saved_menu_submenu_callback,
+        picopass);
+    submenu_add_item(
+        submenu, "Info", SubmenuIndexInfo, picopass_scene_saved_menu_submenu_callback, picopass);
 
     submenu_set_selected_item(
         picopass->submenu,
@@ -23,6 +39,14 @@ bool picopass_scene_saved_menu_on_event(void* context, SceneManagerEvent event) 
     if(event.type == SceneManagerEventTypeCustom) {
         scene_manager_set_scene_state(
             picopass->scene_manager, PicopassSceneSavedMenu, event.event);
+
+        if(event.event == SubmenuIndexDelete) {
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneDelete);
+            consumed = true;
+        } else if(event.event == SubmenuIndexInfo) {
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneDeviceInfo);
+            consumed = true;
+        }
     }
 
     return consumed;

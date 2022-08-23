@@ -158,3 +158,29 @@ ReturnCode rfalPicoPassPollerReadBlock(uint8_t blockNum, rfalPicoPassReadBlockRe
         fwt);
     return ret;
 }
+
+ReturnCode rfalPicoPassPollerWriteBlock(uint8_t blockNum, uint8_t data[8], uint8_t mac[4]) {
+    ReturnCode ret;
+
+    uint8_t txBuf[14] = {RFAL_PICOPASS_CMD_WRITE, blockNum, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    memcpy(txBuf + 2, data, RFAL_PICOPASS_MAX_BLOCK_LEN);
+    memcpy(txBuf + 10, mac, 4);
+
+    uint16_t recvLen = 0;
+    uint32_t flags = RFAL_PICOPASS_TXRX_FLAGS;
+    uint32_t fwt = rfalConvMsTo1fc(20);
+    rfalPicoPassReadBlockRes readRes;
+
+    ret = rfalTransceiveBlockingTxRx(
+        txBuf,
+        sizeof(txBuf),
+        (uint8_t*)&readRes,
+        sizeof(rfalPicoPassReadBlockRes),
+        &recvLen,
+        flags,
+        fwt);
+
+    // TODO: compare response
+
+    return ret;
+}

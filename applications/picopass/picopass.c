@@ -56,6 +56,11 @@ Picopass* picopass_alloc() {
     view_dispatcher_add_view(
         picopass->view_dispatcher, PicopassViewPopup, popup_get_view(picopass->popup));
 
+    // Loading
+    picopass->loading = loading_alloc();
+    view_dispatcher_add_view(
+        picopass->view_dispatcher, PicopassViewLoading, loading_get_view(picopass->loading));
+
     // Text Input
     picopass->text_input = text_input_alloc();
     view_dispatcher_add_view(
@@ -85,6 +90,10 @@ void picopass_free(Picopass* picopass) {
     // Popup
     view_dispatcher_remove_view(picopass->view_dispatcher, PicopassViewPopup);
     popup_free(picopass->popup);
+
+    // Loading
+    view_dispatcher_remove_view(picopass->view_dispatcher, PicopassViewLoading);
+    loading_free(picopass->loading);
 
     // TextInput
     view_dispatcher_remove_view(picopass->view_dispatcher, PicopassViewTextInput);
@@ -146,6 +155,20 @@ void picopass_blink_start(Picopass* picopass) {
 
 void picopass_blink_stop(Picopass* picopass) {
     notification_message(picopass->notifications, &picopass_sequence_blink_stop);
+}
+
+void picopass_show_loading_popup(void* context, bool show) {
+    Picopass* picopass = context;
+    TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
+
+    if(show) {
+        // Raise timer priority so that animations can play
+        vTaskPrioritySet(timer_task, configMAX_PRIORITIES - 1);
+        view_dispatcher_switch_to_view(picopass->view_dispatcher, PicopassViewLoading);
+    } else {
+        // Restore default timer priority
+        vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
+    }
 }
 
 int32_t picopass_app(void* p) {
