@@ -446,15 +446,15 @@ const char* subghz_setting_get_preset_name(SubGhzSetting* instance, size_t idx) 
 int subghz_setting_get_inx_preset_by_name(SubGhzSetting* instance, const char* preset_name) {
     furi_assert(instance);
     size_t idx = 0;
-     for
-         M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
-             if(strcmp(string_get_cstr(item->custom_preset_name), preset_name) == 0) {
-                 return idx;
-             }
-             idx++;
-         }
-     furi_crash("SubGhz: No name preset.");
-     return -1;
+    for
+        M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
+            if(strcmp(string_get_cstr(item->custom_preset_name), preset_name) == 0) {
+                return idx;
+            }
+            idx++;
+        }
+    furi_crash("SubGhz: No name preset.");
+    return -1;
 }
 
 bool subghz_setting_load_custom_preset(

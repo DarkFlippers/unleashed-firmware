@@ -1,0 +1,107 @@
+name: 'Static C/C++ analysis with PVS-Studio'
+
+on:
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+      - '*'
+  pull_request:
+
+env:
+  TARGETS: f7
+  DEFAULT_TARGET: f7
+
+jobs:
+  analyse_c_cpp:
+    runs-on: [self-hosted, FlipperZeroShell]
+    steps:
+      - name: 'Decontaminate previous build leftovers'
+        run: |
+          if [ -d .git ]
+          then
+            git submodule status \
+              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          fi
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Generate suffix and folder name'
+        id: names
+        run: |
+          REF=${{ github.ref }}
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            REF=${{ github.head_ref }}
+          fi
+          BRANCH_OR_TAG=${REF#refs/*/}
+          SHA=$(git rev-parse --short HEAD)
+
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            SUFFIX=${BRANCH_OR_TAG//\//_}
+          else
+            SUFFIX=${BRANCH_OR_TAG//\//_}-$(date +'%d%m%Y')-${SHA}
+          fi
+
+          echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
+          echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
+          echo "::set-output name=artifacts-path::${BRANCH_OR_TAG}"
+          echo "::set-output name=suffix::${SUFFIX}"
+          echo "::set-output name=short-hash::${SHA}"
+          echo "::set-output name=default-target::${DEFAULT_TARGET}"
+
+      - name: 'Make reports directory'
+        run: |
+          rm -rf reports/
+          mkdir reports
+
+      - name: 'Generate compile_comands.json'
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt ./fbt COMPACT=1 version_json proto_ver icons firmware_cdb dolphin_internal dolphin_blocking
+
+      - name: 'Static code analysis'
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
+          pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
+          pvs-studio-analyzer analyze \
+              @.pvsoptions \
+              -j$(grep -c processor /proc/cpuinfo) \
+              -f build/f7-firmware-DC/compile_commands.json \
+              -o PVS-Studio.log
+
+      - name: 'Convert PVS-Studio output to html page'
+        run: plog-converter -a GA:1,2,3 -t fullhtml PVS-Studio.log -o reports/${{steps.names.outputs.default-target}}-${{steps.names.outputs.suffix}}
+
+      - name: 'Upload artifacts to update server'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
+          chmod 600 ./deploy_key;
+          rsync -avrzP --mkpath \
+              -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
+              reports/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:/home/data/firmware-pvs-studio-report/"${{steps.names.outputs.artifacts-path}}/";
+          rm ./deploy_key;
+
+      - name: 'Find Previous Comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'PVS-Studio report for commit'
+
+      - name: 'Create or update comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request}}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **PVS-Studio report for commit `${{steps.names.outputs.short-hash}}`:**
+            - [Report](https://update.flipperzero.one/builds/firmware-pvs-studio-report/${{steps.names.outputs.artifacts-path}}/${{steps.names.outputs.default-target}}-${{steps.names.outputs.suffix}}/index.html)
+          edit-mode: replace

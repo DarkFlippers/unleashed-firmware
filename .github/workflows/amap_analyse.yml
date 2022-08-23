@@ -1,0 +1,120 @@
+name: 'Analyze .map file with Amap'
+
+on:
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+      - '*'
+  pull_request:
+
+env:
+  TARGETS: f7
+
+jobs:
+  amap_analyse:
+    runs-on: [self-hosted,FlipperZeroMacShell]
+    steps:
+      - name: 'Wait Build workflow'
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: 'main'
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          intervalSeconds: 20
+
+      - name: 'Check Build workflow status'
+        if: steps.wait-for-build.outputs.conclusion == 'failure'
+        run: |
+          exit 1
+
+      - name: 'Decontaminate previous build leftovers'
+        run: |
+          if [ -d .git ]; then
+            git submodule status \
+              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          fi
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Generate prefixes by commit'
+        id: names
+        run: |
+          REF="${{github.ref}}"
+          COMMIT_HASH="$(git rev-parse HEAD)"
+          SHA="$(git rev-parse --short HEAD)"
+          COMMIT_MSG="${{github.event.head_commit.message}}"
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            REF="${{github.head_ref}}"
+            COMMIT_HASH="$(git log -1 --pretty=oneline | awk '{print $1}')"
+            SHA="$(cut -c -8 <<< "$COMMIT_HASH")"
+            COMMIT_MSG="$(git log -1 --pretty=format:"%s")"
+            PULL_ID="${{github.event.pull_request.number}}"
+            PULL_NAME="${{github.event.pull_request.title}}"
+          fi
+          BRANCH_NAME=${REF#refs/*/}
+          SUFFIX=${BRANCH_NAME//\//_}-$(date +'%d%m%Y')-${SHA}
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            SUFFIX=${BRANCH_NAME//\//_}
+          fi
+          echo "::set-output name=commit-hash::${COMMIT_HASH}"
+          echo "::set-output name=commit-msg::${COMMIT_MSG}"
+          echo "::set-output name=pull-id::${PULL_ID}"
+          echo "::set-output name=pull-name::${PULL_NAME}"
+          echo "::set-output name=branch-name::${BRANCH_NAME}"
+          echo "::set-output name=suffix::${SUFFIX}"
+
+      - name: 'Make artifacts directory'
+        run: |
+          rm -rf artifacts
+          mkdir artifacts
+
+      - name: 'Download build artifacts'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
+          chmod 600 ./deploy_key;
+          rsync -avzP \
+              -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
+              ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.branch-name}}/" artifacts/;
+          rm ./deploy_key;
+
+      - name: 'Make .map file analyse'
+        run: |
+          cd artifacts/
+          /Applications/amap/Contents/MacOS/amap -f flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf.map
+
+      - name: 'Upload report to DB'
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
+          get_size()
+          {
+            SECTION="$1";
+            arm-none-eabi-size \
+              -A artifacts/flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf \
+              | grep "^$SECTION" | awk '{print $2}'
+          }
+          export COMMIT_HASH="${{steps.names.outputs.commit-hash}}"
+          export COMMIT_MSG="${{steps.names.outputs.commit-msg}}"
+          export BRANCH_NAME="${{steps.names.outputs.branch-name}}"
+          export PULL_ID="${{steps.names.outputs.pull-id}}"
+          export PULL_NAME="${{steps.names.outputs.pull-name}}"
+          export BSS_SIZE="$(get_size ".bss")"
+          export TEXT_SIZE="$(get_size ".text")"
+          export RODATA_SIZE="$(get_size ".rodata")"
+          export DATA_SIZE="$(get_size ".data")"
+          export FREE_FLASH_SIZE="$(get_size ".free_flash")"
+          python3 -m pip install mariadb
+          python3 scripts/amap_mariadb_insert.py \
+            ${{ secrets.AMAP_MARIADB_USER }} \
+            ${{ secrets.AMAP_MARIADB_PASSWORD }} \
+            ${{ secrets.AMAP_MARIADB_HOST }} \
+            ${{ secrets.AMAP_MARIADB_PORT }} \
+            ${{ secrets.AMAP_MARIADB_DATABASE }} \
+            artifacts/flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf.map.all
