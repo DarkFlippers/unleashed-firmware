@@ -8,18 +8,59 @@ SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
 FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"8"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 
+fbtenv_show_usage()
+{
+    echo "Running this script manually is wrong, please source it";
+    echo "Example:";
+    printf "\tsource scripts/toolchain/fbtenv.sh\n";
+}
+
+fbtenv_curl()
+{
+    curl --progress-bar -SLo "$1" "$2";
+}
+
+fbtenv_wget()
+{
+    wget --show-progress --progress=bar:force -qO "$1" "$2";
+}
+
 fbtenv_check_sourced()
 {
     case "${ZSH_EVAL_CONTEXT:-""}" in *:file:*)
         return 0;;
     esac
+    if [ ${0##*/} = "fbtenv.sh" ]; then  # exluding script itself
+        fbtenv_show_usage;
+        return 1;
+    fi
     case ${0##*/} in dash|-dash|bash|-bash|ksh|-ksh|sh|-sh|*.sh|fbt)
         return 0;;
     esac
-    echo "Running this script manually is wrong, please source it";
-    echo "Example:";
-    printf "\tsource scripts/toolchain/fbtenv.sh\n";
+    fbtenv_show_usage;
     return 1;
+}
+
+fbtenv_chck_many_source()
+{
+    if ! echo "${PS1:-""}" | grep -q "[fbt]"; then
+        if ! echo "${PROMPT:-""}" | grep -q "[fbt]"; then
+            return 0;
+        fi
+    fi
+    echo "Warning! It script seen to be sourced more then once!";
+    echo "It may signalise what you are making some mistakes, please open a new shell!";
+    return 1;
+}
+
+fbtenv_set_shell_prompt()
+{
+    if [ -n "${PS1:-""}" ]; then
+        PS1="[fbt]$PS1";
+    elif [ -n "${PROMPT:-""}" ]; then
+        PROMPT="[fbt]$PROMPT";
+    fi
+    return 0;  # all other shells
 }
 
 fbtenv_check_script_path()
@@ -97,7 +138,7 @@ fbtenv_download_toolchain_tar()
 {
     echo "Downloading toolchain:";
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
-    "$DOWNLOADER" $DOWNLOADER_ARGS "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" "$TOOLCHAIN_URL" || return 1;
+    "$FBT_DOWNLOADER" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" "$TOOLCHAIN_URL" || return 1;
     echo "done";
     return 0;
 }
@@ -156,13 +197,11 @@ fbtenv_curl_wget_check()
             return 1;
         fi
         echo "yes"
-        DOWNLOADER="wget";
-        DOWNLOADER_ARGS="--show-progress --progress=bar:force -qO";
+        FBT_DOWNLOADER="fbtenv_wget";
         return 0;
     fi
     echo "yes"
-    DOWNLOADER="curl";
-    DOWNLOADER_ARGS="--progress-bar -SLo";
+    FBT_DOWNLOADER="fbtenv_curl";
     return 0;
 }
 
@@ -196,10 +235,11 @@ fbtenv_download_toolchain()
 fbtenv_main()
 {
     fbtenv_check_sourced || return 1;
+    fbtenv_chck_many_source;  # many source it's just a warning
+    fbtenv_set_shell_prompt;
     fbtenv_check_script_path || return 1;
     fbtenv_get_kernel_type || return 1;
     fbtenv_check_download_toolchain || return 1;
-    PS1="[FBT]${PS1-}";
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";

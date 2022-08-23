@@ -110,7 +110,7 @@ jobs:
 
       - name: 'Copy .map file'
         run: |
-          cp build/f7-firmware-D/firmware.elf.map artifacts/flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf.map
+          cp build/f7-firmware-*/firmware.elf.map artifacts/flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf.map
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
