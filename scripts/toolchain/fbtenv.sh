@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"8"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"9"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 
 fbtenv_check_sourced()
@@ -13,12 +13,9 @@ fbtenv_check_sourced()
     case "${ZSH_EVAL_CONTEXT:-""}" in *:file:*)
         return 0;;
     esac
-    case ${0##*/} in dash|-dash|bash|-bash|ksh|-ksh|sh|-sh)
+    case ${0##*/} in dash|-dash|bash|-bash|ksh|-ksh|sh|-sh|*.sh|fbt)
         return 0;;
     esac
-    if [ "$(basename $0)" = "fbt" ]; then
-        return 0;
-    fi
     echo "Running this script manually is wrong, please source it";
     echo "Example:";
     printf "\tsource scripts/toolchain/fbtenv.sh\n";
@@ -202,6 +199,7 @@ fbtenv_main()
     fbtenv_check_script_path || return 1;
     fbtenv_get_kernel_type || return 1;
     fbtenv_check_download_toolchain || return 1;
+    PS1="[FBT]$PS1";
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";

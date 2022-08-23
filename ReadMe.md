@@ -61,29 +61,6 @@ One liner: `./fbt firmware_flash`
 
 3. Run `dfu-util -D full.dfu -a 0`
 
-# Build with Docker
-
-## Prerequisites
-
-1. Install [Docker Engine and Docker Compose](https://www.docker.com/get-started)
-2. Prepare the container:
-
- ```sh
- docker-compose up -d
- ```
-
-## Compile everything
-
-```sh
-docker-compose exec dev ./fbt
-```
-
-Check `dist/` for build outputs.
-
-Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
-
-If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
-
 # Build on Linux/macOS
 
 Check out `documentation/fbt.md` for details on building and flashing firmware. 
@@ -157,7 +134,6 @@ Connect your device via ST-Link and run:
 - `assets`          - Assets used by applications and services
 - `furi`            - Furi Core: os level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
-- `docker`          - Docker image sources (used for firmware build automation)
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
 - `lib`             - Our and 3rd party libraries, drivers and etc...

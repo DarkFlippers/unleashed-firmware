@@ -44,10 +44,6 @@
 # Debug tools and plugins
 /debug/ @skotopes @DrZlo13 @hedger
 
-# Docker
-/docker/ @skotopes @DrZlo13 @hedger @drunkbatya
-/docker-compose.yml @skotopes @DrZlo13 @hedger @drunkbatya
-
 # Documentation
 /documentation/ @skotopes @DrZlo13 @hedger @drunkbatya
 
