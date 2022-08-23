@@ -15,6 +15,8 @@
 #include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/protocols/registry.h>
 #include <lib/subghz/types.h>
+#include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/star_line.h>
 
 #define UNIRFMAP_FOLDER "/ext/unirf"
 #define UNIRFMAP_EXTENSION ".txt"
@@ -30,6 +32,7 @@ typedef struct {
     Gui* gui;
 
     SubGhzSetting* setting;
+    SubGhzEnvironment* environment;
 
     string_t up_file;
     string_t down_file;
@@ -69,7 +72,6 @@ typedef struct {
     int file_blank;
 
     string_t signal;
-
 } UniRFRemix;
 
 typedef struct {
@@ -86,6 +88,11 @@ UniRFPreset* unirf_preset_alloc(void) {
     UniRFPreset* preset = malloc(sizeof(UniRFPreset));
     string_init(preset->name);
     return preset;
+}
+
+void unirf_preset_free(UniRFPreset* preset) {
+    string_clear(preset->name);
+    free(preset);
 }
 
 static char* char_to_str(char* str, int i) {
@@ -601,17 +608,8 @@ static bool unirfremix_send_sub(
         return false;
     }
 
-    SubGhzEnvironment* environment = subghz_environment_alloc();
-    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
-    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
-    subghz_environment_set_came_atomo_rainbow_table_file_name(
-        environment, EXT_PATH("subghz/assets/came_atomo"));
-    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-        environment, EXT_PATH("subghz/assets/nice_flor_s"));
-
-    SubGhzReceiver* subghz_receiver = subghz_receiver_alloc_init(environment);
-
-    UniRFPreset* preset = unirf_preset_alloc();
+    SubGhzReceiver* subghz_receiver = subghz_receiver_alloc_init(app->environment); // no
+    UniRFPreset* preset = unirf_preset_alloc(); // no
     if(!unirf_key_load(preset, fff_file, fff_data, app->setting, subghz_receiver, path)) {
         FURI_LOG_E(TAG, "Could not load key");
         return false;
@@ -636,6 +634,9 @@ static bool unirfremix_send_sub(
     string_t temp_str;
     string_init(temp_str);
 
+    string_t temp_protocol_str;
+    string_init(temp_protocol_str);
+
     bool res = false;
     do {
         if(!flipper_format_rewind(fff_file)) {
@@ -643,7 +644,7 @@ static bool unirfremix_send_sub(
             break;
         }
 
-        if(!flipper_format_read_string(fff_file, "Protocol", temp_str)) {
+        if(!flipper_format_read_string(fff_file, "Protocol", temp_protocol_str)) {
             FURI_LOG_E(TAG, "Could not read Protocol");
             break;
         }
@@ -655,8 +656,8 @@ static bool unirfremix_send_sub(
         }
 
         SubGhzTransmitter* transmitter =
-            subghz_transmitter_alloc_init(environment, string_get_cstr(temp_str));
-        FURI_LOG_I(TAG, "Got transmitter for %s", string_get_cstr(temp_str));
+            subghz_transmitter_alloc_init(app->environment, string_get_cstr(temp_protocol_str));
+        FURI_LOG_I(TAG, "Got transmitter for %s", string_get_cstr(temp_protocol_str));
 
         if(transmitter) {
             subghz_transmitter_deserialize(transmitter, fff_data);
@@ -686,22 +687,17 @@ static bool unirfremix_send_sub(
                 furi_hal_subghz_stop_async_tx();
 
                 subghz_transmitter_stop(transmitter);
-                subghz_transmitter_free(transmitter);
 
                 flipper_format_file_close(fff_file);
 
-                {
-                    string_t decode_str;
-                    string_init(decode_str);
-                    subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
-                    subghz_protocol_decoder_base_get_string(preset->decoder, decode_str);
-                    FURI_LOG_I(TAG, "Decoded: %s", string_get_cstr(decode_str));
-                    string_clear(decode_str);
-                }
+                subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
+                subghz_protocol_decoder_base_get_string(preset->decoder, temp_str);
+                FURI_LOG_I(TAG, "Decoded: %s", string_get_cstr(temp_str));
 
                 FURI_LOG_I(TAG, "Checking if protocol is dynamic");
                 const SubGhzProtocol* registry_protocol =
-                    subghz_protocol_registry_get_by_name(string_get_cstr(temp_str));
+                    subghz_protocol_registry_get_by_name(string_get_cstr(temp_protocol_str));
+                FURI_LOG_I(TAG, "Protocol-TYPE %d", registry_protocol->type);
                 if(registry_protocol && registry_protocol->type == SubGhzProtocolTypeDynamic) {
                     FURI_LOG_I(TAG, "  Protocol is dynamic. Updating Repeat");
                     unirf_save_protocol_to_file(fff_data, path);
@@ -709,6 +705,8 @@ static bool unirfremix_send_sub(
             } else {
                 FURI_LOG_E(TAG, "Sending not allowed");
             }
+
+            subghz_transmitter_free(transmitter);
 
             FURI_LOG_I(TAG, "Cleaning up.");
             furi_hal_subghz_idle();
@@ -719,10 +717,18 @@ static bool unirfremix_send_sub(
         res = true;
     } while(0);
 
+    unirf_preset_free(preset);
+
     string_clear(temp_str);
+    string_clear(temp_protocol_str);
+
     unirfremix_end_send(app);
 
-    subghz_environment_free(environment);
+    keeloq_reset_mfname();
+    keeloq_reset_kl_type();
+    star_line_reset_mfname();
+    star_line_reset_kl_type();
+
     return res;
 }
 
@@ -881,8 +887,19 @@ UniRFRemix* unirfremix_alloc() {
     app->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(app->gui, app->view_port, GuiLayerFullscreen);
 
+    // load subghz presets
     app->setting = subghz_setting_alloc();
     subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
+
+    // load mfcodes
+    app->environment = subghz_environment_alloc();
+    subghz_environment_load_keystore(app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
+    subghz_environment_load_keystore(
+        app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+    subghz_environment_set_came_atomo_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/came_atomo"));
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
 
     return app;
 }
@@ -902,6 +919,7 @@ void unirfremix_free(UniRFRemix* app) {
     string_clear(app->ok_l);
 
     string_clear(app->file_path);
+    string_clear(app->signal);
 
     gui_remove_view_port(app->gui, app->view_port);
     furi_record_close(RECORD_GUI);
@@ -910,6 +928,9 @@ void unirfremix_free(UniRFRemix* app) {
     furi_message_queue_free(app->input_queue);
 
     furi_mutex_free(app->model_mutex);
+
+    subghz_setting_free(app->setting);
+    subghz_environment_free(app->environment);
 
     free(app);
 }
