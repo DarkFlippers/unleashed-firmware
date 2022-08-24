@@ -86,7 +86,7 @@ jobs:
               ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.branch-name}}/" artifacts/;
           rm ./deploy_key;
 
-      - name: 'Make .map file analyse'
+      - name: 'Make .map file analyze'
         run: |
           cd artifacts/
           /Applications/amap/Contents/MacOS/amap -f flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf.map
