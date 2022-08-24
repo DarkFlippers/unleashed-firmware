@@ -26,6 +26,19 @@
 #define TAG "UniRF Remix"
 
 typedef struct {
+    uint32_t frequency;
+    string_t name;
+
+    string_t protocol;
+    uint32_t repeat;
+
+    uint8_t* data;
+    size_t data_size;
+
+    SubGhzProtocolDecoderBase* decoder;
+} UniRFPreset;
+
+typedef struct {
     FuriMutex* model_mutex;
 
     FuriMessageQueue* input_queue;
@@ -37,6 +50,7 @@ typedef struct {
     SubGhzEnvironment* environment;
     SubGhzReceiver* subghz_receiver;
     NotificationApp* notification;
+    UniRFPreset* txpreset;
 
     string_t up_file;
     string_t down_file;
@@ -68,7 +82,11 @@ typedef struct {
     char* send_status;
     int send_status_c;
     int processing;
-    int repeat;
+
+    SubGhzTransmitter* tx_transmitter;
+    FlipperFormat* tx_fff_data;
+    const char* tx_file_path;
+    //int repeat;
     int button;
 
     int file_result;
@@ -77,19 +95,6 @@ typedef struct {
 
     string_t signal;
 } UniRFRemix;
-
-typedef struct {
-    uint32_t frequency;
-    string_t name;
-
-    string_t protocol;
-    uint32_t repeat;
-
-    uint8_t* data;
-    size_t data_size;
-
-    SubGhzProtocolDecoderBase* decoder;
-} UniRFPreset;
 
 UniRFPreset* unirfremix_preset_alloc(void) {
     UniRFPreset* preset = malloc(sizeof(UniRFPreset));
@@ -113,7 +118,7 @@ static char* char_to_str(char* str, int i) {
 
     return converted;
 }
-
+/*
 static const char* int_to_char(int number) {
     switch(number) {
     case 0:
@@ -140,7 +145,7 @@ static const char* int_to_char(int number) {
         return "0";
     }
 }
-
+*/
 //get filename without path
 static char* extract_filename(const char* name, int len) {
     string_t tmp;
@@ -328,8 +333,6 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
     flipper_format_file_close(fff_data_file);
     flipper_format_free(fff_data_file);
 
-    furi_record_close(RECORD_STORAGE);
-
     //File Existence Check
     //Check each file definition if not already set to "N/A"
 
@@ -350,7 +353,6 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         //if button is still enabled, check that file exists
         if(app->up_enabled == 1) {
             string_set(file_name, app->up_file);
-            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -365,12 +367,10 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             //close the file
             flipper_format_file_close(fff_data_file);
             flipper_format_free(fff_data_file);
-            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->down_enabled == 1) {
             string_set(file_name, app->down_file);
-            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -383,12 +383,10 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
 
             flipper_format_file_close(fff_data_file);
             flipper_format_free(fff_data_file);
-            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->left_enabled == 1) {
             string_set(file_name, app->left_file);
-            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -401,12 +399,10 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
 
             flipper_format_file_close(fff_data_file);
             flipper_format_free(fff_data_file);
-            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->right_enabled == 1) {
             string_set(file_name, app->right_file);
-            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -419,12 +415,10 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
 
             flipper_format_file_close(fff_data_file);
             flipper_format_free(fff_data_file);
-            furi_record_close(RECORD_STORAGE);
         }
 
         if(app->ok_enabled == 1) {
             string_set(file_name, app->ok_file);
-            storage = furi_record_open(RECORD_STORAGE);
             fff_data_file = flipper_format_file_alloc(storage);
 
             if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
@@ -437,8 +431,9 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
 
             flipper_format_file_close(fff_data_file);
             flipper_format_free(fff_data_file);
-            furi_record_close(RECORD_STORAGE);
         }
+
+        furi_record_close(RECORD_STORAGE);
 
         if(app->file_blank == 5) {
             app->file_result = 1;
@@ -587,40 +582,50 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
     return saved;
 }
 
-static bool unirfremix_send_sub(
-    UniRFRemix* app,
-    FlipperFormat* fff_file,
-    FlipperFormat* fff_data,
-    const char* path) {
-    //
-    UniRFPreset* preset = unirfremix_preset_alloc();
+void unirfremix_tx_stop(UniRFRemix* app) {
+    if(!string_cmp_str(app->txpreset->protocol, "RAW")) {
+        while(!furi_hal_subghz_is_async_tx_complete()) {
+            furi_delay_ms(60);
+        }
+    }
+    //Stop TX
+    furi_hal_subghz_stop_async_tx();
+    FURI_LOG_I(TAG, "TX Done!");
+    subghz_transmitter_stop(app->tx_transmitter);
 
+    FURI_LOG_D(TAG, "Checking if protocol is dynamic");
+    const SubGhzProtocol* registry =
+        subghz_protocol_registry_get_by_name(string_get_cstr(app->txpreset->protocol));
+    FURI_LOG_D(TAG, "Protocol-TYPE %d", registry->type);
+    if(registry && registry->type == SubGhzProtocolTypeDynamic) {
+        FURI_LOG_D(TAG, "Protocol is dynamic. Saving key");
+        unirfremix_save_protocol_to_file(app->tx_fff_data, app->tx_file_path);
+
+        keeloq_reset_mfname();
+        keeloq_reset_kl_type();
+        star_line_reset_mfname();
+        star_line_reset_kl_type();
+    }
+
+    subghz_transmitter_free(app->tx_transmitter);
+    furi_hal_subghz_idle();
+
+    notification_message(app->notification, &sequence_blink_stop);
+
+    unirfremix_preset_free(app->txpreset);
+    flipper_format_free(app->tx_fff_data);
+    unirfremix_end_send(app);
+}
+
+static bool unirfremix_send_sub(UniRFRemix* app, FlipperFormat* fff_data) {
+    //
     bool res = false;
     do {
-        // load settings/stream from .sub file
-        bool open_ok = false;
-        do {
-            if(!flipper_format_file_open_existing(fff_file, path)) {
-                FURI_LOG_E(TAG, "Could not open file %s", path);
-                break;
-            }
-            if(!unirfremix_key_load(
-                   preset, fff_file, fff_data, app->setting, app->subghz_receiver, path)) {
-                FURI_LOG_E(TAG, "Could not load key");
-                break;
-            }
-            open_ok = true;
-        } while(0);
-        flipper_format_free(fff_file);
-        if(!open_ok) {
-            break;
-        }
-
-        if(!furi_hal_subghz_is_tx_allowed(preset->frequency)) {
+        if(!furi_hal_subghz_is_tx_allowed(app->txpreset->frequency)) {
             printf(
                 "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
                 "the actual operation of the unirf app is not possible\r\n ",
-                preset->frequency);
+                app->txpreset->frequency);
             app->tx_not_allowed = true;
             unirfremix_end_send(app);
             break;
@@ -628,21 +633,21 @@ static bool unirfremix_send_sub(
             app->tx_not_allowed = false;
         }
 
-        SubGhzTransmitter* transmitter =
-            subghz_transmitter_alloc_init(app->environment, string_get_cstr(preset->protocol));
-        if(!transmitter) {
+        app->tx_transmitter = subghz_transmitter_alloc_init(
+            app->environment, string_get_cstr(app->txpreset->protocol));
+        if(!app->tx_transmitter) {
             break;
         }
 
-        subghz_transmitter_deserialize(transmitter, fff_data);
+        subghz_transmitter_deserialize(app->tx_transmitter, fff_data);
 
         furi_hal_subghz_reset();
         furi_hal_subghz_idle();
-        furi_hal_subghz_load_custom_preset(preset->data);
+        furi_hal_subghz_load_custom_preset(app->txpreset->data);
         furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
         furi_hal_subghz_idle();
-        furi_hal_subghz_set_frequency_and_path(preset->frequency);
+        furi_hal_subghz_set_frequency_and_path(app->txpreset->frequency);
         furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
         furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
@@ -652,65 +657,52 @@ static bool unirfremix_send_sub(
         }
 
         FURI_LOG_I(TAG, "Sending...");
-        notification_message(app->notification, &sequence_blink_start_green);
+        notification_message(app->notification, &sequence_blink_start_magenta);
 
-        furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
-        while(!furi_hal_subghz_is_async_tx_complete()) {
-            furi_delay_ms(33);
-        }
-        furi_hal_subghz_stop_async_tx();
-
-        FURI_LOG_I(TAG, "  Done!");
-        notification_message(app->notification, &sequence_blink_stop);
-
-        subghz_transmitter_stop(transmitter);
+        furi_hal_subghz_start_async_tx(subghz_transmitter_yield, app->tx_transmitter);
 
         res = true;
-
-        FURI_LOG_D(TAG, "Checking if protocol is dynamic");
-        const SubGhzProtocol* registry =
-            subghz_protocol_registry_get_by_name(string_get_cstr(preset->protocol));
-        FURI_LOG_D(TAG, "Protocol-TYPE %d", registry->type);
-        if(registry && registry->type == SubGhzProtocolTypeDynamic) {
-            FURI_LOG_D(TAG, "  Protocol is dynamic. Updating Repeat");
-            unirfremix_save_protocol_to_file(fff_data, path);
-
-            keeloq_reset_mfname();
-            keeloq_reset_kl_type();
-            star_line_reset_mfname();
-            star_line_reset_kl_type();
-        }
-
-        subghz_transmitter_free(transmitter);
-
-        furi_hal_subghz_idle();
-        furi_hal_subghz_sleep();
     } while(0);
 
-    unirfremix_preset_free(preset);
-    unirfremix_end_send(app);
     return res;
 }
 
 static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, const char* path) {
     FURI_LOG_I(TAG, "Sending: %s", path);
 
-    FlipperFormat* fff_data = flipper_format_string_alloc();
+    app->tx_file_path = path;
 
-    string_t preset, protocol;
-    string_init(preset);
-    string_init(protocol);
+    app->tx_fff_data = flipper_format_string_alloc();
 
-    for(int x = 0; x < app->repeat; ++x) {
-        FlipperFormat* fff_file = flipper_format_file_alloc(storage);
-        unirfremix_send_sub(app, fff_file, fff_data, path);
+    app->txpreset = unirfremix_preset_alloc();
+
+    // load settings/stream from .sub file
+    FlipperFormat* fff_file = flipper_format_file_alloc(storage);
+    bool open_ok = false;
+    do {
+        if(!flipper_format_file_open_existing(fff_file, path)) {
+            FURI_LOG_E(TAG, "Could not open file %s", path);
+            break;
+        }
+        if(!unirfremix_key_load(
+               app->txpreset,
+               fff_file,
+               app->tx_fff_data,
+               app->setting,
+               app->subghz_receiver,
+               path)) {
+            FURI_LOG_E(TAG, "Could not load key");
+            break;
+        }
+        open_ok = true;
+    } while(0);
+    flipper_format_free(fff_file);
+    if(!open_ok) {
+        FURI_LOG_E(TAG, "Could not load file!");
+        return;
     }
 
-    string_clear(protocol);
-    string_clear(preset);
-    flipper_format_free(fff_data);
-
-    unirfremix_end_send(app);
+    unirfremix_send_sub(app, app->tx_fff_data);
 }
 
 static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
@@ -739,7 +731,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
         canvas_draw_str_aligned(canvas, 62, 5, AlignCenter, AlignTop, "Config is incorrect.");
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 62, 30, AlignCenter, AlignTop, "Please configure map.");
-        canvas_draw_str_aligned(canvas, 62, 60, AlignCenter, AlignBottom, "Hold Back to Exit.");
+        canvas_draw_str_aligned(canvas, 62, 60, AlignCenter, AlignBottom, "Press Back to Exit.");
     } else if(app->tx_not_allowed) {
         canvas_clear(canvas);
         canvas_set_font(canvas, FontPrimary);
@@ -748,7 +740,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
         canvas_draw_str_aligned(canvas, 62, 15, AlignCenter, AlignTop, "Frequency is outside of");
         canvas_draw_str_aligned(canvas, 62, 25, AlignCenter, AlignTop, "default range.");
         canvas_draw_str_aligned(canvas, 62, 35, AlignCenter, AlignTop, "Check docs.");
-        canvas_draw_str_aligned(canvas, 62, 60, AlignCenter, AlignBottom, "Hold Back to Exit.");
+        canvas_draw_str_aligned(canvas, 62, 60, AlignCenter, AlignBottom, "Press Back to Exit.");
     } else {
         //map found, draw all the things
         canvas_clear(canvas);
@@ -779,8 +771,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
         canvas_draw_str(canvas, 10, 40, app->right_label);
         canvas_draw_str(canvas, 10, 50, app->ok_label);
 
-        canvas_draw_str_aligned(
-            canvas, 11, 62, AlignLeft, AlignBottom, "Hold=Exit. Tap for Repeat:");
+        canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Press=Exit.");
 
         //Status text and indicator
         canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, app->send_status);
@@ -814,8 +805,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
         //Repeat indicator
         //canvas_draw_str_aligned(canvas, 125, 40, AlignRight, AlignBottom, "Repeat:");
         //canvas_draw_icon(canvas, 115, 39, &I_UniRFRemix_Repeat_12x14);
-        canvas_draw_str_aligned(
-            canvas, 125, 62, AlignRight, AlignBottom, int_to_char(app->repeat));
+        //canvas_draw_str_aligned(canvas, 125, 62, AlignRight, AlignBottom, int_to_char(app->repeat));
     }
 
     furi_mutex_release(app->model_mutex);
@@ -824,6 +814,24 @@ static void render_callback(Canvas* canvas, void* ctx) {
 static void input_callback(InputEvent* input_event, void* ctx) {
     UniRFRemix* app = ctx;
     furi_message_queue_put(app->input_queue, input_event, 0);
+}
+
+void unirfremix_subghz_alloc(UniRFRemix* app) {
+    // load subghz presets
+    app->setting = subghz_setting_alloc();
+    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
+
+    // load mfcodes
+    app->environment = subghz_environment_alloc();
+    subghz_environment_load_keystore(app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
+    subghz_environment_load_keystore(
+        app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+    subghz_environment_set_came_atomo_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/came_atomo"));
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
+
+    app->subghz_receiver = subghz_receiver_alloc_init(app->environment);
 }
 
 UniRFRemix* unirfremix_alloc(void) {
@@ -840,22 +848,6 @@ UniRFRemix* unirfremix_alloc(void) {
     // Open GUI and register view_port
     app->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(app->gui, app->view_port, GuiLayerFullscreen);
-
-    // load subghz presets
-    app->setting = subghz_setting_alloc();
-    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
-
-    // load mfcodes
-    app->environment = subghz_environment_alloc();
-    subghz_environment_load_keystore(app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
-    subghz_environment_load_keystore(
-        app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
-    subghz_environment_set_came_atomo_rainbow_table_file_name(
-        app->environment, EXT_PATH("subghz/assets/came_atomo"));
-    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-        app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
-
-    app->subghz_receiver = subghz_receiver_alloc_init(app->environment);
 
     app->notification = furi_record_open(RECORD_NOTIFICATION);
 
@@ -887,6 +879,7 @@ void unirfremix_free(UniRFRemix* app) {
 
     furi_mutex_free(app->model_mutex);
 
+    furi_hal_subghz_sleep();
     subghz_setting_free(app->setting);
     subghz_receiver_free(app->subghz_receiver);
     subghz_environment_free(app->environment);
@@ -938,6 +931,9 @@ int32_t unirfremix_app(void* p) {
         unirfremix_cfg_set_check(app, app->file_path);
     }
 
+    // init subghz stuff
+    unirfremix_subghz_alloc(app);
+
     bool exit_loop = false;
 
     if(app->file_result == 2) {
@@ -954,7 +950,7 @@ int32_t unirfremix_app(void* p) {
         app->send_status = "Idle";
         app->send_status_c = 0;
         app->processing = 0;
-        app->repeat = 1;
+        //app->repeat = 1;
         app->button = 0;
 
         //refresh screen to update variables before processing main screen or error screens
@@ -976,7 +972,7 @@ int32_t unirfremix_app(void* p) {
 
             switch(input.key) {
             case InputKeyUp:
-                if(input.type == InputTypeShort) {
+                if(input.type == InputTypePress) {
                     if(app->up_enabled) {
                         if(app->processing == 0) {
                             *app->signal = *app->empty;
@@ -986,10 +982,15 @@ int32_t unirfremix_app(void* p) {
                         }
                     }
                 }
+                if(input.type == InputTypeRelease) {
+                    if(app->up_enabled) {
+                        unirfremix_tx_stop(app);
+                    }
+                }
                 break;
 
             case InputKeyDown:
-                if(input.type == InputTypeShort) {
+                if(input.type == InputTypePress) {
                     if(app->down_enabled) {
                         if(app->processing == 0) {
                             *app->signal = *app->empty;
@@ -999,10 +1000,15 @@ int32_t unirfremix_app(void* p) {
                         }
                     }
                 }
+                if(input.type == InputTypeRelease) {
+                    if(app->down_enabled) {
+                        unirfremix_tx_stop(app);
+                    }
+                }
                 break;
 
             case InputKeyRight:
-                if(input.type == InputTypeShort) {
+                if(input.type == InputTypePress) {
                     if(app->right_enabled) {
                         if(app->processing == 0) {
                             *app->signal = *app->empty;
@@ -1012,10 +1018,15 @@ int32_t unirfremix_app(void* p) {
                         }
                     }
                 }
+                if(input.type == InputTypeRelease) {
+                    if(app->right_enabled) {
+                        unirfremix_tx_stop(app);
+                    }
+                }
                 break;
 
             case InputKeyLeft:
-                if(input.type == InputTypeShort) {
+                if(input.type == InputTypePress) {
                     if(app->left_enabled) {
                         if(app->processing == 0) {
                             *app->signal = *app->empty;
@@ -1025,10 +1036,15 @@ int32_t unirfremix_app(void* p) {
                         }
                     }
                 }
+                if(input.type == InputTypeRelease) {
+                    if(app->left_enabled) {
+                        unirfremix_tx_stop(app);
+                    }
+                }
                 break;
 
             case InputKeyOk:
-                if(input.type == InputTypeShort) {
+                if(input.type == InputTypePress) {
                     if(app->ok_enabled) {
                         if(app->processing == 0) {
                             *app->signal = *app->empty;
@@ -1038,18 +1054,15 @@ int32_t unirfremix_app(void* p) {
                         }
                     }
                 }
+                if(input.type == InputTypeRelease) {
+                    if(app->ok_enabled) {
+                        unirfremix_tx_stop(app);
+                    }
+                }
                 break;
 
             case InputKeyBack:
                 if(input.type == InputTypeShort) {
-                    if(app->processing == 0) {
-                        if(app->repeat < 5) {
-                            app->repeat++;
-                        } else {
-                            app->repeat = 1;
-                        }
-                    }
-                } else if(input.type == InputTypeLong) {
                     exit_loop = true;
                 }
                 break;
@@ -1122,7 +1135,7 @@ int32_t unirfremix_app(void* p) {
             case InputKeyOk:
                 break;
             case InputKeyBack:
-                if(input.type == InputTypeLong) {
+                if(input.type == InputTypeShort) {
                     exit_loop = true;
                 }
                 break;
