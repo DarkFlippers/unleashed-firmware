@@ -61,9 +61,9 @@ static bool desktop_view_slideshow_input(InputEvent* event, void* context) {
             furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_SHORT);
         } else if(event->type == InputTypeRelease) {
             furi_timer_stop(instance->timer);
-            if(!slideshow_is_one_page(model->slideshow)) {
+            /*if(!slideshow_is_one_page(model->slideshow)) {
                 furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
-            }
+            }*/
         }
     }
     view_commit_model(instance->view, update_view);
