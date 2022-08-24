@@ -4,6 +4,8 @@
 #include <input/input.h>
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
+
+#include <notification/notification.h>
 #include <notification/notification_messages.h>
 
 #include <assets_icons.h>
@@ -34,6 +36,7 @@ typedef struct {
     SubGhzSetting* setting;
     SubGhzEnvironment* environment;
     SubGhzReceiver* subghz_receiver;
+    NotificationApp* notification;
 
     string_t up_file;
     string_t down_file;
@@ -477,7 +480,7 @@ bool unirfremix_key_load(
     //
     if(!flipper_format_rewind(fff_file)) {
         FURI_LOG_E(TAG, "Rewind error");
-        return NULL;
+        return false;
     }
 
     string_t temp_str;
@@ -572,7 +575,7 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
             FURI_LOG_E(TAG, "(save) Cannot remove");
             break;
         }
-        //ToDo check Write
+
         stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
         stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
 
@@ -643,13 +646,13 @@ static bool unirfremix_send_sub(
         furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
         furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
-        furi_hal_power_suppress_charge_enter();
-
         if(!furi_hal_subghz_tx()) {
             FURI_LOG_E(TAG, "Sending not allowed");
+            break;
         }
 
         FURI_LOG_I(TAG, "Sending...");
+        notification_message(app->notification, &sequence_blink_start_green);
 
         furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
         while(!furi_hal_subghz_is_async_tx_complete()) {
@@ -658,18 +661,9 @@ static bool unirfremix_send_sub(
         furi_hal_subghz_stop_async_tx();
 
         FURI_LOG_I(TAG, "  Done!");
+        notification_message(app->notification, &sequence_blink_stop);
 
         subghz_transmitter_stop(transmitter);
-
-        // display decoded data
-        {
-            string_t temp_str;
-            string_init(temp_str);
-            subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
-            subghz_protocol_decoder_base_get_string(preset->decoder, temp_str);
-            FURI_LOG_D(TAG, "Decoded: %s", string_get_cstr(temp_str));
-            string_clear(temp_str);
-        }
 
         res = true;
 
@@ -677,8 +671,10 @@ static bool unirfremix_send_sub(
         const SubGhzProtocol* registry =
             subghz_protocol_registry_get_by_name(string_get_cstr(preset->protocol));
         FURI_LOG_D(TAG, "Protocol-TYPE %d", registry->type);
+        FURI_LOG_I(TAG, "3");
         if(registry && registry->type == SubGhzProtocolTypeDynamic) {
             FURI_LOG_D(TAG, "  Protocol is dynamic. Updating Repeat");
+            FURI_LOG_I(TAG, "4");
             unirfremix_save_protocol_to_file(fff_data, path);
 
             keeloq_reset_mfname();
@@ -691,7 +687,6 @@ static bool unirfremix_send_sub(
 
         furi_hal_subghz_idle();
         furi_hal_subghz_sleep();
-        furi_hal_power_suppress_charge_exit();
     } while(0);
 
     unirfremix_preset_free(preset);
@@ -864,6 +859,8 @@ UniRFRemix* unirfremix_alloc(void) {
 
     app->subghz_receiver = subghz_receiver_alloc_init(app->environment);
 
+    app->notification = furi_record_open(RECORD_NOTIFICATION);
+
     return app;
 }
 
@@ -895,6 +892,8 @@ void unirfremix_free(UniRFRemix* app) {
     subghz_setting_free(app->setting);
     subghz_receiver_free(app->subghz_receiver);
     subghz_environment_free(app->environment);
+
+    furi_record_close(RECORD_NOTIFICATION);
 
     free(app);
 }
@@ -963,6 +962,8 @@ int32_t unirfremix_app(void* p) {
         //refresh screen to update variables before processing main screen or error screens
         furi_mutex_release(app->model_mutex);
         view_port_update(app->view_port);
+
+        furi_hal_power_suppress_charge_enter();
 
         //input detect loop start
         InputEvent input;
@@ -1143,6 +1144,8 @@ int32_t unirfremix_app(void* p) {
 
     // remove & free all stuff created by app
     unirfremix_free(app);
+
+    furi_hal_power_suppress_charge_exit();
 
     return 0;
 }
