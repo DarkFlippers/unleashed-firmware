@@ -32,6 +32,9 @@ Our Discord Community:
 * Picopass/iClass plugin included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
 * Universal A/C and Audio(soundbars, etc.) remote
+* Universal remote for Projectors
+* BadUSB keyboard layouts
+* Customizable Flipper name
 * Other small fixes and changes throughout
 
 See changelog in releases for latest updates!
@@ -88,7 +91,7 @@ See changelog in releases for latest updates!
 
 ### **Plugins**
 
-## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
+## [- Configure Sub-GHz Remote App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)
 
 ## [- Barcode Generator](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
 

@@ -35,6 +35,11 @@ void LfRfidAppSceneWrite::on_enter(LfRfidApp* app, bool /* need_restore */) {
     popup->set_icon(0, 3, &I_RFIDDolphinSend_97x61);
 
     app->view_controller.switch_to<PopupVM>();
+
+    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    app->old_key_data = (uint8_t*)malloc(size);
+    protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
+
     lfrfid_worker_start_thread(app->lfworker);
     lfrfid_worker_write_start(
         app->lfworker, (LFRFIDProtocol)app->protocol_id, lfrfid_write_callback, app);
@@ -76,4 +81,8 @@ void LfRfidAppSceneWrite::on_exit(LfRfidApp* app) {
     app->view_controller.get<PopupVM>()->clean();
     lfrfid_worker_stop(app->lfworker);
     lfrfid_worker_stop_thread(app->lfworker);
+
+    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
+    free(app->old_key_data);
 }
