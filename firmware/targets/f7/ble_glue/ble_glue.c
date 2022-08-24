@@ -1,14 +1,14 @@
 #include "ble_glue.h"
 #include "app_common.h"
 #include "ble_app.h"
-#include "ble.h"
-#include "tl.h"
-#include "shci.h"
-#include "shci_tl.h"
+#include <ble/ble.h>
+
+#include <interface/patterns/ble_thread/tl/tl.h>
+#include <interface/patterns/ble_thread/shci/shci.h>
+#include <interface/patterns/ble_thread/tl/shci_tl.h>
 #include "app_debug.h"
 
 #include <furi_hal.h>
-#include <shci/shci.h>
 
 #define TAG "Core2"
 
@@ -156,7 +156,7 @@ static void ble_glue_update_c2_fw_info() {
     snprintf(
         local_info->StackTypeString,
         BLE_GLUE_MAX_VERSION_STRING_LEN,
-        "%d.%d.%d.%s",
+        "%d.%d.%d:%s",
         local_info->VersionMajor,
         local_info->VersionMinor,
         local_info->VersionSub,

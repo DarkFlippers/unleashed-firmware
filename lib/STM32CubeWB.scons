@@ -2,19 +2,10 @@ Import("env")
 
 env.Append(
     CPPPATH=[
-        "#/lib/STM32CubeWB/Drivers/CMSIS/Device/ST",
         "#/lib/STM32CubeWB/Drivers/CMSIS/Device/ST/STM32WBxx/Include",
         "#/lib/STM32CubeWB/Drivers/CMSIS/Include",
         "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc",
-        "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/Legacy",
         "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/ble",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/ble/core",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/ble/core/template",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl",
-        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/utilities",
     ],
     CPPDEFINES=[
         "STM32WB",
@@ -33,6 +24,16 @@ if env["RAM_EXEC"]:
 
 
 libenv = env.Clone(FW_LIB_NAME="stm32cubewb")
+libenv.Append(
+    CPPPATH=[
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/ble",
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/ble/core",
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread",
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci",
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl",
+        "#/lib/STM32CubeWB/Middlewares/ST/STM32_WPAN/utilities",
+    ]
+)
 libenv.ApplyLibFlags()
 
 sources = libenv.GlobRecursive(

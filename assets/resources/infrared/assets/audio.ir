@@ -9,7 +9,7 @@ Version: 1
 # HUGE thank you to Amec0e for continued maintenance!
 #####################################################
 # 
-# Updated 15th August 2022
+# Updated 23th August 2022
 # 
 # | SPEAKERS |
 # 
@@ -562,6 +562,26 @@ type: parsed
 protocol: NECext
 address: 0A 1D 00 00
 command: 01 FE 00 00
+#
+# CREATIVE
+# 
+name: VOL+
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 06 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 07 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 1E 00 00 00
 # 
 # KLIPSCH
 # 
@@ -952,6 +972,24 @@ protocol: NEC
 address: 00 00 00 00
 command: 40 00 00 00
 # 
+name: VOL+
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 41 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 45 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 48 00 00 00
+# 
 # XIAOMI
 # 
 name: VOL+
@@ -1113,6 +1151,26 @@ type: parsed
 protocol: NECext
 address: D2 03 00 00
 command: 05 FA 00 00
+# 
+# PHILLIPS
+# 
+name: POWER
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 0C 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 11 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 10 00 00 00
 # 
 # REGA
 # 

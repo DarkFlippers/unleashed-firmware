@@ -87,4 +87,3 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key);
 void archive_enter_dir(ArchiveBrowserView* browser, string_t name);
 void archive_leave_dir(ArchiveBrowserView* browser);
 void archive_refresh_dir(ArchiveBrowserView* browser);
-void archive_file_browser_set_callbacks(ArchiveBrowserView* browser);

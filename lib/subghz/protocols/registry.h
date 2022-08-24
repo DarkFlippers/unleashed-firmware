@@ -33,6 +33,7 @@
 #include "doitrand.h"
 #include "phoenix_v2.h"
 #include "honeywell_wdb.h"
+#include "magellen.h"
 
 /**
  * Registration by name SubGhzProtocol.

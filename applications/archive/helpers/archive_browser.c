@@ -77,14 +77,24 @@ static void archive_long_load_cb(void* context) {
         });
 }
 
-void archive_file_browser_set_callbacks(ArchiveBrowserView* browser) {
+static void archive_file_browser_set_path(
+    ArchiveBrowserView* browser,
+    string_t path,
+    const char* filter_ext,
+    bool skip_assets) {
     furi_assert(browser);
-
-    file_browser_worker_set_callback_context(browser->worker, browser);
-    file_browser_worker_set_folder_callback(browser->worker, archive_folder_open_cb);
-    file_browser_worker_set_list_callback(browser->worker, archive_list_load_cb);
-    file_browser_worker_set_item_callback(browser->worker, archive_list_item_cb);
-    file_browser_worker_set_long_load_callback(browser->worker, archive_long_load_cb);
+    if(!browser->worker_running) {
+        browser->worker = file_browser_worker_alloc(path, filter_ext, skip_assets);
+        file_browser_worker_set_callback_context(browser->worker, browser);
+        file_browser_worker_set_folder_callback(browser->worker, archive_folder_open_cb);
+        file_browser_worker_set_list_callback(browser->worker, archive_list_load_cb);
+        file_browser_worker_set_item_callback(browser->worker, archive_list_item_cb);
+        file_browser_worker_set_long_load_callback(browser->worker, archive_long_load_cb);
+        browser->worker_running = true;
+    } else {
+        furi_assert(browser->worker);
+        file_browser_worker_set_config(browser->worker, path, filter_ext, skip_assets);
+    }
 }
 
 bool archive_is_item_in_array(ArchiveBrowserViewModel* model, uint32_t idx) {
@@ -438,8 +448,8 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
         tab = archive_get_tab(browser);
         if(archive_is_dir_exists(browser->path)) {
             bool skip_assets = (strcmp(archive_get_tab_ext(tab), "*") == 0) ? false : true;
-            file_browser_worker_set_config(
-                browser->worker, browser->path, archive_get_tab_ext(tab), skip_assets);
+            archive_file_browser_set_path(
+                browser, browser->path, archive_get_tab_ext(tab), skip_assets);
             tab_empty = false; // Empty check will be performed later
         } else {
             tab_empty = true;
