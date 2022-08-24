@@ -40,6 +40,7 @@ struct SubGhzFrequencyAnalyzer {
     SubGhzFrequencyAnalyzerCallback callback;
     void* context;
     bool locked;
+    uint8_t feedback_level; // 0 - no feedback, 1 - vibro only, 2 - vibro and sound
     float rssi_last;
     uint32_t frequency_last;
     uint32_t frequency_last_vis;
@@ -174,9 +175,19 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         need_redraw = true;
     }
 
+    if(event->type == InputTypePress && event->key == InputKeyUp) {
+        if(instance->feedback_level == 0) {
+            instance->feedback_level = 2;
+        } else {
+            instance->feedback_level--;
+        }
+        FURI_LOG_D(TAG, "feedback_level = %d", instance->feedback_level);
+        need_redraw = true;
+    }
+
     if(need_redraw) {
         SubGhzFrequencyAnalyzer* instance = context;
-        with_view_model(
+        instance->view with_view_model(
             instance->view, (SubGhzFrequencyAnalyzerModel * model) {
                 model->rssi_last = instance->rssi_last;
                 model->frequency_last = instance->frequency_last;
@@ -218,7 +229,18 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
             // Triggered!
             instance->rssi_last = rssi;
             notification_message(instance->notifications, &sequence_hw_blink_stop);
-            notification_message(instance->notifications, &sequence_success);
+
+            switch(instance->feedback_level) {
+            case 1: // 1 - only vibro
+                notification_message(instance->notifications, &sequence_single_vibro);
+                break;
+            case 2: // 2 - vibro and beep
+                notification_message(instance->notifications, &sequence_success);
+                break;
+            default: // 0 - no feedback
+                break;
+            }
+
             FURI_LOG_D(TAG, "triggered");
         }
         // Update values
@@ -293,6 +315,8 @@ void subghz_frequency_analyzer_exit(void* context) {
 SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc() {
     SubGhzFrequencyAnalyzer* instance = malloc(sizeof(SubGhzFrequencyAnalyzer));
     furi_assert(instance);
+
+    instance->feedback_level = 2;
 
     // View allocation and configuration
     instance->view = view_alloc();
