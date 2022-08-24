@@ -671,10 +671,8 @@ static bool unirfremix_send_sub(
         const SubGhzProtocol* registry =
             subghz_protocol_registry_get_by_name(string_get_cstr(preset->protocol));
         FURI_LOG_D(TAG, "Protocol-TYPE %d", registry->type);
-        FURI_LOG_I(TAG, "3");
         if(registry && registry->type == SubGhzProtocolTypeDynamic) {
             FURI_LOG_D(TAG, "  Protocol is dynamic. Updating Repeat");
-            FURI_LOG_I(TAG, "4");
             unirfremix_save_protocol_to_file(fff_data, path);
 
             keeloq_reset_mfname();
