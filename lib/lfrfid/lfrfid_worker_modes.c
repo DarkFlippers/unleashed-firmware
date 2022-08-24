@@ -522,9 +522,17 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                 &read_result);
 
             if(state == LFRFIDWorkerReadOK) {
-                protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+                bool read_success = false;
 
-                if(memcmp(read_data, verify_data, data_size) == 0) {
+                if(read_result == protocol) {
+                    protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+
+                    if(memcmp(read_data, verify_data, data_size) == 0) {
+                        read_success = true;
+                    }
+                }
+
+                if(read_success) {
                     if(worker->write_cb) {
                         worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
                     }
