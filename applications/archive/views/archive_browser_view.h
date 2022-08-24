@@ -74,6 +74,7 @@ typedef enum {
 struct ArchiveBrowserView {
     View* view;
     BrowserWorker* worker;
+    bool worker_running;
     ArchiveBrowserViewCallback callback;
     void* context;
     string_t path;

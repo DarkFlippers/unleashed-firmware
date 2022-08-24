@@ -1,6 +1,6 @@
 App(
     appid="unirfremix",
-    name="UniRF Remix",
+    name="Sub-GHz Remote",
     apptype=FlipperAppType.APP,
     entry_point="unirfremix_app",
     cdefines=["APP_UNIRFREMIX"],
@@ -9,6 +9,6 @@ App(
         "dialogs",
     ],
     icon="A_UniRFRemix_14",
-    stack_size=2 * 1024,
+    stack_size=4 * 1024,
     order=11,
 )

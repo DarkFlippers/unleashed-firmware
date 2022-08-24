@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +63,23 @@ typedef void (*FuriHalRfidEmulateCallback)(void* context);
 /** Start emulation timer
  */
 void furi_hal_rfid_tim_emulate_start(FuriHalRfidEmulateCallback callback, void* context);
+
+typedef void (*FuriHalRfidReadCaptureCallback)(bool level, uint32_t duration, void* context);
+
+void furi_hal_rfid_tim_read_capture_start(FuriHalRfidReadCaptureCallback callback, void* context);
+
+void furi_hal_rfid_tim_read_capture_stop();
+
+typedef void (*FuriHalRfidDMACallback)(bool half, void* context);
+
+void furi_hal_rfid_tim_emulate_dma_start(
+    uint32_t* duration,
+    uint32_t* pulse,
+    size_t length,
+    FuriHalRfidDMACallback callback,
+    void* context);
+
+void furi_hal_rfid_tim_emulate_dma_stop();
 
 /** Stop emulation timer
  */

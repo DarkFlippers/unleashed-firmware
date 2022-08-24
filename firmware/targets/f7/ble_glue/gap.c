@@ -1,6 +1,6 @@
 #include "gap.h"
 
-#include "ble.h"
+#include <ble/ble.h>
 
 #include <furi_hal.h>
 #include <furi.h>

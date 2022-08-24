@@ -11,7 +11,7 @@ Version: 1
 # Also a HUGE thank you to Amec0e for continued maintenance!
 ############################################################
 # 
-# Updated on 17th August 2022
+# Updated on 21th August 2022
 #
 name: POWER
 type: parsed
@@ -116,8 +116,6 @@ type: parsed
 protocol: Samsung32
 address: 0e 00 00 00
 command: 14 00 00 00
-# 
-# 
 # 
 name: VOL-
 type: parsed
@@ -1765,8 +1763,6 @@ protocol: NECext
 address: 02 7D 00 00
 command: 15 EA 00 00
 # 
-# 
-# 
 name: POWER
 type: parsed
 protocol: NECext
@@ -2369,6 +2365,7 @@ type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 17 00 00 00
+# 
 # BRANDT
 # 
 name: POWER
@@ -2830,8 +2827,6 @@ type: parsed
 protocol: NEC
 address: A0 00 00 00
 command: 1F 00 00 00
-#
-# ROKU
 # 
 # SAMSUNG
 # 
@@ -3050,7 +3045,6 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 3994 3986 512 1989 515 1986 518 1982 512 1989 515 985 517 983 519 2008 486 988 514 1987 517 1983 521 979 513 987 515 986 516 984 518 982 520 980 512 1988 516 1985 519 981 521 1980 514 986 516 984 518 2009 485 1990 514 9041 3994 3986 511 1989 515 1985 519 1982 512 1989 515 984 518 982 520 1981 513 987 515 1986 518 1982 512 988 514 986 516 984 518 983 519 981 521 979 513 1987 517 1984 520 980 512 1989 515 984 518 982 520 2007 487 1988 516 9038 4028 3952 514 1986 518 1982 512 1989 515 1985 519 980 512 989 513 2013 491 983 519 1982 512 1989 515 984 519 982 520 980 522 979 513 987 515 985 517 1983 521 1980 514 986 516 1985 519 980 512 989 513 2013 491 1984 520
-# 
 # 
 # WBOX
 # 

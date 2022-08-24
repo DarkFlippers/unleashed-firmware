@@ -545,6 +545,16 @@ void nfc_worker_mf_ultralight_read_auth(NfcWorker* nfc_worker) {
                 }
 
                 data->auth_success = mf_ultralight_authenticate(&tx_rx, key, &pack);
+
+                if(!data->auth_success) {
+                    // Reset card
+                    furi_hal_nfc_sleep();
+                    if(!furi_hal_nfc_activate_nfca(300, NULL)) {
+                        nfc_worker->callback(NfcWorkerEventFail, nfc_worker->context);
+                        break;
+                    }
+                }
+
                 mf_ul_read_card(&tx_rx, &reader, data);
                 if(data->auth_success) {
                     MfUltralightConfigPages* config_pages = mf_ultralight_get_config_pages(data);

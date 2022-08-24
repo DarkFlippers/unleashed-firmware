@@ -1,6 +1,8 @@
-# Flipper Zero Unleashed Firmware
-
-<img src="https://i.ibb.co/wQ12PVc/fzCUSTOM.png" alt="fzCUSTOM" border="0">
+<h3 align="center">
+<a href="https://github.com/Eng1n33r/flipperzero-firmware">
+<img src="https://user-images.githubusercontent.com/10697207/186202043-26947e28-b1cc-459a-8f20-ffcc7fc0c71c.png" align="center" alt="fzCUSTOM" border="0">
+</a>
+</h3>
 
 Welcome to Flipper Zero's Custom Firmware repo! 
 Our goal is to make any features possible in this device without any limitations! 
@@ -30,6 +32,9 @@ Our Discord Community:
 * Picopass/iClass plugin included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
 * Universal A/C and Audio(soundbars, etc.) remote
+* Universal remote for Projectors
+* BadUSB keyboard layouts
+* Customizable Flipper name
 * Other small fixes and changes throughout
 
 See changelog in releases for latest updates!
@@ -57,13 +62,12 @@ See changelog in releases for latest updates!
 
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
-- Dec/Hex Converter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff/tree/main/applications/dec_hex_converter)
+- MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
 - WAV player plugin (fixed) [(OFW: DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
 - UPC-A Barcode generator plugin [(by McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
 - GPIO: Sentry Safe plugin [(by H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
 - ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
 - NRF24: Sniffer & MouseJacker (with changes) [(by mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
-- HID Analyzer [(by Ownasaurus)](https://github.com/Ownasaurus/flipperzero-firmware/tree/hid-analyzer/applications/hid_analyzer)
 - Simple Clock (fixed) !! New version WIP, wait for updates !! [(Original by CompaqDisc)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
 - UniversalRF Remix (with changes)(only RAW subghz files) [(by ESurge)(Original UniversalRF by jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
 - Tetris (with fixes) [(by jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
@@ -87,9 +91,11 @@ See changelog in releases for latest updates!
 
 ### **Plugins**
 
-## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
+## [- Configure Sub-GHz Remote App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)
 
 ## [- Barcode Generator](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
+
+## [- Multi Converter](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/MultiConverter.md)
 
 ## [- WAV Player sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
 
@@ -142,7 +148,6 @@ See changelog in releases for latest updates!
 - `assets`          - Assets used by applications and services
 - `furi`            - Furi Core: os level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
-- `docker`          - Docker image sources (used for firmware build automation)
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
 - `lib`             - Our and 3rd party libraries, drivers and etc...

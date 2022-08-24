@@ -19,7 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "app_common.h"
-#include "mbox_def.h"
+#include <interface/patterns/ble_thread/tl/mbox_def.h>
 
 /* Global variables ---------------------------------------------------------*/
 /* Private defines -----------------------------------------------------------*/
