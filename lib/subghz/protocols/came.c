@@ -112,8 +112,11 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
         instance->encoder.size_upload = size_upload;
     }
     //Send header
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_short * 36);
+    instance->encoder.upload[index++] = level_duration_make(
+        false,
+        ((instance->generic.data_count_bit == subghz_protocol_came_const.min_count_bit_for_found) ?
+             (uint32_t)subghz_protocol_came_const.te_short * 39 :
+             (uint32_t)subghz_protocol_came_const.te_short * 76));
     //Send start bit
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_const.te_short);
@@ -213,8 +216,8 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
     SubGhzProtocolDecoderCame* instance = context;
     switch(instance->decoder.parser_step) {
     case CameDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_const.te_short * 51) <
-                        subghz_protocol_came_const.te_delta * 51)) { //Need protocol 36 te_short
+        if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_const.te_short * 56) <
+                        subghz_protocol_came_const.te_delta * 47)) {
             //Found header CAME
             instance->decoder.parser_step = CameDecoderStepFoundStartBit;
         }
