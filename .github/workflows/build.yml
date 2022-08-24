@@ -93,7 +93,7 @@ jobs:
             rm -rf artifacts/${BUNDLE_NAME}
           done
 
-      - name: "Check for uncommited changes"
+      - name: "Check for uncommitted changes"
         run: |
           git diff --exit-code
 
