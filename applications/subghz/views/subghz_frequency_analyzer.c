@@ -53,6 +53,7 @@ typedef struct {
     float rssi;
     float rssi_last;
     float trigger;
+    uint8_t feedback_level;
 } SubGhzFrequencyAnalyzerModel;
 
 void subghz_frequency_analyzer_set_callback(
@@ -142,6 +143,21 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     }
     canvas_draw_str(canvas, 9, 42, buffer);
 
+    switch(model->feedback_level) {
+    case 2:
+        canvas_draw_icon(canvas, 128 - 8 - 1, 1, &I_Volup_8x6);
+        break;
+    case 1:
+        canvas_draw_icon(canvas, 128 - 8 - 1, 1, &I_Voldwn_6x6);
+        break;
+    case 0:
+        canvas_draw_icon(canvas, 128 - 8 - 1, 1, &I_Voldwn_6x6);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, 128 - 2 - 1 - 2, 1, 2, 6);
+        canvas_set_color(canvas, ColorBlack);
+        break;
+    }
+
     // Buttons hint
     elements_button_left(canvas, "T-");
     elements_button_right(canvas, "T+");
@@ -175,7 +191,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         need_redraw = true;
     }
 
-    if(event->type == InputTypePress && event->key == InputKeyUp) {
+    if(event->type == InputTypePress && event->key == InputKeyDown) {
         if(instance->feedback_level == 0) {
             instance->feedback_level = 2;
         } else {
@@ -187,12 +203,13 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 
     if(need_redraw) {
         SubGhzFrequencyAnalyzer* instance = context;
-        instance->view with_view_model(
+        with_view_model(
             instance->view, (SubGhzFrequencyAnalyzerModel * model) {
                 model->rssi_last = instance->rssi_last;
                 model->frequency_last = instance->frequency_last;
                 model->trigger =
                     subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
+                model->feedback_level = instance->feedback_level;
                 return true;
             });
     }
@@ -258,6 +275,7 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
             model->frequency = frequency;
             model->frequency_last = instance->frequency_last_vis;
             model->trigger = subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
+            model->feedback_level = instance->feedback_level;
             return true;
         });
 }
