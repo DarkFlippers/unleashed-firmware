@@ -9,7 +9,7 @@
 
 #include "flipfrid.h"
 
-#define NUMBER_OF_ATTACKS 4
+#define NUMBER_OF_ATTACKS 3
 #define TIME_BETWEEN_CARDS \
     5 // Emulate 2 cards per second : (5 * (configTICK_RATE_HZ_RAW/10)) == (5*(1000/10)) == (5*100) == (500)ms
 #define TAG "FLIPFRID"
@@ -95,7 +95,7 @@ static void flipfrid_draw_callback(Canvas* const canvas, void* ctx) {
 
     if(flipfrid_state->current_attack_type == BruteForceCustomerId) {
         snprintf(uid, sizeof(uid), "    ID : %2X    ", flipfrid_state->current_uid[0]);
-    } else if (flipfrid_state->current_attack_type == BadCrc) {
+    } else if(flipfrid_state->current_attack_type == BadCrc) {
         snprintf(uid, sizeof(uid), "Sending packets");
     } else {
         snprintf(
@@ -142,7 +142,7 @@ static void flipfrid_timer_callback(FuriMessageQueue* event_queue) {
 // ENTRYPOINT
 int32_t flipfrid_start(void* p) {
     UNUSED(p);
-    
+
     // Input
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(FlipFridEvent));
     FlipFridState* flipfrid_state = (FlipFridState*)malloc(sizeof(FlipFridState));
@@ -207,6 +207,8 @@ int32_t flipfrid_start(void* p) {
                     case InputKeyRight:
                         // Next badge type
                         flipfrid_state->emitting = false;
+                        attack_state = 0;
+                        notification_message(flipfrid_state->notify, &sequence_blink_stop);
                         if(menu_selected_item_index < (NUMBER_OF_ATTACKS - 1)) {
                             menu_selected_item_index++;
                             flipfrid_state->current_attack_type =
@@ -216,6 +218,8 @@ int32_t flipfrid_start(void* p) {
                     case InputKeyLeft:
                         // Previous badge type
                         flipfrid_state->emitting = false;
+                        attack_state = 0;
+                        notification_message(flipfrid_state->notify, &sequence_blink_stop);
                         if(menu_selected_item_index > 0) {
                             menu_selected_item_index--;
                             flipfrid_state->current_attack_type =
@@ -232,10 +236,12 @@ int32_t flipfrid_start(void* p) {
                             flipfrid_state->emitting = true;
                             attack_state = 0;
                             // TODO FIX BLINK
-                            notification_message(flipfrid_state->notify, &sequence_blink_start_magenta);
+                            notification_message(
+                                flipfrid_state->notify, &sequence_blink_start_blue);
                         }
                         break;
                     case InputKeyBack:
+                        notification_message(flipfrid_state->notify, &sequence_blink_stop);
                         flipfrid_state->emitting = false;
                         running = false;
                         break;
@@ -255,38 +261,38 @@ int32_t flipfrid_start(void* p) {
                         lfrfid_worker_stop_thread(worker);
                         // set next value
                         switch(flipfrid_state->current_attack_type) {
-                            case DefaultKeys: {
-                                selectedProtocol = CLEAN;
-                                data_size = 5;
-                                flipfrid_state->current_uid = id_list[attack_state];
-                                attack_state = attack_state + 1;
-                                if(attack_state >= sizeof(id_list) / sizeof(id_list[0])) {
-                                    attack_state = 0;
-                                }
-                                break;
+                        case DefaultKeys: {
+                            selectedProtocol = CLEAN;
+                            data_size = 5;
+                            flipfrid_state->current_uid = id_list[attack_state];
+                            attack_state = attack_state + 1;
+                            if(attack_state >= sizeof(id_list) / sizeof(id_list[0])) {
+                                attack_state = 0;
                             }
-                            case BruteForceCustomerId: {
-                                data_size = 5;
-                                selectedProtocol = CLEAN;
-                                candidate[0] = attack_state;
-                                flipfrid_state->current_uid = candidate;
-                                attack_state = attack_state + 1;
-                                if((attack_state + 1) == 256) {
-                                    attack_state = 0;
-                                }
-                                break;
+                            break;
+                        }
+                        case BruteForceCustomerId: {
+                            data_size = 5;
+                            selectedProtocol = CLEAN;
+                            candidate[0] = attack_state;
+                            flipfrid_state->current_uid = candidate;
+                            attack_state = attack_state + 1;
+                            if((attack_state + 1) == 256) {
+                                attack_state = 0;
                             }
-                            case BadCrc: {
-                                selectedProtocol = BAD_CRC;
-                                data_size = 5;
-                                candidate[0] = 0xFF;
-                                candidate[1] = 0xDE;
-                                candidate[2] = 0xAD;
-                                candidate[3] = 0xBE;
-                                candidate[4] = 0xEF;
-                                flipfrid_state->current_uid = candidate;
-                                break;
-                            }
+                            break;
+                        }
+                        case BadCrc: {
+                            selectedProtocol = BAD_CRC;
+                            data_size = 5;
+                            candidate[0] = 0xFF;
+                            candidate[1] = 0xDE;
+                            candidate[2] = 0xAD;
+                            candidate[3] = 0xBE;
+                            candidate[4] = 0xEF;
+                            flipfrid_state->current_uid = candidate;
+                            break;
+                        }
                         }
                     }
                     if(counter > TIME_BETWEEN_CARDS) {

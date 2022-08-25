@@ -36,7 +36,6 @@ App(
     provides=[
         "music_player",
         "bt_hid",
-        "flipfrid",
     ],
 )
 
@@ -78,5 +77,6 @@ App(
         "wifi_scanner",
         "wav_player",
         "multi_converter",
+        "flipfrid",
     ],
 )
