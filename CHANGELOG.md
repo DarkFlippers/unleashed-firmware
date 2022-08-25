@@ -1,18 +1,12 @@
 ### New changes
-* New universal remote for projectors 
-* OFW: New LF-RFID subsystem (New protocols, Animal tags support)
+* UniRF (Sub-GHz Remote) - All protocols support, long button press support (by @darmiel & @xMasterX) (PR #47)
+* Frequency Analyzer feedback modes (by @darmiel) (PR #49)
+* RFID EM4100 Fuzzer plugin (by @Ganapati & some fixes by @xMasterX) (PR #48)
 * Updated universal remote assets (by @Amec0e)
-* Renamed UniRF Remix -> Sub-GHz Remote
-* Replaced Hex/Dec converter with Multi Converter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
-* New update screen, readme pictures (by @Svaarich)
-* Fixed crash if Center button is pressed on the "update success" screen via screensharing
-* Temporary disabled one log call in picopass plugin to fix crash/freeze on Read screen
-* OFW: Picopass load/info/delete
-* OFW: SubGhz: add protocol Magellen
-* OFW: Fix mifare ultralight/ntag unlock
-* OFW: Dolphin level thresholds update 
-* OFW: Add MFC 1/4K 4/7bUID to "Add Manually" 
-* OFW: Other fixes and changes
+* New UniRF Animated icon (by @Svaarich)
+* Fixed Keeloq seed display
+* OFW: SubGhz: fix CAME, Chamberlain protocol
+* OFW: LFRFID RC fixes
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 
