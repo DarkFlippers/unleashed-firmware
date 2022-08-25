@@ -86,7 +86,6 @@ typedef struct {
     SubGhzTransmitter* tx_transmitter;
     FlipperFormat* tx_fff_data;
     const char* tx_file_path;
-    //int repeat;
     int button;
 
     int file_result;
@@ -457,7 +456,9 @@ bool unirfremix_set_preset(UniRFPreset* p, const char* preset) {
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
         string_set(p->name, "FM476");
     } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
-        string_set(p->name, "CUSTOM");
+        FURI_LOG_E(TAG, "Custom preset unsupported now");
+        return false;
+        // string_set(p->name, "CUSTOM");
     } else {
         FURI_LOG_E(TAG, "Unsupported preset");
         return false;
@@ -501,6 +502,8 @@ bool unirfremix_key_load(
         }
         if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
             // TODO: check if preset is custom
+            FURI_LOG_E(TAG, "Could not use custom preset");
+            break;
         }
         size_t preset_index =
             subghz_setting_get_inx_preset_by_name(setting, string_get_cstr(preset->name));
@@ -583,11 +586,16 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
 }
 
 void unirfremix_tx_stop(UniRFRemix* app) {
+    if(app->processing == 0) {
+        return;
+    }
+
     if(!string_cmp_str(app->txpreset->protocol, "RAW")) {
         while(!furi_hal_subghz_is_async_tx_complete()) {
-            furi_delay_ms(60);
+            furi_delay_ms(15);
         }
     }
+
     //Stop TX
     furi_hal_subghz_stop_async_tx();
     FURI_LOG_I(TAG, "TX Done!");
@@ -1062,9 +1070,8 @@ int32_t unirfremix_app(void* p) {
                 break;
 
             case InputKeyBack:
-                if(input.type == InputTypeShort) {
-                    exit_loop = true;
-                }
+                unirfremix_tx_stop(app);
+                exit_loop = true;
                 break;
             }
 
@@ -1135,9 +1142,7 @@ int32_t unirfremix_app(void* p) {
             case InputKeyOk:
                 break;
             case InputKeyBack:
-                if(input.type == InputTypeShort) {
-                    exit_loop = true;
-                }
+                exit_loop = true;
                 break;
             }
 

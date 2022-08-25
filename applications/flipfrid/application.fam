@@ -1,11 +1,10 @@
 App(
     appid="flipfrid",
-    name="Rfid fuzzer",
+    name="RFID Fuzzer",
     apptype=FlipperAppType.PLUGIN,
     entry_point="flipfrid_start",
     cdefines=["APP_FLIP_FRID"],
     requires=["gui"],
     stack_size=1 * 1024,
-    icon="A_125khz_14",
-    order=185,
+    order=29,
 )
