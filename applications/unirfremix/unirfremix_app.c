@@ -929,7 +929,7 @@ int32_t unirfremix_app(void* p) {
 
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     bool res = dialog_file_browser_show(
-        dialogs, app->file_path, app->file_path, UNIRFMAP_EXTENSION, true, &I_sub1_10px, false);
+        dialogs, app->file_path, app->file_path, UNIRFMAP_EXTENSION, true, &I_sub1_10px, true);
 
     furi_record_close(RECORD_DIALOGS);
     if(!res) {
