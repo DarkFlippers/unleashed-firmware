@@ -11,7 +11,7 @@ Version: 1
 # Also a HUGE thank you to Amec0e for continued maintenance!
 ############################################################
 # 
-# Updated on 21th August 2022
+# Updated on 25th August 2022
 #
 name: POWER
 type: parsed
@@ -2501,6 +2501,44 @@ type: parsed
 protocol: NECext
 address: 64 46 00 00
 command: DB 24 00 00
+# 
+# FURRION
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 52 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 53 00 00 00
+# 
+name: CH+
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 02 00 00 00
+# 
+name: CH-
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 09 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 03 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 41 00 00 00
 # 
 # HISENSE
 #
