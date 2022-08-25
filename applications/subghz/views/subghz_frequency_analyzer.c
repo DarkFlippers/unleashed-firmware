@@ -40,6 +40,7 @@ struct SubGhzFrequencyAnalyzer {
     SubGhzFrequencyAnalyzerCallback callback;
     void* context;
     bool locked;
+    uint8_t feedback_level; // 0 - no feedback, 1 - vibro only, 2 - vibro and sound
     float rssi_last;
     uint32_t frequency_last;
     uint32_t frequency_last_vis;
@@ -52,6 +53,7 @@ typedef struct {
     float rssi;
     float rssi_last;
     float trigger;
+    uint8_t feedback_level;
 } SubGhzFrequencyAnalyzerModel;
 
 void subghz_frequency_analyzer_set_callback(
@@ -141,6 +143,21 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     }
     canvas_draw_str(canvas, 9, 42, buffer);
 
+    switch(model->feedback_level) {
+    case 2:
+        canvas_draw_icon(canvas, 128 - 8 - 1, 1, &I_Volup_8x6);
+        break;
+    case 1:
+        canvas_draw_icon(canvas, 128 - 8 - 1, 1, &I_Voldwn_6x6);
+        break;
+    case 0:
+        canvas_draw_icon(canvas, 128 - 8 - 1, 1, &I_Voldwn_6x6);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, 128 - 2 - 1 - 2, 1, 2, 6);
+        canvas_set_color(canvas, ColorBlack);
+        break;
+    }
+
     // Buttons hint
     elements_button_left(canvas, "T-");
     elements_button_right(canvas, "T+");
@@ -174,6 +191,16 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         need_redraw = true;
     }
 
+    if(event->type == InputTypePress && event->key == InputKeyDown) {
+        if(instance->feedback_level == 0) {
+            instance->feedback_level = 2;
+        } else {
+            instance->feedback_level--;
+        }
+        FURI_LOG_D(TAG, "feedback_level = %d", instance->feedback_level);
+        need_redraw = true;
+    }
+
     if(need_redraw) {
         SubGhzFrequencyAnalyzer* instance = context;
         with_view_model(
@@ -182,6 +209,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                 model->frequency_last = instance->frequency_last;
                 model->trigger =
                     subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
+                model->feedback_level = instance->feedback_level;
                 return true;
             });
     }
@@ -218,7 +246,18 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
             // Triggered!
             instance->rssi_last = rssi;
             notification_message(instance->notifications, &sequence_hw_blink_stop);
-            notification_message(instance->notifications, &sequence_success);
+
+            switch(instance->feedback_level) {
+            case 1: // 1 - only vibro
+                notification_message(instance->notifications, &sequence_single_vibro);
+                break;
+            case 2: // 2 - vibro and beep
+                notification_message(instance->notifications, &sequence_success);
+                break;
+            default: // 0 - no feedback
+                break;
+            }
+
             FURI_LOG_D(TAG, "triggered");
         }
         // Update values
@@ -236,6 +275,7 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
             model->frequency = frequency;
             model->frequency_last = instance->frequency_last_vis;
             model->trigger = subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
+            model->feedback_level = instance->feedback_level;
             return true;
         });
 }
@@ -293,6 +333,8 @@ void subghz_frequency_analyzer_exit(void* context) {
 SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc() {
     SubGhzFrequencyAnalyzer* instance = malloc(sizeof(SubGhzFrequencyAnalyzer));
     furi_assert(instance);
+
+    instance->feedback_level = 2;
 
     // View allocation and configuration
     instance->view = view_alloc();
