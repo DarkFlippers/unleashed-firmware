@@ -1,7 +1,7 @@
 Filetype: IR signals file
 Version: 1
 # 
-# This file has all the Speakers, SoundBars and Audio Receivers. POWER and MUTE buttons ONLY 
+# This file has all the Speakers, SoundBars and Audio Receivers. POWER,MUTE,VOL+/- buttons
 # from https://github.com/UberGuidoZ/Flipper-IRDB
 # Some Buttons was labeled PowerToggle,Pwr, Sleep or Off. These was assumed to be POWER functions.
 # While Care was taken to remove all possible duplicates, some may still be lurking.
@@ -9,7 +9,7 @@ Version: 1
 # HUGE thank you to Amec0e for continued maintenance!
 #####################################################
 # 
-# Updated 23th August 2022
+# Updated 26th August 2022
 # 
 # | SPEAKERS |
 # 
@@ -963,6 +963,33 @@ type: parsed
 protocol: NEC
 address: 80 00 00 00
 command: 1E 00 00 00
+# 
+# TEUFEL
+# 
+# 
+name: POWER
+type: parsed
+protocol: NECext
+address: EF 01 00 00
+command: 25 DA 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: EF 01 00 00
+command: 14 EB 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: EF 01 00 00
+command: 13 EC 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NECext
+address: EF 01 00 00
+command: 28 D7 00 00
 # 
 # VIZIO
 # 
