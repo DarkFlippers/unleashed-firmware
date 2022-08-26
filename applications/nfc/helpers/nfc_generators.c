@@ -254,7 +254,7 @@ static void
         session_register_page = 234;
         break;
     default:
-        furi_assert(false);
+        furi_crash("Unknown MFUL");
         break;
     }
 

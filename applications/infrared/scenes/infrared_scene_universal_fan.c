@@ -2,16 +2,16 @@
 
 #include "common/infrared_scene_universal_common.h"
 
-void infrared_scene_universal_ac_on_enter(void* context) {
+void infrared_scene_universal_fan_on_enter(void* context) {
     infrared_scene_universal_common_on_enter(context);
 
     Infrared* infrared = context;
     ButtonPanel* button_panel = infrared->button_panel;
     InfraredBruteForce* brute_force = infrared->brute_force;
 
-    infrared_brute_force_set_db_filename(brute_force, EXT_PATH("infrared/assets/ac.ir"));
+    infrared_brute_force_set_db_filename(brute_force, EXT_PATH("infrared/assets/fans.ir"));
 
-    //TODO Improve A/C universal remote
+    //TODO Improve Fan universal remote
     button_panel_reserve(button_panel, 2, 3);
     uint32_t i = 0;
     button_panel_add_item(
@@ -49,7 +49,7 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         &I_Vol_up_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "TEMP+");
+    infrared_brute_force_add_record(brute_force, i++, "SPEED+");
     button_panel_add_item(
         button_panel,
         i,
@@ -61,7 +61,7 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         &I_Vol_down_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "TEMP-");
+    infrared_brute_force_add_record(brute_force, i++, "SPEED-");
     button_panel_add_item(
         button_panel,
         i,
@@ -69,11 +69,11 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         2,
         3,
         98,
-        &I_Swing_25x27,
-        &I_Swing_hvr_25x27,
+        &I_Rotate_25x27,
+        &I_Rotate_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "SWING");
+    infrared_brute_force_add_record(brute_force, i++, "ROTATE");
     button_panel_add_item(
         button_panel,
         i,
@@ -87,8 +87,8 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         context);
     infrared_brute_force_add_record(brute_force, i++, "TIMER");
 
-    button_panel_add_label(button_panel, 6, 11, FontPrimary, "AC remote");
-    button_panel_add_label(button_panel, 20, 63, FontSecondary, "Temp");
+    button_panel_add_label(button_panel, 5, 11, FontPrimary, "Fan remote");
+    button_panel_add_label(button_panel, 20, 63, FontSecondary, "Speed");
     button_panel_add_label(button_panel, 8, 23, FontSecondary, "Pwr");
     button_panel_add_label(button_panel, 40, 23, FontSecondary, "Mod");
 
@@ -104,10 +104,10 @@ void infrared_scene_universal_ac_on_enter(void* context) {
     }
 }
 
-bool infrared_scene_universal_ac_on_event(void* context, SceneManagerEvent event) {
+bool infrared_scene_universal_fan_on_event(void* context, SceneManagerEvent event) {
     return infrared_scene_universal_common_on_event(context, event);
 }
 
-void infrared_scene_universal_ac_on_exit(void* context) {
+void infrared_scene_universal_fan_on_exit(void* context) {
     infrared_scene_universal_common_on_exit(context);
 }
