@@ -4,6 +4,7 @@ typedef enum {
     SubmenuIndexUniversalTV,
     SubmenuIndexUniversalAudio,
     SubmenuIndexUniversalProjector,
+    SubmenuIndexUniversalFan,
     SubmenuIndexUniversalAirConditioner,
 } SubmenuIndex;
 
@@ -40,6 +41,13 @@ void infrared_scene_universal_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
+        "Fans",
+        SubmenuIndexUniversalFan,
+        infrared_scene_universal_submenu_callback,
+        context);
+
+    submenu_add_item(
+        submenu,
         "ACs",
         SubmenuIndexUniversalAirConditioner,
         infrared_scene_universal_submenu_callback,
@@ -62,6 +70,9 @@ bool infrared_scene_universal_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == SubmenuIndexUniversalProjector) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversalProjector);
+            consumed = true;
+        } else if(event.event == SubmenuIndexUniversalFan) {
+            scene_manager_next_scene(scene_manager, InfraredSceneUniversalFan);
             consumed = true;
         } else if(event.event == SubmenuIndexUniversalAirConditioner) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversalAC);
