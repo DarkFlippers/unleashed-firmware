@@ -73,6 +73,13 @@ void furi_thread_free(FuriThread* thread);
  */
 void furi_thread_set_name(FuriThread* thread, const char* name);
 
+/** Mark thread as service
+ * The service cannot be stopped or removed, and cannot exit from the thread body
+ * 
+ * @param thread 
+ */
+void furi_thread_mark_as_service(FuriThread* thread);
+
 /** Set FuriThread stack size
  *
  * @param      thread      FuriThread instance
