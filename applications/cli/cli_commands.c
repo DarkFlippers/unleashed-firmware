@@ -281,6 +281,9 @@ void cli_command_free(Cli* cli, string_t args, void* context) {
     printf("Total heap size: %d\r\n", memmgr_get_total_heap());
     printf("Minimum heap size: %d\r\n", memmgr_get_minimum_free_heap());
     printf("Maximum heap block: %d\r\n", memmgr_heap_get_max_free_block());
+
+    printf("Pool free: %d\r\n", memmgr_pool_get_free());
+    printf("Maximum pool block: %d\r\n", memmgr_pool_get_max_block());
 }
 
 void cli_command_free_blocks(Cli* cli, string_t args, void* context) {

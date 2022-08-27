@@ -1,6 +1,7 @@
 #include "memmgr.h"
 #include "common_defines.h"
 #include <string.h>
+#include <furi_hal_memory.h>
 
 extern void* pvPortMalloc(size_t xSize);
 extern void vPortFree(void* pv);
@@ -76,4 +77,19 @@ void* __wrap__calloc_r(struct _reent* r, size_t count, size_t size) {
 void* __wrap__realloc_r(struct _reent* r, void* ptr, size_t size) {
     UNUSED(r);
     return realloc(ptr, size);
+}
+
+void* memmgr_alloc_from_pool(size_t size) {
+    void* p = furi_hal_memory_alloc(size);
+    if(p == NULL) p = malloc(size);
+
+    return p;
+}
+
+size_t memmgr_pool_get_free(void) {
+    return furi_hal_memory_get_free();
+}
+
+size_t memmgr_pool_get_max_block(void) {
+    return furi_hal_memory_max_pool_block();
 }
