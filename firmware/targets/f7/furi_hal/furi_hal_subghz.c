@@ -17,6 +17,28 @@
 
 #define TAG "FuriHalSubGhz"
 
+
+/*
+ * Uncomment define to enable duplication of
+ * IO GO0 CC1101 to an external comb.
+ * Debug pin can be assigned
+ *      gpio_ext_pc0
+ *      gpio_ext_pc1
+ *      gpio_ext_pc3
+ *      gpio_ext_pb2
+ *      gpio_ext_pb3
+ *      gpio_ext_pa4
+ *      gpio_ext_pa6
+ *      gpio_ext_pa7
+ * Attention this setting switches pin to output. 
+ * Make sure it is not connected directly to power or ground
+ */
+  
+//#define SUBGHZ_DEBUG_CC1101_PIN gpio_ext_pa7
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+uint32_t subghz_debug_gpio_buff[2];
+#endif
+
 typedef struct {
     volatile SubGhzState state;
     volatile SubGhzRegulation regulation;
@@ -361,6 +383,9 @@ static void furi_hal_subghz_capture_ISR() {
         LL_TIM_ClearFlag_CC1(TIM2);
         furi_hal_subghz_capture_delta_duration = LL_TIM_IC_GetCaptureCH1(TIM2);
         if(furi_hal_subghz_capture_callback) {
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+            furi_hal_gpio_write(&SUBGHZ_DEBUG_CC1101_PIN, false);
+#endif
             furi_hal_subghz_capture_callback(
                 true,
                 furi_hal_subghz_capture_delta_duration,
@@ -371,6 +396,9 @@ static void furi_hal_subghz_capture_ISR() {
     if(LL_TIM_IsActiveFlag_CC2(TIM2)) {
         LL_TIM_ClearFlag_CC2(TIM2);
         if(furi_hal_subghz_capture_callback) {
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+            furi_hal_gpio_write(&SUBGHZ_DEBUG_CC1101_PIN, true);
+#endif
             furi_hal_subghz_capture_callback(
                 false,
                 LL_TIM_IC_GetCaptureCH2(TIM2) - furi_hal_subghz_capture_delta_duration,
@@ -432,6 +460,11 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
 
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+    furi_hal_gpio_init(
+        &SUBGHZ_DEBUG_CC1101_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+#endif
+
     // Switch to RX
     furi_hal_subghz_rx();
 }
@@ -445,6 +478,11 @@ void furi_hal_subghz_stop_async_rx() {
 
     FURI_CRITICAL_ENTER();
     LL_TIM_DeInit(TIM2);
+
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+    furi_hal_gpio_init(&SUBGHZ_DEBUG_CC1101_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+#endif
+
     FURI_CRITICAL_EXIT();
     furi_hal_interrupt_set_isr(FuriHalInterruptIdTIM2, NULL, NULL);
 
@@ -630,6 +668,32 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
 
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
+
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+    furi_hal_gpio_init(
+        &SUBGHZ_DEBUG_CC1101_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+
+    const GpioPin* gpio = &SUBGHZ_DEBUG_CC1101_PIN;
+    subghz_debug_gpio_buff[0] = gpio->pin;
+    subghz_debug_gpio_buff[1] = (uint32_t)gpio->pin << GPIO_NUMBER;
+
+    dma_config.MemoryOrM2MDstAddress = (uint32_t)subghz_debug_gpio_buff;
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (gpio->port->BSRR);
+    dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+    dma_config.Mode = LL_DMA_MODE_CIRCULAR;
+    dma_config.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+    dma_config.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+    dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
+    dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
+    dma_config.NbData = 2;
+    dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
+    dma_config.Priority = LL_DMA_PRIORITY_VERYHIGH;
+    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_2, &dma_config);
+    LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_2, 2);
+    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_2);
+
+#endif
+
     return true;
 }
 
@@ -661,6 +725,12 @@ void furi_hal_subghz_stop_async_tx() {
 
     // Deinitialize GPIO
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+#ifdef SUBGHZ_DEBUG_CC1101_PIN
+    LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_2);
+    furi_hal_gpio_init(&SUBGHZ_DEBUG_CC1101_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+#endif
+
     FURI_CRITICAL_EXIT();
 
     free(furi_hal_subghz_async_tx.buffer);
