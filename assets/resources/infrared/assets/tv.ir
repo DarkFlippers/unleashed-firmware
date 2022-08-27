@@ -1,18 +1,7 @@
 Filetype: IR library file
 Version: 1
+# Last Updated 27 Aug, 2022
 # 
-# Recompiled Universal Remote for ALL buttons!
-# (Now includes Volume and Channel brute forcing)
-#
-# Compiled by Hyper_Mash
-# Support/testing/additions from UberGuidoZ
-# Thank you to ChaoticDynamic aka c-nagy for cleanup
-#
-# Also a HUGE thank you to Amec0e for continued maintenance!
-# 
-# 
-# Updated on 25th August 2022
-#
 name: POWER
 type: parsed
 protocol: SIRC
@@ -108,8 +97,6 @@ type: parsed
 protocol: Samsung32
 address: 0e 00 00 00
 command: 0d 00 00 00
-# 
-# Keep an eye on this, it could be power.
 # 
 name: VOL+
 type: parsed
@@ -1755,8 +1742,6 @@ protocol: NECext
 address: 02 7D 00 00
 command: 57 A8 00 00
 # 
-# Keep an eye on this it might be volume down
-# 
 name: VOL+
 type: parsed
 protocol: NECext
@@ -2326,10 +2311,6 @@ type: parsed
 protocol: NEC
 address: 04 00 00 00
 command: 1A 00 00 00
-#
-# New IRs
-# 
-# BAIRD
 # 
 name: POWER
 type: parsed
@@ -2367,15 +2348,11 @@ protocol: NEC
 address: 01 00 00 00
 command: 17 00 00 00
 # 
-# BRANDT
-# 
 name: POWER
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9028 4480 593 1667 589 541 597 532 596 534 594 562 566 564 564 539 589 567 571 558 570 1663 594 1666 591 1696 571 1662 595 1666 591 1669 598 1662 595 562 566 563 565 539 589 567 571 1661 596 561 567 563 565 564 564 1669 598 1662 595 1691 566 1668 599 558 570 1663 594 1692 565 575 1669
-#
-# BUSH
 # 
 name: POWER
 type: parsed
@@ -2413,8 +2390,6 @@ protocol: NEC
 address: 08 00 00 00
 command: DF 00 00 00
 # 
-# CONTINENTAL
-#
 name: POWER
 type: parsed
 protocol: RC5
@@ -2451,8 +2426,6 @@ protocol: RC5
 address: 01 00 00 00
 command: 21 00 00 00
 # 
-# DENVER
-# 
 name: MUTE
 type: parsed
 protocol: NECext
@@ -2483,8 +2456,6 @@ protocol: NECext
 address: 00 7F 00 00
 command: 5C A3 00 00
 # 
-# FETCH
-# 
 name: POWER
 type: parsed
 protocol: NECext
@@ -2502,8 +2473,6 @@ type: parsed
 protocol: NECext
 address: 64 46 00 00
 command: DB 24 00 00
-# 
-# FURRION
 # 
 name: POWER
 type: parsed
@@ -2541,8 +2510,6 @@ protocol: NEC
 address: 20 00 00 00
 command: 41 00 00 00
 # 
-# HISENSE
-#
 name: POWER
 type: parsed
 protocol: NECext
@@ -2578,8 +2545,6 @@ type: parsed
 protocol: NECext
 address: 00 BF 00 00
 command: 4B B4 00 00
-# 
-# HITACHI
 # 
 name: POWER
 type: parsed
@@ -2617,8 +2582,6 @@ protocol: RC5
 address: 03 00 00 00
 command: 0D 00 00 00
 # 
-# MANTA
-#
 name: POWER
 type: parsed
 protocol: NECext
@@ -2643,8 +2606,6 @@ protocol: NECext
 address: 00 BF 00 00
 command: 01 FE 00 00
 # 
-# MATSUI
-#
 name: POWER
 type: parsed
 protocol: Samsung32
@@ -2681,8 +2642,6 @@ protocol: Samsung32
 address: 17 00 00 00
 command: 15 00 00 00
 # 
-# PANASONIC
-# 
 name: POWER
 type: raw
 frequency: 38000
@@ -2718,8 +2677,6 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 3477 1763 420 453 416 1330 418 455 424 449 420 453 415 458 421 452 417 456 423 450 419 454 425 448 421 452 417 456 423 1324 424 448 421 453 416 457 422 451 418 455 424 449 420 453 416 457 422 451 418 1329 419 454 415 458 421 452 417 456 423 450 419 427 452 448 421 452 417 456 423 1324 424 449 420 453 416 1330 418 1328 420 453 416 457 422 451 418 1329 419 454 415 458 421 1298 450 1323 425 448 421 1326 422
-# 
-# PHILLIPS
 # 
 name: POWER
 type: parsed
@@ -2769,8 +2726,6 @@ protocol: RC6
 address: 00 00 00 00
 command: 21 00 00 00
 # 
-# RCA
-# 
 name: VOL+
 type: raw
 frequency: 38000
@@ -2794,37 +2749,37 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 182 7824 176 2328 181 2323 176 2328 181 2324 175 1312 183 1323 182 2322 177 1330 175 2309 179 2325 174 1332 173 1333 183 1305 179 1327 178 1328 177 1328 177 2308 180 262 177 1885 175 295 175 861 174 2330 179 99 313 911 573 915 590 1916 180 64 349 1910 176 265 174 7896 177 3081 835 3912 182 2322 177 207 179 1942 180 2304 174 268 181 1881 179 263 176 889 177 264 175 886 583 1925 182 271 178 855 180 240 178 1907 174 2331 178 1327 178 1309 176 1329 590 916 589 919 173 306 175 833 181 317 174 1832 175 2329 180 1325 180 309 182 1833 174 1313 182 1325 180 289 181 1853 175 2329 180 8313 178 7845 176 2309 179 2325 174 2331 178 2326 173 1333 183 1304 180 2324 175 1332 173 2330 179 2325 174 1314 181 1325 180 1326 179 1327 178 1308 177 1330 175 2329 180 2324 175 1312 183 2322 177 1329 176 1329 176 2329 180 2304 174 8339 173 351 3575 3902 594 1911 588 1916 593 1911 588 1916 583 904 591 916 589 1915 594 911 584 1920 579 1907 592 915 590 915 591 916 579 908 597 909 596 909 586 1919 580 1907 179 1326 592 1912 597 908 587 901 594 1911 588 1916 593
-#
+# 
 name: POWER
 type: parsed
 protocol: RCA
 address: 0F 00 00 00
 command: 2A 00 00 00
-#
+# 
 name: CH-
 type: parsed
 protocol: RCA
 address: 0F 00 00 00
 command: 2C 00 00 00
-#
+# 
 name: CH+
 type: parsed
 protocol: RCA
 address: 0F 00 00 00
 command: 2D 00 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: RCA
 address: 0F 00 00 00
 command: 2E 00 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: RCA
 address: 0F 00 00 00
 command: 2F 00 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: RCA
@@ -2866,8 +2821,6 @@ type: parsed
 protocol: NEC
 address: A0 00 00 00
 command: 1F 00 00 00
-# 
-# SAMSUNG
 # 
 name: CH+
 type: raw
@@ -2917,8 +2870,6 @@ frequency: 38000
 duty_cycle: 0.330000
 data: 4497 4474 564 1690 537 1691 536 1666 572 556 537 564 539 562 541 560 543 558 545 1683 544 1683 544 1684 543 532 571 556 537 564 539 562 541 560 543 1659 568 1686 541 1661 566 1662 565 562 541 560 543 558 535 565 538 563 540 561 542 558 545 556 537 1665 562 1666 572 1656 571 1684 543 557 546 555 538 564 539 562 541 42966 4502 4466 562 1692 535 1693 545 1657 570 556 537 565 538 562 541 560 543 543 1656 571 1656 571 1657 570 557 536 565 538 563 540 560 543 558 545 1683 544 1683 544 1657 570 1684 543 531 562 565 538 563 540 560 543 558 545 556 537 564 539 561 542 1660 567 1686 541 1687 540 1662 565 562 541 533 570 557 536 565 538
 # 
-# SANYO
-# 
 name: POWER
 type: parsed
 protocol: NEC
@@ -2954,8 +2905,6 @@ type: parsed
 protocol: NEC
 address: 38 00 00 00
 command: 0B 00 00 00
-# 
-# SHARP
 # 
 name: POWER
 type: raw
@@ -2993,8 +2942,6 @@ frequency: 38000
 duty_cycle: 0.330000
 data: 281 1803 278 771 274 782 274 775 281 769 276 1807 274 1817 274 1835 256 766 280 1804 277 780 276 773 283 767 278 1831 250 780 276 44910 276 1835 256 766 280 777 279 771 275 774 282 767 278 779 277 773 283 1800 281 768 277 1814 277 1806 275 1808 283 766 279 1811 280 44937 280 1803 278 771 274 783 283 766 279 770 275 1808 273 1819 272 1811 280 768 277 1807 274 782 274 776 280 769 276 1833 248 784 282
 # 
-# SONY
-# 
 name: POWER
 type: parsed
 protocol: SIRC
@@ -3007,15 +2954,11 @@ protocol: SIRC
 address: 01 00 00 00
 command: 2F 00 00 00
 # 
-# TCL
-# 
 name: POWER
 type: parsed
 protocol: NECext
 address: EA C7 00 00
 command: 97 68 00 00
-# 
-# TELEKOM
 # 
 name: POWER
 type: raw
@@ -3053,8 +2996,6 @@ frequency: 38000
 duty_cycle: 0.330000
 data: 332 601 314 290 646 286 307 594 321 282 644 590 648 582 323 281 645 586 641 290 313 583 644
 # 
-# THOMSON
-# 
 name: POWER
 type: raw
 frequency: 38000
@@ -3084,8 +3025,6 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 3994 3986 512 1989 515 1986 518 1982 512 1989 515 985 517 983 519 2008 486 988 514 1987 517 1983 521 979 513 987 515 986 516 984 518 982 520 980 512 1988 516 1985 519 981 521 1980 514 986 516 984 518 2009 485 1990 514 9041 3994 3986 511 1989 515 1985 519 1982 512 1989 515 984 518 982 520 1981 513 987 515 1986 518 1982 512 988 514 986 516 984 518 983 519 981 521 979 513 1987 517 1984 520 980 512 1989 515 984 518 982 520 2007 487 1988 516 9038 4028 3952 514 1986 518 1982 512 1989 515 1985 519 980 512 989 513 2013 491 983 519 1982 512 1989 515 984 519 982 520 980 522 979 513 987 515 985 517 1983 521 1980 514 986 516 1985 519 980 512 989 513 2013 491 1984 520
-# 
-# WBOX
 # 
 name: POWER
 type: parsed
@@ -3122,3 +3061,4 @@ type: parsed
 protocol: NECext
 address: 40 40 00 00
 command: 0F F0 00 00
+# 

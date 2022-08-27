@@ -1,317 +1,282 @@
-Filetype: IR signals file
+Filetype: IR library file
 Version: 1
-#
-# file: Flipper-IRDB/Projectors/Anker/NebulaMarsLite.ir
-#
+# Last Updated 27th Aug, 2022
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 80 19 00 00
 command: 10 EF 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 80 19 00 00
 command: 1C E3 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 80 19 00 00
 command: 46 B9 00 00
-#
-# file: Flipper-IRDB/Projectors/Anker/Nebula_Capsule_Mini_Projector.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 80 00 00 00
 command: 51 00 00 00
-#
-# file: Flipper-IRDB/Projectors/BenQ/BenQ.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 40 40 00 00
 command: 0A F5 00 00
-#
-# file: Flipper-IRDB/Projectors/BenQ/BenQ_W1050.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 4E B1 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 0E F1 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 0D F2 00 00
-#
-# file: Flipper-IRDB/Projectors/BenQ/BenQ_W1070.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 4F B0 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 14 EB 00 00
-#
-# file: Flipper-IRDB/Projectors/BrandUnknown/LED_Smart_Home_Theater_Projector.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 08 16 00 00
 command: 87 78 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NECext
 address: 08 16 00 00
 command: C8 37 00 00
-#
-# file: Flipper-IRDB/Projectors/Byintek/Byintek_P10.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 01 00 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 02 00 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 28 00 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 29 00 00 00
-#
-# file: Flipper-IRDB/Projectors/Casio/Casio_YT-130.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 84 F4 00 00
 command: 0B F4 00 00
-#
-# file: Flipper-IRDB/Projectors/Eiki/Eiki_Projector.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 00 FF 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 1E E1 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 1D E2 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 0B F4 00 00
-#
-# file: Flipper-IRDB/Projectors/Epson/Epson.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 90 6F 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 99 66 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 98 67 00 00
-#
-# file: Flipper-IRDB/Projectors/Minolta/Minolta_MN674.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 DF 00 00
 command: 1C E3 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 00 DF 00 00
 command: 4F B0 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 00 DF 00 00
 command: 4B B4 00 00
-#
-# file: Flipper-IRDB/Projectors/Optoma/Optoma_Profomo_L-27-5KEY.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 02 00 00 00
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 2E 00 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 52 00 00 00
-#
-# file: Flipper-IRDB/Projectors/Philips/Philips_NeoPix_Prime_Projector.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 41 00 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 51 00 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 56 00 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 5A 00 00 00
-#
-# file: Flipper-IRDB/Projectors/Sony/Sony_RM_PJ24.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: SIRC15
 address: 54 00 00 00
 command: 15 00 00 00
-#
-# file: Flipper-IRDB/Projectors/ViewSonic/ViewSonic_Projector_PA503W-2.ir
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 82 7D 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 83 7C 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 14 EB 00 00
-#
-# file: Flipper-IRDB/Projectors/Vivitek/Vivitek.ir
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 91 00 00 00
-#
+# 
 name: POWER
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 90 00 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: D0 00 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 89 00 00 00
-#
-# 3M
-#
+# 
 name: POWER
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 00 00 00 00
-#
+# 
 name: VOL+
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 30 00 00 00
-#
+# 
 name: VOL-
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 31 00 00 00
-#
+# 
 name: MUTE
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 32 00 00 00
-# 
-# Boxlight
 # 
 name: POWER
 type: parsed
@@ -324,3 +289,4 @@ type: parsed
 protocol: NECext
 address: 87 4E 00 00
 command: 0D 00 00 00
+# 
