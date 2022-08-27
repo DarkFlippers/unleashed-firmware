@@ -395,7 +395,7 @@ void rpc_session_close(RpcSession* session) {
     furi_thread_flags_set(furi_thread_get_id(session->thread), RpcEvtDisconnect);
 }
 
-int32_t rpc_srv(void* p) {
+void rpc_on_system_start(void* p) {
     UNUSED(p);
     Rpc* rpc = malloc(sizeof(Rpc));
 
@@ -406,8 +406,6 @@ int32_t rpc_srv(void* p) {
         cli, "start_rpc_session", CliCommandFlagParallelSafe, rpc_cli_command_start_session, rpc);
 
     furi_record_create(RECORD_RPC, rpc);
-
-    return 0;
 }
 
 void rpc_add_handler(RpcSession* session, pb_size_t message_tag, RpcHandler* handler) {

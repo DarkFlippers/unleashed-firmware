@@ -3,7 +3,7 @@ App(
     name="Basic services",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        "rpc",
+        "rpc_start",
         "bt",
         "desktop",
         "loader",

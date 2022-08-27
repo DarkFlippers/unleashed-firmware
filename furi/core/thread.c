@@ -7,7 +7,9 @@
 #include "mutex.h"
 
 #include <task.h>
+#include "log.h"
 #include <m-string.h>
+#include <furi_hal_rtc.h>
 #include <furi_hal_console.h>
 
 #define THREAD_NOTIFY_INDEX 1 // Index 0 is used for stream buffers
@@ -20,6 +22,7 @@ struct FuriThreadStdout {
 };
 
 struct FuriThread {
+    bool is_service;
     FuriThreadState state;
     int32_t ret;
 
@@ -84,6 +87,11 @@ static void furi_thread_body(void* context) {
     furi_assert(thread->state == FuriThreadStateRunning);
     furi_thread_set_state(thread, FuriThreadStateStopped);
 
+    if(thread->is_service) {
+        FURI_LOG_E(
+            "Service", "%s thread exited. Thread memory cannot be reclaimed.", thread->name);
+    }
+
     // clear thread local storage
     __furi_thread_stdout_flush(thread);
     furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) != NULL);
@@ -96,7 +104,7 @@ static void furi_thread_body(void* context) {
 FuriThread* furi_thread_alloc() {
     FuriThread* thread = malloc(sizeof(FuriThread));
     string_init(thread->output.buffer);
-
+    thread->is_service = false;
     return thread;
 }
 
@@ -115,6 +123,10 @@ void furi_thread_set_name(FuriThread* thread, const char* name) {
     furi_assert(thread->state == FuriThreadStateStopped);
     if(thread->name) free((void*)thread->name);
     thread->name = name ? strdup(name) : NULL;
+}
+
+void furi_thread_mark_as_service(FuriThread* thread) {
+    thread->is_service = true;
 }
 
 void furi_thread_set_stack_size(FuriThread* thread, size_t stack_size) {
@@ -168,15 +180,23 @@ void furi_thread_start(FuriThread* thread) {
 
     furi_thread_set_state(thread, FuriThreadStateStarting);
 
-    BaseType_t ret = xTaskCreate(
-        furi_thread_body,
-        thread->name,
-        thread->stack_size / 4,
-        thread,
-        thread->priority ? thread->priority : FuriThreadPriorityNormal,
-        &thread->task_handle);
+    uint32_t stack = thread->stack_size / 4;
+    UBaseType_t priority = thread->priority ? thread->priority : FuriThreadPriorityNormal;
+    if(thread->is_service) {
+        thread->task_handle = xTaskCreateStatic(
+            furi_thread_body,
+            thread->name,
+            stack,
+            thread,
+            priority,
+            memmgr_alloc_from_pool(sizeof(StackType_t) * stack),
+            memmgr_alloc_from_pool(sizeof(StaticTask_t)));
+    } else {
+        BaseType_t ret = xTaskCreate(
+            furi_thread_body, thread->name, stack, thread, priority, &thread->task_handle);
+        furi_check(ret == pdPASS);
+    }
 
-    furi_check(ret == pdPASS);
     furi_check(thread->task_handle);
 }
 
