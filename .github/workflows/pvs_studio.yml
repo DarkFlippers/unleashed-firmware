@@ -15,6 +15,7 @@ env:
 
 jobs:
   analyse_c_cpp:
+    if: ${{ !github.event.pull_request.head.repo.fork }}
     runs-on: [self-hosted, FlipperZeroShell]
     steps:
       - name: 'Decontaminate previous build leftovers'
