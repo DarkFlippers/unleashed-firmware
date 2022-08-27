@@ -35,6 +35,12 @@ void button_panel_free(ButtonPanel* button_panel);
  */
 void button_panel_reset(ButtonPanel* button_panel);
 
+/** Resets selected_item_x and selected_item_y.
+ * 
+ * @param      button_panel  ButtonPanel instance
+ */
+void button_panel_reset_selection(ButtonPanel* button_panel);
+
 /** Reserve space for adding items.
  *
  * One does not simply use button_panel_add_item() without this function. It
