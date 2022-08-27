@@ -1,6 +1,7 @@
 ### New changes
 * UniRF (Sub-GHz Remote) - All protocols support, long button press support (by @darmiel & @xMasterX) (PR #47)
 * Universal remote for Fans, new buttons for universal AC remote, icons by @Svaarich
+* Bugfix for universal remotes (by @darmiel) (PR #50)
 * Frequency Analyzer feedback modes (by @darmiel) (PR #49)
 * RFID EM4100 Fuzzer plugin (by @Ganapati & some fixes by @xMasterX) (PR #48)
 * Updated universal remote assets (by @Amec0e)
