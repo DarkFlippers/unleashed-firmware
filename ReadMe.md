@@ -74,19 +74,7 @@ brew bundle --verbose
 
 ## Linux Prerequisites
 
-### gcc-arm-none-eabi
-
-```sh
-toolchain="gcc-arm-none-eabi-10.3-2021.10"
-toolchain_package="$toolchain-$(uname -m)-linux"
-
-wget -P /opt "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/$toolchain_package.tar.bz2"
-
-tar xjf /opt/$toolchain_package.tar.bz2 -C /opt
-rm /opt/$toolchain_package.tar.bz2
-
-for file in /opt/$toolchain/bin/* ; do ln -s "${file}" "/usr/bin/$(basename ${file})" ; done
-```
+The FBT tool handles everything, only `git` is required.
 
 ### Optional dependencies
 
