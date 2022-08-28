@@ -234,7 +234,8 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
             canvas_draw_line(canvas, 46, 51, 125, 51);
             canvas_set_font(canvas, FontSecondary);
         } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Decoding_123x52);
+            //canvas_draw_icon(canvas, 0, 0, &I_Decoding_123x52);
+            canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str(canvas, 63, 46, "Decoding...");
             canvas_set_font(canvas, FontSecondary);
