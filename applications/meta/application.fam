@@ -75,7 +75,7 @@ App(
         "wifi_marauder",
         "esp8266_deauth",
         "wifi_scanner",
-        "wav_player",
+        #"wav_player",
         "multi_converter",
         "flipfrid",
     ],
