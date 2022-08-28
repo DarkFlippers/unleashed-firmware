@@ -55,12 +55,24 @@ typedef struct {
     string_t frequency_str;
     string_t preset_str;
     string_t history_stat_str;
+    string_t progress_str;
     SubGhzReceiverHistory* history;
     uint16_t idx;
     uint16_t list_offset;
     uint16_t history_item;
     SubGhzViewReceiverBarShow bar_show;
+    SubGhzViewReceiverMode mode;
 } SubGhzViewReceiverModel;
+
+void subghz_view_receiver_set_mode(
+    SubGhzViewReceiver* subghz_receiver,
+    SubGhzViewReceiverMode mode) {
+    with_view_model(
+        subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+            model->mode = mode;
+            return true;
+        });
+}
 
 void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock lock) {
     furi_assert(subghz_receiver);
@@ -150,6 +162,17 @@ void subghz_view_receiver_add_data_statusbar(
         });
 }
 
+void subghz_view_receiver_add_data_progress(
+    SubGhzViewReceiver* subghz_receiver,
+    const char* progress_str) {
+    furi_assert(subghz_receiver);
+    with_view_model(
+        subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+            string_set_str(model->progress_str, progress_str);
+            return true;
+        });
+}
+
 static void subghz_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_box(canvas, 0, 0 + idx * FRAME_HEIGHT, scrollbar ? 122 : 127, FRAME_HEIGHT);
@@ -169,8 +192,12 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
 
-    elements_button_left(canvas, "Config");
-    canvas_draw_line(canvas, 46, 51, 125, 51);
+    if(model->mode == SubGhzViewReceiverModeLive) {
+        elements_button_left(canvas, "Config");
+        canvas_draw_line(canvas, 46, 51, 125, 51);
+    } else {
+        canvas_draw_str(canvas, 3, 62, string_get_cstr(model->progress_str));
+    }
 
     bool scrollbar = model->history_item > 4;
     string_t str_buff;
@@ -200,11 +227,18 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
-        canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str(canvas, 63, 46, "Scanning...");
-        canvas_draw_line(canvas, 46, 51, 125, 51);
-        canvas_set_font(canvas, FontSecondary);
+        if(model->mode == SubGhzViewReceiverModeLive) {
+            canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+            canvas_set_font(canvas, FontPrimary);
+            canvas_draw_str(canvas, 63, 46, "Scanning...");
+            canvas_draw_line(canvas, 46, 51, 125, 51);
+            canvas_set_font(canvas, FontSecondary);
+        } else {
+            canvas_draw_icon(canvas, 0, 0, &I_Decoding_123x52);
+            canvas_set_font(canvas, FontPrimary);
+            canvas_draw_str(canvas, 63, 46, "Decoding...");
+            canvas_set_font(canvas, FontSecondary);
+        }
     }
 
     switch(model->bar_show) {
@@ -334,6 +368,7 @@ void subghz_view_receiver_exit(void* context) {
             string_reset(model->frequency_str);
             string_reset(model->preset_str);
             string_reset(model->history_stat_str);
+
                 for
                     M_EACH(item_menu, model->history->data, SubGhzReceiverMenuItemArray_t) {
                         string_clear(item_menu->item_str);
@@ -369,6 +404,7 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
             string_init(model->frequency_str);
             string_init(model->preset_str);
             string_init(model->history_stat_str);
+            string_init(model->progress_str);
             model->bar_show = SubGhzViewReceiverBarShowDefault;
             model->history = malloc(sizeof(SubGhzReceiverHistory));
             SubGhzReceiverMenuItemArray_init(model->history->data);
@@ -387,6 +423,7 @@ void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver) {
             string_clear(model->frequency_str);
             string_clear(model->preset_str);
             string_clear(model->history_stat_str);
+            string_clear(model->progress_str);
                 for
                     M_EACH(item_menu, model->history->data, SubGhzReceiverMenuItemArray_t) {
                         string_clear(item_menu->item_str);
