@@ -155,7 +155,7 @@ void protocol_paradox_render_brief_data(ProtocolParadox* protocol, string_t resu
     uint8_t fc = bit_lib_get_bits(decoded_data, 10, 8);
     uint16_t card_id = bit_lib_get_bits_16(decoded_data, 18, 16);
 
-    string_cat_printf(result, "ID: %03u,%05u", fc, card_id);
+    string_cat_printf(result, "FC: %03u, Card: %05u", fc, card_id);
 };
 
 bool protocol_paradox_write_data(ProtocolParadox* protocol, void* data) {

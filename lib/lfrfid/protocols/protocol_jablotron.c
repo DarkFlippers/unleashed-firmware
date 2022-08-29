@@ -162,12 +162,7 @@ LevelDuration protocol_jablotron_encoder_yield(ProtocolJablotron* protocol) {
 
 void protocol_jablotron_render_data(ProtocolJablotron* protocol, string_t result) {
     uint64_t id = protocol_jablotron_card_id(protocol->data);
-    string_printf(result, "ID: %llx\r\n", id);
-};
-
-void protocol_jablotron_render_brief_data(ProtocolJablotron* protocol, string_t result) {
-    uint64_t id = protocol_jablotron_card_id(protocol->data);
-    string_printf(result, "ID: %llx\r\n", id);
+    string_printf(result, "ID: %llX\r\n", id);
 };
 
 bool protocol_jablotron_write_data(ProtocolJablotron* protocol, void* data) {
@@ -207,6 +202,6 @@ const ProtocolBase protocol_jablotron = {
             .yield = (ProtocolEncoderYield)protocol_jablotron_encoder_yield,
         },
     .render_data = (ProtocolRenderData)protocol_jablotron_render_data,
-    .render_brief_data = (ProtocolRenderData)protocol_jablotron_render_brief_data,
+    .render_brief_data = (ProtocolRenderData)protocol_jablotron_render_data,
     .write_data = (ProtocolWriteData)protocol_jablotron_write_data,
 };
