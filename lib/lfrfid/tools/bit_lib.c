@@ -262,6 +262,13 @@ uint16_t bit_lib_reverse_16_fast(uint16_t data) {
     return result;
 }
 
+uint8_t bit_lib_reverse_8_fast(uint8_t byte) {
+    byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
+    byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;
+    byte = (byte & 0xAA) >> 1 | (byte & 0x55) << 1;
+    return byte;
+}
+
 uint16_t bit_lib_crc16(
     uint8_t const* data,
     size_t data_size,

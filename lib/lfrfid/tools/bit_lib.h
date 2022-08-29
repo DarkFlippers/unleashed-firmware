@@ -195,6 +195,14 @@ void bit_lib_print_regions(
 uint16_t bit_lib_reverse_16_fast(uint16_t data);
 
 /**
+ * @brief Reverse bits in uint8_t, faster than generic bit_lib_reverse_bits.
+ * 
+ * @param byte Byte
+ * @return uint8_t the reversed byte
+ */
+uint8_t bit_lib_reverse_8_fast(uint8_t byte);
+
+/**
  * @brief Slow, but generic CRC16 implementation
  * 
  * @param data 
