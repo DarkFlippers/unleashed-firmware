@@ -31,3 +31,4 @@ void picopass_worker_change_state(PicopassWorker* picopass_worker, PicopassWorke
 int32_t picopass_worker_task(void* context);
 
 void picopass_worker_detect(PicopassWorker* picopass_worker);
+void picopass_worker_write(PicopassWorker* picopass_worker);

@@ -24,6 +24,8 @@ void picopass_scene_saved_menu_on_enter(void* context) {
         picopass);
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, picopass_scene_saved_menu_submenu_callback, picopass);
+    submenu_add_item(
+        submenu, "Write", SubmenuIndexWrite, picopass_scene_saved_menu_submenu_callback, picopass);
 
     submenu_set_selected_item(
         picopass->submenu,
@@ -45,6 +47,9 @@ bool picopass_scene_saved_menu_on_event(void* context, SceneManagerEvent event) 
             consumed = true;
         } else if(event.event == SubmenuIndexInfo) {
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneDeviceInfo);
+            consumed = true;
+        } else if(event.event == SubmenuIndexWrite) {
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneWriteCard);
             consumed = true;
         }
     }
