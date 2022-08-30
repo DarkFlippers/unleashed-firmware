@@ -86,8 +86,7 @@ static int get_highest_idx() {
 
 // if array is full, start over from beginning
 static void insert_addr(uint8_t* addr, uint8_t addr_size) {
-    if(candidate_idx >= MAX_ADDRS) 
-            candidate_idx = 0;
+    if(candidate_idx >= MAX_ADDRS) candidate_idx = 0;
 
     memcpy(candidates[candidate_idx], addr, addr_size);
     counts[candidate_idx] = 1;
@@ -243,10 +242,10 @@ void alt_address(uint8_t* addr, uint8_t* altaddr) {
     for(int i = 0; i < 5; i++) altaddr[i] = tmpaddr[4 - i];
 }
 
-static bool previously_confirmed(uint8_t *addr){
+static bool previously_confirmed(uint8_t* addr) {
     bool found = false;
-    for(int i = 0; i < MAX_CONFIRMED; i++){
-        if(!memcmp(confirmed[i], addr, 5)){
+    for(int i = 0; i < MAX_CONFIRMED; i++) {
+        if(!memcmp(confirmed[i], addr, 5)) {
             found = true;
             break;
         }
@@ -290,14 +289,13 @@ static void wrap_up(Storage* storage, NotificationApp* notification) {
             hexlify(addr, 5, top_address);
             save_addr_to_file(storage, addr, 5, notification);
             found_count++;
-            if(confirmed_idx < MAX_CONFIRMED)
-                memcpy(confirmed[confirmed_idx++], addr, 5);
+            if(confirmed_idx < MAX_CONFIRMED) memcpy(confirmed[confirmed_idx++], addr, 5);
             break;
         }
     }
 }
 
-static void clear_cache(){
+static void clear_cache() {
     found_count = 0;
     confirmed_idx = 0;
     candidate_idx = 0;
@@ -410,7 +408,7 @@ int32_t nrfsniff_app(void* p) {
             if(nrf24_sniff_address(nrf24_HANDLE, 5, address)) {
                 int idx;
                 uint8_t* top_addr;
-                if(!previously_confirmed(address)){
+                if(!previously_confirmed(address)) {
                     idx = get_addr_index(address, 5);
                     if(idx == -1)
                         insert_addr(address, 5);
@@ -439,6 +437,9 @@ int32_t nrfsniff_app(void* p) {
     }
 
     clear_cache();
+    sample_time = DEFAULT_SAMPLE_TIME;
+    target_rate = 8; // rate can be either 8 (2Mbps) or 0 (1Mbps)
+    sniffing_state = false;
     furi_hal_spi_release(nrf24_HANDLE);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
