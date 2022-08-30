@@ -102,6 +102,8 @@ struct SubGhz {
     SubGhzSetting* setting;
     SubGhzLock lock;
 
+    bool in_decoder_scene;
+
     void* rpc_ctx;
 };
 
