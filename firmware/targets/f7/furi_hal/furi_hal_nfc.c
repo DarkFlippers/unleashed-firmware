@@ -124,7 +124,9 @@ bool furi_hal_nfc_detect(FuriHalNfcDevData* nfc_data, uint32_t timeout) {
             }
             nfc_data->cuid = (cuid_start[0] << 24) | (cuid_start[1] << 16) | (cuid_start[2] << 8) |
                              (cuid_start[3]);
-        } else if(dev_list[0].type == RFAL_NFC_LISTEN_TYPE_NFCB) {
+        } else if(dev_list[0].type == RFAL_NFC_LISTEN_TYPE_NFCB ||
+                  dev_list[0].type == RFAL_NFC_LISTEN_TYPE_ST25TB)
+        {
             nfc_data->type = FuriHalNfcTypeB;
         } else if(dev_list[0].type == RFAL_NFC_LISTEN_TYPE_NFCF) {
             nfc_data->type = FuriHalNfcTypeF;
