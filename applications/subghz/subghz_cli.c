@@ -114,19 +114,21 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
     uint32_t repeat = 10;
+    uint32_t te = 403;
 
     if(string_size(args)) {
-        int ret = sscanf(string_get_cstr(args), "%lx %lu %lu", &key, &frequency, &repeat);
-        if(ret != 3) {
+        int ret = sscanf(string_get_cstr(args), "%lx %lu %lu %lu", &key, &frequency, &te, &repeat);
+        if(ret != 4) {
             printf(
-                "sscanf returned %d, key: %lx, frequency: %lu, repeat: %lu\r\n",
+                "sscanf returned %d, key: %lx, frequency: %lu, te:%lu, repeat: %lu\r\n",
                 ret,
                 key,
                 frequency,
+                te,
                 repeat);
             cli_print_usage(
                 "subghz tx",
-                "<3 Byte Key: in hex> <Frequency: in Hz> <Repeat count>",
+                "<3 Byte Key: in hex> <Frequency: in Hz> <Te us> <Repeat count>",
                 string_get_cstr(args));
             return;
         }
@@ -139,9 +141,10 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     }
 
     printf(
-        "Transmitting at %lu, key %lx, repeat %lu. Press CTRL+C to stop\r\n",
+        "Transmitting at %lu, key %lx, te %lu, repeat %lu. Press CTRL+C to stop\r\n",
         frequency,
         key,
+        te,
         repeat);
 
     string_t flipper_format_string;
@@ -149,12 +152,13 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
         flipper_format_string,
         "Protocol: Princeton\n"
         "Bit: 24\n"
-        "Key: 00 00 00 00 00 %X %X %X\n"
-        "TE: 403\n"
+        "Key: 00 00 00 00 00 %02X %02X %02X\n"
+        "TE: %d\n"
         "Repeat: %d\n",
         (uint8_t)((key >> 16) & 0xFF),
         (uint8_t)((key >> 8) & 0xFF),
         (uint8_t)(key & 0xFF),
+        te,
         repeat);
     FlipperFormat* flipper_format = flipper_format_string_alloc();
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
@@ -425,7 +429,7 @@ static void subghz_cli_command_print_usage() {
 
     printf("\tchat <frequency:in Hz>\t - Chat with other Flippers\r\n");
     printf(
-        "\ttx <3 byte Key: in hex> <frequency: in Hz> <repeat: count>\t - Transmitting key\r\n");
+        "\ttx <3 byte Key: in hex> <frequency: in Hz> <te: us> <repeat: count>\t - Transmitting key\r\n");
     printf("\trx <frequency:in Hz>\t - Reception key\r\n");
     printf("\tdecode_raw <file_name: path_RAW_file>\t - Testing\r\n");
 
