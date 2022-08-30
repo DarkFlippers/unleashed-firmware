@@ -6,7 +6,8 @@ void LfRfidAppSceneSaveType::on_enter(LfRfidApp* app, bool need_restore) {
     for(uint8_t i = 0; i < keys_count; i++) {
         if(strcmp(
                protocol_dict_get_manufacturer(app->dict, i),
-               protocol_dict_get_name(app->dict, i))) {
+               protocol_dict_get_name(app->dict, i)) &&
+           strcmp(protocol_dict_get_manufacturer(app->dict, i), "N/A")) {
             string_init_printf(
                 submenu_name[i],
                 "%s %s",
