@@ -225,6 +225,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             subghz->state_notifications = SubGhzNotificationStateIDLE;
+            subghz->in_decoder_scene = true;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
             consumed = true;
             break;

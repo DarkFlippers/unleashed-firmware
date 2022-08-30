@@ -1,17 +1,21 @@
 ### New changes
-* UniRF (Sub-GHz Remote) - All protocols support, long button press support (by @darmiel & @xMasterX) (PR #47)
-* Universal remote for Fans, new buttons for universal AC remote, icons by @Svaarich
-* Bugfix for universal remotes (by @darmiel) (PR #50)
-* Frequency Analyzer feedback modes (by @darmiel) (PR #49)
-* RFID EM4100 Fuzzer plugin (by @Ganapati & some fixes by @xMasterX) (PR #48)
+* NRF24 sniffer - tweak sniff parameters for more speed and reliability (by @mothball187) (PR #51)
+* Fixed text in LF RFID -> Extra Actions
 * Updated universal remote assets (by @Amec0e)
-* New UniRF Animated icon & New Spectrum Analyzer icon (by @Svaarich)
-* Fixed Keeloq seed display
-* OFW: nfc: Change furi_assert to furi_crash for default switch cases
-* OFW: SubGhz: fix CAME, Chamberlain protocol
-* OFW: LFRFID RC fixes
+* OFW PR: SubGHz decode raw gui (by @qistoph) (PR 1667) / xMasterX: Replaced custom image with default one & Fixed Led don't stop blink after pressing Send from decoder scene
+* WAV Player plugin excluded from releases to save space, you can enable it in `applications\meta` for your builds
+* OFW PR: SubGhz: add protocol Intertechno_V3 - OFW PR 1622
+* OFW PR: SubGhz: add protocol Prastel - OFW PR 1674
+* OFW PR: Fix displaying LFRFID protocol names - OFW PR 1682 / xMasterX: Fixed display for N/A manufacturer
+* OFW: LF RFID - PAC/Stanley, Paradox, Jablotron, Viking, Pyramid protocols support
+* OFW: Picopass write (PR 1658)
+* OFW: SubGhz: fix CLI "subghz tx"
+* OFW: IR: Fix crash after cancelling Learn New Remote
+* OFW: SubGhz: output debug data to external pin
+* OFW: Speedup SD card & enlarge your RAM
+* OFW: Other small changes
 
-**Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
+**Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or `.tgz` for iOS mobile app
 
