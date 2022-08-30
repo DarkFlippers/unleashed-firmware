@@ -4,11 +4,17 @@ void LfRfidAppSceneSaveType::on_enter(LfRfidApp* app, bool need_restore) {
     auto submenu = app->view_controller.get<SubmenuVM>();
 
     for(uint8_t i = 0; i < keys_count; i++) {
-        string_init_printf(
-            submenu_name[i],
-            "%s %s",
-            protocol_dict_get_manufacturer(app->dict, i),
-            protocol_dict_get_name(app->dict, i));
+        if(strcmp(
+               protocol_dict_get_manufacturer(app->dict, i),
+               protocol_dict_get_name(app->dict, i))) {
+            string_init_printf(
+                submenu_name[i],
+                "%s %s",
+                protocol_dict_get_manufacturer(app->dict, i),
+                protocol_dict_get_name(app->dict, i));
+        } else {
+            string_init_printf(submenu_name[i], "%s", protocol_dict_get_name(app->dict, i));
+        }
         submenu->add_item(string_get_cstr(submenu_name[i]), i, submenu_callback, app);
     }
 
