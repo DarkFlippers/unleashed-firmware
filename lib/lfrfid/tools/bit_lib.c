@@ -129,6 +129,45 @@ bool bit_lib_test_parity(
     return result;
 }
 
+size_t bit_lib_add_parity(
+    const uint8_t* data,
+    size_t position,
+    uint8_t* dest,
+    size_t dest_position,
+    uint8_t source_length,
+    uint8_t parity_length,
+    BitLibParity parity) {
+    uint32_t parity_word = 0;
+    size_t j = 0, bit_count = 0;
+    for(int word = 0; word < source_length; word += parity_length - 1) {
+        for(int bit = 0; bit < parity_length - 1; bit++) {
+            parity_word = (parity_word << 1) | bit_lib_get_bit(data, position + word + bit);
+            bit_lib_set_bit(
+                dest, dest_position + j++, bit_lib_get_bit(data, position + word + bit));
+        }
+        // if parity fails then return 0
+        switch(parity) {
+        case BitLibParityAlways0:
+            bit_lib_set_bit(dest, dest_position + j++, 0);
+            break; // marker bit which should be a 0
+        case BitLibParityAlways1:
+            bit_lib_set_bit(dest, dest_position + j++, 1);
+            break; // marker bit which should be a 1
+        default:
+            bit_lib_set_bit(
+                dest,
+                dest_position + j++,
+                (bit_lib_test_parity_32(parity_word, BitLibParityOdd) ^ parity) ^ 1);
+            break;
+        }
+        bit_count += parity_length;
+        parity_word = 0;
+    }
+    // if we got here then all the parities passed
+    // return bit count
+    return bit_count;
+}
+
 size_t bit_lib_remove_bit_every_nth(uint8_t* data, size_t position, uint8_t length, uint8_t n) {
     size_t counter = 0;
     size_t result_counter = 0;
@@ -260,6 +299,43 @@ uint16_t bit_lib_reverse_16_fast(uint16_t data) {
     result |= (data & 0x0002) << 13;
     result |= (data & 0x0001) << 15;
     return result;
+}
+
+uint8_t bit_lib_reverse_8_fast(uint8_t byte) {
+    byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
+    byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;
+    byte = (byte & 0xAA) >> 1 | (byte & 0x55) << 1;
+    return byte;
+}
+
+uint16_t bit_lib_crc8(
+    uint8_t const* data,
+    size_t data_size,
+    uint8_t polynom,
+    uint8_t init,
+    bool ref_in,
+    bool ref_out,
+    uint8_t xor_out) {
+    uint8_t crc = init;
+
+    for(size_t i = 0; i < data_size; ++i) {
+        uint8_t byte = data[i];
+        if(ref_in) bit_lib_reverse_bits(&byte, 0, 8);
+        crc ^= byte;
+
+        for(size_t j = 8; j > 0; --j) {
+            if(crc & TOPBIT(8)) {
+                crc = (crc << 1) ^ polynom;
+            } else {
+                crc = (crc << 1);
+            }
+        }
+    }
+
+    if(ref_out) bit_lib_reverse_bits(&crc, 0, 8);
+    crc ^= xor_out;
+
+    return crc;
 }
 
 uint16_t bit_lib_crc16(

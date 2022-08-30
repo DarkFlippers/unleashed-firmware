@@ -782,7 +782,7 @@ static void nfc_device_load_mifare_classic_block(
         char hi = string_get_char(block_str, 3 * i);
         char low = string_get_char(block_str, 3 * i + 1);
         uint8_t byte = 0;
-        if(hex_chars_to_uint8(hi, low, &byte)) {
+        if(hex_char_to_uint8(hi, low, &byte)) {
             block_tmp.value[i] = byte;
         } else {
             FURI_BIT_SET(block_unknown_bytes_mask, i);

@@ -88,7 +88,7 @@ class Main(App):
     def _fix_filename(self, filename: str):
         return filename.replace("-", "_")
 
-    def _replace_occurance(self, sources: list, old: str, new: str):
+    def _replace_occurrence(self, sources: list, old: str, new: str):
         old = old.encode()
         new = new.encode()
         for source in sources:
@@ -102,7 +102,7 @@ class Main(App):
         pattern = re.compile(SOURCE_CODE_FILE_PATTERN)
         good = []
         bad = []
-        # Check sources for invalid filesname
+        # Check sources for invalid filenames
         for source in sources:
             basename = os.path.basename(source)
             if not pattern.match(basename):
@@ -113,40 +113,63 @@ class Main(App):
                 bad.append((source, basename, new_basename))
             else:
                 good.append(source)
-        # Notify about errors or replace all occurances
+        # Notify about errors or replace all occurrences
         if dry_run:
             if len(bad) > 0:
                 self.logger.error(f"Found {len(bad)} incorrectly named files")
                 self.logger.info(bad)
                 return False
         else:
-            # Replace occurances in text files
+            # Replace occurrences in text files
             for source, old, new in bad:
-                self._replace_occurance(sources, old, new)
+                self._replace_occurrence(sources, old, new)
             # Rename files
             for source, old, new in bad:
                 shutil.move(source, source.replace(old, new))
         return True
 
-    def check(self):
+    def _apply_file_permissions(self, sources: list, dry_run: bool = False):
+        execute_permissions = 0o111
+        pattern = re.compile(SOURCE_CODE_FILE_PATTERN)
+        good = []
+        bad = []
+        # Check sources for unexpected execute permissions
+        for source in sources:
+            st = os.stat(source)
+            perms_too_many = st.st_mode & execute_permissions
+            if perms_too_many:
+                good_perms = st.st_mode & ~perms_too_many
+                bad.append((source, oct(perms_too_many), good_perms))
+            else:
+                good.append(source)
+        # Notify or fix
+        if dry_run:
+            if len(bad) > 0:
+                self.logger.error(f"Found {len(bad)} incorrect permissions")
+                self.logger.info([record[0:2] for record in bad])
+                return False
+        else:
+            for source, perms_too_many, new_perms in bad:
+                os.chmod(source, new_perms)
+        return True
+
+    def _perform(self, dry_run: bool):
         result = 0
         sources = self._find_sources(self.args.input)
-        if not self._format_sources(sources, dry_run=True):
-            result |= 0b01
-        if not self._apply_file_naming_convention(sources, dry_run=True):
-            result |= 0b10
+        if not self._format_sources(sources, dry_run=dry_run):
+            result |= 0b001
+        if not self._apply_file_naming_convention(sources, dry_run=dry_run):
+            result |= 0b010
+        if not self._apply_file_permissions(sources, dry_run=dry_run):
+            result |= 0b100
         self._check_folders(self.args.input)
         return result
 
+    def check(self):
+        return self._perform(dry_run=True)
+
     def format(self):
-        result = 0
-        sources = self._find_sources(self.args.input)
-        if not self._format_sources(sources):
-            result |= 0b01
-        if not self._apply_file_naming_convention(sources):
-            result |= 0b10
-        self._check_folders(self.args.input)
-        return result
+        return self._perform(dry_run=False)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,6 @@ It is invoked by `./fbt` in the firmware project root directory. Internally, it 
 ## Requirements
 
 Please install Python packages required by assets build scripts: `pip3 install -r scripts/requirements.txt`
-Make sure that `gcc-arm-none-eabi` toolchain & OpenOCD executables are in system's PATH.
 
 ## NB
 
