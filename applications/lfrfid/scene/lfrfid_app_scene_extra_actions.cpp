@@ -9,7 +9,7 @@ typedef enum {
 void LfRfidAppSceneExtraActions::on_enter(LfRfidApp* app, bool need_restore) {
     auto submenu = app->view_controller.get<SubmenuVM>();
 
-    submenu->add_item("Read ASK (Animal, Ordinary Card)", SubmenuASK, submenu_callback, app);
+    submenu->add_item("Read ASK (FDX,Regular)", SubmenuASK, submenu_callback, app);
     submenu->add_item("Read PSK (Indala)", SubmenuPSK, submenu_callback, app);
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
