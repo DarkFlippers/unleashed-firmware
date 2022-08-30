@@ -356,7 +356,7 @@ bool flipper_format_stream_read_value_line(
                         uint8_t* data = _data;
                         if(string_size(value) >= 2) {
                             // sscanf "%02X" does not work here
-                            if(hex_chars_to_uint8(
+                            if(hex_char_to_uint8(
                                    string_get_char(value, 0),
                                    string_get_char(value, 1),
                                    &data[i])) {
