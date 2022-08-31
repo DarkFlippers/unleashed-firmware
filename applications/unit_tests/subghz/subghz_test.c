@@ -13,7 +13,7 @@
 #define CAME_ATOMO_DIR_NAME EXT_PATH("subghz/assets/came_atomo")
 #define NICE_FLOR_S_DIR_NAME EXT_PATH("subghz/assets/nice_flor_s")
 #define TEST_RANDOM_DIR_NAME EXT_PATH("unit_tests/subghz/test_random_raw.sub")
-#define TEST_RANDOM_COUNT_PARSE 196
+#define TEST_RANDOM_COUNT_PARSE 208
 #define TEST_TIMEOUT 10000
 
 static SubGhzEnvironment* environment_handler;
@@ -127,7 +127,7 @@ static bool subghz_decode_random_test(const char* path) {
         }
         subghz_file_encoder_worker_free(file_worker_encoder_handler);
     }
-    FURI_LOG_T(TAG, "\r\n Decoder count parse \033[0;33m%d\033[0m ", subghz_test_decoder_count);
+    FURI_LOG_D(TAG, "\r\n Decoder count parse \033[0;33m%d\033[0m ", subghz_test_decoder_count);
     if(furi_get_tick() - test_start > TEST_TIMEOUT * 10) {
         printf("\033[0;31mRandom test ERROR TimeOut\033[0m\r\n");
         return false;
@@ -419,6 +419,14 @@ MU_TEST(subghz_decoder_magellen_test) {
         "Test decoder " SUBGHZ_PROTOCOL_MAGELLEN_NAME " error\r\n");
 }
 
+MU_TEST(subghz_decoder_intertechno_v3_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/intertechno_v3_raw.sub"),
+            SUBGHZ_PROTOCOL_INTERTECHNO_V3_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_INTERTECHNO_V3_NAME " error\r\n");
+}
+
 //test encoders
 MU_TEST(subghz_encoder_princeton_test) {
     mu_assert(
@@ -528,6 +536,12 @@ MU_TEST(subghz_encoder_magellen_test) {
         "Test encoder " SUBGHZ_PROTOCOL_MAGELLEN_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_intertechno_v3_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/intertechno_v3.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_INTERTECHNO_V3_NAME " error\r\n");
+}
+
 MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
@@ -566,6 +580,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_phoenix_v2_test);
     MU_RUN_TEST(subghz_decoder_honeywell_wdb_test);
     MU_RUN_TEST(subghz_decoder_magellen_test);
+    MU_RUN_TEST(subghz_decoder_intertechno_v3_test);
 
     MU_RUN_TEST(subghz_encoder_princeton_test);
     MU_RUN_TEST(subghz_encoder_came_test);
@@ -585,6 +600,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_phoenix_v2_test);
     MU_RUN_TEST(subghz_encoder_honeywell_wdb_test);
     MU_RUN_TEST(subghz_encoder_magellen_test);
+    MU_RUN_TEST(subghz_encoder_intertechno_v3_test);
 
     MU_RUN_TEST(subghz_random_test);
     subghz_test_deinit();
