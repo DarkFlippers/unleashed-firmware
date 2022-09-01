@@ -8,7 +8,6 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     string_t temp_str;
     string_init(temp_str);
-    uint32_t temp_data32;
     do {
         if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
             FURI_LOG_E(TAG, "Error open file %s", file_path);
