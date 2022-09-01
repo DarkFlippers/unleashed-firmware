@@ -25,7 +25,7 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
     display_menu[7] = key_cstr[str_index];
     display_menu[8] = key_cstr[str_index + 1];
 
-    if((str_index + 4) <= strlen(key_cstr)) {
+    if((str_index + 4) <= (uint8_t) strlen(key_cstr)) {
         display_menu[11] = key_cstr[str_index + 3];
         display_menu[12] = key_cstr[str_index + 4];
     } else {
@@ -33,7 +33,7 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
         display_menu[12] = ' ';
     }
 
-    if((str_index + 8) <= strlen(key_cstr)) {
+    if((str_index + 8) <= (uint8_t) strlen(key_cstr)) {
         display_menu[14] = key_cstr[str_index + 6];
         display_menu[15] = key_cstr[str_index + 7];
     } else {

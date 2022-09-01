@@ -102,6 +102,7 @@ void flipfrid_free(FlipFridState* flipfrid) {
 
 // ENTRYPOINT
 int32_t flipfrid_start(void* p) {
+    UNUSED(p);
     // Input
     FURI_LOG_I(TAG, "Initializing input");
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(FlipFridEvent));
