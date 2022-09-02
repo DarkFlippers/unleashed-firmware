@@ -13,6 +13,7 @@
 #include "protocol_jablotron.h"
 #include "protocol_paradox.h"
 #include "protocol_pac_stanley.h"
+#include "protocol_keri.h"
 #include "protocol_gallagher.h"
 
 const ProtocolBase* lfrfid_protocols[] = {
@@ -30,5 +31,6 @@ const ProtocolBase* lfrfid_protocols[] = {
     [LFRFIDProtocolJablotron] = &protocol_jablotron,
     [LFRFIDProtocolParadox] = &protocol_paradox,
     [LFRFIDProtocolPACStanley] = &protocol_pac_stanley,
+    [LFRFIDProtocolKeri] = &protocol_keri,
     [LFRFIDProtocolGallagher] = &protocol_gallagher,
 };
