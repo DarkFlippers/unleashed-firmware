@@ -22,6 +22,7 @@ typedef enum {
     LFRFIDProtocolJablotron,
     LFRFIDProtocolParadox,
     LFRFIDProtocolPACStanley,
+    LFRFIDProtocolGallagher,
     LFRFIDProtocolMax,
 } LFRFIDProtocol;
 
