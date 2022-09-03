@@ -3,6 +3,8 @@
 #include <infrared.h>
 #include <infrared_worker.h>
 #include <furi_hal_infrared.h>
+#include <flipper_format.h>
+#include <toolbox/args.h>
 
 #include "infrared_signal.h"
 
@@ -10,6 +12,7 @@
 
 static void infrared_cli_start_ir_rx(Cli* cli, string_t args);
 static void infrared_cli_start_ir_tx(Cli* cli, string_t args);
+static void infrared_cli_process_decode(Cli* cli, string_t args);
 
 static const struct {
     const char* cmd;
@@ -17,6 +20,7 @@ static const struct {
 } infrared_cli_commands[] = {
     {.cmd = "rx", .process_function = infrared_cli_start_ir_rx},
     {.cmd = "tx", .process_function = infrared_cli_start_ir_tx},
+    {.cmd = "decode", .process_function = infrared_cli_process_decode},
 };
 
 static void signal_received_callback(void* context, InfraredWorkerSignal* received_signal) {
@@ -86,6 +90,7 @@ static void infrared_cli_print_usage(void) {
         "\tFrequency (%d - %d), Duty cycle (0 - 100), max 512 samples\r\n",
         INFRARED_MIN_FREQUENCY,
         INFRARED_MAX_FREQUENCY);
+    printf("\tir decode <input_file> [<output_file>]\r\n");
 }
 
 static bool infrared_cli_parse_message(const char* str, InfraredSignal* signal) {
@@ -162,6 +167,160 @@ static void infrared_cli_start_ir_tx(Cli* cli, string_t args) {
     infrared_signal_free(signal);
 }
 
+static bool
+    infrared_cli_save_signal(InfraredSignal* signal, FlipperFormat* file, const char* name) {
+    bool ret = infrared_signal_save(signal, file, name);
+    if(!ret) {
+        printf("Failed to save signal: \"%s\"\r\n", name);
+    }
+    return ret;
+}
+
+static bool infrared_cli_decode_raw_signal(
+    InfraredRawSignal* raw_signal,
+    InfraredDecoderHandler* decoder,
+    FlipperFormat* output_file,
+    const char* signal_name) {
+    InfraredSignal* signal = infrared_signal_alloc();
+    bool ret = false, level = true, is_decoded = false;
+
+    size_t i;
+    for(i = 0; i < raw_signal->timings_size; ++i) {
+        // TODO: Any infrared_check_decoder_ready() magic?
+        const InfraredMessage* message = infrared_decode(decoder, level, raw_signal->timings[i]);
+
+        if(message) {
+            is_decoded = true;
+            printf(
+                "Protocol: %s address: 0x%lX command: 0x%lX %s\r\n",
+                infrared_get_protocol_name(message->protocol),
+                message->address,
+                message->command,
+                (message->repeat ? "R" : ""));
+            if(output_file && !message->repeat) {
+                infrared_signal_set_message(signal, message);
+                if(!infrared_cli_save_signal(signal, output_file, signal_name)) break;
+            }
+        }
+
+        level = !level;
+    }
+
+    if(i == raw_signal->timings_size) {
+        if(!is_decoded && output_file) {
+            infrared_signal_set_raw_signal(
+                signal,
+                raw_signal->timings,
+                raw_signal->timings_size,
+                raw_signal->frequency,
+                raw_signal->duty_cycle);
+            ret = infrared_cli_save_signal(signal, output_file, signal_name);
+        } else {
+            ret = true;
+        }
+    }
+
+    infrared_reset_decoder(decoder);
+    infrared_signal_free(signal);
+    return ret;
+}
+
+static bool infrared_cli_decode_file(FlipperFormat* input_file, FlipperFormat* output_file) {
+    bool ret = false;
+
+    InfraredSignal* signal = infrared_signal_alloc();
+    InfraredDecoderHandler* decoder = infrared_alloc_decoder();
+
+    string_t tmp;
+    string_init(tmp);
+
+    while(infrared_signal_read(signal, input_file, tmp)) {
+        ret = false;
+        if(!infrared_signal_is_valid(signal)) {
+            printf("Invalid signal\r\n");
+            break;
+        }
+        if(!infrared_signal_is_raw(signal)) {
+            if(output_file &&
+               !infrared_cli_save_signal(signal, output_file, string_get_cstr(tmp))) {
+                break;
+            } else {
+                printf("Skipping decoded signal\r\n");
+                continue;
+            }
+        }
+        InfraredRawSignal* raw_signal = infrared_signal_get_raw_signal(signal);
+        printf("Raw signal: %s, %u samples\r\n", string_get_cstr(tmp), raw_signal->timings_size);
+        if(!infrared_cli_decode_raw_signal(raw_signal, decoder, output_file, string_get_cstr(tmp)))
+            break;
+        ret = true;
+    }
+
+    infrared_free_decoder(decoder);
+    infrared_signal_free(signal);
+    string_clear(tmp);
+
+    return ret;
+}
+
+static void infrared_cli_process_decode(Cli* cli, string_t args) {
+    UNUSED(cli);
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperFormat* input_file = flipper_format_buffered_file_alloc(storage);
+    FlipperFormat* output_file = NULL;
+
+    uint32_t version;
+    string_t tmp, header, input_path, output_path;
+    string_init(tmp);
+    string_init(header);
+    string_init(input_path);
+    string_init(output_path);
+
+    do {
+        if(!args_read_probably_quoted_string_and_trim(args, input_path)) {
+            printf("Wrong arguments.\r\n");
+            infrared_cli_print_usage();
+            break;
+        }
+        args_read_probably_quoted_string_and_trim(args, output_path);
+        if(!flipper_format_buffered_file_open_existing(input_file, string_get_cstr(input_path))) {
+            printf("Failed to open file for reading: \"%s\"\r\n", string_get_cstr(input_path));
+            break;
+        }
+        if(!flipper_format_read_header(input_file, header, &version) ||
+           (!string_start_with_str_p(header, "IR")) || version != 1) {
+            printf("Invalid or corrupted input file: \"%s\"\r\n", string_get_cstr(input_path));
+            break;
+        }
+        if(!string_empty_p(output_path)) {
+            printf("Writing output to file: \"%s\"\r\n", string_get_cstr(output_path));
+            output_file = flipper_format_file_alloc(storage);
+        }
+        if(output_file &&
+           !flipper_format_file_open_always(output_file, string_get_cstr(output_path))) {
+            printf("Failed to open file for writing: \"%s\"\r\n", string_get_cstr(output_path));
+            break;
+        }
+        if(output_file && !flipper_format_write_header(output_file, header, version)) {
+            printf("Failed to write to the output file: \"%s\"\r\n", string_get_cstr(output_path));
+            break;
+        }
+        if(!infrared_cli_decode_file(input_file, output_file)) {
+            break;
+        }
+        printf("File successfully decoded.\r\n");
+    } while(false);
+
+    string_clear(tmp);
+    string_clear(header);
+    string_clear(input_path);
+    string_clear(output_path);
+
+    flipper_format_free(input_file);
+    if(output_file) flipper_format_free(output_file);
+    furi_record_close(RECORD_STORAGE);
+}
+
 static void infrared_cli_start_ir(Cli* cli, string_t args, void* context) {
     UNUSED(context);
     if(furi_hal_infrared_is_busy()) {
@@ -169,18 +328,15 @@ static void infrared_cli_start_ir(Cli* cli, string_t args, void* context) {
         return;
     }
 
+    string_t command;
+    string_init(command);
+    args_read_string_and_trim(args, command);
+
     size_t i = 0;
     for(; i < COUNT_OF(infrared_cli_commands); ++i) {
-        size_t size = strlen(infrared_cli_commands[i].cmd);
-        bool cmd_found = !strncmp(string_get_cstr(args), infrared_cli_commands[i].cmd, size);
-        if(cmd_found) {
-            if(string_size(args) == size) {
-                break;
-            }
-            if(string_get_cstr(args)[size] == ' ') {
-                string_right(args, size + 1);
-                break;
-            }
+        size_t cmd_len = strlen(infrared_cli_commands[i].cmd);
+        if(!strncmp(string_get_cstr(command), infrared_cli_commands[i].cmd, cmd_len)) {
+            break;
         }
     }
 
@@ -189,6 +345,8 @@ static void infrared_cli_start_ir(Cli* cli, string_t args, void* context) {
     } else {
         infrared_cli_print_usage();
     }
+
+    string_clear(command);
 }
 void infrared_on_system_start() {
 #ifdef SRV_CLI
