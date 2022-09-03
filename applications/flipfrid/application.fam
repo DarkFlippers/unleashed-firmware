@@ -1,6 +1,6 @@
 App(
     appid="flipfrid",
-    name="Rfid Fuzzer",
+    name="RFID Fuzzer",
     apptype=FlipperAppType.PLUGIN,
     entry_point="flipfrid_start",
     cdefines=["APP_FLIP_FRID"],

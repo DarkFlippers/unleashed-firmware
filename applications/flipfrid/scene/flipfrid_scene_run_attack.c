@@ -57,6 +57,10 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
 
                 if(context->attack_step == 15) {
                     context->attack_step = 0;
+                    counter = 0;
+                    context->is_attacking = false;
+                    notification_message(context->notify, &sequence_blink_stop);
+                    notification_message(context->notify, &sequence_single_vibro);
                 } else {
                     context->attack_step++;
                 }
@@ -71,6 +75,10 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
 
                 if(context->attack_step == 255) {
                     context->attack_step = 0;
+                    counter = 0;
+                    context->is_attacking = false;
+                    notification_message(context->notify, &sequence_blink_stop);
+                    notification_message(context->notify, &sequence_single_vibro);
                 } else {
                     context->attack_step++;
                 }
@@ -86,6 +94,10 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
 
                 if(context->attack_step == 255) {
                     context->attack_step = 0;
+                    counter = 0;
+                    context->is_attacking = false;
+                    notification_message(context->notify, &sequence_blink_stop);
+                    notification_message(context->notify, &sequence_single_vibro);
                 } else {
                     context->attack_step++;
                 }
@@ -94,10 +106,10 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
         }
 
         if(counter > TIME_BETWEEN_CARDS) {
-                counter = 0;
-            } else {
-                counter++;
-            }
+            counter = 0;
+        } else {
+            counter++;
+        }
     }
 }
 
@@ -109,6 +121,7 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
             case InputKeyUp:
             case InputKeyLeft:
             case InputKeyRight:
+                break;
             case InputKeyOk:
                 counter = 0;
                 if(!context->is_attacking) {

@@ -16,12 +16,16 @@ void multi_converter_mode_display_convert(MultiConverterState* const multi_conve
 //
 // draw the main DISPLAY view with the current multi_converter_state values
 //
-void multi_converter_mode_display_draw(Canvas* const canvas, const MultiConverterState* multi_converter_state);
+void multi_converter_mode_display_draw(
+    Canvas* const canvas,
+    const MultiConverterState* multi_converter_state);
 
 //
 // keyboard navigation on DISPLAY mode (NAVIGATION only, no BACK nor OK - InputKey guaranteed to be left/right/up/down)
 //
-void multi_converter_mode_display_navigation(InputKey key, MultiConverterState* const multi_converter_state);
+void multi_converter_mode_display_navigation(
+    InputKey key,
+    MultiConverterState* const multi_converter_state);
 
 //
 // reset the DISPLAY mode with the current units, cleaning the buffers and different flags;
@@ -52,4 +56,6 @@ void multi_converter_mode_display_add_number(MultiConverterState* const multi_co
 // handle the OK action when selecting a specific key on the keyboard (add a number, a symbol, change mode...)
 // returns a ModeTrigger enum value: may or may not let to a mode change on the main loop (WON'T change the mode here)
 //
-MultiConverterModeTrigger multi_converter_mode_display_ok(uint8_t long_press, MultiConverterState* const multi_converter_state);
+MultiConverterModeTrigger multi_converter_mode_display_ok(
+    uint8_t long_press,
+    MultiConverterState* const multi_converter_state);
