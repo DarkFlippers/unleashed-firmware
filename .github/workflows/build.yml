@@ -19,10 +19,8 @@ jobs:
     steps:
       - name: 'Decontaminate previous build leftovers'
         run: |
-          if [ -d .git ]
-          then
-            git submodule status \
-              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          if [ -d .git ]; then
+            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
           fi
 
       - name: 'Checkout code'
@@ -33,51 +31,44 @@ jobs:
 
       - name: 'Make artifacts directory'
         run: |
-          test -d artifacts && rm -rf artifacts || true
+          rm -rf artifacts
           mkdir artifacts
 
-      - name: 'Generate suffix and folder name'
+      - name: 'Get commit details'
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--is_pull"
+          else
+            python3 scripts/get_env.py "--event_file=${{ github.event_path }}"
+          fi
+
+      - name: 'Generate suffixes for comment'
         id: names
         run: |
-          REF=${{ github.ref }}
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            REF=${{ github.head_ref }}
-          fi
-          BRANCH_OR_TAG=${REF#refs/*/}
-          SHA=$(git rev-parse --short HEAD)
-
-          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            SUFFIX=${BRANCH_OR_TAG//\//_}
-          else
-            SUFFIX=${BRANCH_OR_TAG//\//_}-$(date +'%d%m%Y')-${SHA}
-          fi
-
-          echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
-          echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
-          echo "::set-output name=artifacts-path::${BRANCH_OR_TAG}"
+          echo "::set-output name=branch_name::${BRANCH_NAME}"
+          echo "::set-output name=commit_sha::${COMMIT_SHA}"
+          echo "::set-output name=default_target::${DEFAULT_TARGET}"
           echo "::set-output name=suffix::${SUFFIX}"
-          echo "::set-output name=short-hash::${SHA}"
-          echo "::set-output name=default-target::${DEFAULT_TARGET}"
 
       - name: 'Bundle scripts'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
+          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts
 
       - name: 'Build the firmware'
         run: |
           set -e
-          for TARGET in ${TARGETS}
-          do
-            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+          for TARGET in ${TARGETS}; do
+            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
+                updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
           done
 
       - name: 'Move upload files'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           set -e
-          for TARGET in ${TARGETS}
-          do
+          for TARGET in ${TARGETS}; do
             mv dist/${TARGET}-*/* artifacts/
           done
 
@@ -85,12 +76,11 @@ jobs:
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           set -e
-          for UPDATEBUNDLE in artifacts/*/
-          do
-            BUNDLE_NAME=`echo $UPDATEBUNDLE | cut -d'/' -f2`
-            echo Packaging ${BUNDLE_NAME}
-            tar czpf artifacts/flipper-z-${BUNDLE_NAME}.tgz -C artifacts ${BUNDLE_NAME}
-            rm -rf artifacts/${BUNDLE_NAME}
+          for UPDATEBUNDLE in artifacts/*/; do
+            BUNDLE_NAME="$(echo "$UPDATEBUNDLE" | cut -d'/' -f2)"
+            echo Packaging "${BUNDLE_NAME}"
+            tar czpf "artifacts/flipper-z-${BUNDLE_NAME}.tgz" -C artifacts "${BUNDLE_NAME}"
+            rm -rf "artifacts/${BUNDLE_NAME}"
           done
 
       - name: "Check for uncommitted changes"
@@ -100,17 +90,17 @@ jobs:
       - name: 'Bundle resources'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-resources-${{steps.names.outputs.suffix}}.tgz -C assets resources
+          tar czpf "artifacts/flipper-z-any-resources-${SUFFIX}.tgz" -C assets resources
 
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           FBT_TOOLCHAIN_PATH=/opt ./fbt copro_dist
-          tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz -C assets core2_firmware
+          tar czpf "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz" -C assets core2_firmware
 
       - name: 'Copy .map file'
         run: |
-          cp build/f7-firmware-*/firmware.elf.map artifacts/flipper-z-f7-firmware-${{steps.names.outputs.suffix}}.elf.map
+          cp build/f7-firmware-*/firmware.elf.map "artifacts/flipper-z-f7-firmware-${SUFFIX}.elf.map"
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -119,7 +109,7 @@ jobs:
           chmod 600 ./deploy_key;
           rsync -avzP --delete --mkpath \
               -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
-              artifacts/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.artifacts-path}}/";
+              artifacts/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${BRANCH_NAME}/";
           rm ./deploy_key;
 
       - name: 'Trigger update server reindex'
@@ -142,10 +132,10 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            **Compiled firmware for commit `${{steps.names.outputs.short-hash}}`:**
-            - [📦 Update package](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-update-${{steps.names.outputs.suffix}}.tgz)
-            - [📥 DFU file](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-full-${{steps.names.outputs.suffix}}.dfu)
-            - [☁️ Web updater](https://my.flipp.dev/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.artifacts-path}}&version=${{steps.names.outputs.short-hash}})
+            **Compiled firmware for commit `${{steps.names.outputs.commit_sha}}`:**
+            - [📦 Update package](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz)
+            - [📥 DFU file](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-full-${{steps.names.outputs.suffix}}.dfu)
+            - [☁️ Web updater](https://my.flipp.dev/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.branch_name}}&version=${{steps.names.outputs.commit_sha}})
           edit-mode: replace
 
   compact:
@@ -157,7 +147,7 @@ jobs:
           if [ -d .git ]
           then
             git submodule status \
-              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+              || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
           fi
 
       - name: 'Checkout code'
@@ -167,29 +157,21 @@ jobs:
           submodules: true
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: 'Generate suffix and folder name'
-        id: names
+      - name: 'Get commit details'
         run: |
-          REF=${{ github.ref }}
+          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            REF=${{ github.head_ref }}
-          fi
-          BRANCH_OR_TAG=${REF#refs/*/}
-          SHA=$(git rev-parse --short HEAD)
-
-          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            SUFFIX=${BRANCH_OR_TAG//\//_}
+            python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--is_pull"
           else
-            SUFFIX=${BRANCH_OR_TAG//\//_}-$(date +'%d%m%Y')-${SHA}
+            python3 scripts/get_env.py "--event_file=${{ github.event_path }}"
           fi
-
-          echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
+          echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_NAME}" >> $GITHUB_ENV
           echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
 
       - name: 'Build the firmware'
         run: |
           set -e
-          for TARGET in ${TARGETS}
-          do
-            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` updater_package DEBUG=0 COMPACT=1
+          for TARGET in ${TARGETS}; do
+            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
+                updater_package DEBUG=0 COMPACT=1
           done
