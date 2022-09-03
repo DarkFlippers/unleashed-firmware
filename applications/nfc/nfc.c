@@ -94,6 +94,11 @@ Nfc* nfc_alloc() {
     view_dispatcher_add_view(
         nfc->view_dispatcher, NfcViewDictAttack, dict_attack_get_view(nfc->dict_attack));
 
+    // Detect Reader
+    nfc->detect_reader = detect_reader_alloc();
+    view_dispatcher_add_view(
+        nfc->view_dispatcher, NfcViewDetectReader, detect_reader_get_view(nfc->detect_reader));
+
     // Generator
     nfc->generator = NULL;
 
@@ -157,6 +162,10 @@ void nfc_free(Nfc* nfc) {
     // Mifare Classic Dict Attack
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewDictAttack);
     dict_attack_free(nfc->dict_attack);
+
+    // Detect Reader
+    view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewDetectReader);
+    detect_reader_free(nfc->detect_reader);
 
     // Worker
     nfc_worker_stop(nfc->worker);
