@@ -93,12 +93,12 @@ FIRMWARE_APPS = {
         "updater_app",
         "unit_tests",
     ],
-    "no_custom_apps": [
+    "debug_pack": [
         "crypto_start",
         # Svc
         "basic_services",
         # Apps
-        "basic_apps",
+        #"basic_apps",
         "updater_app",
         "storage_move_to_sd",
         "archive",
@@ -107,7 +107,7 @@ FIRMWARE_APPS = {
         "system_settings",
         "about",
         # Plugins
-        "basic_plugins",
+        #"basic_plugins",
         # Debug
         "debug_apps",
     ],
