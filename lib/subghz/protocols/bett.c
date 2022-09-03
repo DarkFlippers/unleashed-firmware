@@ -92,7 +92,7 @@ void* subghz_protocol_encoder_bett_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
+    instance->encoder.size_upload = 52;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -233,7 +233,8 @@ void subghz_protocol_decoder_bett_feed(void* context, bool level, uint32_t durat
     case BETTDecoderStepReset:
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_bett_const.te_short * 44) <
                         (subghz_protocol_bett_const.te_delta * 15))) {
-            //Found Preambula
+            instance->decoder.decode_data = 0;
+            instance->decoder.decode_count_bit = 0;
             instance->decoder.parser_step = BETTDecoderStepCheckDuration;
         }
         break;
@@ -288,20 +289,6 @@ void subghz_protocol_decoder_bett_feed(void* context, bool level, uint32_t durat
     }
 }
 
-/** 
- * Analysis of received data
- * @param instance Pointer to a SubGhzBlockGeneric* instance
- */
-static void subghz_protocol_bett_check_remote_controller(SubGhzBlockGeneric* instance) {
-    uint32_t code_found_reverse =
-        subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
-
-    instance->serial = (code_found_reverse & 0xFF) << 12 |
-                       ((code_found_reverse >> 8) & 0xFF) << 4 |
-                       ((code_found_reverse >> 20) & 0x0F);
-    instance->btn = ((code_found_reverse >> 16) & 0x0F);
-}
-
 uint8_t subghz_protocol_decoder_bett_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderBETT* instance = context;
@@ -339,8 +326,7 @@ bool subghz_protocol_decoder_bett_deserialize(void* context, FlipperFormat* flip
 void subghz_protocol_decoder_bett_get_string(void* context, string_t output) {
     furi_assert(context);
     SubGhzProtocolDecoderBETT* instance = context;
-    subghz_protocol_bett_check_remote_controller(&instance->generic);
-    uint32_t data = (uint32_t)(instance->generic.data & 0xFFFFFF);
+    uint32_t data = (uint32_t)(instance->generic.data & 0x3FFFF);
     string_cat_printf(
         output,
         "%s %dbit\r\n"
@@ -350,7 +336,7 @@ void subghz_protocol_decoder_bett_get_string(void* context, string_t output) {
         "  -:   " DIP_PATTERN "\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data & 0xFFFFFF),
+        data,
         SHOW_DIP_P(data, DIP_P),
         SHOW_DIP_P(data, DIP_O),
         SHOW_DIP_P(data, DIP_N));
