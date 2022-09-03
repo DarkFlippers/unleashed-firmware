@@ -5,11 +5,15 @@ import json
 import os
 import shlex
 import re
+import string
+import random
 import argparse
 import datetime
 import urllib.request
 
-# event_file = open('${{ github.event_path }}')
+
+def id_gen(size=5, chars=string.ascii_uppercase + string.digits):
+    return "".join(random.choice(chars) for _ in range(size))
 
 
 def parse_args():
@@ -59,17 +63,24 @@ def get_details(event, args):
     return data
 
 
+def add_env(name, value, file):
+    delimeter = id_gen()
+    print(f"{name}<<{delimeter}", file=file)
+    print(f"{value}", file=file)
+    print(f"{delimeter}", file=file)
+
+
 def add_envs(data, env_file, args):
-    print(f'COMMIT_MSG={data["commit_comment"]}', file=env_file)
-    print(f'COMMIT_HASH={data["commit_hash"]}', file=env_file)
-    print(f'COMMIT_SHA={data["commit_sha"]}', file=env_file)
-    print(f'SUFFIX={data["suffix"]}', file=env_file)
-    print(f'BRANCH_NAME={data["branch_name"]}', file=env_file)
-    print(f'DIST_SUFFIX={data["suffix"]}', file=env_file)
-    print(f'WORKFLOW_BRANCH_OR_TAG={data["branch_name"]}', file=env_file)
+    add_env("COMMIT_MSG", data["commit_comment"], env_file)
+    add_env("COMMIT_HASH", data["commit_hash"], env_file)
+    add_env("COMMIT_SHA", data["commit_sha"], env_file)
+    add_env("SUFFIX", data["suffix"], env_file)
+    add_env("BRANCH_NAME", data["branch_name"], env_file)
+    add_env("DIST_SUFFIX", data["suffix"], env_file)
+    add_env("WORKFLOW_BRANCH_OR_TAG", data["branch_name"], env_file)
     if args.is_pull:
-        print(f'PULL_ID={data["pull_id"]}', file=env_file)
-        print(f'PULL_NAME={data["pull_name"]}', file=env_file)
+        add_env("PULL_ID", data["pull_id"], env_file)
+        add_env("PULL_NAME", data["pull_name"], env_file)
 
 
 def main():
