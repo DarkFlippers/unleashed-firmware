@@ -20,10 +20,8 @@ jobs:
     steps:
       - name: 'Decontaminate previous build leftovers'
         run: |
-          if [ -d .git ]
-          then
-            git submodule status \
-              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          if [ -d .git ]; then
+            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
           fi
 
       - name: 'Checkout code'
@@ -32,28 +30,23 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: 'Generate suffix and folder name'
+      - name: 'Get commit details'
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--is_pull"
+          else
+            python3 scripts/get_env.py "--event_file=${{ github.event_path }}"
+          fi
+
+      - name: 'Generate suffixes for comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
         id: names
         run: |
-          REF=${{ github.ref }}
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            REF=${{ github.head_ref }}
-          fi
-          BRANCH_OR_TAG=${REF#refs/*/}
-          SHA=$(git rev-parse --short HEAD)
-
-          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            SUFFIX=${BRANCH_OR_TAG//\//_}
-          else
-            SUFFIX=${BRANCH_OR_TAG//\//_}-$(date +'%d%m%Y')-${SHA}
-          fi
-
-          echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
-          echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
-          echo "::set-output name=artifacts-path::${BRANCH_OR_TAG}"
+          echo "::set-output name=branch_name::${BRANCH_NAME}"
+          echo "::set-output name=commit_sha::${COMMIT_SHA}"
+          echo "::set-output name=default_target::${DEFAULT_TARGET}"
           echo "::set-output name=suffix::${SUFFIX}"
-          echo "::set-output name=short-hash::${SHA}"
-          echo "::set-output name=default-target::${DEFAULT_TARGET}"
 
       - name: 'Make reports directory'
         run: |
@@ -75,7 +68,7 @@ jobs:
               -o PVS-Studio.log
 
       - name: 'Convert PVS-Studio output to html page'
-        run: plog-converter -a GA:1,2,3 -t fullhtml PVS-Studio.log -o reports/${{steps.names.outputs.default-target}}-${{steps.names.outputs.suffix}}
+        run: plog-converter -a GA:1,2,3 -t fullhtml PVS-Studio.log -o reports/${DEFAULT_TARGET}-${SUFFIX}
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -84,7 +77,7 @@ jobs:
           chmod 600 ./deploy_key;
           rsync -avrzP --mkpath \
               -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
-              reports/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:/home/data/firmware-pvs-studio-report/"${{steps.names.outputs.artifacts-path}}/";
+              reports/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:/home/data/firmware-pvs-studio-report/"${BRANCH_NAME}/";
           rm ./deploy_key;
 
       - name: 'Find Previous Comment'
@@ -103,6 +96,6 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            **PVS-Studio report for commit `${{steps.names.outputs.short-hash}}`:**
-            - [Report](https://update.flipperzero.one/builds/firmware-pvs-studio-report/${{steps.names.outputs.artifacts-path}}/${{steps.names.outputs.default-target}}-${{steps.names.outputs.suffix}}/index.html)
+            **PVS-Studio report for commit `${{steps.names.outputs.commit_sha}}`:**
+            - [Report](https://update.flipperzero.one/builds/firmware-pvs-studio-report/${{steps.names.outputs.branch_name}}/${{steps.names.outputs.default_target}}-${{steps.names.outputs.suffix}}/index.html)
           edit-mode: replace
