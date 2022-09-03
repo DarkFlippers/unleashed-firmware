@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"8"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"12"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 
 fbtenv_show_usage()
@@ -64,13 +64,13 @@ fbtenv_check_sourced()
 
 fbtenv_chck_many_source()
 {
-    if ! echo "${PS1:-""}" | grep -q "[fbt]"; then
-        if ! echo "${PROMPT:-""}" | grep -q "[fbt]"; then
+    if ! echo "${PS1:-""}" | grep -qF "[fbt]"; then
+        if ! echo "${PROMPT:-""}" | grep -qF "[fbt]"; then
             return 0;
         fi
     fi
-    echo "Warning! It script seen to be sourced more then once!";
-    echo "It may signalise what you are making some mistakes, please open a new shell!";
+    echo "Warning! FBT environment script sourced more than once!";
+    echo "This may signal that you are making mistakes, please open a new shell!";
     return 1;
 }
 

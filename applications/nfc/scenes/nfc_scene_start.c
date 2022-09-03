@@ -49,7 +49,12 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
             consumed = true;
         } else if(event.event == SubmenuIndexDetectReader) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
+            bool sd_exist = storage_sd_status(nfc->dev->storage) == FSE_OK;
+            if(sd_exist) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
+            } else {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
+            }
             consumed = true;
         } else if(event.event == SubmenuIndexSaved) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneFileSelect);
@@ -61,7 +66,6 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetType);
             consumed = true;
         } else if(event.event == SubmenuIndexDebug) {
-            scene_manager_set_scene_state(nfc->scene_manager, NfcSceneStart, SubmenuIndexDebug);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDebug);
             consumed = true;
         }
