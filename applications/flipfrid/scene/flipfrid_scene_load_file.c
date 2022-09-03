@@ -34,7 +34,7 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
             break;
         } else {
             FURI_LOG_I(TAG, "Key type: %s", string_get_cstr(temp_str));
-            if (strcmp(string_get_cstr(temp_str), "EM4100") != 0) {
+            if(strcmp(string_get_cstr(temp_str), "EM4100") != 0) {
                 FURI_LOG_E(TAG, "Unsupported Key type");
                 string_reset(context->notification_msg);
                 string_set_str(context->notification_msg, "Unsupported Key type");
@@ -52,21 +52,20 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
             FURI_LOG_I(TAG, "Key: %s", string_get_cstr(context->data_str));
 
             // Check data size
-            if (string_size(context->data_str) != 14) {
+            if(string_size(context->data_str) != 14) {
                 FURI_LOG_E(TAG, "Incorrect Key length");
                 string_reset(context->notification_msg);
                 string_set_str(context->notification_msg, "Incorrect Key length");
                 break;
             }
             // String to uint8_t
-            for (uint8_t i = 0; i < 5; i++) {
+            for(uint8_t i = 0; i < 5; i++) {
                 char temp_str2[3];
-                temp_str2[0] = string_get_cstr(context->data_str)[i*3];
-                temp_str2[1] = string_get_cstr(context->data_str)[i*3+1];
+                temp_str2[0] = string_get_cstr(context->data_str)[i * 3];
+                temp_str2[1] = string_get_cstr(context->data_str)[i * 3 + 1];
                 temp_str2[2] = '\0';
                 context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
             }
-            
         }
 
         result = true;
@@ -130,7 +129,7 @@ bool flipfrid_load_protocol_from_file(FlipFridState* context) {
         context->file_path,
         LFRFID_APP_EXTENSION,
         true,
-        &I_sub1_10px,
+        &I_125_10px,
         true);
 
     if(res) {

@@ -27,7 +27,7 @@ void flipfrid_scene_entrypoint_menu_callback(FlipFridState* context, uint32_t in
 
 void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
     context->menu_index = 0;
-    for (uint32_t i = 0; i < 3; i++) {
+    for(uint32_t i = 0; i < 3; i++) {
         string_init(menu_items[i]);
     }
 
@@ -38,7 +38,7 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
 
 void flipfrid_scene_entrypoint_on_exit(FlipFridState* context) {
     UNUSED(context);
-    for (uint32_t i = 0; i < 3; i++) {
+    for(uint32_t i = 0; i < 3; i++) {
         string_clear(menu_items[i]);
     }
 }
@@ -63,6 +63,7 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
                 break;
             case InputKeyLeft:
             case InputKeyRight:
+                break;
             case InputKeyOk:
                 flipfrid_scene_entrypoint_menu_callback(context, context->menu_index);
                 break;
@@ -84,14 +85,27 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
 
     if(context->menu_index > FlipFridAttackDefaultValues) {
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 64, 24, AlignCenter, AlignTop, string_get_cstr(menu_items[context->menu_index - 1]));
+        canvas_draw_str_aligned(
+            canvas,
+            64,
+            24,
+            AlignCenter,
+            AlignTop,
+            string_get_cstr(menu_items[context->menu_index - 1]));
     }
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 36, AlignCenter, AlignTop, string_get_cstr(menu_items[context->menu_index]));
+    canvas_draw_str_aligned(
+        canvas, 64, 36, AlignCenter, AlignTop, string_get_cstr(menu_items[context->menu_index]));
 
     if(context->menu_index < FlipFridAttackLoadFile) {
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 64, 48, AlignCenter, AlignTop, string_get_cstr(menu_items[context->menu_index + 1]));
+        canvas_draw_str_aligned(
+            canvas,
+            64,
+            48,
+            AlignCenter,
+            AlignTop,
+            string_get_cstr(menu_items[context->menu_index + 1]));
     }
 }

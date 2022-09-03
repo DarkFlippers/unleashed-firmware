@@ -114,7 +114,10 @@ int32_t flipfrid_start(void* p) {
     if(!init_mutex(&flipfrid_state_mutex, flipfrid_state, sizeof(FlipFridState))) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
+        furi_record_close(RECORD_NOTIFICATION);
+        furi_record_close(RECORD_DIALOGS);
         free(flipfrid_state);
+        return 255;
     }
 
     // Configure view port
@@ -228,6 +231,7 @@ int32_t flipfrid_start(void* p) {
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
     furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
     flipfrid_free(flipfrid_state);
 
     return 0;
