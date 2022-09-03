@@ -64,13 +64,13 @@ fbtenv_check_sourced()
 
 fbtenv_chck_many_source()
 {
-    if ! echo "${PS1:-""}" | grep -q "[fbt]"; then
-        if ! echo "${PROMPT:-""}" | grep -q "[fbt]"; then
+    if ! echo "${PS1:-""}" | grep -qF "[fbt]"; then
+        if ! echo "${PROMPT:-""}" | grep -qF "[fbt]"; then
             return 0;
         fi
     fi
-    echo "Warning! It script seen to be sourced more then once!";
-    echo "It may signalise what you are making some mistakes, please open a new shell!";
+    echo "Warning! FBT environment script sourced more than once!";
+    echo "This may signal that you are making mistakes, please open a new shell!";
     return 1;
 }
 
