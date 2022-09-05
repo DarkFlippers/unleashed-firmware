@@ -32,12 +32,14 @@ jobs:
 
       - name: 'Get commit details'
         run: |
-          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--is_pull"
+            TYPE="pull"
+          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TYPE="tag"
           else
-            python3 scripts/get_env.py "--event_file=${{ github.event_path }}"
+            TYPE="other"
           fi
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
 
       - name: 'Generate suffixes for comment'
         if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
