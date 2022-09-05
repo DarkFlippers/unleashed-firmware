@@ -3,6 +3,7 @@
 #include "flipfrid_scene_entrypoint.h"
 
 #define LFRFID_UIDS_EXTENSION ".txt"
+#define RFIDFUZZER_APP_PATH_FOLDER "/ext/rfidfuzzer"
 
 bool flipfrid_load_uids(FlipFridState* context, const char* file_path) {
     bool result = false;
@@ -20,18 +21,19 @@ bool flipfrid_load_uids(FlipFridState* context, const char* file_path) {
 
 bool flipfrid_load_custom_uids_from_file(FlipFridState* context) {
     // Input events and views are managed by file_select
+    string_t uid_path;
+    string_init(uid_path);
+    string_set_str(uid_path, RFIDFUZZER_APP_PATH_FOLDER);
+
     bool res = dialog_file_browser_show(
-        context->dialogs,
-        context->file_path,
-        context->file_path,
-        LFRFID_UIDS_EXTENSION,
-        true,
-        &I_sub1_10px,
-        true);
+        context->dialogs, uid_path, uid_path, LFRFID_UIDS_EXTENSION, true, &I_125_10px, false);
 
     if(res) {
-        res = flipfrid_load_uids(context, string_get_cstr(context->file_path));
+        res = flipfrid_load_uids(context, string_get_cstr(uid_path));
     }
+
+    string_clear(uid_path);
+
     return res;
 }
 

@@ -2,6 +2,7 @@
 #include "flipfrid_scene_entrypoint.h"
 
 #define LFRFID_APP_EXTENSION ".rfid"
+#define LFRFID_APP_PATH_FOLDER "/ext/lfrfid"
 
 bool flipfrid_load(FlipFridState* context, const char* file_path) {
     bool result = false;
@@ -121,24 +122,25 @@ void flipfrid_scene_load_file_on_draw(Canvas* canvas, FlipFridState* context) {
 }
 
 bool flipfrid_load_protocol_from_file(FlipFridState* context) {
-    string_t file_path;
-    string_init(file_path);
+    string_t user_file_path;
+    string_init(user_file_path);
+    string_set_str(user_file_path, LFRFID_APP_PATH_FOLDER);
 
     // Input events and views are managed by file_select
     bool res = dialog_file_browser_show(
         context->dialogs,
-        context->file_path,
-        context->file_path,
+        user_file_path,
+        user_file_path,
         LFRFID_APP_EXTENSION,
         true,
         &I_125_10px,
         true);
 
     if(res) {
-        res = flipfrid_load(context, string_get_cstr(context->file_path));
+        res = flipfrid_load(context, string_get_cstr(user_file_path));
     }
 
-    string_clear(file_path);
+    string_clear(user_file_path);
 
     return res;
 }
