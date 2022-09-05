@@ -195,6 +195,7 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
         }
         data->data_size = pages_total * 4;
         data->data_read = pages_read * 4;
+        if(data->data_size > MF_UL_MAX_DUMP_SIZE || data->data_read > MF_UL_MAX_DUMP_SIZE) break;
         bool pages_parsed = true;
         for(uint16_t i = 0; i < pages_total; i++) {
             string_printf(temp_str, "Page %d", i);
