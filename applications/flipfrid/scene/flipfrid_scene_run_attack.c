@@ -1,7 +1,7 @@
 #include "flipfrid_scene_run_attack.h"
 
 uint8_t counter = 0;
-#define TIME_BETWEEN_CARDS 1
+#define TIME_BETWEEN_CARDS 5
 uint8_t id_list[16][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00}, // Null bytes
     {0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, // Only FF
