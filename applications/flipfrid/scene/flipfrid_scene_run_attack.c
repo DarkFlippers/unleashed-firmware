@@ -25,6 +25,7 @@ void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
     context->attack_step = 0;
     context->dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     context->worker = lfrfid_worker_alloc(context->dict);
+    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
 }
 
 void flipfrid_scene_run_attack_on_exit(FlipFridState* context) {
@@ -36,14 +37,13 @@ void flipfrid_scene_run_attack_on_exit(FlipFridState* context) {
 }
 
 void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
-    ProtocolId protocol;
-    protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
     if(context->is_attacking) {
         if(1 == counter) {
-            protocol_dict_set_data(context->dict, protocol, context->payload, 5);
+            protocol_dict_set_data(context->dict, context->protocol, context->payload, 5);
+            lfrfid_worker_free(context->worker);
             context->worker = lfrfid_worker_alloc(context->dict);
             lfrfid_worker_start_thread(context->worker);
-            lfrfid_worker_emulate_start(context->worker, protocol);
+            lfrfid_worker_emulate_start(context->worker, context->protocol);
         } else if(0 == counter) {
             lfrfid_worker_stop(context->worker);
             lfrfid_worker_stop_thread(context->worker);
@@ -61,6 +61,7 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     context->is_attacking = false;
                     notification_message(context->notify, &sequence_blink_stop);
                     notification_message(context->notify, &sequence_single_vibro);
+
                 } else {
                     context->attack_step++;
                 }
@@ -98,8 +99,35 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     context->is_attacking = false;
                     notification_message(context->notify, &sequence_blink_stop);
                     notification_message(context->notify, &sequence_single_vibro);
+                    break;
                 } else {
                     context->attack_step++;
+                }
+                break;
+            case FlipFridAttackLoadFileCustomUids:
+                while(true) {
+                    string_reset(context->data_str);
+                    if(!stream_read_line(context->uids_stream, context->data_str)) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                        break;
+                    };
+                    if(string_get_char(context->data_str, 0) == '#') continue;
+                    if(string_size(context->data_str) != 11) continue;
+                    break;
+                }
+                FURI_LOG_D(TAG, string_get_cstr(context->data_str));
+
+                // string is valid, parse it in context->payload
+                for(uint8_t i = 0; i < 5; i++) {
+                    char temp_str[3];
+                    temp_str[0] = string_get_cstr(context->data_str)[i * 2];
+                    temp_str[1] = string_get_cstr(context->data_str)[i * 2 + 1];
+                    temp_str[2] = '\0';
+                    context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
                 }
                 break;
             }
@@ -134,6 +162,10 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 }
                 break;
             case InputKeyBack:
+                if(context->attack == FlipFridAttackLoadFileCustomUids) {
+                    buffered_file_stream_close(context->uids_stream);
+                }
+
                 context->attack_step = 0;
                 context->is_attacking = false;
                 string_reset(context->notification_msg);

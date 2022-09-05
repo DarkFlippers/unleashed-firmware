@@ -4,6 +4,7 @@
 #include "scene/flipfrid_scene_load_file.h"
 #include "scene/flipfrid_scene_select_field.h"
 #include "scene/flipfrid_scene_run_attack.h"
+#include "scene/flipfrid_scene_load_custom_uids.h"
 
 static void flipfrid_draw_callback(Canvas* const canvas, void* ctx) {
     FlipFridState* flipfrid_state = (FlipFridState*)acquire_mutex((ValueMutex*)ctx, 100);
@@ -26,6 +27,9 @@ static void flipfrid_draw_callback(Canvas* const canvas, void* ctx) {
         break;
     case SceneAttack:
         flipfrid_scene_run_attack_on_draw(canvas, flipfrid_state);
+        break;
+    case SceneLoadCustomUids:
+        flipfrid_scene_load_custom_uids_on_draw(canvas, flipfrid_state);
         break;
     }
 
@@ -159,6 +163,9 @@ int32_t flipfrid_start(void* p) {
                 case SceneAttack:
                     flipfrid_scene_run_attack_on_event(event, flipfrid_state);
                     break;
+                case SceneLoadCustomUids:
+                    flipfrid_scene_load_custom_uids_on_event(event, flipfrid_state);
+                    break;
                 }
 
             } else if(event.evt_type == EventTypeTick) {
@@ -177,6 +184,9 @@ int32_t flipfrid_start(void* p) {
                         break;
                     case SceneAttack:
                         flipfrid_scene_run_attack_on_exit(flipfrid_state);
+                        break;
+                    case SceneLoadCustomUids:
+                        flipfrid_scene_load_custom_uids_on_exit(flipfrid_state);
                         break;
                     case NoneScene:
                         break;
@@ -197,6 +207,9 @@ int32_t flipfrid_start(void* p) {
                     case SceneAttack:
                         flipfrid_scene_run_attack_on_enter(flipfrid_state);
                         break;
+                    case SceneLoadCustomUids:
+                        flipfrid_scene_load_custom_uids_on_enter(flipfrid_state);
+                        break;
                     }
                     flipfrid_state->previous_scene = flipfrid_state->current_scene;
                 }
@@ -215,6 +228,9 @@ int32_t flipfrid_start(void* p) {
                     break;
                 case SceneAttack:
                     flipfrid_scene_run_attack_on_tick(flipfrid_state);
+                    break;
+                case SceneLoadCustomUids:
+                    flipfrid_scene_load_custom_uids_on_tick(flipfrid_state);
                     break;
                 }
                 view_port_update(view_port);

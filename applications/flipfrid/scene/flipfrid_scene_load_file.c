@@ -1,4 +1,5 @@
 #include "flipfrid_scene_load_file.h"
+#include "flipfrid_scene_entrypoint.h"
 
 #define LFRFID_APP_EXTENSION ".rfid"
 
@@ -84,6 +85,7 @@ void flipfrid_scene_load_file_on_enter(FlipFridState* context) {
     if(flipfrid_load_protocol_from_file(context)) {
         context->current_scene = SceneSelectField;
     } else {
+        flipfrid_scene_entrypoint_on_enter(context);
         context->current_scene = SceneEntryPoint;
     }
 }
