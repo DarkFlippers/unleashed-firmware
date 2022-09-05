@@ -4,7 +4,6 @@
 * WAV Player moved to Games menu
 * OFW: Lib: update LFS to v2.5.0, lower update free page limit
 
-
 **Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or `.tgz` for iOS mobile app
