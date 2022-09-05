@@ -193,7 +193,7 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
     snprintf(
         uid,
         sizeof(uid),
-        "%2X:%2X:%2X:%2X:%2X",
+        "%02X:%02X:%02X:%02X:%02X",
         context->payload[0],
         context->payload[1],
         context->payload[2],
