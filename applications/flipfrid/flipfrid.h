@@ -11,6 +11,11 @@
 #include <toolbox/stream/stream.h>
 #include <flipper_format/flipper_format_i.h>
 
+#include <toolbox/stream/stream.h>
+#include <toolbox/stream/string_stream.h>
+#include <toolbox/stream/file_stream.h>
+#include <toolbox/stream/buffered_file_stream.h>
+
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <lfrfid/protocols/lfrfid_protocols.h>
 
@@ -19,7 +24,8 @@
 typedef enum {
     FlipFridAttackDefaultValues,
     FlipFridAttackBfCustomerId,
-    FlipFridAttackLoadFile
+    FlipFridAttackLoadFile,
+    FlipFridAttackLoadFileCustomUids,
 } FlipFridAttacks;
 
 typedef enum {
@@ -27,7 +33,8 @@ typedef enum {
     SceneEntryPoint,
     SceneSelectFile,
     SceneSelectField,
-    SceneAttack
+    SceneAttack,
+    SceneLoadCustomUids,
 } FlipFridScene;
 
 typedef enum {
@@ -64,4 +71,8 @@ typedef struct {
     uint8_t key_index;
     LFRFIDWorker* worker;
     ProtocolDict* dict;
+    ProtocolId protocol;
+
+    // Used for custom dictionnary
+    Stream* uids_stream;
 } FlipFridState;
