@@ -1,10 +1,11 @@
 V:0
-T:1661895856
+T:1662375286
 D:badusb
 D:dolphin
 D:infrared
 D:music_player
 D:nfc
+D:rfidfuzzer
 D:subghz
 D:u2f
 D:unirf
@@ -252,6 +253,7 @@ F:81dc04c7b181f94b644079a71476dff4:4742:nfc/assets/aid.nfc
 F:86efbebdf41bb6bf15cc51ef88f069d5:2565:nfc/assets/country_code.nfc
 F:41b4f08774249014cb8d3dffa5f5c07d:1757:nfc/assets/currency_code.nfc
 F:5f57e2ecfc850efb74c7d2677eb75a2e:51832:nfc/assets/mf_classic_dict.nfc
+F:319958d37b2316a2e752ebb856c32524:126:rfidfuzzer/example_uids.txt
 D:subghz/assets
 F:dda1ef895b8a25fde57c874feaaef997:650:subghz/assets/came_atomo
 F:50cf77ba8b935ee6cb3b6f111cf2d93d:286:subghz/assets/dangerous_settings

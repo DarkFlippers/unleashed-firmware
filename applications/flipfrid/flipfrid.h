@@ -65,8 +65,6 @@ typedef struct {
     string_t attack_name;
 
     DialogsApp* dialogs;
-    string_t file_path;
-    string_t file_path_tmp;
     string_t notification_msg;
     uint8_t key_index;
     LFRFIDWorker* worker;

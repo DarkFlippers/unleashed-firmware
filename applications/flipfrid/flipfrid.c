@@ -6,6 +6,8 @@
 #include "scene/flipfrid_scene_run_attack.h"
 #include "scene/flipfrid_scene_load_custom_uids.h"
 
+#define RFIDFUZZER_APP_FOLDER "/ext/rfidfuzzer"
+
 static void flipfrid_draw_callback(Canvas* const canvas, void* ctx) {
     FlipFridState* flipfrid_state = (FlipFridState*)acquire_mutex((ValueMutex*)ctx, 100);
 
@@ -53,8 +55,6 @@ static void flipfrid_timer_callback(FuriMessageQueue* event_queue) {
 
 FlipFridState* flipfrid_alloc() {
     FlipFridState* flipfrid = malloc(sizeof(FlipFridState));
-    string_init(flipfrid->file_path);
-    string_init(flipfrid->file_path_tmp);
     string_init(flipfrid->notification_msg);
     string_init(flipfrid->attack_name);
 
@@ -91,9 +91,7 @@ void flipfrid_free(FlipFridState* flipfrid) {
     furi_record_close(RECORD_DIALOGS);
     notification_message(flipfrid->notify, &sequence_blink_stop);
 
-    // Path strings
-    string_clear(flipfrid->file_path);
-    string_clear(flipfrid->file_path_tmp);
+    // Strings
     string_clear(flipfrid->notification_msg);
     string_clear(flipfrid->attack_name);
 
@@ -123,6 +121,12 @@ int32_t flipfrid_start(void* p) {
         free(flipfrid_state);
         return 255;
     }
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    if(!storage_simply_mkdir(storage, RFIDFUZZER_APP_FOLDER)) {
+        FURI_LOG_E(TAG, "Could not create folder %s", RFIDFUZZER_APP_FOLDER);
+    }
+    furi_record_close(RECORD_STORAGE);
 
     // Configure view port
     FURI_LOG_I(TAG, "Initializing viewport");
