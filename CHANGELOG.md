@@ -1,8 +1,7 @@
 ### New changes
-* WAV Player, Arkanoid, TicTacToe, Barcode generator - plugins enabled and included in releases again
-* Debug apps disabled in release build
-* WAV Player moved to Games menu
-* OFW: Lib: update LFS to v2.5.0, lower update free page limit
+* Set poweroff button timer to 2sec
+* Debug apps (USB Mouse, UART Echo) now included in release build
+* OFW: Toolchain update
 
 **Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
