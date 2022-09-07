@@ -46,8 +46,9 @@ App(
     provides=[
         "snake_game",
         "tetris_game",
-        #"arkanoid_game",
-        #"tictactoe_game",
+        "arkanoid_game",
+        "tictactoe_game",
+        "wav_player",
     ],
 )
 
@@ -68,14 +69,13 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "picopass",
-        #"barcode_generator",
+        "barcode_generator",
         "mouse_jacker",
         "nrf_sniff",
         "sentry_safe",
         "wifi_marauder",
         "esp8266_deauth",
         "wifi_scanner",
-        #"wav_player",
         "multi_converter",
         "flipfrid",
     ],

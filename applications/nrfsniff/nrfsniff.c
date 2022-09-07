@@ -35,13 +35,13 @@ typedef struct {
 
 char rate_text_fmt[] = "Transfer rate: %dMbps";
 char sample_text_fmt[] = "Sample Time: %d ms";
-char channel_text_fmt[] = "Channel: %d";
+char channel_text_fmt[] = "Channel: %d    Sniffing: %s";
 char preamble_text_fmt[] = "Preamble: %02X";
-char sniff_text_fmt[] = "Sniffing: %s      Found: %d";
+char sniff_text_fmt[] = "Found: %d       Unique: %u";
 char addresses_header_text[] = "Address,rate";
 char sniffed_address_fmt[] = "%s,%d";
 char rate_text[46];
-char channel_text[14];
+char channel_text[38];
 char sample_text[32];
 char preamble_text[14];
 char sniff_text[38];
@@ -49,6 +49,7 @@ char sniffed_address[14];
 
 uint8_t target_channel = 0;
 uint32_t found_count = 0;
+uint32_t unique_saved_count = 0;
 uint32_t sample_time = DEFAULT_SAMPLE_TIME;
 uint8_t target_rate = 8; // rate can be either 8 (2Mbps) or 0 (1Mbps)
 uint8_t target_preamble[] = {0xAA, 0x00};
@@ -111,10 +112,10 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     if(!sniffing_state) strcpy(sniffing, "No");
 
     snprintf(rate_text, sizeof(rate_text), rate_text_fmt, (int)rate);
-    snprintf(channel_text, sizeof(channel_text), channel_text_fmt, (int)target_channel);
+    snprintf(channel_text, sizeof(channel_text), channel_text_fmt, (int)target_channel, sniffing);
     snprintf(sample_text, sizeof(sample_text), sample_text_fmt, (int)sample_time);
     //snprintf(preamble_text, sizeof(preamble_text), preamble_text_fmt, target_preamble[0]);
-    snprintf(sniff_text, sizeof(sniff_text), sniff_text_fmt, sniffing, found_count);
+    snprintf(sniff_text, sizeof(sniff_text), sniff_text_fmt, found_count, unique_saved_count);
     snprintf(
         sniffed_address, sizeof(sniffed_address), sniffed_address_fmt, top_address, (int)rate);
     canvas_draw_str_aligned(canvas, 10, 10, AlignLeft, AlignBottom, rate_text);
@@ -203,6 +204,7 @@ static bool save_addr_to_file(
                 notification_message(notification, &sequence_success);
 
                 stream_free(stream);
+                unique_saved_count++;
                 return true;
             }
         }
@@ -287,8 +289,8 @@ static void wrap_up(Storage* storage, NotificationApp* notification) {
 
         if(ch <= LOGITECH_MAX_CHANNEL) {
             hexlify(addr, 5, top_address);
-            save_addr_to_file(storage, addr, 5, notification);
             found_count++;
+            save_addr_to_file(storage, addr, 5, notification);
             if(confirmed_idx < MAX_CONFIRMED) memcpy(confirmed[confirmed_idx++], addr, 5);
             break;
         }
@@ -297,6 +299,7 @@ static void wrap_up(Storage* storage, NotificationApp* notification) {
 
 static void clear_cache() {
     found_count = 0;
+    unique_saved_count = 0;
     confirmed_idx = 0;
     candidate_idx = 0;
     target_channel = 2;

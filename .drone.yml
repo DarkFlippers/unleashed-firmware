@@ -36,6 +36,7 @@ steps:
       - mkdir -p sd-card/nfc/assets
       - mkdir -p sd-card/infrared/assets
       - mkdir -p sd-card/unirf
+      - mkdir -p sd-card/rfidfuzzer
       - mkdir -p sd-card/badusb/layouts
       - cp assets/resources/badusb/layouts/* sd-card/badusb/layouts/
       - cp assets/resources/subghz/assets/dangerous_settings sd-card/subghz/assets/dangerous_settings
@@ -48,6 +49,7 @@ steps:
       - cp assets/resources/infrared/assets/projectors.ir sd-card/infrared/assets/projectors.ir
       - cp assets/resources/infrared/assets/audio.ir sd-card/infrared/assets/audio.ir
       - cp assets/resources/unirf/unirf_map_example.txt sd-card/unirf/unirf_map_example.txt
+      - cp assets/resources/rfidfuzzer/example_uids.txt sd-card/rfidfuzzer/example_uids.txt
       - cp assets/resources/Manifest sd-card/Manifest
       - zip -r artifacts-default/sd-card-${DRONE_TAG}.zip sd-card
       - rm -rf sd-card
