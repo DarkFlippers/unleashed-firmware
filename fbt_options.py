@@ -86,7 +86,7 @@ FIRMWARE_APPS = {
         # Custom Games
         "custom_games",
         # Debug
-        "debug_apps",
+        "debug_apps_lite",
     ],
     "unit_tests": [
         "basic_services",

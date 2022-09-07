@@ -10,7 +10,7 @@ App(
     ],
     provides=["music_player_start"],
     stack_size=2 * 1024,
-    order=40,
+    order=45,
 )
 
 App(
