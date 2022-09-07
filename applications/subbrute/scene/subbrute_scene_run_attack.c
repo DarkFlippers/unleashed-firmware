@@ -39,8 +39,7 @@ void subbrute_emit(SubBruteState* context) {
     }
 
     furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_sleep();
-    furi_hal_power_suppress_charge_exit();
+    furi_hal_subghz_idle();
 }
 
 void prepare_emit(SubBruteState* context) {
@@ -58,22 +57,19 @@ void prepare_emit(SubBruteState* context) {
     furi_hal_subghz_load_preset(str_to_preset(context->preset));
 
     context->frequency = furi_hal_subghz_set_frequency_and_path(context->frequency);
-
-    furi_hal_power_suppress_charge_enter();
 }
 
 void clear_emit(SubBruteState* context) {
     furi_hal_subghz_stop_async_tx();
     furi_hal_subghz_sleep();
 
-    furi_hal_power_suppress_charge_exit();
     if(context->attack == SubBruteAttackLoadFile) {
         subghz_transmitter_free(context->transmitter);
     }
     subghz_transmitter_free(context->transmitter);
     is_running = false;
 }
-
+/*
 void subbrute_send_raw_packet(SubBruteState* context) {
     string_reset(context->candidate);
 
@@ -117,11 +113,9 @@ void subbrute_send_raw_packet(SubBruteState* context) {
         string_get_cstr(context->preset),
         string_get_cstr(context->candidate));
 
-    prepare_emit(context);
     subbrute_emit(context);
-    clear_emit(context);
 }
-
+*/
 void subbrute_send_packet_parsed(SubBruteState* context) {
     if(context->attack == SubBruteAttackLoadFile) {
         snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)context->payload);
@@ -157,17 +151,15 @@ void subbrute_send_packet_parsed(SubBruteState* context) {
         string_get_cstr(context->candidate),
         context->te);
 
-    prepare_emit(context);
     subbrute_emit(context);
-    clear_emit(context);
 }
 
 void subbrute_send_packet(SubBruteState* context) {
-    if(string_cmp_str(context->protocol, "RAW") == 0) {
-        subbrute_send_raw_packet(context);
-    } else {
-        subbrute_send_packet_parsed(context);
-    }
+    ///if(string_cmp_str(context->protocol, "RAW") == 0) {
+    //   subbrute_send_raw_packet(context);
+    //} else {
+    subbrute_send_packet_parsed(context);
+    //}
     string_clear(context->flipper_format_string);
 }
 
@@ -190,13 +182,14 @@ void subbrute_scene_run_attack_on_enter(SubBruteState* context) {
     context->environment = subghz_environment_alloc();
     context->transmitter =
         subghz_transmitter_alloc_init(context->environment, string_get_cstr(context->protocol));
+    prepare_emit(context);
 }
 
 void subbrute_scene_run_attack_on_exit(SubBruteState* context) {
     if(is_running) {
         is_running = false;
-        clear_emit(context);
     }
+    clear_emit(context);
 }
 
 void subbrute_scene_run_attack_on_tick(SubBruteState* context) {
@@ -230,21 +223,22 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
         if(event.input_type == InputTypeShort) {
             switch(event.key) {
             case InputKeyDown:
+            case InputKeyUp:
+                break;
+            case InputKeyLeft:
                 if(!context->is_attacking && context->payload > 0x00) {
                     context->payload--;
                     subbrute_send_packet(context);
                     notification_message(context->notify, &sequence_blink_blue_10);
                 }
                 break;
-            case InputKeyUp:
+            case InputKeyRight:
                 if(!context->is_attacking && context->payload < max_value) {
                     context->payload++;
                     subbrute_send_packet(context);
                     notification_message(context->notify, &sequence_blink_blue_10);
                 }
                 break;
-            case InputKeyLeft:
-            case InputKeyRight:
             case InputKeyOk:
                 if(!context->is_attacking) {
                     context->is_attacking = true;
@@ -282,8 +276,9 @@ void subbrute_scene_run_attack_on_draw(Canvas* canvas, SubBruteState* context) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 64, 8, AlignCenter, AlignTop, "Fire in the hole!");
 
-    char msg_index[22];
-    snprintf(msg_index, sizeof(msg_index), "%04d / %04d", (int)context->payload, (int)max_value);
+    char msg_index[26];
+    snprintf(
+        msg_index, sizeof(msg_index), "< %04d / %04d >", (int)context->payload, (int)max_value);
 
     canvas_draw_str_aligned(canvas, 64, 24, AlignCenter, AlignTop, msg_index);
 

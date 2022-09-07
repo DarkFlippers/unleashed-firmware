@@ -78,5 +78,6 @@ App(
         "wifi_scanner",
         "multi_converter",
         "flipfrid",
+        "subbrute",
     ],
 )

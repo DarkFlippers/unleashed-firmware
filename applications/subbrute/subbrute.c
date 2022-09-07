@@ -79,7 +79,10 @@ SubBruteState* subbrute_alloc() {
 void subbrute_free(SubBruteState* subbrute) {
     //Dialog
     furi_record_close(RECORD_DIALOGS);
+
     notification_message(subbrute->notify, &sequence_blink_stop);
+
+    furi_record_close(RECORD_NOTIFICATION);
 
     string_clear(subbrute->preset);
     string_clear(subbrute->candidate);
@@ -90,6 +93,10 @@ void subbrute_free(SubBruteState* subbrute) {
     string_clear(subbrute->notification_msg);
     string_clear(subbrute->candidate);
     string_clear(subbrute->flipper_format_string);
+
+    flipper_format_free(subbrute->flipper_format);
+    subghz_environment_free(subbrute->environment);
+    subghz_receiver_free(subbrute->receiver);
 
     // The rest
     free(subbrute);
@@ -109,8 +116,11 @@ int32_t subbrute_start(void* p) {
     if(!init_mutex(&subbrute_state_mutex, subbrute_state, sizeof(SubBruteState))) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
-        free(subbrute_state);
+        subbrute_free(subbrute_state);
+        return 255;
     }
+
+    furi_hal_power_suppress_charge_enter();
 
     // Configure view port
     FURI_LOG_I(TAG, "Initializing viewport");
@@ -219,6 +229,8 @@ int32_t subbrute_start(void* p) {
     // Cleanup
     furi_timer_stop(timer);
     furi_timer_free(timer);
+
+    furi_hal_power_suppress_charge_exit();
 
     FURI_LOG_I(TAG, "Cleaning up");
     gui_remove_view_port(gui, view_port);

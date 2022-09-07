@@ -6,5 +6,5 @@ App(
     cdefines=["APP_SUB_BRUTE"],
     requires=["gui","dialogs"],
     stack_size=2 * 1024,
-    order=70,
+    order=11,
 )
