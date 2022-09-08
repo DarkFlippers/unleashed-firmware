@@ -36,7 +36,6 @@ struct Power {
 
     bool battery_low;
     bool show_low_bat_level_message;
-	uint8_t displayBatteryPercentage;
     uint8_t battery_level;
     uint8_t power_off_timeout;
 
