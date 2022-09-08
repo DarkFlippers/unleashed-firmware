@@ -41,6 +41,7 @@ const uint32_t displayBatteryPercentage_value[BATTERY_VIEW_COUNT] = {0, 1, 2, 3,
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
+
 }
 
 static void desktop_settings_scene_start_battery_view_changed(VariableItem* item) {
