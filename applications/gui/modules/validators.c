@@ -42,7 +42,9 @@ ValidatorIsFile* validator_is_file_alloc_init(
 
     instance->app_path_folder = strdup(app_path_folder);
     instance->app_extension = app_extension;
-    instance->current_name = strdup(current_name);
+    if(current_name != NULL) {
+        instance->current_name = strdup(current_name);
+    }
 
     return instance;
 }
