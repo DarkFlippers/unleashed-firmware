@@ -18,7 +18,7 @@ void lfrfid_scene_saved_info_on_enter(void* context) {
     protocol_dict_get_data(app->dict, app->protocol_id, data, size);
     for(uint8_t i = 0; i < size; i++) {
         if(i != 0) {
-            string_cat_printf(tmp_string, " ");
+            string_cat_printf(tmp_string, ":");
         }
 
         string_cat_printf(tmp_string, "%02X", data[i]);
