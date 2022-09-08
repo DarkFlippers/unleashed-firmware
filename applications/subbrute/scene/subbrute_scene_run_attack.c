@@ -1,10 +1,11 @@
 #include "subbrute_scene_run_attack.h"
 #include <lib/subghz/transmitter.h>
+#include <gui/elements.h>
 
 uint64_t subbrute_counter = 0;
 uint64_t max_value;
-bool is_running = false;
 bool locked = false;
+bool toSave = false;
 char subbrute_payload_byte[4];
 #define SUBBRUTE_DELAY 1
 
@@ -31,11 +32,11 @@ FuriHalSubGhzPreset str_to_preset(string_t preset) {
 }
 
 void subbrute_emit(SubBruteState* context) {
-    FURI_LOG_I(TAG, string_get_cstr(context->flipper_format_string));
+    //FURI_LOG_D(TAG, string_get_cstr(context->flipper_format_string));
 
     furi_hal_subghz_start_async_tx(subghz_transmitter_yield, context->transmitter);
     while(!(furi_hal_subghz_is_async_tx_complete())) {
-        furi_delay_ms(50);
+        furi_delay_ms(5);
     }
 
     furi_hal_subghz_stop_async_tx();
@@ -43,31 +44,22 @@ void subbrute_emit(SubBruteState* context) {
 }
 
 void prepare_emit(SubBruteState* context) {
-    is_running = true;
     furi_hal_subghz_init();
-
-    stream_clean(context->stream);
-    stream_write_string(context->stream, context->flipper_format_string);
 
     context->transmitter =
         subghz_transmitter_alloc_init(context->environment, string_get_cstr(context->protocol));
 
-    subghz_transmitter_deserialize(context->transmitter, context->flipper_format);
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(str_to_preset(context->preset));
 
-    context->frequency = furi_hal_subghz_set_frequency_and_path(context->frequency);
+    furi_hal_subghz_set_frequency_and_path(context->frequency);
 }
 
 void clear_emit(SubBruteState* context) {
     furi_hal_subghz_stop_async_tx();
     furi_hal_subghz_sleep();
 
-    if(context->attack == SubBruteAttackLoadFile) {
-        subghz_transmitter_free(context->transmitter);
-    }
     subghz_transmitter_free(context->transmitter);
-    is_running = false;
 }
 /*
 void subbrute_send_raw_packet(SubBruteState* context) {
@@ -138,18 +130,43 @@ void subbrute_send_packet_parsed(SubBruteState* context) {
         }
         string_clear(buffer);
     }
-    string_init_printf(
-        context->flipper_format_string,
-        "Filetype: Flipper SubGhz Key File\n"
-        "Version: 1\n"
-        "Protocol: %s\n"
-        "Bit: %d\n"
-        "Key: %s\n"
-        "TE: %d\n",
-        string_get_cstr(context->protocol),
-        context->bit,
-        string_get_cstr(context->candidate),
-        context->te);
+    if(strcmp(string_get_cstr(context->protocol), "Princeton") == 0) {
+        string_init_printf(
+            context->flipper_format_string,
+            "Filetype: Flipper SubGhz Key File\n"
+            "Version: 1\n"
+            "Frequency: %u\n"
+            "Preset: %s\n"
+            "Protocol: %s\n"
+            "Bit: %d\n"
+            "Key: %s\n"
+            "TE: %d\n",
+            context->frequency,
+            string_get_cstr(context->preset),
+            string_get_cstr(context->protocol),
+            context->bit,
+            string_get_cstr(context->candidate),
+            context->te);
+    } else {
+        string_init_printf(
+            context->flipper_format_string,
+            "Filetype: Flipper SubGhz Key File\n"
+            "Version: 1\n"
+            "Frequency: %u\n"
+            "Preset: %s\n"
+            "Protocol: %s\n"
+            "Bit: %d\n"
+            "Key: %s\n",
+            context->frequency,
+            string_get_cstr(context->preset),
+            string_get_cstr(context->protocol),
+            context->bit,
+            string_get_cstr(context->candidate));
+    }
+
+    stream_clean(context->stream);
+    stream_write_string(context->stream, context->flipper_format_string);
+    subghz_transmitter_deserialize(context->transmitter, context->flipper_format);
 
     subbrute_emit(context);
 }
@@ -164,32 +181,35 @@ void subbrute_send_packet(SubBruteState* context) {
 }
 
 void subbrute_scene_run_attack_on_enter(SubBruteState* context) {
-    if(context->attack == SubBruteAttackLoadFile) {
-        max_value = 0xFF;
-    } else {
-        string_t max_value_s;
-        string_init(max_value_s);
-        for(uint8_t i = 0; i < context->bit; i++) {
-            string_cat_printf(max_value_s, "1");
+    if(!toSave) {
+        if(context->attack == SubBruteAttackLoadFile) {
+            max_value = 0xFF;
+        } else {
+            string_t max_value_s;
+            string_init(max_value_s);
+            for(uint8_t i = 0; i < context->bit; i++) {
+                string_cat_printf(max_value_s, "1");
+            }
+            max_value = (uint64_t)strtol(string_get_cstr(max_value_s), NULL, 2);
+            string_clear(max_value_s);
         }
-        max_value = (uint64_t)strtol(string_get_cstr(max_value_s), NULL, 2);
-        string_clear(max_value_s);
+        context->str_index = (context->key_index * 3);
+        string_init_set(context->candidate, context->key);
+        context->flipper_format = flipper_format_string_alloc();
+        context->stream = flipper_format_get_raw_stream(context->flipper_format);
+        context->environment = subghz_environment_alloc();
+        context->transmitter = subghz_transmitter_alloc_init(
+            context->environment, string_get_cstr(context->protocol));
+        prepare_emit(context);
+    } else {
+        toSave = false;
     }
-    context->str_index = (context->key_index * 3);
-    string_init_set(context->candidate, context->key);
-    context->flipper_format = flipper_format_string_alloc();
-    context->stream = flipper_format_get_raw_stream(context->flipper_format);
-    context->environment = subghz_environment_alloc();
-    context->transmitter =
-        subghz_transmitter_alloc_init(context->environment, string_get_cstr(context->protocol));
-    prepare_emit(context);
 }
 
 void subbrute_scene_run_attack_on_exit(SubBruteState* context) {
-    if(is_running) {
-        is_running = false;
+    if(!toSave) {
+        clear_emit(context);
     }
-    clear_emit(context);
 }
 
 void subbrute_scene_run_attack_on_tick(SubBruteState* context) {
@@ -223,6 +243,10 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
         if(event.input_type == InputTypeShort) {
             switch(event.key) {
             case InputKeyDown:
+                if(!context->is_attacking) {
+                    toSave = true;
+                    context->current_scene = SceneSaveName;
+                }
             case InputKeyUp:
                 break;
             case InputKeyLeft:
@@ -254,6 +278,8 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
                 context->is_attacking = false;
                 string_reset(context->notification_msg);
                 context->payload = 0x00;
+                subbrute_counter = 0;
+                notification_message(context->notify, &sequence_blink_stop);
                 if(context->attack == SubBruteAttackLoadFile) {
                     context->current_scene = SceneSelectField;
                 } else {
@@ -270,7 +296,7 @@ void subbrute_scene_run_attack_on_draw(Canvas* canvas, SubBruteState* context) {
     canvas_set_color(canvas, ColorBlack);
 
     // Frame
-    canvas_draw_frame(canvas, 0, 0, 128, 64);
+    //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     // Title
     canvas_set_font(canvas, FontPrimary);
@@ -284,10 +310,11 @@ void subbrute_scene_run_attack_on_draw(Canvas* canvas, SubBruteState* context) {
 
     canvas_set_font(canvas, FontSecondary);
     char start_stop_msg[20];
+    snprintf(start_stop_msg, sizeof(start_stop_msg), " Press (V) to save ");
     if(context->is_attacking) {
-        snprintf(start_stop_msg, sizeof(start_stop_msg), " Press OK to stop ");
+        elements_button_center(canvas, "Stop");
     } else {
-        snprintf(start_stop_msg, sizeof(start_stop_msg), " Press OK to start ");
+        elements_button_center(canvas, "Start");
     }
-    canvas_draw_str_aligned(canvas, 64, 44, AlignCenter, AlignTop, start_stop_msg);
+    canvas_draw_str_aligned(canvas, 64, 39, AlignCenter, AlignTop, start_stop_msg);
 }
