@@ -40,7 +40,6 @@ void subbrute_emit(SubBruteState* context) {
     }
 
     furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_idle();
 }
 
 void prepare_emit(SubBruteState* context) {
@@ -57,6 +56,7 @@ void prepare_emit(SubBruteState* context) {
 
 void clear_emit(SubBruteState* context) {
     furi_hal_subghz_stop_async_tx();
+    furi_hal_subghz_idle();
     furi_hal_subghz_sleep();
 
     subghz_transmitter_free(context->transmitter);
