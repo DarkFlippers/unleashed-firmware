@@ -355,7 +355,7 @@ void subbrute_scene_run_attack_on_draw(Canvas* canvas, SubBruteState* context) {
     canvas_draw_str_aligned(canvas, 64, 24, AlignCenter, AlignTop, msg_index);
 
     canvas_set_font(canvas, FontSecondary);
-    char start_stop_msg[23];
+    char start_stop_msg[20];
     snprintf(start_stop_msg, sizeof(start_stop_msg), " Press (^) to save ");
     if(context->is_attacking) {
         elements_button_center(canvas, "Stop");
