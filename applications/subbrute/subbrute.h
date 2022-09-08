@@ -12,6 +12,9 @@
 #include <dialogs/dialogs.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
+#include <gui/view_dispatcher.h>
+#include <gui/modules/text_input.h>
+#include <gui/modules/popup.h>
 
 #define TAG "SUBBRUTE"
 
@@ -20,7 +23,8 @@ typedef enum {
     SceneSelectFile,
     SceneSelectField,
     SceneAttack,
-    SceneEntryPoint
+    SceneEntryPoint,
+    SceneSaveName
 } SubBruteScene;
 
 typedef enum {
@@ -38,6 +42,7 @@ typedef enum {
 typedef enum {
     EventTypeTick,
     EventTypeKey,
+    EventTypeCustom,
 } EventType;
 
 typedef struct {
@@ -54,6 +59,10 @@ typedef struct {
     SubBruteScene current_scene;
     SubBruteScene previous_scene;
     NotificationApp* notify;
+    Gui* gui;
+    ViewDispatcher* view_dispatcher;
+    TextInput* text_input;
+    Popup* popup;
 
     // SubGhz Stuff
     FlipperFormat* flipper_format;
@@ -61,6 +70,7 @@ typedef struct {
     SubGhzTransmitter* transmitter;
     SubGhzReceiver* receiver;
     SubGhzProtocolDecoderBase* decoder_result;
+    SubGhzPresetDefinition* preset_def;
     string_t preset;
     Stream* stream;
     string_t protocol;
@@ -72,6 +82,7 @@ typedef struct {
 
     // Context Stuff
     DialogsApp* dialogs;
+    char file_name_tmp[64];
     string_t file_path;
     string_t file_path_tmp;
     string_t notification_msg;

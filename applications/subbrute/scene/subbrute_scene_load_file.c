@@ -1,6 +1,9 @@
 #include "subbrute_scene_load_file.h"
 #include "subbrute_scene_entrypoint.h"
 #include "../subbrute_utils.h"
+#include <lib/subghz/protocols/registry.h>
+
+#define SUBGHZ_APP_PATH_FOLDER "/ext/subghz"
 
 bool subbrute_load(SubBruteState* context, const char* file_path) {
     bool result = false;
@@ -61,6 +64,16 @@ bool subbrute_load(SubBruteState* context, const char* file_path) {
             break;
         }
 
+        const SubGhzProtocol* registry =
+            subghz_protocol_registry_get_by_name(string_get_cstr(context->protocol));
+
+        if(registry && registry->type == SubGhzProtocolTypeDynamic) {
+            FURI_LOG_D(TAG, "Protocol is dynamic - not supported");
+            string_reset(context->notification_msg);
+            string_set_str(context->notification_msg, "Dynamic protocol unsupported");
+            break;
+        }
+
         context->decoder_result = subghz_receiver_search_decoder_base_by_name(
             context->receiver, string_get_cstr(context->protocol));
 
@@ -98,9 +111,9 @@ bool subbrute_load(SubBruteState* context, const char* file_path) {
         // TE
         if(!flipper_format_read_uint32(fff_data_file, "TE", &temp_data32, 1)) {
             FURI_LOG_E(TAG, "Missing or incorrect TE");
-            string_reset(context->notification_msg);
-            string_set_str(context->notification_msg, "Missing or incorrect TE");
-            break;
+            //string_reset(context->notification_msg);
+            //string_set_str(context->notification_msg, "Missing or incorrect TE");
+            //break;
         } else {
             FURI_LOG_I(TAG, "TE: %d", temp_data32);
             context->te = temp_data32;
@@ -119,6 +132,7 @@ bool subbrute_load(SubBruteState* context, const char* file_path) {
     } while(0);
 
     string_clear(temp_str);
+    flipper_format_file_close(fff_data_file);
     flipper_format_free(fff_data_file);
     if(result) {
         FURI_LOG_I(TAG, "Loaded successfully");
@@ -156,7 +170,9 @@ void subbrute_scene_load_file_on_event(SubBruteEvent event, SubBruteState* conte
             case InputKeyLeft:
             case InputKeyRight:
             case InputKeyOk:
+                break;
             case InputKeyBack:
+                context->current_scene = SceneEntryPoint;
                 break;
             }
         }
@@ -169,30 +185,25 @@ void subbrute_scene_load_file_on_draw(Canvas* canvas, SubBruteState* context) {
     canvas_set_color(canvas, ColorBlack);
 
     // Frame
-    canvas_draw_frame(canvas, 0, 0, 128, 64);
+    //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     // Title
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 16, AlignCenter, AlignTop, "SubGhz Fuzzer");
-    canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, "Press OK to choose file");
+    canvas_draw_str_aligned(canvas, 64, 16, AlignCenter, AlignTop, "SubGHz Fuzzer");
+    canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, "Error: Press back");
 }
 
 bool subbrute_load_protocol_from_file(SubBruteState* context) {
     string_t file_path;
     string_init(file_path);
+    string_set_str(file_path, SUBGHZ_APP_PATH_FOLDER);
 
     // Input events and views are managed by file_select
     bool res = dialog_file_browser_show(
-        context->dialogs,
-        context->file_path,
-        context->file_path,
-        SUBGHZ_APP_EXTENSION,
-        true,
-        &I_sub1_10px,
-        true);
+        context->dialogs, file_path, file_path, SUBGHZ_APP_EXTENSION, true, &I_sub1_10px, true);
 
     if(res) {
-        res = subbrute_load(context, string_get_cstr(context->file_path));
+        res = subbrute_load(context, string_get_cstr(file_path));
     }
 
     string_clear(file_path);

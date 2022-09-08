@@ -4,6 +4,7 @@
 #include "scene/subbrute_scene_select_field.h"
 #include "scene/subbrute_scene_run_attack.h"
 #include "scene/subbrute_scene_entrypoint.h"
+#include "scene/subbrute_scene_save_name.h"
 
 static void draw_callback(Canvas* const canvas, void* ctx) {
     SubBruteState* subbrute_state = (SubBruteState*)acquire_mutex((ValueMutex*)ctx, 100);
@@ -26,6 +27,8 @@ static void draw_callback(Canvas* const canvas, void* ctx) {
         break;
     case SceneEntryPoint:
         subbrute_scene_entrypoint_on_draw(canvas, subbrute_state);
+        break;
+    case SceneSaveName:
         break;
     }
 
@@ -62,11 +65,15 @@ SubBruteState* subbrute_alloc() {
     subbrute->current_scene = SceneSelectFile;
     subbrute->is_running = true;
     subbrute->is_attacking = false;
-    subbrute->key_index = 0;
+    subbrute->key_index = 7;
     subbrute->notify = furi_record_open(RECORD_NOTIFICATION);
+
+    subbrute->view_dispatcher = view_dispatcher_alloc();
 
     //Dialog
     subbrute->dialogs = furi_record_open(RECORD_DIALOGS);
+
+    subbrute->preset_def = malloc(sizeof(SubGhzPresetDefinition));
 
     subbrute->flipper_format = flipper_format_string_alloc();
     subbrute->environment = subghz_environment_alloc();
@@ -84,6 +91,8 @@ void subbrute_free(SubBruteState* subbrute) {
 
     furi_record_close(RECORD_NOTIFICATION);
 
+    view_dispatcher_free(subbrute->view_dispatcher);
+
     string_clear(subbrute->preset);
     string_clear(subbrute->candidate);
 
@@ -97,6 +106,8 @@ void subbrute_free(SubBruteState* subbrute) {
     flipper_format_free(subbrute->flipper_format);
     subghz_environment_free(subbrute->environment);
     subghz_receiver_free(subbrute->receiver);
+
+    free(subbrute->preset_def);
 
     // The rest
     free(subbrute);
@@ -135,8 +146,11 @@ int32_t subbrute_start(void* p) {
 
     // Register view port in GUI
     FURI_LOG_I(TAG, "Initializing gui");
-    Gui* gui = (Gui*)furi_record_open(RECORD_GUI);
-    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
+    subbrute_state->gui = furi_record_open(RECORD_GUI);
+    gui_add_view_port(subbrute_state->gui, view_port, GuiLayerFullscreen);
+
+    view_dispatcher_attach_to_gui(
+        subbrute_state->view_dispatcher, subbrute_state->gui, ViewDispatcherTypeFullscreen);
 
     subbrute_state->current_scene = SceneEntryPoint;
 
@@ -155,6 +169,9 @@ int32_t subbrute_start(void* p) {
                     break;
                 case SceneSelectField:
                     subbrute_scene_select_field_on_event(event, subbrute_state);
+                    break;
+                case SceneSaveName:
+                    subbrute_scene_save_name_on_event(event, subbrute_state);
                     break;
                 case SceneAttack:
                     subbrute_scene_run_attack_on_event(event, subbrute_state);
@@ -182,6 +199,9 @@ int32_t subbrute_start(void* p) {
                     case SceneEntryPoint:
                         subbrute_scene_entrypoint_on_exit(subbrute_state);
                         break;
+                    case SceneSaveName:
+                        subbrute_scene_save_name_on_exit(subbrute_state);
+                        break;
                     case NoneScene:
                         break;
                     }
@@ -197,6 +217,9 @@ int32_t subbrute_start(void* p) {
                         break;
                     case SceneAttack:
                         subbrute_scene_run_attack_on_enter(subbrute_state);
+                        break;
+                    case SceneSaveName:
+                        subbrute_scene_save_name_on_enter(subbrute_state);
                         break;
                     case SceneEntryPoint:
                         subbrute_scene_entrypoint_on_enter(subbrute_state);
@@ -220,6 +243,9 @@ int32_t subbrute_start(void* p) {
                 case SceneEntryPoint:
                     subbrute_scene_entrypoint_on_tick(subbrute_state);
                     break;
+                case SceneSaveName:
+                    subbrute_scene_save_name_on_tick(subbrute_state);
+                    break;
                 }
                 view_port_update(view_port);
             }
@@ -233,7 +259,7 @@ int32_t subbrute_start(void* p) {
     furi_hal_power_suppress_charge_exit();
 
     FURI_LOG_I(TAG, "Cleaning up");
-    gui_remove_view_port(gui, view_port);
+    gui_remove_view_port(subbrute_state->gui, view_port);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
     furi_record_close(RECORD_GUI);

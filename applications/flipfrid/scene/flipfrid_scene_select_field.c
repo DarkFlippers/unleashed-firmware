@@ -104,7 +104,7 @@ void flipfrid_scene_select_field_on_draw(Canvas* canvas, FlipFridState* context)
     canvas_set_color(canvas, ColorBlack);
 
     // Frame
-    canvas_draw_frame(canvas, 0, 0, 128, 64);
+    //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     // Title
     canvas_set_font(canvas, FontPrimary);

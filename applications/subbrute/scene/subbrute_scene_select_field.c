@@ -61,15 +61,15 @@ void subbrute_scene_select_field_on_tick(SubBruteState* context) {
 void subbrute_scene_select_field_on_event(SubBruteEvent event, SubBruteState* context) {
     if(event.evt_type == EventTypeKey) {
         if(event.input_type == InputTypeShort) {
-            const char* key_cstr = string_get_cstr(context->key);
+            //const char* key_cstr = string_get_cstr(context->key);
 
             // don't look, it's ugly but I'm a python dev so...
-            uint8_t nb_bytes = 0;
+            /*uint8_t nb_bytes = 0;
             for(uint8_t i = 0; i < strlen(key_cstr); i++) {
                 if(' ' == key_cstr[i]) {
                     nb_bytes++;
                 }
-            }
+            }*/
 
             switch(event.key) {
             case InputKeyDown:
@@ -77,12 +77,12 @@ void subbrute_scene_select_field_on_event(SubBruteEvent event, SubBruteState* co
                 break;
             case InputKeyLeft:
                 if(context->key_index > 0) {
-                    context->key_index = context->key_index - 1;
+                    context->key_index--;
                 }
                 break;
             case InputKeyRight:
-                if(context->key_index < nb_bytes) {
-                    context->key_index = context->key_index + 1;
+                if(context->key_index < 7) {
+                    context->key_index++;
                 }
                 break;
             case InputKeyOk:
@@ -94,7 +94,7 @@ void subbrute_scene_select_field_on_event(SubBruteEvent event, SubBruteState* co
                 context->current_scene = SceneSelectFile;
                 break;
             }
-            FURI_LOG_D(TAG, "Position: %d/%d", context->key_index, nb_bytes);
+            //FURI_LOG_D(TAG, "Position: %d/%d", context->key_index, nb_bytes);
         }
     }
 }
@@ -104,7 +104,7 @@ void subbrute_scene_select_field_on_draw(Canvas* canvas, SubBruteState* context)
     canvas_set_color(canvas, ColorBlack);
 
     // Frame
-    canvas_draw_frame(canvas, 0, 0, 128, 64);
+    //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     // Title
     canvas_set_font(canvas, FontPrimary);
