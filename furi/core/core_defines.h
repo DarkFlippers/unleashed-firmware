@@ -85,7 +85,11 @@ extern "C" {
 #endif
 
 #ifndef FURI_BIT_SET
-#define FURI_BIT_SET(x, n) ((x) |= (1 << (n)))
+#define FURI_BIT_SET(x, n)      \
+    ({                          \
+        __typeof__(x) _x = (1); \
+        (x) |= (_x << (n));     \
+    })
 #endif
 
 #ifndef FURI_BIT_CLEAR
