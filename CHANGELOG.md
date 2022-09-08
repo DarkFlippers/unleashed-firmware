@@ -1,5 +1,6 @@
 ### New changes
 * Add SubGhz Bruteforce plugin (by @Ganapati & @xMasterX) (PR #57) - saving functionality and many fixes by @xMasterX
+* Fix GUI and add new icon for LF-RFID App
 * GUI Changes to LFRFID Fuzzer
 * New Battery info (from @theeogflip) (PR #60)
 * NRFSniff: Adds unique count display (by @Graf3x) (PR #56)
