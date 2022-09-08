@@ -17,8 +17,10 @@ void picopass_scene_read_card_success_on_enter(void* context) {
     Picopass* picopass = context;
     string_t credential_str;
     string_t wiegand_str;
+    string_t sio_str;
     string_init(credential_str);
     string_init(wiegand_str);
+    string_init(sio_str);
 
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
@@ -32,6 +34,10 @@ void picopass_scene_read_card_success_on_enter(void* context) {
     if(pacs->record.bitLength == 0) {
         string_cat_printf(wiegand_str, "Read Failed");
 
+        if(pacs->se_enabled) {
+            string_cat_printf(credential_str, "SE enabled");
+        }
+
         widget_add_button_element(
             widget,
             GuiButtonTypeLeft,
@@ -39,8 +45,6 @@ void picopass_scene_read_card_success_on_enter(void* context) {
             picopass_scene_read_card_success_widget_callback,
             picopass);
 
-        widget_add_string_element(
-            widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, string_get_cstr(wiegand_str));
     } else {
         size_t bytesLength = 1 + pacs->record.bitLength / 8;
         string_set_str(credential_str, "");
@@ -53,6 +57,10 @@ void picopass_scene_read_card_success_on_enter(void* context) {
                 wiegand_str, "FC: %u CN: %u", pacs->record.FacilityCode, pacs->record.CardNumber);
         } else {
             string_cat_printf(wiegand_str, "%d bits", pacs->record.bitLength);
+        }
+
+        if(pacs->sio) {
+            string_cat_printf(sio_str, "+SIO");
         }
 
         widget_add_button_element(
@@ -68,20 +76,18 @@ void picopass_scene_read_card_success_on_enter(void* context) {
             "More",
             picopass_scene_read_card_success_widget_callback,
             picopass);
-
-        widget_add_string_element(
-            widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, string_get_cstr(wiegand_str));
-        widget_add_string_element(
-            widget,
-            64,
-            32,
-            AlignCenter,
-            AlignCenter,
-            FontSecondary,
-            string_get_cstr(credential_str));
     }
+
+    widget_add_string_element(
+        widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, string_get_cstr(wiegand_str));
+    widget_add_string_element(
+        widget, 64, 32, AlignCenter, AlignCenter, FontSecondary, string_get_cstr(credential_str));
+    widget_add_string_element(
+        widget, 64, 42, AlignCenter, AlignCenter, FontSecondary, string_get_cstr(sio_str));
+
     string_clear(credential_str);
     string_clear(wiegand_str);
+    string_clear(sio_str);
 
     view_dispatcher_switch_to_view(picopass->view_dispatcher, PicopassViewWidget);
 }
