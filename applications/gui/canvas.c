@@ -12,7 +12,7 @@ const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
     [FontSecondary] = {.leading_default = 11, .leading_min = 9, .height = 7, .descender = 2},
     [FontKeyboard] = {.leading_default = 11, .leading_min = 9, .height = 7, .descender = 2},
     [FontBigNumbers] = {.leading_default = 18, .leading_min = 16, .height = 15, .descender = 0},
-	[FontBatteryPercent] = {.leading_default = 11, .leading_min = 9, .height = 6, .descender = 0},
+    [FontBatteryPercent] = {.leading_default = 11, .leading_min = 9, .height = 6, .descender = 0},
 };
 
 Canvas* canvas_init() {
