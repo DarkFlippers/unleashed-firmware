@@ -1,5 +1,5 @@
 V:0
-T:1662605174
+T:1662677298
 D:badusb
 D:dolphin
 D:infrared
@@ -242,11 +242,11 @@ F:33b8fde22f34ef556b64b77164bc19b0:578:dolphin/L3_Lab_research_128x54/frame_8.bm
 F:f267f0654781049ca323b11bb4375519:581:dolphin/L3_Lab_research_128x54/frame_9.bm
 F:41106c0cbc5144f151b2b2d3daaa0527:727:dolphin/L3_Lab_research_128x54/meta.txt
 D:infrared/assets
-F:13fe3def425723bccd05fe09c745a335:122232:infrared/assets/ac.ir
-F:7a2e10eb171faa5d767703313f5fd7a5:58541:infrared/assets/audio.ir
+F:5e55f221320c8f0bbeafd5df59673e75:139785:infrared/assets/ac.ir
+F:1720722745039a27440e62ea08db7f3a:60611:infrared/assets/audio.ir
 F:faa49194e6ba4e5bc1ae5b2f90909d29:87512:infrared/assets/fans.ir
-F:08d864cf44e2557fb25aec8837740de5:6567:infrared/assets/projectors.ir
-F:33bf57fcfae734a83a0d6a40e6695a81:133948:infrared/assets/tv.ir
+F:9fea10aa40ce414753b45449acd8a2d0:6910:infrared/assets/projectors.ir
+F:a377e1f74292ce3ccde7aebe5b41e81b:140936:infrared/assets/tv.ir
 F:a157a80f5a668700403d870c23b9567d:470:music_player/Marble_Machine.fmf
 D:nfc/assets
 F:81dc04c7b181f94b644079a71476dff4:4742:nfc/assets/aid.nfc

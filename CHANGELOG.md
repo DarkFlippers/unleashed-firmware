@@ -1,4 +1,7 @@
 ### New changes
+* Fix picopass plugin (revert OFW PR 1701)
+* Updated universal remote assets (by @Amec0e)
+### Changes from previous release
 * Add SubGhz Bruteforce plugin (by @Ganapati & @xMasterX) (PR #57) - saving functionality and many fixes by @xMasterX
 * Fix GUI and add new icon in LF-RFID App (icon by @Svaarich)
 * GUI Changes to LFRFID Fuzzer
