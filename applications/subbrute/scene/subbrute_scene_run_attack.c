@@ -58,10 +58,6 @@ void prepare_emit(SubBruteState* context) {
     UNUSED(context);
 
     furi_hal_subghz_init();
-
-    //furi_hal_subghz_set_frequency_and_path(context->frequency);
-
-    //furi_hal_subghz_reset();
 }
 
 void clear_emit(SubBruteState* context) {
@@ -200,26 +196,26 @@ void subbrute_scene_run_attack_on_tick(SubBruteState* context) {
     if(!context->is_attacking || locked) {
         return;
     }
-    if(0 != subbrute_counter) {
-        locked = true;
-        subbrute_send_packet(context);
+    //if(0 != subbrute_counter) {
+    locked = true;
+    subbrute_send_packet(context);
 
-        if(context->payload == max_value) {
-            context->payload = 0x00;
-            subbrute_counter = 0;
-            context->is_attacking = false;
-            notification_message(context->notify, &sequence_blink_stop);
-            notification_message(context->notify, &sequence_single_vibro);
-        } else {
-            context->payload++;
-        }
-        locked = false;
+    if(context->payload == max_value) {
+        context->payload = 0x00;
+        subbrute_counter = 0;
+        context->is_attacking = false;
+        notification_message(context->notify, &sequence_blink_stop);
+        notification_message(context->notify, &sequence_single_vibro);
+    } else {
+        context->payload++;
     }
-    if(subbrute_counter > SUBBRUTE_DELAY) {
+    locked = false;
+    //}
+    /*if(subbrute_counter > SUBBRUTE_DELAY) {
         subbrute_counter = 0;
     } else {
         subbrute_counter++;
-    }
+    }*/
 }
 void subbrute_run_timer(SubBruteState* context) {
     while(true) {
@@ -236,14 +232,10 @@ void subbrute_run_timer(SubBruteState* context) {
 static int32_t subbrute_worker_thread(void* ctx) {
     SubBruteState* app = ctx;
     subbrute_run_timer(app);
-    //app->is_stop_running = false;
-    //app->request_exit = false;
     return 0;
 }
 
 void start_bruthread(SubBruteState* app) {
-    //furi_assert(!app->is_thread_running);
-    //app->is_stop_running = true;
     if(!app->is_thread_running) {
         furi_thread_start(app->bruthread);
         app->is_thread_running = true;
@@ -268,8 +260,7 @@ void subbrute_scene_run_attack_on_enter(SubBruteState* context) {
         context->flipper_format = flipper_format_string_alloc();
         context->stream = flipper_format_get_raw_stream(context->flipper_format);
         context->environment = subghz_environment_alloc();
-        //context->transmitter = subghz_transmitter_alloc_init(
-        //    context->environment, string_get_cstr(context->protocol));
+
         prepare_emit(context);
         context->bruthread = furi_thread_alloc();
         furi_thread_set_name(context->bruthread, "SubBrute Worker");
