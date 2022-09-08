@@ -17,7 +17,7 @@ void lfrfid_scene_read_success_on_enter(void* context) {
         protocol_dict_get_manufacturer(app->dict, app->protocol_id));
 
     widget_add_string_element(
-        widget, 0, 2, AlignLeft, AlignTop, FontPrimary, string_get_cstr(tmp_string));
+        widget, 16, 3, AlignLeft, AlignTop, FontPrimary, string_get_cstr(tmp_string));
 
     string_reset(tmp_string);
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
@@ -25,10 +25,10 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     protocol_dict_get_data(app->dict, app->protocol_id, data, size);
     for(uint8_t i = 0; i < size; i++) {
         if(i != 0) {
-            string_cat_printf(tmp_string, " ");
+            string_cat_printf(tmp_string, ":");
         }
 
-        if(i >= 9) {
+        if(i >= 8) {
             string_cat_printf(tmp_string, "...");
             break;
         } else {
@@ -40,19 +40,18 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     string_t render_data;
     string_init(render_data);
     protocol_dict_render_brief_data(app->dict, render_data, app->protocol_id);
-    //string_cat_printf(tmp_string, "\r\n%s", string_get_cstr(render_data));
+    string_cat_printf(tmp_string, "\r\n%s", string_get_cstr(render_data));
+    string_clear(render_data);
 
-    widget_add_string_element(
+    widget_add_string_multiline_element(
         widget, 0, 16, AlignLeft, AlignTop, FontSecondary, string_get_cstr(tmp_string));
 
-    widget_add_string_element(
-        widget, 0, 28, AlignLeft, AlignTop, FontSecondary, string_get_cstr(render_data));
+    widget_add_icon_element(app->widget, 0, 0, &I_RFIDSmallChip_14x14);
 
     notification_message_block(app->notifications, &sequence_set_green_255);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
     string_clear(tmp_string);
-    string_clear(render_data);
 }
 
 bool lfrfid_scene_read_success_on_event(void* context, SceneManagerEvent event) {
