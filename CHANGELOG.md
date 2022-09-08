@@ -1,12 +1,14 @@
 ### New changes
 * Add SubGhz Bruteforce plugin (by @Ganapati & @xMasterX) (PR #57) - saving functionality and many fixes by @xMasterX
-* Fix GUI and add new icon for LF-RFID App
+* Fix GUI and add new icon in LF-RFID App (icon by @Svaarich)
 * GUI Changes to LFRFID Fuzzer
 * New Battery info (from @theeogflip) (PR #60)
 * NRFSniff: Adds unique count display (by @Graf3x) (PR #56)
 * Updated universal remote assets (by @Amec0e)
 * OFW: RFID app port to plain C
 * OFW: SubGhz: fix decoder keeloq
+* OFW PR: Picopass: detect and show SE / SIO - OFW PR 1701 (by pcunning)
+* OFW PR: Fix MFClassic 4k reading - OFW PR 1712 (by Astrrra)
 * OFW: SubGhz: handle missing key in cryptostore. Lib: lower default display contrast.
 * OFW: Furi: wait for timer wind down in destructor 
 
