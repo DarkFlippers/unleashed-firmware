@@ -40,16 +40,19 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     string_t render_data;
     string_init(render_data);
     protocol_dict_render_brief_data(app->dict, render_data, app->protocol_id);
-    string_cat_printf(tmp_string, "\r\n%s", string_get_cstr(render_data));
-    string_clear(render_data);
+    //string_cat_printf(tmp_string, "\r\n%s", string_get_cstr(render_data));
 
     widget_add_string_element(
         widget, 0, 16, AlignLeft, AlignTop, FontSecondary, string_get_cstr(tmp_string));
+
+    widget_add_string_element(
+        widget, 0, 28, AlignLeft, AlignTop, FontSecondary, string_get_cstr(render_data));
 
     notification_message_block(app->notifications, &sequence_set_green_255);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
     string_clear(tmp_string);
+    string_clear(render_data);
 }
 
 bool lfrfid_scene_read_success_on_event(void* context, SceneManagerEvent event) {

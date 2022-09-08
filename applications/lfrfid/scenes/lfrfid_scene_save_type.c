@@ -17,9 +17,10 @@ void lfrfid_scene_save_type_on_enter(void* context) {
 
     SaveTypeCtx* state = malloc(sizeof(SaveTypeCtx));
     for(uint8_t i = 0; i < LFRFIDProtocolMax; i++) {
-        if(strcmp(
-               protocol_dict_get_manufacturer(app->dict, i),
-               protocol_dict_get_name(app->dict, i)) != 0) {
+        if((strcmp(
+                protocol_dict_get_manufacturer(app->dict, i),
+                protocol_dict_get_name(app->dict, i)) != 0) &&
+           (strcmp(protocol_dict_get_manufacturer(app->dict, i), "N/A") != 0)) {
             string_init_printf(
                 state->menu_item_name[i],
                 "%s %s",
