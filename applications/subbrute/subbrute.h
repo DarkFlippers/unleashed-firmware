@@ -56,6 +56,8 @@ typedef struct {
     // Application stuff
     bool is_running;
     bool is_attacking;
+    bool is_thread_running;
+    bool close_thread_please;
     SubBruteScene current_scene;
     SubBruteScene previous_scene;
     NotificationApp* notify;
@@ -65,6 +67,7 @@ typedef struct {
     Popup* popup;
 
     // SubGhz Stuff
+    FuriThread* bruthread;
     FlipperFormat* flipper_format;
     SubGhzEnvironment* environment;
     SubGhzTransmitter* transmitter;
@@ -75,6 +78,7 @@ typedef struct {
     Stream* stream;
     string_t protocol;
     uint32_t frequency;
+    uint32_t frequency_cal;
     uint32_t repeat;
     uint32_t bit;
     string_t key;
