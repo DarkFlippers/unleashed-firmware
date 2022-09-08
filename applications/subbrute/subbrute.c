@@ -238,7 +238,7 @@ int32_t subbrute_start(void* p) {
                     subbrute_scene_select_field_on_tick(subbrute_state);
                     break;
                 case SceneAttack:
-                    subbrute_scene_run_attack_on_tick(subbrute_state);
+                    //subbrute_scene_run_attack_on_tick(subbrute_state);
                     break;
                 case SceneEntryPoint:
                     subbrute_scene_entrypoint_on_tick(subbrute_state);
