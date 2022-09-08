@@ -1,4 +1,5 @@
 #include "flipfrid_scene_run_attack.h"
+#include <gui/elements.h>
 
 uint8_t counter = 0;
 #define TIME_BETWEEN_CARDS 5
@@ -182,7 +183,7 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
     canvas_set_color(canvas, ColorBlack);
 
     // Frame
-    canvas_draw_frame(canvas, 0, 0, 128, 64);
+    //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     // Title
     canvas_set_font(canvas, FontPrimary);
@@ -202,11 +203,12 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
     canvas_draw_str_aligned(canvas, 64, 24, AlignCenter, AlignTop, uid);
 
     canvas_set_font(canvas, FontSecondary);
-    char start_stop_msg[20];
+    //char start_stop_msg[20];
     if(context->is_attacking) {
-        snprintf(start_stop_msg, sizeof(start_stop_msg), " Press OK to stop ");
+        elements_button_center(canvas, "Stop");
+        //snprintf(start_stop_msg, sizeof(start_stop_msg), " Press OK to stop ");
     } else {
-        snprintf(start_stop_msg, sizeof(start_stop_msg), " Press OK to start ");
+        elements_button_center(canvas, "Start");
     }
-    canvas_draw_str_aligned(canvas, 64, 44, AlignCenter, AlignTop, start_stop_msg);
+    //canvas_draw_str_aligned(canvas, 64, 44, AlignCenter, AlignTop, start_stop_msg);
 }
