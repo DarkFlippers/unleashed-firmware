@@ -1,7 +1,9 @@
 ### New changes
-* Set poweroff button timer to 2sec
-* Debug apps (USB Mouse, UART Echo) now included in release build
-* OFW: Toolchain update
+* Add SubGhz Bruteforce plugin (by @Ganapati & @xMasterX) (PR #57) - saving functionality and many fixes by @xMasterX
+* GUI Changes to LFRFID Fuzzer
+* NRFSniff: Adds unique count display (by @Graf3x) (PR #56)
+* Updated universal remote assets (by @Amec0e)
+* OFW: SubGhz: fix decoder keeloq
 
 **Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
