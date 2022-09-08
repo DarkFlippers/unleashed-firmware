@@ -48,6 +48,7 @@ typedef struct {
 typedef struct {
     bool legacy;
     bool se_enabled;
+    bool sio;
     bool biometrics;
     uint8_t pin_length;
     PicopassEncryption encryption;

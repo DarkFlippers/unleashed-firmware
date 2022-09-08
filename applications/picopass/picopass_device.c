@@ -310,10 +310,6 @@ ReturnCode picopass_device_decrypt(uint8_t* enc_data, uint8_t* dec_data) {
 ReturnCode picopass_device_parse_credential(PicopassBlock* AA1, PicopassPacs* pacs) {
     ReturnCode err;
 
-    // Thank you proxmark!
-    pacs->legacy = (memcmp(AA1[5].data, "\xff\xff\xff\xff\xff\xff\xff\xff", 8) == 0);
-    pacs->se_enabled = (memcmp(AA1[5].data, "\xff\xff\xff\x00\x06\xff\xff\xff", 8) == 0);
-
     pacs->biometrics = AA1[6].data[4];
     pacs->pin_length = AA1[6].data[6] & 0x0F;
     pacs->encryption = AA1[6].data[7];
@@ -347,6 +343,8 @@ ReturnCode picopass_device_parse_credential(PicopassBlock* AA1, PicopassPacs* pa
     } else {
         FURI_LOG_D(TAG, "Unknown encryption");
     }
+
+    pacs->sio = (AA1[10].data[0] == 0x30); // rough check
 
     return ERR_NONE;
 }
