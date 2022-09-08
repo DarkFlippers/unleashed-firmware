@@ -1,6 +1,7 @@
 ### New changes
 * Add SubGhz Bruteforce plugin (by @Ganapati & @xMasterX) (PR #57) - saving functionality and many fixes by @xMasterX
 * GUI Changes to LFRFID Fuzzer
+* New Battery info (from @theeogflip) (PR #60)
 * NRFSniff: Adds unique count display (by @Graf3x) (PR #56)
 * Updated universal remote assets (by @Amec0e)
 * OFW: SubGhz: fix decoder keeloq

@@ -7,7 +7,7 @@
 ### Welcome to Flipper Zero Unleashed Firmware repo! 
 Our goal is to make any features possible in this device without any limitations! 
 
-Please help us implement emulation for all subghz dynamic (rolling code) protocols and static code brute-force plugin!
+Please help us implement emulation for all subghz dynamic (rolling code) protocols!
 
 <br>
 
@@ -27,6 +27,8 @@ Our Discord Community:
 * SubGHz frequecy range can be extended in settings file (Warning: It can damage flipper's hardware)
 * Many rolling code protocols now have the ability to save & send captured signals
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
+* Sub-GHz static code brute-force plugin
+* LFRFID Fuzzer plugin
 * Custom community plugins and games added
 * Extra SubGHz frequencies + extra Mifare Classic keys
 * Picopass/iClass plugin included in releases
@@ -57,6 +59,8 @@ See changelog in releases for latest updates!
 
 ### Community apps included:
 
+- RFID Fuzzer plugin [(by Ganapati)](https://github.com/Eng1n33r/flipperzero-firmware/pull/54) with some changes by xMasterX
+- Sub-GHz bruteforce plugin [(by Ganapati & xMasterX)](https://github.com/Eng1n33r/flipperzero-firmware/pull/57)
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
 - MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
