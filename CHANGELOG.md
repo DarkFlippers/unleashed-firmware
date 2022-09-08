@@ -4,6 +4,7 @@
 * New Battery info (from @theeogflip) (PR #60)
 * NRFSniff: Adds unique count display (by @Graf3x) (PR #56)
 * Updated universal remote assets (by @Amec0e)
+* OFW: RFID app port to plain C
 * OFW: SubGhz: fix decoder keeloq
 * OFW: SubGhz: handle missing key in cryptostore. Lib: lower default display contrast.
 * OFW: Furi: wait for timer wind down in destructor 
