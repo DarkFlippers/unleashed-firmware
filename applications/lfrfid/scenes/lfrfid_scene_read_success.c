@@ -24,14 +24,13 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     uint8_t* data = (uint8_t*)malloc(size);
     protocol_dict_get_data(app->dict, app->protocol_id, data, size);
     for(uint8_t i = 0; i < size; i++) {
-        if(i != 0) {
-            string_cat_printf(tmp_string, ":");
-        }
-
-        if(i >= 8) {
-            string_cat_printf(tmp_string, "...");
+        if(i >= 9) {
+            string_cat_printf(tmp_string, "..");
             break;
         } else {
+            if(i != 0) {
+                string_cat_printf(tmp_string, ":");
+            }
             string_cat_printf(tmp_string, "%02X", data[i]);
         }
     }
