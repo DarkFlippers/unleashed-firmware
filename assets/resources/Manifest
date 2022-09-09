@@ -1,5 +1,5 @@
 V:0
-T:1662721925
+T:1662725830
 D:badusb
 D:dolphin
 D:infrared
@@ -246,7 +246,7 @@ F:5e55f221320c8f0bbeafd5df59673e75:139785:infrared/assets/ac.ir
 F:1720722745039a27440e62ea08db7f3a:60611:infrared/assets/audio.ir
 F:faa49194e6ba4e5bc1ae5b2f90909d29:87512:infrared/assets/fans.ir
 F:4193827d68bbdbbda9347d423752b70f:7164:infrared/assets/projectors.ir
-F:88f9487786acceab7f207a4d2baabd14:140985:infrared/assets/tv.ir
+F:b2fcc57a3d2f053bca6070c50fda0704:140314:infrared/assets/tv.ir
 F:a157a80f5a668700403d870c23b9567d:470:music_player/Marble_Machine.fmf
 D:nfc/assets
 F:81dc04c7b181f94b644079a71476dff4:4742:nfc/assets/aid.nfc
