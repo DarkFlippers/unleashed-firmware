@@ -1,6 +1,6 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 7th Sep, 2022
+# Last Updated 9th Sept, 2022
 # 
 # ON
 name: POWER
@@ -17,7 +17,7 @@ command: E9 16 00 00
 # ON
 name: POWER
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 3A 00 00 00
 # ON
@@ -2777,37 +2777,37 @@ data: 182 7824 176 2328 181 2323 176 2328 181 2324 175 1312 183 1323 182 2322 17
 # 
 name: POWER
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 2A 00 00 00
 # 
 name: CH-
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 2C 00 00 00
 # 
 name: CH+
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 2D 00 00 00
 # 
 name: VOL-
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 2E 00 00 00
 # 
 name: VOL+
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 2F 00 00 00
 # 
 name: MUTE
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 3F 00 00 00
 # 
@@ -3170,97 +3170,97 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 4006 3981 523 1973 520 1977 516 1981 522 1974 519 1011 497 1006 491 1979 524 1005 493 1978 515 1982 521 1009 488 1015 493 1010 498 1006 491 1012 496 1007 490 1980 523 1973 520 1010 498 1973 520 983 515 1016 492 1978 514 1983 520 8468 4007 3982 522 1973 520 1977 516 1981 522 1975 518 986 522 1008 490 1982 521 982 516 1982 521 1976 517 986 522 982 516 988 520 984 524 979 519 985 523 1975 518 1979 514 989 519 1978 515 988 520 984 524 1973 520 1977 516
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 59 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NEC
 address: 08 00 00 00
 command: D5 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: RC5
 address: 01 00 00 00
 command: 2A 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 7F 00 00
 command: 0C F3 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NECext
 address: 86 05 00 00
 command: 13 EC 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NECext
 address: 02 7D 00 00
 command: 11 EE 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NECext
 address: 84 E0 00 00
 command: 22 DD 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 4E 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NEC
 address: 04 00 00 00
 command: 0E 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NEC
 address: 04 00 00 00
 command: 1B 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 5E 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: NECext
 address: EA C7 00 00
 command: 62 9D 00 00
-# 
+# OFF
 name: POWER
 type: parsed
-protocol: RCA
+protocol: RC5
 address: 0F 00 00 00
 command: 3B 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: Samsung32
 address: 07 00 00 00
 command: 03 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: SIRC
 address: 01 00 00 00
 command: 36 00 00 00
-# 
+# OFF
 name: POWER
 type: parsed
 protocol: Samsung32
