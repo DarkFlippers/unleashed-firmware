@@ -1,7 +1,6 @@
 ### New changes
-* Fix universal tv remote
-* Fit extra element on lfrfid screen
-* Updated universal remote assets (by @Amec0e & projectors by @Alejandro12120)
+* Actually fix universal tv remote
+* bt and lfrfid tune debug apps excluded from releases
 
 **Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
