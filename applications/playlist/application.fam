@@ -6,5 +6,5 @@ App(
     cdefines=["APP_PLAYLIST"],
     requires=["storage", "gui", "dialogs", "subghz"],
     stack_size=2 * 1024,
-    order=31,
+    order=14,
 )
