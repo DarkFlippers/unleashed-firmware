@@ -2,6 +2,7 @@
 #include <applications.h>
 #include <furi.h>
 #include <furi_hal_version.h>
+#include <furi_hal_memory.h>
 
 #define TAG "Flipper"
 
@@ -38,9 +39,28 @@ void flipper_init() {
         furi_thread_set_name(thread, FLIPPER_SERVICES[i].name);
         furi_thread_set_stack_size(thread, FLIPPER_SERVICES[i].stack_size);
         furi_thread_set_callback(thread, FLIPPER_SERVICES[i].app);
+        furi_thread_mark_as_service(thread);
 
         furi_thread_start(thread);
     }
 
     FURI_LOG_I(TAG, "services startup complete");
+}
+
+void vApplicationGetIdleTaskMemory(
+    StaticTask_t** tcb_ptr,
+    StackType_t** stack_ptr,
+    uint32_t* stack_size) {
+    *tcb_ptr = memmgr_alloc_from_pool(sizeof(StaticTask_t));
+    *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configMINIMAL_STACK_SIZE);
+    *stack_size = configMINIMAL_STACK_SIZE;
+}
+
+void vApplicationGetTimerTaskMemory(
+    StaticTask_t** tcb_ptr,
+    StackType_t** stack_ptr,
+    uint32_t* stack_size) {
+    *tcb_ptr = memmgr_alloc_from_pool(sizeof(StaticTask_t));
+    *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configTIMER_TASK_STACK_DEPTH);
+    *stack_size = configTIMER_TASK_STACK_DEPTH;
 }

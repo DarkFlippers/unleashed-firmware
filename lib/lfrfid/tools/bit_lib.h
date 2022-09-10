@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define TOPBIT(X) (1 << (X - 1))
+
 typedef enum {
     BitLibParityEven,
     BitLibParityOdd,
@@ -115,6 +117,27 @@ bool bit_lib_test_parity(
     uint8_t parity_length);
 
 /**
+ * @brief Add parity to bit array
+ * 
+ * @param data Source bit array
+ * @param position Start position
+ * @param dest Destination bit array
+ * @param dest_position Destination position
+ * @param source_length Source bit count
+ * @param parity_length Parity block length
+ * @param parity Parity to test against
+ * @return size_t 
+ */
+size_t bit_lib_add_parity(
+    const uint8_t* data,
+    size_t position,
+    uint8_t* dest,
+    size_t dest_position,
+    uint8_t source_length,
+    uint8_t parity_length,
+    BitLibParity parity);
+
+/**
  * @brief Remove bit every n in array and shift array left. Useful to remove parity.
  * 
  * @param data Bit array
@@ -193,6 +216,35 @@ void bit_lib_print_regions(
  * @return uint16_t 
  */
 uint16_t bit_lib_reverse_16_fast(uint16_t data);
+
+/**
+ * @brief Reverse bits in uint8_t, faster than generic bit_lib_reverse_bits.
+ * 
+ * @param byte Byte
+ * @return uint8_t the reversed byte
+ */
+uint8_t bit_lib_reverse_8_fast(uint8_t byte);
+
+/**
+ * @brief Slow, but generic CRC8 implementation
+ * 
+ * @param data 
+ * @param data_size 
+ * @param polynom CRC polynom
+ * @param init init value
+ * @param ref_in true if the right bit is older
+ * @param ref_out true to reverse output
+ * @param xor_out xor output with this value
+ * @return uint8_t 
+ */
+uint16_t bit_lib_crc8(
+    uint8_t const* data,
+    size_t data_size,
+    uint8_t polynom,
+    uint8_t init,
+    bool ref_in,
+    bool ref_out,
+    uint8_t xor_out);
 
 /**
  * @brief Slow, but generic CRC16 implementation

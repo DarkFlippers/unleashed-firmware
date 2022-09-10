@@ -195,6 +195,7 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
         }
         data->data_size = pages_total * 4;
         data->data_read = pages_read * 4;
+        if(data->data_size > MF_UL_MAX_DUMP_SIZE || data->data_read > MF_UL_MAX_DUMP_SIZE) break;
         bool pages_parsed = true;
         for(uint16_t i = 0; i < pages_total; i++) {
             string_printf(temp_str, "Page %d", i);
@@ -782,7 +783,7 @@ static void nfc_device_load_mifare_classic_block(
         char hi = string_get_char(block_str, 3 * i);
         char low = string_get_char(block_str, 3 * i + 1);
         uint8_t byte = 0;
-        if(hex_chars_to_uint8(hi, low, &byte)) {
+        if(hex_char_to_uint8(hi, low, &byte)) {
             block_tmp.value[i] = byte;
         } else {
             FURI_BIT_SET(block_unknown_bytes_mask, i);

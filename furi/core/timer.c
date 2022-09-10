@@ -1,5 +1,7 @@
 #include "timer.h"
 #include "check.h"
+#include "memmgr.h"
+#include "kernel.h"
 
 #include "core/common_defines.h"
 #include <FreeRTOS.h>
@@ -39,7 +41,7 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
     /* Dynamic memory allocation is available: if memory for callback and */
     /* its context is not provided, allocate it from dynamic memory pool */
     if(callb == NULL) {
-        callb = (TimerCallback_t*)pvPortMalloc(sizeof(TimerCallback_t));
+        callb = (TimerCallback_t*)malloc(sizeof(TimerCallback_t));
 
         if(callb != NULL) {
             /* Callback memory was allocated from dynamic pool, set flag */
@@ -65,7 +67,7 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
         if((hTimer == NULL) && (callb != NULL) && (callb_dyn == 1U)) {
             /* Failed to create a timer, release allocated resources */
             callb = (TimerCallback_t*)((uint32_t)callb & ~1U);
-            vPortFree(callb);
+            free(callb);
         }
     }
 
@@ -82,14 +84,16 @@ void furi_timer_free(FuriTimer* instance) {
 
     callb = (TimerCallback_t*)pvTimerGetTimerID(hTimer);
 
-    if(xTimerDelete(hTimer, portMAX_DELAY) == pdPASS) {
-        if((uint32_t)callb & 1U) {
-            /* Callback memory was allocated from dynamic pool, clear flag */
-            callb = (TimerCallback_t*)((uint32_t)callb & ~1U);
+    furi_check(xTimerDelete(hTimer, portMAX_DELAY) == pdPASS);
 
-            /* Return allocated memory to dynamic pool */
-            vPortFree(callb);
-        }
+    while (furi_timer_is_running(instance)) furi_delay_tick(2);
+
+    if((uint32_t)callb & 1U) {
+        /* Callback memory was allocated from dynamic pool, clear flag */
+        callb = (TimerCallback_t*)((uint32_t)callb & ~1U);
+
+        /* Return allocated memory to dynamic pool */
+        free(callb);
     }
 }
 
@@ -120,11 +124,8 @@ FuriStatus furi_timer_stop(FuriTimer* instance) {
     if(xTimerIsTimerActive(hTimer) == pdFALSE) {
         stat = FuriStatusErrorResource;
     } else {
-        if(xTimerStop(hTimer, portMAX_DELAY) == pdPASS) {
-            stat = FuriStatusOk;
-        } else {
-            stat = FuriStatusError;
-        }
+        furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
+        stat = FuriStatusOk;
     }
 
     /* Return execution status */

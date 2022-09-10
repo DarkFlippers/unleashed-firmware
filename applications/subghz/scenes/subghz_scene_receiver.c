@@ -1,7 +1,7 @@
 #include "../subghz_i.h"
 #include "../views/receiver.h"
 
-static const NotificationSequence subghs_sequence_rx = {
+const NotificationSequence subghs_sequence_rx = {
     &message_green_255,
 
     &message_vibro_on,
@@ -14,7 +14,7 @@ static const NotificationSequence subghs_sequence_rx = {
     NULL,
 };
 
-static const NotificationSequence subghs_sequence_rx_locked = {
+const NotificationSequence subghs_sequence_rx_locked = {
     &message_green_255,
 
     &message_display_backlight_on,
@@ -109,6 +109,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     }
 
     subghz_view_receiver_set_lock(subghz->subghz_receiver, subghz->lock);
+    subghz_view_receiver_set_mode(subghz->subghz_receiver, SubGhzViewReceiverModeLive);
 
     //Load history to receiver
     subghz_view_receiver_exit(subghz->subghz_receiver);

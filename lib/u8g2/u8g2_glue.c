@@ -225,7 +225,7 @@ uint8_t u8x8_d_st756x_flipper(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* 
                  * RR = 10 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.88 is 6 (0b110)
                  * Bias = 1/9 (false)
                  */
-                u8x8_d_st756x_init(u8x8, 32, 0b110, false);
+                u8x8_d_st756x_init(u8x8, 31, 0b110, false);
             } else {
                 /* ERC v1(ST7565) and v2(ST7567)
                  * EV = 33
@@ -233,7 +233,7 @@ uint8_t u8x8_d_st756x_flipper(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* 
                  * RR = 9.3 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.47 is 5.5 (0b101)
                  * Bias = 1/9 (false)
                  */
-                u8x8_d_st756x_init(u8x8, 33, 0b101, false);
+                u8x8_d_st756x_init(u8x8, 32, 0b101, false);
             }
             break;
         case U8X8_MSG_DISPLAY_SET_FLIP_MODE:

@@ -1,4 +1,4 @@
-# UniRF Remix
+# UniRF Remix / Sub-GHz Remote
 
 ### The UniRF Tool *requires* the creation of custom user map with `.txt` extension in the `unirf` folder on the sdcard. 
 
@@ -6,19 +6,16 @@
 
 ## You can add as many `.txt` map files as you want, file name doesn't matter!
 
-### App currenty works only with RAW subghz files
-
 ## Incorrect or unconfigured file error
 
 If the `.txt` file has not been properly configured, the following error will be thrown when trying to run the UniRF Remix app:
 
 ```
-Invalid map file!
+Config is incorrect.
 
-Please reconfigure
-your map file.
+Please configure map
 
-Hold Back to Exit
+Press Back to Exit
 ```
 
 
@@ -60,10 +57,7 @@ OKLABEL: Garage CLOSE
 ## Notes
 * ##### App Usage
   - Press a button to send the assigned capture file.
-  - Press Back button to set how many repeats the app should send. Capped at 5 repeats.
-  - Hold Back button to exit app.
-  - Only RAW SubGhz captures are supported currently.
-  - No skip function.
+  - Press Back button to exit app.
 
 * ##### Universal RF Map
   - File path should not have any spaces or special characters (- and _ excluded).

@@ -19,6 +19,7 @@ Frequency: 309000000
 Frequency: 310000000
 Frequency: 312000000
 Frequency: 312100000
+Frequency: 313000000
 Frequency: 313850000
 Frequency: 314000000
 Frequency: 314350000
@@ -50,8 +51,8 @@ Frequency: 928000000
 # Frequencies used for hopping mode (keep this list small or flipper will miss signal) - they added after default ones if enabled in Add_standard_frequencies
 Hopper_frequency: 310000000
 Hopper_frequency: 315000000
+Hopper_frequency: 313000000
 Hopper_frequency: 318000000
-Hopper_frequency: 345000000
 Hopper_frequency: 390000000
 Hopper_frequency: 433920000
 Hopper_frequency: 434420000

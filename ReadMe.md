@@ -4,10 +4,10 @@
 </a>
 </h3>
 
-Welcome to Flipper Zero's Custom Firmware repo! 
+### Welcome to Flipper Zero Unleashed Firmware repo! 
 Our goal is to make any features possible in this device without any limitations! 
 
-Please help us implement emulation for all subghz dynamic (rolling code) protocols and static code brute-force app!
+Please help us implement emulation for all subghz dynamic (rolling code) protocols!
 
 <br>
 
@@ -27,25 +27,26 @@ Our Discord Community:
 * SubGHz frequecy range can be extended in settings file (Warning: It can damage flipper's hardware)
 * Many rolling code protocols now have the ability to save & send captured signals
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
+* Sub-GHz static code brute-force plugin
+* LFRFID Fuzzer plugin
 * Custom community plugins and games added
 * Extra SubGHz frequencies + extra Mifare Classic keys
 * Picopass/iClass plugin included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
-* Universal A/C and Audio(soundbars, etc.) remote
-* Universal remote for Projectors
+* Universal remote for Projectors, Fans, A/Cs and Audio(soundbars, etc.)
 * BadUSB keyboard layouts
 * Customizable Flipper name
 * Other small fixes and changes throughout
 
 See changelog in releases for latest updates!
 
-### Current modified and new SubGhz protocols list:
+### Current modified and new SubGHz protocols list:
 - HCS101
 - An-Motors
 - CAME Atomo
-- FAAC SLH (Spa) [if cloning existing remote - external seed calculation required]
-- BFT Mitto [if cloning existing remote - external seed calculation required]
-- Keeloq (+ proper manufacturer codes selection) [Not ALL systems supported yet!]
+- FAAC SLH (Spa) [External seed calculation required]
+- BFT Mitto [External seed calculation required]
+- Keeloq [Not ALL systems supported yet!]
 - Nice Flor S
 - Security+ v1 & v2
 - Star Line
@@ -56,10 +57,10 @@ See changelog in releases for latest updates!
 * DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
 * LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
 
-**Big thanks to all sponsors!**
-
 ### Community apps included:
 
+- RFID Fuzzer plugin [(by Ganapati)](https://github.com/Eng1n33r/flipperzero-firmware/pull/54) with some changes by xMasterX
+- Sub-GHz bruteforce plugin [(by Ganapati & xMasterX)](https://github.com/Eng1n33r/flipperzero-firmware/pull/57)
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
 - MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
@@ -68,8 +69,8 @@ See changelog in releases for latest updates!
 - GPIO: Sentry Safe plugin [(by H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
 - ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
 - NRF24: Sniffer & MouseJacker (with changes) [(by mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
-- Simple Clock (fixed) !! New version WIP, wait for updates !! [(Original by CompaqDisc)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
-- UniversalRF Remix (with changes)(only RAW subghz files) [(by ESurge)(Original UniversalRF by jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
+- Simple Clock (fixed) [(Original by CompaqDisc)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
+- UniversalRF Remix / Sub-GHz Remote [(by ESurge)](https://github.com/ESurge/flipperzero-firmware-unirfremix)[(updated and all protocol support added by darmiel & xMasterX)](https://github.com/darmiel/flipper-playlist/tree/feat/unirf-protocols)
 - Tetris (with fixes) [(by jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 - Spectrum Analyzer (with changes) [(by jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
 - Arkanoid (with fixes) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)

@@ -25,7 +25,6 @@ bool infrared_scene_learn_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypeSignalReceived) {
-            infrared_worker_rx_set_received_signal_callback(infrared->worker, NULL, NULL);
             infrared_play_notification_message(infrared, InfraredNotificationMessageSuccess);
             scene_manager_next_scene(infrared->scene_manager, InfraredSceneLearnSuccess);
             consumed = true;
@@ -38,6 +37,7 @@ bool infrared_scene_learn_on_event(void* context, SceneManagerEvent event) {
 void infrared_scene_learn_on_exit(void* context) {
     Infrared* infrared = context;
     Popup* popup = infrared->popup;
+    infrared_worker_rx_set_received_signal_callback(infrared->worker, NULL, NULL);
     infrared_worker_rx_stop(infrared->worker);
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStop);
     popup_set_icon(popup, 0, 0, NULL);

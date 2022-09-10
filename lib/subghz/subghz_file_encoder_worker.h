@@ -28,6 +28,15 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc();
  */
 void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance);
 
+/** 
+ * Get a description of the progress.
+ * @param instance Pointer to a SubGhzFileEncoderWorker instance
+ * @param output
+ */
+void subghz_file_encoder_worker_get_text_progress(
+    SubGhzFileEncoderWorker* instance,
+    string_t output);
+
 /**
  * Getting the level and duration of the upload to be loaded into DMA.
  * @param context Pointer to a SubGhzFileEncoderWorker instance

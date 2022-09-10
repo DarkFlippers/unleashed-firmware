@@ -114,62 +114,69 @@ static bool subghz_keystore_read_file(SubGhzKeystore* instance, Stream* stream, 
     char* encrypted_line = malloc(SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE);
     size_t encrypted_line_cursor = 0;
 
-    if(iv) furi_hal_crypto_store_load_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT, iv);
-
-    size_t ret = 0;
     do {
-        ret = stream_read(stream, buffer, FILE_BUFFER_SIZE);
-        for(uint16_t i = 0; i < ret; i++) {
-            if(buffer[i] == '\n' && encrypted_line_cursor > 0) {
-                // Process line
-                if(iv) {
-                    // Data alignment check, 32 instead of 16 because of hex encoding
-                    size_t len = strlen(encrypted_line);
-                    if(len % 32 == 0) {
-                        // Inplace hex to bin conversion
-                        for(size_t i = 0; i < len; i += 2) {
-                            uint8_t hi_nibble = 0;
-                            uint8_t lo_nibble = 0;
-                            hex_char_to_hex_nibble(encrypted_line[i], &hi_nibble);
-                            hex_char_to_hex_nibble(encrypted_line[i + 1], &lo_nibble);
-                            encrypted_line[i / 2] = (hi_nibble << 4) | lo_nibble;
-                        }
-                        len /= 2;
-
-                        if(furi_hal_crypto_decrypt(
-                               (uint8_t*)encrypted_line, (uint8_t*)decrypted_line, len)) {
-                            subghz_keystore_process_line(instance, decrypted_line);
-                        } else {
-                            FURI_LOG_E(TAG, "Decryption failed");
-                            result = false;
-                            break;
-                        }
-                    } else {
-                        FURI_LOG_E(TAG, "Invalid encrypted data: %s", encrypted_line);
-                    }
-                } else {
-                    subghz_keystore_process_line(instance, encrypted_line);
-                }
-                // reset line buffer
-                memset(decrypted_line, 0, SUBGHZ_KEYSTORE_FILE_DECRYPTED_LINE_SIZE);
-                memset(encrypted_line, 0, SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE);
-                encrypted_line_cursor = 0;
-            } else if(buffer[i] == '\r' || buffer[i] == '\n') {
-                // do not add line endings to the buffer
-            } else {
-                if(encrypted_line_cursor < SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE) {
-                    encrypted_line[encrypted_line_cursor] = buffer[i];
-                    encrypted_line_cursor++;
-                } else {
-                    FURI_LOG_E(TAG, "Malformed file");
-                    result = false;
-                    break;
-                }
+        if(iv) {
+            if(!furi_hal_crypto_store_load_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT, iv)) {
+                FURI_LOG_E(TAG, "Unable to load decryption key");
+                break;
             }
         }
-    } while(ret > 0 && result);
 
-    if(iv) furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
+        size_t ret = 0;
+        do {
+            ret = stream_read(stream, buffer, FILE_BUFFER_SIZE);
+            for(uint16_t i = 0; i < ret; i++) {
+                if(buffer[i] == '\n' && encrypted_line_cursor > 0) {
+                    // Process line
+                    if(iv) {
+                        // Data alignment check, 32 instead of 16 because of hex encoding
+                        size_t len = strlen(encrypted_line);
+                        if(len % 32 == 0) {
+                            // Inplace hex to bin conversion
+                            for(size_t i = 0; i < len; i += 2) {
+                                uint8_t hi_nibble = 0;
+                                uint8_t lo_nibble = 0;
+                                hex_char_to_hex_nibble(encrypted_line[i], &hi_nibble);
+                                hex_char_to_hex_nibble(encrypted_line[i + 1], &lo_nibble);
+                                encrypted_line[i / 2] = (hi_nibble << 4) | lo_nibble;
+                            }
+                            len /= 2;
+
+                            if(furi_hal_crypto_decrypt(
+                                   (uint8_t*)encrypted_line, (uint8_t*)decrypted_line, len)) {
+                                subghz_keystore_process_line(instance, decrypted_line);
+                            } else {
+                                FURI_LOG_E(TAG, "Decryption failed");
+                                result = false;
+                                break;
+                            }
+                        } else {
+                            FURI_LOG_E(TAG, "Invalid encrypted data: %s", encrypted_line);
+                        }
+                    } else {
+                        subghz_keystore_process_line(instance, encrypted_line);
+                    }
+                    // reset line buffer
+                    memset(decrypted_line, 0, SUBGHZ_KEYSTORE_FILE_DECRYPTED_LINE_SIZE);
+                    memset(encrypted_line, 0, SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE);
+                    encrypted_line_cursor = 0;
+                } else if(buffer[i] == '\r' || buffer[i] == '\n') {
+                    // do not add line endings to the buffer
+                } else {
+                    if(encrypted_line_cursor < SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE) {
+                        encrypted_line[encrypted_line_cursor] = buffer[i];
+                        encrypted_line_cursor++;
+                    } else {
+                        FURI_LOG_E(TAG, "Malformed file");
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        } while(ret > 0 && result);
+
+        if(iv) furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
+    } while(false);
 
     free(encrypted_line);
     free(decrypted_line);

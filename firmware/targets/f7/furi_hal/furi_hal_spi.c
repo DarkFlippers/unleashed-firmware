@@ -139,8 +139,6 @@ bool furi_hal_spi_bus_trx(
     uint32_t timeout) {
     furi_assert(handle);
     furi_assert(handle->bus->current_handle == handle);
-    furi_assert(tx_buffer);
-    furi_assert(rx_buffer);
     furi_assert(size > 0);
 
     bool ret = true;
@@ -149,15 +147,23 @@ bool furi_hal_spi_bus_trx(
 
     while(size > 0) {
         if(tx_size > 0 && LL_SPI_IsActiveFlag_TXE(handle->bus->spi) && tx_allowed) {
-            LL_SPI_TransmitData8(handle->bus->spi, *tx_buffer);
-            tx_buffer++;
+            if(tx_buffer) {
+                LL_SPI_TransmitData8(handle->bus->spi, *tx_buffer);
+                tx_buffer++;
+            } else {
+                LL_SPI_TransmitData8(handle->bus->spi, 0xFF);
+            }
             tx_size--;
             tx_allowed = false;
         }
 
         if(LL_SPI_IsActiveFlag_RXNE(handle->bus->spi)) {
-            *rx_buffer = LL_SPI_ReceiveData8(handle->bus->spi);
-            rx_buffer++;
+            if(rx_buffer) {
+                *rx_buffer = LL_SPI_ReceiveData8(handle->bus->spi);
+                rx_buffer++;
+            } else {
+                LL_SPI_ReceiveData8(handle->bus->spi);
+            }
             size--;
             tx_allowed = true;
         }

@@ -120,6 +120,8 @@ void furi_hal_nfc_field_off();
  */
 void furi_hal_nfc_start_sleep();
 
+void furi_hal_nfc_stop_cmd();
+
 /** NFC stop sleep
  */
 void furi_hal_nfc_exit_sleep();

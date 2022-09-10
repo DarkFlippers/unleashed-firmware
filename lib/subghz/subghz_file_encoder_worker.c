@@ -79,6 +79,18 @@ bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, co
     return res;
 }
 
+void subghz_file_encoder_worker_get_text_progress(
+    SubGhzFileEncoderWorker* instance,
+    string_t output) {
+    UNUSED(output);
+    Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
+    size_t total_size = stream_size(stream);
+    size_t current_offset = stream_tell(stream);
+    size_t buffer_avail = xStreamBufferBytesAvailable(instance->stream);
+
+    string_printf(output, "%03u%%", 100 * (current_offset - buffer_avail) / total_size);
+}
+
 LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
     furi_assert(context);
     SubGhzFileEncoderWorker* instance = context;
