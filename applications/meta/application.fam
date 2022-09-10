@@ -79,5 +79,6 @@ App(
         "multi_converter",
         "flipfrid",
         "subbrute",
+        "sub_playlist",
     ],
 )

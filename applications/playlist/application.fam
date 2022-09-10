@@ -1,0 +1,10 @@
+App(
+    appid="sub_playlist",
+    name=".sub Playlist",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="playlist_app",
+    cdefines=["APP_PLAYLIST"],
+    requires=["storage", "gui", "dialogs", "subghz"],
+    stack_size=2 * 1024,
+    order=14,
+)
