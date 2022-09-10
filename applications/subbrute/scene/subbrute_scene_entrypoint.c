@@ -14,27 +14,15 @@ void subbrute_scene_entrypoint_menu_callback(SubBruteState* context, uint32_t in
         context->current_scene = SceneSelectFile;
         break;
     case SubBruteAttackCAME12bit307:
-        context->frequency = 307800000;
-        context->bit = 12;
-        string_set_str(context->protocol, "CAME");
-        string_set_str(context->preset, "FuriHalSubGhzPresetOok650Async");
-        if(!subbrute_is_frequency_allowed(context)) {
-            return;
-        }
-        context->current_scene = SceneAttack;
-        break;
     case SubBruteAttackCAME12bit433:
-        context->frequency = 433920000;
-        context->bit = 12;
-        string_set_str(context->protocol, "CAME");
-        string_set_str(context->preset, "FuriHalSubGhzPresetOok650Async");
-        if(!subbrute_is_frequency_allowed(context)) {
-            return;
-        }
-        context->current_scene = SceneAttack;
-        break;
     case SubBruteAttackCAME12bit868:
-        context->frequency = 868350000;
+        if (index == SubBruteAttackCAME12bit307) {
+            context->frequency = 307800000;
+        } else if (index == SubBruteAttackCAME12bit433) {
+            context->frequency = 433920000;
+        }  else if (index == SubBruteAttackCAME12bit868) {
+            context->frequency = 868350000;
+        }
         context->bit = 12;
         string_set_str(context->protocol, "CAME");
         string_set_str(context->preset, "FuriHalSubGhzPresetOok650Async");
