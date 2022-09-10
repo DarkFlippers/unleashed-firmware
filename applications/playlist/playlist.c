@@ -20,7 +20,7 @@
 #include "playlist_file.h"
 #include "canvas_helper.h"
 
-#define PLAYLIST_FOLDER "/ext/playlist"
+#define PLAYLIST_FOLDER "/ext/subplaylist"
 #define PLAYLIST_EXT ".txt"
 #define TAG "Playlist"
 
@@ -168,32 +168,28 @@ static int playlist_worker_process(
 
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
 
-    furi_hal_power_suppress_charge_enter();
-
-    FURI_LOG_I(TAG, "  (TX) Start sending ...");
+    FURI_LOG_D(TAG, "  (TX) Start sending ...");
     int status = 0;
 
     furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
     while(!furi_hal_subghz_is_async_tx_complete()) {
         if(worker->ctl_request_exit) {
-            FURI_LOG_I(TAG, "    (TX) Requested to exit. Cancelling sending...");
+            FURI_LOG_D(TAG, "    (TX) Requested to exit. Cancelling sending...");
             status = 2;
             break;
         }
         if(worker->ctl_pause) {
-            FURI_LOG_I(TAG, "    (TX) Requested to pause. Cancelling and resending...");
+            FURI_LOG_D(TAG, "    (TX) Requested to pause. Cancelling and resending...");
             status = 1;
             break;
         }
         furi_delay_ms(50);
     }
 
-    FURI_LOG_I(TAG, "  (TX) Done sending.");
+    FURI_LOG_D(TAG, "  (TX) Done sending.");
 
     furi_hal_subghz_stop_async_tx();
     furi_hal_subghz_sleep();
-
-    furi_hal_power_suppress_charge_exit();
 
     subghz_transmitter_free(transmitter);
 
@@ -209,7 +205,7 @@ static bool playlist_worker_wait_pause(PlaylistWorker* worker) {
     }
     // exit loop if requested to stop
     if(worker->ctl_request_exit) {
-        FURI_LOG_I(TAG, "Requested to exit. Exiting loop...");
+        FURI_LOG_D(TAG, "Requested to exit. Exiting loop...");
         return false;
     }
     return true;
@@ -257,7 +253,7 @@ static bool playlist_worker_play_playlist_once(
 
             view_port_update(worker->meta->view_port);
 
-            FURI_LOG_I(TAG, "(worker) Sending %s", str);
+            FURI_LOG_D(TAG, "(worker) Sending %s", str);
 
             FlipperFormat* fff_file = flipper_format_file_alloc(storage);
 
@@ -315,7 +311,7 @@ static int32_t playlist_worker_thread(void* ctx) {
         // send playlist
         worker->meta->current_count = 0;
 
-        FURI_LOG_I(
+        FURI_LOG_D(
             TAG,
             "Sending playlist (i %d rep %d b %d)",
             i,
@@ -337,7 +333,7 @@ static int32_t playlist_worker_thread(void* ctx) {
 
     flipper_format_free(fff_data);
 
-    FURI_LOG_I(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
+    FURI_LOG_D(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
     worker->is_running = false;
 
     // update state to overview
@@ -427,7 +423,7 @@ void playlist_worker_start(PlaylistWorker* instance, const char* file_path) {
     // reset meta (current/total)
     playlist_meta_reset(instance->meta);
 
-    FURI_LOG_I(TAG, "Starting thread...");
+    FURI_LOG_D(TAG, "Starting thread...");
     furi_thread_start(instance->thread);
 }
 
@@ -663,11 +659,13 @@ int32_t playlist_app(void* p) {
     Playlist* app = playlist_alloc(meta);
     meta->view_port = app->view_port;
 
+    furi_hal_power_suppress_charge_enter();
+
     // select playlist file
     {
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         const bool res = dialog_file_browser_show(
-            dialogs, app->file_path, app->file_path, PLAYLIST_EXT, true, &I_sub1_10px, true);
+            dialogs, app->file_path, app->file_path, PLAYLIST_EXT, true, &I_sub1_10px, false);
         furi_record_close(RECORD_DIALOGS);
         // check if a file was selected
         if(!res) {
@@ -717,7 +715,7 @@ int32_t playlist_app(void* p) {
             }
             break;
         case InputKeyBack:
-            FURI_LOG_I(TAG, "Pressed Back button. Application will exit");
+            FURI_LOG_D(TAG, "Pressed Back button. Application will exit");
             exit_loop = true;
             break;
         default:
@@ -735,16 +733,19 @@ int32_t playlist_app(void* p) {
     }
 
 exit_cleanup:
+
+    furi_hal_power_suppress_charge_exit();
+
     if(app->worker != NULL) {
         if(playlist_worker_running(app->worker)) {
-            FURI_LOG_I(TAG, "Thread is still running. Requesting thread to finish ...");
+            FURI_LOG_D(TAG, "Thread is still running. Requesting thread to finish ...");
             playlist_worker_stop(app->worker);
         }
-        FURI_LOG_I(TAG, "Freeing Worker ...");
+        FURI_LOG_D(TAG, "Freeing Worker ...");
         playlist_worker_free(app->worker);
     }
 
-    FURI_LOG_I(TAG, "Freeing Playlist ...");
+    FURI_LOG_D(TAG, "Freeing Playlist ...");
     playlist_free(app);
     return 0;
 }
