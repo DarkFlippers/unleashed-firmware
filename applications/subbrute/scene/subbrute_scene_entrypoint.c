@@ -1,7 +1,7 @@
 #include "subbrute_scene_entrypoint.h"
 #include "../subbrute_utils.h"
 
-string_t subbrute_menu_items[9];
+string_t subbrute_menu_items[10];
 
 void subbrute_scene_entrypoint_menu_callback(SubBruteState* context, uint32_t index) {
     string_set_str(context->preset, "FuriHalSubGhzPresetOok650Async");
@@ -12,6 +12,16 @@ void subbrute_scene_entrypoint_menu_callback(SubBruteState* context, uint32_t in
     switch(index) {
     case SubBruteAttackLoadFile:
         context->current_scene = SceneSelectFile;
+        break;
+    case SubBruteAttackCAME12bit307:
+        context->frequency = 307800000;
+        context->bit = 12;
+        string_set_str(context->protocol, "CAME");
+        string_set_str(context->preset, "FuriHalSubGhzPresetOok650Async");
+        if(!subbrute_is_frequency_allowed(context)) {
+            return;
+        }
+        context->current_scene = SceneAttack;
         break;
     case SubBruteAttackCAME12bit433:
         context->frequency = 433920000;
@@ -103,24 +113,25 @@ void subbrute_scene_entrypoint_menu_callback(SubBruteState* context, uint32_t in
 void subbrute_scene_entrypoint_on_enter(SubBruteState* context) {
     // Clear the previous payload
     context->menu_index = 0;
-    for(uint32_t i = 0; i < 9; i++) {
+    for(uint32_t i = 0; i < 10; i++) {
         string_init(subbrute_menu_items[i]);
     }
 
     string_set(subbrute_menu_items[0], "BF existing dump");
-    string_set(subbrute_menu_items[1], "CAME 12bit 433mhz");
-    string_set(subbrute_menu_items[2], "CAME 12bit 868mhz");
-    string_set(subbrute_menu_items[3], "Chamberlain 9bit 315mhz");
-    string_set(subbrute_menu_items[4], "Chamberlain 9bit 390mhz");
-    string_set(subbrute_menu_items[5], "Linear 10bit 300mhz");
-    string_set(subbrute_menu_items[6], "Linear 10bit 310mhz");
-    string_set(subbrute_menu_items[7], "NICE 12bit 433mhz");
-    string_set(subbrute_menu_items[8], "NICE 12bit 868mhz");
+    string_set(subbrute_menu_items[1], "CAME 12bit 307mhz");
+    string_set(subbrute_menu_items[2], "CAME 12bit 433mhz");
+    string_set(subbrute_menu_items[3], "CAME 12bit 868mhz");
+    string_set(subbrute_menu_items[4], "Chamberlain 9bit 315mhz");
+    string_set(subbrute_menu_items[5], "Chamberlain 9bit 390mhz");
+    string_set(subbrute_menu_items[6], "Linear 10bit 300mhz");
+    string_set(subbrute_menu_items[7], "Linear 10bit 310mhz");
+    string_set(subbrute_menu_items[8], "NICE 12bit 433mhz");
+    string_set(subbrute_menu_items[9], "NICE 12bit 868mhz");
 }
 
 void subbrute_scene_entrypoint_on_exit(SubBruteState* context) {
     UNUSED(context);
-    for(uint32_t i = 0; i < 9; i++) {
+    for(uint32_t i = 0; i < 10; i++) {
         string_clear(subbrute_menu_items[i]);
     }
 }
