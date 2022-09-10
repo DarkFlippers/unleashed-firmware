@@ -1,6 +1,6 @@
 App(
     appid="sub_playlist",
-    name=".sub Playlist",
+    name="Sub-GHz Playlist",
     apptype=FlipperAppType.PLUGIN,
     entry_point="playlist_app",
     cdefines=["APP_PLAYLIST"],
