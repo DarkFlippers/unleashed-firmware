@@ -3,7 +3,7 @@ App(
     name="Basic services",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        "rpc",
+        "rpc_start",
         "bt",
         "desktop",
         "loader",
@@ -48,6 +48,7 @@ App(
         "tetris_game",
         "arkanoid_game",
         "tictactoe_game",
+        "wav_player",
     ],
 )
 
@@ -75,7 +76,9 @@ App(
         "wifi_marauder",
         "esp8266_deauth",
         "wifi_scanner",
-        "wav_player",
+        "multi_converter",
+        "flipfrid",
+        "subbrute",
         "sub_playlist",
     ],
 )

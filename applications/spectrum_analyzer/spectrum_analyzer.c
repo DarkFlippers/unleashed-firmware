@@ -400,6 +400,8 @@ int32_t spectrum_analyzer_app(void* p) {
     SpectrumAnalyzer* spectrum_analyzer = spectrum_analyzer_alloc();
     InputEvent input;
 
+    furi_hal_power_suppress_charge_enter();
+
     FURI_LOG_D("Spectrum", "Main Loop - Starting worker");
     furi_delay_ms(50);
 
@@ -502,6 +504,8 @@ int32_t spectrum_analyzer_app(void* p) {
     }
 
     spectrum_analyzer_worker_stop(spectrum_analyzer->worker);
+
+    furi_hal_power_suppress_charge_exit();
 
     spectrum_analyzer_free(spectrum_analyzer);
 

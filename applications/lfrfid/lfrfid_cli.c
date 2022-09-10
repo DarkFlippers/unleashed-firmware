@@ -114,7 +114,7 @@ static void lfrfid_cli_read(Cli* cli, string_t args) {
         string_t info;
         string_init(info);
         protocol_dict_render_data(dict, info, context.protocol);
-        if(string_size(info) > 0) {
+        if(!string_empty_p(info)) {
             printf("%s\r\n", string_get_cstr(info));
         }
         string_clear(info);

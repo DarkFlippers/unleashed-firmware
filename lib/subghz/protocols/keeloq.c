@@ -485,7 +485,7 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_keeloq_const.te_short) <
                  subghz_protocol_keeloq_const.te_delta) &&
                 (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_long) <
-                 subghz_protocol_keeloq_const.te_delta)) {
+                 subghz_protocol_keeloq_const.te_delta * 2)) {
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
@@ -493,7 +493,7 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
             } else if(
                 (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_keeloq_const.te_long) <
-                 subghz_protocol_keeloq_const.te_delta) &&
+                 subghz_protocol_keeloq_const.te_delta * 2) &&
                 (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short) <
                  subghz_protocol_keeloq_const.te_delta)) {
                 if(instance->decoder.decode_count_bit <
@@ -944,21 +944,40 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, string_t output) {
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
-    string_cat_printf(
-        output,
-        "%s %dbit\r\n"
-        "Key:%08lX%08lX\r\n"
-        "Fix:0x%08lX    Cnt:%04X\r\n"
-        "Hop:0x%08lX    Btn:%01lX\r\n"
-        "MF:%s Sd:%08lX",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        code_found_hi,
-        code_found_lo,
-        code_found_reverse_hi,
-        instance->generic.cnt,
-        code_found_reverse_lo,
-        instance->generic.btn,
-        instance->manufacture_name,
-        instance->generic.seed);
+    if(strcmp(instance->manufacture_name, "BFT") == 0) {
+        string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%08lX%08lX\r\n"
+            "Fix:0x%08lX    Cnt:%04X\r\n"
+            "Hop:0x%08lX    Btn:%01lX\r\n"
+            "MF:%s Sd:%08lX",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            code_found_hi,
+            code_found_lo,
+            code_found_reverse_hi,
+            instance->generic.cnt,
+            code_found_reverse_lo,
+            instance->generic.btn,
+            instance->manufacture_name,
+            instance->generic.seed);
+    } else {
+        string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%08lX%08lX\r\n"
+            "Fix:0x%08lX    Cnt:%04X\r\n"
+            "Hop:0x%08lX    Btn:%01lX\r\n"
+            "MF:%s",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            code_found_hi,
+            code_found_lo,
+            code_found_reverse_hi,
+            instance->generic.cnt,
+            code_found_reverse_lo,
+            instance->generic.btn,
+            instance->manufacture_name);
+    }
 }

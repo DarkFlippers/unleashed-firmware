@@ -102,6 +102,8 @@ struct SubGhz {
     SubGhzSetting* setting;
     SubGhzLock lock;
 
+    bool in_decoder_scene;
+
     void* rpc_ctx;
 };
 
@@ -137,3 +139,6 @@ void subghz_file_name_clear(SubGhz* subghz);
 bool subghz_path_is_file(string_t path);
 uint32_t subghz_random_serial(void);
 void subghz_hopper_update(SubGhz* subghz);
+
+extern const NotificationSequence subghs_sequence_rx;
+extern const NotificationSequence subghs_sequence_rx_locked;

@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"8"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"15"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 
 fbtenv_show_usage()
@@ -13,6 +13,9 @@ fbtenv_show_usage()
     echo "Running this script manually is wrong, please source it";
     echo "Example:";
     printf "\tsource scripts/toolchain/fbtenv.sh\n";
+    echo "To restore your enviroment source fbtenv.sh with '--restore'."
+    echo "Example:";
+    printf "\tsource scripts/toolchain/fbtenv.sh --restore\n";
 }
 
 fbtenv_curl()
@@ -25,9 +28,27 @@ fbtenv_wget()
     wget --show-progress --progress=bar:force -qO "$1" "$2";
 }
 
+fbtenv_restore_env()
+{
+    TOOLCHAIN_ARCH_DIR_SED="$(echo "$TOOLCHAIN_ARCH_DIR" | sed 's/\//\\\//g')"
+    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/python\/bin://g")";
+    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
+    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
+    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
+    if [ -n "${PS1:-""}" ]; then
+        PS1="$(echo "$PS1" | sed 's/\[fbt\]//g')";
+    elif [ -n "${PROMPT:-""}" ]; then
+        PROMPT="$(echo "$PROMPT" | sed 's/\[fbt\]//g')";
+    fi
+    unset SCRIPT_PATH;
+    unset FBT_TOOLCHAIN_VERSION;
+    unset FBT_TOOLCHAIN_PATH;
+}
+
 fbtenv_check_sourced()
 {
     case "${ZSH_EVAL_CONTEXT:-""}" in *:file:*)
+        setopt +o nomatch;  # disabling 'no match found' warning in zsh
         return 0;;
     esac
     if [ ${0##*/} = "fbtenv.sh" ]; then  # exluding script itself
@@ -43,13 +64,13 @@ fbtenv_check_sourced()
 
 fbtenv_chck_many_source()
 {
-    if ! echo "${PS1:-""}" | grep -q "[fbt]"; then
-        if ! echo "${PROMPT:-""}" | grep -q "[fbt]"; then
+    if ! echo "${PS1:-""}" | grep -qF "[fbt]"; then
+        if ! echo "${PROMPT:-""}" | grep -qF "[fbt]"; then
             return 0;
         fi
     fi
-    echo "Warning! It script seen to be sourced more then once!";
-    echo "It may signalise what you are making some mistakes, please open a new shell!";
+    echo "Warning! FBT environment script sourced more than once!";
+    echo "This may signal that you are making mistakes, please open a new shell!";
     return 1;
 }
 
@@ -148,15 +169,17 @@ fbtenv_download_toolchain_tar()
 {
     echo "Downloading toolchain:";
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
-    "$FBT_DOWNLOADER" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" "$TOOLCHAIN_URL" || return 1;
+    "$FBT_DOWNLOADER" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR.part" "$TOOLCHAIN_URL" || return 1;
+    # restoring oroginal filename if file downloaded successfully
+    mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR.part" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR"
     echo "done";
     return 0;
 }
 
 fbtenv_remove_old_tooclhain()
 {
-    printf "Removing old toolchain (if exist)..";
-    rm -rf "${TOOLCHAIN_ARCH_DIR}";
+    printf "Removing old toolchain..";
+    rm -rf "${TOOLCHAIN_ARCH_DIR:?}";
     echo "done";
 }
 
@@ -185,8 +208,12 @@ fbtenv_unpack_toolchain()
 fbtenv_clearing()
 {
     printf "Clearing..";
-    rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/$TOOLCHAIN_TAR";
+    if [ -n "${FBT_TOOLCHAIN_PATH:-""}" ]; then
+        rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.tar.gz;
+        rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.part;
+    fi
     echo "done";
+    trap - 2;
     return 0;
 }
 
@@ -232,12 +259,13 @@ fbtenv_download_toolchain()
     fbtenv_check_tar || return 1;
     TOOLCHAIN_TAR="$(basename "$TOOLCHAIN_URL")";
     TOOLCHAIN_DIR="$(echo "$TOOLCHAIN_TAR" | sed "s/-$FBT_TOOLCHAIN_VERSION.tar.gz//g")";
+    trap fbtenv_clearing 2;  # trap will be restored in fbtenv_clearing
     if ! fbtenv_check_downloaded_toolchain; then
         fbtenv_curl_wget_check || return 1;
-        fbtenv_download_toolchain_tar;
+        fbtenv_download_toolchain_tar || return 1;
     fi
     fbtenv_remove_old_tooclhain;
-    fbtenv_unpack_toolchain || { fbtenv_clearing && return 1; };
+    fbtenv_unpack_toolchain || return 1;
     fbtenv_clearing;
     return 0;
 }
@@ -245,15 +273,19 @@ fbtenv_download_toolchain()
 fbtenv_main()
 {
     fbtenv_check_sourced || return 1;
-    fbtenv_chck_many_source;  # many source it's just a warning
-    fbtenv_set_shell_prompt;
-    fbtenv_check_script_path || return 1;
     fbtenv_get_kernel_type || return 1;
+    if [ "$1" = "--restore" ]; then
+        fbtenv_restore_env;
+        return 0;
+    fi
+    fbtenv_chck_many_source;  # many source it's just a warning
+    fbtenv_check_script_path || return 1;
     fbtenv_check_download_toolchain || return 1;
+    fbtenv_set_shell_prompt;
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/openocd/bin:$PATH";
 }
 
-fbtenv_main;
+fbtenv_main "${1:-""}";

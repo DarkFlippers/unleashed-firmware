@@ -9,7 +9,7 @@
 
 /* When less than LFS_RESERVED_PAGES_COUNT are left free, creation & 
  * modification of non-dot files is restricted */
-#define LFS_RESERVED_PAGES_COUNT 5
+#define LFS_RESERVED_PAGES_COUNT 3
 
 typedef struct {
     const size_t start_address;

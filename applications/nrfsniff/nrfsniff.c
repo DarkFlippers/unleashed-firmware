@@ -9,8 +9,10 @@
 #include <toolbox/stream/file_stream.h>
 
 #define LOGITECH_MAX_CHANNEL 85
-#define COUNT_THRESHOLD 4
-#define SAMPLE_TIME 20000
+#define COUNT_THRESHOLD 2
+#define DEFAULT_SAMPLE_TIME 8000
+#define MAX_ADDRS 100
+#define MAX_CONFIRMED 32
 
 #define NRFSNIFF_APP_PATH_FOLDER "/ext/nrfsniff"
 #define NRFSNIFF_APP_FILENAME "addresses.txt"
@@ -32,31 +34,37 @@ typedef struct {
 } PluginState;
 
 char rate_text_fmt[] = "Transfer rate: %dMbps";
-char channel_text_fmt[] = "Channel: %d";
+char sample_text_fmt[] = "Sample Time: %d ms";
+char channel_text_fmt[] = "Channel: %d    Sniffing: %s";
 char preamble_text_fmt[] = "Preamble: %02X";
-char sniff_text_fmt[] = "Sniffing: %s      Found: %d";
+char sniff_text_fmt[] = "Found: %d       Unique: %u";
 char addresses_header_text[] = "Address,rate";
 char sniffed_address_fmt[] = "%s,%d";
 char rate_text[46];
-char channel_text[42];
+char channel_text[38];
+char sample_text[32];
 char preamble_text[14];
 char sniff_text[38];
 char sniffed_address[14];
 
 uint8_t target_channel = 0;
 uint32_t found_count = 0;
+uint32_t unique_saved_count = 0;
+uint32_t sample_time = DEFAULT_SAMPLE_TIME;
 uint8_t target_rate = 8; // rate can be either 8 (2Mbps) or 0 (1Mbps)
 uint8_t target_preamble[] = {0xAA, 0x00};
 uint8_t sniffing_state = false;
 char top_address[12];
 
-uint8_t candidates[100][5] = {0}; // top 100 recurring addresses
-uint32_t counts[100];
-uint8_t total_candidates = 0;
-uint8_t last_cleanup_idx = 101; // avoid replacing the last replaced addr
+uint8_t candidates[MAX_ADDRS][5] = {0}; // last 100 sniffed addresses
+uint32_t counts[MAX_ADDRS];
+uint8_t confirmed[MAX_CONFIRMED][5] = {0}; // first 32 confirmed addresses
+uint8_t confirmed_idx = 0;
+uint32_t total_candidates = 0;
+uint32_t candidate_idx = 0;
 
 static int get_addr_index(uint8_t* addr, uint8_t addr_size) {
-    for(int i = 0; i < total_candidates; i++) {
+    for(uint32_t i = 0; i < total_candidates; i++) {
         uint8_t* arr_item = candidates[i];
         if(!memcmp(arr_item, addr, addr_size)) return i;
     }
@@ -64,32 +72,10 @@ static int get_addr_index(uint8_t* addr, uint8_t addr_size) {
     return -1;
 }
 
-/*
-static uint32_t get_addr_count(uint8_t* addr, uint8_t addr_size)
-{
-    return counts[get_addr_index(addr, addr_size)];
-}
-*/
-
-static uint8_t get_lowest_idx() {
-    uint32_t lowest = 10000;
-    uint8_t lowest_idx = 0;
-    for(uint8_t i = 0; i < total_candidates; i++) {
-        if(i == last_cleanup_idx) continue;
-
-        if(counts[i] < lowest) {
-            lowest = counts[i];
-            lowest_idx = i;
-        }
-    }
-    last_cleanup_idx = lowest_idx;
-    return lowest_idx;
-}
-
-static uint8_t get_highest_idx() {
+static int get_highest_idx() {
     uint32_t highest = 0;
-    uint8_t highest_idx = 0;
-    for(uint8_t i = 0; i < total_candidates; i++) {
+    int highest_idx = 0;
+    for(uint32_t i = 0; i < total_candidates; i++) {
         if(counts[i] > highest) {
             highest = counts[i];
             highest_idx = i;
@@ -99,15 +85,14 @@ static uint8_t get_highest_idx() {
     return highest_idx;
 }
 
+// if array is full, start over from beginning
 static void insert_addr(uint8_t* addr, uint8_t addr_size) {
-    uint8_t idx = total_candidates;
-    if(total_candidates > 99) {
-        // replace addr with lowest count
-        idx = get_lowest_idx();
-    }
-    memcpy(candidates[idx], addr, addr_size);
-    counts[idx] = 1;
-    if(total_candidates < 100) total_candidates++;
+    if(candidate_idx >= MAX_ADDRS) candidate_idx = 0;
+
+    memcpy(candidates[candidate_idx], addr, addr_size);
+    counts[candidate_idx] = 1;
+    if(total_candidates < MAX_ADDRS) total_candidates++;
+    candidate_idx++;
 }
 
 static void render_callback(Canvas* const canvas, void* ctx) {
@@ -127,14 +112,16 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     if(!sniffing_state) strcpy(sniffing, "No");
 
     snprintf(rate_text, sizeof(rate_text), rate_text_fmt, (int)rate);
-    snprintf(channel_text, sizeof(channel_text), channel_text_fmt, (int)target_channel);
-    snprintf(preamble_text, sizeof(preamble_text), preamble_text_fmt, target_preamble[0]);
-    snprintf(sniff_text, sizeof(sniff_text), sniff_text_fmt, sniffing, found_count);
+    snprintf(channel_text, sizeof(channel_text), channel_text_fmt, (int)target_channel, sniffing);
+    snprintf(sample_text, sizeof(sample_text), sample_text_fmt, (int)sample_time);
+    //snprintf(preamble_text, sizeof(preamble_text), preamble_text_fmt, target_preamble[0]);
+    snprintf(sniff_text, sizeof(sniff_text), sniff_text_fmt, found_count, unique_saved_count);
     snprintf(
         sniffed_address, sizeof(sniffed_address), sniffed_address_fmt, top_address, (int)rate);
     canvas_draw_str_aligned(canvas, 10, 10, AlignLeft, AlignBottom, rate_text);
-    canvas_draw_str_aligned(canvas, 10, 20, AlignLeft, AlignBottom, channel_text);
-    canvas_draw_str_aligned(canvas, 10, 30, AlignLeft, AlignBottom, preamble_text);
+    canvas_draw_str_aligned(canvas, 10, 20, AlignLeft, AlignBottom, sample_text);
+    canvas_draw_str_aligned(canvas, 10, 30, AlignLeft, AlignBottom, channel_text);
+    //canvas_draw_str_aligned(canvas, 10, 30, AlignLeft, AlignBottom, preamble_text);
     canvas_draw_str_aligned(canvas, 10, 40, AlignLeft, AlignBottom, sniff_text);
     canvas_draw_str_aligned(canvas, 30, 50, AlignLeft, AlignBottom, addresses_header_text);
     canvas_draw_str_aligned(canvas, 30, 60, AlignLeft, AlignBottom, sniffed_address);
@@ -217,6 +204,7 @@ static bool save_addr_to_file(
                 notification_message(notification, &sequence_success);
 
                 stream_free(stream);
+                unique_saved_count++;
                 return true;
             }
         }
@@ -256,12 +244,24 @@ void alt_address(uint8_t* addr, uint8_t* altaddr) {
     for(int i = 0; i < 5; i++) altaddr[i] = tmpaddr[4 - i];
 }
 
+static bool previously_confirmed(uint8_t* addr) {
+    bool found = false;
+    for(int i = 0; i < MAX_CONFIRMED; i++) {
+        if(!memcmp(confirmed[i], addr, 5)) {
+            found = true;
+            break;
+        }
+    }
+
+    return found;
+}
+
 static void wrap_up(Storage* storage, NotificationApp* notification) {
     uint8_t ch;
     uint8_t addr[5];
     uint8_t altaddr[5];
     char trying[12];
-    uint8_t idx;
+    int idx;
     uint8_t rate = 0;
     if(target_rate == 8) rate = 2;
 
@@ -289,16 +289,27 @@ static void wrap_up(Storage* storage, NotificationApp* notification) {
 
         if(ch <= LOGITECH_MAX_CHANNEL) {
             hexlify(addr, 5, top_address);
-            save_addr_to_file(storage, addr, 5, notification);
             found_count++;
+            save_addr_to_file(storage, addr, 5, notification);
+            if(confirmed_idx < MAX_CONFIRMED) memcpy(confirmed[confirmed_idx++], addr, 5);
             break;
         }
     }
 }
 
-static void start_sniffing() {
+static void clear_cache() {
+    found_count = 0;
+    unique_saved_count = 0;
+    confirmed_idx = 0;
+    candidate_idx = 0;
+    target_channel = 2;
+    total_candidates = 0;
     memset(candidates, 0, sizeof(candidates));
     memset(counts, 0, sizeof(counts));
+    memset(confirmed, 0, sizeof(confirmed));
+}
+
+static void start_sniffing() {
     nrf24_init_promisc_mode(nrf24_HANDLE, target_channel, target_rate);
 }
 
@@ -311,8 +322,8 @@ int32_t nrfsniff_app(void* p) {
     PluginState* plugin_state = malloc(sizeof(PluginState));
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, plugin_state, sizeof(PluginState))) {
-        FURI_LOG_E(TAG, "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
+        FURI_LOG_E(TAG, "cannot create mutex\r\n");
         free(plugin_state);
         return 255;
     }
@@ -366,18 +377,20 @@ int32_t nrfsniff_app(void* p) {
                         break;
                     case InputKeyRight:
                         // increment channel
-                        if(!sniffing_state && target_channel <= LOGITECH_MAX_CHANNEL)
-                            target_channel++;
+                        //if(!sniffing_state && target_channel <= LOGITECH_MAX_CHANNEL)
+                        //    target_channel++;
+                        sample_time += 500;
                         break;
                     case InputKeyLeft:
                         // decrement channel
-                        if(!sniffing_state && target_channel > 0) target_channel--;
+                        //if(!sniffing_state && target_channel > 0) target_channel--;
+                        if(sample_time > 500) sample_time -= 500;
                         break;
                     case InputKeyOk:
                         // toggle sniffing
                         sniffing_state = !sniffing_state;
                         if(sniffing_state) {
-                            found_count = 0;
+                            clear_cache();
                             start_sniffing();
                             start = furi_get_tick();
                         } else
@@ -398,22 +411,26 @@ int32_t nrfsniff_app(void* p) {
             if(nrf24_sniff_address(nrf24_HANDLE, 5, address)) {
                 int idx;
                 uint8_t* top_addr;
-                idx = get_addr_index(address, 5);
-                if(idx == -1)
-                    insert_addr(address, 5);
-                else
-                    counts[idx]++;
+                if(!previously_confirmed(address)) {
+                    idx = get_addr_index(address, 5);
+                    if(idx == -1)
+                        insert_addr(address, 5);
+                    else
+                        counts[idx]++;
 
-                top_addr = candidates[get_highest_idx()];
-                hexlify(top_addr, 5, top_address);
+                    top_addr = candidates[get_highest_idx()];
+                    hexlify(top_addr, 5, top_address);
+                }
             }
 
-            if(furi_get_tick() - start >= SAMPLE_TIME) {
-                wrap_up(storage, notification);
+            if(furi_get_tick() - start >= sample_time) {
                 target_channel++;
                 if(target_channel > LOGITECH_MAX_CHANNEL) target_channel = 2;
+                {
+                    wrap_up(storage, notification);
+                    start_sniffing();
+                }
 
-                start_sniffing();
                 start = furi_get_tick();
             }
         }
@@ -422,6 +439,10 @@ int32_t nrfsniff_app(void* p) {
         release_mutex(&state_mutex, plugin_state);
     }
 
+    clear_cache();
+    sample_time = DEFAULT_SAMPLE_TIME;
+    target_rate = 8; // rate can be either 8 (2Mbps) or 0 (1Mbps)
+    sniffing_state = false;
     furi_hal_spi_release(nrf24_HANDLE);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);

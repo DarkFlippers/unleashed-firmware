@@ -215,7 +215,7 @@ bool subghz_protocol_encoder_chamb_code_deserialize(void* context, FlipperFormat
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-        if(instance->generic.data_count_bit <
+        if(instance->generic.data_count_bit >
            subghz_protocol_chamb_code_const.min_count_bit_for_found) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
@@ -441,7 +441,7 @@ bool subghz_protocol_decoder_chamb_code_deserialize(void* context, FlipperFormat
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             break;
         }
-        if(instance->generic.data_count_bit <
+        if(instance->generic.data_count_bit >
            subghz_protocol_chamb_code_const.min_count_bit_for_found) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;

@@ -16,6 +16,16 @@ App(
 )
 
 App(
+    appid="debug_apps_lite",
+    name="Basic debug apps bundle",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "usb_mouse",
+        "uart_echo",
+    ],
+)
+
+App(
     appid="blink_test",
     name="Blink Test",
     apptype=FlipperAppType.DEBUG,

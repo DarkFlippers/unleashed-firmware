@@ -2,6 +2,8 @@
 #include "rfal_picopass.h"
 #include "utils.h"
 
+#define TAG "RFAL_PICOPASS"
+
 typedef struct {
     uint8_t CMD;
     uint8_t CSN[RFAL_PICOPASS_UID_LEN];
@@ -169,18 +171,14 @@ ReturnCode rfalPicoPassPollerWriteBlock(uint8_t blockNum, uint8_t data[8], uint8
     uint16_t recvLen = 0;
     uint32_t flags = RFAL_PICOPASS_TXRX_FLAGS;
     uint32_t fwt = rfalConvMsTo1fc(20);
-    rfalPicoPassReadBlockRes readRes;
+    rfalPicoPassReadBlockRes block;
 
     ret = rfalTransceiveBlockingTxRx(
-        txBuf,
-        sizeof(txBuf),
-        (uint8_t*)&readRes,
-        sizeof(rfalPicoPassReadBlockRes),
-        &recvLen,
-        flags,
-        fwt);
+        txBuf, sizeof(txBuf), (uint8_t*)&block, sizeof(block), &recvLen, flags, fwt);
 
-    // TODO: compare response
+    if(ret == ERR_NONE) {
+        // TODO: compare response
+    }
 
     return ret;
 }

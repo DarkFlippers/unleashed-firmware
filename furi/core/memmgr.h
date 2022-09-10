@@ -35,6 +35,28 @@ size_t memmgr_get_total_heap(void);
  */
 size_t memmgr_get_minimum_free_heap(void);
 
+/**
+ * @brief Allocate memory from separate memory pool. That memory can't be freed.
+ * 
+ * @param size 
+ * @return void* 
+ */
+void* memmgr_alloc_from_pool(size_t size);
+
+/**
+ * @brief Get free memory pool size
+ * 
+ * @return size_t 
+ */
+size_t memmgr_pool_get_free(void);
+
+/**
+ * @brief Get max free block size from memory pool
+ * 
+ * @return size_t 
+ */
+size_t memmgr_pool_get_max_block(void);
+
 #ifdef __cplusplus
 }
 #endif

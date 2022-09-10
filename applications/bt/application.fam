@@ -11,7 +11,7 @@ App(
     provides=[
         "bt_start",
         "bt_settings",
-        "bt_debug",
+        #"bt_debug",
     ],
     stack_size=1 * 1024,
     order=20,

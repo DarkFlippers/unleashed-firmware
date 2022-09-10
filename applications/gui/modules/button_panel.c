@@ -83,6 +83,15 @@ ButtonPanel* button_panel_alloc() {
     return button_panel;
 }
 
+void button_panel_reset_selection(ButtonPanel* button_panel) {
+    with_view_model(
+        button_panel->view, (ButtonPanelModel * model) {
+            model->selected_item_x = 0;
+            model->selected_item_y = 0;
+            return true;
+        });
+}
+
 void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t reserve_y) {
     furi_check(reserve_x > 0);
     furi_check(reserve_y > 0);

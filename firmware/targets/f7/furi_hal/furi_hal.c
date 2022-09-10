@@ -1,4 +1,5 @@
 #include <furi_hal.h>
+#include <furi_hal_memory.h>
 
 #include <stm32wbxx_ll_cortex.h>
 
@@ -75,6 +76,7 @@ void furi_hal_init() {
     furi_hal_rfid_init();
 #endif
     furi_hal_bt_init();
+    furi_hal_memory_init();
     furi_hal_compress_icon_init();
 
     // FatFS driver initialization

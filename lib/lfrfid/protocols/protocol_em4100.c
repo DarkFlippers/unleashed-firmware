@@ -264,7 +264,7 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
 
 void protocol_em4100_render_data(ProtocolEM4100* protocol, string_t result) {
     uint8_t* data = protocol->data;
-    string_printf(result, "ID: %03u,%05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
+    string_printf(result, "FC: %03u, Card: %05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
 };
 
 const ProtocolBase protocol_em4100 = {

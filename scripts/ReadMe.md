@@ -26,7 +26,6 @@ Also display type, region and etc...
 
 ## Core1 and Core2 firmware flashing
 
-Main flashing sequence can be found in root `Makefile`.
 Core2 goes first, then Core1.
 Never flash FUS or you will loose your job, girlfriend and keys in secure enclave.
 

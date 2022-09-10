@@ -13,13 +13,27 @@
 
 ## With Web Updater
 
-- Be sure you updated to latest official release before, and verify that microSD card is installed
+- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/Eng1n33r/flipperzero-firmware/releases/latest)
 - Connect your device and select `Install via Web Updater`
 after that on web updater page - press `Connect` button
 - Press `Install` button
 
 - And wait, if all flashed successfully - you will have all needed assets pre installed
+- Done
+
+<br>
+<br>
+
+## With iOS mobile app
+
+- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Open latest release page - [Releases](https://github.com/Eng1n33r/flipperzero-firmware/releases/latest)
+- Download `flipper-z-f7-update-(version).tgz`
+- Open downloads in ios Files app, select downloaded `.tgz` file, click Share, select Flipper App
+- In flipper app click green `Update` button, be sure it shows `Custom flipper-z-f7-update...` in Update Channel
+- Wait until update is finished
+- And if all flashed successfully - you will have all needed assets pre installed
 - Done
 
 <br>
@@ -76,4 +90,4 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 
 - ## [Read instructions how to use plugins and more](https://github.com/Eng1n33r/flipperzero-firmware#instructions)
 
-- ## [How To: Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
+- ## [How To: Configure Sub-GHz Remote App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)

@@ -27,16 +27,16 @@
 
 #define LFRFID_WORKER_READ_DROP_TIME_MS 50
 #define LFRFID_WORKER_READ_STABILIZE_TIME_MS 450
-#define LFRFID_WORKER_READ_SWITCH_TIME_MS 1500
+#define LFRFID_WORKER_READ_SWITCH_TIME_MS 2000
 
-#define LFRFID_WORKER_WRITE_VERIFY_TIME_MS 1500
+#define LFRFID_WORKER_WRITE_VERIFY_TIME_MS 2000
 #define LFRFID_WORKER_WRITE_DROP_TIME_MS 50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
 #define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 5
 
 #define LFRFID_WORKER_READ_BUFFER_SIZE 512
-#define LFRFID_WORKER_READ_BUFFER_COUNT 8
+#define LFRFID_WORKER_READ_BUFFER_COUNT 16
 
 #define LFRFID_WORKER_EMULATE_BUFFER_SIZE 1024
 
@@ -132,6 +132,8 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
 #ifdef LFRFID_WORKER_READ_DEBUG_GPIO
     furi_hal_gpio_init_simple(LFRFID_WORKER_READ_DEBUG_GPIO_VALUE, GpioModeOutputPushPull);
     furi_hal_gpio_init_simple(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, GpioModeOutputPushPull);
+    furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_VALUE, false);
+    furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, false);
 #endif
 
     LFRFIDWorkerReadContext ctx;
@@ -171,10 +173,16 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
         if(buffer_stream_get_overrun_count(ctx.stream) > 0) {
             FURI_LOG_E(TAG, "Read overrun, recovering");
             buffer_stream_reset(ctx.stream);
+#ifdef LFRFID_WORKER_READ_DEBUG_GPIO
+            furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, false);
+#endif
             continue;
         }
 
         if(buffer == NULL) {
+#ifdef LFRFID_WORKER_READ_DEBUG_GPIO
+            furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, false);
+#endif
             continue;
         }
 
@@ -261,23 +269,25 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
                         last_read_count = 0;
                     }
 
-                    string_t string_info;
-                    string_init(string_info);
-                    for(uint8_t i = 0; i < protocol_data_size; i++) {
-                        if(i != 0) {
-                            string_cat_printf(string_info, " ");
+                    if(furi_log_get_level() >= FuriLogLevelDebug) {
+                        string_t string_info;
+                        string_init(string_info);
+                        for(uint8_t i = 0; i < protocol_data_size; i++) {
+                            if(i != 0) {
+                                string_cat_printf(string_info, " ");
+                            }
+
+                            string_cat_printf(string_info, "%02X", protocol_data[i]);
                         }
 
-                        string_cat_printf(string_info, "%02X", protocol_data[i]);
+                        FURI_LOG_D(
+                            TAG,
+                            "%s, %d, [%s]",
+                            protocol_dict_get_name(worker->protocols, protocol),
+                            last_read_count,
+                            string_get_cstr(string_info));
+                        string_clear(string_info);
                     }
-
-                    FURI_LOG_D(
-                        TAG,
-                        "%s, %d, [%s]",
-                        protocol_dict_get_name(worker->protocols, protocol),
-                        last_read_count,
-                        string_get_cstr(string_info));
-                    string_clear(string_info);
 
                     protocol_dict_decoders_start(worker->protocols);
                 }
@@ -321,6 +331,8 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     free(last_data);
 
 #ifdef LFRFID_WORKER_READ_DEBUG_GPIO
+    furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_VALUE, false);
+    furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, false);
     furi_hal_gpio_init_simple(LFRFID_WORKER_READ_DEBUG_GPIO_VALUE, GpioModeAnalog);
     furi_hal_gpio_init_simple(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, GpioModeAnalog);
 #endif
@@ -522,9 +534,17 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                 &read_result);
 
             if(state == LFRFIDWorkerReadOK) {
-                protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+                bool read_success = false;
 
-                if(memcmp(read_data, verify_data, data_size) == 0) {
+                if(read_result == protocol) {
+                    protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+
+                    if(memcmp(read_data, verify_data, data_size) == 0) {
+                        read_success = true;
+                    }
+                }
+
+                if(read_success) {
                     if(worker->write_cb) {
                         worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
                     }

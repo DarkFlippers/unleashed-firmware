@@ -1,5 +1,5 @@
 #
-# Main Fipper Build System entry point
+# Main Flipper Build System entry point
 #
 # This file is evaluated by scons (the build system) every time fbt is invoked.
 # Scons constructs all referenced environments & their targets' dependency
@@ -15,7 +15,7 @@ DefaultEnvironment(tools=[])
 # Progress(["OwO\r", "owo\r", "uwu\r", "owo\r"], interval=15)
 
 
-# This environment is created only for loading options & validating file/dir existance
+# This environment is created only for loading options & validating file/dir existence
 fbt_variables = SConscript("site_scons/commandline.scons")
 cmd_environment = Environment(tools=[], variables=fbt_variables)
 Help(fbt_variables.GenerateHelpText(cmd_environment))

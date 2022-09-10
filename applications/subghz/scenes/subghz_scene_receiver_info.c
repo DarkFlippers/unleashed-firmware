@@ -152,17 +152,19 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
-                subghz_begin(
-                    subghz,
-                    subghz_setting_get_preset_data_by_name(
-                        subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
-                subghz_rx(subghz, subghz->txrx->preset->frequency);
+            if(!subghz->in_decoder_scene) {
+                if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
+                    subghz_begin(
+                        subghz,
+                        subghz_setting_get_preset_data_by_name(
+                            subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
+                    subghz_rx(subghz, subghz->txrx->preset->frequency);
+                }
+                if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
+                    subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
+                }
+                subghz->state_notifications = SubGhzNotificationStateRx;
             }
-            if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
-                subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
-            }
-            subghz->state_notifications = SubGhzNotificationStateRx;
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
@@ -209,6 +211,9 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
+    if(subghz->in_decoder_scene) {
+        subghz->in_decoder_scene = false;
+    }
     widget_reset(subghz->widget);
     keeloq_reset_mfname();
     keeloq_reset_kl_type();
