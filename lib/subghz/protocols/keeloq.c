@@ -140,6 +140,9 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
     uint64_t man = 0;
     uint64_t code_found_reverse;
     int res = 0;
+    if(instance->manufacture_name == 0x0) {
+        instance->manufacture_name = "";
+    }
 
     if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         code_found_reverse = subghz_protocol_blocks_reverse_key(
@@ -559,6 +562,9 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
     uint32_t decrypt = 0;
     uint64_t man;
     int res = 0;
+    if(mfname == 0x0) {
+        mfname = "";
+    }
 
     if(strcmp(mfname, "") == 0) {
     for
