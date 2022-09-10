@@ -1,6 +1,6 @@
 ### New changes
-* Actually fix universal tv remote
-* bt and lfrfid tune debug apps excluded from releases
+* .sub playlist plugin [(by darmiel)](https://github.com/darmiel/flipper-playlist) (PR #62)
+* HW Region will be reported as 0 so it won't call subghz provisioning in apps (I hope)
 
 **Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
