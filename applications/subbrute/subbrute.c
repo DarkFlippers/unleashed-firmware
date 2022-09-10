@@ -75,10 +75,8 @@ SubBruteState* subbrute_alloc() {
 
     subbrute->preset_def = malloc(sizeof(SubGhzPresetDefinition));
 
-    subbrute->flipper_format = flipper_format_string_alloc();
-    subbrute->environment = subghz_environment_alloc();
-    subbrute->receiver = subghz_receiver_alloc_init(subbrute->environment);
-    subghz_receiver_set_filter(subbrute->receiver, SubGhzProtocolFlag_Decodable);
+    //subbrute->flipper_format = flipper_format_string_alloc();
+    //subbrute->environment = subghz_environment_alloc();
 
     return subbrute;
 }
@@ -103,9 +101,9 @@ void subbrute_free(SubBruteState* subbrute) {
     string_clear(subbrute->candidate);
     string_clear(subbrute->flipper_format_string);
 
-    flipper_format_free(subbrute->flipper_format);
-    subghz_environment_free(subbrute->environment);
-    subghz_receiver_free(subbrute->receiver);
+    //flipper_format_free(subbrute->flipper_format);
+    //subghz_environment_free(subbrute->environment);
+    //subghz_receiver_free(subbrute->receiver);
 
     free(subbrute->preset_def);
 

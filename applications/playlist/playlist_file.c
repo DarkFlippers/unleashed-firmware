@@ -15,6 +15,7 @@ int playlist_count_playlist_items(Storage* storage, const char* file_path) {
         ++count;
     }
     flipper_format_file_close(format);
+    flipper_format_free(format);
     string_clear(data);
     return count;
 }

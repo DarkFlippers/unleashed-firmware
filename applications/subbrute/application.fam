@@ -1,6 +1,6 @@
 App(
     appid="subbrute",
-    name="SubGHz Bruteforcer",
+    name="Sub-GHz Bruteforcer",
     apptype=FlipperAppType.PLUGIN,
     entry_point="subbrute_start",
     cdefines=["APP_SUB_BRUTE"],
