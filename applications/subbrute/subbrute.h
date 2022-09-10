@@ -29,6 +29,7 @@ typedef enum {
 
 typedef enum {
     SubBruteAttackLoadFile,
+    SubBruteAttackCAME12bit307,
     SubBruteAttackCAME12bit433,
     SubBruteAttackCAME12bit868,
     SubBruteAttackChamberlain9bit315,
