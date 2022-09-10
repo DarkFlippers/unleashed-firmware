@@ -98,7 +98,7 @@ FIRMWARE_APPS = {
         # Svc
         "basic_services",
         # Apps
-        #"basic_apps",
+        "basic_apps",
         "updater_app",
         "storage_move_to_sd",
         "archive",
@@ -109,7 +109,7 @@ FIRMWARE_APPS = {
         # Plugins
         #"basic_plugins",
         # Debug
-        "debug_apps",
+        #"debug_apps",
     ],
 }
 
