@@ -1,5 +1,5 @@
 V:0
-T:1662725830
+T:1662820417
 D:badusb
 D:dolphin
 D:infrared
@@ -7,6 +7,7 @@ D:music_player
 D:nfc
 D:rfidfuzzer
 D:subghz
+D:subplaylist
 D:u2f
 D:unirf
 D:badusb/layouts
@@ -261,6 +262,7 @@ F:111d2b8df83e27fd889fc5e270297865:3231:subghz/assets/keeloq_mfcodes
 F:bb48d7d7db4f6e849436d0e1a9b7a1a7:633:subghz/assets/keeloq_mfcodes_user_example
 F:653bd8d349055a41e1152e557d4a52d3:202:subghz/assets/nice_flor_s
 F:48eec96d1884c311a7b011c0ad5b2dde:2816:subghz/assets/setting_user
+F:bbb5c7ef8f286b75cce75ab167cf27e6:234:subplaylist/example_playlist.txt
 D:u2f/assets
 F:7e11e688e39034bbb9d88410044795e1:365:u2f/assets/cert.der
 F:f60b88c20ed479ed9684e249f7134618:264:u2f/assets/cert_key.u2f

@@ -16,7 +16,7 @@ Please help us implement emulation for all subghz dynamic (rolling code) protoco
 <br>
 Our Discord Community:
 <br>
-<a href="https://discord.gg/58D6E8BtTU"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community"></a>
+<a href="https://discord.gg/flipperzero-unofficial"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community"></a>
 
 <br>
 <br>
@@ -61,6 +61,7 @@ See changelog in releases for latest updates!
 
 - RFID Fuzzer plugin [(by Ganapati)](https://github.com/Eng1n33r/flipperzero-firmware/pull/54) with some changes by xMasterX
 - Sub-GHz bruteforce plugin [(by Ganapati & xMasterX)](https://github.com/Eng1n33r/flipperzero-firmware/pull/57)
+- Sub-GHz playlist plugin [(by darmiel)](https://github.com/Eng1n33r/flipperzero-firmware/pull/62)
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
 - MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
@@ -100,6 +101,8 @@ See changelog in releases for latest updates!
 
 ## [- WAV Player sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
 
+## [- SubGHz playlist generator script](https://github.com/darmiel/flipper-scripts/blob/main/playlist/playlist_creator_by_chunk.py)
+
 ### **Plugins that works with external hardware**
 
 ## [- How to use: [NRF24] plugins](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/NRF24.md)
@@ -137,7 +140,7 @@ See changelog in releases for latest updates!
 
 # Links
 
-* Unofficial Discord: [discord.gg/58D6E8BtTU](https://discord.gg/58D6E8BtTU)
+* Unofficial Discord: [discord.gg/flipperzero-unofficial](https://discord.gg/flipperzero-unofficial)
 * Docs by atmanos / How to write your own app (outdated API): [https://flipper.atmanos.com/docs/overview/intro](https://flipper.atmanos.com/docs/overview/intro)
 
 * Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
