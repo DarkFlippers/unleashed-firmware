@@ -162,7 +162,7 @@ void subbrute_scene_entrypoint_on_draw(Canvas* canvas, SubBruteState* context) {
 
     // Title
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 6, AlignCenter, AlignTop, "SubGHz Fuzzer");
+    canvas_draw_str_aligned(canvas, 64, 6, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
 
     if(context->menu_index > SubBruteAttackLoadFile) {
         canvas_set_font(canvas, FontSecondary);
