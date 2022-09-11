@@ -504,7 +504,7 @@ uint8_t nrf24_find_channel(
     }
 
     if(autoinit) {
-        FURI_LOG_I("nrf24", "initializing radio for channel %d", ch);
+        FURI_LOG_D("nrf24", "initializing radio for channel %d", ch);
         nrf24_configure(handle, rate, srcmac, dstmac, maclen, ch, false, false);
         return ch;
     }

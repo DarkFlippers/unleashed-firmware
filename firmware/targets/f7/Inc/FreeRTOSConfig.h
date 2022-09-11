@@ -32,7 +32,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_16_BIT_TICKS 0
 #define configUSE_MUTEXES 1
 #define configQUEUE_REGISTRY_SIZE 0
-#define configCHECK_FOR_STACK_OVERFLOW 2
+#define configCHECK_FOR_STACK_OVERFLOW 0
 #define configUSE_RECURSIVE_MUTEXES 1
 #define configUSE_COUNTING_SEMAPHORES 1
 #define configENABLE_BACKWARD_COMPATIBILITY 0
@@ -145,3 +145,7 @@ standard names. */
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 1
 #define configOVERRIDE_DEFAULT_TICK_CONFIGURATION \
     1 /* required only for Keil but does not hurt otherwise */
+
+#define traceTASK_SWITCHED_IN()                                     \
+    extern void furi_hal_mpu_set_stack_protection(uint32_t* stack); \
+    furi_hal_mpu_set_stack_protection((uint32_t*)pxCurrentTCB->pxStack)

@@ -134,6 +134,7 @@ bool subbrute_load(SubBruteState* context, const char* file_path) {
     string_clear(temp_str);
     flipper_format_file_close(fff_data_file);
     flipper_format_free(fff_data_file);
+    furi_record_close(RECORD_STORAGE);
     if(result) {
         FURI_LOG_I(TAG, "Loaded successfully");
         string_reset(context->notification_msg);
@@ -197,6 +198,9 @@ bool subbrute_load_protocol_from_file(SubBruteState* context) {
     string_t file_path;
     string_init(file_path);
     string_set_str(file_path, SUBGHZ_APP_PATH_FOLDER);
+    context->environment = subghz_environment_alloc();
+    context->receiver = subghz_receiver_alloc_init(context->environment);
+    subghz_receiver_set_filter(context->receiver, SubGhzProtocolFlag_Decodable);
 
     // Input events and views are managed by file_select
     bool res = dialog_file_browser_show(
@@ -205,6 +209,9 @@ bool subbrute_load_protocol_from_file(SubBruteState* context) {
     if(res) {
         res = subbrute_load(context, string_get_cstr(file_path));
     }
+
+    subghz_environment_free(context->environment);
+    subghz_receiver_free(context->receiver);
 
     string_clear(file_path);
 

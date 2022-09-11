@@ -6,5 +6,5 @@ App(
     cdefines=["APP_FLIP_FRID"],
     requires=["gui"],
     stack_size=1 * 1024,
-    order=13,
+    order=15,
 )

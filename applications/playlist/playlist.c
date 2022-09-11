@@ -310,6 +310,9 @@ static int32_t playlist_worker_thread(void* ctx) {
         ++worker->meta->current_playlist_repetition;
         // send playlist
         worker->meta->current_count = 0;
+        if(worker->ctl_request_exit) {
+            break;
+        }
 
         FURI_LOG_D(
             TAG,
@@ -464,7 +467,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
             canvas_draw_str_aligned(canvas, 1, 19, AlignLeft, AlignTop, string_get_cstr(temp_str));
 
             if(app->meta->playlist_repetitions <= 0) {
-                string_printf(temp_str, "Repeat: yes", app->meta->playlist_repetitions);
+                string_printf(temp_str, "Repeat: inf", app->meta->playlist_repetitions);
             } else if(app->meta->playlist_repetitions == 1) {
                 string_printf(temp_str, "Repeat: no", app->meta->playlist_repetitions);
             } else {

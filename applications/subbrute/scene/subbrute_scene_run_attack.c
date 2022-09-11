@@ -2,7 +2,7 @@
 #include <lib/subghz/transmitter.h>
 #include <gui/elements.h>
 
-uint64_t subbrute_counter = 0;
+//uint64_t subbrute_counter = 0;
 uint64_t max_value;
 bool locked = false;
 bool toSave = false;
@@ -63,8 +63,8 @@ void prepare_emit(SubBruteState* context) {
 void clear_emit(SubBruteState* context) {
     UNUSED(context);
 
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_idle();
+    //furi_hal_subghz_stop_async_tx();
+    //furi_hal_subghz_idle();
     furi_hal_subghz_sleep();
 }
 /*
@@ -172,8 +172,6 @@ void subbrute_send_packet_parsed(SubBruteState* context) {
 
     stream_clean(context->stream);
     stream_write_string(context->stream, context->flipper_format_string);
-
-    subbrute_emit(context);
 }
 
 void subbrute_send_packet(SubBruteState* context) {
@@ -181,6 +179,7 @@ void subbrute_send_packet(SubBruteState* context) {
     //   subbrute_send_raw_packet(context);
     //} else {
     subbrute_send_packet_parsed(context);
+    subbrute_emit(context);
     //}
     string_clear(context->flipper_format_string);
 }
@@ -189,6 +188,9 @@ void subbrute_scene_run_attack_on_exit(SubBruteState* context) {
     if(!toSave) {
         clear_emit(context);
         furi_thread_free(context->bruthread);
+        flipper_format_free(context->flipper_format);
+        subghz_receiver_free(context->receiver);
+        subghz_environment_free(context->environment);
     }
 }
 
@@ -201,8 +203,8 @@ void subbrute_scene_run_attack_on_tick(SubBruteState* context) {
     subbrute_send_packet(context);
 
     if(context->payload == max_value) {
-        context->payload = 0x00;
-        subbrute_counter = 0;
+        //context->payload = 0x00;
+        //subbrute_counter = 0;
         context->is_attacking = false;
         notification_message(context->notify, &sequence_blink_stop);
         notification_message(context->notify, &sequence_single_vibro);
@@ -219,7 +221,7 @@ void subbrute_scene_run_attack_on_tick(SubBruteState* context) {
 }
 void subbrute_run_timer(SubBruteState* context) {
     while(true) {
-        if(context->close_thread_please) {
+        if(!context->is_attacking) {
             context->is_thread_running = false;
             break;
         }
@@ -260,6 +262,8 @@ void subbrute_scene_run_attack_on_enter(SubBruteState* context) {
         context->flipper_format = flipper_format_string_alloc();
         context->stream = flipper_format_get_raw_stream(context->flipper_format);
         context->environment = subghz_environment_alloc();
+        context->receiver = subghz_receiver_alloc_init(context->environment);
+        subghz_receiver_set_filter(context->receiver, SubGhzProtocolFlag_Decodable);
 
         prepare_emit(context);
         context->bruthread = furi_thread_alloc();
@@ -280,6 +284,8 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
                 break;
             case InputKeyUp:
                 if(!context->is_attacking) {
+                    subbrute_send_packet_parsed(context);
+                    string_clear(context->flipper_format_string);
                     toSave = true;
                     context->current_scene = SceneSaveName;
                 }
@@ -289,6 +295,10 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
                     context->payload--;
                     subbrute_send_packet(context);
                     notification_message(context->notify, &sequence_blink_blue_10);
+                } else if(!context->is_attacking && context->payload == 0x00) {
+                    context->payload = max_value;
+                    subbrute_send_packet(context);
+                    notification_message(context->notify, &sequence_blink_blue_10);
                 }
                 break;
             case InputKeyRight:
@@ -296,35 +306,43 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
                     context->payload++;
                     subbrute_send_packet(context);
                     notification_message(context->notify, &sequence_blink_blue_10);
+                } else if(!context->is_attacking && context->payload == max_value) {
+                    context->payload = 0x00;
+                    subbrute_send_packet(context);
+                    notification_message(context->notify, &sequence_blink_blue_10);
                 }
                 break;
             case InputKeyOk:
                 if(!context->is_attacking) {
+                    if(context->payload == max_value) {
+                        context->payload = 0x00;
+                        //subbrute_counter = 0;
+                    }
                     context->is_attacking = true;
                     start_bruthread(context);
                     notification_message(context->notify, &sequence_blink_start_blue);
                 } else {
                     context->is_attacking = false;
-                    context->close_thread_please = true;
+                    //context->close_thread_please = true;
                     if(context->is_thread_running && context->bruthread) {
                         furi_thread_join(context->bruthread); // wait until thread is finished
                     }
-                    context->close_thread_please = false;
+                    //context->close_thread_please = false;
                     notification_message(context->notify, &sequence_blink_stop);
                     notification_message(context->notify, &sequence_single_vibro);
                 }
                 break;
             case InputKeyBack:
                 locked = false;
-                context->close_thread_please = true;
+                //context->close_thread_please = true;
                 context->is_attacking = false;
                 if(context->is_thread_running && context->bruthread) {
                     furi_thread_join(context->bruthread); // wait until thread is finished
                 }
-                context->close_thread_please = false;
+                //context->close_thread_please = false;
                 string_reset(context->notification_msg);
                 context->payload = 0x00;
-                subbrute_counter = 0;
+                //subbrute_counter = 0;
                 notification_message(context->notify, &sequence_blink_stop);
                 if(context->attack == SubBruteAttackLoadFile) {
                     context->current_scene = SceneSelectField;
