@@ -107,7 +107,7 @@ static void furi_hal_version_set_name(const char* name) {
     // BLE Mac address
     uint32_t udn = LL_FLASH_GetUDN();
     if(version_get_custom_name(NULL) != NULL) {
-        udn = (uint32_t)*version_get_custom_name(NULL);
+        udn = *((uint32_t*)version_get_custom_name(NULL));
     }
 
     uint32_t company_id = LL_FLASH_GetSTCompanyID();
@@ -318,7 +318,7 @@ size_t furi_hal_version_uid_size() {
 
 const uint8_t* furi_hal_version_uid() {
     if(version_get_custom_name(NULL) != NULL) {
-        return (const uint8_t*)((uint32_t)*version_get_custom_name(NULL));
+        return (const uint8_t*)&(*((uint32_t*)version_get_custom_name(NULL)));
     }
     return (const uint8_t*)UID64_BASE;
 }
