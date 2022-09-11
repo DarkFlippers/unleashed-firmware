@@ -1,11 +1,7 @@
 ### New changes
-* Include CAME 12 bits bruteforce on 307.80Mhz (PR 63 / by @enovella)
-* Add MPU Hal back
-* Fix Keeloq
-* Lower stack size for apps
-* Fix Subghz playlist unable to exit when repeat set to infinity
-* Fix subghz brute plugin - save was generating broken files, many other fixes and improvements
-* Mousejacker fixes, allow exit from app when it stuck at unable to connect with receiver, removed blank screen while executing duckyscript
+* Fix Custom flipper names
+* Arkanoid: Fix - dont allow user to jump after start (PR 64 / by @TQMatvey)
+* Fix subghz starline protocol
 
 **Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
 
