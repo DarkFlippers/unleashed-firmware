@@ -1,5 +1,5 @@
 V:0
-T:1662820417
+T:1662935486
 D:badusb
 D:dolphin
 D:infrared
@@ -26,6 +26,7 @@ F:4535dd8ef77ff9fc03f1d669af68fa5d:256:badusb/layouts/fr-FR.kl
 F:0d971f10fc8f3d373604f3b19ebf9251:256:badusb/layouts/hu-HU.kl
 F:66564950e0bbfb4cc1d847ce3ab28b24:256:badusb/layouts/it-IT.kl
 F:fe381203fa06318e0dc05c8c2efdc609:256:badusb/layouts/nl-NL.kl
+F:e29d0228ddc4f0e06dd98f9ee3f2a408:256:badusb/layouts/pt-BR.kl
 F:d939c563da44f227786350b6e467c155:256:badusb/layouts/pt-PT.kl
 F:6461e0e3897f295d59efecd70ca3a294:256:badusb/layouts/sk-SK.kl
 F:b62d559209e0d450b4d77f76e29ec1be:256:badusb/layouts/sv-SE.kl
