@@ -50,6 +50,7 @@ typedef struct {
     unsigned int score; //Score for the game
     unsigned int brickCount; //Amount of bricks hit
     int tick; //Tick counter
+    bool gameStarted; // Did the game start?
 } ArkanoidState;
 
 typedef struct {
@@ -102,6 +103,7 @@ void move_ball(Canvas* canvas, ArkanoidState* st) {
             st->ball_state.yb = 60;
             st->ball_state.released = false;
             st->lives--;
+            st->gameStarted = false;
 
             if(rand_range(0, 2) == 0) {
                 st->ball_state.dx = 1;
@@ -294,6 +296,7 @@ static void arkanoid_state_init(ArkanoidState* arkanoid_state) {
 
     // Reset initial state
     arkanoid_state->initialDraw = false;
+    arkanoid_state->gameStarted = false;
 }
 
 static void arkanoid_draw_callback(Canvas* const canvas, void* ctx) {
@@ -416,19 +419,23 @@ int32_t arkanoid_game_app(void* p) {
                     case InputKeyDown:
                         break;
                     case InputKeyOk:
-                        //Release ball if FIRE pressed
-                        arkanoid_state->ball_state.released = true;
+                        if(arkanoid_state->gameStarted == false) {
+                            //Release ball if FIRE pressed
+                            arkanoid_state->ball_state.released = true;
 
-                        //Apply random direction to ball on release
-                        if(rand_range(0, 2) == 0) {
-                            arkanoid_state->ball_state.dx = 1;
-                        } else {
-                            arkanoid_state->ball_state.dx = -1;
+                            //Apply random direction to ball on release
+                            if(rand_range(0, 2) == 0) {
+                                arkanoid_state->ball_state.dx = 1;
+                            } else {
+                                arkanoid_state->ball_state.dx = -1;
+                            }
+
+                            //Makes sure the ball heads upwards
+                            arkanoid_state->ball_state.dy = -1;
+                            //start the game flag
+                            arkanoid_state->gameStarted = true;
+                            break;
                         }
-
-                        //Makes sure the ball heads upwards
-                        arkanoid_state->ball_state.dy = -1;
-                        break;
                     }
                 }
             }
