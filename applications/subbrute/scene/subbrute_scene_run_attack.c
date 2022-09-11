@@ -172,8 +172,6 @@ void subbrute_send_packet_parsed(SubBruteState* context) {
 
     stream_clean(context->stream);
     stream_write_string(context->stream, context->flipper_format_string);
-
-    subbrute_emit(context);
 }
 
 void subbrute_send_packet(SubBruteState* context) {
@@ -181,6 +179,7 @@ void subbrute_send_packet(SubBruteState* context) {
     //   subbrute_send_raw_packet(context);
     //} else {
     subbrute_send_packet_parsed(context);
+    subbrute_emit(context);
     //}
     string_clear(context->flipper_format_string);
 }
@@ -285,6 +284,8 @@ void subbrute_scene_run_attack_on_event(SubBruteEvent event, SubBruteState* cont
                 break;
             case InputKeyUp:
                 if(!context->is_attacking) {
+                    subbrute_send_packet_parsed(context);
+                    string_clear(context->flipper_format_string);
                     toSave = true;
                     context->current_scene = SceneSaveName;
                 }
