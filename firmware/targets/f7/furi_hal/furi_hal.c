@@ -1,6 +1,6 @@
 #include <furi_hal.h>
-#include <furi_hal_memory.h>
 #include <furi_hal_mpu.h>
+#include <furi_hal_memory.h>
 
 #include <stm32wbxx_ll_cortex.h>
 

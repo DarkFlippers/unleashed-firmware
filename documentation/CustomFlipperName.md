@@ -8,9 +8,10 @@
 5. Run command with extra enviroment var before `./fbt` that variable should contain your custom name in alphanumeric characters - max length 8 chars
  `CUSTOM_FLIPPER_NAME=Name ./fbt COMPACT=1 DEBUG=0 updater_package` - where `Name` write your custom name
 6. Copy `dist/f7-C/f7-update-local` folder to microSD `update/myfw/` and run `update` file on flipper from file manager app (Archive)
-7. Flash from microSD card only, .dfu update from qFlipper will not work properly since name and serial number will be changed
+7. Flash from microSD card only!!!! .dfu update from qFlipper will not work properly since name and serial number will be changed
 8. Done, you will have custom name, serial number and bluetooth mac address
 
+9. Also you can skip 5-7 and flash with `CUSTOM_FLIPPER_NAME=Name ./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_usb_full`
 
 
 ## Troubleshooting

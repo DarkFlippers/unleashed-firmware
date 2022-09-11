@@ -472,6 +472,9 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
     uint32_t decrypt = 0;
     uint64_t man_normal_learning;
     int res = 0;
+    if(mfname == 0x0) {
+        mfname = "";
+    }
 
     if(strcmp(mfname, "") == 0) {
     for
