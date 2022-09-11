@@ -68,8 +68,9 @@ static void render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_str_aligned(canvas, 3, 30, AlignLeft, AlignBottom, "loading error");
     } else if(plugin_state->is_thread_running) {
         canvas_draw_str_aligned(canvas, 3, 10, AlignLeft, AlignBottom, "Running duckyscript");
-        canvas_draw_str_aligned(canvas, 3, 20, AlignLeft, AlignBottom, "press back");
-        canvas_draw_str_aligned(canvas, 3, 30, AlignLeft, AlignBottom, "to exit");
+        canvas_draw_str_aligned(canvas, 3, 20, AlignLeft, AlignBottom, "Please wait!");
+        canvas_draw_str_aligned(
+            canvas, 3, 30, AlignLeft, AlignBottom, "Press back to exit (if it stuck)");
     } else {
         canvas_draw_str_aligned(canvas, 3, 10, AlignLeft, AlignBottom, "Unknown Error");
         canvas_draw_str_aligned(canvas, 3, 20, AlignLeft, AlignBottom, "press back");
