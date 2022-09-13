@@ -1,7 +1,42 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 9th Sept, 2022
+# Last Updated 13th Sept, 2022
 # 
+name: POWER
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 3553 1709 466 407 465 1277 466 407 492 379 464 406 465 406 465 405 466 405 466 406 491 407 463 408 462 409 461 411 460 1284 459 412 460 412 460 412 459 412 459 412 459 412 459 412 460 412 459 412 459 1284 459 412 460 412 459 412 459 413 459 412 460 412 459 412 460 412 459 1285 458 412 459 1285 458 1285 459 1285 458 1285 458 413 458 413 458 1285 458 413 458 1285 459 1285 459 1285 458 1285 458 413 458 1285 458 74570 3544 1715 460 411 460 1284 459 412 459 412 459 412 459 412 460 412 459 412 459 412 459 412 459 412 459 412 460 412 459 1284 459 412 460 412 459 412 459 412 460 412 459 412 459 412 459 412 459 412 460 1284 459 412 459 412 459 412 460 412 459 412 460 412 459 412 460 412 460 1284 459 412 460 1284 459 1284 459 1285 459 1285 458 413 458 413 458 1285 459 412 459 1285 458 1285 458 1285 459 1285 459 412 459 1284 459 74570 3544 1715 459 413 458 1285 459 412 459 412 459 413 459 413 458 413 458 413 459 413 458 413 458 413 459 413 458 413 458 1285 459 413 459 413 458 413 458 413 459 413 458 413 459 413 458 413 458 413 459 1285 458 413 458 413 458 413 459 413 458 413 458 413 459 413 459 413 458 1285 459 413 458 1285 459 1285 459 1285 458 1285 458 413 458 413 458 1285 459 413 458 1285 458 1285 458 1286 457 1286 458 414 458 1286 457
+# 
+name: MUTE
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 3554 1678 495 403 468 1248 495 403 497 374 497 375 497 374 497 374 497 375 496 375 496 375 495 377 493 378 492 380 490 1254 489 383 488 383 489 383 488 383 488 383 488 383 489 383 488 383 489 383 488 1255 488 383 488 384 488 383 488 384 487 384 487 384 487 384 488 384 488 384 487 1256 487 384 488 384 487 1256 488 1256 488 384 487 384 487 384 488 1256 487 384 488 384 487 1257 487 1257 487 385 486 1257 487
+# 
+name: VOL+
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 3554 1678 495 404 467 1249 524 374 497 374 497 374 497 374 497 374 497 375 496 375 495 376 494 377 493 379 491 381 489 1255 488 383 488 383 488 383 489 383 488 383 488 383 488 383 489 383 488 383 489 1255 488 383 489 383 488 383 489 383 488 383 488 384 488 383 489 383 488 384 488 384 487 383 488 384 487 384 488 1256 488 384 487 384 487 384 488 384 487 384 487 384 488 384 487 1256 487 384 488 1256 487 75630 3547 1686 487 384 487 1281 462 409 463 409 462 409 462 410 462 409 462 409 463 409 463 410 461 410 461 410 462 410 461 1282 462 410 461 410 461 410 462 410 461 410 461 410 462 410 461 410 461 410 461 1282 462 410 462 410 461 410 461 410 461 410 462 410 462 410 461 410 461 410 462 410 462 410 461 410 462 410 461 1282 462 410 461 410 461 410 461 410 461 411 461 410 461 411 461 1282 461 411 461 1283 460
+# 
+name: VOL-
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 3585 1649 524 374 497 1245 498 373 498 374 497 375 496 375 496 375 496 375 496 375 496 376 494 378 492 379 491 381 490 1255 489 383 488 383 488 383 489 383 488 383 488 383 488 383 488 383 489 383 488 1255 488 383 488 383 488 383 489 383 488 383 488 383 488 383 488 383 488 1256 488 384 488 384 487 384 487 384 487 1256 487 384 488 384 488 1256 487 384 488 408 463 385 487 384 487 1257 486 385 486 1257 486 75629 3549 1684 489 383 488 1255 488 383 488 383 489 383 488 383 489 383 488 383 489 383 488 383 489 383 488 383 488 384 488 1255 489 383 488 384 488 384 487 383 488 384 487 383 489 384 487 384 488 384 487 1256 487 384 488 384 487 384 488 384 487 385 486 384 488 385 486 385 486 1257 487 384 487 409 462 386 486 385 486 1257 486 385 486 409 462 1257 487 409 462 409 463 409 462 409 463 1281 462 410 462 1282 461
+# 
+name: CH+
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 3526 1678 495 403 468 1248 496 403 496 375 496 375 497 375 496 375 496 376 495 376 495 376 495 377 493 378 492 380 490 1254 488 384 488 383 488 384 488 384 487 384 487 384 487 384 488 384 487 384 488 1257 486 385 486 385 486 385 487 385 486 386 486 409 462 409 462 410 461 410 462 410 461 1282 462 409 462 1282 462 1282 461 410 462 410 461 410 461 410 462 1282 461 410 462 1282 461 1282 462 410 461 1282 462
+# 
+name: CH-
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 3583 1649 524 374 497 1218 526 373 498 374 497 374 497 374 497 374 497 374 497 374 497 375 495 376 494 378 492 380 490 1254 489 382 489 382 489 382 490 382 489 382 489 382 489 382 490 382 490 382 489 1254 490 382 489 383 488 382 490 382 489 382 490 382 489 382 489 382 490 1254 489 383 488 1255 489 383 488 1255 489 1255 488 383 488 383 489 1255 488 383 488 1255 489 383 488 1255 488 1255 489 383 488 1255 489
 # ON
 name: POWER
 type: parsed
@@ -67,85 +102,85 @@ name: MUTE
 type: parsed
 protocol: NEC
 address: 08 00 00 00
-command: 0b 00 00 00
+command: 0B 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 00 df 00 00
-command: 1c 00 00 00
+address: 00 DF 00 00
+command: 1C 00 00 00
 # 
 name: VOL+
 type: parsed
 protocol: NECext
-address: 00 df 00 00
-command: 4b 00 00 00
+address: 00 DF 00 00
+command: 4B 00 00 00
 # 
 name: VOL-
 type: parsed
 protocol: NECext
-address: 00 df 00 00
-command: 4f 00 00 00
+address: 00 DF 00 00
+command: 4F 00 00 00
 # 
 name: CH+
 type: parsed
 protocol: NECext
-address: 00 df 00 00
+address: 00 DF 00 00
 command: 09 00 00 00
 # 
 name: CH-
 type: parsed
 protocol: NECext
-address: 00 df 00 00
+address: 00 DF 00 00
 command: 05 00 00 00
 # 
 name: MUTE
 type: parsed
 protocol: NECext
-address: 00 df 00 00
+address: 00 DF 00 00
 command: 08 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00
-command: 0c 00 00 00
+address: 0E 00 00 00
+command: 0C 00 00 00
 # 
 name: MUTE
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00
-command: 0d 00 00 00
+address: 0E 00 00 00
+command: 0D 00 00 00
 # 
 name: VOL+
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00
+address: 0E 00 00 00
 command: 14 00 00 00
 # 
 name: VOL-
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00
+address: 0E 00 00 00
 command: 15 00 00 00
 # 
 name: CH+
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00
+address: 0E 00 00 00
 command: 12 00 00 00
 # 
 name: CH-
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00
+address: 0E 00 00 00
 command: 13 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: RC6
 address: 00 00 00 00
-command: 0c 00 00 00
+command: 0C 00 00 00
 # 
 name: POWER
 type: parsed
@@ -174,19 +209,19 @@ command: 63 00 00 00
 name: POWER
 type: parsed
 protocol: NEC
-address: aa 00 00 00
-command: 1c 00 00 00
+address: AA 00 00 00
+command: 1C 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
 address: 38 00 00 00
-command: 1c 00 00 00
+command: 1C 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 83 7a 00 00
+address: 83 7A 00 00
 command: 08 00 00 00
 # 
 name: POWER
@@ -199,7 +234,7 @@ name: POWER
 type: parsed
 protocol: NECext
 address: 18 18 00 00
-command: c0 00 00 00
+command: C0 00 00 00
 # 
 name: POWER
 type: parsed
@@ -210,8 +245,8 @@ command: 10 00 00 00
 name: POWER
 type: parsed
 protocol: NEC
-address: aa 00 00 00
-command: c5 00 00 00
+address: AA 00 00 00
+command: C5 00 00 00
 # 
 name: POWER
 type: parsed
@@ -234,8 +269,8 @@ command: 08 00 00 00
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 6f 00 00
-command: 0a 00 00 00
+address: 80 6F 00 00
+command: 0A 00 00 00
 # 
 name: POWER
 type: parsed
@@ -246,13 +281,13 @@ command: 00 00 00 00
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 7b 00 00
+address: 80 7B 00 00
 command: 13 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 7e 00 00
+address: 80 7E 00 00
 command: 18 00 00 00
 # 
 name: POWER
@@ -265,25 +300,25 @@ name: POWER
 type: parsed
 protocol: NECext
 address: 80 75 00 00
-command: 0a 00 00 00
+command: 0A 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
 address: 80 57 00 00
-command: 0a 00 00 00
+command: 0A 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 0b 00 00 00
-command: 0a 00 00 00
+address: 0B 00 00 00
+command: 0A 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: aa 00 00 00
-command: 1b 00 00 00
+address: AA 00 00 00
+command: 1B 00 00 00
 # 
 name: POWER
 type: parsed
@@ -301,7 +336,7 @@ name: POWER
 type: parsed
 protocol: Samsung32
 address: 08 00 00 00
-command: 0f 00 00 00
+command: 0F 00 00 00
 # 
 name: POWER
 type: parsed
@@ -506,12 +541,6 @@ type: raw
 frequency: 38000
 duty_cycle: 0.33
 data: 560 2939 453 10018 475 2996 477 10022 450 3021 452 10018 475 3097 478 6464 483 6460 477 6466 502 6469 479 2993 480 2990 484 36274 564 2936 456 10015 478 2993 481 10020 534 2936 456 10014 479 3093 482 6461 476 6466 482 6461 476 6495 473 2999 485 2986 477
-# 
-name: POWER
-type: raw
-frequency: 38000
-duty_cycle: 0.33
-data: 10726 41047 10727
 # 
 name: POWER
 type: raw
@@ -967,7 +996,7 @@ name: POWER
 type: parsed
 protocol: NEC
 address: 71 00 00 00
-command: 4a 00 00 00
+command: 4A 00 00 00
 # 
 name: POWER
 type: parsed
@@ -990,26 +1019,26 @@ command: 01 00 00 00
 name: POWER
 type: parsed
 protocol: NECext
-address: 50 ad 00 00
+address: 50 AD 00 00
 command: 00 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 50 ad 00 00
+address: 50 AD 00 00
 command: 02 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
 address: 50 00 00 00
-command: 3f 00 00 00
+command: 3F 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
 address: 06 00 00 00
-command: 0f 00 00 00
+command: 0F 00 00 00
 # 
 name: POWER
 type: parsed
@@ -1021,13 +1050,13 @@ name: POWER
 type: parsed
 protocol: Samsung32
 address: 08 00 00 00
-command: 0b 00 00 00
+command: 0B 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
 address: 83 55 00 00
-command: c2 00 00 00
+command: C2 00 00 00
 # 
 name: POWER
 type: parsed
@@ -1038,20 +1067,20 @@ command: 51 00 00 00
 name: POWER
 type: parsed
 protocol: NECext
-address: 00 bd 00 00
+address: 00 BD 00 00
 command: 01 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
 address: 00 00 00 00
-command: 0f 00 00 00
+command: 0F 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
 address: 16 00 00 00
-command: 0f 00 00 00
+command: 0F 00 00 00
 # 
 name: POWER
 type: parsed
@@ -1262,12 +1291,6 @@ type: raw
 frequency: 38000
 duty_cycle: 0.33
 data: 1144 1009 1120 1006 1143 1991 1116 26758 1146 1006 1123 1003 1146 1988 1119
-# 
-name: POWER
-type: raw
-frequency: 38000
-duty_cycle: 0.33
-data: 170 46238 169
 # 
 name: POWER
 type: raw
@@ -2073,12 +2096,6 @@ frequency: 38000
 duty_cycle: 0.330000
 data: 3479 1762 421 452 417 1330 418 455 424 449 420 426 443 457 422 451 418 456 423 450 419 454 425 448 421 452 417 457 422 1324 424 449 420 453 415 458 421 452 417 456 423 450 419 454 425 448 421 453 416 1330 418 1329 419 454 415 458 421 1298 450 423 446 455 424 449 420 453 416 457 422 451 418 1329 419 1327 421 1325 423 451 418 1328 420 1326 422 1325 423 450 419 1328 420 453 416 1303 445 455 424 1295 453 448 421
 # 
-name: POWER
-type: parsed
-protocol: RC6
-address: 00 00 00 00
-command: 0C 00 00 00
-# 
 name: VOL+
 type: parsed
 protocol: RC6
@@ -2149,25 +2166,7 @@ name: POWER
 type: parsed
 protocol: Samsung32
 address: 07 00 00 00
-command: e6 00 00 00
-# 
-name: POWER
-type: parsed
-protocol: Samsung32
-address: 07 00 00 00
 command: 98 00 00 00
-# 
-name: VOL-
-type: parsed
-protocol: Samsung32
-address: 07 00 00 00
-command: 0b 00 00 00
-# 
-name: MUTE
-type: parsed
-protocol: Samsung32
-address: 07 00 00 00
-command: 0f 00 00 00
 # 
 name: VOL+
 type: parsed
