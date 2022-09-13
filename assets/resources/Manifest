@@ -1,5 +1,5 @@
 V:0
-T:1663077195
+T:1663109628
 D:badusb
 D:dolphin
 D:infrared
@@ -244,7 +244,7 @@ F:33b8fde22f34ef556b64b77164bc19b0:578:dolphin/L3_Lab_research_128x54/frame_8.bm
 F:f267f0654781049ca323b11bb4375519:581:dolphin/L3_Lab_research_128x54/frame_9.bm
 F:41106c0cbc5144f151b2b2d3daaa0527:727:dolphin/L3_Lab_research_128x54/meta.txt
 D:infrared/assets
-F:2e56fb433a019fc6e28cb129ad46e592:141118:infrared/assets/ac.ir
+F:b45037cd12a826b65667292df556ffc0:147560:infrared/assets/ac.ir
 F:4c6d8c82c534ea3817b3e18166b7242f:60693:infrared/assets/audio.ir
 F:faa49194e6ba4e5bc1ae5b2f90909d29:87512:infrared/assets/fans.ir
 F:4193827d68bbdbbda9347d423752b70f:7164:infrared/assets/projectors.ir
