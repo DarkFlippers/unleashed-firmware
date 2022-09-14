@@ -133,11 +133,11 @@ bool subghz_last_setting_save(SubGhzLastSetting* instance, const char* file_path
 void subghz_last_setting_set_receiver_values(SubGhzLastSetting* instance, SubGhzReceiver* receiver) {
     subghz_receiver_set_filter(receiver, instance->detect_raw);
 
-    // subghz_protocol_decoder_raw_set_auto_mode(
-    //     subghz_receiver_search_decoder_base_by_name(receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-    //     (instance->detect_raw != SubGhzProtocolFlag_Decodable));
+    subghz_protocol_decoder_raw_set_auto_mode(
+        subghz_receiver_search_decoder_base_by_name(receiver, SUBGHZ_PROTOCOL_RAW_NAME),
+        (instance->detect_raw != SubGhzProtocolFlag_Decodable));
 
-    // subghz_protocol_decoder_raw_set_rssi_threshold(
-    //     subghz_receiver_search_decoder_base_by_name(receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-    //     instance->rssi_threshold);
+    subghz_protocol_decoder_raw_set_rssi_threshold(
+        subghz_receiver_search_decoder_base_by_name(receiver, SUBGHZ_PROTOCOL_RAW_NAME),
+        instance->rssi_threshold);
 }
