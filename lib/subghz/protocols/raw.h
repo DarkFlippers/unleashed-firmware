@@ -4,6 +4,10 @@
 
 #include <furi_hal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SUBGHZ_PROTOCOL_RAW_NAME "RAW"
 
 typedef void (*SubGhzProtocolEncoderRAWCallbackEnd)(void* context);
@@ -189,3 +193,7 @@ bool subghz_protocol_encoder_raw_deserialize(void* context, FlipperFormat* flipp
  * @return LevelDuration
  */
 LevelDuration subghz_protocol_encoder_raw_yield(void* context);
+
+#ifdef __cplusplus
+}
+#endif

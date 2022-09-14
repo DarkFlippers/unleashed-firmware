@@ -7,6 +7,7 @@ env.Append(
         *env.GlobRecursive("*.h", "#/firmware/targets/furi_hal_include", "*_i.h"),
         *env.GlobRecursive("*.h", "#/firmware/targets/f${TARGET_HW}/furi_hal", "*_i.h"),
         File("#/firmware/targets/f7/platform_specific/intrinsic_export.h"),
+        File("#/firmware/targets/furi_hal_include/furi_hal_subghz.h"),
     ],
 )
 env.SetDefault(SDK_DEFINITION=env.File("./targets/f${TARGET_HW}/api_symbols.csv"))

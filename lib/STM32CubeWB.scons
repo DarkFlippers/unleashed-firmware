@@ -13,11 +13,11 @@ env.Append(
         "USE_FULL_ASSERT",
         "USE_FULL_LL_DRIVER",
     ],
-    SDK_HEADERS=env.GlobRecursive(
-        "*_ll_*.h",
-        "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/",
-        exclude="*usb.h",
-    ),
+    SDK_HEADERS=[
+        *env.GlobRecursive("*_ll_*.h", "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/", exclude="*usb.h"),
+        File("#/lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"),
+        File("#/lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h"),
+    ],
 )
 
 if env["RAM_EXEC"]:

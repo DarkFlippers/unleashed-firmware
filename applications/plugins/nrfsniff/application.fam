@@ -7,4 +7,6 @@ App(
     requires=["gui"],
     stack_size=2 * 1024,
     order=70,
+    fap_icon="../../../assets/icons/Archive/sub1_10px.png",
+    fap_category="GPIO",
 )

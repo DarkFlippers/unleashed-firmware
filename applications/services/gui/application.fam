@@ -13,6 +13,7 @@ App(
     sdk_headers=[
         "gui.h",
         "elements.h",
+        "canvas_i.h",
         "view_dispatcher.h",
         "view_stack.h",
         "modules/button_menu.h",
