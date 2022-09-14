@@ -334,6 +334,10 @@ bool protocol_fdx_b_write_data(ProtocolFDXB* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_fdx_b_encoder_start(protocol);
+    protocol_fdx_b_decode(protocol);
+
     protocol_fdx_b_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

@@ -180,7 +180,19 @@ bool subghz_history_add_to_history(
             FURI_LOG_E(TAG, "Missing Protocol");
             break;
         }
-        if(!strcmp(string_get_cstr(instance->tmp_string), "KeeLoq")) {
+        if(!strcmp(string_get_cstr(instance->tmp_string), "RAW")) {
+            string_printf(
+                item->item_str,
+                "RAW %03ld.%02ld",
+                preset->frequency / 1000000 % 1000,
+                preset->frequency / 10000 % 100);
+
+            if(!flipper_format_rewind(item->flipper_string)) {
+                FURI_LOG_E(TAG, "Rewind error");
+            }
+
+            break;
+        } else if(!strcmp(string_get_cstr(instance->tmp_string), "KeeLoq")) {
             string_set_str(instance->tmp_string, "KL ");
             if(!flipper_format_read_string(item->flipper_string, "Manufacture", text)) {
                 FURI_LOG_E(TAG, "Missing Protocol");

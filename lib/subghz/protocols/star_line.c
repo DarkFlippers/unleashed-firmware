@@ -139,6 +139,10 @@ static bool
     uint64_t code_found_reverse;
     int res = 0;
 
+    if(instance->manufacture_name == 0x0) {
+        instance->manufacture_name = "";
+    }
+
     if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         code_found_reverse = subghz_protocol_blocks_reverse_key(
             instance->generic.data, instance->generic.data_count_bit);
