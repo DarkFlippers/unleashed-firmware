@@ -174,16 +174,25 @@ SubGhz* subghz_alloc() {
     subghz->setting = subghz_setting_alloc();
     subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user"));
 
+    // Load last used values for Read, Read RAW, etc. or default
+    subghz->last_setting = subghz_last_setting_alloc();
+    subghz_last_setting_load(subghz->last_setting, EXT_PATH("subghz/assets/last_used.txt"));
+    subghz_setting_set_default_frequency(subghz->setting, subghz->last_setting->frequency);
+
     //init Worker & Protocol & History & KeyBoard
     subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->preset = malloc(sizeof(SubGhzPresetDefinition));
     string_init(subghz->txrx->preset->name);
     subghz_preset_init(
-        subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+        subghz,
+        string_get_cstr(subghz->last_setting->preset_name),
+        subghz->last_setting->frequency,
+        NULL,
+        0);
 
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
-    subghz->txrx->hopper_state = SubGhzHopperStateOFF;
+    subghz->txrx->hopper_state = subghz->last_setting->hopping;
     subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
     subghz->txrx->history = subghz_history_alloc();
     subghz->txrx->worker = subghz_worker_alloc();
@@ -196,7 +205,9 @@ SubGhz* subghz_alloc() {
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         subghz->txrx->environment, EXT_PATH("subghz/assets/nice_flor_s"));
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+
+    // Setup values
+    subghz_last_setting_set_receiver_values(subghz->last_setting, subghz->txrx->receiver);
 
     subghz_worker_set_overrun_callback(
         subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
@@ -287,6 +298,9 @@ void subghz_free(SubGhz* subghz) {
 
     //setting
     subghz_setting_free(subghz->setting);
+
+    // Last setting
+    subghz_last_setting_free(subghz->last_setting);
 
     //Worker & Protocol & History
     subghz_receiver_free(subghz->txrx->receiver);
