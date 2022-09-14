@@ -1,0 +1,12 @@
+App(
+    appid="bt_settings",
+    name="Bluetooth",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="bt_settings_app",
+    stack_size=1 * 1024,
+    requires=[
+        "bt",
+        "gui",
+    ],
+    order=10,
+)

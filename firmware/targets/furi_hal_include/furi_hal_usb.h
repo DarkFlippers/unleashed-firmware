@@ -2,6 +2,10 @@
 
 #include "usb.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct FuriHalUsbInterface FuriHalUsbInterface;
 
 struct FuriHalUsbInterface {
@@ -81,3 +85,7 @@ void furi_hal_usb_set_state_callback(FuriHalUsbStateCallback cb, void* ctx);
 /** Restart USB device
  */
 void furi_hal_usb_reinit();
+
+#ifdef __cplusplus
+}
+#endif

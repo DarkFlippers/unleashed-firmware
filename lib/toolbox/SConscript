@@ -7,6 +7,23 @@ env.Append(
     CPPPATH=[
         "#/lib/toolbox",
     ],
+    SDK_HEADERS=[
+        File("#/lib/toolbox/manchester_decoder.h"),
+        File("#/lib/toolbox/manchester_encoder.h"),
+        File("#/lib/toolbox/path.h"),
+        File("#/lib/toolbox/random_name.h"),
+        File("#/lib/toolbox/hmac_sha256.h"),
+        File("#/lib/toolbox/crc32_calc.h"),
+        File("#/lib/toolbox/dir_walk.h"),
+        File("#/lib/toolbox/md5.h"),
+        File("#/lib/toolbox/args.h"),
+        File("#/lib/toolbox/saved_struct.h"),
+        File("#/lib/toolbox/version.h"),
+        File("#/lib/toolbox/tar/tar_archive.h"),
+        File("#/lib/toolbox/stream/stream.h"),
+        File("#/lib/toolbox/stream/file_stream.h"),
+        File("#/lib/toolbox/stream/string_stream.h"),
+    ],
 )
 
 

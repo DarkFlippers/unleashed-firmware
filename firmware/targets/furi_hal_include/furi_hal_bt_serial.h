@@ -2,6 +2,10 @@
 
 #include "serial_service.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FURI_HAL_BT_SERIAL_PACKET_SIZE_MAX SERIAL_SVC_DATA_LEN_MAX
 
 /** Serial service callback type */
@@ -38,3 +42,7 @@ void furi_hal_bt_serial_notify_buffer_is_empty();
  * @return      true on success
  */
 bool furi_hal_bt_serial_tx(uint8_t* data, uint16_t size);
+
+#ifdef __cplusplus
+}
+#endif

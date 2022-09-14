@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Start Hid Keyboard Profile
  */
 void furi_hal_bt_hid_start();
@@ -81,3 +85,7 @@ bool furi_hal_bt_hid_consumer_key_release(uint16_t button);
  * @param      button  key code
  */
 bool furi_hal_bt_hid_consumer_key_release_all();
+
+#ifdef __cplusplus
+}
+#endif

@@ -68,6 +68,11 @@ vars.AddVariables(
             "7",
         ],
     ),
+    BoolVariable(
+        "DEBUG_TOOLS",
+        help="Enable debug tools to be built",
+        default=False,
+    ),
 )
 
 vars.Add(
@@ -186,21 +191,17 @@ vars.Add(
     help="Map of (configuration_name->application_list)",
     default={
         "default": (
-            "crypto_start",
             # Svc
             "basic_services",
             # Apps
-            "basic_apps",
-            "updater_app",
-            "archive",
+            "main_apps",
+            "system_apps",
             # Settings
-            "passport",
-            "system_settings",
-            "about",
+            "settings_apps",
             # Plugins
-            "basic_plugins",
+            # "basic_plugins",
             # Debug
-            "debug_apps",
+            # "debug_apps",
         )
     },
 )
@@ -209,6 +210,28 @@ vars.Add(
     "FIRMWARE_APP_SET",
     help="Application set to use from FIRMWARE_APPS",
     default="default",
+)
+
+vars.Add(
+    "APPSRC",
+    help="Application source directory for app to build & upload",
+    default="",
+)
+
+# List of tuples (directory, add_to_global_include_path)
+vars.Add(
+    "APPDIRS",
+    help="Directories to search for firmware components & external apps",
+    default=[
+        ("applications", False),
+        ("applications/services", True),
+        ("applications/main", True),
+        ("applications/settings", False),
+        ("applications/system", False),
+        ("applications/debug", False),
+        ("applications/plugins", False),
+        ("applications_user", False),
+    ],
 )
 
 Return("vars")

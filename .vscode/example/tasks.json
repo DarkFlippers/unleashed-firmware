@@ -94,10 +94,40 @@
             "command": "./fbt FIRMWARE_APP_SET=unit_tests FORCE=1 flash_usb"
         },
         {
+            "label": "[Debug] Flash (USB, with resources)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt FORCE=1 flash_usb_full"
+        },
+        {
             "label": "[Release] Flash (USB, with resources)",
             "group": "build",
             "type": "shell",
             "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_usb_full"
         },
+        {
+            "label": "[Debug] Build FAPs",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt plugin_dist"
+        },
+        {
+            "label": "[Release] Build FAPs",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 plugin_dist"
+        },
+        {
+            "label": "[Debug] Launch App on Flipper",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt launch_app APPSRC=${relativeFileDirname}"
+        },
+        {
+            "label": "[Release] Launch App on Flipper",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 launch_app APPSRC=${relativeFileDirname}"
+        }
     ]
 }

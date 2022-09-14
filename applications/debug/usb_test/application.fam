@@ -1,0 +1,11 @@
+App(
+    appid="usb_test",
+    name="USB Test",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="usb_test_app",
+    cdefines=["APP_USB_TEST"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=50,
+    fap_category="Debug",
+)

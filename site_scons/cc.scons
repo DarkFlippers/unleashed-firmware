@@ -11,6 +11,7 @@ ENV.AppendUnique(
         "-fno-use-cxa-atexit",
         "-fno-exceptions",
         "-fno-threadsafe-statics",
+        "-ftemplate-depth=4096",
     ],
     CCFLAGS=[
         "-mcpu=cortex-m4",

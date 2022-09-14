@@ -15,7 +15,15 @@ env.Append(
         "lib/u8g2",
         "lib/update_util",
         "lib/print",
-    ]
+    ],
+    SDK_HEADERS=[
+        File("#/lib/one_wire/one_wire_host_timing.h"),
+        File("#/lib/one_wire/one_wire_host.h"),
+        File("#/lib/one_wire/one_wire_slave.h"),
+        File("#/lib/one_wire/one_wire_device.h"),
+        File("#/lib/one_wire/ibutton/ibutton_worker.h"),
+        File("#/lib/one_wire/maxim_crc.h"),
+    ],
 )
 
 env.Append(
@@ -24,7 +32,7 @@ env.Append(
         "#/lib",  # TODO: remove!
         "#/lib/mlib",
         # Ugly hack
-        "${BUILD_DIR}/assets/compiled",
+        Dir("../assets/compiled"),
     ],
     CPPDEFINES=[
         '"M_MEMORY_FULL(x)=abort()"',
@@ -76,8 +84,8 @@ libs = env.BuildModules(
         "nfc",
         "appframe",
         "misc",
-        "loclass",
         "lfrfid",
+        "flipper_application",
     ],
 )
 

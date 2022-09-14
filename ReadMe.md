@@ -14,6 +14,10 @@ You should clone with
 $ git clone --recursive https://github.com/flipperdevices/flipperzero-firmware.git
 ```
 
+# Read the Docs
+
+Check out details on [how to build firmware](documentation/fbt.md), [write applications](documentation/AppsOnSDCard.md), [un-brick your device](documentation/KeyCombo.md) and more in `documentation` folder. 
+
 # Update firmware
 
 [Get Latest Firmware from Update Server](https://update.flipperzero.one/)

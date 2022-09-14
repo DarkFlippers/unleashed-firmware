@@ -4,6 +4,13 @@ env.Append(
     CPPPATH=[
         "#/lib/subghz",
     ],
+    SDK_HEADERS=[
+        File("#/lib/subghz/environment.h"),
+        File("#/lib/subghz/receiver.h"),
+        File("#/lib/subghz/subghz_worker.h"),
+        File("#/lib/subghz/subghz_tx_rx_worker.h"),
+        File("#/lib/subghz/transmitter.h"),
+    ],
 )
 
 libenv = env.Clone(FW_LIB_NAME="subghz")
