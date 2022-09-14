@@ -103,7 +103,11 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     if(subghz->txrx->rx_key_state == SubGhzRxKeyStateIDLE) {
         subghz_preset_init(
-            subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz,
+            string_get_cstr(subghz->last_setting->preset_name),
+            subghz->last_setting->frequency,
+            NULL,
+            0);
         subghz_history_reset(subghz->txrx->history);
         subghz->txrx->rx_key_state = SubGhzRxKeyStateStart;
     }
@@ -152,6 +156,11 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
+            // Check if return from config save values
+            if(subghz->current_scene == SubGhzSceneReceiverConfig) {
+                subghz_last_setting_save(
+                    subghz->last_setting, EXT_PATH("subghz/assets/last_used.txt"));
+            }
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
@@ -164,15 +173,17 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
 
             if(subghz->txrx->rx_key_state == SubGhzRxKeyStateAddKey) {
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateExit;
+                subghz->current_scene = SubGhzSceneNeedSaving;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
                 subghz_preset_init(
                     subghz,
-                    "AM650",
-                    subghz_setting_get_default_frequency(subghz->setting),
+                    string_get_cstr(subghz->last_setting->preset_name),
+                    subghz->last_setting->frequency,
                     NULL,
                     0);
+                subghz->current_scene = SubGhzSceneStart;
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
             }
@@ -181,6 +192,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverOK:
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+            subghz->current_scene = SubGhzSceneReceiverInfo;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
             consumed = true;
             break;
@@ -188,6 +200,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+            subghz->current_scene = SubGhzSceneReceiverConfig;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
             consumed = true;
             break;

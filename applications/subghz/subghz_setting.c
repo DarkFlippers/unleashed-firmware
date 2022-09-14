@@ -260,13 +260,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 break;
             }
             if(flipper_format_read_uint32(fff_data_file, "Default_frequency", &temp_data32, 1)) {
-                for
-                    M_EACH(frequency, instance->frequencies, FrequencyList_t) {
-                        *frequency &= FREQUENCY_MASK;
-                        if(*frequency == temp_data32) {
-                            *frequency |= FREQUENCY_FLAG_DEFAULT;
-                        }
-                    }
+                subghz_setting_set_default_frequency(instance, temp_data32);
             }
 
             // custom preset (optional)
@@ -292,6 +286,16 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
         FURI_LOG_E(TAG, "Error loading user settings, loading default settings");
         subghz_setting_load_default(instance);
     }
+}
+
+void subghz_setting_set_default_frequency(SubGhzSetting* instance, uint32_t frequency_to_setup) {
+    for
+        M_EACH(frequency, instance->frequencies, FrequencyList_t) {
+            *frequency &= FREQUENCY_MASK;
+            if(*frequency == frequency_to_setup) {
+                *frequency |= FREQUENCY_FLAG_DEFAULT;
+            }
+        }
 }
 
 size_t subghz_setting_get_frequency_count(SubGhzSetting* instance) {
