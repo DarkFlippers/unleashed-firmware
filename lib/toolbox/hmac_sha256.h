@@ -1,3 +1,10 @@
+#pragma once
+
+#include "sha256.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct hmac_context {
     void (*init_hash)(const struct hmac_context* context);
@@ -25,3 +32,7 @@ void hmac_sha256_update(
     unsigned message_size);
 
 void hmac_sha256_finish(const hmac_sha256_context* ctx, const uint8_t* K, uint8_t* hash_result);
+
+#ifdef __cplusplus
+}
+#endif

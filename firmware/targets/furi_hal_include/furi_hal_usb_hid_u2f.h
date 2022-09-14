@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HID_U2F_PACKET_LEN 64
 
 typedef enum {
@@ -34,3 +38,7 @@ uint32_t furi_hal_hid_u2f_get_request(uint8_t* data);
  * @param      len  packet length
  */
 void furi_hal_hid_u2f_send_response(uint8_t* data, uint8_t len);
+
+#ifdef __cplusplus
+}
+#endif

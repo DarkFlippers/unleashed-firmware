@@ -8,6 +8,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** FuriHalCryptoKey Type */
 typedef enum {
     FuriHalCryptoKeyTypeMaster, /**< Master key */
@@ -82,3 +86,7 @@ bool furi_hal_crypto_encrypt(const uint8_t* input, uint8_t* output, size_t size)
  * @return     true on success
  */
 bool furi_hal_crypto_decrypt(const uint8_t* input, uint8_t* output, size_t size);
+
+#ifdef __cplusplus
+}
+#endif

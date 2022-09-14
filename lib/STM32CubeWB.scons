@@ -13,6 +13,11 @@ env.Append(
         "USE_FULL_ASSERT",
         "USE_FULL_LL_DRIVER",
     ],
+    SDK_HEADERS=env.GlobRecursive(
+        "*_ll_*.h",
+        "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/",
+        exclude="*usb.h",
+    ),
 )
 
 if env["RAM_EXEC"]:

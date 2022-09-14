@@ -1,0 +1,12 @@
+App(
+    appid="desktop_settings",
+    name="Desktop",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="desktop_settings_app",
+    requires=[
+        "desktop",
+        "gui",
+    ],
+    stack_size=1 * 1024,
+    order=50,
+)

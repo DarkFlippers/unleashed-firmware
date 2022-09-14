@@ -131,7 +131,7 @@ SECTIONS
   _sidata = LOADADDR(.data);
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : 
+  .data :
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -143,7 +143,6 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   } >RAM1 AT> FLASH
 
-  
   /* Uninitialized data section */
   . = ALIGN(4);
   .bss :
@@ -161,7 +160,8 @@ SECTIONS
   } >RAM1
 
   /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack(NOLOAD):
+  /* DSECT: https://software-dl.ti.com/ccs/esd/documents/sdto_cgt_linker_special_section_types.html */
+  ._user_heap_stack(DSECT):
   {
     . = ALIGN(8);
     __heap_start__ = .;
@@ -172,11 +172,11 @@ SECTIONS
   } >RAM1
 
   /* Free Flash space, that can be used for internal storage */
-  .free_flash(NOLOAD):
+  .free_flash(DSECT):
   {
     __free_flash_start__ = .;
     . = ORIGIN(FLASH) + LENGTH(FLASH);
-  } >FLASH 
+  } >FLASH
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

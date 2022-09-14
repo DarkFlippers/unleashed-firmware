@@ -66,50 +66,30 @@ LOADER_AUTOSTART = ""
 
 FIRMWARE_APPS = {
     "default": [
-        "crypto_start",
         # Svc
         "basic_services",
         # Apps
-        "basic_apps",
-        "updater_app",
-        "storage_move_to_sd",
-        "archive",
-        # Custom Apps
-        "custom_apps",
+        "main_apps",
+        "system_apps",
         # Settings
-        "passport",
-        "system_settings",
-        "about",
+        "settings_apps",
         # Plugins
-        "basic_plugins",
-        "custom_plugins",
-        # Custom Games
-        "custom_games",
+        # "basic_plugins",
         # Debug
-        "debug_apps_lite",
-    ],
-    "unit_tests": [
-        "basic_services",
-        "updater_app",
-        "unit_tests",
+        # "debug_apps",
     ],
     "debug_pack": [
-        "crypto_start",
         # Svc
         "basic_services",
         # Apps
-        "basic_apps",
-        "updater_app",
-        "storage_move_to_sd",
-        "archive",
+        "main_apps",
+        "system_apps",
         # Settings
-        "passport",
-        "system_settings",
-        "about",
+        "settings_apps",
         # Plugins
-        #"basic_plugins",
+        # "basic_plugins",
         # Debug
-        #"debug_apps",
+        # "debug_apps",
     ],
 }
 

@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /** Check if region data provisioned
  *
  * @return     true if provisioned, false otherwise
@@ -22,3 +25,7 @@ bool furi_hal_region_is_provisioned();
  * @return     Pointer to string
  */
 const char* furi_hal_region_get_name();
+
+#ifdef __cplusplus
+}
+#endif

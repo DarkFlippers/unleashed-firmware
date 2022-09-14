@@ -1,0 +1,14 @@
+App(
+    appid="flipfrid",
+    name="RFID Fuzzer",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="flipfrid_start",
+    cdefines=["APP_FLIP_FRID"],
+    requires=["gui", "storage", "dialogs", "input", "notification"],
+    stack_size=1 * 1024,
+    order=15,
+    fap_libs=[
+        "lfrfid",
+        "toolbox",
+    ],
+)

@@ -1182,8 +1182,19 @@ bool nfc_file_select(NfcDevice* dev) {
     // Input events and views are managed by file_browser
     string_t nfc_app_folder;
     string_init_set_str(nfc_app_folder, NFC_APP_FOLDER);
-    bool res = dialog_file_browser_show(
-        dev->dialogs, dev->load_path, nfc_app_folder, NFC_APP_EXTENSION, true, &I_Nfc_10px, true);
+
+    const DialogsFileBrowserOptions browser_options = {
+        .extension = NFC_APP_EXTENSION,
+        .skip_assets = true,
+        .icon = &I_Nfc_10px,
+        .hide_ext = true,
+        .item_loader_callback = NULL,
+        .item_loader_context = NULL,
+    };
+
+    bool res =
+        dialog_file_browser_show(dev->dialogs, dev->load_path, nfc_app_folder, &browser_options);
+
     string_clear(nfc_app_folder);
     if(res) {
         string_t filename;
