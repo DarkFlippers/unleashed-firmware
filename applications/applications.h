@@ -44,12 +44,6 @@ extern const size_t FLIPPER_ON_SYSTEM_START_COUNT;
 extern const FlipperApplication FLIPPER_PLUGINS[];
 extern const size_t FLIPPER_PLUGINS_COUNT;
 
-/* Games list
-* Spawned by loader
-*/
-extern const FlipperApplication FLIPPER_GAMES[];
-extern const size_t FLIPPER_GAMES_COUNT;
-
 /* Debug menu apps
  * Spawned by loader
  */

@@ -1,7 +1,7 @@
 App(
     appid="snake_game",
     name="Snake Game",
-    apptype=FlipperAppType.GAME,
+    apptype=FlipperAppType.PLUGIN,
     entry_point="snake_game_app",
     cdefines=["APP_SNAKE_GAME"],
     requires=["gui"],
