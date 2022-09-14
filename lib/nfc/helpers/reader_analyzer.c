@@ -3,6 +3,7 @@
 #include <lib/nfc/protocols/nfc_util.h>
 #include <lib/nfc/protocols/mifare_classic.h>
 #include <m-array.h>
+#include <furi_hal_random.h>
 
 #include "mfkey32.h"
 #include "nfc_debug_pcap.h"
@@ -38,7 +39,7 @@ struct ReaderAnalyzer {
     NfcDebugPcap* pcap;
 };
 
-const FuriHalNfcDevData reader_analyzer_nfc_data[] = {
+static FuriHalNfcDevData reader_analyzer_nfc_data[] = { //XXX
     [ReaderAnalyzerNfcDataMfClassic] =
         {.sak = 0x08,
          .atqa = {0x44, 0x00},
@@ -99,7 +100,8 @@ int32_t reader_analyzer_thread(void* context) {
 
 ReaderAnalyzer* reader_analyzer_alloc() {
     ReaderAnalyzer* instance = malloc(sizeof(ReaderAnalyzer));
-
+    reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic].cuid = rand(); //XXX
+    furi_hal_random_fill_buf((uint8_t*) &reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic].uid, 7);
     instance->nfc_data = reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic];
     instance->alive = false;
     instance->stream =
