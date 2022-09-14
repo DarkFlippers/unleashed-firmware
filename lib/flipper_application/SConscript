@@ -1,0 +1,20 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/flipper_application",
+    ],
+    SDK_HEADERS=[
+        File("#/lib/flipper_application/flipper_application.h"),
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="flipper_application")
+libenv.ApplyLibFlags()
+
+sources = libenv.GlobRecursive("*.c")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

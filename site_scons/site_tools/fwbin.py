@@ -3,12 +3,14 @@ from SCons.Action import Action
 import SCons
 
 __OBJCOPY_ARM_BIN = "arm-none-eabi-objcopy"
+__NM_ARM_BIN = "arm-none-eabi-nm"
 
 
 def generate(env):
     env.SetDefault(
         BIN2DFU="${ROOT_DIR.abspath}/scripts/bin2dfu.py",
         OBJCOPY=__OBJCOPY_ARM_BIN,  # FIXME
+        NM=__NM_ARM_BIN,  # FIXME
     )
     env.Append(
         BUILDERS={

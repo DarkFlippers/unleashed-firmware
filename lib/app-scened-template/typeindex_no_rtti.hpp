@@ -33,12 +33,14 @@ namespace ext {
 /**
  * Dummy type for tag-dispatching.
  */
-template <typename T> struct tag_type {};
+template <typename T>
+struct tag_type {};
 
 /**
  * A value of tag_type<T>.
  */
-template <typename T> constexpr tag_type<T> tag{};
+template <typename T>
+constexpr tag_type<T> tag{};
 
 /**
  * A type_index implementation without RTTI.
@@ -47,7 +49,8 @@ struct type_index {
     /**
      * Creates a type_index object for the specified type.
      */
-    template <typename T> type_index(tag_type<T>) noexcept : hash_code_{index<T>} {
+    template <typename T>
+    type_index(tag_type<T>) noexcept : hash_code_{index<T>} {
     }
 
     /**
@@ -61,7 +64,8 @@ private:
     /**
      * Unique integral index associated to template type argument.
      */
-    template <typename T> static std::size_t const index;
+    template <typename T>
+    static std::size_t const index;
 
     /**
      * Global counter for generating index values.
@@ -75,14 +79,16 @@ private:
     std::size_t hash_code_;
 };
 
-template <typename> std::size_t const type_index::index = type_index::counter()++;
+template <typename>
+std::size_t const type_index::index = type_index::counter()++;
 
 /**
  * Creates a type_index object for the specified type.
  *
  * Equivalent to `ext::type_index{ext::tag<T>}`.
  */
-template <typename T> type_index make_type_index() noexcept {
+template <typename T>
+type_index make_type_index() noexcept {
     return tag<T>;
 }
 
@@ -111,7 +117,8 @@ inline bool operator>=(type_index const& a, type_index const& b) noexcept {
 }
 }
 
-template <> struct std::hash<ext::type_index> {
+template <>
+struct std::hash<ext::type_index> {
     using argument_type = ext::type_index;
     using result_type = std::size_t;
 

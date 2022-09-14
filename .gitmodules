@@ -28,3 +28,6 @@
 [submodule "lib/mbedtls"]
 	path = lib/mbedtls
 	url = https://github.com/Mbed-TLS/mbedtls.git
+[submodule "lib/cxxheaderparser"]
+	path = lib/cxxheaderparser
+	url = https://github.com/robotpy/cxxheaderparser.git

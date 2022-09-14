@@ -13,11 +13,11 @@ def icons_emitter(target, source, env):
         "compiled/assets_icons.c",
         "compiled/assets_icons.h",
     ]
+    source = env.GlobRecursive("*.*", env["ICON_SRC_DIR"])
     return target, source
 
 
 def proto_emitter(target, source, env):
-    out_path = target[0].path
     target = []
     for src in source:
         basename = os.path.splitext(src.name)[0]
@@ -109,7 +109,7 @@ def generate(env):
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${SOURCE.posix} ${TARGET.dir.posix}',
+                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${ICON_SRC_DIR} ${TARGET.dir}',
                     "${ICONSCOMSTR}",
                 ),
                 emitter=icons_emitter,

@@ -1,0 +1,17 @@
+App(
+    appid="picopass",
+    name="PicoPass Reader",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="picopass_app",
+    requires=[
+        "storage",
+        "gui",
+    ],
+    stack_size=4 * 1024,
+    order=30,
+    fap_icon="../../../assets/icons/Archive/125_10px.png",
+    fap_libs=[
+        "mbedtls",
+    ],
+    fap_category="Tools",
+)

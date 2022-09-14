@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Early initialization */
 void furi_hal_clock_init_early();
 
@@ -20,3 +24,7 @@ void furi_hal_clock_suspend_tick();
 
 /** Continue SysTick counter operation */
 void furi_hal_clock_resume_tick();
+
+#ifdef __cplusplus
+}
+#endif

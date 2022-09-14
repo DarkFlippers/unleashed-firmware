@@ -1,0 +1,13 @@
+App(
+    appid="fap_loader",
+    name="Applications",
+    apptype=FlipperAppType.APP,
+    entry_point="fap_loader_app",
+    requires=[
+        "gui",
+        "storage",
+    ],
+    stack_size=int(1.5 * 1024),
+    icon="A_Plugins_14",
+    order=90,
+)
