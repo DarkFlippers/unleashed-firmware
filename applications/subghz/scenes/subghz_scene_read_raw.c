@@ -99,6 +99,9 @@ void subghz_scene_read_raw_on_enter(void* context) {
         subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME);
     furi_assert(subghz->txrx->decoder_result);
 
+    // make sure we're not in auto-detect mode, which is only meant for the Read app
+    subghz_protocol_decoder_raw_set_auto_mode(subghz->txrx->decoder_result, false);
+
     //set filter RAW feed
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_RAW);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdReadRAW);
