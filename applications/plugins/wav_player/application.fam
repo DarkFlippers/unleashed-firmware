@@ -6,4 +6,6 @@ App(
     cdefines=["APP_WAV_PLAYER"],
     stack_size=4 * 1024,
     order=46,
+    fap_icon="wav_10px.png",
+    fap_category="Games",
 )

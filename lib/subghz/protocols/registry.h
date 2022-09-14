@@ -37,6 +37,10 @@
 #include "intertechno_v3.h"
 #include "clemsa.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Registration by name SubGhzProtocol.
  * @param name Protocol name
@@ -56,3 +60,7 @@ const SubGhzProtocol* subghz_protocol_registry_get_by_index(size_t index);
  * @return Number of protocols
  */
 size_t subghz_protocol_registry_count();
+
+#ifdef __cplusplus
+}
+#endif

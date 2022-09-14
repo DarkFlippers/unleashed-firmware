@@ -4,7 +4,7 @@
 #include <input/input.h>
 #include <gui/gui.h>
 #include <gui/modules/submenu.h>
-#include "m-string.h"
+#include <m-string.h>
 #include <dialogs/dialogs.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
