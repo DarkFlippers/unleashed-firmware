@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FURI_HAL_FLASH_OB_RAW_SIZE_BYTES 0x80
 #define FURI_HAL_FLASH_OB_SIZE_WORDS (FURI_HAL_FLASH_OB_RAW_SIZE_BYTES / sizeof(uint32_t))
 #define FURI_HAL_FLASH_OB_TOTAL_VALUES (FURI_HAL_FLASH_OB_SIZE_WORDS / 2)
@@ -142,3 +146,7 @@ void furi_hal_flash_ob_apply();
  * @return     pointer to read-only data of OB (raw + complementary values)
  */
 const FuriHalFlashRawOptionByteData* furi_hal_flash_ob_get_raw_ptr();
+
+#ifdef __cplusplus
+}
+#endif

@@ -17,7 +17,6 @@
 
 #define TAG "FuriHalSubGhz"
 
-
 /*
  * Uncomment define to enable duplication of
  * IO GO0 CC1101 to an external comb.
@@ -33,7 +32,7 @@
  * Attention this setting switches pin to output. 
  * Make sure it is not connected directly to power or ground
  */
-  
+
 //#define SUBGHZ_DEBUG_CC1101_PIN gpio_ext_pa7
 #ifdef SUBGHZ_DEBUG_CC1101_PIN
 uint32_t subghz_debug_gpio_buff[2];

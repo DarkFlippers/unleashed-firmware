@@ -6,6 +6,10 @@
 
 #include <furi_hal_gpio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     bool start_level;
     uint32_t edge_cnt;
@@ -29,3 +33,7 @@ uint32_t digital_signal_get_edges_cnt(DigitalSignal* signal);
 uint32_t digital_signal_get_edge(DigitalSignal* signal, uint32_t edge_num);
 
 void digital_signal_send(DigitalSignal* signal, const GpioPin* gpio);
+
+#ifdef __cplusplus
+}
+#endif

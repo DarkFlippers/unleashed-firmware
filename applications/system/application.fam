@@ -1,9 +1,10 @@
 App(
-    appid="system_settings",
-    name="System",
-    apptype=FlipperAppType.SETTINGS,
-    entry_point="system_settings_app",
-    requires=["gui"],
-    stack_size=1 * 1024,
-    order=70,
+    appid="system_apps",
+    name="Applications not shown in menus",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "updater_app",
+        "storage_move_to_sd",
+        # "archive",
+    ],
 )

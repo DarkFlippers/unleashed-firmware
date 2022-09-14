@@ -11,7 +11,8 @@
  * @tparam TScene generic scene class
  * @tparam TApp application class
  */
-template <typename TScene, typename TApp> class SceneController {
+template <typename TScene, typename TApp>
+class SceneController {
 public:
     /**
      * @brief Add scene to scene container

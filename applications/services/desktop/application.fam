@@ -1,0 +1,17 @@
+App(
+    appid="desktop",
+    name="DesktopSrv",
+    apptype=FlipperAppType.SERVICE,
+    entry_point="desktop_srv",
+    cdefines=["SRV_DESKTOP"],
+    requires=[
+        "gui",
+        "dolphin",
+        "storage",
+        "input",
+    ],
+    provides=["desktop_settings"],
+    conflicts=["updater"],
+    stack_size=2 * 1024,
+    order=60,
+)

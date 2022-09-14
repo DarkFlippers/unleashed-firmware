@@ -6,7 +6,7 @@
 #include <bt/bt_service/bt_keys_filename.h>
 #include <dolphin/helpers/dolphin_state_filename.h>
 #include <desktop/helpers/slideshow_filename.h>
-#include <desktop/desktop_settings/desktop_settings_filename.h>
+#include <desktop/desktop_settings_filename.h>
 #include <notification/notification_settings_filename.h>
 
 #define LFS_BACKUP_DEFAULT_LOCATION EXT_PATH(LFS_BACKUP_DEFAULT_FILENAME)

@@ -1,0 +1,26 @@
+App(
+    appid="power",
+    name="PowerSrv",
+    apptype=FlipperAppType.SERVICE,
+    entry_point="power_srv",
+    cdefines=["SRV_POWER"],
+    requires=[
+        "gui",
+        "cli",
+    ],
+    provides=[
+        "power_settings",
+        "power_start",
+    ],
+    stack_size=1 * 1024,
+    order=110,
+    sdk_headers=["power_service/power.h"],
+)
+
+App(
+    appid="power_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="power_on_system_start",
+    requires=["power"],
+    order=80,
+)

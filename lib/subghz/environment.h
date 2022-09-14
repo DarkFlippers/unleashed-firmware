@@ -4,6 +4,10 @@
 
 #include "subghz_keystore.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzEnvironment SubGhzEnvironment;
 
 /**
@@ -64,3 +68,7 @@ void subghz_environment_set_nice_flor_s_rainbow_table_file_name(
  */
 const char*
     subghz_environment_get_nice_flor_s_rainbow_table_file_name(SubGhzEnvironment* instance);
+
+#ifdef __cplusplus
+}
+#endif
