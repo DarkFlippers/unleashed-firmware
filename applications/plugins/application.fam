@@ -1,0 +1,10 @@
+App(
+    appid="basic_plugins",
+    name="Basic applications for plug-in menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "music_player",
+        "snake_game",
+        "bt_hid",
+    ],
+)

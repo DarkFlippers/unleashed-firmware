@@ -3,6 +3,10 @@
 #include "types.h"
 #include "protocols/base.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzReceiver SubGhzReceiver;
 
 typedef void (*SubGhzReceiverCallback)(
@@ -70,3 +74,7 @@ SubGhzProtocolFlag subghz_receiver_get_filter(SubGhzReceiver* instance);
  */
 SubGhzProtocolDecoderBase*
     subghz_receiver_search_decoder_base_by_name(SubGhzReceiver* instance, const char* decoder_name);
+
+#ifdef __cplusplus
+}
+#endif

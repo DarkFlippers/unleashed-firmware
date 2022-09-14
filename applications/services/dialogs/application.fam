@@ -1,0 +1,11 @@
+App(
+    appid="dialogs",
+    name="DialogsSrv",
+    apptype=FlipperAppType.SERVICE,
+    entry_point="dialogs_srv",
+    cdefines=["SRV_DIALOGS"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=40,
+    sdk_headers=["dialogs.h"],
+)

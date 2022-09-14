@@ -4,7 +4,7 @@ from SCons.Script import Mkdir
 from SCons.Defaults import Touch
 
 
-def get_variant_dirname(env, project=None):
+def GetProjetDirName(env, project=None):
     parts = [f"f{env['TARGET_HW']}"]
     if project:
         parts.append(project)
@@ -21,7 +21,7 @@ def get_variant_dirname(env, project=None):
 
 
 def create_fw_build_targets(env, configuration_name):
-    flavor = get_variant_dirname(env, configuration_name)
+    flavor = GetProjetDirName(env, configuration_name)
     build_dir = env.Dir("build").Dir(flavor).abspath
     return env.SConscript(
         "firmware.scons",
@@ -49,7 +49,7 @@ def AddFwProject(env, base_env, fw_type, fw_env_key):
         ],
     )
 
-    env.Replace(DIST_DIR=get_variant_dirname(env))
+    env.Replace(DIST_DIR=env.GetProjetDirName())
     return project_env
 
 
@@ -115,6 +115,7 @@ def generate(env):
     env.AddMethod(AddFwProject)
     env.AddMethod(DistCommand)
     env.AddMethod(AddOpenOCDFlashTarget)
+    env.AddMethod(GetProjetDirName)
     env.AddMethod(AddJFlashTarget)
     env.AddMethod(AddUsbFlashTarget)
 

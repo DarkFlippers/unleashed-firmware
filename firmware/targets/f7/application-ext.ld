@@ -1,9 +1,17 @@
+FORCE_COMMON_ALLOCATION
+
 SECTIONS
 {
-	.text 0x00000000 :
+	.text 0x00000000 : ALIGN(4)
 	{
 		*(.text)
+		*(.stub)
+		*(.text*)
 		*(.text.*)
+		*(.text._*)
+
+		KEEP (*(.init))
+		KEEP (*(.fini))
 	}
 
 	.rodata :
@@ -20,13 +28,20 @@ SECTIONS
 		*(.data.*)
 	}
 
+
 	.bss :
 	{
 		*(.bss)
-		*(.bss.*)
+		*(.bss*)
 		*(.sbss)
-		*(.sbss.*)
+		*(.sbss*)
 		*(COMMON)
+	}
+
+	.ARM.attributes :
+	{
+		*(.ARM.attributes)
+		*(.ARM.attributes.*)
 	}
 
 	/DISCARD/ :

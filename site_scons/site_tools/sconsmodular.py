@@ -40,10 +40,15 @@ def PhonyTarget(env, name, action, source=None, **kw):
     return command
 
 
+def ChangeFileExtension(env, fnode, ext):
+    return env.File(f"#{os.path.splitext(fnode.path)[0]}{ext}")
+
+
 def generate(env):
     env.AddMethod(BuildModule)
     env.AddMethod(BuildModules)
     env.AddMethod(PhonyTarget)
+    env.AddMethod(ChangeFileExtension)
 
 
 def exists(env):

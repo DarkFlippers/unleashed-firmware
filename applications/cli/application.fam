@@ -1,9 +1,0 @@
-App(
-    appid="cli",
-    name="CliSrv",
-    apptype=FlipperAppType.SERVICE,
-    entry_point="cli_srv",
-    cdefines=["SRV_CLI"],
-    stack_size=4 * 1024,
-    order=30,
-)
