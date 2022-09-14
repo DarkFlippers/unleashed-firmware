@@ -219,6 +219,10 @@ bool protocol_pyramid_write_data(ProtocolPyramid* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_pyramid_encode(protocol);
+    protocol_pyramid_decode(protocol);
+
     protocol_pyramid_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
