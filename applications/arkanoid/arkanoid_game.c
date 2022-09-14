@@ -67,8 +67,7 @@ static const NotificationSequence sequence_short_sound = {
 
 // generate number in range [min,max)
 int rand_range(int min, int max) {
-    int number = min + rand() % (max - min);
-    return number;
+    return min + rand() % (max - min);
 }
 
 void move_ball(Canvas* canvas, ArkanoidState* st) {
