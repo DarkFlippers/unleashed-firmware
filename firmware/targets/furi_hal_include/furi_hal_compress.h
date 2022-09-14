@@ -8,6 +8,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Defines encoder and decoder window size */
 #define FURI_HAL_COMPRESS_EXP_BUFF_SIZE_LOG (8)
 
@@ -77,3 +81,7 @@ bool furi_hal_compress_decode(
     uint8_t* data_out,
     size_t data_out_size,
     size_t* data_res_size);
+
+#ifdef __cplusplus
+}
+#endif

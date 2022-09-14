@@ -1,0 +1,18 @@
+App(
+    appid="bt_debug",
+    name="Bluetooth Debug",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="bt_debug_app",
+    cdefines=["SRV_BT"],
+    requires=[
+        "bt",
+        "gui",
+        "dialogs",
+    ],
+    provides=[
+        "bt_debug",
+    ],
+    stack_size=1 * 1024,
+    order=110,
+    fap_category="Debug",
+)

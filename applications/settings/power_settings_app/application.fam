@@ -1,0 +1,13 @@
+App(
+    appid="power_settings",
+    name="Power",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="power_settings_app",
+    requires=[
+        "gui",
+        "power",
+    ],
+    flags=["InsomniaSafe"],
+    stack_size=1 * 1024,
+    order=40,
+)

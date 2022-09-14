@@ -1,0 +1,94 @@
+Import("ENV")
+
+
+from fbt.appmanifest import FlipperAppType
+
+appenv = ENV.Clone(
+    tools=[("fbt_extapps", {"EXT_APPS_WORK_DIR": ENV.subst("${BUILD_DIR}/.extapps")})]
+)
+
+appenv.Replace(
+    LINKER_SCRIPT="application-ext",
+)
+
+appenv.AppendUnique(
+    CCFLAGS=[
+        "-ggdb3",
+        "-mword-relocations",
+        "-mlong-calls",
+        "-fno-common",
+        "-nostdlib",
+        "-fvisibility=hidden",
+    ],
+    LINKFLAGS=[
+        "-Ur",
+        "-Wl,-Ur",
+        # "-Wl,--orphan-handling=error",
+        "-Bsymbolic",
+        "-nostartfiles",
+        "-mlong-calls",
+        "-fno-common",
+        "-nostdlib",
+        "-Wl,--gc-sections",
+        "-Wl,--no-export-dynamic",
+        "-fvisibility=hidden",
+        "-Wl,-e${APP_ENTRY}",
+        "-Xlinker",
+        "-Map=${TARGET}.map",
+        "-specs=nano.specs",
+        "-specs=nosys.specs",
+    ],
+    LIBS=[
+        "m",
+        "gcc",
+        "stdc++",
+        "supc++",
+    ],
+)
+
+
+extapps = appenv["_extapps"] = {
+    "compact": {},
+    "debug": {},
+    "validators": {},
+    "dist": {},
+}
+
+
+def build_app_as_external(env, appdef):
+    compact_elf, debug_elf, validator = env.BuildAppElf(appdef)
+    extapps["compact"][appdef.appid] = compact_elf
+    extapps["debug"][appdef.appid] = debug_elf
+    extapps["validators"][appdef.appid] = validator
+    extapps["dist"][appdef.appid] = (appdef.fap_category, compact_elf)
+
+
+apps_to_build_as_faps = [FlipperAppType.PLUGIN, FlipperAppType.EXTERNAL]
+if appenv["DEBUG_TOOLS"]:
+    apps_to_build_as_faps.append(FlipperAppType.DEBUG)
+
+for apptype in apps_to_build_as_faps:
+    for app in appenv["APPBUILD"].get_apps_of_type(apptype, True):
+        build_app_as_external(appenv, app)
+
+# Ugly access to global option
+if extra_app_list := GetOption("extra_ext_apps"):
+    for extra_app in extra_app_list.split(","):
+        build_app_as_external(appenv, appenv["APPMGR"].get(extra_app))
+
+
+if appenv["FORCE"]:
+    appenv.AlwaysBuild(extapps["compact"].values())
+
+Alias(appenv["FIRMWARE_BUILD_CFG"] + "_extapps", extapps["compact"].values())
+
+if appsrc := appenv.subst("$APPSRC"):
+    app_manifest, fap_file = appenv.GetExtAppFromPath(appsrc)
+    appenv.PhonyTarget(
+        "launch_app",
+        '${PYTHON3} scripts/runfap.py ${SOURCE} --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
+        source=fap_file,
+        FAP_CATEGORY=app_manifest.fap_category,
+    )
+
+Return("extapps")
