@@ -5,7 +5,21 @@ App(
     entry_point="clock_app",
     cdefines=["APP_CLOCK"],
     requires=["gui"],
+    provides=["clock_settings"],
     icon="A_Clock_14",
     stack_size=2 * 1024,
     order=9,
 )
+
+
+App(
+    appid="clock_settings",
+    name="Clock",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="clock_settings_app",
+    requires=["gui","clock"],
+    stack_size=1 * 1024,
+    order=20,
+)
+
+
