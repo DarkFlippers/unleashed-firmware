@@ -41,7 +41,7 @@ void subghz_last_setting_load(SubGhzLastSetting* instance, const char* file_path
     string_init(temp_preset);
     uint32_t temp_frequency = 0; // Default 433920000
     uint32_t temp_hopping = 0; // Default 0
-    uint32_t temp_detect_raw = 0; // Default 2
+    //uint32_t temp_detect_raw = 0;  Default 2
     int32_t temp_rssi_threshold = 0; // Default -72
 
     if(FSE_OK == storage_sd_status(storage) && file_path &&
@@ -49,31 +49,31 @@ void subghz_last_setting_load(SubGhzLastSetting* instance, const char* file_path
         flipper_format_read_string(fff_data_file, "Preset", temp_preset);
         flipper_format_read_uint32(fff_data_file, "Frequency", (uint32_t*)&temp_frequency, 1);
         flipper_format_read_uint32(fff_data_file, "Hopping", (uint32_t*)&temp_hopping, 1);
-        flipper_format_read_uint32(fff_data_file, "DetectRaw", (uint32_t*)&temp_detect_raw, 1);
+        //flipper_format_read_uint32(fff_data_file, "DetectRaw", (uint32_t*)&temp_detect_raw, 1);
         flipper_format_read_int32(fff_data_file, "Rssi", (int32_t*)&temp_rssi_threshold, 1);
     } else {
         FURI_LOG_E(TAG, "Error open file %s", file_path);
     }
 
     if(string_empty_p(temp_preset)) {
-        FURI_LOG_I(TAG, "Last used preset not found");
+        //FURI_LOG_I(TAG, "Last used preset not found");
         string_set(instance->preset_name, SUBGHZ_LAST_SETTING_DEFAULT_PRESET);
     } else {
         string_set(instance->preset_name, temp_preset);
     }
 
     if(temp_frequency == 0 || !furi_hal_subghz_is_tx_allowed(temp_frequency)) {
-        FURI_LOG_I(TAG, "Last used frequency not found or can't be used!");
+        //FURI_LOG_I(TAG, "Last used frequency not found or can't be used!");
         instance->frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
     } else {
         instance->frequency = temp_frequency;
     }
 
-    if(temp_detect_raw == 0) {
+    /*if(temp_detect_raw == 0) {
         instance->detect_raw = SubGhzProtocolFlag_Decodable;
     } else {
         instance->detect_raw = temp_detect_raw;
-    }
+    }*/
 
     if(temp_rssi_threshold == 0) {
         instance->rssi_threshold = -72;
@@ -105,15 +105,15 @@ bool subghz_last_setting_save(SubGhzLastSetting* instance, const char* file_path
                file, SUBGHZ_LAST_SETTING_FILE_TYPE, SUBGHZ_LAST_SETTING_FILE_VERSION))
             break;
 
-        FURI_LOG_D(TAG, "Preset %s", string_get_cstr(instance->preset_name));
+        //FURI_LOG_D(TAG, "Preset %s", string_get_cstr(instance->preset_name));
         if(!flipper_format_insert_or_update_string_cstr(
                file, "Preset", string_get_cstr(instance->preset_name)))
             break;
         if(!flipper_format_insert_or_update_uint32(file, "Frequency", &instance->frequency, 1))
             break;
         if(!flipper_format_insert_or_update_uint32(file, "Hopping", &instance->hopping, 1)) break;
-        if(!flipper_format_insert_or_update_uint32(file, "DetectRaw", &instance->detect_raw, 1))
-            break;
+        //if(!flipper_format_insert_or_update_uint32(file, "DetectRaw", &instance->detect_raw, 1))
+        //    break;
         if(!flipper_format_insert_or_update_int32(file, "Rssi", &instance->rssi_threshold, 1))
             break;
 
@@ -131,11 +131,11 @@ bool subghz_last_setting_save(SubGhzLastSetting* instance, const char* file_path
 }
 
 void subghz_last_setting_set_receiver_values(SubGhzLastSetting* instance, SubGhzReceiver* receiver) {
-    subghz_receiver_set_filter(receiver, instance->detect_raw);
+    /*subghz_receiver_set_filter(receiver, instance->detect_raw);
 
     subghz_protocol_decoder_raw_set_auto_mode(
         subghz_receiver_search_decoder_base_by_name(receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-        (instance->detect_raw != SubGhzProtocolFlag_Decodable));
+        (instance->detect_raw != SubGhzProtocolFlag_Decodable));*/
 
     subghz_protocol_decoder_raw_set_rssi_threshold(
         subghz_receiver_search_decoder_base_by_name(receiver, SUBGHZ_PROTOCOL_RAW_NAME),

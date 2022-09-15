@@ -1,5 +1,6 @@
 #include "../subghz_i.h"
 #include "../views/receiver.h"
+#include <lib/subghz/protocols/raw.h>
 
 #include <lib/subghz/subghz_file_encoder_worker.h>
 
@@ -173,6 +174,12 @@ void subghz_scene_decode_raw_on_enter(void* context) {
 
     subghz_receiver_set_rx_callback(
         subghz->txrx->receiver, subghz_scene_add_to_history_callback, subghz);
+
+    // make sure we're not in auto-detect mode, which is only meant for the Read app
+    subghz_protocol_decoder_raw_set_auto_mode(
+        subghz_receiver_search_decoder_base_by_name(
+            subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
+        false);
 
     if(decode_raw_state == SubGhzDecodeRawStateStart) {
         //Decode RAW to history
