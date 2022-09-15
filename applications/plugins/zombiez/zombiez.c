@@ -87,7 +87,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     for(int i = 0; i < PROJECTILES_MAX; ++i) {
         Projectile* p = plugin_state->projectiles[i];
         if(p != NULL) {
-            canvas_draw_circle(canvas, p->position.x, p->position.y, 3);
+            canvas_draw_disc(canvas, p->position.x, p->position.y, 3);
         }
     }
 
@@ -351,12 +351,12 @@ int32_t zombiez_game_app(void* p) {
                     switch(event.input.key) {
                     case InputKeyUp:
                         if(plugin_state->player.position.y > (MIN_Y + 1)) {
-                            plugin_state->player.position.y -= 2;
+                            plugin_state->player.position.y -= 4;
                         }
                         break;
                     case InputKeyDown:
                         if(plugin_state->player.position.y < (MAX_Y - 1)) {
-                            plugin_state->player.position.y += 2;
+                            plugin_state->player.position.y += 4;
                         }
                         break;
                     default:
