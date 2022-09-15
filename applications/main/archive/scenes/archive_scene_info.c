@@ -64,7 +64,7 @@ void archive_scene_info_on_enter(void* context) {
 
     // This one to return and cursor select this file
     path_extract_filename_no_ext(string_get_cstr(current->path), filename);
-    archive_text_store_set(instance, instance->text_store);
+    strlcpy(instance->text_store, string_get_cstr(filename), MAX_NAME_LEN);
 
     string_clear(filename);
     string_clear(dirname);
