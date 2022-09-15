@@ -21,7 +21,6 @@ typedef enum {
     ArchiveViewTextInput,
     ArchiveViewWidget,
     ArchiveViewTotal,
-    ArchiveViewLoading,
     ArchiveViewStack,
     ArchiveViewDialogEx,
 } ArchiveViewEnum;
