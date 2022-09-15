@@ -759,12 +759,8 @@ void renderStats(Canvas* const canvas, PluginState* plugin_state) {
 
 // Intro screen
 void loopIntro(Canvas* const canvas) {
-    canvas_draw_icon(
-        canvas,
-        (SCREEN_WIDTH - BMP_LOGO_WIDTH) / 2,
-        (SCREEN_HEIGHT - BMP_LOGO_HEIGHT) / 3,
-        &I_logo_inv);
-    drawTextSpace(SCREEN_WIDTH / 2 - 25, SCREEN_HEIGHT * .8, "PRESS FIRE", 1, canvas);
+    canvas_draw_icon(canvas, 0, 0, &I_logo_inv);
+    //drawTextSpace(SCREEN_WIDTH / 2 - 25, SCREEN_HEIGHT * .8, "PRESS FIRE", 1, canvas);
 }
 
 static void render_callback(Canvas* const canvas, void* ctx) {
