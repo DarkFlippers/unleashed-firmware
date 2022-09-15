@@ -66,7 +66,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
             string_set_str(item_pin, "Unpin");
         }
 
-        if (selected->type == ArchiveFileTypeFolder) {
+        if(selected->type == ArchiveFileTypeFolder) {
             FURI_LOG_D(TAG, "Directory type");
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
@@ -138,6 +138,10 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 ArchiveBrowserEventFileMenuPin);
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
+                item_info,
+                ArchiveBrowserEventFileMenuInfo);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
                 item_rename,
                 ArchiveBrowserEventFileMenuRename);
             archive_menu_add_item(
@@ -152,20 +156,17 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         string_clear(item_rename);
         string_clear(item_delete);
     } else {
-        FURI_LOG_D(
-            TAG,
-            "menu_array_size already set: %d",
-            menu_array_size(model->context_menu));
+        FURI_LOG_D(TAG, "menu_array_size already set: %d", menu_array_size(model->context_menu));
     }
     size_t size_menu = menu_array_size(model->context_menu);
-    const uint8_t menu_height = 44;
-    const uint8_t line_height = 11;
+    const uint8_t menu_height = 48;
+    const uint8_t line_height = 10;
 
     canvas_set_color(canvas, ColorWhite);
     uint8_t calc_height = menu_height - ((MENU_ITEMS - size_menu) * line_height);
-    canvas_draw_box(canvas, 71, 17, 57, calc_height + 2);
+    canvas_draw_box(canvas, 71, 11, 57, calc_height + 4);
     canvas_set_color(canvas, ColorBlack);
-    elements_slightly_rounded_frame(canvas, 70, 16, 58, calc_height + 4);
+    elements_slightly_rounded_frame(canvas, 70, 12, 58, calc_height + 4);
 
     FURI_LOG_D(
         TAG,
@@ -175,10 +176,10 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         model->menu_idx);
     for(size_t i = 0; i < size_menu; i++) {
         ArchiveContextMenuItem_t* current = menu_array_get(model->context_menu, i);
-        canvas_draw_str(canvas, 82, 27 + i * line_height, string_get_cstr(current->text));
+        canvas_draw_str(canvas, 82, 21 + i * line_height, string_get_cstr(current->text));
     }
 
-    canvas_draw_icon(canvas, 74, 20 + model->menu_idx * line_height, &I_ButtonRight_4x7);
+    canvas_draw_icon(canvas, 74, 14 + model->menu_idx * line_height, &I_ButtonRight_4x7);
 }
 
 static void archive_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar, bool moving) {
