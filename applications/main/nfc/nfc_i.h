@@ -98,7 +98,11 @@ void nfc_text_store_set(Nfc* nfc, const char* text, ...);
 
 void nfc_text_store_clear(Nfc* nfc);
 
-void nfc_blink_start(Nfc* nfc);
+void nfc_blink_read_start(Nfc* nfc);
+
+void nfc_blink_emulate_start(Nfc* nfc);
+
+void nfc_blink_detect_start(Nfc* nfc);
 
 void nfc_blink_stop(Nfc* nfc);
 

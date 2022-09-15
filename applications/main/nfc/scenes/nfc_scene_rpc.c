@@ -62,7 +62,7 @@ bool nfc_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                     nfc->rpc_state = NfcRpcStateEmulating;
                     result = true;
 
-                    nfc_blink_start(nfc);
+                    nfc_blink_emulate_start(nfc);
                     nfc_text_store_set(nfc, "emulating\n%s", nfc->dev->dev_name);
                     popup_set_text(popup, nfc->text_store, 89, 44, AlignCenter, AlignTop);
                 }

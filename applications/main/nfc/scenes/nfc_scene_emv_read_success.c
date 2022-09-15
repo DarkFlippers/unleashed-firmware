@@ -55,6 +55,8 @@ void nfc_scene_emv_read_success_on_enter(void* context) {
         string_clear(country_name);
     }
 
+    notification_message_block(nfc->notifications, &sequence_set_green_255);
+
     widget_add_text_scroll_element(nfc->widget, 0, 0, 128, 52, string_get_cstr(temp_str));
     string_clear(temp_str);
 
@@ -82,6 +84,8 @@ bool nfc_scene_emv_read_success_on_event(void* context, SceneManagerEvent event)
 
 void nfc_scene_emv_read_success_on_exit(void* context) {
     Nfc* nfc = context;
+
+    notification_message_block(nfc->notifications, &sequence_reset_green);
 
     // Clear view
     widget_reset(nfc->widget);

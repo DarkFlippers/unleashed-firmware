@@ -25,6 +25,8 @@ void nfc_scene_nfca_read_success_on_enter(void* context) {
     string_t temp_str;
     string_init_set_str(temp_str, "\e#Unknown ISO tag\n");
 
+    notification_message_block(nfc->notifications, &sequence_set_green_255);
+
     char iso_type = FURI_BIT(data->sak, 5) ? '4' : '3';
     string_cat_printf(temp_str, "ISO 14443-%c (NFC-A)\n", iso_type);
     string_cat_printf(temp_str, "UID:");
@@ -66,6 +68,8 @@ bool nfc_scene_nfca_read_success_on_event(void* context, SceneManagerEvent event
 
 void nfc_scene_nfca_read_success_on_exit(void* context) {
     Nfc* nfc = context;
+
+    notification_message_block(nfc->notifications, &sequence_reset_green);
 
     // Clear view
     widget_reset(nfc->widget);
