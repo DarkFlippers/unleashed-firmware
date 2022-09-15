@@ -7,6 +7,6 @@ App(
     requires=["gui","dialogs"],
     stack_size=2 * 1024,
     order=11,
-    fap_icon="../../../assets/icons/Archive/sub1_10px.png",
+    fap_icon="subbrute_10px.png",
     fap_category="Tools",
 )

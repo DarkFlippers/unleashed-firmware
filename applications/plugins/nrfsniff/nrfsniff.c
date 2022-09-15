@@ -402,9 +402,6 @@ int32_t nrfsniff_app(void* p) {
                     }
                 }
             }
-        } else {
-            FURI_LOG_D(TAG, "osMessageQueue: event timeout");
-            // event timeout
         }
 
         if(sniffing_state) {
@@ -451,6 +448,7 @@ int32_t nrfsniff_app(void* p) {
     furi_record_close(RECORD_STORAGE);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
+    free(plugin_state);
 
     return 0;
 }
