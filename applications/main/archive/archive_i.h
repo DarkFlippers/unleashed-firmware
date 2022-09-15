@@ -22,7 +22,6 @@ typedef enum {
     ArchiveViewWidget,
     ArchiveViewTotal,
     ArchiveViewStack,
-    ArchiveViewDialogEx,
 } ArchiveViewEnum;
 
 struct ArchiveApp {
