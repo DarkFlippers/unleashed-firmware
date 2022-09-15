@@ -35,7 +35,7 @@ void nfc_scene_mf_ultralight_emulate_on_enter(void* context) {
         &nfc->dev->dev_data,
         nfc_mf_ultralight_emulate_worker_callback,
         nfc);
-    nfc_blink_start(nfc);
+    nfc_blink_emulate_start(nfc);
 }
 
 bool nfc_scene_mf_ultralight_emulate_on_event(void* context, SceneManagerEvent event) {

@@ -52,6 +52,8 @@ void nfc_scene_mf_desfire_read_success_on_enter(void* context) {
         string_push_back(temp_str, 's');
     }
 
+    notification_message_block(nfc->notifications, &sequence_set_green_255);
+
     // Add text scroll element
     widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
     string_clear(temp_str);
@@ -87,6 +89,8 @@ bool nfc_scene_mf_desfire_read_success_on_event(void* context, SceneManagerEvent
 
 void nfc_scene_mf_desfire_read_success_on_exit(void* context) {
     Nfc* nfc = context;
+
+    notification_message_block(nfc->notifications, &sequence_reset_green);
 
     // Clean dialog
     widget_reset(nfc->widget);

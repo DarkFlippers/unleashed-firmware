@@ -201,8 +201,16 @@ void nfc_text_store_clear(Nfc* nfc) {
     memset(nfc->text_store, 0, sizeof(nfc->text_store));
 }
 
-void nfc_blink_start(Nfc* nfc) {
-    notification_message(nfc->notifications, &sequence_blink_start_blue);
+void nfc_blink_read_start(Nfc* nfc) {
+    notification_message(nfc->notifications, &sequence_blink_start_cyan);
+}
+
+void nfc_blink_emulate_start(Nfc* nfc) {
+    notification_message(nfc->notifications, &sequence_blink_start_magenta);
+}
+
+void nfc_blink_detect_start(Nfc* nfc) {
+    notification_message(nfc->notifications, &sequence_blink_start_yellow);
 }
 
 void nfc_blink_stop(Nfc* nfc) {
