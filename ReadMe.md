@@ -70,17 +70,24 @@ See changelog in releases for latest updates!
 - GPIO: Sentry Safe plugin [(by H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
 - ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
 - NRF24: Sniffer & MouseJacker (with changes) [(by mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
-- Simple Clock (fixed) [(Original by CompaqDisc)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
+- Simple Clock (timer by GMMan / settings by kowalski7cc) [(Original by CompaqDisc)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
 - UniversalRF Remix / Sub-GHz Remote [(by ESurge)](https://github.com/ESurge/flipperzero-firmware-unirfremix)[(updated and all protocol support added by darmiel & xMasterX)](https://github.com/darmiel/flipper-playlist/tree/feat/unirf-protocols)
-- Tetris (with fixes) [(by jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 - Spectrum Analyzer (with changes) [(by jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
-- Arkanoid (with fixes) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
-- Tic Tac Toe (with fixes) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+
+Games:
+- DOOM (fixed) [(By p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
+- Zombiez [(Reworked By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/240) [(Original By Dooskington)](https://github.com/Dooskington/flipperzero-zombiez)
+- Flappy Bird [(By DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird)
+- Arkanoid (refactored by xMasterX) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- Tic Tac Toe (refactored by xMasterX) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- Tetris (with fixes) [(by jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 
 ### Other changes
 
-- BadUSB Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
-- New frequency analyzer - [(by ClusterM)](https://github.com/ClusterM)
+- BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
+- SubGHz -> New frequency analyzer - [(by ClusterM)](https://github.com/ClusterM)
+- SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
+- SubGHz -> Save last used config settings - [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/67)
 
 # Instructions
 ## [- How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
