@@ -29,7 +29,7 @@ void nfc_scene_detect_reader_on_enter(void* context) {
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDetectReader);
 
-    nfc_blink_start(nfc);
+    nfc_blink_read_start(nfc);
 }
 
 bool nfc_scene_detect_reader_on_event(void* context, SceneManagerEvent event) {

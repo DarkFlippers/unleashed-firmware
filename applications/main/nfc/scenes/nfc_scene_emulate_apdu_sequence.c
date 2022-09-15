@@ -12,7 +12,7 @@ void nfc_scene_emulate_apdu_sequence_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
     nfc_worker_start(nfc->worker, NfcWorkerStateEmulateApdu, &nfc->dev->dev_data, NULL, nfc);
 
-    nfc_blink_start(nfc);
+    nfc_blink_emulate_start(nfc);
 }
 
 bool nfc_scene_emulate_apdu_sequence_on_event(void* context, SceneManagerEvent event) {
