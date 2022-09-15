@@ -1,5 +1,4 @@
 #include "archive_i.h"
-#include "m-string.h"
 
 bool archive_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -17,6 +16,7 @@ ArchiveApp* archive_alloc() {
     ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
     archive->gui = furi_record_open(RECORD_GUI);
+    archive->dialogs = furi_record_open(RECORD_DIALOGS);
     archive->text_input = text_input_alloc();
     string_init(archive->fav_move_str);
 
@@ -45,11 +45,20 @@ ArchiveApp* archive_alloc() {
     view_dispatcher_add_view(
         archive->view_dispatcher, ArchiveViewWidget, widget_get_view(archive->widget));
 
+    // Loading
+    archive->loading = loading_alloc();
+    view_dispatcher_add_view(
+        archive->view_dispatcher, ArchiveViewLoading, loading_get_view(archive->loading));
+
     return archive;
 }
 
 void archive_free(ArchiveApp* archive) {
     furi_assert(archive);
+
+    // Loading
+    view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewLoading);
+    loading_free(archive->loading);
 
     view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewBrowser);
     view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewTextInput);
@@ -62,10 +71,27 @@ void archive_free(ArchiveApp* archive) {
 
     text_input_free(archive->text_input);
 
+    furi_record_close(RECORD_DIALOGS);
+    archive->dialogs = NULL;
+
     furi_record_close(RECORD_GUI);
     archive->gui = NULL;
 
     free(archive);
+}
+
+void archive_show_loading_popup(void* context, bool show) {
+    ArchiveApp* instance = context;
+    TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
+
+    if(show) {
+        // Raise timer priority so that animations can play
+        vTaskPrioritySet(timer_task, configMAX_PRIORITIES - 1);
+        view_dispatcher_switch_to_view(instance->view_dispatcher, ArchiveViewLoading);
+    } else {
+        // Restore default timer priority
+        vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
+    }
 }
 
 int32_t archive_app(void* p) {

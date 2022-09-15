@@ -377,6 +377,7 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show) {
                 if(archive_is_item_in_array(model, model->item_idx)) {
                     model->menu = true;
                     model->menu_idx = 0;
+                    menu_array_reset(model->context_menu);
                     ArchiveFile_t* selected =
                         files_array_get(model->files, model->item_idx - model->array_offset);
                     selected->fav = archive_is_favorite("%s", string_get_cstr(selected->path));

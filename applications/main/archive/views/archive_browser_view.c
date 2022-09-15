@@ -5,6 +5,8 @@
 #include "archive_browser_view.h"
 #include "../helpers/archive_browser.h"
 
+#define TAG "Archive"
+
 static const char* ArchiveTabNames[] = {
     [ArchiveTabFavorites] = "Favorites",
     [ArchiveTabIButton] = "iButton",
@@ -42,43 +44,141 @@ void archive_browser_set_callback(
 }
 
 static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
-    canvas_set_color(canvas, ColorWhite);
-    canvas_draw_box(canvas, 71, 17, 57, 46);
-    canvas_set_color(canvas, ColorBlack);
-    elements_slightly_rounded_frame(canvas, 70, 16, 58, 48);
+    if(menu_array_size(model->context_menu) == 0) {
+        // Context menu is empty, init array
+        string_t item_run;
+        string_t item_pin;
+        string_t item_info;
+        string_t item_rename;
+        string_t item_delete;
 
-    string_t menu[MENU_ITEMS];
+        string_init_set_str(item_run, "Run In App");
+        string_init_set_str(item_pin, "Pin");
+        string_init_set_str(item_info, "Info");
+        string_init_set_str(item_rename, "Rename");
+        string_init_set_str(item_delete, "Delete");
 
-    string_init_set_str(menu[0], "Run in app");
-    string_init_set_str(menu[1], "Pin");
-    string_init_set_str(menu[2], "Rename");
-    string_init_set_str(menu[3], "Delete");
+        // Need init context menu
+        ArchiveFile_t* selected =
+            files_array_get(model->files, model->item_idx - model->array_offset);
 
-    ArchiveFile_t* selected = files_array_get(model->files, model->item_idx - model->array_offset);
-
-    if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
-        string_set_str(menu[1], "Unpin");
-    }
-
-    if(!archive_is_known_app(selected->type)) {
-        string_set_str(menu[0], "---");
-        string_set_str(menu[1], "---");
-        string_set_str(menu[2], "---");
-    } else {
-        if(model->tab_idx == ArchiveTabFavorites) {
-            string_set_str(menu[2], "Move");
-            string_set_str(menu[3], "---");
-        } else if(selected->is_app) {
-            string_set_str(menu[2], "---");
+        if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
+            string_set_str(item_pin, "Unpin");
         }
+
+        if (selected->type == ArchiveFileTypeFolder) {
+            FURI_LOG_D(TAG, "Directory type");
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_rename,
+                ArchiveBrowserEventFileMenuRename);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_delete,
+                ArchiveBrowserEventFileMenuDelete);
+        } else if(!archive_is_known_app(selected->type)) {
+            FURI_LOG_D(TAG, "Unknown type");
+
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_info,
+                ArchiveBrowserEventFileMenuInfo);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_rename,
+                ArchiveBrowserEventFileMenuRename);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_delete,
+                ArchiveBrowserEventFileMenuDelete);
+        } else if(model->tab_idx == ArchiveTabFavorites) {
+            FURI_LOG_D(TAG, "ArchiveTabFavorites");
+
+            string_set_str(item_rename, "Move");
+
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_run,
+                ArchiveBrowserEventFileMenuRun);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_pin,
+                ArchiveBrowserEventFileMenuPin);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_rename,
+                ArchiveBrowserEventFileMenuRename);
+        } else if(selected->is_app) {
+            FURI_LOG_D(TAG, "3 types");
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_run,
+                ArchiveBrowserEventFileMenuRun);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_info,
+                ArchiveBrowserEventFileMenuInfo);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_pin,
+                ArchiveBrowserEventFileMenuPin);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_delete,
+                ArchiveBrowserEventFileMenuDelete);
+        } else {
+            FURI_LOG_D(TAG, "All menu");
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_run,
+                ArchiveBrowserEventFileMenuRun);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_pin,
+                ArchiveBrowserEventFileMenuPin);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_rename,
+                ArchiveBrowserEventFileMenuRename);
+            archive_menu_add_item(
+                menu_array_push_raw(model->context_menu),
+                item_delete,
+                ArchiveBrowserEventFileMenuDelete);
+        }
+
+        string_clear(item_run);
+        string_clear(item_pin);
+        string_clear(item_info);
+        string_clear(item_rename);
+        string_clear(item_delete);
+    } else {
+        FURI_LOG_D(
+            TAG,
+            "menu_array_size already set: %d",
+            menu_array_size(model->context_menu));
+    }
+    size_t size_menu = menu_array_size(model->context_menu);
+    const uint8_t menu_height = 44;
+    const uint8_t line_height = 11;
+
+    canvas_set_color(canvas, ColorWhite);
+    uint8_t calc_height = menu_height - ((MENU_ITEMS - size_menu) * line_height);
+    canvas_draw_box(canvas, 71, 17, 57, calc_height + 2);
+    canvas_set_color(canvas, ColorBlack);
+    elements_slightly_rounded_frame(canvas, 70, 16, 58, calc_height + 4);
+
+    FURI_LOG_D(
+        TAG,
+        "size_menu: %d, calc_height: %d, menu_idx: %d",
+        size_menu,
+        calc_height,
+        model->menu_idx);
+    for(size_t i = 0; i < size_menu; i++) {
+        ArchiveContextMenuItem_t* current = menu_array_get(model->context_menu, i);
+        canvas_draw_str(canvas, 82, 27 + i * line_height, string_get_cstr(current->text));
     }
 
-    for(size_t i = 0; i < MENU_ITEMS; i++) {
-        canvas_draw_str(canvas, 82, 27 + i * 11, string_get_cstr(menu[i]));
-        string_clear(menu[i]);
-    }
-
-    canvas_draw_icon(canvas, 74, 20 + model->menu_idx * 11, &I_ButtonRight_4x7);
+    canvas_draw_icon(canvas, 74, 20 + model->menu_idx * line_height, &I_ButtonRight_4x7);
 }
 
 static void archive_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar, bool moving) {
@@ -250,32 +350,33 @@ static bool archive_view_input(InputEvent* event, void* context) {
         });
 
     if(in_menu) {
-        if(event->type == InputTypeShort) {
-            if(event->key == InputKeyUp || event->key == InputKeyDown) {
-                with_view_model(
-                    browser->view, (ArchiveBrowserViewModel * model) {
-                        if(event->key == InputKeyUp) {
-                            model->menu_idx = ((model->menu_idx - 1) + MENU_ITEMS) % MENU_ITEMS;
-                        } else if(event->key == InputKeyDown) {
-                            model->menu_idx = (model->menu_idx + 1) % MENU_ITEMS;
-                        }
-                        return true;
-                    });
-            }
-
-            if(event->key == InputKeyOk) {
-                uint8_t idx;
-                with_view_model(
-                    browser->view, (ArchiveBrowserViewModel * model) {
-                        idx = model->menu_idx;
-                        return false;
-                    });
-                browser->callback(file_menu_actions[idx], browser->context);
-            } else if(event->key == InputKeyBack) {
-                browser->callback(ArchiveBrowserEventFileMenuClose, browser->context);
-            }
+        if(event->type != InputTypeShort) {
+            return true; // RETURN
         }
-
+        if(event->key == InputKeyUp || event->key == InputKeyDown) {
+            with_view_model(
+                browser->view, (ArchiveBrowserViewModel * model) {
+                    size_t size_menu = menu_array_size(model->context_menu);
+                    if(event->key == InputKeyUp) {
+                        model->menu_idx = ((model->menu_idx - 1) + size_menu) % size_menu;
+                    } else if(event->key == InputKeyDown) {
+                        model->menu_idx = (model->menu_idx + 1) % size_menu;
+                    }
+                    return true;
+                });
+        } else if(event->key == InputKeyOk) {
+            uint32_t idx;
+            with_view_model(
+                browser->view, (ArchiveBrowserViewModel * model) {
+                    ArchiveContextMenuItem_t* current =
+                        menu_array_get(model->context_menu, model->menu_idx);
+                    idx = current->event;
+                    return false;
+                });
+            browser->callback(idx, browser->context);
+        } else if(event->key == InputKeyBack) {
+            browser->callback(ArchiveBrowserEventFileMenuClose, browser->context);
+        }
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyLeft || event->key == InputKeyRight) {
@@ -366,6 +467,7 @@ ArchiveBrowserView* browser_alloc() {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             files_array_init(model->files);
+            menu_array_init(model->context_menu);
             model->tab_idx = TAB_DEFAULT;
             return true;
         });
@@ -383,6 +485,7 @@ void browser_free(ArchiveBrowserView* browser) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             files_array_clear(model->files);
+            menu_array_clear(model->context_menu);
             return false;
         });
 
