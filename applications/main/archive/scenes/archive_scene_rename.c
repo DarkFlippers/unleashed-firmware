@@ -27,11 +27,11 @@ void archive_scene_rename_on_enter(void* context) {
 
     if(current->type == ArchiveFileTypeFolder) {
         path_extract_basename(string_get_cstr(current->path), path_name);
-        strlcpy(archive->text_store, string_get_cstr(path_name), MAX_NAME_LEN);
+        archive_text_store_set(archive, string_get_cstr(path_name));
         text_input_set_header_text(text_input, "Rename directory:");
     } else /*if(current->type != ArchiveFileTypeUnknown) */ {
         path_extract_filename(current->path, path_name, true);
-        strlcpy(archive->text_store, string_get_cstr(path_name), MAX_NAME_LEN);
+        archive_text_store_set(archive, string_get_cstr(path_name));
 
         path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
         text_input_set_header_text(text_input, "Rename file:");
