@@ -48,6 +48,8 @@ void nfc_scene_mf_classic_read_success_on_enter(void* context) {
     widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
     string_clear(temp_str);
 
+    notification_message_block(nfc->notifications, &sequence_set_green_255);
+
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
@@ -75,6 +77,8 @@ bool nfc_scene_mf_classic_read_success_on_event(void* context, SceneManagerEvent
 
 void nfc_scene_mf_classic_read_success_on_exit(void* context) {
     Nfc* nfc = context;
+
+    notification_message_block(nfc->notifications, &sequence_reset_green);
 
     // Clear view
     widget_reset(nfc->widget);

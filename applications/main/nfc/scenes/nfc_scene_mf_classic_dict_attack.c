@@ -90,7 +90,7 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     Nfc* nfc = context;
     nfc_scene_mf_classic_dict_attack_prepare_view(nfc, DictAttackStateIdle);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDictAttack);
-    nfc_blink_start(nfc);
+    nfc_blink_read_start(nfc);
 }
 
 bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent event) {

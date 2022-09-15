@@ -82,7 +82,7 @@ void nfc_scene_emulate_uid_on_enter(void* context) {
         nfc_emulate_uid_worker_callback,
         nfc);
 
-    nfc_blink_start(nfc);
+    nfc_blink_emulate_start(nfc);
 }
 
 bool nfc_scene_emulate_uid_on_event(void* context, SceneManagerEvent event) {
