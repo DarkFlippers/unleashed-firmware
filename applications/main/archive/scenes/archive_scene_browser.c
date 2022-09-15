@@ -143,8 +143,9 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuInfo:
+            archive_show_file_menu(browser, false);
             scene_manager_set_scene_state(
-                archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_NEED_REFRESH);
+                archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_DEFAULT);
             scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneInfo);
             consumed = true;
             break;

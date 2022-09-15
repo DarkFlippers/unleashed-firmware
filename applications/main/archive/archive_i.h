@@ -8,6 +8,7 @@
 #include <gui/scene_manager.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/widget.h>
+#include <gui/view_stack.h>
 #include <dialogs/dialogs.h>
 #include <gui/modules/loading.h>
 #include <loader/loader.h>
@@ -21,11 +22,13 @@ typedef enum {
     ArchiveViewWidget,
     ArchiveViewTotal,
     ArchiveViewLoading,
+    ArchiveViewStack,
 } ArchiveViewEnum;
 
 struct ArchiveApp {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
+    ViewStack* view_stack;
     SceneManager* scene_manager;
     ArchiveBrowserView* browser;
     TextInput* text_input;
@@ -33,9 +36,10 @@ struct ArchiveApp {
     DialogsApp* dialogs;
     Loading* loading;
     FuriPubSubSubscription* loader_stop_subscription;
+
     string_t fav_move_str;
     char text_store[MAX_NAME_LEN];
     char file_extension[MAX_EXT_LEN + 1];
 };
 
-void archive_show_loading_popup(void* context, bool show);
+void archive_show_loading_popup(ArchiveApp* context, bool show);

@@ -134,12 +134,12 @@ FS_Error archive_rename_file_or_dir(void* context, const char* src_path, const c
         archive_favorites_rename(src_path, dst_path);
     }
 
-    if(error == FSE_OK) {
+    if(error == FSE_OK || error == FSE_EXIST) {
         FURI_LOG_I(TAG, "Rename from %s to %s is DONE", src_path, dst_path);
         archive_refresh_dir(browser);
     } else {
-        const char* error_msg = filesystem_api_error_get_desc(error);
-        FURI_LOG_E(TAG, "Rename failed: %s, Code: %d", error_msg, error);
+        FURI_LOG_E(
+            TAG, "Rename failed: %s, Code: %d", filesystem_api_error_get_desc(error), error);
     }
 
     return error;
