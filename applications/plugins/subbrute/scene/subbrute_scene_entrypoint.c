@@ -16,11 +16,11 @@ void subbrute_scene_entrypoint_menu_callback(SubBruteState* context, uint32_t in
     case SubBruteAttackCAME12bit307:
     case SubBruteAttackCAME12bit433:
     case SubBruteAttackCAME12bit868:
-        if (index == SubBruteAttackCAME12bit307) {
+        if(index == SubBruteAttackCAME12bit307) {
             context->frequency = 307800000;
-        } else if (index == SubBruteAttackCAME12bit433) {
+        } else if(index == SubBruteAttackCAME12bit433) {
             context->frequency = 433920000;
-        } else if (index == SubBruteAttackCAME12bit868) {
+        } else if(index == SubBruteAttackCAME12bit868) {
             context->frequency = 868350000;
         }
         context->bit = 12;

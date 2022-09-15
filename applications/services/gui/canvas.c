@@ -367,6 +367,23 @@ void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch) {
     u8g2_DrawGlyph(&canvas->fb, x, y, ch);
 }
 
+void canvas_draw_icon_bitmap(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    int16_t w,
+    int16_t h,
+    const Icon* icon) {
+    furi_assert(canvas);
+    furi_assert(icon);
+
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    uint8_t* icon_data = NULL;
+    furi_hal_compress_icon_decode(icon_get_data(icon), &icon_data);
+    u8g2_DrawXBM(&canvas->fb, x, y, w, h, icon_data);
+}
+
 void canvas_set_bitmap_mode(Canvas* canvas, bool alpha) {
     u8g2_SetBitmapMode(&canvas->fb, alpha ? 1 : 0);
 }
