@@ -1,7 +1,7 @@
 App(
     appid="nrf_sniff",
     name="[NRF24] Sniffer",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="nrfsniff_app",
     cdefines=["APP_NRFSNIFF"],
     requires=["gui"],

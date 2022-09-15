@@ -1,7 +1,7 @@
 App(
     appid="flipfrid",
     name="RFID Fuzzer",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="flipfrid_start",
     cdefines=["APP_FLIP_FRID"],
     requires=["gui", "storage", "dialogs", "input", "notification"],

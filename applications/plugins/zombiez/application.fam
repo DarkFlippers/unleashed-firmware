@@ -1,7 +1,7 @@
 App(
     appid="game_zombiez",
     name="Zombiez",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="zombiez_game_app",
     cdefines=["APP_ZOMBIEZ_GAME"],
     requires=["gui"],
