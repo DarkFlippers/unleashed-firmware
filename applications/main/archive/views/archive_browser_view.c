@@ -67,7 +67,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         }
 
         if(selected->type == ArchiveFileTypeFolder) {
-            FURI_LOG_D(TAG, "Directory type");
+            //FURI_LOG_D(TAG, "Directory type");
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
@@ -77,7 +77,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 item_delete,
                 ArchiveBrowserEventFileMenuDelete);
         } else if(!archive_is_known_app(selected->type)) {
-            FURI_LOG_D(TAG, "Unknown type");
+            //FURI_LOG_D(TAG, "Unknown type");
 
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
@@ -92,7 +92,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 item_delete,
                 ArchiveBrowserEventFileMenuDelete);
         } else if(model->tab_idx == ArchiveTabFavorites) {
-            FURI_LOG_D(TAG, "ArchiveTabFavorites");
+            //FURI_LOG_D(TAG, "ArchiveTabFavorites");
 
             string_set_str(item_rename, "Move");
 
@@ -109,7 +109,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 item_rename,
                 ArchiveBrowserEventFileMenuRename);
         } else if(selected->is_app) {
-            FURI_LOG_D(TAG, "3 types");
+            //FURI_LOG_D(TAG, "3 types");
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_run,
@@ -127,7 +127,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 item_delete,
                 ArchiveBrowserEventFileMenuDelete);
         } else {
-            FURI_LOG_D(TAG, "All menu");
+            //FURI_LOG_D(TAG, "All menu");
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_run,
@@ -155,9 +155,9 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         string_clear(item_info);
         string_clear(item_rename);
         string_clear(item_delete);
-    } else {
+    } /*else {
         FURI_LOG_D(TAG, "menu_array_size already set: %d", menu_array_size(model->context_menu));
-    }
+    }*/
     size_t size_menu = menu_array_size(model->context_menu);
     const uint8_t menu_height = 48;
     const uint8_t line_height = 10;
@@ -168,12 +168,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     canvas_set_color(canvas, ColorBlack);
     elements_slightly_rounded_frame(canvas, 70, 12, 58, calc_height + 4);
 
-    FURI_LOG_D(
+    /*FURI_LOG_D(
         TAG,
         "size_menu: %d, calc_height: %d, menu_idx: %d",
         size_menu,
         calc_height,
-        model->menu_idx);
+        model->menu_idx);*/
     for(size_t i = 0; i < size_menu; i++) {
         ArchiveContextMenuItem_t* current = menu_array_get(model->context_menu, i);
         canvas_draw_str(canvas, 82, 21 + i * line_height, string_get_cstr(current->text));
