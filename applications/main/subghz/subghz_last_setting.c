@@ -131,6 +131,7 @@ bool subghz_last_setting_save(SubGhzLastSetting* instance, const char* file_path
 }
 
 void subghz_last_setting_set_receiver_values(SubGhzLastSetting* instance, SubGhzReceiver* receiver) {
+    subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
     /*subghz_receiver_set_filter(receiver, instance->detect_raw);
 
     subghz_protocol_decoder_raw_set_auto_mode(
