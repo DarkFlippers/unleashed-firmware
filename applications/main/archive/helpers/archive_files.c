@@ -109,3 +109,38 @@ void archive_delete_file(void* context, const char* format, ...) {
 
     string_clear(filename);
 }
+
+FS_Error archive_rename_file_or_dir(void* context, const char* src_path, const char* dst_path) {
+    furi_assert(context);
+
+    FURI_LOG_I(TAG, "Rename from %s to %s", src_path, dst_path);
+
+    ArchiveBrowserView* browser = context;
+    Storage* fs_api = furi_record_open(RECORD_STORAGE);
+
+    FileInfo fileinfo;
+    storage_common_stat(fs_api, src_path, &fileinfo);
+
+    FS_Error error = FSE_OK;
+
+    if(!path_contains_only_ascii(dst_path)) {
+        error = FSE_INVALID_NAME;
+    } else {
+        error = storage_common_rename(fs_api, src_path, dst_path);
+    }
+    furi_record_close(RECORD_STORAGE);
+
+    if(archive_is_favorite("%s", src_path)) {
+        archive_favorites_rename(src_path, dst_path);
+    }
+
+    if(error == FSE_OK || error == FSE_EXIST) {
+        FURI_LOG_I(TAG, "Rename from %s to %s is DONE", src_path, dst_path);
+        archive_refresh_dir(browser);
+    } else {
+        FURI_LOG_E(
+            TAG, "Rename failed: %s, Code: %d", filesystem_api_error_get_desc(error), error);
+    }
+
+    return error;
+}
