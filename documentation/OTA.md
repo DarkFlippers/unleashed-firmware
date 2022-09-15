@@ -1,8 +1,8 @@
 # Executing code from RAM
 
-In Flipper firmware, we have a special boot mode that loads a specially crafted system image into RAM and transfers control to it. System image executing in RAM has full write access to whole Flipper's flash memory — something that's not possible when running main code from same flash.
+In Flipper firmware, we have a special boot mode that loads a specially crafted system image into RAM and transfers control to it. System image executing in RAM has full write access to whole Flipper's flash memory — something that's not possible when running main code from the same flash.
 
-We leverage that boot mode to perform OTA firmware updates, including operations on radio stack running on second MCU core.
+We leverage that boot mode to perform OTA firmware updates, including operations on a radio stack running on the second MCU core.
 
 
 # How does Flipper OTA work?
@@ -22,16 +22,16 @@ For that, main firmware loads an updater image - a customized build of main Flip
 
 First, if there's a Radio stack image bundled with the update, updater compares its version with currently installed one. If they don't match, updater performs stack deinstallation followed by writing and installing a new one. The installation itself is performed by proprietary software, FUS, running on Core2, and leads to a series of system restarts.
 
-Then updater validates and corrects Option Bytes — a special memory region containing low-level configuration for Flipper's MCU.
+Then, updater validates and corrects Option Bytes — a special memory region containing low-level configuration for Flipper's MCU.
 
 After that, updater loads a `.dfu` file with firmware to be flashed, checks its integrity using CRC32, writes it to system flash and validates written data.
 
 
 ## 3. Restoring internal storage and updating resources
 
-After performing operations on flash memory, system restarts into newly flashed firmware. Then it performs restoration of previously backed up `/int` contents.
+After performing operations on flash memory, the system restarts into newly flashed firmware. Then it performs restoration of previously backed up `/int` contents.
 
-If update package contains an additional resources archive, it is extracted onto SD card.
+If the update package contains an additional resources archive, it is extracted onto SD card.
 
 
 # Update manifest
@@ -40,13 +40,13 @@ Update packages come with a manifest that contains a description of its contents
 
 ## Mandatory fields
 
-Update manifest must contain the following keys in given order:
+An update manifest must contain the following keys in given order:
 
 * __Filetype__: a constant string, "Flipper firmware upgrade configuration";
 
 * __Version__: manifest version. Current value is 2;
 
-* __Info__: arbitraty string, describing package contents;
+* __Info__: arbitrary string, describing package contents;
 
 * __Target__: hardware revision the package is built for;
 
@@ -56,7 +56,7 @@ Update manifest must contain the following keys in given order:
 
 ## Optional fields
 
-Other fields may have empty values, is such case updater skips all operations related to such values.
+Other fields may have empty values, is such case, updater skips all operations related to such values.
 
 * __Radio__: file name of radio stack image, provided by STM;
 
@@ -66,16 +66,16 @@ Other fields may have empty values, is such case updater skips all operations re
 
 * __Radio CRC__: CRC32 of radio image;
 
-* __Resources__: file name of TAR acrhive with resources to be extracted on SD card;
+* __Resources__: file name of TAR archive with resources to be extracted on SD card;
 
 * __OB reference__, __OB mask__, __OB write mask__: reference values for validating and correcting option bytes.
 
 
 # OTA update error codes
 
-We designed the OTA update process to be as fail-safe as possible. We don't start any risky operation before validating all related pieces of data to ensure we don't leave the device in partially updated, or bricked, state.
+We designed the OTA update process to be as fail-safe as possible. We don't start any risky operation before validating all related pieces of data to ensure we don't leave the device in a partially updated, or bricked, state.
 
-Even if something goes wrong, Updater gives you an option to retry failed operations, and reports its state with an error code. These error codes have an `[XX-YY]` format, where `XX` encodes an operation that failed, and `YY` contains extra details on its progress where the error occured.
+Even if something goes wrong, Updater gives you an option to retry failed operations, and reports its state with an error code. These error codes have an `[XX-YY]` format, where `XX` encodes an operation that failed, and `YY` contains extra details on its progress where the error occurred.
 
 |    Stage description    |   Code | Progress   | Description                                |
 |:-----------------------:|-------:|------------|--------------------------------------------|

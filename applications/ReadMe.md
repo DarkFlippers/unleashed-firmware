@@ -1,8 +1,5 @@
 # Structure
 
-- `application.h`       - Firmware application list header
-
-
 ## debug 
 
 Applications for factory testing the Flipper.
@@ -52,6 +49,8 @@ Extra apps for Plugins & App Loader menus.
 ## services
 
 Background services providing system APIs to applications.
+
+- `applications.h`      - Firmware application list header
 
 - `bt`                  - BLE service and application
 - `cli`                 - Console service and API
