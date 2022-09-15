@@ -1,29 +1,5 @@
 #include "archive_i.h"
 
-static const NotificationSequence sequence_blink_set_yellow = {
-    &message_blink_set_color_yellow,
-    NULL,
-};
-
-static const NotificationSequence sequence_blink_set_magenta = {
-    &message_blink_set_color_magenta,
-    NULL,
-};
-
-static const NotificationSequence* archive_notification_sequences[] = {
-    &sequence_error,
-    &sequence_success,
-    &sequence_blink_start_cyan,
-    &sequence_blink_start_magenta,
-    &sequence_blink_set_yellow,
-    &sequence_blink_set_magenta,
-    &sequence_set_red_255,
-    &sequence_reset_red,
-    &sequence_set_green_255,
-    &sequence_reset_green,
-    &sequence_blink_stop,
-};
-
 static bool archive_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     ArchiveApp* archive = context;
@@ -51,7 +27,6 @@ static ArchiveApp* archive_alloc() {
     archive->view_dispatcher = view_dispatcher_alloc();
 
     archive->gui = furi_record_open(RECORD_GUI);
-    archive->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     ViewDispatcher* view_dispatcher = archive->view_dispatcher;
     view_dispatcher_enable_queue(view_dispatcher);
@@ -97,9 +72,6 @@ void archive_free(ArchiveApp* archive) {
     view_dispatcher_remove_view(view_dispatcher, ArchiveViewWidget);
     widget_free(archive->widget);
 
-    view_dispatcher_remove_view(view_dispatcher, ArchiveViewStack);
-    view_stack_free(archive->view_stack);
-
     view_dispatcher_remove_view(view_dispatcher, ArchiveViewBrowser);
 
     view_dispatcher_free(archive->view_dispatcher);
@@ -107,9 +79,6 @@ void archive_free(ArchiveApp* archive) {
 
     browser_free(archive->browser);
     string_clear(archive->fav_move_str);
-
-    furi_record_close(RECORD_NOTIFICATION);
-    archive->notifications = NULL;
 
     furi_record_close(RECORD_DIALOGS);
     archive->dialogs = NULL;
@@ -134,24 +103,6 @@ void archive_show_loading_popup(ArchiveApp* context, bool show) {
         // Restore default timer priority
         vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
     }
-}
-
-void archive_text_store_set(ArchiveApp* context, const char* text, ...) {
-    va_list args;
-    va_start(args, text);
-
-    vsnprintf(context->text_store, MAX_NAME_LEN, text, args);
-
-    va_end(args);
-}
-
-void archive_text_store_clear(ArchiveApp* context) {
-    memset(context->text_store, 0, MAX_NAME_LEN);
-}
-
-void archive_notification_message(ArchiveApp* context, uint32_t message) {
-    furi_assert(message < sizeof(archive_notification_sequences) / sizeof(NotificationSequence*));
-    notification_message(context->notifications, archive_notification_sequences[message]);
 }
 
 int32_t archive_app(void* p) {
