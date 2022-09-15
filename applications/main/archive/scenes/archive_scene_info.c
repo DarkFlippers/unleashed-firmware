@@ -33,7 +33,11 @@ void archive_scene_info_on_enter(void* context) {
     path_extract_filename(current->path, filename, false);
     snprintf(file_info_message, sizeof(file_info_message), "\e#%s\e#", string_get_cstr(filename));
     widget_add_text_box_element(
-        app->widget, 0, 0, 128, 20, AlignLeft, AlignCenter, file_info_message, false);
+        app->widget, 0, 0, 128, 25, AlignLeft, AlignCenter, file_info_message, false);
+
+    // Directory path
+    path_extract_dirname(string_get_cstr(current->path), dirname);
+    string_replace_str(dirname, STORAGE_ANY_PATH_PREFIX, "");
 
     // File size
     FileInfo fileinfo;
@@ -42,16 +46,12 @@ void archive_scene_info_on_enter(void* context) {
     snprintf(
         file_info_message,
         sizeof(file_info_message),
-        "Size: \e#%s\e# Kb.",
-        string_get_cstr(str_size));
+        "Size: \e#%s\e# Kb.\n%s",
+        string_get_cstr(str_size),
+        string_get_cstr(dirname)
+        );
     widget_add_text_box_element(
-        app->widget, 0, 23, 128, 20, AlignLeft, AlignCenter, file_info_message, false);
-
-    // Directory path
-    path_extract_dirname(string_get_cstr(current->path), dirname);
-    string_replace_str(dirname, STORAGE_ANY_PATH_PREFIX, "");
-    widget_add_text_box_element(
-        app->widget, 0, 23, 128, 20, AlignLeft, AlignCenter, string_get_cstr(dirname), false);
+        app->widget, 0, 25, 128, 25, AlignLeft, AlignCenter, file_info_message, false);
 
     string_clear(filename);
     string_clear(dirname);
@@ -65,7 +65,8 @@ bool archive_scene_info_on_event(void* context, SceneManagerEvent event) {
     ArchiveApp* app = (ArchiveApp*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        return scene_manager_previous_scene(app->scene_manager);
+        scene_manager_next_scene(app->scene_manager, ArchiveAppSceneBrowser);
+        return true;
     }
     return false;
 }
