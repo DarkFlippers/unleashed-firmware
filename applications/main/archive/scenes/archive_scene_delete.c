@@ -1,10 +1,6 @@
 #include "../archive_i.h"
-#include "../helpers/archive_favorites.h"
-#include "../helpers/archive_files.h"
 #include "../helpers/archive_apps.h"
 #include "../helpers/archive_browser.h"
-#include "toolbox/path.h"
-#include "m-string.h"
 
 #define SCENE_DELETE_CUSTOM_EVENT (0UL)
 #define MAX_TEXT_INPUT_LEN 22
