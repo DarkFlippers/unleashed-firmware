@@ -72,6 +72,9 @@ void archive_free(ArchiveApp* archive) {
     view_dispatcher_remove_view(view_dispatcher, ArchiveViewWidget);
     widget_free(archive->widget);
 
+    view_dispatcher_remove_view(view_dispatcher, ArchiveViewStack);
+    view_stack_free(archive->view_stack);
+
     view_dispatcher_remove_view(view_dispatcher, ArchiveViewBrowser);
 
     view_dispatcher_free(archive->view_dispatcher);
