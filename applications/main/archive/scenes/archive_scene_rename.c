@@ -17,7 +17,7 @@ void archive_scene_rename_text_input_callback(void* context) {
 }
 
 void archive_scene_rename_on_enter(void* context) {
-    ArchiveApp* archive = (ArchiveApp*)context;
+    ArchiveApp* archive = context;
 
     TextInput* text_input = archive->text_input;
     ArchiveFile_t* current = archive_get_current_file(archive->browser);
@@ -44,7 +44,7 @@ void archive_scene_rename_on_enter(void* context) {
     text_input_set_result_callback(
         text_input,
         archive_scene_rename_text_input_callback,
-        archive,
+        context,
         archive->text_store,
         MAX_TEXT_INPUT_LEN,
         false);
@@ -55,7 +55,7 @@ void archive_scene_rename_on_enter(void* context) {
 }
 
 bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
-    ArchiveApp* archive = (ArchiveApp*)context;
+    ArchiveApp* archive = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -80,6 +80,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
                 string_cat_printf(path_dst, "/%s%s", archive->text_store, archive->file_extension);
             }
             // Long time process if this is directory
+            view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewStack);
             archive_show_loading_popup(archive, true);
             FS_Error error =
                 archive_rename_file_or_dir(archive->browser, path_src, string_get_cstr(path_dst));
@@ -88,14 +89,14 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
 
             string_clear(path_dst);
 
-            if(error != FSE_OK) {
+            if(error == FSE_OK || error == FSE_EXIST) {
+                scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
+            } else {
                 string_t dialog_msg;
                 string_init(dialog_msg);
                 string_cat_printf(dialog_msg, "Cannot rename\nCode: %d", error);
                 dialog_message_show_storage_error(archive->dialogs, string_get_cstr(dialog_msg));
                 string_clear(dialog_msg);
-            } else {
-                scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
             }
             consumed = true;
         }
@@ -104,12 +105,6 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
 }
 
 void archive_scene_rename_on_exit(void* context) {
-    ArchiveApp* archive = (ArchiveApp*)context;
-
-    // Clear view
-    void* validator_context = text_input_get_validator_callback_context(archive->text_input);
-    text_input_set_validator(archive->text_input, NULL, NULL);
-    validator_is_file_free(validator_context);
-
+    ArchiveApp* archive = context;
     text_input_reset(archive->text_input);
 }
