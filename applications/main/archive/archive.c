@@ -102,8 +102,6 @@ void archive_free(ArchiveApp* archive) {
 
     view_dispatcher_remove_view(view_dispatcher, ArchiveViewBrowser);
 
-    view_stack_free(archive->view_stack);
-
     view_dispatcher_free(archive->view_dispatcher);
     scene_manager_free(archive->scene_manager);
 
