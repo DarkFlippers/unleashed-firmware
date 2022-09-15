@@ -4,6 +4,9 @@
 #include "../helpers/archive_browser.h"
 #include "archive/views/archive_browser_view.h"
 #include "toolbox/path.h"
+#include <dialogs/dialogs.h>
+
+#define TAG "Archive"
 
 #define SCENE_RENAME_CUSTOM_EVENT (0UL)
 #define MAX_TEXT_INPUT_LEN 22
@@ -19,14 +22,24 @@ void archive_scene_rename_on_enter(void* context) {
     TextInput* text_input = archive->text_input;
     ArchiveFile_t* current = archive_get_current_file(archive->browser);
 
-    string_t filename;
-    string_init(filename);
-    path_extract_filename(current->path, filename, true);
-    strlcpy(archive->text_store, string_get_cstr(filename), MAX_NAME_LEN);
+    string_t path_name;
+    string_init(path_name);
 
-    path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
+    if(current->type == ArchiveFileTypeFolder) {
+        path_extract_basename(string_get_cstr(current->path), path_name);
+        strlcpy(archive->text_store, string_get_cstr(path_name), MAX_NAME_LEN);
+        text_input_set_header_text(text_input, "Rename directory:");
+    } else /*if(current->type != ArchiveFileTypeUnknown) */ {
+        path_extract_filename(current->path, path_name, true);
+        strlcpy(archive->text_store, string_get_cstr(path_name), MAX_NAME_LEN);
 
-    text_input_set_header_text(text_input, "Rename:");
+        path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
+        text_input_set_header_text(text_input, "Rename file:");
+    } /*else {
+        path_extract_filename(current->path, path_name, false);
+        strlcpy(archive->text_store, string_get_cstr(path_name), MAX_NAME_LEN);
+        text_input_set_header_text(text_input, "Rename unknown file:");
+    }*/
 
     text_input_set_result_callback(
         text_input,
@@ -36,11 +49,7 @@ void archive_scene_rename_on_enter(void* context) {
         MAX_TEXT_INPUT_LEN,
         false);
 
-    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        string_get_cstr(archive->browser->path), archive->file_extension, "");
-    text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
-
-    string_clear(filename);
+    string_clear(path_name);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);
 }
@@ -51,26 +60,43 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_RENAME_CUSTOM_EVENT) {
-            Storage* fs_api = furi_record_open(RECORD_STORAGE);
-
             const char* path_src = archive_get_name(archive->browser);
             ArchiveFile_t* file = archive_get_current_file(archive->browser);
 
             string_t path_dst;
             string_init(path_dst);
-            path_extract_dirname(path_src, path_dst);
-            string_cat_printf(path_dst, "/%s%s", archive->text_store, known_ext[file->type]);
 
-            storage_common_rename(fs_api, path_src, string_get_cstr(path_dst));
-            furi_record_close(RECORD_STORAGE);
-
-            if(file->fav) {
-                archive_favorites_rename(path_src, string_get_cstr(path_dst));
+            if(file->type == ArchiveFileTypeFolder) {
+                // Rename folder/dir
+                path_extract_dirname(path_src, path_dst);
+                string_cat_printf(path_dst, "/%s", archive->text_store);
+            } else if(file->type != ArchiveFileTypeUnknown) {
+                // Rename known type
+                path_extract_dirname(path_src, path_dst);
+                string_cat_printf(path_dst, "/%s%s", archive->text_store, known_ext[file->type]);
+            } else {
+                // Rename unknown type
+                path_extract_dirname(path_src, path_dst);
+                string_cat_printf(path_dst, "/%s%s", archive->text_store, archive->file_extension);
             }
+            // Long time process if this is directory
+            archive_show_loading_popup(archive, true);
+            FS_Error error =
+                archive_rename_file_or_dir(archive->browser, path_src, string_get_cstr(path_dst));
+            archive_show_loading_popup(archive, false);
+            archive_show_file_menu(archive->browser, false);
 
             string_clear(path_dst);
 
-            scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
+            if(error != FSE_OK) {
+                string_t dialog_msg;
+                string_init(dialog_msg);
+                string_cat_printf(dialog_msg, "Cannot rename\nCode: %d", error);
+                dialog_message_show_storage_error(archive->dialogs, string_get_cstr(dialog_msg));
+                string_clear(dialog_msg);
+            } else {
+                scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
+            }
             consumed = true;
         }
     }

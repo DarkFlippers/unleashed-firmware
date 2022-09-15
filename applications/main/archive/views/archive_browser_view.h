@@ -7,6 +7,7 @@
 #include <furi.h>
 #include <storage/storage.h>
 #include "../helpers/archive_files.h"
+#include "../helpers/archive_menu.h"
 #include "../helpers/archive_favorites.h"
 #include "gui/modules/file_browser_worker.h"
 
@@ -31,12 +32,14 @@ typedef enum {
 } ArchiveTabEnum;
 
 typedef enum {
+    ArchiveBrowserEventFileMenuNone,
     ArchiveBrowserEventFileMenuOpen,
-    ArchiveBrowserEventFileMenuClose,
     ArchiveBrowserEventFileMenuRun,
     ArchiveBrowserEventFileMenuPin,
     ArchiveBrowserEventFileMenuRename,
     ArchiveBrowserEventFileMenuDelete,
+    ArchiveBrowserEventFileMenuInfo,
+    ArchiveBrowserEventFileMenuClose,
 
     ArchiveBrowserEventEnterDir,
 
@@ -53,13 +56,6 @@ typedef enum {
 
     ArchiveBrowserEventExit,
 } ArchiveBrowserEvent;
-
-static const uint8_t file_menu_actions[MENU_ITEMS] = {
-    [0] = ArchiveBrowserEventFileMenuRun,
-    [1] = ArchiveBrowserEventFileMenuPin,
-    [2] = ArchiveBrowserEventFileMenuRename,
-    [3] = ArchiveBrowserEventFileMenuDelete,
-};
 
 typedef struct ArchiveBrowserView ArchiveBrowserView;
 
@@ -88,6 +84,8 @@ typedef struct {
 
     uint8_t menu_idx;
     bool menu;
+    menu_array_t context_menu;
+
     bool move_fav;
     bool list_loading;
     bool folder_loading;
@@ -106,4 +104,5 @@ void archive_browser_set_callback(
 View* archive_browser_get_view(ArchiveBrowserView* browser);
 
 ArchiveBrowserView* browser_alloc();
+
 void browser_free(ArchiveBrowserView* browser);

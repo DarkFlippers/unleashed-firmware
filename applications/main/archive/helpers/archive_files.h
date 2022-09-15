@@ -3,6 +3,7 @@
 #include <m-array.h>
 #include <m-string.h>
 #include <storage/storage.h>
+#include "toolbox/path.h"
 
 typedef enum {
     ArchiveFileTypeIButton,
@@ -62,3 +63,4 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
 bool archive_get_items(void* context, const char* path);
 void archive_file_append(const char* path, const char* format, ...);
 void archive_delete_file(void* context, const char* format, ...);
+FS_Error archive_rename_file_or_dir(void* context, const char* src_path, const char* dst_path);

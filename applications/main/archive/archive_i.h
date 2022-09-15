@@ -8,6 +8,8 @@
 #include <gui/scene_manager.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/widget.h>
+#include <dialogs/dialogs.h>
+#include <gui/modules/loading.h>
 #include <loader/loader.h>
 
 #include "views/archive_browser_view.h"
@@ -18,6 +20,7 @@ typedef enum {
     ArchiveViewTextInput,
     ArchiveViewWidget,
     ArchiveViewTotal,
+    ArchiveViewLoading,
 } ArchiveViewEnum;
 
 struct ArchiveApp {
@@ -27,8 +30,12 @@ struct ArchiveApp {
     ArchiveBrowserView* browser;
     TextInput* text_input;
     Widget* widget;
+    DialogsApp* dialogs;
+    Loading* loading;
     FuriPubSubSubscription* loader_stop_subscription;
     string_t fav_move_str;
     char text_store[MAX_NAME_LEN];
     char file_extension[MAX_EXT_LEN + 1];
 };
+
+void archive_show_loading_popup(void* context, bool show);
