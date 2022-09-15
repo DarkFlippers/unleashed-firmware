@@ -294,6 +294,7 @@ bool tar_archive_add_file(
             break;
         }
 
+        success = true; // if file is empty, that's not an error
         uint16_t bytes_read = 0;
         while((bytes_read = storage_file_read(src_file, file_buffer, FILE_BLOCK_SIZE))) {
             success = tar_archive_file_add_data_block(archive, file_buffer, bytes_read);
