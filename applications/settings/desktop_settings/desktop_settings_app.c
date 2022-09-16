@@ -89,7 +89,7 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
 
 extern int32_t desktop_settings_app(void* p) {
     DesktopSettingsApp* app = desktop_settings_app_alloc();
-    LOAD_DESKTOP_SETTINGS(&app->settings);
+    DESKTOP_SETTINGS_LOAD(&app->settings);
     if(p && (strcmp(p, DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG) == 0)) {
         scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinSetupHowto);
     } else {

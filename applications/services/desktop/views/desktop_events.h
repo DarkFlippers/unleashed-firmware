@@ -7,8 +7,10 @@ typedef enum {
     DesktopMainEventOpenFavoriteSecondary,
     DesktopMainEventOpenMenu,
     DesktopMainEventOpenDebug,
-    DesktopMainEventOpenPassport, /**< Broken, don't use it */
+    DesktopMainEventOpenPassport,
     DesktopMainEventOpenPowerOff,
+
+    DesktopMainEventOpenGameMenu,
 
     DesktopLockedEventUnlocked,
     DesktopLockedEventUpdate,
@@ -28,7 +30,8 @@ typedef enum {
 
     DesktopLockMenuEventLock,
     DesktopLockMenuEventPinLock,
-    DesktopLockMenuEventExit,
+    DesktopLockMenuEventDummyModeOn,
+    DesktopLockMenuEventDummyModeOff,
 
     DesktopAnimationEventCheckAnimation,
     DesktopAnimationEventNewIdleAnimation,
