@@ -180,7 +180,8 @@ void subghz_scene_decode_raw_on_enter(void* context) {
         subghz_receiver_search_decoder_base_by_name(
             subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
         false);
-
+    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+    
     if(decode_raw_state == SubGhzDecodeRawStateStart) {
         //Decode RAW to history
         subghz_history_reset(subghz->txrx->history);
