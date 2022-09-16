@@ -112,7 +112,7 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
     } while(false);
 
     if(success) {
-        FURI_LOG_I(TAG, "Listening at \033[0;33m%s\033[0m.", string_get_cstr(file_name));
+        //FURI_LOG_I(TAG, "Listening at \033[0;33m%s\033[0m.", string_get_cstr(file_name));
 
         file_worker_encoder = subghz_file_encoder_worker_alloc();
         if(subghz_file_encoder_worker_start(file_worker_encoder, string_get_cstr(file_name))) {
@@ -237,7 +237,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverConfig:
-            FURI_LOG_I(TAG, "No config options");
+            FURI_LOG_W(TAG, "No config options");
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverOffDisplay:

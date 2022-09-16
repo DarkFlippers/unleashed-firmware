@@ -164,7 +164,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverBack:
             // Check if return from config save values
             if(subghz->current_scene == SubGhzSceneReceiverConfig) {
-                FURI_LOG_I(TAG, "Raw value: %d", subghz->last_setting->detect_raw);
+                //FURI_LOG_I(TAG, "Raw value: %d", subghz->last_setting->detect_raw);
                 subghz_last_setting_save(
                     subghz->last_setting, EXT_PATH("subghz/assets/last_used.txt"));
             }
@@ -210,7 +210,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzViewIdReceiver, SubGhzCustomEventManagerSet);
             subghz->current_scene = SubGhzSceneReceiverConfig;
-            FURI_LOG_I(TAG, "Raw value: %d", subghz->last_setting->detect_raw);
+            //FURI_LOG_I(TAG, "Raw value: %d", subghz->last_setting->detect_raw);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
             consumed = true;
             break;
