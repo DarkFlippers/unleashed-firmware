@@ -244,6 +244,9 @@ static void subghz_scene_receiver_config_var_list_enter_callback(void* context, 
 
 void subghz_scene_receiver_config_on_enter(void* context) {
     SubGhz* subghz = context;
+
+    subghz_last_setting_set_receiver_values(subghz->last_setting, subghz->txrx->receiver);
+
     VariableItem* item;
     uint8_t value_index;
 
