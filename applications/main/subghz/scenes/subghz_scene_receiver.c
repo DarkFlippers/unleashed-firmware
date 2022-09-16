@@ -100,6 +100,8 @@ static void subghz_scene_add_to_history_callback(
 void subghz_scene_receiver_on_enter(void* context) {
     SubGhz* subghz = context;
 
+    subghz_last_setting_set_receiver_values(subghz->last_setting, subghz->txrx->receiver);
+
     string_t str_buff;
     string_init(str_buff);
 
@@ -248,5 +250,8 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_receiver_on_exit(void* context) {
-    UNUSED(context);
+    SubGhz* subghz = context;
+
+    //filter restoration
+    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
 }

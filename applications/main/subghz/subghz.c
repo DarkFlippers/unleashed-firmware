@@ -207,7 +207,7 @@ SubGhz* subghz_alloc() {
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
 
     // Setup values
-    subghz_last_setting_set_receiver_values(subghz->last_setting, subghz->txrx->receiver);
+    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
 
     subghz_worker_set_overrun_callback(
         subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);

@@ -1,7 +1,7 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
 
-#define SUBGHZ_HISTORY_MAX 50
+#define SUBGHZ_HISTORY_MAX 65
 #define TAG "SubGhzHistory"
 
 typedef struct {
