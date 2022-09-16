@@ -2,6 +2,8 @@
 
 #include <lib/subghz/protocols/raw.h>
 
+#define TAG "SubGhzSceneReceiverConfig"
+
 enum SubGhzSettingIndex {
     SubGhzSettingIndexFrequency,
     SubGhzSettingIndexHopping,
@@ -227,7 +229,8 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
             subghz_setting_get_frequency_default_index(subghz->setting));
     }
 
-    subghz->txrx->hopper_state = subghz->last_setting->hopping = hopping_value[index];
+    subghz->txrx->hopper_state = hopping_value[index];
+    subghz->last_setting->hopping = hopping_value[index];
 }
 
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
