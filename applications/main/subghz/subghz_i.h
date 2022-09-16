@@ -142,5 +142,5 @@ bool subghz_path_is_file(string_t path);
 uint32_t subghz_random_serial(void);
 void subghz_hopper_update(SubGhz* subghz);
 
-extern const NotificationSequence subghs_sequence_rx;
-extern const NotificationSequence subghs_sequence_rx_locked;
+extern const NotificationSequence subghz_sequence_rx;
+extern const NotificationSequence subghz_sequence_rx_locked;

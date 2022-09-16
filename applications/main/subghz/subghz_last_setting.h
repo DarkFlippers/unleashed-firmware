@@ -9,7 +9,7 @@ typedef struct {
     string_t preset_name;
     uint32_t frequency;
     uint32_t hopping;
-    //uint32_t detect_raw;
+    uint32_t detect_raw;
     int32_t rssi_threshold;
 } SubGhzLastSetting;
 
