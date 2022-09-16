@@ -252,6 +252,8 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         subghz);
     value_index =
         subghz_scene_receiver_config_next_frequency(subghz->txrx->preset->frequency, subghz);
+    scene_manager_set_scene_state(
+        subghz->scene_manager, SubGhzSceneReceiverConfig, (uint32_t)item);
     variable_item_set_current_value_index(item, value_index);
     char text_buf[10] = {0};
     snprintf(
