@@ -1,9 +1,9 @@
 /* Abandon hope, all ye who enter here. */
 
-#include "m-string.h"
-#include "subghz/types.h"
-#include "subghz_i.h"
+#include <m-string.h>
+#include <subghz/types.h>
 #include <lib/toolbox/path.h>
+#include "subghz_i.h"
 
 bool subghz_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

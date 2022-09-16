@@ -1,9 +1,5 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
-#include <lib/subghz/protocols/came.h>
-
-#include <furi.h>
-#include <m-string.h>
 
 #define SUBGHZ_HISTORY_MAX 65
 #define TAG "SubGhzHistory"
