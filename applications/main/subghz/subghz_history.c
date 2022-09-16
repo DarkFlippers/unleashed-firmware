@@ -142,7 +142,7 @@ bool subghz_history_add_to_history(
     if((instance->code_last_hash_data ==
         subghz_protocol_decoder_base_get_hash_data(decoder_base)) &&
        ((furi_get_tick() - instance->last_update_timestamp) < 500)) {
-        FURI_LOG_W(TAG, "Too short period for add");
+        //FURI_LOG_W(TAG, "Too short period for add");
         instance->last_update_timestamp = furi_get_tick();
         return false;
     }
