@@ -46,13 +46,13 @@ void desktop_scene_locked_on_enter(void* context) {
     uint32_t state = scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLocked);
     if(state == SCENE_LOCKED_FIRST_ENTER) {
         bool pin_locked = desktop_pin_lock_is_locked();
-        view_port_enabled_set(desktop->lock_viewport, true);
+        view_port_enabled_set(desktop->lock_icon_viewport, true);
         Gui* gui = furi_record_open(RECORD_GUI);
         gui_set_lockdown(gui, true);
         furi_record_close(RECORD_GUI);
 
         if(pin_locked) {
-            LOAD_DESKTOP_SETTINGS(&desktop->settings);
+            DESKTOP_SETTINGS_LOAD(&desktop->settings);
             desktop_view_locked_lock(desktop->locked_view, true);
             uint32_t pin_timeout = desktop_pin_lock_get_fail_timeout();
             if(pin_timeout > 0) {

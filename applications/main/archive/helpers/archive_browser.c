@@ -270,7 +270,7 @@ void archive_file_array_load(ArchiveBrowserView* browser, int8_t dir) {
 ArchiveFile_t* archive_get_current_file(ArchiveBrowserView* browser) {
     furi_assert(browser);
 
-    ArchiveFile_t* selected;
+    ArchiveFile_t* selected = NULL;
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             selected = files_array_size(model->files) ?
@@ -284,7 +284,7 @@ ArchiveFile_t* archive_get_current_file(ArchiveBrowserView* browser) {
 ArchiveFile_t* archive_get_file_at(ArchiveBrowserView* browser, size_t idx) {
     furi_assert(browser);
 
-    ArchiveFile_t* selected;
+    ArchiveFile_t* selected = NULL;
 
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
@@ -298,7 +298,7 @@ ArchiveFile_t* archive_get_file_at(ArchiveBrowserView* browser, size_t idx) {
 ArchiveTabEnum archive_get_tab(ArchiveBrowserView* browser) {
     furi_assert(browser);
 
-    ArchiveTabEnum tab_id;
+    ArchiveTabEnum tab_id = 0;
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             tab_id = model->tab_idx;
@@ -452,8 +452,6 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
             archive_file_browser_set_path(
                 browser, browser->path, archive_get_tab_ext(tab), skip_assets);
             tab_empty = false; // Empty check will be performed later
-        } else {
-            tab_empty = true;
         }
     }
 
