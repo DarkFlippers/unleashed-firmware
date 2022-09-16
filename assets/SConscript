@@ -1,5 +1,7 @@
 Import("env")
 
+from fbt.version import get_fast_git_version_id
+
 # HACHHACK
 # Currently injected to CPPPATH by libs - since they are built earlier and depend on assets
 # env.Append(
@@ -7,6 +9,7 @@ Import("env")
 #         Dir("./compiled"),
 #     ]
 # )
+version_value = Value(get_fast_git_version_id())
 
 assetsenv = env.Clone(
     tools=["fbt_assets"],
@@ -74,6 +77,7 @@ assetsenv.Alias("proto_ver", proto_ver)
 
 # Gather everything into a static lib
 assets_parts = (icons, proto, dolphin_blocking, dolphin_internal, proto_ver)
+assetsenv.Depends(assets_parts, version_value)
 
 assetslib = assetsenv.Library("${FW_LIB_NAME}", assets_parts)
 assetsenv.Install("${LIB_DIST_DIR}", assetslib)

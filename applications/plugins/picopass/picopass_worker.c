@@ -112,17 +112,11 @@ ReturnCode picopass_detect_card(int timeout) {
     return ERR_NONE;
 }
 
-ReturnCode picopass_read_card(PicopassBlock* AA1) {
+ReturnCode picopass_read_preauth(PicopassBlock* AA1) {
     rfalPicoPassIdentifyRes idRes;
     rfalPicoPassSelectRes selRes;
-    rfalPicoPassReadCheckRes rcRes;
-    rfalPicoPassCheckRes chkRes;
 
     ReturnCode err;
-
-    uint8_t div_key[8] = {0};
-    uint8_t mac[4] = {0};
-    uint8_t ccnr[12] = {0};
 
     err = rfalPicoPassPollerIdentify(&idRes);
     if(err != ERR_NONE) {
@@ -136,6 +130,62 @@ ReturnCode picopass_read_card(PicopassBlock* AA1) {
         return err;
     }
 
+    memcpy(AA1[PICOPASS_CSN_BLOCK_INDEX].data, selRes.CSN, sizeof(selRes.CSN));
+    FURI_LOG_D(
+        TAG,
+        "csn %02x%02x%02x%02x%02x%02x%02x%02x",
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[0],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[1],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[2],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[3],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[4],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[5],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[6],
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data[7]);
+
+    rfalPicoPassReadBlockRes cfg = {0};
+    err = rfalPicoPassPollerReadBlock(PICOPASS_CONFIG_BLOCK_INDEX, &cfg);
+    memcpy(AA1[PICOPASS_CONFIG_BLOCK_INDEX].data, cfg.data, sizeof(cfg.data));
+    FURI_LOG_D(
+        TAG,
+        "config %02x%02x%02x%02x%02x%02x%02x%02x",
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[1],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[2],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[3],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[4],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[5],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[6],
+        AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[7]);
+
+    rfalPicoPassReadBlockRes aia;
+    err = rfalPicoPassPollerReadBlock(PICOPASS_AIA_BLOCK_INDEX, &aia);
+    memcpy(AA1[PICOPASS_AIA_BLOCK_INDEX].data, aia.data, sizeof(aia.data));
+    FURI_LOG_D(
+        TAG,
+        "aia %02x%02x%02x%02x%02x%02x%02x%02x",
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[0],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[1],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[2],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[3],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[4],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[5],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[6],
+        AA1[PICOPASS_AIA_BLOCK_INDEX].data[7]);
+
+    return ERR_NONE;
+}
+
+ReturnCode picopass_read_card(PicopassBlock* AA1) {
+    rfalPicoPassReadCheckRes rcRes;
+    rfalPicoPassCheckRes chkRes;
+
+    ReturnCode err;
+
+    uint8_t div_key[8] = {0};
+    uint8_t mac[4] = {0};
+    uint8_t ccnr[12] = {0};
+
     err = rfalPicoPassPollerReadCheck(&rcRes);
     if(err != ERR_NONE) {
         FURI_LOG_E(TAG, "rfalPicoPassPollerReadCheck error %d", err);
@@ -143,7 +193,7 @@ ReturnCode picopass_read_card(PicopassBlock* AA1) {
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    loclass_diversifyKey(selRes.CSN, picopass_iclass_key, div_key);
+    loclass_diversifyKey(AA1[PICOPASS_CSN_BLOCK_INDEX].data, picopass_iclass_key, div_key);
     loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
     err = rfalPicoPassPollerCheck(mac, &chkRes);
@@ -152,18 +202,11 @@ ReturnCode picopass_read_card(PicopassBlock* AA1) {
         return err;
     }
 
-    rfalPicoPassReadBlockRes csn;
-    err = rfalPicoPassPollerReadBlock(PICOPASS_CSN_BLOCK_INDEX, &csn);
-    memcpy(AA1[PICOPASS_CSN_BLOCK_INDEX].data, csn.data, sizeof(csn.data));
-
-    rfalPicoPassReadBlockRes cfg;
-    err = rfalPicoPassPollerReadBlock(PICOPASS_CONFIG_BLOCK_INDEX, &cfg);
-    memcpy(AA1[PICOPASS_CONFIG_BLOCK_INDEX].data, cfg.data, sizeof(cfg.data));
-
-    size_t app_limit = cfg.data[0] < PICOPASS_MAX_APP_LIMIT ? cfg.data[0] : PICOPASS_MAX_APP_LIMIT;
+    size_t app_limit = AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] < PICOPASS_MAX_APP_LIMIT ?
+                           AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] :
+                           PICOPASS_MAX_APP_LIMIT;
 
     for(size_t i = 2; i < app_limit; i++) {
-        FURI_LOG_D(TAG, "rfalPicoPassPollerReadBlock block %d", i);
         rfalPicoPassReadBlockRes block;
         err = rfalPicoPassPollerReadBlock(i, &block);
         if(err != ERR_NONE) {
@@ -287,11 +330,30 @@ void picopass_worker_detect(PicopassWorker* picopass_worker) {
     PicopassPacs* pacs = &dev_data->pacs;
     ReturnCode err;
 
+    // reset device data
+    for(size_t i = 0; i < PICOPASS_MAX_APP_LIMIT; i++) {
+        memset(AA1[i].data, 0, sizeof(AA1[i].data));
+    }
+    memset(pacs, 0, sizeof(PicopassPacs));
+
     PicopassWorkerEvent nextState = PicopassWorkerEventSuccess;
 
     while(picopass_worker->state == PicopassWorkerStateDetect) {
         if(picopass_detect_card(1000) == ERR_NONE) {
             // Process first found device
+            err = picopass_read_preauth(AA1);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_read_preauth error %d", err);
+                nextState = PicopassWorkerEventFail;
+            }
+
+            // Thank you proxmark!
+            pacs->legacy = (memcmp(AA1[5].data, "\xff\xff\xff\xff\xff\xff\xff\xff", 8) == 0);
+            pacs->se_enabled = (memcmp(AA1[5].data, "\xff\xff\xff\x00\x06\xff\xff\xff", 8) == 0);
+            if(pacs->se_enabled) {
+                FURI_LOG_D(TAG, "SE enabled");
+            }
+
             err = picopass_read_card(AA1);
             if(err != ERR_NONE) {
                 FURI_LOG_E(TAG, "picopass_read_card error %d", err);
