@@ -484,20 +484,22 @@ class SdkCache:
                     break
         self.loaded_dirty = bool(self.new_entries)
 
-    def sync_sets(self, known_set: Set[Any], new_set: Set[Any]):
+    def sync_sets(
+        self, known_set: Set[Any], new_set: Set[Any], update_version: bool = True
+    ):
         new_entries = new_set - known_set
         if new_entries:
             print(f"New: {new_entries}")
             known_set |= new_entries
             self.new_entries |= new_entries
-            if self.version_action == VersionBump.NONE:
+            if update_version and self.version_action == VersionBump.NONE:
                 self.version_action = VersionBump.MINOR
         removed_entries = known_set - new_set
         if removed_entries:
             print(f"Removed: {removed_entries}")
             known_set -= removed_entries
-            # If any of removed entries was part of active API, that's a major bump
-            if any(
+            # If any of removed entries was a part of active API, that's a major bump
+            if update_version and any(
                 filter(
                     lambda e: e not in self.disabled_entries
                     and e not in self.new_entries,
@@ -509,6 +511,6 @@ class SdkCache:
             self.new_entries -= removed_entries
 
     def validate_api(self, api: ApiEntries) -> None:
-        self.sync_sets(self.sdk.headers, api.headers)
+        self.sync_sets(self.sdk.headers, api.headers, False)
         self.sync_sets(self.sdk.functions, api.functions)
         self.sync_sets(self.sdk.variables, api.variables)
