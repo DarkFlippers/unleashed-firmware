@@ -11,6 +11,14 @@ env.Append(
 libenv = env.Clone(FW_LIB_NAME="mbedtls")
 libenv.ApplyLibFlags()
 
+libenv.AppendUnique(
+    CCFLAGS=[
+        # Required for lib to be linkable with .faps
+        "-mword-relocations",
+        "-mlong-calls",
+    ],
+)
+
 sources = [
     "mbedtls/library/des.c",
     "mbedtls/library/sha1.c",
