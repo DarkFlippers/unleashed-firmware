@@ -104,7 +104,7 @@ bool subghz_last_setting_save(SubGhzLastSetting* instance, const char* file_path
                file, SUBGHZ_LAST_SETTING_FILE_TYPE, SUBGHZ_LAST_SETTING_FILE_VERSION))
             break;
 
-        FURI_LOG_D(TAG, "Preset %s", string_get_cstr(instance->preset_name));
+        //FURI_LOG_D(TAG, "Preset %s", string_get_cstr(instance->preset_name));
         if(!flipper_format_insert_or_update_string_cstr(
                file, "Preset", string_get_cstr(instance->preset_name)))
             break;
