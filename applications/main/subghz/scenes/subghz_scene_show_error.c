@@ -1,7 +1,7 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 
-static const NotificationSequence subghs_sequence_sd_error = {
+static const NotificationSequence subghz_sequence_sd_error = {
     &message_red_255,
     &message_green_255,
     &message_do_not_reset,
@@ -39,7 +39,7 @@ void subghz_scene_show_error_on_enter(void* context) {
         widget_add_button_element(
             subghz->widget, GuiButtonTypeRight, "OK", subghz_scene_show_error_callback, subghz);
     } else {
-        notification_message(subghz->notifications, &subghs_sequence_sd_error);
+        notification_message(subghz->notifications, &subghz_sequence_sd_error);
     }
 
     widget_add_button_element(
