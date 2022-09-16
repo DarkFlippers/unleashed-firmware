@@ -28,35 +28,6 @@ steps:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
 
-  - name: "Bundle resources"
-    image: kramos/alpine-zip
-    commands:
-      - mkdir sd-card
-      - mkdir -p sd-card/subghz/assets
-      - mkdir -p sd-card/nfc/assets
-      - mkdir -p sd-card/infrared/assets
-      - mkdir -p sd-card/unirf
-      - mkdir -p sd-card/rfidfuzzer
-      - mkdir -p sd-card/subplaylist
-      - mkdir -p sd-card/badusb/layouts
-      - cp assets/resources/badusb/layouts/* sd-card/badusb/layouts/
-      - cp assets/resources/subghz/assets/dangerous_settings sd-card/subghz/assets/dangerous_settings
-      - cp assets/resources/subghz/assets/setting_user sd-card/subghz/assets/setting_user
-      - cp assets/resources/subghz/assets/keeloq_mfcodes sd-card/subghz/assets/keeloq_mfcodes
-      - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
-      - cp assets/resources/infrared/assets/tv.ir sd-card/infrared/assets/tv.ir
-      - cp assets/resources/infrared/assets/ac.ir sd-card/infrared/assets/ac.ir
-      - cp assets/resources/infrared/assets/fans.ir sd-card/infrared/assets/fans.ir
-      - cp assets/resources/infrared/assets/projectors.ir sd-card/infrared/assets/projectors.ir
-      - cp assets/resources/infrared/assets/audio.ir sd-card/infrared/assets/audio.ir
-      - cp assets/resources/unirf/unirf_map_example.txt sd-card/unirf/unirf_map_example.txt
-      - cp assets/resources/rfidfuzzer/example_uids.txt sd-card/rfidfuzzer/example_uids.txt
-      - cp assets/resources/subplaylist/example_playlist.txt sd-card/subplaylist/example_playlist.txt
-      - cp assets/resources/Manifest sd-card/Manifest
-      - zip -r artifacts-default/sd-card-${DRONE_TAG}.zip sd-card
-      - rm -rf sd-card
-      - ls -laS artifacts-default
-
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
@@ -93,7 +64,6 @@ steps:
       files:
         - artifacts-default/*.tgz
         - artifacts-default/*.zip
-        - artifacts-default/flipper-z-f7-full-${DRONE_TAG}.dfu
       title: ${DRONE_TAG}
       note: CHANGELOG.md
       checksum:
