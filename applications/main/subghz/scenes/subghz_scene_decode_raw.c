@@ -181,7 +181,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
             subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
         false);
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
-    
+
     if(decode_raw_state == SubGhzDecodeRawStateStart) {
         //Decode RAW to history
         subghz_history_reset(subghz->txrx->history);
@@ -225,6 +225,8 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             subghz_file_encoder_worker_free(file_worker_encoder);
 
             subghz->state_notifications = SubGhzNotificationStateIDLE;
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
             scene_manager_search_and_switch_to_previous_scene(
                 subghz->scene_manager, SubGhzSceneMoreRAW);
             consumed = true;
