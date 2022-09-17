@@ -882,6 +882,7 @@ void unirfremix_free(UniRFRemix* app) {
     gui_remove_view_port(app->gui, app->view_port);
     furi_record_close(RECORD_GUI);
     view_port_free(app->view_port);
+    app->gui = NULL;
 
     furi_message_queue_free(app->input_queue);
 
@@ -893,6 +894,7 @@ void unirfremix_free(UniRFRemix* app) {
     subghz_environment_free(app->environment);
 
     furi_record_close(RECORD_NOTIFICATION);
+    app->notification = NULL;
 
     free(app);
 }
