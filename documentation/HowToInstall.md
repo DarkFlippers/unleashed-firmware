@@ -22,6 +22,8 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
+![web_install](https://user-images.githubusercontent.com/10697207/190832212-d27597b5-cf11-4f2e-9b1f-7104710905ee.gif)
+
 <br>
 <br>
 
@@ -51,8 +53,10 @@ after that on web updater page - press `Connect` button
 - Verify that all files are present on your microSD card
 - After all you need to insert microSD card back into flipper, navigate into filebrowser, open this file 
 `update/f7-update-(CURRENT VERSION)/update.fuf`
-- Update will start, wait for all stages, and when flipper started after update, you can upload any custom [IR libs](https://github.com/logickworkshop/Flipper-IRDB), and other stuff using qFlipper or directly into microSD card
+- Update will start, wait for all stages
+- Done
 
+![manual_install](https://user-images.githubusercontent.com/10697207/190832689-8fb50d97-2820-4501-b8b7-d8e87a235d45.gif)
 
 
 <br>
