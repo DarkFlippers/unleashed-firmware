@@ -73,12 +73,14 @@ FlipFridState* flipfrid_alloc() {
     flipfrid->data[2] = 0x00;
     flipfrid->data[3] = 0x00;
     flipfrid->data[4] = 0x00;
+    flipfrid->data[5] = 0x00;
 
     flipfrid->payload[0] = 0x00;
     flipfrid->payload[1] = 0x00;
     flipfrid->payload[2] = 0x00;
     flipfrid->payload[3] = 0x00;
     flipfrid->payload[4] = 0x00;
+    flipfrid->payload[5] = 0x00;
 
     //Dialog
     flipfrid->dialogs = furi_record_open(RECORD_DIALOGS);

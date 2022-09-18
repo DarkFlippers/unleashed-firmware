@@ -26,6 +26,10 @@ typedef enum {
     FlipFridAttackBfCustomerId,
     FlipFridAttackLoadFile,
     FlipFridAttackLoadFileCustomUids,
+    FlipFridAttackDefaultValuesHIDProx,
+    FlipFridAttackBfCustomerIdHIDProx,
+    FlipFridAttackLoadFileHIDProx,
+    FlipFridAttackLoadFileCustomUidsHIDProx,
 } FlipFridAttacks;
 
 typedef enum {
@@ -58,8 +62,8 @@ typedef struct {
     u_int8_t menu_index;
 
     string_t data_str;
-    uint8_t data[5];
-    uint8_t payload[5];
+    uint8_t data[6];
+    uint8_t payload[6];
     uint8_t attack_step;
     FlipFridAttacks attack;
     string_t attack_name;

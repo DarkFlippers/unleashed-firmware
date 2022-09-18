@@ -74,7 +74,16 @@ FIRMWARE_APPS = {
         # Settings
         "settings_apps",
         # Plugins
-        # "basic_plugins",
+        "bt_hid",
+        "barcode_generator",
+        "flipfrid",
+        "multi_converter",
+        "picopass",
+        "sub_playlist",
+        "sentry_safe",
+        "subbrute",
+        "tetris_game",
+        "wav_player",
         # Debug
         # "debug_apps",
     ],
