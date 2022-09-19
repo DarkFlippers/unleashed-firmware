@@ -1,7 +1,7 @@
 App(
     appid="picopass",
     name="PicoPass Reader",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="picopass_app",
     requires=[
         "storage",
