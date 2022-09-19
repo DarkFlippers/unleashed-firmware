@@ -4,6 +4,10 @@
 
 #define SUBGHZ_PROTOCOL_RAW_NAME "RAW"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*SubGhzProtocolEncoderRAWCallbackEnd)(void* context);
 
 typedef struct SubGhzProtocolDecoderRAW SubGhzProtocolDecoderRAW;
@@ -100,12 +104,6 @@ void subghz_protocol_encoder_raw_free(void* context);
 void subghz_protocol_encoder_raw_stop(void* context);
 
 /**
- * Сallback on completion of file transfer.
- * @param context Pointer to a SubGhzProtocolEncoderRAW instance
- */
-void subghz_protocol_raw_file_encoder_worker_callback_end(void* context);
-
-/**
  * Set callback on completion of file transfer.
  * @param instance Pointer to a SubGhzProtocolEncoderRAW instance
  * @param callback_end Callback, SubGhzProtocolEncoderRAWCallbackEnd
@@ -137,3 +135,7 @@ bool subghz_protocol_encoder_raw_deserialize(void* context, FlipperFormat* flipp
  * @return LevelDuration 
  */
 LevelDuration subghz_protocol_encoder_raw_yield(void* context);
+
+#ifdef __cplusplus
+}
+#endif

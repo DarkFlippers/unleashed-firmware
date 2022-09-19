@@ -1,13 +1,5 @@
 Import("env")
 
-# HACHHACK
-# Currently injected to CPPPATH by libs - since they are built earlier and depend on assets
-# env.Append(
-#     CPPPATH=[
-#         Dir("./compiled"),
-#     ]
-# )
-
 assetsenv = env.Clone(
     tools=["fbt_assets"],
     FW_LIB_NAME="assets",
@@ -109,6 +101,7 @@ if assetsenv["IS_BASE_FIRMWARE"]:
     )
 
     # Exporting resources node to external environment
+    env["FW_ASSETS_HEADERS"] = assets_parts
     env["FW_RESOURCES"] = resources
     assetsenv.Alias("resources", resources)
 

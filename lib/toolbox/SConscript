@@ -23,6 +23,8 @@ env.Append(
         File("#/lib/toolbox/stream/stream.h"),
         File("#/lib/toolbox/stream/file_stream.h"),
         File("#/lib/toolbox/stream/string_stream.h"),
+        File("#/lib/toolbox/stream/buffered_file_stream.h"),
+        File("#/lib/toolbox/protocols/protocol_dict.h"),
     ],
 )
 

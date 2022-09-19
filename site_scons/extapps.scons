@@ -63,7 +63,10 @@ def build_app_as_external(env, appdef):
     extapps["dist"][appdef.appid] = (appdef.fap_category, compact_elf)
 
 
-apps_to_build_as_faps = [FlipperAppType.PLUGIN, FlipperAppType.EXTERNAL]
+apps_to_build_as_faps = [
+    FlipperAppType.PLUGIN,
+    FlipperAppType.EXTERNAL,
+]
 if appenv["DEBUG_TOOLS"]:
     apps_to_build_as_faps.append(FlipperAppType.DEBUG)
 
