@@ -1,7 +1,8 @@
 ### New changes
-* Fixed all known issues with SubGHz settings (broken menu when you select last item in read and go into read raw config, issues with hopper and detect raw modes, bugs with frequency selector) (@xMasterX)
-* Removed subghz last settings saving feature (may be returned in future) (caused issues with freq selector, hopper mode)
+* Spectrum Analyzer moved into Applications -> Tools
+* Fixed bug with subghz remote (unirf) that was causing issues with power state
 * Updated universal IR assets (by @Amec0e)
+* Fixed debug builds - add this parameter to fbt command `FIRMWARE_APP_SET=debug_pack` if you building full fw in debug mode
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use web updater or microSD update package**
 
