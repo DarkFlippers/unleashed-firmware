@@ -22,7 +22,8 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![web_install](https://user-images.githubusercontent.com/10697207/190832212-d27597b5-cf11-4f2e-9b1f-7104710905ee.gif)
+![web_instr](https://user-images.githubusercontent.com/10697207/190942577-9d137e01-468b-4c74-8587-c2a17c3c7534.jpg)
+
 
 <br>
 <br>
