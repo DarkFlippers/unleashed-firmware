@@ -1,9 +1,11 @@
 ### New changes
-* Spectrum Analyzer moved into Applications -> Tools
-* Fixed bug with subghz remote (unirf) that was causing issues with power state
-* Added 868.4 MHz into subghz user config 
-* Updated universal IR assets (by @Amec0e)
-* Fixed debug builds - add this parameter to fbt command `FIRMWARE_APP_SET=debug_pack` if you building full fw in debug mode
+* PR: Added 868.95 MHz into subghz user config (PR 71 by TasyDevilsky)
+* Lower framerate in custom anim to save a bit of battery charge
+* Removed unused icon from OFW PR 1533, fixed unirf icon name, updated api symbols (version is 3.0)
+* OFW: NFC user dict list, delete, and de-duplication. (OFW PR 1533)
+* OFW: Add new russian transport card parsers (OFW PR 1503)
+* OFW: SubGhz: Oregon v2.1 decoder (OFR PR 1678)
+* OFW: Show error popup when NFC chip is not init/disconnected (OFW PR 1722)
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use web updater or microSD update package**
 
