@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,1.3,,
+Version,+,1.4,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1096,6 +1096,7 @@ Function,+,furi_hal_nfc_field_off,void,
 Function,+,furi_hal_nfc_field_on,void,
 Function,-,furi_hal_nfc_init,void,
 Function,+,furi_hal_nfc_is_busy,_Bool,
+Function,+,furi_hal_nfc_is_init,_Bool,
 Function,+,furi_hal_nfc_listen,_Bool,"uint8_t*, uint8_t, uint8_t*, uint8_t, _Bool, uint32_t"
 Function,+,furi_hal_nfc_listen_rx,_Bool,"FuriHalNfcTxRxContext*, uint32_t"
 Function,+,furi_hal_nfc_listen_sleep,void,
