@@ -248,6 +248,14 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_em4100_encoder_start(protocol);
+    em4100_decode(
+                    (uint8_t*)&protocol->encoded_data,
+                    sizeof(EM4100DecodedData),
+                    protocol->data,
+                    EM4100_DECODED_DATA_SIZE);
+
     protocol_em4100_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

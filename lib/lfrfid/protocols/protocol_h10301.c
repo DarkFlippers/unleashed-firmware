@@ -337,6 +337,10 @@ bool protocol_h10301_write_data(ProtocolH10301* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_h10301_encoder_start(protocol);
+    protocol_h10301_decode(protocol->encoded_data, protocol->data);
+    
     protocol_h10301_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

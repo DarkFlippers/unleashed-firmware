@@ -259,6 +259,10 @@ bool protocol_io_prox_xsf_write_data(ProtocolIOProxXSF* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_io_prox_xsf_encode(protocol->data, protocol->encoded_data);
+    protocol_io_prox_xsf_decode(protocol->encoded_data, protocol->data);
+
     protocol_io_prox_xsf_encode(protocol->data, protocol->encoded_data);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
