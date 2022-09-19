@@ -56,6 +56,6 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
 void desktop_settings_scene_favorite_on_exit(void* context) {
     DesktopSettingsApp* app = context;
-    SAVE_DESKTOP_SETTINGS(&app->settings);
+    DESKTOP_SETTINGS_SAVE(&app->settings);
     submenu_reset(app->submenu);
 }

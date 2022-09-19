@@ -24,7 +24,7 @@ void desktop_settings_scene_pin_setup_done_on_enter(void* context) {
     DesktopSettingsApp* app = context;
 
     app->settings.pin_code = app->pincode_buffer;
-    SAVE_DESKTOP_SETTINGS(&app->settings);
+    DESKTOP_SETTINGS_SAVE(&app->settings);
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_single_vibro);
     furi_record_close(RECORD_NOTIFICATION);

@@ -57,7 +57,8 @@ struct Desktop {
     DesktopSettings settings;
     DesktopViewPinInput* pin_input_view;
 
-    ViewPort* lock_viewport;
+    ViewPort* lock_icon_viewport;
+    ViewPort* dummy_mode_icon_viewport;
 
     AnimationManager* animation_manager;
 
@@ -75,3 +76,4 @@ Desktop* desktop_alloc();
 void desktop_free(Desktop* desktop);
 void desktop_lock(Desktop* desktop);
 void desktop_unlock(Desktop* desktop);
+void desktop_set_dummy_mode_state(Desktop* desktop, bool enabled);

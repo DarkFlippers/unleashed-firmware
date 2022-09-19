@@ -8,7 +8,7 @@
 #include <toolbox/saved_struct.h>
 #include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (4)
+#define DESKTOP_SETTINGS_VER (5)
 
 #define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -16,7 +16,7 @@
 
 #define DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG "run_pin_setup"
 
-#define SAVE_DESKTOP_SETTINGS(x) \
+#define DESKTOP_SETTINGS_SAVE(x) \
     saved_struct_save(           \
         DESKTOP_SETTINGS_PATH,   \
         (x),                     \
@@ -24,7 +24,7 @@
         DESKTOP_SETTINGS_MAGIC,  \
         DESKTOP_SETTINGS_VER)
 
-#define LOAD_DESKTOP_SETTINGS(x) \
+#define DESKTOP_SETTINGS_LOAD(x) \
     saved_struct_load(           \
         DESKTOP_SETTINGS_PATH,   \
         (x),                     \
@@ -46,4 +46,5 @@ typedef struct {
     PinCode pin_code;
     uint8_t is_locked;
     uint32_t auto_lock_delay_ms;
+    uint8_t dummy_mode;
 } DesktopSettings;
