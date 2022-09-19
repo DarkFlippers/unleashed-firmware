@@ -169,6 +169,10 @@ bool protocol_jablotron_write_data(ProtocolJablotron* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_jablotron_encoder_start(protocol);
+    protocol_jablotron_decode(protocol);
+
     protocol_jablotron_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

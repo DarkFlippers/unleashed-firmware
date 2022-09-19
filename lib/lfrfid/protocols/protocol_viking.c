@@ -157,6 +157,10 @@ bool protocol_viking_write_data(ProtocolViking* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_viking_encoder_start(protocol);
+    protocol_viking_decode(protocol);
+
     protocol_viking_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

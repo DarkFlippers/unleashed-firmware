@@ -182,6 +182,10 @@ bool protocol_pac_stanley_write_data(ProtocolPACStanley* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_pac_stanley_encoder_start(protocol);
+    protocol_pac_stanley_decode(protocol);
+
     protocol_pac_stanley_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

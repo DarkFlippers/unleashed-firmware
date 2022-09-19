@@ -249,6 +249,10 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Correct protocol data by redecoding
+    protocol_gallagher_encoder_start(protocol);
+    protocol_gallagher_decode(protocol);
+
     protocol_gallagher_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
