@@ -845,6 +845,8 @@ void unirfremix_subghz_alloc(UniRFRemix* app) {
 UniRFRemix* unirfremix_alloc(void) {
     UniRFRemix* app = malloc(sizeof(UniRFRemix));
 
+    furi_hal_power_suppress_charge_enter();
+
     app->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
     app->input_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
@@ -862,7 +864,9 @@ UniRFRemix* unirfremix_alloc(void) {
     return app;
 }
 
-void unirfremix_free(UniRFRemix* app) {
+void unirfremix_free(UniRFRemix* app, bool with_subghz) {
+    furi_hal_power_suppress_charge_exit();
+
     string_clear(app->up_file);
     string_clear(app->down_file);
     string_clear(app->left_file);
@@ -888,10 +892,12 @@ void unirfremix_free(UniRFRemix* app) {
 
     furi_mutex_free(app->model_mutex);
 
-    furi_hal_subghz_sleep();
-    subghz_setting_free(app->setting);
-    subghz_receiver_free(app->subghz_receiver);
-    subghz_environment_free(app->environment);
+    if(with_subghz) {
+        furi_hal_subghz_sleep();
+        subghz_setting_free(app->setting);
+        subghz_receiver_free(app->subghz_receiver);
+        subghz_environment_free(app->environment);
+    }
 
     furi_record_close(RECORD_NOTIFICATION);
     app->notification = NULL;
@@ -939,6 +945,8 @@ int32_t unirfremix_app(void* p) {
     furi_record_close(RECORD_DIALOGS);
     if(!res) {
         FURI_LOG_E(TAG, "No file selected");
+        unirfremix_free(app, false);
+        return 255;
     } else {
         //check map and population variables
         unirfremix_cfg_set_check(app, app->file_path);
@@ -969,8 +977,6 @@ int32_t unirfremix_app(void* p) {
         //refresh screen to update variables before processing main screen or error screens
         furi_mutex_release(app->model_mutex);
         view_port_update(app->view_port);
-
-        furi_hal_power_suppress_charge_enter();
 
         //input detect loop start
         InputEvent input;
@@ -1164,9 +1170,7 @@ int32_t unirfremix_app(void* p) {
     }
 
     // remove & free all stuff created by app
-    unirfremix_free(app);
-
-    furi_hal_power_suppress_charge_exit();
+    unirfremix_free(app, true);
 
     return 0;
 }
