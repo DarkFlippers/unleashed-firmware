@@ -17,8 +17,8 @@ struct DesktopLockMenuView {
 
 typedef struct {
     uint8_t idx;
-    uint8_t hint_timeout;
-    bool pin_set;
+    bool pin_is_set;
+    bool dummy_mode;
 } DesktopLockMenuViewModel;
 
 void desktop_lock_menu_set_callback(
@@ -27,7 +27,8 @@ void desktop_lock_menu_set_callback(
     void* context);
 
 View* desktop_lock_menu_get_view(DesktopLockMenuView* lock_menu);
-void desktop_lock_menu_pin_set(DesktopLockMenuView* lock_menu, bool pin_is_set);
+void desktop_lock_menu_set_pin_state(DesktopLockMenuView* lock_menu, bool pin_is_set);
+void desktop_lock_menu_set_dummy_mode_state(DesktopLockMenuView* lock_menu, bool dummy_mode);
 void desktop_lock_menu_set_idx(DesktopLockMenuView* lock_menu, uint8_t idx);
 DesktopLockMenuView* desktop_lock_menu_alloc();
 void desktop_lock_menu_free(DesktopLockMenuView* lock_menu);

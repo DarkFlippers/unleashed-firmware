@@ -32,11 +32,16 @@ static void desktop_loader_callback(const void* message, void* context) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }
-
-static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
+static void desktop_lock_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
     canvas_draw_icon(canvas, 0, 0, &I_Lock_8x8);
+}
+
+static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context) {
+    UNUSED(context);
+    furi_assert(canvas);
+    canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 }
 
 static bool desktop_custom_event_callback(void* context, uint32_t event) {
@@ -52,7 +57,7 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
         animation_manager_load_and_continue_animation(desktop->animation_manager);
         // TODO: Implement a message mechanism for loading settings and (optionally)
         // locking and unlocking
-        LOAD_DESKTOP_SETTINGS(&desktop->settings);
+        DESKTOP_SETTINGS_LOAD(&desktop->settings);
         desktop_auto_lock_arm(desktop);
         return true;
     case DesktopGlobalAutoLock:
@@ -127,13 +132,20 @@ void desktop_lock(Desktop* desktop) {
 }
 
 void desktop_unlock(Desktop* desktop) {
-    view_port_enabled_set(desktop->lock_viewport, false);
+    view_port_enabled_set(desktop->lock_icon_viewport, false);
     Gui* gui = furi_record_open(RECORD_GUI);
     gui_set_lockdown(gui, false);
     furi_record_close(RECORD_GUI);
     desktop_view_locked_unlock(desktop->locked_view);
     scene_manager_search_and_switch_to_previous_scene(desktop->scene_manager, DesktopSceneMain);
     desktop_auto_lock_arm(desktop);
+}
+
+void desktop_set_dummy_mode_state(Desktop* desktop, bool enabled) {
+    view_port_enabled_set(desktop->dummy_mode_icon_viewport, enabled);
+    desktop_main_set_dummy_mode_state(desktop->main_view, enabled);
+    desktop->settings.dummy_mode = enabled;
+    DESKTOP_SETTINGS_SAVE(&desktop->settings);
 }
 
 Desktop* desktop_alloc() {
@@ -212,11 +224,20 @@ Desktop* desktop_alloc() {
         desktop_view_slideshow_get_view(desktop->slideshow_view));
 
     // Lock icon
-    desktop->lock_viewport = view_port_alloc();
-    view_port_set_width(desktop->lock_viewport, icon_get_width(&I_Lock_8x8));
-    view_port_draw_callback_set(desktop->lock_viewport, desktop_lock_icon_callback, desktop);
-    view_port_enabled_set(desktop->lock_viewport, false);
-    gui_add_view_port(desktop->gui, desktop->lock_viewport, GuiLayerStatusBarLeft);
+    desktop->lock_icon_viewport = view_port_alloc();
+    view_port_set_width(desktop->lock_icon_viewport, icon_get_width(&I_Lock_8x8));
+    view_port_draw_callback_set(
+        desktop->lock_icon_viewport, desktop_lock_icon_draw_callback, desktop);
+    view_port_enabled_set(desktop->lock_icon_viewport, false);
+    gui_add_view_port(desktop->gui, desktop->lock_icon_viewport, GuiLayerStatusBarLeft);
+
+    // Dummy mode icon
+    desktop->dummy_mode_icon_viewport = view_port_alloc();
+    view_port_set_width(desktop->dummy_mode_icon_viewport, icon_get_width(&I_GameMode_11x8));
+    view_port_draw_callback_set(
+        desktop->dummy_mode_icon_viewport, desktop_dummy_mode_icon_draw_callback, desktop);
+    view_port_enabled_set(desktop->dummy_mode_icon_viewport, false);
+    gui_add_view_port(desktop->gui, desktop->dummy_mode_icon_viewport, GuiLayerStatusBarLeft);
 
     // Special case: autostart application is already running
     desktop->loader = furi_record_open(RECORD_LOADER);
@@ -301,11 +322,14 @@ int32_t desktop_srv(void* p) {
     UNUSED(p);
     Desktop* desktop = desktop_alloc();
 
-    bool loaded = LOAD_DESKTOP_SETTINGS(&desktop->settings);
+    bool loaded = DESKTOP_SETTINGS_LOAD(&desktop->settings);
     if(!loaded) {
         memset(&desktop->settings, 0, sizeof(desktop->settings));
-        SAVE_DESKTOP_SETTINGS(&desktop->settings);
+        DESKTOP_SETTINGS_SAVE(&desktop->settings);
     }
+
+    view_port_enabled_set(desktop->dummy_mode_icon_viewport, desktop->settings.dummy_mode);
+    desktop_main_set_dummy_mode_state(desktop->main_view, desktop->settings.dummy_mode);
 
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
 

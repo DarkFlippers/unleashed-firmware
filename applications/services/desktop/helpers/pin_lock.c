@@ -72,7 +72,7 @@ void desktop_pin_lock(DesktopSettings* settings) {
     cli_session_close(cli);
     furi_record_close(RECORD_CLI);
     settings->is_locked = 1;
-    SAVE_DESKTOP_SETTINGS(settings);
+    DESKTOP_SETTINGS_SAVE(settings);
 }
 
 void desktop_pin_unlock(DesktopSettings* settings) {
@@ -83,7 +83,7 @@ void desktop_pin_unlock(DesktopSettings* settings) {
     cli_session_open(cli, &cli_vcp);
     furi_record_close(RECORD_CLI);
     settings->is_locked = 0;
-    SAVE_DESKTOP_SETTINGS(settings);
+    DESKTOP_SETTINGS_SAVE(settings);
 }
 
 void desktop_pin_lock_init(DesktopSettings* settings) {
@@ -95,7 +95,7 @@ void desktop_pin_lock_init(DesktopSettings* settings) {
         } else {
             if(desktop_pin_lock_is_locked()) {
                 settings->is_locked = 1;
-                SAVE_DESKTOP_SETTINGS(settings);
+                DESKTOP_SETTINGS_SAVE(settings);
             }
         }
     } else {
