@@ -790,7 +790,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
             break;
         case 1:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
-            canvas_draw_icon(canvas, 116, 17, &I_Pin_arrow_up7x9);
+            canvas_draw_icon(canvas, 116, 17, &I_Pin_arrow_up_7x9);
             break;
         case 2:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
