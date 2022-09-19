@@ -17,7 +17,7 @@ void nfc_scene_extra_actions_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Mf Classic Keys",
+        "Mifare Classic Keys",
         SubmenuIndexMfClassicKeys,
         nfc_scene_extra_actions_submenu_callback,
         nfc);

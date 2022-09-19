@@ -26,15 +26,25 @@ void nfc_scene_mf_classic_keys_on_enter(void* context) {
     }
 
     widget_add_string_element(
-        nfc->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "MF Classic Keys");
+        nfc->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "Mifare Classic Keys");
     char temp_str[32];
-    snprintf(temp_str, sizeof(temp_str), "Flipper dict: %ld", flipper_dict_keys_total);
+    snprintf(temp_str, sizeof(temp_str), "Flipper list: %ld", flipper_dict_keys_total);
     widget_add_string_element(nfc->widget, 0, 20, AlignLeft, AlignTop, FontSecondary, temp_str);
-    snprintf(temp_str, sizeof(temp_str), "User dict: %ld", user_dict_keys_total);
+    snprintf(temp_str, sizeof(temp_str), "User list: %ld", user_dict_keys_total);
     widget_add_string_element(nfc->widget, 0, 32, AlignLeft, AlignTop, FontSecondary, temp_str);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeCenter, "Add", nfc_scene_mf_classic_keys_widget_callback, nfc);
-    widget_add_icon_element(nfc->widget, 90, 12, &I_Keychain);
+    widget_add_button_element(
+        nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_mf_classic_keys_widget_callback, nfc);
+    widget_add_icon_element(nfc->widget, 87, 13, &I_Keychain_39x36);
+    if(user_dict_keys_total > 0) {
+        widget_add_button_element(
+            nfc->widget,
+            GuiButtonTypeRight,
+            "List",
+            nfc_scene_mf_classic_keys_widget_callback,
+            nfc);
+    }
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
@@ -46,6 +56,12 @@ bool nfc_scene_mf_classic_keys_on_event(void* context, SceneManagerEvent event) 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeCenter) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicKeysAdd);
+            consumed = true;
+        } else if(event.event == GuiButtonTypeLeft) {
+            scene_manager_previous_scene(nfc->scene_manager);
+            consumed = true;
+        } else if(event.event == GuiButtonTypeRight) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicKeysList);
             consumed = true;
         }
     }
