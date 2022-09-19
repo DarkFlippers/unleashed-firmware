@@ -19,6 +19,7 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeInfrared] = "Infrared",
     [ArchiveFileTypeBadUsb] = "Bad USB",
     [ArchiveFileTypeU2f] = "U2F",
+    [ArchiveFileTypeApps] = "Applications",
     [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
 };
 
