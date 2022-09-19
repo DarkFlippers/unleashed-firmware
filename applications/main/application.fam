@@ -15,6 +15,23 @@ App(
         "archive",
         "clock",
         "unirfremix",
-        "spectrum_analyzer",
+    ],
+)
+
+App(
+    appid="main_apps_default",
+    name="Basic applications for main menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "gpio",
+        "ibutton",
+        "infrared",
+        "lfrfid",
+        "nfc",
+        "subghz",
+        "bad_usb",
+        "u2f",
+        "fap_loader",
+        "archive",
     ],
 )

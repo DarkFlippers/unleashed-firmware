@@ -82,7 +82,7 @@ FIRMWARE_APPS = {
         # Svc
         "basic_services",
         # Apps
-        "main_apps",
+        "main_apps_default",
         "system_apps",
         # Settings
         "settings_apps",
