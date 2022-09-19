@@ -47,7 +47,9 @@ void nfc_scene_device_info_on_enter(void* context) {
             }
             string_clear(country_name);
         }
-    } else if(dev_data->protocol == NfcDeviceProtocolMifareClassic) {
+    } else if(
+        dev_data->protocol == NfcDeviceProtocolMifareClassic ||
+        dev_data->protocol == NfcDeviceProtocolMifareUl) {
         string_set(temp_str, nfc->dev->dev_data.parsed_data);
     }
 
