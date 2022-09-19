@@ -329,7 +329,6 @@ class SdkCache:
         self.sdk = ApiEntries()
         self.disabled_entries = set()
         self.new_entries = set()
-        self.loaded_dirty = False
         self.loaded_dirty_version = False
 
         self.version_action = VersionBump.NONE
@@ -340,8 +339,7 @@ class SdkCache:
         return (
             self.version != SdkVersion(0, 0)
             and self.version_action == VersionBump.NONE
-            and not self.loaded_dirty
-            and not self.new_entries
+            and not self._have_pending_entries()
         )
 
     def _filter_enabled(self, sdk_entries):
@@ -388,21 +386,12 @@ class SdkCache:
         if self._load_version_only:
             raise Exception("Only SDK version was loaded, cannot save")
 
-        version_is_clean = True
-        if self.loaded_dirty:
-            # There are still new entries and version was already updated
-            version_is_clean = False
-
         if self.version_action == VersionBump.MINOR:
             self.version = SdkVersion(self.version.major, self.version.minor + 1)
-            version_is_clean = False
         elif self.version_action == VersionBump.MAJOR:
             self.version = SdkVersion(self.version.major + 1, 0)
-            version_is_clean = False
 
-        if version_is_clean:
-            print(f"API version {self.version} is up to date")
-        else:
+        if self._have_pending_entries():
             self.new_entries.add(self.version)
             print(
                 f"API version is still WIP: {self.version}. Review the changes and re-run command."
@@ -418,16 +407,23 @@ class SdkCache:
                     )
                 )
             )
+        else:
+            print(f"API version {self.version} is up to date")
 
-        if not version_is_clean or self.loaded_dirty_version:
-            # Regenerate cache file
+        regenerate_csv = (
+            self.loaded_dirty_version
+            or self._have_pending_entries()
+            or self.version_action != VersionBump.NONE
+        )
+
+        if regenerate_csv:
             str_cache_entries = [self.version]
             name_getter = operator.attrgetter("name")
             str_cache_entries.extend(sorted(self.sdk.headers, key=name_getter))
             str_cache_entries.extend(sorted(self.sdk.functions, key=name_getter))
             str_cache_entries.extend(sorted(self.sdk.variables, key=name_getter))
 
-            with open(self.cache_file_name, "w", newline="") as f:
+            with open(self.cache_file_name, "wt", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=SdkCache.CSV_FIELD_NAMES)
                 writer.writeheader()
 
@@ -476,28 +472,37 @@ class SdkCache:
                 f"Cannot load symbol cache '{self.cache_file_name}'! File does not exist"
             )
 
-        with open(self.cache_file_name, "r") as f:
+        with open(self.cache_file_name, "rt") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 self._process_entry(row)
                 if self._load_version_only and row.get("entry") == SdkVersion.csv_type:
                     break
-        self.loaded_dirty = bool(self.new_entries)
 
-    def sync_sets(self, known_set: Set[Any], new_set: Set[Any]):
+    def _have_pending_entries(self) -> bool:
+        return any(
+            filter(
+                lambda e: not isinstance(e, SdkVersion),
+                self.new_entries,
+            )
+        )
+
+    def sync_sets(
+        self, known_set: Set[Any], new_set: Set[Any], update_version: bool = True
+    ):
         new_entries = new_set - known_set
         if new_entries:
             print(f"New: {new_entries}")
             known_set |= new_entries
             self.new_entries |= new_entries
-            if self.version_action == VersionBump.NONE:
+            if update_version and self.version_action == VersionBump.NONE:
                 self.version_action = VersionBump.MINOR
         removed_entries = known_set - new_set
         if removed_entries:
             print(f"Removed: {removed_entries}")
             known_set -= removed_entries
-            # If any of removed entries was part of active API, that's a major bump
-            if any(
+            # If any of removed entries was a part of active API, that's a major bump
+            if update_version and any(
                 filter(
                     lambda e: e not in self.disabled_entries
                     and e not in self.new_entries,
@@ -509,6 +514,6 @@ class SdkCache:
             self.new_entries -= removed_entries
 
     def validate_api(self, api: ApiEntries) -> None:
-        self.sync_sets(self.sdk.headers, api.headers)
+        self.sync_sets(self.sdk.headers, api.headers, False)
         self.sync_sets(self.sdk.functions, api.functions)
         self.sync_sets(self.sdk.variables, api.variables)

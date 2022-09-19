@@ -156,12 +156,6 @@ float furi_hal_power_get_battery_current(FuriHalPowerIC ic);
  */
 float furi_hal_power_get_battery_temperature(FuriHalPowerIC ic);
 
-/** Get System voltage in V
- *
- * @return     voltage in V
- */
-float furi_hal_power_get_system_voltage();
-
 /** Get USB voltage in V
  *
  * @return     voltage in V

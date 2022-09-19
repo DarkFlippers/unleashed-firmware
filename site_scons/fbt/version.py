@@ -1,7 +1,9 @@
 import subprocess
 import datetime
+from functools import cache
 
 
+@cache
 def get_fast_git_version_id():
     try:
         version = (

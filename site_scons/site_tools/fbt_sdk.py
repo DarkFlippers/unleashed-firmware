@@ -15,6 +15,7 @@ from fbt.sdk import SdkCollector, SdkCache
 
 def prebuild_sdk_emitter(target, source, env):
     target.append(env.ChangeFileExtension(target[0], ".d"))
+    target.append(env.ChangeFileExtension(target[0], ".i.c"))
     return target, source
 
 

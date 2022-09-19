@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,1.0,,
+Version,+,1.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -109,6 +109,12 @@ Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_wwdg.h,,
 Header,+,lib/flipper_application/flipper_application.h,,
 Header,+,lib/flipper_format/flipper_format.h,,
 Header,+,lib/flipper_format/flipper_format_i.h,,
+Header,+,lib/lfrfid/lfrfid_dict_file.h,,
+Header,+,lib/lfrfid/lfrfid_raw_file.h,,
+Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
+Header,+,lib/lfrfid/lfrfid_worker.h,,
+Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
+Header,+,lib/lfrfid/tools/bit_lib.h,,
 Header,+,lib/micro-ecc/uECC.h,,
 Header,+,lib/one_wire/ibutton/ibutton_worker.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
@@ -118,6 +124,7 @@ Header,+,lib/one_wire/one_wire_host_timing.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
 Header,+,lib/subghz/environment.h,,
+Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
 Header,+,lib/subghz/subghz_tx_rx_worker.h,,
 Header,+,lib/subghz/subghz_worker.h,,
@@ -130,8 +137,10 @@ Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
 Header,+,lib/toolbox/md5.h,,
 Header,+,lib/toolbox/path.h,,
+Header,+,lib/toolbox/protocols/protocol_dict.h,,
 Header,+,lib/toolbox/random_name.h,,
 Header,+,lib/toolbox/saved_struct.h,,
+Header,+,lib/toolbox/stream/buffered_file_stream.h,,
 Header,+,lib/toolbox/stream/file_stream.h,,
 Header,+,lib/toolbox/stream/stream.h,,
 Header,+,lib/toolbox/stream/string_stream.h,,
@@ -465,6 +474,26 @@ Function,-,atoll,long long,const char*
 Function,-,basename,char*,const char*
 Function,-,bcmp,int,"const void*, const void*, size_t"
 Function,-,bcopy,void,"const void*, void*, size_t"
+Function,+,bit_lib_add_parity,size_t,"const uint8_t*, size_t, uint8_t*, size_t, uint8_t, uint8_t, BitLibParity"
+Function,+,bit_lib_copy_bits,void,"uint8_t*, size_t, size_t, const uint8_t*, size_t"
+Function,+,bit_lib_crc16,uint16_t,"const uint8_t*, size_t, uint16_t, uint16_t, _Bool, _Bool, uint16_t"
+Function,+,bit_lib_crc8,uint16_t,"const uint8_t*, size_t, uint8_t, uint8_t, _Bool, _Bool, uint8_t"
+Function,+,bit_lib_get_bit,_Bool,"const uint8_t*, size_t"
+Function,+,bit_lib_get_bit_count,uint8_t,uint32_t
+Function,+,bit_lib_get_bits,uint8_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_16,uint16_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_32,uint32_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_print_bits,void,"const uint8_t*, size_t"
+Function,+,bit_lib_print_regions,void,"const BitLibRegion*, size_t, const uint8_t*, size_t"
+Function,+,bit_lib_push_bit,void,"uint8_t*, size_t, _Bool"
+Function,+,bit_lib_remove_bit_every_nth,size_t,"uint8_t*, size_t, uint8_t, uint8_t"
+Function,+,bit_lib_reverse_16_fast,uint16_t,uint16_t
+Function,+,bit_lib_reverse_8_fast,uint8_t,uint8_t
+Function,+,bit_lib_reverse_bits,void,"uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_set_bit,void,"uint8_t*, size_t, _Bool"
+Function,+,bit_lib_set_bits,void,"uint8_t*, size_t, uint8_t, uint8_t"
+Function,+,bit_lib_test_parity,_Bool,"const uint8_t*, size_t, uint8_t, BitLibParity, uint8_t"
+Function,+,bit_lib_test_parity_32,_Bool,"uint32_t, BitLibParity"
 Function,+,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,ble_app_init,_Bool,
 Function,+,ble_app_thread_stop,void,
@@ -488,6 +517,11 @@ Function,+,bt_disconnect,void,Bt*
 Function,+,bt_forget_bonded_devices,void,Bt*
 Function,+,bt_set_profile,_Bool,"Bt*, BtProfile"
 Function,+,bt_set_status_changed_callback,void,"Bt*, BtStatusChangedCallback, void*"
+Function,+,buffered_file_stream_alloc,Stream*,Storage*
+Function,+,buffered_file_stream_close,_Bool,Stream*
+Function,+,buffered_file_stream_get_error,FS_Error,Stream*
+Function,+,buffered_file_stream_open,_Bool,"Stream*, const char*, FS_AccessMode, FS_OpenMode"
+Function,+,buffered_file_stream_sync,_Bool,Stream*
 Function,+,button_menu_add_item,ButtonMenuItem*,"ButtonMenu*, const char*, int32_t, ButtonMenuItemCallback, ButtonMenuItemType, void*"
 Function,+,button_menu_alloc,ButtonMenu*,
 Function,+,button_menu_free,void,ButtonMenu*
@@ -1099,7 +1133,6 @@ Function,+,furi_hal_power_get_battery_remaining_capacity,uint32_t,
 Function,+,furi_hal_power_get_battery_temperature,float,FuriHalPowerIC
 Function,+,furi_hal_power_get_battery_voltage,float,FuriHalPowerIC
 Function,+,furi_hal_power_get_pct,uint8_t,
-Function,-,furi_hal_power_get_system_voltage,float,
 Function,+,furi_hal_power_get_usb_voltage,float,
 Function,+,furi_hal_power_info_get,void,"FuriHalPowerInfoCallback, void*"
 Function,-,furi_hal_power_init,void,
@@ -1468,6 +1501,31 @@ Function,-,ldexp,double,"double, int"
 Function,-,ldexpf,float,"float, int"
 Function,-,ldexpl,long double,"long double, int"
 Function,-,ldiv,ldiv_t,"long, long"
+Function,+,lfrfid_dict_file_load,ProtocolId,"ProtocolDict*, const char*"
+Function,+,lfrfid_dict_file_save,_Bool,"ProtocolDict*, ProtocolId, const char*"
+Function,+,lfrfid_raw_file_alloc,LFRFIDRawFile*,Storage*
+Function,+,lfrfid_raw_file_free,void,LFRFIDRawFile*
+Function,+,lfrfid_raw_file_open_read,_Bool,"LFRFIDRawFile*, const char*"
+Function,+,lfrfid_raw_file_open_write,_Bool,"LFRFIDRawFile*, const char*"
+Function,+,lfrfid_raw_file_read_header,_Bool,"LFRFIDRawFile*, float*, float*"
+Function,+,lfrfid_raw_file_read_pair,_Bool,"LFRFIDRawFile*, uint32_t*, uint32_t*, _Bool*"
+Function,+,lfrfid_raw_file_write_buffer,_Bool,"LFRFIDRawFile*, uint8_t*, size_t"
+Function,+,lfrfid_raw_file_write_header,_Bool,"LFRFIDRawFile*, float, float, uint32_t"
+Function,+,lfrfid_raw_worker_alloc,LFRFIDRawWorker*,
+Function,+,lfrfid_raw_worker_free,void,LFRFIDRawWorker*
+Function,+,lfrfid_raw_worker_start_emulate,void,"LFRFIDRawWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
+Function,+,lfrfid_raw_worker_start_read,void,"LFRFIDRawWorker*, const char*, float, float, LFRFIDWorkerReadRawCallback, void*"
+Function,+,lfrfid_raw_worker_stop,void,LFRFIDRawWorker*
+Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
+Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
+Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
+Function,+,lfrfid_worker_free,void,LFRFIDWorker*
+Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
+Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
+Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
+Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
+Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,-,lgamma,double,double
 Function,-,lgamma_r,double,"double, int*"
 Function,-,lgammaf,float,float
@@ -1659,6 +1717,26 @@ Function,+,power_reboot,void,PowerBootMode
 Function,+,powf,float,"float, float"
 Function,-,powl,long double,"long double, long double"
 Function,-,printf,int,"const char*, ..."
+Function,+,protocol_dict_alloc,ProtocolDict*,"const ProtocolBase**, size_t"
+Function,+,protocol_dict_decoders_feed,ProtocolId,"ProtocolDict*, _Bool, uint32_t"
+Function,+,protocol_dict_decoders_feed_by_feature,ProtocolId,"ProtocolDict*, uint32_t, _Bool, uint32_t"
+Function,+,protocol_dict_decoders_feed_by_id,ProtocolId,"ProtocolDict*, size_t, _Bool, uint32_t"
+Function,+,protocol_dict_decoders_start,void,ProtocolDict*
+Function,+,protocol_dict_encoder_start,_Bool,"ProtocolDict*, size_t"
+Function,+,protocol_dict_encoder_yield,LevelDuration,"ProtocolDict*, size_t"
+Function,+,protocol_dict_free,void,ProtocolDict*
+Function,+,protocol_dict_get_data,void,"ProtocolDict*, size_t, uint8_t*, size_t"
+Function,+,protocol_dict_get_data_size,size_t,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_features,uint32_t,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_manufacturer,const char*,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_max_data_size,size_t,ProtocolDict*
+Function,+,protocol_dict_get_name,const char*,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_protocol_by_name,ProtocolId,"ProtocolDict*, const char*"
+Function,+,protocol_dict_get_validate_count,uint32_t,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_write_data,_Bool,"ProtocolDict*, size_t, void*"
+Function,+,protocol_dict_render_brief_data,void,"ProtocolDict*, string_t, size_t"
+Function,+,protocol_dict_render_data,void,"ProtocolDict*, string_t, size_t"
+Function,+,protocol_dict_set_data,void,"ProtocolDict*, size_t, const uint8_t*, size_t"
 Function,-,pselect,int,"int, fd_set*, fd_set*, fd_set*, const timespec*, const sigset_t*"
 Function,-,putc,int,"int, FILE*"
 Function,-,putc_unlocked,int,"int, FILE*"
@@ -2105,6 +2183,22 @@ Function,-,subghz_protocol_decoder_base_get_hash_data,uint8_t,SubGhzProtocolDeco
 Function,-,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderBase*, string_t"
 Function,+,subghz_protocol_decoder_base_serialize,_Bool,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_base_set_decoder_callback,void,"SubGhzProtocolDecoderBase*, SubGhzProtocolDecoderBaseRxCallback, void*"
+Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_decoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
+Function,+,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
+Function,+,subghz_protocol_decoder_raw_free,void,void*
+Function,+,subghz_protocol_decoder_raw_get_string,void,"void*, string_t"
+Function,+,subghz_protocol_decoder_raw_reset,void,void*
+Function,+,subghz_protocol_encoder_raw_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_encoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
+Function,+,subghz_protocol_encoder_raw_free,void,void*
+Function,+,subghz_protocol_encoder_raw_stop,void,void*
+Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
+Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
+Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*"
+Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
+Function,+,subghz_protocol_raw_save_to_file_init,_Bool,"SubGhzProtocolDecoderRAW*, const char*, SubGhzPresetDefinition*"
+Function,+,subghz_protocol_raw_save_to_file_stop,void,SubGhzProtocolDecoderRAW*
 Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
 Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"
 Function,+,subghz_receiver_free,void,SubGhzReceiver*
@@ -2144,6 +2238,7 @@ Function,+,submenu_reset,void,Submenu*
 Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
+Function,+,t5577_write,void,LFRFIDT5577*
 Function,-,tan,double,double
 Function,-,tanf,float,float
 Function,-,tanh,double,double
@@ -2667,6 +2762,7 @@ Variable,+,gpio_usb_dp,const GpioPin,
 Variable,+,ibutton_gpio,const GpioPin,
 Variable,+,input_pins,const InputPin[],
 Variable,+,input_pins_count,const size_t,
+Variable,+,lfrfid_protocols,const ProtocolBase*[],
 Variable,+,message_blink_set_color_blue,const NotificationMessage,
 Variable,+,message_blink_set_color_cyan,const NotificationMessage,
 Variable,+,message_blink_set_color_green,const NotificationMessage,
@@ -2861,6 +2957,9 @@ Variable,+,sequence_set_vibro_on,const NotificationSequence,
 Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
+Variable,+,subghz_protocol_raw,const SubGhzProtocol,
+Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
+Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
 Variable,-,suboptarg,char*,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,
 Variable,+,usb_cdc_single,FuriHalUsbInterface,
