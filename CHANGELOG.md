@@ -1,6 +1,7 @@
 ### New changes
 * Spectrum Analyzer moved into Applications -> Tools
 * Fixed bug with subghz remote (unirf) that was causing issues with power state
+* Added 868.4 MHz into subghz user config 
 * Updated universal IR assets (by @Amec0e)
 * Fixed debug builds - add this parameter to fbt command `FIRMWARE_APP_SET=debug_pack` if you building full fw in debug mode
 
