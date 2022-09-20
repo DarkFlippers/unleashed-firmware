@@ -36,7 +36,7 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
             break;
         } else {
             FURI_LOG_I(TAG, "Key type: %s", string_get_cstr(temp_str));
-            
+
             if(context->proto == EM4100) {
                 if(strcmp(string_get_cstr(temp_str), "EM4100") != 0) {
                     FURI_LOG_E(TAG, "Unsupported Key type");
