@@ -17,10 +17,13 @@ void nfc_scene_mf_classic_keys_list_on_enter(void* context) {
     if(dict) {
         mf_classic_dict_rewind(dict);
         while(mf_classic_dict_get_next_key_str(dict, temp_key)) {
+            if(index > 200) {
+                break;
+            }
             char* current_key = (char*)malloc(sizeof(char) * 13);
             strncpy(current_key, string_get_cstr(temp_key), 12);
             MfClassicUserKeys_push_back(nfc->mfc_key_strs, current_key);
-            FURI_LOG_D("ListKeys", "Key %d: %s", index, current_key);
+            FURI_LOG_T("ListKeys", "Key %d: %s", index, current_key);
             submenu_add_item(
                 submenu,
                 current_key,
