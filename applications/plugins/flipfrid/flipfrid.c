@@ -64,8 +64,10 @@ FlipFridState* flipfrid_alloc() {
     flipfrid->is_attacking = false;
     flipfrid->key_index = 0;
     flipfrid->menu_index = 0;
+    flipfrid->menu_proto_index = 0;
 
     flipfrid->attack = FlipFridAttackDefaultValues;
+    flipfrid->proto  = HIDProx;
     flipfrid->notify = furi_record_open(RECORD_NOTIFICATION);
 
     flipfrid->data[0] = 0x00;

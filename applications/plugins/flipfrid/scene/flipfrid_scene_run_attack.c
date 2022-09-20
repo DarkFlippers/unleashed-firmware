@@ -67,187 +67,198 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
             lfrfid_worker_stop_thread(context->worker);
             switch(context->attack) {
             case FlipFridAttackDefaultValues:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
+                if(context->proto == EM4100) {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
 
-                context->payload[0] = id_list[context->attack_step][0];
-                context->payload[1] = id_list[context->attack_step][1];
-                context->payload[2] = id_list[context->attack_step][2];
-                context->payload[3] = id_list[context->attack_step][3];
-                context->payload[4] = id_list[context->attack_step][4];
-                
-                if(context->attack_step == 15) {
-                    context->attack_step = 0;
-                    counter = 0;
-                    context->is_attacking = false;
-                    notification_message(context->notify, &sequence_blink_stop);
-                    notification_message(context->notify, &sequence_single_vibro);
+                    context->payload[0] = id_list[context->attack_step][0];
+                    context->payload[1] = id_list[context->attack_step][1];
+                    context->payload[2] = id_list[context->attack_step][2];
+                    context->payload[3] = id_list[context->attack_step][3];
+                    context->payload[4] = id_list[context->attack_step][4];
+
+                    if(context->attack_step == 15) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
                 } else {
-                    context->attack_step++;
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
+
+                    context->payload[0] = id_list_hid[context->attack_step][0];
+                    context->payload[1] = id_list_hid[context->attack_step][1];
+                    context->payload[2] = id_list_hid[context->attack_step][2];
+                    context->payload[3] = id_list_hid[context->attack_step][3];
+                    context->payload[4] = id_list_hid[context->attack_step][4];
+                    context->payload[5] = id_list_hid[context->attack_step][5];
+                
+                    if(context->attack_step == 15) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
                 }
-                break;
 
             case FlipFridAttackBfCustomerId:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
+                if(context->proto == EM4100) {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
 
-                context->payload[0] = context->attack_step;
-                context->payload[1] = 0x00;
-                context->payload[2] = 0x00;
-                context->payload[3] = 0x00;
-                context->payload[4] = 0x00;
+                    context->payload[0] = context->attack_step;
+                    context->payload[1] = 0x00;
+                    context->payload[2] = 0x00;
+                    context->payload[3] = 0x00;
+                    context->payload[4] = 0x00;
 
-                if(context->attack_step == 255) {
-                    context->attack_step = 0;
-                    counter = 0;
-                    context->is_attacking = false;
-                    notification_message(context->notify, &sequence_blink_stop);
-                    notification_message(context->notify, &sequence_single_vibro);
-                } else {
-                    context->attack_step++;
-                }
-                break;
-            case FlipFridAttackLoadFile:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
-
-                context->payload[0] = context->data[0];
-                context->payload[1] = context->data[1];
-                context->payload[2] = context->data[2];
-                context->payload[3] = context->data[3];
-                context->payload[4] = context->data[4];
-
-                context->payload[context->key_index] = context->attack_step;
-
-                if(context->attack_step == 255) {
-                    context->attack_step = 0;
-                    counter = 0;
-                    context->is_attacking = false;
-                    notification_message(context->notify, &sequence_blink_stop);
-                    notification_message(context->notify, &sequence_single_vibro);
-                    break;
-                } else {
-                    context->attack_step++;
-                }
-                break;
-            case FlipFridAttackLoadFileCustomUids:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
-
-                while(true) {
-                    string_reset(context->data_str);
-                    if(!stream_read_line(context->uids_stream, context->data_str)) {
+                    if(context->attack_step == 255) {
                         context->attack_step = 0;
                         counter = 0;
                         context->is_attacking = false;
                         notification_message(context->notify, &sequence_blink_stop);
                         notification_message(context->notify, &sequence_single_vibro);
-                        break;
-                    };
-                    if(string_get_char(context->data_str, 0) == '#') continue;
-                    if(string_size(context->data_str) != 11) continue;
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
+                } else {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
+
+                    context->payload[0] = context->attack_step;
+                    context->payload[1] = 0x00;
+                    context->payload[2] = 0x00;
+                    context->payload[3] = 0x00;
+                    context->payload[4] = 0x00;
+                    context->payload[5] = 0x00;
+
+                    if(context->attack_step == 255) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                    } else {
+                        context->attack_step++;
+                    }
                     break;
                 }
-                FURI_LOG_D(TAG, string_get_cstr(context->data_str));
-
-                // string is valid, parse it in context->payload
-                for(uint8_t i = 0; i < 5; i++) {
-                    char temp_str[3];
-                    temp_str[0] = string_get_cstr(context->data_str)[i * 2];
-                    temp_str[1] = string_get_cstr(context->data_str)[i * 2 + 1];
-                    temp_str[2] = '\0';
-                    context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
-                }
-                break;
-            case FlipFridAttackDefaultValuesHIDProx:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
-                context->payload[0] = id_list_hid[context->attack_step][0];
-                context->payload[1] = id_list_hid[context->attack_step][1];
-                context->payload[2] = id_list_hid[context->attack_step][2];
-                context->payload[3] = id_list_hid[context->attack_step][3];
-                context->payload[4] = id_list_hid[context->attack_step][4];
-                context->payload[5] = id_list_hid[context->attack_step][5];
                 
-                if(context->attack_step == 15) {
-                    context->attack_step = 0;
-                    counter = 0;
-                    context->is_attacking = false;
-                    notification_message(context->notify, &sequence_blink_stop);
-                    notification_message(context->notify, &sequence_single_vibro);
+            case FlipFridAttackLoadFile:
+                if(context->proto == EM4100) {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
 
-                } else {
-                    context->attack_step++;
-                }
-                break;
-            case FlipFridAttackBfCustomerIdHIDProx:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
+                    context->payload[0] = context->data[0];
+                    context->payload[1] = context->data[1];
+                    context->payload[2] = context->data[2];
+                    context->payload[3] = context->data[3];
+                    context->payload[4] = context->data[4];
 
-                context->payload[0] = context->attack_step;
-                context->payload[1] = 0x00;
-                context->payload[2] = 0x00;
-                context->payload[3] = 0x00;
-                context->payload[4] = 0x00;
-                context->payload[5] = 0x00;
+                    context->payload[context->key_index] = context->attack_step;
 
-                if(context->attack_step == 255) {
-                    context->attack_step = 0;
-                    counter = 0;
-                    context->is_attacking = false;
-                    notification_message(context->notify, &sequence_blink_stop);
-                    notification_message(context->notify, &sequence_single_vibro);
-                } else {
-                    context->attack_step++;
-                }
-                break;
-            case FlipFridAttackLoadFileHIDProx:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
-                context->payload[0] = context->data[0];
-                context->payload[1] = context->data[1];
-                context->payload[2] = context->data[2];
-                context->payload[3] = context->data[3];
-                context->payload[4] = context->data[4];
-                context->payload[5] = context->data[5];
-
-                context->payload[context->key_index] = context->attack_step;
-
-                if(context->attack_step == 255) {
-                    context->attack_step = 0;
-                    counter = 0;
-                    context->is_attacking = false;
-                    notification_message(context->notify, &sequence_blink_stop);
-                    notification_message(context->notify, &sequence_single_vibro);
-                    break;
-                } else {
-                    context->attack_step++;
-                }
-                break;
-            case FlipFridAttackLoadFileCustomUidsHIDProx:
-                context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
-                while(true) {
-                    string_reset(context->data_str);
-                    if(!stream_read_line(context->uids_stream, context->data_str)) {
+                    if(context->attack_step == 255) {
                         context->attack_step = 0;
                         counter = 0;
                         context->is_attacking = false;
                         notification_message(context->notify, &sequence_blink_stop);
                         notification_message(context->notify, &sequence_single_vibro);
                         break;
-                    };
-                    if(string_get_char(context->data_str, 0) == '#') continue;
-                    if(string_size(context->data_str) != 13) continue;
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
+                } else {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
+
+                    context->payload[0] = context->data[0];
+                    context->payload[1] = context->data[1];
+                    context->payload[2] = context->data[2];
+                    context->payload[3] = context->data[3];
+                    context->payload[4] = context->data[4];
+                    context->payload[5] = context->data[5];
+
+                    context->payload[context->key_index] = context->attack_step;
+
+                    if(context->attack_step == 255) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                        break;
+                    } else {
+                        context->attack_step++;
+                    }
                     break;
                 }
-                FURI_LOG_D(TAG, string_get_cstr(context->data_str));
 
-                // string is valid, parse it in context->payload
-                for(uint8_t i = 0; i < 6; i++) {
-                    char temp_str[3];
-                    temp_str[0] = string_get_cstr(context->data_str)[i * 2];
-                    temp_str[1] = string_get_cstr(context->data_str)[i * 2 + 1];
-                    temp_str[2] = '\0';
-                    context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
+            case FlipFridAttackLoadFileCustomUids:
+                if(context->proto == EM4100) {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
+
+                    while(true) {
+                        string_reset(context->data_str);
+                        if(!stream_read_line(context->uids_stream, context->data_str)) {
+                            context->attack_step = 0;
+                            counter = 0;
+                            context->is_attacking = false;
+                            notification_message(context->notify, &sequence_blink_stop);
+                            notification_message(context->notify, &sequence_single_vibro);
+                            break;
+                        };
+                        if(string_get_char(context->data_str, 0) == '#') continue;
+                        if(string_size(context->data_str) != 11) continue;
+                        break;
+                    }
+                    FURI_LOG_D(TAG, string_get_cstr(context->data_str));
+
+                    // string is valid, parse it in context->payload
+                    for(uint8_t i = 0; i < 5; i++) {
+                        char temp_str[3];
+                        temp_str[0] = string_get_cstr(context->data_str)[i * 2];
+                        temp_str[1] = string_get_cstr(context->data_str)[i * 2 + 1];
+                        temp_str[2] = '\0';
+                        context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
+                    }
+                    break;
+                } else {
+                    context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
+
+                    while(true) {
+                        string_reset(context->data_str);
+                        if(!stream_read_line(context->uids_stream, context->data_str)) {
+                            context->attack_step = 0;
+                            counter = 0;
+                            context->is_attacking = false;
+                            notification_message(context->notify, &sequence_blink_stop);
+                            notification_message(context->notify, &sequence_single_vibro);
+                            break;
+                        };
+                        if(string_get_char(context->data_str, 0) == '#') continue;
+                        if(string_size(context->data_str) != 13) continue;
+                        break;
+                    }
+                    FURI_LOG_D(TAG, string_get_cstr(context->data_str));
+
+                    // string is valid, parse it in context->payload
+                    for(uint8_t i = 0; i < 6; i++) {
+                        char temp_str[3];
+                        temp_str[0] = string_get_cstr(context->data_str)[i * 2];
+                        temp_str[1] = string_get_cstr(context->data_str)[i * 2 + 1];
+                        temp_str[2] = '\0';
+                        context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
+                    }
+                    break;
                 }
-                break;
             }
+            
         }
 
         if(counter > TIME_BETWEEN_CARDS) {

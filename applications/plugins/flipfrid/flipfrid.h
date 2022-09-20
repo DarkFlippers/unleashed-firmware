@@ -26,11 +26,12 @@ typedef enum {
     FlipFridAttackBfCustomerId,
     FlipFridAttackLoadFile,
     FlipFridAttackLoadFileCustomUids,
-    FlipFridAttackDefaultValuesHIDProx,
-    FlipFridAttackBfCustomerIdHIDProx,
-    FlipFridAttackLoadFileHIDProx,
-    FlipFridAttackLoadFileCustomUidsHIDProx,
 } FlipFridAttacks;
+
+typedef enum {
+    EM4100,
+    HIDProx,
+} FlipFridProtos;
 
 typedef enum {
     NoneScene,
@@ -60,13 +61,16 @@ typedef struct {
     FlipFridScene previous_scene;
     NotificationApp* notify;
     u_int8_t menu_index;
+    u_int8_t menu_proto_index;
 
     string_t data_str;
     uint8_t data[6];
     uint8_t payload[6];
     uint8_t attack_step;
     FlipFridAttacks attack;
+    FlipFridProtos proto;
     string_t attack_name;
+    string_t proto_name;
 
     DialogsApp* dialogs;
     string_t notification_msg;
