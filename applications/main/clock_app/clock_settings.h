@@ -33,5 +33,4 @@ typedef enum {
 typedef struct {
     TimeFormat time_format;
     DateFormat date_format;
-    uint8_t increment_precision;
 } ClockSettings;
