@@ -37,7 +37,11 @@ void archive_scene_info_on_enter(void* context) {
 
     // Directory path
     path_extract_dirname(string_get_cstr(current->path), dirname);
-    string_replace_str(dirname, STORAGE_ANY_PATH_PREFIX, "");
+    if(strcmp(string_get_cstr(dirname), "/any") == 0) {
+        string_replace_str(dirname, STORAGE_ANY_PATH_PREFIX, "/");
+    } else {
+        string_replace_str(dirname, STORAGE_ANY_PATH_PREFIX, "");
+    }
 
     // File size
     FileInfo fileinfo;
@@ -60,7 +64,7 @@ void archive_scene_info_on_enter(void* context) {
             string_get_cstr(dirname));
     }
     widget_add_text_box_element(
-        instance->widget, 0, 25, 128, 25, AlignLeft, AlignCenter, file_info_message, false);
+        instance->widget, 0, 25, 128, 25, AlignLeft, AlignCenter, file_info_message, true);
 
     // This one to return and cursor select this file
     path_extract_filename_no_ext(string_get_cstr(current->path), filename);
