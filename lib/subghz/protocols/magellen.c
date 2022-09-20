@@ -381,7 +381,7 @@ static void subghz_protocol_magellen_get_event_serialize(uint8_t event, string_t
         "%s%s%s%s%s%s%s%s",
         ((event >> 4) & 0x1 ? (event & 0x1 ? " Open" : " Close") :
                               (event & 0x1 ? " Motion" : " Ok")),
-        ((event >> 1) & 0x1 ? ", Tamper On (Alarm)" : ""),
+        ((event >> 1) & 0x1 ? ", Tamper On\n(Alarm)" : ""),
         ((event >> 2) & 0x1 ? ", ?" : ""),
         ((event >> 3) & 0x1 ? ", Power On" : ""),
         ((event >> 4) & 0x1 ? ", MT:Wireless_Reed" : ""),
