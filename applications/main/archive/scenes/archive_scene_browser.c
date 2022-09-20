@@ -133,7 +133,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventFileMenuRename:
             if(favorites) {
                 browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
-            //} else if((archive_is_known_app(selected->type)) && (selected->is_app == false)) {
+                //} else if((archive_is_known_app(selected->type)) && (selected->is_app == false)) {
             } else {
                 // Added ability to rename files and folders
                 archive_show_file_menu(browser, false);
