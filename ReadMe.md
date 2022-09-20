@@ -49,7 +49,7 @@ See changelog in releases for latest updates!
 - Keeloq [Not ALL systems supported yet!]
 - Nice Flor S
 - Security+ v1 & v2
-- Star Line
+- Star Line (saving only)
 
 ## Support us so we can buy equipment and develop new features
 * ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
@@ -87,7 +87,6 @@ Games:
 - BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 - SubGHz -> New frequency analyzer - [(by ClusterM)](https://github.com/ClusterM)
 - SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
-- SubGHz -> Save last used config settings - [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/67)
 
 # Instructions
 ## [- How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
