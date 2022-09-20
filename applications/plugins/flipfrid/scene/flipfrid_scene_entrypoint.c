@@ -101,13 +101,13 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
                 }
                 break;
             case InputKeyLeft:
-                if(context->menu_proto_index < HIDProx) {
-                    context->menu_proto_index++;
+                if(context->menu_proto_index > EM4100) {
+                    context->menu_proto_index--;
                 }
                 break;
             case InputKeyRight:
-                if(context->menu_proto_index > EM4100) {
-                    context->menu_proto_index--;
+                if(context->menu_proto_index < HIDProx) {
+                    context->menu_proto_index++;
                 }
                 break;
             case InputKeyOk:
@@ -127,7 +127,7 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
 
     // Title
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 30, 0, AlignCenter, AlignTop, "RFID Fuzzer");
+    canvas_draw_str_aligned(canvas, 32, 2, AlignCenter, AlignTop, "RFID Fuzzer");
 
     if(context->menu_index > FlipFridAttackDefaultValues) {
         canvas_set_font(canvas, FontSecondary);
@@ -159,7 +159,7 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
             canvas,
-            96,
+            98,
             -12,
             AlignCenter,
             AlignTop,
@@ -168,13 +168,13 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
-        canvas, 96, 0, AlignCenter, AlignTop, string_get_cstr(menu_proto_items[context->menu_proto_index]));
+        canvas, 98, 2, AlignCenter, AlignTop, string_get_cstr(menu_proto_items[context->menu_proto_index]));
 
     if(context->menu_proto_index < HIDProx) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
             canvas,
-            96,
+            98,
             12,
             AlignCenter,
             AlignTop,
