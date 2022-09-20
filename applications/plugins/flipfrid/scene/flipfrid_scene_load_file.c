@@ -36,11 +36,21 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
             break;
         } else {
             FURI_LOG_I(TAG, "Key type: %s", string_get_cstr(temp_str));
-            if(strcmp(string_get_cstr(temp_str), "EM4100") != 0) {
-                FURI_LOG_E(TAG, "Unsupported Key type");
-                string_reset(context->notification_msg);
-                string_set_str(context->notification_msg, "Unsupported Key type");
-                break;
+
+            if(context->proto == EM4100) {
+                if(strcmp(string_get_cstr(temp_str), "EM4100") != 0) {
+                    FURI_LOG_E(TAG, "Unsupported Key type");
+                    string_reset(context->notification_msg);
+                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    break;
+                }
+            } else {
+                if(strcmp(string_get_cstr(temp_str), "HIDProx") != 0) {
+                    FURI_LOG_E(TAG, "Unsupported Key type");
+                    string_reset(context->notification_msg);
+                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    break;
+                }
             }
         }
 
@@ -53,15 +63,24 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
         } else {
             FURI_LOG_I(TAG, "Key: %s", string_get_cstr(context->data_str));
 
-            // Check data size
-            if(string_size(context->data_str) != 14) {
-                FURI_LOG_E(TAG, "Incorrect Key length");
-                string_reset(context->notification_msg);
-                string_set_str(context->notification_msg, "Incorrect Key length");
-                break;
+            if(context->proto == EM4100) {
+                if(string_size(context->data_str) != 14) {
+                    FURI_LOG_E(TAG, "Incorrect Key length");
+                    string_reset(context->notification_msg);
+                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    break;
+                }
+            } else {
+                if(string_size(context->data_str) != 17) {
+                    FURI_LOG_E(TAG, "Incorrect Key length");
+                    string_reset(context->notification_msg);
+                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    break;
+                }
             }
+
             // String to uint8_t
-            for(uint8_t i = 0; i < 5; i++) {
+            for(uint8_t i = 0; i < 6; i++) {
                 char temp_str2[3];
                 temp_str2[0] = string_get_cstr(context->data_str)[i * 3];
                 temp_str2[1] = string_get_cstr(context->data_str)[i * 3 + 1];

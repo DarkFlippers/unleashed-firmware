@@ -1,8 +1,12 @@
 #include "flipfrid_scene_entrypoint.h"
 
 string_t menu_items[4];
+string_t menu_proto_items[2];
 
-void flipfrid_scene_entrypoint_menu_callback(FlipFridState* context, uint32_t index) {
+void flipfrid_scene_entrypoint_menu_callback(
+    FlipFridState* context,
+    uint32_t index,
+    uint32_t proto_index) {
     switch(index) {
     case FlipFridAttackDefaultValues:
         context->attack = FlipFridAttackDefaultValues;
@@ -27,6 +31,19 @@ void flipfrid_scene_entrypoint_menu_callback(FlipFridState* context, uint32_t in
     default:
         break;
     }
+
+    switch(proto_index) {
+    case EM4100:
+        context->proto = EM4100;
+        string_set_str(context->proto_name, "EM4100");
+        break;
+    case HIDProx:
+        context->proto = HIDProx;
+        string_set_str(context->proto_name, "HIDProx");
+        break;
+    default:
+        break;
+    }
 }
 
 void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
@@ -36,6 +53,7 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
     context->payload[2] = 0x00;
     context->payload[3] = 0x00;
     context->payload[4] = 0x00;
+    context->payload[5] = 0x00;
 
     context->menu_index = 0;
     for(uint32_t i = 0; i < 4; i++) {
@@ -46,12 +64,24 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
     string_set(menu_items[1], "BF Customer ID");
     string_set(menu_items[2], "Load File");
     string_set(menu_items[3], "Load uids from file");
+
+    context->menu_proto_index = 0;
+    for(uint32_t i = 0; i < 2; i++) {
+        string_init(menu_proto_items[i]);
+    }
+
+    string_set(menu_proto_items[0], "EM4100");
+    string_set(menu_proto_items[1], "HIDProx");
 }
 
 void flipfrid_scene_entrypoint_on_exit(FlipFridState* context) {
     UNUSED(context);
     for(uint32_t i = 0; i < 4; i++) {
         string_clear(menu_items[i]);
+    }
+
+    for(uint32_t i = 0; i < 2; i++) {
+        string_clear(menu_proto_items[i]);
     }
 }
 
@@ -74,10 +104,18 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
                 }
                 break;
             case InputKeyLeft:
+                if(context->menu_proto_index > EM4100) {
+                    context->menu_proto_index--;
+                }
+                break;
             case InputKeyRight:
+                if(context->menu_proto_index < HIDProx) {
+                    context->menu_proto_index++;
+                }
                 break;
             case InputKeyOk:
-                flipfrid_scene_entrypoint_menu_callback(context, context->menu_index);
+                flipfrid_scene_entrypoint_menu_callback(
+                    context, context->menu_index, context->menu_proto_index);
                 break;
             case InputKeyBack:
                 context->is_running = false;
@@ -90,10 +128,6 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
 void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
-
-    // Title
-    canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 6, AlignCenter, AlignTop, "RFID Fuzzer");
 
     if(context->menu_index > FlipFridAttackDefaultValues) {
         canvas_set_font(canvas, FontSecondary);
@@ -119,5 +153,42 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
             AlignCenter,
             AlignTop,
             string_get_cstr(menu_items[context->menu_index + 1]));
+    }
+
+    if(context->menu_proto_index > EM4100) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas,
+            64,
+            -12,
+            AlignCenter,
+            AlignTop,
+            string_get_cstr(menu_proto_items[context->menu_proto_index - 1]));
+    }
+
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(canvas, 34, 4, AlignCenter, AlignTop, "<");
+
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(
+        canvas,
+        64,
+        4,
+        AlignCenter,
+        AlignTop,
+        string_get_cstr(menu_proto_items[context->menu_proto_index]));
+
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(canvas, 94, 4, AlignCenter, AlignTop, ">");
+
+    if(context->menu_proto_index < HIDProx) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas,
+            64,
+            -12,
+            AlignCenter,
+            AlignTop,
+            string_get_cstr(menu_proto_items[context->menu_proto_index + 1]));
     }
 }

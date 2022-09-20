@@ -42,10 +42,7 @@ ARRAY_DEF(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 // Using in applications/archive/views/archive_browser_view.c
-static void archive_menu_add_item(
-    ArchiveContextMenuItem_t* obj,
-    string_t text,
-    uint32_t event) {
+static void archive_menu_add_item(ArchiveContextMenuItem_t* obj, string_t text, uint32_t event) {
     string_init_move(obj->text, text);
     obj->event = event;
 }
