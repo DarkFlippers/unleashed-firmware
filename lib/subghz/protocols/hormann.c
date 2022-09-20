@@ -163,7 +163,7 @@ bool subghz_protocol_encoder_hormann_deserialize(void* context, FlipperFormat* f
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_encoder_hormann_get_upload(instance);
+        if(!subghz_protocol_encoder_hormann_get_upload(instance)) break;
         instance->encoder.is_running = true;
 
         res = true;
