@@ -1,5 +1,10 @@
 ### New changes
-* PR: Allow running apps from Archive app (also allows adding them to Favourites) (PR 72 by RogueMaster) (new icon by @Svaarich)
+* PR: RFID Fuzzer - support for HIDProx, update for UI (PR #74 by mvanzanten) (xMasterX -> time between cards set to 6)
+* Fix NFC User dict (list) crash, now it displays only first 200 elements for large lists
+* Fix SubGHz transmitter GUI button
+* Fix SubGHz Magellen protocol GUI
+* Fix null pointer dereference crash in Archive -> Info in root folder (+ fix long path names display)
+* OFW: SubGHz: Adding checks for get_upload functions
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
