@@ -39,7 +39,8 @@ struct ReaderAnalyzer {
     NfcDebugPcap* pcap;
 };
 
-static FuriHalNfcDevData reader_analyzer_nfc_data[] = { //XXX
+static FuriHalNfcDevData reader_analyzer_nfc_data[] = {
+    //XXX
     [ReaderAnalyzerNfcDataMfClassic] =
         {.sak = 0x08,
          .atqa = {0x44, 0x00},
@@ -101,7 +102,8 @@ int32_t reader_analyzer_thread(void* context) {
 ReaderAnalyzer* reader_analyzer_alloc() {
     ReaderAnalyzer* instance = malloc(sizeof(ReaderAnalyzer));
     reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic].cuid = rand(); //XXX
-    furi_hal_random_fill_buf((uint8_t*) &reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic].uid, 7);
+    furi_hal_random_fill_buf(
+        (uint8_t*)&reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic].uid, 7);
     instance->nfc_data = reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic];
     instance->alive = false;
     instance->stream =

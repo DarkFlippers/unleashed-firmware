@@ -3,7 +3,10 @@
 string_t menu_items[4];
 string_t menu_proto_items[2];
 
-void flipfrid_scene_entrypoint_menu_callback(FlipFridState* context, uint32_t index, uint32_t proto_index) {
+void flipfrid_scene_entrypoint_menu_callback(
+    FlipFridState* context,
+    uint32_t index,
+    uint32_t proto_index) {
     switch(index) {
     case FlipFridAttackDefaultValues:
         context->attack = FlipFridAttackDefaultValues;
@@ -111,7 +114,8 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
                 }
                 break;
             case InputKeyOk:
-                flipfrid_scene_entrypoint_menu_callback(context, context->menu_index, context->menu_proto_index);
+                flipfrid_scene_entrypoint_menu_callback(
+                    context, context->menu_index, context->menu_proto_index);
                 break;
             case InputKeyBack:
                 context->is_running = false;
@@ -163,16 +167,19 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
     }
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(
-        canvas, 34, 4, AlignCenter, AlignTop, "<");
+    canvas_draw_str_aligned(canvas, 34, 4, AlignCenter, AlignTop, "<");
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
-        canvas, 64, 4, AlignCenter, AlignTop, string_get_cstr(menu_proto_items[context->menu_proto_index]));
+        canvas,
+        64,
+        4,
+        AlignCenter,
+        AlignTop,
+        string_get_cstr(menu_proto_items[context->menu_proto_index]));
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(
-        canvas, 94, 4, AlignCenter, AlignTop, ">");
+    canvas_draw_str_aligned(canvas, 94, 4, AlignCenter, AlignTop, ">");
 
     if(context->menu_proto_index < HIDProx) {
         canvas_set_font(canvas, FontSecondary);
