@@ -236,6 +236,25 @@ size_t furi_thread_stdout_write(const char* data, size_t size);
  */
 int32_t furi_thread_stdout_flush();
 
+/** Suspend thread
+ * 
+ * @param thread_id thread id
+ */
+void furi_thread_suspend(FuriThreadId thread_id);
+
+/** Resume thread
+ * 
+ * @param thread_id thread id
+ */
+void furi_thread_resume(FuriThreadId thread_id);
+
+/** Get thread suspended state
+ * 
+ * @param thread_id thread id
+ * @return true if thread is suspended
+ */
+bool furi_thread_is_suspended(FuriThreadId thread_id);
+
 #ifdef __cplusplus
 }
 #endif

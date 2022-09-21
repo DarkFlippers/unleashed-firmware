@@ -76,19 +76,8 @@ to exclude the API function. */
 #define INCLUDE_xTaskGetSchedulerState 1
 #define INCLUDE_xTimerPendFunctionCall 1
 
-/* CMSIS-RTOS V2 flags */
-#define configUSE_OS2_THREAD_SUSPEND_RESUME 1
-#define configUSE_OS2_THREAD_ENUMERATE 1
-#define configUSE_OS2_THREAD_FLAGS 1
-#define configUSE_OS2_TIMER 1
-#define configUSE_OS2_MUTEX 1
-
-// NEVER TO BE USED, because of their hard realtime nature
-// #define configUSE_OS2_EVENTFLAGS_FROM_ISR 1
-
-/* CMSIS-RTOS */
+/* Furi-specific */
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES 2
-#define CMSIS_TASK_NOTIFY_INDEX 1
 
 extern __attribute__((__noreturn__)) void furi_thread_catch();
 #define configTASK_RETURN_ADDRESS (furi_thread_catch + 2)
