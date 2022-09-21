@@ -89,7 +89,9 @@ static void furi_thread_body(void* context) {
 
     if(thread->is_service) {
         FURI_LOG_E(
-            "Service", "%s thread exited. Thread memory cannot be reclaimed.", thread->name);
+            "Service",
+            "%s thread exited. Thread memory cannot be reclaimed.",
+            thread->name ? thread->name : "<unknown service>");
     }
 
     // clear thread local storage
@@ -515,4 +517,23 @@ size_t furi_thread_stdout_write(const char* data, size_t size) {
 
 int32_t furi_thread_stdout_flush() {
     return __furi_thread_stdout_flush(furi_thread_get_current());
+}
+
+void furi_thread_suspend(FuriThreadId thread_id) {
+    TaskHandle_t hTask = (TaskHandle_t)thread_id;
+    vTaskSuspend(hTask);
+}
+
+void furi_thread_resume(FuriThreadId thread_id) {
+    TaskHandle_t hTask = (TaskHandle_t)thread_id;
+    if(FURI_IS_IRQ_MODE()) {
+        xTaskResumeFromISR(hTask);
+    } else {
+        vTaskResume(hTask);
+    }
+}
+
+bool furi_thread_is_suspended(FuriThreadId thread_id) {
+    TaskHandle_t hTask = (TaskHandle_t)thread_id;
+    return eTaskGetState(hTask) == eSuspended;
 }
