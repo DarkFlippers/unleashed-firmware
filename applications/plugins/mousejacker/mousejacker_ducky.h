@@ -24,6 +24,7 @@ typedef struct {
     bool ducky_err;
     bool addr_err;
     bool is_thread_running;
+    bool is_ducky_running;
     bool close_thread_please;
     Storage* storage;
     FuriThread* mjthread;
