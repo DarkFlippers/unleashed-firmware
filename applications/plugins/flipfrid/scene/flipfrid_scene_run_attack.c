@@ -44,6 +44,11 @@ void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
     context->attack_step = 0;
     context->dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     context->worker = lfrfid_worker_alloc(context->dict);
+    if(context->proto == HIDProx) {
+        context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
+    } else {
+        context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
+    }
 }
 
 void flipfrid_scene_run_attack_on_exit(FlipFridState* context) {
@@ -68,9 +73,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
             switch(context->attack) {
             case FlipFridAttackDefaultValues:
                 if(context->proto == EM4100) {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "EM4100");
-
                     context->payload[0] = id_list[context->attack_step][0];
                     context->payload[1] = id_list[context->attack_step][1];
                     context->payload[2] = id_list[context->attack_step][2];
@@ -88,9 +90,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     }
                     break;
                 } else {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
                     context->payload[0] = id_list_hid[context->attack_step][0];
                     context->payload[1] = id_list_hid[context->attack_step][1];
                     context->payload[2] = id_list_hid[context->attack_step][2];
@@ -113,9 +112,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
 
             case FlipFridAttackBfCustomerId:
                 if(context->proto == EM4100) {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "EM4100");
-
                     context->payload[0] = context->attack_step;
                     context->payload[1] = 0x00;
                     context->payload[2] = 0x00;
@@ -133,9 +129,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     }
                     break;
                 } else {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
                     context->payload[0] = context->attack_step;
                     context->payload[1] = 0x00;
                     context->payload[2] = 0x00;
@@ -157,9 +150,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
 
             case FlipFridAttackLoadFile:
                 if(context->proto == EM4100) {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "EM4100");
-
                     context->payload[0] = context->data[0];
                     context->payload[1] = context->data[1];
                     context->payload[2] = context->data[2];
@@ -180,9 +170,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     }
                     break;
                 } else {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
                     context->payload[0] = context->data[0];
                     context->payload[1] = context->data[1];
                     context->payload[2] = context->data[2];
@@ -207,9 +194,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
 
             case FlipFridAttackLoadFileCustomUids:
                 if(context->proto == EM4100) {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "EM4100");
-
                     while(true) {
                         string_reset(context->data_str);
                         if(!stream_read_line(context->uids_stream, context->data_str)) {
@@ -236,9 +220,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     }
                     break;
                 } else {
-                    context->protocol =
-                        protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
-
                     while(true) {
                         string_reset(context->data_str);
                         if(!stream_read_line(context->uids_stream, context->data_str)) {
@@ -325,7 +306,7 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
         canvas, 64, 8, AlignCenter, AlignTop, string_get_cstr(context->attack_name));
 
     char uid[18];
-    if(context->protocol == protocol_dict_get_protocol_by_name(context->dict, "HIDProx")) {
+    if(context->proto == HIDProx) {
         snprintf(
             uid,
             sizeof(uid),

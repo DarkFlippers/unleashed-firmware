@@ -21,6 +21,12 @@ void set_random_name(char* name, uint8_t max_name_size) {
         "thick",
         "great",
         "my",
+        "mini",
+        "ultra",
+        "haupt",
+        "small",
+        "random",
+        "strange",
     };
 
     const char* suffix[] = {
@@ -32,6 +38,14 @@ void set_random_name(char* name, uint8_t max_name_size) {
         "burer",
         "sidorovich",
         "habar",
+        "radar",
+        "borov",
+        "pda",
+        "konserva",
+        "aptechka",
+        "door",
+        "thing",
+        "stuff",
     };
     // sus is not (sus)pect - this is about super sus
     uint8_t prefix_i = rand() % COUNT_OF(prefix);
