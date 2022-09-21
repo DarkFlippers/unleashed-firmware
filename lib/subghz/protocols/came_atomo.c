@@ -79,7 +79,7 @@ void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 1024; //approx max buffer size
+    instance->encoder.size_upload = 1024; //actual size about 760
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -114,7 +114,7 @@ static LevelDuration
         break;
 
     default:
-        furi_crash("SubGhz: ManchesterEncoderResult is incorrect.");
+        FURI_LOG_E(TAG, "SubGhz: ManchesterEncoderResult is incorrect.");
         break;
     }
     return level_duration_make(data.level, data.duration);
