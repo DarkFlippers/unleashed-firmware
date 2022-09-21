@@ -163,29 +163,29 @@ Function,-,LL_ADC_REG_Init,ErrorStatus,"ADC_TypeDef*, LL_ADC_REG_InitTypeDef*"
 Function,-,LL_ADC_REG_StructInit,void,LL_ADC_REG_InitTypeDef*
 Function,-,LL_ADC_StructInit,void,LL_ADC_InitTypeDef*
 Function,-,LL_COMP_DeInit,ErrorStatus,COMP_TypeDef*
-Function,-,LL_COMP_Init,ErrorStatus,"COMP_TypeDef*, LL_COMP_InitTypeDef*"
+Function,+,LL_COMP_Init,ErrorStatus,"COMP_TypeDef*, LL_COMP_InitTypeDef*"
 Function,-,LL_COMP_StructInit,void,LL_COMP_InitTypeDef*
 Function,-,LL_CRC_DeInit,ErrorStatus,CRC_TypeDef*
 Function,-,LL_CRS_DeInit,ErrorStatus,
-Function,-,LL_DMA_DeInit,ErrorStatus,"DMA_TypeDef*, uint32_t"
-Function,-,LL_DMA_Init,ErrorStatus,"DMA_TypeDef*, uint32_t, LL_DMA_InitTypeDef*"
+Function,+,LL_DMA_DeInit,ErrorStatus,"DMA_TypeDef*, uint32_t"
+Function,+,LL_DMA_Init,ErrorStatus,"DMA_TypeDef*, uint32_t, LL_DMA_InitTypeDef*"
 Function,-,LL_DMA_StructInit,void,LL_DMA_InitTypeDef*
 Function,-,LL_EXTI_DeInit,ErrorStatus,
 Function,-,LL_EXTI_Init,ErrorStatus,LL_EXTI_InitTypeDef*
 Function,-,LL_EXTI_StructInit,void,LL_EXTI_InitTypeDef*
 Function,-,LL_GPIO_DeInit,ErrorStatus,GPIO_TypeDef*
-Function,-,LL_GPIO_Init,ErrorStatus,"GPIO_TypeDef*, LL_GPIO_InitTypeDef*"
+Function,+,LL_GPIO_Init,ErrorStatus,"GPIO_TypeDef*, LL_GPIO_InitTypeDef*"
 Function,-,LL_GPIO_StructInit,void,LL_GPIO_InitTypeDef*
 Function,-,LL_I2C_DeInit,ErrorStatus,I2C_TypeDef*
-Function,-,LL_I2C_Init,ErrorStatus,"I2C_TypeDef*, LL_I2C_InitTypeDef*"
+Function,+,LL_I2C_Init,ErrorStatus,"I2C_TypeDef*, LL_I2C_InitTypeDef*"
 Function,-,LL_I2C_StructInit,void,LL_I2C_InitTypeDef*
 Function,-,LL_Init1msTick,void,uint32_t
-Function,-,LL_LPTIM_DeInit,ErrorStatus,LPTIM_TypeDef*
+Function,+,LL_LPTIM_DeInit,ErrorStatus,LPTIM_TypeDef*
 Function,-,LL_LPTIM_Disable,void,LPTIM_TypeDef*
-Function,-,LL_LPTIM_Init,ErrorStatus,"LPTIM_TypeDef*, LL_LPTIM_InitTypeDef*"
+Function,+,LL_LPTIM_Init,ErrorStatus,"LPTIM_TypeDef*, LL_LPTIM_InitTypeDef*"
 Function,-,LL_LPTIM_StructInit,void,LL_LPTIM_InitTypeDef*
 Function,-,LL_LPUART_DeInit,ErrorStatus,USART_TypeDef*
-Function,-,LL_LPUART_Init,ErrorStatus,"USART_TypeDef*, LL_LPUART_InitTypeDef*"
+Function,+,LL_LPUART_Init,ErrorStatus,"USART_TypeDef*, LL_LPUART_InitTypeDef*"
 Function,-,LL_LPUART_StructInit,void,LL_LPUART_InitTypeDef*
 Function,-,LL_PKA_DeInit,ErrorStatus,PKA_TypeDef*
 Function,-,LL_PKA_Init,ErrorStatus,"PKA_TypeDef*, LL_PKA_InitTypeDef*"
@@ -199,14 +199,14 @@ Function,-,LL_RCC_GetADCClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetCLK48ClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetI2CClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetLPTIMClockFreq,uint32_t,uint32_t
-Function,-,LL_RCC_GetLPUARTClockFreq,uint32_t,uint32_t
+Function,+,LL_RCC_GetLPUARTClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetRFWKPClockFreq,uint32_t,
 Function,-,LL_RCC_GetRNGClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetRTCClockFreq,uint32_t,
 Function,-,LL_RCC_GetSAIClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetSMPSClockFreq,uint32_t,
 Function,-,LL_RCC_GetSystemClocksFreq,void,LL_RCC_ClocksTypeDef*
-Function,-,LL_RCC_GetUSARTClockFreq,uint32_t,uint32_t
+Function,+,LL_RCC_GetUSARTClockFreq,uint32_t,uint32_t
 Function,-,LL_RCC_GetUSBClockFreq,uint32_t,uint32_t
 Function,-,LL_RNG_DeInit,ErrorStatus,RNG_TypeDef*
 Function,-,LL_RNG_Init,ErrorStatus,"RNG_TypeDef*, LL_RNG_InitTypeDef*"
@@ -218,21 +218,21 @@ Function,-,LL_RTC_ALMB_StructInit,void,LL_RTC_AlarmTypeDef*
 Function,-,LL_RTC_DATE_Init,ErrorStatus,"RTC_TypeDef*, uint32_t, LL_RTC_DateTypeDef*"
 Function,-,LL_RTC_DATE_StructInit,void,LL_RTC_DateTypeDef*
 Function,-,LL_RTC_DeInit,ErrorStatus,RTC_TypeDef*
-Function,-,LL_RTC_EnterInitMode,ErrorStatus,RTC_TypeDef*
+Function,+,LL_RTC_EnterInitMode,ErrorStatus,RTC_TypeDef*
 Function,-,LL_RTC_ExitInitMode,ErrorStatus,RTC_TypeDef*
-Function,-,LL_RTC_Init,ErrorStatus,"RTC_TypeDef*, LL_RTC_InitTypeDef*"
+Function,+,LL_RTC_Init,ErrorStatus,"RTC_TypeDef*, LL_RTC_InitTypeDef*"
 Function,-,LL_RTC_StructInit,void,LL_RTC_InitTypeDef*
 Function,-,LL_RTC_TIME_Init,ErrorStatus,"RTC_TypeDef*, uint32_t, LL_RTC_TimeTypeDef*"
 Function,-,LL_RTC_TIME_StructInit,void,LL_RTC_TimeTypeDef*
 Function,-,LL_RTC_WaitForSynchro,ErrorStatus,RTC_TypeDef*
 Function,-,LL_SPI_DeInit,ErrorStatus,SPI_TypeDef*
-Function,-,LL_SPI_Init,ErrorStatus,"SPI_TypeDef*, LL_SPI_InitTypeDef*"
+Function,+,LL_SPI_Init,ErrorStatus,"SPI_TypeDef*, LL_SPI_InitTypeDef*"
 Function,-,LL_SPI_StructInit,void,LL_SPI_InitTypeDef*
 Function,-,LL_SetFlashLatency,ErrorStatus,uint32_t
-Function,-,LL_SetSystemCoreClock,void,uint32_t
+Function,+,LL_SetSystemCoreClock,void,uint32_t
 Function,-,LL_TIM_BDTR_Init,ErrorStatus,"TIM_TypeDef*, LL_TIM_BDTR_InitTypeDef*"
 Function,-,LL_TIM_BDTR_StructInit,void,LL_TIM_BDTR_InitTypeDef*
-Function,-,LL_TIM_DeInit,ErrorStatus,TIM_TypeDef*
+Function,+,LL_TIM_DeInit,ErrorStatus,TIM_TypeDef*
 Function,-,LL_TIM_ENCODER_Init,ErrorStatus,"TIM_TypeDef*, LL_TIM_ENCODER_InitTypeDef*"
 Function,-,LL_TIM_ENCODER_StructInit,void,LL_TIM_ENCODER_InitTypeDef*
 Function,-,LL_TIM_HALLSENSOR_Init,ErrorStatus,"TIM_TypeDef*, LL_TIM_HALLSENSOR_InitTypeDef*"
@@ -246,7 +246,7 @@ Function,-,LL_TIM_StructInit,void,LL_TIM_InitTypeDef*
 Function,-,LL_USART_ClockInit,ErrorStatus,"USART_TypeDef*, LL_USART_ClockInitTypeDef*"
 Function,-,LL_USART_ClockStructInit,void,LL_USART_ClockInitTypeDef*
 Function,-,LL_USART_DeInit,ErrorStatus,USART_TypeDef*
-Function,-,LL_USART_Init,ErrorStatus,"USART_TypeDef*, LL_USART_InitTypeDef*"
+Function,+,LL_USART_Init,ErrorStatus,"USART_TypeDef*, LL_USART_InitTypeDef*"
 Function,-,LL_USART_StructInit,void,LL_USART_InitTypeDef*
 Function,-,LL_mDelay,void,uint32_t
 Function,-,SystemCoreClockUpdate,void,
@@ -1369,8 +1369,10 @@ Function,+,furi_thread_get_name,const char*,FuriThreadId
 Function,+,furi_thread_get_return_code,int32_t,FuriThread*
 Function,+,furi_thread_get_stack_space,uint32_t,FuriThreadId
 Function,+,furi_thread_get_state,FuriThreadState,FuriThread*
+Function,+,furi_thread_is_suspended,_Bool,FuriThreadId
 Function,+,furi_thread_join,_Bool,FuriThread*
 Function,+,furi_thread_mark_as_service,void,FuriThread*
+Function,+,furi_thread_resume,void,FuriThreadId
 Function,+,furi_thread_set_callback,void,"FuriThread*, FuriThreadCallback"
 Function,+,furi_thread_set_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_name,void,"FuriThread*, const char*"
@@ -1382,6 +1384,7 @@ Function,+,furi_thread_set_stdout_callback,_Bool,FuriThreadStdoutWriteCallback
 Function,+,furi_thread_start,void,FuriThread*
 Function,+,furi_thread_stdout_flush,int32_t,
 Function,+,furi_thread_stdout_write,size_t,"const char*, size_t"
+Function,+,furi_thread_suspend,void,FuriThreadId
 Function,+,furi_thread_yield,void,
 Function,+,furi_timer_alloc,FuriTimer*,"FuriTimerCallback, FuriTimerType, void*"
 Function,+,furi_timer_free,void,FuriTimer*
