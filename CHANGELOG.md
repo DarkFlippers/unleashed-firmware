@@ -1,10 +1,9 @@
 ### New changes
-* PR: RFID Fuzzer - support for HIDProx, update for UI (PR #74 by mvanzanten) (xMasterX -> time between cards set to 6)
-* Fix NFC User dict (list) crash, now it displays only first 200 elements for large lists
-* Fix SubGHz transmitter GUI button
-* Fix SubGHz Magellen protocol GUI
-* Fix null pointer dereference crash in Archive -> Info in root folder (+ fix long path names display)
-* OFW: SubGHz: Adding checks for get_upload functions
+* Plugins: Fix RFID Fuzzer crashes
+* SubGHz: Fix Nice Flor S crash
+* SubGHz: Allow saving signals for subghz protocols without encoder (sending is not possible)
+* Some random names added
+* Fix `debug_pack` to allow building debug builds with extra parameter for `./fbt` (check previous releases for info)
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
