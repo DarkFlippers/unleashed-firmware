@@ -47,7 +47,8 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     canvas_set_font(canvas, FontSecondary);
-    if(!plugin_state->addr_err && !plugin_state->ducky_err && !plugin_state->is_thread_running) {
+    if(!plugin_state->addr_err && !plugin_state->ducky_err && !plugin_state->is_thread_running &&
+       !plugin_state->is_ducky_running) {
         snprintf(target_text, sizeof(target_text), target_fmt_text, target_address_str);
         canvas_draw_str_aligned(canvas, 7, 10, AlignLeft, AlignBottom, target_text);
         canvas_draw_str_aligned(canvas, 22, 20, AlignLeft, AlignBottom, "<- select address ->");
@@ -66,7 +67,10 @@ static void render_callback(Canvas* const canvas, void* ctx) {
             canvas, 3, 10, AlignLeft, AlignBottom, "Error: No mousejacker folder");
         canvas_draw_str_aligned(canvas, 3, 20, AlignLeft, AlignBottom, "or duckyscript file");
         canvas_draw_str_aligned(canvas, 3, 30, AlignLeft, AlignBottom, "loading error");
-    } else if(plugin_state->is_thread_running) {
+    } else if(plugin_state->is_thread_running && !plugin_state->is_ducky_running) {
+        canvas_draw_str_aligned(canvas, 3, 10, AlignLeft, AlignBottom, "Loading...");
+        canvas_draw_str_aligned(canvas, 3, 20, AlignLeft, AlignBottom, "Please wait!");
+    } else if(plugin_state->is_thread_running && plugin_state->is_ducky_running) {
         canvas_draw_str_aligned(canvas, 3, 10, AlignLeft, AlignBottom, "Running duckyscript");
         canvas_draw_str_aligned(canvas, 3, 20, AlignLeft, AlignBottom, "Please wait!");
         canvas_draw_str_aligned(
@@ -97,7 +101,7 @@ static void hexlify(uint8_t* in, uint8_t size, char* out) {
         snprintf(out + strlen(out), sizeof(out + strlen(out)), "%02X", in[i]);
 }
 
-static bool open_ducky_script(Stream* stream) {
+static bool open_ducky_script(Stream* stream, PluginState* plugin_state) {
     DialogsApp* dialogs = furi_record_open("dialogs");
     bool result = false;
     string_t path;
@@ -120,6 +124,9 @@ static bool open_ducky_script(Stream* stream) {
         }
     }
     string_clear(path);
+
+    plugin_state->is_ducky_running = true;
+
     return result;
 }
 
@@ -160,10 +167,11 @@ static bool process_ducky_file(
     uint8_t* file_buf;
     bool loaded = false;
     FURI_LOG_D(TAG, "opening ducky script");
-    if(open_ducky_script(file_stream)) {
+    if(open_ducky_script(file_stream, plugin_state)) {
         file_size = stream_size(file_stream);
         if(file_size == (size_t)0) {
             FURI_LOG_D(TAG, "load failed. file_size: %d", file_size);
+            plugin_state->is_ducky_running = false;
             return loaded;
         }
         file_buf = malloc(file_size);
@@ -180,6 +188,7 @@ static bool process_ducky_file(
         }
         free(file_buf);
     }
+    plugin_state->is_ducky_running = false;
     return loaded;
 }
 
