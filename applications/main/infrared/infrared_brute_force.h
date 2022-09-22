@@ -20,3 +20,4 @@ void infrared_brute_force_add_record(
     InfraredBruteForce* brute_force,
     uint32_t index,
     const char* name);
+void infrared_brute_force_reset(InfraredBruteForce* brute_force);
