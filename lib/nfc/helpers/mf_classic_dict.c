@@ -5,6 +5,7 @@
 
 #define MF_CLASSIC_DICT_FLIPPER_PATH EXT_PATH("nfc/assets/mf_classic_dict.nfc")
 #define MF_CLASSIC_DICT_USER_PATH EXT_PATH("nfc/assets/mf_classic_dict_user.nfc")
+#define MF_CLASSIC_DICT_UNIT_TEST_PATH EXT_PATH("unit_tests/mf_classic_dict.nfc")
 
 #define TAG "MfClassicDict"
 
@@ -23,6 +24,9 @@ bool mf_classic_dict_check_presence(MfClassicDictType dict_type) {
         dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_FLIPPER_PATH, NULL) == FSE_OK;
     } else if(dict_type == MfClassicDictTypeUser) {
         dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_USER_PATH, NULL) == FSE_OK;
+    } else if(dict_type == MfClassicDictTypeUnitTest) {
+        dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_UNIT_TEST_PATH, NULL) ==
+                       FSE_OK;
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -47,6 +51,15 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
         } else if(dict_type == MfClassicDictTypeUser) {
             if(!buffered_file_stream_open(
                    dict->stream, MF_CLASSIC_DICT_USER_PATH, FSAM_READ_WRITE, FSOM_OPEN_ALWAYS)) {
+                buffered_file_stream_close(dict->stream);
+                break;
+            }
+        } else if(dict_type == MfClassicDictTypeUnitTest) {
+            if(!buffered_file_stream_open(
+                   dict->stream,
+                   MF_CLASSIC_DICT_UNIT_TEST_PATH,
+                   FSAM_READ_WRITE,
+                   FSOM_CREATE_ALWAYS)) {
                 buffered_file_stream_close(dict->stream);
                 break;
             }
@@ -100,7 +113,7 @@ static void mf_classic_dict_str_to_int(string_t key_str, uint64_t* key_int) {
     for(uint8_t i = 0; i < 12; i += 2) {
         args_char_to_hex(
             string_get_char(key_str, i), string_get_char(key_str, i + 1), &key_byte_tmp);
-        *key_int |= (uint8_t)key_byte_tmp << 8 * (5 - i / 2);
+        *key_int |= (uint64_t)key_byte_tmp << 8 * (5 - i / 2);
     }
 }
 
