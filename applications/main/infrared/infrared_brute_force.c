@@ -157,7 +157,3 @@ void infrared_brute_force_add_record(
     InfraredBruteForceRecordDict_set_at(brute_force->records, key, value);
     string_clear(key);
 }
-
-void infrared_brute_force_reset(InfraredBruteForce* brute_force) {
-    InfraredBruteForceRecordDict_reset(brute_force->records);
-}
