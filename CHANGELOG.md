@@ -1,7 +1,7 @@
 ### New changes
-* Plugins: Fixed MouseJacker GUI was displaying duckyscript is running before file is selected
-* OFW: NFC fixes (DESFire -> info -> More bug fixed, Mifare classic user list will display message if has more than 100keys)
-* OFW: Desktop: removing slideshow file when leaving slideshow view
+* OFW PR: keeloq, new option for gen manufacture code & Update keeloq_mfcodes (KGB, Teco) (OFW PR 1748 by Skorpionm)
+* FAAC, BFT keys not removed, new keeloq type changed to 6, FAAC is 5
+* Some minor gui fix in nfc
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
