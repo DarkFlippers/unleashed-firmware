@@ -181,6 +181,12 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                         instance->generic.serial, manufacture_code->key);
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
+                case KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_1:
+                    //Magic Serial Type 1 learning
+                    man = subghz_protocol_keeloq_common_magic_serial_type1_learning(
+                        fix, manufacture_code->key);
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
+                    break;
                 case KEELOQ_LEARNING_UNKNOWN:
                     if(kl_type == 1) {
                         hop =
@@ -610,6 +616,16 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     return 1;
                 }
                 break;
+            case KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_1:
+                man = subghz_protocol_keeloq_common_magic_serial_type1_learning(
+                    fix, manufacture_code->key);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
+                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    mfname = *manufacture_name;
+                    return 1;
+                }
+                break;
             case KEELOQ_LEARNING_UNKNOWN:
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
@@ -619,6 +635,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     kl_type = 1;
                     return 1;
                 }
+
                 // Check for mirrored man
                 uint64_t man_rev = 0;
                 uint64_t man_rev_byte = 0;
@@ -626,6 +643,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     man_rev_byte = (uint8_t)(manufacture_code->key >> i);
                     man_rev = man_rev | man_rev_byte << (56 - i);
                 }
+
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_rev);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     *manufacture_name = string_get_cstr(manufacture_code->name);
@@ -633,6 +651,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     kl_type = 1;
                     return 1;
                 }
+
                 //###########################
                 // Normal Learning
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
@@ -696,6 +715,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     kl_type = 4;
                     return 1;
                 }
+
                 break;
             }
         }
@@ -740,6 +760,16 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     break;
                 case KEELOQ_LEARNING_MAGIC_XOR_TYPE_1:
                     man = subghz_protocol_keeloq_common_magic_xor_type1_learning(
+                        fix, manufacture_code->key);
+                    decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
+                    if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
+                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        mfname = *manufacture_name;
+                        return 1;
+                    }
+                    break;
+                case KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_1:
+                    man = subghz_protocol_keeloq_common_magic_serial_type1_learning(
                         fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
@@ -836,6 +866,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         kl_type = 4;
                         return 1;
                     }
+
                     break;
                 }
             }
@@ -925,7 +956,7 @@ bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* fl
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
         }
         if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
-            FURI_LOG_E(TAG, "DECODER: Missing Seed");
+            FURI_LOG_D(TAG, "DECODER: Missing Seed");
         }
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
