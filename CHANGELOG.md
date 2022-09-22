@@ -1,7 +1,6 @@
 ### New changes
-* OFW PR: keeloq, new option for gen manufacture code & Update keeloq_mfcodes (KGB, Teco) (OFW PR 1748 by Skorpionm)
-* FAAC, BFT keys not removed, new keeloq type changed to 6, FAAC is 5
-* Some minor gui fix in nfc
+* OFW: Fixed NFC Mifare classic dict attack uses wrong keys (OFW PR 1769)
+* Infrared: removed duplicate function, moved reset to scene exit
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
