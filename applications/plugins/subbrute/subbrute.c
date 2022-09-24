@@ -21,7 +21,6 @@
 #define TAG "SubBruteApp"
 
 static const char* subbrute_menu_names[] = {
-    [SubBruteAttackNone] = "None",
     [SubBruteAttackCAME12bit307] = "CAME 12bit 307mhz",
     [SubBruteAttackCAME12bit433] = "CAME 12bit 433mhz",
     [SubBruteAttackCAME12bit868] = "CAME 12bit 868mhz",
@@ -208,7 +207,7 @@ void subbrute_popup_closed_callback(void* context) {
 }
 
 const char* subbrute_get_menu_name(SubBruteAttacks index) {
-    furi_assert(index < SubBruteAttackTotalCount - 1);
+    furi_assert(index < SubBruteAttackTotalCount);
 
     return subbrute_menu_names[index];
 }
@@ -216,22 +215,22 @@ const char* subbrute_get_menu_name(SubBruteAttacks index) {
 // ENTRYPOINT
 int32_t subbrute_app(void* p) {
     UNUSED(p);
-
+#ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "subbrute_app");
-
+#endif
     SubBruteState* instance = subbrute_alloc();
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "Starting subbrute_alloc done");
+    FURI_LOG_D(TAG, "Starting subbrute_alloc done");
 #endif
     view_dispatcher_attach_to_gui(
         instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
     scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "scene_manager_next_scene set");
+    FURI_LOG_D(TAG, "scene_manager_next_scene set");
 #endif
     furi_hal_power_suppress_charge_enter();
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "view_dispatcher_run");
+    FURI_LOG_D(TAG, "view_dispatcher_run");
 #endif
     view_dispatcher_run(instance->view_dispatcher);
     furi_hal_power_suppress_charge_exit();

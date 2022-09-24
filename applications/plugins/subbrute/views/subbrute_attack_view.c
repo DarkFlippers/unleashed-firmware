@@ -3,10 +3,11 @@
 #include "../helpers/subbrute_worker.h"
 
 #include "assets_icons.h"
-#include "../../../services/gui/icon_i.h"
 #include <input/input.h>
 #include <gui/elements.h>
 #include <gui/icon_i.h>
+
+#define TAG "SubBruteAttackView"
 
 struct SubBruteAttackView {
     View* view;
@@ -36,7 +37,9 @@ void subbrute_attack_view_set_callback(
 bool subbrute_attack_view_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "InputKey: %d", event->key);
+#endif
     SubBruteAttackView* instance = context;
 
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
@@ -127,13 +130,17 @@ SubBruteAttackView* subbrute_attack_view_alloc() {
     view_set_enter_callback(instance->view, subbrute_attack_view_enter);
     view_set_exit_callback(instance->view, subbrute_attack_view_exit);
 
-    //instance->worker = subbrute_worker_alloc();
+    instance->worker = subbrute_worker_alloc();
 
     return instance;
 }
 
 void subbrute_attack_view_enter(void* context) {
     furi_assert(context);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_attack_view_enter");
+#endif
 }
 
 void subbrute_attack_view_free(SubBruteAttackView* instance) {
@@ -151,6 +158,9 @@ View* subbrute_attack_view_get_view(SubBruteAttackView* instance) {
 }
 
 void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint8_t current_step) {
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "Set step: %d", current_step);
+#endif
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
             model->current_step = current_step;
@@ -165,7 +175,9 @@ uint8_t subbrute_attack_view_get_current_step(SubBruteAttackView* instance) {
             current_step = model->current_step;
             return false;
         });
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "Get step: %d", current_step);
+#endif
     return current_step;
 }
 
@@ -222,7 +234,9 @@ bool subbrute_attack_view_is_worker_running(SubBruteAttackView* instance) {
 void subbrute_attack_view_exit(void* context) {
     furi_assert(context);
     SubBruteAttackView* instance = context;
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_attack_view_exit");
+#endif
     // Just stop, make free in free method
     subbrute_worker_stop(instance->worker);
 }
@@ -282,7 +296,7 @@ void elements_button_top_right(Canvas* canvas, const char* str) {
 
 void subbrute_attack_view_draw(Canvas* canvas, void* context) {
     furi_assert(context);
-    SubBruteAttackViewModel* model = context;
+    SubBruteAttackViewModel* model = (SubBruteAttackViewModel*)context;
     //char buffer[64];
 
     // Title

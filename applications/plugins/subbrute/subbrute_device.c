@@ -81,7 +81,9 @@ void subbrute_device_free(SubBruteDevice* instance) {
 
 SubBruteFileResult subbrute_device_load_protocol_from_file(SubBruteDevice* instance) {
     furi_assert(instance);
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_device_load_protocol_from_file");
+#endif
     // Input events and views are managed by file_browser
     string_t app_directory;
     string_init_set_str(app_directory, SUBBRUTE_PATH);
@@ -120,9 +122,14 @@ SubBruteFileResult subbrute_device_load_protocol_from_file(SubBruteDevice* insta
 
 bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_name) {
     furi_assert(instance);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_device_save_file: %s", dev_file_name);
+#endif
     bool result = subbrute_device_create_packet_parsed(instance, instance->key_index);
 
     if(!result) {
+        FURI_LOG_E(TAG, "subbrute_device_create_packet_parsed failed!");
         //subbrute_device_notification_message(instance, &sequence_error);
         return false;
     }
@@ -144,6 +151,7 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
     buffered_file_stream_close(stream);
     stream_free(stream);
     if(!result) {
+        FURI_LOG_E(TAG, "stream_write_string failed!");
         //subbrute_device_notification_message(instance, &sequence_error);
     }
 
@@ -218,9 +226,9 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint8_t step
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
         snprintf(step_payload, sizeof(step_payload), "%02X", step);
     }
-
+#ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "step_payload: %s, step: %d", step_payload, step);
-
+#endif
     if(instance->has_tail) {
         string_init_printf(
             instance->payload,
@@ -240,6 +248,9 @@ SubBruteFileResult subbrute_device_attack_set(
     SubBruteAttacks type,
     const char* file_path) {
     furi_assert(instance);
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_device_attack_set: %d", type);
+#endif
     subbrute_device_attack_set_default_values(instance);
     uint8_t file_result;
 
@@ -384,7 +395,9 @@ SubBruteFileResult subbrute_device_attack_set(
 
 uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* file_path) {
     furi_assert(instance);
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", file_path);
+#endif
     SubBruteFileResult result = SubBruteFileResultUnknown;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -538,8 +551,10 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
 
 void subbrute_device_attack_set_default_values(SubBruteDevice* instance) {
     furi_assert(instance);
-
-    instance->attack = SubBruteAttackNone;
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_device_attack_set_default_values");
+#endif
+    instance->attack = SubBruteAttackCAME12bit307;
     instance->max_value = 0;
     instance->key_index = 0;
 

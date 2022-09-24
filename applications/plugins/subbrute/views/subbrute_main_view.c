@@ -5,7 +5,8 @@
 #include <gui/elements.h>
 #include <gui/icon.h>
 
-#define STATUS_BAR_Y_SHIFT 13
+#define STATUS_BAR_Y_SHIFT 14
+#define TAG "SubBruteMainView"
 
 struct SubBruteMainView {
     View* view;
@@ -15,6 +16,7 @@ struct SubBruteMainView {
 
 typedef struct {
     uint8_t index;
+    uint8_t window_position;
 } SubBruteMainViewModel;
 
 void subbrute_main_view_set_callback(
@@ -31,16 +33,32 @@ void subbrute_main_view_set_callback(
 void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
     SubBruteMainViewModel* m = model;
 
+    // Title
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
+
+    // Menu
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
+    uint8_t items_on_screen = 3;
+    const uint8_t item_height = 16;
 
-    for(uint8_t i = 1; i < SubBruteAttackTotalCount - 1; ++i) {
-        const char* str = subbrute_get_menu_name(i);
-        canvas_draw_str_aligned(
-            canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "window_position: %d, index: %d", model->window_position, m->index);
+#endif
+    for(uint8_t position = 0; position < SubBruteAttackTotalCount; ++position) {
+        uint8_t item_position = position - model->window_position;
 
-        if(m->index == i) {
-            elements_frame(canvas, 15, 1 + (i * 17) + STATUS_BAR_Y_SHIFT, 98, 15);
+        if(item_position < items_on_screen) {
+            const char* str = subbrute_get_menu_name(position);
+            if(m->index == position) {
+                canvas_draw_str_aligned(
+                    canvas, 64, 9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+                elements_frame(canvas, 1, 2 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 125, 15);
+            } else {
+                canvas_draw_str_aligned(
+                    canvas, 64, 9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+            }
         }
     }
 }
@@ -48,16 +66,25 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
 bool subbrute_main_view_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "InputKey: %d", event->key);
+#endif
+
+    if(event->key == InputKeyBack && event->type == InputTypeShort) {
+        return false;
+    }
 
     SubBruteMainView* instance = context;
-    const uint8_t min_value = SubBruteAttackNone + 1;
+    const uint8_t min_value = 0;
     const uint8_t correct_total = SubBruteAttackTotalCount - 1;
-    //uint8_t idx = min_value;
+    uint8_t index = 0;
+
     bool consumed = false;
     if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
         with_view_model(
             instance->view, (SubBruteMainViewModel * model) {
                 bool ret = false;
+                uint8_t items_on_screen = 3;
                 if(event->key == InputKeyUp) {
                     if(model->index == min_value) {
                         model->index = correct_total;
@@ -75,20 +102,42 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                     ret = true;
                     consumed = true;
                 }
-                if(ret) {
-                    model->index++;
+                if (ret) {
+                    model->window_position = model->index;
+                    if(model->window_position > 0) {
+                        model->window_position -= 1;
+                    }
+
+                    if(SubBruteAttackTotalCount <= items_on_screen) {
+                        model->window_position = 0;
+                    } else {
+                        if(model->window_position >=
+                           (SubBruteAttackTotalCount - items_on_screen)) {
+                            model->window_position =
+                                (SubBruteAttackTotalCount - items_on_screen);
+                        }
+                    }
                 }
-                //idx = model->index;
+                index = model->index;
                 return ret;
             });
     }
 
+#ifdef FURI_DEBUG
+    with_view_model(
+        instance->view, (SubBruteMainViewModel * model) {
+            index = model->index;
+            return false;
+        });
+    FURI_LOG_I(TAG, "Index: %d", index);
+#endif
+
     if(event->key == InputKeyOk && event->type == InputTypeShort) {
-        /*if(idx == SubBruteAttackLoadFile) {
+        if(index == SubBruteAttackLoadFile) {
             instance->callback(SubBruteCustomEventTypeLoadFile, instance->context);
-        } else if(idx > SubBruteAttackNone && idx < SubBruteAttackLoadFile) {*/
-        instance->callback(SubBruteCustomEventTypeMenuSelected, instance->context);
-        /*}*/
+        } else {
+            instance->callback(SubBruteCustomEventTypeMenuSelected, instance->context);
+        }
         consumed = true;
     }
 
@@ -97,10 +146,18 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 void subbrute_main_view_enter(void* context) {
     furi_assert(context);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_main_view_enter");
+#endif
 }
 
 void subbrute_main_view_exit(void* context) {
     furi_assert(context);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_main_view_exit");
+#endif
 }
 
 SubBruteMainView* subbrute_main_view_alloc() {
@@ -112,6 +169,13 @@ SubBruteMainView* subbrute_main_view_alloc() {
     view_set_input_callback(instance->view, subbrute_main_view_input);
     view_set_enter_callback(instance->view, subbrute_main_view_enter);
     view_set_exit_callback(instance->view, subbrute_main_view_exit);
+
+    with_view_model(
+        instance->view, (SubBruteMainViewModel * model) {
+            model->index = 0;
+            model->window_position = 0;
+            return true;
+        });
 
     return instance;
 }
@@ -130,10 +194,31 @@ View* subbrute_main_view_get_view(SubBruteMainView* instance) {
 
 void subbrute_main_view_set_index(SubBruteMainView* instance, uint8_t idx) {
     furi_assert(instance);
-    furi_assert(idx < SubBruteAttackTotalCount - 2);
+    furi_assert(idx < SubBruteAttackTotalCount - 1);
+#ifdef FURI_DEBUG
+    FURI_LOG_I(TAG, "Set index: %d", idx);
+#endif
     with_view_model(
         instance->view, (SubBruteMainViewModel * model) {
-            model->index = idx <= 0 ? 1 : idx;
+            model->index = idx;
+            model->window_position = idx;
+
+            uint8_t items_on_screen = 3;
+
+            if(model->window_position > 0) {
+                model->window_position -= 1;
+            }
+
+            if(SubBruteAttackTotalCount <= items_on_screen) {
+                model->window_position = 0;
+            } else {
+                if(model->window_position >=
+                   (SubBruteAttackTotalCount - items_on_screen)) {
+                    model->window_position =
+                        (SubBruteAttackTotalCount - items_on_screen);
+                }
+            }
+
             return true;
         });
 }
@@ -141,12 +226,16 @@ void subbrute_main_view_set_index(SubBruteMainView* instance, uint8_t idx) {
 SubBruteAttacks subbrute_main_view_get_index(SubBruteMainView* instance) {
     furi_assert(instance);
 
-    uint8_t attack = 0;
+    uint8_t idx = 0;
     with_view_model(
         instance->view, (SubBruteMainViewModel * model) {
-            attack = model->index;
+            idx = model->index;
             return false;
         });
 
-    return attack;
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "Get index: %d", idx);
+#endif
+
+    return idx;
 }
