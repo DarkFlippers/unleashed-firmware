@@ -59,6 +59,8 @@ SubBruteState* subbrute_alloc() {
     instance->scene_manager = scene_manager_alloc(&subbrute_scene_handlers, instance);
     instance->view_dispatcher = view_dispatcher_alloc();
 
+    instance->gui = furi_record_open(RECORD_GUI);
+
     view_dispatcher_enable_queue(instance->view_dispatcher);
     view_dispatcher_set_event_callback_context(instance->view_dispatcher, instance);
     view_dispatcher_set_custom_event_callback(
@@ -68,16 +70,14 @@ SubBruteState* subbrute_alloc() {
     view_dispatcher_set_tick_event_callback(
         instance->view_dispatcher, subbrute_tick_event_callback, 100);
 
-    // Devices
-    instance->device = subbrute_device_alloc();
-
-    instance->gui = furi_record_open(RECORD_GUI);
-    instance->dialogs = furi_record_open(RECORD_DIALOGS);
-    instance->notifications = furi_record_open(RECORD_NOTIFICATION);
-    instance->view_dispatcher = view_dispatcher_alloc();
-
     //Dialog
     instance->dialogs = furi_record_open(RECORD_DIALOGS);
+
+    // Notifications
+    instance->notifications = furi_record_open(RECORD_NOTIFICATION);
+
+    // Devices
+    instance->device = subbrute_device_alloc();
 
     // TextInput
     instance->text_input = text_input_alloc();
@@ -157,6 +157,7 @@ void subbrute_free(SubBruteState* instance) {
 
     //Dialog
     furi_record_close(RECORD_DIALOGS);
+    instance->dialogs = NULL;
 
     // Scene manager
     scene_manager_free(instance->scene_manager);

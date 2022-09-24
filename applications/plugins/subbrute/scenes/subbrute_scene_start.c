@@ -19,9 +19,9 @@ void subbrute_scene_start_on_enter(void* context) {
     subbrute_main_view_set_callback(view,
                                     subbrute_scene_start_callback,
                                     instance);
+    subbrute_main_view_set_index(view, (uint8_t)instance->device->attack);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
-    subbrute_main_view_set_index(view, (uint8_t)instance->device->attack);
 }
 
 void subbrute_scene_start_on_exit(void* context) {
