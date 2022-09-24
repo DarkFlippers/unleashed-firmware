@@ -24,7 +24,7 @@ Check out details on [how to build firmware](documentation/fbt.md), [write appli
 
 Flipper Zero's firmware consists of two components:
 
-- Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory and you should never update it.
+- Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory, and you should never update it.
 - Core1 Firmware - HAL + OS + Drivers + Applications.
 
 They both must be flashed in the order described.
@@ -52,7 +52,7 @@ Prerequisites:
 - [arm-gcc-none-eabi](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
 - openocd
 
-One liner: `./fbt firmware_flash`
+One-liner: `./fbt firmware_flash`
 
 ## With USB DFU 
 
@@ -128,7 +128,7 @@ Connect your device via ST-Link and run:
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
-- `lib`             - Our and 3rd party libraries, drivers and etc...
+- `lib`             - Our and 3rd party libraries, drivers, etc.
 - `scripts`         - Supplementary scripts and python libraries home
 
-Also pay attention to `ReadMe.md` files inside of those directories.
+Also pay attention to `ReadMe.md` files inside those directories.
