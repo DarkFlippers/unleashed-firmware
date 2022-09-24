@@ -35,19 +35,19 @@ static const char* subbrute_menu_names[] = {
     [SubBruteAttackTotalCount] = "Total Count",
 };
 
-bool subbrute_custom_event_callback(void* context, uint32_t event) {
+static bool subbrute_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubBruteState* instance = context;
     return scene_manager_handle_custom_event(instance->scene_manager, event);
 }
 
-bool subbrute_back_event_callback(void* context) {
+static bool subbrute_back_event_callback(void* context) {
     furi_assert(context);
     SubBruteState* instance = context;
     return scene_manager_handle_back_event(instance->scene_manager);
 }
 
-void subbrute_tick_event_callback(void* context) {
+static void subbrute_tick_event_callback(void* context) {
     furi_assert(context);
     SubBruteState* instance = context;
     scene_manager_handle_tick_event(instance->scene_manager);
@@ -216,6 +216,8 @@ const char* subbrute_get_menu_name(SubBruteAttacks index) {
 // ENTRYPOINT
 int32_t subbrute_app(void* p) {
     UNUSED(p);
+
+    FURI_LOG_I(TAG, "subbrute_app");
 
     SubBruteState* instance = subbrute_alloc();
 #ifdef FURI_DEBUG

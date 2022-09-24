@@ -127,7 +127,7 @@ SubBruteAttackView* subbrute_attack_view_alloc() {
     view_set_enter_callback(instance->view, subbrute_attack_view_enter);
     view_set_exit_callback(instance->view, subbrute_attack_view_exit);
 
-    instance->worker = subbrute_worker_alloc();
+    //instance->worker = subbrute_worker_alloc();
 
     return instance;
 }
