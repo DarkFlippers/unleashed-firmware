@@ -40,12 +40,14 @@ after that on web updater page - press `Connect` button
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
 
+![ios](https://user-images.githubusercontent.com/10697207/192114863-75693972-31fb-4b5f-bcc4-4122abb352c2.jpg)
+
 <br>
 <br>
 
-## With qFlipper (1.2.0-rc1)
+## With qFlipper (1.2.0)
 
-- Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.0-rc1 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0-rc1/)
+- Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.0 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0/)
 - Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/Eng1n33r/flipperzero-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
@@ -56,6 +58,7 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
+![qflip](https://user-images.githubusercontent.com/10697207/192114874-4edae5f5-6bff-4674-8e3b-030ceaf17abc.png)
 
 <br>
 <br>
@@ -74,8 +77,7 @@ after that on web updater page - press `Connect` button
 - Update will start, wait for all stages
 - Done
 
-![manual_install](https://user-images.githubusercontent.com/10697207/190832689-8fb50d97-2820-4501-b8b7-d8e87a235d45.gif)
-
+![manual](https://user-images.githubusercontent.com/10697207/192114890-b9220265-1fe3-4837-8e98-ed267282e11e.png)
 
 <br>
 <br>
