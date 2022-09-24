@@ -12,7 +12,14 @@ forward_os_env = {
     "PATH": os.environ["PATH"],
 }
 # Proxying CI environment to child processes & scripts
-for env_value_name in ("WORKFLOW_BRANCH_OR_TAG", "DIST_SUFFIX", "HOME", "APPDATA"):
+for env_value_name in (
+    "WORKFLOW_BRANCH_OR_TAG",
+    "DIST_SUFFIX",
+    "HOME",
+    "APPDATA",
+    "PYTHONHOME",
+    "PYTHONNOUSERSITE",
+):
     if environ_value := os.environ.get(env_value_name, None):
         forward_os_env[env_value_name] = environ_value
 
