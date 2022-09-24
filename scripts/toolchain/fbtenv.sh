@@ -40,6 +40,13 @@ fbtenv_restore_env()
     elif [ -n "${PROMPT:-""}" ]; then
         PROMPT="$(echo "$PROMPT" | sed 's/\[fbt\]//g')";
     fi
+
+    PYTHONNOUSERSITE="$SAVED_PYTHONNOUSERSITE";
+    PYTHONPATH="$SAVED_PYTHONPATH";
+
+    unset SAVED_PYTHONNOUSERSITE;
+    unset SAVED_PYTHONPATH;
+
     unset SCRIPT_PATH;
     unset FBT_TOOLCHAIN_VERSION;
     unset FBT_TOOLCHAIN_PATH;
@@ -276,6 +283,12 @@ fbtenv_main()
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/openocd/bin:$PATH";
+    
+    SAVED_PYTHONNOUSERSITE="${PYTHONNOUSERSITE:-""}";
+    SAVED_PYTHONPATH="${PYTHONPATH:-""}";
+
+    PYTHONNOUSERSITE=1;
+    PYTHONPATH=;
 }
 
 fbtenv_main "${1:-""}";
