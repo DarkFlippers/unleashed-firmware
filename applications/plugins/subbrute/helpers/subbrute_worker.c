@@ -284,6 +284,11 @@ bool subbrute_worker_init_manual_transmit(
     furi_hal_subghz_load_preset(instance->preset);
     instance->frequency = furi_hal_subghz_set_frequency_and_path(frequency);
 
+    furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
+    furi_hal_subghz_sleep();
+    subghz_transmitter_free(instance->transmitter);
+    instance->transmitter = NULL;
+
     instance->worker_manual_mode = false;
     instance->is_manual_init = true;
 
