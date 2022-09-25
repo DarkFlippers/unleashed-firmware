@@ -25,7 +25,7 @@ static bool
     FlipperApplication* app = flipper_application_alloc(loader->storage, &hashtable_api_interface);
 
     FlipperApplicationPreloadStatus preload_res =
-        flipper_application_preload(app, string_get_cstr(path));
+        flipper_application_preload_manifest(app, string_get_cstr(path));
 
     bool load_success = false;
 

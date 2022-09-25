@@ -66,8 +66,8 @@ def assemble_manifest_data(
             )
         image_data = image.data
 
-    app_version_as_int = ((app_manifest.version[0] & 0xFFFF) << 16) | (
-        app_manifest.version[1] & 0xFFFF
+    app_version_as_int = ((app_manifest.fap_version[0] & 0xFFFF) << 16) | (
+        app_manifest.fap_version[1] & 0xFFFF
     )
 
     data = ElfManifestBaseHeader(

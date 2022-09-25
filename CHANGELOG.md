@@ -1,16 +1,20 @@
 ### New changes
-* Picopass plugin fixed (bug with mbedtls lib fixed by hedger in OFW PR 1742)
-* PR: Fix SubGHz last used settings (PR 70 by derskythe)
-* PR: Random UID for detect reader mode - changes each time when you exit NFC app and launch it (PR 69 by h4sh5)
-* OFW PR: Dummy mode (aka dumb mode) (OFW PR 1739 by nminaylov)
-* OFW PR: picopass se identify (OFW PR 1701 by pcunning)
-* OFW PR: faploader api extension and lib fixes (OFW PR 1742 by hedger)
+* Infrared: Updated universal remote assets (by @Amec0e)
+* OFW PR: SubGHz: Read RAW - datetime in default names (+ format changed) (OFW PR 1772 by Skorpionm)
+* OFW: Text input overwrite max size template
+* OFW: Remove unused headers
+* OFW: ELF-Loader: C++ plugin support, loader overhaul.
+* OFW: Core: simplify record container
 
-#### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use web updater or microSD update package**
+#### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
-**Note: To avoid issues prefer installing using web updater or by self update package, all needed assets will be installed**
+[- How to install](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
 
-Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or `.tgz` for iOS mobile app
+[- Download qFlipper 1.2.0 (allows .tgz installation) (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0/)
 
-DFU for update using qFlipper is no longer included in releases to avoid issues with assets - Use Web Updater or self-update package!
+**Note: To avoid issues with .dfu, prefer installing using .tgz with qFlipper, web updater or by self update package, all needed assets will be installed**
+
+Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or download `.tgz` for iOS mobile app / qFlipper
+
+Update using qFlipper (1.2.0) is now possible with `.tgz` update package! Also you can use Web Updater or self-update package.
 

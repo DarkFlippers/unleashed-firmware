@@ -16,7 +16,7 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
     LfRfidReadViewModel* model = _model;
     canvas_set_color(canvas, ColorBlack);
 
-    canvas_draw_icon(canvas, 0, 8, &I_NFC_manual);
+    canvas_draw_icon(canvas, 0, 8, &I_NFC_manual_60x50);
 
     canvas_set_font(canvas, FontPrimary);
 

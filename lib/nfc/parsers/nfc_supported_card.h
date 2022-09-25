@@ -7,7 +7,12 @@
 #include <m-string.h>
 
 typedef enum {
-    NfcSupportedCardTypeTroyka,
+    NfcSupportedCardTypePlantain,
+    NfcSupportedCardTypeTroika,
+    NfcSupportedCardTypePlantain4K,
+    NfcSupportedCardTypeTroika4K,
+    NfcSupportedCardTypeTwoCities,
+    NfcSupportedCardTypeAllInOne,
 
     NfcSupportedCardTypeEnd,
 } NfcSupportedCardType;

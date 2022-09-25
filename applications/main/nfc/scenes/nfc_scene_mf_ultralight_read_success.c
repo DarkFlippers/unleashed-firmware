@@ -34,15 +34,19 @@ void nfc_scene_mf_ultralight_read_success_on_enter(void* context) {
         nfc);
 
     string_t temp_str;
-    string_init_printf(temp_str, "\e#%s\n", nfc_mf_ul_type(mf_ul_data->type, true));
-    string_cat_printf(temp_str, "UID:");
-    for(size_t i = 0; i < data->uid_len; i++) {
-        string_cat_printf(temp_str, " %02X", data->uid[i]);
-    }
-    string_cat_printf(
-        temp_str, "\nPages Read: %d/%d", mf_ul_data->data_read / 4, mf_ul_data->data_size / 4);
-    if(mf_ul_data->data_read != mf_ul_data->data_size) {
-        string_cat_printf(temp_str, "\nPassword-protected pages!");
+    if(string_size(nfc->dev->dev_data.parsed_data)) {
+        string_init_set(temp_str, nfc->dev->dev_data.parsed_data);
+    } else {
+        string_init_printf(temp_str, "\e#%s\n", nfc_mf_ul_type(mf_ul_data->type, true));
+        string_cat_printf(temp_str, "UID:");
+        for(size_t i = 0; i < data->uid_len; i++) {
+            string_cat_printf(temp_str, " %02X", data->uid[i]);
+        }
+        string_cat_printf(
+            temp_str, "\nPages Read: %d/%d", mf_ul_data->data_read / 4, mf_ul_data->data_size / 4);
+        if(mf_ul_data->data_read != mf_ul_data->data_size) {
+            string_cat_printf(temp_str, "\nPassword-protected pages!");
+        }
     }
     widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
     string_clear(temp_str);
