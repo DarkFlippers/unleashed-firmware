@@ -55,6 +55,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypeTransmitStarted) {
+            subbrute_device_create_packet_parsed(instance->device, instance->device->key_index);
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneRunAttack);
         } else if(event.event == SubBruteCustomEventTypeSaveFile) {
             subbrute_worker_manual_transmit_stop(instance->worker);
@@ -81,7 +82,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
         } else if(event.event == SubBruteCustomEventTypeChangeStepUp) {
             // +1
-            if ((instance->device->key_index + 1) - instance->device->max_value == 1) {
+            if((instance->device->key_index + 1) - instance->device->max_value == 1) {
                 instance->device->key_index = 0x00;
             } else {
                 uint64_t value = instance->device->key_index + 1;
@@ -103,9 +104,9 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeChangeStepDown) {
             // -1
-            if (instance->device->key_index - 1 == 0) {
+            if(instance->device->key_index - 1 == 0) {
                 instance->device->key_index = 0x00;
-            } else if (instance->device->key_index == 0) {
+            } else if(instance->device->key_index == 0) {
                 instance->device->key_index = instance->device->max_value;
             } else {
                 uint64_t value = ((instance->device->key_index - 1) + instance->device->max_value);
