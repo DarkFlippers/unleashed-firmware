@@ -1,10 +1,7 @@
 #include "power_i.h"
-#include "views/power_off.h"
 
 #include <furi.h>
 #include <furi_hal.h>
-#include <gui/view_port.h>
-#include <gui/view.h>
 
 #define POWER_OFF_TIMEOUT 90
 
