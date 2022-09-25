@@ -19,6 +19,7 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeInfrared] = "Infrared",
     [ArchiveFileTypeBadUsb] = "Bad USB",
     [ArchiveFileTypeU2f] = "U2F",
+    [ArchiveFileTypeApps] = "Applications",
     [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
 };
 
@@ -132,7 +133,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventFileMenuRename:
             if(favorites) {
                 browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
-            //} else if((archive_is_known_app(selected->type)) && (selected->is_app == false)) {
+                //} else if((archive_is_known_app(selected->type)) && (selected->is_app == false)) {
             } else {
                 // Added ability to rename files and folders
                 archive_show_file_menu(browser, false);

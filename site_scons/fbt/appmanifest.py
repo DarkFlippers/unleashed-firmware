@@ -36,11 +36,16 @@ class FlipperApplication:
     icon: Optional[str] = None
     order: int = 0
     sdk_headers: List[str] = field(default_factory=list)
-    version: Tuple[int] = field(default_factory=lambda: (0, 0))
+    # .fap-specific
     sources: List[str] = field(default_factory=lambda: ["*.c*"])
+    fap_version: Tuple[int] = field(default_factory=lambda: (0, 0))
     fap_icon: Optional[str] = None
     fap_libs: List[str] = field(default_factory=list)
     fap_category: str = ""
+    fap_description: str = ""
+    fap_author: str = ""
+    fap_weburl: str = ""
+    # Internally used by fbt
     _appdir: Optional[object] = None
     _apppath: Optional[str] = None
 

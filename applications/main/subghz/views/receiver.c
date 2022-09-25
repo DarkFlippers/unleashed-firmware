@@ -340,7 +340,6 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 return true;
             });
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
-        //Config receiver
         subghz_receiver->callback(SubGhzCustomEventViewReceiverConfig, subghz_receiver->context);
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(

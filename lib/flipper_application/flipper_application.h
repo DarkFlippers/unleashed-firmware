@@ -1,3 +1,7 @@
+/**
+ * @file flipper_application.h
+ * Flipper application
+ */
 #pragma once
 
 #include "application_manifest.h"
@@ -80,6 +84,14 @@ FlipperApplicationPreloadStatus
     flipper_application_preload(FlipperApplication* app, const char* path);
 
 /**
+ * @brief Validate elf file and load application manifest 
+ * @param app Application pointer
+ * @return Preload result code
+ */
+FlipperApplicationPreloadStatus
+    flipper_application_preload_manifest(FlipperApplication* app, const char* path);
+
+/**
  * @brief Get pointer to application manifest for preloaded application
  * @param app Application pointer
  * @return Pointer to application manifest
@@ -94,13 +106,6 @@ const FlipperApplicationManifest* flipper_application_get_manifest(FlipperApplic
 FlipperApplicationLoadStatus flipper_application_map_to_memory(FlipperApplication* app);
 
 /**
- * @brief Get state object for loaded application 
- * @param app Application pointer
- * @return Pointer to state object
- */
-const FlipperApplicationState* flipper_application_get_state(FlipperApplication* app);
-
-/**
  * @brief Create application thread at entry point address, using app name and
  * stack size from metadata. Returned thread isn't started yet. 
  * Can be only called once for application instance.
@@ -109,20 +114,6 @@ const FlipperApplicationState* flipper_application_get_state(FlipperApplication*
  * @return Created thread
  */
 FuriThread* flipper_application_spawn(FlipperApplication* app, void* args);
-
-/**
- * @brief Get previously spawned thread
- * @param app Application pointer
- * @return Created thread
- */
-FuriThread* flipper_application_get_thread(FlipperApplication* app);
-
-/**
- * @brief Return relocated and valid address of app's entry point
- * @param app Application pointer
- * @return Address of app's entry point
- */
-void const* flipper_application_get_entry_address(FlipperApplication* app);
 
 #ifdef __cplusplus
 }

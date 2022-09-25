@@ -29,15 +29,16 @@ bool nfc_scene_mf_classic_keys_add_on_event(void* context, SceneManagerEvent eve
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventByteInputDone) {
             // Add key to dict
-            bool key_added = false;
             MfClassicDict* dict = mf_classic_dict_alloc(MfClassicDictTypeUser);
             if(dict) {
-                if(mf_classic_dict_add_key(dict, nfc->byte_input_store)) {
-                    key_added = true;
+                if(mf_classic_dict_is_key_present(dict, nfc->byte_input_store)) {
+                    scene_manager_next_scene(
+                        nfc->scene_manager, NfcSceneMfClassicKeysWarnDuplicate);
+                } else if(mf_classic_dict_add_key(dict, nfc->byte_input_store)) {
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
+                } else {
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
                 }
-            }
-            if(key_added) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
             }

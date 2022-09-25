@@ -64,7 +64,7 @@ class AppState:
 
     def is_loaded_in_gdb(self, gdb_app) -> bool:
         # Avoid constructing full app wrapper for comparison
-        return self.entry_address == int(gdb_app["entry"])
+        return self.entry_address == int(gdb_app["state"]["entry"])
 
     @staticmethod
     def parse_debug_link_data(section_data: bytes) -> Tuple[str, int]:
@@ -78,13 +78,13 @@ class AppState:
     @staticmethod
     def from_gdb(gdb_app: "AppState") -> "AppState":
         state = AppState(str(gdb_app["manifest"]["name"].string()))
-        state.entry_address = int(gdb_app["entry"])
+        state.entry_address = int(gdb_app["state"]["entry"])
 
         app_state = gdb_app["state"]
-        if debug_link_size := int(app_state["debug_link_size"]):
+        if debug_link_size := int(app_state["debug_link_info"]["debug_link_size"]):
             debug_link_data = (
                 gdb.selected_inferior()
-                .read_memory(int(app_state["debug_link"]), debug_link_size)
+                .read_memory(int(app_state["debug_link_info"]["debug_link"]), debug_link_size)
                 .tobytes()
             )
             state.debug_link_elf, state.debug_link_crc = AppState.parse_debug_link_data(

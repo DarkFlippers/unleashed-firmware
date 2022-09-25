@@ -9,6 +9,10 @@
             "type": "command",
             "command": "shellCommand.execute",
             "args": {
+                "useSingleResult": true,
+                "env": {
+                    "PATH": "${workspaceFolder};${env:PATH}"
+                },
                 "command": "./fbt get_blackmagic",
                 "description": "Get Blackmagic device",
             }

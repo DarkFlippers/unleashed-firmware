@@ -45,7 +45,7 @@ void subghz_view_transmitter_add_data_to_show(
 }
 
 static void subghz_view_transmitter_button_right(Canvas* canvas, const char* str) {
-    const uint8_t button_height = 13;
+    const uint8_t button_height = 12;
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 1;
     const uint8_t string_width = canvas_string_width(canvas, str);
@@ -69,7 +69,10 @@ static void subghz_view_transmitter_button_right(Canvas* canvas, const char* str
 
     canvas_invert_color(canvas);
     canvas_draw_icon(
-        canvas, x + horizontal_offset, y - button_height + vertical_offset, &I_ButtonCenter_7x7);
+        canvas,
+        x + horizontal_offset,
+        y - button_height + vertical_offset - 1,
+        &I_ButtonCenter_7x7);
     canvas_draw_str(
         canvas, x + horizontal_offset + icon_width_with_offset, y - vertical_offset, str);
     canvas_invert_color(canvas);
