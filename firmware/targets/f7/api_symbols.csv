@@ -433,8 +433,8 @@ Function,-,acoshl,long double,long double
 Function,-,acosl,long double,long double
 Function,+,acquire_mutex,void*,"ValueMutex*, uint32_t"
 Function,-,aligned_alloc,void*,"size_t, size_t"
-Function,-,aligned_free,void,void*
-Function,-,aligned_malloc,void*,"size_t, size_t"
+Function,+,aligned_free,void,void*
+Function,+,aligned_malloc,void*,"size_t, size_t"
 Function,-,arc4random,__uint32_t,
 Function,-,arc4random_buf,void,"void*, size_t"
 Function,-,arc4random_uniform,__uint32_t,__uint32_t
