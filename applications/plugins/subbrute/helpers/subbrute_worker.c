@@ -1,10 +1,8 @@
-#include <flipper_format.h>
-#include <flipper_format_i.h>
-
-#include <subghz/types.h>
-#include <lib/subghz/protocols/raw.h>
-
 #include "subbrute_worker.h"
+
+#include <subghz/environment.h>
+#include <subghz/transmitter.h>
+#include <flipper_format_i.h>
 
 #define TAG "SubBruteWorker"
 
@@ -135,7 +133,7 @@ bool subbrute_worker_start(
     instance->preset = preset;
 
     string_clear(instance->protocol_name);
-    string_init_set_str(instance->protocol_name, protocol_name);
+    string_init_printf(instance->protocol_name, "%s", protocol_name);
 
     bool res = false;
 

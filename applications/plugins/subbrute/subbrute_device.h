@@ -55,7 +55,6 @@ typedef enum {
 } SubBruteDeviceState;
 
 typedef struct {
-    DialogsApp* dialogs;
     SubBruteDeviceState state;
 
     // Current step
@@ -89,14 +88,10 @@ typedef struct {
 
 SubBruteDevice* subbrute_device_alloc();
 void subbrute_device_free(SubBruteDevice* instance);
-SubBruteFileResult subbrute_device_load_protocol_from_file(SubBruteDevice* instance);
 bool subbrute_device_save_file(SubBruteDevice* instance, const char* key_name);
 const char* subbrute_device_error_get_desc(SubBruteFileResult error_id);
 bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step);
-SubBruteFileResult subbrute_device_attack_set(
-    SubBruteDevice* context,
-    SubBruteAttacks type,
-    const char* file_path);
-uint8_t subbrute_device_load_from_file(SubBruteDevice* context, const char* file_path);
+SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* context, SubBruteAttacks type);
+uint8_t subbrute_device_load_from_file(SubBruteDevice* context, string_t file_path);
 FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset);
-void subbrute_device_attack_set_default_values(SubBruteDevice* context);
+void subbrute_device_attack_set_default_values(SubBruteDevice* context, SubBruteAttacks default_attack);

@@ -216,7 +216,7 @@ View* subbrute_main_view_get_view(SubBruteMainView* instance) {
 
 void subbrute_main_view_set_index(SubBruteMainView* instance, uint8_t idx) {
     furi_assert(instance);
-    furi_assert(idx < SubBruteAttackTotalCount - 1);
+    furi_assert(idx < SubBruteAttackTotalCount);
 #ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "Set index: %d", idx);
 #endif
