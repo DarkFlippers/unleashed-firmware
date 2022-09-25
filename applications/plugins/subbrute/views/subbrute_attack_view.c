@@ -6,6 +6,7 @@
 #include <input/input.h>
 #include <gui/elements.h>
 #include <gui/icon_i.h>
+#include <gui/icon_animation_i.h>
 
 #define TAG "SubBruteAttackView"
 
@@ -21,6 +22,7 @@ typedef struct {
     uint64_t max_value;
     uint64_t current_step;
     bool is_attacking;
+    IconAnimation* icon;
 } SubBruteAttackViewModel;
 
 void subbrute_attack_view_set_callback(
@@ -75,6 +77,8 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             with_view_model(
                 instance->view, (SubBruteAttackViewModel * model) {
                     model->is_attacking = true;
+                    icon_animation_stop(model->icon);
+                    icon_animation_start(model->icon);
                     return true;
                 });
             instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);
@@ -135,6 +139,8 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             with_view_model(
                 instance->view, (SubBruteAttackViewModel * model) {
                     model->is_attacking = false;
+                    icon_animation_stop(model->icon);
+                    icon_animation_start(model->icon);
                     return true;
                 });
             instance->callback(SubBruteCustomEventTypeTransmitNotStarted, instance->context);
@@ -150,6 +156,14 @@ SubBruteAttackView* subbrute_attack_view_alloc() {
     instance->view = view_alloc();
     view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubBruteAttackViewModel));
     view_set_context(instance->view, instance);
+
+    with_view_model(
+        instance->view, (SubBruteAttackViewModel * model) {
+            model->icon = icon_animation_alloc(&A_Sub1ghz_14);
+            view_tie_icon_animation(instance->view, model->icon);
+            return false;
+        });
+
     view_set_draw_callback(instance->view, (ViewDrawCallback)subbrute_attack_view_draw);
     view_set_input_callback(instance->view, subbrute_attack_view_input);
     view_set_enter_callback(instance->view, subbrute_attack_view_enter);
@@ -175,6 +189,12 @@ void subbrute_attack_view_free(SubBruteAttackView* instance) {
     FURI_LOG_D(TAG, "subbrute_attack_view_free");
 #endif
     subbrute_worker_free(instance->worker);
+
+    with_view_model(
+        instance->view, (SubBruteAttackViewModel * model) {
+            icon_animation_free(model->icon);
+            return false;
+        });
 
     view_free(instance->view);
     free(instance);
@@ -228,6 +248,11 @@ void subbrute_attack_view_init_values(
             model->index = index;
             model->current_step = current_step;
             model->is_attacking = is_attacking;
+            if(is_attacking) {
+                icon_animation_start(model->icon);
+            } else {
+                icon_animation_stop(model->icon);
+            }
             return true;
         });
 }
@@ -282,6 +307,12 @@ void subbrute_attack_view_exit(void* context) {
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "subbrute_attack_view_exit");
 #endif
+    with_view_model(
+        instance->view, (SubBruteAttackViewModel * model) {
+            icon_animation_stop(model->icon);
+            return false;
+        });
+
     // Just stop, make free in free method
     subbrute_worker_stop(instance->worker);
 }
@@ -371,35 +402,30 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
     canvas_draw_str_aligned(canvas, 64, 17, AlignCenter, AlignTop, buffer);
     canvas_set_font(canvas, FontSecondary);
 
-    // Progress bar
-    // Resolution: 128x64 px
-    if (model->is_attacking) {
-        float progress_value = (float)model->current_step / model->max_value;
-        elements_progress_bar(canvas, 8, 37, 110, progress_value > 1 ? 1 : progress_value);
-    } else {
+    if(!model->is_attacking) {
         canvas_set_color(canvas, ColorBlack);
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 64, 44, AlignCenter, AlignBottom, attack_name);
-    }
-    // Selected attack type
-    //    const char* attack_name = NULL;
-    //    attack_name = subbrute_get_menu_name(model->index);
-    //
-    //    canvas_set_font(canvas, FontSecondary);
-    //    if(attack_name) {
-    //        snprintf(buffer, sizeof(buffer), "%s", attack_name);
-    //    } else {
-    //        snprintf(buffer, sizeof(buffer), "%s", "Unknown";
-    //    }
-    //    canvas_draw_str(canvas, 9, 42, buffer);
 
-    if(!model->is_attacking) {
         elements_button_left(canvas, "-1");
         elements_button_right(canvas, "+1");
         elements_button_center(canvas, "Start");
         elements_button_top_left(canvas, "Save");
         elements_button_top_right(canvas, "Resend");
     } else {
+        // canvas_draw_icon_animation
+        const uint8_t icon_h_offset = 0;
+        const uint8_t icon_width_with_offset = model->icon->icon->width + icon_h_offset;
+        const uint8_t icon_v_offset = model->icon->icon->height; // + vertical_offset;
+        const uint8_t x = canvas_width(canvas);
+        const uint8_t y = canvas_height(canvas);
+        canvas_draw_icon_animation(
+            canvas, x - icon_width_with_offset, y - icon_v_offset, model->icon);
+        // Progress bar
+        // Resolution: 128x64 px
+        float progress_value = (float)model->current_step / model->max_value;
+        elements_progress_bar(canvas, 8, 37, 110, progress_value > 1 ? 1 : progress_value);
+
         elements_button_center(canvas, "Stop");
     }
 }
