@@ -86,3 +86,15 @@ inline uint64_t
     data &= 0x0FFFFFFF;
     return (((uint64_t)data << 32) | data) ^ xor;
 }
+
+/** Magic_serial_type1 Learning
+ * @param data - serial number (28bit)
+ * @param man - magic man (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+inline uint64_t
+    subghz_protocol_keeloq_common_magic_serial_type1_learning(uint32_t data, uint64_t man) {
+    return man | ((uint64_t)data << 40) |
+           ((uint64_t)(((data & 0xff) + ((data >> 8) & 0xFF)) & 0xFF) << 32);
+}
