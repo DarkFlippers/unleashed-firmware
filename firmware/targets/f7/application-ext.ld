@@ -48,5 +48,7 @@ SECTIONS
 	{
 		*(.comment)
 		*(.comment.*)
+		*(.llvmbc)
+		*(.llvmcmd)
 	}
 }
