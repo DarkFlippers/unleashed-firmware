@@ -133,7 +133,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                         AlignCenter,
                         str);
                     elements_frame(
-                        canvas, 1, 1 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 125, 15);
+                        canvas, 1, 1 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 124, 15);
                 } else {
                     canvas_draw_str_aligned(
                         canvas,
