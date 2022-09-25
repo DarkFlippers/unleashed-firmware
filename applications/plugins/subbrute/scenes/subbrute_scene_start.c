@@ -24,7 +24,7 @@ void subbrute_scene_start_on_enter(void* context) {
 
     instance->current_view = SubBruteViewMain;
     subbrute_main_view_set_callback(view, subbrute_scene_start_callback, instance);
-    subbrute_main_view_set_index(view, instance->device->attack);
+    subbrute_main_view_set_index(view, instance->device->attack, false, NULL);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
 }
@@ -55,7 +55,7 @@ bool subbrute_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneLoadFile);
             consumed = true;
         }
-    } else if (event.type == SceneManagerEventTypeBack) {
+    } else if(event.type == SceneManagerEventTypeBack) {
         //exit app
         scene_manager_stop(instance->scene_manager);
         view_dispatcher_stop(instance->view_dispatcher);
