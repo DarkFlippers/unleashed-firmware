@@ -1,10 +1,6 @@
 ### New changes
-* Infrared: Updated universal remote assets (by @Amec0e)
-* OFW PR: SubGHz: Read RAW - datetime in default names (+ format changed) (OFW PR 1772 by Skorpionm)
-* OFW: Text input overwrite max size template
-* OFW: Remove unused headers
-* OFW: ELF-Loader: C++ plugin support, loader overhaul.
-* OFW: Core: simplify record container
+* PR: SubGHz bruteforcer plugin - deep refactoring (huge thanks to @derskythe ! | PR #75)
+* OFW: Preliminary Rust support
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
