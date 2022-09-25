@@ -360,6 +360,8 @@ bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* paylo
     subghz_transmitter_free(instance->transmitter);
     instance->transmitter = NULL;
 
+    stream_clean(stream);
+
     instance->worker_manual_mode = false;
 
     return true;
