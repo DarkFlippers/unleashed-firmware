@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flipper_application/elf/elf.h>
+#include <elf.h>
 #include <stdbool.h>
 
 #define ELF_INVALID_ADDRESS 0xFFFFFFFF
