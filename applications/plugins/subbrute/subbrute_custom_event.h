@@ -8,7 +8,7 @@ typedef enum {
     SubBruteCustomEventTypeReserved = 100,
 
     SubBruteCustomEventTypeBackPressed,
-    SubBruteCustomEventTypeTextEditResult,
+    SubBruteCustomEventTypeIndexSelected,
     SubBruteCustomEventTypeTransmitStarted,
     SubBruteCustomEventTypeTransmitFinished,
     SubBruteCustomEventTypeTransmitNotStarted,

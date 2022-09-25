@@ -207,7 +207,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
         char subbrute_payload_byte[4];
         string_set_str(candidate, instance->file_key);
         snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
-        string_replace_at(candidate, step, 3, subbrute_payload_byte);
+        string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
         //snprintf(step_payload, sizeof(step_payload), "%02X", (uint8_t)instance->file_key[step]);
     } else {
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
@@ -512,6 +512,9 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
             break;
         } else {
             instance->bit = temp_data32;
+#ifdef FURI_DEBUG
+            FURI_LOG_D(TAG, "Bit: %d", instance->bit);
+#endif
         }
 
         // Key
@@ -522,6 +525,9 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
         } else {
             snprintf(
                 instance->file_key, sizeof(instance->file_key), "%s", string_get_cstr(temp_str));
+#ifdef FURI_DEBUG
+            FURI_LOG_D(TAG, "Key: %s", instance->file_key);
+#endif
         }
 
         // TE
@@ -579,6 +585,7 @@ void subbrute_device_attack_set_default_values(
 #endif
     instance->attack = default_attack;
     instance->key_index = 0x00;
+    instance->load_index = 0x00;
     memset(instance->file_template, 0, sizeof(instance->file_template));
     memset(instance->current_key, 0, sizeof(instance->current_key));
     memset(instance->text_store, 0, sizeof(instance->text_store));

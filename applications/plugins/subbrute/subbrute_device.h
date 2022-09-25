@@ -8,7 +8,7 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/environment.h>
 
-#define SUBBRUTE_TEXT_STORE_SIZE 128
+#define SUBBRUTE_TEXT_STORE_SIZE 256
 
 #define SUBBRUTE_MAX_LEN_NAME 64
 #define SUBBRUTE_PATH EXT_PATH("subghz")
@@ -60,6 +60,8 @@ typedef struct {
     // Current step
     uint64_t key_index;
     string_t load_path;
+    // Index of group to bruteforce in loaded file
+    uint8_t load_index;
 
     SubGhzReceiver* receiver;
     SubGhzProtocolDecoderBase* decoder_result;
@@ -82,7 +84,7 @@ typedef struct {
     char current_key[SUBBRUTE_PAYLOAD_SIZE];
     uint32_t te;
 
-    char file_key[SUBBRUTE_PAYLOAD_SIZE];
+    char file_key[SUBBRUTE_MAX_LEN_NAME];
     char text_store[SUBBRUTE_PAYLOAD_SIZE];
 } SubBruteDevice;
 

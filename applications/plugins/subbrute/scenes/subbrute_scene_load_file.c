@@ -48,7 +48,7 @@ void subbrute_scene_load_file_on_enter(void* context) {
     }
 
     if(load_result == SubBruteFileResultOk) {
-        scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
+        scene_manager_next_scene(instance->scene_manager, SubBruteSceneLoadSelect);
     } else {
         FURI_LOG_E(TAG, "Returned error: %d", load_result);
 
