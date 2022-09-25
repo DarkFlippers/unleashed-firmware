@@ -255,6 +255,42 @@ static void elf_relocate_jmp_call(ELFFile* elf, Elf32_Addr relAddr, int type, El
         (uint16_t)((lo & 0xc000) | (j1 << 13) | blx_bit | (j2 << 11) | imm11);
 }
 
+static void elf_relocate_mov(Elf32_Addr relAddr, int type, Elf32_Addr symAddr) {
+    uint16_t upper_insn = ((uint16_t*)relAddr)[0];
+    uint16_t lower_insn = ((uint16_t*)relAddr)[1];
+
+    /* MOV*<C> <Rd>,#<imm16>
+     *
+     * i = upper[10]
+     * imm4 = upper[3:0]
+     * imm3 = lower[14:12]
+     * imm8 = lower[7:0]
+     *
+     * imm16 = imm4:i:imm3:imm8
+     */
+    uint32_t i = (upper_insn >> 10) & 1; /* upper[10] */
+    uint32_t imm4 = upper_insn & 0x000F; /* upper[3:0] */
+    uint32_t imm3 = (lower_insn >> 12) & 0x7; /* lower[14:12] */
+    uint32_t imm8 = lower_insn & 0x00FF; /* lower[7:0] */
+
+    int32_t addend = (imm4 << 12) | (i << 11) | (imm3 << 8) | imm8; /* imm16 */
+
+    uint32_t addr = (symAddr + addend);
+    if (type == R_ARM_THM_MOVT_ABS) {
+        addr >>= 16; /* upper 16 bits */
+    } else {
+        addr &= 0x0000FFFF; /* lower 16 bits */
+    }
+
+    /* Re-encode */
+    ((uint16_t*)relAddr)[0] = (upper_insn & 0xFBF0)
+                            | (((addr >> 11) & 1) << 10) /* i */
+                            | ((addr >> 12) & 0x000F); /* imm4 */
+    ((uint16_t*)relAddr)[1] = (lower_insn & 0x8F00)
+                            | (((addr >> 8) & 0x7) << 12) /* imm3 */
+                            | (addr & 0x00FF); /* imm8 */
+}
+
 static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf32_Addr symAddr) {
     switch(type) {
     case R_ARM_TARGET1:
@@ -267,6 +303,11 @@ static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf3
         elf_relocate_jmp_call(elf, relAddr, type, symAddr);
         FURI_LOG_D(
             TAG, "  R_ARM_THM_CALL/JMP relocated is 0x%08X", (unsigned int)*((uint32_t*)relAddr));
+        break;
+    case R_ARM_THM_MOVW_ABS_NC:
+    case R_ARM_THM_MOVT_ABS:
+        elf_relocate_mov(relAddr, type, symAddr);
+        FURI_LOG_D(TAG, "  R_ARM_THM_MOVW_ABS_NC/MOVT_ABS relocated is 0x%08X", (unsigned int)*((uint32_t*)relAddr));
         break;
     default:
         FURI_LOG_E(TAG, "  Undefined relocation %d", type);
