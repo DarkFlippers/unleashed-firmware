@@ -564,6 +564,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
     subghz_environment_free(instance->environment);
     subghz_receiver_free(instance->receiver);
 
+    instance->decoder_result = NULL;
     instance->receiver = NULL;
     instance->environment = NULL;
 
