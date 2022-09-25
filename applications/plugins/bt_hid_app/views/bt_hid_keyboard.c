@@ -109,7 +109,7 @@ const BtHidKeyboardKey bt_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
         {.width = 1, .icon = NULL, .key = "-", .shift_key = "_", .value = HID_KEYBOARD_MINUS},
     },
     {
-        {.width = 1, .icon = &I_Pin_arrow_up7x9, .value = HID_KEYBOARD_L_SHIFT},
+        {.width = 1, .icon = &I_Pin_arrow_up_7x9, .value = HID_KEYBOARD_L_SHIFT},
         {.width = 1, .icon = NULL, .key = ",", .shift_key = "<", .value = HID_KEYPAD_COMMA},
         {.width = 1, .icon = NULL, .key = ".", .shift_key = ">", .value = HID_KEYBOARD_DOT},
         {.width = 4, .icon = NULL, .key = " ", .value = HID_KEYBOARD_SPACEBAR},

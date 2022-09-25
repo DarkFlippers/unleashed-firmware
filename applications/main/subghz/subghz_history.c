@@ -1,5 +1,7 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
+#include <furi.h>
+#include <m-string.h>
 
 #define SUBGHZ_HISTORY_MAX 65
 #define TAG "SubGhzHistory"
@@ -37,9 +39,15 @@ SubGhzHistory* subghz_history_alloc(void) {
 
 void subghz_history_free(SubGhzHistory* instance) {
     furi_assert(instance);
-
-    // Call method instead of code duplicate
-    subghz_history_reset(instance);
+    string_clear(instance->tmp_string);
+    for
+        M_EACH(item, instance->history->data, SubGhzHistoryItemArray_t) {
+            string_clear(item->item_str);
+            string_clear(item->preset->name);
+            free(item->preset);
+            flipper_format_free(item->flipper_string);
+            item->type = 0;
+        }
     SubGhzHistoryItemArray_clear(instance->history->data);
     free(instance->history);
     free(instance);
@@ -133,21 +141,15 @@ bool subghz_history_add_to_history(
     furi_assert(instance);
     furi_assert(context);
 
-    if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) {
-        FURI_LOG_W(TAG, "Out of history slots!");
-        return false;
-    }
+    if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) return false;
 
     SubGhzProtocolDecoderBase* decoder_base = context;
     if((instance->code_last_hash_data ==
         subghz_protocol_decoder_base_get_hash_data(decoder_base)) &&
        ((furi_get_tick() - instance->last_update_timestamp) < 500)) {
-        //FURI_LOG_W(TAG, "Too short period for add");
         instance->last_update_timestamp = furi_get_tick();
         return false;
     }
-
-    //FURI_LOG_I(TAG, "Add to history. Total: %d", instance->last_index_write + 1);
 
     instance->code_last_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
     instance->last_update_timestamp = furi_get_tick();

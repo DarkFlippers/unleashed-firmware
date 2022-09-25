@@ -142,6 +142,8 @@ void button_panel_reset(ButtonPanel* button_panel) {
             }
             model->reserve_x = 0;
             model->reserve_y = 0;
+            model->selected_item_x = 0;
+            model->selected_item_y = 0;
             LabelList_reset(model->labels);
             ButtonMatrix_reset(model->button_matrix);
             return true;

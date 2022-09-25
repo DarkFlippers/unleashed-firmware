@@ -36,6 +36,7 @@
 #include "magellen.h"
 #include "intertechno_v3.h"
 #include "clemsa.h"
+#include "oregon2.h"
 
 #ifdef __cplusplus
 extern "C" {

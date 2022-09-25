@@ -13,6 +13,7 @@ typedef enum {
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
     ArchiveFileTypeU2f,
+    ArchiveFileTypeApps,
     ArchiveFileTypeUpdateManifest,
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,

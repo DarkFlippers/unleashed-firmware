@@ -50,8 +50,8 @@ bool subghz_scene_need_saving_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
                 subghz_preset_init(
                     subghz,
-                    string_get_cstr(subghz->last_setting->preset_name),
-                    subghz->last_setting->frequency,
+                    "AM650",
+                    subghz_setting_get_default_frequency(subghz->setting),
                     NULL,
                     0);
                 scene_manager_search_and_switch_to_previous_scene(
