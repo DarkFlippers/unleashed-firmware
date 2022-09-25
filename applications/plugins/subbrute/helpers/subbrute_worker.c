@@ -63,8 +63,6 @@ int32_t subbrute_worker_thread(void* context) {
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
-    furi_hal_power_suppress_charge_enter();
-
     // Set ready to transmit value
     instance->last_time_tx_data = furi_get_tick() - SUBBRUTE_SEND_DELAY;
 
@@ -79,8 +77,6 @@ int32_t subbrute_worker_thread(void* context) {
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_sleep();
-
-    furi_hal_power_suppress_charge_exit();
 
     subghz_transmitter_free(instance->transmitter);
     instance->transmitter = NULL;
