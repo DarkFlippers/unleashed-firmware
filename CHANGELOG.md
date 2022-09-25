@@ -1,5 +1,6 @@
 ### New changes
 * Infrared: Updated universal remote assets (by @Amec0e)
+* OFW PR: SubGHz: Read RAW - datetime in default names (+ format changed) (OFW PR 1772 by Skorpionm)
 * OFW: Text input overwrite max size template
 * OFW: Remove unused headers
 * OFW: ELF-Loader: C++ plugin support, loader overhaul.
