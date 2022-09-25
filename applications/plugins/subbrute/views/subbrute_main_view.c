@@ -3,6 +3,7 @@
 
 #include <input/input.h>
 #include <gui/elements.h>
+#include "assets_icons.h"
 #include <gui/icon.h>
 
 #define STATUS_BAR_Y_SHIFT 14
@@ -35,7 +36,10 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
 
     // Title
     canvas_set_font(canvas, FontPrimary);
+    canvas_draw_box(canvas, 0, 0, canvas_width(canvas), STATUS_BAR_Y_SHIFT);
+    canvas_invert_color(canvas);
     canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
+    canvas_invert_color(canvas);
 
     // Menu
     canvas_set_color(canvas, ColorBlack);
@@ -53,14 +57,33 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
             const char* str = subbrute_get_menu_name(position);
             if(m->index == position) {
                 canvas_draw_str_aligned(
-                    canvas, 64, 9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
-                elements_frame(canvas, 1, 2 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 125, 15);
+                    canvas,
+                    64,
+                    9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
+                    AlignCenter,
+                    AlignCenter,
+                    str);
+                elements_frame(
+                    canvas, 1, 1 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 125, 15);
             } else {
                 canvas_draw_str_aligned(
-                    canvas, 64, 9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+                    canvas,
+                    64,
+                    9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
+                    AlignCenter,
+                    AlignCenter,
+                    str);
             }
         }
     }
+
+    elements_scrollbar_pos(
+        canvas,
+        canvas_width(canvas),
+        STATUS_BAR_Y_SHIFT + 2,
+        canvas_height(canvas) - STATUS_BAR_Y_SHIFT,
+        m->index,
+        SubBruteAttackTotalCount);
 }
 
 bool subbrute_main_view_input(InputEvent* event, void* context) {
@@ -102,7 +125,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                     ret = true;
                     consumed = true;
                 }
-                if (ret) {
+                if(ret) {
                     model->window_position = model->index;
                     if(model->window_position > 0) {
                         model->window_position -= 1;
@@ -113,8 +136,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                     } else {
                         if(model->window_position >=
                            (SubBruteAttackTotalCount - items_on_screen)) {
-                            model->window_position =
-                                (SubBruteAttackTotalCount - items_on_screen);
+                            model->window_position = (SubBruteAttackTotalCount - items_on_screen);
                         }
                     }
                 }
@@ -212,10 +234,8 @@ void subbrute_main_view_set_index(SubBruteMainView* instance, uint8_t idx) {
             if(SubBruteAttackTotalCount <= items_on_screen) {
                 model->window_position = 0;
             } else {
-                if(model->window_position >=
-                   (SubBruteAttackTotalCount - items_on_screen)) {
-                    model->window_position =
-                        (SubBruteAttackTotalCount - items_on_screen);
+                if(model->window_position >= (SubBruteAttackTotalCount - items_on_screen)) {
+                    model->window_position = (SubBruteAttackTotalCount - items_on_screen);
                 }
             }
 
