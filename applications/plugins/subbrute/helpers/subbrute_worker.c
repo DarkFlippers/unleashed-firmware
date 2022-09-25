@@ -352,6 +352,7 @@ bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* paylo
     }
     furi_hal_subghz_stop_async_tx();
 
+    furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_sleep();
     subghz_transmitter_free(instance->transmitter);
     instance->transmitter = NULL;
