@@ -34,4 +34,10 @@ void subbrute_attack_view_start_worker(
     FuriHalSubGhzPreset preset,
     const char* protocol_name);
 bool subbrute_attack_view_transmit(SubBruteAttackView* instance, const char* payload);
+bool subbrute_attack_view_single_transmit(
+    SubBruteAttackView* instance,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset,
+    const char* protocol_name,
+    const char* payload);
 bool subbrute_attack_view_is_worker_running(SubBruteAttackView* instance);

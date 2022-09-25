@@ -9,6 +9,7 @@
 struct SubBruteWorker {
     FuriThread* thread;
     volatile bool worker_running;
+    volatile bool worker_manual_mode;
 
     SubGhzEnvironment* environment;
     SubGhzTransmitter* transmitter;
@@ -102,6 +103,7 @@ SubBruteWorker* subbrute_worker_alloc() {
 
     //instance->status = SubBruteWorkerStatusIDLE;
     instance->worker_running = false;
+    instance->worker_manual_mode = false;
 
     instance->flipper_format = flipper_format_string_alloc();
     string_init(instance->protocol_name);
@@ -127,7 +129,10 @@ bool subbrute_worker_start(
     FuriHalSubGhzPreset preset,
     const char* protocol_name) {
     furi_assert(instance);
-    furi_assert(!instance->worker_running);
+
+    if (instance->worker_manual_mode) {
+        return false;
+    }
 
     instance->frequency = frequency;
     instance->preset = preset;
@@ -202,6 +207,86 @@ bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
     stream_clean(stream);
     stream_write_cstring(stream, payload);
     subghz_transmitter_deserialize(instance->transmitter, instance->flipper_format);
+
+    return true;
+}
+
+bool subbrute_worker_single_transmit(SubBruteWorker* instance,
+                                     uint32_t frequency,
+                                     FuriHalSubGhzPreset preset,
+                                     const char* protocol_name,
+                                     const char* payload) {
+    furi_assert(instance);
+
+    if (instance->worker_manual_mode || !subbrute_worker_can_transmit(instance)) {
+#ifdef FURI_DEBUG
+        FURI_LOG_D(TAG, "cannot transmit");
+#endif
+        return false;
+    }
+    if (instance->worker_running) {
+#ifdef FURI_DEBUG
+        FURI_LOG_D(TAG, "subbrute_worker_stop");
+#endif
+        subbrute_worker_stop(instance);
+    }
+
+    instance->last_time_tx_data = furi_get_tick();
+    instance->worker_manual_mode = true;
+
+    instance->preset = preset;
+    instance->frequency = frequency;
+
+    string_clear(instance->protocol_name);
+    string_init_printf(instance->protocol_name, "%s", protocol_name);
+
+    furi_hal_subghz_reset();
+    furi_hal_subghz_idle();
+    furi_hal_subghz_load_preset(instance->preset);
+
+    furi_hal_subghz_set_frequency_and_path(instance->frequency);
+    furi_hal_subghz_flush_rx();
+
+    if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+        instance->frequency = frequency;
+        instance->worker_manual_mode = false;
+        return false;
+    }
+
+#ifdef FURI_DEBUG
+    FURI_LOG_I(TAG, "Frequency: %d", frequency);
+#endif
+
+    instance->environment = subghz_environment_alloc();
+    instance->transmitter = subghz_transmitter_alloc_init(
+        instance->environment, string_get_cstr(instance->protocol_name));
+
+    Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
+    stream_clean(stream);
+    stream_write_cstring(stream, payload);
+    subghz_transmitter_deserialize(instance->transmitter, instance->flipper_format);
+
+    furi_hal_subghz_reset();
+    furi_hal_subghz_load_preset(instance->preset);
+    frequency = furi_hal_subghz_set_frequency_and_path(frequency);
+
+    furi_hal_power_suppress_charge_enter();
+    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, instance->transmitter);
+
+    while(!furi_hal_subghz_is_async_tx_complete()) {
+        furi_delay_ms(SUBBRUTE_SEND_DELAY);
+    }
+    furi_hal_subghz_stop_async_tx();
+    furi_hal_subghz_sleep();
+
+    furi_hal_power_suppress_charge_exit();
+
+    subghz_transmitter_free(instance->transmitter);
+    instance->transmitter = NULL;
+    subghz_environment_free(instance->environment);
+    instance->environment = NULL;
+
+    instance->worker_manual_mode = false;
 
     return true;
 }
