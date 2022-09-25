@@ -6,6 +6,7 @@
 
 #include <m-string.h>
 #include <m-dict.h>
+#include <toolbox/m_cstr_dup.h>
 
 #define FURI_RECORD_FLAG_READY (0x1)
 
@@ -15,7 +16,7 @@ typedef struct {
     size_t holders_count;
 } FuriRecordData;
 
-DICT_DEF2(FuriRecordDataDict, string_t, STRING_OPLIST, FuriRecordData, M_POD_OPLIST)
+DICT_DEF2(FuriRecordDataDict, const char*, M_CSTR_DUP_OPLIST, FuriRecordData, M_POD_OPLIST)
 
 typedef struct {
     FuriMutex* mutex;
@@ -24,6 +25,19 @@ typedef struct {
 
 static FuriRecord* furi_record = NULL;
 
+static FuriRecordData* furi_record_get(const char* name) {
+    return FuriRecordDataDict_get(furi_record->records, name);
+}
+
+static void furi_record_put(const char* name, FuriRecordData* record_data) {
+    FuriRecordDataDict_set_at(furi_record->records, name, *record_data);
+}
+
+static void furi_record_erase(const char* name, FuriRecordData* record_data) {
+    furi_event_flag_free(record_data->flags);
+    FuriRecordDataDict_erase(furi_record->records, name);
+}
+
 void furi_record_init() {
     furi_record = malloc(sizeof(FuriRecord));
     furi_record->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -31,16 +45,16 @@ void furi_record_init() {
     FuriRecordDataDict_init(furi_record->records);
 }
 
-static FuriRecordData* furi_record_data_get_or_create(string_t name_str) {
+static FuriRecordData* furi_record_data_get_or_create(const char* name) {
     furi_assert(furi_record);
-    FuriRecordData* record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+    FuriRecordData* record_data = furi_record_get(name);
     if(!record_data) {
         FuriRecordData new_record;
         new_record.flags = furi_event_flag_alloc();
         new_record.data = NULL;
         new_record.holders_count = 0;
-        FuriRecordDataDict_set_at(furi_record->records, name_str, new_record);
-        record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+        furi_record_put(name, &new_record);
+        record_data = furi_record_get(name);
     }
     return record_data;
 }
@@ -59,14 +73,9 @@ bool furi_record_exists(const char* name) {
 
     bool ret = false;
 
-    string_t name_str;
-    string_init_set_str(name_str, name);
-
     furi_record_lock();
-    ret = (FuriRecordDataDict_get(furi_record->records, name_str) != NULL);
+    ret = (furi_record_get(name) != NULL);
     furi_record_unlock();
-
-    string_clear(name_str);
 
     return ret;
 }
@@ -74,20 +83,15 @@ bool furi_record_exists(const char* name) {
 void furi_record_create(const char* name, void* data) {
     furi_assert(furi_record);
 
-    string_t name_str;
-    string_init_set_str(name_str, name);
-
     furi_record_lock();
 
     // Get record data and fill it
-    FuriRecordData* record_data = furi_record_data_get_or_create(name_str);
+    FuriRecordData* record_data = furi_record_data_get_or_create(name);
     furi_assert(record_data->data == NULL);
     record_data->data = data;
     furi_event_flag_set(record_data->flags, FURI_RECORD_FLAG_READY);
 
     furi_record_unlock();
-
-    string_clear(name_str);
 }
 
 bool furi_record_destroy(const char* name) {
@@ -95,22 +99,16 @@ bool furi_record_destroy(const char* name) {
 
     bool ret = false;
 
-    string_t name_str;
-    string_init_set_str(name_str, name);
-
     furi_record_lock();
 
-    FuriRecordData* record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+    FuriRecordData* record_data = furi_record_get(name);
     furi_assert(record_data);
     if(record_data->holders_count == 0) {
-        furi_event_flag_free(record_data->flags);
-        FuriRecordDataDict_erase(furi_record->records, name_str);
+        furi_record_erase(name, record_data);
         ret = true;
     }
 
     furi_record_unlock();
-
-    string_clear(name_str);
 
     return ret;
 }
@@ -118,12 +116,9 @@ bool furi_record_destroy(const char* name) {
 void* furi_record_open(const char* name) {
     furi_assert(furi_record);
 
-    string_t name_str;
-    string_init_set_str(name_str, name);
-
     furi_record_lock();
 
-    FuriRecordData* record_data = furi_record_data_get_or_create(name_str);
+    FuriRecordData* record_data = furi_record_data_get_or_create(name);
     record_data->holders_count++;
 
     furi_record_unlock();
@@ -136,24 +131,17 @@ void* furi_record_open(const char* name) {
             FuriFlagWaitAny | FuriFlagNoClear,
             FuriWaitForever) == FURI_RECORD_FLAG_READY);
 
-    string_clear(name_str);
-
     return record_data->data;
 }
 
 void furi_record_close(const char* name) {
     furi_assert(furi_record);
 
-    string_t name_str;
-    string_init_set_str(name_str, name);
-
     furi_record_lock();
 
-    FuriRecordData* record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+    FuriRecordData* record_data = furi_record_get(name);
     furi_assert(record_data);
     record_data->holders_count--;
 
     furi_record_unlock();
-
-    string_clear(name_str);
 }
