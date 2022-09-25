@@ -81,25 +81,49 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
         } else if(event.event == SubBruteCustomEventTypeChangeStepUp) {
             // +1
-            instance->device->key_index =
-                (instance->device->key_index + 1) % instance->device->max_value;
+            if ((instance->device->key_index + 1) - instance->device->max_value == 1) {
+                instance->device->key_index = 0x00;
+            } else {
+                uint64_t value = instance->device->key_index + 1;
+                if(value == instance->device->max_value) {
+                    instance->device->key_index = value;
+                } else {
+                    instance->device->key_index = value % instance->device->max_value;
+                }
+            }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeChangeStepUpMore) {
             // +100
-            instance->device->key_index =
-                (instance->device->key_index + 100) % instance->device->max_value;
+            uint64_t value = instance->device->key_index + 100;
+            if(value == instance->device->max_value) {
+                instance->device->key_index += value;
+            } else {
+                instance->device->key_index = value % instance->device->max_value;
+            }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeChangeStepDown) {
             // -1
-            instance->device->key_index =
-                ((instance->device->key_index - 1) + instance->device->max_value) %
-                instance->device->max_value;
+            if (instance->device->key_index - 1 == 0) {
+                instance->device->key_index = 0x00;
+            } else if (instance->device->key_index == 0) {
+                instance->device->key_index = instance->device->max_value;
+            } else {
+                uint64_t value = ((instance->device->key_index - 1) + instance->device->max_value);
+                if(value == instance->device->max_value) {
+                    instance->device->key_index = value;
+                } else {
+                    instance->device->key_index = value % instance->device->max_value;
+                }
+            }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeChangeStepDownMore) {
             // -100
-            instance->device->key_index =
-                ((instance->device->key_index - 100) + instance->device->max_value) %
-                instance->device->max_value;
+            uint64_t value = ((instance->device->key_index - 100) + instance->device->max_value);
+            if(value == instance->device->max_value) {
+                instance->device->key_index = value;
+            } else {
+                instance->device->key_index = value % instance->device->max_value;
+            }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeTransmitCustom) {
             if(subbrute_worker_can_transmit(instance->worker)) {
