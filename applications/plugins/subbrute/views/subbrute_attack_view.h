@@ -18,19 +18,20 @@ void subbrute_attack_view_set_callback(
 SubBruteAttackView* subbrute_attack_view_alloc();
 void subbrute_attack_view_free(SubBruteAttackView* instance);
 View* subbrute_attack_view_get_view(SubBruteAttackView* instance);
-void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint8_t current_step);
-uint8_t subbrute_attack_view_get_current_step(SubBruteAttackView* instance);
+void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_t current_step);
+uint64_t subbrute_attack_view_get_current_step(SubBruteAttackView* instance);
 void subbrute_attack_view_init_values(
     SubBruteAttackView* instance,
     uint8_t index,
-    uint8_t max_value,
-    uint8_t current_step);
+    uint64_t max_value,
+    uint64_t current_step,
+    bool is_attacking);
 void subbrute_attack_view_stop_worker(SubBruteAttackView* instance);
 bool subbrute_attack_view_can_send(SubBruteAttackView* instance);
 void subbrute_attack_view_start_worker(
     SubBruteAttackView* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
-    string_t protocol_name);
-bool subbrute_attack_view_transmit(SubBruteAttackView* instance, string_t payload);
+    const char* protocol_name);
+bool subbrute_attack_view_transmit(SubBruteAttackView* instance, const char* payload);
 bool subbrute_attack_view_is_worker_running(SubBruteAttackView* instance);

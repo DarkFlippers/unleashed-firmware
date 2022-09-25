@@ -29,14 +29,15 @@ void subbrute_scene_run_attack_on_enter(void* context) {
         view,
         (uint8_t)instance->device->attack,
         instance->device->max_value,
-        instance->device->key_index);
+        instance->device->key_index,
+        true);
 
     // Start worker if not started
     subbrute_attack_view_start_worker(
         view,
         instance->device->frequency,
         instance->device->preset,
-        instance->device->protocol_name);
+        string_get_cstr(instance->device->protocol_name));
 }
 
 bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) {

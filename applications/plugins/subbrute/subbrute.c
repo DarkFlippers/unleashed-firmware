@@ -34,6 +34,20 @@ static const char* subbrute_menu_names[] = {
     [SubBruteAttackTotalCount] = "Total Count",
 };
 
+static const char* subbrute_menu_names_small[] = {
+    [SubBruteAttackCAME12bit307] = "CAME 307mhz",
+    [SubBruteAttackCAME12bit433] = "CAME 433mhz",
+    [SubBruteAttackCAME12bit868] = "CAME 868mhz",
+    [SubBruteAttackChamberlain9bit315] = "Cham 315mhz",
+    [SubBruteAttackChamberlain9bit390] = "Cham 390mhz",
+    [SubBruteAttackLinear10bit300] = "Linear 300mhz",
+    [SubBruteAttackLinear10bit310] = "Linear 310mhz",
+    [SubBruteAttackNICE12bit433] = "NICE 433mhz",
+    [SubBruteAttackNICE12bit868] = "NICE 868mhz",
+    [SubBruteAttackLoadFile] = "Existing",
+    [SubBruteAttackTotalCount] = "Total Count",
+};
+
 static bool subbrute_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubBruteState* instance = context;
@@ -81,8 +95,10 @@ SubBruteState* subbrute_alloc() {
     // TextInput
     instance->text_input = text_input_alloc();
     view_dispatcher_add_view(
-        instance->view_dispatcher, SubBruteViewTextInput, text_input_get_view(instance->text_input));
-    
+        instance->view_dispatcher,
+        SubBruteViewTextInput,
+        text_input_get_view(instance->text_input));
+
     // Custom Widget
     instance->widget = widget_alloc();
     view_dispatcher_add_view(
@@ -90,7 +106,8 @@ SubBruteState* subbrute_alloc() {
 
     // Popup
     instance->popup = popup_alloc();
-    view_dispatcher_add_view(instance->view_dispatcher, SubBruteViewPopup, popup_get_view(instance->popup));
+    view_dispatcher_add_view(
+        instance->view_dispatcher, SubBruteViewPopup, popup_get_view(instance->popup));
 
     // ViewStack
     instance->view_stack = view_stack_alloc();
@@ -122,56 +139,98 @@ SubBruteState* subbrute_alloc() {
 void subbrute_free(SubBruteState* instance) {
     furi_assert(instance);
 
+    // SubBruteDevice
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteDevice");
+#endif
+    subbrute_device_free(instance->device);
+
     // Notifications
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free Notifications");
+#endif
     notification_message(instance->notifications, &sequence_blink_stop);
     furi_record_close(RECORD_NOTIFICATION);
     instance->notifications = NULL;
 
     // Loading
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free loading");
+#endif
     loading_free(instance->loading);
 
     // View Main
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteViewMain");
+#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewMain);
     subbrute_main_view_free(instance->view_main);
 
     // View Attack
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteViewAttack");
+#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewAttack);
     subbrute_attack_view_free(instance->view_attack);
 
     // TextInput
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteViewTextInput");
+#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewTextInput);
     text_input_free(instance->text_input);
 
     // Custom Widget
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteViewWidget");
+#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewWidget);
     widget_free(instance->widget);
 
     // Popup
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteViewPopup");
+#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewPopup);
     popup_free(instance->popup);
 
     // ViewStack
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteViewStack");
+#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewStack);
     view_stack_free(instance->view_stack);
 
     //Dialog
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free RECORD_DIALOGS");
+#endif
     furi_record_close(RECORD_DIALOGS);
     instance->dialogs = NULL;
 
     // Scene manager
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free scene_manager");
+#endif
     scene_manager_free(instance->scene_manager);
 
     // View Dispatcher
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free view_dispatcher");
+#endif
     view_dispatcher_free(instance->view_dispatcher);
 
     // GUI
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free RECORD_GUI");
+#endif
     furi_record_close(RECORD_GUI);
     instance->gui = NULL;
 
-    // SubBruteDevice
-    subbrute_device_free(instance->device);
-
     // The rest
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free instance");
+#endif
     free(instance);
 }
 
@@ -196,7 +255,7 @@ void subbrute_text_input_callback(void* context) {
     furi_assert(context);
     SubBruteState* instance = context;
     view_dispatcher_send_custom_event(
-        instance->view_dispatcher, SubBruteCustomEventTypeTextEditResult);
+        instance->view_dispatcher, SubBruteCustomEventTypeTextEditDone);
 }
 
 void subbrute_popup_closed_callback(void* context) {
@@ -212,11 +271,17 @@ const char* subbrute_get_menu_name(SubBruteAttacks index) {
     return subbrute_menu_names[index];
 }
 
+const char* subbrute_get_small_menu_name(SubBruteAttacks index) {
+    furi_assert(index < SubBruteAttackTotalCount);
+
+    return subbrute_menu_names_small[index];
+}
+
 // ENTRYPOINT
 int32_t subbrute_app(void* p) {
     UNUSED(p);
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "subbrute_app");
+    FURI_LOG_D(TAG, "subbrute_app");
 #endif
     SubBruteState* instance = subbrute_alloc();
 #ifdef FURI_DEBUG
@@ -234,8 +299,12 @@ int32_t subbrute_app(void* p) {
 #endif
     view_dispatcher_run(instance->view_dispatcher);
     furi_hal_power_suppress_charge_exit();
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "before subbrute_free");
+#endif
     subbrute_free(instance);
-
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "return 0");
+#endif
     return 0;
 }

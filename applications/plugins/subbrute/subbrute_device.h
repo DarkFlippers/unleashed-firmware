@@ -14,7 +14,7 @@
 #define SUBBRUTE_PATH EXT_PATH("subghz")
 #define SUBBRUTE_FILE_EXT ".sub"
 
-#define SUBBRUTE_PAYLOAD_SIZE 8
+#define SUBBRUTE_PAYLOAD_SIZE 16
 
 typedef enum {
     SubBruteAttackCAME12bit307,
@@ -59,7 +59,7 @@ typedef struct {
     SubBruteDeviceState state;
 
     // Current step
-    uint8_t key_index;
+    uint64_t key_index;
     string_t load_path;
 
     SubGhzReceiver* receiver;
@@ -70,8 +70,8 @@ typedef struct {
     SubBruteAttacks attack;
     char file_template[SUBBRUTE_TEXT_STORE_SIZE];
     bool has_tail;
-    string_t payload;
-    uint8_t max_value;
+    char payload[SUBBRUTE_TEXT_STORE_SIZE * 2];
+    uint64_t max_value;
 
     // Loaded info for attack type
     FuriHalSubGhzPreset preset;
@@ -92,11 +92,11 @@ void subbrute_device_free(SubBruteDevice* instance);
 SubBruteFileResult subbrute_device_load_protocol_from_file(SubBruteDevice* instance);
 bool subbrute_device_save_file(SubBruteDevice* instance, const char* key_name);
 const char* subbrute_device_error_get_desc(SubBruteFileResult error_id);
-bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint8_t step);
+bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step);
 SubBruteFileResult subbrute_device_attack_set(
     SubBruteDevice* context,
     SubBruteAttacks type,
     const char* file_path);
 uint8_t subbrute_device_load_from_file(SubBruteDevice* context, const char* file_path);
-FuriHalSubGhzPreset subbrute_device_convert_preset(string_t preset);
+FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset);
 void subbrute_device_attack_set_default_values(SubBruteDevice* context);

@@ -2,6 +2,8 @@
 #include "../subbrute_custom_event.h"
 #include "../views/subbrute_attack_view.h"
 
+#define TAG "SubBruteSceneSetupAttack"
+
 static void subbrute_scene_setup_attack_callback(SubBruteCustomEvent event, void* context) {
     furi_assert(context);
 
@@ -14,23 +16,27 @@ void subbrute_scene_setup_attack_on_enter(void* context) {
     SubBruteState* instance = (SubBruteState*)context;
     SubBruteAttackView* view = instance->view_attack;
 
-    instance->current_view = SubBruteViewAttack;
-    subbrute_attack_view_set_callback(view, subbrute_scene_setup_attack_callback, instance);
-    view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "Enter Attack: %d", instance->device->attack);
+#endif
 
-    instance->device->key_index = subbrute_attack_view_get_current_step(view);
     subbrute_attack_view_init_values(
         view,
-        (uint8_t)instance->device->attack,
+        instance->device->attack,
         instance->device->max_value,
-        instance->device->key_index);
+        instance->device->key_index,
+        false);
 
     // Run worker anyway
     subbrute_attack_view_start_worker(
         view,
         instance->device->frequency,
         instance->device->preset,
-        instance->device->protocol_name);
+        string_get_cstr(instance->device->protocol_name));
+
+    instance->current_view = SubBruteViewAttack;
+    subbrute_attack_view_set_callback(view, subbrute_scene_setup_attack_callback, instance);
+    view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
 }
 
 void subbrute_scene_setup_attack_on_exit(void* context) {
@@ -41,17 +47,40 @@ void subbrute_scene_setup_attack_on_exit(void* context) {
 
 bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event) {
     SubBruteState* instance = (SubBruteState*)context;
-    SubBruteAttackView * view = instance->view_attack;
+    SubBruteAttackView* view = instance->view_attack;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypeTransmitStarted) {
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneRunAttack);
-        } else if (event.event == SubBruteCustomEventTypeBackPressed) {
+        } else if (event.event == SubBruteCustomEventTypeSaveFile) {
+            scene_manager_next_scene(instance->scene_manager, SubBruteSceneSaveName);
+        } else if(event.event == SubBruteCustomEventTypeBackPressed) {
             subbrute_attack_view_stop_worker(view);
+            instance->device->key_index = 0x00;
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
-        } else if (event.event == SubBruteCustomEventTypeChangeStep) {
-            instance->device->key_index = subbrute_attack_view_get_current_step(view);
+        } else if(event.event == SubBruteCustomEventTypeChangeStepUp) {
+            // +1
+            instance->device->key_index =
+                (instance->device->key_index + 1) % instance->device->max_value;
+            subbrute_attack_view_set_current_step(view, instance->device->key_index);
+        } else if(event.event == SubBruteCustomEventTypeChangeStepUpMore) {
+            // +100
+            instance->device->key_index =
+                (instance->device->key_index + 100) % instance->device->max_value;
+            subbrute_attack_view_set_current_step(view, instance->device->key_index);
+        } else if(event.event == SubBruteCustomEventTypeChangeStepDown) {
+            // -1
+            instance->device->key_index =
+                ((instance->device->key_index - 1) + instance->device->max_value) %
+                instance->device->max_value;
+            subbrute_attack_view_set_current_step(view, instance->device->key_index);
+        } else if(event.event == SubBruteCustomEventTypeChangeStepDownMore) {
+            // -100
+            instance->device->key_index =
+                ((instance->device->key_index - 100) + instance->device->max_value) %
+                instance->device->max_value;
+            subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeTransmitCustom) {
             if(subbrute_attack_view_can_send(view)) {
                 // Blink
