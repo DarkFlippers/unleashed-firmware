@@ -1116,6 +1116,8 @@ typedef struct {
 #define R_ARM_LDR_SBREL_11_0 35
 #define R_ARM_ALU_SBREL_19_12 36
 #define R_ARM_ALU_SBREL_27_20 37
+#define R_ARM_THM_MOVW_ABS_NC 47 /* Direct 16 bit (Thumb32 MOVW) */
+#define R_ARM_THM_MOVT_ABS 48 /* Direct high 16 bit */
 #define R_ARM_GNU_VTENTRY 100
 #define R_ARM_GNU_VTINHERIT 101
 #define R_ARM_THM_PC11 102 /* thumb unconditional branch */
