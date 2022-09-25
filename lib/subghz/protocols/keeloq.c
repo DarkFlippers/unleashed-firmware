@@ -521,6 +521,15 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     return 1;
                 }
                 break;
+            case KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_1:
+                man = subghz_protocol_keeloq_common_magic_serial_type1_learning(
+                    fix, manufacture_code->key);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
+                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    return 1;
+                }
+                break;
             case KEELOQ_LEARNING_UNKNOWN:
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
@@ -528,6 +537,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     *manufacture_name = string_get_cstr(manufacture_code->name);
                     return 1;
                 }
+
                 // Check for mirrored man
                 uint64_t man_rev = 0;
                 uint64_t man_rev_byte = 0;
@@ -535,11 +545,13 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     man_rev_byte = (uint8_t)(manufacture_code->key >> i);
                     man_rev = man_rev | man_rev_byte << (56 - i);
                 }
+
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_rev);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     *manufacture_name = string_get_cstr(manufacture_code->name);
                     return 1;
                 }
+
                 //###########################
                 // Normal Learning
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
