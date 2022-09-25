@@ -1,6 +1,7 @@
 #include "../subbrute_i.h"
 #include "../subbrute_custom_event.h"
 #include "../views/subbrute_attack_view.h"
+#include "../helpers/subbrute_worker.h"
 
 static void subbrute_scene_run_attack_callback(SubBruteCustomEvent event, void* context) {
     furi_assert(context);
@@ -33,11 +34,11 @@ void subbrute_scene_run_attack_on_enter(void* context) {
         true);
 
     // Start worker if not started
-    /*subbrute_attack_view_start_worker(
-        view,
+    subbrute_worker_init_manual_transmit(
+        instance->worker,
         instance->device->frequency,
         instance->device->preset,
-        string_get_cstr(instance->device->protocol_name));*/
+        string_get_cstr(instance->device->protocol_name));
 }
 
 bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) {
@@ -54,16 +55,11 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subbrute_attack_view_can_send(view)) {
+        if(subbrute_worker_can_transmit(instance->worker)) {
             // Blink
             notification_message(instance->notifications, &sequence_blink_yellow_100);
 
-            if(subbrute_attack_view_single_transmit(
-                   view,
-                   instance->device->frequency,
-                   instance->device->preset,
-                   string_get_cstr(instance->device->protocol_name),
-                   instance->device->payload)) {
+            if(subbrute_worker_manual_transmit(instance->worker, instance->device->payload)) {
                 // Make payload for new iteration or exit
                 if(instance->device->key_index + 1 > instance->device->max_value) {
                     // End of list
