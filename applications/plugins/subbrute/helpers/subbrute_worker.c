@@ -13,13 +13,10 @@ struct SubBruteWorker {
     volatile bool worker_running;
 
     SubGhzEnvironment* environment;
-    SubGhzReceiver* receiver;
     SubGhzTransmitter* transmitter;
-    SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* flipper_format;
 
     uint32_t last_time_tx_data;
-    FuriMessageQueue* event_queue;
 
     // Preset and frequency needed
     FuriHalSubGhzPreset preset;
@@ -77,7 +74,7 @@ int32_t subbrute_worker_thread(void* context) {
             FURI_LOG_E(TAG, "Cannot transmit!");
             break;
         }
-        furi_delay_ms(250);
+        furi_delay_ms(SUBBRUTE_TX_TIMEOUT);
     }
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
@@ -86,7 +83,9 @@ int32_t subbrute_worker_thread(void* context) {
     furi_hal_power_suppress_charge_exit();
 
     subghz_transmitter_free(instance->transmitter);
+    instance->transmitter = NULL;
     subghz_environment_free(instance->environment);
+    instance->environment = NULL;
 
 #ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "Worker stop");
@@ -118,6 +117,7 @@ void subbrute_worker_free(SubBruteWorker* instance) {
 
     furi_thread_free(instance->thread);
     flipper_format_free(instance->flipper_format);
+
     string_clear(instance->protocol_name);
 
     free(instance);
@@ -127,13 +127,15 @@ bool subbrute_worker_start(
     SubBruteWorker* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
-    string_t protocol_name) {
+    const char* protocol_name) {
     furi_assert(instance);
     furi_assert(!instance->worker_running);
 
     instance->frequency = frequency;
     instance->preset = preset;
-    string_init_move(instance->protocol_name, protocol_name);
+
+    string_clear(instance->protocol_name);
+    string_init_set_str(instance->protocol_name, protocol_name);
 
     bool res = false;
 
@@ -183,7 +185,7 @@ bool subbrute_worker_can_transmit(SubBruteWorker* instance) {
     return (furi_get_tick() - instance->last_time_tx_data) > SUBBRUTE_SEND_DELAY;
 }
 
-bool subbrute_worker_transmit(SubBruteWorker* instance, string_t payload) {
+bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
     furi_assert(instance);
     furi_assert(instance->worker_running);
 
@@ -194,9 +196,13 @@ bool subbrute_worker_transmit(SubBruteWorker* instance, string_t payload) {
     }
     instance->last_time_tx_data = furi_get_tick();
 
+#ifdef FURI_DEBUG
+    //FURI_LOG_D(TAG, "payload: %s", payload);
+#endif
+
     Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     stream_clean(stream);
-    stream_write_cstring(stream, string_get_cstr(payload));
+    stream_write_cstring(stream, payload);
     subghz_transmitter_deserialize(instance->transmitter, instance->flipper_format);
 
     return true;

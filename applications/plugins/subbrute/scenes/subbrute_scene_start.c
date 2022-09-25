@@ -57,6 +57,11 @@ bool subbrute_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneLoadFile);
             consumed = true;
         }
+    } else if (event.type == SceneManagerEventTypeBack) {
+        //exit app
+        scene_manager_stop(instance->scene_manager);
+        view_dispatcher_stop(instance->view_dispatcher);
+        consumed = true;
     }
 
     return consumed;

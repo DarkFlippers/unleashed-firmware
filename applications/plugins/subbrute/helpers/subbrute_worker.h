@@ -24,9 +24,9 @@ bool subbrute_worker_start(
     SubBruteWorker* instance,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
-    string_t protocol_name);
+    const char* protocol_name);
 void subbrute_worker_stop(SubBruteWorker* instance);
 //bool subbrute_worker_write(SubBruteWorker* instance, uint8_t* data, size_t size);
 bool subbrute_worker_is_running(SubBruteWorker* instance);
 bool subbrute_worker_can_transmit(SubBruteWorker* instance);
-bool subbrute_worker_transmit(SubBruteWorker* instance, string_t payload);
+bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload);

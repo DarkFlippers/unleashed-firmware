@@ -78,3 +78,4 @@ void subbrute_show_loading_popup(void* context, bool show);
 void subbrute_text_input_callback(void* context);
 void subbrute_popup_closed_callback(void* context);
 const char* subbrute_get_menu_name(uint8_t index);
+const char* subbrute_get_small_menu_name(uint8_t index);

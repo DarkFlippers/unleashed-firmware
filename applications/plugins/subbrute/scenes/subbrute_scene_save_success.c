@@ -1,13 +1,5 @@
 #include "../subbrute_i.h"
 #include "../subbrute_custom_event.h"
-#include "../views/subbrute_attack_view.h"
-
-void subbrute_scene_save_success_callback(void* context) {
-    furi_assert(context);
-
-    SubBruteState* instance = (SubBruteState*)context;
-    view_dispatcher_send_custom_event(instance->view_dispatcher, SubBruteCustomEventTypeSaveSuccess);
-}
 
 void subbrute_scene_save_success_on_enter(void* context) {
     furi_assert(context);
@@ -19,7 +11,7 @@ void subbrute_scene_save_success_on_enter(void* context) {
     popup_set_header(popup, "Saved!", 13, 22, AlignLeft, AlignBottom);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, instance);
-    popup_set_callback(popup, subbrute_scene_save_success_callback);
+    popup_set_callback(popup, subbrute_popup_closed_callback);
     popup_enable_timeout(popup);
     view_dispatcher_switch_to_view(instance->view_dispatcher, SubBruteViewPopup);
 }
@@ -31,7 +23,7 @@ bool subbrute_scene_save_success_on_event(void* context, SceneManagerEvent event
     //SubBruteMainView* view = instance->view_main;
     
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubBruteCustomEventTypeSaveSuccess) {
+        if(event.event == SubBruteCustomEventTypePopupClosed) {
             if(!scene_manager_search_and_switch_to_previous_scene(
                    instance->scene_manager, SubBruteSceneSetupAttack)) {
                 scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
