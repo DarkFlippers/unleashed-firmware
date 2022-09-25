@@ -1,9 +1,6 @@
 #pragma once
 
 #include <furi_hal_subghz.h>
-#include <subghz/environment.h>
-#include <subghz/transmitter.h>
-#include <subghz/receiver.h>
 
 typedef struct SubBruteWorker SubBruteWorker;
 /**

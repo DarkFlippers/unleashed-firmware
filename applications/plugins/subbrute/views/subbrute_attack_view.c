@@ -306,12 +306,17 @@ void subbrute_attack_view_exit(void* context) {
     SubBruteAttackView* instance = context;
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "subbrute_attack_view_exit");
+    furi_delay_ms(150);
 #endif
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
             icon_animation_stop(model->icon);
             return false;
         });
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "subbrute_worker_stop");
+    furi_delay_ms(150);
+#endif
 
     // Just stop, make free in free method
     subbrute_worker_stop(instance->worker);

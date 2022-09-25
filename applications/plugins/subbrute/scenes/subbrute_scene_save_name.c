@@ -82,4 +82,6 @@ void subbrute_scene_save_name_on_exit(void* context) {
     validator_is_file_free(validator_context);
 
     text_input_reset(instance->text_input);
+
+    string_reset(instance->device->load_path);
 }

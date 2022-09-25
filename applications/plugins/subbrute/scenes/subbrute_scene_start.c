@@ -24,10 +24,8 @@ void subbrute_scene_start_on_enter(void* context) {
 
     instance->current_view = SubBruteViewMain;
     subbrute_main_view_set_callback(view, subbrute_scene_start_callback, instance);
-    subbrute_main_view_set_index(view, (uint8_t)instance->device->attack);
-#ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "view_dispatcher_switch_to_view");
-#endif
+    subbrute_main_view_set_index(view, instance->device->attack);
+
     view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
 }
 
@@ -49,7 +47,7 @@ bool subbrute_scene_start_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubBruteCustomEventTypeMenuSelected) {
             SubBruteAttacks attack = subbrute_main_view_get_index(instance->view_main);
 
-            subbrute_device_attack_set(instance->device, attack, NULL);
+            subbrute_device_attack_set(instance->device, attack);
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
 
             consumed = true;
