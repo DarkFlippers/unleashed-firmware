@@ -22,15 +22,11 @@ void desktop_scene_slideshow_on_enter(void* context) {
 bool desktop_scene_slideshow_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
-    Storage* storage = NULL;
     Power* power = NULL;
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DesktopSlideshowCompleted:
-            storage = furi_record_open(RECORD_STORAGE);
-            storage_common_remove(storage, SLIDESHOW_FS_PATH);
-            furi_record_close(RECORD_STORAGE);
             scene_manager_previous_scene(desktop->scene_manager);
             consumed = true;
             break;
@@ -50,4 +46,8 @@ bool desktop_scene_slideshow_on_event(void* context, SceneManagerEvent event) {
 
 void desktop_scene_slideshow_on_exit(void* context) {
     UNUSED(context);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    storage_common_remove(storage, SLIDESHOW_FS_PATH);
+    furi_record_close(RECORD_STORAGE);
 }

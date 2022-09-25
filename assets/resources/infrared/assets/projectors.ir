@@ -1,332 +1,356 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 8th Sep, 2022
-# 
+# Last Updated 17th Sept, 2022
+#
+# ON
+name: POWER
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 529 7218 126 6585 219 703 180 5362 427 18618 177
+#
+name: VOL+
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9069 4362 622 486 621 487 621 491 622 1608 623 1603 622 487 621 487 621 491 622 1604 621 487 622 491 622 1604 621 491 622 1608 622 1609 621 1604 622 486 622 487 621 491 621 1605 621 487 621 491 622 1604 622 491 621 1609 621 1609 621 1604 622 491 621 1609 622 1604 621 491 621 1604 622 487 621 487 622 486 622 487 621 488 621 487 621 488 620 491 621 1609 622 1609 620 1609 621 1609 621 1609 621 1609 621 1609 621 1618 621 14330 9047 2137 620
+#
+name: VOL-
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9047 4362 621 486 622 463 645 490 622 1609 622 1604 622 487 620 487 621 491 622 1604 622 484 625 490 621 1605 649 463 621 1609 620 1611 621 1608 622 1605 621 486 622 491 622 1604 621 487 621 492 620 1604 621 488 621 492 620 1609 622 1604 621 492 622 1609 620 1605 621 491 622 1603 622 488 621 488 620 488 620 488 621 488 620 487 622 485 621 492 596 1635 621 1609 622 1585 643 1611 620 1608 621 1610 619 1611 620 1619 619 14332 9074 2109 647
+#
+name: MUTE
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9073 4336 648 461 647 484 624 489 623 1607 623 1603 622 486 622 486 622 491 622 1604 621 487 621 491 622 1604 622 491 621 1609 621 1609 621 1609 621 1608 622 1609 621 1604 621 486 622 486 622 491 622 1604 622 486 622 487 621 487 621 491 622 1608 622 1609 621 1604 622 491 621 1604 621 487 621 486 622 487 621 487 621 487 621 487 621 487 621 491 622 1608 622 1608 622 1609 621 1608 622 1608 622 1608 622 1609 621 1617 622 14330 9047 2137 620
 # ON
 name: POWER
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 4F B0 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 80 19 00 00
 command: 10 EF 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 80 19 00 00
 command: 1C E3 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 80 19 00 00
 command: 46 B9 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 80 00 00 00
 command: 51 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 40 40 00 00
 command: 0A F5 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 4E B1 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 0E F1 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 0D F2 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 4F B0 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 14 EB 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 08 16 00 00
 command: 87 78 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NECext
 address: 08 16 00 00
 command: C8 37 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 01 00 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 02 00 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 28 00 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 29 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 84 F4 00 00
 command: 0B F4 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 00 FF 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 1E E1 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 1D E2 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NECext
 address: 33 00 00 00
 command: 0B F4 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 90 6F 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 99 66 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 98 67 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 00 DF 00 00
 command: 1C E3 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 00 DF 00 00
 command: 4F B0 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 00 DF 00 00
 command: 4B B4 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 02 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 2E 00 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 52 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 41 00 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 51 00 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 56 00 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 5A 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: SIRC15
 address: 54 00 00 00
 command: 15 00 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 82 7D 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 83 7C 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 14 EB 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 91 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 90 00 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: D0 00 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 89 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 00 00 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 30 00 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 31 00 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NECext
 address: 86 00 00 00
 command: 32 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 30 00 00 00
 command: 00 00 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
 address: 87 4E 00 00
 command: 0D 00 00 00
-# 
+#
 name: POWER
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9032 4479 597 560 572 558 564 566 566 1666 589 1671 594 562 570 560 562 568 564 1669 596 560 562 568 564 1669 596 560 562 1671 594 1666 588 1671 594 562 570 560 562 568 564 1669 596 560 562 568 564 566 566 563 569 1664 591 1669 596 1664 590 565 567 1667 598 1661 593 1666 588 1671 594 562 570 560 562 568 564 565 567 563 569 560 562 568 564 565 567 1666 588 1671 594 1665 589 1670 595 1665 590 1669 596 1664 590 1668 597 13983 9029 2222 599 96237 9030 2221 589 96244 9034 2217 594 96244 9033 2218 592 96249 9038 2213 597 96239 9037 2214 596 96238 9028 2223 598 96221 9032 2215 595
-# 
+#
 name: VOL+
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9034 4482 593 563 569 561 571 559 563 1698 566 1694 570 559 563 568 564 566 566 1695 569 560 572 559 563 1671 593 563 569 1692 562 1671 593 1693 571 558 564 567 565 565 567 1693 571 532 590 567 565 1695 569 560 562 1698 566 1694 570 1663 591 539 593 1693 571 1688 566 564 568 1691 563 567 565 565 567 563 569 561 571 559 563 567 565 565 567 563 569 1690 564 1695 569 1691 563 1696 568 1691 563 1697 567 1692 562 1697 567 13988 9030 2223 597 96250 9035 2219 591 96245 9032 2221 589 96240 9038 2215 595 96235 9033 2220 590
-# 
+#
 name: VOL-
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9028 4482 593 563 569 561 571 558 564 1696 568 1690 564 566 566 563 569 561 571 1688 566 563 569 561 571 1688 566 563 569 1690 564 1695 569 1689 565 1668 596 560 562 568 564 1695 569 560 562 568 564 1695 569 560 562 568 564 1695 569 1690 564 566 566 1692 572 1687 567 563 569 1690 564 566 566 564 568 562 570 559 563 567 565 565 567 562 570 560 562 1696 568 1665 589 1670 594 1665 589 1670 594 1664 590 1669 647 1612 590 13987 9031 2220 590 96223 9033 2217 593 96223 9034 2218 592 96225 9032 2219 591 96221 9087 2164 595
-# 
+#
 name: MUTE
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9031 4479 596 560 572 558 564 566 566 1693 571 1688 566 563 569 561 571 559 563 1696 568 561 571 559 563 1697 567 562 570 1689 565 1694 570 1688 566 1693 571 1661 593 1693 571 558 564 566 566 564 568 1691 563 541 591 564 568 562 570 560 562 1697 567 1692 562 1696 568 562 570 1689 565 564 568 561 571 559 563 567 565 564 568 562 570 560 562 567 565 1694 570 1689 565 1694 570 1688 566 1693 571 1688 566 1693 571 1662 592 13987 9031 2220 590 96231 9034 2217 593 96234 9030 2222 588 96247 9037 2215 595
-# 
+#
 name: VOL+
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 11 00 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NEC
@@ -338,22 +362,52 @@ type: parsed
 protocol: NECext
 address: 83 F4 00 00
 command: 4E B1 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NEC
 address: 03 00 00 00
 command: 1D 00 00 00
-# 
+#
 name: VOL+
 type: parsed
 protocol: NEC
 address: 03 00 00 00
 command: 11 00 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NEC
 address: 03 00 00 00
 command: 15 00 00 00
-# 
+# OFF
+name: POWER
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9075 4307 677 433 675 456 651 461 651 1579 650 1576 649 459 649 460 648 465 648 1578 647 461 622 491 622 1604 647 465 647 1583 622 1608 647 1579 647 461 647 466 622 1604 647 465 647 1579 647 461 645 463 648 465 648 1583 646 1580 646 466 647 1579 622 491 647 1583 622 1608 647 1579 647 461 647 461 622 486 622 486 647 461 647 462 646 462 622 491 646 1584 622 1608 647 1584 621 1608 647 1583 646 1584 647 1584 646 1592 622 14330 9047 2137 621
+#
+name: POWER
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: E6 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 07 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 0B 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 0F 00 00 00
+#

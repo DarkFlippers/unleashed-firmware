@@ -318,15 +318,17 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, b
         }
     } else if(selected == BACKSPACE_KEY) {
         text_input_backspace_cb(model);
-    } else if(text_length < (model->text_buffer_size - 1)) {
+    } else {
         if(model->clear_default_text) {
             text_length = 0;
         }
-        if(text_length == 0 && char_is_lowercase(selected)) {
-            selected = char_to_uppercase(selected);
+        if(text_length < (model->text_buffer_size - 1)) {
+            if(text_length == 0 && char_is_lowercase(selected)) {
+                selected = char_to_uppercase(selected);
+            }
+            model->text_buffer[text_length] = selected;
+            model->text_buffer[text_length + 1] = 0;
         }
-        model->text_buffer[text_length] = selected;
-        model->text_buffer[text_length + 1] = 0;
     }
     model->clear_default_text = false;
 }

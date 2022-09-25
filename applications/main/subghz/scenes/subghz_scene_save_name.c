@@ -14,6 +14,22 @@ void subghz_scene_save_name_text_input_callback(void* context) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneSaveName);
 }
 
+void subghz_scene_save_name_get_timefilename(string_t name, uint32_t frequency) {
+    FuriHalRtcDateTime datetime = {0};
+    furi_hal_rtc_get_datetime(&datetime);
+    string_printf(
+        name,
+        "RAW_%.4d.%.2d.%.2d-%.2d.%.2d.%.2d-%d.%.2dMHz",
+        datetime.year,
+        datetime.month,
+        datetime.day,
+        datetime.hour,
+        datetime.minute,
+        datetime.second,
+        frequency / 1000000,
+        (frequency / 10000) % 100);
+}
+
 void subghz_scene_save_name_on_enter(void* context) {
     SubGhz* subghz = context;
 
@@ -42,9 +58,9 @@ void subghz_scene_save_name_on_enter(void* context) {
             if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
                SubGhzCustomEventManagerSetRAW) {
                 dev_name_empty = true;
-                subghz_get_next_name_file(subghz, SUBGHZ_MAX_LEN_NAME);
+                subghz_scene_save_name_get_timefilename(
+                    file_name, subghz->txrx->preset->frequency);
             }
-            path_extract_filename(subghz->file_path, file_name, true);
         }
         string_set(subghz->file_path, dir_name);
     }

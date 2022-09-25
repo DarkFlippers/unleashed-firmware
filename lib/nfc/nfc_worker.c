@@ -123,7 +123,25 @@ static bool nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker, FuriHalNfcTxRxC
     }
 
     do {
-        // Read card
+        // Try to read supported card
+        FURI_LOG_I(TAG, "Trying to read a supported card ...");
+        for(size_t i = 0; i < NfcSupportedCardTypeEnd; i++) {
+            if(nfc_supported_card[i].protocol == NfcDeviceProtocolMifareUl) {
+                if(nfc_supported_card[i].verify(nfc_worker, tx_rx)) {
+                    if(nfc_supported_card[i].read(nfc_worker, tx_rx)) {
+                        read_success = true;
+                        nfc_supported_card[i].parse(nfc_worker->dev_data);
+                        break;
+                    }
+                } else {
+                    furi_hal_nfc_sleep();
+                }
+            }
+        }
+        if(read_success) break;
+        furi_hal_nfc_sleep();
+
+        // Otherwise, try to read as usual
         if(!furi_hal_nfc_detect(&nfc_worker->dev_data->nfc_data, 200)) break;
         if(!mf_ul_read_card(tx_rx, &reader, &data)) break;
         // Copy data
@@ -149,14 +167,17 @@ static bool nfc_worker_read_mf_classic(NfcWorker* nfc_worker, FuriHalNfcTxRxCont
 
     do {
         // Try to read supported card
-        FURI_LOG_I(TAG, "Try read supported card ...");
+        FURI_LOG_I(TAG, "Trying to read a supported card ...");
         for(size_t i = 0; i < NfcSupportedCardTypeEnd; i++) {
             if(nfc_supported_card[i].protocol == NfcDeviceProtocolMifareClassic) {
                 if(nfc_supported_card[i].verify(nfc_worker, tx_rx)) {
                     if(nfc_supported_card[i].read(nfc_worker, tx_rx)) {
                         read_success = true;
                         nfc_supported_card[i].parse(nfc_worker->dev_data);
+                        break;
                     }
+                } else {
+                    furi_hal_nfc_sleep();
                 }
             }
         }

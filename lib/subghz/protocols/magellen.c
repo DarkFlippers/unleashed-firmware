@@ -168,7 +168,7 @@ bool subghz_protocol_encoder_magellen_deserialize(void* context, FlipperFormat* 
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_encoder_magellen_get_upload(instance);
+        if(!subghz_protocol_encoder_magellen_get_upload(instance)) break;
         instance->encoder.is_running = true;
 
         res = true;
@@ -381,7 +381,7 @@ static void subghz_protocol_magellen_get_event_serialize(uint8_t event, string_t
         "%s%s%s%s%s%s%s%s",
         ((event >> 4) & 0x1 ? (event & 0x1 ? " Open" : " Close") :
                               (event & 0x1 ? " Motion" : " Ok")),
-        ((event >> 1) & 0x1 ? ", Tamper On (Alarm)" : ""),
+        ((event >> 1) & 0x1 ? ", Tamper On\n(Alarm)" : ""),
         ((event >> 2) & 0x1 ? ", ?" : ""),
         ((event >> 3) & 0x1 ? ", Power On" : ""),
         ((event >> 4) & 0x1 ? ", MT:Wireless_Reed" : ""),

@@ -14,4 +14,4 @@ def resolve_port(logger, portname: str = "auto"):
         logger.error("Failed to find connected Flipper")
     elif len(flippers) > 1:
         logger.error("More than one Flipper is attached")
-    logger.error("Failed to guess which port to use. Specify --port")
+    logger.error("Failed to guess which port to use")

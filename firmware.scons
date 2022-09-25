@@ -302,7 +302,7 @@ if fwenv["IS_BASE_FIRMWARE"]:
             "-D__inline__=inline",
         ],
     )
-    Depends(sdk_source, fwenv["SDK_HEADERS"])
+    Depends(sdk_source, (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]))
 
     sdk_tree = fwenv.SDKTree("sdk/sdk.opts", "sdk_origin")
     AlwaysBuild(sdk_tree)

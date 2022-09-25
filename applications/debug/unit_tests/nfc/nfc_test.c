@@ -3,6 +3,7 @@
 #include <storage/storage.h>
 #include <lib/flipper_format/flipper_format.h>
 #include <lib/nfc/protocols/nfca.h>
+#include <lib/nfc/helpers/mf_classic_dict.h>
 #include <lib/digital_signal/digital_signal.h>
 
 #include <lib/flipper_format/flipper_format_i.h>
@@ -170,10 +171,59 @@ MU_TEST(nfc_digital_signal_test) {
         "NFC long digital signal test failed\r\n");
 }
 
+MU_TEST(mf_classic_dict_test) {
+    MfClassicDict* instance = NULL;
+    uint64_t key = 0;
+    string_t temp_str;
+    string_init(temp_str);
+
+    instance = mf_classic_dict_alloc(MfClassicDictTypeUnitTest);
+    mu_assert(instance != NULL, "mf_classic_dict_alloc\r\n");
+
+    mu_assert(
+        mf_classic_dict_get_total_keys(instance) == 0,
+        "mf_classic_dict_get_total_keys == 0 assert failed\r\n");
+
+    string_set(temp_str, "2196FAD8115B");
+    mu_assert(
+        mf_classic_dict_add_key_str(instance, temp_str),
+        "mf_classic_dict_add_key == true assert failed\r\n");
+
+    mu_assert(
+        mf_classic_dict_get_total_keys(instance) == 1,
+        "mf_classic_dict_get_total_keys == 1 assert failed\r\n");
+
+    mu_assert(mf_classic_dict_rewind(instance), "mf_classic_dict_rewind == 1 assert failed\r\n");
+
+    mu_assert(
+        mf_classic_dict_get_key_at_index_str(instance, temp_str, 0),
+        "mf_classic_dict_get_key_at_index_str == true assert failed\r\n");
+    mu_assert(
+        string_cmp(temp_str, "2196FAD8115B") == 0,
+        "string_cmp(temp_str, \"2196FAD8115B\") == 0 assert failed\r\n");
+
+    mu_assert(mf_classic_dict_rewind(instance), "mf_classic_dict_rewind == 1 assert failed\r\n");
+
+    mu_assert(
+        mf_classic_dict_get_key_at_index(instance, &key, 0),
+        "mf_classic_dict_get_key_at_index == true assert failed\r\n");
+    mu_assert(key == 0x2196FAD8115B, "key == 0x2196FAD8115B assert failed\r\n");
+
+    mu_assert(mf_classic_dict_rewind(instance), "mf_classic_dict_rewind == 1 assert failed\r\n");
+
+    mu_assert(
+        mf_classic_dict_delete_index(instance, 0),
+        "mf_classic_dict_delete_index == true assert failed\r\n");
+
+    mf_classic_dict_free(instance);
+    string_clear(temp_str);
+}
+
 MU_TEST_SUITE(nfc) {
     nfc_test_alloc();
 
     MU_RUN_TEST(nfc_digital_signal_test);
+    MU_RUN_TEST(mf_classic_dict_test);
 
     nfc_test_free();
 }

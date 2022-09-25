@@ -117,7 +117,7 @@ static void desktop_view_pin_input_draw_cells(Canvas* canvas, DesktopViewPinInpu
                     canvas_draw_icon(canvas, x + 3, y + 2, &I_Pin_arrow_down_7x9);
                     break;
                 case InputKeyUp:
-                    canvas_draw_icon(canvas, x + 3, y + 2, &I_Pin_arrow_up7x9);
+                    canvas_draw_icon(canvas, x + 3, y + 2, &I_Pin_arrow_up_7x9);
                     break;
                 case InputKeyLeft:
                     canvas_draw_icon(canvas, x + 2, y + 3, &I_Pin_arrow_left_9x7);
