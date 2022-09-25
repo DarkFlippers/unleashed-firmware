@@ -295,6 +295,16 @@ bool subbrute_attack_view_transmit(SubBruteAttackView* instance, const char* pay
     return subbrute_worker_transmit(instance->worker, payload);
 }
 
+bool subbrute_attack_view_single_transmit(
+    SubBruteAttackView* instance,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset,
+    const char* protocol_name,
+    const char* payload) {
+    return subbrute_worker_single_transmit(
+        instance->worker, frequency, preset, protocol_name, payload);
+}
+
 bool subbrute_attack_view_is_worker_running(SubBruteAttackView* instance) {
     furi_assert(instance);
 
@@ -306,7 +316,6 @@ void subbrute_attack_view_exit(void* context) {
     SubBruteAttackView* instance = context;
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "subbrute_attack_view_exit");
-    furi_delay_ms(150);
 #endif
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
