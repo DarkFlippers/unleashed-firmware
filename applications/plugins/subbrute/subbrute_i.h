@@ -31,6 +31,7 @@
 #include <notification/notification_messages.h>
 
 #include "subbrute_device.h"
+#include "helpers/subbrute_worker.h"
 #include "subbrute.h"
 #include "scenes/subbrute_scene.h"
 #include "views/subbrute_attack_view.h"
@@ -68,6 +69,7 @@ struct SubBruteState {
     SceneManager* scene_manager;
 
     SubBruteDevice* device;
+    SubBruteWorker* worker;
 
     //Menu stuff
     // TODO: Do we need it?

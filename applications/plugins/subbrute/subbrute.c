@@ -92,6 +92,9 @@ SubBruteState* subbrute_alloc() {
     // Devices
     instance->device = subbrute_device_alloc();
 
+    // Worker
+    instance->worker = subbrute_worker_alloc();
+
     // TextInput
     instance->text_input = text_input_alloc();
     view_dispatcher_add_view(
@@ -144,6 +147,13 @@ void subbrute_free(SubBruteState* instance) {
     FURI_LOG_D(TAG, "free SubBruteDevice");
 #endif
     subbrute_device_free(instance->device);
+
+    // SubBruteWorker
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteDevice");
+#endif
+    subbrute_worker_stop(instance->worker);
+    subbrute_worker_free(instance->worker);
 
     // Notifications
 #ifdef FURI_DEBUG
@@ -280,31 +290,16 @@ const char* subbrute_get_small_menu_name(SubBruteAttacks index) {
 // ENTRYPOINT
 int32_t subbrute_app(void* p) {
     UNUSED(p);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_app");
-#endif
+
     SubBruteState* instance = subbrute_alloc();
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "Starting subbrute_alloc done");
-#endif
     view_dispatcher_attach_to_gui(
         instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
     scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "scene_manager_next_scene set");
-#endif
+
     furi_hal_power_suppress_charge_enter();
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "view_dispatcher_run");
-#endif
     view_dispatcher_run(instance->view_dispatcher);
     furi_hal_power_suppress_charge_exit();
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "before subbrute_free");
-#endif
     subbrute_free(instance);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "return 0");
-#endif
+
     return 0;
 }

@@ -27,7 +27,11 @@ void subbrute_scene_setup_attack_on_enter(void* context) {
         instance->device->key_index,
         false);
 
-    subbrute_attack_view_stop_worker(view);
+    subbrute_worker_init_manual_transmit(
+        instance->worker,
+        instance->device->frequency,
+        instance->device->preset,
+        string_get_cstr(instance->device->protocol_name));
 
     instance->current_view = SubBruteViewAttack;
     subbrute_attack_view_set_callback(view, subbrute_scene_setup_attack_callback, instance);
@@ -40,6 +44,7 @@ void subbrute_scene_setup_attack_on_exit(void* context) {
     FURI_LOG_D(TAG, "subbrute_scene_setup_attack_on_exit");
 #endif
     SubBruteState* instance = (SubBruteState*)context;
+    subbrute_worker_manual_transmit_stop(instance->worker);
     notification_message(instance->notifications, &sequence_blink_stop);
 }
 
@@ -52,7 +57,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
         if(event.event == SubBruteCustomEventTypeTransmitStarted) {
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneRunAttack);
         } else if(event.event == SubBruteCustomEventTypeSaveFile) {
-            //subbrute_attack_view_stop_worker(view);
+            subbrute_worker_manual_transmit_stop(instance->worker);
 
             subbrute_attack_view_init_values(
                 view,
@@ -97,7 +102,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
                 instance->device->max_value;
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeTransmitCustom) {
-            if(subbrute_attack_view_can_send(view)) {
+            if(subbrute_worker_can_transmit(instance->worker)) {
                 // Blink
                 notification_message(instance->notifications, &sequence_blink_green_100);
 
@@ -110,12 +115,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
                 //                }
                 subbrute_device_create_packet_parsed(
                     instance->device, instance->device->key_index);
-                subbrute_attack_view_single_transmit(
-                    view,
-                    instance->device->frequency,
-                    instance->device->preset,
-                    string_get_cstr(instance->device->protocol_name),
-                    instance->device->payload);
+                subbrute_worker_manual_transmit(instance->worker, instance->device->payload);
 
                 // Stop
                 notification_message(instance->notifications, &sequence_blink_stop);

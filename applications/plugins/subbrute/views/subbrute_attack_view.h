@@ -26,18 +26,3 @@ void subbrute_attack_view_init_values(
     uint64_t max_value,
     uint64_t current_step,
     bool is_attacking);
-void subbrute_attack_view_stop_worker(SubBruteAttackView* instance);
-bool subbrute_attack_view_can_send(SubBruteAttackView* instance);
-void subbrute_attack_view_start_worker(
-    SubBruteAttackView* instance,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* protocol_name);
-bool subbrute_attack_view_transmit(SubBruteAttackView* instance, const char* payload);
-bool subbrute_attack_view_single_transmit(
-    SubBruteAttackView* instance,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* protocol_name,
-    const char* payload);
-bool subbrute_attack_view_is_worker_running(SubBruteAttackView* instance);

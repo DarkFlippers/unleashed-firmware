@@ -1,6 +1,5 @@
 #include "subbrute_attack_view.h"
 #include "../subbrute_i.h"
-#include "../helpers/subbrute_worker.h"
 
 #include "assets_icons.h"
 #include <input/input.h>
@@ -14,7 +13,6 @@ struct SubBruteAttackView {
     View* view;
     SubBruteAttackViewCallback callback;
     void* context;
-    SubBruteWorker* worker;
 };
 
 typedef struct {
@@ -89,14 +87,8 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             //                instance->callback(SubBruteCustomEventTypeBackPressed, instance->context);
             //            }
         } else if(event->key == InputKeyUp) {
-#ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "InputKey: %d UP", event->key);
-#endif
             instance->callback(SubBruteCustomEventTypeSaveFile, instance->context);
         } else if(event->key == InputKeyDown) {
-#ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "InputKey: %d DOWN", event->key);
-#endif
             instance->callback(SubBruteCustomEventTypeTransmitCustom, instance->context);
         } else if(event->type == InputTypeShort) {
             if(event->key == InputKeyLeft) {
@@ -169,7 +161,6 @@ SubBruteAttackView* subbrute_attack_view_alloc() {
     view_set_enter_callback(instance->view, subbrute_attack_view_enter);
     view_set_exit_callback(instance->view, subbrute_attack_view_exit);
 
-    instance->worker = subbrute_worker_alloc();
 
     return instance;
 }
@@ -188,7 +179,6 @@ void subbrute_attack_view_free(SubBruteAttackView* instance) {
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "subbrute_attack_view_free");
 #endif
-    subbrute_worker_free(instance->worker);
 
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
@@ -257,60 +247,6 @@ void subbrute_attack_view_init_values(
         });
 }
 
-void subbrute_attack_view_stop_worker(SubBruteAttackView* instance) {
-    furi_assert(instance);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_attack_view_stop_worker");
-#endif
-    subbrute_worker_stop(instance->worker);
-}
-
-bool subbrute_attack_view_can_send(SubBruteAttackView* instance) {
-    furi_assert(instance);
-    return subbrute_worker_can_transmit(instance->worker);
-}
-
-void subbrute_attack_view_start_worker(
-    SubBruteAttackView* instance,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* protocol_name) {
-    furi_assert(instance);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(
-        TAG,
-        "start_worker. frequency: %d, preset: %d, protocol_name: %s",
-        frequency,
-        preset,
-        protocol_name);
-#endif
-    if(!subbrute_worker_is_running(instance->worker)) {
-        subbrute_worker_start(instance->worker, frequency, preset, protocol_name);
-    }
-}
-
-bool subbrute_attack_view_transmit(SubBruteAttackView* instance, const char* payload) {
-    furi_assert(instance);
-
-    return subbrute_worker_transmit(instance->worker, payload);
-}
-
-bool subbrute_attack_view_single_transmit(
-    SubBruteAttackView* instance,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* protocol_name,
-    const char* payload) {
-    return subbrute_worker_single_transmit(
-        instance->worker, frequency, preset, protocol_name, payload);
-}
-
-bool subbrute_attack_view_is_worker_running(SubBruteAttackView* instance) {
-    furi_assert(instance);
-
-    return subbrute_worker_is_running(instance->worker);
-}
-
 void subbrute_attack_view_exit(void* context) {
     furi_assert(context);
     SubBruteAttackView* instance = context;
@@ -322,13 +258,6 @@ void subbrute_attack_view_exit(void* context) {
             icon_animation_stop(model->icon);
             return false;
         });
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_worker_stop");
-    furi_delay_ms(150);
-#endif
-
-    // Just stop, make free in free method
-    subbrute_worker_stop(instance->worker);
 }
 
 void elements_button_top_left(Canvas* canvas, const char* str) {
