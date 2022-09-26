@@ -39,8 +39,6 @@ void subbrute_scene_run_attack_on_enter(void* context) {
         instance->device->frequency,
         instance->device->preset,
         string_get_cstr(instance->device->protocol_name));
-
-    notification_message(instance->notifications, &sequence_blink_start_magenta);
 }
 
 bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) {
@@ -59,13 +57,12 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
     } else if(event.type == SceneManagerEventTypeTick) {
         if(subbrute_worker_can_transmit(instance->worker)) {
             // Blink
+            notification_message(instance->notifications, &sequence_blink_yellow_100);
 
             if(subbrute_worker_manual_transmit(instance->worker, instance->device->payload)) {
                 // Make payload for new iteration or exit
                 if(instance->device->key_index + 1 > instance->device->max_value) {
                     // End of list
-                    notification_message(instance->notifications, &sequence_single_vibro);
-                    notification_message(instance->notifications, &sequence_blink_stop);
                     scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
                 } else {
                     instance->device->key_index++;
@@ -76,6 +73,7 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
             }
 
             // Stop
+            notification_message(instance->notifications, &sequence_blink_stop);
         }
 
         consumed = true;
