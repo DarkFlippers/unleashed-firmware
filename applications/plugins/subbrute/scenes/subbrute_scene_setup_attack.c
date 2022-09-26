@@ -102,8 +102,8 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeChangeStepUpMore) {
-            // +100
-            uint64_t value = instance->device->key_index + 100;
+            // +50
+            uint64_t value = instance->device->key_index + 50;
             if(value == instance->device->max_value) {
                 instance->device->key_index += value;
             } else {
@@ -126,8 +126,8 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeChangeStepDownMore) {
-            // -100
-            uint64_t value = ((instance->device->key_index - 100) + instance->device->max_value);
+            // -50
+            uint64_t value = ((instance->device->key_index - 50) + instance->device->max_value);
             if(value == instance->device->max_value) {
                 instance->device->key_index = value;
             } else {
