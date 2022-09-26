@@ -43,7 +43,7 @@ SubBruteWorker* subbrute_worker_alloc() {
     instance->worker_running = false;
     instance->worker_manual_mode = false;
 
-    instance->environment = subghz_environment_alloc();
+    //instance->environment = subghz_environment_alloc();
     instance->transmitter = NULL;
 
     instance->flipper_format = flipper_format_string_alloc();
@@ -64,10 +64,10 @@ void subbrute_worker_free(SubBruteWorker* instance) {
         instance->transmitter = NULL;
     }
 
-    if(instance->environment != NULL) {
+    /*if(instance->environment != NULL) {
         subghz_environment_free(instance->environment);
         instance->environment = NULL;
-    }
+    }*/
 
     flipper_format_free(instance->flipper_format);
 
