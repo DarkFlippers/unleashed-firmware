@@ -43,7 +43,7 @@ SubBruteWorker* subbrute_worker_alloc() {
     instance->worker_running = false;
     instance->worker_manual_mode = false;
 
-    instance->environment = NULL;
+    instance->environment = subghz_environment_alloc();
     instance->transmitter = NULL;
 
     instance->flipper_format = flipper_format_string_alloc();
@@ -257,7 +257,6 @@ bool subbrute_worker_init_manual_transmit(
     FURI_LOG_I(TAG, "Frequency: %d", frequency);
 #endif
 
-    instance->environment = subghz_environment_alloc();
     instance->transmitter = subghz_transmitter_alloc_init(
         instance->environment, string_get_cstr(instance->protocol_name));
 
@@ -291,8 +290,6 @@ void subbrute_worker_manual_transmit_stop(SubBruteWorker* instance) {
         subghz_transmitter_free(instance->transmitter);
         instance->transmitter = NULL;
     }
-    subghz_environment_free(instance->environment);
-    instance->environment = NULL;
 
     instance->is_manual_init = false;
 }
