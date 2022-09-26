@@ -37,6 +37,8 @@ static const char* subbrute_key_file_start =
     "Filetype: Flipper SubGhz Key File\nVersion: 1\nFrequency: %u\nPreset: %s\nProtocol: %s\nBit: %d";
 static const char* subbrute_key_file_key = "%s\nKey: %s\n";
 static const char* subbrute_key_file_princeton_end = "%s\nKey: %s\nTE: %d\n";
+static const char* subbrute_key_small_no_tail = "Bit: %d\nKey: %s\n";
+static const char* subbrute_key_small_with_tail = "Bit: %d\nKey: %s\nTE: %d\n";
 
 // Why nobody set in as const in all codebase?
 static const char* preset_ook270_async = "FuriHalSubGhzPresetOok270Async";
@@ -58,7 +60,7 @@ SubBruteDevice* subbrute_device_alloc() {
 
     instance->decoder_result = NULL;
     instance->receiver = NULL;
-    instance->environment = NULL;
+    instance->environment = subghz_environment_alloc();
 
     subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit307);
 
@@ -82,13 +84,8 @@ void subbrute_device_free(SubBruteDevice* instance) {
         instance->receiver = NULL;
     }
 
-    if(instance->environment != NULL) {
-#ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "subghz_environment_free");
-#endif
-        subghz_environment_free(instance->environment);
-        instance->environment = NULL;
-    }
+    subghz_environment_free(instance->environment);
+    instance->environment = NULL;
 
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "before free");
@@ -107,7 +104,7 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "subbrute_device_save_file: %s", dev_file_name);
 #endif
-    bool result = subbrute_device_create_packet_parsed(instance, instance->key_index);
+    bool result = subbrute_device_create_packet_parsed(instance, instance->key_index, false);
 
     if(!result) {
         FURI_LOG_E(TAG, "subbrute_device_create_packet_parsed failed!");
@@ -191,7 +188,7 @@ const char* subbrute_device_error_get_desc(SubBruteFileResult error_id) {
     return result;
 }
 
-bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t step) {
+bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t step, bool small) {
     furi_assert(instance);
 
     //char step_payload[32];
@@ -234,21 +231,40 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     FURI_LOG_D(TAG, "candidate: %s, step: %d", string_get_cstr(candidate), step);
 #endif
 
-    if(instance->has_tail) {
-        snprintf(
-            instance->payload,
-            sizeof(instance->payload),
-            subbrute_key_file_princeton_end,
-            instance->file_template,
-            string_get_cstr(candidate),
-            instance->te);
+    if(small) {
+        if(instance->has_tail) {
+            snprintf(
+                instance->payload,
+                sizeof(instance->payload),
+                subbrute_key_small_with_tail,
+                instance->bit,
+                string_get_cstr(candidate),
+                instance->te);
+        } else {
+            snprintf(
+                instance->payload,
+                sizeof(instance->payload),
+                subbrute_key_small_no_tail,
+                instance->bit,
+                string_get_cstr(candidate));
+        }
     } else {
-        snprintf(
-            instance->payload,
-            sizeof(instance->payload),
-            subbrute_key_file_key,
-            instance->file_template,
-            string_get_cstr(candidate));
+        if(instance->has_tail) {
+            snprintf(
+                instance->payload,
+                sizeof(instance->payload),
+                subbrute_key_file_princeton_end,
+                instance->file_template,
+                string_get_cstr(candidate),
+                instance->te);
+        } else {
+            snprintf(
+                instance->payload,
+                sizeof(instance->payload),
+                subbrute_key_file_key,
+                instance->file_template,
+                string_get_cstr(candidate));
+        }
     }
 
 #ifdef FURI_DEBUG
@@ -337,7 +353,6 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     }
 
     // For non-file types we didn't set SubGhzProtocolDecoderBase
-    instance->environment = subghz_environment_alloc();
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
     subghz_receiver_set_filter(instance->receiver, SubGhzProtocolFlag_Decodable);
     furi_hal_subghz_reset();
@@ -359,10 +374,8 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         protocol_check_result = SubBruteFileResultOk;
     }
 
-    subghz_environment_free(instance->environment);
     subghz_receiver_free(instance->receiver);
     instance->receiver = NULL;
-    instance->environment = NULL;
 
     if(protocol_check_result != SubBruteFileResultOk) {
         return SubBruteFileResultProtocolNotFound;
@@ -407,7 +420,7 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
 #endif
 
     // Init payload
-    subbrute_device_create_packet_parsed(instance, instance->key_index);
+    subbrute_device_create_packet_parsed(instance, instance->key_index, false);
 
     return SubBruteFileResultOk;
 }
@@ -426,7 +439,6 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
     string_init(temp_str);
     uint32_t temp_data32;
 
-    instance->environment = subghz_environment_alloc();
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
     subghz_receiver_set_filter(instance->receiver, SubGhzProtocolFlag_Decodable);
     furi_hal_subghz_reset();
@@ -561,12 +573,10 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
 
-    subghz_environment_free(instance->environment);
     subghz_receiver_free(instance->receiver);
 
     instance->decoder_result = NULL;
     instance->receiver = NULL;
-    instance->environment = NULL;
 
     if(result == SubBruteFileResultOk) {
 #ifdef FURI_DEBUG
