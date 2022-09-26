@@ -439,8 +439,8 @@ Function,-,acoshl,long double,long double
 Function,-,acosl,long double,long double
 Function,+,acquire_mutex,void*,"ValueMutex*, uint32_t"
 Function,-,aligned_alloc,void*,"size_t, size_t"
-Function,-,aligned_free,void,void*
-Function,-,aligned_malloc,void*,"size_t, size_t"
+Function,+,aligned_free,void,void*
+Function,+,aligned_malloc,void*,"size_t, size_t"
 Function,-,arc4random,__uint32_t,
 Function,-,arc4random_buf,void,"void*, size_t"
 Function,-,arc4random_uniform,__uint32_t,__uint32_t
@@ -799,13 +799,13 @@ Function,-,fiprintf,int,"FILE*, const char*, ..."
 Function,-,fiscanf,int,"FILE*, const char*, ..."
 Function,+,flipper_application_alloc,FlipperApplication*,"Storage*, const ElfApiInterface*"
 Function,+,flipper_application_free,void,FlipperApplication*
-Function,-,flipper_application_get_entry_address,const void*,FlipperApplication*
 Function,+,flipper_application_get_manifest,const FlipperApplicationManifest*,FlipperApplication*
-Function,-,flipper_application_get_state,const FlipperApplicationState*,FlipperApplication*
-Function,-,flipper_application_get_thread,FuriThread*,FlipperApplication*
 Function,+,flipper_application_load_status_to_string,const char*,FlipperApplicationLoadStatus
+Function,+,flipper_application_manifest_is_compatible,_Bool,"const FlipperApplicationManifest*, const ElfApiInterface*"
+Function,+,flipper_application_manifest_is_valid,_Bool,const FlipperApplicationManifest*
 Function,+,flipper_application_map_to_memory,FlipperApplicationLoadStatus,FlipperApplication*
 Function,+,flipper_application_preload,FlipperApplicationPreloadStatus,"FlipperApplication*, const char*"
+Function,+,flipper_application_preload_manifest,FlipperApplicationPreloadStatus,"FlipperApplication*, const char*"
 Function,-,flipper_application_preload_status_to_string,const char*,FlipperApplicationPreloadStatus
 Function,+,flipper_application_spawn,FuriThread*,"FlipperApplication*, void*"
 Function,+,flipper_format_buffered_file_alloc,FlipperFormat*,Storage*
@@ -1006,7 +1006,7 @@ Function,+,furi_hal_crypto_verify_key,_Bool,uint8_t
 Function,+,furi_hal_debug_disable,void,
 Function,+,furi_hal_debug_enable,void,
 Function,-,furi_hal_deinit_early,void,
-Function,-,furi_hal_flash_erase,_Bool,uint8_t
+Function,-,furi_hal_flash_erase,void,uint8_t
 Function,-,furi_hal_flash_get_base,size_t,
 Function,-,furi_hal_flash_get_cycles_count,size_t,
 Function,-,furi_hal_flash_get_free_end_address,const void*,
@@ -1021,8 +1021,8 @@ Function,-,furi_hal_flash_init,void,
 Function,-,furi_hal_flash_ob_apply,void,
 Function,-,furi_hal_flash_ob_get_raw_ptr,const FuriHalFlashRawOptionByteData*,
 Function,-,furi_hal_flash_ob_set_word,_Bool,"size_t, const uint32_t"
-Function,-,furi_hal_flash_program_page,_Bool,"const uint8_t, const uint8_t*, uint16_t"
-Function,-,furi_hal_flash_write_dword,_Bool,"size_t, uint64_t"
+Function,-,furi_hal_flash_program_page,void,"const uint8_t, const uint8_t*, uint16_t"
+Function,-,furi_hal_flash_write_dword,void,"size_t, uint64_t"
 Function,+,furi_hal_gpio_add_int_callback,void,"const GpioPin*, GpioExtiCallback, void*"
 Function,+,furi_hal_gpio_disable_int_callback,void,const GpioPin*
 Function,+,furi_hal_gpio_enable_int_callback,void,const GpioPin*

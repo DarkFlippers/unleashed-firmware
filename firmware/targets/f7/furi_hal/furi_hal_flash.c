@@ -21,7 +21,6 @@
     (FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_SIZERR | \
      FLASH_SR_PGSERR | FLASH_SR_MISERR | FLASH_SR_FASTERR | FLASH_SR_RDERR | FLASH_SR_OPTVERR)
 
-//#define FURI_HAL_FLASH_OB_START_ADDRESS 0x1FFF8000
 #define FURI_HAL_FLASH_OPT_KEY1 0x08192A3B
 #define FURI_HAL_FLASH_OPT_KEY2 0x4C5D6E7F
 #define FURI_HAL_FLASH_OB_TOTAL_WORDS (0x80 / (sizeof(uint32_t) * 2))
@@ -80,9 +79,13 @@ size_t furi_hal_flash_get_free_page_count() {
 }
 
 void furi_hal_flash_init() {
-    // Errata 2.2.9, Flash OPTVERR flag is always set after system reset
-    WRITE_REG(FLASH->SR, FLASH_SR_OPTVERR);
-    //__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
+    /* Errata 2.2.9, Flash OPTVERR flag is always set after system reset */
+    // WRITE_REG(FLASH->SR, FLASH_SR_OPTVERR);
+    /* Actually, reset all error flags on start */
+    if(READ_BIT(FLASH->SR, FURI_HAL_FLASH_SR_ERRORS)) {
+        FURI_LOG_E(TAG, "FLASH->SR 0x%08X", FLASH->SR);
+        WRITE_REG(FLASH->SR, FURI_HAL_FLASH_SR_ERRORS);
+    }
 }
 
 static void furi_hal_flash_unlock() {
@@ -91,6 +94,7 @@ static void furi_hal_flash_unlock() {
 
     /* Authorize the FLASH Registers access */
     WRITE_REG(FLASH->KEYR, FURI_HAL_FLASH_KEY1);
+    __ISB();
     WRITE_REG(FLASH->KEYR, FURI_HAL_FLASH_KEY2);
 
     /* verify Flash is unlocked */
@@ -110,38 +114,38 @@ static void furi_hal_flash_lock(void) {
 }
 
 static void furi_hal_flash_begin_with_core2(bool erase_flag) {
-    // Take flash controller ownership
+    /* Take flash controller ownership */
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) != 0) {
         furi_thread_yield();
     }
 
-    // Unlock flash operation
+    /* Unlock flash operation */
     furi_hal_flash_unlock();
 
-    // Erase activity notification
+    /* Erase activity notification */
     if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
 
-    // 64mHz 5us core2 flag protection
+    /* 64mHz 5us core2 flag protection */
     for(volatile uint32_t i = 0; i < 35; i++)
         ;
 
     while(true) {
-        // Wait till flash controller become usable
+        /* Wait till flash controller become usable */
         while(LL_FLASH_IsActiveFlag_OperationSuspended()) {
             furi_thread_yield();
         };
 
-        // Just a little more love
+        /* Just a little more love */
         taskENTER_CRITICAL();
 
-        // Actually we already have mutex for it, but specification is specification
+        /* Actually we already have mutex for it, but specification is specification  */
         if(LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU1_SEMID)) {
             taskEXIT_CRITICAL();
             furi_thread_yield();
             continue;
         }
 
-        // Take sempahopre and prevent core2 from anything funky
+        /* Take sempahopre and prevent core2 from anything funky */
         if(LL_HSEM_1StepLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID) != 0) {
             taskEXIT_CRITICAL();
             furi_thread_yield();
@@ -153,10 +157,10 @@ static void furi_hal_flash_begin_with_core2(bool erase_flag) {
 }
 
 static void furi_hal_flash_begin(bool erase_flag) {
-    // Acquire dangerous ops mutex
+    /* Acquire dangerous ops mutex */
     furi_hal_bt_lock_core2();
 
-    // If Core2 is running use IPC locking
+    /* If Core2 is running use IPC locking */
     if(furi_hal_bt_is_alive()) {
         furi_hal_flash_begin_with_core2(erase_flag);
     } else {
@@ -165,36 +169,36 @@ static void furi_hal_flash_begin(bool erase_flag) {
 }
 
 static void furi_hal_flash_end_with_core2(bool erase_flag) {
-    // Funky ops are ok at this point
+    /* Funky ops are ok at this point */
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID, 0);
 
-    // Task switching is ok
+    /* Task switching is ok */
     taskEXIT_CRITICAL();
 
-    // Doesn't make much sense, does it?
+    /* Doesn't make much sense, does it? */
     while(READ_BIT(FLASH->SR, FLASH_SR_BSY)) {
         furi_thread_yield();
     }
 
-    // Erase activity over, core2 can continue
+    /* Erase activity over, core2 can continue */
     if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
 
-    // Lock flash controller
+    /* Lock flash controller */
     furi_hal_flash_lock();
 
-    // Release flash controller ownership
+    /* Release flash controller ownership */
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, 0);
 }
 
 static void furi_hal_flash_end(bool erase_flag) {
-    // If Core2 is running use IPC locking
+    /* If Core2 is running - use IPC locking */
     if(furi_hal_bt_is_alive()) {
         furi_hal_flash_end_with_core2(erase_flag);
     } else {
         furi_hal_flash_lock();
     }
 
-    // Release dangerous ops mutex
+    /* Release dangerous ops mutex */
     furi_hal_bt_unlock_core2();
 }
 
@@ -226,9 +230,9 @@ bool furi_hal_flash_wait_last_operation(uint32_t timeout) {
     uint32_t error = 0;
     uint32_t countdown = 0;
 
-    // Wait for the FLASH operation to complete by polling on BUSY flag to be reset.
-    // Even if the FLASH operation fails, the BUSY flag will be reset and an error
-    // flag will be set
+    /* Wait for the FLASH operation to complete by polling on BUSY flag to be reset.
+       Even if the FLASH operation fails, the BUSY flag will be reset and an error
+       flag will be set */
     countdown = timeout;
     while(READ_BIT(FLASH->SR, FLASH_SR_BSY)) {
         if(LL_SYSTICK_IsActiveCounterFlag()) {
@@ -269,10 +273,10 @@ bool furi_hal_flash_wait_last_operation(uint32_t timeout) {
     return true;
 }
 
-bool furi_hal_flash_erase(uint8_t page) {
+void furi_hal_flash_erase(uint8_t page) {
     furi_hal_flash_begin(true);
 
-    // Ensure that controller state is valid
+    /* Ensure that controller state is valid */
     furi_check(FLASH->SR == 0);
 
     /* Verify that next operation can be proceed */
@@ -292,30 +296,31 @@ bool furi_hal_flash_erase(uint8_t page) {
     furi_hal_flush_cache();
 
     furi_hal_flash_end(true);
-
-    return true;
 }
 
-static inline bool furi_hal_flash_write_dword_internal(size_t address, uint64_t* data) {
+static inline void furi_hal_flash_write_dword_internal_nowait(size_t address, uint64_t* data) {
     /* Program first word */
     *(uint32_t*)address = (uint32_t)*data;
 
-    // Barrier to ensure programming is performed in 2 steps, in right order
-    // (independently of compiler optimization behavior)
+    /* Barrier to ensure programming is performed in 2 steps, in right order
+     (independently of compiler optimization behavior) */
     __ISB();
 
     /* Program second word */
     *(uint32_t*)(address + 4U) = (uint32_t)(*data >> 32U);
+}
+
+static inline void furi_hal_flash_write_dword_internal(size_t address, uint64_t* data) {
+    furi_hal_flash_write_dword_internal_nowait(address, data);
 
     /* Wait for last operation to be completed */
     furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
-    return true;
 }
 
-bool furi_hal_flash_write_dword(size_t address, uint64_t data) {
+void furi_hal_flash_write_dword(size_t address, uint64_t data) {
     furi_hal_flash_begin(false);
 
-    // Ensure that controller state is valid
+    /* Ensure that controller state is valid */
     furi_check(FLASH->SR == 0);
 
     /* Check the parameters */
@@ -326,7 +331,7 @@ bool furi_hal_flash_write_dword(size_t address, uint64_t data) {
     SET_BIT(FLASH->CR, FLASH_CR_PG);
 
     /* Do the thing */
-    furi_check(furi_hal_flash_write_dword_internal(address, &data));
+    furi_hal_flash_write_dword_internal(address, &data);
 
     /* If the program operation is completed, disable the PG or FSTPG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
@@ -335,14 +340,13 @@ bool furi_hal_flash_write_dword(size_t address, uint64_t data) {
 
     /* Wait for last operation to be completed */
     furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
-    return true;
 }
 
 static size_t furi_hal_flash_get_page_address(uint8_t page) {
     return furi_hal_flash_get_base() + page * FURI_HAL_FLASH_PAGE_SIZE;
 }
 
-bool furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16_t _length) {
+void furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16_t _length) {
     uint16_t length = _length;
     furi_check(length <= FURI_HAL_FLASH_PAGE_SIZE);
 
@@ -350,37 +354,63 @@ bool furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16
 
     furi_hal_flash_begin(false);
 
-    // Ensure that controller state is valid
+    furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
+
+    /* Ensure that controller state is valid */
     furi_check(FLASH->SR == 0);
 
     size_t page_start_address = furi_hal_flash_get_page_address(page);
 
-    /* Set PG bit */
-    SET_BIT(FLASH->CR, FLASH_CR_PG);
-    size_t i_dwords = 0;
-    for(i_dwords = 0; i_dwords < (length / 8); ++i_dwords) {
-        /* Do the thing */
-        size_t data_offset = i_dwords * 8;
-        furi_check(furi_hal_flash_write_dword_internal(
-            page_start_address + data_offset, (uint64_t*)&data[data_offset]));
+    size_t length_written = 0;
+
+    const uint16_t FAST_PROG_BLOCK_SIZE = 512;
+    const uint8_t DWORD_PROG_BLOCK_SIZE = 8;
+
+    /* Write as much data as we can in fast mode */
+    if(length >= FAST_PROG_BLOCK_SIZE) {
+        taskENTER_CRITICAL();
+        /* Enable fast flash programming mode */
+        SET_BIT(FLASH->CR, FLASH_CR_FSTPG);
+
+        while(length_written < (length / FAST_PROG_BLOCK_SIZE * FAST_PROG_BLOCK_SIZE)) {
+            /* No context switch in the middle of the operation */
+            furi_hal_flash_write_dword_internal_nowait(
+                page_start_address + length_written, (uint64_t*)(data + length_written));
+            length_written += DWORD_PROG_BLOCK_SIZE;
+
+            if((length_written % FAST_PROG_BLOCK_SIZE) == 0) {
+                /* Wait for block operation to be completed */
+                furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
+            }
+        }
+        CLEAR_BIT(FLASH->CR, FLASH_CR_FSTPG);
+        taskEXIT_CRITICAL();
     }
-    if((length % 8) != 0) {
+
+    /* Enable regular (dword) programming mode */
+    SET_BIT(FLASH->CR, FLASH_CR_PG);
+    if((length % FAST_PROG_BLOCK_SIZE) != 0) {
+        /* Write tail in regular, dword mode */
+        while(length_written < (length / DWORD_PROG_BLOCK_SIZE * DWORD_PROG_BLOCK_SIZE)) {
+            furi_hal_flash_write_dword_internal(
+                page_start_address + length_written, (uint64_t*)&data[length_written]);
+            length_written += DWORD_PROG_BLOCK_SIZE;
+        }
+    }
+
+    if((length % DWORD_PROG_BLOCK_SIZE) != 0) {
         /* there are more bytes, not fitting into dwords */
         uint64_t tail_data = 0;
-        size_t data_offset = i_dwords * 8;
-        for(int32_t tail_i = 0; tail_i < (length % 8); ++tail_i) {
-            tail_data |= (((uint64_t)data[data_offset + tail_i]) << (tail_i * 8));
+        for(int32_t tail_i = 0; tail_i < (length % DWORD_PROG_BLOCK_SIZE); ++tail_i) {
+            tail_data |= (((uint64_t)data[length_written + tail_i]) << (tail_i * 8));
         }
 
-        furi_check(
-            furi_hal_flash_write_dword_internal(page_start_address + data_offset, &tail_data));
+        furi_hal_flash_write_dword_internal(page_start_address + length_written, &tail_data);
     }
-
-    /* If the program operation is completed, disable the PG or FSTPG Bit */
+    /* Disable the PG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
 
     furi_hal_flash_end(false);
-    return true;
 }
 
 int16_t furi_hal_flash_get_page_number(size_t address) {
@@ -462,6 +492,7 @@ static const FuriHalFlashObMapping furi_hal_flash_ob_reg_map[FURI_HAL_FLASH_OB_T
     OB_REG_DEF(FuriHalFlashObRegisterSecureFlash, (NULL)),
     OB_REG_DEF(FuriHalFlashObRegisterC2Opts, (NULL)),
 };
+#undef OB_REG_DEF
 
 void furi_hal_flash_ob_apply() {
     furi_hal_flash_ob_unlock();
