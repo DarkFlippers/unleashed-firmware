@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,1.10,,
+Version,+,1.11,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -986,7 +986,7 @@ Function,+,furi_hal_crypto_verify_key,_Bool,uint8_t
 Function,+,furi_hal_debug_disable,void,
 Function,+,furi_hal_debug_enable,void,
 Function,-,furi_hal_deinit_early,void,
-Function,-,furi_hal_flash_erase,_Bool,uint8_t
+Function,-,furi_hal_flash_erase,void,uint8_t
 Function,-,furi_hal_flash_get_base,size_t,
 Function,-,furi_hal_flash_get_cycles_count,size_t,
 Function,-,furi_hal_flash_get_free_end_address,const void*,
@@ -1001,8 +1001,8 @@ Function,-,furi_hal_flash_init,void,
 Function,-,furi_hal_flash_ob_apply,void,
 Function,-,furi_hal_flash_ob_get_raw_ptr,const FuriHalFlashRawOptionByteData*,
 Function,-,furi_hal_flash_ob_set_word,_Bool,"size_t, const uint32_t"
-Function,-,furi_hal_flash_program_page,_Bool,"const uint8_t, const uint8_t*, uint16_t"
-Function,-,furi_hal_flash_write_dword,_Bool,"size_t, uint64_t"
+Function,-,furi_hal_flash_program_page,void,"const uint8_t, const uint8_t*, uint16_t"
+Function,-,furi_hal_flash_write_dword,void,"size_t, uint64_t"
 Function,+,furi_hal_gpio_add_int_callback,void,"const GpioPin*, GpioExtiCallback, void*"
 Function,+,furi_hal_gpio_disable_int_callback,void,const GpioPin*
 Function,+,furi_hal_gpio_enable_int_callback,void,const GpioPin*
