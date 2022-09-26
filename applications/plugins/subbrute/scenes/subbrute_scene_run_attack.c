@@ -127,6 +127,8 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
            event.event == SubBruteCustomEventTypeBackPressed) {
             //            furi_timer_stop(state->timer);
             // Stop transmit
+            notification_message(instance->notifications, &sequence_display_backlight_on);
+            notification_message(instance->notifications, &sequence_single_vibro);
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
             scene_manager_search_and_switch_to_previous_scene(
                 instance->scene_manager, SubBruteSceneSetupAttack);
