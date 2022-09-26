@@ -27,11 +27,13 @@ void subbrute_scene_setup_attack_on_enter(void* context) {
         instance->device->key_index,
         false);
 
-    subbrute_worker_init_manual_transmit(
+    if(!subbrute_worker_init_manual_transmit(
         instance->worker,
         instance->device->frequency,
         instance->device->preset,
-        string_get_cstr(instance->device->protocol_name));
+        string_get_cstr(instance->device->protocol_name))) {
+        FURI_LOG_W(TAG, "Worker init failed!");
+    }
 
     instance->current_view = SubBruteViewAttack;
     subbrute_attack_view_set_callback(view, subbrute_scene_setup_attack_callback, instance);
@@ -55,7 +57,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypeTransmitStarted) {
-            subbrute_device_create_packet_parsed(instance->device, instance->device->key_index);
+            subbrute_device_create_packet_parsed(instance->device, instance->device->key_index, false);
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneRunAttack);
         } else if(event.event == SubBruteCustomEventTypeSaveFile) {
             subbrute_worker_manual_transmit_stop(instance->worker);
@@ -127,7 +129,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeTransmitCustom) {
-            if(subbrute_worker_can_transmit(instance->worker)) {
+            if(subbrute_worker_can_manual_transmit(instance->worker)) {
                 // Blink
                 notification_message(instance->notifications, &sequence_blink_green_100);
 
@@ -139,7 +141,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
                 //                        string_get_cstr(instance->device->protocol_name));
                 //                }
                 subbrute_device_create_packet_parsed(
-                    instance->device, instance->device->key_index);
+                    instance->device, instance->device->key_index, false);
                 subbrute_worker_manual_transmit(instance->worker, instance->device->payload);
 
                 // Stop

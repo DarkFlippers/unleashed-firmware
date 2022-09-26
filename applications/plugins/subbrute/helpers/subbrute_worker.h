@@ -26,6 +26,7 @@ void subbrute_worker_stop(SubBruteWorker* instance);
 //bool subbrute_worker_write(SubBruteWorker* instance, uint8_t* data, size_t size);
 bool subbrute_worker_is_running(SubBruteWorker* instance);
 bool subbrute_worker_can_transmit(SubBruteWorker* instance);
+bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance);
 bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload);
 bool subbrute_worker_init_manual_transmit(SubBruteWorker* instance,
                                           uint32_t frequency,

@@ -198,7 +198,7 @@ View* subbrute_attack_view_get_view(SubBruteAttackView* instance) {
 void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_t current_step) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "Set step: %d", current_step);
+    //FURI_LOG_D(TAG, "Set step: %d", current_step);
 #endif
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
