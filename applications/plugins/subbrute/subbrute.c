@@ -81,7 +81,7 @@ SubBruteState* subbrute_alloc() {
     view_dispatcher_set_navigation_event_callback(
         instance->view_dispatcher, subbrute_back_event_callback);
     view_dispatcher_set_tick_event_callback(
-        instance->view_dispatcher, subbrute_tick_event_callback, 100);
+        instance->view_dispatcher, subbrute_tick_event_callback, 10);
 
     //Dialog
     instance->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -142,18 +142,18 @@ SubBruteState* subbrute_alloc() {
 void subbrute_free(SubBruteState* instance) {
     furi_assert(instance);
 
-    // SubBruteDevice
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteDevice");
-#endif
-    subbrute_device_free(instance->device);
-
     // SubBruteWorker
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "free SubBruteDevice");
 #endif
     subbrute_worker_stop(instance->worker);
     subbrute_worker_free(instance->worker);
+
+    // SubBruteDevice
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteDevice");
+#endif
+    subbrute_device_free(instance->device);
 
     // Notifications
 #ifdef FURI_DEBUG
@@ -297,6 +297,7 @@ int32_t subbrute_app(void* p) {
     scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
 
     furi_hal_power_suppress_charge_enter();
+    notification_message(instance->notifications, &sequence_display_backlight_on);
     view_dispatcher_run(instance->view_dispatcher);
     furi_hal_power_suppress_charge_exit();
     subbrute_free(instance);
