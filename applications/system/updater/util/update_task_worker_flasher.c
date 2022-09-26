@@ -52,11 +52,19 @@ static bool check_address_boundaries(const size_t address) {
     return ((address >= min_allowed_address) && (address < max_allowed_address));
 }
 
+static bool update_task_flash_program_page(
+    const uint8_t i_page,
+    const uint8_t* update_block,
+    uint16_t update_block_len) {
+    furi_hal_flash_program_page(i_page, update_block, update_block_len);
+    return true;
+}
+
 static bool update_task_write_dfu(UpdateTask* update_task) {
     DfuUpdateTask page_task = {
         .address_cb = &check_address_boundaries,
         .progress_cb = &update_task_file_progress,
-        .task_cb = &furi_hal_flash_program_page,
+        .task_cb = &update_task_flash_program_page,
         .context = update_task,
     };
 
@@ -117,7 +125,7 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
             furi_hal_flash_get_page_number(update_task->manifest->radio_address + element_offs);
         CHECK_RESULT(i_page >= 0);
 
-        CHECK_RESULT(furi_hal_flash_program_page(i_page, fw_block, bytes_read));
+        furi_hal_flash_program_page(i_page, fw_block, bytes_read);
 
         element_offs += bytes_read;
         update_task_set_progress(
