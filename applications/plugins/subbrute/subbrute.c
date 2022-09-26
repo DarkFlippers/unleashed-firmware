@@ -142,18 +142,18 @@ SubBruteState* subbrute_alloc() {
 void subbrute_free(SubBruteState* instance) {
     furi_assert(instance);
 
-    // SubBruteDevice
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteDevice");
-#endif
-    subbrute_device_free(instance->device);
-
     // SubBruteWorker
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "free SubBruteDevice");
 #endif
     subbrute_worker_stop(instance->worker);
     subbrute_worker_free(instance->worker);
+
+    // SubBruteDevice
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "free SubBruteDevice");
+#endif
+    subbrute_device_free(instance->device);
 
     // Notifications
 #ifdef FURI_DEBUG

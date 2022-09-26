@@ -127,9 +127,9 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                 if(m->index == position) {
                     canvas_draw_str_aligned(
                         canvas,
-                        64,
+                        4,
                         9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
-                        AlignCenter,
+                        AlignLeft,
                         AlignCenter,
                         str);
                     elements_frame(
@@ -137,9 +137,9 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                 } else {
                     canvas_draw_str_aligned(
                         canvas,
-                        64,
+                        4,
                         9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
-                        AlignCenter,
+                        AlignLeft,
                         AlignCenter,
                         str);
                 }
