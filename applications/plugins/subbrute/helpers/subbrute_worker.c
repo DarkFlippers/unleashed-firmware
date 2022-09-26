@@ -31,7 +31,7 @@ struct SubBruteWorker {
 #define SUBBRUTE_TXRX_WORKER_BUF_SIZE 2048
 #define SUBBRUTE_TXRX_WORKER_MAX_TXRX_SIZE 60
 #define SUBBRUTE_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF 40
-#define SUBBRUTE_TX_TIMEOUT 1
+#define SUBBRUTE_TX_TIMEOUT 50
 #define SUBBRUTE_SEND_DELAY 260
 
 /**
@@ -52,7 +52,7 @@ int32_t subbrute_worker_thread(void* context) {
     FURI_LOG_I(TAG, "Worker start");
 #endif
 
-    //instance->environment = subghz_environment_alloc();
+    instance->environment = subghz_environment_alloc();
     instance->transmitter = subghz_transmitter_alloc_init(
         instance->environment, string_get_cstr(instance->protocol_name));
 
@@ -64,7 +64,7 @@ int32_t subbrute_worker_thread(void* context) {
     furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
     // Set ready to transmit value
-    //instance->last_time_tx_data = furi_get_tick() - SUBBRUTE_SEND_DELAY;
+    instance->last_time_tx_data = furi_get_tick() - SUBBRUTE_SEND_DELAY;
 
     while(instance->worker_running) {
         // Transmit
@@ -80,8 +80,8 @@ int32_t subbrute_worker_thread(void* context) {
 
     subghz_transmitter_free(instance->transmitter);
     instance->transmitter = NULL;
-    /*subghz_environment_free(instance->environment);
-    instance->environment = NULL;*/
+    subghz_environment_free(instance->environment);
+    instance->environment = NULL;
 
 #ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "Worker stop");
@@ -117,10 +117,10 @@ void subbrute_worker_free(SubBruteWorker* instance) {
         instance->transmitter = NULL;
     }
 
-    /*if(instance->environment != NULL) {
+    if(instance->environment != NULL) {
         subghz_environment_free(instance->environment);
         instance->environment = NULL;
-    }*/
+    }
 
     furi_thread_free(instance->thread);
     flipper_format_free(instance->flipper_format);
@@ -190,10 +190,9 @@ bool subbrute_worker_is_running(SubBruteWorker* instance) {
 }
 
 bool subbrute_worker_can_transmit(SubBruteWorker* instance) {
-    UNUSED(instance);
-    return true;
-    //furi_assert(instance);
-    //return (furi_get_tick() - instance->last_time_tx_data) > SUBBRUTE_SEND_DELAY;
+    furi_assert(instance);
+
+    return (furi_get_tick() - instance->last_time_tx_data) > SUBBRUTE_SEND_DELAY;
 }
 
 bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
@@ -277,7 +276,7 @@ bool subbrute_worker_init_manual_transmit(
     FURI_LOG_I(TAG, "Frequency: %d", frequency);
 #endif
 
-    //instance->environment = subghz_environment_alloc();
+    instance->environment = subghz_environment_alloc();
     instance->transmitter = subghz_transmitter_alloc_init(
         instance->environment, string_get_cstr(instance->protocol_name));
 
@@ -311,8 +310,8 @@ void subbrute_worker_manual_transmit_stop(SubBruteWorker* instance) {
         subghz_transmitter_free(instance->transmitter);
         instance->transmitter = NULL;
     }
-    /*subghz_environment_free(instance->environment);
-    instance->environment = NULL;*/
+    subghz_environment_free(instance->environment);
+    instance->environment = NULL;
 
     instance->is_manual_init = false;
 }
