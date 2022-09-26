@@ -15,6 +15,9 @@ typedef struct {
     DialogsApp* dialogs;
     Gui* gui;
     string_t fap_path;
+
+    ViewDispatcher* view_dispatcher;
+    Loading* loading;
 } FapLoader;
 
 static bool
@@ -144,12 +147,12 @@ int32_t fap_loader_app(void* p) {
     loader->dialogs = furi_record_open(RECORD_DIALOGS);
     loader->gui = furi_record_open(RECORD_GUI);
 
-    ViewDispatcher* view_dispatcher = view_dispatcher_alloc();
-    Loading* loading = loading_alloc();
+    loader->view_dispatcher = view_dispatcher_alloc();
+    loader->loading = loading_alloc();
 
-    view_dispatcher_enable_queue(view_dispatcher);
-    view_dispatcher_attach_to_gui(view_dispatcher, loader->gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_add_view(view_dispatcher, 0, loading_get_view(loading));
+    view_dispatcher_attach_to_gui(
+        loader->view_dispatcher, loader->gui, ViewDispatcherTypeFullscreen);
+    view_dispatcher_add_view(loader->view_dispatcher, 0, loading_get_view(loader->loading));
 
     if(p) {
         string_init_set(loader->fap_path, (const char*)p);
@@ -158,14 +161,14 @@ int32_t fap_loader_app(void* p) {
         string_init_set(loader->fap_path, EXT_PATH("apps"));
 
         while(fap_loader_select_app(loader)) {
-            view_dispatcher_switch_to_view(view_dispatcher, 0);
+            view_dispatcher_switch_to_view(loader->view_dispatcher, 0);
             fap_loader_run_selected_app(loader);
         };
     }
 
-    view_dispatcher_remove_view(view_dispatcher, 0);
-    loading_free(loading);
-    view_dispatcher_free(view_dispatcher);
+    view_dispatcher_remove_view(loader->view_dispatcher, 0);
+    loading_free(loader->loading);
+    view_dispatcher_free(loader->view_dispatcher);
 
     string_clear(loader->fap_path);
     furi_record_close(RECORD_GUI);

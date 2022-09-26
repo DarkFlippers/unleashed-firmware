@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bq25896_reg.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <furi_hal_i2c.h>
@@ -10,8 +12,14 @@ void bq25896_init(FuriHalI2cBusHandle* handle);
 /** Send device into shipping mode */
 void bq25896_poweroff(FuriHalI2cBusHandle* handle);
 
+/** Get charging status */
+ChrgStat bq25896_get_charge_status(FuriHalI2cBusHandle* handle);
+
 /** Is currently charging */
 bool bq25896_is_charging(FuriHalI2cBusHandle* handle);
+
+/** Is charging completed while connected to charger */
+bool bq25896_is_charging_done(FuriHalI2cBusHandle* handle);
 
 /** Enable charging */
 void bq25896_enable_charging(FuriHalI2cBusHandle* handle);
