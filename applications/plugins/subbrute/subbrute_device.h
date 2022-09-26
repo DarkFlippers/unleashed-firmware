@@ -92,7 +92,7 @@ SubBruteDevice* subbrute_device_alloc();
 void subbrute_device_free(SubBruteDevice* instance);
 bool subbrute_device_save_file(SubBruteDevice* instance, const char* key_name);
 const char* subbrute_device_error_get_desc(SubBruteFileResult error_id);
-bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step);
+bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step, bool small);
 SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* context, SubBruteAttacks type);
 uint8_t subbrute_device_load_from_file(SubBruteDevice* context, string_t file_path);
 FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset);

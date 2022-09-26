@@ -7,7 +7,7 @@
 #define TAG "SubBruteWorker"
 
 struct SubBruteWorker {
-    FuriThread* thread;
+//    FuriThread* thread;
     volatile bool worker_running;
     volatile bool worker_manual_mode;
     bool is_manual_init;
@@ -31,7 +31,7 @@ struct SubBruteWorker {
 #define SUBBRUTE_TXRX_WORKER_BUF_SIZE 2048
 #define SUBBRUTE_TXRX_WORKER_MAX_TXRX_SIZE 60
 #define SUBBRUTE_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF 40
-#define SUBBRUTE_TX_TIMEOUT 50
+#define SUBBRUTE_TX_TIMEOUT 10
 #define SUBBRUTE_SEND_DELAY 260
 
 /**
@@ -92,11 +92,11 @@ int32_t subbrute_worker_thread(void* context) {
 SubBruteWorker* subbrute_worker_alloc() {
     SubBruteWorker* instance = malloc(sizeof(SubBruteWorker));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "SubBruteAttackWorker");
-    furi_thread_set_stack_size(instance->thread, 2048);
-    furi_thread_set_context(instance->thread, instance);
-    furi_thread_set_callback(instance->thread, subbrute_worker_thread);
+//    instance->thread = furi_thread_alloc();
+//    furi_thread_set_name(instance->thread, "SubBruteAttackWorker");
+//    furi_thread_set_stack_size(instance->thread, 2048);
+//    furi_thread_set_context(instance->thread, instance);
+//    furi_thread_set_callback(instance->thread, subbrute_worker_thread);
 
     //instance->status = SubBruteWorkerStatusIDLE;
     instance->worker_running = false;
@@ -122,7 +122,7 @@ void subbrute_worker_free(SubBruteWorker* instance) {
         instance->environment = NULL;
     }
 
-    furi_thread_free(instance->thread);
+//    furi_thread_free(instance->thread);
     flipper_format_free(instance->flipper_format);
 
     string_clear(instance->protocol_name);
@@ -167,7 +167,7 @@ bool subbrute_worker_start(
 #endif
     instance->preset = preset;
 
-    furi_thread_start(instance->thread);
+//    furi_thread_start(instance->thread);
 
     return res;
 }
@@ -177,7 +177,7 @@ void subbrute_worker_stop(SubBruteWorker* instance) {
 
     instance->worker_running = false;
 
-    furi_thread_join(instance->thread);
+//    furi_thread_join(instance->thread);
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_sleep();
@@ -193,6 +193,12 @@ bool subbrute_worker_can_transmit(SubBruteWorker* instance) {
     furi_assert(instance);
 
     return (furi_get_tick() - instance->last_time_tx_data) > SUBBRUTE_SEND_DELAY;
+}
+
+bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance) {
+    furi_assert(instance);
+
+    return !instance->worker_manual_mode;
 }
 
 bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
