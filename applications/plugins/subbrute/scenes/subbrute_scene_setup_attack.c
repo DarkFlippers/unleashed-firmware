@@ -28,10 +28,10 @@ void subbrute_scene_setup_attack_on_enter(void* context) {
         false);
 
     if(!subbrute_worker_init_manual_transmit(
-        instance->worker,
-        instance->device->frequency,
-        instance->device->preset,
-        string_get_cstr(instance->device->protocol_name))) {
+           instance->worker,
+           instance->device->frequency,
+           instance->device->preset,
+           string_get_cstr(instance->device->protocol_name))) {
         FURI_LOG_W(TAG, "Worker init failed!");
     }
 
@@ -57,7 +57,13 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypeTransmitStarted) {
-            subbrute_device_create_packet_parsed(instance->device, instance->device->key_index, false);
+            subbrute_worker_set_continuous_worker(instance->worker, false);
+            subbrute_attack_view_set_worker_type(view, false);
+            scene_manager_next_scene(instance->scene_manager, SubBruteSceneRunAttack);
+        } else if(event.event == SubBruteCustomEventTypeTransmitContinuousStarted) {
+            // Setting different type of worker
+            subbrute_worker_set_continuous_worker(instance->worker, true);
+            subbrute_attack_view_set_worker_type(view, true);
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneRunAttack);
         } else if(event.event == SubBruteCustomEventTypeSaveFile) {
             subbrute_worker_manual_transmit_stop(instance->worker);
