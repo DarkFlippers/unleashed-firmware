@@ -19,7 +19,7 @@ SubBruteAttackView* subbrute_attack_view_alloc();
 void subbrute_attack_view_free(SubBruteAttackView* instance);
 View* subbrute_attack_view_get_view(SubBruteAttackView* instance);
 void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_t current_step);
-uint64_t subbrute_attack_view_get_current_step(SubBruteAttackView* instance);
+void subbrute_attack_view_set_worker_type(SubBruteAttackView* instance, bool is_continuous_worker);
 void subbrute_attack_view_init_values(
     SubBruteAttackView* instance,
     uint8_t index,
