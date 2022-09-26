@@ -135,7 +135,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
             }
             subbrute_attack_view_set_current_step(view, instance->device->key_index);
         } else if(event.event == SubBruteCustomEventTypeTransmitCustom) {
-            if(subbrute_worker_can_manual_transmit(instance->worker)) {
+            if(subbrute_worker_can_manual_transmit(instance->worker, true)) {
                 // Blink
                 notification_message(instance->notifications, &sequence_blink_green_100);
 

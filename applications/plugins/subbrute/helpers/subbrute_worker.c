@@ -157,10 +157,16 @@ bool subbrute_worker_can_transmit(SubBruteWorker* instance) {
     return (furi_get_tick() - instance->last_time_tx_data) > SUBBRUTE_SEND_DELAY;
 }
 
-bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance) {
+bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance, bool is_button_pressed) {
     furi_assert(instance);
 
-    return !instance->worker_manual_mode;
+    if(is_button_pressed) {
+        // It's human pressed, trying to reset twice pressing
+        return !instance->worker_manual_mode &&
+               (furi_get_tick() - instance->last_time_tx_data) > 500;
+    } else {
+        return !instance->worker_manual_mode;
+    }
 }
 
 bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload) {
@@ -204,7 +210,7 @@ bool subbrute_worker_init_manual_transmit(
         frequency,
         protocol_name);
 #endif
-    if(instance->worker_manual_mode || !subbrute_worker_can_manual_transmit(instance) ||
+    if(instance->worker_manual_mode || !subbrute_worker_can_manual_transmit(instance, false) ||
        instance->worker_running) {
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "cannot transmit");
