@@ -166,4 +166,4 @@ Games:
 - `site_scons`      - Build helpers
 - `scripts`         - Supplementary scripts and python libraries home
 
-Also pay attention to `ReadMe.md` files inside of those directories.
+Also pay attention to `ReadMe.md` files inside those directories.

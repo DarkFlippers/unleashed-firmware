@@ -229,7 +229,7 @@ class Main(App):
     @staticmethod
     def int2ffhex(value: int, n_hex_syms=8):
         if value:
-            n_hex_syms = math.ceil(math.ceil(math.log2(value)) / 8) * 2
+            n_hex_syms = max(math.ceil(math.ceil(math.log2(value)) / 8) * 2, n_hex_syms)
         fmtstr = f"%0{n_hex_syms}X"
         hexstr = fmtstr % value
         return " ".join(list(Main.batch(hexstr, 2))[::-1])

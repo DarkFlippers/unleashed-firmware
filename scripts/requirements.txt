@@ -3,5 +3,5 @@ heatshrink2==0.11.0
 Pillow==9.1.1
 grpcio==1.47.0
 grpcio-tools==1.47.0
-protobuf==3.20.1
+protobuf==3.20.2
 python3-protobuf==2.5.0
