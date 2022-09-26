@@ -161,7 +161,7 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
                 notification_message(instance->notifications, &sequence_blink_stop);
             }
         } else {
-            if(subbrute_worker_can_manual_transmit(instance->worker)) {
+            if(subbrute_worker_can_manual_transmit(instance->worker, false)) {
                 // Blink
                 notification_message(instance->notifications, &sequence_blink_yellow_100);
 
