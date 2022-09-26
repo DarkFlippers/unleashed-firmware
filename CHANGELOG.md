@@ -1,6 +1,9 @@
 ### New changes
-* PR: SubGHz bruteforcer plugin - deep refactoring (huge thanks to @derskythe ! | PR #75)
-* OFW: Preliminary Rust support
+* PR: SubGHz bruteforcer plugin - fixes and speed-up (-2 min) (by @derskythe | PR #76)
+* Fix nfc device typo - key_a_mask was used for key B 
+* OFW: Applications loader: do not use view dispatcher queue
+* OFW: Power: Also ask charger if charge done
+* OFW: Fast flash programming mode (faster firmware flash)
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
