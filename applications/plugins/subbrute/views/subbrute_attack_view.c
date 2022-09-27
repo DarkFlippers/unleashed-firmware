@@ -82,7 +82,7 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
                     return true;
                 });
             instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);
-        /*if(event->type == InputTypeRepeat && event->key == InputKeyOk) {
+            /*if(event->type == InputTypeRepeat && event->key == InputKeyOk) {
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "InputKey: %d OK. SubBruteCustomEventTypeTransmitContinuousStarted", event->key);
 #endif
@@ -374,7 +374,7 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
         elements_button_top_left(canvas, "Save");
         elements_button_top_right(canvas, "Resend");
     } else {
-        if (model->is_continuous_worker) {
+        if(model->is_continuous_worker) {
             canvas_invert_color(canvas);
         }
         // canvas_draw_icon_animation
@@ -391,7 +391,7 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
         elements_progress_bar(canvas, 8, 37, 110, progress_value > 1 ? 1 : progress_value);
 
         elements_button_center(canvas, "Stop");
-        if (model->is_continuous_worker) {
+        if(model->is_continuous_worker) {
             canvas_invert_color(canvas);
         }
     }

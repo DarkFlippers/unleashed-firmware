@@ -20,6 +20,7 @@ typedef enum {
     SubBruteAttackCAME12bit307,
     SubBruteAttackCAME12bit433,
     SubBruteAttackCAME12bit868,
+    SubBruteAttackChamberlain9bit300,
     SubBruteAttackChamberlain9bit315,
     SubBruteAttackChamberlain9bit390,
     SubBruteAttackLinear10bit300,
@@ -96,4 +97,6 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step
 SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* context, SubBruteAttacks type);
 uint8_t subbrute_device_load_from_file(SubBruteDevice* context, string_t file_path);
 FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset);
-void subbrute_device_attack_set_default_values(SubBruteDevice* context, SubBruteAttacks default_attack);
+void subbrute_device_attack_set_default_values(
+    SubBruteDevice* context,
+    SubBruteAttacks default_attack);
