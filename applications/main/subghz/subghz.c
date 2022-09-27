@@ -179,8 +179,8 @@ SubGhz* subghz_alloc() {
     // Load last used values for Read, Read RAW, etc. or default
     subghz_last_settings_check_struct();
     LOAD_SUBGHZ_LAST_SETTINGS(&subghz->last_settings);
-#if DEBUG
-    FURI_LOG_I(
+#if FURI_DEBUG
+    FURI_LOG_D(
         TAG,
         "last frequency: %d, preset: %d",
         subghz->last_settings->frequency,
