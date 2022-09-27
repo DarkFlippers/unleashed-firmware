@@ -5,6 +5,8 @@
 #include <lib/toolbox/path.h>
 #include "subghz_i.h"
 
+#define TAG "SubGhzApp"
+
 bool subghz_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -174,13 +176,30 @@ SubGhz* subghz_alloc() {
     subghz->setting = subghz_setting_alloc();
     subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user"));
 
+    // Load last used values for Read, Read RAW, etc. or default
+    subghz_last_settings_check_struct();
+    LOAD_SUBGHZ_LAST_SETTINGS(&subghz->last_settings);
+#if DEBUG
+    FURI_LOG_I(
+        TAG,
+        "last frequency: %d, preset: %d",
+        subghz->last_settings->frequency,
+        subghz->last_settings->preset);
+#endif
+    subghz_setting_set_default_frequency(subghz->setting, subghz->last_settings->frequency);
+    SAVE_SUBGHZ_LAST_SETTINGS(&subghz->last_settings);
+
     //init Worker & Protocol & History & KeyBoard
     subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->preset = malloc(sizeof(SubGhzPresetDefinition));
     string_init(subghz->txrx->preset->name);
     subghz_preset_init(
-        subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+        subghz,
+        subghz_setting_get_preset_name(subghz->setting, subghz->last_settings->preset),
+        subghz->last_settings->frequency,
+        NULL,
+        0);
 
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
