@@ -21,7 +21,7 @@ bool subbrute_scene_save_success_on_event(void* context, SceneManagerEvent event
 
     SubBruteState* instance = (SubBruteState*)context;
     //SubBruteMainView* view = instance->view_main;
-    
+
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypePopupClosed) {
             if(!scene_manager_search_and_switch_to_previous_scene(

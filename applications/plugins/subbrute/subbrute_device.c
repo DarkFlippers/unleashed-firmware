@@ -306,6 +306,12 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         string_set_str(instance->protocol_name, protocol_came);
         string_set_str(instance->preset_name, preset_ook650_async);
         break;
+    case SubBruteAttackChamberlain9bit300:
+        instance->frequency = 300000000;
+        instance->bit = 9;
+        string_set_str(instance->protocol_name, protocol_cham_code);
+        string_set_str(instance->preset_name, preset_ook650_async);
+        break;
     case SubBruteAttackChamberlain9bit315:
         instance->frequency = 315000000;
         instance->bit = 9;
