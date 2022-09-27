@@ -23,30 +23,36 @@ struct InfraredBruteForce {
     FlipperFormat* ff;
     const char* db_filename;
     string_t current_record_name;
+    InfraredSignal* current_signal;
     InfraredBruteForceRecordDict_t records;
+    bool is_started;
 };
 
 InfraredBruteForce* infrared_brute_force_alloc() {
     InfraredBruteForce* brute_force = malloc(sizeof(InfraredBruteForce));
     brute_force->ff = NULL;
     brute_force->db_filename = NULL;
+    brute_force->current_signal = NULL;
+    brute_force->is_started = false;
     string_init(brute_force->current_record_name);
     InfraredBruteForceRecordDict_init(brute_force->records);
     return brute_force;
 }
 
 void infrared_brute_force_free(InfraredBruteForce* brute_force) {
-    furi_assert(!brute_force->ff);
+    furi_assert(!brute_force->is_started);
     InfraredBruteForceRecordDict_clear(brute_force->records);
     string_clear(brute_force->current_record_name);
     free(brute_force);
 }
 
 void infrared_brute_force_set_db_filename(InfraredBruteForce* brute_force, const char* db_filename) {
+    furi_assert(!brute_force->is_started);
     brute_force->db_filename = db_filename;
 }
 
 bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
+    furi_assert(!brute_force->is_started);
     furi_assert(brute_force->db_filename);
     bool success = false;
 
@@ -76,6 +82,7 @@ bool infrared_brute_force_start(
     InfraredBruteForce* brute_force,
     uint32_t index,
     uint32_t* record_count) {
+    furi_assert(!brute_force->is_started);
     bool success = false;
     *record_count = 0;
 
@@ -96,50 +103,37 @@ bool infrared_brute_force_start(
     if(*record_count) {
         Storage* storage = furi_record_open(RECORD_STORAGE);
         brute_force->ff = flipper_format_buffered_file_alloc(storage);
+        brute_force->current_signal = infrared_signal_alloc();
+        brute_force->is_started = true;
         success =
             flipper_format_buffered_file_open_existing(brute_force->ff, brute_force->db_filename);
-        if(!success) {
-            flipper_format_free(brute_force->ff);
-            brute_force->ff = NULL;
-            furi_record_close(RECORD_STORAGE);
-        }
+        if(!success) infrared_brute_force_stop(brute_force);
     }
     return success;
 }
 
 bool infrared_brute_force_is_started(InfraredBruteForce* brute_force) {
-    return brute_force->ff;
+    return brute_force->is_started;
 }
 
 void infrared_brute_force_stop(InfraredBruteForce* brute_force) {
-    furi_assert(string_size(brute_force->current_record_name));
-    furi_assert(brute_force->ff);
-
+    furi_assert(brute_force->is_started);
     string_reset(brute_force->current_record_name);
+    infrared_signal_free(brute_force->current_signal);
     flipper_format_free(brute_force->ff);
-    furi_record_close(RECORD_STORAGE);
+    brute_force->current_signal = NULL;
     brute_force->ff = NULL;
+    brute_force->is_started = false;
+    furi_record_close(RECORD_STORAGE);
 }
 
 bool infrared_brute_force_send_next(InfraredBruteForce* brute_force) {
-    furi_assert(string_size(brute_force->current_record_name));
-    furi_assert(brute_force->ff);
-    bool success = false;
-
-    string_t signal_name;
-    string_init(signal_name);
-    InfraredSignal* signal = infrared_signal_alloc();
-
-    do {
-        success = infrared_signal_read(signal, brute_force->ff, signal_name);
-    } while(success && !string_equal_p(brute_force->current_record_name, signal_name));
-
+    furi_assert(brute_force->is_started);
+    const bool success = infrared_signal_search_and_read(
+        brute_force->current_signal, brute_force->ff, brute_force->current_record_name);
     if(success) {
-        infrared_signal_transmit(signal);
+        infrared_signal_transmit(brute_force->current_signal);
     }
-
-    infrared_signal_free(signal);
-    string_clear(signal_name);
     return success;
 }
 
@@ -155,5 +149,6 @@ void infrared_brute_force_add_record(
 }
 
 void infrared_brute_force_reset(InfraredBruteForce* brute_force) {
+    furi_assert(!brute_force->is_started);
     InfraredBruteForceRecordDict_reset(brute_force->records);
 }
