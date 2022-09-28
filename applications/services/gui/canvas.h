@@ -61,7 +61,7 @@ typedef struct {
     uint8_t descender;
 } CanvasFontParameters;
 
-/** Canvas anonymouse structure */
+/** Canvas anonymous structure */
 typedef struct Canvas Canvas;
 
 /** Get Canvas width
@@ -297,7 +297,7 @@ void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
  * @param       y       y coordinate of base and height intersection
  * @param       base    length of triangle side
  * @param       height  length of triangle height
- * @param       dir     CanvasDirection triangle orientaion
+ * @param       dir     CanvasDirection triangle orientation
  */
 void canvas_draw_triangle(
     Canvas* canvas,
@@ -323,7 +323,7 @@ void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch);
  */
 void canvas_set_bitmap_mode(Canvas* canvas, bool alpha);
 
-/** Draw rounded-corner frame of width, height at x,y, with round value raduis
+/** Draw rounded-corner frame of width, height at x,y, with round value radius
  *
  * @param      canvas  Canvas instance
  * @param      x       x coordinate
