@@ -37,5 +37,9 @@ InfraredMessage* infrared_signal_get_message(InfraredSignal* signal);
 
 bool infrared_signal_save(InfraredSignal* signal, FlipperFormat* ff, const char* name);
 bool infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, string_t name);
+bool infrared_signal_search_and_read(
+    InfraredSignal* signal,
+    FlipperFormat* ff,
+    const string_t name);
 
 void infrared_signal_transmit(InfraredSignal* signal);
