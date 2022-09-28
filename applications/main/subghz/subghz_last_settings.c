@@ -7,7 +7,7 @@
 
 #define SUBGHZ_LAST_SETTING_FILE_TYPE "Flipper SubGhz Last Setting File"
 #define SUBGHZ_LAST_SETTING_FILE_VERSION 1
-#define SUBGHZ_LAST_SETTINGS_PATH EXT_PATH(".subghz.settings")
+#define SUBGHZ_LAST_SETTINGS_PATH EXT_PATH("subghz/assets/.subghz.settings")
 // 1 = "AM650"
 // "AM270", "AM650", "FM238", "FM476",
 #define SUBGHZ_LAST_SETTING_DEFAULT_PRESET 1
