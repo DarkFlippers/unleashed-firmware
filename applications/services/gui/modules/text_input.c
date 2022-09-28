@@ -232,7 +232,8 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
                     canvas_set_color(canvas, ColorBlack);
                 }
 
-                if(text_length == 0 && char_is_lowercase(keys[column].text)) {
+                if(model->clear_default_text ||
+                   (text_length == 0 && char_is_lowercase(keys[column].text))) {
                     canvas_draw_glyph(
                         canvas,
                         keyboard_origin_x + keys[column].x,
