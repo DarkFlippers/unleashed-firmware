@@ -2,6 +2,8 @@
 
 #include <lib/subghz/protocols/raw.h>
 
+#define TAG "SubGhzSceneReceiverConfig"
+
 enum SubGhzSettingIndex {
     SubGhzSettingIndexFrequency,
     SubGhzSettingIndexHopping,
@@ -242,6 +244,13 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     VariableItem* item;
     uint8_t value_index;
 
+#if FURI_DEBUG
+    FURI_LOG_D(
+        TAG,
+        "last frequency: %d, preset: %d",
+        subghz->last_settings->frequency,
+        subghz->last_settings->preset);
+#endif
     item = variable_item_list_add(
         subghz->variable_item_list,
         "Frequency:",
