@@ -259,6 +259,8 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         subghz);
     value_index =
         subghz_scene_receiver_config_next_frequency(subghz->txrx->preset->frequency, subghz);
+    scene_manager_set_scene_state(
+        subghz->scene_manager, SubGhzSceneReceiverConfig, (uint32_t)item);
     variable_item_set_current_value_index(item, value_index);
     char text_buf[10] = {0};
     snprintf(
@@ -351,6 +353,7 @@ bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent even
 
 void subghz_scene_receiver_config_on_exit(void* context) {
     SubGhz* subghz = context;
+    variable_item_list_set_selected_item(subghz->variable_item_list, 0);
     variable_item_list_reset(subghz->variable_item_list);
     subghz_last_settings_save(subghz->last_settings);
     scene_manager_set_scene_state(
