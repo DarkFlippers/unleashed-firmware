@@ -177,8 +177,9 @@ SubGhz* subghz_alloc() {
     subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user"));
 
     // Load last used values for Read, Read RAW, etc. or default
-    subghz_last_settings_check_struct();
-    LOAD_SUBGHZ_LAST_SETTINGS(&subghz->last_settings);
+    subghz->last_settings = subghz_last_settings_alloc();
+    subghz_last_settings_load(
+        subghz->last_settings, subghz_setting_get_preset_count(subghz->setting));
 #if FURI_DEBUG
     FURI_LOG_D(
         TAG,
@@ -187,7 +188,6 @@ SubGhz* subghz_alloc() {
         subghz->last_settings->preset);
 #endif
     subghz_setting_set_default_frequency(subghz->setting, subghz->last_settings->frequency);
-    SAVE_SUBGHZ_LAST_SETTINGS(&subghz->last_settings);
 
     //init Worker & Protocol & History & KeyBoard
     subghz->lock = SubGhzLockOff;
@@ -306,6 +306,7 @@ void subghz_free(SubGhz* subghz) {
 
     //setting
     subghz_setting_free(subghz->setting);
+    subghz_last_settings_free(subghz->last_settings);
 
     //Worker & Protocol & History
     subghz_receiver_free(subghz->txrx->receiver);
