@@ -105,7 +105,6 @@ struct SubGhz {
     SubGhzLock lock;
 
     bool in_decoder_scene;
-    SubGhzScene current_scene;
     void* rpc_ctx;
 };
 

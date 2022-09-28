@@ -131,7 +131,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             if((subghz->txrx->rx_key_state == SubGhzRxKeyStateAddKey) ||
                (subghz->txrx->rx_key_state == SubGhzRxKeyStateBack)) {
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateExit;
-                subghz->current_scene = SubGhzSceneNeedSaving;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 //Restore default setting
@@ -147,11 +146,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                            subghz->scene_manager, SubGhzSceneStart)) {
                         scene_manager_stop(subghz->scene_manager);
                         view_dispatcher_stop(subghz->view_dispatcher);
-                    } else {
-                        subghz->current_scene = SubGhzSceneStart;
                     }
-                } else {
-                    subghz->current_scene = SubGhzSceneSaved;
                 }
             }
             consumed = true;
@@ -175,7 +170,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReadRAWConfig:
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerSet);
-            subghz->current_scene = SubGhzSceneReceiverConfig;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
             consumed = true;
             break;
@@ -197,7 +191,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_set_scene_state(
                     subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerSet);
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
-                subghz->current_scene = SubGhzSceneMoreRAW;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneMoreRAW);
                 consumed = true;
             } else {
@@ -217,7 +210,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                    (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
                     if(!subghz_tx_start(subghz, subghz->txrx->fff_data)) {
                         subghz->txrx->rx_key_state = SubGhzRxKeyStateBack;
-                        subghz->current_scene = SubGhzSceneShowOnlyRx;
                         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                     } else {
                         DOLPHIN_DEED(DolphinDeedSubGhzSend);
@@ -277,7 +269,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
 
         case SubGhzCustomEventViewReadRAWREC:
             if(subghz->txrx->rx_key_state != SubGhzRxKeyStateIDLE) {
-                subghz->current_scene = SubGhzSceneNeedSaving;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 //subghz_get_preset_name(subghz, subghz->error_str);
@@ -298,7 +289,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                     subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
                 } else {
                     string_set_str(subghz->error_str, "Function requires\nan SD card.");
-                    subghz->current_scene = SubGhzSceneShowError;
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
                 }
             }
@@ -310,7 +300,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_set_scene_state(
                     subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerSetRAW);
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateBack;
-                subghz->current_scene = SubGhzSceneSaveName;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             consumed = true;
