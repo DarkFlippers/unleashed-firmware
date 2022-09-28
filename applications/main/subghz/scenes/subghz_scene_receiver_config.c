@@ -352,7 +352,7 @@ bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent even
 void subghz_scene_receiver_config_on_exit(void* context) {
     SubGhz* subghz = context;
     variable_item_list_reset(subghz->variable_item_list);
-    SAVE_SUBGHZ_LAST_SETTINGS(&subghz->last_settings);
+    subghz_last_settings_save(subghz->last_settings);
     scene_manager_set_scene_state(
         subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
 }
