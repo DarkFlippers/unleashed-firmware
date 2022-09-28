@@ -6,6 +6,9 @@ void furi_hal_cortex_init_early() {
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     DWT->CYCCNT = 0U;
+
+    /* Enable instruction prefetch */
+    SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
 }
 
 void furi_hal_cortex_delay_us(uint32_t microseconds) {
