@@ -106,10 +106,10 @@ bool subbrute_worker_start(
     furi_hal_subghz_set_frequency_and_path(instance->frequency);
     furi_hal_subghz_flush_rx();
 
-    if(furi_hal_subghz_is_tx_allowed(frequency)) {
-        instance->frequency = frequency;
-        res = true;
-    }
+    //if(furi_hal_subghz_is_tx_allowed(frequency)) {
+    instance->frequency = frequency;
+    res = true;
+    //}
     instance->worker_running = res;
 
 #ifdef FURI_DEBUG
@@ -245,13 +245,13 @@ bool subbrute_worker_init_manual_transmit(
     furi_hal_subghz_set_frequency_and_path(instance->frequency);
     furi_hal_subghz_flush_rx();
 
-    if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+    /*if(!furi_hal_subghz_is_tx_allowed(frequency)) {
         FURI_LOG_E(TAG, "Frequency: %d invalid!", frequency);
 
         instance->frequency = frequency;
         instance->worker_manual_mode = false;
         return false;
-    }
+    }*/
 
 #ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "Frequency: %d", frequency);
