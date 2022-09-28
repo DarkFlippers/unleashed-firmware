@@ -56,6 +56,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         }
     }
 
+    flipper_format_file_close(fff_data_file);
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
 }
@@ -96,6 +97,7 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
         FURI_LOG_E(TAG, "Error save file %s", SUBGHZ_LAST_SETTINGS_PATH);
     }
 
+    flipper_format_file_close(file);
     flipper_format_free(file);
     furi_record_close(RECORD_STORAGE);
 
