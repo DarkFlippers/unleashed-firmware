@@ -307,19 +307,15 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         string_set_str(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackChamberlain9bit300:
-        instance->frequency = 300000000;
-        instance->bit = 9;
-        string_set_str(instance->protocol_name, protocol_cham_code);
-        string_set_str(instance->preset_name, preset_ook650_async);
-        break;
     case SubBruteAttackChamberlain9bit315:
-        instance->frequency = 315000000;
-        instance->bit = 9;
-        string_set_str(instance->protocol_name, protocol_cham_code);
-        string_set_str(instance->preset_name, preset_ook650_async);
-        break;
     case SubBruteAttackChamberlain9bit390:
-        instance->frequency = 390000000;
+        if(type == SubBruteAttackChamberlain9bit300) {
+            instance->frequency = 300000000;
+        } else if(type == SubBruteAttackChamberlain9bit315) {
+            instance->frequency = 315000000;
+        } else /* ALWAYS TRUE if(type == SubBruteAttackChamberlain9bit390) */ {
+            instance->frequency = 390000000;
+        }
         instance->bit = 9;
         string_set_str(instance->protocol_name, protocol_cham_code);
         string_set_str(instance->preset_name, preset_ook650_async);
@@ -353,10 +349,10 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         return SubBruteFileResultProtocolNotFound; // RETURN
     }
 
-    if(!furi_hal_subghz_is_tx_allowed(instance->frequency)) {
+    /*if(!furi_hal_subghz_is_tx_allowed(instance->frequency)) {
         FURI_LOG_E(TAG, "Frequency invalid: %d", instance->frequency);
         return SubBruteFileResultMissingOrIncorrectFrequency; // RETURN
-    }
+    }*/
 
     // For non-file types we didn't set SubGhzProtocolDecoderBase
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
