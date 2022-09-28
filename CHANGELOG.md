@@ -1,9 +1,11 @@
 ### New changes
-* PR: SubGHz bruteforcer plugin - fixes and speed-up (-2 min) (by @derskythe | PR #76)
-* Fix nfc device typo - key_a_mask was used for key B 
-* OFW: Applications loader: do not use view dispatcher queue
-* OFW: Power: Also ask charger if charge done
-* OFW: Fast flash programming mode (faster firmware flash)
+* PR: SubGHz new feature -> press Ok in Frequency analyzer to use frequency in Read modes (by @derskythe | PR #77)
+* PR: SubGHz save last settings (frequency and modulation) (by @derskythe | PR #77)
+* Plugins: SubGHz Bruteforcer - add chamberlain 9bit 300mhz, removed unnecessary checks (made it a bit faster), fixed title position & menu text
+* SubGHz: Fix Add Manually item names, Add BETT protocol in add manually
+* Infrared: Update assets (by @Amec0e)
+* OFW: Refactor infrared brute force code
+* OFW: Add formatting to DESfire data dump
 
 #### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
 
