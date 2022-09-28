@@ -111,7 +111,7 @@ class Main(App):
             if not filenames:
                 continue
             if "frame_rate" in filenames:
-                self.logger.debug(f"Folder contatins animation")
+                self.logger.debug(f"Folder contains animation")
                 icon_name = "A_" + os.path.split(dirpath)[1].replace("-", "_")
                 width = height = None
                 frame_count = 0
