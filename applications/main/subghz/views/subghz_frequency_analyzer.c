@@ -33,8 +33,8 @@ static const NotificationSequence sequence_hw_blink_stop = {
 static const NotificationSequence sequence_saved = {
     &message_blink_stop,
     &message_blue_0,
-    &message_green_0,
-    &message_red_255,
+    &message_green_255,
+    &message_red_0,
     &message_vibro_on,
     &message_delay_100,
     &message_vibro_off,
@@ -454,6 +454,7 @@ View* subghz_frequency_analyzer_get_view(SubGhzFrequencyAnalyzer* instance) {
 }
 
 uint32_t subghz_frequency_analyzer_get_frequency_to_save(SubGhzFrequencyAnalyzer* instance) {
+    furi_assert(instance);
     uint32_t frequency;
     with_view_model(
         instance->view, (SubGhzFrequencyAnalyzerModel * model) {
