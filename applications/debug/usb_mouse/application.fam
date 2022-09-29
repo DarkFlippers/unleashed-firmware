@@ -1,5 +1,5 @@
 App(
-    appid="usb_mouse",
+    appid="USB_Mouse",
     name="USB Mouse",
     apptype=FlipperAppType.PLUGIN,
     entry_point="usb_mouse_app",

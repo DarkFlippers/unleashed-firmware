@@ -45,19 +45,22 @@ void subbrute_scene_load_file_on_enter(void* context) {
                 res = true;
             }
         }
-    }
 
-    if(load_result == SubBruteFileResultOk) {
-        scene_manager_next_scene(instance->scene_manager, SubBruteSceneLoadSelect);
+        if(load_result == SubBruteFileResultOk) {
+            scene_manager_next_scene(instance->scene_manager, SubBruteSceneLoadSelect);
+        } else {
+            FURI_LOG_E(TAG, "Returned error: %d", load_result);
+
+            string_t dialog_msg;
+            string_init(dialog_msg);
+            string_cat_printf(
+                dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
+            dialog_message_show_storage_error(instance->dialogs, string_get_cstr(dialog_msg));
+            string_clear(dialog_msg);
+            scene_manager_search_and_switch_to_previous_scene(
+                instance->scene_manager, SubBruteSceneStart);
+        }
     } else {
-        FURI_LOG_E(TAG, "Returned error: %d", load_result);
-
-        string_t dialog_msg;
-        string_init(dialog_msg);
-        string_cat_printf(
-            dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
-        dialog_message_show_storage_error(instance->dialogs, string_get_cstr(dialog_msg));
-        string_clear(dialog_msg);
         scene_manager_search_and_switch_to_previous_scene(
             instance->scene_manager, SubBruteSceneStart);
     }

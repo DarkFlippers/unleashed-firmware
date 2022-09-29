@@ -1,5 +1,5 @@
 App(
-    appid="tetris_game",
+    appid="Tetris",
     name="Tetris",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="tetris_game_app",

@@ -1,5 +1,5 @@
 App(
-    appid="wav_player",
+    appid="WAV_Player",
     name="WAV Player",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="wav_player_app",

@@ -33,6 +33,7 @@
 
 #include "subghz_history.h"
 #include "subghz_setting.h"
+#include "subghz_last_settings.h"
 
 #include <gui/modules/variable_item_list.h>
 #include <lib/toolbox/path.h>
@@ -100,10 +101,10 @@ struct SubGhz {
     SubGhzTestPacket* subghz_test_packet;
     string_t error_str;
     SubGhzSetting* setting;
+    SubGhzLastSettings* last_settings;
     SubGhzLock lock;
 
     bool in_decoder_scene;
-
     void* rpc_ctx;
 };
 

@@ -20,6 +20,7 @@ typedef struct {
     uint64_t max_value;
     uint64_t current_step;
     bool is_attacking;
+    bool is_continuous_worker;
     IconAnimation* icon;
 } SubBruteAttackViewModel;
 
@@ -47,6 +48,7 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
         with_view_model(
             instance->view, (SubBruteAttackViewModel * model) {
                 model->is_attacking = false;
+                model->is_continuous_worker = false;
                 return true;
             });
         return true;
@@ -67,25 +69,45 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
     //    }
 
     if(!is_attacking) {
-        if((event->type == InputTypeShort || event->type == InputTypeRepeat) &&
-           event->key == InputKeyOk) {
+        if(event->type == InputTypeShort && event->key == InputKeyOk) {
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "InputKey: %d OK", event->key);
 #endif
             with_view_model(
                 instance->view, (SubBruteAttackViewModel * model) {
                     model->is_attacking = true;
+                    model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
                     return true;
                 });
             instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);
-            //        } else if(event->key == InputKeyBack) {
-            //            if(previous_scene == SubBruteSceneLoadFile) {
-            //                instance->callback(SubBruteCustomEventTypeLoadFile, instance->context);
-            //            } else {
-            //                instance->callback(SubBruteCustomEventTypeBackPressed, instance->context);
-            //            }
+            /*if(event->type == InputTypeRepeat && event->key == InputKeyOk) {
+#ifdef FURI_DEBUG
+            FURI_LOG_D(TAG, "InputKey: %d OK. SubBruteCustomEventTypeTransmitContinuousStarted", event->key);
+#endif
+            with_view_model(
+                instance->view, (SubBruteAttackViewModel * model) {
+                    model->is_attacking = true;
+                    model->is_continuous_worker = true;
+                    icon_animation_stop(model->icon);
+                    icon_animation_start(model->icon);
+                    return true;
+                });
+            instance->callback(SubBruteCustomEventTypeTransmitContinuousStarted, instance->context);
+        } else if(event->type == InputTypeShort && event->key == InputKeyOk) {
+#ifdef FURI_DEBUG
+            FURI_LOG_D(TAG, "InputKey: %d OK", event->key);
+#endif
+            with_view_model(
+                instance->view, (SubBruteAttackViewModel * model) {
+                    model->is_attacking = true;
+                    model->is_continuous_worker = false;
+                    icon_animation_stop(model->icon);
+                    icon_animation_start(model->icon);
+                    return true;
+                });
+            instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);*/
         } else if(event->key == InputKeyUp) {
             instance->callback(SubBruteCustomEventTypeSaveFile, instance->context);
         } else if(event->key == InputKeyDown) {
@@ -131,6 +153,7 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             with_view_model(
                 instance->view, (SubBruteAttackViewModel * model) {
                     model->is_attacking = false;
+                    model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
                     return true;
@@ -160,7 +183,6 @@ SubBruteAttackView* subbrute_attack_view_alloc() {
     view_set_input_callback(instance->view, subbrute_attack_view_input);
     view_set_enter_callback(instance->view, subbrute_attack_view_enter);
     view_set_exit_callback(instance->view, subbrute_attack_view_exit);
-
 
     return instance;
 }
@@ -198,7 +220,7 @@ View* subbrute_attack_view_get_view(SubBruteAttackView* instance) {
 void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_t current_step) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "Set step: %d", current_step);
+    //FURI_LOG_D(TAG, "Set step: %d", current_step);
 #endif
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
@@ -207,17 +229,13 @@ void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_
         });
 }
 
-uint64_t subbrute_attack_view_get_current_step(SubBruteAttackView* instance) {
-    uint64_t current_step;
+void subbrute_attack_view_set_worker_type(SubBruteAttackView* instance, bool is_continuous_worker) {
+    furi_assert(instance);
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
-            current_step = model->current_step;
-            return false;
+            model->is_continuous_worker = is_continuous_worker;
+            return true;
         });
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "Get step: %d", current_step);
-#endif
-    return current_step;
 }
 
 // We need to call init every time, because not every time we calls enter
@@ -356,6 +374,9 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
         elements_button_top_left(canvas, "Save");
         elements_button_top_right(canvas, "Resend");
     } else {
+        if(model->is_continuous_worker) {
+            canvas_invert_color(canvas);
+        }
         // canvas_draw_icon_animation
         const uint8_t icon_h_offset = 0;
         const uint8_t icon_width_with_offset = model->icon->icon->width + icon_h_offset;
@@ -370,5 +391,8 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
         elements_progress_bar(canvas, 8, 37, 110, progress_value > 1 ? 1 : progress_value);
 
         elements_button_center(canvas, "Stop");
+        if(model->is_continuous_worker) {
+            canvas_invert_color(canvas);
+        }
     }
 }

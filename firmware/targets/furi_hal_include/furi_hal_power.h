@@ -85,6 +85,12 @@ uint8_t furi_hal_power_get_bat_health_pct();
  */
 bool furi_hal_power_is_charging();
 
+/** Get charge complete status
+ *
+ * @return     true if done charging and connected to charger
+ */
+bool furi_hal_power_is_charging_done();
+
 /** Switch MCU to SHUTDOWN */
 void furi_hal_power_shutdown();
 

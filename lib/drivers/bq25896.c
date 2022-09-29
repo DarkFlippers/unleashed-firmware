@@ -1,5 +1,4 @@
 #include "bq25896.h"
-#include "bq25896_reg.h"
 
 #include <stddef.h>
 
@@ -81,7 +80,7 @@ void bq25896_poweroff(FuriHalI2cBusHandle* handle) {
         handle, BQ25896_ADDRESS, 0x09, *(uint8_t*)&bq25896_regs.r09, BQ25896_I2C_TIMEOUT);
 }
 
-bool bq25896_is_charging(FuriHalI2cBusHandle* handle) {
+ChrgStat bq25896_get_charge_status(FuriHalI2cBusHandle* handle) {
     furi_hal_i2c_read_mem(
         handle,
         BQ25896_ADDRESS,
@@ -91,7 +90,16 @@ bool bq25896_is_charging(FuriHalI2cBusHandle* handle) {
         BQ25896_I2C_TIMEOUT);
     furi_hal_i2c_read_reg_8(
         handle, BQ25896_ADDRESS, 0x0B, (uint8_t*)&bq25896_regs.r0B, BQ25896_I2C_TIMEOUT);
-    return bq25896_regs.r0B.CHRG_STAT != ChrgStatNo;
+    return bq25896_regs.r0B.CHRG_STAT;
+}
+
+bool bq25896_is_charging(FuriHalI2cBusHandle* handle) {
+    // Include precharge, fast charging, and charging termination done as "charging"
+    return bq25896_get_charge_status(handle) != ChrgStatNo;
+}
+
+bool bq25896_is_charging_done(FuriHalI2cBusHandle* handle) {
+    return bq25896_get_charge_status(handle) == ChrgStatDone;
 }
 
 void bq25896_enable_charging(FuriHalI2cBusHandle* handle) {

@@ -1,5 +1,5 @@
 App(
-    appid="tictactoe_game",
+    appid="TicTacToe",
     name="Tic Tac Toe",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="tictactoe_game_app",

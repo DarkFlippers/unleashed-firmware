@@ -1,4 +1,5 @@
 #include <furi_hal_clock.h>
+#include <furi_hal_resources.h>
 #include <furi.h>
 
 #include <stm32wbxx_ll_pwr.h>
@@ -235,4 +236,64 @@ void furi_hal_clock_suspend_tick() {
 
 void furi_hal_clock_resume_tick() {
     SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
+}
+
+void furi_hal_clock_mco_enable(FuriHalClockMcoSourceId source, FuriHalClockMcoDivisorId div) {
+    if(source == FuriHalClockMcoLse) {
+        LL_RCC_ConfigMCO(LL_RCC_MCO1SOURCE_LSE, div);
+    } else if(source == FuriHalClockMcoSysclk) {
+        LL_RCC_ConfigMCO(LL_RCC_MCO1SOURCE_SYSCLK, div);
+    } else {
+        LL_RCC_MSI_Enable();
+        while(LL_RCC_MSI_IsReady() != 1)
+            ;
+        switch(source) {
+        case FuriHalClockMcoMsi100k:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_0);
+            break;
+        case FuriHalClockMcoMsi200k:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_1);
+            break;
+        case FuriHalClockMcoMsi400k:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_2);
+            break;
+        case FuriHalClockMcoMsi800k:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_3);
+            break;
+        case FuriHalClockMcoMsi1m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_4);
+            break;
+        case FuriHalClockMcoMsi2m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_5);
+            break;
+        case FuriHalClockMcoMsi4m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_6);
+            break;
+        case FuriHalClockMcoMsi8m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_7);
+            break;
+        case FuriHalClockMcoMsi16m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_8);
+            break;
+        case FuriHalClockMcoMsi24m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_9);
+            break;
+        case FuriHalClockMcoMsi32m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_10);
+            break;
+        case FuriHalClockMcoMsi48m:
+            LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_11);
+            break;
+        default:
+            break;
+        }
+        LL_RCC_ConfigMCO(LL_RCC_MCO1SOURCE_MSI, div);
+    }
+}
+
+void furi_hal_clock_mco_disable() {
+    LL_RCC_ConfigMCO(LL_RCC_MCO1SOURCE_NOCLOCK, FuriHalClockMcoDiv1);
+    LL_RCC_MSI_Disable();
+    while(LL_RCC_MSI_IsReady() != 0)
+        ;
 }

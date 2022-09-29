@@ -85,7 +85,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_box(canvas, 0, 0, canvas_width(canvas), STATUS_BAR_Y_SHIFT);
     canvas_invert_color(canvas);
-    canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
+    canvas_draw_str_aligned(canvas, 64, 3, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
     canvas_invert_color(canvas);
 
     if(m->is_select_byte) {
