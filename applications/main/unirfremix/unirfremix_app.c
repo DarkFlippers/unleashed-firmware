@@ -178,7 +178,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
     app->right_enabled = 1;
     app->ok_enabled = 1;
 
-    int label_len = 12;
+    int label_len = 16;
 
     //check that map file exists
     if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
