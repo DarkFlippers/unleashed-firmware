@@ -40,13 +40,13 @@ static const NotificationSequence sequence_saved = {
     &message_vibro_off,
     NULL,
 };
-static const NotificationSequence sequence_not_saved = {
-    &message_blink_stop,
-    &message_green_255,
-    &message_blue_255,
-    &message_red_255,
-    NULL,
-};
+//static const NotificationSequence sequence_not_saved = {
+//    &message_blink_stop,
+//    &message_green_255,
+//    &message_blue_255,
+//    &message_red_255,
+//    NULL,
+//};
 
 static const uint32_t subghz_frequency_list[] = {
     300000000, 302757000, 303875000, 304250000, 307000000, 307500000, 307800000,
@@ -255,7 +255,8 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         need_redraw = true;
     }
 
-    if(event->type == InputTypeShort && event->key == InputKeyOk) {
+    if(event->key == InputKeyOk) {
+        bool updated = false;
         with_view_model(
             instance->view, (SubGhzFrequencyAnalyzerModel * model) {
                 uint32_t prev_freq_to_save = model->frequency_to_save;
@@ -282,14 +283,39 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 #endif
                     model->frequency_to_save = frequency_candidate;
                     notification_message(instance->notifications, &sequence_saved);
-                    instance->callback(SubGhzCustomEventViewReceiverOK, instance->context);
                     notification_message(instance->notifications, &sequence_hw_blink);
-                } else {
-                    notification_message(instance->notifications, &sequence_not_saved);
-                    notification_message(instance->notifications, &sequence_hw_blink);
+                    updated = true;
                 }
                 return true;
             });
+
+#if FURI_DEBUG
+        FURI_LOG_I(
+            TAG,
+            "updated: %d, long: %d, type: %d",
+            updated,
+            (event->type == InputTypeLong),
+            event->type);
+#endif
+
+        if(updated) {
+            instance->callback(SubGhzCustomEventViewReceiverOK, instance->context);
+        }
+
+        // First device receive short, then when user release button we get long
+        if(event->type == InputTypeLong) {
+#if FURI_DEBUG
+            FURI_LOG_I(TAG, "Longpress!");
+#endif
+            // Stop blinking
+            notification_message(instance->notifications, &sequence_hw_blink_stop);
+
+            // Stop worker
+            if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
+                subghz_frequency_analyzer_worker_stop(instance->worker);
+            }
+            instance->callback(SubGhzCustomEventViewReceiverUnlock, instance->context);
+        }
     }
 
     if(need_redraw) {
