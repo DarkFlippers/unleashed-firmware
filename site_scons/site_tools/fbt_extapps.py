@@ -37,7 +37,15 @@ def BuildAppElf(env, app):
         APP=app,
     )
 
-    env.Depends(app_elf_augmented, [env["SDK_DEFINITION"], env.Value(app)])
+    manifest_vals = vars(app)
+    manifest_vals = {
+        k: v for k, v in manifest_vals.items() if k not in ("_appdir", "_apppath")
+    }
+
+    env.Depends(
+        app_elf_augmented,
+        [env["SDK_DEFINITION"], env.Value(manifest_vals)],
+    )
     if app.fap_icon:
         env.Depends(
             app_elf_augmented,
@@ -47,6 +55,7 @@ def BuildAppElf(env, app):
 
     app_elf_import_validator = env.ValidateAppImports(app_elf_augmented)
     env.AlwaysBuild(app_elf_import_validator)
+    env.Alias(app_alias, app_elf_import_validator)
     return (app_elf_augmented, app_elf_raw, app_elf_import_validator)
 
 
@@ -100,9 +109,13 @@ def GetExtAppFromPath(env, app_dir):
 
     app_elf = env["_extapps"]["compact"].get(app.appid, None)
     if not app_elf:
-        raise UserError(f"No external app found for {app.appid}")
+        raise UserError(
+            f"Application {app.appid} is not configured for building as external"
+        )
 
-    return (app, app_elf[0])
+    app_validator = env["_extapps"]["validators"].get(app.appid, None)
+
+    return (app, app_elf[0], app_validator[0])
 
 
 def generate(env, **kw):
@@ -138,7 +151,7 @@ def generate(env, **kw):
                     ),
                     Action(
                         validate_app_imports,
-                        None,  # "$APPCHECK_COMSTR",
+                        "$APPCHECK_COMSTR",
                     ),
                 ],
                 suffix=".impsyms",

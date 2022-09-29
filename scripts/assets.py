@@ -39,6 +39,13 @@ class Main(App):
             "manifest", help="Create directory Manifest"
         )
         self.parser_manifest.add_argument("local_path", help="local_path")
+        self.parser_manifest.add_argument(
+            "--timestamp",
+            help="timestamp value to embed",
+            default=0,
+            type=int,
+            required=False,
+        )
         self.parser_manifest.set_defaults(func=self.manifest)
 
         self.parser_copro = self.subparsers.add_parser(
@@ -213,7 +220,7 @@ class Main(App):
         self.logger.info(
             f'Creating temporary Manifest for directory "{directory_path}"'
         )
-        new_manifest = Manifest()
+        new_manifest = Manifest(self.args.timestamp)
         new_manifest.create(directory_path)
 
         self.logger.info(f"Comparing new manifest with existing")
