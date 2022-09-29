@@ -14,7 +14,7 @@ void ibutton_scene_info_on_enter(void* context) {
 
     ibutton_text_store_set(ibutton, "%s", string_get_cstr(key_name));
     widget_add_text_box_element(
-        widget, 0, 0, 128, 28, AlignCenter, AlignCenter, ibutton->text_store, false);
+        widget, 0, 0, 128, 23, AlignCenter, AlignCenter, ibutton->text_store, true);
 
     switch(ibutton_key_get_type(key)) {
     case iButtonKeyDS1990:
@@ -29,26 +29,24 @@ void ibutton_scene_info_on_enter(void* context) {
             key_data[5],
             key_data[6],
             key_data[7]);
-        widget_add_string_element(
-            widget, 64, 51, AlignCenter, AlignBottom, FontSecondary, "Dallas");
+        widget_add_string_element(widget, 64, 36, AlignCenter, AlignBottom, FontPrimary, "Dallas");
         break;
 
     case iButtonKeyMetakom:
         ibutton_text_store_set(
             ibutton, "%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
         widget_add_string_element(
-            widget, 64, 51, AlignCenter, AlignBottom, FontSecondary, "Metakom");
+            widget, 64, 36, AlignCenter, AlignBottom, FontPrimary, "Metakom");
         break;
 
     case iButtonKeyCyfral:
         ibutton_text_store_set(ibutton, "%02X %02X", key_data[0], key_data[1]);
-        widget_add_string_element(
-            widget, 64, 51, AlignCenter, AlignBottom, FontSecondary, "Cyfral");
+        widget_add_string_element(widget, 64, 36, AlignCenter, AlignBottom, FontPrimary, "Cyfral");
         break;
     }
 
     widget_add_string_element(
-        widget, 64, 35, AlignCenter, AlignBottom, FontPrimary, ibutton->text_store);
+        widget, 64, 50, AlignCenter, AlignBottom, FontSecondary, ibutton->text_store);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
 
