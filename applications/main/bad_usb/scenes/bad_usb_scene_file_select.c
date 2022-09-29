@@ -8,6 +8,7 @@ static bool bad_usb_file_select(BadUsbApp* bad_usb) {
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(
         &browser_options, BAD_USB_APP_SCRIPT_EXTENSION, &I_badusb_10px);
+    browser_options.skip_assets = true;
 
     // Input events and views are managed by file_browser
     bool res = dialog_file_browser_show(
