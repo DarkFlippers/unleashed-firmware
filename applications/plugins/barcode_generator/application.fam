@@ -1,5 +1,5 @@
 App(
-    appid="barcode_generator",
+    appid="Barcode_Generator",
     name="UPC-A Generator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="barcode_UPCA_generator_app",

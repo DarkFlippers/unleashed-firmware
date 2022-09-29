@@ -1,5 +1,5 @@
 App(
-    appid="bt_hid",
+    appid="Bluetooth_Remote",
     name="Bluetooth Remote",
     apptype=FlipperAppType.PLUGIN,
     entry_point="bt_hid_app",

@@ -266,6 +266,13 @@ bool furi_hal_power_is_charging() {
     return ret;
 }
 
+bool furi_hal_power_is_charging_done() {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bool ret = bq25896_is_charging_done(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
+}
+
 void furi_hal_power_shutdown() {
     furi_hal_power_insomnia_enter();
 

@@ -21,29 +21,31 @@
 #define TAG "SubBruteApp"
 
 static const char* subbrute_menu_names[] = {
-    [SubBruteAttackCAME12bit307] = "CAME 12bit 307mhz",
-    [SubBruteAttackCAME12bit433] = "CAME 12bit 433mhz",
-    [SubBruteAttackCAME12bit868] = "CAME 12bit 868mhz",
-    [SubBruteAttackChamberlain9bit315] = "Chamberlain 9bit 315mhz",
-    [SubBruteAttackChamberlain9bit390] = "Chamberlain 9bit 390mhz",
-    [SubBruteAttackLinear10bit300] = "Linear 10bit 300mhz",
-    [SubBruteAttackLinear10bit310] = "Linear 10bit 310mhz",
-    [SubBruteAttackNICE12bit433] = "NICE 12bit 433mhz",
-    [SubBruteAttackNICE12bit868] = "NICE 12bit 868mhz",
+    [SubBruteAttackCAME12bit307] = "CAME 12bit 307MHz",
+    [SubBruteAttackCAME12bit433] = "CAME 12bit 433MHz",
+    [SubBruteAttackCAME12bit868] = "CAME 12bit 868MHz",
+    [SubBruteAttackNICE12bit433] = "NICE 12bit 433MHz",
+    [SubBruteAttackNICE12bit868] = "NICE 12bit 868MHz",
+    [SubBruteAttackChamberlain9bit300] = "Chamberlain 9bit 300MHz",
+    [SubBruteAttackChamberlain9bit315] = "Chamberlain 9bit 315MHz",
+    [SubBruteAttackChamberlain9bit390] = "Chamberlain 9bit 390MHz",
+    [SubBruteAttackLinear10bit300] = "Linear 10bit 300MHz",
+    [SubBruteAttackLinear10bit310] = "Linear 10bit 310MHz",
     [SubBruteAttackLoadFile] = "BF existing dump",
     [SubBruteAttackTotalCount] = "Total Count",
 };
 
 static const char* subbrute_menu_names_small[] = {
-    [SubBruteAttackCAME12bit307] = "CAME 307mhz",
-    [SubBruteAttackCAME12bit433] = "CAME 433mhz",
-    [SubBruteAttackCAME12bit868] = "CAME 868mhz",
-    [SubBruteAttackChamberlain9bit315] = "Cham 315mhz",
-    [SubBruteAttackChamberlain9bit390] = "Cham 390mhz",
-    [SubBruteAttackLinear10bit300] = "Linear 300mhz",
-    [SubBruteAttackLinear10bit310] = "Linear 310mhz",
-    [SubBruteAttackNICE12bit433] = "NICE 433mhz",
-    [SubBruteAttackNICE12bit868] = "NICE 868mhz",
+    [SubBruteAttackCAME12bit307] = "CAME 307MHz",
+    [SubBruteAttackCAME12bit433] = "CAME 433MHz",
+    [SubBruteAttackCAME12bit868] = "CAME 868MHz",
+    [SubBruteAttackNICE12bit433] = "NICE 433MHz",
+    [SubBruteAttackNICE12bit868] = "NICE 868MHz",
+    [SubBruteAttackChamberlain9bit300] = "Cham 300MHz",
+    [SubBruteAttackChamberlain9bit315] = "Cham 315MHz",
+    [SubBruteAttackChamberlain9bit390] = "Cham 390MHz",
+    [SubBruteAttackLinear10bit300] = "Linear 300MHz",
+    [SubBruteAttackLinear10bit310] = "Linear 310MHz",
     [SubBruteAttackLoadFile] = "Existing",
     [SubBruteAttackTotalCount] = "Total Count",
 };
@@ -81,7 +83,7 @@ SubBruteState* subbrute_alloc() {
     view_dispatcher_set_navigation_event_callback(
         instance->view_dispatcher, subbrute_back_event_callback);
     view_dispatcher_set_tick_event_callback(
-        instance->view_dispatcher, subbrute_tick_event_callback, 100);
+        instance->view_dispatcher, subbrute_tick_event_callback, 10);
 
     //Dialog
     instance->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -297,6 +299,7 @@ int32_t subbrute_app(void* p) {
     scene_manager_next_scene(instance->scene_manager, SubBruteSceneStart);
 
     furi_hal_power_suppress_charge_enter();
+    notification_message(instance->notifications, &sequence_display_backlight_on);
     view_dispatcher_run(instance->view_dispatcher);
     furi_hal_power_suppress_charge_exit();
     subbrute_free(instance);

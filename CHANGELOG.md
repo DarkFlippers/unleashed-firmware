@@ -1,12 +1,18 @@
 ### New changes
-* PR: SubGHz bruteforcer plugin - deep refactoring (huge thanks to @derskythe ! | PR #75)
-* OFW: Preliminary Rust support
+* Hide layouts folder in badusb app
+* SubGHz: Added 868.8 mhz into user config for sommer systems
+* Renamed apps to make it look a bit better in Apps tab in archive app
+* Infrared: Update assets (by @Amec0e)
+* OFW: Keyboard: show Uppercase keys when replacing content 
+* OFW: (Temporarily excluded due to crashes) Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
+* OFW: Resources cleanup in updater 
+* OFW: Signal Generator app
 
-#### **DFU files no longer included in releases to avoid issues with wrong manual installation of assets - use .tgz file with qFlipper, or install automatically via web updater or use microSD update package**
+#### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
-[- How to install](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
+[-> How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
 
-[- Download qFlipper 1.2.0 (allows .tgz installation) (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0/)
+[-> Download qFlipper 1.2.0 (allows .tgz installation) (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0/)
 
 **Note: To avoid issues with .dfu, prefer installing using .tgz with qFlipper, web updater or by self update package, all needed assets will be installed**
 
