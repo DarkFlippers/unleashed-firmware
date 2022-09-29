@@ -1,5 +1,5 @@
 App(
-    appid="signal_generator",
+    appid="Signal_Generator",
     name="Signal Generator",
     apptype=FlipperAppType.PLUGIN,
     entry_point="signal_gen_app",

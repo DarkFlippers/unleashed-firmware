@@ -1,5 +1,5 @@
 App(
-    appid="flipfrid",
+    appid="RFID_Fuzzer",
     name="RFID Fuzzer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="flipfrid_start",

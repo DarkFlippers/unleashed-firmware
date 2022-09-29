@@ -1,5 +1,5 @@
 App(
-    appid="picopass",
+    appid="Picopass",
     name="PicoPass Reader",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="picopass_app",

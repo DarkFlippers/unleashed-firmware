@@ -1,5 +1,5 @@
 App(
-    appid="snake_game",
+    appid="Snake",
     name="Snake Game",
     apptype=FlipperAppType.PLUGIN,
     entry_point="snake_game_app",
