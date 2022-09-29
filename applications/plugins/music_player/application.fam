@@ -1,5 +1,5 @@
 App(
-    appid="music_player",
+    appid="Music_Player",
     name="Music Player",
     apptype=FlipperAppType.PLUGIN,
     entry_point="music_player_app",

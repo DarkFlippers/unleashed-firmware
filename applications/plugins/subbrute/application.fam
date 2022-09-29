@@ -1,5 +1,5 @@
 App(
-    appid="subbrute",
+    appid="SubGHz_Bruteforcer",
     name="Sub-GHz Bruteforcer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="subbrute_app",

@@ -1,5 +1,5 @@
 App(
-    appid="sub_playlist",
+    appid="SubGHz_Playlist",
     name="Sub-GHz Playlist",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="playlist_app",
