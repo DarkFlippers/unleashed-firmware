@@ -308,7 +308,7 @@ bool update_task_validate_optionbytes(UpdateTask* update_task) {
                 }
             }
         } else {
-            FURI_LOG_I(
+            FURI_LOG_D(
                 TAG,
                 "OB MATCH: #%d: real %08X == %08X (exp.)",
                 idx,

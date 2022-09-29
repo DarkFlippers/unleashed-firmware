@@ -43,6 +43,7 @@ Header,+,firmware/targets/f7/furi_hal/furi_hal_i2c_types.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_idle_timer.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_interrupt.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_os.h,,
+Header,+,firmware/targets/f7/furi_hal/furi_hal_pwm.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_resources.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_spi_config.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_spi_types.h,,
@@ -974,6 +975,8 @@ Function,+,furi_hal_cdc_set_callbacks,void,"uint8_t, CdcCallbacks*, void*"
 Function,+,furi_hal_clock_deinit_early,void,
 Function,-,furi_hal_clock_init,void,
 Function,-,furi_hal_clock_init_early,void,
+Function,+,furi_hal_clock_mco_disable,void,
+Function,+,furi_hal_clock_mco_enable,void,"FuriHalClockMcoSourceId, FuriHalClockMcoDivisorId"
 Function,-,furi_hal_clock_resume_tick,void,
 Function,-,furi_hal_clock_suspend_tick,void,
 Function,-,furi_hal_clock_switch_to_hsi,void,
@@ -1170,6 +1173,9 @@ Function,+,furi_hal_power_sleep,void,
 Function,+,furi_hal_power_sleep_available,_Bool,
 Function,+,furi_hal_power_suppress_charge_enter,void,
 Function,+,furi_hal_power_suppress_charge_exit,void,
+Function,+,furi_hal_pwm_set_params,void,"FuriHalPwmOutputId, uint32_t, uint8_t"
+Function,+,furi_hal_pwm_start,void,"FuriHalPwmOutputId, uint32_t, uint8_t"
+Function,+,furi_hal_pwm_stop,void,FuriHalPwmOutputId
 Function,+,furi_hal_random_fill_buf,void,"uint8_t*, uint32_t"
 Function,+,furi_hal_random_get,uint32_t,
 Function,+,furi_hal_region_get_name,const char*,
@@ -2735,6 +2741,7 @@ Function,+,tar_archive_get_entries_count,int32_t,TarArchive*
 Function,+,tar_archive_open,_Bool,"TarArchive*, const char*, TarOpenMode"
 Function,+,tar_archive_set_file_callback,void,"TarArchive*, tar_unpack_file_cb, void*"
 Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t*, const int32_t"
+Function,+,tar_archive_unpack_file,_Bool,"TarArchive*, const char*, const char*"
 Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, Storage_name_converter"
 Function,-,tempnam,char*,"const char*, const char*"
 Function,+,text_box_alloc,TextBox*,
@@ -4208,6 +4215,8 @@ Variable,+,I_SDQuestion_35x43,const Icon,
 Variable,+,I_SDcardFail_11x8,const Icon,
 Variable,+,I_SDcardMounted_11x8,const Icon,
 Variable,+,I_Scanning_123x52,const Icon,
+Variable,+,I_SmallArrowDown_4x7,const Icon,
+Variable,+,I_SmallArrowUp_4x7,const Icon,
 Variable,+,I_Smile_18x18,const Icon,
 Variable,+,I_Space_65x18,const Icon,
 Variable,+,I_Swing_25x27,const Icon,
