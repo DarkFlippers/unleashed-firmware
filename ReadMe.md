@@ -36,9 +36,11 @@ Our Discord Community:
 * Universal remote for Projectors, Fans, A/Cs and Audio(soundbars, etc.)
 * BadUSB keyboard layouts
 * Customizable Flipper name
+* SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes
 * Other small fixes and changes throughout
+* See other changes in changelog and in readme below
 
-See changelog in releases for latest updates!
+Also check changelog in releases for latest updates!
 
 ### Current modified and new SubGHz protocols list:
 - HCS101
@@ -59,8 +61,8 @@ See changelog in releases for latest updates!
 
 ### Community apps included:
 
-- RFID Fuzzer plugin [(by Ganapati)](https://github.com/Eng1n33r/flipperzero-firmware/pull/54) with some changes by xMasterX
-- Sub-GHz bruteforce plugin [(by Ganapati & xMasterX)](https://github.com/Eng1n33r/flipperzero-firmware/pull/57)
+- RFID Fuzzer plugin [(by Ganapati)](https://github.com/Eng1n33r/flipperzero-firmware/pull/54) with changes by @xMasterX & New protocols by @mvanzanten
+- Sub-GHz bruteforce plugin [(by Ganapati & xMasterX)](https://github.com/Eng1n33r/flipperzero-firmware/pull/57) & Refactored by @derskythe
 - Sub-GHz playlist plugin [(by darmiel)](https://github.com/Eng1n33r/flipperzero-firmware/pull/62)
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
@@ -85,8 +87,10 @@ Games:
 ### Other changes
 
 - BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
-- SubGHz -> New frequency analyzer - [(by ClusterM)](https://github.com/ClusterM)
+- SubGHz -> New frequency analyzer - [(by ClusterM)](https://github.com/Eng1n33r/flipperzero-firmware/pull/43)
 - SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
+- SubGHz -> Save last used frequency and moduluation [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/77)
+- SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/77)
 
 # Instructions
 ## [- How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
@@ -99,7 +103,7 @@ Games:
 
 ### **Plugins**
 
-## [- 💎 Extra plugins precompiled for Unleashed](https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
+## [- 🎲 Download Extra plugins for Unleashed](https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
 ## [- Configure Sub-GHz Remote App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)
 
@@ -139,9 +143,10 @@ Games:
 <br>
 
 # Where I can find IR, SubGhz, ... files, DBs, and other stuff?
-## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
 ## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
+## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
 ## [CAME-12bit, NICE-12bit, Linear-10bit, PT-2240 - SubGHz fixed code bruteforce](https://github.com/tobiabocchi/flipperzero-bruteforce)
+## [SMC5326, UNILARM - SubGHz fixed code bruteforce](https://github.com/Hong5489/flipperzero-gate-bruteforce)
 
 <br>
 <br>
