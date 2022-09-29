@@ -38,7 +38,7 @@ class FlipperApplication:
     sdk_headers: List[str] = field(default_factory=list)
     # .fap-specific
     sources: List[str] = field(default_factory=lambda: ["*.c*"])
-    fap_version: Tuple[int] = field(default_factory=lambda: (0, 0))
+    fap_version: Tuple[int] = field(default_factory=lambda: (0, 1))
     fap_icon: Optional[str] = None
     fap_libs: List[str] = field(default_factory=list)
     fap_category: str = ""

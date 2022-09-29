@@ -28,13 +28,14 @@
             "servertype": "openocd",
             "device": "stlink",
             "svdFile": "./debug/STM32WB55_CM4.svd",
+            // If you're debugging early in the boot process, before OS scheduler is running,
+            // you have to comment out the following line.
             "rtos": "FreeRTOS",
             "configFiles": [
                 "interface/stlink.cfg",
                 "./debug/stm32wbx.cfg",
             ],
             "postAttachCommands": [
-                // "attach 1",
                 // "compare-sections",
                 "source debug/flipperapps.py",
                 // "source debug/FreeRTOS/FreeRTOS.py",
