@@ -4,7 +4,7 @@
 * Renamed apps to make it look a bit better in Apps tab in archive app
 * Infrared: Update assets (by @Amec0e)
 * OFW: Keyboard: show Uppercase keys when replacing content 
-* OFW: Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
+* OFW: (Temporarily excluded due to crashes) Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
 * OFW: Resources cleanup in updater 
 * OFW: Signal Generator app
 
