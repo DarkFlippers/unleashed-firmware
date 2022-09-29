@@ -38,6 +38,7 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
             time_string, TIME_LEN, CLOCK_TIME_FORMAT, curr_dt.hour, curr_dt.minute, curr_dt.second);
     } else {
         bool pm = curr_dt.hour > 12;
+        bool pm12 = curr_dt.hour >= 12;
         snprintf(
             time_string,
             TIME_LEN,
@@ -50,7 +51,7 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
             meridian_string,
             MERIDIAN_LEN,
             MERIDIAN_FORMAT,
-            pm ? MERIDIAN_STRING_PM : MERIDIAN_STRING_AM);
+            pm12 ? MERIDIAN_STRING_PM : MERIDIAN_STRING_AM);
     }
 
     if(state->settings.date_format == Iso) {
