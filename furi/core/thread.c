@@ -209,11 +209,17 @@ bool furi_thread_join(FuriThread* thread) {
 
     furi_check(furi_thread_get_current() != thread);
 
+    // Check if thread was started
+    if(thread->task_handle == NULL) {
+        return false;
+    }
+
+    // Wait for thread to stop
     while(eTaskGetState(thread->task_handle) != eDeleted) {
         furi_delay_ms(10);
     }
 
-    return FuriStatusOk;
+    return true;
 }
 
 FuriThreadId furi_thread_get_id(FuriThread* thread) {
