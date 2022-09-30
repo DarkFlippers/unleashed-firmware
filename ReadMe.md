@@ -37,6 +37,7 @@ Our Discord Community:
 * BadUSB keyboard layouts
 * Customizable Flipper name
 * SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes
+* SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu 
 * Other small fixes and changes throughout
 * See other changes in changelog and in readme below
 
@@ -91,6 +92,7 @@ Games:
 - SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
 - SubGHz -> Save last used frequency and moduluation [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/77)
 - SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/77)
+* SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/Eng1n33r/flipperzero-firmware/pull/79)
 
 # Instructions
 ## [- How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)

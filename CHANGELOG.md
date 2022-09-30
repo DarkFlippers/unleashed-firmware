@@ -1,12 +1,12 @@
 ### New changes
-* Hide layouts folder in badusb app
-* SubGHz: Added 868.8 mhz into user config for sommer systems
-* Renamed apps to make it look a bit better in Apps tab in archive app
+* PR: SubGHz: Long press OK button in SubGHz Frequency analyzer to switch to Read menu (by @derskythe | PR #79)
+* PR: Increase Sub-GHz Remote label line length to 16 chars (by @alexberkowitz | PR #78)
+* Fixed clock AM/PM logic
 * Infrared: Update assets (by @Amec0e)
-* OFW: Keyboard: show Uppercase keys when replacing content 
-* OFW: (Temporarily excluded due to crashes) Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
-* OFW: Resources cleanup in updater 
-* OFW: Signal Generator app
+* OFW: Furi Thread: fixed furi_thread_join, check if thread has not been started
+* OFW: (Returned back) Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
+* OFW: fbt: reproducible manifest builds & improvements
+* OFW PR: iButton GUI fixes (OFW PR 1805 by nminaylov)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
