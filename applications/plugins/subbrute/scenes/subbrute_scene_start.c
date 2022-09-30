@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
-#include "../views/subbrute_main_view.h"
+#include "subbrute_scene.h"
 
 #define TAG "SubBruteSceneStart"
 
@@ -24,7 +23,7 @@ void subbrute_scene_start_on_enter(void* context) {
 
     instance->current_view = SubBruteViewMain;
     subbrute_main_view_set_callback(view, subbrute_scene_start_callback, instance);
-    subbrute_main_view_set_index(view, instance->device->attack, false, NULL);
+    subbrute_main_view_set_index(view, subbrute_device_get_attack(instance->device), false, NULL);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
 }

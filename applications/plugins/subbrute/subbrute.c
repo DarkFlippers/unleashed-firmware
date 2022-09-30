@@ -1,54 +1,8 @@
-#include <furi.h>
-#include <furi_hal.h>
-#include <input/input.h>
-#include <m-string.h>
-
-#include <gui/gui.h>
-#include <gui/view_dispatcher.h>
-#include <gui/view_stack.h>
-#include <gui/scene_manager.h>
-#include <gui/modules/text_input.h>
-#include <gui/modules/popup.h>
-#include <gui/modules/widget.h>
-#include <gui/modules/loading.h>
-
-#include <dialogs/dialogs.h>
-
-#include "subbrute.h"
 #include "subbrute_i.h"
 #include "subbrute_custom_event.h"
+#include "scenes/subbrute_scene.h"
 
 #define TAG "SubBruteApp"
-
-static const char* subbrute_menu_names[] = {
-    [SubBruteAttackCAME12bit307] = "CAME 12bit 307MHz",
-    [SubBruteAttackCAME12bit433] = "CAME 12bit 433MHz",
-    [SubBruteAttackCAME12bit868] = "CAME 12bit 868MHz",
-    [SubBruteAttackNICE12bit433] = "NICE 12bit 433MHz",
-    [SubBruteAttackNICE12bit868] = "NICE 12bit 868MHz",
-    [SubBruteAttackChamberlain9bit300] = "Chamberlain 9bit 300MHz",
-    [SubBruteAttackChamberlain9bit315] = "Chamberlain 9bit 315MHz",
-    [SubBruteAttackChamberlain9bit390] = "Chamberlain 9bit 390MHz",
-    [SubBruteAttackLinear10bit300] = "Linear 10bit 300MHz",
-    [SubBruteAttackLinear10bit310] = "Linear 10bit 310MHz",
-    [SubBruteAttackLoadFile] = "BF existing dump",
-    [SubBruteAttackTotalCount] = "Total Count",
-};
-
-static const char* subbrute_menu_names_small[] = {
-    [SubBruteAttackCAME12bit307] = "CAME 307MHz",
-    [SubBruteAttackCAME12bit433] = "CAME 433MHz",
-    [SubBruteAttackCAME12bit868] = "CAME 868MHz",
-    [SubBruteAttackNICE12bit433] = "NICE 433MHz",
-    [SubBruteAttackNICE12bit868] = "NICE 868MHz",
-    [SubBruteAttackChamberlain9bit300] = "Cham 300MHz",
-    [SubBruteAttackChamberlain9bit315] = "Cham 315MHz",
-    [SubBruteAttackChamberlain9bit390] = "Cham 390MHz",
-    [SubBruteAttackLinear10bit300] = "Linear 300MHz",
-    [SubBruteAttackLinear10bit310] = "Linear 310MHz",
-    [SubBruteAttackLoadFile] = "Existing",
-    [SubBruteAttackTotalCount] = "Total Count",
-};
 
 static bool subbrute_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -70,6 +24,9 @@ static void subbrute_tick_event_callback(void* context) {
 
 SubBruteState* subbrute_alloc() {
     SubBruteState* instance = malloc(sizeof(SubBruteState));
+
+    memset(instance->text_store, 0, sizeof(instance->text_store));
+    string_init(instance->file_path);
 
     instance->scene_manager = scene_manager_alloc(&subbrute_scene_handlers, instance);
     instance->view_dispatcher = view_dispatcher_alloc();
@@ -93,9 +50,6 @@ SubBruteState* subbrute_alloc() {
 
     // Devices
     instance->device = subbrute_device_alloc();
-
-    // Worker
-    instance->worker = subbrute_worker_alloc();
 
     // TextInput
     instance->text_input = text_input_alloc();
@@ -144,17 +98,11 @@ SubBruteState* subbrute_alloc() {
 void subbrute_free(SubBruteState* instance) {
     furi_assert(instance);
 
-    // SubBruteWorker
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteDevice");
-#endif
-    subbrute_worker_stop(instance->worker);
-    subbrute_worker_free(instance->worker);
-
     // SubBruteDevice
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "free SubBruteDevice");
 #endif
+    subbrute_worker_stop(instance->device);
     subbrute_device_free(instance->device);
 
     // Notifications
@@ -239,6 +187,9 @@ void subbrute_free(SubBruteState* instance) {
     furi_record_close(RECORD_GUI);
     instance->gui = NULL;
 
+    string_clear(instance->file_path);
+    string_init(instance->file_path);
+
     // The rest
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "free instance");
@@ -275,18 +226,6 @@ void subbrute_popup_closed_callback(void* context) {
     SubBruteState* instance = context;
     view_dispatcher_send_custom_event(
         instance->view_dispatcher, SubBruteCustomEventTypePopupClosed);
-}
-
-const char* subbrute_get_menu_name(SubBruteAttacks index) {
-    furi_assert(index < SubBruteAttackTotalCount);
-
-    return subbrute_menu_names[index];
-}
-
-const char* subbrute_get_small_menu_name(SubBruteAttacks index) {
-    furi_assert(index < SubBruteAttackTotalCount);
-
-    return subbrute_menu_names_small[index];
 }
 
 // ENTRYPOINT

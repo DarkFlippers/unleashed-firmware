@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
-#include "../views/subbrute_main_view.h"
+#include "subbrute_scene.h"
 
 #define TAG "SubBruteSceneStart"
 
@@ -24,7 +23,7 @@ void subbrute_scene_load_select_on_enter(void* context) {
 
     instance->current_view = SubBruteViewMain;
     subbrute_main_view_set_callback(view, subbrute_scene_load_select_callback, instance);
-    subbrute_main_view_set_index(view, 7, true, instance->device->file_key);
+    subbrute_main_view_set_index(view, 7, true, subbrute_device_get_file_key(instance->device));
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, instance->current_view);
 }
@@ -42,10 +41,8 @@ bool subbrute_scene_load_select_on_event(void* context, SceneManagerEvent event)
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypeIndexSelected) {
-            instance->device->load_index = subbrute_main_view_get_index(instance->view_main);
-#ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "load_index: %d", instance->device->load_index);
-#endif
+            subbrute_device_set_load_index(
+                instance->device, subbrute_main_view_get_index(instance->view_main));
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
             consumed = true;
         }

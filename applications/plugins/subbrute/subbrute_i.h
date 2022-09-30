@@ -4,13 +4,9 @@
 #include <furi_hal.h>
 #include <input/input.h>
 
-#include "lib/toolbox/path.h"
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <m-string.h>
-
-#include <lib/toolbox/stream/stream.h>
-#include <stream_buffer.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
@@ -23,17 +19,11 @@
 
 #include <dialogs/dialogs.h>
 
-#include <lib/subghz/protocols/base.h>
-#include <lib/subghz/transmitter.h>
-#include <lib/subghz/receiver.h>
-#include <lib/subghz/environment.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 
-#include "subbrute_device.h"
-#include "helpers/subbrute_worker.h"
 #include "subbrute.h"
-#include "scenes/subbrute_scene.h"
+#include "subbrute_device_i.h"
 #include "views/subbrute_attack_view.h"
 #include "views/subbrute_main_view.h"
 
@@ -60,6 +50,10 @@ struct SubBruteState {
     DialogsApp* dialogs;
     Loading* loading;
 
+    // Text store
+    char text_store[SUBBRUTE_MAX_LEN_NAME];
+    string_t file_path;
+
     // Views
     SubBruteMainView* view_main;
     SubBruteAttackView* view_attack;
@@ -68,16 +62,10 @@ struct SubBruteState {
     // Scene
     SceneManager* scene_manager;
 
+    // SubBruteDevice
     SubBruteDevice* device;
-    SubBruteWorker* worker;
-
-    //Menu stuff
-    // TODO: Do we need it?
-    uint8_t menu_index;
 };
 
 void subbrute_show_loading_popup(void* context, bool show);
 void subbrute_text_input_callback(void* context);
 void subbrute_popup_closed_callback(void* context);
-const char* subbrute_get_menu_name(uint8_t index);
-const char* subbrute_get_small_menu_name(uint8_t index);

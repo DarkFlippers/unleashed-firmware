@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
-#include <lib/subghz/protocols/registry.h>
+#include "subbrute_scene.h"
 
 #define TAG "SubBruteSceneLoadFile"
 
@@ -40,7 +39,6 @@ void subbrute_scene_load_file_on_enter(void* context) {
             load_result = subbrute_device_attack_set(instance->device, SubBruteAttackLoadFile);
             if(load_result == SubBruteFileResultOk) {
                 // Ready to run!
-                instance->device->state = SubBruteDeviceStateReady;
                 FURI_LOG_I(TAG, "Ready to run");
                 res = true;
             }

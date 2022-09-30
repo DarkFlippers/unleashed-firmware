@@ -10,7 +10,7 @@ typedef enum {
     SubBruteCustomEventTypeBackPressed,
     SubBruteCustomEventTypeIndexSelected,
     SubBruteCustomEventTypeTransmitStarted,
-    SubBruteCustomEventTypeTransmitContinuousStarted,
+    SubBruteCustomEventTypeError,
     SubBruteCustomEventTypeTransmitFinished,
     SubBruteCustomEventTypeTransmitNotStarted,
     SubBruteCustomEventTypeTransmitCustom,

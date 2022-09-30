@@ -1,5 +1,6 @@
 #include "subbrute_main_view.h"
 #include "../subbrute_i.h"
+#include "../subbrute_protocols_i.h"
 
 #include <input/input.h>
 #include <gui/elements.h>
@@ -123,7 +124,6 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
             uint8_t item_position = position - model->window_position;
 
             if(item_position < items_on_screen) {
-                const char* str = subbrute_get_menu_name(position);
                 if(m->index == position) {
                     canvas_draw_str_aligned(
                         canvas,
@@ -131,7 +131,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                         9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
                         AlignLeft,
                         AlignCenter,
-                        str);
+                        subbrute_protocol_name(position));
                     elements_frame(
                         canvas, 1, 1 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 124, 15);
                 } else {
@@ -141,7 +141,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                         9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
                         AlignLeft,
                         AlignCenter,
-                        str);
+                        subbrute_protocol_name(position));
                 }
             }
         }

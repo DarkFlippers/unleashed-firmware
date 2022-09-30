@@ -1,5 +1,6 @@
 #include "subbrute_attack_view.h"
 #include "../subbrute_i.h"
+#include "../subbrute_protocols_i.h"
 
 #include "assets_icons.h"
 #include <input/input.h>
@@ -350,7 +351,7 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
     char buffer[26];
 
     const char* attack_name = NULL;
-    attack_name = subbrute_get_menu_name(model->index);
+    attack_name = subbrute_protocol_name(model->index);
     // Title
     if(model->is_attacking) {
         canvas_set_color(canvas, ColorBlack);
