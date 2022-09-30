@@ -58,7 +58,7 @@ MU_TEST(storage_file_open_lock) {
     storage_file_close(file);
 
     // file_locker thread stop
-    mu_check(furi_thread_join(locker_thread) == FuriStatusOk);
+    mu_check(furi_thread_join(locker_thread));
     furi_thread_free(locker_thread);
 
     // clean data
@@ -148,7 +148,7 @@ MU_TEST(storage_dir_open_lock) {
     storage_dir_close(file);
 
     // file_locker thread stop
-    mu_check(furi_thread_join(locker_thread) == FuriStatusOk);
+    mu_check(furi_thread_join(locker_thread));
     furi_thread_free(locker_thread);
 
     // clean data
