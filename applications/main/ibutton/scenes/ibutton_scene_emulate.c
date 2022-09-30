@@ -15,7 +15,7 @@ static void ibutton_scene_emulate_callback(void* context, bool emulated) {
 
 void ibutton_scene_emulate_on_enter(void* context) {
     iButton* ibutton = context;
-    Popup* popup = ibutton->popup;
+    Widget* widget = ibutton->widget;
     iButtonKey* key = ibutton->key;
 
     const uint8_t* key_data = ibutton_key_get_data_p(key);
@@ -26,20 +26,18 @@ void ibutton_scene_emulate_on_enter(void* context) {
         path_extract_filename(ibutton->file_path, key_name, true);
     }
 
-    uint8_t line_count = 2;
     DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
 
     // check that stored key has name
     if(!string_empty_p(key_name)) {
-        ibutton_text_store_set(ibutton, "emulating\n%s", string_get_cstr(key_name));
-        line_count = 2;
+        ibutton_text_store_set(ibutton, "%s", string_get_cstr(key_name));
     } else {
         // if not, show key data
         switch(ibutton_key_get_type(key)) {
         case iButtonKeyDS1990:
             ibutton_text_store_set(
                 ibutton,
-                "emulating\n%02X %02X %02X %02X\n%02X %02X %02X %02X",
+                "%02X %02X %02X %02X\n%02X %02X %02X %02X",
                 key_data[0],
                 key_data[1],
                 key_data[2],
@@ -48,40 +46,24 @@ void ibutton_scene_emulate_on_enter(void* context) {
                 key_data[5],
                 key_data[6],
                 key_data[7]);
-            line_count = 3;
             break;
         case iButtonKeyCyfral:
-            ibutton_text_store_set(ibutton, "emulating\n%02X %02X", key_data[0], key_data[1]);
-            line_count = 2;
+            ibutton_text_store_set(ibutton, "%02X %02X", key_data[0], key_data[1]);
             break;
         case iButtonKeyMetakom:
             ibutton_text_store_set(
-                ibutton,
-                "emulating\n%02X %02X %02X %02X",
-                key_data[0],
-                key_data[1],
-                key_data[2],
-                key_data[3]);
-            line_count = 2;
+                ibutton, "%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
             break;
         }
     }
 
-    switch(line_count) {
-    case 3:
-        popup_set_header(popup, "iButton", 82, 18, AlignCenter, AlignBottom);
-        popup_set_text(popup, ibutton->text_store, 82, 22, AlignCenter, AlignTop);
-        break;
+    widget_add_string_multiline_element(
+        widget, 90, 10, AlignCenter, AlignTop, FontPrimary, "iButton\nemulating");
+    widget_add_icon_element(widget, 3, 10, &I_iButtonKey_49x44);
+    widget_add_text_box_element(
+        widget, 54, 39, 75, 22, AlignCenter, AlignCenter, ibutton->text_store, true);
 
-    default:
-        popup_set_header(popup, "iButton", 82, 24, AlignCenter, AlignBottom);
-        popup_set_text(popup, ibutton->text_store, 82, 28, AlignCenter, AlignTop);
-        break;
-    }
-
-    popup_set_icon(popup, 2, 10, &I_iButtonKey_49x44);
-
-    view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
+    view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
 
     ibutton_worker_emulate_set_callback(
         ibutton->key_worker, ibutton_scene_emulate_callback, ibutton);
@@ -122,10 +104,7 @@ bool ibutton_scene_emulate_on_event(void* context, SceneManagerEvent event) {
 
 void ibutton_scene_emulate_on_exit(void* context) {
     iButton* ibutton = context;
-    Popup* popup = ibutton->popup;
     ibutton_worker_stop(ibutton->key_worker);
-    popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
-    popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, NULL);
+    widget_reset(ibutton->widget);
     ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
 }
