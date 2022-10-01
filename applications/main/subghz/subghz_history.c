@@ -77,14 +77,14 @@ bool subghz_history_clear_dir_or_create(SubGhzHistory* instance, bool only_remov
     storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &fileinfo);
 
     // This is temp
-    bool res = instance->write_tmp_files = true;
+    bool res = false; //instance->write_tmp_files = true;
 
     // Uncomment it
-    // if(fileinfo.flags & FSF_DIRECTORY) {
-    //     res = storage_simply_remove_recursive(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
-    // } else {
-    //     res = (storage_common_remove(instance->storage, SUBGHZ_HISTORY_TMP_DIR) == FSE_OK);
-    // }
+    if(fileinfo.flags & FSF_DIRECTORY) {
+        res = storage_simply_remove_recursive(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
+    } else {
+        res = (storage_common_remove(instance->storage, SUBGHZ_HISTORY_TMP_DIR) == FSE_OK);
+    }
 
 #if FURI_DEBUG
     FURI_LOG_D(TAG, "storage_common_remove done: %s", res ? "true" : "false");
@@ -93,13 +93,13 @@ bool subghz_history_clear_dir_or_create(SubGhzHistory* instance, bool only_remov
 
     // Uncomment it
     // Stage 2 - create dir
-    //     if(!only_remove_dir && res) {
-    //         res = storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
-    // #if FURI_DEBUG
-    //         FURI_LOG_D(TAG, "storage_simply_mkdir done: %s", res ? "true" : "false");
-    //         furi_delay_ms(LOG_DELAY);
-    // #endif
-    //     }
+    if(!only_remove_dir && res) {
+        res = storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
+#if FURI_DEBUG
+        FURI_LOG_D(TAG, "storage_simply_mkdir done: %s", res ? "true" : "false");
+        furi_delay_ms(LOG_DELAY);
+#endif
+    }
 
     return res;
 }
