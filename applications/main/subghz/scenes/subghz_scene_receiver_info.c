@@ -26,6 +26,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
         subghz->txrx->receiver,
         subghz_history_get_protocol_name(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
     if(subghz->txrx->decoder_result) {
+        // In this case flipper format was changed to short file content
         subghz_protocol_decoder_base_deserialize(
             subghz->txrx->decoder_result,
             subghz_history_get_raw_data(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
