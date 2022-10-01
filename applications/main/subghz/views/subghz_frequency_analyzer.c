@@ -194,7 +194,7 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t prev_freq = 0;
     uint32_t current = 0;
     uint32_t result = 0;
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "input: %d", input);
 #endif
     for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
@@ -274,7 +274,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     frequency_candidate = subghz_frequency_find_correct(frequency_candidate);
                 }
                 if(frequency_candidate > 0 && frequency_candidate != model->frequency_to_save) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
                     FURI_LOG_D(
                         TAG,
                         "frequency_to_save: %d, candidate: %d",
@@ -289,7 +289,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                 return true;
             });
 
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
         FURI_LOG_I(
             TAG,
             "updated: %d, long: %d, type: %d",
@@ -304,7 +304,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 
         // First device receive short, then when user release button we get long
         if(event->type == InputTypeLong) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
             FURI_LOG_I(TAG, "Longpress!");
 #endif
             // Stop blinking

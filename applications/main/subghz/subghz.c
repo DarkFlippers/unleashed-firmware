@@ -180,10 +180,10 @@ SubGhz* subghz_alloc() {
     subghz->last_settings = subghz_last_settings_alloc();
     subghz_last_settings_load(
         subghz->last_settings, subghz_setting_get_preset_count(subghz->setting));
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FURI_LOG_D(
         TAG,
-        "last frequency: %d, preset: %d, detect_raw: %d",
+        "Last frequency: %d, Preset: %d, Detect_RAW: %d",
         subghz->last_settings->frequency,
         subghz->last_settings->preset,
         subghz->last_settings->detect_raw);

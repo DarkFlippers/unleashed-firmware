@@ -29,7 +29,7 @@ void subghz_last_settings_free(SubGhzLastSettings* instance) {
 
 void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count) {
     furi_assert(instance);
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FURI_LOG_I(TAG, "subghz_last_settings_load");
 #endif
 
@@ -76,8 +76,8 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
 
 bool subghz_last_settings_save(SubGhzLastSettings* instance) {
     furi_assert(instance);
-#if FURI_DEBUG
-    FURI_LOG_I(TAG, "subghz_last_settings_save");
+#ifdef FURI_DEBUG
+    FURI_LOG_I(TAG, "last_settings_save");
 #endif
 
     bool saved = false;
