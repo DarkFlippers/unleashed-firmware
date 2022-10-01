@@ -3,9 +3,15 @@
 #include <flipper_format/flipper_format_i.h>
 
 #define SUBGHZ_HISTORY_MAX 65
+
+/**
+ * @brief Settings for temporary files
+ * 
+ */
 #define SUBGHZ_HISTORY_TMP_DIR EXT_PATH("subghz/tmp_history")
 #define SUBGHZ_HISTORY_TMP_EXTENSION ".tmp"
 #define SUBGHZ_HISTORY_TMP_FILE_KEY "Filename"
+
 #define TAG "SubGhzHistory"
 
 typedef struct {
@@ -35,14 +41,14 @@ struct SubGhzHistory {
     SubGhzHistoryStruct* history;
 };
 
-#if FURI_DEBUG
-#define LOG_DELAY 1
+#ifdef FURI_DEBUG
+#define LOG_DELAY 0
 #endif
 
 /**
  * @brief Generate filename like 000.tmp
  * 
- * @param filename 
+ * @param filename - input parameter
  * @param index - index of file, timestamp doesn't accepted!
  */
 void subghz_history_generate_temp_filename(string_t filename, uint32_t index) {
@@ -52,56 +58,98 @@ void subghz_history_generate_temp_filename(string_t filename, uint32_t index) {
 }
 
 /**
- * @brief Check SD card, recursive delete dir and files and create new dir
+ * @brief Check if directory for temporary files is exists
  * 
- * @param instance 
- * @param only_remove_dir 
+ * @param instance SubGhzHistory*
+ * @return true 
+ * @return false 
+ */
+bool subghz_history_is_tmp_dir_exists(SubGhzHistory* instance) {
+    FileInfo file_info;
+    storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &file_info);
+
+    if(storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &file_info) == FSE_OK) {
+        if(file_info.flags & FSF_DIRECTORY) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @brief Check SD card and create temporary dir if not exists,
+ * Result write_tmp_files without this unstable work is GUARANTEED
+ * 
+ * @param instance - SubGhzHistory*
+ * @return - true all ok
+ * @return - false we have a problems
+ */
+bool subghz_history_check_sdcard(SubGhzHistory* instance) {
+#ifdef FURI_DEBUG
+    FURI_LOG_I(TAG, "check_sdcard");
+    uint32_t start_time = furi_get_tick();
+#endif
+
+    bool result = false;
+    // Stage 0 - check SD Card
+    FS_Error status = storage_sd_status(instance->storage);
+    if(status == FSE_OK) {
+        result = subghz_history_is_tmp_dir_exists(instance);
+        if(!subghz_history_is_tmp_dir_exists(instance)) {
+            result = storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
+        }
+    } else {
+        FURI_LOG_W(TAG, "SD storage not installed! Status: %d", status);
+    }
+#ifdef FURI_DEBUG
+    FURI_LOG_I(TAG, "Running time (check_sdcard): %d ms", furi_get_tick() - start_time);
+#endif
+
+    return result;
+}
+
+/**
+ * @brief Recursive delete dir and files and create new temp dir
+ * 
+ * @param instance - SubGhzHistory*
  * @return true - if all ok
  * @return false - if something failed
  */
-bool subghz_history_clear_dir_or_create(SubGhzHistory* instance, bool only_remove_dir) {
-#if FURI_DEBUG
-    FURI_LOG_D(TAG, "subghz_history_clear_dir_or_create: %s", only_remove_dir ? "true" : "false");
-    furi_delay_ms(LOG_DELAY);
+void subghz_history_clear_tmp_dir(SubGhzHistory* instance) {
+    furi_assert(instance);
+#ifdef FURI_DEBUG
+    FURI_LOG_I(TAG, "clear_tmp_dir");
 #endif
 
-    // Stage 0 - SD installed?
-    FS_Error status = storage_sd_status(instance->storage);
-    if(status != FSE_OK) {
-        FURI_LOG_W(TAG, "SD storage not installed! Status: %d", status);
-        return false;
+    if(!instance->write_tmp_files) {
+        // Nothing to do here!
+        return;
+    }
+    uint32_t start_time = furi_get_tick();
+
+    // Stage 0 - Dir exists?
+    bool res = subghz_history_is_tmp_dir_exists(instance);
+    if(res) {
+        // Stage 1 - delete all content if exists
+        FileInfo fileinfo;
+        storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &fileinfo);
+
+        if(fileinfo.flags & FSF_DIRECTORY) {
+            res = storage_simply_remove_recursive(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
+        } else {
+            res = (storage_common_remove(instance->storage, SUBGHZ_HISTORY_TMP_DIR) == FSE_OK);
+        }
     }
 
-    // Stage 1 - delete all content if exists
-    FileInfo fileinfo;
-    storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &fileinfo);
-
-    // This is temp
-    bool res = false; //instance->write_tmp_files = true;
-
-    // Uncomment it
-    if(fileinfo.flags & FSF_DIRECTORY) {
-        res = storage_simply_remove_recursive(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
-    } else {
-        res = (storage_common_remove(instance->storage, SUBGHZ_HISTORY_TMP_DIR) == FSE_OK);
+    // Stage 2 - create dir if necessary
+    res = !storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
+    if(!res) {
+        FURI_LOG_E(TAG, "Cannot process temp dir!");
     }
 
-#if FURI_DEBUG
-    FURI_LOG_D(TAG, "storage_common_remove done: %s", res ? "true" : "false");
-    furi_delay_ms(LOG_DELAY);
-#endif
-
-    // Uncomment it
-    // Stage 2 - create dir
-    if(!only_remove_dir && res) {
-        res = storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
-#if FURI_DEBUG
-        FURI_LOG_D(TAG, "storage_simply_mkdir done: %s", res ? "true" : "false");
-        furi_delay_ms(LOG_DELAY);
-#endif
-    }
-
-    return res;
+    uint32_t stop_time = furi_get_tick() - start_time;
+    FURI_LOG_I(TAG, "Running time (clear_tmp_dir): %d ms", stop_time);
 }
 
 SubGhzHistory* subghz_history_alloc(void) {
@@ -110,16 +158,33 @@ SubGhzHistory* subghz_history_alloc(void) {
     instance->history = malloc(sizeof(SubGhzHistoryStruct));
     SubGhzHistoryItemArray_init(instance->history->data);
     instance->storage = furi_record_open(RECORD_STORAGE);
-    instance->write_tmp_files = false;
+    instance->write_tmp_files = subghz_history_check_sdcard(instance);
 
-#if FURI_DEBUG
-    FURI_LOG_D(TAG, "BEFORE subghz_history_clear_dir_or_create");
-    furi_delay_ms(LOG_DELAY);
-#endif
-    // Check if we can write files on SD
-    instance->write_tmp_files = subghz_history_clear_dir_or_create(instance, false);
+    if(!instance->write_tmp_files) {
+        FURI_LOG_E(TAG, "Unstable work! Cannot use SD Card!");
+    }
 
     return instance;
+}
+
+/**
+ * @brief Free item and free all resources 
+ * 
+ * @param item - SubGhzHistoryItem*
+ */
+void subghz_history_item_free(SubGhzHistoryItem* item) {
+    furi_assert(item);
+    string_clear(item->item_str);
+    string_clear(item->preset->name);
+    string_clear(item->protocol_name);
+
+    free(item->preset);
+    item->type = 0;
+    item->is_file = false;
+
+    if(item->flipper_string != NULL) {
+        flipper_format_free(item->flipper_string);
+    }
 }
 
 /**
@@ -130,17 +195,7 @@ SubGhzHistory* subghz_history_alloc(void) {
 void subghz_history_clean_item_array(SubGhzHistory* instance) {
     for
         M_EACH(item, instance->history->data, SubGhzHistoryItemArray_t) {
-            string_clear(item->item_str);
-            string_clear(item->preset->name);
-            string_clear(item->protocol_name);
-
-            free(item->preset);
-            item->type = 0;
-            item->is_file = false;
-
-            if(item->flipper_string != NULL) {
-                flipper_format_free(item->flipper_string);
-            }
+            subghz_history_item_free(item);
         }
 }
 
@@ -152,9 +207,8 @@ void subghz_history_free(SubGhzHistory* instance) {
     SubGhzHistoryItemArray_clear(instance->history->data);
     free(instance->history);
 
-    if(instance->write_tmp_files) {
-        instance->write_tmp_files = subghz_history_clear_dir_or_create(instance, true);
-    }
+    // Delete all temporary file, on exit it's ok
+    subghz_history_clear_tmp_dir(instance);
 
     furi_record_close(RECORD_STORAGE);
 
@@ -188,10 +242,6 @@ void subghz_history_reset(SubGhzHistory* instance) {
     SubGhzHistoryItemArray_reset(instance->history->data);
     instance->last_index_write = 0;
     instance->code_last_hash_data = 0;
-
-    if(instance->write_tmp_files) {
-        instance->write_tmp_files = subghz_history_clear_dir_or_create(instance, false);
-    }
 }
 
 uint16_t subghz_history_get_item(SubGhzHistory* instance) {
@@ -221,22 +271,16 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
         bool result_ok = false;
         if(instance->write_tmp_files && item->is_file) {
             // We have files!
-#if FURI_DEBUG
-            FURI_LOG_D(TAG, "We have files!");
-            furi_delay_ms(LOG_DELAY);
-#endif
             string_t filename;
             string_t dir_path;
             string_init(filename);
             string_init(dir_path);
             subghz_history_generate_temp_filename(filename, idx);
-            string_cat_printf(
+            string_init_printf(
                 dir_path, "%s/%s", SUBGHZ_HISTORY_TMP_DIR, string_get_cstr(filename));
-            // string_init_printf(
-            //     dir_path, "%s/%s", SUBGHZ_HISTORY_TMP_DIR, string_get_cstr(filename));
 
             if(storage_file_exists(instance->storage, string_get_cstr(dir_path))) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
                 FURI_LOG_D(TAG, "Exist: %s", dir_path);
                 furi_delay_ms(LOG_DELAY);
 #endif
@@ -248,7 +292,7 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
                 size_t size = stream_load_from_file(
                     dst_stream, instance->storage, string_get_cstr(dir_path));
                 if(size > 0) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
                     FURI_LOG_I(TAG, "Save ok!");
                     furi_delay_ms(LOG_DELAY);
 #endif
@@ -267,7 +311,7 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
             string_clear(filename);
             string_clear(dir_path);
         } else {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
             FURI_LOG_W(TAG, "Write TMP files failed!");
             furi_delay_ms(LOG_DELAY);
 #endif
@@ -314,7 +358,6 @@ bool subghz_history_add_to_history(
 
     instance->code_last_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
     instance->last_update_timestamp = furi_get_tick();
-
     string_t text;
     string_init(text);
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_push_raw(instance->history->data);
@@ -343,9 +386,6 @@ bool subghz_history_add_to_history(
             break;
         } else {
             string_init_printf(item->protocol_name, "%s", string_get_cstr(instance->tmp_string));
-#if FURI_DEBUG
-            FURI_LOG_I(TAG, "File protocol: %s", string_get_cstr(item->protocol_name));
-#endif
         }
         if(!strcmp(string_get_cstr(instance->tmp_string), "RAW")) {
             string_printf(
@@ -403,17 +443,7 @@ bool subghz_history_add_to_history(
         }
     } while(false);
 
-    // Copy streams
-    // Thinking that some data may be saved
-    // Stream* src = flipper_format_get_raw_stream(flipper_string);
-    // stream_seek(src, 0, StreamOffsetFromStart);
-
-    // Stream* dst = string_stream_alloc();
-    // stream_clean(dst);
-    // stream_copy_full(src, dst);
-
     // If we can write to files
-    //bool no_close = false;
     if(instance->write_tmp_files) {
         string_t filename;
         string_t dir_path;
@@ -422,21 +452,16 @@ bool subghz_history_add_to_history(
 
         subghz_history_generate_temp_filename(filename, instance->last_index_write);
         string_cat_printf(dir_path, "%s/%s", SUBGHZ_HISTORY_TMP_DIR, string_get_cstr(filename));
-#if FURI_DEBUG
-        FURI_LOG_I(TAG, "Let's do some hack. Create file %s", string_get_cstr(dir_path));
+#ifdef FURI_DEBUG
+        FURI_LOG_I(TAG, "Save temp file: %s", string_get_cstr(dir_path));
 #endif
         Stream* dst = flipper_format_get_raw_stream(item->flipper_string);
         stream_rewind(dst);
-        // stream_seek(dst, 0, StreamOffsetFromStart);
         if(stream_save_to_file(
                dst, instance->storage, string_get_cstr(dir_path), FSOM_CREATE_ALWAYS) > 0) {
-            // Free flipper_format
-            //flipper_format_free(flipper_string);
-            //flipper_string = NULL;
-            //stream_free(dst);
             flipper_format_free(item->flipper_string);
             item->flipper_string = NULL;
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
             FURI_LOG_I(TAG, "Save done!");
 #endif
             // This item contains fake data to load from SD
@@ -447,15 +472,11 @@ bool subghz_history_add_to_history(
         string_clear(filename);
         string_clear(dir_path);
 
-        /* }*/
     } else {
-#if FURI_DEBUG
-        FURI_LOG_I(TAG, "Old fashion way");
+#ifdef FURI_DEBUG
+        FURI_LOG_W(TAG, "Old fashion way");
 #endif
-        // Old fashion way
-        //item->flipper_string = dst;
     }
-    //flipper_format_free(flipper_string);
 
     string_clear(text);
 
