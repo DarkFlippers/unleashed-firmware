@@ -29,11 +29,6 @@ const char* const detect_raw_text[DETECT_RAW_COUNT] = {
     "ON",
 };
 
-const SubGhzProtocolFlag detect_raw_value[DETECT_RAW_COUNT] = {
-    SubGhzProtocolFlag_Decodable,
-    SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_RAW,
-};
-
 #define RSSI_THRESHOLD_COUNT 7
 const char* const rssi_threshold_text[RSSI_THRESHOLD_COUNT] = {
     "-72db",
@@ -105,20 +100,6 @@ uint8_t subghz_scene_receiver_config_hopper_value_index(
     }
 }
 
-uint8_t subghz_scene_receiver_config_detect_raw_value_index(
-    const SubGhzProtocolFlag value,
-    const SubGhzProtocolFlag values[],
-    uint8_t values_count) {
-    uint8_t index = 0;
-    for(uint8_t i = 0; i < values_count; i++) {
-        if(value == values[i]) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
 uint8_t subghz_scene_receiver_config_rssi_threshold_value_index(
     const int value,
     const int values[],
@@ -186,12 +167,9 @@ static void subghz_scene_receiver_config_set_detect_raw(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, detect_raw_text[index]);
-    subghz_receiver_set_filter(subghz->txrx->receiver, detect_raw_value[index]);
+    subghz->last_settings->detect_raw = index;
 
-    subghz_protocol_decoder_raw_set_auto_mode(
-        subghz_receiver_search_decoder_base_by_name(
-            subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-        (index == 1));
+    subghz_last_settings_set_detect_raw_values(subghz);
 }
 
 static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item) {
@@ -304,10 +282,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             DETECT_RAW_COUNT,
             subghz_scene_receiver_config_set_detect_raw,
             subghz);
-        value_index = subghz_scene_receiver_config_detect_raw_value_index(
-            subghz_receiver_get_filter(subghz->txrx->receiver),
-            detect_raw_value,
-            DETECT_RAW_COUNT);
+        value_index = subghz->last_settings->detect_raw;
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, detect_raw_text[value_index]);
 
