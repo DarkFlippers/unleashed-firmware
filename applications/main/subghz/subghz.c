@@ -183,10 +183,9 @@ SubGhz* subghz_alloc() {
 #if FURI_DEBUG
     FURI_LOG_D(
         TAG,
-        "last frequency: %d, preset: %d, detect_raw: %d",
+        "last frequency: %d, preset: %d",
         subghz->last_settings->frequency,
-        subghz->last_settings->preset,
-        subghz->last_settings->detect_raw);
+        subghz->last_settings->preset);
 #endif
     subghz_setting_set_default_frequency(subghz->setting, subghz->last_settings->frequency);
 
@@ -216,7 +215,7 @@ SubGhz* subghz_alloc() {
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         subghz->txrx->environment, EXT_PATH("subghz/assets/nice_flor_s"));
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
-    subghz_last_settings_set_detect_raw_values(subghz);
+    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
 
     subghz_worker_set_overrun_callback(
         subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
