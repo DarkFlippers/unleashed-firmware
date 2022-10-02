@@ -350,6 +350,10 @@ void subghz_scene_read_raw_on_exit(void* context) {
     subghz->state_notifications = SubGhzNotificationStateIDLE;
     notification_message(subghz->notifications, &sequence_reset_rgb);
 
-    //filter restoration
+//filter restoration
+#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
+    subghz_last_settings_set_detect_raw_values(subghz);
+#else
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+#endif
 }
