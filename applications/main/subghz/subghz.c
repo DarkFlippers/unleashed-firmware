@@ -223,9 +223,9 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     if(!alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();
     }
-    if(!alloc_for_tx_only) {
-        subghz->txrx->worker = subghz_worker_alloc();
-    }
+
+    subghz->txrx->worker = subghz_worker_alloc();
+
     subghz->txrx->fff_data = flipper_format_string_alloc();
     subghz->txrx->secure_data = malloc(sizeof(SecureData));
 
@@ -238,13 +238,11 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
 
-    if(!alloc_for_tx_only) {
-        subghz_worker_set_overrun_callback(
-            subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
-        subghz_worker_set_pair_callback(
-            subghz->txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
-        subghz_worker_set_context(subghz->txrx->worker, subghz->txrx->receiver);
-    }
+    subghz_worker_set_overrun_callback(
+        subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
+    subghz_worker_set_pair_callback(
+        subghz->txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
+    subghz_worker_set_context(subghz->txrx->worker, subghz->txrx->receiver);
 
     //Init Error_str
     string_init(subghz->error_str);
@@ -340,9 +338,9 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     subghz_receiver_free(subghz->txrx->receiver);
 
     subghz_environment_free(subghz->txrx->environment);
-    if(!alloc_for_tx_only) {
-        subghz_worker_free(subghz->txrx->worker);
-    }
+
+    subghz_worker_free(subghz->txrx->worker);
+
     flipper_format_free(subghz->txrx->fff_data);
     if(!alloc_for_tx_only) {
         subghz_history_free(subghz->txrx->history);
