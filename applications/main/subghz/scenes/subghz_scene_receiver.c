@@ -6,13 +6,17 @@
 const NotificationSequence subghz_sequence_rx = {
     &message_green_255,
 
+    &message_display_backlight_on,
+
     &message_vibro_on,
     &message_note_c6,
     &message_delay_50,
     &message_sound_off,
     &message_vibro_off,
 
-    &message_delay_50,
+    &message_delay_1000,
+
+    &message_display_backlight_off,    
     NULL,
 };
 
