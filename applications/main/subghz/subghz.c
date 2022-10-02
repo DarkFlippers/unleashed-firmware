@@ -151,6 +151,7 @@ SubGhz* subghz_alloc() {
         SubGhzViewIdReadRAW,
         subghz_read_raw_get_view(subghz->subghz_read_raw));
 
+#if FURI_DEBUG
     // Carrier Test Module
     subghz->subghz_test_carrier = subghz_test_carrier_alloc();
     view_dispatcher_add_view(
@@ -171,6 +172,7 @@ SubGhz* subghz_alloc() {
         subghz->view_dispatcher,
         SubGhzViewIdStatic,
         subghz_test_static_get_view(subghz->subghz_test_static));
+#endif
 
     //init setting
     subghz->setting = subghz_setting_alloc();
@@ -239,6 +241,7 @@ void subghz_free(SubGhz* subghz) {
         subghz->rpc_ctx = NULL;
     }
 
+#if FURI_DEBUG
     // Packet Test
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestPacket);
     subghz_test_packet_free(subghz->subghz_test_packet);
@@ -250,7 +253,7 @@ void subghz_free(SubGhz* subghz) {
     // Static
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdStatic);
     subghz_test_static_free(subghz->subghz_test_static);
-
+#endif
     // Receiver
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
     subghz_view_receiver_free(subghz->subghz_receiver);
