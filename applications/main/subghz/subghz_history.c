@@ -148,22 +148,8 @@ void subghz_history_clear_tmp_dir(SubGhzHistory* instance) {
         FURI_LOG_E(TAG, "Cannot process temp dir!");
     }
 
-#if FURI_DEBUG
-    FURI_LOG_D(TAG, "storage_common_remove done: %s", res ? "true" : "false");
-    furi_delay_ms(LOG_DELAY);
-#endif
-
-    // Uncomment it
-    // Stage 2 - create dir
-    if(!only_remove_dir) {
-        res = storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
-#if FURI_DEBUG
-        FURI_LOG_D(TAG, "storage_simply_mkdir done: %s", res ? "true" : "false");
-        furi_delay_ms(LOG_DELAY);
-#endif
-    }
-
-    return res;
+    uint32_t stop_time = furi_get_tick() - start_time;
+    FURI_LOG_I(TAG, "Running time (clear_tmp_dir): %d ms", stop_time);
 }
 
 SubGhzHistory* subghz_history_alloc(void) {
@@ -256,10 +242,6 @@ void subghz_history_reset(SubGhzHistory* instance) {
     SubGhzHistoryItemArray_reset(instance->history->data);
     instance->last_index_write = 0;
     instance->code_last_hash_data = 0;
-
-    /*if(instance->write_tmp_files) {
-        instance->write_tmp_files = subghz_history_clear_dir_or_create(instance, false);
-    }*/
 }
 
 uint16_t subghz_history_get_item(SubGhzHistory* instance) {
@@ -390,8 +372,6 @@ bool subghz_history_add_to_history(
     string_init(item->item_str);
     string_init(item->protocol_name);
 
-    bool tmp_file_for_raw = false;
-
     // At this point file mapped to memory otherwise file cannot decoded
     item->flipper_string = flipper_format_string_alloc();
     subghz_protocol_decoder_base_serialize(decoder_base, item->flipper_string, preset);
@@ -417,8 +397,6 @@ bool subghz_history_add_to_history(
             if(!flipper_format_rewind(item->flipper_string)) {
                 FURI_LOG_E(TAG, "Rewind error");
             }
-            tmp_file_for_raw = true;
-
             break;
         } else if(!strcmp(string_get_cstr(instance->tmp_string), "KeeLoq")) {
             string_set_str(instance->tmp_string, "KL ");
@@ -466,7 +444,7 @@ bool subghz_history_add_to_history(
 
     // If we can write to files
     //bool no_close = false;
-    if(instance->write_tmp_files && tmp_file_for_raw) {
+    if(instance->write_tmp_files) {
         string_t filename;
         string_t dir_path;
         string_init(filename);

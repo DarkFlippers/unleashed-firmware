@@ -16,14 +16,11 @@
 
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
 #define SUBGHZ_LAST_SETTING_DEFAULT_READ_RAW 0
+#define SUBGHZ_LAST_SETTING_FIELD_DETECT_RAW "DetectRaw"
 #endif
 
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY "Frequency"
 #define SUBGHZ_LAST_SETTING_FIELD_PRESET "Preset"
-
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-#define SUBGHZ_LAST_SETTING_FIELD_DETECT_RAW "DetectRaw"
-#endif
 
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
