@@ -372,6 +372,8 @@ bool subghz_history_add_to_history(
     string_init(item->item_str);
     string_init(item->protocol_name);
 
+    bool tmp_file_for_raw = false;
+
     // At this point file mapped to memory otherwise file cannot decoded
     item->flipper_string = flipper_format_string_alloc();
     subghz_protocol_decoder_base_serialize(decoder_base, item->flipper_string, preset);
@@ -397,6 +399,7 @@ bool subghz_history_add_to_history(
             if(!flipper_format_rewind(item->flipper_string)) {
                 FURI_LOG_E(TAG, "Rewind error");
             }
+            tmp_file_for_raw = true;
             break;
         } else if(!strcmp(string_get_cstr(instance->tmp_string), "KeeLoq")) {
             string_set_str(instance->tmp_string, "KL ");
@@ -444,7 +447,7 @@ bool subghz_history_add_to_history(
 
     // If we can write to files
     //bool no_close = false;
-    if(instance->write_tmp_files) {
+    if(instance->write_tmp_files && tmp_file_for_raw) {
         string_t filename;
         string_t dir_path;
         string_init(filename);
@@ -474,7 +477,7 @@ bool subghz_history_add_to_history(
 
     } else {
 #ifdef FURI_DEBUG
-        FURI_LOG_W(TAG, "Old fashion way");
+        FURI_LOG_I(TAG, "Old fashion way");
 #endif
     }
 
