@@ -97,6 +97,7 @@ struct SubGhz {
 
     SubGhzFrequencyAnalyzer* subghz_frequency_analyzer;
     SubGhzReadRAW* subghz_read_raw;
+    bool raw_send_only;
 #if FURI_DEBUG
     SubGhzTestStatic* subghz_test_static;
     SubGhzTestCarrier* subghz_test_carrier;
