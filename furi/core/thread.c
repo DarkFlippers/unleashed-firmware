@@ -93,13 +93,15 @@ static void furi_thread_body(void* context) {
             thread->name ? thread->name : "<unknown service>");
     }
 
-    // clear thread local storage
+    // flush stdout
     __furi_thread_stdout_flush(thread);
-    furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) != NULL);
-    vTaskSetThreadLocalStoragePointer(NULL, 0, NULL);
 
     // from here we can't use thread pointer
     furi_thread_set_state(thread, FuriThreadStateStopped);
+
+    // clear thread local storage
+    furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) != NULL);
+    vTaskSetThreadLocalStoragePointer(NULL, 0, NULL);
 
     vTaskDelete(NULL);
     furi_thread_catch();

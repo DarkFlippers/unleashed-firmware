@@ -38,7 +38,6 @@ void lfrfid_scene_write_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    app->old_key_data = (uint8_t*)malloc(size);
     protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
 
     lfrfid_worker_start_thread(app->lfworker);
@@ -92,5 +91,4 @@ void lfrfid_scene_write_on_exit(void* context) {
 
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
-    free(app->old_key_data);
 }
