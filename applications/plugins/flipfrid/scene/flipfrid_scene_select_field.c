@@ -1,42 +1,51 @@
 #include "flipfrid_scene_select_field.h"
 
 void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
-    const char* key_cstr = string_get_cstr(context->data_str);
+    //const char* key_cstr = string_get_cstr(context->data_str);
     uint8_t str_index = (index * 3);
+    int data_len = sizeof(context->data) / sizeof(context->data[0]);
+
+    char str[20];
+    int index_temp = 0;
+
+    for(uint8_t i = 0; i < data_len; i++) {
+        index_temp += snprintf(&str[index_temp], 20-index_temp, "%x", context->data[i]);
+    }
+        
 
     char display_menu[17] = {
         'X', 'X', ' ', 'X', 'X', ' ', '<', 'X', 'X', '>', ' ', 'X', 'X', ' ', 'X', 'X', '\0'};
 
     if(index > 1) {
-        display_menu[0] = key_cstr[str_index - 6];
-        display_menu[1] = key_cstr[str_index - 5];
+        display_menu[0] = str[str_index - 6];
+        display_menu[1] = str[str_index - 5];
     } else {
         display_menu[0] = ' ';
         display_menu[1] = ' ';
     }
 
     if(index > 0) {
-        display_menu[3] = key_cstr[str_index - 3];
-        display_menu[4] = key_cstr[str_index - 2];
+        display_menu[3] = str[str_index - 3];
+        display_menu[4] = str[str_index - 2];
     } else {
         display_menu[3] = ' ';
         display_menu[4] = ' ';
     }
 
-    display_menu[7] = key_cstr[str_index];
-    display_menu[8] = key_cstr[str_index + 1];
+    display_menu[7] = str[str_index];
+    display_menu[8] = str[str_index + 1];
 
-    if((str_index + 4) <= (uint8_t)strlen(key_cstr)) {
-        display_menu[11] = key_cstr[str_index + 3];
-        display_menu[12] = key_cstr[str_index + 4];
+    if((str_index + 4) <= (uint8_t)strlen(str)) {
+        display_menu[11] = str[str_index + 3];
+        display_menu[12] = str[str_index + 4];
     } else {
         display_menu[11] = ' ';
         display_menu[12] = ' ';
     }
 
-    if((str_index + 8) <= (uint8_t)strlen(key_cstr)) {
-        display_menu[14] = key_cstr[str_index + 6];
-        display_menu[15] = key_cstr[str_index + 7];
+    if((str_index + 8) <= (uint8_t)strlen(str)) {
+        display_menu[14] = str[str_index + 6];
+        display_menu[15] = str[str_index + 7];
     } else {
         display_menu[14] = ' ';
         display_menu[15] = ' ';
@@ -62,6 +71,7 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
     if(event.evt_type == EventTypeKey) {
         if(event.input_type == InputTypeShort) {
             const char* key_cstr = string_get_cstr(context->data_str);
+            int data_len = sizeof(context->data) / sizeof(context->data[0]);
 
             // don't look, it's ugly but I'm a python dev so...
             uint8_t nb_bytes = 0;
@@ -73,7 +83,23 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
 
             switch(event.key) {
             case InputKeyDown:
+                FURI_LOG_D(TAG, "Size down: %d", data_len);
+                for(uint8_t i = 0; i < data_len; i++) {
+                    FURI_LOG_D(TAG, "in for down: %d", i);
+                    if(context->key_index == i) {
+                        FURI_LOG_D(TAG, "in for down if: %d", context->data[i]);
+                        context->data[i] = (context->data[i] - 1);
+                    }
+                }
+                break;
             case InputKeyUp:
+                for(uint8_t i = 0; i < data_len; i++) {
+                    FURI_LOG_D(TAG, "in for down: %d", i);
+                    if(context->key_index == i) {
+                        FURI_LOG_D(TAG, "in for down if: %d", context->data[i]);
+                        context->data[i] = (context->data[i] + 1);
+                    }
+                }
                 break;
             case InputKeyLeft:
                 if(context->key_index > 0) {
