@@ -12,10 +12,12 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
     }
 
     for(uint8_t i = 0; i < data_len; i++) {
-        if(context->data[i] < 9 ) {
-            key_index += snprintf(&key_cstr[key_index], key_len-key_index, "0%X ", context->data[i]);
+        if(context->data[i] < 9) {
+            key_index +=
+                snprintf(&key_cstr[key_index], key_len - key_index, "0%X ", context->data[i]);
         } else {
-            key_index += snprintf(&key_cstr[key_index], key_len-key_index, "%X ", context->data[i]);
+            key_index +=
+                snprintf(&key_cstr[key_index], key_len - key_index, "%X ", context->data[i]);
         }
     }
 
