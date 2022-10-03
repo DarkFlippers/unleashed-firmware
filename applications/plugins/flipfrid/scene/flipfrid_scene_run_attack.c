@@ -202,6 +202,7 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                             context->is_attacking = false;
                             notification_message(context->notify, &sequence_blink_stop);
                             notification_message(context->notify, &sequence_single_vibro);
+                            stream_rewind(context->uids_stream);
                             break;
                         };
                         if(string_get_char(context->data_str, 0) == '#') continue;
@@ -209,6 +210,7 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                         break;
                     }
                     FURI_LOG_D(TAG, string_get_cstr(context->data_str));
+                    if(string_size(context->data_str) != 11) break;
 
                     // string is valid, parse it in context->payload
                     for(uint8_t i = 0; i < 5; i++) {
@@ -228,6 +230,7 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                             context->is_attacking = false;
                             notification_message(context->notify, &sequence_blink_stop);
                             notification_message(context->notify, &sequence_single_vibro);
+                            stream_rewind(context->uids_stream);
                             break;
                         };
                         if(string_get_char(context->data_str, 0) == '#') continue;
@@ -235,6 +238,7 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                         break;
                     }
                     FURI_LOG_D(TAG, string_get_cstr(context->data_str));
+                    if(string_size(context->data_str) != 13) break;
 
                     // string is valid, parse it in context->payload
                     for(uint8_t i = 0; i < 6; i++) {
