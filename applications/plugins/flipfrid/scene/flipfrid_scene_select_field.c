@@ -2,15 +2,20 @@
 
 void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
     char key_cstr[18];
+    uint8_t key_len = 18;
     uint8_t str_index = (index * 3);
     int data_len = sizeof(context->data) / sizeof(context->data[0]);
     int key_index = 0;
 
+    if(context->proto == EM4100) {
+        key_len = 16;
+    }
+
     for(uint8_t i = 0; i < data_len; i++) {
-        if(context->data[i] > 9 ) {
-            key_index += snprintf(&key_cstr[key_index], 18-key_index, "%X ", context->data[i]);
+        if(context->data[i] < 9 ) {
+            key_index += snprintf(&key_cstr[key_index], key_len-key_index, "0%X ", context->data[i]);
         } else {
-            key_index += snprintf(&key_cstr[key_index], 18-key_index, "0%X ", context->data[i]);
+            key_index += snprintf(&key_cstr[key_index], key_len-key_index, "%X ", context->data[i]);
         }
     }
 
