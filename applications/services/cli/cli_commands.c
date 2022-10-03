@@ -143,11 +143,37 @@ void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* conte
     xStreamBufferSend(context, buffer, size, 0);
 }
 
+void cli_command_log_level_set_from_string(string_t level) {
+    if(string_cmpi_str(level, "default") == 0) {
+        furi_log_set_level(FuriLogLevelDefault);
+    } else if(string_cmpi_str(level, "none") == 0) {
+        furi_log_set_level(FuriLogLevelNone);
+    } else if(string_cmpi_str(level, "error") == 0) {
+        furi_log_set_level(FuriLogLevelError);
+    } else if(string_cmpi_str(level, "warn") == 0) {
+        furi_log_set_level(FuriLogLevelWarn);
+    } else if(string_cmpi_str(level, "info") == 0) {
+        furi_log_set_level(FuriLogLevelInfo);
+    } else if(string_cmpi_str(level, "debug") == 0) {
+        furi_log_set_level(FuriLogLevelDebug);
+    } else if(string_cmpi_str(level, "trace") == 0) {
+        furi_log_set_level(FuriLogLevelTrace);
+    } else {
+        printf("Unknown log level\r\n");
+    }
+}
+
 void cli_command_log(Cli* cli, string_t args, void* context) {
-    UNUSED(args);
     UNUSED(context);
     StreamBufferHandle_t ring = xStreamBufferCreate(CLI_COMMAND_LOG_RING_SIZE, 1);
     uint8_t buffer[CLI_COMMAND_LOG_BUFFER_SIZE];
+    FuriLogLevel previous_level = furi_log_get_level();
+    bool restore_log_level = false;
+
+    if(string_size(args) > 0) {
+        cli_command_log_level_set_from_string(args);
+        restore_log_level = true;
+    }
 
     furi_hal_console_set_tx_callback(cli_command_log_tx_callback, ring);
 
@@ -158,6 +184,11 @@ void cli_command_log(Cli* cli, string_t args, void* context) {
     }
 
     furi_hal_console_set_tx_callback(NULL, NULL);
+
+    if(restore_log_level) {
+        // There will be strange behaviour if log level is set from settings while log command is running
+        furi_log_set_level(previous_level);
+    }
 
     vStreamBufferDelete(ring);
 }
