@@ -91,20 +91,15 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
 
             switch(event.key) {
             case InputKeyDown:
-                FURI_LOG_D(TAG, "Size down: %d", data_len);
                 for(uint8_t i = 0; i < data_len; i++) {
-                    FURI_LOG_D(TAG, "in for down: %d", i);
                     if(context->key_index == i) {
-                        FURI_LOG_D(TAG, "in for down if: %d", context->data[i]);
                         context->data[i] = (context->data[i] - 1);
                     }
                 }
                 break;
             case InputKeyUp:
                 for(uint8_t i = 0; i < data_len; i++) {
-                    FURI_LOG_D(TAG, "in for down: %d", i);
                     if(context->key_index == i) {
-                        FURI_LOG_D(TAG, "in for down if: %d", context->data[i]);
                         context->data[i] = (context->data[i] + 1);
                     }
                 }
