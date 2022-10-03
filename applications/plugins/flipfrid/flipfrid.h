@@ -31,6 +31,7 @@ typedef enum {
 typedef enum {
     EM4100,
     HIDProx,
+    PAC,
 } FlipFridProtos;
 
 typedef enum {
