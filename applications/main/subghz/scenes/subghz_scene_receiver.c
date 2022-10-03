@@ -6,6 +6,8 @@
 const NotificationSequence subghz_sequence_rx = {
     &message_green_255,
 
+    &message_display_backlight_on,
+
     &message_vibro_on,
     &message_note_c6,
     &message_delay_50,
@@ -185,6 +187,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverOK:
+            // Show file info, scene: receiver_info
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
