@@ -29,10 +29,12 @@ const char* const detect_raw_text[DETECT_RAW_COUNT] = {
     "ON",
 };
 
+#ifndef SUBGHZ_SAVE_DETECT_RAW_SETTING
 const SubGhzProtocolFlag detect_raw_value[DETECT_RAW_COUNT] = {
     SubGhzProtocolFlag_Decodable,
     SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_RAW,
 };
+#endif
 
 #define RSSI_THRESHOLD_COUNT 7
 const char* const rssi_threshold_text[RSSI_THRESHOLD_COUNT] = {
@@ -105,6 +107,7 @@ uint8_t subghz_scene_receiver_config_hopper_value_index(
     }
 }
 
+#ifndef SUBGHZ_SAVE_DETECT_RAW_SETTING
 uint8_t subghz_scene_receiver_config_detect_raw_value_index(
     const SubGhzProtocolFlag value,
     const SubGhzProtocolFlag values[],
@@ -118,6 +121,7 @@ uint8_t subghz_scene_receiver_config_detect_raw_value_index(
     }
     return index;
 }
+#endif
 
 uint8_t subghz_scene_receiver_config_rssi_threshold_value_index(
     const int value,
@@ -186,12 +190,18 @@ static void subghz_scene_receiver_config_set_detect_raw(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, detect_raw_text[index]);
+#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
+    subghz->last_settings->detect_raw = index;
+
+    subghz_last_settings_set_detect_raw_values(subghz);
+#else
     subghz_receiver_set_filter(subghz->txrx->receiver, detect_raw_value[index]);
 
     subghz_protocol_decoder_raw_set_auto_mode(
         subghz_receiver_search_decoder_base_by_name(
             subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
         (index == 1));
+#endif
 }
 
 static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item) {
@@ -244,10 +254,10 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     VariableItem* item;
     uint8_t value_index;
 
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FURI_LOG_D(
         TAG,
-        "last frequency: %d, preset: %d",
+        "Last frequency: %d, Preset: %d",
         subghz->last_settings->frequency,
         subghz->last_settings->preset);
 #endif
@@ -304,10 +314,14 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             DETECT_RAW_COUNT,
             subghz_scene_receiver_config_set_detect_raw,
             subghz);
+#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
+        value_index = subghz->last_settings->detect_raw;
+#else
         value_index = subghz_scene_receiver_config_detect_raw_value_index(
             subghz_receiver_get_filter(subghz->txrx->receiver),
             detect_raw_value,
             DETECT_RAW_COUNT);
+#endif
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, detect_raw_text[value_index]);
 

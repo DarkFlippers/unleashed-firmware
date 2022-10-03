@@ -31,7 +31,7 @@ bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent e
             return true;
         } else if(event.event == SubGhzCustomEventViewReceiverUnlock) {
             // Don't need to save, we already saved on short event
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
             FURI_LOG_W(TAG, "Goto next scene!");
 #endif
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);

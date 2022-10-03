@@ -21,11 +21,15 @@ void subghz_scene_start_on_enter(void* context) {
     if(subghz->state_notifications == SubGhzNotificationStateStarting) {
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
+#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
+    subghz_last_settings_set_detect_raw_values(subghz);
+#else
     subghz_protocol_decoder_raw_set_auto_mode(
         subghz_receiver_search_decoder_base_by_name(
             subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
         false);
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+#endif
 
     submenu_add_item(
         subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);
@@ -49,10 +53,12 @@ void subghz_scene_start_on_enter(void* context) {
         SubmenuIndexFrequencyAnalyzer,
         subghz_scene_start_submenu_callback,
         subghz);
+#if FURI_DEBUG
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         submenu_add_item(
             subghz->submenu, "Test", SubmenuIndexTest, subghz_scene_start_submenu_callback, subghz);
     }
+#endif
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart));
 
@@ -93,12 +99,16 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexFrequencyAnalyzer);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
             return true;
-        } else if(event.event == SubmenuIndexTest) {
+
+        }
+#if FURI_DEBUG
+        else if(event.event == SubmenuIndexTest) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexTest);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTest);
             return true;
         }
+#endif
     }
     return false;
 }

@@ -86,3 +86,5 @@ typedef enum {
     SubGhzViewReceiverModeLive,
     SubGhzViewReceiverModeFile,
 } SubGhzViewReceiverMode;
+
+#define SUBGHZ_HISTORY_REMOVE_SAVED_ITEMS 1
