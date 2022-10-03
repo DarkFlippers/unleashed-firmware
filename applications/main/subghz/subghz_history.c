@@ -445,9 +445,12 @@ bool subghz_history_tmp_write_file_split(
     SubGhzHistory* instance,
     void* current_item,
     string_t dir_path) {
-    furi_assert(instance);
+    UNUSED(instance);
+    UNUSED(current_item);
+    UNUSED(dir_path);
+    /*furi_assert(instance);
     furi_assert(current_item);
-    furi_assert(dir_path);
+    furi_assert(dir_path);*/
     //SubGhzHistoryItem* item = (SubGhzHistoryItem*)current_item;
 
     return false;
