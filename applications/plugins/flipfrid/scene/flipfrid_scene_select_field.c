@@ -1,8 +1,25 @@
 #include "flipfrid_scene_select_field.h"
 
 void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
-    const char* key_cstr = string_get_cstr(context->data_str);
+    char key_cstr[18];
+    uint8_t key_len = 18;
     uint8_t str_index = (index * 3);
+    int data_len = sizeof(context->data) / sizeof(context->data[0]);
+    int key_index = 0;
+
+    if(context->proto == EM4100) {
+        key_len = 16;
+    }
+
+    for(uint8_t i = 0; i < data_len; i++) {
+        if(context->data[i] < 9) {
+            key_index +=
+                snprintf(&key_cstr[key_index], key_len - key_index, "0%X ", context->data[i]);
+        } else {
+            key_index +=
+                snprintf(&key_cstr[key_index], key_len - key_index, "%X ", context->data[i]);
+        }
+    }
 
     char display_menu[17] = {
         'X', 'X', ' ', 'X', 'X', ' ', '<', 'X', 'X', '>', ' ', 'X', 'X', ' ', 'X', 'X', '\0'};
@@ -62,6 +79,7 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
     if(event.evt_type == EventTypeKey) {
         if(event.input_type == InputTypeShort) {
             const char* key_cstr = string_get_cstr(context->data_str);
+            int data_len = sizeof(context->data) / sizeof(context->data[0]);
 
             // don't look, it's ugly but I'm a python dev so...
             uint8_t nb_bytes = 0;
@@ -73,7 +91,18 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
 
             switch(event.key) {
             case InputKeyDown:
+                for(uint8_t i = 0; i < data_len; i++) {
+                    if(context->key_index == i) {
+                        context->data[i] = (context->data[i] - 1);
+                    }
+                }
+                break;
             case InputKeyUp:
+                for(uint8_t i = 0; i < data_len; i++) {
+                    if(context->key_index == i) {
+                        context->data[i] = (context->data[i] + 1);
+                    }
+                }
                 break;
             case InputKeyLeft:
                 if(context->key_index > 0) {
@@ -117,5 +146,5 @@ void flipfrid_scene_select_field_on_draw(Canvas* canvas, FlipFridState* context)
     flipfrid_center_displayed_key(context, context->key_index);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, 64, 40, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
+        canvas, 64, 44, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
 }
