@@ -148,6 +148,13 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             subghz->view_dispatcher,
             SubGhzViewIdFrequencyAnalyzer,
             subghz_frequency_analyzer_get_view(subghz->subghz_frequency_analyzer));
+
+        // Carrier Test Module
+        subghz->subghz_test_carrier = subghz_test_carrier_alloc();
+        view_dispatcher_add_view(
+            subghz->view_dispatcher,
+            SubGhzViewIdTestCarrier,
+            subghz_test_carrier_get_view(subghz->subghz_test_carrier));
     }
     // Read RAW
     subghz->subghz_read_raw = subghz_read_raw_alloc(alloc_for_tx_only);
@@ -157,13 +164,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz_read_raw_get_view(subghz->subghz_read_raw));
 
 #if FURI_DEBUG
-    // Carrier Test Module
-    subghz->subghz_test_carrier = subghz_test_carrier_alloc();
-    view_dispatcher_add_view(
-        subghz->view_dispatcher,
-        SubGhzViewIdTestCarrier,
-        subghz_test_carrier_get_view(subghz->subghz_test_carrier));
-
     // Packet Test
     subghz->subghz_test_packet = subghz_test_packet_alloc();
     view_dispatcher_add_view(
@@ -278,16 +278,16 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestPacket);
     subghz_test_packet_free(subghz->subghz_test_packet);
 
-    // Carrier Test
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestCarrier);
-    subghz_test_carrier_free(subghz->subghz_test_carrier);
-
     // Static
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdStatic);
     subghz_test_static_free(subghz->subghz_test_static);
 #endif
 
     if(!alloc_for_tx_only) {
+        // Carrier Test
+        view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestCarrier);
+        subghz_test_carrier_free(subghz->subghz_test_carrier);
+
         // Receiver
         view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
         subghz_view_receiver_free(subghz->subghz_receiver);
