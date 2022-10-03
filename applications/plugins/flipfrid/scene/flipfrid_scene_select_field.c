@@ -146,5 +146,5 @@ void flipfrid_scene_select_field_on_draw(Canvas* canvas, FlipFridState* context)
     flipfrid_center_displayed_key(context, context->key_index);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, 64, 45, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
+        canvas, 64, 44, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
 }
