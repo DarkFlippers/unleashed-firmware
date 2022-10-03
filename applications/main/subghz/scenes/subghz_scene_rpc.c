@@ -100,7 +100,6 @@ void subghz_scene_rpc_on_exit(void* context) {
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
 
-    // Oh shit here we go again
     keeloq_reset_mfname();
     keeloq_reset_kl_type();
     star_line_reset_mfname();
