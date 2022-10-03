@@ -1,4 +1,3 @@
-#if FURI_DEBUG
 #include "../subghz_i.h"
 #include "../views/subghz_test_carrier.h"
 
@@ -29,4 +28,3 @@ bool subghz_scene_test_carrier_on_event(void* context, SceneManagerEvent event) 
 void subghz_scene_test_carrier_on_exit(void* context) {
     UNUSED(context);
 }
-#endif
