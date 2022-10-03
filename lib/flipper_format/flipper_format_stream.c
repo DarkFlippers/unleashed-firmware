@@ -4,6 +4,10 @@
 #include "flipper_format_stream.h"
 #include "flipper_format_stream_i.h"
 
+static inline bool flipper_format_stream_is_space(char c) {
+    return c == ' ' || c == '\t' || c == flipper_format_eolr;
+}
+
 static bool flipper_format_stream_write(Stream* stream, const void* data, size_t data_size) {
     size_t bytes_written = stream_write(stream, data, data_size);
     return bytes_written == data_size;
@@ -118,55 +122,64 @@ bool flipper_format_stream_seek_to_key(Stream* stream, const char* key, bool str
 }
 
 static bool flipper_format_stream_read_value(Stream* stream, string_t value, bool* last) {
-    string_reset(value);
+    enum { LeadingSpace, ReadValue, TrailingSpace } state = LeadingSpace;
     const size_t buffer_size = 32;
     uint8_t buffer[buffer_size];
     bool result = false;
     bool error = false;
 
+    string_reset(value);
+
     while(true) {
         size_t was_read = stream_read(stream, buffer, buffer_size);
 
         if(was_read == 0) {
-            // check EOF
-            if(stream_eof(stream) && string_size(value) > 0) {
+            if(state != LeadingSpace && stream_eof(stream)) {
                 result = true;
                 *last = true;
-                break;
+            } else {
+                error = true;
             }
         }
 
         for(uint16_t i = 0; i < was_read; i++) {
-            uint8_t data = buffer[i];
-            if(data == flipper_format_eoln) {
-                if(string_size(value) > 0) {
-                    if(!stream_seek(stream, i - was_read, StreamOffsetFromCurrent)) {
-                        error = true;
-                        break;
-                    }
+            const uint8_t data = buffer[i];
 
-                    result = true;
-                    *last = true;
+            if(state == LeadingSpace) {
+                if(flipper_format_stream_is_space(data)) {
+                    continue;
+                } else if(data == flipper_format_eoln) {
+                    stream_seek(stream, i - was_read, StreamOffsetFromCurrent);
+                    error = true;
                     break;
                 } else {
-                    error = true;
+                    state = ReadValue;
+                    string_push_back(value, data);
                 }
-            } else if(data == ' ') {
-                if(string_size(value) > 0) {
+            } else if(state == ReadValue) {
+                if(flipper_format_stream_is_space(data)) {
+                    state = TrailingSpace;
+                } else if(data == flipper_format_eoln) {
                     if(!stream_seek(stream, i - was_read, StreamOffsetFromCurrent)) {
                         error = true;
-                        break;
+                    } else {
+                        result = true;
+                        *last = true;
                     }
-
-                    result = true;
-                    *last = false;
                     break;
+                } else {
+                    string_push_back(value, data);
                 }
-
-            } else if(data == flipper_format_eolr) {
-                // Ignore
-            } else {
-                string_push_back(value, data);
+            } else if(state == TrailingSpace) {
+                if(flipper_format_stream_is_space(data)) {
+                    continue;
+                } else if(!stream_seek(stream, i - was_read, StreamOffsetFromCurrent)) {
+                    error = true;
+                } else {
+                    *last = (data == flipper_format_eoln);
+                    result = true;
+                }
+                break;
             }
         }
 
