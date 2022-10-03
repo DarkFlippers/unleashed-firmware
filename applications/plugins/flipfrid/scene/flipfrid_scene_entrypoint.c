@@ -1,7 +1,7 @@
 #include "flipfrid_scene_entrypoint.h"
 
 string_t menu_items[4];
-string_t menu_proto_items[2];
+string_t menu_proto_items[3];
 
 void flipfrid_scene_entrypoint_menu_callback(
     FlipFridState* context,
@@ -41,6 +41,10 @@ void flipfrid_scene_entrypoint_menu_callback(
         context->proto = HIDProx;
         string_set_str(context->proto_name, "HIDProx");
         break;
+    case PAC:
+        context->proto = PAC;
+        string_set_str(context->proto_name, "PAC/Stanley");
+        break;
     default:
         break;
     }
@@ -66,12 +70,13 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
     string_set(menu_items[3], "Load uids from file");
 
     context->menu_proto_index = 0;
-    for(uint32_t i = 0; i < 2; i++) {
+    for(uint32_t i = 0; i < 3; i++) {
         string_init(menu_proto_items[i]);
     }
 
     string_set(menu_proto_items[0], "EM4100");
     string_set(menu_proto_items[1], "HIDProx");
+    string_set(menu_proto_items[2], "PAC/Stanley");
 }
 
 void flipfrid_scene_entrypoint_on_exit(FlipFridState* context) {
@@ -80,7 +85,7 @@ void flipfrid_scene_entrypoint_on_exit(FlipFridState* context) {
         string_clear(menu_items[i]);
     }
 
-    for(uint32_t i = 0; i < 2; i++) {
+    for(uint32_t i = 0; i < 3; i++) {
         string_clear(menu_proto_items[i]);
     }
 }
@@ -109,7 +114,7 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
                 }
                 break;
             case InputKeyRight:
-                if(context->menu_proto_index < HIDProx) {
+                if(context->menu_proto_index < PAC) {
                     context->menu_proto_index++;
                 }
                 break;
@@ -167,7 +172,7 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
     }
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 34, 4, AlignCenter, AlignTop, "<");
+    canvas_draw_str_aligned(canvas, 27, 4, AlignCenter, AlignTop, "<");
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
@@ -179,9 +184,9 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
         string_get_cstr(menu_proto_items[context->menu_proto_index]));
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 94, 4, AlignCenter, AlignTop, ">");
+    canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
 
-    if(context->menu_proto_index < HIDProx) {
+    if(context->menu_proto_index < PAC) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
             canvas,
