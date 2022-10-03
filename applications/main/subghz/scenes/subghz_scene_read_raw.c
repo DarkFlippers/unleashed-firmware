@@ -134,12 +134,22 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 //Restore default setting
-                subghz_preset_init(
-                    subghz,
-                    subghz_setting_get_preset_name(subghz->setting, subghz->last_settings->preset),
-                    subghz->last_settings->frequency,
-                    NULL,
-                    0);
+                if(subghz->raw_send_only) {
+                    subghz_preset_init(
+                        subghz,
+                        "AM650",
+                        subghz_setting_get_default_frequency(subghz->setting),
+                        NULL,
+                        0);
+                } else {
+                    subghz_preset_init(
+                        subghz,
+                        subghz_setting_get_preset_name(
+                            subghz->setting, subghz->last_settings->preset),
+                        subghz->last_settings->frequency,
+                        NULL,
+                        0);
+                }
                 if(!scene_manager_search_and_switch_to_previous_scene(
                        subghz->scene_manager, SubGhzSceneSaved)) {
                     if(!scene_manager_search_and_switch_to_previous_scene(
@@ -340,6 +350,10 @@ void subghz_scene_read_raw_on_exit(void* context) {
     subghz->state_notifications = SubGhzNotificationStateIDLE;
     notification_message(subghz->notifications, &sequence_reset_rgb);
 
-    //filter restoration
+//filter restoration
+#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
+    subghz_last_settings_set_detect_raw_values(subghz);
+#else
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+#endif
 }

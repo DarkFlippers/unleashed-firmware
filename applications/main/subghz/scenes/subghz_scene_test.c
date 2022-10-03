@@ -1,3 +1,4 @@
+#if FURI_DEBUG
 #include "../subghz_i.h"
 
 enum SubmenuIndex {
@@ -59,3 +60,4 @@ void subghz_scene_test_on_exit(void* context) {
     SubGhz* subghz = context;
     submenu_reset(subghz->submenu);
 }
+#endif
