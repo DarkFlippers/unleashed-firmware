@@ -1,12 +1,8 @@
 ### New changes
-* SubGHz: Now Hopping can't be used at same time with detect RAW feature, fixes issue with freeze 
-* SubGHz: Frequency Analyzer -> turn display on on all feedback modes
-* PR: RFID Fuzzer - Allow the RFID protocol menu to wrap (by @colingrady | PR #84)
-* PR: RFID Fuzzer - Improve UI for added on-the-fly feature (by @mvanzanten | PR #85)
-* OFW PR: NFC update detect reader (OFW PR 1820 by gornekich)
-* OFW PR: Remove bank card uid emulation & fix emv info (OFW PR 1823 by gornekich)
-* OFW PR: Don't turn off the backlight on MFC dict attack (OFW PR 1826 by Astrrra)
-* OFW PR: Infrared error message (OFW PR 1827 by gsurkov)
+* PR: New notification sequence for Frequency Analyzer (PR #86 by @BastienB3)
+* Infrared: Update assets (by @Amec0e)
+* OFW PR: Signal Generator app: UI update (OFW PR 1829 by nminaylov)
+* OFW PR: RFID: write fix for some protocols (OFW PR 1828 by nminaylov)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
