@@ -40,6 +40,25 @@ static const NotificationSequence sequence_saved = {
     &message_vibro_off,
     NULL,
 };
+
+static const NotificationSequence sequence_frequency = {
+    &message_display_backlight_on,
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_blue_255,
+    &message_vibro_off,
+    &message_delay_100,
+    &message_blue_0,
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_vibro_off,
+    NULL,
+};
+
 //static const NotificationSequence sequence_not_saved = {
 //    &message_blink_stop,
 //    &message_green_255,
@@ -366,8 +385,7 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
 
             switch(instance->feedback_level) {
             case 1: // 1 - only vibro
-                notification_message(instance->notifications, &sequence_single_vibro);
-                notification_message(instance->notifications, &sequence_display_backlight_on);
+                notification_message(instance->notifications, &sequence_frequency);
                 break;
             case 2: // 2 - vibro and beep
                 notification_message(instance->notifications, &sequence_success);
