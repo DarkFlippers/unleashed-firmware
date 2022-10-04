@@ -205,8 +205,15 @@ bool protocol_awid_write_data(ProtocolAwid* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Fix incorrect length byte
+    if(protocol->data[0] != 26 && protocol->data[0] != 50 && protocol->data[0] != 37 &&
+       protocol->data[0] != 34) {
+        protocol->data[0] = 26;
+    }
+
     // Correct protocol data by redecoding
     protocol_awid_encode(protocol->data, (uint8_t*)protocol->encoded_data);
+    bit_lib_remove_bit_every_nth((uint8_t*)protocol->encoded_data, 8, 88, 4);
     protocol_awid_decode(protocol->encoded_data, protocol->data);
 
     protocol_awid_encode(protocol->data, (uint8_t*)protocol->encoded_data);

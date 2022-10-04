@@ -79,6 +79,14 @@ static bool protocol_fdx_a_decode(const uint8_t* from, uint8_t* to) {
     return true;
 }
 
+static void protocol_fdx_a_fix_parity(ProtocolFDXA* protocol) {
+    for(size_t i = 0; i < FDXA_DECODED_DATA_SIZE; i++) {
+        if(bit_lib_test_parity_32(protocol->data[i], BitLibParityOdd)) {
+            protocol->data[i] ^= (1 << 7);
+        }
+    }
+}
+
 static bool protocol_fdx_a_can_be_decoded(const uint8_t* data) {
     // check preamble
     if(data[0] != FDXA_PREAMBLE_0 || data[1] != FDXA_PREAMBLE_1 || data[12] != FDXA_PREAMBLE_0 ||
@@ -179,6 +187,7 @@ bool protocol_fdx_a_write_data(ProtocolFDXA* protocol, void* data) {
     bool result = false;
 
     // Correct protocol data by redecoding
+    protocol_fdx_a_fix_parity(protocol);
     protocol_fdx_a_encoder_start(protocol);
     protocol_fdx_a_decode(protocol->encoded_data, protocol->data);
 
