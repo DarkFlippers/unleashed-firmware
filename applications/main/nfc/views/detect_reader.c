@@ -10,29 +10,50 @@ struct DetectReader {
 
 typedef struct {
     uint16_t nonces;
+    uint16_t nonces_max;
+    DetectReaderState state;
 } DetectReaderViewModel;
 
 static void detect_reader_draw_callback(Canvas* canvas, void* model) {
     DetectReaderViewModel* m = model;
     char text[32] = {};
 
-    snprintf(text, sizeof(text), "Tap the reader several times");
-    canvas_draw_str_aligned(canvas, 64, 0, AlignCenter, AlignTop, "Tap the reader several times");
+    // Draw header and icon
+    canvas_draw_icon(canvas, 0, 16, &I_Modern_reader_18x34);
+    if(m->state == DetectReaderStateStart) {
+        snprintf(text, sizeof(text), "Touch the reader");
+        canvas_draw_icon(canvas, 21, 13, &I_Move_flipper_26x39);
+    } else if(m->state == DetectReaderStateReaderDetected) {
+        snprintf(text, sizeof(text), "Move the Flipper away");
+        canvas_draw_icon(canvas, 24, 25, &I_Release_arrow_18x15);
+    } else if(m->state == DetectReaderStateReaderLost) {
+        snprintf(text, sizeof(text), "Touch the reader again");
+        canvas_draw_icon(canvas, 21, 13, &I_Move_flipper_26x39);
+    }
 
-    if(m->nonces == 0) {
+    canvas_draw_str_aligned(canvas, 64, 0, AlignCenter, AlignTop, text);
+
+    // Draw collected nonces
+    if(m->state == DetectReaderStateStart) {
         canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, 52, 22, AlignLeft, AlignTop, "Emulating...");
+        canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Emulating...");
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 52, 35, AlignLeft, AlignTop, "MIFARE Classic");
-        canvas_draw_icon(canvas, 0, 13, &I_Tap_reader_36x38);
+        canvas_draw_str_aligned(canvas, 51, 35, AlignLeft, AlignTop, "MIFARE MFkey32");
     } else {
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, 54, 22, AlignLeft, AlignTop, "Collecting...");
+        if(m->state == DetectReaderStateDone) {
+            canvas_set_font(canvas, FontPrimary);
+            canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Completed!");
+        } else {
+            canvas_set_font(canvas, FontPrimary);
+            canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Collecting...");
+        }
         canvas_set_font(canvas, FontSecondary);
-        snprintf(text, sizeof(text), "Nonces: %d", m->nonces);
-        canvas_draw_str_aligned(canvas, 54, 35, AlignLeft, AlignTop, text);
-        elements_button_right(canvas, "Next");
-        canvas_draw_icon(canvas, 6, 15, &I_ArrowC_1_36x36);
+        snprintf(text, sizeof(text), "Nonce pairs: %d/%d", m->nonces, m->nonces_max);
+        canvas_draw_str_aligned(canvas, 51, 35, AlignLeft, AlignTop, text);
+    }
+    // Draw button
+    if(m->nonces > 0) {
+        elements_button_center(canvas, "Done");
     }
 }
 
@@ -49,7 +70,7 @@ static bool detect_reader_input_callback(InputEvent* event, void* context) {
         });
 
     if(event->type == InputTypeShort) {
-        if(event->key == InputKeyRight) {
+        if(event->key == InputKeyOk) {
             if(nonces > 0) {
                 detect_reader->callback(detect_reader->context);
                 consumed = true;
@@ -84,6 +105,8 @@ void detect_reader_reset(DetectReader* detect_reader) {
     with_view_model(
         detect_reader->view, (DetectReaderViewModel * model) {
             model->nonces = 0;
+            model->nonces_max = 0;
+            model->state = DetectReaderStateStart;
             return false;
         });
 }
@@ -105,11 +128,31 @@ void detect_reader_set_callback(
     detect_reader->context = context;
 }
 
-void detect_reader_inc_nonce_cnt(DetectReader* detect_reader) {
+void detect_reader_set_nonces_max(DetectReader* detect_reader, uint16_t nonces_max) {
+    furi_assert(detect_reader);
+
+    with_view_model(
+        detect_reader->view, (DetectReaderViewModel * model) {
+            model->nonces_max = nonces_max;
+            return false;
+        });
+}
+
+void detect_reader_set_nonces_collected(DetectReader* detect_reader, uint16_t nonces_collected) {
+    furi_assert(detect_reader);
+
+    with_view_model(
+        detect_reader->view, (DetectReaderViewModel * model) {
+            model->nonces = nonces_collected;
+            return false;
+        });
+}
+
+void detect_reader_set_state(DetectReader* detect_reader, DetectReaderState state) {
     furi_assert(detect_reader);
     with_view_model(
         detect_reader->view, (DetectReaderViewModel * model) {
-            model->nonces++;
-            return false;
+            model->state = state;
+            return true;
         });
 }

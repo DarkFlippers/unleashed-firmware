@@ -94,7 +94,7 @@ static bool mfkey32_write_params(Mfkey32* instance, Mfkey32Params* params) {
     string_t str;
     string_init_printf(
         str,
-        "Sector %d key %c cuid %08x nt0 %08x nr0 %08x ar0 %08x nt1 %08x nr1 %08x ar1 %08x\n",
+        "Sec %d key %c cuid %08x nt0 %08x nr0 %08x ar0 %08x nt1 %08x nr1 %08x ar1 %08x\n",
         params->sector,
         params->key == MfClassicKeyA ? 'A' : 'B',
         params->cuid,
