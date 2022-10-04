@@ -142,16 +142,17 @@ void flipfrid_scene_select_field_on_draw(Canvas* canvas, FlipFridState* context)
     // Frame
     //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
-    // Title
-    canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 10, AlignCenter, AlignTop, "Use < > to select byte.");
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str_aligned(canvas, 12, 5, AlignLeft, AlignTop, "Left and right: select byte");
+    canvas_draw_str_aligned(canvas, 12, 15, AlignLeft, AlignTop, "Up and down: adjust byte");
 
     char msg_index[18];
+    canvas_set_font(canvas, FontPrimary);
     snprintf(msg_index, sizeof(msg_index), "Field index : %d", context->key_index);
-    canvas_draw_str_aligned(canvas, 64, 26, AlignCenter, AlignTop, msg_index);
+    canvas_draw_str_aligned(canvas, 64, 30, AlignCenter, AlignTop, msg_index);
 
     flipfrid_center_displayed_key(context, context->key_index);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, 64, 44, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
+        canvas, 64, 45, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
 }
