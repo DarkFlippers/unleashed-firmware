@@ -9,7 +9,7 @@ typedef enum {
     LineIndexTotalCount
 } LineIndex;
 
-static const char* const pwm_ch_names[] = {"TIM1(2)", "LPTIM2(4)"};
+static const char* const pwm_ch_names[] = {"2(A7)", "4(A4)"};
 
 struct SignalGenPwm {
     View* view;
@@ -31,8 +31,8 @@ typedef struct {
 #define ITEM_H 64 / 3
 #define ITEM_W 128
 
-#define VALUE_X 95
-#define VALUE_W 55
+#define VALUE_X 100
+#define VALUE_W 45
 
 #define FREQ_VALUE_X 62
 #define FREQ_MAX 1000000UL
@@ -126,11 +126,11 @@ static void signal_gen_pwm_draw_callback(Canvas* canvas, void* _model) {
 
     for(uint8_t line = 0; line < LineIndexTotalCount; line++) {
         if(line == LineIndexChannel) {
-            line_label = "PWM Channel";
+            line_label = "GPIO Pin";
         } else if(line == LineIndexFrequency) {
             line_label = "Frequency";
         } else if(line == LineIndexDuty) {
-            line_label = "Duty Cycle";
+            line_label = "Pulse width";
         }
 
         canvas_set_color(canvas, ColorBlack);
@@ -162,9 +162,9 @@ static void signal_gen_pwm_draw_callback(Canvas* canvas, void* _model) {
             canvas_set_font(canvas, FontSecondary);
 
             if(model->edit_mode) {
-                uint8_t icon_x = (FREQ_VALUE_X - 1) + (FREQ_DIGITS_NB - model->edit_digit - 1) * 6;
+                uint8_t icon_x = (FREQ_VALUE_X) + (FREQ_DIGITS_NB - model->edit_digit - 1) * 6;
                 canvas_draw_icon(canvas, icon_x, text_y - 9, &I_SmallArrowUp_4x7);
-                canvas_draw_icon(canvas, icon_x, text_y + 4, &I_SmallArrowDown_4x7);
+                canvas_draw_icon(canvas, icon_x, text_y + 5, &I_SmallArrowDown_4x7);
             }
         } else if(line == LineIndexDuty) {
             snprintf(val_text, sizeof(val_text), "%d%%", model->duty);
