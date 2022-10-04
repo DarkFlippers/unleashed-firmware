@@ -568,6 +568,7 @@ const NotificationSequence sequence_audiovisual_alert = {
 };
 
 const NotificationSequence sequence_frequency = {
+    &message_display_backlight_on,
     &message_green_255,
     &message_vibro_on,
     &message_delay_100,
