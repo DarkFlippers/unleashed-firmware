@@ -81,6 +81,8 @@ typedef struct {
     ProtocolDict* dict;
     ProtocolId protocol;
 
+    uint8_t time_between_cards;
+
     // Used for custom dictionnary
     Stream* uids_stream;
 } FlipFridState;

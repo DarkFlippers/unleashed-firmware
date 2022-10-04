@@ -1,8 +1,5 @@
 ### New changes
-* PR: New notification sequence for Frequency Analyzer (PR #86 by @BastienB3)
-* Infrared: Update assets (by @Amec0e)
-* OFW PR: Signal Generator app: UI update (OFW PR 1829 by nminaylov)
-* OFW PR: RFID: write fix for some protocols (OFW PR 1828 by nminaylov)
+* Plugins: RFID Fuzzer - ability to change time delay (between cards), useful for slow readers, you can adjust it on the go
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 

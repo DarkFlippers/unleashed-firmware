@@ -2,7 +2,7 @@
 #include <gui/elements.h>
 
 uint8_t counter = 0;
-#define TIME_BETWEEN_CARDS 6
+
 uint8_t id_list[17][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00}, // Null bytes
     {0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, // Only FF
@@ -78,6 +78,7 @@ uint8_t id_list_h[14][3] = {
 };
 
 void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
+    context->time_between_cards = 10;
     context->attack_step = 0;
     context->dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     context->worker = lfrfid_worker_alloc(context->dict);
@@ -488,30 +489,11 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                 }
             }
         }
-        if(context->proto == PAC) {
-            if(counter > 10) {
-                counter = 0;
-            } else {
-                counter++;
-            }
-        } else if(context->proto == HIDProx) {
-            if(counter > 10) {
-                counter = 0;
-            } else {
-                counter++;
-            }
-        } else if(context->proto == H10301) {
-            if(counter > 10) {
-                counter = 0;
-            } else {
-                counter++;
-            }
+
+        if(counter > context->time_between_cards) {
+            counter = 0;
         } else {
-            if(counter > TIME_BETWEEN_CARDS) {
-                counter = 0;
-            } else {
-                counter++;
-            }
+            counter++;
         }
     }
 }
@@ -521,9 +503,22 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
         if(event.input_type == InputTypeShort) {
             switch(event.key) {
             case InputKeyDown:
+                break;
             case InputKeyUp:
+                break;
             case InputKeyLeft:
+                if(!context->is_attacking) {
+                    if(context->time_between_cards > 0) {
+                        context->time_between_cards--;
+                    }
+                }
+                break;
             case InputKeyRight:
+                if(!context->is_attacking) {
+                    if(context->time_between_cards < 60) {
+                        context->time_between_cards++;
+                    }
+                }
                 break;
             case InputKeyOk:
                 counter = 0;
@@ -562,9 +557,10 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
     // Title
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
-        canvas, 64, 8, AlignCenter, AlignTop, string_get_cstr(context->attack_name));
+        canvas, 64, 2, AlignCenter, AlignTop, string_get_cstr(context->attack_name));
 
     char uid[18];
+    char speed[16];
     if(context->proto == HIDProx) {
         snprintf(
             uid,
@@ -605,18 +601,25 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
             context->payload[4]);
     }
 
-    canvas_draw_str_aligned(canvas, 64, 36, AlignCenter, AlignTop, uid);
+    canvas_draw_str_aligned(canvas, 64, 38, AlignCenter, AlignTop, uid);
 
     canvas_set_font(canvas, FontSecondary);
 
     canvas_draw_str_aligned(
-        canvas, 64, 22, AlignCenter, AlignTop, string_get_cstr(context->proto_name));
+        canvas, 64, 26, AlignCenter, AlignTop, string_get_cstr(context->proto_name));
+
+    snprintf(speed, sizeof(speed), "Time delay: %d", context->time_between_cards);
+
+    //canvas_draw_str_aligned(canvas, 0, 22, AlignLeft, AlignTop, "Speed:");
+    canvas_draw_str_aligned(canvas, 64, 14, AlignCenter, AlignTop, speed);
     //char start_stop_msg[20];
     if(context->is_attacking) {
         elements_button_center(canvas, "Stop");
         //snprintf(start_stop_msg, sizeof(start_stop_msg), " Press OK to stop ");
     } else {
         elements_button_center(canvas, "Start");
+        elements_button_left(canvas, "TD -");
+        elements_button_right(canvas, "+ TD");
     }
     //canvas_draw_str_aligned(canvas, 64, 44, AlignCenter, AlignTop, start_stop_msg);
 }
