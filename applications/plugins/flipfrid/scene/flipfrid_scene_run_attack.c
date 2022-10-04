@@ -60,6 +60,23 @@ uint8_t id_list_pac[17][4] = {
     {0xCA, 0xCA, 0xCA, 0xCA}, // From arha
 };
 
+uint8_t id_list_h[14][3] = {
+    {0x00, 0x00, 0x00}, // Null bytes
+    {0xFF, 0xFF, 0xFF}, // Only FF
+    {0x11, 0x11, 0x11}, // Only 11
+    {0x22, 0x22, 0x22}, // Only 22
+    {0x33, 0x33, 0x33}, // Only 33
+    {0x44, 0x44, 0x44}, // Only 44
+    {0x55, 0x55, 0x55}, // Only 55
+    {0x66, 0x66, 0x66}, // Only 66
+    {0x77, 0x77, 0x77}, // Only 77
+    {0x88, 0x88, 0x88}, // Only 88
+    {0x99, 0x99, 0x99}, // Only 99
+    {0x12, 0x34, 0x56}, // Incremental UID
+    {0x56, 0x34, 0x12}, // Decremental UID
+    {0xCA, 0xCA, 0xCA}, // From arha
+};
+
 void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
     context->attack_step = 0;
     context->dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
@@ -68,6 +85,8 @@ void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
         context->protocol = protocol_dict_get_protocol_by_name(context->dict, "HIDProx");
     } else if(context->proto == PAC) {
         context->protocol = protocol_dict_get_protocol_by_name(context->dict, "PAC/Stanley");
+    } else if(context->proto == H10301) {
+        context->protocol = protocol_dict_get_protocol_by_name(context->dict, "H10301");
     } else {
         context->protocol = protocol_dict_get_protocol_by_name(context->dict, "EM4100");
     }
@@ -118,6 +137,21 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     context->payload[3] = id_list_pac[context->attack_step][3];
 
                     if(context->attack_step == 16) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
+                } else if(context->proto == H10301) {
+                    context->payload[0] = id_list_h[context->attack_step][0];
+                    context->payload[1] = id_list_h[context->attack_step][1];
+                    context->payload[2] = id_list_h[context->attack_step][2];
+
+                    if(context->attack_step == 13) {
                         context->attack_step = 0;
                         counter = 0;
                         context->is_attacking = false;
@@ -182,6 +216,21 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                         context->attack_step++;
                     }
                     break;
+                } else if(context->proto == H10301) {
+                    context->payload[0] = context->attack_step;
+                    context->payload[1] = 0x00;
+                    context->payload[2] = 0x00;
+
+                    if(context->attack_step == 255) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
                 } else {
                     context->payload[0] = context->attack_step;
                     context->payload[1] = 0x00;
@@ -228,6 +277,24 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                     context->payload[1] = context->data[1];
                     context->payload[2] = context->data[2];
                     context->payload[3] = context->data[3];
+
+                    context->payload[context->key_index] = context->attack_step;
+
+                    if(context->attack_step == 255) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_single_vibro);
+                        break;
+                    } else {
+                        context->attack_step++;
+                    }
+                    break;
+                } else if(context->proto == H10301) {
+                    context->payload[0] = context->data[0];
+                    context->payload[1] = context->data[1];
+                    context->payload[2] = context->data[2];
 
                     context->payload[context->key_index] = context->attack_step;
 
@@ -342,6 +409,44 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                         context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
                     }
                     break;
+                } else if(context->proto == H10301) {
+                    bool end_of_list = false;
+                    while(true) {
+                        string_reset(context->data_str);
+                        if(!stream_read_line(context->uids_stream, context->data_str)) {
+                            context->attack_step = 0;
+                            counter = 0;
+                            context->is_attacking = false;
+                            notification_message(context->notify, &sequence_blink_stop);
+                            notification_message(context->notify, &sequence_single_vibro);
+                            stream_rewind(context->uids_stream);
+                            end_of_list = true;
+                            break;
+                        };
+                        if(string_get_char(context->data_str, 0) == '#') continue;
+                        if(string_size(context->data_str) != 7) break;
+                        break;
+                    }
+                    if(end_of_list) break;
+                    FURI_LOG_D(TAG, string_get_cstr(context->data_str));
+                    if(string_size(context->data_str) != 7) {
+                        context->attack_step = 0;
+                        counter = 0;
+                        context->is_attacking = false;
+                        notification_message(context->notify, &sequence_blink_stop);
+                        notification_message(context->notify, &sequence_error);
+                        break;
+                    };
+
+                    // string is valid, parse it in context->payload
+                    for(uint8_t i = 0; i < 3; i++) {
+                        char temp_str[3];
+                        temp_str[0] = string_get_cstr(context->data_str)[i * 2];
+                        temp_str[1] = string_get_cstr(context->data_str)[i * 2 + 1];
+                        temp_str[2] = '\0';
+                        context->payload[i] = (uint8_t)strtol(temp_str, NULL, 16);
+                    }
+                    break;
                 } else {
                     bool end_of_list = false;
                     while(true) {
@@ -390,6 +495,12 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                 counter++;
             }
         } else if(context->proto == HIDProx) {
+            if(counter > 10) {
+                counter = 0;
+            } else {
+                counter++;
+            }
+        } else if(context->proto == H10301) {
             if(counter > 10) {
                 counter = 0;
             } else {
@@ -474,6 +585,14 @@ void flipfrid_scene_run_attack_on_draw(Canvas* canvas, FlipFridState* context) {
             context->payload[1],
             context->payload[2],
             context->payload[3]);
+    } else if(context->proto == H10301) {
+        snprintf(
+            uid,
+            sizeof(uid),
+            "%02X:%02X:%02X",
+            context->payload[0],
+            context->payload[1],
+            context->payload[2]);
     } else {
         snprintf(
             uid,

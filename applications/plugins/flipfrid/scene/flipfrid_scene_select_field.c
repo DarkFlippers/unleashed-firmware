@@ -10,6 +10,12 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
     if(context->proto == EM4100) {
         key_len = 16;
     }
+    if(context->proto == PAC) {
+        key_len = 13;
+    }
+    if(context->proto == H10301) {
+        key_len = 10;
+    }
 
     for(uint8_t i = 0; i < data_len; i++) {
         if(context->data[i] < 9) {
@@ -119,6 +125,7 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
                 context->current_scene = SceneAttack;
                 break;
             case InputKeyBack:
+                context->key_index = 0;
                 string_reset(context->notification_msg);
                 context->current_scene = SceneSelectFile;
                 break;
