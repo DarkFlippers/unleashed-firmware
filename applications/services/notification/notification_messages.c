@@ -566,3 +566,21 @@ const NotificationSequence sequence_audiovisual_alert = {
     &message_vibro_off,
     NULL,
 };
+
+const NotificationSequence sequence_frequency = {
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_blue_255,
+    &message_vibro_off,
+    &message_delay_100,
+    &message_blue_0,
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_vibro_off,
+    &message_cyan_255,
+    NULL,
+};
