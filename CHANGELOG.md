@@ -1,12 +1,13 @@
 ### New changes
-* PR: SubGHz: Long press OK button in SubGHz Frequency analyzer to switch to Read menu (by @derskythe | PR #79)
-* PR: Increase Sub-GHz Remote label line length to 16 chars (by @alexberkowitz | PR #78)
-* Fixed clock AM/PM logic
+* Plugins: RFID Fuzzer - fix crashes, fix bugs, improve gui, add more examples, add new protocols - PAC/Stanley, H10301 (@xMasterX)
+* PR: SubGHz: Fix Detect RAW crashes, fix critical RPC issues, improve startup speed for favourites (by @derskythe & @xMasterX | PR #80)
+* PR: RFID Fuzzer - ability to change bits (up/down) in Load file menu (by @mvanzanten | PR #83)
+* PR: SubGHz - turn display on when signal received (by @TQMatvey | PR #82)
 * Infrared: Update assets (by @Amec0e)
-* OFW: Furi Thread: fixed furi_thread_join, check if thread has not been started
-* OFW: (Returned back) Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
-* OFW: fbt: reproducible manifest builds & improvements
-* OFW PR: iButton GUI fixes (OFW PR 1805 by nminaylov)
+* OFW: Thread: Clear TLS after thread stop
+* OFW: Fix memory leak in lfRFID write
+* OFW PR: CLI: log command argument (OFW PR 1817 by DrZlo13)
+* OFW PR: FFF trailing space fix (OFW PR 1811 by gsurkov)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 

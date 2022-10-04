@@ -1,19 +1,43 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 25th Sept, 2022
+# Last Updated 30th Sept, 2022
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0B 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 06 00 00 00
 #
 name: POWER
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9150 4435 643 1608 643 468 644 469 642 364 749 468 643 447 665 449 663 469 643 452 660 470 642 450 662 442 670 449 662 469 643 1579 672 1608 642 1580 671 1609 641 1607 643 1578 672 1607 643 1608 642 1606 644 1606 644 1606 644 1607 643 1576 675 1579 671 1605 674 438 645 466 673 438 646 466 674 437 673 439 672 439 673 438 646 1604 673 1577 673 1578 673 1577 674 1577 673 23799 9095 4485 616
-# 
+#
 name: VOL+
 type: parsed
 protocol: NEC42
 address: 01 00 00 00
 command: 0C 00 00 00
-# 
+#
 name: VOL-
 type: raw
 frequency: 38000
@@ -1471,19 +1495,19 @@ type: parsed
 protocol: NECext
 address: 12 36 00 00
 command: 0A F5 00 00
-# 
+#
 name: VOL-
 type: parsed
 protocol: NECext
 address: 12 36 00 00
 command: 0B F4 00 00
-# 
+#
 name: MUTE
 type: parsed
 protocol: NECext
 address: 12 36 00 00
 command: 09 F6 00 00
-# 
+#
 name: POWER
 type: parsed
 protocol: NECext
