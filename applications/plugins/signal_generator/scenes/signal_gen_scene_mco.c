@@ -1,12 +1,17 @@
 #include "../signal_gen_app_i.h"
 
 typedef enum {
+    LineIndexPin,
     LineIndexSource,
     LineIndexDivision,
 } LineIndex;
 
+static const char* const mco_pin_names[] = {
+    "13(Tx)",
+};
+
 static const char* const mco_source_names[] = {
-    "32768",
+    "32768Hz",
     "64MHz",
     "~100K",
     "~200K",
@@ -81,14 +86,22 @@ void signal_gen_scene_mco_on_enter(void* context) {
 
     VariableItem* item;
 
+    item = variable_item_list_add(var_item_list, "GPIO Pin", COUNT_OF(mco_pin_names), NULL, NULL);
+    variable_item_set_current_value_index(item, 0);
+    variable_item_set_current_value_text(item, mco_pin_names[0]);
+
     item = variable_item_list_add(
-        var_item_list, "Source", COUNT_OF(mco_source_names), mco_source_list_change_callback, app);
+        var_item_list,
+        "Frequency",
+        COUNT_OF(mco_source_names),
+        mco_source_list_change_callback,
+        app);
     variable_item_set_current_value_index(item, 0);
     variable_item_set_current_value_text(item, mco_source_names[0]);
 
     item = variable_item_list_add(
         var_item_list,
-        "Division",
+        "Freq. divider",
         COUNT_OF(mco_divisor_names),
         mco_divisor_list_change_callback,
         app);
