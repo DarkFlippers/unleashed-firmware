@@ -581,6 +581,5 @@ const NotificationSequence sequence_frequency = {
     &message_delay_100,
     &message_green_0,
     &message_vibro_off,
-    &message_cyan_255,
     NULL,
 };
