@@ -51,6 +51,13 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
                     string_set_str(context->notification_msg, "Unsupported Key type");
                     break;
                 }
+            } else if(context->proto == H10301) {
+                if(strcmp(string_get_cstr(temp_str), "H10301") != 0) {
+                    FURI_LOG_E(TAG, "Unsupported Key type");
+                    string_reset(context->notification_msg);
+                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    break;
+                }
             } else {
                 if(strcmp(string_get_cstr(temp_str), "HIDProx") != 0) {
                     FURI_LOG_E(TAG, "Unsupported Key type");
@@ -79,6 +86,13 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
                 }
             } else if(context->proto == PAC) {
                 if(string_size(context->data_str) != 11) {
+                    FURI_LOG_E(TAG, "Incorrect Key length");
+                    string_reset(context->notification_msg);
+                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    break;
+                }
+            } else if(context->proto == H10301) {
+                if(string_size(context->data_str) != 8) {
                     FURI_LOG_E(TAG, "Incorrect Key length");
                     string_reset(context->notification_msg);
                     string_set_str(context->notification_msg, "Incorrect Key length");
