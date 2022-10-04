@@ -116,11 +116,15 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
             case InputKeyLeft:
                 if(context->menu_proto_index > EM4100) {
                     context->menu_proto_index--;
+                } else if(context->menu_proto_index == EM4100) {
+                    context->menu_proto_index = H10301;
                 }
                 break;
             case InputKeyRight:
                 if(context->menu_proto_index < H10301) {
                     context->menu_proto_index++;
+                } else if(context->menu_proto_index == H10301) {
+                    context->menu_proto_index = EM4100;
                 }
                 break;
             case InputKeyOk:
