@@ -367,11 +367,13 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
             switch(instance->feedback_level) {
             case 1: // 1 - only vibro
                 notification_message(instance->notifications, &sequence_single_vibro);
+                notification_message(instance->notifications, &sequence_display_backlight_on);
                 break;
             case 2: // 2 - vibro and beep
                 notification_message(instance->notifications, &sequence_success);
                 break;
             default: // 0 - no feedback
+                notification_message(instance->notifications, &sequence_display_backlight_on);
                 break;
             }
 
