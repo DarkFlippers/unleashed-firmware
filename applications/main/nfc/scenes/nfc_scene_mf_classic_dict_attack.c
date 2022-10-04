@@ -91,6 +91,7 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     nfc_scene_mf_classic_dict_attack_prepare_view(nfc, DictAttackStateIdle);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDictAttack);
     nfc_blink_read_start(nfc);
+    notification_message(nfc->notifications, &sequence_display_backlight_enforce_on);
 }
 
 bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent event) {
@@ -167,4 +168,5 @@ void nfc_scene_mf_classic_dict_attack_on_exit(void* context) {
     }
     dict_attack_reset(nfc->dict_attack);
     nfc_blink_stop(nfc);
+    notification_message(nfc->notifications, &sequence_display_backlight_enforce_auto);
 }
