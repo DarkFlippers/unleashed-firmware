@@ -340,7 +340,7 @@ bool protocol_h10301_write_data(ProtocolH10301* protocol, void* data) {
     // Correct protocol data by redecoding
     protocol_h10301_encoder_start(protocol);
     protocol_h10301_decode(protocol->encoded_data, protocol->data);
-    
+
     protocol_h10301_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
@@ -355,9 +355,9 @@ bool protocol_h10301_write_data(ProtocolH10301* protocol, void* data) {
     return result;
 };
 
-void protocol_h10301_render_data(ProtocolH10301* protocol, string_t result) {
+void protocol_h10301_render_data(ProtocolH10301* protocol, FuriString* result) {
     uint8_t* data = protocol->data;
-    string_printf(
+    furi_string_printf(
         result,
         "FC: %u\r\n"
         "Card: %u",

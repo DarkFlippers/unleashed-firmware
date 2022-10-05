@@ -1,5 +1,4 @@
 #include "archive_i.h"
-#include "m-string.h"
 
 bool archive_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -18,7 +17,7 @@ ArchiveApp* archive_alloc() {
 
     archive->gui = furi_record_open(RECORD_GUI);
     archive->text_input = text_input_alloc();
-    string_init(archive->fav_move_str);
+    archive->fav_move_str = furi_string_alloc();
 
     archive->view_dispatcher = view_dispatcher_alloc();
     archive->scene_manager = scene_manager_alloc(&archive_scene_handlers, archive);
@@ -58,7 +57,7 @@ void archive_free(ArchiveApp* archive) {
     view_dispatcher_free(archive->view_dispatcher);
     scene_manager_free(archive->scene_manager);
     browser_free(archive->browser);
-    string_clear(archive->fav_move_str);
+    furi_string_free(archive->fav_move_str);
 
     text_input_free(archive->text_input);
 

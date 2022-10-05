@@ -4,7 +4,6 @@
 #include "mutex.h"
 #include "event_flag.h"
 
-#include <m-string.h>
 #include <m-dict.h>
 #include <toolbox/m_cstr_dup.h>
 

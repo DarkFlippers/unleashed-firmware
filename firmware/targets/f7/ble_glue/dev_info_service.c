@@ -3,7 +3,6 @@
 #include <ble/ble.h>
 
 #include <furi.h>
-#include <m-string.h>
 #include <protobuf_version.h>
 #include <lib/toolbox/version.h>
 
@@ -16,7 +15,7 @@ typedef struct {
     uint16_t firmware_rev_char_handle;
     uint16_t software_rev_char_handle;
     uint16_t rpc_version_char_handle;
-    string_t version_string;
+    FuriString* version_string;
     char hardware_revision[4];
 } DevInfoSvc;
 
@@ -31,8 +30,7 @@ static const uint8_t dev_info_rpc_version_uuid[] =
 
 void dev_info_svc_start() {
     dev_info_svc = malloc(sizeof(DevInfoSvc));
-    string_init_printf(
-        dev_info_svc->version_string,
+    dev_info_svc->version_string = furi_string_alloc_printf(
         "%s %s %s %s",
         version_get_githash(NULL),
         version_get_gitbranch(NULL),
@@ -104,7 +102,7 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         UUID_TYPE_16,
         (Char_UUID_t*)&uuid,
-        string_size(dev_info_svc->version_string),
+        furi_string_size(dev_info_svc->version_string),
         CHAR_PROP_READ,
         ATTR_PERMISSION_AUTHEN_READ,
         GATT_DONT_NOTIFY_EVENTS,
@@ -161,8 +159,8 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         dev_info_svc->software_rev_char_handle,
         0,
-        string_size(dev_info_svc->version_string),
-        (uint8_t*)string_get_cstr(dev_info_svc->version_string));
+        furi_string_size(dev_info_svc->version_string),
+        (uint8_t*)furi_string_get_cstr(dev_info_svc->version_string));
     if(status) {
         FURI_LOG_E(TAG, "Failed to update software revision char: %d", status);
     }
@@ -180,7 +178,7 @@ void dev_info_svc_start() {
 void dev_info_svc_stop() {
     tBleStatus status;
     if(dev_info_svc) {
-        string_clear(dev_info_svc->version_string);
+        furi_string_free(dev_info_svc->version_string);
         // Delete service characteristics
         status =
             aci_gatt_del_char(dev_info_svc->service_handle, dev_info_svc->man_name_char_handle);

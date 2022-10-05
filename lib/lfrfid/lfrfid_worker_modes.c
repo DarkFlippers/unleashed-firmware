@@ -270,14 +270,14 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
                     }
 
                     if(furi_log_get_level() >= FuriLogLevelDebug) {
-                        string_t string_info;
-                        string_init(string_info);
+                        FuriString* string_info;
+                        string_info = furi_string_alloc();
                         for(uint8_t i = 0; i < protocol_data_size; i++) {
                             if(i != 0) {
-                                string_cat_printf(string_info, " ");
+                                furi_string_cat_printf(string_info, " ");
                             }
 
-                            string_cat_printf(string_info, "%02X", protocol_data[i]);
+                            furi_string_cat_printf(string_info, "%02X", protocol_data[i]);
                         }
 
                         FURI_LOG_D(
@@ -285,8 +285,8 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
                             "%s, %d, [%s]",
                             protocol_dict_get_name(worker->protocols, protocol),
                             last_read_count,
-                            string_get_cstr(string_info));
-                        string_clear(string_info);
+                            furi_string_get_cstr(string_info));
+                        furi_string_free(string_info);
                     }
 
                     protocol_dict_decoders_start(worker->protocols);

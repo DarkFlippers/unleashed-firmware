@@ -1,5 +1,3 @@
-#include "m-string.h"
-
 #include <stdio.h>
 #include <furi.h>
 #include <furi_hal.h>
@@ -11,6 +9,7 @@
 #define TAG "UnitTests"
 
 int run_minunit_test_furi();
+int run_minunit_test_furi_string();
 int run_minunit_test_infrared();
 int run_minunit_test_rpc();
 int run_minunit_test_flipper_format();
@@ -33,6 +32,7 @@ typedef struct {
 
 const UnitTest unit_tests[] = {
     {.name = "furi", .entry = run_minunit_test_furi},
+    {.name = "furi_string", .entry = run_minunit_test_furi_string},
     {.name = "storage", .entry = run_minunit_test_storage},
     {.name = "stream", .entry = run_minunit_test_stream},
     {.name = "dirwalk", .entry = run_minunit_test_dirwalk},
@@ -63,7 +63,7 @@ void minunit_print_fail(const char* str) {
     printf(FURI_LOG_CLR_E "%s\r\n" FURI_LOG_CLR_RESET, str);
 }
 
-void unit_tests_cli(Cli* cli, string_t args, void* context) {
+void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);
@@ -91,8 +91,8 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
                 break;
             }
 
-            if(string_size(args)) {
-                if(string_cmp_str(args, unit_tests[i].name) == 0) {
+            if(furi_string_size(args)) {
+                if(furi_string_cmp_str(args, unit_tests[i].name) == 0) {
                     failed_tests += unit_tests[i].entry();
                 } else {
                     printf("Skipping %s\r\n", unit_tests[i].name);

@@ -363,13 +363,13 @@ bool subghz_protocol_decoder_somfy_telis_deserialize(void* context, FlipperForma
     return ret;
 }
 
-void subghz_protocol_decoder_somfy_telis_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_somfy_telis_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderSomfyTelis* instance = context;
 
     subghz_protocol_somfy_telis_check_remote_controller(&instance->generic);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"

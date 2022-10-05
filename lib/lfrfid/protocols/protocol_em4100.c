@@ -251,10 +251,10 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
     // Correct protocol data by redecoding
     protocol_em4100_encoder_start(protocol);
     em4100_decode(
-                    (uint8_t*)&protocol->encoded_data,
-                    sizeof(EM4100DecodedData),
-                    protocol->data,
-                    EM4100_DECODED_DATA_SIZE);
+        (uint8_t*)&protocol->encoded_data,
+        sizeof(EM4100DecodedData),
+        protocol->data,
+        EM4100_DECODED_DATA_SIZE);
 
     protocol_em4100_encoder_start(protocol);
 
@@ -270,9 +270,10 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
     return result;
 };
 
-void protocol_em4100_render_data(ProtocolEM4100* protocol, string_t result) {
+void protocol_em4100_render_data(ProtocolEM4100* protocol, FuriString* result) {
     uint8_t* data = protocol->data;
-    string_printf(result, "FC: %03u, Card: %05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
+    furi_string_printf(
+        result, "FC: %03u, Card: %05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
 };
 
 const ProtocolBase protocol_em4100 = {

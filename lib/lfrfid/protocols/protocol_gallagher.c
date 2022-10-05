@@ -268,15 +268,15 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
     return result;
 };
 
-void protocol_gallagher_render_data(ProtocolGallagher* protocol, string_t result) {
+void protocol_gallagher_render_data(ProtocolGallagher* protocol, FuriString* result) {
     UNUSED(protocol);
     uint8_t rc = bit_lib_get_bits(protocol->data, 0, 4);
     uint8_t il = bit_lib_get_bits(protocol->data, 4, 4);
     uint32_t fc = bit_lib_get_bits_32(protocol->data, 8, 24);
     uint32_t card_id = bit_lib_get_bits_32(protocol->data, 32, 32);
 
-    string_cat_printf(result, "Region: %u, Issue Level: %u\r\n", rc, il);
-    string_cat_printf(result, "FC: %u, C: %lu\r\n", fc, card_id);
+    furi_string_cat_printf(result, "Region: %u, Issue Level: %u\r\n", rc, il);
+    furi_string_cat_printf(result, "FC: %u, C: %lu\r\n", fc, card_id);
 };
 
 const ProtocolBase protocol_gallagher = {

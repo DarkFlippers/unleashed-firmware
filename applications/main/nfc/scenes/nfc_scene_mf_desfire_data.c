@@ -67,10 +67,10 @@ bool nfc_scene_mf_desfire_data_on_event(void* context, SceneManagerEvent event) 
 
     if(event.type == SceneManagerEventTypeCustom) {
         TextBox* text_box = nfc->text_box;
-        string_reset(nfc->text_box_store);
+        furi_string_reset(nfc->text_box_store);
         if(event.event == SubmenuIndexCardInfo) {
             mf_df_cat_card_info(data, nfc->text_box_store);
-            text_box_set_text(text_box, string_get_cstr(nfc->text_box_store));
+            text_box_set_text(text_box, furi_string_get_cstr(nfc->text_box_store));
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
             scene_manager_set_scene_state(
                 nfc->scene_manager,
@@ -102,6 +102,6 @@ void nfc_scene_mf_desfire_data_on_exit(void* context) {
 
     // Clear views
     text_box_reset(nfc->text_box);
-    string_reset(nfc->text_box_store);
+    furi_string_reset(nfc->text_box_store);
     submenu_reset(nfc->submenu);
 }

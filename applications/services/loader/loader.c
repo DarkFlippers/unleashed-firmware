@@ -98,15 +98,15 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
     return application;
 }
 
-void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
+void loader_cli_open(Cli* cli, FuriString* args, Loader* instance) {
     UNUSED(cli);
     if(loader_is_locked(instance)) {
         printf("Can't start, furi application is running");
         return;
     }
 
-    string_t application_name;
-    string_init(application_name);
+    FuriString* application_name;
+    application_name = furi_string_alloc();
 
     do {
         if(!args_read_probably_quoted_string_and_trim(args, application_name)) {
@@ -115,14 +115,14 @@ void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
         }
 
         const FlipperApplication* application =
-            loader_find_application_by_name(string_get_cstr(application_name));
+            loader_find_application_by_name(furi_string_get_cstr(application_name));
         if(!application) {
-            printf("%s doesn't exists\r\n", string_get_cstr(application_name));
+            printf("%s doesn't exists\r\n", furi_string_get_cstr(application_name));
             break;
         }
 
-        string_strim(args);
-        if(!loader_start_application(application, string_get_cstr(args))) {
+        furi_string_trim(args);
+        if(!loader_start_application(application, furi_string_get_cstr(args))) {
             printf("Can't start, furi application is running");
             return;
         } else {
@@ -134,10 +134,10 @@ void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
         }
     } while(false);
 
-    string_clear(application_name);
+    furi_string_free(application_name);
 }
 
-void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
+void loader_cli_list(Cli* cli, FuriString* args, Loader* instance) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(instance);
@@ -159,12 +159,12 @@ void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
     }
 }
 
-static void loader_cli(Cli* cli, string_t args, void* _ctx) {
+static void loader_cli(Cli* cli, FuriString* args, void* _ctx) {
     furi_assert(_ctx);
     Loader* instance = _ctx;
 
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
@@ -172,12 +172,12 @@ static void loader_cli(Cli* cli, string_t args, void* _ctx) {
             break;
         }
 
-        if(string_cmp_str(cmd, "list") == 0) {
+        if(furi_string_cmp_str(cmd, "list") == 0) {
             loader_cli_list(cli, args, instance);
             break;
         }
 
-        if(string_cmp_str(cmd, "open") == 0) {
+        if(furi_string_cmp_str(cmd, "open") == 0) {
             loader_cli_open(cli, args, instance);
             break;
         }
@@ -185,7 +185,7 @@ static void loader_cli(Cli* cli, string_t args, void* _ctx) {
         loader_cli_print_usage();
     } while(false);
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }
 
 LoaderStatus loader_start(Loader* instance, const char* name, const char* args) {

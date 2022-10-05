@@ -21,8 +21,8 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
     MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
     MfUltralightConfigPages* config_pages = mf_ultralight_get_config_pages(mf_ul_data);
     Widget* widget = nfc->widget;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     if((mf_ul_data->data_read == mf_ul_data->data_size) && (mf_ul_data->data_read > 0)) {
         widget_add_string_element(
@@ -31,14 +31,14 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
         widget_add_string_element(
             widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Not all pages unlocked!");
     }
-    string_set_str(temp_str, "UID:");
+    furi_string_set(temp_str, "UID:");
     for(size_t i = 0; i < nfc_data->uid_len; i++) {
-        string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
+        furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
     }
     widget_add_string_element(
-        widget, 0, 17, AlignLeft, AlignTop, FontSecondary, string_get_cstr(temp_str));
+        widget, 0, 17, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
     if(mf_ul_data->auth_success) {
-        string_printf(
+        furi_string_printf(
             temp_str,
             "Password: %02X %02X %02X %02X",
             config_pages->auth_data.pwd.raw[0],
@@ -46,19 +46,19 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
             config_pages->auth_data.pwd.raw[2],
             config_pages->auth_data.pwd.raw[3]);
         widget_add_string_element(
-            widget, 0, 28, AlignLeft, AlignTop, FontSecondary, string_get_cstr(temp_str));
-        string_printf(
+            widget, 0, 28, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
+        furi_string_printf(
             temp_str,
             "PACK: %02X %02X",
             config_pages->auth_data.pack.raw[0],
             config_pages->auth_data.pack.raw[1]);
         widget_add_string_element(
-            widget, 0, 39, AlignLeft, AlignTop, FontSecondary, string_get_cstr(temp_str));
+            widget, 0, 39, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
     }
-    string_printf(
+    furi_string_printf(
         temp_str, "Pages Read: %d/%d", mf_ul_data->data_read / 4, mf_ul_data->data_size / 4);
     widget_add_string_element(
-        widget, 0, 50, AlignLeft, AlignTop, FontSecondary, string_get_cstr(temp_str));
+        widget, 0, 50, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
     widget_add_button_element(
         widget,
         GuiButtonTypeRight,
@@ -66,7 +66,7 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
         nfc_scene_mf_ultralight_read_auth_result_widget_callback,
         nfc);
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 

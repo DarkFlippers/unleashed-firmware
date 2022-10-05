@@ -19,12 +19,12 @@ typedef struct {
 static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
     BadUsbModel* model = _model;
 
-    string_t disp_str;
-    string_init_set_str(disp_str, model->file_name);
+    FuriString* disp_str;
+    disp_str = furi_string_alloc_set(model->file_name);
     elements_string_fit_width(canvas, disp_str, 128 - 2);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 2, 8, string_get_cstr(disp_str));
-    string_reset(disp_str);
+    canvas_draw_str(canvas, 2, 8, furi_string_get_cstr(disp_str));
+    furi_string_reset(disp_str);
 
     canvas_draw_icon(canvas, 22, 20, &I_UsbTree_48x22);
 
@@ -49,10 +49,10 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str_aligned(canvas, 127, 33, AlignRight, AlignBottom, "ERROR:");
         canvas_set_font(canvas, FontSecondary);
-        string_printf(disp_str, "line %u", model->state.error_line);
+        furi_string_printf(disp_str, "line %u", model->state.error_line);
         canvas_draw_str_aligned(
-            canvas, 127, 46, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 127, 46, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
     } else if(model->state.state == BadUsbStateIdle) {
         canvas_draw_icon(canvas, 4, 22, &I_Smile_18x18);
         canvas_set_font(canvas, FontBigNumbers);
@@ -65,16 +65,17 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
             canvas_draw_icon(canvas, 4, 19, &I_EviSmile2_18x21);
         }
         canvas_set_font(canvas, FontBigNumbers);
-        string_printf(disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
+        furi_string_printf(
+            disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
-            canvas, 114, 36, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 114, 36, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 22, &I_Percent_10x14);
     } else if(model->state.state == BadUsbStateDone) {
         canvas_draw_icon(canvas, 4, 19, &I_EviSmile1_18x21);
         canvas_set_font(canvas, FontBigNumbers);
         canvas_draw_str_aligned(canvas, 114, 36, AlignRight, AlignBottom, "100");
-        string_reset(disp_str);
+        furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 22, &I_Percent_10x14);
     } else if(model->state.state == BadUsbStateDelay) {
         if(model->anim_frame == 0) {
@@ -83,21 +84,22 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
             canvas_draw_icon(canvas, 4, 19, &I_EviWaiting2_18x21);
         }
         canvas_set_font(canvas, FontBigNumbers);
-        string_printf(disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
+        furi_string_printf(
+            disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
-            canvas, 114, 36, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 114, 36, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 22, &I_Percent_10x14);
         canvas_set_font(canvas, FontSecondary);
-        string_printf(disp_str, "delay %us", model->state.delay_remain);
+        furi_string_printf(disp_str, "delay %us", model->state.delay_remain);
         canvas_draw_str_aligned(
-            canvas, 127, 46, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 127, 46, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
     } else {
         canvas_draw_icon(canvas, 4, 22, &I_Clock_18x18);
     }
 
-    string_clear(disp_str);
+    furi_string_free(disp_str);
 }
 
 static bool bad_usb_input_callback(InputEvent* event, void* context) {

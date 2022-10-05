@@ -1,5 +1,5 @@
 /**
- * @file kenrel.h
+ * @file kernel.h
  * Furi Kernel primitives
  */
 #pragma once

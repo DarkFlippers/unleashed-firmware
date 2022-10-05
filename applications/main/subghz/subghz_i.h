@@ -75,8 +75,8 @@ struct SubGhz {
     TextInput* text_input;
     Widget* widget;
     DialogsApp* dialogs;
-    string_t file_path;
-    string_t file_path_tmp;
+    FuriString* file_path;
+    FuriString* file_path_tmp;
     char file_name_tmp[SUBGHZ_MAX_LEN_NAME];
     SubGhzNotificationState state_notifications;
 
@@ -89,7 +89,7 @@ struct SubGhz {
     SubGhzTestStatic* subghz_test_static;
     SubGhzTestCarrier* subghz_test_carrier;
     SubGhzTestPacket* subghz_test_packet;
-    string_t error_str;
+    FuriString* error_str;
     SubGhzSetting* setting;
     SubGhzLock lock;
 
@@ -103,7 +103,7 @@ void subghz_preset_init(
     uint8_t* preset_data,
     size_t preset_data_size);
 bool subghz_set_preset(SubGhz* subghz, const char* preset);
-void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_t modulation);
+void subghz_get_frequency_modulation(SubGhz* subghz, FuriString* frequency, FuriString* modulation);
 void subghz_begin(SubGhz* subghz, uint8_t* preset_data);
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
 void subghz_rx_end(SubGhz* subghz);
@@ -125,6 +125,6 @@ bool subghz_load_protocol_from_file(SubGhz* subghz);
 bool subghz_rename_file(SubGhz* subghz);
 bool subghz_delete_file(SubGhz* subghz);
 void subghz_file_name_clear(SubGhz* subghz);
-bool subghz_path_is_file(string_t path);
+bool subghz_path_is_file(FuriString* path);
 uint32_t subghz_random_serial(void);
 void subghz_hopper_update(SubGhz* subghz);

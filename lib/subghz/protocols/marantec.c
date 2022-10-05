@@ -373,12 +373,12 @@ bool subghz_protocol_decoder_marantec_deserialize(void* context, FlipperFormat* 
     return ret;
 }
 
-void subghz_protocol_decoder_marantec_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_marantec_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderMarantec* instance = context;
     subghz_protocol_marantec_remote_controller(&instance->generic);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"

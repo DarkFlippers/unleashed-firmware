@@ -4,7 +4,7 @@
 
 #define TAG "SubGhzBlockGeneric"
 
-void subghz_block_generic_get_preset_name(const char* preset_name, string_t preset_str) {
+void subghz_block_generic_get_preset_name(const char* preset_name, FuriString* preset_str) {
     const char* preset_name_temp;
     if(!strcmp(preset_name, "AM270")) {
         preset_name_temp = "FuriHalSubGhzPresetOok270Async";
@@ -17,7 +17,7 @@ void subghz_block_generic_get_preset_name(const char* preset_name, string_t pres
     } else {
         preset_name_temp = "FuriHalSubGhzPresetCustom";
     }
-    string_set(preset_str, preset_name_temp);
+    furi_string_set(preset_str, preset_name_temp);
 }
 
 bool subghz_block_generic_serialize(
@@ -26,8 +26,8 @@ bool subghz_block_generic_serialize(
     SubGhzPresetDefinition* preset) {
     furi_assert(instance);
     bool res = false;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     do {
         stream_clean(flipper_format_get_raw_stream(flipper_format));
         if(!flipper_format_write_header_cstr(
@@ -41,12 +41,13 @@ bool subghz_block_generic_serialize(
             break;
         }
 
-        subghz_block_generic_get_preset_name(string_get_cstr(preset->name), temp_str);
-        if(!flipper_format_write_string_cstr(flipper_format, "Preset", string_get_cstr(temp_str))) {
+        subghz_block_generic_get_preset_name(furi_string_get_cstr(preset->name), temp_str);
+        if(!flipper_format_write_string_cstr(
+               flipper_format, "Preset", furi_string_get_cstr(temp_str))) {
             FURI_LOG_E(TAG, "Unable to add Preset");
             break;
         }
-        if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+        if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
             if(!flipper_format_write_string_cstr(
                    flipper_format, "Custom_preset_module", "CC1101")) {
                 FURI_LOG_E(TAG, "Unable to add Custom_preset_module");
@@ -79,15 +80,15 @@ bool subghz_block_generic_serialize(
         }
         res = true;
     } while(false);
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     return res;
 }
 
 bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperFormat* flipper_format) {
     furi_assert(instance);
     bool res = false;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     uint32_t temp_data = 0;
 
     do {
@@ -113,7 +114,7 @@ bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperForma
         res = true;
     } while(0);
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
 
     return res;
 }

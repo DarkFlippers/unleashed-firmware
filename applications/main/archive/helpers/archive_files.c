@@ -15,10 +15,10 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
     } else {
         for(size_t i = 0; i < COUNT_OF(known_ext); i++) {
             if((known_ext[i][0] == '?') || (known_ext[i][0] == '*')) continue;
-            if(string_search_str(file->path, known_ext[i], 0) != STRING_FAILURE) {
+            if(furi_string_search(file->path, known_ext[i], 0) != FURI_STRING_FAILURE) {
                 if(i == ArchiveFileTypeBadUsb) {
-                    if(string_search_str(file->path, archive_get_default_path(ArchiveTabBadUsb)) ==
-                       0) {
+                    if(furi_string_search(
+                           file->path, archive_get_default_path(ArchiveTabBadUsb)) == 0) {
                         file->type = i;
                         return; // *.txt file is a BadUSB script only if it is in BadUSB folder
                     }
@@ -54,10 +54,10 @@ bool archive_get_items(void* context, const char* path) {
 void archive_file_append(const char* path, const char* format, ...) {
     furi_assert(path);
 
-    string_t string;
+    FuriString* string;
     va_list args;
     va_start(args, format);
-    string_init_vprintf(string, format, args);
+    string = furi_string_alloc_vprintf(format, args);
     va_end(args);
 
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
@@ -66,7 +66,7 @@ void archive_file_append(const char* path, const char* format, ...) {
     bool res = storage_file_open(file, path, FSAM_WRITE, FSOM_OPEN_APPEND);
 
     if(res) {
-        storage_file_write(file, string_get_cstr(string), string_size(string));
+        storage_file_write(file, furi_string_get_cstr(string), furi_string_size(string));
     }
 
     storage_file_close(file);
@@ -77,35 +77,35 @@ void archive_file_append(const char* path, const char* format, ...) {
 void archive_delete_file(void* context, const char* format, ...) {
     furi_assert(context);
 
-    string_t filename;
+    FuriString* filename;
     va_list args;
     va_start(args, format);
-    string_init_vprintf(filename, format, args);
+    filename = furi_string_alloc_vprintf(format, args);
     va_end(args);
 
     ArchiveBrowserView* browser = context;
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
     FileInfo fileinfo;
-    storage_common_stat(fs_api, string_get_cstr(filename), &fileinfo);
+    storage_common_stat(fs_api, furi_string_get_cstr(filename), &fileinfo);
 
     bool res = false;
 
     if(fileinfo.flags & FSF_DIRECTORY) {
-        res = storage_simply_remove_recursive(fs_api, string_get_cstr(filename));
+        res = storage_simply_remove_recursive(fs_api, furi_string_get_cstr(filename));
     } else {
-        res = (storage_common_remove(fs_api, string_get_cstr(filename)) == FSE_OK);
+        res = (storage_common_remove(fs_api, furi_string_get_cstr(filename)) == FSE_OK);
     }
 
     furi_record_close(RECORD_STORAGE);
 
-    if(archive_is_favorite("%s", string_get_cstr(filename))) {
-        archive_favorites_delete("%s", string_get_cstr(filename));
+    if(archive_is_favorite("%s", furi_string_get_cstr(filename))) {
+        archive_favorites_delete("%s", furi_string_get_cstr(filename));
     }
 
     if(res) {
         archive_file_array_rm_selected(browser);
     }
 
-    string_clear(filename);
+    furi_string_free(filename);
 }

@@ -96,7 +96,7 @@ struct Infrared {
     Loading* loading;
     InfraredProgressView* progress;
 
-    string_t file_path;
+    FuriString* file_path;
     char text_store[INFRARED_TEXT_STORE_NUM][INFRARED_TEXT_STORE_SIZE + 1];
     InfraredAppState app_state;
 

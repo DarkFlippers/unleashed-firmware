@@ -1,7 +1,6 @@
 #include "storage_processing.h"
 #include <m-list.h>
 #include <m-dict.h>
-#include <m-string.h>
 
 #define FS_CALL(_storage, _fn)   \
     storage_data_lock(_storage); \
@@ -68,21 +67,22 @@ static StorageType storage_get_type_by_path(Storage* app, const char* path) {
     return type;
 }
 
-static void storage_path_change_to_real_storage(string_t path, StorageType real_storage) {
-    if(memcmp(string_get_cstr(path), STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) ==
+static void storage_path_change_to_real_storage(FuriString* path, StorageType real_storage) {
+    if(memcmp(
+           furi_string_get_cstr(path), STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) ==
        0) {
         switch(real_storage) {
         case ST_EXT:
-            string_set_char(path, 0, STORAGE_EXT_PATH_PREFIX[0]);
-            string_set_char(path, 1, STORAGE_EXT_PATH_PREFIX[1]);
-            string_set_char(path, 2, STORAGE_EXT_PATH_PREFIX[2]);
-            string_set_char(path, 3, STORAGE_EXT_PATH_PREFIX[3]);
+            furi_string_set_char(path, 0, STORAGE_EXT_PATH_PREFIX[0]);
+            furi_string_set_char(path, 1, STORAGE_EXT_PATH_PREFIX[1]);
+            furi_string_set_char(path, 2, STORAGE_EXT_PATH_PREFIX[2]);
+            furi_string_set_char(path, 3, STORAGE_EXT_PATH_PREFIX[3]);
             break;
         case ST_INT:
-            string_set_char(path, 0, STORAGE_INT_PATH_PREFIX[0]);
-            string_set_char(path, 1, STORAGE_INT_PATH_PREFIX[1]);
-            string_set_char(path, 2, STORAGE_INT_PATH_PREFIX[2]);
-            string_set_char(path, 3, STORAGE_INT_PATH_PREFIX[3]);
+            furi_string_set_char(path, 0, STORAGE_INT_PATH_PREFIX[0]);
+            furi_string_set_char(path, 1, STORAGE_INT_PATH_PREFIX[1]);
+            furi_string_set_char(path, 2, STORAGE_INT_PATH_PREFIX[2]);
+            furi_string_set_char(path, 3, STORAGE_INT_PATH_PREFIX[3]);
             break;
         default:
             break;
@@ -107,8 +107,8 @@ bool storage_process_file_open(
         file->error_id = FSE_INVALID_NAME;
     } else {
         storage = storage_get_storage_by_type(app, type);
-        string_t real_path;
-        string_init_set(real_path, path);
+        FuriString* real_path;
+        real_path = furi_string_alloc_set(path);
         storage_path_change_to_real_storage(real_path, type);
 
         if(storage_path_already_open(real_path, storage->files)) {
@@ -118,7 +118,7 @@ bool storage_process_file_open(
             FS_CALL(storage, file.open(storage, file, remove_vfs(path), access_mode, open_mode));
         }
 
-        string_clear(real_path);
+        furi_string_free(real_path);
     }
 
     return ret;
@@ -266,8 +266,8 @@ bool storage_process_dir_open(Storage* app, File* file, const char* path) {
         file->error_id = FSE_INVALID_NAME;
     } else {
         storage = storage_get_storage_by_type(app, type);
-        string_t real_path;
-        string_init_set(real_path, path);
+        FuriString* real_path;
+        real_path = furi_string_alloc_set(path);
         storage_path_change_to_real_storage(real_path, type);
 
         if(storage_path_already_open(real_path, storage->files)) {
@@ -276,7 +276,7 @@ bool storage_process_dir_open(Storage* app, File* file, const char* path) {
             storage_push_storage_file(file, real_path, type, storage);
             FS_CALL(storage, dir.open(storage, file, remove_vfs(path)));
         }
-        string_clear(real_path);
+        furi_string_free(real_path);
     }
 
     return ret;
@@ -350,8 +350,8 @@ static FS_Error storage_process_common_remove(Storage* app, const char* path) {
     FS_Error ret = FSE_OK;
     StorageType type = storage_get_type_by_path(app, path);
 
-    string_t real_path;
-    string_init_set(real_path, path);
+    FuriString* real_path;
+    real_path = furi_string_alloc_set(path);
     storage_path_change_to_real_storage(real_path, type);
 
     do {
@@ -369,7 +369,7 @@ static FS_Error storage_process_common_remove(Storage* app, const char* path) {
         FS_CALL(storage, common.remove(storage, remove_vfs(path)));
     } while(false);
 
-    string_clear(real_path);
+    furi_string_free(real_path);
 
     return ret;
 }

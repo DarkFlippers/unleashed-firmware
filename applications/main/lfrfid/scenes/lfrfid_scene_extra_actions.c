@@ -42,7 +42,7 @@ void lfrfid_scene_extra_actions_on_enter(void* context) {
         submenu, scene_manager_get_scene_state(app->scene_manager, LfRfidSceneExtraActions));
 
     // clear key
-    string_reset(app->file_name);
+    furi_string_reset(app->file_name);
     app->protocol_id = PROTOCOL_NO;
     app->read_type = LFRFIDWorkerReadTypeAuto;
 

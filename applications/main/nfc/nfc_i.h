@@ -62,7 +62,7 @@ struct Nfc {
     FuriHalNfcDevData dev_edit_data;
 
     char text_store[NFC_TEXT_STORE_SIZE + 1];
-    string_t text_box_store;
+    FuriString* text_box_store;
     uint8_t byte_input_store[6];
     MfClassicUserKeys_t mfc_key_strs; // Used in MFC key listing
 

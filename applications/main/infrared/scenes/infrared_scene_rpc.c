@@ -42,7 +42,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             bool result = false;
             const char* arg = rpc_system_app_get_data(infrared->rpc_ctx);
             if(arg && (state == InfraredRpcStateIdle)) {
-                string_set_str(infrared->file_path, arg);
+                furi_string_set(infrared->file_path, arg);
                 result = infrared_remote_load(infrared->remote, infrared->file_path);
                 if(result) {
                     scene_manager_set_scene_state(

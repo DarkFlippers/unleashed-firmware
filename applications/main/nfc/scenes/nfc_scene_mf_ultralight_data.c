@@ -8,11 +8,11 @@ void nfc_scene_mf_ultralight_data_on_enter(void* context) {
     text_box_set_font(text_box, TextBoxFontHex);
     for(uint16_t i = 0; i < data->data_size; i += 2) {
         if(!(i % 8) && i) {
-            string_push_back(nfc->text_box_store, '\n');
+            furi_string_push_back(nfc->text_box_store, '\n');
         }
-        string_cat_printf(nfc->text_box_store, "%02X%02X ", data->data[i], data->data[i + 1]);
+        furi_string_cat_printf(nfc->text_box_store, "%02X%02X ", data->data[i], data->data[i + 1]);
     }
-    text_box_set_text(text_box, string_get_cstr(nfc->text_box_store));
+    text_box_set_text(text_box, furi_string_get_cstr(nfc->text_box_store));
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
 }
@@ -28,5 +28,5 @@ void nfc_scene_mf_ultralight_data_on_exit(void* context) {
 
     // Clean view
     text_box_reset(nfc->text_box);
-    string_reset(nfc->text_box_store);
+    furi_string_reset(nfc->text_box_store);
 }

@@ -9,7 +9,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <m-string.h>
+#include <furi.h>
 #include "canvas.h"
 
 #ifdef __cplusplus
@@ -190,7 +190,7 @@ void elements_bubble_str(
  * @param   string  string to trim
  * @param   width   max width
  */
-void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width);
+void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width);
 
 /** Draw text box element
  *

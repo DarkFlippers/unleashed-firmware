@@ -1,7 +1,7 @@
 #pragma once
 
 #include <m-array.h>
-#include <m-string.h>
+#include <furi.h>
 #include <storage/storage.h>
 
 typedef enum {
@@ -19,7 +19,7 @@ typedef enum {
 } ArchiveFileTypeEnum;
 
 typedef struct {
-    string_t path;
+    FuriString* path;
     ArchiveFileTypeEnum type;
     bool fav;
     bool is_app;
@@ -29,25 +29,25 @@ static void ArchiveFile_t_init(ArchiveFile_t* obj) {
     obj->type = ArchiveFileTypeUnknown;
     obj->is_app = false;
     obj->fav = false;
-    string_init(obj->path);
+    obj->path = furi_string_alloc();
 }
 
 static void ArchiveFile_t_init_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
     obj->type = src->type;
     obj->is_app = src->is_app;
     obj->fav = src->fav;
-    string_init_set(obj->path, src->path);
+    obj->path = furi_string_alloc_set(src->path);
 }
 
 static void ArchiveFile_t_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
     obj->type = src->type;
     obj->is_app = src->is_app;
     obj->fav = src->fav;
-    string_set(obj->path, src->path);
+    furi_string_set(obj->path, src->path);
 }
 
 static void ArchiveFile_t_clear(ArchiveFile_t* obj) {
-    string_clear(obj->path);
+    furi_string_free(obj->path);
 }
 
 ARRAY_DEF(

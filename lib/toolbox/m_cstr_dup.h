@@ -13,5 +13,4 @@
      HASH(m_core_cstr_hash), \
      EQUAL(M_CSTR_EQUAL),    \
      CMP(strcmp),            \
-     TYPE(const char*),      \
-     OUT_STR(M_CSTR_OUT_STR))
+     TYPE(const char*))

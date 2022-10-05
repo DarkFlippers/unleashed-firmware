@@ -7,18 +7,18 @@
 #include "bt_settings.h"
 #include "bt_service/bt.h"
 
-static void bt_cli_command_hci_info(Cli* cli, string_t args, void* context) {
+static void bt_cli_command_hci_info(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);
-    string_t buffer;
-    string_init(buffer);
+    FuriString* buffer;
+    buffer = furi_string_alloc();
     furi_hal_bt_dump_state(buffer);
-    printf("%s", string_get_cstr(buffer));
-    string_clear(buffer);
+    printf("%s", furi_string_get_cstr(buffer));
+    furi_string_free(buffer);
 }
 
-static void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
+static void bt_cli_command_carrier_tx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
     int power = 0;
@@ -50,7 +50,7 @@ static void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
     } while(false);
 }
 
-static void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
+static void bt_cli_command_carrier_rx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
 
@@ -81,7 +81,7 @@ static void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
     } while(false);
 }
 
-static void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
+static void bt_cli_command_packet_tx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
     int pattern = 0;
@@ -129,7 +129,7 @@ static void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
     } while(false);
 }
 
-static void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
+static void bt_cli_command_packet_rx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
     int datarate = 1;
@@ -178,12 +178,12 @@ static void bt_cli_print_usage() {
     }
 }
 
-static void bt_cli(Cli* cli, string_t args, void* context) {
+static void bt_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     furi_record_open(RECORD_BT);
 
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
     BtSettings bt_settings;
     bt_settings_load(&bt_settings);
 
@@ -192,24 +192,24 @@ static void bt_cli(Cli* cli, string_t args, void* context) {
             bt_cli_print_usage();
             break;
         }
-        if(string_cmp_str(cmd, "hci_info") == 0) {
+        if(furi_string_cmp_str(cmd, "hci_info") == 0) {
             bt_cli_command_hci_info(cli, args, NULL);
             break;
         }
         if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) && furi_hal_bt_is_testing_supported()) {
-            if(string_cmp_str(cmd, "tx_carrier") == 0) {
+            if(furi_string_cmp_str(cmd, "tx_carrier") == 0) {
                 bt_cli_command_carrier_tx(cli, args, NULL);
                 break;
             }
-            if(string_cmp_str(cmd, "rx_carrier") == 0) {
+            if(furi_string_cmp_str(cmd, "rx_carrier") == 0) {
                 bt_cli_command_carrier_rx(cli, args, NULL);
                 break;
             }
-            if(string_cmp_str(cmd, "tx_packet") == 0) {
+            if(furi_string_cmp_str(cmd, "tx_packet") == 0) {
                 bt_cli_command_packet_tx(cli, args, NULL);
                 break;
             }
-            if(string_cmp_str(cmd, "rx_packet") == 0) {
+            if(furi_string_cmp_str(cmd, "rx_packet") == 0) {
                 bt_cli_command_packet_rx(cli, args, NULL);
                 break;
             }
@@ -222,7 +222,7 @@ static void bt_cli(Cli* cli, string_t args, void* context) {
         furi_hal_bt_start_advertising();
     }
 
-    string_clear(cmd);
+    furi_string_free(cmd);
     furi_record_close(RECORD_BT);
 }
 

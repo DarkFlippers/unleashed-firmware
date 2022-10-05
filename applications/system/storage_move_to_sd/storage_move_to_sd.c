@@ -2,7 +2,6 @@
 #include <core/common_defines.h>
 #include <core/log.h>
 #include "loader/loader.h"
-#include "m-string.h"
 #include <stdint.h>
 #include <toolbox/dir_walk.h>
 #include <toolbox/path.h>
@@ -28,25 +27,26 @@ bool storage_move_to_sd_perform(void) {
     dir_walk_set_recursive(dir_walk, false);
     dir_walk_set_filter_cb(dir_walk, storage_move_to_sd_check_entry, NULL);
 
-    string_t path_src, path_dst;
+    FuriString *path_src, *path_dst;
 
-    string_init(path_dst);
-    string_init(path_src);
+    path_dst = furi_string_alloc();
+    path_src = furi_string_alloc();
 
     if(dir_walk_open(dir_walk, STORAGE_INT_PATH_PREFIX)) {
         while(dir_walk_read(dir_walk, path_src, NULL) == DirWalkOK) {
-            string_set(path_dst, path_src);
-            string_replace_at(
+            furi_string_set(path_dst, path_src);
+            furi_string_replace_at(
                 path_dst, 0, strlen(STORAGE_INT_PATH_PREFIX), STORAGE_EXT_PATH_PREFIX);
 
-            storage_common_merge(storage, string_get_cstr(path_src), string_get_cstr(path_dst));
-            storage_simply_remove_recursive(storage, string_get_cstr(path_src));
+            storage_common_merge(
+                storage, furi_string_get_cstr(path_src), furi_string_get_cstr(path_dst));
+            storage_simply_remove_recursive(storage, furi_string_get_cstr(path_src));
         }
     }
 
     dir_walk_free(dir_walk);
-    string_clear(path_dst);
-    string_clear(path_src);
+    furi_string_free(path_dst);
+    furi_string_free(path_src);
 
     furi_record_close(RECORD_STORAGE);
 
@@ -62,8 +62,8 @@ static bool storage_move_to_sd_check(void) {
     dir_walk_set_recursive(dir_walk, false);
     dir_walk_set_filter_cb(dir_walk, storage_move_to_sd_check_entry, NULL);
 
-    string_t name;
-    string_init(name);
+    FuriString* name;
+    name = furi_string_alloc();
 
     if(dir_walk_open(dir_walk, STORAGE_INT_PATH_PREFIX)) {
         // if at least 1 entry is present, we should migrate
@@ -71,7 +71,7 @@ static bool storage_move_to_sd_check(void) {
     }
 
     dir_walk_free(dir_walk);
-    string_clear(name);
+    furi_string_free(name);
 
     furi_record_close(RECORD_STORAGE);
 

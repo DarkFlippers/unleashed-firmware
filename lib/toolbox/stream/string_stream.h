@@ -1,6 +1,5 @@
 #pragma once
 #include <stdlib.h>
-#include <mlib/m-string.h>
 #include "stream.h"
 
 #ifdef __cplusplus

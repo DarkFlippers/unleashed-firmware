@@ -810,12 +810,12 @@ bool subghz_protocol_decoder_secplus_v2_deserialize(void* context, FlipperFormat
     return res;
 }
 
-void subghz_protocol_decoder_secplus_v2_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_secplus_v2_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderSecPlus_v2* instance = context;
     subghz_protocol_secplus_v2_remote_controller(&instance->generic, instance->secplus_packet_1);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Pk1:0x%lX%08lX\r\n"

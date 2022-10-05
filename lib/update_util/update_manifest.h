@@ -6,7 +6,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <m-string.h>
+#include <furi.h>
 #include <furi_hal_flash.h>
 
 /* Paths don't include /ext -- because at startup SD card is mounted as FS root */
@@ -28,20 +28,20 @@ _Static_assert(sizeof(UpdateManifestRadioVersion) == 6, "UpdateManifestRadioVers
 
 typedef struct {
     uint32_t manifest_version;
-    string_t version;
+    FuriString* version;
     uint32_t target;
-    string_t staged_loader_file;
+    FuriString* staged_loader_file;
     uint32_t staged_loader_crc;
-    string_t firmware_dfu_image;
-    string_t radio_image;
+    FuriString* firmware_dfu_image;
+    FuriString* radio_image;
     uint32_t radio_address;
     UpdateManifestRadioVersion radio_version;
     uint32_t radio_crc;
-    string_t resource_bundle;
+    FuriString* resource_bundle;
     FuriHalFlashRawOptionByteData ob_reference;
     FuriHalFlashRawOptionByteData ob_compare_mask;
     FuriHalFlashRawOptionByteData ob_write_mask;
-    string_t splash_file;
+    FuriString* splash_file;
     bool valid;
 } UpdateManifest;
 

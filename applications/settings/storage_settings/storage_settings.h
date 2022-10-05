@@ -34,7 +34,7 @@ typedef struct {
     DialogEx* dialog_ex;
 
     // text
-    string_t text_string;
+    FuriString* text_string;
 } StorageSettings;
 
 typedef enum {

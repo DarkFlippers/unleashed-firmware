@@ -1,5 +1,4 @@
 #include "../nfc_i.h"
-#include "m-string.h"
 #include "../helpers/nfc_generators.h"
 
 enum SubmenuIndex {
@@ -19,7 +18,7 @@ void nfc_scene_set_type_on_enter(void* context) {
     Submenu* submenu = nfc->submenu;
     // Clear device name
     nfc_device_set_name(nfc->dev, "");
-    string_set_str(nfc->dev->load_path, "");
+    furi_string_set(nfc->dev->load_path, "");
     submenu_add_item(
         submenu, "NFC-A 7-bytes UID", SubmenuIndexNFCA7, nfc_scene_set_type_submenu_callback, nfc);
     submenu_add_item(

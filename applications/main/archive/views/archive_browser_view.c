@@ -47,35 +47,35 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     canvas_set_color(canvas, ColorBlack);
     elements_slightly_rounded_frame(canvas, 70, 16, 58, 48);
 
-    string_t menu[MENU_ITEMS];
+    FuriString* menu[MENU_ITEMS];
 
-    string_init_set_str(menu[0], "Run in app");
-    string_init_set_str(menu[1], "Pin");
-    string_init_set_str(menu[2], "Rename");
-    string_init_set_str(menu[3], "Delete");
+    menu[0] = furi_string_alloc_set("Run in app");
+    menu[1] = furi_string_alloc_set("Pin");
+    menu[2] = furi_string_alloc_set("Rename");
+    menu[3] = furi_string_alloc_set("Delete");
 
     ArchiveFile_t* selected = files_array_get(model->files, model->item_idx - model->array_offset);
 
     if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
-        string_set_str(menu[1], "Unpin");
+        furi_string_set(menu[1], "Unpin");
     }
 
     if(!archive_is_known_app(selected->type)) {
-        string_set_str(menu[0], "---");
-        string_set_str(menu[1], "---");
-        string_set_str(menu[2], "---");
+        furi_string_set(menu[0], "---");
+        furi_string_set(menu[1], "---");
+        furi_string_set(menu[2], "---");
     } else {
         if(model->tab_idx == ArchiveTabFavorites) {
-            string_set_str(menu[2], "Move");
-            string_set_str(menu[3], "---");
+            furi_string_set(menu[2], "Move");
+            furi_string_set(menu[3], "---");
         } else if(selected->is_app) {
-            string_set_str(menu[2], "---");
+            furi_string_set(menu[2], "---");
         }
     }
 
     for(size_t i = 0; i < MENU_ITEMS; i++) {
-        canvas_draw_str(canvas, 82, 27 + i * 11, string_get_cstr(menu[i]));
-        string_clear(menu[i]);
+        canvas_draw_str(canvas, 82, 27 + i * 11, furi_string_get_cstr(menu[i]));
+        furi_string_free(menu[i]);
     }
 
     canvas_draw_icon(canvas, 74, 20 + model->menu_idx * 11, &I_ButtonRight_4x7);
@@ -118,8 +118,8 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
     bool scrollbar = model->item_cnt > 4;
 
     for(uint32_t i = 0; i < MIN(model->item_cnt, MENU_ITEMS); ++i) {
-        string_t str_buf;
-        string_init(str_buf);
+        FuriString* str_buf;
+        str_buf = furi_string_alloc();
         int32_t idx = CLAMP((uint32_t)(i + model->list_offset), model->item_cnt, 0u);
         uint8_t x_offset = (model->move_fav && model->item_idx == idx) ? MOVE_OFFSET : 0;
 
@@ -131,7 +131,7 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
             path_extract_filename(file->path, str_buf, archive_is_known_app(file->type));
             file_type = file->type;
         } else {
-            string_set_str(str_buf, "---");
+            furi_string_set(str_buf, "---");
         }
 
         elements_string_fit_width(
@@ -144,9 +144,10 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
         }
 
         canvas_draw_icon(canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file_type]);
-        canvas_draw_str(canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buf));
+        canvas_draw_str(
+            canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, furi_string_get_cstr(str_buf));
 
-        string_clear(str_buf);
+        furi_string_free(str_buf);
     }
 
     if(scrollbar) {
@@ -361,7 +362,7 @@ ArchiveBrowserView* browser_alloc() {
     view_set_draw_callback(browser->view, archive_view_render);
     view_set_input_callback(browser->view, archive_view_input);
 
-    string_init_set_str(browser->path, archive_get_default_path(TAB_DEFAULT));
+    browser->path = furi_string_alloc_set(archive_get_default_path(TAB_DEFAULT));
 
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
@@ -386,7 +387,7 @@ void browser_free(ArchiveBrowserView* browser) {
             return false;
         });
 
-    string_clear(browser->path);
+    furi_string_free(browser->path);
 
     view_free(browser->view);
     free(browser);

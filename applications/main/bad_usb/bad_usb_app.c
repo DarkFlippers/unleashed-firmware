@@ -1,5 +1,4 @@
 #include "bad_usb_app_i.h"
-#include "m-string.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <storage/storage.h>
@@ -26,10 +25,10 @@ static void bad_usb_app_tick_event_callback(void* context) {
 BadUsbApp* bad_usb_app_alloc(char* arg) {
     BadUsbApp* app = malloc(sizeof(BadUsbApp));
 
-    string_init(app->file_path);
+    app->file_path = furi_string_alloc();
 
     if(arg && strlen(arg)) {
-        string_set_str(app->file_path, arg);
+        furi_string_set(app->file_path, arg);
     }
 
     app->gui = furi_record_open(RECORD_GUI);
@@ -64,10 +63,10 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
         app->error = BadUsbAppErrorCloseRpc;
         scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
     } else {
-        if(!string_empty_p(app->file_path)) {
+        if(!furi_string_empty(app->file_path)) {
             scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
         } else {
-            string_set_str(app->file_path, BAD_USB_APP_PATH_FOLDER);
+            furi_string_set(app->file_path, BAD_USB_APP_PATH_FOLDER);
             scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
         }
     }
@@ -95,7 +94,7 @@ void bad_usb_app_free(BadUsbApp* app) {
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_DIALOGS);
 
-    string_clear(app->file_path);
+    furi_string_free(app->file_path);
 
     free(app);
 }

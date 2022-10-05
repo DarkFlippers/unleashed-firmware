@@ -22,47 +22,48 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
         text_scroll_height = 64;
     }
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     // Set name if present
     if(nfc->dev->dev_name[0] != '\0') {
-        string_printf(temp_str, "\ec%s\n", nfc->dev->dev_name);
+        furi_string_printf(temp_str, "\ec%s\n", nfc->dev->dev_name);
     }
 
     // Set tag type
     if(protocol == NfcDeviceProtocolEMV) {
-        string_cat_printf(temp_str, "\e#EMV Bank Card\n");
+        furi_string_cat_printf(temp_str, "\e#EMV Bank Card\n");
     } else if(protocol == NfcDeviceProtocolMifareUl) {
-        string_cat_printf(temp_str, "\e#%s\n", nfc_mf_ul_type(dev_data->mf_ul_data.type, true));
+        furi_string_cat_printf(
+            temp_str, "\e#%s\n", nfc_mf_ul_type(dev_data->mf_ul_data.type, true));
     } else if(protocol == NfcDeviceProtocolMifareClassic) {
-        string_cat_printf(
+        furi_string_cat_printf(
             temp_str, "\e#%s\n", nfc_mf_classic_type(dev_data->mf_classic_data.type));
     } else if(protocol == NfcDeviceProtocolMifareDesfire) {
-        string_cat_printf(temp_str, "\e#MIFARE DESfire\n");
+        furi_string_cat_printf(temp_str, "\e#MIFARE DESfire\n");
     } else {
-        string_cat_printf(temp_str, "\e#Unknown ISO tag\n");
+        furi_string_cat_printf(temp_str, "\e#Unknown ISO tag\n");
     }
 
     // Set tag iso data
     char iso_type = FURI_BIT(nfc_data->sak, 5) ? '4' : '3';
-    string_cat_printf(temp_str, "ISO 14443-%c (NFC-A)\n", iso_type);
-    string_cat_printf(temp_str, "UID:");
+    furi_string_cat_printf(temp_str, "ISO 14443-%c (NFC-A)\n", iso_type);
+    furi_string_cat_printf(temp_str, "UID:");
     for(size_t i = 0; i < nfc_data->uid_len; i++) {
-        string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
+        furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
     }
-    string_cat_printf(temp_str, "\nATQA: %02X %02X ", nfc_data->atqa[1], nfc_data->atqa[0]);
-    string_cat_printf(temp_str, " SAK: %02X", nfc_data->sak);
+    furi_string_cat_printf(temp_str, "\nATQA: %02X %02X ", nfc_data->atqa[1], nfc_data->atqa[0]);
+    furi_string_cat_printf(temp_str, " SAK: %02X", nfc_data->sak);
 
     // Set application specific data
     if(protocol == NfcDeviceProtocolMifareDesfire) {
         MifareDesfireData* data = &dev_data->mf_df_data;
         uint32_t bytes_total = 1 << (data->version.sw_storage >> 1);
         uint32_t bytes_free = data->free_memory ? data->free_memory->bytes : 0;
-        string_cat_printf(temp_str, "\n%d", bytes_total);
+        furi_string_cat_printf(temp_str, "\n%d", bytes_total);
         if(data->version.sw_storage & 1) {
-            string_push_back(temp_str, '+');
+            furi_string_push_back(temp_str, '+');
         }
-        string_cat_printf(temp_str, " bytes, %d bytes free\n", bytes_free);
+        furi_string_cat_printf(temp_str, " bytes, %d bytes free\n", bytes_free);
 
         uint16_t n_apps = 0;
         uint16_t n_files = 0;
@@ -72,20 +73,20 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
                 n_files++;
             }
         }
-        string_cat_printf(temp_str, "%d Application", n_apps);
+        furi_string_cat_printf(temp_str, "%d Application", n_apps);
         if(n_apps != 1) {
-            string_push_back(temp_str, 's');
+            furi_string_push_back(temp_str, 's');
         }
-        string_cat_printf(temp_str, ", %d file", n_files);
+        furi_string_cat_printf(temp_str, ", %d file", n_files);
         if(n_files != 1) {
-            string_push_back(temp_str, 's');
+            furi_string_push_back(temp_str, 's');
         }
     } else if(protocol == NfcDeviceProtocolMifareUl) {
         MfUltralightData* data = &dev_data->mf_ul_data;
-        string_cat_printf(
+        furi_string_cat_printf(
             temp_str, "\nPages Read %d/%d", data->data_read / 4, data->data_size / 4);
         if(data->data_size > data->data_read) {
-            string_cat_printf(temp_str, "\nPassword-protected");
+            furi_string_cat_printf(temp_str, "\nPassword-protected");
         }
     } else if(protocol == NfcDeviceProtocolMifareClassic) {
         MfClassicData* data = &dev_data->mf_classic_data;
@@ -94,14 +95,14 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
         uint8_t keys_found = 0;
         uint8_t sectors_read = 0;
         mf_classic_get_read_sectors_and_keys(data, &sectors_read, &keys_found);
-        string_cat_printf(temp_str, "\nKeys Found %d/%d", keys_found, keys_total);
-        string_cat_printf(temp_str, "\nSectors Read %d/%d", sectors_read, sectors_total);
+        furi_string_cat_printf(temp_str, "\nKeys Found %d/%d", keys_found, keys_total);
+        furi_string_cat_printf(temp_str, "\nSectors Read %d/%d", sectors_read, sectors_total);
     }
 
     // Add text scroll widget
     widget_add_text_scroll_element(
-        widget, 0, 0, 128, text_scroll_height, string_get_cstr(temp_str));
-    string_clear(temp_str);
+        widget, 0, 0, 128, text_scroll_height, furi_string_get_cstr(temp_str));
+    furi_string_free(temp_str);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }

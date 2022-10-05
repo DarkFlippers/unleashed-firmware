@@ -31,7 +31,7 @@ struct BadUsbApp {
     Widget* widget;
 
     BadUsbAppError error;
-    string_t file_path;
+    FuriString* file_path;
     BadUsb* bad_usb_view;
     BadUsbScript* bad_usb_script;
 };

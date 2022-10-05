@@ -1,6 +1,5 @@
 /* Abandon hope, all ye who enter here. */
 
-#include "m-string.h"
 #include "subghz/types.h"
 #include "subghz_i.h"
 #include <lib/toolbox/path.h>
@@ -62,8 +61,8 @@ void subghz_blink_stop(SubGhz* instance) {
 SubGhz* subghz_alloc() {
     SubGhz* subghz = malloc(sizeof(SubGhz));
 
-    string_init(subghz->file_path);
-    string_init(subghz->file_path_tmp);
+    subghz->file_path = furi_string_alloc();
+    subghz->file_path_tmp = furi_string_alloc();
 
     // GUI
     subghz->gui = furi_record_open(RECORD_GUI);
@@ -171,7 +170,7 @@ SubGhz* subghz_alloc() {
     subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->preset = malloc(sizeof(SubGhzPresetDefinition));
-    string_init(subghz->txrx->preset->name);
+    subghz->txrx->preset->name = furi_string_alloc();
     subghz_preset_init(
         subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
 
@@ -197,7 +196,7 @@ SubGhz* subghz_alloc() {
     subghz_worker_set_context(subghz->txrx->worker, subghz->txrx->receiver);
 
     //Init Error_str
-    string_init(subghz->error_str);
+    subghz->error_str = furi_string_alloc();
 
     return subghz;
 }
@@ -282,20 +281,20 @@ void subghz_free(SubGhz* subghz) {
     subghz_worker_free(subghz->txrx->worker);
     flipper_format_free(subghz->txrx->fff_data);
     subghz_history_free(subghz->txrx->history);
-    string_clear(subghz->txrx->preset->name);
+    furi_string_free(subghz->txrx->preset->name);
     free(subghz->txrx->preset);
     free(subghz->txrx);
 
     //Error string
-    string_clear(subghz->error_str);
+    furi_string_free(subghz->error_str);
 
     // Notifications
     furi_record_close(RECORD_NOTIFICATION);
     subghz->notifications = NULL;
 
     // Path strings
-    string_clear(subghz->file_path);
-    string_clear(subghz->file_path_tmp);
+    furi_string_free(subghz->file_path);
+    furi_string_free(subghz->file_path_tmp);
 
     // The rest
     free(subghz);
@@ -329,7 +328,7 @@ int32_t subghz_app(void* p) {
             view_dispatcher_attach_to_gui(
                 subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
             if(subghz_key_load(subghz, p, true)) {
-                string_set_str(subghz->file_path, p);
+                furi_string_set(subghz->file_path, (const char*)p);
 
                 if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
                     //Load Raw TX
@@ -348,13 +347,13 @@ int32_t subghz_app(void* p) {
     } else {
         view_dispatcher_attach_to_gui(
             subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
-        string_set_str(subghz->file_path, SUBGHZ_APP_FOLDER);
+        furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
         if(load_database) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);
         } else {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneShowError, SubGhzCustomEventManagerSet);
-            string_set_str(
+            furi_string_set(
                 subghz->error_str,
                 "No SD card or\ndatabase found.\nSome app function\nmay be reduced.");
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);

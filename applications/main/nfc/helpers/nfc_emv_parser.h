@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <m-string.h>
 #include <storage/storage.h>
 
 /** Get EMV application name by number
@@ -16,7 +15,7 @@ bool nfc_emv_parser_get_aid_name(
     Storage* storage,
     uint8_t* aid,
     uint8_t aid_len,
-    string_t aid_name);
+    FuriString* aid_name);
 
 /** Get country name by country code
  * @param storage Storage instance
@@ -27,7 +26,7 @@ bool nfc_emv_parser_get_aid_name(
 bool nfc_emv_parser_get_country_name(
     Storage* storage,
     uint16_t country_code,
-    string_t country_name);
+    FuriString* country_name);
 
 /** Get currency name by currency code
  * @param storage Storage instance
@@ -38,4 +37,4 @@ bool nfc_emv_parser_get_country_name(
 bool nfc_emv_parser_get_currency_name(
     Storage* storage,
     uint16_t currency_code,
-    string_t currency_name);
+    FuriString* currency_name);

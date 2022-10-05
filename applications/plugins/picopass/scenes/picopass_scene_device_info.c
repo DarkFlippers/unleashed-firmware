@@ -14,10 +14,10 @@ void picopass_scene_device_info_widget_callback(
 void picopass_scene_device_info_on_enter(void* context) {
     Picopass* picopass = context;
 
-    string_t credential_str;
-    string_t wiegand_str;
-    string_init(credential_str);
-    string_init(wiegand_str);
+    FuriString* credential_str;
+    FuriString* wiegand_str;
+    credential_str = furi_string_alloc();
+    wiegand_str = furi_string_alloc();
 
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
@@ -26,25 +26,31 @@ void picopass_scene_device_info_on_enter(void* context) {
     Widget* widget = picopass->widget;
 
     size_t bytesLength = 1 + pacs->record.bitLength / 8;
-    string_set_str(credential_str, "");
+    furi_string_set(credential_str, "");
     for(uint8_t i = PICOPASS_BLOCK_LEN - bytesLength; i < PICOPASS_BLOCK_LEN; i++) {
-        string_cat_printf(credential_str, " %02X", pacs->credential[i]);
+        furi_string_cat_printf(credential_str, " %02X", pacs->credential[i]);
     }
 
     if(pacs->record.valid) {
-        string_cat_printf(
+        furi_string_cat_printf(
             wiegand_str, "FC: %u CN: %u", pacs->record.FacilityCode, pacs->record.CardNumber);
     } else {
-        string_cat_printf(wiegand_str, "%d bits", pacs->record.bitLength);
+        furi_string_cat_printf(wiegand_str, "%d bits", pacs->record.bitLength);
     }
 
     widget_add_string_element(
-        widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, string_get_cstr(wiegand_str));
+        widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, furi_string_get_cstr(wiegand_str));
     widget_add_string_element(
-        widget, 64, 32, AlignCenter, AlignCenter, FontSecondary, string_get_cstr(credential_str));
+        widget,
+        64,
+        32,
+        AlignCenter,
+        AlignCenter,
+        FontSecondary,
+        furi_string_get_cstr(credential_str));
 
-    string_clear(credential_str);
-    string_clear(wiegand_str);
+    furi_string_free(credential_str);
+    furi_string_free(wiegand_str);
 
     widget_add_button_element(
         picopass->widget,

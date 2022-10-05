@@ -22,22 +22,22 @@ void nfc_scene_nfca_read_success_on_enter(void* context) {
     FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;
     Widget* widget = nfc->widget;
 
-    string_t temp_str;
-    string_init_set_str(temp_str, "\e#Unknown ISO tag\n");
+    FuriString* temp_str;
+    temp_str = furi_string_alloc_set("\e#Unknown ISO tag\n");
 
     notification_message_block(nfc->notifications, &sequence_set_green_255);
 
     char iso_type = FURI_BIT(data->sak, 5) ? '4' : '3';
-    string_cat_printf(temp_str, "ISO 14443-%c (NFC-A)\n", iso_type);
-    string_cat_printf(temp_str, "UID:");
+    furi_string_cat_printf(temp_str, "ISO 14443-%c (NFC-A)\n", iso_type);
+    furi_string_cat_printf(temp_str, "UID:");
     for(size_t i = 0; i < data->uid_len; i++) {
-        string_cat_printf(temp_str, " %02X", data->uid[i]);
+        furi_string_cat_printf(temp_str, " %02X", data->uid[i]);
     }
-    string_cat_printf(temp_str, "\nATQA: %02X %02X ", data->atqa[1], data->atqa[0]);
-    string_cat_printf(temp_str, " SAK: %02X", data->sak);
+    furi_string_cat_printf(temp_str, "\nATQA: %02X %02X ", data->atqa[1], data->atqa[0]);
+    furi_string_cat_printf(temp_str, " SAK: %02X", data->sak);
 
-    widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
-    string_clear(temp_str);
+    widget_add_text_scroll_element(widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
+    furi_string_free(temp_str);
 
     widget_add_button_element(
         widget, GuiButtonTypeLeft, "Retry", nfc_scene_nfca_read_success_widget_callback, nfc);

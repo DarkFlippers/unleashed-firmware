@@ -1,5 +1,4 @@
 #include "../ibutton_i.h"
-#include "m-string.h"
 
 enum SubmenuIndex {
     SubmenuIndexCyfral,
@@ -47,7 +46,7 @@ bool ibutton_scene_add_type_on_event(void* context, SceneManagerEvent event) {
             furi_crash("Unknown key type");
         }
 
-        string_set_str(ibutton->file_path, IBUTTON_APP_FOLDER);
+        furi_string_set(ibutton->file_path, IBUTTON_APP_FOLDER);
         ibutton_key_clear_data(key);
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneAddValue);
     }

@@ -51,7 +51,7 @@ struct Picopass {
     PicopassDevice* dev;
 
     char text_store[PICOPASS_TEXT_STORE_SIZE + 1];
-    string_t text_box_store;
+    FuriString* text_box_store;
 
     // Common Views
     Submenu* submenu;

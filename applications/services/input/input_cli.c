@@ -19,7 +19,7 @@ static void input_cli_dump_events_callback(const void* value, void* ctx) {
     furi_message_queue_put(input_queue, value, FuriWaitForever);
 }
 
-static void input_cli_dump(Cli* cli, string_t args, Input* input) {
+static void input_cli_dump(Cli* cli, FuriString* args, Input* input) {
     UNUSED(args);
     FuriMessageQueue* input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
     FuriPubSubSubscription* input_subscription =
@@ -47,11 +47,11 @@ static void input_cli_send_print_usage() {
     printf("\t\t <type>\t - one of 'press', 'release', 'short', 'long'\r\n");
 }
 
-static void input_cli_send(Cli* cli, string_t args, Input* input) {
+static void input_cli_send(Cli* cli, FuriString* args, Input* input) {
     UNUSED(cli);
     InputEvent event;
-    string_t key_str;
-    string_init(key_str);
+    FuriString* key_str;
+    key_str = furi_string_alloc();
     bool parsed = false;
 
     do {
@@ -59,29 +59,29 @@ static void input_cli_send(Cli* cli, string_t args, Input* input) {
         if(!args_read_string_and_trim(args, key_str)) {
             break;
         }
-        if(!string_cmp(key_str, "up")) {
+        if(!furi_string_cmp(key_str, "up")) {
             event.key = InputKeyUp;
-        } else if(!string_cmp(key_str, "down")) {
+        } else if(!furi_string_cmp(key_str, "down")) {
             event.key = InputKeyDown;
-        } else if(!string_cmp(key_str, "left")) {
+        } else if(!furi_string_cmp(key_str, "left")) {
             event.key = InputKeyLeft;
-        } else if(!string_cmp(key_str, "right")) {
+        } else if(!furi_string_cmp(key_str, "right")) {
             event.key = InputKeyRight;
-        } else if(!string_cmp(key_str, "ok")) {
+        } else if(!furi_string_cmp(key_str, "ok")) {
             event.key = InputKeyOk;
-        } else if(!string_cmp(key_str, "back")) {
+        } else if(!furi_string_cmp(key_str, "back")) {
             event.key = InputKeyBack;
         } else {
             break;
         }
         // Parse Type
-        if(!string_cmp(args, "press")) {
+        if(!furi_string_cmp(args, "press")) {
             event.type = InputTypePress;
-        } else if(!string_cmp(args, "release")) {
+        } else if(!furi_string_cmp(args, "release")) {
             event.type = InputTypeRelease;
-        } else if(!string_cmp(args, "short")) {
+        } else if(!furi_string_cmp(args, "short")) {
             event.type = InputTypeShort;
-        } else if(!string_cmp(args, "long")) {
+        } else if(!furi_string_cmp(args, "long")) {
             event.type = InputTypeLong;
         } else {
             break;
@@ -94,26 +94,26 @@ static void input_cli_send(Cli* cli, string_t args, Input* input) {
     } else {
         input_cli_send_print_usage();
     }
-    string_clear(key_str);
+    furi_string_free(key_str);
 }
 
-void input_cli(Cli* cli, string_t args, void* context) {
+void input_cli(Cli* cli, FuriString* args, void* context) {
     furi_assert(cli);
     furi_assert(context);
     Input* input = context;
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
             input_cli_usage();
             break;
         }
-        if(string_cmp_str(cmd, "dump") == 0) {
+        if(furi_string_cmp_str(cmd, "dump") == 0) {
             input_cli_dump(cli, args, input);
             break;
         }
-        if(string_cmp_str(cmd, "send") == 0) {
+        if(furi_string_cmp_str(cmd, "send") == 0) {
             input_cli_send(cli, args, input);
             break;
         }
@@ -121,5 +121,5 @@ void input_cli(Cli* cli, string_t args, void* context) {
         input_cli_usage();
     } while(false);
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }
