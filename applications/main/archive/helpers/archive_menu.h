@@ -1,5 +1,6 @@
 #pragma once
 
+#include <furi.h>
 #include <m-array.h>
 
 typedef struct {
@@ -22,7 +23,7 @@ static void ArchiveContextMenuItem_t_init_set(
 static void ArchiveContextMenuItem_t_set(
     ArchiveContextMenuItem_t* obj,
     const ArchiveContextMenuItem_t* src) {
-    obj->text = furi_string_alloc_set(src->text);
+    furi_string_set(obj->text, src->text);
     obj->event = src->event;
 }
 
@@ -43,7 +44,7 @@ ARRAY_DEF(
 // Using in applications/archive/views/archive_browser_view.c
 static void
     archive_menu_add_item(ArchiveContextMenuItem_t* obj, FuriString* text, uint32_t event) {
-    obj->text = furi_string_alloc_move(text);
+    obj->text = furi_string_alloc_set(text);
     obj->event = event;
 }
 #pragma GCC diagnostic pop

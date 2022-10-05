@@ -48,17 +48,11 @@ void archive_browser_set_callback(
 static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     if(menu_array_size(model->context_menu) == 0) {
         // Context menu is empty, init array
-        FuriString* item_run;
-        FuriString* item_pin;
-        FuriString* item_info;
-        FuriString* item_rename;
-        FuriString* item_delete;
-
-        item_run = furi_string_alloc_set("Run In App");
-        item_pin = furi_string_alloc_set("Pin");
-        item_info = furi_string_alloc_set("Info");
-        item_rename = furi_string_alloc_set("Rename");
-        item_delete = furi_string_alloc_set("Delete");
+        FuriString* item_run = furi_string_alloc_set("Run In App");
+        FuriString* item_pin = furi_string_alloc_set("Pin");
+        FuriString* item_info = furi_string_alloc_set("Info");
+        FuriString* item_rename = furi_string_alloc_set("Rename");
+        FuriString* item_delete = furi_string_alloc_set("Delete");
 
         // Need init context menu
         ArchiveFile_t* selected =
