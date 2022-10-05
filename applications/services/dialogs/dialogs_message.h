@@ -2,7 +2,6 @@
 #include <furi.h>
 #include "dialogs_i.h"
 #include "dialogs_api_lock.h"
-#include "m-string.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,8 +12,8 @@ typedef struct {
     bool skip_assets;
     bool hide_ext;
     const Icon* file_icon;
-    string_ptr result_path;
-    string_ptr preselected_filename;
+    FuriString* result_path;
+    FuriString* preselected_filename;
     FileBrowserLoadItemCallback item_callback;
     void* item_callback_context;
 } DialogsAppMessageDataFileBrowser;

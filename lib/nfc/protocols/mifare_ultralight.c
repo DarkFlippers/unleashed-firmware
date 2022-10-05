@@ -4,7 +4,6 @@
 #include "nfc_util.h"
 #include <furi.h>
 #include "furi_hal_nfc.h"
-#include <m-string.h>
 
 #define TAG "MfUltralight"
 
@@ -1005,7 +1004,7 @@ static bool mf_ul_check_lock(MfUltralightEmulator* emulator, int16_t write_page)
     return (dynamic_lock_bytes & (1 << shift)) == 0;
 }
 
-static void mf_ul_make_ascii_mirror(MfUltralightEmulator* emulator, string_t str) {
+static void mf_ul_make_ascii_mirror(MfUltralightEmulator* emulator, FuriString* str) {
     // Locals to improve readability
     uint8_t mirror_page = emulator->config->mirror_page;
     uint8_t mirror_byte = emulator->config->mirror.mirror_byte;
@@ -1020,14 +1019,14 @@ static void mf_ul_make_ascii_mirror(MfUltralightEmulator* emulator, string_t str
             if(mirror_conf == MfUltralightMirrorUid) return;
             // NTAG21x has the peculiar behavior when UID+counter selected, if UID does not fit but
             // counter will fit, it will actually mirror the counter
-            string_cat_str(str, "              ");
+            furi_string_cat(str, "              ");
         } else {
             for(int i = 0; i < 3; ++i) {
-                string_cat_printf(str, "%02X", emulator->data.data[i]);
+                furi_string_cat_printf(str, "%02X", emulator->data.data[i]);
             }
             // Skip BCC0
             for(int i = 4; i < 8; ++i) {
-                string_cat_printf(str, "%02X", emulator->data.data[i]);
+                furi_string_cat_printf(str, "%02X", emulator->data.data[i]);
             }
             uid_printed = true;
         }
@@ -1049,9 +1048,9 @@ static void mf_ul_make_ascii_mirror(MfUltralightEmulator* emulator, string_t str
             if(mirror_page == last_user_page_index - 1 && mirror_byte > 2) return;
 
             if(mirror_conf == MfUltralightMirrorUidCounter)
-                string_cat_str(str, uid_printed ? "x" : " ");
+                furi_string_cat(str, uid_printed ? "x" : " ");
 
-            string_cat_printf(str, "%06X", emulator->data.counter[2]);
+            furi_string_cat_printf(str, "%06X", emulator->data.counter[2]);
         }
     }
 }
@@ -1267,14 +1266,14 @@ bool mf_ul_prepare_emulation_response(
     bool reset_idle = false;
 
 #ifdef FURI_DEBUG
-    string_t debug_buf;
-    string_init(debug_buf);
+    FuriString* debug_buf;
+    debug_buf = furi_string_alloc();
     for(int i = 0; i < (buff_rx_len + 7) / 8; ++i) {
-        string_cat_printf(debug_buf, "%02x ", buff_rx[i]);
+        furi_string_cat_printf(debug_buf, "%02x ", buff_rx[i]);
     }
-    string_strim(debug_buf);
-    FURI_LOG_T(TAG, "Emu RX (%d): %s", buff_rx_len, string_get_cstr(debug_buf));
-    string_reset(debug_buf);
+    furi_string_trim(debug_buf);
+    FURI_LOG_T(TAG, "Emu RX (%d): %s", buff_rx_len, furi_string_get_cstr(debug_buf));
+    furi_string_reset(debug_buf);
 #endif
 
     // Check composite commands
@@ -1328,7 +1327,7 @@ bool mf_ul_prepare_emulation_response(
                             uint8_t src_page = start_page;
                             uint8_t last_page_plus_one = start_page + 4;
                             uint8_t pwd_page = emulator->page_num - 2;
-                            string_t ascii_mirror;
+                            FuriString* ascii_mirror = NULL;
                             size_t ascii_mirror_len = 0;
                             const char* ascii_mirror_cptr = NULL;
                             uint8_t ascii_mirror_curr_page = 0;
@@ -1353,10 +1352,10 @@ bool mf_ul_prepare_emulation_response(
                                 if(last_page_plus_one > ascii_mirror_curr_page &&
                                    start_page + 3 >= ascii_mirror_curr_page &&
                                    start_page <= ascii_mirror_curr_page + 6) {
-                                    string_init(ascii_mirror);
+                                    ascii_mirror = furi_string_alloc();
                                     mf_ul_make_ascii_mirror(emulator, ascii_mirror);
-                                    ascii_mirror_len = string_length_u(ascii_mirror);
-                                    ascii_mirror_cptr = string_get_cstr(ascii_mirror);
+                                    ascii_mirror_len = furi_string_utf8_length(ascii_mirror);
+                                    ascii_mirror_cptr = furi_string_get_cstr(ascii_mirror);
                                     // Move pointer to where it should be to start copying
                                     if(ascii_mirror_len > 0 &&
                                        ascii_mirror_curr_page < start_page &&
@@ -1414,8 +1413,8 @@ bool mf_ul_prepare_emulation_response(
                                 ++src_page;
                                 if(src_page >= last_page_plus_one) src_page = 0;
                             }
-                            if(ascii_mirror_cptr != NULL) {
-                                string_clear(ascii_mirror);
+                            if(ascii_mirror != NULL) {
+                                furi_string_free(ascii_mirror);
                             }
                             *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
                             command_parsed = true;
@@ -1512,12 +1511,13 @@ bool mf_ul_prepare_emulation_response(
                                         // Copy ASCII mirror
                                         // Less stringent check here, because expecting FAST_READ to
                                         // only be issued once rather than repeatedly
-                                        string_t ascii_mirror;
-                                        string_init(ascii_mirror);
+                                        FuriString* ascii_mirror;
+                                        ascii_mirror = furi_string_alloc();
                                         mf_ul_make_ascii_mirror(emulator, ascii_mirror);
-                                        size_t ascii_mirror_len = string_length_u(ascii_mirror);
+                                        size_t ascii_mirror_len =
+                                            furi_string_utf8_length(ascii_mirror);
                                         const char* ascii_mirror_cptr =
-                                            string_get_cstr(ascii_mirror);
+                                            furi_string_get_cstr(ascii_mirror);
                                         int16_t mirror_start_offset =
                                             (emulator->config->mirror_page - start_page) * 4 +
                                             emulator->config->mirror.mirror_byte;
@@ -1547,7 +1547,7 @@ bool mf_ul_prepare_emulation_response(
                                                 ++ascii_mirror_cptr;
                                             }
                                         }
-                                        string_clear(ascii_mirror);
+                                        furi_string_free(ascii_mirror);
                                     }
 
                                     if(emulator->supported_features & MfUltralightSupportAuth) {
@@ -1851,11 +1851,11 @@ bool mf_ul_prepare_emulation_response(
     } else if(*buff_tx_len > 0) {
         int count = (*buff_tx_len + 7) / 8;
         for(int i = 0; i < count; ++i) {
-            string_cat_printf(debug_buf, "%02x ", buff_tx[i]);
+            furi_string_cat_printf(debug_buf, "%02x ", buff_tx[i]);
         }
-        string_strim(debug_buf);
-        FURI_LOG_T(TAG, "Emu TX (%d): %s", *buff_tx_len, string_get_cstr(debug_buf));
-        string_clear(debug_buf);
+        furi_string_trim(debug_buf);
+        FURI_LOG_T(TAG, "Emu TX (%d): %s", *buff_tx_len, furi_string_get_cstr(debug_buf));
+        furi_string_free(debug_buf);
     } else {
         FURI_LOG_T(TAG, "Emu TX: HALT");
     }

@@ -11,7 +11,7 @@ void subghz_protocol_decoder_base_set_decoder_callback(
 
 bool subghz_protocol_decoder_base_get_string(
     SubGhzProtocolDecoderBase* decoder_base,
-    string_t output) {
+    FuriString* output) {
     bool status = false;
 
     if(decoder_base->protocol && decoder_base->protocol->decoder &&

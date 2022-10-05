@@ -12,7 +12,7 @@ void subghz_scene_show_error_sub_on_enter(void* context) {
     // Setup view
     Popup* popup = subghz->popup;
     popup_set_icon(popup, 72, 17, &I_DolphinCommon_56x48);
-    popup_set_header(popup, string_get_cstr(subghz->error_str), 14, 15, AlignLeft, AlignTop);
+    popup_set_header(popup, furi_string_get_cstr(subghz->error_str), 14, 15, AlignLeft, AlignTop);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, subghz);
     popup_set_callback(popup, subghz_scene_show_error_sub_popup_callback);
@@ -46,7 +46,7 @@ void subghz_scene_show_error_sub_on_exit(void* context) {
     popup_set_context(popup, NULL);
     popup_set_timeout(popup, 0);
     popup_disable_timeout(popup);
-    string_reset(subghz->error_str);
+    furi_string_reset(subghz->error_str);
 
     notification_message(subghz->notifications, &sequence_reset_rgb);
 }

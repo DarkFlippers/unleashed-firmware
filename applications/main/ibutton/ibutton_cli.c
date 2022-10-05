@@ -6,8 +6,8 @@
 #include <one_wire/ibutton/ibutton_worker.h>
 #include <one_wire/one_wire_host.h>
 
-static void ibutton_cli(Cli* cli, string_t args, void* context);
-static void onewire_cli(Cli* cli, string_t args, void* context);
+static void ibutton_cli(Cli* cli, FuriString* args, void* context);
+static void onewire_cli(Cli* cli, FuriString* args, void* context);
 
 // app cli function
 void ibutton_on_system_start() {
@@ -34,16 +34,16 @@ void ibutton_cli_print_usage() {
     printf("\t<key_data> are hex-formatted\r\n");
 };
 
-bool ibutton_cli_get_key_type(string_t data, iButtonKeyType* type) {
+bool ibutton_cli_get_key_type(FuriString* data, iButtonKeyType* type) {
     bool result = false;
 
-    if(string_cmp_str(data, "Dallas") == 0 || string_cmp_str(data, "dallas") == 0) {
+    if(furi_string_cmp_str(data, "Dallas") == 0 || furi_string_cmp_str(data, "dallas") == 0) {
         result = true;
         *type = iButtonKeyDS1990;
-    } else if(string_cmp_str(data, "Cyfral") == 0 || string_cmp_str(data, "cyfral") == 0) {
+    } else if(furi_string_cmp_str(data, "Cyfral") == 0 || furi_string_cmp_str(data, "cyfral") == 0) {
         result = true;
         *type = iButtonKeyCyfral;
-    } else if(string_cmp_str(data, "Metakom") == 0 || string_cmp_str(data, "metakom") == 0) {
+    } else if(furi_string_cmp_str(data, "Metakom") == 0 || furi_string_cmp_str(data, "metakom") == 0) {
         result = true;
         *type = iButtonKeyMetakom;
     }
@@ -123,17 +123,17 @@ static void ibutton_cli_worker_write_cb(void* context, iButtonWorkerWriteResult 
     furi_event_flag_set(write_context->event, EVENT_FLAG_IBUTTON_COMPLETE);
 }
 
-void ibutton_cli_write(Cli* cli, string_t args) {
+void ibutton_cli_write(Cli* cli, FuriString* args) {
     iButtonKey* key = ibutton_key_alloc();
     iButtonWorker* worker = ibutton_worker_alloc();
     iButtonKeyType type;
     iButtonWriteContext write_context;
     uint8_t key_data[IBUTTON_KEY_DATA_SIZE];
-    string_t data;
+    FuriString* data;
 
     write_context.event = furi_event_flag_alloc();
 
-    string_init(data);
+    data = furi_string_alloc();
     ibutton_worker_start_thread(worker);
     ibutton_worker_write_set_callback(worker, ibutton_cli_worker_write_cb, &write_context);
 
@@ -186,7 +186,7 @@ void ibutton_cli_write(Cli* cli, string_t args) {
         ibutton_worker_stop(worker);
     } while(false);
 
-    string_clear(data);
+    furi_string_free(data);
     ibutton_worker_stop_thread(worker);
     ibutton_worker_free(worker);
     ibutton_key_free(key);
@@ -194,14 +194,14 @@ void ibutton_cli_write(Cli* cli, string_t args) {
     furi_event_flag_free(write_context.event);
 };
 
-void ibutton_cli_emulate(Cli* cli, string_t args) {
+void ibutton_cli_emulate(Cli* cli, FuriString* args) {
     iButtonKey* key = ibutton_key_alloc();
     iButtonWorker* worker = ibutton_worker_alloc();
     iButtonKeyType type;
     uint8_t key_data[IBUTTON_KEY_DATA_SIZE];
-    string_t data;
+    FuriString* data;
 
-    string_init(data);
+    data = furi_string_alloc();
     ibutton_worker_start_thread(worker);
 
     do {
@@ -234,34 +234,34 @@ void ibutton_cli_emulate(Cli* cli, string_t args) {
         ibutton_worker_stop(worker);
     } while(false);
 
-    string_clear(data);
+    furi_string_free(data);
     ibutton_worker_stop_thread(worker);
     ibutton_worker_free(worker);
     ibutton_key_free(key);
 };
 
-static void ibutton_cli(Cli* cli, string_t args, void* context) {
+static void ibutton_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     if(!args_read_string_and_trim(args, cmd)) {
-        string_clear(cmd);
+        furi_string_free(cmd);
         ibutton_cli_print_usage();
         return;
     }
 
-    if(string_cmp_str(cmd, "read") == 0) {
+    if(furi_string_cmp_str(cmd, "read") == 0) {
         ibutton_cli_read(cli);
-    } else if(string_cmp_str(cmd, "write") == 0) {
+    } else if(furi_string_cmp_str(cmd, "write") == 0) {
         ibutton_cli_write(cli, args);
-    } else if(string_cmp_str(cmd, "emulate") == 0) {
+    } else if(furi_string_cmp_str(cmd, "emulate") == 0) {
         ibutton_cli_emulate(cli, args);
     } else {
         ibutton_cli_print_usage();
     }
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }
 
 void onewire_cli_print_usage() {
@@ -299,20 +299,20 @@ static void onewire_cli_search(Cli* cli) {
     onewire_host_free(onewire);
 }
 
-void onewire_cli(Cli* cli, string_t args, void* context) {
+void onewire_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     if(!args_read_string_and_trim(args, cmd)) {
-        string_clear(cmd);
+        furi_string_free(cmd);
         onewire_cli_print_usage();
         return;
     }
 
-    if(string_cmp_str(cmd, "search") == 0) {
+    if(furi_string_cmp_str(cmd, "search") == 0) {
         onewire_cli_search(cli);
     }
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }

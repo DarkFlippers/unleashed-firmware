@@ -2,7 +2,6 @@
 #include "keeloq_common.h"
 
 #include "../subghz_keystore.h"
-#include <m-string.h>
 #include <m-array.h>
 
 #include "../blocks/const.h"
@@ -712,7 +711,7 @@ bool subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat*
     return res;
 }
 
-void subghz_protocol_decoder_star_line_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_star_line_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
 
@@ -727,7 +726,7 @@ void subghz_protocol_decoder_star_line_get_string(void* context, string_t output
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:%08lX%08lX\r\n"

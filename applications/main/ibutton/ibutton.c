@@ -2,7 +2,6 @@
 #include "assets_icons.h"
 #include "ibutton_i.h"
 #include "ibutton/scenes/ibutton_scene.h"
-#include "m-string.h"
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
 #include <rpc/rpc_app.h>
@@ -39,25 +38,25 @@ static void ibutton_make_app_folder(iButton* ibutton) {
     }
 }
 
-bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog) {
+bool ibutton_load_key_data(iButton* ibutton, FuriString* key_path, bool show_dialog) {
     FlipperFormat* file = flipper_format_file_alloc(ibutton->storage);
     bool result = false;
-    string_t data;
-    string_init(data);
+    FuriString* data;
+    data = furi_string_alloc();
 
     do {
-        if(!flipper_format_file_open_existing(file, string_get_cstr(key_path))) break;
+        if(!flipper_format_file_open_existing(file, furi_string_get_cstr(key_path))) break;
 
         // header
         uint32_t version;
         if(!flipper_format_read_header(file, data, &version)) break;
-        if(string_cmp_str(data, IBUTTON_APP_FILE_TYPE) != 0) break;
+        if(furi_string_cmp_str(data, IBUTTON_APP_FILE_TYPE) != 0) break;
         if(version != 1) break;
 
         // key type
         iButtonKeyType type;
         if(!flipper_format_read_string(file, "Key type", data)) break;
-        if(!ibutton_key_get_type_by_string(string_get_cstr(data), &type)) break;
+        if(!ibutton_key_get_type_by_string(furi_string_get_cstr(data), &type)) break;
 
         // key data
         uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0};
@@ -71,7 +70,7 @@ bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog
     } while(false);
 
     flipper_format_free(file);
-    string_clear(data);
+    furi_string_free(data);
 
     if((!result) && (show_dialog)) {
         dialog_message_show_storage_error(ibutton->dialogs, "Cannot load\nkey file");
@@ -119,7 +118,7 @@ void ibutton_tick_event_callback(void* context) {
 iButton* ibutton_alloc() {
     iButton* ibutton = malloc(sizeof(iButton));
 
-    string_init(ibutton->file_path);
+    ibutton->file_path = furi_string_alloc();
 
     ibutton->scene_manager = scene_manager_alloc(&ibutton_scene_handlers, ibutton);
 
@@ -210,7 +209,7 @@ void ibutton_free(iButton* ibutton) {
     ibutton_worker_free(ibutton->key_worker);
     ibutton_key_free(ibutton->key);
 
-    string_clear(ibutton->file_path);
+    furi_string_free(ibutton->file_path);
 
     free(ibutton);
 }
@@ -240,19 +239,19 @@ bool ibutton_save_key(iButton* ibutton, const char* key_name) {
 
     do {
         // Check if we has old key
-        if(string_end_with_str_p(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
+        if(furi_string_end_with(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
             // First remove old key
             ibutton_delete_key(ibutton);
 
             // Remove old key name from path
-            size_t filename_start = string_search_rchar(ibutton->file_path, '/');
-            string_left(ibutton->file_path, filename_start);
+            size_t filename_start = furi_string_search_rchar(ibutton->file_path, '/');
+            furi_string_left(ibutton->file_path, filename_start);
         }
 
-        string_cat_printf(ibutton->file_path, "/%s%s", key_name, IBUTTON_APP_EXTENSION);
+        furi_string_cat_printf(ibutton->file_path, "/%s%s", key_name, IBUTTON_APP_EXTENSION);
 
         // Open file for write
-        if(!flipper_format_file_open_always(file, string_get_cstr(ibutton->file_path))) break;
+        if(!flipper_format_file_open_always(file, furi_string_get_cstr(ibutton->file_path))) break;
 
         // Write header
         if(!flipper_format_write_header_cstr(file, IBUTTON_APP_FILE_TYPE, 1)) break;
@@ -286,7 +285,7 @@ bool ibutton_save_key(iButton* ibutton, const char* key_name) {
 
 bool ibutton_delete_key(iButton* ibutton) {
     bool result = false;
-    result = storage_simply_remove(ibutton->storage, string_get_cstr(ibutton->file_path));
+    result = storage_simply_remove(ibutton->storage, furi_string_get_cstr(ibutton->file_path));
 
     return result;
 }
@@ -326,7 +325,7 @@ int32_t ibutton_app(void* p) {
             rpc_system_app_set_callback(ibutton->rpc_ctx, ibutton_rpc_command_callback, ibutton);
             rpc_system_app_send_started(ibutton->rpc_ctx);
         } else {
-            string_set_str(ibutton->file_path, (const char*)p);
+            furi_string_set(ibutton->file_path, (const char*)p);
             if(ibutton_load_key_data(ibutton, ibutton->file_path, true)) {
                 key_loaded = true;
                 // TODO: Display an error if the key from p could not be loaded

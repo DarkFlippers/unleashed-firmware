@@ -206,7 +206,7 @@ bool subghz_protocol_decoder_ido_deserialize(void* context, FlipperFormat* flipp
     return ret;
 }
 
-void subghz_protocol_decoder_ido_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_ido_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderIDo* instance = context;
 
@@ -216,7 +216,7 @@ void subghz_protocol_decoder_ido_get_string(void* context, string_t output) {
     uint32_t code_fix = code_found_reverse & 0xFFFFFF;
     uint32_t code_hop = (code_found_reverse >> 24) & 0xFFFFFF;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"

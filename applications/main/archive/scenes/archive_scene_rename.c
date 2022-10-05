@@ -87,7 +87,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             archive_show_loading_popup(archive, false);
             archive_show_file_menu(archive->browser, false);
 
-            string_clear(path_dst);
+            furi_string_free(path_dst);
 
             if(error == FSE_OK || error == FSE_EXIST) {
                 scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);

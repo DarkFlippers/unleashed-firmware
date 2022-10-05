@@ -107,4 +107,4 @@ bool subghz_protocol_decoder_came_atomo_deserialize(void* context, FlipperFormat
  * @param context Pointer to a SubGhzProtocolDecoderCameAtomo instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_came_atomo_get_string(void* context, string_t output);
+void subghz_protocol_decoder_came_atomo_get_string(void* context, FuriString* output);

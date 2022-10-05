@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <m-list.h>
 #include "views/bubble_animation_view.h"
-#include <m-string.h>
 
 /** Main structure to handle animation data.
  * Contains all, including animation playing data (BubbleAnimation),

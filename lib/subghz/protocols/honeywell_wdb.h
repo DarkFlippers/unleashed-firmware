@@ -108,4 +108,4 @@ bool subghz_protocol_decoder_honeywell_wdb_deserialize(
  * @param context Pointer to a SubGhzProtocolDecoderHoneywell_WDB instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_honeywell_wdb_get_string(void* context, string_t output);
+void subghz_protocol_decoder_honeywell_wdb_get_string(void* context, FuriString* output);

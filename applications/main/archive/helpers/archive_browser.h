@@ -87,6 +87,6 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show);
 void archive_favorites_move_mode(ArchiveBrowserView* browser, bool active);
 
 void archive_switch_tab(ArchiveBrowserView* browser, InputKey key);
-void archive_enter_dir(ArchiveBrowserView* browser, string_t name);
+void archive_enter_dir(ArchiveBrowserView* browser, FuriString* name);
 void archive_leave_dir(ArchiveBrowserView* browser);
 void archive_refresh_dir(ArchiveBrowserView* browser);

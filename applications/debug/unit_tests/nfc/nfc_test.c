@@ -53,14 +53,15 @@ static bool nfc_test_read_signal_from_file(const char* file_name) {
     bool success = false;
 
     FlipperFormat* file = flipper_format_file_alloc(nfc_test->storage);
-    string_t file_type;
-    string_init(file_type);
+    FuriString* file_type;
+    file_type = furi_string_alloc();
     uint32_t file_version = 0;
 
     do {
         if(!flipper_format_file_open_existing(file, file_name)) break;
         if(!flipper_format_read_header(file, file_type, &file_version)) break;
-        if(string_cmp_str(file_type, nfc_test_file_type) || file_version != nfc_test_file_version)
+        if(furi_string_cmp_str(file_type, nfc_test_file_type) ||
+           file_version != nfc_test_file_version)
             break;
         if(!flipper_format_read_uint32(file, "Data length", &nfc_test->test_data_len, 1)) break;
         if(nfc_test->test_data_len > NFC_TEST_DATA_MAX_LEN) break;
@@ -76,7 +77,7 @@ static bool nfc_test_read_signal_from_file(const char* file_name) {
         success = true;
     } while(false);
 
-    string_clear(file_type);
+    furi_string_free(file_type);
     flipper_format_free(file);
 
     return success;
@@ -174,8 +175,8 @@ MU_TEST(nfc_digital_signal_test) {
 MU_TEST(mf_classic_dict_test) {
     MfClassicDict* instance = NULL;
     uint64_t key = 0;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     instance = mf_classic_dict_alloc(MfClassicDictTypeUnitTest);
     mu_assert(instance != NULL, "mf_classic_dict_alloc\r\n");
@@ -184,7 +185,7 @@ MU_TEST(mf_classic_dict_test) {
         mf_classic_dict_get_total_keys(instance) == 0,
         "mf_classic_dict_get_total_keys == 0 assert failed\r\n");
 
-    string_set(temp_str, "2196FAD8115B");
+    furi_string_set(temp_str, "2196FAD8115B");
     mu_assert(
         mf_classic_dict_add_key_str(instance, temp_str),
         "mf_classic_dict_add_key == true assert failed\r\n");
@@ -199,7 +200,7 @@ MU_TEST(mf_classic_dict_test) {
         mf_classic_dict_get_key_at_index_str(instance, temp_str, 0),
         "mf_classic_dict_get_key_at_index_str == true assert failed\r\n");
     mu_assert(
-        string_cmp(temp_str, "2196FAD8115B") == 0,
+        furi_string_cmp(temp_str, "2196FAD8115B") == 0,
         "string_cmp(temp_str, \"2196FAD8115B\") == 0 assert failed\r\n");
 
     mu_assert(mf_classic_dict_rewind(instance), "mf_classic_dict_rewind == 1 assert failed\r\n");
@@ -216,7 +217,7 @@ MU_TEST(mf_classic_dict_test) {
         "mf_classic_dict_delete_index == true assert failed\r\n");
 
     mf_classic_dict_free(instance);
-    string_clear(temp_str);
+    furi_string_free(temp_str);
 }
 
 MU_TEST_SUITE(nfc) {

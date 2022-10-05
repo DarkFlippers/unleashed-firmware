@@ -113,11 +113,11 @@ static void display_config_set_regulation_ratio(VariableItem* item) {
 static void display_config_set_contrast(VariableItem* item) {
     DisplayTest* instance = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
-    string_t temp;
-    string_init(temp);
-    string_cat_printf(temp, "%d", index);
-    variable_item_set_current_value_text(item, string_get_cstr(temp));
-    string_clear(temp);
+    FuriString* temp;
+    temp = furi_string_alloc();
+    furi_string_cat_printf(temp, "%d", index);
+    variable_item_set_current_value_text(item, furi_string_get_cstr(temp));
+    furi_string_free(temp);
     instance->config_contrast = index;
     display_test_reload_config(instance);
 }

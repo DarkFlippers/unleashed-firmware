@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include <m-string.h>
 #include <storage/storage.h>
 
 #ifdef __cplusplus
@@ -19,7 +18,7 @@ extern "C" {
  *   May be empty if update is in root update directory
  * @return bool if supplied path is valid and out_manifest_dir contains dir to apply
  */
-bool update_operation_get_package_dir_name(const char* full_path, string_t out_manifest_dir);
+bool update_operation_get_package_dir_name(const char* full_path, FuriString* out_manifest_dir);
 
 /* When updating this enum, also update assets/protobuf/system.proto */
 typedef enum {
@@ -51,7 +50,7 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path);
  * @param out_path Path to manifest. Must be initialized
  * @return true if path was restored successfully
  */
-bool update_operation_get_current_package_manifest_path(Storage* storage, string_t out_path);
+bool update_operation_get_current_package_manifest_path(Storage* storage, FuriString* out_path);
 
 /* 
  * Checks if an update operation step is pending after reset

@@ -28,7 +28,7 @@ struct SubGhzBlockGeneric {
  * @param preset_name name preset
  * @param preset_str Output name preset
  */
-void subghz_block_generic_get_preset_name(const char* preset_name, string_t preset_str);
+void subghz_block_generic_get_preset_name(const char* preset_name, FuriString* preset_str);
 
 /**
  * Serialize data SubGhzBlockGeneric.

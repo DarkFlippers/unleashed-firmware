@@ -1,6 +1,5 @@
 #include "dict_attack.h"
 
-#include <m-string.h>
 #include <gui/elements.h>
 
 typedef enum {
@@ -17,7 +16,7 @@ struct DictAttack {
 typedef struct {
     DictAttackState state;
     MfClassicType type;
-    string_t header;
+    FuriString* header;
     uint8_t sectors_total;
     uint8_t sectors_read;
     uint8_t sector_current;
@@ -38,7 +37,8 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
     } else if(m->state == DictAttackStateRead) {
         char draw_str[32] = {};
         canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, string_get_cstr(m->header));
+        canvas_draw_str_aligned(
+            canvas, 64, 2, AlignCenter, AlignTop, furi_string_get_cstr(m->header));
         canvas_set_font(canvas, FontSecondary);
         float dict_progress = m->dict_keys_total == 0 ?
                                   0 :
@@ -81,7 +81,7 @@ DictAttack* dict_attack_alloc() {
     view_set_context(dict_attack->view, dict_attack);
     with_view_model(
         dict_attack->view, (DictAttackViewModel * model) {
-            string_init(model->header);
+            model->header = furi_string_alloc();
             return false;
         });
     return dict_attack;
@@ -91,7 +91,7 @@ void dict_attack_free(DictAttack* dict_attack) {
     furi_assert(dict_attack);
     with_view_model(
         dict_attack->view, (DictAttackViewModel * model) {
-            string_clear(model->header);
+            furi_string_free(model->header);
             return false;
         });
     view_free(dict_attack->view);
@@ -111,7 +111,7 @@ void dict_attack_reset(DictAttack* dict_attack) {
             model->keys_found = 0;
             model->dict_keys_total = 0;
             model->dict_keys_current = 0;
-            string_reset(model->header);
+            furi_string_reset(model->header);
             return false;
         });
 }
@@ -134,7 +134,7 @@ void dict_attack_set_header(DictAttack* dict_attack, const char* header) {
 
     with_view_model(
         dict_attack->view, (DictAttackViewModel * model) {
-            string_set_str(model->header, header);
+            furi_string_set(model->header, header);
             return true;
         });
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <m-string.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -120,14 +119,14 @@ typedef struct {
 
 void mf_df_clear(MifareDesfireData* data);
 
-void mf_df_cat_data(MifareDesfireData* data, string_t out);
-void mf_df_cat_card_info(MifareDesfireData* data, string_t out);
-void mf_df_cat_version(MifareDesfireVersion* version, string_t out);
-void mf_df_cat_free_mem(MifareDesfireFreeMemory* free_mem, string_t out);
-void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, string_t out);
-void mf_df_cat_application_info(MifareDesfireApplication* app, string_t out);
-void mf_df_cat_application(MifareDesfireApplication* app, string_t out);
-void mf_df_cat_file(MifareDesfireFile* file, string_t out);
+void mf_df_cat_data(MifareDesfireData* data, FuriString* out);
+void mf_df_cat_card_info(MifareDesfireData* data, FuriString* out);
+void mf_df_cat_version(MifareDesfireVersion* version, FuriString* out);
+void mf_df_cat_free_mem(MifareDesfireFreeMemory* free_mem, FuriString* out);
+void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, FuriString* out);
+void mf_df_cat_application_info(MifareDesfireApplication* app, FuriString* out);
+void mf_df_cat_application(MifareDesfireApplication* app, FuriString* out);
+void mf_df_cat_file(MifareDesfireFile* file, FuriString* out);
 
 bool mf_df_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);
 

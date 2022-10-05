@@ -37,31 +37,31 @@ const NotificationSequence subghz_sequence_rx_locked = {
 
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
-    string_t history_stat_str;
-    string_init(history_stat_str);
+    FuriString* history_stat_str;
+    history_stat_str = furi_string_alloc();
     if(!subghz_history_get_text_space_left(subghz->txrx->history, history_stat_str)) {
-        string_t frequency_str;
-        string_t modulation_str;
+        FuriString* frequency_str;
+        FuriString* modulation_str;
 
-        string_init(frequency_str);
-        string_init(modulation_str);
+        frequency_str = furi_string_alloc();
+        modulation_str = furi_string_alloc();
 
         subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
 
         subghz_view_receiver_add_data_statusbar(
             subghz->subghz_receiver,
-            string_get_cstr(frequency_str),
-            string_get_cstr(modulation_str),
-            string_get_cstr(history_stat_str));
+            furi_string_get_cstr(frequency_str),
+            furi_string_get_cstr(modulation_str),
+            furi_string_get_cstr(history_stat_str));
 
-        string_clear(frequency_str);
-        string_clear(modulation_str);
+        furi_string_free(frequency_str);
+        furi_string_free(modulation_str);
     } else {
         subghz_view_receiver_add_data_statusbar(
-            subghz->subghz_receiver, string_get_cstr(history_stat_str), "", "");
+            subghz->subghz_receiver, furi_string_get_cstr(history_stat_str), "", "");
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
-    string_clear(history_stat_str);
+    furi_string_free(history_stat_str);
 }
 
 void subghz_scene_receiver_callback(SubGhzCustomEvent event, void* context) {
@@ -76,11 +76,11 @@ static void subghz_scene_add_to_history_callback(
     void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    string_t str_buff;
-    string_init(str_buff);
+    FuriString* str_buff;
+    str_buff = furi_string_alloc();
 
     if(subghz_history_add_to_history(subghz->txrx->history, decoder_base, subghz->txrx->preset)) {
-        string_reset(str_buff);
+        furi_string_reset(str_buff);
 
         subghz->state_notifications = SubGhzNotificationStateRxDone;
 
@@ -88,22 +88,22 @@ static void subghz_scene_add_to_history_callback(
             subghz->txrx->history, str_buff, subghz_history_get_item(subghz->txrx->history) - 1);
         subghz_view_receiver_add_item_to_menu(
             subghz->subghz_receiver,
-            string_get_cstr(str_buff),
+            furi_string_get_cstr(str_buff),
             subghz_history_get_type_protocol(
                 subghz->txrx->history, subghz_history_get_item(subghz->txrx->history) - 1));
 
         subghz_scene_receiver_update_statusbar(subghz);
     }
     subghz_receiver_reset(receiver);
-    string_clear(str_buff);
+    furi_string_free(str_buff);
     subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
 }
 
 void subghz_scene_receiver_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    string_t str_buff;
-    string_init(str_buff);
+    FuriString* str_buff;
+    str_buff = furi_string_alloc();
 
     if(subghz->txrx->rx_key_state == SubGhzRxKeyStateIDLE) {
         subghz_preset_init(
@@ -122,15 +122,15 @@ void subghz_scene_receiver_on_enter(void* context) {
     //Load history to receiver
     subghz_view_receiver_exit(subghz->subghz_receiver);
     for(uint8_t i = 0; i < subghz_history_get_item(subghz->txrx->history); i++) {
-        string_reset(str_buff);
+        furi_string_reset(str_buff);
         subghz_history_get_text_item_menu(subghz->txrx->history, str_buff, i);
         subghz_view_receiver_add_item_to_menu(
             subghz->subghz_receiver,
-            string_get_cstr(str_buff),
+            furi_string_get_cstr(str_buff),
             subghz_history_get_type_protocol(subghz->txrx->history, i));
         subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
     }
-    string_clear(str_buff);
+    furi_string_free(str_buff);
     subghz_scene_receiver_update_statusbar(subghz);
     subghz_view_receiver_set_callback(
         subghz->subghz_receiver, subghz_scene_receiver_callback, subghz);
@@ -146,7 +146,7 @@ void subghz_scene_receiver_on_enter(void* context) {
         subghz_begin(
             subghz,
             subghz_setting_get_preset_data_by_name(
-                subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
+                subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
         subghz_rx(subghz, subghz->txrx->preset->frequency);
     }
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);

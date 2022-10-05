@@ -1,5 +1,4 @@
 #include <furi.h>
-#include <m-string.h>
 #include <gui/gui.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
@@ -25,7 +24,7 @@ typedef struct {
 } UartEchoApp;
 
 typedef struct {
-    string_t text;
+    FuriString* text;
 } ListElement;
 
 struct UartDumpModel {
@@ -64,10 +63,11 @@ static void uart_echo_view_draw_callback(Canvas* canvas, void* _model) {
             canvas,
             0,
             (i + 1) * (canvas_current_font_height(canvas) - 1),
-            string_get_cstr(model->list[i]->text));
+            furi_string_get_cstr(model->list[i]->text));
 
         if(i == model->line) {
-            uint8_t width = canvas_string_width(canvas, string_get_cstr(model->list[i]->text));
+            uint8_t width =
+                canvas_string_width(canvas, furi_string_get_cstr(model->list[i]->text));
 
             canvas_draw_box(
                 canvas,
@@ -113,7 +113,7 @@ static void uart_echo_push_to_list(UartDumpModel* model, const char data) {
         model->escape = true;
     } else if((data >= ' ' && data <= '~') || (data == '\n' || data == '\r')) {
         bool new_string_needed = false;
-        if(string_size(model->list[model->line]->text) >= COLUMNS_ON_SCREEN) {
+        if(furi_string_size(model->list[model->line]->text) >= COLUMNS_ON_SCREEN) {
             new_string_needed = true;
         } else if((data == '\n' || data == '\r')) {
             // pack line breaks
@@ -132,13 +132,13 @@ static void uart_echo_push_to_list(UartDumpModel* model, const char data) {
                     model->list[i - 1] = model->list[i];
                 }
 
-                string_reset(first->text);
+                furi_string_reset(first->text);
                 model->list[model->line] = first;
             }
         }
 
         if(data != '\n' && data != '\r') {
-            string_push_back(model->list[model->line]->text, data);
+            furi_string_push_back(model->list[model->line]->text, data);
         }
     }
     model->last_char = data;
@@ -208,7 +208,7 @@ static UartEchoApp* uart_echo_app_alloc() {
                 model->line = 0;
                 model->escape = false;
                 model->list[i] = malloc(sizeof(ListElement));
-                string_init(model->list[i]->text);
+                model->list[i]->text = furi_string_alloc();
             }
             return true;
         });
@@ -247,7 +247,7 @@ static void uart_echo_app_free(UartEchoApp* app) {
     with_view_model(
         app->view, (UartDumpModel * model) {
             for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
-                string_clear(model->list[i]->text);
+                furi_string_free(model->list[i]->text);
                 free(model->list[i]);
             }
             return true;

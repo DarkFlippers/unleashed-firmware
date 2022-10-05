@@ -15,13 +15,13 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
     SubGhz* subghz = context;
 
     if(subghz->txrx->decoder_result) {
-        string_t key_str;
-        string_t frequency_str;
-        string_t modulation_str;
+        FuriString* key_str;
+        FuriString* frequency_str;
+        FuriString* modulation_str;
 
-        string_init(key_str);
-        string_init(frequency_str);
-        string_init(modulation_str);
+        key_str = furi_string_alloc();
+        frequency_str = furi_string_alloc();
+        modulation_str = furi_string_alloc();
         uint8_t show_button = 0;
 
         subghz_protocol_decoder_base_deserialize(
@@ -36,14 +36,14 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
         subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
         subghz_view_transmitter_add_data_to_show(
             subghz->subghz_transmitter,
-            string_get_cstr(key_str),
-            string_get_cstr(frequency_str),
-            string_get_cstr(modulation_str),
+            furi_string_get_cstr(key_str),
+            furi_string_get_cstr(frequency_str),
+            furi_string_get_cstr(modulation_str),
             show_button);
 
-        string_clear(frequency_str);
-        string_clear(modulation_str);
-        string_clear(key_str);
+        furi_string_free(frequency_str);
+        furi_string_free(modulation_str);
+        furi_string_free(key_str);
 
         return true;
     }
@@ -96,7 +96,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneStart);
             return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterError) {
-            string_set_str(subghz->error_str, "Protocol not\nfound!");
+            furi_string_set(subghz->error_str, "Protocol not\nfound!");
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
         }
     } else if(event.type == SceneManagerEventTypeTick) {

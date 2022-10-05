@@ -104,4 +104,4 @@ bool subghz_protocol_decoder_linear_deserialize(void* context, FlipperFormat* fl
  * @param context Pointer to a SubGhzProtocolDecoderLinear instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_linear_get_string(void* context, string_t output);
+void subghz_protocol_decoder_linear_get_string(void* context, FuriString* output);

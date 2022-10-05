@@ -7,25 +7,25 @@ void storage_file_init(StorageFile* obj) {
     obj->file = NULL;
     obj->type = ST_ERROR;
     obj->file_data = NULL;
-    string_init(obj->path);
+    obj->path = furi_string_alloc();
 }
 
 void storage_file_init_set(StorageFile* obj, const StorageFile* src) {
     obj->file = src->file;
     obj->type = src->type;
     obj->file_data = src->file_data;
-    string_init_set(obj->path, src->path);
+    obj->path = furi_string_alloc_set(src->path);
 }
 
 void storage_file_set(StorageFile* obj, const StorageFile* src) {
     obj->file = src->file;
     obj->type = src->type;
     obj->file_data = src->file_data;
-    string_set(obj->path, src->path);
+    furi_string_set(obj->path, src->path);
 }
 
 void storage_file_clear(StorageFile* obj) {
-    string_clear(obj->path);
+    furi_string_free(obj->path);
 }
 
 /****************** storage data ******************/
@@ -101,7 +101,7 @@ bool storage_has_file(const File* file, StorageData* storage_data) {
     return result;
 }
 
-bool storage_path_already_open(string_t path, StorageFileList_t array) {
+bool storage_path_already_open(FuriString* path, StorageFileList_t array) {
     bool open = false;
 
     StorageFileList_it_t it;
@@ -109,7 +109,7 @@ bool storage_path_already_open(string_t path, StorageFileList_t array) {
     for(StorageFileList_it(it, array); !StorageFileList_end_p(it); StorageFileList_next(it)) {
         const StorageFile* storage_file = StorageFileList_cref(it);
 
-        if(string_cmp(storage_file->path, path) == 0) {
+        if(furi_string_cmp(storage_file->path, path) == 0) {
             open = true;
             break;
         }
@@ -158,14 +158,18 @@ void* storage_get_storage_file_data(const File* file, StorageData* storage) {
     return founded_file->file_data;
 }
 
-void storage_push_storage_file(File* file, string_t path, StorageType type, StorageData* storage) {
+void storage_push_storage_file(
+    File* file,
+    FuriString* path,
+    StorageType type,
+    StorageData* storage) {
     StorageFile* storage_file = StorageFileList_push_new(storage->files);
     furi_check(storage_file != NULL);
 
     file->file_id = (uint32_t)storage_file;
     storage_file->file = file;
     storage_file->type = type;
-    string_set(storage_file->path, path);
+    furi_string_set(storage_file->path, path);
 }
 
 bool storage_pop_storage_file(File* file, StorageData* storage) {

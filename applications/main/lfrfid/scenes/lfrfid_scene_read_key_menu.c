@@ -38,7 +38,7 @@ bool lfrfid_scene_read_key_menu_on_event(void* context, SceneManagerEvent event)
             scene_manager_next_scene(app->scene_manager, LfRfidSceneWrite);
             consumed = true;
         } else if(event.event == SubmenuIndexSave) {
-            string_reset(app->file_name);
+            furi_string_reset(app->file_name);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveName);
             consumed = true;
         } else if(event.event == SubmenuIndexEmulate) {

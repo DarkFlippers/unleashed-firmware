@@ -147,7 +147,7 @@ LevelDuration protocol_awid_encoder_yield(ProtocolAwid* protocol) {
     return level_duration_make(level, duration);
 };
 
-void protocol_awid_render_data(ProtocolAwid* protocol, string_t result) {
+void protocol_awid_render_data(ProtocolAwid* protocol, FuriString* result) {
     // Index map
     // 0           10         20        30          40        50        60
     // |           |          |         |           |         |         |
@@ -164,7 +164,7 @@ void protocol_awid_render_data(ProtocolAwid* protocol, string_t result) {
     uint8_t* decoded_data = protocol->data;
     uint8_t format_length = decoded_data[0];
 
-    string_cat_printf(result, "Format: %d\r\n", format_length);
+    furi_string_cat_printf(result, "Format: %d\r\n", format_length);
     if(format_length == 26) {
         uint8_t facility;
         bit_lib_copy_bits(&facility, 0, 8, decoded_data, 9);
@@ -172,22 +172,22 @@ void protocol_awid_render_data(ProtocolAwid* protocol, string_t result) {
         uint16_t card_id;
         bit_lib_copy_bits((uint8_t*)&card_id, 8, 8, decoded_data, 17);
         bit_lib_copy_bits((uint8_t*)&card_id, 0, 8, decoded_data, 25);
-        string_cat_printf(result, "Facility: %d\r\n", facility);
-        string_cat_printf(result, "Card: %d", card_id);
+        furi_string_cat_printf(result, "Facility: %d\r\n", facility);
+        furi_string_cat_printf(result, "Card: %d", card_id);
     } else {
         // print 66 bits as hex
-        string_cat_printf(result, "Data: ");
+        furi_string_cat_printf(result, "Data: ");
         for(size_t i = 0; i < AWID_DECODED_DATA_SIZE; i++) {
-            string_cat_printf(result, "%02X", decoded_data[i]);
+            furi_string_cat_printf(result, "%02X", decoded_data[i]);
         }
     }
 };
 
-void protocol_awid_render_brief_data(ProtocolAwid* protocol, string_t result) {
+void protocol_awid_render_brief_data(ProtocolAwid* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
     uint8_t format_length = decoded_data[0];
 
-    string_cat_printf(result, "Format: %d\r\n", format_length);
+    furi_string_cat_printf(result, "Format: %d\r\n", format_length);
     if(format_length == 26) {
         uint8_t facility;
         bit_lib_copy_bits(&facility, 0, 8, decoded_data, 9);
@@ -195,9 +195,9 @@ void protocol_awid_render_brief_data(ProtocolAwid* protocol, string_t result) {
         uint16_t card_id;
         bit_lib_copy_bits((uint8_t*)&card_id, 8, 8, decoded_data, 17);
         bit_lib_copy_bits((uint8_t*)&card_id, 0, 8, decoded_data, 25);
-        string_cat_printf(result, "ID: %03u,%05u", facility, card_id);
+        furi_string_cat_printf(result, "ID: %03u,%05u", facility, card_id);
     } else {
-        string_cat_printf(result, "Data: unknown");
+        furi_string_cat_printf(result, "Data: unknown");
     }
 };
 

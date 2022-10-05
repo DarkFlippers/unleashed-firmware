@@ -517,7 +517,7 @@ bool subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperForma
     return ret;
 }
 
-void subghz_protocol_decoder_nice_flor_s_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
 
@@ -526,7 +526,7 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, string_t outp
     uint32_t code_found_hi = instance->generic.data >> 32;
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"

@@ -212,13 +212,13 @@ LevelDuration protocol_keri_encoder_yield(ProtocolKeri* protocol) {
     return level_duration;
 };
 
-void protocol_keri_render_data(ProtocolKeri* protocol, string_t result) {
+void protocol_keri_render_data(ProtocolKeri* protocol, FuriString* result) {
     uint32_t data = bit_lib_get_bits_32(protocol->data, 0, 32);
     uint32_t internal_id = data & 0x7FFFFFFF;
     uint32_t fc = 0;
     uint32_t cn = 0;
     protocol_keri_descramble(&fc, &cn, &data);
-    string_printf(result, "Internal ID: %u\r\nFC: %u, Card: %u\r\n", internal_id, fc, cn);
+    furi_string_printf(result, "Internal ID: %u\r\nFC: %u, Card: %u\r\n", internal_id, fc, cn);
 }
 
 bool protocol_keri_write_data(ProtocolKeri* protocol, void* data) {

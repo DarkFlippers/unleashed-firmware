@@ -15,18 +15,18 @@ void subghz_scene_delete_raw_callback(GuiButtonType result, InputType type, void
 
 void subghz_scene_delete_raw_on_enter(void* context) {
     SubGhz* subghz = context;
-    string_t frequency_str;
-    string_t modulation_str;
+    FuriString* frequency_str;
+    FuriString* modulation_str;
 
-    string_init(frequency_str);
-    string_init(modulation_str);
+    frequency_str = furi_string_alloc();
+    modulation_str = furi_string_alloc();
 
     char delete_str[SUBGHZ_MAX_LEN_NAME + 16];
-    string_t file_name;
-    string_init(file_name);
+    FuriString* file_name;
+    file_name = furi_string_alloc();
     path_extract_filename(subghz->file_path, file_name, true);
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", string_get_cstr(file_name));
-    string_clear(file_name);
+    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", furi_string_get_cstr(file_name));
+    furi_string_free(file_name);
 
     widget_add_text_box_element(
         subghz->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str, false);
@@ -35,7 +35,13 @@ void subghz_scene_delete_raw_on_enter(void* context) {
         subghz->widget, 38, 25, AlignLeft, AlignTop, FontSecondary, "RAW signal");
     subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
     widget_add_string_element(
-        subghz->widget, 35, 37, AlignLeft, AlignTop, FontSecondary, string_get_cstr(frequency_str));
+        subghz->widget,
+        35,
+        37,
+        AlignLeft,
+        AlignTop,
+        FontSecondary,
+        furi_string_get_cstr(frequency_str));
 
     widget_add_string_element(
         subghz->widget,
@@ -44,10 +50,10 @@ void subghz_scene_delete_raw_on_enter(void* context) {
         AlignLeft,
         AlignTop,
         FontSecondary,
-        string_get_cstr(modulation_str));
+        furi_string_get_cstr(modulation_str));
 
-    string_clear(frequency_str);
-    string_clear(modulation_str);
+    furi_string_free(frequency_str);
+    furi_string_free(modulation_str);
 
     widget_add_button_element(
         subghz->widget, GuiButtonTypeRight, "Delete", subghz_scene_delete_raw_callback, subghz);
@@ -61,7 +67,7 @@ bool subghz_scene_delete_raw_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneDeleteRAW) {
-            string_set(subghz->file_path_tmp, subghz->file_path);
+            furi_string_set(subghz->file_path_tmp, subghz->file_path);
             if(subghz_delete_file(subghz)) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);
             } else {

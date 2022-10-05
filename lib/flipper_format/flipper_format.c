@@ -137,7 +137,7 @@ bool flipper_format_key_exist(FlipperFormat* flipper_format, const char* key) {
 
 bool flipper_format_read_header(
     FlipperFormat* flipper_format,
-    string_t filetype,
+    FuriString* filetype,
     uint32_t* version) {
     furi_assert(flipper_format);
     return flipper_format_read_string(flipper_format, flipper_format_filetype_key, filetype) &&
@@ -146,10 +146,11 @@ bool flipper_format_read_header(
 
 bool flipper_format_write_header(
     FlipperFormat* flipper_format,
-    string_t filetype,
+    FuriString* filetype,
     const uint32_t version) {
     furi_assert(flipper_format);
-    return flipper_format_write_header_cstr(flipper_format, string_get_cstr(filetype), version);
+    return flipper_format_write_header_cstr(
+        flipper_format, furi_string_get_cstr(filetype), version);
 }
 
 bool flipper_format_write_header_cstr(
@@ -171,18 +172,18 @@ bool flipper_format_get_value_count(
         flipper_format->stream, key, count, flipper_format->strict_mode);
 }
 
-bool flipper_format_read_string(FlipperFormat* flipper_format, const char* key, string_t data) {
+bool flipper_format_read_string(FlipperFormat* flipper_format, const char* key, FuriString* data) {
     furi_assert(flipper_format);
     return flipper_format_stream_read_value_line(
         flipper_format->stream, key, FlipperStreamValueStr, data, 1, flipper_format->strict_mode);
 }
 
-bool flipper_format_write_string(FlipperFormat* flipper_format, const char* key, string_t data) {
+bool flipper_format_write_string(FlipperFormat* flipper_format, const char* key, FuriString* data) {
     furi_assert(flipper_format);
     FlipperStreamWriteData write_data = {
         .key = key,
         .type = FlipperStreamValueStr,
-        .data = string_get_cstr(data),
+        .data = furi_string_get_cstr(data),
         .data_size = 1,
     };
     bool result = flipper_format_stream_write_value_line(flipper_format->stream, &write_data);
@@ -386,9 +387,9 @@ bool flipper_format_write_hex(
     return result;
 }
 
-bool flipper_format_write_comment(FlipperFormat* flipper_format, string_t data) {
+bool flipper_format_write_comment(FlipperFormat* flipper_format, FuriString* data) {
     furi_assert(flipper_format);
-    return flipper_format_write_comment_cstr(flipper_format, string_get_cstr(data));
+    return flipper_format_write_comment_cstr(flipper_format, furi_string_get_cstr(data));
 }
 
 bool flipper_format_write_comment_cstr(FlipperFormat* flipper_format, const char* data) {
@@ -409,12 +410,12 @@ bool flipper_format_delete_key(FlipperFormat* flipper_format, const char* key) {
     return result;
 }
 
-bool flipper_format_update_string(FlipperFormat* flipper_format, const char* key, string_t data) {
+bool flipper_format_update_string(FlipperFormat* flipper_format, const char* key, FuriString* data) {
     furi_assert(flipper_format);
     FlipperStreamWriteData write_data = {
         .key = key,
         .type = FlipperStreamValueStr,
-        .data = string_get_cstr(data),
+        .data = furi_string_get_cstr(data),
         .data_size = 1,
     };
     bool result = flipper_format_stream_delete_key_and_write(
@@ -522,7 +523,7 @@ bool flipper_format_update_hex(
 bool flipper_format_insert_or_update_string(
     FlipperFormat* flipper_format,
     const char* key,
-    string_t data) {
+    FuriString* data) {
     bool result = false;
 
     if(!flipper_format_key_exist(flipper_format, key)) {

@@ -66,7 +66,7 @@ FS_Error dir_walk_get_error(DirWalk* dir_walk);
  * @param fileinfo 
  * @return DirWalkResult 
  */
-DirWalkResult dir_walk_read(DirWalk* dir_walk, string_t return_path, FileInfo* fileinfo);
+DirWalkResult dir_walk_read(DirWalk* dir_walk, FuriString* return_path, FileInfo* fileinfo);
 
 /**
  * Close directory

@@ -185,7 +185,7 @@ LevelDuration protocol_dict_encoder_yield(ProtocolDict* dict, size_t protocol_in
     }
 }
 
-void protocol_dict_render_data(ProtocolDict* dict, string_t result, size_t protocol_index) {
+void protocol_dict_render_data(ProtocolDict* dict, FuriString* result, size_t protocol_index) {
     furi_assert(protocol_index < dict->count);
     ProtocolRenderData fn = dict->base[protocol_index]->render_data;
 
@@ -194,7 +194,7 @@ void protocol_dict_render_data(ProtocolDict* dict, string_t result, size_t proto
     }
 }
 
-void protocol_dict_render_brief_data(ProtocolDict* dict, string_t result, size_t protocol_index) {
+void protocol_dict_render_brief_data(ProtocolDict* dict, FuriString* result, size_t protocol_index) {
     furi_assert(protocol_index < dict->count);
     ProtocolRenderData fn = dict->base[protocol_index]->render_brief_data;
 

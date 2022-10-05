@@ -35,7 +35,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
             subghz_history_get_preset_def(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
         subghz_preset_init(
             subghz,
-            string_get_cstr(preset->name),
+            furi_string_get_cstr(preset->name),
             preset->frequency,
             preset->data,
             preset->data_size);
@@ -47,13 +47,13 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
 
 void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
     if(subghz_scene_receiver_info_update_parser(subghz)) {
-        string_t frequency_str;
-        string_t modulation_str;
-        string_t text;
+        FuriString* frequency_str;
+        FuriString* modulation_str;
+        FuriString* text;
 
-        string_init(frequency_str);
-        string_init(modulation_str);
-        string_init(text);
+        frequency_str = furi_string_alloc();
+        modulation_str = furi_string_alloc();
+        text = furi_string_alloc();
 
         subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
         widget_add_string_element(
@@ -63,7 +63,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
             AlignLeft,
             AlignTop,
             FontSecondary,
-            string_get_cstr(frequency_str));
+            furi_string_get_cstr(frequency_str));
 
         widget_add_string_element(
             subghz->widget,
@@ -72,14 +72,14 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
             AlignLeft,
             AlignTop,
             FontSecondary,
-            string_get_cstr(modulation_str));
+            furi_string_get_cstr(modulation_str));
         subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, text);
         widget_add_string_multiline_element(
-            subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, string_get_cstr(text));
+            subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(text));
 
-        string_clear(frequency_str);
-        string_clear(modulation_str);
-        string_clear(text);
+        furi_string_free(frequency_str);
+        furi_string_free(modulation_str);
+        furi_string_free(text);
 
         if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
            SubGhzProtocolFlag_Save) {

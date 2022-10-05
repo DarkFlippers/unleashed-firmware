@@ -81,7 +81,7 @@ bool lfrfid_scene_read_on_event(void* context, SceneManagerEvent event) {
             app->protocol_id = app->protocol_id_next;
             DOLPHIN_DEED(DolphinDeedRfidReadSuccess);
             notification_message(app->notifications, &sequence_success);
-            string_reset(app->file_name);
+            furi_string_reset(app->file_name);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneReadSuccess);
             consumed = true;
         } else if(event.event == LfRfidEventReadStartPSK) {

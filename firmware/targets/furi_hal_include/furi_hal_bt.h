@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <m-string.h>
+#include <furi.h>
 #include <stdbool.h>
 #include <gap.h>
 #include <serial_service.h>
@@ -122,9 +122,9 @@ void furi_hal_bt_stop_advertising();
 
 /** Get BT/BLE system component state
  *
- * @param[in]  buffer  string_t buffer to write to
+ * @param[in]  buffer  FuriString* buffer to write to
  */
-void furi_hal_bt_dump_state(string_t buffer);
+void furi_hal_bt_dump_state(FuriString* buffer);
 
 /** Get BT/BLE system component state
  *

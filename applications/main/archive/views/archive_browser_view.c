@@ -221,8 +221,8 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
     bool scrollbar = model->item_cnt > 4;
 
     for(uint32_t i = 0; i < MIN(model->item_cnt, MENU_ITEMS); ++i) {
-        string_t str_buf;
-        string_init(str_buf);
+        FuriString* str_buf;
+        str_buf = furi_string_alloc();
         int32_t idx = CLAMP((uint32_t)(i + model->list_offset), model->item_cnt, 0u);
         uint8_t x_offset = (model->move_fav && model->item_idx == idx) ? MOVE_OFFSET : 0;
 
@@ -234,7 +234,7 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
             path_extract_filename(file->path, str_buf, archive_is_known_app(file->type));
             file_type = file->type;
         } else {
-            string_set_str(str_buf, "---");
+            furi_string_set(str_buf, "---");
         }
 
         elements_string_fit_width(
@@ -247,9 +247,10 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
         }
 
         canvas_draw_icon(canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file_type]);
-        canvas_draw_str(canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buf));
+        canvas_draw_str(
+            canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, furi_string_get_cstr(str_buf));
 
-        string_clear(str_buf);
+        furi_string_free(str_buf);
     }
 
     if(scrollbar) {
@@ -465,7 +466,7 @@ ArchiveBrowserView* browser_alloc() {
     view_set_draw_callback(browser->view, archive_view_render);
     view_set_input_callback(browser->view, archive_view_input);
 
-    string_init_set_str(browser->path, archive_get_default_path(TAB_DEFAULT));
+    browser->path = furi_string_alloc_set(archive_get_default_path(TAB_DEFAULT));
 
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
@@ -492,7 +493,7 @@ void browser_free(ArchiveBrowserView* browser) {
             return false;
         });
 
-    string_clear(browser->path);
+    furi_string_free(browser->path);
 
     view_free(browser->view);
     free(browser);

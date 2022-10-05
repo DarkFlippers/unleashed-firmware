@@ -2,7 +2,6 @@
 #include "../bad_usb_app_i.h"
 #include "../views/bad_usb_view.h"
 #include "furi_hal.h"
-#include "m-string.h"
 #include "toolbox/path.h"
 
 void bad_usb_scene_work_button_callback(InputKey key, void* context) {

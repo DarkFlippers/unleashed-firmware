@@ -5,7 +5,6 @@
 #include "../blocks/math.h"
 #include <lib/toolbox/manchester_decoder.h>
 #include <lib/flipper_format/flipper_format_i.h>
-#include <m-string.h>
 
 #define TAG "SubGhzProtocolOregon2"
 
@@ -247,12 +246,12 @@ bool subghz_protocol_decoder_oregon2_deserialize(void* context, FlipperFormat* f
 
 // append string of the variable data
 static void
-    oregon2_var_data_append_string(uint16_t sensor_id, uint32_t var_data, string_t output) {
+    oregon2_var_data_append_string(uint16_t sensor_id, uint32_t var_data, FuriString* output) {
     uint32_t val;
 
     if(sensor_id == 0xEC40) {
         val = ((var_data >> 4) & 0xF) * 10 + ((var_data >> 8) & 0xF);
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "Temp: %s%d.%d C\r\n",
             (var_data & 0xF) ? "-" : "+",
@@ -261,7 +260,7 @@ static void
     }
 }
 
-static void oregon2_append_check_sum(uint32_t fix_data, uint32_t var_data, string_t output) {
+static void oregon2_append_check_sum(uint32_t fix_data, uint32_t var_data, FuriString* output) {
     uint8_t sum = fix_data & 0xF;
     uint8_t ref_sum = var_data & 0xFF;
     var_data >>= 8;
@@ -275,16 +274,16 @@ static void oregon2_append_check_sum(uint32_t fix_data, uint32_t var_data, strin
     // swap calculated sum nibbles
     sum = (((sum >> 4) & 0xF) | (sum << 4)) & 0xFF;
     if(sum == ref_sum)
-        string_cat_printf(output, "Sum ok: 0x%hhX", ref_sum);
+        furi_string_cat_printf(output, "Sum ok: 0x%hhX", ref_sum);
     else
-        string_cat_printf(output, "Sum err: 0x%hhX vs 0x%hhX", ref_sum, sum);
+        furi_string_cat_printf(output, "Sum err: 0x%hhX vs 0x%hhX", ref_sum, sum);
 }
 
-void subghz_protocol_decoder_oregon2_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_oregon2_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderOregon2* instance = context;
     uint16_t sensor_id = OREGON2_SENSOR_ID(instance->generic.data);
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s\r\n"
         "ID: 0x%04lX, ch: %d%s, rc: 0x%02lX\r\n",
