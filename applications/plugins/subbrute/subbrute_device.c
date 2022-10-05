@@ -194,26 +194,24 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     //char step_payload[32];
     //memset(step_payload, '0', sizeof(step_payload));
     memset(instance->payload, 0, sizeof(instance->payload));
-    FuriString* candidate;
-    candidate = furi_string_alloc();
+    FuriString* candidate = furi_string_alloc();
 
     if(instance->attack == SubBruteAttackLoadFile) {
         if(step >= sizeof(instance->file_key)) {
             return false;
         }
         char subbrute_payload_byte[4];
-        furi_string_set(candidate, instance->file_key);
+        furi_string_set_str(candidate, instance->file_key);
         snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
         furi_string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
         //snprintf(step_payload, sizeof(step_payload), "%02X", (uint8_t)instance->file_key[step]);
     } else {
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
         //snprintf(step_payload, sizeof(step_payload), "%016llX", step);
-        FuriString* buffer;
-        buffer = furi_string_alloc();
-        buffer = furi_string_alloc_printf("%16X", step);
+        FuriString* buffer = furi_string_alloc();
+        furi_string_printf(buffer, "%16X", step);
         int j = 0;
-        furi_string_set(candidate, "                       ");
+        furi_string_set_str(candidate, "                       ");
         for(uint8_t i = 0; i < 16; i++) {
             if(furi_string_get_char(buffer, i) != ' ') {
                 furi_string_set_char(candidate, i + j, furi_string_get_char(buffer, i));
@@ -306,8 +304,8 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
             instance->frequency = 868350000;
         }
         instance->bit = 12;
-        furi_string_set(instance->protocol_name, protocol_came);
-        furi_string_set(instance->preset_name, preset_ook650_async);
+        furi_string_set_str(instance->protocol_name, protocol_came);
+        furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackChamberlain9bit300:
     case SubBruteAttackChamberlain9bit315:
@@ -320,32 +318,32 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
             instance->frequency = 390000000;
         }
         instance->bit = 9;
-        furi_string_set(instance->protocol_name, protocol_cham_code);
-        furi_string_set(instance->preset_name, preset_ook650_async);
+        furi_string_set_str(instance->protocol_name, protocol_cham_code);
+        furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackLinear10bit300:
         instance->frequency = 300000000;
         instance->bit = 10;
-        furi_string_set(instance->protocol_name, protocol_linear);
-        furi_string_set(instance->preset_name, preset_ook650_async);
+        furi_string_set_str(instance->protocol_name, protocol_linear);
+        furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackLinear10bit310:
         instance->frequency = 310000000;
         instance->bit = 10;
-        furi_string_set(instance->protocol_name, protocol_linear);
-        furi_string_set(instance->preset_name, preset_ook650_async);
+        furi_string_set_str(instance->protocol_name, protocol_linear);
+        furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackNICE12bit433:
         instance->frequency = 433920000;
         instance->bit = 12;
-        furi_string_set(instance->protocol_name, protocol_nice_flo);
-        furi_string_set(instance->preset_name, preset_ook650_async);
+        furi_string_set_str(instance->protocol_name, protocol_nice_flo);
+        furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackNICE12bit868:
         instance->frequency = 868350000;
         instance->bit = 12;
-        furi_string_set(instance->protocol_name, protocol_nice_flo);
-        furi_string_set(instance->preset_name, preset_ook650_async);
+        furi_string_set_str(instance->protocol_name, protocol_nice_flo);
+        furi_string_set_str(instance->preset_name, preset_ook650_async);
         break;
     default:
         FURI_LOG_E(TAG, "Unknown attack type: %d", type);
