@@ -17,6 +17,7 @@
 #define SUBBRUTE_PAYLOAD_SIZE 16
 
 typedef enum {
+    SubBruteAttackCAME12bit303,
     SubBruteAttackCAME12bit307,
     SubBruteAttackCAME12bit433,
     SubBruteAttackCAME12bit868,
