@@ -57,6 +57,8 @@ FlipFridState* flipfrid_alloc() {
     FlipFridState* flipfrid = malloc(sizeof(FlipFridState));
     flipfrid->notification_msg = furi_string_alloc();
     flipfrid->attack_name = furi_string_alloc();
+    flipfrid->proto_name = furi_string_alloc();
+    flipfrid->data_str = furi_string_alloc();
 
     flipfrid->previous_scene = NoneScene;
     flipfrid->current_scene = SceneEntryPoint;
@@ -97,6 +99,8 @@ void flipfrid_free(FlipFridState* flipfrid) {
     // Strings
     furi_string_free(flipfrid->notification_msg);
     furi_string_free(flipfrid->attack_name);
+    furi_string_free(flipfrid->proto_name);
+    furi_string_free(flipfrid->data_str);
 
     free(flipfrid->data);
     free(flipfrid->payload);
@@ -120,8 +124,7 @@ int32_t flipfrid_start(void* p) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
         furi_record_close(RECORD_NOTIFICATION);
-        furi_record_close(RECORD_DIALOGS);
-        free(flipfrid_state);
+        flipfrid_free(flipfrid_state);
         return 255;
     }
 

@@ -70,7 +70,7 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
 }
 
 void flipfrid_scene_select_field_on_enter(FlipFridState* context) {
-    furi_string_free(context->notification_msg);
+    furi_string_reset(context->notification_msg);
 }
 
 void flipfrid_scene_select_field_on_exit(FlipFridState* context) {

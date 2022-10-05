@@ -33,7 +33,7 @@ void subbrute_main_view_set_callback(
     instance->context = context;
 }
 
-void center_displayed_key(FuriString* result, const char* key_cstr, uint8_t index) {
+FuriString* center_displayed_key(const char* key_cstr, uint8_t index) {
     uint8_t str_index = (index * 3);
 
     char display_menu[] = {
@@ -75,7 +75,7 @@ void center_displayed_key(FuriString* result, const char* key_cstr, uint8_t inde
             display_menu[15] = ' ';
         }
     }
-    result = furi_string_alloc_set(display_menu);
+    return furi_string_alloc_set(display_menu);
 }
 
 void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
@@ -97,9 +97,8 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
         canvas_draw_str_aligned(canvas, 64, 26, AlignCenter, AlignTop, msg_index);
 
         FuriString* menu_items;
-        menu_items = furi_string_alloc();
 
-        center_displayed_key(menu_items, m->key_field, m->index);
+        menu_items = center_displayed_key(m->key_field, m->index);
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
             canvas, 64, 40, AlignCenter, AlignTop, furi_string_get_cstr(menu_items));
@@ -109,6 +108,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
         elements_button_right(canvas, ">");
 
         furi_string_reset(menu_items);
+        furi_string_free(menu_items);
     } else {
         // Menu
         canvas_set_color(canvas, ColorBlack);
