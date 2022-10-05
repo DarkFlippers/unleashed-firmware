@@ -292,10 +292,13 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         //            return file_result; // RETURN
         //        }
         break;
+    case SubBruteAttackCAME12bit303:
     case SubBruteAttackCAME12bit307:
     case SubBruteAttackCAME12bit433:
     case SubBruteAttackCAME12bit868:
-        if(type == SubBruteAttackCAME12bit307) {
+        if(type == SubBruteAttackCAME12bit303) {
+            instance->frequency = 303875000;
+        } else if(type == SubBruteAttackCAME12bit307) {
             instance->frequency = 307800000;
         } else if(type == SubBruteAttackCAME12bit433) {
             instance->frequency = 433920000;
