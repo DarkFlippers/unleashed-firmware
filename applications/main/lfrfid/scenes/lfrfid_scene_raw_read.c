@@ -3,7 +3,7 @@
 #define RAW_READ_TIME 5000
 
 typedef struct {
-    string_t string_file_name;
+    FuriString* string_file_name;
     FuriTimer* timer;
     bool is_psk;
     bool error;
@@ -31,7 +31,7 @@ void lfrfid_scene_raw_read_on_enter(void* context) {
 
     LfRfidReadRawState* state = malloc(sizeof(LfRfidReadRawState));
     scene_manager_set_scene_state(app->scene_manager, LfRfidSceneRawRead, (uint32_t)state);
-    string_init(state->string_file_name);
+    state->string_file_name = furi_string_alloc();
 
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinReceive_97x61);
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
@@ -40,16 +40,16 @@ void lfrfid_scene_raw_read_on_enter(void* context) {
 
     state->timer = furi_timer_alloc(timer_callback, FuriTimerTypeOnce, app);
     furi_timer_start(state->timer, RAW_READ_TIME);
-    string_printf(
+    furi_string_printf(
         state->string_file_name,
         "%s/%s%s",
         LFRFID_SD_FOLDER,
-        string_get_cstr(app->raw_file_name),
+        furi_string_get_cstr(app->raw_file_name),
         LFRFID_APP_RAW_ASK_EXTENSION);
     popup_set_header(popup, "Reading\nRAW RFID\nASK", 89, 30, AlignCenter, AlignTop);
     lfrfid_worker_read_raw_start(
         app->lfworker,
-        string_get_cstr(state->string_file_name),
+        furi_string_get_cstr(state->string_file_name),
         LFRFIDWorkerReadTypeASKOnly,
         lfrfid_read_callback,
         app);
@@ -88,15 +88,15 @@ bool lfrfid_scene_raw_read_on_event(void* context, SceneManagerEvent event) {
                         popup, "Reading\nRAW RFID\nPSK", 89, 30, AlignCenter, AlignTop);
                     notification_message(app->notifications, &sequence_blink_start_yellow);
                     lfrfid_worker_stop(app->lfworker);
-                    string_printf(
+                    furi_string_printf(
                         state->string_file_name,
                         "%s/%s%s",
                         LFRFID_SD_FOLDER,
-                        string_get_cstr(app->raw_file_name),
+                        furi_string_get_cstr(app->raw_file_name),
                         LFRFID_APP_RAW_PSK_EXTENSION);
                     lfrfid_worker_read_raw_start(
                         app->lfworker,
-                        string_get_cstr(state->string_file_name),
+                        furi_string_get_cstr(state->string_file_name),
                         LFRFIDWorkerReadTypePSKOnly,
                         lfrfid_read_callback,
                         app);
@@ -121,6 +121,6 @@ void lfrfid_scene_raw_read_on_exit(void* context) {
     lfrfid_worker_stop_thread(app->lfworker);
     furi_timer_free(state->timer);
 
-    string_clear(state->string_file_name);
+    furi_string_free(state->string_file_name);
     free(state);
 }

@@ -40,7 +40,7 @@ typedef struct {
 
 // main worker
 struct LFRFIDRawWorker {
-    string_t file_path;
+    FuriString* file_path;
     FuriThread* thread;
     FuriEventFlag* events;
 
@@ -69,14 +69,14 @@ LFRFIDRawWorker* lfrfid_raw_worker_alloc() {
 
     worker->events = furi_event_flag_alloc(NULL);
 
-    string_init(worker->file_path);
+    worker->file_path = furi_string_alloc();
     return worker;
 }
 
 void lfrfid_raw_worker_free(LFRFIDRawWorker* worker) {
     furi_thread_free(worker->thread);
     furi_event_flag_free(worker->events);
-    string_clear(worker->file_path);
+    furi_string_free(worker->file_path);
     free(worker);
 }
 
@@ -89,7 +89,7 @@ void lfrfid_raw_worker_start_read(
     void* context) {
     furi_check(furi_thread_get_state(worker->thread) == FuriThreadStateStopped);
 
-    string_set(worker->file_path, file_path);
+    furi_string_set(worker->file_path, file_path);
 
     worker->frequency = freq;
     worker->duty_cycle = duty_cycle;
@@ -107,7 +107,7 @@ void lfrfid_raw_worker_start_emulate(
     LFRFIDWorkerEmulateRawCallback callback,
     void* context) {
     furi_check(furi_thread_get_state(worker->thread) == FuriThreadStateStopped);
-    string_set(worker->file_path, file_path);
+    furi_string_set(worker->file_path, file_path);
     worker->emulate_callback = callback;
     worker->context = context;
     furi_thread_set_callback(worker->thread, lfrfid_raw_emulate_worker_thread);
@@ -147,7 +147,7 @@ static int32_t lfrfid_raw_read_worker_thread(void* thread_context) {
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     LFRFIDRawFile* file = lfrfid_raw_file_alloc(storage);
-    const char* filename = string_get_cstr(worker->file_path);
+    const char* filename = furi_string_get_cstr(worker->file_path);
     bool file_valid = lfrfid_raw_file_open_write(file, filename);
 
     LFRFIDRawWorkerReadData* data = malloc(sizeof(LFRFIDRawWorkerReadData));
@@ -256,7 +256,7 @@ static int32_t lfrfid_raw_emulate_worker_thread(void* thread_context) {
     LFRFIDRawFile* file = lfrfid_raw_file_alloc(storage);
 
     do {
-        file_valid = lfrfid_raw_file_open_read(file, string_get_cstr(worker->file_path));
+        file_valid = lfrfid_raw_file_open_read(file, furi_string_get_cstr(worker->file_path));
         if(!file_valid) break;
         file_valid = lfrfid_raw_file_read_header(file, &worker->frequency, &worker->duty_cycle);
         if(!file_valid) break;

@@ -17,11 +17,11 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
     iButtonKey* key = ibutton->key;
     const uint8_t* key_data = ibutton_key_get_data_p(key);
 
-    string_t key_name;
-    string_init(key_name);
+    FuriString* key_name;
+    key_name = furi_string_alloc();
     path_extract_filename(ibutton->file_path, key_name, true);
 
-    ibutton_text_store_set(ibutton, "\e#Delete %s?\e#", string_get_cstr(key_name));
+    ibutton_text_store_set(ibutton, "\e#Delete %s?\e#", furi_string_get_cstr(key_name));
     widget_add_text_box_element(
         widget, 0, 0, 128, 27, AlignCenter, AlignCenter, ibutton->text_store, true);
     widget_add_button_element(
@@ -68,7 +68,7 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
 
-    string_clear(key_name);
+    furi_string_free(key_name);
 }
 
 bool ibutton_scene_delete_confirm_on_event(void* context, SceneManagerEvent event) {

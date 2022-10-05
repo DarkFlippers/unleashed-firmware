@@ -3,7 +3,6 @@
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/empty_screen.h>
-#include <m-string.h>
 #include <furi_hal_version.h>
 #include <furi_hal_region.h>
 #include <furi_hal_bt.h>
@@ -78,11 +77,11 @@ static DialogMessageButton icon2_screen(DialogsApp* dialogs, DialogMessage* mess
 
 static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
-    string_t buffer;
-    string_init(buffer);
+    FuriString* buffer;
+    buffer = furi_string_alloc();
     const char* my_name = furi_hal_version_get_name_ptr();
 
-    string_cat_printf(
+    furi_string_cat_printf(
         buffer,
         "%d.F%dB%dC%d %s:%s %s\n",
         furi_hal_version_get_hw_version(),
@@ -93,26 +92,26 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
         furi_hal_region_get_name(),
         my_name ? my_name : "Unknown");
 
-    string_cat_printf(buffer, "Serial Number:\n");
+    furi_string_cat_printf(buffer, "Serial Number:\n");
     const uint8_t* uid = furi_hal_version_uid();
     for(size_t i = 0; i < furi_hal_version_uid_size(); i++) {
-        string_cat_printf(buffer, "%02X", uid[i]);
+        furi_string_cat_printf(buffer, "%02X", uid[i]);
     }
 
     dialog_message_set_header(message, "HW Version Info:", 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
+    dialog_message_set_text(message, furi_string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
-    string_clear(buffer);
+    furi_string_free(buffer);
 
     return result;
 }
 
 static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
-    string_t buffer;
-    string_init(buffer);
+    FuriString* buffer;
+    buffer = furi_string_alloc();
     const Version* ver = furi_hal_version_get_firmware_version();
     const BleGlueC2Info* c2_ver = NULL;
 #ifdef SRV_BT
@@ -120,9 +119,9 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
 #endif
 
     if(!ver) {
-        string_cat_printf(buffer, "No info\n");
+        furi_string_cat_printf(buffer, "No info\n");
     } else {
-        string_cat_printf(
+        furi_string_cat_printf(
             buffer,
             "%s [%s]\n%s%s [%s] %s\n[%d] %s",
             version_get_version(ver),
@@ -136,11 +135,11 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     }
 
     dialog_message_set_header(message, "FW Version Info:", 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
+    dialog_message_set_text(message, furi_string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
-    string_clear(buffer);
+    furi_string_free(buffer);
 
     return result;
 }

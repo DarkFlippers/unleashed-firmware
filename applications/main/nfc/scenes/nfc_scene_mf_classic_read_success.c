@@ -27,26 +27,26 @@ void nfc_scene_mf_classic_read_success_on_enter(void* context) {
     widget_add_button_element(
         widget, GuiButtonTypeRight, "More", nfc_scene_mf_classic_read_success_widget_callback, nfc);
 
-    string_t temp_str;
-    if(string_size(nfc->dev->dev_data.parsed_data)) {
-        string_init_set(temp_str, nfc->dev->dev_data.parsed_data);
+    FuriString* temp_str;
+    if(furi_string_size(nfc->dev->dev_data.parsed_data)) {
+        temp_str = furi_string_alloc_set(nfc->dev->dev_data.parsed_data);
     } else {
-        string_init_printf(temp_str, "\e#%s\n", nfc_mf_classic_type(mf_data->type));
-        string_cat_printf(temp_str, "UID:");
+        temp_str = furi_string_alloc_printf("\e#%s\n", nfc_mf_classic_type(mf_data->type));
+        furi_string_cat_printf(temp_str, "UID:");
         for(size_t i = 0; i < dev_data->nfc_data.uid_len; i++) {
-            string_cat_printf(temp_str, " %02X", dev_data->nfc_data.uid[i]);
+            furi_string_cat_printf(temp_str, " %02X", dev_data->nfc_data.uid[i]);
         }
         uint8_t sectors_total = mf_classic_get_total_sectors_num(mf_data->type);
         uint8_t keys_total = sectors_total * 2;
         uint8_t keys_found = 0;
         uint8_t sectors_read = 0;
         mf_classic_get_read_sectors_and_keys(mf_data, &sectors_read, &keys_found);
-        string_cat_printf(temp_str, "\nKeys Found: %d/%d", keys_found, keys_total);
-        string_cat_printf(temp_str, "\nSectors Read: %d/%d", sectors_read, sectors_total);
+        furi_string_cat_printf(temp_str, "\nKeys Found: %d/%d", keys_found, keys_total);
+        furi_string_cat_printf(temp_str, "\nSectors Read: %d/%d", sectors_read, sectors_total);
     }
 
-    widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
-    string_clear(temp_str);
+    widget_add_text_scroll_element(widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
+    furi_string_free(temp_str);
 
     notification_message_block(nfc->notifications, &sequence_set_green_255);
 

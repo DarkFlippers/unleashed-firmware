@@ -82,7 +82,7 @@ bool subghz_protocol_decoder_raw_deserialize(void* context, FlipperFormat* flipp
  * @param context Pointer to a SubGhzProtocolDecoderRAW instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_raw_get_string(void* context, string_t output);
+void subghz_protocol_decoder_raw_get_string(void* context, FuriString* output);
 
 /**
  * Allocate SubGhzProtocolEncoderRAW.

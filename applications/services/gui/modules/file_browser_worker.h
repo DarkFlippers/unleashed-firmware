@@ -1,6 +1,5 @@
 #pragma once
 
-#include "m-string.h"
 #include <gui/view.h>
 #include <stdint.h>
 
@@ -17,12 +16,13 @@ typedef void (*BrowserWorkerFolderOpenCallback)(
 typedef void (*BrowserWorkerListLoadCallback)(void* context, uint32_t list_load_offset);
 typedef void (*BrowserWorkerListItemCallback)(
     void* context,
-    string_t item_path,
+    FuriString* item_path,
     bool is_folder,
     bool is_last);
 typedef void (*BrowserWorkerLongLoadCallback)(void* context);
 
-BrowserWorker* file_browser_worker_alloc(string_t path, const char* filter_ext, bool skip_assets);
+BrowserWorker*
+    file_browser_worker_alloc(FuriString* path, const char* filter_ext, bool skip_assets);
 
 void file_browser_worker_free(BrowserWorker* browser);
 
@@ -46,11 +46,11 @@ void file_browser_worker_set_long_load_callback(
 
 void file_browser_worker_set_config(
     BrowserWorker* browser,
-    string_t path,
+    FuriString* path,
     const char* filter_ext,
     bool skip_assets);
 
-void file_browser_worker_folder_enter(BrowserWorker* browser, string_t path, int32_t item_idx);
+void file_browser_worker_folder_enter(BrowserWorker* browser, FuriString* path, int32_t item_idx);
 
 void file_browser_worker_folder_exit(BrowserWorker* browser);
 

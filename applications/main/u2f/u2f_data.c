@@ -181,8 +181,8 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
     // Check if unique key exists in secure eclave and generate it if missing
     if(!furi_hal_crypto_verify_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE)) return false;
 
-    string_t filetype;
-    string_init(filetype);
+    FuriString* filetype;
+    filetype = furi_string_alloc();
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
@@ -194,7 +194,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
                 break;
             }
 
-            if(strcmp(string_get_cstr(filetype), U2F_CERT_KEY_FILE_TYPE) != 0 ||
+            if(strcmp(furi_string_get_cstr(filetype), U2F_CERT_KEY_FILE_TYPE) != 0 ||
                version != U2F_CERT_KEY_VERSION) {
                 FURI_LOG_E(TAG, "Type or version mismatch");
                 break;
@@ -250,7 +250,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
 
     flipper_format_free(flipper_format);
     furi_record_close(RECORD_STORAGE);
-    string_clear(filetype);
+    furi_string_free(filetype);
 
     if(cert_type == U2F_CERT_USER_UNENCRYPTED) {
         return u2f_data_cert_key_encrypt(cert_key);
@@ -267,8 +267,8 @@ bool u2f_data_key_load(uint8_t* device_key) {
     uint8_t key[48];
     uint32_t version = 0;
 
-    string_t filetype;
-    string_init(filetype);
+    FuriString* filetype;
+    filetype = furi_string_alloc();
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
@@ -279,7 +279,7 @@ bool u2f_data_key_load(uint8_t* device_key) {
                 FURI_LOG_E(TAG, "Missing or incorrect header");
                 break;
             }
-            if(strcmp(string_get_cstr(filetype), U2F_DEVICE_KEY_FILE_TYPE) != 0 ||
+            if(strcmp(furi_string_get_cstr(filetype), U2F_DEVICE_KEY_FILE_TYPE) != 0 ||
                version != U2F_DEVICE_KEY_VERSION) {
                 FURI_LOG_E(TAG, "Type or version mismatch");
                 break;
@@ -308,7 +308,7 @@ bool u2f_data_key_load(uint8_t* device_key) {
     }
     flipper_format_free(flipper_format);
     furi_record_close(RECORD_STORAGE);
-    string_clear(filetype);
+    furi_string_free(filetype);
     return state;
 }
 
@@ -366,8 +366,8 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
     uint8_t cnt_encr[48];
     uint32_t version = 0;
 
-    string_t filetype;
-    string_init(filetype);
+    FuriString* filetype;
+    filetype = furi_string_alloc();
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
@@ -378,7 +378,7 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
                 FURI_LOG_E(TAG, "Missing or incorrect header");
                 break;
             }
-            if(strcmp(string_get_cstr(filetype), U2F_COUNTER_FILE_TYPE) != 0) {
+            if(strcmp(furi_string_get_cstr(filetype), U2F_COUNTER_FILE_TYPE) != 0) {
                 FURI_LOG_E(TAG, "Type mismatch");
                 break;
             }
@@ -417,7 +417,7 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
     }
     flipper_format_free(flipper_format);
     furi_record_close(RECORD_STORAGE);
-    string_clear(filetype);
+    furi_string_free(filetype);
 
     if(old_counter && state) {
         // Change counter endianness and rewrite counter file

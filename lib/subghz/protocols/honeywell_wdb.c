@@ -374,12 +374,12 @@ bool subghz_protocol_decoder_honeywell_wdb_deserialize(
     return ret;
 }
 
-void subghz_protocol_decoder_honeywell_wdb_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_honeywell_wdb_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell_WDB* instance = context;
     subghz_protocol_honeywell_wdb_check_remote_controller(instance);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"

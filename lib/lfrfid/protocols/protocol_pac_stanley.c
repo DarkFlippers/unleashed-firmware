@@ -57,31 +57,31 @@ static void protocol_pac_stanley_decode(ProtocolPACStanley* protocol) {
 }
 
 static bool protocol_pac_stanley_can_be_decoded(ProtocolPACStanley* protocol) {
-        // Check preamble
-        if(bit_lib_get_bits(protocol->encoded_data, 0, 8) != 0b11111111) return false;
-        if(bit_lib_get_bit(protocol->encoded_data, 8) != 0) return false;
-        if(bit_lib_get_bit(protocol->encoded_data, 9) != 0) return false;
-        if(bit_lib_get_bit(protocol->encoded_data, 10) != 1) return false;
-        if(bit_lib_get_bits(protocol->encoded_data, 11, 8) != 0b00000010) return false;
+    // Check preamble
+    if(bit_lib_get_bits(protocol->encoded_data, 0, 8) != 0b11111111) return false;
+    if(bit_lib_get_bit(protocol->encoded_data, 8) != 0) return false;
+    if(bit_lib_get_bit(protocol->encoded_data, 9) != 0) return false;
+    if(bit_lib_get_bit(protocol->encoded_data, 10) != 1) return false;
+    if(bit_lib_get_bits(protocol->encoded_data, 11, 8) != 0b00000010) return false;
 
-        // Check next preamble
-        if(bit_lib_get_bits(protocol->encoded_data, 128, 8) != 0b11111111) return false;
+    // Check next preamble
+    if(bit_lib_get_bits(protocol->encoded_data, 128, 8) != 0b11111111) return false;
 
-        // Checksum
-        uint8_t checksum = 0;
-        uint8_t stripped_byte;
-        for(size_t idx = 0; idx < 9; idx++) {
-            uint8_t byte = bit_lib_reverse_8_fast(bit_lib_get_bits(
-                protocol->encoded_data,
-                PAC_STANLEY_DATA_START_INDEX + (PAC_STANLEY_BYTE_LENGTH * idx),
-                8));
-            stripped_byte = byte & 0x7F; // discard the parity bit
-            if(bit_lib_test_parity_32(stripped_byte, BitLibParityOdd) != (byte & 0x80) >> 7) {
-                return false;
-            }
-            if(idx < 8) checksum ^= stripped_byte;
+    // Checksum
+    uint8_t checksum = 0;
+    uint8_t stripped_byte;
+    for(size_t idx = 0; idx < 9; idx++) {
+        uint8_t byte = bit_lib_reverse_8_fast(bit_lib_get_bits(
+            protocol->encoded_data,
+            PAC_STANLEY_DATA_START_INDEX + (PAC_STANLEY_BYTE_LENGTH * idx),
+            8));
+        stripped_byte = byte & 0x7F; // discard the parity bit
+        if(bit_lib_test_parity_32(stripped_byte, BitLibParityOdd) != (byte & 0x80) >> 7) {
+            return false;
         }
-        if(stripped_byte != checksum) return false;
+        if(idx < 8) checksum ^= stripped_byte;
+    }
+    if(stripped_byte != checksum) return false;
     return true;
 }
 
@@ -201,9 +201,9 @@ bool protocol_pac_stanley_write_data(ProtocolPACStanley* protocol, void* data) {
     return result;
 }
 
-void protocol_pac_stanley_render_data(ProtocolPACStanley* protocol, string_t result) {
+void protocol_pac_stanley_render_data(ProtocolPACStanley* protocol, FuriString* result) {
     uint8_t* data = protocol->data;
-    string_printf(result, "CIN: %02X%02X%02X%02X", data[0], data[1], data[2], data[3]);
+    furi_string_printf(result, "CIN: %02X%02X%02X%02X", data[0], data[1], data[2], data[3]);
 }
 
 const ProtocolBase protocol_pac_stanley = {

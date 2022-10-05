@@ -22,13 +22,13 @@ void cli_command_device_info_callback(const char* key, const char* value, bool l
  * Device Info Command
  * This command is intended to be used by humans
  */
-void cli_command_device_info(Cli* cli, string_t args, void* context) {
+void cli_command_device_info(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     furi_hal_info_get(cli_command_device_info_callback, context);
 }
 
-void cli_command_help(Cli* cli, string_t args, void* context) {
+void cli_command_help(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     UNUSED(context);
     printf("Commands we have:");
@@ -49,34 +49,34 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
         printf("\r\n");
         // Left Column
         if(!CliCommandTree_end_p(it_left)) {
-            printf("%-30s", string_get_cstr(*CliCommandTree_ref(it_left)->key_ptr));
+            printf("%-30s", furi_string_get_cstr(*CliCommandTree_ref(it_left)->key_ptr));
             CliCommandTree_next(it_left);
         }
         // Right Column
         if(!CliCommandTree_end_p(it_right)) {
-            printf("%s", string_get_cstr(*CliCommandTree_ref(it_right)->key_ptr));
+            printf("%s", furi_string_get_cstr(*CliCommandTree_ref(it_right)->key_ptr));
             CliCommandTree_next(it_right);
         }
     };
 
-    if(string_size(args) > 0) {
+    if(furi_string_size(args) > 0) {
         cli_nl();
         printf("Also I have no clue what '");
-        printf("%s", string_get_cstr(args));
+        printf("%s", furi_string_get_cstr(args));
         printf("' is.");
     }
 }
 
-void cli_command_date(Cli* cli, string_t args, void* context) {
+void cli_command_date(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
 
     FuriHalRtcDateTime datetime = {0};
 
-    if(string_size(args) > 0) {
+    if(furi_string_size(args) > 0) {
         uint16_t hours, minutes, seconds, month, day, year, weekday;
         int ret = sscanf(
-            string_get_cstr(args),
+            furi_string_get_cstr(args),
             "%hu-%hu-%hu %hu:%hu:%hu %hu",
             &year,
             &month,
@@ -101,7 +101,7 @@ void cli_command_date(Cli* cli, string_t args, void* context) {
                 "Invalid datetime format, use `%s`. sscanf %d %s",
                 "%Y-%m-%d %H:%M:%S %u",
                 ret,
-                string_get_cstr(args));
+                furi_string_get_cstr(args));
             return;
         }
 
@@ -143,7 +143,7 @@ void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* conte
     xStreamBufferSend(context, buffer, size, 0);
 }
 
-void cli_command_log(Cli* cli, string_t args, void* context) {
+void cli_command_log(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     UNUSED(context);
     StreamBufferHandle_t ring = xStreamBufferCreate(CLI_COMMAND_LOG_RING_SIZE, 1);
@@ -162,75 +162,75 @@ void cli_command_log(Cli* cli, string_t args, void* context) {
     vStreamBufferDelete(ring);
 }
 
-void cli_command_vibro(Cli* cli, string_t args, void* context) {
+void cli_command_vibro(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
-    if(!string_cmp(args, "0")) {
+    if(!furi_string_cmp(args, "0")) {
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
         notification_message_block(notification, &sequence_reset_vibro);
         furi_record_close(RECORD_NOTIFICATION);
-    } else if(!string_cmp(args, "1")) {
+    } else if(!furi_string_cmp(args, "1")) {
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
         notification_message_block(notification, &sequence_set_vibro_on);
         furi_record_close(RECORD_NOTIFICATION);
     } else {
-        cli_print_usage("vibro", "<1|0>", string_get_cstr(args));
+        cli_print_usage("vibro", "<1|0>", furi_string_get_cstr(args));
     }
 }
 
-void cli_command_debug(Cli* cli, string_t args, void* context) {
+void cli_command_debug(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
-    if(!string_cmp(args, "0")) {
+    if(!furi_string_cmp(args, "0")) {
         furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
         loader_update_menu();
         printf("Debug disabled.");
-    } else if(!string_cmp(args, "1")) {
+    } else if(!furi_string_cmp(args, "1")) {
         furi_hal_rtc_set_flag(FuriHalRtcFlagDebug);
         loader_update_menu();
         printf("Debug enabled.");
     } else {
-        cli_print_usage("debug", "<1|0>", string_get_cstr(args));
+        cli_print_usage("debug", "<1|0>", furi_string_get_cstr(args));
     }
 }
 
-void cli_command_led(Cli* cli, string_t args, void* context) {
+void cli_command_led(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
     // Get first word as light name
     NotificationMessage notification_led_message;
-    string_t light_name;
-    string_init(light_name);
-    size_t ws = string_search_char(args, ' ');
-    if(ws == STRING_FAILURE) {
-        cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
-        string_clear(light_name);
+    FuriString* light_name;
+    light_name = furi_string_alloc();
+    size_t ws = furi_string_search_char(args, ' ');
+    if(ws == FURI_STRING_FAILURE) {
+        cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
+        furi_string_free(light_name);
         return;
     } else {
-        string_set_n(light_name, args, 0, ws);
-        string_right(args, ws);
-        string_strim(args);
+        furi_string_set_n(light_name, args, 0, ws);
+        furi_string_right(args, ws);
+        furi_string_trim(args);
     }
     // Check light name
-    if(!string_cmp(light_name, "r")) {
+    if(!furi_string_cmp(light_name, "r")) {
         notification_led_message.type = NotificationMessageTypeLedRed;
-    } else if(!string_cmp(light_name, "g")) {
+    } else if(!furi_string_cmp(light_name, "g")) {
         notification_led_message.type = NotificationMessageTypeLedGreen;
-    } else if(!string_cmp(light_name, "b")) {
+    } else if(!furi_string_cmp(light_name, "b")) {
         notification_led_message.type = NotificationMessageTypeLedBlue;
-    } else if(!string_cmp(light_name, "bl")) {
+    } else if(!furi_string_cmp(light_name, "bl")) {
         notification_led_message.type = NotificationMessageTypeLedDisplayBacklight;
     } else {
-        cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
-        string_clear(light_name);
+        cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
+        furi_string_free(light_name);
         return;
     }
-    string_clear(light_name);
+    furi_string_free(light_name);
     // Read light value from the rest of the string
     char* end_ptr;
-    uint32_t value = strtoul(string_get_cstr(args), &end_ptr, 0);
+    uint32_t value = strtoul(furi_string_get_cstr(args), &end_ptr, 0);
     if(!(value < 256 && *end_ptr == '\0')) {
-        cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
+        cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
         return;
     }
 
@@ -249,7 +249,7 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
     furi_record_close(RECORD_NOTIFICATION);
 }
 
-void cli_command_ps(Cli* cli, string_t args, void* context) {
+void cli_command_ps(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);
@@ -272,7 +272,7 @@ void cli_command_ps(Cli* cli, string_t args, void* context) {
     printf("\r\nTotal: %d", thread_num);
 }
 
-void cli_command_free(Cli* cli, string_t args, void* context) {
+void cli_command_free(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);
@@ -286,7 +286,7 @@ void cli_command_free(Cli* cli, string_t args, void* context) {
     printf("Maximum pool block: %d\r\n", memmgr_pool_get_max_block());
 }
 
-void cli_command_free_blocks(Cli* cli, string_t args, void* context) {
+void cli_command_free_blocks(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);
@@ -294,7 +294,7 @@ void cli_command_free_blocks(Cli* cli, string_t args, void* context) {
     memmgr_heap_printf_free_blocks();
 }
 
-void cli_command_i2c(Cli* cli, string_t args, void* context) {
+void cli_command_i2c(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);

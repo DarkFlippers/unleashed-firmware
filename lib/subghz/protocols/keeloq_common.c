@@ -2,7 +2,6 @@
 
 #include <furi.h>
 
-#include <m-string.h>
 #include <m-array.h>
 
 #define bit(x, n) (((x) >> (n)) & 1)

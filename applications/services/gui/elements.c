@@ -8,7 +8,6 @@
 #include <gui/icon_i.h>
 #include <gui/icon_animation_i.h>
 
-#include <m-string.h>
 #include <furi.h>
 #include "canvas_i.h"
 
@@ -189,12 +188,12 @@ static size_t
         end = text + strlen(text);
     }
     size_t text_size = end - text;
-    string_t str;
-    string_init_set_str(str, text);
-    string_left(str, text_size);
+    FuriString* str;
+    str = furi_string_alloc_set(text);
+    furi_string_left(str, text_size);
     size_t result = 0;
 
-    uint16_t len_px = canvas_string_width(canvas, string_get_cstr(str));
+    uint16_t len_px = canvas_string_width(canvas, furi_string_get_cstr(str));
     uint8_t px_left = 0;
     if(horizontal == AlignCenter) {
         if(x > (canvas_width(canvas) / 2)) {
@@ -224,7 +223,7 @@ static size_t
         result = text_size;
     }
 
-    string_clear(str);
+    furi_string_free(str);
     return result;
 }
 
@@ -240,7 +239,7 @@ void elements_multiline_text_aligned(
 
     uint8_t lines_count = 0;
     uint8_t font_height = canvas_current_font_height(canvas);
-    string_t line;
+    FuriString* line;
 
     /* go through text line by line and count lines */
     for(const char* start = text; start[0];) {
@@ -261,14 +260,14 @@ void elements_multiline_text_aligned(
         size_t chars_fit = elements_get_max_chars_to_fit(canvas, horizontal, start, x);
 
         if((start[chars_fit] == '\n') || (start[chars_fit] == 0)) {
-            string_init_printf(line, "%.*s", chars_fit, start);
+            line = furi_string_alloc_printf("%.*s", chars_fit, start);
         } else if((y + font_height) > canvas_height(canvas)) {
-            string_init_printf(line, "%.*s...\n", chars_fit, start);
+            line = furi_string_alloc_printf("%.*s...\n", chars_fit, start);
         } else {
-            string_init_printf(line, "%.*s-\n", chars_fit, start);
+            line = furi_string_alloc_printf("%.*s-\n", chars_fit, start);
         }
-        canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(line));
-        string_clear(line);
+        canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, furi_string_get_cstr(line));
+        furi_string_free(line);
         y += font_height;
         if(y > canvas_height(canvas)) {
             break;
@@ -284,22 +283,22 @@ void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* t
     furi_assert(text);
 
     uint8_t font_height = canvas_current_font_height(canvas);
-    string_t str;
-    string_init(str);
+    FuriString* str;
+    str = furi_string_alloc();
     const char* start = text;
     char* end;
     do {
         end = strchr(start, '\n');
         if(end) {
-            string_set_strn(str, start, end - start);
+            furi_string_set_strn(str, start, end - start);
         } else {
-            string_set_str(str, start);
+            furi_string_set(str, start);
         }
-        canvas_draw_str(canvas, x, y, string_get_cstr(str));
+        canvas_draw_str(canvas, x, y, furi_string_get_cstr(str));
         start = end + 1;
         y += font_height;
     } while(end && y < 64);
-    string_clear(str);
+    furi_string_free(str);
 }
 
 void elements_multiline_text_framed(Canvas* canvas, uint8_t x, uint8_t y, const char* text) {
@@ -533,18 +532,18 @@ void elements_bubble_str(
     canvas_draw_line(canvas, x2, y2, x3, y3);
 }
 
-void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {
+void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width) {
     furi_assert(canvas);
     furi_assert(string);
 
-    uint16_t len_px = canvas_string_width(canvas, string_get_cstr(string));
+    uint16_t len_px = canvas_string_width(canvas, furi_string_get_cstr(string));
     if(len_px > width) {
         width -= canvas_string_width(canvas, "...");
         do {
-            string_left(string, string_size(string) - 1);
-            len_px = canvas_string_width(canvas, string_get_cstr(string));
+            furi_string_left(string, furi_string_size(string) - 1);
+            len_px = canvas_string_width(canvas, furi_string_get_cstr(string));
         } while(len_px > width);
-        string_cat(string, "...");
+        furi_string_cat(string, "...");
     }
 }
 

@@ -8,8 +8,6 @@
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
 
-#include <m-string.h>
-
 #define TAG "MusicPlayer"
 
 #define MUSIC_PLAYER_APP_PATH_FOLDER ANY_PATH("music_player")
@@ -296,14 +294,14 @@ void music_player_free(MusicPlayer* instance) {
 int32_t music_player_app(void* p) {
     MusicPlayer* music_player = music_player_alloc();
 
-    string_t file_path;
-    string_init(file_path);
+    FuriString* file_path;
+    file_path = furi_string_alloc();
 
     do {
         if(p && strlen(p)) {
-            string_cat_str(file_path, p);
+            furi_string_cat(file_path, (const char*)p);
         } else {
-            string_set_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
+            furi_string_set(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
 
             DialogsFileBrowserOptions browser_options;
             dialog_file_browser_set_basic_options(
@@ -320,7 +318,7 @@ int32_t music_player_app(void* p) {
             }
         }
 
-        if(!music_player_worker_load(music_player->worker, string_get_cstr(file_path))) {
+        if(!music_player_worker_load(music_player->worker, furi_string_get_cstr(file_path))) {
             FURI_LOG_E(TAG, "Unable to load file");
             break;
         }
@@ -354,7 +352,7 @@ int32_t music_player_app(void* p) {
         music_player_worker_stop(music_player->worker);
     } while(0);
 
-    string_clear(file_path);
+    furi_string_free(file_path);
     music_player_free(music_player);
 
     return 0;

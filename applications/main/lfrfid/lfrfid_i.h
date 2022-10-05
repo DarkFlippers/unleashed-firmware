@@ -1,7 +1,5 @@
 #pragma once
 
-#include "m-string.h"
-
 #include <furi.h>
 #include <furi_hal.h>
 
@@ -86,9 +84,9 @@ struct LfRfid {
     Widget* widget;
 
     char text_store[LFRFID_TEXT_STORE_SIZE + 1];
-    string_t file_path;
-    string_t file_name;
-    string_t raw_file_name;
+    FuriString* file_path;
+    FuriString* file_name;
+    FuriString* raw_file_name;
 
     ProtocolDict* dict;
     ProtocolId protocol_id;
@@ -128,9 +126,9 @@ bool lfrfid_load_key_from_file_select(LfRfid* app);
 
 bool lfrfid_delete_key(LfRfid* app);
 
-bool lfrfid_load_key_data(LfRfid* app, string_t path, bool show_dialog);
+bool lfrfid_load_key_data(LfRfid* app, FuriString* path, bool show_dialog);
 
-bool lfrfid_save_key_data(LfRfid* app, string_t path);
+bool lfrfid_save_key_data(LfRfid* app, FuriString* path);
 
 void lfrfid_make_app_folder(LfRfid* app);
 

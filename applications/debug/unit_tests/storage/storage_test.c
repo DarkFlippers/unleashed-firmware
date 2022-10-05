@@ -211,22 +211,22 @@ static bool check_file_13DA(Storage* storage, const char* path) {
 }
 
 static void storage_dir_create(Storage* storage, const char* base) {
-    string_t path;
-    string_init(path);
+    FuriString* path;
+    path = furi_string_alloc();
 
     storage_common_mkdir(storage, base);
 
     for(size_t i = 0; i < COUNT_OF(storage_copy_test_paths); i++) {
-        string_printf(path, "%s/%s", base, storage_copy_test_paths[i]);
-        storage_common_mkdir(storage, string_get_cstr(path));
+        furi_string_printf(path, "%s/%s", base, storage_copy_test_paths[i]);
+        storage_common_mkdir(storage, furi_string_get_cstr(path));
     }
 
     for(size_t i = 0; i < COUNT_OF(storage_copy_test_files); i++) {
-        string_printf(path, "%s/%s", base, storage_copy_test_files[i]);
-        write_file_13DA(storage, string_get_cstr(path));
+        furi_string_printf(path, "%s/%s", base, storage_copy_test_files[i]);
+        write_file_13DA(storage, furi_string_get_cstr(path));
     }
 
-    string_clear(path);
+    furi_string_free(path);
 }
 
 static void storage_dir_remove(Storage* storage, const char* base) {
@@ -235,15 +235,15 @@ static void storage_dir_remove(Storage* storage, const char* base) {
 
 static bool storage_dir_rename_check(Storage* storage, const char* base) {
     bool result = false;
-    string_t path;
-    string_init(path);
+    FuriString* path;
+    path = furi_string_alloc();
 
     result = (storage_common_stat(storage, base, NULL) == FSE_OK);
 
     if(result) {
         for(size_t i = 0; i < COUNT_OF(storage_copy_test_paths); i++) {
-            string_printf(path, "%s/%s", base, storage_copy_test_paths[i]);
-            result = (storage_common_stat(storage, string_get_cstr(path), NULL) == FSE_OK);
+            furi_string_printf(path, "%s/%s", base, storage_copy_test_paths[i]);
+            result = (storage_common_stat(storage, furi_string_get_cstr(path), NULL) == FSE_OK);
             if(!result) {
                 break;
             }
@@ -252,15 +252,15 @@ static bool storage_dir_rename_check(Storage* storage, const char* base) {
 
     if(result) {
         for(size_t i = 0; i < COUNT_OF(storage_copy_test_files); i++) {
-            string_printf(path, "%s/%s", base, storage_copy_test_files[i]);
-            result = check_file_13DA(storage, string_get_cstr(path));
+            furi_string_printf(path, "%s/%s", base, storage_copy_test_files[i]);
+            result = check_file_13DA(storage, furi_string_get_cstr(path));
             if(!result) {
                 break;
             }
         }
     }
 
-    string_clear(path);
+    furi_string_free(path);
     return result;
 }
 

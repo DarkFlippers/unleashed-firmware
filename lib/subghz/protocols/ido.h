@@ -70,4 +70,4 @@ bool subghz_protocol_decoder_ido_deserialize(void* context, FlipperFormat* flipp
  * @param context Pointer to a SubGhzProtocolDecoderIDo instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_ido_get_string(void* context, string_t output);
+void subghz_protocol_decoder_ido_get_string(void* context, FuriString* output);

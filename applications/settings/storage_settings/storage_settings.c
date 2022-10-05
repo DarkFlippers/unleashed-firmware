@@ -21,7 +21,7 @@ static StorageSettings* storage_settings_alloc() {
 
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&storage_settings_scene_handlers, app);
-    string_init(app->text_string);
+    app->text_string = furi_string_alloc();
 
     view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
@@ -60,7 +60,7 @@ static void storage_settings_free(StorageSettings* app) {
     furi_record_close(RECORD_STORAGE);
     furi_record_close(RECORD_NOTIFICATION);
 
-    string_clear(app->text_string);
+    furi_string_free(app->text_string);
 
     free(app);
 }

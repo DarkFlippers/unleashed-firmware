@@ -77,7 +77,7 @@ struct ArchiveBrowserView {
     bool worker_running;
     ArchiveBrowserViewCallback callback;
     void* context;
-    string_t path;
+    FuriString* path;
     InputKey last_tab_switch_dir;
     bool is_root;
 };

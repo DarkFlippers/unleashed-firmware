@@ -4,8 +4,6 @@
 #include "../nfc_worker.h"
 #include "../nfc_device.h"
 
-#include <m-string.h>
-
 typedef enum {
     NfcSupportedCardTypePlantain,
     NfcSupportedCardTypeTroika,

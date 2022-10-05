@@ -4,7 +4,6 @@
 #include "gui/canvas.h"
 #include "gui/view.h"
 #include "input/input.h"
-#include "m-string.h"
 #include <gui/elements.h>
 #include <furi.h>
 #include "infrared_progress_view.h"

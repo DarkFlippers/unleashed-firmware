@@ -434,13 +434,13 @@ bool subghz_protocol_decoder_intertechno_v3_deserialize(
     return ret;
 }
 
-void subghz_protocol_decoder_intertechno_v3_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_intertechno_v3_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderIntertechno_V3* instance = context;
 
     subghz_protocol_intertechno_v3_check_remote_controller(&instance->generic);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%.11s %db\r\n"
         "Key:0x%08llX\r\n"
@@ -453,17 +453,17 @@ void subghz_protocol_decoder_intertechno_v3_get_string(void* context, string_t o
     if(instance->generic.data_count_bit ==
        subghz_protocol_intertechno_v3_const.min_count_bit_for_found) {
         if(instance->generic.cnt >> 5) {
-            string_cat_printf(
+            furi_string_cat_printf(
                 output, "Ch: All Btn:%s\r\n", (instance->generic.btn ? "On" : "Off"));
         } else {
-            string_cat_printf(
+            furi_string_cat_printf(
                 output,
                 "Ch:" CH_PATTERN " Btn:%s\r\n",
                 CNT_TO_CH(instance->generic.cnt),
                 (instance->generic.btn ? "On" : "Off"));
         }
     } else if(instance->generic.data_count_bit == INTERTECHNO_V3_DIMMING_COUNT_BIT) {
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "Ch:" CH_PATTERN " Dimm:%d%%\r\n",
             CNT_TO_CH(instance->generic.cnt),

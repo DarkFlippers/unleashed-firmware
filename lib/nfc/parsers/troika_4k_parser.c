@@ -98,7 +98,8 @@ bool troika_4k_parser_parse(NfcDeviceData* dev_data) {
     }
     number >>= 4;
 
-    string_printf(dev_data->parsed_data, "\e#Troika\nNum: %ld\nBalance: %d rur.", number, balance);
+    furi_string_printf(
+        dev_data->parsed_data, "\e#Troika\nNum: %ld\nBalance: %d rur.", number, balance);
 
     return true;
 }

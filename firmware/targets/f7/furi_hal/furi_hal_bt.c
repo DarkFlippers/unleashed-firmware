@@ -340,7 +340,7 @@ bool furi_hal_bt_clear_white_list() {
     return status != BLE_STATUS_SUCCESS;
 }
 
-void furi_hal_bt_dump_state(string_t buffer) {
+void furi_hal_bt_dump_state(FuriString* buffer) {
     if(furi_hal_bt_is_alive()) {
         uint8_t HCI_Version;
         uint16_t HCI_Revision;
@@ -351,7 +351,7 @@ void furi_hal_bt_dump_state(string_t buffer) {
         tBleStatus ret = hci_read_local_version_information(
             &HCI_Version, &HCI_Revision, &LMP_PAL_Version, &Manufacturer_Name, &LMP_PAL_Subversion);
 
-        string_cat_printf(
+        furi_string_cat_printf(
             buffer,
             "Ret: %d, HCI_Version: %d, HCI_Revision: %d, LMP_PAL_Version: %d, Manufacturer_Name: %d, LMP_PAL_Subversion: %d",
             ret,
@@ -361,7 +361,7 @@ void furi_hal_bt_dump_state(string_t buffer) {
             Manufacturer_Name,
             LMP_PAL_Subversion);
     } else {
-        string_cat_printf(buffer, "BLE not ready");
+        furi_string_cat_printf(buffer, "BLE not ready");
     }
 }
 

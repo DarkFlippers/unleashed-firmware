@@ -1,5 +1,4 @@
 #include "../picopass_i.h"
-#include "m-string.h"
 #include <lib/toolbox/random_name.h>
 #include <gui/modules/validators.h>
 #include <toolbox/path.h>
@@ -31,22 +30,22 @@ void picopass_scene_save_name_on_enter(void* context) {
         PICOPASS_DEV_NAME_MAX_LEN,
         dev_name_empty);
 
-    string_t folder_path;
-    string_init(folder_path);
+    FuriString* folder_path;
+    folder_path = furi_string_alloc();
 
-    if(string_end_with_str_p(picopass->dev->load_path, PICOPASS_APP_EXTENSION)) {
-        path_extract_dirname(string_get_cstr(picopass->dev->load_path), folder_path);
+    if(furi_string_end_with(picopass->dev->load_path, PICOPASS_APP_EXTENSION)) {
+        path_extract_dirname(furi_string_get_cstr(picopass->dev->load_path), folder_path);
     } else {
-        string_set_str(folder_path, PICOPASS_APP_FOLDER);
+        furi_string_set(folder_path, PICOPASS_APP_FOLDER);
     }
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        string_get_cstr(folder_path), PICOPASS_APP_EXTENSION, picopass->dev->dev_name);
+        furi_string_get_cstr(folder_path), PICOPASS_APP_EXTENSION, picopass->dev->dev_name);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(picopass->view_dispatcher, PicopassViewTextInput);
 
-    string_clear(folder_path);
+    furi_string_free(folder_path);
 }
 
 bool picopass_scene_save_name_on_event(void* context, SceneManagerEvent event) {

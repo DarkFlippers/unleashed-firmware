@@ -60,7 +60,7 @@ typedef struct {
         MfClassicData mf_classic_data;
         MifareDesfireData mf_df_data;
     };
-    string_t parsed_data;
+    FuriString* parsed_data;
 } NfcDeviceData;
 
 typedef struct {
@@ -68,7 +68,7 @@ typedef struct {
     DialogsApp* dialogs;
     NfcDeviceData dev_data;
     char dev_name[NFC_DEV_NAME_MAX_LEN + 1];
-    string_t load_path;
+    FuriString* load_path;
     NfcDeviceSaveFormat format;
     bool shadow_file_exist;
 

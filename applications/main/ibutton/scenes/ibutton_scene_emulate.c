@@ -20,17 +20,17 @@ void ibutton_scene_emulate_on_enter(void* context) {
 
     const uint8_t* key_data = ibutton_key_get_data_p(key);
 
-    string_t key_name;
-    string_init(key_name);
-    if(string_end_with_str_p(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
+    FuriString* key_name;
+    key_name = furi_string_alloc();
+    if(furi_string_end_with(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
         path_extract_filename(ibutton->file_path, key_name, true);
     }
 
     DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
 
     // check that stored key has name
-    if(!string_empty_p(key_name)) {
-        ibutton_text_store_set(ibutton, "%s", string_get_cstr(key_name));
+    if(!furi_string_empty(key_name)) {
+        ibutton_text_store_set(ibutton, "%s", furi_string_get_cstr(key_name));
     } else {
         // if not, show key data
         switch(ibutton_key_get_type(key)) {
@@ -69,7 +69,7 @@ void ibutton_scene_emulate_on_enter(void* context) {
         ibutton->key_worker, ibutton_scene_emulate_callback, ibutton);
     ibutton_worker_emulate_start(ibutton->key_worker, key);
 
-    string_clear(key_name);
+    furi_string_free(key_name);
 
     ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
 }

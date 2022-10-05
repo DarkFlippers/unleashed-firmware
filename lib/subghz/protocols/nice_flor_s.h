@@ -70,4 +70,4 @@ bool subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperForma
  * @param context Pointer to a SubGhzProtocolDecoderNiceFlorS instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_nice_flor_s_get_string(void* context, string_t output);
+void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* output);

@@ -19,8 +19,8 @@ struct SubGhzFileEncoderWorker {
     volatile bool worker_running;
     volatile bool worker_stoping;
     bool level;
-    string_t str_data;
-    string_t file_path;
+    FuriString* str_data;
+    FuriString* file_path;
 
     SubGhzFileEncoderWorkerCallbackEnd callback_end;
     void* context_end;
@@ -117,9 +117,11 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     do {
         if(!flipper_format_file_open_existing(
-               instance->flipper_format, string_get_cstr(instance->file_path))) {
+               instance->flipper_format, furi_string_get_cstr(instance->file_path))) {
             FURI_LOG_E(
-                TAG, "Unable to open file for read: %s", string_get_cstr(instance->file_path));
+                TAG,
+                "Unable to open file for read: %s",
+                furi_string_get_cstr(instance->file_path));
             break;
         }
         if(!flipper_format_read_string(instance->flipper_format, "Protocol", instance->str_data)) {
@@ -138,9 +140,9 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         size_t stream_free_byte = xStreamBufferSpacesAvailable(instance->stream);
         if((stream_free_byte / sizeof(int32_t)) >= SUBGHZ_FILE_ENCODER_LOAD) {
             if(stream_read_line(stream, instance->str_data)) {
-                string_strim(instance->str_data);
+                furi_string_trim(instance->str_data);
                 if(!subghz_file_encoder_worker_data_parse(
-                       instance, string_get_cstr(instance->str_data))) {
+                       instance, furi_string_get_cstr(instance->str_data))) {
                     //to stop DMA correctly
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
@@ -186,8 +188,8 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     instance->storage = furi_record_open(RECORD_STORAGE);
     instance->flipper_format = flipper_format_file_alloc(instance->storage);
 
-    string_init(instance->str_data);
-    string_init(instance->file_path);
+    instance->str_data = furi_string_alloc();
+    instance->file_path = furi_string_alloc();
     instance->level = false;
     instance->worker_stoping = true;
 
@@ -200,8 +202,8 @@ void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance) {
     vStreamBufferDelete(instance->stream);
     furi_thread_free(instance->thread);
 
-    string_clear(instance->str_data);
-    string_clear(instance->file_path);
+    furi_string_free(instance->str_data);
+    furi_string_free(instance->file_path);
 
     flipper_format_free(instance->flipper_format);
     furi_record_close(RECORD_STORAGE);
@@ -214,7 +216,7 @@ bool subghz_file_encoder_worker_start(SubGhzFileEncoderWorker* instance, const c
     furi_assert(!instance->worker_running);
 
     xStreamBufferReset(instance->stream);
-    string_set(instance->file_path, file_path);
+    furi_string_set(instance->file_path, file_path);
     instance->worker_running = true;
     furi_thread_start(instance->thread);
 

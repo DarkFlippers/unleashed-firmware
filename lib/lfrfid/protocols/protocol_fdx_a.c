@@ -196,7 +196,7 @@ bool protocol_fdx_a_write_data(ProtocolFDXA* protocol, void* data) {
     return result;
 };
 
-void protocol_fdx_a_render_data(ProtocolFDXA* protocol, string_t result) {
+void protocol_fdx_a_render_data(ProtocolFDXA* protocol, FuriString* result) {
     uint8_t data[FDXA_DECODED_DATA_SIZE];
     memcpy(data, protocol->data, FDXA_DECODED_DATA_SIZE);
 
@@ -206,7 +206,7 @@ void protocol_fdx_a_render_data(ProtocolFDXA* protocol, string_t result) {
         data[i] &= 0x7F;
     }
 
-    string_printf(
+    furi_string_printf(
         result,
         "ID: %02X%02X%02X%02X%02X\r\n"
         "Parity: %s",

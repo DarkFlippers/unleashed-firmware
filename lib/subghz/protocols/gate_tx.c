@@ -317,11 +317,11 @@ bool subghz_protocol_decoder_gate_tx_deserialize(void* context, FlipperFormat* f
     return ret;
 }
 
-void subghz_protocol_decoder_gate_tx_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_gate_tx_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderGateTx* instance = context;
     subghz_protocol_gate_tx_check_remote_controller(&instance->generic);
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:%06lX\r\n"
