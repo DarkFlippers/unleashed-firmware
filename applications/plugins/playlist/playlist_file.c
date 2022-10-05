@@ -9,13 +9,13 @@ int playlist_count_playlist_items(Storage* storage, const char* file_path) {
         return -1;
     }
     int count = 0;
-    string_t data;
-    string_init(data);
+    FuriString* data;
+    data = furi_string_alloc();
     while(flipper_format_read_string(format, "sub", data)) {
         ++count;
     }
     flipper_format_file_close(format);
     flipper_format_free(format);
-    string_clear(data);
+    furi_string_free(data);
     return count;
 }

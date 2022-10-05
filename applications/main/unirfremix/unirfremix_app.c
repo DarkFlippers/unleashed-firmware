@@ -27,9 +27,9 @@
 
 typedef struct {
     uint32_t frequency;
-    string_t name;
+    FuriString* name;
 
-    string_t protocol;
+    FuriString* protocol;
     uint32_t repeat;
 
     uint8_t* data;
@@ -52,20 +52,20 @@ typedef struct {
     NotificationApp* notification;
     UniRFPreset* txpreset;
 
-    string_t up_file;
-    string_t down_file;
-    string_t left_file;
-    string_t right_file;
-    string_t ok_file;
-    string_t empty;
+    FuriString* up_file;
+    FuriString* down_file;
+    FuriString* left_file;
+    FuriString* right_file;
+    FuriString* ok_file;
+    FuriString* empty;
 
-    string_t up_l;
-    string_t left_l;
-    string_t right_l;
-    string_t down_l;
-    string_t ok_l;
+    FuriString* up_l;
+    FuriString* left_l;
+    FuriString* right_l;
+    FuriString* down_l;
+    FuriString* ok_l;
 
-    string_t file_path;
+    FuriString* file_path;
 
     char* up_label;
     char* down_label;
@@ -92,20 +92,20 @@ typedef struct {
     bool tx_not_allowed;
     int file_blank;
 
-    string_t signal;
+    FuriString* signal;
 } UniRFRemix;
 
 UniRFPreset* unirfremix_preset_alloc(void) {
     UniRFPreset* preset = malloc(sizeof(UniRFPreset));
-    string_init(preset->name);
-    string_init(preset->protocol);
+    preset->name = furi_string_alloc();
+    preset->protocol = furi_string_alloc();
     preset->repeat = 200;
     return preset;
 }
 
 void unirfremix_preset_free(UniRFPreset* preset) {
-    string_clear(preset->name);
-    string_clear(preset->protocol);
+    furi_string_free(preset->name);
+    furi_string_free(preset->protocol);
     free(preset);
 }
 
@@ -147,13 +147,13 @@ static const char* int_to_char(int number) {
 */
 //get filename without path
 static char* extract_filename(const char* name, int len) {
-    string_t tmp;
-    string_init(tmp);
+    FuriString* tmp;
+    tmp = furi_string_alloc();
 
     //remove path
     path_extract_filename_no_ext(name, tmp);
 
-    return char_to_str((char*)string_get_cstr(tmp), len);
+    return char_to_str((char*)furi_string_get_cstr(tmp), len);
 }
 
 /*
@@ -165,7 +165,7 @@ static char* extract_filename(const char* name, int len) {
  * set error flag if missing map file
  */
 
-void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
+void unirfremix_cfg_set_check(UniRFRemix* app, FuriString* file_name) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
@@ -181,8 +181,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
     int label_len = 16;
 
     //check that map file exists
-    if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-        FURI_LOG_E(TAG, "Could not open MAP file %s", string_get_cstr(file_name));
+    if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
+        FURI_LOG_E(TAG, "Could not open MAP file %s", furi_string_get_cstr(file_name));
     } else {
         //Filename Assignment/Check Start
 
@@ -199,8 +199,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         } else {
             //check name length for proper screen fit
             //then set filename as label. Might be replaced with defined label later on below.
-            app->up_label = extract_filename(string_get_cstr(app->up_file), label_len);
-            FURI_LOG_I(TAG, "UP file: %s", string_get_cstr(app->up_file));
+            app->up_label = extract_filename(furi_string_get_cstr(app->up_file), label_len);
+            FURI_LOG_I(TAG, "UP file: %s", furi_string_get_cstr(app->up_file));
         }
 
         //Repeat process for Down
@@ -210,8 +210,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             app->down_label = "N/A";
             app->down_enabled = 0;
         } else {
-            app->down_label = extract_filename(string_get_cstr(app->down_file), label_len);
-            FURI_LOG_I(TAG, "DOWN file: %s", string_get_cstr(app->down_file));
+            app->down_label = extract_filename(furi_string_get_cstr(app->down_file), label_len);
+            FURI_LOG_I(TAG, "DOWN file: %s", furi_string_get_cstr(app->down_file));
         }
 
         //Repeat process for Left
@@ -221,8 +221,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             app->left_label = "N/A";
             app->left_enabled = 0;
         } else {
-            app->left_label = extract_filename(string_get_cstr(app->left_file), label_len);
-            FURI_LOG_I(TAG, "LEFT file: %s", string_get_cstr(app->left_file));
+            app->left_label = extract_filename(furi_string_get_cstr(app->left_file), label_len);
+            FURI_LOG_I(TAG, "LEFT file: %s", furi_string_get_cstr(app->left_file));
         }
 
         //Repeat process for Right
@@ -232,8 +232,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             app->right_label = "N/A";
             app->right_enabled = 0;
         } else {
-            app->right_label = extract_filename(string_get_cstr(app->right_file), label_len);
-            FURI_LOG_I(TAG, "RIGHT file: %s", string_get_cstr(app->right_file));
+            app->right_label = extract_filename(furi_string_get_cstr(app->right_file), label_len);
+            FURI_LOG_I(TAG, "RIGHT file: %s", furi_string_get_cstr(app->right_file));
         }
 
         //Repeat process for Ok
@@ -243,8 +243,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             app->ok_label = "N/A";
             app->ok_enabled = 0;
         } else {
-            app->ok_label = extract_filename(string_get_cstr(app->ok_file), label_len);
-            FURI_LOG_I(TAG, "OK file: %s", string_get_cstr(app->ok_file));
+            app->ok_label = extract_filename(furi_string_get_cstr(app->ok_file), label_len);
+            FURI_LOG_I(TAG, "OK file: %s", furi_string_get_cstr(app->ok_file));
         }
 
         //File definitions are done.
@@ -265,7 +265,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
                 app->up_label = "N/A";
             } else {
                 //set label from map to variable and shrink to fit screen
-                app->up_label = char_to_str((char*)string_get_cstr(app->up_l), label_len);
+                app->up_label = char_to_str((char*)furi_string_get_cstr(app->up_l), label_len);
             }
             FURI_LOG_I(TAG, "UP label: %s", app->up_label);
         }
@@ -279,7 +279,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             if(app->down_enabled == 0) {
                 app->down_label = "N/A";
             } else {
-                app->down_label = char_to_str((char*)string_get_cstr(app->down_l), label_len);
+                app->down_label = char_to_str((char*)furi_string_get_cstr(app->down_l), label_len);
             }
             FURI_LOG_I(TAG, "DOWN label: %s", app->down_label);
         }
@@ -293,7 +293,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             if(app->left_enabled == 0) {
                 app->left_label = "N/A";
             } else {
-                app->left_label = char_to_str((char*)string_get_cstr(app->left_l), label_len);
+                app->left_label = char_to_str((char*)furi_string_get_cstr(app->left_l), label_len);
             }
             FURI_LOG_I(TAG, "LEFT label: %s", app->left_label);
         }
@@ -307,7 +307,8 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             if(app->right_enabled == 0) {
                 app->right_label = "N/A";
             } else {
-                app->right_label = char_to_str((char*)string_get_cstr(app->right_l), label_len);
+                app->right_label =
+                    char_to_str((char*)furi_string_get_cstr(app->right_l), label_len);
             }
             FURI_LOG_I(TAG, "RIGHT label: %s", app->right_label);
         }
@@ -321,7 +322,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
             if(app->ok_enabled == 0) {
                 app->ok_label = "N/A";
             } else {
-                app->ok_label = char_to_str((char*)string_get_cstr(app->ok_l), label_len);
+                app->ok_label = char_to_str((char*)furi_string_get_cstr(app->ok_l), label_len);
             }
             FURI_LOG_I(TAG, "OK label: %s", app->ok_label);
         }
@@ -351,11 +352,11 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
 
         //if button is still enabled, check that file exists
         if(app->up_enabled == 1) {
-            string_set(file_name, app->up_file);
+            furi_string_set(file_name, app->up_file);
             fff_data_file = flipper_format_file_alloc(storage);
 
-            if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-                FURI_LOG_W(TAG, "Could not open UP file %s", string_get_cstr(file_name));
+            if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
+                FURI_LOG_W(TAG, "Could not open UP file %s", furi_string_get_cstr(file_name));
 
                 //disable button, and set label to "N/A"
                 app->up_enabled = 0;
@@ -369,11 +370,11 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         }
 
         if(app->down_enabled == 1) {
-            string_set(file_name, app->down_file);
+            furi_string_set(file_name, app->down_file);
             fff_data_file = flipper_format_file_alloc(storage);
 
-            if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-                FURI_LOG_W(TAG, "Could not open DOWN file %s", string_get_cstr(file_name));
+            if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
+                FURI_LOG_W(TAG, "Could not open DOWN file %s", furi_string_get_cstr(file_name));
 
                 app->down_enabled = 0;
                 app->down_label = "N/A";
@@ -385,11 +386,11 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         }
 
         if(app->left_enabled == 1) {
-            string_set(file_name, app->left_file);
+            furi_string_set(file_name, app->left_file);
             fff_data_file = flipper_format_file_alloc(storage);
 
-            if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-                FURI_LOG_W(TAG, "Could not open LEFT file %s", string_get_cstr(file_name));
+            if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
+                FURI_LOG_W(TAG, "Could not open LEFT file %s", furi_string_get_cstr(file_name));
 
                 app->left_enabled = 0;
                 app->left_label = "N/A";
@@ -401,11 +402,11 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         }
 
         if(app->right_enabled == 1) {
-            string_set(file_name, app->right_file);
+            furi_string_set(file_name, app->right_file);
             fff_data_file = flipper_format_file_alloc(storage);
 
-            if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-                FURI_LOG_W(TAG, "Could not open RIGHT file %s", string_get_cstr(file_name));
+            if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
+                FURI_LOG_W(TAG, "Could not open RIGHT file %s", furi_string_get_cstr(file_name));
 
                 app->right_enabled = 0;
                 app->right_label = "N/A";
@@ -417,11 +418,11 @@ void unirfremix_cfg_set_check(UniRFRemix* app, string_t file_name) {
         }
 
         if(app->ok_enabled == 1) {
-            string_set(file_name, app->ok_file);
+            furi_string_set(file_name, app->ok_file);
             fff_data_file = flipper_format_file_alloc(storage);
 
-            if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-                FURI_LOG_W(TAG, "Could not open OK file %s", string_get_cstr(file_name));
+            if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
+                FURI_LOG_W(TAG, "Could not open OK file %s", furi_string_get_cstr(file_name));
 
                 app->ok_enabled = 0;
                 app->ok_label = "N/A";
@@ -448,17 +449,17 @@ static void unirfremix_end_send(UniRFRemix* app) {
 
 bool unirfremix_set_preset(UniRFPreset* p, const char* preset) {
     if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
-        string_set(p->name, "AM270");
+        furi_string_set(p->name, "AM270");
     } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
-        string_set(p->name, "AM650");
+        furi_string_set(p->name, "AM650");
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev238Async")) {
-        string_set(p->name, "FM238");
+        furi_string_set(p->name, "FM238");
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
-        string_set(p->name, "FM476");
+        furi_string_set(p->name, "FM476");
     } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
         FURI_LOG_E(TAG, "Custom preset unsupported now");
         return false;
-        // string_set(p->name, "CUSTOM");
+        // furi_string_set(p->name, "CUSTOM");
     } else {
         FURI_LOG_E(TAG, "Unsupported preset");
         return false;
@@ -479,8 +480,8 @@ bool unirfremix_key_load(
         return false;
     }
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     bool res = false;
 
@@ -494,19 +495,19 @@ bool unirfremix_key_load(
         // load preset from file
         if(!flipper_format_read_string(fff_file, "Preset", temp_str)) {
             FURI_LOG_W(TAG, "Could not read Preset. Defaulting to Ook650Async");
-            string_set(temp_str, "FuriHalSubGhzPresetOok650Async");
+            furi_string_set(temp_str, "FuriHalSubGhzPresetOok650Async");
         }
-        if(!unirfremix_set_preset(preset, string_get_cstr(temp_str))) {
+        if(!unirfremix_set_preset(preset, furi_string_get_cstr(temp_str))) {
             FURI_LOG_E(TAG, "Could not set preset");
             break;
         }
-        if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+        if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
             // TODO: check if preset is custom
             FURI_LOG_E(TAG, "Could not use custom preset");
             break;
         }
         size_t preset_index =
-            subghz_setting_get_inx_preset_by_name(setting, string_get_cstr(preset->name));
+            subghz_setting_get_inx_preset_by_name(setting, furi_string_get_cstr(preset->name));
         preset->data = subghz_setting_get_preset_data(setting, preset_index);
         preset->data_size = subghz_setting_get_preset_data_size(setting, preset_index);
 
@@ -515,7 +516,7 @@ bool unirfremix_key_load(
             FURI_LOG_E(TAG, "Could not read Protocol.");
             break;
         }
-        if(!string_cmp_str(preset->protocol, "RAW")) {
+        if(!furi_string_cmp_str(preset->protocol, "RAW")) {
             subghz_protocol_raw_gen_fff_data(fff_data, path);
         } else {
             stream_copy_full(
@@ -529,19 +530,19 @@ bool unirfremix_key_load(
         }
 
         preset->decoder = subghz_receiver_search_decoder_base_by_name(
-            receiver, string_get_cstr(preset->protocol));
+            receiver, furi_string_get_cstr(preset->protocol));
         if(preset->decoder) {
             if(!subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data)) {
                 break;
             }
         } else {
-            FURI_LOG_E(TAG, "Protocol %s not found", string_get_cstr(temp_str));
+            FURI_LOG_E(TAG, "Protocol %s not found", furi_string_get_cstr(temp_str));
         }
 
         res = true;
     } while(0);
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
 
     return res;
 }
@@ -556,15 +557,15 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
     Stream* flipper_format_stream = flipper_format_get_raw_stream(fff_file);
 
     bool saved = false;
-    string_t file_dir;
-    string_init(file_dir);
+    FuriString* file_dir;
+    file_dir = furi_string_alloc();
 
     path_extract_dirname(dev_file_name, file_dir);
     do {
         flipper_format_delete_key(fff_file, "Repeat");
         flipper_format_delete_key(fff_file, "Manufacture");
 
-        if(!storage_simply_mkdir(storage, string_get_cstr(file_dir))) {
+        if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {
             FURI_LOG_E(TAG, "(save) Cannot mkdir");
             break;
         }
@@ -580,7 +581,7 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
         saved = true;
         FURI_LOG_D(TAG, "(save) OK Save");
     } while(0);
-    string_clear(file_dir);
+    furi_string_free(file_dir);
     furi_record_close(RECORD_STORAGE);
     return saved;
 }
@@ -590,7 +591,7 @@ void unirfremix_tx_stop(UniRFRemix* app) {
         return;
     }
 
-    if(!string_cmp_str(app->txpreset->protocol, "RAW")) {
+    if(!furi_string_cmp_str(app->txpreset->protocol, "RAW")) {
         while(!furi_hal_subghz_is_async_tx_complete()) {
             furi_delay_ms(15);
         }
@@ -603,7 +604,7 @@ void unirfremix_tx_stop(UniRFRemix* app) {
 
     FURI_LOG_D(TAG, "Checking if protocol is dynamic");
     const SubGhzProtocol* registry =
-        subghz_protocol_registry_get_by_name(string_get_cstr(app->txpreset->protocol));
+        subghz_protocol_registry_get_by_name(furi_string_get_cstr(app->txpreset->protocol));
     FURI_LOG_D(TAG, "Protocol-TYPE %d", registry->type);
     if(registry && registry->type == SubGhzProtocolTypeDynamic) {
         FURI_LOG_D(TAG, "Protocol is dynamic. Saving key");
@@ -642,7 +643,7 @@ static bool unirfremix_send_sub(UniRFRemix* app, FlipperFormat* fff_data) {
         }
 
         app->tx_transmitter = subghz_transmitter_alloc_init(
-            app->environment, string_get_cstr(app->txpreset->protocol));
+            app->environment, furi_string_get_cstr(app->txpreset->protocol));
         if(!app->tx_transmitter) {
             break;
         }
@@ -713,16 +714,16 @@ static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, const char
     unirfremix_send_sub(app, app->tx_fff_data);
 }
 
-static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
+static void unirfremix_process_signal(UniRFRemix* app, FuriString* signal) {
     view_port_update(app->view_port);
 
-    FURI_LOG_I(TAG, "signal = %s", string_get_cstr(signal));
+    FURI_LOG_I(TAG, "signal = %s", furi_string_get_cstr(signal));
 
-    if(strlen(string_get_cstr(signal)) > 12) {
+    if(strlen(furi_string_get_cstr(signal)) > 12) {
         Storage* storage = furi_record_open(RECORD_STORAGE);
-        unirfremix_send_signal(app, storage, string_get_cstr(signal));
+        unirfremix_send_signal(app, storage, furi_string_get_cstr(signal));
         furi_record_close(RECORD_STORAGE);
-    } else if(strlen(string_get_cstr(signal)) < 10) {
+    } else if(strlen(furi_string_get_cstr(signal)) < 10) {
         unirfremix_end_send(app);
     }
 }
@@ -867,21 +868,21 @@ UniRFRemix* unirfremix_alloc(void) {
 void unirfremix_free(UniRFRemix* app, bool with_subghz) {
     furi_hal_power_suppress_charge_exit();
 
-    string_clear(app->up_file);
-    string_clear(app->down_file);
-    string_clear(app->left_file);
-    string_clear(app->right_file);
-    string_clear(app->ok_file);
-    string_clear(app->empty);
+    furi_string_free(app->up_file);
+    furi_string_free(app->down_file);
+    furi_string_free(app->left_file);
+    furi_string_free(app->right_file);
+    furi_string_free(app->ok_file);
+    furi_string_free(app->empty);
 
-    string_clear(app->up_l);
-    string_clear(app->down_l);
-    string_clear(app->left_l);
-    string_clear(app->right_l);
-    string_clear(app->ok_l);
+    furi_string_free(app->up_l);
+    furi_string_free(app->down_l);
+    furi_string_free(app->left_l);
+    furi_string_free(app->right_l);
+    furi_string_free(app->ok_l);
 
-    string_clear(app->file_path);
-    string_clear(app->signal);
+    furi_string_free(app->file_path);
+    furi_string_free(app->signal);
 
     gui_remove_view_port(app->gui, app->view_port);
     furi_record_close(RECORD_GUI);
@@ -909,21 +910,21 @@ int32_t unirfremix_app(void* p) {
     UNUSED(p);
     UniRFRemix* app = unirfremix_alloc();
 
-    string_init(app->file_path);
+    app->file_path = furi_string_alloc();
 
     //setup variables before population
-    string_init(app->up_file);
-    string_init(app->down_file);
-    string_init(app->left_file);
-    string_init(app->right_file);
-    string_init(app->ok_file);
-    string_init(app->empty);
+    app->up_file = furi_string_alloc();
+    app->down_file = furi_string_alloc();
+    app->left_file = furi_string_alloc();
+    app->right_file = furi_string_alloc();
+    app->ok_file = furi_string_alloc();
+    app->empty = furi_string_alloc();
 
-    string_init(app->up_l);
-    string_init(app->down_l);
-    string_init(app->left_l);
-    string_init(app->right_l);
-    string_init(app->ok_l);
+    app->up_l = furi_string_alloc();
+    app->down_l = furi_string_alloc();
+    app->left_l = furi_string_alloc();
+    app->right_l = furi_string_alloc();
+    app->ok_l = furi_string_alloc();
 
     app->file_result = 3;
 
@@ -933,7 +934,7 @@ int32_t unirfremix_app(void* p) {
     }
     furi_record_close(RECORD_STORAGE);
 
-    string_set_str(app->file_path, UNIRFMAP_FOLDER);
+    furi_string_set(app->file_path, UNIRFMAP_FOLDER);
 
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
 
@@ -961,11 +962,11 @@ int32_t unirfremix_app(void* p) {
         FURI_LOG_D(
             TAG,
             "U: %s - D: %s - L: %s - R: %s - O: %s ",
-            string_get_cstr(app->up_file),
-            string_get_cstr(app->down_file),
-            string_get_cstr(app->left_file),
-            string_get_cstr(app->right_file),
-            string_get_cstr(app->ok_file));
+            furi_string_get_cstr(app->up_file),
+            furi_string_get_cstr(app->down_file),
+            furi_string_get_cstr(app->left_file),
+            furi_string_get_cstr(app->right_file),
+            furi_string_get_cstr(app->ok_file));
 
         //variables to control multiple button presses and status updates
         app->send_status = "Idle";
@@ -994,8 +995,8 @@ int32_t unirfremix_app(void* p) {
                 if(input.type == InputTypePress) {
                     if(app->up_enabled) {
                         if(app->processing == 0) {
-                            *app->signal = *app->empty;
-                            *app->signal = *app->up_file;
+                            app->signal = app->empty;
+                            app->signal = app->up_file;
                             app->button = 1;
                             app->processing = 1;
                         }
@@ -1012,8 +1013,8 @@ int32_t unirfremix_app(void* p) {
                 if(input.type == InputTypePress) {
                     if(app->down_enabled) {
                         if(app->processing == 0) {
-                            *app->signal = *app->empty;
-                            *app->signal = *app->down_file;
+                            app->signal = app->empty;
+                            app->signal = app->down_file;
                             app->button = 2;
                             app->processing = 1;
                         }
@@ -1030,8 +1031,8 @@ int32_t unirfremix_app(void* p) {
                 if(input.type == InputTypePress) {
                     if(app->right_enabled) {
                         if(app->processing == 0) {
-                            *app->signal = *app->empty;
-                            *app->signal = *app->right_file;
+                            app->signal = app->empty;
+                            app->signal = app->right_file;
                             app->button = 3;
                             app->processing = 1;
                         }
@@ -1048,8 +1049,8 @@ int32_t unirfremix_app(void* p) {
                 if(input.type == InputTypePress) {
                     if(app->left_enabled) {
                         if(app->processing == 0) {
-                            *app->signal = *app->empty;
-                            *app->signal = *app->left_file;
+                            app->signal = app->empty;
+                            app->signal = app->left_file;
                             app->button = 4;
                             app->processing = 1;
                         }
@@ -1066,8 +1067,8 @@ int32_t unirfremix_app(void* p) {
                 if(input.type == InputTypePress) {
                     if(app->ok_enabled) {
                         if(app->processing == 0) {
-                            *app->signal = *app->empty;
-                            *app->signal = *app->ok_file;
+                            app->signal = app->empty;
+                            app->signal = app->ok_file;
                             app->button = 5;
                             app->processing = 1;
                         }

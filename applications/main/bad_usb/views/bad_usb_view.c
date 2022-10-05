@@ -25,21 +25,22 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
     disp_str = furi_string_alloc_set(model->file_name);
     elements_string_fit_width(canvas, disp_str, 128 - 2);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 2, 8, string_get_cstr(disp_str));
+    canvas_draw_str(canvas, 2, 8, furi_string_get_cstr(disp_str));
 
     if(strlen(model->layout) == 0) {
-        string_set(disp_str, "(default)");
+        furi_string_set(disp_str, "(default)");
     } else {
-        string_reset(disp_str);
-        string_push_back(disp_str, '(');
+        furi_string_reset(disp_str);
+        furi_string_push_back(disp_str, '(');
         for(size_t i = 0; i < strlen(model->layout); i++)
-            string_push_back(disp_str, model->layout[i]);
-        string_push_back(disp_str, ')');
+            furi_string_push_back(disp_str, model->layout[i]);
+        furi_string_push_back(disp_str, ')');
     }
     elements_string_fit_width(canvas, disp_str, 128 - 2);
-    canvas_draw_str(canvas, 2, 8 + canvas_current_font_height(canvas), string_get_cstr(disp_str));
+    canvas_draw_str(
+        canvas, 2, 8 + canvas_current_font_height(canvas), furi_string_get_cstr(disp_str));
 
-    string_reset(disp_str);
+    furi_string_reset(disp_str);
 
     canvas_draw_icon(canvas, 22, 24, &I_UsbTree_48x22);
 
@@ -88,14 +89,14 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         furi_string_printf(
             disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
-            canvas, 114, 40, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 114, 40, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 26, &I_Percent_10x14);
     } else if(model->state.state == BadUsbStateDone) {
         canvas_draw_icon(canvas, 4, 23, &I_EviSmile1_18x21);
         canvas_set_font(canvas, FontBigNumbers);
         canvas_draw_str_aligned(canvas, 114, 40, AlignRight, AlignBottom, "100");
-        string_reset(disp_str);
+        furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 26, &I_Percent_10x14);
     } else if(model->state.state == BadUsbStateDelay) {
         if(model->anim_frame == 0) {
@@ -107,14 +108,14 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         furi_string_printf(
             disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
-            canvas, 114, 40, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 114, 40, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 26, &I_Percent_10x14);
         canvas_set_font(canvas, FontSecondary);
         furi_string_printf(disp_str, "delay %us", model->state.delay_remain);
         canvas_draw_str_aligned(
-            canvas, 127, 50, AlignRight, AlignBottom, string_get_cstr(disp_str));
-        string_reset(disp_str);
+            canvas, 127, 50, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
+        furi_string_reset(disp_str);
     } else {
         canvas_draw_icon(canvas, 4, 26, &I_Clock_18x18);
     }

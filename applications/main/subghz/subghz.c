@@ -1,6 +1,5 @@
 /* Abandon hope, all ye who enter here. */
 
-#include <m-string.h>
 #include <subghz/types.h>
 #include <lib/toolbox/path.h>
 #include "subghz_i.h"
@@ -214,7 +213,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->preset = malloc(sizeof(SubGhzPresetDefinition));
-    string_init(subghz->txrx->preset->name);
+    subghz->txrx->preset->name = furi_string_alloc();
     if(!alloc_for_tx_only) {
         subghz_preset_init(
             subghz,
@@ -358,7 +357,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     if(!alloc_for_tx_only) {
         subghz_history_free(subghz->txrx->history);
     }
-    string_clear(subghz->txrx->preset->name);
+    furi_string_free(subghz->txrx->preset->name);
     free(subghz->txrx->preset);
     free(subghz->txrx->secure_data);
     free(subghz->txrx);

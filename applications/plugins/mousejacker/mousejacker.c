@@ -104,9 +104,9 @@ static void hexlify(uint8_t* in, uint8_t size, char* out) {
 static bool open_ducky_script(Stream* stream, PluginState* plugin_state) {
     DialogsApp* dialogs = furi_record_open("dialogs");
     bool result = false;
-    string_t path;
-    string_init(path);
-    string_set_str(path, MOUSEJACKER_APP_PATH_FOLDER);
+    FuriString* path;
+    path = furi_string_alloc();
+    furi_string_set(path, MOUSEJACKER_APP_PATH_FOLDER);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(
@@ -117,13 +117,13 @@ static bool open_ducky_script(Stream* stream, PluginState* plugin_state) {
 
     furi_record_close("dialogs");
     if(ret) {
-        if(!file_stream_open(stream, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        if(!file_stream_open(stream, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
             FURI_LOG_D(TAG, "Cannot open file \"%s\"", (path));
         } else {
             result = true;
         }
     }
-    string_clear(path);
+    furi_string_free(path);
 
     plugin_state->is_ducky_running = true;
 
@@ -133,9 +133,9 @@ static bool open_ducky_script(Stream* stream, PluginState* plugin_state) {
 static bool open_addrs_file(Stream* stream) {
     DialogsApp* dialogs = furi_record_open("dialogs");
     bool result = false;
-    string_t path;
-    string_init(path);
-    string_set_str(path, NRFSNIFF_APP_PATH_FOLDER);
+    FuriString* path;
+    path = furi_string_alloc();
+    furi_string_set(path, NRFSNIFF_APP_PATH_FOLDER);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(
@@ -146,13 +146,13 @@ static bool open_addrs_file(Stream* stream) {
 
     furi_record_close("dialogs");
     if(ret) {
-        if(!file_stream_open(stream, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        if(!file_stream_open(stream, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
             FURI_LOG_D(TAG, "Cannot open file \"%s\"", (path));
         } else {
             result = true;
         }
     }
-    string_clear(path);
+    furi_string_free(path);
     return result;
 }
 

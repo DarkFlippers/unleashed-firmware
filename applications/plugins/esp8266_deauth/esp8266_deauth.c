@@ -6,7 +6,6 @@
 #include <gui/canvas_i.h>
 #include <gui/gui.h>
 #include <input/input.h>
-//#include <m-string.h>
 //#include <math.h>
 //#include <notification/notification.h>
 //#include <notification/notification_messages.h>
@@ -250,8 +249,8 @@ static int32_t uart_worker(void* context) {
 #if ENABLE_MODULE_POWER
     bool initialized = false;
 
-    string_t receivedString;
-    string_init(receivedString);
+    FuriString* receivedString;
+    receivedString = furi_string_alloc();
 #endif // ENABLE_MODULE_POWER
 
     while(true) {
@@ -280,7 +279,7 @@ static int32_t uart_worker(void* context) {
                         if(!(dataReceivedLength > strlen(MODULE_CONTEXT_INITIALIZATION))) {
                             DEAUTH_APP_LOG_I("[UART] Found possible init candidate");
                             for(uint16_t i = 0; i < dataReceivedLength; i++) {
-                                string_push_back(receivedString, dataBuffer[i]);
+                                furi_string_push_back(receivedString, dataBuffer[i]);
                             }
                         }
                     } else
@@ -297,15 +296,15 @@ static int32_t uart_worker(void* context) {
 
 #if ENABLE_MODULE_POWER
             if(!app->m_wifiDeauthModuleInitialized) {
-                if(string_cmp_str(receivedString, MODULE_CONTEXT_INITIALIZATION) == 0) {
+                if(furi_string_cmp_str(receivedString, MODULE_CONTEXT_INITIALIZATION) == 0) {
                     DEAUTH_APP_LOG_I("[UART] Initialized");
                     initialized = true;
                     app->m_wifiDeauthModuleInitialized = true;
                     app->m_context = ModuleActive;
-                    string_clear(receivedString);
+                    furi_string_free(receivedString);
                 } else {
                     DEAUTH_APP_LOG_I("[UART] Not an initialization command");
-                    string_reset(receivedString);
+                    furi_string_reset(receivedString);
                 }
             }
 #endif // ENABLE_MODULE_POWER

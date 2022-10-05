@@ -1,7 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
-#include <m-string.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>

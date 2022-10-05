@@ -48,24 +48,24 @@ void archive_browser_set_callback(
 static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     if(menu_array_size(model->context_menu) == 0) {
         // Context menu is empty, init array
-        string_t item_run;
-        string_t item_pin;
-        string_t item_info;
-        string_t item_rename;
-        string_t item_delete;
+        FuriString* item_run;
+        FuriString* item_pin;
+        FuriString* item_info;
+        FuriString* item_rename;
+        FuriString* item_delete;
 
-        string_init_set_str(item_run, "Run In App");
-        string_init_set_str(item_pin, "Pin");
-        string_init_set_str(item_info, "Info");
-        string_init_set_str(item_rename, "Rename");
-        string_init_set_str(item_delete, "Delete");
+        item_run = furi_string_alloc_set("Run In App");
+        item_pin = furi_string_alloc_set("Pin");
+        item_info = furi_string_alloc_set("Info");
+        item_rename = furi_string_alloc_set("Rename");
+        item_delete = furi_string_alloc_set("Delete");
 
         // Need init context menu
         ArchiveFile_t* selected =
             files_array_get(model->files, model->item_idx - model->array_offset);
 
         if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
-            string_set_str(item_pin, "Unpin");
+            furi_string_set(item_pin, "Unpin");
         }
 
         if(selected->type == ArchiveFileTypeFolder) {
@@ -96,7 +96,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         } else if(model->tab_idx == ArchiveTabFavorites) {
             //FURI_LOG_D(TAG, "ArchiveTabFavorites");
 
-            string_set_str(item_rename, "Move");
+            furi_string_set(item_rename, "Move");
 
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
@@ -152,11 +152,11 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 ArchiveBrowserEventFileMenuDelete);
         }
 
-        string_clear(item_run);
-        string_clear(item_pin);
-        string_clear(item_info);
-        string_clear(item_rename);
-        string_clear(item_delete);
+        furi_string_free(item_run);
+        furi_string_free(item_pin);
+        furi_string_free(item_info);
+        furi_string_free(item_rename);
+        furi_string_free(item_delete);
     } /*else {
         FURI_LOG_D(TAG, "menu_array_size already set: %d", menu_array_size(model->context_menu));
     }*/
@@ -178,7 +178,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         model->menu_idx);*/
     for(size_t i = 0; i < size_menu; i++) {
         ArchiveContextMenuItem_t* current = menu_array_get(model->context_menu, i);
-        canvas_draw_str(canvas, 82, 21 + i * line_height, string_get_cstr(current->text));
+        canvas_draw_str(canvas, 82, 21 + i * line_height, furi_string_get_cstr(current->text));
     }
 
     canvas_draw_icon(canvas, 74, 14 + model->menu_idx * line_height, &I_ButtonRight_4x7);

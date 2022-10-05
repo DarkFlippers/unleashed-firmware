@@ -31,7 +31,7 @@ void subbrute_scene_setup_attack_on_enter(void* context) {
            instance->worker,
            instance->device->frequency,
            instance->device->preset,
-           string_get_cstr(instance->device->protocol_name))) {
+           furi_string_get_cstr(instance->device->protocol_name))) {
         FURI_LOG_W(TAG, "Worker init failed!");
     }
 
@@ -144,7 +144,7 @@ bool subbrute_scene_setup_attack_on_event(void* context, SceneManagerEvent event
                 //                        view,
                 //                        instance->device->frequency,
                 //                        instance->device->preset,
-                //                        string_get_cstr(instance->device->protocol_name));
+                //                        furi_string_get_cstr(instance->device->protocol_name));
                 //                }
                 subbrute_device_create_packet_parsed(
                     instance->device, instance->device->key_index, false);

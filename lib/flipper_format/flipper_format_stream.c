@@ -121,14 +121,14 @@ bool flipper_format_stream_seek_to_key(Stream* stream, const char* key, bool str
     return found;
 }
 
-static bool flipper_format_stream_read_value(Stream* stream, string_t value, bool* last) {
+static bool flipper_format_stream_read_value(Stream* stream, FuriString* value, bool* last) {
     enum { LeadingSpace, ReadValue, TrailingSpace } state = LeadingSpace;
     const size_t buffer_size = 32;
     uint8_t buffer[buffer_size];
     bool result = false;
     bool error = false;
 
-    string_reset(value);
+    furi_string_reset(value);
 
     while(true) {
         size_t was_read = stream_read(stream, buffer, buffer_size);
@@ -154,7 +154,7 @@ static bool flipper_format_stream_read_value(Stream* stream, string_t value, boo
                     break;
                 } else {
                     state = ReadValue;
-                    string_push_back(value, data);
+                    furi_string_push_back(value, data);
                 }
             } else if(state == ReadValue) {
                 if(flipper_format_stream_is_space(data)) {
@@ -168,7 +168,7 @@ static bool flipper_format_stream_read_value(Stream* stream, string_t value, boo
                     }
                     break;
                 } else {
-                    string_push_back(value, data);
+                    furi_string_push_back(value, data);
                 }
             } else if(state == TrailingSpace) {
                 if(flipper_format_stream_is_space(data)) {

@@ -21,7 +21,7 @@ static void archive_tick_event_callback(void* context) {
 static ArchiveApp* archive_alloc() {
     ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
-    string_init(archive->fav_move_str);
+    archive->fav_move_str = furi_string_alloc();
 
     archive->scene_manager = scene_manager_alloc(&archive_scene_handlers, archive);
     archive->view_dispatcher = view_dispatcher_alloc();

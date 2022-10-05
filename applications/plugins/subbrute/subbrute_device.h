@@ -61,7 +61,7 @@ typedef struct {
 
     // Current step
     uint64_t key_index;
-    string_t load_path;
+    FuriString* load_path;
     // Index of group to bruteforce in loaded file
     uint8_t load_index;
 
@@ -78,8 +78,8 @@ typedef struct {
 
     // Loaded info for attack type
     FuriHalSubGhzPreset preset;
-    string_t preset_name;
-    string_t protocol_name;
+    FuriString* preset_name;
+    FuriString* protocol_name;
     uint32_t frequency;
     uint32_t repeat;
     uint32_t bit;
@@ -96,7 +96,7 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* key_name);
 const char* subbrute_device_error_get_desc(SubBruteFileResult error_id);
 bool subbrute_device_create_packet_parsed(SubBruteDevice* context, uint64_t step, bool small);
 SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* context, SubBruteAttacks type);
-uint8_t subbrute_device_load_from_file(SubBruteDevice* context, string_t file_path);
+uint8_t subbrute_device_load_from_file(SubBruteDevice* context, FuriString* file_path);
 FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset);
 void subbrute_device_attack_set_default_values(
     SubBruteDevice* context,

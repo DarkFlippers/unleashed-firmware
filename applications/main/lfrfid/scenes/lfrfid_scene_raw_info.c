@@ -34,7 +34,7 @@ void lfrfid_scene_raw_info_on_enter(void* context) {
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
-    //string_clear(tmp_string);
+    //furi_string_free(tmp_string);
 }
 
 bool lfrfid_scene_raw_info_on_event(void* context, SceneManagerEvent event) {

@@ -376,8 +376,8 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                         model->status = SubGhzReadRAWStatusStart;
                         model->rssi_history_end = false;
                         model->ind_write = 0;
-                        string_set_str(model->sample_write, "0 spl.");
-                        string_reset(model->file_name);
+                        furi_string_set(model->sample_write, "0 spl.");
+                        furi_string_reset(model->file_name);
                         instance->callback(SubGhzCustomEventViewReadRAWErase, instance->context);
                     }
                 }
@@ -508,10 +508,10 @@ SubGhzReadRAW* subghz_read_raw_alloc(bool raw_send_only) {
 
     with_view_model(
         instance->view, (SubGhzReadRAWModel * model) {
-            string_init(model->frequency_str);
-            string_init(model->preset_str);
-            string_init(model->sample_write);
-            string_init(model->file_name);
+            model->frequency_str = furi_string_alloc();
+            model->preset_str = furi_string_alloc();
+            model->sample_write = furi_string_alloc();
+            model->file_name = furi_string_alloc();
             model->raw_send_only = raw_send_only;
             model->rssi_history = malloc(SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE * sizeof(uint8_t));
             return true;

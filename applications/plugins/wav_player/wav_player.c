@@ -19,9 +19,9 @@
 static bool open_wav_stream(Stream* stream) {
     DialogsApp* dialogs = furi_record_open("dialogs");
     bool result = false;
-    string_t path;
-    string_init(path);
-    string_set_str(path, WAVPLAYER_FOLDER);
+    FuriString* path;
+    path = furi_string_alloc();
+    furi_string_set(path, WAVPLAYER_FOLDER);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, ".wav", &I_music_10px);
@@ -31,13 +31,13 @@ static bool open_wav_stream(Stream* stream) {
 
     furi_record_close("dialogs");
     if(ret) {
-        if(!file_stream_open(stream, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-            FURI_LOG_E(TAG, "Cannot open file \"%s\"", string_get_cstr(path));
+        if(!file_stream_open(stream, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+            FURI_LOG_E(TAG, "Cannot open file \"%s\"", furi_string_get_cstr(path));
         } else {
             result = true;
         }
     }
-    string_clear(path);
+    furi_string_free(path);
     return result;
 }
 

@@ -19,7 +19,7 @@
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
-void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
+void subghz_cli_command_tx_carrier(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     uint32_t frequency = 433920000;
 

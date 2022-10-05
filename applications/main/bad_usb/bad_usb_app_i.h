@@ -34,8 +34,8 @@ struct BadUsbApp {
     Submenu* submenu;
 
     BadUsbAppError error;
-    string_t file_path;
-    string_t keyboard_layout;
+    FuriString* file_path;
+    FuriString* keyboard_layout;
     BadUsb* bad_usb_view;
     BadUsbScript* bad_usb_script;
 };

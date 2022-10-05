@@ -17,7 +17,7 @@ void lfrfid_scene_read_success_on_enter(void* context) {
         protocol_dict_get_manufacturer(app->dict, app->protocol_id));
 
     widget_add_string_element(
-        widget, 16, 3, AlignLeft, AlignTop, FontPrimary, string_get_cstr(tmp_string));
+        widget, 16, 3, AlignLeft, AlignTop, FontPrimary, furi_string_get_cstr(tmp_string));
 
     furi_string_reset(tmp_string);
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
@@ -29,7 +29,7 @@ void lfrfid_scene_read_success_on_enter(void* context) {
             break;
         } else {
             if(i != 0) {
-                string_cat_printf(tmp_string, ":");
+                furi_string_cat_printf(tmp_string, ":");
             }
             furi_string_cat_printf(tmp_string, "%02X", data[i]);
         }

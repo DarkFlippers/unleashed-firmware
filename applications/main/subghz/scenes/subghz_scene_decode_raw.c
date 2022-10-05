@@ -33,30 +33,30 @@ SubGhzFileEncoderWorker* file_worker_encoder;
 
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
-    string_t history_stat_str;
-    string_init(history_stat_str);
+    FuriString* history_stat_str;
+    history_stat_str = furi_string_alloc();
     if(!subghz_history_get_text_space_left(subghz->txrx->history, history_stat_str)) {
-        string_t frequency_str;
-        string_t modulation_str;
+        FuriString* frequency_str;
+        FuriString* modulation_str;
 
-        string_init(frequency_str);
-        string_init(modulation_str);
+        frequency_str = furi_string_alloc();
+        modulation_str = furi_string_alloc();
 
         subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
 
         subghz_view_receiver_add_data_statusbar(
             subghz->subghz_receiver,
-            string_get_cstr(frequency_str),
-            string_get_cstr(modulation_str),
-            string_get_cstr(history_stat_str));
+            furi_string_get_cstr(frequency_str),
+            furi_string_get_cstr(modulation_str),
+            furi_string_get_cstr(history_stat_str));
 
-        string_clear(frequency_str);
-        string_clear(modulation_str);
+        furi_string_free(frequency_str);
+        furi_string_free(modulation_str);
     } else {
         subghz_view_receiver_add_data_statusbar(
-            subghz->subghz_receiver, string_get_cstr(history_stat_str), "", "");
+            subghz->subghz_receiver, furi_string_get_cstr(history_stat_str), "", "");
     }
-    string_clear(history_stat_str);
+    furi_string_free(history_stat_str);
 }
 
 void subghz_scene_decode_raw_callback(SubGhzCustomEvent event, void* context) {
@@ -71,11 +71,11 @@ static void subghz_scene_add_to_history_callback(
     void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    string_t str_buff;
-    string_init(str_buff);
+    FuriString* str_buff;
+    str_buff = furi_string_alloc();
 
     if(subghz_history_add_to_history(subghz->txrx->history, decoder_base, subghz->txrx->preset)) {
-        string_reset(str_buff);
+        furi_string_reset(str_buff);
 
         subghz->state_notifications = SubGhzNotificationStateRxDone;
 
@@ -83,19 +83,19 @@ static void subghz_scene_add_to_history_callback(
             subghz->txrx->history, str_buff, subghz_history_get_item(subghz->txrx->history) - 1);
         subghz_view_receiver_add_item_to_menu(
             subghz->subghz_receiver,
-            string_get_cstr(str_buff),
+            furi_string_get_cstr(str_buff),
             subghz_history_get_type_protocol(
                 subghz->txrx->history, subghz_history_get_item(subghz->txrx->history) - 1));
 
         subghz_scene_receiver_update_statusbar(subghz);
     }
     subghz_receiver_reset(receiver);
-    string_clear(str_buff);
+    furi_string_free(str_buff);
 }
 
 bool subghz_scene_decode_raw_start(SubGhz* subghz) {
-    string_t file_name;
-    string_init(file_name);
+    FuriString* file_name;
+    file_name = furi_string_alloc();
     bool success = false;
     do {
         if(!flipper_format_rewind(subghz->txrx->fff_data)) {
@@ -112,10 +112,10 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
     } while(false);
 
     if(success) {
-        //FURI_LOG_I(TAG, "Listening at \033[0;33m%s\033[0m.", string_get_cstr(file_name));
+        //FURI_LOG_I(TAG, "Listening at \033[0;33m%s\033[0m.", furi_string_get_cstr(file_name));
 
         file_worker_encoder = subghz_file_encoder_worker_alloc();
-        if(subghz_file_encoder_worker_start(file_worker_encoder, string_get_cstr(file_name))) {
+        if(subghz_file_encoder_worker_start(file_worker_encoder, furi_string_get_cstr(file_name))) {
             //the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
         } else {
@@ -127,7 +127,7 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
         }
     }
 
-    string_clear(file_name);
+    furi_string_free(file_name);
     return success;
 }
 
@@ -150,13 +150,14 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
     }
 
     // Update progress info
-    string_t progress_str;
-    string_init(progress_str);
+    FuriString* progress_str;
+    progress_str = furi_string_alloc();
     subghz_file_encoder_worker_get_text_progress(file_worker_encoder, progress_str);
 
-    subghz_view_receiver_add_data_progress(subghz->subghz_receiver, string_get_cstr(progress_str));
+    subghz_view_receiver_add_data_progress(
+        subghz->subghz_receiver, furi_string_get_cstr(progress_str));
 
-    string_clear(progress_str);
+    furi_string_free(progress_str);
 
     return true; // More samples available
 }
@@ -164,8 +165,8 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
 void subghz_scene_decode_raw_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    string_t str_buff;
-    string_init(str_buff);
+    FuriString* str_buff;
+    str_buff = furi_string_alloc();
 
     subghz_view_receiver_set_lock(subghz->subghz_receiver, subghz->lock);
     subghz_view_receiver_set_mode(subghz->subghz_receiver, SubGhzViewReceiverModeFile);
@@ -193,14 +194,14 @@ void subghz_scene_decode_raw_on_enter(void* context) {
         //Load history to receiver
         subghz_view_receiver_exit(subghz->subghz_receiver);
         for(uint8_t i = 0; i < subghz_history_get_item(subghz->txrx->history); i++) {
-            string_reset(str_buff);
+            furi_string_reset(str_buff);
             subghz_history_get_text_item_menu(subghz->txrx->history, str_buff, i);
             subghz_view_receiver_add_item_to_menu(
                 subghz->subghz_receiver,
-                string_get_cstr(str_buff),
+                furi_string_get_cstr(str_buff),
                 subghz_history_get_type_protocol(subghz->txrx->history, i));
         }
-        string_clear(str_buff);
+        furi_string_free(str_buff);
         subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
     }
 
