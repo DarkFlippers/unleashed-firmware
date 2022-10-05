@@ -55,8 +55,8 @@ static void flipfrid_timer_callback(FuriMessageQueue* event_queue) {
 
 FlipFridState* flipfrid_alloc() {
     FlipFridState* flipfrid = malloc(sizeof(FlipFridState));
-    string_init(flipfrid->notification_msg);
-    string_init(flipfrid->attack_name);
+    flipfrid->notification_msg = furi_string_alloc();
+    flipfrid->attack_name = furi_string_alloc();
 
     flipfrid->previous_scene = NoneScene;
     flipfrid->current_scene = SceneEntryPoint;
@@ -95,8 +95,8 @@ void flipfrid_free(FlipFridState* flipfrid) {
     notification_message(flipfrid->notify, &sequence_blink_stop);
 
     // Strings
-    string_clear(flipfrid->notification_msg);
-    string_clear(flipfrid->attack_name);
+    furi_string_free(flipfrid->notification_msg);
+    furi_string_free(flipfrid->attack_name);
 
     free(flipfrid->data);
     free(flipfrid->payload);

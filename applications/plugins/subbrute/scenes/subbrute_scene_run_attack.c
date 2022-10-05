@@ -92,7 +92,7 @@ void subbrute_scene_run_attack_on_enter(void* context) {
                instance->worker,
                instance->device->frequency,
                instance->device->preset,
-               string_get_cstr(instance->device->protocol_name))) {
+               furi_string_get_cstr(instance->device->protocol_name))) {
             FURI_LOG_W(TAG, "Worker Continuous init failed!");
         }
     } else {
@@ -101,7 +101,7 @@ void subbrute_scene_run_attack_on_enter(void* context) {
                instance->worker,
                instance->device->frequency,
                instance->device->preset,
-               string_get_cstr(instance->device->protocol_name))) {
+               furi_string_get_cstr(instance->device->protocol_name))) {
             FURI_LOG_W(TAG, "Worker init failed!");
         }
 

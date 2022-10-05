@@ -35,7 +35,7 @@ void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance);
  */
 void subghz_file_encoder_worker_get_text_progress(
     SubGhzFileEncoderWorker* instance,
-    string_t output);
+    FuriString* output);
 
 /**
  * Getting the level and duration of the upload to be loaded into DMA.

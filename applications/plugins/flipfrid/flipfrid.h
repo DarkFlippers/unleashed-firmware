@@ -4,7 +4,6 @@
 #include <input/input.h>
 #include <gui/gui.h>
 #include <gui/modules/submenu.h>
-#include <m-string.h>
 #include <dialogs/dialogs.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
@@ -65,17 +64,17 @@ typedef struct {
     u_int8_t menu_index;
     u_int8_t menu_proto_index;
 
-    string_t data_str;
+    FuriString* data_str;
     uint8_t data[6];
     uint8_t payload[6];
     uint8_t attack_step;
     FlipFridAttacks attack;
     FlipFridProtos proto;
-    string_t attack_name;
-    string_t proto_name;
+    FuriString* attack_name;
+    FuriString* proto_name;
 
     DialogsApp* dialogs;
-    string_t notification_msg;
+    FuriString* notification_msg;
     uint8_t key_index;
     LFRFIDWorker* worker;
     ProtocolDict* dict;

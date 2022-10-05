@@ -19,6 +19,8 @@ SubGhzEnvironment* subghz_environment_alloc() {
 void subghz_environment_free(SubGhzEnvironment* instance) {
     furi_assert(instance);
 
+    instance->came_atomo_rainbow_table_file_name = NULL;
+    instance->nice_flor_s_rainbow_table_file_name = NULL;
     subghz_keystore_free(instance->keystore);
 
     free(instance);

@@ -950,9 +950,9 @@ static bool nfc_device_save_mifare_classic_keys(NfcDevice* dev) {
             }
             if(!key_save_success) break;
             if(FURI_BIT(data->key_b_mask, i)) {
-                string_printf(temp_str, "Key B sector %d", i);
-                key_save_success =
-                    flipper_format_write_hex(file, string_get_cstr(temp_str), sec_tr->key_b, 6);
+                furi_string_printf(temp_str, "Key B sector %d", i);
+                key_save_success = flipper_format_write_hex(
+                    file, furi_string_get_cstr(temp_str), sec_tr->key_b, 6);
             }
         }
         save_success = key_save_success;

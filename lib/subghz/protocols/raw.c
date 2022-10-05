@@ -254,7 +254,7 @@ void* subghz_protocol_decoder_raw_alloc(SubGhzEnvironment* environment) {
     instance->file_is_open = RAWFileIsOpenClose;
     instance->postroll_frames = 0;
     instance->rssi_threshold = SUBGHZ_AUTO_DETECT_RAW_THRESHOLD;
-    string_init(instance->file_name);
+    instance->file_name = furi_string_alloc();
 
     return instance;
 }
@@ -262,7 +262,7 @@ void* subghz_protocol_decoder_raw_alloc(SubGhzEnvironment* environment) {
 void subghz_protocol_decoder_raw_free(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderRAW* instance = context;
-    string_clear(instance->file_name);
+    furi_string_free(instance->file_name);
     if(instance->upload_raw != NULL) {
         free(instance->upload_raw);
         instance->upload_raw = NULL;
@@ -352,12 +352,12 @@ uint8_t subghz_protocol_decoder_raw_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-void subghz_protocol_decoder_raw_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_raw_get_string(void* context, FuriString* output) {
     furi_assert(context);
     //SubGhzProtocolDecoderRAW* instance = context;
     UNUSED(context);
     //ToDo no use
-    string_cat_printf(output, "RAW Data");
+    furi_string_cat_printf(output, "RAW Data");
 }
 
 void* subghz_protocol_encoder_raw_alloc(SubGhzEnvironment* environment) {
@@ -443,8 +443,8 @@ bool subghz_protocol_decoder_raw_serialize(
     if(instance->auto_mode) {
         furi_assert(instance);
         bool res = false;
-        string_t temp_str;
-        string_init(temp_str);
+        FuriString* temp_str;
+        temp_str = furi_string_alloc();
 
         do {
             stream_clean(flipper_format_get_raw_stream(flipper_format));
@@ -458,13 +458,13 @@ bool subghz_protocol_decoder_raw_serialize(
                 FURI_LOG_E(TAG, "Unable to add Frequency");
                 break;
             }
-            subghz_block_generic_get_preset_name(string_get_cstr(preset->name), temp_str);
+            subghz_block_generic_get_preset_name(furi_string_get_cstr(preset->name), temp_str);
             if(!flipper_format_write_string_cstr(
-                   flipper_format, "Preset", string_get_cstr(temp_str))) {
+                   flipper_format, "Preset", furi_string_get_cstr(temp_str))) {
                 FURI_LOG_E(TAG, "Unable to add Preset");
                 break;
             }
-            if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+            if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
                 if(!flipper_format_write_string_cstr(
                        flipper_format, "Custom_preset_module", "CC1101")) {
                     FURI_LOG_E(TAG, "Unable to add Custom_preset_module");
@@ -491,7 +491,7 @@ bool subghz_protocol_decoder_raw_serialize(
             }
             res = true;
         } while(false);
-        string_clear(temp_str);
+        furi_string_free(temp_str);
         return res;
     } else {
         return false;

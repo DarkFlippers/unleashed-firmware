@@ -52,10 +52,10 @@ struct SubGhzViewReceiver {
 };
 
 typedef struct {
-    string_t frequency_str;
-    string_t preset_str;
-    string_t history_stat_str;
-    string_t progress_str;
+    FuriString* frequency_str;
+    FuriString* preset_str;
+    FuriString* history_stat_str;
+    FuriString* progress_str;
     SubGhzReceiverHistory* history;
     uint16_t idx;
     uint16_t list_offset;
@@ -168,7 +168,7 @@ void subghz_view_receiver_add_data_progress(
     furi_assert(subghz_receiver);
     with_view_model(
         subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            string_set_str(model->progress_str, progress_str);
+            furi_string_set(model->progress_str, progress_str);
             return true;
         });
 }
@@ -196,7 +196,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         elements_button_left(canvas, "Config");
         canvas_draw_line(canvas, 46, 51, 125, 51);
     } else {
-        canvas_draw_str(canvas, 3, 62, string_get_cstr(model->progress_str));
+        canvas_draw_str(canvas, 3, 62, furi_string_get_cstr(model->progress_str));
     }
 
     bool scrollbar = model->history_item > 4;
@@ -365,9 +365,9 @@ void subghz_view_receiver_exit(void* context) {
     SubGhzViewReceiver* subghz_receiver = context;
     with_view_model(
         subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            string_reset(model->frequency_str);
-            string_reset(model->preset_str);
-            string_reset(model->history_stat_str);
+            furi_string_reset(model->frequency_str);
+            furi_string_reset(model->preset_str);
+            furi_string_reset(model->history_stat_str);
 
                 for
                     M_EACH(item_menu, model->history->data, SubGhzReceiverMenuItemArray_t) {
@@ -401,10 +401,10 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
 
     with_view_model(
         subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            string_init(model->frequency_str);
-            string_init(model->preset_str);
-            string_init(model->history_stat_str);
-            string_init(model->progress_str);
+            model->frequency_str = furi_string_alloc();
+            model->preset_str = furi_string_alloc();
+            model->history_stat_str = furi_string_alloc();
+            model->progress_str = furi_string_alloc();
             model->bar_show = SubGhzViewReceiverBarShowDefault;
             model->history = malloc(sizeof(SubGhzReceiverHistory));
             SubGhzReceiverMenuItemArray_init(model->history->data);
@@ -420,10 +420,10 @@ void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver) {
 
     with_view_model(
         subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            string_clear(model->frequency_str);
-            string_clear(model->preset_str);
-            string_clear(model->history_stat_str);
-            string_clear(model->progress_str);
+            furi_string_free(model->frequency_str);
+            furi_string_free(model->preset_str);
+            furi_string_free(model->history_stat_str);
+            furi_string_free(model->progress_str);
                 for
                     M_EACH(item_menu, model->history->data, SubGhzReceiverMenuItemArray_t) {
                         furi_string_free(item_menu->item_str);

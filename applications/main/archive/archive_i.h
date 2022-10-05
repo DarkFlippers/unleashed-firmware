@@ -36,7 +36,7 @@ struct ArchiveApp {
     Loading* loading;
     FuriPubSubSubscription* loader_stop_subscription;
 
-    string_t fav_move_str;
+    FuriString* fav_move_str;
     char text_store[MAX_NAME_LEN];
     char file_extension[MAX_EXT_LEN + 1];
 };

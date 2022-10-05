@@ -1848,8 +1848,8 @@ Function,-,protocol_dict_get_name,const char*,"ProtocolDict*, size_t"
 Function,+,protocol_dict_get_protocol_by_name,ProtocolId,"ProtocolDict*, const char*"
 Function,-,protocol_dict_get_validate_count,uint32_t,"ProtocolDict*, size_t"
 Function,-,protocol_dict_get_write_data,_Bool,"ProtocolDict*, size_t, void*"
-Function,-,protocol_dict_render_brief_data,void,"ProtocolDict*, string_t, size_t"
-Function,-,protocol_dict_render_data,void,"ProtocolDict*, string_t, size_t"
+Function,+,protocol_dict_render_brief_data,void,"ProtocolDict*, FuriString*, size_t"
+Function,+,protocol_dict_render_data,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_set_data,void,"ProtocolDict*, size_t, const uint8_t*, size_t"
 Function,-,pselect,int,"int, fd_set*, fd_set*, fd_set*, const timespec*, const sigset_t*"
 Function,-,putc,int,"int, FILE*"
@@ -2304,7 +2304,7 @@ Function,-,subghz_protocol_decoder_bett_deserialize,_Bool,"void*, FlipperFormat*
 Function,-,subghz_protocol_decoder_bett_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_bett_free,void,void*
 Function,-,subghz_protocol_decoder_bett_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_bett_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_bett_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_bett_reset,void,void*
 Function,-,subghz_protocol_decoder_bett_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_came_alloc,void*,SubGhzEnvironment*
@@ -2313,14 +2313,14 @@ Function,-,subghz_protocol_decoder_came_atomo_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_came_atomo_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_came_atomo_free,void,void*
 Function,-,subghz_protocol_decoder_came_atomo_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_came_atomo_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_came_atomo_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_came_atomo_reset,void,void*
 Function,-,subghz_protocol_decoder_came_atomo_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_came_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_came_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_came_free,void,void*
 Function,-,subghz_protocol_decoder_came_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_came_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_came_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_came_reset,void,void*
 Function,-,subghz_protocol_decoder_came_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_came_twee_alloc,void*,SubGhzEnvironment*
@@ -2328,7 +2328,7 @@ Function,-,subghz_protocol_decoder_came_twee_deserialize,_Bool,"void*, FlipperFo
 Function,-,subghz_protocol_decoder_came_twee_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_came_twee_free,void,void*
 Function,-,subghz_protocol_decoder_came_twee_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_came_twee_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_came_twee_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_came_twee_reset,void,void*
 Function,-,subghz_protocol_decoder_came_twee_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_chamb_code_alloc,void*,SubGhzEnvironment*
@@ -2336,7 +2336,7 @@ Function,-,subghz_protocol_decoder_chamb_code_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_chamb_code_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_chamb_code_free,void,void*
 Function,-,subghz_protocol_decoder_chamb_code_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_chamb_code_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_chamb_code_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_chamb_code_reset,void,void*
 Function,-,subghz_protocol_decoder_chamb_code_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_clemsa_alloc,void*,SubGhzEnvironment*
@@ -2344,7 +2344,7 @@ Function,-,subghz_protocol_decoder_clemsa_deserialize,_Bool,"void*, FlipperForma
 Function,-,subghz_protocol_decoder_clemsa_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_clemsa_free,void,void*
 Function,-,subghz_protocol_decoder_clemsa_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_clemsa_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_clemsa_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_clemsa_reset,void,void*
 Function,-,subghz_protocol_decoder_clemsa_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_doitrand_alloc,void*,SubGhzEnvironment*
@@ -2352,7 +2352,7 @@ Function,-,subghz_protocol_decoder_doitrand_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_decoder_doitrand_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_doitrand_free,void,void*
 Function,-,subghz_protocol_decoder_doitrand_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_doitrand_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_doitrand_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_doitrand_reset,void,void*
 Function,-,subghz_protocol_decoder_doitrand_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_faac_slh_alloc,void*,SubGhzEnvironment*
@@ -2360,7 +2360,7 @@ Function,-,subghz_protocol_decoder_faac_slh_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_decoder_faac_slh_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_faac_slh_free,void,void*
 Function,-,subghz_protocol_decoder_faac_slh_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_faac_slh_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_faac_slh_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_faac_slh_reset,void,void*
 Function,-,subghz_protocol_decoder_faac_slh_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_gate_tx_alloc,void*,SubGhzEnvironment*
@@ -2368,7 +2368,7 @@ Function,-,subghz_protocol_decoder_gate_tx_deserialize,_Bool,"void*, FlipperForm
 Function,-,subghz_protocol_decoder_gate_tx_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_gate_tx_free,void,void*
 Function,-,subghz_protocol_decoder_gate_tx_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_gate_tx_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_gate_tx_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_gate_tx_reset,void,void*
 Function,-,subghz_protocol_decoder_gate_tx_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_holtek_alloc,void*,SubGhzEnvironment*
@@ -2376,7 +2376,7 @@ Function,-,subghz_protocol_decoder_holtek_deserialize,_Bool,"void*, FlipperForma
 Function,-,subghz_protocol_decoder_holtek_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_holtek_free,void,void*
 Function,-,subghz_protocol_decoder_holtek_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_holtek_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_holtek_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_holtek_reset,void,void*
 Function,-,subghz_protocol_decoder_holtek_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_alloc,void*,SubGhzEnvironment*
@@ -2384,7 +2384,7 @@ Function,-,subghz_protocol_decoder_honeywell_wdb_deserialize,_Bool,"void*, Flipp
 Function,-,subghz_protocol_decoder_honeywell_wdb_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_honeywell_wdb_free,void,void*
 Function,-,subghz_protocol_decoder_honeywell_wdb_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_honeywell_wdb_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_honeywell_wdb_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_reset,void,void*
 Function,-,subghz_protocol_decoder_honeywell_wdb_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_hormann_alloc,void*,SubGhzEnvironment*
@@ -2392,7 +2392,7 @@ Function,-,subghz_protocol_decoder_hormann_deserialize,_Bool,"void*, FlipperForm
 Function,-,subghz_protocol_decoder_hormann_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_hormann_free,void,void*
 Function,-,subghz_protocol_decoder_hormann_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_hormann_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_hormann_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_hormann_reset,void,void*
 Function,-,subghz_protocol_decoder_hormann_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_ido_alloc,void*,SubGhzEnvironment*
@@ -2400,7 +2400,7 @@ Function,-,subghz_protocol_decoder_ido_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_ido_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_ido_free,void,void*
 Function,-,subghz_protocol_decoder_ido_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_ido_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_ido_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_ido_reset,void,void*
 Function,-,subghz_protocol_decoder_ido_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_intertechno_v3_alloc,void*,SubGhzEnvironment*
@@ -2408,7 +2408,7 @@ Function,-,subghz_protocol_decoder_intertechno_v3_deserialize,_Bool,"void*, Flip
 Function,-,subghz_protocol_decoder_intertechno_v3_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_intertechno_v3_free,void,void*
 Function,-,subghz_protocol_decoder_intertechno_v3_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_intertechno_v3_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_intertechno_v3_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_intertechno_v3_reset,void,void*
 Function,-,subghz_protocol_decoder_intertechno_v3_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_keeloq_alloc,void*,SubGhzEnvironment*
@@ -2416,7 +2416,7 @@ Function,-,subghz_protocol_decoder_keeloq_deserialize,_Bool,"void*, FlipperForma
 Function,-,subghz_protocol_decoder_keeloq_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_keeloq_free,void,void*
 Function,-,subghz_protocol_decoder_keeloq_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_keeloq_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_keeloq_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_keeloq_reset,void,void*
 Function,-,subghz_protocol_decoder_keeloq_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_kia_alloc,void*,SubGhzEnvironment*
@@ -2424,7 +2424,7 @@ Function,-,subghz_protocol_decoder_kia_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_kia_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_kia_free,void,void*
 Function,-,subghz_protocol_decoder_kia_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_kia_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_kia_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_kia_reset,void,void*
 Function,-,subghz_protocol_decoder_kia_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_linear_alloc,void*,SubGhzEnvironment*
@@ -2432,7 +2432,7 @@ Function,-,subghz_protocol_decoder_linear_deserialize,_Bool,"void*, FlipperForma
 Function,-,subghz_protocol_decoder_linear_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_linear_free,void,void*
 Function,-,subghz_protocol_decoder_linear_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_linear_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_linear_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_linear_reset,void,void*
 Function,-,subghz_protocol_decoder_linear_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_magellen_alloc,void*,SubGhzEnvironment*
@@ -2440,7 +2440,7 @@ Function,-,subghz_protocol_decoder_magellen_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_decoder_magellen_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_magellen_free,void,void*
 Function,-,subghz_protocol_decoder_magellen_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_magellen_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_magellen_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_magellen_reset,void,void*
 Function,-,subghz_protocol_decoder_magellen_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_marantec_alloc,void*,SubGhzEnvironment*
@@ -2448,7 +2448,7 @@ Function,-,subghz_protocol_decoder_marantec_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_decoder_marantec_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_marantec_free,void,void*
 Function,-,subghz_protocol_decoder_marantec_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_marantec_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_marantec_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_marantec_reset,void,void*
 Function,-,subghz_protocol_decoder_marantec_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_megacode_alloc,void*,SubGhzEnvironment*
@@ -2456,7 +2456,7 @@ Function,-,subghz_protocol_decoder_megacode_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_decoder_megacode_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_megacode_free,void,void*
 Function,-,subghz_protocol_decoder_megacode_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_megacode_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_megacode_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_megacode_reset,void,void*
 Function,-,subghz_protocol_decoder_megacode_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_nero_radio_alloc,void*,SubGhzEnvironment*
@@ -2464,7 +2464,7 @@ Function,-,subghz_protocol_decoder_nero_radio_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_nero_radio_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_nero_radio_free,void,void*
 Function,-,subghz_protocol_decoder_nero_radio_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_nero_radio_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_nero_radio_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nero_radio_reset,void,void*
 Function,-,subghz_protocol_decoder_nero_radio_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_nero_sketch_alloc,void*,SubGhzEnvironment*
@@ -2472,7 +2472,7 @@ Function,-,subghz_protocol_decoder_nero_sketch_deserialize,_Bool,"void*, Flipper
 Function,-,subghz_protocol_decoder_nero_sketch_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_nero_sketch_free,void,void*
 Function,-,subghz_protocol_decoder_nero_sketch_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_nero_sketch_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_nero_sketch_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nero_sketch_reset,void,void*
 Function,-,subghz_protocol_decoder_nero_sketch_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_nice_flo_alloc,void*,SubGhzEnvironment*
@@ -2480,7 +2480,7 @@ Function,-,subghz_protocol_decoder_nice_flo_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_decoder_nice_flo_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_nice_flo_free,void,void*
 Function,-,subghz_protocol_decoder_nice_flo_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_nice_flo_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_nice_flo_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nice_flo_reset,void,void*
 Function,-,subghz_protocol_decoder_nice_flo_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_nice_flor_s_alloc,void*,SubGhzEnvironment*
@@ -2488,7 +2488,7 @@ Function,-,subghz_protocol_decoder_nice_flor_s_deserialize,_Bool,"void*, Flipper
 Function,-,subghz_protocol_decoder_nice_flor_s_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_nice_flor_s_free,void,void*
 Function,-,subghz_protocol_decoder_nice_flor_s_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_nice_flor_s_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_nice_flor_s_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nice_flor_s_reset,void,void*
 Function,-,subghz_protocol_decoder_nice_flor_s_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_phoenix_v2_alloc,void*,SubGhzEnvironment*
@@ -2496,7 +2496,7 @@ Function,-,subghz_protocol_decoder_phoenix_v2_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_phoenix_v2_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_phoenix_v2_free,void,void*
 Function,-,subghz_protocol_decoder_phoenix_v2_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_phoenix_v2_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_phoenix_v2_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_phoenix_v2_reset,void,void*
 Function,-,subghz_protocol_decoder_phoenix_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_power_smart_alloc,void*,SubGhzEnvironment*
@@ -2504,7 +2504,7 @@ Function,-,subghz_protocol_decoder_power_smart_deserialize,_Bool,"void*, Flipper
 Function,-,subghz_protocol_decoder_power_smart_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_power_smart_free,void,void*
 Function,-,subghz_protocol_decoder_power_smart_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_power_smart_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_power_smart_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_power_smart_reset,void,void*
 Function,-,subghz_protocol_decoder_power_smart_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_princeton_alloc,void*,SubGhzEnvironment*
@@ -2512,7 +2512,7 @@ Function,-,subghz_protocol_decoder_princeton_deserialize,_Bool,"void*, FlipperFo
 Function,-,subghz_protocol_decoder_princeton_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_princeton_free,void,void*
 Function,-,subghz_protocol_decoder_princeton_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_princeton_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_princeton_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_princeton_reset,void,void*
 Function,-,subghz_protocol_decoder_princeton_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
@@ -2520,7 +2520,7 @@ Function,-,subghz_protocol_decoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_raw_free,void,void*
 Function,-,subghz_protocol_decoder_raw_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_raw_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_raw_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_raw_reset,void,void*
 Function,-,subghz_protocol_decoder_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_raw_set_auto_mode,void,"void*, _Bool"
@@ -2531,7 +2531,7 @@ Function,-,subghz_protocol_decoder_scher_khan_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_scher_khan_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_scher_khan_free,void,void*
 Function,-,subghz_protocol_decoder_scher_khan_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_scher_khan_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_scher_khan_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_scher_khan_reset,void,void*
 Function,-,subghz_protocol_decoder_scher_khan_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_secplus_v1_alloc,void*,SubGhzEnvironment*
@@ -2539,7 +2539,7 @@ Function,-,subghz_protocol_decoder_secplus_v1_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_secplus_v1_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_secplus_v1_free,void,void*
 Function,-,subghz_protocol_decoder_secplus_v1_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_secplus_v1_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_secplus_v1_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_secplus_v1_reset,void,void*
 Function,-,subghz_protocol_decoder_secplus_v1_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_secplus_v2_alloc,void*,SubGhzEnvironment*
@@ -2547,7 +2547,7 @@ Function,-,subghz_protocol_decoder_secplus_v2_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_decoder_secplus_v2_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_secplus_v2_free,void,void*
 Function,-,subghz_protocol_decoder_secplus_v2_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_secplus_v2_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_secplus_v2_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_secplus_v2_reset,void,void*
 Function,-,subghz_protocol_decoder_secplus_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_somfy_keytis_alloc,void*,SubGhzEnvironment*
@@ -2555,7 +2555,7 @@ Function,-,subghz_protocol_decoder_somfy_keytis_deserialize,_Bool,"void*, Flippe
 Function,-,subghz_protocol_decoder_somfy_keytis_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_somfy_keytis_free,void,void*
 Function,-,subghz_protocol_decoder_somfy_keytis_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_somfy_keytis_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_somfy_keytis_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_somfy_keytis_reset,void,void*
 Function,-,subghz_protocol_decoder_somfy_keytis_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_somfy_telis_alloc,void*,SubGhzEnvironment*
@@ -2563,7 +2563,7 @@ Function,-,subghz_protocol_decoder_somfy_telis_deserialize,_Bool,"void*, Flipper
 Function,-,subghz_protocol_decoder_somfy_telis_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_somfy_telis_free,void,void*
 Function,-,subghz_protocol_decoder_somfy_telis_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_somfy_telis_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_somfy_telis_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_somfy_telis_reset,void,void*
 Function,-,subghz_protocol_decoder_somfy_telis_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_decoder_star_line_alloc,void*,SubGhzEnvironment*
@@ -2571,7 +2571,7 @@ Function,-,subghz_protocol_decoder_star_line_deserialize,_Bool,"void*, FlipperFo
 Function,-,subghz_protocol_decoder_star_line_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_star_line_free,void,void*
 Function,-,subghz_protocol_decoder_star_line_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_star_line_get_string,void,"void*, string_t"
+Function,-,subghz_protocol_decoder_star_line_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_star_line_reset,void,void*
 Function,-,subghz_protocol_decoder_star_line_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
 Function,-,subghz_protocol_encoder_bett_alloc,void*,SubGhzEnvironment*

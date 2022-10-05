@@ -23,7 +23,7 @@ struct SubBruteWorker {
     // Preset and frequency needed
     FuriHalSubGhzPreset preset;
     uint32_t frequency;
-    string_t protocol_name;
+    FuriString* protocol_name;
 
     //SubBruteWorkerCallback callback;
     //void* context;
@@ -47,7 +47,7 @@ SubBruteWorker* subbrute_worker_alloc() {
     instance->transmitter = NULL;
 
     instance->flipper_format = flipper_format_string_alloc();
-    string_init(instance->protocol_name);
+    instance->protocol_name = furi_string_alloc();
 
     // SubGhzTxRxWorker
     instance->subghz_txrx = subghz_tx_rx_worker_alloc();
@@ -71,7 +71,7 @@ void subbrute_worker_free(SubBruteWorker* instance) {
 
     flipper_format_free(instance->flipper_format);
 
-    string_clear(instance->protocol_name);
+    furi_string_free(instance->protocol_name);
 
     // SubGhzTxRxWorker
     subghz_tx_rx_worker_free(instance->subghz_txrx);
@@ -94,8 +94,8 @@ bool subbrute_worker_start(
     instance->frequency = frequency;
     instance->preset = preset;
 
-    string_clear(instance->protocol_name);
-    string_init_printf(instance->protocol_name, "%s", protocol_name);
+    furi_string_free(instance->protocol_name);
+    instance->protocol_name = furi_string_alloc_printf("%s", protocol_name);
 
     bool res = false;
 
@@ -235,8 +235,8 @@ bool subbrute_worker_init_manual_transmit(
     instance->preset = preset;
     instance->frequency = frequency;
 
-    string_clear(instance->protocol_name);
-    string_init_printf(instance->protocol_name, "%s", protocol_name);
+    furi_string_free(instance->protocol_name);
+    instance->protocol_name = furi_string_alloc_printf("%s", protocol_name);
 
     furi_hal_subghz_reset();
     furi_hal_subghz_idle();
@@ -258,7 +258,7 @@ bool subbrute_worker_init_manual_transmit(
 #endif
 
     instance->transmitter = subghz_transmitter_alloc_init(
-        instance->environment, string_get_cstr(instance->protocol_name));
+        instance->environment, furi_string_get_cstr(instance->protocol_name));
 
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(instance->preset);
@@ -320,7 +320,7 @@ bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* paylo
     stream_write_cstring(stream, payload);
 
     instance->transmitter = subghz_transmitter_alloc_init(
-        instance->environment, string_get_cstr(instance->protocol_name));
+        instance->environment, furi_string_get_cstr(instance->protocol_name));
     subghz_transmitter_deserialize(instance->transmitter, instance->flipper_format);
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(instance->preset);

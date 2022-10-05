@@ -16,10 +16,10 @@ void subbrute_scene_load_file_on_enter(void* context) {
     SubBruteState* instance = (SubBruteState*)context;
 
     // Input events and views are managed by file_browser
-    string_t app_folder;
-    string_t load_path;
-    string_init(load_path);
-    string_init_set_str(app_folder, SUBBRUTE_PATH);
+    FuriString* app_folder;
+    FuriString* load_path;
+    load_path = furi_string_alloc();
+    app_folder = furi_string_alloc_set(SUBBRUTE_PATH);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, SUBBRUTE_FILE_EXT, &I_sub1_10px);
@@ -31,8 +31,8 @@ void subbrute_scene_load_file_on_enter(void* context) {
     FURI_LOG_D(
         TAG,
         "load_path: %s, app_folder: %s",
-        string_get_cstr(load_path),
-        string_get_cstr(app_folder));
+        furi_string_get_cstr(load_path),
+        furi_string_get_cstr(app_folder));
 #endif
     if(res) {
         load_result = subbrute_device_load_from_file(instance->device, load_path);
@@ -51,12 +51,12 @@ void subbrute_scene_load_file_on_enter(void* context) {
         } else {
             FURI_LOG_E(TAG, "Returned error: %d", load_result);
 
-            string_t dialog_msg;
-            string_init(dialog_msg);
-            string_cat_printf(
+            FuriString* dialog_msg;
+            dialog_msg = furi_string_alloc();
+            furi_string_cat_printf(
                 dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
-            dialog_message_show_storage_error(instance->dialogs, string_get_cstr(dialog_msg));
-            string_clear(dialog_msg);
+            dialog_message_show_storage_error(instance->dialogs, furi_string_get_cstr(dialog_msg));
+            furi_string_free(dialog_msg);
             scene_manager_search_and_switch_to_previous_scene(
                 instance->scene_manager, SubBruteSceneStart);
         }
@@ -65,8 +65,8 @@ void subbrute_scene_load_file_on_enter(void* context) {
             instance->scene_manager, SubBruteSceneStart);
     }
 
-    string_clear(app_folder);
-    string_clear(load_path);
+    furi_string_free(app_folder);
+    furi_string_free(load_path);
 }
 
 void subbrute_scene_load_file_on_exit(void* context) {

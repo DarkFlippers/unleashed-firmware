@@ -103,7 +103,7 @@ struct SubGhz {
     SubGhzTestStatic* subghz_test_static;
     SubGhzTestPacket* subghz_test_packet;
 #endif
-    string_t error_str;
+    FuriString* error_str;
     SubGhzSetting* setting;
     SubGhzLastSettings* last_settings;
     SubGhzLock lock;

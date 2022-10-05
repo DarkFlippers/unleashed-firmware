@@ -5,10 +5,9 @@
 /**
  * @brief Generate filename like 000.tmp
  *
- * @param filename - input parameter
  * @param index - index of file, timestamp doesn't accepted!
  */
-void subghz_history_generate_temp_filename(string_t filename, uint32_t index);
+FuriString* subghz_history_generate_temp_filename(uint32_t index);
 
 /**
  * @brief Check if directory for temporary files is exists
@@ -62,7 +61,7 @@ void subghz_history_clean_item_array(SubGhzHistory* instance);
 void subghz_history_tmp_write_file_full(
     SubGhzHistory* instance,
     void* current_item,
-    string_t dir_path);
+    FuriString* dir_path);
 
 /**
  * @brief Write temp splited to lines
@@ -76,4 +75,4 @@ void subghz_history_tmp_write_file_full(
 bool subghz_history_tmp_write_file_split(
     SubGhzHistory* instance,
     void* current_item,
-    string_t dir_path);
+    FuriString* dir_path);

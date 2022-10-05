@@ -8,61 +8,61 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
     bool result = false;
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     do {
         if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
             FURI_LOG_E(TAG, "Error open file %s", file_path);
-            string_reset(context->notification_msg);
-            string_set_str(context->notification_msg, "Error open file");
+            furi_string_reset(context->notification_msg);
+            furi_string_set(context->notification_msg, "Error open file");
             break;
         }
 
         // FileType
         if(!flipper_format_read_string(fff_data_file, "Filetype", temp_str)) {
             FURI_LOG_E(TAG, "Missing or incorrect Filetype");
-            string_reset(context->notification_msg);
-            string_set_str(context->notification_msg, "Missing or incorrect Filetypes");
+            furi_string_reset(context->notification_msg);
+            furi_string_set(context->notification_msg, "Missing or incorrect Filetypes");
             break;
         } else {
-            FURI_LOG_I(TAG, "Filetype: %s", string_get_cstr(temp_str));
+            FURI_LOG_I(TAG, "Filetype: %s", furi_string_get_cstr(temp_str));
         }
 
         // Key type
         if(!flipper_format_read_string(fff_data_file, "Key type", temp_str)) {
             FURI_LOG_E(TAG, "Missing or incorrect Key type");
-            string_reset(context->notification_msg);
-            string_set_str(context->notification_msg, "Missing or incorrect Key type");
+            furi_string_reset(context->notification_msg);
+            furi_string_set(context->notification_msg, "Missing or incorrect Key type");
             break;
         } else {
-            FURI_LOG_I(TAG, "Key type: %s", string_get_cstr(temp_str));
+            FURI_LOG_I(TAG, "Key type: %s", furi_string_get_cstr(temp_str));
 
             if(context->proto == EM4100) {
-                if(strcmp(string_get_cstr(temp_str), "EM4100") != 0) {
+                if(strcmp(furi_string_get_cstr(temp_str), "EM4100") != 0) {
                     FURI_LOG_E(TAG, "Unsupported Key type");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
                     break;
                 }
             } else if(context->proto == PAC) {
-                if(strcmp(string_get_cstr(temp_str), "PAC/Stanley") != 0) {
+                if(strcmp(furi_string_get_cstr(temp_str), "PAC/Stanley") != 0) {
                     FURI_LOG_E(TAG, "Unsupported Key type");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
                     break;
                 }
             } else if(context->proto == H10301) {
-                if(strcmp(string_get_cstr(temp_str), "H10301") != 0) {
+                if(strcmp(furi_string_get_cstr(temp_str), "H10301") != 0) {
                     FURI_LOG_E(TAG, "Unsupported Key type");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
                     break;
                 }
             } else {
-                if(strcmp(string_get_cstr(temp_str), "HIDProx") != 0) {
+                if(strcmp(furi_string_get_cstr(temp_str), "HIDProx") != 0) {
                     FURI_LOG_E(TAG, "Unsupported Key type");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
                     break;
                 }
             }
@@ -71,38 +71,38 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
         // Data
         if(!flipper_format_read_string(fff_data_file, "Data", context->data_str)) {
             FURI_LOG_E(TAG, "Missing or incorrect Data");
-            string_reset(context->notification_msg);
-            string_set_str(context->notification_msg, "Missing or incorrect Key");
+            furi_string_reset(context->notification_msg);
+            furi_string_set(context->notification_msg, "Missing or incorrect Key");
             break;
         } else {
-            FURI_LOG_I(TAG, "Key: %s", string_get_cstr(context->data_str));
+            FURI_LOG_I(TAG, "Key: %s", furi_string_get_cstr(context->data_str));
 
             if(context->proto == EM4100) {
-                if(string_size(context->data_str) != 14) {
+                if(furi_string_size(context->data_str) != 14) {
                     FURI_LOG_E(TAG, "Incorrect Key length");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Incorrect Key length");
                     break;
                 }
             } else if(context->proto == PAC) {
-                if(string_size(context->data_str) != 11) {
+                if(furi_string_size(context->data_str) != 11) {
                     FURI_LOG_E(TAG, "Incorrect Key length");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Incorrect Key length");
                     break;
                 }
             } else if(context->proto == H10301) {
-                if(string_size(context->data_str) != 8) {
+                if(furi_string_size(context->data_str) != 8) {
                     FURI_LOG_E(TAG, "Incorrect Key length");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Incorrect Key length");
                     break;
                 }
             } else {
-                if(string_size(context->data_str) != 17) {
+                if(furi_string_size(context->data_str) != 17) {
                     FURI_LOG_E(TAG, "Incorrect Key length");
-                    string_reset(context->notification_msg);
-                    string_set_str(context->notification_msg, "Incorrect Key length");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Incorrect Key length");
                     break;
                 }
             }
@@ -110,8 +110,8 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
             // String to uint8_t
             for(uint8_t i = 0; i < 6; i++) {
                 char temp_str2[3];
-                temp_str2[0] = string_get_cstr(context->data_str)[i * 3];
-                temp_str2[1] = string_get_cstr(context->data_str)[i * 3 + 1];
+                temp_str2[0] = furi_string_get_cstr(context->data_str)[i * 3];
+                temp_str2[1] = furi_string_get_cstr(context->data_str)[i * 3 + 1];
                 temp_str2[2] = '\0';
                 context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
             }
@@ -119,12 +119,12 @@ bool flipfrid_load(FlipFridState* context, const char* file_path) {
 
         result = true;
     } while(0);
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     flipper_format_free(fff_data_file);
     if(result) {
         FURI_LOG_I(TAG, "Loaded successfully");
-        string_reset(context->notification_msg);
-        string_set_str(context->notification_msg, "Source loaded.");
+        furi_string_reset(context->notification_msg);
+        furi_string_set(context->notification_msg, "Source loaded.");
     }
     return result;
 }
@@ -169,9 +169,9 @@ void flipfrid_scene_load_file_on_draw(Canvas* canvas, FlipFridState* context) {
 }
 
 bool flipfrid_load_protocol_from_file(FlipFridState* context) {
-    string_t user_file_path;
-    string_init(user_file_path);
-    string_set_str(user_file_path, LFRFID_APP_PATH_FOLDER);
+    FuriString* user_file_path;
+    user_file_path = furi_string_alloc();
+    furi_string_set(user_file_path, LFRFID_APP_PATH_FOLDER);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, LFRFID_APP_EXTENSION, &I_125_10px);
@@ -181,10 +181,10 @@ bool flipfrid_load_protocol_from_file(FlipFridState* context) {
         context->dialogs, user_file_path, user_file_path, &browser_options);
 
     if(res) {
-        res = flipfrid_load(context, string_get_cstr(user_file_path));
+        res = flipfrid_load(context, furi_string_get_cstr(user_file_path));
     }
 
-    string_clear(user_file_path);
+    furi_string_free(user_file_path);
 
     return res;
 }

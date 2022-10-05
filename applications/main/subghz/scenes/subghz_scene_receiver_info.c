@@ -160,7 +160,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                     subghz_begin(
                         subghz,
                         subghz_setting_get_preset_data_by_name(
-                            subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
+                            subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
                     subghz_rx(subghz, subghz->txrx->preset->frequency);
                 }
                 if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {

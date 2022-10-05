@@ -91,9 +91,9 @@ void mfkey32_set_callback(Mfkey32* instance, Mfkey32ParseDataCallback callback, 
 }
 
 static bool mfkey32_write_params(Mfkey32* instance, Mfkey32Params* params) {
-    string_t str;
-    string_init_printf(
-        str,
+    FuriString* str;
+
+    str = furi_string_alloc_printf(
         "Sec %d key %c cuid %08x nt0 %08x nr0 %08x ar0 %08x nt1 %08x nr1 %08x ar1 %08x\n",
         params->sector,
         params->key == MfClassicKeyA ? 'A' : 'B',

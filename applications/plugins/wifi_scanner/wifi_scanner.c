@@ -6,7 +6,6 @@
 #include <gui/canvas_i.h>
 #include <gui/gui.h>
 #include <input/input.h>
-#include <m-string.h>
 #include <math.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
@@ -59,10 +58,10 @@ typedef struct SPluginEvent {
 } SPluginEvent;
 
 typedef struct EAccessPointDesc {
-    string_t m_accessPointName;
+    FuriString* m_accessPointName;
     int16_t m_rssi;
-    string_t m_secType;
-    string_t m_bssid;
+    FuriString* m_secType;
+    FuriString* m_bssid;
     unsigned short m_channel;
     bool m_isHidden;
 } EAccessPointDesc;
@@ -111,13 +110,13 @@ static void wifi_scanner_app_init(SWiFiScannerApp* const app) {
     app->m_totalAccessPoints = 0;
     app->m_currentIndexAccessPoint = 0;
 
-    string_init(app->m_currentAccesspointDescription.m_accessPointName);
-    string_set_str(app->m_currentAccesspointDescription.m_accessPointName, "N/A\n");
+    app->m_currentAccesspointDescription.m_accessPointName = furi_string_alloc();
+    furi_string_set(app->m_currentAccesspointDescription.m_accessPointName, "N/A\n");
     app->m_currentAccesspointDescription.m_channel = 0;
-    string_init(app->m_currentAccesspointDescription.m_bssid);
-    string_set_str(app->m_currentAccesspointDescription.m_bssid, "N/A\n");
-    string_init(app->m_currentAccesspointDescription.m_secType);
-    string_set_str(app->m_currentAccesspointDescription.m_secType, "N/A\n");
+    app->m_currentAccesspointDescription.m_bssid = furi_string_alloc();
+    furi_string_set(app->m_currentAccesspointDescription.m_bssid, "N/A\n");
+    app->m_currentAccesspointDescription.m_secType = furi_string_alloc();
+    furi_string_set(app->m_currentAccesspointDescription.m_secType, "N/A\n");
     app->m_currentAccesspointDescription.m_rssi = 0;
     app->m_currentAccesspointDescription.m_isHidden = false;
 
@@ -238,7 +237,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
                 offsetY,
                 app->m_currentAccesspointDescription.m_isHidden ?
                     "(Hidden SSID)" :
-                    string_get_cstr(app->m_currentAccesspointDescription.m_accessPointName));
+                    furi_string_get_cstr(app->m_currentAccesspointDescription.m_accessPointName));
 
             offsetY += fontHeight;
 
@@ -246,7 +245,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
                 canvas,
                 offsetX,
                 offsetY,
-                string_get_cstr(app->m_currentAccesspointDescription.m_bssid));
+                furi_string_get_cstr(app->m_currentAccesspointDescription.m_bssid));
 
             canvas_set_font(canvas, FontSecondary);
             //u8g2_SetFont(&canvas->fb, u8g2_font_tinytim_tf);
@@ -271,7 +270,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
                 string,
                 sizeof(string),
                 "ENCR: %s",
-                string_get_cstr(app->m_currentAccesspointDescription.m_secType));
+                furi_string_get_cstr(app->m_currentAccesspointDescription.m_secType));
             canvas_draw_str(canvas, offsetX, offsetY, string);
 
             offsetY += fontHeight;
@@ -346,7 +345,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
                 canvas,
                 offsetX,
                 offsetY,
-                string_get_cstr(app->m_currentAccesspointDescription.m_accessPointName));
+                furi_string_get_cstr(app->m_currentAccesspointDescription.m_accessPointName));
 
             offsetY += fontHeight + 2;
 
@@ -354,7 +353,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
                 canvas,
                 offsetX,
                 offsetY,
-                string_get_cstr(app->m_currentAccesspointDescription.m_bssid));
+                furi_string_get_cstr(app->m_currentAccesspointDescription.m_bssid));
 
             DrawSignalStrengthBar(
                 canvas, app->m_currentAccesspointDescription.m_rssi, 5, 5, 12, 25);
@@ -480,8 +479,8 @@ static int32_t uart_worker(void* context) {
         if(events & WorkerEventStop) break;
         if(events & WorkerEventRx) {
             size_t length = 0;
-            string_t receivedString;
-            string_init(receivedString);
+            FuriString* receivedString;
+            receivedString = furi_string_alloc();
             do {
                 uint8_t data[64];
                 length = xStreamBufferReceive(rx_stream, data, 64, 25);
@@ -489,45 +488,46 @@ static int32_t uart_worker(void* context) {
                     WIFI_APP_LOG_I("Received Data - length: %i", length);
 
                     for(uint16_t i = 0; i < length; i++) {
-                        string_push_back(receivedString, data[i]);
+                        furi_string_push_back(receivedString, data[i]);
                     }
 
                     //notification_message(app->notification, &sequence_set_only_red_255);
                 }
             } while(length > 0);
-            if(string_size(receivedString) > 0) {
-                string_t chunk;
-                string_init(chunk);
+            if(furi_string_size(receivedString) > 0) {
+                FuriString* chunk;
+                chunk = furi_string_alloc();
                 size_t begin = 0;
                 size_t end = 0;
-                size_t stringSize = string_size(receivedString);
+                size_t stringSize = furi_string_size(receivedString);
 
-                WIFI_APP_LOG_I("Received string: %s", string_get_cstr(receivedString));
+                WIFI_APP_LOG_I("Received string: %s", furi_string_get_cstr(receivedString));
 
-                string_t chunksArray[EChunkArrayData_ENUM_MAX];
+                FuriString* chunksArray[EChunkArrayData_ENUM_MAX];
                 for(uint8_t i = 0; i < EChunkArrayData_ENUM_MAX; ++i) {
-                    string_init(chunksArray[i]);
+                    chunksArray[i] = furi_string_alloc();
                 }
 
                 uint8_t index = 0;
                 do {
-                    end = string_search_char(receivedString, '+', begin);
+                    end = furi_string_search_char(receivedString, '+', begin);
 
-                    if(end == STRING_FAILURE) {
+                    if(end == FURI_STRING_FAILURE) {
                         end = stringSize;
                     }
 
                     WIFI_APP_LOG_I("size: %i, begin: %i, end: %i", stringSize, begin, end);
 
-                    string_set_strn(chunk, &string_get_cstr(receivedString)[begin], end - begin);
+                    furi_string_set_strn(
+                        chunk, &furi_string_get_cstr(receivedString)[begin], end - begin);
 
-                    WIFI_APP_LOG_I("String chunk: %s", string_get_cstr(chunk));
+                    WIFI_APP_LOG_I("String chunk: %s", furi_string_get_cstr(chunk));
 
-                    string_set(chunksArray[index++], chunk);
+                    furi_string_set(chunksArray[index++], chunk);
 
                     begin = end + 1;
                 } while(end < stringSize);
-                string_clear(chunk);
+                furi_string_free(chunk);
 
                 app = acquire_mutex((ValueMutex*)context, 25);
                 if(app == NULL) {
@@ -535,7 +535,7 @@ static int32_t uart_worker(void* context) {
                 }
 
                 if(!app->m_wifiModuleInitialized) {
-                    if(string_cmp_str(
+                    if(furi_string_cmp_str(
                            chunksArray[EChunkArrayData_Context], MODULE_CONTEXT_INITIALIZATION) ==
                        0) {
                         app->m_wifiModuleInitialized = true;
@@ -543,46 +543,46 @@ static int32_t uart_worker(void* context) {
                     }
 
                 } else {
-                    if(string_cmp_str(
+                    if(furi_string_cmp_str(
                            chunksArray[EChunkArrayData_Context], MODULE_CONTEXT_MONITOR) == 0) {
                         app->m_context = MonitorMode;
                     } else if(
-                        string_cmp_str(
+                        furi_string_cmp_str(
                             chunksArray[EChunkArrayData_Context], MODULE_CONTEXT_SCAN) == 0) {
                         app->m_context = ScanMode;
                     } else if(
-                        string_cmp_str(
+                        furi_string_cmp_str(
                             chunksArray[EChunkArrayData_Context], MODULE_CONTEXT_SCAN_ANIMATION) ==
                         0) {
                         app->m_context = ScanAnimation;
                     } else if(
-                        string_cmp_str(
+                        furi_string_cmp_str(
                             chunksArray[EChunkArrayData_Context],
                             MODULE_CONTEXT_MONITOR_ANIMATION) == 0) {
                         app->m_context = MonitorAnimation;
                     }
 
                     if(app->m_context == MonitorMode || app->m_context == ScanMode) {
-                        string_set(
+                        furi_string_set(
                             app->m_currentAccesspointDescription.m_accessPointName,
                             chunksArray[EChunkArrayData_SSID]);
-                        string_set(
+                        furi_string_set(
                             app->m_currentAccesspointDescription.m_secType,
                             chunksArray[EChunkArrayData_EncryptionType]);
                         app->m_currentAccesspointDescription.m_rssi =
-                            atoi(string_get_cstr(chunksArray[EChunkArrayData_RSSI]));
-                        string_set(
+                            atoi(furi_string_get_cstr(chunksArray[EChunkArrayData_RSSI]));
+                        furi_string_set(
                             app->m_currentAccesspointDescription.m_bssid,
                             chunksArray[EChunkArrayData_BSSID]);
                         app->m_currentAccesspointDescription.m_channel =
-                            atoi(string_get_cstr(chunksArray[EChunkArrayData_Channel]));
+                            atoi(furi_string_get_cstr(chunksArray[EChunkArrayData_Channel]));
                         app->m_currentAccesspointDescription.m_isHidden =
-                            atoi(string_get_cstr(chunksArray[EChunkArrayData_IsHidden]));
+                            atoi(furi_string_get_cstr(chunksArray[EChunkArrayData_IsHidden]));
 
-                        app->m_currentIndexAccessPoint =
-                            atoi(string_get_cstr(chunksArray[EChunkArrayData_CurrentAPIndex]));
+                        app->m_currentIndexAccessPoint = atoi(
+                            furi_string_get_cstr(chunksArray[EChunkArrayData_CurrentAPIndex]));
                         app->m_totalAccessPoints =
-                            atoi(string_get_cstr(chunksArray[EChunkArrayData_TotalAps]));
+                            atoi(furi_string_get_cstr(chunksArray[EChunkArrayData_TotalAps]));
                     }
                 }
 
@@ -590,10 +590,10 @@ static int32_t uart_worker(void* context) {
 
                 // Clear string array
                 for(index = 0; index < EChunkArrayData_ENUM_MAX; ++index) {
-                    string_clear(chunksArray[index]);
+                    furi_string_free(chunksArray[index]);
                 }
             }
-            string_clear(receivedString);
+            furi_string_free(receivedString);
         }
     }
 

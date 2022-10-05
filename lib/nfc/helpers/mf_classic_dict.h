@@ -64,7 +64,7 @@ bool mf_classic_dict_get_next_key_str(MfClassicDict* dict, FuriString* key);
  */
 bool mf_classic_dict_get_key_at_index(MfClassicDict* dict, uint64_t* key, uint32_t target);
 
-/** Get key at target offset as string_t
+/** Get key at target offset as FuriString*
  *
  * @param      dict    MfClassicDict instance
  * @param[out] key     Found key destination buffer

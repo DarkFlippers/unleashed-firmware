@@ -600,12 +600,12 @@ static void bad_usb_script_set_default_keyboard_layout(BadUsbScript* bad_usb) {
     memcpy(bad_usb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(bad_usb->layout)));
 }
 
-BadUsbScript* bad_usb_script_open(string_t file_path) {
+BadUsbScript* bad_usb_script_open(FuriString* file_path) {
     furi_assert(file_path);
 
     BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
-    string_init(bad_usb->file_path);
-    string_set(bad_usb->file_path, file_path);
+    bad_usb->file_path = furi_string_alloc();
+    furi_string_set(bad_usb->file_path, file_path);
     bad_usb_script_set_default_keyboard_layout(bad_usb);
 
     bad_usb->st.state = BadUsbStateInit;
@@ -629,7 +629,7 @@ void bad_usb_script_close(BadUsbScript* bad_usb) {
     free(bad_usb);
 }
 
-void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, string_t layout_path) {
+void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layout_path) {
     furi_assert(bad_usb);
 
     if((bad_usb->st.state == BadUsbStateRunning) || (bad_usb->st.state == BadUsbStateDelay)) {
@@ -638,9 +638,9 @@ void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, string_t layout_p
     }
 
     File* layout_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
-    if(!string_empty_p(layout_path)) {
+    if(!furi_string_empty(layout_path)) {
         if(storage_file_open(
-               layout_file, string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+               layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
             uint16_t layout[128];
             if(storage_file_read(layout_file, layout, sizeof(layout)) == sizeof(layout)) {
                 memcpy(bad_usb->layout, layout, sizeof(layout));

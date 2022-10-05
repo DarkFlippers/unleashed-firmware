@@ -1,7 +1,7 @@
 #include "flipfrid_scene_entrypoint.h"
 
-string_t menu_items[4];
-string_t menu_proto_items[4];
+FuriString* menu_items[4];
+FuriString* menu_proto_items[4];
 
 void flipfrid_scene_entrypoint_menu_callback(
     FlipFridState* context,
@@ -11,22 +11,22 @@ void flipfrid_scene_entrypoint_menu_callback(
     case FlipFridAttackDefaultValues:
         context->attack = FlipFridAttackDefaultValues;
         context->current_scene = SceneAttack;
-        string_set_str(context->attack_name, "Default Values");
+        furi_string_set(context->attack_name, "Default Values");
         break;
     case FlipFridAttackBfCustomerId:
         context->attack = FlipFridAttackBfCustomerId;
         context->current_scene = SceneAttack;
-        string_set_str(context->attack_name, "Bad Customer ID");
+        furi_string_set(context->attack_name, "Bad Customer ID");
         break;
     case FlipFridAttackLoadFile:
         context->attack = FlipFridAttackLoadFile;
         context->current_scene = SceneSelectFile;
-        string_set_str(context->attack_name, "Load File");
+        furi_string_set(context->attack_name, "Load File");
         break;
     case FlipFridAttackLoadFileCustomUids:
         context->attack = FlipFridAttackLoadFileCustomUids;
         context->current_scene = SceneLoadCustomUids;
-        string_set_str(context->attack_name, "Load Custom UIDs");
+        furi_string_set(context->attack_name, "Load Custom UIDs");
         break;
     default:
         break;
@@ -35,19 +35,19 @@ void flipfrid_scene_entrypoint_menu_callback(
     switch(proto_index) {
     case EM4100:
         context->proto = EM4100;
-        string_set_str(context->proto_name, "EM4100");
+        furi_string_set(context->proto_name, "EM4100");
         break;
     case HIDProx:
         context->proto = HIDProx;
-        string_set_str(context->proto_name, "HIDProx");
+        furi_string_set(context->proto_name, "HIDProx");
         break;
     case PAC:
         context->proto = PAC;
-        string_set_str(context->proto_name, "PAC/Stanley");
+        furi_string_set(context->proto_name, "PAC/Stanley");
         break;
     case H10301:
         context->proto = H10301;
-        string_set_str(context->proto_name, "H10301");
+        furi_string_set(context->proto_name, "H10301");
         break;
     default:
         break;
@@ -65,33 +65,33 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
 
     context->menu_index = 0;
     for(uint32_t i = 0; i < 4; i++) {
-        string_init(menu_items[i]);
+        menu_items[i] = furi_string_alloc();
     }
 
-    string_set(menu_items[0], "Default Values");
-    string_set(menu_items[1], "BF Customer ID");
-    string_set(menu_items[2], "Load File");
-    string_set(menu_items[3], "Load uids from file");
+    furi_string_set(menu_items[0], "Default Values");
+    furi_string_set(menu_items[1], "BF Customer ID");
+    furi_string_set(menu_items[2], "Load File");
+    furi_string_set(menu_items[3], "Load uids from file");
 
     context->menu_proto_index = 0;
     for(uint32_t i = 0; i < 4; i++) {
-        string_init(menu_proto_items[i]);
+        menu_proto_items[i] = furi_string_alloc();
     }
 
-    string_set(menu_proto_items[0], "EM4100");
-    string_set(menu_proto_items[1], "HIDProx");
-    string_set(menu_proto_items[2], "PAC/Stanley");
-    string_set(menu_proto_items[3], "H10301");
+    furi_string_set(menu_proto_items[0], "EM4100");
+    furi_string_set(menu_proto_items[1], "HIDProx");
+    furi_string_set(menu_proto_items[2], "PAC/Stanley");
+    furi_string_set(menu_proto_items[3], "H10301");
 }
 
 void flipfrid_scene_entrypoint_on_exit(FlipFridState* context) {
     UNUSED(context);
     for(uint32_t i = 0; i < 4; i++) {
-        string_clear(menu_items[i]);
+        furi_string_free(menu_items[i]);
     }
 
     for(uint32_t i = 0; i < 4; i++) {
-        string_clear(menu_proto_items[i]);
+        furi_string_free(menu_proto_items[i]);
     }
 }
 
@@ -151,12 +151,17 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
             24,
             AlignCenter,
             AlignTop,
-            string_get_cstr(menu_items[context->menu_index - 1]));
+            furi_string_get_cstr(menu_items[context->menu_index - 1]));
     }
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
-        canvas, 64, 36, AlignCenter, AlignTop, string_get_cstr(menu_items[context->menu_index]));
+        canvas,
+        64,
+        36,
+        AlignCenter,
+        AlignTop,
+        furi_string_get_cstr(menu_items[context->menu_index]));
 
     if(context->menu_index < FlipFridAttackLoadFileCustomUids) {
         canvas_set_font(canvas, FontSecondary);
@@ -166,7 +171,7 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
             48,
             AlignCenter,
             AlignTop,
-            string_get_cstr(menu_items[context->menu_index + 1]));
+            furi_string_get_cstr(menu_items[context->menu_index + 1]));
     }
 
     if(context->menu_proto_index > EM4100) {
@@ -177,7 +182,7 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
             -12,
             AlignCenter,
             AlignTop,
-            string_get_cstr(menu_proto_items[context->menu_proto_index - 1]));
+            furi_string_get_cstr(menu_proto_items[context->menu_proto_index - 1]));
     }
 
     canvas_set_font(canvas, FontPrimary);
@@ -190,7 +195,7 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
         4,
         AlignCenter,
         AlignTop,
-        string_get_cstr(menu_proto_items[context->menu_proto_index]));
+        furi_string_get_cstr(menu_proto_items[context->menu_proto_index]));
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
@@ -203,6 +208,6 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
             -12,
             AlignCenter,
             AlignTop,
-            string_get_cstr(menu_proto_items[context->menu_proto_index + 1]));
+            furi_string_get_cstr(menu_proto_items[context->menu_proto_index + 1]));
     }
 }

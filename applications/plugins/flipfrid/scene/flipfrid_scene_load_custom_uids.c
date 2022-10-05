@@ -21,9 +21,9 @@ bool flipfrid_load_uids(FlipFridState* context, const char* file_path) {
 
 bool flipfrid_load_custom_uids_from_file(FlipFridState* context) {
     // Input events and views are managed by file_select
-    string_t uid_path;
-    string_init(uid_path);
-    string_set_str(uid_path, RFIDFUZZER_APP_PATH_FOLDER);
+    FuriString* uid_path;
+    uid_path = furi_string_alloc();
+    furi_string_set(uid_path, RFIDFUZZER_APP_PATH_FOLDER);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, LFRFID_UIDS_EXTENSION, &I_125_10px);
@@ -32,10 +32,10 @@ bool flipfrid_load_custom_uids_from_file(FlipFridState* context) {
     bool res = dialog_file_browser_show(context->dialogs, uid_path, uid_path, &browser_options);
 
     if(res) {
-        res = flipfrid_load_uids(context, string_get_cstr(uid_path));
+        res = flipfrid_load_uids(context, furi_string_get_cstr(uid_path));
     }
 
-    string_clear(uid_path);
+    furi_string_free(uid_path);
 
     return res;
 }

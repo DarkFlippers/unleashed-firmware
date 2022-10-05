@@ -65,12 +65,12 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
         display_menu[15] = ' ';
     }
 
-    string_reset(context->notification_msg);
-    string_set_str(context->notification_msg, display_menu);
+    furi_string_reset(context->notification_msg);
+    furi_string_set(context->notification_msg, display_menu);
 }
 
 void flipfrid_scene_select_field_on_enter(FlipFridState* context) {
-    string_clear(context->notification_msg);
+    furi_string_free(context->notification_msg);
 }
 
 void flipfrid_scene_select_field_on_exit(FlipFridState* context) {
@@ -84,7 +84,7 @@ void flipfrid_scene_select_field_on_tick(FlipFridState* context) {
 void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* context) {
     if(event.evt_type == EventTypeKey) {
         if(event.input_type == InputTypeShort) {
-            const char* key_cstr = string_get_cstr(context->data_str);
+            const char* key_cstr = furi_string_get_cstr(context->data_str);
             int data_len = sizeof(context->data) / sizeof(context->data[0]);
 
             // don't look, it's ugly but I'm a python dev so...
@@ -121,12 +121,12 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
                 }
                 break;
             case InputKeyOk:
-                string_reset(context->notification_msg);
+                furi_string_reset(context->notification_msg);
                 context->current_scene = SceneAttack;
                 break;
             case InputKeyBack:
                 context->key_index = 0;
-                string_reset(context->notification_msg);
+                furi_string_reset(context->notification_msg);
                 context->current_scene = SceneSelectFile;
                 break;
             }
@@ -154,5 +154,5 @@ void flipfrid_scene_select_field_on_draw(Canvas* canvas, FlipFridState* context)
     flipfrid_center_displayed_key(context, context->key_index);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, 64, 45, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
+        canvas, 64, 45, AlignCenter, AlignTop, furi_string_get_cstr(context->notification_msg));
 }

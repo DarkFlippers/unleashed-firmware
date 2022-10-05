@@ -54,9 +54,9 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->state = SubBruteDeviceStateIDLE;
     instance->key_index = 0;
 
-    string_init(instance->load_path);
-    string_init(instance->preset_name);
-    string_init(instance->protocol_name);
+    instance->load_path = furi_string_alloc();
+    instance->preset_name = furi_string_alloc();
+    instance->protocol_name = furi_string_alloc();
 
     instance->decoder_result = NULL;
     instance->receiver = NULL;
@@ -91,9 +91,9 @@ void subbrute_device_free(SubBruteDevice* instance) {
     FURI_LOG_D(TAG, "before free");
 #endif
 
-    string_clear(instance->load_path);
-    string_clear(instance->preset_name);
-    string_clear(instance->protocol_name);
+    furi_string_free(instance->load_path);
+    furi_string_free(instance->preset_name);
+    furi_string_free(instance->protocol_name);
 
     free(instance);
 }
@@ -194,41 +194,41 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     //char step_payload[32];
     //memset(step_payload, '0', sizeof(step_payload));
     memset(instance->payload, 0, sizeof(instance->payload));
-    string_t candidate;
-    string_init(candidate);
+    FuriString* candidate;
+    candidate = furi_string_alloc();
 
     if(instance->attack == SubBruteAttackLoadFile) {
         if(step >= sizeof(instance->file_key)) {
             return false;
         }
         char subbrute_payload_byte[4];
-        string_set_str(candidate, instance->file_key);
+        furi_string_set(candidate, instance->file_key);
         snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
-        string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
+        furi_string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
         //snprintf(step_payload, sizeof(step_payload), "%02X", (uint8_t)instance->file_key[step]);
     } else {
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
         //snprintf(step_payload, sizeof(step_payload), "%016llX", step);
-        string_t buffer;
-        string_init(buffer);
-        string_init_printf(buffer, "%16X", step);
+        FuriString* buffer;
+        buffer = furi_string_alloc();
+        buffer = furi_string_alloc_printf("%16X", step);
         int j = 0;
-        string_set_str(candidate, "                       ");
+        furi_string_set(candidate, "                       ");
         for(uint8_t i = 0; i < 16; i++) {
-            if(string_get_char(buffer, i) != ' ') {
-                string_set_char(candidate, i + j, string_get_char(buffer, i));
+            if(furi_string_get_char(buffer, i) != ' ') {
+                furi_string_set_char(candidate, i + j, furi_string_get_char(buffer, i));
             } else {
-                string_set_char(candidate, i + j, '0');
+                furi_string_set_char(candidate, i + j, '0');
             }
             if(i % 2 != 0) {
                 j++;
             }
         }
-        string_clear(buffer);
+        furi_string_free(buffer);
     }
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "candidate: %s, step: %d", string_get_cstr(candidate), step);
+    FURI_LOG_D(TAG, "candidate: %s, step: %d", furi_string_get_cstr(candidate), step);
 #endif
 
     if(small) {
@@ -238,7 +238,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
                 sizeof(instance->payload),
                 subbrute_key_small_with_tail,
                 instance->bit,
-                string_get_cstr(candidate),
+                furi_string_get_cstr(candidate),
                 instance->te);
         } else {
             snprintf(
@@ -246,7 +246,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
                 sizeof(instance->payload),
                 subbrute_key_small_no_tail,
                 instance->bit,
-                string_get_cstr(candidate));
+                furi_string_get_cstr(candidate));
         }
     } else {
         if(instance->has_tail) {
@@ -255,7 +255,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
                 sizeof(instance->payload),
                 subbrute_key_file_princeton_end,
                 instance->file_template,
-                string_get_cstr(candidate),
+                furi_string_get_cstr(candidate),
                 instance->te);
         } else {
             snprintf(
@@ -263,7 +263,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
                 sizeof(instance->payload),
                 subbrute_key_file_key,
                 instance->file_template,
-                string_get_cstr(candidate));
+                furi_string_get_cstr(candidate));
         }
     }
 
@@ -271,7 +271,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     //FURI_LOG_D(TAG, "payload: %s", instance->payload);
 #endif
 
-    string_clear(candidate);
+    furi_string_free(candidate);
 
     return true;
 }
@@ -286,7 +286,7 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     case SubBruteAttackLoadFile:
         // In this case values must be already set
         //        file_result =
-        //            subbrute_device_load_from_file(instance, string_get_cstr(instance->load_path));
+        //            subbrute_device_load_from_file(instance, furi_string_get_cstr(instance->load_path));
         //        if(file_result != SubBruteFileResultOk) {
         //            // Failed load file so failed to set attack type
         //            return file_result; // RETURN
@@ -306,8 +306,8 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
             instance->frequency = 868350000;
         }
         instance->bit = 12;
-        string_set_str(instance->protocol_name, protocol_came);
-        string_set_str(instance->preset_name, preset_ook650_async);
+        furi_string_set(instance->protocol_name, protocol_came);
+        furi_string_set(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackChamberlain9bit300:
     case SubBruteAttackChamberlain9bit315:
@@ -320,32 +320,32 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
             instance->frequency = 390000000;
         }
         instance->bit = 9;
-        string_set_str(instance->protocol_name, protocol_cham_code);
-        string_set_str(instance->preset_name, preset_ook650_async);
+        furi_string_set(instance->protocol_name, protocol_cham_code);
+        furi_string_set(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackLinear10bit300:
         instance->frequency = 300000000;
         instance->bit = 10;
-        string_set_str(instance->protocol_name, protocol_linear);
-        string_set_str(instance->preset_name, preset_ook650_async);
+        furi_string_set(instance->protocol_name, protocol_linear);
+        furi_string_set(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackLinear10bit310:
         instance->frequency = 310000000;
         instance->bit = 10;
-        string_set_str(instance->protocol_name, protocol_linear);
-        string_set_str(instance->preset_name, preset_ook650_async);
+        furi_string_set(instance->protocol_name, protocol_linear);
+        furi_string_set(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackNICE12bit433:
         instance->frequency = 433920000;
         instance->bit = 12;
-        string_set_str(instance->protocol_name, protocol_nice_flo);
-        string_set_str(instance->preset_name, preset_ook650_async);
+        furi_string_set(instance->protocol_name, protocol_nice_flo);
+        furi_string_set(instance->preset_name, preset_ook650_async);
         break;
     case SubBruteAttackNICE12bit868:
         instance->frequency = 868350000;
         instance->bit = 12;
-        string_set_str(instance->protocol_name, protocol_nice_flo);
-        string_set_str(instance->preset_name, preset_ook650_async);
+        furi_string_set(instance->protocol_name, protocol_nice_flo);
+        furi_string_set(instance->preset_name, preset_ook650_async);
         break;
     default:
         FURI_LOG_E(TAG, "Unknown attack type: %d", type);
@@ -365,7 +365,7 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     uint8_t protocol_check_result = SubBruteFileResultProtocolNotFound;
     if(type != SubBruteAttackLoadFile) {
         instance->decoder_result = subghz_receiver_search_decoder_base_by_name(
-            instance->receiver, string_get_cstr(instance->protocol_name));
+            instance->receiver, furi_string_get_cstr(instance->protocol_name));
 
         if(!instance->decoder_result ||
            instance->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) {
@@ -375,7 +375,8 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         }
     } else {
         // And here we need to set preset enum
-        instance->preset = subbrute_device_convert_preset(string_get_cstr(instance->preset_name));
+        instance->preset =
+            subbrute_device_convert_preset(furi_string_get_cstr(instance->preset_name));
         protocol_check_result = SubBruteFileResultOk;
     }
 
@@ -387,19 +388,19 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     }
 
     instance->has_tail =
-        (strcmp(string_get_cstr(instance->protocol_name), protocol_princeton) == 0);
+        (strcmp(furi_string_get_cstr(instance->protocol_name), protocol_princeton) == 0);
 
     // Calc max value
     if(instance->attack == SubBruteAttackLoadFile) {
         instance->max_value = 0xFF;
     } else {
-        string_t max_value_s;
-        string_init(max_value_s);
+        FuriString* max_value_s;
+        max_value_s = furi_string_alloc();
         for(uint8_t i = 0; i < instance->bit; i++) {
-            string_cat_printf(max_value_s, "1");
+            furi_string_cat_printf(max_value_s, "1");
         }
-        instance->max_value = (uint64_t)strtol(string_get_cstr(max_value_s), NULL, 2);
-        string_clear(max_value_s);
+        instance->max_value = (uint64_t)strtol(furi_string_get_cstr(max_value_s), NULL, 2);
+        furi_string_free(max_value_s);
     }
 
     // Now we are ready to set file template for using in the future with snprintf
@@ -409,8 +410,8 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         sizeof(instance->file_template),
         subbrute_key_file_start,
         instance->frequency,
-        string_get_cstr(instance->preset_name),
-        string_get_cstr(instance->protocol_name),
+        furi_string_get_cstr(instance->preset_name),
+        furi_string_get_cstr(instance->protocol_name),
         instance->bit);
 //    strncat(instance->file_template, "\n", sizeof(instance->file_template));
 //    strncat(instance->file_template, subbrute_key_file_key, sizeof(instance->file_template));
@@ -430,18 +431,18 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     return SubBruteFileResultOk;
 }
 
-uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_path) {
+uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* file_path) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", string_get_cstr(file_path));
+    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", furi_string_get_cstr(file_path));
 #endif
     SubBruteFileResult result = SubBruteFileResultUnknown;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     uint32_t temp_data32;
 
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
@@ -449,8 +450,8 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
     furi_hal_subghz_reset();
 
     do {
-        if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_path))) {
-            FURI_LOG_E(TAG, "Error open file %s", string_get_cstr(file_path));
+        if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_path))) {
+            FURI_LOG_E(TAG, "Error open file %s", furi_string_get_cstr(file_path));
             result = SubBruteFileResultErrorOpenFile;
             break;
         }
@@ -477,7 +478,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
             FURI_LOG_E(TAG, "Preset FAIL");
             result = SubBruteFileResultPresetInvalid;
         } else {
-            string_init_set_str(instance->preset_name, string_get_cstr(temp_str));
+            instance->preset_name = furi_string_alloc_set(furi_string_get_cstr(temp_str));
         }
 
         // Protocol
@@ -486,17 +487,17 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
             result = SubBruteFileResultMissingProtocol;
             break;
         } else {
-            string_init_set_str(instance->protocol_name, string_get_cstr(temp_str));
+            instance->protocol_name = furi_string_alloc_set(furi_string_get_cstr(temp_str));
 #ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "Protocol: %s", string_get_cstr(instance->protocol_name));
+            FURI_LOG_D(TAG, "Protocol: %s", furi_string_get_cstr(instance->protocol_name));
 #endif
         }
 
         instance->decoder_result = subghz_receiver_search_decoder_base_by_name(
-            instance->receiver, string_get_cstr(instance->protocol_name));
+            instance->receiver, furi_string_get_cstr(instance->protocol_name));
 
         if(!instance->decoder_result ||
-           strcmp(string_get_cstr(instance->protocol_name), "RAW") == 0) {
+           strcmp(furi_string_get_cstr(instance->protocol_name), "RAW") == 0) {
             FURI_LOG_E(TAG, "RAW unsupported");
             result = SubBruteFileResultProtocolNotSupported;
             break;
@@ -514,7 +515,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
 #endif
 
         //        instance->decoder_result = subghz_receiver_search_decoder_base_by_name(
-        //            instance->receiver, string_get_cstr(instance->protocol_name));
+        //            instance->receiver, furi_string_get_cstr(instance->protocol_name));
         //
         //        if(!instance->decoder_result) {
         //            FURI_LOG_E(TAG, "Protocol not found");
@@ -541,7 +542,10 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
             break;
         } else {
             snprintf(
-                instance->file_key, sizeof(instance->file_key), "%s", string_get_cstr(temp_str));
+                instance->file_key,
+                sizeof(instance->file_key),
+                "%s",
+                furi_string_get_cstr(temp_str));
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "Key: %s", instance->file_key);
 #endif
@@ -573,7 +577,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
         result = SubBruteFileResultOk;
     } while(0);
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     flipper_format_file_close(fff_data_file);
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
@@ -612,14 +616,14 @@ void subbrute_device_attack_set_default_values(
 
         instance->max_value = (uint64_t)0x00;
 
-        string_clear(instance->protocol_name);
-        string_clear(instance->preset_name);
+        furi_string_free(instance->protocol_name);
+        furi_string_free(instance->preset_name);
 
-        string_clear(instance->load_path);
-        string_init(instance->load_path);
+        furi_string_free(instance->load_path);
+        instance->load_path = furi_string_alloc();
 
-        string_init_set_str(instance->protocol_name, protocol_raw);
-        string_init_set_str(instance->preset_name, preset_ook650_async);
+        instance->protocol_name = furi_string_alloc_set(protocol_raw);
+        instance->preset_name = furi_string_alloc_set(preset_ook650_async);
         instance->preset = FuriHalSubGhzPresetOok650Async;
 
         instance->repeat = 5;
@@ -634,25 +638,25 @@ void subbrute_device_attack_set_default_values(
 }
 
 FuriHalSubGhzPreset subbrute_device_convert_preset(const char* preset_name) {
-    string_t preset;
-    string_init_set_str(preset, preset_name);
+    FuriString* preset;
+    preset = furi_string_alloc_set(preset_name);
     FuriHalSubGhzPreset preset_value;
-    if(string_cmp_str(preset, preset_ook270_async) == 0) {
+    if(furi_string_cmp_str(preset, preset_ook270_async) == 0) {
         preset_value = FuriHalSubGhzPresetOok270Async;
-    } else if(string_cmp_str(preset, preset_ook650_async) == 0) {
+    } else if(furi_string_cmp_str(preset, preset_ook650_async) == 0) {
         preset_value = FuriHalSubGhzPresetOok650Async;
-    } else if(string_cmp_str(preset, preset_2fsk_dev238_async) == 0) {
+    } else if(furi_string_cmp_str(preset, preset_2fsk_dev238_async) == 0) {
         preset_value = FuriHalSubGhzPreset2FSKDev238Async;
-    } else if(string_cmp_str(preset, preset_2fsk_dev476_async) == 0) {
+    } else if(furi_string_cmp_str(preset, preset_2fsk_dev476_async) == 0) {
         preset_value = FuriHalSubGhzPreset2FSKDev476Async;
-    } else if(string_cmp_str(preset, preset_msk99_97_kb_async) == 0) {
+    } else if(furi_string_cmp_str(preset, preset_msk99_97_kb_async) == 0) {
         preset_value = FuriHalSubGhzPresetMSK99_97KbAsync;
-    } else if(string_cmp_str(preset, preset_gfs99_97_kb_async) == 0) {
+    } else if(furi_string_cmp_str(preset, preset_gfs99_97_kb_async) == 0) {
         preset_value = FuriHalSubGhzPresetMSK99_97KbAsync;
     } else {
         preset_value = FuriHalSubGhzPresetCustom;
     }
 
-    string_clear(preset);
+    furi_string_free(preset);
     return preset_value;
 }

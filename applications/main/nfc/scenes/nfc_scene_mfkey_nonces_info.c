@@ -15,8 +15,8 @@ void nfc_scene_mfkey_nonces_info_on_enter(void* context) {
     temp_str = furi_string_alloc();
 
     uint16_t nonces_saved = mfkey32_get_auth_sectors(temp_str);
-    widget_add_text_scroll_element(nfc->widget, 0, 22, 128, 42, string_get_cstr(temp_str));
-    string_printf(temp_str, "Nonce pairs saved %d", nonces_saved);
+    widget_add_text_scroll_element(nfc->widget, 0, 22, 128, 42, furi_string_get_cstr(temp_str));
+    furi_string_printf(temp_str, "Nonce pairs saved %d", nonces_saved);
     widget_add_string_element(
         nfc->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, furi_string_get_cstr(temp_str));
     widget_add_string_element(
