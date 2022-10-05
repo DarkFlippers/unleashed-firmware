@@ -163,8 +163,8 @@ static void signal_gen_pwm_draw_callback(Canvas* canvas, void* _model) {
 
             if(model->edit_mode) {
                 uint8_t icon_x = (FREQ_VALUE_X) + (FREQ_DIGITS_NB - model->edit_digit - 1) * 6;
-                canvas_draw_icon(canvas, icon_x, text_y - 9, &I_SmallArrowUp_4x7);
-                canvas_draw_icon(canvas, icon_x, text_y + 5, &I_SmallArrowDown_4x7);
+                canvas_draw_icon(canvas, icon_x, text_y - 9, &I_SmallArrowUp_3x5);
+                canvas_draw_icon(canvas, icon_x, text_y + 5, &I_SmallArrowDown_3x5);
             }
         } else if(line == LineIndexDuty) {
             snprintf(val_text, sizeof(val_text), "%d%%", model->duty);
