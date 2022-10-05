@@ -338,11 +338,12 @@ static bool storage_int_file_open(
     storage_set_storage_file_data(file, handle, storage);
 
     if(!enough_free_space) {
-        string_t filename;
-        string_init(filename);
+        FuriString* filename;
+        filename = furi_string_alloc();
         path_extract_basename(path, filename);
-        bool is_dot_file = (!string_empty_p(filename) && (string_get_char(filename, 0) == '.'));
-        string_clear(filename);
+        bool is_dot_file =
+            (!furi_string_empty(filename) && (furi_string_get_char(filename, 0) == '.'));
+        furi_string_free(filename);
 
         /* Restrict write & creation access to all non-dot files */
         if(!is_dot_file && (flags & (LFS_O_CREAT | LFS_O_WRONLY))) {

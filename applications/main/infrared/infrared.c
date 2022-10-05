@@ -65,51 +65,52 @@ static void infrared_rpc_command_callback(RpcAppSystemEvent event, void* context
     }
 }
 
-static void infrared_find_vacant_remote_name(string_t name, const char* path) {
+static void infrared_find_vacant_remote_name(FuriString* name, const char* path) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
-    string_t base_path;
-    string_init_set_str(base_path, path);
+    FuriString* base_path;
+    base_path = furi_string_alloc_set(path);
 
-    if(string_end_with_str_p(base_path, INFRARED_APP_EXTENSION)) {
-        size_t filename_start = string_search_rchar(base_path, '/');
-        string_left(base_path, filename_start);
+    if(furi_string_end_with(base_path, INFRARED_APP_EXTENSION)) {
+        size_t filename_start = furi_string_search_rchar(base_path, '/');
+        furi_string_left(base_path, filename_start);
     }
 
-    string_printf(base_path, "%s/%s%s", path, string_get_cstr(name), INFRARED_APP_EXTENSION);
+    furi_string_printf(
+        base_path, "%s/%s%s", path, furi_string_get_cstr(name), INFRARED_APP_EXTENSION);
 
-    FS_Error status = storage_common_stat(storage, string_get_cstr(base_path), NULL);
+    FS_Error status = storage_common_stat(storage, furi_string_get_cstr(base_path), NULL);
 
     if(status == FSE_OK) {
         /* If the suggested name is occupied, try another one (name2, name3, etc) */
-        size_t dot = string_search_rchar(base_path, '.');
-        string_left(base_path, dot);
+        size_t dot = furi_string_search_rchar(base_path, '.');
+        furi_string_left(base_path, dot);
 
-        string_t path_temp;
-        string_init(path_temp);
+        FuriString* path_temp;
+        path_temp = furi_string_alloc();
 
         uint32_t i = 1;
         do {
-            string_printf(
-                path_temp, "%s%u%s", string_get_cstr(base_path), ++i, INFRARED_APP_EXTENSION);
-            status = storage_common_stat(storage, string_get_cstr(path_temp), NULL);
+            furi_string_printf(
+                path_temp, "%s%u%s", furi_string_get_cstr(base_path), ++i, INFRARED_APP_EXTENSION);
+            status = storage_common_stat(storage, furi_string_get_cstr(path_temp), NULL);
         } while(status == FSE_OK);
 
-        string_clear(path_temp);
+        furi_string_free(path_temp);
 
         if(status == FSE_NOT_EXIST) {
-            string_cat_printf(name, "%u", i);
+            furi_string_cat_printf(name, "%u", i);
         }
     }
 
-    string_clear(base_path);
+    furi_string_free(base_path);
     furi_record_close(RECORD_STORAGE);
 }
 
 static Infrared* infrared_alloc() {
     Infrared* infrared = malloc(sizeof(Infrared));
 
-    string_init(infrared->file_path);
+    infrared->file_path = furi_string_alloc();
 
     InfraredAppState* app_state = &infrared->app_state;
     app_state->is_learning_new_remote = false;
@@ -232,7 +233,7 @@ static void infrared_free(Infrared* infrared) {
     furi_record_close(RECORD_GUI);
     infrared->gui = NULL;
 
-    string_clear(infrared->file_path);
+    furi_string_free(infrared->file_path);
 
     free(infrared);
 }
@@ -243,19 +244,20 @@ bool infrared_add_remote_with_button(
     InfraredSignal* signal) {
     InfraredRemote* remote = infrared->remote;
 
-    string_t new_name, new_path;
-    string_init_set_str(new_name, INFRARED_DEFAULT_REMOTE_NAME);
-    string_init_set_str(new_path, INFRARED_APP_FOLDER);
+    FuriString *new_name, *new_path;
+    new_name = furi_string_alloc_set(INFRARED_DEFAULT_REMOTE_NAME);
+    new_path = furi_string_alloc_set(INFRARED_APP_FOLDER);
 
-    infrared_find_vacant_remote_name(new_name, string_get_cstr(new_path));
-    string_cat_printf(new_path, "/%s%s", string_get_cstr(new_name), INFRARED_APP_EXTENSION);
+    infrared_find_vacant_remote_name(new_name, furi_string_get_cstr(new_path));
+    furi_string_cat_printf(
+        new_path, "/%s%s", furi_string_get_cstr(new_name), INFRARED_APP_EXTENSION);
 
     infrared_remote_reset(remote);
-    infrared_remote_set_name(remote, string_get_cstr(new_name));
-    infrared_remote_set_path(remote, string_get_cstr(new_path));
+    infrared_remote_set_name(remote, furi_string_get_cstr(new_name));
+    infrared_remote_set_path(remote, furi_string_get_cstr(new_path));
 
-    string_clear(new_name);
-    string_clear(new_path);
+    furi_string_free(new_name);
+    furi_string_free(new_path);
     return infrared_remote_add_button(remote, button_name, signal);
 }
 
@@ -267,28 +269,29 @@ bool infrared_rename_current_remote(Infrared* infrared, const char* name) {
         return true;
     }
 
-    string_t new_name;
-    string_init_set_str(new_name, name);
+    FuriString* new_name;
+    new_name = furi_string_alloc_set(name);
 
     infrared_find_vacant_remote_name(new_name, remote_path);
 
-    string_t new_path;
-    string_init_set(new_path, infrared_remote_get_path(remote));
-    if(string_end_with_str_p(new_path, INFRARED_APP_EXTENSION)) {
-        size_t filename_start = string_search_rchar(new_path, '/');
-        string_left(new_path, filename_start);
+    FuriString* new_path;
+    new_path = furi_string_alloc_set(infrared_remote_get_path(remote));
+    if(furi_string_end_with(new_path, INFRARED_APP_EXTENSION)) {
+        size_t filename_start = furi_string_search_rchar(new_path, '/');
+        furi_string_left(new_path, filename_start);
     }
-    string_cat_printf(new_path, "/%s%s", string_get_cstr(new_name), INFRARED_APP_EXTENSION);
+    furi_string_cat_printf(
+        new_path, "/%s%s", furi_string_get_cstr(new_name), INFRARED_APP_EXTENSION);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     FS_Error status = storage_common_rename(
-        storage, infrared_remote_get_path(remote), string_get_cstr(new_path));
-    infrared_remote_set_name(remote, string_get_cstr(new_name));
-    infrared_remote_set_path(remote, string_get_cstr(new_path));
+        storage, infrared_remote_get_path(remote), furi_string_get_cstr(new_path));
+    infrared_remote_set_name(remote, furi_string_get_cstr(new_name));
+    infrared_remote_set_path(remote, furi_string_get_cstr(new_path));
 
-    string_clear(new_name);
-    string_clear(new_path);
+    furi_string_free(new_name);
+    furi_string_free(new_path);
 
     furi_record_close(RECORD_STORAGE);
     return (status == FSE_OK || status == FSE_EXIST);
@@ -435,7 +438,7 @@ int32_t infrared_app(void* p) {
             rpc_system_app_send_started(infrared->rpc_ctx);
             is_rpc_mode = true;
         } else {
-            string_set_str(infrared->file_path, (const char*)p);
+            furi_string_set(infrared->file_path, (const char*)p);
             is_remote_loaded = infrared_remote_load(infrared->remote, infrared->file_path);
             if(!is_remote_loaded) {
                 dialog_message_show_storage_error(

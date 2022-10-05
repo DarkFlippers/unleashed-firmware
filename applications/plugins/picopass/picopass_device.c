@@ -18,7 +18,7 @@ PicopassDevice* picopass_device_alloc() {
     picopass_dev->dev_data.pacs.pin_length = 0;
     picopass_dev->storage = furi_record_open(RECORD_STORAGE);
     picopass_dev->dialogs = furi_record_open(RECORD_DIALOGS);
-    string_init(picopass_dev->load_path);
+    picopass_dev->load_path = furi_string_alloc();
     return picopass_dev;
 }
 
@@ -40,25 +40,25 @@ static bool picopass_device_save_file(
     FlipperFormat* file = flipper_format_file_alloc(dev->storage);
     PicopassPacs* pacs = &dev->dev_data.pacs;
     PicopassBlock* AA1 = dev->dev_data.AA1;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     do {
-        if(use_load_path && !string_empty_p(dev->load_path)) {
+        if(use_load_path && !furi_string_empty(dev->load_path)) {
             // Get directory name
-            path_extract_dirname(string_get_cstr(dev->load_path), temp_str);
+            path_extract_dirname(furi_string_get_cstr(dev->load_path), temp_str);
             // Create picopass directory if necessary
-            if(!storage_simply_mkdir(dev->storage, string_get_cstr(temp_str))) break;
+            if(!storage_simply_mkdir(dev->storage, furi_string_get_cstr(temp_str))) break;
             // Make path to file to save
-            string_cat_printf(temp_str, "/%s%s", dev_name, extension);
+            furi_string_cat_printf(temp_str, "/%s%s", dev_name, extension);
         } else {
             // Create picopass directory if necessary
             if(!storage_simply_mkdir(dev->storage, PICOPASS_APP_FOLDER)) break;
             // First remove picopass device file if it was saved
-            string_printf(temp_str, "%s/%s%s", folder, dev_name, extension);
+            furi_string_printf(temp_str, "%s/%s%s", folder, dev_name, extension);
         }
         // Open file
-        if(!flipper_format_file_open_always(file, string_get_cstr(temp_str))) break;
+        if(!flipper_format_file_open_always(file, furi_string_get_cstr(temp_str))) break;
 
         if(dev->format == PicopassDeviceSaveFormatHF) {
             uint32_t fc = pacs->record.FacilityCode;
@@ -87,9 +87,9 @@ static bool picopass_device_save_file(
                                    AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] :
                                    PICOPASS_MAX_APP_LIMIT;
             for(size_t i = 0; i < app_limit; i++) {
-                string_printf(temp_str, "Block %d", i);
+                furi_string_printf(temp_str, "Block %d", i);
                 if(!flipper_format_write_hex(
-                       file, string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
+                       file, furi_string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
                     block_saved = false;
                     break;
                 }
@@ -117,7 +117,7 @@ static bool picopass_device_save_file(
     if(!saved) {
         dialog_message_show_storage_error(dev->dialogs, "Can not save\nfile");
     }
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     flipper_format_free(file);
     return saved;
 }
@@ -132,13 +132,13 @@ bool picopass_device_save(PicopassDevice* dev, const char* dev_name) {
     return false;
 }
 
-static bool picopass_device_load_data(PicopassDevice* dev, string_t path, bool show_dialog) {
+static bool picopass_device_load_data(PicopassDevice* dev, FuriString* path, bool show_dialog) {
     bool parsed = false;
     FlipperFormat* file = flipper_format_file_alloc(dev->storage);
     PicopassBlock* AA1 = dev->dev_data.AA1;
     PicopassPacs* pacs = &dev->dev_data.pacs;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     bool deprecated_version = false;
 
     if(dev->loading_cb) {
@@ -146,12 +146,13 @@ static bool picopass_device_load_data(PicopassDevice* dev, string_t path, bool s
     }
 
     do {
-        if(!flipper_format_file_open_existing(file, string_get_cstr(path))) break;
+        if(!flipper_format_file_open_existing(file, furi_string_get_cstr(path))) break;
 
         // Read and verify file header
         uint32_t version = 0;
         if(!flipper_format_read_header(file, temp_str, &version)) break;
-        if(string_cmp_str(temp_str, picopass_file_header) || (version != picopass_file_version)) {
+        if(furi_string_cmp_str(temp_str, picopass_file_header) ||
+           (version != picopass_file_version)) {
             deprecated_version = true;
             break;
         }
@@ -159,9 +160,9 @@ static bool picopass_device_load_data(PicopassDevice* dev, string_t path, bool s
         // Parse header blocks
         bool block_read = true;
         for(size_t i = 0; i < 6; i++) {
-            string_printf(temp_str, "Block %d", i);
+            furi_string_printf(temp_str, "Block %d", i);
             if(!flipper_format_read_hex(
-                   file, string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
+                   file, furi_string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
                 block_read = false;
                 break;
             }
@@ -169,9 +170,9 @@ static bool picopass_device_load_data(PicopassDevice* dev, string_t path, bool s
 
         size_t app_limit = AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0];
         for(size_t i = 6; i < app_limit; i++) {
-            string_printf(temp_str, "Block %d", i);
+            furi_string_printf(temp_str, "Block %d", i);
             if(!flipper_format_read_hex(
-                   file, string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
+                   file, furi_string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
                 block_read = false;
                 break;
             }
@@ -196,7 +197,7 @@ static bool picopass_device_load_data(PicopassDevice* dev, string_t path, bool s
         }
     }
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     flipper_format_free(file);
 
     return parsed;
@@ -208,7 +209,7 @@ void picopass_device_clear(PicopassDevice* dev) {
     picopass_device_data_clear(&dev->dev_data);
     memset(&dev->dev_data, 0, sizeof(dev->dev_data));
     dev->format = PicopassDeviceSaveFormatHF;
-    string_reset(dev->load_path);
+    furi_string_reset(dev->load_path);
 }
 
 void picopass_device_free(PicopassDevice* picopass_dev) {
@@ -216,7 +217,7 @@ void picopass_device_free(PicopassDevice* picopass_dev) {
     picopass_device_clear(picopass_dev);
     furi_record_close(RECORD_STORAGE);
     furi_record_close(RECORD_DIALOGS);
-    string_clear(picopass_dev->load_path);
+    furi_string_free(picopass_dev->load_path);
     free(picopass_dev);
 }
 
@@ -224,8 +225,8 @@ bool picopass_file_select(PicopassDevice* dev) {
     furi_assert(dev);
 
     // Input events and views are managed by file_browser
-    string_t picopass_app_folder;
-    string_init_set_str(picopass_app_folder, PICOPASS_APP_FOLDER);
+    FuriString* picopass_app_folder;
+    picopass_app_folder = furi_string_alloc_set(PICOPASS_APP_FOLDER);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, PICOPASS_APP_EXTENSION, &I_Nfc_10px);
@@ -233,17 +234,17 @@ bool picopass_file_select(PicopassDevice* dev) {
     bool res = dialog_file_browser_show(
         dev->dialogs, dev->load_path, picopass_app_folder, &browser_options);
 
-    string_clear(picopass_app_folder);
+    furi_string_free(picopass_app_folder);
     if(res) {
-        string_t filename;
-        string_init(filename);
+        FuriString* filename;
+        filename = furi_string_alloc();
         path_extract_filename(dev->load_path, filename, true);
-        strncpy(dev->dev_name, string_get_cstr(filename), PICOPASS_DEV_NAME_MAX_LEN);
+        strncpy(dev->dev_name, furi_string_get_cstr(filename), PICOPASS_DEV_NAME_MAX_LEN);
         res = picopass_device_load_data(dev, dev->load_path, true);
         if(res) {
             picopass_device_set_name(dev, dev->dev_name);
         }
-        string_clear(filename);
+        furi_string_free(filename);
     }
 
     return res;
@@ -262,18 +263,18 @@ bool picopass_device_delete(PicopassDevice* dev, bool use_load_path) {
     furi_assert(dev);
 
     bool deleted = false;
-    string_t file_path;
-    string_init(file_path);
+    FuriString* file_path;
+    file_path = furi_string_alloc();
 
     do {
         // Delete original file
-        if(use_load_path && !string_empty_p(dev->load_path)) {
-            string_set(file_path, dev->load_path);
+        if(use_load_path && !furi_string_empty(dev->load_path)) {
+            furi_string_set(file_path, dev->load_path);
         } else {
-            string_printf(
+            furi_string_printf(
                 file_path, "%s/%s%s", PICOPASS_APP_FOLDER, dev->dev_name, PICOPASS_APP_EXTENSION);
         }
-        if(!storage_simply_remove(dev->storage, string_get_cstr(file_path))) break;
+        if(!storage_simply_remove(dev->storage, furi_string_get_cstr(file_path))) break;
         deleted = true;
     } while(0);
 
@@ -281,7 +282,7 @@ bool picopass_device_delete(PicopassDevice* dev, bool use_load_path) {
         dialog_message_show_storage_error(dev->dialogs, "Can not remove file");
     }
 
-    string_clear(file_path);
+    furi_string_free(file_path);
     return deleted;
 }
 

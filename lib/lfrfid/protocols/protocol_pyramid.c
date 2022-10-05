@@ -239,11 +239,11 @@ bool protocol_pyramid_write_data(ProtocolPyramid* protocol, void* data) {
     return result;
 };
 
-void protocol_pyramid_render_data(ProtocolPyramid* protocol, string_t result) {
+void protocol_pyramid_render_data(ProtocolPyramid* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
     uint8_t format_length = decoded_data[0];
 
-    string_cat_printf(result, "Format: 26\r\n", format_length);
+    furi_string_cat_printf(result, "Format: 26\r\n", format_length);
     if(format_length == 26) {
         uint8_t facility;
         bit_lib_copy_bits(&facility, 0, 8, decoded_data, 8);
@@ -251,9 +251,9 @@ void protocol_pyramid_render_data(ProtocolPyramid* protocol, string_t result) {
         uint16_t card_id;
         bit_lib_copy_bits((uint8_t*)&card_id, 8, 8, decoded_data, 16);
         bit_lib_copy_bits((uint8_t*)&card_id, 0, 8, decoded_data, 24);
-        string_cat_printf(result, "FC: %03u, Card: %05u", facility, card_id);
+        furi_string_cat_printf(result, "FC: %03u, Card: %05u", facility, card_id);
     } else {
-        string_cat_printf(result, "Data: unknown");
+        furi_string_cat_printf(result, "Data: unknown");
     }
 };
 

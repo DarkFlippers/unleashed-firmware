@@ -51,7 +51,7 @@ static const uint32_t subghz_hopper_frequency_list[] = {
 };
 
 typedef struct {
-    string_t custom_preset_name;
+    FuriString* custom_preset_name;
     uint8_t* custom_preset_data;
     size_t custom_preset_data_size;
 } SubGhzSettingCustomPresetItem;
@@ -87,7 +87,7 @@ SubGhzSetting* subghz_setting_alloc(void) {
 static void subghz_setting_preset_reset(SubGhzSetting* instance) {
     for
         M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
-            string_clear(item->custom_preset_name);
+            furi_string_free(item->custom_preset_name);
             free(item->custom_preset_data);
         }
     SubGhzSettingCustomPresetItemArray_reset(instance->preset->data);
@@ -99,7 +99,7 @@ void subghz_setting_free(SubGhzSetting* instance) {
     FrequencyList_clear(instance->hopper_frequencies);
     for
         M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
-            string_clear(item->custom_preset_name);
+            furi_string_free(item->custom_preset_name);
             free(item->custom_preset_data);
         }
     SubGhzSettingCustomPresetItemArray_clear(instance->preset->data);
@@ -118,8 +118,8 @@ static void subghz_setting_load_default_preset(
     SubGhzSettingCustomPresetItem* item =
         SubGhzSettingCustomPresetItemArray_push_raw(instance->preset->data);
 
-    string_init(item->custom_preset_name);
-    string_set(item->custom_preset_name, preset_name);
+    item->custom_preset_name = furi_string_alloc();
+    furi_string_set(item->custom_preset_name, preset_name);
 
     while(preset_data[preset_data_count]) {
         preset_data_count += 2;
@@ -187,8 +187,8 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool no
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     uint32_t temp_data32;
     bool temp_bool;
 
@@ -206,7 +206,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool no
                 break;
             }
 
-            if((!strcmp(string_get_cstr(temp_str), SUBGHZ_SETTING_FILE_TYPE)) &&
+            if((!strcmp(furi_string_get_cstr(temp_str), SUBGHZ_SETTING_FILE_TYPE)) &&
                temp_data32 == SUBGHZ_SETTING_FILE_VERSION) {
             } else {
                 FURI_LOG_E(TAG, "Type or version mismatch");
@@ -272,15 +272,15 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool no
                 break;
             }
             while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
-                FURI_LOG_I(TAG, "Custom preset loaded %s", string_get_cstr(temp_str));
+                FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
                 subghz_setting_load_custom_preset(
-                    instance, string_get_cstr(temp_str), fff_data_file);
+                    instance, furi_string_get_cstr(temp_str), fff_data_file);
             }
 
         } while(false);
     }
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
 
@@ -323,7 +323,7 @@ const char* subghz_setting_get_preset_name(SubGhzSetting* instance, size_t idx) 
     }
     SubGhzSettingCustomPresetItem* item =
         SubGhzSettingCustomPresetItemArray_get(instance->preset->data, idx);
-    return string_get_cstr(item->custom_preset_name);
+    return furi_string_get_cstr(item->custom_preset_name);
 }
 
 int subghz_setting_get_inx_preset_by_name(SubGhzSetting* instance, const char* preset_name) {
@@ -331,7 +331,7 @@ int subghz_setting_get_inx_preset_by_name(SubGhzSetting* instance, const char* p
     size_t idx = 0;
     for
         M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
-            if(strcmp(string_get_cstr(item->custom_preset_name), preset_name) == 0) {
+            if(strcmp(furi_string_get_cstr(item->custom_preset_name), preset_name) == 0) {
                 return idx;
             }
             idx++;
@@ -349,8 +349,8 @@ bool subghz_setting_load_custom_preset(
     uint32_t temp_data32;
     SubGhzSettingCustomPresetItem* item =
         SubGhzSettingCustomPresetItemArray_push_raw(instance->preset->data);
-    string_init(item->custom_preset_name);
-    string_set(item->custom_preset_name, preset_name);
+    item->custom_preset_name = furi_string_alloc();
+    furi_string_set(item->custom_preset_name, preset_name);
     do {
         if(!flipper_format_get_value_count(fff_data_file, "Custom_preset_data", &temp_data32))
             break;
@@ -380,8 +380,8 @@ bool subghz_setting_delete_custom_preset(SubGhzSetting* instance, const char* pr
     SubGhzSettingCustomPresetItemArray_it_last(it, instance->preset->data);
     while(!SubGhzSettingCustomPresetItemArray_end_p(it)) {
         SubGhzSettingCustomPresetItem* item = SubGhzSettingCustomPresetItemArray_ref(it);
-        if(strcmp(string_get_cstr(item->custom_preset_name), preset_name) == 0) {
-            string_clear(item->custom_preset_name);
+        if(strcmp(furi_string_get_cstr(item->custom_preset_name), preset_name) == 0) {
+            furi_string_free(item->custom_preset_name);
             free(item->custom_preset_data);
             SubGhzSettingCustomPresetItemArray_remove(instance->preset->data, it);
             return true;

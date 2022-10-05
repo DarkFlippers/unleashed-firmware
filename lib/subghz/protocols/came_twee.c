@@ -446,14 +446,14 @@ bool subghz_protocol_decoder_came_twee_deserialize(void* context, FlipperFormat*
     return ret;
 }
 
-void subghz_protocol_decoder_came_twee_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_came_twee_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderCameTwee* instance = context;
     subghz_protocol_came_twee_remote_controller(&instance->generic);
     uint32_t code_found_hi = instance->generic.data >> 32;
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"

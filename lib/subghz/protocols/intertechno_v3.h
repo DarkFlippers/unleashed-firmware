@@ -108,4 +108,4 @@ bool subghz_protocol_decoder_intertechno_v3_deserialize(
  * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_intertechno_v3_get_string(void* context, string_t output);
+void subghz_protocol_decoder_intertechno_v3_get_string(void* context, FuriString* output);

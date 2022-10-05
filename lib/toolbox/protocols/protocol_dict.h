@@ -58,9 +58,9 @@ bool protocol_dict_encoder_start(ProtocolDict* dict, size_t protocol_index);
 
 LevelDuration protocol_dict_encoder_yield(ProtocolDict* dict, size_t protocol_index);
 
-void protocol_dict_render_data(ProtocolDict* dict, string_t result, size_t protocol_index);
+void protocol_dict_render_data(ProtocolDict* dict, FuriString* result, size_t protocol_index);
 
-void protocol_dict_render_brief_data(ProtocolDict* dict, string_t result, size_t protocol_index);
+void protocol_dict_render_brief_data(ProtocolDict* dict, FuriString* result, size_t protocol_index);
 
 uint32_t protocol_dict_get_validate_count(ProtocolDict* dict, size_t protocol_index);
 

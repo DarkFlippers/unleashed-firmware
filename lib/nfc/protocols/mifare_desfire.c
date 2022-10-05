@@ -42,14 +42,14 @@ void mf_df_clear(MifareDesfireData* data) {
     data->app_head = NULL;
 }
 
-void mf_df_cat_data(MifareDesfireData* data, string_t out) {
+void mf_df_cat_data(MifareDesfireData* data, FuriString* out) {
     mf_df_cat_card_info(data, out);
     for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
         mf_df_cat_application(app, out);
     }
 }
 
-void mf_df_cat_card_info(MifareDesfireData* data, string_t out) {
+void mf_df_cat_card_info(MifareDesfireData* data, FuriString* out) {
     mf_df_cat_version(&data->version, out);
     if(data->free_memory) {
         mf_df_cat_free_mem(data->free_memory, out);
@@ -59,8 +59,8 @@ void mf_df_cat_card_info(MifareDesfireData* data, string_t out) {
     }
 }
 
-void mf_df_cat_version(MifareDesfireVersion* version, string_t out) {
-    string_cat_printf(
+void mf_df_cat_version(MifareDesfireVersion* version, FuriString* out) {
+    furi_string_cat_printf(
         out,
         "%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
         version->uid[0],
@@ -70,7 +70,7 @@ void mf_df_cat_version(MifareDesfireVersion* version, string_t out) {
         version->uid[4],
         version->uid[5],
         version->uid[6]);
-    string_cat_printf(
+    furi_string_cat_printf(
         out,
         "hw %02x type %02x sub %02x\n"
         " maj %02x min %02x\n"
@@ -82,7 +82,7 @@ void mf_df_cat_version(MifareDesfireVersion* version, string_t out) {
         version->hw_minor,
         version->hw_storage,
         version->hw_proto);
-    string_cat_printf(
+    furi_string_cat_printf(
         out,
         "sw %02x type %02x sub %02x\n"
         " maj %02x min %02x\n"
@@ -94,7 +94,7 @@ void mf_df_cat_version(MifareDesfireVersion* version, string_t out) {
         version->sw_minor,
         version->sw_storage,
         version->sw_proto);
-    string_cat_printf(
+    furi_string_cat_printf(
         out,
         "batch %02x:%02x:%02x:%02x:%02x\n"
         "week %d year %d\n",
@@ -107,40 +107,40 @@ void mf_df_cat_version(MifareDesfireVersion* version, string_t out) {
         version->prod_year);
 }
 
-void mf_df_cat_free_mem(MifareDesfireFreeMemory* free_mem, string_t out) {
-    string_cat_printf(out, "freeMem %d\n", free_mem->bytes);
+void mf_df_cat_free_mem(MifareDesfireFreeMemory* free_mem, FuriString* out) {
+    furi_string_cat_printf(out, "freeMem %d\n", free_mem->bytes);
 }
 
-void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, string_t out) {
-    string_cat_printf(out, "changeKeyID %d\n", ks->change_key_id);
-    string_cat_printf(out, "configChangeable %d\n", ks->config_changeable);
-    string_cat_printf(out, "freeCreateDelete %d\n", ks->free_create_delete);
-    string_cat_printf(out, "freeDirectoryList %d\n", ks->free_directory_list);
-    string_cat_printf(out, "masterChangeable %d\n", ks->master_key_changeable);
+void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, FuriString* out) {
+    furi_string_cat_printf(out, "changeKeyID %d\n", ks->change_key_id);
+    furi_string_cat_printf(out, "configChangeable %d\n", ks->config_changeable);
+    furi_string_cat_printf(out, "freeCreateDelete %d\n", ks->free_create_delete);
+    furi_string_cat_printf(out, "freeDirectoryList %d\n", ks->free_directory_list);
+    furi_string_cat_printf(out, "masterChangeable %d\n", ks->master_key_changeable);
     if(ks->flags) {
-        string_cat_printf(out, "flags %d\n", ks->flags);
+        furi_string_cat_printf(out, "flags %d\n", ks->flags);
     }
-    string_cat_printf(out, "maxKeys %d\n", ks->max_keys);
+    furi_string_cat_printf(out, "maxKeys %d\n", ks->max_keys);
     for(MifareDesfireKeyVersion* kv = ks->key_version_head; kv; kv = kv->next) {
-        string_cat_printf(out, "key %d version %d\n", kv->id, kv->version);
+        furi_string_cat_printf(out, "key %d version %d\n", kv->id, kv->version);
     }
 }
 
-void mf_df_cat_application_info(MifareDesfireApplication* app, string_t out) {
-    string_cat_printf(out, "Application %02x%02x%02x\n", app->id[0], app->id[1], app->id[2]);
+void mf_df_cat_application_info(MifareDesfireApplication* app, FuriString* out) {
+    furi_string_cat_printf(out, "Application %02x%02x%02x\n", app->id[0], app->id[1], app->id[2]);
     if(app->key_settings) {
         mf_df_cat_key_settings(app->key_settings, out);
     }
 }
 
-void mf_df_cat_application(MifareDesfireApplication* app, string_t out) {
+void mf_df_cat_application(MifareDesfireApplication* app, FuriString* out) {
     mf_df_cat_application_info(app, out);
     for(MifareDesfireFile* file = app->file_head; file; file = file->next) {
         mf_df_cat_file(file, out);
     }
 }
 
-void mf_df_cat_file(MifareDesfireFile* file, string_t out) {
+void mf_df_cat_file(MifareDesfireFile* file, FuriString* out) {
     char* type = "unknown";
     switch(file->type) {
     case MifareDesfireFileTypeStandard:
@@ -171,9 +171,9 @@ void mf_df_cat_file(MifareDesfireFile* file, string_t out) {
         comm = "enciphered";
         break;
     }
-    string_cat_printf(out, "File %d\n", file->id);
-    string_cat_printf(out, "%s %s\n", type, comm);
-    string_cat_printf(
+    furi_string_cat_printf(out, "File %d\n", file->id);
+    furi_string_cat_printf(out, "%s %s\n", type, comm);
+    furi_string_cat_printf(
         out,
         "r %d w %d rw %d c %d\n",
         file->access_rights >> 12 & 0xF,
@@ -186,13 +186,13 @@ void mf_df_cat_file(MifareDesfireFile* file, string_t out) {
     case MifareDesfireFileTypeStandard:
     case MifareDesfireFileTypeBackup:
         size = file->settings.data.size;
-        string_cat_printf(out, "size %d\n", size);
+        furi_string_cat_printf(out, "size %d\n", size);
         break;
     case MifareDesfireFileTypeValue:
         size = 4;
-        string_cat_printf(
+        furi_string_cat_printf(
             out, "lo %d hi %d\n", file->settings.value.lo_limit, file->settings.value.hi_limit);
-        string_cat_printf(
+        furi_string_cat_printf(
             out,
             "limit %d enabled %d\n",
             file->settings.value.limited_credit_value,
@@ -202,33 +202,33 @@ void mf_df_cat_file(MifareDesfireFile* file, string_t out) {
     case MifareDesfireFileTypeCyclicRecord:
         size = file->settings.record.size;
         num = file->settings.record.cur;
-        string_cat_printf(out, "size %d\n", size);
-        string_cat_printf(out, "num %d max %d\n", num, file->settings.record.max);
+        furi_string_cat_printf(out, "size %d\n", size);
+        furi_string_cat_printf(out, "num %d max %d\n", num, file->settings.record.max);
         break;
     }
     uint8_t* data = file->contents;
     if(data) {
         for(int rec = 0; rec < num; rec++) {
-            string_cat_printf(out, "record %d\n", rec);
+            furi_string_cat_printf(out, "record %d\n", rec);
             for(int ch = 0; ch < size; ch += 4) {
-                string_cat_printf(out, "%03x|", ch);
+                furi_string_cat_printf(out, "%03x|", ch);
                 for(int i = 0; i < 4; i++) {
                     if(ch + i < size) {
-                        string_cat_printf(out, "%02x ", data[rec * size + ch + i]);
+                        furi_string_cat_printf(out, "%02x ", data[rec * size + ch + i]);
                     } else {
-                        string_cat_printf(out, "   ");
+                        furi_string_cat_printf(out, "   ");
                     }
                 }
                 for(int i = 0; i < 4 && ch + i < size; i++) {
                     if(isprint(data[rec * size + ch + i])) {
-                        string_cat_printf(out, "%c", data[rec * size + ch + i]);
+                        furi_string_cat_printf(out, "%c", data[rec * size + ch + i]);
                     } else {
-                        string_cat_printf(out, ".");
+                        furi_string_cat_printf(out, ".");
                     }
                 }
-                string_cat_printf(out, "\n");
+                furi_string_cat_printf(out, "\n");
             }
-            string_cat_printf(out, " \n");
+            furi_string_cat_printf(out, " \n");
         }
     }
 }

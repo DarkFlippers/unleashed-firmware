@@ -1,6 +1,6 @@
 #pragma once
 
-#include <m-string.h>
+#include <furi.h>
 #include <m-array.h>
 #include <stdint.h>
 
@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 typedef struct {
-    string_t name;
+    FuriString* name;
     uint64_t key;
     uint16_t type;
 } SubGhzKey;

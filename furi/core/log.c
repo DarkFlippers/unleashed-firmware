@@ -25,8 +25,8 @@ void furi_log_init() {
 void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...) {
     if(level <= furi_log.log_level &&
        furi_mutex_acquire(furi_log.mutex, FuriWaitForever) == FuriStatusOk) {
-        string_t string;
-        string_init(string);
+        FuriString* string;
+        string = furi_string_alloc();
 
         const char* color = FURI_LOG_CLR_RESET;
         const char* log_letter = " ";
@@ -56,23 +56,23 @@ void furi_log_print_format(FuriLogLevel level, const char* tag, const char* form
         }
 
         // Timestamp
-        string_printf(
+        furi_string_printf(
             string,
             "%lu %s[%s][%s] " FURI_LOG_CLR_RESET,
             furi_log.timetamp(),
             color,
             log_letter,
             tag);
-        furi_log.puts(string_get_cstr(string));
-        string_reset(string);
+        furi_log.puts(furi_string_get_cstr(string));
+        furi_string_reset(string);
 
         va_list args;
         va_start(args, format);
-        string_vprintf(string, format, args);
+        furi_string_vprintf(string, format, args);
         va_end(args);
 
-        furi_log.puts(string_get_cstr(string));
-        string_clear(string);
+        furi_log.puts(furi_string_get_cstr(string));
+        furi_string_free(string);
 
         furi_log.puts("\r\n");
 

@@ -4,31 +4,31 @@ void lfrfid_scene_delete_confirm_on_enter(void* context) {
     LfRfid* app = context;
     Widget* widget = app->widget;
 
-    string_t tmp_string;
-    string_init(tmp_string);
+    FuriString* tmp_string;
+    tmp_string = furi_string_alloc();
 
     widget_add_button_element(widget, GuiButtonTypeLeft, "Back", lfrfid_widget_callback, app);
     widget_add_button_element(widget, GuiButtonTypeRight, "Delete", lfrfid_widget_callback, app);
 
-    string_printf(tmp_string, "Delete %s?", string_get_cstr(app->file_name));
+    furi_string_printf(tmp_string, "Delete %s?", furi_string_get_cstr(app->file_name));
     widget_add_string_element(
-        widget, 64, 0, AlignCenter, AlignTop, FontPrimary, string_get_cstr(tmp_string));
+        widget, 64, 0, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp_string));
 
-    string_reset(tmp_string);
+    furi_string_reset(tmp_string);
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     uint8_t* data = (uint8_t*)malloc(size);
     protocol_dict_get_data(app->dict, app->protocol_id, data, size);
     for(uint8_t i = 0; i < MIN(size, (size_t)8); i++) {
         if(i != 0) {
-            string_cat_printf(tmp_string, " ");
+            furi_string_cat_printf(tmp_string, " ");
         }
 
-        string_cat_printf(tmp_string, "%02X", data[i]);
+        furi_string_cat_printf(tmp_string, "%02X", data[i]);
     }
     free(data);
 
     widget_add_string_element(
-        widget, 64, 19, AlignCenter, AlignTop, FontSecondary, string_get_cstr(tmp_string));
+        widget, 64, 19, AlignCenter, AlignTop, FontSecondary, furi_string_get_cstr(tmp_string));
     widget_add_string_element(
         widget,
         64,
@@ -39,7 +39,7 @@ void lfrfid_scene_delete_confirm_on_enter(void* context) {
         protocol_dict_get_name(app->dict, app->protocol_id));
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
-    string_clear(tmp_string);
+    furi_string_free(tmp_string);
 }
 
 bool lfrfid_scene_delete_confirm_on_event(void* context, SceneManagerEvent event) {

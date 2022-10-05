@@ -2,7 +2,6 @@
 
 #include <storage/storage.h>
 
-#include <m-string.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -18,7 +17,7 @@ typedef enum {
 
 typedef struct {
     ResourceManifestEntryType type;
-    string_t name;
+    FuriString* name;
     uint32_t size;
     uint8_t hash[16];
 } ResourceManifestEntry;

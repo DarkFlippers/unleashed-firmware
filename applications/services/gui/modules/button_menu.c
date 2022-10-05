@@ -79,8 +79,8 @@ static void button_menu_draw_common_button(
         canvas_draw_rframe(canvas, item_x, item_y, ITEM_WIDTH, ITEM_HEIGHT, 5);
     }
 
-    string_t disp_str;
-    string_init_set_str(disp_str, text);
+    FuriString* disp_str;
+    disp_str = furi_string_alloc_set(text);
     elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
 
     canvas_draw_str_aligned(
@@ -89,9 +89,9 @@ static void button_menu_draw_common_button(
         item_y + (ITEM_HEIGHT / 2),
         AlignCenter,
         AlignCenter,
-        string_get_cstr(disp_str));
+        furi_string_get_cstr(disp_str));
 
-    string_clear(disp_str);
+    furi_string_free(disp_str);
 }
 
 static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
@@ -116,12 +116,12 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
     }
 
     if(model->header) {
-        string_t disp_str;
-        string_init_set_str(disp_str, model->header);
+        FuriString* disp_str;
+        disp_str = furi_string_alloc_set(model->header);
         elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
         canvas_draw_str_aligned(
-            canvas, 32, 10, AlignCenter, AlignCenter, string_get_cstr(disp_str));
-        string_clear(disp_str);
+            canvas, 32, 10, AlignCenter, AlignCenter, furi_string_get_cstr(disp_str));
+        furi_string_free(disp_str);
     }
 
     for(ButtonMenuItemArray_it(it, model->items); !ButtonMenuItemArray_end_p(it);

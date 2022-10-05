@@ -41,7 +41,7 @@ typedef bool (*SubGhzDeserialize)(void* context, FlipperFormat* flipper_format);
 typedef void (*SubGhzDecoderFeed)(void* decoder, bool level, uint32_t duration);
 typedef void (*SubGhzDecoderReset)(void* decoder);
 typedef uint8_t (*SubGhzGetHashData)(void* decoder);
-typedef void (*SubGhzGetString)(void* decoder, string_t output);
+typedef void (*SubGhzGetString)(void* decoder, FuriString* output);
 
 // Encoder specific
 typedef void (*SubGhzEncoderStop)(void* encoder);

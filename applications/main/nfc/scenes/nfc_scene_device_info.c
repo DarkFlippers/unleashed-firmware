@@ -12,49 +12,52 @@ void nfc_scene_device_info_on_enter(void* context) {
     Nfc* nfc = context;
     NfcDeviceData* dev_data = &nfc->dev->dev_data;
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     if(dev_data->protocol == NfcDeviceProtocolEMV) {
         EmvData* emv_data = &dev_data->emv_data;
-        string_printf(temp_str, "\e#%s\n", emv_data->name);
+        furi_string_printf(temp_str, "\e#%s\n", emv_data->name);
         for(uint8_t i = 0; i < emv_data->number_len; i += 2) {
-            string_cat_printf(temp_str, "%02X%02X ", emv_data->number[i], emv_data->number[i + 1]);
+            furi_string_cat_printf(
+                temp_str, "%02X%02X ", emv_data->number[i], emv_data->number[i + 1]);
         }
-        string_strim(temp_str);
+        furi_string_trim(temp_str);
 
         // Add expiration date
         if(emv_data->exp_mon) {
-            string_cat_printf(temp_str, "\nExp: %02X/%02X", emv_data->exp_mon, emv_data->exp_year);
+            furi_string_cat_printf(
+                temp_str, "\nExp: %02X/%02X", emv_data->exp_mon, emv_data->exp_year);
         }
         // Parse currency code
         if((emv_data->currency_code)) {
-            string_t currency_name;
-            string_init(currency_name);
+            FuriString* currency_name;
+            currency_name = furi_string_alloc();
             if(nfc_emv_parser_get_currency_name(
                    nfc->dev->storage, emv_data->currency_code, currency_name)) {
-                string_cat_printf(temp_str, "\nCur: %s  ", string_get_cstr(currency_name));
+                furi_string_cat_printf(
+                    temp_str, "\nCur: %s  ", furi_string_get_cstr(currency_name));
             }
-            string_clear(currency_name);
+            furi_string_free(currency_name);
         }
         // Parse country code
         if((emv_data->country_code)) {
-            string_t country_name;
-            string_init(country_name);
+            FuriString* country_name;
+            country_name = furi_string_alloc();
             if(nfc_emv_parser_get_country_name(
                    nfc->dev->storage, emv_data->country_code, country_name)) {
-                string_cat_printf(temp_str, "Reg: %s", string_get_cstr(country_name));
+                furi_string_cat_printf(temp_str, "Reg: %s", furi_string_get_cstr(country_name));
             }
-            string_clear(country_name);
+            furi_string_free(country_name);
         }
     } else if(
         dev_data->protocol == NfcDeviceProtocolMifareClassic ||
         dev_data->protocol == NfcDeviceProtocolMifareUl) {
-        string_set(temp_str, nfc->dev->dev_data.parsed_data);
+        furi_string_set(temp_str, nfc->dev->dev_data.parsed_data);
     }
 
-    widget_add_text_scroll_element(nfc->widget, 0, 0, 128, 52, string_get_cstr(temp_str));
-    string_clear(temp_str);
+    widget_add_text_scroll_element(nfc->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
+    furi_string_free(temp_str);
 
     widget_add_button_element(
         nfc->widget, GuiButtonTypeRight, "More", nfc_scene_device_info_widget_callback, nfc);

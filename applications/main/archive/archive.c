@@ -81,7 +81,7 @@ void archive_free(ArchiveApp* archive) {
     scene_manager_free(archive->scene_manager);
 
     browser_free(archive->browser);
-    string_clear(archive->fav_move_str);
+    furi_string_free(archive->fav_move_str);
 
     furi_record_close(RECORD_DIALOGS);
     archive->dialogs = NULL;

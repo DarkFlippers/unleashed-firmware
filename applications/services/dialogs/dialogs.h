@@ -1,7 +1,6 @@
 #pragma once
 #include <furi.h>
 #include <gui/canvas.h>
-#include "m-string.h"
 #include <gui/modules/file_browser.h>
 
 #ifdef __cplusplus
@@ -56,8 +55,8 @@ void dialog_file_browser_set_basic_options(
  */
 bool dialog_file_browser_show(
     DialogsApp* context,
-    string_ptr result_path,
-    string_ptr path,
+    FuriString* result_path,
+    FuriString* path,
     const DialogsFileBrowserOptions* options);
 
 /****************** MESSAGE ******************/

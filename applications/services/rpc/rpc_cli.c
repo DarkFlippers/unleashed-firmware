@@ -37,7 +37,7 @@ static void rpc_cli_session_terminated_callback(void* context) {
     furi_semaphore_release(cli_rpc->terminate_semaphore);
 }
 
-void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
+void rpc_cli_command_start_session(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     furi_assert(cli);
     furi_assert(context);

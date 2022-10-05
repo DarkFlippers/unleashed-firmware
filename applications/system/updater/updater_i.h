@@ -35,7 +35,7 @@ typedef enum {
 
 typedef struct UpdaterManifestProcessingState {
     UpdateManifest* manifest;
-    string_t message;
+    FuriString* message;
     bool ready_to_be_applied;
 } UpdaterManifestProcessingState;
 
@@ -54,7 +54,7 @@ typedef struct {
 
     UpdateTask* update_task;
     Widget* widget;
-    string_t startup_arg;
+    FuriString* startup_arg;
     int32_t idle_ticks;
 } Updater;
 

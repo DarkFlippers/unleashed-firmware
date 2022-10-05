@@ -33,7 +33,7 @@ void lfrfid_scene_start_on_enter(void* context) {
         submenu, scene_manager_get_scene_state(app->scene_manager, LfRfidSceneStart));
 
     // clear key
-    string_reset(app->file_name);
+    furi_string_reset(app->file_name);
     app->protocol_id = PROTOCOL_NO;
     app->read_type = LFRFIDWorkerReadTypeAuto;
 
@@ -49,7 +49,7 @@ bool lfrfid_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
             consumed = true;
         } else if(event.event == SubmenuIndexSaved) {
-            string_set_str(app->file_path, LFRFID_APP_FOLDER);
+            furi_string_set(app->file_path, LFRFID_APP_FOLDER);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSelectKey);
             consumed = true;
         } else if(event.event == SubmenuIndexAddManually) {

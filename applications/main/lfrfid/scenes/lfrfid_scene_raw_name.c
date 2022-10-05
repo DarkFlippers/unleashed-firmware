@@ -4,9 +4,9 @@ void lfrfid_scene_raw_name_on_enter(void* context) {
     LfRfid* app = context;
     TextInput* text_input = app->text_input;
 
-    const char* key_name = string_get_cstr(app->raw_file_name);
+    const char* key_name = furi_string_get_cstr(app->raw_file_name);
 
-    bool key_name_is_empty = string_empty_p(app->file_name);
+    bool key_name_is_empty = furi_string_empty(app->file_name);
     if(key_name_is_empty) {
         lfrfid_text_store_set(app, "RfidRecord");
     } else {
@@ -38,7 +38,7 @@ bool lfrfid_scene_raw_name_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == LfRfidEventNext) {
             consumed = true;
-            string_set_str(app->raw_file_name, app->text_store);
+            furi_string_set(app->raw_file_name, app->text_store);
             scene_manager_next_scene(scene_manager, LfRfidSceneRawInfo);
         }
     }

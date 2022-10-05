@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <lib/toolbox/level_duration.h>
-#include <mlib/m-string.h>
+#include <furi.h>
 
 typedef void* (*ProtocolAlloc)(void);
 typedef void (*ProtocolFree)(void* protocol);
@@ -15,7 +15,7 @@ typedef bool (*ProtocolDecoderFeed)(void* protocol, bool level, uint32_t duratio
 typedef bool (*ProtocolEncoderStart)(void* protocol);
 typedef LevelDuration (*ProtocolEncoderYield)(void* protocol);
 
-typedef void (*ProtocolRenderData)(void* protocol, string_t result);
+typedef void (*ProtocolRenderData)(void* protocol, FuriString* result);
 typedef bool (*ProtocolWriteData)(void* protocol, void* data);
 
 typedef struct {

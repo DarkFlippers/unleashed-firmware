@@ -1,10 +1,9 @@
 #include "widget_element_i.h"
 #include <gui/elements.h>
-#include <m-string.h>
 
 typedef struct {
     GuiButtonType button_type;
-    string_t text;
+    FuriString* text;
     ButtonCallback callback;
     void* context;
 } GuiButtonModel;
@@ -18,11 +17,11 @@ static void gui_button_draw(Canvas* canvas, WidgetElement* element) {
     canvas_set_font(canvas, FontSecondary);
 
     if(model->button_type == GuiButtonTypeLeft) {
-        elements_button_left(canvas, string_get_cstr(model->text));
+        elements_button_left(canvas, furi_string_get_cstr(model->text));
     } else if(model->button_type == GuiButtonTypeRight) {
-        elements_button_right(canvas, string_get_cstr(model->text));
+        elements_button_right(canvas, furi_string_get_cstr(model->text));
     } else if(model->button_type == GuiButtonTypeCenter) {
-        elements_button_center(canvas, string_get_cstr(model->text));
+        elements_button_center(canvas, furi_string_get_cstr(model->text));
     }
 }
 
@@ -50,7 +49,7 @@ static void gui_button_free(WidgetElement* gui_button) {
     furi_assert(gui_button);
 
     GuiButtonModel* model = gui_button->model;
-    string_clear(model->text);
+    furi_string_free(model->text);
     free(gui_button->model);
     free(gui_button);
 }
@@ -65,7 +64,7 @@ WidgetElement* widget_element_button_create(
     model->button_type = button_type;
     model->callback = callback;
     model->context = context;
-    string_init_set_str(model->text, text);
+    model->text = furi_string_alloc_set(text);
 
     // Allocate and init Element
     WidgetElement* gui_button = malloc(sizeof(WidgetElement));

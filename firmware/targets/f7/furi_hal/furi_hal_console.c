@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_ll_usart.h>
-#include <m-string.h>
 
 #include <utilities_conf.h>
 
@@ -88,13 +87,13 @@ void furi_hal_console_tx_with_new_line(const uint8_t* buffer, size_t buffer_size
 }
 
 void furi_hal_console_printf(const char format[], ...) {
-    string_t string;
+    FuriString* string;
     va_list args;
     va_start(args, format);
-    string_init_vprintf(string, format, args);
+    string = furi_string_alloc_vprintf(format, args);
     va_end(args);
-    furi_hal_console_tx((const uint8_t*)string_get_cstr(string), string_size(string));
-    string_clear(string);
+    furi_hal_console_tx((const uint8_t*)furi_string_get_cstr(string), furi_string_size(string));
+    furi_string_free(string);
 }
 
 void furi_hal_console_puts(const char* data) {

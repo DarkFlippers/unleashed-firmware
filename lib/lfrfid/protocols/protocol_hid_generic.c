@@ -221,25 +221,29 @@ bool protocol_hid_generic_write_data(ProtocolHID* protocol, void* data) {
     return result;
 };
 
-static void protocol_hid_generic_string_cat_protocol_bits(ProtocolHID* protocol, uint8_t protocol_size, string_t result) {
+static void protocol_hid_generic_string_cat_protocol_bits(
+    ProtocolHID* protocol,
+    uint8_t protocol_size,
+    FuriString* result) {
     // round up to the nearest nibble
     const uint8_t hex_character_count = (protocol_size + 3) / 4;
     const uint8_t protocol_bit_index = HID_DECODED_BIT_SIZE - protocol_size;
 
     for(size_t i = 0; i < hex_character_count; i++) {
-        uint8_t nibble =
-            i == 0 ? bit_lib_get_bits(
-                         protocol->data, protocol_bit_index, protocol_size % 4 == 0 ? 4 : protocol_size % 4) :
-                     bit_lib_get_bits(protocol->data, protocol_bit_index + i * 4, 4);
-        string_cat_printf(result, "%X", nibble & 0xF);
+        uint8_t nibble = i == 0 ? bit_lib_get_bits(
+                                      protocol->data,
+                                      protocol_bit_index,
+                                      protocol_size % 4 == 0 ? 4 : protocol_size % 4) :
+                                  bit_lib_get_bits(protocol->data, protocol_bit_index + i * 4, 4);
+        furi_string_cat_printf(result, "%X", nibble & 0xF);
     }
 }
 
-void protocol_hid_generic_render_data(ProtocolHID* protocol, string_t result) {
+void protocol_hid_generic_render_data(ProtocolHID* protocol, FuriString* result) {
     const uint8_t protocol_size = protocol_hid_generic_decode_protocol_size(protocol);
 
     if(protocol_size == HID_PROTOCOL_SIZE_UNKNOWN) {
-        string_printf(
+        furi_string_printf(
             result,
             "Generic HID Proximity\r\n"
             "Data: %02X%02X%02X%02X%02X%X",
@@ -250,7 +254,7 @@ void protocol_hid_generic_render_data(ProtocolHID* protocol, string_t result) {
             protocol->data[4],
             protocol->data[5] >> 4);
     } else {
-        string_printf(
+        furi_string_printf(
             result,
             "%hhu-bit HID Proximity\r\n"
             "Data: ",

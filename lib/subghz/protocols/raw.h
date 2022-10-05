@@ -121,7 +121,7 @@ uint8_t subghz_protocol_decoder_raw_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderRAW instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_raw_get_string(void* context, string_t output);
+void subghz_protocol_decoder_raw_get_string(void* context, FuriString* output);
 
 /**
  * Allocate SubGhzProtocolEncoderRAW.

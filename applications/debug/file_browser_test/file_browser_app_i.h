@@ -22,7 +22,7 @@ struct FileBrowserApp {
     Widget* widget;
     FileBrowser* file_browser;
 
-    string_t file_path;
+    FuriString* file_path;
 };
 
 typedef enum {

@@ -8,7 +8,7 @@
 struct VariableItem {
     const char* label;
     uint8_t current_value_index;
-    string_t current_value_text;
+    FuriString* current_value_text;
     uint8_t values_count;
     VariableItemChangeCallback change_callback;
     void* context;
@@ -77,7 +77,7 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
                 item_text_y,
                 AlignCenter,
                 AlignBottom,
-                string_get_cstr(item->current_value_text));
+                furi_string_get_cstr(item->current_value_text));
 
             if(item->current_value_index < (item->values_count - 1)) {
                 canvas_draw_str(canvas, 115, item_text_y, ">");
@@ -303,7 +303,7 @@ void variable_item_list_free(VariableItemList* variable_item_list) {
             VariableItemArray_it_t it;
             for(VariableItemArray_it(it, model->items); !VariableItemArray_end_p(it);
                 VariableItemArray_next(it)) {
-                string_clear(VariableItemArray_ref(it)->current_value_text);
+                furi_string_free(VariableItemArray_ref(it)->current_value_text);
             }
             VariableItemArray_clear(model->items);
             return false;
@@ -320,7 +320,7 @@ void variable_item_list_reset(VariableItemList* variable_item_list) {
             VariableItemArray_it_t it;
             for(VariableItemArray_it(it, model->items); !VariableItemArray_end_p(it);
                 VariableItemArray_next(it)) {
-                string_clear(VariableItemArray_ref(it)->current_value_text);
+                furi_string_free(VariableItemArray_ref(it)->current_value_text);
             }
             VariableItemArray_reset(model->items);
             return false;
@@ -350,7 +350,7 @@ VariableItem* variable_item_list_add(
             item->change_callback = change_callback;
             item->context = context;
             item->current_value_index = 0;
-            string_init(item->current_value_text);
+            item->current_value_text = furi_string_alloc();
             return true;
         });
 
@@ -376,7 +376,7 @@ void variable_item_set_current_value_index(VariableItem* item, uint8_t current_v
 }
 
 void variable_item_set_current_value_text(VariableItem* item, const char* current_value_text) {
-    string_set_str(item->current_value_text, current_value_text);
+    furi_string_set(item->current_value_text, current_value_text);
 }
 
 uint8_t variable_item_get_current_value_index(VariableItem* item) {

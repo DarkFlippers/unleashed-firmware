@@ -92,19 +92,19 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
                app->fs_api, bench_size[i], bench_data, &bench_w_speed[i]))
             break;
 
-        if(i > 0) string_cat_printf(app->text_string, "\n");
-        string_cat_printf(app->text_string, "%ub : W %luK ", bench_size[i], bench_w_speed[i]);
+        if(i > 0) furi_string_cat_printf(app->text_string, "\n");
+        furi_string_cat_printf(app->text_string, "%ub : W %luK ", bench_size[i], bench_w_speed[i]);
         dialog_ex_set_header(dialog_ex, NULL, 0, 0, AlignCenter, AlignCenter);
         dialog_ex_set_text(
-            dialog_ex, string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
+            dialog_ex, furi_string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
 
         if(!storage_settings_scene_bench_read(
                app->fs_api, bench_size[i], bench_data, &bench_r_speed[i]))
             break;
 
-        string_cat_printf(app->text_string, "R %luK", bench_r_speed[i]);
+        furi_string_cat_printf(app->text_string, "R %luK", bench_r_speed[i]);
         dialog_ex_set_text(
-            dialog_ex, string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
+            dialog_ex, furi_string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
     }
 
     free(bench_data);
@@ -159,5 +159,5 @@ void storage_settings_scene_benchmark_on_exit(void* context) {
 
     dialog_ex_reset(dialog_ex);
 
-    string_reset(app->text_string);
+    furi_string_reset(app->text_string);
 }

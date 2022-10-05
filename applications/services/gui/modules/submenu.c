@@ -65,17 +65,17 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
                 canvas_set_color(canvas, ColorBlack);
             }
 
-            string_t disp_str;
-            string_init_set_str(disp_str, SubmenuItemArray_cref(it)->label);
+            FuriString* disp_str;
+            disp_str = furi_string_alloc_set(SubmenuItemArray_cref(it)->label);
             elements_string_fit_width(canvas, disp_str, item_width - 20);
 
             canvas_draw_str(
                 canvas,
                 6,
                 y_offset + (item_position * item_height) + item_height - 4,
-                string_get_cstr(disp_str));
+                furi_string_get_cstr(disp_str));
 
-            string_clear(disp_str);
+            furi_string_free(disp_str);
         }
 
         position++;

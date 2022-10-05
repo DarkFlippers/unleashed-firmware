@@ -104,4 +104,4 @@ bool subghz_protocol_decoder_power_smart_deserialize(void* context, FlipperForma
  * @param context Pointer to a SubGhzProtocolDecoderPowerSmart instance
  * @param output Resulting text
  */
-void subghz_protocol_decoder_power_smart_get_string(void* context, string_t output);
+void subghz_protocol_decoder_power_smart_get_string(void* context, FuriString* output);

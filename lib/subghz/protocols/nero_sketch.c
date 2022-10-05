@@ -355,7 +355,7 @@ bool subghz_protocol_decoder_nero_sketch_deserialize(void* context, FlipperForma
     return ret;
 }
 
-void subghz_protocol_decoder_nero_sketch_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_nero_sketch_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroSketch* instance = context;
 
@@ -368,7 +368,7 @@ void subghz_protocol_decoder_nero_sketch_get_string(void* context, string_t outp
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"

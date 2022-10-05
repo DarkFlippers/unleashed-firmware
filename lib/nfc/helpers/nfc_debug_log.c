@@ -1,6 +1,5 @@
 #include "nfc_debug_log.h"
 
-#include <m-string.h>
 #include <storage/storage.h>
 #include <stream/buffered_file_stream.h>
 
@@ -10,7 +9,7 @@
 
 struct NfcDebugLog {
     Stream* file_stream;
-    string_t data_str;
+    FuriString* data_str;
 };
 
 NfcDebugLog* nfc_debug_log_alloc() {
@@ -30,7 +29,7 @@ NfcDebugLog* nfc_debug_log_alloc() {
         free(instance);
         instance = NULL;
     } else {
-        string_init(instance->data_str);
+        instance->data_str = furi_string_alloc();
     }
     furi_record_close(RECORD_STORAGE);
 
@@ -44,7 +43,7 @@ void nfc_debug_log_free(NfcDebugLog* instance) {
 
     buffered_file_stream_close(instance->file_stream);
     stream_free(instance->file_stream);
-    string_clear(instance->data_str);
+    furi_string_free(instance->data_str);
 
     free(instance);
 }
@@ -61,12 +60,12 @@ void nfc_debug_log_process_data(
     furi_assert(data);
     UNUSED(crc_dropped);
 
-    string_printf(instance->data_str, "%lu %c:", furi_get_tick(), reader_to_tag ? 'R' : 'T');
+    furi_string_printf(instance->data_str, "%lu %c:", furi_get_tick(), reader_to_tag ? 'R' : 'T');
     uint16_t data_len = len;
     for(size_t i = 0; i < data_len; i++) {
-        string_cat_printf(instance->data_str, " %02x", data[i]);
+        furi_string_cat_printf(instance->data_str, " %02x", data[i]);
     }
-    string_push_back(instance->data_str, '\n');
+    furi_string_push_back(instance->data_str, '\n');
 
     stream_write_string(instance->file_stream, instance->data_str);
 }

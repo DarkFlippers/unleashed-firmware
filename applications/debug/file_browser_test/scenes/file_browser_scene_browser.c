@@ -1,8 +1,5 @@
 #include "../file_browser_app_i.h"
-#include <core/check.h>
-#include <core/log.h>
-#include "furi_hal.h"
-#include "m-string.h"
+#include <furi.h>
 
 #define DEFAULT_PATH "/"
 #define EXTENSION "*"

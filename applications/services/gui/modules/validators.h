@@ -1,6 +1,5 @@
 #pragma once
 
-#include <m-string.h>
 #include <core/common_defines.h>
 
 #ifdef __cplusplus
@@ -15,7 +14,7 @@ ValidatorIsFile* validator_is_file_alloc_init(
 
 void validator_is_file_free(ValidatorIsFile* instance);
 
-bool validator_is_file_callback(const char* text, string_t error, void* context);
+bool validator_is_file_callback(const char* text, FuriString* error, void* context);
 
 #ifdef __cplusplus
 }

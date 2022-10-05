@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <m-string.h>
 #include <storage/storage.h>
 
 #ifdef __cplusplus

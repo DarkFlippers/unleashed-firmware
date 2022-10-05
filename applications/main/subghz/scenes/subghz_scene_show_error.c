@@ -33,7 +33,7 @@ void subghz_scene_show_error_on_enter(void* context) {
         AlignCenter,
         AlignCenter,
         FontSecondary,
-        string_get_cstr(subghz->error_str));
+        furi_string_get_cstr(subghz->error_str));
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowError) ==
        SubGhzCustomEventManagerSet) {
         widget_add_button_element(
@@ -89,6 +89,6 @@ void subghz_scene_show_error_on_exit(void* context) {
     scene_manager_set_scene_state(
         subghz->scene_manager, SubGhzSceneShowError, SubGhzCustomEventManagerNoSet);
     widget_reset(subghz->widget);
-    string_reset(subghz->error_str);
+    furi_string_reset(subghz->error_str);
     notification_message(subghz->notifications, &sequence_reset_rgb);
 }
