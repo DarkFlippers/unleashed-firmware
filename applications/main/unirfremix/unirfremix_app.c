@@ -994,7 +994,7 @@ int32_t unirfremix_app(void* p) {
                     if(app->up_enabled) {
                         if(app->processing == 0) {
                             furi_string_reset(app->signal);
-                            app->signal = app->up_file;
+                            furi_string_set(app->signal, app->up_file);
                             app->button = 1;
                             app->processing = 1;
                         }
@@ -1012,7 +1012,7 @@ int32_t unirfremix_app(void* p) {
                     if(app->down_enabled) {
                         if(app->processing == 0) {
                             furi_string_reset(app->signal);
-                            app->signal = app->down_file;
+                            furi_string_set(app->signal, app->down_file);
                             app->button = 2;
                             app->processing = 1;
                         }
@@ -1030,7 +1030,7 @@ int32_t unirfremix_app(void* p) {
                     if(app->right_enabled) {
                         if(app->processing == 0) {
                             furi_string_reset(app->signal);
-                            app->signal = app->right_file;
+                            furi_string_set(app->signal, app->right_file);
                             app->button = 3;
                             app->processing = 1;
                         }
@@ -1048,7 +1048,7 @@ int32_t unirfremix_app(void* p) {
                     if(app->left_enabled) {
                         if(app->processing == 0) {
                             furi_string_reset(app->signal);
-                            app->signal = app->left_file;
+                            furi_string_set(app->signal, app->left_file);
                             app->button = 4;
                             app->processing = 1;
                         }
@@ -1066,7 +1066,7 @@ int32_t unirfremix_app(void* p) {
                     if(app->ok_enabled) {
                         if(app->processing == 0) {
                             furi_string_reset(app->signal);
-                            app->signal = app->ok_file;
+                            furi_string_set(app->signal, app->ok_file);
                             app->button = 5;
                             app->processing = 1;
                         }
