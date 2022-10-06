@@ -3,6 +3,7 @@
 * PR: Add CAME 12bit 303MHz to SubGHz Bruteforcer (by @derskythe | PR #87)
 * Adapted all plugins and other code to new FuriString, fixed archive menu issues with new string type
 * SubGHz: proper free of rainbow tables
+* OFW: Show in-app icons & names in archive browser
 * OFW: M*LIB: non-inlined strings, FuriString primitive
 * OFW PR: Remove string_push_uint64 (OFW PR 1832 by Astrrra)
 * OFW PR: updated icon names (OFW PR 1829 by nminaylov)
