@@ -20,6 +20,7 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeBadUsb] = "Bad USB",
     [ArchiveFileTypeU2f] = "U2F",
     [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
+    [ArchiveFileTypeApplication] = "Applications",
 };
 
 static void archive_loader_callback(const void* message, void* context) {

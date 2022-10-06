@@ -14,6 +14,7 @@ static const char* ArchiveTabNames[] = {
     [ArchiveTabInfrared] = "Infrared",
     [ArchiveTabBadUsb] = "Bad USB",
     [ArchiveTabU2f] = "U2F",
+    [ArchiveTabApplications] = "Apps",
     [ArchiveTabBrowser] = "Browser",
 };
 
@@ -29,6 +30,7 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeFolder] = &I_dir_10px,
     [ArchiveFileTypeUnknown] = &I_unknown_10px,
     [ArchiveFileTypeLoading] = &I_loading_10px,
+    [ArchiveFileTypeApplication] = &I_unknown_10px,
 };
 
 void archive_browser_set_callback(
@@ -124,12 +126,23 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
         uint8_t x_offset = (model->move_fav && model->item_idx == idx) ? MOVE_OFFSET : 0;
 
         ArchiveFileTypeEnum file_type = ArchiveFileTypeLoading;
+        uint8_t* custom_icon_data = NULL;
 
         if(archive_is_item_in_array(model, idx)) {
             ArchiveFile_t* file = files_array_get(
                 model->files, CLAMP(idx - model->array_offset, (int32_t)(array_size - 1), 0));
-            path_extract_filename(file->path, str_buf, archive_is_known_app(file->type));
             file_type = file->type;
+            if(file_type == ArchiveFileTypeApplication) {
+                if(file->custom_icon_data) {
+                    custom_icon_data = file->custom_icon_data;
+                    furi_string_set(str_buf, file->custom_name);
+                } else {
+                    file_type = ArchiveFileTypeUnknown;
+                    path_extract_filename(file->path, str_buf, archive_is_known_app(file->type));
+                }
+            } else {
+                path_extract_filename(file->path, str_buf, archive_is_known_app(file->type));
+            }
         } else {
             furi_string_set(str_buf, "---");
         }
@@ -143,7 +156,13 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
             canvas_set_color(canvas, ColorBlack);
         }
 
-        canvas_draw_icon(canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file_type]);
+        if(custom_icon_data) {
+            canvas_draw_bitmap(
+                canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, 11, 10, custom_icon_data);
+        } else {
+            canvas_draw_icon(
+                canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file_type]);
+        }
         canvas_draw_str(
             canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, furi_string_get_cstr(str_buf));
 
