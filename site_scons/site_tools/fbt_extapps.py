@@ -6,56 +6,146 @@ import SCons.Warnings
 import os
 import pathlib
 from fbt.elfmanifest import assemble_manifest_data
+from fbt.appmanifest import FlipperManifestException
 from fbt.sdk import SdkCache
 import itertools
 
+from site_scons.fbt.appmanifest import FlipperApplication
+
 
 def BuildAppElf(env, app):
-    work_dir = env.subst("$EXT_APPS_WORK_DIR")
+    ext_apps_work_dir = env.subst("$EXT_APPS_WORK_DIR")
+    app_work_dir = os.path.join(ext_apps_work_dir, app.appid)
 
-    app_alias = f"{env['FIRMWARE_BUILD_CFG']}_{app.appid}"
-    app_original_elf = os.path.join(work_dir, f"{app.appid}_d")
+    env.VariantDir(app_work_dir, app._appdir, duplicate=False)
+
+    app_env = env.Clone(FAP_SRC_DIR=app._appdir, FAP_WORK_DIR=app_work_dir)
+
+    app_alias = f"fap_{app.appid}"
+
+    # Deprecation stub
+    legacy_app_taget_name = f"{app_env['FIRMWARE_BUILD_CFG']}_{app.appid}"
+
+    def legacy_app_build_stub(**kw):
+        raise UserError(
+            f"Target name '{legacy_app_taget_name}' is deprecated, use '{app_alias}' instead"
+        )
+
+    app_env.PhonyTarget(legacy_app_taget_name, Action(legacy_app_build_stub, None))
+
+    externally_built_files = []
+    if app.fap_extbuild:
+        for external_file_def in app.fap_extbuild:
+            externally_built_files.append(external_file_def.path)
+            app_env.Alias(app_alias, external_file_def.path)
+            app_env.AlwaysBuild(
+                app_env.Command(
+                    external_file_def.path,
+                    None,
+                    Action(
+                        external_file_def.command,
+                        "" if app_env["VERBOSE"] else "\tEXTCMD\t${TARGET}",
+                    ),
+                )
+            )
+
+    if app.fap_icon_assets:
+        app_env.CompileIcons(
+            app_env.Dir(app_work_dir),
+            app._appdir.Dir(app.fap_icon_assets),
+            icon_bundle_name=f"{app.appid}_icons",
+        )
+
+    private_libs = []
+
+    for lib_def in app.fap_private_libs:
+        lib_src_root_path = os.path.join(app_work_dir, "lib", lib_def.name)
+        app_env.AppendUnique(
+            CPPPATH=list(
+                app_env.Dir(lib_src_root_path).Dir(incpath).srcnode()
+                for incpath in lib_def.fap_include_paths
+            ),
+        )
+
+        lib_sources = list(
+            itertools.chain.from_iterable(
+                app_env.GlobRecursive(source_type, lib_src_root_path)
+                for source_type in lib_def.sources
+            )
+        )
+        if len(lib_sources) == 0:
+            raise UserError(f"No sources gathered for private library {lib_def}")
+
+        private_lib_env = app_env.Clone()
+        private_lib_env.AppendUnique(
+            CCFLAGS=[
+                *lib_def.cflags,
+            ],
+            CPPDEFINES=lib_def.cdefines,
+            CPPPATH=list(
+                os.path.join(app._appdir.path, cinclude)
+                for cinclude in lib_def.cincludes
+            ),
+        )
+
+        lib = private_lib_env.StaticLibrary(
+            os.path.join(app_work_dir, lib_def.name),
+            lib_sources,
+        )
+        private_libs.append(lib)
+
     app_sources = list(
         itertools.chain.from_iterable(
-            env.GlobRecursive(source_type, os.path.join(work_dir, app._appdir.relpath))
+            app_env.GlobRecursive(
+                source_type,
+                app_work_dir,
+                exclude="lib",
+            )
             for source_type in app.sources
         )
     )
-    app_elf_raw = env.Program(
-        app_original_elf,
-        app_sources,
-        APP_ENTRY=app.entry_point,
-        LIBS=env["LIBS"] + app.fap_libs,
+
+    app_env.Append(
+        LIBS=[*app.fap_libs, *private_libs],
+        CPPPATH=env.Dir(app_work_dir),
     )
 
-    app_elf_dump = env.ObjDump(app_elf_raw)
-    env.Alias(f"{app_alias}_list", app_elf_dump)
+    app_elf_raw = app_env.Program(
+        os.path.join(app_work_dir, f"{app.appid}_d"),
+        app_sources,
+        APP_ENTRY=app.entry_point,
+    )
 
-    app_elf_augmented = env.EmbedAppMetadata(
-        os.path.join(env.subst("$PLUGIN_ELF_DIR"), app.appid),
+    app_env.Clean(app_elf_raw, [*externally_built_files, app_env.Dir(app_work_dir)])
+
+    app_elf_dump = app_env.ObjDump(app_elf_raw)
+    app_env.Alias(f"{app_alias}_list", app_elf_dump)
+
+    app_elf_augmented = app_env.EmbedAppMetadata(
+        os.path.join(ext_apps_work_dir, app.appid),
         app_elf_raw,
         APP=app,
     )
 
-    manifest_vals = vars(app)
     manifest_vals = {
-        k: v for k, v in manifest_vals.items() if k not in ("_appdir", "_apppath")
+        k: v
+        for k, v in vars(app).items()
+        if not k.startswith(FlipperApplication.PRIVATE_FIELD_PREFIX)
     }
 
-    env.Depends(
+    app_env.Depends(
         app_elf_augmented,
-        [env["SDK_DEFINITION"], env.Value(manifest_vals)],
+        [app_env["SDK_DEFINITION"], app_env.Value(manifest_vals)],
     )
     if app.fap_icon:
-        env.Depends(
+        app_env.Depends(
             app_elf_augmented,
-            env.File(f"{app._apppath}/{app.fap_icon}"),
+            app_env.File(f"{app._apppath}/{app.fap_icon}"),
         )
-    env.Alias(app_alias, app_elf_augmented)
 
-    app_elf_import_validator = env.ValidateAppImports(app_elf_augmented)
-    env.AlwaysBuild(app_elf_import_validator)
-    env.Alias(app_alias, app_elf_import_validator)
+    app_elf_import_validator = app_env.ValidateAppImports(app_elf_augmented)
+    app_env.AlwaysBuild(app_elf_import_validator)
+    app_env.Alias(app_alias, app_elf_import_validator)
     return (app_elf_augmented, app_elf_raw, app_elf_import_validator)
 
 
@@ -101,9 +191,15 @@ def GetExtAppFromPath(env, app_dir):
     appmgr = env["APPMGR"]
 
     app = None
-    for dir_part in reversed(pathlib.Path(app_dir).parts):
-        if app := appmgr.find_by_appdir(dir_part):
-            break
+    try:
+        # Maybe used passed an appid?
+        app = appmgr.get(app_dir)
+    except FlipperManifestException as _:
+        # Look up path components in known app dits
+        for dir_part in reversed(pathlib.Path(app_dir).parts):
+            if app := appmgr.find_by_appdir(dir_part):
+                break
+
     if not app:
         raise UserError(f"Failed to resolve application for given APPSRC={app_dir}")
 
@@ -120,7 +216,7 @@ def GetExtAppFromPath(env, app_dir):
 
 def generate(env, **kw):
     env.SetDefault(EXT_APPS_WORK_DIR=kw.get("EXT_APPS_WORK_DIR"))
-    env.VariantDir(env.subst("$EXT_APPS_WORK_DIR"), env.Dir("#"), duplicate=False)
+    # env.VariantDir(env.subst("$EXT_APPS_WORK_DIR"), env.Dir("#"), duplicate=False)
 
     env.AddMethod(BuildAppElf)
     env.AddMethod(GetExtAppFromPath)

@@ -1,10 +1,23 @@
+from SCons.Errors import UserError
+
+
 Import("ENV")
 
 
 from fbt.appmanifest import FlipperAppType
 
 appenv = ENV.Clone(
-    tools=[("fbt_extapps", {"EXT_APPS_WORK_DIR": ENV.subst("${BUILD_DIR}/.extapps")})]
+    tools=[
+        (
+            "fbt_extapps",
+            {
+                "EXT_APPS_WORK_DIR": ENV.subst(
+                    "${BUILD_DIR}/.extapps",
+                )
+            },
+        ),
+        "fbt_assets",
+    ]
 )
 
 appenv.Replace(
@@ -83,7 +96,16 @@ if extra_app_list := GetOption("extra_ext_apps"):
 if appenv["FORCE"]:
     appenv.AlwaysBuild(extapps["compact"].values())
 
-Alias(appenv["FIRMWARE_BUILD_CFG"] + "_extapps", extapps["compact"].values())
+
+# Deprecation stub
+def legacy_app_build_stub(**kw):
+    raise UserError(f"Target name 'firmware_extapps' is deprecated, use 'faps' instead")
+
+
+appenv.PhonyTarget("firmware_extapps", appenv.Action(legacy_app_build_stub, None))
+
+
+Alias("faps", extapps["compact"].values())
 
 if appsrc := appenv.subst("$APPSRC"):
     app_manifest, fap_file, app_validator = appenv.GetExtAppFromPath(appsrc)

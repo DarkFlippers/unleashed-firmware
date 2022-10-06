@@ -54,6 +54,10 @@ class Main(App):
         output = []
         for folder in folders:
             for dirpath, dirnames, filenames in os.walk(folder):
+                # Skipping 3rd-party code - usually resides in subfolder "lib"
+                if "lib" in dirnames:
+                    dirnames.remove("lib")
+
                 for filename in filenames:
                     ext = os.path.splitext(filename.lower())[1]
                     if not ext in SOURCE_CODE_FILE_EXTENSIONS:

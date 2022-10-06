@@ -7,8 +7,8 @@
 #include <mbedtls/des.h>
 
 #include "rfal_picopass.h"
-#include "loclass/optimized_ikeys.h"
-#include "loclass/optimized_cipher.h"
+#include <optimized_ikeys.h>
+#include <optimized_cipher.h>
 
 #define PICOPASS_DEV_NAME_MAX_LEN 22
 #define PICOPASS_READER_DATA_MAX_SIZE 64
