@@ -5,11 +5,8 @@
 
 typedef struct SubGhzFrequencyAnalyzerWorker SubGhzFrequencyAnalyzerWorker;
 
-typedef void (*SubGhzFrequencyAnalyzerWorkerPairCallback)(
-    void* context,
-    uint32_t frequency,
-    float rssi,
-    bool signal);
+typedef void (
+    *SubGhzFrequencyAnalyzerWorkerPairCallback)(void* context, uint32_t frequency, float rssi);
 
 typedef struct {
     uint32_t frequency_coarse;

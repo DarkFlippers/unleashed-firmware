@@ -72,8 +72,6 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         .frequency_coarse = 0, .rssi_coarse = 0, .frequency_fine = 0, .rssi_fine = 0};
     float rssi = 0;
     uint32_t frequency = 0;
-    float rssi_temp = 0;
-    uint32_t frequency_temp = 0;
     CC1101Status status;
 
     //Start CC1101
@@ -197,9 +195,6 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 TAG, "=:%u:%f", frequency_rssi.frequency_fine, (double)frequency_rssi.rssi_fine);
 
             instance->sample_hold_counter = 20;
-            rssi_temp = frequency_rssi.rssi_fine;
-            frequency_temp = frequency_rssi.frequency_fine;
-
             if(instance->filVal) {
                 frequency_rssi.frequency_fine =
                     subghz_frequency_analyzer_worker_expRunningAverageAdaptive(
@@ -208,10 +203,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             // Deliver callback
             if(instance->pair_callback) {
                 instance->pair_callback(
-                    instance->context,
-                    frequency_rssi.frequency_fine,
-                    frequency_rssi.rssi_fine,
-                    true);
+                    instance->context, frequency_rssi.frequency_fine, frequency_rssi.rssi_fine);
             }
         } else if( // Deliver results coarse
             (frequency_rssi.rssi_coarse > instance->trigger_level) &&
@@ -223,8 +215,6 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 (double)frequency_rssi.rssi_coarse);
 
             instance->sample_hold_counter = 20;
-            rssi_temp = frequency_rssi.rssi_coarse;
-            frequency_temp = frequency_rssi.frequency_coarse;
             if(instance->filVal) {
                 frequency_rssi.frequency_coarse =
                     subghz_frequency_analyzer_worker_expRunningAverageAdaptive(
@@ -235,22 +225,14 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 instance->pair_callback(
                     instance->context,
                     frequency_rssi.frequency_coarse,
-                    frequency_rssi.rssi_coarse,
-                    true);
+                    frequency_rssi.rssi_coarse);
             }
         } else {
             if(instance->sample_hold_counter > 0) {
                 instance->sample_hold_counter--;
-                if(instance->sample_hold_counter == 18) {
-                    if(instance->pair_callback) {
-                        instance->pair_callback(
-                            instance->context, frequency_temp, rssi_temp, false);
-                    }
-                }
             } else {
                 instance->filVal = 0;
-                if(instance->pair_callback)
-                    instance->pair_callback(instance->context, 0, 0, false);
+                if(instance->pair_callback) instance->pair_callback(instance->context, 0, 0);
             }
         }
     }
