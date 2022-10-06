@@ -174,6 +174,9 @@ const char* subbrute_device_error_get_desc(SubBruteFileResult error_id) {
     case(SubBruteFileResultMissingOrIncorrectBit):
         result = "Missing or incorrect Bit";
         break;
+    case(SubBruteFileResultBigBitSize):
+        result = "Has more than 24 Bits";
+        break;
     case(SubBruteFileResultMissingOrIncorrectKey):
         result = "Missing or incorrect Key";
         break;
@@ -527,6 +530,11 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
             result = SubBruteFileResultMissingOrIncorrectBit;
             break;
         } else {
+            if(temp_data32 > 24) {
+                FURI_LOG_E(TAG, "Incorrect Bits, 24 is maximum");
+                result = SubBruteFileResultBigBitSize;
+                break;
+            }
             instance->bit = temp_data32;
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "Bit: %d", instance->bit);

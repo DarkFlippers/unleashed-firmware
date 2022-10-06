@@ -47,6 +47,7 @@ typedef enum {
     SubBruteFileResultMissingOrIncorrectBit,
     SubBruteFileResultMissingOrIncorrectKey,
     SubBruteFileResultMissingOrIncorrectTe,
+    SubBruteFileResultBigBitSize,
 } SubBruteFileResult;
 
 typedef enum {
