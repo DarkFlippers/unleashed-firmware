@@ -1,5 +1,4 @@
 #include "nfc_supported_card.h"
-#include "plantain_parser.h" // For luhn
 
 #include <gui/modules/widget.h>
 #include <nfc_worker_i.h>
