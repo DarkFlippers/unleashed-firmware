@@ -9,28 +9,13 @@ assetsenv = env.Clone(
 )
 assetsenv.ApplyLibFlags()
 
-if not assetsenv["VERBOSE"]:
-    assetsenv.SetDefault(
-        ICONSCOMSTR="\tICONS\t${TARGET}",
-        PROTOCOMSTR="\tPROTO\t${SOURCE}",
-        DOLPHINCOMSTR="\tDOLPHIN\t${DOLPHIN_RES_TYPE}",
-        RESMANIFESTCOMSTR="\tMANIFEST\t${TARGET}",
-        PBVERCOMSTR="\tPBVER\t${TARGET}",
-    )
-
-# Gathering icons sources
-icons_src = assetsenv.GlobRecursive("*.png", "icons")
-icons_src += assetsenv.GlobRecursive("frame_rate", "icons")
-
-icons = assetsenv.IconBuilder(
-    assetsenv.Dir("compiled"), ICON_SRC_DIR=assetsenv.Dir("#/assets/icons")
+icons = assetsenv.CompileIcons(
+    assetsenv.Dir("compiled"), assetsenv.Dir("#/assets/icons")
 )
-assetsenv.Depends(icons, icons_src)
 assetsenv.Alias("icons", icons)
 
 
 # Protobuf .proto -> .c + .h
-
 proto_src = assetsenv.Glob("protobuf/*.proto", source=True)
 proto_options = assetsenv.Glob("protobuf/*.options", source=True)
 proto = assetsenv.ProtoBuilder(assetsenv.Dir("compiled"), proto_src)
