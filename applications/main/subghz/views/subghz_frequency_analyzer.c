@@ -25,6 +25,8 @@ struct SubGhzFrequencyAnalyzer {
 typedef struct {
     uint32_t frequency;
     float rssi;
+    uint32_t history_frequency[3];
+    bool signal;
 } SubGhzFrequencyAnalyzerModel;
 
 void subghz_frequency_analyzer_set_callback(
@@ -38,8 +40,8 @@ void subghz_frequency_analyzer_set_callback(
 }
 
 void subghz_frequency_analyzer_draw_rssi(Canvas* canvas, float rssi) {
-    uint8_t x = 48;
-    uint8_t y = 56;
+    uint8_t x = 20;
+    uint8_t y = 64;
     uint8_t column_number = 0;
     if(rssi) {
         rssi = (rssi + 90) / 3;
@@ -53,6 +55,31 @@ void subghz_frequency_analyzer_draw_rssi(Canvas* canvas, float rssi) {
     }
 }
 
+static void subghz_frequency_analyzer_history_frequency_draw(
+    Canvas* canvas,
+    SubGhzFrequencyAnalyzerModel* model) {
+    char buffer[64];
+    uint8_t x = 66;
+    uint8_t y = 43;
+
+    canvas_set_font(canvas, FontKeyboard);
+    for(uint8_t i = 0; i < 3; i++) {
+        if(model->history_frequency[i]) {
+            snprintf(
+                buffer,
+                sizeof(buffer),
+                "%03ld.%03ld",
+                model->history_frequency[i] / 1000000 % 1000,
+                model->history_frequency[i] / 1000 % 1000);
+            canvas_draw_str(canvas, x, y + i * 10, buffer);
+        } else {
+            canvas_draw_str(canvas, x, y + i * 10, "---.---");
+        }
+        canvas_draw_str(canvas, x + 44, y + i * 10, "MHz");
+    }
+    canvas_set_font(canvas, FontSecondary);
+}
+
 void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel* model) {
     char buffer[64];
 
@@ -60,8 +87,10 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 20, 8, "Frequency Analyzer");
 
-    canvas_draw_str(canvas, 28, 60, "RSSI");
+    canvas_draw_str(canvas, 0, 64, "RSSI");
     subghz_frequency_analyzer_draw_rssi(canvas, model->rssi);
+
+    subghz_frequency_analyzer_history_frequency_draw(canvas, model);
 
     //Frequency
     canvas_set_font(canvas, FontBigNumbers);
@@ -71,8 +100,14 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
         "%03ld.%03ld",
         model->frequency / 1000000 % 1000,
         model->frequency / 1000 % 1000);
-    canvas_draw_str(canvas, 8, 35, buffer);
-    canvas_draw_icon(canvas, 96, 24, &I_MHz_25x11);
+    if(model->signal) {
+        canvas_draw_box(canvas, 4, 12, 121, 22);
+        canvas_set_color(canvas, ColorWhite);
+    } else {
+    }
+
+    canvas_draw_str(canvas, 8, 30, buffer);
+    canvas_draw_icon(canvas, 96, 19, &I_MHz_25x11);
 }
 
 bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
@@ -85,12 +120,24 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
     return true;
 }
 
-void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, float rssi) {
+void subghz_frequency_analyzer_pair_callback(
+    void* context,
+    uint32_t frequency,
+    float rssi,
+    bool signal) {
     SubGhzFrequencyAnalyzer* instance = context;
     if((rssi == 0.f) && (instance->locked)) {
         if(instance->callback) {
             instance->callback(SubGhzCustomEventSceneAnalyzerUnlock, instance->context);
         }
+        //update history
+        with_view_model(
+            instance->view, (SubGhzFrequencyAnalyzerModel * model) {
+                model->history_frequency[2] = model->history_frequency[1];
+                model->history_frequency[1] = model->history_frequency[0];
+                model->history_frequency[0] = model->frequency;
+                return false;
+            });
     } else if((rssi != 0.f) && (!instance->locked)) {
         if(instance->callback) {
             instance->callback(SubGhzCustomEventSceneAnalyzerLock, instance->context);
@@ -102,6 +149,7 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
         instance->view, (SubGhzFrequencyAnalyzerModel * model) {
             model->rssi = rssi;
             model->frequency = frequency;
+            model->signal = signal;
             return true;
         });
 }
@@ -124,6 +172,9 @@ void subghz_frequency_analyzer_enter(void* context) {
         instance->view, (SubGhzFrequencyAnalyzerModel * model) {
             model->rssi = 0;
             model->frequency = 0;
+            model->history_frequency[2] = 0;
+            model->history_frequency[1] = 0;
+            model->history_frequency[0] = 0;
             return true;
         });
 }
