@@ -151,6 +151,31 @@ void subghz_frequency_analyzer_draw_rssi(
     canvas_draw_line(canvas, x, y + 3, x + (RSSI_MAX - RSSI_MIN) * 2 / RSSI_SCALE, y + 3);
 }
 
+static void subghz_frequency_analyzer_history_frequency_draw(
+    Canvas* canvas,
+    SubGhzFrequencyAnalyzerModel* model) {
+    char buffer[64];
+    uint8_t x = 66;
+    uint8_t y = 43;
+
+    canvas_set_font(canvas, FontKeyboard);
+    for(uint8_t i = 0; i < 3; i++) {
+        if(model->history_frequency[i]) {
+            snprintf(
+                buffer,
+                sizeof(buffer),
+                "%03ld.%03ld",
+                model->history_frequency[i] / 1000000 % 1000,
+                model->history_frequency[i] / 1000 % 1000);
+            canvas_draw_str(canvas, x, y + i * 10, buffer);
+        } else {
+            canvas_draw_str(canvas, x, y + i * 10, "---.---");
+        }
+        canvas_draw_str(canvas, x + 44, y + i * 10, "MHz");
+    }
+    canvas_set_font(canvas, FontSecondary);
+}
+
 void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel* model) {
     char buffer[64];
 
