@@ -244,7 +244,7 @@ vars.Add(
         ("applications/system", False),
         ("applications/debug", False),
         ("applications/plugins", False),
-        ("applications/examples", False),
+        #("applications/examples", False),
         ("applications_user", False),
     ],
 )
