@@ -13,7 +13,7 @@
 #define SUBGHZ_HISTORY_TMP_EXTENSION ".tmp"
 #define SUBGHZ_HISTORY_TMP_SIGNAL_MAX_LEVEL_DURATION 700
 #define SUBGHZ_HISTORY_TMP_SIGNAL_MIN_LEVEL_DURATION 100
-#define SUBGHZ_HISTORY_TMP_REMOVE_FILES false
+#define SUBGHZ_HISTORY_TMP_REMOVE_FILES true
 #define SUBGHZ_HISTORY_TMP_RAW_KEY "RAW_Data"
 
 #define TAG "SubGhzHistory"
@@ -52,8 +52,7 @@ struct SubGhzHistory {
 FuriString* subghz_history_generate_temp_filename(uint32_t index) {
     FuriHalRtcDateTime datetime = {0};
     furi_hal_rtc_get_datetime(&datetime);
-    FuriString* filename = furi_string_alloc_printf("%03d%s", index, SUBGHZ_HISTORY_TMP_EXTENSION);
-    return filename;
+    return furi_string_alloc_printf("%03d%s", index, SUBGHZ_HISTORY_TMP_EXTENSION);
 }
 
 bool subghz_history_is_tmp_dir_exists(SubGhzHistory* instance) {
@@ -103,7 +102,7 @@ void subghz_history_clear_tmp_dir(SubGhzHistory* instance) {
         // Nothing to do here!
         return;
     }
-    uint32_t start_time = furi_get_tick();
+    //uint32_t start_time = furi_get_tick();
 #ifdef SUBGHZ_HISTORY_TMP_REMOVE_FILES
     // Stage 0 - Dir exists?
     bool res = subghz_history_is_tmp_dir_exists(instance);
@@ -123,8 +122,8 @@ void subghz_history_clear_tmp_dir(SubGhzHistory* instance) {
         FURI_LOG_E(TAG, "Cannot process temp dir!");
     }
 #endif
-    uint32_t stop_time = furi_get_tick() - start_time;
-    FURI_LOG_I(TAG, "Running time (clear_tmp_dir): %d ms", stop_time);
+    /* uint32_t stop_time = furi_get_tick() - start_time;
+    FURI_LOG_I(TAG, "Running time (clear_tmp_dir): %d ms", stop_time);*/
 }
 
 SubGhzHistory* subghz_history_alloc(void) {
@@ -237,11 +236,9 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
         bool result_ok = false;
         if(instance->write_tmp_files && item->is_file) {
             // We have files!
-            FuriString* filename;
+            FuriString* filename = subghz_history_generate_temp_filename(idx);
             FuriString* dir_path;
-            filename = furi_string_alloc();
-            dir_path = furi_string_alloc();
-            filename = subghz_history_generate_temp_filename(idx);
+
             dir_path = furi_string_alloc_printf(
                 "%s/%s", SUBGHZ_HISTORY_TMP_DIR, furi_string_get_cstr(filename));
 
@@ -353,8 +350,8 @@ bool subghz_history_add_to_history(
             FURI_LOG_E(TAG, "Missing Protocol");
             break;
         } else {
-            item->protocol_name =
-                furi_string_alloc_printf("%s", furi_string_get_cstr(instance->tmp_string));
+            furi_string_printf(
+                item->protocol_name, "%s", furi_string_get_cstr(instance->tmp_string));
         }
         if(!strcmp(furi_string_get_cstr(instance->tmp_string), "RAW")) {
             furi_string_printf(
@@ -414,12 +411,10 @@ bool subghz_history_add_to_history(
 
     // If we can write to files
     if(instance->write_tmp_files && tmp_file_for_raw) {
-        FuriString* filename;
+        FuriString* filename = subghz_history_generate_temp_filename(instance->last_index_write);
         FuriString* dir_path;
-        filename = furi_string_alloc();
         dir_path = furi_string_alloc();
 
-        filename = subghz_history_generate_temp_filename(instance->last_index_write);
         furi_string_cat_printf(
             dir_path, "%s/%s", SUBGHZ_HISTORY_TMP_DIR, furi_string_get_cstr(filename));
 #ifdef FURI_DEBUG
