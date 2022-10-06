@@ -277,6 +277,8 @@ int32_t nfc_app(void* p) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
                 } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
+                } else if(nfc->dev->format == NfcDeviceSaveFormatBankCard) {
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
                 } else {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
                 }
