@@ -221,6 +221,7 @@ bool protocol_pyramid_write_data(ProtocolPyramid* protocol, void* data) {
 
     // Correct protocol data by redecoding
     protocol_pyramid_encode(protocol);
+    bit_lib_remove_bit_every_nth(protocol->encoded_data, 8, 15 * 8, 8);
     protocol_pyramid_decode(protocol);
 
     protocol_pyramid_encoder_start(protocol);
