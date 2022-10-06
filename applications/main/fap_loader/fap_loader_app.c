@@ -1,34 +1,31 @@
 #include <furi.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
-#include <gui/modules/loading.h>
 #include <storage/storage.h>
+#include <gui/modules/loading.h>
 #include <dialogs/dialogs.h>
-#include "elf_cpp/elf_hashtable.h"
 #include <flipper_application/flipper_application.h>
+#include "elf_cpp/elf_hashtable.h"
+#include "fap_loader_app.h"
 
 #define TAG "fap_loader_app"
 
-typedef struct {
+struct FapLoader {
     FlipperApplication* app;
     Storage* storage;
     DialogsApp* dialogs;
     Gui* gui;
     FuriString* fap_path;
-
     ViewDispatcher* view_dispatcher;
     Loading* loading;
-} FapLoader;
+};
 
-static bool fap_loader_item_callback(
+bool fap_loader_load_name_and_icon(
     FuriString* path,
-    void* context,
+    Storage* storage,
     uint8_t** icon_ptr,
     FuriString* item_name) {
-    FapLoader* loader = context;
-    furi_assert(loader);
-
-    FlipperApplication* app = flipper_application_alloc(loader->storage, &hashtable_api_interface);
+    FlipperApplication* app = flipper_application_alloc(storage, &hashtable_api_interface);
 
     FlipperApplicationPreloadStatus preload_res =
         flipper_application_preload_manifest(app, furi_string_get_cstr(path));
@@ -49,6 +46,16 @@ static bool fap_loader_item_callback(
 
     flipper_application_free(app);
     return load_success;
+}
+
+static bool fap_loader_item_callback(
+    FuriString* path,
+    void* context,
+    uint8_t** icon_ptr,
+    FuriString* item_name) {
+    FapLoader* fap_loader = context;
+    furi_assert(fap_loader);
+    return fap_loader_load_name_and_icon(path, fap_loader->storage, icon_ptr, item_name);
 }
 
 static bool fap_loader_run_selected_app(FapLoader* loader) {
@@ -134,7 +141,7 @@ static bool fap_loader_select_app(FapLoader* loader) {
     const DialogsFileBrowserOptions browser_options = {
         .extension = ".fap",
         .skip_assets = true,
-        .icon = &I_badusb_10px,
+        .icon = &I_unknown_10px,
         .hide_ext = true,
         .item_loader_callback = fap_loader_item_callback,
         .item_loader_context = loader,
@@ -144,39 +151,44 @@ static bool fap_loader_select_app(FapLoader* loader) {
         loader->dialogs, loader->fap_path, loader->fap_path, &browser_options);
 }
 
-int32_t fap_loader_app(void* p) {
+static FapLoader* fap_loader_alloc(const char* path) {
     FapLoader* loader = malloc(sizeof(FapLoader));
+    loader->fap_path = furi_string_alloc_set(path);
     loader->storage = furi_record_open(RECORD_STORAGE);
     loader->dialogs = furi_record_open(RECORD_DIALOGS);
     loader->gui = furi_record_open(RECORD_GUI);
-
     loader->view_dispatcher = view_dispatcher_alloc();
     loader->loading = loading_alloc();
-
     view_dispatcher_attach_to_gui(
         loader->view_dispatcher, loader->gui, ViewDispatcherTypeFullscreen);
     view_dispatcher_add_view(loader->view_dispatcher, 0, loading_get_view(loader->loading));
+    return loader;
+}
 
+static void fap_loader_free(FapLoader* loader) {
+    view_dispatcher_remove_view(loader->view_dispatcher, 0);
+    loading_free(loader->loading);
+    view_dispatcher_free(loader->view_dispatcher);
+    furi_string_free(loader->fap_path);
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_DIALOGS);
+    furi_record_close(RECORD_STORAGE);
+    free(loader);
+}
+
+int32_t fap_loader_app(void* p) {
+    FapLoader* loader;
     if(p) {
-        loader->fap_path = furi_string_alloc_set((const char*)p);
+        loader = fap_loader_alloc((const char*)p);
         fap_loader_run_selected_app(loader);
     } else {
-        loader->fap_path = furi_string_alloc_set(EXT_PATH("apps"));
-
+        loader = fap_loader_alloc(EXT_PATH("apps"));
         while(fap_loader_select_app(loader)) {
             view_dispatcher_switch_to_view(loader->view_dispatcher, 0);
             fap_loader_run_selected_app(loader);
         };
     }
 
-    view_dispatcher_remove_view(loader->view_dispatcher, 0);
-    loading_free(loader->loading);
-    view_dispatcher_free(loader->view_dispatcher);
-
-    furi_string_free(loader->fap_path);
-    furi_record_close(RECORD_GUI);
-    furi_record_close(RECORD_DIALOGS);
-    furi_record_close(RECORD_STORAGE);
-    free(loader);
+    fap_loader_free(loader);
     return 0;
 }

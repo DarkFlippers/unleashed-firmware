@@ -16,7 +16,7 @@ static const char* tab_default_paths[] = {
     [ArchiveTabInfrared] = ANY_PATH("infrared"),
     [ArchiveTabBadUsb] = ANY_PATH("badusb"),
     [ArchiveTabU2f] = "/app:u2f",
-    [ArchiveTabApps] = ANY_PATH("apps"),
+    [ArchiveTabApplications] = ANY_PATH("apps"),
     [ArchiveTabBrowser] = STORAGE_ANY_PATH_PREFIX,
 };
 
@@ -28,7 +28,7 @@ static const char* known_ext[] = {
     [ArchiveFileTypeInfrared] = ".ir",
     [ArchiveFileTypeBadUsb] = ".txt",
     [ArchiveFileTypeU2f] = "?",
-    [ArchiveFileTypeApps] = ".fap",
+    [ArchiveFileTypeApplication] = ".fap",
     [ArchiveFileTypeUpdateManifest] = ".fuf",
     [ArchiveFileTypeFolder] = "?",
     [ArchiveFileTypeUnknown] = "*",
@@ -43,7 +43,7 @@ static const ArchiveFileTypeEnum known_type[] = {
     [ArchiveTabInfrared] = ArchiveFileTypeInfrared,
     [ArchiveTabBadUsb] = ArchiveFileTypeBadUsb,
     [ArchiveTabU2f] = ArchiveFileTypeU2f,
-    [ArchiveTabApps] = ArchiveFileTypeApps,
+    [ArchiveTabApplications] = ArchiveFileTypeApplication,
     [ArchiveTabBrowser] = ArchiveFileTypeUnknown,
 };
 
