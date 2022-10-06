@@ -47,6 +47,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         //highlighting the entire filename by default
         dev_name_empty = true;
     } else {
+        furi_string_reset(subghz->file_path_tmp);
         furi_string_set(subghz->file_path_tmp, subghz->file_path);
         path_extract_dirname(furi_string_get_cstr(subghz->file_path), dir_name);
         path_extract_filename(subghz->file_path, file_name, true);
@@ -84,7 +85,7 @@ void subghz_scene_save_name_on_enter(void* context) {
 bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeBack) {
-        if(!strcmp(subghz->file_name_tmp, "") ||
+        if(!(strcmp(subghz->file_name_tmp, "") == 0) ||
            scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
                SubGhzCustomEventManagerNoSet) {
             furi_string_set(subghz->file_path, subghz->file_path_tmp);
