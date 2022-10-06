@@ -393,7 +393,7 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
 
     // Calc max value
     if(instance->attack == SubBruteAttackLoadFile) {
-        instance->max_value = 0xFF;
+        instance->max_value = 0x3F;
     } else {
         FuriString* max_value_s;
         max_value_s = furi_string_alloc();
