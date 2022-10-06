@@ -23,6 +23,22 @@ class FlipperAppType(Enum):
 
 @dataclass
 class FlipperApplication:
+    @dataclass
+    class ExternallyBuiltFile:
+        path: str
+        command: str
+
+    @dataclass
+    class Library:
+        name: str
+        fap_include_paths: List[str] = field(default_factory=lambda: ["."])
+        sources: List[str] = field(default_factory=lambda: ["*.c*"])
+        cflags: List[str] = field(default_factory=list)
+        cdefines: List[str] = field(default_factory=list)
+        cincludes: List[str] = field(default_factory=list)
+
+    PRIVATE_FIELD_PREFIX = "_"
+
     appid: str
     apptype: FlipperAppType
     name: Optional[str] = ""
@@ -45,6 +61,9 @@ class FlipperApplication:
     fap_description: str = ""
     fap_author: str = ""
     fap_weburl: str = ""
+    fap_icon_assets: Optional[str] = None
+    fap_extbuild: List[ExternallyBuiltFile] = field(default_factory=list)
+    fap_private_libs: List[Library] = field(default_factory=list)
     # Internally used by fbt
     _appdir: Optional[object] = None
     _apppath: Optional[str] = None
@@ -87,6 +106,12 @@ class AppManager:
                     _apppath=os.path.dirname(app_manifest_path),
                 ),
             )
+
+        def ExtFile(*args, **kw):
+            return FlipperApplication.ExternallyBuiltFile(*args, **kw)
+
+        def Lib(*args, **kw):
+            return FlipperApplication.Library(*args, **kw)
 
         try:
             with open(app_manifest_path, "rt") as manifest_file:

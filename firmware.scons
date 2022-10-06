@@ -1,5 +1,6 @@
 Import("ENV", "fw_build_meta")
 
+from SCons.Errors import UserError
 import itertools
 
 from fbt.util import (
@@ -164,13 +165,25 @@ apps_c = fwenv.ApplicationsC(
 # Adding dependency on manifest files so apps.c is rebuilt when any manifest is changed
 for app_dir, _ in env["APPDIRS"]:
     app_dir_node = env.Dir("#").Dir(app_dir)
-    fwenv.Depends(apps_c, fwenv.GlobRecursive("*.fam", app_dir_node))
+    fwenv.Depends(apps_c, app_dir_node.glob("*/application.fam"))
+
+# Sanity check - certain external apps are using features that are not available in base firmware
+if advanced_faps := list(
+    filter(
+        lambda app: app.fap_extbuild or app.fap_private_libs or app.fap_icon_assets,
+        fwenv["APPBUILD"].get_builtin_apps(),
+    )
+):
+    raise UserError(
+        "An Application that is using fap-specific features cannot be built into base firmware."
+        f" Offending app(s): {', '.join(app.appid for app in advanced_faps)}"
+    )
 
 sources = [apps_c]
 # Gather sources only from app folders in current configuration
 sources.extend(
     itertools.chain.from_iterable(
-        fwenv.GlobRecursive(source_type, appdir.relpath)
+        fwenv.GlobRecursive(source_type, appdir.relpath, exclude="lib")
         for appdir, source_type in fwenv["APPBUILD"].get_builtin_app_folders()
     )
 )
@@ -259,18 +272,18 @@ fw_artifacts = fwenv["FW_ARTIFACTS"] = [
     fwenv["FW_VERSION_JSON"],
 ]
 
+
+fwcdb = fwenv.CompilationDatabase()
+# without filtering, both updater & firmware commands would be generated in same file
+fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
+AlwaysBuild(fwcdb)
+Precious(fwcdb)
+NoClean(fwcdb)
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
+
 # If current configuration was explicitly requested, generate compilation database
 # and link its directory as build/latest
 if should_gen_cdb_and_link_dir(fwenv, BUILD_TARGETS):
-    fwcdb = fwenv.CompilationDatabase()
-    # without filtering, both updater & firmware commands would be generated
-    fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
-    AlwaysBuild(fwcdb)
-    Precious(fwcdb)
-    NoClean(fwcdb)
-    Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
-    AlwaysBuild(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
-    Alias(fwcdb, "")
     fw_artifacts.append(fwcdb)
 
     # Adding as a phony target, so folder link is updated even if elf didn't change
