@@ -473,9 +473,9 @@ static void render_callback(Canvas* canvas, void* ctx) {
                 canvas, 1, 19, AlignLeft, AlignTop, furi_string_get_cstr(temp_str));
 
             if(app->meta->playlist_repetitions <= 0) {
-                furi_string_printf(temp_str, "Repeat: inf", app->meta->playlist_repetitions);
+                furi_string_set(temp_str, "Repeat: inf");
             } else if(app->meta->playlist_repetitions == 1) {
-                furi_string_printf(temp_str, "Repeat: no", app->meta->playlist_repetitions);
+                furi_string_set(temp_str, "Repeat: no");
             } else {
                 furi_string_printf(temp_str, "Repeat: %dx", app->meta->playlist_repetitions);
             }

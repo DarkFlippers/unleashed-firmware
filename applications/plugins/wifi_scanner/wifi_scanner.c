@@ -10,7 +10,7 @@
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <stdlib.h>
-#include <stream_buffer.h>
+
 #include <u8g2.h>
 
 #include "FlipperZeroWiFiModuleDefines.h"
@@ -86,7 +86,7 @@ typedef struct SWiFiScannerApp {
     Gui* m_gui;
     FuriThread* m_worker_thread;
     NotificationApp* m_notification;
-    StreamBufferHandle_t m_rx_stream;
+    FuriStreamBuffer* m_rx_stream;
 
     bool m_wifiModuleInitialized;
     bool m_wifiModuleAttached;
@@ -445,7 +445,6 @@ static void wifi_module_input_callback(InputEvent* input_event, FuriMessageQueue
 
 static void uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
     furi_assert(context);
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     SWiFiScannerApp* app = context;
 
@@ -453,9 +452,8 @@ static void uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
 
     if(ev == UartIrqEventRXNE) {
         WIFI_APP_LOG_I("ev == UartIrqEventRXNE");
-        xStreamBufferSendFromISR(app->m_rx_stream, &data, 1, &xHigherPriorityTaskWoken);
+        furi_stream_buffer_send(app->m_rx_stream, &data, 1, 0);
         furi_thread_flags_set(furi_thread_get_id(app->m_worker_thread), WorkerEventRx);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 
@@ -467,7 +465,7 @@ static int32_t uart_worker(void* context) {
         return 1;
     }
 
-    StreamBufferHandle_t rx_stream = app->m_rx_stream;
+    FuriStreamBuffer* rx_stream = app->m_rx_stream;
 
     release_mutex((ValueMutex*)context, app);
 
@@ -483,7 +481,7 @@ static int32_t uart_worker(void* context) {
             receivedString = furi_string_alloc();
             do {
                 uint8_t data[64];
-                length = xStreamBufferReceive(rx_stream, data, 64, 25);
+                length = furi_stream_buffer_receive(rx_stream, data, 64, 25);
                 if(length > 0) {
                     WIFI_APP_LOG_I("Received Data - length: %i", length);
 
@@ -676,7 +674,7 @@ int32_t wifi_scanner_app(void* p) {
 
     WIFI_APP_LOG_I("Mutex created");
 
-    app->m_rx_stream = xStreamBufferCreate(1 * 1024, 1);
+    app->m_rx_stream = furi_stream_buffer_alloc(1 * 1024, 1);
 
     app->m_notification = furi_record_open("notification");
 
@@ -839,7 +837,7 @@ int32_t wifi_scanner_app(void* p) {
 
     furi_message_queue_free(event_queue);
 
-    vStreamBufferDelete(app->m_rx_stream);
+    furi_stream_buffer_free(app->m_rx_stream);
 
     delete_mutex(&app_data_mutex);
 

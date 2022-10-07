@@ -10,7 +10,7 @@
 //#include <notification/notification.h>
 //#include <notification/notification_messages.h>
 //#include <stdlib.h>
-#include <stream_buffer.h>
+
 #include <u8g2.h>
 
 #include "FlipperZeroWiFiDeauthModuleDefines.h"
@@ -65,7 +65,7 @@ typedef struct SWiFiDeauthApp {
     Gui* m_gui;
     FuriThread* m_worker_thread;
     //NotificationApp* m_notification;
-    StreamBufferHandle_t m_rx_stream;
+    FuriStreamBuffer* m_rx_stream;
     SGpioButtons m_GpioButtons;
 
     bool m_wifiDeauthModuleInitialized;
@@ -219,7 +219,6 @@ static void
 
 static void uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
     furi_assert(context);
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     SWiFiDeauthApp* app = context;
 
@@ -227,9 +226,8 @@ static void uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
 
     if(ev == UartIrqEventRXNE) {
         DEAUTH_APP_LOG_I("ev == UartIrqEventRXNE");
-        xStreamBufferSendFromISR(app->m_rx_stream, &data, 1, &xHigherPriorityTaskWoken);
+        furi_stream_buffer_send(app->m_rx_stream, &data, 1, 0);
         furi_thread_flags_set(furi_thread_get_id(app->m_worker_thread), WorkerEventRx);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 
@@ -242,7 +240,7 @@ static int32_t uart_worker(void* context) {
         return 1;
     }
 
-    StreamBufferHandle_t rx_stream = app->m_rx_stream;
+    FuriStreamBuffer* rx_stream = app->m_rx_stream;
 
     release_mutex((ValueMutex*)context, app);
 
@@ -272,7 +270,7 @@ static int32_t uart_worker(void* context) {
                 const uint8_t dataBufferSize = 64;
                 uint8_t dataBuffer[dataBufferSize];
                 dataReceivedLength =
-                    xStreamBufferReceive(rx_stream, dataBuffer, dataBufferSize, 25);
+                    furi_stream_buffer_receive(rx_stream, dataBuffer, dataBufferSize, 25);
                 if(dataReceivedLength > 0) {
 #if ENABLE_MODULE_POWER
                     if(!initialized) {
@@ -367,7 +365,7 @@ int32_t esp8266_deauth_app(void* p) {
 
     DEAUTH_APP_LOG_I("Mutex created");
 
-    app->m_rx_stream = xStreamBufferCreate(1 * 1024, 1);
+    app->m_rx_stream = furi_stream_buffer_alloc(1 * 1024, 1);
 
     //app->m_notification = furi_record_open("notification");
 
@@ -518,7 +516,7 @@ int32_t esp8266_deauth_app(void* p) {
 
     furi_message_queue_free(event_queue);
 
-    vStreamBufferDelete(app->m_rx_stream);
+    furi_stream_buffer_free(app->m_rx_stream);
 
     delete_mutex(&app_data_mutex);
 

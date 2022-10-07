@@ -212,7 +212,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
         //snprintf(step_payload, sizeof(step_payload), "%016llX", step);
         FuriString* buffer = furi_string_alloc();
-        furi_string_printf(buffer, "%16X", step);
+        furi_string_printf(buffer, "%16llX", step);
         int j = 0;
         furi_string_set_str(candidate, "                       ");
         for(uint8_t i = 0; i < 16; i++) {

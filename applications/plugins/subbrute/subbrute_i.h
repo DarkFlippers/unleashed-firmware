@@ -9,7 +9,6 @@
 #include <notification/notification_messages.h>
 
 #include <lib/toolbox/stream/stream.h>
-#include <stream_buffer.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
