@@ -54,7 +54,7 @@ static void gpio_usb_uart_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_str_aligned(canvas, 116, 24, AlignRight, AlignBottom, temp_str);
     } else {
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 127, 24, AlignRight, AlignBottom, "KB.");
+        canvas_draw_str_aligned(canvas, 127, 24, AlignRight, AlignBottom, "KiB.");
         canvas_set_font(canvas, FontKeyboard);
         snprintf(temp_str, 18, "%lu", model->tx_cnt / 1024);
         canvas_draw_str_aligned(canvas, 111, 24, AlignRight, AlignBottom, temp_str);
@@ -68,7 +68,7 @@ static void gpio_usb_uart_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_str_aligned(canvas, 116, 41, AlignRight, AlignBottom, temp_str);
     } else {
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 127, 41, AlignRight, AlignBottom, "KB.");
+        canvas_draw_str_aligned(canvas, 127, 41, AlignRight, AlignBottom, "KiB.");
         canvas_set_font(canvas, FontKeyboard);
         snprintf(temp_str, 18, "%lu", model->rx_cnt / 1024);
         canvas_draw_str_aligned(canvas, 111, 41, AlignRight, AlignBottom, temp_str);

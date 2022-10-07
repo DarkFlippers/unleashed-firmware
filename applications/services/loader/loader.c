@@ -61,6 +61,7 @@ static void loader_cli_print_usage() {
     printf("Cmd list:\r\n");
     printf("\tlist\t - List available applications\r\n");
     printf("\topen <Application Name:string>\t - Open application by name\r\n");
+    printf("\tinfo\t - Show loader state\r\n");
 }
 
 static FlipperApplication const* loader_find_application_by_name_in_list(
@@ -98,10 +99,15 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
     return application;
 }
 
-void loader_cli_open(Cli* cli, FuriString* args, Loader* instance) {
+static void loader_cli_open(Cli* cli, FuriString* args, Loader* instance) {
     UNUSED(cli);
     if(loader_is_locked(instance)) {
-        printf("Can't start, furi application is running");
+        if(instance->application) {
+            furi_assert(instance->application->name);
+            printf("Can't start, %s application is running", instance->application->name);
+        } else {
+            printf("Can't start, furi application is running");
+        }
         return;
     }
 
@@ -137,7 +143,7 @@ void loader_cli_open(Cli* cli, FuriString* args, Loader* instance) {
     furi_string_free(application_name);
 }
 
-void loader_cli_list(Cli* cli, FuriString* args, Loader* instance) {
+static void loader_cli_list(Cli* cli, FuriString* args, Loader* instance) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(instance);
@@ -155,6 +161,22 @@ void loader_cli_list(Cli* cli, FuriString* args, Loader* instance) {
         printf("Debug:\r\n");
         for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
             printf("\t%s\r\n", FLIPPER_DEBUG_APPS[i].name);
+        }
+    }
+}
+
+static void loader_cli_info(Cli* cli, FuriString* args, Loader* instance) {
+    UNUSED(cli);
+    UNUSED(args);
+    if(!loader_is_locked(instance)) {
+        printf("No application is running\r\n");
+    } else {
+        printf("Running application: ");
+        if(instance->application) {
+            furi_assert(instance->application->name);
+            printf("%s\r\n", instance->application->name);
+        } else {
+            printf("unknown\r\n");
         }
     }
 }
@@ -179,6 +201,11 @@ static void loader_cli(Cli* cli, FuriString* args, void* _ctx) {
 
         if(furi_string_cmp_str(cmd, "open") == 0) {
             loader_cli_open(cli, args, instance);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "info") == 0) {
+            loader_cli_info(cli, args, instance);
             break;
         }
 
