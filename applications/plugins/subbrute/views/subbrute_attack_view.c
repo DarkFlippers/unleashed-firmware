@@ -1,6 +1,6 @@
 #include "subbrute_attack_view.h"
 #include "../subbrute_i.h"
-#include "../subbrute_protocols_i.h"
+#include "../subbrute_protocols.h"
 
 #include "assets_icons.h"
 #include <input/input.h>
@@ -299,10 +299,6 @@ void elements_button_top_left(Canvas* canvas, const char* str) {
     const uint8_t y = 0;
 
     canvas_draw_box(canvas, x, y, button_width, button_height);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(
-        TAG, "lbox, x: %d, y: %d, width: %d, height: %d", x, y, button_width, button_height);
-#endif
     //    canvas_draw_line(canvas, x + button_width + 0, y, x + button_width + 0, y + button_height - 0); //
     //    canvas_draw_line(canvas, x + button_width + 1, y, x + button_width + 1, y + button_height - 1);
     //    canvas_draw_line(canvas, x + button_width + 2, y, x + button_width + 2, y + button_height - 2);
@@ -330,15 +326,6 @@ void elements_button_top_right(Canvas* canvas, const char* str) {
     const uint8_t y = 0;
 
     canvas_draw_box(canvas, x - button_width, y, button_width, button_height);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(
-        TAG,
-        "rbox, x: %d, y: %d, width: %d, height: %d",
-        x - button_width,
-        y,
-        button_width,
-        button_height);
-#endif
     //    canvas_draw_line(canvas, x - button_width - 1, y, x + button_width - 1, y + button_height - 0);
     //    canvas_draw_line(canvas, x - button_width - 2, y, x + button_width - 2, y + button_height - 1);
     //    canvas_draw_line(canvas, x - button_width - 3, y, x + button_width - 3, y + button_height - 2);

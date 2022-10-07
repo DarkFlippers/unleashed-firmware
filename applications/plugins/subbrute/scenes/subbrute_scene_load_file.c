@@ -34,7 +34,8 @@ void subbrute_scene_load_file_on_enter(void* context) {
         furi_string_get_cstr(app_folder));
 #endif
     if(res) {
-        load_result = subbrute_device_load_from_file(instance->device, load_path);
+        load_result =
+            subbrute_device_load_from_file(instance->device, furi_string_get_cstr(load_path));
         if(load_result == SubBruteFileResultOk) {
             load_result = subbrute_device_attack_set(instance->device, SubBruteAttackLoadFile);
             if(load_result == SubBruteFileResultOk) {
@@ -51,8 +52,7 @@ void subbrute_scene_load_file_on_enter(void* context) {
 
             FuriString* dialog_msg;
             dialog_msg = furi_string_alloc();
-            furi_string_cat_printf(
-                dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
+            furi_string_cat_printf(dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
             dialog_message_show_storage_error(instance->dialogs, furi_string_get_cstr(dialog_msg));
             furi_string_free(dialog_msg);
             scene_manager_search_and_switch_to_previous_scene(

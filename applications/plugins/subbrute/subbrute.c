@@ -26,7 +26,7 @@ SubBruteState* subbrute_alloc() {
     SubBruteState* instance = malloc(sizeof(SubBruteState));
 
     memset(instance->text_store, 0, sizeof(instance->text_store));
-    string_init(instance->file_path);
+    instance->file_path = furi_string_alloc();
 
     instance->scene_manager = scene_manager_alloc(&subbrute_scene_handlers, instance);
     instance->view_dispatcher = view_dispatcher_alloc();
@@ -187,13 +187,9 @@ void subbrute_free(SubBruteState* instance) {
     furi_record_close(RECORD_GUI);
     instance->gui = NULL;
 
-    string_clear(instance->file_path);
-    string_init(instance->file_path);
+    furi_string_free(instance->file_path);
 
     // The rest
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free instance");
-#endif
     free(instance);
 }
 

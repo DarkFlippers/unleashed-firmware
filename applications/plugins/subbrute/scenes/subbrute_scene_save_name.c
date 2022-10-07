@@ -1,5 +1,6 @@
 #include "../subbrute_i.h"
 #include "subbrute_scene.h"
+#include <core/string.h>
 #include <lib/toolbox/random_name.h>
 
 #define TAG "SubBruteSceneSaveFile"
@@ -20,10 +21,11 @@ void subbrute_scene_save_name_on_enter(void* context) {
         SUBBRUTE_MAX_LEN_NAME,
         true);
 
-    string_set_str(instance->file_path, SUBBRUTE_PATH);
+    furi_string_reset(instance->file_path);
+    furi_string_set_str(instance->file_path, SUBBRUTE_PATH);
 
-    ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(string_get_cstr(instance->file_path), SUBBRUTE_FILE_EXT, "");
+    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
+        furi_string_get_cstr(instance->file_path), SUBBRUTE_FILE_EXT, "");
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, SubBruteViewTextInput);
@@ -44,10 +46,11 @@ bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 #endif
         bool success = false;
         if(strcmp(instance->text_store, "")) {
+            furi_string_reset(instance->file_path);
             furi_string_cat_printf(
                 instance->file_path, "/%s%s", instance->text_store, SUBBRUTE_FILE_EXT);
 
-            if(subbrute_device_save_file(instance->device, string_get_cstr(instance->file_path))) {
+            if(subbrute_device_save_file(instance->device, furi_string_get_cstr(instance->file_path))) {
                 scene_manager_next_scene(instance->scene_manager, SubBruteSceneSaveSuccess);
                 success = true;
                 consumed = true;
@@ -73,5 +76,5 @@ void subbrute_scene_save_name_on_exit(void* context) {
 
     text_input_reset(instance->text_input);
 
-    string_reset(instance->file_path);
+    furi_string_reset(instance->file_path);
 }

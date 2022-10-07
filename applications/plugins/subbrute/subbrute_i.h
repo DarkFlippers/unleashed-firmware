@@ -22,7 +22,7 @@
 #include <notification/notification_messages.h>
 
 #include "subbrute.h"
-#include "subbrute_device_i.h"
+#include "subbrute_device.h"
 #include "views/subbrute_attack_view.h"
 #include "views/subbrute_main_view.h"
 
@@ -51,7 +51,7 @@ struct SubBruteState {
 
     // Text store
     char text_store[SUBBRUTE_MAX_LEN_NAME];
-    string_t file_path;
+    FuriString* file_path;
 
     // Views
     SubBruteMainView* view_main;

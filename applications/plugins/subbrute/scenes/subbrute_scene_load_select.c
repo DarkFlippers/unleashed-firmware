@@ -7,9 +7,6 @@ void subbrute_scene_load_select_callback(SubBruteCustomEvent event, void* contex
     furi_assert(context);
 
     SubBruteState* instance = (SubBruteState*)context;
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_scene_load_select_callback");
-#endif
     view_dispatcher_send_custom_event(instance->view_dispatcher, event);
 }
 

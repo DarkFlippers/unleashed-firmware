@@ -1,8 +1,10 @@
 #include "subbrute_device.h"
+//#include "subbrute_device.h"
 
-#include <lib/toolbox/stream/stream.h>
 #include <stdint.h>
-#include <stream/buffered_file_stream.h>
+#include <storage/storage.h>
+#include <lib/toolbox/stream/stream.h>
+#include <lib/flipper_format/flipper_format.h>
 #include <lib/flipper_format/flipper_format_i.h>
 
 #define TAG "SubBruteDevice"
@@ -50,17 +52,11 @@ SubBruteDevice* subbrute_device_alloc() {
 
 void subbrute_device_free(SubBruteDevice* instance) {
     furi_assert(instance);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_free");
-#endif
 
     // I don't know how to free this
     instance->decoder_result = NULL;
 
     if(instance->receiver != NULL) {
-#ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "subghz_receiver_free");
-#endif
         subghz_receiver_free(instance->receiver);
         instance->receiver = NULL;
     }
@@ -72,10 +68,6 @@ void subbrute_device_free(SubBruteDevice* instance) {
 
     subghz_environment_free(instance->environment);
     instance->environment = NULL;
-
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "before free");
-#endif
 
     furi_thread_free(instance->thread);
     subbrute_device_free_protocol_info(instance);
@@ -186,6 +178,9 @@ SubBruteAttacks subbrute_device_get_attack(SubBruteDevice* instance) {
 bool subbrute_device_is_worker_running(SubBruteDevice* instance) {
     return instance->worker_running;
 }
+uint64_t subbrute_device_get_max_value(SubBruteDevice* instance) {
+    return instance->max_value;
+}
 uint64_t subbrute_device_get_step(SubBruteDevice* instance) {
     return instance->key_index;
 }
@@ -267,7 +262,7 @@ bool subbrute_device_transmit_current_key(SubBruteDevice* instance) {
     uint32_t ticks = furi_get_tick();
     if((ticks - instance->last_time_tx_data) < SUBBRUTE_MANUAL_TRANSMIT_INTERVAL) {
 #if FURI_DEBUG
-        FURI_LOG_D(TAG, "Need to wait, current: %d", ticks - instance->last_time_tx_data);
+        FURI_LOG_D(TAG, "Need to wait, current: %ld", ticks - instance->last_time_tx_data);
 #endif
         return false;
     }
@@ -403,7 +398,7 @@ bool subbrute_device_create_packet_parsed(
                 stream,
                 subbrute_key_small_no_tail,
                 instance->protocol_info->bits,
-                string_get_cstr(candidate),
+                furi_string_get_cstr(candidate),
                 instance->protocol_info->repeat);
         }
     } else {
@@ -420,7 +415,7 @@ bool subbrute_device_create_packet_parsed(
                 stream,
                 subbrute_key_file_key,
                 instance->file_template,
-                string_get_cstr(candidate),
+                furi_string_get_cstr(candidate),
                 instance->protocol_info->repeat);
         }
     }
@@ -512,10 +507,10 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     return SubBruteFileResultOk;
 }
 
-uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* file_path) {
+uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* file_path) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", furi_string_get_cstr(file_path));
+    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", file_path);
 #endif
     SubBruteFileResult result = SubBruteFileResultUnknown;
 
@@ -531,8 +526,8 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
     furi_hal_subghz_reset();
 
     do {
-        if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_path))) {
-            FURI_LOG_E(TAG, "Error open file %s", furi_string_get_cstr(file_path));
+        if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
+            FURI_LOG_E(TAG, "Error open file %s", file_path);
             result = SubBruteFileResultErrorOpenFile;
             break;
         }
@@ -743,4 +738,11 @@ const char* subbrute_device_error_get_desc(SubBruteFileResult error_id) {
         break;
     }
     return result;
+}
+
+void subbrute_device_free_protocol_info(SubBruteDevice* instance) {
+    furi_assert(instance);
+
+    free(instance->protocol_info);
+    instance->protocol_info = NULL;
 }

@@ -1,6 +1,8 @@
 #include "subbrute_protocols.h"
 
 static const SubBruteProtocol subbrute_protocols[SubBruteAttackTotalCount] = {
+    [SubBruteAttackCAME12bit303] =
+        {303875000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, CAMEFileProtocol},
     [SubBruteAttackCAME12bit307] =
         {307800000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, CAMEFileProtocol},
     [SubBruteAttackCAME12bit433] =
@@ -38,6 +40,7 @@ static const SubBruteProtocol subbrute_protocols[SubBruteAttackTotalCount] = {
 //};
 
 static const char* subbrute_protocol_names[] = {
+    [SubBruteAttackCAME12bit303] = "CAME 12bit 303MHz",
     [SubBruteAttackCAME12bit307] = "CAME 12bit 307MHz",
     [SubBruteAttackCAME12bit433] = "CAME 12bit 433MHz",
     [SubBruteAttackCAME12bit868] = "CAME 12bit 868MHz",
@@ -106,9 +109,9 @@ const char* subbrute_protocol_file(SubBruteFileProtocol protocol) {
     return subbrute_protocol_file_types[protocol];
 }
 
-FuriHalSubGhzPreset subbrute_protocol_convert_preset(string_t preset_name) {
-    for(size_t i = FuriHalSubGhzPresetIDLE; i<FuriHalSubGhzPresetCustom;i++) {
-        if(string_cmp_str(preset_name, subbrute_protocol_presets[i]) == 0) {
+FuriHalSubGhzPreset subbrute_protocol_convert_preset(FuriString* preset_name) {
+    for(size_t i = FuriHalSubGhzPresetIDLE; i < FuriHalSubGhzPresetCustom; i++) {
+        if(furi_string_cmp_str(preset_name, subbrute_protocol_presets[i]) == 0) {
             return i;
         }
     }
@@ -116,9 +119,9 @@ FuriHalSubGhzPreset subbrute_protocol_convert_preset(string_t preset_name) {
     return FuriHalSubGhzPresetIDLE;
 }
 
-SubBruteFileProtocol subbrute_protocol_file_protocol_name(string_t name) {
-    for(size_t i = CAMEFileProtocol; i<TotalFileProtocol-1;i++) {
-        if(string_cmp_str(name, subbrute_protocol_file_types[i]) == 0) {
+SubBruteFileProtocol subbrute_protocol_file_protocol_name(FuriString* name) {
+    for(size_t i = CAMEFileProtocol; i < TotalFileProtocol - 1; i++) {
+        if(furi_string_cmp_str(name, subbrute_protocol_file_types[i]) == 0) {
             return i;
         }
     }
