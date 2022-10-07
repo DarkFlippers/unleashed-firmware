@@ -20,7 +20,7 @@ class Main(App):
 
     #  No compression, plain tar
     RESOURCE_TAR_MODE = "w:"
-    RESOURCE_TAR_FORMAT = tarfile.USTAR_FORMAT
+    RESOURCE_TAR_FORMAT = tarfile.PAX_FORMAT
     RESOURCE_FILE_NAME = "resources.tar"
 
     WHITELISTED_STACK_TYPES = set(
