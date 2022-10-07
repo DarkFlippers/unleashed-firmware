@@ -494,8 +494,8 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
         output,
         "%s %dbit\r\n"
         "Key:%lX%08lX\r\n"
-        "Fix:%08lX    Cnt:%05X\r\n"
-        "Hop:%08lX    Btn:%lX\r\n"
+        "Fix:%08lX    Cnt:%05lX\r\n"
+        "Hop:%08lX    Btn:%X\r\n"
         "Sn:%07lX Sd:%08lX",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

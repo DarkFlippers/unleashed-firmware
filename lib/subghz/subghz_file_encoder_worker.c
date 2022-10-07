@@ -85,7 +85,7 @@ void subghz_file_encoder_worker_get_text_progress(
     Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     size_t total_size = stream_size(stream);
     size_t current_offset = stream_tell(stream);
-    size_t buffer_avail = xStreamBufferBytesAvailable(instance->stream);
+    size_t buffer_avail = furi_stream_buffer_bytes_available(instance->stream);
 
     furi_string_printf(output, "%03u%%", 100 * (current_offset - buffer_avail) / total_size);
 }

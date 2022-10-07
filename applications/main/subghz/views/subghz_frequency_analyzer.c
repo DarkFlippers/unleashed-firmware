@@ -376,7 +376,7 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
 
     if((rssi != 0.f) && (frequency != 0)) {
         // Threre is some signal
-        FURI_LOG_I(TAG, "rssi = %.2f, frequency = %d Hz", (double)rssi, frequency);
+        FURI_LOG_I(TAG, "rssi = %.2f, frequency = %ld Hz", (double)rssi, frequency);
         frequency = round_int(frequency, 3); // Round 299999990Hz to 300000000Hz
         if(!instance->locked) {
             // Triggered!

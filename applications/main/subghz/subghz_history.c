@@ -52,7 +52,7 @@ struct SubGhzHistory {
 FuriString* subghz_history_generate_temp_filename(uint32_t index) {
     FuriHalRtcDateTime datetime = {0};
     furi_hal_rtc_get_datetime(&datetime);
-    return furi_string_alloc_printf("%03d%s", index, SUBGHZ_HISTORY_TMP_EXTENSION);
+    return furi_string_alloc_printf("%03ld%s", index, SUBGHZ_HISTORY_TMP_EXTENSION);
 }
 
 bool subghz_history_is_tmp_dir_exists(SubGhzHistory* instance) {
