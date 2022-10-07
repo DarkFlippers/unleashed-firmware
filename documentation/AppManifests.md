@@ -47,7 +47,7 @@ Only 2 parameters are mandatory: ***appid*** and ***apptype***, others are optio
 The following parameters are used only for [FAPs](./AppsOnSDCard.md):
 
 * **sources**: list of strings, file name masks, used for gathering sources within app folder. Default value of `["*.c*"]` includes C and C++ source files. Application cannot use `"lib"` folder for their own source code, as it is reserved for **fap_private_libs**.
-* **fap_version**: tuple, 2 numbers in form of (x,y): application version to be embedded within .fap file. Default value is (0,1), meanig version "0.1".
+* **fap_version**: tuple, 2 numbers in form of (x,y): application version to be embedded within .fap file. Default value is (0,1), meaning version "0.1".
 * **fap_icon**: name of a .png file, 1-bit color depth, 10x10px, to be embedded within .fap file.
 * **fap_libs**: list of extra libraries to link application against. Provides access to extra functions that are not exported as a part of main firmware at expense of increased .fap file size and RAM consumption.
 * **fap_category**: string, may be empty. App subcategory, also works as path of FAP within apps folder in the file system.
