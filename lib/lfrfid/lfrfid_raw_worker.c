@@ -338,7 +338,7 @@ static int32_t lfrfid_raw_emulate_worker_thread(void* thread_context) {
     }
 
     if(data->ctx.overrun_count) {
-        FURI_LOG_E(TAG_EMULATE, "overruns: %lu", data->ctx.overrun_count);
+        FURI_LOG_E(TAG_EMULATE, "overruns: %u", data->ctx.overrun_count);
     }
 
     furi_stream_buffer_free(data->ctx.stream);

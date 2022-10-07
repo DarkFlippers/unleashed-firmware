@@ -260,7 +260,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
             "non-complementary input, discarding key: %s type: %s, sequence: %p",
             input_get_key_name(input_event->key),
             input_get_type_name(input_event->type),
-            input_event->sequence);
+            (void*)input_event->sequence);
         return;
     }
 
@@ -290,7 +290,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
             view_port,
             input_get_key_name(input_event->key),
             input_get_type_name(input_event->type),
-            input_event->sequence);
+            (void*)input_event->sequence);
         view_port_input(gui->ongoing_input_view_port, input_event);
     } else {
         FURI_LOG_D(
@@ -300,7 +300,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
             view_port,
             input_get_key_name(input_event->key),
             input_get_type_name(input_event->type),
-            input_event->sequence);
+            (void*)input_event->sequence);
     }
 
     gui_unlock(gui);

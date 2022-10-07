@@ -700,8 +700,8 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
         output,
         "%s %dbit\r\n"
         "Key:%08lX%08lX\r\n"
-        "Fix:0x%08lX    Cnt:%04X\r\n"
-        "Hop:0x%08lX    Btn:%01lX\r\n"
+        "Fix:0x%08lX    Cnt:%04lX\r\n"
+        "Hop:0x%08lX    Btn:%01X\r\n"
         "MF:%s\r\n"
         "Sn:0x%07lX \r\n",
         instance->generic.protocol_name,

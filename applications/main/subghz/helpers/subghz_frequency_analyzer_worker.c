@@ -149,7 +149,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
 
         FURI_LOG_T(
             TAG,
-            "RSSI: avg %f, max %f at %u, min %f",
+            "RSSI: avg %f, max %f at %lu, min %f",
             (double)(rssi_avg / rssi_avg_samples),
             (double)frequency_rssi.rssi_coarse,
             frequency_rssi.frequency_coarse,
@@ -180,7 +180,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
 
                     rssi = furi_hal_subghz_get_rssi();
 
-                    FURI_LOG_T(TAG, "#:%u:%f", frequency, (double)rssi);
+                    FURI_LOG_T(TAG, "#:%lu:%f", frequency, (double)rssi);
 
                     if(frequency_rssi.rssi_fine < rssi) {
                         frequency_rssi.rssi_fine = rssi;
@@ -193,7 +193,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         // Deliver results fine
         if(frequency_rssi.rssi_fine > SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) {
             FURI_LOG_D(
-                TAG, "=:%u:%f", frequency_rssi.frequency_fine, (double)frequency_rssi.rssi_fine);
+                TAG, "=:%lu:%f", frequency_rssi.frequency_fine, (double)frequency_rssi.rssi_fine);
 
             instance->sample_hold_counter = 20;
             rssi_temp = frequency_rssi.rssi_fine;
@@ -217,7 +217,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             (instance->sample_hold_counter < 10)) {
             FURI_LOG_D(
                 TAG,
-                "~:%u:%f",
+                "~:%lu:%f",
                 frequency_rssi.frequency_coarse,
                 (double)frequency_rssi.rssi_coarse);
 

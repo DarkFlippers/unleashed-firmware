@@ -63,13 +63,13 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
                             .size = attribute_modified->Attr_Data_Length,
                         }};
                     uint32_t buff_free_size = serial_svc->callback(event, serial_svc->context);
-                    FURI_LOG_D(TAG, "Available buff size: %d", buff_free_size);
+                    FURI_LOG_D(TAG, "Available buff size: %ld", buff_free_size);
                     furi_check(furi_mutex_release(serial_svc->buff_size_mtx) == FuriStatusOk);
                 }
                 ret = SVCCTL_EvtAckFlowEnable;
             }
         } else if(blecore_evt->ecode == ACI_GATT_SERVER_CONFIRMATION_VSEVT_CODE) {
-            FURI_LOG_T(TAG, "Ack received", blecore_evt->ecode);
+            FURI_LOG_T(TAG, "Ack received");
             if(serial_svc->callback) {
                 SerialServiceEvent event = {
                     .event = SerialServiceEventTypeDataSent,

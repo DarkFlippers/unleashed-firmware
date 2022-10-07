@@ -218,7 +218,7 @@ void protocol_keri_render_data(ProtocolKeri* protocol, FuriString* result) {
     uint32_t fc = 0;
     uint32_t cn = 0;
     protocol_keri_descramble(&fc, &cn, &data);
-    furi_string_printf(result, "Internal ID: %u\r\nFC: %u, Card: %u\r\n", internal_id, fc, cn);
+    furi_string_printf(result, "Internal ID: %lu\r\nFC: %lu, Card: %lu\r\n", internal_id, fc, cn);
 }
 
 bool protocol_keri_write_data(ProtocolKeri* protocol, void* data) {

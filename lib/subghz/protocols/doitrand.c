@@ -345,7 +345,7 @@ void subghz_protocol_decoder_doitrand_get_string(void* context, FuriString* outp
         output,
         "%s %dbit\r\n"
         "Key:%02lX%08lX\r\n"
-        "Btn:%lX\r\n"
+        "Btn:%X\r\n"
         "DIP:" DIP_PATTERN "\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

@@ -86,5 +86,7 @@ ARRAY_DEF(
 
 void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder, bool is_app);
 bool archive_get_items(void* context, const char* path);
-void archive_file_append(const char* path, const char* format, ...);
-void archive_delete_file(void* context, const char* format, ...);
+void archive_file_append(const char* path, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));
+void archive_delete_file(void* context, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));

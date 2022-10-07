@@ -108,6 +108,6 @@ bool all_in_one_parser_parse(NfcDeviceData* dev_data) {
 
     // Format string for rides count
     furi_string_printf(
-        dev_data->parsed_data, "\e#All-In-One\nNumber: %u\nRides left: %u", serial, ride_count);
+        dev_data->parsed_data, "\e#All-In-One\nNumber: %lu\nRides left: %u", serial, ride_count);
     return true;
 }

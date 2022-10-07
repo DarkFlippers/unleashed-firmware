@@ -437,7 +437,7 @@ void subghz_protocol_decoder_somfy_keytis_get_string(void* context, FuriString* 
         "%s %db\r\n"
         "%lX%08lX%06lX\r\n"
         "Sn:0x%06lX \r\n"
-        "Cnt:0x%04X\r\n"
+        "Cnt:0x%04lX\r\n"
         "Btn:%s\r\n",
 
         instance->generic.protocol_name,

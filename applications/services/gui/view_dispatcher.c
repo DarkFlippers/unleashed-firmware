@@ -246,7 +246,7 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
             "non-complementary input, discarding key: %s, type: %s, sequence: %p",
             input_get_key_name(event->key),
             input_get_type_name(event->type),
-            event->sequence);
+            (void*)event->sequence);
         return;
     }
 
@@ -286,7 +286,7 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
             view_dispatcher->current_view,
             input_get_key_name(event->key),
             input_get_type_name(event->type),
-            event->sequence);
+            (void*)event->sequence);
         view_input(view_dispatcher->ongoing_input_view, event);
     }
 }

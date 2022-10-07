@@ -77,7 +77,7 @@ static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
     notification_message(bt->notification, &sequence_display_backlight_on);
     FuriString* pin_str;
     dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
-    pin_str = furi_string_alloc_printf("Verify code\n%06d", pin);
+    pin_str = furi_string_alloc_printf("Verify code\n%06ld", pin);
     dialog_message_set_text(
         bt->dialog_message, furi_string_get_cstr(pin_str), 64, 4, AlignCenter, AlignTop);
     dialog_message_set_buttons(bt->dialog_message, "Cancel", "OK", NULL);
@@ -277,7 +277,7 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
 static void bt_on_key_storage_change_callback(uint8_t* addr, uint16_t size, void* context) {
     furi_assert(context);
     Bt* bt = context;
-    FURI_LOG_I(TAG, "Changed addr start: %08lX, size changed: %d", addr, size);
+    FURI_LOG_I(TAG, "Changed addr start: %p, size changed: %d", addr, size);
     BtMessage message = {.type = BtMessageTypeKeysStorageUpdated};
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);

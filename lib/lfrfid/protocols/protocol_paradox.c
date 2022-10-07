@@ -142,7 +142,7 @@ void protocol_paradox_render_data(ProtocolParadox* protocol, FuriString* result)
     uint16_t card_id = bit_lib_get_bits_16(decoded_data, 18, 16);
 
     furi_string_cat_printf(result, "Facility: %u\r\n", fc);
-    furi_string_cat_printf(result, "Card: %lu\r\n", card_id);
+    furi_string_cat_printf(result, "Card: %u\r\n", card_id);
     furi_string_cat_printf(result, "Data: ");
     for(size_t i = 0; i < PARADOX_DECODED_DATA_SIZE; i++) {
         furi_string_cat_printf(result, "%02X", decoded_data[i]);

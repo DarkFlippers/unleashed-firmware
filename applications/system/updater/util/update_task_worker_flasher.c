@@ -271,7 +271,7 @@ bool update_task_validate_optionbytes(UpdateTask* update_task) {
             match = false;
             FURI_LOG_E(
                 TAG,
-                "OB MISMATCH: #%d: real %08X != %08X (exp.), full %08X",
+                "OB MISMATCH: #%d: real %08lX != %08lX (exp.), full %08lX",
                 idx,
                 device_ob_value_masked,
                 ref_value,
@@ -289,7 +289,7 @@ bool update_task_validate_optionbytes(UpdateTask* update_task) {
                     (manifest->ob_reference.obs[idx].values.base &
                      manifest->ob_write_mask.obs[idx].values.base);
 
-                FURI_LOG_W(TAG, "Fixing up OB byte #%d to %08X", idx, patched_value);
+                FURI_LOG_W(TAG, "Fixing up OB byte #%d to %08lX", idx, patched_value);
                 ob_dirty = true;
 
                 bool is_fixed = furi_hal_flash_ob_set_word(idx, patched_value) &&
@@ -301,7 +301,7 @@ bool update_task_validate_optionbytes(UpdateTask* update_task) {
                      * reference value */
                     FURI_LOG_W(
                         TAG,
-                        "OB #%d is FUBAR (fixed&masked %08X, not %08X)",
+                        "OB #%d is FUBAR (fixed&masked %08lX, not %08lX)",
                         idx,
                         patched_value,
                         ref_value);
@@ -310,7 +310,7 @@ bool update_task_validate_optionbytes(UpdateTask* update_task) {
         } else {
             FURI_LOG_D(
                 TAG,
-                "OB MATCH: #%d: real %08X == %08X (exp.)",
+                "OB MATCH: #%d: real %08lX == %08lX (exp.)",
                 idx,
                 device_ob_value_masked,
                 ref_value);

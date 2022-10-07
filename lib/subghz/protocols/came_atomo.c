@@ -338,7 +338,7 @@ void subghz_protocol_decoder_came_atomo_get_string(void* context, FuriString* ou
         "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:0x%08lX  Btn:0x%01X\r\n"
-        "Cnt:0x%03X\r\n",
+        "Cnt:0x%03lX\r\n",
 
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

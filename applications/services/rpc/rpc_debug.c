@@ -158,9 +158,9 @@ void rpc_debug_print_message(const PB_Main* message) {
     case PB_Main_storage_info_response_tag: {
         furi_string_cat_printf(str, "\tinfo_response {\r\n");
         furi_string_cat_printf(
-            str, "\t\ttotal_space: %lu\r\n", message->content.storage_info_response.total_space);
+            str, "\t\ttotal_space: %llu\r\n", message->content.storage_info_response.total_space);
         furi_string_cat_printf(
-            str, "\t\tfree_space: %lu\r\n", message->content.storage_info_response.free_space);
+            str, "\t\tfree_space: %llu\r\n", message->content.storage_info_response.free_space);
         break;
     }
     case PB_Main_storage_stat_request_tag: {

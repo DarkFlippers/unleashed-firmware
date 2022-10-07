@@ -61,7 +61,7 @@ static bool infrared_signal_is_raw_valid(InfraredRawSignal* raw) {
     if((raw->frequency > INFRARED_MAX_FREQUENCY) || (raw->frequency < INFRARED_MIN_FREQUENCY)) {
         FURI_LOG_E(
             TAG,
-            "Frequency is out of range (%lX - %lX): %lX",
+            "Frequency is out of range (%X - %X): %lX",
             INFRARED_MIN_FREQUENCY,
             INFRARED_MAX_FREQUENCY,
             raw->frequency);
@@ -74,7 +74,7 @@ static bool infrared_signal_is_raw_valid(InfraredRawSignal* raw) {
     } else if((raw->timings_size <= 0) || (raw->timings_size > MAX_TIMINGS_AMOUNT)) {
         FURI_LOG_E(
             TAG,
-            "Timings amount is out of range (0 - %lX): %lX",
+            "Timings amount is out of range (0 - %X): %X",
             MAX_TIMINGS_AMOUNT,
             raw->timings_size);
         return false;
