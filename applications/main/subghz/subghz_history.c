@@ -86,7 +86,7 @@ bool subghz_history_check_sdcard(SubGhzHistory* instance) {
         FURI_LOG_W(TAG, "SD storage not installed! Status: %d", status);
     }
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "Running time (check_sdcard): %d ms", furi_get_tick() - start_time);
+    FURI_LOG_I(TAG, "Running time (check_sdcard): %ld ms", furi_get_tick() - start_time);
 #endif
 
     return result;
@@ -244,7 +244,7 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
 
             if(storage_file_exists(instance->storage, furi_string_get_cstr(dir_path))) {
 #ifdef FURI_DEBUG
-                FURI_LOG_D(TAG, "Exist: %s", dir_path);
+                FURI_LOG_D(TAG, "Exist: %s", furi_string_get_cstr(dir_path));
                 furi_delay_ms(LOG_DELAY);
 #endif
                 // Set to current anyway it has NULL value

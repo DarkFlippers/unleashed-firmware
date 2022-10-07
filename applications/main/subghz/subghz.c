@@ -195,14 +195,14 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
         FURI_LOG_D(
             TAG,
-            "last frequency: %d, preset: %d, detect_raw: %d",
+            "last frequency: %ld, preset: %ld, detect_raw: %d",
             subghz->last_settings->frequency,
             subghz->last_settings->preset,
             subghz->last_settings->detect_raw);
 #else
         FURI_LOG_D(
             TAG,
-            "last frequency: %d, preset: %d",
+            "last frequency: %ld, preset: %ld",
             subghz->last_settings->frequency,
             subghz->last_settings->preset);
 #endif

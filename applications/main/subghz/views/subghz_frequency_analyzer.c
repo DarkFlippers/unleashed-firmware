@@ -214,7 +214,7 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t current = 0;
     uint32_t result = 0;
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "input: %d", input);
+    FURI_LOG_D(TAG, "input: %ld", input);
 #endif
     for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
         current = subghz_frequency_list[i];
@@ -296,7 +296,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 #ifdef FURI_DEBUG
                     FURI_LOG_D(
                         TAG,
-                        "frequency_to_save: %d, candidate: %d",
+                        "frequency_to_save: %ld, candidate: %ld",
                         model->frequency_to_save,
                         frequency_candidate);
 #endif

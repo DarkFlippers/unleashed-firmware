@@ -266,7 +266,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 #ifdef FURI_DEBUG
     FURI_LOG_D(
         TAG,
-        "Last frequency: %d, Preset: %d",
+        "Last frequency: %ld, Preset: %ld",
         subghz->last_settings->frequency,
         subghz->last_settings->preset);
 #endif
