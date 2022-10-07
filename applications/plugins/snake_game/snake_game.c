@@ -61,12 +61,32 @@ typedef struct {
     InputEvent input;
 } SnakeEvent;
 
-static const NotificationSequence sequence_short_vibro_and_sound = {
+const NotificationSequence sequence_fail = {
     &message_vibro_on,
-    &message_note_c5,
+
+    &message_note_ds4,
+    &message_delay_10,
+    &message_sound_off,
+    &message_delay_10,
+
+    &message_note_ds4,
+    &message_delay_10,
+    &message_sound_off,
+    &message_delay_10,
+
+    &message_note_ds4,
+    &message_delay_10,
+    &message_sound_off,
+    &message_delay_10,
+
+    &message_vibro_off,
+    NULL,
+};
+
+const NotificationSequence sequence_eat = {
+    &message_note_c7,
     &message_delay_50,
     &message_sound_off,
-    &message_vibro_off,
     NULL,
 };
 
@@ -95,12 +115,6 @@ static void snake_game_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_box(canvas, p.x, p.y, 4, 4);
     }
 
-    // Show score on the game field
-    if(snake_state->state != GameStateGameOver) {
-        char buffer2[6];
-        snprintf(buffer2, sizeof(buffer2), "%u", snake_state->len - 7);
-        canvas_draw_str_aligned(canvas, 124, 10, AlignRight, AlignBottom, buffer2);
-    }
     // Game Over banner
     if(snake_state->state == GameStateGameOver) {
         // Screen is 128x64 px
@@ -247,7 +261,8 @@ static void snake_game_move_snake(SnakeState* const snake_state, Point const nex
     snake_state->points[0] = next_step;
 }
 
-static void snake_game_process_game_step(SnakeState* const snake_state, NotificationApp* notify) {
+static void
+    snake_game_process_game_step(SnakeState* const snake_state, NotificationApp* notification) {
     if(snake_state->state == GameStateGameOver) {
         return;
     }
@@ -266,6 +281,7 @@ static void snake_game_process_game_step(SnakeState* const snake_state, Notifica
             return;
         } else if(snake_state->state == GameStateLastChance) {
             snake_state->state = GameStateGameOver;
+            notification_message_block(notification, &sequence_fail);
             return;
         }
     } else {
@@ -277,17 +293,16 @@ static void snake_game_process_game_step(SnakeState* const snake_state, Notifica
     crush = snake_game_collision_with_tail(snake_state, next_step);
     if(crush) {
         snake_state->state = GameStateGameOver;
+        notification_message_block(notification, &sequence_fail);
         return;
     }
 
     bool eatFruit = (next_step.x == snake_state->fruit.x) && (next_step.y == snake_state->fruit.y);
     if(eatFruit) {
-        notification_message(notify, &sequence_short_vibro_and_sound);
-        //notification_message(notify, &sequence_blink_white_100);
-
         snake_state->len++;
         if(snake_state->len >= MAX_SNAKE_LEN) {
             snake_state->state = GameStateGameOver;
+            notification_message_block(notification, &sequence_fail);
             return;
         }
     }
@@ -296,6 +311,7 @@ static void snake_game_process_game_step(SnakeState* const snake_state, Notifica
 
     if(eatFruit) {
         snake_state->fruit = snake_game_get_new_fruit(snake_state);
+        notification_message(notification, &sequence_eat);
     }
 }
 
@@ -327,8 +343,9 @@ int32_t snake_game_app(void* p) {
     // Open GUI and register view_port
     Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
-
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+
+    notification_message_block(notification, &sequence_display_backlight_enforce_on);
 
     SnakeEvent event;
     for(bool processing = true; processing;) {
@@ -373,6 +390,9 @@ int32_t snake_game_app(void* p) {
         view_port_update(view_port);
         release_mutex(&state_mutex, snake_state);
     }
+
+    // Wait for all notifications to be played and return backlight to normal state
+    notification_message_block(notification, &sequence_display_backlight_enforce_auto);
 
     furi_timer_free(timer);
     view_port_enabled_set(view_port, false);
