@@ -20,20 +20,19 @@ void nfc_scene_mf_desfire_read_success_on_enter(void* context) {
     Widget* widget = nfc->widget;
 
     // Prepare string for data display
-    string_t temp_str;
-    string_init_printf(temp_str, "\e#MIFARE DESfire\n");
-    string_cat_printf(temp_str, "UID:");
+    FuriString* temp_str = furi_string_alloc_printf("\e#MIFARE DESfire\n");
+    furi_string_cat_printf(temp_str, "UID:");
     for(size_t i = 0; i < nfc_data->uid_len; i++) {
-        string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
+        furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
     }
 
     uint32_t bytes_total = 1 << (data->version.sw_storage >> 1);
     uint32_t bytes_free = data->free_memory ? data->free_memory->bytes : 0;
-    string_cat_printf(temp_str, "\n%d", bytes_total);
+    furi_string_cat_printf(temp_str, "\n%ld", bytes_total);
     if(data->version.sw_storage & 1) {
-        string_push_back(temp_str, '+');
+        furi_string_push_back(temp_str, '+');
     }
-    string_cat_printf(temp_str, " bytes, %d bytes free\n", bytes_free);
+    furi_string_cat_printf(temp_str, " bytes, %ld bytes free\n", bytes_free);
 
     uint16_t n_apps = 0;
     uint16_t n_files = 0;
@@ -43,20 +42,20 @@ void nfc_scene_mf_desfire_read_success_on_enter(void* context) {
             n_files++;
         }
     }
-    string_cat_printf(temp_str, "%d Application", n_apps);
+    furi_string_cat_printf(temp_str, "%d Application", n_apps);
     if(n_apps != 1) {
-        string_push_back(temp_str, 's');
+        furi_string_push_back(temp_str, 's');
     }
-    string_cat_printf(temp_str, ", %d file", n_files);
+    furi_string_cat_printf(temp_str, ", %d file", n_files);
     if(n_files != 1) {
-        string_push_back(temp_str, 's');
+        furi_string_push_back(temp_str, 's');
     }
 
     notification_message_block(nfc->notifications, &sequence_set_green_255);
 
     // Add text scroll element
-    widget_add_text_scroll_element(widget, 0, 0, 128, 52, string_get_cstr(temp_str));
-    string_clear(temp_str);
+    widget_add_text_scroll_element(widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
+    furi_string_free(temp_str);
 
     // Add button elements
     widget_add_button_element(

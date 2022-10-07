@@ -11,21 +11,21 @@ void nfc_scene_mfkey_nonces_info_callback(GuiButtonType result, InputType type, 
 void nfc_scene_mfkey_nonces_info_on_enter(void* context) {
     Nfc* nfc = context;
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     uint16_t nonces_saved = mfkey32_get_auth_sectors(temp_str);
-    widget_add_text_scroll_element(nfc->widget, 0, 22, 128, 42, string_get_cstr(temp_str));
-    string_printf(temp_str, "Nonces saved %d", nonces_saved);
+    widget_add_text_scroll_element(nfc->widget, 0, 22, 128, 42, furi_string_get_cstr(temp_str));
+    furi_string_printf(temp_str, "Nonce pairs saved: %d", nonces_saved);
     widget_add_string_element(
-        nfc->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, string_get_cstr(temp_str));
+        nfc->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, furi_string_get_cstr(temp_str));
     widget_add_string_element(
         nfc->widget, 0, 12, AlignLeft, AlignTop, FontSecondary, "Authenticated sectors:");
 
     widget_add_button_element(
-        nfc->widget, GuiButtonTypeRight, "Next", nfc_scene_mfkey_nonces_info_callback, nfc);
+        nfc->widget, GuiButtonTypeCenter, "OK", nfc_scene_mfkey_nonces_info_callback, nfc);
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
@@ -35,7 +35,7 @@ bool nfc_scene_mfkey_nonces_info_on_event(void* context, SceneManagerEvent event
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == GuiButtonTypeRight) {
+        if(event.event == GuiButtonTypeCenter) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfkeyComplete);
             consumed = true;
         }

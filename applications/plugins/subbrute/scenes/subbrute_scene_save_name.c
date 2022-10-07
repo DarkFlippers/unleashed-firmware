@@ -44,7 +44,7 @@ bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 #endif
         bool success = false;
         if(strcmp(instance->text_store, "")) {
-            string_cat_printf(
+            furi_string_cat_printf(
                 instance->file_path, "/%s%s", instance->text_store, SUBBRUTE_FILE_EXT);
 
             if(subbrute_device_save_file(instance->device, string_get_cstr(instance->file_path))) {

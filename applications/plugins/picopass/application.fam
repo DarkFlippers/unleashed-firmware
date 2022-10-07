@@ -1,5 +1,5 @@
 App(
-    appid="picopass",
+    appid="Picopass",
     name="PicoPass Reader",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="picopass_app",
@@ -10,8 +10,11 @@ App(
     stack_size=4 * 1024,
     order=30,
     fap_icon="../../../assets/icons/Archive/125_10px.png",
-    fap_libs=[
-        "mbedtls",
-    ],
     fap_category="Tools",
+    fap_libs=["mbedtls"],
+    fap_private_libs=[
+        Lib(
+            name="loclass",
+        ),
+    ],
 )

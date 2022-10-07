@@ -9,6 +9,7 @@
 #include <FreeRTOS.h>
 #include <task.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 extern size_t xPortGetTotalHeapSize(void);
 extern size_t xPortGetFreeHeapSize(void);

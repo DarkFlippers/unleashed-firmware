@@ -136,26 +136,26 @@ LevelDuration protocol_paradox_encoder_yield(ProtocolParadox* protocol) {
     return level_duration_make(level, duration);
 };
 
-void protocol_paradox_render_data(ProtocolParadox* protocol, string_t result) {
+void protocol_paradox_render_data(ProtocolParadox* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
     uint8_t fc = bit_lib_get_bits(decoded_data, 10, 8);
     uint16_t card_id = bit_lib_get_bits_16(decoded_data, 18, 16);
 
-    string_cat_printf(result, "Facility: %u\r\n", fc);
-    string_cat_printf(result, "Card: %lu\r\n", card_id);
-    string_cat_printf(result, "Data: ");
+    furi_string_cat_printf(result, "Facility: %u\r\n", fc);
+    furi_string_cat_printf(result, "Card: %u\r\n", card_id);
+    furi_string_cat_printf(result, "Data: ");
     for(size_t i = 0; i < PARADOX_DECODED_DATA_SIZE; i++) {
-        string_cat_printf(result, "%02X", decoded_data[i]);
+        furi_string_cat_printf(result, "%02X", decoded_data[i]);
     }
 };
 
-void protocol_paradox_render_brief_data(ProtocolParadox* protocol, string_t result) {
+void protocol_paradox_render_brief_data(ProtocolParadox* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
 
     uint8_t fc = bit_lib_get_bits(decoded_data, 10, 8);
     uint16_t card_id = bit_lib_get_bits_16(decoded_data, 18, 16);
 
-    string_cat_printf(result, "FC: %03u, Card: %05u", fc, card_id);
+    furi_string_cat_printf(result, "FC: %03u, Card: %05u", fc, card_id);
 };
 
 bool protocol_paradox_write_data(ProtocolParadox* protocol, void* data) {

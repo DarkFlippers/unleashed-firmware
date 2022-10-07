@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <m-string.h>
 #include <storage/storage.h>
 
 #ifdef __cplusplus
@@ -40,6 +39,11 @@ bool tar_archive_add_file(
 bool tar_archive_add_dir(TarArchive* archive, const char* fs_full_path, const char* path_prefix);
 
 int32_t tar_archive_get_entries_count(TarArchive* archive);
+
+bool tar_archive_unpack_file(
+    TarArchive* archive,
+    const char* archive_fname,
+    const char* destination);
 
 /* Optional per-entry callback on unpacking - return false to skip entry */
 typedef bool (*tar_unpack_file_cb)(const char* name, bool is_directory, void* context);

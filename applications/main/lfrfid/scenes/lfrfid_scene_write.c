@@ -22,8 +22,8 @@ void lfrfid_scene_write_on_enter(void* context) {
     Popup* popup = app->popup;
 
     popup_set_header(popup, "Writing", 89, 30, AlignCenter, AlignTop);
-    if(!string_empty_p(app->file_name)) {
-        popup_set_text(popup, string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
+    if(!furi_string_empty(app->file_name)) {
+        popup_set_text(popup, furi_string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
     } else {
         popup_set_text(
             popup,
@@ -38,7 +38,6 @@ void lfrfid_scene_write_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    app->old_key_data = (uint8_t*)malloc(size);
     protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
 
     lfrfid_worker_start_thread(app->lfworker);
@@ -92,5 +91,4 @@ void lfrfid_scene_write_on_exit(void* context) {
 
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
-    free(app->old_key_data);
 }

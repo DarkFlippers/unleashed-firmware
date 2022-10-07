@@ -91,10 +91,8 @@ void mfkey32_set_callback(Mfkey32* instance, Mfkey32ParseDataCallback callback, 
 }
 
 static bool mfkey32_write_params(Mfkey32* instance, Mfkey32Params* params) {
-    string_t str;
-    string_init_printf(
-        str,
-        "Sector %d key %c cuid %08x nt0 %08x nr0 %08x ar0 %08x nt1 %08x nr1 %08x ar1 %08x\n",
+    FuriString* str = furi_string_alloc_printf(
+        "Sec %d key %c cuid %08lx nt0 %08lx nr0 %08lx ar0 %08lx nt1 %08lx nr1 %08lx ar1 %08lx\n",
         params->sector,
         params->key == MfClassicKeyA ? 'A' : 'B',
         params->cuid,
@@ -105,7 +103,7 @@ static bool mfkey32_write_params(Mfkey32* instance, Mfkey32Params* params) {
         params->nr1,
         params->ar1);
     bool write_success = stream_write_string(instance->file_stream, str);
-    string_clear(str);
+    furi_string_free(str);
     return write_success;
 }
 
@@ -199,14 +197,14 @@ void mfkey32_process_data(
     }
 }
 
-uint16_t mfkey32_get_auth_sectors(string_t data_str) {
+uint16_t mfkey32_get_auth_sectors(FuriString* data_str) {
     furi_assert(data_str);
 
     uint16_t nonces_num = 0;
     Storage* storage = furi_record_open(RECORD_STORAGE);
     Stream* file_stream = buffered_file_stream_alloc(storage);
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     do {
         if(!buffered_file_stream_open(
@@ -214,17 +212,17 @@ uint16_t mfkey32_get_auth_sectors(string_t data_str) {
             break;
         while(true) {
             if(!stream_read_line(file_stream, temp_str)) break;
-            size_t uid_pos = string_search_str(temp_str, "cuid");
-            string_left(temp_str, uid_pos);
-            string_push_back(temp_str, '\n');
-            string_cat(data_str, temp_str);
+            size_t uid_pos = furi_string_search(temp_str, "cuid");
+            furi_string_left(temp_str, uid_pos);
+            furi_string_push_back(temp_str, '\n');
+            furi_string_cat(data_str, temp_str);
             nonces_num++;
         }
     } while(false);
 
     buffered_file_stream_close(file_stream);
     stream_free(file_stream);
-    string_clear(temp_str);
+    furi_string_free(temp_str);
 
     return nonces_num;
 }

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <m-array.h>
-#include <m-string.h>
+#include <furi.h>
 #include <storage/storage.h>
 #include "toolbox/path.h"
+
+#define FAP_MANIFEST_MAX_ICON_SIZE 32
 
 typedef enum {
     ArchiveFileTypeIButton,
@@ -13,7 +15,7 @@ typedef enum {
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
     ArchiveFileTypeU2f,
-    ArchiveFileTypeApps,
+    ArchiveFileTypeApplication,
     ArchiveFileTypeUpdateManifest,
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
@@ -21,35 +23,58 @@ typedef enum {
 } ArchiveFileTypeEnum;
 
 typedef struct {
-    string_t path;
+    FuriString* path;
     ArchiveFileTypeEnum type;
+    uint8_t* custom_icon_data;
+    FuriString* custom_name;
     bool fav;
     bool is_app;
 } ArchiveFile_t;
 
 static void ArchiveFile_t_init(ArchiveFile_t* obj) {
+    obj->path = furi_string_alloc();
     obj->type = ArchiveFileTypeUnknown;
-    obj->is_app = false;
+    obj->custom_icon_data = NULL;
+    obj->custom_name = furi_string_alloc();
     obj->fav = false;
-    string_init(obj->path);
+    obj->is_app = false;
 }
 
 static void ArchiveFile_t_init_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
+    obj->path = furi_string_alloc_set(src->path);
     obj->type = src->type;
-    obj->is_app = src->is_app;
+    if(src->custom_icon_data) {
+        obj->custom_icon_data = malloc(FAP_MANIFEST_MAX_ICON_SIZE);
+        memcpy(obj->custom_icon_data, src->custom_icon_data, FAP_MANIFEST_MAX_ICON_SIZE);
+    } else {
+        obj->custom_icon_data = NULL;
+    }
+    obj->custom_name = furi_string_alloc_set(src->custom_name);
     obj->fav = src->fav;
-    string_init_set(obj->path, src->path);
+    obj->is_app = src->is_app;
 }
 
 static void ArchiveFile_t_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
+    furi_string_set(obj->path, src->path);
     obj->type = src->type;
-    obj->is_app = src->is_app;
+    if(src->custom_icon_data) {
+        obj->custom_icon_data = malloc(FAP_MANIFEST_MAX_ICON_SIZE);
+        memcpy(obj->custom_icon_data, src->custom_icon_data, FAP_MANIFEST_MAX_ICON_SIZE);
+    } else {
+        obj->custom_icon_data = NULL;
+    }
+    furi_string_set(obj->custom_name, src->custom_name);
     obj->fav = src->fav;
-    string_set(obj->path, src->path);
+    obj->is_app = src->is_app;
 }
 
 static void ArchiveFile_t_clear(ArchiveFile_t* obj) {
-    string_clear(obj->path);
+    furi_string_free(obj->path);
+    if(obj->custom_icon_data) {
+        free(obj->custom_icon_data);
+        obj->custom_icon_data = NULL;
+    }
+    furi_string_free(obj->custom_name);
 }
 
 ARRAY_DEF(
@@ -62,6 +87,8 @@ ARRAY_DEF(
 
 void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder, bool is_app);
 bool archive_get_items(void* context, const char* path);
-void archive_file_append(const char* path, const char* format, ...);
-void archive_delete_file(void* context, const char* format, ...);
+void archive_file_append(const char* path, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));
+void archive_delete_file(void* context, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));
 FS_Error archive_rename_file_or_dir(void* context, const char* src_path, const char* dst_path);

@@ -57,11 +57,26 @@ static ELFSection* elf_file_get_section(ELFFile* elf, const char* name) {
     return ELFSectionDict_get(elf->sections, name);
 }
 
-static void elf_file_put_section(ELFFile* elf, const char* name, ELFSection* section) {
-    ELFSectionDict_set_at(elf->sections, strdup(name), *section);
+static ELFSection* elf_file_get_or_put_section(ELFFile* elf, const char* name) {
+    ELFSection* section_p = elf_file_get_section(elf, name);
+    if(!section_p) {
+        ELFSectionDict_set_at(
+            elf->sections,
+            strdup(name),
+            (ELFSection){
+                .data = NULL,
+                .sec_idx = 0,
+                .size = 0,
+                .rel_count = 0,
+                .rel_offset = 0,
+            });
+        section_p = elf_file_get_section(elf, name);
+    }
+
+    return section_p;
 }
 
-static bool elf_read_string_from_offset(ELFFile* elf, off_t offset, string_t name) {
+static bool elf_read_string_from_offset(ELFFile* elf, off_t offset, FuriString* name) {
     bool result = false;
 
     off_t old = storage_file_tell(elf->fd);
@@ -74,7 +89,7 @@ static bool elf_read_string_from_offset(ELFFile* elf, off_t offset, string_t nam
 
         while(true) {
             uint16_t read = storage_file_read(elf->fd, buffer, ELF_NAME_BUFFER_LEN);
-            string_cat_str(name, buffer);
+            furi_string_cat(name, buffer);
             if(strlen(buffer) < ELF_NAME_BUFFER_LEN) {
                 result = true;
                 break;
@@ -89,11 +104,11 @@ static bool elf_read_string_from_offset(ELFFile* elf, off_t offset, string_t nam
     return result;
 }
 
-static bool elf_read_section_name(ELFFile* elf, off_t offset, string_t name) {
+static bool elf_read_section_name(ELFFile* elf, off_t offset, FuriString* name) {
     return elf_read_string_from_offset(elf, elf->section_table_strings + offset, name);
 }
 
-static bool elf_read_symbol_name(ELFFile* elf, off_t offset, string_t name) {
+static bool elf_read_symbol_name(ELFFile* elf, off_t offset, FuriString* name) {
     return elf_read_string_from_offset(elf, elf->symbol_table_strings + offset, name);
 }
 
@@ -103,8 +118,11 @@ static bool elf_read_section_header(ELFFile* elf, size_t section_idx, Elf32_Shdr
            storage_file_read(elf->fd, section_header, sizeof(Elf32_Shdr)) == sizeof(Elf32_Shdr);
 }
 
-static bool
-    elf_read_section(ELFFile* elf, size_t section_idx, Elf32_Shdr* section_header, string_t name) {
+static bool elf_read_section(
+    ELFFile* elf,
+    size_t section_idx,
+    Elf32_Shdr* section_header,
+    FuriString* name) {
     if(!elf_read_section_header(elf, section_idx, section_header)) {
         return false;
     }
@@ -116,7 +134,7 @@ static bool
     return true;
 }
 
-static bool elf_read_symbol(ELFFile* elf, int n, Elf32_Sym* sym, string_t name) {
+static bool elf_read_symbol(ELFFile* elf, int n, Elf32_Sym* sym, FuriString* name) {
     bool success = false;
     off_t old = storage_file_tell(elf->fd);
     off_t pos = elf->symbol_table + n * sizeof(Elf32_Sym);
@@ -276,19 +294,17 @@ static void elf_relocate_mov(Elf32_Addr relAddr, int type, Elf32_Addr symAddr) {
     int32_t addend = (imm4 << 12) | (i << 11) | (imm3 << 8) | imm8; /* imm16 */
 
     uint32_t addr = (symAddr + addend);
-    if (type == R_ARM_THM_MOVT_ABS) {
+    if(type == R_ARM_THM_MOVT_ABS) {
         addr >>= 16; /* upper 16 bits */
     } else {
         addr &= 0x0000FFFF; /* lower 16 bits */
     }
 
     /* Re-encode */
-    ((uint16_t*)relAddr)[0] = (upper_insn & 0xFBF0)
-                            | (((addr >> 11) & 1) << 10) /* i */
-                            | ((addr >> 12) & 0x000F); /* imm4 */
-    ((uint16_t*)relAddr)[1] = (lower_insn & 0x8F00)
-                            | (((addr >> 8) & 0x7) << 12) /* imm3 */
-                            | (addr & 0x00FF); /* imm8 */
+    ((uint16_t*)relAddr)[0] = (upper_insn & 0xFBF0) | (((addr >> 11) & 1) << 10) /* i */
+                              | ((addr >> 12) & 0x000F); /* imm4 */
+    ((uint16_t*)relAddr)[1] = (lower_insn & 0x8F00) | (((addr >> 8) & 0x7) << 12) /* imm3 */
+                              | (addr & 0x00FF); /* imm8 */
 }
 
 static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf32_Addr symAddr) {
@@ -307,7 +323,10 @@ static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf3
     case R_ARM_THM_MOVW_ABS_NC:
     case R_ARM_THM_MOVT_ABS:
         elf_relocate_mov(relAddr, type, symAddr);
-        FURI_LOG_D(TAG, "  R_ARM_THM_MOVW_ABS_NC/MOVT_ABS relocated is 0x%08X", (unsigned int)*((uint32_t*)relAddr));
+        FURI_LOG_D(
+            TAG,
+            "  R_ARM_THM_MOVW_ABS_NC/MOVT_ABS relocated is 0x%08X",
+            (unsigned int)*((uint32_t*)relAddr));
         break;
     default:
         FURI_LOG_E(TAG, "  Undefined relocation %d", type);
@@ -316,17 +335,17 @@ static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf3
     return true;
 }
 
-static bool elf_relocate(ELFFile* elf, Elf32_Shdr* h, ELFSection* s) {
+static bool elf_relocate(ELFFile* elf, ELFSection* s) {
     if(s->data) {
         Elf32_Rel rel;
-        size_t relEntries = h->sh_size / sizeof(rel);
+        size_t relEntries = s->rel_count;
         size_t relCount;
-        (void)storage_file_seek(elf->fd, h->sh_offset, true);
+        (void)storage_file_seek(elf->fd, s->rel_offset, true);
         FURI_LOG_D(TAG, " Offset   Info     Type             Name");
 
         int relocate_result = true;
-        string_t symbol_name;
-        string_init(symbol_name);
+        FuriString* symbol_name;
+        symbol_name = furi_string_alloc();
 
         for(relCount = 0; relCount < relEntries; relCount++) {
             if(relCount % RESOLVER_THREAD_YIELD_STEP == 0) {
@@ -336,7 +355,7 @@ static bool elf_relocate(ELFFile* elf, Elf32_Shdr* h, ELFSection* s) {
 
             if(storage_file_read(elf->fd, &rel, sizeof(Elf32_Rel)) != sizeof(Elf32_Rel)) {
                 FURI_LOG_E(TAG, "  reloc read fail");
-                string_clear(symbol_name);
+                furi_string_free(symbol_name);
                 return false;
             }
 
@@ -348,10 +367,10 @@ static bool elf_relocate(ELFFile* elf, Elf32_Shdr* h, ELFSection* s) {
 
             if(!address_cache_get(elf->relocation_cache, symEntry, &symAddr)) {
                 Elf32_Sym sym;
-                string_reset(symbol_name);
+                furi_string_reset(symbol_name);
                 if(!elf_read_symbol(elf, symEntry, &sym, symbol_name)) {
                     FURI_LOG_E(TAG, "  symbol read fail");
-                    string_clear(symbol_name);
+                    furi_string_free(symbol_name);
                     return false;
                 }
 
@@ -361,9 +380,9 @@ static bool elf_relocate(ELFFile* elf, Elf32_Shdr* h, ELFSection* s) {
                     (unsigned int)rel.r_offset,
                     (unsigned int)rel.r_info,
                     elf_reloc_type_to_str(relType),
-                    string_get_cstr(symbol_name));
+                    furi_string_get_cstr(symbol_name));
 
-                symAddr = elf_address_of(elf, &sym, string_get_cstr(symbol_name));
+                symAddr = elf_address_of(elf, &sym, furi_string_get_cstr(symbol_name));
                 address_cache_put(elf->relocation_cache, symEntry, symAddr);
             }
 
@@ -377,11 +396,11 @@ static bool elf_relocate(ELFFile* elf, Elf32_Shdr* h, ELFSection* s) {
                     relocate_result = false;
                 }
             } else {
-                FURI_LOG_E(TAG, "  No symbol address of %s", string_get_cstr(symbol_name));
+                FURI_LOG_E(TAG, "  No symbol address of %s", furi_string_get_cstr(symbol_name));
                 relocate_result = false;
             }
         }
-        string_clear(symbol_name);
+        furi_string_free(symbol_name);
 
         return relocate_result;
     } else {
@@ -389,14 +408,6 @@ static bool elf_relocate(ELFFile* elf, Elf32_Shdr* h, ELFSection* s) {
     }
 
     return false;
-}
-
-/**************************************************************************************************/
-/********************************************* MISC ***********************************************/
-/**************************************************************************************************/
-
-static bool cstr_prefix(const char* prefix, const char* string) {
-    return strncmp(prefix, string, strlen(prefix)) == 0;
 }
 
 /**************************************************************************************************/
@@ -441,81 +452,96 @@ static bool elf_load_debug_link(ELFFile* elf, Elf32_Shdr* section_header) {
                section_header->sh_size;
 }
 
+static bool elf_load_section_data(ELFFile* elf, ELFSection* section, Elf32_Shdr* section_header) {
+    if(section_header->sh_size == 0) {
+        FURI_LOG_D(TAG, "No data for section");
+        return true;
+    }
+
+    section->data = aligned_malloc(section_header->sh_size, section_header->sh_addralign);
+    section->size = section_header->sh_size;
+
+    if(section_header->sh_type == SHT_NOBITS) {
+        // BSS section, no data to load
+        return true;
+    }
+
+    if((!storage_file_seek(elf->fd, section_header->sh_offset, true)) ||
+       (storage_file_read(elf->fd, section->data, section_header->sh_size) !=
+        section_header->sh_size)) {
+        FURI_LOG_E(TAG, "    seek/read fail");
+        return false;
+    }
+
+    FURI_LOG_D(TAG, "0x%X", section->data);
+    return true;
+}
+
 static SectionType elf_preload_section(
     ELFFile* elf,
     size_t section_idx,
     Elf32_Shdr* section_header,
-    string_t name_string,
+    FuriString* name_string,
     FlipperApplicationManifest* manifest) {
-    const char* name = string_get_cstr(name_string);
+    const char* name = furi_string_get_cstr(name_string);
 
-    const struct {
-        const char* prefix;
-        SectionType type;
-    } lookup_sections[] = {
-        {".text", SectionTypeData},
-        {".rodata", SectionTypeData},
-        {".data", SectionTypeData},
-        {".bss", SectionTypeData},
-        {".preinit_array", SectionTypeData},
-        {".init_array", SectionTypeData},
-        {".fini_array", SectionTypeData},
-        {".rel.text", SectionTypeRelData},
-        {".rel.rodata", SectionTypeRelData},
-        {".rel.data", SectionTypeRelData},
-        {".rel.preinit_array", SectionTypeRelData},
-        {".rel.init_array", SectionTypeRelData},
-        {".rel.fini_array", SectionTypeRelData},
-    };
+    // Load allocable section
+    if(section_header->sh_flags & SHF_ALLOC) {
+        ELFSection* section_p = elf_file_get_or_put_section(elf, name);
+        section_p->sec_idx = section_idx;
 
-    for(size_t i = 0; i < COUNT_OF(lookup_sections); i++) {
-        if(cstr_prefix(lookup_sections[i].prefix, name)) {
-            FURI_LOG_D(TAG, "Found section %s", lookup_sections[i].prefix);
+        if(section_header->sh_type == SHT_PREINIT_ARRAY) {
+            elf->preinit_array = section_p;
+        } else if(section_header->sh_type == SHT_INIT_ARRAY) {
+            elf->init_array = section_p;
+        } else if(section_header->sh_type == SHT_FINI_ARRAY) {
+            elf->fini_array = section_p;
+        }
 
-            if(lookup_sections[i].type == SectionTypeRelData) {
-                name = name + strlen(".rel");
-            }
-
-            ELFSection* section_p = elf_file_get_section(elf, name);
-            if(!section_p) {
-                ELFSection section = {
-                    .data = NULL,
-                    .sec_idx = 0,
-                    .rel_sec_idx = 0,
-                    .size = 0,
-                };
-
-                elf_file_put_section(elf, name, &section);
-                section_p = elf_file_get_section(elf, name);
-            }
-
-            if(lookup_sections[i].type == SectionTypeRelData) {
-                section_p->rel_sec_idx = section_idx;
-            } else {
-                section_p->sec_idx = section_idx;
-            }
-
-            return lookup_sections[i].type;
+        if(!elf_load_section_data(elf, section_p, section_header)) {
+            FURI_LOG_E(TAG, "Error loading section '%s'", name);
+            return SectionTypeERROR;
+        } else {
+            return SectionTypeData;
         }
     }
 
+    // Load link info section
+    if(section_header->sh_flags & SHF_INFO_LINK) {
+        name = name + strlen(".rel");
+        ELFSection* section_p = elf_file_get_or_put_section(elf, name);
+        section_p->rel_count = section_header->sh_size / sizeof(Elf32_Rel);
+        section_p->rel_offset = section_header->sh_offset;
+        return SectionTypeRelData;
+    }
+
+    // Load symbol table
     if(strcmp(name, ".symtab") == 0) {
         FURI_LOG_D(TAG, "Found .symtab section");
         elf->symbol_table = section_header->sh_offset;
         elf->symbol_count = section_header->sh_size / sizeof(Elf32_Sym);
         return SectionTypeSymTab;
-    } else if(strcmp(name, ".strtab") == 0) {
+    }
+
+    // Load string table
+    if(strcmp(name, ".strtab") == 0) {
         FURI_LOG_D(TAG, "Found .strtab section");
         elf->symbol_table_strings = section_header->sh_offset;
         return SectionTypeStrTab;
-    } else if(strcmp(name, ".fapmeta") == 0) {
+    }
+
+    // Load manifest section
+    if(strcmp(name, ".fapmeta") == 0) {
         FURI_LOG_D(TAG, "Found .fapmeta section");
         if(elf_load_metadata(elf, section_header, manifest)) {
             return SectionTypeManifest;
         } else {
             return SectionTypeERROR;
         }
-    } else if(strcmp(name, ".gnu_debuglink") == 0) {
+    }
+
+    // Load debug link section
+    if(strcmp(name, ".gnu_debuglink") == 0) {
         FURI_LOG_D(TAG, "Found .gnu_debuglink section");
         if(elf_load_debug_link(elf, section_header)) {
             return SectionTypeDebugLink;
@@ -527,61 +553,17 @@ static SectionType elf_preload_section(
     return SectionTypeUnused;
 }
 
-static bool elf_load_section_data(ELFFile* elf, ELFSection* section) {
-    Elf32_Shdr section_header;
-    if(section->sec_idx == 0) {
-        FURI_LOG_D(TAG, "Section is not present");
-        return true;
-    }
-
-    if(!elf_read_section_header(elf, section->sec_idx, &section_header)) {
-        return false;
-    }
-
-    if(section_header.sh_size == 0) {
-        FURI_LOG_D(TAG, "No data for section");
-        return true;
-    }
-
-    section->data = aligned_malloc(section_header.sh_size, section_header.sh_addralign);
-    section->size = section_header.sh_size;
-
-    if(section_header.sh_type == SHT_NOBITS) {
-        /* section is empty (.bss?) */
-        /* no need to memset - allocator already did that */
-        return true;
-    }
-
-    if((!storage_file_seek(elf->fd, section_header.sh_offset, true)) ||
-       (storage_file_read(elf->fd, section->data, section_header.sh_size) !=
-        section_header.sh_size)) {
-        FURI_LOG_E(TAG, "    seek/read fail");
-        return false;
-    }
-
-    FURI_LOG_D(TAG, "0x%X", section->data);
-    return true;
-}
-
 static bool elf_relocate_section(ELFFile* elf, ELFSection* section) {
-    Elf32_Shdr section_header;
-    if(section->rel_sec_idx) {
+    if(section->rel_count) {
         FURI_LOG_D(TAG, "Relocating section");
-        if(elf_read_section_header(elf, section->rel_sec_idx, &section_header))
-            return elf_relocate(elf, &section_header, section);
-        else {
-            FURI_LOG_E(TAG, "Error reading section header");
-            return false;
-        }
+        return elf_relocate(elf, section);
     } else {
         FURI_LOG_D(TAG, "No relocation index"); /* Not an error */
     }
     return true;
 }
 
-static void elf_file_call_section_list(ELFFile* elf, const char* name, bool reverse_order) {
-    ELFSection* section = elf_file_get_section(elf, name);
-
+static void elf_file_call_section_list(ELFSection* section, bool reverse_order) {
     if(section && section->size) {
         const uint32_t* start = section->data;
         const uint32_t* end = section->data + section->size;
@@ -670,19 +652,19 @@ bool elf_file_open(ELFFile* elf, const char* path) {
 
 bool elf_file_load_manifest(ELFFile* elf, FlipperApplicationManifest* manifest) {
     bool result = false;
-    string_t name;
-    string_init(name);
+    FuriString* name;
+    name = furi_string_alloc();
 
     FURI_LOG_D(TAG, "Looking for manifest section");
     for(size_t section_idx = 1; section_idx < elf->sections_count; section_idx++) {
         Elf32_Shdr section_header;
 
-        string_reset(name);
+        furi_string_reset(name);
         if(!elf_read_section(elf, section_idx, &section_header, name)) {
             break;
         }
 
-        if(string_cmp(name, ".fapmeta") == 0) {
+        if(furi_string_cmp(name, ".fapmeta") == 0) {
             if(elf_load_metadata(elf, &section_header, manifest)) {
                 FURI_LOG_D(TAG, "Load manifest done");
                 result = true;
@@ -693,26 +675,27 @@ bool elf_file_load_manifest(ELFFile* elf, FlipperApplicationManifest* manifest) 
         }
     }
 
-    string_clear(name);
+    furi_string_free(name);
     return result;
 }
 
 bool elf_file_load_section_table(ELFFile* elf, FlipperApplicationManifest* manifest) {
     SectionType loaded_sections = SectionTypeERROR;
-    string_t name;
-    string_init(name);
+    FuriString* name;
+    name = furi_string_alloc();
 
     FURI_LOG_D(TAG, "Scan ELF indexs...");
     for(size_t section_idx = 1; section_idx < elf->sections_count; section_idx++) {
         Elf32_Shdr section_header;
 
-        string_reset(name);
+        furi_string_reset(name);
         if(!elf_read_section(elf, section_idx, &section_header, name)) {
             loaded_sections = SectionTypeERROR;
             break;
         }
 
-        FURI_LOG_D(TAG, "Preloading data for section #%d %s", section_idx, string_get_cstr(name));
+        FURI_LOG_D(
+            TAG, "Preloading data for section #%d %s", section_idx, furi_string_get_cstr(name));
         SectionType section_type =
             elf_preload_section(elf, section_idx, &section_header, name, manifest);
         loaded_sections |= section_type;
@@ -723,8 +706,7 @@ bool elf_file_load_section_table(ELFFile* elf, FlipperApplicationManifest* manif
         }
     }
 
-    string_clear(name);
-    FURI_LOG_D(TAG, "Load symbols done");
+    furi_string_free(name);
 
     return IS_FLAGS_SET(loaded_sections, SectionTypeValid);
 }
@@ -734,16 +716,6 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
     ELFSectionDict_it_t it;
 
     AddressCache_init(elf->relocation_cache);
-    size_t start = furi_get_tick();
-
-    for(ELFSectionDict_it(it, elf->sections); !ELFSectionDict_end_p(it); ELFSectionDict_next(it)) {
-        ELFSectionDict_itref_t* itref = ELFSectionDict_ref(it);
-        FURI_LOG_D(TAG, "Loading section '%s'", itref->key);
-        if(!elf_load_section_data(elf, &itref->value)) {
-            FURI_LOG_E(TAG, "Error loading section '%s'", itref->key);
-            status = ELFFileLoadStatusUnspecifiedError;
-        }
-    }
 
     if(status == ELFFileLoadStatusSuccess) {
         for(ELFSectionDict_it(it, elf->sections); !ELFSectionDict_end_p(it);
@@ -772,14 +744,13 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
     FURI_LOG_D(TAG, "Relocation cache size: %u", AddressCache_size(elf->relocation_cache));
     FURI_LOG_D(TAG, "Trampoline cache size: %u", AddressCache_size(elf->trampoline_cache));
     AddressCache_clear(elf->relocation_cache);
-    FURI_LOG_I(TAG, "Loaded in %ums", (size_t)(furi_get_tick() - start));
 
     return status;
 }
 
 void elf_file_pre_run(ELFFile* elf) {
-    elf_file_call_section_list(elf, ".preinit_array", false);
-    elf_file_call_section_list(elf, ".init_array", false);
+    elf_file_call_section_list(elf->preinit_array, false);
+    elf_file_call_section_list(elf->init_array, false);
 }
 
 int32_t elf_file_run(ELFFile* elf, void* args) {
@@ -789,7 +760,7 @@ int32_t elf_file_run(ELFFile* elf, void* args) {
 }
 
 void elf_file_post_run(ELFFile* elf) {
-    elf_file_call_section_list(elf, ".fini_array", true);
+    elf_file_call_section_list(elf->fini_array, true);
 }
 
 const ElfApiInterface* elf_file_get_api_interface(ELFFile* elf_file) {

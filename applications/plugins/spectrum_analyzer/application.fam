@@ -1,5 +1,5 @@
 App(
-    appid="spectrum_analyzer",
+    appid="Spectrum_Analyzer",
     name="Spectrum Analyzer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="spectrum_analyzer_app",

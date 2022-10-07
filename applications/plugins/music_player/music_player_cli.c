@@ -3,20 +3,20 @@
 #include <storage/storage.h>
 #include "music_player_worker.h"
 
-static void music_player_cli(Cli* cli, string_t args, void* context) {
+static void music_player_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     MusicPlayerWorker* music_player_worker = music_player_worker_alloc();
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     do {
-        if(storage_common_stat(storage, string_get_cstr(args), NULL) == FSE_OK) {
-            if(!music_player_worker_load(music_player_worker, string_get_cstr(args))) {
-                printf("Failed to open file %s\r\n", string_get_cstr(args));
+        if(storage_common_stat(storage, furi_string_get_cstr(args), NULL) == FSE_OK) {
+            if(!music_player_worker_load(music_player_worker, furi_string_get_cstr(args))) {
+                printf("Failed to open file %s\r\n", furi_string_get_cstr(args));
                 break;
             }
         } else {
             if(!music_player_worker_load_rtttl_from_string(
-                   music_player_worker, string_get_cstr(args))) {
+                   music_player_worker, furi_string_get_cstr(args))) {
                 printf("Argument is not a file or RTTTL\r\n");
                 break;
             }

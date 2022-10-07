@@ -1,0 +1,8 @@
+# Example file, P.S. keep empty line at the end!
+000000
+F00000
+E00000
+FE0000
+CAFE00
+00CAFE
+0000CA

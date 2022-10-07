@@ -1,0 +1,10 @@
+App(
+    appid="example_images",
+    name="Example: Images",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_images_main",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_category="Examples",
+    fap_icon_assets="images",
+)

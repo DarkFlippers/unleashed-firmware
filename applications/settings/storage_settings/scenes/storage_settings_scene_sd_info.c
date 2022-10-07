@@ -24,15 +24,15 @@ void storage_settings_scene_sd_info_on_enter(void* context) {
             dialog_ex, "Try to reinsert\nor format SD\ncard.", 3, 19, AlignLeft, AlignTop);
         dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
-        string_printf(
+        furi_string_printf(
             app->text_string,
-            "Label: %s\nType: %s\n%lu KB total\n%lu KB free",
+            "Label: %s\nType: %s\n%lu KiB total\n%lu KiB free",
             sd_info.label,
             sd_api_get_fs_type_text(sd_info.fs_type),
             sd_info.kb_total,
             sd_info.kb_free);
         dialog_ex_set_text(
-            dialog_ex, string_get_cstr(app->text_string), 4, 4, AlignLeft, AlignTop);
+            dialog_ex, furi_string_get_cstr(app->text_string), 4, 4, AlignLeft, AlignTop);
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
@@ -70,5 +70,5 @@ void storage_settings_scene_sd_info_on_exit(void* context) {
 
     dialog_ex_reset(dialog_ex);
 
-    string_reset(app->text_string);
+    furi_string_reset(app->text_string);
 }

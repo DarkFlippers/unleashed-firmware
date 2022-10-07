@@ -14,7 +14,7 @@
 #include <lfrfid/lfrfid_raw_file.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 
-static void lfrfid_cli(Cli* cli, string_t args, void* context);
+static void lfrfid_cli(Cli* cli, FuriString* args, void* context);
 
 // app cli function
 void lfrfid_on_system_start() {
@@ -46,27 +46,28 @@ static void lfrfid_cli_read_callback(LFRFIDWorkerReadResult result, ProtocolId p
     furi_event_flag_set(context->event, 1 << result);
 }
 
-static void lfrfid_cli_read(Cli* cli, string_t args) {
-    string_t type_string;
-    string_init(type_string);
+static void lfrfid_cli_read(Cli* cli, FuriString* args) {
+    FuriString* type_string;
+    type_string = furi_string_alloc();
     LFRFIDWorkerReadType type = LFRFIDWorkerReadTypeAuto;
 
     if(args_read_string_and_trim(args, type_string)) {
-        if(string_cmp_str(type_string, "normal") == 0 || string_cmp_str(type_string, "ask") == 0) {
+        if(furi_string_cmp_str(type_string, "normal") == 0 ||
+           furi_string_cmp_str(type_string, "ask") == 0) {
             // ask
             type = LFRFIDWorkerReadTypeASKOnly;
         } else if(
-            string_cmp_str(type_string, "indala") == 0 ||
-            string_cmp_str(type_string, "psk") == 0) {
+            furi_string_cmp_str(type_string, "indala") == 0 ||
+            furi_string_cmp_str(type_string, "psk") == 0) {
             // psk
             type = LFRFIDWorkerReadTypePSKOnly;
         } else {
             lfrfid_cli_print_usage();
-            string_clear(type_string);
+            furi_string_free(type_string);
             return;
         }
     }
-    string_clear(type_string);
+    furi_string_free(type_string);
 
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     LFRFIDWorker* worker = lfrfid_worker_alloc(dict);
@@ -111,13 +112,13 @@ static void lfrfid_cli_read(Cli* cli, string_t args) {
         printf("\r\n");
         free(data);
 
-        string_t info;
-        string_init(info);
+        FuriString* info;
+        info = furi_string_alloc();
         protocol_dict_render_data(dict, info, context.protocol);
-        if(!string_empty_p(info)) {
-            printf("%s\r\n", string_get_cstr(info));
+        if(!furi_string_empty(info)) {
+            printf("%s\r\n", furi_string_get_cstr(info));
         }
-        string_clear(info);
+        furi_string_free(info);
     }
 
     printf("Reading stopped\r\n");
@@ -126,11 +127,11 @@ static void lfrfid_cli_read(Cli* cli, string_t args) {
     furi_event_flag_free(context.event);
 }
 
-static bool lfrfid_cli_parse_args(string_t args, ProtocolDict* dict, ProtocolId* protocol) {
+static bool lfrfid_cli_parse_args(FuriString* args, ProtocolDict* dict, ProtocolId* protocol) {
     bool result = false;
-    string_t protocol_name, data_text;
-    string_init(protocol_name);
-    string_init(data_text);
+    FuriString *protocol_name, *data_text;
+    protocol_name = furi_string_alloc();
+    data_text = furi_string_alloc();
     size_t data_size = protocol_dict_get_max_data_size(dict);
     uint8_t* data = malloc(data_size);
 
@@ -143,12 +144,12 @@ static bool lfrfid_cli_parse_args(string_t args, ProtocolDict* dict, ProtocolId*
         }
 
         // check protocol arg
-        *protocol = protocol_dict_get_protocol_by_name(dict, string_get_cstr(protocol_name));
+        *protocol = protocol_dict_get_protocol_by_name(dict, furi_string_get_cstr(protocol_name));
         if(*protocol == PROTOCOL_NO) {
             printf(
                 "Unknown protocol: %s\r\n"
                 "Available protocols:\r\n",
-                string_get_cstr(protocol_name));
+                furi_string_get_cstr(protocol_name));
 
             for(ProtocolId i = 0; i < LFRFIDProtocolMax; i++) {
                 printf(
@@ -177,8 +178,8 @@ static bool lfrfid_cli_parse_args(string_t args, ProtocolDict* dict, ProtocolId*
     } while(false);
 
     free(data);
-    string_clear(protocol_name);
-    string_clear(data_text);
+    furi_string_free(protocol_name);
+    furi_string_free(data_text);
     return result;
 }
 
@@ -188,7 +189,7 @@ static void lfrfid_cli_write_callback(LFRFIDWorkerWriteResult result, void* ctx)
     furi_event_flag_set(events, 1 << result);
 }
 
-static void lfrfid_cli_write(Cli* cli, string_t args) {
+static void lfrfid_cli_write(Cli* cli, FuriString* args) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     ProtocolId protocol;
 
@@ -235,7 +236,7 @@ static void lfrfid_cli_write(Cli* cli, string_t args) {
     furi_event_flag_free(event);
 }
 
-static void lfrfid_cli_emulate(Cli* cli, string_t args) {
+static void lfrfid_cli_emulate(Cli* cli, FuriString* args) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     ProtocolId protocol;
 
@@ -261,11 +262,11 @@ static void lfrfid_cli_emulate(Cli* cli, string_t args) {
     protocol_dict_free(dict);
 }
 
-static void lfrfid_cli_raw_analyze(Cli* cli, string_t args) {
+static void lfrfid_cli_raw_analyze(Cli* cli, FuriString* args) {
     UNUSED(cli);
-    string_t filepath, info_string;
-    string_init(filepath);
-    string_init(info_string);
+    FuriString *filepath, *info_string;
+    filepath = furi_string_alloc();
+    info_string = furi_string_alloc();
     Storage* storage = furi_record_open(RECORD_STORAGE);
     LFRFIDRawFile* file = lfrfid_raw_file_alloc(storage);
 
@@ -278,7 +279,7 @@ static void lfrfid_cli_raw_analyze(Cli* cli, string_t args) {
             break;
         }
 
-        if(!lfrfid_raw_file_open_read(file, string_get_cstr(filepath))) {
+        if(!lfrfid_raw_file_open_read(file, furi_string_get_cstr(filepath))) {
             printf("Failed to open file\r\n");
             break;
         }
@@ -308,10 +309,10 @@ static void lfrfid_cli_raw_analyze(Cli* cli, string_t args) {
                     warn = true;
                 }
 
-                string_printf(info_string, "[%ld %ld]", pulse, duration);
-                printf("%-16s", string_get_cstr(info_string));
-                string_printf(info_string, "[%ld %ld]", pulse, duration - pulse);
-                printf("%-16s", string_get_cstr(info_string));
+                furi_string_printf(info_string, "[%ld %ld]", pulse, duration);
+                printf("%-16s", furi_string_get_cstr(info_string));
+                furi_string_printf(info_string, "[%ld %ld]", pulse, duration - pulse);
+                printf("%-16s", furi_string_get_cstr(info_string));
 
                 if(warn) {
                     printf(" <<----");
@@ -366,7 +367,7 @@ static void lfrfid_cli_raw_analyze(Cli* cli, string_t args) {
             printf("]\r\n");
 
             protocol_dict_render_data(dict, info_string, total_protocol);
-            printf("%s\r\n", string_get_cstr(info_string));
+            printf("%s\r\n", furi_string_get_cstr(info_string));
 
             free(data);
         } else {
@@ -376,8 +377,8 @@ static void lfrfid_cli_raw_analyze(Cli* cli, string_t args) {
         protocol_dict_free(dict);
     } while(false);
 
-    string_clear(filepath);
-    string_clear(info_string);
+    furi_string_free(filepath);
+    furi_string_free(info_string);
     lfrfid_raw_file_free(file);
     furi_record_close(RECORD_STORAGE);
 }
@@ -388,23 +389,23 @@ static void lfrfid_cli_raw_read_callback(LFRFIDWorkerReadRawResult result, void*
     furi_event_flag_set(event, 1 << result);
 }
 
-static void lfrfid_cli_raw_read(Cli* cli, string_t args) {
+static void lfrfid_cli_raw_read(Cli* cli, FuriString* args) {
     UNUSED(cli);
 
-    string_t filepath, type_string;
-    string_init(filepath);
-    string_init(type_string);
+    FuriString *filepath, *type_string;
+    filepath = furi_string_alloc();
+    type_string = furi_string_alloc();
     LFRFIDWorkerReadType type = LFRFIDWorkerReadTypeAuto;
 
     do {
         if(args_read_string_and_trim(args, type_string)) {
-            if(string_cmp_str(type_string, "normal") == 0 ||
-               string_cmp_str(type_string, "ask") == 0) {
+            if(furi_string_cmp_str(type_string, "normal") == 0 ||
+               furi_string_cmp_str(type_string, "ask") == 0) {
                 // ask
                 type = LFRFIDWorkerReadTypeASKOnly;
             } else if(
-                string_cmp_str(type_string, "indala") == 0 ||
-                string_cmp_str(type_string, "psk") == 0) {
+                furi_string_cmp_str(type_string, "indala") == 0 ||
+                furi_string_cmp_str(type_string, "psk") == 0) {
                 // psk
                 type = LFRFIDWorkerReadTypePSKOnly;
             } else {
@@ -430,7 +431,7 @@ static void lfrfid_cli_raw_read(Cli* cli, string_t args) {
                                          (1 << LFRFIDWorkerReadRawOverrun);
 
         lfrfid_worker_read_raw_start(
-            worker, string_get_cstr(filepath), type, lfrfid_cli_raw_read_callback, event);
+            worker, furi_string_get_cstr(filepath), type, lfrfid_cli_raw_read_callback, event);
         while(true) {
             uint32_t flags = furi_event_flag_wait(event, available_flags, FuriFlagWaitAny, 100);
 
@@ -465,8 +466,8 @@ static void lfrfid_cli_raw_read(Cli* cli, string_t args) {
 
     } while(false);
 
-    string_clear(filepath);
-    string_clear(type_string);
+    furi_string_free(filepath);
+    furi_string_free(type_string);
 }
 
 static void lfrfid_cli_raw_emulate_callback(LFRFIDWorkerEmulateRawResult result, void* context) {
@@ -475,11 +476,11 @@ static void lfrfid_cli_raw_emulate_callback(LFRFIDWorkerEmulateRawResult result,
     furi_event_flag_set(event, 1 << result);
 }
 
-static void lfrfid_cli_raw_emulate(Cli* cli, string_t args) {
+static void lfrfid_cli_raw_emulate(Cli* cli, FuriString* args) {
     UNUSED(cli);
 
-    string_t filepath;
-    string_init(filepath);
+    FuriString* filepath;
+    filepath = furi_string_alloc();
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     do {
@@ -488,8 +489,8 @@ static void lfrfid_cli_raw_emulate(Cli* cli, string_t args) {
             break;
         }
 
-        if(!storage_file_exists(storage, string_get_cstr(filepath))) {
-            printf("File not found: \"%s\"\r\n", string_get_cstr(filepath));
+        if(!storage_file_exists(storage, furi_string_get_cstr(filepath))) {
+            printf("File not found: \"%s\"\r\n", furi_string_get_cstr(filepath));
             break;
         }
 
@@ -505,7 +506,7 @@ static void lfrfid_cli_raw_emulate(Cli* cli, string_t args) {
                                          (1 << LFRFIDWorkerEmulateRawOverrun);
 
         lfrfid_worker_emulate_raw_start(
-            worker, string_get_cstr(filepath), lfrfid_cli_raw_emulate_callback, event);
+            worker, furi_string_get_cstr(filepath), lfrfid_cli_raw_emulate_callback, event);
         while(true) {
             uint32_t flags = furi_event_flag_wait(event, available_flags, FuriFlagWaitAny, 100);
 
@@ -541,35 +542,35 @@ static void lfrfid_cli_raw_emulate(Cli* cli, string_t args) {
     } while(false);
 
     furi_record_close(RECORD_STORAGE);
-    string_clear(filepath);
+    furi_string_free(filepath);
 }
 
-static void lfrfid_cli(Cli* cli, string_t args, void* context) {
+static void lfrfid_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     if(!args_read_string_and_trim(args, cmd)) {
-        string_clear(cmd);
+        furi_string_free(cmd);
         lfrfid_cli_print_usage();
         return;
     }
 
-    if(string_cmp_str(cmd, "read") == 0) {
+    if(furi_string_cmp_str(cmd, "read") == 0) {
         lfrfid_cli_read(cli, args);
-    } else if(string_cmp_str(cmd, "write") == 0) {
+    } else if(furi_string_cmp_str(cmd, "write") == 0) {
         lfrfid_cli_write(cli, args);
-    } else if(string_cmp_str(cmd, "emulate") == 0) {
+    } else if(furi_string_cmp_str(cmd, "emulate") == 0) {
         lfrfid_cli_emulate(cli, args);
-    } else if(string_cmp_str(cmd, "raw_read") == 0) {
+    } else if(furi_string_cmp_str(cmd, "raw_read") == 0) {
         lfrfid_cli_raw_read(cli, args);
-    } else if(string_cmp_str(cmd, "raw_emulate") == 0) {
+    } else if(furi_string_cmp_str(cmd, "raw_emulate") == 0) {
         lfrfid_cli_raw_emulate(cli, args);
-    } else if(string_cmp_str(cmd, "raw_analyze") == 0) {
+    } else if(furi_string_cmp_str(cmd, "raw_analyze") == 0) {
         lfrfid_cli_raw_analyze(cli, args);
     } else {
         lfrfid_cli_print_usage();
     }
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }

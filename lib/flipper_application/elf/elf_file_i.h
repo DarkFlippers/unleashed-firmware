@@ -16,8 +16,10 @@ typedef int32_t(entry_t)(void*);
 typedef struct {
     void* data;
     uint16_t sec_idx;
-    uint16_t rel_sec_idx;
     Elf32_Word size;
+
+    size_t rel_count;
+    Elf32_Off rel_offset;
 } ELFSection;
 
 DICT_DEF2(ELFSectionDict, const char*, M_CSTR_OPLIST, ELFSection, M_POD_OPLIST)
@@ -39,6 +41,10 @@ struct ELFFile {
     File* fd;
     const ElfApiInterface* api_interface;
     ELFDebugLinkInfo debug_link_info;
+
+    ELFSection* preinit_array;
+    ELFSection* init_array;
+    ELFSection* fini_array;
 };
 
 #ifdef __cplusplus

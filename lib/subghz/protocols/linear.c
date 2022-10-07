@@ -327,7 +327,7 @@ bool subghz_protocol_decoder_linear_deserialize(void* context, FlipperFormat* fl
     return ret;
 }
 
-void subghz_protocol_decoder_linear_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_linear_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderLinear* instance = context;
 
@@ -338,7 +338,7 @@ void subghz_protocol_decoder_linear_get_string(void* context, string_t output) {
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%08lX\r\n"

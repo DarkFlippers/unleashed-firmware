@@ -34,7 +34,7 @@ void subbrute_main_view_set_callback(
     instance->context = context;
 }
 
-void center_displayed_key(string_t result, const char* key_cstr, uint8_t index) {
+FuriString* center_displayed_key(const char* key_cstr, uint8_t index) {
     uint8_t str_index = (index * 3);
 
     char display_menu[] = {
@@ -76,7 +76,7 @@ void center_displayed_key(string_t result, const char* key_cstr, uint8_t index) 
             display_menu[15] = ' ';
         }
     }
-    string_init_set_str(result, display_menu);
+    return furi_string_alloc_set(display_menu);
 }
 
 void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
@@ -97,19 +97,19 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
         snprintf(msg_index, sizeof(msg_index), "Field index : %d", m->index);
         canvas_draw_str_aligned(canvas, 64, 26, AlignCenter, AlignTop, msg_index);
 
-        string_t menu_items;
-        string_init(menu_items);
+        FuriString* menu_items;
 
-        center_displayed_key(menu_items, m->key_field, m->index);
+        menu_items = center_displayed_key(m->key_field, m->index);
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
-            canvas, 64, 40, AlignCenter, AlignTop, string_get_cstr(menu_items));
+            canvas, 64, 40, AlignCenter, AlignTop, furi_string_get_cstr(menu_items));
 
         elements_button_center(canvas, "Select");
         elements_button_left(canvas, "<");
         elements_button_right(canvas, ">");
 
-        string_reset(menu_items);
+        furi_string_reset(menu_items);
+        furi_string_free(menu_items);
     } else {
         // Menu
         canvas_set_color(canvas, ColorBlack);

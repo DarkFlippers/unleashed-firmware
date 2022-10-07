@@ -1,5 +1,4 @@
 #include "nfc_supported_card.h"
-#include "plantain_parser.h" // For luhn and string_push_uint64
 
 #include <gui/modules/widget.h>
 #include <nfc_worker_i.h>
@@ -118,36 +117,25 @@ bool plantain_4k_parser_parse(NfcDeviceData* dev_data) {
         card_number = (card_number << 8) | card_number_arr[i];
     }
     // Convert card number to string
-    string_t card_number_str;
-    string_init(card_number_str);
+    FuriString* card_number_str;
+    card_number_str = furi_string_alloc();
     // Should look like "361301047292848684"
-    // %llu doesn't work for some reason in sprintf, so we use string_push_uint64 instead
-    string_push_uint64(card_number, card_number_str);
+    furi_string_printf(card_number_str, "%llu", card_number);
     // Add suffix with luhn checksum (1 digit) to the card number string
-    string_t card_number_suffix;
-    string_init(card_number_suffix);
+    FuriString* card_number_suffix;
+    card_number_suffix = furi_string_alloc();
 
-    // The number to calculate the checksum on doesn't fit into uint64_t, idk
-    //uint8_t luhn_checksum = plantain_calculate_luhn(card_number);
-
-    // // Convert luhn checksum to string
-    // string_t luhn_checksum_str;
-    // string_init(luhn_checksum_str);
-    // string_push_uint64(luhn_checksum, luhn_checksum_str);
-
-    string_cat_printf(card_number_suffix, "-");
-    // FURI_LOG_D("plant4k", "Card checksum: %d", luhn_checksum);
-    string_cat_printf(card_number_str, string_get_cstr(card_number_suffix));
+    furi_string_cat_printf(card_number_suffix, "-");
+    furi_string_cat_printf(card_number_str, furi_string_get_cstr(card_number_suffix));
     // Free all not needed strings
-    string_clear(card_number_suffix);
-    // string_clear(luhn_checksum_str);
+    furi_string_free(card_number_suffix);
 
-    string_printf(
+    furi_string_printf(
         dev_data->parsed_data,
-        "\e#Plantain\nN:%s\nBalance:%d\n",
-        string_get_cstr(card_number_str),
+        "\e#Plantain\nN:%s\nBalance:%ld\n",
+        furi_string_get_cstr(card_number_str),
         balance);
-    string_clear(card_number_str);
+    furi_string_free(card_number_str);
 
     return true;
 }

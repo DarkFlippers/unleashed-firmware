@@ -6,7 +6,56 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/environment.h>
 
-struct SubBruteDevice {
+#define SUBBRUTE_TEXT_STORE_SIZE 256
+
+#define SUBBRUTE_MAX_LEN_NAME 64
+#define SUBBRUTE_PATH EXT_PATH("subghz")
+#define SUBBRUTE_FILE_EXT ".sub"
+
+#define SUBBRUTE_PAYLOAD_SIZE 16
+
+typedef enum {
+    SubBruteAttackCAME12bit303,
+    SubBruteAttackCAME12bit307,
+    SubBruteAttackCAME12bit433,
+    SubBruteAttackCAME12bit868,
+    SubBruteAttackNICE12bit433,
+    SubBruteAttackNICE12bit868,
+    SubBruteAttackChamberlain9bit300,
+    SubBruteAttackChamberlain9bit315,
+    SubBruteAttackChamberlain9bit390,
+    SubBruteAttackLinear10bit300,
+    SubBruteAttackLinear10bit310,
+    SubBruteAttackLoadFile,
+    SubBruteAttackTotalCount,
+} SubBruteAttacks;
+
+typedef enum {
+    SubBruteFileResultUnknown,
+    SubBruteFileResultOk,
+    SubBruteFileResultErrorOpenFile,
+    SubBruteFileResultMissingOrIncorrectHeader,
+    SubBruteFileResultFrequencyNotAllowed,
+    SubBruteFileResultMissingOrIncorrectFrequency,
+    SubBruteFileResultPresetInvalid,
+    SubBruteFileResultMissingProtocol,
+    SubBruteFileResultProtocolNotSupported,
+    SubBruteFileResultDynamicProtocolNotValid,
+    SubBruteFileResultProtocolNotFound,
+    SubBruteFileResultMissingOrIncorrectBit,
+    SubBruteFileResultMissingOrIncorrectKey,
+    SubBruteFileResultMissingOrIncorrectTe,
+    SubBruteFileResultBigBitSize,
+} SubBruteFileResult;
+
+typedef enum {
+    SubBruteDeviceStateIDLE,
+    SubBruteDeviceStateReady,
+    SubBruteDeviceStateTx,
+    SubBruteDeviceStateFinished,
+} SubBruteDeviceState;
+
+typedef struct {
     SubBruteDeviceState state;
     SubBruteProtocol* protocol_info;
     volatile bool worker_running;

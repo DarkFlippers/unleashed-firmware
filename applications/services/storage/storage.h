@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include <m-string.h>
 #include "filesystem_api_defines.h"
 #include "storage_sd_api.h"
 
@@ -292,7 +291,7 @@ FS_Error storage_sd_status(Storage* api);
 
 /******************* Internal LFS Functions *******************/
 
-typedef void (*Storage_name_converter)(string_t);
+typedef void (*Storage_name_converter)(FuriString*);
 
 /** Backs up internal storage to a tar archive
  * @param api pointer to the api
@@ -350,7 +349,7 @@ void storage_get_next_filename(
     const char* dirname,
     const char* filename,
     const char* fileextension,
-    string_t nextfilename,
+    FuriString* nextfilename,
     uint8_t max_len);
 
 #ifdef __cplusplus

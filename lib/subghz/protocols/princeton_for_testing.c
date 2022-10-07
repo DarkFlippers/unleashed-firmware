@@ -94,7 +94,7 @@ void subghz_encoder_princeton_for_testing_print_log(void* context) {
         ((float)instance->time_high / (instance->time_high + instance->time_low)) * 100;
     FURI_LOG_I(
         TAG "Encoder",
-        "Radio tx_time=%dus  ON=%dus, OFF=%dus, DutyCycle=%d,%d%%",
+        "Radio tx_time=%ldus  ON=%ldus, OFF=%ldus, DutyCycle=%ld,%ld%%",
         instance->time_high + instance->time_low,
         instance->time_high,
         instance->time_low,

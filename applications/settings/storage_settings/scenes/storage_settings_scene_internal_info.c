@@ -25,14 +25,14 @@ void storage_settings_scene_internal_info_on_enter(void* context) {
         dialog_ex_set_text(
             dialog_ex, storage_error_get_desc(error), 64, 32, AlignCenter, AlignCenter);
     } else {
-        string_printf(
+        furi_string_printf(
             app->text_string,
-            "Label: %s\nType: LittleFS\n%lu KB total\n%lu KB free",
+            "Label: %s\nType: LittleFS\n%lu KiB total\n%lu KiB free",
             furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
             (uint32_t)(total_space / 1024),
             (uint32_t)(free_space / 1024));
         dialog_ex_set_text(
-            dialog_ex, string_get_cstr(app->text_string), 4, 4, AlignLeft, AlignTop);
+            dialog_ex, furi_string_get_cstr(app->text_string), 4, 4, AlignLeft, AlignTop);
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
@@ -58,5 +58,5 @@ void storage_settings_scene_internal_info_on_exit(void* context) {
 
     dialog_ex_reset(dialog_ex);
 
-    string_reset(app->text_string);
+    furi_string_reset(app->text_string);
 }

@@ -6,7 +6,6 @@
 
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <m-string.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>

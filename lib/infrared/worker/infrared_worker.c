@@ -9,7 +9,6 @@
 #include <furi.h>
 
 #include <notification/notification_messages.h>
-#include <stream_buffer.h>
 
 #define INFRARED_WORKER_RX_TIMEOUT INFRARED_RAW_RX_TIMING_DELAY_US
 
@@ -50,7 +49,7 @@ struct InfraredWorkerSignal {
 
 struct InfraredWorker {
     FuriThread* thread;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
 
     InfraredWorkerSignal signal;
     InfraredWorkerState state;
@@ -100,15 +99,13 @@ static void infrared_worker_rx_timeout_callback(void* context) {
 static void infrared_worker_rx_callback(void* context, bool level, uint32_t duration) {
     InfraredWorker* instance = context;
 
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     furi_assert(duration != 0);
     LevelDuration level_duration = level_duration_make(level, duration);
 
-    size_t ret = xStreamBufferSendFromISR(
-        instance->stream, &level_duration, sizeof(LevelDuration), &xHigherPriorityTaskWoken);
+    size_t ret =
+        furi_stream_buffer_send(instance->stream, &level_duration, sizeof(LevelDuration), 0);
     uint32_t events = (ret == sizeof(LevelDuration)) ? INFRARED_WORKER_RX_RECEIVED :
                                                        INFRARED_WORKER_OVERRUN;
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
     uint32_t flags_set = furi_thread_flags_set(furi_thread_get_id(instance->thread), events);
     furi_check(flags_set & events);
@@ -179,7 +176,7 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
             if(instance->signal.timings_cnt == 0)
                 notification_message(instance->notification, &sequence_display_backlight_on);
             while(sizeof(LevelDuration) ==
-                  xStreamBufferReceive(
+                  furi_stream_buffer_receive(
                       instance->stream, &level_duration, sizeof(LevelDuration), 0)) {
                 if(!instance->rx.overrun) {
                     bool level = level_duration_get_level(level_duration);
@@ -232,7 +229,7 @@ InfraredWorker* infrared_worker_alloc() {
     size_t buffer_size =
         MAX(sizeof(InfraredWorkerTiming) * (MAX_TIMINGS_AMOUNT + 1),
             sizeof(LevelDuration) * MAX_TIMINGS_AMOUNT);
-    instance->stream = xStreamBufferCreate(buffer_size, sizeof(InfraredWorkerTiming));
+    instance->stream = furi_stream_buffer_alloc(buffer_size, sizeof(InfraredWorkerTiming));
     instance->infrared_decoder = infrared_alloc_decoder();
     instance->infrared_encoder = infrared_alloc_encoder();
     instance->blink_enable = false;
@@ -249,7 +246,7 @@ void infrared_worker_free(InfraredWorker* instance) {
     furi_record_close(RECORD_NOTIFICATION);
     infrared_free_decoder(instance->infrared_decoder);
     infrared_free_encoder(instance->infrared_encoder);
-    vStreamBufferDelete(instance->stream);
+    furi_stream_buffer_free(instance->stream);
     furi_thread_free(instance->thread);
 
     free(instance);
@@ -259,7 +256,7 @@ void infrared_worker_rx_start(InfraredWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->state == InfraredWorkerStateIdle);
 
-    xStreamBufferSetTriggerLevel(instance->stream, sizeof(LevelDuration));
+    furi_stream_set_trigger_level(instance->stream, sizeof(LevelDuration));
 
     furi_thread_set_callback(instance->thread, infrared_worker_rx_thread);
     furi_thread_start(instance->thread);
@@ -285,9 +282,9 @@ void infrared_worker_rx_stop(InfraredWorker* instance) {
     furi_thread_flags_set(furi_thread_get_id(instance->thread), INFRARED_WORKER_EXIT);
     furi_thread_join(instance->thread);
 
-    BaseType_t xReturn = xStreamBufferReset(instance->stream);
-    furi_assert(xReturn == pdPASS);
-    (void)xReturn;
+    FuriStatus status = furi_stream_buffer_reset(instance->stream);
+    furi_assert(status == FuriStatusOk);
+    (void)status;
 
     instance->state = InfraredWorkerStateIdle;
 }
@@ -325,7 +322,7 @@ void infrared_worker_tx_start(InfraredWorker* instance) {
     furi_assert(instance->tx.get_signal_callback);
 
     // size have to be greater than api hal infrared async tx buffer size
-    xStreamBufferSetTriggerLevel(instance->stream, sizeof(InfraredWorkerTiming));
+    furi_stream_set_trigger_level(instance->stream, sizeof(InfraredWorkerTiming));
 
     furi_thread_set_callback(instance->thread, infrared_worker_tx_thread);
 
@@ -358,7 +355,7 @@ static FuriHalInfraredTxGetDataState
     FuriHalInfraredTxGetDataState state;
 
     if(sizeof(InfraredWorkerTiming) ==
-       xStreamBufferReceiveFromISR(instance->stream, &timing, sizeof(InfraredWorkerTiming), 0)) {
+       furi_stream_buffer_receive(instance->stream, &timing, sizeof(InfraredWorkerTiming), 0)) {
         *level = timing.level;
         *duration = timing.duration;
         state = timing.state;
@@ -420,7 +417,7 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
     InfraredWorkerTiming timing;
     InfraredStatus status = InfraredStatusError;
 
-    while(!xStreamBufferIsFull(instance->stream) && !instance->tx.need_reinitialization &&
+    while(!furi_stream_buffer_is_full(instance->stream) && !instance->tx.need_reinitialization &&
           new_data_available) {
         if(instance->signal.decoded) {
             status = infrared_encode(instance->infrared_encoder, &timing.duration, &timing.level);
@@ -454,7 +451,7 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
             furi_assert(0);
         }
         uint32_t written_size =
-            xStreamBufferSend(instance->stream, &timing, sizeof(InfraredWorkerTiming), 0);
+            furi_stream_buffer_send(instance->stream, &timing, sizeof(InfraredWorkerTiming), 0);
         furi_assert(sizeof(InfraredWorkerTiming) == written_size);
         (void)written_size;
     }
@@ -564,10 +561,9 @@ void infrared_worker_tx_stop(InfraredWorker* instance) {
     furi_hal_infrared_async_tx_set_signal_sent_isr_callback(NULL, NULL);
 
     instance->signal.timings_cnt = 0;
-    BaseType_t xReturn = pdFAIL;
-    xReturn = xStreamBufferReset(instance->stream);
-    furi_assert(xReturn == pdPASS);
-    (void)xReturn;
+    FuriStatus status = furi_stream_buffer_reset(instance->stream);
+    furi_assert(status == FuriStatusOk);
+    (void)status;
     instance->state = InfraredWorkerStateIdle;
 }
 

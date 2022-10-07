@@ -5,7 +5,7 @@
 
 typedef struct {
     Stream stream_base;
-    string_t string;
+    FuriString* string;
     size_t index;
 } StringStream;
 
@@ -39,14 +39,14 @@ const StreamVTable string_stream_vtable = {
 
 Stream* string_stream_alloc() {
     StringStream* stream = malloc(sizeof(StringStream));
-    string_init(stream->string);
+    stream->string = furi_string_alloc();
     stream->index = 0;
     stream->stream_base.vtable = &string_stream_vtable;
     return (Stream*)stream;
 }
 
 static void string_stream_free(StringStream* stream) {
-    string_clear(stream->string);
+    furi_string_free(stream->string);
     free(stream);
 }
 
@@ -56,7 +56,7 @@ static bool string_stream_eof(StringStream* stream) {
 
 static void string_stream_clean(StringStream* stream) {
     stream->index = 0;
-    string_reset(stream->string);
+    furi_string_reset(stream->string);
 }
 
 static bool string_stream_seek(StringStream* stream, int32_t offset, StreamOffset offset_type) {
@@ -79,8 +79,8 @@ static bool string_stream_seek(StringStream* stream, int32_t offset, StreamOffse
         }
         break;
     case StreamOffsetFromEnd:
-        if(((int32_t)string_size(stream->string) + offset) >= 0) {
-            stream->index = string_size(stream->string) + offset;
+        if(((int32_t)furi_string_size(stream->string) + offset) >= 0) {
+            stream->index = furi_string_size(stream->string) + offset;
         } else {
             result = false;
             stream->index = 0;
@@ -88,7 +88,7 @@ static bool string_stream_seek(StringStream* stream, int32_t offset, StreamOffse
         break;
     }
 
-    int32_t diff = (stream->index - string_size(stream->string));
+    int32_t diff = (stream->index - furi_string_size(stream->string));
     if(diff > 0) {
         stream->index -= diff;
         result = false;
@@ -102,7 +102,7 @@ static size_t string_stream_tell(StringStream* stream) {
 }
 
 static size_t string_stream_size(StringStream* stream) {
-    return string_size(stream->string);
+    return furi_string_size(stream->string);
 }
 
 static size_t string_stream_write(StringStream* stream, const char* data, size_t size) {
@@ -117,7 +117,7 @@ static size_t string_stream_write(StringStream* stream, const char* data, size_t
 
 static size_t string_stream_read(StringStream* stream, char* data, size_t size) {
     size_t write_index = 0;
-    const char* cstr = string_get_cstr(stream->string);
+    const char* cstr = furi_string_get_cstr(stream->string);
 
     if(!string_stream_eof(stream)) {
         while(true) {
@@ -145,17 +145,17 @@ static bool string_stream_delete_and_insert(
         remain_size = MIN(delete_size, remain_size);
 
         if(remain_size != 0) {
-            string_replace_at(stream->string, stream->index, remain_size, "");
+            furi_string_replace_at(stream->string, stream->index, remain_size, "");
         }
     }
 
     if(write_callback) {
-        string_t right;
-        string_init_set(right, &string_get_cstr(stream->string)[stream->index]);
-        string_left(stream->string, string_stream_tell(stream));
+        FuriString* right;
+        right = furi_string_alloc_set(&furi_string_get_cstr(stream->string)[stream->index]);
+        furi_string_left(stream->string, string_stream_tell(stream));
         result &= write_callback((Stream*)stream, ctx);
-        string_cat(stream->string, right);
-        string_clear(right);
+        furi_string_cat(stream->string, right);
+        furi_string_free(right);
     }
 
     return result;
@@ -169,9 +169,9 @@ static bool string_stream_delete_and_insert(
  */
 static size_t string_stream_write_char(StringStream* stream, char c) {
     if(string_stream_eof(stream)) {
-        string_push_back(stream->string, c);
+        furi_string_push_back(stream->string, c);
     } else {
-        string_set_char(stream->string, stream->index, c);
+        furi_string_set_char(stream->string, stream->index, c);
     }
     stream->index++;
 

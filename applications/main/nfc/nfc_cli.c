@@ -17,7 +17,7 @@ static void nfc_cli_print_usage() {
     }
 }
 
-static void nfc_cli_detect(Cli* cli, string_t args) {
+static void nfc_cli_detect(Cli* cli, FuriString* args) {
     UNUSED(args);
     // Check if nfc worker is not busy
     if(furi_hal_nfc_is_busy()) {
@@ -46,7 +46,7 @@ static void nfc_cli_detect(Cli* cli, string_t args) {
     furi_hal_nfc_sleep();
 }
 
-static void nfc_cli_emulate(Cli* cli, string_t args) {
+static void nfc_cli_emulate(Cli* cli, FuriString* args) {
     UNUSED(args);
     // Check if nfc worker is not busy
     if(furi_hal_nfc_is_busy()) {
@@ -76,7 +76,7 @@ static void nfc_cli_emulate(Cli* cli, string_t args) {
     furi_hal_nfc_sleep();
 }
 
-static void nfc_cli_field(Cli* cli, string_t args) {
+static void nfc_cli_field(Cli* cli, FuriString* args) {
     UNUSED(args);
     // Check if nfc worker is not busy
     if(furi_hal_nfc_is_busy()) {
@@ -98,27 +98,27 @@ static void nfc_cli_field(Cli* cli, string_t args) {
     furi_hal_nfc_sleep();
 }
 
-static void nfc_cli(Cli* cli, string_t args, void* context) {
+static void nfc_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
             nfc_cli_print_usage();
             break;
         }
-        if(string_cmp_str(cmd, "detect") == 0) {
+        if(furi_string_cmp_str(cmd, "detect") == 0) {
             nfc_cli_detect(cli, args);
             break;
         }
-        if(string_cmp_str(cmd, "emulate") == 0) {
+        if(furi_string_cmp_str(cmd, "emulate") == 0) {
             nfc_cli_emulate(cli, args);
             break;
         }
 
         if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-            if(string_cmp_str(cmd, "field") == 0) {
+            if(furi_string_cmp_str(cmd, "field") == 0) {
                 nfc_cli_field(cli, args);
                 break;
             }
@@ -127,7 +127,7 @@ static void nfc_cli(Cli* cli, string_t args, void* context) {
         nfc_cli_print_usage();
     } while(false);
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }
 
 void nfc_on_system_start() {

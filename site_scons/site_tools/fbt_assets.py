@@ -10,8 +10,8 @@ import subprocess
 
 def icons_emitter(target, source, env):
     target = [
-        "compiled/assets_icons.c",
-        "compiled/assets_icons.h",
+        target[0].File(env.subst("${ICON_FILE_NAME}.c")),
+        target[0].File(env.subst("${ICON_FILE_NAME}.h")),
     ]
     source = env.GlobRecursive("*.*", env["ICON_SRC_DIR"])
     return target, source
@@ -99,17 +99,41 @@ def proto_ver_generator(target, source, env):
         file.write("\n".join(version_file_data))
 
 
+def CompileIcons(env, target_dir, source_dir, *, icon_bundle_name="assets_icons"):
+    # Gathering icons sources
+    icons_src = env.GlobRecursive("*.png", source_dir)
+    icons_src += env.GlobRecursive("frame_rate", source_dir)
+
+    icons = env.IconBuilder(
+        target_dir,
+        ICON_SRC_DIR=source_dir,
+        ICON_FILE_NAME=icon_bundle_name,
+    )
+    env.Depends(icons, icons_src)
+    return icons
+
+
 def generate(env):
     env.SetDefault(
         ASSETS_COMPILER="${ROOT_DIR.abspath}/scripts/assets.py",
         NANOPB_COMPILER="${ROOT_DIR.abspath}/lib/nanopb/generator/nanopb_generator.py",
     )
+    env.AddMethod(CompileIcons)
+
+    if not env["VERBOSE"]:
+        env.SetDefault(
+            ICONSCOMSTR="\tICONS\t${TARGET}",
+            PROTOCOMSTR="\tPROTO\t${SOURCE}",
+            DOLPHINCOMSTR="\tDOLPHIN\t${DOLPHIN_RES_TYPE}",
+            RESMANIFESTCOMSTR="\tMANIFEST\t${TARGET}",
+            PBVERCOMSTR="\tPBVER\t${TARGET}",
+        )
 
     env.Append(
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${ICON_SRC_DIR} ${TARGET.dir}',
+                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${ICON_SRC_DIR} ${TARGET.dir} --filename ${ICON_FILE_NAME}',
                     "${ICONSCOMSTR}",
                 ),
                 emitter=icons_emitter,

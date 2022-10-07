@@ -1,5 +1,4 @@
 #include "subghz_file_encoder_worker.h"
-#include <stream_buffer.h>
 
 #include <toolbox/stream/stream.h>
 #include <flipper_format/flipper_format.h>
@@ -11,7 +10,7 @@
 
 struct SubGhzFileEncoderWorker {
     FuriThread* thread;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
 
     Storage* storage;
     FlipperFormat* flipper_format;
@@ -19,8 +18,8 @@ struct SubGhzFileEncoderWorker {
     volatile bool worker_running;
     volatile bool worker_stoping;
     bool level;
-    string_t str_data;
-    string_t file_path;
+    FuriString* str_data;
+    FuriString* file_path;
 
     SubGhzFileEncoderWorkerCallbackEnd callback_end;
     void* context_end;
@@ -48,7 +47,7 @@ void subghz_file_encoder_worker_add_level_duration(
 
     if(res) {
         instance->level = !instance->level;
-        xStreamBufferSend(instance->stream, &duration, sizeof(int32_t), 100);
+        furi_stream_buffer_send(instance->stream, &duration, sizeof(int32_t), 100);
     } else {
         FURI_LOG_E(TAG, "Invalid level in the stream");
     }
@@ -81,24 +80,21 @@ bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, co
 
 void subghz_file_encoder_worker_get_text_progress(
     SubGhzFileEncoderWorker* instance,
-    string_t output) {
+    FuriString* output) {
     UNUSED(output);
     Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     size_t total_size = stream_size(stream);
     size_t current_offset = stream_tell(stream);
-    size_t buffer_avail = xStreamBufferBytesAvailable(instance->stream);
+    size_t buffer_avail = furi_stream_buffer_bytes_available(instance->stream);
 
-    string_printf(output, "%03u%%", 100 * (current_offset - buffer_avail) / total_size);
+    furi_string_printf(output, "%03u%%", 100 * (current_offset - buffer_avail) / total_size);
 }
 
 LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
     furi_assert(context);
     SubGhzFileEncoderWorker* instance = context;
     int32_t duration;
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    int ret = xStreamBufferReceiveFromISR(
-        instance->stream, &duration, sizeof(int32_t), &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    int ret = furi_stream_buffer_receive(instance->stream, &duration, sizeof(int32_t), 0);
     if(ret == sizeof(int32_t)) {
         LevelDuration level_duration = {.level = LEVEL_DURATION_RESET};
         if(duration < 0) {
@@ -129,9 +125,11 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     do {
         if(!flipper_format_file_open_existing(
-               instance->flipper_format, string_get_cstr(instance->file_path))) {
+               instance->flipper_format, furi_string_get_cstr(instance->file_path))) {
             FURI_LOG_E(
-                TAG, "Unable to open file for read: %s", string_get_cstr(instance->file_path));
+                TAG,
+                "Unable to open file for read: %s",
+                furi_string_get_cstr(instance->file_path));
             break;
         }
         if(!flipper_format_read_string(instance->flipper_format, "Protocol", instance->str_data)) {
@@ -147,12 +145,12 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     } while(0);
 
     while(res && instance->worker_running) {
-        size_t stream_free_byte = xStreamBufferSpacesAvailable(instance->stream);
+        size_t stream_free_byte = furi_stream_buffer_spaces_available(instance->stream);
         if((stream_free_byte / sizeof(int32_t)) >= SUBGHZ_FILE_ENCODER_LOAD) {
             if(stream_read_line(stream, instance->str_data)) {
-                string_strim(instance->str_data);
+                furi_string_trim(instance->str_data);
                 if(!subghz_file_encoder_worker_data_parse(
-                       instance, string_get_cstr(instance->str_data))) {
+                       instance, furi_string_get_cstr(instance->str_data))) {
                     //to stop DMA correctly
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
@@ -193,13 +191,13 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     furi_thread_set_stack_size(instance->thread, 2048);
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_file_encoder_worker_thread);
-    instance->stream = xStreamBufferCreate(sizeof(int32_t) * 2048, sizeof(int32_t));
+    instance->stream = furi_stream_buffer_alloc(sizeof(int32_t) * 2048, sizeof(int32_t));
 
     instance->storage = furi_record_open(RECORD_STORAGE);
     instance->flipper_format = flipper_format_file_alloc(instance->storage);
 
-    string_init(instance->str_data);
-    string_init(instance->file_path);
+    instance->str_data = furi_string_alloc();
+    instance->file_path = furi_string_alloc();
     instance->level = false;
     instance->worker_stoping = true;
 
@@ -209,11 +207,11 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
 void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance) {
     furi_assert(instance);
 
-    vStreamBufferDelete(instance->stream);
+    furi_stream_buffer_free(instance->stream);
     furi_thread_free(instance->thread);
 
-    string_clear(instance->str_data);
-    string_clear(instance->file_path);
+    furi_string_free(instance->str_data);
+    furi_string_free(instance->file_path);
 
     flipper_format_free(instance->flipper_format);
     furi_record_close(RECORD_STORAGE);
@@ -225,8 +223,8 @@ bool subghz_file_encoder_worker_start(SubGhzFileEncoderWorker* instance, const c
     furi_assert(instance);
     furi_assert(!instance->worker_running);
 
-    xStreamBufferReset(instance->stream);
-    string_set(instance->file_path, file_path);
+    furi_stream_buffer_reset(instance->stream);
+    furi_string_set(instance->file_path, file_path);
     instance->worker_running = true;
     furi_thread_start(instance->thread);
 

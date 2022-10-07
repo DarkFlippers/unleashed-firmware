@@ -35,11 +35,11 @@ void cli_command_gpio_print_usage() {
     printf("\tread <pin_name>\t - Read gpio value\r\n");
 }
 
-static bool pin_name_to_int(string_t pin_name, size_t* result) {
+static bool pin_name_to_int(FuriString* pin_name, size_t* result) {
     bool found = false;
     bool debug = furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug);
     for(size_t i = 0; i < COUNT_OF(cli_command_gpio_pins); i++) {
-        if(!string_cmp(pin_name, cli_command_gpio_pins[i].name)) {
+        if(!furi_string_cmp(pin_name, cli_command_gpio_pins[i].name)) {
             if(!cli_command_gpio_pins[i].debug || (cli_command_gpio_pins[i].debug && debug)) {
                 *result = i;
                 found = true;
@@ -63,29 +63,29 @@ static void gpio_print_pins(void) {
 
 typedef enum { OK, ERR_CMD_SYNTAX, ERR_PIN, ERR_VALUE } GpioParseError;
 
-static GpioParseError gpio_command_parse(string_t args, size_t* pin_num, uint8_t* value) {
-    string_t pin_name;
-    string_init(pin_name);
+static GpioParseError gpio_command_parse(FuriString* args, size_t* pin_num, uint8_t* value) {
+    FuriString* pin_name;
+    pin_name = furi_string_alloc();
 
-    size_t ws = string_search_char(args, ' ');
-    if(ws == STRING_FAILURE) {
+    size_t ws = furi_string_search_char(args, ' ');
+    if(ws == FURI_STRING_FAILURE) {
         return ERR_CMD_SYNTAX;
     }
 
-    string_set_n(pin_name, args, 0, ws);
-    string_right(args, ws);
-    string_strim(args);
+    furi_string_set_n(pin_name, args, 0, ws);
+    furi_string_right(args, ws);
+    furi_string_trim(args);
 
     if(!pin_name_to_int(pin_name, pin_num)) {
-        string_clear(pin_name);
+        furi_string_free(pin_name);
         return ERR_PIN;
     }
 
-    string_clear(pin_name);
+    furi_string_free(pin_name);
 
-    if(!string_cmp(args, "0")) {
+    if(!furi_string_cmp(args, "0")) {
         *value = 0;
-    } else if(!string_cmp(args, "1")) {
+    } else if(!furi_string_cmp(args, "1")) {
         *value = 1;
     } else {
         return ERR_VALUE;
@@ -94,7 +94,7 @@ static GpioParseError gpio_command_parse(string_t args, size_t* pin_num, uint8_t
     return OK;
 }
 
-void cli_command_gpio_mode(Cli* cli, string_t args, void* context) {
+void cli_command_gpio_mode(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
 
@@ -104,7 +104,7 @@ void cli_command_gpio_mode(Cli* cli, string_t args, void* context) {
     GpioParseError err = gpio_command_parse(args, &num, &value);
 
     if(ERR_CMD_SYNTAX == err) {
-        cli_print_usage("gpio mode", "<pin_name> <0|1>", string_get_cstr(args));
+        cli_print_usage("gpio mode", "<pin_name> <0|1>", furi_string_get_cstr(args));
         return;
     } else if(ERR_PIN == err) {
         gpio_print_pins();
@@ -134,7 +134,7 @@ void cli_command_gpio_mode(Cli* cli, string_t args, void* context) {
     }
 }
 
-void cli_command_gpio_read(Cli* cli, string_t args, void* context) {
+void cli_command_gpio_read(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
 
@@ -156,7 +156,7 @@ void cli_command_gpio_read(Cli* cli, string_t args, void* context) {
     printf("Pin %s <= %u", cli_command_gpio_pins[num].name, val);
 }
 
-void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
+void cli_command_gpio_set(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
 
     size_t num = 0;
@@ -164,7 +164,7 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
     GpioParseError err = gpio_command_parse(args, &num, &value);
 
     if(ERR_CMD_SYNTAX == err) {
-        cli_print_usage("gpio set", "<pin_name> <0|1>", string_get_cstr(args));
+        cli_print_usage("gpio set", "<pin_name> <0|1>", furi_string_get_cstr(args));
         return;
     } else if(ERR_PIN == err) {
         gpio_print_pins();
@@ -196,9 +196,9 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
     printf("Pin %s => %u", cli_command_gpio_pins[num].name, !!value);
 }
 
-void cli_command_gpio(Cli* cli, string_t args, void* context) {
-    string_t cmd;
-    string_init(cmd);
+void cli_command_gpio(Cli* cli, FuriString* args, void* context) {
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
@@ -206,17 +206,17 @@ void cli_command_gpio(Cli* cli, string_t args, void* context) {
             break;
         }
 
-        if(string_cmp_str(cmd, "mode") == 0) {
+        if(furi_string_cmp_str(cmd, "mode") == 0) {
             cli_command_gpio_mode(cli, args, context);
             break;
         }
 
-        if(string_cmp_str(cmd, "set") == 0) {
+        if(furi_string_cmp_str(cmd, "set") == 0) {
             cli_command_gpio_set(cli, args, context);
             break;
         }
 
-        if(string_cmp_str(cmd, "read") == 0) {
+        if(furi_string_cmp_str(cmd, "read") == 0) {
             cli_command_gpio_read(cli, args, context);
             break;
         }
@@ -224,5 +224,5 @@ void cli_command_gpio(Cli* cli, string_t args, void* context) {
         cli_command_gpio_print_usage();
     } while(false);
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }

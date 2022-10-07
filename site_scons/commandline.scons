@@ -34,6 +34,14 @@ AddOption(
     help="List of applications to forcefully build as standalone .elf",
 )
 
+AddOption(
+    "--proxy-env",
+    action="store",
+    dest="proxy_env",
+    default="",
+    help="Comma-separated list of additional environment variables to pass to child SCons processes",
+)
+
 
 # Construction environment variables
 
@@ -236,6 +244,7 @@ vars.Add(
         ("applications/system", False),
         ("applications/debug", False),
         ("applications/plugins", False),
+        #("applications/examples", False),
         ("applications_user", False),
     ],
 )

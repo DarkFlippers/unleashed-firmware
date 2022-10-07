@@ -3,14 +3,13 @@
 #include <gui/canvas.h>
 #include <gui/elements.h>
 #include <m-array.h>
-#include <m-string.h>
 #include <furi.h>
 #include <stdint.h>
 
 struct BtTestParam {
     const char* label;
     uint8_t current_value_index;
-    string_t current_value_text;
+    FuriString* current_value_text;
     uint8_t values_count;
     BtTestParamChangeCallback change_callback;
     void* context;
@@ -85,7 +84,8 @@ static void bt_test_draw_callback(Canvas* canvas, void* _model) {
                 canvas_draw_str(canvas, 50, param_text_y, "<");
             }
 
-            canvas_draw_str(canvas, 61, param_text_y, string_get_cstr(param->current_value_text));
+            canvas_draw_str(
+                canvas, 61, param_text_y, furi_string_get_cstr(param->current_value_text));
 
             if(param->current_value_index < (param->values_count - 1)) {
                 canvas_draw_str(canvas, 113, param_text_y, ">");
@@ -322,7 +322,7 @@ void bt_test_free(BtTest* bt_test) {
             BtTestParamArray_it_t it;
             for(BtTestParamArray_it(it, model->params); !BtTestParamArray_end_p(it);
                 BtTestParamArray_next(it)) {
-                string_clear(BtTestParamArray_ref(it)->current_value_text);
+                furi_string_free(BtTestParamArray_ref(it)->current_value_text);
             }
             BtTestParamArray_clear(model->params);
             return false;
@@ -354,7 +354,7 @@ BtTestParam* bt_test_param_add(
             param->change_callback = change_callback;
             param->context = context;
             param->current_value_index = 0;
-            string_init(param->current_value_text);
+            param->current_value_text = furi_string_alloc();
             return true;
         });
 
@@ -410,7 +410,7 @@ void bt_test_set_current_value_index(BtTestParam* param, uint8_t current_value_i
 }
 
 void bt_test_set_current_value_text(BtTestParam* param, const char* current_value_text) {
-    string_set_str(param->current_value_text, current_value_text);
+    furi_string_set(param->current_value_text, current_value_text);
 }
 
 uint8_t bt_test_get_current_value_index(BtTestParam* param) {

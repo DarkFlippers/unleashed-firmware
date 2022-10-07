@@ -264,18 +264,18 @@ bool subghz_protocol_decoder_scher_khan_deserialize(void* context, FlipperFormat
     return subghz_block_generic_deserialize(&instance->generic, flipper_format);
 }
 
-void subghz_protocol_decoder_scher_khan_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_scher_khan_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderScherKhan* instance = context;
 
     subghz_protocol_scher_khan_check_remote_controller(
         &instance->generic, &instance->protocol_name);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
-        "Sn:%07lX Btn:%lX Cnt:%04X\r\n"
+        "Sn:%07lX Btn:%X Cnt:%04lX\r\n"
         "Pt: %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

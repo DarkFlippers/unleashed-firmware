@@ -48,11 +48,11 @@ bool mf_classic_dict_rewind(MfClassicDict* dict);
 
 bool mf_classic_dict_is_key_present(MfClassicDict* dict, uint8_t* key);
 
-bool mf_classic_dict_is_key_present_str(MfClassicDict* dict, string_t key);
+bool mf_classic_dict_is_key_present_str(MfClassicDict* dict, FuriString* key);
 
 bool mf_classic_dict_get_next_key(MfClassicDict* dict, uint64_t* key);
 
-bool mf_classic_dict_get_next_key_str(MfClassicDict* dict, string_t key);
+bool mf_classic_dict_get_next_key_str(MfClassicDict* dict, FuriString* key);
 
 /** Get key at target offset as uint64_t
  *
@@ -64,7 +64,7 @@ bool mf_classic_dict_get_next_key_str(MfClassicDict* dict, string_t key);
  */
 bool mf_classic_dict_get_key_at_index(MfClassicDict* dict, uint64_t* key, uint32_t target);
 
-/** Get key at target offset as string_t
+/** Get key at target offset as FuriString*
  *
  * @param      dict    MfClassicDict instance
  * @param[out] key     Found key destination buffer
@@ -72,7 +72,7 @@ bool mf_classic_dict_get_key_at_index(MfClassicDict* dict, uint64_t* key, uint32
  *
  * @return     true on success
  */
-bool mf_classic_dict_get_key_at_index_str(MfClassicDict* dict, string_t key, uint32_t target);
+bool mf_classic_dict_get_key_at_index_str(MfClassicDict* dict, FuriString* key, uint32_t target);
 
 bool mf_classic_dict_add_key(MfClassicDict* dict, uint8_t* key);
 
@@ -83,11 +83,11 @@ bool mf_classic_dict_add_key(MfClassicDict* dict, uint8_t* key);
  *
  * @return     true on success
  */
-bool mf_classic_dict_add_key_str(MfClassicDict* dict, string_t key);
+bool mf_classic_dict_add_key_str(MfClassicDict* dict, FuriString* key);
 
 bool mf_classic_dict_find_index(MfClassicDict* dict, uint8_t* key, uint32_t* target);
 
-bool mf_classic_dict_find_index_str(MfClassicDict* dict, string_t key, uint32_t* target);
+bool mf_classic_dict_find_index_str(MfClassicDict* dict, FuriString* key, uint32_t* target);
 
 /** Delete key at target offset
  *

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <mlib/m-string.h>
 #include <storage/storage.h>
 
 #ifdef __cplusplus
@@ -105,7 +104,7 @@ bool stream_delete_and_insert(
  * @return true if line lenght is not zero
  * @return false otherwise
  */
-bool stream_read_line(Stream* stream, string_t str_result);
+bool stream_read_line(Stream* stream, FuriString* str_result);
 
 /**
  * Moves the rw pointer to the start
@@ -127,7 +126,7 @@ size_t stream_write_char(Stream* stream, char c);
  * @param string string value
  * @return size_t how many bytes was written
  */
-size_t stream_write_string(Stream* stream, string_t string);
+size_t stream_write_string(Stream* stream, FuriString* string);
 
 /**
  * Write const char* to the stream
@@ -144,7 +143,8 @@ size_t stream_write_cstring(Stream* stream, const char* string);
  * @param ... 
  * @return size_t how many bytes was written
  */
-size_t stream_write_format(Stream* stream, const char* format, ...);
+size_t stream_write_format(Stream* stream, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));
 
 /**
  * Write formatted string to the stream, va_list version
@@ -182,7 +182,7 @@ bool stream_insert_char(Stream* stream, char c);
  * @return true if the operation was successful
  * @return false on error
  */
-bool stream_insert_string(Stream* stream, string_t string);
+bool stream_insert_string(Stream* stream, FuriString* string);
 
 /**
  * Insert const char* to the stream
@@ -201,7 +201,8 @@ bool stream_insert_cstring(Stream* stream, const char* string);
  * @return true if the operation was successful
  * @return false on error
  */
-bool stream_insert_format(Stream* stream, const char* format, ...);
+bool stream_insert_format(Stream* stream, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));
 
 /**
  * Insert formatted string to the stream, va_list version
@@ -231,7 +232,7 @@ bool stream_delete_and_insert_char(Stream* stream, size_t delete_size, char c);
  * @return true if the operation was successful
  * @return false on error
  */
-bool stream_delete_and_insert_string(Stream* stream, size_t delete_size, string_t string);
+bool stream_delete_and_insert_string(Stream* stream, size_t delete_size, FuriString* string);
 
 /**
  * Delete N chars from the stream and insert const char* to the stream
@@ -252,7 +253,8 @@ bool stream_delete_and_insert_cstring(Stream* stream, size_t delete_size, const 
  * @return true if the operation was successful
  * @return false on error
  */
-bool stream_delete_and_insert_format(Stream* stream, size_t delete_size, const char* format, ...);
+bool stream_delete_and_insert_format(Stream* stream, size_t delete_size, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 3, 4)));
 
 /**
  * Delete N chars from the stream and insert formatted string to the stream, va_list version

@@ -14,7 +14,7 @@ ICONS_TEMPLATE_H_HEADER = """#pragma once
 """
 ICONS_TEMPLATE_H_ICON_NAME = "extern const Icon {name};\n"
 
-ICONS_TEMPLATE_C_HEADER = """#include \"assets_icons.h\"
+ICONS_TEMPLATE_C_HEADER = """#include "{assets_filename}.h"
 
 #include <gui/icon_i.h>
 
@@ -33,12 +33,26 @@ class Main(App):
         )
         self.parser_icons.add_argument("input_directory", help="Source directory")
         self.parser_icons.add_argument("output_directory", help="Output directory")
+        self.parser_icons.add_argument(
+            "--filename",
+            help="Base filename for file with icon data",
+            required=False,
+            default="assets_icons",
+        )
+
         self.parser_icons.set_defaults(func=self.icons)
 
         self.parser_manifest = self.subparsers.add_parser(
             "manifest", help="Create directory Manifest"
         )
         self.parser_manifest.add_argument("local_path", help="local_path")
+        self.parser_manifest.add_argument(
+            "--timestamp",
+            help="timestamp value to embed",
+            default=0,
+            type=int,
+            required=False,
+        )
         self.parser_manifest.set_defaults(func=self.manifest)
 
         self.parser_copro = self.subparsers.add_parser(
@@ -95,13 +109,15 @@ class Main(App):
         return extension in ICONS_SUPPORTED_FORMATS
 
     def icons(self):
-        self.logger.debug(f"Converting icons")
+        self.logger.debug("Converting icons")
         icons_c = open(
-            os.path.join(self.args.output_directory, "assets_icons.c"),
+            os.path.join(self.args.output_directory, f"{self.args.filename}.c"),
             "w",
             newline="\n",
         )
-        icons_c.write(ICONS_TEMPLATE_C_HEADER)
+        icons_c.write(
+            ICONS_TEMPLATE_C_HEADER.format(assets_filename=self.args.filename)
+        )
         icons = []
         # Traverse icons tree, append image data to source file
         for dirpath, dirnames, filenames in os.walk(self.args.input_directory):
@@ -111,7 +127,7 @@ class Main(App):
             if not filenames:
                 continue
             if "frame_rate" in filenames:
-                self.logger.debug(f"Folder contatins animation")
+                self.logger.debug(f"Folder contains animation")
                 icon_name = "A_" + os.path.split(dirpath)[1].replace("-", "_")
                 width = height = None
                 frame_count = 0
@@ -187,7 +203,7 @@ class Main(App):
         # Create Public Header
         self.logger.debug(f"Creating header")
         icons_h = open(
-            os.path.join(self.args.output_directory, "assets_icons.h"),
+            os.path.join(self.args.output_directory, f"{self.args.filename}.h"),
             "w",
             newline="\n",
         )
@@ -213,7 +229,7 @@ class Main(App):
         self.logger.info(
             f'Creating temporary Manifest for directory "{directory_path}"'
         )
-        new_manifest = Manifest()
+        new_manifest = Manifest(self.args.timestamp)
         new_manifest.create(directory_path)
 
         self.logger.info(f"Comparing new manifest with existing")

@@ -1,8 +1,31 @@
 #include "flipfrid_scene_select_field.h"
 
 void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
-    const char* key_cstr = string_get_cstr(context->data_str);
+    char key_cstr[18];
+    uint8_t key_len = 18;
     uint8_t str_index = (index * 3);
+    int data_len = sizeof(context->data) / sizeof(context->data[0]);
+    int key_index = 0;
+
+    if(context->proto == EM4100) {
+        key_len = 16;
+    }
+    if(context->proto == PAC) {
+        key_len = 13;
+    }
+    if(context->proto == H10301) {
+        key_len = 10;
+    }
+
+    for(uint8_t i = 0; i < data_len; i++) {
+        if(context->data[i] < 9) {
+            key_index +=
+                snprintf(&key_cstr[key_index], key_len - key_index, "0%X ", context->data[i]);
+        } else {
+            key_index +=
+                snprintf(&key_cstr[key_index], key_len - key_index, "%X ", context->data[i]);
+        }
+    }
 
     char display_menu[17] = {
         'X', 'X', ' ', 'X', 'X', ' ', '<', 'X', 'X', '>', ' ', 'X', 'X', ' ', 'X', 'X', '\0'};
@@ -42,12 +65,12 @@ void flipfrid_center_displayed_key(FlipFridState* context, uint8_t index) {
         display_menu[15] = ' ';
     }
 
-    string_reset(context->notification_msg);
-    string_set_str(context->notification_msg, display_menu);
+    furi_string_reset(context->notification_msg);
+    furi_string_set(context->notification_msg, display_menu);
 }
 
 void flipfrid_scene_select_field_on_enter(FlipFridState* context) {
-    string_clear(context->notification_msg);
+    furi_string_reset(context->notification_msg);
 }
 
 void flipfrid_scene_select_field_on_exit(FlipFridState* context) {
@@ -61,7 +84,8 @@ void flipfrid_scene_select_field_on_tick(FlipFridState* context) {
 void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* context) {
     if(event.evt_type == EventTypeKey) {
         if(event.input_type == InputTypeShort) {
-            const char* key_cstr = string_get_cstr(context->data_str);
+            const char* key_cstr = furi_string_get_cstr(context->data_str);
+            int data_len = sizeof(context->data) / sizeof(context->data[0]);
 
             // don't look, it's ugly but I'm a python dev so...
             uint8_t nb_bytes = 0;
@@ -73,7 +97,18 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
 
             switch(event.key) {
             case InputKeyDown:
+                for(uint8_t i = 0; i < data_len; i++) {
+                    if(context->key_index == i) {
+                        context->data[i] = (context->data[i] - 1);
+                    }
+                }
+                break;
             case InputKeyUp:
+                for(uint8_t i = 0; i < data_len; i++) {
+                    if(context->key_index == i) {
+                        context->data[i] = (context->data[i] + 1);
+                    }
+                }
                 break;
             case InputKeyLeft:
                 if(context->key_index > 0) {
@@ -86,11 +121,12 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
                 }
                 break;
             case InputKeyOk:
-                string_reset(context->notification_msg);
+                furi_string_reset(context->notification_msg);
                 context->current_scene = SceneAttack;
                 break;
             case InputKeyBack:
-                string_reset(context->notification_msg);
+                context->key_index = 0;
+                furi_string_reset(context->notification_msg);
                 context->current_scene = SceneSelectFile;
                 break;
             }
@@ -106,16 +142,17 @@ void flipfrid_scene_select_field_on_draw(Canvas* canvas, FlipFridState* context)
     // Frame
     //canvas_draw_frame(canvas, 0, 0, 128, 64);
 
-    // Title
-    canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 10, AlignCenter, AlignTop, "Use < > to select byte.");
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str_aligned(canvas, 12, 5, AlignLeft, AlignTop, "Left and right: select byte");
+    canvas_draw_str_aligned(canvas, 12, 15, AlignLeft, AlignTop, "Up and down: adjust byte");
 
     char msg_index[18];
+    canvas_set_font(canvas, FontPrimary);
     snprintf(msg_index, sizeof(msg_index), "Field index : %d", context->key_index);
-    canvas_draw_str_aligned(canvas, 64, 26, AlignCenter, AlignTop, msg_index);
+    canvas_draw_str_aligned(canvas, 64, 30, AlignCenter, AlignTop, msg_index);
 
     flipfrid_center_displayed_key(context, context->key_index);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, 64, 40, AlignCenter, AlignTop, string_get_cstr(context->notification_msg));
+        canvas, 64, 45, AlignCenter, AlignTop, furi_string_get_cstr(context->notification_msg));
 }

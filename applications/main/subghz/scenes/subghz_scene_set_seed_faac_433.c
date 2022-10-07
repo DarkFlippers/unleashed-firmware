@@ -75,7 +75,7 @@ bool subghz_scene_set_seed_faac_433_on_event(void* context, SceneManagerEvent ev
             subghz_transmitter_free(subghz->txrx->transmitter);
 
             if(!generated_protocol) {
-                string_set_str(
+                furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }

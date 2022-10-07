@@ -19,7 +19,7 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeInfrared] = "Infrared",
     [ArchiveFileTypeBadUsb] = "Bad USB",
     [ArchiveFileTypeU2f] = "U2F",
-    [ArchiveFileTypeApps] = "Applications",
+    [ArchiveFileTypeApplication] = "Applications",
     [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
 };
 
@@ -41,14 +41,14 @@ static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selec
 
     LoaderStatus status;
     if(selected->is_app) {
-        char* param = strrchr(string_get_cstr(selected->path), '/');
+        char* param = strrchr(furi_string_get_cstr(selected->path), '/');
         if(param != NULL) {
             param++;
         }
         status = loader_start(loader, flipper_app_name[selected->type], param);
     } else {
         status = loader_start(
-            loader, flipper_app_name[selected->type], string_get_cstr(selected->path));
+            loader, flipper_app_name[selected->type], furi_string_get_cstr(selected->path));
     }
 
     if(status != LoaderStatusOk) {
@@ -169,13 +169,13 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventEnterFavMove:
-            string_set(archive->fav_move_str, selected->path);
+            furi_string_set(archive->fav_move_str, selected->path);
             archive_show_file_menu(browser, false);
             archive_favorites_move_mode(archive->browser, true);
             consumed = true;
             break;
         case ArchiveBrowserEventExitFavMove:
-            archive_update_focus(browser, string_get_cstr(archive->fav_move_str));
+            archive_update_focus(browser, furi_string_get_cstr(archive->fav_move_str));
             archive_favorites_move_mode(archive->browser, false);
             consumed = true;
             break;

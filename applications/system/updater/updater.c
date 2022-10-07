@@ -35,10 +35,10 @@ static void
 Updater* updater_alloc(const char* arg) {
     Updater* updater = malloc(sizeof(Updater));
     if(arg && strlen(arg)) {
-        string_init_set_str(updater->startup_arg, arg);
-        string_replace_str(updater->startup_arg, ANY_PATH(""), EXT_PATH(""));
+        updater->startup_arg = furi_string_alloc_set(arg);
+        furi_string_replace(updater->startup_arg, ANY_PATH(""), EXT_PATH(""));
     } else {
-        string_init(updater->startup_arg);
+        updater->startup_arg = furi_string_alloc();
     }
 
     updater->storage = furi_record_open(RECORD_STORAGE);
@@ -94,7 +94,7 @@ Updater* updater_alloc(const char* arg) {
 void updater_free(Updater* updater) {
     furi_assert(updater);
 
-    string_clear(updater->startup_arg);
+    furi_string_free(updater->startup_arg);
     if(updater->update_task) {
         update_task_set_progress_cb(updater->update_task, NULL, NULL);
         update_task_free(updater->update_task);

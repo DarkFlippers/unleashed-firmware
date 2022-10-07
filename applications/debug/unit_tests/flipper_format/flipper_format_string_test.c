@@ -58,7 +58,7 @@ static const char* test_data_win = "Filetype: Flipper Format test\r\n"
 #define ARRAY_W_BSIZE(x) (x), (sizeof(x))
 
 MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
-    string_t tmpstr;
+    FuriString* tmpstr;
     uint32_t version;
     uint32_t uint32_data[COUNT_OF(test_uint_data)];
     int32_t int32_data[COUNT_OF(test_int_data)];
@@ -101,14 +101,14 @@ MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
     mu_assert_int_eq(position_before, stream_tell(flipper_format_get_raw_stream(flipper_format)));
 
     // read test
-    string_init(tmpstr);
+    tmpstr = furi_string_alloc();
 
     mu_check(flipper_format_read_header(flipper_format, tmpstr, &version));
-    mu_assert_string_eq(test_filetype, string_get_cstr(tmpstr));
+    mu_assert_string_eq(test_filetype, furi_string_get_cstr(tmpstr));
     mu_assert_int_eq(test_version, version);
 
     mu_check(flipper_format_read_string(flipper_format, test_string_key, tmpstr));
-    mu_assert_string_eq(test_string_data, string_get_cstr(tmpstr));
+    mu_assert_string_eq(test_string_data, furi_string_get_cstr(tmpstr));
 
     mu_check(flipper_format_get_value_count(flipper_format, test_int_key, &count));
     mu_assert_int_eq(COUNT_OF(test_int_data), count);
@@ -133,7 +133,7 @@ MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
 
     mu_check(!flipper_format_read_string(flipper_format, "Key that doesn't exist", tmpstr));
 
-    string_clear(tmpstr);
+    furi_string_free(tmpstr);
 
     // update data
     mu_check(flipper_format_rewind(flipper_format));
@@ -155,14 +155,14 @@ MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
     uint8_t hex_updated_data[COUNT_OF(test_hex_updated_data)];
 
     mu_check(flipper_format_rewind(flipper_format));
-    string_init(tmpstr);
+    tmpstr = furi_string_alloc();
 
     mu_check(flipper_format_read_header(flipper_format, tmpstr, &version));
-    mu_assert_string_eq(test_filetype, string_get_cstr(tmpstr));
+    mu_assert_string_eq(test_filetype, furi_string_get_cstr(tmpstr));
     mu_assert_int_eq(test_version, version);
 
     mu_check(flipper_format_read_string(flipper_format, test_string_key, tmpstr));
-    mu_assert_string_eq(test_string_updated_data, string_get_cstr(tmpstr));
+    mu_assert_string_eq(test_string_updated_data, furi_string_get_cstr(tmpstr));
 
     mu_check(flipper_format_get_value_count(flipper_format, test_int_key, &count));
     mu_assert_int_eq(COUNT_OF(test_int_updated_data), count);
@@ -190,7 +190,7 @@ MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
 
     mu_check(!flipper_format_read_string(flipper_format, "Key that doesn't exist", tmpstr));
 
-    string_clear(tmpstr);
+    furi_string_free(tmpstr);
 
     // update data
     mu_check(flipper_format_rewind(flipper_format));
@@ -214,14 +214,14 @@ MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
     uint8_t hex_new_data[COUNT_OF(test_hex_new_data)];
 
     mu_check(flipper_format_rewind(flipper_format));
-    string_init(tmpstr);
+    tmpstr = furi_string_alloc();
 
     mu_check(flipper_format_read_header(flipper_format, tmpstr, &version));
-    mu_assert_string_eq(test_filetype, string_get_cstr(tmpstr));
+    mu_assert_string_eq(test_filetype, furi_string_get_cstr(tmpstr));
     mu_assert_int_eq(test_version, version);
 
     mu_check(flipper_format_read_string(flipper_format, test_string_key, tmpstr));
-    mu_assert_string_eq(test_string_updated_2_data, string_get_cstr(tmpstr));
+    mu_assert_string_eq(test_string_updated_2_data, furi_string_get_cstr(tmpstr));
 
     mu_check(flipper_format_get_value_count(flipper_format, test_int_key, &count));
     mu_assert_int_eq(COUNT_OF(test_int_updated_2_data), count);
@@ -255,7 +255,7 @@ MU_TEST_1(flipper_format_read_and_update_test, FlipperFormat* flipper_format) {
 
     mu_check(!flipper_format_read_string(flipper_format, "Key that doesn't exist", tmpstr));
 
-    string_clear(tmpstr);
+    furi_string_free(tmpstr);
 
     // delete key test
     mu_check(flipper_format_rewind(flipper_format));

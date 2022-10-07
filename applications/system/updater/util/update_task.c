@@ -69,19 +69,19 @@ static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
 static UpdateTaskStageGroup update_task_get_task_groups(UpdateTask* update_task) {
     UpdateTaskStageGroup ret = UpdateTaskStageGroupPreUpdate | UpdateTaskStageGroupPostUpdate;
     UpdateManifest* manifest = update_task->manifest;
-    if(!string_empty_p(manifest->radio_image)) {
+    if(!furi_string_empty(manifest->radio_image)) {
         ret |= UpdateTaskStageGroupRadio;
     }
     if(update_manifest_has_obdata(manifest)) {
         ret |= UpdateTaskStageGroupOptionBytes;
     }
-    if(!string_empty_p(manifest->firmware_dfu_image)) {
+    if(!furi_string_empty(manifest->firmware_dfu_image)) {
         ret |= UpdateTaskStageGroupFirmware;
     }
-    if(!string_empty_p(manifest->resource_bundle)) {
+    if(!furi_string_empty(manifest->resource_bundle)) {
         ret |= UpdateTaskStageGroupResources;
     }
-    if(!string_empty_p(manifest->splash_file)) {
+    if(!furi_string_empty(manifest->splash_file)) {
         ret |= UpdateTaskStageGroupSplashscreen;
     }
     return ret;
@@ -109,14 +109,14 @@ void update_task_set_progress(UpdateTask* update_task, UpdateTaskStage stage, ui
         }
         /* Build error message with code "[stage_idx-stage_percent]" */
         if(stage >= UpdateTaskStageError) {
-            string_printf(
+            furi_string_printf(
                 update_task->state.status,
                 "%s #[%d-%d]",
                 update_task_stage_descr[stage],
                 update_task->state.stage,
                 update_task->state.stage_progress);
         } else {
-            string_set_str(update_task->state.status, update_task_stage_descr[stage]);
+            furi_string_set(update_task->state.status, update_task_stage_descr[stage]);
         }
         /* Store stage update */
         update_task->state.stage = stage;
@@ -149,7 +149,7 @@ void update_task_set_progress(UpdateTask* update_task, UpdateTaskStage stage, ui
 
     if(update_task->status_change_cb) {
         (update_task->status_change_cb)(
-            string_get_cstr(update_task->state.status),
+            furi_string_get_cstr(update_task->state.status),
             adapted_progress,
             update_stage_is_error(update_task->state.stage),
             update_task->status_change_cb_state);
@@ -165,26 +165,26 @@ static void update_task_close_file(UpdateTask* update_task) {
     storage_file_close(update_task->file);
 }
 
-static bool update_task_check_file_exists(UpdateTask* update_task, string_t filename) {
+static bool update_task_check_file_exists(UpdateTask* update_task, FuriString* filename) {
     furi_assert(update_task);
-    string_t tmp_path;
-    string_init_set(tmp_path, update_task->update_path);
-    path_append(tmp_path, string_get_cstr(filename));
-    bool exists = storage_file_exists(update_task->storage, string_get_cstr(tmp_path));
-    string_clear(tmp_path);
+    FuriString* tmp_path;
+    tmp_path = furi_string_alloc_set(update_task->update_path);
+    path_append(tmp_path, furi_string_get_cstr(filename));
+    bool exists = storage_file_exists(update_task->storage, furi_string_get_cstr(tmp_path));
+    furi_string_free(tmp_path);
     return exists;
 }
 
-bool update_task_open_file(UpdateTask* update_task, string_t filename) {
+bool update_task_open_file(UpdateTask* update_task, FuriString* filename) {
     furi_assert(update_task);
     update_task_close_file(update_task);
 
-    string_t tmp_path;
-    string_init_set(tmp_path, update_task->update_path);
-    path_append(tmp_path, string_get_cstr(filename));
+    FuriString* tmp_path;
+    tmp_path = furi_string_alloc_set(update_task->update_path);
+    path_append(tmp_path, furi_string_get_cstr(filename));
     bool open_success = storage_file_open(
-        update_task->file, string_get_cstr(tmp_path), FSAM_READ, FSOM_OPEN_EXISTING);
-    string_clear(tmp_path);
+        update_task->file, furi_string_get_cstr(tmp_path), FSAM_READ, FSOM_OPEN_EXISTING);
+    furi_string_free(tmp_path);
     return open_success;
 }
 
@@ -207,14 +207,14 @@ UpdateTask* update_task_alloc() {
     update_task->state.stage = UpdateTaskStageProgress;
     update_task->state.stage_progress = 0;
     update_task->state.overall_progress = 0;
-    string_init(update_task->state.status);
+    update_task->state.status = furi_string_alloc();
 
     update_task->manifest = update_manifest_alloc();
     update_task->storage = furi_record_open(RECORD_STORAGE);
     update_task->file = storage_file_alloc(update_task->storage);
     update_task->status_change_cb = NULL;
     update_task->boot_mode = furi_hal_rtc_get_boot_mode();
-    string_init(update_task->update_path);
+    update_task->update_path = furi_string_alloc();
 
     FuriThread* thread = update_task->thread = furi_thread_alloc();
 
@@ -246,7 +246,7 @@ void update_task_free(UpdateTask* update_task) {
     update_manifest_free(update_task->manifest);
 
     furi_record_close(RECORD_STORAGE);
-    string_clear(update_task->update_path);
+    furi_string_free(update_task->update_path);
 
     free(update_task);
 }
@@ -261,8 +261,8 @@ bool update_task_parse_manifest(UpdateTask* update_task) {
 
     update_task_set_progress(update_task, UpdateTaskStageReadManifest, 0);
     bool result = false;
-    string_t manifest_path;
-    string_init(manifest_path);
+    FuriString* manifest_path;
+    manifest_path = furi_string_alloc();
 
     do {
         update_task_set_progress(update_task, UpdateTaskStageProgress, 13);
@@ -276,11 +276,11 @@ bool update_task_parse_manifest(UpdateTask* update_task) {
             break;
         }
 
-        path_extract_dirname(string_get_cstr(manifest_path), update_task->update_path);
+        path_extract_dirname(furi_string_get_cstr(manifest_path), update_task->update_path);
         update_task_set_progress(update_task, UpdateTaskStageProgress, 30);
 
         UpdateManifest* manifest = update_task->manifest;
-        if(!update_manifest_init(manifest, string_get_cstr(manifest_path))) {
+        if(!update_manifest_init(manifest, furi_string_get_cstr(manifest_path))) {
             break;
         }
 
@@ -320,7 +320,7 @@ bool update_task_parse_manifest(UpdateTask* update_task) {
         result = true;
     } while(false);
 
-    string_clear(manifest_path);
+    furi_string_free(manifest_path);
     return result;
 }
 

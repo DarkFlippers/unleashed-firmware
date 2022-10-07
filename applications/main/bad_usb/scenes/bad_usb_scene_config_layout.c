@@ -6,12 +6,12 @@
 static bool bad_usb_layout_select(BadUsbApp* bad_usb) {
     furi_assert(bad_usb);
 
-    string_t predefined_path;
-    string_init(predefined_path);
-    if(!string_empty_p(bad_usb->keyboard_layout)) {
-        string_set(predefined_path, bad_usb->keyboard_layout);
+    FuriString* predefined_path;
+    predefined_path = furi_string_alloc();
+    if(!furi_string_empty(bad_usb->keyboard_layout)) {
+        furi_string_set(predefined_path, bad_usb->keyboard_layout);
     } else {
-        string_set_str(predefined_path, BAD_USB_APP_PATH_LAYOUT_FOLDER);
+        furi_string_set(predefined_path, BAD_USB_APP_PATH_LAYOUT_FOLDER);
     }
 
     DialogsFileBrowserOptions browser_options;
@@ -22,7 +22,7 @@ static bool bad_usb_layout_select(BadUsbApp* bad_usb) {
     bool res = dialog_file_browser_show(
         bad_usb->dialogs, bad_usb->keyboard_layout, predefined_path, &browser_options);
 
-    string_clear(predefined_path);
+    furi_string_free(predefined_path);
     return res;
 }
 

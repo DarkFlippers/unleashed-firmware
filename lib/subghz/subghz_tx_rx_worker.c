@@ -1,6 +1,5 @@
 #include "subghz_tx_rx_worker.h"
 
-#include <stream_buffer.h>
 #include <furi.h>
 
 #define TAG "SubGhzTxRxWorker"
@@ -13,8 +12,8 @@
 
 struct SubGhzTxRxWorker {
     FuriThread* thread;
-    StreamBufferHandle_t stream_tx;
-    StreamBufferHandle_t stream_rx;
+    FuriStreamBuffer* stream_tx;
+    FuriStreamBuffer* stream_rx;
 
     volatile bool worker_running;
     volatile bool worker_stoping;
@@ -30,9 +29,9 @@ struct SubGhzTxRxWorker {
 bool subghz_tx_rx_worker_write(SubGhzTxRxWorker* instance, uint8_t* data, size_t size) {
     furi_assert(instance);
     bool ret = false;
-    size_t stream_tx_free_byte = xStreamBufferSpacesAvailable(instance->stream_tx);
+    size_t stream_tx_free_byte = furi_stream_buffer_spaces_available(instance->stream_tx);
     if(size && (stream_tx_free_byte >= size)) {
-        if(xStreamBufferSend(
+        if(furi_stream_buffer_send(
                instance->stream_tx, data, size, SUBGHZ_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF) ==
            size) {
             ret = true;
@@ -43,12 +42,12 @@ bool subghz_tx_rx_worker_write(SubGhzTxRxWorker* instance, uint8_t* data, size_t
 
 size_t subghz_tx_rx_worker_available(SubGhzTxRxWorker* instance) {
     furi_assert(instance);
-    return xStreamBufferBytesAvailable(instance->stream_rx);
+    return furi_stream_buffer_bytes_available(instance->stream_rx);
 }
 
 size_t subghz_tx_rx_worker_read(SubGhzTxRxWorker* instance, uint8_t* data, size_t size) {
     furi_assert(instance);
-    return xStreamBufferReceive(instance->stream_rx, data, size, 0);
+    return furi_stream_buffer_receive(instance->stream_rx, data, size, 0);
 }
 
 void subghz_tx_rx_worker_set_callback_have_read(
@@ -148,11 +147,11 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
 
     while(instance->worker_running) {
         //transmit
-        size_tx = xStreamBufferBytesAvailable(instance->stream_tx);
+        size_tx = furi_stream_buffer_bytes_available(instance->stream_tx);
         if(size_tx > 0 && !timeout_tx) {
             timeout_tx = 10; //20ms
             if(size_tx > SUBGHZ_TXRX_WORKER_MAX_TXRX_SIZE) {
-                xStreamBufferReceive(
+                furi_stream_buffer_receive(
                     instance->stream_tx,
                     &data,
                     SUBGHZ_TXRX_WORKER_MAX_TXRX_SIZE,
@@ -160,20 +159,20 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
                 subghz_tx_rx_worker_tx(instance, data, SUBGHZ_TXRX_WORKER_MAX_TXRX_SIZE);
             } else {
                 //todo checking that he managed to write all the data to the TX buffer
-                xStreamBufferReceive(
+                furi_stream_buffer_receive(
                     instance->stream_tx, &data, size_tx, SUBGHZ_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF);
                 subghz_tx_rx_worker_tx(instance, data, size_tx);
             }
         } else {
             //recive
             if(subghz_tx_rx_worker_rx(instance, data, size_rx)) {
-                if(xStreamBufferSpacesAvailable(instance->stream_rx) >= size_rx[0]) {
+                if(furi_stream_buffer_spaces_available(instance->stream_rx) >= size_rx[0]) {
                     if(instance->callback_have_read &&
-                       xStreamBufferBytesAvailable(instance->stream_rx) == 0) {
+                       furi_stream_buffer_bytes_available(instance->stream_rx) == 0) {
                         callback_rx = true;
                     }
                     //todo checking that he managed to write all the data to the RX buffer
-                    xStreamBufferSend(
+                    furi_stream_buffer_send(
                         instance->stream_rx,
                         &data,
                         size_rx[0],
@@ -208,9 +207,9 @@ SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_tx_rx_worker_thread);
     instance->stream_tx =
-        xStreamBufferCreate(sizeof(uint8_t) * SUBGHZ_TXRX_WORKER_BUF_SIZE, sizeof(uint8_t));
+        furi_stream_buffer_alloc(sizeof(uint8_t) * SUBGHZ_TXRX_WORKER_BUF_SIZE, sizeof(uint8_t));
     instance->stream_rx =
-        xStreamBufferCreate(sizeof(uint8_t) * SUBGHZ_TXRX_WORKER_BUF_SIZE, sizeof(uint8_t));
+        furi_stream_buffer_alloc(sizeof(uint8_t) * SUBGHZ_TXRX_WORKER_BUF_SIZE, sizeof(uint8_t));
 
     instance->status = SubGhzTxRxWorkerStatusIDLE;
     instance->worker_stoping = true;
@@ -221,8 +220,8 @@ SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
 void subghz_tx_rx_worker_free(SubGhzTxRxWorker* instance) {
     furi_assert(instance);
     furi_assert(!instance->worker_running);
-    vStreamBufferDelete(instance->stream_tx);
-    vStreamBufferDelete(instance->stream_rx);
+    furi_stream_buffer_free(instance->stream_tx);
+    furi_stream_buffer_free(instance->stream_rx);
     furi_thread_free(instance->thread);
 
     free(instance);
@@ -232,8 +231,8 @@ bool subghz_tx_rx_worker_start(SubGhzTxRxWorker* instance, uint32_t frequency) {
     furi_assert(instance);
     furi_assert(!instance->worker_running);
     bool res = false;
-    xStreamBufferReset(instance->stream_tx);
-    xStreamBufferReset(instance->stream_rx);
+    furi_stream_buffer_reset(instance->stream_tx);
+    furi_stream_buffer_reset(instance->stream_rx);
 
     instance->worker_running = true;
 

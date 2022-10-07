@@ -847,7 +847,7 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
 
             FURI_LOG_D(
                 TAG,
-                "%08x key%c block %d nt/nr/ar: %08x %08x %08x",
+                "%08lx key%c block %d nt/nr/ar: %08lx %08lx %08lx",
                 emulator->cuid,
                 access_key == MfClassicKeyA ? 'A' : 'B',
                 sector_trailer_block,
@@ -858,7 +858,7 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
             crypto1_word(&emulator->crypto, nr, 1);
             uint32_t cardRr = ar ^ crypto1_word(&emulator->crypto, 0, 0);
             if(cardRr != prng_successor(nonce, 64)) {
-                FURI_LOG_T(TAG, "Wrong AUTH! %08X != %08X", cardRr, prng_successor(nonce, 64));
+                FURI_LOG_T(TAG, "Wrong AUTH! %08lX != %08lX", cardRr, prng_successor(nonce, 64));
                 // Don't send NACK, as the tag doesn't send it
                 command_processed = true;
                 break;

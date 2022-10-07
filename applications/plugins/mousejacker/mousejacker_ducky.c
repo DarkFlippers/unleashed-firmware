@@ -261,7 +261,7 @@ static bool mj_process_ducky_line(
         repeat_cnt = atoi(line_tmp);
         if(repeat_cnt < 2) return false;
 
-        FURI_LOG_D(TAG, "repeating %s %d times", prev_line, repeat_cnt);
+        FURI_LOG_D(TAG, "repeating %s %ld times", prev_line, repeat_cnt);
         for(uint32_t i = 0; i < repeat_cnt; i++)
             mj_process_ducky_line(handle, addr, addr_size, rate, prev_line, NULL, plugin_state);
 

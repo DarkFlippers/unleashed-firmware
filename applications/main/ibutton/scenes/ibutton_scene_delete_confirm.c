@@ -17,13 +17,13 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
     iButtonKey* key = ibutton->key;
     const uint8_t* key_data = ibutton_key_get_data_p(key);
 
-    string_t key_name;
-    string_init(key_name);
+    FuriString* key_name;
+    key_name = furi_string_alloc();
     path_extract_filename(ibutton->file_path, key_name, true);
 
-    ibutton_text_store_set(ibutton, "\e#Delete %s?\e#", string_get_cstr(key_name));
+    ibutton_text_store_set(ibutton, "\e#Delete %s?\e#", furi_string_get_cstr(key_name));
     widget_add_text_box_element(
-        widget, 0, 0, 128, 27, AlignCenter, AlignCenter, ibutton->text_store, false);
+        widget, 0, 0, 128, 27, AlignCenter, AlignCenter, ibutton->text_store, true);
     widget_add_button_element(
         widget, GuiButtonTypeLeft, "Cancel", ibutton_scene_delete_confirm_widget_callback, ibutton);
     widget_add_button_element(
@@ -47,28 +47,28 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
             key_data[6],
             key_data[7]);
         widget_add_string_element(
-            widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Dallas");
+            widget, 64, 34, AlignCenter, AlignBottom, FontSecondary, "Dallas");
         break;
 
     case iButtonKeyCyfral:
         ibutton_text_store_set(ibutton, "%02X %02X", key_data[0], key_data[1]);
         widget_add_string_element(
-            widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Cyfral");
+            widget, 64, 34, AlignCenter, AlignBottom, FontSecondary, "Cyfral");
         break;
 
     case iButtonKeyMetakom:
         ibutton_text_store_set(
             ibutton, "%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
         widget_add_string_element(
-            widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Metakom");
+            widget, 64, 34, AlignCenter, AlignBottom, FontSecondary, "Metakom");
         break;
     }
     widget_add_string_element(
-        widget, 64, 33, AlignCenter, AlignBottom, FontSecondary, ibutton->text_store);
+        widget, 64, 46, AlignCenter, AlignBottom, FontSecondary, ibutton->text_store);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
 
-    string_clear(key_name);
+    furi_string_free(key_name);
 }
 
 bool ibutton_scene_delete_confirm_on_event(void* context, SceneManagerEvent event) {

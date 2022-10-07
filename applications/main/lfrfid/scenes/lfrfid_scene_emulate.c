@@ -8,8 +8,8 @@ void lfrfid_scene_emulate_on_enter(void* context) {
     DOLPHIN_DEED(DolphinDeedRfidEmulate);
 
     popup_set_header(popup, "Emulating", 89, 30, AlignCenter, AlignTop);
-    if(!string_empty_p(app->file_name)) {
-        popup_set_text(popup, string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
+    if(!furi_string_empty(app->file_name)) {
+        popup_set_text(popup, furi_string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
     } else {
         popup_set_text(
             popup,

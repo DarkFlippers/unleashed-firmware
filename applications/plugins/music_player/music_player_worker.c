@@ -258,7 +258,7 @@ static bool music_player_worker_parse_notes(MusicPlayerWorker* instance, const c
             if(!is_valid) {
                 FURI_LOG_E(
                     TAG,
-                    "Invalid note: %u%c%c%u.%u",
+                    "Invalid note: %lu%c%c%lu.%lu",
                     duration,
                     note_char == '\0' ? '_' : note_char,
                     sharp_char == '\0' ? '_' : sharp_char,
@@ -281,7 +281,7 @@ static bool music_player_worker_parse_notes(MusicPlayerWorker* instance, const c
             if(music_player_worker_add_note(instance, semitone, duration, dots)) {
                 FURI_LOG_D(
                     TAG,
-                    "Added note: %c%c%u.%u = %u %u",
+                    "Added note: %c%c%lu.%lu = %u %lu",
                     note_char == '\0' ? '_' : note_char,
                     sharp_char == '\0' ? '_' : sharp_char,
                     octave,
@@ -291,7 +291,7 @@ static bool music_player_worker_parse_notes(MusicPlayerWorker* instance, const c
             } else {
                 FURI_LOG_E(
                     TAG,
-                    "Invalid note: %c%c%u.%u = %u %u",
+                    "Invalid note: %c%c%lu.%lu = %u %lu",
                     note_char == '\0' ? '_' : note_char,
                     sharp_char == '\0' ? '_' : sharp_char,
                     octave,
@@ -326,8 +326,8 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
     furi_assert(file_path);
 
     bool result = false;
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
@@ -337,7 +337,8 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
 
         uint32_t version = 0;
         if(!flipper_format_read_header(file, temp_str, &version)) break;
-        if(string_cmp_str(temp_str, MUSIC_PLAYER_FILETYPE) || (version != MUSIC_PLAYER_VERSION)) {
+        if(furi_string_cmp_str(temp_str, MUSIC_PLAYER_FILETYPE) ||
+           (version != MUSIC_PLAYER_VERSION)) {
             FURI_LOG_E(TAG, "Incorrect file format or version");
             break;
         }
@@ -360,7 +361,7 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
             break;
         }
 
-        if(!music_player_worker_parse_notes(instance, string_get_cstr(temp_str))) {
+        if(!music_player_worker_parse_notes(instance, furi_string_get_cstr(temp_str))) {
             break;
         }
 
@@ -369,7 +370,7 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
 
     furi_record_close(RECORD_STORAGE);
     flipper_format_free(file);
-    string_clear(temp_str);
+    furi_string_free(temp_str);
 
     return result;
 }
@@ -379,8 +380,8 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
     furi_assert(file_path);
 
     bool result = false;
-    string_t content;
-    string_init(content);
+    FuriString* content;
+    content = furi_string_alloc();
     Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
 
@@ -395,17 +396,17 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
             uint8_t buffer[65] = {0};
             ret = storage_file_read(file, buffer, sizeof(buffer) - 1);
             for(size_t i = 0; i < ret; i++) {
-                string_push_back(content, buffer[i]);
+                furi_string_push_back(content, buffer[i]);
             }
         } while(ret > 0);
 
-        string_strim(content);
-        if(!string_size(content)) {
+        furi_string_trim(content);
+        if(!furi_string_size(content)) {
             FURI_LOG_E(TAG, "Empty file");
             break;
         }
 
-        if(!music_player_worker_load_rtttl_from_string(instance, string_get_cstr(content))) {
+        if(!music_player_worker_load_rtttl_from_string(instance, furi_string_get_cstr(content))) {
             FURI_LOG_E(TAG, "Invalid file content");
             break;
         }
@@ -415,7 +416,7 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
 
     storage_file_free(file);
     furi_record_close(RECORD_STORAGE);
-    string_clear(content);
+    furi_string_free(content);
 
     return result;
 }

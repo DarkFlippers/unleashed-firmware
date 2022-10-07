@@ -1,0 +1,5 @@
+App(
+    appid="sample_apps",
+    name="Sample apps bundle",
+    apptype=FlipperAppType.METAPACKAGE,
+)

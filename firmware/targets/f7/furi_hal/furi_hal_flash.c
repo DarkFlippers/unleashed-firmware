@@ -83,7 +83,7 @@ void furi_hal_flash_init() {
     // WRITE_REG(FLASH->SR, FLASH_SR_OPTVERR);
     /* Actually, reset all error flags on start */
     if(READ_BIT(FLASH->SR, FURI_HAL_FLASH_SR_ERRORS)) {
-        FURI_LOG_E(TAG, "FLASH->SR 0x%08X", FLASH->SR);
+        FURI_LOG_E(TAG, "FLASH->SR 0x%08lX", FLASH->SR);
         WRITE_REG(FLASH->SR, FURI_HAL_FLASH_SR_ERRORS);
     }
 }
@@ -514,10 +514,10 @@ bool furi_hal_flash_ob_set_word(size_t word_idx, const uint32_t value) {
 
     FURI_LOG_W(
         TAG,
-        "Setting OB reg %d for word %d (addr 0x%08X) to 0x%08X",
+        "Setting OB reg %d for word %d (addr 0x%08lX) to 0x%08lX",
         reg_def->ob_reg,
         word_idx,
-        reg_def->ob_register_address,
+        (uint32_t)reg_def->ob_register_address,
         value);
 
     /* 1. Clear OPTLOCK option lock bit with the clearing sequence */

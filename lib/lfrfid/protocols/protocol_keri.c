@@ -170,6 +170,7 @@ bool protocol_keri_encoder_start(ProtocolKeri* protocol) {
     memset(protocol->encoded_data, 0, KERI_ENCODED_DATA_SIZE);
     *(uint32_t*)&protocol->encoded_data[0] = 0b00000000000000000000000011100000;
     bit_lib_copy_bits(protocol->encoded_data, 32, 32, protocol->data, 0);
+    bit_lib_set_bits(protocol->encoded_data, 32, 1, 1);
 
     protocol->encoder.last_bit =
         bit_lib_get_bit(protocol->encoded_data, KERI_ENCODED_BIT_SIZE - 1);
@@ -211,19 +212,21 @@ LevelDuration protocol_keri_encoder_yield(ProtocolKeri* protocol) {
     return level_duration;
 };
 
-void protocol_keri_render_data(ProtocolKeri* protocol, string_t result) {
+void protocol_keri_render_data(ProtocolKeri* protocol, FuriString* result) {
     uint32_t data = bit_lib_get_bits_32(protocol->data, 0, 32);
     uint32_t internal_id = data & 0x7FFFFFFF;
     uint32_t fc = 0;
     uint32_t cn = 0;
     protocol_keri_descramble(&fc, &cn, &data);
-    string_printf(result, "Internal ID: %u\r\nFC: %u, Card: %u\r\n", internal_id, fc, cn);
+    furi_string_printf(result, "Internal ID: %lu\r\nFC: %lu, Card: %lu\r\n", internal_id, fc, cn);
 }
 
 bool protocol_keri_write_data(ProtocolKeri* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
 
+    // Start bit should be always set
+    protocol->data[0] |= (1 << 7);
     protocol_keri_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {

@@ -350,12 +350,12 @@ bool subghz_protocol_decoder_holtek_deserialize(void* context, FlipperFormat* fl
     return ret;
 }
 
-void subghz_protocol_decoder_holtek_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_holtek_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHoltek* instance = context;
     subghz_protocol_holtek_check_remote_controller(&instance->generic);
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
@@ -368,8 +368,8 @@ void subghz_protocol_decoder_holtek_get_string(void* context, string_t output) {
         instance->generic.btn >> 4);
 
     if((instance->generic.btn & 0xF) == 0xE) {
-        string_cat_printf(output, "ON\r\n");
+        furi_string_cat_printf(output, "ON\r\n");
     } else if(((instance->generic.btn & 0xF) == 0xB)) {
-        string_cat_printf(output, "OFF\r\n");
+        furi_string_cat_printf(output, "OFF\r\n");
     }
 }

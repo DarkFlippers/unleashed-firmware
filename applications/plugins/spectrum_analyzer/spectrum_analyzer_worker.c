@@ -168,7 +168,7 @@ void spectrum_analyzer_worker_set_frequencies(
 
     FURI_LOG_D(
         "SpectrumWorker",
-        "spectrum_analyzer_worker_set_frequencies - channel0_frequency= %u - spacing = %u - width = %u",
+        "spectrum_analyzer_worker_set_frequencies - channel0_frequency= %lu - spacing = %lu - width = %u",
         channel0_frequency,
         spacing,
         width);

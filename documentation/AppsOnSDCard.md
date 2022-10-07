@@ -2,7 +2,7 @@
 
 [fbt](./fbt.md) has support for building applications as FAP files. FAP are essentially .elf executables with extra metadata and resources bundled in.
 
-FAPs are built with `firmware_extapps` (or `plugin_dist`) **`fbt`** targets.
+FAPs are built with `faps` **`fbt`** target. They can also be deployed to `dist` folder with `plugin_dist` **`fbt`** target.
 
 FAPs do not depend on being run on a specific firmware version. Compatibility is determined by the FAP's metadata, which includes the required [API version](#api-versioning).
 
@@ -16,6 +16,17 @@ To build your application as a FAP, just create a folder with your app's source 
  * To build your application, run `./fbt firmware_{APPID}`, where APPID is your application's ID in its manifest.
  * To build your app, then upload it over USB & run it on Flipper, use `./fbt launch_app APPSRC=applications/path/to/app`. This command is configured in default [VSCode profile](../.vscode/ReadMe.md) as "Launch App on Flipper" build action (Ctrl+Shift+B menu).
  * To build all FAPs, run `./fbt plugin_dist`.
+
+
+## FAP assets
+
+FAPs can include static and animated images as private assets. They will be automatically compiled alongside application sources and can be referenced the same way as assets from the main firmware.
+
+To use that feature, put your images in a subfolder inside your application's folder, then reference that folder in your application's manifest in `fap_icon_assets` field. See [Application Manifests](./AppManifests.md#application-definition) for more details.
+
+To use these assets in your application, put `#include "{APPID}_icons.h"` in your application's source code, where `{APPID}` is the `appid` value field from your application's manifest. Then you can use all icons from your application's assets the same way as if they were a part of `assets_icons.h` of the main firmware.
+
+Images and animated icons must follow the same [naming convention](../assets/ReadMe.md#asset-naming-rules) as those from the main firmware.
 
 
 ## Debugging FAPs
@@ -53,13 +64,13 @@ App loader allocates memory for the application and copies it to RAM, processing
 
 Not all parts of firmware are available for external applications. A subset of available functions and variables is defined in "api_symbols.csv" file, which is a part of firmware target definition in `firmware/targets/` directory. 
 
-**`fbt`** uses semantic versioning for API versioning. Major version is incremented when there are breaking changes in the API, minor version is incremented when there are new features added. 
+**`fbt`** uses semantic versioning for API. Major version is incremented when there are breaking changes in the API, minor version is incremented when new features are added. 
 
 Breaking changes include:
 - removal of a function or a global variable;
 - changing the signature of a function.
 
-API versioning is mostly automated by **`fbt`**. When rebuilding the firmware, **`fbt`** checks if there are any changes in the API exposed by headers gathered from `SDK_HEADERS`. If there are, it stops the build, adjusts the API version and asks the user to go through the changes in .csv file. New entries are marked with "`?`" mark, and the user is supposed to change the mark to "`+`" for the entry to be exposed for FAPs, "`-`" for it to be unavailable.
+API versioning is mostly automated by **`fbt`**. When rebuilding the firmware, **`fbt`** checks if there are any changes in the API exposed by headers gathered from `SDK_HEADERS`. If so, it stops the build, adjusts the API version and asks the user to go through the changes in .csv file. New entries are marked with "`?`" mark, and the user is supposed to change the mark to "`+`" for the entry to be exposed for FAPs, "`-`" for it to be unavailable.
 
 **`fbt`** will not allow building a firmware until all "`?`" entries are changed to "`+`" or "`-`".
 

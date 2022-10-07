@@ -4,8 +4,8 @@ void lfrfid_scene_raw_info_on_enter(void* context) {
     LfRfid* app = context;
     Widget* widget = app->widget;
 
-    // string_t tmp_string;
-    // string_init(tmp_string);
+    // FuriString* tmp_string;
+    // tmp_string = furi_string_alloc();
 
     bool sd_exist = storage_sd_status(app->storage) == FSE_OK;
     if(!sd_exist) {
@@ -34,7 +34,7 @@ void lfrfid_scene_raw_info_on_enter(void* context) {
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
-    //string_clear(tmp_string);
+    //furi_string_free(tmp_string);
 }
 
 bool lfrfid_scene_raw_info_on_event(void* context, SceneManagerEvent event) {

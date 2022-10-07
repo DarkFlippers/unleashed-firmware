@@ -2,7 +2,6 @@
 #include "../bad_usb_app_i.h"
 #include "../views/bad_usb_view.h"
 #include "furi_hal.h"
-#include "m-string.h"
 #include "toolbox/path.h"
 
 void bad_usb_scene_work_button_callback(InputKey key, void* context) {
@@ -32,17 +31,17 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 void bad_usb_scene_work_on_enter(void* context) {
     BadUsbApp* app = context;
 
-    string_t file_name;
-    string_init(file_name);
+    FuriString* file_name;
+    file_name = furi_string_alloc();
     path_extract_filename(app->file_path, file_name, true);
-    bad_usb_set_file_name(app->bad_usb_view, string_get_cstr(file_name));
-    string_clear(file_name);
+    bad_usb_set_file_name(app->bad_usb_view, furi_string_get_cstr(file_name));
+    furi_string_free(file_name);
 
-    string_t layout;
-    string_init(layout);
+    FuriString* layout;
+    layout = furi_string_alloc();
     path_extract_filename(app->keyboard_layout, layout, true);
-    bad_usb_set_layout(app->bad_usb_view, string_get_cstr(layout));
-    string_clear(layout);
+    bad_usb_set_layout(app->bad_usb_view, furi_string_get_cstr(layout));
+    furi_string_free(layout);
 
     bad_usb_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
 

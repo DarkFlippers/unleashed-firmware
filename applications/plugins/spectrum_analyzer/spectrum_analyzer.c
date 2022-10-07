@@ -326,7 +326,7 @@ void spectrum_analyzer_calculate_frequencies(SpectrumAnalyzerModel* model) {
     model->max_rssi = -200.0;
     model->max_rssi_dec = 0;
 
-    FURI_LOG_D("Spectrum", "setup_frequencies - max_hz: %u - min_hz: %u", max_hz, min_hz);
+    FURI_LOG_D("Spectrum", "setup_frequencies - max_hz: %lu - min_hz: %lu", max_hz, min_hz);
     FURI_LOG_D("Spectrum", "center_freq: %u", model->center_freq);
     FURI_LOG_D(
         "Spectrum",
@@ -450,7 +450,7 @@ int32_t spectrum_analyzer_app(void* p) {
             break;
         case InputKeyRight:
             model->center_freq += hstep;
-            FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
+            FURI_LOG_D("Spectrum", "center_freq: %u", model->center_freq);
             spectrum_analyzer_calculate_frequencies(model);
             spectrum_analyzer_worker_set_frequencies(
                 spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
@@ -460,7 +460,7 @@ int32_t spectrum_analyzer_app(void* p) {
             spectrum_analyzer_calculate_frequencies(model);
             spectrum_analyzer_worker_set_frequencies(
                 spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
-            FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
+            FURI_LOG_D("Spectrum", "center_freq: %u", model->center_freq);
             break;
         case InputKeyOk: {
             switch(model->width) {

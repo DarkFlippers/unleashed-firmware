@@ -53,8 +53,8 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
     app->text_box = text_box_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, WifiMarauderAppViewConsoleOutput, text_box_get_view(app->text_box));
-    string_init(app->text_box_store);
-    string_reserve(app->text_box_store, WIFI_MARAUDER_TEXT_BOX_STORE_SIZE);
+    app->text_box_store = furi_string_alloc();
+    furi_string_reserve(app->text_box_store, WIFI_MARAUDER_TEXT_BOX_STORE_SIZE);
 
     app->text_input = text_input_alloc();
     view_dispatcher_add_view(
@@ -73,7 +73,7 @@ void wifi_marauder_app_free(WifiMarauderApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, WifiMarauderAppViewConsoleOutput);
     view_dispatcher_remove_view(app->view_dispatcher, WifiMarauderAppViewTextInput);
     text_box_free(app->text_box);
-    string_clear(app->text_box_store);
+    furi_string_free(app->text_box_store);
     text_input_free(app->text_input);
 
     // View dispatcher

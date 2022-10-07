@@ -13,9 +13,11 @@ ADD_SCENE(subghz, saved_menu, SavedMenu)
 ADD_SCENE(subghz, delete, Delete)
 ADD_SCENE(subghz, delete_success, DeleteSuccess)
 ADD_SCENE(subghz, test, Test)
-ADD_SCENE(subghz, test_static, TestStatic)
 ADD_SCENE(subghz, test_carrier, TestCarrier)
+#if FURI_DEBUG
+ADD_SCENE(subghz, test_static, TestStatic)
 ADD_SCENE(subghz, test_packet, TestPacket)
+#endif
 ADD_SCENE(subghz, set_type, SetType)
 ADD_SCENE(subghz, set_fix_faac_868, SetFixFaac868)
 ADD_SCENE(subghz, set_cnt_faac_868, SetCntFaac868)

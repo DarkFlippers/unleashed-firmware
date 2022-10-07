@@ -40,13 +40,32 @@ static const NotificationSequence sequence_saved = {
     &message_vibro_off,
     NULL,
 };
-static const NotificationSequence sequence_not_saved = {
-    &message_blink_stop,
+
+static const NotificationSequence sequence_frequency = {
+    &message_display_backlight_on,
     &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
     &message_blue_255,
-    &message_red_255,
+    &message_vibro_off,
+    &message_delay_100,
+    &message_blue_0,
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_vibro_off,
     NULL,
 };
+
+//static const NotificationSequence sequence_not_saved = {
+//    &message_blink_stop,
+//    &message_green_255,
+//    &message_blue_255,
+//    &message_red_255,
+//    NULL,
+//};
 
 static const uint32_t subghz_frequency_list[] = {
     300000000, 302757000, 303875000, 304250000, 307000000, 307500000, 307800000,
@@ -194,8 +213,8 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t prev_freq = 0;
     uint32_t current = 0;
     uint32_t result = 0;
-#if FURI_DEBUG
-    FURI_LOG_D(TAG, "input: %d", input);
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "input: %ld", input);
 #endif
     for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
         current = subghz_frequency_list[i];
@@ -255,7 +274,8 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         need_redraw = true;
     }
 
-    if(event->type == InputTypeShort && event->key == InputKeyOk) {
+    if(event->key == InputKeyOk) {
+        bool updated = false;
         with_view_model(
             instance->view, (SubGhzFrequencyAnalyzerModel * model) {
                 uint32_t prev_freq_to_save = model->frequency_to_save;
@@ -273,23 +293,48 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     frequency_candidate = subghz_frequency_find_correct(frequency_candidate);
                 }
                 if(frequency_candidate > 0 && frequency_candidate != model->frequency_to_save) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
                     FURI_LOG_D(
                         TAG,
-                        "frequency_to_save: %d, candidate: %d",
+                        "frequency_to_save: %ld, candidate: %ld",
                         model->frequency_to_save,
                         frequency_candidate);
 #endif
                     model->frequency_to_save = frequency_candidate;
                     notification_message(instance->notifications, &sequence_saved);
-                    instance->callback(SubGhzCustomEventViewReceiverOK, instance->context);
                     notification_message(instance->notifications, &sequence_hw_blink);
-                } else {
-                    notification_message(instance->notifications, &sequence_not_saved);
-                    notification_message(instance->notifications, &sequence_hw_blink);
+                    updated = true;
                 }
                 return true;
             });
+
+#ifdef FURI_DEBUG
+        FURI_LOG_I(
+            TAG,
+            "updated: %d, long: %d, type: %d",
+            updated,
+            (event->type == InputTypeLong),
+            event->type);
+#endif
+
+        if(updated) {
+            instance->callback(SubGhzCustomEventViewReceiverOK, instance->context);
+        }
+
+        // First device receive short, then when user release button we get long
+        if(event->type == InputTypeLong) {
+#ifdef FURI_DEBUG
+            FURI_LOG_I(TAG, "Longpress!");
+#endif
+            // Stop blinking
+            notification_message(instance->notifications, &sequence_hw_blink_stop);
+
+            // Stop worker
+            if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
+                subghz_frequency_analyzer_worker_stop(instance->worker);
+            }
+            instance->callback(SubGhzCustomEventViewReceiverUnlock, instance->context);
+        }
     }
 
     if(need_redraw) {
@@ -331,7 +376,7 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
 
     if((rssi != 0.f) && (frequency != 0)) {
         // Threre is some signal
-        FURI_LOG_I(TAG, "rssi = %.2f, frequency = %d Hz", (double)rssi, frequency);
+        FURI_LOG_I(TAG, "rssi = %.2f, frequency = %ld Hz", (double)rssi, frequency);
         frequency = round_int(frequency, 3); // Round 299999990Hz to 300000000Hz
         if(!instance->locked) {
             // Triggered!
@@ -340,12 +385,13 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
 
             switch(instance->feedback_level) {
             case 1: // 1 - only vibro
-                notification_message(instance->notifications, &sequence_single_vibro);
+                notification_message(instance->notifications, &sequence_frequency);
                 break;
             case 2: // 2 - vibro and beep
                 notification_message(instance->notifications, &sequence_success);
                 break;
             default: // 0 - no feedback
+                notification_message(instance->notifications, &sequence_display_backlight_on);
                 break;
             }
 

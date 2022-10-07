@@ -19,19 +19,19 @@ void nfc_scene_mf_classic_keys_list_popup_callback(void* context) {
 void nfc_scene_mf_classic_keys_list_prepare(Nfc* nfc, MfClassicDict* dict) {
     Submenu* submenu = nfc->submenu;
     uint32_t index = 0;
-    string_t temp_key;
-    string_init(temp_key);
+    FuriString* temp_key;
+    temp_key = furi_string_alloc();
 
     submenu_set_header(submenu, "Select key to delete:");
     while(mf_classic_dict_get_next_key_str(dict, temp_key)) {
         char* current_key = (char*)malloc(sizeof(char) * 13);
-        strncpy(current_key, string_get_cstr(temp_key), 12);
+        strncpy(current_key, furi_string_get_cstr(temp_key), 12);
         MfClassicUserKeys_push_back(nfc->mfc_key_strs, current_key);
-        FURI_LOG_D("ListKeys", "Key %d: %s", index, current_key);
+        FURI_LOG_D("ListKeys", "Key %ld: %s", index, current_key);
         submenu_add_item(
             submenu, current_key, index++, nfc_scene_mf_classic_keys_list_submenu_callback, nfc);
     }
-    string_clear(temp_key);
+    furi_string_free(temp_key);
 }
 
 void nfc_scene_mf_classic_keys_list_on_enter(void* context) {

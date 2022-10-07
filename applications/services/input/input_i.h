@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <furi.h>
 #include <cli/cli.h>
-#include <m-string.h>
 #include <furi_hal_gpio.h>
 
 #define INPUT_DEBOUNCE_TICKS_HALF (INPUT_DEBOUNCE_TICKS / 2)
@@ -46,4 +45,4 @@ void input_press_timer_callback(void* arg);
 void input_isr(void* _ctx);
 
 /** Input CLI command handler */
-void input_cli(Cli* cli, string_t args, void* context);
+void input_cli(Cli* cli, FuriString* args, void* context);

@@ -1,6 +1,5 @@
 #include "faac_slh.h"
 #include "../subghz_keystore.h"
-#include <m-string.h>
 #include <m-array.h>
 #include "keeloq_common.h"
 #include "../blocks/const.h"
@@ -131,7 +130,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     }
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
-            res = strcmp(string_get_cstr(manufacture_code->name), instance->manufacture_name);
+            res = strcmp(furi_string_get_cstr(manufacture_code->name), instance->manufacture_name);
             if(res == 0) {
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_FAAC:
@@ -409,7 +408,7 @@ static void subghz_protocol_faac_slh_check_remote_controller(
                 man = subghz_protocol_keeloq_common_faac_learning(
                     instance->seed, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
-                *manufacture_name = string_get_cstr(manufacture_code->name);
+                *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                 break;
             }
         }
@@ -483,7 +482,7 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
     return res;
 }
 
-void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
     subghz_protocol_faac_slh_check_remote_controller(
@@ -491,12 +490,12 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output)
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:%lX%08lX\r\n"
-        "Fix:%08lX    Cnt:%05X\r\n"
-        "Hop:%08lX    Btn:%lX\r\n"
+        "Fix:%08lX    Cnt:%05lX\r\n"
+        "Hop:%08lX    Btn:%X\r\n"
         "Sn:%07lX Sd:%08lX",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

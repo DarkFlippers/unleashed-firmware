@@ -1,10 +1,8 @@
 #include <furi.h>
-#include <m-string.h>
 #include <gui/gui.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <gui/elements.h>
-#include <stream_buffer.h>
 #include <furi_hal_uart.h>
 #include <furi_hal_console.h>
 #include <gui/view_dispatcher.h>
@@ -21,11 +19,11 @@ typedef struct {
     ViewDispatcher* view_dispatcher;
     View* view;
     FuriThread* worker_thread;
-    StreamBufferHandle_t rx_stream;
+    FuriStreamBuffer* rx_stream;
 } UartEchoApp;
 
 typedef struct {
-    string_t text;
+    FuriString* text;
 } ListElement;
 
 struct UartDumpModel {
@@ -64,10 +62,11 @@ static void uart_echo_view_draw_callback(Canvas* canvas, void* _model) {
             canvas,
             0,
             (i + 1) * (canvas_current_font_height(canvas) - 1),
-            string_get_cstr(model->list[i]->text));
+            furi_string_get_cstr(model->list[i]->text));
 
         if(i == model->line) {
-            uint8_t width = canvas_string_width(canvas, string_get_cstr(model->list[i]->text));
+            uint8_t width =
+                canvas_string_width(canvas, furi_string_get_cstr(model->list[i]->text));
 
             canvas_draw_box(
                 canvas,
@@ -92,13 +91,11 @@ static uint32_t uart_echo_exit(void* context) {
 
 static void uart_echo_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
     furi_assert(context);
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     UartEchoApp* app = context;
 
     if(ev == UartIrqEventRXNE) {
-        xStreamBufferSendFromISR(app->rx_stream, &data, 1, &xHigherPriorityTaskWoken);
+        furi_stream_buffer_send(app->rx_stream, &data, 1, 0);
         furi_thread_flags_set(furi_thread_get_id(app->worker_thread), WorkerEventRx);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 
@@ -113,7 +110,7 @@ static void uart_echo_push_to_list(UartDumpModel* model, const char data) {
         model->escape = true;
     } else if((data >= ' ' && data <= '~') || (data == '\n' || data == '\r')) {
         bool new_string_needed = false;
-        if(string_size(model->list[model->line]->text) >= COLUMNS_ON_SCREEN) {
+        if(furi_string_size(model->list[model->line]->text) >= COLUMNS_ON_SCREEN) {
             new_string_needed = true;
         } else if((data == '\n' || data == '\r')) {
             // pack line breaks
@@ -132,13 +129,13 @@ static void uart_echo_push_to_list(UartDumpModel* model, const char data) {
                     model->list[i - 1] = model->list[i];
                 }
 
-                string_reset(first->text);
+                furi_string_reset(first->text);
                 model->list[model->line] = first;
             }
         }
 
         if(data != '\n' && data != '\r') {
-            string_push_back(model->list[model->line]->text, data);
+            furi_string_push_back(model->list[model->line]->text, data);
         }
     }
     model->last_char = data;
@@ -158,7 +155,7 @@ static int32_t uart_echo_worker(void* context) {
             size_t length = 0;
             do {
                 uint8_t data[64];
-                length = xStreamBufferReceive(app->rx_stream, data, 64, 0);
+                length = furi_stream_buffer_receive(app->rx_stream, data, 64, 0);
                 if(length > 0) {
                     furi_hal_uart_tx(FuriHalUartIdUSART1, data, length);
                     with_view_model(
@@ -186,7 +183,7 @@ static int32_t uart_echo_worker(void* context) {
 static UartEchoApp* uart_echo_app_alloc() {
     UartEchoApp* app = malloc(sizeof(UartEchoApp));
 
-    app->rx_stream = xStreamBufferCreate(2048, 1);
+    app->rx_stream = furi_stream_buffer_alloc(2048, 1);
 
     // Gui
     app->gui = furi_record_open(RECORD_GUI);
@@ -208,7 +205,7 @@ static UartEchoApp* uart_echo_app_alloc() {
                 model->line = 0;
                 model->escape = false;
                 model->list[i] = malloc(sizeof(ListElement));
-                string_init(model->list[i]->text);
+                model->list[i]->text = furi_string_alloc();
             }
             return true;
         });
@@ -247,7 +244,7 @@ static void uart_echo_app_free(UartEchoApp* app) {
     with_view_model(
         app->view, (UartDumpModel * model) {
             for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
-                string_clear(model->list[i]->text);
+                furi_string_free(model->list[i]->text);
                 free(model->list[i]);
             }
             return true;
@@ -260,7 +257,7 @@ static void uart_echo_app_free(UartEchoApp* app) {
     furi_record_close(RECORD_NOTIFICATION);
     app->gui = NULL;
 
-    vStreamBufferDelete(app->rx_stream);
+    furi_stream_buffer_free(app->rx_stream);
 
     // Free rest
     free(app);

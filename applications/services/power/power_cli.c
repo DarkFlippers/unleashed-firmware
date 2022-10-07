@@ -5,7 +5,7 @@
 #include <lib/toolbox/args.h>
 #include <power/power_service/power.h>
 
-void power_cli_off(Cli* cli, string_t args) {
+void power_cli_off(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
     Power* power = furi_record_open(RECORD_POWER);
@@ -14,13 +14,13 @@ void power_cli_off(Cli* cli, string_t args) {
     power_off(power);
 }
 
-void power_cli_reboot(Cli* cli, string_t args) {
+void power_cli_reboot(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
     power_reboot(PowerBootModeNormal);
 }
 
-void power_cli_reboot2dfu(Cli* cli, string_t args) {
+void power_cli_reboot2dfu(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
     power_reboot(PowerBootModeDfu);
@@ -32,37 +32,37 @@ static void power_cli_info_callback(const char* key, const char* value, bool las
     printf("%-24s: %s\r\n", key, value);
 }
 
-void power_cli_info(Cli* cli, string_t args) {
+void power_cli_info(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
     furi_hal_power_info_get(power_cli_info_callback, NULL);
 }
 
-void power_cli_debug(Cli* cli, string_t args) {
+void power_cli_debug(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
     furi_hal_power_dump_state();
 }
 
-void power_cli_5v(Cli* cli, string_t args) {
+void power_cli_5v(Cli* cli, FuriString* args) {
     UNUSED(cli);
-    if(!string_cmp(args, "0")) {
+    if(!furi_string_cmp(args, "0")) {
         furi_hal_power_disable_otg();
-    } else if(!string_cmp(args, "1")) {
+    } else if(!furi_string_cmp(args, "1")) {
         furi_hal_power_enable_otg();
     } else {
-        cli_print_usage("power_otg", "<1|0>", string_get_cstr(args));
+        cli_print_usage("power_otg", "<1|0>", furi_string_get_cstr(args));
     }
 }
 
-void power_cli_3v3(Cli* cli, string_t args) {
+void power_cli_3v3(Cli* cli, FuriString* args) {
     UNUSED(cli);
-    if(!string_cmp(args, "0")) {
+    if(!furi_string_cmp(args, "0")) {
         furi_hal_power_disable_external_3_3v();
-    } else if(!string_cmp(args, "1")) {
+    } else if(!furi_string_cmp(args, "1")) {
         furi_hal_power_enable_external_3_3v();
     } else {
-        cli_print_usage("power_ext", "<1|0>", string_get_cstr(args));
+        cli_print_usage("power_ext", "<1|0>", furi_string_get_cstr(args));
     }
 }
 
@@ -82,10 +82,10 @@ static void power_cli_command_print_usage() {
     }
 }
 
-void power_cli(Cli* cli, string_t args, void* context) {
+void power_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    string_t cmd;
-    string_init(cmd);
+    FuriString* cmd;
+    cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
@@ -93,38 +93,38 @@ void power_cli(Cli* cli, string_t args, void* context) {
             break;
         }
 
-        if(string_cmp_str(cmd, "off") == 0) {
+        if(furi_string_cmp_str(cmd, "off") == 0) {
             power_cli_off(cli, args);
             break;
         }
 
-        if(string_cmp_str(cmd, "reboot") == 0) {
+        if(furi_string_cmp_str(cmd, "reboot") == 0) {
             power_cli_reboot(cli, args);
             break;
         }
 
-        if(string_cmp_str(cmd, "reboot2dfu") == 0) {
+        if(furi_string_cmp_str(cmd, "reboot2dfu") == 0) {
             power_cli_reboot2dfu(cli, args);
             break;
         }
 
-        if(string_cmp_str(cmd, "info") == 0) {
+        if(furi_string_cmp_str(cmd, "info") == 0) {
             power_cli_info(cli, args);
             break;
         }
 
-        if(string_cmp_str(cmd, "debug") == 0) {
+        if(furi_string_cmp_str(cmd, "debug") == 0) {
             power_cli_debug(cli, args);
             break;
         }
 
-        if(string_cmp_str(cmd, "5v") == 0) {
+        if(furi_string_cmp_str(cmd, "5v") == 0) {
             power_cli_5v(cli, args);
             break;
         }
 
         if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-            if(string_cmp_str(cmd, "3v3") == 0) {
+            if(furi_string_cmp_str(cmd, "3v3") == 0) {
                 power_cli_3v3(cli, args);
                 break;
             }
@@ -133,7 +133,7 @@ void power_cli(Cli* cli, string_t args, void* context) {
         power_cli_command_print_usage();
     } while(false);
 
-    string_clear(cmd);
+    furi_string_free(cmd);
 }
 
 void power_on_system_start() {

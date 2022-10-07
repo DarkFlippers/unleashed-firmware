@@ -351,41 +351,39 @@ bool subbrute_device_create_packet_parsed(
     bool small) {
     furi_assert(instance);
 
-    string_t candidate;
-    string_init(candidate);
+    FuriString* candidate = furi_string_alloc();
 
     if(instance->attack == SubBruteAttackLoadFile) {
         if(step >= sizeof(instance->file_key)) {
             return false;
         }
         char subbrute_payload_byte[4];
-        string_set_str(candidate, instance->file_key);
+        furi_string_set_str(candidate, instance->file_key);
         snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
-        string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
+        furi_string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
         //snprintf(step_payload, sizeof(step_payload), "%02X", (uint8_t)instance->file_key[step]);
     } else {
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
         //snprintf(step_payload, sizeof(step_payload), "%016llX", step);
-        string_t buffer;
-        string_init(buffer);
-        string_init_printf(buffer, "%16X", step);
+        FuriString* buffer = furi_string_alloc();
+        furi_string_printf(buffer, "%16llX", step);
         int j = 0;
-        string_set_str(candidate, "                       ");
+        furi_string_set_str(candidate, "                       ");
         for(uint8_t i = 0; i < 16; i++) {
-            if(string_get_char(buffer, i) != ' ') {
-                string_set_char(candidate, i + j, string_get_char(buffer, i));
+            if(furi_string_get_char(buffer, i) != ' ') {
+                furi_string_set_char(candidate, i + j, furi_string_get_char(buffer, i));
             } else {
-                string_set_char(candidate, i + j, '0');
+                furi_string_set_char(candidate, i + j, '0');
             }
             if(i % 2 != 0) {
                 j++;
             }
         }
-        string_clear(buffer);
+        furi_string_free(buffer);
     }
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "candidate: %s, step: %d", string_get_cstr(candidate), step);
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
 
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
@@ -397,7 +395,7 @@ bool subbrute_device_create_packet_parsed(
                 stream,
                 subbrute_key_small_with_tail,
                 instance->protocol_info->bits,
-                string_get_cstr(candidate),
+                furi_string_get_cstr(candidate),
                 instance->protocol_info->te,
                 instance->protocol_info->repeat);
         } else {
@@ -414,7 +412,7 @@ bool subbrute_device_create_packet_parsed(
                 stream,
                 subbrute_key_file_key_with_tail,
                 instance->file_template,
-                string_get_cstr(candidate),
+                furi_string_get_cstr(candidate),
                 instance->protocol_info->te,
                 instance->protocol_info->repeat);
         } else {
@@ -430,7 +428,7 @@ bool subbrute_device_create_packet_parsed(
     //FURI_LOG_D(TAG, "payload: %s", instance->payload);
 #endif
 
-    string_clear(candidate);
+    furi_string_free(candidate);
 
     return true;
 }
@@ -477,15 +475,15 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
 
     // Calc max value
     if(instance->attack == SubBruteAttackLoadFile) {
-        instance->max_value = 0xFF;
+        instance->max_value = 0x3F;
     } else {
-        string_t max_value_s;
-        string_init(max_value_s);
+        FuriString* max_value_s;
+        max_value_s = furi_string_alloc();
         for(uint8_t i = 0; i < instance->protocol_info->bits; i++) {
-            string_cat_printf(max_value_s, "1");
+            furi_string_cat_printf(max_value_s, "1");
         }
-        instance->max_value = (uint64_t)strtol(string_get_cstr(max_value_s), NULL, 2);
-        string_clear(max_value_s);
+        instance->max_value = (uint64_t)strtol(furi_string_get_cstr(max_value_s), NULL, 2);
+        furi_string_free(max_value_s);
     }
 
     // Now we are ready to set file template for using in the future with snprintf
@@ -514,18 +512,18 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     return SubBruteFileResultOk;
 }
 
-uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_path) {
+uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* file_path) {
     furi_assert(instance);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", string_get_cstr(file_path));
+    FURI_LOG_D(TAG, "subbrute_device_load_from_file: %s", furi_string_get_cstr(file_path));
 #endif
     SubBruteFileResult result = SubBruteFileResultUnknown;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
-    string_t temp_str;
-    string_init(temp_str);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
     uint32_t temp_data32;
 
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
@@ -533,8 +531,8 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
     furi_hal_subghz_reset();
 
     do {
-        if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_path))) {
-            FURI_LOG_E(TAG, "Error open file %s", string_get_cstr(file_path));
+        if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_path))) {
+            FURI_LOG_E(TAG, "Error open file %s", furi_string_get_cstr(file_path));
             result = SubBruteFileResultErrorOpenFile;
             break;
         }
@@ -618,7 +616,10 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
             break;
         } else {
             snprintf(
-                instance->file_key, sizeof(instance->file_key), "%s", string_get_cstr(temp_str));
+                instance->file_key,
+                sizeof(instance->file_key),
+                "%s",
+                furi_string_get_cstr(temp_str));
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "Key: %s", instance->file_key);
 #endif
@@ -636,7 +637,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
         // Repeat
         if(flipper_format_read_uint32(fff_data_file, "Repeat", &temp_data32, 1)) {
 #ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "Repeat: %d", temp_data32);
+            FURI_LOG_D(TAG, "Repeat: %ld", temp_data32);
 #endif
             instance->protocol_info->repeat = (uint8_t)temp_data32;
         } else {
@@ -649,7 +650,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, string_t file_p
         result = SubBruteFileResultOk;
     } while(0);
 
-    string_clear(temp_str);
+    furi_string_free(temp_str);
     flipper_format_file_close(fff_data_file);
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);

@@ -192,10 +192,10 @@ bool protocol_hid_ex_generic_write_data(ProtocolHIDEx* protocol, void* data) {
     return result;
 };
 
-void protocol_hid_ex_generic_render_data(ProtocolHIDEx* protocol, string_t result) {
+void protocol_hid_ex_generic_render_data(ProtocolHIDEx* protocol, FuriString* result) {
     // TODO: parser and render functions
     UNUSED(protocol);
-    string_printf(result, "Generic HID Extended\r\nData: Unknown");
+    furi_string_printf(result, "Generic HID Extended\r\nData: Unknown");
 };
 
 const ProtocolBase protocol_hid_ex_generic = {

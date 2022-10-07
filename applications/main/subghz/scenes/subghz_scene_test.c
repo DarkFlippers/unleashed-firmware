@@ -20,11 +20,12 @@ void subghz_scene_test_on_enter(void* context) {
         SubmenuIndexCarrier,
         subghz_scene_test_submenu_callback,
         subghz);
+#if FURI_DEBUG
     submenu_add_item(
         subghz->submenu, "Packet", SubmenuIndexPacket, subghz_scene_test_submenu_callback, subghz);
     submenu_add_item(
         subghz->submenu, "Static", SubmenuIndexStatic, subghz_scene_test_submenu_callback, subghz);
-
+#endif
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneTest));
 
@@ -40,7 +41,9 @@ bool subghz_scene_test_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneTest, SubmenuIndexCarrier);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTestCarrier);
             return true;
-        } else if(event.event == SubmenuIndexPacket) {
+        }
+#if FURI_DEBUG
+        else if(event.event == SubmenuIndexPacket) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneTest, SubmenuIndexPacket);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTestPacket);
@@ -51,6 +54,7 @@ bool subghz_scene_test_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTestStatic);
             return true;
         }
+#endif
     }
     return false;
 }

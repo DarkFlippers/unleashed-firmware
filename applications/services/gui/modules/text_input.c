@@ -27,7 +27,7 @@ typedef struct {
 
     TextInputValidatorCallback validator_callback;
     void* validator_callback_context;
-    string_t validator_text;
+    FuriString* validator_text;
     bool valadator_message_visible;
 } TextInputModel;
 
@@ -232,7 +232,8 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
                     canvas_set_color(canvas, ColorBlack);
                 }
 
-                if(text_length == 0 && char_is_lowercase(keys[column].text)) {
+                if(model->clear_default_text ||
+                   (text_length == 0 && char_is_lowercase(keys[column].text))) {
                     canvas_draw_glyph(
                         canvas,
                         keyboard_origin_x + keys[column].x,
@@ -256,7 +257,7 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_icon(canvas, 10, 14, &I_WarningDolphin_45x42);
         canvas_draw_rframe(canvas, 8, 8, 112, 50, 3);
         canvas_draw_rframe(canvas, 9, 9, 110, 48, 2);
-        elements_multiline_text(canvas, 62, 20, string_get_cstr(model->validator_text));
+        elements_multiline_text(canvas, 62, 20, furi_string_get_cstr(model->validator_text));
         canvas_set_font(canvas, FontKeyboard);
     }
 }
@@ -446,7 +447,7 @@ TextInput* text_input_alloc() {
 
     with_view_model(
         text_input->view, (TextInputModel * model) {
-            string_init(model->validator_text);
+            model->validator_text = furi_string_alloc();
             return false;
         });
 
@@ -459,7 +460,7 @@ void text_input_free(TextInput* text_input) {
     furi_assert(text_input);
     with_view_model(
         text_input->view, (TextInputModel * model) {
-            string_clear(model->validator_text);
+            furi_string_free(model->validator_text);
             return false;
         });
 
@@ -488,7 +489,7 @@ void text_input_reset(TextInput* text_input) {
             model->callback_context = NULL;
             model->validator_callback = NULL;
             model->validator_callback_context = NULL;
-            string_reset(model->validator_text);
+            furi_string_reset(model->validator_text);
             model->valadator_message_visible = false;
             return true;
         });

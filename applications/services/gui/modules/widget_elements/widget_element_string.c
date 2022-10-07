@@ -1,5 +1,4 @@
 #include "widget_element_i.h"
-#include <m-string.h>
 
 typedef struct {
     uint8_t x;
@@ -7,7 +6,7 @@ typedef struct {
     Align horizontal;
     Align vertical;
     Font font;
-    string_t text;
+    FuriString* text;
 } GuiStringModel;
 
 static void gui_string_draw(Canvas* canvas, WidgetElement* element) {
@@ -15,7 +14,7 @@ static void gui_string_draw(Canvas* canvas, WidgetElement* element) {
     furi_assert(element);
     GuiStringModel* model = element->model;
 
-    if(string_size(model->text)) {
+    if(furi_string_size(model->text)) {
         canvas_set_font(canvas, model->font);
         canvas_draw_str_aligned(
             canvas,
@@ -23,7 +22,7 @@ static void gui_string_draw(Canvas* canvas, WidgetElement* element) {
             model->y,
             model->horizontal,
             model->vertical,
-            string_get_cstr(model->text));
+            furi_string_get_cstr(model->text));
     }
 }
 
@@ -31,7 +30,7 @@ static void gui_string_free(WidgetElement* gui_string) {
     furi_assert(gui_string);
 
     GuiStringModel* model = gui_string->model;
-    string_clear(model->text);
+    furi_string_free(model->text);
     free(gui_string->model);
     free(gui_string);
 }
@@ -52,7 +51,7 @@ WidgetElement* widget_element_string_create(
     model->horizontal = horizontal;
     model->vertical = vertical;
     model->font = font;
-    string_init_set_str(model->text, text);
+    model->text = furi_string_alloc_set(text);
 
     // Allocate and init Element
     WidgetElement* gui_string = malloc(sizeof(WidgetElement));

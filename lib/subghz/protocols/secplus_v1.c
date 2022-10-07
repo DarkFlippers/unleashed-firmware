@@ -555,7 +555,7 @@ bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed) {
     return true;
 }
 
-void subghz_protocol_decoder_secplus_v1_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderSecPlus_v1* instance = context;
 
@@ -567,7 +567,7 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, string_t outpu
     uint8_t id1 = (fixed / 9) % 3;
     uint16_t pin = 0;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:0x%lX%08lX\r\n"
@@ -587,9 +587,9 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, string_t outpu
         pin = (fixed / 59049) % 19683;
 
         if(pin <= 9999) {
-            string_cat_printf(output, " pin:%d", pin);
+            furi_string_cat_printf(output, " pin:%d", pin);
         } else if(10000 <= pin && pin <= 11029) {
-            string_cat_printf(output, " pin:enter");
+            furi_string_cat_printf(output, " pin:enter");
         }
 
         int pin_suffix = 0;
@@ -597,16 +597,16 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, string_t outpu
         pin_suffix = (fixed / 1162261467) % 3;
 
         if(pin_suffix == 1) {
-            string_cat_printf(output, " #\r\n");
+            furi_string_cat_printf(output, " #\r\n");
         } else if(pin_suffix == 2) {
-            string_cat_printf(output, " *\r\n");
+            furi_string_cat_printf(output, " *\r\n");
         } else {
-            string_cat_printf(output, "\r\n");
+            furi_string_cat_printf(output, "\r\n");
         }
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "Sn:0x%08lX\r\n"
-            "Cnt:0x%03X\r\n"
+            "Cnt:0x%03lX\r\n"
             "Sw_id:0x%X\r\n",
             instance->generic.serial,
             instance->generic.cnt,
@@ -615,17 +615,17 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, string_t outpu
         //id = fixed / 27;
         instance->generic.serial = fixed / 27;
         if(instance->generic.btn == 1) {
-            string_cat_printf(output, " Btn:left\r\n");
+            furi_string_cat_printf(output, " Btn:left\r\n");
         } else if(instance->generic.btn == 0) {
-            string_cat_printf(output, " Btn:middle\r\n");
+            furi_string_cat_printf(output, " Btn:middle\r\n");
         } else if(instance->generic.btn == 2) {
-            string_cat_printf(output, " Btn:right\r\n");
+            furi_string_cat_printf(output, " Btn:right\r\n");
         }
 
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "Sn:0x%08lX\r\n"
-            "Cnt:0x%03X\r\n"
+            "Cnt:0x%03lX\r\n"
             "Sw_id:0x%X\r\n",
             instance->generic.serial,
             instance->generic.cnt,

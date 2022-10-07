@@ -29,20 +29,20 @@ void infrared_scene_edit_rename_on_enter(void* context) {
         enter_name_length = INFRARED_MAX_REMOTE_NAME_LENGTH;
         strncpy(infrared->text_store[0], infrared_remote_get_name(remote), enter_name_length);
 
-        string_t folder_path;
-        string_init(folder_path);
+        FuriString* folder_path;
+        folder_path = furi_string_alloc();
 
-        if(string_end_with_str_p(infrared->file_path, INFRARED_APP_EXTENSION)) {
-            path_extract_dirname(string_get_cstr(infrared->file_path), folder_path);
+        if(furi_string_end_with(infrared->file_path, INFRARED_APP_EXTENSION)) {
+            path_extract_dirname(furi_string_get_cstr(infrared->file_path), folder_path);
         }
 
         ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-            string_get_cstr(folder_path),
+            furi_string_get_cstr(folder_path),
             INFRARED_APP_EXTENSION,
             infrared_remote_get_name(remote));
         text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
-        string_clear(folder_path);
+        furi_string_free(folder_path);
     } else {
         furi_assert(0);
     }

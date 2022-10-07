@@ -256,7 +256,7 @@ bool subghz_protocol_decoder_kia_deserialize(void* context, FlipperFormat* flipp
     return ret;
 }
 
-void subghz_protocol_decoder_kia_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_kia_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderKIA* instance = context;
 
@@ -264,11 +264,11 @@ void subghz_protocol_decoder_kia_get_string(void* context, string_t output) {
     uint32_t code_found_hi = instance->generic.data >> 32;
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:%08lX%08lX\r\n"
-        "Sn:%07lX Btn:%lX Cnt:%04X\r\n",
+        "Sn:%07lX Btn:%X Cnt:%04lX\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_hi,

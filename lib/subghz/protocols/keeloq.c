@@ -2,7 +2,6 @@
 #include "keeloq_common.h"
 
 #include "../subghz_keystore.h"
-#include <m-string.h>
 #include <m-array.h>
 
 #include "../blocks/const.h"
@@ -156,7 +155,7 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
     } else {
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
-            res = strcmp(string_get_cstr(manufacture_code->name), instance->manufacture_name);
+            res = strcmp(furi_string_get_cstr(manufacture_code->name), instance->manufacture_name);
             if(res == 0) {
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_SIMPLE:
@@ -580,7 +579,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     return 1;
                 }
@@ -591,7 +590,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 man = subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     return 1;
                 }
@@ -601,7 +600,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     fix, instance->seed, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     return 1;
                 }
@@ -611,7 +610,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     fix, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     return 1;
                 }
@@ -621,7 +620,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     fix, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     return 1;
                 }
@@ -630,7 +629,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 1;
                     return 1;
@@ -646,7 +645,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
 
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_rev);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 1;
                     return 1;
@@ -658,7 +657,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 man = subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 2;
                     return 1;
@@ -668,7 +667,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 man = subghz_protocol_keeloq_common_normal_learning(fix, man_rev);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 2;
                     return 1;
@@ -679,7 +678,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     fix, instance->seed, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 3;
                     return 1;
@@ -689,7 +688,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 man = subghz_protocol_keeloq_common_secure_learning(fix, instance->seed, man_rev);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 3;
                     return 1;
@@ -700,7 +699,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     fix, manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 4;
                     return 1;
@@ -710,7 +709,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 man = subghz_protocol_keeloq_common_magic_xor_type1_learning(fix, man_rev);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                    *manufacture_name = string_get_cstr(manufacture_code->name);
+                    *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                     mfname = *manufacture_name;
                     kl_type = 4;
                     return 1;
@@ -724,14 +723,14 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
     } else {
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-            res = strcmp(string_get_cstr(manufacture_code->name), mfname);
+            res = strcmp(furi_string_get_cstr(manufacture_code->name), mfname);
             if(res == 0) {
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_SIMPLE:
                     // Simple Learning
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         return 1;
                     }
@@ -743,7 +742,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         return 1;
                     }
@@ -753,7 +752,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         fix, instance->seed, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         return 1;
                     }
@@ -763,7 +762,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         return 1;
                     }
@@ -773,7 +772,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         return 1;
                     }
@@ -782,7 +781,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     // Simple Learning
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 1;
                         return 1;
@@ -796,7 +795,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     }
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_rev);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 1;
                         return 1;
@@ -808,7 +807,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 2;
                         return 1;
@@ -818,7 +817,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     man = subghz_protocol_keeloq_common_normal_learning(fix, man_rev);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 2;
                         return 1;
@@ -829,7 +828,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         fix, instance->seed, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 3;
                         return 1;
@@ -840,7 +839,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         fix, instance->seed, man_rev);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 3;
                         return 1;
@@ -851,7 +850,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                         fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 4;
                         return 1;
@@ -861,7 +860,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     man = subghz_protocol_keeloq_common_magic_xor_type1_learning(fix, man_rev);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = string_get_cstr(manufacture_code->name);
+                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                         mfname = *manufacture_name;
                         kl_type = 4;
                         return 1;
@@ -966,7 +965,7 @@ bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* fl
     return res;
 }
 
-void subghz_protocol_decoder_keeloq_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
 
@@ -982,12 +981,12 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, string_t output) {
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
     if(strcmp(instance->manufacture_name, "BFT") == 0) {
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
             "Key:%08lX%08lX\r\n"
-            "Fix:0x%08lX    Cnt:%04X\r\n"
-            "Hop:0x%08lX    Btn:%01lX\r\n"
+            "Fix:0x%08lX    Cnt:%04lX\r\n"
+            "Hop:0x%08lX    Btn:%01X\r\n"
             "MF:%s Sd:%08lX",
             instance->generic.protocol_name,
             instance->generic.data_count_bit,
@@ -1000,12 +999,12 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, string_t output) {
             instance->manufacture_name,
             instance->generic.seed);
     } else {
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
             "Key:%08lX%08lX\r\n"
-            "Fix:0x%08lX    Cnt:%04X\r\n"
-            "Hop:0x%08lX    Btn:%01lX\r\n"
+            "Fix:0x%08lX    Cnt:%04lX\r\n"
+            "Hop:0x%08lX    Btn:%01X\r\n"
             "MF:%s",
             instance->generic.protocol_name,
             instance->generic.data_count_bit,

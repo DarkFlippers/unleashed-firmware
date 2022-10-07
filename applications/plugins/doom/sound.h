@@ -1,6 +1,5 @@
 #ifndef sound_h
 #define sound_h
-#include <m-string.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <stdint.h>

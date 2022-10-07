@@ -451,7 +451,7 @@ bool subghz_protocol_decoder_chamb_code_deserialize(void* context, FlipperFormat
     return ret;
 }
 
-void subghz_protocol_decoder_chamb_code_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_chamb_code_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderChamb_Code* instance = context;
 
@@ -462,7 +462,7 @@ void subghz_protocol_decoder_chamb_code_get_string(void* context, string_t outpu
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
-    string_cat_printf(
+    furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:0x%03lX\r\n"
@@ -474,19 +474,19 @@ void subghz_protocol_decoder_chamb_code_get_string(void* context, string_t outpu
 
     switch(instance->generic.data_count_bit) {
     case 7:
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "DIP:" CHAMBERLAIN_7_CODE_DIP_PATTERN "\r\n",
             CHAMBERLAIN_7_CODE_DATA_TO_DIP(code_found_lo));
         break;
     case 8:
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "DIP:" CHAMBERLAIN_8_CODE_DIP_PATTERN "\r\n",
             CHAMBERLAIN_8_CODE_DATA_TO_DIP(code_found_lo));
         break;
     case 9:
-        string_cat_printf(
+        furi_string_cat_printf(
             output,
             "DIP:" CHAMBERLAIN_9_CODE_DIP_PATTERN "\r\n",
             CHAMBERLAIN_9_CODE_DATA_TO_DIP(code_found_lo));

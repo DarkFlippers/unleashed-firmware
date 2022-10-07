@@ -5,7 +5,7 @@
 #include <core/common_defines.h>
 #include <core/log.h>
 #include "gui/modules/file_browser_worker.h"
-#include "m-string.h"
+#include <fap_loader/fap_loader_app.h>
 #include <math.h>
 
 static void
@@ -19,7 +19,7 @@ static void
 
     if((item_cnt == 0) && (archive_is_home(browser)) && (tab != ArchiveTabBrowser)) {
         archive_switch_tab(browser, browser->last_tab_switch_dir);
-    } else if(!string_start_with_str_p(browser->path, "/app:")) {
+    } else if(!furi_string_start_with_str(browser->path, "/app:")) {
         with_view_model(
             browser->view, (ArchiveBrowserViewModel * model) {
                 files_array_reset(model->files);
@@ -51,12 +51,13 @@ static void archive_list_load_cb(void* context, uint32_t list_load_offset) {
         });
 }
 
-static void archive_list_item_cb(void* context, string_t item_path, bool is_folder, bool is_last) {
+static void
+    archive_list_item_cb(void* context, FuriString* item_path, bool is_folder, bool is_last) {
     furi_assert(context);
     ArchiveBrowserView* browser = (ArchiveBrowserView*)context;
 
     if(!is_last) {
-        archive_add_file_item(browser, is_folder, string_get_cstr(item_path));
+        archive_add_file_item(browser, is_folder, furi_string_get_cstr(item_path));
     } else {
         with_view_model(
             browser->view, (ArchiveBrowserViewModel * model) {
@@ -79,7 +80,7 @@ static void archive_long_load_cb(void* context) {
 
 static void archive_file_browser_set_path(
     ArchiveBrowserView* browser,
-    string_t path,
+    FuriString* path,
     const char* filter_ext,
     bool skip_assets) {
     furi_assert(browser);
@@ -133,7 +134,7 @@ void archive_update_focus(ArchiveBrowserView* browser, const char* target) {
     furi_assert(browser);
     furi_assert(target);
 
-    archive_get_items(browser, string_get_cstr(browser->path));
+    archive_get_items(browser, furi_string_get_cstr(browser->path));
 
     if(!archive_file_get_array_size(browser) && archive_is_home(browser)) {
         archive_switch_tab(browser, TAB_RIGHT);
@@ -143,7 +144,7 @@ void archive_update_focus(ArchiveBrowserView* browser, const char* target) {
                 uint16_t idx = 0;
                 while(idx < files_array_size(model->files)) {
                     ArchiveFile_t* current = files_array_get(model->files, idx);
-                    if(!string_search(current->path, target)) {
+                    if(!furi_string_search(current->path, target)) {
                         model->item_idx = idx + model->array_offset;
                         break;
                     }
@@ -315,12 +316,12 @@ bool archive_is_home(ArchiveBrowserView* browser) {
     }
 
     const char* default_path = archive_get_default_path(archive_get_tab(browser));
-    return (string_cmp_str(browser->path, default_path) == 0);
+    return (furi_string_cmp_str(browser->path, default_path) == 0);
 }
 
 const char* archive_get_name(ArchiveBrowserView* browser) {
     ArchiveFile_t* selected = archive_get_current_file(browser);
-    return string_get_cstr(selected->path);
+    return furi_string_get_cstr(selected->path);
 }
 
 void archive_set_tab(ArchiveBrowserView* browser, ArchiveTabEnum tab) {
@@ -339,7 +340,7 @@ void archive_add_app_item(ArchiveBrowserView* browser, const char* name) {
 
     ArchiveFile_t item;
     ArchiveFile_t_init(&item);
-    string_set_str(item.path, name);
+    furi_string_set(item.path, name);
     archive_set_file_type(&item, name, false, true);
 
     with_view_model(
@@ -351,16 +352,32 @@ void archive_add_app_item(ArchiveBrowserView* browser, const char* name) {
     ArchiveFile_t_clear(&item);
 }
 
+static bool archive_get_fap_meta(FuriString* file_path, FuriString* fap_name, uint8_t** icon_ptr) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    bool success = false;
+    if(fap_loader_load_name_and_icon(file_path, storage, icon_ptr, fap_name)) {
+        success = true;
+    }
+    furi_record_close(RECORD_STORAGE);
+    return success;
+}
+
 void archive_add_file_item(ArchiveBrowserView* browser, bool is_folder, const char* name) {
     furi_assert(browser);
     furi_assert(name);
 
     ArchiveFile_t item;
-
     ArchiveFile_t_init(&item);
-    string_init_set_str(item.path, name);
-    archive_set_file_type(&item, string_get_cstr(browser->path), is_folder, false);
 
+    furi_string_set(item.path, name);
+    archive_set_file_type(&item, furi_string_get_cstr(browser->path), is_folder, false);
+    if(item.type == ArchiveFileTypeApplication) {
+        item.custom_icon_data = malloc(FAP_MANIFEST_MAX_ICON_SIZE);
+        if(!archive_get_fap_meta(item.path, item.custom_name, &item.custom_icon_data)) {
+            free(item.custom_icon_data);
+            item.custom_icon_data = NULL;
+        }
+    }
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             files_array_push_back(model->files, item);
@@ -380,7 +397,8 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show) {
                     menu_array_reset(model->context_menu);
                     ArchiveFile_t* selected =
                         files_array_get(model->files, model->item_idx - model->array_offset);
-                    selected->fav = archive_is_favorite("%s", string_get_cstr(selected->path));
+                    selected->fav =
+                        archive_is_favorite("%s", furi_string_get_cstr(selected->path));
                 }
             } else {
                 model->menu = false;
@@ -401,14 +419,14 @@ void archive_favorites_move_mode(ArchiveBrowserView* browser, bool active) {
         });
 }
 
-static bool archive_is_dir_exists(string_t path) {
-    if(string_equal_str_p(path, STORAGE_ANY_PATH_PREFIX)) {
+static bool archive_is_dir_exists(FuriString* path) {
+    if(furi_string_equal(path, STORAGE_ANY_PATH_PREFIX)) {
         return true;
     }
     bool state = false;
     FileInfo file_info;
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    if(storage_common_stat(storage, string_get_cstr(path), &file_info) == FSE_OK) {
+    if(storage_common_stat(storage, furi_string_get_cstr(path), &file_info) == FSE_OK) {
         if(file_info.flags & FSF_DIRECTORY) {
             state = true;
         }
@@ -432,16 +450,16 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
     browser->is_root = true;
     archive_set_tab(browser, tab);
 
-    string_set_str(browser->path, archive_get_default_path(tab));
+    furi_string_set(browser->path, archive_get_default_path(tab));
     bool tab_empty = true;
     if(tab == ArchiveTabFavorites) {
         if(archive_favorites_count(browser) > 0) {
             tab_empty = false;
         }
-    } else if(string_start_with_str_p(browser->path, "/app:")) {
-        char* app_name = strchr(string_get_cstr(browser->path), ':');
+    } else if(furi_string_start_with_str(browser->path, "/app:")) {
+        char* app_name = strchr(furi_string_get_cstr(browser->path), ':');
         if(app_name != NULL) {
-            if(archive_app_is_available(browser, string_get_cstr(browser->path))) {
+            if(archive_app_is_available(browser, furi_string_get_cstr(browser->path))) {
                 tab_empty = false;
             }
         }
@@ -464,12 +482,12 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
                 model->array_offset = 0;
                 return false;
             });
-        archive_get_items(browser, string_get_cstr(browser->path));
+        archive_get_items(browser, furi_string_get_cstr(browser->path));
         archive_update_offset(browser);
     }
 }
 
-void archive_enter_dir(ArchiveBrowserView* browser, string_t path) {
+void archive_enter_dir(ArchiveBrowserView* browser, FuriString* path) {
     furi_assert(browser);
     furi_assert(path);
 
@@ -481,7 +499,7 @@ void archive_enter_dir(ArchiveBrowserView* browser, string_t path) {
             return false;
         });
 
-    string_set(browser->path, path);
+    furi_string_set(browser->path, path);
     file_browser_worker_folder_enter(browser->worker, path, idx_temp);
 }
 

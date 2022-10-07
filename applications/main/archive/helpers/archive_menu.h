@@ -1,34 +1,34 @@
 #pragma once
 
+#include <furi.h>
 #include <m-array.h>
-#include <m-string.h>
 
 typedef struct {
-    string_t text;
+    FuriString* text;
     uint32_t event;
 } ArchiveContextMenuItem_t;
 
 static void ArchiveContextMenuItem_t_init(ArchiveContextMenuItem_t* obj) {
-    string_init(obj->text);
+    obj->text = furi_string_alloc();
     obj->event = 0; // ArchiveBrowserEventFileMenuNone
 }
 
 static void ArchiveContextMenuItem_t_init_set(
     ArchiveContextMenuItem_t* obj,
     const ArchiveContextMenuItem_t* src) {
-    string_init_set(obj->text, src->text);
+    obj->text = furi_string_alloc_set(src->text);
     obj->event = src->event;
 }
 
 static void ArchiveContextMenuItem_t_set(
     ArchiveContextMenuItem_t* obj,
     const ArchiveContextMenuItem_t* src) {
-    string_init_set(obj->text, src->text);
+    furi_string_set(obj->text, src->text);
     obj->event = src->event;
 }
 
 static void ArchiveContextMenuItem_t_clear(ArchiveContextMenuItem_t* obj) {
-    string_clear(obj->text);
+    furi_string_free(obj->text);
 }
 
 ARRAY_DEF(
@@ -42,8 +42,9 @@ ARRAY_DEF(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 // Using in applications/archive/views/archive_browser_view.c
-static void archive_menu_add_item(ArchiveContextMenuItem_t* obj, string_t text, uint32_t event) {
-    string_init_move(obj->text, text);
+static void
+    archive_menu_add_item(ArchiveContextMenuItem_t* obj, FuriString* text, uint32_t event) {
+    obj->text = furi_string_alloc_set(text);
     obj->event = event;
 }
 #pragma GCC diagnostic pop

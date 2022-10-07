@@ -23,7 +23,7 @@ struct WifiMarauderApp {
     SceneManager* scene_manager;
 
     char text_input_store[WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE + 1];
-    string_t text_box_store;
+    FuriString* text_box_store;
     size_t text_box_store_strlen;
     TextBox* text_box;
     TextInput* text_input;
