@@ -222,7 +222,7 @@ void subghz_protocol_decoder_ido_get_string(void* context, FuriString* output) {
         "Key:0x%lX%08lX\r\n"
         "Fix:%06lX \r\n"
         "Hop:%06lX \r\n"
-        "Sn:%05lX Btn:%lX\r\n",
+        "Sn:%05lX Btn:%X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),

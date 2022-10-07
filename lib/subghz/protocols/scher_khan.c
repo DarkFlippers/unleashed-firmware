@@ -275,7 +275,7 @@ void subghz_protocol_decoder_scher_khan_get_string(void* context, FuriString* ou
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
-        "Sn:%07lX Btn:%lX Cnt:%04X\r\n"
+        "Sn:%07lX Btn:%X Cnt:%04lX\r\n"
         "Pt: %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

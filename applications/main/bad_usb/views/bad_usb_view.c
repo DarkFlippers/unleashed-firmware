@@ -112,7 +112,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         furi_string_reset(disp_str);
         canvas_draw_icon(canvas, 117, 26, &I_Percent_10x14);
         canvas_set_font(canvas, FontSecondary);
-        furi_string_printf(disp_str, "delay %us", model->state.delay_remain);
+        furi_string_printf(disp_str, "delay %lus", model->state.delay_remain);
         canvas_draw_str_aligned(
             canvas, 127, 50, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
         furi_string_reset(disp_str);

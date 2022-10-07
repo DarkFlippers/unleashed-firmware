@@ -3,7 +3,6 @@
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <gui/elements.h>
-#include <stream_buffer.h>
 #include <furi_hal_uart.h>
 #include <furi_hal_console.h>
 #include <gui/view_dispatcher.h>
@@ -20,7 +19,7 @@ typedef struct {
     ViewDispatcher* view_dispatcher;
     View* view;
     FuriThread* worker_thread;
-    StreamBufferHandle_t rx_stream;
+    FuriStreamBuffer* rx_stream;
 } UartEchoApp;
 
 typedef struct {
@@ -92,13 +91,11 @@ static uint32_t uart_echo_exit(void* context) {
 
 static void uart_echo_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
     furi_assert(context);
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     UartEchoApp* app = context;
 
     if(ev == UartIrqEventRXNE) {
-        xStreamBufferSendFromISR(app->rx_stream, &data, 1, &xHigherPriorityTaskWoken);
+        furi_stream_buffer_send(app->rx_stream, &data, 1, 0);
         furi_thread_flags_set(furi_thread_get_id(app->worker_thread), WorkerEventRx);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 
@@ -158,7 +155,7 @@ static int32_t uart_echo_worker(void* context) {
             size_t length = 0;
             do {
                 uint8_t data[64];
-                length = xStreamBufferReceive(app->rx_stream, data, 64, 0);
+                length = furi_stream_buffer_receive(app->rx_stream, data, 64, 0);
                 if(length > 0) {
                     furi_hal_uart_tx(FuriHalUartIdUSART1, data, length);
                     with_view_model(
@@ -186,7 +183,7 @@ static int32_t uart_echo_worker(void* context) {
 static UartEchoApp* uart_echo_app_alloc() {
     UartEchoApp* app = malloc(sizeof(UartEchoApp));
 
-    app->rx_stream = xStreamBufferCreate(2048, 1);
+    app->rx_stream = furi_stream_buffer_alloc(2048, 1);
 
     // Gui
     app->gui = furi_record_open(RECORD_GUI);
@@ -260,7 +257,7 @@ static void uart_echo_app_free(UartEchoApp* app) {
     furi_record_close(RECORD_NOTIFICATION);
     app->gui = NULL;
 
-    vStreamBufferDelete(app->rx_stream);
+    furi_stream_buffer_free(app->rx_stream);
 
     // Free rest
     free(app);

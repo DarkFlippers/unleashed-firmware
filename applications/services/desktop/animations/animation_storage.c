@@ -304,7 +304,7 @@ static bool animation_storage_load_frames(
         if(file_info.size > max_filesize) {
             FURI_LOG_E(
                 TAG,
-                "Filesize %d, max: %d (width %d, height %d)",
+                "Filesize %lld, max: %d (width %d, height %d)",
                 file_info.size,
                 max_filesize,
                 width,
@@ -329,7 +329,7 @@ static bool animation_storage_load_frames(
     if(!frames_ok) {
         FURI_LOG_E(
             TAG,
-            "Load \'%s\' failed, %dx%d, size: %d",
+            "Load \'%s\' failed, %dx%d, size: %lld",
             furi_string_get_cstr(filename),
             width,
             height,

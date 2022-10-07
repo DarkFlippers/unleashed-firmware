@@ -1358,6 +1358,16 @@ Function,+,furi_semaphore_alloc,FuriSemaphore*,"uint32_t, uint32_t"
 Function,+,furi_semaphore_free,void,FuriSemaphore*
 Function,+,furi_semaphore_get_count,uint32_t,FuriSemaphore*
 Function,+,furi_semaphore_release,FuriStatus,FuriSemaphore*
+Function,+,furi_stream_buffer_alloc,FuriStreamBuffer*,"size_t, size_t"
+Function,+,furi_stream_buffer_bytes_available,size_t,FuriStreamBuffer*
+Function,+,furi_stream_buffer_free,void,FuriStreamBuffer*
+Function,+,furi_stream_buffer_is_empty,_Bool,FuriStreamBuffer*
+Function,+,furi_stream_buffer_is_full,_Bool,FuriStreamBuffer*
+Function,+,furi_stream_buffer_receive,size_t,"FuriStreamBuffer*, void*, size_t, uint32_t"
+Function,+,furi_stream_buffer_reset,FuriStatus,FuriStreamBuffer*
+Function,+,furi_stream_buffer_send,size_t,"FuriStreamBuffer*, const void*, size_t, uint32_t"
+Function,+,furi_stream_buffer_spaces_available,size_t,FuriStreamBuffer*
+Function,+,furi_stream_set_trigger_level,_Bool,"FuriStreamBuffer*, size_t"
 Function,+,furi_string_alloc,FuriString*,
 Function,+,furi_string_alloc_move,FuriString*,FuriString*
 Function,+,furi_string_alloc_printf,FuriString*,"const char[], ..."

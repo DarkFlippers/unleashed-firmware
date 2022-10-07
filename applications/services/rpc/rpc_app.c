@@ -32,7 +32,7 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
     furi_assert(!rpc_app->last_id);
     furi_assert(!rpc_app->last_data);
 
-    FURI_LOG_D(TAG, "StartProcess: id %d", request->command_id);
+    FURI_LOG_D(TAG, "StartProcess: id %ld", request->command_id);
 
     PB_CommandStatus result = PB_CommandStatus_ERROR_APP_CANT_START;
 
@@ -63,7 +63,7 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
 
     furi_record_close(RECORD_LOADER);
 
-    FURI_LOG_D(TAG, "StartProcess: response id %d, result %d", request->command_id, result);
+    FURI_LOG_D(TAG, "StartProcess: response id %ld, result %d", request->command_id, result);
     rpc_send_and_release_empty(session, request->command_id, result);
 }
 
@@ -108,7 +108,7 @@ static void rpc_system_app_exit_request(const PB_Main* request, void* context) {
     PB_CommandStatus status;
 
     if(rpc_app->app_callback) {
-        FURI_LOG_D(TAG, "ExitRequest: id %d", request->command_id);
+        FURI_LOG_D(TAG, "ExitRequest: id %ld", request->command_id);
         furi_assert(!rpc_app->last_id);
         furi_assert(!rpc_app->last_data);
         rpc_app->last_id = request->command_id;
@@ -116,7 +116,7 @@ static void rpc_system_app_exit_request(const PB_Main* request, void* context) {
     } else {
         status = PB_CommandStatus_ERROR_APP_NOT_RUNNING;
         FURI_LOG_E(
-            TAG, "ExitRequest: APP_NOT_RUNNING, id %d, status: %d", request->command_id, status);
+            TAG, "ExitRequest: APP_NOT_RUNNING, id %ld, status: %d", request->command_id, status);
         rpc_send_and_release_empty(session, request->command_id, status);
     }
 }
@@ -132,7 +132,7 @@ static void rpc_system_app_load_file(const PB_Main* request, void* context) {
 
     PB_CommandStatus status;
     if(rpc_app->app_callback) {
-        FURI_LOG_D(TAG, "LoadFile: id %d", request->command_id);
+        FURI_LOG_D(TAG, "LoadFile: id %ld", request->command_id);
         furi_assert(!rpc_app->last_id);
         furi_assert(!rpc_app->last_data);
         rpc_app->last_id = request->command_id;
@@ -141,7 +141,7 @@ static void rpc_system_app_load_file(const PB_Main* request, void* context) {
     } else {
         status = PB_CommandStatus_ERROR_APP_NOT_RUNNING;
         FURI_LOG_E(
-            TAG, "LoadFile: APP_NOT_RUNNING, id %d, status: %d", request->command_id, status);
+            TAG, "LoadFile: APP_NOT_RUNNING, id %ld, status: %d", request->command_id, status);
         rpc_send_and_release_empty(session, request->command_id, status);
     }
 }
@@ -166,7 +166,7 @@ static void rpc_system_app_button_press(const PB_Main* request, void* context) {
     } else {
         status = PB_CommandStatus_ERROR_APP_NOT_RUNNING;
         FURI_LOG_E(
-            TAG, "ButtonPress: APP_NOT_RUNNING, id %d, status: %d", request->command_id, status);
+            TAG, "ButtonPress: APP_NOT_RUNNING, id %ld, status: %d", request->command_id, status);
         rpc_send_and_release_empty(session, request->command_id, status);
     }
 }
@@ -190,7 +190,7 @@ static void rpc_system_app_button_release(const PB_Main* request, void* context)
     } else {
         status = PB_CommandStatus_ERROR_APP_NOT_RUNNING;
         FURI_LOG_E(
-            TAG, "ButtonRelease: APP_NOT_RUNNING, id %d, status: %d", request->command_id, status);
+            TAG, "ButtonRelease: APP_NOT_RUNNING, id %ld, status: %d", request->command_id, status);
         rpc_send_and_release_empty(session, request->command_id, status);
     }
 }
@@ -243,7 +243,7 @@ void rpc_system_app_confirm(RpcAppSystem* rpc_app, RpcAppSystemEvent event, bool
             free(rpc_app->last_data);
             rpc_app->last_data = NULL;
         }
-        FURI_LOG_D(TAG, "AppConfirm: event %d last_id %d status %d", event, last_id, status);
+        FURI_LOG_D(TAG, "AppConfirm: event %d last_id %ld status %d", event, last_id, status);
         rpc_send_and_release_empty(session, last_id, status);
         break;
     default:

@@ -51,7 +51,8 @@ void furi_log_init();
  * @param format 
  * @param ... 
  */
-void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...);
+void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 3, 4)));
 
 /** Set log level
  *

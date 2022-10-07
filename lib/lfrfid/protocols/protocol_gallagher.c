@@ -276,7 +276,7 @@ void protocol_gallagher_render_data(ProtocolGallagher* protocol, FuriString* res
     uint32_t card_id = bit_lib_get_bits_32(protocol->data, 32, 32);
 
     furi_string_cat_printf(result, "Region: %u, Issue Level: %u\r\n", rc, il);
-    furi_string_cat_printf(result, "FC: %u, C: %lu\r\n", fc, card_id);
+    furi_string_cat_printf(result, "FC: %lu, C: %lu\r\n", fc, card_id);
 };
 
 const ProtocolBase protocol_gallagher = {

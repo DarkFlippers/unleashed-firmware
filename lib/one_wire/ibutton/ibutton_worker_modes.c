@@ -2,7 +2,6 @@
 #include <furi_hal.h>
 #include "ibutton_worker_i.h"
 #include "ibutton_key_command.h"
-#include <stream_buffer.h>
 
 void ibutton_worker_mode_idle_start(iButtonWorker* worker);
 void ibutton_worker_mode_idle_tick(iButtonWorker* worker);
@@ -65,7 +64,7 @@ void ibutton_worker_mode_idle_stop(iButtonWorker* worker) {
 
 typedef struct {
     uint32_t last_dwt_value;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
 } iButtonReadContext;
 
 void ibutton_worker_comparator_callback(bool level, void* context) {
@@ -75,7 +74,7 @@ void ibutton_worker_comparator_callback(bool level, void* context) {
 
     LevelDuration data =
         level_duration_make(level, current_dwt_value - read_context->last_dwt_value);
-    xStreamBufferSend(read_context->stream, &data, sizeof(LevelDuration), 0);
+    furi_stream_buffer_send(read_context->stream, &data, sizeof(LevelDuration), 0);
 
     read_context->last_dwt_value = current_dwt_value;
 }
@@ -91,7 +90,7 @@ bool ibutton_worker_read_comparator(iButtonWorker* worker) {
 
     iButtonReadContext read_context = {
         .last_dwt_value = DWT->CYCCNT,
-        .stream = xStreamBufferCreate(sizeof(LevelDuration) * 512, 1),
+        .stream = furi_stream_buffer_alloc(sizeof(LevelDuration) * 512, 1),
     };
 
     furi_hal_rfid_comp_set_callback(ibutton_worker_comparator_callback, &read_context);
@@ -100,7 +99,8 @@ bool ibutton_worker_read_comparator(iButtonWorker* worker) {
     uint32_t tick_start = furi_get_tick();
     while(true) {
         LevelDuration level;
-        size_t ret = xStreamBufferReceive(read_context.stream, &level, sizeof(LevelDuration), 100);
+        size_t ret =
+            furi_stream_buffer_receive(read_context.stream, &level, sizeof(LevelDuration), 100);
 
         if((furi_get_tick() - tick_start) > 100) {
             break;
@@ -141,7 +141,7 @@ bool ibutton_worker_read_comparator(iButtonWorker* worker) {
     furi_hal_rfid_comp_set_callback(NULL, NULL);
     furi_hal_rfid_pins_reset();
 
-    vStreamBufferDelete(read_context.stream);
+    furi_stream_buffer_free(read_context.stream);
 
     return result;
 }

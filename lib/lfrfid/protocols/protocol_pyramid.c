@@ -243,7 +243,7 @@ void protocol_pyramid_render_data(ProtocolPyramid* protocol, FuriString* result)
     uint8_t* decoded_data = protocol->data;
     uint8_t format_length = decoded_data[0];
 
-    furi_string_cat_printf(result, "Format: 26\r\n", format_length);
+    furi_string_cat_printf(result, "Format: %d\r\n", format_length);
     if(format_length == 26) {
         uint8_t facility;
         bit_lib_copy_bits(&facility, 0, 8, decoded_data, 8);

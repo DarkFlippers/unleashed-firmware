@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +28,7 @@ void furi_hal_console_tx_with_new_line(const uint8_t* buffer, size_t buffer_size
  * @param format 
  * @param ... 
  */
-void furi_hal_console_printf(const char format[], ...);
+void furi_hal_console_printf(const char format[], ...) _ATTRIBUTE((__format__(__printf__, 1, 2)));
 
 void furi_hal_console_puts(const char* data);
 

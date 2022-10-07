@@ -59,11 +59,11 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
         MifareDesfireData* data = &dev_data->mf_df_data;
         uint32_t bytes_total = 1 << (data->version.sw_storage >> 1);
         uint32_t bytes_free = data->free_memory ? data->free_memory->bytes : 0;
-        furi_string_cat_printf(temp_str, "\n%d", bytes_total);
+        furi_string_cat_printf(temp_str, "\n%ld", bytes_total);
         if(data->version.sw_storage & 1) {
             furi_string_push_back(temp_str, '+');
         }
-        furi_string_cat_printf(temp_str, " bytes, %d bytes free\n", bytes_free);
+        furi_string_cat_printf(temp_str, " bytes, %ld bytes free\n", bytes_free);
 
         uint16_t n_apps = 0;
         uint16_t n_files = 0;

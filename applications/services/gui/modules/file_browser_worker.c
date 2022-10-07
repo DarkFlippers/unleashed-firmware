@@ -295,7 +295,7 @@ static int32_t browser_worker(void* context) {
             browser_folder_init(browser, path, filename, &items_cnt, &file_idx);
             FURI_LOG_D(
                 TAG,
-                "Enter folder: %s items: %u idx: %d",
+                "Enter folder: %s items: %lu idx: %ld",
                 furi_string_get_cstr(path),
                 items_cnt,
                 file_idx);
@@ -317,7 +317,7 @@ static int32_t browser_worker(void* context) {
             }
             FURI_LOG_D(
                 TAG,
-                "Exit to: %s items: %u idx: %d",
+                "Exit to: %s items: %lu idx: %ld",
                 furi_string_get_cstr(path),
                 items_cnt,
                 file_idx);
@@ -334,7 +334,7 @@ static int32_t browser_worker(void* context) {
             browser_folder_init(browser, path, filename, &items_cnt, &file_idx);
             FURI_LOG_D(
                 TAG,
-                "Refresh folder: %s items: %u idx: %d",
+                "Refresh folder: %s items: %lu idx: %ld",
                 furi_string_get_cstr(path),
                 items_cnt,
                 browser->item_sel_idx);
@@ -344,7 +344,8 @@ static int32_t browser_worker(void* context) {
         }
 
         if(flags & WorkerEvtLoad) {
-            FURI_LOG_D(TAG, "Load offset: %u cnt: %u", browser->load_offset, browser->load_count);
+            FURI_LOG_D(
+                TAG, "Load offset: %lu cnt: %lu", browser->load_offset, browser->load_count);
             browser_folder_load(browser, path, browser->load_offset, browser->load_count);
         }
 

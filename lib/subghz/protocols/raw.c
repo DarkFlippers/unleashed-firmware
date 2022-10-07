@@ -126,7 +126,7 @@ bool subghz_protocol_raw_save_to_file_init(
         // Open file
         if(!flipper_format_file_open_always(
                instance->flipper_file, furi_string_get_cstr(temp_str))) {
-            FURI_LOG_E(TAG, "Unable to open file for write: %s", temp_str);
+            FURI_LOG_E(TAG, "Unable to open file for write: %s", furi_string_get_cstr(temp_str));
             break;
         }
 

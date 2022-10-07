@@ -2,7 +2,6 @@
 #include <furi_hal.h>
 #include "lfrfid_worker_i.h"
 #include "tools/t5577.h"
-#include <stream_buffer.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 #include <toolbox/buffer_stream.h>
 #include "tools/varint_pair.h"
@@ -81,17 +80,12 @@ static void lfrfid_worker_read_capture(bool level, uint32_t duration, void* cont
     furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_VALUE, level);
 #endif
 
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     bool need_to_send = varint_pair_pack(ctx->pair, level, duration);
     if(need_to_send) {
         buffer_stream_send_from_isr(
-            ctx->stream,
-            varint_pair_get_data(ctx->pair),
-            varint_pair_get_size(ctx->pair),
-            &xHigherPriorityTaskWoken);
+            ctx->stream, varint_pair_get_data(ctx->pair), varint_pair_get_size(ctx->pair));
         varint_pair_reset(ctx->pair);
     }
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 typedef enum {
@@ -407,14 +401,14 @@ typedef enum {
 } LFRFIDWorkerEmulateDMAEvent;
 
 static void lfrfid_worker_emulate_dma_isr(bool half, void* context) {
-    StreamBufferHandle_t stream = context;
+    FuriStreamBuffer* stream = context;
     uint32_t flag = half ? HalfTransfer : TransferComplete;
-    xStreamBufferSendFromISR(stream, &flag, sizeof(uint32_t), pdFALSE);
+    furi_stream_buffer_send(stream, &flag, sizeof(uint32_t), 0);
 }
 
 static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
     LFRFIDWorkerEmulateBuffer* buffer = malloc(sizeof(LFRFIDWorkerEmulateBuffer));
-    StreamBufferHandle_t stream = xStreamBufferCreate(sizeof(uint32_t), sizeof(uint32_t));
+    FuriStreamBuffer* stream = furi_stream_buffer_alloc(sizeof(uint32_t), sizeof(uint32_t));
     LFRFIDProtocol protocol = worker->protocol;
     PulseGlue* pulse_glue = pulse_glue_alloc();
 
@@ -449,7 +443,7 @@ static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
 
     while(true) {
         uint32_t flag = 0;
-        size_t size = xStreamBufferReceive(stream, &flag, sizeof(uint32_t), 100);
+        size_t size = furi_stream_buffer_receive(stream, &flag, sizeof(uint32_t), 100);
 
 #ifdef LFRFID_WORKER_READ_DEBUG_GPIO
         furi_hal_gpio_write(LFRFID_WORKER_READ_DEBUG_GPIO_LOAD, true);
@@ -497,7 +491,7 @@ static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
 #endif
 
     free(buffer);
-    vStreamBufferDelete(stream);
+    furi_stream_buffer_free(stream);
     pulse_glue_free(pulse_glue);
 }
 

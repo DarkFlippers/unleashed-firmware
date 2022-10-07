@@ -112,7 +112,7 @@ static bool nfc_test_digital_signal_test_encode(
         // Check timings
         if(time > encode_max_time) {
             FURI_LOG_E(
-                TAG, "Encoding time: %d us while accepted value: %d us", time, encode_max_time);
+                TAG, "Encoding time: %ld us while accepted value: %ld us", time, encode_max_time);
             break;
         }
 
@@ -132,7 +132,7 @@ static bool nfc_test_digital_signal_test_encode(
             ref_timings_sum += ref[i];
             if(timings_diff > timing_tolerance) {
                 FURI_LOG_E(
-                    TAG, "Too big differece in %d timings. Ref: %d, DUT: %d", i, ref[i], dut[i]);
+                    TAG, "Too big differece in %d timings. Ref: %ld, DUT: %ld", i, ref[i], dut[i]);
                 timing_check_success = false;
                 break;
             }
@@ -143,16 +143,16 @@ static bool nfc_test_digital_signal_test_encode(
         if(sum_diff > timings_sum_tolerance) {
             FURI_LOG_E(
                 TAG,
-                "Too big difference in timings sum. Ref: %d, DUT: %d",
+                "Too big difference in timings sum. Ref: %ld, DUT: %ld",
                 ref_timings_sum,
                 dut_timings_sum);
             break;
         }
 
-        FURI_LOG_I(TAG, "Encoding time: %d us. Acceptable time: %d us", time, encode_max_time);
+        FURI_LOG_I(TAG, "Encoding time: %ld us. Acceptable time: %ld us", time, encode_max_time);
         FURI_LOG_I(
             TAG,
-            "Timings sum difference: %d [1/64MHZ]. Acceptable difference: %d [1/64MHz]",
+            "Timings sum difference: %ld [1/64MHZ]. Acceptable difference: %ld [1/64MHz]",
             sum_diff,
             timings_sum_tolerance);
         success = true;

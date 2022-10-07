@@ -474,7 +474,8 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
         return;
     }
 
-    FURI_LOG_D(TAG, "Start Dictionary attack, Key Count %d", mf_classic_dict_get_total_keys(dict));
+    FURI_LOG_D(
+        TAG, "Start Dictionary attack, Key Count %ld", mf_classic_dict_get_total_keys(dict));
     for(size_t i = 0; i < total_sectors; i++) {
         FURI_LOG_I(TAG, "Sector %d", i);
         nfc_worker->callback(NfcWorkerEventNewSector, nfc_worker->context);

@@ -78,7 +78,7 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
         stream_rewind(dict->stream);
 
         dict_loaded = true;
-        FURI_LOG_I(TAG, "Loaded dictionary with %d keys", dict->total_keys);
+        FURI_LOG_I(TAG, "Loaded dictionary with %ld keys", dict->total_keys);
     } while(false);
 
     if(!dict_loaded) {

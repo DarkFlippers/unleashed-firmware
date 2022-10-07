@@ -569,13 +569,13 @@ void furi_hal_power_info_get(FuriHalPowerInfoCallback out, void* context) {
     furi_string_printf(value, "%u", furi_hal_power_get_bat_health_pct());
     out("battery_health", furi_string_get_cstr(value), false, context);
 
-    furi_string_printf(value, "%u", furi_hal_power_get_battery_remaining_capacity());
+    furi_string_printf(value, "%lu", furi_hal_power_get_battery_remaining_capacity());
     out("capacity_remain", furi_string_get_cstr(value), false, context);
 
-    furi_string_printf(value, "%u", furi_hal_power_get_battery_full_capacity());
+    furi_string_printf(value, "%lu", furi_hal_power_get_battery_full_capacity());
     out("capacity_full", furi_string_get_cstr(value), false, context);
 
-    furi_string_printf(value, "%u", furi_hal_power_get_battery_design_capacity());
+    furi_string_printf(value, "%lu", furi_hal_power_get_battery_design_capacity());
     out("capacity_design", furi_string_get_cstr(value), true, context);
 
     furi_string_free(value);

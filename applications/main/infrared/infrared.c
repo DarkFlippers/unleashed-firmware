@@ -92,14 +92,14 @@ static void infrared_find_vacant_remote_name(FuriString* name, const char* path)
         uint32_t i = 1;
         do {
             furi_string_printf(
-                path_temp, "%s%u%s", furi_string_get_cstr(base_path), ++i, INFRARED_APP_EXTENSION);
+                path_temp, "%s%lu%s", furi_string_get_cstr(base_path), ++i, INFRARED_APP_EXTENSION);
             status = storage_common_stat(storage, furi_string_get_cstr(path_temp), NULL);
         } while(status == FSE_OK);
 
         furi_string_free(path_temp);
 
         if(status == FSE_NOT_EXIST) {
-            furi_string_cat_printf(name, "%u", i);
+            furi_string_cat_printf(name, "%lu", i);
         }
     }
 

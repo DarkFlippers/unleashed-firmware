@@ -2,7 +2,6 @@
 
 #include <furi.h>
 #include <furi_hal.h>
-#include <stream_buffer.h>
 
 #include <lib/toolbox/args.h>
 #include <lib/subghz/subghz_keystore.h>
@@ -147,8 +146,8 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
         "Protocol: Princeton\n"
         "Bit: 24\n"
         "Key: 00 00 00 00 00 %02X %02X %02X\n"
-        "TE: %d\n"
-        "Repeat: %d\n",
+        "TE: %ld\n"
+        "Repeat: %ld\n",
         (uint8_t)((key >> 16) & 0xFF),
         (uint8_t)((key >> 8) & 0xFF),
         (uint8_t)(key & 0xFF),
@@ -189,23 +188,21 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
 
 typedef struct {
     volatile bool overrun;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
     size_t packet_count;
 } SubGhzCliCommandRx;
 
 static void subghz_cli_command_rx_capture_callback(bool level, uint32_t duration, void* context) {
     SubGhzCliCommandRx* instance = context;
 
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     LevelDuration level_duration = level_duration_make(level, duration);
     if(instance->overrun) {
         instance->overrun = false;
         level_duration = level_duration_reset();
     }
-    size_t ret = xStreamBufferSendFromISR(
-        instance->stream, &level_duration, sizeof(LevelDuration), &xHigherPriorityTaskWoken);
+    size_t ret =
+        furi_stream_buffer_send(instance->stream, &level_duration, sizeof(LevelDuration), 0);
     if(sizeof(LevelDuration) != ret) instance->overrun = true;
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void subghz_cli_command_rx_callback(
@@ -244,7 +241,8 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
 
     // Allocate context and buffers
     SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
-    instance->stream = xStreamBufferCreate(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
+    instance->stream =
+        furi_stream_buffer_alloc(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
     furi_check(instance->stream);
 
     SubGhzEnvironment* environment = subghz_environment_alloc();
@@ -274,8 +272,8 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
     printf("Listening at %lu. Press CTRL+C to stop\r\n", frequency);
     LevelDuration level_duration;
     while(!cli_cmd_interrupt_received(cli)) {
-        int ret =
-            xStreamBufferReceive(instance->stream, &level_duration, sizeof(LevelDuration), 10);
+        int ret = furi_stream_buffer_receive(
+            instance->stream, &level_duration, sizeof(LevelDuration), 10);
         if(ret == sizeof(LevelDuration)) {
             if(level_duration_is_reset(level_duration)) {
                 printf(".");
@@ -299,7 +297,7 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
     // Cleanup
     subghz_receiver_free(receiver);
     subghz_environment_free(environment);
-    vStreamBufferDelete(instance->stream);
+    furi_stream_buffer_free(instance->stream);
     free(instance);
 }
 

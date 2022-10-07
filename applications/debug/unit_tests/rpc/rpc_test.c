@@ -10,7 +10,6 @@
 #include <furi.h>
 #include "../minunit.h"
 #include <stdint.h>
-#include <stream_buffer.h>
 #include <pb.h>
 #include <pb_encode.h>
 #include <m-list.h>
@@ -34,7 +33,7 @@ static uint32_t command_id = 0;
 
 typedef struct {
     RpcSession* session;
-    StreamBufferHandle_t output_stream;
+    FuriStreamBuffer* output_stream;
     SemaphoreHandle_t close_session_semaphore;
     SemaphoreHandle_t terminate_semaphore;
     TickType_t timeout;
@@ -90,7 +89,7 @@ static void test_rpc_setup(void) {
     }
     furi_check(rpc_session[0].session);
 
-    rpc_session[0].output_stream = xStreamBufferCreate(1000, 1);
+    rpc_session[0].output_stream = furi_stream_buffer_alloc(1000, 1);
     rpc_session_set_send_bytes_callback(rpc_session[0].session, output_bytes_callback);
     rpc_session[0].close_session_semaphore = xSemaphoreCreateBinary();
     rpc_session[0].terminate_semaphore = xSemaphoreCreateBinary();
@@ -110,7 +109,7 @@ static void test_rpc_setup_second_session(void) {
     }
     furi_check(rpc_session[1].session);
 
-    rpc_session[1].output_stream = xStreamBufferCreate(1000, 1);
+    rpc_session[1].output_stream = furi_stream_buffer_alloc(1000, 1);
     rpc_session_set_send_bytes_callback(rpc_session[1].session, output_bytes_callback);
     rpc_session[1].close_session_semaphore = xSemaphoreCreateBinary();
     rpc_session[1].terminate_semaphore = xSemaphoreCreateBinary();
@@ -126,7 +125,7 @@ static void test_rpc_teardown(void) {
     rpc_session_close(rpc_session[0].session);
     furi_check(xSemaphoreTake(rpc_session[0].terminate_semaphore, portMAX_DELAY));
     furi_record_close(RECORD_RPC);
-    vStreamBufferDelete(rpc_session[0].output_stream);
+    furi_stream_buffer_free(rpc_session[0].output_stream);
     vSemaphoreDelete(rpc_session[0].close_session_semaphore);
     vSemaphoreDelete(rpc_session[0].terminate_semaphore);
     ++command_id;
@@ -141,7 +140,7 @@ static void test_rpc_teardown_second_session(void) {
     xSemaphoreTake(rpc_session[1].terminate_semaphore, 0);
     rpc_session_close(rpc_session[1].session);
     furi_check(xSemaphoreTake(rpc_session[1].terminate_semaphore, portMAX_DELAY));
-    vStreamBufferDelete(rpc_session[1].output_stream);
+    furi_stream_buffer_free(rpc_session[1].output_stream);
     vSemaphoreDelete(rpc_session[1].close_session_semaphore);
     vSemaphoreDelete(rpc_session[1].terminate_semaphore);
     ++command_id;
@@ -268,8 +267,8 @@ static PB_CommandStatus test_rpc_storage_get_file_error(File* file) {
 static void output_bytes_callback(void* ctx, uint8_t* got_bytes, size_t got_size) {
     RpcSessionContext* callbacks_context = ctx;
 
-    size_t bytes_sent =
-        xStreamBufferSend(callbacks_context->output_stream, got_bytes, got_size, FuriWaitForever);
+    size_t bytes_sent = furi_stream_buffer_send(
+        callbacks_context->output_stream, got_bytes, got_size, FuriWaitForever);
     (void)bytes_sent;
     furi_check(bytes_sent == got_size);
 }
@@ -534,7 +533,8 @@ static bool test_rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_
     TickType_t now = xTaskGetTickCount();
     int32_t time_left = session_context->timeout - now;
     time_left = MAX(time_left, 0);
-    bytes_received = xStreamBufferReceive(session_context->output_stream, buf, count, time_left);
+    bytes_received =
+        furi_stream_buffer_receive(session_context->output_stream, buf, count, time_left);
     return (count == bytes_received);
 }
 

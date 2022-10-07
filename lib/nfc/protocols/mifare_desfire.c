@@ -108,7 +108,7 @@ void mf_df_cat_version(MifareDesfireVersion* version, FuriString* out) {
 }
 
 void mf_df_cat_free_mem(MifareDesfireFreeMemory* free_mem, FuriString* out) {
-    furi_string_cat_printf(out, "freeMem %d\n", free_mem->bytes);
+    furi_string_cat_printf(out, "freeMem %ld\n", free_mem->bytes);
 }
 
 void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, FuriString* out) {
@@ -191,10 +191,10 @@ void mf_df_cat_file(MifareDesfireFile* file, FuriString* out) {
     case MifareDesfireFileTypeValue:
         size = 4;
         furi_string_cat_printf(
-            out, "lo %d hi %d\n", file->settings.value.lo_limit, file->settings.value.hi_limit);
+            out, "lo %ld hi %ld\n", file->settings.value.lo_limit, file->settings.value.hi_limit);
         furi_string_cat_printf(
             out,
-            "limit %d enabled %d\n",
+            "limit %ld enabled %d\n",
             file->settings.value.limited_credit_value,
             file->settings.value.limited_credit_enabled);
         break;
@@ -203,7 +203,7 @@ void mf_df_cat_file(MifareDesfireFile* file, FuriString* out) {
         size = file->settings.record.size;
         num = file->settings.record.cur;
         furi_string_cat_printf(out, "size %d\n", size);
-        furi_string_cat_printf(out, "num %d max %d\n", num, file->settings.record.max);
+        furi_string_cat_printf(out, "num %d max %ld\n", num, file->settings.record.max);
         break;
     }
     uint8_t* data = file->contents;

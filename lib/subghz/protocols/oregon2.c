@@ -253,7 +253,7 @@ static void
         val = ((var_data >> 4) & 0xF) * 10 + ((var_data >> 8) & 0xF);
         furi_string_cat_printf(
             output,
-            "Temp: %s%d.%d C\r\n",
+            "Temp: %s%ld.%ld C\r\n",
             (var_data & 0xF) ? "-" : "+",
             val,
             (uint32_t)(var_data >> 12) & 0xF);
@@ -286,7 +286,7 @@ void subghz_protocol_decoder_oregon2_get_string(void* context, FuriString* outpu
     furi_string_cat_printf(
         output,
         "%s\r\n"
-        "ID: 0x%04lX, ch: %d%s, rc: 0x%02lX\r\n",
+        "ID: 0x%04lX, ch: %ld%s, rc: 0x%02lX\r\n",
         instance->generic.protocol_name,
         (uint32_t)sensor_id,
         (uint32_t)(instance->generic.data >> 12) & 0xF,

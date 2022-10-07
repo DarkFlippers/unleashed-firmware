@@ -221,13 +221,13 @@ static void infrared_test_run_encoder(InfraredProtocol protocol, uint32_t test_i
     const char* protocol_name = infrared_get_protocol_name(protocol);
     mu_assert(infrared_test_prepare_file(protocol_name), "Failed to prepare test file");
 
-    furi_string_printf(buf, "encoder_input%d", test_index);
+    furi_string_printf(buf, "encoder_input%ld", test_index);
     mu_assert(
         infrared_test_load_messages(
             test->ff, furi_string_get_cstr(buf), &input_messages, &input_messages_count),
         "Failed to load messages from file");
 
-    furi_string_printf(buf, "encoder_expected%d", test_index);
+    furi_string_printf(buf, "encoder_expected%ld", test_index);
     mu_assert(
         infrared_test_load_raw_signal(
             test->ff, furi_string_get_cstr(buf), &expected_timings, &expected_timings_count),
@@ -277,7 +277,7 @@ static void infrared_test_run_encoder_decoder(InfraredProtocol protocol, uint32_
     const char* protocol_name = infrared_get_protocol_name(protocol);
     mu_assert(infrared_test_prepare_file(protocol_name), "Failed to prepare test file");
 
-    furi_string_printf(buf, "encoder_decoder_input%d", test_index);
+    furi_string_printf(buf, "encoder_decoder_input%ld", test_index);
     mu_assert(
         infrared_test_load_messages(
             test->ff, furi_string_get_cstr(buf), &input_messages, &input_messages_count),
@@ -336,13 +336,13 @@ static void infrared_test_run_decoder(InfraredProtocol protocol, uint32_t test_i
         infrared_test_prepare_file(infrared_get_protocol_name(protocol)),
         "Failed to prepare test file");
 
-    furi_string_printf(buf, "decoder_input%d", test_index);
+    furi_string_printf(buf, "decoder_input%ld", test_index);
     mu_assert(
         infrared_test_load_raw_signal(
             test->ff, furi_string_get_cstr(buf), &timings, &timings_count),
         "Failed to load raw signal from file");
 
-    furi_string_printf(buf, "decoder_expected%d", test_index);
+    furi_string_printf(buf, "decoder_expected%ld", test_index);
     mu_assert(
         infrared_test_load_messages(
             test->ff, furi_string_get_cstr(buf), &messages, &messages_count),

@@ -531,7 +531,7 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:%05lX\r\n"
-        "Cnt:%04X Btn:%02lX\r\n",
+        "Cnt:%04lX Btn:%02X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_hi,
