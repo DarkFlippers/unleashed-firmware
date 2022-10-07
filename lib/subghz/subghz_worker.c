@@ -1,13 +1,12 @@
 #include "subghz_worker.h"
 
-#include <stream_buffer.h>
 #include <furi.h>
 
 #define TAG "SubGhzWorker"
 
 struct SubGhzWorker {
     FuriThread* thread;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
 
     volatile bool running;
     volatile bool overrun;
@@ -30,16 +29,14 @@ struct SubGhzWorker {
 void subghz_worker_rx_callback(bool level, uint32_t duration, void* context) {
     SubGhzWorker* instance = context;
 
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     LevelDuration level_duration = level_duration_make(level, duration);
     if(instance->overrun) {
         instance->overrun = false;
         level_duration = level_duration_reset();
     }
-    size_t ret = xStreamBufferSendFromISR(
-        instance->stream, &level_duration, sizeof(LevelDuration), &xHigherPriorityTaskWoken);
+    size_t ret =
+        furi_stream_buffer_send(instance->stream, &level_duration, sizeof(LevelDuration), 0);
     if(sizeof(LevelDuration) != ret) instance->overrun = true;
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /** Worker callback thread
@@ -52,8 +49,8 @@ static int32_t subghz_worker_thread_callback(void* context) {
 
     LevelDuration level_duration;
     while(instance->running) {
-        int ret =
-            xStreamBufferReceive(instance->stream, &level_duration, sizeof(LevelDuration), 10);
+        int ret = furi_stream_buffer_receive(
+            instance->stream, &level_duration, sizeof(LevelDuration), 10);
         if(ret == sizeof(LevelDuration)) {
             if(level_duration_is_reset(level_duration)) {
                 FURI_LOG_E(TAG, "Overrun buffer");
@@ -97,7 +94,8 @@ SubGhzWorker* subghz_worker_alloc() {
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_worker_thread_callback);
 
-    instance->stream = xStreamBufferCreate(sizeof(LevelDuration) * 4096, sizeof(LevelDuration));
+    instance->stream =
+        furi_stream_buffer_alloc(sizeof(LevelDuration) * 4096, sizeof(LevelDuration));
 
     //setting filter
     instance->filter_running = true;
@@ -109,7 +107,7 @@ SubGhzWorker* subghz_worker_alloc() {
 void subghz_worker_free(SubGhzWorker* instance) {
     furi_assert(instance);
 
-    vStreamBufferDelete(instance->stream);
+    furi_stream_buffer_free(instance->stream);
     furi_thread_free(instance->thread);
 
     free(instance);

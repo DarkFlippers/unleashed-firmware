@@ -1,5 +1,4 @@
 #include "subghz_file_encoder_worker.h"
-#include <stream_buffer.h>
 
 #include <toolbox/stream/stream.h>
 #include <flipper_format/flipper_format.h>
@@ -11,7 +10,7 @@
 
 struct SubGhzFileEncoderWorker {
     FuriThread* thread;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
 
     Storage* storage;
     FlipperFormat* flipper_format;
@@ -48,7 +47,7 @@ void subghz_file_encoder_worker_add_level_duration(
 
     if(res) {
         instance->level = !instance->level;
-        xStreamBufferSend(instance->stream, &duration, sizeof(int32_t), 100);
+        furi_stream_buffer_send(instance->stream, &duration, sizeof(int32_t), 100);
     } else {
         FURI_LOG_E(TAG, "Invalid level in the stream");
     }
@@ -83,10 +82,7 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
     furi_assert(context);
     SubGhzFileEncoderWorker* instance = context;
     int32_t duration;
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    int ret = xStreamBufferReceiveFromISR(
-        instance->stream, &duration, sizeof(int32_t), &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    int ret = furi_stream_buffer_receive(instance->stream, &duration, sizeof(int32_t), 0);
     if(ret == sizeof(int32_t)) {
         LevelDuration level_duration = {.level = LEVEL_DURATION_RESET};
         if(duration < 0) {
@@ -137,7 +133,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     } while(0);
 
     while(res && instance->worker_running) {
-        size_t stream_free_byte = xStreamBufferSpacesAvailable(instance->stream);
+        size_t stream_free_byte = furi_stream_buffer_spaces_available(instance->stream);
         if((stream_free_byte / sizeof(int32_t)) >= SUBGHZ_FILE_ENCODER_LOAD) {
             if(stream_read_line(stream, instance->str_data)) {
                 furi_string_trim(instance->str_data);
@@ -183,7 +179,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     furi_thread_set_stack_size(instance->thread, 2048);
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_file_encoder_worker_thread);
-    instance->stream = xStreamBufferCreate(sizeof(int32_t) * 2048, sizeof(int32_t));
+    instance->stream = furi_stream_buffer_alloc(sizeof(int32_t) * 2048, sizeof(int32_t));
 
     instance->storage = furi_record_open(RECORD_STORAGE);
     instance->flipper_format = flipper_format_file_alloc(instance->storage);
@@ -199,7 +195,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
 void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance) {
     furi_assert(instance);
 
-    vStreamBufferDelete(instance->stream);
+    furi_stream_buffer_free(instance->stream);
     furi_thread_free(instance->thread);
 
     furi_string_free(instance->str_data);
@@ -215,7 +211,7 @@ bool subghz_file_encoder_worker_start(SubGhzFileEncoderWorker* instance, const c
     furi_assert(instance);
     furi_assert(!instance->worker_running);
 
-    xStreamBufferReset(instance->stream);
+    furi_stream_buffer_reset(instance->stream);
     furi_string_set(instance->file_path, file_path);
     instance->worker_running = true;
     furi_thread_start(instance->thread);

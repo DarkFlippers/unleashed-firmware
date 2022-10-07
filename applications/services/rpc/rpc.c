@@ -13,7 +13,6 @@
 #include <cli/cli.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stream_buffer.h>
 #include <m-dict.h>
 
 #define TAG "RpcSrv"
@@ -61,7 +60,7 @@ struct RpcSession {
     FuriThread* thread;
 
     RpcHandlerDict_t handlers;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
     PB_Main* decoded_message;
     bool terminate;
     void** system_contexts;
@@ -151,7 +150,7 @@ size_t
     furi_assert(encoded_bytes);
     furi_assert(size > 0);
 
-    size_t bytes_sent = xStreamBufferSend(session->stream, encoded_bytes, size, timeout);
+    size_t bytes_sent = furi_stream_buffer_send(session->stream, encoded_bytes, size, timeout);
 
     furi_thread_flags_set(furi_thread_get_id(session->thread), RpcEvtNewData);
 
@@ -160,7 +159,7 @@ size_t
 
 size_t rpc_session_get_available_size(RpcSession* session) {
     furi_assert(session);
-    return xStreamBufferSpacesAvailable(session->stream);
+    return furi_stream_buffer_spaces_available(session->stream);
 }
 
 bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
@@ -174,9 +173,9 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
     size_t bytes_received = 0;
 
     while(1) {
-        bytes_received +=
-            xStreamBufferReceive(session->stream, buf + bytes_received, count - bytes_received, 0);
-        if(xStreamBufferIsEmpty(session->stream)) {
+        bytes_received += furi_stream_buffer_receive(
+            session->stream, buf + bytes_received, count - bytes_received, 0);
+        if(furi_stream_buffer_is_empty(session->stream)) {
             if(session->buffer_is_empty_callback) {
                 session->buffer_is_empty_callback(session->context);
             }
@@ -190,7 +189,7 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
         } else {
             flags = furi_thread_flags_wait(RPC_ALL_EVENTS, FuriFlagWaitAny, FuriWaitForever);
             if(flags & RpcEvtDisconnect) {
-                if(xStreamBufferIsEmpty(session->stream)) {
+                if(furi_stream_buffer_is_empty(session->stream)) {
                     session->terminate = true;
                     istream->bytes_left = 0;
                     bytes_received = 0;
@@ -279,7 +278,7 @@ static int32_t rpc_session_worker(void* context) {
         }
 
         if(message_decode_failed) {
-            xStreamBufferReset(session->stream);
+            furi_stream_buffer_reset(session->stream);
             if(!session->terminate) {
                 /* Protobuf can't determine start and end of message.
                  * Handle this by adding varint at beginning
@@ -329,7 +328,7 @@ static void rpc_session_free_callback(FuriThreadState thread_state, void* contex
         free(session->system_contexts);
         free(session->decoded_message);
         RpcHandlerDict_clear(session->handlers);
-        vStreamBufferDelete(session->stream);
+        furi_stream_buffer_free(session->stream);
 
         furi_mutex_acquire(session->callbacks_mutex, FuriWaitForever);
         if(session->terminated_callback) {
@@ -348,7 +347,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
 
     RpcSession* session = malloc(sizeof(RpcSession));
     session->callbacks_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-    session->stream = xStreamBufferCreate(RPC_BUFFER_SIZE, 1);
+    session->stream = furi_stream_buffer_alloc(RPC_BUFFER_SIZE, 1);
     session->rpc = rpc;
     session->terminate = false;
     session->decode_error = false;

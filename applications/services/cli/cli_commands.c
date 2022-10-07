@@ -7,7 +7,6 @@
 #include <time.h>
 #include <notification/notification_messages.h>
 #include <loader/loader.h>
-#include <stream_buffer.h>
 
 // Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
 #define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"
@@ -140,7 +139,7 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
 #define CLI_COMMAND_LOG_BUFFER_SIZE 64
 
 void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* context) {
-    xStreamBufferSend(context, buffer, size, 0);
+    furi_stream_buffer_send(context, buffer, size, 0);
 }
 
 void cli_command_log_level_set_from_string(FuriString* level) {
@@ -165,7 +164,7 @@ void cli_command_log_level_set_from_string(FuriString* level) {
 
 void cli_command_log(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    StreamBufferHandle_t ring = xStreamBufferCreate(CLI_COMMAND_LOG_RING_SIZE, 1);
+    FuriStreamBuffer* ring = furi_stream_buffer_alloc(CLI_COMMAND_LOG_RING_SIZE, 1);
     uint8_t buffer[CLI_COMMAND_LOG_BUFFER_SIZE];
     FuriLogLevel previous_level = furi_log_get_level();
     bool restore_log_level = false;
@@ -179,7 +178,7 @@ void cli_command_log(Cli* cli, FuriString* args, void* context) {
 
     printf("Press CTRL+C to stop...\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
-        size_t ret = xStreamBufferReceive(ring, buffer, CLI_COMMAND_LOG_BUFFER_SIZE, 50);
+        size_t ret = furi_stream_buffer_receive(ring, buffer, CLI_COMMAND_LOG_BUFFER_SIZE, 50);
         cli_write(cli, buffer, ret);
     }
 
@@ -190,7 +189,7 @@ void cli_command_log(Cli* cli, FuriString* args, void* context) {
         furi_log_set_level(previous_level);
     }
 
-    vStreamBufferDelete(ring);
+    furi_stream_buffer_free(ring);
 }
 
 void cli_command_vibro(Cli* cli, FuriString* args, void* context) {

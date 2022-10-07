@@ -59,14 +59,9 @@ void buffer_stream_free(BufferStream* buffer_stream);
  * @param buffer_stream 
  * @param data 
  * @param size 
- * @param task_woken 
  * @return bool 
  */
-bool buffer_stream_send_from_isr(
-    BufferStream* buffer_stream,
-    const uint8_t* data,
-    size_t size,
-    BaseType_t* const task_woken);
+bool buffer_stream_send_from_isr(BufferStream* buffer_stream, const uint8_t* data, size_t size);
 
 /**
  * @brief Receive buffer from stream

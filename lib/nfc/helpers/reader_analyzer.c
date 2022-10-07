@@ -1,5 +1,4 @@
 #include "reader_analyzer.h"
-#include <stream_buffer.h>
 #include <lib/nfc/protocols/nfc_util.h>
 #include <lib/nfc/protocols/mifare_classic.h>
 #include <m-array.h>
@@ -26,7 +25,7 @@ struct ReaderAnalyzer {
     FuriHalNfcDevData nfc_data;
 
     bool alive;
-    StreamBufferHandle_t stream;
+    FuriStreamBuffer* stream;
     FuriThread* thread;
 
     ReaderAnalyzerParseDataCallback callback;
@@ -86,8 +85,8 @@ int32_t reader_analyzer_thread(void* context) {
     ReaderAnalyzer* reader_analyzer = context;
     uint8_t buffer[READER_ANALYZER_MAX_BUFF_SIZE] = {};
 
-    while(reader_analyzer->alive || !xStreamBufferIsEmpty(reader_analyzer->stream)) {
-        size_t ret = xStreamBufferReceive(
+    while(reader_analyzer->alive || !furi_stream_buffer_is_empty(reader_analyzer->stream)) {
+        size_t ret = furi_stream_buffer_receive(
             reader_analyzer->stream, buffer, READER_ANALYZER_MAX_BUFF_SIZE, 50);
         if(ret) {
             reader_analyzer_parse(reader_analyzer, buffer, ret);
@@ -103,7 +102,7 @@ ReaderAnalyzer* reader_analyzer_alloc() {
     instance->nfc_data = reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic];
     instance->alive = false;
     instance->stream =
-        xStreamBufferCreate(READER_ANALYZER_MAX_BUFF_SIZE, sizeof(ReaderAnalyzerHeader));
+        furi_stream_buffer_alloc(READER_ANALYZER_MAX_BUFF_SIZE, sizeof(ReaderAnalyzerHeader));
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "ReaderAnalyzerWorker");
@@ -129,7 +128,7 @@ static void reader_analyzer_mfkey_callback(Mfkey32Event event, void* context) {
 void reader_analyzer_start(ReaderAnalyzer* instance, ReaderAnalyzerMode mode) {
     furi_assert(instance);
 
-    xStreamBufferReset(instance->stream);
+    furi_stream_buffer_reset(instance->stream);
     if(mode & ReaderAnalyzerModeDebugLog) {
         instance->debug_log = nfc_debug_log_alloc();
     }
@@ -171,7 +170,7 @@ void reader_analyzer_free(ReaderAnalyzer* instance) {
 
     reader_analyzer_stop(instance);
     furi_thread_free(instance->thread);
-    vStreamBufferDelete(instance->stream);
+    furi_stream_buffer_free(instance->stream);
     free(instance);
 }
 
@@ -215,12 +214,12 @@ static void reader_analyzer_write(
     ReaderAnalyzerHeader header = {
         .reader_to_tag = reader_to_tag, .crc_dropped = crc_dropped, .len = len};
     size_t data_sent = 0;
-    data_sent = xStreamBufferSend(
+    data_sent = furi_stream_buffer_send(
         instance->stream, &header, sizeof(ReaderAnalyzerHeader), FuriWaitForever);
     if(data_sent != sizeof(ReaderAnalyzerHeader)) {
         FURI_LOG_W(TAG, "Sent %d out of %d bytes", data_sent, sizeof(ReaderAnalyzerHeader));
     }
-    data_sent = xStreamBufferSend(instance->stream, data, len, FuriWaitForever);
+    data_sent = furi_stream_buffer_send(instance->stream, data, len, FuriWaitForever);
     if(data_sent != len) {
         FURI_LOG_W(TAG, "Sent %d out of %d bytes", data_sent, len);
     }
