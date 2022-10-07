@@ -65,6 +65,7 @@ jobs:
           pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
           pvs-studio-analyzer analyze \
               @.pvsoptions \
+              --disableLicenseExpirationCheck \
               -j$(grep -c processor /proc/cpuinfo) \
               -f build/f7-firmware-DC/compile_commands.json \
               -o PVS-Studio.log
