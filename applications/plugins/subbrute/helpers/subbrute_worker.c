@@ -113,7 +113,7 @@ bool subbrute_worker_start(
     instance->worker_running = res;
 
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "Frequency: %d", frequency);
+    FURI_LOG_I(TAG, "Frequency: %ld", frequency);
 #endif
     instance->preset = preset;
     if(res) {
@@ -206,7 +206,7 @@ bool subbrute_worker_init_manual_transmit(
 #ifdef FURI_DEBUG
     FURI_LOG_D(
         TAG,
-        "subbrute_worker_init_manual_transmit. frequency: %d, protocol: %s",
+        "subbrute_worker_init_manual_transmit. frequency: %ld, protocol: %s",
         frequency,
         protocol_name);
 #endif
@@ -254,7 +254,7 @@ bool subbrute_worker_init_manual_transmit(
     }*/
 
 #ifdef FURI_DEBUG
-    FURI_LOG_I(TAG, "Frequency: %d", frequency);
+    FURI_LOG_I(TAG, "Frequency: %ld", frequency);
 #endif
 
     instance->transmitter = subghz_transmitter_alloc_init(

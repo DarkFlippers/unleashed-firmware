@@ -229,7 +229,7 @@ bool subbrute_device_create_packet_parsed(SubBruteDevice* instance, uint64_t ste
     }
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "candidate: %s, step: %d", furi_string_get_cstr(candidate), step);
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
 
     if(small) {
@@ -537,7 +537,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
             }
             instance->bit = temp_data32;
 #ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "Bit: %d", instance->bit);
+            FURI_LOG_D(TAG, "Bit: %ld", instance->bit);
 #endif
         }
 
@@ -570,7 +570,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, FuriString* fil
         // Repeat
         if(flipper_format_read_uint32(fff_data_file, "Repeat", &temp_data32, 1)) {
 #ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "Repeat: %d", temp_data32);
+            FURI_LOG_D(TAG, "Repeat: %ld", temp_data32);
 #endif
             instance->repeat = temp_data32;
         } else {

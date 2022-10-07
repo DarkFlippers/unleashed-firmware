@@ -248,7 +248,11 @@ void subbrute_attack_view_init_values(
     bool is_attacking) {
 #ifdef FURI_DEBUG
     FURI_LOG_D(
-        TAG, "init, index: %d, max_value: %d, current_step: %d", index, max_value, current_step);
+        TAG,
+        "init, index: %d, max_value: %lld, current_step: %lld",
+        index,
+        max_value,
+        current_step);
 #endif
     with_view_model(
         instance->view, (SubBruteAttackViewModel * model) {
