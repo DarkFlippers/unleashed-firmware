@@ -16,10 +16,10 @@ void signal_gen_scene_start_on_enter(void* context) {
     Submenu* submenu = app->submenu;
 
     submenu_add_item(
-        submenu, "PWM", SubmenuIndexPwm, signal_gen_scene_start_submenu_callback, app);
+        submenu, "PWM Generator", SubmenuIndexPwm, signal_gen_scene_start_submenu_callback, app);
     submenu_add_item(
         submenu,
-        "Clock Output",
+        "Clock Generator",
         SubmenuIndexClockOutput,
         signal_gen_scene_start_submenu_callback,
         app);
