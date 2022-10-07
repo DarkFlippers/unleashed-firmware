@@ -103,6 +103,7 @@ static void furi_thread_body(void* context) {
     furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) != NULL);
     vTaskSetThreadLocalStoragePointer(NULL, 0, NULL);
 
+    thread->task_handle = NULL;
     vTaskDelete(NULL);
     furi_thread_catch();
 }
@@ -211,13 +212,8 @@ bool furi_thread_join(FuriThread* thread) {
 
     furi_check(furi_thread_get_current() != thread);
 
-    // Check if thread was started
-    if(thread->task_handle == NULL) {
-        return false;
-    }
-
     // Wait for thread to stop
-    while(eTaskGetState(thread->task_handle) != eDeleted) {
+    while(thread->task_handle) {
         furi_delay_ms(10);
     }
 
