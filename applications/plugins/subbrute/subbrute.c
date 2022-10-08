@@ -163,6 +163,13 @@ void subbrute_popup_closed_callback(void* context) {
         instance->view_dispatcher, SubBruteCustomEventTypePopupClosed);
 }
 
+uint64_t subbrute_get_step(void* context) {
+    furi_assert(context);
+    SubBruteState* instance = context;
+
+    return subbrute_device_get_step(instance->device);
+}
+
 // ENTRYPOINT
 int32_t subbrute_app(void* p) {
     UNUSED(p);

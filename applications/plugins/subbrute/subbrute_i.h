@@ -67,3 +67,4 @@ struct SubBruteState {
 void subbrute_show_loading_popup(void* context, bool show);
 void subbrute_text_input_callback(void* context);
 void subbrute_popup_closed_callback(void* context);
+uint64_t subbrute_get_step(void* context);

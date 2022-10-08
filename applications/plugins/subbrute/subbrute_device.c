@@ -1,5 +1,4 @@
 #include "subbrute_device.h"
-//#include "subbrute_device.h"
 
 #include <stdint.h>
 #include <storage/storage.h>
@@ -46,7 +45,7 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->receiver = NULL;
     instance->environment = subghz_environment_alloc();
 
-    subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit307);
+    subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit433);
 
     return instance;
 }
@@ -274,6 +273,23 @@ bool subbrute_device_transmit_current_key(SubBruteDevice* instance) {
     }
 
     instance->last_time_tx_data = ticks;
+
+#ifdef FURI_DEBUG
+    if(instance->attack == SubBruteAttackLoadFile) {
+        FURI_LOG_D(
+            TAG,
+            "Protocol: %d, Frequency: %ld",
+            instance->file_protocol_info->file,
+            instance->file_protocol_info->frequency);
+    } else {
+        FURI_LOG_D(
+            TAG,
+            "Protocol: %d, Frequency: %ld",
+            instance->protocol_info->file,
+            instance->protocol_info->frequency);
+    }
+#endif
+
     FlipperFormat* flipper_format = flipper_format_string_alloc();
 
     if(!subbrute_device_create_packet_parsed(instance, flipper_format, instance->key_index, true)) {
@@ -328,7 +344,7 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
         }
 
         if(!subbrute_device_create_packet_parsed(instance, file, instance->key_index, false)) {
-            FURI_LOG_E(TAG, "subbrute_device_create_packet_parsed failed!");
+            FURI_LOG_E(TAG, "create_packet_parsed failed!");
             break;
         }
 
@@ -461,7 +477,7 @@ bool subbrute_device_create_packet_parsed(
             }
         }
 #ifdef FURI_DEBUG
-        //FURI_LOG_D(TAG, "payload: %s", instance->payload);
+        FURI_LOG_D(TAG, "candidate: %s", furi_string_get_cstr(candidate));
 #endif
     }
 
@@ -545,7 +561,10 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
             instance->protocol_info->bits);
 #ifdef FURI_DEBUG
         FURI_LOG_D(
-            TAG, "tail: %d, file_template: %s", instance->protocol_info->te, instance->file_template);
+            TAG,
+            "tail: %d, file_template: %s",
+            instance->protocol_info->te,
+            instance->file_template);
 #endif
     }
 
