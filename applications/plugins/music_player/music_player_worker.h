@@ -14,6 +14,8 @@ typedef struct MusicPlayerWorker MusicPlayerWorker;
 
 MusicPlayerWorker* music_player_worker_alloc();
 
+void music_player_worker_clear(MusicPlayerWorker* instance);
+
 void music_player_worker_free(MusicPlayerWorker* instance);
 
 bool music_player_worker_load(MusicPlayerWorker* instance, const char* file_path);
