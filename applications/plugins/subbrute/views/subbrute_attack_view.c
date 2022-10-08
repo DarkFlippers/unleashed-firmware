@@ -2,11 +2,11 @@
 #include "../subbrute_i.h"
 #include "../subbrute_protocols.h"
 
-#include "assets_icons.h"
 #include <input/input.h>
 #include <gui/elements.h>
-#include <gui/icon_i.h>
-#include <gui/icon_animation_i.h>
+#include <gui/icon.h>
+#include <gui/icon_animation.h>
+#include <assets_icons.h>
 
 #define TAG "SubBruteAttackView"
 
@@ -291,8 +291,8 @@ void elements_button_top_left(Canvas* canvas, const char* str) {
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const uint8_t icon_h_offset = 3;
-    const uint8_t icon_width_with_offset = icon->width + icon_h_offset;
-    const uint8_t icon_v_offset = icon->height; //
+    const uint8_t icon_width_with_offset = icon_get_width(icon) + icon_h_offset;
+    const uint8_t icon_v_offset = icon_get_height(icon); //
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset + 1;
 
     const uint8_t x = 0;
@@ -318,8 +318,8 @@ void elements_button_top_right(Canvas* canvas, const char* str) {
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const uint8_t icon_h_offset = 3;
-    const uint8_t icon_width_with_offset = icon->width + icon_h_offset;
-    const uint8_t icon_v_offset = icon->height; // + vertical_offset;
+    const uint8_t icon_width_with_offset = icon_get_width(icon) + icon_h_offset;
+    const uint8_t icon_v_offset = icon_get_height(icon); // + vertical_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset + 1;
 
     const uint8_t x = canvas_width(canvas);
@@ -332,7 +332,7 @@ void elements_button_top_right(Canvas* canvas, const char* str) {
 
     canvas_invert_color(canvas);
     canvas_draw_str(canvas, x - button_width + horizontal_offset, y + vertical_offset, str);
-    canvas_draw_icon(canvas, x - horizontal_offset - icon->width, y + icon_v_offset, icon);
+    canvas_draw_icon(canvas, x - horizontal_offset - icon_get_width(icon), y + icon_v_offset, icon);
     canvas_invert_color(canvas);
 }
 
@@ -371,8 +371,8 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
         }
         // canvas_draw_icon_animation
         const uint8_t icon_h_offset = 0;
-        const uint8_t icon_width_with_offset = model->icon->icon->width + icon_h_offset;
-        const uint8_t icon_v_offset = model->icon->icon->height; // + vertical_offset;
+        const uint8_t icon_width_with_offset = icon_animation_get_width(model->icon) + icon_h_offset;
+        const uint8_t icon_v_offset = icon_animation_get_height(model->icon); // + vertical_offset;
         const uint8_t x = canvas_width(canvas);
         const uint8_t y = canvas_height(canvas);
         canvas_draw_icon_animation(

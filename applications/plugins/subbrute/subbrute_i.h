@@ -47,7 +47,6 @@ struct SubBruteState {
     Popup* popup;
     Widget* widget;
     DialogsApp* dialogs;
-    Loading* loading;
 
     // Text store
     char text_store[SUBBRUTE_MAX_LEN_NAME];

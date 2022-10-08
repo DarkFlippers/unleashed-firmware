@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
 #include "subbrute_scene.h"
-#include <core/string.h>
 #include <lib/toolbox/random_name.h>
 
 #define TAG "SubBruteSceneSaveFile"

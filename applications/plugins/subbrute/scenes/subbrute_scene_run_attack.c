@@ -1,7 +1,5 @@
 #include "../subbrute_i.h"
 #include "subbrute_scene.h"
-#include "../subbrute_custom_event.h"
-#include "../views/subbrute_attack_view.h"
 
 #define TAG "SubBruteSceneRunAttack"
 

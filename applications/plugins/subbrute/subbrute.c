@@ -40,7 +40,7 @@ SubBruteState* subbrute_alloc() {
     view_dispatcher_set_navigation_event_callback(
         instance->view_dispatcher, subbrute_back_event_callback);
     view_dispatcher_set_tick_event_callback(
-        instance->view_dispatcher, subbrute_tick_event_callback, 10);
+        instance->view_dispatcher, subbrute_tick_event_callback, 100);
 
     //Dialog
     instance->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -87,8 +87,6 @@ SubBruteState* subbrute_alloc() {
         SubBruteViewAttack,
         subbrute_attack_view_get_view(instance->view_attack));
 
-    // Loading
-    instance->loading = loading_alloc();
     //instance->flipper_format = flipper_format_string_alloc();
     //instance->environment = subghz_environment_alloc();
 
@@ -99,91 +97,49 @@ void subbrute_free(SubBruteState* instance) {
     furi_assert(instance);
 
     // SubBruteDevice
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteDevice");
-#endif
     subbrute_worker_stop(instance->device);
     subbrute_device_free(instance->device);
 
     // Notifications
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free Notifications");
-#endif
     notification_message(instance->notifications, &sequence_blink_stop);
     furi_record_close(RECORD_NOTIFICATION);
     instance->notifications = NULL;
 
-    // Loading
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free loading");
-#endif
-    loading_free(instance->loading);
-
     // View Main
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewMain");
-#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewMain);
     subbrute_main_view_free(instance->view_main);
 
     // View Attack
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewAttack");
-#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewAttack);
     subbrute_attack_view_free(instance->view_attack);
 
     // TextInput
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewTextInput");
-#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewTextInput);
     text_input_free(instance->text_input);
 
     // Custom Widget
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewWidget");
-#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewWidget);
     widget_free(instance->widget);
 
     // Popup
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewPopup");
-#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewPopup);
     popup_free(instance->popup);
 
     // ViewStack
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free SubBruteViewStack");
-#endif
     view_dispatcher_remove_view(instance->view_dispatcher, SubBruteViewStack);
     view_stack_free(instance->view_stack);
 
     //Dialog
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free RECORD_DIALOGS");
-#endif
     furi_record_close(RECORD_DIALOGS);
     instance->dialogs = NULL;
 
     // Scene manager
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free scene_manager");
-#endif
     scene_manager_free(instance->scene_manager);
 
     // View Dispatcher
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free view_dispatcher");
-#endif
     view_dispatcher_free(instance->view_dispatcher);
 
     // GUI
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "free RECORD_GUI");
-#endif
     furi_record_close(RECORD_GUI);
     instance->gui = NULL;
 
@@ -191,23 +147,6 @@ void subbrute_free(SubBruteState* instance) {
 
     // The rest
     free(instance);
-}
-
-void subbrute_show_loading_popup(void* context, bool show) {
-    TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
-    SubBruteState* instance = context;
-    ViewStack* view_stack = instance->view_stack;
-    Loading* loading = instance->loading;
-
-    if(show) {
-        // Raise timer priority so that animations can play
-        vTaskPrioritySet(timer_task, configMAX_PRIORITIES - 1);
-        view_stack_add_view(view_stack, loading_get_view(loading));
-    } else {
-        view_stack_remove_view(view_stack, loading_get_view(loading));
-        // Restore default timer priority
-        vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
-    }
 }
 
 void subbrute_text_input_callback(void* context) {

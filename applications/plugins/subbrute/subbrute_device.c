@@ -40,6 +40,7 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->callback = NULL;
 
     instance->protocol_info = NULL;
+    instance->file_protocol_info = NULL;
     instance->decoder_result = NULL;
     instance->transmitter = NULL;
     instance->receiver = NULL;
@@ -150,7 +151,8 @@ bool subbrute_worker_start(SubBruteDevice* instance) {
         FURI_LOG_W(TAG, "Worker cannot start, invalid device state: %d", instance->state);
         return false;
     }
-    if(instance->protocol_info == NULL) {
+    if((instance->protocol_info == NULL && instance->attack != SubBruteAttackLoadFile) ||
+       (instance->attack == SubBruteAttackLoadFile && instance->file_protocol_info == NULL)) {
         FURI_LOG_W(TAG, "Worker cannot start, protocol_info is NULL!");
         return false;
     }
@@ -230,9 +232,13 @@ void subbrute_device_subghz_transmit(SubBruteDevice* instance, FlipperFormat* fl
         instance->environment, subbrute_protocol_name(instance->attack));
     subghz_transmitter_deserialize(instance->transmitter, flipper_format);
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(instance->protocol_info->preset);
-    furi_hal_subghz_set_frequency_and_path(instance->protocol_info->preset);
-
+    if(instance->attack == SubBruteAttackLoadFile) {
+        furi_hal_subghz_load_preset(instance->file_protocol_info->preset);
+        furi_hal_subghz_set_frequency_and_path(instance->file_protocol_info->preset);
+    } else {
+        furi_hal_subghz_load_preset(instance->protocol_info->preset);
+        furi_hal_subghz_set_frequency_and_path(instance->protocol_info->preset);
+    }
     furi_hal_subghz_start_async_tx(subghz_transmitter_yield, instance->transmitter);
 
     while(!furi_hal_subghz_is_async_tx_complete()) {
@@ -348,6 +354,9 @@ bool subbrute_device_create_packet_parsed(
 
     FuriString* candidate = furi_string_alloc();
 
+    Stream* stream = flipper_format_get_raw_stream(flipper_format);
+    stream_clean(stream);
+
     if(instance->attack == SubBruteAttackLoadFile) {
         if(step >= sizeof(instance->file_key)) {
             return false;
@@ -357,6 +366,42 @@ bool subbrute_device_create_packet_parsed(
         snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
         furi_string_replace_at(candidate, instance->load_index * 3, 3, subbrute_payload_byte);
         //snprintf(step_payload, sizeof(step_payload), "%02X", (uint8_t)instance->file_key[step]);
+
+        if(small) {
+            if(instance->file_protocol_info->te) {
+                stream_write_format(
+                    stream,
+                    subbrute_key_small_with_tail,
+                    instance->file_protocol_info->bits,
+                    furi_string_get_cstr(candidate),
+                    instance->file_protocol_info->te,
+                    instance->file_protocol_info->repeat);
+            } else {
+                stream_write_format(
+                    stream,
+                    subbrute_key_small_no_tail,
+                    instance->file_protocol_info->bits,
+                    furi_string_get_cstr(candidate),
+                    instance->file_protocol_info->repeat);
+            }
+        } else {
+            if(instance->file_protocol_info->te) {
+                stream_write_format(
+                    stream,
+                    subbrute_key_file_key_with_tail,
+                    instance->file_template,
+                    furi_string_get_cstr(candidate),
+                    instance->file_protocol_info->te,
+                    instance->file_protocol_info->repeat);
+            } else {
+                stream_write_format(
+                    stream,
+                    subbrute_key_file_key,
+                    instance->file_template,
+                    furi_string_get_cstr(candidate),
+                    instance->file_protocol_info->repeat);
+            }
+        }
     } else {
         //snprintf(step_payload, sizeof(step_payload), "%16X", step);
         //snprintf(step_payload, sizeof(step_payload), "%016llX", step);
@@ -375,53 +420,50 @@ bool subbrute_device_create_packet_parsed(
             }
         }
         furi_string_free(buffer);
-    }
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+        FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
 
-    Stream* stream = flipper_format_get_raw_stream(flipper_format);
-    stream_clean(stream);
-
-    if(small) {
-        if(instance->protocol_info->te) {
-            stream_write_format(
-                stream,
-                subbrute_key_small_with_tail,
-                instance->protocol_info->bits,
-                furi_string_get_cstr(candidate),
-                instance->protocol_info->te,
-                instance->protocol_info->repeat);
+        if(small) {
+            if(instance->protocol_info->te) {
+                stream_write_format(
+                    stream,
+                    subbrute_key_small_with_tail,
+                    instance->protocol_info->bits,
+                    furi_string_get_cstr(candidate),
+                    instance->protocol_info->te,
+                    instance->protocol_info->repeat);
+            } else {
+                stream_write_format(
+                    stream,
+                    subbrute_key_small_no_tail,
+                    instance->protocol_info->bits,
+                    furi_string_get_cstr(candidate),
+                    instance->protocol_info->repeat);
+            }
         } else {
-            stream_write_format(
-                stream,
-                subbrute_key_small_no_tail,
-                instance->protocol_info->bits,
-                furi_string_get_cstr(candidate),
-                instance->protocol_info->repeat);
+            if(instance->protocol_info->te) {
+                stream_write_format(
+                    stream,
+                    subbrute_key_file_key_with_tail,
+                    instance->file_template,
+                    furi_string_get_cstr(candidate),
+                    instance->protocol_info->te,
+                    instance->protocol_info->repeat);
+            } else {
+                stream_write_format(
+                    stream,
+                    subbrute_key_file_key,
+                    instance->file_template,
+                    furi_string_get_cstr(candidate),
+                    instance->protocol_info->repeat);
+            }
         }
-    } else {
-        if(instance->protocol_info->te) {
-            stream_write_format(
-                stream,
-                subbrute_key_file_key_with_tail,
-                instance->file_template,
-                furi_string_get_cstr(candidate),
-                instance->protocol_info->te,
-                instance->protocol_info->repeat);
-        } else {
-            stream_write_format(
-                stream,
-                subbrute_key_file_key,
-                instance->file_template,
-                furi_string_get_cstr(candidate),
-                instance->protocol_info->repeat);
-        }
-    }
 #ifdef FURI_DEBUG
-    //FURI_LOG_D(TAG, "payload: %s", instance->payload);
+        //FURI_LOG_D(TAG, "payload: %s", instance->payload);
 #endif
+    }
 
     furi_string_free(candidate);
 
@@ -471,6 +513,17 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     // Calc max value
     if(instance->attack == SubBruteAttackLoadFile) {
         instance->max_value = 0x3F;
+
+        // Now we are ready to set file template for using in the future with snprintf
+        // for sending attack payload ONLY for files!
+        snprintf(
+            instance->file_template,
+            sizeof(instance->file_template),
+            subbrute_key_file_start,
+            instance->file_protocol_info->frequency,
+            subbrute_protocol_preset(instance->file_protocol_info->preset),
+            subbrute_protocol_file(instance->file_protocol_info->file),
+            instance->file_protocol_info->bits);
     } else {
         FuriString* max_value_s;
         max_value_s = furi_string_alloc();
@@ -479,22 +532,22 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         }
         instance->max_value = (uint64_t)strtol(furi_string_get_cstr(max_value_s), NULL, 2);
         furi_string_free(max_value_s);
-    }
 
-    // Now we are ready to set file template for using in the future with snprintf
-    // for sending attack payload
-    snprintf(
-        instance->file_template,
-        sizeof(instance->file_template),
-        subbrute_key_file_start,
-        instance->protocol_info->frequency,
-        subbrute_protocol_preset(instance->protocol_info->preset),
-        subbrute_protocol_file(instance->protocol_info->file),
-        instance->protocol_info->bits);
+        // Now we are ready to set file template for using in the future with snprintf
+        // for sending attack payload
+        snprintf(
+            instance->file_template,
+            sizeof(instance->file_template),
+            subbrute_key_file_start,
+            instance->protocol_info->frequency,
+            subbrute_protocol_preset(instance->protocol_info->preset),
+            subbrute_protocol_file(instance->protocol_info->file),
+            instance->protocol_info->bits);
 #ifdef FURI_DEBUG
-    FURI_LOG_D(
-        TAG, "tail: %d, file_template: %s", instance->protocol_info->te, instance->file_template);
+        FURI_LOG_D(
+            TAG, "tail: %d, file_template: %s", instance->protocol_info->te, instance->file_template);
 #endif
+    }
 
     // Init payload
     FlipperFormat* flipper_format = flipper_format_string_alloc();
@@ -516,6 +569,9 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
+
+    subbrute_device_free_protocol_info(instance);
+    instance->file_protocol_info = malloc(sizeof(SubBruteProtocol));
 
     FuriString* temp_str;
     temp_str = furi_string_alloc();
@@ -539,8 +595,8 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
 
         // Frequency
         if(flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
-            instance->protocol_info->frequency = temp_data32;
-            if(!furi_hal_subghz_is_tx_allowed(instance->protocol_info->frequency)) {
+            instance->file_protocol_info->frequency = temp_data32;
+            if(!furi_hal_subghz_is_tx_allowed(instance->file_protocol_info->frequency)) {
                 result = SubBruteFileResultFrequencyNotAllowed;
                 break;
             }
@@ -555,7 +611,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
             FURI_LOG_E(TAG, "Preset FAIL");
             result = SubBruteFileResultPresetInvalid;
         } else {
-            instance->protocol_info->preset = subbrute_protocol_convert_preset(temp_str);
+            instance->file_protocol_info->preset = subbrute_protocol_convert_preset(temp_str);
         }
 
         const char* protocol_file = NULL;
@@ -565,8 +621,8 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
             result = SubBruteFileResultMissingProtocol;
             break;
         } else {
-            instance->protocol_info->file = subbrute_protocol_file_protocol_name(temp_str);
-            protocol_file = subbrute_protocol_file(instance->protocol_info->file);
+            instance->file_protocol_info->file = subbrute_protocol_file_protocol_name(temp_str);
+            protocol_file = subbrute_protocol_file(instance->file_protocol_info->file);
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "Protocol: %s", protocol_file);
 #endif
@@ -598,9 +654,9 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
             result = SubBruteFileResultMissingOrIncorrectBit;
             break;
         } else {
-            instance->protocol_info->bits = temp_data32;
+            instance->file_protocol_info->bits = temp_data32;
 #ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "Bit: %d", instance->protocol_info->bits);
+            FURI_LOG_D(TAG, "Bit: %d", instance->file_protocol_info->bits);
 #endif
         }
 
@@ -626,7 +682,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
             //result = SubBruteFileResultMissingOrIncorrectTe;
             //break;
         } else {
-            instance->protocol_info->te = temp_data32 != 0;
+            instance->file_protocol_info->te = temp_data32 != 0;
         }
 
         // Repeat
@@ -634,12 +690,12 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "Repeat: %ld", temp_data32);
 #endif
-            instance->protocol_info->repeat = (uint8_t)temp_data32;
+            instance->file_protocol_info->repeat = (uint8_t)temp_data32;
         } else {
 #ifdef FURI_DEBUG
             FURI_LOG_D(TAG, "Repeat: 3 (default)");
 #endif
-            instance->protocol_info->repeat = 3;
+            instance->file_protocol_info->repeat = 3;
         }
 
         result = SubBruteFileResultOk;
@@ -659,6 +715,8 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
 #ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "Loaded successfully");
 #endif
+    } else {
+        subbrute_device_free_protocol_info(instance);
     }
 
     return result;
@@ -742,7 +800,9 @@ const char* subbrute_device_error_get_desc(SubBruteFileResult error_id) {
 
 void subbrute_device_free_protocol_info(SubBruteDevice* instance) {
     furi_assert(instance);
-
-    free(instance->protocol_info);
     instance->protocol_info = NULL;
+    if(instance->file_protocol_info) {
+        free(instance->file_protocol_info);
+    }
+    instance->file_protocol_info = NULL;
 }

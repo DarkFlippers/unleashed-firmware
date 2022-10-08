@@ -41,7 +41,8 @@ typedef enum {
 typedef void (*SubBruteDeviceWorkerCallback)(void* context, SubBruteDeviceState state);
 typedef struct {
     SubBruteDeviceState state;
-    SubBruteProtocol* protocol_info;
+    const SubBruteProtocol* protocol_info;
+    SubBruteProtocol* file_protocol_info;
     volatile bool worker_running;
 
     // Current step

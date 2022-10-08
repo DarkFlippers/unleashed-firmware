@@ -49,8 +49,7 @@ typedef struct {
     SubBruteFileProtocol file;
 } SubBruteProtocol;
 
-SubBruteProtocol* subbrute_protocol_alloc(void);
-SubBruteProtocol* subbrute_protocol(SubBruteAttacks index);
+const SubBruteProtocol* subbrute_protocol(SubBruteAttacks index);
 const char* subbrute_protocol_preset(FuriHalSubGhzPreset preset);
 const char* subbrute_protocol_file(SubBruteFileProtocol protocol);
 FuriHalSubGhzPreset subbrute_protocol_convert_preset(FuriString* preset_name);
