@@ -129,12 +129,14 @@ void gpio_usb_uart_set_callback(GpioUsbUart* usb_uart, GpioUsbUartCallback callb
     furi_assert(callback);
 
     with_view_model(
-        usb_uart->view, (GpioUsbUartModel * model) {
+        usb_uart->view,
+        GpioUsbUartModel * model,
+        {
             UNUSED(model);
             usb_uart->callback = callback;
             usb_uart->context = context;
-            return false;
-        });
+        },
+        false);
 }
 
 void gpio_usb_uart_update_state(GpioUsbUart* instance, UsbUartConfig* cfg, UsbUartState* st) {
@@ -143,7 +145,9 @@ void gpio_usb_uart_update_state(GpioUsbUart* instance, UsbUartConfig* cfg, UsbUa
     furi_assert(st);
 
     with_view_model(
-        instance->view, (GpioUsbUartModel * model) {
+        instance->view,
+        GpioUsbUartModel * model,
+        {
             model->baudrate = st->baudrate_cur;
             model->vcp_port = cfg->vcp_ch;
             model->tx_pin = (cfg->uart_ch == 0) ? (13) : (15);
@@ -152,6 +156,6 @@ void gpio_usb_uart_update_state(GpioUsbUart* instance, UsbUartConfig* cfg, UsbUa
             model->rx_active = (model->rx_cnt != st->rx_cnt);
             model->tx_cnt = st->tx_cnt;
             model->rx_cnt = st->rx_cnt;
-            return true;
-        });
+        },
+        true);
 }

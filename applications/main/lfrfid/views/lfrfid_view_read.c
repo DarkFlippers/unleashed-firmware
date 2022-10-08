@@ -56,19 +56,13 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
 void lfrfid_view_read_enter(void* context) {
     LfRfidReadView* read_view = context;
     with_view_model(
-        read_view->view, (LfRfidReadViewModel * model) {
-            icon_animation_start(model->icon);
-            return true;
-        });
+        read_view->view, LfRfidReadViewModel * model, { icon_animation_start(model->icon); }, true);
 }
 
 void lfrfid_view_read_exit(void* context) {
     LfRfidReadView* read_view = context;
     with_view_model(
-        read_view->view, (LfRfidReadViewModel * model) {
-            icon_animation_stop(model->icon);
-            return false;
-        });
+        read_view->view, LfRfidReadViewModel * model, { icon_animation_stop(model->icon); }, false);
 }
 
 LfRfidReadView* lfrfid_view_read_alloc() {
@@ -78,11 +72,13 @@ LfRfidReadView* lfrfid_view_read_alloc() {
     view_allocate_model(read_view->view, ViewModelTypeLocking, sizeof(LfRfidReadViewModel));
 
     with_view_model(
-        read_view->view, (LfRfidReadViewModel * model) {
+        read_view->view,
+        LfRfidReadViewModel * model,
+        {
             model->icon = icon_animation_alloc(&A_Round_loader_8x8);
             view_tie_icon_animation(read_view->view, model->icon);
-            return false;
-        });
+        },
+        false);
 
     view_set_draw_callback(read_view->view, lfrfid_view_read_draw_callback);
     view_set_enter_callback(read_view->view, lfrfid_view_read_enter);
@@ -93,10 +89,7 @@ LfRfidReadView* lfrfid_view_read_alloc() {
 
 void lfrfid_view_read_free(LfRfidReadView* read_view) {
     with_view_model(
-        read_view->view, (LfRfidReadViewModel * model) {
-            icon_animation_free(model->icon);
-            return false;
-        });
+        read_view->view, LfRfidReadViewModel * model, { icon_animation_free(model->icon); }, false);
 
     view_free(read_view->view);
     free(read_view);
@@ -108,10 +101,12 @@ View* lfrfid_view_read_get_view(LfRfidReadView* read_view) {
 
 void lfrfid_view_read_set_read_mode(LfRfidReadView* read_view, LfRfidReadViewMode mode) {
     with_view_model(
-        read_view->view, (LfRfidReadViewModel * model) {
+        read_view->view,
+        LfRfidReadViewModel * model,
+        {
             icon_animation_stop(model->icon);
             icon_animation_start(model->icon);
             model->read_mode = mode;
-            return true;
-        });
+        },
+        true);
 }

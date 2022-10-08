@@ -521,7 +521,7 @@ static SectionType elf_preload_section(
     // TODO: how to do it not by name?
     // .ARM: type 0x70000001, flags SHF_ALLOC | SHF_LINK_ORDER
     // .rel.ARM: type 0x9, flags SHT_REL
-    if(str_prefix(name, ".ARM") || str_prefix(name, ".rel.ARM")) {
+    if(str_prefix(name, ".ARM.") || str_prefix(name, ".rel.ARM.")) {
         FURI_LOG_D(TAG, "Ignoring ARM section");
         return SectionTypeUnused;
     }

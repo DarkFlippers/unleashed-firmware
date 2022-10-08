@@ -89,7 +89,9 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
     }
 
     with_view_model(
-        subghz_test_carrier->view, (SubGhzTestCarrierModel * model) {
+        subghz_test_carrier->view,
+        SubGhzTestCarrierModel * model,
+        {
             furi_hal_subghz_idle();
 
             if(event->key == InputKeyLeft) {
@@ -125,9 +127,8 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
                         SubGhzTestCarrierEventOnlyRx, subghz_test_carrier->context);
                 }
             }
-
-            return true;
-        });
+        },
+        true);
 
     return true;
 }
@@ -142,15 +143,17 @@ void subghz_test_carrier_enter(void* context) {
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     with_view_model(
-        subghz_test_carrier->view, (SubGhzTestCarrierModel * model) {
+        subghz_test_carrier->view,
+        SubGhzTestCarrierModel * model,
+        {
             model->frequency = subghz_frequencies_433_92_testing; // 433
             model->real_frequency =
                 furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
             model->path = FuriHalSubGhzPathIsolate; // isolate
             model->rssi = 0.0f;
             model->status = SubGhzTestCarrierModelStatusRx;
-            return true;
-        });
+        },
+        true);
 
     furi_hal_subghz_rx();
 
@@ -172,13 +175,14 @@ void subghz_test_carrier_rssi_timer_callback(void* context) {
     SubGhzTestCarrier* subghz_test_carrier = context;
 
     with_view_model(
-        subghz_test_carrier->view, (SubGhzTestCarrierModel * model) {
+        subghz_test_carrier->view,
+        SubGhzTestCarrierModel * model,
+        {
             if(model->status == SubGhzTestCarrierModelStatusRx) {
                 model->rssi = furi_hal_subghz_get_rssi();
-                return true;
             }
-            return false;
-        });
+        },
+        false);
 }
 
 SubGhzTestCarrier* subghz_test_carrier_alloc() {

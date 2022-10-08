@@ -406,7 +406,9 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
 
     instance->locked = (rssi != 0.f);
     with_view_model(
-        instance->view, (SubGhzFrequencyAnalyzerModel * model) {
+        instance->view,
+        SubGhzFrequencyAnalyzerModel * model,
+        {
             model->rssi = rssi;
             model->rssi_last = instance->rssi_last;
             model->frequency = frequency;
@@ -441,7 +443,9 @@ void subghz_frequency_analyzer_enter(void* context) {
     subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, RSSI_MIN);
 
     with_view_model(
-        instance->view, (SubGhzFrequencyAnalyzerModel * model) {
+        instance->view,
+        SubGhzFrequencyAnalyzerModel * model,
+        {
             model->rssi = 0;
             model->rssi_last = 0;
             model->frequency = 0;

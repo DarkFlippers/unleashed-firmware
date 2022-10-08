@@ -211,25 +211,25 @@ void view_commit_model(View* view, bool update);
 #endif
 
 #ifdef __cplusplus
-#define with_view_model_cpp(view, type, var, function_body) \
+#define with_view_model_cpp(view, type, var, code, update)  \
     {                                                       \
-        type* p = static_cast<type*>(view_get_model(view)); \
-        bool update = [&](type * var) function_body(p);     \
+        type var = static_cast<type>(view_get_model(view)); \
+        {code};                                             \
         view_commit_model(view, update);                    \
     }
 #else
 /** With clause for view model
  *
  * @param      view           View instance pointer
- * @param      function_body  a (){} lambda declaration, executed within you
- *                            parent function context
+ * @param      type           View model type
+ * @param      code           Code block that will be executed between model lock and unlock
+ * @param      update         Bool flag, if true, view will be updated after code block. Can be variable, so code block can decide if update is needed.
  *
- * @return     true if you want to emit view update, false otherwise
  */
-#define with_view_model(view, function_body)                      \
-    {                                                             \
-        void* p = view_get_model(view);                           \
-        bool update = ({ bool __fn__ function_body __fn__; })(p); \
-        view_commit_model(view, update);                          \
+#define with_view_model(view, type, code, update) \
+    {                                             \
+        type = view_get_model(view);              \
+        {code};                                   \
+        view_commit_model(view, update);          \
     }
 #endif
