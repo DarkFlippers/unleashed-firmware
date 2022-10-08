@@ -452,6 +452,10 @@ static bool elf_load_debug_link(ELFFile* elf, Elf32_Shdr* section_header) {
                section_header->sh_size;
 }
 
+static bool str_prefix(const char* str, const char* prefix) {
+    return strncmp(prefix, str, strlen(prefix)) == 0;
+}
+
 static bool elf_load_section_data(ELFFile* elf, ELFSection* section, Elf32_Shdr* section_header) {
     if(section_header->sh_size == 0) {
         FURI_LOG_D(TAG, "No data for section");
@@ -484,6 +488,43 @@ static SectionType elf_preload_section(
     FuriString* name_string,
     FlipperApplicationManifest* manifest) {
     const char* name = furi_string_get_cstr(name_string);
+
+#ifdef ELF_DEBUG_LOG
+    // log section name, type and flags
+    FuriString* flags_string = furi_string_alloc();
+    if(section_header->sh_flags & SHF_WRITE) furi_string_cat(flags_string, "W");
+    if(section_header->sh_flags & SHF_ALLOC) furi_string_cat(flags_string, "A");
+    if(section_header->sh_flags & SHF_EXECINSTR) furi_string_cat(flags_string, "X");
+    if(section_header->sh_flags & SHF_MERGE) furi_string_cat(flags_string, "M");
+    if(section_header->sh_flags & SHF_STRINGS) furi_string_cat(flags_string, "S");
+    if(section_header->sh_flags & SHF_INFO_LINK) furi_string_cat(flags_string, "I");
+    if(section_header->sh_flags & SHF_LINK_ORDER) furi_string_cat(flags_string, "L");
+    if(section_header->sh_flags & SHF_OS_NONCONFORMING) furi_string_cat(flags_string, "O");
+    if(section_header->sh_flags & SHF_GROUP) furi_string_cat(flags_string, "G");
+    if(section_header->sh_flags & SHF_TLS) furi_string_cat(flags_string, "T");
+    if(section_header->sh_flags & SHF_COMPRESSED) furi_string_cat(flags_string, "T");
+    if(section_header->sh_flags & SHF_MASKOS) furi_string_cat(flags_string, "o");
+    if(section_header->sh_flags & SHF_MASKPROC) furi_string_cat(flags_string, "p");
+    if(section_header->sh_flags & SHF_ORDERED) furi_string_cat(flags_string, "R");
+    if(section_header->sh_flags & SHF_EXCLUDE) furi_string_cat(flags_string, "E");
+
+    FURI_LOG_I(
+        TAG,
+        "Section %s: type: %ld, flags: %s",
+        name,
+        section_header->sh_type,
+        furi_string_get_cstr(flags_string));
+    furi_string_free(flags_string);
+#endif
+
+    // ignore .ARM and .rel.ARM sections
+    // TODO: how to do it not by name?
+    // .ARM: type 0x70000001, flags SHF_ALLOC | SHF_LINK_ORDER
+    // .rel.ARM: type 0x9, flags SHT_REL
+    if(str_prefix(name, ".ARM") || str_prefix(name, ".rel.ARM")) {
+        FURI_LOG_D(TAG, "Ignoring ARM section");
+        return SectionTypeUnused;
+    }
 
     // Load allocable section
     if(section_header->sh_flags & SHF_ALLOC) {
