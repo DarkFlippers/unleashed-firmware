@@ -305,7 +305,7 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, FuriString* line) {
     } else if(strncmp(line_tmp, ducky_cmd_sysrq, strlen(ducky_cmd_sysrq)) == 0) {
         // SYSRQ
         line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        uint16_t key = ducky_get_keycode(line_tmp, true);
+        uint16_t key = ducky_get_keycode(bad_usb, line_tmp, true);
         furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT | HID_KEYBOARD_PRINT_SCREEN);
         furi_hal_hid_kb_press(key);
         furi_hal_hid_kb_release_all();

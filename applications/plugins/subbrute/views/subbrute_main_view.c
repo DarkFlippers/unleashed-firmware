@@ -173,17 +173,19 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
     uint8_t index = 0;
     bool is_select_byte = false;
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
-            is_select_byte = model->is_select_byte;
-            return false;
-        });
+        instance->view,
+        SubBruteMainViewModel * model,
+        { is_select_byte = model->is_select_byte; },
+        false);
 
     bool consumed = false;
     if(!is_select_byte) {
         if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
+            bool ret = false;
             with_view_model(
-                instance->view, (SubBruteMainViewModel * model) {
-                    bool ret = false;
+                instance->view,
+                SubBruteMainViewModel * model,
+                {
                     uint8_t items_on_screen = 3;
                     if(event->key == InputKeyUp) {
                         if(model->index == min_value) {
@@ -219,8 +221,8 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                         }
                     }
                     index = model->index;
-                    return ret;
-                });
+                },
+                ret);
         }
 
 #ifdef FURI_DEBUG
@@ -243,7 +245,9 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
     } else {
         if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
             with_view_model(
-                instance->view, (SubBruteMainViewModel * model) {
+                instance->view,
+                SubBruteMainViewModel * model,
+                {
                     if(event->key == InputKeyLeft) {
                         if(model->index > 0) {
                             model->index--;
@@ -255,8 +259,8 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                     }
 
                     index = model->index;
-                    return true;
-                });
+                },
+                true);
         }
 
 #ifdef FURI_DEBUG
@@ -304,13 +308,15 @@ SubBruteMainView* subbrute_main_view_alloc() {
     view_set_exit_callback(instance->view, subbrute_main_view_exit);
 
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
+        instance->view,
+        SubBruteMainViewModel * model,
+        {
             model->index = 0;
             model->window_position = 0;
             model->key_field = NULL;
             model->is_select_byte = false;
-            return true;
-        });
+        },
+        true);
 
     return instance;
 }
@@ -338,7 +344,9 @@ void subbrute_main_view_set_index(
     FURI_LOG_I(TAG, "Set index: %d", idx);
 #endif
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
+        instance->view,
+        SubBruteMainViewModel * model,
+        {
             model->is_select_byte = is_select_byte;
             model->key_field = key_field;
             model->index = idx;
@@ -359,8 +367,8 @@ void subbrute_main_view_set_index(
                     }
                 }
             }
-            return true;
-        });
+        },
+        true);
 }
 
 SubBruteAttacks subbrute_main_view_get_index(SubBruteMainView* instance) {
@@ -368,10 +376,7 @@ SubBruteAttacks subbrute_main_view_get_index(SubBruteMainView* instance) {
 
     uint8_t idx = 0;
     with_view_model(
-        instance->view, (SubBruteMainViewModel * model) {
-            idx = model->index;
-            return false;
-        });
+        instance->view, SubBruteMainViewModel * model, { idx = model->index; }, false);
 
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "Get index: %d", idx);

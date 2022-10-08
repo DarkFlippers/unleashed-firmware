@@ -146,52 +146,39 @@ View* wav_player_view_get_view(WavPlayerView* wav_view) {
 void wav_player_view_set_volume(WavPlayerView* wav_view, float volume) {
     furi_assert(wav_view);
     with_view_model(
-        wav_view->view, (WavPlayerViewModel * model) {
-            model->volume = volume;
-            return true;
-        });
+        wav_view->view, WavPlayerViewModel * model, { model->volume = volume; }, true);
 }
 
 void wav_player_view_set_start(WavPlayerView* wav_view, size_t start) {
     furi_assert(wav_view);
     with_view_model(
-        wav_view->view, (WavPlayerViewModel * model) {
-            model->start = start;
-            return true;
-        });
+        wav_view->view, WavPlayerViewModel * model, { model->start = start; }, true);
 }
 
 void wav_player_view_set_end(WavPlayerView* wav_view, size_t end) {
     furi_assert(wav_view);
     with_view_model(
-        wav_view->view, (WavPlayerViewModel * model) {
-            model->end = end;
-            return true;
-        });
+        wav_view->view, WavPlayerViewModel * model, { model->end = end; }, true);
 }
 
 void wav_player_view_set_current(WavPlayerView* wav_view, size_t current) {
     furi_assert(wav_view);
     with_view_model(
-        wav_view->view, (WavPlayerViewModel * model) {
-            model->current = current;
-            return true;
-        });
+        wav_view->view, WavPlayerViewModel * model, { model->current = current; }, true);
 }
 
 void wav_player_view_set_play(WavPlayerView* wav_view, bool play) {
     furi_assert(wav_view);
     with_view_model(
-        wav_view->view, (WavPlayerViewModel * model) {
-            model->play = play;
-            return true;
-        });
+        wav_view->view, WavPlayerViewModel * model, { model->play = play; }, true);
 }
 
 void wav_player_view_set_data(WavPlayerView* wav_view, uint16_t* data, size_t data_count) {
     furi_assert(wav_view);
     with_view_model(
-        wav_view->view, (WavPlayerViewModel * model) {
+        wav_view->view,
+        WavPlayerViewModel * model,
+        {
             size_t inc = (data_count / DATA_COUNT) - 1;
 
             for(size_t i = 0; i < DATA_COUNT; i++) {
@@ -199,8 +186,8 @@ void wav_player_view_set_data(WavPlayerView* wav_view, uint16_t* data, size_t da
                 if(model->data[i] > 42) model->data[i] = 42;
                 data += inc;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void wav_player_view_set_ctrl_callback(WavPlayerView* wav_view, WavPlayerCtrlCallback callback) {

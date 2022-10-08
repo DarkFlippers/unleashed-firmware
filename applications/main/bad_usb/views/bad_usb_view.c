@@ -188,10 +188,10 @@ void bad_usb_set_file_name(BadUsb* bad_usb, const char* name) {
 void bad_usb_set_layout(BadUsb* bad_usb, const char* layout) {
     furi_assert(layout);
     with_view_model(
-        bad_usb->view, (BadUsbModel * model) {
-            strlcpy(model->layout, layout, MAX_NAME_LEN);
-            return true;
-        });
+        bad_usb->view,
+        BadUsbModel * model,
+        { strlcpy(model->layout, layout, MAX_NAME_LEN); },
+        true);
 }
 void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st) {
     furi_assert(st);

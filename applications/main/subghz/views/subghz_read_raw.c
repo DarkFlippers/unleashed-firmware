@@ -378,7 +378,9 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
             true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 if(!model->raw_send_only) {
                     if(model->status == SubGhzReadRAWStatusStart) {
                         //Config
@@ -399,7 +401,9 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
             true);
     } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 if(!model->raw_send_only) {
                     if(model->status == SubGhzReadRAWStatusIDLE) {
                         //Save

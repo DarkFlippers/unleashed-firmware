@@ -68,10 +68,7 @@ void subghz_view_receiver_set_mode(
     SubGhzViewReceiver* subghz_receiver,
     SubGhzViewReceiverMode mode) {
     with_view_model(
-        subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            model->mode = mode;
-            return true;
-        });
+        subghz_receiver->view, SubGhzViewReceiverModel * model, { model->mode = mode; }, true);
 }
 
 void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock lock) {
@@ -172,10 +169,10 @@ void subghz_view_receiver_add_data_progress(
     const char* progress_str) {
     furi_assert(subghz_receiver);
     with_view_model(
-        subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            furi_string_set(model->progress_str, progress_str);
-            return true;
-        });
+        subghz_receiver->view,
+        SubGhzViewReceiverModel * model,
+        { furi_string_set(model->progress_str, progress_str); },
+        true);
 }
 
 static void subghz_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
