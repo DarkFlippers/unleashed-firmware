@@ -85,7 +85,7 @@ steps:
         Version: {{build.tag}}
 
 
-        [-Github-](https://github.com/Eng1n33r/flipperzero-firmware/releases/tag/${DRONE_TAG})
+        [-Github-](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
 
 
         [-Install via Web Updater-](https://my.flipp.dev/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
@@ -105,7 +105,7 @@ steps:
         Version: {{build.tag}}
 
 
-        [[Github]](https://github.com/Eng1n33r/flipperzero-firmware/releases/tag/${DRONE_TAG})
+        [[Github]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
 
 
         [-Install via Web Updater-](https://my.flipp.dev/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"

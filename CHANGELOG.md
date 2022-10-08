@@ -14,7 +14,7 @@
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
-[-> How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
+[-> How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
 [-> Download qFlipper 1.2.0 (allows .tgz installation) (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0/)
 

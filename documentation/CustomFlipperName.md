@@ -1,7 +1,7 @@
 # How to change Flipper name:
 
 ## Instruction
-1. Read [How to build](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToBuild.md) and [How to install](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md) to know how to build and install firmware
+1. Read [How to build](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToBuild.md) and [How to install](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md) to know how to build and install firmware
 2. Follow how to build instructions to prepare all things before continuing
 3. Run release build to verify all is ok - `./fbt COMPACT=1 DEBUG=0 updater_package`
 4. Clear build files - `./fbt COMPACT=1 DEBUG=0 updater_package -c`
