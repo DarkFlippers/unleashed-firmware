@@ -92,7 +92,9 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
 
 void variable_item_list_set_selected_item(VariableItemList* variable_item_list, uint8_t index) {
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             uint8_t position = index;
             if(position >= VariableItemArray_size(model->items)) {
                 position = 0;
@@ -112,9 +114,8 @@ void variable_item_list_set_selected_item(VariableItemList* variable_item_list, 
                     model->window_position = (VariableItemArray_size(model->items) - 4);
                 }
             }
-
-            return true;
-        });
+        },
+        true);
 }
 
 uint8_t variable_item_list_get_selected_item_index(VariableItemList* variable_item_list) {
@@ -181,7 +182,9 @@ static bool variable_item_list_input_callback(InputEvent* event, void* context) 
 
 void variable_item_list_process_up(VariableItemList* variable_item_list) {
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             uint8_t items_on_screen = 4;
             if(model->position > 0) {
                 model->position--;
@@ -195,13 +198,15 @@ void variable_item_list_process_up(VariableItemList* variable_item_list) {
                     model->window_position = model->position - (items_on_screen - 1);
                 }
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void variable_item_list_process_down(VariableItemList* variable_item_list) {
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             uint8_t items_on_screen = 4;
             if(model->position < (VariableItemArray_size(model->items) - 1)) {
                 model->position++;
@@ -214,8 +219,8 @@ void variable_item_list_process_down(VariableItemList* variable_item_list) {
                 model->position = 0;
                 model->window_position = 0;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 VariableItem* variable_item_list_get_selected_item(VariableItemListModel* model) {
@@ -239,7 +244,9 @@ VariableItem* variable_item_list_get_selected_item(VariableItemListModel* model)
 
 void variable_item_list_process_left(VariableItemList* variable_item_list) {
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             VariableItem* item = variable_item_list_get_selected_item(model);
             if(item->current_value_index > 0) {
                 item->current_value_index--;
@@ -247,13 +254,15 @@ void variable_item_list_process_left(VariableItemList* variable_item_list) {
                     item->change_callback(item);
                 }
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void variable_item_list_process_right(VariableItemList* variable_item_list) {
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             VariableItem* item = variable_item_list_get_selected_item(model);
             if(item->current_value_index < (item->values_count - 1)) {
                 item->current_value_index++;
@@ -261,18 +270,20 @@ void variable_item_list_process_right(VariableItemList* variable_item_list) {
                     item->change_callback(item);
                 }
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void variable_item_list_process_ok(VariableItemList* variable_item_list) {
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             if(variable_item_list->callback) {
                 variable_item_list->callback(variable_item_list->context, model->position);
             }
-            return false;
-        });
+        },
+        false);
 }
 
 VariableItemList* variable_item_list_alloc() {
@@ -285,12 +296,14 @@ VariableItemList* variable_item_list_alloc() {
     view_set_input_callback(variable_item_list->view, variable_item_list_input_callback);
 
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             VariableItemArray_init(model->items);
             model->position = 0;
             model->window_position = 0;
-            return true;
-        });
+        },
+        true);
 
     return variable_item_list;
 }
@@ -299,15 +312,17 @@ void variable_item_list_free(VariableItemList* variable_item_list) {
     furi_assert(variable_item_list);
 
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             VariableItemArray_it_t it;
             for(VariableItemArray_it(it, model->items); !VariableItemArray_end_p(it);
                 VariableItemArray_next(it)) {
                 furi_string_free(VariableItemArray_ref(it)->current_value_text);
             }
             VariableItemArray_clear(model->items);
-            return false;
-        });
+        },
+        false);
     view_free(variable_item_list->view);
     free(variable_item_list);
 }
@@ -316,15 +331,17 @@ void variable_item_list_reset(VariableItemList* variable_item_list) {
     furi_assert(variable_item_list);
 
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             VariableItemArray_it_t it;
             for(VariableItemArray_it(it, model->items); !VariableItemArray_end_p(it);
                 VariableItemArray_next(it)) {
                 furi_string_free(VariableItemArray_ref(it)->current_value_text);
             }
             VariableItemArray_reset(model->items);
-            return false;
-        });
+        },
+        false);
 }
 
 View* variable_item_list_get_view(VariableItemList* variable_item_list) {
@@ -343,7 +360,9 @@ VariableItem* variable_item_list_add(
     furi_assert(variable_item_list);
 
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             item = VariableItemArray_push_new(model->items);
             item->label = label;
             item->values_count = values_count;
@@ -351,8 +370,8 @@ VariableItem* variable_item_list_add(
             item->context = context;
             item->current_value_index = 0;
             item->current_value_text = furi_string_alloc();
-            return true;
-        });
+        },
+        true);
 
     return item;
 }
@@ -363,12 +382,14 @@ void variable_item_list_set_enter_callback(
     void* context) {
     furi_assert(callback);
     with_view_model(
-        variable_item_list->view, (VariableItemListModel * model) {
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
             UNUSED(model);
             variable_item_list->callback = callback;
             variable_item_list->context = context;
-            return false;
-        });
+        },
+        false);
 }
 
 void variable_item_set_current_value_index(VariableItem* item, uint8_t current_value_index) {

@@ -124,7 +124,9 @@ Popup* popup_alloc() {
     view_set_exit_callback(popup->view, popup_stop_timer);
 
     with_view_model(
-        popup->view, (PopupModel * model) {
+        popup->view,
+        PopupModel * model,
+        {
             model->header.text = NULL;
             model->header.x = 0;
             model->header.y = 0;
@@ -140,8 +142,8 @@ Popup* popup_alloc() {
             model->icon.x = 0;
             model->icon.y = 0;
             model->icon.icon = NULL;
-            return true;
-        });
+        },
+        true);
     return popup;
 }
 
@@ -176,14 +178,16 @@ void popup_set_header(
     Align vertical) {
     furi_assert(popup);
     with_view_model(
-        popup->view, (PopupModel * model) {
+        popup->view,
+        PopupModel * model,
+        {
             model->header.text = text;
             model->header.x = x;
             model->header.y = y;
             model->header.horizontal = horizontal;
             model->header.vertical = vertical;
-            return true;
-        });
+        },
+        true);
 }
 
 void popup_set_text(
@@ -195,25 +199,29 @@ void popup_set_text(
     Align vertical) {
     furi_assert(popup);
     with_view_model(
-        popup->view, (PopupModel * model) {
+        popup->view,
+        PopupModel * model,
+        {
             model->text.text = text;
             model->text.x = x;
             model->text.y = y;
             model->text.horizontal = horizontal;
             model->text.vertical = vertical;
-            return true;
-        });
+        },
+        true);
 }
 
 void popup_set_icon(Popup* popup, uint8_t x, uint8_t y, const Icon* icon) {
     furi_assert(popup);
     with_view_model(
-        popup->view, (PopupModel * model) {
+        popup->view,
+        PopupModel * model,
+        {
             model->icon.x = x;
             model->icon.y = y;
             model->icon.icon = icon;
-            return true;
-        });
+        },
+        true);
 }
 
 void popup_set_timeout(Popup* popup, uint32_t timeout_in_ms) {
@@ -233,12 +241,14 @@ void popup_reset(Popup* popup) {
     furi_assert(popup);
 
     with_view_model(
-        popup->view, (PopupModel * model) {
+        popup->view,
+        PopupModel * model,
+        {
             memset(&model->header, 0, sizeof(model->header));
             memset(&model->text, 0, sizeof(model->text));
             memset(&model->icon, 0, sizeof(model->icon));
-            return false;
-        });
+        },
+        false);
     popup->callback = NULL;
     popup->context = NULL;
     popup->timer_enabled = false;

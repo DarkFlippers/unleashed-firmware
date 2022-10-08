@@ -103,25 +103,29 @@ static bool menu_input_callback(InputEvent* event, void* context) {
 static void menu_enter(void* context) {
     Menu* menu = context;
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             MenuItem* item = MenuItemArray_get(model->items, model->position);
             if(item && item->icon) {
                 icon_animation_start(item->icon);
             }
-            return false;
-        });
+        },
+        false);
 }
 
 static void menu_exit(void* context) {
     Menu* menu = context;
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             MenuItem* item = MenuItemArray_get(model->items, model->position);
             if(item && item->icon) {
                 icon_animation_stop(item->icon);
             }
-            return false;
-        });
+        },
+        false);
 }
 
 Menu* menu_alloc() {
@@ -135,11 +139,13 @@ Menu* menu_alloc() {
     view_set_exit_callback(menu->view, menu_exit);
 
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             MenuItemArray_init(model->items);
             model->position = 0;
-            return true;
-        });
+        },
+        true);
 
     return menu;
 }
@@ -168,7 +174,9 @@ void menu_add_item(
 
     MenuItem* item = NULL;
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             item = MenuItemArray_push_new(model->items);
             item->label = label;
             item->icon = icon ? icon_animation_alloc(icon) : icon_animation_alloc(&A_Plugins_14);
@@ -176,14 +184,16 @@ void menu_add_item(
             item->index = index;
             item->callback = callback;
             item->callback_context = context;
-            return true;
-        });
+        },
+        true);
 }
 
 void menu_reset(Menu* menu) {
     furi_assert(menu);
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             for
                 M_EACH(item, model->items, MenuItemArray_t) {
                     icon_animation_stop(item->icon);
@@ -192,25 +202,27 @@ void menu_reset(Menu* menu) {
 
             MenuItemArray_reset(model->items);
             model->position = 0;
-            return true;
-        });
+        },
+        true);
 }
 
 void menu_set_selected_item(Menu* menu, uint32_t index) {
     with_view_model(
-        menu->view, (MenuModel * model) {
-            if(index >= MenuItemArray_size(model->items)) {
-                return false;
+        menu->view,
+        MenuModel * model,
+        {
+            if(index < MenuItemArray_size(model->items)) {
+                model->position = index;
             }
-
-            model->position = index;
-            return true;
-        });
+        },
+        true);
 }
 
 static void menu_process_up(Menu* menu) {
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             MenuItem* item = MenuItemArray_get(model->items, model->position);
             if(item && item->icon) {
                 icon_animation_stop(item->icon);
@@ -226,13 +238,15 @@ static void menu_process_up(Menu* menu) {
             if(item && item->icon) {
                 icon_animation_start(item->icon);
             }
-            return true;
-        });
+        },
+        true);
 }
 
 static void menu_process_down(Menu* menu) {
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             MenuItem* item = MenuItemArray_get(model->items, model->position);
             if(item && item->icon) {
                 icon_animation_stop(item->icon);
@@ -248,19 +262,21 @@ static void menu_process_down(Menu* menu) {
             if(item && item->icon) {
                 icon_animation_start(item->icon);
             }
-            return true;
-        });
+        },
+        true);
 }
 
 static void menu_process_ok(Menu* menu) {
     MenuItem* item = NULL;
     with_view_model(
-        menu->view, (MenuModel * model) {
+        menu->view,
+        MenuModel * model,
+        {
             if(model->position < MenuItemArray_size(model->items)) {
                 item = MenuItemArray_get(model->items, model->position);
             }
-            return true;
-        });
+        },
+        true);
     if(item && item->callback) {
         item->callback(item->callback_context, item->index);
     }
