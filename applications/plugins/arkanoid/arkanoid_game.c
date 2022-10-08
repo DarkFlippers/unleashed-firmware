@@ -10,6 +10,7 @@
 
 #define FLIPPER_LCD_WIDTH 128
 #define FLIPPER_LCD_HEIGHT 64
+#define MAX_SPEED 3
 
 typedef enum { EventTypeTick, EventTypeKey } EventType;
 
@@ -51,6 +52,7 @@ typedef struct {
     unsigned int brickCount; //Amount of bricks hit
     int tick; //Tick counter
     bool gameStarted; // Did the game start?
+    int speed; // Ball speed
 } ArkanoidState;
 
 typedef struct {
@@ -72,12 +74,18 @@ int rand_range(int min, int max) {
 
 void move_ball(Canvas* canvas, ArkanoidState* st) {
     st->tick++;
+
+    int current_speed = abs(st->speed-1 - MAX_SPEED);
+    if (st->tick % current_speed != 0 && st->tick % (current_speed + 1) != 0) {
+        return;
+    }
+
     if(st->ball_state.released) {
         //Move ball
         if(abs(st->ball_state.dx) == 2) {
             st->ball_state.xb += st->ball_state.dx / 2;
             // 2x speed is really 1.5 speed
-            if(st->tick % 2 == 0) st->ball_state.xb += st->ball_state.dx / 2;
+            if((st->tick / current_speed) % 2 == 0) st->ball_state.xb += st->ball_state.dx / 2;
         } else {
             st->ball_state.xb += st->ball_state.dx;
         }
@@ -286,6 +294,7 @@ static void arkanoid_state_init(ArkanoidState* arkanoid_state) {
     arkanoid_state->ROWS = 4;
     arkanoid_state->ball_state.dx = -1;
     arkanoid_state->ball_state.dy = -1;
+    arkanoid_state->speed = 2;
     arkanoid_state->bounced = false;
     arkanoid_state->lives = 3;
     arkanoid_state->level = 1;
@@ -414,8 +423,14 @@ int32_t arkanoid_game_app(void* p) {
                         }
                         break;
                     case InputKeyUp:
+                        if(arkanoid_state->speed < MAX_SPEED) {
+                            arkanoid_state->speed++;
+                        }
                         break;
                     case InputKeyDown:
+                        if(arkanoid_state->speed > 1) {
+                            arkanoid_state->speed--;
+                        }
                         break;
                     case InputKeyOk:
                         if(arkanoid_state->gameStarted == false) {

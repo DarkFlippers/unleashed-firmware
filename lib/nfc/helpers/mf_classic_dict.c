@@ -69,9 +69,18 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
         FuriString* next_line;
         next_line = furi_string_alloc();
         while(true) {
-            if(!stream_read_line(dict->stream, next_line)) break;
+            if(!stream_read_line(dict->stream, next_line)) {
+                FURI_LOG_T(TAG, "No keys left in dict");
+                break;
+            }
+            furi_string_trim(next_line);
+            FURI_LOG_T(
+                TAG,
+                "Read line: %s, len: %d",
+                furi_string_get_cstr(next_line),
+                furi_string_size(next_line));
             if(furi_string_get_char(next_line, 0) == '#') continue;
-            if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN) continue;
+            if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN - 1) continue;
             dict->total_keys++;
         }
         furi_string_free(next_line);

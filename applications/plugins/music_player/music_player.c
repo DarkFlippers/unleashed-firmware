@@ -248,12 +248,16 @@ static void music_player_worker_callback(
     view_port_update(music_player->view_port);
 }
 
+void music_player_clear(MusicPlayer* instance) {
+    memset(instance->model->duration_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
+    memset(instance->model->semitone_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
+    music_player_worker_clear(instance->worker);
+}
+
 MusicPlayer* music_player_alloc() {
     MusicPlayer* instance = malloc(sizeof(MusicPlayer));
 
     instance->model = malloc(sizeof(MusicPlayerModel));
-    memset(instance->model->duration_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
-    memset(instance->model->semitone_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
     instance->model->volume = 3;
 
     instance->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -264,6 +268,8 @@ MusicPlayer* music_player_alloc() {
     music_player_worker_set_volume(
         instance->worker, MUSIC_PLAYER_VOLUMES[instance->model->volume]);
     music_player_worker_set_callback(instance->worker, music_player_worker_callback, instance);
+
+    music_player_clear(instance);
 
     instance->view_port = view_port_alloc();
     view_port_draw_callback_set(instance->view_port, render_callback, instance);
@@ -299,7 +305,7 @@ int32_t music_player_app(void* p) {
 
     do {
         if(p && strlen(p)) {
-            furi_string_cat(file_path, (const char*)p);
+            furi_string_set(file_path, (const char*)p);
         } else {
             furi_string_set(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
 
@@ -350,7 +356,9 @@ int32_t music_player_app(void* p) {
         }
 
         music_player_worker_stop(music_player->worker);
-    } while(0);
+        if(p && strlen(p)) break; // Exit instead of going to browser if launched with arg
+        music_player_clear(music_player);
+    } while(1);
 
     furi_string_free(file_path);
     music_player_free(music_player);
