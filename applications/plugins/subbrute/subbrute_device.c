@@ -19,8 +19,11 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->receiver = NULL;
     instance->environment = subghz_environment_alloc();
 
+#ifdef FURI_DEBUG
+    subbrute_device_attack_set_default_values(instance, SubBruteAttackLoadFile);
+#else
     subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit433);
-
+#endif
     return instance;
 }
 
@@ -61,7 +64,7 @@ uint64_t subbrute_device_add_step(SubBruteDevice* instance, int8_t step) {
         } else if(instance->key_index == 0) {
             instance->key_index = instance->max_value;
         } else {
-            uint64_t value = ((instance->key_index - step) + instance->max_value);
+            uint64_t value = ((instance->key_index + step) + instance->max_value);
             if(value == instance->max_value) {
                 instance->key_index = value;
             } else {
@@ -82,16 +85,15 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
-    FuriString* file_content = furi_string_alloc();
-
     bool result = false;
     do {
         if(!flipper_format_file_open_always(file, dev_file_name)) {
             break;
         }
-
+        Stream* stream = flipper_format_get_raw_stream(file);
         if(instance->attack == SubBruteAttackLoadFile) {
-            file_content = subbrute_protocol_file_generate_file(
+            subbrute_protocol_file_generate_file(
+                stream,
                 instance->file_protocol_info->frequency,
                 instance->file_protocol_info->preset,
                 instance->file_protocol_info->file,
@@ -102,7 +104,8 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
                 instance->load_index,
                 instance->file_key);
         } else {
-            file_content = subbrute_protocol_default_generate_file(
+            subbrute_protocol_default_generate_file(
+                stream,
                 instance->protocol_info->frequency,
                 instance->protocol_info->preset,
                 instance->protocol_info->file,
@@ -110,14 +113,6 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
                 instance->protocol_info->bits,
                 instance->protocol_info->te,
                 instance->protocol_info->repeat);
-        }
-
-        Stream* stream = flipper_format_get_raw_stream(file);
-        stream_clean(stream);
-        size_t written = stream_write_string(stream, file_content);
-        if(written <= 0) {
-            FURI_LOG_E(TAG, "create_packet_parsed failed!");
-            break;
         }
 
         result = true;
@@ -130,7 +125,6 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
     flipper_format_file_close(file);
     flipper_format_free(file);
     furi_record_close(RECORD_STORAGE);
-    furi_string_free(file_content);
 
     return result;
 }
@@ -342,7 +336,7 @@ uint8_t subbrute_device_load_from_file(SubBruteDevice* instance, const char* fil
             //result = SubBruteFileResultMissingOrIncorrectTe;
             //break;
         } else {
-            instance->file_protocol_info->te = temp_data32 != 0;
+            instance->file_protocol_info->te = temp_data32 != 0 ? temp_data32 : 0;
         }
 
         // Repeat

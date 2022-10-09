@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <furi_hal_subghz.h>
 #include <core/string.h>
-
+#include <toolbox/stream/stream.h>
 //typedef enum {
 //    FrequencyProtocolField,
 //    BitsProtocolField,
@@ -56,16 +56,22 @@ FuriHalSubGhzPreset subbrute_protocol_convert_preset(FuriString* preset_name);
 SubBruteFileProtocol subbrute_protocol_file_protocol_name(FuriString* name);
 const char* subbrute_protocol_name(SubBruteAttacks index);
 
-FuriString*
-    subbrute_protocol_default_payload(uint64_t step, uint8_t bits, uint8_t te, uint8_t repeat);
-FuriString* subbrute_protocol_file_payload(
+void subbrute_protocol_default_payload(
+    Stream* stream,
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat);
+void subbrute_protocol_file_payload(
+    Stream* stream,
     uint64_t step,
     uint8_t bits,
     uint8_t te,
     uint8_t repeat,
     uint8_t load_index,
     const char* file_key);
-FuriString* subbrute_protocol_default_generate_file(
+void subbrute_protocol_default_generate_file(
+    Stream* stream,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     SubBruteFileProtocol file,
@@ -73,7 +79,8 @@ FuriString* subbrute_protocol_default_generate_file(
     uint8_t bits,
     uint8_t te,
     uint8_t repeat);
-FuriString* subbrute_protocol_file_generate_file(
+void subbrute_protocol_file_generate_file(
+    Stream* stream,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     SubBruteFileProtocol file,

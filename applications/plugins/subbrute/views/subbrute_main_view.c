@@ -91,7 +91,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
 
     if(m->is_select_byte) {
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "key_field: %s", m->key_field);
+        //FURI_LOG_D(TAG, "key_field: %s", m->key_field);
 #endif
         char msg_index[18];
         snprintf(msg_index, sizeof(msg_index), "Field index : %d", m->index);
@@ -118,7 +118,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
         const uint8_t item_height = 16;
 
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "window_position: %d, index: %d", model->window_position, m->index);
+        //FURI_LOG_D(TAG, "window_position: %d, index: %d", model->window_position, m->index);
 #endif
         for(uint8_t position = 0; position < SubBruteAttackTotalCount; ++position) {
             uint8_t item_position = position - model->window_position;

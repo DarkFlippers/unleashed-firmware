@@ -46,9 +46,13 @@ void subbrute_scene_run_attack_on_enter(void* context) {
         instance->worker, subbrute_scene_run_attack_device_state_changed, instance);
 
     if(!subbrute_worker_is_running(instance->worker)) {
+        subbrute_worker_set_step(instance->worker, instance->device->key_index);
         if(!subbrute_worker_start(instance->worker)) {
             view_dispatcher_send_custom_event(
                 instance->view_dispatcher, SubBruteCustomEventTypeError);
+        } else {
+            notification_message(instance->notifications, &sequence_single_vibro);
+            notification_message(instance->notifications, &sequence_blink_start_yellow);
         }
     }
 }
@@ -60,11 +64,14 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        subbrute_attack_view_set_current_step(view, subbrute_worker_get_step(instance->worker));
+        uint64_t step = subbrute_worker_get_step(instance->worker);
+        instance->device->key_index = step;
+        subbrute_attack_view_set_current_step(view, step);
 
         if(event.event == SubBruteCustomEventTypeTransmitFinished) {
             notification_message(instance->notifications, &sequence_display_backlight_on);
-            notification_message(instance->notifications, &sequence_single_vibro);
+            notification_message(instance->notifications, &sequence_double_vibro);
+
 
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
         } else if(
@@ -84,7 +91,9 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
         }
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
-        subbrute_attack_view_set_current_step(view, subbrute_worker_get_step(instance->worker));
+        uint64_t step = subbrute_worker_get_step(instance->worker);
+        instance->device->key_index = step;
+        subbrute_attack_view_set_current_step(view, step);
 
         consumed = true;
     }

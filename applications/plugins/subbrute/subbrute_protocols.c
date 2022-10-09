@@ -1,4 +1,5 @@
 #include "subbrute_protocols.h"
+#include <string.h>
 
 #define TAG "SubBruteProtocols"
 
@@ -249,8 +250,12 @@ SubBruteFileProtocol subbrute_protocol_file_protocol_name(FuriString* name) {
     return RAWFileProtocol;
 }
 
-FuriString*
-    subbrute_protocol_default_payload(uint64_t step, uint8_t bits, uint8_t te, uint8_t repeat) {
+void subbrute_protocol_default_payload(
+    Stream* stream,
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat) {
     FuriString* candidate = furi_string_alloc_set_str("                       ");
 
     FuriString* buffer = furi_string_alloc_printf("%16llX", step);
@@ -270,25 +275,25 @@ FuriString*
 #ifdef FURI_DEBUG
     //FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
-    FuriString* result;
-
+    stream_clean(stream);
     if(te) {
-        result = furi_string_alloc_printf(
-            subbrute_key_small_with_tail, bits, furi_string_get_cstr(candidate), te, repeat);
+        stream_write_format(
+            stream,
+            subbrute_key_small_with_tail,
+            bits,
+            furi_string_get_cstr(candidate),
+            te,
+            repeat);
     } else {
-        result = furi_string_alloc_printf(
-            subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
+        stream_write_format(
+            stream, subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
     }
-#ifdef FURI_DEBUG
-    //FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
-#endif
 
     furi_string_free(candidate);
-
-    return result;
 }
 
-FuriString* subbrute_protocol_file_payload(
+void subbrute_protocol_file_payload(
+    Stream* stream,
     uint64_t step,
     uint8_t bits,
     uint8_t te,
@@ -296,9 +301,6 @@ FuriString* subbrute_protocol_file_payload(
     uint8_t load_index,
     const char* file_key) {
     FuriString* candidate = furi_string_alloc();
-    if(step >= sizeof(file_key)) {
-        return false;
-    }
     char subbrute_payload_byte[4];
     furi_string_set_str(candidate, file_key);
     snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
@@ -307,26 +309,26 @@ FuriString* subbrute_protocol_file_payload(
 #ifdef FURI_DEBUG
     //FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
-    FuriString* result;
+    stream_clean(stream);
 
     if(te) {
-        result = furi_string_alloc_printf(
-            subbrute_key_small_with_tail, bits, furi_string_get_cstr(candidate), te, repeat);
+        stream_write_format(
+            stream,
+            subbrute_key_small_with_tail,
+            bits,
+            furi_string_get_cstr(candidate),
+            te,
+            repeat);
     } else {
-        result = furi_string_alloc_printf(
-            subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
+        stream_write_format(
+            stream, subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
     }
 
-#ifdef FURI_DEBUG
-    //FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
-#endif
-
     furi_string_free(candidate);
-
-    return result;
 }
 
-FuriString* subbrute_protocol_default_generate_file(
+void subbrute_protocol_default_generate_file(
+    Stream* stream,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     SubBruteFileProtocol file,
@@ -353,10 +355,11 @@ FuriString* subbrute_protocol_default_generate_file(
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
-    FuriString* result;
+    stream_clean(stream);
 
     if(te) {
-        result = furi_string_alloc_printf(
+        stream_write_format(
+            stream,
             subbrute_key_file_start_with_tail,
             frequency,
             preset,
@@ -366,7 +369,8 @@ FuriString* subbrute_protocol_default_generate_file(
             te,
             repeat);
     } else {
-        result = furi_string_alloc_printf(
+        stream_write_format(
+            stream,
             subbrute_key_file_start_no_tail,
             frequency,
             preset,
@@ -375,16 +379,12 @@ FuriString* subbrute_protocol_default_generate_file(
             furi_string_get_cstr(candidate),
             repeat);
     }
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
-#endif
 
     furi_string_free(candidate);
-
-    return result;
 }
 
-FuriString* subbrute_protocol_file_generate_file(
+void subbrute_protocol_file_generate_file(
+    Stream* stream,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
     SubBruteFileProtocol file,
@@ -395,9 +395,6 @@ FuriString* subbrute_protocol_file_generate_file(
     uint8_t load_index,
     const char* file_key) {
     FuriString* candidate = furi_string_alloc();
-    if(step >= sizeof(file_key)) {
-        return false;
-    }
     char subbrute_payload_byte[4];
     furi_string_set_str(candidate, file_key);
     snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
@@ -406,10 +403,10 @@ FuriString* subbrute_protocol_file_generate_file(
 #ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
-    FuriString* result;
-
+    stream_clean(stream);
     if(te) {
-        result = furi_string_alloc_printf(
+        stream_write_format(
+            stream,
             subbrute_key_file_start_with_tail,
             frequency,
             preset,
@@ -419,7 +416,8 @@ FuriString* subbrute_protocol_file_generate_file(
             te,
             repeat);
     } else {
-        result = furi_string_alloc_printf(
+        stream_write_format(
+            stream,
             subbrute_key_file_start_no_tail,
             frequency,
             preset,
@@ -429,13 +427,7 @@ FuriString* subbrute_protocol_file_generate_file(
             repeat);
     }
 
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
-#endif
-
     furi_string_free(candidate);
-
-    return result;
 }
 
 uint64_t subbrute_protocol_calc_max_value(SubBruteAttacks attack_type, uint8_t bits) {

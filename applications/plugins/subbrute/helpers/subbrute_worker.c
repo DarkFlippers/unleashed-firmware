@@ -225,11 +225,11 @@ bool subbrute_worker_transmit_current_key(SubBruteWorker* instance, uint64_t ste
     FlipperFormat* flipper_format = flipper_format_string_alloc();
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
-    FuriString* payload = NULL;
     stream_clean(stream);
 
     if(instance->attack == SubBruteAttackLoadFile) {
-        payload = subbrute_protocol_file_payload(
+        subbrute_protocol_file_payload(
+            stream,
             step,
             instance->bits,
             instance->te,
@@ -237,25 +237,25 @@ bool subbrute_worker_transmit_current_key(SubBruteWorker* instance, uint64_t ste
             instance->load_index,
             instance->file_key);
     } else {
-        payload = subbrute_protocol_default_payload(
-            step, instance->bits, instance->te, instance->repeat);
+        subbrute_protocol_default_payload(
+            stream, step, instance->bits, instance->te, instance->repeat);
     }
 
-    size_t written = stream_write_string(stream, payload);
-    if(written <= 0) {
-        FURI_LOG_W(TAG, "Error creating packet! EXIT");
-        result = false;
-    } else {
-        subbrute_worker_subghz_transmit(instance, flipper_format);
+    //    size_t written = stream_write_string(stream, payload);
+    //    if(written <= 0) {
+    //        FURI_LOG_W(TAG, "Error creating packet! EXIT");
+    //        result = false;
+    //    } else {
+    subbrute_worker_subghz_transmit(instance, flipper_format);
 
-        result = true;
+    result = true;
 #if FURI_DEBUG
-        FURI_LOG_D(TAG, "Manual transmit done");
+    FURI_LOG_D(TAG, "Manual transmit done");
 #endif
-    }
+    //    }
 
     flipper_format_free(flipper_format);
-    furi_string_free(payload);
+//    furi_string_free(payload);
 
     return result;
 }
@@ -353,11 +353,10 @@ int32_t subbrute_worker_thread(void* context) {
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
     while(instance->worker_running) {
-        FuriString* payload = NULL;
         stream_clean(stream);
-
         if(instance->attack == SubBruteAttackLoadFile) {
-            payload = subbrute_protocol_file_payload(
+            subbrute_protocol_file_payload(
+                stream,
                 instance->step,
                 instance->bits,
                 instance->te,
@@ -365,22 +364,22 @@ int32_t subbrute_worker_thread(void* context) {
                 instance->load_index,
                 instance->file_key);
         } else {
-            payload = subbrute_protocol_default_payload(
-                instance->step, instance->bits, instance->te, instance->repeat);
+            subbrute_protocol_default_payload(
+                stream, instance->step, instance->bits, instance->te, instance->repeat);
         }
 #ifdef FURI_DEBUG
-        FURI_LOG_I(TAG, "Payload: %s", furi_string_get_cstr(payload));
-        furi_delay_ms(SUBBRUTE_MANUAL_TRANSMIT_INTERVAL / 4);
+        //FURI_LOG_I(TAG, "Payload: %s", furi_string_get_cstr(payload));
+        //furi_delay_ms(SUBBRUTE_MANUAL_TRANSMIT_INTERVAL / 4);
 #endif
 
-        size_t written = stream_write_string(stream, payload);
-        if(written <= 0) {
-            FURI_LOG_W(TAG, "Error creating packet! BREAK");
-            instance->worker_running = false;
-            local_state = SubBruteWorkerStateIDLE;
-            furi_string_free(payload);
-            break;
-        }
+        //        size_t written = stream_write_stream_write_string(stream, payload);
+        //        if(written <= 0) {
+        //            FURI_LOG_W(TAG, "Error creating packet! BREAK");
+        //            instance->worker_running = false;
+        //            local_state = SubBruteWorkerStateIDLE;
+        //            furi_string_free(payload);
+        //            break;
+        //        }
 
         subbrute_worker_subghz_transmit(instance, flipper_format);
 
@@ -389,12 +388,12 @@ int32_t subbrute_worker_thread(void* context) {
             FURI_LOG_I(TAG, "Worker finished to end");
 #endif
             local_state = SubBruteWorkerStateFinished;
-            furi_string_free(payload);
+            //            furi_string_free(payload);
             break;
         }
         instance->step++;
 
-        furi_string_free(payload);
+        //        furi_string_free(payload);
         furi_delay_ms(SUBBRUTE_TX_TIMEOUT);
     }
 
