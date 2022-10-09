@@ -29,6 +29,8 @@
 
 #include <lib/subghz/subghz_worker.h>
 
+#include <lib/subghz/subghz_file_encoder_worker.h>
+
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 
@@ -48,6 +50,12 @@ typedef struct {
     uint8_t cnt[3];
     uint8_t seed[4];
 } SecureData;
+
+typedef enum {
+    SubGhzDecodeRawStateStart,
+    SubGhzDecodeRawStateLoading,
+    SubGhzDecodeRawStateLoaded,
+} SubGhzDecodeRawState;
 
 struct SubGhzTxRx {
     SubGhzWorker* worker;
@@ -109,6 +117,11 @@ struct SubGhz {
     SubGhzLock lock;
 
     bool in_decoder_scene;
+    bool in_decoder_scene_skip;
+
+    SubGhzDecodeRawState decode_raw_state;
+    SubGhzFileEncoderWorker* decode_raw_file_worker_encoder;
+
     void* rpc_ctx;
 };
 

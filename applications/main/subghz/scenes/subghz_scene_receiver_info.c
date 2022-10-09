@@ -186,6 +186,10 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
                SubGhzProtocolFlag_Save) {
                 subghz_file_name_clear(subghz);
+
+                if(subghz->in_decoder_scene) {
+                    subghz->in_decoder_scene_skip = true;
+                }
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             return true;
@@ -214,7 +218,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
-    if(subghz->in_decoder_scene) {
+    if(subghz->in_decoder_scene && !subghz->in_decoder_scene_skip) {
         subghz->in_decoder_scene = false;
     }
     widget_reset(subghz->widget);

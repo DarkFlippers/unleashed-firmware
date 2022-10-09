@@ -27,16 +27,35 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneSaveSuccess) {
-            if(!scene_manager_search_and_switch_to_previous_scene(
-                   subghz->scene_manager, SubGhzSceneReceiver)) {
-                subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWSave;
+            if(!subghz->in_decoder_scene) {
                 if(!scene_manager_search_and_switch_to_previous_scene(
-                       subghz->scene_manager, SubGhzSceneReadRAW)) {
-                    subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+                       subghz->scene_manager, SubGhzSceneReceiver)) {
+                    subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWSave;
                     if(!scene_manager_search_and_switch_to_previous_scene(
-                           subghz->scene_manager, SubGhzSceneSaved)) {
-                        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
+                           subghz->scene_manager, SubGhzSceneReadRAW)) {
+                        subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+                        if(!scene_manager_search_and_switch_to_previous_scene(
+                               subghz->scene_manager, SubGhzSceneSaved)) {
+                            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
+                        }
                     }
+                }
+            } else {
+                subghz->decode_raw_state = SubGhzDecodeRawStateStart;
+                subghz->txrx->idx_menu_chosen = 0;
+                subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
+
+                if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
+                    subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
+                }
+                subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
+
+                subghz->state_notifications = SubGhzNotificationStateIDLE;
+                scene_manager_set_scene_state(
+                    subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
+                if(!scene_manager_search_and_switch_to_previous_scene(
+                       subghz->scene_manager, SubGhzSceneSaved)) {
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
                 }
             }
             return true;
@@ -47,6 +66,11 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
 
 void subghz_scene_save_success_on_exit(void* context) {
     SubGhz* subghz = context;
+
+    if(subghz->in_decoder_scene) {
+        subghz->in_decoder_scene = false;
+        subghz->in_decoder_scene_skip = false;
+    }
 
     // Clear view
     Popup* popup = subghz->popup;
