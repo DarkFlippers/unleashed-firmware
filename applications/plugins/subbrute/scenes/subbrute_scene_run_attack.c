@@ -77,6 +77,10 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
         } else if(
             event.event == SubBruteCustomEventTypeTransmitNotStarted ||
             event.event == SubBruteCustomEventTypeBackPressed) {
+            if (subbrute_worker_is_running(instance->worker)) {
+                // Notify
+                notification_message(instance->notifications, &sequence_single_vibro);
+            }
             // Stop transmit
             scene_manager_search_and_switch_to_previous_scene(
                 instance->scene_manager, SubBruteSceneSetupAttack);
