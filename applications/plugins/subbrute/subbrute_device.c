@@ -20,7 +20,7 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->environment = subghz_environment_alloc();
 
 #ifdef FURI_DEBUG
-    subbrute_device_attack_set_default_values(instance, SubBruteAttackLoadFile);
+    subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit433);
 #else
     subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit433);
 #endif
@@ -88,6 +88,7 @@ bool subbrute_device_save_file(SubBruteDevice* instance, const char* dev_file_na
     bool result = false;
     do {
         if(!flipper_format_file_open_always(file, dev_file_name)) {
+            FURI_LOG_E(TAG, "Failed to open file: %s", dev_file_name);
             break;
         }
         Stream* stream = flipper_format_get_raw_stream(file);
