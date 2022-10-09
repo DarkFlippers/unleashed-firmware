@@ -3,6 +3,8 @@
 * PR -> Plugins: Add CAME 12bit 303MHz to SubGHz Bruteforcer (by @derskythe | PR #87)
 * PR -> BadUSB: Added Norwegian keyboard layout for BadUSB (by @jd-raymaker | PR #88)
 * PR -> Plugins: Feature: allow to set ball speed in Arkanoid (by @an4tur0r | PR #92)
+* Add USB Keyboard (& Mouse) plugin, replacing default USB Mouse demo included (plugin by @huuck) [Link to original](https://github.com/huuck/FlipperZeroUSBKeyboard)
+* Fix USB Keyboard plugin wrong icon in mouse screen, rewrite view models to new type
 * Updated universal remote assets (by @Amec0e)
 * Plugins: SubGHz Bruteforcer - Fix wrong max value in BF existing dump
 * API 3.0 -> 3.2 (all previous compiled apps still compatible)
