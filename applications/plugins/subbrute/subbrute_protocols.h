@@ -55,3 +55,32 @@ const char* subbrute_protocol_file(SubBruteFileProtocol protocol);
 FuriHalSubGhzPreset subbrute_protocol_convert_preset(FuriString* preset_name);
 SubBruteFileProtocol subbrute_protocol_file_protocol_name(FuriString* name);
 const char* subbrute_protocol_name(SubBruteAttacks index);
+
+FuriString*
+    subbrute_protocol_default_payload(uint64_t step, uint8_t bits, uint8_t te, uint8_t repeat);
+FuriString* subbrute_protocol_file_payload(
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat,
+    uint8_t load_index,
+    const char* file_key);
+FuriString* subbrute_protocol_default_generate_file(
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset,
+    SubBruteFileProtocol file,
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat);
+FuriString* subbrute_protocol_file_generate_file(
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset,
+    SubBruteFileProtocol file,
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat,
+    uint8_t load_index,
+    const char* file_key);
+uint64_t subbrute_protocol_calc_max_value(SubBruteAttacks attack_type, uint8_t bits);

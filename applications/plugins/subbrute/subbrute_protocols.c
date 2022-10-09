@@ -1,5 +1,7 @@
 #include "subbrute_protocols.h"
 
+#define TAG "SubBruteProtocols"
+
 /**
  * CAME 12bit 303MHz
  */
@@ -201,6 +203,16 @@ static const char* subbrute_protocol_file_types[] = {
     [PrincetonFileProtocol] = "Princeton",
     [RAWFileProtocol] = "RAW"};
 
+/**
+ * Values to not use less memory for packet parse operations
+ */
+static const char* subbrute_key_file_start_no_tail =
+    "Filetype: Flipper SubGhz Key File\nVersion: 1\nFrequency: %u\nPreset: %s\nProtocol: %s\nBit: %d\nKey: %s\nRepeat: %d\n";
+static const char* subbrute_key_file_start_with_tail =
+    "Filetype: Flipper SubGhz Key File\nVersion: 1\nFrequency: %u\nPreset: %s\nProtocol: %s\nBit: %d\nKey: %s\nTE: %d\nRepeat: %d\n";
+static const char* subbrute_key_small_no_tail = "Bit: %d\nKey: %s\nRepeat: %d\nRepeat: %d\n";
+static const char* subbrute_key_small_with_tail = "Bit: %d\nKey: %s\nTE: %d\nRepeat: %d\n";
+
 const char* subbrute_protocol_name(SubBruteAttacks index) {
     return subbrute_protocol_names[index];
 }
@@ -235,4 +247,210 @@ SubBruteFileProtocol subbrute_protocol_file_protocol_name(FuriString* name) {
     }
 
     return RAWFileProtocol;
+}
+
+FuriString*
+    subbrute_protocol_default_payload(uint64_t step, uint8_t bits, uint8_t te, uint8_t repeat) {
+    FuriString* candidate = furi_string_alloc_set_str("                       ");
+
+    FuriString* buffer = furi_string_alloc_printf("%16llX", step);
+    int j = 0;
+    for(uint8_t i = 0; i < 16; i++) {
+        if(furi_string_get_char(buffer, i) != ' ') {
+            furi_string_set_char(candidate, i + j, furi_string_get_char(buffer, i));
+        } else {
+            furi_string_set_char(candidate, i + j, '0');
+        }
+        if(i % 2 != 0) {
+            j++;
+        }
+    }
+    furi_string_free(buffer);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+#endif
+    FuriString* result;
+
+    if(te) {
+        result = furi_string_alloc_printf(
+            subbrute_key_small_with_tail, bits, furi_string_get_cstr(candidate), te, repeat);
+    } else {
+        result = furi_string_alloc_printf(
+            subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
+    }
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
+#endif
+
+    furi_string_free(candidate);
+
+    return result;
+}
+
+FuriString* subbrute_protocol_file_payload(
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat,
+    uint8_t load_index,
+    const char* file_key) {
+    FuriString* candidate = furi_string_alloc();
+    if(step >= sizeof(file_key)) {
+        return false;
+    }
+    char subbrute_payload_byte[4];
+    furi_string_set_str(candidate, file_key);
+    snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
+    furi_string_replace_at(candidate, load_index * 3, 3, subbrute_payload_byte);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+#endif
+    FuriString* result;
+
+    if(te) {
+        result = furi_string_alloc_printf(
+            subbrute_key_small_with_tail, bits, furi_string_get_cstr(candidate), te, repeat);
+    } else {
+        result = furi_string_alloc_printf(
+            subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
+    }
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
+#endif
+
+    furi_string_free(candidate);
+
+    return result;
+}
+
+FuriString* subbrute_protocol_default_generate_file(
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset,
+    SubBruteFileProtocol file,
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat) {
+    FuriString* candidate = furi_string_alloc_set_str("                       ");
+
+    FuriString* buffer = furi_string_alloc_printf("%16llX", step);
+    int j = 0;
+    for(uint8_t i = 0; i < 16; i++) {
+        if(furi_string_get_char(buffer, i) != ' ') {
+            furi_string_set_char(candidate, i + j, furi_string_get_char(buffer, i));
+        } else {
+            furi_string_set_char(candidate, i + j, '0');
+        }
+        if(i % 2 != 0) {
+            j++;
+        }
+    }
+    furi_string_free(buffer);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+#endif
+    FuriString* result;
+
+    if(te) {
+        result = furi_string_alloc_printf(
+            subbrute_key_file_start_with_tail,
+            frequency,
+            preset,
+            file,
+            bits,
+            furi_string_get_cstr(candidate),
+            te,
+            repeat);
+    } else {
+        result = furi_string_alloc_printf(
+            subbrute_key_file_start_no_tail,
+            frequency,
+            preset,
+            file,
+            bits,
+            furi_string_get_cstr(candidate),
+            repeat);
+    }
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
+#endif
+
+    furi_string_free(candidate);
+
+    return result;
+}
+
+FuriString* subbrute_protocol_file_generate_file(
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset,
+    SubBruteFileProtocol file,
+    uint64_t step,
+    uint8_t bits,
+    uint8_t te,
+    uint8_t repeat,
+    uint8_t load_index,
+    const char* file_key) {
+    FuriString* candidate = furi_string_alloc();
+    if(step >= sizeof(file_key)) {
+        return false;
+    }
+    char subbrute_payload_byte[4];
+    furi_string_set_str(candidate, file_key);
+    snprintf(subbrute_payload_byte, 4, "%02X ", (uint8_t)step);
+    furi_string_replace_at(candidate, load_index * 3, 3, subbrute_payload_byte);
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+#endif
+    FuriString* result;
+
+    if(te) {
+        result = furi_string_alloc_printf(
+            subbrute_key_file_start_with_tail,
+            frequency,
+            preset,
+            file,
+            bits,
+            furi_string_get_cstr(candidate),
+            te,
+            repeat);
+    } else {
+        result = furi_string_alloc_printf(
+            subbrute_key_file_start_no_tail,
+            frequency,
+            preset,
+            file,
+            bits,
+            furi_string_get_cstr(candidate),
+            repeat);
+    }
+
+#ifdef FURI_DEBUG
+    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
+#endif
+
+    furi_string_free(candidate);
+
+    return result;
+}
+
+uint64_t subbrute_protocol_calc_max_value(SubBruteAttacks attack_type, uint8_t bits) {
+    uint64_t max_value;
+    if(attack_type == SubBruteAttackLoadFile) {
+        max_value = 0x3F;
+    } else {
+        FuriString* max_value_s;
+        max_value_s = furi_string_alloc();
+        for(uint8_t i = 0; i < bits; i++) {
+            furi_string_cat_printf(max_value_s, "1");
+        }
+        max_value = (uint64_t)strtol(furi_string_get_cstr(max_value_s), NULL, 2);
+        furi_string_free(max_value_s);
+    }
+
+    return max_value;
 }

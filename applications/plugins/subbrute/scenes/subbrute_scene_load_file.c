@@ -39,6 +39,14 @@ void subbrute_scene_load_file_on_enter(void* context) {
         if(load_result == SubBruteFileResultOk) {
             load_result = subbrute_device_attack_set(instance->device, SubBruteAttackLoadFile);
             if(load_result == SubBruteFileResultOk) {
+                if(!subbrute_worker_init_file_attack(
+                       instance->worker,
+                       instance->device->key_index,
+                       instance->device->load_index,
+                       instance->device->file_key,
+                       instance->device->file_protocol_info)) {
+                    furi_crash("Invalid attack set!");
+                }
                 // Ready to run!
                 FURI_LOG_I(TAG, "Ready to run");
                 res = true;
@@ -52,7 +60,8 @@ void subbrute_scene_load_file_on_enter(void* context) {
 
             FuriString* dialog_msg;
             dialog_msg = furi_string_alloc();
-            furi_string_cat_printf(dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
+            furi_string_cat_printf(
+                dialog_msg, "Cannot parse\nfile: %s", subbrute_device_error_get_desc(load_result));
             dialog_message_show_storage_error(instance->dialogs, furi_string_get_cstr(dialog_msg));
             furi_string_free(dialog_msg);
             scene_manager_search_and_switch_to_previous_scene(

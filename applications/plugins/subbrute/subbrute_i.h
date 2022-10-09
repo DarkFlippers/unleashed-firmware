@@ -23,6 +23,7 @@
 
 #include "subbrute.h"
 #include "subbrute_device.h"
+#include "helpers/subbrute_worker.h"
 #include "views/subbrute_attack_view.h"
 #include "views/subbrute_main_view.h"
 
@@ -62,9 +63,10 @@ struct SubBruteState {
 
     // SubBruteDevice
     SubBruteDevice* device;
+    // SubBruteWorker
+    SubBruteWorker* worker;
 };
 
 void subbrute_show_loading_popup(void* context, bool show);
 void subbrute_text_input_callback(void* context);
 void subbrute_popup_closed_callback(void* context);
-uint64_t subbrute_get_step(void* context);

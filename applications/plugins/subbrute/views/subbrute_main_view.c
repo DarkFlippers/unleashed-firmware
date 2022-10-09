@@ -227,10 +227,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 #ifdef FURI_DEBUG
         with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
-                index = model->index;
-                return false;
-            });
+            instance->view, SubBruteMainViewModel * model, { index = model->index; }, false);
         FURI_LOG_I(TAG, "Index: %d", index);
 #endif
 
@@ -265,10 +262,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 #ifdef FURI_DEBUG
         with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
-                index = model->index;
-                return false;
-            });
+            instance->view, SubBruteMainViewModel * model, { index = model->index; }, false);
         FURI_LOG_I(TAG, "Index: %d", index);
 #endif
 

@@ -51,6 +51,9 @@ SubBruteState* subbrute_alloc() {
     // Devices
     instance->device = subbrute_device_alloc();
 
+    // SubBruteWorker
+    instance->worker = subbrute_worker_alloc();
+
     // TextInput
     instance->text_input = text_input_alloc();
     view_dispatcher_add_view(
@@ -96,8 +99,11 @@ SubBruteState* subbrute_alloc() {
 void subbrute_free(SubBruteState* instance) {
     furi_assert(instance);
 
+    // SubBruteWorker
+    subbrute_worker_stop(instance->worker);
+    subbrute_worker_free(instance->worker);
+
     // SubBruteDevice
-    subbrute_worker_stop(instance->device);
     subbrute_device_free(instance->device);
 
     // Notifications
@@ -161,13 +167,6 @@ void subbrute_popup_closed_callback(void* context) {
     SubBruteState* instance = context;
     view_dispatcher_send_custom_event(
         instance->view_dispatcher, SubBruteCustomEventTypePopupClosed);
-}
-
-uint64_t subbrute_get_step(void* context) {
-    furi_assert(context);
-    SubBruteState* instance = context;
-
-    return subbrute_device_get_step(instance->device);
 }
 
 // ENTRYPOINT
