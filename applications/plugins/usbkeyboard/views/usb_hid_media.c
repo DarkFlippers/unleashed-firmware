@@ -1,10 +1,9 @@
-#include "bt_hid_media.h"
+#include "usb_hid_media.h"
 #include <furi.h>
-#include <furi_hal_bt_hid.h>
 #include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
 
-struct BtHidMedia {
+struct UsbHidMedia {
     View* view;
 };
 
@@ -15,9 +14,9 @@ typedef struct {
     bool down_pressed;
     bool ok_pressed;
     bool connected;
-} BtHidMediaModel;
+} UsbHidMediaModel;
 
-static void bt_hid_media_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
+static void usb_hid_media_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
     canvas_draw_triangle(canvas, x, y, 5, 3, dir);
     if(dir == CanvasDirectionBottomToTop) {
         canvas_draw_dot(canvas, x, y - 1);
@@ -30,16 +29,10 @@ static void bt_hid_media_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, Canvas
     }
 }
 
-static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
+static void usb_hid_media_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
-    BtHidMediaModel* model = context;
+    UsbHidMediaModel* model = context;
 
-    // Header
-    if(model->connected) {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-    } else {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-    }
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Media");
     canvas_set_font(canvas, FontSecondary);
@@ -74,8 +67,8 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_media_draw_arrow(canvas, 82, 31, CanvasDirectionRightToLeft);
-    bt_hid_media_draw_arrow(canvas, 86, 31, CanvasDirectionRightToLeft);
+    usb_hid_media_draw_arrow(canvas, 82, 31, CanvasDirectionRightToLeft);
+    usb_hid_media_draw_arrow(canvas, 86, 31, CanvasDirectionRightToLeft);
     canvas_set_color(canvas, ColorBlack);
 
     // Right
@@ -85,8 +78,8 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_media_draw_arrow(canvas, 112, 31, CanvasDirectionLeftToRight);
-    bt_hid_media_draw_arrow(canvas, 116, 31, CanvasDirectionLeftToRight);
+    usb_hid_media_draw_arrow(canvas, 112, 31, CanvasDirectionLeftToRight);
+    usb_hid_media_draw_arrow(canvas, 116, 31, CanvasDirectionLeftToRight);
     canvas_set_color(canvas, ColorBlack);
 
     // Ok
@@ -94,7 +87,7 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
         canvas_draw_icon(canvas, 93, 25, &I_Pressed_Button_13x13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_media_draw_arrow(canvas, 96, 31, CanvasDirectionLeftToRight);
+    usb_hid_media_draw_arrow(canvas, 96, 31, CanvasDirectionLeftToRight);
     canvas_draw_line(canvas, 100, 29, 100, 33);
     canvas_draw_line(canvas, 102, 29, 102, 33);
     canvas_set_color(canvas, ColorBlack);
@@ -105,100 +98,103 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Hold to exit");
 }
 
-static void bt_hid_media_process_press(BtHidMedia* bt_hid_media, InputEvent* event) {
+static void usb_hid_media_process_press(UsbHidMedia* usb_hid_media, InputEvent* event) {
     with_view_model(
-        bt_hid_media->view,
-        BtHidMediaModel * model,
+        usb_hid_media->view,
+        UsbHidMediaModel * model,
         {
             if(event->key == InputKeyUp) {
                 model->up_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_INCREMENT);
+                furi_hal_hid_consumer_key_press(HID_CONSUMER_VOLUME_INCREMENT);
             } else if(event->key == InputKeyDown) {
                 model->down_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_DECREMENT);
+                furi_hal_hid_consumer_key_press(HID_CONSUMER_VOLUME_DECREMENT);
             } else if(event->key == InputKeyLeft) {
                 model->left_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_SCAN_PREVIOUS_TRACK);
+                furi_hal_hid_consumer_key_press(HID_CONSUMER_SCAN_PREVIOUS_TRACK);
             } else if(event->key == InputKeyRight) {
                 model->right_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_SCAN_NEXT_TRACK);
+                furi_hal_hid_consumer_key_press(HID_CONSUMER_SCAN_NEXT_TRACK);
             } else if(event->key == InputKeyOk) {
                 model->ok_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_PLAY_PAUSE);
+                furi_hal_hid_consumer_key_press(HID_CONSUMER_PLAY_PAUSE);
             }
         },
         true);
 }
 
-static void bt_hid_media_process_release(BtHidMedia* bt_hid_media, InputEvent* event) {
+static void hid_media_process_release(UsbHidMedia* usb_hid_media, InputEvent* event) {
     with_view_model(
-        bt_hid_media->view,
-        BtHidMediaModel * model,
+        usb_hid_media->view,
+        UsbHidMediaModel * model,
         {
             if(event->key == InputKeyUp) {
                 model->up_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_INCREMENT);
+                furi_hal_hid_consumer_key_release(HID_CONSUMER_VOLUME_INCREMENT);
             } else if(event->key == InputKeyDown) {
                 model->down_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_DECREMENT);
+                furi_hal_hid_consumer_key_release(HID_CONSUMER_VOLUME_DECREMENT);
             } else if(event->key == InputKeyLeft) {
                 model->left_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_SCAN_PREVIOUS_TRACK);
+                furi_hal_hid_consumer_key_release(HID_CONSUMER_SCAN_PREVIOUS_TRACK);
             } else if(event->key == InputKeyRight) {
                 model->right_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_SCAN_NEXT_TRACK);
+                furi_hal_hid_consumer_key_release(HID_CONSUMER_SCAN_NEXT_TRACK);
             } else if(event->key == InputKeyOk) {
                 model->ok_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_PLAY_PAUSE);
+                furi_hal_hid_consumer_key_release(HID_CONSUMER_PLAY_PAUSE);
             }
         },
         true);
 }
 
-static bool bt_hid_media_input_callback(InputEvent* event, void* context) {
+static bool usb_hid_media_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    BtHidMedia* bt_hid_media = context;
+    UsbHidMedia* usb_hid_media = context;
     bool consumed = false;
 
     if(event->type == InputTypePress) {
-        bt_hid_media_process_press(bt_hid_media, event);
+        usb_hid_media_process_press(usb_hid_media, event);
         consumed = true;
     } else if(event->type == InputTypeRelease) {
-        bt_hid_media_process_release(bt_hid_media, event);
+        hid_media_process_release(usb_hid_media, event);
         consumed = true;
     } else if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            furi_hal_bt_hid_consumer_key_release_all();
+            furi_hal_hid_kb_release_all();
         }
     }
 
     return consumed;
 }
 
-BtHidMedia* bt_hid_media_alloc() {
-    BtHidMedia* bt_hid_media = malloc(sizeof(BtHidMedia));
-    bt_hid_media->view = view_alloc();
-    view_set_context(bt_hid_media->view, bt_hid_media);
-    view_allocate_model(bt_hid_media->view, ViewModelTypeLocking, sizeof(BtHidMediaModel));
-    view_set_draw_callback(bt_hid_media->view, bt_hid_media_draw_callback);
-    view_set_input_callback(bt_hid_media->view, bt_hid_media_input_callback);
+UsbHidMedia* usb_hid_media_alloc() {
+    UsbHidMedia* usb_hid_media = malloc(sizeof(UsbHidMedia));
+    usb_hid_media->view = view_alloc();
+    view_set_context(usb_hid_media->view, usb_hid_media);
+    view_allocate_model(usb_hid_media->view, ViewModelTypeLocking, sizeof(UsbHidMediaModel));
+    view_set_draw_callback(usb_hid_media->view, usb_hid_media_draw_callback);
+    view_set_input_callback(usb_hid_media->view, usb_hid_media_input_callback);
 
-    return bt_hid_media;
-}
-
-void bt_hid_media_free(BtHidMedia* bt_hid_media) {
-    furi_assert(bt_hid_media);
-    view_free(bt_hid_media->view);
-    free(bt_hid_media);
-}
-
-View* bt_hid_media_get_view(BtHidMedia* bt_hid_media) {
-    furi_assert(bt_hid_media);
-    return bt_hid_media->view;
-}
-
-void bt_hid_media_set_connected_status(BtHidMedia* bt_hid_media, bool connected) {
-    furi_assert(bt_hid_media);
     with_view_model(
-        bt_hid_media->view, BtHidMediaModel * model, { model->connected = connected; }, true);
+        usb_hid_media->view, UsbHidMediaModel * model, { model->connected = true; }, true);
+
+    return usb_hid_media;
+}
+
+void usb_hid_media_free(UsbHidMedia* usb_hid_media) {
+    furi_assert(usb_hid_media);
+    view_free(usb_hid_media->view);
+    free(usb_hid_media);
+}
+
+View* usb_hid_media_get_view(UsbHidMedia* usb_hid_media) {
+    furi_assert(usb_hid_media);
+    return usb_hid_media->view;
+}
+
+void usb_hid_media_set_connected_status(UsbHidMedia* usb_hid_media, bool connected) {
+    furi_assert(usb_hid_media);
+    with_view_model(
+        usb_hid_media->view, UsbHidMediaModel * model, { model->connected = connected; }, true);
 }

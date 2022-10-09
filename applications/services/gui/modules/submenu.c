@@ -128,13 +128,15 @@ Submenu* submenu_alloc() {
     view_set_input_callback(submenu->view, submenu_view_input_callback);
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             SubmenuItemArray_init(model->items);
             model->position = 0;
             model->window_position = 0;
             model->header = NULL;
-            return true;
-        });
+        },
+        true);
 
     return submenu;
 }
@@ -143,10 +145,7 @@ void submenu_free(Submenu* submenu) {
     furi_assert(submenu);
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
-            SubmenuItemArray_clear(model->items);
-            return true;
-        });
+        submenu->view, SubmenuModel * model, { SubmenuItemArray_clear(model->items); }, true);
     view_free(submenu->view);
     free(submenu);
 }
@@ -167,32 +166,38 @@ void submenu_add_item(
     furi_assert(submenu);
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             item = SubmenuItemArray_push_new(model->items);
             item->label = label;
             item->index = index;
             item->callback = callback;
             item->callback_context = callback_context;
-            return true;
-        });
+        },
+        true);
 }
 
 void submenu_reset(Submenu* submenu) {
     furi_assert(submenu);
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             SubmenuItemArray_reset(model->items);
             model->position = 0;
             model->window_position = 0;
             model->header = NULL;
-            return true;
-        });
+        },
+        true);
 }
 
 void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             uint32_t position = 0;
             SubmenuItemArray_it_t it;
             for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
@@ -225,14 +230,15 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
                         (SubmenuItemArray_size(model->items) - items_on_screen);
                 }
             }
-
-            return true;
-        });
+        },
+        true);
 }
 
 void submenu_process_up(Submenu* submenu) {
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             uint8_t items_on_screen = model->header ? 3 : 4;
             if(model->position > 0) {
                 model->position--;
@@ -246,13 +252,15 @@ void submenu_process_up(Submenu* submenu) {
                     model->window_position = model->position - (items_on_screen - 1);
                 }
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void submenu_process_down(Submenu* submenu) {
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             uint8_t items_on_screen = model->header ? 3 : 4;
             if(model->position < (SubmenuItemArray_size(model->items) - 1)) {
                 model->position++;
@@ -265,20 +273,22 @@ void submenu_process_down(Submenu* submenu) {
                 model->position = 0;
                 model->window_position = 0;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void submenu_process_ok(Submenu* submenu) {
     SubmenuItem* item = NULL;
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
+        submenu->view,
+        SubmenuModel * model,
+        {
             if(model->position < (SubmenuItemArray_size(model->items))) {
                 item = SubmenuItemArray_get(model->items, model->position);
             }
-            return true;
-        });
+        },
+        true);
 
     if(item && item->callback) {
         item->callback(item->callback_context, item->index);
@@ -289,8 +299,5 @@ void submenu_set_header(Submenu* submenu, const char* header) {
     furi_assert(submenu);
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) {
-            model->header = header;
-            return true;
-        });
+        submenu->view, SubmenuModel * model, { model->header = header; }, true);
 }

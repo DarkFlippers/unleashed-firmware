@@ -358,11 +358,13 @@ static bool archive_view_input(InputEvent* event, void* context) {
     bool in_menu;
     bool move_fav_mode;
     with_view_model(
-        browser->view, (ArchiveBrowserViewModel * model) {
+        browser->view,
+        ArchiveBrowserViewModel * model,
+        {
             in_menu = model->menu;
             move_fav_mode = model->move_fav;
-            return false;
-        });
+        },
+        false);
 
     if(in_menu) {
         if(event->type != InputTypeShort) {
@@ -370,24 +372,28 @@ static bool archive_view_input(InputEvent* event, void* context) {
         }
         if(event->key == InputKeyUp || event->key == InputKeyDown) {
             with_view_model(
-                browser->view, (ArchiveBrowserViewModel * model) {
+                browser->view,
+                ArchiveBrowserViewModel * model,
+                {
                     size_t size_menu = menu_array_size(model->context_menu);
                     if(event->key == InputKeyUp) {
                         model->menu_idx = ((model->menu_idx - 1) + size_menu) % size_menu;
                     } else if(event->key == InputKeyDown) {
                         model->menu_idx = (model->menu_idx + 1) % size_menu;
                     }
-                    return true;
-                });
+                },
+                true);
         } else if(event->key == InputKeyOk) {
             uint32_t idx;
             with_view_model(
-                browser->view, (ArchiveBrowserViewModel * model) {
+                browser->view,
+                ArchiveBrowserViewModel * model,
+                {
                     ArchiveContextMenuItem_t* current =
                         menu_array_get(model->context_menu, model->menu_idx);
                     idx = current->event;
-                    return false;
-                });
+                },
+                false);
             browser->callback(idx, browser->context);
         } else if(event->key == InputKeyBack) {
             browser->callback(ArchiveBrowserEventFileMenuClose, browser->context);
@@ -409,7 +415,9 @@ static bool archive_view_input(InputEvent* event, void* context) {
         if((event->key == InputKeyUp || event->key == InputKeyDown) &&
            (event->type == InputTypeShort || event->type == InputTypeRepeat)) {
             with_view_model(
-                browser->view, (ArchiveBrowserViewModel * model) {
+                browser->view,
+                ArchiveBrowserViewModel * model,
+                {
                     if(event->key == InputKeyUp) {
                         model->item_idx =
                             ((model->item_idx - 1) + model->item_cnt) % model->item_cnt;
@@ -430,9 +438,8 @@ static bool archive_view_input(InputEvent* event, void* context) {
                             browser->callback(ArchiveBrowserEventFavMoveDown, browser->context);
                         }
                     }
-
-                    return true;
-                });
+                },
+                true);
             archive_update_offset(browser);
         }
 
@@ -480,12 +487,14 @@ ArchiveBrowserView* browser_alloc() {
     browser->path = furi_string_alloc_set(archive_get_default_path(TAB_DEFAULT));
 
     with_view_model(
-        browser->view, (ArchiveBrowserViewModel * model) {
+        browser->view,
+        ArchiveBrowserViewModel * model,
+        {
             files_array_init(model->files);
             menu_array_init(model->context_menu);
             model->tab_idx = TAB_DEFAULT;
-            return true;
-        });
+        },
+        true);
 
     return browser;
 }
@@ -498,11 +507,13 @@ void browser_free(ArchiveBrowserView* browser) {
     }
 
     with_view_model(
-        browser->view, (ArchiveBrowserViewModel * model) {
+        browser->view,
+        ArchiveBrowserViewModel * model,
+        {
             files_array_clear(model->files);
             menu_array_clear(model->context_menu);
-            return false;
-        });
+        },
+        false);
 
     furi_string_free(browser->path);
 

@@ -618,42 +618,30 @@ static bool byte_input_view_input_callback(InputEvent* event, void* context) {
         switch(event->key) {
         case InputKeyLeft:
             with_view_model(
-                byte_input->view, (ByteInputModel * model) {
-                    byte_input_handle_left(model);
-                    return true;
-                });
+                byte_input->view, ByteInputModel * model, { byte_input_handle_left(model); }, true);
             consumed = true;
             break;
         case InputKeyRight:
             with_view_model(
-                byte_input->view, (ByteInputModel * model) {
-                    byte_input_handle_right(model);
-                    return true;
-                });
+                byte_input->view,
+                ByteInputModel * model,
+                { byte_input_handle_right(model); },
+                true);
             consumed = true;
             break;
         case InputKeyUp:
             with_view_model(
-                byte_input->view, (ByteInputModel * model) {
-                    byte_input_handle_up(model);
-                    return true;
-                });
+                byte_input->view, ByteInputModel * model, { byte_input_handle_up(model); }, true);
             consumed = true;
             break;
         case InputKeyDown:
             with_view_model(
-                byte_input->view, (ByteInputModel * model) {
-                    byte_input_handle_down(model);
-                    return true;
-                });
+                byte_input->view, ByteInputModel * model, { byte_input_handle_down(model); }, true);
             consumed = true;
             break;
         case InputKeyOk:
             with_view_model(
-                byte_input->view, (ByteInputModel * model) {
-                    byte_input_handle_ok(model);
-                    return true;
-                });
+                byte_input->view, ByteInputModel * model, { byte_input_handle_ok(model); }, true);
             consumed = true;
             break;
         default:
@@ -664,10 +652,10 @@ static bool byte_input_view_input_callback(InputEvent* event, void* context) {
     if((event->type == InputTypeLong || event->type == InputTypeRepeat) &&
        event->key == InputKeyBack) {
         with_view_model(
-            byte_input->view, (ByteInputModel * model) {
-                byte_input_clear_selected_byte(model);
-                return true;
-            });
+            byte_input->view,
+            ByteInputModel * model,
+            { byte_input_clear_selected_byte(model); },
+            true);
         consumed = true;
     }
 
@@ -703,14 +691,16 @@ ByteInput* byte_input_alloc() {
     view_set_input_callback(byte_input->view, byte_input_view_input_callback);
 
     with_view_model(
-        byte_input->view, (ByteInputModel * model) {
+        byte_input->view,
+        ByteInputModel * model,
+        {
             model->header = "";
             model->input_callback = NULL;
             model->changed_callback = NULL;
             model->callback_context = NULL;
             byte_input_reset_model_input_data(model);
-            return true;
-        });
+        },
+        true);
 
     return byte_input;
 }
@@ -755,15 +745,17 @@ void byte_input_set_result_callback(
     uint8_t* bytes,
     uint8_t bytes_count) {
     with_view_model(
-        byte_input->view, (ByteInputModel * model) {
+        byte_input->view,
+        ByteInputModel * model,
+        {
             byte_input_reset_model_input_data(model);
             model->input_callback = input_callback;
             model->changed_callback = changed_callback;
             model->callback_context = callback_context;
             model->bytes = bytes;
             model->bytes_count = bytes_count;
-            return true;
-        });
+        },
+        true);
 }
 
 /**
@@ -774,8 +766,5 @@ void byte_input_set_result_callback(
  */
 void byte_input_set_header_text(ByteInput* byte_input, const char* text) {
     with_view_model(
-        byte_input->view, (ByteInputModel * model) {
-            model->header = text;
-            return true;
-        });
+        byte_input->view, ByteInputModel * model, { model->header = text; }, true);
 }

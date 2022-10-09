@@ -64,10 +64,7 @@ static bool detect_reader_input_callback(InputEvent* event, void* context) {
 
     uint8_t nonces = 0;
     with_view_model(
-        detect_reader->view, (DetectReaderViewModel * model) {
-            nonces = model->nonces;
-            return false;
-        });
+        detect_reader->view, DetectReaderViewModel * model, { nonces = model->nonces; }, false);
 
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyOk) {
@@ -103,12 +100,14 @@ void detect_reader_reset(DetectReader* detect_reader) {
     furi_assert(detect_reader);
 
     with_view_model(
-        detect_reader->view, (DetectReaderViewModel * model) {
+        detect_reader->view,
+        DetectReaderViewModel * model,
+        {
             model->nonces = 0;
             model->nonces_max = 0;
             model->state = DetectReaderStateStart;
-            return false;
-        });
+        },
+        false);
 }
 
 View* detect_reader_get_view(DetectReader* detect_reader) {
@@ -132,27 +131,24 @@ void detect_reader_set_nonces_max(DetectReader* detect_reader, uint16_t nonces_m
     furi_assert(detect_reader);
 
     with_view_model(
-        detect_reader->view, (DetectReaderViewModel * model) {
-            model->nonces_max = nonces_max;
-            return false;
-        });
+        detect_reader->view,
+        DetectReaderViewModel * model,
+        { model->nonces_max = nonces_max; },
+        false);
 }
 
 void detect_reader_set_nonces_collected(DetectReader* detect_reader, uint16_t nonces_collected) {
     furi_assert(detect_reader);
 
     with_view_model(
-        detect_reader->view, (DetectReaderViewModel * model) {
-            model->nonces = nonces_collected;
-            return false;
-        });
+        detect_reader->view,
+        DetectReaderViewModel * model,
+        { model->nonces = nonces_collected; },
+        false);
 }
 
 void detect_reader_set_state(DetectReader* detect_reader, DetectReaderState state) {
     furi_assert(detect_reader);
     with_view_model(
-        detect_reader->view, (DetectReaderViewModel * model) {
-            model->state = state;
-            return true;
-        });
+        detect_reader->view, DetectReaderViewModel * model, { model->state = state; }, true);
 }

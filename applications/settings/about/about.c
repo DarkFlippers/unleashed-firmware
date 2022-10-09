@@ -77,7 +77,7 @@ static DialogMessageButton unleashed_info_screen2(DialogsApp* dialogs, DialogMes
 
     const char* screen_text = "Custom plugins included\n"
                               "For updates & info visit\n"
-                              "github.com/Eng1n33r";
+                              "github.com/DarkFlippers";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);

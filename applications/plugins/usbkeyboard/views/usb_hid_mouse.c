@@ -1,10 +1,9 @@
-#include "bt_hid_mouse.h"
+#include "usb_hid_mouse.h"
 #include <furi.h>
-#include <furi_hal_bt_hid.h>
 #include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
 
-struct BtHidMouse {
+struct UsbHidMouse {
     View* view;
 };
 #define MOUSE_MOVE_SHORT 5
@@ -19,18 +18,18 @@ typedef struct {
     bool left_mouse_held;
     bool right_mouse_pressed;
     bool connected;
-} BtHidMouseModel;
+} UsbHidMouseModel;
 
-static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
+static void usb_hid_mouse_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
-    BtHidMouseModel* model = context;
+    UsbHidMouseModel* model = context;
 
     // Header
-    if(model->connected) {
+    /*if(model->connected) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
     } else {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-    }
+    }*/
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Mouse");
     canvas_set_font(canvas, FontSecondary);
@@ -101,15 +100,15 @@ static void bt_hid_mouse_draw_callback(Canvas* canvas, void* context) {
     }
 }
 
-static void bt_hid_mouse_process(BtHidMouse* bt_hid_mouse, InputEvent* event) {
+static void usb_hid_mouse_process(UsbHidMouse* usb_hid_mouse, InputEvent* event) {
     with_view_model(
-        bt_hid_mouse->view,
-        BtHidMouseModel * model,
+        usb_hid_mouse->view,
+        UsbHidMouseModel * model,
         {
             if(event->key == InputKeyBack) {
                 if(event->type == InputTypeShort) {
-                    furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_RIGHT);
-                    furi_hal_bt_hid_mouse_release(HID_MOUSE_BTN_RIGHT);
+                    furi_hal_hid_mouse_press(HID_MOUSE_BTN_RIGHT);
+                    furi_hal_hid_mouse_release(HID_MOUSE_BTN_RIGHT);
                 } else if(event->type == InputTypePress) {
                     model->right_mouse_pressed = true;
                 } else if(event->type == InputTypeRelease) {
@@ -118,11 +117,11 @@ static void bt_hid_mouse_process(BtHidMouse* bt_hid_mouse, InputEvent* event) {
             } else if(event->key == InputKeyOk) {
                 if(event->type == InputTypeShort) {
                     // Just release if it was being held before
-                    if(!model->left_mouse_held) furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_LEFT);
-                    furi_hal_bt_hid_mouse_release(HID_MOUSE_BTN_LEFT);
+                    if(!model->left_mouse_held) furi_hal_hid_mouse_press(HID_MOUSE_BTN_LEFT);
+                    furi_hal_hid_mouse_release(HID_MOUSE_BTN_LEFT);
                     model->left_mouse_held = false;
                 } else if(event->type == InputTypeLong) {
-                    furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_LEFT);
+                    furi_hal_hid_mouse_press(HID_MOUSE_BTN_LEFT);
                     model->left_mouse_held = true;
                     model->left_mouse_pressed = true;
                 } else if(event->type == InputTypePress) {
@@ -135,36 +134,36 @@ static void bt_hid_mouse_process(BtHidMouse* bt_hid_mouse, InputEvent* event) {
             } else if(event->key == InputKeyRight) {
                 if(event->type == InputTypePress) {
                     model->right_pressed = true;
-                    furi_hal_bt_hid_mouse_move(MOUSE_MOVE_SHORT, 0);
+                    furi_hal_hid_mouse_move(MOUSE_MOVE_SHORT, 0);
                 } else if(event->type == InputTypeRepeat) {
-                    furi_hal_bt_hid_mouse_move(MOUSE_MOVE_LONG, 0);
+                    furi_hal_hid_mouse_move(MOUSE_MOVE_LONG, 0);
                 } else if(event->type == InputTypeRelease) {
                     model->right_pressed = false;
                 }
             } else if(event->key == InputKeyLeft) {
                 if(event->type == InputTypePress) {
                     model->left_pressed = true;
-                    furi_hal_bt_hid_mouse_move(-MOUSE_MOVE_SHORT, 0);
+                    furi_hal_hid_mouse_move(-MOUSE_MOVE_SHORT, 0);
                 } else if(event->type == InputTypeRepeat) {
-                    furi_hal_bt_hid_mouse_move(-MOUSE_MOVE_LONG, 0);
+                    furi_hal_hid_mouse_move(-MOUSE_MOVE_LONG, 0);
                 } else if(event->type == InputTypeRelease) {
                     model->left_pressed = false;
                 }
             } else if(event->key == InputKeyDown) {
                 if(event->type == InputTypePress) {
                     model->down_pressed = true;
-                    furi_hal_bt_hid_mouse_move(0, MOUSE_MOVE_SHORT);
+                    furi_hal_hid_mouse_move(0, MOUSE_MOVE_SHORT);
                 } else if(event->type == InputTypeRepeat) {
-                    furi_hal_bt_hid_mouse_move(0, MOUSE_MOVE_LONG);
+                    furi_hal_hid_mouse_move(0, MOUSE_MOVE_LONG);
                 } else if(event->type == InputTypeRelease) {
                     model->down_pressed = false;
                 }
             } else if(event->key == InputKeyUp) {
                 if(event->type == InputTypePress) {
                     model->up_pressed = true;
-                    furi_hal_bt_hid_mouse_move(0, -MOUSE_MOVE_SHORT);
+                    furi_hal_hid_mouse_move(0, -MOUSE_MOVE_SHORT);
                 } else if(event->type == InputTypeRepeat) {
-                    furi_hal_bt_hid_mouse_move(0, -MOUSE_MOVE_LONG);
+                    furi_hal_hid_mouse_move(0, -MOUSE_MOVE_LONG);
                 } else if(event->type == InputTypeRelease) {
                     model->up_pressed = false;
                 }
@@ -173,45 +172,43 @@ static void bt_hid_mouse_process(BtHidMouse* bt_hid_mouse, InputEvent* event) {
         true);
 }
 
-static bool bt_hid_mouse_input_callback(InputEvent* event, void* context) {
+static bool usb_hid_mouse_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    BtHidMouse* bt_hid_mouse = context;
+    UsbHidMouse* usb_hid_mouse = context;
     bool consumed = false;
 
     if(event->type == InputTypeLong && event->key == InputKeyBack) {
-        furi_hal_bt_hid_mouse_release_all();
+        furi_hal_hid_mouse_release(HID_MOUSE_BTN_LEFT);
+        furi_hal_hid_mouse_release(HID_MOUSE_BTN_RIGHT);
     } else {
-        bt_hid_mouse_process(bt_hid_mouse, event);
+        usb_hid_mouse_process(usb_hid_mouse, event);
         consumed = true;
     }
 
     return consumed;
 }
 
-BtHidMouse* bt_hid_mouse_alloc() {
-    BtHidMouse* bt_hid_mouse = malloc(sizeof(BtHidMouse));
-    bt_hid_mouse->view = view_alloc();
-    view_set_context(bt_hid_mouse->view, bt_hid_mouse);
-    view_allocate_model(bt_hid_mouse->view, ViewModelTypeLocking, sizeof(BtHidMouseModel));
-    view_set_draw_callback(bt_hid_mouse->view, bt_hid_mouse_draw_callback);
-    view_set_input_callback(bt_hid_mouse->view, bt_hid_mouse_input_callback);
+UsbHidMouse* usb_hid_mouse_alloc() {
+    UsbHidMouse* usb_hid_mouse = malloc(sizeof(UsbHidMouse));
+    usb_hid_mouse->view = view_alloc();
+    view_set_context(usb_hid_mouse->view, usb_hid_mouse);
+    view_allocate_model(usb_hid_mouse->view, ViewModelTypeLocking, sizeof(UsbHidMouseModel));
+    view_set_draw_callback(usb_hid_mouse->view, usb_hid_mouse_draw_callback);
+    view_set_input_callback(usb_hid_mouse->view, usb_hid_mouse_input_callback);
 
-    return bt_hid_mouse;
-}
-
-void bt_hid_mouse_free(BtHidMouse* bt_hid_mouse) {
-    furi_assert(bt_hid_mouse);
-    view_free(bt_hid_mouse->view);
-    free(bt_hid_mouse);
-}
-
-View* bt_hid_mouse_get_view(BtHidMouse* bt_hid_mouse) {
-    furi_assert(bt_hid_mouse);
-    return bt_hid_mouse->view;
-}
-
-void bt_hid_mouse_set_connected_status(BtHidMouse* bt_hid_mouse, bool connected) {
-    furi_assert(bt_hid_mouse);
     with_view_model(
-        bt_hid_mouse->view, BtHidMouseModel * model, { model->connected = connected; }, true);
+        usb_hid_mouse->view, UsbHidMouseModel * model, { model->connected = true; }, true);
+
+    return usb_hid_mouse;
+}
+
+void usb_hid_mouse_free(UsbHidMouse* usb_hid_mouse) {
+    furi_assert(usb_hid_mouse);
+    view_free(usb_hid_mouse->view);
+    free(usb_hid_mouse);
+}
+
+View* usb_hid_mouse_get_view(UsbHidMouse* usb_hid_mouse) {
+    furi_assert(usb_hid_mouse);
+    return usb_hid_mouse->view;
 }

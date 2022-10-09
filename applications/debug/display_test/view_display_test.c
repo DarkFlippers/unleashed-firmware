@@ -110,7 +110,9 @@ static bool view_display_test_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
     if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
         with_view_model(
-            instance->view, (ViewDisplayTestModel * model) {
+            instance->view,
+            ViewDisplayTestModel * model,
+            {
                 if(event->key == InputKeyLeft && model->test > 0) {
                     model->test--;
                     consumed = true;
@@ -129,8 +131,8 @@ static bool view_display_test_input_callback(InputEvent* event, void* context) {
                     model->flip_flop = !model->flip_flop;
                     consumed = true;
                 }
-                return consumed;
-            });
+            },
+            consumed);
     }
 
     return consumed;
@@ -149,10 +151,7 @@ static void view_display_test_exit(void* context) {
 static void view_display_test_timer_callback(void* context) {
     ViewDisplayTest* instance = context;
     with_view_model(
-        instance->view, (ViewDisplayTestModel * model) {
-            model->counter++;
-            return true;
-        });
+        instance->view, ViewDisplayTestModel * model, { model->counter++; }, true);
 }
 
 ViewDisplayTest* view_display_test_alloc() {

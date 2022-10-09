@@ -113,6 +113,7 @@ static const char ducky_cmd_string[] = {"STRING "};
 static const char ducky_cmd_defdelay_1[] = {"DEFAULT_DELAY "};
 static const char ducky_cmd_defdelay_2[] = {"DEFAULTDELAY "};
 static const char ducky_cmd_repeat[] = {"REPEAT "};
+static const char ducky_cmd_sysrq[] = {"SYSRQ "};
 
 static const char ducky_cmd_altchar[] = {"ALTCHAR "};
 static const char ducky_cmd_altstr_1[] = {"ALTSTRING "};
@@ -301,6 +302,14 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, FuriString* line) {
         line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
         state = ducky_get_number(line_tmp, &bad_usb->repeat_cnt);
         return (state) ? (0) : SCRIPT_STATE_ERROR;
+    } else if(strncmp(line_tmp, ducky_cmd_sysrq, strlen(ducky_cmd_sysrq)) == 0) {
+        // SYSRQ
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        uint16_t key = ducky_get_keycode(bad_usb, line_tmp, true);
+        furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT | HID_KEYBOARD_PRINT_SCREEN);
+        furi_hal_hid_kb_press(key);
+        furi_hal_hid_kb_release_all();
+        return (0);
     } else {
         // Special keys + modifiers
         uint16_t key = ducky_get_keycode(bad_usb, line_tmp, false);

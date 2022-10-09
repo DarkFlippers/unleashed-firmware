@@ -87,19 +87,13 @@ View* power_off_get_view(PowerOff* power_off) {
 void power_off_set_time_left(PowerOff* power_off, uint8_t time_left) {
     furi_assert(power_off);
     with_view_model(
-        power_off->view, (PowerOffModel * model) {
-            model->time_left_sec = time_left;
-            return true;
-        });
+        power_off->view, PowerOffModel * model, { model->time_left_sec = time_left; }, true);
 }
 
 PowerOffResponse power_off_get_response(PowerOff* power_off) {
     furi_assert(power_off);
     PowerOffResponse response;
     with_view_model(
-        power_off->view, (PowerOffModel * model) {
-            response = model->response;
-            return false;
-        });
+        power_off->view, PowerOffModel * model, { response = model->response; }, false);
     return response;
 }

@@ -77,7 +77,9 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
     }
 
     with_view_model(
-        instance->view, (SubGhzTestStaticModel * model) {
+        instance->view,
+        SubGhzTestStaticModel * model,
+        {
             if(event->type == InputTypeShort) {
                 if(event->key == InputKeyLeft) {
                     if(model->frequency > 0) model->frequency--;
@@ -128,9 +130,8 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
                 }
                 furi_record_close(RECORD_NOTIFICATION);
             }
-
-            return true;
-        });
+        },
+        true);
 
     return true;
 }
@@ -147,13 +148,14 @@ void subghz_test_static_enter(void* context) {
     instance->status_tx = SubGhzTestStaticStatusIDLE;
 
     with_view_model(
-        instance->view, (SubGhzTestStaticModel * model) {
+        instance->view,
+        SubGhzTestStaticModel * model,
+        {
             model->frequency = subghz_frequencies_433_92_testing;
             model->real_frequency = subghz_frequencies_testing[model->frequency];
             model->button = 0;
-
-            return true;
-        });
+        },
+        true);
 }
 
 void subghz_test_static_exit(void* context) {

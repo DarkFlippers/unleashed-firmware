@@ -46,11 +46,13 @@ void subghz_read_raw_add_data_statusbar(
     const char* preset_str) {
     furi_assert(instance);
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             furi_string_set(model->frequency_str, frequency_str);
             furi_string_set(model->preset_str, preset_str);
-            return true;
-        });
+        },
+        true);
 }
 
 void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi) {
@@ -64,31 +66,35 @@ void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi) {
     }
 
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             model->rssi_history[model->ind_write++] = u_rssi;
             if(model->ind_write > SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE) {
                 model->rssi_history_end = true;
                 model->ind_write = 0;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void subghz_read_raw_update_sample_write(SubGhzReadRAW* instance, size_t sample) {
     furi_assert(instance);
 
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
-            furi_string_printf(model->sample_write, "%d spl.", sample);
-            return false;
-        });
+        instance->view,
+        SubGhzReadRAWModel * model,
+        { furi_string_printf(model->sample_write, "%d spl.", sample); },
+        false);
 }
 
 void subghz_read_raw_stop_send(SubGhzReadRAW* instance) {
     furi_assert(instance);
 
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             switch(model->status) {
             case SubGhzReadRAWStatusTXRepeat:
             case SubGhzReadRAWStatusLoadKeyTXRepeat:
@@ -106,19 +112,21 @@ void subghz_read_raw_stop_send(SubGhzReadRAW* instance) {
                 model->status = SubGhzReadRAWStatusIDLE;
                 break;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void subghz_read_raw_update_sin(SubGhzReadRAW* instance) {
     furi_assert(instance);
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             if(model->ind_sin++ > 62) {
                 model->ind_sin = 0;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 static int8_t subghz_read_raw_tab_sin(uint8_t x) {
@@ -289,9 +297,11 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
         //further check of events is not needed, we exit
         return false;
     } else if(event->key == InputKeyOk && event->type == InputTypePress) {
+        uint8_t ret = false;
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
-                uint8_t ret = false;
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 switch(model->status) {
                 case SubGhzReadRAWStatusIDLE:
                     // Start TX
@@ -317,11 +327,13 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                 default:
                     break;
                 }
-                return ret;
-            });
+            },
+            ret);
     } else if(event->key == InputKeyOk && event->type == InputTypeRelease) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 if(model->status == SubGhzReadRAWStatusTXRepeat) {
                     // Stop repeat TX
                     model->status = SubGhzReadRAWStatusTX;
@@ -329,11 +341,13 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                     // Stop repeat TX
                     model->status = SubGhzReadRAWStatusLoadKeyTX;
                 }
-                return false;
-            });
+            },
+            false);
     } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 switch(model->status) {
                 case SubGhzReadRAWStatusREC:
                     //Stop REC
@@ -360,11 +374,13 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                     instance->callback(SubGhzCustomEventViewReadRAWBack, instance->context);
                     break;
                 }
-                return true;
-            });
+            },
+            true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 if(!model->raw_send_only) {
                     if(model->status == SubGhzReadRAWStatusStart) {
                         //Config
@@ -381,11 +397,13 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                         instance->callback(SubGhzCustomEventViewReadRAWErase, instance->context);
                     }
                 }
-                return true;
-            });
+            },
+            true);
     } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 if(!model->raw_send_only) {
                     if(model->status == SubGhzReadRAWStatusIDLE) {
                         //Save
@@ -395,11 +413,13 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                         instance->callback(SubGhzCustomEventViewReadRAWMore, instance->context);
                     }
                 }
-                return true;
-            });
+            },
+            true);
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 if(model->status == SubGhzReadRAWStatusStart) {
                     //Record
                     instance->callback(SubGhzCustomEventViewReadRAWREC, instance->context);
@@ -411,8 +431,8 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                     instance->callback(SubGhzCustomEventViewReadRAWIDLE, instance->context);
                     model->status = SubGhzReadRAWStatusIDLE;
                 }
-                return true;
-            });
+            },
+            true);
     }
     return true;
 }
@@ -426,36 +446,42 @@ void subghz_read_raw_set_status(
     switch(status) {
     case SubGhzReadRAWStatusStart:
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 model->status = SubGhzReadRAWStatusStart;
                 model->rssi_history_end = false;
                 model->ind_write = 0;
                 furi_string_reset(model->file_name);
                 furi_string_set(model->sample_write, "0 spl.");
-                return true;
-            });
+            },
+            true);
         break;
     case SubGhzReadRAWStatusIDLE:
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
-                model->status = SubGhzReadRAWStatusIDLE;
-                return true;
-            });
+            instance->view,
+            SubGhzReadRAWModel * model,
+            { model->status = SubGhzReadRAWStatusIDLE; },
+            true);
         break;
     case SubGhzReadRAWStatusLoadKeyTX:
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 model->status = SubGhzReadRAWStatusLoadKeyIDLE;
                 model->rssi_history_end = false;
                 model->ind_write = 0;
                 furi_string_set(model->file_name, file_name);
                 furi_string_set(model->sample_write, "RAW");
-                return true;
-            });
+            },
+            true);
         break;
     case SubGhzReadRAWStatusSaveKey:
         with_view_model(
-            instance->view, (SubGhzReadRAWModel * model) {
+            instance->view,
+            SubGhzReadRAWModel * model,
+            {
                 model->status = SubGhzReadRAWStatusLoadKeyIDLE;
                 if(!model->ind_write) {
                     furi_string_set(model->file_name, file_name);
@@ -463,8 +489,8 @@ void subghz_read_raw_set_status(
                 } else {
                     furi_string_reset(model->file_name);
                 }
-                return true;
-            });
+            },
+            true);
         break;
 
     default:
@@ -483,15 +509,17 @@ void subghz_read_raw_exit(void* context) {
     SubGhzReadRAW* instance = context;
 
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             if(model->status != SubGhzReadRAWStatusIDLE &&
                model->status != SubGhzReadRAWStatusStart &&
                model->status != SubGhzReadRAWStatusLoadKeyIDLE) {
                 instance->callback(SubGhzCustomEventViewReadRAWIDLE, instance->context);
                 model->status = SubGhzReadRAWStatusStart;
             }
-            return true;
-        });
+        },
+        true);
 }
 
 SubGhzReadRAW* subghz_read_raw_alloc(bool raw_send_only) {
@@ -507,15 +535,17 @@ SubGhzReadRAW* subghz_read_raw_alloc(bool raw_send_only) {
     view_set_exit_callback(instance->view, subghz_read_raw_exit);
 
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             model->frequency_str = furi_string_alloc();
             model->preset_str = furi_string_alloc();
             model->sample_write = furi_string_alloc();
             model->file_name = furi_string_alloc();
             model->raw_send_only = raw_send_only;
             model->rssi_history = malloc(SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE * sizeof(uint8_t));
-            return true;
-        });
+        },
+        true);
 
     return instance;
 }
@@ -524,14 +554,16 @@ void subghz_read_raw_free(SubGhzReadRAW* instance) {
     furi_assert(instance);
 
     with_view_model(
-        instance->view, (SubGhzReadRAWModel * model) {
+        instance->view,
+        SubGhzReadRAWModel * model,
+        {
             furi_string_free(model->frequency_str);
             furi_string_free(model->preset_str);
             furi_string_free(model->sample_write);
             furi_string_free(model->file_name);
             free(model->rssi_history);
-            return true;
-        });
+        },
+        true);
     view_free(instance->view);
     free(instance);
 }

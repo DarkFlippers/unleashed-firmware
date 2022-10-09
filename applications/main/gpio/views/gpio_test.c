@@ -48,23 +48,27 @@ static bool gpio_test_input_callback(InputEvent* event, void* context) {
 
 static bool gpio_test_process_left(GpioTest* gpio_test) {
     with_view_model(
-        gpio_test->view, (GpioTestModel * model) {
+        gpio_test->view,
+        GpioTestModel * model,
+        {
             if(model->pin_idx) {
                 model->pin_idx--;
             }
-            return true;
-        });
+        },
+        true);
     return true;
 }
 
 static bool gpio_test_process_right(GpioTest* gpio_test) {
     with_view_model(
-        gpio_test->view, (GpioTestModel * model) {
+        gpio_test->view,
+        GpioTestModel * model,
+        {
             if(model->pin_idx < GPIO_ITEM_COUNT) {
                 model->pin_idx++;
             }
-            return true;
-        });
+        },
+        true);
     return true;
 }
 
@@ -72,7 +76,9 @@ static bool gpio_test_process_ok(GpioTest* gpio_test, InputEvent* event) {
     bool consumed = false;
 
     with_view_model(
-        gpio_test->view, (GpioTestModel * model) {
+        gpio_test->view,
+        GpioTestModel * model,
+        {
             if(event->type == InputTypePress) {
                 if(model->pin_idx < GPIO_ITEM_COUNT) {
                     gpio_item_set_pin(model->pin_idx, true);
@@ -89,8 +95,8 @@ static bool gpio_test_process_ok(GpioTest* gpio_test, InputEvent* event) {
                 consumed = true;
             }
             gpio_test->callback(event->type, gpio_test->context);
-            return true;
-        });
+        },
+        true);
 
     return consumed;
 }
@@ -122,10 +128,12 @@ void gpio_test_set_ok_callback(GpioTest* gpio_test, GpioTestOkCallback callback,
     furi_assert(gpio_test);
     furi_assert(callback);
     with_view_model(
-        gpio_test->view, (GpioTestModel * model) {
+        gpio_test->view,
+        GpioTestModel * model,
+        {
             UNUSED(model);
             gpio_test->callback = callback;
             gpio_test->context = context;
-            return false;
-        });
+        },
+        false);
 }

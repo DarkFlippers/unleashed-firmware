@@ -24,27 +24,24 @@ void desktop_lock_menu_set_callback(
 
 void desktop_lock_menu_set_pin_state(DesktopLockMenuView* lock_menu, bool pin_is_set) {
     with_view_model(
-        lock_menu->view, (DesktopLockMenuViewModel * model) {
-            model->pin_is_set = pin_is_set;
-            return true;
-        });
+        lock_menu->view,
+        DesktopLockMenuViewModel * model,
+        { model->pin_is_set = pin_is_set; },
+        true);
 }
 
 void desktop_lock_menu_set_dummy_mode_state(DesktopLockMenuView* lock_menu, bool dummy_mode) {
     with_view_model(
-        lock_menu->view, (DesktopLockMenuViewModel * model) {
-            model->dummy_mode = dummy_mode;
-            return true;
-        });
+        lock_menu->view,
+        DesktopLockMenuViewModel * model,
+        { model->dummy_mode = dummy_mode; },
+        true);
 }
 
 void desktop_lock_menu_set_idx(DesktopLockMenuView* lock_menu, uint8_t idx) {
     furi_assert(idx < DesktopLockMenuIndexTotalCount);
     with_view_model(
-        lock_menu->view, (DesktopLockMenuViewModel * model) {
-            model->idx = idx;
-            return true;
-        });
+        lock_menu->view, DesktopLockMenuViewModel * model, { model->idx = idx; }, true);
 }
 
 void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
@@ -95,10 +92,12 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
     uint8_t idx = 0;
     bool consumed = false;
     bool dummy_mode = false;
+    bool update = false;
 
     with_view_model(
-        lock_menu->view, (DesktopLockMenuViewModel * model) {
-            bool ret = false;
+        lock_menu->view,
+        DesktopLockMenuViewModel * model,
+        {
             if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
                 if(event->key == InputKeyUp) {
                     if(model->idx == 0) {
@@ -106,7 +105,7 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
                     } else {
                         model->idx = CLAMP(model->idx - 1, DesktopLockMenuIndexTotalCount - 1, 0);
                     }
-                    ret = true;
+                    update = true;
                     consumed = true;
                 } else if(event->key == InputKeyDown) {
                     if(model->idx == DesktopLockMenuIndexTotalCount - 1) {
@@ -114,14 +113,14 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
                     } else {
                         model->idx = CLAMP(model->idx + 1, DesktopLockMenuIndexTotalCount - 1, 0);
                     }
-                    ret = true;
+                    update = true;
                     consumed = true;
                 }
             }
             idx = model->idx;
             dummy_mode = model->dummy_mode;
-            return ret;
-        });
+        },
+        update);
 
     if(event->key == InputKeyOk) {
         if((idx == DesktopLockMenuIndexLock) && (event->type == InputTypeShort)) {
