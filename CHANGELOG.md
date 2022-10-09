@@ -1,5 +1,6 @@
 ### New changes
 * Issues with hopping in subghz are fixed in this release
+* OFW PR: Desktop: Set external apps as favorites (OFW PR 1816 by @djsime1) (and fixed forgotten furi_record_close)
 * PR -> Plugins: Add CAME 12bit 303MHz to SubGHz Bruteforcer (by @derskythe | PR #87)
 * PR -> BadUSB: Added Norwegian keyboard layout for BadUSB (by @jd-raymaker | PR #88)
 * PR -> Plugins: Feature: allow to set ball speed in Arkanoid (by @an4tur0r | PR #92)
