@@ -1,37 +1,7 @@
 ### New changes
-* Issues with hopping in subghz are fixed in this release
-* OFW PR: Desktop: Set external apps as favorites (OFW PR 1816 by @djsime1) (and fixed forgotten furi_record_close)
-* PR -> Plugins: Add CAME 12bit 303MHz to SubGHz Bruteforcer (by @derskythe | PR #87)
-* PR -> BadUSB: Added Norwegian keyboard layout for BadUSB (by @jd-raymaker | PR #88)
-* PR -> Plugins: Feature: allow to set ball speed in Arkanoid (by @an4tur0r | PR #92)
-* Add USB Keyboard (& Mouse) plugin, replacing default USB Mouse demo included (plugin by @huuck) [Link to original](https://github.com/huuck/FlipperZeroUSBKeyboard)
-* Fix USB Keyboard plugin wrong icon in mouse screen, rewrite view models to new type
-* Updated universal remote assets (by @Amec0e)
-* Plugins: SubGHz Bruteforcer - Fix wrong max value in BF existing dump
-* API 3.0 -> 3.2 (all previous compiled apps still compatible)
-* Add 312.2 MHz to subghz user config
-* SubGHz: Fix double click after delete scene, fix rename bug
-* SubGHz: proper free of rainbow tables
-* SubGHz: Fixed stability issues with Came atomo, Nice Flor S, limited max history items to 60 (was 65)
-* SubGHz: Fix Read screen GUI (still bugged in OFW)
-* Adapted all plugins and other code to new FuriString, fixed all new issues with new string type
-* Adapted all plugins to new printf format
-* Adapted all plugins to new view model format (aka Removing lambdas)
-* Adapted all plugins to new furi_stream
-* OFW: Elf loader: do not load .ARM.* sections
-* OFW: Removing lambdas
-* OFW: BadUSB: add SYSRQ keys
-* OFW: Gui: fix memory leak in file browser module 
-* OFW: music_player: Return to browser instead of exiting on back button
-* OFW: More correct elf loader
-* OFW: Furi stream buffer
-* OFW: Printf function attributes
-* OFW: App name in CLI loader command, RFID data edit fix 
-* OFW: Show in-app icons & names in archive browser
-* OFW: M*LIB: non-inlined strings, FuriString primitive
-* OFW: Remove string_push_uint64
-* OFW: Mifare Classic read improvements
-* OFW PR: updated icon names (OFW PR 1829 by nminaylov)
+* SubGHz: Fixed bugs with Decode option for RAW signals (blank screen, broken files)
+* SubGHz: Allowed usage of hopper with detect raw feature (with attempt to fix) - WARNING -> This feature is very unstable, may cause crashes(with lost of captured signal), use at your own risk, it was enabled due to many requests from users
+* PR -> Docs, fix description - Slight update for newest dev method (by @UberGuidoZ | PR #93)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
