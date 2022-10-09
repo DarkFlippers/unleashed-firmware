@@ -12,7 +12,7 @@ SubBruteWorker* subbrute_worker_alloc() {
     SubBruteWorker* instance = malloc(sizeof(SubBruteWorker));
 
     instance->state = SubBruteWorkerStateIDLE;
-    instance->key_index = 0;
+    instance->step = 0;
     instance->worker_running = false;
     instance->initiated = false;
     instance->last_time_tx_data = 0;
@@ -30,6 +30,8 @@ SubBruteWorker* subbrute_worker_alloc() {
     instance->decoder_result = NULL;
     instance->transmitter = NULL;
     instance->environment = subghz_environment_alloc();
+
+    instance->transmit_mode = false;
 
     return instance;
 }
@@ -54,7 +56,7 @@ void subbrute_worker_free(SubBruteWorker* instance) {
 }
 
 uint64_t subbrute_worker_get_step(SubBruteWorker* instance) {
-    return instance->key_index;
+    return instance->step;
 }
 
 bool subbrute_worker_set_step(SubBruteWorker* instance, uint64_t step) {
@@ -64,7 +66,7 @@ bool subbrute_worker_set_step(SubBruteWorker* instance, uint64_t step) {
         return false;
     }
 
-    instance->key_index = step;
+    instance->step = step;
 
     return true;
 }
@@ -85,12 +87,29 @@ bool subbrute_worker_init_default_attack(
     instance->frequency = protocol->frequency;
     instance->preset = protocol->preset;
     instance->file = protocol->file;
-    instance->key_index = step;
+    instance->step = step;
     instance->bits = protocol->bits;
     instance->te = protocol->te;
+    instance->repeat = protocol->repeat;
     instance->load_index = 0;
     instance->file_key = NULL;
     instance->max_value = subbrute_protocol_calc_max_value(instance->attack, instance->bits);
+
+    instance->initiated = true;
+    instance->state = SubBruteWorkerStateReady;
+    subbrute_worker_send_callback(instance);
+#ifdef FURI_DEBUG
+    FURI_LOG_I(
+        TAG,
+        "subbrute_worker_init_default_attack: %s, bits: %d, preset: %s, file: %s, te: %d, repeat: %d, max_value: %lld",
+        subbrute_protocol_name(instance->attack),
+        instance->bits,
+        subbrute_protocol_preset(instance->preset),
+        subbrute_protocol_file(instance->file),
+        instance->te,
+        instance->repeat,
+        instance->max_value);
+#endif
 
     return true;
 }
@@ -112,12 +131,29 @@ bool subbrute_worker_init_file_attack(
     instance->frequency = protocol->frequency;
     instance->preset = protocol->preset;
     instance->file = protocol->file;
-    instance->key_index = step;
+    instance->step = step;
     instance->bits = protocol->bits;
     instance->te = protocol->te;
     instance->load_index = load_index;
+    instance->repeat = protocol->repeat;
     instance->file_key = file_key;
     instance->max_value = subbrute_protocol_calc_max_value(instance->attack, instance->bits);
+
+    instance->initiated = true;
+    instance->state = SubBruteWorkerStateReady;
+    subbrute_worker_send_callback(instance);
+#ifdef FURI_DEBUG
+    FURI_LOG_I(
+        TAG,
+        "subbrute_worker_init_file_attack: %s, bits: %d, preset: %s, file: %s, te: %d, repeat: %d, max_value: %lld",
+        subbrute_protocol_name(instance->attack),
+        instance->bits,
+        subbrute_protocol_preset(instance->preset),
+        subbrute_protocol_file(instance->file),
+        instance->te,
+        instance->repeat,
+        instance->max_value);
+#endif
 
     return true;
 }
@@ -183,13 +219,13 @@ bool subbrute_worker_transmit_current_key(SubBruteWorker* instance, uint64_t ste
     }
 
     instance->last_time_tx_data = ticks;
-    instance->key_index = step;
+    instance->step = step;
 
     bool result;
     FlipperFormat* flipper_format = flipper_format_string_alloc();
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
-    FuriString* payload = furi_string_alloc();
+    FuriString* payload = NULL;
     stream_clean(stream);
 
     if(instance->attack == SubBruteAttackLoadFile) {
@@ -252,8 +288,16 @@ void subbrute_worker_set_callback(
 }
 
 void subbrute_worker_subghz_transmit(SubBruteWorker* instance, FlipperFormat* flipper_format) {
+    while(instance->transmit_mode) {
+        furi_delay_ms(SUBBRUTE_TX_TIMEOUT);
+    }
+    instance->transmit_mode = true;
+    if(instance->transmitter != NULL) {
+        subghz_transmitter_free(instance->transmitter);
+        instance->transmitter = NULL;
+    }
     instance->transmitter = subghz_transmitter_alloc_init(
-        instance->environment, subbrute_protocol_name(instance->attack));
+        instance->environment, subbrute_protocol_file(instance->file));
     subghz_transmitter_deserialize(instance->transmitter, flipper_format);
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(instance->preset);
@@ -269,6 +313,8 @@ void subbrute_worker_subghz_transmit(SubBruteWorker* instance, FlipperFormat* fl
     furi_hal_subghz_sleep();
     subghz_transmitter_free(instance->transmitter);
     instance->transmitter = NULL;
+
+    instance->transmit_mode = false;
 }
 
 void subbrute_worker_send_callback(SubBruteWorker* instance) {
@@ -307,12 +353,12 @@ int32_t subbrute_worker_thread(void* context) {
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
     while(instance->worker_running) {
-        FuriString* payload = furi_string_alloc();
+        FuriString* payload = NULL;
         stream_clean(stream);
 
         if(instance->attack == SubBruteAttackLoadFile) {
             payload = subbrute_protocol_file_payload(
-                instance->key_index,
+                instance->step,
                 instance->bits,
                 instance->te,
                 instance->repeat,
@@ -320,8 +366,12 @@ int32_t subbrute_worker_thread(void* context) {
                 instance->file_key);
         } else {
             payload = subbrute_protocol_default_payload(
-                instance->key_index, instance->bits, instance->te, instance->repeat);
+                instance->step, instance->bits, instance->te, instance->repeat);
         }
+#ifdef FURI_DEBUG
+        FURI_LOG_I(TAG, "Payload: %s", furi_string_get_cstr(payload));
+        furi_delay_ms(SUBBRUTE_MANUAL_TRANSMIT_INTERVAL / 4);
+#endif
 
         size_t written = stream_write_string(stream, payload);
         if(written <= 0) {
@@ -334,7 +384,7 @@ int32_t subbrute_worker_thread(void* context) {
 
         subbrute_worker_subghz_transmit(instance, flipper_format);
 
-        if(instance->key_index + 1 > instance->max_value) {
+        if(instance->step + 1 > instance->max_value) {
 #ifdef FURI_DEBUG
             FURI_LOG_I(TAG, "Worker finished to end");
 #endif
@@ -342,7 +392,7 @@ int32_t subbrute_worker_thread(void* context) {
             furi_string_free(payload);
             break;
         }
-        instance->key_index++;
+        instance->step++;
 
         furi_string_free(payload);
         furi_delay_ms(SUBBRUTE_TX_TIMEOUT);

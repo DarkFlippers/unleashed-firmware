@@ -41,7 +41,12 @@ bool subbrute_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "Event: %ld", event.event);
+        FURI_LOG_D(
+            TAG,
+            "Event: %ld, SubBruteCustomEventTypeMenuSelected: %s, SubBruteCustomEventTypeLoadFile: %s",
+            event.event,
+            event.event == SubBruteCustomEventTypeMenuSelected ? "true" : "false",
+            event.event == SubBruteCustomEventTypeLoadFile ? "true" : "false");
 #endif
         if(event.event == SubBruteCustomEventTypeMenuSelected) {
             SubBruteAttacks attack = subbrute_main_view_get_index(instance->view_main);

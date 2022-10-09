@@ -10,9 +10,10 @@ struct SubBruteWorker {
     SubBruteWorkerState state;
     volatile bool worker_running;
     volatile bool initiated;
+    volatile bool transmit_mode;
 
     // Current step
-    uint64_t key_index;
+    uint64_t step;
 
     // SubGhz
     FuriThread* thread;

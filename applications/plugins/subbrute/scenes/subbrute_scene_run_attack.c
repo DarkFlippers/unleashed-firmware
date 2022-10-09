@@ -46,7 +46,10 @@ void subbrute_scene_run_attack_on_enter(void* context) {
         instance->worker, subbrute_scene_run_attack_device_state_changed, instance);
 
     if(!subbrute_worker_is_running(instance->worker)) {
-        subbrute_worker_start(instance->worker);
+        if(!subbrute_worker_start(instance->worker)) {
+            view_dispatcher_send_custom_event(
+                instance->view_dispatcher, SubBruteCustomEventTypeError);
+        }
     }
 }
 
@@ -72,6 +75,10 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
                 instance->scene_manager, SubBruteSceneSetupAttack);
         } else if(event.event == SubBruteCustomEventTypeError) {
             notification_message(instance->notifications, &sequence_error);
+
+            // Stop transmit
+            scene_manager_search_and_switch_to_previous_scene(
+                instance->scene_manager, SubBruteSceneSetupAttack);
         } else if(event.event == SubBruteCustomEventTypeUpdateView) {
             //subbrute_attack_view_set_current_step(view, instance->device->key_index);
         }

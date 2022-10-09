@@ -153,6 +153,13 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     furi_hal_subghz_reset();
 
     uint8_t protocol_check_result = SubBruteFileResultProtocolNotFound;
+#ifdef FURI_DEBUG
+    uint8_t bits;
+    uint8_t te;
+    uint8_t repeat;
+    FuriHalSubGhzPreset preset;
+    SubBruteFileProtocol file;
+#endif
     if(type != SubBruteAttackLoadFile) {
         instance->decoder_result = subghz_receiver_search_decoder_base_by_name(
             instance->receiver, subbrute_protocol_file(instance->protocol_info->file));
@@ -167,6 +174,13 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
             instance->max_value =
                 subbrute_protocol_calc_max_value(instance->attack, instance->protocol_info->bits);
         }
+#ifdef FURI_DEBUG
+        bits = instance->protocol_info->bits;
+        te = instance->protocol_info->te;
+        repeat = instance->protocol_info->repeat;
+        preset = instance->protocol_info->preset;
+        file = instance->protocol_info->file;
+#endif
     } else {
         // And here we need to set preset enum
         protocol_check_result = SubBruteFileResultOk;
@@ -174,6 +188,13 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
         // Calc max value
         instance->max_value =
             subbrute_protocol_calc_max_value(instance->attack, instance->file_protocol_info->bits);
+#ifdef FURI_DEBUG
+        bits = instance->file_protocol_info->bits;
+        te = instance->file_protocol_info->te;
+        repeat = instance->file_protocol_info->repeat;
+        preset = instance->file_protocol_info->preset;
+        file = instance->file_protocol_info->file;
+#endif
     }
 
     subghz_receiver_free(instance->receiver);
@@ -182,6 +203,19 @@ SubBruteFileResult subbrute_device_attack_set(SubBruteDevice* instance, SubBrute
     if(protocol_check_result != SubBruteFileResultOk) {
         return SubBruteFileResultProtocolNotFound;
     }
+
+#ifdef FURI_DEBUG
+    FURI_LOG_I(
+        TAG,
+        "subbrute_device_attack_set: %s, bits: %d, preset: %s, file: %s, te: %d, repeat: %d, max_value: %lld",
+        subbrute_protocol_name(instance->attack),
+        bits,
+        subbrute_protocol_preset(preset),
+        subbrute_protocol_file(file),
+        te,
+        repeat,
+        instance->max_value);
+#endif
 
     return SubBruteFileResultOk;
 }

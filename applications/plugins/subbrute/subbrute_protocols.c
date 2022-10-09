@@ -210,7 +210,7 @@ static const char* subbrute_key_file_start_no_tail =
     "Filetype: Flipper SubGhz Key File\nVersion: 1\nFrequency: %u\nPreset: %s\nProtocol: %s\nBit: %d\nKey: %s\nRepeat: %d\n";
 static const char* subbrute_key_file_start_with_tail =
     "Filetype: Flipper SubGhz Key File\nVersion: 1\nFrequency: %u\nPreset: %s\nProtocol: %s\nBit: %d\nKey: %s\nTE: %d\nRepeat: %d\n";
-static const char* subbrute_key_small_no_tail = "Bit: %d\nKey: %s\nRepeat: %d\nRepeat: %d\n";
+static const char* subbrute_key_small_no_tail = "Bit: %d\nKey: %s\nRepeat: %d\n";
 static const char* subbrute_key_small_with_tail = "Bit: %d\nKey: %s\nTE: %d\nRepeat: %d\n";
 
 const char* subbrute_protocol_name(SubBruteAttacks index) {
@@ -268,7 +268,7 @@ FuriString*
     furi_string_free(buffer);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+    //FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
     FuriString* result;
 
@@ -280,7 +280,7 @@ FuriString*
             subbrute_key_small_no_tail, bits, furi_string_get_cstr(candidate), repeat);
     }
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
+    //FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
 #endif
 
     furi_string_free(candidate);
@@ -305,7 +305,7 @@ FuriString* subbrute_protocol_file_payload(
     furi_string_replace_at(candidate, load_index * 3, 3, subbrute_payload_byte);
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+    //FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
     FuriString* result;
 
@@ -318,7 +318,7 @@ FuriString* subbrute_protocol_file_payload(
     }
 
 #ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
+    //FURI_LOG_D(TAG, "result: %s", furi_string_get_cstr(result));
 #endif
 
     furi_string_free(candidate);
