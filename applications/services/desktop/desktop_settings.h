@@ -8,7 +8,7 @@
 #include <toolbox/saved_struct.h>
 #include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (5)
+#define DESKTOP_SETTINGS_VER (6)
 
 #define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -34,6 +34,9 @@
 
 #define MAX_PIN_SIZE 10
 #define MIN_PIN_SIZE 4
+#define MAX_APP_LENGTH 128
+
+#define FAP_LOADER_APP_NAME "Applications"
 
 typedef struct {
     InputKey data[MAX_PIN_SIZE];
@@ -41,8 +44,13 @@ typedef struct {
 } PinCode;
 
 typedef struct {
-    uint16_t favorite_primary;
-    uint16_t favorite_secondary;
+    bool is_external;
+    char name_or_path[MAX_APP_LENGTH];
+} FavoriteApp;
+
+typedef struct {
+    FavoriteApp favorite_primary;
+    FavoriteApp favorite_secondary;
     PinCode pin_code;
     uint8_t is_locked;
     uint32_t auto_lock_delay_ms;

@@ -6,6 +6,7 @@
 #include <gui/scene_manager.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/variable_item_list.h>
+#include <dialogs/dialogs.h>
 
 #include <desktop/desktop_settings.h>
 #include <desktop/views/desktop_view_pin_input.h>
@@ -25,6 +26,7 @@ typedef struct {
     DesktopSettings settings;
 
     Gui* gui;
+    DialogsApp* dialogs;
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
     VariableItemList* variable_item_list;
