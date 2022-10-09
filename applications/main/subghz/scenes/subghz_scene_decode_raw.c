@@ -22,15 +22,6 @@
 // [X] Find good value for SAMPLES_TO_READ_PER_TICK
 // [X] Fix: read errors (slow flash) after aborting decode read
 
-typedef enum {
-    SubGhzDecodeRawStateStart,
-    SubGhzDecodeRawStateLoading,
-    SubGhzDecodeRawStateLoaded,
-} SubGhzDecodeRawState;
-
-SubGhzDecodeRawState decode_raw_state = SubGhzDecodeRawStateStart;
-SubGhzFileEncoderWorker* file_worker_encoder;
-
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
     FuriString* history_stat_str;
@@ -114,8 +105,9 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
     if(success) {
         //FURI_LOG_I(TAG, "Listening at \033[0;33m%s\033[0m.", furi_string_get_cstr(file_name));
 
-        file_worker_encoder = subghz_file_encoder_worker_alloc();
-        if(subghz_file_encoder_worker_start(file_worker_encoder, furi_string_get_cstr(file_name))) {
+        subghz->decode_raw_file_worker_encoder = subghz_file_encoder_worker_alloc();
+        if(subghz_file_encoder_worker_start(
+               subghz->decode_raw_file_worker_encoder, furi_string_get_cstr(file_name))) {
             //the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
         } else {
@@ -123,7 +115,7 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
         }
 
         if(!success) {
-            subghz_file_encoder_worker_free(file_worker_encoder);
+            subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
         }
     }
 
@@ -135,13 +127,14 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
     LevelDuration level_duration;
 
     for(uint32_t read = SAMPLES_TO_READ_PER_TICK; read > 0; --read) {
-        level_duration = subghz_file_encoder_worker_get_level_duration(file_worker_encoder);
+        level_duration =
+            subghz_file_encoder_worker_get_level_duration(subghz->decode_raw_file_worker_encoder);
         if(!level_duration_is_reset(level_duration)) {
             bool level = level_duration_get_level(level_duration);
             uint32_t duration = level_duration_get_duration(level_duration);
             subghz_receiver_decode(subghz->txrx->receiver, level, duration);
         } else {
-            decode_raw_state = SubGhzDecodeRawStateLoaded;
+            subghz->decode_raw_state = SubGhzDecodeRawStateLoaded;
             subghz->state_notifications = SubGhzNotificationStateIDLE;
 
             subghz_view_receiver_add_data_progress(subghz->subghz_receiver, "100%");
@@ -152,7 +145,8 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
     // Update progress info
     FuriString* progress_str;
     progress_str = furi_string_alloc();
-    subghz_file_encoder_worker_get_text_progress(file_worker_encoder, progress_str);
+    subghz_file_encoder_worker_get_text_progress(
+        subghz->decode_raw_file_worker_encoder, progress_str);
 
     subghz_view_receiver_add_data_progress(
         subghz->subghz_receiver, furi_string_get_cstr(progress_str));
@@ -183,11 +177,11 @@ void subghz_scene_decode_raw_on_enter(void* context) {
         false);
     subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
 
-    if(decode_raw_state == SubGhzDecodeRawStateStart) {
+    if(subghz->decode_raw_state == SubGhzDecodeRawStateStart) {
         //Decode RAW to history
         subghz_history_reset(subghz->txrx->history);
         if(subghz_scene_decode_raw_start(subghz)) {
-            decode_raw_state = SubGhzDecodeRawStateLoading;
+            subghz->decode_raw_state = SubGhzDecodeRawStateLoading;
             subghz->state_notifications = SubGhzNotificationStateRx;
         }
     } else {
@@ -216,14 +210,14 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
-            decode_raw_state = SubGhzDecodeRawStateStart;
+            subghz->decode_raw_state = SubGhzDecodeRawStateStart;
             subghz->txrx->idx_menu_chosen = 0;
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
 
-            if(subghz_file_encoder_worker_is_running(file_worker_encoder)) {
-                subghz_file_encoder_worker_stop(file_worker_encoder);
+            if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
+                subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
             }
-            subghz_file_encoder_worker_free(file_worker_encoder);
+            subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
 
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             scene_manager_set_scene_state(
@@ -268,7 +262,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             break;
         }
 
-        switch(decode_raw_state) {
+        switch(subghz->decode_raw_state) {
         case SubGhzDecodeRawStateLoading:
             subghz_scene_decode_raw_next(subghz);
             break;
