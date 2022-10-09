@@ -45,9 +45,9 @@ after that on web updater page - press `Connect` button
 <br>
 <br>
 
-## With qFlipper (1.2.0)
+## With qFlipper (1.2.0+)
 
-- Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.0 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.0/)
+- Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.1 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.1/)
 - Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`

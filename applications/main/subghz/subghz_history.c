@@ -3,7 +3,7 @@
 #include <lib/subghz/receiver.h>
 #include <flipper_format/flipper_format_i.h>
 
-#define SUBGHZ_HISTORY_MAX 65
+#define SUBGHZ_HISTORY_MAX 60
 
 /**
  * @brief Settings for temporary files
