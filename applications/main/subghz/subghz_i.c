@@ -60,7 +60,7 @@ void subghz_get_frequency_modulation(SubGhz* subghz, FuriString* frequency, Furi
             subghz->txrx->preset->frequency / 10000 % 100);
     }
     if(modulation != NULL) {
-        furi_string_printf(modulation, "%2s", furi_string_get_cstr(subghz->txrx->preset->name));
+        furi_string_printf(modulation, "%.2s", furi_string_get_cstr(subghz->txrx->preset->name));
     }
 }
 
