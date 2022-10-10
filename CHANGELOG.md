@@ -1,7 +1,10 @@
 ### New changes
-* SubGHz: Fixed bugs with Decode option for RAW signals (blank screen, broken files)
-* SubGHz: Allowed usage of hopper with detect raw feature (with attempt to fix) - WARNING -> This feature is very unstable, may cause crashes(with lost of captured signal), use at your own risk, it was enabled due to many requests from users
-* PR -> Docs, fix description - Slight update for newest dev method (by @UberGuidoZ | PR #93)
+* Plugins: RFID Fuzzer - fixed crash in load uids from file
+* Fixed .fap's debug (unable to set breakpoint)
+* PR: Turkish language support badusb layout (by @hardcod3dd | PR #95)
+* New icon for UART Echo (by @Svaarich)
+* New animaiton (flipper city) (by @Svaarich)
+* Discord link updated
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 

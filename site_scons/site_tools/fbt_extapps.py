@@ -111,7 +111,7 @@ def BuildAppElf(env, app):
     )
 
     app_elf_raw = app_env.Program(
-        os.path.join(app_work_dir, f"{app.appid}_d"),
+        os.path.join(ext_apps_work_dir, f"{app.appid}_d"),
         app_sources,
         APP_ENTRY=app.entry_point,
     )

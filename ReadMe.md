@@ -16,7 +16,7 @@ Please help us implement emulation for all subghz dynamic (rolling code) protoco
 <br>
 Our Discord Community:
 <br>
-<a href="https://discord.gg/flipperzero-unofficial"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community"></a>
+<a href="https://discord.unleashedflip.com"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community"></a>
 
 <br>
 <br>
@@ -156,7 +156,7 @@ Games:
 
 # Links
 
-* Unofficial Discord: [discord.gg/flipperzero-unofficial](https://discord.gg/flipperzero-unofficial)
+* Unofficial Discord: [discord.unleashedflip.com](https://discord.unleashedflip.com)
 * Docs by atmanos / How to write your own app (outdated API): [https://flipper.atmanos.com/docs/overview/intro](https://flipper.atmanos.com/docs/overview/intro)
 
 * Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
