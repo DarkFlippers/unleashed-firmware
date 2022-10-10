@@ -281,7 +281,7 @@ void subbrute_protocol_file_payload(
     furi_string_replace_at(candidate, load_index * 3, 3, subbrute_payload_byte);
 
 #ifdef FURI_DEBUG
-    //FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
+    FURI_LOG_D(TAG, "candidate: %s, step: %lld", furi_string_get_cstr(candidate), step);
 #endif
     stream_clean(stream);
 
@@ -407,7 +407,7 @@ void subbrute_protocol_file_generate_file(
 uint64_t subbrute_protocol_calc_max_value(SubBruteAttacks attack_type, uint8_t bits) {
     uint64_t max_value;
     if(attack_type == SubBruteAttackLoadFile) {
-        max_value = 0x3F;
+        max_value = 0xFF;
     } else {
         FuriString* max_value_s;
         max_value_s = furi_string_alloc();
