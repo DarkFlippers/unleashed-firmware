@@ -130,32 +130,6 @@ const SubBruteProtocol subbrute_protocol_linear_10bit_310 = {
 const SubBruteProtocol subbrute_protocol_load_file =
     {0, 0, 0, 3, FuriHalSubGhzPresetOok650Async, RAWFileProtocol};
 
-//static const SubBruteProtocol subbrute_protocols[SubBruteAttackTotalCount] = {
-//    [SubBruteAttackCAME12bit303] =
-//        {303875000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, CAMEFileProtocol},
-//    [SubBruteAttackCAME12bit307] =
-//        {307800000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, CAMEFileProtocol},
-//    [SubBruteAttackCAME12bit433] =
-//        {433920000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, CAMEFileProtocol},
-//    [SubBruteAttackCAME12bit868] =
-//        {868350000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, CAMEFileProtocol},
-//    [SubBruteAttackNICE12bit433] =
-//        {433920000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, NICEFileProtocol},
-//    [SubBruteAttackNICE12bit868] =
-//        {868350000, 12, 0, 3, FuriHalSubGhzPresetOok650Async, NICEFileProtocol},
-//    [SubBruteAttackChamberlain9bit300] =
-//        {300000000, 9, 0, 3, FuriHalSubGhzPresetOok650Async, ChamberlainFileProtocol},
-//    [SubBruteAttackChamberlain9bit315] =
-//        {315000000, 9, 0, 3, FuriHalSubGhzPresetOok650Async, ChamberlainFileProtocol},
-//    [SubBruteAttackChamberlain9bit390] =
-//        {390000000, 9, 0, 3, FuriHalSubGhzPresetOok650Async, ChamberlainFileProtocol},
-//    [SubBruteAttackLinear10bit300] =
-//        {300000000, 10, 0, 5, FuriHalSubGhzPresetOok650Async, LinearFileProtocol},
-//    [SubBruteAttackLinear10bit310] =
-//        {300000000, 10, 0, 5, FuriHalSubGhzPresetOok650Async, LinearFileProtocol},
-//    [SubBruteAttackLoadFile] = {0, 0, 0, 3, FuriHalSubGhzPresetOok650Async, RAWFileProtocol},
-//};
-
 static const char* subbrute_protocol_names[] = {
     [SubBruteAttackCAME12bit303] = "CAME 12bit 303MHz",
     [SubBruteAttackCAME12bit307] = "CAME 12bit 307MHz",

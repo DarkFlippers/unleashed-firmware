@@ -20,6 +20,7 @@ struct SubBruteWorker {
     SubGhzProtocolDecoderBase* decoder_result;
     SubGhzEnvironment* environment;
     SubGhzTransmitter* transmitter;
+    const char* protocol_name;
 
     // Initiated values
     SubBruteAttacks attack; // Attack state

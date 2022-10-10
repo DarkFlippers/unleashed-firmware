@@ -222,6 +222,7 @@ bool subbrute_worker_transmit_current_key(SubBruteWorker* instance, uint64_t ste
     instance->step = step;
 
     bool result;
+    instance->protocol_name = subbrute_protocol_file(instance->file);
     FlipperFormat* flipper_format = flipper_format_string_alloc();
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
@@ -255,7 +256,7 @@ bool subbrute_worker_transmit_current_key(SubBruteWorker* instance, uint64_t ste
     //    }
 
     flipper_format_free(flipper_format);
-//    furi_string_free(payload);
+    //    furi_string_free(payload);
 
     return result;
 }
@@ -296,8 +297,8 @@ void subbrute_worker_subghz_transmit(SubBruteWorker* instance, FlipperFormat* fl
         subghz_transmitter_free(instance->transmitter);
         instance->transmitter = NULL;
     }
-    instance->transmitter = subghz_transmitter_alloc_init(
-        instance->environment, subbrute_protocol_file(instance->file));
+    instance->transmitter =
+        subghz_transmitter_alloc_init(instance->environment, instance->protocol_name);
     subghz_transmitter_deserialize(instance->transmitter, flipper_format);
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(instance->preset);
@@ -348,6 +349,8 @@ int32_t subbrute_worker_thread(void* context) {
 
     SubBruteWorkerState local_state = instance->state = SubBruteWorkerStateTx;
     subbrute_worker_send_callback(instance);
+
+    instance->protocol_name = subbrute_protocol_file(instance->file);
 
     FlipperFormat* flipper_format = flipper_format_string_alloc();
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
