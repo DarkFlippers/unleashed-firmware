@@ -93,7 +93,7 @@ Games:
 - SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
 - SubGHz -> Save last used frequency and moduluation [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 - SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
-* SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
+- SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
 
 # Instructions
 ## [- How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
