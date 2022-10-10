@@ -533,14 +533,17 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 break;
             case InputKeyBack:
                 if(context->attack == FlipFridAttackLoadFileCustomUids) {
+                    furi_string_reset(context->data_str);
+                    stream_rewind(context->uids_stream);
                     buffered_file_stream_close(context->uids_stream);
                 }
 
                 context->attack_step = 0;
+                counter = 0;
                 context->is_attacking = false;
                 furi_string_reset(context->notification_msg);
-                context->current_scene = SceneEntryPoint;
                 notification_message(context->notify, &sequence_blink_stop);
+                context->current_scene = SceneEntryPoint;
                 break;
             }
         }
