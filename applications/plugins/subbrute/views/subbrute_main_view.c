@@ -1,10 +1,11 @@
 #include "subbrute_main_view.h"
 #include "../subbrute_i.h"
+#include "../subbrute_protocols.h"
 
 #include <input/input.h>
 #include <gui/elements.h>
-#include "assets_icons.h"
 #include <gui/icon.h>
+#include <assets_icons.h>
 
 #define STATUS_BAR_Y_SHIFT 14
 #define TAG "SubBruteMainView"
@@ -85,12 +86,12 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_box(canvas, 0, 0, canvas_width(canvas), STATUS_BAR_Y_SHIFT);
     canvas_invert_color(canvas);
-    canvas_draw_str_aligned(canvas, 64, 3, AlignCenter, AlignTop, "Sub-GHz Bruteforcer");
+    canvas_draw_str_aligned(canvas, 64, 3, AlignCenter, AlignTop, "Sub-GHz BruteForcer v3");
     canvas_invert_color(canvas);
 
     if(m->is_select_byte) {
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "key_field: %s", m->key_field);
+        //FURI_LOG_D(TAG, "key_field: %s", m->key_field);
 #endif
         char msg_index[18];
         snprintf(msg_index, sizeof(msg_index), "Field index : %d", m->index);
@@ -117,13 +118,12 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
         const uint8_t item_height = 16;
 
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "window_position: %d, index: %d", model->window_position, m->index);
+        //FURI_LOG_D(TAG, "window_position: %d, index: %d", model->window_position, m->index);
 #endif
         for(uint8_t position = 0; position < SubBruteAttackTotalCount; ++position) {
             uint8_t item_position = position - model->window_position;
 
             if(item_position < items_on_screen) {
-                const char* str = subbrute_get_menu_name(position);
                 if(m->index == position) {
                     canvas_draw_str_aligned(
                         canvas,
@@ -131,7 +131,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                         9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
                         AlignLeft,
                         AlignCenter,
-                        str);
+                        subbrute_protocol_name(position));
                     elements_frame(
                         canvas, 1, 1 + (item_position * item_height) + STATUS_BAR_Y_SHIFT, 124, 15);
                 } else {
@@ -141,7 +141,7 @@ void subbrute_main_view_draw(Canvas* canvas, SubBruteMainViewModel* model) {
                         9 + (item_position * item_height) + STATUS_BAR_Y_SHIFT,
                         AlignLeft,
                         AlignCenter,
-                        str);
+                        subbrute_protocol_name(position));
                 }
             }
         }
@@ -227,10 +227,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 #ifdef FURI_DEBUG
         with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
-                index = model->index;
-                return false;
-            });
+            instance->view, SubBruteMainViewModel * model, { index = model->index; }, false);
         FURI_LOG_I(TAG, "Index: %d", index);
 #endif
 
@@ -265,10 +262,7 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
 
 #ifdef FURI_DEBUG
         with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
-                index = model->index;
-                return false;
-            });
+            instance->view, SubBruteMainViewModel * model, { index = model->index; }, false);
         FURI_LOG_I(TAG, "Index: %d", index);
 #endif
 

@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
-#include "../views/subbrute_main_view.h"
+#include "subbrute_scene.h"
 
 #define TAG "SubBruteSceneStart"
 
@@ -42,12 +41,24 @@ bool subbrute_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
 #ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "Event: %ld", event.event);
+        FURI_LOG_D(
+            TAG,
+            "Event: %ld, SubBruteCustomEventTypeMenuSelected: %s, SubBruteCustomEventTypeLoadFile: %s",
+            event.event,
+            event.event == SubBruteCustomEventTypeMenuSelected ? "true" : "false",
+            event.event == SubBruteCustomEventTypeLoadFile ? "true" : "false");
 #endif
         if(event.event == SubBruteCustomEventTypeMenuSelected) {
             SubBruteAttacks attack = subbrute_main_view_get_index(instance->view_main);
 
-            subbrute_device_attack_set(instance->device, attack);
+            if(subbrute_device_attack_set(instance->device, attack) != SubBruteFileResultOk ||
+               !subbrute_worker_init_default_attack(
+                   instance->worker,
+                   attack,
+                   instance->device->key_index,
+                   instance->device->protocol_info)) {
+                furi_crash("Invalid attack set!");
+            }
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
 
             consumed = true;

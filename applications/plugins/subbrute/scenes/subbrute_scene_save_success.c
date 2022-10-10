@@ -1,5 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
+#include "subbrute_scene.h"
 
 void subbrute_scene_save_success_on_enter(void* context) {
     furi_assert(context);

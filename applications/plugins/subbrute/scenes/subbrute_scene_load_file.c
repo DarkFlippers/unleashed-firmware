@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
-#include <lib/subghz/protocols/registry.h>
+#include "subbrute_scene.h"
 
 #define TAG "SubBruteSceneLoadFile"
 
@@ -35,12 +34,20 @@ void subbrute_scene_load_file_on_enter(void* context) {
         furi_string_get_cstr(app_folder));
 #endif
     if(res) {
-        load_result = subbrute_device_load_from_file(instance->device, load_path);
+        load_result =
+            subbrute_device_load_from_file(instance->device, furi_string_get_cstr(load_path));
         if(load_result == SubBruteFileResultOk) {
             load_result = subbrute_device_attack_set(instance->device, SubBruteAttackLoadFile);
             if(load_result == SubBruteFileResultOk) {
+                if(!subbrute_worker_init_file_attack(
+                       instance->worker,
+                       instance->device->key_index,
+                       instance->device->load_index,
+                       instance->device->file_key,
+                       instance->device->file_protocol_info)) {
+                    furi_crash("Invalid attack set!");
+                }
                 // Ready to run!
-                instance->device->state = SubBruteDeviceStateReady;
                 FURI_LOG_I(TAG, "Ready to run");
                 res = true;
             }
