@@ -636,35 +636,7 @@ bool nfc_device_load_mifare_df_data(FlipperFormat* file, NfcDevice* dev) {
     return parsed;
 }
 
-static bool nfc_device_save_bank_card_data(FlipperFormat* file, NfcDevice* dev) {
-    bool saved = false;
-    EmvData* data = &dev->dev_data.emv_data;
-    uint32_t data_temp = 0;
-
-    do {
-        // Write Bank card specific data
-        if(!flipper_format_write_comment_cstr(file, "Bank card specific data")) break;
-        if(!flipper_format_write_hex(file, "AID", data->aid, data->aid_len)) break;
-        if(!flipper_format_write_string_cstr(file, "Name", data->name)) break;
-        if(!flipper_format_write_hex(file, "Number", data->number, data->number_len)) break;
-        if(data->exp_mon) {
-            uint8_t exp_data[2] = {data->exp_mon, data->exp_year};
-            if(!flipper_format_write_hex(file, "Exp data", exp_data, sizeof(exp_data))) break;
-        }
-        if(data->country_code) {
-            data_temp = data->country_code;
-            if(!flipper_format_write_uint32(file, "Country code", &data_temp, 1)) break;
-        }
-        if(data->currency_code) {
-            data_temp = data->currency_code;
-            if(!flipper_format_write_uint32(file, "Currency code", &data_temp, 1)) break;
-        }
-        saved = true;
-    } while(false);
-
-    return saved;
-}
-
+// Leave for backward compatibility
 bool nfc_device_load_bank_card_data(FlipperFormat* file, NfcDevice* dev) {
     bool parsed = false;
     EmvData* data = &dev->dev_data.emv_data;
@@ -1068,7 +1040,7 @@ static bool nfc_device_save_file(
         if(!flipper_format_write_header_cstr(file, nfc_file_header, nfc_file_version)) break;
         // Write nfc device type
         if(!flipper_format_write_comment_cstr(
-               file, "Nfc device type can be UID, Mifare Ultralight, Mifare Classic, Bank card"))
+               file, "Nfc device type can be UID, Mifare Ultralight, Mifare Classic"))
             break;
         nfc_device_prepare_format_string(dev, temp_str);
         if(!flipper_format_write_string(file, "Device type", temp_str)) break;
@@ -1083,8 +1055,6 @@ static bool nfc_device_save_file(
             if(!nfc_device_save_mifare_ul_data(file, dev)) break;
         } else if(dev->format == NfcDeviceSaveFormatMifareDesfire) {
             if(!nfc_device_save_mifare_df_data(file, dev)) break;
-        } else if(dev->format == NfcDeviceSaveFormatBankCard) {
-            if(!nfc_device_save_bank_card_data(file, dev)) break;
         } else if(dev->format == NfcDeviceSaveFormatMifareClassic) {
             // Save data
             if(!nfc_device_save_mifare_classic_data(file, dev)) break;

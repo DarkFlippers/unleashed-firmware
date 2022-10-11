@@ -233,31 +233,51 @@ static bool nfc_worker_read_bank_card(NfcWorker* nfc_worker, FuriHalNfcTxRxConte
         reader_analyzer_start(nfc_worker->reader_analyzer, ReaderAnalyzerModeDebugLog);
     }
 
-    do {
-        // Read card
+    // Bank cards require strong field to start application. If we find AID, try at least several
+    // times to start EMV application
+    uint8_t start_application_attempts = 0;
+    while(start_application_attempts < 3) {
+        if(nfc_worker->state != NfcWorkerStateRead) break;
+        start_application_attempts++;
         if(!furi_hal_nfc_detect(&nfc_worker->dev_data->nfc_data, 300)) break;
-        if(!emv_read_bank_card(tx_rx, &emv_app)) break;
-        // Copy data
-        // TODO Set EmvData to reader or like in mifare ultralight!
-        result->number_len = emv_app.card_number_len;
-        memcpy(result->number, emv_app.card_number, result->number_len);
+        if(emv_read_bank_card(tx_rx, &emv_app)) {
+            FURI_LOG_D(TAG, "Bank card number read from %d attempt", start_application_attempts);
+            break;
+        } else if(emv_app.aid_len && !emv_app.app_started) {
+            FURI_LOG_D(
+                TAG,
+                "AID found but failed to start EMV app from %d attempt",
+                start_application_attempts);
+            furi_hal_nfc_sleep();
+            continue;
+        } else {
+            FURI_LOG_D(TAG, "Failed to find AID");
+            break;
+        }
+    }
+    // Copy data
+    if(emv_app.aid_len) {
         result->aid_len = emv_app.aid_len;
         memcpy(result->aid, emv_app.aid, result->aid_len);
-        if(emv_app.name_found) {
-            memcpy(result->name, emv_app.name, sizeof(emv_app.name));
-        }
-        if(emv_app.exp_month) {
-            result->exp_mon = emv_app.exp_month;
-            result->exp_year = emv_app.exp_year;
-        }
-        if(emv_app.country_code) {
-            result->country_code = emv_app.country_code;
-        }
-        if(emv_app.currency_code) {
-            result->currency_code = emv_app.currency_code;
-        }
         read_success = true;
-    } while(false);
+    }
+    if(emv_app.card_number_len) {
+        result->number_len = emv_app.card_number_len;
+        memcpy(result->number, emv_app.card_number, result->number_len);
+    }
+    if(emv_app.name_found) {
+        memcpy(result->name, emv_app.name, sizeof(emv_app.name));
+    }
+    if(emv_app.exp_month) {
+        result->exp_mon = emv_app.exp_month;
+        result->exp_year = emv_app.exp_year;
+    }
+    if(emv_app.country_code) {
+        result->country_code = emv_app.country_code;
+    }
+    if(emv_app.currency_code) {
+        result->currency_code = emv_app.currency_code;
+    }
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         reader_analyzer_stop(nfc_worker->reader_analyzer);
