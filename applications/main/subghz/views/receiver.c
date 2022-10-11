@@ -270,12 +270,12 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 #ifdef SUBGHZ_EXT_PRESET_NAME
         if(model->history_item == 0 && model->mode == SubGhzViewReceiverModeLive) {
             const char* str = furi_string_get_cstr(model->preset_str);
-            const uint8_t vertical_offset = 3;
+            const uint8_t vertical_offset = 7;
             const uint8_t horizontal_offset = 3;
             const uint8_t string_width = canvas_string_width(canvas, str);
             canvas_draw_str(
                 canvas,
-                canvas_width(canvas) - string_width + horizontal_offset,
+                canvas_width(canvas) - (string_width + horizontal_offset),
                 vertical_offset,
                 str);
         } else {
