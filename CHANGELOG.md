@@ -1,10 +1,7 @@
 ### New changes
-* Plugins: RFID Fuzzer - fixed crash in load uids from file
-* Fixed .fap's debug (unable to set breakpoint)
-* PR: Turkish language support badusb layout (by @hardcod3dd | PR #95)
-* New icon for UART Echo (by @Svaarich)
-* New animaiton (flipper city) (by @Svaarich)
-* Discord link updated
+* PR: SubGHz Bruteforcer v3 (improved speed of all protos (example CAME -> was 17:48, now 5:58), fixed issue with BF existing dump) (by @derskythe | PR #97)
+* PR: SubGHz: Detect RAW fixes (now files are split properly, and random noise added before and after signal to allow decoding) (by @derskythe | PR #98)
+* Plugins: RFID Fuzzer fix
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
