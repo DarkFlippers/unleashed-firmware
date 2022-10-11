@@ -44,6 +44,7 @@
 #include "rpc/rpc_app.h"
 
 #define SUBGHZ_MAX_LEN_NAME 64
+#define SUBGHZ_EXT_PRESET_NAME true
 
 typedef struct {
     uint8_t fix[4];
