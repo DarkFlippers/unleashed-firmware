@@ -857,6 +857,9 @@ bool subghz_history_tmp_write_file_split(
     flipper_format_file_close(flipper_format_file);
     flipper_format_free(flipper_format_file);
     furi_string_free(temp_str);
+    flipper_format_free(item->flipper_string);
+    item->flipper_string = NULL;
+    item->is_file = true;
 
     return result;
 }
