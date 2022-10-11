@@ -518,3 +518,20 @@ uint32_t subghz_frequency_analyzer_get_frequency_to_save(SubGhzFrequencyAnalyzer
 
     return frequency;
 }
+
+uint8_t subghz_frequency_analyzer_feedback_level(
+    SubGhzFrequencyAnalyzer* instance,
+    uint8_t level,
+    bool update) {
+    furi_assert(instance);
+    if(update) {
+        instance->feedback_level = level;
+        with_view_model(
+            instance->view,
+            SubGhzFrequencyAnalyzerModel * model,
+            { model->feedback_level = instance->feedback_level; },
+            true);
+    }
+
+    return instance->feedback_level;
+}

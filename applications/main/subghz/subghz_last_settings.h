@@ -19,6 +19,7 @@ typedef struct {
     uint32_t detect_raw;
 #endif
     int32_t preset;
+    uint32_t frequency_analyzer_feedback_level;
 } SubGhzLastSettings;
 
 SubGhzLastSettings* subghz_last_settings_alloc(void);
