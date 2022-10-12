@@ -1,0 +1,4 @@
+#define tile_uncleared_width 8
+#define tile_uncleared_height 8
+static uint8_t tile_uncleared_bits[] = {
+  0xFF, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xFF, };

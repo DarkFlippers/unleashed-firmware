@@ -72,8 +72,10 @@ UsbHid* usb_hid_app_alloc() {
         app->submenu, "Dirpad", UsbHidSubmenuIndexDirpad, usb_hid_submenu_callback, app);
     submenu_add_item(
         app->submenu, "Keyboard", UsbHidSubmenuIndexKeyboard, usb_hid_submenu_callback, app);
-    submenu_add_item(app->submenu, "Media", UsbHidSubmenuIndexMedia, usb_hid_submenu_callback, app);
-    submenu_add_item(app->submenu, "Mouse", UsbHidSubmenuIndexMouse, usb_hid_submenu_callback, app);
+    submenu_add_item(
+        app->submenu, "Media", UsbHidSubmenuIndexMedia, usb_hid_submenu_callback, app);
+    submenu_add_item(
+        app->submenu, "Mouse", UsbHidSubmenuIndexMouse, usb_hid_submenu_callback, app);
     view_set_previous_callback(submenu_get_view(app->submenu), usb_hid_exit);
     view_dispatcher_add_view(
         app->view_dispatcher, UsbHidViewSubmenu, submenu_get_view(app->submenu));
@@ -101,17 +103,21 @@ UsbHid* usb_hid_app_alloc() {
     view_set_previous_callback(
         usb_hid_keyboard_get_view(app->usb_hid_keyboard), usb_hid_exit_confirm_view);
     view_dispatcher_add_view(
-        app->view_dispatcher, UsbHidViewKeyboard, usb_hid_keyboard_get_view(app->usb_hid_keyboard));
+        app->view_dispatcher,
+        UsbHidViewKeyboard,
+        usb_hid_keyboard_get_view(app->usb_hid_keyboard));
 
     // Media view
     app->usb_hid_media = usb_hid_media_alloc();
-    view_set_previous_callback(usb_hid_media_get_view(app->usb_hid_media), usb_hid_exit_confirm_view);
+    view_set_previous_callback(
+        usb_hid_media_get_view(app->usb_hid_media), usb_hid_exit_confirm_view);
     view_dispatcher_add_view(
         app->view_dispatcher, UsbHidViewMedia, usb_hid_media_get_view(app->usb_hid_media));
 
     // Mouse view
     app->usb_hid_mouse = usb_hid_mouse_alloc();
-    view_set_previous_callback(usb_hid_mouse_get_view(app->usb_hid_mouse), usb_hid_exit_confirm_view);
+    view_set_previous_callback(
+        usb_hid_mouse_get_view(app->usb_hid_mouse), usb_hid_exit_confirm_view);
     view_dispatcher_add_view(
         app->view_dispatcher, UsbHidViewMouse, usb_hid_mouse_get_view(app->usb_hid_mouse));
 
@@ -157,14 +163,14 @@ int32_t usb_hid_app(void* p) {
     // Switch profile to Hid
     UsbHid* app = usb_hid_app_alloc();
 
-	FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
+    FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_unlock();
     furi_check(furi_hal_usb_set_config(&usb_hid, NULL) == true);
 
-    view_dispatcher_run(app->view_dispatcher);	
-	
-    // Change back profile 
-	furi_hal_usb_set_config(usb_mode_prev, NULL);
+    view_dispatcher_run(app->view_dispatcher);
+
+    // Change back profile
+    furi_hal_usb_set_config(usb_mode_prev, NULL);
     usb_hid_app_free(app);
 
     return 0;

@@ -1,0 +1,4 @@
+#define tile_flag_width 8
+#define tile_flag_height 8
+static uint8_t tile_flag_bits[] = {
+  0xFF, 0x81, 0xB9, 0x89, 0x89, 0x9D, 0x81, 0xFF, };

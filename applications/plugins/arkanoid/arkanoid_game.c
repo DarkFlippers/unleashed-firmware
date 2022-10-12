@@ -75,8 +75,8 @@ int rand_range(int min, int max) {
 void move_ball(Canvas* canvas, ArkanoidState* st) {
     st->tick++;
 
-    int current_speed = abs(st->speed-1 - MAX_SPEED);
-    if (st->tick % current_speed != 0 && st->tick % (current_speed + 1) != 0) {
+    int current_speed = abs(st->speed - 1 - MAX_SPEED);
+    if(st->tick % current_speed != 0 && st->tick % (current_speed + 1) != 0) {
         return;
     }
 
