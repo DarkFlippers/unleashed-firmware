@@ -81,7 +81,7 @@ static bool protocol_awid_can_be_decoded(uint8_t* data) {
 
         // Avoid detection for invalid formats
         uint8_t len = bit_lib_get_bits(data, 8, 8);
-        if(len != 26 && len != 50 && len != 37 && len != 34) break;
+        if(len != 26 && len != 50 && len != 37 && len != 34 && len != 36) break;
 
         result = true;
     } while(false);
@@ -207,7 +207,7 @@ bool protocol_awid_write_data(ProtocolAwid* protocol, void* data) {
 
     // Fix incorrect length byte
     if(protocol->data[0] != 26 && protocol->data[0] != 50 && protocol->data[0] != 37 &&
-       protocol->data[0] != 34) {
+       protocol->data[0] != 34 && protocol->data[0] != 36) {
         protocol->data[0] = 26;
     }
 
