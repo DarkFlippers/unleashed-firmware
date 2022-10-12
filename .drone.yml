@@ -31,7 +31,6 @@ steps:
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
-      - tar czpf artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz -C artifacts-default f7-update-${DRONE_TAG}
       - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
