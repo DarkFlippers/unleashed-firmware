@@ -9,6 +9,7 @@ enum BtDebugSubmenuIndex {
     BtHidSubmenuIndexKeynote,
     BtHidSubmenuIndexKeyboard,
     BtHidSubmenuIndexMedia,
+    BtHidSubmenuIndexTikTok,
     BtHidSubmenuIndexMouse,
 };
 
@@ -27,6 +28,9 @@ void bt_hid_submenu_callback(void* context, uint32_t index) {
     } else if(index == BtHidSubmenuIndexMouse) {
         app->view_id = BtHidViewMouse;
         view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewMouse);
+    } else if(index == BtHidSubmenuIndexTikTok) {
+        app->view_id = BtHidViewTikTok;
+        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewTikTok);
     }
 }
 
@@ -65,6 +69,7 @@ void bt_hid_connection_status_changed_callback(BtStatus status, void* context) {
     bt_hid_keyboard_set_connected_status(bt_hid->bt_hid_keyboard, connected);
     bt_hid_media_set_connected_status(bt_hid->bt_hid_media, connected);
     bt_hid_mouse_set_connected_status(bt_hid->bt_hid_mouse, connected);
+    bt_hid_tiktok_set_connected_status(bt_hid->bt_hid_tiktok, connected);
 }
 
 BtHid* bt_hid_app_alloc() {
@@ -91,6 +96,8 @@ BtHid* bt_hid_app_alloc() {
     submenu_add_item(
         app->submenu, "Keyboard", BtHidSubmenuIndexKeyboard, bt_hid_submenu_callback, app);
     submenu_add_item(app->submenu, "Media", BtHidSubmenuIndexMedia, bt_hid_submenu_callback, app);
+    submenu_add_item(
+        app->submenu, "TikTok Controller", BtHidSubmenuIndexTikTok, bt_hid_submenu_callback, app);
     submenu_add_item(app->submenu, "Mouse", BtHidSubmenuIndexMouse, bt_hid_submenu_callback, app);
     view_set_previous_callback(submenu_get_view(app->submenu), bt_hid_exit);
     view_dispatcher_add_view(
@@ -127,6 +134,13 @@ BtHid* bt_hid_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewMedia, bt_hid_media_get_view(app->bt_hid_media));
 
+    // TikTok view
+    app->bt_hid_tiktok = bt_hid_tiktok_alloc();
+    view_set_previous_callback(
+        bt_hid_tiktok_get_view(app->bt_hid_tiktok), bt_hid_exit_confirm_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher, BtHidViewTikTok, bt_hid_tiktok_get_view(app->bt_hid_tiktok));
+
     // Mouse view
     app->bt_hid_mouse = bt_hid_mouse_alloc();
     view_set_previous_callback(bt_hid_mouse_get_view(app->bt_hid_mouse), bt_hid_exit_confirm_view);
@@ -159,6 +173,8 @@ void bt_hid_app_free(BtHid* app) {
     bt_hid_media_free(app->bt_hid_media);
     view_dispatcher_remove_view(app->view_dispatcher, BtHidViewMouse);
     bt_hid_mouse_free(app->bt_hid_mouse);
+    view_dispatcher_remove_view(app->view_dispatcher, BtHidViewTikTok);
+    bt_hid_tiktok_free(app->bt_hid_tiktok);
     view_dispatcher_free(app->view_dispatcher);
 
     // Close records

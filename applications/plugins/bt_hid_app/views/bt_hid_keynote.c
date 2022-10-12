@@ -4,6 +4,8 @@
 #include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
 
+#include "bt_hid_icons.h"
+
 struct BtHidKeynote {
     View* view;
 };
