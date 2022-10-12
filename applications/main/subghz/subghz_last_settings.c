@@ -134,7 +134,10 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
             break;
         }
         if(!flipper_format_insert_or_update_uint32(
-               file, SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL, &instance->frequency_analyzer_feedback_level, 1)) {
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL,
+               &instance->frequency_analyzer_feedback_level,
+               1)) {
             break;
         }
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
