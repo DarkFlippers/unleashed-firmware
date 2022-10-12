@@ -14,7 +14,6 @@ void nfc_scene_mf_ultralight_read_auth_result_widget_callback(
 
 void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
     Nfc* nfc = context;
-    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Setup dialog view
     FuriHalNfcDevData* nfc_data = &nfc->dev->dev_data.nfc_data;
@@ -38,6 +37,7 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
     widget_add_string_element(
         widget, 0, 17, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
     if(mf_ul_data->auth_success) {
+        DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
         furi_string_printf(
             temp_str,
             "Password: %02X %02X %02X %02X",
@@ -54,6 +54,8 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
             config_pages->auth_data.pack.raw[1]);
         widget_add_string_element(
             widget, 0, 39, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
+    } else {
+        DOLPHIN_DEED(DolphinDeedNfcMfulError);
     }
     furi_string_printf(
         temp_str, "Pages Read: %d/%d", mf_ul_data->data_read / 4, mf_ul_data->data_size / 4);

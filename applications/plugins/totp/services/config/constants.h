@@ -1,0 +1,16 @@
+#pragma once
+
+#define CONFIG_FILE_HEADER "Flipper TOTP plugin config file"
+#define CONFIG_FILE_ACTUAL_VERSION 2
+
+#define TOTP_CONFIG_KEY_TIMEZONE "Timezone"
+#define TOTP_CONFIG_KEY_TOKEN_NAME "TokenName"
+#define TOTP_CONFIG_KEY_TOKEN_SECRET "TokenSecret"
+#define TOTP_CONFIG_KEY_TOKEN_ALGO "TokenAlgo"
+#define TOTP_CONFIG_KEY_TOKEN_DIGITS "TokenDigits"
+#define TOTP_CONFIG_KEY_CRYPTO_VERIFY "Crypto"
+#define TOTP_CONFIG_KEY_BASE_IV "BaseIV"
+
+#define TOTP_CONFIG_TOKEN_ALGO_SHA1_NAME "sha1"
+#define TOTP_CONFIG_TOKEN_ALGO_SHA256_NAME "sha256"
+#define TOTP_CONFIG_TOKEN_ALGO_SHA512_NAME "sha512"

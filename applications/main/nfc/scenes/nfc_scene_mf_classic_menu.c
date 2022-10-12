@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
     SubmenuIndexSave,
@@ -35,6 +36,8 @@ bool nfc_scene_mf_classic_menu_on_event(void* context, SceneManagerEvent event) 
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexSave) {
+            DOLPHIN_DEED(DolphinDeedNfcMfcAdd);
+
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMfClassicMenu, SubmenuIndexSave);
             nfc->dev->format = NfcDeviceSaveFormatMifareClassic;

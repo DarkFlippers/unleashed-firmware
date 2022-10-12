@@ -47,9 +47,14 @@ bool subbrute_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         if(strcmp(instance->text_store, "")) {
             furi_string_reset(instance->file_path);
             furi_string_cat_printf(
-                instance->file_path, "%s/%s%s", SUBBRUTE_PATH, instance->text_store, SUBBRUTE_FILE_EXT);
+                instance->file_path,
+                "%s/%s%s",
+                SUBBRUTE_PATH,
+                instance->text_store,
+                SUBBRUTE_FILE_EXT);
 
-            if(subbrute_device_save_file(instance->device, furi_string_get_cstr(instance->file_path))) {
+            if(subbrute_device_save_file(
+                   instance->device, furi_string_get_cstr(instance->file_path))) {
                 scene_manager_next_scene(instance->scene_manager, SubBruteSceneSaveSuccess);
                 success = true;
                 consumed = true;

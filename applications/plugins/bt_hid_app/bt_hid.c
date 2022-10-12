@@ -1,6 +1,7 @@
 #include "bt_hid.h"
 #include <furi_hal_bt.h>
 #include <notification/notification_messages.h>
+#include <dolphin/dolphin.h>
 
 #define TAG "BtHidApp"
 
@@ -184,6 +185,8 @@ int32_t bt_hid_app(void* p) {
         return -1;
     }
     furi_hal_bt_start_advertising();
+
+    DOLPHIN_DEED(DolphinDeedPluginStart);
 
     view_dispatcher_run(app->view_dispatcher);
 

@@ -28,6 +28,8 @@ struct SubGhzProtocolDecoderKeeloq {
     uint16_t header_count;
     SubGhzKeystore* keystore;
     const char* manufacture_name;
+
+    FuriString* manufacture_from_file;
 };
 
 struct SubGhzProtocolEncoderKeeloq {
@@ -38,6 +40,8 @@ struct SubGhzProtocolEncoderKeeloq {
 
     SubGhzKeystore* keystore;
     const char* manufacture_name;
+
+    FuriString* manufacture_from_file;
 };
 
 typedef enum {
@@ -113,12 +117,16 @@ void* subghz_protocol_encoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
+
+    instance->manufacture_from_file = furi_string_alloc();
+
     return instance;
 }
 
 void subghz_protocol_encoder_keeloq_free(void* context) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
+    furi_string_free(instance->manufacture_from_file);
     free(instance->encoder.upload);
     free(instance);
 }
@@ -141,6 +149,13 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
     int res = 0;
     if(instance->manufacture_name == 0x0) {
         instance->manufacture_name = "";
+    }
+
+    // Nice Smilo, MHouse, JCM has 8bit serial - simple learning
+    if((strcmp(instance->manufacture_name, "NICE_Smilo") == 0) ||
+       (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0) ||
+       (strcmp(instance->manufacture_name, "JCM_Tech") == 0)) {
+        decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
     }
 
     if(strcmp(instance->manufacture_name, "Unknown") == 0) {
@@ -347,6 +362,16 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
+
+        // Read manufacturer from file
+        if(flipper_format_read_string(
+               flipper_format, "Manufacture", instance->manufacture_from_file)) {
+            instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
+            mfname = furi_string_get_cstr(instance->manufacture_from_file);
+        } else {
+            FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
+        }
+
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
@@ -415,6 +440,7 @@ void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_keeloq;
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
+    instance->manufacture_from_file = furi_string_alloc();
 
     return instance;
 }
@@ -422,6 +448,7 @@ void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
 void subghz_protocol_decoder_keeloq_free(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
+    furi_string_free(instance->manufacture_from_file);
 
     free(instance);
 }
@@ -950,6 +977,16 @@ bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* fl
             FURI_LOG_E(TAG, "Rewind error");
             break;
         }
+
+        // Read manufacturer from file
+        if(flipper_format_read_string(
+               flipper_format, "Manufacture", instance->manufacture_from_file)) {
+            instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
+            mfname = furi_string_get_cstr(instance->manufacture_from_file);
+        } else {
+            FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
+        }
+
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;

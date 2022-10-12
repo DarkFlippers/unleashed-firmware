@@ -72,12 +72,11 @@ bool subbrute_scene_run_attack_on_event(void* context, SceneManagerEvent event) 
             notification_message(instance->notifications, &sequence_display_backlight_on);
             notification_message(instance->notifications, &sequence_double_vibro);
 
-
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
         } else if(
             event.event == SubBruteCustomEventTypeTransmitNotStarted ||
             event.event == SubBruteCustomEventTypeBackPressed) {
-            if (subbrute_worker_is_running(instance->worker)) {
+            if(subbrute_worker_is_running(instance->worker)) {
                 // Notify
                 notification_message(instance->notifications, &sequence_single_vibro);
             }

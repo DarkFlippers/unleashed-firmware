@@ -45,6 +45,7 @@ typedef struct {
     uint8_t priority;
     uint8_t aid[16];
     uint8_t aid_len;
+    bool app_started;
     char name[32];
     bool name_found;
     uint8_t card_number[10];
@@ -67,15 +68,6 @@ typedef struct {
  * @return true on success
  */
 bool emv_read_bank_card(FuriHalNfcTxRxContext* tx_rx, EmvApplication* emv_app);
-
-/** Search for EMV Application
- *
- * @param tx_rx     FuriHalNfcTxRxContext instance
- * @param emv_app   EmvApplication instance
- *
- * @return true on success
- */
-bool emv_search_application(FuriHalNfcTxRxContext* tx_rx, EmvApplication* emv_app);
 
 /** Emulate bank card
  * @note Answer to application selection and PDOL

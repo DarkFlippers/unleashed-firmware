@@ -562,7 +562,7 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
     path_extract_dirname(dev_file_name, file_dir);
     do {
         flipper_format_delete_key(fff_file, "Repeat");
-        flipper_format_delete_key(fff_file, "Manufacture");
+        //flipper_format_delete_key(fff_file, "Manufacture");
 
         if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {
             FURI_LOG_E(TAG, "(save) Cannot mkdir");
