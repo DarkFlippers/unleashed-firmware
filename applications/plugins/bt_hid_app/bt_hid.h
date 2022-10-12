@@ -13,6 +13,7 @@
 #include "views/bt_hid_keyboard.h"
 #include "views/bt_hid_media.h"
 #include "views/bt_hid_mouse.h"
+#include "views/bt_hid_tiktok.h"
 
 typedef struct {
     Bt* bt;
@@ -25,6 +26,7 @@ typedef struct {
     BtHidKeyboard* bt_hid_keyboard;
     BtHidMedia* bt_hid_media;
     BtHidMouse* bt_hid_mouse;
+    BtHidTikTok* bt_hid_tiktok;
     uint32_t view_id;
 } BtHid;
 
@@ -34,5 +36,6 @@ typedef enum {
     BtHidViewKeyboard,
     BtHidViewMedia,
     BtHidViewMouse,
+    BtHidViewTikTok,
     BtHidViewExitConfirm,
 } BtHidView;

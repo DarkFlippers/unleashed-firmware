@@ -5,6 +5,5 @@ App(
     provides=[
         "music_player",
         "snake_game",
-        "bt_hid",
     ],
 )
