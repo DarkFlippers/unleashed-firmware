@@ -449,6 +449,10 @@ bool subghz_history_add_to_history(
             // Plan B!
             subghz_history_tmp_write_file_full(instance, item, dir_path);
         }
+        if (item->is_file) {
+            flipper_format_free(item->flipper_string);
+            item->flipper_string = NULL;
+        }
         furi_string_free(filename);
         furi_string_free(dir_path);
 
@@ -861,9 +865,8 @@ bool subghz_history_tmp_write_file_split(
     flipper_format_file_close(flipper_format_file);
     flipper_format_free(flipper_format_file);
     furi_string_free(temp_str);
-    flipper_format_free(item->flipper_string);
-    item->flipper_string = NULL;
-    item->is_file = true;
+
+    item->is_file = result;
 
     return result;
 }
@@ -880,8 +883,6 @@ void subghz_history_tmp_write_file_full(
     stream_rewind(dst);
     if(stream_save_to_file(
            dst, instance->storage, furi_string_get_cstr(dir_path), FSOM_CREATE_ALWAYS) > 0) {
-        flipper_format_free(item->flipper_string);
-        item->flipper_string = NULL;
 #ifdef FURI_DEBUG
         FURI_LOG_I(TAG, "Save done!");
 #endif
