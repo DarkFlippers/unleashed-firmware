@@ -24,12 +24,33 @@ void nfc_scene_emv_read_success_on_enter(void* context) {
         nfc->widget, GuiButtonTypeRight, "More", nfc_scene_emv_read_success_widget_callback, nfc);
 
     FuriString* temp_str;
-    temp_str = furi_string_alloc_printf("\e#%s\n", emv_data->name);
-    for(uint8_t i = 0; i < emv_data->number_len; i += 2) {
-        furi_string_cat_printf(
-            temp_str, "%02X%02X ", emv_data->number[i], emv_data->number[i + 1]);
+    if(emv_data->name[0] != '\0') {
+        temp_str = furi_string_alloc_printf("\e#%s\n", emv_data->name);
+    } else {
+        temp_str = furi_string_alloc_printf("\e#Unknown Bank Card\n");
     }
-    furi_string_trim(temp_str);
+    if(emv_data->number_len) {
+        for(uint8_t i = 0; i < emv_data->number_len; i += 2) {
+            furi_string_cat_printf(
+                temp_str, "%02X%02X ", emv_data->number[i], emv_data->number[i + 1]);
+        }
+        furi_string_trim(temp_str);
+    } else if(emv_data->aid_len) {
+        furi_string_cat_printf(temp_str, "Can't parse data from app\n");
+        // Parse AID name
+        FuriString* aid_name;
+        aid_name = furi_string_alloc();
+        if(nfc_emv_parser_get_aid_name(
+               nfc->dev->storage, emv_data->aid, emv_data->aid_len, aid_name)) {
+            furi_string_cat_printf(temp_str, "AID: %s", furi_string_get_cstr(aid_name));
+        } else {
+            furi_string_cat_printf(temp_str, "AID: ");
+            for(uint8_t i = 0; i < emv_data->aid_len; i++) {
+                furi_string_cat_printf(temp_str, "%02X", emv_data->aid[i]);
+            }
+        }
+        furi_string_free(aid_name);
+    }
 
     // Add expiration date
     if(emv_data->exp_mon) {
