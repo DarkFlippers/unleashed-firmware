@@ -57,11 +57,11 @@ jobs:
 
       - name: 'Generate compile_comands.json'
         run: |
-          FBT_TOOLCHAIN_PATH=/opt ./fbt COMPACT=1 version_json proto_ver icons firmware_cdb dolphin_internal dolphin_blocking
+          FBT_TOOLCHAIN_PATH=/runner/_work ./fbt COMPACT=1 version_json proto_ver icons firmware_cdb dolphin_internal dolphin_blocking
 
       - name: 'Static code analysis'
         run: |
-          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
+          FBT_TOOLCHAIN_PATH=/runner/_work source scripts/toolchain/fbtenv.sh
           pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
           pvs-studio-analyzer analyze \
               @.pvsoptions \
@@ -76,6 +76,8 @@ jobs:
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.RSYNC_DEPLOY_PORT }} -H ${{ secrets.RSYNC_DEPLOY_HOST }} > ~/.ssh/known_hosts
           echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
           chmod 600 ./deploy_key;
           rsync -avrzP --mkpath \

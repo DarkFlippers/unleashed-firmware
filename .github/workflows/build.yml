@@ -62,7 +62,7 @@ jobs:
         run: |
           set -e
           for TARGET in ${TARGETS}; do
-            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
+            FBT_TOOLCHAIN_PATH=/runner/_work ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
                 updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
           done
 
@@ -97,7 +97,7 @@ jobs:
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          FBT_TOOLCHAIN_PATH=/opt ./fbt copro_dist
+          FBT_TOOLCHAIN_PATH=/runner/_work ./fbt copro_dist
           tar czpf "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz" -C assets core2_firmware
 
       - name: 'Copy .map file'
@@ -107,6 +107,8 @@ jobs:
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.RSYNC_DEPLOY_PORT }} -H ${{ secrets.RSYNC_DEPLOY_HOST }} > ~/.ssh/known_hosts
           echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
           chmod 600 ./deploy_key;
           rsync -avzP --delete --mkpath \
@@ -174,6 +176,6 @@ jobs:
         run: |
           set -e
           for TARGET in ${TARGETS}; do
-            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
+            FBT_TOOLCHAIN_PATH=/runner/_work ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
                 updater_package DEBUG=0 COMPACT=1
           done

@@ -62,6 +62,8 @@ jobs:
 
       - name: 'Download build artifacts'
         run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.RSYNC_DEPLOY_PORT }} -H ${{ secrets.RSYNC_DEPLOY_HOST }} > ~/.ssh/known_hosts
           echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
           chmod 600 ./deploy_key;
           rsync -avzP \
@@ -97,3 +99,4 @@ jobs:
             ${{ secrets.AMAP_MARIADB_PORT }} \
             ${{ secrets.AMAP_MARIADB_DATABASE }} \
             artifacts/flipper-z-f7-firmware-$SUFFIX.elf.map.all
+
