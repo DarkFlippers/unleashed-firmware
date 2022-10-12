@@ -155,6 +155,16 @@ void mf_classic_set_key_found(
     }
 }
 
+void mf_classic_set_key_not_found(MfClassicData* data, uint8_t sector_num, MfClassicKey key_type) {
+    furi_assert(data);
+
+    if(key_type == MfClassicKeyA) {
+        FURI_BIT_CLEAR(data->key_a_mask, sector_num);
+    } else if(key_type == MfClassicKeyB) {
+        FURI_BIT_CLEAR(data->key_b_mask, sector_num);
+    }
+}
+
 bool mf_classic_is_sector_read(MfClassicData* data, uint8_t sector_num) {
     furi_assert(data);
 
