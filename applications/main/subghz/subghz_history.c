@@ -309,6 +309,10 @@ bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* out
     return false;
 }
 
+uint16_t subghz_history_get_last_index(SubGhzHistory* instance) {
+    return instance->last_index_write;
+}
+
 void subghz_history_get_text_item_menu(SubGhzHistory* instance, FuriString* output, uint16_t idx) {
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
     furi_string_set(output, item->item_str);

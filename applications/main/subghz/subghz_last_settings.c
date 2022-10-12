@@ -13,6 +13,7 @@
 // "AM270", "AM650", "FM238", "FM476",
 #define SUBGHZ_LAST_SETTING_DEFAULT_PRESET 1
 #define SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY 433920000
+#define SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL 2
 
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
 #define SUBGHZ_LAST_SETTING_DEFAULT_READ_RAW 0
@@ -21,6 +22,7 @@
 
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY "Frequency"
 #define SUBGHZ_LAST_SETTING_FIELD_PRESET "Preset"
+#define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL "FeedbackLevel"
 
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
@@ -42,7 +44,9 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
     uint32_t temp_frequency = 0;
+    uint32_t temp_frequency_analyzer_feedback_level = 0;
     int32_t temp_preset = 0;
+    bool frequency_analyzer_feedback_level_was_read = false;
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
     uint32_t temp_read_raw = 0;
 #endif
@@ -53,6 +57,11 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_PRESET, (int32_t*)&temp_preset, 1);
         flipper_format_read_uint32(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_FREQUENCY, (uint32_t*)&temp_frequency, 1);
+        frequency_analyzer_feedback_level_was_read = flipper_format_read_uint32(
+            fff_data_file,
+            SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL,
+            (uint32_t*)&temp_frequency_analyzer_feedback_level,
+            1);
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
         flipper_format_read_uint32(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_DETECT_RAW, (uint32_t*)&temp_read_raw, 1);
@@ -65,11 +74,17 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         FURI_LOG_W(TAG, "Last used frequency not found or can't be used!");
         instance->frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
         instance->preset = SUBGHZ_LAST_SETTING_DEFAULT_PRESET;
+        instance->frequency_analyzer_feedback_level =
+            SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL;
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
         instance->detect_raw = SUBGHZ_LAST_SETTING_DEFAULT_READ_RAW;
 #endif
     } else {
         instance->frequency = temp_frequency;
+        instance->frequency_analyzer_feedback_level =
+            frequency_analyzer_feedback_level_was_read ?
+                temp_frequency_analyzer_feedback_level :
+                SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL;
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
         instance->detect_raw = temp_read_raw;
 #endif
@@ -116,6 +131,13 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
         }
         if(!flipper_format_insert_or_update_uint32(
                file, SUBGHZ_LAST_SETTING_FIELD_FREQUENCY, &instance->frequency, 1)) {
+            break;
+        }
+        if(!flipper_format_insert_or_update_uint32(
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL,
+               &instance->frequency_analyzer_feedback_level,
+               1)) {
             break;
         }
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
