@@ -1,7 +1,18 @@
 ### New changes
-* PR: SubGHz Bruteforcer v3 (improved speed of all protos (example CAME -> was 17:48, now 5:58), fixed issue with BF existing dump) (by @derskythe | PR #97)
-* PR: SubGHz: Detect RAW fixes (now files are split properly, and random noise added before and after signal to allow decoding) (by @derskythe | PR #98)
-* Plugins: RFID Fuzzer fix
+* SubGHz: Fix Nice Smilo, MHouse encoder
+* SubGHz: Add support for JCM (keeloq)
+* SubGHz: Fix random changes of manufacturer (now manufacturer is saved into file, also you can change it if wrong one is set)
+* PR: SubGHz improvements (Show full information about preset in Read/ReadRAW screens, Frequency analyzer sound setting saving) (by @derskythe | PR #103)
+* PR: SubGHz: Detect RAW fixes (Fix for running Plan B, if Plain A failed) (by @derskythe | PR #102)
+* Infrared: Update universal remote assets (by @Amec0e)
+* Plugins: Added TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: Added Metronome [(by panki27)](https://github.com/panki27/Metronome)
+* Plugins: Added Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
+* OFW PR: allow 36-bit AWID (L11601 Lenel) (OFW PR 1838 by ae5au)
+* OFW PR: BLE tiktok controller... (OFW PR 1859 by gornekich)
+* OFW PR: MFC Improvements Part 2/2 (OFW PR 1868 by Astrrra)
+* OFW: NFC: bank card rework reading 
+* OFW: Dolphin score points update **(WARNING!!! Dolphin Level will be reset after installing of this release!!!!)**
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
