@@ -74,6 +74,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_str_aligned(
             canvas, 127, 46, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
         furi_string_reset(disp_str);
+        canvas_draw_str_aligned(canvas, 127, 56, AlignRight, AlignBottom, model->state.error);
     } else if(model->state.state == BadUsbStateIdle) {
         canvas_draw_icon(canvas, 4, 26, &I_Smile_18x18);
         canvas_set_font(canvas, FontBigNumbers);

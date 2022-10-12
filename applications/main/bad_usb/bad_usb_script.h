@@ -25,6 +25,7 @@ typedef struct {
     uint16_t line_nb;
     uint32_t delay_remain;
     uint16_t error_line;
+    char error[64];
 } BadUsbState;
 
 BadUsbScript* bad_usb_script_open(FuriString* file_path);

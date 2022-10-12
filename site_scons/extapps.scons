@@ -21,7 +21,7 @@ appenv = ENV.Clone(
 )
 
 appenv.Replace(
-    LINKER_SCRIPT="application-ext",
+    LINKER_SCRIPT="application_ext",
 )
 
 appenv.AppendUnique(
@@ -106,6 +106,7 @@ appenv.PhonyTarget("firmware_extapps", appenv.Action(legacy_app_build_stub, None
 
 
 Alias("faps", extapps["compact"].values())
+Alias("faps", extapps["validators"].values())
 
 if appsrc := appenv.subst("$APPSRC"):
     app_manifest, fap_file, app_validator = appenv.GetExtAppFromPath(appsrc)
