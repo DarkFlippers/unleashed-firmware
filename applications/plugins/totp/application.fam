@@ -14,6 +14,6 @@ App(
     ],
     stack_size=2 * 1024,
     order=20,
-    fap_category="Misc",
+    fap_category="Tools",
     fap_icon="totp_10px.png"
 )
