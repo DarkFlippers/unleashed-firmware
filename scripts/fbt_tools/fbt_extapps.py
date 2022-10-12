@@ -6,11 +6,9 @@ import SCons.Warnings
 import os
 import pathlib
 from fbt.elfmanifest import assemble_manifest_data
-from fbt.appmanifest import FlipperManifestException
+from fbt.appmanifest import FlipperApplication, FlipperManifestException
 from fbt.sdk import SdkCache
 import itertools
-
-from site_scons.fbt.appmanifest import FlipperApplication
 
 
 def BuildAppElf(env, app):
@@ -111,7 +109,7 @@ def BuildAppElf(env, app):
     )
 
     app_elf_raw = app_env.Program(
-        os.path.join(app_work_dir, f"{app.appid}_d"),
+        os.path.join(ext_apps_work_dir, f"{app.appid}_d"),
         app_sources,
         APP_ENTRY=app.entry_point,
     )
@@ -180,7 +178,7 @@ def validate_app_imports(target, source, env):
     if unresolved_syms:
         SCons.Warnings.warn(
             SCons.Warnings.LinkWarning,
-            f"{source[0].path}: app won't run. Unresolved symbols: {unresolved_syms}",
+            f"\033[93m{source[0].path}: app won't run. Unresolved symbols: \033[95m{unresolved_syms}\033[0m",
         )
 
 

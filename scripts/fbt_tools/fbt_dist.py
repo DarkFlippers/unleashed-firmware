@@ -136,7 +136,6 @@ def generate(env):
             "CoproBuilder": Builder(
                 action=Action(
                     [
-                        Mkdir("$TARGET"),
                         '${PYTHON3} "${ROOT_DIR.abspath}/scripts/assets.py" '
                         "copro ${COPRO_CUBE_DIR} "
                         "${TARGET} ${COPRO_MCU_FAMILY} "
@@ -145,7 +144,7 @@ def generate(env):
                         '--stack_file="${COPRO_STACK_BIN}" '
                         "--stack_addr=${COPRO_STACK_ADDR} ",
                     ],
-                    "",
+                    "\tCOPRO\t${TARGET}",
                 )
             ),
         }

@@ -3,7 +3,7 @@ Import("ENV", "fw_build_meta")
 from SCons.Errors import UserError
 import itertools
 
-from fbt.util import (
+from fbt_extra.util import (
     should_gen_cdb_and_link_dir,
     link_elf_dir_as_latest,
 )
@@ -140,6 +140,10 @@ else:
 
 if extra_int_apps := GetOption("extra_int_apps"):
     fwenv.Append(APPS=extra_int_apps.split(","))
+
+
+if fwenv["FAP_EXAMPLES"]:
+    fwenv.Append(APPDIRS=[("applications/examples", False)])
 
 fwenv.LoadApplicationManifests()
 fwenv.PrepareApplicationsBuild()
@@ -316,10 +320,13 @@ if fwenv["IS_BASE_FIRMWARE"]:
             "-D__inline__=inline",
         ],
     )
-    Depends(sdk_source, (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]))
+    # Depends(sdk_source, (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]))
+    Depends(sdk_source, fwenv.ProcessSdkDepends("sdk_origin.d"))
 
-    sdk_tree = fwenv.SDKTree("sdk/sdk.opts", "sdk_origin")
-    AlwaysBuild(sdk_tree)
+    fwenv["SDK_DIR"] = fwenv.Dir("sdk")
+    sdk_tree = fwenv.SDKTree(fwenv["SDK_DIR"], "sdk_origin")
+    fw_artifacts.append(sdk_tree)
+    # AlwaysBuild(sdk_tree)
     Alias("sdk_tree", sdk_tree)
 
     sdk_apicheck = fwenv.SDKSymUpdater(fwenv.subst("$SDK_DEFINITION"), "sdk_origin")
@@ -329,7 +336,7 @@ if fwenv["IS_BASE_FIRMWARE"]:
     Alias("sdk_check", sdk_apicheck)
 
     sdk_apisyms = fwenv.SDKSymGenerator(
-        "assets/compiled/symbols.h", fwenv.subst("$SDK_DEFINITION")
+        "assets/compiled/symbols.h", fwenv["SDK_DEFINITION"]
     )
     Alias("api_syms", sdk_apisyms)
 

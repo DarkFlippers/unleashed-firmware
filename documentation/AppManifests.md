@@ -30,7 +30,7 @@ Only 2 parameters are mandatory: ***appid*** and ***apptype***, others are optio
 | METAPACKAGE  | Does not define any code to be run, used for declaring dependencies and application bundles |
 
 * **name**: Name that is displayed in menus.
-* **entry_point**: C function to be used as application's entry point.
+* **entry_point**: C function to be used as application's entry point. Note that C++ function names are mangled, so you need to wrap them in `extern "C"` in order to use them as entry points.
 * **flags**: Internal flags for system apps. Do not use.
 * **cdefines**: C preprocessor definitions to declare globally for other apps when current application is included in active build configuration.
 * **requires**: List of application IDs to also include in build configuration, when current application is referenced in list of applications to build.
@@ -55,7 +55,7 @@ The following parameters are used only for [FAPs](./AppsOnSDCard.md):
 * **fap_author**: string, may be empty. Application's author.
 * **fap_weburl**: string, may be empty. Application's homepage.
 * **fap_icon_assets**: string. If present, defines a folder name to be used for gathering image assets for this application. These images will be preprocessed and built alongside the application. See [FAP assets](./AppsOnSDCard.md#fap-assets) for details.
-* **fap_extbuild**: provides support for parts of application sources to be build by external tools. Contains a list of `ExtFile(path="file name", command="shell command")` definitions. **`fbt`** will run the specified command for each file in the list.
+* **fap_extbuild**: provides support for parts of application sources to be built by external tools. Contains a list of `ExtFile(path="file name", command="shell command")` definitions. **`fbt`** will run the specified command for each file in the list.
 Note that commands are executed at the firmware root folder's root, and all intermediate files must be placed in a application's temporary build folder. For that, you can use pattern expansion by **`fbt`**: `${FAP_WORK_DIR}` will be replaced with the path to the application's temporary build folder, and `${FAP_SRC_DIR}` will be replaced with the path to the application's source folder. You can also use other variables defined internally by **`fbt`**. 
 
 Example for building an app from Rust sources:

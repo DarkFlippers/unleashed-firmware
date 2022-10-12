@@ -1,6 +1,5 @@
-import SCons
 from SCons.Platform import TempFileMunge
-from fbt import util
+from fbt.util import tempfile_arg_esc_func, single_quote, wrap_tempfile
 
 import os
 import multiprocessing
@@ -13,14 +12,18 @@ forward_os_env = {
 }
 # Proxying CI environment to child processes & scripts
 variables_to_forward = [
+    # CI/CD variables
     "WORKFLOW_BRANCH_OR_TAG",
     "DIST_SUFFIX",
+    # Python & other tools
     "HOME",
     "APPDATA",
     "PYTHONHOME",
     "PYTHONNOUSERSITE",
     "TMP",
     "TEMP",
+    # Colors for tools
+    "TERM",
 ]
 if proxy_env := GetOption("proxy_env"):
     variables_to_forward.extend(proxy_env.split(","))
@@ -79,7 +82,7 @@ if not coreenv["VERBOSE"]:
 SetOption("num_jobs", multiprocessing.cpu_count())
 # Avoiding re-scan of all sources on every startup
 SetOption("implicit_cache", True)
-SetOption("implicit_deps_unchanged", True)
+# SetOption("implicit_deps_unchanged", True)
 # More aggressive caching
 SetOption("max_drift", 1)
 # Random task queue - to discover isses with build logic faster
@@ -87,10 +90,10 @@ SetOption("max_drift", 1)
 
 
 # Setting up temp file parameters - to overcome command line length limits
-coreenv["TEMPFILEARGESCFUNC"] = util.tempfile_arg_esc_func
-util.wrap_tempfile(coreenv, "LINKCOM")
-util.wrap_tempfile(coreenv, "ARCOM")
+coreenv["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
+wrap_tempfile(coreenv, "LINKCOM")
+wrap_tempfile(coreenv, "ARCOM")
 
-coreenv["SINGLEQUOTEFUNC"] = util.single_quote
+coreenv["SINGLEQUOTEFUNC"] = single_quote
 
 Return("coreenv")

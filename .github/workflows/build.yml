@@ -56,14 +56,14 @@ jobs:
       - name: 'Bundle scripts'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts
+          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts debug
 
       - name: 'Build the firmware'
         run: |
           set -e
           for TARGET in ${TARGETS}; do
             FBT_TOOLCHAIN_PATH=/runner/_work ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
-                updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+                copro_dist updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
           done
 
       - name: 'Move upload files'
@@ -72,17 +72,6 @@ jobs:
           set -e
           for TARGET in ${TARGETS}; do
             mv dist/${TARGET}-*/* artifacts/
-          done
-
-      - name: 'Bundle self-update package'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          set -e
-          for UPDATEBUNDLE in artifacts/*/; do
-            BUNDLE_NAME="$(echo "$UPDATEBUNDLE" | cut -d'/' -f2)"
-            echo Packaging "${BUNDLE_NAME}"
-            tar czpf "artifacts/flipper-z-${BUNDLE_NAME}.tgz" -C artifacts "${BUNDLE_NAME}"
-            rm -rf "artifacts/${BUNDLE_NAME}"
           done
 
       - name: "Check for uncommitted changes"
@@ -97,8 +86,7 @@ jobs:
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          FBT_TOOLCHAIN_PATH=/runner/_work ./fbt copro_dist
-          tar czpf "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz" -C assets core2_firmware
+          cp build/core2_firmware.tgz "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz"
 
       - name: 'Copy .map file'
         run: |
