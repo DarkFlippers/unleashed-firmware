@@ -60,7 +60,7 @@ class Copro:
         array.append({"name": filename, "sha256": file_sha256(source_file), **kwargs})
 
     def bundle(self, output_file, stack_file_name, stack_type, stack_addr=None):
-        self.output_tar = tarfile.open(output_file, "w:gz")
+        self.output_tar = tarfile.open(output_file, "w:gz", format=tarfile.GNU_FORMAT)
 
         stack_file = os.path.join(self.mcu_copro, stack_file_name)
         # Form Manifest
