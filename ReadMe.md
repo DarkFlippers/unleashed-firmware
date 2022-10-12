@@ -44,13 +44,16 @@ Our Discord Community:
 Also check changelog in releases for latest updates!
 
 ### Current modified and new SubGHz protocols list:
-- HCS101
-- An-Motors
+- Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
+- Keeloq: HCS101
+- Keeloq: An-Motors
+- Keeloq: JCM Tech
+- Keeloq: MHouse
+- Keeloq: Nice Smilo
 - CAME Atomo
-- FAAC SLH (Spa) [External seed calculation required]
-- BFT Mitto [External seed calculation required]
-- Keeloq [Not ALL systems supported yet!]
 - Nice Flor S
+- FAAC SLH (Spa) [External seed calculation required (For info conatct me in Discord: Nano#8998)] 
+- BFT Mitto [External seed calculation required (For info conatct me in Discord: Nano#8998)] 
 - Security+ v1 & v2
 - Star Line (saving only)
 

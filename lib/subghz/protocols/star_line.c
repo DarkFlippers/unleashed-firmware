@@ -28,6 +28,8 @@ struct SubGhzProtocolDecoderStarLine {
     uint16_t header_count;
     SubGhzKeystore* keystore;
     const char* manufacture_name;
+
+    FuriString* manufacture_from_file;
 };
 
 struct SubGhzProtocolEncoderStarLine {
@@ -38,6 +40,8 @@ struct SubGhzProtocolEncoderStarLine {
 
     SubGhzKeystore* keystore;
     const char* manufacture_name;
+
+    FuriString* manufacture_from_file;
 };
 
 typedef enum {
@@ -109,16 +113,20 @@ void* subghz_protocol_encoder_star_line_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
 
+    instance->manufacture_from_file = furi_string_alloc();
+
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
+
     return instance;
 }
 
 void subghz_protocol_encoder_star_line_free(void* context) {
     furi_assert(context);
     SubGhzProtocolEncoderStarLine* instance = context;
+    furi_string_free(instance->manufacture_from_file);
     free(instance->encoder.upload);
     free(instance);
 }
@@ -274,6 +282,15 @@ bool subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat*
             break;
         }
 
+        // Read manufacturer from file
+        if(flipper_format_read_string(
+               flipper_format, "Manufacture", instance->manufacture_from_file)) {
+            instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
+            mfname = furi_string_get_cstr(instance->manufacture_from_file);
+        } else {
+            FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
+        }
+
         subghz_protocol_star_line_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
 
@@ -331,6 +348,9 @@ void* subghz_protocol_decoder_star_line_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderStarLine* instance = malloc(sizeof(SubGhzProtocolDecoderStarLine));
     instance->base.protocol = &subghz_protocol_star_line;
     instance->generic.protocol_name = instance->base.protocol->name;
+
+    instance->manufacture_from_file = furi_string_alloc();
+
     instance->keystore = subghz_environment_get_keystore(environment);
 
     return instance;
@@ -339,6 +359,7 @@ void* subghz_protocol_decoder_star_line_alloc(SubGhzEnvironment* environment) {
 void subghz_protocol_decoder_star_line_free(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
+    furi_string_free(instance->manufacture_from_file);
 
     free(instance);
 }
@@ -705,6 +726,16 @@ bool subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat*
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
+
+        // Read manufacturer from file
+        if(flipper_format_read_string(
+               flipper_format, "Manufacture", instance->manufacture_from_file)) {
+            instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
+            mfname = furi_string_get_cstr(instance->manufacture_from_file);
+        } else {
+            FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
+        }
+
         res = true;
     } while(false);
 

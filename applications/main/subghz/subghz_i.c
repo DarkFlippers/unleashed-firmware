@@ -431,7 +431,7 @@ bool subghz_save_protocol_to_file(
     do {
         //removing additional fields
         flipper_format_delete_key(flipper_format, "Repeat");
-        flipper_format_delete_key(flipper_format, "Manufacture");
+        //flipper_format_delete_key(flipper_format, "Manufacture");
 
         // Create subghz folder directory if necessary
         if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {
