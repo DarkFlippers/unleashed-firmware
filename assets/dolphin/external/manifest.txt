@@ -85,6 +85,13 @@ Min level: 1
 Max level: 3
 Weight: 3
 
+Name: L1_Painting_128x64
+Min butthurt: 0
+Max butthurt: 7
+Min level: 1
+Max level: 3
+Weight: 6
+
 Name: L3_Hijack_radio_128x64
 Min butthurt: 0
 Max butthurt: 8
