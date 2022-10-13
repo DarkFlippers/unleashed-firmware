@@ -191,7 +191,7 @@ static bool nfc_worker_read_mf_classic(NfcWorker* nfc_worker, FuriHalNfcTxRxCont
             uint8_t sectors_total =
                 mf_classic_get_total_sectors_num(nfc_worker->dev_data->mf_classic_data.type);
             FURI_LOG_I(TAG, "Read %d sectors out of %d total", sectors_read, sectors_total);
-            read_success = (sectors_read == sectors_total);
+            read_success = mf_classic_is_card_read(&nfc_worker->dev_data->mf_classic_data);
         }
     } while(false);
 
