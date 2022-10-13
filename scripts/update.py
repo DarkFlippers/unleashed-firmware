@@ -121,9 +121,10 @@ class Main(App):
             )
         if self.args.resources:
             resources_basename = self.RESOURCE_FILE_NAME
-            self.package_resources(
+            if not self.package_resources(
                 self.args.resources, join(self.args.directory, resources_basename)
-            )
+            ):
+                return 3
 
         if not self.layout_check(dfu_size, radio_addr):
             self.logger.warn("Memory layout looks suspicious")
@@ -205,18 +206,23 @@ class Main(App):
             self.logger.error(
                 f"Cannot package resource: name '{tarinfo.name}' too long"
             )
-            return None
+            raise ValueError("Resource name too long")
         return tarinfo
 
     def package_resources(self, srcdir: str, dst_name: str):
-        with tarfile.open(
-            dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
-        ) as tarball:
-            tarball.add(
-                srcdir,
-                arcname="",
-                filter=self._tar_filter,
-            )
+        try:
+            with tarfile.open(
+                dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
+            ) as tarball:
+                tarball.add(
+                    srcdir,
+                    arcname="",
+                    filter=self._tar_filter,
+                )
+            return True
+        except ValueError as e:
+            self.logger.error(f"Cannot package resources: {e}")
+            return False
 
     @staticmethod
     def copro_version_as_int(coprometa, stacktype):
