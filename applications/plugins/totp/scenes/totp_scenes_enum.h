@@ -4,5 +4,6 @@ typedef enum {
     TotpSceneAuthentication,
     TotpSceneGenerateToken,
     TotpSceneAddNewToken,
-    TotpSceneTokenMenu
+    TotpSceneTokenMenu,
+    TotpSceneAppSettings
 } Scene;

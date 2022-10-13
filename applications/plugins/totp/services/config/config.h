@@ -13,4 +13,5 @@ void totp_close_config_file(FlipperFormat* file);
 void totp_full_save_config_file(PluginState* const plugin_state);
 void totp_config_file_load_base(PluginState* const plugin_state);
 void totp_config_file_load_tokens(PluginState* const plugin_state);
-void totp_config_file_save_new_token(FlipperFormat* file, TokenInfo* token_info);
+void totp_config_file_save_new_token(TokenInfo* token_info);
+void totp_config_file_update_timezone_offset(float new_timezone_offset);
