@@ -114,29 +114,39 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case DesktopMainEventOpenFavoritePrimary:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            if(desktop->settings.favorite_primary < FLIPPER_APPS_COUNT) {
+            if(desktop->settings.favorite_primary.is_external) {
                 LoaderStatus status = loader_start(
-                    desktop->loader, FLIPPER_APPS[desktop->settings.favorite_primary].name, NULL);
+                    desktop->loader,
+                    FAP_LOADER_APP_NAME,
+                    desktop->settings.favorite_primary.name_or_path);
                 if(status != LoaderStatusOk) {
                     FURI_LOG_E(TAG, "loader_start failed: %d", status);
                 }
             } else {
-                FURI_LOG_E(TAG, "Can't find primary favorite application");
+                LoaderStatus status = loader_start(
+                    desktop->loader, desktop->settings.favorite_primary.name_or_path, NULL);
+                if(status != LoaderStatusOk) {
+                    FURI_LOG_E(TAG, "loader_start failed: %d", status);
+                }
             }
             consumed = true;
             break;
         case DesktopMainEventOpenFavoriteSecondary:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            if(desktop->settings.favorite_secondary < FLIPPER_APPS_COUNT) {
+            if(desktop->settings.favorite_secondary.is_external) {
                 LoaderStatus status = loader_start(
                     desktop->loader,
-                    FLIPPER_APPS[desktop->settings.favorite_secondary].name,
-                    NULL);
+                    FAP_LOADER_APP_NAME,
+                    desktop->settings.favorite_secondary.name_or_path);
                 if(status != LoaderStatusOk) {
                     FURI_LOG_E(TAG, "loader_start failed: %d", status);
                 }
             } else {
-                FURI_LOG_E(TAG, "Can't find secondary favorite application");
+                LoaderStatus status = loader_start(
+                    desktop->loader, desktop->settings.favorite_secondary.name_or_path, NULL);
+                if(status != LoaderStatusOk) {
+                    FURI_LOG_E(TAG, "loader_start failed: %d", status);
+                }
             }
             consumed = true;
             break;
@@ -166,7 +176,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
         }
         case DesktopMainEventOpenGameMenu: {
             LoaderStatus status = loader_start(
-                desktop->loader, "Applications", EXT_PATH("/apps/Games/snake_game.fap"));
+                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/snake_game.fap"));
             if(status != LoaderStatusOk) {
                 FURI_LOG_E(TAG, "loader_start failed: %d", status);
             }
