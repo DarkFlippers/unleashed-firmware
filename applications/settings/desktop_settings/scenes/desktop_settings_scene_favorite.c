@@ -113,6 +113,7 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                 }
             }
 
+            submenu_reset(app->submenu);
             if(dialog_file_browser_show(app->dialogs, temp_path, temp_path, &browser_options)) {
                 if(primary_favorite) {
                     app->settings.favorite_primary.is_external = true;
