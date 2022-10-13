@@ -22,6 +22,7 @@ class Main(App):
     RESOURCE_TAR_MODE = "w:"
     RESOURCE_TAR_FORMAT = tarfile.USTAR_FORMAT
     RESOURCE_FILE_NAME = "resources.tar"
+    RESOURCE_ENTRY_NAME_MAX_LENGTH = 100
 
     WHITELISTED_STACK_TYPES = set(
         map(
@@ -199,11 +200,23 @@ class Main(App):
             "Please confirm that you REALLY want to do that with --I-understand-what-I-am-doing=yes"
         )
 
+    def _tar_filter(self, tarinfo: tarfile.TarInfo):
+        if len(tarinfo.name) > self.RESOURCE_ENTRY_NAME_MAX_LENGTH:
+            self.logger.error(
+                f"Cannot package resource: name '{tarinfo.name}' too long"
+            )
+            return None
+        return tarinfo
+
     def package_resources(self, srcdir: str, dst_name: str):
         with tarfile.open(
             dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
         ) as tarball:
-            tarball.add(srcdir, arcname="")
+            tarball.add(
+                srcdir,
+                arcname="",
+                filter=self._tar_filter,
+            )
 
     @staticmethod
     def copro_version_as_int(coprometa, stacktype):
