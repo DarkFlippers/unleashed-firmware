@@ -1,18 +1,11 @@
 ### New changes
-* SubGHz: Fix Nice Smilo, MHouse encoder
-* SubGHz: Add support for JCM (keeloq)
-* SubGHz: Fix random changes of manufacturer (now manufacturer is saved into file, also you can change it if wrong one is set)
-* PR: SubGHz improvements (Show full information about preset in Read/ReadRAW screens, Frequency analyzer sound setting saving) (by @derskythe | PR #103)
-* PR: SubGHz: Detect RAW fixes (Fix for running Plan B, if Plain A failed) (by @derskythe | PR #102)
-* Infrared: Update universal remote assets (by @Amec0e)
-* Plugins: Added TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Added Metronome [(by panki27)](https://github.com/panki27/Metronome)
-* Plugins: Added Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
-* OFW PR: allow 36-bit AWID (L11601 Lenel) (OFW PR 1838 by ae5au)
-* OFW PR: BLE tiktok controller... (OFW PR 1859 by gornekich)
-* OFW PR: MFC Improvements Part 2/2 (OFW PR 1868 by Astrrra)
-* OFW: NFC: bank card rework reading 
-* OFW: Dolphin score points update **(WARNING!!! Dolphin Level will be reset after installing of this release!!!!)**
+* PR: Feature: lock device with pin by long pressing up button (by @an4tur0r | PR #107)
+* Plugins: Updated TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* OFW PR: scripts: simpler tar format (OFW PR 1871 by hedger)
+* OFW PR: Updated: MFC Improvements Part 2/2 (OFW PR 1868 by Astrrra)
+* OFW: Dolphin: add L1_Painting animation
+* OFW: fbt: more fixes & improvements 
+* OFW: Badusb: show script errors on screen
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
