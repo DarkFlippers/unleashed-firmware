@@ -24,9 +24,11 @@ typedef enum {
     SubmenuIndexLinear_300_00,
     SubmenuIndexLiftMaster_315_00,
     SubmenuIndexLiftMaster_390_00,
+    SubmenuIndexLiftMaster_433_00,
     SubmenuIndexSecPlus_v2_310_00,
     SubmenuIndexSecPlus_v2_315_00,
     SubmenuIndexSecPlus_v2_390_00,
+    SubmenuIndexSecPlus_v2_433_00,
 
     //SubGhzCustomEvent
     SubGhzCustomEventSceneDeleteSuccess = 100,
