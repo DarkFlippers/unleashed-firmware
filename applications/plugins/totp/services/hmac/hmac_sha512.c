@@ -1,4 +1,4 @@
-/* hmac-sha512.c -- hashed message authentication codes
+/* hmac_sha512.c -- hashed message authentication codes
    Copyright (C) 2018-2022 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
@@ -14,11 +14,11 @@
    You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#include "hmac-sha512.h"
+#include "hmac_sha512.h"
 
 #include "sha512.h"
 
 #define GL_HMAC_NAME 512
 #define GL_HMAC_BLOCKSIZE 128
 #define GL_HMAC_HASHSIZE 64
-#include "hmac-common.h"
+#include "hmac_common.h"

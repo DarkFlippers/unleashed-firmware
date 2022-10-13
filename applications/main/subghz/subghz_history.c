@@ -449,7 +449,7 @@ bool subghz_history_add_to_history(
             // Plan B!
             subghz_history_tmp_write_file_full(instance, item, dir_path);
         }
-        if (item->is_file) {
+        if(item->is_file) {
             flipper_format_free(item->flipper_string);
             item->flipper_string = NULL;
         }

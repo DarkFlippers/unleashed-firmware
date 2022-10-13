@@ -21,7 +21,7 @@
 
 static void render_callback(Canvas* const canvas, void* ctx) {
     PluginState* plugin_state = acquire_mutex((ValueMutex*)ctx, 25);
-    if (plugin_state != NULL && !plugin_state->changing_scene) {
+    if(plugin_state != NULL && !plugin_state->changing_scene) {
         totp_scene_director_render(canvas, plugin_state);
     }
 
@@ -56,7 +56,7 @@ static void dispose_plugin_state(PluginState* plugin_state) {
 
     ListNode* node = plugin_state->tokens_list;
     ListNode* tmp;
-    while (node != NULL) {
+    while(node != NULL) {
         tmp = node->next;
         TokenInfo* tokenInfo = (TokenInfo*)node->data;
         token_info_free(tokenInfo);
@@ -64,7 +64,7 @@ static void dispose_plugin_state(PluginState* plugin_state) {
         node = tmp;
     }
 
-    if (plugin_state->crypto_verify_data != NULL) {
+    if(plugin_state->crypto_verify_data != NULL) {
         free(plugin_state->crypto_verify_data);
     }
     free(plugin_state);
@@ -95,18 +95,20 @@ int32_t totp_app() {
     bool processing = true;
     uint32_t last_user_interaction_time = furi_get_tick();
     while(processing) {
-        if (plugin_state->changing_scene) continue;
+        if(plugin_state->changing_scene) continue;
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
         PluginState* plugin_state = (PluginState*)acquire_mutex_block(&state_mutex);
 
         if(event_status == FuriStatusOk) {
-            if (event.type == EventTypeKey) {
+            if(event.type == EventTypeKey) {
                 last_user_interaction_time = furi_get_tick();
             }
 
             processing = totp_scene_director_handle_event(&event, plugin_state);
-        } else if (plugin_state->current_scene != TotpSceneAuthentication && furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
+        } else if(
+            plugin_state->current_scene != TotpSceneAuthentication &&
+            furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
             totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
         }
 

@@ -29,8 +29,8 @@ void view_unlock_model(View* view) {
 }
 
 static void commit_text_input_callback(void* context) {
-    InputTextSceneState* text_input_state = (InputTextSceneState *)context;
-    if (text_input_state->callback != 0) {
+    InputTextSceneState* text_input_state = (InputTextSceneState*)context;
+    if(text_input_state->callback != 0) {
         InputTextSceneCallbackResult* result = malloc(sizeof(InputTextSceneCallbackResult));
         result->user_input_length = strlen(text_input_state->text_input_buffer);
         result->user_input = malloc(result->user_input_length + 1);
