@@ -181,7 +181,7 @@ class Main(App):
                     ),
                     "w:gz",
                     compresslevel=9,
-                    format=tarfile.GNU_FORMAT,
+                    format=tarfile.USTAR_FORMAT,
                 ) as tar:
                     tar.add(bundle_dir, arcname=bundle_dir_name)
 
