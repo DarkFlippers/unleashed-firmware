@@ -22,6 +22,7 @@ class Main(App):
     RESOURCE_TAR_MODE = "w:"
     RESOURCE_TAR_FORMAT = tarfile.USTAR_FORMAT
     RESOURCE_FILE_NAME = "resources.tar"
+    RESOURCE_ENTRY_NAME_MAX_LENGTH = 100
 
     WHITELISTED_STACK_TYPES = set(
         map(
@@ -76,9 +77,9 @@ class Main(App):
         self.parser_generate.set_defaults(func=self.generate)
 
     def generate(self):
-        stage_basename = basename(self.args.stage)
-        dfu_basename = basename(self.args.dfu)
-        radiobin_basename = basename(self.args.radiobin)
+        stage_basename = "updater.bin"  # used to be basename(self.args.stage)
+        dfu_basename = "firmware.dfu"  # used to be basename(self.args.dfu)
+        radiobin_basename = "radio.bin"  # used to be basename(self.args.radiobin)
         resources_basename = ""
 
         radio_version = 0
@@ -120,9 +121,10 @@ class Main(App):
             )
         if self.args.resources:
             resources_basename = self.RESOURCE_FILE_NAME
-            self.package_resources(
+            if not self.package_resources(
                 self.args.resources, join(self.args.directory, resources_basename)
-            )
+            ):
+                return 3
 
         if not self.layout_check(dfu_size, radio_addr):
             self.logger.warn("Memory layout looks suspicious")
@@ -199,11 +201,28 @@ class Main(App):
             "Please confirm that you REALLY want to do that with --I-understand-what-I-am-doing=yes"
         )
 
+    def _tar_filter(self, tarinfo: tarfile.TarInfo):
+        if len(tarinfo.name) > self.RESOURCE_ENTRY_NAME_MAX_LENGTH:
+            self.logger.error(
+                f"Cannot package resource: name '{tarinfo.name}' too long"
+            )
+            raise ValueError("Resource name too long")
+        return tarinfo
+
     def package_resources(self, srcdir: str, dst_name: str):
-        with tarfile.open(
-            dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
-        ) as tarball:
-            tarball.add(srcdir, arcname="")
+        try:
+            with tarfile.open(
+                dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
+            ) as tarball:
+                tarball.add(
+                    srcdir,
+                    arcname="",
+                    filter=self._tar_filter,
+                )
+            return True
+        except ValueError as e:
+            self.logger.error(f"Cannot package resources: {e}")
+            return False
 
     @staticmethod
     def copro_version_as_int(coprometa, stacktype):

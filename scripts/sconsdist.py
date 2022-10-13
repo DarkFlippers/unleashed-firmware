@@ -20,6 +20,7 @@ class ProjectDir:
 
 class Main(App):
     DIST_FILE_PREFIX = "flipper-z-"
+    DIST_FOLDER_MAX_NAME_LENGTH = 80
 
     def init(self):
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
@@ -129,7 +130,9 @@ class Main(App):
         )
 
         if self.args.version:
-            bundle_dir_name = f"{self.target}-update-{self.args.suffix}"
+            bundle_dir_name = f"{self.target}-update-{self.args.suffix}"[
+                : self.DIST_FOLDER_MAX_NAME_LENGTH
+            ]
             bundle_dir = join(self.output_dir_path, bundle_dir_name)
             bundle_args = [
                 "generate",
@@ -170,6 +173,7 @@ class Main(App):
                     ),
                     "w:gz",
                     compresslevel=9,
+                    format=tarfile.USTAR_FORMAT,
                 ) as tar:
                     tar.add(bundle_dir, arcname=bundle_dir_name)
 
