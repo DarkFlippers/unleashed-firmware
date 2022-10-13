@@ -50,6 +50,7 @@ Also check changelog in releases for latest updates!
 - Keeloq: JCM Tech
 - Keeloq: MHouse
 - Keeloq: Nice Smilo
+- Keeloq: DTM Neo
 - CAME Atomo
 - Nice Flor S
 - FAAC SLH (Spa) [External seed calculation required (For info conatct me in Discord: Nano#8998)] 
