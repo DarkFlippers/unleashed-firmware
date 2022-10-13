@@ -80,6 +80,7 @@ class Main(App):
         stage_basename = "updater.bin"  # used to be basename(self.args.stage)
         dfu_basename = "firmware.dfu"  # used to be basename(self.args.dfu)
         radiobin_basename = "radio.bin"  # used to be basename(self.args.radiobin)
+        radiobin_basename_arg = basename(self.args.radiobin)
         resources_basename = ""
 
         radio_version = 0
@@ -115,7 +116,7 @@ class Main(App):
         if self.args.dfu:
             dfu_size = os.stat(self.args.dfu).st_size
             shutil.copyfile(self.args.dfu, join(self.args.directory, dfu_basename))
-        if radiobin_basename:
+        if radiobin_basename_arg:
             shutil.copyfile(
                 self.args.radiobin, join(self.args.directory, radiobin_basename)
             )
@@ -155,10 +156,13 @@ class Main(App):
         file.writeComment("little-endian hex!")
         file.writeKey("Loader CRC", self.int2ffhex(self.crc(self.args.stage)))
         file.writeKey("Firmware", dfu_basename)
-        file.writeKey("Radio", radiobin_basename or "")
+        if radiobin_basename_arg:
+            file.writeKey("Radio", radiobin_basename)
+        else:
+            file.writeKey("Radio", "")
         file.writeKey("Radio address", self.int2ffhex(radio_addr))
         file.writeKey("Radio version", self.int2ffhex(radio_version, 12))
-        if radiobin_basename:
+        if radiobin_basename_arg:
             file.writeKey("Radio CRC", self.int2ffhex(self.crc(self.args.radiobin)))
         else:
             file.writeKey("Radio CRC", self.int2ffhex(0))
