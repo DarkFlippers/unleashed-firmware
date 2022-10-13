@@ -155,6 +155,16 @@ void mf_classic_set_key_found(
     }
 }
 
+void mf_classic_set_key_not_found(MfClassicData* data, uint8_t sector_num, MfClassicKey key_type) {
+    furi_assert(data);
+
+    if(key_type == MfClassicKeyA) {
+        FURI_BIT_CLEAR(data->key_a_mask, sector_num);
+    } else if(key_type == MfClassicKeyB) {
+        FURI_BIT_CLEAR(data->key_b_mask, sector_num);
+    }
+}
+
 bool mf_classic_is_sector_read(MfClassicData* data, uint8_t sector_num) {
     furi_assert(data);
 
@@ -201,6 +211,18 @@ void mf_classic_get_read_sectors_and_keys(
             *sectors_read += 1;
         }
     }
+}
+
+bool mf_classic_is_card_read(MfClassicData* data) {
+    furi_assert(data);
+
+    uint8_t sectors_total = mf_classic_get_total_sectors_num(data->type);
+    uint8_t sectors_read = 0;
+    uint8_t keys_found = 0;
+    mf_classic_get_read_sectors_and_keys(data, &sectors_read, &keys_found);
+    bool card_read = (sectors_read == sectors_total) && (keys_found == sectors_total * 2);
+
+    return card_read;
 }
 
 static bool mf_classic_is_allowed_access_sector_trailer(
@@ -612,7 +634,15 @@ static bool mf_classic_read_sector_with_reader(
         }
 
         // Auth to first block in sector
-        if(!mf_classic_auth(tx_rx, first_block, key, key_type, crypto)) break;
+        if(!mf_classic_auth(tx_rx, first_block, key, key_type, crypto)) {
+            // Set key to MF_CLASSIC_NO_KEY to prevent further attempts
+            if(key_type == MfClassicKeyA) {
+                sector_reader->key_a = MF_CLASSIC_NO_KEY;
+            } else {
+                sector_reader->key_b = MF_CLASSIC_NO_KEY;
+            }
+            break;
+        }
         sector->total_blocks = mf_classic_get_blocks_num_in_sector(sector_reader->sector_num);
 
         // Read blocks
@@ -711,6 +741,13 @@ uint8_t mf_classic_update_card(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data
                     mf_classic_set_block_read(data, first_block + j, &temp_sector.block[j]);
                 }
                 sectors_read++;
+            } else {
+                // Invalid key, set it to not found
+                if(key_a != MF_CLASSIC_NO_KEY) {
+                    mf_classic_set_key_not_found(data, i, MfClassicKeyA);
+                } else {
+                    mf_classic_set_key_not_found(data, i, MfClassicKeyB);
+                }
             }
         }
     }
