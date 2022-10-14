@@ -11,6 +11,7 @@ typedef struct {
     uint16_t rx_char_handle;
     uint16_t tx_char_handle;
     uint16_t flow_ctrl_char_handle;
+    uint16_t rpc_status_char_handle;
     FuriMutex* buff_size_mtx;
     uint32_t buff_size;
     uint16_t bytes_ready_to_receive;
@@ -28,6 +29,8 @@ static const uint8_t char_rx_uuid[] =
     {0x00, 0x00, 0xfe, 0x62, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
 static const uint8_t flow_ctrl_uuid[] =
     {0x00, 0x00, 0xfe, 0x63, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
+static const uint8_t rpc_status_uuid[] =
+    {0x00, 0x00, 0xfe, 0x64, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
 
 static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
     SVCCTL_EvtAckStatus_t ret = SVCCTL_EvtNotAck;
@@ -67,6 +70,17 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
                     furi_check(furi_mutex_release(serial_svc->buff_size_mtx) == FuriStatusOk);
                 }
                 ret = SVCCTL_EvtAckFlowEnable;
+            } else if(attribute_modified->Attr_Handle == serial_svc->rpc_status_char_handle + 1) {
+                SerialServiceRpcStatus* rpc_status =
+                    (SerialServiceRpcStatus*)attribute_modified->Attr_Data;
+                if(*rpc_status == SerialServiceRpcStatusNotActive) {
+                    if(serial_svc->callback) {
+                        SerialServiceEvent event = {
+                            .event = SerialServiceEventTypesBleResetRequest,
+                        };
+                        serial_svc->callback(event, serial_svc->context);
+                    }
+                }
             }
         } else if(blecore_evt->ecode == ACI_GATT_SERVER_CONFIRMATION_VSEVT_CODE) {
             FURI_LOG_T(TAG, "Ack received");
@@ -82,6 +96,18 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
     return ret;
 }
 
+static void serial_svc_update_rpc_char(SerialServiceRpcStatus status) {
+    tBleStatus ble_status = aci_gatt_update_char_value(
+        serial_svc->svc_handle,
+        serial_svc->rpc_status_char_handle,
+        0,
+        sizeof(SerialServiceRpcStatus),
+        (uint8_t*)&status);
+    if(ble_status) {
+        FURI_LOG_E(TAG, "Failed to update RPC status char: %d", ble_status);
+    }
+}
+
 void serial_svc_start() {
     tBleStatus status;
     serial_svc = malloc(sizeof(SerialSvc));
@@ -90,7 +116,7 @@ void serial_svc_start() {
 
     // Add service
     status = aci_gatt_add_service(
-        UUID_TYPE_128, (Service_UUID_t*)service_uuid, PRIMARY_SERVICE, 10, &serial_svc->svc_handle);
+        UUID_TYPE_128, (Service_UUID_t*)service_uuid, PRIMARY_SERVICE, 12, &serial_svc->svc_handle);
     if(status) {
         FURI_LOG_E(TAG, "Failed to add Serial service: %d", status);
     }
@@ -141,6 +167,22 @@ void serial_svc_start() {
     if(status) {
         FURI_LOG_E(TAG, "Failed to add Flow Control characteristic: %d", status);
     }
+    // Add RPC status characteristic
+    status = aci_gatt_add_char(
+        serial_svc->svc_handle,
+        UUID_TYPE_128,
+        (const Char_UUID_t*)rpc_status_uuid,
+        sizeof(SerialServiceRpcStatus),
+        CHAR_PROP_READ | CHAR_PROP_WRITE | CHAR_PROP_NOTIFY,
+        ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
+        GATT_NOTIFY_ATTRIBUTE_WRITE,
+        10,
+        CHAR_VALUE_LEN_CONSTANT,
+        &serial_svc->rpc_status_char_handle);
+    if(status) {
+        FURI_LOG_E(TAG, "Failed to add RPC status characteristic: %d", status);
+    }
+    serial_svc_update_rpc_char(SerialServiceRpcStatusNotActive);
     // Allocate buffer size mutex
     serial_svc->buff_size_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
 }
@@ -198,6 +240,10 @@ void serial_svc_stop() {
         if(status) {
             FURI_LOG_E(TAG, "Failed to delete Flow Control characteristic: %d", status);
         }
+        status = aci_gatt_del_char(serial_svc->svc_handle, serial_svc->rpc_status_char_handle);
+        if(status) {
+            FURI_LOG_E(TAG, "Failed to delete RPC Status characteristic: %d", status);
+        }
         // Delete service
         status = aci_gatt_del_service(serial_svc->svc_handle);
         if(status) {
@@ -241,4 +287,9 @@ bool serial_svc_update_tx(uint8_t* data, uint16_t data_len) {
     }
 
     return true;
+}
+
+void serial_svc_set_rpc_status(SerialServiceRpcStatus status) {
+    furi_assert(serial_svc);
+    serial_svc_update_rpc_char(status);
 }

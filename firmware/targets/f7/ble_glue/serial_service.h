@@ -11,8 +11,14 @@ extern "C" {
 #endif
 
 typedef enum {
+    SerialServiceRpcStatusNotActive = 0UL,
+    SerialServiceRpcStatusActive = 1UL,
+} SerialServiceRpcStatus;
+
+typedef enum {
     SerialServiceEventTypeDataReceived,
     SerialServiceEventTypeDataSent,
+    SerialServiceEventTypesBleResetRequest,
 } SerialServiceEventType;
 
 typedef struct {
@@ -33,6 +39,8 @@ void serial_svc_set_callbacks(
     uint16_t buff_size,
     SerialServiceEventCallback callback,
     void* context);
+
+void serial_svc_set_rpc_status(SerialServiceRpcStatus status);
 
 void serial_svc_notify_buffer_is_empty();
 

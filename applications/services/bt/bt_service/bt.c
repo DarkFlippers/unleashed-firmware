@@ -165,6 +165,11 @@ static uint16_t bt_serial_event_callback(SerialServiceEvent event, void* context
         ret = rpc_session_get_available_size(bt->rpc_session);
     } else if(event.event == SerialServiceEventTypeDataSent) {
         furi_event_flag_set(bt->rpc_event, BT_RPC_EVENT_BUFF_SENT);
+    } else if(event.event == SerialServiceEventTypesBleResetRequest) {
+        FURI_LOG_I(TAG, "BLE restart request received");
+        BtMessage message = {.type = BtMessageTypeSetProfile, .data.profile = BtProfileSerial};
+        furi_check(
+            furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     }
     return ret;
 }
@@ -226,6 +231,7 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
                 rpc_session_set_context(bt->rpc_session, bt);
                 furi_hal_bt_serial_set_event_callback(
                     RPC_BUFFER_SIZE, bt_serial_event_callback, bt);
+                furi_hal_bt_serial_set_rpc_status(FuriHalBtSerialRpcStatusActive);
             } else {
                 FURI_LOG_W(TAG, "RPC is busy, failed to open new session");
             }
@@ -241,6 +247,7 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
     } else if(event.type == GapEventTypeDisconnected) {
         if(bt->profile == BtProfileSerial && bt->rpc_session) {
             FURI_LOG_I(TAG, "Close RPC connection");
+            furi_hal_bt_serial_set_rpc_status(FuriHalBtSerialRpcStatusNotActive);
             furi_event_flag_set(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
             rpc_session_close(bt->rpc_session);
             furi_hal_bt_serial_set_event_callback(0, NULL, NULL);
@@ -330,14 +337,20 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
             }
             furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
             bt->profile = message->data.profile;
-            *message->result = true;
+            if(message->result) {
+                *message->result = true;
+            }
         } else {
             FURI_LOG_E(TAG, "Failed to start Bt App");
-            *message->result = false;
+            if(message->result) {
+                *message->result = false;
+            }
         }
     } else {
         bt_show_warning(bt, "Radio stack doesn't support this app");
-        *message->result = false;
+        if(message->result) {
+            *message->result = false;
+        }
     }
     furi_event_flag_set(bt->api_event, BT_API_UNLOCK_EVENT);
 }
