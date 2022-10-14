@@ -35,9 +35,9 @@ static const DolphinDeedWeight dolphin_deed_weights[] = {
     {2, DolphinAppIbutton}, // DolphinDeedIbuttonAdd
 
     {3, DolphinAppBadusb}, // DolphinDeedBadUsbPlayScript
-    {3, DolphinAppU2f}, // DolphinDeedU2fAuthorized
+    {3, DolphinAppPlugin}, // DolphinDeedU2fAuthorized
 
-    {1, DolphinAppGpio}, // DolphinDeedGpioUartBridge
+    {1, DolphinAppPlugin}, // DolphinDeedGpioUartBridge
 
     {1, DolphinAppPlugin}, // DolphinDeedPluginStart
     {1, DolphinAppPlugin}, // DolphinDeedPluginGameStart
@@ -51,8 +51,6 @@ static uint8_t dolphin_deed_limits[] = {
     20, // DolphinAppIr
     20, // DolphinAppIbutton
     20, // DolphinAppBadusb
-    20, // DolphinAppU2f
-    20, // DolphinAppGpio
     20, // DolphinAppPlugin
 };
 
