@@ -78,8 +78,12 @@ class Main(App):
 
     def generate(self):
         stage_basename = "updater.bin"  # used to be basename(self.args.stage)
-        dfu_basename = "firmware.dfu"  # used to be basename(self.args.dfu)
-        radiobin_basename = "radio.bin"  # used to be basename(self.args.radiobin)
+        dfu_basename = (
+            "firmware.dfu" if self.args.dfu else ""
+        )  # used to be basename(self.args.dfu)
+        radiobin_basename = (
+            "radio.bin" if self.args.radiobin else ""
+        )  # used to be basename(self.args.radiobin)
         resources_basename = ""
 
         radio_version = 0

@@ -3,6 +3,7 @@ App(
     name="Applications",
     apptype=FlipperAppType.APP,
     entry_point="fap_loader_app",
+    cdefines=["APP_FAP_LOADER"],
     requires=[
         "gui",
         "storage",
