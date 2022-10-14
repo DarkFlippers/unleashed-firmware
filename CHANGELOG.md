@@ -1,10 +1,5 @@
 ### New changes
-* Add 433Mhz Security+ 1.0/2.0 in add manually in subghz
-* Update Minesweeper (https://github.com/panki27/minesweeper)
------
-* SubGHz: Fix DTM Neo (keeloq) encoder
-* fbt: fix flash usb without resources 
-* OFW: DesktopSettings: reset submenu before running dialog
+* OFW PR: Fix dolphin level reset on update (OFW PR 1874 by nminaylov)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
