@@ -297,6 +297,10 @@ int32_t flappy_game_app(void* p) {
                 if(event.input.type == InputTypePress) {
                     switch(event.input.key) {
                     case InputKeyUp:
+                        if(game_state->state == GameStateLife) {
+                            flappy_game_flap(game_state);
+                        }
+
                         break;
                     case InputKeyDown:
                         break;
