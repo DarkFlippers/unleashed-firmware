@@ -80,10 +80,7 @@ def BuildAppElf(env, app):
                 *lib_def.cflags,
             ],
             CPPDEFINES=lib_def.cdefines,
-            CPPPATH=list(
-                os.path.join(app._appdir.path, cinclude)
-                for cinclude in lib_def.cincludes
-            ),
+            CPPPATH=list(map(app._appdir.Dir, lib_def.cincludes)),
         )
 
         lib = private_lib_env.StaticLibrary(
