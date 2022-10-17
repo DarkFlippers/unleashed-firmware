@@ -132,11 +132,11 @@ static void flappy_game_tick(GameState* const game_state) {
                 }
                 if(pilar->point.x < -FLAPPY_GAB_WIDTH) pilar->visible = 0;
 
-                if(game_state->bird.point.y <= 0 - FLAPPY_BIRD_WIDTH){
+                if(game_state->bird.point.y <= 0 - FLAPPY_BIRD_WIDTH) {
                     game_state->bird.point.y = 64;
                 }
 
-                if(game_state->bird.point.y > 64 - FLAPPY_BIRD_WIDTH){
+                if(game_state->bird.point.y > 64 - FLAPPY_BIRD_WIDTH) {
                     game_state->bird.point.y = FLIPPER_LCD_HEIGHT - FLAPPY_BIRD_WIDTH;
                 }
 
