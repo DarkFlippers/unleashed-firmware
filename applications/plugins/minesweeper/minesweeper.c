@@ -217,6 +217,10 @@ static bool game_lost(Minesweeper* minesweeper_state) {
 
     dialog_message_set_icon(message, NULL, 0, 10);
 
+    // Set cursor to initial position
+    minesweeper_state->cursor_x = 0;
+    minesweeper_state->cursor_y = 0;
+
     NotificationApp* notifications = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notifications, &sequence_set_vibro_on);
     furi_record_close(RECORD_NOTIFICATION);
