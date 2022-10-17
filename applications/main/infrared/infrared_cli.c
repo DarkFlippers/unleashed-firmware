@@ -482,7 +482,7 @@ static void
         running = infrared_brute_force_start(brute_force, index, &record_count);
         if(record_count <= 0) {
             printf("Invalid signal.\n");
-            infrared_brute_force_reset(brute_force);
+            infrared_brute_force_clear_records(brute_force);
             return;
         }
 
@@ -502,7 +502,7 @@ static void
         printf("Invalid signal.\r\n");
     }
 
-    infrared_brute_force_reset(brute_force);
+    infrared_brute_force_clear_records(brute_force);
     infrared_brute_force_free(brute_force);
 }
 
