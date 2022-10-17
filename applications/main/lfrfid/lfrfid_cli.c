@@ -29,6 +29,7 @@ static void lfrfid_cli_print_usage() {
     printf("rfid <write | emulate> <key_type> <key_data>\r\n");
     printf("rfid raw_read <ask | psk> <filename>\r\n");
     printf("rfid raw_emulate <filename>\r\n");
+    printf("rfid raw_analyze <filename>\r\n");
 };
 
 typedef struct {

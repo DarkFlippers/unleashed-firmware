@@ -1,5 +1,6 @@
 ### New changes
 * SubGHz: Keeloq - added support for FAAC RC,XT, Mutancode, Normstahl
+* LFRFID: CLI - Add raw_analyze to usage help
 * PR -> Plugins: Minesweeper: Set cursor to initial position on death (by @TQMatvey | PR #113)
 * PR -> Plugins: Flappy bird: Border hitboxes, bigger Pilars (by @TQMatvey | PR #114)
 * Plugins: Updated Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
