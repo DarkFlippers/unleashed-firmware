@@ -12,10 +12,10 @@
 #define FLAPPY_BIRD_WIDTH 10
 
 #define FLAPPY_PILAR_MAX 6
-#define FLAPPY_PILAR_DIST 40
+#define FLAPPY_PILAR_DIST 35
 
 #define FLAPPY_GAB_HEIGHT 25
-#define FLAPPY_GAB_WIDTH 5
+#define FLAPPY_GAB_WIDTH 10
 
 #define FLAPPY_GRAVITY_JUMP -1.1
 #define FLAPPY_GRAVITY_TICK 0.15
@@ -100,10 +100,6 @@ static void flappy_game_state_init(GameState* const game_state) {
     flappy_game_random_pilar(game_state);
 }
 
-// static void flappy_game_reset(GameState* const game_state) {
-// FURI_LOG_I(TAG, "Reset Game State\r\n"); // Resetting State
-// }
-
 static void flappy_game_tick(GameState* const game_state) {
     if(game_state->state == GameStateLife) {
         if(!game_state->debug) {
@@ -136,11 +132,12 @@ static void flappy_game_tick(GameState* const game_state) {
                 }
                 if(pilar->point.x < -FLAPPY_GAB_WIDTH) pilar->visible = 0;
 
-                // Checking out of bounds
-                if(game_state->bird.point.y < 0 - FLAPPY_BIRD_WIDTH ||
-                   game_state->bird.point.y > FLIPPER_LCD_HEIGHT) {
-                    game_state->state = GameStateGameOver;
-                    break;
+                if(game_state->bird.point.y <= 0 - FLAPPY_BIRD_WIDTH){
+                    game_state->bird.point.y = 64;
+                }
+
+                if(game_state->bird.point.y > 64 - FLAPPY_BIRD_WIDTH){
+                    game_state->bird.point.y = FLIPPER_LCD_HEIGHT - FLAPPY_BIRD_WIDTH;
                 }
 
                 // Bird inbetween pipes
@@ -237,10 +234,6 @@ static void flappy_game_render_callback(Canvas* const canvas, void* ctx) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 37, 31, "Game Over");
 
-        /*if(game_state->points != 0 && game_state->points % 5 == 0) {
-            DOLPHIN_DEED(getRandomDeed());
-        }*/
-
         canvas_set_font(canvas, FontSecondary);
         char buffer[12];
         snprintf(buffer, sizeof(buffer), "Score: %u", game_state->points);
@@ -304,16 +297,16 @@ int32_t flappy_game_app(void* p) {
                 if(event.input.type == InputTypePress) {
                     switch(event.input.key) {
                     case InputKeyUp:
-                        game_state->bird.point.y--;
+                        if(game_state->state == GameStateLife) {
+                            flappy_game_flap(game_state);
+                        }
+
                         break;
                     case InputKeyDown:
-                        game_state->bird.point.y++;
                         break;
                     case InputKeyRight:
-                        game_state->bird.point.x++;
                         break;
                     case InputKeyLeft:
-                        game_state->bird.point.x--;
                         break;
                     case InputKeyOk:
                         if(game_state->state == GameStateGameOver) {
