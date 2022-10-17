@@ -1,6 +1,12 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 4th Oct, 2022
+# Last Updated 15th Oct, 2022
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: BA A0 00 00
+command: 01 FE 00 00
 #
 name: POWER
 type: raw

@@ -1,5 +1,18 @@
 ### New changes
-* OFW PR: Fix dolphin level reset on update (OFW PR 1874 by nminaylov)
+* SubGHz: Keeloq - added support for FAAC RC,XT, Mutancode, Normstahl
+* PR -> Plugins: Minesweeper: Set cursor to initial position on death (by @TQMatvey | PR #113)
+* PR -> Plugins: Flappy bird: Border hitboxes, bigger Pilars (by @TQMatvey | PR #114)
+* Plugins: Updated Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
+* Plugins: Added DTMF Dolphin [(by litui)](https://github.com/litui/dtmf_dolphin)
+* Plugins: Updated TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Infrared: Updated universal remote assets (by @Amec0e)
+* OFW: Feature: infrared add remote to cli
+* OFW: Remove the back button from MFC keys list
+* OFW: NFC fixes part 3
+* OFW: Enable all `view_` methods in SDK
+* OFW: fbt: fix for cincludes in app's private library definition
+* OFW: Desktop: fix fap in settings 
+* OFW: Add BLE disconnect request 
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
@@ -8,6 +21,7 @@
 [-> Download qFlipper 1.2.1 (allows .tgz installation) (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.1/)
 
 ## Please support development of the project
+* Boosty: https://boosty.to/mmxdev
 * ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
 * BTC: `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`
 * DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
