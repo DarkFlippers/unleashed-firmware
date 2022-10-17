@@ -16,6 +16,7 @@
 #define NFC_TEST_RESOURCES_DIR EXT_PATH("unit_tests/nfc/")
 #define NFC_TEST_SIGNAL_SHORT_FILE "nfc_nfca_signal_short.nfc"
 #define NFC_TEST_SIGNAL_LONG_FILE "nfc_nfca_signal_long.nfc"
+#define NFC_TEST_DICT_PATH EXT_PATH("unit_tests/mf_classic_dict.nfc")
 
 static const char* nfc_test_file_type = "Flipper NFC test";
 static const uint32_t nfc_test_file_version = 1;
@@ -220,11 +221,78 @@ MU_TEST(mf_classic_dict_test) {
     furi_string_free(temp_str);
 }
 
+MU_TEST(mf_classic_dict_load_test) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    mu_assert(storage != NULL, "storage != NULL assert failed\r\n");
+
+    // Delete unit test dict file if exists
+    if(storage_file_exists(storage, NFC_TEST_DICT_PATH)) {
+        mu_assert(
+            storage_simply_remove(storage, NFC_TEST_DICT_PATH),
+            "remove == true assert failed\r\n");
+    }
+
+    // Create unit test dict file
+    Stream* file_stream = file_stream_alloc(storage);
+    mu_assert(file_stream != NULL, "file_stream != NULL assert failed\r\n");
+    mu_assert(
+        file_stream_open(file_stream, NFC_TEST_DICT_PATH, FSAM_WRITE, FSOM_OPEN_ALWAYS),
+        "file_stream_open == true assert failed\r\n");
+
+    // Write unit test dict file
+    char key_str[] = "a0a1a2a3a4a5";
+    mu_assert(
+        stream_write_cstring(file_stream, key_str) == strlen(key_str),
+        "write == true assert failed\r\n");
+    // Close unit test dict file
+    mu_assert(file_stream_close(file_stream), "file_stream_close == true assert failed\r\n");
+
+    // Load unit test dict file
+    MfClassicDict* instance = NULL;
+    instance = mf_classic_dict_alloc(MfClassicDictTypeUnitTest);
+    mu_assert(instance != NULL, "mf_classic_dict_alloc\r\n");
+    uint32_t total_keys = mf_classic_dict_get_total_keys(instance);
+    mu_assert(total_keys == 1, "total_keys == 1 assert failed\r\n");
+
+    // Read key
+    uint64_t key_ref = 0xa0a1a2a3a4a5;
+    uint64_t key_dut = 0;
+    FuriString* temp_str = furi_string_alloc();
+    mu_assert(
+        mf_classic_dict_get_next_key_str(instance, temp_str),
+        "get_next_key_str == true assert failed\r\n");
+    mu_assert(furi_string_cmp_str(temp_str, key_str) == 0, "invalid key loaded\r\n");
+    mu_assert(mf_classic_dict_rewind(instance), "mf_classic_dict_rewind == 1 assert failed\r\n");
+    mu_assert(
+        mf_classic_dict_get_next_key(instance, &key_dut),
+        "get_next_key == true assert failed\r\n");
+    mu_assert(key_dut == key_ref, "invalid key loaded\r\n");
+    furi_string_free(temp_str);
+    mf_classic_dict_free(instance);
+
+    // Check that MfClassicDict added new line to the end of the file
+    mu_assert(
+        file_stream_open(file_stream, NFC_TEST_DICT_PATH, FSAM_READ, FSOM_OPEN_EXISTING),
+        "file_stream_open == true assert failed\r\n");
+    mu_assert(stream_seek(file_stream, -1, StreamOffsetFromEnd), "seek == true assert failed\r\n");
+    uint8_t last_char = 0;
+    mu_assert(stream_read(file_stream, &last_char, 1) == 1, "read == true assert failed\r\n");
+    mu_assert(last_char == '\n', "last_char == '\\n' assert failed\r\n");
+    mu_assert(file_stream_close(file_stream), "file_stream_close == true assert failed\r\n");
+
+    // Delete unit test dict file
+    mu_assert(
+        storage_simply_remove(storage, NFC_TEST_DICT_PATH), "remove == true assert failed\r\n");
+    stream_free(file_stream);
+    furi_record_close(RECORD_STORAGE);
+}
+
 MU_TEST_SUITE(nfc) {
     nfc_test_alloc();
 
     MU_RUN_TEST(nfc_digital_signal_test);
     MU_RUN_TEST(mf_classic_dict_test);
+    MU_RUN_TEST(mf_classic_dict_load_test);
 
     nfc_test_free();
 }
