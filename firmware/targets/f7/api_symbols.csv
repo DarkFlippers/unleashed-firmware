@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,2.2,,
+Version,+,2.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2511,17 +2511,17 @@ Function,+,view_port_alloc,ViewPort*,
 Function,+,view_port_draw_callback_set,void,"ViewPort*, ViewPortDrawCallback, void*"
 Function,+,view_port_enabled_set,void,"ViewPort*, _Bool"
 Function,+,view_port_free,void,ViewPort*
-Function,-,view_port_get_height,uint8_t,ViewPort*
+Function,+,view_port_get_height,uint8_t,ViewPort*
 Function,+,view_port_get_orientation,ViewPortOrientation,const ViewPort*
 Function,+,view_port_get_width,uint8_t,ViewPort*
 Function,+,view_port_input_callback_set,void,"ViewPort*, ViewPortInputCallback, void*"
 Function,+,view_port_is_enabled,_Bool,ViewPort*
-Function,-,view_port_set_height,void,"ViewPort*, uint8_t"
+Function,+,view_port_set_height,void,"ViewPort*, uint8_t"
 Function,+,view_port_set_orientation,void,"ViewPort*, ViewPortOrientation"
 Function,+,view_port_set_width,void,"ViewPort*, uint8_t"
 Function,+,view_port_update,void,ViewPort*
 Function,+,view_set_context,void,"View*, void*"
-Function,-,view_set_custom_callback,void,"View*, ViewCustomCallback"
+Function,+,view_set_custom_callback,void,"View*, ViewCustomCallback"
 Function,+,view_set_draw_callback,void,"View*, ViewDrawCallback"
 Function,+,view_set_enter_callback,void,"View*, ViewCallback"
 Function,+,view_set_exit_callback,void,"View*, ViewCallback"
