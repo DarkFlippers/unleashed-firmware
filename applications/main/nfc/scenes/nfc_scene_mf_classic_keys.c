@@ -34,8 +34,6 @@ void nfc_scene_mf_classic_keys_on_enter(void* context) {
     widget_add_string_element(nfc->widget, 0, 32, AlignLeft, AlignTop, FontSecondary, temp_str);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeCenter, "Add", nfc_scene_mf_classic_keys_widget_callback, nfc);
-    widget_add_button_element(
-        nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_mf_classic_keys_widget_callback, nfc);
     widget_add_icon_element(nfc->widget, 87, 13, &I_Keychain_39x36);
     if(user_dict_keys_total > 0) {
         widget_add_button_element(
@@ -56,9 +54,6 @@ bool nfc_scene_mf_classic_keys_on_event(void* context, SceneManagerEvent event) 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeCenter) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicKeysAdd);
-            consumed = true;
-        } else if(event.event == GuiButtonTypeLeft) {
-            scene_manager_previous_scene(nfc->scene_manager);
             consumed = true;
         } else if(event.event == GuiButtonTypeRight) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicKeysList);

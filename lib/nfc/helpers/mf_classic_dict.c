@@ -44,7 +44,10 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
     do {
         if(dict_type == MfClassicDictTypeFlipper) {
             if(!buffered_file_stream_open(
-                   dict->stream, MF_CLASSIC_DICT_FLIPPER_PATH, FSAM_READ, FSOM_OPEN_EXISTING)) {
+                   dict->stream,
+                   MF_CLASSIC_DICT_FLIPPER_PATH,
+                   FSAM_READ_WRITE,
+                   FSOM_OPEN_EXISTING)) {
                 buffered_file_stream_close(dict->stream);
                 break;
             }
@@ -59,10 +62,22 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
                    dict->stream,
                    MF_CLASSIC_DICT_UNIT_TEST_PATH,
                    FSAM_READ_WRITE,
-                   FSOM_CREATE_ALWAYS)) {
+                   FSOM_OPEN_ALWAYS)) {
                 buffered_file_stream_close(dict->stream);
                 break;
             }
+        }
+
+        // Check for new line ending
+        if(!stream_eof(dict->stream)) {
+            if(!stream_seek(dict->stream, -1, StreamOffsetFromEnd)) break;
+            uint8_t last_char = 0;
+            if(stream_read(dict->stream, &last_char, 1) != 1) break;
+            if(last_char != '\n') {
+                FURI_LOG_D(TAG, "Adding new line ending");
+                if(stream_write_char(dict->stream, '\n') != 1) break;
+            }
+            if(!stream_rewind(dict->stream)) break;
         }
 
         // Read total amount of keys
@@ -73,14 +88,13 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
                 FURI_LOG_T(TAG, "No keys left in dict");
                 break;
             }
-            furi_string_trim(next_line);
             FURI_LOG_T(
                 TAG,
                 "Read line: %s, len: %d",
                 furi_string_get_cstr(next_line),
                 furi_string_size(next_line));
             if(furi_string_get_char(next_line, 0) == '#') continue;
-            if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN - 1) continue;
+            if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN) continue;
             dict->total_keys++;
         }
         furi_string_free(next_line);
