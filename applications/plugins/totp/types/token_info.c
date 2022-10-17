@@ -4,6 +4,7 @@
 #include "stdlib.h"
 #include "common.h"
 #include "../services/base32/base32.h"
+#include "../services/crypto/crypto.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
@@ -27,25 +28,11 @@ void token_info_set_secret(
     uint8_t* plain_secret = malloc(token_secret_length);
     int plain_secret_length =
         base32_decode((uint8_t*)base32_token_secret, plain_secret, token_secret_length);
-    token_info->token_length = plain_secret_length;
 
-    size_t remain = token_info->token_length % 16;
-    if(remain) {
-        token_info->token_length = token_info->token_length - remain + 16;
-        uint8_t* plain_secret_aligned = malloc(token_info->token_length);
-        memcpy(plain_secret_aligned, plain_secret, plain_secret_length);
-        memset(plain_secret, 0, plain_secret_length);
-        free(plain_secret);
-        plain_secret = plain_secret_aligned;
-    }
+    token_info->token =
+        totp_crypto_encrypt(plain_secret, plain_secret_length, iv, &token_info->token_length);
 
-    token_info->token = malloc(token_info->token_length);
-
-    furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, iv);
-    furi_hal_crypto_encrypt(plain_secret, token_info->token, token_info->token_length);
-    furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
-
-    memset(plain_secret, 0, token_info->token_length);
+    memset(plain_secret, 0, token_secret_length);
     free(plain_secret);
 }
 

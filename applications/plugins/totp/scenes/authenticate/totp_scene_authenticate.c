@@ -6,10 +6,9 @@
 #include "../../services/config/config.h"
 #include "../scene_director.h"
 #include "../totp_scenes_enum.h"
+#include "../../services/crypto/crypto.h"
 
 #define MAX_CODE_LENGTH TOTP_IV_SIZE
-#define CRYPTO_VERIFY_KEY "FFF_Crypto_pass"
-#define CRYPTO_VERIFY_KEY_LENGTH 16
 
 typedef struct {
     uint8_t code_input[MAX_CODE_LENGTH];
@@ -111,52 +110,10 @@ bool totp_scene_authenticate_handle_event(PluginEvent* const event, PluginState*
                 }
                 break;
             case InputKeyOk:
-                if(plugin_state->crypto_verify_data == NULL) {
-                    FURI_LOG_D(LOGGING_TAG, "Generating new IV");
-                    furi_hal_random_fill_buf(&plugin_state->base_iv[0], TOTP_IV_SIZE);
-                }
+                totp_crypto_seed_iv(
+                    plugin_state, &scene_state->code_input[0], scene_state->code_length);
 
-                memcpy(&plugin_state->iv[0], &plugin_state->base_iv[0], TOTP_IV_SIZE);
-                for(uint8_t i = 0; i < scene_state->code_length; i++) {
-                    plugin_state->iv[i] = plugin_state->iv[i] ^
-                                          (uint8_t)(scene_state->code_input[i] * (i + 1));
-                }
-
-                if(plugin_state->crypto_verify_data == NULL) {
-                    FURI_LOG_D(LOGGING_TAG, "Generating crypto verify data");
-                    plugin_state->crypto_verify_data = malloc(CRYPTO_VERIFY_KEY_LENGTH);
-                    plugin_state->crypto_verify_data_length = CRYPTO_VERIFY_KEY_LENGTH;
-                    Storage* storage = totp_open_storage();
-                    FlipperFormat* config_file = totp_open_config_file(storage);
-                    furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, &plugin_state->iv[0]);
-                    furi_hal_crypto_encrypt(
-                        (uint8_t*)CRYPTO_VERIFY_KEY,
-                        plugin_state->crypto_verify_data,
-                        CRYPTO_VERIFY_KEY_LENGTH);
-                    furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
-                    flipper_format_insert_or_update_hex(
-                        config_file, TOTP_CONFIG_KEY_BASE_IV, plugin_state->base_iv, TOTP_IV_SIZE);
-                    flipper_format_insert_or_update_hex(
-                        config_file,
-                        TOTP_CONFIG_KEY_CRYPTO_VERIFY,
-                        plugin_state->crypto_verify_data,
-                        CRYPTO_VERIFY_KEY_LENGTH);
-                    totp_close_config_file(config_file);
-                    totp_close_storage();
-                }
-
-                uint8_t decrypted_key[CRYPTO_VERIFY_KEY_LENGTH];
-                furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, &plugin_state->iv[0]);
-                furi_hal_crypto_decrypt(
-                    plugin_state->crypto_verify_data, &decrypted_key[0], CRYPTO_VERIFY_KEY_LENGTH);
-                furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
-
-                bool key_valid = true;
-                for(uint8_t i = 0; i < CRYPTO_VERIFY_KEY_LENGTH && key_valid; i++) {
-                    if(decrypted_key[i] != CRYPTO_VERIFY_KEY[i]) key_valid = false;
-                }
-
-                if(key_valid) {
+                if(totp_crypto_verify_key(plugin_state)) {
                     FURI_LOG_D(LOGGING_TAG, "PIN is valid");
                     totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
                 } else {

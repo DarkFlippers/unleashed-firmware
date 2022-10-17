@@ -8,6 +8,7 @@
 #include "../../services/ui/constants.h"
 #include "../../services/totp/totp.h"
 #include "../../services/config/config.h"
+#include "../../services/crypto/crypto.h"
 #include "../scene_director.h"
 #include "../token_menu/totp_scene_token_menu.h"
 
@@ -156,24 +157,22 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                              plugin_state->tokens_list, scene_state->current_token_index)
                              ->data);
 
-        uint8_t* key = malloc(tokenInfo->token_length);
-
-        furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, &plugin_state->iv[0]);
-        furi_hal_crypto_decrypt(tokenInfo->token, key, tokenInfo->token_length);
-        furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
+        uint8_t key_length;
+        uint8_t* key = totp_crypto_decrypt(
+            tokenInfo->token, tokenInfo->token_length, &plugin_state->iv[0], &key_length);
 
         i_token_to_str(
             totp_at(
                 get_totp_algo_impl(tokenInfo->algo),
                 token_info_get_digits_count(tokenInfo),
                 key,
-                tokenInfo->token_length,
+                key_length,
                 curr_ts,
                 plugin_state->timezone_offset,
                 TOKEN_LIFETIME),
             scene_state->last_code,
             tokenInfo->digits);
-        memset(key, 0, tokenInfo->token_length);
+        memset(key, 0, key_length);
         free(key);
 
         if(is_new_token_time) {

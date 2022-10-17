@@ -23,6 +23,7 @@ typedef struct {
 
     uint8_t* crypto_verify_data;
     uint8_t crypto_verify_data_length;
+    bool pin_set;
     uint8_t iv[TOTP_IV_SIZE];
     uint8_t base_iv[TOTP_IV_SIZE];
 } PluginState;

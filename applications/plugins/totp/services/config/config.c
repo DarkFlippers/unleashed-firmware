@@ -199,6 +199,7 @@ void totp_full_save_config_file(PluginState* const plugin_state) {
         plugin_state->crypto_verify_data_length);
     flipper_format_write_float(
         fff_data_file, TOTP_CONFIG_KEY_TIMEZONE, &plugin_state->timezone_offset, 1);
+    flipper_format_write_bool(fff_data_file, TOTP_CONFIG_KEY_PINSET, &plugin_state->pin_set, 1);
     ListNode* node = plugin_state->tokens_list;
     while(node != NULL) {
         TokenInfo* token_info = node->data;
@@ -272,7 +273,8 @@ void totp_config_file_load_base(PluginState* const plugin_state) {
     flipper_format_rewind(fff_data_file);
 
     uint32_t crypto_size;
-    if(flipper_format_get_value_count(fff_data_file, TOTP_CONFIG_KEY_CRYPTO_VERIFY, &crypto_size)) {
+    if(flipper_format_get_value_count(fff_data_file, TOTP_CONFIG_KEY_CRYPTO_VERIFY, &crypto_size) &&
+       crypto_size > 0) {
         plugin_state->crypto_verify_data = malloc(sizeof(uint8_t) * crypto_size);
         plugin_state->crypto_verify_data_length = crypto_size;
         if(!flipper_format_read_hex(
@@ -283,7 +285,11 @@ void totp_config_file_load_base(PluginState* const plugin_state) {
             FURI_LOG_D(LOGGING_TAG, "Missing crypto verify token");
             free(plugin_state->crypto_verify_data);
             plugin_state->crypto_verify_data = NULL;
+            plugin_state->crypto_verify_data_length = 0;
         }
+    } else {
+        plugin_state->crypto_verify_data = NULL;
+        plugin_state->crypto_verify_data_length = 0;
     }
 
     flipper_format_rewind(fff_data_file);
@@ -292,6 +298,13 @@ void totp_config_file_load_base(PluginState* const plugin_state) {
            fff_data_file, TOTP_CONFIG_KEY_TIMEZONE, &plugin_state->timezone_offset, 1)) {
         plugin_state->timezone_offset = 0;
         FURI_LOG_D(LOGGING_TAG, "Missing timezone offset information, defaulting to 0");
+    }
+
+    flipper_format_rewind(fff_data_file);
+
+    if(!flipper_format_read_bool(
+           fff_data_file, TOTP_CONFIG_KEY_PINSET, &plugin_state->pin_set, 1)) {
+        plugin_state->pin_set = true;
     }
 
     furi_string_free(temp_str);
