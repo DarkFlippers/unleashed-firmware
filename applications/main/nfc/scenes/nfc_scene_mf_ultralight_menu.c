@@ -1,7 +1,8 @@
 #include "../nfc_i.h"
 
 enum SubmenuIndex {
-    SubmenuIndexUnlock,
+    SubmenuIndexUnlockByReader,
+    SubmenuIndexUnlockByPassword,
     SubmenuIndexSave,
     SubmenuIndexEmulate,
     SubmenuIndexInfo,
@@ -18,11 +19,17 @@ void nfc_scene_mf_ultralight_menu_on_enter(void* context) {
     Submenu* submenu = nfc->submenu;
     MfUltralightData* data = &nfc->dev->dev_data.mf_ul_data;
 
-    if(data->data_read != data->data_size) {
+    if(!mf_ul_is_full_capture(data)) {
+        submenu_add_item(
+            submenu,
+            "Unlock With Reader",
+            SubmenuIndexUnlockByReader,
+            nfc_scene_mf_ultralight_menu_submenu_callback,
+            nfc);
         submenu_add_item(
             submenu,
             "Unlock With Password",
-            SubmenuIndexUnlock,
+            SubmenuIndexUnlockByPassword,
             nfc_scene_mf_ultralight_menu_submenu_callback,
             nfc);
     }
@@ -57,7 +64,10 @@ bool nfc_scene_mf_ultralight_menu_on_event(void* context, SceneManagerEvent even
         } else if(event.event == SubmenuIndexEmulate) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
             consumed = true;
-        } else if(event.event == SubmenuIndexUnlock) {
+        } else if(event.event == SubmenuIndexUnlockByReader) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockAuto);
+            consumed = true;
+        } else if(event.event == SubmenuIndexUnlockByPassword) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
             consumed = true;
         } else if(event.event == SubmenuIndexInfo) {

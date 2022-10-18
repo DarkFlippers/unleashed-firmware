@@ -7,6 +7,8 @@ enum SubmenuIndex {
     SubmenuIndexDelete,
     SubmenuIndexInfo,
     SubmenuIndexRestoreOriginal,
+    SubmenuIndexMfUlUnlockByReader,
+    SubmenuIndexMfUlUnlockByPassword,
 };
 
 void nfc_scene_saved_menu_submenu_callback(void* context, uint32_t index) {
@@ -43,6 +45,21 @@ void nfc_scene_saved_menu_on_enter(void* context) {
     }
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, nfc_scene_saved_menu_submenu_callback, nfc);
+    if(nfc->dev->format == NfcDeviceSaveFormatMifareUl &&
+       !mf_ul_is_full_capture(&nfc->dev->dev_data.mf_ul_data)) {
+        submenu_add_item(
+            submenu,
+            "Unlock With Reader",
+            SubmenuIndexMfUlUnlockByReader,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
+        submenu_add_item(
+            submenu,
+            "Unlock With Password",
+            SubmenuIndexMfUlUnlockByPassword,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
+    }
     if(nfc->dev->shadow_file_exist) {
         submenu_add_item(
             submenu,
@@ -104,6 +121,12 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == SubmenuIndexRestoreOriginal) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRestoreOriginalConfirm);
+            consumed = true;
+        } else if(event.event == SubmenuIndexMfUlUnlockByReader) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockAuto);
+            consumed = true;
+        } else if(event.event == SubmenuIndexMfUlUnlockByPassword) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
             consumed = true;
         }
     }
