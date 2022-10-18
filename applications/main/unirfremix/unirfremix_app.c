@@ -15,7 +15,7 @@
 #include <applications/main/subghz/subghz_i.h>
 
 #include <lib/subghz/protocols/raw.h>
-#include <lib/subghz/protocols/registry.h>
+#include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/types.h>
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/protocols/star_line.h>
@@ -602,10 +602,12 @@ void unirfremix_tx_stop(UniRFRemix* app) {
     subghz_transmitter_stop(app->tx_transmitter);
 
     FURI_LOG_D(TAG, "Checking if protocol is dynamic");
-    const SubGhzProtocol* registry =
-        subghz_protocol_registry_get_by_name(furi_string_get_cstr(app->txpreset->protocol));
-    FURI_LOG_D(TAG, "Protocol-TYPE %d", registry->type);
-    if(registry && registry->type == SubGhzProtocolTypeDynamic) {
+    const SubGhzProtocolRegistry* protocol_registry_items =
+        subghz_environment_get_protocol_registry(app->environment);
+    const SubGhzProtocol* proto = subghz_protocol_registry_get_by_name(
+        protocol_registry_items, furi_string_get_cstr(app->txpreset->protocol));
+    FURI_LOG_D(TAG, "Protocol-TYPE %d", proto->type);
+    if(proto && proto->type == SubGhzProtocolTypeDynamic) {
         FURI_LOG_D(TAG, "Protocol is dynamic. Saving key");
         unirfremix_save_protocol_to_file(app->tx_fff_data, app->tx_file_path);
 
@@ -838,6 +840,7 @@ void unirfremix_subghz_alloc(UniRFRemix* app) {
         app->environment, EXT_PATH("subghz/assets/came_atomo"));
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
+    subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
 
     app->subghz_receiver = subghz_receiver_alloc_init(app->environment);
 }

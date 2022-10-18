@@ -1,3 +1,4 @@
+# to use manual settings and prevent them from being deleted on upgrade, rename *_user.example files to *_user
 Filetype: Flipper SubGhz Setting File
 Version: 1
 

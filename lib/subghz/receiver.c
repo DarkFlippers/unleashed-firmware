@@ -1,6 +1,7 @@
 #include "receiver.h"
 
-#include "protocols/registry.h"
+#include "registry.h"
+#include "protocols/protocol_items.h"
 
 #include <m-array.h>
 
@@ -22,9 +23,12 @@ struct SubGhzReceiver {
 SubGhzReceiver* subghz_receiver_alloc_init(SubGhzEnvironment* environment) {
     SubGhzReceiver* instance = malloc(sizeof(SubGhzReceiver));
     SubGhzReceiverSlotArray_init(instance->slots);
+    const SubGhzProtocolRegistry* protocol_registry_items =
+        subghz_environment_get_protocol_registry(environment);
 
-    for(size_t i = 0; i < subghz_protocol_registry_count(); ++i) {
-        const SubGhzProtocol* protocol = subghz_protocol_registry_get_by_index(i);
+    for(size_t i = 0; i < subghz_protocol_registry_count(protocol_registry_items); ++i) {
+        const SubGhzProtocol* protocol =
+            subghz_protocol_registry_get_by_index(protocol_registry_items, i);
 
         if(protocol->decoder && protocol->decoder->alloc) {
             SubGhzReceiverSlot* slot = SubGhzReceiverSlotArray_push_new(instance->slots);
@@ -34,7 +38,6 @@ SubGhzReceiver* subghz_receiver_alloc_init(SubGhzEnvironment* environment) {
 
     instance->callback = NULL;
     instance->context = NULL;
-
     return instance;
 }
 

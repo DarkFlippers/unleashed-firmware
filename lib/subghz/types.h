@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+//#include "m-string.h"
 
 #include <lib/flipper_format/flipper_format.h>
 #include <lib/toolbox/level_duration.h>
@@ -10,7 +11,6 @@
 #include "environment.h"
 #include <furi.h>
 #include <furi_hal.h>
-#include <subghz/helpers/subghz_types.h>
 
 #define SUBGHZ_APP_FOLDER ANY_PATH("subghz")
 #define SUBGHZ_RAW_FOLDER EXT_PATH("subghz")
@@ -25,6 +25,15 @@
 //
 // Abstract method types
 //
+
+struct SubGhzPresetDefinition {
+    FuriString* name;
+    uint32_t frequency;
+    uint8_t* data;
+    size_t data_size;
+};
+
+typedef struct SubGhzPresetDefinition SubGhzPresetDefinition;
 
 // Allocator and Deallocator
 typedef void* (*SubGhzAlloc)(SubGhzEnvironment* environment);
@@ -74,6 +83,8 @@ typedef enum {
     SubGhzProtocolTypeStatic,
     SubGhzProtocolTypeDynamic,
     SubGhzProtocolTypeRAW,
+    SubGhzProtocolWeatherStation,
+    SubGhzProtocolCustom,
 } SubGhzProtocolType;
 
 typedef enum {

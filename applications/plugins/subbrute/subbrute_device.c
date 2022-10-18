@@ -5,6 +5,7 @@
 #include <lib/toolbox/stream/stream.h>
 #include <lib/flipper_format/flipper_format.h>
 #include <lib/flipper_format/flipper_format_i.h>
+#include <lib/subghz/protocols/protocol_items.h>
 
 #define TAG "SubBruteDevice"
 
@@ -18,6 +19,8 @@ SubBruteDevice* subbrute_device_alloc() {
     instance->decoder_result = NULL;
     instance->receiver = NULL;
     instance->environment = subghz_environment_alloc();
+    subghz_environment_set_protocol_registry(
+        instance->environment, (void*)&subghz_protocol_registry);
 
 #ifdef FURI_DEBUG
     subbrute_device_attack_set_default_values(instance, SubBruteAttackCAME12bit433);

@@ -9,6 +9,10 @@
 #include "furi_hal.h"
 #include "../types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzBlockGeneric SubGhzBlockGeneric;
 
 struct SubGhzBlockGeneric {
@@ -49,3 +53,7 @@ bool subghz_block_generic_serialize(
  * @return true On success
  */
 bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperFormat* flipper_format);
+
+#ifdef __cplusplus
+}
+#endif

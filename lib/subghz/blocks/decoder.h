@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzBlockDecoder SubGhzBlockDecoder;
 
 struct SubGhzBlockDecoder {
@@ -26,3 +30,7 @@ void subghz_protocol_blocks_add_bit(SubGhzBlockDecoder* decoder, uint8_t bit);
  * @return hash Hash sum
  */
 uint8_t subghz_protocol_blocks_get_hash_data(SubGhzBlockDecoder* decoder, size_t len);
+
+#ifdef __cplusplus
+}
+#endif

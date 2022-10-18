@@ -6,6 +6,10 @@
 #include <furi_hal.h>
 #include <lib/flipper_format/flipper_format.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SUBGHZ_SETTING_DEFAULT_PRESET_COUNT 4
 
 typedef struct SubGhzSetting SubGhzSetting;
@@ -48,3 +52,7 @@ uint32_t subghz_setting_get_frequency_default_index(SubGhzSetting* instance);
 uint32_t subghz_setting_get_default_frequency(SubGhzSetting* instance);
 
 void subghz_setting_set_default_frequency(SubGhzSetting* instance, uint32_t frequency_to_setup);
+
+#ifdef __cplusplus
+}
+#endif

@@ -3,6 +3,7 @@
 #include <subghz/types.h>
 #include <lib/toolbox/path.h>
 #include "subghz_i.h"
+#include <lib/subghz/protocols/protocol_items.h>
 
 #define TAG "SubGhzApp"
 
@@ -243,7 +244,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz->txrx->environment, EXT_PATH("subghz/assets/came_atomo"));
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         subghz->txrx->environment, EXT_PATH("subghz/assets/nice_flor_s"));
-
+    subghz_environment_set_protocol_registry(
+        subghz->txrx->environment, (void*)&subghz_protocol_registry);
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
     subghz_last_settings_set_detect_raw_values(subghz);

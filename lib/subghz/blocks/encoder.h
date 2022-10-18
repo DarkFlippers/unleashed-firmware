@@ -6,6 +6,10 @@
 
 #include <lib/toolbox/level_duration.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     bool is_running;
     size_t repeat;
@@ -50,3 +54,7 @@ size_t subghz_protocol_blocks_get_upload(
     LevelDuration* upload,
     size_t max_size_upload,
     uint32_t duration_bit);
+
+#ifdef __cplusplus
+}
+#endif
