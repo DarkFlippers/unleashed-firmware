@@ -1,4 +1,6 @@
 ### New changes
+* Plugins: SubGHz Bruteforcer - added Chamberlain 7bit and 8bit
+### Previous changes
 * PR -> NFC: New mifare classic keys (by @ankris812 | PR #119)
 * New API version 3.2 -> 4.1 (due to breaking changes in subghz part) (old apps needs to be recompiled, update for extra apps pack is coming soon)
 * OFW PR: WeatherStation plugin and SubGHz changes (OFW PR 1833 by Skorpionm)
