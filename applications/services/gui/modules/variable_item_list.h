@@ -81,6 +81,13 @@ uint8_t variable_item_list_get_selected_item_index(VariableItemList* variable_it
  */
 void variable_item_set_current_value_index(VariableItem* item, uint8_t current_value_index);
 
+/** Set number of values for item
+ *
+ * @param      item                 VariableItem* instance
+ * @param      values_count         The new values count
+ */
+void variable_item_set_values_count(VariableItem* item, uint8_t values_count);
+
 /** Set item current selected text
  *
  * @param      item                VariableItem* instance

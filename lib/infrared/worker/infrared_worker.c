@@ -57,6 +57,7 @@ struct InfraredWorker {
     InfraredDecoderHandler* infrared_decoder;
     NotificationApp* notification;
     bool blink_enable;
+    bool decode_enable;
 
     union {
         struct {
@@ -131,7 +132,8 @@ static void infrared_worker_process_timeout(InfraredWorker* instance) {
 static void
     infrared_worker_process_timings(InfraredWorker* instance, uint32_t duration, bool level) {
     const InfraredMessage* message_decoded =
-        infrared_decode(instance->infrared_decoder, level, duration);
+        instance->decode_enable ? infrared_decode(instance->infrared_decoder, level, duration) :
+                                  NULL;
     if(message_decoded) {
         instance->signal.message = *message_decoded;
         instance->signal.timings_cnt = 0;
@@ -233,6 +235,7 @@ InfraredWorker* infrared_worker_alloc() {
     instance->infrared_decoder = infrared_alloc_decoder();
     instance->infrared_encoder = infrared_alloc_encoder();
     instance->blink_enable = false;
+    instance->decode_enable = true;
     instance->notification = furi_record_open(RECORD_NOTIFICATION);
     instance->state = InfraredWorkerStateIdle;
 
@@ -314,6 +317,11 @@ const InfraredMessage* infrared_worker_get_decoded_signal(const InfraredWorkerSi
 void infrared_worker_rx_enable_blink_on_receiving(InfraredWorker* instance, bool enable) {
     furi_assert(instance);
     instance->blink_enable = enable;
+}
+
+void infrared_worker_rx_enable_signal_decoding(InfraredWorker* instance, bool enable) {
+    furi_assert(instance);
+    instance->decode_enable = enable;
 }
 
 void infrared_worker_tx_start(InfraredWorker* instance) {

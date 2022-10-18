@@ -13,7 +13,7 @@ static UsbUartConfig* cfg_set;
 
 static const char* vcp_ch[] = {"0 (CLI)", "1"};
 static const char* uart_ch[] = {"13,14", "15,16"};
-static const char* flow_pins[] = {"None", "2,3", "6,7"};
+static const char* flow_pins[] = {"None", "2,3", "6,7", "16,15"};
 static const char* baudrate_mode[] = {"Host"};
 static const uint32_t baudrate_list[] = {
     2400,
@@ -31,6 +31,24 @@ bool gpio_scene_usb_uart_cfg_on_event(void* context, SceneManagerEvent event) {
     UNUSED(context);
     UNUSED(event);
     return false;
+}
+
+void line_ensure_flow_invariant(GpioApp* app) {
+    // GPIO pins PC0, PC1 (16,15) are unavailable for RTS/DTR when LPUART is
+    // selected. This function enforces that invariant by resetting flow_pins
+    // to None if it is configured to 16,15 when LPUART is selected.
+
+    uint8_t available_flow_pins = cfg_set->uart_ch == FuriHalUartIdLPUART1 ? 3 : 4;
+    VariableItem* item = app->var_item_flow;
+    variable_item_set_values_count(item, available_flow_pins);
+
+    if(cfg_set->flow_pins >= available_flow_pins) {
+        cfg_set->flow_pins = 0;
+        usb_uart_set_config(app->usb_uart_bridge, cfg_set);
+
+        variable_item_set_current_value_index(item, cfg_set->flow_pins);
+        variable_item_set_current_value_text(item, flow_pins[cfg_set->flow_pins]);
+    }
 }
 
 static void line_vcp_cb(VariableItem* item) {
@@ -54,6 +72,7 @@ static void line_port_cb(VariableItem* item) {
     else if(index == 1)
         cfg_set->uart_ch = FuriHalUartIdLPUART1;
     usb_uart_set_config(app->usb_uart_bridge, cfg_set);
+    line_ensure_flow_invariant(app);
 }
 
 static void line_flow_cb(VariableItem* item) {
@@ -116,9 +135,12 @@ void gpio_scene_usb_uart_cfg_on_enter(void* context) {
     variable_item_set_current_value_index(item, cfg_set->uart_ch);
     variable_item_set_current_value_text(item, uart_ch[cfg_set->uart_ch]);
 
-    item = variable_item_list_add(var_item_list, "RTS/DTR Pins", 3, line_flow_cb, app);
+    item = variable_item_list_add(
+        var_item_list, "RTS/DTR Pins", COUNT_OF(flow_pins), line_flow_cb, app);
     variable_item_set_current_value_index(item, cfg_set->flow_pins);
     variable_item_set_current_value_text(item, flow_pins[cfg_set->flow_pins]);
+    app->var_item_flow = item;
+    line_ensure_flow_invariant(app);
 
     variable_item_list_set_selected_item(
         var_item_list, scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUartCfg));

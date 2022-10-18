@@ -9,6 +9,7 @@
 #include "rfal_picopass.h"
 #include <optimized_ikeys.h>
 #include <optimized_cipher.h>
+#include "helpers/iclass_elite_dict.h"
 
 #define PICOPASS_DEV_NAME_MAX_LEN 22
 #define PICOPASS_READER_DATA_MAX_SIZE 64
@@ -49,6 +50,7 @@ typedef struct {
     bool se_enabled;
     bool sio;
     bool biometrics;
+    uint8_t key[8];
     uint8_t pin_length;
     PicopassEncryption encryption;
     uint8_t credential[8];
