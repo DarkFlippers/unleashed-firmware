@@ -16,6 +16,8 @@
 #define CAME_24_COUNT_BIT 24
 #define PRASTEL_COUNT_BIT 25
 #define PRASTEL_NAME "Prastel"
+#define AIRFORCE_COUNT_BIT 18
+#define AIRFORCE_NAME "Airforce"
 
 static const SubGhzBlockConst subghz_protocol_came_const = {
     .te_short = 320,
@@ -86,7 +88,7 @@ void* subghz_protocol_encoder_came_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
+    instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -151,10 +153,7 @@ bool subghz_protocol_encoder_came_deserialize(void* context, FlipperFormat* flip
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-        if((instance->generic.data_count_bit !=
-            subghz_protocol_came_const.min_count_bit_for_found) &&
-           (instance->generic.data_count_bit != CAME_24_COUNT_BIT) &&
-           (instance->generic.data_count_bit != PRASTEL_COUNT_BIT)) {
+        if((instance->generic.data_count_bit > PRASTEL_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
@@ -310,10 +309,7 @@ bool subghz_protocol_decoder_came_deserialize(void* context, FlipperFormat* flip
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             break;
         }
-        if((instance->generic.data_count_bit !=
-            subghz_protocol_came_const.min_count_bit_for_found) &&
-           (instance->generic.data_count_bit != CAME_24_COUNT_BIT) &&
-           (instance->generic.data_count_bit != PRASTEL_COUNT_BIT)) {
+        if((instance->generic.data_count_bit > PRASTEL_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
@@ -338,8 +334,11 @@ void subghz_protocol_decoder_came_get_string(void* context, FuriString* output) 
         "%s %dbit\r\n"
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n",
-        (instance->generic.data_count_bit == PRASTEL_COUNT_BIT ? PRASTEL_NAME :
-                                                                 instance->generic.protocol_name),
+        (instance->generic.data_count_bit == PRASTEL_COUNT_BIT ?
+             PRASTEL_NAME :
+             (instance->generic.data_count_bit == AIRFORCE_COUNT_BIT ?
+                  AIRFORCE_NAME :
+                  instance->generic.protocol_name)),
         instance->generic.data_count_bit,
         code_found_lo,
         code_found_reverse_lo);
