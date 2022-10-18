@@ -213,6 +213,9 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
         uint32_t auth_counter;
         if(!flipper_format_read_uint32(file, "Failed authentication attempts", &auth_counter, 1))
             auth_counter = 0;
+        data->curr_authlim = auth_counter;
+
+        data->auth_success = mf_ul_is_full_capture(data);
 
         parsed = true;
     } while(false);

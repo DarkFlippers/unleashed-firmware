@@ -61,7 +61,8 @@ typedef enum {
     NfcWorkerEventDetectReaderMfkeyCollected,
 
     // Mifare Ultralight events
-    NfcWorkerEventMfUltralightPassKey,
+    NfcWorkerEventMfUltralightPassKey, // NFC worker requesting manual key
+    NfcWorkerEventMfUltralightPwdAuth, // Reader sent auth command
 
 } NfcWorkerEvent;
 

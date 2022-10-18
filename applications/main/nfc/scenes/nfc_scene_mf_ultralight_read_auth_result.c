@@ -20,16 +20,19 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
     MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
     MfUltralightConfigPages* config_pages = mf_ultralight_get_config_pages(mf_ul_data);
     Widget* widget = nfc->widget;
+    const char* title;
     FuriString* temp_str;
     temp_str = furi_string_alloc();
 
     if((mf_ul_data->data_read == mf_ul_data->data_size) && (mf_ul_data->data_read > 0)) {
-        widget_add_string_element(
-            widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "All pages are unlocked!");
+        if(mf_ul_data->auth_success)
+            title = "All pages are unlocked!";
+        else
+            title = "All unlocked but failed auth!";
     } else {
-        widget_add_string_element(
-            widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Not all pages unlocked!");
+        title = "Not all pages unlocked!";
     }
+    widget_add_string_element(widget, 64, 0, AlignCenter, AlignTop, FontPrimary, title);
     furi_string_set(temp_str, "UID:");
     for(size_t i = 0; i < nfc_data->uid_len; i++) {
         furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);

@@ -58,7 +58,8 @@ bool nfc_scene_mf_ultralight_unlock_menu_on_event(void* context, SceneManagerEve
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockWarn);
             consumed = true;
         }
-        scene_manager_set_scene_state(nfc->scene_manager, NfcSceneExtraActions, event.event);
+        scene_manager_set_scene_state(
+            nfc->scene_manager, NfcSceneMfUltralightUnlockMenu, event.event);
     }
     return consumed;
 }
