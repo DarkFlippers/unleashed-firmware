@@ -24,6 +24,7 @@ struct GpioApp {
     Widget* widget;
 
     VariableItemList* var_item_list;
+    VariableItem* var_item_flow;
     GpioTest* gpio_test;
     GpioUsbUart* gpio_usb_uart;
     UsbUartBridge* usb_uart_bridge;
