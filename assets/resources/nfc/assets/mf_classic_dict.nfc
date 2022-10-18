@@ -1,7 +1,7 @@
 ###########################
 #  Do not edit, this file will be overwritten after firmware update
 #  Use the user_dict file for user keys
-# Last update 13th September, 2022
+# Last update 19th October, 2022
 # -------------------------
 # MIFARE DEFAULT KEYS
 #   -- ICEMAN FORK VERSION --
@@ -3725,10 +3725,6 @@ F7A545095C49
 701AA491A4A5
 12BA20088ED3
 # MISC KEYS FROM MY OLD ACCESS CARDS
-36El765CE3E8
-9716D524lE28
-C608El3ADD50
-El67EC67C7FF
 F18D91EE3033
 0E726E11CFCC
 1D14130D1A0B
