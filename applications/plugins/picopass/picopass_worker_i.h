@@ -18,6 +18,7 @@
 struct PicopassWorker {
     FuriThread* thread;
     Storage* storage;
+    Stream* dict_stream;
 
     PicopassDeviceData* dev_data;
     PicopassWorkerCallback callback;

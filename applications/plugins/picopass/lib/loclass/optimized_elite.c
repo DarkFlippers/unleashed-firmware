@@ -185,7 +185,7 @@ static void loclass_desencrypt_iclass(uint8_t* iclass_key, uint8_t* input, uint8
  * @param loclass_hash1 loclass_hash1
  * @param key_sel output key_sel=h[loclass_hash1[i]]
  */
-void hash2(uint8_t* key64, uint8_t* outp_keytable) {
+void loclass_hash2(uint8_t* key64, uint8_t* outp_keytable) {
     /**
      *Expected:
      * High Security Key Table

@@ -1,5 +1,7 @@
 #include "picopass_worker_i.h"
 
+#include <flipper_format/flipper_format.h>
+
 #define TAG "PicopassWorker"
 
 const uint8_t picopass_iclass_key[] = {0xaf, 0xa7, 0x85, 0xa7, 0xda, 0xb3, 0x33, 0x78};
@@ -176,7 +178,7 @@ ReturnCode picopass_read_preauth(PicopassBlock* AA1) {
     return ERR_NONE;
 }
 
-ReturnCode picopass_read_card(PicopassBlock* AA1) {
+ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
     rfalPicoPassReadCheckRes rcRes;
     rfalPicoPassCheckRes chkRes;
 
@@ -197,10 +199,68 @@ ReturnCode picopass_read_card(PicopassBlock* AA1) {
     loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
     err = rfalPicoPassPollerCheck(mac, &chkRes);
-    if(err != ERR_NONE) {
-        FURI_LOG_E(TAG, "rfalPicoPassPollerCheck error %d", err);
-        return err;
+    if(err == ERR_NONE) {
+        return ERR_NONE;
     }
+    FURI_LOG_E(TAG, "rfalPicoPassPollerCheck error %d", err);
+
+    FURI_LOG_E(TAG, "Starting dictionary attack");
+
+    size_t index = 0;
+    uint8_t key[PICOPASS_BLOCK_LEN] = {0};
+
+    if(!iclass_elite_dict_check_presence(IclassEliteDictTypeFlipper)) {
+        FURI_LOG_E(TAG, "Dictionary not found");
+        return ERR_PARAM;
+    }
+
+    IclassEliteDict* dict = iclass_elite_dict_alloc(IclassEliteDictTypeFlipper);
+    if(!dict) {
+        FURI_LOG_E(TAG, "Dictionary not allocated");
+        return ERR_PARAM;
+    }
+
+    FURI_LOG_D(TAG, "Loaded %lu keys", iclass_elite_dict_get_total_keys(dict));
+    while(iclass_elite_dict_get_next_key(dict, key)) {
+        FURI_LOG_D(
+            TAG,
+            "Try to auth with key %d %02x%02x%02x%02x%02x%02x%02x%02x",
+            index++,
+            key[0],
+            key[1],
+            key[2],
+            key[3],
+            key[4],
+            key[5],
+            key[6],
+            key[7]);
+
+        err = rfalPicoPassPollerReadCheck(&rcRes);
+        if(err != ERR_NONE) {
+            FURI_LOG_E(TAG, "rfalPicoPassPollerReadCheck error %d", err);
+            return err;
+        }
+        memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
+
+        loclass_iclass_calc_div_key(AA1[PICOPASS_CSN_BLOCK_INDEX].data, key, div_key, true);
+        loclass_opt_doReaderMAC(ccnr, div_key, mac);
+
+        err = rfalPicoPassPollerCheck(mac, &chkRes);
+        if(err == ERR_NONE) {
+            memcpy(pacs->key, key, PICOPASS_BLOCK_LEN);
+            break;
+        }
+    }
+
+    if(dict) {
+        iclass_elite_dict_free(dict);
+    }
+
+    return err;
+}
+
+ReturnCode picopass_read_card(PicopassBlock* AA1) {
+    ReturnCode err;
 
     size_t app_limit = AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] < PICOPASS_MAX_APP_LIMIT ?
                            AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] :
@@ -352,28 +412,39 @@ void picopass_worker_detect(PicopassWorker* picopass_worker) {
             pacs->se_enabled = (memcmp(AA1[5].data, "\xff\xff\xff\x00\x06\xff\xff\xff", 8) == 0);
             if(pacs->se_enabled) {
                 FURI_LOG_D(TAG, "SE enabled");
+                nextState = PicopassWorkerEventFail;
             }
 
-            err = picopass_read_card(AA1);
-            if(err != ERR_NONE) {
-                FURI_LOG_E(TAG, "picopass_read_card error %d", err);
-                nextState = PicopassWorkerEventFail;
+            if(nextState == PicopassWorkerEventSuccess) {
+                err = picopass_auth(AA1, pacs);
+                if(err != ERR_NONE) {
+                    FURI_LOG_E(TAG, "picopass_try_auth error %d", err);
+                    nextState = PicopassWorkerEventFail;
+                }
+            }
+
+            if(nextState == PicopassWorkerEventSuccess) {
+                err = picopass_read_card(AA1);
+                if(err != ERR_NONE) {
+                    FURI_LOG_E(TAG, "picopass_read_card error %d", err);
+                    nextState = PicopassWorkerEventFail;
+                }
             }
 
             if(nextState == PicopassWorkerEventSuccess) {
                 err = picopass_device_parse_credential(AA1, pacs);
-            }
-            if(err != ERR_NONE) {
-                FURI_LOG_E(TAG, "picopass_device_parse_credential error %d", err);
-                nextState = PicopassWorkerEventFail;
+                if(err != ERR_NONE) {
+                    FURI_LOG_E(TAG, "picopass_device_parse_credential error %d", err);
+                    nextState = PicopassWorkerEventFail;
+                }
             }
 
             if(nextState == PicopassWorkerEventSuccess) {
                 err = picopass_device_parse_wiegand(pacs->credential, &pacs->record);
-            }
-            if(err != ERR_NONE) {
-                FURI_LOG_E(TAG, "picopass_device_parse_wiegand error %d", err);
-                nextState = PicopassWorkerEventFail;
+                if(err != ERR_NONE) {
+                    FURI_LOG_E(TAG, "picopass_device_parse_wiegand error %d", err);
+                    nextState = PicopassWorkerEventFail;
+                }
             }
 
             // Notify caller and exit
