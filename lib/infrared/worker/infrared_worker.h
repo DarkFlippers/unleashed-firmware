@@ -76,6 +76,14 @@ void infrared_worker_rx_set_received_signal_callback(
  */
 void infrared_worker_rx_enable_blink_on_receiving(InfraredWorker* instance, bool enable);
 
+/** Enable decoding of received infrared signals.
+ *
+ * @param[in]   instance - instance of InfraredWorker
+ * @param[in]   enable - true if you want to enable decoding
+ *                       false otherwise
+ */
+void infrared_worker_rx_enable_signal_decoding(InfraredWorker* instance, bool enable);
+
 /** Clarify is received signal either decoded or raw
  *
  * @param[in]   signal - received signal

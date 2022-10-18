@@ -71,25 +71,9 @@ static void signal_received_callback(void* context, InfraredWorkerSignal* receiv
     }
 }
 
-static void infrared_cli_start_ir_rx(Cli* cli, FuriString* args) {
-    UNUSED(cli);
-    UNUSED(args);
-    InfraredWorker* worker = infrared_worker_alloc();
-    infrared_worker_rx_start(worker);
-    infrared_worker_rx_set_received_signal_callback(worker, signal_received_callback, cli);
-
-    printf("Receiving INFRARED...\r\nPress Ctrl+C to abort\r\n");
-    while(!cli_cmd_interrupt_received(cli)) {
-        furi_delay_ms(50);
-    }
-
-    infrared_worker_rx_stop(worker);
-    infrared_worker_free(worker);
-}
-
 static void infrared_cli_print_usage(void) {
     printf("Usage:\r\n");
-    printf("\tir rx\r\n");
+    printf("\tir rx [raw]\r\n");
     printf("\tir tx <protocol> <address> <command>\r\n");
     printf("\t<command> and <address> are hex-formatted\r\n");
     printf("\tAvailable protocols:");
@@ -106,6 +90,35 @@ static void infrared_cli_print_usage(void) {
     printf("\tir decode <input_file> [<output_file>]\r\n");
     printf("\tir universal <tv, ac> <signal name>\r\n");
     printf("\tir universal list <tv, ac>\r\n");
+}
+
+static void infrared_cli_start_ir_rx(Cli* cli, FuriString* args) {
+    UNUSED(cli);
+
+    bool enable_decoding = true;
+
+    if(!furi_string_empty(args)) {
+        if(!furi_string_cmp_str(args, "raw")) {
+            enable_decoding = false;
+        } else {
+            printf("Wrong arguments.\r\n");
+            infrared_cli_print_usage();
+            return;
+        }
+    }
+
+    InfraredWorker* worker = infrared_worker_alloc();
+    infrared_worker_rx_enable_signal_decoding(worker, enable_decoding);
+    infrared_worker_rx_start(worker);
+    infrared_worker_rx_set_received_signal_callback(worker, signal_received_callback, cli);
+
+    printf("Receiving %s INFRARED...\r\nPress Ctrl+C to abort\r\n", enable_decoding ? "" : "RAW");
+    while(!cli_cmd_interrupt_received(cli)) {
+        furi_delay_ms(50);
+    }
+
+    infrared_worker_rx_stop(worker);
+    infrared_worker_free(worker);
 }
 
 static bool infrared_cli_parse_message(const char* str, InfraredSignal* signal) {
