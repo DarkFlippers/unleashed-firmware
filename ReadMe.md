@@ -97,6 +97,7 @@ Games:
 - Tic Tac Toe (refactored by xMasterX) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
 - Tetris (with fixes) [(by jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 - Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
+- Heap Defence (aka Stack Attack) [(original by wquinoa & Vedmein)](https://github.com/Vedmein/flipperzero-firmware/tree/hd/svisto-perdelki) -> Ported to latest firmware by @xMasterX
 
 ### Other changes
 

@@ -1,19 +1,6 @@
 ### New changes
-* SubGHz: Keeloq - added support for FAAC RC,XT, Mutancode, Normstahl
-* LFRFID: CLI - Add raw_analyze to usage help
-* PR -> Plugins: Minesweeper: Set cursor to initial position on death (by @TQMatvey | PR #113)
-* PR -> Plugins: Flappy bird: Border hitboxes, bigger Pilars (by @TQMatvey | PR #114)
-* Plugins: Updated Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
-* Plugins: Added DTMF Dolphin [(by litui)](https://github.com/litui/dtmf_dolphin)
-* Plugins: Updated TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Infrared: Updated universal remote assets (by @Amec0e)
-* OFW: Feature: infrared add remote to cli
-* OFW: Remove the back button from MFC keys list
-* OFW: NFC fixes part 3
-* OFW: Enable all `view_` methods in SDK
-* OFW: fbt: fix for cincludes in app's private library definition
-* OFW: Desktop: fix fap in settings 
-* OFW: Add BLE disconnect request 
+* PR -> Power: remove % sign from desktop and center numbers (by @TQMatvey | PR #115)
+* Plugins: Heap Defence Game (aka Stack Attack) [(original by wquinoa & Vedmein)](https://github.com/Vedmein/flipperzero-firmware/tree/hd/svisto-perdelki) -> Ported to latest firmware by @xMasterX
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
