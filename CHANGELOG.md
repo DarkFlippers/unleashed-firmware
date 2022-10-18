@@ -1,6 +1,12 @@
 ### New changes
-* PR -> Power: remove % sign from desktop and center numbers (by @TQMatvey | PR #115)
-* Plugins: Heap Defence Game (aka Stack Attack) [(original by wquinoa & Vedmein)](https://github.com/Vedmein/flipperzero-firmware/tree/hd/svisto-perdelki) -> Ported to latest firmware by @xMasterX
+* PR -> NFC: New mifare classic keys (by @ankris812 | PR #119)
+* New API version 3.2 -> 4.1 (due to breaking changes in subghz part) (old apps needs to be recompiled, update for extra apps pack is coming soon)
+* OFW PR: WeatherStation plugin and SubGHz changes (OFW PR 1833 by Skorpionm)
+* OFW: Allow pins 0 and 1 as RTS/DTR for USB UART Bridge
+* OFW: Picopass: Read Elite
+* OFW: SubGhz: CAME Wrong number of bits in key (add protocol Airforce)
+* OFW: Forced RAW receive option for Infrared CLI 
+* OFW: scripts: fixed c2 bundle format
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
