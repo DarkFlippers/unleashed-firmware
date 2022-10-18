@@ -120,7 +120,6 @@ static bool ws_protocol_thermopro_tx4_check(WSProtocolDecoderThermoPRO_TX4* inst
  * @param instance Pointer to a WSBlockGeneric* instance
  */
 static void ws_protocol_thermopro_tx4_remote_controller(WSBlockGeneric* instance) {
-
     instance->id = (instance->data >> 25) & 0xFF;
     instance->battery_low = (instance->data >> 24) & 1;
     instance->btn = (instance->data >> 23) & 1;
@@ -129,7 +128,7 @@ static void ws_protocol_thermopro_tx4_remote_controller(WSBlockGeneric* instance
     if(!((instance->data >> 20) & 1)) {
         instance->temp = (float)((instance->data >> 9) & 0x07FF) / 10.0f;
     } else {
-        instance->temp = (float)((~(instance->data >> 9) & 0x07FF)+1) / -10.0f;
+        instance->temp = (float)((~(instance->data >> 9) & 0x07FF) + 1) / -10.0f;
     }
 
     instance->humidity = (instance->data >> 1) & 0xFF;
