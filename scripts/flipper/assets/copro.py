@@ -3,6 +3,8 @@ import json
 from io import BytesIO
 import tarfile
 import xml.etree.ElementTree as ET
+import posixpath
+import os
 
 from flipper.utils import *
 from flipper.assets.coprobin import CoproBinary, get_stack_type
@@ -23,6 +25,8 @@ MANIFEST_TEMPLATE = {
 
 
 class Copro:
+    COPRO_TAR_DIR = "core2_firmware"
+
     def __init__(self, mcu):
         self.mcu = mcu
         self.version = None
@@ -50,9 +54,8 @@ class Copro:
             raise Exception(f"Unsupported cube version")
         self.version = cube_version
 
-    @staticmethod
-    def _getFileName(name):
-        return os.path.join("core2_firmware", name)
+    def _getFileName(self, name):
+        return posixpath.join(self.COPRO_TAR_DIR, name)
 
     def addFile(self, array, filename, **kwargs):
         source_file = os.path.join(self.mcu_copro, filename)
@@ -61,6 +64,9 @@ class Copro:
 
     def bundle(self, output_file, stack_file_name, stack_type, stack_addr=None):
         self.output_tar = tarfile.open(output_file, "w:gz", format=tarfile.USTAR_FORMAT)
+        fw_directory = tarfile.TarInfo(self.COPRO_TAR_DIR)
+        fw_directory.type = tarfile.DIRTYPE
+        self.output_tar.addfile(fw_directory)
 
         stack_file = os.path.join(self.mcu_copro, stack_file_name)
         # Form Manifest
