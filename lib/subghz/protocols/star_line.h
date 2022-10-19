@@ -49,13 +49,13 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderStarLine.
  * @param context Pointer to a SubGhzProtocolDecoderStarLine instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderStarLine.

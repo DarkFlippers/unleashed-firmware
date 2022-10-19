@@ -69,6 +69,30 @@ void subghz_environment_set_nice_flor_s_rainbow_table_file_name(
 const char*
     subghz_environment_get_nice_flor_s_rainbow_table_file_name(SubGhzEnvironment* instance);
 
+/**
+ * Set list of protocols to work.
+ * @param instance Pointer to a SubGhzEnvironment instance
+ * @param protocol_registry_items Pointer to a SubGhzProtocolRegistry
+ */
+void subghz_environment_set_protocol_registry(
+    SubGhzEnvironment* instance,
+    void* protocol_registry_items);
+
+/**
+ * Get list of protocols to work.
+ * @param instance Pointer to a SubGhzEnvironment instance
+ * @return Pointer to a SubGhzProtocolRegistry
+ */
+void* subghz_environment_get_protocol_registry(SubGhzEnvironment* instance);
+
+/**
+ * Get list of protocols names.
+ * @param instance Pointer to a SubGhzEnvironment instance
+ * @param idx index protocols
+ * @return Pointer to a SubGhzProtocolRegistry
+ */
+const char* subghz_environment_get_protocol_name_registry(SubGhzEnvironment* instance, size_t idx);
+
 #ifdef __cplusplus
 }
 #endif

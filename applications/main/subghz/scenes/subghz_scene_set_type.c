@@ -6,7 +6,7 @@
 #include <dolphin/dolphin.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
-#include <lib/subghz/protocols/registry.h>
+#include <lib/subghz/protocols/protocol_items.h>
 
 #define TAG "SubGhzSetType"
 

@@ -11,7 +11,7 @@ typedef struct {
     FuriString* item_str;
     FlipperFormat* flipper_string;
     uint8_t type;
-    SubGhzPresetDefinition* preset;
+    SubGhzRadioPreset* preset;
 } SubGhzHistoryItem;
 
 ARRAY_DEF(SubGhzHistoryItemArray, SubGhzHistoryItem, M_POD_OPLIST)
@@ -60,7 +60,7 @@ uint32_t subghz_history_get_frequency(SubGhzHistory* instance, uint16_t idx) {
     return item->preset->frequency;
 }
 
-SubGhzPresetDefinition* subghz_history_get_preset_def(SubGhzHistory* instance, uint16_t idx) {
+SubGhzRadioPreset* subghz_history_get_radio_preset(SubGhzHistory* instance, uint16_t idx) {
     furi_assert(instance);
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
     return item->preset;
@@ -138,7 +138,7 @@ void subghz_history_get_text_item_menu(SubGhzHistory* instance, FuriString* outp
 bool subghz_history_add_to_history(
     SubGhzHistory* instance,
     void* context,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(instance);
     furi_assert(context);
 
@@ -158,7 +158,7 @@ bool subghz_history_add_to_history(
     FuriString* text;
     text = furi_string_alloc();
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_push_raw(instance->history->data);
-    item->preset = malloc(sizeof(SubGhzPresetDefinition));
+    item->preset = malloc(sizeof(SubGhzRadioPreset));
     item->type = decoder_base->protocol->type;
     item->preset->frequency = preset->frequency;
     item->preset->name = furi_string_alloc();

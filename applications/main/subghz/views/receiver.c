@@ -192,7 +192,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         } else {
             canvas_set_color(canvas, ColorBlack);
         }
-        canvas_draw_icon(canvas, 1, 2 + i * FRAME_HEIGHT, ReceiverItemIcons[item_menu->type]);
+        canvas_draw_icon(canvas, 4, 2 + i * FRAME_HEIGHT, ReceiverItemIcons[item_menu->type]);
         canvas_draw_str(canvas, 15, 9 + i * FRAME_HEIGHT, furi_string_get_cstr(str_buff));
         furi_string_reset(str_buff);
     }

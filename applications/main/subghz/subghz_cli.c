@@ -9,6 +9,7 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
+#include <lib/subghz/protocols/protocol_items.h>
 
 #include "helpers/subghz_chat.h"
 
@@ -164,6 +165,7 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
     stream_write_cstring(stream, furi_string_get_cstr(flipper_format_string));
 
     SubGhzEnvironment* environment = subghz_environment_alloc();
+    subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
 
     SubGhzTransmitter* transmitter = subghz_transmitter_alloc_init(environment, "Princeton");
     subghz_transmitter_deserialize(transmitter, flipper_format);
@@ -257,6 +259,7 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
         environment, EXT_PATH("subghz/assets/came_atomo"));
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         environment, EXT_PATH("subghz/assets/nice_flor_s"));
+    subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
 
     SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
     subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
@@ -376,6 +379,7 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
             environment, EXT_PATH("subghz/assets/came_atomo"));
         subghz_environment_set_nice_flor_s_rainbow_table_file_name(
             environment, EXT_PATH("subghz/assets/nice_flor_s"));
+        subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
 
         SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
         subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);

@@ -407,7 +407,7 @@ uint8_t subghz_protocol_decoder_intertechno_v3_get_hash_data(void* context) {
 bool subghz_protocol_decoder_intertechno_v3_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderIntertechno_V3* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

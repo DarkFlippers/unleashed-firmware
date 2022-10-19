@@ -10,7 +10,6 @@
 #include "environment.h"
 #include <furi.h>
 #include <furi_hal.h>
-#include <subghz/helpers/subghz_types.h>
 
 #define SUBGHZ_APP_FOLDER ANY_PATH("subghz")
 #define SUBGHZ_RAW_FOLDER EXT_PATH("subghz")
@@ -22,19 +21,21 @@
 #define SUBGHZ_RAW_FILE_VERSION 1
 #define SUBGHZ_RAW_FILE_TYPE "Flipper SubGhz RAW File"
 
-//
-// Abstract method types
-//
+// Radio Preset
+typedef struct {
+    FuriString* name;
+    uint32_t frequency;
+    uint8_t* data;
+    size_t data_size;
+} SubGhzRadioPreset;
 
 // Allocator and Deallocator
 typedef void* (*SubGhzAlloc)(SubGhzEnvironment* environment);
 typedef void (*SubGhzFree)(void* context);
 
 // Serialize and Deserialize
-typedef bool (*SubGhzSerialize)(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+typedef bool (
+    *SubGhzSerialize)(void* context, FlipperFormat* flipper_format, SubGhzRadioPreset* preset);
 typedef bool (*SubGhzDeserialize)(void* context, FlipperFormat* flipper_format);
 
 // Decoder specific
@@ -74,6 +75,8 @@ typedef enum {
     SubGhzProtocolTypeStatic,
     SubGhzProtocolTypeDynamic,
     SubGhzProtocolTypeRAW,
+    SubGhzProtocolWeatherStation,
+    SubGhzProtocolCustom,
 } SubGhzProtocolType;
 
 typedef enum {
