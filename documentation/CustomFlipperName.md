@@ -5,7 +5,7 @@
 2. Follow how to build instructions to prepare all things before continuing
 3. Run release build to verify all is ok - `./fbt COMPACT=1 DEBUG=0 updater_package`
 4. Clear build files - `./fbt COMPACT=1 DEBUG=0 updater_package -c`
-5. Run command with extra enviroment var before `./fbt` that variable should contain your custom name in alphanumeric characters - max length 8 chars
+5. Run command with extra environment var before `./fbt` that variable should contain your custom name in alphanumeric characters - max length 8 chars
  `CUSTOM_FLIPPER_NAME=Name ./fbt COMPACT=1 DEBUG=0 updater_package` - where `Name` write your custom name
 6. Copy `dist/f7-C/f7-update-local` folder to microSD `update/myfw/` and run `update` file on flipper from file manager app (Archive)
 7. Flash from microSD card only!!!! .dfu update from qFlipper will not work properly since name and serial number will be changed

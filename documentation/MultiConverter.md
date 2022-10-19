@@ -56,6 +56,6 @@ This is an initial release, so expect some bugs and issues (also I don't work wi
 - The way some long numbers are shown could probably be improved to look fancier.
 - Both _origin_ and _destination buffers_ are the same. The destination one could probably be longer in order to avoid certain _overflow scenarios_.
 - The GUI needs improvement too: there's a whole __widget/views system__ built in the Flipper that allows things like setting up keys, showing "Save/Back/Cancel" messages with
-callbacks and stuff like that. Didn't know anything about them, so I moved on with something more basic (which is probably fince since it's not a "very big project"); but
+callbacks and stuff like that. Didn't know anything about them, so I moved on with something more basic (which is probably fine since it's not a "very big project"); but
 a more "standard" way with the regular GUI stuff provided by the firmware will be interesting...
 - More GUI stuff: the _long click buttons_ for adding a decimal point / negative number aren't very clear on the view itself (I tried to add a small dot / dash symbol, but I think those are small enough to be a little bit confusing)

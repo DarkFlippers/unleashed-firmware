@@ -5,7 +5,7 @@
 Edit user settings file located on your microSD card - `subghz/assets/setting_user`
 
 in this file you will find we already have extra frequencies added
-if you need your custom one, make sure it doesnt listed here
+if you need your custom one, make sure it doesn't listed here
 
 ### Default frequency list
 ```
