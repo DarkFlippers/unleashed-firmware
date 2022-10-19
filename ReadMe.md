@@ -24,7 +24,7 @@ Our Discord Community:
 
 # What's changed
 * SubGHz regional TX restrictions removed
-* SubGHz frequecy range can be extended in settings file (Warning: It can damage flipper's hardware)
+* SubGHz frequency range can be extended in settings file (Warning: It can damage flipper's hardware)
 * Many rolling code protocols now have the ability to save & send captured signals
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
 * Sub-GHz static code brute-force plugin
@@ -104,7 +104,7 @@ Games:
 - BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 - SubGHz -> New frequency analyzer - [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
 - SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
-- SubGHz -> Save last used frequency and moduluation [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
+- SubGHz -> Save last used frequency and modulation [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 - SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 - SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
 
