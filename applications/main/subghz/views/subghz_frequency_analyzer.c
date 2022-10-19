@@ -17,6 +17,7 @@
 #define RSSI_MAX -60
 #define RSSI_SCALE 3
 #define TRIGGER_STEP 1
+#define MAX_HISTORY 4
 
 // static const NotificationSequence sequence_hw_blink = {
 //     &message_blink_start_10,
@@ -87,7 +88,7 @@ typedef struct {
     uint32_t frequency_last;
     uint32_t frequency_to_save;
     float rssi;
-    uint32_t history_frequency[4];
+    uint32_t history_frequency[MAX_HISTORY];
     bool signal;
     float rssi_last;
     float trigger;
@@ -157,7 +158,7 @@ static void subghz_frequency_analyzer_history_frequency_draw(
 
     canvas_set_font(canvas, FontKeyboard);
     uint8_t line = 0;
-    for(uint8_t i = 0; i < 4; i++) {
+    for(uint8_t i = 0; i < MAX_HISTORY; i++) {
         uint8_t current_x;
         uint8_t current_y = y + line * 9;
 
@@ -315,7 +316,9 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         } else {
             instance->feedback_level--;
         }
+#ifdef FURI_DEBUG
         FURI_LOG_D(TAG, "feedback_level = %d", instance->feedback_level);
+#endif
         need_redraw = true;
     }
 
@@ -429,10 +432,20 @@ void subghz_frequency_analyzer_pair_callback(
             instance->view,
             SubGhzFrequencyAnalyzerModel * model,
             {
-                model->history_frequency[3] = model->history_frequency[2];
-                model->history_frequency[2] = model->history_frequency[1];
-                model->history_frequency[1] = model->history_frequency[0];
-                model->history_frequency[0] = model->frequency;
+                bool in_array = false;
+                for(size_t i = 0; i < MAX_HISTORY; i++) {
+                    if(model->history_frequency[i] == model->frequency) {
+                        in_array = true;
+                        break;
+                    }
+                }
+
+                if(!in_array) {
+                    model->history_frequency[3] = model->history_frequency[2];
+                    model->history_frequency[2] = model->history_frequency[1];
+                    model->history_frequency[1] = model->history_frequency[0];
+                    model->history_frequency[0] = model->frequency;
+                }
             },
             false);
     } else if((rssi != 0.f) && (!instance->locked)) {
