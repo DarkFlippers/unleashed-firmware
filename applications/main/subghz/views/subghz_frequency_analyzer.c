@@ -40,8 +40,6 @@ struct SubGhzFrequencyAnalyzer {
     SubGHzFrequencyAnalyzerFeedbackLevel
         feedback_level; // 0 - no feedback, 1 - vibro only, 2 - vibro and sound
     float rssi_last;
-    uint32_t frequency_last;
-    uint32_t frequency_last_vis;
     uint8_t selected_index;
     uint8_t max_index;
     bool show_frame;
@@ -49,7 +47,6 @@ struct SubGhzFrequencyAnalyzer {
 
 typedef struct {
     uint32_t frequency;
-    uint32_t frequency_last;
     uint32_t frequency_to_save;
     float rssi;
     uint32_t history_frequency[MAX_HISTORY];
@@ -285,13 +282,13 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 #endif
         need_redraw = true;
     } else if(
-        ((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) &&
+        ((event->type == InputTypePress) || (event->type == InputTypeRepeat)) &&
         event->key == InputKeyUp) {
         instance->show_frame = instance->max_index > 0;
         if(instance->show_frame) {
             instance->selected_index = (instance->selected_index + 1) % instance->max_index;
+            need_redraw = true;
         }
-        need_redraw = true;
     } else if(event->key == InputKeyOk) {
         need_redraw = true;
         bool updated = false;
@@ -360,10 +357,12 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             SubGhzFrequencyAnalyzerModel * model,
             {
                 model->rssi_last = instance->rssi_last;
-                model->frequency_last = instance->frequency_last;
                 model->trigger =
                     subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
                 model->feedback_level = instance->feedback_level;
+                model->max_index = instance->max_index;
+                model->show_frame = instance->show_frame;
+                model->selected_index = instance->selected_index;
             },
             true);
     }
@@ -395,6 +394,7 @@ void subghz_frequency_analyzer_pair_callback(
         }
         //update history
         instance->show_frame = true;
+        uint8_t max_index = instance->max_index;
         with_view_model(
             instance->view,
             SubGhzFrequencyAnalyzerModel * model,
@@ -427,15 +427,16 @@ void subghz_frequency_analyzer_pair_callback(
                     model->history_frequency[0] = normal_frequency;
                 }
 
-                if(instance->max_index < MAX_HISTORY) {
+                if(max_index < MAX_HISTORY) {
                     for(size_t i = 0; i < MAX_HISTORY; i++) {
                         if(model->history_frequency[i] > 0) {
-                            instance->max_index = i + 1;
+                            max_index = i + 1;
                         }
                     }
                 }
             },
             false);
+        instance->max_index = max_index;
     } else if((rssi != 0.f) && (!instance->locked)) {
         // There is some signal
         FURI_LOG_I(TAG, "rssi = %.2f, frequency = %ld Hz", (double)rssi, frequency);
@@ -451,7 +452,6 @@ void subghz_frequency_analyzer_pair_callback(
     // Update values
     if(rssi >= instance->rssi_last && (frequency != 0)) {
         instance->rssi_last = rssi;
-        instance->frequency_last = frequency;
     }
 
     instance->locked = (rssi != 0.f);
@@ -463,7 +463,6 @@ void subghz_frequency_analyzer_pair_callback(
             model->rssi_last = instance->rssi_last;
             model->frequency = frequency;
             model->signal = signal;
-            model->frequency_last = instance->frequency_last_vis;
             model->trigger = subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
             model->feedback_level = instance->feedback_level;
             model->max_index = instance->max_index;
@@ -488,8 +487,9 @@ void subghz_frequency_analyzer_enter(void* context) {
     subghz_frequency_analyzer_worker_start(instance->worker);
 
     instance->rssi_last = 0;
-    instance->frequency_last = 0;
-    instance->frequency_last_vis = 0;
+    instance->selected_index = 0;
+    instance->max_index = 0;
+    instance->show_frame = false;
     subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, RSSI_MIN);
 
     with_view_model(
@@ -506,7 +506,6 @@ void subghz_frequency_analyzer_enter(void* context) {
             model->history_frequency[2] = 0;
             model->history_frequency[1] = 0;
             model->history_frequency[0] = 0;
-            model->frequency_last = 0;
             model->frequency_to_save = 0;
             model->trigger = RSSI_MIN;
         },
@@ -530,9 +529,6 @@ SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc() {
     SubGhzFrequencyAnalyzer* instance = malloc(sizeof(SubGhzFrequencyAnalyzer));
 
     instance->feedback_level = 2;
-    instance->selected_index = 0;
-    instance->max_index = 0;
-    instance->show_frame = false;
 
     // View allocation and configuration
     instance->view = view_alloc();
