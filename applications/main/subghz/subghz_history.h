@@ -35,7 +35,7 @@ void subghz_history_reset(SubGhzHistory* instance);
  */
 uint32_t subghz_history_get_frequency(SubGhzHistory* instance, uint16_t idx);
 
-SubGhzPresetDefinition* subghz_history_get_preset_def(SubGhzHistory* instance, uint16_t idx);
+SubGhzRadioPreset* subghz_history_get_radio_preset(SubGhzHistory* instance, uint16_t idx);
 
 /** Get preset to history[idx]
  * 
@@ -95,13 +95,13 @@ uint16_t subghz_history_get_last_index(SubGhzHistory* instance);
  * 
  * @param instance  - SubGhzHistory instance
  * @param context    - SubGhzProtocolCommon context
- * @param preset    - SubGhzPresetDefinition preset
+ * @param preset    - SubGhzRadioPreset preset
  * @return bool;
  */
 bool subghz_history_add_to_history(
     SubGhzHistory* instance,
     void* context,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /** Get SubGhzProtocolCommonLoad to load into the protocol decoder bin data
  * 

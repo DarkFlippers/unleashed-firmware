@@ -38,13 +38,13 @@ void subghz_block_generic_get_preset_name(const char* preset_name, FuriString* p
  * Serialize data SubGhzBlockGeneric.
  * @param instance Pointer to a SubGhzBlockGeneric instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool subghz_block_generic_serialize(
     SubGhzBlockGeneric* instance,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzBlockGeneric.

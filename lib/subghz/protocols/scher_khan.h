@@ -49,13 +49,13 @@ uint8_t subghz_protocol_decoder_scher_khan_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderScherKhan.
  * @param context Pointer to a SubGhzProtocolDecoderScherKhan instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool subghz_protocol_decoder_scher_khan_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderScherKhan.

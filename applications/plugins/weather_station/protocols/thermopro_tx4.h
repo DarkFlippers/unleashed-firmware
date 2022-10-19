@@ -55,13 +55,13 @@ uint8_t ws_protocol_decoder_thermopro_tx4_get_hash_data(void* context);
  * Serialize data WSProtocolDecoderThermoPRO_TX4.
  * @param context Pointer to a WSProtocolDecoderThermoPRO_TX4 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool ws_protocol_decoder_thermopro_tx4_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data WSProtocolDecoderThermoPRO_TX4.

@@ -24,7 +24,7 @@ void ws_block_generic_get_preset_name(const char* preset_name, FuriString* prese
 bool ws_block_generic_serialize(
     WSBlockGeneric* instance,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(instance);
     bool res = false;
     FuriString* temp_str;

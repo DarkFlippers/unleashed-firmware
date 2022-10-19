@@ -400,7 +400,7 @@ uint8_t subghz_protocol_decoder_magellan_get_hash_data(void* context) {
 bool subghz_protocol_decoder_magellan_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderMagellan* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

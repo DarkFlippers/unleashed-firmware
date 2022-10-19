@@ -314,7 +314,7 @@ uint8_t subghz_protocol_decoder_hormann_get_hash_data(void* context) {
 bool subghz_protocol_decoder_hormann_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderHormann* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

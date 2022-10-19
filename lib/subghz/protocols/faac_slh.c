@@ -157,7 +157,7 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     // roguemaster don't steal!!!
     SubGhzProtocolEncoderFaacSLH* instance = context;
@@ -425,7 +425,7 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
 

@@ -295,7 +295,7 @@ uint8_t ws_protocol_decoder_gt_wt_03_get_hash_data(void* context) {
 bool ws_protocol_decoder_gt_wt_03_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     WSProtocolDecoderGT_WT03* instance = context;
     return ws_block_generic_serialize(&instance->generic, flipper_format, preset);

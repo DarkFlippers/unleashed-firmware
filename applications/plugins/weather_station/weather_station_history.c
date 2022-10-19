@@ -4,7 +4,6 @@
 #include <lib/subghz/receiver.h>
 
 #include <furi.h>
-#include <m-string.h>
 
 #define WS_HISTORY_MAX 50
 #define TAG "WSHistory"
@@ -14,7 +13,7 @@ typedef struct {
     FlipperFormat* flipper_string;
     uint8_t type;
     uint32_t id;
-    SubGhzPresetDefinition* preset;
+    SubGhzRadioPreset* preset;
 } WSHistoryItem;
 
 ARRAY_DEF(WSHistoryItemArray, WSHistoryItem, M_POD_OPLIST)
@@ -63,7 +62,7 @@ uint32_t ws_history_get_frequency(WSHistory* instance, uint16_t idx) {
     return item->preset->frequency;
 }
 
-SubGhzPresetDefinition* ws_history_get_preset_def(WSHistory* instance, uint16_t idx) {
+SubGhzRadioPreset* ws_history_get_radio_preset(WSHistory* instance, uint16_t idx) {
     furi_assert(instance);
     WSHistoryItem* item = WSHistoryItemArray_get(instance->history->data, idx);
     return item->preset;
@@ -139,7 +138,7 @@ void ws_history_get_text_item_menu(WSHistory* instance, FuriString* output, uint
 }
 
 WSHistoryStateAddKey
-    ws_history_add_to_history(WSHistory* instance, void* context, SubGhzPresetDefinition* preset) {
+    ws_history_add_to_history(WSHistory* instance, void* context, SubGhzRadioPreset* preset) {
     furi_assert(instance);
     furi_assert(context);
 
@@ -188,7 +187,7 @@ WSHistoryStateAddKey
     // or add new record
     if(!sensor_found) {
         WSHistoryItem* item = WSHistoryItemArray_push_raw(instance->history->data);
-        item->preset = malloc(sizeof(SubGhzPresetDefinition));
+        item->preset = malloc(sizeof(SubGhzRadioPreset));
         item->type = decoder_base->protocol->type;
         item->preset->frequency = preset->frequency;
         item->preset->name = furi_string_alloc();

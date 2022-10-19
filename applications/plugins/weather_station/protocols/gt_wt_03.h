@@ -55,13 +55,13 @@ uint8_t ws_protocol_decoder_gt_wt_03_get_hash_data(void* context);
  * Serialize data WSProtocolDecoderGT_WT03.
  * @param context Pointer to a WSProtocolDecoderGT_WT03 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool ws_protocol_decoder_gt_wt_03_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data WSProtocolDecoderGT_WT03.

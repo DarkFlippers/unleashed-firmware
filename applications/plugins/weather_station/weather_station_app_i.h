@@ -27,7 +27,7 @@ struct WeatherStationTxRx {
 
     SubGhzEnvironment* environment;
     SubGhzReceiver* receiver;
-    SubGhzPresetDefinition* preset;
+    SubGhzRadioPreset* preset;
     WSHistory* history;
     uint16_t idx_menu_chosen;
     WSTxRxState txrx_state;

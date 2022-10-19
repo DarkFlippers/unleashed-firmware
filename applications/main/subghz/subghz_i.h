@@ -64,7 +64,7 @@ struct SubGhzTxRx {
     FlipperFormat* fff_data;
     SecureData* secure_data;
 
-    SubGhzPresetDefinition* preset;
+    SubGhzRadioPreset* preset;
     SubGhzHistory* history;
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;

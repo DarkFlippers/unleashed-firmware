@@ -214,7 +214,7 @@ uint8_t ws_protocol_decoder_thermopro_tx4_get_hash_data(void* context) {
 bool ws_protocol_decoder_thermopro_tx4_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     WSProtocolDecoderThermoPRO_TX4* instance = context;
     return ws_block_generic_serialize(&instance->generic, flipper_format, preset);
