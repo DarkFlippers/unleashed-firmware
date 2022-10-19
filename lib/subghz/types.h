@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-//#include "m-string.h"
 
 #include <lib/flipper_format/flipper_format.h>
 #include <lib/toolbox/level_duration.h>
@@ -22,28 +21,21 @@
 #define SUBGHZ_RAW_FILE_VERSION 1
 #define SUBGHZ_RAW_FILE_TYPE "Flipper SubGhz RAW File"
 
-//
-// Abstract method types
-//
-
-struct SubGhzPresetDefinition {
+// Radio Preset
+typedef struct {
     FuriString* name;
     uint32_t frequency;
     uint8_t* data;
     size_t data_size;
-};
-
-typedef struct SubGhzPresetDefinition SubGhzPresetDefinition;
+} SubGhzRadioPreset;
 
 // Allocator and Deallocator
 typedef void* (*SubGhzAlloc)(SubGhzEnvironment* environment);
 typedef void (*SubGhzFree)(void* context);
 
 // Serialize and Deserialize
-typedef bool (*SubGhzSerialize)(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+typedef bool (
+    *SubGhzSerialize)(void* context, FlipperFormat* flipper_format, SubGhzRadioPreset* preset);
 typedef bool (*SubGhzDeserialize)(void* context, FlipperFormat* flipper_format);
 
 // Decoder specific

@@ -215,7 +215,7 @@ uint8_t ws_protocol_decoder_nexus_th_get_hash_data(void* context) {
 bool ws_protocol_decoder_nexus_th_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     WSProtocolDecoderNexus_TH* instance = context;
     return ws_block_generic_serialize(&instance->generic, flipper_format, preset);

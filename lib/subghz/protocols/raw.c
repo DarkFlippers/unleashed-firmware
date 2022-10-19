@@ -95,7 +95,7 @@ const SubGhzProtocol subghz_protocol_raw = {
 bool subghz_protocol_raw_save_to_file_init(
     SubGhzProtocolDecoderRAW* instance,
     const char* dev_name,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(instance);
 
     instance->storage = furi_record_open(RECORD_STORAGE);
@@ -437,7 +437,7 @@ void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char*
 bool subghz_protocol_decoder_raw_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderRAW* instance = context;
     if(instance->auto_mode) {

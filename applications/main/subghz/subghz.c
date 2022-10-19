@@ -214,7 +214,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     //init Worker & Protocol & History & KeyBoard
     subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
-    subghz->txrx->preset = malloc(sizeof(SubGhzPresetDefinition));
+    subghz->txrx->preset = malloc(sizeof(SubGhzRadioPreset));
     subghz->txrx->preset->name = furi_string_alloc();
     if(!alloc_for_tx_only) {
         subghz_preset_init(

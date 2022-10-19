@@ -44,7 +44,7 @@ void ws_history_reset(WSHistory* instance);
  */
 uint32_t ws_history_get_frequency(WSHistory* instance, uint16_t idx);
 
-SubGhzPresetDefinition* ws_history_get_preset_def(WSHistory* instance, uint16_t idx);
+SubGhzRadioPreset* ws_history_get_radio_preset(WSHistory* instance, uint16_t idx);
 
 /** Get preset to history[idx]
  * 
@@ -97,11 +97,11 @@ bool ws_history_get_text_space_left(WSHistory* instance, FuriString* output);
  * 
  * @param instance  - WSHistory instance
  * @param context    - SubGhzProtocolCommon context
- * @param preset    - SubGhzPresetDefinition preset
+ * @param preset    - SubGhzRadioPreset preset
  * @return WSHistoryStateAddKey;
  */
 WSHistoryStateAddKey
-    ws_history_add_to_history(WSHistory* instance, void* context, SubGhzPresetDefinition* preset);
+    ws_history_add_to_history(WSHistory* instance, void* context, SubGhzRadioPreset* preset);
 
 /** Get SubGhzProtocolCommonLoad to load into the protocol decoder bin data
  * 

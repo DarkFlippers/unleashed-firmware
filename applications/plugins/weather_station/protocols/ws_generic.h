@@ -38,13 +38,13 @@ void ws_block_generic_get_preset_name(const char* preset_name, FuriString* prese
  * Serialize data WSBlockGeneric.
  * @param instance Pointer to a WSBlockGeneric instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool ws_block_generic_serialize(
     WSBlockGeneric* instance,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data WSBlockGeneric.

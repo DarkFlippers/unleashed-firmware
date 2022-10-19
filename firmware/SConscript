@@ -10,8 +10,10 @@ env.Append(
         File("#/firmware/targets/furi_hal_include/furi_hal_subghz.h"),
     ],
 )
-env.SetDefault(SDK_DEFINITION=env.File("./targets/f${TARGET_HW}/api_symbols.csv"))
 
+env.SetDefault(
+    SDK_DEFINITION=env.File("./targets/f${TARGET_HW}/api_symbols.csv").srcnode()
+)
 
 libenv = env.Clone(FW_LIB_NAME="flipper${TARGET_HW}")
 libenv.Append(

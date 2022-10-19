@@ -86,7 +86,7 @@ WeatherStationApp* weather_station_app_alloc() {
     //init Worker & Protocol & History
     app->lock = WSLockOff;
     app->txrx = malloc(sizeof(WeatherStationTxRx));
-    app->txrx->preset = malloc(sizeof(SubGhzPresetDefinition));
+    app->txrx->preset = malloc(sizeof(SubGhzRadioPreset));
     app->txrx->preset->name = furi_string_alloc();
     ws_preset_init(app, "AM650", subghz_setting_get_default_frequency(app->setting), NULL, 0);
 

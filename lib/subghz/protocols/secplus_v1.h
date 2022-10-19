@@ -82,13 +82,13 @@ uint8_t subghz_protocol_decoder_secplus_v1_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderSecPlus_v1.
  * @param context Pointer to a SubGhzProtocolDecoderSecPlus_v1 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
 bool subghz_protocol_decoder_secplus_v1_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset);
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderSecPlus_v1.

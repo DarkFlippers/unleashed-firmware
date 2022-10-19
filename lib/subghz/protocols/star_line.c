@@ -204,7 +204,7 @@ bool subghz_protocol_star_line_create_data(
     uint8_t btn,
     uint16_t cnt,
     const char* manufacture_name,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderStarLine* instance = context;
     instance->generic.serial = serial;
@@ -697,7 +697,7 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context) {
 bool subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPresetDefinition* preset) {
+    SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
     subghz_protocol_star_line_check_remote_controller(
