@@ -1,9 +1,5 @@
 ### New changes
-* Plugins: SubGHz Bruteforcer - added Chamberlain 9bit 433Mhz, plus some fixes
-* SubGHz: Added 434.19 and 434.62 Mhz to user config
-* OFW PR: SubGhz: remove dead code
-* OFW PR: SubGhz: rename SubGhzPresetDefinition into SubGhzRadioPreset, cleanup subghz types.
-* OFW: fbt: fixed dependency issues with SDK definition file
+* PR: New Frequency analyzer, history of 4 elements, ability to select frequency from history and hold OK to go into Read (by @derskythe | PR #121)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
