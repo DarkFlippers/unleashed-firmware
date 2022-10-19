@@ -31,3 +31,6 @@
 [submodule "lib/cxxheaderparser"]
 	path = lib/cxxheaderparser
 	url = https://github.com/robotpy/cxxheaderparser.git
+[submodule "applications/plugins/subbrute"]
+	path = applications/plugins/subbrute
+	url = https://github.com/derskythe/flipperzero-subbrute.git
