@@ -295,7 +295,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
     } else if(event->key == InputKeyOk) {
         need_redraw = true;
         bool updated = false;
-        uint32_t frequency_to_save;
+        uint32_t frequency_to_save = 0;
         with_view_model(
             instance->view,
             SubGhzFrequencyAnalyzerModel * model,
