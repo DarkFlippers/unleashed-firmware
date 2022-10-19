@@ -9,8 +9,10 @@ env.Append(
         File("#/firmware/targets/f7/platform_specific/intrinsic_export.h"),
     ],
 )
-env.SetDefault(SDK_DEFINITION=env.File("./targets/f${TARGET_HW}/api_symbols.csv"))
 
+env.SetDefault(
+    SDK_DEFINITION=env.File("./targets/f${TARGET_HW}/api_symbols.csv").srcnode()
+)
 
 libenv = env.Clone(FW_LIB_NAME="flipper${TARGET_HW}")
 libenv.Append(
