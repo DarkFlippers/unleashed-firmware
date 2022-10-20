@@ -786,6 +786,16 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
     FURI_LOG_D(TAG, "Trampoline cache size: %u", AddressCache_size(elf->trampoline_cache));
     AddressCache_clear(elf->relocation_cache);
 
+    {
+        size_t total_size = 0;
+        for(ELFSectionDict_it(it, elf->sections); !ELFSectionDict_end_p(it);
+            ELFSectionDict_next(it)) {
+            ELFSectionDict_itref_t* itref = ELFSectionDict_ref(it);
+            total_size += itref->value.size;
+        }
+        FURI_LOG_I(TAG, "Total size of loaded sections: %u", total_size);
+    }
+
     return status;
 }
 

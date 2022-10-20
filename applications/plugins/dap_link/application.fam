@@ -1,0 +1,24 @@
+App(
+    appid="dap_link",
+    name="DAP Link",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="dap_link_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=4 * 1024,
+    order=20,
+    fap_icon="dap_link.png",
+    fap_category="Tools",
+    fap_private_libs=[
+        Lib(
+            name="free-dap",
+            cincludes=["."],
+            sources=[
+                "dap.c",
+            ],
+        ),
+    ],
+    fap_icon_assets="icons",
+)

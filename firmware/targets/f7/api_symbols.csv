@@ -997,7 +997,7 @@ Function,-,furi_hal_compress_icon_decode,void,"const uint8_t*, uint8_t**"
 Function,-,furi_hal_compress_icon_init,void,
 Function,+,furi_hal_console_disable,void,
 Function,+,furi_hal_console_enable,void,
-Function,-,furi_hal_console_init,void,
+Function,+,furi_hal_console_init,void,
 Function,+,furi_hal_console_printf,void,"const char[], ..."
 Function,+,furi_hal_console_puts,void,const char*
 Function,+,furi_hal_console_set_tx_callback,void,"FuriHalConsoleTxCallback, void*"
