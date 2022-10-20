@@ -4,7 +4,6 @@
 #include "../protocols/ws_generic.h"
 #include <input/input.h>
 #include <gui/elements.h>
-#include "math.h"
 
 #define abs(x) ((x) > 0 ? (x) : -(x))
 
@@ -47,14 +46,26 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
         model->generic->data_count_bit);
     canvas_draw_str(canvas, 5, 8, buffer);
 
-    snprintf(buffer, sizeof(buffer), "Ch: %01d", model->generic->channel);
-    canvas_draw_str(canvas, 105, 8, buffer);
+    if(model->generic->channel != WS_NO_CHANNEL) {
+        snprintf(buffer, sizeof(buffer), "Ch: %01d", model->generic->channel);
+        canvas_draw_str(canvas, 105, 8, buffer);
+    }
 
-    snprintf(buffer, sizeof(buffer), "Sn: 0x%02lX", model->generic->id);
-    canvas_draw_str(canvas, 5, 20, buffer);
+    if(model->generic->id != WS_NO_ID) {
+        snprintf(buffer, sizeof(buffer), "Sn: 0x%02lX", model->generic->id);
+        canvas_draw_str(canvas, 5, 20, buffer);
+    }
 
-    snprintf(buffer, sizeof(buffer), "Batt: %s", (!model->generic->battery_low ? "ok" : "low"));
-    canvas_draw_str(canvas, 85, 20, buffer);
+    if(model->generic->btn != WS_NO_BTN) {
+        snprintf(buffer, sizeof(buffer), "Btn: %01d", model->generic->btn);
+        canvas_draw_str(canvas, 62, 20, buffer);
+    }
+
+    if(model->generic->battery_low != WS_NO_BATT) {
+        snprintf(
+            buffer, sizeof(buffer), "Batt: %s", (!model->generic->battery_low ? "ok" : "low"));
+        canvas_draw_str(canvas, 90, 20, buffer);
+    }
 
     snprintf(buffer, sizeof(buffer), "Data: 0x%llX", model->generic->data);
     canvas_draw_str(canvas, 5, 32, buffer);
@@ -62,19 +73,23 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
     elements_bold_rounded_frame(canvas, 2, 37, 123, 25);
     canvas_set_font(canvas, FontPrimary);
 
-    canvas_draw_icon(canvas, 13 + 5, 42, &I_Therm_7x16);
-    snprintf(
-        buffer,
-        sizeof(buffer),
-        "%3.2d.%d C",
-        (int16_t)model->generic->temp,
-        abs(((int16_t)(model->generic->temp * 10) - (((int16_t)model->generic->temp) * 10))));
-    canvas_draw_str_aligned(canvas, 58 + 5, 46, AlignRight, AlignTop, buffer);
-    canvas_draw_circle(canvas, 50 + 5, 45, 1);
+    if(model->generic->temp != WS_NO_TEMPERATURE) {
+        canvas_draw_icon(canvas, 18, 42, &I_Therm_7x16);
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%3.2d.%d C",
+            (int16_t)model->generic->temp,
+            abs(((int16_t)(model->generic->temp * 10) - (((int16_t)model->generic->temp) * 10))));
+        canvas_draw_str_aligned(canvas, 63, 46, AlignRight, AlignTop, buffer);
+        canvas_draw_circle(canvas, 55, 45, 1);
+    }
 
-    canvas_draw_icon(canvas, 70 + 5, 42, &I_Humid_10x15);
-    snprintf(buffer, sizeof(buffer), "%d%%", model->generic->humidity);
-    canvas_draw_str(canvas, 86 + 5, 54, buffer);
+    if(model->generic->humidity != WS_NO_HUMIDITY) {
+        canvas_draw_icon(canvas, 75, 42, &I_Humid_10x15);
+        snprintf(buffer, sizeof(buffer), "%d%%", model->generic->humidity);
+        canvas_draw_str(canvas, 91, 54, buffer);
+    }
 }
 
 bool ws_view_receiver_info_input(InputEvent* event, void* context) {

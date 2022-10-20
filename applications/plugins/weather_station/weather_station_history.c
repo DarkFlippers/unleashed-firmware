@@ -2,6 +2,7 @@
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
 #include <lib/subghz/receiver.h>
+#include "protocols/ws_generic.h"
 
 #include <furi.h>
 
@@ -224,20 +225,18 @@ WSHistoryStateAddKey
             for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
                 data = (data << 8) | key_data[i];
             }
-            if(!(uint32_t)(data >> 32)) {
-                furi_string_printf(
-                    item->item_str,
-                    "%s %lX",
-                    furi_string_get_cstr(instance->tmp_string),
-                    (uint32_t)(data & 0xFFFFFFFF));
-            } else {
-                furi_string_printf(
-                    item->item_str,
-                    "%s %lX%08lX",
-                    furi_string_get_cstr(instance->tmp_string),
-                    (uint32_t)(data >> 32),
-                    (uint32_t)(data & 0xFFFFFFFF));
+            uint32_t temp_data = 0;
+            if(!flipper_format_read_uint32(item->flipper_string, "Ch", (uint32_t*)&temp_data, 1)) {
+                FURI_LOG_E(TAG, "Missing Channel");
+                break;
             }
+            if(temp_data != WS_NO_CHANNEL) {
+                furi_string_cat_printf(instance->tmp_string, " Ch:%X", (uint8_t)temp_data);
+            }
+
+            furi_string_printf(
+                item->item_str, "%s %llX", furi_string_get_cstr(instance->tmp_string), data);
+
         } while(false);
         instance->last_index_write++;
         return WSHistoryStateAddKeyNewDada;

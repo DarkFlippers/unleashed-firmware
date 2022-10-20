@@ -80,3 +80,140 @@ uint8_t subghz_protocol_blocks_crc8(
     }
     return remainder;
 }
+
+uint8_t subghz_protocol_blocks_crc8le(
+    uint8_t const message[],
+    unsigned nBytes,
+    uint8_t polynomial,
+    uint8_t init) {
+    uint8_t remainder = subghz_protocol_blocks_reverse_key(init, 8);
+    unsigned byte, bit;
+    polynomial = subghz_protocol_blocks_reverse_key(polynomial, 8);
+
+    for(byte = 0; byte < nBytes; ++byte) {
+        remainder ^= message[byte];
+        for(bit = 0; bit < 8; ++bit) {
+            if(remainder & 1) {
+                remainder = (remainder >> 1) ^ polynomial;
+            } else {
+                remainder = (remainder >> 1);
+            }
+        }
+    }
+    return remainder;
+}
+
+uint16_t subghz_protocol_blocks_crc16lsb(
+    uint8_t const message[],
+    unsigned nBytes,
+    uint16_t polynomial,
+    uint16_t init) {
+    uint16_t remainder = init;
+    unsigned byte, bit;
+
+    for(byte = 0; byte < nBytes; ++byte) {
+        remainder ^= message[byte];
+        for(bit = 0; bit < 8; ++bit) {
+            if(remainder & 1) {
+                remainder = (remainder >> 1) ^ polynomial;
+            } else {
+                remainder = (remainder >> 1);
+            }
+        }
+    }
+    return remainder;
+}
+
+uint16_t subghz_protocol_blocks_crc16(
+    uint8_t const message[],
+    unsigned nBytes,
+    uint16_t polynomial,
+    uint16_t init) {
+    uint16_t remainder = init;
+    unsigned byte, bit;
+
+    for(byte = 0; byte < nBytes; ++byte) {
+        remainder ^= message[byte] << 8;
+        for(bit = 0; bit < 8; ++bit) {
+            if(remainder & 0x8000) {
+                remainder = (remainder << 1) ^ polynomial;
+            } else {
+                remainder = (remainder << 1);
+            }
+        }
+    }
+    return remainder;
+}
+
+uint8_t subghz_protocol_blocks_lfsr_digest8(
+    uint8_t const message[],
+    unsigned bytes,
+    uint8_t gen,
+    uint8_t key) {
+    uint8_t sum = 0;
+    for(unsigned k = 0; k < bytes; ++k) {
+        uint8_t data = message[k];
+        for(int i = 7; i >= 0; --i) {
+            // XOR key into sum if data bit is set
+            if((data >> i) & 1) sum ^= key;
+
+            // roll the key right (actually the lsb is dropped here)
+            // and apply the gen (needs to include the dropped lsb as msb)
+            if(key & 1)
+                key = (key >> 1) ^ gen;
+            else
+                key = (key >> 1);
+        }
+    }
+    return sum;
+}
+
+uint8_t subghz_protocol_blocks_lfsr_digest8_reflect(
+    uint8_t const message[],
+    int bytes,
+    uint8_t gen,
+    uint8_t key) {
+    uint8_t sum = 0;
+    // Process message from last byte to first byte (reflected)
+    for(int k = bytes - 1; k >= 0; --k) {
+        uint8_t data = message[k];
+        // Process individual bits of each byte (reflected)
+        for(int i = 0; i < 8; ++i) {
+            // XOR key into sum if data bit is set
+            if((data >> i) & 1) {
+                sum ^= key;
+            }
+
+            // roll the key left (actually the lsb is dropped here)
+            // and apply the gen (needs to include the dropped lsb as msb)
+            if(key & 0x80)
+                key = (key << 1) ^ gen;
+            else
+                key = (key << 1);
+        }
+    }
+    return sum;
+}
+
+uint16_t subghz_protocol_blocks_lfsr_digest16(
+    uint8_t const message[],
+    unsigned bytes,
+    uint16_t gen,
+    uint16_t key) {
+    uint16_t sum = 0;
+    for(unsigned k = 0; k < bytes; ++k) {
+        uint8_t data = message[k];
+        for(int i = 7; i >= 0; --i) {
+            // if data bit is set then xor with key
+            if((data >> i) & 1) sum ^= key;
+
+            // roll the key right (actually the lsb is dropped here)
+            // and apply the gen (needs to include the dropped lsb as msb)
+            if(key & 1)
+                key = (key >> 1) ^ gen;
+            else
+                key = (key >> 1);
+        }
+    }
+    return sum;
+}
