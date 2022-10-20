@@ -1,6 +1,7 @@
 #include <furi_hal_i2c.h>
 #include <furi_hal_version.h>
 #include <furi_hal_power.h>
+#include <furi_hal_cortex.h>
 
 #include <stm32wbxx_ll_i2c.h>
 #include <stm32wbxx_ll_gpio.h>
@@ -60,11 +61,11 @@ bool furi_hal_i2c_tx(
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = furi_get_tick() + timeout;
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(timeout * 1000);
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 ret = false;
                 break;
             }
@@ -89,7 +90,7 @@ bool furi_hal_i2c_tx(
                 size--;
             }
 
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 ret = false;
                 break;
             }
@@ -111,11 +112,11 @@ bool furi_hal_i2c_rx(
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = furi_get_tick() + timeout;
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(timeout * 1000);
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 ret = false;
                 break;
             }
@@ -140,7 +141,7 @@ bool furi_hal_i2c_rx(
                 size--;
             }
 
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 ret = false;
                 break;
             }
@@ -175,11 +176,11 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = furi_get_tick() + timeout;
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(timeout * 1000);
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 return false;
             }
         }
@@ -190,14 +191,14 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
 
         while((!LL_I2C_IsActiveFlag_NACK(handle->bus->i2c)) &&
               (!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c))) {
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 return false;
             }
         }
 
         if(LL_I2C_IsActiveFlag_NACK(handle->bus->i2c)) {
             while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c)) {
-                if(furi_get_tick() >= timeout_tick) {
+                if(furi_hal_cortex_timer_is_expired(timer)) {
                     return false;
                 }
             }
@@ -214,7 +215,7 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
         }
 
         while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c)) {
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 return false;
             }
         }
@@ -308,11 +309,11 @@ bool furi_hal_i2c_write_mem(
 
     bool ret = true;
     uint8_t size = len + 1;
-    uint32_t timeout_tick = furi_get_tick() + timeout;
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(timeout * 1000);
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 ret = false;
                 break;
             }
@@ -341,7 +342,7 @@ bool furi_hal_i2c_write_mem(
                 size--;
             }
 
-            if(furi_get_tick() >= timeout_tick) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
                 ret = false;
                 break;
             }

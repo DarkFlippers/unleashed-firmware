@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,3.4,,
+Version,+,3.5,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -985,6 +985,9 @@ Function,+,furi_hal_console_tx_with_new_line,void,"const uint8_t*, size_t"
 Function,+,furi_hal_cortex_delay_us,void,uint32_t
 Function,-,furi_hal_cortex_init_early,void,
 Function,+,furi_hal_cortex_instructions_per_microsecond,uint32_t,
+Function,+,furi_hal_cortex_timer_get,FuriHalCortexTimer,uint32_t
+Function,+,furi_hal_cortex_timer_is_expired,_Bool,FuriHalCortexTimer
+Function,+,furi_hal_cortex_timer_wait,void,FuriHalCortexTimer
 Function,+,furi_hal_crypto_decrypt,_Bool,"const uint8_t*, uint8_t*, size_t"
 Function,+,furi_hal_crypto_encrypt,_Bool,"const uint8_t*, uint8_t*, size_t"
 Function,-,furi_hal_crypto_init,void,
