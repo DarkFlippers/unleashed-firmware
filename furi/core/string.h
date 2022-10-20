@@ -719,21 +719,26 @@ void furi_string_utf8_decode(char c, FuriStringUTF8State* state, FuriStringUnico
 #define F_STR_INIT_SET(a, b) ((a) = furi_string_alloc_set(b))
 
 /**
+ * @brief INIT MOVE OPLIST for FuriString.
+ */
+#define F_STR_INIT_MOVE(a, b) ((a) = furi_string_alloc_move(b))
+
+/**
  * @brief OPLIST for FuriString.
  */
-#define FURI_STRING_OPLIST              \
-    (INIT(F_STR_INIT),                  \
-     INIT_SET(F_STR_INIT_SET),          \
-     SET(furi_string_set),              \
-     INIT_MOVE(furi_string_alloc_move), \
-     MOVE(furi_string_move),            \
-     SWAP(furi_string_swap),            \
-     RESET(furi_string_reset),          \
-     EMPTY_P(furi_string_empty),        \
-     CLEAR(furi_string_free),           \
-     HASH(furi_string_hash),            \
-     EQUAL(furi_string_equal),          \
-     CMP(furi_string_cmp),              \
+#define FURI_STRING_OPLIST       \
+    (INIT(F_STR_INIT),           \
+     INIT_SET(F_STR_INIT_SET),   \
+     SET(furi_string_set),       \
+     INIT_MOVE(F_STR_INIT_MOVE), \
+     MOVE(furi_string_move),     \
+     SWAP(furi_string_swap),     \
+     RESET(furi_string_reset),   \
+     EMPTY_P(furi_string_empty), \
+     CLEAR(furi_string_free),    \
+     HASH(furi_string_hash),     \
+     EQUAL(furi_string_equal),   \
+     CMP(furi_string_cmp),       \
      TYPE(FuriString*))
 
 #ifdef __cplusplus
