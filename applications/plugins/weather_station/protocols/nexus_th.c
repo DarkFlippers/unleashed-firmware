@@ -127,7 +127,7 @@ static void ws_protocol_nexus_th_remote_controller(WSBlockGeneric* instance) {
     instance->id = (instance->data >> 28) & 0xFF;
     instance->battery_low = !((instance->data >> 27) & 1);
     instance->channel = ((instance->data >> 24) & 0x03) + 1;
-
+    instance->btn = WS_NO_BTN;
     if(!((instance->data >> 23) & 1)) {
         instance->temp = (float)((instance->data >> 12) & 0x07FF) / 10.0f;
     } else {

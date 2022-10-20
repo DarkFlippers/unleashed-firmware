@@ -142,6 +142,7 @@ static bool ws_protocol_infactory_check_crc(WSProtocolDecoderInfactory* instance
 static void ws_protocol_infactory_remote_controller(WSBlockGeneric* instance) {
     instance->id = instance->data >> 32;
     instance->battery_low = (instance->data >> 26) & 1;
+    instance->btn = WS_NO_BTN;
     instance->temp = ws_block_generic_fahrenheit_to_celsius(
         ((float)((instance->data >> 12) & 0x0FFF) - 900.0f) / 10.0f);
     instance->humidity =

@@ -13,6 +13,13 @@
 extern "C" {
 #endif
 
+#define WS_NO_ID 0xFFFFFFFF
+#define WS_NO_BATT 0xFF
+#define WS_NO_HUMIDITY 0xFF
+#define WS_NO_CHANNEL 0xFF
+#define WS_NO_BTN 0xFF
+#define WS_NO_TEMPERATURE -273.0f
+
 typedef struct WSBlockGeneric WSBlockGeneric;
 
 struct WSBlockGeneric {

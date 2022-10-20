@@ -105,11 +105,11 @@ bool ws_block_generic_serialize(
             break;
         }
 
-        // temp_data = instance->btn;
-        // if(!flipper_format_write_uint32(flipper_format, "Btn", &temp_data, 1)) {
-        //     FURI_LOG_E(TAG, "Unable to add Btn");
-        //     break;
-        // }
+        temp_data = instance->btn;
+        if(!flipper_format_write_uint32(flipper_format, "Btn", &temp_data, 1)) {
+            FURI_LOG_E(TAG, "Unable to add Btn");
+            break;
+        }
 
         float temp = instance->temp;
         if(!flipper_format_write_float(flipper_format, "Temp", &temp, 1)) {
@@ -174,11 +174,11 @@ bool ws_block_generic_deserialize(WSBlockGeneric* instance, FlipperFormat* flipp
         }
         instance->channel = (uint8_t)temp_data;
 
-        // if(!flipper_format_read_uint32(flipper_format, "Btn", (uint32_t*)&temp_data, 1)) {
-        //     FURI_LOG_E(TAG, "Missing Btn");
-        //     break;
-        // }
-        // instance->btn = (uint8_t)temp_data;
+        if(!flipper_format_read_uint32(flipper_format, "Btn", (uint32_t*)&temp_data, 1)) {
+            FURI_LOG_E(TAG, "Missing Btn");
+            break;
+        }
+        instance->btn = (uint8_t)temp_data;
 
         float temp;
         if(!flipper_format_read_float(flipper_format, "Temp", (float*)&temp, 1)) {
