@@ -45,6 +45,39 @@ after that on web updater page - press `Connect` button
 <br>
 <br>
 
+## With Android mobile app (with .tgz download)
+
+- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
+- Download `flipper-z-f7-update-(version).tgz`
+- In flipper app click `Update channel` button, select `Custom`
+- Select downloaded `.tgz` file
+- Click Update
+- Wait until update is finished 
+- And if all flashed successfully - you will have all needed assets pre installed
+- Done
+
+![andro_tgz](https://user-images.githubusercontent.com/10697207/197042029-a5824787-08bc-4fd8-93ee-b7faff082c54.jpg)
+
+<br>
+<br>
+
+## With Android mobile app (via web updater link)
+
+- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
+- Click `Install via Web Updater`
+- It will ask to open with browser or Flipper app, select Flipper App
+- Continue to install
+- Wait until update is finished 
+- And if all flashed successfully - you will have all needed assets pre installed
+- Done
+
+![andro_web](https://user-images.githubusercontent.com/10697207/197042413-cfc93f31-8b84-4cdb-967b-276f46224e50.jpg)
+
+<br>
+<br>
+
 ## With qFlipper (1.2.0+)
 
 - Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.1 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.1/)
