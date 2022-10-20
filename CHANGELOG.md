@@ -1,5 +1,17 @@
 ### New changes
-* PR: New Frequency analyzer, history of 4 elements, ability to select frequency from history and hold OK to go into Read (by @derskythe | PR #121)
+* Plugins: Added GPS [(By ezod)](https://github.com/ezod/flipperzero-gps) works with module `NMEA 0183` via UART
+* Plugins: Added i2c Tools [(By NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
+* Infrared: Updated universal remote assets (by @Amec0e)
+* OFW -> WS: add protocol Acurite-606TX - And thanks to Dimme#1601 for recordings!
+* OFW -> WS: history, added display of the channel (if any) in the general list
+* OFW -> WS: added display of the button state if it is on the transmitter, and displaying the data that is in the signal
+* OFW -> WS: fix batt info
+* OFW -> WS: add protocol LaCrosse_TX141THBv2
+* OFW: FuriHal: add FuriHalCortexTimer, use it for i2c bus timeouts
+* OFW: CMSIS DAP/DAP Link Debugger
+* OFW: Fix FuriString oplist (init move)
+
+**Note: Version naming changed to be more clear what version is newer, now we using -> unlshd-123 where 123 is build number**
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
