@@ -20,7 +20,7 @@ void token_info_free(TokenInfo* token_info) {
     free(token_info);
 }
 
-void token_info_set_secret(
+bool token_info_set_secret(
     TokenInfo* token_info,
     const char* base32_token_secret,
     uint8_t token_secret_length,
@@ -28,12 +28,18 @@ void token_info_set_secret(
     uint8_t* plain_secret = malloc(token_secret_length);
     int plain_secret_length =
         base32_decode((uint8_t*)base32_token_secret, plain_secret, token_secret_length);
-
-    token_info->token =
-        totp_crypto_encrypt(plain_secret, plain_secret_length, iv, &token_info->token_length);
+    bool result;
+    if(plain_secret_length >= 0) {
+        token_info->token =
+            totp_crypto_encrypt(plain_secret, plain_secret_length, iv, &token_info->token_length);
+        result = true;
+    } else {
+        result = false;
+    }
 
     memset(plain_secret, 0, token_secret_length);
     free(plain_secret);
+    return result;
 }
 
 uint8_t token_info_get_digits_count(TokenInfo* token_info) {

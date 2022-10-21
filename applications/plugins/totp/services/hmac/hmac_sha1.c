@@ -1,4 +1,4 @@
-/* hmac_sha1.c -- hashed message authentication codes
+/* hmac-sha1.c -- hashed message authentication codes
    Copyright (C) 2018-2022 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify

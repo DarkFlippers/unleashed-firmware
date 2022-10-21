@@ -8,9 +8,8 @@
 #include "../hmac/hmac_sha1.h"
 #include "../hmac/hmac_sha256.h"
 #include "../hmac/hmac_sha512.h"
+#include "../hmac/byteswap.h"
 #include "../timezone_utils/timezone_utils.h"
-
-#define UINT64_GET_BYTE(integer, index) ((integer >> (8 * index)) & 0xFF)
 
 /*
 	Generates the timeblock for a time in seconds.
@@ -30,22 +29,6 @@ uint64_t totp_timecode(uint8_t interval, uint64_t for_time) {
 }
 
 /*
-	Converts an integer into an 8 byte array.
-	
-	out_bytes is the null-terminated output string already allocated
-*/
-void otp_num_to_bytes(uint64_t integer, uint8_t* out_bytes) {
-    out_bytes[7] = UINT64_GET_BYTE(integer, 0);
-    out_bytes[6] = UINT64_GET_BYTE(integer, 1);
-    out_bytes[5] = UINT64_GET_BYTE(integer, 2);
-    out_bytes[4] = UINT64_GET_BYTE(integer, 3);
-    out_bytes[3] = UINT64_GET_BYTE(integer, 4);
-    out_bytes[2] = UINT64_GET_BYTE(integer, 5);
-    out_bytes[1] = UINT64_GET_BYTE(integer, 6);
-    out_bytes[0] = UINT64_GET_BYTE(integer, 7);
-}
-
-/*
 	Generates an OTP (One Time Password).
 	
 	input is a number used to generate the OTP
@@ -61,17 +44,14 @@ uint32_t otp_generate(
     const uint8_t* plain_secret,
     uint8_t plain_secret_length,
     uint64_t input) {
-    uint8_t* bytes = malloc(8);
-    memset(bytes, 0, 8);
     uint8_t* hmac = malloc(64);
     memset(hmac, 0, 64);
 
-    otp_num_to_bytes(input, bytes);
+    uint64_t input_swapped = swap_uint64(input);
 
-    int hmac_len = (*(algo))(plain_secret, plain_secret_length, bytes, 8, hmac);
+    int hmac_len = (*(algo))(plain_secret, plain_secret_length, (uint8_t*)&input_swapped, 8, hmac);
     if(hmac_len == 0) {
         free(hmac);
-        free(bytes);
         return OTP_ERROR;
     }
 
@@ -82,7 +62,6 @@ uint32_t otp_generate(
     i_code %= (uint64_t)pow(10, digits);
 
     free(hmac);
-    free(bytes);
     return i_code;
 }
 

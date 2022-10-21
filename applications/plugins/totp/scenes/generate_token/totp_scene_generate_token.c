@@ -88,9 +88,7 @@ void update_totp_params(PluginState* const plugin_state) {
 
     if(scene_state->current_token_index < plugin_state->tokens_count) {
         TokenInfo* tokenInfo =
-            (TokenInfo*)(list_element_at(
-                             plugin_state->tokens_list, scene_state->current_token_index)
-                             ->data);
+            list_element_at(plugin_state->tokens_list, scene_state->current_token_index)->data;
 
         scene_state->need_token_update = true;
         scene_state->last_code_name = tokenInfo->name;
@@ -105,7 +103,31 @@ void totp_scene_generate_token_activate(
     PluginState* plugin_state,
     const GenerateTokenSceneContext* context) {
     if(!plugin_state->token_list_loaded) {
-        totp_config_file_load_tokens(plugin_state);
+        TokenLoadingResult token_load_result = totp_config_file_load_tokens(plugin_state);
+        if(token_load_result != TokenLoadingResultSuccess) {
+            DialogMessage* message = dialog_message_alloc();
+            dialog_message_set_buttons(message, NULL, "Okay", NULL);
+            if(token_load_result == TokenLoadingResultWarning) {
+                dialog_message_set_text(
+                    message,
+                    "Unable to load some tokens\nPlease review conf file",
+                    SCREEN_WIDTH_CENTER,
+                    SCREEN_HEIGHT_CENTER,
+                    AlignCenter,
+                    AlignCenter);
+            } else if(token_load_result == TokenLoadingResultError) {
+                dialog_message_set_text(
+                    message,
+                    "Unable to load tokens\nPlease review conf file",
+                    SCREEN_WIDTH_CENTER,
+                    SCREEN_HEIGHT_CENTER,
+                    AlignCenter,
+                    AlignCenter);
+            }
+
+            dialog_message_show(plugin_state->dialogs, message);
+            dialog_message_free(message);
+        }
     }
     SceneState* scene_state = malloc(sizeof(SceneState));
     if(context == NULL) {
@@ -157,23 +179,27 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                              plugin_state->tokens_list, scene_state->current_token_index)
                              ->data);
 
-        uint8_t key_length;
-        uint8_t* key = totp_crypto_decrypt(
-            tokenInfo->token, tokenInfo->token_length, &plugin_state->iv[0], &key_length);
+        if(tokenInfo->token != NULL && tokenInfo->token_length > 0) {
+            uint8_t key_length;
+            uint8_t* key = totp_crypto_decrypt(
+                tokenInfo->token, tokenInfo->token_length, &plugin_state->iv[0], &key_length);
 
-        i_token_to_str(
-            totp_at(
-                get_totp_algo_impl(tokenInfo->algo),
-                token_info_get_digits_count(tokenInfo),
-                key,
-                key_length,
-                curr_ts,
-                plugin_state->timezone_offset,
-                TOKEN_LIFETIME),
-            scene_state->last_code,
-            tokenInfo->digits);
-        memset(key, 0, key_length);
-        free(key);
+            i_token_to_str(
+                totp_at(
+                    get_totp_algo_impl(tokenInfo->algo),
+                    token_info_get_digits_count(tokenInfo),
+                    key,
+                    key_length,
+                    curr_ts,
+                    plugin_state->timezone_offset,
+                    TOKEN_LIFETIME),
+                scene_state->last_code,
+                tokenInfo->digits);
+            memset(key, 0, key_length);
+            free(key);
+        } else {
+            i_token_to_str(0, scene_state->last_code, tokenInfo->digits);
+        }
 
         if(is_new_token_time) {
             notification_message(plugin_state->notification, &sequence_short_vibro_and_sound);

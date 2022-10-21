@@ -16,7 +16,7 @@ typedef struct {
 
 TokenInfo* token_info_alloc();
 void token_info_free(TokenInfo* token_info);
-void token_info_set_secret(
+bool token_info_set_secret(
     TokenInfo* token_info,
     const char* base32_token_secret,
     uint8_t token_secret_length,

@@ -34,7 +34,7 @@ typedef struct {
     InputTextSceneContext* token_secret_input_context;
     InputTextSceneState* input_state;
     uint32_t input_started_at;
-    int current_token_index;
+    int16_t current_token_index;
     int32_t screen_y_offset;
     TokenHashAlgo algo;
     TokenDigitsCount digits_count;
@@ -227,31 +227,47 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
                     break;
                 case ConfirmButton: {
                     TokenInfo* tokenInfo = token_info_alloc();
-                    tokenInfo->name = malloc(scene_state->token_name_length + 1);
-                    strcpy(tokenInfo->name, scene_state->token_name);
-
-                    token_info_set_secret(
+                    bool token_secret_set = token_info_set_secret(
                         tokenInfo,
                         scene_state->token_secret,
                         scene_state->token_secret_length,
                         &plugin_state->iv[0]);
 
-                    tokenInfo->algo = scene_state->algo;
-                    tokenInfo->digits = scene_state->digits_count;
+                    if(token_secret_set) {
+                        tokenInfo->name = malloc(scene_state->token_name_length + 1);
+                        strcpy(tokenInfo->name, scene_state->token_name);
+                        tokenInfo->algo = scene_state->algo;
+                        tokenInfo->digits = scene_state->digits_count;
 
-                    if(plugin_state->tokens_list == NULL) {
-                        plugin_state->tokens_list = list_init_head(tokenInfo);
+                        if(plugin_state->tokens_list == NULL) {
+                            plugin_state->tokens_list = list_init_head(tokenInfo);
+                        } else {
+                            list_add(plugin_state->tokens_list, tokenInfo);
+                        }
+                        plugin_state->tokens_count++;
+
+                        totp_config_file_save_new_token(tokenInfo);
+
+                        GenerateTokenSceneContext generate_scene_context = {
+                            .current_token_index = plugin_state->tokens_count - 1};
+                        totp_scene_director_activate_scene(
+                            plugin_state, TotpSceneGenerateToken, &generate_scene_context);
                     } else {
-                        list_add(plugin_state->tokens_list, tokenInfo);
+                        token_info_free(tokenInfo);
+                        DialogMessage* message = dialog_message_alloc();
+                        dialog_message_set_buttons(message, "Back", NULL, NULL);
+                        dialog_message_set_text(
+                            message,
+                            "Token secret is invalid",
+                            SCREEN_WIDTH_CENTER,
+                            SCREEN_HEIGHT_CENTER,
+                            AlignCenter,
+                            AlignCenter);
+                        dialog_message_show(plugin_state->dialogs, message);
+                        dialog_message_free(message);
+                        scene_state->selected_control = TokenSecretTextBox;
+                        update_screen_y_offset(scene_state);
                     }
-                    plugin_state->tokens_count++;
-
-                    totp_config_file_save_new_token(tokenInfo);
-
-                    GenerateTokenSceneContext generate_scene_context = {
-                        .current_token_index = plugin_state->tokens_count - 1};
-                    totp_scene_director_activate_scene(
-                        plugin_state, TotpSceneGenerateToken, &generate_scene_context);
                     break;
                 }
                 }
