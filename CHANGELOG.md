@@ -1,8 +1,5 @@
 ### New changes
-* Allow UID emulation of EMV cards, allow saving EMV cards
-* PR: SubGHz Remote (UniRFRemix) - Cleaned up error checking + Bug fix (by @ESurge | PR #124)
-* Plugins -> PR: Snake: Allow snake to turn anywhere (by @TQMatvey | PR #125)
-* OFW PR: Dap-link: fix C symbol (OFW PR 1905 by DrZlo13)
+* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 
 **Note: Version naming changed to be more clear what version is newer, now we using -> unlshd-123 where 123 is build number**
 
