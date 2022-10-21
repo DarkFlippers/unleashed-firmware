@@ -20,7 +20,8 @@ void nfc_scene_saved_menu_on_enter(void* context) {
     Submenu* submenu = nfc->submenu;
 
     if(nfc->dev->format == NfcDeviceSaveFormatUid ||
-       nfc->dev->format == NfcDeviceSaveFormatMifareDesfire) {
+       nfc->dev->format == NfcDeviceSaveFormatMifareDesfire ||
+       nfc->dev->format == NfcDeviceSaveFormatBankCard) {
         submenu_add_item(
             submenu,
             "Emulate UID",
