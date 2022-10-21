@@ -1,5 +1,7 @@
 ### New changes
-* Plugins: Added Temperature Sensor Plugin - HTU21D / SI7021 [(By Mywk)](https://github.com/Mywk/FlipperTemperatureSensor) - [How to Connect](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/applications/plugins/temperature_sensor/Readme.md)
+* PR: SubGHz Remote (UniRFRemix) - Cleaned up error checking + Bug fix (by @ESurge | PR #124)
+* Plugins -> PR: Snake: Allow snake to turn anywhere (by @TQMatvey | PR #125)
+* OFW PR: Dap-link: fix C symbol (OFW PR 1905 by DrZlo13)
 
 **Note: Version naming changed to be more clear what version is newer, now we using -> unlshd-123 where 123 is build number**
 
