@@ -72,13 +72,13 @@ void dap_scene_help_on_enter(void* context) {
         if(config->uart_swap == DapUartTXRXNormal) {
             furi_string_cat(
                 string,
-                "    TX: 15 [С1]\r\n"
-                "    RX: 16 [С0]\r\n");
+                "    TX: 15 [C1]\r\n"
+                "    RX: 16 [C0]\r\n");
         } else {
             furi_string_cat(
                 string,
-                "    RX: 15 [С1]\r\n"
-                "    TX: 16 [С0]\r\n");
+                "    RX: 15 [C1]\r\n"
+                "    TX: 16 [C0]\r\n");
         }
         break;
     default:
