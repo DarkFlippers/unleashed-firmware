@@ -180,7 +180,7 @@ bool furi_hal_subghz_is_frequency_valid(uint32_t value);
  */
 uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value);
 
-/** Сheck if transmission is allowed on this frequency for your flipper region
+/** Сheck if transmission is allowed on this frequency with your current config
  *
  * @param      value  frequency in Hz
  *
