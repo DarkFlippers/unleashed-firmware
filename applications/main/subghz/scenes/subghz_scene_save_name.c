@@ -18,7 +18,7 @@ void subghz_scene_save_name_get_timefilename(FuriString* name) {
     furi_hal_rtc_get_datetime(&datetime);
     furi_string_printf(
         name,
-        "RAW_%.4d.%.2d.%.2d-%.2d.%.2d.%.2d",
+        "RAW_%.4d%.2d%.2d-%.2d%.2d%.2d",
         datetime.year,
         datetime.month,
         datetime.day,
