@@ -1,5 +1,5 @@
 ### New changes
-* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Fixed bug with RAW subghz file names (was unable to emulate file from mobile app) - NOT related to android app bug!
 
 **Note: Version naming changed to be more clear what version is newer, now we using -> unlshd-123 where 123 is build number**
 
