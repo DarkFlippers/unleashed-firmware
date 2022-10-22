@@ -1,7 +1,7 @@
 ### New changes
-* Fixed bug with RAW subghz file names (was unable to emulate file from mobile app) - NOT related to android app bug!
-
-**Note: Version naming changed to be more clear what version is newer, now we using -> unlshd-123 where 123 is build number**
+* API version changed to 5.1 due to OFW updates, Extra apps pack update is coming, download it from link below tomorrow or get it from our discord
+* OFW: SubGHz: Move Oregon2 protocol to Weather Station plugin
+* OFW: Gui: update statusbar attention icon and better crash handling (breaking change, API version increased because of that)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 
