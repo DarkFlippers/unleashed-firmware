@@ -267,6 +267,8 @@ Function,-,__eprintf,void,"const char*, const char*, unsigned int, const char*"
 Function,+,__errno,int*,
 Function,-,__fpclassifyd,int,double
 Function,-,__fpclassifyf,int,float
+Function,+,__furi_crash,void,
+Function,+,__furi_halt,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
 Function,-,__isinfd,int,double
@@ -912,7 +914,6 @@ Function,-,ftello,off_t,FILE*
 Function,-,ftrylockfile,int,FILE*
 Function,-,funlockfile,void,FILE*
 Function,-,funopen,FILE*,"const void*, int (*)(void*, char*, int), int (*)(void*, const char*, int), fpos_t (*)(void*, fpos_t, int), int (*)(void*)"
-Function,+,furi_crash,void,const char*
 Function,+,furi_delay_ms,void,uint32_t
 Function,+,furi_delay_tick,void,uint32_t
 Function,+,furi_delay_until_tick,FuriStatus,uint32_t
@@ -1325,7 +1326,6 @@ Function,+,furi_hal_version_uid,const uint8_t*,
 Function,+,furi_hal_version_uid_size,size_t,
 Function,-,furi_hal_vibro_init,void,
 Function,+,furi_hal_vibro_on,void,_Bool
-Function,+,furi_halt,void,const char*
 Function,-,furi_init,void,
 Function,+,furi_kernel_get_tick_frequency,uint32_t,
 Function,+,furi_kernel_lock,int32_t,
@@ -4227,6 +4227,7 @@ Variable,-,ITM_RxBuffer,volatile int32_t,
 Variable,+,I_125_10px,const Icon,
 Variable,+,I_ActiveConnection_50x64,const Icon,
 Variable,+,I_Apps_10px,const Icon,
+Variable,+,I_Alert_9x8,const Icon,
 Variable,+,I_ArrowC_1_36x36,const Icon,
 Variable,+,I_ArrowDownEmpty_14x15,const Icon,
 Variable,+,I_ArrowDownFilled_14x15,const Icon,
@@ -4284,6 +4285,7 @@ Variable,+,I_FaceNopower_29x14,const Icon,
 Variable,+,I_FaceNormal_29x14,const Icon,
 Variable,+,I_GameMode_11x8,const Icon,
 Variable,+,I_Health_16x16,const Icon,
+Variable,+,I_Hidden_window_9x8,const Icon,
 Variable,+,I_InfraredArrowDown_4x8,const Icon,
 Variable,+,I_InfraredArrowUp_4x8,const Icon,
 Variable,+,I_InfraredLearnShort_128x31,const Icon,
@@ -4391,6 +4393,7 @@ Variable,+,I_update_10px,const Icon,
 Variable,-,MSIRangeTable,const uint32_t[16],
 Variable,-,SmpsPrescalerTable,const uint32_t[4][6],
 Variable,+,SystemCoreClock,uint32_t,
+Variable,+,__furi_check_message,const char*,
 Variable,+,_ctype_,const char[],
 Variable,+,_global_impure_ptr,_reent*,
 Variable,+,_impure_ptr,_reent*,
