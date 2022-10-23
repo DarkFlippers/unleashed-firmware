@@ -347,8 +347,8 @@ const SubGhzProtocolDecoder ws_protocol_oregon2_decoder = {
 const SubGhzProtocol ws_protocol_oregon2 = {
     .name = WS_PROTOCOL_OREGON2_NAME,
     .type = SubGhzProtocolWeatherStation,
-    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save,
+    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_315 | SubGhzProtocolFlag_868 |
+            SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable,
 
     .decoder = &ws_protocol_oregon2_decoder,
 };
