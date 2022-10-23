@@ -3,7 +3,7 @@
 * OFW: SubGHz: Move Oregon2 protocol to Weather Station plugin
 * OFW: Gui: update statusbar attention icon and better crash handling (breaking change, API version increased because of that)
 
-#### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
+#### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed%20(and%20RogueMaster))
 
 [-> How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
