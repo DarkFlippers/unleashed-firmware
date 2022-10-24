@@ -161,6 +161,37 @@ uint16_t subghz_protocol_blocks_lfsr_digest16(
     uint16_t gen,
     uint16_t key);
 
+/**
+ *  Compute Addition of a number of bytes.
+ *  @param message bytes of message data
+ *  @param num_bytes number of bytes to sum
+ *  @return summation value
+ **/
+uint8_t subghz_protocol_blocks_add_bytes(uint8_t const message[], unsigned num_bytes);
+
+/**
+ *  Compute bit parity of a single byte (8 bits).
+ *  @param byte single byte to check
+ *  @return 1 odd parity, 0 even parity
+ **/
+int subghz_protocol_blocks_parity8(uint8_t byte);
+
+/**
+ *  Compute bit parity of a number of bytes.
+ *  @param message bytes of message data
+ *  @param num_bytes number of bytes to sum
+ *  @return 1 odd parity, 0 even parity
+ **/
+int subghz_protocol_blocks_parity_bytes(uint8_t const message[], unsigned num_bytes);
+
+/**
+ *  Compute XOR (byte-wide parity) of a number of bytes.
+ *  @param message bytes of message data
+ *  @param num_bytes number of bytes to sum
+ *  @return summation value, per bit-position 1 odd parity, 0 even parity
+ **/
+uint8_t subghz_protocol_blocks_xor_bytes(uint8_t const message[], unsigned num_bytes);
+
 #ifdef __cplusplus
 }
 #endif
