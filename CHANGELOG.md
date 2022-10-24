@@ -1,7 +1,14 @@
 ### New changes
-* API version changed to 5.1 due to OFW updates, Extra apps pack update is coming, download it from link below tomorrow or get it from our discord
-* OFW: SubGHz: Move Oregon2 protocol to Weather Station plugin
-* OFW: Gui: update statusbar attention icon and better crash handling (breaking change, API version increased because of that)
+* API version changed to 6.1 due to OFW updates, Extra apps pack update is already done! Download it from link below
+* Halloween theme + animation :) (by @Svaarich) (will be disabled on first days of November)
+* Plugins: Add new plugin - HC-SR04 Distance sensor [(original by Sanqui)](https://github.com/Sanqui/flipperzero-firmware/tree/hc_sr04) - Ported and modified by @xMasterX - How to connect -> (5V -> VCC) / (GND -> GND) / (13|TX -> Trig) / (14|RX -> Echo)
+* Plugins: Snake -> Allow food to spawn anywhere (by @TQMatvey | PR #130)
+* Plugins: Use clear power in temp sensor plugin
+* Plugins: WS -> add protocol Acurite 592TXR (OFW PR 1916 by Skorpionm)
+* Plugins: WS -> fix oregon2 flags, and protocol type
+* Fixed wrong fbt arguments in tasks.json in vscode example config -> plugin_dist -> fap_dist
+* OFW PR: TikTok: reset cursor after enter and reconnect (OFW PR 1921 by gornekich)
+* OFW: Furi: smaller crash routine (breaking change, API version increased because of that)
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed%20(and%20RogueMaster))
 
