@@ -17,6 +17,7 @@ typedef struct {
     bool down_pressed;
     bool ok_pressed;
     bool connected;
+    bool is_cursor_set;
 } BtHidTikTokModel;
 
 static void bt_hid_tiktok_draw_callback(Canvas* canvas, void* context) {
@@ -88,48 +89,48 @@ static void bt_hid_tiktok_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Hold to exit");
 }
 
-static void bt_hid_tiktok_process_press(BtHidTikTok* bt_hid_tiktok, InputEvent* event) {
-    with_view_model(
-        bt_hid_tiktok->view,
-        BtHidTikTokModel * model,
-        {
-            if(event->key == InputKeyUp) {
-                model->up_pressed = true;
-            } else if(event->key == InputKeyDown) {
-                model->down_pressed = true;
-            } else if(event->key == InputKeyLeft) {
-                model->left_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_DECREMENT);
-            } else if(event->key == InputKeyRight) {
-                model->right_pressed = true;
-                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_INCREMENT);
-            } else if(event->key == InputKeyOk) {
-                model->ok_pressed = true;
-            }
-        },
-        true);
+static void bt_hid_tiktok_reset_cursor() {
+    // Set cursor to the phone's left up corner
+    // Delays to guarantee one packet per connection interval
+    for(size_t i = 0; i < 8; i++) {
+        furi_hal_bt_hid_mouse_move(-127, -127);
+        furi_delay_ms(50);
+    }
+    // Move cursor from the corner
+    furi_hal_bt_hid_mouse_move(20, 120);
+    furi_delay_ms(50);
 }
 
-static void bt_hid_tiktok_process_release(BtHidTikTok* bt_hid_tiktok, InputEvent* event) {
-    with_view_model(
-        bt_hid_tiktok->view,
-        BtHidTikTokModel * model,
-        {
-            if(event->key == InputKeyUp) {
-                model->up_pressed = false;
-            } else if(event->key == InputKeyDown) {
-                model->down_pressed = false;
-            } else if(event->key == InputKeyLeft) {
-                model->left_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_DECREMENT);
-            } else if(event->key == InputKeyRight) {
-                model->right_pressed = false;
-                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_INCREMENT);
-            } else if(event->key == InputKeyOk) {
-                model->ok_pressed = false;
-            }
-        },
-        true);
+static void bt_hid_tiktok_process_press(BtHidTikTokModel* model, InputEvent* event) {
+    if(event->key == InputKeyUp) {
+        model->up_pressed = true;
+    } else if(event->key == InputKeyDown) {
+        model->down_pressed = true;
+    } else if(event->key == InputKeyLeft) {
+        model->left_pressed = true;
+        furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_DECREMENT);
+    } else if(event->key == InputKeyRight) {
+        model->right_pressed = true;
+        furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_INCREMENT);
+    } else if(event->key == InputKeyOk) {
+        model->ok_pressed = true;
+    }
+}
+
+static void bt_hid_tiktok_process_release(BtHidTikTokModel* model, InputEvent* event) {
+    if(event->key == InputKeyUp) {
+        model->up_pressed = false;
+    } else if(event->key == InputKeyDown) {
+        model->down_pressed = false;
+    } else if(event->key == InputKeyLeft) {
+        model->left_pressed = false;
+        furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_DECREMENT);
+    } else if(event->key == InputKeyRight) {
+        model->right_pressed = false;
+        furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_INCREMENT);
+    } else if(event->key == InputKeyOk) {
+        model->ok_pressed = false;
+    }
 }
 
 static bool bt_hid_tiktok_input_callback(InputEvent* event, void* context) {
@@ -137,43 +138,59 @@ static bool bt_hid_tiktok_input_callback(InputEvent* event, void* context) {
     BtHidTikTok* bt_hid_tiktok = context;
     bool consumed = false;
 
-    if(event->type == InputTypePress) {
-        bt_hid_tiktok_process_press(bt_hid_tiktok, event);
-        consumed = true;
-    } else if(event->type == InputTypeRelease) {
-        bt_hid_tiktok_process_release(bt_hid_tiktok, event);
-        consumed = true;
-    } else if(event->type == InputTypeShort) {
-        if(event->key == InputKeyOk) {
-            furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_LEFT);
-            furi_delay_ms(50);
-            furi_hal_bt_hid_mouse_release(HID_MOUSE_BTN_LEFT);
-            furi_delay_ms(50);
-            furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_LEFT);
-            furi_delay_ms(50);
-            furi_hal_bt_hid_mouse_release(HID_MOUSE_BTN_LEFT);
-            consumed = true;
-        } else if(event->key == InputKeyUp) {
-            // Emulate up swipe
-            furi_hal_bt_hid_mouse_scroll(-6);
-            furi_hal_bt_hid_mouse_scroll(-12);
-            furi_hal_bt_hid_mouse_scroll(-19);
-            furi_hal_bt_hid_mouse_scroll(-12);
-            furi_hal_bt_hid_mouse_scroll(-6);
-            consumed = true;
-        } else if(event->key == InputKeyDown) {
-            // Emulate down swipe
-            furi_hal_bt_hid_mouse_scroll(6);
-            furi_hal_bt_hid_mouse_scroll(12);
-            furi_hal_bt_hid_mouse_scroll(19);
-            furi_hal_bt_hid_mouse_scroll(12);
-            furi_hal_bt_hid_mouse_scroll(6);
-            consumed = true;
-        } else if(event->key == InputKeyBack) {
-            furi_hal_bt_hid_consumer_key_release_all();
-            consumed = true;
-        }
-    }
+    with_view_model(
+        bt_hid_tiktok->view,
+        BtHidTikTokModel * model,
+        {
+            if(event->type == InputTypePress) {
+                bt_hid_tiktok_process_press(model, event);
+                if(model->connected && !model->is_cursor_set) {
+                    bt_hid_tiktok_reset_cursor();
+                    model->is_cursor_set = true;
+                }
+                consumed = true;
+            } else if(event->type == InputTypeRelease) {
+                bt_hid_tiktok_process_release(model, event);
+                consumed = true;
+            } else if(event->type == InputTypeShort) {
+                if(event->key == InputKeyOk) {
+                    furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_LEFT);
+                    furi_delay_ms(50);
+                    furi_hal_bt_hid_mouse_release(HID_MOUSE_BTN_LEFT);
+                    furi_delay_ms(50);
+                    furi_hal_bt_hid_mouse_press(HID_MOUSE_BTN_LEFT);
+                    furi_delay_ms(50);
+                    furi_hal_bt_hid_mouse_release(HID_MOUSE_BTN_LEFT);
+                    consumed = true;
+                } else if(event->key == InputKeyUp) {
+                    // Emulate up swipe
+                    furi_hal_bt_hid_mouse_scroll(-6);
+                    furi_hal_bt_hid_mouse_scroll(-12);
+                    furi_hal_bt_hid_mouse_scroll(-19);
+                    furi_hal_bt_hid_mouse_scroll(-12);
+                    furi_hal_bt_hid_mouse_scroll(-6);
+                    consumed = true;
+                } else if(event->key == InputKeyDown) {
+                    // Emulate down swipe
+                    furi_hal_bt_hid_mouse_scroll(6);
+                    furi_hal_bt_hid_mouse_scroll(12);
+                    furi_hal_bt_hid_mouse_scroll(19);
+                    furi_hal_bt_hid_mouse_scroll(12);
+                    furi_hal_bt_hid_mouse_scroll(6);
+                    consumed = true;
+                } else if(event->key == InputKeyBack) {
+                    furi_hal_bt_hid_consumer_key_release_all();
+                    consumed = true;
+                }
+            } else if(event->type == InputTypeLong) {
+                if(event->key == InputKeyBack) {
+                    furi_hal_bt_hid_consumer_key_release_all();
+                    model->is_cursor_set = false;
+                    consumed = false;
+                }
+            }
+        },
+        true);
 
     return consumed;
 }
@@ -203,5 +220,11 @@ View* bt_hid_tiktok_get_view(BtHidTikTok* bt_hid_tiktok) {
 void bt_hid_tiktok_set_connected_status(BtHidTikTok* bt_hid_tiktok, bool connected) {
     furi_assert(bt_hid_tiktok);
     with_view_model(
-        bt_hid_tiktok->view, BtHidTikTokModel * model, { model->connected = connected; }, true);
+        bt_hid_tiktok->view,
+        BtHidTikTokModel * model,
+        {
+            model->connected = connected;
+            model->is_cursor_set = false;
+        },
+        true);
 }
