@@ -23,7 +23,7 @@ steps:
       - ls -laS artifacts-default
       - ls -laS artifacts-default/f7-update-${DRONE_TAG}
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
-      - echo '# [Install via Web Updater](https://my.flipp.dev/?url=https://unleashedflip.com/builds/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -88,7 +88,7 @@ steps:
 
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
-        [-Install via Web Updater-](https://my.flipp.dev/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
       document:
         - artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz
 
@@ -108,7 +108,7 @@ steps:
         [[Github]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
 
 
-        [-Install via Web Updater-](https://my.flipp.dev/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
 
 trigger:
   event:
