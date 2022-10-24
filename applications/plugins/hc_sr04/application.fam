@@ -1,0 +1,14 @@
+App(
+    appid="hc_sr04",
+    name="HC-SR04 Dist. Sensor",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="hc_sr04_app",
+    cdefines=["APP_HC_SR04"],
+    requires=[
+        "gui",
+    ],
+    stack_size=2 * 1024,
+    order=20,
+    fap_icon="dist_sensor10px.png",
+    fap_category="GPIO",
+)

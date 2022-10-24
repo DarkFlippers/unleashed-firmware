@@ -194,6 +194,7 @@ static void temperature_sensor_timer_callback(FuriMessageQueue* event_queue) {
 int32_t temperature_sensor_app(void* p) {
     UNUSED(p);
 
+    furi_hal_power_suppress_charge_enter();
     // Declare our variables
     TSEvent tsEvent;
     bool sensorFound = false;
@@ -264,6 +265,7 @@ int32_t temperature_sensor_app(void* p) {
         furi_delay_tick(wait_ticks);
     }
 
+    furi_hal_power_suppress_charge_exit();
     // Dobby is freee (free our variables, Flipper will crash if we don't do this!)
     furi_timer_free(timer);
     gui_remove_view_port(gui, view_port);
