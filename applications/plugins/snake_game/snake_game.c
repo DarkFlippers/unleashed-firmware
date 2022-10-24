@@ -196,8 +196,8 @@ static Point snake_game_get_new_fruit(SnakeState const* const snake_state) {
             if((buffer[y] & mask) == 0) {
                 if(newFruit == 0) {
                     Point p = {
-                        .x = x * 2,
-                        .y = y * 2,
+                        .x = x,
+                        .y = y,
                     };
                     return p;
                 }
