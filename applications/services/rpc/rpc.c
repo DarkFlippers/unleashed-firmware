@@ -148,7 +148,8 @@ size_t
     rpc_session_feed(RpcSession* session, uint8_t* encoded_bytes, size_t size, TickType_t timeout) {
     furi_assert(session);
     furi_assert(encoded_bytes);
-    furi_assert(size > 0);
+
+    if(!size) return 0;
 
     size_t bytes_sent = furi_stream_buffer_send(session->stream, encoded_bytes, size, timeout);
 
