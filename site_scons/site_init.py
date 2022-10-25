@@ -3,6 +3,7 @@ from SCons.Script import GetBuildFailures
 import sys
 import os
 import atexit
+from ansi.color import fg, fx
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts"))
 sys.path.insert(0, os.path.join(os.getcwd(), "lib/cxxheaderparser"))
@@ -16,12 +17,12 @@ def bf_to_str(bf):
     if bf is None:  # unknown targets product None in list
         return "(unknown tgt)"
     elif isinstance(bf, SCons.Errors.StopError):
-        return str(bf)
+        return fg.yellow(str(bf))
     elif bf.node:
-        return str(bf.node) + ": " + bf.errstr
+        return fg.yellow(str(bf.node)) + ": " + bf.errstr
     elif bf.filename:
-        return bf.filename + ": " + bf.errstr
-    return "unknown failure: " + bf.errstr
+        return fg.yellow(bf.filename) + ": " + bf.errstr
+    return fg.yellow("unknown failure: ") + bf.errstr
 
 
 def display_build_status():
@@ -31,10 +32,9 @@ def display_build_status():
     if bf:
         # bf is normally a list of build failures; if an element is None,
         # it's because of a target that scons doesn't know anything about.
-        failures_message = "\n".join(
-            ["Failed building %s" % bf_to_str(x) for x in bf if x is not None]
-        )
-        print("*" * 10, "ERRORS", "*" * 10)
+        failures_message = "\n".join([bf_to_str(x) for x in bf if x is not None])
+        print()
+        print(fg.brightred(fx.bold("*" * 10 + " FBT ERRORS " + "*" * 10)))
         print(failures_message)
 
 

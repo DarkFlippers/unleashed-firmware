@@ -86,21 +86,6 @@ env.AddMethod(ApplyLibFlags)
 
 Export("env")
 
-if not env["VERBOSE"]:
-    env.SetDefault(
-        HEXCOMSTR="\tHEX\t${TARGET}",
-        BINCOMSTR="\tBIN\t${TARGET}",
-        DFUCOMSTR="\tDFU\t${TARGET}",
-        SDK_PREGEN_COMSTR="\tPREGEN\t${TARGET}",
-        SDK_COMSTR="\tSDKSRC\t${TARGET}",
-        SDKSYM_UPDATER_COMSTR="\tSDKCHK\t${TARGET}",
-        SDKSYM_GENERATOR_COMSTR="\tSDKSYM\t${TARGET}",
-        APPMETA_COMSTR="\tAPPMETA\t${TARGET}",
-        APPMETAEMBED_COMSTR="\tFAP\t${TARGET}",
-        APPCHECK_COMSTR="\tAPPCHK\t${SOURCE}",
-    )
-
-
 if env["IS_BASE_FIRMWARE"]:
     env.Append(
         FIRMWARE_BUILD_CFG="firmware",
@@ -149,9 +134,10 @@ fwenv.LoadApplicationManifests()
 fwenv.PrepareApplicationsBuild()
 
 # Build external apps
-extapps = fwenv["FW_EXTAPPS"] = SConscript(
-    "site_scons/extapps.scons", exports={"ENV": fwenv}
-)
+if env["IS_BASE_FIRMWARE"]:
+    extapps = fwenv["FW_EXTAPPS"] = SConscript(
+        "site_scons/extapps.scons", exports={"ENV": fwenv}
+    )
 
 
 # Add preprocessor definitions for current set of apps
@@ -306,21 +292,9 @@ Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", fw_artifacts)
 if fwenv["IS_BASE_FIRMWARE"]:
     sdk_source = fwenv.SDKPrebuilder(
         "sdk_origin",
-        [],
-        # Filtering out things cxxheaderparser cannot handle
-        SDK_PP_FLAGS=[
-            '-D"_Static_assert(x,y)="',
-            '-D"__asm__(x)="',
-            '-D"__attribute__(x)="',
-            "-Drestrict=",
-            "-D_Noreturn=",
-            "-D__restrict=",
-            "-D__extension__=",
-            "-D__inline=inline",
-            "-D__inline__=inline",
-        ],
+        (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]),
     )
-    # Depends(sdk_source, (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]))
+    # Extra deps for root headers and generated files
     Depends(sdk_source, fwenv.ProcessSdkDepends("sdk_origin.d"))
 
     fwenv["SDK_DIR"] = fwenv.Dir("sdk")

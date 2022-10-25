@@ -1,7 +1,7 @@
 @echo off
 call "%~dp0scripts\toolchain\fbtenv.cmd" env
 
-set SCONS_EP=%~dp0\lib\scons\scripts\scons.py
+set SCONS_EP=python -m SCons
 
 if [%FBT_NO_SYNC%] == [] (
     if exist ".git" (
@@ -13,4 +13,4 @@ if [%FBT_NO_SYNC%] == [] (
 )
 
 set "SCONS_DEFAULT_FLAGS=-Q --warn=target-not-built"
-python lib\scons\scripts\scons.py %SCONS_DEFAULT_FLAGS% %*
+%SCONS_EP% %SCONS_DEFAULT_FLAGS% %*

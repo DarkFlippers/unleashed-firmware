@@ -35,6 +35,7 @@ for env_value_name in variables_to_forward:
 
 coreenv = VAR_ENV.Clone(
     tools=[
+        "fbt_tweaks",
         (
             "crosscc",
             {
@@ -80,8 +81,9 @@ if not coreenv["VERBOSE"]:
 # Default value for commandline options
 
 SetOption("num_jobs", multiprocessing.cpu_count())
+## NB - disabled both caches since they seem to do more harm then good in our case
 # Avoiding re-scan of all sources on every startup
-SetOption("implicit_cache", True)
+# SetOption("implicit_cache", True)
 # SetOption("implicit_deps_unchanged", True)
 # More aggressive caching
 SetOption("max_drift", 1)

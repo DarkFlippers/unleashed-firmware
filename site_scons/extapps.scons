@@ -65,6 +65,7 @@ extapps = appenv["_extapps"] = {
     "debug": {},
     "validators": {},
     "dist": {},
+    "resources_dist": None,
 }
 
 
@@ -107,6 +108,8 @@ appenv.PhonyTarget("firmware_extapps", appenv.Action(legacy_app_build_stub, None
 
 Alias("faps", extapps["compact"].values())
 Alias("faps", extapps["validators"].values())
+
+extapps["resources_dist"] = appenv.FapDist(appenv.Dir("#/assets/resources/apps"), [])
 
 if appsrc := appenv.subst("$APPSRC"):
     app_manifest, fap_file, app_validator = appenv.GetExtAppFromPath(appsrc)

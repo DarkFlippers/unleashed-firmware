@@ -172,6 +172,11 @@ vars.AddVariables(
         "auto",
     ),
     (
+        "OPENOCD_ADAPTER_SERIAL",
+        "OpenOCD adapter serial number",
+        "auto",
+    ),
+    (
         "UPDATE_SPLASH",
         "Directory name with slideshow frames to render after installing update package",
         "update_default",

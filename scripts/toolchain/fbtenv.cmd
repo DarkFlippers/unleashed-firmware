@@ -13,8 +13,8 @@ if not [%FBT_NOENV%] == [] (
     exit /b 0
 )
 
-set "FLIPPER_TOOLCHAIN_VERSION=15"
-set "FBT_TOOLCHAIN_ROOT=%FBT_ROOT%\toolchain\i686-windows"
+set "FLIPPER_TOOLCHAIN_VERSION=16"
+set "FBT_TOOLCHAIN_ROOT=%FBT_ROOT%\toolchain\x86_64-windows"
 
 
 if not exist "%FBT_TOOLCHAIN_ROOT%" (

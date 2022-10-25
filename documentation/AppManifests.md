@@ -76,10 +76,10 @@ Each library is defined as a call to `Lib()` function, accepting the following p
 
     - **name**: name of library's folder. Required.
     - **fap_include_paths**: list of library's relative paths to add to parent fap's include path list. Default value is `["."]` meaning  library's source root.
-    - **sources**: list of filename masks to be used for gathering include files for this library. Default value is `["*.c*"]`.
+    - **sources**: list of filename masks to be used for gathering include files for this library. Paths are relative to library's source root. Default value is `["*.c*"]`.
     - **cflags**: list of additional compiler flags to be used for building this library. Default value is `[]`.
     - **cdefines**: list of additional preprocessor definitions to be used for building this library. Default value is `[]`.
-    - **cincludes**: list of additional include paths to be used for building this library. Can be used for providing external search paths for this library's code - for configuration headers. Default value is `[]`.
+    - **cincludes**: list of additional include paths to be used for building this library. Paths are relative to application's root. Can be used for providing external search paths for this library's code - for configuration headers. Default value is `[]`.
 
 Example for building an app with a private library:
 

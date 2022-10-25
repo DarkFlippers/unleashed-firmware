@@ -80,6 +80,25 @@
             // "showDevDebugOutput": "raw",
         },
         {
+            "name": "Attach FW (DAP)",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build/latest/firmware.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "cmsis-dap",
+            "svdFile": "./debug/STM32WB55_CM4.svd",
+            "rtos": "FreeRTOS",
+            "configFiles": [
+                "interface/cmsis-dap.cfg",
+                "./debug/stm32wbx.cfg",
+            ],
+            "postAttachCommands": [
+                "source debug/flipperapps.py",
+            ],
+            // "showDevDebugOutput": "raw",
+        },
+        {
             "name": "fbt debug",
             "type": "python",
             "request": "launch",

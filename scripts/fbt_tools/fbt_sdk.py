@@ -1,3 +1,4 @@
+import shutil
 from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Errors import UserError
@@ -117,42 +118,30 @@ class SdkTreeBuilder:
         target = [target_folder.File("sdk.opts")]
         return target, source
 
-    def _create_deploy_commands(self):
+    def _run_deploy_commands(self):
         dirs_to_create = set(
-            self.sdk_deploy_dir.Dir(dirpath) for dirpath in self.header_dirs
+            self.sdk_deploy_dir.Dir(dirpath).path for dirpath in self.header_dirs
         )
-        actions = [
-            Delete(self.sdk_deploy_dir),
-            Mkdir(self.sdk_deploy_dir),
-            Copy(
-                self.sdk_root_dir,
-                self.env["SDK_DEFINITION"],
-            ),
-        ]
-        actions += [Mkdir(d) for d in dirs_to_create]
 
-        actions += [
-            Action(
-                Copy(self.sdk_deploy_dir.File(h).path, h),
-                # f"Copy {h} to {self.sdk_deploy_dir}",
-            )
-            for h in self.header_depends
-        ]
-        return actions
+        shutil.rmtree(self.sdk_root_dir.path, ignore_errors=False)
 
-    def generate_actions(self):
+        for sdkdir in dirs_to_create:
+            os.makedirs(sdkdir, exist_ok=True)
+
+        shutil.copy2(self.env["SDK_DEFINITION"].path, self.sdk_root_dir.path)
+
+        for header in self.header_depends:
+            shutil.copy2(header, self.sdk_deploy_dir.File(header).path)
+
+    def deploy_action(self):
         self._parse_sdk_depends()
+        self._run_deploy_commands()
         self._generate_sdk_meta()
 
-        return self._create_deploy_commands()
 
-
-def deploy_sdk_tree(target, source, env, for_signature):
-    if for_signature:
-        return []
-
+def deploy_sdk_tree_action(target, source, env):
     sdk_tree = SdkTreeBuilder(env, target, source)
-    return sdk_tree.generate_actions()
+    return sdk_tree.deploy_action()
 
 
 def deploy_sdk_tree_emitter(target, source, env):
@@ -217,6 +206,30 @@ def generate_sdk_symbols(source, target, env):
 
 
 def generate(env, **kw):
+    if not env["VERBOSE"]:
+        env.SetDefault(
+            SDK_PREGEN_COMSTR="\tPREGEN\t${TARGET}",
+            SDK_COMSTR="\tSDKSRC\t${TARGET}",
+            SDKSYM_UPDATER_COMSTR="\tSDKCHK\t${TARGET}",
+            SDKSYM_GENERATOR_COMSTR="\tSDKSYM\t${TARGET}",
+            SDKDEPLOY_COMSTR="\tSDKTREE\t${TARGET}",
+        )
+
+    # Filtering out things cxxheaderparser cannot handle
+    env.SetDefault(
+        SDK_PP_FLAGS=[
+            '-D"_Static_assert(x,y)="',
+            '-D"__asm__(x)="',
+            '-D"__attribute__(x)="',
+            "-Drestrict=",
+            "-D_Noreturn=",
+            "-D__restrict=",
+            "-D__extension__=",
+            "-D__inline=inline",
+            "-D__inline__=inline",
+        ]
+    )
+
     env.AddMethod(ProcessSdkDepends)
     env.Append(
         BUILDERS={
@@ -235,7 +248,10 @@ def generate(env, **kw):
                 suffix=".i",
             ),
             "SDKTree": Builder(
-                generator=deploy_sdk_tree,
+                action=Action(
+                    deploy_sdk_tree_action,
+                    "$SDKDEPLOY_COMSTR",
+                ),
                 emitter=deploy_sdk_tree_emitter,
                 src_suffix=".d",
             ),

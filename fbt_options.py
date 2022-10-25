@@ -52,8 +52,6 @@ OPENOCD_OPTS = [
     "debug/stm32wbx.cfg",
     "-c",
     "stm32wbx.cpu configure -rtos auto",
-    "-c",
-    "init",
 ]
 
 SVD_FILE = "debug/STM32WB55_CM4.svd"

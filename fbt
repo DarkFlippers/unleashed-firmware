@@ -7,6 +7,7 @@ set -eu;
 # private variables
 SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)";
 SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built";
+SCONS_EP="python3 -m SCons"
 
 # public variables
 FBT_NOENV="${FBT_NOENV:-""}";
@@ -25,4 +26,4 @@ if [ -z "$FBT_NO_SYNC" ]; then
     git submodule update --init;
 fi
 
-python3 "$SCRIPT_PATH/lib/scons/scripts/scons.py" $SCONS_DEFAULT_FLAGS "$@"
+$SCONS_EP $SCONS_DEFAULT_FLAGS "$@"

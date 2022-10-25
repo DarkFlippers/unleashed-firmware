@@ -68,15 +68,17 @@ if assetsenv["IS_BASE_FIRMWARE"]:
         assetsenv.Dir("#/assets/dolphin"),
         DOLPHIN_RES_TYPE="external",
     )
-    assetsenv.NoClean(dolphin_external)
     if assetsenv["FORCE"]:
         assetsenv.AlwaysBuild(dolphin_external)
     assetsenv.Alias("dolphin_ext", dolphin_external)
+    assetsenv.Clean(dolphin_external, assetsenv.Dir("#/assets/resources/dolphin"))
 
     # Resources manifest
     resources = assetsenv.Command(
         "#/assets/resources/Manifest",
-        assetsenv.GlobRecursive("*", "resources", exclude="Manifest"),
+        assetsenv.GlobRecursive(
+            "*", assetsenv.Dir("resources").srcnode(), exclude="Manifest"
+        ),
         action=Action(
             '${PYTHON3} "${ASSETS_COMPILER}" manifest "${TARGET.dir.posix}" --timestamp=${GIT_UNIX_TIMESTAMP}',
             "${RESMANIFESTCOMSTR}",
