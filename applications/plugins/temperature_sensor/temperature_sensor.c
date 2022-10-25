@@ -3,6 +3,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <furi_hal_i2c.h>
+#include <math.h>
 
 #include <gui/gui.h>
 #include <input/input.h>
@@ -47,7 +48,8 @@ static TSStatus temperature_sensor_current_status = TSSInitializing;
 // Temperature and Humidity data buffers, ready to print
 char ts_data_buffer_temperature_c[DATA_BUFFER_SIZE];
 char ts_data_buffer_temperature_f[DATA_BUFFER_SIZE];
-char ts_data_buffer_humidity[DATA_BUFFER_SIZE];
+char ts_data_buffer_relative_humidity[DATA_BUFFER_SIZE];
+char ts_data_buffer_absolute_humidity[DATA_BUFFER_SIZE];
 
 // <sumary>
 // Executes an I2C cmd (trx)
@@ -78,8 +80,9 @@ static bool temperature_sensor_cmd(uint8_t cmd, uint8_t* buffer, uint8_t size) {
             ret = furi_hal_i2c_rx(I2C_BUS, HTU21D_ADDRESS, buffer, size, timeout);
             furi_hal_i2c_release(I2C_BUS);
         }
-    } else
+    } else {
         furi_hal_i2c_release(I2C_BUS);
+    }
 
     return ret;
 }
@@ -130,7 +133,7 @@ static void temperature_sensor_draw_callback(Canvas* canvas, void* ctx) {
 
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 10, "HTU21D Sensor");
+    canvas_draw_str(canvas, 2, 10, "HTU21D/Si7021 Sensor");
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 62, "Press back to exit.");
@@ -143,23 +146,25 @@ static void temperature_sensor_draw_callback(Canvas* canvas, void* ctx) {
         canvas_draw_str(canvas, 2, 30, "No sensor found!");
         break;
     case TSSPendingUpdate: {
-        canvas_draw_str(canvas, 6, 24, "Temperature");
-        canvas_draw_str(canvas, 80, 24, "Humidity");
+        canvas_draw_str(canvas, 3, 24, "Temperature");
+        canvas_draw_str(canvas, 68, 24, "Humidity");
 
         // Draw vertical lines
-        canvas_draw_line(canvas, 68, 16, 68, 50);
-        canvas_draw_line(canvas, 69, 16, 69, 50);
+        canvas_draw_line(canvas, 61, 16, 61, 50);
+        canvas_draw_line(canvas, 62, 16, 62, 50);
 
         // Draw horizontal line
-        canvas_draw_line(canvas, 3, 27, 144, 27);
+        canvas_draw_line(canvas, 2, 27, 122, 27);
 
         // Draw temperature and humidity values
-        canvas_draw_str(canvas, 14, 38, ts_data_buffer_temperature_c);
-        canvas_draw_str(canvas, 48, 38, "C");
-        canvas_draw_str(canvas, 14, 48, ts_data_buffer_temperature_f);
-        canvas_draw_str(canvas, 48, 48, "F");
-        canvas_draw_str(canvas, 78, 42, ts_data_buffer_humidity);
-        canvas_draw_str(canvas, 112, 42, "%");
+        canvas_draw_str(canvas, 8, 38, ts_data_buffer_temperature_c);
+        canvas_draw_str(canvas, 42, 38, "C");
+        canvas_draw_str(canvas, 8, 48, ts_data_buffer_temperature_f);
+        canvas_draw_str(canvas, 42, 48, "F");
+        canvas_draw_str(canvas, 68, 38, ts_data_buffer_relative_humidity);
+        canvas_draw_str(canvas, 100, 38, "%");
+        canvas_draw_str(canvas, 68, 48, ts_data_buffer_absolute_humidity);
+        canvas_draw_str(canvas, 100, 48, "g/m3");
 
     } break;
     default:
@@ -195,10 +200,13 @@ int32_t temperature_sensor_app(void* p) {
     UNUSED(p);
 
     furi_hal_power_suppress_charge_enter();
-    // Declare our variables
+    // Declare our variables and assign variables a default value
     TSEvent tsEvent;
     bool sensorFound = false;
-    double celsius, fahrenheit, humidity;
+    double celsius, fahrenheit, rel_humidity, abs_humidity = TS_DEFAULT_VALUE;
+
+    // Used for absolute humidity calculation
+    double vapour_pressure = 0;
 
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(TSEvent));
 
@@ -219,9 +227,6 @@ int32_t temperature_sensor_app(void* p) {
     // Used to notify the user by blinking red (error) or blue (fetch successful)
     NotificationApp* notifications = furi_record_open(RECORD_NOTIFICATION);
 
-    // Assign variables a default value
-    celsius = fahrenheit = humidity = TS_DEFAULT_VALUE;
-
     while(1) {
         furi_check(furi_message_queue_get(event_queue, &tsEvent, FuriWaitForever) == FuriStatusOk);
 
@@ -235,26 +240,40 @@ int32_t temperature_sensor_app(void* p) {
         } else if(tsEvent.type == TSEventTypeTick) {
             // Update sensor data
             // Fetch data and set the sensor current status accordingly
-            sensorFound = temperature_sensor_fetch_data(&celsius, &humidity);
+            sensorFound = temperature_sensor_fetch_data(&celsius, &rel_humidity);
             temperature_sensor_current_status = (sensorFound ? TSSPendingUpdate : TSSNoSensor);
 
             if(sensorFound) {
                 // Blink blue
                 notification_message(notifications, &sequence_blink_blue_100);
 
-                if(celsius != TS_DEFAULT_VALUE && humidity != TS_DEFAULT_VALUE) {
+                if(celsius != TS_DEFAULT_VALUE && rel_humidity != TS_DEFAULT_VALUE) {
                     // Convert celsius to fahrenheit
                     fahrenheit = (celsius * 9 / 5) + 32;
+
+                    // Calculate absolute humidity - For more info refer to https://github.com/Mywk/FlipperTemperatureSensor/issues/1
+                    // Calculate saturation vapour pressure first
+                    vapour_pressure =
+                        (double)6.11 *
+                        pow(10, (double)(((double)7.5 * celsius) / ((double)237.3 + celsius)));
+                    // Then the vapour pressure in Pa
+                    vapour_pressure = vapour_pressure * rel_humidity;
+                    // Calculate absolute humidity
+                    abs_humidity =
+                        (double)2.16679 * (double)(vapour_pressure / ((double)273.15 + celsius));
 
                     // Fill our buffers here, not on the canvas draw callback
                     snprintf(ts_data_buffer_temperature_c, DATA_BUFFER_SIZE, "%.2f", celsius);
                     snprintf(ts_data_buffer_temperature_f, DATA_BUFFER_SIZE, "%.2f", fahrenheit);
-                    snprintf(ts_data_buffer_humidity, DATA_BUFFER_SIZE, "%.2f", humidity);
+                    snprintf(
+                        ts_data_buffer_relative_humidity, DATA_BUFFER_SIZE, "%.2f", rel_humidity);
+                    snprintf(
+                        ts_data_buffer_absolute_humidity, DATA_BUFFER_SIZE, "%.2f", abs_humidity);
                 }
 
             } else {
                 // Reset our variables to their default values
-                celsius = fahrenheit = humidity = TS_DEFAULT_VALUE;
+                celsius = fahrenheit = rel_humidity = abs_humidity = TS_DEFAULT_VALUE;
 
                 // Blink red
                 notification_message(notifications, &sequence_blink_red_100);
