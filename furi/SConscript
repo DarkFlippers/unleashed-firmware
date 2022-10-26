@@ -1,6 +1,11 @@
 Import("env")
 
-env.Append(LINT_SOURCES=["furi"])
+env.Append(
+    LINT_SOURCES=[
+        "furi",
+        "furi/core",
+    ]
+)
 
 
 libenv = env.Clone(FW_LIB_NAME="furi")
