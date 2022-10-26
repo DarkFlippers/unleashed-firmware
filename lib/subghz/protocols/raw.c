@@ -32,6 +32,7 @@ struct SubGhzProtocolDecoderRAW {
     FuriString* file_name;
     size_t sample_write;
     bool last_level;
+    bool pause;
 };
 
 struct SubGhzProtocolEncoderRAW {
@@ -158,6 +159,7 @@ bool subghz_protocol_raw_save_to_file_init(
         instance->upload_raw = malloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
         instance->file_is_open = RAWFileIsOpenWrite;
         instance->sample_write = 0;
+        instance->pause = false;
         init = true;
     } while(0);
 
@@ -199,6 +201,14 @@ void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolDecoderRAW* instance) {
     instance->file_is_open = RAWFileIsOpenClose;
 }
 
+void subghz_protocol_raw_save_to_file_pause(SubGhzProtocolDecoderRAW* instance, bool pause) {
+    furi_assert(instance);
+
+    if(instance->pause != pause) {
+        instance->pause = pause;
+    }
+}
+
 size_t subghz_protocol_raw_get_sample_write(SubGhzProtocolDecoderRAW* instance) {
     return instance->sample_write + instance->ind_write;
 }
@@ -234,7 +244,7 @@ void subghz_protocol_decoder_raw_feed(void* context, bool level, uint32_t durati
     furi_assert(context);
     SubGhzProtocolDecoderRAW* instance = context;
 
-    if(instance->upload_raw != NULL) {
+    if(!instance->pause && (instance->upload_raw != NULL)) {
         if(duration > subghz_protocol_raw_const.te_short) {
             if(instance->last_level != level) {
                 instance->last_level = (level ? true : false);
