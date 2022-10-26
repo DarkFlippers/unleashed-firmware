@@ -25,6 +25,17 @@ struct SubGhzBlockDecoder {
 void subghz_protocol_blocks_add_bit(SubGhzBlockDecoder* decoder, uint8_t bit);
 
 /**
+ * Add data to_128 bit when decoding.
+ * @param decoder Pointer to a SubGhzBlockDecoder instance
+ * @param head_64_bit Pointer to a head_64_bit
+ * @param bit data, 1bit
+ */
+void subghz_protocol_blocks_add_to_128_bit(
+    SubGhzBlockDecoder* decoder,
+    uint8_t bit,
+    uint64_t* head_64_bit);
+
+/**
  * Getting the hash sum of the last randomly received parcel.
  * @param decoder Pointer to a SubGhzBlockDecoder instance
  * @return hash Hash sum
