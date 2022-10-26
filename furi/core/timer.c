@@ -86,7 +86,7 @@ void furi_timer_free(FuriTimer* instance) {
 
     furi_check(xTimerDelete(hTimer, portMAX_DELAY) == pdPASS);
 
-    while (furi_timer_is_running(instance)) furi_delay_tick(2);
+    while(furi_timer_is_running(instance)) furi_delay_tick(2);
 
     if((uint32_t)callb & 1U) {
         /* Callback memory was allocated from dynamic pool, clear flag */
