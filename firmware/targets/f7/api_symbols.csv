@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,5.0,,
+Version,+,5.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2271,6 +2271,7 @@ Function,-,subghz_keystore_raw_encrypted_save,_Bool,"const char*, const char*, u
 Function,-,subghz_keystore_raw_get_data,_Bool,"const char*, size_t, uint8_t*, size_t"
 Function,-,subghz_keystore_save,_Bool,"SubGhzKeystore*, const char*, uint8_t*"
 Function,+,subghz_protocol_blocks_add_bit,void,"SubGhzBlockDecoder*, uint8_t"
+Function,+,subghz_protocol_blocks_add_bytes,uint8_t,"const uint8_t[], size_t"
 Function,+,subghz_protocol_blocks_crc16,uint16_t,"const uint8_t[], unsigned, uint16_t, uint16_t"
 Function,+,subghz_protocol_blocks_crc16lsb,uint16_t,"const uint8_t[], unsigned, uint16_t, uint16_t"
 Function,+,subghz_protocol_blocks_crc4,uint8_t,"const uint8_t[], unsigned, uint8_t, uint8_t"
@@ -2284,8 +2285,11 @@ Function,+,subghz_protocol_blocks_get_upload,size_t,"uint8_t[], size_t, LevelDur
 Function,+,subghz_protocol_blocks_lfsr_digest16,uint16_t,"const uint8_t[], unsigned, uint16_t, uint16_t"
 Function,+,subghz_protocol_blocks_lfsr_digest8,uint8_t,"const uint8_t[], unsigned, uint8_t, uint8_t"
 Function,+,subghz_protocol_blocks_lfsr_digest8_reflect,uint8_t,"const uint8_t[], int, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_parity8,int,uint8_t
+Function,+,subghz_protocol_blocks_parity_bytes,int,"const uint8_t[], size_t"
 Function,+,subghz_protocol_blocks_reverse_key,uint64_t,"uint64_t, uint8_t"
 Function,+,subghz_protocol_blocks_set_bit_array,void,"_Bool, uint8_t[], size_t, size_t"
+Function,+,subghz_protocol_blocks_xor_bytes,uint8_t,"const uint8_t[], size_t"
 Function,-,subghz_protocol_decoder_base_deserialize,_Bool,"SubGhzProtocolDecoderBase*, FlipperFormat*"
 Function,+,subghz_protocol_decoder_base_get_hash_data,uint8_t,SubGhzProtocolDecoderBase*
 Function,+,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderBase*, FuriString*"
