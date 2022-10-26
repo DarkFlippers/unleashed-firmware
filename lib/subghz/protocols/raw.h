@@ -143,6 +143,13 @@ void subghz_protocol_encoder_raw_free(void* context);
 void subghz_protocol_encoder_raw_stop(void* context);
 
 /**
+ * pause writing to flash.
+ * @param context Pointer to a SubGhzProtocolEncoderRAW instance
+ * @param pause pause writing
+ */
+void subghz_protocol_raw_save_to_file_pause(SubGhzProtocolDecoderRAW* instance, bool pause);
+
+/**
  * Set callback on completion of file transfer.
  * @param instance Pointer to a SubGhzProtocolEncoderRAW instance
  * @param callback_end Callback, SubGhzProtocolEncoderRAWCallbackEnd

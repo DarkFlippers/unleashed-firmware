@@ -218,9 +218,9 @@ uint16_t subghz_protocol_blocks_lfsr_digest16(
     return sum;
 }
 
-uint8_t subghz_protocol_blocks_add_bytes(uint8_t const message[], unsigned num_bytes) {
+uint8_t subghz_protocol_blocks_add_bytes(uint8_t const message[], size_t num_bytes) {
     int result = 0;
-    for(unsigned i = 0; i < num_bytes; ++i) {
+    for(size_t i = 0; i < num_bytes; ++i) {
         result += message[i];
     }
     return (uint8_t)result;
@@ -232,17 +232,17 @@ int subghz_protocol_blocks_parity8(uint8_t byte) {
     return (0x6996 >> byte) & 1;
 }
 
-int subghz_protocol_blocks_parity_bytes(uint8_t const message[], unsigned num_bytes) {
+int subghz_protocol_blocks_parity_bytes(uint8_t const message[], size_t num_bytes) {
     int result = 0;
-    for(unsigned i = 0; i < num_bytes; ++i) {
+    for(size_t i = 0; i < num_bytes; ++i) {
         result ^= subghz_protocol_blocks_parity8(message[i]);
     }
     return result;
 }
 
-uint8_t subghz_protocol_blocks_xor_bytes(uint8_t const message[], unsigned num_bytes) {
+uint8_t subghz_protocol_blocks_xor_bytes(uint8_t const message[], size_t num_bytes) {
     uint8_t result = 0;
-    for(unsigned i = 0; i < num_bytes; ++i) {
+    for(size_t i = 0; i < num_bytes; ++i) {
         result ^= message[i];
     }
     return result;

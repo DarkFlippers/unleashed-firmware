@@ -19,7 +19,7 @@ static const SubGhzBlockConst ws_oregon2_const = {
 };
 
 #define OREGON2_PREAMBLE_BITS 19
-#define OREGON2_PREAMBLE_MASK ((1 << (OREGON2_PREAMBLE_BITS + 1)) - 1)
+#define OREGON2_PREAMBLE_MASK 0b1111111111111111111
 #define OREGON2_SENSOR_ID(d) (((d) >> 16) & 0xFFFF)
 #define OREGON2_CHECKSUM_BITS 8
 
@@ -103,6 +103,7 @@ static ManchesterEvent level_and_duration_to_event(bool level, uint32_t duration
 // From sensor id code return amount of bits in variable section
 static uint8_t oregon2_sensor_id_var_bits(uint16_t sensor_id) {
     if(sensor_id == 0xEC40) return 16;
+    if(sensor_id == 0x1D20) return 24;
     return 0;
 }
 
@@ -119,18 +120,30 @@ static void ws_oregon2_decode_const_data(WSBlockGeneric* ws_block) {
     ws_block->battery_low = (ws_block->data & OREGON2_FLAG_BAT_LOW) ? 1 : 0;
 }
 
-static void
-    ws_oregon2_decode_var_data(WSBlockGeneric* ws_block, uint16_t sensor_id, uint32_t var_data) {
-    int16_t temp_val;
-    if(sensor_id == 0xEC40) {
-        temp_val = ((var_data >> 4) & 0xF) * 10 + ((var_data >> 8) & 0xF);
-        temp_val *= 10;
-        temp_val += (var_data >> 12) & 0xF;
-        if(var_data & 0xF) temp_val = -temp_val;
-    } else
-        return;
+uint16_t bcd_decode_short(uint32_t data) {
+    return (data & 0xF) * 10 + ((data >> 4) & 0xF);
+}
 
-    ws_block->temp = (float)temp_val / 10.0;
+static float ws_oregon2_decode_temp(uint32_t data) {
+    int32_t temp_val;
+    temp_val = bcd_decode_short(data >> 4);
+    temp_val *= 10;
+    temp_val += (data >> 12) & 0xF;
+    if(data & 0xF) temp_val = -temp_val;
+    return (float)temp_val / 10.0;
+}
+
+static void ws_oregon2_decode_var_data(WSBlockGeneric* ws_b, uint16_t sensor_id, uint32_t data) {
+    switch(sensor_id) {
+    case 0xEC40:
+        ws_b->temp = ws_oregon2_decode_temp(data);
+        ws_b->humidity = WS_NO_HUMIDITY;
+        break;
+    case 0x1D20:
+        ws_b->humidity = bcd_decode_short(data);
+        ws_b->temp = ws_oregon2_decode_temp(data >> 8);
+        break;
+    }
 }
 
 void ws_protocol_decoder_oregon2_feed(void* context, bool level, uint32_t duration) {
@@ -347,8 +360,7 @@ const SubGhzProtocolDecoder ws_protocol_oregon2_decoder = {
 const SubGhzProtocol ws_protocol_oregon2 = {
     .name = WS_PROTOCOL_OREGON2_NAME,
     .type = SubGhzProtocolWeatherStation,
-    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_315 | SubGhzProtocolFlag_868 |
-            SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable,
+    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable,
 
     .decoder = &ws_protocol_oregon2_decoder,
 };

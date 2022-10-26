@@ -3,6 +3,8 @@
 #include <gui/view.h>
 #include "../helpers/subghz_custom_event.h"
 
+#define SUBGHZ_RAW_TRESHOLD_MIN -90.0f
+
 typedef struct SubGhzReadRAW SubGhzReadRAW;
 
 typedef void (*SubGhzReadRAWCallback)(SubGhzCustomEvent event, void* context);
@@ -40,11 +42,12 @@ void subghz_read_raw_stop_send(SubGhzReadRAW* instance);
 
 void subghz_read_raw_update_sin(SubGhzReadRAW* instance);
 
-void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi);
+void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi, bool trace);
 
 void subghz_read_raw_set_status(
     SubGhzReadRAW* instance,
     SubGhzReadRAWStatus status,
-    const char* file_name);
+    const char* file_name,
+    float raw_threshold_rssi);
 
 View* subghz_read_raw_get_view(SubGhzReadRAW* subghz_static);

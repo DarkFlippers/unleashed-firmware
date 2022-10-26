@@ -292,9 +292,10 @@ Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", fw_artifacts)
 if fwenv["IS_BASE_FIRMWARE"]:
     sdk_source = fwenv.SDKPrebuilder(
         "sdk_origin",
+        # Deps on root SDK headers and generated files
         (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]),
     )
-    # Extra deps for root headers and generated files
+    # Extra deps on headers included in deeper levels
     Depends(sdk_source, fwenv.ProcessSdkDepends("sdk_origin.d"))
 
     fwenv["SDK_DIR"] = fwenv.Dir("sdk")
