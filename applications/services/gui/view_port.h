@@ -16,7 +16,9 @@ typedef struct ViewPort ViewPort;
 
 typedef enum {
     ViewPortOrientationHorizontal,
+    ViewPortOrientationHorizontalFlip,
     ViewPortOrientationVertical,
+    ViewPortOrientationVerticalFlip,
 } ViewPortOrientation;
 
 /** ViewPort Draw callback

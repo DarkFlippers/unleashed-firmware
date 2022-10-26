@@ -7,7 +7,7 @@
 
 // TODO add mutex to view_port ops
 
-static void view_port_rotate_buttons(InputEvent* event) {
+static void view_port_remap_buttons_vertical(InputEvent* event) {
     switch(event->key) {
     case InputKeyUp:
         event->key = InputKeyRight;
@@ -26,12 +26,59 @@ static void view_port_rotate_buttons(InputEvent* event) {
     }
 }
 
-static void view_port_setup_canvas_orientation(const ViewPort* view_port, Canvas* canvas) {
-    if(view_port->orientation == ViewPortOrientationHorizontal) {
-        canvas_set_orientation(canvas, CanvasOrientationHorizontal);
-    } else if(view_port->orientation == ViewPortOrientationVertical) {
-        canvas_set_orientation(canvas, CanvasOrientationVertical);
+static void view_port_remap_buttons_vertical_flip(InputEvent* event) {
+    switch(event->key) {
+    case InputKeyUp:
+        event->key = InputKeyLeft;
+        break;
+    case InputKeyDown:
+        event->key = InputKeyRight;
+        break;
+    case InputKeyRight:
+        event->key = InputKeyUp;
+        break;
+    case InputKeyLeft:
+        event->key = InputKeyDown;
+        break;
+    default:
+        break;
     }
+}
+
+static void view_port_remap_buttons_horizontal_flip(InputEvent* event) {
+    switch(event->key) {
+    case InputKeyUp:
+        event->key = InputKeyDown;
+        break;
+    case InputKeyDown:
+        event->key = InputKeyUp;
+        break;
+    case InputKeyRight:
+        event->key = InputKeyLeft;
+        break;
+    case InputKeyLeft:
+        event->key = InputKeyRight;
+        break;
+    default:
+        break;
+    }
+}
+
+static void view_port_setup_canvas_orientation(const ViewPort* view_port, Canvas* canvas) {
+    switch(view_port->orientation) {
+    case ViewPortOrientationHorizontalFlip:
+        canvas_set_orientation(canvas, CanvasOrientationHorizontalFlip);
+        break;
+    case ViewPortOrientationVertical:
+        canvas_set_orientation(canvas, CanvasOrientationVertical);
+        break;
+    case ViewPortOrientationVerticalFlip:
+        canvas_set_orientation(canvas, CanvasOrientationVerticalFlip);
+        break;
+    default:
+        canvas_set_orientation(canvas, CanvasOrientationHorizontal);
+        break;
+    };
 }
 
 ViewPort* view_port_alloc() {
@@ -122,8 +169,19 @@ void view_port_input(ViewPort* view_port, InputEvent* event) {
     furi_check(view_port->gui);
 
     if(view_port->input_callback) {
-        if(view_port_get_orientation(view_port) == ViewPortOrientationVertical) {
-            view_port_rotate_buttons(event);
+        ViewPortOrientation orientation = view_port_get_orientation(view_port);
+        switch(orientation) {
+        case ViewPortOrientationHorizontalFlip:
+            view_port_remap_buttons_horizontal_flip(event);
+            break;
+        case ViewPortOrientationVertical:
+            view_port_remap_buttons_vertical(event);
+            break;
+        case ViewPortOrientationVerticalFlip:
+            view_port_remap_buttons_vertical_flip(event);
+            break;
+        default:
+            break;
         }
         view_port->input_callback(event, view_port->input_callback_context);
     }

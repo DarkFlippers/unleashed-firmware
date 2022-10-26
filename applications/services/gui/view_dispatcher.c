@@ -331,10 +331,16 @@ void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* vie
     view_dispatcher->current_view = view;
     // Dispatch view enter event
     if(view_dispatcher->current_view) {
-        if(view->orientation == ViewOrientationVertical)
+        if(view->orientation == ViewOrientationVertical) {
             view_port_set_orientation(view_dispatcher->view_port, ViewPortOrientationVertical);
-        else if(view->orientation == ViewOrientationHorizontal)
+        } else if(view->orientation == ViewOrientationVerticalFlip) {
+            view_port_set_orientation(view_dispatcher->view_port, ViewPortOrientationVerticalFlip);
+        } else if(view->orientation == ViewOrientationHorizontal) {
             view_port_set_orientation(view_dispatcher->view_port, ViewPortOrientationHorizontal);
+        } else if(view->orientation == ViewOrientationHorizontalFlip) {
+            view_port_set_orientation(
+                view_dispatcher->view_port, ViewPortOrientationHorizontalFlip);
+        }
         view_enter(view_dispatcher->current_view);
         view_port_enabled_set(view_dispatcher->view_port, true);
         view_port_update(view_dispatcher->view_port);

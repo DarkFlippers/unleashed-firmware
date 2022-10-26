@@ -42,7 +42,9 @@ typedef enum {
 /** Canvas Orientation */
 typedef enum {
     CanvasOrientationHorizontal,
+    CanvasOrientationHorizontalFlip,
     CanvasOrientationVertical,
+    CanvasOrientationVerticalFlip,
 } CanvasOrientation;
 
 /** Font Direction */
