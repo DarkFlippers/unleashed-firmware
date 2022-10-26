@@ -606,9 +606,10 @@ static bool unirfremix_send_sub(UniRFRemix* app, FlipperFormat* fff_data) {
         furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
         furi_hal_subghz_idle();
+
         furi_hal_subghz_set_frequency_and_path(app->txpreset->frequency);
+        furi_hal_gpio_write(&gpio_cc1101_g0, false);
         furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-        furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
         if(!furi_hal_subghz_tx()) {
             FURI_LOG_E(TAG, "Sending not allowed");
