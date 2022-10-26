@@ -25,7 +25,9 @@ extern "C" {
 
 typedef enum {
     ViewOrientationHorizontal,
+    ViewOrientationHorizontalFlip,
     ViewOrientationVertical,
+    ViewOrientationVerticalFlip,
 } ViewOrientation;
 
 /** View, anonymous type */

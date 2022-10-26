@@ -391,16 +391,39 @@ void canvas_set_bitmap_mode(Canvas* canvas, bool alpha) {
 void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation) {
     furi_assert(canvas);
     if(canvas->orientation != orientation) {
-        canvas->orientation = orientation;
-        if(canvas->orientation == CanvasOrientationHorizontal) {
-            FURI_SWAP(canvas->width, canvas->height);
+        switch(orientation) {
+        case CanvasOrientationHorizontal:
+            if(canvas->orientation == CanvasOrientationVertical ||
+               canvas->orientation == CanvasOrientationVerticalFlip) {
+                FURI_SWAP(canvas->width, canvas->height);
+            }
             u8g2_SetDisplayRotation(&canvas->fb, U8G2_R0);
-        } else if(canvas->orientation == CanvasOrientationVertical) {
-            FURI_SWAP(canvas->width, canvas->height);
+            break;
+        case CanvasOrientationHorizontalFlip:
+            if(canvas->orientation == CanvasOrientationVertical ||
+               canvas->orientation == CanvasOrientationVerticalFlip) {
+                FURI_SWAP(canvas->width, canvas->height);
+            }
+            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R2);
+            break;
+        case CanvasOrientationVertical:
+            if(canvas->orientation == CanvasOrientationHorizontal ||
+               canvas->orientation == CanvasOrientationHorizontalFlip) {
+                FURI_SWAP(canvas->width, canvas->height);
+            };
             u8g2_SetDisplayRotation(&canvas->fb, U8G2_R3);
-        } else {
+            break;
+        case CanvasOrientationVerticalFlip:
+            if(canvas->orientation == CanvasOrientationHorizontal ||
+               canvas->orientation == CanvasOrientationHorizontalFlip) {
+                FURI_SWAP(canvas->width, canvas->height);
+            }
+            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R1);
+            break;
+        default:
             furi_assert(0);
         }
+        canvas->orientation = orientation;
     }
 }
 
