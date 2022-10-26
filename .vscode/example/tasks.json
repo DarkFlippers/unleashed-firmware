@@ -109,13 +109,13 @@
             "label": "[Debug] Build FAPs",
             "group": "build",
             "type": "shell",
-            "command": "./fbt plugin_dist"
+            "command": "./fbt fap_dist"
         },
         {
             "label": "[Release] Build FAPs",
             "group": "build",
             "type": "shell",
-            "command": "./fbt COMPACT=1 DEBUG=0 plugin_dist"
+            "command": "./fbt COMPACT=1 DEBUG=0 fap_dist"
         },
         {
             "label": "[Debug] Launch App on Flipper",

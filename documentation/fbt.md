@@ -54,7 +54,7 @@ To run cleanup (think of `make clean`) for specified targets, add `-c` option.
 - `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board)
 - `openocd` - just start OpenOCD
 - `get_blackmagic` - output blackmagic address in gdb remote format. Useful for IDE integration
-- `get_stlink` - output serial numbers for attached STLink probes. Ued for `OPENOCD_ADAPTER_SERIAL=...`.
+- `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `OPENOCD_ADAPTER_SERIAL=...`.
 - `lint`, `format` - run clang-format on C source code to check and reformat it according to `.clang-format` specs
 - `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on Python source code, build system files & application manifests 
 - `cli` - start Flipper CLI session over USB
