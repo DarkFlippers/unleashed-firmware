@@ -1,3 +1,4 @@
+import shutil
 from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Errors import UserError
@@ -9,6 +10,7 @@ from fbt.elfmanifest import assemble_manifest_data
 from fbt.appmanifest import FlipperApplication, FlipperManifestException
 from fbt.sdk import SdkCache
 import itertools
+from ansi.color import fg
 
 
 def BuildAppElf(env, app):
@@ -175,7 +177,8 @@ def validate_app_imports(target, source, env):
     if unresolved_syms:
         SCons.Warnings.warn(
             SCons.Warnings.LinkWarning,
-            f"\033[93m{source[0].path}: app won't run. Unresolved symbols: \033[95m{unresolved_syms}\033[0m",
+            fg.brightyellow(f"{source[0].path}: app won't run. Unresolved symbols: ")
+            + fg.brightmagenta(f"{unresolved_syms}"),
         )
 
 
@@ -209,14 +212,51 @@ def GetExtAppFromPath(env, app_dir):
     return (app, app_elf[0], app_validator[0])
 
 
+def fap_dist_emitter(target, source, env):
+    target_dir = target[0]
+
+    target = []
+    for dist_entry in env["_extapps"]["dist"].values():
+        target.append(target_dir.Dir(dist_entry[0]).File(dist_entry[1][0].name))
+
+    for compact_entry in env["_extapps"]["compact"].values():
+        source.extend(compact_entry)
+
+    return (target, source)
+
+
+def fap_dist_action(target, source, env):
+    # FIXME
+    target_dir = env.Dir("#/assets/resources/apps")
+
+    shutil.rmtree(target_dir.path, ignore_errors=True)
+    for src, target in zip(source, target):
+        os.makedirs(os.path.dirname(target.path), exist_ok=True)
+        shutil.copy(src.path, target.path)
+
+
 def generate(env, **kw):
     env.SetDefault(EXT_APPS_WORK_DIR=kw.get("EXT_APPS_WORK_DIR"))
-    # env.VariantDir(env.subst("$EXT_APPS_WORK_DIR"), env.Dir("#"), duplicate=False)
+
+    if not env["VERBOSE"]:
+        env.SetDefault(
+            FAPDISTCOMSTR="\tFAPDIST\t${TARGET}",
+            APPMETA_COMSTR="\tAPPMETA\t${TARGET}",
+            APPMETAEMBED_COMSTR="\tFAP\t${TARGET}",
+            APPCHECK_COMSTR="\tAPPCHK\t${SOURCE}",
+        )
 
     env.AddMethod(BuildAppElf)
     env.AddMethod(GetExtAppFromPath)
     env.Append(
         BUILDERS={
+            "FapDist": Builder(
+                action=Action(
+                    fap_dist_action,
+                    "$FAPDISTCOMSTR",
+                ),
+                emitter=fap_dist_emitter,
+            ),
             "EmbedAppMetadata": Builder(
                 action=[
                     Action(prepare_app_metadata, "$APPMETA_COMSTR"),

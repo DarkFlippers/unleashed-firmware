@@ -30,22 +30,25 @@ def dolphin_emitter(target, source, env):
     res_root_dir = source[0].Dir(env["DOLPHIN_RES_TYPE"])
     source = [res_root_dir]
     source.extend(
-        env.GlobRecursive("*.*", res_root_dir),
+        env.GlobRecursive("*.*", res_root_dir.srcnode()),
     )
 
     target_base_dir = target[0]
     env.Replace(_DOLPHIN_OUT_DIR=target[0])
 
     if env["DOLPHIN_RES_TYPE"] == "external":
-        target = []
-        target.extend(
-            map(
-                lambda node: target_base_dir.File(
-                    res_root_dir.rel_path(node).replace(".png", ".bm")
-                ),
-                filter(lambda node: isinstance(node, SCons.Node.FS.File), source),
-            )
-        )
+        target = [target_base_dir.File("manifest.txt")]
+        ## A detailed list of files to be generated
+        ## works better if we just leave target the folder
+        # target = []
+        # target.extend(
+        #     map(
+        #         lambda node: target_base_dir.File(
+        #             res_root_dir.rel_path(node).replace(".png", ".bm")
+        #         ),
+        #         filter(lambda node: isinstance(node, SCons.Node.FS.File), source),
+        #     )
+        # )
     else:
         asset_basename = f"assets_dolphin_{env['DOLPHIN_RES_TYPE']}"
         target = [
@@ -53,6 +56,13 @@ def dolphin_emitter(target, source, env):
             target_base_dir.File(asset_basename + ".h"),
         ]
 
+    # Debug output
+    # print(
+    #     f"Dolphin res type: {env['DOLPHIN_RES_TYPE']},\ntarget files:",
+    #     list(f.path for f in target),
+    #     f"\nsource files:",
+    #     list(f.path for f in source),
+    # )
     return target, source
 
 

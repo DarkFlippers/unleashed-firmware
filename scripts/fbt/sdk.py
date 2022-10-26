@@ -7,6 +7,8 @@ from enum import Enum, auto
 from typing import List, Set, ClassVar, Any
 from dataclasses import dataclass, field
 
+from ansi.color import fg
+
 from cxxheaderparser.parser import CxxParser
 
 
@@ -394,21 +396,26 @@ class SdkCache:
         if self._have_pending_entries():
             self.new_entries.add(self.version)
             print(
-                f"API version is still WIP: {self.version}. Review the changes and re-run command."
+                fg.red(
+                    f"API version is still WIP: {self.version}. Review the changes and re-run command."
+                )
             )
-            print(f"Entries to review:")
+            print(f"CSV file entries to mark up:")
             print(
-                "\n".join(
-                    map(
-                        str,
-                        filter(
-                            lambda e: not isinstance(e, SdkVersion), self.new_entries
-                        ),
+                fg.yellow(
+                    "\n".join(
+                        map(
+                            str,
+                            filter(
+                                lambda e: not isinstance(e, SdkVersion),
+                                self.new_entries,
+                            ),
+                        )
                     )
                 )
             )
         else:
-            print(f"API version {self.version} is up to date")
+            print(fg.green(f"API version {self.version} is up to date"))
 
         regenerate_csv = (
             self.loaded_dirty_version

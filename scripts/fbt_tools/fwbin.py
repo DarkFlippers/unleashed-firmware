@@ -12,6 +12,14 @@ def generate(env):
         OBJCOPY=__OBJCOPY_ARM_BIN,  # FIXME
         NM=__NM_ARM_BIN,  # FIXME
     )
+
+    if not env["VERBOSE"]:
+        env.SetDefault(
+            HEXCOMSTR="\tHEX\t${TARGET}",
+            BINCOMSTR="\tBIN\t${TARGET}",
+            DFUCOMSTR="\tDFU\t${TARGET}",
+        )
+
     env.Append(
         BUILDERS={
             "HEXBuilder": Builder(

@@ -1,0 +1,43 @@
+import SCons.Warnings as Warnings
+
+# from SCons.Script.Main import find_deepest_user_frame
+
+from ansi.color import fg, bg, fx
+
+import traceback
+import sys
+import os
+
+
+def find_deepest_user_frame(tb):
+    tb.reverse()
+
+    # find the deepest traceback frame that is not part
+    # of SCons:
+    for frame in tb:
+        filename = frame[0]
+        if filename.find("fbt_tweaks") != -1:
+            continue
+        if filename.find(os.sep + "SCons" + os.sep) == -1:
+            return frame
+    return tb[0]
+
+
+def fbt_warning(e):
+    filename, lineno, routine, dummy = find_deepest_user_frame(
+        traceback.extract_stack()
+    )
+    fbt_line = "\nfbt: warning: %s\n" % e.args[0]
+    sys.stderr.write(fg.boldmagenta(fbt_line))
+    fbt_line = (
+        fg.yellow("%s, line %d, " % (routine, lineno)) + 'in file "%s"\n' % filename
+    )
+    sys.stderr.write(fg.yellow(fbt_line))
+
+
+def generate(env):
+    Warnings._warningOut = fbt_warning
+
+
+def exists():
+    return True
