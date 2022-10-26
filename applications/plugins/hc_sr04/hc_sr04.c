@@ -181,12 +181,15 @@ int32_t hc_sr04_app() {
 
     hc_sr04_state_init(plugin_state);
 
+    furi_hal_console_disable();
+
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, plugin_state, sizeof(PluginState))) {
         FURI_LOG_E("hc_sr04", "cannot create mutex\r\n");
         if(furi_hal_power_is_otg_enabled()) {
             furi_hal_power_disable_otg();
         }
+        furi_hal_console_enable();
         furi_hal_power_suppress_charge_exit();
         furi_message_queue_free(event_queue);
         free(plugin_state);
@@ -239,6 +242,22 @@ int32_t hc_sr04_app() {
         furi_hal_power_disable_otg();
     }
     furi_hal_power_suppress_charge_exit();
+
+    // Return TX / RX back to usart mode
+    furi_hal_gpio_init_ex(
+        &gpio_usart_tx,
+        GpioModeAltFunctionPushPull,
+        GpioPullUp,
+        GpioSpeedVeryHigh,
+        GpioAltFn7USART1);
+    furi_hal_gpio_init_ex(
+        &gpio_usart_rx,
+        GpioModeAltFunctionPushPull,
+        GpioPullUp,
+        GpioSpeedVeryHigh,
+        GpioAltFn7USART1);
+    furi_hal_console_enable();
+
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close(RECORD_GUI);

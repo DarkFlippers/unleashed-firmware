@@ -795,8 +795,6 @@ int32_t wifi_scanner_app(void* p) {
                     }
                 }
             }
-        } else {
-            WIFI_APP_LOG_D("osMessageQueue: event timeout");
         }
 
 #if ENABLE_MODULE_DETECTION
@@ -819,6 +817,9 @@ int32_t wifi_scanner_app(void* p) {
     furi_thread_free(app->m_worker_thread);
 
     WIFI_APP_LOG_I("Thread Deleted");
+
+    // Reset GPIO pins to default state
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 
 #if DISABLE_CONSOLE
     furi_hal_console_enable();

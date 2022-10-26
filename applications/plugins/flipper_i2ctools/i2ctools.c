@@ -639,6 +639,9 @@ int32_t i2ctools_app(void* p) {
         }
         view_port_update(i2caddrs->view_port);
     }
+    // Reset GPIO pins to default state
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     gui_remove_view_port(gui, i2caddrs->view_port);
     view_port_free(i2caddrs->view_port);
     furi_message_queue_free(event_queue);

@@ -18,7 +18,7 @@
 #define DEAUTH_APP_DEBUG 0
 
 #if DEAUTH_APP_DEBUG
-#define APP_NAME_TAG "WiFi_Scanner"
+#define APP_NAME_TAG "WiFi_Deauther"
 #define DEAUTH_APP_LOG_I(format, ...) FURI_LOG_I(APP_NAME_TAG, format, ##__VA_ARGS__)
 #define DEAUTH_APP_LOG_D(format, ...) FURI_LOG_D(APP_NAME_TAG, format, ##__VA_ARGS__)
 #define DEAUTH_APP_LOG_E(format, ...) FURI_LOG_E(APP_NAME_TAG, format, ##__VA_ARGS__)
@@ -167,7 +167,7 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
             canvas_clear(canvas);
             canvas_set_font(canvas, FontSecondary);
 
-            const char* strInitializing = "Attach WiFi scanner module";
+            const char* strInitializing = "Attach WiFi Deauther module";
             canvas_draw_str(
                 canvas,
                 (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
@@ -472,8 +472,6 @@ int32_t esp8266_deauth_app(void* p) {
                     }
                 }
             }
-        } else {
-            DEAUTH_APP_LOG_D("osMessageQueue: event timeout");
         }
 
 #if ENABLE_MODULE_DETECTION
@@ -496,6 +494,13 @@ int32_t esp8266_deauth_app(void* p) {
     furi_thread_free(app->m_worker_thread);
 
     DEAUTH_APP_LOG_I("Thread Deleted");
+
+    // Reset GPIO pins to default state
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pc3, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pb2, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pb3, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 
 #if DISABLE_CONSOLE
     furi_hal_console_enable();
