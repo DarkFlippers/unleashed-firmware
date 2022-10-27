@@ -4,6 +4,7 @@
 
 #include <furi.h>
 #include <furi_hal_power.h>
+#include <furi_hal_console.h>
 #include <gui/gui.h>
 #include <input/input.h>
 #include <stdlib.h>
