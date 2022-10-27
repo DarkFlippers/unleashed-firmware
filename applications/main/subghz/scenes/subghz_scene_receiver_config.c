@@ -195,7 +195,7 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
     const char* preset_name = subghz_setting_get_preset_name(subghz->setting, index);
     variable_item_set_current_value_text(item, preset_name);
-    subghz->last_settings->preset = index;
+    //subghz->last_settings->preset = index;
 
     subghz_preset_init(
         subghz,
