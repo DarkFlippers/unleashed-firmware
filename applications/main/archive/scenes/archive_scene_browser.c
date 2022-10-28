@@ -150,6 +150,13 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneInfo);
             consumed = true;
             break;
+        case ArchiveBrowserEventFileMenuShow:
+            archive_show_file_menu(browser, false);
+            scene_manager_set_scene_state(
+                archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_DEFAULT);
+            scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneShow);
+            consumed = true;
+            break;
         case ArchiveBrowserEventFileMenuDelete:
             if(archive_get_tab(browser) != ArchiveTabFavorites) {
                 scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneDelete);
