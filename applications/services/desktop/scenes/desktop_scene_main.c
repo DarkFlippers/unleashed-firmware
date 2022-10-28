@@ -195,6 +195,46 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         }
+        case DesktopMainEventOpenTetris: {
+            LoaderStatus status = loader_start(
+                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Tetris.fap"));
+            if(status != LoaderStatusOk) {
+                FURI_LOG_E(TAG, "loader_start failed: %d", status);
+            }
+            break;
+        }
+        case DesktopMainEventOpenArkanoid: {
+            LoaderStatus status = loader_start(
+                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Arkanoid.fap"));
+            if(status != LoaderStatusOk) {
+                FURI_LOG_E(TAG, "loader_start failed: %d", status);
+            }
+            break;
+        }
+        case DesktopMainEventOpenDOOM: {
+            LoaderStatus status = loader_start(
+                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/DOOM.fap"));
+            if(status != LoaderStatusOk) {
+                FURI_LOG_E(TAG, "loader_start failed: %d", status);
+            }
+            break;
+        }
+        case DesktopMainEventOpenZombiez: {
+            LoaderStatus status = loader_start(
+                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Zombiez.fap"));
+            if(status != LoaderStatusOk) {
+                FURI_LOG_E(TAG, "loader_start failed: %d", status);
+            }
+            break;
+        }
+        case DesktopMainEventOpenHeap: {
+            LoaderStatus status = loader_start(
+                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/heap_defence.fap"));
+            if(status != LoaderStatusOk) {
+                FURI_LOG_E(TAG, "loader_start failed: %d", status);
+            }
+            break;
+        }
         case DesktopLockedEventUpdate:
             desktop_view_locked_update(desktop->locked_view);
             consumed = true;

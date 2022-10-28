@@ -69,20 +69,41 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
                 main_view->callback(DesktopMainEventOpenFavoriteSecondary, main_view->context);
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventLock, main_view->context);
+            } else if(event->key == InputKeyOk) {
+                if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                    main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
+                }
             }
         }
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyOk) {
-                main_view->callback(DesktopMainEventOpenGameMenu, main_view->context);
+                main_view->callback(
+                    DesktopMainEventOpenGameMenu, main_view->context); // OPENS Snake
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
             } else if(event->key == InputKeyDown) {
-                main_view->callback(DesktopMainEventOpenPassport, main_view->context);
+                main_view->callback(
+                    DesktopMainEventOpenTetris, main_view->context); // OPENS Tetris
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenPassport, main_view->context);
+                main_view->callback(
+                    DesktopMainEventOpenArkanoid, main_view->context); // OPENS Arkanoid
             }
             // Right key is handled by animation manager
+        } else if(event->type == InputTypeLong) {
+            if(event->key == InputKeyOk) {
+                if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                    main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
+                }
+            } else if(event->key == InputKeyUp) {
+                main_view->callback(DesktopMainEventOpenDOOM, main_view->context); // OPENS DOOM
+            } else if(event->key == InputKeyDown) {
+                main_view->callback(
+                    DesktopMainEventOpenZombiez, main_view->context); // OPENS Zombiez
+            } else if(event->key == InputKeyLeft) {
+                main_view->callback(
+                    DesktopMainEventOpenHeap, main_view->context); // OPENS Heap Defence
+            }
         }
     }
 
