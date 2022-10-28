@@ -4,6 +4,8 @@
 
 #define TAG "Archive"
 
+#define SHOW_MAX_FILE_SIZE 20000
+
 void archive_scene_show_widget_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
     ArchiveApp* app = (ArchiveApp*)context;
@@ -29,14 +31,23 @@ void archive_scene_show_on_enter(void* context) {
     FileInfo fileinfo;
     storage_common_stat(fs_api, furi_string_get_cstr(current->path), &fileinfo);
 
-    storage_file_open(file, furi_string_get_cstr(current->path), FSAM_READ, FSOM_OPEN_EXISTING);
-    char* content = malloc(fileinfo.size + 1);
+    if (fileinfo.size < SHOW_MAX_FILE_SIZE) {
+        storage_file_open(file, furi_string_get_cstr(current->path), FSAM_READ, FSOM_OPEN_EXISTING);
+        char* content = malloc(fileinfo.size + 1);
 
-    bytes_count = storage_file_read(file, content, fileinfo.size);
-    content[bytes_count + 1] = 0;
+        bytes_count = storage_file_read(file, content, fileinfo.size);
+        content[bytes_count + 1] = 0;
 
-    widget_add_text_scroll_element(
-        instance->widget, 0, 0, 128, 64, content);
+        widget_add_text_scroll_element(
+            instance->widget, 0, 0, 128, 64, content);
+
+        free(content);
+        storage_file_close(file);
+    } else {
+        widget_add_text_box_element(
+            instance->widget, 0, 0, 128, 64, AlignLeft, AlignCenter,
+            "\e#Error:\nFile is too large to show\e#", false);
+    }
 
     path_extract_filename(current->path, filename, false);
 
@@ -44,8 +55,6 @@ void archive_scene_show_on_enter(void* context) {
     path_extract_filename_no_ext(furi_string_get_cstr(current->path), filename);
     strlcpy(instance->text_store, furi_string_get_cstr(filename), MAX_NAME_LEN);
 
-    free(content);
-    storage_file_close(file);
     storage_file_free(file);
 
     furi_string_free(filename);
