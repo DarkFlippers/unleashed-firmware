@@ -2,6 +2,7 @@
 #include <gui/view.h>
 #include <gui/elements.h>
 #include <gui/canvas.h>
+#include <assets_icons.h>
 #include <furi.h>
 #include <input/input.h>
 

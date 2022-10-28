@@ -6,6 +6,7 @@
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
+#include <assets_icons.h>
 
 #include "views/battery_info.h"
 #include <gui/modules/submenu.h>

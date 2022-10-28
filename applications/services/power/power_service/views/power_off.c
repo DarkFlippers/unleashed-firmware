@@ -1,6 +1,7 @@
 #include "power_off.h"
 #include <furi.h>
 #include <gui/elements.h>
+#include <assets_icons.h>
 
 struct PowerOff {
     View* view;

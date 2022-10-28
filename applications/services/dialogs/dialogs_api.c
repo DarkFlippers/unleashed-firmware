@@ -1,6 +1,7 @@
 #include "dialogs/dialogs_message.h"
 #include "dialogs_i.h"
 #include "dialogs_api_lock.h"
+#include <assets_icons.h>
 
 /****************** File browser ******************/
 

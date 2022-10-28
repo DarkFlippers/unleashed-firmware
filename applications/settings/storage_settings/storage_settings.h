@@ -4,6 +4,7 @@
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
+#include <assets_icons.h>
 #include <notification/notification_messages.h>
 
 #include <gui/modules/submenu.h>

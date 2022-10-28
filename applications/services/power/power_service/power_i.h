@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <gui/view_dispatcher.h>
 #include <gui/gui.h>
+#include <assets_icons.h>
 
 #include <gui/modules/popup.h>
 #include "views/power_off.h"

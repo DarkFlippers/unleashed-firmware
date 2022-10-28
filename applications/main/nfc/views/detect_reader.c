@@ -1,5 +1,5 @@
 #include "detect_reader.h"
-
+#include <assets_icons.h>
 #include <gui/elements.h>
 
 struct DetectReader {

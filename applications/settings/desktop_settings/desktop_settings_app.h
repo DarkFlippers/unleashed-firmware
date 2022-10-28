@@ -7,6 +7,7 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/variable_item_list.h>
 #include <dialogs/dialogs.h>
+#include <assets_icons.h>
 
 #include <desktop/desktop_settings.h>
 #include <desktop/views/desktop_view_pin_input.h>

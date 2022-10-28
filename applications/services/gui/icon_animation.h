@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <assets_icons.h>
+#include <gui/icon.h>
 
 #ifdef __cplusplus
 extern "C" {

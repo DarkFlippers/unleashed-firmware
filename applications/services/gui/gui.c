@@ -1,5 +1,6 @@
 #include "gui/canvas.h"
 #include "gui_i.h"
+#include <assets_icons.h>
 
 #define TAG "GuiSrv"
 

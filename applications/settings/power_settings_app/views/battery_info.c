@@ -1,6 +1,7 @@
 #include "battery_info.h"
 #include <furi.h>
 #include <gui/elements.h>
+#include <assets_icons.h>
 
 struct BatteryInfo {
     View* view;

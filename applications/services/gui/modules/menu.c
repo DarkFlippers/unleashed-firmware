@@ -2,6 +2,7 @@
 
 #include <m-array.h>
 #include <gui/elements.h>
+#include <assets_icons.h>
 #include <furi.h>
 
 struct Menu {
