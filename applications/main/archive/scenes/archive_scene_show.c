@@ -56,6 +56,7 @@ void archive_scene_show_on_enter(void* context) {
     strlcpy(instance->text_store, furi_string_get_cstr(filename), MAX_NAME_LEN);
 
     storage_file_free(file);
+    furi_record_close(RECORD_STORAGE);
 
     furi_string_free(filename);
     furi_string_free(str_size);
