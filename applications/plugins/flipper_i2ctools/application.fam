@@ -9,4 +9,5 @@ App(
     order=175,
     fap_icon="i2ctools.png",
     fap_category="GPIO",
+    fap_icon_assets="images",
 )

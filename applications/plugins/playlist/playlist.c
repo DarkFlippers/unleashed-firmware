@@ -6,7 +6,7 @@
 #include <storage/storage.h>
 
 #include <lib/toolbox/path.h>
-#include <assets_icons.h>
+#include <SubGHz_Playlist_icons.h>
 
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
