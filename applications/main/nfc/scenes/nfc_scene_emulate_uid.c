@@ -1,5 +1,4 @@
 #include "../nfc_i.h"
-#include <dolphin/dolphin.h>
 
 #define NFC_SCENE_EMULATE_UID_LOG_SIZE_MAX (200)
 
@@ -59,7 +58,6 @@ static void nfc_scene_emulate_uid_widget_config(Nfc* nfc, bool data_received) {
 
 void nfc_scene_emulate_uid_on_enter(void* context) {
     Nfc* nfc = context;
-    DOLPHIN_DEED(DolphinDeedNfcEmulate);
 
     // Setup Widget
     nfc_scene_emulate_uid_widget_config(nfc, false);

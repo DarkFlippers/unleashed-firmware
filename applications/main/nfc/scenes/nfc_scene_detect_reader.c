@@ -1,5 +1,4 @@
 #include "../nfc_i.h"
-#include <dolphin/dolphin.h>
 
 #define NFC_SCENE_DETECT_READER_PAIR_NONCES_MAX (10U)
 
@@ -26,7 +25,6 @@ void nfc_scene_detect_reader_callback(void* context) {
 
 void nfc_scene_detect_reader_on_enter(void* context) {
     Nfc* nfc = context;
-    DOLPHIN_DEED(DolphinDeedNfcDetectReader);
 
     detect_reader_set_callback(nfc->detect_reader, nfc_scene_detect_reader_callback, nfc);
     detect_reader_set_nonces_max(nfc->detect_reader, NFC_SCENE_DETECT_READER_PAIR_NONCES_MAX);

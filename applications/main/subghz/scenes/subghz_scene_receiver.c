@@ -1,5 +1,6 @@
 #include "../subghz_i.h"
 #include "../views/receiver.h"
+#include <dolphin/dolphin.h>
 
 static const NotificationSequence subghs_sequence_rx = {
     &message_green_255,
@@ -181,6 +182,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
+            DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverConfig:

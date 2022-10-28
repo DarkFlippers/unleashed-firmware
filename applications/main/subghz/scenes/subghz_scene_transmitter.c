@@ -50,7 +50,6 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
 
 void subghz_scene_transmitter_on_enter(void* context) {
     SubGhz* subghz = context;
-    DOLPHIN_DEED(DolphinDeedSubGhzSend);
     if(!subghz_scene_transmitter_update_data_show(subghz)) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventViewTransmitterError);
@@ -78,6 +77,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 } else {
                     subghz->state_notifications = SubGhzNotificationStateTx;
                     subghz_scene_transmitter_update_data_show(subghz);
+                    DOLPHIN_DEED(DolphinDeedSubGhzSend);
                 }
             }
             return true;

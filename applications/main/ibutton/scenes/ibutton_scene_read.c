@@ -11,7 +11,6 @@ void ibutton_scene_read_on_enter(void* context) {
     Popup* popup = ibutton->popup;
     iButtonKey* key = ibutton->key;
     iButtonWorker* worker = ibutton->key_worker;
-    DOLPHIN_DEED(DolphinDeedIbuttonRead);
 
     popup_set_header(popup, "iButton", 95, 26, AlignCenter, AlignBottom);
     popup_set_text(popup, "Waiting\nfor key ...", 95, 30, AlignCenter, AlignTop);
@@ -54,8 +53,8 @@ bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
             if(success) {
                 ibutton_notification_message(ibutton, iButtonNotificationMessageSuccess);
                 ibutton_notification_message(ibutton, iButtonNotificationMessageGreenOn);
-                DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
                 scene_manager_next_scene(scene_manager, iButtonSceneReadSuccess);
+                DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
             }
         }
     }

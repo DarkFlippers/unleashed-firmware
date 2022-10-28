@@ -1,5 +1,4 @@
 #include "../nfc_i.h"
-#include <dolphin/dolphin.h>
 
 void nfc_scene_read_card_success_widget_callback(
     GuiButtonType result,
@@ -18,7 +17,6 @@ void nfc_scene_read_card_success_on_enter(void* context) {
 
     FuriString* temp_str;
     temp_str = furi_string_alloc();
-    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Setup view
     FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;

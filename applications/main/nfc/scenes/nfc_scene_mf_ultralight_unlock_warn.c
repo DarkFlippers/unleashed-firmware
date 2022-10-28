@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 void nfc_scene_mf_ultralight_unlock_warn_dialog_callback(DialogExResult result, void* context) {
     Nfc* nfc = context;
@@ -30,6 +31,7 @@ bool nfc_scene_mf_ultralight_unlock_warn_on_event(void* context, SceneManagerEve
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DialogExResultCenter) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightReadAuth);
+            DOLPHIN_DEED(DolphinDeedNfcRead);
             consumed = true;
         }
     }
