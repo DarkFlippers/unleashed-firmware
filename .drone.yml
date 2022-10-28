@@ -86,7 +86,10 @@ steps:
 
         [-Github-](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
 
+
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
+
+
 
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
       document:
