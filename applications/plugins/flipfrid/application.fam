@@ -9,4 +9,5 @@ App(
     order=15,
     fap_icon="rfid_10px.png",
     fap_category="Tools",
+    fap_icon_assets="images",
 )
