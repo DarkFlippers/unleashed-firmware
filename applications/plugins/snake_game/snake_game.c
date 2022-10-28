@@ -41,7 +41,7 @@ typedef enum {
     DirectionLeft,
 } Direction;
 
-#define MAX_SNAKE_LEN 128*64/4
+#define MAX_SNAKE_LEN 128 * 64 / 4
 
 typedef struct {
     Point points[MAX_SNAKE_LEN];
@@ -268,7 +268,6 @@ static void
         return;
     }
 
-    
     snake_state->currentMovement = snake_game_get_turn_snake(snake_state);
 
     Point next_step = snake_game_get_next_step(snake_state);

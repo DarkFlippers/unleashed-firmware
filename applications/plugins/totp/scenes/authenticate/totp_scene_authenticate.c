@@ -73,7 +73,9 @@ void totp_scene_authenticate_render(Canvas* const canvas, PluginState* plugin_st
     }
 }
 
-bool totp_scene_authenticate_handle_event(const PluginEvent* const event, PluginState* plugin_state) {
+bool totp_scene_authenticate_handle_event(
+    const PluginEvent* const event,
+    PluginState* plugin_state) {
     if(event->type == EventTypeKey) {
         if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
             return false;

@@ -90,7 +90,9 @@ void totp_scene_app_settings_render(Canvas* const canvas, PluginState* plugin_st
         scene_state->selected_control == ConfirmButton);
 }
 
-bool totp_scene_app_settings_handle_event(const PluginEvent* const event, PluginState* plugin_state) {
+bool totp_scene_app_settings_handle_event(
+    const PluginEvent* const event,
+    PluginState* plugin_state) {
     if(event->type == EventTypeKey) {
         SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
         if(event->input.type == InputTypePress) {
