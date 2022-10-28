@@ -3,7 +3,7 @@
 * Added Infrared API for .fap's
 * **OFW: Mf Classic initial write, update, detect reader (when card has not readed keys/sectors you can use it as simulation for detect reader)**
 * OFW: New Keeloq magic serial type 2, 3
-* Plugins: SubGHz Bruteforcer - ability to add extra repeats (by @derskythe)
+* Plugins: SubGHz Bruteforcer - ability to add extra repeats (by @derskythe) (**Select by pressing left/right in first start screen! not in attack screen**)
 * PR: File Browser (archive): Context menu option to show file content (by @askoriy | PR #139) (aka text file viewer) !!!
 * PR: Flappy Bird: Increase pilars line width to improve visibility (by @ahumeniy | PR #140)
 * PR: Add Dummy Mode Game Shortcuts (run more games by clicking and holding buttons on main screen) (by @RogueMaster | PR #137)
