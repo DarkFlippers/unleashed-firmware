@@ -21,6 +21,11 @@ class Main(App):
         self.parser_mkdir.add_argument("flipper_path", help="Flipper path")
         self.parser_mkdir.set_defaults(func=self.mkdir)
 
+        self.parser_format = self.subparsers.add_parser(
+            "format_ext", help="Format flash card"
+        )
+        self.parser_format.set_defaults(func=self.format_ext)
+
         self.parser_remove = self.subparsers.add_parser(
             "remove", help="Remove file/directory"
         )
@@ -272,6 +277,17 @@ class Main(App):
 
         self.logger.debug(f'Listing "{self.args.flipper_path}"')
         storage.list_tree(self.args.flipper_path)
+        storage.stop()
+        return 0
+
+    def format_ext(self):
+        if not (storage := self._get_storage()):
+            return 1
+
+        self.logger.debug("Formatting /ext SD card")
+
+        if not storage.format_ext():
+            self.logger.error(f"Error: {storage.last_error}")
         storage.stop()
         return 0
 

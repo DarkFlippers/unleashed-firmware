@@ -340,6 +340,19 @@ class FlipperStorage:
         else:
             return True
 
+    def format_ext(self):
+        """Create a directory on Flipper"""
+        self.send_and_wait_eol("storage format /ext\r")
+        self.send_and_wait_eol("y\r")
+        answer = self.read.until(self.CLI_EOL)
+        self.read.until(self.CLI_PROMPT)
+
+        if self.has_error(answer):
+            self.last_error = self.get_error(answer)
+            return False
+        else:
+            return True
+
     def remove(self, path):
         """Remove file or directory on Flipper"""
         self.send_and_wait_eol('storage remove "' + path + '"\r')
