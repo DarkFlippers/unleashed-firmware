@@ -2,6 +2,7 @@
 #include <lib/toolbox/random_name.h>
 #include <gui/modules/validators.h>
 #include <toolbox/path.h>
+#include <dolphin/dolphin.h>
 
 void nfc_scene_save_name_text_input_callback(void* context) {
     Nfc* nfc = context;
@@ -63,6 +64,13 @@ bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
             strlcpy(nfc->dev->dev_name, nfc->text_store, strlen(nfc->text_store) + 1);
             if(nfc_device_save(nfc->dev, nfc->text_store)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
+                if(!scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
+                    // Nothing, do not count editing as saving
+                } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
+                    DOLPHIN_DEED(DolphinDeedNfcAddSave);
+                } else {
+                    DOLPHIN_DEED(DolphinDeedNfcSave);
+                }
                 consumed = true;
             } else {
                 consumed = scene_manager_search_and_switch_to_previous_scene(

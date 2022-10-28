@@ -1,6 +1,5 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
-#include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/protocols/star_line.h>
 
@@ -115,7 +114,6 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
 void subghz_scene_receiver_info_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
     subghz_scene_receiver_info_draw_widget(subghz);
 }
 

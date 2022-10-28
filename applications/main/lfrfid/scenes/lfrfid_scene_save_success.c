@@ -1,5 +1,4 @@
 #include "../lfrfid_i.h"
-#include <dolphin/dolphin.h>
 
 void lfrfid_scene_save_success_on_enter(void* context) {
     LfRfid* app = context;
@@ -8,7 +7,6 @@ void lfrfid_scene_save_success_on_enter(void* context) {
     // Clear state of data enter scene
     scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSaveData, 0);
 
-    DOLPHIN_DEED(DolphinDeedRfidSave);
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
     popup_set_header(popup, "Saved!", 5, 7, AlignLeft, AlignTop);
     popup_set_context(popup, app);
