@@ -41,6 +41,11 @@ static void gps_uart_parse_nmea(GpsUart* gps_uart, char* line) {
             gps_uart->status.longitude = minmea_tocoord(&frame.longitude);
             gps_uart->status.speed = minmea_tofloat(&frame.speed);
             gps_uart->status.course = minmea_tofloat(&frame.course);
+            gps_uart->status.time_hours = frame.time.hours;
+            gps_uart->status.time_minutes = frame.time.minutes;
+            gps_uart->status.time_seconds = frame.time.seconds;
+
+            notification_message_block(gps_uart->notifications, &sequence_blink_green_10);
         }
     } break;
 
@@ -53,6 +58,11 @@ static void gps_uart_parse_nmea(GpsUart* gps_uart, char* line) {
             gps_uart->status.altitude_units = frame.altitude_units;
             gps_uart->status.fix_quality = frame.fix_quality;
             gps_uart->status.satellites_tracked = frame.satellites_tracked;
+            gps_uart->status.time_hours = frame.time.hours;
+            gps_uart->status.time_minutes = frame.time.minutes;
+            gps_uart->status.time_seconds = frame.time.seconds;
+
+            notification_message_block(gps_uart->notifications, &sequence_blink_magenta_10);
         }
     } break;
 
@@ -135,6 +145,11 @@ GpsUart* gps_uart_enable() {
     gps_uart->status.altitude_units = ' ';
     gps_uart->status.fix_quality = 0;
     gps_uart->status.satellites_tracked = 0;
+    gps_uart->status.time_hours = 0;
+    gps_uart->status.time_minutes = 0;
+    gps_uart->status.time_seconds = 0;
+
+    gps_uart->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     gps_uart->thread = furi_thread_alloc();
     furi_thread_set_name(gps_uart->thread, "GpsUartWorker");
@@ -151,5 +166,8 @@ void gps_uart_disable(GpsUart* gps_uart) {
     furi_thread_flags_set(furi_thread_get_id(gps_uart->thread), WorkerEvtStop);
     furi_thread_join(gps_uart->thread);
     furi_thread_free(gps_uart->thread);
+
+    furi_record_close(RECORD_NOTIFICATION);
+
     free(gps_uart);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <furi_hal.h>
+#include <notification/notification_messages.h>
 
 #define GPS_BAUDRATE 9600
 #define RX_BUF_SIZE 1024
@@ -15,12 +16,17 @@ typedef struct {
     char altitude_units;
     int fix_quality;
     int satellites_tracked;
+    int time_hours;
+    int time_minutes;
+    int time_seconds;
 } GpsStatus;
 
 typedef struct {
     FuriThread* thread;
     FuriStreamBuffer* rx_stream;
     uint8_t rx_buf[RX_BUF_SIZE];
+
+    NotificationApp* notifications;
 
     GpsStatus status;
 } GpsUart;
