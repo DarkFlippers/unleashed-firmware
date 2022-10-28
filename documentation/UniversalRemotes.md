@@ -1,4 +1,18 @@
 # Universal Remotes
+## Audio Players
+### Recording signals
+Adding your audio player to the universal remote is quite straightforward. 8 signals can be recorded: `Power`, `Play`, `Pause`, `Vol_up`, `Vol_dn`, `Next`, `Prev`, `Mute`. Any of them can be omitted if it is not supported by the device. 
+
+The signal names are self-explanatory. 
+On many remotes, the `Play` button doubles as `Pause`. In this case record it as `Play` omitting the `Pause`.
+Make sure that every signal does what it's supposed to.
+
+If everything checks out, append these signals **to the end** of the [Audio players universal remote file](/assets/resources/infrared/assets/audio.ir).
+
+The order of signals is not important, but they must be preceded by a following comment: `# Model: <Your model name>` in order to keep the library organised.
+
+When done, open a pull request containing the changed file.
+
 ## Air Conditioners
 ### Recording signals
 Air conditioners differ from most other infrared-controlled devices because their state is tracked by the remote.
@@ -31,7 +45,7 @@ Finally, record the `Off` signal:
 4. Save the resulting signal under the name `Off`.
 
 The resulting remote file should now contain 6 signals. Any of them can be omitted, but that will mean that this functionality will not be used.
-Test the file against the actual device. Every signal must do what it's supposed to.
+Test the file against the actual device. Make sure that every signal does what it's supposed to.
 
 If everything checks out, append these signals **to the end** of the [A/C universal remote file](/assets/resources/infrared/assets/ac.ir).
 

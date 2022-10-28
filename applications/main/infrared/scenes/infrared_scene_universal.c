@@ -23,6 +23,12 @@ void infrared_scene_universal_on_enter(void* context) {
         context);
     submenu_add_item(
         submenu,
+        "Audio Players",
+        SubmenuIndexUniversalAudio,
+        infrared_scene_universal_submenu_callback,
+        context);
+    submenu_add_item(
+        submenu,
         "Air Conditioners",
         SubmenuIndexUniversalAC,
         infrared_scene_universal_submenu_callback,
@@ -45,7 +51,7 @@ bool infrared_scene_universal_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversalAC);
             consumed = true;
         } else if(event.event == SubmenuIndexUniversalAudio) {
-            //TODO Implement Audio universal remote
+            scene_manager_next_scene(scene_manager, InfraredSceneUniversalAudio);
             consumed = true;
         }
     }
