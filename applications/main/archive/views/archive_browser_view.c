@@ -80,10 +80,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_info,
                 ArchiveBrowserEventFileMenuInfo);
-            archive_menu_add_item(
-                menu_array_push_raw(model->context_menu),
-                item_show,
-                ArchiveBrowserEventFileMenuShow);
+            if(selected->is_text_file) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
@@ -105,10 +107,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_pin,
                 ArchiveBrowserEventFileMenuPin);
-            archive_menu_add_item(
-                menu_array_push_raw(model->context_menu),
-                item_show,
-                ArchiveBrowserEventFileMenuShow);
+            if(selected->type <= ArchiveFileTypeBadUsb) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
@@ -123,10 +127,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_info,
                 ArchiveBrowserEventFileMenuInfo);
-            archive_menu_add_item(
-                menu_array_push_raw(model->context_menu),
-                item_show,
-                ArchiveBrowserEventFileMenuShow);
+            if(selected->type <= ArchiveFileTypeBadUsb) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_pin,
@@ -149,10 +155,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_info,
                 ArchiveBrowserEventFileMenuInfo);
-            archive_menu_add_item(
-                menu_array_push_raw(model->context_menu),
-                item_show,
-                ArchiveBrowserEventFileMenuShow);
+            if(selected->type <= ArchiveFileTypeBadUsb) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
