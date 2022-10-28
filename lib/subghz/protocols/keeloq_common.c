@@ -94,6 +94,34 @@ inline uint64_t
 
 inline uint64_t
     subghz_protocol_keeloq_common_magic_serial_type1_learning(uint32_t data, uint64_t man) {
-    return man | ((uint64_t)data << 40) |
+    return (man & 0xFFFFFFFF) | ((uint64_t)data << 40) |
            ((uint64_t)(((data & 0xff) + ((data >> 8) & 0xFF)) & 0xFF) << 32);
+}
+
+/** Magic_serial_type2 Learning
+ * @param data - btn+serial number (32bit)
+ * @param man - magic man (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+inline uint64_t
+    subghz_protocol_keeloq_common_magic_serial_type2_learning(uint32_t data, uint64_t man) {
+    uint8_t* p = (uint8_t*)&data;
+    uint8_t* m = (uint8_t*)&man;
+    m[7] = p[0];
+    m[6] = p[1];
+    m[5] = p[2];
+    m[4] = p[3];
+    return man;
+}
+
+/** Magic_serial_type3 Learning
+ * @param data - serial number (24bit)
+ * @param man - magic man (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+inline uint64_t
+    subghz_protocol_keeloq_common_magic_serial_type3_learning(uint32_t data, uint64_t man) {
+    return (man & 0xFFFFFFFFFF000000) | (data & 0xFFFFFF);
 }

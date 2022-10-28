@@ -22,6 +22,8 @@
 #define KEELOQ_LEARNING_SECURE 3u
 #define KEELOQ_LEARNING_MAGIC_XOR_TYPE_1 4u
 #define KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_1 5u
+#define KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_2 6u
+#define KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_3 7u
 
 /**
  * Simple Learning Encrypt
@@ -72,3 +74,19 @@ uint64_t subghz_protocol_keeloq_common_magic_xor_type1_learning(uint32_t data, u
  */
 
 uint64_t subghz_protocol_keeloq_common_magic_serial_type1_learning(uint32_t data, uint64_t man);
+
+/** Magic_serial_type2 Learning
+ * @param data - btn+serial number (32bit)
+ * @param man - magic man (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+uint64_t subghz_protocol_keeloq_common_magic_serial_type2_learning(uint32_t data, uint64_t man);
+
+/** Magic_serial_type3 Learning
+ * @param data - btn+serial number (32bit)
+ * @param man - magic man (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+uint64_t subghz_protocol_keeloq_common_magic_serial_type3_learning(uint32_t data, uint64_t man);
