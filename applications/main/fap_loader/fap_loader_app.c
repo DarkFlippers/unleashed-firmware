@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <gui/gui.h>
+#include <assets_icons.h>
 #include <gui/view_dispatcher.h>
 #include <storage/storage.h>
 #include <gui/modules/loading.h>

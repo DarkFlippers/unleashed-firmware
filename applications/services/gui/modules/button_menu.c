@@ -5,6 +5,7 @@
 #include <m-array.h>
 #include <furi.h>
 #include <stdint.h>
+#include <assets_icons.h>
 
 #define ITEM_FIRST_OFFSET 17
 #define ITEM_NEXT_OFFSET 4

@@ -4,6 +4,7 @@
 #include "scenes/u2f_scene.h"
 
 #include <gui/gui.h>
+#include <assets_icons.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/submenu.h>

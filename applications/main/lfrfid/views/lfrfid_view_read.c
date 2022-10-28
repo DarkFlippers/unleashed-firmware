@@ -1,5 +1,6 @@
 #include "lfrfid_view_read.h"
 #include <gui/elements.h>
+#include <assets_icons.h>
 
 #define TEMP_STR_LEN 128
 

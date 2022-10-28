@@ -17,4 +17,5 @@ App(
             name="loclass",
         ),
     ],
+    fap_icon_assets="icons",
 )

@@ -9,4 +9,5 @@ App(
     order=50,
     fap_icon="signal_gen_10px.png",
     fap_category="Tools",
+    fap_icon_assets="icons",
 )

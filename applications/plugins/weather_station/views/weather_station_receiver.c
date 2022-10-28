@@ -1,11 +1,10 @@
 #include "weather_station_receiver.h"
 #include "../weather_station_app_i.h"
-#include "weather_station_icons.h"
+#include <weather_station_icons.h>
 #include <math.h>
 
 #include <input/input.h>
 #include <gui/elements.h>
-#include <assets_icons.h>
 #include <m-array.h>
 
 #define FRAME_HEIGHT 12

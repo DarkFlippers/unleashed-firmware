@@ -1,4 +1,4 @@
-#include "assets_icons.h"
+#include <file_browser_test_icons.h>
 #include "file_browser_app_i.h"
 #include "gui/modules/file_browser.h"
 #include <furi.h>

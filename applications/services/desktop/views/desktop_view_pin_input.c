@@ -2,6 +2,7 @@
 #include <furi.h>
 #include <gui/view.h>
 #include <gui/elements.h>
+#include <assets_icons.h>
 #include <stdint.h>
 #include <portmacro.h>
 

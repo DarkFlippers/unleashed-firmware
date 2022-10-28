@@ -1,0 +1,56 @@
+name: 'Unit tests'
+
+on:
+  pull_request:
+
+env:
+  TARGETS: f7
+  DEFAULT_TARGET: f7
+
+jobs:
+  main:
+    runs-on: [self-hosted, FlipperZeroTest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Get flipper from device manager (mock)'
+        id: device
+        run: |
+          echo "flipper=/dev/ttyACM0" >> $GITHUB_OUTPUT
+
+      - name: 'Compile unit tests firmware'
+        id: compile
+        continue-on-error: true
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
+
+      - name: 'Wait for flipper to finish updating'
+        id: connect
+        if: steps.compile.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python3 ./scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
+
+      - name: 'Format flipper SD card'
+        id: format
+        if: steps.connect.outcome == 'success'
+        continue-on-error: true
+        run: |
+          ./scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext
+
+      - name: 'Copy unit tests to flipper'
+        id: copy
+        if: steps.format.outcome == 'success'
+        continue-on-error: true
+        run: |
+          ./scripts/storage.py -p ${{steps.device.outputs.flipper}} send assets/unit_tests /ext/unit_tests
+
+      - name: 'Run units and validate results'
+        if: steps.copy.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python3 ./scripts/testing/units.py ${{steps.device.outputs.flipper}}
