@@ -1,11 +1,8 @@
 #include "../lfrfid_i.h"
-#include <dolphin/dolphin.h>
 
 void lfrfid_scene_emulate_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
-
-    DOLPHIN_DEED(DolphinDeedRfidEmulate);
 
     popup_set_header(popup, "Emulating", 89, 30, AlignCenter, AlignTop);
     if(!furi_string_empty(app->file_name)) {

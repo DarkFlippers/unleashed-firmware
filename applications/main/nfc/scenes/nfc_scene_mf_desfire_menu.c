@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
     SubmenuIndexSave,
@@ -48,6 +49,11 @@ bool nfc_scene_mf_desfire_menu_on_event(void* context, SceneManagerEvent event) 
             consumed = true;
         } else if(event.event == SubmenuIndexEmulateUid) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
+            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
+                DOLPHIN_DEED(DolphinDeedNfcAddEmulate);
+            } else {
+                DOLPHIN_DEED(DolphinDeedNfcEmulate);
+            }
             consumed = true;
         } else if(event.event == SubmenuIndexInfo) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcDataInfo);

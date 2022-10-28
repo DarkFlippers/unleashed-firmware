@@ -1,6 +1,7 @@
 #include "../ibutton_i.h"
 #include <lib/toolbox/random_name.h>
 #include <toolbox/path.h>
+#include <dolphin/dolphin.h>
 
 static void ibutton_scene_save_name_text_input_callback(void* context) {
     iButton* ibutton = context;
@@ -57,6 +58,15 @@ bool ibutton_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         if(event.event == iButtonCustomEventTextEditResult) {
             if(ibutton_save_key(ibutton, ibutton->text_store)) {
                 scene_manager_next_scene(ibutton->scene_manager, iButtonSceneSaveSuccess);
+                if(scene_manager_has_previous_scene(
+                       ibutton->scene_manager, iButtonSceneSavedKeyMenu)) {
+                    // Nothing, do not count editing as saving
+                } else if(scene_manager_has_previous_scene(
+                              ibutton->scene_manager, iButtonSceneAddType)) {
+                    DOLPHIN_DEED(DolphinDeedIbuttonAdd);
+                } else {
+                    DOLPHIN_DEED(DolphinDeedIbuttonSave);
+                }
             } else {
                 const uint32_t possible_scenes[] = {
                     iButtonSceneReadKeyMenu, iButtonSceneSavedKeyMenu, iButtonSceneAddType};

@@ -1,5 +1,4 @@
 #include "../nfc_i.h"
-#include <dolphin/dolphin.h>
 
 void nfc_scene_nfca_read_success_widget_callback(
     GuiButtonType result,
@@ -15,8 +14,6 @@ void nfc_scene_nfca_read_success_widget_callback(
 
 void nfc_scene_nfca_read_success_on_enter(void* context) {
     Nfc* nfc = context;
-
-    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Setup view
     FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;

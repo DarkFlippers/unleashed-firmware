@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 #define TAG "NfcMfClassicDictAttack"
 
@@ -110,6 +111,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
             } else {
                 notification_message(nfc->notifications, &sequence_success);
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicReadSuccess);
+                DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
                 consumed = true;
             }
         } else if(event.event == NfcWorkerEventAborted) {
@@ -119,6 +121,8 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
             } else {
                 notification_message(nfc->notifications, &sequence_success);
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicReadSuccess);
+                // Counting failed attempts too
+                DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
                 consumed = true;
             }
         } else if(event.event == NfcWorkerEventCardDetected) {

@@ -1,4 +1,5 @@
 #include "../lfrfid_i.h"
+#include <dolphin/dolphin.h>
 
 typedef enum {
     SubmenuIndexRead,
@@ -47,6 +48,7 @@ bool lfrfid_scene_start_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexRead) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
+            DOLPHIN_DEED(DolphinDeedRfidRead);
             consumed = true;
         } else if(event.event == SubmenuIndexSaved) {
             furi_string_set(app->file_path, LFRFID_APP_FOLDER);

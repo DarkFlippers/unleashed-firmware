@@ -21,8 +21,8 @@ static const DolphinDeedWeight dolphin_deed_weights[] = {
     {1, DolphinAppNfc}, // DolphinDeedNfcDetectReader
     {2, DolphinAppNfc}, // DolphinDeedNfcEmulate
     {2, DolphinAppNfc}, // DolphinDeedNfcMfcAdd
-    {1, DolphinAppNfc}, // DolphinDeedNfcMfulError
     {1, DolphinAppNfc}, // DolphinDeedNfcAddSave
+    {1, DolphinAppNfc}, // DolphinDeedNfcAddEmulate
 
     {1, DolphinAppIr}, // DolphinDeedIrSend
     {3, DolphinAppIr}, // DolphinDeedIrLearnSuccess

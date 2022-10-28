@@ -5,6 +5,7 @@
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
 #include <rpc/rpc_app.h>
+#include <dolphin/dolphin.h>
 
 #define TAG "iButtonApp"
 
@@ -337,11 +338,13 @@ int32_t ibutton_app(void* p) {
         view_dispatcher_attach_to_gui(
             ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeDesktop);
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRpc);
+        DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
     } else {
         view_dispatcher_attach_to_gui(
             ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeFullscreen);
         if(key_loaded) {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneEmulate);
+            DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
         } else {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneStart);
         }

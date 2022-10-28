@@ -46,7 +46,6 @@ static void
 void lfrfid_scene_read_on_enter(void* context) {
     LfRfid* app = context;
 
-    DOLPHIN_DEED(DolphinDeedRfidRead);
     if(app->read_type == LFRFIDWorkerReadTypePSKOnly) {
         lfrfid_view_read_set_read_mode(app->read_view, LfRfidReadPskOnly);
     } else if(app->read_type == LFRFIDWorkerReadTypeASKOnly) {
@@ -79,10 +78,10 @@ bool lfrfid_scene_read_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == LfRfidEventReadDone) {
             app->protocol_id = app->protocol_id_next;
-            DOLPHIN_DEED(DolphinDeedRfidReadSuccess);
             notification_message(app->notifications, &sequence_success);
             furi_string_reset(app->file_name);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneReadSuccess);
+            DOLPHIN_DEED(DolphinDeedRfidReadSuccess);
             consumed = true;
         } else if(event.event == LfRfidEventReadStartPSK) {
             if(app->read_type == LFRFIDWorkerReadTypeAuto) {
