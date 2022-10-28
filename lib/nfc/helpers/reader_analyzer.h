@@ -35,6 +35,8 @@ NfcProtocol
 
 FuriHalNfcDevData* reader_analyzer_get_nfc_data(ReaderAnalyzer* instance);
 
+void reader_analyzer_set_nfc_data(ReaderAnalyzer* instance, FuriHalNfcDevData* nfc_data);
+
 void reader_analyzer_prepare_tx_rx(
     ReaderAnalyzer* instance,
     FuriHalNfcTxRxContext* tx_rx,

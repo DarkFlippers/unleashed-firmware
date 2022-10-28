@@ -21,7 +21,7 @@ appenv = ENV.Clone(
 )
 
 appenv.Replace(
-    LINKER_SCRIPT="application_ext",
+    LINKER_SCRIPT=appenv.subst("$APP_LINKER_SCRIPT"),
 )
 
 appenv.AppendUnique(

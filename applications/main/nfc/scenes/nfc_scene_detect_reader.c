@@ -28,6 +28,11 @@ void nfc_scene_detect_reader_on_enter(void* context) {
 
     detect_reader_set_callback(nfc->detect_reader, nfc_scene_detect_reader_callback, nfc);
     detect_reader_set_nonces_max(nfc->detect_reader, NFC_SCENE_DETECT_READER_PAIR_NONCES_MAX);
+    NfcDeviceData* dev_data = &nfc->dev->dev_data;
+    if(dev_data->nfc_data.uid_len) {
+        detect_reader_set_uid(
+            nfc->detect_reader, dev_data->nfc_data.uid, dev_data->nfc_data.uid_len);
+    }
 
     // Store number of collected nonces in scene state
     scene_manager_set_scene_state(nfc->scene_manager, NfcSceneDetectReader, 0);
