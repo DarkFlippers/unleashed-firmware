@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,8.1,,
+Version,+,8.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -114,6 +114,9 @@ Header,+,lib/drivers/nrf24.h,,
 Header,+,lib/flipper_application/flipper_application.h,,
 Header,+,lib/flipper_format/flipper_format.h,,
 Header,+,lib/flipper_format/flipper_format_i.h,,
+Header,+,lib/infrared/encoder_decoder/infrared.h,,
+Header,+,lib/infrared/worker/infrared_transmit.h,,
+Header,+,lib/infrared/worker/infrared_worker.h,,
 Header,+,lib/lfrfid/lfrfid_dict_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
@@ -1552,6 +1555,42 @@ Function,-,ilogbl,int,long double
 Function,-,index,char*,"const char*, int"
 Function,-,infinity,double,
 Function,-,infinityf,float,
+Function,+,infrared_alloc_decoder,InfraredDecoderHandler*,
+Function,+,infrared_alloc_encoder,InfraredEncoderHandler*,
+Function,+,infrared_check_decoder_ready,const InfraredMessage*,InfraredDecoderHandler*
+Function,+,infrared_decode,const InfraredMessage*,"InfraredDecoderHandler*, _Bool, uint32_t"
+Function,+,infrared_encode,InfraredStatus,"InfraredEncoderHandler*, uint32_t*, _Bool*"
+Function,+,infrared_free_decoder,void,InfraredDecoderHandler*
+Function,+,infrared_free_encoder,void,InfraredEncoderHandler*
+Function,+,infrared_get_protocol_address_length,uint8_t,InfraredProtocol
+Function,+,infrared_get_protocol_by_name,InfraredProtocol,const char*
+Function,+,infrared_get_protocol_command_length,uint8_t,InfraredProtocol
+Function,+,infrared_get_protocol_duty_cycle,float,InfraredProtocol
+Function,+,infrared_get_protocol_frequency,uint32_t,InfraredProtocol
+Function,+,infrared_get_protocol_name,const char*,InfraredProtocol
+Function,+,infrared_is_protocol_valid,_Bool,InfraredProtocol
+Function,+,infrared_reset_decoder,void,InfraredDecoderHandler*
+Function,+,infrared_reset_encoder,void,"InfraredEncoderHandler*, const InfraredMessage*"
+Function,+,infrared_send,void,"const InfraredMessage*, int"
+Function,+,infrared_send_raw,void,"const uint32_t[], uint32_t, _Bool"
+Function,+,infrared_send_raw_ext,void,"const uint32_t[], uint32_t, _Bool, uint32_t, float"
+Function,+,infrared_worker_alloc,InfraredWorker*,
+Function,+,infrared_worker_free,void,InfraredWorker*
+Function,+,infrared_worker_get_decoded_signal,const InfraredMessage*,const InfraredWorkerSignal*
+Function,+,infrared_worker_get_raw_signal,void,"const InfraredWorkerSignal*, const uint32_t**, size_t*"
+Function,+,infrared_worker_rx_enable_blink_on_receiving,void,"InfraredWorker*, _Bool"
+Function,+,infrared_worker_rx_enable_signal_decoding,void,"InfraredWorker*, _Bool"
+Function,+,infrared_worker_rx_set_received_signal_callback,void,"InfraredWorker*, InfraredWorkerReceivedSignalCallback, void*"
+Function,+,infrared_worker_rx_start,void,InfraredWorker*
+Function,+,infrared_worker_rx_stop,void,InfraredWorker*
+Function,+,infrared_worker_set_decoded_signal,void,"InfraredWorker*, const InfraredMessage*"
+Function,+,infrared_worker_set_raw_signal,void,"InfraredWorker*, const uint32_t*, size_t"
+Function,+,infrared_worker_signal_is_decoded,_Bool,const InfraredWorkerSignal*
+Function,+,infrared_worker_tx_get_signal_steady_callback,InfraredWorkerGetSignalResponse,"void*, InfraredWorker*"
+Function,+,infrared_worker_tx_set_get_signal_callback,void,"InfraredWorker*, InfraredWorkerGetSignalCallback, void*"
+Function,+,infrared_worker_tx_set_signal_sent_callback,void,"InfraredWorker*, InfraredWorkerMessageSentCallback, void*"
+Function,+,infrared_worker_tx_start,void,InfraredWorker*
+Function,+,infrared_worker_tx_stop,void,InfraredWorker*
 Function,+,init_mutex,_Bool,"ValueMutex*, void*, size_t"
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
