@@ -32,6 +32,11 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
         if(is_folder) {
             file->type = ArchiveFileTypeFolder;
         } else {
+            char tmp_extension[MAX_EXT_LEN];
+            path_extract_extension(file->path, tmp_extension, MAX_EXT_LEN);
+            if((strcmp(tmp_extension, ".txt") == 0) || (strcmp(tmp_extension, ".md") == 0)) {
+                file->is_text_file = true;
+            }
             file->type = ArchiveFileTypeUnknown;
         }
     }

@@ -51,6 +51,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         FuriString* item_run = furi_string_alloc_set("Run In App");
         FuriString* item_pin = furi_string_alloc_set("Pin");
         FuriString* item_info = furi_string_alloc_set("Info");
+        FuriString* item_show = furi_string_alloc_set("Show");
         FuriString* item_rename = furi_string_alloc_set("Rename");
         FuriString* item_delete = furi_string_alloc_set("Delete");
 
@@ -79,6 +80,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_info,
                 ArchiveBrowserEventFileMenuInfo);
+            if(selected->is_text_file) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
@@ -100,6 +107,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_pin,
                 ArchiveBrowserEventFileMenuPin);
+            if(selected->type <= ArchiveFileTypeBadUsb) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
@@ -114,6 +127,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_info,
                 ArchiveBrowserEventFileMenuInfo);
+            if(selected->type <= ArchiveFileTypeBadUsb) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_pin,
@@ -136,6 +155,12 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_info,
                 ArchiveBrowserEventFileMenuInfo);
+            if(selected->type <= ArchiveFileTypeBadUsb) {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_show,
+                    ArchiveBrowserEventFileMenuShow);
+            }
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
                 item_rename,
@@ -149,6 +174,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         furi_string_free(item_run);
         furi_string_free(item_pin);
         furi_string_free(item_info);
+        furi_string_free(item_show);
         furi_string_free(item_rename);
         furi_string_free(item_delete);
     } /*else {
@@ -160,9 +186,9 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
 
     canvas_set_color(canvas, ColorWhite);
     uint8_t calc_height = menu_height - ((MENU_ITEMS - size_menu) * line_height);
-    canvas_draw_box(canvas, 71, 11, 57, calc_height + 4);
+    canvas_draw_box(canvas, 71, 1, 57, calc_height + 4);
     canvas_set_color(canvas, ColorBlack);
-    elements_slightly_rounded_frame(canvas, 70, 12, 58, calc_height + 4);
+    elements_slightly_rounded_frame(canvas, 70, 2, 58, calc_height + 4);
 
     /*FURI_LOG_D(
         TAG,
@@ -172,10 +198,10 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         model->menu_idx);*/
     for(size_t i = 0; i < size_menu; i++) {
         ArchiveContextMenuItem_t* current = menu_array_get(model->context_menu, i);
-        canvas_draw_str(canvas, 82, 21 + i * line_height, furi_string_get_cstr(current->text));
+        canvas_draw_str(canvas, 82, 11 + i * line_height, furi_string_get_cstr(current->text));
     }
 
-    canvas_draw_icon(canvas, 74, 14 + model->menu_idx * line_height, &I_ButtonRight_4x7);
+    canvas_draw_icon(canvas, 74, 4 + model->menu_idx * line_height, &I_ButtonRight_4x7);
 }
 
 static void archive_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar, bool moving) {

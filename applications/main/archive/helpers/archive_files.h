@@ -29,6 +29,7 @@ typedef struct {
     FuriString* custom_name;
     bool fav;
     bool is_app;
+    bool is_text_file;
 } ArchiveFile_t;
 
 static void ArchiveFile_t_init(ArchiveFile_t* obj) {
@@ -38,6 +39,7 @@ static void ArchiveFile_t_init(ArchiveFile_t* obj) {
     obj->custom_name = furi_string_alloc();
     obj->fav = false;
     obj->is_app = false;
+    obj->is_text_file = false;
 }
 
 static void ArchiveFile_t_init_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
@@ -52,6 +54,7 @@ static void ArchiveFile_t_init_set(ArchiveFile_t* obj, const ArchiveFile_t* src)
     obj->custom_name = furi_string_alloc_set(src->custom_name);
     obj->fav = src->fav;
     obj->is_app = src->is_app;
+    obj->is_text_file = src->is_text_file;
 }
 
 static void ArchiveFile_t_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
@@ -66,6 +69,7 @@ static void ArchiveFile_t_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
     furi_string_set(obj->custom_name, src->custom_name);
     obj->fav = src->fav;
     obj->is_app = src->is_app;
+    obj->is_text_file = src->is_text_file;
 }
 
 static void ArchiveFile_t_clear(ArchiveFile_t* obj) {

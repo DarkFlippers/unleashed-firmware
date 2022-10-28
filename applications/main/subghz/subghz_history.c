@@ -63,9 +63,9 @@ FuriString* subghz_history_generate_temp_filename(uint32_t index) {
 
 bool subghz_history_is_tmp_dir_exists(SubGhzHistory* instance) {
     FileInfo file_info;
-    storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &file_info);
+    FS_Error error = storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &file_info);
 
-    if(storage_common_stat(instance->storage, SUBGHZ_HISTORY_TMP_DIR, &file_info) == FSE_OK) {
+    if(error == FSE_OK) {
         if(file_info.flags & FSF_DIRECTORY) {
             return true;
         }
