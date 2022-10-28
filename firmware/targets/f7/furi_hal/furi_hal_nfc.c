@@ -620,6 +620,10 @@ uint16_t furi_hal_nfc_bitstream_to_data_and_parity(
     uint16_t in_buff_bits,
     uint8_t* out_data,
     uint8_t* out_parity) {
+    if(in_buff_bits < 8) {
+        out_data[0] = in_buff[0];
+        return in_buff_bits;
+    }
     if(in_buff_bits % 9 != 0) {
         return 0;
     }
@@ -635,7 +639,7 @@ uint16_t furi_hal_nfc_bitstream_to_data_and_parity(
         bit_processed += 9;
         curr_byte++;
     }
-    return curr_byte;
+    return curr_byte * 8;
 }
 
 bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
@@ -692,8 +696,8 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
 
     if(tx_rx->tx_rx_type == FuriHalNfcTxRxTypeRaw ||
        tx_rx->tx_rx_type == FuriHalNfcTxRxTypeRxRaw) {
-        tx_rx->rx_bits = 8 * furi_hal_nfc_bitstream_to_data_and_parity(
-                                 temp_rx_buff, *temp_rx_bits, tx_rx->rx_data, tx_rx->rx_parity);
+        tx_rx->rx_bits = furi_hal_nfc_bitstream_to_data_and_parity(
+            temp_rx_buff, *temp_rx_bits, tx_rx->rx_data, tx_rx->rx_parity);
     } else {
         memcpy(tx_rx->rx_data, temp_rx_buff, MIN(*temp_rx_bits / 8, FURI_HAL_NFC_DATA_BUFF_SIZE));
         tx_rx->rx_bits = *temp_rx_bits;

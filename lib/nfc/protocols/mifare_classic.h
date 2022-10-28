@@ -27,6 +27,20 @@ typedef enum {
     MfClassicKeyB,
 } MfClassicKey;
 
+typedef enum {
+    MfClassicActionDataRead,
+    MfClassicActionDataWrite,
+    MfClassicActionDataInc,
+    MfClassicActionDataDec,
+
+    MfClassicActionKeyARead,
+    MfClassicActionKeyAWrite,
+    MfClassicActionKeyBRead,
+    MfClassicActionKeyBWrite,
+    MfClassicActionACRead,
+    MfClassicActionACWrite,
+} MfClassicAction;
+
 typedef struct {
     uint8_t value[MF_CLASSIC_BLOCK_SIZE];
 } MfClassicBlock;
@@ -90,6 +104,18 @@ bool mf_classic_is_sector_trailer(uint8_t block);
 
 uint8_t mf_classic_get_sector_by_block(uint8_t block);
 
+bool mf_classic_is_allowed_access_sector_trailer(
+    MfClassicData* data,
+    uint8_t block_num,
+    MfClassicKey key,
+    MfClassicAction action);
+
+bool mf_classic_is_allowed_access_data_block(
+    MfClassicData* data,
+    uint8_t block_num,
+    MfClassicKey key,
+    MfClassicAction action);
+
 bool mf_classic_is_key_found(MfClassicData* data, uint8_t sector_num, MfClassicKey key_type);
 
 void mf_classic_set_key_found(
@@ -103,6 +129,10 @@ void mf_classic_set_key_not_found(MfClassicData* data, uint8_t sector_num, MfCla
 bool mf_classic_is_block_read(MfClassicData* data, uint8_t block_num);
 
 void mf_classic_set_block_read(MfClassicData* data, uint8_t block_num, MfClassicBlock* block_data);
+
+bool mf_classic_is_sector_data_read(MfClassicData* data, uint8_t sector_num);
+
+void mf_classic_set_sector_data_not_read(MfClassicData* data);
 
 bool mf_classic_is_sector_read(MfClassicData* data, uint8_t sector_num);
 
@@ -145,3 +175,16 @@ uint8_t mf_classic_read_card(
 uint8_t mf_classic_update_card(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data);
 
 bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_rx);
+
+bool mf_classic_write_block(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfClassicBlock* src_block,
+    uint8_t block_num,
+    MfClassicKey key_type,
+    uint64_t key);
+
+bool mf_classic_write_sector(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfClassicData* dest_data,
+    MfClassicData* src_data,
+    uint8_t sec_num);

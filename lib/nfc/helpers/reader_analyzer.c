@@ -201,8 +201,15 @@ NfcProtocol
 
 FuriHalNfcDevData* reader_analyzer_get_nfc_data(ReaderAnalyzer* instance) {
     furi_assert(instance);
-
+    instance->nfc_data = reader_analyzer_nfc_data[ReaderAnalyzerNfcDataMfClassic];
     return &instance->nfc_data;
+}
+
+void reader_analyzer_set_nfc_data(ReaderAnalyzer* instance, FuriHalNfcDevData* nfc_data) {
+    furi_assert(instance);
+    furi_assert(nfc_data);
+
+    memcpy(&instance->nfc_data, nfc_data, sizeof(FuriHalNfcDevData));
 }
 
 static void reader_analyzer_write(

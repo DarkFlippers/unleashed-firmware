@@ -4,6 +4,9 @@
 enum SubmenuIndex {
     SubmenuIndexEmulate,
     SubmenuIndexEditUid,
+    SubmenuIndexDetectReader,
+    SubmenuIndexWrite,
+    SubmenuIndexUpdate,
     SubmenuIndexRename,
     SubmenuIndexDelete,
     SubmenuIndexInfo,
@@ -42,6 +45,28 @@ void nfc_scene_saved_menu_on_enter(void* context) {
         submenu_add_item(
             submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_saved_menu_submenu_callback, nfc);
     }
+    if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
+        if(!mf_classic_is_card_read(&nfc->dev->dev_data.mf_classic_data)) {
+            submenu_add_item(
+                submenu,
+                "Detect reader",
+                SubmenuIndexDetectReader,
+                nfc_scene_saved_menu_submenu_callback,
+                nfc);
+        }
+        submenu_add_item(
+            submenu,
+            "Write To Initial Card",
+            SubmenuIndexWrite,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
+        submenu_add_item(
+            submenu,
+            "Update From Initial Card",
+            SubmenuIndexUpdate,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
+    }
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, nfc_scene_saved_menu_submenu_callback, nfc);
     if(nfc->dev->shadow_file_exist) {
@@ -78,6 +103,15 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }
             DOLPHIN_DEED(DolphinDeedNfcEmulate);
+            consumed = true;
+        } else if(event.event == SubmenuIndexDetectReader) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
+            consumed = true;
+        } else if(event.event == SubmenuIndexWrite) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicWrite);
+            consumed = true;
+        } else if(event.event == SubmenuIndexUpdate) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicUpdate);
             consumed = true;
         } else if(event.event == SubmenuIndexRename) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
