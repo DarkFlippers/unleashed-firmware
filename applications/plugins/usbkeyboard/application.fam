@@ -11,4 +11,5 @@ App(
     order=60,
     fap_icon="usb_keyboard_10px.png",
     fap_category="Misc",
+    fap_icon_assets="assets",
 )

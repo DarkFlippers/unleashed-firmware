@@ -12,6 +12,8 @@
 #include "wav_player_view.h"
 #include <math.h>
 
+#include <WAV_Player_icons.h>
+
 #define TAG "WavPlayer"
 
 #define WAVPLAYER_FOLDER "/ext/wav_player"

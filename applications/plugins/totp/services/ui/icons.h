@@ -1,5 +1,6 @@
 #pragma once
 
+#include <totp_icons.h>
 #include <inttypes.h>
 
 #define ICON_ARROW_LEFT_8x9_WIDTH 8

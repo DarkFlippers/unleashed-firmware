@@ -3,6 +3,7 @@
 #include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
 #include <gui/icon_i.h>
+#include <USB_Keyboard_icons.h>
 
 struct UsbHidKeyboard {
     View* view;

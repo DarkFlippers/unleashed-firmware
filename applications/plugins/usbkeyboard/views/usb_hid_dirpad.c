@@ -2,6 +2,7 @@
 #include <furi.h>
 #include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
+#include <USB_Keyboard_icons.h>
 
 struct UsbHidDirpad {
     View* view;
