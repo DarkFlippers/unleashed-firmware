@@ -182,10 +182,34 @@ static void flappy_game_render_callback(Canvas* const canvas, void* ctx) {
                     canvas, pilar->point.x, pilar->point.y, FLAPPY_GAB_WIDTH, pilar->height);
 
                 canvas_draw_frame(
+                    canvas, pilar->point.x + 1, pilar->point.y, FLAPPY_GAB_WIDTH, pilar->height);
+
+                canvas_draw_frame(
+                    canvas,
+                    pilar->point.x + 2,
+                    pilar->point.y,
+                    FLAPPY_GAB_WIDTH - 1,
+                    pilar->height);
+
+                canvas_draw_frame(
                     canvas,
                     pilar->point.x,
                     pilar->point.y + pilar->height + FLAPPY_GAB_HEIGHT,
                     FLAPPY_GAB_WIDTH,
+                    FLIPPER_LCD_HEIGHT - pilar->height - FLAPPY_GAB_HEIGHT);
+
+                canvas_draw_frame(
+                    canvas,
+                    pilar->point.x + 1,
+                    pilar->point.y + pilar->height + FLAPPY_GAB_HEIGHT,
+                    FLAPPY_GAB_WIDTH - 1,
+                    FLIPPER_LCD_HEIGHT - pilar->height - FLAPPY_GAB_HEIGHT);
+
+                canvas_draw_frame(
+                    canvas,
+                    pilar->point.x + 2,
+                    pilar->point.y + pilar->height + FLAPPY_GAB_HEIGHT,
+                    FLAPPY_GAB_WIDTH - 1,
                     FLIPPER_LCD_HEIGHT - pilar->height - FLAPPY_GAB_HEIGHT);
             }
         }
