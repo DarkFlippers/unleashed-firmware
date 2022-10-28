@@ -23,12 +23,12 @@ if (!(Test-Path -LiteralPath "$repo_root\toolchain")) {
     New-Item "$repo_root\toolchain" -ItemType Directory
 }
 
-Write-Host -NoNewline "Unziping Windows toolchain.."
+Write-Host -NoNewline "Extracting Windows toolchain.."
 Add-Type -Assembly "System.IO.Compression.Filesystem"
-[System.IO.Compression.ZipFile]::ExtractToDirectory("$toolchain_zip", "$repo_root\")
+[System.IO.Compression.ZipFile]::ExtractToDirectory("$repo_root\$toolchain_zip", "$repo_root\")
 Move-Item -Path "$repo_root\$toolchain_dir" -Destination "$repo_root\toolchain\x86_64-windows"
 Write-Host "done!"
 
-Write-Host -NoNewline "Clearing temporary files.."
+Write-Host -NoNewline "Cleaning up temporary files.."
 Remove-Item -LiteralPath "$repo_root\$toolchain_zip" -Force
 Write-Host "done!"

@@ -8,7 +8,7 @@ import os
 import pathlib
 from fbt.elfmanifest import assemble_manifest_data
 from fbt.appmanifest import FlipperApplication, FlipperManifestException
-from fbt.sdk import SdkCache
+from fbt.sdk.cache import SdkCache
 import itertools
 from ansi.color import fg
 

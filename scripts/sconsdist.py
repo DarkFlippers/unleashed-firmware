@@ -48,48 +48,52 @@ class Main(App):
         )
         self.parser_copy.set_defaults(func=self.copy)
 
-    def get_project_filename(self, project, filetype):
+    def get_project_file_name(self, project: ProjectDir, filetype: str) -> str:
         #  Temporary fix
         project_name = project.project
-        if project_name == "firmware":
-            if filetype == "zip":
-                project_name = "sdk"
-            elif filetype != "elf":
-                project_name = "full"
+        if project_name == "firmware" and filetype != "elf":
+            project_name = "full"
 
-        return f"{self.DIST_FILE_PREFIX}{self.target}-{project_name}-{self.args.suffix}.{filetype}"
+        return self.get_dist_file_name(project_name, filetype)
 
-    def get_dist_filepath(self, filename):
+    def get_dist_file_name(self, dist_artifact_type: str, filetype: str) -> str:
+        return f"{self.DIST_FILE_PREFIX}{self.target}-{dist_artifact_type}-{self.args.suffix}.{filetype}"
+
+    def get_dist_file_path(self, filename: str) -> str:
         return join(self.output_dir_path, filename)
 
-    def copy_single_project(self, project):
+    def copy_single_project(self, project: ProjectDir) -> None:
         obj_directory = join("build", project.dir)
 
         for filetype in ("elf", "bin", "dfu", "json"):
             if exists(src_file := join(obj_directory, f"{project.project}.{filetype}")):
                 shutil.copyfile(
                     src_file,
-                    self.get_dist_filepath(
-                        self.get_project_filename(project, filetype)
+                    self.get_dist_file_path(
+                        self.get_project_file_name(project, filetype)
                     ),
                 )
-            if exists(sdk_folder := join(obj_directory, "sdk")):
-                with zipfile.ZipFile(
-                    self.get_dist_filepath(self.get_project_filename(project, "zip")),
-                    "w",
-                    zipfile.ZIP_DEFLATED,
-                ) as zf:
-                    for root, dirs, files in walk(sdk_folder):
-                        for file in files:
-                            zf.write(
-                                join(root, file),
-                                relpath(
-                                    join(root, file),
-                                    sdk_folder,
-                                ),
-                            )
+        for foldertype in ("sdk", "lib"):
+            if exists(sdk_folder := join(obj_directory, foldertype)):
+                self.package_zip(foldertype, sdk_folder)
 
-    def copy(self):
+    def package_zip(self, foldertype, sdk_folder):
+        with zipfile.ZipFile(
+            self.get_dist_file_path(self.get_dist_file_name(foldertype, "zip")),
+            "w",
+            zipfile.ZIP_DEFLATED,
+        ) as zf:
+            for root, _, files in walk(sdk_folder):
+                for file in files:
+                    zf.write(
+                        join(root, file),
+                        relpath(
+                            join(root, file),
+                            sdk_folder,
+                        ),
+                    )
+
+    def copy(self) -> int:
         self.projects = dict(
             map(
                 lambda pd: (pd.project, pd),
@@ -144,12 +148,12 @@ class Main(App):
                 "-t",
                 self.target,
                 "--dfu",
-                self.get_dist_filepath(
-                    self.get_project_filename(self.projects["firmware"], "dfu")
+                self.get_dist_file_path(
+                    self.get_project_file_name(self.projects["firmware"], "dfu")
                 ),
                 "--stage",
-                self.get_dist_filepath(
-                    self.get_project_filename(self.projects["updater"], "bin")
+                self.get_dist_file_path(
+                    self.get_project_file_name(self.projects["updater"], "bin")
                 ),
             ]
             if self.args.resources:
