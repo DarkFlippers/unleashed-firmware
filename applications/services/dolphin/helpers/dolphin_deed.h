@@ -37,8 +37,8 @@ typedef enum {
     DolphinDeedNfcDetectReader,
     DolphinDeedNfcEmulate,
     DolphinDeedNfcMfcAdd,
-    DolphinDeedNfcMfulError,
     DolphinDeedNfcAddSave,
+    DolphinDeedNfcAddEmulate,
 
     DolphinDeedIrSend,
     DolphinDeedIrLearnSuccess,

@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 void nfc_scene_mf_classic_keys_add_byte_input_callback(void* context) {
     Nfc* nfc = context;
@@ -36,6 +37,7 @@ bool nfc_scene_mf_classic_keys_add_on_event(void* context, SceneManagerEvent eve
                         nfc->scene_manager, NfcSceneMfClassicKeysWarnDuplicate);
                 } else if(mf_classic_dict_add_key(dict, nfc->byte_input_store)) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
+                    DOLPHIN_DEED(DolphinDeedNfcMfcAdd);
                 } else {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
                 }

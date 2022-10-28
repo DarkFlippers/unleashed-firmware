@@ -1,7 +1,5 @@
 #include "../infrared_i.h"
 
-#include <dolphin/dolphin.h>
-
 static void
     infrared_scene_learn_success_dialog_result_callback(DialogExResult result, void* context) {
     Infrared* infrared = context;
@@ -13,7 +11,6 @@ void infrared_scene_learn_success_on_enter(void* context) {
     DialogEx* dialog_ex = infrared->dialog_ex;
     InfraredSignal* signal = infrared->received_signal;
 
-    DOLPHIN_DEED(DolphinDeedIrLearnSuccess);
     infrared_play_notification_message(infrared, InfraredNotificationMessageGreenOn);
 
     if(infrared_signal_is_raw(signal)) {

@@ -1,5 +1,4 @@
 #include "../ibutton_i.h"
-#include <dolphin/dolphin.h>
 
 static void ibutton_scene_save_success_popup_callback(void* context) {
     iButton* ibutton = context;
@@ -9,7 +8,6 @@ static void ibutton_scene_save_success_popup_callback(void* context) {
 void ibutton_scene_save_success_on_enter(void* context) {
     iButton* ibutton = context;
     Popup* popup = ibutton->popup;
-    DOLPHIN_DEED(DolphinDeedIbuttonSave);
 
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
     popup_set_header(popup, "Saved!", 5, 7, AlignLeft, AlignTop);

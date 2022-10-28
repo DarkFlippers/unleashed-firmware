@@ -1,6 +1,5 @@
 #include "../ibutton_i.h"
 #include <core/log.h>
-#include <dolphin/dolphin.h>
 #include <toolbox/path.h>
 
 #define EMULATE_TIMEOUT_TICKS 10
@@ -25,8 +24,6 @@ void ibutton_scene_emulate_on_enter(void* context) {
     if(furi_string_end_with(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
         path_extract_filename(ibutton->file_path, key_name, true);
     }
-
-    DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
 
     // check that stored key has name
     if(!furi_string_empty(key_name)) {

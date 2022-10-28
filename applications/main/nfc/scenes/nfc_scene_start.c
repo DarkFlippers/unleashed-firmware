@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
     SubmenuIndexRead,
@@ -47,11 +48,13 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexRead) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
+            DOLPHIN_DEED(DolphinDeedNfcRead);
             consumed = true;
         } else if(event.event == SubmenuIndexDetectReader) {
             bool sd_exist = storage_sd_status(nfc->dev->storage) == FSE_OK;
             if(sd_exist) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
+                DOLPHIN_DEED(DolphinDeedNfcDetectReader);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
             }

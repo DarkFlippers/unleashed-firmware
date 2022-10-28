@@ -4,7 +4,6 @@
 #include <lib/subghz/protocols/secplus_v1.h>
 #include <lib/subghz/protocols/secplus_v2.h>
 #include <lib/subghz/blocks/math.h>
-#include <dolphin/dolphin.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
 #include <lib/subghz/protocols/protocol_items.h>
@@ -466,7 +465,6 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
         if(generated_protocol) {
             subghz_file_name_clear(subghz);
-            DOLPHIN_DEED(DolphinDeedSubGhzAddManually);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             return true;
         }
