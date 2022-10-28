@@ -9,6 +9,7 @@
 #include "../../services/totp/totp.h"
 #include "../../services/config/config.h"
 #include "../../services/crypto/crypto.h"
+#include "../../services/crypto/memset_s.h"
 #include "../scene_director.h"
 #include "../token_menu/totp_scene_token_menu.h"
 
@@ -95,7 +96,7 @@ void update_totp_params(PluginState* const plugin_state) {
     }
 }
 
-void totp_scene_generate_token_init(PluginState* plugin_state) {
+void totp_scene_generate_token_init(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
 
@@ -130,7 +131,7 @@ void totp_scene_generate_token_activate(
         }
     }
     SceneState* scene_state = malloc(sizeof(SceneState));
-    if(context == NULL) {
+    if(context == NULL || context->current_token_index > plugin_state->tokens_count) {
         scene_state->current_token_index = 0;
     } else {
         scene_state->current_token_index = context->current_token_index;
@@ -180,7 +181,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                              ->data);
 
         if(tokenInfo->token != NULL && tokenInfo->token_length > 0) {
-            uint8_t key_length;
+            size_t key_length;
             uint8_t* key = totp_crypto_decrypt(
                 tokenInfo->token, tokenInfo->token_length, &plugin_state->iv[0], &key_length);
 
@@ -195,7 +196,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                     TOKEN_LIFETIME),
                 scene_state->last_code,
                 tokenInfo->digits);
-            memset(key, 0, key_length);
+            memset_s(key, sizeof(key), 0, key_length);
             free(key);
         } else {
             i_token_to_str(0, scene_state->last_code, tokenInfo->digits);
@@ -265,7 +266,9 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
     }
 }
 
-bool totp_scene_generate_token_handle_event(PluginEvent* const event, PluginState* plugin_state) {
+bool totp_scene_generate_token_handle_event(
+    const PluginEvent* const event,
+    PluginState* plugin_state) {
     if(event->type == EventTypeKey) {
         if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
             return false;
@@ -314,11 +317,10 @@ void totp_scene_generate_token_deactivate(PluginState* plugin_state) {
     if(plugin_state->current_scene_state == NULL) return;
     SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
 
-    free(scene_state->last_code);
     free(scene_state);
     plugin_state->current_scene_state = NULL;
 }
 
-void totp_scene_generate_token_free(PluginState* plugin_state) {
+void totp_scene_generate_token_free(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }

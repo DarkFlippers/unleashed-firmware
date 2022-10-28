@@ -5,6 +5,7 @@
 #include "common.h"
 #include "../services/base32/base32.h"
 #include "../services/crypto/crypto.h"
+#include "../services/crypto/memset_s.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
@@ -23,7 +24,7 @@ void token_info_free(TokenInfo* token_info) {
 bool token_info_set_secret(
     TokenInfo* token_info,
     const char* base32_token_secret,
-    uint8_t token_secret_length,
+    size_t token_secret_length,
     uint8_t* iv) {
     uint8_t* plain_secret = malloc(token_secret_length);
     int plain_secret_length =
@@ -37,7 +38,7 @@ bool token_info_set_secret(
         result = false;
     }
 
-    memset(plain_secret, 0, token_secret_length);
+    memset_s(plain_secret, sizeof(plain_secret), 0, token_secret_length);
     free(plain_secret);
     return result;
 }

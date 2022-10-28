@@ -24,10 +24,11 @@ void totp_scene_authenticate_activate(PluginState* plugin_state) {
     scene_state->code_length = 0;
     memset(&scene_state->code_input[0], 0, MAX_CODE_LENGTH);
     plugin_state->current_scene_state = scene_state;
+    memset(&plugin_state->iv[0], 0, TOTP_IV_SIZE);
 }
 
 void totp_scene_authenticate_render(Canvas* const canvas, PluginState* plugin_state) {
-    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
+    const SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
 
     int v_shift = 0;
     if(scene_state->code_length > 0) {
@@ -72,7 +73,7 @@ void totp_scene_authenticate_render(Canvas* const canvas, PluginState* plugin_st
     }
 }
 
-bool totp_scene_authenticate_handle_event(PluginEvent* const event, PluginState* plugin_state) {
+bool totp_scene_authenticate_handle_event(const PluginEvent* const event, PluginState* plugin_state) {
     if(event->type == EventTypeKey) {
         if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
             return false;
@@ -155,6 +156,6 @@ void totp_scene_authenticate_deactivate(PluginState* plugin_state) {
     plugin_state->current_scene_state = NULL;
 }
 
-void totp_scene_authenticate_free(PluginState* plugin_state) {
+void totp_scene_authenticate_free(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
