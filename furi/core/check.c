@@ -24,8 +24,9 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
                  :                                      \
                  : "memory");
 
-// Restore registers and halt MCU with bkpt debug state
-#define RESTORE_REGISTERS_AND_HALT_MCU_DEBUG()          \
+#ifdef FURI_DEBUG
+// Restore registers and halt MCU with bkpt mcu debug state
+#define RESTORE_REGISTERS_AND_HALT_MCU()                \
     asm volatile("ldr r12, =__furi_check_registers  \n" \
                  "ldm r12, {r0-r11}                 \n" \
                  "loop%=:                           \n" \
@@ -35,9 +36,9 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
                  :                                      \
                  :                                      \
                  : "memory");
-
-// Restore registers and halt MCU without bkpt debug mode
-#define RESTORE_REGISTERS_AND_HALT_MCU_RELEASE()        \
+#else
+// Restore registers and halt MCU for release builds without bkpt instruction
+#define RESTORE_REGISTERS_AND_HALT_MCU()                \
     asm volatile("ldr r12, =__furi_check_registers  \n" \
                  "ldm r12, {r0-r11}                 \n" \
                  "loop%=:                           \n" \
@@ -46,6 +47,7 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
                  :                                      \
                  :                                      \
                  : "memory");
+#endif
 
 extern size_t xPortGetTotalHeapSize(void);
 extern size_t xPortGetFreeHeapSize(void);
@@ -110,7 +112,7 @@ FURI_NORETURN void __furi_crash() {
 #ifdef FURI_DEBUG
     furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
     furi_hal_console_puts("\033[0m\r\n");
-    RESTORE_REGISTERS_AND_HALT_MCU_DEBUG();
+    RESTORE_REGISTERS_AND_HALT_MCU();
 #else
     furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
     furi_hal_console_puts("\r\nRebooting system.\r\n");
@@ -135,10 +137,6 @@ FURI_NORETURN void __furi_halt() {
     furi_hal_console_puts(__furi_check_message);
     furi_hal_console_puts("\r\nSystem halted. Bye-bye!\r\n");
     furi_hal_console_puts("\033[0m\r\n");
-#ifdef FURI_DEBUG
-    RESTORE_REGISTERS_AND_HALT_MCU_DEBUG();
-#else
-    RESTORE_REGISTERS_AND_HALT_MCU_RELEASE();
-#endif
+    RESTORE_REGISTERS_AND_HALT_MCU();
     __builtin_unreachable();
 }
