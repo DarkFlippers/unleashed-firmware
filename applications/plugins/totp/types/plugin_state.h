@@ -22,7 +22,7 @@ typedef struct {
     uint8_t tokens_count;
 
     uint8_t* crypto_verify_data;
-    size_t crypto_verify_data_length;
+    uint8_t crypto_verify_data_length;
     bool pin_set;
     uint8_t iv[TOTP_IV_SIZE];
     uint8_t base_iv[TOTP_IV_SIZE];

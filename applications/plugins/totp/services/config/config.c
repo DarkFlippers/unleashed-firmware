@@ -10,7 +10,7 @@
 #define CONFIG_FILE_PATH CONFIG_FILE_DIRECTORY_PATH "/totp.conf"
 #define CONFIG_FILE_BACKUP_PATH CONFIG_FILE_PATH ".backup"
 
-static uint8_t token_info_get_digits_as_int(const TokenInfo* token_info) {
+static uint8_t token_info_get_digits_as_int(TokenInfo* token_info) {
     switch(token_info->digits) {
     case TOTP_6_DIGITS:
         return 6;
@@ -32,7 +32,7 @@ static void token_info_set_digits_from_int(TokenInfo* token_info, uint8_t digits
     }
 }
 
-static char* token_info_get_algo_as_cstr(const TokenInfo* token_info) {
+static char* token_info_get_algo_as_cstr(TokenInfo* token_info) {
     switch(token_info->algo) {
     case SHA1:
         return TOTP_CONFIG_TOKEN_ALGO_SHA1_NAME;
@@ -45,7 +45,7 @@ static char* token_info_get_algo_as_cstr(const TokenInfo* token_info) {
     return NULL;
 }
 
-static void token_info_set_algo_from_str(TokenInfo* token_info, const FuriString* str) {
+static void token_info_set_algo_from_str(TokenInfo* token_info, FuriString* str) {
     if(furi_string_cmpi_str(str, TOTP_CONFIG_TOKEN_ALGO_SHA1_NAME) == 0) {
         token_info->algo = SHA1;
     } else if(furi_string_cmpi_str(str, TOTP_CONFIG_TOKEN_ALGO_SHA256_NAME) == 0) {
@@ -152,7 +152,7 @@ FlipperFormat* totp_open_config_file(Storage* storage) {
     return fff_data_file;
 }
 
-void totp_config_file_save_new_token_i(FlipperFormat* file, const TokenInfo* token_info) {
+void totp_config_file_save_new_token_i(FlipperFormat* file, TokenInfo* token_info) {
     flipper_format_seek_to_end(file);
     flipper_format_write_string_cstr(file, TOTP_CONFIG_KEY_TOKEN_NAME, token_info->name);
     bool token_is_valid = token_info->token != NULL && token_info->token_length > 0;
@@ -170,7 +170,7 @@ void totp_config_file_save_new_token_i(FlipperFormat* file, const TokenInfo* tok
     flipper_format_write_uint32(file, TOTP_CONFIG_KEY_TOKEN_DIGITS, &digits_count_as_uint32, 1);
 }
 
-void totp_config_file_save_new_token(const TokenInfo* token_info) {
+void totp_config_file_save_new_token(TokenInfo* token_info) {
     Storage* cfg_storage = totp_open_storage();
     FlipperFormat* file = totp_open_config_file(cfg_storage);
 
@@ -190,7 +190,7 @@ void totp_config_file_update_timezone_offset(float new_timezone_offset) {
     totp_close_storage();
 }
 
-void totp_full_save_config_file(const PluginState* const plugin_state) {
+void totp_full_save_config_file(PluginState* const plugin_state) {
     Storage* storage = totp_open_storage();
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
@@ -209,7 +209,7 @@ void totp_full_save_config_file(const PluginState* const plugin_state) {
     flipper_format_write_bool(fff_data_file, TOTP_CONFIG_KEY_PINSET, &plugin_state->pin_set, 1);
     ListNode* node = plugin_state->tokens_list;
     while(node != NULL) {
-        const TokenInfo* token_info = node->data;
+        TokenInfo* token_info = node->data;
         totp_config_file_save_new_token_i(fff_data_file, token_info);
         node = node->next;
     }
@@ -343,9 +343,9 @@ TokenLoadingResult totp_config_file_load_tokens(PluginState* const plugin_state)
 
         TokenInfo* tokenInfo = token_info_alloc();
 
-        size_t temp_cstr_len = furi_string_size(temp_str);
-        tokenInfo->name = (char*)malloc(temp_cstr_len + 1);
-        strlcpy(tokenInfo->name, furi_string_get_cstr(temp_str), temp_cstr_len + 1);
+        const char* temp_cstr = furi_string_get_cstr(temp_str);
+        tokenInfo->name = (char*)malloc(strlen(temp_cstr) + 1);
+        strcpy(tokenInfo->name, temp_cstr);
 
         uint32_t secret_bytes_count;
         if(!flipper_format_get_value_count(
@@ -355,11 +355,9 @@ TokenLoadingResult totp_config_file_load_tokens(PluginState* const plugin_state)
 
         if(secret_bytes_count == 1) { // Plain secret key
             if(flipper_format_read_string(fff_data_file, TOTP_CONFIG_KEY_TOKEN_SECRET, temp_str)) {
+                temp_cstr = furi_string_get_cstr(temp_str);
                 if(token_info_set_secret(
-                       tokenInfo,
-                       furi_string_get_cstr(temp_str),
-                       furi_string_size(temp_str),
-                       &plugin_state->iv[0])) {
+                       tokenInfo, temp_cstr, strlen(temp_cstr), &plugin_state->iv[0])) {
                     FURI_LOG_W(LOGGING_TAG, "Token \"%s\" has plain secret", tokenInfo->name);
                 } else {
                     tokenInfo->token = NULL;

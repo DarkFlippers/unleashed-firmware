@@ -21,7 +21,7 @@ typedef struct {
     int16_t current_token_index;
 } SceneState;
 
-void totp_scene_token_menu_init(const PluginState* plugin_state) {
+void totp_scene_token_menu_init(PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
 
@@ -38,7 +38,7 @@ void totp_scene_token_menu_activate(
 }
 
 void totp_scene_token_menu_render(Canvas* const canvas, PluginState* plugin_state) {
-    const SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
+    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
     if(scene_state->current_token_index < 0) {
         ui_control_button_render(
             canvas,
@@ -84,7 +84,7 @@ void totp_scene_token_menu_render(Canvas* const canvas, PluginState* plugin_stat
     }
 }
 
-bool totp_scene_token_menu_handle_event(const PluginEvent* const event, PluginState* plugin_state) {
+bool totp_scene_token_menu_handle_event(PluginEvent* const event, PluginState* plugin_state) {
     if(event->type == EventTypeKey) {
         SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
         if(event->input.type == InputTypePress) {
@@ -192,6 +192,6 @@ void totp_scene_token_menu_deactivate(PluginState* plugin_state) {
     plugin_state->current_scene_state = NULL;
 }
 
-void totp_scene_token_menu_free(const PluginState* plugin_state) {
+void totp_scene_token_menu_free(PluginState* plugin_state) {
     UNUSED(plugin_state);
 }

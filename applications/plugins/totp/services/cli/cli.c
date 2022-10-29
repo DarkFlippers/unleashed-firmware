@@ -9,7 +9,7 @@
 #include "commands/timezone/timezone.h"
 #include "commands/help/help.h"
 
-static void totp_cli_print_unknown_command(const FuriString* unknown_command) {
+static void totp_cli_print_unknown_command(FuriString* unknown_command) {
     TOTP_CLI_PRINTF(
         "Command \"%s\" is unknown. Use \"" TOTP_CLI_COMMAND_HELP
         "\" command to get list of available commands.",

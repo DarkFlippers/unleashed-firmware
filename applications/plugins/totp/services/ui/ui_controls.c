@@ -5,11 +5,7 @@
 #define TEXT_BOX_HEIGHT 13
 #define TEXT_BOX_MARGIN 4
 
-void ui_control_text_box_render(
-    Canvas* const canvas,
-    int16_t y,
-    const char* text,
-    bool is_selected) {
+void ui_control_text_box_render(Canvas* const canvas, int8_t y, char* text, bool is_selected) {
     if(y < -TEXT_BOX_HEIGHT) {
         return;
     }
@@ -48,7 +44,7 @@ void ui_control_select_render(
     int16_t x,
     int16_t y,
     uint8_t width,
-    const char* text,
+    char* text,
     bool is_selected) {
     if(y < -TEXT_BOX_HEIGHT) {
         return;
@@ -103,7 +99,7 @@ void ui_control_button_render(
     int16_t y,
     uint8_t width,
     uint8_t height,
-    const char* text,
+    char* text,
     bool is_selected) {
     if(y < -height) {
         return;

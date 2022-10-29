@@ -10,7 +10,7 @@
 
 typedef struct {
     char* user_input;
-    size_t user_input_length;
+    uint8_t user_input_length;
     void* callback_data;
 } InputTextSceneCallbackResult;
 

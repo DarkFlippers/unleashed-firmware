@@ -16,7 +16,7 @@ typedef struct {
     Control selected_control;
 } SceneState;
 
-void totp_scene_app_settings_init(const PluginState* plugin_state) {
+void totp_scene_app_settings_init(PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
 
@@ -53,7 +53,7 @@ static void two_digit_to_str(int8_t num, char* str) {
 }
 
 void totp_scene_app_settings_render(Canvas* const canvas, PluginState* plugin_state) {
-    const SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
+    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 0, 0, AlignLeft, AlignTop, "Timezone offset");
@@ -90,9 +90,7 @@ void totp_scene_app_settings_render(Canvas* const canvas, PluginState* plugin_st
         scene_state->selected_control == ConfirmButton);
 }
 
-bool totp_scene_app_settings_handle_event(
-    const PluginEvent* const event,
-    PluginState* plugin_state) {
+bool totp_scene_app_settings_handle_event(PluginEvent* const event, PluginState* plugin_state) {
     if(event->type == EventTypeKey) {
         SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
         if(event->input.type == InputTypePress) {
@@ -173,6 +171,6 @@ void totp_scene_app_settings_deactivate(PluginState* plugin_state) {
     plugin_state->current_scene_state = NULL;
 }
 
-void totp_scene_app_settings_free(const PluginState* plugin_state) {
+void totp_scene_app_settings_free(PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
