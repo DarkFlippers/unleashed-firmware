@@ -1,5 +1,6 @@
 ### New changes
 * Fix SubGHz Bruteforcer crash and implement support for new protocols in BF existing dump (@xMasterX)
+* PR: Wifi Marauder: make "add random" not overlap > symbol (by @TQMatvey | PR #141)
 ### Previous changes
 * Fixed TOTP (Authenticator) - downgraded to 1.1.0
 * Fixed i2cTools menu bug
