@@ -566,18 +566,6 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
         return;
     }
 
-    // Clear found keys if the key cache is incorrect (key set as found but sector not read)
-    for(uint16_t sector = 0; sector < total_sectors; sector++) {
-        if(mf_classic_is_key_found(data, sector, MfClassicKeyA) &&
-           !mf_classic_is_sector_read(data, sector)) {
-            mf_classic_set_key_not_found(data, sector, MfClassicKeyA);
-        }
-        if(mf_classic_is_key_found(data, sector, MfClassicKeyB) &&
-           !mf_classic_is_sector_read(data, sector)) {
-            mf_classic_set_key_not_found(data, sector, MfClassicKeyB);
-        }
-    }
-
     FURI_LOG_D(
         TAG, "Start Dictionary attack, Key Count %ld", mf_classic_dict_get_total_keys(dict));
     for(size_t i = 0; i < total_sectors; i++) {
@@ -906,6 +894,7 @@ static void nfc_worker_reader_analyzer_callback(ReaderAnalyzerEvent event, void*
 }
 
 void nfc_worker_analyze_reader(NfcWorker* nfc_worker) {
+    furi_assert(nfc_worker);
     furi_assert(nfc_worker->callback);
 
     FuriHalNfcTxRxContext tx_rx = {};
