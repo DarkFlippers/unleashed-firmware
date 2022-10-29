@@ -1,4 +1,7 @@
 ### New changes
+* Fixed TOTP (Authenticator) - downgraded to 1.1.0
+* Fixed i2cTools menu bug
+### Previous changes
 * API version changed to 8.2 due to OFW updates, Extra apps pack update is already done! Download it from link below
 * Added Infrared API for .fap's
 * **OFW: Mf Classic initial write, update, detect reader (when card has not readed keys/sectors you can use it as simulation for detect reader)**
