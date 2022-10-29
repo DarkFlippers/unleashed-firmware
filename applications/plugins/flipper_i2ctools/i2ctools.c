@@ -105,7 +105,7 @@ int32_t i2ctools_app(void* p) {
             }
         } else if(event.key == InputKeyDown && event.type == InputTypeRelease) {
             if(i2ctools->main_view->current_view == MAIN_VIEW) {
-                if(i2ctools->main_view->menu_index < MENU_SIZE) {
+                if(i2ctools->main_view->menu_index < 3) {
                     i2ctools->main_view->menu_index++;
                 }
             } else if(i2ctools->main_view->current_view == SCAN_VIEW) {
