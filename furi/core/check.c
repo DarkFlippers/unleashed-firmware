@@ -24,12 +24,23 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
                  :                                      \
                  : "memory");
 
-// Restore registers and halt MCU
-#define RESTORE_REGISTERS_AND_HALT_MCU()                \
+// Restore registers and halt MCU with bkpt debug state
+#define RESTORE_REGISTERS_AND_HALT_MCU_DEBUG()          \
     asm volatile("ldr r12, =__furi_check_registers  \n" \
                  "ldm r12, {r0-r11}                 \n" \
                  "loop%=:                           \n" \
                  "bkpt 0x00                         \n" \
+                 "wfi                               \n" \
+                 "b loop%=                          \n" \
+                 :                                      \
+                 :                                      \
+                 : "memory");
+
+// Restore registers and halt MCU without bkpt debug mode
+#define RESTORE_REGISTERS_AND_HALT_MCU_RELEASE()        \
+    asm volatile("ldr r12, =__furi_check_registers  \n" \
+                 "ldm r12, {r0-r11}                 \n" \
+                 "loop%=:                           \n" \
                  "wfi                               \n" \
                  "b loop%=                          \n" \
                  :                                      \
@@ -99,7 +110,7 @@ FURI_NORETURN void __furi_crash() {
 #ifdef FURI_DEBUG
     furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
     furi_hal_console_puts("\033[0m\r\n");
-    RESTORE_REGISTERS_AND_HALT_MCU();
+    RESTORE_REGISTERS_AND_HALT_MCU_DEBUG();
 #else
     furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
     furi_hal_console_puts("\r\nRebooting system.\r\n");
@@ -124,6 +135,10 @@ FURI_NORETURN void __furi_halt() {
     furi_hal_console_puts(__furi_check_message);
     furi_hal_console_puts("\r\nSystem halted. Bye-bye!\r\n");
     furi_hal_console_puts("\033[0m\r\n");
-    RESTORE_REGISTERS_AND_HALT_MCU();
+#ifdef FURI_DEBUG
+    RESTORE_REGISTERS_AND_HALT_MCU_DEBUG();
+#else
+    RESTORE_REGISTERS_AND_HALT_MCU_RELEASE();
+#endif
     __builtin_unreachable();
 }
