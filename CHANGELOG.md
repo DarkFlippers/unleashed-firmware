@@ -1,8 +1,9 @@
 ### New changes
+* Fix SubGHz Bruteforcer crash and implement support for new protocols in BF existing dump (@xMasterX)
+### Previous changes
 * Fixed TOTP (Authenticator) - downgraded to 1.1.0
 * Fixed i2cTools menu bug
-### Previous changes
-* API version changed to 8.2 due to OFW updates, Extra apps pack update is already done! Download it from link below
+* API version changed to 8.2 due to OFW updates, **Download extra pack update only if your unleashed version was lower than 009!!!**
 * Added Infrared API for .fap's
 * **OFW: Mf Classic initial write, update, detect reader (when card has not readed keys/sectors you can use it as simulation for detect reader)**
 * OFW: New Keeloq magic serial type 2, 3
