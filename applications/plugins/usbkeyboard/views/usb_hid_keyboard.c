@@ -43,7 +43,7 @@ typedef struct {
 #define KEY_WIDTH 9
 #define KEY_HEIGHT 12
 #define KEY_PADDING 1
-#define ROW_COUNT 6
+#define ROW_COUNT 7
 #define COLUMN_COUNT 12
 
 // 0 width items are not drawn, but there value is used
@@ -136,6 +136,21 @@ const UsbHidKeyboardKey usb_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
         {.width = 0, .icon = NULL, .value = HID_KEYBOARD_TAB},
         {.width = 0, .icon = NULL, .value = HID_KEYBOARD_TAB},
     },
+    {
+        {.width = 1, .icon = NULL, .key = "1", .shift_key = "1", .value = HID_KEYBOARD_F1},
+        {.width = 1, .icon = NULL, .key = "2", .shift_key = "2", .value = HID_KEYBOARD_F2},
+        {.width = 1, .icon = NULL, .key = "3", .shift_key = "3", .value = HID_KEYBOARD_F3},
+        {.width = 1, .icon = NULL, .key = "4", .shift_key = "4", .value = HID_KEYBOARD_F4},
+        {.width = 1, .icon = NULL, .key = "5", .shift_key = "5", .value = HID_KEYBOARD_F5},
+        {.width = 1, .icon = NULL, .key = "6", .shift_key = "6", .value = HID_KEYBOARD_F6},
+        {.width = 1, .icon = NULL, .key = "7", .shift_key = "7", .value = HID_KEYBOARD_F7},
+        {.width = 1, .icon = NULL, .key = "8", .shift_key = "8", .value = HID_KEYBOARD_F8},
+        {.width = 1, .icon = NULL, .key = "9", .shift_key = "9", .value = HID_KEYBOARD_F9},
+        {.width = 1, .icon = NULL, .key = "0", .shift_key = "0", .value = HID_KEYBOARD_F10},
+        {.width = 1, .icon = NULL, .key = "1", .shift_key = "1", .value = HID_KEYBOARD_F11},
+        {.width = 1, .icon = NULL, .key = "2", .shift_key = "2", .value = HID_KEYBOARD_F12},
+    }
+
 };
 
 static void usb_hid_keyboard_to_upper(char* str) {
@@ -217,6 +232,7 @@ static void usb_hid_keyboard_draw_callback(Canvas* canvas, void* context) {
             // Select if back is clicked and its the backspace key
             // Deselect when the button clicked or not hovered
             bool keySelected = (x <= model->x && model->x < (x + key.width)) && y == model->y;
+            keySelected = y == ROW_COUNT - 1 ? !keySelected : keySelected;
             bool backSelected = model->back_pressed && key.value == HID_KEYBOARD_DELETE;
             usb_hid_keyboard_draw_key(
                 canvas,
