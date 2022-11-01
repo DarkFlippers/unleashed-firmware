@@ -1,6 +1,7 @@
 #include "check.h"
 #include "common_defines.h"
 
+#include <stm32wbxx.h>
 #include <furi_hal_console.h>
 #include <furi_hal_power.h>
 #include <furi_hal_rtc.h>
@@ -24,16 +25,30 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
                  :                                      \
                  : "memory");
 
-// Restore registers and halt MCU
-#define RESTORE_REGISTERS_AND_HALT_MCU()                \
-    asm volatile("ldr r12, =__furi_check_registers  \n" \
-                 "ldm r12, {r0-r11}                 \n" \
+/** Restore registers and halt MCU
+ * 
+ * - Always use it with GET_MESSAGE_AND_STORE_REGISTERS
+ * - If debugger is(was) connected this routine will raise bkpt
+ * - If debugger is not connected then endless loop
+ * 
+ */
+#define RESTORE_REGISTERS_AND_HALT_MCU(debug)           \
+    register const bool r0 asm("r0") = debug;           \
+    asm volatile("cbnz  r0, with_debugger%=         \n" \
+                 "ldr   r12, =__furi_check_registers\n" \
+                 "ldm   r12, {r0-r11}               \n" \
                  "loop%=:                           \n" \
-                 "bkpt 0x00                         \n" \
                  "wfi                               \n" \
-                 "b loop%=                          \n" \
+                 "b     loop%=                      \n" \
+                 "with_debugger%=:                  \n" \
+                 "ldr   r12, =__furi_check_registers\n" \
+                 "ldm   r12, {r0-r11}               \n" \
+                 "debug_loop%=:                     \n" \
+                 "bkpt  0x00                        \n" \
+                 "wfi                               \n" \
+                 "b     debug_loop%=                \n" \
                  :                                      \
-                 :                                      \
+                 : "r"(r0)                              \
                  : "memory");
 
 extern size_t xPortGetTotalHeapSize(void);
@@ -96,16 +111,19 @@ FURI_NORETURN void __furi_crash() {
     }
     __furi_print_heap_info();
 
-#ifdef FURI_DEBUG
-    furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
-    furi_hal_console_puts("\033[0m\r\n");
-    RESTORE_REGISTERS_AND_HALT_MCU();
-#else
-    furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
-    furi_hal_console_puts("\r\nRebooting system.\r\n");
-    furi_hal_console_puts("\033[0m\r\n");
-    furi_hal_power_reset();
-#endif
+    // Check if debug enabled by DAP
+    // https://developer.arm.com/documentation/ddi0403/d/Debug-Architecture/ARMv7-M-Debug/Debug-register-support-in-the-SCS/Debug-Halting-Control-and-Status-Register--DHCSR?lang=en
+    bool debug = CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    if(debug) {
+        furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
+        furi_hal_console_puts("\033[0m\r\n");
+        RESTORE_REGISTERS_AND_HALT_MCU(debug);
+    } else {
+        furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
+        furi_hal_console_puts("\r\nRebooting system.\r\n");
+        furi_hal_console_puts("\033[0m\r\n");
+        furi_hal_power_reset();
+    }
     __builtin_unreachable();
 }
 
@@ -124,6 +142,11 @@ FURI_NORETURN void __furi_halt() {
     furi_hal_console_puts(__furi_check_message);
     furi_hal_console_puts("\r\nSystem halted. Bye-bye!\r\n");
     furi_hal_console_puts("\033[0m\r\n");
-    RESTORE_REGISTERS_AND_HALT_MCU();
+
+    // Check if debug enabled by DAP
+    // https://developer.arm.com/documentation/ddi0403/d/Debug-Architecture/ARMv7-M-Debug/Debug-register-support-in-the-SCS/Debug-Halting-Control-and-Status-Register--DHCSR?lang=en
+    bool debug = CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    RESTORE_REGISTERS_AND_HALT_MCU(debug);
+
     __builtin_unreachable();
 }
