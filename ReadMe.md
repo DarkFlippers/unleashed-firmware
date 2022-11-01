@@ -95,7 +95,7 @@ Also check changelog in releases for latest updates!
 - i2c Tools [(By NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools) - C0 -> SCL / C1 -> SDA / GND -> GND | 3v3 logic levels only!
 - Temperature Sensor Plugin - HTU21D / SI7021 [(By Mywk)](https://github.com/Mywk/FlipperTemperatureSensor) - [How to Connect](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/applications/plugins/temperature_sensor/Readme.md)
 - HC-SR04 Distance sensor - Ported and modified by @xMasterX [(original by Sanqui)](https://github.com/Sanqui/flipperzero-firmware/tree/hc_sr04) - How to connect -> (5V -> VCC) / (GND -> GND) / (13|TX -> Trig) / (14|RX -> Echo)
-- Morse Code - [(by wh00hw)](https://github.com/wh00hw/MorseCodeFAP)
+- Morse Code [(by wh00hw)](https://github.com/wh00hw/MorseCodeFAP)
 
 Games:
 - DOOM (fixed) [(By p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
