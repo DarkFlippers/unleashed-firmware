@@ -19,6 +19,7 @@ typedef enum {
     ViewPortOrientationHorizontalFlip,
     ViewPortOrientationVertical,
     ViewPortOrientationVerticalFlip,
+    ViewPortOrientationMAX, /**< Special value, don't use it */
 } ViewPortOrientation;
 
 /** ViewPort Draw callback

@@ -380,6 +380,8 @@ int32_t snake_game_app(void* p) {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             } else if(event.type == EventTypeTick) {

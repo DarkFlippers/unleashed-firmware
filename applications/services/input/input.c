@@ -60,8 +60,9 @@ const char* input_get_type_name(InputType type) {
         return "Long";
     case InputTypeRepeat:
         return "Repeat";
+    default:
+        return "Unknown";
     }
-    return "Unknown";
 }
 
 int32_t input_srv(void* p) {

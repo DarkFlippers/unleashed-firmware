@@ -20,6 +20,7 @@ typedef enum {
     InputKeyLeft,
     InputKeyOk,
     InputKeyBack,
+    InputKeyMAX, /**< Special value */
 } InputKey;
 
 /* Light */
