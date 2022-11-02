@@ -8,7 +8,7 @@ env:
   DEFAULT_TARGET: f7
 
 jobs:
-  main:
+  run_units_on_test_bench:
     runs-on: [self-hosted, FlipperZeroTest]
     steps:
       - name: Checkout code
@@ -22,14 +22,14 @@ jobs:
         run: |
           echo "flipper=/dev/ttyACM0" >> $GITHUB_OUTPUT
 
-      - name: 'Compile unit tests firmware'
-        id: compile
+      - name: 'Flash unit tests firmware'
+        id: flashing
         run: |
           FBT_TOOLCHAIN_PATH=/opt ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
 
       - name: 'Wait for flipper to finish updating'
         id: connect
-        if: steps.compile.outcome == 'success'
+        if: steps.flashing.outcome == 'success'
         run: |
           . scripts/toolchain/fbtenv.sh
           ./scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
