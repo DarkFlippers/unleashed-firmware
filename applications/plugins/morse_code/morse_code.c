@@ -27,7 +27,6 @@ typedef struct {
     MorseCodeWorker* worker;
 } MorseCode;
 
-
 static void render_callback(Canvas* const canvas, void* ctx) {
     MorseCode* morse_code = ctx;
     furi_check(furi_mutex_acquire(morse_code->model_mutex, FuriWaitForever) == FuriStatusOk);
@@ -35,20 +34,26 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     canvas_set_font(canvas, FontPrimary);
 
     //write words
-    elements_multiline_text_aligned(canvas, 64, 30, AlignCenter, AlignCenter, furi_string_get_cstr(morse_code->model->words));
-    
-     // volume view_port
+    elements_multiline_text_aligned(
+        canvas, 64, 30, AlignCenter, AlignCenter, furi_string_get_cstr(morse_code->model->words));
+
+    // volume view_port
     uint8_t vol_bar_x_pos = 124;
     uint8_t vol_bar_y_pos = 0;
-    const uint8_t volume_h =
-        (64 / (COUNT_OF(MORSE_CODE_VOLUMES) - 1)) * morse_code->model->volume;
+    const uint8_t volume_h = (64 / (COUNT_OF(MORSE_CODE_VOLUMES) - 1)) * morse_code->model->volume;
     canvas_draw_frame(canvas, vol_bar_x_pos, vol_bar_y_pos, 4, 64);
     canvas_draw_box(canvas, vol_bar_x_pos, vol_bar_y_pos + (64 - volume_h), 4, volume_h);
 
     //dit bpm
     canvas_draw_str_aligned(
-        canvas, 0, 10, AlignLeft, AlignCenter, furi_string_get_cstr(furi_string_alloc_printf("Dit: %ld ms", morse_code->model->dit_delta)));
-    
+        canvas,
+        0,
+        10,
+        AlignLeft,
+        AlignCenter,
+        furi_string_get_cstr(
+            furi_string_alloc_printf("Dit: %ld ms", morse_code->model->dit_delta)));
+
     //button info
     elements_button_center(canvas, "Press/Hold");
     furi_mutex_release(morse_code->model_mutex);
@@ -59,9 +64,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     furi_message_queue_put(morse_code->input_queue, input_event, FuriWaitForever);
 }
 
-static void morse_code_worker_callback(
-    FuriString* words,
-    void* context) {
+static void morse_code_worker_callback(FuriString* words, void* context) {
     MorseCode* morse_code = context;
     furi_check(furi_mutex_acquire(morse_code->model_mutex, FuriWaitForever) == FuriStatusOk);
     morse_code->model->words = words;
@@ -115,45 +118,45 @@ int32_t morse_code_app() {
     InputEvent input;
     morse_code_worker_start(morse_code->worker);
     morse_code_worker_set_volume(
-                    morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
-    morse_code_worker_set_dit_delta(morse_code->worker,  morse_code->model->dit_delta);
-    while(furi_message_queue_get(morse_code->input_queue, &input, FuriWaitForever) == FuriStatusOk){
+        morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
+    morse_code_worker_set_dit_delta(morse_code->worker, morse_code->model->dit_delta);
+    while(furi_message_queue_get(morse_code->input_queue, &input, FuriWaitForever) ==
+          FuriStatusOk) {
         furi_check(furi_mutex_acquire(morse_code->model_mutex, FuriWaitForever) == FuriStatusOk);
         if(input.key == InputKeyBack) {
-                furi_mutex_release(morse_code->model_mutex);
-                break;
-        }else if(input.key == InputKeyOk){
-                if(input.type == InputTypePress)
-                    morse_code_worker_play(morse_code->worker, true);
-                else if(input.type == InputTypeRelease)
-                    morse_code_worker_play(morse_code->worker, false);
-            }else if(input.key == InputKeyUp && input.type == InputTypePress){
-                 if(morse_code->model->volume < COUNT_OF(MORSE_CODE_VOLUMES) - 1)
-                    morse_code->model->volume++;
-                morse_code_worker_set_volume(
-                    morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
-            }else if(input.key == InputKeyDown && input.type == InputTypePress){
-                 if(morse_code->model->volume > 0) 
-                    morse_code->model->volume--;
-                morse_code_worker_set_volume(
-                    morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
-            }else if(input.key == InputKeyLeft && input.type == InputTypePress){
-                 if(morse_code->model->dit_delta > 10) 
-                    morse_code->model->dit_delta-=10;
-                morse_code_worker_set_dit_delta(
-                    morse_code->worker,  morse_code->model->dit_delta);
-            }
-            else if(input.key == InputKeyRight && input.type == InputTypePress){
-                 if(morse_code->model->dit_delta >= 10) 
-                    morse_code->model->dit_delta+=10;
-                morse_code_worker_set_dit_delta(
-                    morse_code->worker,  morse_code->model->dit_delta);
-            }
-                
-        FURI_LOG_D("Input", "%s %s %ld", input_get_key_name(input.key), input_get_type_name(input.type), input.sequence);
-        
+            furi_mutex_release(morse_code->model_mutex);
+            break;
+        } else if(input.key == InputKeyOk) {
+            if(input.type == InputTypePress)
+                morse_code_worker_play(morse_code->worker, true);
+            else if(input.type == InputTypeRelease)
+                morse_code_worker_play(morse_code->worker, false);
+        } else if(input.key == InputKeyUp && input.type == InputTypePress) {
+            if(morse_code->model->volume < COUNT_OF(MORSE_CODE_VOLUMES) - 1)
+                morse_code->model->volume++;
+            morse_code_worker_set_volume(
+                morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
+        } else if(input.key == InputKeyDown && input.type == InputTypePress) {
+            if(morse_code->model->volume > 0) morse_code->model->volume--;
+            morse_code_worker_set_volume(
+                morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
+        } else if(input.key == InputKeyLeft && input.type == InputTypePress) {
+            if(morse_code->model->dit_delta > 10) morse_code->model->dit_delta -= 10;
+            morse_code_worker_set_dit_delta(morse_code->worker, morse_code->model->dit_delta);
+        } else if(input.key == InputKeyRight && input.type == InputTypePress) {
+            if(morse_code->model->dit_delta >= 10) morse_code->model->dit_delta += 10;
+            morse_code_worker_set_dit_delta(morse_code->worker, morse_code->model->dit_delta);
+        }
+
+        FURI_LOG_D(
+            "Input",
+            "%s %s %ld",
+            input_get_key_name(input.key),
+            input_get_type_name(input.type),
+            input.sequence);
+
         furi_mutex_release(morse_code->model_mutex);
-        view_port_update(morse_code->view_port);  
+        view_port_update(morse_code->view_port);
     }
     morse_code_worker_stop(morse_code->worker);
     morse_code_free(morse_code);
