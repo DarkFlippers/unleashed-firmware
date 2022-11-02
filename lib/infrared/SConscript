@@ -6,9 +6,9 @@ env.Append(
         "#/lib/infrared/worker",
     ],
     SDK_HEADERS=[
-        File("#/lib/infrared/worker/infrared_transmit.h"),
-        File("#/lib/infrared/worker/infrared_worker.h"),
-        File("#/lib/infrared/encoder_decoder/infrared.h"),
+        File("encoder_decoder/infrared.h"),
+        File("worker/infrared_worker.h"),
+        File("worker/infrared_transmit.h"),
     ],
 )
 

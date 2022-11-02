@@ -98,7 +98,7 @@ for wrapped_fn in wrapped_fn_list:
 
 env.Append(
     SDK_HEADERS=[
-        File("#/lib/print/wrappers.h"),
+        File("wrappers.h"),
     ],
 )
 

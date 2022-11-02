@@ -5,7 +5,7 @@ env.Append(
         "#/lib/flipper_application",
     ],
     SDK_HEADERS=[
-        File("#/lib/flipper_application/flipper_application.h"),
+        File("flipper_application.h"),
     ],
 )
 

@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/5f0ff6db624270a4598958ab9dd79bb385ced3ef/src/devices/gt_wt_03.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/gt_wt_03.c
  * 
  * 
  * Globaltronics GT-WT-03 sensor on 433.92MHz.

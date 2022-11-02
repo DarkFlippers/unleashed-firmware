@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/7e83cfd27d14247b6c3c81732bfe4a4f9a974d30/src/devices/lacrosse_tx141x.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/lacrosse_tx141x.c
  *  
  *     iiii iiii | bkcc tttt | tttt tttt | hhhh hhhh | cccc cccc | u
  * - i: identification; changes on battery switch

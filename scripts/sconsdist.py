@@ -131,7 +131,9 @@ class Main(App):
             self.copy_single_project(project)
 
         self.logger.info(
-            fg.green(f"Firmware binaries can be found at:\n\t{self.output_dir_path}")
+            fg.boldgreen(
+                f"Firmware binaries can be found at:\n\t{self.output_dir_path}"
+            )
         )
 
         if self.args.version:
@@ -175,7 +177,7 @@ class Main(App):
 
             if (bundle_result := UpdateMain(no_exit=True)(bundle_args)) == 0:
                 self.logger.info(
-                    fg.green(
+                    fg.boldgreen(
                         f"Use this directory to self-update your Flipper:\n\t{bundle_dir}"
                     )
                 )

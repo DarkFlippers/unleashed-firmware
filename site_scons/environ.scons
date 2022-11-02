@@ -1,5 +1,10 @@
 from SCons.Platform import TempFileMunge
-from fbt.util import tempfile_arg_esc_func, single_quote, wrap_tempfile
+from fbt.util import (
+    tempfile_arg_esc_func,
+    single_quote,
+    wrap_tempfile,
+    extract_abs_dir_path,
+)
 
 import os
 import multiprocessing
@@ -53,30 +58,18 @@ coreenv = VAR_ENV.Clone(
     MAXLINELENGTH=2048,
     PROGSUFFIX=".elf",
     ENV=forward_os_env,
+    SINGLEQUOTEFUNC=single_quote,
+    ABSPATHGETTERFUNC=extract_abs_dir_path,
+    # Setting up temp file parameters - to overcome command line length limits
+    TEMPFILEARGESCFUNC=tempfile_arg_esc_func,
+    FBT_SCRIPT_DIR=Dir("#/scripts"),
+    ROOT_DIR=Dir("#"),
 )
 
 # If DIST_SUFFIX is set in environment, is has precedence (set by CI)
 if os_suffix := os.environ.get("DIST_SUFFIX", None):
     coreenv.Replace(
         DIST_SUFFIX=os_suffix,
-    )
-
-# print(coreenv.Dump())
-if not coreenv["VERBOSE"]:
-    coreenv.SetDefault(
-        CCCOMSTR="\tCC\t${SOURCE}",
-        CXXCOMSTR="\tCPP\t${SOURCE}",
-        ASCOMSTR="\tASM\t${SOURCE}",
-        ARCOMSTR="\tAR\t${TARGET}",
-        RANLIBCOMSTR="\tRANLIB\t${TARGET}",
-        LINKCOMSTR="\tLINK\t${TARGET}",
-        INSTALLSTR="\tINSTALL\t${TARGET}",
-        APPSCOMSTR="\tAPPS\t${TARGET}",
-        VERSIONCOMSTR="\tVERSION\t${TARGET}",
-        STRIPCOMSTR="\tSTRIP\t${TARGET}",
-        OBJDUMPCOMSTR="\tOBJDUMP\t${TARGET}",
-        # GDBCOMSTR="\tGDB\t${SOURCE}",
-        # GDBPYCOMSTR="\tGDB-PY\t${SOURCE}",
     )
 
 # Default value for commandline options
@@ -91,12 +84,7 @@ SetOption("max_drift", 1)
 # Random task queue - to discover isses with build logic faster
 # SetOption("random", 1)
 
-
-# Setting up temp file parameters - to overcome command line length limits
-coreenv["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
 wrap_tempfile(coreenv, "LINKCOM")
 wrap_tempfile(coreenv, "ARCOM")
-
-coreenv["SINGLEQUOTEFUNC"] = single_quote
 
 Return("coreenv")
