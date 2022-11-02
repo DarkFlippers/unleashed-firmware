@@ -496,6 +496,8 @@ int32_t spectrum_analyzer_app(void* p) {
         case InputKeyBack:
             exit_loop = true;
             break;
+        default:
+            break;
         }
 
         furi_mutex_release(spectrum_analyzer->model_mutex);

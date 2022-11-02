@@ -134,6 +134,8 @@ void flipfrid_scene_entrypoint_on_event(FlipFridEvent event, FlipFridState* cont
             case InputKeyBack:
                 context->is_running = false;
                 break;
+            default:
+                break;
             }
         }
     }

@@ -546,6 +546,8 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 notification_message(context->notify, &sequence_blink_stop);
                 context->current_scene = SceneEntryPoint;
                 break;
+            default:
+                break;
             }
         }
     }

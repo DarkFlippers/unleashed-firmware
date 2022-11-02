@@ -71,6 +71,8 @@ void flipfrid_scene_load_custom_uids_on_event(FlipFridEvent event, FlipFridState
             case InputKeyBack:
                 context->current_scene = SceneEntryPoint;
                 break;
+            default:
+                break;
             }
         }
     }

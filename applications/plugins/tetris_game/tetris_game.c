@@ -437,6 +437,8 @@ int32_t tetris_game_app() {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             } else if(event.type == EventTypeTick) {

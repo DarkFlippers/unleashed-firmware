@@ -442,6 +442,8 @@ int32_t quenon_dht_mon_app() {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }
