@@ -1,15 +1,18 @@
-import shutil
 from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Errors import UserError
 import SCons.Warnings
 
-import os
-import pathlib
 from fbt.elfmanifest import assemble_manifest_data
 from fbt.appmanifest import FlipperApplication, FlipperManifestException
 from fbt.sdk.cache import SdkCache
+from fbt.util import extract_abs_dir_path
+
+import os
+import pathlib
 import itertools
+import shutil
+
 from ansi.color import fg
 
 
@@ -62,7 +65,7 @@ def BuildAppElf(env, app):
         lib_src_root_path = os.path.join(app_work_dir, "lib", lib_def.name)
         app_env.AppendUnique(
             CPPPATH=list(
-                app_env.Dir(lib_src_root_path).Dir(incpath).srcnode()
+                app_env.Dir(lib_src_root_path).Dir(incpath).srcnode().rfile().abspath
                 for incpath in lib_def.fap_include_paths
             ),
         )
@@ -82,7 +85,12 @@ def BuildAppElf(env, app):
                 *lib_def.cflags,
             ],
             CPPDEFINES=lib_def.cdefines,
-            CPPPATH=list(map(app._appdir.Dir, lib_def.cincludes)),
+            CPPPATH=list(
+                map(
+                    lambda cpath: extract_abs_dir_path(app._appdir.Dir(cpath)),
+                    lib_def.cincludes,
+                )
+            ),
         )
 
         lib = private_lib_env.StaticLibrary(
@@ -157,7 +165,6 @@ def prepare_app_metadata(target, source, env):
     app = env["APP"]
     meta_file_name = source[0].path + ".meta"
     with open(meta_file_name, "wb") as f:
-        # f.write(f"hello this is {app}")
         f.write(
             assemble_manifest_data(
                 app_manifest=app,
@@ -236,7 +243,10 @@ def fap_dist_action(target, source, env):
 
 
 def generate(env, **kw):
-    env.SetDefault(EXT_APPS_WORK_DIR=kw.get("EXT_APPS_WORK_DIR"))
+    env.SetDefault(
+        EXT_APPS_WORK_DIR=kw.get("EXT_APPS_WORK_DIR"),
+        APP_RUN_SCRIPT="${FBT_SCRIPT_DIR}/runfap.py",
+    )
 
     if not env["VERBOSE"]:
         env.SetDefault(

@@ -13,19 +13,22 @@ if not [%FBT_NOENV%] == [] (
     exit /b 0
 )
 
-set "FLIPPER_TOOLCHAIN_VERSION=16"
-set "FBT_TOOLCHAIN_ROOT=%FBT_ROOT%\toolchain\x86_64-windows"
+set "FLIPPER_TOOLCHAIN_VERSION=17"
 
+if [%FBT_TOOLCHAIN_ROOT%] == [] (
+    set "FBT_TOOLCHAIN_ROOT=%FBT_ROOT%\toolchain\x86_64-windows"
+)
 
 if not exist "%FBT_TOOLCHAIN_ROOT%" (
-    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%"
+    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%" "%FBT_TOOLCHAIN_ROOT%"
 )
 if not exist "%FBT_TOOLCHAIN_ROOT%\VERSION" (
-    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%"
+    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%" "%FBT_TOOLCHAIN_ROOT%"
 )
+
 set /p REAL_TOOLCHAIN_VERSION=<"%FBT_TOOLCHAIN_ROOT%\VERSION"
 if not "%REAL_TOOLCHAIN_VERSION%" == "%FLIPPER_TOOLCHAIN_VERSION%" (
-    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%"
+    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%" "%FBT_TOOLCHAIN_ROOT%"
 )
 
 

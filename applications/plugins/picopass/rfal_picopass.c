@@ -1,5 +1,4 @@
 #include "rfal_picopass.h"
-#include "utils.h"
 
 #define RFAL_PICOPASS_TXRX_FLAGS                                                    \
     (FURI_HAL_NFC_LL_TXRX_FLAGS_CRC_TX_MANUAL | FURI_HAL_NFC_LL_TXRX_FLAGS_AGC_ON | \
@@ -97,7 +96,7 @@ FuriHalNfcReturn rfalPicoPassPollerSelect(uint8_t* csn, rfalPicoPassSelectRes* s
 
     rfalPicoPassSelectReq selReq;
     selReq.CMD = RFAL_PICOPASS_CMD_SELECT;
-    ST_MEMCPY(selReq.CSN, csn, RFAL_PICOPASS_UID_LEN);
+    memcpy(selReq.CSN, csn, RFAL_PICOPASS_UID_LEN);
     uint16_t recvLen = 0;
     uint32_t flags = RFAL_PICOPASS_TXRX_FLAGS;
     uint32_t fwt = furi_hal_nfc_ll_ms2fc(20);
@@ -146,8 +145,8 @@ FuriHalNfcReturn rfalPicoPassPollerCheck(uint8_t* mac, rfalPicoPassCheckRes* chk
     FuriHalNfcReturn ret;
     rfalPicoPassCheckReq chkReq;
     chkReq.CMD = RFAL_PICOPASS_CMD_CHECK;
-    ST_MEMCPY(chkReq.mac, mac, 4);
-    ST_MEMSET(chkReq.null, 0, 4);
+    memcpy(chkReq.mac, mac, 4);
+    memset(chkReq.null, 0, 4);
     uint16_t recvLen = 0;
     uint32_t flags = RFAL_PICOPASS_TXRX_FLAGS;
     uint32_t fwt = furi_hal_nfc_ll_ms2fc(20);

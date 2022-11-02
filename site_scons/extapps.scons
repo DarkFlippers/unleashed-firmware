@@ -3,10 +3,9 @@ from SCons.Errors import UserError
 
 Import("ENV")
 
-
 from fbt.appmanifest import FlipperAppType
 
-appenv = ENV.Clone(
+appenv = ENV["APPENV"] = ENV.Clone(
     tools=[
         (
             "fbt_extapps",
@@ -17,6 +16,7 @@ appenv = ENV.Clone(
             },
         ),
         "fbt_assets",
+        "fbt_sdk",
     ]
 )
 
@@ -66,6 +66,7 @@ extapps = appenv["_extapps"] = {
     "validators": {},
     "dist": {},
     "resources_dist": None,
+    "sdk_tree": None,
 }
 
 
@@ -115,10 +116,41 @@ if appsrc := appenv.subst("$APPSRC"):
     app_manifest, fap_file, app_validator = appenv.GetExtAppFromPath(appsrc)
     appenv.PhonyTarget(
         "launch_app",
-        '${PYTHON3} scripts/runfap.py ${SOURCE} --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
+        '${PYTHON3} "${APP_RUN_SCRIPT}" ${SOURCE} --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
         source=fap_file,
         FAP_CATEGORY=app_manifest.fap_category,
     )
     appenv.Alias("launch_app", app_validator)
+
+# SDK management
+
+sdk_origin_path = "${BUILD_DIR}/sdk_origin"
+sdk_source = appenv.SDKPrebuilder(
+    sdk_origin_path,
+    # Deps on root SDK headers and generated files
+    (appenv["SDK_HEADERS"], appenv["FW_ASSETS_HEADERS"]),
+)
+# Extra deps on headers included in deeper levels
+Depends(sdk_source, appenv.ProcessSdkDepends(f"{sdk_origin_path}.d"))
+
+appenv["SDK_DIR"] = appenv.Dir("${BUILD_DIR}/sdk")
+sdk_tree = extapps["sdk_tree"] = appenv.SDKTree(appenv["SDK_DIR"], sdk_origin_path)
+# AlwaysBuild(sdk_tree)
+Alias("sdk_tree", sdk_tree)
+
+sdk_apicheck = appenv.SDKSymUpdater(appenv["SDK_DEFINITION"], sdk_origin_path)
+Precious(sdk_apicheck)
+NoClean(sdk_apicheck)
+AlwaysBuild(sdk_apicheck)
+Alias("sdk_check", sdk_apicheck)
+
+sdk_apisyms = appenv.SDKSymGenerator(
+    "${BUILD_DIR}/assets/compiled/symbols.h", appenv["SDK_DEFINITION"]
+)
+Alias("api_syms", sdk_apisyms)
+
+if appenv["FORCE"]:
+    appenv.AlwaysBuild(sdk_source, sdk_tree, sdk_apicheck, sdk_apisyms)
+
 
 Return("extapps")

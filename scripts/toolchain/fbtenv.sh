@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"16"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"17"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 
 fbtenv_show_usage()
@@ -62,7 +62,7 @@ fbtenv_check_sourced()
         fbtenv_show_usage;
         return 1;
     fi
-    case ${0##*/} in dash|-dash|bash|-bash|ksh|-ksh|sh|-sh|*.sh|fbt)
+    case ${0##*/} in dash|-dash|bash|-bash|ksh|-ksh|sh|-sh|*.sh|fbt|ufbt)
         return 0;;
     esac
     fbtenv_show_usage;
@@ -76,8 +76,8 @@ fbtenv_chck_many_source()
             return 0;
         fi
     fi
-    echo "Warning! FBT environment script sourced more than once!";
-    echo "This may signal that you are making mistakes, please open a new shell!";
+    echo "Warning! FBT environment script was sourced more than once!";
+    echo "You might be doing things wrong, please open a new shell!";
     return 1;
 }
 
@@ -93,8 +93,8 @@ fbtenv_set_shell_prompt()
 
 fbtenv_check_script_path()
 {
-    if [ ! -x "$SCRIPT_PATH/fbt" ]; then
-        echo "Please source this script being into flipperzero-firmware root directory, or specify 'SCRIPT_PATH' manually";
+    if [ ! -x "$SCRIPT_PATH/fbt" ] && [ ! -x "$SCRIPT_PATH/ufbt" ] ; then
+        echo "Please source this script from [u]fbt root directory, or specify 'SCRIPT_PATH' variable manually";
         echo "Example:";
         printf "\tSCRIPT_PATH=lang/c/flipperzero-firmware source lang/c/flipperzero-firmware/scripts/fbtenv.sh\n";
         echo "If current directory is right, type 'unset SCRIPT_PATH' and try again"
@@ -108,7 +108,7 @@ fbtenv_get_kernel_type()
     SYS_TYPE="$(uname -s)";
     ARCH_TYPE="$(uname -m)";
     if [ "$ARCH_TYPE" != "x86_64" ] && [ "$SYS_TYPE" != "Darwin" ]; then
-        echo "Now we provide toolchain only for x86_64 arhitecture, sorry..";
+        echo "We only provide toolchain for x86_64 CPUs, sorry..";
         return 1;
     fi
     if [ "$SYS_TYPE" = "Darwin" ]; then
@@ -119,10 +119,10 @@ fbtenv_get_kernel_type()
         TOOLCHAIN_ARCH_DIR="$FBT_TOOLCHAIN_PATH/toolchain/x86_64-linux";
         TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-linux-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
     elif echo "$SYS_TYPE" | grep -q "MINGW"; then
-        echo "In MinGW shell use \"fbt.cmd\" instead of \"fbt\"";
+        echo "In MinGW shell use \"[u]fbt.cmd\" instead of \"[u]fbt\"";
         return 1;
     else
-        echo "Your system is not recognized. Sorry.. Please report us your configuration.";
+        echo "Your system configuration is not supported. Sorry.. Please report us your configuration.";
         return 1;
     fi
     return 0;
@@ -142,7 +142,7 @@ fbtenv_check_rosetta()
 
 fbtenv_check_tar()
 {
-    printf "Checking tar..";
+    printf "Checking for tar..";
     if ! tar --version > /dev/null 2>&1; then
         echo "no";
         return 1;
@@ -153,7 +153,7 @@ fbtenv_check_tar()
 
 fbtenv_check_downloaded_toolchain()
 {
-    printf "Checking downloaded toolchain tgz..";
+    printf "Checking if downloaded toolchain tgz exists..";
     if [ ! -f "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" ]; then
         echo "no";
         return 1;
@@ -204,7 +204,7 @@ fbtenv_unpack_toolchain()
 
 fbtenv_clearing()
 {
-    printf "Clearing..";
+    printf "Cleaning up..";
     if [ -n "${FBT_TOOLCHAIN_PATH:-""}" ]; then
         rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.tar.gz;
         rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.part;

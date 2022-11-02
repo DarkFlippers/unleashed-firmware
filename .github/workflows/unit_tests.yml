@@ -31,22 +31,26 @@ jobs:
         id: connect
         if: steps.compile.outcome == 'success'
         run: |
-          python3 ./scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
+          . scripts/toolchain/fbtenv.sh
+          ./scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
 
       - name: 'Format flipper SD card'
         id: format
         if: steps.connect.outcome == 'success'
         run: |
+          . scripts/toolchain/fbtenv.sh
           ./scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext
 
       - name: 'Copy assets and unit tests data to flipper'
         id: copy
         if: steps.format.outcome == 'success'
         run: |
+          . scripts/toolchain/fbtenv.sh
           ./scripts/storage.py -p ${{steps.device.outputs.flipper}} send assets/resources /ext
           ./scripts/storage.py -p ${{steps.device.outputs.flipper}} send assets/unit_tests /ext/unit_tests
 
       - name: 'Run units and validate results'
         if: steps.copy.outcome == 'success'
         run: |
-          python3 ./scripts/testing/units.py ${{steps.device.outputs.flipper}}
+          . scripts/toolchain/fbtenv.sh
+          ./scripts/testing/units.py ${{steps.device.outputs.flipper}}

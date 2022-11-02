@@ -33,10 +33,6 @@ coreenv = SConscript(
 )
 SConscript("site_scons/cc.scons", exports={"ENV": coreenv})
 
-# Store root dir in environment for certain tools
-coreenv["ROOT_DIR"] = Dir(".")
-
-
 # Create a separate "dist" environment and add construction envs to it
 distenv = coreenv.Clone(
     tools=[
@@ -233,13 +229,13 @@ distenv.PhonyTarget(
 # Linter
 distenv.PhonyTarget(
     "lint",
-    "${PYTHON3} scripts/lint.py check ${LINT_SOURCES}",
+    "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py check ${LINT_SOURCES}",
     LINT_SOURCES=firmware_env["LINT_SOURCES"],
 )
 
 distenv.PhonyTarget(
     "format",
-    "${PYTHON3} scripts/lint.py format ${LINT_SOURCES}",
+    "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py format ${LINT_SOURCES}",
     LINT_SOURCES=firmware_env["LINT_SOURCES"],
 )
 
@@ -280,7 +276,7 @@ distenv.PhonyTarget(
 )
 
 # Start Flipper CLI via PySerial's miniterm
-distenv.PhonyTarget("cli", "${PYTHON3} scripts/serial_cli.py")
+distenv.PhonyTarget("cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py")
 
 
 # Find blackmagic probe

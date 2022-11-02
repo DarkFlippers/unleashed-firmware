@@ -9,8 +9,6 @@
 #include <furi_hal.h>
 
 #include <stdlib.h>
-#include <st25r3916.h>
-#include <rfal_analogConfig.h>
 #include <rfal_rf.h>
 
 #include <platform.h>

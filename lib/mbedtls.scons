@@ -5,6 +5,10 @@ env.Append(
         "#/lib/mbedtls",
         "#/lib/mbedtls/include",
     ],
+    SDK_HEADERS=[
+        File("mbedtls/include/mbedtls/des.h"),
+        File("mbedtls/include/mbedtls/sha1.h"),
+    ],
 )
 
 

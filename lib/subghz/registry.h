@@ -2,6 +2,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzEnvironment SubGhzEnvironment;
 
 typedef struct SubGhzProtocolRegistry SubGhzProtocolRegistry;
@@ -37,3 +41,7 @@ const SubGhzProtocol* subghz_protocol_registry_get_by_index(
  * @return Number of protocols
  */
 size_t subghz_protocol_registry_count(const SubGhzProtocolRegistry* protocol_registry);
+
+#ifdef __cplusplus
+}
+#endif

@@ -13,7 +13,7 @@ env.Append(
         "PB_ENABLE_MALLOC",
     ],
     SDK_HEADERS=[
-        File("#/lib/micro-ecc/uECC.h"),
+        File("micro-ecc/uECC.h"),
     ],
 )
 

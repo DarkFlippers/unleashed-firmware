@@ -5,6 +5,11 @@ env.Append(
         "#/lib/infrared/encoder_decoder",
         "#/lib/infrared/worker",
     ],
+    SDK_HEADERS=[
+        File("encoder_decoder/infrared.h"),
+        File("worker/infrared_worker.h"),
+        File("worker/infrared_transmit.h"),
+    ],
 )
 
 

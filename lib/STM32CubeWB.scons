@@ -15,7 +15,7 @@ env.Append(
     ],
     SDK_HEADERS=env.GlobRecursive(
         "*_ll_*.h",
-        "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/",
+        Dir("STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/"),
         exclude="*usb.h",
     ),
 )
