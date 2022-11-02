@@ -93,6 +93,9 @@ void sensorEdit_scene(PluginData* app) {
         app->item, DHTMon_GPIO_getName(app->currentSensorEdit->GPIO));
     variable_item_list_add(variable_item_list, "Save", 1, NULL, app);
 
+    //Сброс выбранного пункта в ноль
+    variable_item_list_set_selected_item(variable_item_list, 0);
+
     view_dispatcher_switch_to_view(app->view_dispatcher, ADDSENSOR_MENU_VIEW);
 }
 void sensorEdit_sceneRemove(void) {
