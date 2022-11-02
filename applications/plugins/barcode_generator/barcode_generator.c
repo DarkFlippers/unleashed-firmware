@@ -523,12 +523,11 @@ int32_t barcode_UPCA_generator_app(void* p) {
                             plugin_state->modeIndex = 0;
                         }
                         break;
+                    default:
+                        break;
                     }
                 }
             }
-        } else {
-            FURI_LOG_D("barcode_UPCA_generator", "osMessageQueue: event timeout");
-            // event timeout
         }
 
         view_port_update(view_port);

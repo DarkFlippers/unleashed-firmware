@@ -345,14 +345,13 @@ int32_t flappy_game_app(void* p) {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             } else if(event.type == EventTypeTick) {
                 flappy_game_tick(game_state);
             }
-        } else {
-            //FURI_LOG_D(TAG, "osMessageQueue: event timeout");
-            // event timeout
         }
 
         view_port_update(view_port);

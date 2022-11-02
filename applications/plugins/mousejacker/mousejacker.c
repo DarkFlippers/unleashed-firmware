@@ -372,6 +372,8 @@ int32_t mousejacker_app(void* p) {
                         plugin_state->close_thread_please = false;
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }

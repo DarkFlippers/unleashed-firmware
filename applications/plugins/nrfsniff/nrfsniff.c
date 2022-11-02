@@ -399,6 +399,8 @@ int32_t nrfsniff_app(void* p) {
                     case InputKeyBack:
                         if(event.input.type == InputTypeLong) processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }

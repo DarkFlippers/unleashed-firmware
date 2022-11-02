@@ -358,12 +358,11 @@ int32_t tictactoe_game_app(void* p) {
                     case InputKeyOk:
                         tictactoe_state->button_state = true;
                         break;
+                    default:
+                        break;
                     }
                 }
             }
-        } else {
-            // Event timeout
-            FURI_LOG_D(TAG, "furi_message_queue: Event timeout");
         }
 
         view_port_update(view_port);

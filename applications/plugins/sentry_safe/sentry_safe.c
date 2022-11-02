@@ -143,6 +143,8 @@ int32_t sentry_safe_app(void* p) {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }

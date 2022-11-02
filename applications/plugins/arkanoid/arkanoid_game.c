@@ -448,14 +448,13 @@ int32_t arkanoid_game_app(void* p) {
                             arkanoid_state->ball_state.dy = -1;
                             //start the game flag
                             arkanoid_state->gameStarted = true;
-                            break;
                         }
+                        break;
+                    default:
+                        break;
                     }
                 }
             }
-        } else {
-            // Event timeout
-            FURI_LOG_D(TAG, "furi_message_queue: Event timeout");
         }
 
         view_port_update(view_port);
