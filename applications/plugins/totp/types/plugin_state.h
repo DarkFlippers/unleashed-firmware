@@ -19,10 +19,10 @@ typedef struct {
     float timezone_offset;
     ListNode* tokens_list;
     bool token_list_loaded;
-    uint8_t tokens_count;
+    uint16_t tokens_count;
 
     uint8_t* crypto_verify_data;
-    uint8_t crypto_verify_data_length;
+    size_t crypto_verify_data_length;
     bool pin_set;
     uint8_t iv[TOTP_IV_SIZE];
     uint8_t base_iv[TOTP_IV_SIZE];
