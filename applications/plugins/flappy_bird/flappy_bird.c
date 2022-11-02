@@ -217,10 +217,10 @@ static void flappy_game_render_callback(Canvas* const canvas, void* ctx) {
         for(int h = 0; h < FLAPPY_BIRD_HEIGHT; h++) {
             for(int w = 0; w < FLAPPY_BIRD_WIDTH; w++) {
                 // Switch animation
-                int bird = 0;
+                int bird = 1;
                 if(game_state->bird.gravity < -0.5)
-                    bird = 1;
-                else
+                    bird = 0;
+                else if(game_state->bird.gravity > 0.5)
                     bird = 2;
 
                 // Draw bird pixels
