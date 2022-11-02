@@ -23,7 +23,7 @@ env.Append(
         File("one_wire/one_wire_device.h"),
         File("one_wire/ibutton/ibutton_worker.h"),
         File("one_wire/maxim_crc.h"),
-        File("#/lib/u8g2/u8g2.h"),
+        File("u8g2/u8g2.h"),
     ],
 )
 
