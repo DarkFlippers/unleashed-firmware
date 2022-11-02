@@ -26,7 +26,7 @@ ListNode* list_add(ListNode* head, void* data) {
     return head;
 }
 
-ListNode* list_find(ListNode* head, const void* data) {
+ListNode* list_find(ListNode* head, void* data) {
     ListNode* it;
 
     for(it = head; it != NULL; it = it->next)
@@ -66,8 +66,7 @@ ListNode* list_remove(ListNode* head, ListNode* ep) {
 }
 
 void list_free(ListNode* head) {
-    ListNode* it = head;
-    ListNode* tmp;
+    ListNode *it = head, *tmp;
 
     while(it != NULL) {
         tmp = it;

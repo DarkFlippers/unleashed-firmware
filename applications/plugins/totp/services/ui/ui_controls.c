@@ -1,15 +1,11 @@
 #include "ui_controls.h"
-#include <totp_icons.h>
 #include "constants.h"
+#include "icons.h"
 
 #define TEXT_BOX_HEIGHT 13
 #define TEXT_BOX_MARGIN 4
 
-void ui_control_text_box_render(
-    Canvas* const canvas,
-    int16_t y,
-    const char* text,
-    bool is_selected) {
+void ui_control_text_box_render(Canvas* const canvas, int8_t y, char* text, bool is_selected) {
     if(y < -TEXT_BOX_HEIGHT) {
         return;
     }
@@ -48,7 +44,7 @@ void ui_control_select_render(
     int16_t x,
     int16_t y,
     uint8_t width,
-    const char* text,
+    char* text,
     bool is_selected) {
     if(y < -TEXT_BOX_HEIGHT) {
         return;
@@ -81,10 +77,20 @@ void ui_control_select_render(
 
     canvas_draw_str_aligned(
         canvas, x + (width >> 1), TEXT_BOX_MARGIN + 3 + y, AlignCenter, AlignTop, text);
-    canvas_draw_icon(
-        canvas, x + TEXT_BOX_MARGIN + 2, TEXT_BOX_MARGIN + 2 + y, &I_totp_arrow_left_8x9);
-    canvas_draw_icon(
-        canvas, x + width - TEXT_BOX_MARGIN - 10, TEXT_BOX_MARGIN + 2 + y, &I_totp_arrow_right_8x9);
+    canvas_draw_xbm(
+        canvas,
+        x + TEXT_BOX_MARGIN + 2,
+        TEXT_BOX_MARGIN + 2 + y,
+        ICON_ARROW_LEFT_8x9_WIDTH,
+        ICON_ARROW_LEFT_8x9_HEIGHT,
+        &ICON_ARROW_LEFT_8x9[0]);
+    canvas_draw_xbm(
+        canvas,
+        x + width - TEXT_BOX_MARGIN - 10,
+        TEXT_BOX_MARGIN + 2 + y,
+        ICON_ARROW_RIGHT_8x9_WIDTH,
+        ICON_ARROW_RIGHT_8x9_HEIGHT,
+        &ICON_ARROW_RIGHT_8x9[0]);
 }
 
 void ui_control_button_render(
@@ -93,7 +99,7 @@ void ui_control_button_render(
     int16_t y,
     uint8_t width,
     uint8_t height,
-    const char* text,
+    char* text,
     bool is_selected) {
     if(y < -height) {
         return;

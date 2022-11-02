@@ -88,7 +88,7 @@ void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_
     }
 }
 
-void totp_scene_director_dispose(const PluginState* const plugin_state) {
+void totp_scene_director_dispose(PluginState* const plugin_state) {
     totp_scene_generate_token_free(plugin_state);
     totp_scene_authenticate_free(plugin_state);
     totp_scene_add_new_token_free(plugin_state);

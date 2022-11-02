@@ -17,9 +17,9 @@
 */
 typedef int (*TOTP_ALGO)(
     const uint8_t* key,
-    size_t key_length,
+    uint8_t key_length,
     const uint8_t* input,
-    size_t input_length,
+    uint8_t input_length,
     uint8_t* output);
 
 /*
@@ -47,7 +47,7 @@ uint32_t totp_at(
     TOTP_ALGO algo,
     uint8_t digits,
     const uint8_t* plain_secret,
-    size_t plain_secret_length,
+    uint8_t plain_secret_length,
     uint64_t for_time,
     float timezone,
     uint8_t interval);
