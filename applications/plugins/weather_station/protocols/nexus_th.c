@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/ef2d37cf51e3264d11cde9149ef87de2f0a4d37a/src/devices/nexus.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/nexus.c
  *
  * Nexus sensor protocol with ID, temperature and optional humidity
  * also FreeTec (Pearl) NC-7345 sensors for FreeTec Weatherstation NC-7344,

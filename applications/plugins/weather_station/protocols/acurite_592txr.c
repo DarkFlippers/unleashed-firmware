@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/5bef4e43133ac4c0e2d18d36f87c52b4f9458453/src/devices/acurite.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/acurite.c
  * 
  * Acurite 592TXR Temperature Humidity sensor decoder
  * Message Type 0x04, 7 bytes
