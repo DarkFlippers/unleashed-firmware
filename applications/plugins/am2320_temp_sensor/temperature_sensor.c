@@ -234,7 +234,7 @@ static void temperature_sensor_timer_callback(FuriMessageQueue* event_queue) {
 
 // App entry point
 
-int32_t temperature_sensor_app(void* p) {
+int32_t am_temperature_sensor_app(void* p) {
     UNUSED(p);
 
     furi_hal_power_suppress_charge_enter();
