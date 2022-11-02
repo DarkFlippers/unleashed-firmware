@@ -405,6 +405,10 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
     if(!fs_operation_success) {
         send_response = true;
         command_status = rpc_system_storage_get_file_error(file);
+        if(command_status == PB_CommandStatus_OK) {
+            // Report errors not handled by underlying APIs
+            command_status = PB_CommandStatus_ERROR_STORAGE_INTERNAL;
+        }
     }
 
     if(send_response) {
