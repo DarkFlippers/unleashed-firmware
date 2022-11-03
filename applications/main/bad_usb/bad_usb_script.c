@@ -524,12 +524,16 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateNotConnected) { // State: USB not connected
             uint32_t flags = furi_thread_flags_wait(
-                WorkerEvtEnd | WorkerEvtConnect, FuriFlagWaitAny, FuriWaitForever);
+                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtToggle,
+                FuriFlagWaitAny,
+                FuriWaitForever);
             furi_check((flags & FuriFlagError) == 0);
             if(flags & WorkerEvtEnd) {
                 break;
             } else if(flags & WorkerEvtConnect) {
                 worker_state = BadUsbStateIdle; // Ready to run
+            } else if(flags & WorkerEvtToggle) {
+                worker_state = BadUsbStateWillRun; // Will run when USB is connected
             }
             bad_usb->st.state = worker_state;
 
@@ -553,6 +557,31 @@ static int32_t bad_usb_worker(void* context) {
                 worker_state = BadUsbStateRunning;
             } else if(flags & WorkerEvtDisconnect) {
                 worker_state = BadUsbStateNotConnected; // USB disconnected
+            }
+            bad_usb->st.state = worker_state;
+
+        } else if(worker_state == BadUsbStateWillRun) { // State: start on connection
+            uint32_t flags = furi_thread_flags_wait(
+                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtToggle,
+                FuriFlagWaitAny,
+                FuriWaitForever);
+            furi_check((flags & FuriFlagError) == 0);
+            if(flags & WorkerEvtEnd) {
+                break;
+            } else if(flags & WorkerEvtConnect) { // Start executing script
+                DOLPHIN_DEED(DolphinDeedBadUsbPlayScript);
+                delay_val = 0;
+                bad_usb->buf_len = 0;
+                bad_usb->st.line_cur = 0;
+                bad_usb->defdelay = 0;
+                bad_usb->repeat_cnt = 0;
+                bad_usb->file_end = false;
+                storage_file_seek(script_file, 0, true);
+                // extra time for PC to recognize Flipper as keyboard
+                furi_thread_flags_wait(0, FuriFlagWaitAny, 1500);
+                worker_state = BadUsbStateRunning;
+            } else if(flags & WorkerEvtToggle) { // Cancel scheduled execution
+                worker_state = BadUsbStateNotConnected;
             }
             bad_usb->st.state = worker_state;
 
