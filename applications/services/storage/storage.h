@@ -177,6 +177,16 @@ bool storage_dir_rewind(File* file);
 
 /******************* Common Functions *******************/
 
+/** Retrieves unix timestamp of last access
+ *
+ * @param      storage    The storage instance
+ * @param      path       path to file/directory
+ * @param      timestamp  the timestamp pointer
+ *
+ * @return     FS_Error operation result
+ */
+FS_Error storage_common_timestamp(Storage* storage, const char* path, uint32_t* timestamp);
+
 /** Retrieves information about a file/directory
  * @param app pointer to the api
  * @param path path to file/directory

@@ -82,6 +82,14 @@ const char* storage_data_status_text(StorageData* storage) {
     return result;
 }
 
+void storage_data_timestamp(StorageData* storage) {
+    storage->timestamp = furi_hal_rtc_get_timestamp();
+}
+
+uint32_t storage_data_get_timestamp(StorageData* storage) {
+    return storage->timestamp;
+}
+
 /****************** storage glue ******************/
 
 bool storage_has_file(const File* file, StorageData* storage_data) {

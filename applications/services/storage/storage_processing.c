@@ -114,6 +114,9 @@ bool storage_process_file_open(
         if(storage_path_already_open(real_path, storage->files)) {
             file->error_id = FSE_ALREADY_OPEN;
         } else {
+            if(access_mode & FSAM_WRITE) {
+                storage_data_timestamp(storage);
+            }
             storage_push_storage_file(file, real_path, type, storage);
             FS_CALL(storage, file.open(storage, file, remove_vfs(path), access_mode, open_mode));
         }
@@ -166,6 +169,7 @@ static uint16_t storage_process_file_write(
     if(storage == NULL) {
         file->error_id = FSE_INVALID_PARAMETER;
     } else {
+        storage_data_timestamp(storage);
         FS_CALL(storage, file.write(storage, file, buff, bytes_to_write));
     }
 
@@ -209,6 +213,7 @@ static bool storage_process_file_truncate(Storage* app, File* file) {
     if(storage == NULL) {
         file->error_id = FSE_INVALID_PARAMETER;
     } else {
+        storage_data_timestamp(storage);
         FS_CALL(storage, file.truncate(storage, file));
     }
 
@@ -222,6 +227,7 @@ static bool storage_process_file_sync(Storage* app, File* file) {
     if(storage == NULL) {
         file->error_id = FSE_INVALID_PARAMETER;
     } else {
+        storage_data_timestamp(storage);
         FS_CALL(storage, file.sync(storage, file));
     }
 
@@ -332,6 +338,21 @@ bool storage_process_dir_rewind(Storage* app, File* file) {
 
 /******************* Common FS Functions *******************/
 
+static FS_Error
+    storage_process_common_timestamp(Storage* app, const char* path, uint32_t* timestamp) {
+    FS_Error ret = FSE_OK;
+    StorageType type = storage_get_type_by_path(app, path);
+
+    if(storage_type_is_not_valid(type)) {
+        ret = FSE_INVALID_NAME;
+    } else {
+        StorageData* storage = storage_get_storage_by_type(app, type);
+        *timestamp = storage_data_get_timestamp(storage);
+    }
+
+    return ret;
+}
+
 static FS_Error storage_process_common_stat(Storage* app, const char* path, FileInfo* fileinfo) {
     FS_Error ret = FSE_OK;
     StorageType type = storage_get_type_by_path(app, path);
@@ -366,6 +387,7 @@ static FS_Error storage_process_common_remove(Storage* app, const char* path) {
             break;
         }
 
+        storage_data_timestamp(storage);
         FS_CALL(storage, common.remove(storage, remove_vfs(path)));
     } while(false);
 
@@ -382,6 +404,7 @@ static FS_Error storage_process_common_mkdir(Storage* app, const char* path) {
         ret = FSE_INVALID_NAME;
     } else {
         StorageData* storage = storage_get_storage_by_type(app, type);
+        storage_data_timestamp(storage);
         FS_CALL(storage, common.mkdir(storage, remove_vfs(path)));
     }
 
@@ -417,6 +440,7 @@ static FS_Error storage_process_sd_format(Storage* app) {
         ret = FSE_NOT_READY;
     } else {
         ret = sd_format_card(&app->storage[ST_EXT]);
+        storage_data_timestamp(&app->storage[ST_EXT]);
     }
 
     return ret;
@@ -429,6 +453,7 @@ static FS_Error storage_process_sd_unmount(Storage* app) {
         ret = FSE_NOT_READY;
     } else {
         sd_unmount_card(&app->storage[ST_EXT]);
+        storage_data_timestamp(&app->storage[ST_EXT]);
     }
 
     return ret;
@@ -540,6 +565,10 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
     case StorageCommandDirRewind:
         message->return_data->bool_value =
             storage_process_dir_rewind(app, message->data->file.file);
+        break;
+    case StorageCommandCommonTimestamp:
+        message->return_data->error_value = storage_process_common_timestamp(
+            app, message->data->ctimestamp.path, message->data->ctimestamp.timestamp);
         break;
     case StorageCommandCommonStat:
         message->return_data->error_value = storage_process_common_stat(
