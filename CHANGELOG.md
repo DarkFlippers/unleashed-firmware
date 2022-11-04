@@ -1,23 +1,11 @@
 ### New changes
-* Plugins: New AM2320 Sensor plugin (@xMasterX)
-* Plugins -> PR: Added DHT Temperature sensor Monitor (by @quen0n | PR #147) [(plugin repo)](https://github.com/quen0n/FipperZero-DHT-Monitor)
-* Plugins -> PR: USB Keyboard - added additional row for function keys (by @huuck | PR #145)
-* Plugins -> PR: Added Morse Code plugin (by @wh00hw | PR #144) [(plugin repo)](https://github.com/wh00hw/MorseCodeFAP)
-* Plugins -> PR: FlappyBird - Fix animation (by @msvsergey | PR #148)
-* Plugins: Added Game15 [(by x27)](https://github.com/x27/flipperzero-game15)
-* Plugins: Update and fix TOTP
-* Plugins: Update Wifi Marauder
-* Plugins: fix proper deinit of gpio and spi bus in NRF24 driver
-* Snake game: Fix food spawn bug
-* Replaced furi check hotfix with proper fix from OFW
-* Disable halloween theme
-* SubGHz: BFT Mitto fix, other small fixes
-* OFW: WS -> add protocol Ambient_Weather 
-* OFW: Handle storage full error
-* OFW: fbt fixes for mfbt pt2
-* OFW: Gui: refactor buttons remapping
-* OFW: Furi: raise bkpt only if debug session initiated, add debug support for release builds
-* OFW PR: BadUSB scrolllock typo fix (OFW PR 1968 by nminaylov)
+* OFW: **NFC magic cards support (gen1a) (ability to write UID)**
+* Plugins -> PR: FlappyBird - draw bird via icon animation (by @an4tur0r | PR #149)
+* Plugins: DHT Temp montior - Fix DHT22 timeout bug as suggested by @quen0n
+* OFW: SubGhz: fix incorrect response in rpc mode. Code cleanup
+* OFW: Storage: tree timestamps
+* OFW: Dolphin: add L1_Mods_128x64 animation 
+* OFW: Run Bad USB immediately after connection 
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
