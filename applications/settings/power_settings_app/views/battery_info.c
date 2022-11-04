@@ -3,6 +3,9 @@
 #include <gui/elements.h>
 #include <assets_icons.h>
 
+#define LOW_CHARGE_THRESHOLD 10
+#define HIGH_DRAIN_CURRENT_THRESHOLD 100
+
 struct BatteryInfo {
     View* view;
 };
@@ -28,9 +31,9 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
     canvas_draw_icon(canvas, x, y, &I_BatteryBody_52x28);
     if(charge_current > 0) {
         canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceCharging_29x14);
-    } else if(drain_current > 100) {
+    } else if(drain_current > HIGH_DRAIN_CURRENT_THRESHOLD) {
         canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceConfused_29x14);
-    } else if(data->charge < 10) {
+    } else if(data->charge < LOW_CHARGE_THRESHOLD) {
         canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceNopower_29x14);
     } else {
         canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceNormal_29x14);
@@ -51,11 +54,19 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
             (uint32_t)(data->vbus_voltage * 10) % 10,
             charge_current);
     } else if(drain_current > 0) {
-        snprintf(emote, sizeof(emote), "%s", drain_current > 100 ? "Oh no!" : "Om-nom-nom!");
+        snprintf(
+            emote,
+            sizeof(emote),
+            "%s",
+            drain_current > HIGH_DRAIN_CURRENT_THRESHOLD ? "Oh no!" : "Om-nom-nom!");
         snprintf(header, sizeof(header), "%s", "Consumption is");
         snprintf(
-            value, sizeof(value), "%ld %s", drain_current, drain_current > 100 ? "mA!" : "mA");
-    } else if(charge_current != 0 || drain_current != 0) {
+            value,
+            sizeof(value),
+            "%ld %s",
+            drain_current,
+            drain_current > HIGH_DRAIN_CURRENT_THRESHOLD ? "mA!" : "mA");
+    } else if(drain_current != 0) {
         snprintf(header, 20, "...");
     } else {
         snprintf(header, sizeof(header), "Charged!");

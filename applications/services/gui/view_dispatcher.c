@@ -304,8 +304,7 @@ void view_dispatcher_handle_custom_event(ViewDispatcher* view_dispatcher, uint32
     }
     // If custom event is not consumed in View, call callback
     if(!is_consumed && view_dispatcher->custom_event_callback) {
-        is_consumed =
-            view_dispatcher->custom_event_callback(view_dispatcher->event_context, event);
+        view_dispatcher->custom_event_callback(view_dispatcher->event_context, event);
     }
 }
 
