@@ -42,6 +42,8 @@ bool storage_data_lock(StorageData* storage);
 bool storage_data_unlock(StorageData* storage);
 StorageStatus storage_data_status(StorageData* storage);
 const char* storage_data_status_text(StorageData* storage);
+void storage_data_timestamp(StorageData* storage);
+uint32_t storage_data_get_timestamp(StorageData* storage);
 
 LIST_DEF(
     StorageFileList,
@@ -58,6 +60,7 @@ struct StorageData {
     FuriMutex* mutex;
     StorageStatus status;
     StorageFileList_t files;
+    uint32_t timestamp;
 };
 
 bool storage_has_file(const File* file, StorageData* storage_data);

@@ -354,6 +354,16 @@ bool storage_dir_rewind(File* file) {
 
 /****************** COMMON ******************/
 
+FS_Error storage_common_timestamp(Storage* storage, const char* path, uint32_t* timestamp) {
+    S_API_PROLOGUE;
+
+    SAData data = {.ctimestamp = {.path = path, .timestamp = timestamp}};
+
+    S_API_MESSAGE(StorageCommandCommonTimestamp);
+    S_API_EPILOGUE;
+    return S_RETURN_ERROR;
+}
+
 FS_Error storage_common_stat(Storage* storage, const char* path, FileInfo* fileinfo) {
     S_API_PROLOGUE;
 

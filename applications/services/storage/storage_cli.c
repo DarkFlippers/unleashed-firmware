@@ -32,6 +32,7 @@ static void storage_cli_print_usage() {
     printf("\tmkdir\t - creates a new directory\r\n");
     printf("\tmd5\t - md5 hash of the file\r\n");
     printf("\tstat\t - info about file or dir\r\n");
+    printf("\ttimestamp\t - last modification timestamp\r\n");
 };
 
 static void storage_cli_print_error(FS_Error error) {
@@ -386,6 +387,22 @@ static void storage_cli_stat(Cli* cli, FuriString* path) {
     furi_record_close(RECORD_STORAGE);
 }
 
+static void storage_cli_timestamp(Cli* cli, FuriString* path) {
+    UNUSED(cli);
+    Storage* api = furi_record_open(RECORD_STORAGE);
+
+    uint32_t timestamp = 0;
+    FS_Error error = storage_common_timestamp(api, furi_string_get_cstr(path), &timestamp);
+
+    if(error != FSE_OK) {
+        printf("Invalid arguments\r\n");
+    } else {
+        printf("Timestamp %lu\r\n", timestamp);
+    }
+
+    furi_record_close(RECORD_STORAGE);
+}
+
 static void storage_cli_copy(Cli* cli, FuriString* old_path, FuriString* args) {
     UNUSED(cli);
     Storage* api = furi_record_open(RECORD_STORAGE);
@@ -575,6 +592,11 @@ void storage_cli(Cli* cli, FuriString* args, void* context) {
 
         if(furi_string_cmp_str(cmd, "stat") == 0) {
             storage_cli_stat(cli, path);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "timestamp") == 0) {
+            storage_cli_timestamp(cli, path);
             break;
         }
 

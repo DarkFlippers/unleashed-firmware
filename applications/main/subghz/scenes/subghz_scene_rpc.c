@@ -42,9 +42,8 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             bool result = false;
             if((subghz->txrx->txrx_state == SubGhzTxRxStateSleep) &&
                (state == SubGhzRpcStateLoaded)) {
-                subghz_blink_start(subghz);
                 result = subghz_tx_start(subghz, subghz->txrx->fff_data);
-                result = true;
+                if(result) subghz_blink_start(subghz);
             }
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonPress, result);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonRelease) {

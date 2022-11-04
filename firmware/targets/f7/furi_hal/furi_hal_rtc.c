@@ -318,6 +318,12 @@ uint32_t furi_hal_rtc_get_pin_fails() {
     return furi_hal_rtc_get_register(FuriHalRtcRegisterPinFails);
 }
 
+uint32_t furi_hal_rtc_get_timestamp() {
+    FuriHalRtcDateTime datetime = {0};
+    furi_hal_rtc_get_datetime(&datetime);
+    return furi_hal_rtc_datetime_to_timestamp(&datetime);
+}
+
 uint32_t furi_hal_rtc_datetime_to_timestamp(FuriHalRtcDateTime* datetime) {
     uint32_t timestamp = 0;
     uint8_t years = 0;
