@@ -81,7 +81,7 @@ void sensorEdit_scene(PluginData* app) {
     app->item =
         variable_item_list_add(variable_item_list, "Type:", 2, addSensor_sensorTypeChanged, app);
 
-    variable_item_set_current_value_index(nameItem, app->currentSensorEdit->type);
+    variable_item_set_current_value_index(app->item, app->currentSensorEdit->type);
     variable_item_set_current_value_text(app->item, sensorsTypes[app->currentSensorEdit->type]);
 
     //GPIO
