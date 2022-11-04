@@ -786,6 +786,17 @@ FuriHalNfcReturn furi_hal_nfc_ll_txrx(
     return rfalTransceiveBlockingTxRx(txBuf, txBufLen, rxBuf, rxBufLen, actLen, flags, fwt);
 }
 
+FuriHalNfcReturn furi_hal_nfc_ll_txrx_bits(
+    uint8_t* txBuf,
+    uint16_t txBufLen,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* actLen,
+    uint32_t flags,
+    uint32_t fwt) {
+    return rfalTransceiveBitsBlockingTxRx(txBuf, txBufLen, rxBuf, rxBufLen, actLen, flags, fwt);
+}
+
 void furi_hal_nfc_ll_poll() {
     rfalWorker();
 }

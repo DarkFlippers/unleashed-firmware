@@ -398,7 +398,17 @@ void furi_hal_nfc_ll_txrx_on();
 
 void furi_hal_nfc_ll_txrx_off();
 
+// TODO rework all pollers with furi_hal_nfc_ll_txrx_bits
 FuriHalNfcReturn furi_hal_nfc_ll_txrx(
+    uint8_t* txBuf,
+    uint16_t txBufLen,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* actLen,
+    uint32_t flags,
+    uint32_t fwt);
+
+FuriHalNfcReturn furi_hal_nfc_ll_txrx_bits(
     uint8_t* txBuf,
     uint16_t txBufLen,
     uint8_t* rxBuf,
