@@ -5,12 +5,6 @@
 #include <furi.h>
 
 void set_random_name(char* name, uint8_t max_name_size) {
-    static bool rand_generator_inited = false;
-
-    if(!rand_generator_inited) {
-        srand(DWT->CYCCNT);
-        rand_generator_inited = true;
-    }
     const char* prefix[] = {
         "ancient",     "hollow",    "strange",    "disappeared", "unknown",
         "unthinkable", "unnamable", "nameless",   "my",          "concealed",

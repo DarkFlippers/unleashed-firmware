@@ -359,7 +359,7 @@ static int32_t browser_worker(void* context) {
 
 BrowserWorker*
     file_browser_worker_alloc(FuriString* path, const char* filter_ext, bool skip_assets) {
-    BrowserWorker* browser = malloc(sizeof(BrowserWorker));
+    BrowserWorker* browser = malloc(sizeof(BrowserWorker)); //-V773
 
     idx_last_array_init(browser->idx_last);
 

@@ -269,7 +269,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
         event.type = LoaderEventTypeApplicationStarted;
         furi_pubsub_publish(loader_instance->pubsub, &event);
 
-        if(!loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe) {
+        if(!(loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe)) {
             furi_hal_power_insomnia_enter();
         }
     } else if(thread_state == FuriThreadStateStopped) {
@@ -284,7 +284,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
             loader_instance->application_arguments = NULL;
         }
 
-        if(!loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe) {
+        if(!(loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe)) {
             furi_hal_power_insomnia_exit();
         }
         loader_unlock(instance);

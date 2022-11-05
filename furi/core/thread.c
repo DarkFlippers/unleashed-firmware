@@ -50,6 +50,7 @@ static int32_t __furi_thread_stdout_flush(FuriThread* thread);
 __attribute__((__noreturn__)) void furi_thread_catch() {
     asm volatile("nop"); // extra magic
     furi_crash("You are doing it wrong");
+    __builtin_unreachable();
 }
 
 static void furi_thread_set_state(FuriThread* thread, FuriThreadState state) {
@@ -112,6 +113,12 @@ FuriThread* furi_thread_alloc() {
     FuriThread* thread = malloc(sizeof(FuriThread));
     thread->output.buffer = furi_string_alloc();
     thread->is_service = false;
+
+    if(furi_thread_get_current_id()) {
+        FuriThread* parent = pvTaskGetThreadLocalStoragePointer(NULL, 0);
+        if(parent) thread->heap_trace_enabled = parent->heap_trace_enabled;
+    }
+
     return thread;
 }
 

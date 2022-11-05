@@ -46,7 +46,7 @@ FURI_NORETURN void __furi_halt();
 /** Check condition and crash if check failed */
 #define furi_check(__e)                          \
     do {                                         \
-        if((__e) == 0) {                         \
+        if(!(__e)) {                             \
             furi_crash("furi_check failed\r\n"); \
         }                                        \
     } while(0)
@@ -55,7 +55,7 @@ FURI_NORETURN void __furi_halt();
 #ifdef FURI_DEBUG
 #define furi_assert(__e)                          \
     do {                                          \
-        if((__e) == 0) {                          \
+        if(!(__e)) {                              \
             furi_crash("furi_assert failed\r\n"); \
         }                                         \
     } while(0)

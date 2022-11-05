@@ -25,7 +25,7 @@ uint32_t furi_event_flag_set(FuriEventFlag* instance, uint32_t flags) {
     uint32_t rflags;
     BaseType_t yield;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         yield = pdFALSE;
         if(xEventGroupSetBitsFromISR(hEventGroup, (EventBits_t)flags, &yield) == pdFAIL) {
             rflags = (uint32_t)FuriStatusErrorResource;
@@ -48,7 +48,7 @@ uint32_t furi_event_flag_clear(FuriEventFlag* instance, uint32_t flags) {
     EventGroupHandle_t hEventGroup = (EventGroupHandle_t)instance;
     uint32_t rflags;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         rflags = xEventGroupGetBitsFromISR(hEventGroup);
 
         if(xEventGroupClearBitsFromISR(hEventGroup, (EventBits_t)flags) == pdFAIL) {
@@ -73,7 +73,7 @@ uint32_t furi_event_flag_get(FuriEventFlag* instance) {
     EventGroupHandle_t hEventGroup = (EventGroupHandle_t)instance;
     uint32_t rflags;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         rflags = xEventGroupGetBitsFromISR(hEventGroup);
     } else {
         rflags = xEventGroupGetBits(hEventGroup);

@@ -61,15 +61,20 @@ static void gpio_print_pins(void) {
     }
 }
 
-typedef enum { OK, ERR_CMD_SYNTAX, ERR_PIN, ERR_VALUE } GpioParseError;
+typedef enum {
+    GpioParseReturnOk,
+    GpioParseReturnCmdSyntaxError,
+    GpioParseReturnPinError,
+    GpioParseReturnValueError
+} GpioParseReturn;
 
-static GpioParseError gpio_command_parse(FuriString* args, size_t* pin_num, uint8_t* value) {
+static GpioParseReturn gpio_command_parse(FuriString* args, size_t* pin_num, uint8_t* value) {
     FuriString* pin_name;
     pin_name = furi_string_alloc();
 
     size_t ws = furi_string_search_char(args, ' ');
     if(ws == FURI_STRING_FAILURE) {
-        return ERR_CMD_SYNTAX;
+        return GpioParseReturnCmdSyntaxError;
     }
 
     furi_string_set_n(pin_name, args, 0, ws);
@@ -78,7 +83,7 @@ static GpioParseError gpio_command_parse(FuriString* args, size_t* pin_num, uint
 
     if(!pin_name_to_int(pin_name, pin_num)) {
         furi_string_free(pin_name);
-        return ERR_PIN;
+        return GpioParseReturnPinError;
     }
 
     furi_string_free(pin_name);
@@ -88,10 +93,10 @@ static GpioParseError gpio_command_parse(FuriString* args, size_t* pin_num, uint
     } else if(!furi_string_cmp(args, "1")) {
         *value = 1;
     } else {
-        return ERR_VALUE;
+        return GpioParseReturnValueError;
     }
 
-    return OK;
+    return GpioParseReturnOk;
 }
 
 void cli_command_gpio_mode(Cli* cli, FuriString* args, void* context) {
@@ -101,15 +106,15 @@ void cli_command_gpio_mode(Cli* cli, FuriString* args, void* context) {
     size_t num = 0;
     uint8_t value = 255;
 
-    GpioParseError err = gpio_command_parse(args, &num, &value);
+    GpioParseReturn err = gpio_command_parse(args, &num, &value);
 
-    if(ERR_CMD_SYNTAX == err) {
+    if(err == GpioParseReturnCmdSyntaxError) {
         cli_print_usage("gpio mode", "<pin_name> <0|1>", furi_string_get_cstr(args));
         return;
-    } else if(ERR_PIN == err) {
+    } else if(err == GpioParseReturnPinError) {
         gpio_print_pins();
         return;
-    } else if(ERR_VALUE == err) {
+    } else if(err == GpioParseReturnValueError) {
         printf("Value is invalid. Enter 1 for input or 0 for output");
         return;
     }
@@ -161,15 +166,15 @@ void cli_command_gpio_set(Cli* cli, FuriString* args, void* context) {
 
     size_t num = 0;
     uint8_t value = 0;
-    GpioParseError err = gpio_command_parse(args, &num, &value);
+    GpioParseReturn err = gpio_command_parse(args, &num, &value);
 
-    if(ERR_CMD_SYNTAX == err) {
+    if(err == GpioParseReturnCmdSyntaxError) {
         cli_print_usage("gpio set", "<pin_name> <0|1>", furi_string_get_cstr(args));
         return;
-    } else if(ERR_PIN == err) {
+    } else if(err == GpioParseReturnPinError) {
         gpio_print_pins();
         return;
-    } else if(ERR_VALUE == err) {
+    } else if(err == GpioParseReturnValueError) {
         printf("Value is invalid. Enter 1 for high or 0 for low");
         return;
     }

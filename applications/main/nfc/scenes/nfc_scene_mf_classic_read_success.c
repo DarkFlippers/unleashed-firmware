@@ -24,7 +24,7 @@ void nfc_scene_mf_classic_read_success_on_enter(void* context) {
     widget_add_button_element(
         widget, GuiButtonTypeRight, "More", nfc_scene_mf_classic_read_success_widget_callback, nfc);
 
-    FuriString* temp_str;
+    FuriString* temp_str = NULL;
     if(furi_string_size(nfc->dev->dev_data.parsed_data)) {
         temp_str = furi_string_alloc_set(nfc->dev->dev_data.parsed_data);
     } else {
