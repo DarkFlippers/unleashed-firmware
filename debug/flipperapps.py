@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Dict
+from typing import Optional, Tuple, Dict, ClassVar
 import struct
 import posixpath
 import os
@@ -22,14 +22,18 @@ class AppState:
     debug_link_elf: str = ""
     debug_link_crc: int = 0
 
+    DEBUG_ELF_ROOT: ClassVar[Optional[str]] = None
+
     def __post_init__(self):
         if self.other_sections is None:
             self.other_sections = {}
 
-    def get_original_elf_path(self, elf_path="build/latest/.extapps") -> str:
+    def get_original_elf_path(self) -> str:
+        if self.DEBUG_ELF_ROOT is None:
+            raise ValueError("DEBUG_ELF_ROOT not set; call fap-set-debug-elf-root")
         return (
-            posixpath.join(elf_path, self.debug_link_elf)
-            if elf_path
+            posixpath.join(self.DEBUG_ELF_ROOT, self.debug_link_elf)
+            if self.DEBUG_ELF_ROOT
             else self.debug_link_elf
         )
 
@@ -84,7 +88,9 @@ class AppState:
         if debug_link_size := int(app_state["debug_link_info"]["debug_link_size"]):
             debug_link_data = (
                 gdb.selected_inferior()
-                .read_memory(int(app_state["debug_link_info"]["debug_link"]), debug_link_size)
+                .read_memory(
+                    int(app_state["debug_link_info"]["debug_link"]), debug_link_size
+                )
                 .tobytes()
             )
             state.debug_link_elf, state.debug_link_crc = AppState.parse_debug_link_data(
@@ -101,6 +107,29 @@ class AppState:
                 state.other_sections[section_name] = section_addr
 
         return state
+
+
+class SetFapDebugElfRoot(gdb.Command):
+    """Set path to original ELF files for debug info"""
+
+    def __init__(self):
+        super().__init__(
+            "fap-set-debug-elf-root", gdb.COMMAND_FILES, gdb.COMPLETE_FILENAME
+        )
+        self.dont_repeat()
+
+    def invoke(self, arg, from_tty):
+        AppState.DEBUG_ELF_ROOT = arg
+        try:
+            global helper
+            print(f"Set '{arg}' as debug info lookup path for Flipper external apps")
+            helper.attach_fw()
+            gdb.events.stop.connect(helper.handle_stop)
+        except gdb.error as e:
+            print(f"Support for Flipper external apps debug is not available: {e}")
+
+
+SetFapDebugElfRoot()
 
 
 class FlipperAppDebugHelper:
@@ -149,9 +178,4 @@ class FlipperAppDebugHelper:
 
 
 helper = FlipperAppDebugHelper()
-try:
-    helper.attach_fw()
-    print("Support for Flipper external apps debug is enabled")
-    gdb.events.stop.connect(helper.handle_stop)
-except gdb.error as e:
-    print(f"Support for Flipper external apps debug is not available: {e}")
+print("Support for Flipper external apps debug is loaded")

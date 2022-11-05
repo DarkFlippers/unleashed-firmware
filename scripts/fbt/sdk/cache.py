@@ -89,6 +89,9 @@ class SdkCache:
         syms.update(map(lambda e: e.name, self.get_variables()))
         return syms
 
+    def get_disabled_names(self):
+        return set(map(lambda e: e.name, self.disabled_entries))
+
     def get_functions(self):
         return self._filter_enabled(self.sdk.functions)
 

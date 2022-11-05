@@ -139,7 +139,7 @@ def generate(env):
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${ABSPATHGETTERFUNC(SOURCE)} ${TARGET.dir} --filename ${ICON_FILE_NAME}',
+                    '${PYTHON3} "${ASSETS_COMPILER}" icons "${ABSPATHGETTERFUNC(SOURCE)}" "${TARGET.dir}" --filename ${ICON_FILE_NAME}',
                     "${ICONSCOMSTR}",
                 ),
                 emitter=icons_emitter,

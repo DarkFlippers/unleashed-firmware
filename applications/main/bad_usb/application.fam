@@ -11,4 +11,5 @@ App(
     stack_size=2 * 1024,
     icon="A_BadUsb_14",
     order=70,
+    fap_libs=["assets"],
 )

@@ -147,7 +147,7 @@ vars.AddVariables(
     PathVariable(
         "SVD_FILE",
         help="Path to SVD file",
-        validator=PathVariable.PathIsFile,
+        validator=PathVariable.PathAccept,
         default="",
     ),
     PathVariable(
