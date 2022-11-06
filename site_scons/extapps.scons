@@ -98,14 +98,14 @@ extapps.applications = appenv["EXT_APPS"]
 extapps.resources_dist = appenv.FapDist(appenv.Dir("#/assets/resources/apps"), [])
 
 if appsrc := appenv.subst("$APPSRC"):
-    app_manifest, fap_file, app_validator = appenv.GetExtAppFromPath(appsrc)
+    app_artifacts = appenv.GetExtAppFromPath(appsrc)
     appenv.PhonyTarget(
         "launch_app",
         '${PYTHON3} "${APP_RUN_SCRIPT}" "${SOURCE}" --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
-        source=fap_file,
-        FAP_CATEGORY=app_manifest.fap_category,
+        source=app_artifacts.compact,
+        FAP_CATEGORY=app_artifacts.app.fap_category,
     )
-    appenv.Alias("launch_app", app_validator)
+    appenv.Alias("launch_app", app_artifacts.validator)
 
 # SDK management
 
