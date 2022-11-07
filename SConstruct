@@ -200,7 +200,9 @@ firmware_debug = distenv.PhonyTarget(
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE}",
     GDBREMOTE="${OPENOCD_GDB_PIPE}",
-    FBT_FAP_DEBUG_ELF_ROOT=firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT"),
+    FBT_FAP_DEBUG_ELF_ROOT=firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT").replace(
+        "\\", "/"
+    ),
 )
 distenv.Depends(firmware_debug, firmware_flash)
 
@@ -210,7 +212,9 @@ distenv.PhonyTarget(
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
     GDBREMOTE="${BLACKMAGIC_ADDR}",
-    FBT_FAP_DEBUG_ELF_ROOT=firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT"),
+    FBT_FAP_DEBUG_ELF_ROOT=firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT").replace(
+        "\\", "/"
+    ),
 )
 
 # Debug alien elf

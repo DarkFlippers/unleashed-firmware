@@ -264,7 +264,10 @@ fw_artifacts.extend(
 
 fwcdb = fwenv.CompilationDatabase()
 # without filtering, both updater & firmware commands would be generated in same file
-fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
+fwenv.Replace(
+    COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"),
+    COMPILATIONDB_SRCPATH_FILTER="*.c*",
+)
 AlwaysBuild(fwcdb)
 Precious(fwcdb)
 NoClean(fwcdb)
