@@ -18,7 +18,7 @@
 /applications/main/gpio/ @skotopes @DrZlo13 @hedger @nminaylov
 /applications/main/ibutton/ @skotopes @DrZlo13 @hedger @gsurkov
 /applications/main/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
-/applications/main/nfc/ @skotopes @DrZlo13 @hedger @gornekich
+/applications/main/nfc/ @skotopes @DrZlo13 @hedger @gornekich @Astrrra
 /applications/main/subghz/ @skotopes @DrZlo13 @hedger @Skorpionm
 /applications/main/u2f/ @skotopes @DrZlo13 @hedger @nminaylov
 
@@ -40,6 +40,8 @@
 
 /applications/system/storage_move_to_sd/ @skotopes @DrZlo13 @hedger @nminaylov
 
+/applications/debug/unit_tests/ @skotopes @DrZlo13 @hedger @nminaylov @gornekich @Astrrra @gsurkov @Skorpionm
+
 # Documentation
 /documentation/ @skotopes @DrZlo13 @hedger @drunkbatya
 /scripts/toolchain/ @skotopes @DrZlo13 @hedger @drunkbatya
@@ -54,6 +56,9 @@
 /lib/mbedtls/ @skotopes @DrZlo13 @hedger @nminaylov
 /lib/micro-ecc/ @skotopes @DrZlo13 @hedger @nminaylov
 /lib/nanopb/ @skotopes @DrZlo13 @hedger @nminaylov
-/lib/nfc/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/nfc/ @skotopes @DrZlo13 @hedger @gornekich @Astrrra
 /lib/one_wire/ @skotopes @DrZlo13 @hedger @gsurkov
 /lib/subghz/ @skotopes @DrZlo13 @hedger @Skorpionm
+
+# CI/CD
+/.github/workflows/ @skotopes @DrZlo13 @hedger @drunkbatya
