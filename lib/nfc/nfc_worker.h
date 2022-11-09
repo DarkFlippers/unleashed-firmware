@@ -7,7 +7,6 @@ typedef struct NfcWorker NfcWorker;
 typedef enum {
     // Init states
     NfcWorkerStateNone,
-    NfcWorkerStateBroken,
     NfcWorkerStateReady,
     // Main worker states
     NfcWorkerStateRead,
