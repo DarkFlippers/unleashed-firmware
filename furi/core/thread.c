@@ -12,6 +12,8 @@
 #include <furi_hal_rtc.h>
 #include <furi_hal_console.h>
 
+#define TAG "FuriThread"
+
 #define THREAD_NOTIFY_INDEX 1 // Index 0 is used for stream buffers
 
 typedef struct FuriThreadStdout FuriThreadStdout;
@@ -82,6 +84,12 @@ static void furi_thread_body(void* context) {
     if(thread->heap_trace_enabled == true) {
         furi_delay_ms(33);
         thread->heap_size = memmgr_heap_get_thread_memory((FuriThreadId)task_handle);
+        furi_log_print_format(
+            thread->heap_size ? FuriLogLevelError : FuriLogLevelInfo,
+            TAG,
+            "%s allocation balance: %d",
+            thread->name ? thread->name : "Thread",
+            thread->heap_size);
         memmgr_heap_disable_thread_trace((FuriThreadId)task_handle);
     }
 
@@ -89,8 +97,8 @@ static void furi_thread_body(void* context) {
 
     if(thread->is_service) {
         FURI_LOG_E(
-            "Service",
-            "%s thread exited. Thread memory cannot be reclaimed.",
+            TAG,
+            "%s service thread exited. Thread memory cannot be reclaimed.",
             thread->name ? thread->name : "<unknown service>");
     }
 
