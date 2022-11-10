@@ -6,6 +6,8 @@ typedef enum { SHA1, SHA256, SHA512 } TokenHashAlgo;
 
 typedef enum { TOTP_6_DIGITS, TOTP_8_DIGITS } TokenDigitsCount;
 
+#define TOTP_TOKEN_DIGITS_MAX_COUNT 8
+
 typedef struct {
     uint8_t* token;
     size_t token_length;
