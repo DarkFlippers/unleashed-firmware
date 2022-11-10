@@ -1,11 +1,10 @@
-import SCons
-
 from SCons.Builder import Builder
 from SCons.Action import Action
-from SCons.Node.FS import File
+from SCons.Errors import SConsEnvironmentError
 
 import os
 import subprocess
+from ansi.color import fg
 
 
 def icons_emitter(target, source, env):
@@ -13,7 +12,6 @@ def icons_emitter(target, source, env):
         target[0].File(env.subst("${ICON_FILE_NAME}.c")),
         target[0].File(env.subst("${ICON_FILE_NAME}.h")),
     ]
-    source = env.GlobRecursive("*.*", env["ICON_SRC_DIR"])
     return target, source
 
 
@@ -86,7 +84,7 @@ def proto_ver_generator(target, source, env):
         )
     except (subprocess.CalledProcessError, EnvironmentError) as e:
         # Not great, not terrible
-        print("Git: fetch failed")
+        print(fg.boldred("Git: fetch failed"))
 
     try:
         git_describe = _invoke_git(
@@ -94,10 +92,8 @@ def proto_ver_generator(target, source, env):
             source_dir=src_dir,
         )
     except (subprocess.CalledProcessError, EnvironmentError) as e:
-        print("Git: describe failed")
-        Exit("git error")
+        raise SConsEnvironmentError("Git: describe failed")
 
-    # print("describe=", git_describe)
     git_major, git_minor = git_describe.split(".")
     version_file_data = (
         "#pragma once",
@@ -116,7 +112,7 @@ def CompileIcons(env, target_dir, source_dir, *, icon_bundle_name="assets_icons"
 
     icons = env.IconBuilder(
         target_dir,
-        ICON_SRC_DIR=source_dir,
+        source_dir,
         ICON_FILE_NAME=icon_bundle_name,
     )
     env.Depends(icons, icons_src)
@@ -125,8 +121,8 @@ def CompileIcons(env, target_dir, source_dir, *, icon_bundle_name="assets_icons"
 
 def generate(env):
     env.SetDefault(
-        ASSETS_COMPILER="${ROOT_DIR.abspath}/scripts/assets.py",
-        NANOPB_COMPILER="${ROOT_DIR.abspath}/lib/nanopb/generator/nanopb_generator.py",
+        ASSETS_COMPILER="${FBT_SCRIPT_DIR}/assets.py",
+        NANOPB_COMPILER="${ROOT_DIR}/lib/nanopb/generator/nanopb_generator.py",
     )
     env.AddMethod(CompileIcons)
 
@@ -143,7 +139,7 @@ def generate(env):
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${ICON_SRC_DIR} ${TARGET.dir} --filename ${ICON_FILE_NAME}',
+                    '${PYTHON3} "${ASSETS_COMPILER}" icons "${ABSPATHGETTERFUNC(SOURCE)}" "${TARGET.dir}" --filename ${ICON_FILE_NAME}',
                     "${ICONSCOMSTR}",
                 ),
                 emitter=icons_emitter,

@@ -354,6 +354,16 @@ bool storage_dir_rewind(File* file) {
 
 /****************** COMMON ******************/
 
+FS_Error storage_common_timestamp(Storage* storage, const char* path, uint32_t* timestamp) {
+    S_API_PROLOGUE;
+
+    SAData data = {.ctimestamp = {.path = path, .timestamp = timestamp}};
+
+    S_API_MESSAGE(StorageCommandCommonTimestamp);
+    S_API_EPILOGUE;
+    return S_RETURN_ERROR;
+}
+
 FS_Error storage_common_stat(Storage* storage, const char* path, FileInfo* fileinfo) {
     S_API_PROLOGUE;
 
@@ -535,8 +545,8 @@ static FS_Error
 
 FS_Error storage_common_merge(Storage* storage, const char* old_path, const char* new_path) {
     FS_Error error;
-    const char* new_path_tmp;
-    FuriString* new_path_next;
+    const char* new_path_tmp = NULL;
+    FuriString* new_path_next = NULL;
     new_path_next = furi_string_alloc();
 
     FileInfo fileinfo;

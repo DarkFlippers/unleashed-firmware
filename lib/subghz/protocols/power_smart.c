@@ -312,7 +312,6 @@ void subghz_protocol_decoder_power_smart_feed(
         if((instance->decoder.decode_data & POWER_SMART_PACKET_HEADER_MASK) ==
            POWER_SMART_PACKET_HEADER) {
             if(subghz_protocol_power_smart_chek_valid(instance->decoder.decode_data)) {
-                instance->decoder.decode_data = instance->decoder.decode_data;
                 instance->generic.data = instance->decoder.decode_data;
                 instance->generic.data_count_bit =
                     subghz_protocol_power_smart_const.min_count_bit_for_found;

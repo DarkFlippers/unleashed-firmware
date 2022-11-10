@@ -216,6 +216,8 @@ int32_t clock_app(void* p) {
                     // Exit the plugin
                     processing = false;
                     break;
+                default:
+                    break;
                 }
             }
         } /*else if(event.type == EventTypeTick) {

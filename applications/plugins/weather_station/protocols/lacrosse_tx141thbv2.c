@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/7e83cfd27d14247b6c3c81732bfe4a4f9a974d30/src/devices/lacrosse_tx141x.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/lacrosse_tx141x.c
  *  
  *     iiii iiii | bkcc tttt | tttt tttt | hhhh hhhh | cccc cccc | u
  * - i: identification; changes on battery switch
@@ -284,7 +284,7 @@ void ws_protocol_decoder_lacrosse_tx141thbv2_get_string(void* context, FuriStrin
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:0x%lX Ch:%d  Bat:%d\r\n"
-        "Temp:%d.%d C Hum:%d%%",
+        "Temp:%3.1f C Hum:%d%%",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
@@ -292,7 +292,6 @@ void ws_protocol_decoder_lacrosse_tx141thbv2_get_string(void* context, FuriStrin
         instance->generic.id,
         instance->generic.channel,
         instance->generic.battery_low,
-        (int16_t)instance->generic.temp,
-        abs(((int16_t)(instance->generic.temp * 10) - (((int16_t)instance->generic.temp) * 10))),
+        (double)instance->generic.temp,
         instance->generic.humidity);
 }

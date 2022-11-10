@@ -203,7 +203,7 @@ static int32_t u2f_hid_worker(void* context) {
             WorkerEvtStop | WorkerEvtConnect | WorkerEvtDisconnect | WorkerEvtRequest,
             FuriFlagWaitAny,
             FuriWaitForever);
-        furi_check((flags & FuriFlagError) == 0);
+        furi_check(!(flags & FuriFlagError));
         if(flags & WorkerEvtStop) break;
         if(flags & WorkerEvtConnect) {
             u2f_set_state(u2f_hid->u2f_instance, 1);

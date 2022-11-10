@@ -520,12 +520,6 @@ bool subghz_path_is_file(FuriString* path) {
 }
 
 uint32_t subghz_random_serial(void) {
-    static bool rand_generator_inited = false;
-
-    if(!rand_generator_inited) {
-        srand(DWT->CYCCNT);
-        rand_generator_inited = true;
-    }
     return (uint32_t)rand();
 }
 

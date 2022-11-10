@@ -12,6 +12,7 @@ App(
     icon="A_iButton_14",
     stack_size=2 * 1024,
     order=60,
+    fap_libs=["assets"],
 )
 
 App(

@@ -345,8 +345,6 @@ static void
 }
 
 int32_t tetris_game_app() {
-    srand(DWT->CYCCNT);
-
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(TetrisEvent));
 
     TetrisState* tetris_state = malloc(sizeof(TetrisState));
@@ -436,6 +434,8 @@ int32_t tetris_game_app() {
                         break;
                     case InputKeyBack:
                         processing = false;
+                        break;
+                    default:
                         break;
                     }
                 }

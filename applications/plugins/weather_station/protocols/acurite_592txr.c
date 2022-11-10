@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/5bef4e43133ac4c0e2d18d36f87c52b4f9458453/src/devices/acurite.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/acurite.c
  * 
  * Acurite 592TXR Temperature Humidity sensor decoder
  * Message Type 0x04, 7 bytes
@@ -293,7 +293,7 @@ void ws_protocol_decoder_acurite_592txr_get_string(void* context, FuriString* ou
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:0x%lX Ch:%d  Bat:%d\r\n"
-        "Temp:%d.%d C Hum:%d%%",
+        "Temp:%3.1f C Hum:%d%%",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
@@ -301,7 +301,6 @@ void ws_protocol_decoder_acurite_592txr_get_string(void* context, FuriString* ou
         instance->generic.id,
         instance->generic.channel,
         instance->generic.battery_low,
-        (int16_t)instance->generic.temp,
-        abs(((int16_t)(instance->generic.temp * 10) - (((int16_t)instance->generic.temp) * 10))),
+        (double)instance->generic.temp,
         instance->generic.humidity);
 }

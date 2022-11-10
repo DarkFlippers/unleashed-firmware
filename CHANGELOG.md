@@ -1,6 +1,12 @@
 ### New changes
-* Fix crash when furi_halt is called (was found when you try to power off flipper with usb cable connected)
-* Fix bug when NFC keys was removed during scan
+* OFW: **NFC magic cards support (gen1a) (ability to write UID)**
+* Plugins -> PR: FlappyBird - draw bird via icon animation (by @an4tur0r | PR #149)
+* Plugins: DHT Temp montior - Fix DHT22 timeout bug and other fixes by @quen0n
+* Infrared: Universal remote assets update (by @Amec0e)
+* OFW: SubGhz: fix incorrect response in rpc mode. Code cleanup
+* OFW: Storage: tree timestamps
+* OFW: Dolphin: add L1_Mods_128x64 animation 
+* OFW: Run Bad USB immediately after connection 
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

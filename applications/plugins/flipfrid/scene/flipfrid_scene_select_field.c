@@ -129,6 +129,8 @@ void flipfrid_scene_select_field_on_event(FlipFridEvent event, FlipFridState* co
                 furi_string_reset(context->notification_msg);
                 context->current_scene = SceneSelectFile;
                 break;
+            default:
+                break;
             }
             FURI_LOG_D(TAG, "Position: %d/%d", context->key_index, nb_bytes);
         }

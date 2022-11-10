@@ -2,7 +2,7 @@ from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Warnings import warn, WarningOnByDefault
 import SCons
-import os.path
+from ansi.color import fg
 
 from fbt.appmanifest import (
     FlipperAppType,
@@ -16,21 +16,20 @@ from fbt.appmanifest import (
 #  AppBuildset env["APPBUILD"] - contains subset of apps, filtered for current config
 
 
-def LoadApplicationManifests(env):
-    appmgr = env["APPMGR"] = AppManager()
-    for app_dir, _ in env["APPDIRS"]:
-        app_dir_node = env.Dir("#").Dir(app_dir)
+def LoadAppManifest(env, entry):
+    try:
+        APP_MANIFEST_NAME = "application.fam"
+        manifest_glob = entry.glob(APP_MANIFEST_NAME)
+        if len(manifest_glob) == 0:
+            raise FlipperManifestException(
+                f"Folder {entry}: manifest {APP_MANIFEST_NAME} is missing"
+            )
 
-        for entry in app_dir_node.glob("*", ondisk=True, source=True):
-            if isinstance(entry, SCons.Node.FS.Dir) and not str(entry).startswith("."):
-                try:
-                    app_manifest_file_path = os.path.join(
-                        entry.abspath, "application.fam"
-                    )
-                    appmgr.load_manifest(app_manifest_file_path, entry)
-                    env.Append(PY_LINT_SOURCES=[app_manifest_file_path])
-                except FlipperManifestException as e:
-                    warn(WarningOnByDefault, str(e))
+        app_manifest_file_path = manifest_glob[0].rfile().abspath
+        env["APPMGR"].load_manifest(app_manifest_file_path, entry)
+        env.Append(PY_LINT_SOURCES=[app_manifest_file_path])
+    except FlipperManifestException as e:
+        warn(WarningOnByDefault, str(e))
 
 
 def PrepareApplicationsBuild(env):
@@ -46,12 +45,12 @@ def PrepareApplicationsBuild(env):
 
 def DumpApplicationConfig(target, source, env):
     print(f"Loaded {len(env['APPMGR'].known_apps)} app definitions.")
-    print("Firmware modules configuration:")
+    print(fg.boldgreen("Firmware modules configuration:"))
     for apptype in FlipperAppType:
         app_sublist = env["APPBUILD"].get_apps_of_type(apptype)
         if app_sublist:
             print(
-                f"{apptype.value}:\n\t",
+                fg.green(f"{apptype.value}:\n\t"),
                 ", ".join(app.appid for app in app_sublist),
             )
 
@@ -65,8 +64,11 @@ def build_apps_c(target, source, env):
 
 
 def generate(env):
-    env.AddMethod(LoadApplicationManifests)
+    env.AddMethod(LoadAppManifest)
     env.AddMethod(PrepareApplicationsBuild)
+    env.SetDefault(
+        APPMGR=AppManager(),
+    )
 
     env.Append(
         BUILDERS={

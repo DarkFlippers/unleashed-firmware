@@ -160,7 +160,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
     view_commit_model(locked_view->view, is_changed);
 
     if(view_state == DesktopViewLockedStateUnlocked) {
-        return view_state != DesktopViewLockedStateUnlocked;
+        return false;
     } else if(view_state == DesktopViewLockedStateLocked && pin_locked) {
         locked_view->callback(DesktopLockedEventShowPinInput, locked_view->context);
     } else if(

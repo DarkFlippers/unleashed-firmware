@@ -282,6 +282,8 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
                     totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
                 }
                 break;
+            default:
+                break;
             }
         }
     }

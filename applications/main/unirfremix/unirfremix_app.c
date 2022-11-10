@@ -1044,6 +1044,8 @@ int32_t unirfremix_app(void* p) {
                 unirfremix_tx_stop(app);
                 exit_loop = true;
                 break;
+            default:
+                break;
             }
 
             if(app->processing == 0) {
@@ -1114,6 +1116,8 @@ int32_t unirfremix_app(void* p) {
                 break;
             case InputKeyBack:
                 exit_loop = true;
+                break;
+            default:
                 break;
             }
 

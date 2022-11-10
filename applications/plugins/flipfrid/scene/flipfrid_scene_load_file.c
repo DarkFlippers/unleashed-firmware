@@ -158,6 +158,8 @@ void flipfrid_scene_load_file_on_event(FlipFridEvent event, FlipFridState* conte
             case InputKeyBack:
                 context->current_scene = SceneEntryPoint;
                 break;
+            default:
+                break;
             }
         }
     }

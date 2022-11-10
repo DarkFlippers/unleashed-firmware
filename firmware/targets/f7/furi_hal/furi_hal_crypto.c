@@ -91,7 +91,7 @@ bool furi_hal_crypto_verify_key(uint8_t key_slot) {
     uint8_t keys_nb = 0;
     uint8_t valid_keys_nb = 0;
     uint8_t last_valid_slot = ENCLAVE_FACTORY_KEY_SLOTS;
-    uint8_t empty_iv[16];
+    uint8_t empty_iv[16] = {0};
     furi_hal_crypto_verify_enclave(&keys_nb, &valid_keys_nb);
     if(key_slot <= ENCLAVE_FACTORY_KEY_SLOTS) { // It's a factory key
         if(key_slot > keys_nb) return false;

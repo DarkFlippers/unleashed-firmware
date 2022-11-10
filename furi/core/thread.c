@@ -12,6 +12,8 @@
 #include <furi_hal_rtc.h>
 #include <furi_hal_console.h>
 
+#define TAG "FuriThread"
+
 #define THREAD_NOTIFY_INDEX 1 // Index 0 is used for stream buffers
 
 typedef struct FuriThreadStdout FuriThreadStdout;
@@ -50,6 +52,7 @@ static int32_t __furi_thread_stdout_flush(FuriThread* thread);
 __attribute__((__noreturn__)) void furi_thread_catch() {
     asm volatile("nop"); // extra magic
     furi_crash("You are doing it wrong");
+    __builtin_unreachable();
 }
 
 static void furi_thread_set_state(FuriThread* thread, FuriThreadState state) {
@@ -81,6 +84,12 @@ static void furi_thread_body(void* context) {
     if(thread->heap_trace_enabled == true) {
         furi_delay_ms(33);
         thread->heap_size = memmgr_heap_get_thread_memory((FuriThreadId)task_handle);
+        furi_log_print_format(
+            thread->heap_size ? FuriLogLevelError : FuriLogLevelInfo,
+            TAG,
+            "%s allocation balance: %d",
+            thread->name ? thread->name : "Thread",
+            thread->heap_size);
         memmgr_heap_disable_thread_trace((FuriThreadId)task_handle);
     }
 
@@ -88,8 +97,8 @@ static void furi_thread_body(void* context) {
 
     if(thread->is_service) {
         FURI_LOG_E(
-            "Service",
-            "%s thread exited. Thread memory cannot be reclaimed.",
+            TAG,
+            "%s service thread exited. Thread memory cannot be reclaimed.",
             thread->name ? thread->name : "<unknown service>");
     }
 
@@ -112,6 +121,12 @@ FuriThread* furi_thread_alloc() {
     FuriThread* thread = malloc(sizeof(FuriThread));
     thread->output.buffer = furi_string_alloc();
     thread->is_service = false;
+
+    if(furi_thread_get_current_id()) {
+        FuriThread* parent = pvTaskGetThreadLocalStoragePointer(NULL, 0);
+        if(parent) thread->heap_trace_enabled = parent->heap_trace_enabled;
+    }
+
     return thread;
 }
 

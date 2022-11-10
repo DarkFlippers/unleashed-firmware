@@ -370,8 +370,6 @@ static void arkanoid_update_timer_callback(FuriMessageQueue* event_queue) {
 int32_t arkanoid_game_app(void* p) {
     UNUSED(p);
     int32_t return_code = 0;
-    // Set random seed from interrupts
-    srand(DWT->CYCCNT);
 
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(GameEvent));
 
@@ -448,14 +446,13 @@ int32_t arkanoid_game_app(void* p) {
                             arkanoid_state->ball_state.dy = -1;
                             //start the game flag
                             arkanoid_state->gameStarted = true;
-                            break;
                         }
+                        break;
+                    default:
+                        break;
                     }
                 }
             }
-        } else {
-            // Event timeout
-            FURI_LOG_D(TAG, "furi_message_queue: Event timeout");
         }
 
         view_port_update(view_port);

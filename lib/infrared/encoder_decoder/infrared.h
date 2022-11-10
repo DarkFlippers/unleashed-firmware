@@ -31,6 +31,7 @@ typedef enum {
     InfraredProtocolSIRC,
     InfraredProtocolSIRC15,
     InfraredProtocolSIRC20,
+    InfraredProtocolKaseikyo,
     InfraredProtocolMAX,
 } InfraredProtocol;
 

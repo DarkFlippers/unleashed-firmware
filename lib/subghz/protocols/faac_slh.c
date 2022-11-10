@@ -462,10 +462,7 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
-        if(!flipper_format_rewind(flipper_format)) {
-            FURI_LOG_E(TAG, "Rewind error");
-            break;
-        }
+
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
@@ -476,6 +473,11 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
         }
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
         res = true;
     } while(false);
 

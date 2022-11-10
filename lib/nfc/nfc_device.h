@@ -12,6 +12,10 @@
 #include <lib/nfc/protocols/mifare_classic.h>
 #include <lib/nfc/protocols/mifare_desfire.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NFC_DEV_NAME_MAX_LEN 22
 #define NFC_READER_DATA_MAX_SIZE 64
 #define NFC_DICT_KEY_BATCH_SIZE 50
@@ -101,3 +105,7 @@ bool nfc_device_delete(NfcDevice* dev, bool use_load_path);
 bool nfc_device_restore(NfcDevice* dev, bool use_load_path);
 
 void nfc_device_set_loading_callback(NfcDevice* dev, NfcLoadingCallback callback, void* context);
+
+#ifdef __cplusplus
+}
+#endif

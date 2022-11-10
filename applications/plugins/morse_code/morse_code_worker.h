@@ -10,9 +10,7 @@
 #define LINE "-"
 #define SPACE " "
 
-typedef void (*MorseCodeWorkerCallback)(
-    FuriString* buffer,
-    void* context);
+typedef void (*MorseCodeWorkerCallback)(FuriString* buffer, void* context);
 
 typedef struct MorseCodeWorker MorseCodeWorker;
 
@@ -34,9 +32,3 @@ void morse_code_worker_play(MorseCodeWorker* instance, bool play);
 void morse_code_worker_set_volume(MorseCodeWorker* instance, float level);
 
 void morse_code_worker_set_dit_delta(MorseCodeWorker* instance, uint32_t delta);
-
-
-
-
-
-

@@ -476,6 +476,8 @@ int32_t minesweeper_app(void* p) {
                         // Exit the plugin
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 } else if(event.input.type == InputTypeLong) {
                     // hold events
@@ -492,6 +494,8 @@ int32_t minesweeper_app(void* p) {
                         break;
                     case InputKeyBack:
                         processing = false;
+                        break;
+                    default:
                         break;
                     }
                 }

@@ -67,6 +67,8 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
                 flipper_format_write_hex(
                     subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
 
+                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
+
                 generated_protocol = true;
             } else {
                 generated_protocol = false;

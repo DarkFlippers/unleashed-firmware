@@ -45,10 +45,13 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_draw_icon(canvas, 22, 24, &I_UsbTree_48x22);
 
-    if((model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone)) {
+    if((model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone) ||
+       (model->state.state == BadUsbStateNotConnected)) {
         elements_button_center(canvas, "Run");
     } else if((model->state.state == BadUsbStateRunning) || (model->state.state == BadUsbStateDelay)) {
         elements_button_center(canvas, "Stop");
+    } else if(model->state.state == BadUsbStateWillRun) {
+        elements_button_center(canvas, "Cancel");
     }
 
     if((model->state.state == BadUsbStateNotConnected) ||
@@ -61,6 +64,11 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str_aligned(canvas, 127, 31, AlignRight, AlignBottom, "Connect");
         canvas_draw_str_aligned(canvas, 127, 43, AlignRight, AlignBottom, "to USB");
+    } else if(model->state.state == BadUsbStateWillRun) {
+        canvas_draw_icon(canvas, 4, 26, &I_Clock_18x18);
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str_aligned(canvas, 127, 31, AlignRight, AlignBottom, "Will run");
+        canvas_draw_str_aligned(canvas, 127, 43, AlignRight, AlignBottom, "on connect");
     } else if(model->state.state == BadUsbStateFileError) {
         canvas_draw_icon(canvas, 4, 26, &I_Error_18x18);
         canvas_set_font(canvas, FontPrimary);

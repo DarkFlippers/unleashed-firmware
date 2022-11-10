@@ -10,7 +10,7 @@ typedef enum { FOCUS_CONSOLE_END = 0, FOCUS_CONSOLE_START, FOCUS_CONSOLE_TOGGLE 
 #define SHOW_STOPSCAN_TIP (true)
 #define NO_TIP (false)
 
-#define MAX_OPTIONS (6)
+#define MAX_OPTIONS (7)
 typedef struct {
     const char* item_string;
     const char* options_menu[MAX_OPTIONS];
@@ -56,9 +56,9 @@ const WifiMarauderItem items[NUM_MENU_ITEMS] = {
      FOCUS_CONSOLE_END,
      SHOW_STOPSCAN_TIP},
     {"Sniff",
-     {"beacon", "deauth", "esp", "pmkid", "pwn"},
-     5,
-     {"sniffbeacon", "sniffdeauth", "sniffesp", "sniffpmkid", "sniffpwn"},
+     {"beacon", "deauth", "esp", "pmkid", "probe", "pwn", "raw"},
+     7,
+     {"sniffbeacon", "sniffdeauth", "sniffesp", "sniffpmkid", "sniffprobe", "sniffpwn", "sniffraw"},
      NO_ARGS,
      FOCUS_CONSOLE_END,
      SHOW_STOPSCAN_TIP},

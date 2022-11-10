@@ -150,8 +150,7 @@ void memmgr_heap_disable_thread_trace(FuriThreadId thread_id) {
     vTaskSuspendAll();
     {
         memmgr_heap_thread_trace_depth++;
-        furi_check(MemmgrHeapThreadDict_get(memmgr_heap_thread_dict, (uint32_t)thread_id) != NULL);
-        MemmgrHeapThreadDict_erase(memmgr_heap_thread_dict, (uint32_t)thread_id);
+        furi_check(MemmgrHeapThreadDict_erase(memmgr_heap_thread_dict, (uint32_t)thread_id));
         memmgr_heap_thread_trace_depth--;
     }
     (void)xTaskResumeAll();
@@ -212,7 +211,8 @@ static inline void traceFREE(void* pointer, size_t size) {
         MemmgrHeapAllocDict_t* alloc_dict =
             MemmgrHeapThreadDict_get(memmgr_heap_thread_dict, (uint32_t)thread_id);
         if(alloc_dict) {
-            MemmgrHeapAllocDict_erase(*alloc_dict, (uint32_t)pointer);
+            // In some cases thread may want to release memory that was not allocated by it
+            (void)MemmgrHeapAllocDict_erase(*alloc_dict, (uint32_t)pointer);
         }
         memmgr_heap_thread_trace_depth--;
     }

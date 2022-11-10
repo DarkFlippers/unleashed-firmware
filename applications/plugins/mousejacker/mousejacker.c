@@ -372,6 +372,8 @@ int32_t mousejacker_app(void* p) {
                         plugin_state->close_thread_please = false;
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -382,7 +384,7 @@ int32_t mousejacker_app(void* p) {
     }
 
     furi_thread_free(plugin_state->mjthread);
-    furi_hal_spi_release(nrf24_HANDLE);
+    nrf24_deinit();
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close(RECORD_GUI);

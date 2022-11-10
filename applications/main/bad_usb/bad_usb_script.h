@@ -12,6 +12,7 @@ typedef enum {
     BadUsbStateInit,
     BadUsbStateNotConnected,
     BadUsbStateIdle,
+    BadUsbStateWillRun,
     BadUsbStateRunning,
     BadUsbStateDelay,
     BadUsbStateDone,

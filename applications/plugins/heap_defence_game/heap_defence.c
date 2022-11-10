@@ -500,7 +500,6 @@ static void heap_defense_timer_callback(FuriMessageQueue* event_queue) {
 
 int32_t heap_defence_app(void* p) {
     UNUSED(p);
-    srand(DWT->CYCCNT);
 
     //FURI_LOG_W(TAG, "Heap defence start %d", __LINE__);
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(GameEvent));

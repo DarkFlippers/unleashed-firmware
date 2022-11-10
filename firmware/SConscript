@@ -2,11 +2,10 @@ Import("env")
 
 env.Append(
     LINT_SOURCES=["firmware"],
-    # SDK_HEADERS=[env.File("#/firmware/targets/furi_hal_include/furi_hal.h")],
     SDK_HEADERS=[
-        *env.GlobRecursive("*.h", "#/firmware/targets/furi_hal_include", "*_i.h"),
-        *env.GlobRecursive("*.h", "#/firmware/targets/f${TARGET_HW}/furi_hal", "*_i.h"),
-        File("#/firmware/targets/f7/platform_specific/intrinsic_export.h"),
+        *env.GlobRecursive("*.h", "targets/furi_hal_include", "*_i.h"),
+        *env.GlobRecursive("*.h", "targets/f${TARGET_HW}/furi_hal", "*_i.h"),
+        File("targets/f7/platform_specific/intrinsic_export.h"),
         File("#/firmware/targets/furi_hal_include/furi_hal_subghz.h"),
     ],
 )

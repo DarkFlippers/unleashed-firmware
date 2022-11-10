@@ -8,12 +8,12 @@ env.Append(
         "#/lib/lfrfid",
     ],
     SDK_HEADERS=[
-        File("#/lib/lfrfid/lfrfid_worker.h"),
-        File("#/lib/lfrfid/lfrfid_raw_worker.h"),
-        File("#/lib/lfrfid/lfrfid_raw_file.h"),
-        File("#/lib/lfrfid/lfrfid_dict_file.h"),
-        File("#/lib/lfrfid/tools/bit_lib.h"),
-        File("#/lib/lfrfid/protocols/lfrfid_protocols.h"),
+        File("lfrfid_worker.h"),
+        File("lfrfid_raw_worker.h"),
+        File("lfrfid_raw_file.h"),
+        File("lfrfid_dict_file.h"),
+        File("tools/bit_lib.h"),
+        File("protocols/lfrfid_protocols.h"),
     ],
 )
 

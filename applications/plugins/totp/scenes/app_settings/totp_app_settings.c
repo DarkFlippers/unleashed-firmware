@@ -158,6 +158,8 @@ bool totp_scene_app_settings_handle_event(PluginEvent* const event, PluginState*
                 }
                 break;
             }
+            default:
+                break;
             }
         }
     }

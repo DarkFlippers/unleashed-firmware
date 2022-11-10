@@ -22,6 +22,7 @@ typedef enum {
     InputTypeShort, /**< Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
     InputTypeLong, /**< Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease  */
     InputTypeRepeat, /**< Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
+    InputTypeMAX, /**< Special value for exceptional */
 } InputType;
 
 /** Input Event, dispatches with FuriPubSub */

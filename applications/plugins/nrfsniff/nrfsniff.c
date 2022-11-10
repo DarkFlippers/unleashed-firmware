@@ -399,6 +399,8 @@ int32_t nrfsniff_app(void* p) {
                     case InputKeyBack:
                         if(event.input.type == InputTypeLong) processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -440,7 +442,7 @@ int32_t nrfsniff_app(void* p) {
     sample_time = DEFAULT_SAMPLE_TIME;
     target_rate = 8; // rate can be either 8 (2Mbps) or 0 (1Mbps)
     sniffing_state = false;
-    furi_hal_spi_release(nrf24_HANDLE);
+    nrf24_deinit();
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close(RECORD_GUI);

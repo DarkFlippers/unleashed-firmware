@@ -12,6 +12,13 @@ void nrf24_init() {
     furi_hal_gpio_write(nrf24_CE_PIN, false);
 }
 
+void nrf24_deinit() {
+    furi_hal_spi_release(nrf24_HANDLE);
+    furi_hal_spi_bus_handle_deinit(nrf24_HANDLE);
+    furi_hal_gpio_write(nrf24_CE_PIN, false);
+    furi_hal_gpio_init(nrf24_CE_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+}
+
 void nrf24_spi_trx(
     FuriHalSpiBusHandle* handle,
     uint8_t* tx,

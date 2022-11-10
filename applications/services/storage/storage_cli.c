@@ -32,6 +32,7 @@ static void storage_cli_print_usage() {
     printf("\tmkdir\t - creates a new directory\r\n");
     printf("\tmd5\t - md5 hash of the file\r\n");
     printf("\tstat\t - info about file or dir\r\n");
+    printf("\ttimestamp\t - last modification timestamp\r\n");
 };
 
 static void storage_cli_print_error(FS_Error error) {
@@ -274,7 +275,7 @@ static void storage_cli_read_chunks(Cli* cli, FuriString* path, FuriString* args
     uint32_t buffer_size;
     int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
-    if(parsed_count == EOF || parsed_count != 1) {
+    if(parsed_count != 1) {
         storage_cli_print_usage();
     } else if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
         uint64_t file_size = storage_file_size(file);
@@ -314,7 +315,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
     uint32_t buffer_size;
     int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
-    if(parsed_count == EOF || parsed_count != 1) {
+    if(parsed_count != 1) {
         storage_cli_print_usage();
     } else {
         if(storage_file_open(file, furi_string_get_cstr(path), FSAM_WRITE, FSOM_OPEN_APPEND)) {
@@ -381,6 +382,22 @@ static void storage_cli_stat(Cli* cli, FuriString* path) {
         } else {
             storage_cli_print_error(error);
         }
+    }
+
+    furi_record_close(RECORD_STORAGE);
+}
+
+static void storage_cli_timestamp(Cli* cli, FuriString* path) {
+    UNUSED(cli);
+    Storage* api = furi_record_open(RECORD_STORAGE);
+
+    uint32_t timestamp = 0;
+    FS_Error error = storage_common_timestamp(api, furi_string_get_cstr(path), &timestamp);
+
+    if(error != FSE_OK) {
+        printf("Invalid arguments\r\n");
+    } else {
+        printf("Timestamp %lu\r\n", timestamp);
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -575,6 +592,11 @@ void storage_cli(Cli* cli, FuriString* args, void* context) {
 
         if(furi_string_cmp_str(cmd, "stat") == 0) {
             storage_cli_stat(cli, path);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "timestamp") == 0) {
+            storage_cli_timestamp(cli, path);
             break;
         }
 

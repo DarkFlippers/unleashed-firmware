@@ -4,7 +4,7 @@
 
 /*
  * Help
- * https://github.com/merbanan/rtl_433/blob/5f0ff6db624270a4598958ab9dd79bb385ced3ef/src/devices/gt_wt_03.c
+ * https://github.com/merbanan/rtl_433/blob/master/src/devices/gt_wt_03.c
  * 
  * 
  * Globaltronics GT-WT-03 sensor on 433.92MHz.
@@ -327,7 +327,7 @@ void ws_protocol_decoder_gt_wt_03_get_string(void* context, FuriString* output) 
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:0x%lX Ch:%d  Bat:%d\r\n"
-        "Temp:%d.%d C Hum:%d%%",
+        "Temp:%3.1f C Hum:%d%%",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
@@ -335,7 +335,6 @@ void ws_protocol_decoder_gt_wt_03_get_string(void* context, FuriString* output) 
         instance->generic.id,
         instance->generic.channel,
         instance->generic.battery_low,
-        (int16_t)instance->generic.temp,
-        abs(((int16_t)(instance->generic.temp * 10) - (((int16_t)instance->generic.temp) * 10))),
+        (double)instance->generic.temp,
         instance->generic.humidity);
 }

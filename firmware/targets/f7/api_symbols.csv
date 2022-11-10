@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,8.2,,
+Version,+,8.42,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -8,6 +8,7 @@ Header,+,applications/services/dolphin/dolphin.h,,
 Header,+,applications/services/gui/canvas_i.h,,
 Header,+,applications/services/gui/elements.h,,
 Header,+,applications/services/gui/gui.h,,
+Header,+,applications/services/gui/icon_i.h,,
 Header,+,applications/services/gui/modules/button_menu.h,,
 Header,+,applications/services/gui/modules/button_panel.h,,
 Header,+,applications/services/gui/modules/byte_input.h,,
@@ -123,7 +124,35 @@ Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
 Header,+,lib/lfrfid/lfrfid_worker.h,,
 Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
 Header,+,lib/lfrfid/tools/bit_lib.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_button.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_consumer.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_desktop.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_device.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_game.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_keyboard.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_led.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_ordinal.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_power.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_simulation.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_sport.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_telephony.h,,
+Header,+,lib/libusb_stm32/inc/hid_usage_vr.h,,
+Header,+,lib/libusb_stm32/inc/usb.h,,
+Header,+,lib/libusb_stm32/inc/usb_cdc.h,,
+Header,+,lib/libusb_stm32/inc/usb_cdca.h,,
+Header,+,lib/libusb_stm32/inc/usb_cdce.h,,
+Header,+,lib/libusb_stm32/inc/usb_cdci.h,,
+Header,+,lib/libusb_stm32/inc/usb_cdcp.h,,
+Header,+,lib/libusb_stm32/inc/usb_cdcw.h,,
+Header,+,lib/libusb_stm32/inc/usb_dfu.h,,
+Header,+,lib/libusb_stm32/inc/usb_hid.h,,
+Header,+,lib/libusb_stm32/inc/usb_std.h,,
+Header,+,lib/libusb_stm32/inc/usb_tmc.h,,
+Header,+,lib/libusb_stm32/inc/usbd_core.h,,
+Header,+,lib/mbedtls/include/mbedtls/des.h,,
+Header,+,lib/mbedtls/include/mbedtls/sha1.h,,
 Header,+,lib/micro-ecc/uECC.h,,
+Header,+,lib/nfc/nfc_device.h,,
 Header,+,lib/one_wire/ibutton/ibutton_worker.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_device.h,,
@@ -161,6 +190,7 @@ Header,+,lib/toolbox/stream/file_stream.h,,
 Header,+,lib/toolbox/stream/stream.h,,
 Header,+,lib/toolbox/stream/string_stream.h,,
 Header,+,lib/toolbox/tar/tar_archive.h,,
+Header,+,lib/toolbox/value_index.h,,
 Header,+,lib/toolbox/version.h,,
 Header,+,lib/u8g2/u8g2.h,,
 Function,-,LL_ADC_CommonDeInit,ErrorStatus,ADC_Common_TypeDef*
@@ -417,6 +447,7 @@ Function,-,_system_r,int,"_reent*, const char*"
 Function,-,_tempnam_r,char*,"_reent*, const char*, const char*"
 Function,-,_tmpfile_r,FILE*,_reent*
 Function,-,_tmpnam_r,char*,"_reent*, char*"
+Function,-,_tzset_r,void,_reent*
 Function,-,_ungetc_r,int,"_reent*, int, FILE*"
 Function,-,_unsetenv_r,int,"_reent*, const char*"
 Function,-,_vasiprintf_r,int,"_reent*, char**, const char*, __gnuc_va_list"
@@ -464,6 +495,8 @@ Function,+,args_read_hex_bytes,_Bool,"FuriString*, uint8_t*, size_t"
 Function,+,args_read_int_and_trim,_Bool,"FuriString*, int*"
 Function,+,args_read_probably_quoted_string_and_trim,_Bool,"FuriString*, FuriString*"
 Function,+,args_read_string_and_trim,_Bool,"FuriString*, FuriString*"
+Function,-,asctime,char*,const tm*
+Function,-,asctime_r,char*,"const tm*, char*"
 Function,-,asin,double,double
 Function,-,asinf,float,float
 Function,-,asinh,double,double
@@ -645,6 +678,7 @@ Function,+,cli_read_timeout,size_t,"Cli*, uint8_t*, size_t, uint32_t"
 Function,+,cli_session_close,void,Cli*
 Function,+,cli_session_open,void,"Cli*, void*"
 Function,+,cli_write,void,"Cli*, const uint8_t*, size_t"
+Function,-,clock,clock_t,
 Function,-,copysign,double,"double, double"
 Function,-,copysignf,float,"float, float"
 Function,-,copysignl,long double,"long double, long double"
@@ -656,7 +690,17 @@ Function,-,coshl,long double,long double
 Function,-,cosl,long double,long double
 Function,+,crc32_calc_buffer,uint32_t,"uint32_t, const void*, size_t"
 Function,+,crc32_calc_file,uint32_t,"File*, const FileCrcProgressCb, void*"
+Function,-,crypto1_bit,uint8_t,"Crypto1*, uint8_t, int"
+Function,-,crypto1_byte,uint8_t,"Crypto1*, uint8_t, int"
+Function,-,crypto1_decrypt,void,"Crypto1*, uint8_t*, uint16_t, uint8_t*"
+Function,-,crypto1_encrypt,void,"Crypto1*, uint8_t*, uint8_t*, uint16_t, uint8_t*, uint8_t*"
+Function,-,crypto1_filter,uint32_t,uint32_t
+Function,-,crypto1_init,void,"Crypto1*, uint64_t"
+Function,-,crypto1_reset,void,Crypto1*
+Function,-,crypto1_word,uint32_t,"Crypto1*, uint32_t, int"
 Function,-,ctermid,char*,char*
+Function,-,ctime,char*,const time_t*
+Function,-,ctime_r,char*,"const time_t*, char*"
 Function,-,cuserid,char*,char*
 Function,+,delete_mutex,_Bool,ValueMutex*
 Function,+,dialog_ex_alloc,DialogEx*,
@@ -683,6 +727,7 @@ Function,+,dialog_message_set_icon,void,"DialogMessage*, const Icon*, uint8_t, u
 Function,+,dialog_message_set_text,void,"DialogMessage*, const char*, uint8_t, uint8_t, Align, Align"
 Function,+,dialog_message_show,DialogMessageButton,"DialogsApp*, const DialogMessage*"
 Function,+,dialog_message_show_storage_error,void,"DialogsApp*, const char*"
+Function,-,difftime,double,"time_t, time_t"
 Function,-,digital_signal_alloc,DigitalSignal*,uint32_t
 Function,-,digital_signal_append,_Bool,"DigitalSignal*, DigitalSignal*"
 Function,-,digital_signal_free,void,DigitalSignal*
@@ -735,6 +780,8 @@ Function,+,elements_text_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, 
 Function,+,empty_screen_alloc,EmptyScreen*,
 Function,+,empty_screen_free,void,EmptyScreen*
 Function,+,empty_screen_get_view,View*,EmptyScreen*
+Function,-,emv_card_emulation,_Bool,FuriHalNfcTxRxContext*
+Function,-,emv_read_bank_card,_Bool,"FuriHalNfcTxRxContext*, EmvApplication*"
 Function,-,erand48,double,unsigned short[3]
 Function,-,erf,double,double
 Function,-,erfc,double,double
@@ -1146,6 +1193,7 @@ Function,+,furi_hal_nfc_ll_set_fdt_poll,void,uint32_t
 Function,+,furi_hal_nfc_ll_set_guard_time,void,uint32_t
 Function,+,furi_hal_nfc_ll_set_mode,FuriHalNfcReturn,"FuriHalNfcMode, FuriHalNfcBitrate, FuriHalNfcBitrate"
 Function,+,furi_hal_nfc_ll_txrx,FuriHalNfcReturn,"uint8_t*, uint16_t, uint8_t*, uint16_t, uint16_t*, uint32_t, uint32_t"
+Function,+,furi_hal_nfc_ll_txrx_bits,FuriHalNfcReturn,"uint8_t*, uint16_t, uint8_t*, uint16_t, uint16_t*, uint32_t, uint32_t"
 Function,+,furi_hal_nfc_ll_txrx_off,void,
 Function,+,furi_hal_nfc_ll_txrx_on,void,
 Function,+,furi_hal_nfc_sleep,void,
@@ -1231,6 +1279,7 @@ Function,+,furi_hal_rtc_get_fault_data,uint32_t,
 Function,+,furi_hal_rtc_get_log_level,uint8_t,
 Function,+,furi_hal_rtc_get_pin_fails,uint32_t,
 Function,+,furi_hal_rtc_get_register,uint32_t,FuriHalRtcRegister
+Function,+,furi_hal_rtc_get_timestamp,uint32_t,
 Function,-,furi_hal_rtc_init,void,
 Function,-,furi_hal_rtc_init_early,void,
 Function,+,furi_hal_rtc_is_flag_set,_Bool,FuriHalRtcFlag
@@ -1495,6 +1544,8 @@ Function,-,getenv,char*,const char*
 Function,-,gets,char*,char*
 Function,-,getsubopt,int,"char**, char**, char**"
 Function,-,getw,int,FILE*
+Function,-,gmtime,tm*,const time_t*
+Function,-,gmtime_r,tm*,"const time_t*, tm*"
 Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
 Function,+,gui_get_framebuffer_size,size_t,Gui*
@@ -1694,6 +1745,8 @@ Function,+,loader_update_menu,void,
 Function,+,loading_alloc,Loading*,
 Function,+,loading_free,void,Loading*
 Function,+,loading_get_view,View*,Loading*
+Function,-,localtime,tm*,const time_t*
+Function,-,localtime_r,tm*,"const time_t*, tm*"
 Function,-,log,double,double
 Function,-,log10,double,double
 Function,-,log10f,float,float
@@ -1722,6 +1775,36 @@ Function,+,manchester_encoder_advance,_Bool,"ManchesterEncoderState*, const _Boo
 Function,+,manchester_encoder_finish,ManchesterEncoderResult,ManchesterEncoderState*
 Function,+,manchester_encoder_reset,void,ManchesterEncoderState*
 Function,+,maxim_crc8,uint8_t,"const uint8_t*, const uint8_t, const uint8_t"
+Function,-,mbedtls_des3_crypt_cbc,int,"mbedtls_des3_context*, int, size_t, unsigned char[8], const unsigned char*, unsigned char*"
+Function,-,mbedtls_des3_crypt_ecb,int,"mbedtls_des3_context*, const unsigned char[8], unsigned char[8]"
+Function,-,mbedtls_des3_free,void,mbedtls_des3_context*
+Function,-,mbedtls_des3_init,void,mbedtls_des3_context*
+Function,-,mbedtls_des3_set2key_dec,int,"mbedtls_des3_context*, const unsigned char[8 * 2]"
+Function,-,mbedtls_des3_set2key_enc,int,"mbedtls_des3_context*, const unsigned char[8 * 2]"
+Function,-,mbedtls_des3_set3key_dec,int,"mbedtls_des3_context*, const unsigned char[8 * 3]"
+Function,-,mbedtls_des3_set3key_enc,int,"mbedtls_des3_context*, const unsigned char[8 * 3]"
+Function,-,mbedtls_des_crypt_cbc,int,"mbedtls_des_context*, int, size_t, unsigned char[8], const unsigned char*, unsigned char*"
+Function,-,mbedtls_des_crypt_ecb,int,"mbedtls_des_context*, const unsigned char[8], unsigned char[8]"
+Function,-,mbedtls_des_free,void,mbedtls_des_context*
+Function,-,mbedtls_des_init,void,mbedtls_des_context*
+Function,-,mbedtls_des_key_check_key_parity,int,const unsigned char[8]
+Function,-,mbedtls_des_key_check_weak,int,const unsigned char[8]
+Function,-,mbedtls_des_key_set_parity,void,unsigned char[8]
+Function,-,mbedtls_des_self_test,int,int
+Function,-,mbedtls_des_setkey,void,"uint32_t[32], const unsigned char[8]"
+Function,-,mbedtls_des_setkey_dec,int,"mbedtls_des_context*, const unsigned char[8]"
+Function,-,mbedtls_des_setkey_enc,int,"mbedtls_des_context*, const unsigned char[8]"
+Function,-,mbedtls_internal_sha1_process,int,"mbedtls_sha1_context*, const unsigned char[64]"
+Function,-,mbedtls_platform_gmtime_r,tm*,"const mbedtls_time_t*, tm*"
+Function,-,mbedtls_platform_zeroize,void,"void*, size_t"
+Function,-,mbedtls_sha1,int,"const unsigned char*, size_t, unsigned char[20]"
+Function,-,mbedtls_sha1_clone,void,"mbedtls_sha1_context*, const mbedtls_sha1_context*"
+Function,-,mbedtls_sha1_finish,int,"mbedtls_sha1_context*, unsigned char[20]"
+Function,-,mbedtls_sha1_free,void,mbedtls_sha1_context*
+Function,-,mbedtls_sha1_init,void,mbedtls_sha1_context*
+Function,-,mbedtls_sha1_self_test,int,int
+Function,-,mbedtls_sha1_starts,int,mbedtls_sha1_context*
+Function,-,mbedtls_sha1_update,int,"mbedtls_sha1_context*, const unsigned char*, size_t"
 Function,-,mblen,int,"const char*, size_t"
 Function,-,mbstowcs,size_t,"wchar_t*, const char*, size_t"
 Function,-,mbtowc,int,"wchar_t*, const char*, size_t"
@@ -1756,12 +1839,107 @@ Function,+,menu_free,void,Menu*
 Function,+,menu_get_view,View*,Menu*
 Function,+,menu_reset,void,Menu*
 Function,+,menu_set_selected_item,void,"Menu*, uint32_t"
+Function,-,mf_classic_auth_attempt,_Bool,"FuriHalNfcTxRxContext*, MfClassicAuthContext*, uint64_t"
+Function,-,mf_classic_auth_init_context,void,"MfClassicAuthContext*, uint8_t"
+Function,-,mf_classic_authenticate,_Bool,"FuriHalNfcTxRxContext*, uint8_t, uint64_t, MfClassicKey"
+Function,-,mf_classic_check_card_type,_Bool,"uint8_t, uint8_t, uint8_t"
+Function,-,mf_classic_dict_add_key,_Bool,"MfClassicDict*, uint8_t*"
+Function,-,mf_classic_dict_add_key_str,_Bool,"MfClassicDict*, FuriString*"
+Function,-,mf_classic_dict_alloc,MfClassicDict*,MfClassicDictType
+Function,-,mf_classic_dict_check_presence,_Bool,MfClassicDictType
+Function,-,mf_classic_dict_delete_index,_Bool,"MfClassicDict*, uint32_t"
+Function,-,mf_classic_dict_find_index,_Bool,"MfClassicDict*, uint8_t*, uint32_t*"
+Function,-,mf_classic_dict_find_index_str,_Bool,"MfClassicDict*, FuriString*, uint32_t*"
+Function,-,mf_classic_dict_free,void,MfClassicDict*
+Function,-,mf_classic_dict_get_key_at_index,_Bool,"MfClassicDict*, uint64_t*, uint32_t"
+Function,-,mf_classic_dict_get_key_at_index_str,_Bool,"MfClassicDict*, FuriString*, uint32_t"
+Function,-,mf_classic_dict_get_next_key,_Bool,"MfClassicDict*, uint64_t*"
+Function,-,mf_classic_dict_get_next_key_str,_Bool,"MfClassicDict*, FuriString*"
+Function,-,mf_classic_dict_get_total_keys,uint32_t,MfClassicDict*
+Function,-,mf_classic_dict_is_key_present,_Bool,"MfClassicDict*, uint8_t*"
+Function,-,mf_classic_dict_is_key_present_str,_Bool,"MfClassicDict*, FuriString*"
+Function,-,mf_classic_dict_rewind,_Bool,MfClassicDict*
+Function,-,mf_classic_emulator,_Bool,"MfClassicEmulator*, FuriHalNfcTxRxContext*"
+Function,-,mf_classic_get_classic_type,MfClassicType,"int8_t, uint8_t, uint8_t"
+Function,-,mf_classic_get_read_sectors_and_keys,void,"MfClassicData*, uint8_t*, uint8_t*"
+Function,-,mf_classic_get_sector_by_block,uint8_t,uint8_t
+Function,-,mf_classic_get_sector_trailer_block_num_by_sector,uint8_t,uint8_t
+Function,-,mf_classic_get_sector_trailer_by_sector,MfClassicSectorTrailer*,"MfClassicData*, uint8_t"
+Function,-,mf_classic_get_total_sectors_num,uint8_t,MfClassicType
+Function,-,mf_classic_get_type_str,const char*,MfClassicType
+Function,-,mf_classic_is_allowed_access_data_block,_Bool,"MfClassicData*, uint8_t, MfClassicKey, MfClassicAction"
+Function,-,mf_classic_is_allowed_access_sector_trailer,_Bool,"MfClassicData*, uint8_t, MfClassicKey, MfClassicAction"
+Function,-,mf_classic_is_block_read,_Bool,"MfClassicData*, uint8_t"
+Function,-,mf_classic_is_card_read,_Bool,MfClassicData*
+Function,-,mf_classic_is_key_found,_Bool,"MfClassicData*, uint8_t, MfClassicKey"
+Function,-,mf_classic_is_sector_data_read,_Bool,"MfClassicData*, uint8_t"
+Function,-,mf_classic_is_sector_read,_Bool,"MfClassicData*, uint8_t"
+Function,-,mf_classic_is_sector_trailer,_Bool,uint8_t
+Function,-,mf_classic_read_card,uint8_t,"FuriHalNfcTxRxContext*, MfClassicReader*, MfClassicData*"
+Function,-,mf_classic_read_sector,void,"FuriHalNfcTxRxContext*, MfClassicData*, uint8_t"
+Function,-,mf_classic_reader_add_sector,void,"MfClassicReader*, uint8_t, uint64_t, uint64_t"
+Function,-,mf_classic_set_block_read,void,"MfClassicData*, uint8_t, MfClassicBlock*"
+Function,-,mf_classic_set_key_found,void,"MfClassicData*, uint8_t, MfClassicKey, uint64_t"
+Function,-,mf_classic_set_key_not_found,void,"MfClassicData*, uint8_t, MfClassicKey"
+Function,-,mf_classic_set_sector_data_not_read,void,MfClassicData*
+Function,-,mf_classic_update_card,uint8_t,"FuriHalNfcTxRxContext*, MfClassicData*"
+Function,-,mf_classic_write_block,_Bool,"FuriHalNfcTxRxContext*, MfClassicBlock*, uint8_t, MfClassicKey, uint64_t"
+Function,-,mf_classic_write_sector,_Bool,"FuriHalNfcTxRxContext*, MfClassicData*, MfClassicData*, uint8_t"
+Function,-,mf_df_cat_application,void,"MifareDesfireApplication*, FuriString*"
+Function,-,mf_df_cat_application_info,void,"MifareDesfireApplication*, FuriString*"
+Function,-,mf_df_cat_card_info,void,"MifareDesfireData*, FuriString*"
+Function,-,mf_df_cat_data,void,"MifareDesfireData*, FuriString*"
+Function,-,mf_df_cat_file,void,"MifareDesfireFile*, FuriString*"
+Function,-,mf_df_cat_free_mem,void,"MifareDesfireFreeMemory*, FuriString*"
+Function,-,mf_df_cat_key_settings,void,"MifareDesfireKeySettings*, FuriString*"
+Function,-,mf_df_cat_version,void,"MifareDesfireVersion*, FuriString*"
+Function,-,mf_df_check_card_type,_Bool,"uint8_t, uint8_t, uint8_t"
+Function,-,mf_df_clear,void,MifareDesfireData*
+Function,-,mf_df_parse_get_application_ids_response,_Bool,"uint8_t*, uint16_t, MifareDesfireApplication**"
+Function,-,mf_df_parse_get_file_ids_response,_Bool,"uint8_t*, uint16_t, MifareDesfireFile**"
+Function,-,mf_df_parse_get_file_settings_response,_Bool,"uint8_t*, uint16_t, MifareDesfireFile*"
+Function,-,mf_df_parse_get_free_memory_response,_Bool,"uint8_t*, uint16_t, MifareDesfireFreeMemory*"
+Function,-,mf_df_parse_get_key_settings_response,_Bool,"uint8_t*, uint16_t, MifareDesfireKeySettings*"
+Function,-,mf_df_parse_get_key_version_response,_Bool,"uint8_t*, uint16_t, MifareDesfireKeyVersion*"
+Function,-,mf_df_parse_get_version_response,_Bool,"uint8_t*, uint16_t, MifareDesfireVersion*"
+Function,-,mf_df_parse_read_data_response,_Bool,"uint8_t*, uint16_t, MifareDesfireFile*"
+Function,-,mf_df_parse_select_application_response,_Bool,"uint8_t*, uint16_t"
+Function,-,mf_df_prepare_get_application_ids,uint16_t,uint8_t*
+Function,-,mf_df_prepare_get_file_ids,uint16_t,uint8_t*
+Function,-,mf_df_prepare_get_file_settings,uint16_t,"uint8_t*, uint8_t"
+Function,-,mf_df_prepare_get_free_memory,uint16_t,uint8_t*
+Function,-,mf_df_prepare_get_key_settings,uint16_t,uint8_t*
+Function,-,mf_df_prepare_get_key_version,uint16_t,"uint8_t*, uint8_t"
+Function,-,mf_df_prepare_get_value,uint16_t,"uint8_t*, uint8_t"
+Function,-,mf_df_prepare_get_version,uint16_t,uint8_t*
+Function,-,mf_df_prepare_read_data,uint16_t,"uint8_t*, uint8_t, uint32_t, uint32_t"
+Function,-,mf_df_prepare_read_records,uint16_t,"uint8_t*, uint8_t, uint32_t, uint32_t"
+Function,-,mf_df_prepare_select_application,uint16_t,"uint8_t*, uint8_t[3]"
+Function,-,mf_df_read_card,_Bool,"FuriHalNfcTxRxContext*, MifareDesfireData*"
+Function,-,mf_ul_check_card_type,_Bool,"uint8_t, uint8_t, uint8_t"
+Function,-,mf_ul_prepare_emulation,void,"MfUltralightEmulator*, MfUltralightData*"
+Function,-,mf_ul_prepare_emulation_response,_Bool,"uint8_t*, uint16_t, uint8_t*, uint16_t*, uint32_t*, void*"
+Function,-,mf_ul_pwdgen_amiibo,uint32_t,FuriHalNfcDevData*
+Function,-,mf_ul_pwdgen_xiaomi,uint32_t,FuriHalNfcDevData*
+Function,-,mf_ul_read_card,_Bool,"FuriHalNfcTxRxContext*, MfUltralightReader*, MfUltralightData*"
+Function,-,mf_ul_reset,void,MfUltralightData*
+Function,-,mf_ul_reset_emulation,void,"MfUltralightEmulator*, _Bool"
+Function,-,mf_ultralight_authenticate,_Bool,"FuriHalNfcTxRxContext*, uint32_t, uint16_t*"
+Function,-,mf_ultralight_fast_read_pages,_Bool,"FuriHalNfcTxRxContext*, MfUltralightReader*, MfUltralightData*"
+Function,-,mf_ultralight_get_config_pages,MfUltralightConfigPages*,MfUltralightData*
+Function,-,mf_ultralight_read_counters,_Bool,"FuriHalNfcTxRxContext*, MfUltralightData*"
+Function,-,mf_ultralight_read_pages,_Bool,"FuriHalNfcTxRxContext*, MfUltralightReader*, MfUltralightData*"
+Function,-,mf_ultralight_read_pages_direct,_Bool,"FuriHalNfcTxRxContext*, uint8_t, uint8_t*"
+Function,-,mf_ultralight_read_signature,_Bool,"FuriHalNfcTxRxContext*, MfUltralightData*"
+Function,-,mf_ultralight_read_tearing_flags,_Bool,"FuriHalNfcTxRxContext*, MfUltralightData*"
+Function,-,mf_ultralight_read_version,_Bool,"FuriHalNfcTxRxContext*, MfUltralightReader*, MfUltralightData*"
 Function,-,mkdtemp,char*,char*
 Function,-,mkostemp,int,"char*, int"
 Function,-,mkostemps,int,"char*, int, int"
 Function,-,mkstemp,int,char*
 Function,-,mkstemps,int,"char*, int"
 Function,-,mktemp,char*,char*
+Function,-,mktime,time_t,tm*
 Function,-,modf,double,"double, double*"
 Function,-,modff,float,"float, float*"
 Function,-,modfl,long double,"long double, long double*"
@@ -1778,6 +1956,19 @@ Function,-,nextafterl,long double,"long double, long double"
 Function,-,nexttoward,double,"double, long double"
 Function,-,nexttowardf,float,"float, long double"
 Function,-,nexttowardl,long double,"long double, long double"
+Function,+,nfc_device_alloc,NfcDevice*,
+Function,+,nfc_device_clear,void,NfcDevice*
+Function,+,nfc_device_data_clear,void,NfcDeviceData*
+Function,+,nfc_device_delete,_Bool,"NfcDevice*, _Bool"
+Function,+,nfc_device_free,void,NfcDevice*
+Function,+,nfc_device_load,_Bool,"NfcDevice*, const char*, _Bool"
+Function,+,nfc_device_load_key_cache,_Bool,NfcDevice*
+Function,+,nfc_device_restore,_Bool,"NfcDevice*, _Bool"
+Function,+,nfc_device_save,_Bool,"NfcDevice*, const char*"
+Function,+,nfc_device_save_shadow,_Bool,"NfcDevice*, const char*"
+Function,+,nfc_device_set_loading_callback,void,"NfcDevice*, NfcLoadingCallback, void*"
+Function,+,nfc_device_set_name,void,"NfcDevice*, const char*"
+Function,+,nfc_file_select,_Bool,NfcDevice*
 Function,-,nfca_append_crc16,void,"uint8_t*, uint16_t"
 Function,-,nfca_emulation_handler,_Bool,"uint8_t*, uint16_t, uint8_t*, uint16_t*"
 Function,-,nfca_get_crc16,uint16_t,"uint8_t*, uint16_t"
@@ -1790,6 +1981,7 @@ Function,+,notification_message,void,"NotificationApp*, const NotificationSequen
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,-,nrand48,long,unsigned short[3]
 Function,-,nrf24_configure,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t*, uint8_t*, uint8_t, uint8_t, _Bool, _Bool"
+Function,+,nrf24_deinit,void,
 Function,+,nrf24_find_channel,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t*, uint8_t, uint8_t, uint8_t, uint8_t, _Bool"
 Function,-,nrf24_flush_rx,uint8_t,FuriHalSpiBusHandle*
 Function,-,nrf24_flush_tx,uint8_t,FuriHalSpiBusHandle*
@@ -1891,6 +2083,7 @@ Function,+,power_reboot,void,PowerBootMode
 Function,+,powf,float,"float, float"
 Function,-,powl,long double,"long double, long double"
 Function,-,printf,int,"const char*, ..."
+Function,-,prng_successor,uint32_t,"uint32_t, uint32_t"
 Function,+,protocol_dict_alloc,ProtocolDict*,"const ProtocolBase**, size_t"
 Function,-,protocol_dict_decoders_feed,ProtocolId,"ProtocolDict*, _Bool, uint32_t"
 Function,-,protocol_dict_decoders_feed_by_feature,ProtocolId,"ProtocolDict*, uint32_t, _Bool, uint32_t"
@@ -2107,6 +2300,7 @@ Function,-,rfalT1TPollerRall,ReturnCode,"const uint8_t*, uint8_t*, uint16_t, uin
 Function,-,rfalT1TPollerRid,ReturnCode,rfalT1TRidRes*
 Function,-,rfalT1TPollerWrite,ReturnCode,"const uint8_t*, uint8_t, uint8_t"
 Function,-,rfalTransceiveBitsBlockingTx,ReturnCode,"uint8_t*, uint16_t, uint8_t*, uint16_t, uint16_t*, uint32_t, uint32_t"
+Function,-,rfalTransceiveBitsBlockingTxRx,ReturnCode,"uint8_t*, uint16_t, uint8_t*, uint16_t, uint16_t*, uint32_t, uint32_t"
 Function,-,rfalTransceiveBlockingRx,ReturnCode,
 Function,-,rfalTransceiveBlockingTx,ReturnCode,"uint8_t*, uint16_t, uint8_t*, uint16_t, uint16_t*, uint32_t, uint32_t"
 Function,-,rfalTransceiveBlockingTxRx,ReturnCode,"uint8_t*, uint16_t, uint8_t*, uint16_t, uint16_t*, uint32_t, uint32_t"
@@ -2216,6 +2410,7 @@ Function,+,storage_common_mkdir,FS_Error,"Storage*, const char*"
 Function,+,storage_common_remove,FS_Error,"Storage*, const char*"
 Function,+,storage_common_rename,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_stat,FS_Error,"Storage*, const char*, FileInfo*"
+Function,+,storage_common_timestamp,FS_Error,"Storage*, const char*, uint32_t*"
 Function,+,storage_dir_close,_Bool,File*
 Function,+,storage_dir_open,_Bool,"File*, const char*"
 Function,+,storage_dir_read,_Bool,"File*, FileInfo*, char*, uint16_t"
@@ -2301,6 +2496,8 @@ Function,+,stream_write_vaformat,size_t,"Stream*, const char*, va_list"
 Function,-,strerror,char*,int
 Function,-,strerror_l,char*,"int, locale_t"
 Function,-,strerror_r,char*,"int, char*, size_t"
+Function,-,strftime,size_t,"char*, size_t, const char*, const tm*"
+Function,-,strftime_l,size_t,"char*, size_t, const char*, const tm*, locale_t"
 Function,+,string_stream_alloc,Stream*,
 Function,-,strlcat,size_t,"char*, const char*, size_t"
 Function,+,strlcpy,size_t,"char*, const char*, size_t"
@@ -2315,6 +2512,8 @@ Function,-,strndup,char*,"const char*, size_t"
 Function,-,strnlen,size_t,"const char*, size_t"
 Function,-,strnstr,char*,"const char*, const char*, size_t"
 Function,-,strpbrk,char*,"const char*, const char*"
+Function,-,strptime,char*,"const char*, const char*, tm*"
+Function,-,strptime_l,char*,"const char*, const char*, tm*, locale_t"
 Function,+,strrchr,char*,"const char*, int"
 Function,-,strsep,char*,"char**, const char*"
 Function,-,strsignal,char*,int
@@ -2925,6 +3124,7 @@ Function,-,tga_save,void,const char*
 Function,-,tgamma,double,double
 Function,-,tgammaf,float,float
 Function,-,tgammal,long double,long double
+Function,-,time,time_t,time_t*
 Function,+,timerCalculateTimer,uint32_t,uint16_t
 Function,-,timerDelay,void,uint16_t
 Function,+,timerIsExpired,_Bool,uint32_t
@@ -2943,6 +3143,7 @@ Function,-,toupper_l,int,"int, locale_t"
 Function,-,trunc,double,double
 Function,-,truncf,float,float
 Function,-,truncl,long double,long double
+Function,-,tzset,void,
 Function,-,u8g2_AddPolygonXY,void,"u8g2_t*, int16_t, int16_t"
 Function,-,u8g2_ClearBuffer,void,u8g2_t*
 Function,-,u8g2_ClearDisplay,void,u8g2_t*
@@ -4084,6 +4285,9 @@ Function,-,vTimerSetTimerNumber,void,"TimerHandle_t, UBaseType_t"
 Function,+,validator_is_file_alloc_init,ValidatorIsFile*,"const char*, const char*, const char*"
 Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
+Function,+,value_index_bool,uint8_t,"const _Bool, const _Bool[], uint8_t"
+Function,+,value_index_float,uint8_t,"const float, const float[], uint8_t"
+Function,+,value_index_uint32,uint8_t,"const uint32_t, const uint32_t[], uint8_t"
 Function,+,variable_item_get_context,void*,VariableItem*
 Function,+,variable_item_get_current_value_index,uint8_t,VariableItem*
 Function,+,variable_item_list_add,VariableItem*,"VariableItemList*, const char*, uint8_t, VariableItemChangeCallback, void*"
@@ -4255,10 +4459,13 @@ Variable,-,MSIRangeTable,const uint32_t[16],
 Variable,-,SmpsPrescalerTable,const uint32_t[4][6],
 Variable,+,SystemCoreClock,uint32_t,
 Variable,+,_ctype_,const char[],
+Variable,-,_daylight,int,
 Variable,+,_global_impure_ptr,_reent*,
 Variable,+,_impure_ptr,_reent*,
 Variable,-,_sys_errlist,const char*[],
 Variable,-,_sys_nerr,int,
+Variable,-,_timezone,long,
+Variable,-,_tzname,char*[2],
 Variable,+,cli_vcp,CliSession,
 Variable,+,furi_hal_i2c_bus_external,FuriHalI2cBus,
 Variable,+,furi_hal_i2c_bus_power,FuriHalI2cBus,

@@ -179,6 +179,8 @@ bool totp_scene_token_menu_handle_event(PluginEvent* const event, PluginState* p
                 }
                 break;
             }
+            default:
+                break;
             }
         }
     }

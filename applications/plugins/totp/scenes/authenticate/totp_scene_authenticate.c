@@ -143,6 +143,8 @@ bool totp_scene_authenticate_handle_event(PluginEvent* const event, PluginState*
                     scene_state->code_length--;
                 }
                 break;
+            default:
+                break;
             }
         }
     }

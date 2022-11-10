@@ -110,11 +110,11 @@ int32_t gps_app(void* p) {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }
-        } else {
-            FURI_LOG_D("GPS", "FuriMessageQueue: event timeout");
         }
 
         view_port_update(view_port);

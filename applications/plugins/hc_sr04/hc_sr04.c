@@ -230,6 +230,8 @@ int32_t hc_sr04_app() {
                     case InputKeyBack:
                         processing = false;
                         break;
+                    default:
+                        break;
                     }
                 }
             }

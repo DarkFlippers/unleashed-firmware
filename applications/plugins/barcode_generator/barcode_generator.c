@@ -339,8 +339,6 @@ int32_t barcode_generator_app(void* p) {
                     break;
                 }
             }
-        } else {
-            FURI_LOG_D("barcode_generator", "osMessageQueue: event timeout");
         }
 
         view_port_update(view_port);

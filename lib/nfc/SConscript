@@ -4,6 +4,9 @@ env.Append(
     CPPPATH=[
         "#/lib/nfc",
     ],
+    SDK_HEADERS=[
+        File("#/lib/nfc/nfc_device.h"),
+    ],
 )
 
 libenv = env.Clone(FW_LIB_NAME="nfc")

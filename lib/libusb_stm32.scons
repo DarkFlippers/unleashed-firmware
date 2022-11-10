@@ -7,6 +7,10 @@ env.Append(
     CPPDEFINES=[
         ("USB_PMASIZE", "0x400"),
     ],
+    SDK_HEADERS=env.GlobRecursive(
+        "*.h",
+        Dir("libusb_stm32/inc"),
+    ),
 )
 
 

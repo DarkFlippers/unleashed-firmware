@@ -303,6 +303,8 @@ bool totp_scene_generate_token_handle_event(PluginEvent* const event, PluginStat
                 break;
             case InputKeyBack:
                 break;
+            default:
+                break;
             }
         }
     }

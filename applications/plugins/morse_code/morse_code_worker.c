@@ -2,19 +2,20 @@
 #include <furi_hal.h>
 #include <lib/flipper_format/flipper_format.h>
 
-
 #define TAG "MorseCodeWorker"
 
 #define MORSE_CODE_VERSION 0
 
 //A-Z0-1
-const char morse_array[36][6] ={
-    ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.",
-    "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--..", ".----", "..---", "...--", "....-", ".....",
-    "-....", "--...", "---..", "----.", "-----"
-    };
-const char symbol_array[36] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-    'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+const char morse_array[36][6] = {".-",    "-...",  "-.-.",  "-..",   ".",     "..-.",
+                                 "--.",   "....",  "..",    ".---",  "-.-",   ".-..",
+                                 "--",    "-.",    "---",   ".--.",  "--.-",  ".-.",
+                                 "...",   "-",     "..-",   "...-",  ".--",   "-..-",
+                                 "-.--",  "--..",  ".----", "..---", "...--", "....-",
+                                 ".....", "-....", "--...", "---..", "----.", "-----"};
+const char symbol_array[36] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+                               'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+                               'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
 
 struct MorseCodeWorker {
     FuriThread* thread;
@@ -28,30 +29,27 @@ struct MorseCodeWorker {
     FuriString* words;
 };
 
-void morse_code_worker_fill_buffer(MorseCodeWorker* instance, uint32_t duration){
+void morse_code_worker_fill_buffer(MorseCodeWorker* instance, uint32_t duration) {
     FURI_LOG_D("MorseCode: Duration", "%ld", duration);
-    if( duration <= instance->dit_delta)
+    if(duration <= instance->dit_delta)
         furi_string_push_back(instance->buffer, *DOT);
     else if(duration <= (instance->dit_delta * 3))
         furi_string_push_back(instance->buffer, *LINE);
-    if(furi_string_size(instance->buffer) > 5)
-        furi_string_reset(instance->buffer);
+    if(furi_string_size(instance->buffer) > 5) furi_string_reset(instance->buffer);
     FURI_LOG_D("MorseCode: Buffer", "%s", furi_string_get_cstr(instance->buffer));
 }
 
-void morse_code_worker_fill_letter(MorseCodeWorker* instance){
-    if(furi_string_size(instance->words) > 63)
-        furi_string_reset(instance->words);
-    for (size_t i = 0; i < sizeof(morse_array); i++){
-            if(furi_string_cmp_str(instance->buffer, morse_array[i]) == 0){
-                furi_string_push_back(instance->words, symbol_array[i]);
-                furi_string_reset(instance->buffer);
-                break;
-            }        
+void morse_code_worker_fill_letter(MorseCodeWorker* instance) {
+    if(furi_string_size(instance->words) > 63) furi_string_reset(instance->words);
+    for(size_t i = 0; i < sizeof(morse_array); i++) {
+        if(furi_string_cmp_str(instance->buffer, morse_array[i]) == 0) {
+            furi_string_push_back(instance->words, symbol_array[i]);
+            furi_string_reset(instance->buffer);
+            break;
         }
+    }
     FURI_LOG_D("MorseCode: Words", "%s", furi_string_get_cstr(instance->words));
 }
-
 
 static int32_t morse_code_worker_thread_callback(void* context) {
     furi_assert(context);
@@ -61,16 +59,16 @@ static int32_t morse_code_worker_thread_callback(void* context) {
     uint32_t end_tick = 0;
     bool pushed = true;
     bool spaced = true;
-    while(instance->is_running){
+    while(instance->is_running) {
         furi_delay_ms(SLEEP);
-        if(instance->play){
-            if(!was_playing){
+        if(instance->play) {
+            if(!was_playing) {
                 start_tick = furi_get_tick();
                 furi_hal_speaker_start(FREQUENCY, instance->volume);
                 was_playing = true;
             }
-        }else{
-            if(was_playing){
+        } else {
+            if(was_playing) {
                 pushed = false;
                 spaced = false;
                 furi_hal_speaker_stop();
@@ -80,21 +78,21 @@ static int32_t morse_code_worker_thread_callback(void* context) {
                 start_tick = 0;
             }
         }
-       if(!pushed){
-            if(end_tick + (instance->dit_delta * 3) < furi_get_tick()){
+        if(!pushed) {
+            if(end_tick + (instance->dit_delta * 3) < furi_get_tick()) {
                 //NEW LETTER
                 morse_code_worker_fill_letter(instance);
                 if(instance->callback)
-                        instance->callback(instance->words, instance->callback_context);
+                    instance->callback(instance->words, instance->callback_context);
                 pushed = true;
             }
         }
-        if(!spaced){
-            if(end_tick + (instance->dit_delta * 7) < furi_get_tick()){
+        if(!spaced) {
+            if(end_tick + (instance->dit_delta * 7) < furi_get_tick()) {
                 //NEW WORD
                 furi_string_push_back(instance->words, *SPACE);
                 if(instance->callback)
-                        instance->callback(instance->words, instance->callback_context);
+                    instance->callback(instance->words, instance->callback_context);
                 spaced = true;
             }
         }
@@ -132,17 +130,17 @@ void morse_code_worker_set_callback(
     instance->callback_context = context;
 }
 
-void morse_code_worker_play(MorseCodeWorker* instance, bool play){
+void morse_code_worker_play(MorseCodeWorker* instance, bool play) {
     furi_assert(instance);
     instance->play = play;
 }
 
-void morse_code_worker_set_volume(MorseCodeWorker* instance, float level){
+void morse_code_worker_set_volume(MorseCodeWorker* instance, float level) {
     furi_assert(instance);
     instance->volume = level;
 }
 
-void morse_code_worker_set_dit_delta(MorseCodeWorker* instance, uint32_t delta){
+void morse_code_worker_set_dit_delta(MorseCodeWorker* instance, uint32_t delta) {
     furi_assert(instance);
     instance->dit_delta = delta;
 }

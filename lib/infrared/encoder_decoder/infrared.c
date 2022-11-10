@@ -110,6 +110,20 @@ static const InfraredEncoderDecoder infrared_encoder_decoder[] = {
              .free = infrared_encoder_sirc_free},
         .get_protocol_spec = infrared_sirc_get_spec,
     },
+    {
+        .decoder =
+            {.alloc = infrared_decoder_kaseikyo_alloc,
+             .decode = infrared_decoder_kaseikyo_decode,
+             .reset = infrared_decoder_kaseikyo_reset,
+             .check_ready = infrared_decoder_kaseikyo_check_ready,
+             .free = infrared_decoder_kaseikyo_free},
+        .encoder =
+            {.alloc = infrared_encoder_kaseikyo_alloc,
+             .encode = infrared_encoder_kaseikyo_encode,
+             .reset = infrared_encoder_kaseikyo_reset,
+             .free = infrared_encoder_kaseikyo_free},
+        .get_protocol_spec = infrared_kaseikyo_get_spec,
+    },
 };
 
 static int infrared_find_index_by_protocol(InfraredProtocol protocol);

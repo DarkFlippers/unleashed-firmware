@@ -33,10 +33,6 @@ coreenv = SConscript(
 )
 SConscript("site_scons/cc.scons", exports={"ENV": coreenv})
 
-# Store root dir in environment for certain tools
-coreenv["ROOT_DIR"] = Dir(".")
-
-
 # Create a separate "dist" environment and add construction envs to it
 distenv = coreenv.Clone(
     tools=[
@@ -47,6 +43,7 @@ distenv = coreenv.Clone(
         "jflash",
     ],
     ENV=os.environ,
+    UPDATE_BUNDLE_DIR="dist/${DIST_DIR}/f${TARGET_HW}-update-${DIST_SUFFIX}",
 )
 
 firmware_env = distenv.AddFwProject(
@@ -144,21 +141,28 @@ distenv.Default(basic_dist)
 dist_dir = distenv.GetProjetDirName()
 fap_dist = [
     distenv.Install(
-        f"#/dist/{dist_dir}/apps/debug_elf",
-        firmware_env["FW_EXTAPPS"]["debug"].values(),
+        distenv.Dir(f"#/dist/{dist_dir}/apps/debug_elf"),
+        list(
+            app_artifact.debug
+            for app_artifact in firmware_env["FW_EXTAPPS"].applications.values()
+        ),
     ),
-    *(
-        distenv.Install(f"#/dist/{dist_dir}/apps/{dist_entry[0]}", dist_entry[1])
-        for dist_entry in firmware_env["FW_EXTAPPS"]["dist"].values()
+    distenv.Install(
+        f"#/dist/{dist_dir}/apps",
+        "#/assets/resources/apps",
     ),
 ]
-Depends(fap_dist, firmware_env["FW_EXTAPPS"]["validators"].values())
+Depends(
+    fap_dist,
+    list(
+        app_artifact.validator
+        for app_artifact in firmware_env["FW_EXTAPPS"].applications.values()
+    ),
+)
 Alias("fap_dist", fap_dist)
 # distenv.Default(fap_dist)
 
-distenv.Depends(
-    firmware_env["FW_RESOURCES"], firmware_env["FW_EXTAPPS"]["resources_dist"]
-)
+distenv.Depends(firmware_env["FW_RESOURCES"], firmware_env["FW_EXTAPPS"].resources_dist)
 
 
 # Target for bundling core2 package for qFlipper
@@ -196,6 +200,9 @@ firmware_debug = distenv.PhonyTarget(
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE}",
     GDBREMOTE="${OPENOCD_GDB_PIPE}",
+    FBT_FAP_DEBUG_ELF_ROOT=firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT").replace(
+        "\\", "/"
+    ),
 )
 distenv.Depends(firmware_debug, firmware_flash)
 
@@ -205,6 +212,9 @@ distenv.PhonyTarget(
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
     GDBREMOTE="${BLACKMAGIC_ADDR}",
+    FBT_FAP_DEBUG_ELF_ROOT=firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT").replace(
+        "\\", "/"
+    ),
 )
 
 # Debug alien elf
@@ -213,7 +223,7 @@ distenv.PhonyTarget(
     "${GDBPYCOM}",
     GDBOPTS="${GDBOPTS_BASE}",
     GDBREMOTE="${OPENOCD_GDB_PIPE}",
-    GDBPYOPTS='-ex "source debug/PyCortexMDebug/PyCortexMDebug.py" ',
+    GDBPYOPTS='-ex "source ${FBT_DEBUG_DIR}/PyCortexMDebug/PyCortexMDebug.py" ',
 )
 
 distenv.PhonyTarget(
@@ -233,13 +243,13 @@ distenv.PhonyTarget(
 # Linter
 distenv.PhonyTarget(
     "lint",
-    "${PYTHON3} scripts/lint.py check ${LINT_SOURCES}",
+    "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py check ${LINT_SOURCES}",
     LINT_SOURCES=firmware_env["LINT_SOURCES"],
 )
 
 distenv.PhonyTarget(
     "format",
-    "${PYTHON3} scripts/lint.py format ${LINT_SOURCES}",
+    "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py format ${LINT_SOURCES}",
     LINT_SOURCES=firmware_env["LINT_SOURCES"],
 )
 
@@ -280,7 +290,7 @@ distenv.PhonyTarget(
 )
 
 # Start Flipper CLI via PySerial's miniterm
-distenv.PhonyTarget("cli", "${PYTHON3} scripts/serial_cli.py")
+distenv.PhonyTarget("cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py")
 
 
 # Find blackmagic probe

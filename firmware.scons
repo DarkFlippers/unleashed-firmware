@@ -1,6 +1,7 @@
 Import("ENV", "fw_build_meta")
 
 from SCons.Errors import UserError
+from SCons.Node import FS
 import itertools
 
 from fbt_extra.util import (
@@ -14,14 +15,12 @@ env = ENV.Clone(
         ("compilation_db", {"COMPILATIONDB_COMSTR": "\tCDB\t${TARGET}"}),
         "fwbin",
         "fbt_apps",
-        "fbt_sdk",
     ],
     COMPILATIONDB_USE_ABSPATH=False,
     BUILD_DIR=fw_build_meta["build_dir"],
     IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
     FW_FLAVOR=fw_build_meta["flavor"],
-    PLUGIN_ELF_DIR="${BUILD_DIR}",
-    LIB_DIST_DIR="${BUILD_DIR}/lib",
+    LIB_DIST_DIR=fw_build_meta["build_dir"].Dir("lib"),
     LINT_SOURCES=[
         "applications",
     ],
@@ -112,7 +111,9 @@ lib_targets = env.BuildModules(
 
 
 # Now, env is fully set up with everything to build apps
-fwenv = env.Clone()
+fwenv = env.Clone(FW_ARTIFACTS=[])
+
+fw_artifacts = fwenv["FW_ARTIFACTS"]
 
 # Set up additional app-specific build flags
 SConscript("site_scons/firmwareopts.scons", exports={"ENV": fwenv})
@@ -130,14 +131,24 @@ if extra_int_apps := GetOption("extra_int_apps"):
 if fwenv["FAP_EXAMPLES"]:
     fwenv.Append(APPDIRS=[("applications/examples", False)])
 
-fwenv.LoadApplicationManifests()
+for app_dir, _ in env["APPDIRS"]:
+    app_dir_node = env.Dir("#").Dir(app_dir)
+
+    for entry in app_dir_node.glob("*"):
+        if isinstance(entry, FS.Dir) and not str(entry).startswith("."):
+            fwenv.LoadAppManifest(entry)
+
+
 fwenv.PrepareApplicationsBuild()
 
-# Build external apps
+# Build external apps + configure SDK
 if env["IS_BASE_FIRMWARE"]:
-    extapps = fwenv["FW_EXTAPPS"] = SConscript(
-        "site_scons/extapps.scons", exports={"ENV": fwenv}
+    fwenv.SetDefault(FBT_FAP_DEBUG_ELF_ROOT="${BUILD_DIR}/.extapps")
+    fwenv["FW_EXTAPPS"] = SConscript(
+        "site_scons/extapps.scons",
+        exports={"ENV": fwenv},
     )
+    fw_artifacts.append(fwenv["FW_EXTAPPS"].sdk_tree)
 
 
 # Add preprocessor definitions for current set of apps
@@ -220,7 +231,10 @@ Depends(fwelf, lib_targets)
 AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
 AddPostAction(
     fwelf,
-    Action('${PYTHON3} "${ROOT_DIR}/scripts/fwsize.py" elf ${TARGET}', "Firmware size"),
+    Action(
+        '${PYTHON3} "${BIN_SIZE_SCRIPT}" elf ${TARGET}',
+        "Firmware size",
+    ),
 )
 
 # Produce extra firmware files
@@ -228,7 +242,7 @@ fwhex = fwenv["FW_HEX"] = fwenv.HEXBuilder("${FIRMWARE_BUILD_CFG}")
 fwbin = fwenv["FW_BIN"] = fwenv.BINBuilder("${FIRMWARE_BUILD_CFG}")
 AddPostAction(
     fwbin,
-    Action('@${PYTHON3} "${ROOT_DIR}/scripts/fwsize.py" bin ${TARGET}'),
+    Action('@${PYTHON3} "${BIN_SIZE_SCRIPT}" bin ${TARGET}'),
 )
 
 fwdfu = fwenv["FW_DFU"] = fwenv.DFUBuilder("${FIRMWARE_BUILD_CFG}")
@@ -238,17 +252,22 @@ fwdump = fwenv.ObjDump("${FIRMWARE_BUILD_CFG}")
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_list", fwdump)
 
 
-fw_artifacts = fwenv["FW_ARTIFACTS"] = [
-    fwhex,
-    fwbin,
-    fwdfu,
-    fwenv["FW_VERSION_JSON"],
-]
+fw_artifacts.extend(
+    [
+        fwhex,
+        fwbin,
+        fwdfu,
+        fwenv["FW_VERSION_JSON"],
+    ]
+)
 
 
 fwcdb = fwenv.CompilationDatabase()
 # without filtering, both updater & firmware commands would be generated in same file
-fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
+fwenv.Replace(
+    COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"),
+    COMPILATIONDB_SRCPATH_FILTER="*.c*",
+)
 AlwaysBuild(fwcdb)
 Precious(fwcdb)
 NoClean(fwcdb)
@@ -271,35 +290,6 @@ if should_gen_cdb_and_link_dir(fwenv, BUILD_TARGETS):
     fw_artifacts.append(link_dir_command)
 
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", fw_artifacts)
-
-if fwenv["IS_BASE_FIRMWARE"]:
-    sdk_source = fwenv.SDKPrebuilder(
-        "sdk_origin",
-        # Deps on root SDK headers and generated files
-        (fwenv["SDK_HEADERS"], fwenv["FW_ASSETS_HEADERS"]),
-    )
-    # Extra deps on headers included in deeper levels
-    Depends(sdk_source, fwenv.ProcessSdkDepends("sdk_origin.d"))
-
-    fwenv["SDK_DIR"] = fwenv.Dir("sdk")
-    sdk_tree = fwenv.SDKTree(fwenv["SDK_DIR"], "sdk_origin")
-    fw_artifacts.append(sdk_tree)
-    # AlwaysBuild(sdk_tree)
-    Alias("sdk_tree", sdk_tree)
-
-    sdk_apicheck = fwenv.SDKSymUpdater(fwenv["SDK_DEFINITION"], "sdk_origin")
-    Precious(sdk_apicheck)
-    NoClean(sdk_apicheck)
-    AlwaysBuild(sdk_apicheck)
-    Alias("sdk_check", sdk_apicheck)
-
-    sdk_apisyms = fwenv.SDKSymGenerator(
-        "assets/compiled/symbols.h", fwenv["SDK_DEFINITION"]
-    )
-    Alias("api_syms", sdk_apisyms)
-
-    if fwenv["FORCE"]:
-        fwenv.AlwaysBuild(sdk_source, sdk_tree, sdk_apicheck, sdk_apisyms)
 
 
 Return("fwenv")

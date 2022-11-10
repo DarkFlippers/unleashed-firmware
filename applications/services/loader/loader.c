@@ -269,22 +269,18 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
         event.type = LoaderEventTypeApplicationStarted;
         furi_pubsub_publish(loader_instance->pubsub, &event);
 
-        if(!loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe) {
+        if(!(loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe)) {
             furi_hal_power_insomnia_enter();
         }
     } else if(thread_state == FuriThreadStateStopped) {
-        FURI_LOG_I(
-            TAG,
-            "Application thread stopped. Free heap: %d. Thread allocation balance: %d.",
-            memmgr_get_free_heap(),
-            furi_thread_get_heap_size(instance->application_thread));
+        FURI_LOG_I(TAG, "Application stopped. Free heap: %d", memmgr_get_free_heap());
 
         if(loader_instance->application_arguments) {
             free(loader_instance->application_arguments);
             loader_instance->application_arguments = NULL;
         }
 
-        if(!loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe) {
+        if(!(loader_instance->application->flags & FlipperApplicationFlagInsomniaSafe)) {
             furi_hal_power_insomnia_exit();
         }
         loader_unlock(instance);

@@ -60,7 +60,7 @@ WidgetElement* widget_element_button_create(
     ButtonCallback callback,
     void* context) {
     // Allocate and init model
-    GuiButtonModel* model = malloc(sizeof(GuiButtonModel));
+    GuiButtonModel* model = malloc(sizeof(GuiButtonModel)); //-V773
     model->button_type = button_type;
     model->callback = callback;
     model->context = context;

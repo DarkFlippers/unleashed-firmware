@@ -15,8 +15,8 @@ env.Append(
     ],
     SDK_HEADERS=[
         *env.GlobRecursive("*_ll_*.h", "#/lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/", exclude="*usb.h"),
-        File("#/lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"),
-        File("#/lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h"),
+        File("STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"),
+        File("STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h"),
     ],
 )
 

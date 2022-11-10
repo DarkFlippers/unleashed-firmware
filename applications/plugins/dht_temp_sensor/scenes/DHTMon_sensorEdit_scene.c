@@ -81,7 +81,7 @@ void sensorEdit_scene(PluginData* app) {
     app->item =
         variable_item_list_add(variable_item_list, "Type:", 2, addSensor_sensorTypeChanged, app);
 
-    variable_item_set_current_value_index(nameItem, app->currentSensorEdit->type);
+    variable_item_set_current_value_index(app->item, app->currentSensorEdit->type);
     variable_item_set_current_value_text(app->item, sensorsTypes[app->currentSensorEdit->type]);
 
     //GPIO
@@ -92,6 +92,9 @@ void sensorEdit_scene(PluginData* app) {
     variable_item_set_current_value_text(
         app->item, DHTMon_GPIO_getName(app->currentSensorEdit->GPIO));
     variable_item_list_add(variable_item_list, "Save", 1, NULL, app);
+
+    //Сброс выбранного пункта в ноль
+    variable_item_list_set_selected_item(variable_item_list, 0);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, ADDSENSOR_MENU_VIEW);
 }

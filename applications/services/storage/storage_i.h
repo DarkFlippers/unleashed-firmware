@@ -1,5 +1,6 @@
 #pragma once
 #include <furi.h>
+#include <furi_hal.h>
 #include <gui/gui.h>
 #include "storage_glue.h"
 #include "storage_sd_api.h"

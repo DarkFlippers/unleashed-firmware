@@ -7,61 +7,51 @@
 
 // TODO add mutex to view_port ops
 
-static void view_port_remap_buttons_vertical(InputEvent* event) {
-    switch(event->key) {
-    case InputKeyUp:
-        event->key = InputKeyRight;
-        break;
-    case InputKeyDown:
-        event->key = InputKeyLeft;
-        break;
-    case InputKeyRight:
-        event->key = InputKeyDown;
-        break;
-    case InputKeyLeft:
-        event->key = InputKeyUp;
-        break;
-    default:
-        break;
-    }
-}
+_Static_assert(ViewPortOrientationMAX == 4, "Incorrect ViewPortOrientation count");
+_Static_assert(
+    (ViewPortOrientationHorizontal == 0 && ViewPortOrientationHorizontalFlip == 1 &&
+     ViewPortOrientationVertical == 2 && ViewPortOrientationVerticalFlip == 3),
+    "Incorrect ViewPortOrientation order");
+_Static_assert(InputKeyMAX == 6, "Incorrect InputKey count");
+_Static_assert(
+    (InputKeyUp == 0 && InputKeyDown == 1 && InputKeyRight == 2 && InputKeyLeft == 3 &&
+     InputKeyOk == 4 && InputKeyBack == 5),
+    "Incorrect InputKey order");
 
-static void view_port_remap_buttons_vertical_flip(InputEvent* event) {
-    switch(event->key) {
-    case InputKeyUp:
-        event->key = InputKeyLeft;
-        break;
-    case InputKeyDown:
-        event->key = InputKeyRight;
-        break;
-    case InputKeyRight:
-        event->key = InputKeyUp;
-        break;
-    case InputKeyLeft:
-        event->key = InputKeyDown;
-        break;
-    default:
-        break;
-    }
-}
+/** InputKey directional keys mappings for different screen orientations
+* 
+*/
+static const InputKey view_port_input_mapping[ViewPortOrientationMAX][InputKeyMAX] = {
+    {InputKeyUp,
+     InputKeyDown,
+     InputKeyRight,
+     InputKeyLeft,
+     InputKeyOk,
+     InputKeyBack}, //ViewPortOrientationHorizontal
+    {InputKeyDown,
+     InputKeyUp,
+     InputKeyLeft,
+     InputKeyRight,
+     InputKeyOk,
+     InputKeyBack}, //ViewPortOrientationHorizontalFlip
+    {InputKeyRight,
+     InputKeyLeft,
+     InputKeyDown,
+     InputKeyUp,
+     InputKeyOk,
+     InputKeyBack}, //ViewPortOrientationVertical
+    {InputKeyLeft,
+     InputKeyRight,
+     InputKeyUp,
+     InputKeyDown,
+     InputKeyOk,
+     InputKeyBack}, //ViewPortOrientationVerticalFlip
+};
 
-static void view_port_remap_buttons_horizontal_flip(InputEvent* event) {
-    switch(event->key) {
-    case InputKeyUp:
-        event->key = InputKeyDown;
-        break;
-    case InputKeyDown:
-        event->key = InputKeyUp;
-        break;
-    case InputKeyRight:
-        event->key = InputKeyLeft;
-        break;
-    case InputKeyLeft:
-        event->key = InputKeyRight;
-        break;
-    default:
-        break;
-    }
+// Remaps directional pad buttons on Flipper based on ViewPort orientation
+static void view_port_map_input(InputEvent* event, ViewPortOrientation orientation) {
+    furi_assert(orientation < ViewPortOrientationMAX && event->key < InputKeyMAX);
+    event->key = view_port_input_mapping[orientation][event->key];
 }
 
 static void view_port_setup_canvas_orientation(const ViewPort* view_port, Canvas* canvas) {
@@ -170,19 +160,7 @@ void view_port_input(ViewPort* view_port, InputEvent* event) {
 
     if(view_port->input_callback) {
         ViewPortOrientation orientation = view_port_get_orientation(view_port);
-        switch(orientation) {
-        case ViewPortOrientationHorizontalFlip:
-            view_port_remap_buttons_horizontal_flip(event);
-            break;
-        case ViewPortOrientationVertical:
-            view_port_remap_buttons_vertical(event);
-            break;
-        case ViewPortOrientationVerticalFlip:
-            view_port_remap_buttons_vertical_flip(event);
-            break;
-        default:
-            break;
-        }
+        view_port_map_input(event, orientation);
         view_port->input_callback(event, view_port->input_callback_context);
     }
 }

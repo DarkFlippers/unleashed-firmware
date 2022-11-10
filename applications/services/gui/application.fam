@@ -12,6 +12,7 @@ App(
     order=70,
     sdk_headers=[
         "gui.h",
+        "icon_i.h",
         "elements.h",
         "canvas_i.h",
         "view_dispatcher.h",
