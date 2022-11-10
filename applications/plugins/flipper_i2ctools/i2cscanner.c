@@ -6,7 +6,7 @@ void scan_i2c_bus(i2cScanner* i2c_scanner) {
     // Get the bus
     furi_hal_i2c_acquire(I2C_BUS);
     // scan
-    for(uint8_t addr = 0x01; addr < MAX_I2C_ADDR; addr++) {
+    for(uint8_t addr = 0x01; addr <= MAX_I2C_ADDR << 1; addr++) {
         // Check for peripherals
         if(furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT)) {
             // skip even 8-bit addr

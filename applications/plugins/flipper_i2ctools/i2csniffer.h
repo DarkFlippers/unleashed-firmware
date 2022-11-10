@@ -16,7 +16,7 @@ typedef enum { I2C_BUS_FREE, I2C_BUS_STARTED } i2cBusStates;
 #define MAX_MESSAGE_SIZE 128
 
 // Nb of records
-#define MAX_RECORDS 32
+#define MAX_RECORDS 128
 
 /// @brief Struct used to store our reads
 typedef struct {

@@ -20,39 +20,53 @@ void draw_sniffer_view(Canvas* canvas, i2cSniffer* i2c_sniffer) {
         canvas_draw_str_aligned(canvas, 85, 51, AlignLeft, AlignTop, "Stop");
     }
     canvas_set_color(canvas, ColorBlack);
+    if(i2c_sniffer->first) {
+        canvas_draw_str_aligned(canvas, 50, 3, AlignLeft, AlignTop, "Nothing Recorded");
+        return;
+    }
+    char text_buffer[8];
+    // nbFrame text
+    canvas_draw_str_aligned(canvas, 50, 3, AlignLeft, AlignTop, "Frame: ");
+    snprintf(text_buffer, sizeof(text_buffer), "%d", (int)i2c_sniffer->menu_index + 1);
+    canvas_draw_str_aligned(canvas, 85, 3, AlignLeft, AlignTop, text_buffer);
+    canvas_draw_str_aligned(canvas, 100, 3, AlignLeft, AlignTop, "/");
+    snprintf(text_buffer, sizeof(text_buffer), "%d", (int)i2c_sniffer->frame_index + 1);
+    canvas_draw_str_aligned(canvas, 110, 3, AlignLeft, AlignTop, text_buffer);
     // Address text
-    char addr_text[8];
     snprintf(
-        addr_text,
-        sizeof(addr_text),
+        text_buffer,
+        sizeof(text_buffer),
         "0x%02x",
         (int)(i2c_sniffer->frames[i2c_sniffer->menu_index].data[0] >> 1));
-    canvas_draw_str_aligned(canvas, 50, 3, AlignLeft, AlignTop, "Addr: ");
-    canvas_draw_str_aligned(canvas, 75, 3, AlignLeft, AlignTop, addr_text);
+    canvas_draw_str_aligned(canvas, 50, 13, AlignLeft, AlignTop, "Addr: ");
+    canvas_draw_str_aligned(canvas, 75, 13, AlignLeft, AlignTop, text_buffer);
     // R/W
     if((int)(i2c_sniffer->frames[i2c_sniffer->menu_index].data[0]) % 2 == 0) {
-        canvas_draw_str_aligned(canvas, 105, 3, AlignLeft, AlignTop, "W");
+        canvas_draw_str_aligned(canvas, 105, 13, AlignLeft, AlignTop, "W");
     } else {
-        canvas_draw_str_aligned(canvas, 105, 3, AlignLeft, AlignTop, "R");
+        canvas_draw_str_aligned(canvas, 105, 13, AlignLeft, AlignTop, "R");
     }
-    // nbFrame text
-    canvas_draw_str_aligned(canvas, 50, 13, AlignLeft, AlignTop, "Frames: ");
-    snprintf(addr_text, sizeof(addr_text), "%d", (int)i2c_sniffer->menu_index + 1);
-    canvas_draw_str_aligned(canvas, 90, 13, AlignLeft, AlignTop, addr_text);
-    canvas_draw_str_aligned(canvas, 100, 13, AlignLeft, AlignTop, "/");
-    snprintf(addr_text, sizeof(addr_text), "%d", (int)i2c_sniffer->frame_index + 1);
-    canvas_draw_str_aligned(canvas, 110, 13, AlignLeft, AlignTop, addr_text);
     // Frames content
+    const uint8_t x_min = 50;
+    const uint8_t y_min = 23;
     uint8_t x_pos = 0;
-    uint8_t y_pos = 23;
+    uint8_t y_pos = 0;
+    uint8_t row = 1;
+    uint8_t column = 1;
     for(uint8_t i = 1; i < i2c_sniffer->frames[i2c_sniffer->menu_index].data_index; i++) {
         snprintf(
-            addr_text,
-            sizeof(addr_text),
+            text_buffer,
+            sizeof(text_buffer),
             "0x%02x",
             (int)i2c_sniffer->frames[i2c_sniffer->menu_index].data[i]);
-        x_pos = 50 + (i - 1) * 35;
-        canvas_draw_str_aligned(canvas, x_pos, y_pos, AlignLeft, AlignTop, addr_text);
+        x_pos = x_min + (column - 1) * 35;
+        y_pos = y_min + (row - 1) * 10;
+        column++;
+        if(column > 2) {
+            column = 1;
+            row++;
+        }
+        canvas_draw_str_aligned(canvas, x_pos, y_pos, AlignLeft, AlignTop, text_buffer);
         if(i2c_sniffer->frames[i2c_sniffer->menu_index].ack[i]) {
             canvas_draw_str_aligned(canvas, x_pos + 24, y_pos, AlignLeft, AlignTop, "A");
         } else {

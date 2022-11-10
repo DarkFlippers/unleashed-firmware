@@ -1,9 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/gui.h>
-
 #include <i2cTools_icons.h>
-
 #include "../i2csender.h"
 
 #define SEND_MENU_TEXT "Send"
