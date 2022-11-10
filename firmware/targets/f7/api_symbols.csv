@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,7.31,,
+Version,+,7.32,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1239,8 +1239,12 @@ Function,+,furi_hal_pwm_start,void,"FuriHalPwmOutputId, uint32_t, uint8_t"
 Function,+,furi_hal_pwm_stop,void,FuriHalPwmOutputId
 Function,+,furi_hal_random_fill_buf,void,"uint8_t*, uint32_t"
 Function,+,furi_hal_random_get,uint32_t,
+Function,+,furi_hal_region_get,const FuriHalRegion*,
+Function,+,furi_hal_region_get_band,const FuriHalRegionBand*,uint32_t
 Function,+,furi_hal_region_get_name,const char*,
+Function,+,furi_hal_region_is_frequency_allowed,_Bool,uint32_t
 Function,+,furi_hal_region_is_provisioned,_Bool,
+Function,+,furi_hal_region_set,void,FuriHalRegion*
 Function,+,furi_hal_resources_deinit_early,void,
 Function,-,furi_hal_resources_init,void,
 Function,-,furi_hal_resources_init_early,void,
@@ -2051,22 +2055,22 @@ Function,-,powl,long double,"long double, long double"
 Function,-,printf,int,"const char*, ..."
 Function,-,prng_successor,uint32_t,"uint32_t, uint32_t"
 Function,+,protocol_dict_alloc,ProtocolDict*,"const ProtocolBase**, size_t"
-Function,-,protocol_dict_decoders_feed,ProtocolId,"ProtocolDict*, _Bool, uint32_t"
-Function,-,protocol_dict_decoders_feed_by_feature,ProtocolId,"ProtocolDict*, uint32_t, _Bool, uint32_t"
-Function,-,protocol_dict_decoders_feed_by_id,ProtocolId,"ProtocolDict*, size_t, _Bool, uint32_t"
-Function,-,protocol_dict_decoders_start,void,ProtocolDict*
-Function,-,protocol_dict_encoder_start,_Bool,"ProtocolDict*, size_t"
-Function,-,protocol_dict_encoder_yield,LevelDuration,"ProtocolDict*, size_t"
+Function,+,protocol_dict_decoders_feed,ProtocolId,"ProtocolDict*, _Bool, uint32_t"
+Function,+,protocol_dict_decoders_feed_by_feature,ProtocolId,"ProtocolDict*, uint32_t, _Bool, uint32_t"
+Function,+,protocol_dict_decoders_feed_by_id,ProtocolId,"ProtocolDict*, size_t, _Bool, uint32_t"
+Function,+,protocol_dict_decoders_start,void,ProtocolDict*
+Function,+,protocol_dict_encoder_start,_Bool,"ProtocolDict*, size_t"
+Function,+,protocol_dict_encoder_yield,LevelDuration,"ProtocolDict*, size_t"
 Function,+,protocol_dict_free,void,ProtocolDict*
-Function,-,protocol_dict_get_data,void,"ProtocolDict*, size_t, uint8_t*, size_t"
-Function,-,protocol_dict_get_data_size,size_t,"ProtocolDict*, size_t"
-Function,-,protocol_dict_get_features,uint32_t,"ProtocolDict*, size_t"
-Function,-,protocol_dict_get_manufacturer,const char*,"ProtocolDict*, size_t"
-Function,-,protocol_dict_get_max_data_size,size_t,ProtocolDict*
-Function,-,protocol_dict_get_name,const char*,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_data,void,"ProtocolDict*, size_t, uint8_t*, size_t"
+Function,+,protocol_dict_get_data_size,size_t,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_features,uint32_t,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_manufacturer,const char*,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_max_data_size,size_t,ProtocolDict*
+Function,+,protocol_dict_get_name,const char*,"ProtocolDict*, size_t"
 Function,+,protocol_dict_get_protocol_by_name,ProtocolId,"ProtocolDict*, const char*"
-Function,-,protocol_dict_get_validate_count,uint32_t,"ProtocolDict*, size_t"
-Function,-,protocol_dict_get_write_data,_Bool,"ProtocolDict*, size_t, void*"
+Function,+,protocol_dict_get_validate_count,uint32_t,"ProtocolDict*, size_t"
+Function,+,protocol_dict_get_write_data,_Bool,"ProtocolDict*, size_t, void*"
 Function,+,protocol_dict_render_brief_data,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_render_data,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_set_data,void,"ProtocolDict*, size_t, const uint8_t*, size_t"
