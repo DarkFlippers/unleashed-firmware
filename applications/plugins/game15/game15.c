@@ -436,7 +436,6 @@ static void game_event_handler(GameEvent const event) {
 }
 
 static void game_alloc() {
-    srand(DWT->CYCCNT);
     key_stack_init();
     notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message_block(notification, &sequence_display_backlight_enforce_on);
