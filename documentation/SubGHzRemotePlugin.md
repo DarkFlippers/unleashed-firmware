@@ -61,6 +61,6 @@ OKLABEL: Garage CLOSE
 
 * ##### Universal RF Map
   - File path should not have any spaces or special characters (- and _ excluded).
-  - Labels are limited to 12 characters.
+  - Labels are limited to 16 characters.
     - Why? This is to prevent overlapping elements on screen.
     - For example: If you set your label or file to ```WWWWWWWWWWWWWWW``` you'll be over the screen limits.
