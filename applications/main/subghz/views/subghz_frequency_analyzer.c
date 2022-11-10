@@ -209,7 +209,7 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     // Buttons hint
     canvas_set_font(canvas, FontSecondary);
     elements_button_left(canvas, "T-");
-    elements_button_right(canvas, "T+");
+    elements_button_right(canvas, "+T");
 }
 
 uint32_t subghz_frequency_find_correct(uint32_t input) {
@@ -271,7 +271,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, trigger_level);
         FURI_LOG_I(TAG, "trigger = %.1f", (double)trigger_level);
         need_redraw = true;
-    } else if(event->type == InputTypePress && event->key == InputKeyDown) {
+    } else if(event->type == InputTypePress && event->key == InputKeyUp) {
         if(instance->feedback_level == 0) {
             instance->feedback_level = 2;
         } else {
@@ -283,7 +283,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         need_redraw = true;
     } else if(
         ((event->type == InputTypePress) || (event->type == InputTypeRepeat)) &&
-        event->key == InputKeyUp) {
+        event->key == InputKeyDown) {
         instance->show_frame = instance->max_index > 0;
         if(instance->show_frame) {
             instance->selected_index = (instance->selected_index + 1) % instance->max_index;
