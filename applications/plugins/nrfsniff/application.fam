@@ -9,4 +9,12 @@ App(
     order=70,
     fap_icon="nrfsniff_10px.png",
     fap_category="GPIO",
+    fap_private_libs=[
+        Lib(
+            name="nrf24",
+            sources=[
+                "nrf24.c",
+            ],
+        ),
+    ],
 )

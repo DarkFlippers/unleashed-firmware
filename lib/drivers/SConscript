@@ -4,9 +4,6 @@ env.Append(
     CPPPATH=[
         "#/lib/drivers",
     ],
-    SDK_HEADERS=[
-        File("nrf24.h"),
-    ],
 )
 
 

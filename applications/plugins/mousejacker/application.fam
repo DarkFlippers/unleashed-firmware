@@ -13,4 +13,12 @@ App(
     fap_icon="mouse_10px.png",
     fap_category="GPIO",
     fap_icon_assets="images",
+    fap_private_libs=[
+        Lib(
+            name="nrf24",
+            sources=[
+                "nrf24.c",
+            ],
+        ),
+    ],
 )

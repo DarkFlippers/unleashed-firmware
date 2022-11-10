@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,8.42,,
+Version,+,7.31,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -111,7 +111,6 @@ Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_utils.h,,
 Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_wwdg.h,,
 Header,-,lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h,,
 Header,+,lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h,,
-Header,+,lib/drivers/nrf24.h,,
 Header,+,lib/flipper_application/flipper_application.h,,
 Header,+,lib/flipper_format/flipper_format.h,,
 Header,+,lib/flipper_format/flipper_format_i.h,,
@@ -596,7 +595,6 @@ Function,+,byte_input_free,void,ByteInput*
 Function,+,byte_input_get_view,View*,ByteInput*
 Function,+,byte_input_set_header_text,void,"ByteInput*, const char*"
 Function,+,byte_input_set_result_callback,void,"ByteInput*, ByteInputCallback, ByteChangedCallback, void*, uint8_t*, uint8_t"
-Function,+,bytes_to_int32,uint32_t,"uint8_t*, _Bool"
 Function,-,bzero,void,"void*, size_t"
 Function,-,calloc,void*,"size_t, size_t"
 Function,+,canvas_clear,void,Canvas*
@@ -1646,8 +1644,6 @@ Function,+,init_mutex,_Bool,"ValueMutex*, void*, size_t"
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
 Function,+,input_get_type_name,const char*,InputType
-Function,+,int32_to_bytes,void,"uint32_t, uint8_t*, _Bool"
-Function,-,int64_to_bytes,void,"uint64_t, uint8_t*, _Bool"
 Function,-,iprintf,int,"const char*, ..."
 Function,-,isalnum,int,int
 Function,-,isalnum_l,int,"int, locale_t"
@@ -1980,36 +1976,6 @@ Function,+,notification_internal_message_block,void,"NotificationApp*, const Not
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,-,nrand48,long,unsigned short[3]
-Function,-,nrf24_configure,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t*, uint8_t*, uint8_t, uint8_t, _Bool, _Bool"
-Function,+,nrf24_deinit,void,
-Function,+,nrf24_find_channel,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t*, uint8_t, uint8_t, uint8_t, uint8_t, _Bool"
-Function,-,nrf24_flush_rx,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_flush_tx,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_get_chan,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_get_dst_mac,uint8_t,"FuriHalSpiBusHandle*, uint8_t*"
-Function,-,nrf24_get_maclen,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_get_packetlen,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_get_rate,uint32_t,FuriHalSpiBusHandle*
-Function,-,nrf24_get_src_mac,uint8_t,"FuriHalSpiBusHandle*, uint8_t*"
-Function,+,nrf24_init,void,
-Function,+,nrf24_init_promisc_mode,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
-Function,-,nrf24_power_up,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_read_reg,uint8_t,"FuriHalSpiBusHandle*, uint8_t, uint8_t*, uint8_t"
-Function,-,nrf24_rxpacket,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t*, _Bool"
-Function,-,nrf24_set_chan,uint8_t,"FuriHalSpiBusHandle*, uint8_t"
-Function,-,nrf24_set_dst_mac,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t"
-Function,+,nrf24_set_idle,uint8_t,FuriHalSpiBusHandle*
-Function,-,nrf24_set_maclen,uint8_t,"FuriHalSpiBusHandle*, uint8_t"
-Function,-,nrf24_set_packetlen,uint8_t,"FuriHalSpiBusHandle*, uint8_t"
-Function,-,nrf24_set_rate,uint8_t,"FuriHalSpiBusHandle*, uint32_t"
-Function,-,nrf24_set_rx_mode,uint8_t,FuriHalSpiBusHandle*
-Function,+,nrf24_set_src_mac,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t"
-Function,-,nrf24_set_tx_mode,uint8_t,FuriHalSpiBusHandle*
-Function,+,nrf24_sniff_address,_Bool,"FuriHalSpiBusHandle*, uint8_t, uint8_t*"
-Function,-,nrf24_status,uint8_t,FuriHalSpiBusHandle*
-Function,+,nrf24_txpacket,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t, _Bool"
-Function,-,nrf24_write_buf_reg,uint8_t,"FuriHalSpiBusHandle*, uint8_t, uint8_t*, uint8_t"
-Function,-,nrf24_write_reg,uint8_t,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
 Function,-,on_exit,int,"void (*)(int, void*), void*"
 Function,+,onewire_device_alloc,OneWireDevice*,"uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,onewire_device_attach,void,"OneWireDevice*, OneWireSlave*"
