@@ -1,7 +1,7 @@
 # Key Combos
 
-There are times when your flipper feels blue and don't respond to your commands.
-In that case you may find this guide useful.
+There are times when your flipper feels blue and doesn't respond to your commands.
+In that case, you may find this guide useful.
 
 
 ## Basic Combos
@@ -9,7 +9,7 @@ In that case you may find this guide useful.
 
 ### Hardware Reset
 
-- Press `LEFT` and `BACK` and hold for couple seconds
+- Press `LEFT` and `BACK` and hold for a couple of seconds
 - Release `LEFT` and `BACK`
 
 This combo performs hardware reset by pulling MCU reset line down.
@@ -29,7 +29,7 @@ There is 1 case when it's not working:
 - If you have not disconnected USB, then disconnect USB and repeat previous step
 - Release `BACK` key
 
-This combo performs reset by switching SYS power line off and then on.
+This combo performs a reset by switching SYS power line off and then on.
 Main components involved: Keys -> DD6(bq25896, charger)
 
 There is 1 case when it's not working:
@@ -60,13 +60,13 @@ There is 1 case when it's not working:
 
 ### Hardware Reset + Software DFU
 
-- Press `LEFT` and `BACK` and hold for couple seconds
+- Press `LEFT` and `BACK` and hold for a couple of seconds
 - Release `BACK`
 - Device will enter DFU with indication (Blue LED + DFU Screen)
 - Release `LEFT`
 
 This combo performs hardware reset by pulling MCU reset line down.
-Then `LEFT` key indicates to boot-loader that DFU mode requested.
+Then `LEFT` key indicates to boot-loader that DFU mode is requested.
 
 There are 2 cases when it's not working:
 
@@ -76,7 +76,7 @@ There are 2 cases when it's not working:
 
 ### Hardware Reset + Hardware DFU
 
-- Press `LEFT` and `BACK` and `OK` and hold for couple seconds
+- Press `LEFT` and `BACK` and `OK` and hold for a couple of seconds
 - Release `BACK` and `LEFT`
 - Device will enter DFU without indication
 
@@ -127,8 +127,8 @@ There are 2 cases when it's not working:
 
 If none of the described methods were useful:
 
-- Ensure battery charged
-- Disconnect battery and connect again (Requires disassembly)
-- Try to Flash device with ST-Link or other programmer that support SWD
+- Ensure the battery charged
+- Disconnect the battery and connect again (Requires disassembly)
+- Try to Flash device with ST-Link or other programmer that supports SWD
 
-If you still here and your device is not working: it's not software issue.
+If you still here and your device is not working: it's not a software issue.
