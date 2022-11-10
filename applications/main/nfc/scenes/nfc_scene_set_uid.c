@@ -31,7 +31,7 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
         if(event.event == NfcCustomEventByteInputDone) {
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
                 nfc->dev->dev_data.nfc_data = nfc->dev_edit_data;
-                if(nfc_device_save(nfc->dev, nfc->dev->dev_name)) {
+                if(nfc_save_file(nfc)) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
                     consumed = true;
                 }
@@ -41,6 +41,7 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
             }
         }
     }
+
     return consumed;
 }
 

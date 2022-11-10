@@ -98,6 +98,8 @@ MfClassicType mf_classic_get_classic_type(int8_t ATQA0, uint8_t ATQA1, uint8_t S
 
 uint8_t mf_classic_get_total_sectors_num(MfClassicType type);
 
+uint16_t mf_classic_get_total_block_num(MfClassicType type);
+
 uint8_t mf_classic_get_sector_trailer_block_num_by_sector(uint8_t sector);
 
 bool mf_classic_is_sector_trailer(uint8_t block);

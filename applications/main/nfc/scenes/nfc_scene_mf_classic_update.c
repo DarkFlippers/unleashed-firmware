@@ -57,7 +57,7 @@ bool nfc_scene_mf_classic_update_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcWorkerEventSuccess) {
             nfc_worker_stop(nfc->worker);
-            if(nfc_device_save_shadow(nfc->dev, nfc->dev->dev_name)) {
+            if(nfc_device_save_shadow(nfc->dev, furi_string_get_cstr(nfc->dev->load_path))) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicUpdateSuccess);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicWrongCard);

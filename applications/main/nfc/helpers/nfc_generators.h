@@ -11,3 +11,5 @@ struct NfcGenerator {
 };
 
 extern const NfcGenerator* const nfc_generators[];
+
+void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType type);

@@ -81,6 +81,7 @@ FIRMWARE_APPS = {
         "basic_services",
         "updater_app",
         "unit_tests",
+        "nfc",
     ],
 }
 

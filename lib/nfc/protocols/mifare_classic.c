@@ -82,7 +82,7 @@ uint8_t mf_classic_get_total_sectors_num(MfClassicType type) {
     }
 }
 
-static uint16_t mf_classic_get_total_block_num(MfClassicType type) {
+uint16_t mf_classic_get_total_block_num(MfClassicType type) {
     if(type == MfClassicType1k) {
         return 64;
     } else if(type == MfClassicType4k) {

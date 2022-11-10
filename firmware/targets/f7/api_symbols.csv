@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,7.3,,
+Version,+,7.4,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1844,6 +1844,7 @@ Function,-,mf_classic_get_read_sectors_and_keys,void,"MfClassicData*, uint8_t*, 
 Function,-,mf_classic_get_sector_by_block,uint8_t,uint8_t
 Function,-,mf_classic_get_sector_trailer_block_num_by_sector,uint8_t,uint8_t
 Function,-,mf_classic_get_sector_trailer_by_sector,MfClassicSectorTrailer*,"MfClassicData*, uint8_t"
+Function,-,mf_classic_get_total_block_num,uint16_t,MfClassicType
 Function,-,mf_classic_get_total_sectors_num,uint8_t,MfClassicType
 Function,-,mf_classic_get_type_str,const char*,MfClassicType
 Function,-,mf_classic_is_allowed_access_data_block,_Bool,"MfClassicData*, uint8_t, MfClassicKey, MfClassicAction"

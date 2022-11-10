@@ -62,7 +62,7 @@ bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                 nfc->dev->dev_data.nfc_data = nfc->dev_edit_data;
             }
             strlcpy(nfc->dev->dev_name, nfc->text_store, strlen(nfc->text_store) + 1);
-            if(nfc_device_save(nfc->dev, nfc->text_store)) {
+            if(nfc_save_file(nfc)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
                 if(!scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
                     // Nothing, do not count editing as saving
