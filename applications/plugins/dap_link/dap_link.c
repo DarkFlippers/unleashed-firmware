@@ -13,6 +13,8 @@
 #include "dap_config.h"
 #include "gui/dap_gui.h"
 #include "usb/dap_v2_usb.h"
+#include <dialogs/dialogs.h>
+#include "dap_link_icons.h"
 
 /***************************************************************************/
 /****************************** DAP COMMON *********************************/
@@ -494,6 +496,24 @@ DapConfig* dap_app_get_config(DapApp* app) {
 
 int32_t dap_link_app(void* p) {
     UNUSED(p);
+
+    if(furi_hal_usb_is_locked()) {
+        DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
+        DialogMessage* message = dialog_message_alloc();
+        dialog_message_set_header(message, "Connection\nis active!", 3, 2, AlignLeft, AlignTop);
+        dialog_message_set_text(
+            message,
+            "Disconnect from\nPC or phone to\nuse this function.",
+            3,
+            30,
+            AlignLeft,
+            AlignTop);
+        dialog_message_set_icon(message, &I_ActiveConnection_50x64, 78, 0);
+        dialog_message_show(dialogs, message);
+        dialog_message_free(message);
+        furi_record_close(RECORD_DIALOGS);
+        return -1;
+    }
 
     // alloc app
     DapApp* app = dap_app_alloc();

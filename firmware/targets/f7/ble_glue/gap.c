@@ -179,7 +179,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
 
         case EVT_BLUE_GAP_PASS_KEY_REQUEST: {
             // Generate random PIN code
-            uint32_t pin = rand() % 999999;
+            uint32_t pin = rand() % 999999; //-V1064
             aci_gap_pass_key_resp(gap->service.connection_handle, pin);
             if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
                 FURI_LOG_I(TAG, "Pass key request event. Pin: ******");
@@ -478,7 +478,6 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
 
     gap = malloc(sizeof(Gap));
     gap->config = config;
-    srand(DWT->CYCCNT);
     // Create advertising timer
     gap->advertise_timer = furi_timer_alloc(gap_advetise_timer_callback, FuriTimerTypeOnce, NULL);
     // Initialization of GATT & GAP layer

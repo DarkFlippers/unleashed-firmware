@@ -22,7 +22,7 @@ def GetProjetDirName(env, project=None):
 
 def create_fw_build_targets(env, configuration_name):
     flavor = GetProjetDirName(env, configuration_name)
-    build_dir = env.Dir("build").Dir(flavor).abspath
+    build_dir = env.Dir("build").Dir(flavor)
     return env.SConscript(
         "firmware.scons",
         variant_dir=build_dir,
@@ -131,7 +131,7 @@ def generate(env):
             "UsbInstall": Builder(
                 action=[
                     Action(
-                        '${PYTHON3} "${SELFUPDATE_SCRIPT}" dist/${DIST_DIR}/f${TARGET_HW}-update-${DIST_SUFFIX}/update.fuf'
+                        '${PYTHON3} "${SELFUPDATE_SCRIPT}" ${UPDATE_BUNDLE_DIR}/update.fuf'
                     ),
                     Touch("${TARGET}"),
                 ]

@@ -313,7 +313,7 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
                     furi_crash("Unknown FF type");
                 }
 
-                if((size_t)(i + 1) < write_data->data_size) {
+                if(((size_t)i + 1) < write_data->data_size) {
                     furi_string_cat(value, " ");
                 }
 

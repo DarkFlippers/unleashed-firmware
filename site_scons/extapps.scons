@@ -1,4 +1,6 @@
+from dataclasses import dataclass, field
 from SCons.Errors import UserError
+from SCons.Node import NodeList
 
 
 Import("ENV")
@@ -7,14 +9,7 @@ from fbt.appmanifest import FlipperAppType
 
 appenv = ENV["APPENV"] = ENV.Clone(
     tools=[
-        (
-            "fbt_extapps",
-            {
-                "EXT_APPS_WORK_DIR": ENV.subst(
-                    "${BUILD_DIR}/.extapps",
-                )
-            },
-        ),
+        "fbt_extapps",
         "fbt_assets",
         "fbt_sdk",
     ]
@@ -60,22 +55,11 @@ appenv.AppendUnique(
 )
 
 
-extapps = appenv["_extapps"] = {
-    "compact": {},
-    "debug": {},
-    "validators": {},
-    "dist": {},
-    "resources_dist": None,
-    "sdk_tree": None,
-}
-
-
-def build_app_as_external(env, appdef):
-    compact_elf, debug_elf, validator = env.BuildAppElf(appdef)
-    extapps["compact"][appdef.appid] = compact_elf
-    extapps["debug"][appdef.appid] = debug_elf
-    extapps["validators"][appdef.appid] = validator
-    extapps["dist"][appdef.appid] = (appdef.fap_category, compact_elf)
+@dataclass
+class FlipperExtAppBuildArtifacts:
+    applications: dict = field(default_factory=dict)
+    resources_dist: NodeList = field(default_factory=NodeList)
+    sdk_tree: NodeList = field(default_factory=NodeList)
 
 
 apps_to_build_as_faps = [
@@ -85,42 +69,43 @@ apps_to_build_as_faps = [
 if appenv["DEBUG_TOOLS"]:
     apps_to_build_as_faps.append(FlipperAppType.DEBUG)
 
-for apptype in apps_to_build_as_faps:
-    for app in appenv["APPBUILD"].get_apps_of_type(apptype, True):
-        build_app_as_external(appenv, app)
+known_extapps = [
+    app
+    for apptype in apps_to_build_as_faps
+    for app in appenv["APPBUILD"].get_apps_of_type(apptype, True)
+]
 
 # Ugly access to global option
 if extra_app_list := GetOption("extra_ext_apps"):
-    for extra_app in extra_app_list.split(","):
-        build_app_as_external(appenv, appenv["APPMGR"].get(extra_app))
+    known_extapps.extend(map(appenv["APPMGR"].get, extra_app_list.split(",")))
+
+for app in known_extapps:
+    appenv.BuildAppElf(app)
 
 
 if appenv["FORCE"]:
-    appenv.AlwaysBuild(extapps["compact"].values())
+    appenv.AlwaysBuild(
+        list(app_artifact.compact for app_artifact in appenv["EXT_APPS"].values())
+    )
 
 
-# Deprecation stub
-def legacy_app_build_stub(**kw):
-    raise UserError(f"Target name 'firmware_extapps' is deprecated, use 'faps' instead")
+Alias(
+    "faps", list(app_artifact.validator for app_artifact in appenv["EXT_APPS"].values())
+)
 
-
-appenv.PhonyTarget("firmware_extapps", appenv.Action(legacy_app_build_stub, None))
-
-
-Alias("faps", extapps["compact"].values())
-Alias("faps", extapps["validators"].values())
-
-extapps["resources_dist"] = appenv.FapDist(appenv.Dir("#/assets/resources/apps"), [])
+extapps = FlipperExtAppBuildArtifacts()
+extapps.applications = appenv["EXT_APPS"]
+extapps.resources_dist = appenv.FapDist(appenv.Dir("#/assets/resources/apps"), [])
 
 if appsrc := appenv.subst("$APPSRC"):
-    app_manifest, fap_file, app_validator = appenv.GetExtAppFromPath(appsrc)
+    app_artifacts = appenv.GetExtAppFromPath(appsrc)
     appenv.PhonyTarget(
         "launch_app",
-        '${PYTHON3} "${APP_RUN_SCRIPT}" ${SOURCE} --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
-        source=fap_file,
-        FAP_CATEGORY=app_manifest.fap_category,
+        '${PYTHON3} "${APP_RUN_SCRIPT}" "${SOURCE}" --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
+        source=app_artifacts.compact,
+        FAP_CATEGORY=app_artifacts.app.fap_category,
     )
-    appenv.Alias("launch_app", app_validator)
+    appenv.Alias("launch_app", app_artifacts.validator)
 
 # SDK management
 
@@ -131,12 +116,14 @@ sdk_source = appenv.SDKPrebuilder(
     (appenv["SDK_HEADERS"], appenv["FW_ASSETS_HEADERS"]),
 )
 # Extra deps on headers included in deeper levels
+# Available on second and subsequent builds
 Depends(sdk_source, appenv.ProcessSdkDepends(f"{sdk_origin_path}.d"))
 
 appenv["SDK_DIR"] = appenv.Dir("${BUILD_DIR}/sdk")
-sdk_tree = extapps["sdk_tree"] = appenv.SDKTree(appenv["SDK_DIR"], sdk_origin_path)
+sdk_tree = appenv.SDKTree(appenv["SDK_DIR"], sdk_origin_path)
 # AlwaysBuild(sdk_tree)
 Alias("sdk_tree", sdk_tree)
+extapps.sdk_tree = sdk_tree
 
 sdk_apicheck = appenv.SDKSymUpdater(appenv["SDK_DEFINITION"], sdk_origin_path)
 Precious(sdk_apicheck)

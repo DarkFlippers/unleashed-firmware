@@ -184,7 +184,7 @@ static int32_t usb_uart_worker(void* context) {
     while(1) {
         uint32_t events =
             furi_thread_flags_wait(WORKER_ALL_RX_EVENTS, FuriFlagWaitAny, FuriWaitForever);
-        furi_check((events & FuriFlagError) == 0);
+        furi_check(!(events & FuriFlagError));
         if(events & WorkerEvtStop) break;
         if(events & WorkerEvtRxDone) {
             size_t len = furi_stream_buffer_receive(
@@ -288,7 +288,7 @@ static int32_t usb_uart_tx_thread(void* context) {
     while(1) {
         uint32_t events =
             furi_thread_flags_wait(WORKER_ALL_TX_EVENTS, FuriFlagWaitAny, FuriWaitForever);
-        furi_check((events & FuriFlagError) == 0);
+        furi_check(!(events & FuriFlagError));
         if(events & WorkerEvtTxStop) break;
         if(events & WorkerEvtCdcRx) {
             furi_check(furi_mutex_acquire(usb_uart->usb_mutex, FuriWaitForever) == FuriStatusOk);

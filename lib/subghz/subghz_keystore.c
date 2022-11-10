@@ -464,7 +464,7 @@ bool subghz_keystore_raw_encrypted_save(
             }
             stream_write_cstring(output_stream, encrypted_line);
 
-        } while(ret > 0 && result);
+        } while(result);
 
         flipper_format_free(output_flipper_format);
 

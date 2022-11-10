@@ -43,12 +43,18 @@ def single_quote(arg_list):
     return " ".join(f"'{arg}'" if " " in arg else str(arg) for arg in arg_list)
 
 
-def extract_abs_dir_path(node):
+def extract_abs_dir(node):
     if isinstance(node, SCons.Node.FS.EntryProxy):
         node = node.get()
 
     for repo_dir in node.get_all_rdirs():
         if os.path.exists(repo_dir.abspath):
-            return repo_dir.abspath
+            return repo_dir
 
-    raise StopError(f"Can't find absolute path for {node.name}")
+
+def extract_abs_dir_path(node):
+    abs_dir_node = extract_abs_dir(node)
+    if abs_dir_node is None:
+        raise StopError(f"Can't find absolute path for {node.name}")
+
+    return abs_dir_node.abspath

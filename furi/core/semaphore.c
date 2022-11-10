@@ -45,7 +45,7 @@ FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
 
     stat = FuriStatusOk;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         if(timeout != 0U) {
             stat = FuriStatusErrorParameter;
         } else {
@@ -80,7 +80,7 @@ FuriStatus furi_semaphore_release(FuriSemaphore* instance) {
 
     stat = FuriStatusOk;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         yield = pdFALSE;
 
         if(xSemaphoreGiveFromISR(hSemaphore, &yield) != pdTRUE) {
@@ -104,7 +104,7 @@ uint32_t furi_semaphore_get_count(FuriSemaphore* instance) {
     SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)instance;
     uint32_t count;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         count = (uint32_t)uxSemaphoreGetCountFromISR(hSemaphore);
     } else {
         count = (uint32_t)uxSemaphoreGetCount(hSemaphore);

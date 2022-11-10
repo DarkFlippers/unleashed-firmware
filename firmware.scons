@@ -20,8 +20,7 @@ env = ENV.Clone(
     BUILD_DIR=fw_build_meta["build_dir"],
     IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
     FW_FLAVOR=fw_build_meta["flavor"],
-    PLUGIN_ELF_DIR="${BUILD_DIR}",
-    LIB_DIST_DIR="${BUILD_DIR}/lib",
+    LIB_DIST_DIR=fw_build_meta["build_dir"].Dir("lib"),
     LINT_SOURCES=[
         "applications",
     ],
@@ -142,12 +141,14 @@ for app_dir, _ in env["APPDIRS"]:
 
 fwenv.PrepareApplicationsBuild()
 
-# Build external apps
+# Build external apps + configure SDK
 if env["IS_BASE_FIRMWARE"]:
-    extapps = fwenv["FW_EXTAPPS"] = SConscript(
-        "site_scons/extapps.scons", exports={"ENV": fwenv}
+    fwenv.SetDefault(FBT_FAP_DEBUG_ELF_ROOT="${BUILD_DIR}/.extapps")
+    fwenv["FW_EXTAPPS"] = SConscript(
+        "site_scons/extapps.scons",
+        exports={"ENV": fwenv},
     )
-    fw_artifacts.append(extapps["sdk_tree"])
+    fw_artifacts.append(fwenv["FW_EXTAPPS"].sdk_tree)
 
 
 # Add preprocessor definitions for current set of apps
@@ -263,7 +264,10 @@ fw_artifacts.extend(
 
 fwcdb = fwenv.CompilationDatabase()
 # without filtering, both updater & firmware commands would be generated in same file
-fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
+fwenv.Replace(
+    COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"),
+    COMPILATIONDB_SRCPATH_FILTER="*.c*",
+)
 AlwaysBuild(fwcdb)
 Precious(fwcdb)
 NoClean(fwcdb)

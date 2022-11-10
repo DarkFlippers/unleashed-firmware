@@ -29,13 +29,13 @@ FuriString* furi_string_alloc() {
 }
 
 FuriString* furi_string_alloc_set(const FuriString* s) {
-    FuriString* string = malloc(sizeof(FuriString));
+    FuriString* string = malloc(sizeof(FuriString)); //-V773
     string_init_set(string->string, s->string);
     return string;
 }
 
 FuriString* furi_string_alloc_set_str(const char cstr[]) {
-    FuriString* string = malloc(sizeof(FuriString));
+    FuriString* string = malloc(sizeof(FuriString)); //-V773
     string_init_set(string->string, cstr);
     return string;
 }

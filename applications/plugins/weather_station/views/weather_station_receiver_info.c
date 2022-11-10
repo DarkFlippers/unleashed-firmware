@@ -75,12 +75,7 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
 
     if(model->generic->temp != WS_NO_TEMPERATURE) {
         canvas_draw_icon(canvas, 18, 42, &I_Therm_7x16);
-        snprintf(
-            buffer,
-            sizeof(buffer),
-            "%3.2d.%d C",
-            (int16_t)model->generic->temp,
-            abs(((int16_t)(model->generic->temp * 10) - (((int16_t)model->generic->temp) * 10))));
+        snprintf(buffer, sizeof(buffer), "%3.1f C", (double)model->generic->temp);
         canvas_draw_str_aligned(canvas, 63, 46, AlignRight, AlignTop, buffer);
         canvas_draw_circle(canvas, 55, 45, 1);
     }

@@ -347,10 +347,6 @@ static int32_t
         furi_hal_hid_kb_release(key);
         return (0);
     }
-    if(error != NULL) {
-        strncpy(error, "Unknown error", error_len);
-    }
-    return SCRIPT_STATE_ERROR;
 }
 
 static bool ducky_set_usb_id(BadUsbScript* bad_usb, const char* line) {
@@ -671,7 +667,7 @@ static void bad_usb_script_set_default_keyboard_layout(BadUsbScript* bad_usb) {
 BadUsbScript* bad_usb_script_open(FuriString* file_path) {
     furi_assert(file_path);
 
-    BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
+    BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript)); //-V773
     bad_usb->file_path = furi_string_alloc();
     furi_string_set(bad_usb->file_path, file_path);
     bad_usb_script_set_default_keyboard_layout(bad_usb);

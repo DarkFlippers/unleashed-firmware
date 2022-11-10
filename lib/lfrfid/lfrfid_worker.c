@@ -140,9 +140,8 @@ size_t lfrfid_worker_dict_get_data_size(LFRFIDWorker* worker, LFRFIDProtocol pro
 
 static int32_t lfrfid_worker_thread(void* thread_context) {
     LFRFIDWorker* worker = thread_context;
-    bool running = true;
 
-    while(running) {
+    while(true) {
         uint32_t flags = furi_thread_flags_wait(LFRFIDEventAll, FuriFlagWaitAny, FuriWaitForever);
         if(flags != FuriFlagErrorTimeout) {
             // stop thread

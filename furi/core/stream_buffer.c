@@ -23,7 +23,7 @@ size_t furi_stream_buffer_send(
     uint32_t timeout) {
     size_t ret;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         BaseType_t yield;
         ret = xStreamBufferSendFromISR(stream_buffer, data, length, &yield);
         portYIELD_FROM_ISR(yield);
@@ -41,7 +41,7 @@ size_t furi_stream_buffer_receive(
     uint32_t timeout) {
     size_t ret;
 
-    if(FURI_IS_IRQ_MODE() != 0U) {
+    if(FURI_IS_IRQ_MODE()) {
         BaseType_t yield;
         ret = xStreamBufferReceiveFromISR(stream_buffer, data, length, &yield);
         portYIELD_FROM_ISR(yield);

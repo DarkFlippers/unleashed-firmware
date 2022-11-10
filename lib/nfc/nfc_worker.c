@@ -70,12 +70,12 @@ void nfc_worker_start(
 
 void nfc_worker_stop(NfcWorker* nfc_worker) {
     furi_assert(nfc_worker);
-    if(nfc_worker->state == NfcWorkerStateBroken || nfc_worker->state == NfcWorkerStateReady) {
-        return;
+    furi_assert(nfc_worker->thread);
+    if(furi_thread_get_state(nfc_worker->thread) != FuriThreadStateStopped) {
+        furi_hal_nfc_stop();
+        nfc_worker_change_state(nfc_worker, NfcWorkerStateStop);
+        furi_thread_join(nfc_worker->thread);
     }
-    furi_hal_nfc_stop();
-    nfc_worker_change_state(nfc_worker, NfcWorkerStateStop);
-    furi_thread_join(nfc_worker->thread);
 }
 
 void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state) {

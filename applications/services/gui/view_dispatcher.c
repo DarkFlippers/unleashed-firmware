@@ -23,7 +23,7 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
         gui_remove_view_port(view_dispatcher->gui, view_dispatcher->view_port);
     }
     // Crash if not all views were freed
-    furi_assert(ViewDict_size(view_dispatcher->views) == 0);
+    furi_assert(!ViewDict_size(view_dispatcher->views));
 
     ViewDict_clear(view_dispatcher->views);
     // Free ViewPort
@@ -157,7 +157,7 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
         view_dispatcher->ongoing_input_view = NULL;
     }
     // Remove view
-    ViewDict_erase(view_dispatcher->views, view_id);
+    furi_check(ViewDict_erase(view_dispatcher->views, view_id));
 
     view_set_update_callback(view, NULL);
     view_set_update_callback_context(view, NULL);

@@ -62,8 +62,8 @@ coreenv = VAR_ENV.Clone(
     ABSPATHGETTERFUNC=extract_abs_dir_path,
     # Setting up temp file parameters - to overcome command line length limits
     TEMPFILEARGESCFUNC=tempfile_arg_esc_func,
-    FBT_SCRIPT_DIR=Dir("#/scripts"),
     ROOT_DIR=Dir("#"),
+    FBT_SCRIPT_DIR="${ROOT_DIR}/scripts",
 )
 
 # If DIST_SUFFIX is set in environment, is has precedence (set by CI)

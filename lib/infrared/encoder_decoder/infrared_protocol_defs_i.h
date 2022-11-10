@@ -267,3 +267,54 @@ InfraredStatus infrared_encoder_sirc_encode_repeat(
     bool* level);
 
 extern const InfraredCommonProtocolSpec protocol_sirc;
+
+/***************************************************************************************************
+*   Kaseikyo protocol description
+*   https://github.com/Arduino-IRremote/Arduino-IRremote/blob/master/src/ir_Kaseikyo.hpp
+****************************************************************************************************
+*     Preamble   Preamble      Pulse Distance/Width          Pause       Preamble   Preamble
+*       mark      space            Modulation             up to period    repeat     repeat
+*                                                                          mark       space
+*
+*        3360      1665               48 bit              ...130000        3456       1728
+*     __________          _ _ _ _  _  _  _ _ _  _  _ _ _                ___________
+* ____          __________ _ _ _ __ __ __ _ _ __ __ _ _ ________________           ___________
+*
+***************************************************************************************************/
+
+#define INFRARED_KASEIKYO_UNIT 432
+#define INFRARED_KASEIKYO_PREAMBLE_MARK (8 * INFRARED_KASEIKYO_UNIT)
+#define INFRARED_KASEIKYO_PREAMBLE_SPACE (4 * INFRARED_KASEIKYO_UNIT)
+#define INFRARED_KASEIKYO_BIT1_MARK INFRARED_KASEIKYO_UNIT
+#define INFRARED_KASEIKYO_BIT1_SPACE (3 * INFRARED_KASEIKYO_UNIT)
+#define INFRARED_KASEIKYO_BIT0_MARK INFRARED_KASEIKYO_UNIT
+#define INFRARED_KASEIKYO_BIT0_SPACE INFRARED_KASEIKYO_UNIT
+#define INFRARED_KASEIKYO_REPEAT_PERIOD 130000
+#define INFRARED_KASEIKYO_SILENCE INFRARED_KASEIKYO_REPEAT_PERIOD
+#define INFRARED_KASEIKYO_MIN_SPLIT_TIME INFRARED_KASEIKYO_REPEAT_PAUSE_MIN
+#define INFRARED_KASEIKYO_REPEAT_PAUSE_MIN 4000
+#define INFRARED_KASEIKYO_REPEAT_PAUSE_MAX 150000
+#define INFRARED_KASEIKYO_REPEAT_MARK INFRARED_KASEIKYO_PREAMBLE_MARK
+#define INFRARED_KASEIKYO_REPEAT_SPACE (INFRARED_KASEIKYO_REPEAT_PERIOD - 56000)
+#define INFRARED_KASEIKYO_PREAMBLE_TOLERANCE 200 // us
+#define INFRARED_KASEIKYO_BIT_TOLERANCE 120 // us
+
+void* infrared_decoder_kaseikyo_alloc(void);
+void infrared_decoder_kaseikyo_reset(void* decoder);
+void infrared_decoder_kaseikyo_free(void* decoder);
+InfraredMessage* infrared_decoder_kaseikyo_check_ready(void* decoder);
+InfraredMessage* infrared_decoder_kaseikyo_decode(void* decoder, bool level, uint32_t duration);
+void* infrared_encoder_kaseikyo_alloc(void);
+InfraredStatus
+    infrared_encoder_kaseikyo_encode(void* encoder_ptr, uint32_t* duration, bool* level);
+void infrared_encoder_kaseikyo_reset(void* encoder_ptr, const InfraredMessage* message);
+void infrared_encoder_kaseikyo_free(void* encoder_ptr);
+bool infrared_decoder_kaseikyo_interpret(InfraredCommonDecoder* decoder);
+InfraredStatus infrared_decoder_kaseikyo_decode_repeat(InfraredCommonDecoder* decoder);
+InfraredStatus infrared_encoder_kaseikyo_encode_repeat(
+    InfraredCommonEncoder* encoder,
+    uint32_t* duration,
+    bool* level);
+const InfraredProtocolSpecification* infrared_kaseikyo_get_spec(InfraredProtocol protocol);
+
+extern const InfraredCommonProtocolSpec protocol_kaseikyo;

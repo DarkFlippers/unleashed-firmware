@@ -200,7 +200,6 @@ void ws_protocol_decoder_ambient_weather_feed(void* context, bool level, uint32_
            ((instance->decoder.decode_data & AMBIENT_WEATHER_PACKET_HEADER_MASK) ==
             AMBIENT_WEATHER_PACKET_HEADER_2)) {
             if(ws_protocol_ambient_weather_check_crc(instance)) {
-                instance->decoder.decode_data = instance->decoder.decode_data;
                 instance->generic.data = instance->decoder.decode_data;
                 instance->generic.data_count_bit =
                     ws_protocol_ambient_weather_const.min_count_bit_for_found;
@@ -264,7 +263,7 @@ void ws_protocol_decoder_ambient_weather_get_string(void* context, FuriString* o
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:0x%lX Ch:%d  Bat:%d\r\n"
-        "Temp:%d.%d C Hum:%d%%",
+        "Temp:%3.1f C Hum:%d%%",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
@@ -272,7 +271,6 @@ void ws_protocol_decoder_ambient_weather_get_string(void* context, FuriString* o
         instance->generic.id,
         instance->generic.channel,
         instance->generic.battery_low,
-        (int16_t)instance->generic.temp,
-        abs(((int16_t)(instance->generic.temp * 10) - (((int16_t)instance->generic.temp) * 10))),
+        (double)instance->generic.temp,
         instance->generic.humidity);
 }
