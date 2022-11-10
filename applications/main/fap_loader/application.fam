@@ -10,5 +10,5 @@ App(
     ],
     stack_size=int(1.5 * 1024),
     icon="A_Plugins_14",
-    order=90,
+    order=9,
 )
