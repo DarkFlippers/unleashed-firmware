@@ -116,7 +116,9 @@ void nfc_free(Nfc* nfc) {
         // Stop worker
         nfc_worker_stop(nfc->worker);
         // Save data in shadow file
-        nfc_device_save_shadow(nfc->dev, nfc->dev->dev_name);
+        if(furi_string_size(nfc->dev->load_path)) {
+            nfc_device_save_shadow(nfc->dev, furi_string_get_cstr(nfc->dev->load_path));
+        }
     }
     if(nfc->rpc_ctx) {
         rpc_system_app_send_exited(nfc->rpc_ctx);
@@ -216,6 +218,13 @@ void nfc_blink_detect_start(Nfc* nfc) {
 
 void nfc_blink_stop(Nfc* nfc) {
     notification_message(nfc->notifications, &sequence_blink_stop);
+}
+
+bool nfc_save_file(Nfc* nfc) {
+    furi_string_printf(
+        nfc->dev->load_path, "%s/%s%s", NFC_APP_FOLDER, nfc->dev->dev_name, NFC_APP_EXTENSION);
+    bool file_saved = nfc_device_save(nfc->dev, furi_string_get_cstr(nfc->dev->load_path));
+    return file_saved;
 }
 
 void nfc_show_loading_popup(void* context, bool show) {

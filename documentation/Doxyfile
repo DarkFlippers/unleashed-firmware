@@ -872,12 +872,9 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = applications \
-                        core \
-                        lib/infrared \
-                        lib/subghz \
-                        lib/toolbox \
-                        lib/onewire \
-                        firmware/targets/furi_hal_include
+                        lib \
+                        firmware \
+                        furi
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -930,7 +927,18 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                =
+EXCLUDE = \
+    lib/mlib \
+    lib/STM32CubeWB \
+    lib/littlefs \
+    lib/nanopb \
+    assets/protobuf \
+    lib/libusb_stm32 \
+    lib/FreeRTOS-Kernel \
+    lib/microtar \
+    lib/mbedtls \
+    lib/cxxheaderparser \
+    applications/plugins/dap_link/lib/free-dap
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

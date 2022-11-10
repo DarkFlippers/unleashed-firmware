@@ -52,6 +52,8 @@ class FlipperApplication:
     icon: Optional[str] = None
     order: int = 0
     sdk_headers: List[str] = field(default_factory=list)
+    targets: List[str] = field(default_factory=lambda: ["all"])
+
     # .fap-specific
     sources: List[str] = field(default_factory=lambda: ["*.c*"])
     fap_version: Tuple[int] = field(default_factory=lambda: (0, 1))
@@ -135,8 +137,8 @@ class AppManager:
             raise FlipperManifestException(f"Duplicate app declaration: {app.appid}")
         self.known_apps[app.appid] = app
 
-    def filter_apps(self, applist: List[str]):
-        return AppBuildset(self, applist)
+    def filter_apps(self, applist: List[str], hw_target: str):
+        return AppBuildset(self, applist, hw_target)
 
 
 class AppBuilderException(Exception):
@@ -155,11 +157,13 @@ class AppBuildset:
         FlipperAppType.STARTUP,
     )
 
-    def __init__(self, appmgr: AppManager, appnames: List[str]):
+    def __init__(self, appmgr: AppManager, appnames: List[str], hw_target: str):
         self.appmgr = appmgr
         self.appnames = set(appnames)
+        self.hw_target = hw_target
         self._orig_appnames = appnames
         self._process_deps()
+        self._filter_by_target()
         self._check_conflicts()
         self._check_unsatisfied()  # unneeded?
         self.apps = sorted(
@@ -169,6 +173,16 @@ class AppBuildset:
 
     def _is_missing_dep(self, dep_name: str):
         return dep_name not in self.appnames
+
+    def _filter_by_target(self):
+        for appname in self.appnames.copy():
+            app = self.appmgr.get(appname)
+            # if app.apptype not in self.BUILTIN_APP_TYPES:
+            if not any(map(lambda t: t in app.targets, ["all", self.hw_target])):
+                print(
+                    f"Removing {appname} due to target mismatch (building for {self.hw_target}, app supports {app.targets}"
+                )
+                self.appnames.remove(appname)
 
     def _process_deps(self):
         while True:

@@ -372,7 +372,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
 
     session->thread = furi_thread_alloc();
     furi_thread_set_name(session->thread, "RpcSessionWorker");
-    furi_thread_set_stack_size(session->thread, 2048);
+    furi_thread_set_stack_size(session->thread, 3072);
     furi_thread_set_context(session->thread, session);
     furi_thread_set_callback(session->thread, rpc_session_worker);
 

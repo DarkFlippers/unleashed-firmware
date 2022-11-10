@@ -314,7 +314,7 @@ static void nfc_generate_ntag_i2c_plus_2k(NfcDeviceData* data) {
     mful->version.storage_size = 0x15;
 }
 
-static void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType type) {
+void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType type) {
     nfc_generate_common_start(data);
     nfc_generate_mf_classic_common(data, uid_len, type);
 
@@ -337,6 +337,9 @@ static void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClas
             }
             mf_classic_set_block_read(mfc, i, &mfc->block[i]);
         }
+        // Set SAK to 18
+        data->nfc_data.sak = 0x18;
+
     } else if(type == MfClassicType1k) {
         // Set every block to 0xFF
         for(uint16_t i = 1; i < MF_CLASSIC_1K_TOTAL_SECTORS_NUM * 4; i += 1) {
@@ -347,6 +350,8 @@ static void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClas
             }
             mf_classic_set_block_read(mfc, i, &mfc->block[i]);
         }
+        // Set SAK to 08
+        data->nfc_data.sak = 0x08;
     }
 
     mfc->type = type;

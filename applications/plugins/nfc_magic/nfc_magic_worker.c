@@ -167,7 +167,6 @@ void nfc_magic_worker_wipe(NfcMagicWorker* nfc_magic_worker) {
         if(!magic_data_access_cmd()) continue;
         if(!magic_write_blk(0, &block)) continue;
         nfc_magic_worker->callback(NfcMagicWorkerEventSuccess, nfc_magic_worker->context);
-        magic_deactivate();
         break;
     }
     magic_deactivate();

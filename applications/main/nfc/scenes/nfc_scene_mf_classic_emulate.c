@@ -48,7 +48,10 @@ bool nfc_scene_mf_classic_emulate_on_event(void* context, SceneManagerEvent even
            NFC_MF_CLASSIC_DATA_CHANGED) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMfClassicEmulate, NFC_MF_CLASSIC_DATA_NOT_CHANGED);
-            nfc_device_save_shadow(nfc->dev, nfc->dev->dev_name);
+            // Save shadow file
+            if(furi_string_size(nfc->dev->load_path)) {
+                nfc_device_save_shadow(nfc->dev, furi_string_get_cstr(nfc->dev->load_path));
+            }
         }
         consumed = false;
     }

@@ -210,5 +210,5 @@ bool magic_wipe() {
 
 void magic_deactivate() {
     furi_hal_nfc_ll_txrx_off();
-    furi_hal_nfc_start_sleep();
+    furi_hal_nfc_sleep();
 }

@@ -114,4 +114,6 @@ void nfc_blink_detect_start(Nfc* nfc);
 
 void nfc_blink_stop(Nfc* nfc);
 
+bool nfc_save_file(Nfc* nfc);
+
 void nfc_show_loading_popup(void* context, bool show);
