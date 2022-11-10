@@ -13,6 +13,8 @@ static char* get_algo_as_cstr(TokenHashAlgo algo) {
         return TOTP_CONFIG_TOKEN_ALGO_SHA256_NAME;
     case SHA512:
         return TOTP_CONFIG_TOKEN_ALGO_SHA512_NAME;
+    default:
+        break;
     }
 
     return "UNKNOWN";
@@ -24,6 +26,8 @@ static uint8_t get_digits_as_int(TokenDigitsCount digits) {
         return 6;
     case TOTP_8_DIGITS:
         return 8;
+    default:
+        break;
     }
 
     return 6;

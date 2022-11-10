@@ -125,6 +125,7 @@ static void totp_plugin_state_free(PluginState* plugin_state) {
 int32_t totp_app() {
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(PluginEvent));
     PluginState* plugin_state = malloc(sizeof(PluginState));
+    furi_check(plugin_state != NULL);
 
     if(!totp_plugin_state_init(plugin_state)) {
         FURI_LOG_E(LOGGING_TAG, "App state initialization failed\r\n");
@@ -154,22 +155,22 @@ int32_t totp_app() {
         if(plugin_state->changing_scene) continue;
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
-        PluginState* plugin_state = acquire_mutex_block(&state_mutex);
+        PluginState* plugin_state_m = acquire_mutex_block(&state_mutex);
 
         if(event_status == FuriStatusOk) {
             if(event.type == EventTypeKey) {
                 last_user_interaction_time = furi_get_tick();
             }
 
-            processing = totp_scene_director_handle_event(&event, plugin_state);
+            processing = totp_scene_director_handle_event(&event, plugin_state_m);
         } else if(
-            plugin_state->pin_set && plugin_state->current_scene != TotpSceneAuthentication &&
+            plugin_state_m->pin_set && plugin_state_m->current_scene != TotpSceneAuthentication &&
             furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
-            totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
+            totp_scene_director_activate_scene(plugin_state_m, TotpSceneAuthentication, NULL);
         }
 
         view_port_update(view_port);
-        release_mutex(&state_mutex, plugin_state);
+        release_mutex(&state_mutex, plugin_state_m);
     }
 
     view_port_enabled_set(view_port, false);

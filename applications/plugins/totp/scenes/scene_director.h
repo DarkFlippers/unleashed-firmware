@@ -12,5 +12,5 @@ void totp_scene_director_activate_scene(
 void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state);
 void totp_scene_director_init_scenes(PluginState* const plugin_state);
 void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_state);
-void totp_scene_director_dispose(PluginState* const plugin_state);
+void totp_scene_director_dispose(const PluginState* const plugin_state);
 bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* const plugin_state);

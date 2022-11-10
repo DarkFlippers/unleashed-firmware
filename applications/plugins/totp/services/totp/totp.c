@@ -42,14 +42,15 @@ uint32_t otp_generate(
     TOTP_ALGO algo,
     uint8_t digits,
     const uint8_t* plain_secret,
-    uint8_t plain_secret_length,
+    size_t plain_secret_length,
     uint64_t input) {
     uint8_t* hmac = malloc(64);
+    if(hmac == NULL) return OTP_ERROR;
     memset(hmac, 0, 64);
 
     uint64_t input_swapped = swap_uint64(input);
 
-    int hmac_len = (*(algo))(plain_secret, plain_secret_length, (uint8_t*)&input_swapped, 8, hmac);
+    int hmac_len = (*algo)(plain_secret, plain_secret_length, (uint8_t*)&input_swapped, 8, hmac);
     if(hmac_len == 0) {
         free(hmac);
         return OTP_ERROR;
@@ -80,7 +81,7 @@ uint32_t totp_at(
     TOTP_ALGO algo,
     uint8_t digits,
     const uint8_t* plain_secret,
-    uint8_t plain_secret_length,
+    size_t plain_secret_length,
     uint64_t for_time,
     float timezone,
     uint8_t interval) {
@@ -96,9 +97,9 @@ uint32_t totp_at(
 
 static int totp_algo_sha1(
     const uint8_t* key,
-    uint8_t key_length,
+    size_t key_length,
     const uint8_t* input,
-    uint8_t input_length,
+    size_t input_length,
     uint8_t* output) {
     hmac_sha1(key, key_length, input, input_length, output);
     return HMAC_SHA1_RESULT_SIZE;
@@ -106,9 +107,9 @@ static int totp_algo_sha1(
 
 static int totp_algo_sha256(
     const uint8_t* key,
-    uint8_t key_length,
+    size_t key_length,
     const uint8_t* input,
-    uint8_t input_length,
+    size_t input_length,
     uint8_t* output) {
     hmac_sha256(key, key_length, input, input_length, output);
     return HMAC_SHA256_RESULT_SIZE;
@@ -116,9 +117,9 @@ static int totp_algo_sha256(
 
 static int totp_algo_sha512(
     const uint8_t* key,
-    uint8_t key_length,
+    size_t key_length,
     const uint8_t* input,
-    uint8_t input_length,
+    size_t input_length,
     uint8_t* output) {
     hmac_sha512(key, key_length, input, input_length, output);
     return HMAC_SHA512_RESULT_SIZE;

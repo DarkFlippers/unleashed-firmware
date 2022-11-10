@@ -30,6 +30,8 @@ void totp_scene_director_activate_scene(
         break;
     case TotpSceneNone:
         break;
+    default:
+        break;
     }
 
     plugin_state->current_scene = scene;
@@ -54,6 +56,8 @@ void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state
         totp_scene_app_settings_deactivate(plugin_state);
         break;
     case TotpSceneNone:
+        break;
+    default:
         break;
     }
 }
@@ -85,10 +89,12 @@ void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_
         break;
     case TotpSceneNone:
         break;
+    default:
+        break;
     }
 }
 
-void totp_scene_director_dispose(PluginState* const plugin_state) {
+void totp_scene_director_dispose(const PluginState* const plugin_state) {
     totp_scene_generate_token_free(plugin_state);
     totp_scene_authenticate_free(plugin_state);
     totp_scene_add_new_token_free(plugin_state);
@@ -115,6 +121,8 @@ bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* con
         processing = totp_scene_app_settings_handle_event(event, plugin_state);
         break;
     case TotpSceneNone:
+        break;
+    default:
         break;
     }
 

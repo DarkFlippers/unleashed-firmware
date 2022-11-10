@@ -1,4 +1,4 @@
-/* sha512.c - Functions to compute SHA512 and SHA384 message digest of files or
+/* sha512.c - Functions to compute SHA512 message digest of files or
    memory blocks according to the NIST specification FIPS-180-2.
 
    Copyright (C) 2005-2006, 2008-2022 Free Software Foundation, Inc.
@@ -21,9 +21,6 @@
 */
 
 /* Specification.  */
-#if HAVE_OPENSSL_SHA512
-#define GL_OPENSSL_INLINE _GL_EXTERN_INLINE
-#endif
 #include "sha512.h"
 
 #include <stdint.h>
@@ -35,8 +32,6 @@
 #include "byteswap.h"
 #define SWAP(n) swap_uint64(n)
 #endif
-
-#if !HAVE_OPENSSL_SHA512
 
 /* This array contains the bytes used to pad the buffer to the next
    128-byte boundary.  */
@@ -61,20 +56,6 @@ void sha512_init_ctx(struct sha512_ctx* ctx) {
     ctx->buflen = 0;
 }
 
-void sha384_init_ctx(struct sha512_ctx* ctx) {
-    ctx->state[0] = u64hilo(0xcbbb9d5d, 0xc1059ed8);
-    ctx->state[1] = u64hilo(0x629a292a, 0x367cd507);
-    ctx->state[2] = u64hilo(0x9159015a, 0x3070dd17);
-    ctx->state[3] = u64hilo(0x152fecd8, 0xf70e5939);
-    ctx->state[4] = u64hilo(0x67332667, 0xffc00b31);
-    ctx->state[5] = u64hilo(0x8eb44a87, 0x68581511);
-    ctx->state[6] = u64hilo(0xdb0c2e0d, 0x64f98fa7);
-    ctx->state[7] = u64hilo(0x47b5481d, 0xbefa4fa4);
-
-    ctx->total[0] = ctx->total[1] = u64lo(0);
-    ctx->buflen = 0;
-}
-
 /* Copy the value from V into the memory location pointed to by *CP,
    If your architecture allows unaligned access, this is equivalent to
    * (__typeof__ (v) *) cp = v  */
@@ -89,15 +70,6 @@ void* sha512_read_ctx(const struct sha512_ctx* ctx, void* resbuf) {
     char* r = resbuf;
 
     for(i = 0; i < 8; i++) set_uint64(r + i * sizeof ctx->state[0], SWAP(ctx->state[i]));
-
-    return resbuf;
-}
-
-void* sha384_read_ctx(const struct sha512_ctx* ctx, void* resbuf) {
-    int i;
-    char* r = resbuf;
-
-    for(i = 0; i < 6; i++) set_uint64(r + i * sizeof ctx->state[0], SWAP(ctx->state[i]));
 
     return resbuf;
 }
@@ -132,11 +104,6 @@ void* sha512_finish_ctx(struct sha512_ctx* ctx, void* resbuf) {
     return sha512_read_ctx(ctx, resbuf);
 }
 
-void* sha384_finish_ctx(struct sha512_ctx* ctx, void* resbuf) {
-    sha512_conclude_ctx(ctx);
-    return sha384_read_ctx(ctx, resbuf);
-}
-
 /* Compute SHA512 message digest for LEN bytes beginning at BUFFER.  The
    result is always in little endian byte order, so that a byte-wise
    output yields to the wanted ASCII representation of the message
@@ -152,19 +119,6 @@ void* sha512_buffer(const char* buffer, size_t len, void* resblock) {
 
     /* Put result in desired memory area.  */
     return sha512_finish_ctx(&ctx, resblock);
-}
-
-void* sha384_buffer(const char* buffer, size_t len, void* resblock) {
-    struct sha512_ctx ctx;
-
-    /* Initialize the computation context.  */
-    sha384_init_ctx(&ctx);
-
-    /* Process whole buffer but last len % 128 bytes.  */
-    sha512_process_bytes(buffer, len, &ctx);
-
-    /* Put result in desired memory area.  */
-    return sha384_finish_ctx(&ctx, resblock);
 }
 
 void sha512_process_bytes(const void* buffer, size_t len, struct sha512_ctx* ctx) {
@@ -196,7 +150,7 @@ void sha512_process_bytes(const void* buffer, size_t len, struct sha512_ctx* ctx
 #define UNALIGNED_P(p) ((uintptr_t)(p) % sizeof(u64) != 0)
         if(UNALIGNED_P(buffer))
             while(len > 128) {
-                sha512_process_block(memcpy(ctx->buffer, buffer, 128), 128, ctx);
+                sha512_process_block(memcpy(ctx->buffer, buffer, 128), 128, ctx); //-V1086
                 buffer = (const char*)buffer + 128;
                 len -= 128;
             }
@@ -328,86 +282,19 @@ void sha512_process_block(const void* buffer, size_t len, struct sha512_ctx* ctx
             words++;
         }
 
-        R(a, b, c, d, e, f, g, h, K(0), x[0]);
-        R(h, a, b, c, d, e, f, g, K(1), x[1]);
-        R(g, h, a, b, c, d, e, f, K(2), x[2]);
-        R(f, g, h, a, b, c, d, e, K(3), x[3]);
-        R(e, f, g, h, a, b, c, d, K(4), x[4]);
-        R(d, e, f, g, h, a, b, c, K(5), x[5]);
-        R(c, d, e, f, g, h, a, b, K(6), x[6]);
-        R(b, c, d, e, f, g, h, a, K(7), x[7]);
-        R(a, b, c, d, e, f, g, h, K(8), x[8]);
-        R(h, a, b, c, d, e, f, g, K(9), x[9]);
-        R(g, h, a, b, c, d, e, f, K(10), x[10]);
-        R(f, g, h, a, b, c, d, e, K(11), x[11]);
-        R(e, f, g, h, a, b, c, d, K(12), x[12]);
-        R(d, e, f, g, h, a, b, c, K(13), x[13]);
-        R(c, d, e, f, g, h, a, b, K(14), x[14]);
-        R(b, c, d, e, f, g, h, a, K(15), x[15]);
-        R(a, b, c, d, e, f, g, h, K(16), M(16));
-        R(h, a, b, c, d, e, f, g, K(17), M(17));
-        R(g, h, a, b, c, d, e, f, K(18), M(18));
-        R(f, g, h, a, b, c, d, e, K(19), M(19));
-        R(e, f, g, h, a, b, c, d, K(20), M(20));
-        R(d, e, f, g, h, a, b, c, K(21), M(21));
-        R(c, d, e, f, g, h, a, b, K(22), M(22));
-        R(b, c, d, e, f, g, h, a, K(23), M(23));
-        R(a, b, c, d, e, f, g, h, K(24), M(24));
-        R(h, a, b, c, d, e, f, g, K(25), M(25));
-        R(g, h, a, b, c, d, e, f, K(26), M(26));
-        R(f, g, h, a, b, c, d, e, K(27), M(27));
-        R(e, f, g, h, a, b, c, d, K(28), M(28));
-        R(d, e, f, g, h, a, b, c, K(29), M(29));
-        R(c, d, e, f, g, h, a, b, K(30), M(30));
-        R(b, c, d, e, f, g, h, a, K(31), M(31));
-        R(a, b, c, d, e, f, g, h, K(32), M(32));
-        R(h, a, b, c, d, e, f, g, K(33), M(33));
-        R(g, h, a, b, c, d, e, f, K(34), M(34));
-        R(f, g, h, a, b, c, d, e, K(35), M(35));
-        R(e, f, g, h, a, b, c, d, K(36), M(36));
-        R(d, e, f, g, h, a, b, c, K(37), M(37));
-        R(c, d, e, f, g, h, a, b, K(38), M(38));
-        R(b, c, d, e, f, g, h, a, K(39), M(39));
-        R(a, b, c, d, e, f, g, h, K(40), M(40));
-        R(h, a, b, c, d, e, f, g, K(41), M(41));
-        R(g, h, a, b, c, d, e, f, K(42), M(42));
-        R(f, g, h, a, b, c, d, e, K(43), M(43));
-        R(e, f, g, h, a, b, c, d, K(44), M(44));
-        R(d, e, f, g, h, a, b, c, K(45), M(45));
-        R(c, d, e, f, g, h, a, b, K(46), M(46));
-        R(b, c, d, e, f, g, h, a, K(47), M(47));
-        R(a, b, c, d, e, f, g, h, K(48), M(48));
-        R(h, a, b, c, d, e, f, g, K(49), M(49));
-        R(g, h, a, b, c, d, e, f, K(50), M(50));
-        R(f, g, h, a, b, c, d, e, K(51), M(51));
-        R(e, f, g, h, a, b, c, d, K(52), M(52));
-        R(d, e, f, g, h, a, b, c, K(53), M(53));
-        R(c, d, e, f, g, h, a, b, K(54), M(54));
-        R(b, c, d, e, f, g, h, a, K(55), M(55));
-        R(a, b, c, d, e, f, g, h, K(56), M(56));
-        R(h, a, b, c, d, e, f, g, K(57), M(57));
-        R(g, h, a, b, c, d, e, f, K(58), M(58));
-        R(f, g, h, a, b, c, d, e, K(59), M(59));
-        R(e, f, g, h, a, b, c, d, K(60), M(60));
-        R(d, e, f, g, h, a, b, c, K(61), M(61));
-        R(c, d, e, f, g, h, a, b, K(62), M(62));
-        R(b, c, d, e, f, g, h, a, K(63), M(63));
-        R(a, b, c, d, e, f, g, h, K(64), M(64));
-        R(h, a, b, c, d, e, f, g, K(65), M(65));
-        R(g, h, a, b, c, d, e, f, K(66), M(66));
-        R(f, g, h, a, b, c, d, e, K(67), M(67));
-        R(e, f, g, h, a, b, c, d, K(68), M(68));
-        R(d, e, f, g, h, a, b, c, K(69), M(69));
-        R(c, d, e, f, g, h, a, b, K(70), M(70));
-        R(b, c, d, e, f, g, h, a, K(71), M(71));
-        R(a, b, c, d, e, f, g, h, K(72), M(72));
-        R(h, a, b, c, d, e, f, g, K(73), M(73));
-        R(g, h, a, b, c, d, e, f, K(74), M(74));
-        R(f, g, h, a, b, c, d, e, K(75), M(75));
-        R(e, f, g, h, a, b, c, d, K(76), M(76));
-        R(d, e, f, g, h, a, b, c, K(77), M(77));
-        R(c, d, e, f, g, h, a, b, K(78), M(78));
-        R(b, c, d, e, f, g, h, a, K(79), M(79));
+        for(int i = 0; i < 80; i++) {
+            u64 xx = i < 16 ? x[i] : M(i);
+            R(a, b, c, d, e, f, g, h, K(i), xx);
+            u64 tt = a;
+            a = h;
+            h = g;
+            g = f;
+            f = e;
+            e = d;
+            d = c;
+            c = b;
+            b = tt;
+        }
 
         a = ctx->state[0] = u64plus(ctx->state[0], a);
         b = ctx->state[1] = u64plus(ctx->state[1], b);
@@ -419,8 +306,6 @@ void sha512_process_block(const void* buffer, size_t len, struct sha512_ctx* ctx
         h = ctx->state[7] = u64plus(ctx->state[7], h);
     }
 }
-
-#endif
 
 /*
  * Hey Emacs!

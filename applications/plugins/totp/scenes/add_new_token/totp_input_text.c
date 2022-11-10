@@ -2,6 +2,16 @@
 #include <gui/view_i.h>
 #include "../../types/common.h"
 
+size_t strnlen(const char* s, size_t maxlen) {
+    size_t len;
+
+    for(len = 0; len < maxlen; len++, s++) {
+        if(!*s) break;
+    }
+
+    return len;
+}
+
 void view_draw(View* view, Canvas* canvas) {
     furi_assert(view);
     if(view->draw_callback) {
@@ -32,16 +42,23 @@ static void commit_text_input_callback(void* context) {
     InputTextSceneState* text_input_state = (InputTextSceneState*)context;
     if(text_input_state->callback != 0) {
         InputTextSceneCallbackResult* result = malloc(sizeof(InputTextSceneCallbackResult));
-        result->user_input_length = strlen(text_input_state->text_input_buffer);
+        furi_check(result != NULL);
+        result->user_input_length =
+            strnlen(text_input_state->text_input_buffer, INPUT_BUFFER_SIZE);
         result->user_input = malloc(result->user_input_length + 1);
+        furi_check(result->user_input != NULL);
         result->callback_data = text_input_state->callback_data;
-        strcpy(result->user_input, text_input_state->text_input_buffer);
+        strlcpy(
+            result->user_input,
+            text_input_state->text_input_buffer,
+            result->user_input_length + 1);
         text_input_state->callback(result);
     }
 }
 
 InputTextSceneState* totp_input_text_activate(InputTextSceneContext* context) {
     InputTextSceneState* text_input_state = malloc(sizeof(InputTextSceneState));
+    furi_check(text_input_state != NULL);
     text_input_state->text_input = text_input_alloc();
     text_input_state->text_input_view = text_input_get_view(text_input_state->text_input);
     text_input_state->callback = context->callback;

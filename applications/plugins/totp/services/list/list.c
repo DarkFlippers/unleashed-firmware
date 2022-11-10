@@ -1,14 +1,16 @@
 #include "list.h"
 
 ListNode* list_init_head(void* data) {
-    ListNode* new = (ListNode*)malloc(sizeof(ListNode));
+    ListNode* new = malloc(sizeof(ListNode));
+    if(new == NULL) return NULL;
     new->data = data;
     new->next = NULL;
     return new;
 }
 
 ListNode* list_add(ListNode* head, void* data) {
-    ListNode* new = (ListNode*)malloc(sizeof(ListNode));
+    ListNode* new = malloc(sizeof(ListNode));
+    if(new == NULL) return NULL;
     new->data = data;
     new->next = NULL;
 
@@ -26,7 +28,7 @@ ListNode* list_add(ListNode* head, void* data) {
     return head;
 }
 
-ListNode* list_find(ListNode* head, void* data) {
+ListNode* list_find(ListNode* head, const void* data) {
     ListNode* it;
 
     for(it = head; it != NULL; it = it->next)
@@ -66,7 +68,8 @@ ListNode* list_remove(ListNode* head, ListNode* ep) {
 }
 
 void list_free(ListNode* head) {
-    ListNode *it = head, *tmp;
+    ListNode* it = head;
+    ListNode* tmp;
 
     while(it != NULL) {
         tmp = it;

@@ -1,14 +1,16 @@
 #include <gui/gui.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
+#include <totp_icons.h>
 #include "totp_scene_generate_token.h"
 #include "../../types/token_info.h"
 #include "../../types/common.h"
-#include "../../services/ui/icons.h"
 #include "../../services/ui/constants.h"
 #include "../../services/totp/totp.h"
 #include "../../services/config/config.h"
 #include "../../services/crypto/crypto.h"
+#include "../../services/crypto/memset_s.h"
+#include "../../services/roll_value/roll_value.h"
 #include "../scene_director.h"
 #include "../token_menu/totp_scene_token_menu.h"
 
@@ -16,7 +18,7 @@
 #define DIGIT_TO_CHAR(digit) ((digit) + '0')
 
 typedef struct {
-    uint8_t current_token_index;
+    uint16_t current_token_index;
     char last_code[9];
     char* last_code_name;
     bool need_token_update;
@@ -35,24 +37,17 @@ static const NotificationSequence sequence_short_vibro_and_sound = {
 };
 
 static void i_token_to_str(uint32_t i_token_code, char* str, TokenDigitsCount len) {
+    uint8_t str_token_length = 0;
     if(len == TOTP_8_DIGITS) {
         str[8] = '\0';
+        str_token_length = 8;
     } else if(len == TOTP_6_DIGITS) {
         str[6] = '\0';
+        str_token_length = 6;
     }
 
-    if(i_token_code == 0) {
-        if(len > TOTP_6_DIGITS) {
-            str[7] = '-';
-            str[6] = '-';
-        }
-
-        str[5] = '-';
-        str[4] = '-';
-        str[3] = '-';
-        str[2] = '-';
-        str[1] = '-';
-        str[0] = '-';
+    if(i_token_code == OTP_ERROR) {
+        memset(&str[0], '-', str_token_length);
     } else {
         if(len == TOTP_8_DIGITS) {
             str[7] = DIGIT_TO_CHAR(i_token_code % 10);
@@ -78,6 +73,8 @@ TOTP_ALGO get_totp_algo_impl(TokenHashAlgo algo) {
         return TOTP_ALGO_SHA256;
     case SHA512:
         return TOTP_ALGO_SHA512;
+    default:
+        break;
     }
 
     return NULL;
@@ -95,7 +92,7 @@ void update_totp_params(PluginState* const plugin_state) {
     }
 }
 
-void totp_scene_generate_token_init(PluginState* plugin_state) {
+void totp_scene_generate_token_init(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
 
@@ -130,6 +127,7 @@ void totp_scene_generate_token_activate(
         }
     }
     SceneState* scene_state = malloc(sizeof(SceneState));
+    furi_check(scene_state != NULL);
     if(context == NULL || context->current_token_index > plugin_state->tokens_count) {
         scene_state->current_token_index = 0;
     } else {
@@ -180,7 +178,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                              ->data);
 
         if(tokenInfo->token != NULL && tokenInfo->token_length > 0) {
-            uint8_t key_length;
+            size_t key_length;
             uint8_t* key = totp_crypto_decrypt(
                 tokenInfo->token, tokenInfo->token_length, &plugin_state->iv[0], &key_length);
 
@@ -195,7 +193,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                     TOKEN_LIFETIME),
                 scene_state->last_code,
                 tokenInfo->digits);
-            memset(key, 0, key_length);
+            memset_s(key, key_length, 0, key_length);
             free(key);
         } else {
             i_token_to_str(0, scene_state->last_code, tokenInfo->digits);
@@ -248,65 +246,63 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
     canvas_draw_box(canvas, barX, SCREEN_HEIGHT - BAR_MARGIN - BAR_HEIGHT, barWidth, BAR_HEIGHT);
 
     if(plugin_state->tokens_count > 1) {
-        canvas_draw_xbm(
-            canvas,
-            0,
-            SCREEN_HEIGHT_CENTER - 24,
-            ICON_ARROW_LEFT_8x9_WIDTH,
-            ICON_ARROW_LEFT_8x9_HEIGHT,
-            &ICON_ARROW_LEFT_8x9[0]);
-        canvas_draw_xbm(
-            canvas,
-            SCREEN_WIDTH - 9,
-            SCREEN_HEIGHT_CENTER - 24,
-            ICON_ARROW_RIGHT_8x9_WIDTH,
-            ICON_ARROW_RIGHT_8x9_HEIGHT,
-            &ICON_ARROW_RIGHT_8x9[0]);
+        canvas_draw_icon(canvas, 0, SCREEN_HEIGHT_CENTER - 24, &I_totp_arrow_left_8x9);
+        canvas_draw_icon(
+            canvas, SCREEN_WIDTH - 9, SCREEN_HEIGHT_CENTER - 24, &I_totp_arrow_right_8x9);
     }
 }
 
-bool totp_scene_generate_token_handle_event(PluginEvent* const event, PluginState* plugin_state) {
-    if(event->type == EventTypeKey) {
-        if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
-            return false;
-        } else if(event->input.type == InputTypePress) {
-            SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-            switch(event->input.key) {
-            case InputKeyUp:
-                break;
-            case InputKeyDown:
-                break;
-            case InputKeyRight:
-                if(scene_state->current_token_index < plugin_state->tokens_count - 1) {
-                    scene_state->current_token_index++;
-                } else {
-                    scene_state->current_token_index = 0;
-                }
-                update_totp_params(plugin_state);
-                break;
-            case InputKeyLeft:
-                if(scene_state->current_token_index > 0) {
-                    scene_state->current_token_index--;
-                } else {
-                    scene_state->current_token_index = plugin_state->tokens_count - 1;
-                }
-                update_totp_params(plugin_state);
-                break;
-            case InputKeyOk:
-                if(plugin_state->tokens_count == 0) {
-                    totp_scene_director_activate_scene(plugin_state, TotpSceneTokenMenu, NULL);
-                } else {
-                    TokenMenuSceneContext ctx = {
-                        .current_token_index = scene_state->current_token_index};
-                    totp_scene_director_activate_scene(plugin_state, TotpSceneTokenMenu, &ctx);
-                }
-                break;
-            case InputKeyBack:
-                break;
-            default:
-                break;
-            }
+bool totp_scene_generate_token_handle_event(
+    const PluginEvent* const event,
+    PluginState* plugin_state) {
+    if(event->type != EventTypeKey) {
+        return true;
+    }
+
+    if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
+        return false;
+    }
+
+    if(event->input.type != InputTypePress) {
+        return true;
+    }
+
+    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
+    switch(event->input.key) {
+    case InputKeyUp:
+        break;
+    case InputKeyDown:
+        break;
+    case InputKeyRight:
+        totp_roll_value_uint16_t(
+            &scene_state->current_token_index,
+            1,
+            0,
+            plugin_state->tokens_count - 1,
+            RollOverflowBehaviorRoll);
+        update_totp_params(plugin_state);
+        break;
+    case InputKeyLeft:
+        totp_roll_value_uint16_t(
+            &scene_state->current_token_index,
+            -1,
+            0,
+            plugin_state->tokens_count - 1,
+            RollOverflowBehaviorRoll);
+        update_totp_params(plugin_state);
+        break;
+    case InputKeyOk:
+        if(plugin_state->tokens_count == 0) {
+            totp_scene_director_activate_scene(plugin_state, TotpSceneTokenMenu, NULL);
+        } else {
+            TokenMenuSceneContext ctx = {.current_token_index = scene_state->current_token_index};
+            totp_scene_director_activate_scene(plugin_state, TotpSceneTokenMenu, &ctx);
         }
+        break;
+    case InputKeyBack:
+        break;
+    default:
+        break;
     }
 
     return true;
@@ -316,11 +312,10 @@ void totp_scene_generate_token_deactivate(PluginState* plugin_state) {
     if(plugin_state->current_scene_state == NULL) return;
     SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
 
-    free(scene_state->last_code);
     free(scene_state);
     plugin_state->current_scene_state = NULL;
 }
 
-void totp_scene_generate_token_free(PluginState* plugin_state) {
+void totp_scene_generate_token_free(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }

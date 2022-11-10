@@ -26,7 +26,7 @@
 #endif
 
 /* Return X rotated left by N bits, where 0 < N < 64.  */
-#define u64rol(x, n) u64or(u64shl(x, n), u64shr(x, 64 - n))
+#define u64rol(x, n) u64or(u64shl(x, n), u64shr(x, 64 - (n)))
 
 /* Native implementations are trivial.  See below for comments on what
    these operations do.  */

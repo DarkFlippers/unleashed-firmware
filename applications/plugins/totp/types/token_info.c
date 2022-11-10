@@ -5,9 +5,11 @@
 #include "common.h"
 #include "../services/base32/base32.h"
 #include "../services/crypto/crypto.h"
+#include "../services/crypto/memset_s.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
+    furi_check(tokenInfo != NULL);
     tokenInfo->algo = SHA1;
     tokenInfo->digits = TOTP_6_DIGITS;
     return tokenInfo;
@@ -23,11 +25,12 @@ void token_info_free(TokenInfo* token_info) {
 bool token_info_set_secret(
     TokenInfo* token_info,
     const char* base32_token_secret,
-    uint8_t token_secret_length,
-    uint8_t* iv) {
+    size_t token_secret_length,
+    const uint8_t* iv) {
     uint8_t* plain_secret = malloc(token_secret_length);
+    furi_check(plain_secret != NULL);
     int plain_secret_length =
-        base32_decode((uint8_t*)base32_token_secret, plain_secret, token_secret_length);
+        base32_decode((const uint8_t*)base32_token_secret, plain_secret, token_secret_length);
     bool result;
     if(plain_secret_length >= 0) {
         token_info->token =
@@ -37,17 +40,19 @@ bool token_info_set_secret(
         result = false;
     }
 
-    memset(plain_secret, 0, token_secret_length);
+    memset_s(plain_secret, token_secret_length, 0, token_secret_length);
     free(plain_secret);
     return result;
 }
 
-uint8_t token_info_get_digits_count(TokenInfo* token_info) {
+uint8_t token_info_get_digits_count(const TokenInfo* token_info) {
     switch(token_info->digits) {
     case TOTP_6_DIGITS:
         return 6;
     case TOTP_8_DIGITS:
         return 8;
+    default:
+        break;
     }
 
     return 6;

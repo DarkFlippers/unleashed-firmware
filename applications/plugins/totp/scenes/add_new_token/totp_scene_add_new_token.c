@@ -8,6 +8,8 @@
 #include "../../services/base32/base32.h"
 #include "../../services/config/config.h"
 #include "../../services/ui/ui_controls.h"
+#include "../../services/roll_value/roll_value.h"
+#include "../../services/nullable/nullable.h"
 #include "../generate_token/totp_scene_generate_token.h"
 
 #define TOKEN_ALGO_LIST_LENGTH 3
@@ -25,22 +27,22 @@ typedef enum {
 
 typedef struct {
     char* token_name;
-    uint8_t token_name_length;
+    size_t token_name_length;
     char* token_secret;
-    uint8_t token_secret_length;
+    size_t token_secret_length;
     bool saved;
     Control selected_control;
     InputTextSceneContext* token_name_input_context;
     InputTextSceneContext* token_secret_input_context;
     InputTextSceneState* input_state;
     uint32_t input_started_at;
-    int16_t current_token_index;
-    int32_t screen_y_offset;
+    TotpNullable_uint16_t current_token_index;
+    int16_t screen_y_offset;
     TokenHashAlgo algo;
     TokenDigitsCount digits_count;
 } SceneState;
 
-void totp_scene_add_new_token_init(PluginState* plugin_state) {
+void totp_scene_add_new_token_init(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
 
@@ -66,6 +68,7 @@ void totp_scene_add_new_token_activate(
     PluginState* plugin_state,
     const TokenAddEditSceneContext* context) {
     SceneState* scene_state = malloc(sizeof(SceneState));
+    furi_check(scene_state != NULL);
     plugin_state->current_scene_state = scene_state;
     scene_state->token_name = "Name";
     scene_state->token_name_length = strlen(scene_state->token_name);
@@ -73,11 +76,13 @@ void totp_scene_add_new_token_activate(
     scene_state->token_secret_length = strlen(scene_state->token_secret);
 
     scene_state->token_name_input_context = malloc(sizeof(InputTextSceneContext));
+    furi_check(scene_state->token_name_input_context != NULL);
     scene_state->token_name_input_context->header_text = "Enter token name";
     scene_state->token_name_input_context->callback_data = scene_state;
     scene_state->token_name_input_context->callback = on_token_name_user_comitted;
 
     scene_state->token_secret_input_context = malloc(sizeof(InputTextSceneContext));
+    furi_check(scene_state->token_secret_input_context != NULL);
     scene_state->token_secret_input_context->header_text = "Enter token secret";
     scene_state->token_secret_input_context->callback_data = scene_state;
     scene_state->token_secret_input_context->callback = on_token_secret_user_comitted;
@@ -87,9 +92,9 @@ void totp_scene_add_new_token_activate(
     scene_state->input_state = NULL;
 
     if(context == NULL) {
-        scene_state->current_token_index = -1;
+        TOTP_NULLABLE_NULL(scene_state->current_token_index);
     } else {
-        scene_state->current_token_index = context->current_token_index;
+        TOTP_NULLABLE_VALUE(scene_state->current_token_index, context->current_token_index);
     }
 }
 
@@ -150,143 +155,151 @@ void update_screen_y_offset(SceneState* scene_state) {
 }
 
 bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState* plugin_state) {
-    if(event->type == EventTypeKey) {
-        SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-        if(scene_state->input_started_at > 0 &&
-           furi_get_tick() - scene_state->input_started_at > 300) {
-            return totp_input_text_handle_event(event, scene_state->input_state);
-        }
-
-        if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
-            return false;
-        } else if(event->input.type == InputTypePress) {
-            switch(event->input.key) {
-            case InputKeyUp:
-                if(scene_state->selected_control > TokenNameTextBox) {
-                    scene_state->selected_control--;
-                    update_screen_y_offset(scene_state);
-                }
-                break;
-            case InputKeyDown:
-                if(scene_state->selected_control < ConfirmButton) {
-                    scene_state->selected_control++;
-                    update_screen_y_offset(scene_state);
-                }
-                break;
-            case InputKeyRight:
-                if(scene_state->selected_control == TokenAlgoSelect) {
-                    if(scene_state->algo < SHA512) {
-                        scene_state->algo++;
-                    } else {
-                        scene_state->algo = SHA1;
-                    }
-                } else if(scene_state->selected_control == TokenLengthSelect) {
-                    if(scene_state->digits_count < TOTP_8_DIGITS) {
-                        scene_state->digits_count++;
-                    } else {
-                        scene_state->digits_count = TOTP_6_DIGITS;
-                    }
-                }
-                break;
-            case InputKeyLeft:
-                if(scene_state->selected_control == TokenAlgoSelect) {
-                    if(scene_state->algo > SHA1) {
-                        scene_state->algo--;
-                    } else {
-                        scene_state->algo = SHA512;
-                    }
-                } else if(scene_state->selected_control == TokenLengthSelect) {
-                    if(scene_state->digits_count > TOTP_6_DIGITS) {
-                        scene_state->digits_count--;
-                    } else {
-                        scene_state->digits_count = TOTP_8_DIGITS;
-                    }
-                }
-                break;
-            case InputKeyOk:
-                switch(scene_state->selected_control) {
-                case TokenNameTextBox:
-                    if(scene_state->input_state != NULL) {
-                        totp_input_text_free(scene_state->input_state);
-                    }
-                    scene_state->input_state =
-                        totp_input_text_activate(scene_state->token_name_input_context);
-                    scene_state->input_started_at = furi_get_tick();
-                    break;
-                case TokenSecretTextBox:
-                    if(scene_state->input_state != NULL) {
-                        totp_input_text_free(scene_state->input_state);
-                    }
-                    scene_state->input_state =
-                        totp_input_text_activate(scene_state->token_secret_input_context);
-                    scene_state->input_started_at = furi_get_tick();
-                    break;
-                case TokenAlgoSelect:
-                    break;
-                case TokenLengthSelect:
-                    break;
-                case ConfirmButton: {
-                    TokenInfo* tokenInfo = token_info_alloc();
-                    bool token_secret_set = token_info_set_secret(
-                        tokenInfo,
-                        scene_state->token_secret,
-                        scene_state->token_secret_length,
-                        &plugin_state->iv[0]);
-
-                    if(token_secret_set) {
-                        tokenInfo->name = malloc(scene_state->token_name_length + 1);
-                        strcpy(tokenInfo->name, scene_state->token_name);
-                        tokenInfo->algo = scene_state->algo;
-                        tokenInfo->digits = scene_state->digits_count;
-
-                        if(plugin_state->tokens_list == NULL) {
-                            plugin_state->tokens_list = list_init_head(tokenInfo);
-                        } else {
-                            list_add(plugin_state->tokens_list, tokenInfo);
-                        }
-                        plugin_state->tokens_count++;
-
-                        totp_config_file_save_new_token(tokenInfo);
-
-                        GenerateTokenSceneContext generate_scene_context = {
-                            .current_token_index = plugin_state->tokens_count - 1};
-                        totp_scene_director_activate_scene(
-                            plugin_state, TotpSceneGenerateToken, &generate_scene_context);
-                    } else {
-                        token_info_free(tokenInfo);
-                        DialogMessage* message = dialog_message_alloc();
-                        dialog_message_set_buttons(message, "Back", NULL, NULL);
-                        dialog_message_set_text(
-                            message,
-                            "Token secret is invalid",
-                            SCREEN_WIDTH_CENTER,
-                            SCREEN_HEIGHT_CENTER,
-                            AlignCenter,
-                            AlignCenter);
-                        dialog_message_show(plugin_state->dialogs, message);
-                        dialog_message_free(message);
-                        scene_state->selected_control = TokenSecretTextBox;
-                        update_screen_y_offset(scene_state);
-                    }
-                    break;
-                }
-                }
-                break;
-            case InputKeyBack:
-                if(scene_state->current_token_index >= 0) {
-                    GenerateTokenSceneContext generate_scene_context = {
-                        .current_token_index = scene_state->current_token_index};
-                    totp_scene_director_activate_scene(
-                        plugin_state, TotpSceneGenerateToken, &generate_scene_context);
-                } else {
-                    totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
-                }
-                break;
-            default:
-                break;
-            }
-        }
+    if(event->type != EventTypeKey) {
+        return true;
     }
+
+    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
+    if(scene_state->input_started_at > 0 &&
+       furi_get_tick() - scene_state->input_started_at > 300) {
+        return totp_input_text_handle_event(event, scene_state->input_state);
+    }
+
+    if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
+        return false;
+    }
+
+    if(event->input.type != InputTypePress) {
+        return true;
+    }
+
+    switch(event->input.key) {
+    case InputKeyUp:
+        totp_roll_value_uint8_t(
+            &scene_state->selected_control,
+            -1,
+            TokenNameTextBox,
+            ConfirmButton,
+            RollOverflowBehaviorStop);
+        update_screen_y_offset(scene_state);
+        break;
+    case InputKeyDown:
+        totp_roll_value_uint8_t(
+            &scene_state->selected_control,
+            1,
+            TokenNameTextBox,
+            ConfirmButton,
+            RollOverflowBehaviorStop);
+        update_screen_y_offset(scene_state);
+        break;
+    case InputKeyRight:
+        if(scene_state->selected_control == TokenAlgoSelect) {
+            totp_roll_value_uint8_t(&scene_state->algo, 1, SHA1, SHA512, RollOverflowBehaviorRoll);
+        } else if(scene_state->selected_control == TokenLengthSelect) {
+            totp_roll_value_uint8_t(
+                &scene_state->digits_count,
+                1,
+                TOTP_6_DIGITS,
+                TOTP_8_DIGITS,
+                RollOverflowBehaviorRoll);
+        }
+        break;
+    case InputKeyLeft:
+        if(scene_state->selected_control == TokenAlgoSelect) {
+            totp_roll_value_uint8_t(
+                &scene_state->algo, -1, SHA1, SHA512, RollOverflowBehaviorRoll);
+        } else if(scene_state->selected_control == TokenLengthSelect) {
+            totp_roll_value_uint8_t(
+                &scene_state->digits_count,
+                -1,
+                TOTP_6_DIGITS,
+                TOTP_8_DIGITS,
+                RollOverflowBehaviorRoll);
+        }
+        break;
+    case InputKeyOk:
+        switch(scene_state->selected_control) {
+        case TokenNameTextBox:
+            if(scene_state->input_state != NULL) {
+                totp_input_text_free(scene_state->input_state);
+            }
+            scene_state->input_state =
+                totp_input_text_activate(scene_state->token_name_input_context);
+            scene_state->input_started_at = furi_get_tick();
+            break;
+        case TokenSecretTextBox:
+            if(scene_state->input_state != NULL) {
+                totp_input_text_free(scene_state->input_state);
+            }
+            scene_state->input_state =
+                totp_input_text_activate(scene_state->token_secret_input_context);
+            scene_state->input_started_at = furi_get_tick();
+            break;
+        case TokenAlgoSelect:
+            break;
+        case TokenLengthSelect:
+            break;
+        case ConfirmButton: {
+            TokenInfo* tokenInfo = token_info_alloc();
+            bool token_secret_set = token_info_set_secret(
+                tokenInfo,
+                scene_state->token_secret,
+                scene_state->token_secret_length,
+                &plugin_state->iv[0]);
+
+            if(token_secret_set) {
+                tokenInfo->name = malloc(scene_state->token_name_length + 1);
+                furi_check(tokenInfo->name != NULL);
+                strlcpy(
+                    tokenInfo->name, scene_state->token_name, scene_state->token_name_length + 1);
+                tokenInfo->algo = scene_state->algo;
+                tokenInfo->digits = scene_state->digits_count;
+
+                TOTP_LIST_INIT_OR_ADD(plugin_state->tokens_list, tokenInfo, furi_check);
+                plugin_state->tokens_count++;
+
+                totp_config_file_save_new_token(tokenInfo);
+
+                GenerateTokenSceneContext generate_scene_context = {
+                    .current_token_index = plugin_state->tokens_count - 1};
+                totp_scene_director_activate_scene(
+                    plugin_state, TotpSceneGenerateToken, &generate_scene_context);
+            } else {
+                token_info_free(tokenInfo);
+                DialogMessage* message = dialog_message_alloc();
+                dialog_message_set_buttons(message, "Back", NULL, NULL);
+                dialog_message_set_text(
+                    message,
+                    "Token secret is invalid",
+                    SCREEN_WIDTH_CENTER,
+                    SCREEN_HEIGHT_CENTER,
+                    AlignCenter,
+                    AlignCenter);
+                dialog_message_show(plugin_state->dialogs, message);
+                dialog_message_free(message);
+                scene_state->selected_control = TokenSecretTextBox;
+                update_screen_y_offset(scene_state);
+            }
+            break;
+        }
+        default:
+            break;
+        }
+        break;
+    case InputKeyBack:
+        if(!scene_state->current_token_index.is_null) {
+            GenerateTokenSceneContext generate_scene_context = {
+                .current_token_index = scene_state->current_token_index.value};
+            totp_scene_director_activate_scene(
+                plugin_state, TotpSceneGenerateToken, &generate_scene_context);
+        } else {
+            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
+        }
+        break;
+    default:
+        break;
+    }
+
     return true;
 }
 
@@ -310,6 +323,6 @@ void totp_scene_add_new_token_deactivate(PluginState* plugin_state) {
     plugin_state->current_scene_state = NULL;
 }
 
-void totp_scene_add_new_token_free(PluginState* plugin_state) {
+void totp_scene_add_new_token_free(const PluginState* plugin_state) {
     UNUSED(plugin_state);
 }
