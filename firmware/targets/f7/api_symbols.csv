@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,8.41,,
+Version,+,8.42,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -190,6 +190,7 @@ Header,+,lib/toolbox/stream/file_stream.h,,
 Header,+,lib/toolbox/stream/stream.h,,
 Header,+,lib/toolbox/stream/string_stream.h,,
 Header,+,lib/toolbox/tar/tar_archive.h,,
+Header,+,lib/toolbox/value_index.h,,
 Header,+,lib/toolbox/version.h,,
 Header,+,lib/u8g2/u8g2.h,,
 Function,-,LL_ADC_CommonDeInit,ErrorStatus,ADC_Common_TypeDef*
@@ -3142,6 +3143,7 @@ Function,-,toupper_l,int,"int, locale_t"
 Function,-,trunc,double,double
 Function,-,truncf,float,float
 Function,-,truncl,long double,long double
+Function,-,tzset,void,
 Function,-,u8g2_AddPolygonXY,void,"u8g2_t*, int16_t, int16_t"
 Function,-,u8g2_ClearBuffer,void,u8g2_t*
 Function,-,u8g2_ClearDisplay,void,u8g2_t*
@@ -4196,7 +4198,6 @@ Function,-,u8x8_upscale_byte,uint16_t,uint8_t
 Function,-,u8x8_utf8_init,void,u8x8_t*
 Function,-,u8x8_utf8_next,uint16_t,"u8x8_t*, uint8_t"
 Function,-,u8x8_utoa,const char*,uint16_t
-Function,-,tzset,void,
 Function,-,uECC_compress,void,"const uint8_t*, uint8_t*, uECC_Curve"
 Function,+,uECC_compute_public_key,int,"const uint8_t*, uint8_t*, uECC_Curve"
 Function,-,uECC_curve_private_key_size,int,uECC_Curve
@@ -4284,6 +4285,9 @@ Function,-,vTimerSetTimerNumber,void,"TimerHandle_t, UBaseType_t"
 Function,+,validator_is_file_alloc_init,ValidatorIsFile*,"const char*, const char*, const char*"
 Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
+Function,+,value_index_bool,uint8_t,"const _Bool, const _Bool[], uint8_t"
+Function,+,value_index_float,uint8_t,"const float, const float[], uint8_t"
+Function,+,value_index_uint32,uint8_t,"const uint32_t, const uint32_t[], uint8_t"
 Function,+,variable_item_get_context,void*,VariableItem*
 Function,+,variable_item_get_current_value_index,uint8_t,VariableItem*
 Function,+,variable_item_list_add,VariableItem*,"VariableItemList*, const char*, uint8_t, VariableItemChangeCallback, void*"
