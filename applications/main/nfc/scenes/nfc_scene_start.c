@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include "nfc_worker_i.h"
 #include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
@@ -47,6 +48,7 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexRead) {
+            nfc->dev->dev_data.read_mode = NfcReadModeAuto;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
             DOLPHIN_DEED(DolphinDeedNfcRead);
             consumed = true;
