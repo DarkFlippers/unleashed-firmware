@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from SCons.Errors import UserError
 from SCons.Node import NodeList
+from SCons.Warnings import warn, WarningOnByDefault
 
 
 Import("ENV")
@@ -80,6 +80,14 @@ if extra_app_list := GetOption("extra_ext_apps"):
     known_extapps.extend(map(appenv["APPMGR"].get, extra_app_list.split(",")))
 
 for app in known_extapps:
+    if not any(map(lambda t: t in app.targets, ["all", appenv.subst("f${TARGET_HW}")])):
+        warn(
+            WarningOnByDefault,
+            f"Can't build '{app.name}' (id '{app.appid}'): target mismatch"
+            f" (building for {appenv.subst('f${TARGET_HW}')}, app supports {app.targets}",
+        )
+        continue
+
     appenv.BuildAppElf(app)
 
 

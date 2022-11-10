@@ -64,6 +64,11 @@ vars.AddVariables(
         default=True,
     ),
     BoolVariable(
+        "LIB_DEBUG",
+        help="Enable debug build for libraries",
+        default=False,
+    ),
+    BoolVariable(
         "COMPACT",
         help="Optimize for size",
         default=False,

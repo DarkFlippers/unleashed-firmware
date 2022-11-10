@@ -1,7 +1,6 @@
 from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Warnings import warn, WarningOnByDefault
-import SCons
 from ansi.color import fg
 
 from fbt.appmanifest import (
@@ -33,13 +32,11 @@ def LoadAppManifest(env, entry):
 
 
 def PrepareApplicationsBuild(env):
-    appbuild = env["APPBUILD"] = env["APPMGR"].filter_apps(env["APPS"])
+    appbuild = env["APPBUILD"] = env["APPMGR"].filter_apps(
+        env["APPS"], env.subst("f${TARGET_HW}")
+    )
     env.Append(
         SDK_HEADERS=appbuild.get_sdk_headers(),
-    )
-    env["APPBUILD_DUMP"] = env.Action(
-        DumpApplicationConfig,
-        "\tINFO\t",
     )
 
 
@@ -68,6 +65,10 @@ def generate(env):
     env.AddMethod(PrepareApplicationsBuild)
     env.SetDefault(
         APPMGR=AppManager(),
+        APPBUILD_DUMP=env.Action(
+            DumpApplicationConfig,
+            "\tINFO\t",
+        ),
     )
 
     env.Append(

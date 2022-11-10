@@ -40,11 +40,11 @@ env = ENV.Clone(
     FW_LIB_OPTS={
         "Default": {
             "CCFLAGS": [
-                "-Os",
+                "-Og" if ENV["LIB_DEBUG"] else "-Os",
             ],
             "CPPDEFINES": [
                 "NDEBUG",
-                "FURI_NDEBUG",
+                "FURI_DEBUG" if ENV["LIB_DEBUG"] else "FURI_NDEBUG",
             ],
             # You can add other entries named after libraries
             # If they are present, they have precedence over Default

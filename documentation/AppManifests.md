@@ -40,6 +40,7 @@ Only 2 parameters are mandatory: ***appid*** and ***apptype***, others are optio
 * **icon**: Animated icon name from built-in assets to be used when building app as a part of firmware.
 * **order**: Order of an application within its group when sorting entries in it. The lower the order is, the closer to the start of the list the item is placed. *Used for ordering startup hooks and menu entries.* 
 * **sdk_headers**: List of C header files from this app's code to include in API definitions for external applications.
+* **targets**: list of strings, target names, which this application is compatible with. If not specified, application is built for all targets. Default value is `["all"]`.
 
 
 #### Parameters for external applications
