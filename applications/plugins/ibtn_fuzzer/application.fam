@@ -1,0 +1,13 @@
+App(
+    appid="iBtn_Fuzzer",
+    name="iButton Fuzzer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ibtnfuzzer_start",
+    cdefines=["APP_IBTN_FUZZ"],
+    requires=["gui", "storage", "dialogs", "input", "notification"],
+    stack_size=1 * 1024,
+    order=15,
+    fap_icon="ibutt_10px.png",
+    fap_category="Tools",
+    fap_icon_assets="images",
+)
