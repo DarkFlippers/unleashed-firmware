@@ -29,6 +29,8 @@ void morse_code_worker_stop(MorseCodeWorker* instance);
 
 void morse_code_worker_play(MorseCodeWorker* instance, bool play);
 
+void morse_code_worker_reset_text(MorseCodeWorker* instance);
+
 void morse_code_worker_set_volume(MorseCodeWorker* instance, float level);
 
 void morse_code_worker_set_dit_delta(MorseCodeWorker* instance, uint32_t delta);

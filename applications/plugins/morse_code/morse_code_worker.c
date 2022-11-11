@@ -44,10 +44,10 @@ void morse_code_worker_fill_letter(MorseCodeWorker* instance) {
     for(size_t i = 0; i < sizeof(morse_array); i++) {
         if(furi_string_cmp_str(instance->buffer, morse_array[i]) == 0) {
             furi_string_push_back(instance->words, symbol_array[i]);
-            furi_string_reset(instance->buffer);
             break;
         }
     }
+    furi_string_reset(instance->buffer);
     FURI_LOG_D("MorseCode: Words", "%s", furi_string_get_cstr(instance->words));
 }
 
@@ -117,6 +117,8 @@ MorseCodeWorker* morse_code_worker_alloc() {
 
 void morse_code_worker_free(MorseCodeWorker* instance) {
     furi_assert(instance);
+    furi_string_free(instance->buffer);
+    furi_string_free(instance->words);
     furi_thread_free(instance->thread);
     free(instance);
 }
@@ -143,6 +145,12 @@ void morse_code_worker_set_volume(MorseCodeWorker* instance, float level) {
 void morse_code_worker_set_dit_delta(MorseCodeWorker* instance, uint32_t delta) {
     furi_assert(instance);
     instance->dit_delta = delta;
+}
+
+void morse_code_worker_reset_text(MorseCodeWorker* instance) {
+    furi_assert(instance);
+    furi_string_reset(instance->buffer);
+    furi_string_reset(instance->words);
 }
 
 void morse_code_worker_start(MorseCodeWorker* instance) {

@@ -123,9 +123,11 @@ int32_t morse_code_app() {
     while(furi_message_queue_get(morse_code->input_queue, &input, FuriWaitForever) ==
           FuriStatusOk) {
         furi_check(furi_mutex_acquire(morse_code->model_mutex, FuriWaitForever) == FuriStatusOk);
-        if(input.key == InputKeyBack) {
+        if(input.key == InputKeyBack && input.type == InputTypeLong) {
             furi_mutex_release(morse_code->model_mutex);
             break;
+        } else if(input.key == InputKeyBack && input.type == InputTypeShort) {
+            morse_code_worker_reset_text(morse_code->worker);
         } else if(input.key == InputKeyOk) {
             if(input.type == InputTypePress)
                 morse_code_worker_play(morse_code->worker, true);
