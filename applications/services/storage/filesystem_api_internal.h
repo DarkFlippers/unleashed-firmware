@@ -6,6 +6,27 @@
 extern "C" {
 #endif
 
+#define ENCRYPTION_IV_SIZE 16
+#define ENCRYPTION_EXT ".enc"
+
+/** Magic bytes to detect if file is encrypted.
+ * Encrypted file bytes layout is as follows:
+ *  --------------- ----------------- ---------------- -----------------------
+ * | 7 bytes magic | 1 byte key slot | 16 byte vector | actual encrypted data |
+ *  --------------- ----------------- ---------------- -----------------------
+ */
+static const uint8_t encryption_magic_bytes[7] = {0x46, 0x45, 0x46, 0x2e, 0x41, 0x45, 0x53};
+static const size_t encryption_magic_size =
+    sizeof(encryption_magic_bytes) / sizeof(encryption_magic_bytes[0]);
+static const size_t encryption_header_size =
+    encryption_magic_size + sizeof(uint8_t) + ENCRYPTION_IV_SIZE;
+
+/** Structure that holds file encryption info */
+typedef struct FileEncryption {
+    bool decrypted; /**< Current encryption state */
+    uint8_t key_slot; /**< Slot number of encryption key */
+} FileEncryption;
+
 /** File type */
 typedef enum {
     FileTypeClosed, /**< Closed file */
@@ -17,9 +38,11 @@ typedef enum {
 struct File {
     uint32_t file_id; /**< File ID for internal references */
     FileType type;
+    const char* path; /**< Actual path of opened file */
     FS_Error error_id; /**< Standart API error from FS_Error enum */
     int32_t internal_error_id; /**< Internal API error value */
     void* storage;
+    FileEncryption* encryption;
 };
 
 /** File api structure

@@ -1,6 +1,7 @@
 #include "storage_processing.h"
 #include <m-list.h>
 #include <m-dict.h>
+#include <toolbox/stream/file_stream.h>
 
 #define FS_CALL(_storage, _fn)   \
     storage_data_lock(_storage); \
@@ -118,7 +119,9 @@ bool storage_process_file_open(
                 storage_data_timestamp(storage);
             }
             storage_push_storage_file(file, real_path, type, storage);
+            file->path = furi_string_get_cstr(real_path);
             FS_CALL(storage, file.open(storage, file, remove_vfs(path), access_mode, open_mode));
+            //storage_file_decrypt(file);
         }
 
         furi_string_free(real_path);
@@ -139,6 +142,10 @@ bool storage_process_file_close(Storage* app, File* file) {
 
         StorageEvent event = {.type = StorageEventTypeFileClose};
         furi_pubsub_publish(app->pubsub, &event);
+
+        if(file->encryption && file->encryption->decrypted) {
+            //storage_process_file_encrypt(app, file->path, file->encryption->key_slot);
+        }
     }
 
     return ret;
@@ -258,6 +265,141 @@ static bool storage_process_file_eof(Storage* app, File* file) {
     }
 
     return ret;
+}
+
+static FileEncryption* storage_file_encryption_alloc(const uint8_t key_slot) {
+    FileEncryption data = (FileEncryption){
+        .decrypted = false,
+        .key_slot = key_slot,
+    };
+
+    FileEncryption* file_encryption = malloc(sizeof(FileEncryption));
+    memcpy(file_encryption, &data, sizeof(FileEncryption));
+    return file_encryption;
+}
+
+static FS_Error storage_process_file_decrypt(Storage* app, File* file) {
+    // file already decrypted
+    if(file->encryption && file->encryption->decrypted) {
+        return FSE_OK;
+    }
+    // file is not big enough to be encrypted
+    if(storage_process_file_size(app, file) <= encryption_header_size) {
+        return FSE_OK;
+    }
+
+    // check if file is encrypted by reading magic bytes
+    // cursor needs to be at the beginning of file
+    uint8_t magic_buf[encryption_magic_size];
+    storage_process_file_read(app, file, &magic_buf, encryption_magic_size);
+    if(memcmp(encryption_magic_bytes, magic_buf, encryption_magic_size) != 0) {
+        // file is not encrypted, move cursor back and stop
+        storage_process_file_seek(app, file, -1 * encryption_magic_size, false);
+        return FSE_OK;
+    }
+
+    // read key slot id and initialization vector
+    uint8_t key_slot;
+    uint8_t iv[ENCRYPTION_IV_SIZE];
+    storage_file_read(file, &key_slot, sizeof(key_slot));
+    storage_file_read(file, &iv, ENCRYPTION_IV_SIZE);
+
+    // store encryption info
+    file->encryption = storage_file_encryption_alloc(key_slot);
+
+    // decrypt file
+    if(!furi_hal_crypto_store_load_key(key_slot, iv)) {
+        return FSE_INTERNAL;
+    }
+    // we will decrypt file in-place, so we need two cursors:
+    // decryption cursor - points to next encrypted chunk of data, always in front of data cursor
+    uint64_t dec_cursor = storage_process_file_tell(app, file);
+    // decrypted data cursor - points to the end of decrypted data
+    uint64_t data_cursor = 0;
+
+    uint8_t chunk_size = 64;
+    uint8_t crypt_buf[chunk_size];
+    uint8_t dec_buf[chunk_size];
+    while(!storage_process_file_eof(app, file)) {
+        storage_process_file_seek(app, file, dec_cursor, true);
+        uint16_t read = storage_process_file_read(app, file, &crypt_buf, chunk_size);
+        dec_cursor += read;
+        furi_hal_crypto_decrypt(crypt_buf, (uint8_t*)&dec_buf, read);
+        storage_process_file_seek(app, file, data_cursor, true);
+        data_cursor += storage_process_file_write(app, file, dec_buf, read);
+    }
+    furi_hal_crypto_store_unload_key(key_slot);
+
+    // truncate exceeding data and reset cursor
+    storage_process_file_seek(app, file, data_cursor, true);
+    storage_process_file_truncate(app, file);
+    storage_process_file_seek(app, file, 0, true);
+
+    file->encryption->decrypted = true;
+    return FSE_OK;
+}
+
+static FS_Error
+    storage_process_file_encrypt(Storage* app, const char* path, const uint8_t key_slot) {
+    FS_Error error = FSE_OK;
+
+    Stream* stream_from = file_stream_alloc(app);
+    Stream* stream_to = file_stream_alloc(app);
+
+    const char* enc_filepath = strcat((char*)path, ENCRYPTION_EXT);
+
+    if(file_stream_open(stream_from, path, FSAM_READ, FSOM_OPEN_EXISTING) &&
+       file_stream_open(stream_to, enc_filepath, FSAM_WRITE, FSOM_CREATE_NEW)) {
+        // check free space
+        uint64_t total_space;
+        uint64_t free_space;
+        storage_common_fs_info(app, path, &total_space, &free_space);
+
+        if(free_space > stream_size(stream_from) + encryption_header_size) {
+            // create new random initialization vector
+            uint8_t iv[ENCRYPTION_IV_SIZE];
+            srand(DWT->CYCCNT);
+            furi_hal_random_fill_buf(iv, ENCRYPTION_IV_SIZE);
+
+            // write header to encrypted file
+            stream_write(stream_to, encryption_magic_bytes, encryption_magic_size);
+            stream_write(stream_to, &key_slot, sizeof(key_slot));
+            stream_write(stream_to, iv, ENCRYPTION_IV_SIZE);
+
+            // start encryption
+            if(furi_hal_crypto_store_load_key(key_slot, iv)) {
+                uint8_t chunk_size = 16;
+                uint8_t data_buf[chunk_size];
+                uint8_t enc_buf[chunk_size];
+
+                while(!stream_eof(stream_from)) {
+                    memset(data_buf, 0, chunk_size);
+                    stream_read(stream_from, data_buf, chunk_size);
+                    furi_hal_crypto_encrypt(data_buf, enc_buf, chunk_size);
+                    stream_write(stream_to, enc_buf, chunk_size);
+                }
+
+                furi_hal_crypto_store_unload_key(key_slot);
+
+                // swap files
+                storage_common_remove(app, path);
+                storage_common_rename(app, enc_filepath, path);
+            } else {
+                error = FSE_INVALID_PARAMETER;
+            }
+        } else {
+            error = FSE_NO_SPACE;
+        }
+    } else {
+        error = file_stream_get_error(stream_from);
+        if(error == FSE_OK) {
+            error = file_stream_get_error(stream_to);
+        }
+    }
+
+    stream_free(stream_from);
+    stream_free(stream_to);
+    return error;
 }
 
 /******************* Dir Functions *******************/
@@ -544,6 +686,14 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     case StorageCommandFileEof:
         message->return_data->bool_value = storage_process_file_eof(app, message->data->file.file);
+        break;
+    case StorageCommandFileEncrypt:
+        message->return_data->error_value = storage_process_file_encrypt(
+            app, message->data->encryption.path, message->data->encryption.key_slot);
+        break;
+    case StorageCommandFileDecrypt:
+        message->return_data->error_value =
+            storage_process_file_decrypt(app, message->data->file.file);
         break;
 
     case StorageCommandDirOpen:
