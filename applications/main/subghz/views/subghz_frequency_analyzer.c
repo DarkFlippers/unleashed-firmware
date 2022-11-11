@@ -15,7 +15,7 @@
 
 #define RSSI_MIN -97
 #define RSSI_MAX -60
-#define RSSI_SCALE 2.5
+#define RSSI_SCALE 2.3
 #define TRIGGER_STEP 1
 #define MAX_HISTORY 4
 
@@ -50,6 +50,7 @@ typedef struct {
     uint32_t frequency_to_save;
     float rssi;
     uint32_t history_frequency[MAX_HISTORY];
+    uint8_t history_frequency_rx_count[MAX_HISTORY];
     bool signal;
     float rssi_last;
     float trigger;
@@ -86,7 +87,7 @@ void subghz_frequency_analyzer_draw_rssi(
         for(size_t i = 0; i <= (uint8_t)rssi; i++) {
             if((i + 1) % 4) {
                 column_number++;
-                canvas_draw_box(canvas, x + 2 * i, y - column_number, 2, 4 + column_number);
+                canvas_draw_box(canvas, x + 2 * i, (y + 4) - column_number, 2, column_number);
             }
         }
     }
@@ -98,7 +99,7 @@ void subghz_frequency_analyzer_draw_rssi(
         }
         int max_x = (int)((rssi_last - RSSI_MIN) / RSSI_SCALE) * 2;
         //if(!(max_x % 8)) max_x -= 2;
-        int max_h = (int)((rssi_last - RSSI_MIN) / RSSI_SCALE) + 4;
+        int max_h = (int)((rssi_last - RSSI_MIN) / RSSI_SCALE) + 1;
         max_h -= (max_h / 4) + 3;
         canvas_draw_line(canvas, x + max_x + 1, y - max_h, x + max_x + 1, y + 3);
     }
@@ -144,7 +145,12 @@ static void subghz_frequency_analyzer_history_frequency_draw(
         } else {
             canvas_draw_str(canvas, current_x, current_y, "---.---");
         }
-        canvas_draw_str(canvas, current_x + 41, current_y, "MHz");
+        if(model->history_frequency_rx_count[i] > 0) {
+            snprintf(buffer, sizeof(buffer), "x%d", model->history_frequency_rx_count[i]);
+            canvas_draw_str(canvas, current_x + 41, current_y, buffer);
+        } else {
+            canvas_draw_str(canvas, current_x + 41, current_y, "MHz");
+        }
 
         if(show_frame && i == model->selected_index) {
             elements_frame(canvas, current_x - 2, current_y - 9, 63, 11);
@@ -298,7 +304,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             SubGhzFrequencyAnalyzerModel * model,
             {
                 frequency_to_save = model->frequency_to_save;
-                if(model->show_frame) {
+                if(model->show_frame && !model->signal) {
                     uint32_t prev_freq_to_save = model->frequency_to_save;
                     uint32_t frequency_candidate = model->history_frequency[model->selected_index];
                     if(frequency_candidate == 0 ||
@@ -317,6 +323,36 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                             model->frequency_to_save,
                             frequency_candidate);
 #endif
+                        model->frequency_to_save = frequency_candidate;
+                        updated = true;
+                    }
+                } else if(model->show_frame && model->signal) {
+                    uint32_t prev_freq_to_save = model->frequency_to_save;
+                    uint32_t frequency_candidate = subghz_frequency_find_correct(model->frequency);
+                    if(frequency_candidate == 0 ||
+                       !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
+                       prev_freq_to_save == frequency_candidate) {
+                        frequency_candidate = 0;
+                    } else {
+                        frequency_candidate = subghz_frequency_find_correct(frequency_candidate);
+                    }
+                    if(frequency_candidate > 0 &&
+                       frequency_candidate != model->frequency_to_save) {
+                        model->frequency_to_save = frequency_candidate;
+                        updated = true;
+                    }
+                } else if(!model->show_frame && model->signal) {
+                    uint32_t prev_freq_to_save = model->frequency_to_save;
+                    uint32_t frequency_candidate = subghz_frequency_find_correct(model->frequency);
+                    if(frequency_candidate == 0 ||
+                       !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
+                       prev_freq_to_save == frequency_candidate) {
+                        frequency_candidate = 0;
+                    } else {
+                        frequency_candidate = subghz_frequency_find_correct(frequency_candidate);
+                    }
+                    if(frequency_candidate > 0 &&
+                       frequency_candidate != model->frequency_to_save) {
                         model->frequency_to_save = frequency_candidate;
                         updated = true;
                     }
@@ -346,6 +382,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
                 subghz_frequency_analyzer_worker_stop(instance->worker);
             }
+
             instance->callback(SubGhzCustomEventViewReceiverUnlock, instance->context);
         }
     }
@@ -404,16 +441,26 @@ void subghz_frequency_analyzer_pair_callback(
                 for(size_t i = 0; i < MAX_HISTORY; i++) {
                     if(model->history_frequency[i] == normal_frequency) {
                         in_array = true;
+                        if(model->history_frequency[i] > 0) {
+                            if(model->history_frequency_rx_count[i] == 0) {
+                                model->history_frequency_rx_count[i]++;
+                            }
+                            model->history_frequency_rx_count[i]++;
+                        }
                         if(i > 0) {
                             size_t offset = 0;
+                            uint8_t temp_rx_count = model->history_frequency_rx_count[i];
 
                             for(size_t j = MAX_HISTORY - 1; j > 0; j--) {
                                 if(j == i) {
                                     offset++;
                                 }
                                 model->history_frequency[j] = model->history_frequency[j - offset];
+                                model->history_frequency_rx_count[j] =
+                                    model->history_frequency_rx_count[j - offset];
                             }
                             model->history_frequency[0] = normal_frequency;
+                            model->history_frequency_rx_count[0] = temp_rx_count;
                         }
 
                         break;
@@ -425,6 +472,11 @@ void subghz_frequency_analyzer_pair_callback(
                     model->history_frequency[2] = model->history_frequency[1];
                     model->history_frequency[1] = model->history_frequency[0];
                     model->history_frequency[0] = normal_frequency;
+
+                    model->history_frequency_rx_count[3] = model->history_frequency_rx_count[2];
+                    model->history_frequency_rx_count[2] = model->history_frequency_rx_count[1];
+                    model->history_frequency_rx_count[1] = model->history_frequency_rx_count[0];
+                    model->history_frequency_rx_count[0] = 0;
                 }
 
                 if(max_index < MAX_HISTORY) {
@@ -506,6 +558,10 @@ void subghz_frequency_analyzer_enter(void* context) {
             model->history_frequency[2] = 0;
             model->history_frequency[1] = 0;
             model->history_frequency[0] = 0;
+            model->history_frequency_rx_count[3] = 0;
+            model->history_frequency_rx_count[2] = 0;
+            model->history_frequency_rx_count[1] = 0;
+            model->history_frequency_rx_count[0] = 0;
             model->frequency_to_save = 0;
             model->trigger = RSSI_MIN;
         },
