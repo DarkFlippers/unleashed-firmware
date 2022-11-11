@@ -39,6 +39,7 @@ void ibutton_scene_save_success_on_exit(void* context) {
     iButton* ibutton = context;
     Popup* popup = ibutton->popup;
 
+    popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
 
