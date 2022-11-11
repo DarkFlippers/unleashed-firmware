@@ -515,7 +515,7 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 break;
             case InputKeyRight:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards < 60) {
+                    if(context->time_between_cards < 70) {
                         context->time_between_cards++;
                     }
                 }
@@ -545,6 +545,26 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 furi_string_reset(context->notification_msg);
                 notification_message(context->notify, &sequence_blink_stop);
                 context->current_scene = SceneEntryPoint;
+                break;
+            default:
+                break;
+            }
+        }
+        if(event.input_type == InputTypeLong) {
+            switch(event.key) {
+            case InputKeyLeft:
+                if(!context->is_attacking) {
+                    if(context->time_between_cards > 0) {
+                        context->time_between_cards -= 10;
+                    }
+                }
+                break;
+            case InputKeyRight:
+                if(!context->is_attacking) {
+                    if(context->time_between_cards < 70) {
+                        context->time_between_cards += 10;
+                    }
+                }
                 break;
             default:
                 break;
