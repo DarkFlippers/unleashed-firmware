@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,7.41,,
+Version,+,7.42,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -572,9 +572,9 @@ Function,+,bt_set_profile,_Bool,"Bt*, BtProfile"
 Function,+,bt_set_status_changed_callback,void,"Bt*, BtStatusChangedCallback, void*"
 Function,+,buffered_file_stream_alloc,Stream*,Storage*
 Function,+,buffered_file_stream_close,_Bool,Stream*
-Function,-,buffered_file_stream_get_error,FS_Error,Stream*
+Function,+,buffered_file_stream_get_error,FS_Error,Stream*
 Function,+,buffered_file_stream_open,_Bool,"Stream*, const char*, FS_AccessMode, FS_OpenMode"
-Function,-,buffered_file_stream_sync,_Bool,Stream*
+Function,+,buffered_file_stream_sync,_Bool,Stream*
 Function,+,button_menu_add_item,ButtonMenuItem*,"ButtonMenu*, const char*, int32_t, ButtonMenuItemCallback, ButtonMenuItemType, void*"
 Function,+,button_menu_alloc,ButtonMenu*,
 Function,+,button_menu_free,void,ButtonMenu*
@@ -1316,7 +1316,7 @@ Function,+,furi_hal_subghz_flush_tx,void,
 Function,+,furi_hal_subghz_get_lqi,uint8_t,
 Function,+,furi_hal_subghz_get_rssi,float,
 Function,+,furi_hal_subghz_idle,void,
-Function,+,furi_hal_subghz_init,void,
+Function,-,furi_hal_subghz_init,void,
 Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
 Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
 Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
@@ -1713,15 +1713,15 @@ Function,+,lfrfid_raw_worker_start_emulate,void,"LFRFIDRawWorker*, const char*, 
 Function,+,lfrfid_raw_worker_start_read,void,"LFRFIDRawWorker*, const char*, float, float, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_raw_worker_stop,void,LFRFIDRawWorker*
 Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
-Function,-,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
+Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
 Function,+,lfrfid_worker_free,void,LFRFIDWorker*
-Function,-,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
-Function,-,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
+Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
-Function,-,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
+Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,-,lgamma,double,double
 Function,-,lgamma_r,double,"double, int*"
 Function,-,lgammaf,float,float
@@ -2765,25 +2765,25 @@ Function,-,subghz_protocol_decoder_power_smart_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_power_smart_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_power_smart_reset,void,void*
 Function,-,subghz_protocol_decoder_power_smart_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
-Function,-,subghz_protocol_decoder_princeton_alloc,void*,SubGhzEnvironment*
-Function,-,subghz_protocol_decoder_princeton_deserialize,_Bool,"void*, FlipperFormat*"
-Function,-,subghz_protocol_decoder_princeton_feed,void,"void*, _Bool, uint32_t"
-Function,-,subghz_protocol_decoder_princeton_free,void,void*
-Function,-,subghz_protocol_decoder_princeton_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_princeton_get_string,void,"void*, FuriString*"
-Function,-,subghz_protocol_decoder_princeton_reset,void,void*
-Function,-,subghz_protocol_decoder_princeton_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
-Function,-,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
-Function,-,subghz_protocol_decoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
-Function,-,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
-Function,-,subghz_protocol_decoder_raw_free,void,void*
-Function,-,subghz_protocol_decoder_raw_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_raw_get_string,void,"void*, FuriString*"
-Function,-,subghz_protocol_decoder_raw_reset,void,void*
-Function,-,subghz_protocol_decoder_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
-Function,-,subghz_protocol_decoder_raw_set_auto_mode,void,"void*, _Bool"
-Function,-,subghz_protocol_decoder_raw_set_rssi_threshold,void,"void*, int"
-Function,-,subghz_protocol_decoder_raw_write_data,_Bool,"void*, _Bool, uint32_t"
+Function,+,subghz_protocol_decoder_princeton_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_decoder_princeton_deserialize,_Bool,"void*, FlipperFormat*"
+Function,+,subghz_protocol_decoder_princeton_feed,void,"void*, _Bool, uint32_t"
+Function,+,subghz_protocol_decoder_princeton_free,void,void*
+Function,+,subghz_protocol_decoder_princeton_get_hash_data,uint8_t,void*
+Function,+,subghz_protocol_decoder_princeton_get_string,void,"void*, FuriString*"
+Function,+,subghz_protocol_decoder_princeton_reset,void,void*
+Function,+,subghz_protocol_decoder_princeton_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_decoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
+Function,+,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
+Function,+,subghz_protocol_decoder_raw_free,void,void*
+Function,+,subghz_protocol_decoder_raw_get_hash_data,uint8_t,void*
+Function,+,subghz_protocol_decoder_raw_get_string,void,"void*, FuriString*"
+Function,+,subghz_protocol_decoder_raw_reset,void,void*
+Function,+,subghz_protocol_decoder_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_decoder_raw_set_auto_mode,void,"void*, _Bool"
+Function,+,subghz_protocol_decoder_raw_set_rssi_threshold,void,"void*, int"
+Function,+,subghz_protocol_decoder_raw_write_data,_Bool,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_scher_khan_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_scher_khan_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_scher_khan_feed,void,"void*, _Bool, uint32_t"
@@ -2953,16 +2953,16 @@ Function,-,subghz_protocol_encoder_power_smart_deserialize,_Bool,"void*, Flipper
 Function,-,subghz_protocol_encoder_power_smart_free,void,void*
 Function,-,subghz_protocol_encoder_power_smart_stop,void,void*
 Function,-,subghz_protocol_encoder_power_smart_yield,LevelDuration,void*
-Function,-,subghz_protocol_encoder_princeton_alloc,void*,SubGhzEnvironment*
-Function,-,subghz_protocol_encoder_princeton_deserialize,_Bool,"void*, FlipperFormat*"
-Function,-,subghz_protocol_encoder_princeton_free,void,void*
-Function,-,subghz_protocol_encoder_princeton_stop,void,void*
-Function,-,subghz_protocol_encoder_princeton_yield,LevelDuration,void*
-Function,-,subghz_protocol_encoder_raw_alloc,void*,SubGhzEnvironment*
-Function,-,subghz_protocol_encoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
-Function,-,subghz_protocol_encoder_raw_free,void,void*
-Function,-,subghz_protocol_encoder_raw_stop,void,void*
-Function,-,subghz_protocol_encoder_raw_yield,LevelDuration,void*
+Function,+,subghz_protocol_encoder_princeton_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_encoder_princeton_deserialize,_Bool,"void*, FlipperFormat*"
+Function,+,subghz_protocol_encoder_princeton_free,void,void*
+Function,+,subghz_protocol_encoder_princeton_stop,void,void*
+Function,+,subghz_protocol_encoder_princeton_yield,LevelDuration,void*
+Function,+,subghz_protocol_encoder_raw_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_encoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
+Function,+,subghz_protocol_encoder_raw_free,void,void*
+Function,+,subghz_protocol_encoder_raw_stop,void,void*
+Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_secplus_v1_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_secplus_v1_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_secplus_v1_free,void,void*
@@ -2982,7 +2982,7 @@ Function,-,subghz_protocol_faac_slh_create_data,_Bool,"void*, FlipperFormat*, ui
 Function,-,subghz_protocol_keeloq_bft_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_nice_flor_s_encrypt,uint64_t,"uint64_t, const char*"
-Function,-,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
+Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
 Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*"
 Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
 Function,+,subghz_protocol_raw_save_to_file_init,_Bool,"SubGhzProtocolDecoderRAW*, const char*, SubGhzRadioPreset*"
@@ -3052,7 +3052,7 @@ Function,+,submenu_reset,void,Submenu*
 Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
-Function,-,t5577_write,void,LFRFIDT5577*
+Function,+,t5577_write,void,LFRFIDT5577*
 Function,-,tan,double,double
 Function,-,tanf,float,float
 Function,-,tanh,double,double
@@ -4777,9 +4777,9 @@ Variable,-,subghz_protocol_power_smart_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_princeton,const SubGhzProtocol,
 Variable,-,subghz_protocol_princeton_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_princeton_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_raw,const SubGhzProtocol,
-Variable,-,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
+Variable,+,subghz_protocol_raw,const SubGhzProtocol,
+Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
+Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
 Variable,+,subghz_protocol_registry,const SubGhzProtocolRegistry,
 Variable,-,subghz_protocol_scher_khan,const SubGhzProtocol,
 Variable,-,subghz_protocol_scher_khan_decoder,const SubGhzProtocolDecoder,
