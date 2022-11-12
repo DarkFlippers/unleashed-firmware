@@ -11,7 +11,7 @@ steps:
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
-  - name: "Build default fw"
+  - name: "Build default FW"
     image: hfdj/fztools
     pull: never
     commands:
@@ -28,15 +28,39 @@ steps:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
 
+  - name: "Build no anims FW"
+    image: hfdj/fztools
+    pull: never
+    commands:
+      - rm -f assets/dolphin/external/manifest.txt
+      - cp .ci_files/anims_ofw.txt assets/dolphin/external/manifest.txt
+      - export DIST_SUFFIX=${DRONE_TAG}
+      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir artifacts-ofw-anims
+      - mv dist/f7-C/* artifacts-ofw-anims/
+      - ls -laS artifacts-ofw-anims
+      - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}
+      - echo '' >> CHANGELOG.md
+      - echo '### [No Custom animations build - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+    environment:
+      FBT_TOOLS_CUSTOM_LINK:
+        from_secret: fbt_link
+
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
+      - mv artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}.tgz artifacts-ofw-anims/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz
+      - cp artifacts-ofw-anims/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
+      - zip -r artifacts-ofw-anims/flipper-z-f7-update-noanims-${DRONE_TAG}.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
+      - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
+      - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-default
 
-  - name: "Upload to updates server"
+  - name: "Upload default to updates srv"
     image: appleboy/drone-scp
     settings:
       host:
@@ -51,6 +75,21 @@ steps:
         from_secret: dep_target
       source: flipper-z-f7-update-${DRONE_TAG}.tgz
 
+  - name: "Upload no-anims to updates srv"
+    image: appleboy/drone-scp
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target
+      source: flipper-z-f7-update-noanims-${DRONE_TAG}.tgz
+
   - name: "Do Github release"
     image: ddplugins/github-release
     pull: never
@@ -63,6 +102,8 @@ steps:
       files:
         - artifacts-default/*.tgz
         - artifacts-default/*.zip
+        - artifacts-ofw-anims/*.tgz
+        - artifacts-ofw-anims/*.zip
       title: ${DRONE_TAG}
       note: CHANGELOG.md
       checksum:
