@@ -40,6 +40,13 @@ typedef enum {
 } FuriHalRtcBootMode;
 
 typedef enum {
+    FuriHalRtcHeapTrackModeNone = 0, /**< Disable allocation tracking */
+    FuriHalRtcHeapTrackModeMain, /**< Enable allocation tracking for main application thread */
+    FuriHalRtcHeapTrackModeTree, /**< Enable allocation tracking for main and children application threads */
+    FuriHalRtcHeapTrackModeAll, /**< Enable allocation tracking for all threads */
+} FuriHalRtcHeapTrackMode;
+
+typedef enum {
     FuriHalRtcRegisterHeader, /**< RTC structure header */
     FuriHalRtcRegisterSystem, /**< Various system bits */
     FuriHalRtcRegisterVersion, /**< Pointer to Version */
@@ -78,6 +85,10 @@ bool furi_hal_rtc_is_flag_set(FuriHalRtcFlag flag);
 void furi_hal_rtc_set_boot_mode(FuriHalRtcBootMode mode);
 
 FuriHalRtcBootMode furi_hal_rtc_get_boot_mode();
+
+void furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackMode mode);
+
+FuriHalRtcHeapTrackMode furi_hal_rtc_get_heap_track_mode();
 
 void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime);
 

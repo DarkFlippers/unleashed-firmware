@@ -46,6 +46,13 @@ static void desktop_switch_to_app(Desktop* desktop, const FlipperApplication* fl
         return;
     }
 
+    FuriHalRtcHeapTrackMode mode = furi_hal_rtc_get_heap_track_mode();
+    if(mode > FuriHalRtcHeapTrackModeNone) {
+        furi_thread_enable_heap_trace(desktop->scene_thread);
+    } else {
+        furi_thread_disable_heap_trace(desktop->scene_thread);
+    }
+
     furi_thread_set_name(desktop->scene_thread, flipper_app->name);
     furi_thread_set_stack_size(desktop->scene_thread, flipper_app->stack_size);
     furi_thread_set_callback(desktop->scene_thread, flipper_app->app);

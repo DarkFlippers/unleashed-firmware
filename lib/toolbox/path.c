@@ -38,7 +38,7 @@ void path_extract_extension(FuriString* path, char* ext, size_t ext_len_max) {
     size_t dot = furi_string_search_rchar(path, '.');
     size_t filename_start = furi_string_search_rchar(path, '/');
 
-    if((dot > 0) && (filename_start < dot)) {
+    if((dot != FURI_STRING_FAILURE) && (filename_start < dot)) {
         strlcpy(ext, &(furi_string_get_cstr(path))[dot], ext_len_max);
     }
 }

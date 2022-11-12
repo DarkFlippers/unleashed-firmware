@@ -21,6 +21,13 @@ static bool
 
     FURI_LOG_I(TAG, "Starting: %s", loader_instance->application->name);
 
+    FuriHalRtcHeapTrackMode mode = furi_hal_rtc_get_heap_track_mode();
+    if(mode > FuriHalRtcHeapTrackModeNone) {
+        furi_thread_enable_heap_trace(loader_instance->application_thread);
+    } else {
+        furi_thread_disable_heap_trace(loader_instance->application_thread);
+    }
+
     furi_thread_set_name(loader_instance->application_thread, loader_instance->application->name);
     furi_thread_set_stack_size(
         loader_instance->application_thread, loader_instance->application->stack_size);
@@ -306,7 +313,7 @@ static Loader* loader_alloc() {
     Loader* instance = malloc(sizeof(Loader));
 
     instance->application_thread = furi_thread_alloc();
-    furi_thread_enable_heap_trace(instance->application_thread);
+
     furi_thread_set_state_context(instance->application_thread, instance);
     furi_thread_set_state_callback(instance->application_thread, loader_thread_state_callback);
 

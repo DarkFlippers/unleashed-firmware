@@ -7,6 +7,7 @@
 #include <time.h>
 #include <notification/notification_messages.h>
 #include <loader/loader.h>
+#include <lib/toolbox/args.h>
 
 // Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
 #define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"
@@ -192,6 +193,83 @@ void cli_command_log(Cli* cli, FuriString* args, void* context) {
     furi_stream_buffer_free(ring);
 }
 
+void cli_command_sysctl_debug(Cli* cli, FuriString* args, void* context) {
+    UNUSED(cli);
+    UNUSED(context);
+    if(!furi_string_cmp(args, "0")) {
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
+        loader_update_menu();
+        printf("Debug disabled.");
+    } else if(!furi_string_cmp(args, "1")) {
+        furi_hal_rtc_set_flag(FuriHalRtcFlagDebug);
+        loader_update_menu();
+        printf("Debug enabled.");
+    } else {
+        cli_print_usage("sysctl debug", "<1|0>", furi_string_get_cstr(args));
+    }
+}
+
+void cli_command_sysctl_heap_track(Cli* cli, FuriString* args, void* context) {
+    UNUSED(cli);
+    UNUSED(context);
+    if(!furi_string_cmp(args, "none")) {
+        furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeNone);
+        printf("Heap tracking disabled");
+    } else if(!furi_string_cmp(args, "main")) {
+        furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeMain);
+        printf("Heap tracking enabled for application main thread");
+#if FURI_DEBUG
+    } else if(!furi_string_cmp(args, "tree")) {
+        furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeTree);
+        printf("Heap tracking enabled for application main and child threads");
+    } else if(!furi_string_cmp(args, "all")) {
+        furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeAll);
+        printf("Heap tracking enabled for all threads");
+#endif
+    } else {
+        cli_print_usage("sysctl heap_track", "<none|main|tree|all>", furi_string_get_cstr(args));
+    }
+}
+
+void cli_command_sysctl_print_usage() {
+    printf("Usage:\r\n");
+    printf("sysctl <cmd> <args>\r\n");
+    printf("Cmd list:\r\n");
+
+    printf("\tdebug <0|1>\t - Enable or disable system debug\r\n");
+#if FURI_DEBUG
+    printf("\theap_track <none|main|tree|all>\t - Set heap allocation tracking mode\r\n");
+#else
+    printf("\theap_track <none|main>\t - Set heap allocation tracking mode\r\n");
+#endif
+}
+
+void cli_command_sysctl(Cli* cli, FuriString* args, void* context) {
+    FuriString* cmd;
+    cmd = furi_string_alloc();
+
+    do {
+        if(!args_read_string_and_trim(args, cmd)) {
+            cli_command_sysctl_print_usage();
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "debug") == 0) {
+            cli_command_sysctl_debug(cli, args, context);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "heap_track") == 0) {
+            cli_command_sysctl_heap_track(cli, args, context);
+            break;
+        }
+
+        cli_command_sysctl_print_usage();
+    } while(false);
+
+    furi_string_free(cmd);
+}
+
 void cli_command_vibro(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
@@ -205,22 +283,6 @@ void cli_command_vibro(Cli* cli, FuriString* args, void* context) {
         furi_record_close(RECORD_NOTIFICATION);
     } else {
         cli_print_usage("vibro", "<1|0>", furi_string_get_cstr(args));
-    }
-}
-
-void cli_command_debug(Cli* cli, FuriString* args, void* context) {
-    UNUSED(cli);
-    UNUSED(context);
-    if(!furi_string_cmp(args, "0")) {
-        furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
-        loader_update_menu();
-        printf("Debug disabled.");
-    } else if(!furi_string_cmp(args, "1")) {
-        furi_hal_rtc_set_flag(FuriHalRtcFlagDebug);
-        loader_update_menu();
-        printf("Debug enabled.");
-    } else {
-        cli_print_usage("debug", "<1|0>", furi_string_get_cstr(args));
     }
 }
 
@@ -356,7 +418,7 @@ void cli_commands_init(Cli* cli) {
 
     cli_add_command(cli, "date", CliCommandFlagParallelSafe, cli_command_date, NULL);
     cli_add_command(cli, "log", CliCommandFlagParallelSafe, cli_command_log, NULL);
-    cli_add_command(cli, "debug", CliCommandFlagDefault, cli_command_debug, NULL);
+    cli_add_command(cli, "sysctl", CliCommandFlagDefault, cli_command_sysctl, NULL);
     cli_add_command(cli, "ps", CliCommandFlagParallelSafe, cli_command_ps, NULL);
     cli_add_command(cli, "free", CliCommandFlagParallelSafe, cli_command_free, NULL);
     cli_add_command(cli, "free_blocks", CliCommandFlagParallelSafe, cli_command_free_blocks, NULL);

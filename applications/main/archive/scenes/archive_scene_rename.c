@@ -64,6 +64,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             ArchiveFile_t* file = archive_get_current_file(archive->browser);
 
             FuriString* path_dst;
+
             path_dst = furi_string_alloc();
 
             if(file->type == ArchiveFileTypeFolder) {
