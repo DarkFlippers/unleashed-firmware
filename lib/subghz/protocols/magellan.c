@@ -385,7 +385,7 @@ static void subghz_protocol_magellan_get_event_serialize(uint8_t event, FuriStri
         ((event >> 2) & 0x1 ? ", ?" : ""),
         ((event >> 3) & 0x1 ? ", Power On" : ""),
         ((event >> 4) & 0x1 ? ", MT:Wireless_Reed" : ""),
-        ((event >> 5) & 0x1 ? ", MT:Motion_Sensor" : ""),
+        ((event >> 5) & 0x1 ? ", MT:Motion_\nSensor" : ""),
         ((event >> 6) & 0x1 ? ", ?" : ""),
         ((event >> 7) & 0x1 ? ", ?" : ""));
 }
