@@ -98,6 +98,8 @@ Also check changelog in releases for latest updates!
 - Morse Code [(by wh00hw)](https://github.com/wh00hw/MorseCodeFAP)
 - AM2320/AM2321 Temp. Sensor plugin [(by xMasterX)](https://github.com/xMasterX/AM2320_Flipper_Plugin) - [How to Connect](https://github.com/xMasterX/AM2320_Flipper_Plugin)
 - DHT11/22 Temp. Sensor Monitor [(by quen0n)](https://github.com/quen0n/FipperZero-DHT-Monitor) - How to connect -> (5V -> VCC) / (GND -> GND) / (Selected Pin -> out)
+- BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
+- iButton Fuzzer [(by xMasterX)](https://github.com/xMasterX/ibutton-fuzzer)
 
 Games:
 - DOOM (fixed) [(by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)

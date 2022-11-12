@@ -1,12 +1,48 @@
 ### New changes
-* OFW: **NFC magic cards support (gen1a) (ability to write UID)**
-* Plugins -> PR: FlappyBird - draw bird via icon animation (by @an4tur0r | PR #149)
-* Plugins: DHT Temp montior - Fix DHT22 timeout bug and other fixes by @quen0n
-* Infrared: Universal remote assets update (by @Amec0e)
-* OFW: SubGhz: fix incorrect response in rpc mode. Code cleanup
-* OFW: Storage: tree timestamps
-* OFW: Dolphin: add L1_Mods_128x64 animation 
-* OFW: Run Bad USB immediately after connection 
+* API now 99% compatible with official firmware, that means all apps built on OFW can be used on unleashed!
+* Also extra apps pack was updated, download latest by using link below
+* Archive: Show loading popup on delete
+* Docs -> PR: Fix link to "TOTP (Authenticator) config description" (by @pbek | PR #157)
+* Reorder main menu - Applications now first item, clock moved 2 items up
+* API: Add `value_index` to API symbols
+* API: Furi Region Mocks, fix protocol dict funcs was disabled in API
+* New animation L3_FlipperMustache_128x64 by @Svaarich
+* Fix FlipperCity animation by @Svaarich
+* CI/CD: Builds without custom animations now included in releases
+* SubGHz: Fix magellan display issue
+* SubGHz: Fix wrong error message in history 
+* SubGHz: Add frequencies 434.075, 434.390
+* SubGHz: Frequency analyzer: Add counter, GUI fixes, allow Ok button - When signal is present (when frequency window shows black background)
+* SubGHz: Frequency analyzer: move -+ in freq analyzer, swap up & down button
+* SubGHz Remote: Cleanup code in unirf, fix issue #153
+* Plugins: Remove `srand` calls
+* Plugins: Fix DHT Monitor icon
+* Plugins: RFID Fuzzer - allow holding left right to change delay faster (hold TD button to add +10 or -10 to time delay)
+* Plugins: Morse code cleanup text by pressing back
+* Plugins: TOTP Update - "BadUSB" type key into pc mode [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: Update i2c Tools [(by NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
+* Plugins -> PR: Barcode generator: refactoring, ux improvements, implement EAN-8. (by @msvsergey | PR #154)
+* Plugins -> PR: Fix HC-SR04 plugin naming (by @krolchonok | PR #161)
+* Plugins: Added BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
+* Plugins: Added iButton Fuzzer [(by xMasterX)](https://github.com/xMasterX/ibutton-fuzzer)
+* OFW: BadUSB and Archive fixes
+* OFW: iButton: Fix header "Saved!" message stays on other screens + proper popups reset
+* OFW: Bug fixes and improvements: Furi, Input, CLI
+* OFW: SubGhz: properly handle storage loss 
+* OFW: NFC - Force card types in extra actions
+* OFW: (docs): bad path for furi core
+* OFW: RPC: increase stack size, fix stack overflow 
+* OFW: fbt: 'target' field for apps; lib debugging support 
+* OFW: NFC: fix crash on MFC read
+* OFW: Furi: show thread allocation balance for child threads
+* OFW: Add Acurite 609TXC protocol to weather station
+* OFW: DAP-Link: show error if usb is locked
+* OFW: fbt: compile_db fixes
+* OFW: Infrared: add Kaseikyo IR protocol
+* OFW: WS: fix show negative temperature
+* OFW: fbt: fix for launch_app
+* OFW: Code cleanup: srand, PVS warnings
+* OFW: fbt: fixes for ufbt pt3 
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

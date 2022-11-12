@@ -42,7 +42,7 @@ steps:
       - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - echo '' >> CHANGELOG.md
-      - echo '### [No Custom animations build - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -131,6 +131,8 @@ steps:
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
 
+        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})
+
 
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
       document:
@@ -150,6 +152,12 @@ steps:
 
 
         [[Github]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
+
+
+        [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
+
+
+        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})
 
 
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
