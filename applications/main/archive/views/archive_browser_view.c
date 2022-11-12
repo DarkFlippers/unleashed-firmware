@@ -65,7 +65,6 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     if(!archive_is_known_app(selected->type)) {
         furi_string_set(menu[0], "---");
         furi_string_set(menu[1], "---");
-        furi_string_set(menu[2], "---");
     } else {
         if(model->tab_idx == ArchiveTabFavorites) {
             furi_string_set(menu[2], "Move");

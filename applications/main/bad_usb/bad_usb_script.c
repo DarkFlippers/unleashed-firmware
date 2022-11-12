@@ -237,12 +237,8 @@ static int32_t
     const char* line_tmp = furi_string_get_cstr(line);
     bool state = false;
 
-    for(uint32_t i = 0; i < line_len; i++) {
-        if((line_tmp[i] != ' ') && (line_tmp[i] != '\t') && (line_tmp[i] != '\n')) {
-            line_tmp = &line_tmp[i];
-            break; // Skip spaces and tabs
-        }
-        if(i == line_len - 1) return SCRIPT_STATE_NEXT_LINE; // Skip empty lines
+    if(line_len == 0) {
+        return SCRIPT_STATE_NEXT_LINE; // Skip empty lines
     }
 
     FURI_LOG_D(WORKER_TAG, "line:%s", line_tmp);
@@ -450,10 +446,12 @@ static int32_t ducky_script_execute_next(BadUsbScript* bad_usb, File* script_fil
                 bad_usb->st.line_cur++;
                 bad_usb->buf_len = bad_usb->buf_len + bad_usb->buf_start - (i + 1);
                 bad_usb->buf_start = i + 1;
+                furi_string_trim(bad_usb->line);
                 delay_val = ducky_parse_line(
                     bad_usb, bad_usb->line, bad_usb->st.error, sizeof(bad_usb->st.error));
-
-                if(delay_val < 0) {
+                if(delay_val == SCRIPT_STATE_NEXT_LINE) { // Empty line
+                    return 0;
+                } else if(delay_val < 0) {
                     bad_usb->st.error_line = bad_usb->st.line_cur;
                     FURI_LOG_E(WORKER_TAG, "Unknown command at line %u", bad_usb->st.line_cur);
                     return SCRIPT_STATE_ERROR;
