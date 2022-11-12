@@ -241,13 +241,13 @@ distenv.PhonyTarget(
 distenv.PhonyTarget(
     "lint",
     "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py check ${LINT_SOURCES}",
-    LINT_SOURCES=firmware_env["LINT_SOURCES"],
+    LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
 distenv.PhonyTarget(
     "format",
     "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py format ${LINT_SOURCES}",
-    LINT_SOURCES=firmware_env["LINT_SOURCES"],
+    LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
 # PY_LINT_SOURCES contains recursively-built modules' SConscript files + application manifests

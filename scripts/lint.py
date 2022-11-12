@@ -35,11 +35,23 @@ class Main(App):
         )
         self.parser_format.set_defaults(func=self.format)
 
+    @staticmethod
+    def _filter_lint_directories(dirnames: list[str]):
+        # Skipping 3rd-party code - usually resides in subfolder "lib"
+        if "lib" in dirnames:
+            dirnames.remove("lib")
+        # Skipping hidden folders
+        for dirname in dirnames.copy():
+            if dirname.startswith("."):
+                dirnames.remove(dirname)
+
     def _check_folders(self, folders: list):
         show_message = False
         pattern = re.compile(SOURCE_CODE_DIR_PATTERN)
         for folder in folders:
             for dirpath, dirnames, filenames in os.walk(folder):
+                self._filter_lint_directories(dirnames)
+
                 for dirname in dirnames:
                     if not pattern.match(dirname):
                         to_fix = os.path.join(dirpath, dirname)
@@ -54,9 +66,7 @@ class Main(App):
         output = []
         for folder in folders:
             for dirpath, dirnames, filenames in os.walk(folder):
-                # Skipping 3rd-party code - usually resides in subfolder "lib"
-                if "lib" in dirnames:
-                    dirnames.remove("lib")
+                self._filter_lint_directories(dirnames)
 
                 for filename in filenames:
                     ext = os.path.splitext(filename.lower())[1]

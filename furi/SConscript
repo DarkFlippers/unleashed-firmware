@@ -2,8 +2,7 @@ Import("env")
 
 env.Append(
     LINT_SOURCES=[
-        "furi",
-        "furi/core",
+        Dir("."),
     ]
 )
 
