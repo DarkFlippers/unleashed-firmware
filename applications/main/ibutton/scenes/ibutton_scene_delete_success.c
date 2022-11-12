@@ -39,10 +39,5 @@ void ibutton_scene_delete_success_on_exit(void* context) {
     iButton* ibutton = context;
     Popup* popup = ibutton->popup;
 
-    popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, NULL);
-
-    popup_disable_timeout(popup);
-    popup_set_context(popup, NULL);
-    popup_set_callback(popup, NULL);
+    popup_reset(popup);
 }

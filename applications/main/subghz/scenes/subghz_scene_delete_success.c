@@ -44,14 +44,7 @@ bool subghz_scene_delete_success_on_event(void* context, SceneManagerEvent event
 
 void subghz_scene_delete_success_on_exit(void* context) {
     SubGhz* subghz = context;
-
-    // Clear view
     Popup* popup = subghz->popup;
-    popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
-    popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, NULL);
-    popup_set_callback(popup, NULL);
-    popup_set_context(popup, NULL);
-    popup_set_timeout(popup, 0);
-    popup_disable_timeout(popup);
+
+    popup_reset(popup);
 }
