@@ -17,6 +17,7 @@
 * SubGHz Remote: Cleanup code in unirf, fix issue #153
 * Plugins: Remove `srand` calls
 * Plugins: Fix DHT Monitor icon
+* Plugins: RFID Fuzzer - Fix random crashes and improve stability
 * Plugins: RFID Fuzzer - allow holding left right to change delay faster (hold TD button to add +10 or -10 to time delay)
 * Plugins: Morse code cleanup text by pressing back
 * Plugins: TOTP Update - "BadUSB" type key into pc mode [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)

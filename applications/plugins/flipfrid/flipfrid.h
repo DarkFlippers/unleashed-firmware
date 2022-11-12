@@ -81,6 +81,7 @@ typedef struct {
     LFRFIDWorker* worker;
     ProtocolDict* dict;
     ProtocolId protocol;
+    bool workr_rund;
 
     uint8_t time_between_cards;
 
