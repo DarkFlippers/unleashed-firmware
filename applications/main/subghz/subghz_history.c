@@ -123,7 +123,7 @@ void subghz_history_clear_tmp_dir(SubGhzHistory* instance) {
     }
 
     // Stage 2 - create dir if necessary
-    res = !storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
+    res = storage_simply_mkdir(instance->storage, SUBGHZ_HISTORY_TMP_DIR);
     if(!res) {
         FURI_LOG_E(TAG, "Cannot process temp dir!");
     }
