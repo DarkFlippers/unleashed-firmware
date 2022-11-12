@@ -45,6 +45,31 @@ static void debug_changed(VariableItem* item) {
     loader_update_menu();
 }
 
+const char* const heap_trace_mode_text[] = {
+    "None",
+    "Main",
+#if FURI_DEBUG
+    "Tree",
+    "All",
+#endif
+};
+
+const uint32_t heap_trace_mode_value[] = {
+    FuriHalRtcHeapTrackModeNone,
+    FuriHalRtcHeapTrackModeMain,
+#if FURI_DEBUG
+    FuriHalRtcHeapTrackModeTree,
+    FuriHalRtcHeapTrackModeAll,
+#endif
+};
+
+static void heap_trace_mode_changed(VariableItem* item) {
+    // SystemSettings* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, heap_trace_mode_text[index]);
+    furi_hal_rtc_set_heap_track_mode(heap_trace_mode_value[index]);
+}
+
 static uint32_t system_settings_exit(void* context) {
     UNUSED(context);
     return VIEW_NONE;
@@ -78,6 +103,18 @@ SystemSettings* system_settings_alloc() {
     value_index = furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? 1 : 0;
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, debug_text[value_index]);
+
+    item = variable_item_list_add(
+        app->var_item_list,
+        "Heap Trace",
+        COUNT_OF(heap_trace_mode_text),
+        heap_trace_mode_changed,
+        app);
+    value_index = value_index_uint32(
+        furi_hal_rtc_get_heap_track_mode(), heap_trace_mode_value, COUNT_OF(heap_trace_mode_text));
+    furi_hal_rtc_set_heap_track_mode(heap_trace_mode_value[value_index]);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, heap_trace_mode_text[value_index]);
 
     view_set_previous_callback(
         variable_item_list_get_view(app->var_item_list), system_settings_exit);
