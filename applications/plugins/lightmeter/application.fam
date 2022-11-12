@@ -1,0 +1,24 @@
+App(
+    appid="lightmeter",
+    name="[BH1750] Lightmeter",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="lightmeter_app",
+    cdefines=["APP_LIGHTMETER"],
+    requires=[
+        "gui",
+    ],
+    stack_size=1 * 1024,
+    order=90,
+    fap_icon="lightmeter.png",
+    fap_category="GPIO",
+    fap_private_libs=[
+        Lib(
+            name="BH1750",
+            cincludes=["."],
+            sources=[
+                "BH1750.c",
+            ],
+        ),
+    ],
+    fap_icon_assets="icons",
+)
