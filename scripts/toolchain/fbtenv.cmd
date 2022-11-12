@@ -1,6 +1,6 @@
 @echo off
 
-if not [%FBT_ROOT%] == [] (
+if not ["%FBT_ROOT%"] == [""] (
     goto already_set
 )
 
@@ -9,7 +9,7 @@ pushd "%FBT_ROOT%"
 set "FBT_ROOT=%cd%"
 popd
 
-if not [%FBT_NOENV%] == [] (
+if not ["%FBT_NOENV%"] == [""] (
     exit /b 0
 )
 
