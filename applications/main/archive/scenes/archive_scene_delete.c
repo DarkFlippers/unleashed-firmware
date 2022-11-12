@@ -48,11 +48,16 @@ bool archive_scene_delete_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeRight) {
+            // Show loading popup on delete
+            view_dispatcher_switch_to_view(app->view_dispatcher, ArchiveViewStack);
+            archive_show_loading_popup(app, true);
+
             if(selected->is_app) {
                 archive_app_delete_file(browser, name);
             } else {
                 archive_delete_file(browser, "%s", name);
             }
+            archive_show_loading_popup(app, false);
             archive_show_file_menu(browser, false);
             return scene_manager_previous_scene(app->scene_manager);
         } else if(event.event == GuiButtonTypeLeft) {
