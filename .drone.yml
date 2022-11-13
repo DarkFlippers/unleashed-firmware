@@ -103,7 +103,6 @@ steps:
         - artifacts-default/*.tgz
         - artifacts-default/*.zip
         - artifacts-ofw-anims/*.tgz
-        - artifacts-ofw-anims/*.zip
       title: ${DRONE_TAG}
       note: CHANGELOG.md
       checksum:
