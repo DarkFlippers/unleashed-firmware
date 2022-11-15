@@ -1,3 +1,5 @@
+//** Includes sniffbt and sniffskim for compatible ESP32-WROOM hardware.
+// wifi_marauder_scene_start.c also changed **//
 #pragma once
 
 #include "wifi_marauder_app.h"
