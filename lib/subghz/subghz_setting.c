@@ -265,17 +265,17 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool no
                        fff_data_file, "Default_frequency", &temp_data32, 1)) {
                     subghz_setting_set_default_frequency(instance, temp_data32);
                 }
-            }
 
-            // custom preset (optional)
-            if(!flipper_format_rewind(fff_data_file)) {
-                FURI_LOG_E(TAG, "Rewind error");
-                break;
-            }
-            while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
-                FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
-                subghz_setting_load_custom_preset(
-                    instance, furi_string_get_cstr(temp_str), fff_data_file);
+                // custom preset (optional)
+                if(!flipper_format_rewind(fff_data_file)) {
+                    FURI_LOG_E(TAG, "Rewind error");
+                    break;
+                }
+                while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
+                    FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
+                    subghz_setting_load_custom_preset(
+                        instance, furi_string_get_cstr(temp_str), fff_data_file);
+                }
             }
 
         } while(false);
