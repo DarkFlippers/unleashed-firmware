@@ -25,6 +25,7 @@ Frequency: 313000000
 Frequency: 313850000
 Frequency: 314000000
 Frequency: 314350000
+Frequency: 314980000
 Frequency: 315000000
 Frequency: 318000000
 Frequency: 330000000
@@ -67,7 +68,7 @@ Hopper_frequency: 433920000
 Hopper_frequency: 434420000
 Hopper_frequency: 868350000
 
-# Custom preset
+# Custom preset examples
 # format for CC1101 "Custom_preset_data:" XX YY XX YY .. 00 00 ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ, where: XX-register, YY - register data, 00 00 - end load register, ZZ - 8 byte Pa table register
 
 #Custom_preset_name: AM_1
@@ -78,6 +79,17 @@ Hopper_frequency: 868350000
 #Custom_preset_module: CC1101
 #Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
 
+# Custom presets added in Unleashed FW
+# -- Some presets from forum.flipperzero.one --
+
+#2-FSK 200khz BW / 135kHz Filter/ 15.86Khz Deviation + Ramping
+Custom_preset_name: FM15k
+Custom_preset_module: CC1101
+Custom_preset_data: 02 0D 03 47 08 32 0B 06 15 32 14 00 13 00 12 00 11 32 10 A7 18 18 19 1D 1D 92 1C 00 1B 04 20 FB 22 17 21 B6 00 00 00 12 0E 34 60 C5 C1 C0
+
+# -- Other presets --
+
+# Honda Presets
 Custom_preset_name: HND_1
 Custom_preset_module: CC1101
 #                                                          G2    G3    G4    D                 L0    L1    L2
