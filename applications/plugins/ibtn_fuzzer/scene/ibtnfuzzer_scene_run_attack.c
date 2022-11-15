@@ -108,6 +108,7 @@ void ibtnfuzzer_scene_run_attack_on_tick(iBtnFuzzerState* context) {
                 ibutton_worker_stop(context->worker);
                 ibutton_worker_stop_thread(context->worker);
                 context->workr_rund = false;
+                furi_delay_ms(500);
             }
             switch(context->attack) {
             case iBtnFuzzerAttackDefaultValues:
@@ -361,7 +362,7 @@ void ibtnfuzzer_scene_run_attack_on_event(iBtnFuzzerEvent event, iBtnFuzzerState
                 break;
             case InputKeyLeft:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards > 0) {
+                    if(context->time_between_cards > 8) {
                         context->time_between_cards--;
                     }
                 }
@@ -407,8 +408,10 @@ void ibtnfuzzer_scene_run_attack_on_event(iBtnFuzzerEvent event, iBtnFuzzerState
             switch(event.key) {
             case InputKeyLeft:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards > 0) {
-                        context->time_between_cards -= 10;
+                    if(context->time_between_cards > 8) {
+                        if((context->time_between_cards - 10) > 8) {
+                            context->time_between_cards -= 10;
+                        }
                     }
                 }
                 break;

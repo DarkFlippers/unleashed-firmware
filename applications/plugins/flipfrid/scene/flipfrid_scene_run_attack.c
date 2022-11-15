@@ -118,6 +118,7 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                 lfrfid_worker_stop(context->worker);
                 lfrfid_worker_stop_thread(context->worker);
                 context->workr_rund = false;
+                furi_delay_ms(200);
             }
             switch(context->attack) {
             case FlipFridAttackDefaultValues:
@@ -515,7 +516,7 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 break;
             case InputKeyLeft:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards > 0) {
+                    if(context->time_between_cards > 5) {
                         context->time_between_cards--;
                     }
                 }
@@ -562,7 +563,9 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
             case InputKeyLeft:
                 if(!context->is_attacking) {
                     if(context->time_between_cards > 0) {
-                        context->time_between_cards -= 10;
+                        if((context->time_between_cards - 10) > 5) {
+                            context->time_between_cards -= 10;
+                        }
                     }
                 }
                 break;
