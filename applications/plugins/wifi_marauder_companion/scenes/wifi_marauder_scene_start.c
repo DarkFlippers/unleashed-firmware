@@ -58,7 +58,7 @@ const WifiMarauderItem items[NUM_MENU_ITEMS] = {
      FOCUS_CONSOLE_END,
      SHOW_STOPSCAN_TIP},
     {"Sniff",
-     {"beacon", "deauth", "esp", "pmkid", "probe", "pwn", "raw", "bt", "cc"},
+     {"beacon", "deauth", "esp", "pmkid", "probe", "pwn", "raw", "bt", "skim"},
      9,
      {"sniffbeacon", "sniffdeauth", "sniffesp", "sniffpmkid", "sniffprobe", "sniffpwn", "sniffraw", "sniffbt", "sniffskim"},
      NO_ARGS,
