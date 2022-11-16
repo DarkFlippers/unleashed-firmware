@@ -59,7 +59,7 @@ Also check changelog in releases for latest updates!
 - FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - Security+ v1 & v2
-- Star Line (saving only)
+- Star Line
 
 ## Support us so we can buy equipment and develop new features
 * Boosty: https://boosty.to/mmxdev
