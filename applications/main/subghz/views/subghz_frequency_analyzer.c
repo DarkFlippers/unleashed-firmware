@@ -542,7 +542,7 @@ void subghz_frequency_analyzer_enter(void* context) {
     instance->selected_index = 0;
     instance->max_index = 0;
     instance->show_frame = false;
-    subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, RSSI_MIN);
+    //subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, RSSI_MIN);
 
     with_view_model(
         instance->view,
@@ -638,4 +638,9 @@ SubGHzFrequencyAnalyzerFeedbackLevel subghz_frequency_analyzer_feedback_level(
     }
 
     return instance->feedback_level;
+}
+
+float subghz_frequency_analyzer_get_trigger_level(SubGhzFrequencyAnalyzer* instance) {
+    furi_assert(instance);
+    return subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
 }

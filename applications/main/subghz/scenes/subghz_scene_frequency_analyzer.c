@@ -82,5 +82,7 @@ void subghz_scene_frequency_analyzer_on_exit(void* context) {
 
     subghz->last_settings->frequency_analyzer_feedback_level =
         subghz_frequency_analyzer_feedback_level(subghz->subghz_frequency_analyzer, 0, false);
+    subghz->last_settings->frequency_analyzer_trigger =
+        subghz_frequency_analyzer_get_trigger_level(subghz->subghz_frequency_analyzer);
     subghz_last_settings_save(subghz->last_settings);
 }

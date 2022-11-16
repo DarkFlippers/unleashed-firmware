@@ -30,3 +30,5 @@ SubGHzFrequencyAnalyzerFeedbackLevel subghz_frequency_analyzer_feedback_level(
     SubGhzFrequencyAnalyzer* instance,
     SubGHzFrequencyAnalyzerFeedbackLevel level,
     bool update);
+
+float subghz_frequency_analyzer_get_trigger_level(SubGhzFrequencyAnalyzer* instance);
