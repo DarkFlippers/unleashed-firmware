@@ -86,6 +86,8 @@ void SCLcallback(void* _i2c_sniffer) {
 i2cSniffer* i2c_sniffer_alloc() {
     i2cSniffer* i2c_sniffer = malloc(sizeof(i2cSniffer));
     i2c_sniffer->started = false;
+    i2c_sniffer->row_index = 0;
+    i2c_sniffer->menu_index = 0;
     clear_sniffer_buffers(i2c_sniffer);
     return i2c_sniffer;
 }

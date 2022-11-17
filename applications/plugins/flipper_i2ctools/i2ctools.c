@@ -68,6 +68,7 @@ int32_t i2ctools_app(void* p) {
     i2ctools->sender->scanner = i2ctools->scanner;
 
     while(furi_message_queue_get(event_queue, &event, FuriWaitForever) == FuriStatusOk) {
+        // Back
         if(event.key == InputKeyBack && event.type == InputTypeRelease) {
             if(i2ctools->main_view->current_view == MAIN_VIEW) {
                 break;
@@ -79,7 +80,9 @@ int32_t i2ctools_app(void* p) {
                 }
                 i2ctools->main_view->current_view = MAIN_VIEW;
             }
-        } else if(event.key == InputKeyUp && event.type == InputTypeRelease) {
+        }
+        // Up
+        else if(event.key == InputKeyUp && event.type == InputTypeRelease) {
             if(i2ctools->main_view->current_view == MAIN_VIEW) {
                 if((i2ctools->main_view->menu_index > SCAN_VIEW)) {
                     i2ctools->main_view->menu_index--;
@@ -88,29 +91,52 @@ int32_t i2ctools_app(void* p) {
                 if(i2ctools->scanner->menu_index > 0) {
                     i2ctools->scanner->menu_index--;
                 }
+            } else if(i2ctools->main_view->current_view == SNIFF_VIEW) {
+                if(i2ctools->sniffer->row_index > 0) {
+                    i2ctools->sniffer->row_index--;
+                }
             } else if(i2ctools->main_view->current_view == SEND_VIEW) {
                 if(i2ctools->sender->value < 0xFF) {
                     i2ctools->sender->value++;
                     i2ctools->sender->sended = false;
                 }
             }
-        } else if(
+        }
+        // Long Up
+        else if(
             event.key == InputKeyUp &&
             (event.type == InputTypeLong || event.type == InputTypeRepeat)) {
-            if(i2ctools->main_view->current_view == SEND_VIEW) {
+            if(i2ctools->main_view->current_view == SCAN_VIEW) {
+                if(i2ctools->scanner->menu_index > 5) {
+                    i2ctools->scanner->menu_index -= 5;
+                }
+            } else if(i2ctools->main_view->current_view == SEND_VIEW) {
                 if(i2ctools->sender->value < 0xF9) {
                     i2ctools->sender->value += 5;
                     i2ctools->sender->sended = false;
                 }
+            } else if(i2ctools->main_view->current_view == SNIFF_VIEW) {
+                if(i2ctools->sniffer->row_index > 5) {
+                    i2ctools->sniffer->row_index -= 5;
+                } else {
+                    i2ctools->sniffer->row_index = 0;
+                }
             }
-        } else if(event.key == InputKeyDown && event.type == InputTypeRelease) {
+        }
+        // Down
+        else if(event.key == InputKeyDown && event.type == InputTypeRelease) {
             if(i2ctools->main_view->current_view == MAIN_VIEW) {
-                if(i2ctools->main_view->menu_index < 3) {
+                if(i2ctools->main_view->menu_index < MENU_SIZE - 1) {
                     i2ctools->main_view->menu_index++;
                 }
             } else if(i2ctools->main_view->current_view == SCAN_VIEW) {
                 if(i2ctools->scanner->menu_index < ((int)i2ctools->scanner->nb_found / 3)) {
                     i2ctools->scanner->menu_index++;
+                }
+            } else if(i2ctools->main_view->current_view == SNIFF_VIEW) {
+                if((i2ctools->sniffer->row_index + 3) <
+                   (int)i2ctools->sniffer->frames[i2ctools->sniffer->menu_index].data_index) {
+                    i2ctools->sniffer->row_index++;
                 }
             } else if(i2ctools->main_view->current_view == SEND_VIEW) {
                 if(i2ctools->sender->value > 0x00) {
@@ -118,11 +144,23 @@ int32_t i2ctools_app(void* p) {
                     i2ctools->sender->sended = false;
                 }
             }
-        } else if(event.key == InputKeyDown && event.type == InputTypeLong) {
+        }
+        // Long Down
+        else if(
+            event.key == InputKeyDown &&
+            (event.type == InputTypeLong || event.type == InputTypeRepeat)) {
             if(i2ctools->main_view->current_view == SEND_VIEW) {
                 if(i2ctools->sender->value > 0x05) {
                     i2ctools->sender->value -= 5;
                     i2ctools->sender->sended = false;
+                } else {
+                    i2ctools->sender->value = 0;
+                    i2ctools->sender->sended = false;
+                }
+            } else if(i2ctools->main_view->current_view == SNIFF_VIEW) {
+                if((i2ctools->sniffer->row_index + 8) <
+                   (int)i2ctools->sniffer->frames[i2ctools->sniffer->menu_index].data_index) {
+                    i2ctools->sniffer->row_index += 5;
                 }
             }
 
@@ -153,6 +191,7 @@ int32_t i2ctools_app(void* p) {
             } else if(i2ctools->main_view->current_view == SNIFF_VIEW) {
                 if(i2ctools->sniffer->menu_index < i2ctools->sniffer->frame_index) {
                     i2ctools->sniffer->menu_index++;
+                    i2ctools->sniffer->row_index = 0;
                 }
             }
         } else if(event.key == InputKeyLeft && event.type == InputTypeRelease) {
@@ -164,6 +203,7 @@ int32_t i2ctools_app(void* p) {
             } else if(i2ctools->main_view->current_view == SNIFF_VIEW) {
                 if(i2ctools->sniffer->menu_index > 0) {
                     i2ctools->sniffer->menu_index--;
+                    i2ctools->sniffer->row_index = 0;
                 }
             }
         }
