@@ -77,6 +77,16 @@ DTMFDolphinSceneData DTMFDolphinSceneDataRedboxUS = {
         {"Dollar", 1700.0, 2200.0, {3, 0, 5}, 1, 650, 0},
     }};
 
+DTMFDolphinSceneData DTMFDolphinSceneDataRedboxCA = {
+    .name = "Redbox (CA)",
+    .block = DTMF_DOLPHIN_TONE_BLOCK_REDBOX_CA,
+    .tone_count = 3,
+    .tones = {
+        {"Nickel", 2200.0, 0.0, {0, 0, 5}, 1, 66, 0},
+        {"Dime", 2200.0, 0.0, {1, 0, 5}, 2, 66, 66},
+        {"Quarter", 2200.0, 0.0, {2, 0, 5}, 5, 33, 33},
+    }};
+
 DTMFDolphinSceneData DTMFDolphinSceneDataRedboxUK = {
     .name = "Redbox (UK)",
     .block = DTMF_DOLPHIN_TONE_BLOCK_REDBOX_UK,
@@ -108,6 +118,9 @@ void dtmf_dolphin_data_set_current_section(DTMFDolphinToneSection section) {
         break;
     case DTMF_DOLPHIN_TONE_BLOCK_REDBOX_US:
         current_scene_data = &DTMFDolphinSceneDataRedboxUS;
+        break;
+    case DTMF_DOLPHIN_TONE_BLOCK_REDBOX_CA:
+        current_scene_data = &DTMFDolphinSceneDataRedboxCA;
         break;
     case DTMF_DOLPHIN_TONE_BLOCK_REDBOX_UK:
         current_scene_data = &DTMFDolphinSceneDataRedboxUK;
