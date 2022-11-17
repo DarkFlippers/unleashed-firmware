@@ -11,48 +11,43 @@
 #include "../hmac/byteswap.h"
 #include "../timezone_utils/timezone_utils.h"
 
-/*
-	Generates the timeblock for a time in seconds.
-	
-	Timeblocks are the amount of intervals in a given time. For example,
-	if 1,000,000 seconds has passed for 30 second intervals, you would get
-	33,333 timeblocks (intervals), where timeblock++ is effectively +30 seconds.
-	
-	for_time is a time in seconds to get the current timeblocks
-	
-	Returns
-			timeblock given for_time, using data->interval
-		error, 0
-*/
+#define HMAC_MAX_SIZE 64
+
+/**
+ * @brief Generates the timeblock for a time in seconds.
+ *        Timeblocks are the amount of intervals in a given time. For example,
+ *        if 1,000,000 seconds has passed for 30 second intervals, you would get
+ *        33,333 timeblocks (intervals), where timeblock++ is effectively +30 seconds.
+ * @param interval in seconds
+ * @param for_time a time in seconds to get the current timeblocks
+ * @return Timeblock given \p for_time using \p interval
+ */
 uint64_t totp_timecode(uint8_t interval, uint64_t for_time) {
     return for_time / interval;
 }
 
-/*
-	Generates an OTP (One Time Password).
-	
-	input is a number used to generate the OTP
-	out_str is the null-terminated output string already allocated
-	
-	Returns
-			OTP code if otp code was successfully generated
-		0 otherwise
-*/
+/**
+ * @brief Generates an OTP (One Time Password)
+ * @param algo hashing algorithm to be used
+ * @param digits desired TOTP code length
+ * @param plain_secret plain token secret
+ * @param plain_secret_length plain token secret length
+ * @param input input data for OTP code generation
+ * @return OTP code if code was successfully generated; 0 otherwise
+ */
 uint32_t otp_generate(
     TOTP_ALGO algo,
     uint8_t digits,
     const uint8_t* plain_secret,
     size_t plain_secret_length,
     uint64_t input) {
-    uint8_t* hmac = malloc(64);
-    if(hmac == NULL) return OTP_ERROR;
-    memset(hmac, 0, 64);
+    uint8_t hmac[HMAC_MAX_SIZE] = {0};
 
     uint64_t input_swapped = swap_uint64(input);
 
-    int hmac_len = (*algo)(plain_secret, plain_secret_length, (uint8_t*)&input_swapped, 8, hmac);
+    int hmac_len =
+        (*algo)(plain_secret, plain_secret_length, (uint8_t*)&input_swapped, 8, &hmac[0]);
     if(hmac_len == 0) {
-        free(hmac);
         return OTP_ERROR;
     }
 
@@ -62,21 +57,9 @@ uint32_t otp_generate(
          (hmac[offset + 2] & 0xFF) << 8 | (hmac[offset + 3] & 0xFF));
     i_code %= (uint64_t)pow(10, digits);
 
-    free(hmac);
     return i_code;
 }
 
-/*
-	Generates a OTP key using the totp algorithm.
-	
-	for_time is the time the generated key will be created for
-	offset is a timeblock adjustment for the generated key
-	out_str is the null-terminated output string already allocated
-	
-	Returns
-			TOTP code if otp code was successfully generated
-		0 otherwise
-*/
 uint32_t totp_at(
     TOTP_ALGO algo,
     uint8_t digits,

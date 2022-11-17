@@ -4,6 +4,7 @@
 #include "../delete/delete.h"
 #include "../list/list.h"
 #include "../timezone/timezone.h"
+#include "../move/move.h"
 
 void totp_cli_command_help_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_HELP ", " TOTP_CLI_COMMAND_HELP_ALT
@@ -23,6 +24,7 @@ void totp_cli_command_help_handle() {
     totp_cli_command_add_docopt_usage();
     totp_cli_command_delete_docopt_usage();
     totp_cli_command_timezone_docopt_usage();
+    totp_cli_command_move_docopt_usage();
     cli_nl();
     TOTP_CLI_PRINTF("Commands:\r\n");
     totp_cli_command_help_docopt_commands();
@@ -30,6 +32,7 @@ void totp_cli_command_help_handle() {
     totp_cli_command_add_docopt_commands();
     totp_cli_command_delete_docopt_commands();
     totp_cli_command_timezone_docopt_commands();
+    totp_cli_command_move_docopt_commands();
     cli_nl();
     TOTP_CLI_PRINTF("Arguments:\r\n");
     totp_cli_command_add_docopt_arguments();
@@ -39,4 +42,5 @@ void totp_cli_command_help_handle() {
     TOTP_CLI_PRINTF("Options:\r\n");
     totp_cli_command_add_docopt_options();
     totp_cli_command_delete_docopt_options();
+    totp_cli_command_move_docopt_options();
 }

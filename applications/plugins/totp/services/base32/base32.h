@@ -29,5 +29,11 @@
 
 #include <stdint.h>
 
-int base32_decode(const uint8_t* encoded, uint8_t* result, int bufSize)
-    __attribute__((visibility("hidden")));
+/**
+ * @brief Decodes Base-32 encoded bytes into plain bytes.
+ * @param encoded Base-32 encoded bytes
+ * @param[out] result result output buffer
+ * @param bufSize result output buffer size
+ * @return Decoded result length in bytes if successfully decoded; \c -1 otherwise
+ */
+int base32_decode(const uint8_t* encoded, uint8_t* result, int bufSize);

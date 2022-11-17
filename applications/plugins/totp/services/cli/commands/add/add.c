@@ -175,6 +175,8 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
         } else if(furi_string_cmpi_str(temp_str, TOTP_CLI_COMMAND_ADD_ARG_UNSECURE_PREFIX) == 0) {
             mask_user_input = false;
             parsed = true;
+        } else {
+            TOTP_CLI_PRINTF("Unknown argument \"%s\"\r\n", furi_string_get_cstr(temp_str));
         }
 
         if(!parsed) {

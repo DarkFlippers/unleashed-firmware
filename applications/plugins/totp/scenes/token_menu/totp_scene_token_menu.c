@@ -147,13 +147,14 @@ bool totp_scene_token_menu_handle_event(const PluginEvent* const event, PluginSt
             dialog_message_free(message);
             if(dialog_result == DialogMessageButtonRight &&
                !scene_state->current_token_index.is_null) {
-                ListNode* list_node = list_element_at(
-                    plugin_state->tokens_list, scene_state->current_token_index.value);
-
-                TokenInfo* tokenInfo = list_node->data;
-                token_info_free(tokenInfo);
-                plugin_state->tokens_list = list_remove(plugin_state->tokens_list, list_node);
+                TokenInfo* tokenInfo = NULL;
+                plugin_state->tokens_list = list_remove_at(
+                    plugin_state->tokens_list,
+                    scene_state->current_token_index.value,
+                    (void**)&tokenInfo);
                 plugin_state->tokens_count--;
+                furi_check(tokenInfo != NULL);
+                token_info_free(tokenInfo);
 
                 totp_full_save_config_file(plugin_state);
                 totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
