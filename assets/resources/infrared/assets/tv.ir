@@ -1,6 +1,78 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 15th Oct, 2022
+# Last Updated 14th Nov, 2022
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0F F0 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0A F5 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 58 A7 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 4B B4 00 00
+#
+name: CH+
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1F E0 00 00
+#
+name: CH-
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1E E1 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 1C E3 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4B B4 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4F B0 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 08 F7 00 00
+#
+name: CH+
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 09 F6 00 00
+#
+name: CH-
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 05 FA 00 00
 #
 name: POWER
 type: raw
