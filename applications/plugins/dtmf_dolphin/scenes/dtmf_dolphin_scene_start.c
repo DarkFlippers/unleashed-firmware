@@ -17,6 +17,9 @@ static void dtmf_dolphin_scene_start_main_menu_enter_callback(void* context, uin
         cust_event = DTMFDolphinEventStartRedboxUK;
         break;
     case 4:
+        cust_event = DTMFDolphinEventStartRedboxCA;
+        break;
+    case 5:
         cust_event = DTMFDolphinEventStartMisc;
         break;
     default:
@@ -38,6 +41,7 @@ void dtmf_dolphin_scene_start_on_enter(void* context) {
     variable_item_list_add(var_item_list, "Bluebox", 0, NULL, context);
     variable_item_list_add(var_item_list, "Redbox (US)", 0, NULL, context);
     variable_item_list_add(var_item_list, "Redbox (UK)", 0, NULL, context);
+    variable_item_list_add(var_item_list, "Redbox (CA)", 0, NULL, context);
     variable_item_list_add(var_item_list, "Misc", 0, NULL, context);
 
     variable_item_list_set_selected_item(
@@ -66,6 +70,9 @@ bool dtmf_dolphin_scene_start_on_event(void* context, SceneManagerEvent event) {
             break;
         case DTMFDolphinEventStartRedboxUK:
             sc_state = DTMFDolphinSceneStateRedboxUK;
+            break;
+        case DTMFDolphinEventStartRedboxCA:
+            sc_state = DTMFDolphinSceneStateRedboxCA;
             break;
         case DTMFDolphinEventStartMisc:
             sc_state = DTMFDolphinSceneStateMisc;

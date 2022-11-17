@@ -8,6 +8,7 @@ typedef enum {
     DTMFDolphinEventStartBluebox,
     DTMFDolphinEventStartRedboxUS,
     DTMFDolphinEventStartRedboxUK,
+    DTMFDolphinEventStartRedboxCA,
     DTMFDolphinEventStartMisc,
     DTMFDolphinEventPlayTones,
     DTMFDolphinEventStopTones,
