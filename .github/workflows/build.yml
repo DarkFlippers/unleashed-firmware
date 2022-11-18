@@ -1,0 +1,24 @@
+name: Build
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Compile Firmware
+      run: |
+        chmod +x ./fbt
+        ./fbt
+    - name: Generate artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: download ZIP
+        path: dist/*/*
