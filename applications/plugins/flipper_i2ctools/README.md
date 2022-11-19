@@ -1,8 +1,9 @@
 # flipperzero-i2ctools
 
 [Original link](https://github.com/NaejEL/flipperzero-i2ctools)
-
 Set of i2c tools for Flipper Zero
+
+![Preview](i2ctools.gif)
 
 ## Wiring
 
@@ -28,18 +29,16 @@ Spy i2c traffic
 
 Send command to i2c peripherals and read result 
 
-### Player
-
-> Not implemented yet
-
-Send command from file
-
 ## TODO
 
 - [ ] Read more than 2 bytes in sender mode
+- [ ] Add 10-bits adresses support
+- [ ] Test with rate > 100khz
 - [ ] Save records
 - [ ] Play from files
 - [ ] Kicad module
 - [ ] Improve UI
-- [ ] Refactor Menu Management Code
+- [ ] Refactor Event Management Code
 - [ ] Add Documentation
+- [ ] Remove max data size
+- [ ] Remove max frames read size

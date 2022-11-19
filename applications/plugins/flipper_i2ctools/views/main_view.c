@@ -4,9 +4,8 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_rframe(canvas, 0, 0, 128, 64, 3);
-    canvas_draw_icon(canvas, 2, 13, &I_passport_bad3_46x49);
+    canvas_draw_icon(canvas, 2, 2, &I_i2ctools_main_76x59);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 3, 3, AlignLeft, AlignTop, APP_NAME);
 
     switch(main_view->menu_index) {
     case SCAN_VIEW:
@@ -15,7 +14,7 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
             canvas, SNIFF_MENU_X, SNIFF_MENU_Y, AlignLeft, AlignTop, SNIFF_MENU_TEXT);
         canvas_draw_str_aligned(
             canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);
-        canvas_draw_rbox(canvas, 60, SCAN_MENU_Y - 2, 60, 13, 3);
+        canvas_draw_rbox(canvas, 80, SCAN_MENU_Y - 2, 43, 13, 3);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_str_aligned(
             canvas, SCAN_MENU_X, SCAN_MENU_Y, AlignLeft, AlignTop, SCAN_MENU_TEXT);
@@ -27,7 +26,7 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
             canvas, SCAN_MENU_X, SCAN_MENU_Y, AlignLeft, AlignTop, SCAN_MENU_TEXT);
         canvas_draw_str_aligned(
             canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);
-        canvas_draw_rbox(canvas, 60, SNIFF_MENU_Y - 2, 60, 13, 3);
+        canvas_draw_rbox(canvas, 80, SNIFF_MENU_Y - 2, 43, 13, 3);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_str_aligned(
             canvas, SNIFF_MENU_X, SNIFF_MENU_Y, AlignLeft, AlignTop, SNIFF_MENU_TEXT);
@@ -39,7 +38,7 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
             canvas, SCAN_MENU_X, SCAN_MENU_Y, AlignLeft, AlignTop, SCAN_MENU_TEXT);
         canvas_draw_str_aligned(
             canvas, SNIFF_MENU_X, SNIFF_MENU_Y, AlignLeft, AlignTop, SNIFF_MENU_TEXT);
-        canvas_draw_rbox(canvas, 60, SEND_MENU_Y - 2, 60, 13, 3);
+        canvas_draw_rbox(canvas, 80, SEND_MENU_Y - 2, 43, 13, 3);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_str_aligned(
             canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);

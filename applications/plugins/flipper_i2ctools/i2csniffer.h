@@ -33,6 +33,7 @@ typedef struct {
     i2cFrame frames[MAX_RECORDS];
     uint8_t frame_index;
     uint8_t menu_index;
+    uint8_t row_index;
 } i2cSniffer;
 
 void clear_sniffer_buffers(i2cSniffer* i2c_sniffer);

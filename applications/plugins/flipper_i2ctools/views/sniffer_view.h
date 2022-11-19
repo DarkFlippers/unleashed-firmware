@@ -4,8 +4,6 @@
 #include <i2cTools_icons.h>
 #include "../i2csniffer.h"
 
-#define SNIFF_MENU_TEXT "Sniff"
-#define SNIFF_MENU_X 75
-#define SNIFF_MENU_Y 20
+#define SNIFF_TEXT "SNIFF"
 
 void draw_sniffer_view(Canvas* canvas, i2cSniffer* i2c_sniffer);
