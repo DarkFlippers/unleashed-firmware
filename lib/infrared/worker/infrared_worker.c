@@ -223,10 +223,7 @@ void infrared_worker_rx_set_received_signal_callback(
 InfraredWorker* infrared_worker_alloc() {
     InfraredWorker* instance = malloc(sizeof(InfraredWorker));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "InfraredWorker");
-    furi_thread_set_stack_size(instance->thread, 2048);
-    furi_thread_set_context(instance->thread, instance);
+    instance->thread = furi_thread_alloc_ex("InfraredWorker", 2048, NULL, instance);
 
     size_t buffer_size =
         MAX(sizeof(InfraredWorkerTiming) * (MAX_TIMINGS_AMOUNT + 1),

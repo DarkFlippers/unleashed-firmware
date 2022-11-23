@@ -186,11 +186,8 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
 SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     SubGhzFileEncoderWorker* instance = malloc(sizeof(SubGhzFileEncoderWorker));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "SubGhzFEWorker");
-    furi_thread_set_stack_size(instance->thread, 2048);
-    furi_thread_set_context(instance->thread, instance);
-    furi_thread_set_callback(instance->thread, subghz_file_encoder_worker_thread);
+    instance->thread =
+        furi_thread_alloc_ex("SubGhzFEWorker", 2048, subghz_file_encoder_worker_thread, instance);
     instance->stream = furi_stream_buffer_alloc(sizeof(int32_t) * 2048, sizeof(int32_t));
 
     instance->storage = furi_record_open(RECORD_STORAGE);

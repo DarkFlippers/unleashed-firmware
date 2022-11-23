@@ -13,7 +13,7 @@ fbtenv_show_usage()
     echo "Running this script manually is wrong, please source it";
     echo "Example:";
     printf "\tsource scripts/toolchain/fbtenv.sh\n";
-    echo "To restore your enviroment source fbtenv.sh with '--restore'."
+    echo "To restore your environment source fbtenv.sh with '--restore'."
     echo "Example:";
     printf "\tsource scripts/toolchain/fbtenv.sh --restore\n";
 }
@@ -237,7 +237,7 @@ fbtenv_curl_wget_check()
             echo;
             echo "$TOOLCHAIN_URL";
             echo;
-            echo "And place in $FBT_TOOLCHAIN_PATH/toolchain/ dir mannualy";
+            echo "And place in $FBT_TOOLCHAIN_PATH/toolchain/ dir manually";
             return 1;
         fi
         echo "yes"

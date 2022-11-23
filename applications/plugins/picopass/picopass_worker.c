@@ -25,11 +25,8 @@ PicopassWorker* picopass_worker_alloc() {
     PicopassWorker* picopass_worker = malloc(sizeof(PicopassWorker));
 
     // Worker thread attributes
-    picopass_worker->thread = furi_thread_alloc();
-    furi_thread_set_name(picopass_worker->thread, "PicopassWorker");
-    furi_thread_set_stack_size(picopass_worker->thread, 8192);
-    furi_thread_set_callback(picopass_worker->thread, picopass_worker_task);
-    furi_thread_set_context(picopass_worker->thread, picopass_worker);
+    picopass_worker->thread =
+        furi_thread_alloc_ex("PicopassWorker", 8192, picopass_worker_task, picopass_worker);
 
     picopass_worker->callback = NULL;
     picopass_worker->context = NULL;

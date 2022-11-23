@@ -68,10 +68,7 @@ static void cli_vcp_init() {
 
     vcp->connected = false;
 
-    vcp->thread = furi_thread_alloc();
-    furi_thread_set_name(vcp->thread, "CliVcpWorker");
-    furi_thread_set_stack_size(vcp->thread, 1024);
-    furi_thread_set_callback(vcp->thread, vcp_worker);
+    vcp->thread = furi_thread_alloc_ex("CliVcpWorker", 1024, vcp_worker, NULL);
     furi_thread_start(vcp->thread);
 
     FURI_LOG_I(TAG, "Init OK");

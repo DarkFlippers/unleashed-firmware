@@ -295,7 +295,7 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
 
     furi_hal_power_suppress_charge_exit();
 
-    printf("\r\nPackets recieved %u\r\n", instance->packet_count);
+    printf("\r\nPackets received %u\r\n", instance->packet_count);
 
     // Cleanup
     subghz_receiver_free(receiver);
@@ -403,7 +403,7 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
             }
         }
 
-        printf("\r\nPackets recieved \033[0;32m%u\033[0m\r\n", instance->packet_count);
+        printf("\r\nPackets received \033[0;32m%u\033[0m\r\n", instance->packet_count);
 
         // Cleanup
         subghz_receiver_free(receiver);
@@ -433,7 +433,7 @@ static void subghz_cli_command_print_usage() {
         printf("\r\n");
         printf("  debug cmd:\r\n");
         printf("\ttx_carrier <frequency:in Hz>\t - Transmit carrier\r\n");
-        printf("\trx_carrier <frequency:in Hz>\t - Receiv carrier\r\n");
+        printf("\trx_carrier <frequency:in Hz>\t - Receive carrier\r\n");
         printf(
             "\tencrypt_keeloq <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt keeloq manufacture keys\r\n");
         printf(

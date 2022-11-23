@@ -492,11 +492,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->enable_adv = true;
 
     // Thread configuration
-    gap->thread = furi_thread_alloc();
-    furi_thread_set_name(gap->thread, "BleGapDriver");
-    furi_thread_set_stack_size(gap->thread, 1024);
-    furi_thread_set_context(gap->thread, gap);
-    furi_thread_set_callback(gap->thread, gap_app);
+    gap->thread = furi_thread_alloc_ex("BleGapDriver", 1024, gap_app, gap);
     furi_thread_start(gap->thread);
 
     // Command queue allocation

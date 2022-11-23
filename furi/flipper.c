@@ -34,11 +34,11 @@ void flipper_init() {
     for(size_t i = 0; i < FLIPPER_SERVICES_COUNT; i++) {
         FURI_LOG_I(TAG, "starting service %s", FLIPPER_SERVICES[i].name);
 
-        FuriThread* thread = furi_thread_alloc();
-
-        furi_thread_set_name(thread, FLIPPER_SERVICES[i].name);
-        furi_thread_set_stack_size(thread, FLIPPER_SERVICES[i].stack_size);
-        furi_thread_set_callback(thread, FLIPPER_SERVICES[i].app);
+        FuriThread* thread = furi_thread_alloc_ex(
+            FLIPPER_SERVICES[i].name,
+            FLIPPER_SERVICES[i].stack_size,
+            FLIPPER_SERVICES[i].app,
+            NULL);
         furi_thread_mark_as_service(thread);
 
         furi_thread_start(thread);

@@ -4,6 +4,7 @@
 #include "infactory.h"
 #include "thermopro_tx4.h"
 #include "nexus_th.h"
+#include "gt_wt_02.h"
 #include "gt_wt_03.h"
 #include "acurite_606tx.h"
 #include "acurite_609txc.h"

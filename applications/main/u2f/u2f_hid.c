@@ -282,11 +282,7 @@ U2fHid* u2f_hid_start(U2fData* u2f_inst) {
 
     u2f_hid->u2f_instance = u2f_inst;
 
-    u2f_hid->thread = furi_thread_alloc();
-    furi_thread_set_name(u2f_hid->thread, "U2fHidWorker");
-    furi_thread_set_stack_size(u2f_hid->thread, 2048);
-    furi_thread_set_context(u2f_hid->thread, u2f_hid);
-    furi_thread_set_callback(u2f_hid->thread, u2f_hid_worker);
+    u2f_hid->thread = furi_thread_alloc_ex("U2fHidWorker", 2048, u2f_hid_worker, u2f_hid);
     furi_thread_start(u2f_hid->thread);
     return u2f_hid;
 }

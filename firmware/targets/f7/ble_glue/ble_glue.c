@@ -78,11 +78,7 @@ void ble_glue_init() {
     ble_glue->shci_sem = furi_semaphore_alloc(1, 0);
 
     // FreeRTOS system task creation
-    ble_glue->thread = furi_thread_alloc();
-    furi_thread_set_name(ble_glue->thread, "BleShciDriver");
-    furi_thread_set_stack_size(ble_glue->thread, 1024);
-    furi_thread_set_context(ble_glue->thread, ble_glue);
-    furi_thread_set_callback(ble_glue->thread, ble_glue_shci_thread);
+    ble_glue->thread = furi_thread_alloc_ex("BleShciDriver", 1024, ble_glue_shci_thread, ble_glue);
     furi_thread_start(ble_glue->thread);
 
     // System channel initialization

@@ -15,11 +15,8 @@ NfcMagicWorker* nfc_magic_worker_alloc() {
     NfcMagicWorker* nfc_magic_worker = malloc(sizeof(NfcMagicWorker));
 
     // Worker thread attributes
-    nfc_magic_worker->thread = furi_thread_alloc();
-    furi_thread_set_name(nfc_magic_worker->thread, "NfcMagicWorker");
-    furi_thread_set_stack_size(nfc_magic_worker->thread, 8192);
-    furi_thread_set_callback(nfc_magic_worker->thread, nfc_magic_worker_task);
-    furi_thread_set_context(nfc_magic_worker->thread, nfc_magic_worker);
+    nfc_magic_worker->thread =
+        furi_thread_alloc_ex("NfcMagicWorker", 8192, nfc_magic_worker_task, nfc_magic_worker);
 
     nfc_magic_worker->callback = NULL;
     nfc_magic_worker->context = NULL;

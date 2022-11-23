@@ -135,6 +135,19 @@ FuriThread* furi_thread_alloc() {
     return thread;
 }
 
+FuriThread* furi_thread_alloc_ex(
+    const char* name,
+    uint32_t stack_size,
+    FuriThreadCallback callback,
+    void* context) {
+    FuriThread* thread = furi_thread_alloc();
+    furi_thread_set_name(thread, name);
+    furi_thread_set_stack_size(thread, stack_size);
+    furi_thread_set_callback(thread, callback);
+    furi_thread_set_context(thread, context);
+    return thread;
+}
+
 void furi_thread_free(FuriThread* thread) {
     furi_assert(thread);
     furi_assert(thread->state == FuriThreadStateStopped);

@@ -441,19 +441,6 @@ static int32_t cdc_process(void* p) {
 /******************************* MAIN APP **********************************/
 /***************************************************************************/
 
-static FuriThread* furi_thread_alloc_ex(
-    const char* name,
-    uint32_t stack_size,
-    FuriThreadCallback callback,
-    void* context) {
-    FuriThread* thread = furi_thread_alloc();
-    furi_thread_set_name(thread, name);
-    furi_thread_set_stack_size(thread, stack_size);
-    furi_thread_set_callback(thread, callback);
-    furi_thread_set_context(thread, context);
-    return thread;
-}
-
 static DapApp* dap_app_alloc() {
     DapApp* dap_app = malloc(sizeof(DapApp));
     dap_app->dap_thread = furi_thread_alloc_ex("DAP Process", 1024, dap_process, dap_app);

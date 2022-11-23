@@ -24,7 +24,7 @@ void weather_station_scene_about_on_enter(void* context) {
 
     furi_string_cat_printf(temp_str, "\e#%s\n", "Description");
     furi_string_cat_printf(
-        temp_str, "Reading messages from\nweather station that work\nwith SubGhz sensors\n\n");
+        temp_str, "Reading messages from\nweather stations that work\nwith SubGhz sensors\n\n");
 
     furi_string_cat_printf(temp_str, "Supported protocols:\n");
     size_t i = 0;

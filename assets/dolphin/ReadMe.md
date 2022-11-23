@@ -52,7 +52,7 @@ Version: 1
 - `Active cooldown` - amount of seconds (after passive mode) to pass before entering next active mode.
 
 - `Bubble slots` - amount of bubble sequences.
-- Any bubble sequence plays whole sequence during active mode. There can be many bubble sequences and bubbles inside it. Bubbles in 1 bubble sequence have to reside in 1 slot. Bubbles order in 1 bubble sequence is determined by occurance in file. As soon as frame index goes out of EndFrame index of bubble - next animation bubble is choosen. There can also be free of bubbles frames between 2 bubbles.
+- Any bubble sequence plays whole sequence during active mode. There can be many bubble sequences and bubbles inside it. Bubbles in 1 bubble sequence have to reside in 1 slot. Bubbles order in 1 bubble sequence is determined by occurrence in file. As soon as frame index goes out of EndFrame index of bubble - next animation bubble is chosen. There can also be free of bubbles frames between 2 bubbles.
 
 - `Slot` - number to unite bubbles for same sequence.
 - `X`, `Y` - are coordinates of left top corner of bubble.

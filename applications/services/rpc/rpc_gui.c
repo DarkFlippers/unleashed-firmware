@@ -88,12 +88,8 @@ static void rpc_system_gui_start_screen_stream_process(const PB_Main* request, v
             malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(framebuffer_size));
         rpc_gui->transmit_frame->content.gui_screen_frame.data->size = framebuffer_size;
         // Transmission thread for async TX
-        rpc_gui->transmit_thread = furi_thread_alloc();
-        furi_thread_set_name(rpc_gui->transmit_thread, "GuiRpcWorker");
-        furi_thread_set_callback(
-            rpc_gui->transmit_thread, rpc_system_gui_screen_stream_frame_transmit_thread);
-        furi_thread_set_context(rpc_gui->transmit_thread, rpc_gui);
-        furi_thread_set_stack_size(rpc_gui->transmit_thread, 1024);
+        rpc_gui->transmit_thread = furi_thread_alloc_ex(
+            "GuiRpcWorker", 1024, rpc_system_gui_screen_stream_frame_transmit_thread, rpc_gui);
         furi_thread_start(rpc_gui->transmit_thread);
         // GUI framebuffer callback
         gui_add_framebuffer_callback(

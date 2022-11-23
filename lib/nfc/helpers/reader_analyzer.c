@@ -108,11 +108,8 @@ ReaderAnalyzer* reader_analyzer_alloc() {
     instance->stream =
         furi_stream_buffer_alloc(READER_ANALYZER_MAX_BUFF_SIZE, sizeof(ReaderAnalyzerHeader));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "ReaderAnalyzerWorker");
-    furi_thread_set_stack_size(instance->thread, 2048);
-    furi_thread_set_callback(instance->thread, reader_analyzer_thread);
-    furi_thread_set_context(instance->thread, instance);
+    instance->thread =
+        furi_thread_alloc_ex("ReaderAnalyzerWorker", 2048, reader_analyzer_thread, instance);
     furi_thread_set_priority(instance->thread, FuriThreadPriorityLow);
 
     return instance;

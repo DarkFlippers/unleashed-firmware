@@ -104,11 +104,8 @@ FuriThread* flipper_application_spawn(FlipperApplication* app, void* args) {
     const FlipperApplicationManifest* manifest = flipper_application_get_manifest(app);
     furi_check(manifest->stack_size > 0);
 
-    app->thread = furi_thread_alloc();
-    furi_thread_set_stack_size(app->thread, manifest->stack_size);
-    furi_thread_set_name(app->thread, manifest->name);
-    furi_thread_set_callback(app->thread, flipper_application_thread);
-    furi_thread_set_context(app->thread, args);
+    app->thread = furi_thread_alloc_ex(
+        manifest->name, manifest->stack_size, flipper_application_thread, args);
 
     return app->thread;
 }

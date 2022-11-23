@@ -201,11 +201,8 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
 SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
     SubGhzTxRxWorker* instance = malloc(sizeof(SubGhzTxRxWorker));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "SubGhzTxRxWorker");
-    furi_thread_set_stack_size(instance->thread, 2048);
-    furi_thread_set_context(instance->thread, instance);
-    furi_thread_set_callback(instance->thread, subghz_tx_rx_worker_thread);
+    instance->thread =
+        furi_thread_alloc_ex("SubGhzTxRxWorker", 2048, subghz_tx_rx_worker_thread, instance);
     instance->stream_tx =
         furi_stream_buffer_alloc(sizeof(uint8_t) * SUBGHZ_TXRX_WORKER_BUF_SIZE, sizeof(uint8_t));
     instance->stream_rx =
