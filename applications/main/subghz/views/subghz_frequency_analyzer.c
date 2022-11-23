@@ -169,7 +169,7 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     // RSSI
     canvas_draw_str(canvas, 33, 62, "RSSI");
     subghz_frequency_analyzer_draw_rssi(
-        canvas, model->rssi, model->rssi_last, model->trigger, 57, 58);
+        canvas, model->rssi, model->rssi_last, model->trigger, 56, 57);
 
     // Last detected frequency
     subghz_frequency_analyzer_history_frequency_draw(canvas, model);
