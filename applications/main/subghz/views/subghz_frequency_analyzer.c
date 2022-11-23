@@ -13,8 +13,6 @@
 #include <assets_icons.h>
 
 #define LOG_FREQUENCY_MAX_ITEMS 60 // uint8_t (limited by 'seq' of SubGhzFrequencyAnalyzerLogItem)
-#define RSSI_OFFSET 74
-#define RSSI_MAX 53 // 127 - RSSI_OFFSET
 
 #define SNPRINTF_FREQUENCY(buff, freq) \
     snprintf(buff, sizeof(buff), "%03ld.%03ld", freq / 1000000 % 1000, freq / 1000 % 1000);
@@ -49,7 +47,7 @@ typedef struct {
 } SubGhzFrequencyAnalyzerModel;
 
 static inline uint8_t rssi_sanitize(float rssi) {
-    return (rssi * -1.0f) - RSSI_OFFSET;
+    return (rssi ? (uint8_t)(rssi - SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) : 0);
 }
 
 void subghz_frequency_analyzer_set_callback(
@@ -65,12 +63,25 @@ void subghz_frequency_analyzer_set_callback(
 void subghz_frequency_analyzer_draw_rssi(Canvas* canvas, uint8_t rssi, uint8_t x, uint8_t y) {
     uint8_t column_number = 0;
     if(rssi) {
-        rssi = rssi / 3;
+        rssi = rssi / 3 + 2;
+        if(rssi > 20) rssi = 20;
         for(uint8_t i = 1; i < rssi; i++) {
-            if(i > 20) break;
             if(i % 4) {
                 column_number++;
-                canvas_draw_box(canvas, x + 2 * i, y - column_number, 2, 4 + column_number);
+                canvas_draw_box(canvas, x + 2 * i, y - column_number, 2, column_number);
+            }
+        }
+    }
+}
+
+void subghz_frequency_analyzer_draw_log_rssi(Canvas* canvas, uint8_t rssi, uint8_t x, uint8_t y) {
+    uint8_t column_height = 6;
+    if(rssi) {
+        //rssi = rssi
+        if(rssi > 54) rssi = 54;
+        for(uint8_t i = 1; i < rssi; i++) {
+            if(i % 5) {
+                canvas_draw_box(canvas, x + i, y - column_height, 1, column_height);
             }
         }
     }
@@ -86,9 +97,9 @@ static void subghz_frequency_analyzer_log_frequency_draw(
 
     const size_t items_count = SubGhzFrequencyAnalyzerLogItemArray_size(model->log_frequency);
     if(items_count == 0) {
-        canvas_draw_rframe(canvas, offset_x + 27u, offset_y - 3u, 73u, 16u, 5u);
+        canvas_draw_rframe(canvas, offset_x + 27, offset_y - 3, 73, 16, 5);
         canvas_draw_str_aligned(
-            canvas, offset_x + 64u, offset_y + 8u, AlignCenter, AlignBottom, "No records");
+            canvas, offset_x + 64, offset_y + 8, AlignCenter, AlignBottom, "No records");
         return;
     } else if(items_count > 3) {
         elements_scrollbar_pos(
@@ -117,7 +128,7 @@ static void subghz_frequency_analyzer_log_frequency_draw(
         canvas_draw_str(canvas, offset_x + 48, offset_y + i * 10, buffer);
 
         // Max RSSI
-        subghz_frequency_analyzer_draw_rssi(
+        subghz_frequency_analyzer_draw_log_rssi(
             canvas, (*log_frequency_item)->rssi_max, offset_x + 69, (offset_y + i * 10));
     }
 
@@ -167,25 +178,20 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     } else {
         canvas_draw_str(canvas, 20, 8, "Frequency Analyzer");
         canvas_draw_str(canvas, 0, 64, "RSSI");
-        subghz_frequency_analyzer_draw_rssi(canvas, model->rssi, 20u, 64u);
+        subghz_frequency_analyzer_draw_rssi(canvas, model->rssi, 20, 64);
 
         subghz_frequency_analyzer_history_frequency_draw(canvas, model);
     }
 
     // Frequency
     canvas_set_font(canvas, FontBigNumbers);
-    snprintf(
-        buffer,
-        sizeof(buffer),
-        "%03ld.%03ld",
-        model->frequency / 1000000 % 1000,
-        model->frequency / 1000 % 1000);
+    SNPRINTF_FREQUENCY(buffer, model->frequency);
     if(model->signal) {
-        canvas_draw_box(canvas, 4, 12, 121, 22);
+        canvas_draw_box(canvas, 4, 11, 121, 22);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_str(canvas, 8, 30, buffer);
-    canvas_draw_icon(canvas, 96, 19, &I_MHz_25x11);
+    canvas_draw_str(canvas, 8, 29, buffer);
+    canvas_draw_icon(canvas, 96, 18, &I_MHz_25x11);
 }
 
 static void subghz_frequency_analyzer_log_frequency_sort(SubGhzFrequencyAnalyzerModel* model) {
@@ -292,7 +298,7 @@ static bool subghz_frequency_analyzer_log_frequency_insert(SubGhzFrequencyAnalyz
             return false;
         }
         (*item)->frequency = model->frequency;
-        (*item)->count = 1u;
+        (*item)->count = 1;
         (*item)->rssi_max = model->rssi;
         (*item)->seq = items_count;
         return true;
@@ -394,9 +400,9 @@ void subghz_frequency_analyzer_enter(void* context) {
             model->frequency = 0;
             model->fragment_bottom_type = SubGhzFrequencyAnalyzerFragmentBottomTypeMain;
             model->log_frequency_order_by = SubGhzFrequencyAnalyzerLogOrderBySeqDesc;
-            model->log_frequency_scroll_offset = 0u;
+            model->log_frequency_scroll_offset = 0;
             model->history_frequency[0] = model->history_frequency[1] =
-                model->history_frequency[2] = 0u;
+                model->history_frequency[2] = 0;
             SubGhzFrequencyAnalyzerLogItemArray_init(model->log_frequency);
         },
         true);
@@ -416,13 +422,13 @@ void subghz_frequency_analyzer_exit(void* context) {
         instance->view,
         SubGhzFrequencyAnalyzerModel * model,
         {
-            model->rssi = 0u;
+            model->rssi = 0;
             model->frequency = 0;
             model->fragment_bottom_type = SubGhzFrequencyAnalyzerFragmentBottomTypeMain;
             model->log_frequency_order_by = SubGhzFrequencyAnalyzerLogOrderBySeqDesc;
-            model->log_frequency_scroll_offset = 0u;
+            model->log_frequency_scroll_offset = 0;
             model->history_frequency[0] = model->history_frequency[1] =
-                model->history_frequency[2] = 0u;
+                model->history_frequency[2] = 0;
             SubGhzFrequencyAnalyzerLogItemArray_clear(model->log_frequency);
         },
         true);

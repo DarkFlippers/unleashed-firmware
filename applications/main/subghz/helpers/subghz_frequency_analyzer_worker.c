@@ -5,8 +5,6 @@
 
 #define TAG "SubghzFrequencyAnalyzerWorker"
 
-#define SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD -95.0f
-
 static const uint8_t subghz_preset_ook_58khz[][2] = {
     {CC1101_MDMCFG4, 0b11110111}, // Rx BW filter is 58.035714kHz
     /* End  */
@@ -71,7 +69,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         .frequency_coarse = 0, .rssi_coarse = 0, .frequency_fine = 0, .rssi_fine = 0};
     float rssi = 0;
     uint32_t frequency = 0;
-    float rssi_temp = 0;
+    float rssi_temp = -127.0f;
     uint32_t frequency_temp = 0;
     CC1101Status status;
 
@@ -196,7 +194,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 TAG, "=:%lu:%f", frequency_rssi.frequency_fine, (double)frequency_rssi.rssi_fine);
 
             instance->sample_hold_counter = 20;
-            rssi_temp = frequency_rssi.rssi_fine;
+            rssi_temp = (rssi_temp + frequency_rssi.rssi_fine) / 2;
             frequency_temp = frequency_rssi.frequency_fine;
 
             if(instance->filVal) {
@@ -207,10 +205,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             // Deliver callback
             if(instance->pair_callback) {
                 instance->pair_callback(
-                    instance->context,
-                    frequency_rssi.frequency_fine,
-                    frequency_rssi.rssi_fine,
-                    true);
+                    instance->context, frequency_rssi.frequency_fine, rssi_temp, true);
             }
         } else if( // Deliver results coarse
             (frequency_rssi.rssi_coarse > SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) &&
@@ -222,7 +217,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 (double)frequency_rssi.rssi_coarse);
 
             instance->sample_hold_counter = 20;
-            rssi_temp = frequency_rssi.rssi_coarse;
+            rssi_temp = (rssi_temp + frequency_rssi.rssi_coarse) / 2;
             frequency_temp = frequency_rssi.frequency_coarse;
             if(instance->filVal) {
                 frequency_rssi.frequency_coarse =
@@ -232,15 +227,12 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             // Deliver callback
             if(instance->pair_callback) {
                 instance->pair_callback(
-                    instance->context,
-                    frequency_rssi.frequency_coarse,
-                    frequency_rssi.rssi_coarse,
-                    true);
+                    instance->context, frequency_rssi.frequency_coarse, rssi_temp, true);
             }
         } else {
             if(instance->sample_hold_counter > 0) {
                 instance->sample_hold_counter--;
-                if(instance->sample_hold_counter == 18) {
+                if(instance->sample_hold_counter == 15) {
                     if(instance->pair_callback) {
                         instance->pair_callback(
                             instance->context, frequency_temp, rssi_temp, false);
@@ -248,8 +240,8 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 }
             } else {
                 instance->filVal = 0;
-                if(instance->pair_callback)
-                    instance->pair_callback(instance->context, 0, 0, false);
+                rssi_temp = -127.0f;
+                instance->pair_callback(instance->context, 0, 0, false);
             }
         }
     }

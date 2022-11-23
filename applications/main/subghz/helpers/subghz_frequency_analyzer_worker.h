@@ -3,6 +3,8 @@
 #include <furi_hal.h>
 #include "../subghz_i.h"
 
+#define SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD -93.0f
+
 typedef struct SubGhzFrequencyAnalyzerWorker SubGhzFrequencyAnalyzerWorker;
 
 typedef void (*SubGhzFrequencyAnalyzerWorkerPairCallback)(
