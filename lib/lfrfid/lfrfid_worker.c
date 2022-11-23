@@ -29,11 +29,7 @@ LFRFIDWorker* lfrfid_worker_alloc(ProtocolDict* dict) {
     worker->raw_filename = NULL;
     worker->mode_storage = NULL;
 
-    worker->thread = furi_thread_alloc();
-    furi_thread_set_name(worker->thread, "lfrfid_worker");
-    furi_thread_set_callback(worker->thread, lfrfid_worker_thread);
-    furi_thread_set_context(worker->thread, worker);
-    furi_thread_set_stack_size(worker->thread, 2048);
+    worker->thread = furi_thread_alloc_ex("LfrfidWorker", 2048, lfrfid_worker_thread, worker);
 
     worker->protocols = dict;
 

@@ -37,11 +37,7 @@ iButtonWorker* ibutton_worker_alloc() {
     worker->emulate_cb = NULL;
     worker->cb_ctx = NULL;
 
-    worker->thread = furi_thread_alloc();
-    furi_thread_set_name(worker->thread, "ibutton_worker");
-    furi_thread_set_callback(worker->thread, ibutton_worker_thread);
-    furi_thread_set_context(worker->thread, worker);
-    furi_thread_set_stack_size(worker->thread, 2048);
+    worker->thread = furi_thread_alloc_ex("iButtonWorker", 2048, ibutton_worker_thread, worker);
 
     worker->protocols = protocol_dict_alloc(ibutton_protocols, iButtonProtocolMax);
 

@@ -97,11 +97,8 @@ MusicPlayerWorker* music_player_worker_alloc() {
 
     NoteBlockArray_init(instance->notes);
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "MusicPlayerWorker");
-    furi_thread_set_stack_size(instance->thread, 1024);
-    furi_thread_set_context(instance->thread, instance);
-    furi_thread_set_callback(instance->thread, music_player_worker_thread_callback);
+    instance->thread = furi_thread_alloc_ex(
+        "MusicPlayerWorker", 1024, music_player_worker_thread_callback, instance);
 
     instance->volume = 1.0f;
 

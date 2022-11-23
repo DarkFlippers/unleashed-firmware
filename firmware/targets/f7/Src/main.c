@@ -26,10 +26,7 @@ int main() {
     // Flipper critical FURI HAL
     furi_hal_init_early();
 
-    FuriThread* main_thread = furi_thread_alloc();
-    furi_thread_set_name(main_thread, "Init");
-    furi_thread_set_stack_size(main_thread, 4096);
-    furi_thread_set_callback(main_thread, init_task);
+    FuriThread* main_thread = furi_thread_alloc_ex("Init", 4096, init_task, NULL);
 
 #ifdef FURI_RAM_EXEC
     furi_thread_start(main_thread);

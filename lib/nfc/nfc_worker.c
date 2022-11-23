@@ -12,11 +12,7 @@ NfcWorker* nfc_worker_alloc() {
     NfcWorker* nfc_worker = malloc(sizeof(NfcWorker));
 
     // Worker thread attributes
-    nfc_worker->thread = furi_thread_alloc();
-    furi_thread_set_name(nfc_worker->thread, "NfcWorker");
-    furi_thread_set_stack_size(nfc_worker->thread, 8192);
-    furi_thread_set_callback(nfc_worker->thread, nfc_worker_task);
-    furi_thread_set_context(nfc_worker->thread, nfc_worker);
+    nfc_worker->thread = furi_thread_alloc_ex("NfcWorker", 8192, nfc_worker_task, nfc_worker);
 
     nfc_worker->callback = NULL;
     nfc_worker->context = NULL;

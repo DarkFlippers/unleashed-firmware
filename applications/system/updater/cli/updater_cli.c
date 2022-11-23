@@ -110,11 +110,8 @@ static void updater_start_app() {
      * inside loader process, at startup. 
      * So, accessing its record would cause a deadlock 
      */
-    FuriThread* thread = furi_thread_alloc();
-
-    furi_thread_set_name(thread, "UpdateAppSpawner");
-    furi_thread_set_stack_size(thread, 768);
-    furi_thread_set_callback(thread, updater_spawner_thread_worker);
+    FuriThread* thread =
+        furi_thread_alloc_ex("UpdateAppSpawner", 768, updater_spawner_thread_worker, NULL);
     furi_thread_set_state_callback(thread, updater_spawner_thread_cleanup);
     furi_thread_set_state_context(thread, thread);
     furi_thread_start(thread);

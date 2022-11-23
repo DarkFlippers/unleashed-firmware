@@ -220,11 +220,7 @@ static UartEchoApp* uart_echo_app_alloc() {
     furi_hal_uart_set_br(FuriHalUartIdUSART1, 115200);
     furi_hal_uart_set_irq_cb(FuriHalUartIdUSART1, uart_echo_on_irq_cb, app);
 
-    app->worker_thread = furi_thread_alloc();
-    furi_thread_set_name(app->worker_thread, "UsbUartWorker");
-    furi_thread_set_stack_size(app->worker_thread, 1024);
-    furi_thread_set_context(app->worker_thread, app);
-    furi_thread_set_callback(app->worker_thread, uart_echo_worker);
+    app->worker_thread = furi_thread_alloc_ex("UsbUartWorker", 1024, uart_echo_worker, app);
     furi_thread_start(app->worker_thread);
 
     return app;

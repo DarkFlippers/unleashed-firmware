@@ -43,11 +43,8 @@ MU_TEST(storage_file_open_lock) {
     File* file = storage_file_alloc(storage);
 
     // file_locker thread start
-    FuriThread* locker_thread = furi_thread_alloc();
-    furi_thread_set_name(locker_thread, "StorageFileLocker");
-    furi_thread_set_stack_size(locker_thread, 2048);
-    furi_thread_set_context(locker_thread, semaphore);
-    furi_thread_set_callback(locker_thread, storage_file_locker);
+    FuriThread* locker_thread =
+        furi_thread_alloc_ex("StorageFileLocker", 2048, storage_file_locker, semaphore);
     furi_thread_start(locker_thread);
 
     // wait for file lock
@@ -133,11 +130,8 @@ MU_TEST(storage_dir_open_lock) {
     File* file = storage_file_alloc(storage);
 
     // file_locker thread start
-    FuriThread* locker_thread = furi_thread_alloc();
-    furi_thread_set_name(locker_thread, "StorageDirLocker");
-    furi_thread_set_stack_size(locker_thread, 2048);
-    furi_thread_set_context(locker_thread, semaphore);
-    furi_thread_set_callback(locker_thread, storage_dir_locker);
+    FuriThread* locker_thread =
+        furi_thread_alloc_ex("StorageDirLocker", 2048, storage_dir_locker, semaphore);
     furi_thread_start(locker_thread);
 
     // wait for dir lock

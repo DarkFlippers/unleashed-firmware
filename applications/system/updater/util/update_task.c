@@ -216,11 +216,8 @@ UpdateTask* update_task_alloc() {
     update_task->boot_mode = furi_hal_rtc_get_boot_mode();
     update_task->update_path = furi_string_alloc();
 
-    FuriThread* thread = update_task->thread = furi_thread_alloc();
-
-    furi_thread_set_name(thread, "UpdateWorker");
-    furi_thread_set_stack_size(thread, 5120);
-    furi_thread_set_context(thread, update_task);
+    FuriThread* thread = update_task->thread =
+        furi_thread_alloc_ex("UpdateWorker", 5120, NULL, update_task);
 
     furi_thread_set_state_callback(thread, update_task_worker_thread_cb);
     furi_thread_set_state_context(thread, update_task);

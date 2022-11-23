@@ -60,6 +60,20 @@ typedef void (*FuriThreadStateCallback)(FuriThreadState state, void* context);
  */
 FuriThread* furi_thread_alloc();
 
+/** Allocate FuriThread, shortcut version
+ * 
+ * @param name 
+ * @param stack_size 
+ * @param callback 
+ * @param context 
+ * @return FuriThread* 
+ */
+FuriThread* furi_thread_alloc_ex(
+    const char* name,
+    uint32_t stack_size,
+    FuriThreadCallback callback,
+    void* context);
+
 /** Release FuriThread
  *
  * @param      thread  FuriThread instance

@@ -657,12 +657,7 @@ BadUsbScript* bad_usb_script_open(FuriString* file_path) {
     bad_usb->st.state = BadUsbStateInit;
     bad_usb->st.error[0] = '\0';
 
-    bad_usb->thread = furi_thread_alloc();
-    furi_thread_set_name(bad_usb->thread, "BadUsbWorker");
-    furi_thread_set_stack_size(bad_usb->thread, 2048);
-    furi_thread_set_context(bad_usb->thread, bad_usb);
-    furi_thread_set_callback(bad_usb->thread, bad_usb_worker);
-
+    bad_usb->thread = furi_thread_alloc_ex("BadUsbWorker", 2048, bad_usb_worker, bad_usb);
     furi_thread_start(bad_usb->thread);
     return bad_usb;
 }

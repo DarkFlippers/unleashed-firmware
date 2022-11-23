@@ -61,10 +61,7 @@ static int32_t lfrfid_raw_emulate_worker_thread(void* thread_context);
 LFRFIDRawWorker* lfrfid_raw_worker_alloc() {
     LFRFIDRawWorker* worker = malloc(sizeof(LFRFIDRawWorker));
 
-    worker->thread = furi_thread_alloc();
-    furi_thread_set_name(worker->thread, "lfrfid_raw_worker");
-    furi_thread_set_context(worker->thread, worker);
-    furi_thread_set_stack_size(worker->thread, 2048);
+    worker->thread = furi_thread_alloc_ex("LfrfidRawWorker", 2048, NULL, worker);
 
     worker->events = furi_event_flag_alloc(NULL);
 
