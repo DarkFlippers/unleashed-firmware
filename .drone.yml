@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: "Build firmware"
+name: "Release firmware"
 
 steps:
   - name: "Update submodules"
@@ -11,19 +11,19 @@ steps:
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
-  - name: "Build default FW"
+  - name: "Build firmware"
     image: hfdj/fztools
     pull: never
     commands:
       - export DIST_SUFFIX=${DRONE_TAG}
-      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
       - ls -laS artifacts-default/f7-update-${DRONE_TAG}
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
-      - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -34,15 +34,15 @@ steps:
     commands:
       - rm -f assets/dolphin/external/manifest.txt
       - cp .ci_files/anims_ofw.txt assets/dolphin/external/manifest.txt
-      - export DIST_SUFFIX=${DRONE_TAG}
-      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - export DIST_SUFFIX=${DRONE_TAG}n
+      - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-ofw-anims
       - mv dist/f7-C/* artifacts-ofw-anims/
       - ls -laS artifacts-ofw-anims
-      - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}
+      - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}n
       - echo '' >> CHANGELOG.md
-      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -50,15 +50,17 @@ steps:
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
-      - mv artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}.tgz artifacts-ofw-anims/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz
-      - cp artifacts-ofw-anims/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz .
+      - cp artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
-      - zip -r artifacts-ofw-anims/flipper-z-f7-update-noanims-${DRONE_TAG}.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}
+      - zip -r artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}n
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
+      - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts debug
       - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
       - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-default
+      - mv artifacts-default/ ${DRONE_TAG}
+      - ls -laS ${DRONE_TAG}
 
   - name: "Upload default to updates srv"
     image: appleboy/drone-scp
@@ -72,8 +74,14 @@ steps:
       port:
         from_secret: dep_port
       target:
-        from_secret: dep_target
-      source: flipper-z-f7-update-${DRONE_TAG}.tgz
+        from_secret: dep_target_new
+      source:
+        - ${DRONE_TAG}/*.tgz
+        - ${DRONE_TAG}/*.zip
+        - ${DRONE_TAG}/*.json
+        - ${DRONE_TAG}/*.elf
+        - ${DRONE_TAG}/*.dfu
+        - ${DRONE_TAG}/*.bin
 
   - name: "Upload no-anims to updates srv"
     image: appleboy/drone-scp
@@ -87,8 +95,19 @@ steps:
       port:
         from_secret: dep_port
       target:
-        from_secret: dep_target
-      source: flipper-z-f7-update-noanims-${DRONE_TAG}.tgz
+        from_secret: dep_target_noanim
+      source: flipper-z-f7-update-${DRONE_TAG}n.tgz
+
+  - name: "Trigger update server reindex"
+    image: hfdj/fztools
+    pull: never
+    environment:
+      UPD_KEY:
+        from_secret: git_update_serv_token
+      UPD_URL:
+        from_secret: git_update_server_url
+    commands:
+      - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
 
   - name: "Do Github release"
     image: ddplugins/github-release
@@ -100,8 +119,8 @@ steps:
       api_key:
         from_secret: github_apikey
       files:
-        - artifacts-default/*.tgz
-        - artifacts-default/*.zip
+        - ${DRONE_TAG}/*.tgz
+        - ${DRONE_TAG}/*.zip
         - artifacts-ofw-anims/*.tgz
       title: ${DRONE_TAG}
       note: CHANGELOG.md
@@ -130,12 +149,12 @@ steps:
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
 
-        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})
+        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
 
 
-        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
       document:
-        - artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz
+        - ${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz
 
   - name: "Send discord notification"
     image: appleboy/drone-discord
@@ -156,14 +175,138 @@ steps:
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
 
-        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-noanims-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})
+        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
 
 
-        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/builds/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
 
 trigger:
+  branch:
+    - release
   event:
     - tag
+
+node:
+  typ: haupt
+
+---
+kind: pipeline
+type: docker
+name: "Dev build"
+
+steps:
+  - name: "Update submodules"
+    image: alpine/git
+    commands:
+      - git submodule sync
+      - git -c protocol.version=2 submodule update --init --force --recursive
+      - git submodule foreach git config --local gc.auto 0
+      - git log -1 --format='%H'
+
+  - name: "Build dev FW"
+    image: hfdj/fztools
+    pull: never
+    commands:
+      - export DIST_SUFFIX=${DRONE_TAG}
+      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir artifacts-default
+      - mv dist/f7-C/* artifacts-default/
+      - ls -laS artifacts-default
+      - ls -laS artifacts-default/f7-update-${DRONE_TAG}
+    environment:
+      FBT_TOOLS_CUSTOM_LINK:
+        from_secret: fbt_link
+
+  - name: "Bundle self-update packages"
+    image: kramos/alpine-zip
+    commands:
+      - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
+      - rm -rf artifacts-default/f7-update-${DRONE_TAG}
+      - ls -laS artifacts-default
+      - mv artifacts-default/ dev
+      - ls -laS dev
+
+  - name: "Clean dev folder"
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      command_timeout: 1m
+      script:
+        - cd web/unleashedflip.com/public_html/fw/dev
+        - ls -laS
+        - rm -f ./*
+        - ls -laS
+
+  - name: "Upload default to updates srv"
+    image: appleboy/drone-scp
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target_new
+      source:
+        - dev/*.tgz
+        - dev/*.zip
+        - dev/*.json
+        - dev/*.elf
+        - dev/*.dfu
+        - dev/*.bin
+
+  - name: "Trigger update server reindex"
+    image: hfdj/fztools
+    pull: never
+    environment:
+      UPD_KEY:
+        from_secret: git_update_serv_token
+      UPD_URL:
+        from_secret: git_update_server_url
+    commands:
+      - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
+
+  - name: "Send files to telegram"
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: tgtoken
+      to:
+        from_secret: tgid_dev
+      format: markdown
+      message: "Unleashed firmware dev build successful!
+
+
+        Version: {{build.tag}}
+
+        Build: {{build.number}}
+
+        SHA: {{commit.sha}}
+
+
+        Commit: {{commit.message}}
+
+
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
+      document:
+        - dev/flipper-z-f7-update-${DRONE_TAG}.tgz
+
+trigger:
+  branch:
+    - dev
+  event:
+    - push
 
 node:
   typ: haupt
