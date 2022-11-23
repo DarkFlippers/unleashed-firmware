@@ -101,7 +101,7 @@ bool totp_scene_app_settings_handle_event(
     }
 
     SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-    if(event->input.type != InputTypePress) {
+    if(event->input.type != InputTypePress && event->input.type != InputTypeRepeat) {
         return true;
     }
 

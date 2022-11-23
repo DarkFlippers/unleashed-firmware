@@ -22,6 +22,7 @@ enum DTMFDolphinSceneState {
     DTMFDolphinSceneStateBluebox,
     DTMFDolphinSceneStateRedboxUS,
     DTMFDolphinSceneStateRedboxUK,
+    DTMFDolphinSceneStateRedboxCA,
     DTMFDolphinSceneStateMisc,
 };
 

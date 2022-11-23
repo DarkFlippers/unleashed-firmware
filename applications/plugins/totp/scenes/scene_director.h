@@ -5,12 +5,46 @@
 #include "../types/plugin_event.h"
 #include "totp_scenes_enum.h"
 
+/**
+ * @brief Activates scene
+ * @param plugin_state application state
+ * @param scene scene to be activated
+ * @param context scene context to be passed to the scene activation method
+ */
 void totp_scene_director_activate_scene(
     PluginState* const plugin_state,
     Scene scene,
     const void* context);
+
+/**
+ * @brief Deactivate current scene
+ * @param plugin_state application state
+ */
 void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state);
+
+/**
+ * @brief Initializes all the available scenes
+ * @param plugin_state application state
+ */
 void totp_scene_director_init_scenes(PluginState* const plugin_state);
+
+/**
+ * @brief Renders current scene
+ * @param canvas canvas to render at
+ * @param plugin_state application state
+ */
 void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_state);
+
+/**
+ * @brief Disposes all the available scenes
+ * @param plugin_state application state
+ */
 void totp_scene_director_dispose(const PluginState* const plugin_state);
+
+/**
+ * @brief Handles application event for the current scene
+ * @param event event to be handled
+ * @param plugin_state application state
+ * @return \c true if event handled and applilcation should continue; \c false if application should be closed
+ */
 bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* const plugin_state);

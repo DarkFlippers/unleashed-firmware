@@ -293,7 +293,7 @@ bool totp_scene_generate_token_handle_event(
         return true;
     }
 
-    if(event->input.type != InputTypePress) {
+    if(event->input.type != InputTypePress && event->input.type != InputTypeRepeat) {
         return true;
     }
 

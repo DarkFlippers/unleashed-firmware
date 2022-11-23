@@ -17,6 +17,9 @@ void dtmf_dolphin_scene_dialer_on_enter(void* context) {
     case DTMFDolphinSceneStateRedboxUK:
         dtmf_dolphin_data_set_current_section(DTMF_DOLPHIN_TONE_BLOCK_REDBOX_UK);
         break;
+    case DTMFDolphinSceneStateRedboxCA:
+        dtmf_dolphin_data_set_current_section(DTMF_DOLPHIN_TONE_BLOCK_REDBOX_CA);
+        break;
     case DTMFDolphinSceneStateMisc:
         dtmf_dolphin_data_set_current_section(DTMF_DOLPHIN_TONE_BLOCK_MISC);
         break;

@@ -1,6 +1,37 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 20th Oct, 2022
+# Last Updated 14th Nov, 2022
+#
+name: VOL+
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 14 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 10 00 00 00
+#
+# ON
+name: POWER
+type: parsed
+protocol: RC5
+address: 10 00 00 00
+command: 0E 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 0C F3 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 09 F6 00 00
 #
 name: POWER
 type: raw
@@ -1567,4 +1598,11 @@ type: parsed
 protocol: NECext
 address: 12 36 00 00
 command: 01 FE 00 00
+#
+# OFF
+name: POWER
+type: parsed
+protocol: RC5
+address: 10 00 00 00
+command: 0F 00 00 00
 #

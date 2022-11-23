@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string.h>
-
 #include "base32.h"
 
 int base32_decode(const uint8_t* encoded, uint8_t* result, int bufSize) {
