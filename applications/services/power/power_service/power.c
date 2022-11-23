@@ -65,11 +65,31 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
 
         if(power->state == PowerStateCharging) {
             canvas_set_bitmap_mode(canvas, 1);
-            canvas_set_color(canvas, ColorWhite);
             // TODO: replace -1 magic for uint8_t with re-framing
-            canvas_draw_icon(canvas, 8, -1, &I_Charging_lightning_mask_9x10);
-            canvas_set_color(canvas, ColorBlack);
-            canvas_draw_icon(canvas, 8, -1, &I_Charging_lightning_9x10);
+            if(power->displayBatteryPercentage == 1) {
+                canvas_set_color(canvas, ColorBlack);
+                canvas_draw_box(canvas, 1, 1, 22, 6);
+                canvas_draw_icon(canvas, 2, -1, &I_Charging_lightning_9x10);
+                canvas_set_color(canvas, ColorWhite);
+                canvas_draw_icon(canvas, 2, -1, &I_Charging_lightning_mask_9x10);
+                canvas_set_font(canvas, FontBatteryPercent);
+                canvas_draw_str_aligned(
+                    canvas, 16, 4, AlignCenter, AlignCenter, batteryPercentile);
+            } else if(power->displayBatteryPercentage == 2) {
+                canvas_set_color(canvas, ColorWhite);
+                canvas_draw_box(canvas, 1, 1, 22, 6);
+                canvas_draw_icon(canvas, 2, -1, &I_Charging_lightning_9x10);
+                canvas_set_color(canvas, ColorBlack);
+                canvas_draw_icon(canvas, 2, -1, &I_Charging_lightning_mask_9x10);
+                canvas_set_font(canvas, FontBatteryPercent);
+                canvas_draw_str_aligned(
+                    canvas, 16, 4, AlignCenter, AlignCenter, batteryPercentile);
+            } else {
+                canvas_set_color(canvas, ColorWhite);
+                canvas_draw_icon(canvas, 8, -1, &I_Charging_lightning_mask_9x10);
+                canvas_set_color(canvas, ColorBlack);
+                canvas_draw_icon(canvas, 8, -1, &I_Charging_lightning_9x10);
+            }
             canvas_set_bitmap_mode(canvas, 0);
         }
     } else {
