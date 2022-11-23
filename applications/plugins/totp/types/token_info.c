@@ -3,9 +3,9 @@
 #include "token_info.h"
 #include "stdlib.h"
 #include "common.h"
-#include "../services/base32/base32.h"
+#include "../lib/base32/base32.h"
 #include "../services/crypto/crypto.h"
-#include "../services/crypto/memset_s.h"
+#include "../lib/polyfills/memset_s.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
@@ -45,15 +45,17 @@ bool token_info_set_secret(
     return result;
 }
 
-uint8_t token_info_get_digits_count(const TokenInfo* token_info) {
-    switch(token_info->digits) {
-    case TOTP_6_DIGITS:
-        return 6;
-    case TOTP_8_DIGITS:
-        return 8;
+bool token_info_set_digits_from_int(TokenInfo* token_info, uint8_t digits) {
+    switch(digits) {
+    case 6:
+        token_info->digits = TOTP_6_DIGITS;
+        return true;
+    case 8:
+        token_info->digits = TOTP_8_DIGITS;
+        return true;
     default:
         break;
     }
 
-    return 6;
+    return false;
 }

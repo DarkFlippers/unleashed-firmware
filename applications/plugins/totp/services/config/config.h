@@ -6,10 +6,12 @@
 #include "../../types/token_info.h"
 #include "constants.h"
 
+typedef uint8_t TokenLoadingResult;
+
 /**
  * @brief Token loading results
  */
-typedef enum {
+enum TokenLoadingResults {
     /**
      * @brief All the tokens loaded successfully 
      */
@@ -24,7 +26,7 @@ typedef enum {
      * @brief Tokens not loaded because of error(s) 
      */
     TokenLoadingResultError
-} TokenLoadingResult;
+};
 
 /**
  * @brief Opens storage record
@@ -80,3 +82,15 @@ void totp_config_file_save_new_token(const TokenInfo* token_info);
  * @param new_timezone_offset new timezone offset to be set
  */
 void totp_config_file_update_timezone_offset(float new_timezone_offset);
+
+/**
+ * @brief Updates notification method in an application config file
+ * @param new_notification_method new notification method to be set
+ */
+void totp_config_file_update_notification_method(NotificationMethod new_notification_method);
+
+/**
+ * @brief Updates application user settings
+ * @param plugin_state application state
+ */
+void totp_config_file_update_user_settings(const PluginState* plugin_state);

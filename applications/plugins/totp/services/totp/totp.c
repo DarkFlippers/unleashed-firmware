@@ -9,7 +9,7 @@
 #include "../hmac/hmac_sha256.h"
 #include "../hmac/hmac_sha512.h"
 #include "../hmac/byteswap.h"
-#include "../timezone_utils/timezone_utils.h"
+#include "../../lib/timezone_utils/timezone_utils.h"
 
 #define HMAC_MAX_SIZE 64
 

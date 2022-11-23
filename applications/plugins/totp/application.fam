@@ -16,5 +16,22 @@ App(
     order=20,
     fap_category="Misc",
     fap_icon_assets="images",
-    fap_icon="totp_10px.png"
+    fap_icon="totp_10px.png",
+    fap_private_libs=[
+        Lib(
+            name="base32",
+        ),
+        Lib(
+            name="list",
+        ),
+        Lib(
+            name="timezone_utils",
+        ),
+        Lib(
+            name="polyfills",
+        ),
+        Lib(
+            name="roll_value",
+        ),
+    ],
 )

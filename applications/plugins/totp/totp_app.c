@@ -7,24 +7,22 @@
 #include <flipper_format/flipper_format.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include "services/base32/base32.h"
-#include "services/list/list.h"
 #include "services/config/config.h"
 #include "types/plugin_state.h"
 #include "types/token_info.h"
 #include "types/plugin_event.h"
 #include "types/event_type.h"
 #include "types/common.h"
-#include "scenes/scene_director.h"
-#include "services/ui/constants.h"
+#include "ui/scene_director.h"
+#include "ui/constants.h"
 #include "services/crypto/crypto.h"
-#include "services/cli/cli.h"
+#include "cli/cli.h"
 
 #define IDLE_TIMEOUT 60000
 
 static void render_callback(Canvas* const canvas, void* ctx) {
     PluginState* plugin_state = acquire_mutex((ValueMutex*)ctx, 25);
-    if(plugin_state != NULL && !plugin_state->changing_scene) {
+    if(plugin_state != NULL) {
         totp_scene_director_render(canvas, plugin_state);
     }
 
@@ -40,8 +38,8 @@ static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queu
 
 static bool totp_plugin_state_init(PluginState* const plugin_state) {
     plugin_state->gui = furi_record_open(RECORD_GUI);
-    plugin_state->notification = furi_record_open(RECORD_NOTIFICATION);
-    plugin_state->dialogs = furi_record_open(RECORD_DIALOGS);
+    plugin_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
+    plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);
 
     totp_config_file_load_base(plugin_state);
 
@@ -59,7 +57,8 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
             SCREEN_HEIGHT_CENTER,
             AlignCenter,
             AlignCenter);
-        DialogMessageButton dialog_result = dialog_message_show(plugin_state->dialogs, message);
+        DialogMessageButton dialog_result =
+            dialog_message_show(plugin_state->dialogs_app, message);
         dialog_message_free(message);
         if(dialog_result == DialogMessageButtonRight) {
             totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
@@ -86,7 +85,7 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
                 SCREEN_HEIGHT_CENTER,
                 AlignCenter,
                 AlignCenter);
-            dialog_message_show(plugin_state->dialogs, message);
+            dialog_message_show(plugin_state->dialogs_app, message);
             dialog_message_free(message);
             return false;
         }
@@ -152,7 +151,6 @@ int32_t totp_app() {
     bool processing = true;
     uint32_t last_user_interaction_time = furi_get_tick();
     while(processing) {
-        if(plugin_state->changing_scene) continue;
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
         PluginState* plugin_state_m = acquire_mutex_block(&state_mutex);
