@@ -207,13 +207,13 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - export DIST_SUFFIX=${DRONE_TAG}
+      - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
-      - ls -laS artifacts-default/f7-update-${DRONE_TAG}
+      - ls -laS artifacts-default/f7-update-${DRONE_BUILD_NUMBER}
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -221,8 +221,8 @@ steps:
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
-      - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
-      - rm -rf artifacts-default/f7-update-${DRONE_TAG}
+      - cp artifacts-default/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz .
+      - rm -rf artifacts-default/f7-update-${DRONE_BUILD_NUMBER}
       - ls -laS artifacts-default
       - mv artifacts-default/ dev
       - ls -laS dev
@@ -288,8 +288,6 @@ steps:
       message: "Unleashed firmware dev build successful!
 
 
-        Version: {{build.tag}}
-
         Build: {{build.number}}
 
         SHA: {{commit.sha}}
@@ -298,9 +296,9 @@ steps:
         Commit: {{commit.message}}
 
 
-        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=dev-cfw&version=${DRONE_TAG})"
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})"
       document:
-        - dev/flipper-z-f7-update-${DRONE_TAG}.tgz
+        - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
 
 trigger:
   branch:
