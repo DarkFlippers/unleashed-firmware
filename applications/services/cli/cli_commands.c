@@ -140,6 +140,7 @@ void cli_command_src(Cli* cli, FuriString* args, void* context) {
     // Quality of life feaature for people exploring CLI on lab.flipper.net/cli
     // By Yousef AK
     UNUSED(cli);
+    UNUSED(args);
     UNUSED(context);
 
     printf("https://github.com/DarkFlippers/unleashed-firmware");
