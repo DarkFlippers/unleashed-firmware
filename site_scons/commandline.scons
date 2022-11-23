@@ -15,7 +15,7 @@ AddOption(
     nargs=1,
     action="store",
     default="fbt_options.py",
-    help="Enviroment option file",
+    help="Environment option file",
 )
 
 AddOption(
@@ -23,7 +23,7 @@ AddOption(
     action="store",
     dest="extra_int_apps",
     default="",
-    help="List of applications to add to firmare's built-ins. Also see FIRMWARE_APP_SET and FIRMWARE_APPS",
+    help="List of applications to add to firmware's built-ins. Also see FIRMWARE_APP_SET and FIRMWARE_APPS",
 )
 
 AddOption(

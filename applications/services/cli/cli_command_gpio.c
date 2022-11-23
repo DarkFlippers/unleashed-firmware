@@ -121,7 +121,7 @@ void cli_command_gpio_mode(Cli* cli, FuriString* args, void* context) {
 
     if(cli_command_gpio_pins[num].debug) {
         printf(
-            "Changeing this pin mode may damage hardware. Are you sure you want to continue? (y/n)?\r\n");
+            "Changing this pin mode may damage hardware. Are you sure you want to continue? (y/n)?\r\n");
         char c = cli_getc(cli);
         if(c != 'y' && c != 'Y') {
             printf("Cancelled.\r\n");
