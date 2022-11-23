@@ -5,8 +5,6 @@
 
 #define TAG "SubghzFrequencyAnalyzerWorker"
 
-#define SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD -97.0f
-
 static const uint8_t subghz_preset_ook_58khz[][2] = {
     {CC1101_MDMCFG4, 0b11110111}, // Rx BW filter is 58.035714kHz
     /* End  */
@@ -72,7 +70,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         .frequency_coarse = 0, .rssi_coarse = 0, .frequency_fine = 0, .rssi_fine = 0};
     float rssi = 0;
     uint32_t frequency = 0;
-    float rssi_temp = 0;
+    float rssi_temp = -127.0f;
     uint32_t frequency_temp = 0;
     CC1101Status status;
 
@@ -197,7 +195,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 TAG, "=:%lu:%f", frequency_rssi.frequency_fine, (double)frequency_rssi.rssi_fine);
 
             instance->sample_hold_counter = 20;
-            rssi_temp = frequency_rssi.rssi_fine;
+            rssi_temp = (rssi_temp + frequency_rssi.rssi_fine) / 2;
             frequency_temp = frequency_rssi.frequency_fine;
 
             if(instance->filVal) {
@@ -208,10 +206,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             // Deliver callback
             if(instance->pair_callback) {
                 instance->pair_callback(
-                    instance->context,
-                    frequency_rssi.frequency_fine,
-                    frequency_rssi.rssi_fine,
-                    true);
+                    instance->context, frequency_rssi.frequency_fine, rssi_temp, true);
             }
         } else if( // Deliver results coarse
             (frequency_rssi.rssi_coarse > instance->trigger_level) &&
@@ -223,7 +218,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 (double)frequency_rssi.rssi_coarse);
 
             instance->sample_hold_counter = 20;
-            rssi_temp = frequency_rssi.rssi_coarse;
+            rssi_temp = (rssi_temp + frequency_rssi.rssi_coarse) / 2;
             frequency_temp = frequency_rssi.frequency_coarse;
             if(instance->filVal) {
                 frequency_rssi.frequency_coarse =
@@ -233,15 +228,12 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             // Deliver callback
             if(instance->pair_callback) {
                 instance->pair_callback(
-                    instance->context,
-                    frequency_rssi.frequency_coarse,
-                    frequency_rssi.rssi_coarse,
-                    true);
+                    instance->context, frequency_rssi.frequency_coarse, rssi_temp, true);
             }
         } else {
             if(instance->sample_hold_counter > 0) {
                 instance->sample_hold_counter--;
-                if(instance->sample_hold_counter == 18) {
+                if(instance->sample_hold_counter == 15) {
                     if(instance->pair_callback) {
                         instance->pair_callback(
                             instance->context, frequency_temp, rssi_temp, false);
@@ -249,8 +241,8 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 }
             } else {
                 instance->filVal = 0;
-                if(instance->pair_callback)
-                    instance->pair_callback(instance->context, 0, 0, false);
+                rssi_temp = -127.0f;
+                instance->pair_callback(instance->context, 0, 0, false);
             }
         }
     }
@@ -266,12 +258,8 @@ SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc(void* cont
     furi_assert(context);
     SubGhzFrequencyAnalyzerWorker* instance = malloc(sizeof(SubGhzFrequencyAnalyzerWorker));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "SubGhzFAWorker");
-    furi_thread_set_stack_size(instance->thread, 2048);
-    furi_thread_set_context(instance->thread, instance);
-    furi_thread_set_callback(instance->thread, subghz_frequency_analyzer_worker_thread);
-
+    instance->thread = furi_thread_alloc_ex(
+        "SubGhzFAWorker", 2048, subghz_frequency_analyzer_worker_thread, instance);
     SubGhz* subghz = context;
     instance->setting = subghz->setting;
     instance->trigger_level = subghz->last_settings->frequency_analyzer_trigger;
