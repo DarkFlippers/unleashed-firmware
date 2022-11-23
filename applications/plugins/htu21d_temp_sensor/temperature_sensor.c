@@ -113,7 +113,7 @@ static bool temperature_sensor_fetch_data(double* temperature, double* humidity)
         *temperature = (float)(adc_raw * 175.72 / 65536.00) - 46.85;
 
         // Fetch humidity
-        ret = temperature_sensor_cmd((uint8_t)HTU21D_CMD_TEMPERATURE, buffer, 2);
+        ret = temperature_sensor_cmd((uint8_t)HTU21D_CMD_HUMIDITY, buffer, 2);
 
         if(ret) {
             // Calculate humidity
