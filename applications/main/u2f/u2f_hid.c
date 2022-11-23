@@ -58,13 +58,13 @@ struct U2fHid_packet {
 struct U2fHid {
     FuriThread* thread;
     FuriTimer* lock_timer;
-    struct U2fHid_packet packet;
     uint8_t seq_id_last;
     uint16_t req_buf_ptr;
     uint32_t req_len_left;
     uint32_t lock_cid;
     bool lock;
     U2fData* u2f_instance;
+    struct U2fHid_packet packet;
 };
 
 static void u2f_hid_event_callback(HidU2fEvent ev, void* context) {
@@ -215,10 +215,21 @@ static int32_t u2f_hid_worker(void* context) {
         }
         if(flags & WorkerEvtRequest) {
             uint32_t len_cur = furi_hal_hid_u2f_get_request(packet_buf);
-            if(len_cur > 0) {
+            do {
+                if(len_cur == 0) {
+                    break;
+                }
                 if((packet_buf[4] & U2F_HID_TYPE_MASK) == U2F_HID_TYPE_INIT) {
+                    if(len_cur < 7) {
+                        u2f_hid->req_len_left = 0;
+                        break; // Wrong chunk len
+                    }
                     // Init packet
                     u2f_hid->packet.len = (packet_buf[5] << 8) | (packet_buf[6]);
+                    if(u2f_hid->packet.len > U2F_HID_MAX_PAYLOAD_LEN) {
+                        u2f_hid->req_len_left = 0;
+                        break; // Wrong packet len
+                    }
                     if(u2f_hid->packet.len > (len_cur - 7)) {
                         u2f_hid->req_len_left = u2f_hid->packet.len - (len_cur - 7);
                         len_cur = len_cur - 7;
@@ -232,6 +243,10 @@ static int32_t u2f_hid_worker(void* context) {
                     u2f_hid->req_buf_ptr = len_cur;
                     if(len_cur > 0) memcpy(u2f_hid->packet.payload, &packet_buf[7], len_cur);
                 } else {
+                    if(len_cur < 5) {
+                        u2f_hid->req_len_left = 0;
+                        break; // Wrong chunk len
+                    }
                     // Continuation packet
                     if(u2f_hid->req_len_left > 0) {
                         uint32_t cid_temp = 0;
@@ -260,7 +275,7 @@ static int32_t u2f_hid_worker(void* context) {
                         u2f_hid_send_error(u2f_hid, U2F_HID_ERR_INVALID_CMD);
                     }
                 }
-            }
+            } while(0);
         }
         if(flags & WorkerEvtUnlock) {
             u2f_hid->lock = false;
