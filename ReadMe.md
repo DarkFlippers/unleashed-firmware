@@ -66,7 +66,7 @@ Also check changelog in releases for latest updates!
 * destream (100 EUR min): https://destream.net/live/MMX/donate
 * USDT(TRC20): `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`
 * BCH: `qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`
-* ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
+* ETH/BSC/ERC20-Tokens: `darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)
 * BTC: `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`
 * DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
 * LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
