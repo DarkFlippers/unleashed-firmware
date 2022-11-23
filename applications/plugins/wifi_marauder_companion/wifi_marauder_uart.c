@@ -38,8 +38,6 @@ void wifi_marauder_uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) 
 static int32_t uart_worker(void* context) {
     WifiMarauderUart* uart = (void*)context;
 
-    uart->rx_stream = furi_stream_buffer_alloc(RX_BUF_SIZE, 1);
-
     while(1) {
         uint32_t events =
             furi_thread_flags_wait(WORKER_ALL_RX_EVENTS, FuriFlagWaitAny, FuriWaitForever);
@@ -65,18 +63,19 @@ void wifi_marauder_uart_tx(uint8_t* data, size_t len) {
 WifiMarauderUart* wifi_marauder_uart_init(WifiMarauderApp* app) {
     WifiMarauderUart* uart = malloc(sizeof(WifiMarauderUart));
 
-    furi_hal_console_disable();
-    furi_hal_uart_set_br(UART_CH, BAUDRATE);
-    furi_hal_uart_set_irq_cb(UART_CH, wifi_marauder_uart_on_irq_cb, uart);
-
     uart->app = app;
+    uart->rx_stream = furi_stream_buffer_alloc(RX_BUF_SIZE, 1);
     uart->rx_thread = furi_thread_alloc();
     furi_thread_set_name(uart->rx_thread, "WifiMarauderUartRxThread");
     furi_thread_set_stack_size(uart->rx_thread, 1024);
     furi_thread_set_context(uart->rx_thread, uart);
     furi_thread_set_callback(uart->rx_thread, uart_worker);
-
     furi_thread_start(uart->rx_thread);
+
+    furi_hal_console_disable();
+    furi_hal_uart_set_br(UART_CH, BAUDRATE);
+    furi_hal_uart_set_irq_cb(UART_CH, wifi_marauder_uart_on_irq_cb, uart);
+
     return uart;
 }
 

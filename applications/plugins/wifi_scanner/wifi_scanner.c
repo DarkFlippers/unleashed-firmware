@@ -674,8 +674,6 @@ int32_t wifi_scanner_app(void* p) {
 
     WIFI_APP_LOG_I("Mutex created");
 
-    app->m_rx_stream = furi_stream_buffer_alloc(1 * 1024, 1);
-
     app->m_notification = furi_record_open("notification");
 
     ViewPort* view_port = view_port_alloc();
@@ -688,13 +686,7 @@ int32_t wifi_scanner_app(void* p) {
 
     //notification_message(app->notification, &sequence_set_only_blue_255);
 
-    // Enable uart listener
-#if DISABLE_CONSOLE
-    furi_hal_console_disable();
-#endif
-    furi_hal_uart_set_br(FuriHalUartIdUSART1, FLIPPERZERO_SERIAL_BAUD);
-    furi_hal_uart_set_irq_cb(FuriHalUartIdUSART1, uart_on_irq_cb, app);
-    WIFI_APP_LOG_I("UART Listener created");
+    app->m_rx_stream = furi_stream_buffer_alloc(1 * 1024, 1);
 
     app->m_worker_thread = furi_thread_alloc();
     furi_thread_set_name(app->m_worker_thread, "WiFiModuleUARTWorker");
@@ -703,6 +695,14 @@ int32_t wifi_scanner_app(void* p) {
     furi_thread_set_callback(app->m_worker_thread, uart_worker);
     furi_thread_start(app->m_worker_thread);
     WIFI_APP_LOG_I("UART thread allocated");
+
+    // Enable uart listener
+#if DISABLE_CONSOLE
+    furi_hal_console_disable();
+#endif
+    furi_hal_uart_set_br(FuriHalUartIdUSART1, FLIPPERZERO_SERIAL_BAUD);
+    furi_hal_uart_set_irq_cb(FuriHalUartIdUSART1, uart_on_irq_cb, app);
+    WIFI_APP_LOG_I("UART Listener created");
 
     // Because we assume that module was on before we launched the app. We need to ensure that module will be in initial state on app start
     send_serial_command(ESerialCommand_Restart);
