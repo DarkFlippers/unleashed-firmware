@@ -1,4 +1,5 @@
 #include "quenon_dht_mon.h"
+#include <m-string.h>
 
 //Порты ввода/вывода, которые не были обозначены в общем списке
 const GpioPin SWC_10 = {.pin = LL_GPIO_PIN_14, .port = GPIOA};
@@ -156,14 +157,13 @@ uint8_t DHTMon_sensors_save(void) {
     app->file_stream = file_stream_alloc(app->storage);
     uint8_t savedSensorsCount = 0;
     //Переменная пути к файлу
-    char filepath[sizeof(APP_PATH_FOLDER) + sizeof(APP_FILENAME)] = {0};
+    FuriString* filepath = furi_string_alloc();
     //Составление пути к файлу
-    strcpy(filepath, APP_PATH_FOLDER);
-    strcat(filepath, "/");
-    strcat(filepath, APP_FILENAME);
+    furi_string_printf(filepath, "%s/%s", APP_PATH_FOLDER, APP_FILENAME);
 
     //Открытие потока. Если поток открылся, то выполнение сохранения датчиков
-    if(file_stream_open(app->file_stream, filepath, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS)) {
+    if(file_stream_open(
+           app->file_stream, furi_string_get_cstr(filepath), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS)) {
         const char template[] =
             "#DHT monitor sensors file\n#Name - name of sensor. Up to 10 sumbols\n#Type - type of sensor. DHT11 - 0, DHT22 - 1\n#GPIO - connection port. May being 2-7, 10, 12-17\n#Name Type GPIO\n";
         stream_write(app->file_stream, (uint8_t*)template, strlen(template));
@@ -199,13 +199,12 @@ bool DHTMon_sensors_load(void) {
     //Выделение памяти для потока
     app->file_stream = file_stream_alloc(app->storage);
     //Переменная пути к файлу
-    char filepath[sizeof(APP_PATH_FOLDER) + sizeof(APP_FILENAME)] = {0};
+    FuriString* filepath = furi_string_alloc();
     //Составление пути к файлу
-    strcpy(filepath, APP_PATH_FOLDER);
-    strcat(filepath, "/");
-    strcat(filepath, APP_FILENAME);
+    furi_string_printf(filepath, "%s/%s", APP_PATH_FOLDER, APP_FILENAME);
     //Открытие потока к файлу
-    if(!file_stream_open(app->file_stream, filepath, FSAM_READ_WRITE, FSOM_OPEN_EXISTING)) {
+    if(!file_stream_open(
+           app->file_stream, furi_string_get_cstr(filepath), FSAM_READ_WRITE, FSOM_OPEN_EXISTING)) {
         //Если файл отсутствует, то создание болванки
         FURI_LOG_W(APP_NAME, "Missing sensors file. Creating new file\r\n");
         app->sensors_count = 0;
@@ -236,13 +235,16 @@ bool DHTMon_sensors_load(void) {
         return false;
     }
     //Построчное чтение файла
-    char* line = strtok((char*)file_buf, "\n");
-    while(line != NULL && app->sensors_count < MAX_SENSORS) {
-        if(line[0] != '#') {
+    //Указатель на начало строки
+    FuriString* file = furi_string_alloc_set_str((char*)file_buf);
+    //Сколько байт до конца строки
+    size_t line_end = 0;
+    while(line_end != STRING_FAILURE && app->sensors_count < MAX_SENSORS) {
+        if(((char*)(file_buf + line_end))[1] != '#') {
             DHT_sensor s = {0};
             int type, port;
-            char name[11];
-            sscanf(line, "%s %d %d", name, &type, &port);
+            char name[11] = {0};
+            sscanf(((char*)(file_buf + line_end)), "%s %d %d", name, &type, &port);
             s.type = type;
             s.GPIO = DHTMon_GPIO_form_int(port);
 
@@ -258,7 +260,7 @@ bool DHTMon_sensors_load(void) {
                 app->sensors_count++;
             }
         }
-        line = strtok((char*)NULL, "\n");
+        line_end = furi_string_search_char(file, '\n', line_end + 1);
     }
     stream_free(app->file_stream);
     free(file_buf);
