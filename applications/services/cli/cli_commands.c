@@ -136,6 +136,16 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
     }
 }
 
+void cli_command_src(Cli* cli, FuriString* args, void* context) {
+    // Quality of life feaature for people exploring CLI on lab.flipper.net/cli
+    // By Yousef AK
+    UNUSED(cli);
+    UNUSED(args);
+    UNUSED(context);
+
+    printf("https://github.com/DarkFlippers/unleashed-firmware");
+}
+
 #define CLI_COMMAND_LOG_RING_SIZE 2048
 #define CLI_COMMAND_LOG_BUFFER_SIZE 64
 
@@ -412,6 +422,8 @@ void cli_command_i2c(Cli* cli, FuriString* args, void* context) {
 void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "!", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
     cli_add_command(cli, "device_info", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
+    cli_add_command(cli, "src", CliCommandFlagParallelSafe, cli_command_src, NULL);
+    cli_add_command(cli, "source", CliCommandFlagParallelSafe, cli_command_src, NULL);
 
     cli_add_command(cli, "?", CliCommandFlagParallelSafe, cli_command_help, NULL);
     cli_add_command(cli, "help", CliCommandFlagParallelSafe, cli_command_help, NULL);
