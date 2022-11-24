@@ -137,7 +137,11 @@ void subghz_protocol_encoder_keeloq_free(void* context) {
  * @param btn Button number, 4 bit
  */
 static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instance, uint8_t btn) {
-    instance->generic.cnt++;
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
     uint32_t fix = btn << 28 | instance->generic.serial;
     uint32_t decrypt = btn << 28 |
                        (instance->generic.serial & 0x3FF)
