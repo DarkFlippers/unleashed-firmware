@@ -5,6 +5,11 @@
 </h3>
 
 ### Welcome to Flipper Zero Unleashed Firmware repo! 
+
+**This firmware is a fork from** [flipperdevices/flipperzero-firmware](https://github.com/flipperdevices/flipperzero-firmware)
+
+<br>
+
 Our goal is to make any features possible in this device without any limitations! 
 
 Please help us implement emulation for all subghz dynamic (rolling code) protocols!
@@ -61,7 +66,7 @@ Also check changelog in releases for latest updates!
 - Security+ v1 & v2
 - Star Line
 
-## Support us so we can buy equipment and develop new features
+## Please support development of the project
 * Boosty: https://boosty.to/mmxdev
 * destream (100 EUR min): https://destream.net/live/MMX/donate
 * USDT(TRC20): `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`
