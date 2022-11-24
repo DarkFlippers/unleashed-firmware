@@ -181,8 +181,6 @@ steps:
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
 
 trigger:
-  branch:
-    - release
   event:
     - tag
 
