@@ -98,17 +98,6 @@ steps:
         from_secret: dep_target_noanim
       source: flipper-z-f7-update-${DRONE_TAG}n.tgz
 
-  - name: "Trigger update server reindex"
-    image: hfdj/fztools
-    pull: never
-    environment:
-      UPD_KEY:
-        from_secret: git_update_serv_token
-      UPD_URL:
-        from_secret: git_update_server_url
-    commands:
-      - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
-
   - name: "Do Github release"
     image: ddplugins/github-release
     pull: never
@@ -128,6 +117,17 @@ steps:
         - md5
         - sha1
         - crc32
+
+  - name: "Trigger update server reindex"
+    image: hfdj/fztools
+    pull: never
+    environment:
+      UPD_KEY:
+        from_secret: git_update_serv_token
+      UPD_URL:
+        from_secret: git_update_server_url
+    commands:
+      - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
 
   - name: "Send files to telegram"
     image: appleboy/drone-telegram
