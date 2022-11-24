@@ -100,6 +100,7 @@ Also check changelog in releases for latest updates!
 - DHT11/22 Temp. Sensor Monitor [(by quen0n)](https://github.com/quen0n/FipperZero-DHT-Monitor) - How to connect -> (5V -> VCC) / (GND -> GND) / (Selected Pin -> out)
 - BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
 - iButton Fuzzer [(by xMasterX)](https://github.com/xMasterX/ibutton-fuzzer)
+- HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipperzero-firmware)
 
 Games:
 - DOOM (fixed) [(by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
@@ -111,6 +112,8 @@ Games:
 - Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
 - Heap Defence (aka Stack Attack) - Ported to latest firmware by @xMasterX - [(original by wquinoa & Vedmein)](https://github.com/Vedmein/flipperzero-firmware/tree/hd/svisto-perdelki)
 - Game15 [(by x27)](https://github.com/x27/flipperzero-game15)
+- Solitaire [(by teeebor)](https://github.com/teeebor/flipper_games)
+- BlackJack [(by teeebor)](https://github.com/teeebor/flipper_games)
 
 ### Other changes
 

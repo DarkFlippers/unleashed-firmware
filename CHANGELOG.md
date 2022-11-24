@@ -1,49 +1,30 @@
 ### New changes
-* API now 99% compatible with official firmware, that means all apps built on OFW can be used on unleashed!
-* Also extra apps pack was updated, download latest by using link below
-* Archive: Show loading popup on delete
-* Docs -> PR: Fix link to "TOTP (Authenticator) config description" (by @pbek | PR #157)
-* Reorder main menu - Applications now first item, clock moved 2 items up
-* API: Add `value_index` to API symbols
-* API: Furi Region Mocks, fix protocol dict funcs was disabled in API
-* New animation L3_FlipperMustache_128x64 by @Svaarich
-* Fix FlipperCity animation by @Svaarich
-* CI/CD: Builds without custom animations now included in releases
-* SubGHz: Fix magellan display issue
-* SubGHz: Fix wrong error message in history 
-* SubGHz: Add frequencies 434.075, 434.390
-* SubGHz: Frequency analyzer: Add counter, GUI fixes, allow Ok button - When signal is present (when frequency window shows black background)
-* SubGHz: Frequency analyzer: move -+ in freq analyzer, swap up & down button
-* SubGHz Remote: Cleanup code in unirf, fix issue #153
-* Plugins: Remove `srand` calls
-* Plugins: Fix DHT Monitor icon
-* Plugins: RFID Fuzzer - Fix random crashes and improve stability
-* Plugins: RFID Fuzzer - allow holding left right to change delay faster (hold TD button to add +10 or -10 to time delay)
-* Plugins: Morse code cleanup text by pressing back
-* Plugins: TOTP Update - "BadUSB" type key into pc mode [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Update i2c Tools [(by NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
-* Plugins -> PR: Barcode generator: refactoring, ux improvements, implement EAN-8. (by @msvsergey | PR #154)
-* Plugins -> PR: Fix HC-SR04 plugin naming (by @krolchonok | PR #161)
-* Plugins: Added BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
-* Plugins: Added iButton Fuzzer [(by xMasterX)](https://github.com/xMasterX/ibutton-fuzzer)
-* OFW: BadUSB and Archive fixes
-* OFW: iButton: Fix header "Saved!" message stays on other screens + proper popups reset
-* OFW: Bug fixes and improvements: Furi, Input, CLI
-* OFW: SubGhz: properly handle storage loss 
-* OFW: NFC - Force card types in extra actions
-* OFW: (docs): bad path for furi core
-* OFW: RPC: increase stack size, fix stack overflow 
-* OFW: fbt: 'target' field for apps; lib debugging support 
-* OFW: NFC: fix crash on MFC read
-* OFW: Furi: show thread allocation balance for child threads
-* OFW: Add Acurite 609TXC protocol to weather station
-* OFW: DAP-Link: show error if usb is locked
-* OFW: fbt: compile_db fixes
-* OFW: Infrared: add Kaseikyo IR protocol
-* OFW: WS: fix show negative temperature
-* OFW: fbt: fix for launch_app
-* OFW: Code cleanup: srand, PVS warnings
-* OFW: fbt: fixes for ufbt pt3 
+* Plugins: SubGHz Bruteforcer -> Add support for Ansonic 12bit protocol (FM238)
+* Plugins: Fix DTMF Dolphin -> Add forgotten scene and menu item
+* Plugins: Update DTMF Dolphin [(by litui)](https://github.com/litui/dtmf_dolphin)
+* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: iButton Fuzzer and RFID Fuzzer improvements
+* Plugins: i2c tools fix name display 
+* Plugins: Add 3 new plugins BlackJack, Solitaire [(by teeebor)](https://github.com/teeebor/flipper_games) and HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipperzero-firmware)
+* Plugins -> PR: Wifi marauder BT menus option (by @rf-bandit | PR #164)
+* Plugins -> PR: Update i2c tools (New UI) (by @NaejEL | PR #171)
+* Plugins -> PR: Fix htu21d falsely reading temp as humidity (by @GottZ | PR #175)
+* SubGHz -> PR: GUI Fix - Allow setting RSSI trigger to beggining (by @TQMatvey | PR #180)
+* SubGHz: Remove not widely used frequency from hopper
+* SubGHz: Fix starline encoder
+* SubGHz: Frequency Analyzer -> Save last trigger level
+* SubGHz: Speedup subghz launch from favourites
+* SubGHz: Add new freqs and modulation to user config
+* Infrared: Update universal remote assets (by @Amec0e)
+* CI/CD: Improvements, dev builds (can be found in this telegram channel -> https://t.me/kotnehleb)
+* Power -> PR: Show battery percentile while charging (by @TQMatvey | PR #178)
+* Docs -> PR: Some updates (by @lucemans | PR #169 and #170)
+* CLI -> PR: Update cli_commands.c To add `src` / `source` command for people exploring cli (by @PharoahCoder | PR #176)
+* OFW: Fix U2F HID vulnerability
+* OFW: Core: thread allocation shortcut
+* OFW: WS: add protocol GT-WT02
+* OFW: SubGhz: add protocol "Ansonic"
+* OFW: SubGhz: add protocol Nice_Flo 20bit
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
