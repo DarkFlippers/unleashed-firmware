@@ -12,5 +12,6 @@
 #include "oregon2.h"
 #include "acurite_592txr.h"
 #include "ambient_weather.h"
+#include "auriol_hg0601a.h"
 
 extern const SubGhzProtocolRegistry weather_station_protocol_registry;
