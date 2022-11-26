@@ -129,7 +129,11 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         instance->encoder.size_upload = size_upload;
     }
 
-    instance->generic.cnt++;
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
 
