@@ -2392,16 +2392,21 @@ Function,-,storage_dir_rewind,_Bool,File*
 Function,+,storage_error_get_desc,const char*,FS_Error
 Function,+,storage_file_alloc,File*,Storage*
 Function,+,storage_file_close,_Bool,File*
+Function,+,storage_file_decrypt,FS_Error,File*
+Function,+,storage_file_encrypt,FS_Error,"Storage*, const char*, uint8_t"
 Function,+,storage_file_eof,_Bool,File*
 Function,+,storage_file_exists,_Bool,"Storage*, const char*"
 Function,+,storage_file_free,void,File*
 Function,+,storage_file_get_error,FS_Error,File*
 Function,+,storage_file_get_error_desc,const char*,File*
 Function,-,storage_file_get_internal_error,int32_t,File*
+Function,+,storage_file_is_decrypted,_Bool,File*
 Function,+,storage_file_is_dir,_Bool,File*
+Function,+,storage_file_is_encrypted,_Bool,"Storage*, const char*"
 Function,+,storage_file_is_open,_Bool,File*
 Function,+,storage_file_open,_Bool,"File*, const char*, FS_AccessMode, FS_OpenMode"
 Function,+,storage_file_read,uint16_t,"File*, void*, uint16_t"
+Function,+,storage_file_secured,_Bool,File*
 Function,+,storage_file_seek,_Bool,"File*, uint32_t, _Bool"
 Function,+,storage_file_size,uint64_t,File*
 Function,-,storage_file_sync,_Bool,File*

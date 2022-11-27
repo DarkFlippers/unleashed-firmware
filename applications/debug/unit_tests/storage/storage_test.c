@@ -1,6 +1,7 @@
 #include "../minunit.h"
 #include <furi.h>
 #include <storage/storage.h>
+#include <toolbox/stream/file_stream.h>
 
 #define STORAGE_LOCKED_FILE EXT_PATH("locked_file.test")
 #define STORAGE_LOCKED_DIR STORAGE_INT_PATH_PREFIX
@@ -303,9 +304,37 @@ MU_TEST_SUITE(storage_rename) {
     furi_record_close(RECORD_STORAGE);
 }
 
+MU_TEST(storage_encrypt_file) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* file;
+    const char* path = EXT_PATH("enc_file");
+    const uint8_t key_slot = 0;
+
+    file = storage_file_alloc(storage);
+    mu_check(storage_file_open(file, path, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+
+    const char* content = "Lorem ipsum dolor sit amet, cons";
+    mu_check(storage_file_write(file, content, 32) == 32);
+    storage_file_free(file);
+
+    mu_assert_int_eq(FSE_OK, storage_file_encrypt(storage, path, key_slot));
+    mu_check(storage_file_is_encrypted(storage, path));
+
+    furi_record_close(RECORD_STORAGE);
+}
+
+MU_TEST_SUITE(storage_encrypt_decrypt) {
+    MU_RUN_TEST(storage_encrypt_file);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    storage_dir_remove(storage, EXT_PATH("enc_file"));
+    furi_record_close(RECORD_STORAGE);
+}
+
 int run_minunit_test_storage() {
     MU_RUN_SUITE(storage_file);
     MU_RUN_SUITE(storage_dir);
     MU_RUN_SUITE(storage_rename);
+    MU_RUN_SUITE(storage_encrypt_decrypt);
     return MU_EXIT_CODE;
 }

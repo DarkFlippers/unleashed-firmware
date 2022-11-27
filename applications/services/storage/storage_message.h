@@ -71,6 +71,11 @@ typedef struct {
 } SADataFile;
 
 typedef struct {
+    const char* path;
+    const uint8_t key_slot;
+} SADataEncryption;
+
+typedef struct {
     SDInfo* info;
 } SAInfo;
 
@@ -91,6 +96,7 @@ typedef union {
 
     SADataFile file;
     SADataPath path;
+    SADataEncryption encryption;
 
     SAInfo sdinfo;
 } SAData;
@@ -114,6 +120,8 @@ typedef enum {
     StorageCommandFileSize,
     StorageCommandFileSync,
     StorageCommandFileEof,
+    StorageCommandFileEncrypt,
+    StorageCommandFileDecrypt,
     StorageCommandDirOpen,
     StorageCommandDirClose,
     StorageCommandDirRead,

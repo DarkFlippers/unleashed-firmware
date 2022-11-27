@@ -135,6 +135,39 @@ bool storage_file_sync(File* file);
  */
 bool storage_file_eof(File* file);
 
+/** Checks that file at given path is encrypted
+ * @param storage
+ * @param path path to file.
+ * @return bool success flag
+ */
+bool storage_file_is_encrypted(Storage* storage, const char* path);
+
+/** Checks that file is decrypted at the moment
+ * @param file pointer to file object.
+ * @return bool success flag
+ */
+bool storage_file_is_decrypted(File* file);
+
+/** Reports if encryption is enabled for this file
+ * @param file pointer to file object.
+ * @return bool success flag
+ */
+bool storage_file_secured(File* file);
+
+/** Decrypts previously encrypted file
+ * @param file pointer to file object.
+ * @return FS_Error operation result
+ */
+FS_Error storage_file_decrypt(File* file);
+
+/** Encrypts file using key from given secure enclave slot
+ * @param storage
+ * @param path path to file.
+ * @param key_slot slot of key in secure enclave.
+ * @return FS_Error operation result
+ */
+FS_Error storage_file_encrypt(Storage* storage, const char* path, uint8_t key_slot);
+
 /**
  * @brief Check that file exists
  * 

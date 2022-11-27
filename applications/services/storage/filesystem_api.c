@@ -33,6 +33,9 @@ const char* filesystem_api_error_get_desc(FS_Error error_id) {
     case(FSE_ALREADY_OPEN):
         result = "file is already open";
         break;
+    case(FSE_NO_SPACE):
+        result = "no free space";
+        break;
     }
     return result;
 }
