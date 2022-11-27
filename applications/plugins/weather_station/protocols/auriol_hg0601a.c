@@ -1,6 +1,6 @@
 #include "auriol_hg0601a.h"
 
-#define TAG "WSProtocolauriol_TH"
+#define TAG "WSProtocolAuriol_TH"
 
 /*
  *
@@ -34,14 +34,14 @@ static const SubGhzBlockConst ws_protocol_auriol_th_const = {
     .min_count_bit_for_found = 37,
 };
 
-struct WSProtocolDecoderauriol_TH {
+struct WSProtocolDecoderAuriol_TH {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
     WSBlockGeneric generic;
 };
 
-struct WSProtocolEncoderauriol_TH {
+struct WSProtocolEncoderAuriol_TH {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
@@ -77,7 +77,7 @@ const SubGhzProtocolEncoder ws_protocol_auriol_th_encoder = {
 };
 
 const SubGhzProtocol ws_protocol_auriol_th = {
-    .name = WS_PROTOCOL_auriol_TH_NAME,
+    .name = WS_PROTOCOL_AURIOL_TH_NAME,
     .type = SubGhzProtocolWeatherStation,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_315 | SubGhzProtocolFlag_868 |
             SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable,
@@ -88,7 +88,7 @@ const SubGhzProtocol ws_protocol_auriol_th = {
 
 void* ws_protocol_decoder_auriol_th_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    WSProtocolDecoderauriol_TH* instance = malloc(sizeof(WSProtocolDecoderauriol_TH));
+    WSProtocolDecoderAuriol_TH* instance = malloc(sizeof(WSProtocolDecoderAuriol_TH));
     instance->base.protocol = &ws_protocol_auriol_th;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
@@ -96,17 +96,17 @@ void* ws_protocol_decoder_auriol_th_alloc(SubGhzEnvironment* environment) {
 
 void ws_protocol_decoder_auriol_th_free(void* context) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
     free(instance);
 }
 
 void ws_protocol_decoder_auriol_th_reset(void* context) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
     instance->decoder.parser_step = auriol_THDecoderStepReset;
 }
 
-static bool ws_protocol_auriol_th_check(WSProtocolDecoderauriol_TH* instance) {
+static bool ws_protocol_auriol_th_check(WSProtocolDecoderAuriol_TH* instance) {
     uint8_t type = (instance->decoder.decode_data >> 8) & 0x0F;
 
     if((type == AURIOL_TH_CONST_DATA) && ((instance->decoder.decode_data >> 4) != 0xffffffff)) {
@@ -137,7 +137,7 @@ static void ws_protocol_auriol_th_remote_controller(WSBlockGeneric* instance) {
 
 void ws_protocol_decoder_auriol_th_feed(void* context, bool level, uint32_t duration) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
 
     switch(instance->decoder.parser_step) {
     case auriol_THDecoderStepReset:
@@ -205,7 +205,7 @@ void ws_protocol_decoder_auriol_th_feed(void* context, bool level, uint32_t dura
 
 uint8_t ws_protocol_decoder_auriol_th_get_hash_data(void* context) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
     return subghz_protocol_blocks_get_hash_data(
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
@@ -215,13 +215,13 @@ bool ws_protocol_decoder_auriol_th_serialize(
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
     return ws_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 bool ws_protocol_decoder_auriol_th_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
     bool ret = false;
     do {
         if(!ws_block_generic_deserialize(&instance->generic, flipper_format)) {
@@ -239,7 +239,7 @@ bool ws_protocol_decoder_auriol_th_deserialize(void* context, FlipperFormat* fli
 
 void ws_protocol_decoder_auriol_th_get_string(void* context, FuriString* output) {
     furi_assert(context);
-    WSProtocolDecoderauriol_TH* instance = context;
+    WSProtocolDecoderAuriol_TH* instance = context;
     furi_string_printf(
         output,
         "%s %dbit\r\n"
