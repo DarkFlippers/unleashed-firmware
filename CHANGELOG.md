@@ -1,30 +1,10 @@
 ### New changes
-* Plugins: SubGHz Bruteforcer -> Add support for Ansonic 12bit protocol (FM238)
-* Plugins: Fix DTMF Dolphin -> Add forgotten scene and menu item
-* Plugins: Update DTMF Dolphin [(by litui)](https://github.com/litui/dtmf_dolphin)
-* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: iButton Fuzzer and RFID Fuzzer improvements
-* Plugins: i2c tools fix name display 
-* Plugins: Add 3 new plugins BlackJack, Solitaire [(by teeebor)](https://github.com/teeebor/flipper_games) and HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipperzero-firmware)
-* Plugins -> PR: Wifi marauder BT menus option (by @rf-bandit | PR #164)
-* Plugins -> PR: Update i2c tools (New UI) (by @NaejEL | PR #171)
-* Plugins -> PR: Fix htu21d falsely reading temp as humidity (by @GottZ | PR #175)
-* SubGHz -> PR: GUI Fix - Allow setting RSSI trigger to beggining (by @TQMatvey | PR #180)
-* SubGHz: Remove not widely used frequency from hopper
-* SubGHz: Fix starline encoder
-* SubGHz: Frequency Analyzer -> Save last trigger level
-* SubGHz: Speedup subghz launch from favourites
-* SubGHz: Add new freqs and modulation to user config
-* Infrared: Update universal remote assets (by @Amec0e)
-* CI/CD: Improvements, dev builds (can be found in this telegram channel -> https://t.me/kotnehleb)
-* Power -> PR: Show battery percentile while charging (by @TQMatvey | PR #178)
-* Docs -> PR: Some updates (by @lucemans | PR #169 and #170)
-* CLI -> PR: Update cli_commands.c To add `src` / `source` command for people exploring cli (by @PharoahCoder | PR #176)
-* OFW: Fix U2F HID vulnerability
-* OFW: Core: thread allocation shortcut
-* OFW: WS: add protocol GT-WT02
-* OFW: SubGhz: add protocol "Ansonic"
-* OFW: SubGhz: add protocol Nice_Flo 20bit
+* SubGHz: Fix counter can go higher than 16bits in protocols - Keeloq, SL, Came Atomo, Nice Flor S
+* SubGHz -> Plugin: WS - Add protocol Auriol HG0601A (by @LY2NEO) [(Details)](https://github.com/DarkFlippers/unleashed-firmware/issues/184)
+* NFC -> PR: Assets - mf classic dict update - Possible keys for Omsk transport cards (by @vadrozh | PR #181)
+* BadUSB -> PR: Keyboard layouts: Slovenian (si) / Croatian (hr), Bosnian (ba) (Latin, Bosnia and Herzegovina) (by @StellarStoic | PR #187)
+* Plugins: Update Temperature Sensor Plugin - HTU2xD, SHT2x, SI702x, SI700x, SI701x, AM2320 [(by Mywk)](https://github.com/Mywk/FlipperTemperatureSensor)
+* Plugins: Update HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipper-zero-hex-viewer)
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
