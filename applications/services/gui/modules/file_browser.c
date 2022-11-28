@@ -232,7 +232,10 @@ static bool browser_is_item_in_array(FileBrowserModel* model, uint32_t idx) {
 
 static bool browser_is_list_load_required(FileBrowserModel* model) {
     size_t array_size = items_array_size(model->items);
-    uint32_t item_cnt = (model->is_root) ? model->item_cnt : model->item_cnt - 1;
+    if((array_size > 0) && (!model->is_root) && (model->array_offset == 0)) {
+        array_size--;
+    }
+    uint32_t item_cnt = (model->is_root) ? (model->item_cnt) : (model->item_cnt - 1);
 
     if((model->list_loading) || (array_size >= item_cnt)) {
         return false;
@@ -524,7 +527,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                             model->list_loading = true;
                             int32_t load_offset = CLAMP(
                                 model->item_idx - ITEM_LIST_LEN_MAX / 4 * 3,
-                                (int32_t)model->item_cnt - ITEM_LIST_LEN_MAX,
+                                (int32_t)model->item_cnt,
                                 0);
                             file_browser_worker_load(
                                 browser->worker, load_offset, ITEM_LIST_LEN_MAX);
@@ -535,7 +538,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                             model->list_loading = true;
                             int32_t load_offset = CLAMP(
                                 model->item_idx - ITEM_LIST_LEN_MAX / 4 * 1,
-                                (int32_t)model->item_cnt - ITEM_LIST_LEN_MAX,
+                                (int32_t)model->item_cnt,
                                 0);
                             file_browser_worker_load(
                                 browser->worker, load_offset, ITEM_LIST_LEN_MAX);
@@ -589,6 +592,19 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                 file_browser_worker_folder_exit(browser->worker);
             }
             consumed = true;
+        }
+    } else if(event->key == InputKeyBack) {
+        if(event->type == InputTypeShort) {
+            bool is_root = false;
+            with_view_model(
+                browser->view, FileBrowserModel * model, { is_root = model->is_root; }, false);
+
+            if(!is_root && !file_browser_worker_is_in_start_folder(browser->worker)) {
+                consumed = true;
+                if(!is_root) {
+                    file_browser_worker_folder_exit(browser->worker);
+                }
+            }
         }
     }
 

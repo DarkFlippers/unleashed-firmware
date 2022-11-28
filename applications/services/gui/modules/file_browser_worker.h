@@ -52,6 +52,8 @@ void file_browser_worker_set_config(
 
 void file_browser_worker_folder_enter(BrowserWorker* browser, FuriString* path, int32_t item_idx);
 
+bool file_browser_worker_is_in_start_folder(BrowserWorker* browser);
+
 void file_browser_worker_folder_exit(BrowserWorker* browser);
 
 void file_browser_worker_folder_refresh(BrowserWorker* browser, int32_t item_idx);

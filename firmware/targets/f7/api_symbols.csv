@@ -817,6 +817,7 @@ Function,+,file_browser_worker_folder_enter,void,"BrowserWorker*, FuriString*, i
 Function,+,file_browser_worker_folder_exit,void,BrowserWorker*
 Function,+,file_browser_worker_folder_refresh,void,"BrowserWorker*, int32_t"
 Function,+,file_browser_worker_free,void,BrowserWorker*
+Function,+,file_browser_worker_is_in_start_folder,_Bool,BrowserWorker*
 Function,+,file_browser_worker_load,void,"BrowserWorker*, uint32_t, uint32_t"
 Function,+,file_browser_worker_set_callback_context,void,"BrowserWorker*, void*"
 Function,+,file_browser_worker_set_config,void,"BrowserWorker*, FuriString*, const char*, _Bool"

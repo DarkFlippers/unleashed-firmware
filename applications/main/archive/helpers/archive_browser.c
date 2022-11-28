@@ -265,8 +265,7 @@ void archive_file_array_load(ArchiveBrowserView* browser, int8_t dir) {
                     offset_new = model->item_idx - FILE_LIST_BUF_LEN / 4 * 1;
                 }
                 if(offset_new > 0) {
-                    offset_new =
-                        CLAMP(offset_new, (int32_t)model->item_cnt - FILE_LIST_BUF_LEN, 0);
+                    offset_new = CLAMP(offset_new, (int32_t)model->item_cnt, 0);
                 } else {
                     offset_new = 0;
                 }

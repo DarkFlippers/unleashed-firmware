@@ -35,6 +35,8 @@ struct BrowserWorker {
     FuriThread* thread;
 
     FuriString* filter_extension;
+    FuriString* path_start;
+    FuriString* path_current;
     FuriString* path_next;
     int32_t item_sel_idx;
     uint32_t load_offset;
@@ -289,6 +291,7 @@ static int32_t browser_worker(void* context) {
 
             int32_t file_idx = 0;
             browser_folder_init(browser, path, filename, &items_cnt, &file_idx);
+            furi_string_set(browser->path_current, path);
             FURI_LOG_D(
                 TAG,
                 "Enter folder: %s items: %lu idx: %ld",
@@ -311,6 +314,7 @@ static int32_t browser_worker(void* context) {
                 // Pop previous selected item index from history array
                 idx_last_array_pop_back(&file_idx, browser->idx_last);
             }
+            furi_string_set(browser->path_current, path);
             FURI_LOG_D(
                 TAG,
                 "Exit to: %s items: %lu idx: %ld",
@@ -365,7 +369,13 @@ BrowserWorker*
 
     browser->filter_extension = furi_string_alloc_set(filter_ext);
     browser->skip_assets = skip_assets;
+    browser->path_start = furi_string_alloc_set(path);
+    browser->path_current = furi_string_alloc_set(path);
     browser->path_next = furi_string_alloc_set(path);
+
+    if(browser_path_is_file(browser->path_start)) {
+        browser_path_trim(browser->path_start);
+    }
 
     browser->thread = furi_thread_alloc_ex("BrowserWorker", 2048, browser_worker, browser);
     furi_thread_start(browser->thread);
@@ -382,6 +392,8 @@ void file_browser_worker_free(BrowserWorker* browser) {
 
     furi_string_free(browser->filter_extension);
     furi_string_free(browser->path_next);
+    furi_string_free(browser->path_current);
+    furi_string_free(browser->path_start);
 
     idx_last_array_clear(browser->idx_last);
 
@@ -438,6 +450,11 @@ void file_browser_worker_folder_enter(BrowserWorker* browser, FuriString* path, 
     furi_string_set(browser->path_next, path);
     browser->item_sel_idx = item_idx;
     furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtFolderEnter);
+}
+
+bool file_browser_worker_is_in_start_folder(BrowserWorker* browser) {
+    furi_assert(browser);
+    return (furi_string_cmp(browser->path_start, browser->path_current) == 0);
 }
 
 void file_browser_worker_folder_exit(BrowserWorker* browser) {

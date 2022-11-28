@@ -5,7 +5,7 @@
 
 #define TAB_RIGHT InputKeyRight // Default tab switch direction
 #define TAB_DEFAULT ArchiveTabFavorites // Start tab
-#define FILE_LIST_BUF_LEN 100
+#define FILE_LIST_BUF_LEN 50
 
 static const char* tab_default_paths[] = {
     [ArchiveTabFavorites] = "/app:favorites",
