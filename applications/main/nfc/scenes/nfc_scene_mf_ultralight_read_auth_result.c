@@ -19,16 +19,20 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
     MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
     MfUltralightConfigPages* config_pages = mf_ultralight_get_config_pages(mf_ul_data);
     Widget* widget = nfc->widget;
+    const char* title;
     FuriString* temp_str;
     temp_str = furi_string_alloc();
 
     if((mf_ul_data->data_read == mf_ul_data->data_size) && (mf_ul_data->data_read > 0)) {
-        widget_add_string_element(
-            widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "All pages are unlocked!");
+        if(mf_ul_data->auth_success) {
+            title = "All pages are unlocked!";
+        } else {
+            title = "All unlocked but failed auth!";
+        }
     } else {
-        widget_add_string_element(
-            widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Not all pages unlocked!");
+        title = "Not all pages unlocked!";
     }
+    widget_add_string_element(widget, 64, 0, AlignCenter, AlignTop, FontPrimary, title);
     furi_string_set(temp_str, "UID:");
     for(size_t i = 0; i < nfc_data->uid_len; i++) {
         furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
@@ -65,6 +69,7 @@ void nfc_scene_mf_ultralight_read_auth_result_on_enter(void* context) {
         nfc);
 
     furi_string_free(temp_str);
+    notification_message(nfc->notifications, &sequence_set_green_255);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
@@ -81,8 +86,21 @@ bool nfc_scene_mf_ultralight_read_auth_result_on_event(void* context, SceneManag
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        consumed = scene_manager_search_and_switch_to_previous_scene(
-            nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
+        MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
+        if(mf_ul_data->auth_method == MfUltralightAuthMethodManual ||
+           mf_ul_data->auth_method == MfUltralightAuthMethodAuto) {
+            consumed = scene_manager_previous_scene(nfc->scene_manager);
+        } else {
+            NfcScene next_scene;
+            if((mf_ul_data->data_read == mf_ul_data->data_size) && (mf_ul_data->data_read > 0)) {
+                next_scene = NfcSceneMfUltralightMenu;
+            } else {
+                next_scene = NfcSceneMfUltralightUnlockMenu;
+            }
+
+            consumed =
+                scene_manager_search_and_switch_to_previous_scene(nfc->scene_manager, next_scene);
+        }
     }
 
     return consumed;
@@ -93,4 +111,6 @@ void nfc_scene_mf_ultralight_read_auth_result_on_exit(void* context) {
 
     // Clean views
     widget_reset(nfc->widget);
+
+    notification_message_block(nfc->notifications, &sequence_reset_green);
 }

@@ -51,7 +51,7 @@ void mf_ul_reset(MfUltralightData* data) {
     data->data_size = 0;
     data->data_read = 0;
     data->curr_authlim = 0;
-    data->has_auth = false;
+    data->auth_success = false;
 }
 
 static MfUltralightFeatures mf_ul_get_features(MfUltralightType type) {
@@ -756,6 +756,34 @@ bool mf_ul_read_card(
             mf_ultralight_read_tearing_flags(tx_rx, data);
         }
         data->curr_authlim = 0;
+
+        if(reader->pages_read == reader->pages_to_read &&
+           reader->supported_features & MfUltralightSupportAuth && !data->auth_success) {
+            MfUltralightConfigPages* config = mf_ultralight_get_config_pages(data);
+            if(config->access.authlim == 0) {
+                // Attempt to auth with default PWD
+                uint16_t pack;
+                data->auth_success = mf_ultralight_authenticate(tx_rx, MF_UL_DEFAULT_PWD, &pack);
+                if(data->auth_success) {
+                    config->auth_data.pwd.value = MF_UL_DEFAULT_PWD;
+                    config->auth_data.pack.value = pack;
+                } else {
+                    furi_hal_nfc_sleep();
+                    furi_hal_nfc_activate_nfca(300, NULL);
+                }
+            }
+        }
+    }
+
+    if(reader->pages_read != reader->pages_to_read) {
+        if(reader->supported_features & MfUltralightSupportAuth) {
+            // Probably password protected, fix AUTH0 and PROT so before AUTH0
+            // can be written and since AUTH0 won't be readable, like on the
+            // original card
+            MfUltralightConfigPages* config = mf_ultralight_get_config_pages(data);
+            config->auth0 = reader->pages_read;
+            config->access.prot = true;
+        }
     }
 
     return card_read;
@@ -1201,6 +1229,8 @@ static void mf_ul_emulate_write(
 }
 
 void mf_ul_reset_emulation(MfUltralightEmulator* emulator, bool is_power_cycle) {
+    emulator->comp_write_cmd_started = false;
+    emulator->sector_select_cmd_started = false;
     emulator->curr_sector = 0;
     emulator->ntag_i2c_plus_sector3_lockout = false;
     emulator->auth_success = false;
@@ -1244,8 +1274,7 @@ void mf_ul_prepare_emulation(MfUltralightEmulator* emulator, MfUltralightData* d
     emulator->config = mf_ultralight_get_config_pages(&emulator->data);
     emulator->page_num = emulator->data.data_size / 4;
     emulator->data_changed = false;
-    emulator->comp_write_cmd_started = false;
-    emulator->sector_select_cmd_started = false;
+    memset(&emulator->auth_attempt, 0, sizeof(MfUltralightAuth));
     mf_ul_reset_emulation(emulator, true);
 }
 
@@ -1706,6 +1735,17 @@ bool mf_ul_prepare_emulation_response(
         } else if(cmd == MF_UL_AUTH) {
             if(emulator->supported_features & MfUltralightSupportAuth) {
                 if(buff_rx_len == (1 + 4) * 8) {
+                    // Record password sent by PCD
+                    memcpy(
+                        emulator->auth_attempt.pwd.raw,
+                        &buff_rx[1],
+                        sizeof(emulator->auth_attempt.pwd.raw));
+                    emulator->auth_attempted = true;
+                    if(emulator->auth_received_callback) {
+                        emulator->auth_received_callback(
+                            emulator->auth_attempt, emulator->context);
+                    }
+
                     uint16_t scaled_authlim = mf_ultralight_calc_auth_count(&emulator->data);
                     if(scaled_authlim != 0 && emulator->data.curr_authlim >= scaled_authlim) {
                         if(emulator->data.curr_authlim != UINT16_MAX) {
@@ -1862,4 +1902,15 @@ bool mf_ul_prepare_emulation_response(
 #endif
 
     return tx_bits > 0;
+}
+
+bool mf_ul_is_full_capture(MfUltralightData* data) {
+    if(data->data_read != data->data_size) return false;
+
+    // Having read all the pages doesn't mean that we've got everything.
+    // By default PWD is 0xFFFFFFFF, but if read back it is always 0x00000000,
+    // so a default read on an auth-supported NTAG is never complete.
+    if(!(mf_ul_get_features(data->type) & MfUltralightSupportAuth)) return true;
+    MfUltralightConfigPages* config = mf_ultralight_get_config_pages(data);
+    return config->auth_data.pwd.value != 0 || config->auth_data.pack.value != 0;
 }
