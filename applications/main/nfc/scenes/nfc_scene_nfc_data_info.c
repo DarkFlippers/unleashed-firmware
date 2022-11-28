@@ -115,7 +115,7 @@ bool nfc_scene_nfc_data_info_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeRight) {
             if(protocol == NfcDeviceProtocolMifareDesfire) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfDesfireApp);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfDesfireData);
                 consumed = true;
             } else if(protocol == NfcDeviceProtocolMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightData);
