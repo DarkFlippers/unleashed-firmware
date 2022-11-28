@@ -2,7 +2,7 @@
 
 Thank you for investing your time in contributing to our project! 
 
-Read our [Code of Coduct](CODE_OF_CONDUCT.md) to keep our community approachable and respectable.
+Read our [Code of Conduct](CODE_OF_CONDUCT.md) to keep our community approachable and respectable.
 
 In this guide you will get an overview of the contribution workflow from opening an issue, creating a PR, reviewing, and merging the PR.
 
@@ -17,12 +17,12 @@ See the [ReadMe](ReadMe.md) to get an overview of the project. Here are some hel
 
 ## Getting started
 
-Before writing code and creating PR make sure that it aligns with our mission and guidlines:
+Before writing code and creating PR make sure that it aligns with our mission and guidelines:
 
 - All our devices are intended for research and education.
 - PR that contains code intended to commit crimes is not going to be accepted.
 - Your PR must comply with our [Coding Style](CODING_STYLE.md)
-- Your PR must contain code compatiable with project [LICENSE](LICENSE).
+- Your PR must contain code compatible with project [LICENSE](LICENSE).
 - PR will only be merged if it pass CI/CD.
 - PR will only be merged if it pass review by code owner.
 

@@ -43,7 +43,7 @@ static void text_box_process_up(TextBox* text_box) {
                 model->scroll_pos--;
                 // Reach last symbol of previous line
                 model->text_pos--;
-                // Search prevous line start
+                // Search previous line start
                 while((model->text_pos != model->text) && (*(--model->text_pos) != '\n'))
                     ;
                 if(*model->text_pos == '\n') {

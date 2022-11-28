@@ -152,7 +152,7 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
     if(view_dispatcher->current_view == view) {
         view_dispatcher_set_current_view(view_dispatcher, NULL);
     }
-    // Check if view is recieving input
+    // Check if view is receiving input
     if(view_dispatcher->ongoing_input_view == view) {
         view_dispatcher->ongoing_input_view = NULL;
     }

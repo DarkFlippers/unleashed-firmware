@@ -20,8 +20,8 @@ typedef enum {
     InputTypePress, /**< Press event, emitted after debounce */
     InputTypeRelease, /**< Release event, emitted after debounce */
     InputTypeShort, /**< Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
-    InputTypeLong, /**< Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease  */
-    InputTypeRepeat, /**< Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
+    InputTypeLong, /**< Long event, emitted after INPUT_LONG_PRESS_COUNTS interval, asynchronous to InputTypeRelease  */
+    InputTypeRepeat, /**< Repeat event, emitted with INPUT_LONG_PRESS_COUNTS period after InputTypeLong event */
     InputTypeMAX, /**< Special value for exceptional */
 } InputType;
 

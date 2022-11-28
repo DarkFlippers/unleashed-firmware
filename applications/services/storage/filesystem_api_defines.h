@@ -25,13 +25,13 @@ typedef enum {
 typedef enum {
     FSE_OK, /**< No error */
     FSE_NOT_READY, /**< FS not ready */
-    FSE_EXIST, /**< File/Dir alrady exist */
+    FSE_EXIST, /**< File/Dir already exist */
     FSE_NOT_EXIST, /**< File/Dir does not exist */
     FSE_INVALID_PARAMETER, /**< Invalid API parameter */
     FSE_DENIED, /**< Access denied */
     FSE_INVALID_NAME, /**< Invalid name/path */
     FSE_INTERNAL, /**< Internal error */
-    FSE_NOT_IMPLEMENTED, /**< Functon not implemented */
+    FSE_NOT_IMPLEMENTED, /**< Function not implemented */
     FSE_ALREADY_OPEN, /**< File/Dir already opened */
 } FS_Error;
 

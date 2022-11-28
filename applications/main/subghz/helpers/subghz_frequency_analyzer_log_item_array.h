@@ -25,7 +25,7 @@ TUPLE_DEF2(
     (frequency, uint32_t),
     (count, uint8_t),
     (rssi_max, uint8_t))
-/* Register globaly the oplist */
+/* Register globally the oplist */
 #define M_OPL_SubGhzFrequencyAnalyzerLogItem_t() \
     TUPLE_OPLIST(SubGhzFrequencyAnalyzerLogItem, M_POD_OPLIST, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 

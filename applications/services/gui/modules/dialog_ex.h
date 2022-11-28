@@ -76,8 +76,8 @@ void dialog_ex_set_context(DialogEx* dialog_ex, void* context);
  * @param      text        text to be shown, can be multiline
  * @param      x           x position
  * @param      y           y position
- * @param      horizontal  horizontal text aligment
- * @param      vertical    vertical text aligment
+ * @param      horizontal  horizontal text alignment
+ * @param      vertical    vertical text alignment
  */
 void dialog_ex_set_header(
     DialogEx* dialog_ex,
@@ -95,8 +95,8 @@ void dialog_ex_set_header(
  * @param      text        text to be shown, can be multiline
  * @param      x           x position
  * @param      y           y position
- * @param      horizontal  horizontal text aligment
- * @param      vertical    vertical text aligment
+ * @param      horizontal  horizontal text alignment
+ * @param      vertical    vertical text alignment
  */
 void dialog_ex_set_text(
     DialogEx* dialog_ex,

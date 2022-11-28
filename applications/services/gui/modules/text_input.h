@@ -1,6 +1,6 @@
 /**
  * @file text_input.h
- * GUI: TextInput keybord view module API
+ * GUI: TextInput keyboard view module API
  */
 
 #pragma once
