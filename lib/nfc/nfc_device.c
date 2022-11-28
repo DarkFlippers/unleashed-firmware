@@ -7,6 +7,7 @@
 #include <lib/nfc/protocols/nfc_util.h>
 #include <flipper_format/flipper_format.h>
 
+#define TAG "NfcDevice"
 #define NFC_DEVICE_KEYS_FOLDER EXT_PATH("nfc/cache")
 #define NFC_DEVICE_KEYS_EXTENSION ".keys"
 
@@ -627,7 +628,10 @@ bool nfc_device_load_mifare_df_data(FlipperFormat* file, NfcDevice* dev) {
                 *app_head = app;
                 app_head = &app->next;
             }
-            if(!parsed_apps) break;
+            if(!parsed_apps) {
+                // accept non-parsed apps, just log a warning:
+                FURI_LOG_W(TAG, "Non-parsed apps found!");
+            }
         }
         parsed = true;
     } while(false);
