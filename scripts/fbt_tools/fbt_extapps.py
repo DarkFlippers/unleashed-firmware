@@ -60,7 +60,7 @@ def BuildAppElf(env, app):
         fap_icons = app_env.CompileIcons(
             app_env.Dir(app_work_dir),
             app._appdir.Dir(app.fap_icon_assets),
-            icon_bundle_name=f"{app.appid}_icons",
+            icon_bundle_name=f"{app.fap_icon_assets_symbol if app.fap_icon_assets_symbol else app.appid }_icons",
         )
         app_env.Alias("_fap_icons", fap_icons)
 

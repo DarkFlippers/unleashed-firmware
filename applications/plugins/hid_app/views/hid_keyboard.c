@@ -1,14 +1,15 @@
-#include "bt_hid_keyboard.h"
+#include "hid_keyboard.h"
 #include <furi.h>
-#include <furi_hal_bt_hid.h>
-#include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
 #include <gui/icon_i.h>
+#include "../hid.h"
+#include "hid_icons.h"
 
-#include "bt_hid_icons.h"
+#define TAG "HidKeyboard"
 
-struct BtHidKeyboard {
+struct HidKeyboard {
     View* view;
+    Hid* hid;
 };
 
 typedef struct {
@@ -24,7 +25,7 @@ typedef struct {
     bool back_pressed;
     bool connected;
     char key_string[5];
-} BtHidKeyboardModel;
+} HidKeyboardModel;
 
 typedef struct {
     uint8_t width;
@@ -32,13 +33,12 @@ typedef struct {
     const Icon* icon;
     char* shift_key;
     uint8_t value;
-} BtHidKeyboardKey;
+} HidKeyboardKey;
 
 typedef struct {
     int8_t x;
     int8_t y;
-} BtHidKeyboardPoint;
-
+} HidKeyboardPoint;
 // 4 BY 12
 #define MARGIN_TOP 0
 #define MARGIN_LEFT 4
@@ -49,7 +49,7 @@ typedef struct {
 #define COLUMN_COUNT 12
 
 // 0 width items are not drawn, but there value is used
-const BtHidKeyboardKey bt_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
+const HidKeyboardKey hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
     {
         {.width = 1, .icon = NULL, .key = "1", .shift_key = "!", .value = HID_KEYBOARD_1},
         {.width = 1, .icon = NULL, .key = "2", .shift_key = "@", .value = HID_KEYBOARD_2},
@@ -112,7 +112,7 @@ const BtHidKeyboardKey bt_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
     },
     {
         {.width = 1, .icon = &I_Pin_arrow_up_7x9, .value = HID_KEYBOARD_L_SHIFT},
-        {.width = 1, .icon = NULL, .key = ",", .shift_key = "<", .value = HID_KEYPAD_COMMA},
+        {.width = 1, .icon = NULL, .key = ",", .shift_key = "<", .value = HID_KEYBOARD_COMMA},
         {.width = 1, .icon = NULL, .key = ".", .shift_key = ">", .value = HID_KEYBOARD_DOT},
         {.width = 4, .icon = NULL, .key = " ", .value = HID_KEYBOARD_SPACEBAR},
         {.width = 0, .value = HID_KEYBOARD_SPACEBAR},
@@ -140,19 +140,19 @@ const BtHidKeyboardKey bt_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
     },
 };
 
-static void bt_hid_keyboard_to_upper(char* str) {
+static void hid_keyboard_to_upper(char* str) {
     while(*str) {
         *str = toupper((unsigned char)*str);
         str++;
     }
 }
 
-static void bt_hid_keyboard_draw_key(
+static void hid_keyboard_draw_key(
     Canvas* canvas,
-    BtHidKeyboardModel* model,
+    HidKeyboardModel* model,
     uint8_t x,
     uint8_t y,
-    BtHidKeyboardKey key,
+    HidKeyboardKey key,
     bool selected) {
     if(!key.width) return;
 
@@ -190,7 +190,7 @@ static void bt_hid_keyboard_draw_key(
         if((model->ctrl && key.value == HID_KEYBOARD_L_CTRL) ||
            (model->alt && key.value == HID_KEYBOARD_L_ALT) ||
            (model->gui && key.value == HID_KEYBOARD_L_GUI)) {
-            bt_hid_keyboard_to_upper(model->key_string);
+            hid_keyboard_to_upper(model->key_string);
         }
         canvas_draw_str_aligned(
             canvas,
@@ -202,9 +202,9 @@ static void bt_hid_keyboard_draw_key(
     }
 }
 
-static void bt_hid_keyboard_draw_callback(Canvas* canvas, void* context) {
+static void hid_keyboard_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
-    BtHidKeyboardModel* model = context;
+    HidKeyboardModel* model = context;
 
     // Header
     if(!model->connected) {
@@ -225,17 +225,17 @@ static void bt_hid_keyboard_draw_callback(Canvas* canvas, void* context) {
     // Start shifting the all keys up if on the next row (Scrolling)
     uint8_t initY = model->y - 4 > 0 ? model->y - 4 : 0;
     for(uint8_t y = initY; y < ROW_COUNT; y++) {
-        const BtHidKeyboardKey* keyboardKeyRow = bt_hid_keyboard_keyset[y];
+        const HidKeyboardKey* keyboardKeyRow = hid_keyboard_keyset[y];
         uint8_t x = 0;
         for(uint8_t i = 0; i < COLUMN_COUNT; i++) {
-            BtHidKeyboardKey key = keyboardKeyRow[i];
+            HidKeyboardKey key = keyboardKeyRow[i];
             // Select when the button is hovered
             // Select if the button is hovered within its width
             // Select if back is clicked and its the backspace key
             // Deselect when the button clicked or not hovered
             bool keySelected = (x <= model->x && model->x < (x + key.width)) && y == model->y;
             bool backSelected = model->back_pressed && key.value == HID_KEYBOARD_DELETE;
-            bt_hid_keyboard_draw_key(
+            hid_keyboard_draw_key(
                 canvas,
                 model,
                 x,
@@ -247,8 +247,8 @@ static void bt_hid_keyboard_draw_callback(Canvas* canvas, void* context) {
     }
 }
 
-static uint8_t bt_hid_keyboard_get_selected_key(BtHidKeyboardModel* model) {
-    BtHidKeyboardKey key = bt_hid_keyboard_keyset[model->y][model->x];
+static uint8_t hid_keyboard_get_selected_key(HidKeyboardModel* model) {
+    HidKeyboardKey key = hid_keyboard_keyset[model->y][model->x];
     // Use upper case if shift is toggled
     bool useUppercase = model->shift;
     // Check if the key has an upper case version
@@ -259,34 +259,34 @@ static uint8_t bt_hid_keyboard_get_selected_key(BtHidKeyboardModel* model) {
         return key.value;
 }
 
-static void bt_hid_keyboard_get_select_key(BtHidKeyboardModel* model, BtHidKeyboardPoint delta) {
+static void hid_keyboard_get_select_key(HidKeyboardModel* model, HidKeyboardPoint delta) {
     // Keep going until a valid spot is found, this allows for nulls and zero width keys in the map
     do {
         if(((int8_t)model->y) + delta.y < 0)
             model->y = ROW_COUNT - 1;
         else
             model->y = (model->y + delta.y) % ROW_COUNT;
-    } while(delta.y != 0 && bt_hid_keyboard_keyset[model->y][model->x].value == 0);
+    } while(delta.y != 0 && hid_keyboard_keyset[model->y][model->x].value == 0);
 
     do {
         if(((int8_t)model->x) + delta.x < 0)
             model->x = COLUMN_COUNT - 1;
         else
             model->x = (model->x + delta.x) % COLUMN_COUNT;
-    } while(delta.x != 0 && bt_hid_keyboard_keyset[model->y][model->x].width ==
+    } while(delta.x != 0 && hid_keyboard_keyset[model->y][model->x].width ==
                                 0); // Skip zero width keys, pretend they are one key
 }
 
-static void bt_hid_keyboard_process(BtHidKeyboard* bt_hid_keyboard, InputEvent* event) {
+static void hid_keyboard_process(HidKeyboard* hid_keyboard, InputEvent* event) {
     with_view_model(
-        bt_hid_keyboard->view,
-        BtHidKeyboardModel * model,
+        hid_keyboard->view,
+        HidKeyboardModel * model,
         {
             if(event->key == InputKeyOk) {
                 if(event->type == InputTypePress) {
                     model->ok_pressed = true;
                 } else if(event->type == InputTypeLong || event->type == InputTypeShort) {
-                    model->last_key_code = bt_hid_keyboard_get_selected_key(model);
+                    model->last_key_code = hid_keyboard_get_selected_key(model);
 
                     // Toggle the modifier key when clicked, and click the key
                     if(model->last_key_code == HID_KEYBOARD_L_SHIFT) {
@@ -314,10 +314,12 @@ static void bt_hid_keyboard_process(BtHidKeyboard* bt_hid_keyboard, InputEvent* 
                         else
                             model->modifier_code &= ~KEY_MOD_LEFT_GUI;
                     }
-                    furi_hal_bt_hid_kb_press(model->modifier_code | model->last_key_code);
+                    hid_hal_keyboard_press(
+                        hid_keyboard->hid, model->modifier_code | model->last_key_code);
                 } else if(event->type == InputTypeRelease) {
                     // Release happens after short and long presses
-                    furi_hal_bt_hid_kb_release(model->modifier_code | model->last_key_code);
+                    hid_hal_keyboard_release(
+                        hid_keyboard->hid, model->modifier_code | model->last_key_code);
                     model->ok_pressed = false;
                 }
             } else if(event->key == InputKeyBack) {
@@ -325,66 +327,67 @@ static void bt_hid_keyboard_process(BtHidKeyboard* bt_hid_keyboard, InputEvent* 
                 if(event->type == InputTypePress) {
                     model->back_pressed = true;
                 } else if(event->type == InputTypeShort) {
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_DELETE);
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_DELETE);
+                    hid_hal_keyboard_press(hid_keyboard->hid, HID_KEYBOARD_DELETE);
+                    hid_hal_keyboard_release(hid_keyboard->hid, HID_KEYBOARD_DELETE);
                 } else if(event->type == InputTypeRelease) {
                     model->back_pressed = false;
                 }
             } else if(event->type == InputTypePress || event->type == InputTypeRepeat) {
                 // Cycle the selected keys
                 if(event->key == InputKeyUp) {
-                    bt_hid_keyboard_get_select_key(model, (BtHidKeyboardPoint){.x = 0, .y = -1});
+                    hid_keyboard_get_select_key(model, (HidKeyboardPoint){.x = 0, .y = -1});
                 } else if(event->key == InputKeyDown) {
-                    bt_hid_keyboard_get_select_key(model, (BtHidKeyboardPoint){.x = 0, .y = 1});
+                    hid_keyboard_get_select_key(model, (HidKeyboardPoint){.x = 0, .y = 1});
                 } else if(event->key == InputKeyLeft) {
-                    bt_hid_keyboard_get_select_key(model, (BtHidKeyboardPoint){.x = -1, .y = 0});
+                    hid_keyboard_get_select_key(model, (HidKeyboardPoint){.x = -1, .y = 0});
                 } else if(event->key == InputKeyRight) {
-                    bt_hid_keyboard_get_select_key(model, (BtHidKeyboardPoint){.x = 1, .y = 0});
+                    hid_keyboard_get_select_key(model, (HidKeyboardPoint){.x = 1, .y = 0});
                 }
             }
         },
         true);
 }
 
-static bool bt_hid_keyboard_input_callback(InputEvent* event, void* context) {
+static bool hid_keyboard_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    BtHidKeyboard* bt_hid_keyboard = context;
+    HidKeyboard* hid_keyboard = context;
     bool consumed = false;
 
     if(event->type == InputTypeLong && event->key == InputKeyBack) {
-        furi_hal_bt_hid_kb_release_all();
+        hid_hal_keyboard_release_all(hid_keyboard->hid);
     } else {
-        bt_hid_keyboard_process(bt_hid_keyboard, event);
+        hid_keyboard_process(hid_keyboard, event);
         consumed = true;
     }
 
     return consumed;
 }
 
-BtHidKeyboard* bt_hid_keyboard_alloc() {
-    BtHidKeyboard* bt_hid_keyboard = malloc(sizeof(BtHidKeyboard));
-    bt_hid_keyboard->view = view_alloc();
-    view_set_context(bt_hid_keyboard->view, bt_hid_keyboard);
-    view_allocate_model(bt_hid_keyboard->view, ViewModelTypeLocking, sizeof(BtHidKeyboardModel));
-    view_set_draw_callback(bt_hid_keyboard->view, bt_hid_keyboard_draw_callback);
-    view_set_input_callback(bt_hid_keyboard->view, bt_hid_keyboard_input_callback);
+HidKeyboard* hid_keyboard_alloc(Hid* bt_hid) {
+    HidKeyboard* hid_keyboard = malloc(sizeof(HidKeyboard));
+    hid_keyboard->view = view_alloc();
+    hid_keyboard->hid = bt_hid;
+    view_set_context(hid_keyboard->view, hid_keyboard);
+    view_allocate_model(hid_keyboard->view, ViewModelTypeLocking, sizeof(HidKeyboardModel));
+    view_set_draw_callback(hid_keyboard->view, hid_keyboard_draw_callback);
+    view_set_input_callback(hid_keyboard->view, hid_keyboard_input_callback);
 
-    return bt_hid_keyboard;
+    return hid_keyboard;
 }
 
-void bt_hid_keyboard_free(BtHidKeyboard* bt_hid_keyboard) {
-    furi_assert(bt_hid_keyboard);
-    view_free(bt_hid_keyboard->view);
-    free(bt_hid_keyboard);
+void hid_keyboard_free(HidKeyboard* hid_keyboard) {
+    furi_assert(hid_keyboard);
+    view_free(hid_keyboard->view);
+    free(hid_keyboard);
 }
 
-View* bt_hid_keyboard_get_view(BtHidKeyboard* bt_hid_keyboard) {
-    furi_assert(bt_hid_keyboard);
-    return bt_hid_keyboard->view;
+View* hid_keyboard_get_view(HidKeyboard* hid_keyboard) {
+    furi_assert(hid_keyboard);
+    return hid_keyboard->view;
 }
 
-void bt_hid_keyboard_set_connected_status(BtHidKeyboard* bt_hid_keyboard, bool connected) {
-    furi_assert(bt_hid_keyboard);
+void hid_keyboard_set_connected_status(HidKeyboard* hid_keyboard, bool connected) {
+    furi_assert(hid_keyboard);
     with_view_model(
-        bt_hid_keyboard->view, BtHidKeyboardModel * model, { model->connected = connected; }, true);
+        hid_keyboard->view, HidKeyboardModel * model, { model->connected = connected; }, true);
 }

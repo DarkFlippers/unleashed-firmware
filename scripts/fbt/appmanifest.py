@@ -64,6 +64,7 @@ class FlipperApplication:
     fap_author: str = ""
     fap_weburl: str = ""
     fap_icon_assets: Optional[str] = None
+    fap_icon_assets_symbol: Optional[str] = None
     fap_extbuild: List[ExternallyBuiltFile] = field(default_factory=list)
     fap_private_libs: List[Library] = field(default_factory=list)
     # Internally used by fbt

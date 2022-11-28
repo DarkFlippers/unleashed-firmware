@@ -1,13 +1,14 @@
-#include "bt_hid_keynote.h"
-#include <furi.h>
-#include <furi_hal_bt_hid.h>
-#include <furi_hal_usb_hid.h>
+#include "hid_keynote.h"
 #include <gui/elements.h>
+#include "../hid.h"
 
-#include "bt_hid_icons.h"
+#include "hid_icons.h"
 
-struct BtHidKeynote {
+#define TAG "HidKeynote"
+
+struct HidKeynote {
     View* view;
+    Hid* hid;
 };
 
 typedef struct {
@@ -18,9 +19,9 @@ typedef struct {
     bool ok_pressed;
     bool back_pressed;
     bool connected;
-} BtHidKeynoteModel;
+} HidKeynoteModel;
 
-static void bt_hid_keynote_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
+static void hid_keynote_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
     canvas_draw_triangle(canvas, x, y, 5, 3, dir);
     if(dir == CanvasDirectionBottomToTop) {
         canvas_draw_line(canvas, x, y + 6, x, y - 1);
@@ -33,9 +34,9 @@ static void bt_hid_keynote_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, Canv
     }
 }
 
-static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
+static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
-    BtHidKeynoteModel* model = context;
+    HidKeynoteModel* model = context;
 
     // Header
     if(model->connected) {
@@ -56,7 +57,7 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
         elements_slightly_rounded_box(canvas, 24, 26, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 30, 30, CanvasDirectionBottomToTop);
+    hid_keynote_draw_arrow(canvas, 30, 30, CanvasDirectionBottomToTop);
     canvas_set_color(canvas, ColorBlack);
 
     // Down
@@ -65,7 +66,7 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
         elements_slightly_rounded_box(canvas, 24, 47, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 30, 55, CanvasDirectionTopToBottom);
+    hid_keynote_draw_arrow(canvas, 30, 55, CanvasDirectionTopToBottom);
     canvas_set_color(canvas, ColorBlack);
 
     // Left
@@ -74,7 +75,7 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
         elements_slightly_rounded_box(canvas, 3, 47, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 7, 53, CanvasDirectionRightToLeft);
+    hid_keynote_draw_arrow(canvas, 7, 53, CanvasDirectionRightToLeft);
     canvas_set_color(canvas, ColorBlack);
 
     // Right
@@ -83,7 +84,7 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
         elements_slightly_rounded_box(canvas, 45, 47, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 53, 53, CanvasDirectionLeftToRight);
+    hid_keynote_draw_arrow(canvas, 53, 53, CanvasDirectionLeftToRight);
     canvas_set_color(canvas, ColorBlack);
 
     // Ok
@@ -106,100 +107,101 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Back");
 }
 
-static void bt_hid_keynote_process(BtHidKeynote* bt_hid_keynote, InputEvent* event) {
+static void hid_keynote_process(HidKeynote* hid_keynote, InputEvent* event) {
     with_view_model(
-        bt_hid_keynote->view,
-        BtHidKeynoteModel * model,
+        hid_keynote->view,
+        HidKeynoteModel * model,
         {
             if(event->type == InputTypePress) {
                 if(event->key == InputKeyUp) {
                     model->up_pressed = true;
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_UP_ARROW);
+                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_UP_ARROW);
                 } else if(event->key == InputKeyDown) {
                     model->down_pressed = true;
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_DOWN_ARROW);
+                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_DOWN_ARROW);
                 } else if(event->key == InputKeyLeft) {
                     model->left_pressed = true;
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_LEFT_ARROW);
+                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_LEFT_ARROW);
                 } else if(event->key == InputKeyRight) {
                     model->right_pressed = true;
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_RIGHT_ARROW);
+                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_RIGHT_ARROW);
                 } else if(event->key == InputKeyOk) {
                     model->ok_pressed = true;
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_SPACEBAR);
+                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_SPACEBAR);
                 } else if(event->key == InputKeyBack) {
                     model->back_pressed = true;
                 }
             } else if(event->type == InputTypeRelease) {
                 if(event->key == InputKeyUp) {
                     model->up_pressed = false;
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_UP_ARROW);
+                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_UP_ARROW);
                 } else if(event->key == InputKeyDown) {
                     model->down_pressed = false;
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_DOWN_ARROW);
+                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_DOWN_ARROW);
                 } else if(event->key == InputKeyLeft) {
                     model->left_pressed = false;
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_LEFT_ARROW);
+                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_LEFT_ARROW);
                 } else if(event->key == InputKeyRight) {
                     model->right_pressed = false;
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_RIGHT_ARROW);
+                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_RIGHT_ARROW);
                 } else if(event->key == InputKeyOk) {
                     model->ok_pressed = false;
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_SPACEBAR);
+                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_SPACEBAR);
                 } else if(event->key == InputKeyBack) {
                     model->back_pressed = false;
                 }
             } else if(event->type == InputTypeShort) {
                 if(event->key == InputKeyBack) {
-                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_DELETE);
-                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_DELETE);
-                    furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_AC_BACK);
-                    furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_AC_BACK);
+                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_DELETE);
+                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_DELETE);
+                    hid_hal_consumer_key_press(hid_keynote->hid, HID_CONSUMER_AC_BACK);
+                    hid_hal_consumer_key_release(hid_keynote->hid, HID_CONSUMER_AC_BACK);
                 }
             }
         },
         true);
 }
 
-static bool bt_hid_keynote_input_callback(InputEvent* event, void* context) {
+static bool hid_keynote_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    BtHidKeynote* bt_hid_keynote = context;
+    HidKeynote* hid_keynote = context;
     bool consumed = false;
 
     if(event->type == InputTypeLong && event->key == InputKeyBack) {
-        furi_hal_bt_hid_kb_release_all();
+        hid_hal_keyboard_release_all(hid_keynote->hid);
     } else {
-        bt_hid_keynote_process(bt_hid_keynote, event);
+        hid_keynote_process(hid_keynote, event);
         consumed = true;
     }
 
     return consumed;
 }
 
-BtHidKeynote* bt_hid_keynote_alloc() {
-    BtHidKeynote* bt_hid_keynote = malloc(sizeof(BtHidKeynote));
-    bt_hid_keynote->view = view_alloc();
-    view_set_context(bt_hid_keynote->view, bt_hid_keynote);
-    view_allocate_model(bt_hid_keynote->view, ViewModelTypeLocking, sizeof(BtHidKeynoteModel));
-    view_set_draw_callback(bt_hid_keynote->view, bt_hid_keynote_draw_callback);
-    view_set_input_callback(bt_hid_keynote->view, bt_hid_keynote_input_callback);
+HidKeynote* hid_keynote_alloc(Hid* hid) {
+    HidKeynote* hid_keynote = malloc(sizeof(HidKeynote));
+    hid_keynote->view = view_alloc();
+    hid_keynote->hid = hid;
+    view_set_context(hid_keynote->view, hid_keynote);
+    view_allocate_model(hid_keynote->view, ViewModelTypeLocking, sizeof(HidKeynoteModel));
+    view_set_draw_callback(hid_keynote->view, hid_keynote_draw_callback);
+    view_set_input_callback(hid_keynote->view, hid_keynote_input_callback);
 
-    return bt_hid_keynote;
+    return hid_keynote;
 }
 
-void bt_hid_keynote_free(BtHidKeynote* bt_hid_keynote) {
-    furi_assert(bt_hid_keynote);
-    view_free(bt_hid_keynote->view);
-    free(bt_hid_keynote);
+void hid_keynote_free(HidKeynote* hid_keynote) {
+    furi_assert(hid_keynote);
+    view_free(hid_keynote->view);
+    free(hid_keynote);
 }
 
-View* bt_hid_keynote_get_view(BtHidKeynote* bt_hid_keynote) {
-    furi_assert(bt_hid_keynote);
-    return bt_hid_keynote->view;
+View* hid_keynote_get_view(HidKeynote* hid_keynote) {
+    furi_assert(hid_keynote);
+    return hid_keynote->view;
 }
 
-void bt_hid_keynote_set_connected_status(BtHidKeynote* bt_hid_keynote, bool connected) {
-    furi_assert(bt_hid_keynote);
+void hid_keynote_set_connected_status(HidKeynote* hid_keynote, bool connected) {
+    furi_assert(hid_keynote);
     with_view_model(
-        bt_hid_keynote->view, BtHidKeynoteModel * model, { model->connected = connected; }, true);
+        hid_keynote->view, HidKeynoteModel * model, { model->connected = connected; }, true);
 }
