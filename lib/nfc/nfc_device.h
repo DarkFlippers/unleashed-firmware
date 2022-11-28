@@ -67,6 +67,7 @@ typedef struct {
     union {
         NfcReaderRequestData reader_data;
         NfcMfClassicDictAttackData mf_classic_dict_attack_data;
+        MfUltralightAuth mf_ul_auth;
     };
     union {
         EmvData emv_data;

@@ -7,6 +7,7 @@
 #include <lib/nfc/protocols/nfc_util.h>
 #include <flipper_format/flipper_format.h>
 
+#define TAG "NfcDevice"
 #define NFC_DEVICE_KEYS_FOLDER EXT_PATH("nfc/cache")
 #define NFC_DEVICE_KEYS_EXTENSION ".keys"
 
@@ -213,6 +214,9 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
         uint32_t auth_counter;
         if(!flipper_format_read_uint32(file, "Failed authentication attempts", &auth_counter, 1))
             auth_counter = 0;
+        data->curr_authlim = auth_counter;
+
+        data->auth_success = mf_ul_is_full_capture(data);
 
         parsed = true;
     } while(false);
@@ -627,7 +631,10 @@ bool nfc_device_load_mifare_df_data(FlipperFormat* file, NfcDevice* dev) {
                 *app_head = app;
                 app_head = &app->next;
             }
-            if(!parsed_apps) break;
+            if(!parsed_apps) {
+                // accept non-parsed apps, just log a warning:
+                FURI_LOG_W(TAG, "Non-parsed apps found!");
+            }
         }
         parsed = true;
     } while(false);

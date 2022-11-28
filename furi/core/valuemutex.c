@@ -4,7 +4,7 @@
 
 bool init_mutex(ValueMutex* valuemutex, void* value, size_t size) {
     // mutex without name,
-    // no attributes (unfortunatly robust mutex is not supported by FreeRTOS),
+    // no attributes (unfortunately robust mutex is not supported by FreeRTOS),
     // with dynamic memory allocation
     valuemutex->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     if(valuemutex->mutex == NULL) return false;

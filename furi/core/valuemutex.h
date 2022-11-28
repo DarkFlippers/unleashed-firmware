@@ -39,7 +39,7 @@ bool delete_mutex(ValueMutex* valuemutex);
 void* acquire_mutex(ValueMutex* valuemutex, uint32_t timeout);
 
 /**
- * Helper: infinitly wait for mutex
+ * Helper: infinitely wait for mutex
  */
 static inline void* acquire_mutex_block(ValueMutex* valuemutex) {
     return acquire_mutex(valuemutex, FuriWaitForever);
@@ -135,7 +135,7 @@ void consumer_app(void* _p) {
         flapp_exit(NULL);
     }
 
-    // continously read value every 1s
+    // continuously read value every 1s
     uint32_t counter;
     while(1) {
         if(read_mutex(counter_mutex, &counter, sizeof(counter), OsWaitForever)) {

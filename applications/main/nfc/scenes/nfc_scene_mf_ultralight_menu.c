@@ -19,10 +19,10 @@ void nfc_scene_mf_ultralight_menu_on_enter(void* context) {
     Submenu* submenu = nfc->submenu;
     MfUltralightData* data = &nfc->dev->dev_data.mf_ul_data;
 
-    if(data->data_read != data->data_size) {
+    if(!mf_ul_is_full_capture(data)) {
         submenu_add_item(
             submenu,
-            "Unlock With Password",
+            "Unlock",
             SubmenuIndexUnlock,
             nfc_scene_mf_ultralight_menu_submenu_callback,
             nfc);

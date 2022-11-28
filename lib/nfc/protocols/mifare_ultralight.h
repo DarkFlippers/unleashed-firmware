@@ -28,10 +28,13 @@
 
 #define MF_UL_NTAG203_COUNTER_PAGE (41)
 
+#define MF_UL_DEFAULT_PWD (0xFFFFFFFF)
+
 typedef enum {
     MfUltralightAuthMethodManual,
     MfUltralightAuthMethodAmeebo,
     MfUltralightAuthMethodXiaomi,
+    MfUltralightAuthMethodAuto,
 } MfUltralightAuthMethod;
 
 // Important: order matters; some features are based on positioning in this enum
@@ -110,7 +113,6 @@ typedef struct {
     uint8_t signature[32];
     uint32_t counter[3];
     uint8_t tearing[3];
-    bool has_auth;
     MfUltralightAuthMethod auth_method;
     uint8_t auth_key[4];
     bool auth_success;
@@ -169,6 +171,9 @@ typedef struct {
     MfUltralightFeatures supported_features;
 } MfUltralightReader;
 
+// TODO rework with reader analyzer
+typedef void (*MfUltralightAuthReceivedCallback)(MfUltralightAuth auth, void* context);
+
 typedef struct {
     MfUltralightData data;
     MfUltralightConfigPages* config;
@@ -185,6 +190,12 @@ typedef struct {
     bool sector_select_cmd_started;
     bool ntag_i2c_plus_sector3_lockout;
     bool read_counter_incremented;
+    bool auth_attempted;
+    MfUltralightAuth auth_attempt;
+
+    // TODO rework with reader analyzer
+    MfUltralightAuthReceivedCallback auth_received_callback;
+    void* context;
 } MfUltralightEmulator;
 
 void mf_ul_reset(MfUltralightData* data);
@@ -241,3 +252,5 @@ bool mf_ul_prepare_emulation_response(
 uint32_t mf_ul_pwdgen_amiibo(FuriHalNfcDevData* data);
 
 uint32_t mf_ul_pwdgen_xiaomi(FuriHalNfcDevData* data);
+
+bool mf_ul_is_full_capture(MfUltralightData* data);

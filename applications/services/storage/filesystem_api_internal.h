@@ -17,7 +17,7 @@ typedef enum {
 struct File {
     uint32_t file_id; /**< File ID for internal references */
     FileType type;
-    FS_Error error_id; /**< Standart API error from FS_Error enum */
+    FS_Error error_id; /**< Standard API error from FS_Error enum */
     int32_t internal_error_id; /**< Internal API error value */
     void* storage;
 };

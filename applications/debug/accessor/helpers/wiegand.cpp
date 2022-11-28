@@ -71,7 +71,7 @@ void WIEGAND::end() {
 }
 
 void WIEGAND::ReadD0() {
-    _bitCount++; // Increament bit count for Interrupt connected to D0
+    _bitCount++; // Increment bit count for Interrupt connected to D0
     if(_bitCount > 31) // If bit count more than 31, process high bits
     {
         _cardTempHigh |= ((0x80000000 & _cardTemp) >> 31); //	shift value to high bits

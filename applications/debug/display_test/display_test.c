@@ -145,7 +145,7 @@ DisplayTest* display_test_alloc() {
     view_set_previous_callback(view, display_test_previous_callback);
     view_dispatcher_add_view(instance->view_dispatcher, DisplayTestViewConfigure, view);
 
-    // Configurtion items
+    // Configuration items
     VariableItem* item;
     instance->config_bias = false;
     instance->config_contrast = 32;

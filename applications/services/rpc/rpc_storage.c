@@ -330,7 +330,7 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
 
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
-    /* use same message memory to send reponse */
+    /* use same message memory to send response */
     PB_Main* response = malloc(sizeof(PB_Main));
     const char* path = request->content.storage_read_request.path;
     Storage* fs_api = furi_record_open(RECORD_STORAGE);

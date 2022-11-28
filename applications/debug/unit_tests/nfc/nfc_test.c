@@ -136,7 +136,7 @@ static bool nfc_test_digital_signal_test_encode(
             ref_timings_sum += ref[i];
             if(timings_diff > timing_tolerance) {
                 FURI_LOG_E(
-                    TAG, "Too big differece in %d timings. Ref: %ld, DUT: %ld", i, ref[i], dut[i]);
+                    TAG, "Too big difference in %d timings. Ref: %ld, DUT: %ld", i, ref[i], dut[i]);
                 timing_check_success = false;
                 break;
             }

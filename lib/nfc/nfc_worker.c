@@ -527,10 +527,25 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
     }
 }
 
+void nfc_worker_mf_ultralight_auth_received_callback(MfUltralightAuth auth, void* context) {
+    furi_assert(context);
+
+    NfcWorker* nfc_worker = context;
+    nfc_worker->dev_data->mf_ul_auth = auth;
+    if(nfc_worker->callback) {
+        nfc_worker->callback(NfcWorkerEventMfUltralightPwdAuth, nfc_worker->context);
+    }
+}
+
 void nfc_worker_emulate_mf_ultralight(NfcWorker* nfc_worker) {
     FuriHalNfcDevData* nfc_data = &nfc_worker->dev_data->nfc_data;
     MfUltralightEmulator emulator = {};
     mf_ul_prepare_emulation(&emulator, &nfc_worker->dev_data->mf_ul_data);
+
+    // TODO rework with reader analyzer
+    emulator.auth_received_callback = nfc_worker_mf_ultralight_auth_received_callback;
+    emulator.context = nfc_worker;
+
     while(nfc_worker->state == NfcWorkerStateMfUltralightEmulate) {
         mf_ul_reset_emulation(&emulator, true);
         furi_hal_nfc_emulate_nfca(
@@ -905,7 +920,8 @@ void nfc_worker_mf_ultralight_read_auth(NfcWorker* nfc_worker) {
         if(furi_hal_nfc_detect(nfc_data, 300) && nfc_data->type == FuriHalNfcTypeA) {
             if(mf_ul_check_card_type(nfc_data->atqa[0], nfc_data->atqa[1], nfc_data->sak)) {
                 nfc_worker->callback(NfcWorkerEventCardDetected, nfc_worker->context);
-                if(data->auth_method == MfUltralightAuthMethodManual) {
+                if(data->auth_method == MfUltralightAuthMethodManual ||
+                   data->auth_method == MfUltralightAuthMethodAuto) {
                     nfc_worker->callback(NfcWorkerEventMfUltralightPassKey, nfc_worker->context);
                     key = nfc_util_bytes2num(data->auth_key, 4);
                 } else if(data->auth_method == MfUltralightAuthMethodAmeebo) {

@@ -255,19 +255,19 @@ FS_Error storage_common_fs_info(
 const char* storage_error_get_desc(FS_Error error_id);
 
 /** Retrieves the error id from the file object
- * @param file pointer to file object. Pointer must not point to NULL. YOU CANNOT RETREIVE THE ERROR ID IF THE FILE HAS BEEN CLOSED
+ * @param file pointer to file object. Pointer must not point to NULL. YOU CANNOT RETRIEVE THE ERROR ID IF THE FILE HAS BEEN CLOSED
  * @return FS_Error error id
  */
 FS_Error storage_file_get_error(File* file);
 
 /** Retrieves the internal (storage-specific) error id from the file object
- * @param file pointer to file object. Pointer must not point to NULL. YOU CANNOT RETREIVE THE INTERNAL ERROR ID IF THE FILE HAS BEEN CLOSED
+ * @param file pointer to file object. Pointer must not point to NULL. YOU CANNOT RETRIEVE THE INTERNAL ERROR ID IF THE FILE HAS BEEN CLOSED
  * @return FS_Error error id
  */
 int32_t storage_file_get_internal_error(File* file);
 
 /** Retrieves the error text from the file object
- * @param file pointer to file object. Pointer must not point to NULL. YOU CANNOT RETREIVE THE ERROR TEXT IF THE FILE HAS BEEN CLOSED
+ * @param file pointer to file object. Pointer must not point to NULL. YOU CANNOT RETRIEVE THE ERROR TEXT IF THE FILE HAS BEEN CLOSED
  * @return const char* error text
  */
 const char* storage_file_get_error_desc(File* file);

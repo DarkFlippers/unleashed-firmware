@@ -24,7 +24,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         &I_Power_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "POWER");
+    infrared_brute_force_add_record(brute_force, i++, "Power");
     button_panel_add_item(
         button_panel,
         i,
@@ -36,7 +36,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         &I_Mute_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "MUTE");
+    infrared_brute_force_add_record(brute_force, i++, "Mute");
     button_panel_add_item(
         button_panel,
         i,
@@ -48,7 +48,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         &I_Vol_up_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "VOL+");
+    infrared_brute_force_add_record(brute_force, i++, "Vol_up");
     button_panel_add_item(
         button_panel,
         i,
@@ -60,7 +60,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         &I_Up_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "CH+");
+    infrared_brute_force_add_record(brute_force, i++, "Ch_next");
     button_panel_add_item(
         button_panel,
         i,
@@ -72,7 +72,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         &I_Vol_down_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "VOL-");
+    infrared_brute_force_add_record(brute_force, i++, "Vol_dn");
     button_panel_add_item(
         button_panel,
         i,
@@ -84,7 +84,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         &I_Down_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "CH-");
+    infrared_brute_force_add_record(brute_force, i++, "Ch_prev");
 
     button_panel_add_label(button_panel, 6, 11, FontPrimary, "TV remote");
     button_panel_add_label(button_panel, 9, 64, FontSecondary, "Vol");

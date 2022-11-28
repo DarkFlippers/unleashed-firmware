@@ -90,7 +90,7 @@ void elements_button_center(Canvas* canvas, const char* str);
  *
  * @param   canvas                  Canvas instance
  * @param   x, y                    coordinates based on align param
- * @param   horizontal, vertical    aligment of multiline text
+ * @param   horizontal, vertical    alignment of multiline text
  * @param   text                    string (possible multiline)
  */
 void elements_multiline_text_aligned(

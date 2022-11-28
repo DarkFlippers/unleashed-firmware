@@ -11,7 +11,7 @@
 extern size_t memmgr_get_free_heap(void);
 extern size_t memmgr_get_minimum_free_heap(void);
 
-// current heap managment realization consume:
+// current heap management realization consume:
 // X bytes after allocate and 0 bytes after allocate and free,
 // where X = sizeof(void*) + sizeof(size_t), look to BlockLink_t
 const size_t heap_overhead_max_size = sizeof(void*) + sizeof(size_t);
@@ -21,7 +21,7 @@ bool heap_equal(size_t heap_size, size_t heap_size_old) {
     const size_t heap_low = heap_size_old - heap_overhead_max_size;
     const size_t heap_high = heap_size_old + heap_overhead_max_size;
 
-    // not extact, so we must test it against bigger numbers than "overhead size"
+    // not exact, so we must test it against bigger numbers than "overhead size"
     const bool result = ((heap_size >= heap_low) && (heap_size <= heap_high));
 
     // debug allocation info
