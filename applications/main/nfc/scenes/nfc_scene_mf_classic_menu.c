@@ -4,6 +4,7 @@
 enum SubmenuIndex {
     SubmenuIndexSave,
     SubmenuIndexEmulate,
+    SubmenuIndexDetectReader,
     SubmenuIndexInfo,
 };
 
@@ -21,6 +22,14 @@ void nfc_scene_mf_classic_menu_on_enter(void* context) {
         submenu, "Save", SubmenuIndexSave, nfc_scene_mf_classic_menu_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_mf_classic_menu_submenu_callback, nfc);
+    if(!mf_classic_is_card_read(&nfc->dev->dev_data.mf_classic_data)) {
+        submenu_add_item(
+            submenu,
+            "Detect reader",
+            SubmenuIndexDetectReader,
+            nfc_scene_mf_classic_menu_submenu_callback,
+            nfc);
+    }
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, nfc_scene_mf_classic_menu_submenu_callback, nfc);
 
@@ -35,17 +44,14 @@ bool nfc_scene_mf_classic_menu_on_event(void* context, SceneManagerEvent event) 
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
+        scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfClassicMenu, event.event);
         if(event.event == SubmenuIndexSave) {
-            scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneMfClassicMenu, SubmenuIndexSave);
             nfc->dev->format = NfcDeviceSaveFormatMifareClassic;
             // Clear device name
             nfc_device_set_name(nfc->dev, "");
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             consumed = true;
         } else if(event.event == SubmenuIndexEmulate) {
-            scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneMfClassicMenu, SubmenuIndexEmulate);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
                 DOLPHIN_DEED(DolphinDeedNfcAddEmulate);
@@ -53,9 +59,11 @@ bool nfc_scene_mf_classic_menu_on_event(void* context, SceneManagerEvent event) 
                 DOLPHIN_DEED(DolphinDeedNfcEmulate);
             }
             consumed = true;
+        } else if(event.event == SubmenuIndexDetectReader) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
+            DOLPHIN_DEED(DolphinDeedNfcDetectReader);
+            consumed = true;
         } else if(event.event == SubmenuIndexInfo) {
-            scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneMfClassicMenu, SubmenuIndexInfo);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcDataInfo);
             consumed = true;
         }

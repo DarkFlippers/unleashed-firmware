@@ -1,5 +1,5 @@
 #include "dialogs_i.h"
-#include "dialogs_api_lock.h"
+#include <toolbox/api_lock.h>
 #include "gui/modules/file_browser.h"
 
 typedef struct {
@@ -11,14 +11,14 @@ static void dialogs_app_file_browser_back_callback(void* context) {
     furi_assert(context);
     DialogsAppFileBrowserContext* file_browser_context = context;
     file_browser_context->result = false;
-    API_LOCK_UNLOCK(file_browser_context->lock);
+    api_lock_unlock(file_browser_context->lock);
 }
 
 static void dialogs_app_file_browser_callback(void* context) {
     furi_assert(context);
     DialogsAppFileBrowserContext* file_browser_context = context;
     file_browser_context->result = true;
-    API_LOCK_UNLOCK(file_browser_context->lock);
+    api_lock_unlock(file_browser_context->lock);
 }
 
 bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrowser* data) {
@@ -27,7 +27,7 @@ bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrow
 
     DialogsAppFileBrowserContext* file_browser_context =
         malloc(sizeof(DialogsAppFileBrowserContext));
-    file_browser_context->lock = API_LOCK_INIT_LOCKED();
+    file_browser_context->lock = api_lock_alloc_locked();
 
     ViewHolder* view_holder = view_holder_alloc();
     view_holder_attach_to_gui(view_holder, gui);
@@ -44,7 +44,7 @@ bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrow
 
     view_holder_set_view(view_holder, file_browser_get_view(file_browser));
     view_holder_start(view_holder);
-    API_LOCK_WAIT_UNTIL_UNLOCK(file_browser_context->lock);
+    api_lock_wait_unlock(file_browser_context->lock);
 
     ret = file_browser_context->result;
 
@@ -52,7 +52,7 @@ bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrow
     view_holder_free(view_holder);
     file_browser_stop(file_browser);
     file_browser_free(file_browser);
-    API_LOCK_FREE(file_browser_context->lock);
+    api_lock_free(file_browser_context->lock);
     free(file_browser_context);
     furi_record_close(RECORD_GUI);
 

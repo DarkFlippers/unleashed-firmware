@@ -109,7 +109,7 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
         .session = session,
         .response = response,
     };
-    furi_hal_info_get(rpc_system_system_device_info_callback, &device_info_context);
+    furi_hal_info_get(rpc_system_system_device_info_callback, '_', &device_info_context);
 
     free(response);
 }
@@ -266,7 +266,7 @@ static void rpc_system_system_get_power_info_process(const PB_Main* request, voi
         .session = session,
         .response = response,
     };
-    furi_hal_power_info_get(rpc_system_system_power_info_callback, &power_info_context);
+    furi_hal_power_info_get(rpc_system_system_power_info_callback, '_', &power_info_context);
 
     free(response);
 }
