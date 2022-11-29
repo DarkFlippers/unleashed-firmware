@@ -3,6 +3,7 @@
 #include <furi_hal_usb_cdc.h>
 #include "usb_cdc.h"
 #include "cli/cli_vcp.h"
+#include <toolbox/api_lock.h>
 #include "cli/cli.h"
 
 #define USB_CDC_PKT_LEN CDC_DATA_SZ
@@ -50,6 +51,8 @@ struct UsbUartBridge {
     FuriSemaphore* tx_sem;
 
     UsbUartState st;
+
+    FuriApiLock cfg_lock;
 
     uint8_t rx_buf[USB_CDC_PKT_LEN];
 };
@@ -244,6 +247,7 @@ static int32_t usb_uart_worker(void* context) {
                 usb_uart->cfg.flow_pins = usb_uart->cfg_new.flow_pins;
                 events |= WorkerEvtCtrlLineSet;
             }
+            api_lock_unlock(usb_uart->cfg_lock);
         }
         if(events & WorkerEvtLineCfgSet) {
             if(usb_uart->cfg.baudrate == 0)
@@ -352,8 +356,10 @@ void usb_uart_disable(UsbUartBridge* usb_uart) {
 void usb_uart_set_config(UsbUartBridge* usb_uart, UsbUartConfig* cfg) {
     furi_assert(usb_uart);
     furi_assert(cfg);
+    usb_uart->cfg_lock = api_lock_alloc_locked();
     memcpy(&(usb_uart->cfg_new), cfg, sizeof(UsbUartConfig));
     furi_thread_flags_set(furi_thread_get_id(usb_uart->thread), WorkerEvtCfgChange);
+    api_lock_wait_unlock_and_free(usb_uart->cfg_lock);
 }
 
 void usb_uart_get_config(UsbUartBridge* usb_uart, UsbUartConfig* cfg) {

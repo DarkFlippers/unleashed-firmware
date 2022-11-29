@@ -340,6 +340,10 @@ void* pvPortMalloc(size_t xWantedSize) {
     void* pvReturn = NULL;
     size_t to_wipe = xWantedSize;
 
+    if(FURI_IS_IRQ_MODE()) {
+        furi_crash("memmgt in ISR");
+    }
+
 #ifdef HEAP_PRINT_DEBUG
     BlockLink_t* print_heap_block = NULL;
 #endif
@@ -485,6 +489,10 @@ void* pvPortMalloc(size_t xWantedSize) {
 void vPortFree(void* pv) {
     uint8_t* puc = (uint8_t*)pv;
     BlockLink_t* pxLink;
+
+    if(FURI_IS_IRQ_MODE()) {
+        furi_crash("memmgt in ISR");
+    }
 
     if(pv != NULL) {
         /* The memory being freed will have an BlockLink_t structure immediately

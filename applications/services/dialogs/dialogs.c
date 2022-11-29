@@ -1,6 +1,6 @@
 #include "dialogs/dialogs_message.h"
 #include "dialogs_i.h"
-#include "dialogs_api_lock.h"
+#include <toolbox/api_lock.h>
 #include "dialogs_module_file_browser.h"
 #include "dialogs_module_message.h"
 
@@ -35,7 +35,7 @@ static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* mess
             dialogs_app_process_module_message(&message->data->dialog);
         break;
     }
-    API_LOCK_UNLOCK(message->lock);
+    api_lock_unlock(message->lock);
 }
 
 int32_t dialogs_srv(void* p) {
