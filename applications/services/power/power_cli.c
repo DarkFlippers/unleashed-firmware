@@ -26,7 +26,7 @@ void power_cli_reboot2dfu(Cli* cli, FuriString* args) {
     power_reboot(PowerBootModeDfu);
 }
 
-static void power_cli_info_callback(const char* key, const char* value, bool last, void* context) {
+static void power_cli_callback(const char* key, const char* value, bool last, void* context) {
     UNUSED(last);
     UNUSED(context);
     printf("%-24s: %s\r\n", key, value);
@@ -35,13 +35,13 @@ static void power_cli_info_callback(const char* key, const char* value, bool las
 void power_cli_info(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
-    furi_hal_power_info_get(power_cli_info_callback, NULL);
+    furi_hal_power_info_get(power_cli_callback, '_', NULL);
 }
 
 void power_cli_debug(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
-    furi_hal_power_dump_state();
+    furi_hal_power_debug_get(power_cli_callback, NULL);
 }
 
 void power_cli_5v(Cli* cli, FuriString* args) {

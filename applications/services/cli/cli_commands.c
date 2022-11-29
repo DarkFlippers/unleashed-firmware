@@ -25,7 +25,7 @@ void cli_command_device_info_callback(const char* key, const char* value, bool l
 void cli_command_device_info(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
-    furi_hal_info_get(cli_command_device_info_callback, context);
+    furi_hal_info_get(cli_command_device_info_callback, '_', context);
 }
 
 void cli_command_help(Cli* cli, FuriString* args, void* context) {
