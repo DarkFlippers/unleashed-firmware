@@ -123,6 +123,7 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == SubmenuIndexDetectReader) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
+            DOLPHIN_DEED(DolphinDeedNfcDetectReader);
             consumed = true;
         } else if(event.event == SubmenuIndexWrite) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicWrite);
