@@ -1,6 +1,7 @@
 #include <furi_hal_power.h>
 #include <furi_hal_clock.h>
 #include <furi_hal_bt.h>
+#include <furi_hal_vibro.h>
 #include <furi_hal_resources.h>
 #include <furi_hal_uart.h>
 
@@ -308,11 +309,13 @@ void furi_hal_power_shutdown() {
 void furi_hal_power_off() {
     // Crutch: shutting down with ext 3V3 off is causing LSE to stop
     furi_hal_power_enable_external_3_3v();
-    furi_delay_us(1000);
+    furi_hal_vibro_on(true);
+    furi_delay_us(50000);
     // Send poweroff to charger
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     bq25896_poweroff(&furi_hal_i2c_handle_power);
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    furi_hal_vibro_on(false);
 }
 
 void furi_hal_power_reset() {
