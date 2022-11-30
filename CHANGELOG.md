@@ -1,10 +1,21 @@
 ### New changes
+* Extra [apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps) update required! Please download using link below, API version changed to 8.x (details below)
 * SubGHz: Fix counter can go higher than 16bits in protocols - Keeloq, SL, Came Atomo, Nice Flor S
 * SubGHz -> Plugin: WS - Add protocol Auriol HG0601A (by @LY2NEO) [(Details)](https://github.com/DarkFlippers/unleashed-firmware/issues/184)
 * NFC -> PR: Assets - mf classic dict update - Possible keys for Omsk transport cards (by @vadrozh | PR #181)
 * BadUSB -> PR: Keyboard layouts: Slovenian (si) / Croatian (hr), Bosnian (ba) (Latin, Bosnia and Herzegovina) (by @StellarStoic | PR #187)
 * Plugins: Update Temperature Sensor Plugin - HTU2xD, SHT2x, SI702x, SI700x, SI701x, AM2320 [(by Mywk)](https://github.com/Mywk/FlipperTemperatureSensor)
 * Plugins: Update HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipper-zero-hex-viewer)
+* OFW: SubGhz: fix RAW "Send never ends
+* OFW: Allow "Detect reader" for unsaved card 
+* OFW: Blocking USB driver API 
+* OFW: Unified Info API, App Error, Data Xchange (breaking change in API, API version was bumped to 8.x - OFW)
+* OFW: Improve file name filtering
+* OFW: SubGhz: fix duration pricenton protocol
+* OFW: Gui: better navigation in file browser dialog
+* OFW: Nfc: NTAG password auto capture (and other password-related changes) 
+* OFW: NFC: Accept non-parsed apps in Mifare DESFire.
+* OFW: NFC: Fix MIFARE DESfire info action to open app menu
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
