@@ -1,7 +1,7 @@
 #pragma once
 #include <furi.h>
 #include "dialogs_i.h"
-#include "dialogs_api_lock.h"
+#include <toolbox/api_lock.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,4 +1,4 @@
-/* Flipper App to read the values from a HTU21D Sensor  */
+/* Flipper App to read the values from a HTU2XD, SHT2X, SI702X, SI700X, SI701X or AM2320 Sensor  */
 /* Created by Mywk - https://github.com/Mywk - https://mywk.net */
 #include <furi.h>
 #include <furi_hal.h>
@@ -14,15 +14,29 @@
 
 #define TS_DEFAULT_VALUE 0xFFFF
 
-#define HTU21D_ADDRESS (0x40 << 1)
+#define TS_AVAILABLE_SENSORS 2
 
+// HTU2XD, SHT2X, SI702X, SI700X address
+#define HTU2XD_SHT2X_SI702X_SI700X_ADDRESS (0x40 << 1)
+// SI701X ADDRESS
+#define SI701X_ADDRESS (0x41 << 1)
+
+// HTU2XD, SHT2X, SI702X, SI700X commands
 #define HTU21D_CMD_TEMPERATURE 0xE3
 #define HTU21D_CMD_HUMIDITY 0xE5
 
+// AM2320 address
+#define AM2320_ADDRESS (0x5C << 1)
+
+// Used for the temperature and humidity buffers
 #define DATA_BUFFER_SIZE 8
 
 // External I2C BUS
 #define I2C_BUS &furi_hal_i2c_handle_external
+
+// Typedef enums to make everything easier to read
+
+typedef enum { TSSCmdNone, TSSCmdTemperature, TSSCmdHumidity } TSSCmdType;
 
 typedef enum {
     TSSInitializing,
@@ -40,10 +54,24 @@ typedef struct {
     InputEvent input;
 } TSEvent;
 
+// Possible return values for sensor_cmd
+typedef enum {
+    TSCmdRet_Error,
+    TSCmdRet_HTU2XD_SHT2X_SI702X_SI700X,
+    TSCmdRet_SI701X,
+    TSCmdRet_AM2320,
+} TSCmdRet;
+
+// External NotificationSequence RGB
 extern const NotificationSequence sequence_blink_red_100;
+extern const NotificationSequence sequence_blink_green_100;
 extern const NotificationSequence sequence_blink_blue_100;
 
+// Current status of the temperature sensor app
 static TSStatus temperature_sensor_current_status = TSSInitializing;
+
+// We keep track of the last cmd return
+static TSCmdRet temperature_sensor_last_cmd_ret = TSCmdRet_Error;
 
 // Temperature and Humidity data buffers, ready to print
 char ts_data_buffer_temperature_c[DATA_BUFFER_SIZE];
@@ -54,46 +82,80 @@ char ts_data_buffer_absolute_humidity[DATA_BUFFER_SIZE];
 // <sumary>
 // Executes an I2C cmd (trx)
 // </sumary>
+// <TODO>
+// CRC
+// </TODO>
 // <returns>
 // true if fetch was successful, false otherwise
 // </returns>
-static bool temperature_sensor_cmd(uint8_t cmd, uint8_t* buffer, uint8_t size) {
+static TSCmdRet temperature_sensor_cmd(TSSCmdType cmd, uint8_t* buffer) {
     uint32_t timeout = furi_ms_to_ticks(100);
-    bool ret = false;
+    TSCmdRet ret = TSCmdRet_Error;
 
     // Aquire I2C and check if device is ready, then release
     furi_hal_i2c_acquire(I2C_BUS);
-    if(furi_hal_i2c_is_device_ready(I2C_BUS, HTU21D_ADDRESS, timeout)) {
-        furi_hal_i2c_release(I2C_BUS);
 
-        furi_hal_i2c_acquire(I2C_BUS);
-        // Transmit given command
-        ret = furi_hal_i2c_tx(I2C_BUS, HTU21D_ADDRESS, &cmd, 1, timeout);
-        furi_hal_i2c_release(I2C_BUS);
+    // Check if HTU2XD, SHT2X, SI702X, SI700X sensor is available
+    uint8_t isAddress40 =
+        furi_hal_i2c_is_device_ready(I2C_BUS, HTU2XD_SHT2X_SI702X_SI700X_ADDRESS, timeout);
+    uint8_t isAddress41 = 0;
 
-        if(ret) {
-            uint32_t wait_ticks = furi_ms_to_ticks(50);
-            furi_delay_tick(wait_ticks);
+    // Check if SI701X sensor is available if necessary
+    if(!isAddress40) isAddress41 = furi_hal_i2c_is_device_ready(I2C_BUS, SI701X_ADDRESS, timeout);
 
-            furi_hal_i2c_acquire(I2C_BUS);
-            // Receive data
-            ret = furi_hal_i2c_rx(I2C_BUS, HTU21D_ADDRESS, buffer, size, timeout);
-            furi_hal_i2c_release(I2C_BUS);
+    if(isAddress40 || isAddress41) {
+        uint8_t address = isAddress40 ? HTU2XD_SHT2X_SI702X_SI700X_ADDRESS : SI701X_ADDRESS;
+
+        // Better safe than sorry delay
+        furi_delay_ms(15);
+
+        // Extra delay for the SI70XX
+        if(isAddress41) furi_delay_ms(50);
+
+        // Transmit either the temperature or the humidity command depending on TSSCmdType
+        uint8_t c = (cmd == TSSCmdTemperature) ? HTU21D_CMD_TEMPERATURE : HTU21D_CMD_HUMIDITY;
+        if(furi_hal_i2c_tx(I2C_BUS, address, &c, 1, timeout)) {
+            // Receive data (2 bytes)
+            if(furi_hal_i2c_rx(I2C_BUS, address, buffer, 2, timeout + 50))
+                ret = isAddress40 ? TSCmdRet_HTU2XD_SHT2X_SI702X_SI700X : TSCmdRet_SI701X;
         }
     } else {
-        furi_hal_i2c_release(I2C_BUS);
+        // The AM2320 goes to sleep after a period of inactivity, wake it up (check AM2320 datasheet for more info)
+        furi_hal_i2c_is_device_ready(I2C_BUS, AM2320_ADDRESS, timeout);
+        furi_delay_ms(30);
+
+        // Check if it's really available
+        if(furi_hal_i2c_is_device_ready(I2C_BUS, AM2320_ADDRESS, timeout)) {
+            // {Address, Register, Len}
+            const uint8_t request[3] = {0x03, 0x00, 0x04};
+
+            if(furi_hal_i2c_tx(I2C_BUS, AM2320_ADDRESS, request, 3, timeout)) {
+                // 6 bytes - usually 8 but we currently don't check the CRC
+                if(furi_hal_i2c_rx(I2C_BUS, (uint8_t)AM2320_ADDRESS, buffer, 6, timeout))
+                    ret = TSCmdRet_AM2320;
+            }
+        }
     }
 
+    furi_hal_i2c_release(I2C_BUS);
+
+    temperature_sensor_last_cmd_ret = ret;
     return ret;
 }
 
 // <sumary>
 // Fetches temperature and humidity from sensor
 // </sumary>
+// <params>
+// temperature in C
+// humidity in relative humidity
+// </params>
 // <remarks>
 // Temperature and humidity must be preallocated
-// Note: CRC is not checked (3rd byte)
 // </remarks>
+// <TODO>
+// CRC
+// </TODO>
 // <returns>
 // true if fetch was successful, false otherwise
 // </returns>
@@ -102,24 +164,36 @@ static bool temperature_sensor_fetch_data(double* temperature, double* humidity)
 
     uint16_t adc_raw;
 
-    uint8_t buffer[2] = {0x00};
+    uint8_t buffer[DATA_BUFFER_SIZE] = {0x00};
 
-    // Fetch temperature
-    ret = temperature_sensor_cmd((uint8_t)HTU21D_CMD_TEMPERATURE, buffer, 2);
-
-    if(ret) {
+    // Check if the sensor is the HTU21D by attempting to fetch the temperature
+    TSCmdRet cmdRet = temperature_sensor_cmd(TSSCmdTemperature, buffer);
+    if(cmdRet == TSCmdRet_HTU2XD_SHT2X_SI702X_SI700X || cmdRet == TSCmdRet_SI701X) {
         // Calculate temperature
         adc_raw = ((uint16_t)(buffer[0] << 8) | (buffer[1]));
         *temperature = (float)(adc_raw * 175.72 / 65536.00) - 46.85;
 
         // Fetch humidity
-        ret = temperature_sensor_cmd((uint8_t)HTU21D_CMD_HUMIDITY, buffer, 2);
-
-        if(ret) {
+        if(temperature_sensor_cmd(TSSCmdHumidity, buffer)) {
             // Calculate humidity
             adc_raw = ((uint16_t)(buffer[0] << 8) | (buffer[1]));
             *humidity = (float)(adc_raw * 125.0 / 65536.00) - 6.0;
+
+            ret = true;
         }
+    } else if(cmdRet == TSCmdRet_AM2320) {
+        // The AM2320 returns all the data immediately so we just process it all
+        // Note: CRC isn't currently present in the buffer
+
+        // Temperature
+        float temp = (((buffer[4] & 0x7F) << 8) + buffer[5]) / 10;
+        *temperature = ((buffer[4] & 0x80) >> 7) == 1 ? temp * (-1) : temp;
+
+        // Humidity
+        temp = ((buffer[2] << 8) + buffer[3]) / 10;
+        *humidity = temp;
+
+        ret = true;
     }
 
     return ret;
@@ -133,7 +207,28 @@ static void temperature_sensor_draw_callback(Canvas* canvas, void* ctx) {
 
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 10, "HTU21D/Si7021 Sensor");
+
+    // Update title accordingly (this could be improved by checking the hardware id)
+    switch(temperature_sensor_last_cmd_ret) {
+    case TSCmdRet_Error:
+        canvas_draw_str(canvas, 2, 10, "Temperature Sensor");
+        break;
+
+    case TSCmdRet_HTU2XD_SHT2X_SI702X_SI700X:
+        canvas_draw_str(canvas, 2, 10, "HTU/SHT/SI70 Sensor");
+        break;
+
+    case TSCmdRet_SI701X:
+        canvas_draw_str(canvas, 2, 10, "SI701X Sensor");
+        break;
+
+    case TSCmdRet_AM2320:
+        canvas_draw_str(canvas, 2, 10, "AM2320 Sensor");
+        break;
+
+    default:
+        break;
+    }
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 62, "Press back to exit.");
@@ -165,7 +260,6 @@ static void temperature_sensor_draw_callback(Canvas* canvas, void* ctx) {
         canvas_draw_str(canvas, 100, 38, "%");
         canvas_draw_str(canvas, 68, 48, ts_data_buffer_absolute_humidity);
         canvas_draw_str(canvas, 100, 48, "g/m3");
-
     } break;
     default:
         break;
@@ -199,7 +293,6 @@ static void temperature_sensor_timer_callback(FuriMessageQueue* event_queue) {
 int32_t temperature_sensor_app(void* p) {
     UNUSED(p);
 
-    furi_hal_power_suppress_charge_enter();
     // Declare our variables and assign variables a default value
     TSEvent tsEvent;
     bool sensorFound = false;
@@ -236,7 +329,6 @@ int32_t temperature_sensor_app(void* p) {
             if(tsEvent.input.key ==
                InputKeyBack) // We dont check for type here, we can check the type of keypress like: (event.input.type == InputTypeShort)
                 break;
-
         } else if(tsEvent.type == TSEventTypeTick) {
             // Update sensor data
             // Fetch data and set the sensor current status accordingly
@@ -270,7 +362,6 @@ int32_t temperature_sensor_app(void* p) {
                     snprintf(
                         ts_data_buffer_absolute_humidity, DATA_BUFFER_SIZE, "%.2f", abs_humidity);
                 }
-
             } else {
                 // Reset our variables to their default values
                 celsius = fahrenheit = rel_humidity = abs_humidity = TS_DEFAULT_VALUE;
@@ -280,11 +371,9 @@ int32_t temperature_sensor_app(void* p) {
             }
         }
 
-        uint32_t wait_ticks = furi_ms_to_ticks(!sensorFound ? 100 : 500);
-        furi_delay_tick(wait_ticks);
+        furi_delay_ms(!sensorFound ? 100 : 500);
     }
 
-    furi_hal_power_suppress_charge_exit();
     // Dobby is freee (free our variables, Flipper will crash if we don't do this!)
     furi_timer_free(timer);
     gui_remove_view_port(gui, view_port);

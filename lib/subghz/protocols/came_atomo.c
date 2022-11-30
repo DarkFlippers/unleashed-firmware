@@ -135,7 +135,11 @@ static void
 
     uint8_t pack[8] = {};
 
-    instance->generic.cnt++;
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
 
     //Send header
     instance->encoder.upload[index++] =

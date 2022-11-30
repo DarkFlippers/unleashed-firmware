@@ -15,8 +15,8 @@
 #define TAG "SubGhzProtocolPrinceton"
 
 static const SubGhzBlockConst subghz_protocol_princeton_const = {
-    .te_short = 400,
-    .te_long = 1200,
+    .te_short = 390,
+    .te_long = 1170,
     .te_delta = 300,
     .min_count_bit_for_found = 24,
 };
@@ -245,8 +245,7 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
         break;
     case PrincetonDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= ((uint32_t)subghz_protocol_princeton_const.te_short * 10 +
-                            subghz_protocol_princeton_const.te_delta)) {
+            if(duration >= ((uint32_t)subghz_protocol_princeton_const.te_long * 2)) {
                 instance->decoder.parser_step = PrincetonDecoderStepSaveDuration;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_princeton_const.min_count_bit_for_found) {

@@ -8,7 +8,7 @@
 typedef struct {
     FuriLogLevel log_level;
     FuriLogPuts puts;
-    FuriLogTimestamp timetamp;
+    FuriLogTimestamp timestamp;
     FuriMutex* mutex;
 } FuriLogParams;
 
@@ -18,7 +18,7 @@ void furi_log_init() {
     // Set default logging parameters
     furi_log.log_level = FURI_LOG_LEVEL_DEFAULT;
     furi_log.puts = furi_hal_console_puts;
-    furi_log.timetamp = furi_get_tick;
+    furi_log.timestamp = furi_get_tick;
     furi_log.mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 }
 
@@ -59,7 +59,7 @@ void furi_log_print_format(FuriLogLevel level, const char* tag, const char* form
         furi_string_printf(
             string,
             "%lu %s[%s][%s] " FURI_LOG_CLR_RESET,
-            furi_log.timetamp(),
+            furi_log.timestamp(),
             color,
             log_letter,
             tag);
@@ -98,5 +98,5 @@ void furi_log_set_puts(FuriLogPuts puts) {
 
 void furi_log_set_timestamp(FuriLogTimestamp timestamp) {
     furi_assert(timestamp);
-    furi_log.timetamp = timestamp;
+    furi_log.timestamp = timestamp;
 }

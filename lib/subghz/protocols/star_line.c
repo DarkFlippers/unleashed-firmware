@@ -138,7 +138,11 @@ void subghz_protocol_encoder_star_line_free(void* context) {
  */
 static bool
     subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
-    instance->generic.cnt++;
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
     uint32_t fix = btn << 24 | instance->generic.serial;
     uint32_t decrypt = btn << 24 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
     uint32_t hop = 0;

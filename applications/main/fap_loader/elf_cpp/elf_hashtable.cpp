@@ -31,7 +31,7 @@ bool elf_resolve_from_hashtable(const char* name, Elf32_Addr* address) {
 
     auto find_res = std::lower_bound(elf_api_table.cbegin(), elf_api_table.cend(), key);
     if((find_res == elf_api_table.cend() || (find_res->hash != gnu_sym_hash))) {
-        FURI_LOG_W(TAG, "Cant find symbol '%s' (hash %lx)!", name, gnu_sym_hash);
+        FURI_LOG_W(TAG, "Can't find symbol '%s' (hash %lx)!", name, gnu_sym_hash);
         result = false;
     } else {
         result = true;

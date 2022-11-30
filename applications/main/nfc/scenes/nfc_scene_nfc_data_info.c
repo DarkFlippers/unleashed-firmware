@@ -87,6 +87,20 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
             temp_str, "\nPages Read %d/%d", data->data_read / 4, data->data_size / 4);
         if(data->data_size > data->data_read) {
             furi_string_cat_printf(temp_str, "\nPassword-protected");
+        } else if(data->auth_success) {
+            MfUltralightConfigPages* config_pages = mf_ultralight_get_config_pages(data);
+            furi_string_cat_printf(
+                temp_str,
+                "\nPassword: %02X %02X %02X %02X",
+                config_pages->auth_data.pwd.raw[0],
+                config_pages->auth_data.pwd.raw[1],
+                config_pages->auth_data.pwd.raw[2],
+                config_pages->auth_data.pwd.raw[3]);
+            furi_string_cat_printf(
+                temp_str,
+                "\nPACK: %02X %02X",
+                config_pages->auth_data.pack.raw[0],
+                config_pages->auth_data.pack.raw[1]);
         }
     } else if(protocol == NfcDeviceProtocolMifareClassic) {
         MfClassicData* data = &dev_data->mf_classic_data;
@@ -115,7 +129,7 @@ bool nfc_scene_nfc_data_info_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeRight) {
             if(protocol == NfcDeviceProtocolMifareDesfire) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfDesfireApp);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfDesfireData);
                 consumed = true;
             } else if(protocol == NfcDeviceProtocolMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightData);

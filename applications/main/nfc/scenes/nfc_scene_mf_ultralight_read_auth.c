@@ -24,25 +24,29 @@ void nfc_scene_mf_ultralight_read_auth_set_state(Nfc* nfc, NfcSceneMfUlReadState
     if(curr_state != state) {
         if(state == NfcSceneMfUlReadStateDetecting) {
             popup_reset(nfc->popup);
-            popup_set_text(
-                nfc->popup, "Apply card to\nFlipper's back", 97, 24, AlignCenter, AlignTop);
+            popup_set_text(nfc->popup, "Apply the\ntarget card", 97, 24, AlignCenter, AlignTop);
             popup_set_icon(nfc->popup, 0, 8, &I_NFC_manual_60x50);
+            nfc_blink_read_start(nfc);
         } else if(state == NfcSceneMfUlReadStateReading) {
             popup_reset(nfc->popup);
             popup_set_header(
                 nfc->popup, "Reading card\nDon't move...", 85, 24, AlignCenter, AlignTop);
             popup_set_icon(nfc->popup, 12, 23, &A_Loading_24);
+            nfc_blink_detect_start(nfc);
         } else if(state == NfcSceneMfUlReadStateNotSupportedCard) {
             popup_reset(nfc->popup);
             popup_set_header(nfc->popup, "Wrong type of card!", 64, 3, AlignCenter, AlignTop);
             popup_set_text(
                 nfc->popup,
-                "Only MIFARE\nUltralight & NTAG\n are supported",
+                "Only MIFARE\nUltralight & NTAG\nare supported",
                 4,
                 22,
                 AlignLeft,
                 AlignTop);
             popup_set_icon(nfc->popup, 73, 20, &I_DolphinCommon_56x48);
+            nfc_blink_stop(nfc);
+            notification_message(nfc->notifications, &sequence_error);
+            notification_message(nfc->notifications, &sequence_set_red_255);
         }
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfUltralightReadAuth, state);
     }
@@ -62,8 +66,6 @@ void nfc_scene_mf_ultralight_read_auth_on_enter(void* context) {
         &nfc->dev->dev_data,
         nfc_scene_mf_ultralight_read_auth_worker_callback,
         nfc);
-
-    nfc_blink_read_start(nfc);
 }
 
 bool nfc_scene_mf_ultralight_read_auth_on_event(void* context, SceneManagerEvent event) {
@@ -86,8 +88,17 @@ bool nfc_scene_mf_ultralight_read_auth_on_event(void* context, SceneManagerEvent
                 nfc, NfcSceneMfUlReadStateNotSupportedCard);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        consumed = scene_manager_search_and_switch_to_previous_scene(
-            nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
+        MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
+        NfcScene next_scene;
+        if(mf_ul_data->auth_method == MfUltralightAuthMethodManual) {
+            next_scene = NfcSceneMfUltralightKeyInput;
+        } else if(mf_ul_data->auth_method == MfUltralightAuthMethodAuto) {
+            next_scene = NfcSceneMfUltralightUnlockAuto;
+        } else {
+            next_scene = NfcSceneMfUltralightUnlockMenu;
+        }
+        consumed =
+            scene_manager_search_and_switch_to_previous_scene(nfc->scene_manager, next_scene);
     }
     return consumed;
 }

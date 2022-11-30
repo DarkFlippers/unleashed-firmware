@@ -1,6 +1,6 @@
 /**
  * @file memmgr_heap.h
- * Furi: heap memory managment API and allocator
+ * Furi: heap memory management API and allocator
  */
 
 #pragma once

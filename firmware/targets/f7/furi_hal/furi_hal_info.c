@@ -8,16 +8,25 @@
 #include <furi.h>
 #include <protobuf_version.h>
 
-void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
-    FuriString* value;
-    value = furi_string_alloc();
+void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
+    FuriString* key = furi_string_alloc();
+    FuriString* value = furi_string_alloc();
+
+    PropertyValueContext property_context = {
+        .key = key, .value = value, .out = out, .sep = sep, .last = false, .context = context};
 
     // Device Info version
-    out("device_info_major", "2", false, context);
-    out("device_info_minor", "0", false, context);
+    if(sep == '.') {
+        property_value_out(&property_context, NULL, 2, "format", "major", "3");
+        property_value_out(&property_context, NULL, 2, "format", "minor", "0");
+    } else {
+        property_value_out(&property_context, NULL, 3, "device", "info", "major", "2");
+        property_value_out(&property_context, NULL, 3, "device", "info", "minor", "0");
+    }
 
     // Model name
-    out("hardware_model", furi_hal_version_get_model_name(), false, context);
+    property_value_out(
+        &property_context, NULL, 2, "hardware", "model", furi_hal_version_get_model_name());
 
     // Unique ID
     furi_string_reset(value);
@@ -25,93 +34,211 @@ void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
     for(size_t i = 0; i < furi_hal_version_uid_size(); i++) {
         furi_string_cat_printf(value, "%02X", uid[i]);
     }
-    out("hardware_uid", furi_string_get_cstr(value), false, context);
+    property_value_out(&property_context, NULL, 2, "hardware", "uid", furi_string_get_cstr(value));
 
     // OTP Revision
-    furi_string_printf(value, "%d", furi_hal_version_get_otp_version());
-    out("hardware_otp_ver", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%lu", furi_hal_version_get_hw_timestamp());
-    out("hardware_timestamp", furi_string_get_cstr(value), false, context);
+    property_value_out(
+        &property_context, "%d", 3, "hardware", "otp", "ver", furi_hal_version_get_otp_version());
+    property_value_out(
+        &property_context, "%lu", 2, "hardware", "timestamp", furi_hal_version_get_hw_timestamp());
 
     // Board Revision
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_version());
-    out("hardware_ver", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_target());
-    out("hardware_target", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_body());
-    out("hardware_body", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_connect());
-    out("hardware_connect", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_display());
-    out("hardware_display", furi_string_get_cstr(value), false, context);
+    property_value_out(
+        &property_context, "%d", 2, "hardware", "ver", furi_hal_version_get_hw_version());
+    property_value_out(
+        &property_context, "%d", 2, "hardware", "target", furi_hal_version_get_hw_target());
+    property_value_out(
+        &property_context, "%d", 2, "hardware", "body", furi_hal_version_get_hw_body());
+    property_value_out(
+        &property_context, "%d", 2, "hardware", "connect", furi_hal_version_get_hw_connect());
+    property_value_out(
+        &property_context, "%d", 2, "hardware", "display", furi_hal_version_get_hw_display());
 
     // Board Personification
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_color());
-    out("hardware_color", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%d", furi_hal_version_get_hw_region());
-    out("hardware_region", furi_string_get_cstr(value), false, context);
-    out("hardware_region_provisioned", furi_hal_region_get_name(), false, context);
+    property_value_out(
+        &property_context, "%d", 2, "hardware", "color", furi_hal_version_get_hw_color());
+
+    if(sep == '.') {
+        property_value_out(
+            &property_context,
+            "%d",
+            3,
+            "hardware",
+            "region",
+            "builtin",
+            furi_hal_version_get_hw_region());
+    } else {
+        property_value_out(
+            &property_context, "%d", 2, "hardware", "region", furi_hal_version_get_hw_region());
+    }
+
+    property_value_out(
+        &property_context,
+        NULL,
+        3,
+        "hardware",
+        "region",
+        "provisioned",
+        furi_hal_region_get_name());
+
     const char* name = furi_hal_version_get_name_ptr();
     if(name) {
-        out("hardware_name", name, false, context);
+        property_value_out(&property_context, NULL, 2, "hardware", "name", name);
     }
 
     // Firmware version
     const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
-        out("firmware_commit", version_get_githash(firmware_version), false, context);
-        out("firmware_commit_dirty",
-            version_get_dirty_flag(firmware_version) ? "true" : "false",
-            false,
-            context);
-        out("firmware_branch", version_get_gitbranch(firmware_version), false, context);
-        out("firmware_branch_num", version_get_gitbranchnum(firmware_version), false, context);
-        out("firmware_version", version_get_version(firmware_version), false, context);
-        out("firmware_build_date", version_get_builddate(firmware_version), false, context);
-        furi_string_printf(value, "%d", version_get_target(firmware_version));
-        out("firmware_target", furi_string_get_cstr(value), false, context);
+        if(sep == '.') {
+            property_value_out(
+                &property_context,
+                NULL,
+                3,
+                "firmware",
+                "commit",
+                "hash",
+                version_get_githash(firmware_version));
+        } else {
+            property_value_out(
+                &property_context,
+                NULL,
+                2,
+                "firmware",
+                "commit",
+                version_get_githash(firmware_version));
+        }
+
+        property_value_out(
+            &property_context,
+            NULL,
+            3,
+            "firmware",
+            "commit",
+            "dirty",
+            version_get_dirty_flag(firmware_version) ? "true" : "false");
+
+        if(sep == '.') {
+            property_value_out(
+                &property_context,
+                NULL,
+                3,
+                "firmware",
+                "branch",
+                "name",
+                version_get_gitbranch(firmware_version));
+        } else {
+            property_value_out(
+                &property_context,
+                NULL,
+                2,
+                "firmware",
+                "branch",
+                version_get_gitbranch(firmware_version));
+        }
+
+        property_value_out(
+            &property_context,
+            NULL,
+            3,
+            "firmware",
+            "branch",
+            "num",
+            version_get_gitbranchnum(firmware_version));
+        property_value_out(
+            &property_context,
+            NULL,
+            2,
+            "firmware",
+            "version",
+            version_get_version(firmware_version));
+        property_value_out(
+            &property_context,
+            NULL,
+            3,
+            "firmware",
+            "build",
+            "date",
+            version_get_builddate(firmware_version));
+        property_value_out(
+            &property_context, "%d", 2, "firmware", "target", version_get_target(firmware_version));
     }
 
     if(furi_hal_bt_is_alive()) {
         const BleGlueC2Info* ble_c2_info = ble_glue_get_c2_info();
-        out("radio_alive", "true", false, context);
-        out("radio_mode", ble_c2_info->mode == BleGlueC2ModeFUS ? "FUS" : "Stack", false, context);
+        property_value_out(&property_context, NULL, 2, "radio", "alive", "true");
+        property_value_out(
+            &property_context,
+            NULL,
+            2,
+            "radio",
+            "mode",
+            ble_c2_info->mode == BleGlueC2ModeFUS ? "FUS" : "Stack");
 
         // FUS Info
-        furi_string_printf(value, "%d", ble_c2_info->FusVersionMajor);
-        out("radio_fus_major", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->FusVersionMinor);
-        out("radio_fus_minor", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->FusVersionSub);
-        out("radio_fus_sub", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->FusMemorySizeSram2B);
-        out("radio_fus_sram2b", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->FusMemorySizeSram2A);
-        out("radio_fus_sram2a", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->FusMemorySizeFlash * 4);
-        out("radio_fus_flash", furi_string_get_cstr(value), false, context);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "fus", "major", ble_c2_info->FusVersionMajor);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "fus", "minor", ble_c2_info->FusVersionMinor);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "fus", "sub", ble_c2_info->FusVersionSub);
+        property_value_out(
+            &property_context,
+            "%dK",
+            3,
+            "radio",
+            "fus",
+            "sram2b",
+            ble_c2_info->FusMemorySizeSram2B);
+        property_value_out(
+            &property_context,
+            "%dK",
+            3,
+            "radio",
+            "fus",
+            "sram2a",
+            ble_c2_info->FusMemorySizeSram2A);
+        property_value_out(
+            &property_context,
+            "%dK",
+            3,
+            "radio",
+            "fus",
+            "flash",
+            ble_c2_info->FusMemorySizeFlash * 4);
 
         // Stack Info
-        furi_string_printf(value, "%d", ble_c2_info->StackType);
-        out("radio_stack_type", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->VersionMajor);
-        out("radio_stack_major", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->VersionMinor);
-        out("radio_stack_minor", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->VersionSub);
-        out("radio_stack_sub", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->VersionBranch);
-        out("radio_stack_branch", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%d", ble_c2_info->VersionReleaseType);
-        out("radio_stack_release", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->MemorySizeSram2B);
-        out("radio_stack_sram2b", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->MemorySizeSram2A);
-        out("radio_stack_sram2a", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->MemorySizeSram1);
-        out("radio_stack_sram1", furi_string_get_cstr(value), false, context);
-        furi_string_printf(value, "%dK", ble_c2_info->MemorySizeFlash * 4);
-        out("radio_stack_flash", furi_string_get_cstr(value), false, context);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "stack", "type", ble_c2_info->StackType);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "stack", "major", ble_c2_info->VersionMajor);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "stack", "minor", ble_c2_info->VersionMinor);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "stack", "sub", ble_c2_info->VersionSub);
+        property_value_out(
+            &property_context, "%d", 3, "radio", "stack", "branch", ble_c2_info->VersionBranch);
+        property_value_out(
+            &property_context,
+            "%d",
+            3,
+            "radio",
+            "stack",
+            "release",
+            ble_c2_info->VersionReleaseType);
+        property_value_out(
+            &property_context, "%dK", 3, "radio", "stack", "sram2b", ble_c2_info->MemorySizeSram2B);
+        property_value_out(
+            &property_context, "%dK", 3, "radio", "stack", "sram2a", ble_c2_info->MemorySizeSram2A);
+        property_value_out(
+            &property_context, "%dK", 3, "radio", "stack", "sram1", ble_c2_info->MemorySizeSram1);
+        property_value_out(
+            &property_context,
+            "%dK",
+            3,
+            "radio",
+            "stack",
+            "flash",
+            ble_c2_info->MemorySizeFlash * 4);
 
         // Mac address
         furi_string_reset(value);
@@ -119,23 +246,33 @@ void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
         for(size_t i = 0; i < 6; i++) {
             furi_string_cat_printf(value, "%02X", ble_mac[i]);
         }
-        out("radio_ble_mac", furi_string_get_cstr(value), false, context);
+        property_value_out(
+            &property_context, NULL, 3, "radio", "ble", "mac", furi_string_get_cstr(value));
 
         // Signature verification
         uint8_t enclave_keys = 0;
         uint8_t enclave_valid_keys = 0;
         bool enclave_valid = furi_hal_crypto_verify_enclave(&enclave_keys, &enclave_valid_keys);
-        furi_string_printf(value, "%d", enclave_valid_keys);
-        out("enclave_valid_keys", furi_string_get_cstr(value), false, context);
-        out("enclave_valid", enclave_valid ? "true" : "false", false, context);
+        if(sep == '.') {
+            property_value_out(
+                &property_context, "%d", 3, "enclave", "keys", "valid", enclave_valid_keys);
+        } else {
+            property_value_out(
+                &property_context, "%d", 3, "enclave", "valid", "keys", enclave_valid_keys);
+        }
+
+        property_value_out(
+            &property_context, NULL, 2, "enclave", "valid", enclave_valid ? "true" : "false");
     } else {
-        out("radio_alive", "false", false, context);
+        property_value_out(&property_context, NULL, 2, "radio", "alive", "false");
     }
 
-    furi_string_printf(value, "%u", PROTOBUF_MAJOR_VERSION);
-    out("protobuf_version_major", furi_string_get_cstr(value), false, context);
-    furi_string_printf(value, "%u", PROTOBUF_MINOR_VERSION);
-    out("protobuf_version_minor", furi_string_get_cstr(value), true, context);
+    property_value_out(
+        &property_context, "%u", 3, "protobuf", "version", "major", PROTOBUF_MAJOR_VERSION);
+    property_context.last = true;
+    property_value_out(
+        &property_context, "%u", 3, "protobuf", "version", "minor", PROTOBUF_MINOR_VERSION);
 
+    furi_string_free(key);
     furi_string_free(value);
 }

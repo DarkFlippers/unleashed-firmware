@@ -36,7 +36,7 @@ Add-Type -Assembly "System.IO.Compression.Filesystem"
 # Expand-Archive -LiteralPath "$toolchain_zip_temp_path" -DestinationPath "$download_dir"
 
 Write-Host -NoNewline "moving.."
-Move-Item -LiteralPath "$toolchain_dist_temp_path" -Destination "$toolchain_target_path"
+Move-Item -LiteralPath "$toolchain_dist_temp_path" -Destination "$toolchain_target_path" -Force
 Write-Host "done!"
 
 Write-Host -NoNewline "Cleaning up temporary files.."

@@ -64,7 +64,7 @@ void popup_set_context(Popup* popup, void* context);
  * @param      x           x position
  * @param      y           y position
  * @param      horizontal  horizontal alignment
- * @param      vertical    vertical aligment
+ * @param      vertical    vertical alignment
  */
 void popup_set_header(
     Popup* popup,
@@ -83,7 +83,7 @@ void popup_set_header(
  * @param      x           x position
  * @param      y           y position
  * @param      horizontal  horizontal alignment
- * @param      vertical    vertical aligment
+ * @param      vertical    vertical alignment
  */
 void popup_set_text(
     Popup* popup,

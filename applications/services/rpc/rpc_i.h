@@ -34,6 +34,7 @@ void* rpc_system_gui_alloc(RpcSession* session);
 void rpc_system_gui_free(void* ctx);
 void* rpc_system_gpio_alloc(RpcSession* session);
 void rpc_system_gpio_free(void* ctx);
+void* rpc_system_property_alloc(RpcSession* session);
 
 void rpc_debug_print_message(const PB_Main* message);
 void rpc_debug_print_data(const char* prefix, uint8_t* buffer, size_t size);

@@ -9,4 +9,5 @@ typedef enum {
     GpioCustomEventErrorBack,
 
     GpioUsbUartEventConfig,
+    GpioUsbUartEventConfigSet,
 } GpioCustomEvent;

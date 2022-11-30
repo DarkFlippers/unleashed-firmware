@@ -1,6 +1,6 @@
 /**
  * @file memmgr.h
- * Furi: memory managment API and glue
+ * Furi: memory management API and glue
  */
 
 #pragma once

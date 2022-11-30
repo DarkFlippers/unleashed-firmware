@@ -15,9 +15,9 @@ void furi_run() {
     furi_assert(xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED);
 
 #if(__ARM_ARCH_7A__ == 0U)
-    /* Service Call interrupt might be configured before kernel start     */
-    /* and when its priority is lower or equal to BASEPRI, svc intruction */
-    /* causes a Hard Fault.                                               */
+    /* Service Call interrupt might be configured before kernel start      */
+    /* and when its priority is lower or equal to BASEPRI, svc instruction */
+    /* causes a Hard Fault.                                                */
     NVIC_SetPriority(SVCall_IRQn, 0U);
 #endif
 

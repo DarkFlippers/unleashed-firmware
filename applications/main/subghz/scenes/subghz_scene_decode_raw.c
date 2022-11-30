@@ -137,7 +137,7 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
             subghz->decode_raw_state = SubGhzDecodeRawStateLoaded;
             subghz->state_notifications = SubGhzNotificationStateIDLE;
 
-            subghz_view_receiver_add_data_progress(subghz->subghz_receiver, "100%");
+            subghz_view_receiver_add_data_progress(subghz->subghz_receiver, "Done!");
             return false; // No more samples available
         }
     }

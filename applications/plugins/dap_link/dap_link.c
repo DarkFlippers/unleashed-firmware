@@ -247,7 +247,6 @@ static int32_t dap_process(void* p) {
 
     // deinit usb
     furi_hal_usb_set_config(usb_config_prev, NULL);
-    dap_common_wait_for_deinit();
     dap_common_usb_free_name();
     dap_deinit_gpio(swd_pins_prev);
     return 0;
