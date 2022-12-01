@@ -212,6 +212,9 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverBack:
             subghz->decode_raw_state = SubGhzDecodeRawStateStart;
             subghz->txrx->idx_menu_chosen = 0;
+            subghz->in_decoder_scene = false;
+            subghz->in_decoder_scene_skip = false;
+
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
 
             if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
