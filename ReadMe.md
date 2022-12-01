@@ -69,6 +69,7 @@ Also check changelog in releases for latest updates!
 ## Please support development of the project
 * Boosty: https://boosty.to/mmxdev
 * destream (100 EUR min): https://destream.net/live/MMX/donate
+* cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * USDT(TRC20): `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`
 * BCH: `qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`
 * ETH/BSC/ERC20-Tokens: `darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)
