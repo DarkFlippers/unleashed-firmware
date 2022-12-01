@@ -10,8 +10,6 @@ extern "C" {
 #endif
 
 #define HID_KEYBOARD_NONE 0x00
-// Remapping the colon key which is shift + ; to comma
-#define HID_KEYBOARD_COMMA HID_KEYBOARD_COLON
 
 /** HID keyboard modifier keys */
 enum HidKeyboardMods {
