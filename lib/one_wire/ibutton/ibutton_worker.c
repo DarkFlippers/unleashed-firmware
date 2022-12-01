@@ -131,7 +131,9 @@ void ibutton_worker_switch_mode(iButtonWorker* worker, iButtonWorkerMode mode) {
 
 void ibutton_worker_notify_emulate(iButtonWorker* worker) {
     iButtonMessage message = {.type = iButtonMessageNotifyEmulate};
-    furi_check(furi_message_queue_put(worker->messages, &message, 0) == FuriStatusOk);
+    // we're running in an interrupt context, so we can't wait
+    // and we can drop message if queue is full, that's ok for that message
+    furi_message_queue_put(worker->messages, &message, 0);
 }
 
 void ibutton_worker_set_key_p(iButtonWorker* worker, iButtonKey* key) {
