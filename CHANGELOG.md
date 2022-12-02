@@ -1,5 +1,9 @@
 ### New changes
+* Plugins: SubGHz Bruteforcer -> Allow to select two bytes in `BF existing dump` ! Change between byte selection size by pressing Up button
+* Plugins: SubGHz Bruteforcer -> Add CAME 315Mhz
 * SubGHz: Partially fix strange issue with subghz decode raw
+* Xmas / New Year animation (by @Svaarich)
+* OFW: NFC: fix NTAG203 info scene
 * OFW: Fix crash in iButton notifications routine
 * OFW: U2F HID descriptor fix
 * OFW: USB HID: fix key name
