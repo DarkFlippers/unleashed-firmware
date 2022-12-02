@@ -1,21 +1,13 @@
 ### New changes
-* Extra [apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps) update required! Please download using link below, API version changed to 8.x (details below)
-* SubGHz: Fix counter can go higher than 16bits in protocols - Keeloq, SL, Came Atomo, Nice Flor S
-* SubGHz -> Plugin: WS - Add protocol Auriol HG0601A (by @LY2NEO) [(Details)](https://github.com/DarkFlippers/unleashed-firmware/issues/184)
-* NFC -> PR: Assets - mf classic dict update - Possible keys for Omsk transport cards (by @vadrozh | PR #181)
-* BadUSB -> PR: Keyboard layouts: Slovenian (si) / Croatian (hr), Bosnian (ba) (Latin, Bosnia and Herzegovina) (by @StellarStoic | PR #187)
-* Plugins: Update Temperature Sensor Plugin - HTU2xD, SHT2x, SI702x, SI700x, SI701x, AM2320 [(by Mywk)](https://github.com/Mywk/FlipperTemperatureSensor)
-* Plugins: Update HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipper-zero-hex-viewer)
-* OFW: SubGhz: fix RAW "Send never ends
-* OFW: Allow "Detect reader" for unsaved card 
-* OFW: Blocking USB driver API 
-* OFW: Unified Info API, App Error, Data Xchange (breaking change in API, API version was bumped to 8.x - OFW)
-* OFW: Improve file name filtering
-* OFW: SubGhz: fix duration pricenton protocol
-* OFW: Gui: better navigation in file browser dialog
-* OFW: Nfc: NTAG password auto capture (and other password-related changes) 
-* OFW: NFC: Accept non-parsed apps in Mifare DESFire.
-* OFW: NFC: Fix MIFARE DESfire info action to open app menu
+* Plugins: SubGHz Bruteforcer -> Allow to select two bytes in `BF existing dump` ! Change between byte selection size by pressing Up button
+* Plugins: SubGHz Bruteforcer -> Add CAME 315Mhz
+* SubGHz: Partially fix strange issue with subghz decode raw
+* Xmas / New Year animation (by @Svaarich)
+* OFW: NFC: fix NTAG203 info scene
+* OFW: Fix crash in iButton notifications routine
+* OFW: U2F HID descriptor fix
+* OFW: USB HID: fix key name
+* OFW: SubGhz: unit_test modification of text files to one frequency and modulation
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
@@ -26,12 +18,14 @@
 ## Please support development of the project
 * Boosty: https://boosty.to/mmxdev
 * destream (100 EUR min): https://destream.net/live/MMX/donate
+* cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * USDT(TRC20): `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`
 * BCH: `qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`
-* ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
+* ETH/BSC/ERC20-Tokens: `darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)
 * BTC: `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`
 * DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
 * LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
+* XMR (Monero): `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`
 
 **Note: To avoid issues with .dfu, prefer installing using .tgz with qFlipper, web updater or by self update package, all needed assets will be installed**
 

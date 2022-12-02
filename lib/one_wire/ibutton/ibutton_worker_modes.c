@@ -222,8 +222,8 @@ void ibutton_worker_emulate_dallas_start(iButtonWorker* worker) {
     memcpy(device_id, key_id, key_size);
 
     onewire_slave_attach(worker->slave, worker->device);
-    onewire_slave_start(worker->slave);
     onewire_slave_set_result_callback(worker->slave, onewire_slave_callback, worker);
+    onewire_slave_start(worker->slave);
 }
 
 void ibutton_worker_emulate_dallas_stop(iButtonWorker* worker) {
