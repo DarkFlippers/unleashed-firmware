@@ -89,18 +89,20 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
             furi_string_cat_printf(temp_str, "\nPassword-protected");
         } else if(data->auth_success) {
             MfUltralightConfigPages* config_pages = mf_ultralight_get_config_pages(data);
-            furi_string_cat_printf(
-                temp_str,
-                "\nPassword: %02X %02X %02X %02X",
-                config_pages->auth_data.pwd.raw[0],
-                config_pages->auth_data.pwd.raw[1],
-                config_pages->auth_data.pwd.raw[2],
-                config_pages->auth_data.pwd.raw[3]);
-            furi_string_cat_printf(
-                temp_str,
-                "\nPACK: %02X %02X",
-                config_pages->auth_data.pack.raw[0],
-                config_pages->auth_data.pack.raw[1]);
+            if(config_pages) {
+                furi_string_cat_printf(
+                    temp_str,
+                    "\nPassword: %02X %02X %02X %02X",
+                    config_pages->auth_data.pwd.raw[0],
+                    config_pages->auth_data.pwd.raw[1],
+                    config_pages->auth_data.pwd.raw[2],
+                    config_pages->auth_data.pwd.raw[3]);
+                furi_string_cat_printf(
+                    temp_str,
+                    "\nPACK: %02X %02X",
+                    config_pages->auth_data.pack.raw[0],
+                    config_pages->auth_data.pack.raw[1]);
+            }
         }
     } else if(protocol == NfcDeviceProtocolMifareClassic) {
         MfClassicData* data = &dev_data->mf_classic_data;
