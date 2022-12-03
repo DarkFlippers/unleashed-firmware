@@ -123,6 +123,13 @@ static void ws_protocol_acurite_606tx_remote_controller(WSBlockGeneric* instance
     }
     instance->btn = WS_NO_BTN;
     instance->humidity = WS_NO_HUMIDITY;
+
+	//DATE AGE set
+	FuriHalRtcDateTime curr_dt;
+	furi_hal_rtc_get_datetime(&curr_dt);
+	uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+
+	instance->agedata = curr_ts;
 }
 
 void ws_protocol_decoder_acurite_606tx_feed(void* context, bool level, uint32_t duration) {

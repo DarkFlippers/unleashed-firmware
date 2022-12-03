@@ -144,6 +144,13 @@ static void ws_protocol_acurite_592txr_remote_controller(WSBlockGeneric* instanc
     instance->temp = ((float)(temp_raw)-1000) / 10.0f;
 
     instance->btn = WS_NO_BTN;
+
+	//DATE AGE set
+	FuriHalRtcDateTime curr_dt;
+	furi_hal_rtc_get_datetime(&curr_dt);
+	uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+
+	instance->agedata =  curr_ts;
 }
 
 void ws_protocol_decoder_acurite_592txr_feed(void* context, bool level, uint32_t duration) {

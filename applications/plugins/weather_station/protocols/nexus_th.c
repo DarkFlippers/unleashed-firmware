@@ -135,6 +135,13 @@ static void ws_protocol_nexus_th_remote_controller(WSBlockGeneric* instance) {
     }
 
     instance->humidity = instance->data & 0xFF;
+
+	//DATE AGE set
+	FuriHalRtcDateTime curr_dt;
+	furi_hal_rtc_get_datetime(&curr_dt);
+	uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+
+	instance->agedata = curr_ts;
 }
 
 void ws_protocol_decoder_nexus_th_feed(void* context, bool level, uint32_t duration) {

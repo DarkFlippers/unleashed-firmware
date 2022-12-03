@@ -135,6 +135,12 @@ static void ws_protocol_gt_wt_02_remote_controller(WSBlockGeneric* instance) {
         instance->temp = (float)((~(instance->data >> 13) & 0x07FF) + 1) / -10.0f;
     }
 
+	//DATE AGE set
+	FuriHalRtcDateTime curr_dt;
+	furi_hal_rtc_get_datetime(&curr_dt);
+	uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+	instance->agedata = curr_ts;
+
     instance->humidity = (instance->data >> 6) & 0x7F;
     if(instance->humidity <= 10) // actually the sensors sends 10 below working range of 20%
         instance->humidity = 0;

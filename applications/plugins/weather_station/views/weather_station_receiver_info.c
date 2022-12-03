@@ -1,3 +1,5 @@
+#include <furi.h>
+#include <furi_hal.h>
 #include "weather_station_receiver.h"
 #include "../weather_station_app_i.h"
 #include "weather_station_icons.h"
@@ -69,6 +71,47 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
 
     snprintf(buffer, sizeof(buffer), "Data: 0x%llX", model->generic->data);
     canvas_draw_str(canvas, 5, 32, buffer);
+
+	//DATA AGE
+	if((int) model->generic->agedata > 0){
+	FuriHalRtcDateTime curr_dt;
+    furi_hal_rtc_get_datetime(&curr_dt);
+    uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+
+	int diffold = (int) curr_ts - (int) model->generic->agedata;
+
+	if(diffold>60){
+
+		int tmp_sec = diffold;
+		int cnt_min = 1;
+		for(int i=1; tmp_sec>60; i++){
+			tmp_sec = tmp_sec - 60;
+			cnt_min = i;
+		}
+
+			if ( curr_ts % 2 == 0){
+				canvas_set_color(canvas, ColorBlack);
+				canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
+				canvas_set_color(canvas, ColorBlack);
+				canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, "OLD");
+			}else{
+				canvas_set_color(canvas, ColorBlack);
+				canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
+				canvas_draw_box(canvas, 97, 23, 26, 11);
+				canvas_set_color(canvas, ColorWhite);
+				snprintf(buffer, sizeof(buffer), "%dm", cnt_min);
+				canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, buffer);
+			}
+
+		}else{
+			canvas_set_color(canvas, ColorBlack);
+			canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
+			canvas_set_color(canvas, ColorBlack);
+			snprintf(buffer, sizeof(buffer), "%d", diffold);
+			canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, buffer);
+		}
+	}
+	//DATA AGE end
 
     elements_bold_rounded_frame(canvas, 2, 37, 123, 25);
     canvas_set_font(canvas, FontPrimary);

@@ -99,6 +99,12 @@ bool ws_block_generic_serialize(
             break;
         }
 
+		temp_data = instance->agedata;
+		if(!flipper_format_write_uint32(flipper_format, "Old", &temp_data, 1)) {
+			FURI_LOG_E(TAG, "Unable to add agedata");
+			break;
+		}
+
         temp_data = instance->channel;
         if(!flipper_format_write_uint32(flipper_format, "Ch", &temp_data, 1)) {
             FURI_LOG_E(TAG, "Unable to add Channel");
@@ -168,11 +174,17 @@ bool ws_block_generic_deserialize(WSBlockGeneric* instance, FlipperFormat* flipp
         }
         instance->humidity = (uint8_t)temp_data;
 
-        if(!flipper_format_read_uint32(flipper_format, "Ch", (uint32_t*)&temp_data, 1)) {
-            FURI_LOG_E(TAG, "Missing Channel");
+		if(!flipper_format_read_uint32(flipper_format, "Old", (uint32_t*)&temp_data, 1)) {
+            FURI_LOG_E(TAG, "Missing agedata");
             break;
         }
-        instance->channel = (uint8_t)temp_data;
+        instance->agedata = (uint32_t)temp_data;
+
+		if(!flipper_format_read_uint32(flipper_format, "Ch", (uint32_t*)&temp_data, 1)) {
+			FURI_LOG_E(TAG, "Missing Channel");
+			break;
+		}
+		instance->channel = (uint8_t)temp_data;
 
         if(!flipper_format_read_uint32(flipper_format, "Btn", (uint32_t*)&temp_data, 1)) {
             FURI_LOG_E(TAG, "Missing Btn");
