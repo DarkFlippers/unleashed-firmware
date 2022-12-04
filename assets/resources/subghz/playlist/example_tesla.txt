@@ -1,0 +1,3 @@
+# Example Playlist
+sub: /ext/subghz/Vehicles/Tesla/Tesla_charge_AM270.sub
+sub: /ext/subghz/Vehicles/Tesla/Tesla_charge_AM650.sub

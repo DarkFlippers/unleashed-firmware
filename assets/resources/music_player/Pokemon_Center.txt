@@ -1,0 +1,1 @@
+PokemonCenter:d=4,o=6,b=125:8c,8g5,8c,g,f,e,8d,2b5,8b5,8g5,8b5,e,d,b5,8c,2e,8c,8g5,8c,g,f,e,8d,2b5,8b5,8g5,8b5,e,d,b5,8c,e,2e,2g,8f,8g,8f,8e,4d,2b5,2d,8e,8f,8e,8d,8c

@@ -69,6 +69,8 @@ FIRMWARE_APPS = {
         # Apps
         "main_apps",
         "system_apps",
+        # My Apps
+        "my_apps",
         # Settings
         "settings_apps",
         # Stock plugins - no longer built into fw, now they're .faps

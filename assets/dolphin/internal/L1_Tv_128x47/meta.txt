@@ -25,7 +25,7 @@ EndFrame: 9
 Slot: 1
 X: 1
 Y: 23
-Text: I can joke better
+Text: Dexv can joke better
 AlignH: Right
 AlignV: Bottom
 StartFrame: 7

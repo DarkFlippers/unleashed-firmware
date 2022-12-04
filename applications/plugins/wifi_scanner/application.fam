@@ -6,7 +6,7 @@ App(
     cdefines=["APP_WIFI_SCANNER"],
     requires=["gui"],
     stack_size=2 * 1024,
-    order=110,
+    order=70,
     fap_icon="wifi_10px.png",
     fap_category="GPIO",
 )

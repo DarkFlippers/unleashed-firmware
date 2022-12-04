@@ -6,7 +6,7 @@ App(
     cdefines=["APP_SENTRY_SAFE"],
     requires=["gui"],
     stack_size=1 * 1024,
-    order=80,
+    order=40,
     fap_icon="safe_10px.png",
     fap_category="GPIO",
 )

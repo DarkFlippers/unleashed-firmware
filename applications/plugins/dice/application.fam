@@ -1,0 +1,12 @@
+App(
+    appid="Dice",
+    name="Dice [RM]",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="dice_app",
+    cdefines=["APP_DICE"],
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=70,
+    fap_icon="dice.png",
+    fap_category="Games",
+)

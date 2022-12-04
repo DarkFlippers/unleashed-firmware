@@ -16,7 +16,7 @@ Bubble slots: 2
 Slot: 0
 X: 53
 Y: 20
-Text: In a lucid dream,\nI could walk...
+Text: In a lucid dream,\nI could be dexv...
 AlignH: Left
 AlignV: Bottom
 StartFrame: 3

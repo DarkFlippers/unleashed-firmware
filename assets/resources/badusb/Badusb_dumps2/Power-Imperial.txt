@@ -1,0 +1,50 @@
+REM Title: Power Imperial
+REM Author: 7h30th3r0n3
+REM Target:  Tested on Windows 7/8/10 
+REM Version: 1.0
+REM Category: Prank
+REM Launches Powershell and play Imperial theme with pc buzzer
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 500
+STRING [console]::beep(440,500);
+ENTER
+STRING [console]::beep(440,500);
+ENTER
+STRING [console]::beep(440,500);
+ENTER
+STRING [console]::beep(349,350);
+ENTER
+STRING [console]::beep(523,250);
+ENTER
+STRING [console]::beep(440,500);
+ENTER
+STRING [console]::beep(349,350);
+ENTER
+STRING [console]::beep(523,250);
+ENTER
+STRING [console]::beep(440,500);
+ENTER
+DELAY 2000
+STRING [console]::beep(659,500);
+ENTER
+STRING [console]::beep(659,500);
+ENTER
+STRING [console]::beep(659,500);
+ENTER
+STRING [console]::beep(698,350);
+ENTER
+STRING [console]::beep(523,250);
+ENTER
+STRING [console]::beep(415,500);
+ENTER
+STRING [console]::beep(349,350);
+ENTER
+STRING [console]::beep(523,250);
+ENTER
+STRING [console]::beep(440,500);
+ENTER
+STRING exit
+ENTER

@@ -1,5 +1,5 @@
 App(
-    appid="am2320_temp_sensor",
+    appid="AM2320_temp_sensor",
     name="[AM2320] Temp. Sensor",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="am_temperature_sensor_app",

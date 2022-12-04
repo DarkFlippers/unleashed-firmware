@@ -1,5 +1,5 @@
 App(
-    appid="morse_code",
+    appid="Morse_Code",
     name="Morse Code",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="morse_code_app",

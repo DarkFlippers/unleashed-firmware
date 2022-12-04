@@ -1,0 +1,13 @@
+App(
+    appid="Ocarina",
+    name="Ocarina",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ocarina_app",
+    cdefines=["APP_OCARINA"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=30,
+    fap_icon="icons/music_10px.png",
+    fap_category="Music",
+    fap_icon_assets="icons",
+)

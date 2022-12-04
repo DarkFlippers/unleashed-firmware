@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gui/view.h>
-#include "lightmeter_icons.h"
+#include "BH1750_Lightmeter_icons.h"
 #include "../../lightmeter_config.h"
 
 typedef struct MainView MainView;

@@ -1,0 +1,1 @@
+TMNT:d=4,o=4,b=146:c,d,c,d,c,8d,3c,d,d#,f,d#,f,d#,8f,3d#,f,g#,b,g#,b,g#,8b,3g#,b,8f,8f,8f,8f,d#,f,p,8f,8f,8f,f,8p,f,8d#,3f,d#,f,d#,f#,f#,8f,8d#,2c,1p,f,8f,d#,8p,f,8d#,f,3d#,f#,f,8f,8d#,2c,1p,8f,8d#,f,d#,8f,8d#,f,2f#,p,d#,8f,d#,3f,d#,8f#,8f#,f#,f,p

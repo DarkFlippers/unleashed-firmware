@@ -1,0 +1,12 @@
+App(
+    appid="Paint",
+    name="Paint",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="paint_app",
+    cdefines=["APP_PAINT"],
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=175,
+    fap_icon="paintIcon.png",
+    fap_category="Misc",
+)

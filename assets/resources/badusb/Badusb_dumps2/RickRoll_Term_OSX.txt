@@ -1,0 +1,12 @@
+REM Title: RickRoll
+REM Author: Jeffrey Koopman | JKCTech
+REM Description: RickRoll in Windows PowerShell
+REM Target:	macOS 11.0+
+REM
+DEFAULTDELAY 250
+GUI SPACE
+STRING terminal
+ENTER
+DELAY 2000
+STRING curl https://ascii.live/rick &
+ENTER

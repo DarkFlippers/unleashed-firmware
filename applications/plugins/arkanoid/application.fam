@@ -6,7 +6,7 @@ App(
     cdefines=["APP_ARKANOID_GAME"],
     requires=["gui"],
     stack_size=1 * 1024,
-    order=30,
+    order=20,
     fap_icon="arkanoid_10px.png",
     fap_category="Games",
 )

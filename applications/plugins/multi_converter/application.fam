@@ -6,7 +6,7 @@ App(
     cdefines=["APP_DEC_HEX_CONVERTER"],
     requires=["gui"],
     stack_size=1 * 1024,
-    order=19,
+    order=160,
     fap_icon="converter_10px.png",
     fap_category="Misc",
 )

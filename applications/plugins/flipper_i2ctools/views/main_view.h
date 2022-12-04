@@ -1,7 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/gui.h>
-#include <i2cTools_icons.h>
+#include <I2C_Tools_icons.h>
 #define APP_NAME "I2C Tools"
 
 #define SCAN_MENU_TEXT "Scan"

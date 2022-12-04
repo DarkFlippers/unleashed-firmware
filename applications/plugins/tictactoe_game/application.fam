@@ -6,7 +6,7 @@ App(
     cdefines=["APP_TICTACTOE_GAME"],
     requires=["gui"],
     stack_size=1 * 1024,
-    order=40,
+    order=250,
     fap_icon="tictactoe_10px.png",
     fap_category="Games",
 )

@@ -16,7 +16,7 @@ Bubble slots: 1
 Slot: 0
 X: 22
 Y: 25
-Text: Mess with\nthe best,
+Text: Mess with\nthe dex,
 AlignH: Right
 AlignV: Center
 StartFrame: 4

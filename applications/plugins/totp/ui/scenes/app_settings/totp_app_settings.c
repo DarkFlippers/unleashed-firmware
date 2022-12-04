@@ -1,6 +1,6 @@
 #include "totp_app_settings.h"
 #include <math.h>
-#include <totp_icons.h>
+#include <Authenticator_icons.h>
 #include "../../ui_controls.h"
 #include "../../scene_director.h"
 #include "../token_menu/totp_scene_token_menu.h"

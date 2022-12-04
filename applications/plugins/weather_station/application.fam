@@ -1,7 +1,7 @@
 App(
-    appid="weather_station",
+    appid="Weather_Station",
     name="Weather Station",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="weather_station_app",
     cdefines=["APP_WEATHER_STATION"],
     requires=["gui"],

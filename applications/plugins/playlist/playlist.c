@@ -21,7 +21,7 @@
 #include "playlist_file.h"
 #include "canvas_helper.h"
 
-#define PLAYLIST_FOLDER "/ext/subplaylist"
+#define PLAYLIST_FOLDER "/ext/subghz/playlist"
 #define PLAYLIST_EXT ".txt"
 #define TAG "Playlist"
 
@@ -590,6 +590,8 @@ static void render_callback(Canvas* canvas, void* ctx) {
                     canvas, 3, 37, AlignLeft, AlignTop, furi_string_get_cstr(temp_str));
             }
         }
+        break;
+    default:
         break;
     }
 

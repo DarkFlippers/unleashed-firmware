@@ -1,6 +1,6 @@
 App(
-    appid="Blackjack",
-    name="Blackjack",
+    appid="BlackJack",
+    name="BlackJack",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="blackjack_app",
     cdefines=["APP_BLACKJACK"],

@@ -258,7 +258,7 @@ MusicPlayer* music_player_alloc() {
     MusicPlayer* instance = malloc(sizeof(MusicPlayer));
 
     instance->model = malloc(sizeof(MusicPlayerModel));
-    instance->model->volume = 3;
+    instance->model->volume = 4;
 
     instance->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 

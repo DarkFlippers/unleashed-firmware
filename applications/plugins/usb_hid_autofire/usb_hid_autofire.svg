@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="usb_hid_autofire.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   inkscape:export-filename="/home/omega/Code/_fork/flipperzero-firmware/applications_user/usb_hid_autofire/usb_hid_autofire.png"
+   inkscape:export-xdpi="60"
+   inkscape:export-ydpi="60"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9">
+    <rect
+       x="-4.5849175"
+       y="-3.0052223"
+       width="24.751367"
+       height="28.617546"
+       id="rect51119" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="39.375"
+     inkscape:cx="0.1015873"
+     inkscape:cy="7.9365079"
+     inkscape:window-width="3794"
+     inkscape:window-height="2059"
+     inkscape:window-x="46"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg5" />
+  <style
+     type="text/css"
+     id="current-color-scheme">
+        .ColorScheme-Text {
+            color:#232629;
+        }
+    </style>
+  <path
+     d="M8 2a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4zm0 1h1a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zm0 1v3h1V4z"
+     fill="currentColor"
+     class="ColorScheme-Text"
+     id="path3"
+     inkscape:export-filename="/home/omega/Code/_fork/flipperzero-firmware/applications_user/usb_hid_autofire/path3.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
+  <text
+     xml:space="preserve"
+     style="font-size:2.66667px;line-height:95%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="7.6730995"
+     y="11.001581"
+     id="text7163"
+     inkscape:export-filename="/home/omega/Code/_fork/flipperzero-firmware/applications_user/usb_hid_autofire/path3.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96"><tspan
+       sodipodi:role="line"
+       id="tspan7161"
+       x="7.6730995"
+       y="11.001581"
+       style="opacity:1">A</tspan></text>
+  <text
+     xml:space="preserve"
+     id="text51117"
+     style="fill:none;stroke:black;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;font-family:Sans;font-size:2.66666667px;line-height:125%;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect51119)" />
+</svg>

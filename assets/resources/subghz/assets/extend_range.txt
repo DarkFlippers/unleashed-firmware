@@ -1,0 +1,8 @@
+Filetype: Flipper SubGhz Setting File
+Version: 1
+
+# Whether to allow extended ranges that can break your flipper
+use_ext_range_at_own_risk: false
+
+# Whether to ignore the default TX region settings
+ignore_default_tx_region: false

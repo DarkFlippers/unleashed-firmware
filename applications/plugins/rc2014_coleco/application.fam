@@ -1,0 +1,13 @@
+App(
+    appid="RC2014_Coleco",
+    name="RC2014 ColecoVision",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="coleco_app",
+    cdefines=["APP_COLECO"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=35,
+    fap_icon="coleco_10px.png",
+    fap_icon_assets="icons",
+    fap_category="GPIO",
+)

@@ -1,0 +1,14 @@
+App(
+    appid="USB_Midi",
+    name="USB Midi",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="usb_midi_app",
+    requires=[
+        "gui",
+    ],
+    stack_size=4 * 1024,
+    order=20,
+    fap_icon="usb_midi.png",
+    fap_category="NeedsTesting",
+    # fap_icon_assets="icons",
+)

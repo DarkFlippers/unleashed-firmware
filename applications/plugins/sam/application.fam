@@ -1,0 +1,45 @@
+App(
+    appid="SAM",
+    name="SAM AYBABTU",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="sam_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=4 * 1024,
+    order=20,
+    fap_icon="icons/music_10px.png",
+    fap_category="Music",
+    fap_icon_assets="icons",
+)
+App(
+    appid="SAM_YES",
+    name="SAM YES",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="sam_app_yes",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=4 * 1024,
+    order=20,
+    fap_icon="icons/music_10px.png",
+    fap_category="Music",
+    fap_icon_assets="icons",
+)
+App(
+    appid="SAM_NO",
+    name="SAM NO",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="sam_app_no",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=4 * 1024,
+    order=20,
+    fap_icon="icons/music_10px.png",
+    fap_category="Music",
+    fap_icon_assets="icons",
+)

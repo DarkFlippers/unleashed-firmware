@@ -1,5 +1,5 @@
 App(
-    appid="quenon_dht_mon",
+    appid="DHT_Monitor",
     name="[DHT] Temp. Monitor",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="quenon_dht_mon_app",

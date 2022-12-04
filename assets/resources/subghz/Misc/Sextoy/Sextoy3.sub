@@ -1,0 +1,9 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+# Sextoy3 capture by StephS_escape
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: Princeton
+Bit: 24
+Key: 00 00 00 00 00 8B 02 04
+TE: 362

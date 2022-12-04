@@ -35,3 +35,12 @@ App(
         "archive",
     ],
 )
+
+App(
+    appid="my_apps",
+    name="My applications for main menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "esp8266_deauth",
+    ],
+)

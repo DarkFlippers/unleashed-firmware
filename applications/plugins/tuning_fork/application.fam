@@ -1,0 +1,14 @@
+App(
+    appid="Tuning_Fork",
+    name="Tuning Fork",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="tuning_fork_app",
+    cdefines=["APP_TUNING_FORM"],
+    requires=[
+        "gui",
+    ],
+    fap_icon="tuning_fork_icon.png",
+    fap_category="Music",
+    stack_size=2 * 1024,
+    order=20,
+)

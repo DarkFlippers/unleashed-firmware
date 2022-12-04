@@ -1,6 +1,6 @@
 #include "weather_station_receiver.h"
 #include "../weather_station_app_i.h"
-#include <weather_station_icons.h>
+#include <Weather_Station_icons.h>
 #include <math.h>
 
 #include <input/input.h>

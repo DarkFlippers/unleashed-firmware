@@ -1,5 +1,5 @@
 App(
-    appid="dtmf_dolphin",
+    appid="DTMF_Dolphin",
     name="DTMF Dolphin",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="dtmf_dolphin_app",

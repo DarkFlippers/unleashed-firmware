@@ -6,7 +6,7 @@ App(
     cdefines=["APP_PLAYLIST"],
     requires=["storage", "gui", "dialogs", "subghz"],
     stack_size=2 * 1024,
-    order=14,
+    order=200,
     fap_icon="playlist_10px.png",
     fap_category="Tools",
     fap_icon_assets="images",

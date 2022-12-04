@@ -1,0 +1,14 @@
+App(
+    appid="GPIO_Timelapse",
+    name="[GPIO] Timelapse",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="zeitraffer_app",
+    cdefines=["APP_ZEITRAFFER"],
+    requires=[
+        "gui",
+    ],
+    stack_size=1 * 1024,
+    order=90,
+	fap_icon="zeitraffer.png",
+    fap_category="GPIO",
+)

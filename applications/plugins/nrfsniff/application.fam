@@ -6,7 +6,7 @@ App(
     cdefines=["APP_NRFSNIFF"],
     requires=["gui"],
     stack_size=2 * 1024,
-    order=70,
+    order=60,
     fap_icon="nrfsniff_10px.png",
     fap_category="GPIO",
     fap_private_libs=[

@@ -1,0 +1,14 @@
+REM Title: Party Parrot for Windows
+REM Author: Jeffrey Koopman | JKCTech
+REM Description: Shows a pretty party parrot!
+REM Target:	Windows
+REM
+DEFAULTDELAY 50
+GUI r
+DELAY 500
+STRING powershell.exe
+ENTER
+DELAY 1000
+STRING $request = [System.Net.HttpWebRequest]::Create("http://parrot.live");$receiveStream=$request.GetResponse().GetResponseStream();$readStream=[System.IO.StreamReader]::new($receiveStream);[console]::TreatControlCAsInput=$true;$initialForegroundColor=[Console]::ForegroundColor;while($line=$readStream.ReadLine()){if([Console]::KeyAvailable){$key=[System.Console]::ReadKey($true);if(($key.modifiers -band [ConsoleModifiers]"control") -and ($key.key -eq "C")){break;}}[Console]::WriteLine($line);}
+ENTER
+GUI UPARROW

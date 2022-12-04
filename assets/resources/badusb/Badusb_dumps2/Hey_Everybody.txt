@@ -1,0 +1,17 @@
+REM Author: UberGuidoZ
+REM Description: Turns up the volume then speaks.
+REM Originally designed for an OMG cable, change the text in the last line to suit.
+DELAY 2000
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 1000
+STRING $key=[Math]::Ceiling(100/2);$obj=New-Object -ComObject WScript.Shell;for($i=0;$i -lt $key;$i++){$obj.SendKeys([char] 175)}
+ENTER
+DELAY 250
+STRING $sp=New-Object -ComObject SAPI.SpVoice
+ENTER
+DELAY 250
+STRING $sp.Speak("Hey everybody! I plugged in something I should not have.")
+ENTER

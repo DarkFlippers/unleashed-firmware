@@ -6,7 +6,7 @@ App(
     cdefines=["APP_TETRIS_GAME"],
     requires=["gui"],
     stack_size=2 * 1024,
-    order=20,
+    order=240,
     fap_icon="tetris_10px.png",
     fap_category="Games",
 )

@@ -155,6 +155,9 @@ void spawnEntity(uint8_t type, uint8_t x, uint8_t y, PluginState* const plugin_s
         plugin_state->entity[plugin_state->num_entities] = create_medikit(x, y);
         plugin_state->num_entities++;
         break;
+
+    default:
+        break;
     }
 }
 
@@ -458,6 +461,9 @@ void updateEntities(const uint8_t level[], Canvas* const canvas, PluginState* co
             }
             break;
         }
+
+        default:
+            break;
         }
 
         i++;

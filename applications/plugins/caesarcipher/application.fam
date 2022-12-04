@@ -1,0 +1,14 @@
+App(
+    appid="Caesar_Cipher",
+    name="Caesar Cipher",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="caesar_cipher_app",
+    cdefines=["APP_CAESAR_CIPHER"],
+    requires=[
+        "gui",
+    ],
+    stack_size=2 * 1024,
+    fap_icon="caesar_cipher_icon.png",
+    fap_category="Misc",
+    order=20,
+)

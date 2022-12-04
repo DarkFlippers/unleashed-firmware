@@ -4,7 +4,7 @@
 #include <input/input.h>
 #include <notification/notification_messages.h>
 #include <stdlib.h>
-
+#include <dolphin/dolphin.h>
 #include <nrf24.h>
 #include <toolbox/stream/file_stream.h>
 
@@ -291,6 +291,7 @@ static void wrap_up(Storage* storage, NotificationApp* notification) {
             hexlify(addr, 5, top_address);
             found_count++;
             save_addr_to_file(storage, addr, 5, notification);
+            DOLPHIN_DEED(getRandomDeed());
             if(confirmed_idx < MAX_CONFIRMED) memcpy(confirmed[confirmed_idx++], addr, 5);
             break;
         }
@@ -404,6 +405,9 @@ int32_t nrfsniff_app(void* p) {
                     }
                 }
             }
+        } else {
+            // FURI_LOG_D(TAG, "osMessageQueue: event timeout");
+            // event timeout
         }
 
         if(sniffing_state) {
@@ -450,7 +454,6 @@ int32_t nrfsniff_app(void* p) {
     furi_record_close(RECORD_STORAGE);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    free(plugin_state);
 
     return 0;
 }

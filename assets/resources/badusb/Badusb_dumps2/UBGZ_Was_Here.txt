@@ -1,0 +1,27 @@
+DELAY 3000
+GUI r
+DELAY 500
+STRING notepad
+ENTER
+DELAY 1000
+STRING    __  ____              ______      _     __   _____
+ENTER
+STRING   / / / / /_  ___  _____/ ____/_  __(_)___/ /__/__  /
+ENTER
+STRING  / / / / __ \/ _ \/ ___/ / __/ / / / / __  / __ \/ /
+ENTER
+STRING / /_/ / /_/ /  __/ /  / /_/ / /_/ / / /_/ / /_/ / /__
+ENTER
+STRING \____/_,___/\___/_/   \____/\__,_/_/\__,_/\____/____/
+ENTER
+ENTER
+STRING      _       __              __  __
+ENTER
+STRING     | |     / /___ ______   / / / /__  ________
+ENTER
+STRING     | | /| / / __ `/ ___/  / /_/ / _ \/ ___/ _ \
+ENTER
+STRING     | |/ |/ / /_/ (__  )  / __  /  __/ /  /  __/
+ENTER
+STRING     |__/|__/\__,_/____/  /_/ /_/\___/_/   \___/
+ENTER

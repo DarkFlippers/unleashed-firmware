@@ -8,7 +8,7 @@ App(
         "gui",
     ],
     stack_size=4 * 1024,
-    order=30,
+    order=175,
     fap_icon="125_10px.png",
     fap_category="Tools",
     fap_libs=["mbedtls"],

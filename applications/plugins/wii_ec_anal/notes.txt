@@ -1,0 +1,87 @@
+//+============================================================================ ========================================
+// Select font
+// A full list of u8g2 fonts can be found here:
+//    https://github.com/olikraus/u8g2/wiki/fntlistall
+// ...and here are the ones available in FZ (currently: all of them):
+//    grep -P '.*u8g2.*\[[0-9]*\]' lib/u8g2/u8g2_fonts.c | sed 's/.*\(u8g2_.*\)\[.*/\1/'
+//
+#if 0  //! Extra fonts is just too memory hungry
+#include <u8g2.h>
+void  setFont (Canvas* const canvas, const uint8_t* font)
+{
+	u8g2_SetFontMode(&canvas->fb, 1);  // no idea - but canvas.c does it <shrug>
+	u8g2_SetFont(&canvas->fb, font);
+}
+#endif
+
+litui : @BlueChip for posterity, the function to break at is flipper_application_spawn. At that point, you can set new breakpoints in your fap code and continue.
+
+/*
+
+This is wrong on quite a few levels!
+https://training.ti.com/introduction-i2c-reserved-addresses
+
+void  doit (void)
+{
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
+    printf("Scanning external i2c on PC0(SCL)/PC1(SDA)\r\n"
+           "Clock: 100khz, 7bit address\r\n"
+           "\r\n");
+    printf("  | 0 1 2 3 4 5 6 7 8 9 A B C D E F\r\n");
+    printf("--+--------------------------------\r\n");
+    for(uint8_t row = 0; row < 0x8; row++) {
+        printf("%x | ", row);
+        for(uint8_t column = 0; column <= 0xF; column++) {
+            bool ret = furi_hal_i2c_is_device_ready(
+                &furi_hal_i2c_handle_external, ((row << 4) + column) << 1, 2);
+            printf("%c ", ret ? '#' : '-');
+        }
+        printf("\r\n");
+    }
+    furi_hal_i2c_release(&furi_hal_i2c_handle_external);
+}
+*/
+
+
+region locking : firmware/targets/f7/furi_hal/furi_hal_region.c
+
+
+#			if 0  //! scrolling works beautifully, but the LCD refresh can't keep up :(
+			// Waveform
+			if (cnt) {  // start
+				for (int a = ACC_1;  a < ACC_N;  a++) {
+					canvas_draw_dot(canvas, x,y[a]+v[a][idx]);
+					for (int i = 1;  i < aw -cnt;  i++) {
+						canvas_draw_line(canvas, x+i,y[a]+v[a][i-1] , x+i,y[a]+v[a][i]);
+					}
+				}
+			} else {    // scroll
+				for (int a = ACC_1;  a < ACC_N;  a++) {
+					for (int i = 0;  i < aw;  i++) {
+						int  off  = (idx +i) %aw;
+						int  prev = off ? off-1 : aw-1;
+						canvas_draw_line(canvas, x+i,y[a]+v[a][prev] , x+i,y[a]+v[a][off]);
+					}
+				}
+			}
+
+#			else
+			int  end = idx ? idx : aw;
+			for (int a = ACC_1;  a < ACC_N;  a++) {
+				canvas_draw_dot(canvas, x,y[a]+v[a][idx]);
+				if (state->apause) {
+					for (int i = 1;  i < end;  i++)
+						canvas_draw_line(canvas, x+i,y[a]+v[a][i-1] , x+i,y[a]+v[a][i]);
+				} else {
+					for (int i = 1;  i < end;  i++)
+						canvas_draw_line(canvas, x+i,y[a]+v[a][i-1] , x+i,y[a]+v[a][i]);
+					for (int i = end+10;  i < aw -cnt;  i++)
+						canvas_draw_line(canvas, x+i,y[a]+v[a][i-1] , x+i,y[a]+v[a][i]);
+				}
+			}
+
+			// Wipe bar
+			if (end   < aw)  canvas_draw_line(canvas, x+end,y[0], x+end,y[2]+ah-1);
+			if (++end < aw)  canvas_draw_line(canvas, x+end,y[0], x+end,y[2]+ah-1);
+			if (++end < aw)  canvas_draw_line(canvas, x+end,y[0], x+end,y[2]+ah-1);
+#			endif

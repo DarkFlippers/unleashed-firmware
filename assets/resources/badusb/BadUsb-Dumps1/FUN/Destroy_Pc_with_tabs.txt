@@ -1,0 +1,37 @@
+REM Author: overwraith
+REM Description: Opens a few Tabs...
+REM Version: 1.0
+REM Category: FUN
+DELAY 1200
+GUI r
+DELAY 400
+STRING cmd /Q /D /T:0a /F:OFF /V:OFF /K
+DELAY 500
+ENTER
+DELAY 750
+STRING DEL /Q MobileTabs.vbs
+ENTER
+STRING copy con MobileTabs.vbs
+ENTER
+STRING on error resume next
+ENTER
+STRING navOpenInBackgroundTab = &h1000
+ENTER
+STRING set oIE = CreateObject("InternetExplorer.Application")
+ENTER
+STRING Set args = WScript.Arguments
+ENTER
+STRING oIE.Navigate2 args.Item(0)
+ENTER
+STRING for intx = 1 to args.count
+ENTER
+STRING oIE.Navigate2 args.Item(intx), navOpenInBackgroundTab
+ENTER
+STRING next
+ENTER
+STRING oIE.Visible = true
+ENTER
+CONTROL z
+ENTER
+STRING MobileTabs.vbs "http://www.google.com/" "http://mwomercs.com/" "http://hak5.org/" "http://forums.hak5.org/index.php?/forum/56-usb-rubber-ducky/"
+ENTER

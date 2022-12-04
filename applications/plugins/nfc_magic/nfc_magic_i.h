@@ -25,7 +25,7 @@
 #include <lib/toolbox/path.h>
 
 #include <lib/nfc/nfc_device.h>
-#include "nfc_magic_icons.h"
+#include "NFC_Magic_icons.h"
 
 enum NfcMagicCustomEvent {
     // Reserve first 100 events for button types and indexes, starting from 0

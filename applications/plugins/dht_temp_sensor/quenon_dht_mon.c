@@ -436,6 +436,8 @@ int32_t quenon_dht_mon_app() {
                         break;
                     case InputKeyLeft:
                         break;
+                    case InputKeyMAX:
+                        break;
                     case InputKeyOk:
                         view_port_update(app->view_port);
                         release_mutex(&app->state_mutex, app);
@@ -449,6 +451,9 @@ int32_t quenon_dht_mon_app() {
                     }
                 }
             }
+        } else {
+            FURI_LOG_D(APP_NAME, "FuriMessageQueue: event timeout");
+            // event timeout
         }
 
         view_port_update(app->view_port);

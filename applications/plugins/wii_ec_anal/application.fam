@@ -1,0 +1,36 @@
+# qv. https://github.com/flipperdevices/flipperzero-firmware/blob/dev/documentation/AppManifests.md
+
+App(
+	# --- App Info
+	appid="Wii_EC_Analyser",
+	name="Wii EC Analyser",
+
+	# --- Entry point
+	apptype=FlipperAppType.EXTERNAL,
+	entry_point="wii_ec_anal",
+
+	# --- Interaction
+	cdefines=["APP_WII_EC_ANAL"],
+	requires=[
+		"gui",
+	],
+
+#	conflicts="",
+#	sdk_headers="",
+
+	# --- Run-time info
+	stack_size=2 * 1024,
+	order=20,
+
+	# --- FAP details
+	sources=["wii_*.c", "gfx/*.c"],
+
+#	fap_weburl="https://github.com/csBlueChip/FlipperZero_plugin_WiiChuck/",
+#	fap_author="BlueChip",
+
+#	fap_description="Wii Extension Controller Protocol Analyser",
+#	fap_version=(1,0),
+
+	fap_icon="WiiEC.png",
+	fap_category="Misc",
+)

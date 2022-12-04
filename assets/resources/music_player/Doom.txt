@@ -1,0 +1,1 @@
+Doom:d=32,o=4,b=56:f,f,f5,f,f,d#5,f,f,c#5,f,f,b,f,f,c5,c#5,f,f,f5,f,f,d#5,f,f,c#5,f,f,8b.,f,f,f5,f,f,d#5,f,f,c#5,f,f,b,f,f,c5,c#5,f,f,f5,f,f,d#5,f,f,c#5,f,f,8b.,a#,a#,a#5,a#,a#,g#5,a#,a#,f#5,a#,a#,e5,a#,a#,f5,f#5,a#,a#,a#5,a#,a#,g#5,a#,a#,f#5,a#,a#,8e5

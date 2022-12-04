@@ -1,5 +1,5 @@
 App(
-    appid="hc_sr04",
+    appid="HC_SR04_Dist_Sensor",
     name="[HC-SR] Dist. Sensor",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="hc_sr04_app",

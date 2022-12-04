@@ -1,0 +1,12 @@
+App(
+    appid="DolphinBackup",
+    name="Dolphin Backup",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="storage_DolphinBackup_app",
+    cdefines=["APP_DBACKUP"],
+    requires=["gui", "storage"],
+    stack_size=2 * 1024,
+    order=85,
+    fap_icon="bckupIcon.png",
+    fap_category="Tools",
+)

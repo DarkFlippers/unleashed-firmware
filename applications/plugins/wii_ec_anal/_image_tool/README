@@ -1,0 +1,30 @@
+1.	Prepare the image
+	a. 	Open your *black and white* image in GIMP
+	b. 	File -> Export As
+			filename: EXAMPLE.c
+			Type    : "C source code"
+		[Export]
+			prefixed name: gimp_image
+			Comment      : <any>
+			[x] Use GLib types
+			[ ] <<all other options>>
+			Opacity      : 100%
+		[Export]
+
+2.	Prepare conversion tool [stored in (eg.) /path/]
+	a.	cp  _convert*.*  /path/
+	b.	cp  EXAMPLE.c    /path/
+
+3.	Run the conversion tool
+	a.	cd  /path/
+	b.	./_convert.sh  EXAMPLE.c
+
+4.	All being well, you will see an ascii version of your image.
+	If not, then you're gonna have to submit a bug report <shrug>
+
+5.	You should now have a directory called img_/
+	In that directory should be
+		img_EXAMPLE.c - The data for your new image
+		img_*.c       - The data for other images
+		images.h      - A header for ALL images that have been created in this directory
+		images.c      - A sample FlipperZero show() function [not optimised]

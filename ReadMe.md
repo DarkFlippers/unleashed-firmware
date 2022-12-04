@@ -1,226 +1,189 @@
-<h3 align="center">
-<a href="https://github.com/DarkFlippers/unleashed-firmware">
-<img src="https://user-images.githubusercontent.com/10697207/186202043-26947e28-b1cc-459a-8f20-ffcc7fc0c71c.png" align="center" alt="fzCUSTOM" border="0">
-</a>
-</h3>
+# Dexv  Firmware
 
-### Welcome to Flipper Zero Unleashed Firmware repo! 
+[![Discord](https://img.shields.io/discord/975068703559409685?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/dexvirus)
 
-**This firmware is a fork from** [flipperdevices/flipperzero-firmware](https://github.com/flipperdevices/flipperzero-firmware)
+![Show me the code](https://media.discordapp.net/attachments/746304505879986267/1043574668940021760/image.png)
 
-<br>
+Welcome to [Dexv Zero](https://discord.gg/dexvirus)'s Firmware repo!
+My goal is to make a really nice flipper cfw, to make it a pleasure for everyone to work with.
 
-Our goal is to make any features possible in this device without any limitations! 
+## Change Log
 
-Please help us implement emulation for all subghz dynamic (rolling code) protocols!
++Added EVERY apps i could find for the flipper.
 
-<br>
++Added dumps for Nfc, Rfid, Badusb, Subghz and a bunch of music player dumps.
 
-### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also this software is made without any support from Flipper Devices and in no way related to official devs. 
++Added Dexv-themed graphics to everything
 
-<br>
-Our Discord Community:
-<br>
-<a href="https://discord.unleashedflip.com"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community" target="_blank"></a>
+# Clone the Repository
 
-<br>
-<br>
-<br>
+You should clone with 
+```shell
+$ git clone --recursive https://github.com/DXVVAY/dexv0
+```
 
-# What's changed
-* SubGHz regional TX restrictions removed
-* SubGHz frequency range can be extended in settings file (Warning: It can damage flipper's hardware)
-* Many rolling code protocols now have the ability to save & send captured signals
-* FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
-* Sub-GHz static code brute-force plugin
-* LFRFID Fuzzer plugin
-* Custom community plugins and games added
-* Extra SubGHz frequencies + extra Mifare Classic keys
-* Picopass/iClass plugin included in releases
-* Recompiled IR TV Universal Remote for ALL buttons
-* Universal remote for Projectors, Fans, A/Cs and Audio(soundbars, etc.)
-* BadUSB keyboard layouts
-* Customizable Flipper name
-* SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes
-* SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu 
-* Other small fixes and changes throughout
-* See other changes in changelog and in readme below
+# Read the Docs
 
-Also check changelog in releases for latest updates!
+Check out details on [how to build firmware](documentation/fbt.md), [write applications](documentation/AppsOnSDCard.md), [un-brick your device](documentation/KeyCombo.md) and more in `documentation` folder made by the flipper team. 
 
-### Current modified and new SubGHz protocols list:
-- Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
-- Keeloq: HCS101
-- Keeloq: AN-Motors
-- Keeloq: JCM Tech
-- Keeloq: MHouse
-- Keeloq: Nice Smilo
-- Keeloq: DTM Neo
-- Keeloq: FAAC RC,XT
-- Keeloq: Mutancode
-- Keeloq: Normstahl
-- CAME Atomo
-- Nice Flor S
-- FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
-- BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
-- Security+ v1 & v2
-- Star Line
 
-## Please support development of the project
-* Boosty: https://boosty.to/mmxdev
-* destream (100 EUR min): https://destream.net/live/MMX/donate
-* cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
-* USDT(TRC20): `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`
-* BCH: `qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`
-* ETH/BSC/ERC20-Tokens: `darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)
-* BTC: `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`
-* DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
-* LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
-* XMR (Monero): `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`
+## Install without compiling
 
-### Community apps included:
+# 1 Install dexv0-flipper-fw.tgz from releases then in Qflipper go to the sd card by pressing the document folder at the navigation bar in the qflipper app.
 
-- RFID Fuzzer plugin [(by Ganapati & @xMasterX)](https://github.com/DarkFlippers/unleashed-firmware/pull/54) & New protocols by @mvanzanten
-- Sub-GHz bruteforce plugin [(by @derskythe & xMasterX)](https://github.com/DarkFlippers/unleashed-firmware/pull/57) (original by Ganapati)
-- Sub-GHz playlist plugin [(by darmiel)](https://github.com/DarkFlippers/unleashed-firmware/pull/62)
-- ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
-- WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
-- MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
-- USB Keyboard plugin [(by huuck)](https://github.com/huuck/FlipperZeroUSBKeyboard)
-- WAV player plugin (fixed) [(OFW: DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
-- Barcode generator plugin [(original by McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator) - [EAN-8 and refactoring](https://github.com/DarkFlippers/unleashed-firmware/pull/154) by @msvsergey
-- GPIO: Sentry Safe plugin [(by H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
-- ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
-- NRF24: Sniffer & MouseJacker (with changes) [(by mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
-- Simple Clock (timer by GMMan / settings by kowalski7cc) [(original by CompaqDisc)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
-- UniversalRF Remix / Sub-GHz Remote [(by @darmiel & @xMasterX)](https://github.com/darmiel/flipper-playlist/tree/feat/unirf-protocols) (original by @ESurge)
-- Spectrum Analyzer (with changes) [(by jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
-- Metronome [(by panki27)](https://github.com/panki27/Metronome)
-- DTMF Dolphin [(by litui)](https://github.com/litui/dtmf_dolphin)
-- **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-- GPS [(by ezod)](https://github.com/ezod/flipperzero-gps) works with module `NMEA 0183` via UART (13TX, 14RX, GND pins on Flipper)
-- i2c Tools [(by NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools) - C0 -> SCL / C1 -> SDA / GND -> GND | 3v3 logic levels only!
-- Temperature Sensor Plugin - HTU2xD, SHT2x, SI702x, SI700x, SI701x, AM2320 [(by Mywk)](https://github.com/Mywk/FlipperTemperatureSensor) - [How to Connect](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/applications/plugins/htu21d_temp_sensor/Readme.md)
-- HC-SR04 Distance sensor - Ported and modified by @xMasterX [(original by Sanqui)](https://github.com/Sanqui/flipperzero-firmware/tree/hc_sr04) - How to connect -> (5V -> VCC) / (GND -> GND) / (13|TX -> Trig) / (14|RX -> Echo)
-- Morse Code [(by wh00hw)](https://github.com/wh00hw/MorseCodeFAP)
-- AM2320/AM2321 Temp. Sensor plugin [(by xMasterX)](https://github.com/xMasterX/AM2320_Flipper_Plugin) - [How to Connect](https://github.com/xMasterX/AM2320_Flipper_Plugin)
-- DHT11/22 Temp. Sensor Monitor [(by quen0n)](https://github.com/quen0n/FipperZero-DHT-Monitor) - How to connect -> (5V -> VCC) / (GND -> GND) / (Selected Pin -> out)
-- BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
-- iButton Fuzzer [(by xMasterX)](https://github.com/xMasterX/ibutton-fuzzer)
-- HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipper-zero-hex-viewer)
+![image](https://user-images.githubusercontent.com/89728480/204052575-b679dbe3-4b81-4634-b2be-d5a1265e105c.png)
 
-Games:
-- DOOM (fixed) [(by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
-- Zombiez [(Reworked By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/240) [(Original By Dooskington)](https://github.com/Dooskington/flipperzero-zombiez)
-- Flappy Bird [(by DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird)
-- Arkanoid (refactored by xMasterX) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
-- Tic Tac Toe (refactored by xMasterX) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
-- Tetris (with fixes) [(by jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
-- Minesweeper [(by panki27)](https://github.com/panki27/minesweeper)
-- Heap Defence (aka Stack Attack) - Ported to latest firmware by @xMasterX - [(original by wquinoa & Vedmein)](https://github.com/Vedmein/flipperzero-firmware/tree/hd/svisto-perdelki)
-- Game15 [(by x27)](https://github.com/x27/flipperzero-game15)
-- Solitaire [(by teeebor)](https://github.com/teeebor/flipper_games)
-- BlackJack [(by teeebor)](https://github.com/teeebor/flipper_games)
+Then find the update folder in the root of your sd card.
 
-### Other changes
+![image](https://user-images.githubusercontent.com/89728480/204052595-b3541b03-9130-443e-88d8-9d08811cc632.png)
 
-- BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
-- SubGHz -> New frequency analyzer - [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
-- SubGHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
-- SubGHz -> Save last used frequency and modulation [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
-- SubGHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
-- SubGHz -> Long press OK button in SubGHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
-- Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
+Then paste the folder in Dexvmaster1.0.tgz onto the update folder
 
-# Instructions
-## [- How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
+![image](https://user-images.githubusercontent.com/89728480/204052665-b0b9aa87-10e7-4a74-873d-807b2d8b4204.png)
 
-## [- How to build firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToBuild.md)
+1. Navigate down using the flipper's directional pad or in the qflipper app 
 
-## [- BadUSB: how to add new keyboard layouts](https://github.com/dummy-decoy/flipperzero_badusb_kl)
+![image](https://user-images.githubusercontent.com/89728480/204052691-841888fd-78a7-44bc-af51-8e559482c98a.png)
 
-## [- How to change Flipper name](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/CustomFlipperName.md)
+2. Then find the file browser in your flipper zero using qflipper or the actual flipper zero screen
 
-### **Plugins**
+![image](https://user-images.githubusercontent.com/89728480/204052726-7f95fce9-b1ac-4263-96c5-8d5848ed3c5c.png)
 
-## [- 🎲 Download Extra plugins for Unleashed](https://github.com/xMasterX/unleashed-extra-pack)
+3. Locate the update folder in browser at the root directory of your sd card using the flipper zero screen (not Qflipper file browser)
 
-## [- Configure Sub-GHz Remote App](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)
 
-## [- TOTP (Authenticator) config description](https://github.com/akopachov/flipper-zero_authenticator/blob/master/docs/conf-file_description.md)
+![image](https://user-images.githubusercontent.com/89728480/204052778-d202506c-01b0-4d9a-a72f-04fbf709c5a2.png)
 
-## [- Barcode Generator](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/BarcodeGenerator.md)
+In the image provided i have multiple fw's but select the one called f7-update-RM420FAP in your case.
 
-## [- Multi Converter](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/MultiConverter.md)
+4. Find the file named update in the f7-update-RM420FAP directory and click on run in app
 
-## [- WAV Player sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
+![image](https://user-images.githubusercontent.com/89728480/204052959-b0ce5240-bb69-40b2-af8c-88b2d0159c96.png)
 
-## [- SubGHz playlist generator script](https://github.com/darmiel/flipper-scripts/blob/main/playlist/playlist_creator_by_chunk.py)
+5.When your done updating install Apps.rar from releases then in Qflipper go to the sd card by pressing the document folder at the navigation bar in the qflipper app
 
-### **Plugins that works with external hardware**
+![image](https://user-images.githubusercontent.com/89728480/204055617-69bf9c93-ed4b-48b7-bdfd-ff946fddd315.png)
 
-## [- How to use: Temperature Sensor Plugin - HTU21D / SI7021](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/applications/plugins/htu21d_temp_sensor/Readme.md)
+Then extract the folders that are in Apps.rar into the apps folder and your done.
 
-## [- How to use: DHT11/22 Temp. Sensor Monitor](https://github.com/quen0n/FipperZero-DHT-Monitor#readme)
+Now you have to wait for your flipper to finish the updating/installation process then your done with a good little sick dolphin that has Dexvirus
+# Update firmware
 
-## [- How to use: AM2320/AM2321 Temp. Sensor plugin](https://github.com/xMasterX/AM2320_Flipper_Plugin)
+the Latest Firmware update will be uploaded on this repo.
 
-## [- How to use: [NMEA] GPS](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/applications/plugins/gps_nmea_uart/README.md)
+Flipper Zero's firmware consists of two components:
 
-## [- How to use: i2c Tools](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/applications/plugins/flipper_i2ctools/README.md)
+- Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory, and you should never update it.
+- Core1 Firmware - HAL + OS + Drivers + Applications.
 
-## [- How to use: [NRF24] plugins](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/NRF24.md)
+They both must be flashed in the order described.
 
-## [- How to use: [WiFi] Scanner](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module#readme)
+## With offline update package
 
-## [- How to use: [ESP8266] Deauther](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module#readme)
+With Flipper attached over USB:
 
-## [- How to use: [ESP32] WiFi Marauder](https://github.com/UberGuidoZ/Flipper/tree/main/Wifi_DevBoard)
+`./fbt flash_usb`
 
-## [- [WiFi] Scanner - Web Flasher for module firmware](https://sequoiasan.github.io/FlipperZero-WiFi-Scanner_Module/)
+Just building the package:
 
-## [- [ESP8266] Deauther - Web Flasher for module firmware](https://sequoiasan.github.io/FlipperZero-Wifi-ESP8266-Deauther-Module/)
+`./fbt updater_package`
 
-## [- Windows: How to Upload .bin to ESP32/ESP8266](https://github.com/SequoiaSan/Guide-How-To-Upload-bin-to-ESP8266-ESP32)
 
-## [- How to use: [GPIO] SentrySafe plugin](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SentrySafe.md)
 
-### **SubGHz**
-
-## [- Transmission is blocked? - How to extend SubGHz frequency range](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/DangerousSettings.md)
-
-## [- How to add extra SubGHz frequencies](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSettings.md)
-
-<br>
-<br>
-
-# Where I can find IR, SubGhz, ... files, DBs, and other stuff?
-## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
-## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
-## [CAME-12bit, NICE-12bit, Linear-10bit, PT-2240 - SubGHz fixed code bruteforce](https://github.com/tobiabocchi/flipperzero-bruteforce)
-## [SMC5326, UNILARM - SubGHz fixed code bruteforce](https://github.com/Hong5489/flipperzero-gate-bruteforce)
-
-<br>
-<br>
 
 # Links
 
-* Unofficial Discord: [discord.unleashedflip.com](https://discord.unleashedflip.com)
-* Docs by atmanos / How to write your own app (outdated API): [https://flipper.atmanos.com/docs/overview/intro](https://flipper.atmanos.com/docs/overview/intro)
+* Discord: [dexvirus/discord](https://discord.gg/dexvirus)
 
-* Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
-* Official Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
+## Games
+  
+- [15 (By x27)](https://github.com/x27/flipperzero-game15)
+- [2048 (By OlegSchwann)](https://github.com/OlegSchwann/flipperzero-firmware/tree/hackaton/game_2048/applications/game-2048) [(Score By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/186)
+- [Arkanoid (By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins) [(Score By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/188)
+- [BlackJack (By teeebor)](https://github.com/teeebor/flipper_games)
+- [Chess (By Okalachev)](https://github.com/okalachev/flipperzero-firmware/tree/chess) Crashes 1st load if FW <~750KB or every load on larger FW  `Broken?`
+- [Dice Roller Including SEX/WAR/8BALL/WEED DICE (By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/420/applications/dice/dice.c)
+- [Dice (By Ka3u6y6a)](https://github.com/Ka3u6y6a/flipper-zero-dice)
+- [Doom (By p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
+- [Flappy Bird (By DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird) [Flappy: Border hitboxes, bigger Pilars (By TQMatvey)](https://github.com/DarkFlippers/unleashed-firmware/pull/114) [Increase pilars line width to improve visibility (By ahumeniy)](https://github.com/DarkFlippers/unleashed-firmware/pull/140)
+- [Game of Life (Updated to work by tgxn) (By itsyourbedtime)](https://github.com/tgxn/flipperzero-firmware/blob/dev/applications/game_of_life/game_of_life.c)
+- [Heap Defence (By xMasterX)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/commit/fc776446de9fdd553b221c02668b925b689378d8) [(original by wquinoa & Vedmein)](https://github.com/Vedmein/flipperzero-firmware/tree/hd/svisto-perdelki)
+- [Mandelbrot Set (By Possibly-Matt)](https://github.com/Possibly-Matt/flipperzero-firmware-wPlugins)
+- [Minesweeper (By panki27)](https://github.com/panki27/minesweeper)
+- [Monty Hall (By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/203)
+- [Scorched Tanks (By jasniec)](https://github.com/jasniec/flipper-scorched-tanks-game)
+- [Snake (By OlegSchwann)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/829)(With updates from DrZlo13, xMasterX, QtRoS and RogueMaster) [Snake Score Saving (By JuanJakobo)](https://github.com/flipperdevices/flipperzero-firmware/pull/1922) [Turns anywhere (By TQMatvey)](https://github.com/DarkFlippers/unleashed-firmware/pull/125) [Food Spawns Anywwhere (By TQMatvey)](https://github.com/DarkFlippers/unleashed-firmware/pull/130)
+- [Solitaire (By teeebor)](https://github.com/teeebor/flipper_games)
+- [T-Rex (By gelin)](https://github.com/gelin/t-rex-runner) WIP
+- [TAMA P1 (By GMMan)](https://github.com/GMMan/flipperzero-firmware/tree/tama-p1) requires [this rom](https://tinyurl.com/tamap1) IN `tama_p1` on SD as `rom.bin` to make it work.
+- [Tanks (By Alexgr13)](https://github.com/alexgr13/flipperzero-firmware/tree/fork/dev/applications/tanks-game)
+- [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
+- [Tic Tac Toe (By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- [Video Poker (By PixlEmly)](https://github.com/PixlEmly/flipperzero-firmware-testing/blob/420/applications/VideoPoker/poker.c)
+- [Zombiez (Reworked By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/240) [(Original By Dooskington)](https://github.com/Dooskington/flipperzero-zombiez)
 
-# Project structure
+## Plugins
 
-- `applications`    - Applications and services used in firmware
-- `assets`          - Assets used by applications and services
-- `furi`            - Furi Core: os level primitives and helpers
-- `debug`           - Debug tool: GDB-plugins, SVD-file and etc
-- `documentation`   - Documentation generation system configs and input files
-- `firmware`        - Firmware source code
-- `lib`             - Our and 3rd party libraries, drivers and etc...
-- `site_scons`      - Build helpers
-- `scripts`         - Supplementary scripts and python libraries home
+- [Air Mouse (By ginkage)](https://github.com/ginkage/FlippAirMouse/)
+- [Authenticator/TOTP (By akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+- [Bad Apple (By GMMan)](https://github.com/GMMan/flipperzero-badapple) `No working video.bin found`
+- [Barcode Generator (By McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
+- [Bluetooth Remote (By Cutch)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/1330)
+- [BPM Tapper (By panki27)](https://github.com/panki27/bpm-tapper)
+- [Calculator (By n-o-T-I-n-s-a-n-e)](https://github.com/n-o-T-I-n-s-a-n-e)
+- [Ceasar Cipher (By panki27)](https://github.com/panki27/caesar-cipher)
+- [Clock/Stopwatch (By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61) [12/24HR (By non-bin)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/254) [Refactoring (By GMMan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/256)
+- [Counter (By Krulknul)](https://github.com/Krulknul/dolphin-counter)
+- [DAP Link (By DrZlo13)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/1897)
+- [Deauther PWNDTOOLS V2.6.0 (By HEX0DAYS)](https://github.com/HEX0DAYS/FlipperZero-PWNDTOOLS) `Req: ESP8266` [Original](https://github.com/SpacehuhnTech/esp8266_deauther)
+- [DHT Temp Monitor (By quen0n)](https://github.com/quen0n/FipperZero-DHT-Monitor) `Req: DHT11/DHT22(AM2302)/AM2301`
+- [Distance Sensor (By Sanqui)](https://github.com/Sanqui/flipperzero-firmware/tree/hc_sr04)) `Req: HC-SR04` Ported/Modified by xMasterX
+- [Dolphin Backup (By nminaylov)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/1384) Modified by RogueMaster
+- [Dolphin Restorer (By nminaylov)](https://github.com/flipperdevices/flipperzero-firmware/pull/1384) Cloned by RogueMaster
+- [DSTIKE Deauther (By SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module/tree/FlipperZero-Module-v2/FlipperZeroModule/FlipperZero-ESP8266-Deauth-App) `Req: ESP8266`
+- [DTMF Dolphin (By litui)](https://github.com/litui/dtmf_dolphin)
+- [Flashlight (By xMasterX)](https://github.com/xMasterX/flipper-flashlight)
+- [GPS (By ezod)](https://github.com/ezod/flipperzero-gps) `Req: NMEA 0183`
+- [HEX Viewer (By QtRoS)](https://github.com/QtRoS/flipperzero-firmware)
+- [iButton Fuzzer (By xMasterX)](https://github.com/DarkFlippers/unleashed-firmware)
+- [i2c Tools (By NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
+- [Lightmeter (By oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter) `Req: BH1750`
+- [IFTTT Virtual Button (By Ferrazzi)](https://github.com/Ferrazzi/FlipperZero_IFTTT_Virtual_Button) `Req: ESP8266 w/ IFTTT FW Flashed`
+- [Metronome (By panki27)](https://github.com/panki27/Metronome)
+- [Morse Code (By wh00hw)](https://github.com/DarkFlippers/unleashed-firmware/pull/144)
+- [Mouse Jacker (By mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker) ([Pin Out](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/420/applications/mousejacker) from nocomp/Frog/UberGuidoZ) `Req: NRF24`
+- [Mouse Jiggler (By Jacob-Tate)](https://github.com/Jacob-Tate/flipperzero-firmware/blob/dev/applications/mouse_jiggler/mouse_jiggler.c) (Original By MuddleBox)
+- [Multi Converter (By theisolinearchip)](https://github.com/theisolinearchip)
+- [Music Beeper (By DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/pull/1189) (With Changes By qqMajiKpp/Haseo)
+- [Music Player (By DrZlo13)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/1189)
+- [NFC Magic (By gornekich)](https://github.com/flipperdevices/flipperzero-firmware/pull/1966)
+- [NRF Sniff (By mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/nrfsniff) ([Pin Out](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/420/applications/nrfsniff) from nocomp/Frog/UberGuidoZ) `Req: NRF24`
+- [NRF24 Scanner v1.5 (By vad7)](https://github.com/vad7/nrf24scan)
+- [Ocarina (By invalidna-me)](https://github.com/invalidna-me/flipperzero-ocarina) [Here are the LOTZ Songs](https://www.zeldadungeon.net/wiki/Ocarina_of_Time_Songs)
+- [Paint (By n-o-T-I-n-s-a-n-e)](https://github.com/n-o-T-I-n-s-a-n-e)
+- [Password Generator (By anakod)](https://github.com/anakod/flipper_passgen)
+- [PicoPass Reader (By Bettse)](https://github.com/flipperdevices/flipperzero-firmware/pull/1366)
+- [Pomodoro Timer (By sbrin)](https://github.com/sbrin/flipperzero_pomodoro)
+- [RFID Fuzzer (By Ganapati)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/245) [Changes by Unleashed/xMasterX](https://github.com/DarkFlippers/unleashed-firmware)
+- [RF Remix (By ESurge)](https://github.com/ESurge/flipperzero-firmware-unirfremix) [(Original By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/028d615c83f059bb2c905530ddb3d4efbd3cbcae/applications/jukebox) [(More protocols thanks to darmiel & xMasterX)](https://github.com/darmiel/flipper-playlist/blob/feat/unirf-protocols/applications/unirfremix/unirfremix_app.c)
+- [RC2014 ColecoVision (By ezod)](https://github.com/ezod/flipperzero-rc2014-coleco)
+- [SAM (By Unknown)][Original?](https://github.com/ctoth/SAM)
+- [Sentry Safe (By H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin) ([Pin Out](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/420/applications/sentry_safe) from [UberGuidoZ](https://github.com/UberGuidoZ/))
+- [Signal Generator (By nminaylov)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/1793)
+- [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) [Updates (for testing) Thanks to theY4Kman](https://github.com/theY4Kman/flipperzero-firmware)
+- [Sub-GHz Bruteforcer (By Ganapati & xMasterX)](https://github.com/derskythe/flipperzero-subbrute/tree/master)
+- [Sub-GHz Playlist (By darmiel)](https://github.com/darmiel/flipper-playlist)
+- [Temperature Sensor (By Mywk)](https://github.com/Mywk/FlipperTemperatureSensor) `Req: HTU2XD, SHT2X, SI702X, SI700X, SI701X or AM2320`
+- [Temperature Sensor (By xMasterX)](https://github.com/DarkFlippers/unleashed-firmware/commit/9c4612e571db42f5e6123a3f159e01337453a6af) `Req: AM2320`
+- [Timelapse (By theageoflove)](https://github.com/theageoflove/flipperzero-zeitraffer)
+- [Tuning Fork (By besya)](https://github.com/besya/flipperzero-tuning-fork)
+- [UART Echo (By DrZlo13)-OFW](https://github.com/flipperdevices/flipperzero-firmware/pull/831)
+- [USB HID Autofire (By pbek)](https://github.com/pbek/usb_hid_autofire)
+- [USB Keyboard (By huuck)](https://github.com/huuck/FlipperZeroUSBKeyboard)
+- [WAV Player (By DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player) Updated by Atmanos & RogueMaster To Work
+- [WiFi (Deauther) V2 (By Timmotools)](https://github.com/Timmotools/flipperzero_esp8266_deautherv2) `Req: ESP8266` 
+- [WiFi (Marauder) (By 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion) `Req: ESP32 WITH MARAUDER FLASHED`
+- [WiFi Scanner v.0.4 (By SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module-ESP8266) `Req: ESP8266 or ESP32`
+- [Wii EC Analyser (By csBlueChip)](https://github.com/csBlueChip/FlipperZero_WiiEC)
+- [Zero Tracker (By DrZZlo13)](https://github.com/DrZlo13/flipper-zero-music-tracker)
 
-Also pay attention to `ReadMe.md` files inside those directories.

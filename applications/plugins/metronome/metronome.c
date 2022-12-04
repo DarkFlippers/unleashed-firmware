@@ -1,7 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
-#include <m-string.h>
 #include <stdlib.h>
 
 #include <gui/gui.h>
@@ -58,23 +57,26 @@ static void render_callback(Canvas* const canvas, void* ctx) {
         return;
     }
 
-    string_t tempStr;
-    string_init(tempStr);
+    FuriString* tempStr;
+    tempStr = furi_string_alloc();
 
     canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     canvas_set_font(canvas, FontPrimary);
 
     // draw bars/beat
-    string_printf(tempStr, "%d/%d", metronome_state->beats_per_bar, metronome_state->note_length);
-    canvas_draw_str_aligned(canvas, 64, 8, AlignCenter, AlignCenter, string_get_cstr(tempStr));
-    string_reset(tempStr);
+    furi_string_printf(
+        tempStr, "%d/%d", metronome_state->beats_per_bar, metronome_state->note_length);
+    canvas_draw_str_aligned(
+        canvas, 64, 8, AlignCenter, AlignCenter, furi_string_get_cstr(tempStr));
+    furi_string_reset(tempStr);
 
     // draw BPM value
-    string_printf(tempStr, "%.2f", metronome_state->bpm);
+    furi_string_printf(tempStr, "%.2f", metronome_state->bpm);
     canvas_set_font(canvas, FontBigNumbers);
-    canvas_draw_str_aligned(canvas, 64, 24, AlignCenter, AlignCenter, string_get_cstr(tempStr));
-    string_reset(tempStr);
+    canvas_draw_str_aligned(
+        canvas, 64, 24, AlignCenter, AlignCenter, furi_string_get_cstr(tempStr));
+    furi_string_reset(tempStr);
 
     // draw volume indicator
     // always draw first waves
@@ -126,7 +128,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
         canvas, 8, 36, 112, (float)metronome_state->current_beat / metronome_state->beats_per_bar);
 
     // cleanup
-    string_clear(tempStr);
+    furi_string_free(tempStr);
     release_mutex((ValueMutex*)ctx, metronome_state);
 }
 
@@ -156,6 +158,8 @@ static void timer_callback(void* ctx) {
             break;
         case Silent:
             break;
+        default:
+            break;
         }
     } else {
         // unpronounced beat
@@ -168,6 +172,8 @@ static void timer_callback(void* ctx) {
             notification_message(metronome_state->notifications, &sequence_set_vibro_on);
             break;
         case Silent:
+            break;
+        default:
             break;
         }
     };
@@ -189,6 +195,8 @@ static void timer_callback(void* ctx) {
         }
         break;
     case Silent:
+        break;
+    default:
         break;
     }
     notification_message(metronome_state->notifications, &sequence_reset_rgb);

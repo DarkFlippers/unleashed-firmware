@@ -363,13 +363,11 @@ static bool usb_hid_keyboard_input_callback(InputEvent* event, void* context) {
 
 UsbHidKeyboard* usb_hid_keyboard_alloc() {
     UsbHidKeyboard* usb_hid_keyboard = malloc(sizeof(UsbHidKeyboard));
-
     usb_hid_keyboard->view = view_alloc();
     view_set_context(usb_hid_keyboard->view, usb_hid_keyboard);
     view_allocate_model(usb_hid_keyboard->view, ViewModelTypeLocking, sizeof(UsbHidKeyboardModel));
     view_set_draw_callback(usb_hid_keyboard->view, usb_hid_keyboard_draw_callback);
     view_set_input_callback(usb_hid_keyboard->view, usb_hid_keyboard_input_callback);
-
     with_view_model(
         usb_hid_keyboard->view, UsbHidKeyboardModel * model, { model->connected = true; }, true);
 

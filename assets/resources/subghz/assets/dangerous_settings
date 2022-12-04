@@ -1,4 +1,0 @@
-# Do you want to damage your flipper CC1101 radio chip by using Frequencies that outside HW specs?
-# CC1101 Frequency range specs: 300-348 MHz, 386-464 MHz, and 778-928 MHz
-# This setting will extend to: 281-361 MHz, 378-481 MHz, and 749-962 MHz
-yes_i_want_to_destroy_my_flipper: false

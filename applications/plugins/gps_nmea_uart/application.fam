@@ -1,5 +1,5 @@
 App(
-    appid="gps_nmea",
+    appid="NMEA_GPS",
     name="[NMEA] GPS",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="gps_app",

