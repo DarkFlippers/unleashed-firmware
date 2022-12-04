@@ -58,7 +58,7 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
 
     if(model->generic->btn != WS_NO_BTN) {
         snprintf(buffer, sizeof(buffer), "Btn: %01d", model->generic->btn);
-        canvas_draw_str(canvas, 62, 20, buffer);
+        canvas_draw_str(canvas, 57, 20, buffer);
     }
 
     if(model->generic->battery_low != WS_NO_BATT) {
@@ -78,6 +78,29 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
 
         int diffold = (int)curr_ts - (int)model->generic->agedata;
 
+        uint8_t tmp_x_frame = 101;
+        uint8_t tmp_y_frame = 23;
+
+        uint8_t tmp_x_text = 113;
+        uint8_t tmp_y_text = 29;
+        if(model->generic->data_count_bit >= 41) {
+            tmp_x_frame = 78;
+            tmp_y_frame = 0;
+
+            tmp_x_text = 91;
+            tmp_y_text = 6;
+
+            if(model->generic->btn == WS_NO_BTN) {
+                if(furi_string_size(model->protocol_name) > (size_t)10) {
+                    tmp_x_frame = 61;
+                    tmp_y_frame = 11;
+
+                    tmp_x_text = 74;
+                    tmp_y_text = 17;
+                }
+            }
+        }
+
         if(diffold > 60) {
             int tmp_sec = diffold;
             int cnt_min = 1;
@@ -85,36 +108,38 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
                 tmp_sec = tmp_sec - 60;
                 cnt_min = i;
             }
-            if(cnt_min >= 59) {
-            }
 
             if(curr_ts % 2 == 0) {
                 canvas_set_color(canvas, ColorBlack);
-                canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
+                canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
                 canvas_set_color(canvas, ColorBlack);
-                canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, "OLD");
+                canvas_draw_str_aligned(
+                    canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, "OLD");
             } else {
                 if(cnt_min >= 59) {
                     canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
+                    canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
                     canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, "OLD");
+                    canvas_draw_str_aligned(
+                        canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, "OLD");
                 } else {
                     canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
-                    canvas_draw_box(canvas, 97, 23, 26, 11);
+                    canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
+                    canvas_draw_box(canvas, tmp_x_frame, tmp_y_frame, 26, 11);
                     canvas_set_color(canvas, ColorWhite);
                     snprintf(buffer, sizeof(buffer), "%dm", cnt_min);
-                    canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, buffer);
+                    canvas_draw_str_aligned(
+                        canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, buffer);
                 }
             }
 
         } else {
             canvas_set_color(canvas, ColorBlack);
-            canvas_draw_rframe(canvas, 97, 23, 26, 11, 1);
+            canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
             canvas_set_color(canvas, ColorBlack);
             snprintf(buffer, sizeof(buffer), "%d", diffold);
-            canvas_draw_str_aligned(canvas, 109, 29, AlignCenter, AlignCenter, buffer);
+            canvas_draw_str_aligned(
+                canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, buffer);
         }
     }
     //DATA AGE end
