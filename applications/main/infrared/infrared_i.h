@@ -2,7 +2,6 @@
 
 #include <gui/gui.h>
 #include <gui/view.h>
-#include <assets_icons.h>
 #include <gui/view_stack.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
@@ -32,6 +31,8 @@
 #include "views/infrared_debug_view.h"
 
 #include "rpc/rpc_app.h"
+
+#include <infrared_icons.h>
 
 #define INFRARED_FILE_NAME_SIZE 100
 #define INFRARED_TEXT_STORE_NUM 2

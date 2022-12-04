@@ -86,6 +86,13 @@ Nfc* nfc_alloc() {
         nfc->view_dispatcher, NfcViewTextBox, text_box_get_view(nfc->text_box));
     nfc->text_box_store = furi_string_alloc();
 
+    // Variable Item List
+    nfc->variable_item_list = variable_item_list_alloc();
+    view_dispatcher_add_view(
+        nfc->view_dispatcher,
+        NfcViewVarItemList,
+        variable_item_list_get_view(nfc->variable_item_list));
+
     // Custom Widget
     nfc->widget = widget_alloc();
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewWidget, widget_get_view(nfc->widget));
@@ -157,6 +164,10 @@ void nfc_free(Nfc* nfc) {
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewTextBox);
     text_box_free(nfc->text_box);
     furi_string_free(nfc->text_box_store);
+
+    // Variable Item List
+    view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewVarItemList);
+    variable_item_list_free(nfc->variable_item_list);
 
     // Custom Widget
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewWidget);
@@ -289,6 +300,11 @@ int32_t nfc_app(void* p) {
                 } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
                     DOLPHIN_DEED(DolphinDeedNfcEmulate);
+                } else if(nfc->dev->format == NfcDeviceSaveFormatNfcV) {
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateNfcV);
+                    DOLPHIN_DEED(DolphinDeedNfcEmulate);
+                } else if(nfc->dev->format == NfcDeviceSaveFormatBankCard) {
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
                 } else {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
                     DOLPHIN_DEED(DolphinDeedNfcEmulate);

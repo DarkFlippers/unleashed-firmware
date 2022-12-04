@@ -2,7 +2,7 @@
 #include "../bad_usb_script.h"
 #include <toolbox/path.h>
 #include <gui/elements.h>
-#include <assets_icons.h>
+#include <bad_usb_icons.h>
 
 #define MAX_NAME_LEN 64
 
@@ -203,6 +203,7 @@ void bad_usb_set_layout(BadUsb* bad_usb, const char* layout) {
         { strlcpy(model->layout, layout, MAX_NAME_LEN); },
         true);
 }
+
 void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st) {
     furi_assert(st);
     with_view_model(

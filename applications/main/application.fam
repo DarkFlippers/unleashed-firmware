@@ -3,18 +3,27 @@ App(
     name="Basic applications for main menu",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        "gpio",
-        "ibutton",
-        "infrared",
+        "clock_loader",
+        # "gpio",
+        "gpio_loader",
+        # "ibutton",
+        "ibutton_loader",
+        # "infrared",
+        "infrared_loader",
         "lfrfid",
+        # "lfrfid_loader",
         "nfc",
         "subghz",
-        "bad_usb",
-        "u2f",
+        #"bad_usb",
+        "bad_usb_loader",
+        # "u2f",
+        "u2f_loader",
         "fap_loader",
         "archive",
-        "clock",
-        "unirfremix",
+        # "Clock",
+        #"SubGHz_Remote",
+        "SubGHz_Remote_loader",
+        # "Spectrum_Analyzer",
     ],
 )
 
@@ -33,14 +42,5 @@ App(
         #"u2f",
         "fap_loader",
         "archive",
-    ],
-)
-
-App(
-    appid="my_apps",
-    name="My applications for main menu",
-    apptype=FlipperAppType.METAPACKAGE,
-    provides=[
-        "esp8266_deauth",
     ],
 )

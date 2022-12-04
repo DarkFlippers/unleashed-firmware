@@ -25,8 +25,8 @@ Only 2 parameters are mandatory: ***appid*** and ***apptype***, others are optio
 | DEBUG        | Application only visible in Debug menu with debug mode enabled |
 | ARCHIVE      | One and only Archive app |
 | SETTINGS     | Application to be placed in System settings menu |
-| STARTUP      | Callback function to run at system startup. Does not define a separate app |
-| EXTERNAL     | Application to be built as .fap plugin |
+| STARTUP      | Callback function to run at system startup. Does not define a standalone app |
+| EXTERNAL     | Application to be built as a .fap executable file |
 | METAPACKAGE  | Does not define any code to be run, used for declaring dependencies and application bundles |
 
 * **name**: Name that is displayed in menus.
@@ -133,6 +133,6 @@ App(
     ],
     order=10,
 )
-```
+
 
 For more examples, see .fam files from various firmware parts.

@@ -1,7 +1,7 @@
 
 # Update firmware
 
-## [Get Latest Firmware from GitHub Releases](https://github.com/DarkFlippers/unleashed-firmware/releases)
+## [Get Latest Firmware from GitHub Releases](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/releases)
 
 <br>
 <br>
@@ -11,27 +11,10 @@
 <br>
 <br>
 
-## With Web Updater
-
-- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
-- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
-- Connect your device and select `Install via Web Updater`
-after that on web updater page - press `Connect` button
-- Press `Install` button
-
-- And wait, if all flashed successfully - you will have all needed assets pre installed
-- Done
-
-![web_instr](https://user-images.githubusercontent.com/10697207/190942577-9d137e01-468b-4c74-8587-c2a17c3c7534.jpg)
-
-
-<br>
-<br>
-
 ## With iOS mobile app
 
 - Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
-- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
+- Open latest release page - [Releases](https://github.com/RogueMaster/flipperzero-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - Open downloads in ios Files app, select downloaded `.tgz` file, click Share, select Flipper App
 - In flipper app click green `Update` button, be sure it shows `Custom flipper-z-f7-update...` in Update Channel
@@ -116,6 +99,8 @@ after that on web updater page - press `Connect` button
 <br>
 
 # After install:
+- ### If you installed using .dfu - unpack files from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
+<br>
 
 - ## [Read instructions how to use plugins and more](https://github.com/DarkFlippers/unleashed-firmware#instructions)
 

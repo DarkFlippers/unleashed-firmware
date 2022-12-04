@@ -43,7 +43,7 @@ void desktop_settings_scene_pin_menu_on_enter(void* context) {
             app);
     }
 
-    submenu_set_header(app->submenu, "Pin code settings:");
+    submenu_set_header(app->submenu, "Pin Code Settings:");
     submenu_set_selected_item(app->submenu, app->menu_idx);
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
 }

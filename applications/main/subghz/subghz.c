@@ -183,9 +183,9 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     //init setting
     subghz->setting = subghz_setting_alloc();
     if(alloc_for_tx_only) {
-        subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user"), false);
+        subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user.txt"), false);
     } else {
-        subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user"), true);
+        subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user.txt"), true);
     }
 
     // Load last used values for Read, Read RAW, etc. or default

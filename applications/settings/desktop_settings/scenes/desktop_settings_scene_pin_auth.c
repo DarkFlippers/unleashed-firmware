@@ -42,7 +42,7 @@ void desktop_settings_scene_pin_auth_on_enter(void* context) {
     desktop_view_pin_input_set_label_button(app->pin_input_view, "OK");
     desktop_view_pin_input_set_label_primary(app->pin_input_view, 0, 0, NULL);
     desktop_view_pin_input_set_label_secondary(
-        app->pin_input_view, 0, 8, "Enter your current PIN:");
+        app->pin_input_view, 0, 8, "Enter Your Current PIN:");
     desktop_view_pin_input_reset_pin(app->pin_input_view);
     desktop_view_pin_input_unlock_input(app->pin_input_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewIdPinInput);

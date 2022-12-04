@@ -58,7 +58,7 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(Nfc* nfc, DictAttackSt
 
         // If failed to load user dictionary - try flipper dictionary
         if(!dict) {
-            FURI_LOG_E(TAG, "User dictionary not found");
+            FURI_LOG_E(TAG, "User Dictionary Not Found");
             state = DictAttackStateFlipperDictInProgress;
         }
     }
@@ -67,7 +67,7 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(Nfc* nfc, DictAttackSt
         dict_attack_set_header(nfc->dict_attack, "Mf Classic Flipper Dict.");
         dict = mf_classic_dict_alloc(MfClassicDictTypeFlipper);
         if(!dict) {
-            FURI_LOG_E(TAG, "Flipper dictionary not found");
+            FURI_LOG_E(TAG, "Flipper Dictionary Not Found");
             // Pass through to let worker handle the failure
         }
     }

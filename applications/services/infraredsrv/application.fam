@@ -1,0 +1,7 @@
+App(
+    appid="infraredsrv",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="infrared_on_system_start",
+    requires=["infrared"],
+    order=20,
+)

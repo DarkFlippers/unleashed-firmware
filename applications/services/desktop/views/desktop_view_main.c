@@ -8,12 +8,14 @@
 
 #include "../desktop_i.h"
 #include "desktop_view_main.h"
+#include "applications/settings/desktop_settings/desktop_settings_app.h"
 
 struct DesktopMainView {
     View* view;
     DesktopMainViewCallback callback;
     void* context;
     TimerHandle_t poweroff_timer;
+    bool is_gamemode;
     bool dummy_mode;
 };
 
@@ -47,10 +49,18 @@ void desktop_main_set_dummy_mode_state(DesktopMainView* main_view, bool dummy_mo
 bool desktop_main_input_callback(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
-
     DesktopMainView* main_view = context;
 
-    if(main_view->dummy_mode == false) {
+    // change to only check for game mode setting on keypress
+    if(event->type == InputTypeShort || event->type == InputTypeLong) {
+        main_view->is_gamemode = false;
+        DesktopSettings* desktop_settings = malloc(sizeof(DesktopSettings));
+        DESKTOP_SETTINGS_LOAD(desktop_settings);
+        if(desktop_settings->is_dumbmode) main_view->is_gamemode = true;
+        free(desktop_settings);
+    }
+
+    if(main_view->is_gamemode == false && main_view->dummy_mode == false) {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyOk) {
                 main_view->callback(DesktopMainEventOpenMenu, main_view->context);
@@ -59,27 +69,54 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
             } else if(event->key == InputKeyDown) {
                 main_view->callback(DesktopMainEventOpenArchive, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenFavoritePrimary, main_view->context);
+                main_view->callback(DesktopMainEventOpenClock, main_view->context); // OPENS Clock
+            } else if(event->key == InputKeyRight) {
+                // Right key is handled by animation manager
+                // GOES TO PASSPORT NO MATTER WHAT
+                // THIS DOESNT WORK, PASSPORT WILL ONLY OPEN ON REGULAR RIGHT, NOTHING CAN GET ASSIGNED HERE
+                main_view->callback(DesktopMainEventOpenPassport, main_view->context);
             }
-            // Right key is handled by animation manager
         } else if(event->type == InputTypeLong) {
-            if(event->key == InputKeyDown) {
-                main_view->callback(DesktopMainEventOpenDebug, main_view->context);
-            } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenFavoriteSecondary, main_view->context);
+            if(event->key == InputKeyOk) {
+                main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
             } else if(event->key == InputKeyUp) {
-                main_view->callback(DesktopMainEventLock, main_view->context);
-            } else if(event->key == InputKeyOk) {
-                if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                    main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
-                }
+                main_view->callback(DesktopMainEventOpenFavoritePrimary, main_view->context);
+            } else if(event->key == InputKeyDown) {
+                main_view->callback(DesktopMainEventOpenFavoriteSecondary, main_view->context);
+            } else if(event->key == InputKeyLeft) {
+                main_view->callback(
+                    DesktopMainEventOpenSubRemote, main_view->context); // OPENS SUBGHZ REMOTE
+            }
+        }
+    } else if(main_view->is_gamemode == true) {
+        if(event->type == InputTypeShort) {
+            if(event->key == InputKeyOk) {
+                main_view->callback(DesktopMainEventOpenDice, main_view->context); // OPENS Dice
+            } else if(event->key == InputKeyUp) {
+                main_view->callback(DesktopMainEventOpenSnake, main_view->context); // OPENS SNAKE
+            } else if(event->key == InputKeyDown) {
+                // PREFER TO OPEN GAMES MENU
+                main_view->callback(DesktopMainEventOpen2048, main_view->context); // OPENS 2048
+            } else if(event->key == InputKeyLeft) {
+                main_view->callback(
+                    DesktopMainEventOpenTetris, main_view->context); // OPENS TETRIS
+            }
+        } else if(event->type == InputTypeLong) {
+            if(event->key == InputKeyOk) {
+                main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
+            } else if(event->key == InputKeyUp) {
+                main_view->callback(DesktopMainEventOpenDOOM, main_view->context); // OPENS DOOM
+            } else if(event->key == InputKeyDown) {
+                main_view->callback(
+                    DesktopMainEventOpenZombiez, main_view->context); // OPENS Zombiez
+            } else if(event->key == InputKeyLeft) {
+                main_view->callback(DesktopMainEventOpenClock, main_view->context); // OPENS CLOCK
             }
         }
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyOk) {
-                main_view->callback(
-                    DesktopMainEventOpenGameMenu, main_view->context); // OPENS Snake
+                main_view->callback(DesktopMainEventOpenSnake, main_view->context); // OPENS SNAKE
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
             } else if(event->key == InputKeyDown) {
@@ -89,12 +126,9 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
                 main_view->callback(
                     DesktopMainEventOpenArkanoid, main_view->context); // OPENS Arkanoid
             }
-            // Right key is handled by animation manager
         } else if(event->type == InputTypeLong) {
             if(event->key == InputKeyOk) {
-                if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                    main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
-                }
+                main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventOpenDOOM, main_view->context); // OPENS DOOM
             } else if(event->key == InputKeyDown) {
@@ -123,6 +157,11 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
 
 DesktopMainView* desktop_main_alloc() {
     DesktopMainView* main_view = malloc(sizeof(DesktopMainView));
+    main_view->is_gamemode = false;
+    DesktopSettings* desktop_settings = malloc(sizeof(DesktopSettings));
+    DESKTOP_SETTINGS_LOAD(desktop_settings);
+    if(desktop_settings->is_dumbmode) main_view->is_gamemode = true;
+    free(desktop_settings);
 
     main_view->view = view_alloc();
     view_allocate_model(main_view->view, ViewModelTypeLockFree, 1);

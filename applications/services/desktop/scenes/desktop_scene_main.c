@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
-#include <applications.h>
+#include "applications/services/applications.h"
 #include <assets_icons.h>
 #include <loader/loader.h>
 
@@ -131,7 +131,12 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         }
-
+        case DesktopMainEventOpenClock: {
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Main/Clock.fap"));
+            consumed = true;
+            break;
+        }
         case DesktopMainEventOpenFavoritePrimary:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
             if(desktop->settings.favorite_primary.is_external) {
@@ -194,52 +199,58 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         }
-        case DesktopMainEventOpenGameMenu: {
-            LoaderStatus status = loader_start(
-                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Snake.fap"));
-            if(status != LoaderStatusOk) {
-                FURI_LOG_E(TAG, "loader_start failed: %d", status);
-            }
+        case DesktopMainEventOpenSnake: {
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Games/Snake.fap"));
+            consumed = true;
+            break;
+        }
+        case DesktopMainEventOpen2048: {
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Games/2048.fap"));
+            consumed = true;
+            break;
+        }
+        case DesktopMainEventOpenZombiez: {
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Games/Zombiez.fap"));
+            consumed = true;
             break;
         }
         case DesktopMainEventOpenTetris: {
-            LoaderStatus status = loader_start(
-                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Tetris.fap"));
-            if(status != LoaderStatusOk) {
-                FURI_LOG_E(TAG, "loader_start failed: %d", status);
-            }
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Games/Tetris.fap"));
+            consumed = true;
+            break;
+        }
+        case DesktopMainEventOpenDOOM: {
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Games/DOOM.fap"));
+            consumed = true;
+            break;
+        }
+        case DesktopMainEventOpenDice: {
+            LoaderStatus status =
+                loader_start(desktop->loader, "Applications", EXT_PATH("/apps/Games/Dice.fap"));
+            consumed = true;
             break;
         }
         case DesktopMainEventOpenArkanoid: {
             LoaderStatus status = loader_start(
-                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Arkanoid.fap"));
-            if(status != LoaderStatusOk) {
-                FURI_LOG_E(TAG, "loader_start failed: %d", status);
-            }
-            break;
-        }
-        case DesktopMainEventOpenDOOM: {
-            LoaderStatus status = loader_start(
-                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/DOOM.fap"));
-            if(status != LoaderStatusOk) {
-                FURI_LOG_E(TAG, "loader_start failed: %d", status);
-            }
-            break;
-        }
-        case DesktopMainEventOpenZombiez: {
-            LoaderStatus status = loader_start(
-                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/Zombiez.fap"));
-            if(status != LoaderStatusOk) {
-                FURI_LOG_E(TAG, "loader_start failed: %d", status);
-            }
+                desktop->loader, "Applications", EXT_PATH("/apps/Games/Arkanoid.fap"));
+            consumed = true;
             break;
         }
         case DesktopMainEventOpenHeap: {
             LoaderStatus status = loader_start(
-                desktop->loader, FAP_LOADER_APP_NAME, EXT_PATH("/apps/Games/heap_defence.fap"));
-            if(status != LoaderStatusOk) {
-                FURI_LOG_E(TAG, "loader_start failed: %d", status);
-            }
+                desktop->loader, "Applications", EXT_PATH("/apps/Games/Heap_Defence.fap"));
+            consumed = true;
+            break;
+        }
+        case DesktopMainEventOpenSubRemote: {
+            LoaderStatus status = loader_start(
+                desktop->loader, "Applications", EXT_PATH("/apps/Main/SubGHz_Remote.fap"));
+            consumed = true;
             break;
         }
         case DesktopLockedEventUpdate:

@@ -1,0 +1,14 @@
+App(
+    appid="gpio_loader",
+    name="GPIO",
+    apptype=FlipperAppType.APP,
+    entry_point="gpio_loader_app",
+    requires=[
+        "gui",
+        "storage",
+    ],
+    stack_size=int(1.5 * 1024),
+    icon="A_GPIO_14",
+    order=50,
+	link="/ext/apps/Main/gpio.fap",
+)

@@ -38,6 +38,11 @@ FuriPubSub* power_get_pubsub(Power* power) {
     return power->event_pubsub;
 }
 
+FuriPubSub* power_get_settings_events_pubsub(Power* power) {
+    furi_assert(power);
+    return power->settings_events;
+}
+
 bool power_is_battery_healthy(Power* power) {
     furi_assert(power);
     bool is_healthy = false;

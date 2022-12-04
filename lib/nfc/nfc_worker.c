@@ -16,6 +16,7 @@ NfcWorker* nfc_worker_alloc() {
 
     nfc_worker->callback = NULL;
     nfc_worker->context = NULL;
+    nfc_worker->event_data = NULL;
     nfc_worker->storage = furi_record_open(RECORD_STORAGE);
 
     // Initialize rfal
@@ -43,6 +44,10 @@ void nfc_worker_free(NfcWorker* nfc_worker) {
 
 NfcWorkerState nfc_worker_get_state(NfcWorker* nfc_worker) {
     return nfc_worker->state;
+}
+
+void* nfc_worker_get_event_data(NfcWorker* nfc_worker) {
+    return nfc_worker->event_data;
 }
 
 void nfc_worker_start(
@@ -109,11 +114,190 @@ int32_t nfc_worker_task(void* context) {
         nfc_worker_mf_classic_dict_attack(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateAnalyzeReader) {
         nfc_worker_analyze_reader(nfc_worker);
+    } else if(nfc_worker->state == NfcWorkerStateNfcVEmulate) {
+        nfc_worker_emulate_nfcv(nfc_worker);
+    } else if(nfc_worker->state == NfcWorkerStateNfcVUnlock) {
+        nfc_worker_nfcv_unlock(nfc_worker);
+    } else if(nfc_worker->state == NfcWorkerStateNfcVUnlockAndSave) {
+        nfc_worker_nfcv_unlock(nfc_worker);
     }
     furi_hal_nfc_sleep();
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
 
     return 0;
+}
+
+static bool nfc_worker_read_nfcv_content(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
+    bool read_success = false;
+    NfcVReader reader = {};
+
+    FuriHalNfcDevData* nfc_data = &nfc_worker->dev_data->nfc_data;
+    NfcVData* nfcv_data = &nfc_worker->dev_data->nfcv_data;
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_prepare_tx_rx(nfc_worker->reader_analyzer, tx_rx, false);
+        reader_analyzer_start(nfc_worker->reader_analyzer, ReaderAnalyzerModeDebugLog);
+    }
+
+    do {
+        if(!furi_hal_nfc_detect(&nfc_worker->dev_data->nfc_data, 200)) break;
+        if(!nfcv_read_card(&reader, nfc_data, nfcv_data)) break;
+
+        read_success = true;
+    } while(false);
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_stop(nfc_worker->reader_analyzer);
+    }
+
+    return read_success;
+}
+
+void nfc_worker_nfcv_unlock(NfcWorker* nfc_worker) {
+    furi_assert(nfc_worker);
+    furi_assert(nfc_worker->callback);
+
+    NfcVData* nfcv_data = &nfc_worker->dev_data->nfcv_data;
+    FuriHalNfcTxRxContext tx_rx = {};
+    uint8_t* key_data = nfcv_data->sub_data.slix.key_privacy;
+    uint32_t key = 0;
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_prepare_tx_rx(nfc_worker->reader_analyzer, &tx_rx, true);
+        reader_analyzer_start(nfc_worker->reader_analyzer, ReaderAnalyzerModeDebugLog);
+    }
+
+    furi_hal_nfc_sleep();
+
+    while((nfc_worker->state == NfcWorkerStateNfcVUnlock) ||
+          (nfc_worker->state == NfcWorkerStateNfcVUnlockAndSave)) {
+        furi_hal_nfc_exit_sleep();
+        furi_hal_nfc_ll_txrx_on();
+        furi_hal_nfc_ll_poll();
+        if(furi_hal_nfc_ll_set_mode(
+               FuriHalNfcModePollNfcv, FuriHalNfcBitrate26p48, FuriHalNfcBitrate26p48) !=
+           FuriHalNfcReturnOk) {
+            break;
+        }
+
+        furi_hal_nfc_ll_set_fdt_listen(FURI_HAL_NFC_LL_FDT_LISTEN_NFCV_POLLER);
+        furi_hal_nfc_ll_set_fdt_poll(FURI_HAL_NFC_LL_FDT_POLL_NFCV_POLLER);
+        furi_hal_nfc_ll_set_error_handling(FuriHalNfcErrorHandlingNfc);
+        furi_hal_nfc_ll_set_guard_time(FURI_HAL_NFC_LL_GT_NFCV);
+
+        furi_hal_console_printf("Detect presence\r\n");
+        ReturnCode ret = slix_get_random(nfcv_data);
+
+        if(ret == ERR_NONE) {
+            /* there is some chip, responding with a RAND */
+            nfc_worker->dev_data->protocol = NfcDeviceProtocolNfcV;
+            furi_hal_console_printf("  Chip detected. In privacy?\r\n");
+            ret = nfcv_inventory(NULL);
+
+            if(ret == ERR_NONE) {
+                /* chip is also visible, so no action required, just save */
+                if(nfc_worker->state == NfcWorkerStateNfcVUnlockAndSave) {
+                    NfcVReader reader = {};
+
+                    if(!nfcv_read_card(&reader, &nfc_worker->dev_data->nfc_data, nfcv_data)) {
+                        furi_hal_console_printf("    => failed, wait for chip to disappear.\r\n");
+                        snprintf(nfcv_data->error, sizeof(nfcv_data->error), "Read card\nfailed");
+                        nfc_worker->callback(NfcWorkerEventWrongCardDetected, nfc_worker->context);
+                    } else {
+                        furi_hal_console_printf("    => success, wait for chip to disappear.\r\n");
+                        nfc_worker->callback(NfcWorkerEventCardDetected, nfc_worker->context);
+                    }
+                } else {
+                    furi_hal_console_printf("    => success, wait for chip to disappear.\r\n");
+                    nfc_worker->callback(NfcWorkerEventCardDetected, nfc_worker->context);
+                }
+
+                while(slix_get_random(NULL) == ERR_NONE) {
+                    furi_delay_ms(100);
+                }
+
+                furi_hal_console_printf(
+                    "    => chip is already visible, wait for chip to disappear.\r\n");
+                nfc_worker->callback(NfcWorkerEventAborted, nfc_worker->context);
+                while(slix_get_random(NULL) == ERR_NONE) {
+                    furi_delay_ms(100);
+                }
+
+                key_data[0] = 0;
+                key_data[1] = 0;
+                key_data[2] = 0;
+                key_data[3] = 0;
+
+            } else {
+                /* chip is invisible, try to unlock */
+                furi_hal_console_printf("    chip is invisible, unlocking\r\n");
+
+                if(nfcv_data->auth_method == NfcVAuthMethodManual) {
+                    key |= key_data[0] << 24;
+                    key |= key_data[1] << 16;
+                    key |= key_data[2] << 8;
+                    key |= key_data[3] << 0;
+
+                    ret = slix_unlock(nfcv_data, 4);
+                } else {
+                    key = 0x7FFD6E5B;
+                    key_data[0] = key >> 24;
+                    key_data[1] = key >> 16;
+                    key_data[2] = key >> 8;
+                    key_data[3] = key >> 0;
+                    ret = slix_unlock(nfcv_data, 4);
+
+                    if(ret != ERR_NONE) {
+                        /* main key failed, trying second one */
+                        furi_hal_console_printf("    trying second key after resetting\r\n");
+
+                        /* reset chip */
+                        furi_hal_nfc_ll_txrx_off();
+                        furi_delay_ms(20);
+                        furi_hal_nfc_ll_txrx_on();
+
+                        if(slix_get_random(nfcv_data) != ERR_NONE) {
+                            furi_hal_console_printf("    reset failed\r\n");
+                        }
+
+                        key = 0x0F0F0F0F;
+                        key_data[0] = key >> 24;
+                        key_data[1] = key >> 16;
+                        key_data[2] = key >> 8;
+                        key_data[3] = key >> 0;
+                        ret = slix_unlock(nfcv_data, 4);
+                    }
+                }
+                if(ret != ERR_NONE) {
+                    /* unlock failed */
+                    furi_hal_console_printf("    => failed, wait for chip to disappear.\r\n");
+                    snprintf(
+                        nfcv_data->error, sizeof(nfcv_data->error), "Passwords not\naccepted");
+                    nfc_worker->callback(NfcWorkerEventWrongCardDetected, nfc_worker->context);
+
+                    /* reset chip */
+                    furi_hal_nfc_ll_txrx_off();
+                    furi_delay_ms(20);
+                    furi_hal_nfc_ll_txrx_on();
+
+                    /* wait for disappearing */
+                    while(slix_get_random(NULL) == ERR_NONE) {
+                        furi_delay_ms(100);
+                    }
+                }
+            }
+        } else {
+            nfc_worker->callback(NfcWorkerEventNoCardDetected, nfc_worker->context);
+        }
+
+        furi_hal_nfc_ll_txrx_off();
+        furi_hal_nfc_sleep();
+        furi_delay_ms(100);
+    }
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_stop(nfc_worker->reader_analyzer);
+    }
 }
 
 static bool nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
@@ -290,6 +474,49 @@ static bool nfc_worker_read_bank_card(NfcWorker* nfc_worker, FuriHalNfcTxRxConte
     return read_success;
 }
 
+static bool nfc_worker_read_mrtd(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
+    bool read_success = false;
+    MrtdData* mrtd_data = &nfc_worker->dev_data->mrtd_data;
+    MrtdApplication* mrtd_app = mrtd_alloc_init(tx_rx, mrtd_data);
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_prepare_tx_rx(nfc_worker->reader_analyzer, tx_rx, false);
+        reader_analyzer_start(nfc_worker->reader_analyzer, ReaderAnalyzerModeDebugLog);
+    }
+
+    do {
+        // Read passport
+        if(!furi_hal_nfc_detect(&nfc_worker->dev_data->nfc_data, 300)) break;
+
+        //TODO: try select eMRTDApp first, but when PACE, read CardAccess first!
+        if(!mrtd_select_app(mrtd_app, AID.eMRTDApplication)) break; // Passport app not selected
+
+        if(mrtd_data->auth.method == MrtdAuthMethodNone) {
+            // Selected the passport app, but auth. not selected
+            // Successfully read what we could
+            read_success = true;
+            break;
+        }
+
+        if(!mrtd_authenticate(mrtd_app)) {
+            // At least we're reading an MRTD and should the app switch to the NFC scenes
+            read_success = true;
+            break; // Authentication failed
+        }
+
+        mrtd_read_parse_file(mrtd_app, EF.COM);
+        mrtd_read_parse_file(mrtd_app, EF.DG1);
+
+        read_success = true;
+    } while(false);
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_stop(nfc_worker->reader_analyzer);
+    }
+
+    return read_success;
+}
+
 static bool nfc_worker_read_nfca(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
     FuriHalNfcDevData* nfc_data = &nfc_worker->dev_data->nfc_data;
 
@@ -315,16 +542,70 @@ static bool nfc_worker_read_nfca(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* t
         card_read = true;
     } else if(nfc_data->interface == FuriHalNfcInterfaceIsoDep) {
         FURI_LOG_I(TAG, "ISO14443-4 card detected");
-        nfc_worker->dev_data->protocol = NfcDeviceProtocolEMV;
-        if(!nfc_worker_read_bank_card(nfc_worker, tx_rx)) {
+        //TODO: thoughts on improving logic/readability here?
+        do {
+            FURI_LOG_D(TAG, "Try reading EMV");
+            if(nfc_worker_read_bank_card(nfc_worker, tx_rx)) {
+                nfc_worker->dev_data->protocol = NfcDeviceProtocolEMV;
+                break;
+            }
+
+            furi_hal_nfc_sleep(); // Needed between checks
+            FURI_LOG_D(TAG, "Try reading MRTD");
+            if(nfc_worker_read_mrtd(nfc_worker, tx_rx)) {
+                nfc_worker->dev_data->protocol = NfcDeviceProtocolMRTD;
+                break;
+            }
+
             FURI_LOG_I(TAG, "Unknown card. Save UID");
             nfc_worker->dev_data->protocol = NfcDeviceProtocolUnknown;
-        }
+        } while(false);
         card_read = true;
     } else {
         nfc_worker->dev_data->protocol = NfcDeviceProtocolUnknown;
         card_read = true;
     }
+
+    return card_read;
+}
+
+static bool nfc_worker_read_nfcb(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
+    FuriHalNfcDevData* nfc_data = &nfc_worker->dev_data->nfc_data;
+
+    bool card_read = false;
+    furi_hal_nfc_sleep();
+    if(nfc_data->interface == FuriHalNfcInterfaceIsoDep) {
+        FURI_LOG_I(TAG, "ISO14443-4B card detected");
+        //TODO: thoughts on improving logic/readability here?
+        do {
+            FURI_LOG_D(TAG, "Try reading MRTD");
+            if(nfc_worker_read_mrtd(nfc_worker, tx_rx)) {
+                nfc_worker->dev_data->protocol = NfcDeviceProtocolMRTD;
+                break;
+            }
+
+            FURI_LOG_I(TAG, "Unknown card. Save UID");
+            nfc_worker->dev_data->protocol = NfcDeviceProtocolUnknown;
+        } while(false);
+        card_read = true;
+    } else {
+        nfc_worker->dev_data->protocol = NfcDeviceProtocolUnknown;
+        card_read = true;
+    }
+
+    return card_read;
+}
+
+static bool nfc_worker_read_nfcv(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
+    furi_assert(nfc_worker);
+    furi_assert(tx_rx);
+
+    bool card_read = false;
+    furi_hal_nfc_sleep();
+
+    /* until here the UID field is reversed from the reader IC. 
+       we will read it here again and it will get placed in the right order. */
+    card_read = nfc_worker_read_nfcv_content(nfc_worker, tx_rx);
 
     return card_read;
 }
@@ -359,6 +640,9 @@ void nfc_worker_read(NfcWorker* nfc_worker) {
                     } else if(dev_data->protocol == NfcDeviceProtocolEMV) {
                         event = NfcWorkerEventReadBankCard;
                         break;
+                    } else if(dev_data->protocol == NfcDeviceProtocolMRTD) {
+                        event = NfcWorkerEventReadPassport;
+                        break;
                     } else if(dev_data->protocol == NfcDeviceProtocolUnknown) {
                         event = NfcWorkerEventReadUidNfcA;
                         break;
@@ -370,13 +654,27 @@ void nfc_worker_read(NfcWorker* nfc_worker) {
                     }
                 }
             } else if(nfc_data->type == FuriHalNfcTypeB) {
+                if(nfc_worker_read_nfcb(nfc_worker, &tx_rx)) {
+                    if(dev_data->protocol == NfcDeviceProtocolMRTD) {
+                        event = NfcWorkerEventReadPassport;
+                        break;
+                    }
+                }
+
                 event = NfcWorkerEventReadUidNfcB;
                 break;
             } else if(nfc_data->type == FuriHalNfcTypeF) {
                 event = NfcWorkerEventReadUidNfcF;
                 break;
             } else if(nfc_data->type == FuriHalNfcTypeV) {
-                event = NfcWorkerEventReadUidNfcV;
+                FURI_LOG_I(TAG, "NfcV detected");
+                nfc_worker->dev_data->protocol = NfcDeviceProtocolNfcV;
+                if(nfc_worker_read_nfcv(nfc_worker, &tx_rx)) {
+                    FURI_LOG_I(TAG, "nfc_worker_read_nfcv success");
+                    //event = NfcWorkerEventReadNfcV;
+                    //break;
+                }
+                event = NfcWorkerEventReadNfcV;
                 break;
             }
         } else {
@@ -494,6 +792,32 @@ void nfc_worker_emulate_uid(NfcWorker* nfc_worker) {
     }
 }
 
+void nfc_worker_emulate_nfcv(NfcWorker* nfc_worker) {
+    FuriHalNfcTxRxContext tx_rx = {};
+    FuriHalNfcDevData* nfc_data = &nfc_worker->dev_data->nfc_data;
+    NfcVData* nfcv_data = &nfc_worker->dev_data->nfcv_data;
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_prepare_tx_rx(nfc_worker->reader_analyzer, &tx_rx, true);
+        reader_analyzer_start(nfc_worker->reader_analyzer, ReaderAnalyzerModeDebugLog);
+    }
+
+    nfcv_emu_init(nfc_data, nfcv_data);
+    while(nfc_worker->state == NfcWorkerStateNfcVEmulate) {
+        if(nfcv_emu_loop(&tx_rx, nfc_data, nfcv_data, 50)) {
+            if(nfc_worker->callback) {
+                nfc_worker->callback(NfcWorkerEventSuccess, nfc_worker->context);
+            }
+        }
+        furi_delay_ms(0);
+    }
+    nfcv_emu_deinit(nfcv_data);
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        reader_analyzer_stop(nfc_worker->reader_analyzer);
+    }
+}
+
 void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
     FuriHalNfcTxRxContext tx_rx = {};
     FuriHalNfcDevData params = {
@@ -556,6 +880,15 @@ void nfc_worker_emulate_mf_ultralight(NfcWorker* nfc_worker) {
             mf_ul_prepare_emulation_response,
             &emulator,
             5000);
+        // Check if there was an auth attempt
+        if(emulator.auth_attempted) {
+            nfc_worker->event_data = &emulator.auth_attempt;
+            if(nfc_worker->callback) {
+                nfc_worker->callback(NfcWorkerEventMfUltralightPwdAuth, nfc_worker->context);
+            }
+            emulator.auth_attempted = false;
+            nfc_worker->event_data = NULL;
+        }
         // Check if data was modified
         if(emulator.data_changed) {
             nfc_worker->dev_data->mf_ul_data = emulator.data;

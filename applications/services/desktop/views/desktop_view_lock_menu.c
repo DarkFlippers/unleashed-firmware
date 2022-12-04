@@ -1,13 +1,26 @@
 #include <furi.h>
 #include <gui/elements.h>
+#include <dolphin/dolphin.h>
 #include <assets_icons.h>
 
 #include "../desktop_i.h"
 #include "desktop_view_lock_menu.h"
+#include "applications/settings/desktop_settings/desktop_settings_app.h"
+
+#define LOCK_MENU_ITEMS_NB 5
+
+static void desktop_view_lock_menu_dumbmode_changed(bool isThisGameMode) {
+    DesktopSettingsApp* app = malloc(sizeof(DesktopSettingsApp));
+    DESKTOP_SETTINGS_LOAD(&app->settings);
+    app->settings.is_dumbmode = isThisGameMode;
+    DESKTOP_SETTINGS_SAVE(&app->settings);
+}
 
 typedef enum {
     DesktopLockMenuIndexLock,
     DesktopLockMenuIndexPinLock,
+    DesktopLockMenuIndexPinLockShutdown,
+    // DesktopLockMenuIndexGameMode,
     DesktopLockMenuIndexDummy,
 
     DesktopLockMenuIndexTotalCount
@@ -51,7 +64,7 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_icon(canvas, -57, 0 + STATUS_BAR_Y_SHIFT, &I_DoorLeft_70x55);
     canvas_draw_icon(canvas, 116, 0 + STATUS_BAR_Y_SHIFT, &I_DoorRight_70x55);
-    canvas_set_font(canvas, FontSecondary);
+    canvas_set_font(canvas, FontBatteryPercent);
 
     for(uint8_t i = 0; i < DesktopLockMenuIndexTotalCount; ++i) {
         const char* str = NULL;
@@ -64,6 +77,14 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
             } else {
                 str = "Set PIN";
             }
+        } else if(i == DesktopLockMenuIndexPinLockShutdown) {
+            if(m->pin_is_set) {
+                str = "Lock with PIN + Off";
+            } else {
+                str = "Set PIN + Off";
+            }
+            // } else if(i == DesktopLockMenuIndexGameMode) {
+            // str = "Games Mode";
         } else if(i == DesktopLockMenuIndexDummy) {
             if(m->dummy_mode) {
                 str = "Brainiac Mode";
@@ -74,9 +95,9 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
 
         if(str)
             canvas_draw_str_aligned(
-                canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+                canvas, 64, 9 + (i * 12) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
 
-        if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 17) + STATUS_BAR_Y_SHIFT, 98, 15);
+        if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 12) + STATUS_BAR_Y_SHIFT, 98, 15);
     }
 }
 
@@ -128,7 +149,14 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
             lock_menu->callback(DesktopLockMenuEventLock, lock_menu->context);
         } else if((idx == DesktopLockMenuIndexPinLock) && (event->type == InputTypeShort)) {
             lock_menu->callback(DesktopLockMenuEventPinLock, lock_menu->context);
+        } else if((idx == DesktopLockMenuIndexPinLockShutdown) && (event->type == InputTypeShort)) {
+            lock_menu->callback(DesktopLockMenuEventPinLockShutdown, lock_menu->context);
+            // } else if((idx == DesktopLockMenuIndexGameMode) && (event->type == InputTypeShort)) {
+            // desktop_view_lock_menu_dumbmode_changed(1);
+            // DOLPHIN_DEED(getRandomDeed());
+            // lock_menu->callback(DesktopLockMenuEventExit, lock_menu->context);
         } else if(idx == DesktopLockMenuIndexDummy) {
+            DOLPHIN_DEED(getRandomDeed());
             if((dummy_mode == false) && (event->type == InputTypeShort)) {
                 lock_menu->callback(DesktopLockMenuEventDummyModeOn, lock_menu->context);
             } else if((dummy_mode == true) && (event->type == InputTypeShort)) {

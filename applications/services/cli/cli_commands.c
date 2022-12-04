@@ -143,7 +143,7 @@ void cli_command_src(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     UNUSED(context);
 
-    printf("https://github.com/DarkFlippers/unleashed-firmware");
+    printf("https://github.com/RogueMaster/flipperzero-firmware-wPlugins");
 }
 
 #define CLI_COMMAND_LOG_RING_SIZE 2048

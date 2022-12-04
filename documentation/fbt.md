@@ -38,7 +38,7 @@ To run cleanup (think of `make clean`) for specified targets, add `-c` option.
 
 ## FBT targets
 
-**`fbt`** keeps track of internal dependencies, so you only need to build the highest-level target you need, and **`fbt`** will make sure everything they depend on is up-to-date.
+FBT keeps track of internal dependencies, so you only need to build the highest-level target you need, and FBT will make sure everything they depend on is up-to-date.
 
 ### High-level (what you most likely need)
  

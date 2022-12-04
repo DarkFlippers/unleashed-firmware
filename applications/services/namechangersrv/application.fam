@@ -1,0 +1,7 @@
+App(
+    appid="namechangersrv",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="namechanger_on_system_start",
+    requires=["storage"],
+    order=130,
+)

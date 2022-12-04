@@ -36,6 +36,7 @@
 #include "intertechno_v3.h"
 #include "clemsa.h"
 #include "ansonic.h"
+#include "pocsag.h"
 
 #ifdef __cplusplus
 extern "C" {

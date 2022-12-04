@@ -9,6 +9,7 @@
 
 #include <gui/modules/popup.h>
 #include "views/power_off.h"
+#include <power/power_settings.h>
 #include "views/power_unplug_usb.h"
 
 #include <notification/notification_messages.h>
@@ -30,6 +31,9 @@ struct Power {
     Gui* gui;
     NotificationApp* notification;
     FuriPubSub* event_pubsub;
+    FuriPubSub* settings_events;
+    FuriPubSub* input_events_pubsub;
+    FuriPubSubSubscription* input_events_subscription;
     PowerEvent event;
 
     PowerState state;
@@ -40,6 +44,9 @@ struct Power {
     uint8_t displayBatteryPercentage;
     uint8_t battery_level;
     uint8_t power_off_timeout;
+
+    uint32_t shutdown_idle_delay_ms;
+    FuriTimer* auto_shutdown_timer;
 
     FuriMutex* api_mtx;
 };

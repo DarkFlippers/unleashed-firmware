@@ -117,6 +117,8 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
             } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
+            } else if(nfc->dev->format == NfcDeviceSaveFormatNfcV) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateNfcV);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }

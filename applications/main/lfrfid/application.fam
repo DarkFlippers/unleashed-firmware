@@ -8,19 +8,12 @@ App(
         "gui",
         "dialogs",
     ],
-    provides=[
-        "lfrfid_start",
-    ],
+    # provides=[ "lfrfid_start", ],
     icon="A_125khz_14",
     stack_size=2 * 1024,
     order=20,
-    fap_libs=["assets"],
-)
-
-App(
-    appid="lfrfid_start",
-    apptype=FlipperAppType.STARTUP,
-    entry_point="lfrfid_on_system_start",
-    requires=["lfrfid"],
-    order=50,
+    # fap_category="Main",
+    # fap_icon="125_10px.png",
+    # fap_icon_assets="images",
+    # fap_libs=["assets"],
 )

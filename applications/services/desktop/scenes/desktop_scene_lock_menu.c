@@ -11,6 +11,7 @@
 #include "desktop_scene_i.h"
 #include "desktop_scene.h"
 #include "../helpers/pin_lock.h"
+#include <power/power_service/power.h>
 
 #define TAG "DesktopSceneLock"
 
@@ -68,6 +69,27 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
             }
             consumed = true;
             break;
+        case DesktopLockMenuEventPinLockShutdown:
+            if(desktop->settings.pin_code.length > 0) {
+                desktop_pin_lock(&desktop->settings);
+                desktop_lock(desktop);
+            } else {
+                LoaderStatus status =
+                    loader_start(desktop->loader, "Desktop", DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG);
+                if(status == LoaderStatusOk) {
+                    scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 1);
+                } else {
+                    FURI_LOG_E(TAG, "Unable to start desktop settings");
+                }
+            }
+            consumed = true;
+            Power* power = furi_record_open(RECORD_POWER);
+            furi_delay_ms(666);
+            power_off(power);
+            furi_record_close(RECORD_POWER);
+            break;
+        case DesktopLockMenuEventExit:
+            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
         case DesktopLockMenuEventDummyModeOn:
             desktop_set_dummy_mode_state(desktop, true);
             scene_manager_search_and_switch_to_previous_scene(

@@ -1,0 +1,14 @@
+App(
+    appid="ibutton_loader",
+    name="iButton",
+    apptype=FlipperAppType.APP,
+    entry_point="ibutton_loader_app",
+    requires=[
+        "gui",
+        "storage",
+    ],
+    stack_size=int(1.5 * 1024),
+    icon="A_iButton_14",
+    order=60,
+	link="/ext/apps/Main/ibutton.fap",
+)

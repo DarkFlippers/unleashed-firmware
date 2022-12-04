@@ -8,13 +8,13 @@ TARGET_HW = 7
 
 # Optimization flags
 ## Optimize for size
-COMPACT = 0
+COMPACT = 1
 ## Optimize for debugging experience
-DEBUG = 1
+DEBUG = 0
 
 # Suffix to add to files when building distribution
 # If OS environment has DIST_SUFFIX set, it will be used instead
-DIST_SUFFIX = "local"
+DIST_SUFFIX = "RM420FAP"
 
 # Coprocessor firmware
 COPRO_OB_DATA = "scripts/ob.data"
@@ -69,8 +69,6 @@ FIRMWARE_APPS = {
         # Apps
         "main_apps",
         "system_apps",
-        # My Apps
-        "my_apps",
         # Settings
         "settings_apps",
         # Stock plugins - no longer built into fw, now they're .faps
@@ -97,6 +95,9 @@ FIRMWARE_APPS = {
         # "basic_plugins",
         # Debug
         # "debug_apps",
+        # "updater_app",
+        # "unit_tests",
+        # "nfc",
     ],
 }
 

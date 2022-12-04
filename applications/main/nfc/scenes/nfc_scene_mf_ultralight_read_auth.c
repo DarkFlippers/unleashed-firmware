@@ -24,21 +24,22 @@ void nfc_scene_mf_ultralight_read_auth_set_state(Nfc* nfc, NfcSceneMfUlReadState
     if(curr_state != state) {
         if(state == NfcSceneMfUlReadStateDetecting) {
             popup_reset(nfc->popup);
-            popup_set_text(nfc->popup, "Apply the\ntarget card", 97, 24, AlignCenter, AlignTop);
+            popup_set_text(
+                nfc->popup, "Apply Card To\nFlipper's Back", 97, 24, AlignCenter, AlignTop);
             popup_set_icon(nfc->popup, 0, 8, &I_NFC_manual_60x50);
             nfc_blink_read_start(nfc);
         } else if(state == NfcSceneMfUlReadStateReading) {
             popup_reset(nfc->popup);
             popup_set_header(
-                nfc->popup, "Reading card\nDon't move...", 85, 24, AlignCenter, AlignTop);
+                nfc->popup, "Reading Card\nDon't Move...", 85, 24, AlignCenter, AlignTop);
             popup_set_icon(nfc->popup, 12, 23, &A_Loading_24);
             nfc_blink_detect_start(nfc);
         } else if(state == NfcSceneMfUlReadStateNotSupportedCard) {
             popup_reset(nfc->popup);
-            popup_set_header(nfc->popup, "Wrong type of card!", 64, 3, AlignCenter, AlignTop);
+            popup_set_header(nfc->popup, "Wrong Type Of Card!", 64, 3, AlignCenter, AlignTop);
             popup_set_text(
                 nfc->popup,
-                "Only MIFARE\nUltralight & NTAG\nare supported",
+                "Only MIFARE\nUltralight & NTAG\n Are Supported",
                 4,
                 22,
                 AlignLeft,

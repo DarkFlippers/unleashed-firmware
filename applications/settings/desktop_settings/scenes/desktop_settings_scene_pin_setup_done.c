@@ -34,9 +34,9 @@ void desktop_settings_scene_pin_setup_done_on_enter(void* context) {
     desktop_view_pin_input_set_done_callback(app->pin_input_view, pin_setup_done_callback);
     desktop_view_pin_input_set_pin(app->pin_input_view, &app->settings.pin_code);
     desktop_view_pin_input_set_label_button(app->pin_input_view, "Done");
-    desktop_view_pin_input_set_label_primary(app->pin_input_view, 29, 8, "PIN activated!");
+    desktop_view_pin_input_set_label_primary(app->pin_input_view, 29, 8, "PIN Activated!");
     desktop_view_pin_input_set_label_secondary(
-        app->pin_input_view, 7, 45, "Remember or write it down");
+        app->pin_input_view, 7, 45, "Remember Or Write It Down!");
     desktop_view_pin_input_lock_input(app->pin_input_view);
     desktop_view_pin_input_set_pin_position(app->pin_input_view, 64, 24);
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewIdPinInput);

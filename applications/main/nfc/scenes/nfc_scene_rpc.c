@@ -55,6 +55,13 @@ bool nfc_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                             &nfc->dev->dev_data,
                             nfc_scene_rpc_emulate_callback,
                             nfc);
+                    } else if(nfc->dev->format == NfcDeviceSaveFormatNfcV) {
+                        nfc_worker_start(
+                            nfc->worker,
+                            NfcWorkerStateNfcVEmulate,
+                            &nfc->dev->dev_data,
+                            nfc_scene_rpc_emulate_callback,
+                            nfc);
                     } else {
                         nfc_worker_start(
                             nfc->worker, NfcWorkerStateUidEmulate, &nfc->dev->dev_data, NULL, nfc);

@@ -1,0 +1,11 @@
+App(
+    appid="clock_loader",
+    name="Clock",
+    apptype=FlipperAppType.APP,
+    entry_point="clock_loader_app",
+    requires=["gui"],
+    stack_size=int(1.5 * 1024),
+    icon="A_Clock_14",
+    order=9,
+	link="/ext/apps/Main/Clock.fap",
+)

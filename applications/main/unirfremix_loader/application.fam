@@ -1,0 +1,11 @@
+App(
+    appid="SubGHz_Remote_loader",
+    name="Sub-GHz Remote",
+    apptype=FlipperAppType.APP,
+    entry_point="unirfremix_loader_app",
+    requires=["gui"],
+    stack_size=int(1.5 * 1024),
+    icon="A_UniRFRemix_14",
+    order=11,
+	link="/ext/apps/Main/SubGHz_Remote.fap",
+)

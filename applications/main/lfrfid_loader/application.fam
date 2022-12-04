@@ -1,0 +1,14 @@
+App(
+    appid="lfrfid_loader",
+    name="125 kHz RFID",
+    apptype=FlipperAppType.APP,
+    entry_point="lfrfid_loader_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=int(2 * 1024),
+    icon="A_125khz_14",
+    order=20,
+	link="/ext/apps/Main/lfrfid.fap",
+)

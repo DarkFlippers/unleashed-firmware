@@ -22,7 +22,7 @@ void nfc_scene_save_name_on_enter(void* context) {
     } else {
         nfc_text_store_set(nfc, nfc->dev->dev_name);
     }
-    text_input_set_header_text(text_input, "Name the card");
+    text_input_set_header_text(text_input, "Name The Card");
     text_input_set_result_callback(
         text_input,
         nfc_scene_save_name_text_input_callback,

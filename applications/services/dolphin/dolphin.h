@@ -43,6 +43,10 @@ void dolphin_deed(Dolphin* dolphin, DolphinDeed deed);
  */
 DolphinStats dolphin_stats(Dolphin* dolphin);
 
+/** GET RANDOM 3PT DEED
+ */
+DolphinDeed getRandomDeed();
+
 /** Flush dolphin queue and save state
  * Thread safe, blocking
  */

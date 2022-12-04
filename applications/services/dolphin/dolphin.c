@@ -6,6 +6,7 @@
 #include <furi_hal.h>
 #include <stdint.h>
 #include <furi.h>
+#include "furi_hal_random.h"
 #define DOLPHIN_LOCK_EVENT_FLAG (0x1)
 
 #define TAG "Dolphin"
@@ -19,6 +20,18 @@ void dolphin_deed(Dolphin* dolphin, DolphinDeed deed) {
     event.type = DolphinEventTypeDeed;
     event.deed = deed;
     dolphin_event_send_async(dolphin, &event);
+}
+
+DolphinDeed getRandomDeed() {
+    DolphinDeed returnGrp[14] = {1, 5, 8, 10, 12, 15, 17, 20, 21, 25, 26, 28, 29, 32};
+    static bool rand_generator_inited = false;
+    if(!rand_generator_inited) {
+        srand(furi_get_tick());
+        rand_generator_inited = true;
+    }
+    uint8_t diceRoll = (rand() % COUNT_OF(returnGrp)); // JUST TO GET IT GOING? AND FIX BUG
+    diceRoll = (rand() % COUNT_OF(returnGrp));
+    return returnGrp[diceRoll];
 }
 
 DolphinStats dolphin_stats(Dolphin* dolphin) {

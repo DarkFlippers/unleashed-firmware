@@ -45,10 +45,55 @@ static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selec
         if(param != NULL) {
             param++;
         }
-        status = loader_start(loader, flipper_app_name[selected->type], param);
+
+        if(strcmp(flipper_app_name[selected->type], "U2F") == 0) {
+            char* tmpType = "/ext/apps/Main/U2F.fap¯";
+            char* result =
+                malloc(strlen(tmpType) + strlen(furi_string_get_cstr(selected->path)) + 1);
+
+            strcpy(result, tmpType);
+            strcat(result, furi_string_get_cstr(selected->path));
+            status = loader_start(loader, "Applications", result);
+        } else {
+            status = loader_start(loader, flipper_app_name[selected->type], param);
+        }
     } else {
-        status = loader_start(
-            loader, flipper_app_name[selected->type], furi_string_get_cstr(selected->path));
+        if(strcmp(flipper_app_name[selected->type], "iButton") == 0) {
+            char* tmpType = "/ext/apps/Main/ibutton.fap¯";
+            char* result =
+                malloc(strlen(tmpType) + strlen(furi_string_get_cstr(selected->path)) + 1);
+
+            strcpy(result, tmpType);
+            strcat(result, furi_string_get_cstr(selected->path));
+            status = loader_start(loader, "Applications", result);
+        } else if(strcmp(flipper_app_name[selected->type], "Bad USB") == 0) {
+            char* tmpType = "/ext/apps/Main/bad_usb.fap¯";
+            char* result =
+                malloc(strlen(tmpType) + strlen(furi_string_get_cstr(selected->path)) + 1);
+
+            strcpy(result, tmpType);
+            strcat(result, furi_string_get_cstr(selected->path));
+            status = loader_start(loader, "Applications", result);
+            // } else if(strcmp(flipper_app_name[selected->type], "125 kHz RFID") == 0) {
+            // char* tmpType = "/ext/apps/Main/lfrfid.fap¯";
+            // char* result =
+            // malloc(strlen(tmpType) + strlen(furi_string_get_cstr(selected->path)) + 1);
+
+            // strcpy(result, tmpType);
+            // strcat(result, furi_string_get_cstr(selected->path));
+            // status = loader_start(loader, "Applications", result);
+        } else if(strcmp(flipper_app_name[selected->type], "Infrared") == 0) {
+            char* tmpType = "/ext/apps/Main/infrared.fap¯";
+            char* result =
+                malloc(strlen(tmpType) + strlen(furi_string_get_cstr(selected->path)) + 1);
+
+            strcpy(result, tmpType);
+            strcat(result, furi_string_get_cstr(selected->path));
+            status = loader_start(loader, "Applications", result);
+        } else {
+            status = loader_start(
+                loader, flipper_app_name[selected->type], furi_string_get_cstr(selected->path));
+        }
     }
 
     if(status != LoaderStatusOk) {

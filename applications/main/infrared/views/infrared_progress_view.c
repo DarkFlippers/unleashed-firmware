@@ -1,6 +1,5 @@
 #include <core/check.h>
 #include "furi_hal_resources.h"
-#include "assets_icons.h"
 #include "gui/canvas.h"
 #include "gui/view.h"
 #include "input/input.h"
@@ -9,6 +8,7 @@
 #include "infrared_progress_view.h"
 #include "gui/modules/button_panel.h"
 #include <stdint.h>
+#include <infrared_icons.h>
 
 struct InfraredProgressView {
     View* view;

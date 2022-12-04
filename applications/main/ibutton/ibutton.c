@@ -1,5 +1,4 @@
 #include "ibutton.h"
-#include "assets_icons.h"
 #include "ibutton_i.h"
 #include "ibutton/scenes/ibutton_scene.h"
 #include <toolbox/path.h>

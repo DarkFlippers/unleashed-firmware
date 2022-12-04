@@ -1,6 +1,7 @@
 #include "furi_hal_subghz.h"
 #include "furi_hal_subghz_configs.h"
 
+#include <furi_hal_region.h>
 #include <furi_hal_version.h>
 #include <furi_hal_rtc.h>
 #include <furi_hal_gpio.h>
@@ -8,9 +9,9 @@
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
 
-#include <stm32wbxx_ll_dma.h>
-
 #include <lib/flipper_format/flipper_format.h>
+
+#include <stm32wbxx_ll_dma.h>
 
 #include <furi.h>
 #include <cc1101.h>
@@ -277,7 +278,7 @@ void furi_hal_subghz_rx() {
 }
 
 bool furi_hal_subghz_tx() {
-    if(furi_hal_subghz.regulation != SubGhzRegulationTxRx) return false;
+    // if(furi_hal_subghz.regulation != SubGhzRegulationTxRx) return false;
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_switch_to_tx(&furi_hal_spi_bus_handle_subghz);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
@@ -309,9 +310,9 @@ uint8_t furi_hal_subghz_get_lqi() {
 
 /* 
  Modified by @tkerby & MX to the full YARD Stick One extended range of 281-361 MHz, 378-481 MHz, and 749-962 MHz. 
- These changes are at your own risk. The PLL may not lock and FZ devs have warned of possible damage!
+ These changes are at your own risk. The PLL may not lock and FZ devs have warned of possible damage
+ Set flag use_ext_range_at_own_risk in extend_range.txt to use
  */
-
 bool furi_hal_subghz_is_frequency_valid(uint32_t value) {
     if(!(value >= 281000000 && value <= 361000000) &&
        !(value >= 378000000 && value <= 481000000) &&
@@ -338,38 +339,79 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
 }
 
 bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
+    //checking regional settings
     bool is_extended = false;
+    bool is_allowed = false;
 
-    // TODO: !!! Move file check to another place
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-
-    if(flipper_format_file_open_existing(fff_data_file, "/ext/subghz/assets/dangerous_settings")) {
-        flipper_format_read_bool(
-            fff_data_file, "yes_i_want_to_destroy_my_flipper", &is_extended, 1);
+    if(flipper_format_file_open_existing(fff_data_file, "/ext/subghz/assets/extend_range.txt")) {
+        flipper_format_read_bool(fff_data_file, "use_ext_range_at_own_risk", &is_extended, 1);
+        flipper_format_read_bool(fff_data_file, "ignore_default_tx_region", &is_allowed, 1);
     }
-
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
 
+    switch(furi_hal_version_get_hw_region()) {
+    case FuriHalVersionRegionEuRu:
+        //433,05..434,79; 868,15..868,55
+        if(!(value >= 433050000 && value <= 434790000) &&
+           !(value >= 868150000 && value <= 868550000)) {
+        } else {
+            is_allowed = true;
+        }
+        break;
+    case FuriHalVersionRegionUsCaAu:
+        //304,10..321,95; 433,05..434,79; 915,00..928,00
+        if(!(value >= 304100000 && value <= 321950000) &&
+           !(value >= 433050000 && value <= 434790000) &&
+           !(value >= 915000000 && value <= 928000000)) {
+        } else {
+            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                if((value >= 304100000 && value <= 321950000) &&
+                   ((furi_hal_subghz.preset == FuriHalSubGhzPresetOok270Async) ||
+                    (furi_hal_subghz.preset == FuriHalSubGhzPresetOok650Async))) {
+                    furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable_au);
+                }
+            }
+            is_allowed = true;
+        }
+        break;
+    case FuriHalVersionRegionJp:
+        //312,00..315,25; 920,50..923,50
+        if(!(value >= 312000000 && value <= 315250000) &&
+           !(value >= 920500000 && value <= 923500000)) {
+        } else {
+            is_allowed = true;
+        }
+        break;
+
+    default:
+        is_allowed = true;
+        break;
+    }
+    // No flag - test original range, flag set, test extended range
     if(!(value >= 299999755 && value <= 348000335) &&
        !(value >= 386999938 && value <= 464000000) &&
        !(value >= 778999847 && value <= 928000000) && !(is_extended)) {
-        FURI_LOG_I(TAG, "Frequency blocked - outside default range");
-        return false;
+        FURI_LOG_I(TAG, "Frequency blocked - outside standard range");
+        is_allowed = false;
     } else if(
         !(value >= 281000000 && value <= 361000000) &&
         !(value >= 378000000 && value <= 481000000) &&
         !(value >= 749000000 && value <= 962000000) && is_extended) {
-        FURI_LOG_I(TAG, "Frequency blocked - outside dangerous range");
-        return false;
+        FURI_LOG_I(TAG, "Frequency blocked - outside extended range");
+        is_allowed = false;
     }
-
-    return true;
+    return is_allowed;
 }
 
 uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
-    furi_hal_subghz.regulation = SubGhzRegulationTxRx;
+    if(furi_hal_region_is_frequency_allowed(value)) {
+        furi_hal_subghz.regulation = SubGhzRegulationTxRx;
+    } else {
+        furi_hal_subghz.regulation = SubGhzRegulationOnlyRx;
+    }
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     uint32_t real_frequency = cc1101_set_frequency(&furi_hal_spi_bus_handle_subghz, value);
@@ -632,7 +674,7 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     furi_assert(callback);
 
     //If transmission is prohibited by regional settings
-    if(furi_hal_subghz.regulation != SubGhzRegulationTxRx) return false;
+    // if(furi_hal_subghz.regulation != SubGhzRegulationTxRx) return false;
 
     furi_hal_subghz_async_tx.callback = callback;
     furi_hal_subghz_async_tx.callback_context = context;

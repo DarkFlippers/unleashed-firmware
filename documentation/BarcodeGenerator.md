@@ -2,7 +2,7 @@
 
 ## Author: [McAzzaMan](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
 
-<img src=https://i.imgur.com/TDbo1tz.png>
+<img src=https://i.imgur.com/bMSAiuK.png>
 
 It will eventually be expanded into other barcode types. It currently only generates UPC-A type barcodes.
 

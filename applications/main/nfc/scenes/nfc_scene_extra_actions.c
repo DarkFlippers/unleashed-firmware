@@ -4,6 +4,7 @@ enum SubmenuIndex {
     SubmenuIndexReadCardType,
     SubmenuIndexMfClassicKeys,
     SubmenuIndexMfUltralightUnlock,
+    SubmenuIndexNfcVUnlock,
 };
 
 void nfc_scene_extra_actions_submenu_callback(void* context, uint32_t index) {
@@ -34,6 +35,12 @@ void nfc_scene_extra_actions_on_enter(void* context) {
         SubmenuIndexMfUltralightUnlock,
         nfc_scene_extra_actions_submenu_callback,
         nfc);
+    submenu_add_item(
+        submenu,
+        "Unlock SLIX-L",
+        SubmenuIndexNfcVUnlock,
+        nfc_scene_extra_actions_submenu_callback,
+        nfc);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
@@ -55,6 +62,9 @@ bool nfc_scene_extra_actions_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubmenuIndexReadCardType) {
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneReadCardType, 0);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadCardType);
+            consumed = true;
+        } else if(event.event == SubmenuIndexNfcVUnlock) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcVUnlockMenu);
             consumed = true;
         }
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneExtraActions, event.event);

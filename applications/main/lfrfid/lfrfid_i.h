@@ -5,10 +5,8 @@
 
 #include <gui/gui.h>
 #include <gui/view.h>
-#include <assets_icons.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
-#include <cli/cli.h>
 #include <notification/notification_messages.h>
 
 #include <gui/modules/submenu.h>
@@ -34,6 +32,8 @@
 #include <lfrfid/lfrfid_worker.h>
 
 #include <lfrfid/scenes/lfrfid_scene.h>
+#include <assets_icons.h>
+// #include <lfrfid_icons.h>
 
 #define LFRFID_KEY_NAME_SIZE 22
 #define LFRFID_TEXT_STORE_SIZE 40

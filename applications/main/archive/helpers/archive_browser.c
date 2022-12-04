@@ -64,7 +64,13 @@ static void
         archive_add_file_item(browser, is_folder, furi_string_get_cstr(item_path));
     } else {
         with_view_model(
-            browser->view, ArchiveBrowserViewModel * model, { model->list_loading = false; }, true);
+            browser->view,
+            ArchiveBrowserViewModel * model,
+            {
+                files_array_sort(model->files);
+                model->list_loading = false;
+            },
+            true);
     }
 }
 

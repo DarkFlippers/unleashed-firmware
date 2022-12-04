@@ -3,49 +3,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <furi.h>
+#include <stm32wbxx_ll_rtc.h>
 
 void set_random_name(char* name, uint8_t max_name_size) {
-    const char* prefix[] = {
-        "super",
-        "big",
-        "little",
-        "liquid",
-        "unknown",
-        "thin",
-        "thick",
-        "great",
-        "my",
-        "mini",
-        "ultra",
-        "haupt",
-        "small",
-        "random",
-        "strange",
-    };
-
-    const char* suffix[] = {
-        "maslina",
-        "sus",
-        "anomalija",
-        "artefact",
-        "monolit",
-        "burer",
-        "sidorovich",
-        "habar",
-        "radar",
-        "borov",
-        "pda",
-        "konserva",
-        "aptechka",
-        "door",
-        "thing",
-        "stuff",
-    };
-    // sus is not (sus)pect - this is about super sus
-    uint8_t prefix_i = rand() % COUNT_OF(prefix);
-    uint8_t suffix_i = rand() % COUNT_OF(suffix);
-
-    snprintf(name, max_name_size, "%s_%s", prefix[prefix_i], suffix[suffix_i]);
+    uint32_t time = LL_RTC_TIME_Get(RTC); // 0x00HHMMSS
+    uint32_t date = LL_RTC_DATE_Get(RTC); // 0xWWDDMMYY
+    char strings[1][25];
+    snprintf(
+        strings[0],
+        18,
+        "%s%.4d%.2d%.2d%.2d%.2d",
+        "s",
+        __LL_RTC_CONVERT_BCD2BIN((date >> 0) & 0xFF) + 2000 // YEAR
+        ,
+        __LL_RTC_CONVERT_BCD2BIN((date >> 8) & 0xFF) // MONTH
+        ,
+        __LL_RTC_CONVERT_BCD2BIN((date >> 16) & 0xFF) // DAY
+        ,
+        __LL_RTC_CONVERT_BCD2BIN((time >> 16) & 0xFF) // HOUR
+        ,
+        __LL_RTC_CONVERT_BCD2BIN((time >> 8) & 0xFF) // MIN
+    );
+    snprintf(name, max_name_size, "%s", strings[0]);
     // Set first symbol to upper case
     name[0] = name[0] - 0x20;
 }

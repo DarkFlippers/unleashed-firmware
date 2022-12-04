@@ -233,7 +233,7 @@ bool subghz_tx_rx_worker_start(SubGhzTxRxWorker* instance, uint32_t frequency) {
 
     instance->worker_running = true;
 
-    if(furi_hal_subghz_is_tx_allowed(frequency)) {
+    if(furi_hal_region_is_frequency_allowed(frequency)) {
         instance->frequency = frequency;
         res = true;
     }

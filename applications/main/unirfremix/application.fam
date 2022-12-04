@@ -1,14 +1,14 @@
 App(
-    appid="unirfremix",
+    appid="SubGHz_Remote",
     name="Sub-GHz Remote",
-    apptype=FlipperAppType.APP,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="unirfremix_app",
     cdefines=["APP_UNIRFREMIX"],
-    requires=[
-        "gui",
-        "dialogs",
-    ],
+    requires=["storage", "gui", "dialogs", "subghz"],
     icon="A_UniRFRemix_14",
     stack_size=4 * 1024,
     order=11,
+    fap_icon="unirfIcon.png",
+    fap_category="Main",
+    fap_icon_assets="images",
 )

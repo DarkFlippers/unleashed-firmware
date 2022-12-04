@@ -1,0 +1,14 @@
+App(
+    appid="Clock",
+    name="Clock",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="clock_app",
+    cdefines=["APP_CLOCK"],
+    requires=["gui"],
+    # icon="A_Clock_14",
+    stack_size=2 * 1024,
+    order=9,
+    fap_icon="ClockIcon.png",
+    fap_category="Main",
+    fap_icon_assets="icons",
+)
