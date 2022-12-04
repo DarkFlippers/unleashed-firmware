@@ -1,6 +1,3 @@
-#include <furi.h>
-#include <furi_hal.h>
-
 #include "auriol_hg0601a.h"
 
 #define TAG "WSProtocolAuriol_TH"
@@ -136,13 +133,6 @@ static void ws_protocol_auriol_th_remote_controller(WSBlockGeneric* instance) {
     }
 
     instance->humidity = (instance->data >> 1) & 0x7F;
-
-	//DATE AGE set
-	FuriHalRtcDateTime curr_dt;
-	furi_hal_rtc_get_datetime(&curr_dt);
-	uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
-
-	instance->agedata =  curr_ts;
 }
 
 void ws_protocol_decoder_auriol_th_feed(void* context, bool level, uint32_t duration) {

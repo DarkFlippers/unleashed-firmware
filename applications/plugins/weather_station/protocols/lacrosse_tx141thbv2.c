@@ -123,13 +123,6 @@ static void ws_protocol_lacrosse_tx141thbv2_remote_controller(WSBlockGeneric* in
     instance->channel = ((instance->data >> 29) & 0x03) + 1;
     instance->temp = ((float)((instance->data >> 17) & 0x0FFF) - 500.0f) / 10.0f;
     instance->humidity = (instance->data >> 9) & 0xFF;
-
-	//DATE AGE set
-	FuriHalRtcDateTime curr_dt;
-	furi_hal_rtc_get_datetime(&curr_dt);
-	uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
-
-	instance->agedata = curr_ts;
 }
 
 void ws_protocol_decoder_lacrosse_tx141thbv2_feed(void* context, bool level, uint32_t duration) {
