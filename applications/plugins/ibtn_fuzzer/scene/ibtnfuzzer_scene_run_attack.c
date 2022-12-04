@@ -69,7 +69,7 @@ uint8_t id_list_cyfral[14][2] = {
 };
 
 void ibtnfuzzer_scene_run_attack_on_enter(iBtnFuzzerState* context) {
-    context->time_between_cards = 10;
+    context->time_between_cards = 8;
     context->attack_step = 0;
     context->key = ibutton_key_alloc();
     context->worker = ibutton_worker_alloc();
@@ -362,7 +362,7 @@ void ibtnfuzzer_scene_run_attack_on_event(iBtnFuzzerEvent event, iBtnFuzzerState
                 break;
             case InputKeyLeft:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards > 8) {
+                    if(context->time_between_cards > 4) {
                         context->time_between_cards--;
                     }
                 }
@@ -408,8 +408,8 @@ void ibtnfuzzer_scene_run_attack_on_event(iBtnFuzzerEvent event, iBtnFuzzerState
             switch(event.key) {
             case InputKeyLeft:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards > 8) {
-                        if((context->time_between_cards - 10) > 8) {
+                    if(context->time_between_cards > 4) {
+                        if((context->time_between_cards - 10) > 4) {
                             context->time_between_cards -= 10;
                         }
                     }
