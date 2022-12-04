@@ -29,7 +29,7 @@ Check out details on [how to build firmware](documentation/fbt.md), [write appli
 
 ## Install without compiling
 
-# 1 Install dexv0-flipper-fw.tgz from releases then in Qflipper go to the sd card by pressing the document folder at the navigation bar in the qflipper app.
+# 1 Install Dexv0-fw.rar from releases then in Qflipper go to the sd card by pressing the document folder at the navigation bar in the qflipper app.
 
 ![image](https://user-images.githubusercontent.com/89728480/204052575-b679dbe3-4b81-4634-b2be-d5a1265e105c.png)
 
@@ -54,9 +54,9 @@ Then paste the folder in Dexvmaster1.0.tgz onto the update folder
 
 ![image](https://user-images.githubusercontent.com/89728480/204052778-d202506c-01b0-4d9a-a72f-04fbf709c5a2.png)
 
-In the image provided i have multiple fw's but select the one called f7-update-RM420FAP in your case.
+In the image provided i have multiple fw's but select the one called Dexv0-fw in your case.
 
-4. Find the file named update in the f7-update-RM420FAP directory and click on run in app
+4. Find the file named update in the Dexv0-fw directory and click on run in app
 
 ![image](https://user-images.githubusercontent.com/89728480/204052959-b0ce5240-bb69-40b2-af8c-88b2d0159c96.png)
 
