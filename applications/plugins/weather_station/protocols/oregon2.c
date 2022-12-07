@@ -52,6 +52,11 @@ static const SubGhzBlockConst ws_oregon2_const = {
 #define ID_UV800 0xd874
 #define ID_THN129 0xcc43 // THN129 Temp only
 #define ID_RTHN129 0x0cd3 // RTHN129 Temp, clock sensors
+#define ID_RTHN129_1 0x9cd3
+#define ID_RTHN129_2 0xacd3
+#define ID_RTHN129_3 0xbcd3
+#define ID_RTHN129_4 0xccd3
+#define ID_RTHN129_5 0xdcd3
 #define ID_BTHGN129 0x5d53 // Baro, Temp, Hygro sensor
 #define ID_UVR128 0xec70
 #define ID_THGR328N 0xcc23 // Temp & Hygro sensor similar to THR228N with 5 channel instead of 3
@@ -137,11 +142,19 @@ static ManchesterEvent level_and_duration_to_event(bool level, uint32_t duration
 // From sensor id code return amount of bits in variable section
 // https://temofeev.ru/info/articles/o-dekodirovanii-protokola-pogodnykh-datchikov-oregon-scientific
 static uint8_t oregon2_sensor_id_var_bits(uint16_t sensor_id) {
-    if(sensor_id == ID_THR228N) return 16;
-
-    if(sensor_id == ID_THGR122N) return 24;
-
-    return 0;
+    switch(sensor_id) {
+    case ID_THR228N:
+    case ID_RTHN129_1:
+    case ID_RTHN129_2:
+    case ID_RTHN129_3:
+    case ID_RTHN129_4:
+    case ID_RTHN129_5:
+        return 16;
+    case ID_THGR122N:
+        return 24;
+    default:
+        return 0;
+    }
 }
 
 static void ws_oregon2_decode_const_data(WSBlockGeneric* ws_block) {
@@ -171,16 +184,22 @@ static float ws_oregon2_decode_temp(uint32_t data) {
 }
 
 static void ws_oregon2_decode_var_data(WSBlockGeneric* ws_b, uint16_t sensor_id, uint32_t data) {
-    if(sensor_id == ID_THR228N) {
+    switch(sensor_id) {
+    case ID_THR228N:
+    case ID_RTHN129_1:
+    case ID_RTHN129_2:
+    case ID_RTHN129_3:
+    case ID_RTHN129_4:
+    case ID_RTHN129_5:
         ws_b->temp = ws_oregon2_decode_temp(data);
         ws_b->humidity = WS_NO_HUMIDITY;
         return;
-    }
-
-    if(sensor_id == ID_THGR122N) {
+    case ID_THGR122N:
         ws_b->humidity = bcd_decode_short(data);
         ws_b->temp = ws_oregon2_decode_temp(data >> 8);
         return;
+    default:
+        break;
     }
 }
 
