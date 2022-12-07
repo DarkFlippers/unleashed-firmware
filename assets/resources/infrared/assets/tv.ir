@@ -1620,3 +1620,39 @@ type: raw
 frequency: 38000
 duty_cycle: 0.33
 data: 7847 3931 470 1448 467 495 472 1443 472 490 467 1451 464 491 466 499 468 491 466 4413 467 1455 470 486 471 1449 466 495 472 1441 464 501 466 492 465 494 463 22093 7851 3934 467 1454 471 490 467 1446 469 496 471 1446 469 489 468 494 473 484 473 4410 470 1449 466 489 468 1455 470 489 468 1449 466 496 471 486 471 490 467
+# 
+name: Power
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 0C 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 0D 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 10 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 11 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 20 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 21 00 00 00
