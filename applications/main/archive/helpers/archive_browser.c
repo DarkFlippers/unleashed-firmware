@@ -84,7 +84,8 @@ static void archive_file_browser_set_path(
     bool hide_dot_files) {
     furi_assert(browser);
     if(!browser->worker_running) {
-        browser->worker = file_browser_worker_alloc(path, filter_ext, skip_assets, hide_dot_files);
+        browser->worker =
+            file_browser_worker_alloc(path, NULL, filter_ext, skip_assets, hide_dot_files);
         file_browser_worker_set_callback_context(browser->worker, browser);
         file_browser_worker_set_folder_callback(browser->worker, archive_folder_open_cb);
         file_browser_worker_set_list_callback(browser->worker, archive_list_load_cb);

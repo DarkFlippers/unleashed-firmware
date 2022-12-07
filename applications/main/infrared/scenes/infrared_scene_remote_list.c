@@ -7,6 +7,7 @@ void infrared_scene_remote_list_on_enter(void* context) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, INFRARED_APP_EXTENSION, &I_ir_10px);
+    browser_options.base_path = INFRARED_APP_FOLDER;
 
     bool success = dialog_file_browser_show(
         infrared->dialogs, infrared->file_path, infrared->file_path, &browser_options);

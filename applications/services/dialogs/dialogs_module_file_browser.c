@@ -40,6 +40,7 @@ bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrow
     file_browser_configure(
         file_browser,
         data->extension,
+        data->base_path,
         data->skip_assets,
         data->hide_dot_files,
         data->file_icon,

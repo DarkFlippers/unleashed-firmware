@@ -371,6 +371,7 @@ static int32_t browser_worker(void* context) {
 
 BrowserWorker* file_browser_worker_alloc(
     FuriString* path,
+    const char* base_path,
     const char* filter_ext,
     bool skip_assets,
     bool hide_dot_files) {
@@ -381,12 +382,13 @@ BrowserWorker* file_browser_worker_alloc(
     browser->filter_extension = furi_string_alloc_set(filter_ext);
     browser->skip_assets = skip_assets;
     browser->hide_dot_files = hide_dot_files;
-    browser->path_start = furi_string_alloc_set(path);
+
     browser->path_current = furi_string_alloc_set(path);
     browser->path_next = furi_string_alloc_set(path);
 
-    if(browser_path_is_file(browser->path_start)) {
-        browser_path_trim(browser->path_start);
+    browser->path_start = furi_string_alloc();
+    if(base_path) {
+        furi_string_set_str(browser->path_start, base_path);
     }
 
     browser->thread = furi_thread_alloc_ex("BrowserWorker", 2048, browser_worker, browser);

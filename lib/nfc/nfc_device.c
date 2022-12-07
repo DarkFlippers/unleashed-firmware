@@ -1212,6 +1212,7 @@ bool nfc_file_select(NfcDevice* dev) {
         .hide_ext = true,
         .item_loader_callback = NULL,
         .item_loader_context = NULL,
+        .base_path = NFC_APP_FOLDER,
     };
 
     bool res =
