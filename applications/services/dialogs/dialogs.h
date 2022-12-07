@@ -19,6 +19,7 @@ typedef struct DialogsApp DialogsApp;
  * File browser dialog extra options
  * @param extension file extension to be offered for selection
  * @param skip_assets true - do not show assets folders
+ * @param hide_dot_files true - hide dot files
  * @param icon file icon pointer, NULL for default icon
  * @param hide_ext true - hide extensions for files
  * @param item_loader_callback callback function for providing custom icon & entry name
@@ -27,6 +28,7 @@ typedef struct DialogsApp DialogsApp;
 typedef struct {
     const char* extension;
     bool skip_assets;
+    bool hide_dot_files;
     const Icon* icon;
     bool hide_ext;
     FileBrowserLoadItemCallback item_loader_callback;

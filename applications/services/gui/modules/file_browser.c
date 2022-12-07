@@ -84,6 +84,7 @@ struct FileBrowser {
     BrowserWorker* worker;
     const char* ext_filter;
     bool skip_assets;
+    bool hide_dot_files;
     bool hide_ext;
 
     FileBrowserCallback callback;
@@ -163,6 +164,7 @@ void file_browser_configure(
     FileBrowser* browser,
     const char* extension,
     bool skip_assets,
+    bool hide_dot_files,
     const Icon* file_icon,
     bool hide_ext) {
     furi_assert(browser);
@@ -170,6 +172,7 @@ void file_browser_configure(
     browser->ext_filter = extension;
     browser->skip_assets = skip_assets;
     browser->hide_ext = hide_ext;
+    browser->hide_dot_files = hide_dot_files;
 
     with_view_model(
         browser->view,
@@ -183,7 +186,8 @@ void file_browser_configure(
 
 void file_browser_start(FileBrowser* browser, FuriString* path) {
     furi_assert(browser);
-    browser->worker = file_browser_worker_alloc(path, browser->ext_filter, browser->skip_assets);
+    browser->worker = file_browser_worker_alloc(
+        path, browser->ext_filter, browser->skip_assets, browser->hide_dot_files);
     file_browser_worker_set_callback_context(browser->worker, browser);
     file_browser_worker_set_folder_callback(browser->worker, browser_folder_open_cb);
     file_browser_worker_set_list_callback(browser->worker, browser_list_load_cb);

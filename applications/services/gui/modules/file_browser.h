@@ -30,6 +30,7 @@ void file_browser_configure(
     FileBrowser* browser,
     const char* extension,
     bool skip_assets,
+    bool hide_dot_files,
     const Icon* file_icon,
     bool hide_ext);
 
