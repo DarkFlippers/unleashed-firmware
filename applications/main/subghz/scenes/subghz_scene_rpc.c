@@ -49,7 +49,7 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                 rpc_system_app_set_error_code(subghz->rpc_ctx, SubGhzErrorTypeOnlyRX);
                 rpc_system_app_set_error_text(
                     subghz->rpc_ctx,
-                    "Transmission on this frequency is restricted in your region");
+                    "Transmission on this frequency is restricted in your settings");
             }
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonPress, result);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonRelease) {
