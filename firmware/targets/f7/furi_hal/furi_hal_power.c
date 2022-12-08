@@ -341,6 +341,20 @@ bool furi_hal_power_is_otg_enabled() {
     return ret;
 }
 
+float furi_hal_power_get_battery_charging_voltage() {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    float ret = (float)bq25896_get_vreg_voltage(&furi_hal_i2c_handle_power) / 1000.0f;
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
+}
+
+void furi_hal_power_set_battery_charging_voltage(float voltage) {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    // Adding 0.0005 is necessary because 4.016f is 4.015999794000, which gets truncated
+    bq25896_set_vreg_voltage(&furi_hal_i2c_handle_power, (uint16_t)(voltage * 1000.0f + 0.0005f));
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
 void furi_hal_power_check_otg_status() {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     if(bq25896_check_otg_fault(&furi_hal_i2c_handle_power))
@@ -470,10 +484,10 @@ void furi_hal_power_info_get(PropertyValueCallback out, char sep, void* context)
 
     if(sep == '.') {
         property_value_out(&property_context, NULL, 2, "format", "major", "2");
-        property_value_out(&property_context, NULL, 2, "format", "minor", "0");
+        property_value_out(&property_context, NULL, 2, "format", "minor", "1");
     } else {
         property_value_out(&property_context, NULL, 3, "power", "info", "major", "1");
-        property_value_out(&property_context, NULL, 3, "power", "info", "minor", "0");
+        property_value_out(&property_context, NULL, 3, "power", "info", "minor", "1");
     }
 
     uint8_t charge = furi_hal_power_get_pct();
@@ -481,7 +495,7 @@ void furi_hal_power_info_get(PropertyValueCallback out, char sep, void* context)
 
     const char* charge_state;
     if(furi_hal_power_is_charging()) {
-        if(charge < 100) {
+        if((charge < 100) && (!furi_hal_power_is_charging_done())) {
             charge_state = "charging";
         } else {
             charge_state = "charged";
@@ -491,6 +505,8 @@ void furi_hal_power_info_get(PropertyValueCallback out, char sep, void* context)
     }
 
     property_value_out(&property_context, NULL, 2, "charge", "state", charge_state);
+    uint16_t charge_voltage = (uint16_t)(furi_hal_power_get_battery_charging_voltage() * 1000.f);
+    property_value_out(&property_context, "%u", 2, "charge", "voltage", charge_voltage);
     uint16_t voltage =
         (uint16_t)(furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge) * 1000.f);
     property_value_out(&property_context, "%u", 2, "battery", "voltage", voltage);
@@ -567,6 +583,13 @@ void furi_hal_power_debug_get(PropertyValueCallback out, void* context) {
         "charger",
         "vbat",
         bq25896_get_vbat_voltage(&furi_hal_i2c_handle_power));
+    property_value_out(
+        &property_context,
+        "%d",
+        2,
+        "charger",
+        "vreg",
+        bq25896_get_vreg_voltage(&furi_hal_i2c_handle_power));
     property_value_out(
         &property_context,
         "%d",

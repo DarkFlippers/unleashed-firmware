@@ -19,6 +19,7 @@ int run_minunit_test_stream();
 int run_minunit_test_storage();
 int run_minunit_test_subghz();
 int run_minunit_test_dirwalk();
+int run_minunit_test_power();
 int run_minunit_test_protocol_dict();
 int run_minunit_test_lfrfid_protocols();
 int run_minunit_test_nfc();
@@ -44,6 +45,7 @@ const UnitTest unit_tests[] = {
     {.name = "subghz", .entry = run_minunit_test_subghz},
     {.name = "infrared", .entry = run_minunit_test_infrared},
     {.name = "nfc", .entry = run_minunit_test_nfc},
+    {.name = "power", .entry = run_minunit_test_power},
     {.name = "protocol_dict", .entry = run_minunit_test_protocol_dict},
     {.name = "lfrfid", .entry = run_minunit_test_lfrfid_protocols},
     {.name = "bit_lib", .entry = run_minunit_test_bit_lib},
