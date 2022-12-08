@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,10.0,,
+Version,+,10.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2286,6 +2286,7 @@ Function,+,rpc_session_set_context,void,"RpcSession*, void*"
 Function,+,rpc_session_set_send_bytes_callback,void,"RpcSession*, RpcSendBytesCallback"
 Function,+,rpc_session_set_terminated_callback,void,"RpcSession*, RpcSessionTerminatedCallback"
 Function,+,rpc_system_app_confirm,void,"RpcAppSystem*, RpcAppSystemEvent, _Bool"
+Function,+,rpc_system_app_error_reset,void,RpcAppSystem*
 Function,+,rpc_system_app_exchange_data,void,"RpcAppSystem*, const uint8_t*, size_t"
 Function,+,rpc_system_app_get_data,const char*,RpcAppSystem*
 Function,+,rpc_system_app_send_exited,void,RpcAppSystem*
