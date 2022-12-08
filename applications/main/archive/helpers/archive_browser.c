@@ -80,10 +80,12 @@ static void archive_file_browser_set_path(
     ArchiveBrowserView* browser,
     FuriString* path,
     const char* filter_ext,
-    bool skip_assets) {
+    bool skip_assets,
+    bool hide_dot_files) {
     furi_assert(browser);
     if(!browser->worker_running) {
-        browser->worker = file_browser_worker_alloc(path, filter_ext, skip_assets);
+        browser->worker =
+            file_browser_worker_alloc(path, NULL, filter_ext, skip_assets, hide_dot_files);
         file_browser_worker_set_callback_context(browser->worker, browser);
         file_browser_worker_set_folder_callback(browser->worker, archive_folder_open_cb);
         file_browser_worker_set_list_callback(browser->worker, archive_list_load_cb);
@@ -92,7 +94,8 @@ static void archive_file_browser_set_path(
         browser->worker_running = true;
     } else {
         furi_assert(browser->worker);
-        file_browser_worker_set_config(browser->worker, path, filter_ext, skip_assets);
+        file_browser_worker_set_config(
+            browser->worker, path, filter_ext, skip_assets, hide_dot_files);
     }
 }
 
@@ -473,8 +476,10 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
         tab = archive_get_tab(browser);
         if(archive_is_dir_exists(browser->path)) {
             bool skip_assets = (strcmp(archive_get_tab_ext(tab), "*") == 0) ? false : true;
+            // Hide dot files everywhere except Browser
+            bool hide_dot_files = (strcmp(archive_get_tab_ext(tab), "*") == 0) ? false : true;
             archive_file_browser_set_path(
-                browser, browser->path, archive_get_tab_ext(tab), skip_assets);
+                browser, browser->path, archive_get_tab_ext(tab), skip_assets, hide_dot_files);
             tab_empty = false; // Empty check will be performed later
         }
     }

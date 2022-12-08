@@ -9,6 +9,7 @@
 #define TAG "UnitTests"
 
 int run_minunit_test_furi();
+int run_minunit_test_furi_hal();
 int run_minunit_test_furi_string();
 int run_minunit_test_infrared();
 int run_minunit_test_rpc();
@@ -32,6 +33,7 @@ typedef struct {
 
 const UnitTest unit_tests[] = {
     {.name = "furi", .entry = run_minunit_test_furi},
+    {.name = "furi_hal", .entry = run_minunit_test_furi_hal},
     {.name = "furi_string", .entry = run_minunit_test_furi_string},
     {.name = "storage", .entry = run_minunit_test_storage},
     {.name = "stream", .entry = run_minunit_test_stream},

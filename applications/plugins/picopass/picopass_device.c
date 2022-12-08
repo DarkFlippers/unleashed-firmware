@@ -231,6 +231,7 @@ bool picopass_file_select(PicopassDevice* dev) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, PICOPASS_APP_EXTENSION, &I_Nfc_10px);
+    browser_options.base_path = PICOPASS_APP_FOLDER;
 
     bool res = dialog_file_browser_show(
         dev->dialogs, dev->load_path, picopass_app_folder, &browser_options);

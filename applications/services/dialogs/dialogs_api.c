@@ -20,9 +20,11 @@ bool dialog_file_browser_show(
             .file_icon = options ? options->icon : NULL,
             .hide_ext = options ? options->hide_ext : true,
             .skip_assets = options ? options->skip_assets : true,
+            .hide_dot_files = options ? options->hide_dot_files : true,
             .preselected_filename = path,
             .item_callback = options ? options->item_loader_callback : NULL,
             .item_callback_context = options ? options->item_loader_context : NULL,
+            .base_path = options ? options->base_path : NULL,
         }};
 
     DialogsAppReturn return_data;

@@ -106,6 +106,7 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                 .hide_ext = true,
                 .item_loader_callback = favorite_fap_selector_item_callback,
                 .item_loader_context = app,
+                .base_path = EXT_PATH("apps"),
             };
 
             if(primary_favorite) { // Select favorite fap in file browser
