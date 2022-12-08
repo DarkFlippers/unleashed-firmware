@@ -29,7 +29,7 @@ struct WSBlockGeneric {
     uint8_t data_count_bit;
     uint8_t battery_low;
     uint8_t humidity;
-    uint32_t agedata;
+    uint32_t timestamp;
     uint8_t channel;
     uint8_t btn;
     float temp;

@@ -44,16 +44,16 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
         "%s %db",
         furi_string_get_cstr(model->protocol_name),
         model->generic->data_count_bit);
-    canvas_draw_str(canvas, 5, 8, buffer);
+    canvas_draw_str(canvas, 0, 8, buffer);
 
     if(model->generic->channel != WS_NO_CHANNEL) {
         snprintf(buffer, sizeof(buffer), "Ch: %01d", model->generic->channel);
-        canvas_draw_str(canvas, 105, 8, buffer);
+        canvas_draw_str(canvas, 106, 8, buffer);
     }
 
     if(model->generic->id != WS_NO_ID) {
         snprintf(buffer, sizeof(buffer), "Sn: 0x%02lX", model->generic->id);
-        canvas_draw_str(canvas, 5, 20, buffer);
+        canvas_draw_str(canvas, 0, 20, buffer);
     }
 
     if(model->generic->btn != WS_NO_BTN) {
@@ -64,45 +64,39 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
     if(model->generic->battery_low != WS_NO_BATT) {
         snprintf(
             buffer, sizeof(buffer), "Batt: %s", (!model->generic->battery_low ? "ok" : "low"));
-        canvas_draw_str(canvas, 90, 20, buffer);
+        canvas_draw_str_aligned(canvas, 126, 17, AlignRight, AlignCenter, buffer);
     }
 
     snprintf(buffer, sizeof(buffer), "Data: 0x%llX", model->generic->data);
-    canvas_draw_str(canvas, 5, 32, buffer);
+    canvas_draw_str(canvas, 0, 32, buffer);
 
-    //DATA AGE
-    if((int)model->generic->agedata > 0) {
+    elements_bold_rounded_frame(canvas, 0, 38, 127, 25);
+    canvas_set_font(canvas, FontPrimary);
+
+    if(model->generic->temp != WS_NO_TEMPERATURE) {
+        canvas_draw_icon(canvas, 6, 43, &I_Therm_7x16);
+        snprintf(buffer, sizeof(buffer), "%3.1f C", (double)model->generic->temp);
+        canvas_draw_str_aligned(canvas, 47, 47, AlignRight, AlignTop, buffer);
+        canvas_draw_circle(canvas, 38, 46, 1);
+    }
+
+    if(model->generic->humidity != WS_NO_HUMIDITY) {
+        canvas_draw_icon(canvas, 53, 44, &I_Humid_8x13);
+        snprintf(buffer, sizeof(buffer), "%d%%", model->generic->humidity);
+        canvas_draw_str(canvas, 64, 55, buffer);
+    }
+
+    if((int)model->generic->timestamp > 0) {
         FuriHalRtcDateTime curr_dt;
         furi_hal_rtc_get_datetime(&curr_dt);
         uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
 
-        int diffold = (int)curr_ts - (int)model->generic->agedata;
+        int ts_diff = (int)curr_ts - (int)model->generic->timestamp;
 
-        uint8_t tmp_x_frame = 101;
-        uint8_t tmp_y_frame = 23;
+        canvas_draw_icon(canvas, 91, 46, &I_Timer_11x11);
 
-        uint8_t tmp_x_text = 113;
-        uint8_t tmp_y_text = 29;
-        if(model->generic->data_count_bit >= 41) {
-            tmp_x_frame = 78;
-            tmp_y_frame = 0;
-
-            tmp_x_text = 91;
-            tmp_y_text = 6;
-
-            if(model->generic->btn == WS_NO_BTN) {
-                if(furi_string_size(model->protocol_name) > (size_t)10) {
-                    tmp_x_frame = 61;
-                    tmp_y_frame = 11;
-
-                    tmp_x_text = 74;
-                    tmp_y_text = 17;
-                }
-            }
-        }
-
-        if(diffold > 60) {
-            int tmp_sec = diffold;
+        if(ts_diff > 60) {
+            int tmp_sec = ts_diff;
             int cnt_min = 1;
             for(int i = 1; tmp_sec > 60; i++) {
                 tmp_sec = tmp_sec - 60;
@@ -110,54 +104,20 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
             }
 
             if(curr_ts % 2 == 0) {
-                canvas_set_color(canvas, ColorBlack);
-                canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
-                canvas_set_color(canvas, ColorBlack);
-                canvas_draw_str_aligned(
-                    canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, "OLD");
+                canvas_draw_str_aligned(canvas, 105, 51, AlignLeft, AlignCenter, "Old");
             } else {
                 if(cnt_min >= 59) {
-                    canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
-                    canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_str_aligned(
-                        canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, "OLD");
+                    canvas_draw_str_aligned(canvas, 105, 51, AlignLeft, AlignCenter, "Old");
                 } else {
-                    canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
-                    canvas_draw_box(canvas, tmp_x_frame, tmp_y_frame, 26, 11);
-                    canvas_set_color(canvas, ColorWhite);
                     snprintf(buffer, sizeof(buffer), "%dm", cnt_min);
-                    canvas_draw_str_aligned(
-                        canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, buffer);
+                    canvas_draw_str_aligned(canvas, 114, 51, AlignCenter, AlignCenter, buffer);
                 }
             }
 
         } else {
-            canvas_set_color(canvas, ColorBlack);
-            canvas_draw_rframe(canvas, tmp_x_frame, tmp_y_frame, 26, 11, 1);
-            canvas_set_color(canvas, ColorBlack);
-            snprintf(buffer, sizeof(buffer), "%d", diffold);
-            canvas_draw_str_aligned(
-                canvas, tmp_x_text, tmp_y_text, AlignCenter, AlignCenter, buffer);
+            snprintf(buffer, sizeof(buffer), "%d", ts_diff);
+            canvas_draw_str_aligned(canvas, 112, 51, AlignCenter, AlignCenter, buffer);
         }
-    }
-    //DATA AGE end
-
-    elements_bold_rounded_frame(canvas, 2, 37, 123, 25);
-    canvas_set_font(canvas, FontPrimary);
-
-    if(model->generic->temp != WS_NO_TEMPERATURE) {
-        canvas_draw_icon(canvas, 18, 42, &I_Therm_7x16);
-        snprintf(buffer, sizeof(buffer), "%3.1f C", (double)model->generic->temp);
-        canvas_draw_str_aligned(canvas, 63, 46, AlignRight, AlignTop, buffer);
-        canvas_draw_circle(canvas, 55, 45, 1);
-    }
-
-    if(model->generic->humidity != WS_NO_HUMIDITY) {
-        canvas_draw_icon(canvas, 75, 42, &I_Humid_10x15);
-        snprintf(buffer, sizeof(buffer), "%d%%", model->generic->humidity);
-        canvas_draw_str(canvas, 91, 54, buffer);
     }
 }
 
