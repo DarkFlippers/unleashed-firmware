@@ -316,7 +316,7 @@ void minunit_print_fail(const char* error);
     MU__SAFE_BLOCK(                                                                               \
         double minunit_tmp_e; double minunit_tmp_r; minunit_assert++; minunit_tmp_e = (expected); \
         minunit_tmp_r = (result);                                                                 \
-        if(fabs(minunit_tmp_e - minunit_tmp_r) > MINUNIT_EPSILON) {                               \
+        if(fabs(minunit_tmp_e - minunit_tmp_r) > (double)MINUNIT_EPSILON) {                       \
             int minunit_significant_figures = 1 - log10(MINUNIT_EPSILON);                         \
             snprintf(                                                                             \
                 minunit_last_message,                                                             \
