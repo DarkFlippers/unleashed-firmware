@@ -36,32 +36,18 @@ Min level: 1
 Max level: 1
 Weight: 3
 
-Name: L2_Furippa2_128x64
+Name: L2_Wake_up_128x64
 Min butthurt: 0
-Max butthurt: 6
+Max butthurt: 12
 Min level: 2
-Max level: 2
-Weight: 3
-
-Name: L3_Furippa3_128x64
-Min butthurt: 0
-Max butthurt: 6
-Min level: 3
 Max level: 3
-Weight: 3
+Weight: 4
 
 Name: L1_Read_books_128x64
 Min butthurt: 0
 Max butthurt: 8
 Min level: 1
 Max level: 1
-Weight: 3
-
-Name: L2_Hacking_pc_128x64
-Min butthurt: 0
-Max butthurt: 8
-Min level: 2
-Max level: 2
 Weight: 3
 
 Name: L1_Cry_128x64
@@ -90,14 +76,49 @@ Min butthurt: 0
 Max butthurt: 9
 Min level: 1
 Max level: 3
-Weight: 5
+Weight: 4
 
 Name: L1_Painting_128x64
 Min butthurt: 0
 Max butthurt: 7
 Min level: 1
 Max level: 3
-Weight: 4
+Weight: 3
+
+Name: L1_Leaving_sad_128x64
+Min butthurt: 14
+Max butthurt: 14
+Min level: 1
+Max level: 3
+Weight: 3
+
+Name: L2_Furippa2_128x64
+Min butthurt: 0
+Max butthurt: 6
+Min level: 2
+Max level: 2
+Weight: 3
+
+Name: L2_Hacking_pc_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 2
+Max level: 2
+Weight: 3
+
+Name: L2_Soldering_128x64
+Min butthurt: 0
+Max butthurt: 10
+Min level: 2
+Max level: 2
+Weight: 3
+
+Name: L3_Furippa3_128x64
+Min butthurt: 0
+Max butthurt: 6
+Min level: 3
+Max level: 3
+Weight: 3
 
 Name: L3_Hijack_radio_128x64
 Min butthurt: 0
@@ -110,19 +131,5 @@ Name: L3_Lab_research_128x54
 Min butthurt: 0
 Max butthurt: 10
 Min level: 3
-Max level: 3
-Weight: 3
-
-Name: L2_Soldering_128x64
-Min butthurt: 0
-Max butthurt: 10
-Min level: 2
-Max level: 2
-Weight: 3
-
-Name: L1_Leaving_sad_128x64
-Min butthurt: 14
-Max butthurt: 14
-Min level: 1
 Max level: 3
 Weight: 3

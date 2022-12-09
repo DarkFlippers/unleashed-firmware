@@ -63,6 +63,22 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
             canvas_draw_box(canvas, 2, 2, (power->info.charge + 4) / 5, 4);
         }
 
+        // TODO: Verify if it displays correctly with custom battery skins !!!
+        if(power->info.voltage_battery_charging < 4.2) {
+            // Battery charging voltage is modified, indicate with cross pattern
+            canvas_invert_color(canvas);
+            uint8_t battery_bar_width = (power->info.charge + 4) / 5;
+            bool cross_odd = false;
+            // Start 1 further in from the battery bar's x position
+            for(uint8_t x = 3; x <= battery_bar_width; x++) {
+                // Cross pattern is from the center of the battery bar
+                // y = 2 + 1 (inset) + 1 (for every other)
+                canvas_draw_dot(canvas, x, 3 + (uint8_t)cross_odd);
+                cross_odd = !cross_odd;
+            }
+            canvas_invert_color(canvas);
+        }
+
         if(power->state == PowerStateCharging) {
             canvas_set_bitmap_mode(canvas, 1);
             // TODO: replace -1 magic for uint8_t with re-framing
