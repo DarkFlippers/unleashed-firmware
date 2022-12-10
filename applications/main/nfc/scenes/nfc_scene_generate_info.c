@@ -1,5 +1,5 @@
 #include "../nfc_i.h"
-#include "../helpers/nfc_generators.h"
+#include "lib/nfc/helpers/nfc_generators.h"
 
 void nfc_scene_generate_info_dialog_callback(DialogExResult result, void* context) {
     Nfc* nfc = context;
@@ -39,7 +39,12 @@ bool nfc_scene_generate_info_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DialogExResultRight) {
-            scene_manager_next_scene(nfc->scene_manager, nfc->generator->next_scene);
+            // Switch either to NfcSceneMfClassicMenu or NfcSceneMfUltralightMenu
+            if(nfc->dev->dev_data.protocol == NfcDeviceProtocolMifareClassic) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicMenu);
+            } else if(nfc->dev->dev_data.protocol == NfcDeviceProtocolMifareUl) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightMenu);
+            }
             consumed = true;
         }
     }

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "../nfc_i.h"
+#include "../nfc_device.h"
 
 typedef void (*NfcGeneratorFunc)(NfcDeviceData* data);
 
-struct NfcGenerator {
+typedef struct {
     const char* name;
     NfcGeneratorFunc generator_func;
-    NfcScene next_scene;
-};
+} NfcGenerator;
 
 extern const NfcGenerator* const nfc_generators[];
 
