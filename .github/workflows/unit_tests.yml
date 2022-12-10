@@ -11,6 +11,12 @@ jobs:
   run_units_on_test_bench:
     runs-on: [self-hosted, FlipperZeroTest]
     steps:
+      - name: 'Decontaminate previous build leftovers'
+        run: |
+          if [ -d .git ]; then
+            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
