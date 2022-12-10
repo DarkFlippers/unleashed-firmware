@@ -25,12 +25,13 @@ jobs:
           fi
 
       - name: 'Checkout code'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Get commit details'
+        id: names
         run: |
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
             TYPE="pull"
@@ -40,15 +41,6 @@ jobs:
             TYPE="other"
           fi
           python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
-
-      - name: 'Generate suffixes for comment'
-        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
-        id: names
-        run: |
-          echo "::set-output name=branch_name::${BRANCH_NAME}"
-          echo "::set-output name=commit_sha::${COMMIT_SHA}"
-          echo "::set-output name=default_target::${DEFAULT_TARGET}"
-          echo "::set-output name=suffix::${SUFFIX}"
 
       - name: 'Make reports directory'
         run: |
