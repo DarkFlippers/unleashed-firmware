@@ -178,6 +178,7 @@ bool flipfrid_load_protocol_from_file(FlipFridState* context) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, LFRFID_APP_EXTENSION, &I_125_10px);
+    browser_options.base_path = LFRFID_APP_PATH_FOLDER;
 
     // Input events and views are managed by file_select
     bool res = dialog_file_browser_show(

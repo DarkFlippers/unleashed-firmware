@@ -1,0 +1,13 @@
+App(
+    appid="pocsag_pager",
+    name="POCSAG Pager",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="pocsag_pager_app",
+    cdefines=["APP_POCSAG_PAGER"],
+    requires=["gui"],
+    stack_size=4 * 1024,
+    order=50,
+    fap_icon="pocsag_pager_10px.png",
+    fap_category="Tools",
+    fap_icon_assets="images",
+)

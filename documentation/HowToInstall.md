@@ -7,6 +7,7 @@
 <br>
 
 ### **If installing for first time - Update to the latest official firmware before proceeding**
+### **If you are already using unleashed - no need to install any other FW or version before installing update, just install latest version on top of your current one, all will be fine**
 
 <br>
 <br>
@@ -63,7 +64,7 @@
 
 ## With qFlipper (1.2.0+)
 
-- Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.1 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.1/)
+- Download qFlipper that allows `.tgz` installation [Download qFlipper (official link)](https://flipperzero.one/update)
 - Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`

@@ -161,6 +161,7 @@ static bool fap_loader_select_app(FapLoader* loader) {
         .hide_ext = true,
         .item_loader_callback = fap_loader_item_callback,
         .item_loader_context = loader,
+        .base_path = EXT_PATH("apps"),
     };
 
     return dialog_file_browser_show(

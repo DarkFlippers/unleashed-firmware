@@ -28,6 +28,7 @@ bool flipfrid_load_custom_uids_from_file(FlipFridState* context) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, LFRFID_UIDS_EXTENSION, &I_125_10px);
+    browser_options.base_path = RFIDFUZZER_APP_PATH_FOLDER;
     browser_options.hide_ext = false;
 
     bool res = dialog_file_browser_show(context->dialogs, uid_path, uid_path, &browser_options);

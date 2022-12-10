@@ -29,7 +29,9 @@ View* file_browser_get_view(FileBrowser* browser);
 void file_browser_configure(
     FileBrowser* browser,
     const char* extension,
+    const char* base_path,
     bool skip_assets,
+    bool hide_dot_files,
     const Icon* file_icon,
     bool hide_ext);
 

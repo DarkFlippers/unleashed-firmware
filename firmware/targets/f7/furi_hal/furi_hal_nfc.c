@@ -244,6 +244,9 @@ bool furi_hal_nfc_listen(
     params.lmConfigPA.SEL_RES = sak;
     rfalNfcDiscover(&params);
 
+    // Disable EMD suppression.
+    st25r3916ModifyRegister(ST25R3916_REG_EMD_SUP_CONF, ST25R3916_REG_EMD_SUP_CONF_emd_emv, 0);
+
     uint32_t start = DWT->CYCCNT;
     while(state != RFAL_NFC_STATE_ACTIVATED) {
         rfalNfcWorker();

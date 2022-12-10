@@ -28,6 +28,7 @@ static bool open_wav_stream(Stream* stream) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, ".wav", &I_music_10px);
+    browser_options.base_path = WAVPLAYER_FOLDER;
     browser_options.hide_ext = false;
 
     bool ret = dialog_file_browser_show(dialogs, path, path, &browser_options);

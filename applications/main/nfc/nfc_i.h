@@ -28,6 +28,7 @@
 #include <lib/nfc/nfc_device.h>
 #include <lib/nfc/helpers/mf_classic_dict.h>
 #include <lib/nfc/parsers/nfc_supported_card.h>
+#include <lib/nfc/helpers/nfc_generators.h>
 
 #include "views/dict_attack.h"
 #include "views/detect_reader.h"
@@ -50,9 +51,6 @@ typedef enum {
     NfcRpcStateEmulating,
     NfcRpcStateEmulated,
 } NfcRpcState;
-
-// Forward declaration due to circular dependency
-typedef struct NfcGenerator NfcGenerator;
 
 struct Nfc {
     NfcWorker* worker;

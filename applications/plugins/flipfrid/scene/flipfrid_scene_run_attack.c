@@ -80,6 +80,7 @@ uint8_t id_list_h[14][3] = {
 void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
     context->time_between_cards = 10;
     context->attack_step = 0;
+    context->attack_stop_called = false;
     context->dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     context->worker = lfrfid_worker_alloc(context->dict);
     if(context->proto == HIDProx) {
@@ -499,7 +500,6 @@ void flipfrid_scene_run_attack_on_tick(FlipFridState* context) {
                 }
             }
         }
-
         if(counter > context->time_between_cards) {
             counter = 0;
         } else {
@@ -543,18 +543,23 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 break;
             case InputKeyBack:
                 context->is_attacking = false;
-                context->attack_step = 0;
                 counter = 0;
 
-                if(context->attack == FlipFridAttackLoadFileCustomUids) {
-                    furi_string_reset(context->data_str);
-                    stream_rewind(context->uids_stream);
-                    buffered_file_stream_close(context->uids_stream);
+                notification_message(context->notify, &sequence_blink_stop);
+                if(context->attack_stop_called) {
+                    context->attack_stop_called = false;
+                    context->attack_step = 0;
+                    if(context->attack == FlipFridAttackLoadFileCustomUids) {
+                        furi_string_reset(context->data_str);
+                        stream_rewind(context->uids_stream);
+                        buffered_file_stream_close(context->uids_stream);
+                    }
+
+                    furi_string_reset(context->notification_msg);
+                    context->current_scene = SceneEntryPoint;
                 }
 
-                furi_string_reset(context->notification_msg);
-                notification_message(context->notify, &sequence_blink_stop);
-                context->current_scene = SceneEntryPoint;
+                context->attack_stop_called = true;
                 break;
             default:
                 break;

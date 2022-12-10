@@ -217,6 +217,7 @@ void ibutton_free(iButton* ibutton) {
 bool ibutton_file_select(iButton* ibutton) {
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, IBUTTON_APP_EXTENSION, &I_ibutt_10px);
+    browser_options.base_path = IBUTTON_APP_FOLDER;
 
     bool success = dialog_file_browser_show(
         ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options);

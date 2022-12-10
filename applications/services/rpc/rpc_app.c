@@ -32,6 +32,7 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
     furi_assert(request->which_content == PB_Main_app_start_request_tag);
     RpcAppSystem* rpc_app = context;
     RpcSession* session = rpc_app->session;
+    rpc_system_app_error_reset(rpc_app);
     furi_assert(session);
     char args_temp[RPC_SYSTEM_APP_TEMP_ARGS_SIZE];
 
@@ -79,6 +80,7 @@ static void rpc_system_app_lock_status_process(const PB_Main* request, void* con
 
     furi_assert(request->which_content == PB_Main_app_lock_status_request_tag);
     RpcAppSystem* rpc_app = context;
+    rpc_system_app_error_reset(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 
@@ -108,6 +110,7 @@ static void rpc_system_app_exit_request(const PB_Main* request, void* context) {
 
     furi_assert(request->which_content == PB_Main_app_exit_request_tag);
     RpcAppSystem* rpc_app = context;
+    rpc_system_app_error_reset(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 
@@ -133,6 +136,7 @@ static void rpc_system_app_load_file(const PB_Main* request, void* context) {
 
     furi_assert(request->which_content == PB_Main_app_load_file_request_tag);
     RpcAppSystem* rpc_app = context;
+    rpc_system_app_error_reset(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 
@@ -158,6 +162,7 @@ static void rpc_system_app_button_press(const PB_Main* request, void* context) {
 
     furi_assert(request->which_content == PB_Main_app_button_press_request_tag);
     RpcAppSystem* rpc_app = context;
+    rpc_system_app_error_reset(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 
@@ -183,6 +188,7 @@ static void rpc_system_app_button_release(const PB_Main* request, void* context)
     furi_assert(context);
 
     RpcAppSystem* rpc_app = context;
+    rpc_system_app_error_reset(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 
@@ -222,6 +228,7 @@ static void rpc_system_app_data_exchange_process(const PB_Main* request, void* c
     furi_assert(context);
 
     RpcAppSystem* rpc_app = context;
+    rpc_system_app_error_reset(rpc_app);
     RpcSession* session = rpc_app->session;
     furi_assert(session);
 
@@ -324,6 +331,13 @@ void rpc_system_app_set_error_text(RpcAppSystem* rpc_app, const char* error_text
     }
 
     content->text = error_text ? strdup(error_text) : NULL;
+}
+
+void rpc_system_app_error_reset(RpcAppSystem* rpc_app) {
+    furi_assert(rpc_app);
+
+    rpc_system_app_set_error_code(rpc_app, 0);
+    rpc_system_app_set_error_text(rpc_app, NULL);
 }
 
 void rpc_system_app_set_data_exchange_callback(

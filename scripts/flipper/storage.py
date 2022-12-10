@@ -238,9 +238,9 @@ class FlipperStorage:
         while read_size < size:
             self.read.until("Ready?" + self.CLI_EOL)
             self.send("y")
-            read_size = min(size - read_size, buffer_size)
-            filedata.extend(self.port.read(read_size))
-            read_size = read_size + read_size
+            chunk_size = min(size - read_size, buffer_size)
+            filedata.extend(self.port.read(chunk_size))
+            read_size = read_size + chunk_size
 
             percent = str(math.ceil(read_size / size * 100))
             total_chunks = str(math.ceil(size / buffer_size))

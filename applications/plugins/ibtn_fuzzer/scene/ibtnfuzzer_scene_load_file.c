@@ -164,6 +164,7 @@ bool ibtnfuzzer_load_protocol_from_file(iBtnFuzzerState* context) {
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(
         &browser_options, IBUTTON_FUZZER_APP_EXTENSION, &I_ibutt_10px);
+    browser_options.base_path = IBUTTON_FUZZER_APP_PATH_FOLDER;
 
     // Input events and views are managed by file_select
     bool res = dialog_file_browser_show(

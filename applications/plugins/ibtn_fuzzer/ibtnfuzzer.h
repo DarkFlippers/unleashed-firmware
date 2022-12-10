@@ -81,6 +81,7 @@ typedef struct {
     iButtonKeyType keytype;
     bool workr_rund;
     bool enter_rerun;
+    bool attack_stop_called;
 
     uint8_t time_between_cards;
 

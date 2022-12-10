@@ -461,6 +461,7 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, SUBGHZ_APP_EXTENSION, &I_sub1_10px);
+    browser_options.base_path = SUBGHZ_APP_FOLDER;
 
     // Input events and views are managed by file_select
     bool res = dialog_file_browser_show(

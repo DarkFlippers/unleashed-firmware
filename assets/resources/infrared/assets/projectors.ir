@@ -1,6 +1,78 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 15th Oct, 2022
+# Last Updated 9th Dec, 2022
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 00 30 00 00
+command: 83 7C 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 00 30 00 00
+command: 82 7D 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 08 13 00 00
+command: 87 78 00 00
+#
+name: POWER
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9055 4338 672 1551 669 1553 618 1603 619 481 617 482 616 481 617 507 591 1605 645 479 619 1577 645 1578 644 1578 644 479 619 480 618 1581 641 480 617 1605 617 1606 616 1606 615 483 615 1608 614 484 614 484 614 484 614 484 614 484 614 484 614 1609 614 484 614 1609 614 1609 613 1609 613 40058 9000 2068 614 95467 9022 2068 614
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 29 D6 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 08 F7 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 04 FB 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 93 6C 00 00
+#
+name: VOL-
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 15 00 00 00
+#
+name: VOL+
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9032 4462 598 501 627 1604 627 530 598 531 677 423 706 422 706 421 707 451 677 1554 677 451 598 1633 598 1634 597 1634 598 1634 598 1634 625 1606 681 1550 626 502 598 530 599 529 600 1632 600 528 600 528 601 528 601 528 601 1631 600 1631 625 1607 625 504 625 1607 624 1608 624 1608 623
+#
+name: MUTE
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 02 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1D 00 00 00
 #
 # ON
 name: POWER

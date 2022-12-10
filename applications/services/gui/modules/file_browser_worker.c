@@ -44,6 +44,7 @@ struct BrowserWorker {
     uint32_t load_offset;
     uint32_t load_count;
     bool skip_assets;
+    bool hide_dot_files;
     idx_last_array_t idx_last;
 
     void* cb_ctx;
@@ -78,6 +79,13 @@ static bool browser_path_trim(FuriString* path) {
 }
 
 static bool browser_filter_by_name(BrowserWorker* browser, FuriString* name, bool is_folder) {
+    // Skip dot files if enabled
+    if(browser->hide_dot_files) {
+        if(furi_string_start_with_str(name, ".")) {
+            return false;
+        }
+    }
+
     if(is_folder) {
         // Skip assets folders (if enabled)
         if(browser->skip_assets) {
@@ -365,20 +373,26 @@ static int32_t browser_worker(void* context) {
     return 0;
 }
 
-BrowserWorker*
-    file_browser_worker_alloc(FuriString* path, const char* filter_ext, bool skip_assets) {
+BrowserWorker* file_browser_worker_alloc(
+    FuriString* path,
+    const char* base_path,
+    const char* filter_ext,
+    bool skip_assets,
+    bool hide_dot_files) {
     BrowserWorker* browser = malloc(sizeof(BrowserWorker)); //-V773
 
     idx_last_array_init(browser->idx_last);
 
     browser->filter_extension = furi_string_alloc_set(filter_ext);
     browser->skip_assets = skip_assets;
-    browser->path_start = furi_string_alloc_set(path);
+    browser->hide_dot_files = hide_dot_files;
+
     browser->path_current = furi_string_alloc_set(path);
     browser->path_next = furi_string_alloc_set(path);
 
-    if(browser_path_is_file(browser->path_start)) {
-        browser_path_trim(browser->path_start);
+    browser->path_start = furi_string_alloc();
+    if(base_path) {
+        furi_string_set_str(browser->path_start, base_path);
     }
 
     browser->thread = furi_thread_alloc_ex("BrowserWorker", 2048, browser_worker, browser);
@@ -441,11 +455,13 @@ void file_browser_worker_set_config(
     BrowserWorker* browser,
     FuriString* path,
     const char* filter_ext,
-    bool skip_assets) {
+    bool skip_assets,
+    bool hide_dot_files) {
     furi_assert(browser);
     furi_string_set(browser->path_next, path);
     furi_string_set(browser->filter_extension, filter_ext);
     browser->skip_assets = skip_assets;
+    browser->hide_dot_files = hide_dot_files;
     furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtConfigChange);
 }
 
