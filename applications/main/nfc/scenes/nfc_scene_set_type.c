@@ -1,5 +1,5 @@
 #include "../nfc_i.h"
-#include "../helpers/nfc_generators.h"
+#include "lib/nfc/helpers/nfc_generators.h"
 
 enum SubmenuIndex {
     SubmenuIndexNFCA4,
