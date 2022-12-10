@@ -71,7 +71,7 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
     main_menu_items[0] = furi_string_alloc_set("Default Values");
     main_menu_items[1] = furi_string_alloc_set("BF Customer ID");
     main_menu_items[2] = furi_string_alloc_set("Load File");
-    main_menu_items[3] = furi_string_alloc_set("Load uids from file");
+    main_menu_items[3] = furi_string_alloc_set("Load UIDs from file");
 
     context->menu_proto_index = 0;
     /*for(uint32_t i = 0; i < 4; i++) {

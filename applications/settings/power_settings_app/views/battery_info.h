@@ -9,6 +9,7 @@ typedef struct {
     float gauge_voltage;
     float gauge_current;
     float gauge_temperature;
+    float charging_voltage;
     uint8_t charge;
     uint8_t health;
 } BatteryInfoModel;

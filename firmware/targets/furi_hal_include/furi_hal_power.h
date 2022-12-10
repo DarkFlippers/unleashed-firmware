@@ -121,6 +121,22 @@ void furi_hal_power_check_otg_status();
  */
 bool furi_hal_power_is_otg_enabled();
 
+/** Get battery charging voltage in V
+ *
+ * @return     voltage in V
+ */
+float furi_hal_power_get_battery_charging_voltage();
+
+/** Set battery charging voltage in V
+ *
+ * Invalid values will be clamped to the nearest valid value.
+ *
+ * @param      voltage[in]  voltage in V
+ *
+ * @return     voltage in V
+ */
+void furi_hal_power_set_battery_charging_voltage(float voltage);
+
 /** Get remaining battery battery capacity in mAh
  *
  * @return     capacity in mAh

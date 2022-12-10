@@ -712,46 +712,16 @@ uint8_t mf_classic_update_card(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data
     furi_assert(tx_rx);
     furi_assert(data);
 
-    uint8_t sectors_read = 0;
-    Crypto1 crypto = {};
     uint8_t total_sectors = mf_classic_get_total_sectors_num(data->type);
-    uint64_t key_a = 0;
-    uint64_t key_b = 0;
-    MfClassicSectorReader sec_reader = {};
-    MfClassicSector temp_sector = {};
 
     for(size_t i = 0; i < total_sectors; i++) {
-        MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(data, i);
-        // Load key A
-        if(mf_classic_is_key_found(data, i, MfClassicKeyA)) {
-            sec_reader.key_a = nfc_util_bytes2num(sec_tr->key_a, 6);
-        } else {
-            sec_reader.key_a = MF_CLASSIC_NO_KEY;
-        }
-        // Load key B
-        if(mf_classic_is_key_found(data, i, MfClassicKeyB)) {
-            sec_reader.key_b = nfc_util_bytes2num(sec_tr->key_b, 6);
-        } else {
-            sec_reader.key_b = MF_CLASSIC_NO_KEY;
-        }
-        if((key_a != MF_CLASSIC_NO_KEY) || (key_b != MF_CLASSIC_NO_KEY)) {
-            sec_reader.sector_num = i;
-            if(mf_classic_read_sector_with_reader(tx_rx, &crypto, &sec_reader, &temp_sector)) {
-                uint8_t first_block = mf_classic_get_first_block_num_of_sector(i);
-                for(uint8_t j = 0; j < temp_sector.total_blocks; j++) {
-                    mf_classic_set_block_read(data, first_block + j, &temp_sector.block[j]);
-                }
-                sectors_read++;
-            } else {
-                // Invalid key, set it to not found
-                if(key_a != MF_CLASSIC_NO_KEY) {
-                    mf_classic_set_key_not_found(data, i, MfClassicKeyA);
-                } else {
-                    mf_classic_set_key_not_found(data, i, MfClassicKeyB);
-                }
-            }
-        }
+        mf_classic_read_sector(tx_rx, data, i);
     }
+    uint8_t sectors_read = 0;
+    uint8_t keys_found = 0;
+    mf_classic_get_read_sectors_and_keys(data, &sectors_read, &keys_found);
+    FURI_LOG_D(TAG, "Read %d sectors and %d keys", sectors_read, keys_found);
+
     return sectors_read;
 }
 

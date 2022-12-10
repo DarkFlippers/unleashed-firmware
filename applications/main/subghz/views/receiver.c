@@ -8,7 +8,7 @@
 #include <m-array.h>
 
 #define FRAME_HEIGHT 12
-#define MAX_LEN_PX 100
+#define MAX_LEN_PX 111
 #define MENU_ITEMS 4u
 #define UNLOCK_CNT 3
 
@@ -211,7 +211,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         size_t idx = CLAMP((uint16_t)(i + model->list_offset), model->history_item, 0);
         item_menu = SubGhzReceiverMenuItemArray_get(model->history->data, idx);
         furi_string_set(str_buff, item_menu->item_str);
-        elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
+        elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 7 : MAX_LEN_PX);
         if(model->idx == idx) {
             subghz_view_receiver_draw_frame(canvas, i, scrollbar);
         } else {

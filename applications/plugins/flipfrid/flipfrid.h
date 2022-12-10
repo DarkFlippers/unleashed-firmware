@@ -82,6 +82,7 @@ typedef struct {
     ProtocolDict* dict;
     ProtocolId protocol;
     bool workr_rund;
+    bool attack_stop_called;
 
     uint8_t time_between_cards;
 

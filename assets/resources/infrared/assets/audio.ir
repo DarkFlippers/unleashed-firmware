@@ -1,6 +1,96 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 14th Nov, 2022
+# Last Updated 6th Dec, 2022
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 3F 5C 00 00
+command: 18 E7 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 3F 5C 00 00
+command: 55 AA 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 3F 5C 00 00
+command: 59 A6 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 3F 5C 00 00
+command: 15 EA 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1E E1 00 00
+# 
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1D E2 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 18 E7 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0A F5 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 80 D9 00 00
+command: 8A 75 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 80 D9 00 00
+command: 88 77 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 80 D9 00 00
+command: 8C 73 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 78 0E 00 00
+command: 00 FF 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 78 0E 00 00
+command: 19 E6 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 78 0E 00 00
+command: 1C E3 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NECext
+address: 78 0E 00 00
+command: 18 E7 00 00
 #
 name: VOL+
 type: parsed

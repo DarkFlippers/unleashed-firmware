@@ -8,11 +8,11 @@
 #include <flipper_format/flipper_format.h>
 
 #define TAG "NfcDevice"
-#define NFC_DEVICE_KEYS_FOLDER EXT_PATH("nfc/cache")
+#define NFC_DEVICE_KEYS_FOLDER EXT_PATH("nfc/.cache")
 #define NFC_DEVICE_KEYS_EXTENSION ".keys"
 
 static const char* nfc_file_header = "Flipper NFC device";
-static const uint32_t nfc_file_version = 2;
+static const uint32_t nfc_file_version = 3;
 
 static const char* nfc_keys_file_header = "Flipper NFC keys";
 static const uint32_t nfc_keys_file_version = 1;
@@ -27,6 +27,11 @@ NfcDevice* nfc_device_alloc() {
     nfc_dev->dialogs = furi_record_open(RECORD_DIALOGS);
     nfc_dev->load_path = furi_string_alloc();
     nfc_dev->dev_data.parsed_data = furi_string_alloc();
+
+    // Rename cache folder name for backward compatibility
+    if(storage_common_stat(nfc_dev->storage, "/ext/nfc/cache", NULL) == FSE_OK) {
+        storage_common_rename(nfc_dev->storage, "/ext/nfc/cache", NFC_DEVICE_KEYS_FOLDER);
+    }
     return nfc_dev;
 }
 
@@ -1069,7 +1074,9 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
         if(!flipper_format_write_comment_cstr(file, "UID, ATQA and SAK are common for all formats"))
             break;
         if(!flipper_format_write_hex(file, "UID", data->uid, data->uid_len)) break;
-        if(!flipper_format_write_hex(file, "ATQA", data->atqa, 2)) break;
+        // Save ATQA in MSB order for correct companion apps display
+        uint8_t atqa[2] = {data->atqa[1], data->atqa[0]};
+        if(!flipper_format_write_hex(file, "ATQA", atqa, 2)) break;
         if(!flipper_format_write_hex(file, "SAK", &data->sak, 1)) break;
         // Save more data if necessary
         if(dev->format == NfcDeviceSaveFormatMifareUl) {
@@ -1119,6 +1126,9 @@ static bool nfc_device_load_data(NfcDevice* dev, FuriString* path, bool show_dia
     temp_str = furi_string_alloc();
     bool deprecated_version = false;
 
+    // Version 2 of file format had ATQA bytes swapped
+    uint32_t version_with_lsb_atqa = 2;
+
     if(dev->loading_cb) {
         dev->loading_cb(dev->loading_cb_ctx, true);
     }
@@ -1137,9 +1147,12 @@ static bool nfc_device_load_data(NfcDevice* dev, FuriString* path, bool show_dia
         // Read and verify file header
         uint32_t version = 0;
         if(!flipper_format_read_header(file, temp_str, &version)) break;
-        if(furi_string_cmp_str(temp_str, nfc_file_header) || (version != nfc_file_version)) {
-            deprecated_version = true;
-            break;
+        if(furi_string_cmp_str(temp_str, nfc_file_header)) break;
+        if(version != nfc_file_version) {
+            if(version < version_with_lsb_atqa) {
+                deprecated_version = true;
+                break;
+            }
         }
         // Read Nfc device type
         if(!flipper_format_read_string(file, "Device type", temp_str)) break;
@@ -1149,7 +1162,14 @@ static bool nfc_device_load_data(NfcDevice* dev, FuriString* path, bool show_dia
         if(!(data_cnt == 4 || data_cnt == 7)) break;
         data->uid_len = data_cnt;
         if(!flipper_format_read_hex(file, "UID", data->uid, data->uid_len)) break;
-        if(!flipper_format_read_hex(file, "ATQA", data->atqa, 2)) break;
+        if(version == version_with_lsb_atqa) {
+            if(!flipper_format_read_hex(file, "ATQA", data->atqa, 2)) break;
+        } else {
+            uint8_t atqa[2] = {};
+            if(!flipper_format_read_hex(file, "ATQA", atqa, 2)) break;
+            data->atqa[0] = atqa[1];
+            data->atqa[1] = atqa[0];
+        }
         if(!flipper_format_read_hex(file, "SAK", &data->sak, 1)) break;
         // Load CUID
         uint8_t* cuid_start = data->uid;
@@ -1217,10 +1237,12 @@ bool nfc_file_select(NfcDevice* dev) {
     const DialogsFileBrowserOptions browser_options = {
         .extension = NFC_APP_EXTENSION,
         .skip_assets = true,
+        .hide_dot_files = true,
         .icon = &I_Nfc_10px,
         .hide_ext = true,
         .item_loader_callback = NULL,
         .item_loader_context = NULL,
+        .base_path = NFC_APP_FOLDER,
     };
 
     bool res =

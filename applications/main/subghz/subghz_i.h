@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helpers/subghz_types.h"
+#include "helpers/subghz_error_type.h"
 #include <lib/subghz/types.h>
 #include "subghz.h"
 #include "views/receiver.h"
