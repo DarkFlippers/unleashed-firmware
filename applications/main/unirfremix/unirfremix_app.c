@@ -706,7 +706,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 void unirfremix_subghz_alloc(UniRFRemix* app) {
     // load subghz presets
     app->setting = subghz_setting_alloc();
-    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"), false);
+    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
 
     // load mfcodes
     app->environment = subghz_environment_alloc();
