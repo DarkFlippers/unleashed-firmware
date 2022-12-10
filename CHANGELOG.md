@@ -5,6 +5,7 @@
 * Plugins: Weather Station -> Improved signal info dashboard, added signal age counter. (PR by @LY2NEO | #197) (Modified and improved by @xMasterX, new icons and UI changes recommendations by @Karator in OFW PR 2087)
 * Plugins: Weather Station -> Oregon2 - add support for RTHN129
 * Plugins: iButton Fuzzer -> change minimal delay (after @Tobirg successfully verified stability with lower delay)
+* Plugins: iButton Fuzzer + RFID Fuzzer -> Attempt to fix crash when exiting from uids from file attack
 * OFW: NFC bug fixes **(breaking change, affects API version)**
 * OFW: UART echo: fix race conditions causing null pointer dereference
 * OFW: File browser base folder **(breaking change, affects API version)**

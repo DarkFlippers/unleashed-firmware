@@ -71,6 +71,7 @@ uint8_t id_list_cyfral[14][2] = {
 void ibtnfuzzer_scene_run_attack_on_enter(iBtnFuzzerState* context) {
     context->time_between_cards = 8;
     context->attack_step = 0;
+    context->attack_stop_called = false;
     context->key = ibutton_key_alloc();
     context->worker = ibutton_worker_alloc();
     if(context->proto == Metakom) {
@@ -387,18 +388,23 @@ void ibtnfuzzer_scene_run_attack_on_event(iBtnFuzzerEvent event, iBtnFuzzerState
                 break;
             case InputKeyBack:
                 context->is_attacking = false;
-                context->attack_step = 0;
                 counter = 0;
 
-                if(context->attack == iBtnFuzzerAttackLoadFileCustomUids) {
-                    furi_string_reset(context->data_str);
-                    stream_rewind(context->uids_stream);
-                    buffered_file_stream_close(context->uids_stream);
+                notification_message(context->notify, &sequence_blink_stop);
+                if(context->attack_stop_called) {
+                    context->attack_stop_called = false;
+                    context->attack_step = 0;
+                    if(context->attack == iBtnFuzzerAttackLoadFileCustomUids) {
+                        furi_string_reset(context->data_str);
+                        stream_rewind(context->uids_stream);
+                        buffered_file_stream_close(context->uids_stream);
+                    }
+
+                    furi_string_reset(context->notification_msg);
+                    context->current_scene = SceneEntryPoint;
                 }
 
-                furi_string_reset(context->notification_msg);
-                notification_message(context->notify, &sequence_blink_stop);
-                context->current_scene = SceneEntryPoint;
+                context->attack_stop_called = true;
                 break;
             default:
                 break;
