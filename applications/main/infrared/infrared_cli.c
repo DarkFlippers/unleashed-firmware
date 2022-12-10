@@ -453,7 +453,7 @@ static void
     } while(false);
 
     furi_string_free(remote_path);
-    infrared_brute_force_clear_records(brute_force);
+    infrared_brute_force_reset(brute_force);
     infrared_brute_force_free(brute_force);
 }
 

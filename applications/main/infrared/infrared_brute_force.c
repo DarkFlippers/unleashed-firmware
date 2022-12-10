@@ -38,11 +38,6 @@ InfraredBruteForce* infrared_brute_force_alloc() {
     return brute_force;
 }
 
-void infrared_brute_force_clear_records(InfraredBruteForce* brute_force) {
-    furi_assert(!brute_force->is_started);
-    InfraredBruteForceRecordDict_reset(brute_force->records);
-}
-
 void infrared_brute_force_free(InfraredBruteForce* brute_force) {
     furi_assert(!brute_force->is_started);
     InfraredBruteForceRecordDict_clear(brute_force->records);
@@ -150,4 +145,9 @@ void infrared_brute_force_add_record(
     key = furi_string_alloc_set(name);
     InfraredBruteForceRecordDict_set_at(brute_force->records, key, value);
     furi_string_free(key);
+}
+
+void infrared_brute_force_reset(InfraredBruteForce* brute_force) {
+    furi_assert(!brute_force->is_started);
+    InfraredBruteForceRecordDict_reset(brute_force->records);
 }
