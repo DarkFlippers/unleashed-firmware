@@ -18,26 +18,59 @@
 static const uint32_t subghz_frequency_list[] = {
     /* 300 - 348 */
     300000000,
+    302757000,
     303875000,
     304250000,
+    307000000,
+    307500000,
+    307800000,
+    309000000,
     310000000,
+    312000000,
+    312100000,
+    312200000,
+    313000000,
+    313850000,
+    314000000,
+    314350000,
+    314980000,
     315000000,
     318000000,
+    330000000,
+    345000000,
+    348000000,
 
     /* 387 - 464 */
+    387000000,
     390000000,
     418000000,
     433075000, /* LPD433 first */
+    433220000,
     433420000,
+    433657070,
+    433889000,
     433920000 | FREQUENCY_FLAG_DEFAULT, /* LPD433 mid */
+    434075000,
+    434176948,
+    434190000,
+    434390000,
     434420000,
+    434620000,
     434775000, /* LPD433 last channels */
     438900000,
+    440175000,
+    464000000,
 
     /* 779 - 928 */
+    779000000,
     868350000,
+    868400000,
+    868800000,
+    868950000,
+    906400000,
     915000000,
     925000000,
+    928000000,
     0,
 };
 
@@ -182,7 +215,7 @@ void subghz_setting_load_default(SubGhzSetting* instance) {
         instance, subghz_frequency_list, subghz_hopper_frequency_list);
 }
 
-void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool not_skip_frequencies) {
+void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
     furi_assert(instance);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -215,67 +248,64 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool no
             }
 
             // Standard frequencies (optional)
-            if(not_skip_frequencies) {
-                temp_bool = true;
-                flipper_format_read_bool(fff_data_file, "Add_standard_frequencies", &temp_bool, 1);
-                if(!temp_bool) {
-                    FURI_LOG_I(TAG, "Removing standard frequencies");
-                    FrequencyList_reset(instance->frequencies);
-                    FrequencyList_reset(instance->hopper_frequencies);
+            temp_bool = true;
+            flipper_format_read_bool(fff_data_file, "Add_standard_frequencies", &temp_bool, 1);
+            if(!temp_bool) {
+                FURI_LOG_I(TAG, "Removing standard frequencies");
+                FrequencyList_reset(instance->frequencies);
+                FrequencyList_reset(instance->hopper_frequencies);
+            } else {
+                FURI_LOG_I(TAG, "Keeping standard frequencies");
+            }
+
+            // Load frequencies
+            if(!flipper_format_rewind(fff_data_file)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            while(flipper_format_read_uint32(
+                fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
+                if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
+                    FURI_LOG_I(TAG, "Frequency loaded %lu", temp_data32);
+                    FrequencyList_push_back(instance->frequencies, temp_data32);
                 } else {
-                    FURI_LOG_I(TAG, "Keeping standard frequencies");
+                    FURI_LOG_E(TAG, "Frequency not supported %lu", temp_data32);
                 }
+            }
 
-                // Load frequencies
-                if(!flipper_format_rewind(fff_data_file)) {
-                    FURI_LOG_E(TAG, "Rewind error");
-                    break;
+            // Load hopper frequencies
+            if(!flipper_format_rewind(fff_data_file)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            while(flipper_format_read_uint32(
+                fff_data_file, "Hopper_frequency", (uint32_t*)&temp_data32, 1)) {
+                if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
+                    FURI_LOG_I(TAG, "Hopper frequency loaded %lu", temp_data32);
+                    FrequencyList_push_back(instance->hopper_frequencies, temp_data32);
+                } else {
+                    FURI_LOG_E(TAG, "Hopper frequency not supported %lu", temp_data32);
                 }
-                while(flipper_format_read_uint32(
-                    fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
-                    if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
-                        FURI_LOG_I(TAG, "Frequency loaded %lu", temp_data32);
-                        FrequencyList_push_back(instance->frequencies, temp_data32);
-                    } else {
-                        FURI_LOG_E(TAG, "Frequency not supported %lu", temp_data32);
-                    }
-                }
+            }
 
-                // Load hopper frequencies
-                if(!flipper_format_rewind(fff_data_file)) {
-                    FURI_LOG_E(TAG, "Rewind error");
-                    break;
-                }
-                while(flipper_format_read_uint32(
-                    fff_data_file, "Hopper_frequency", (uint32_t*)&temp_data32, 1)) {
-                    if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
-                        FURI_LOG_I(TAG, "Hopper frequency loaded %lu", temp_data32);
-                        FrequencyList_push_back(instance->hopper_frequencies, temp_data32);
-                    } else {
-                        FURI_LOG_E(TAG, "Hopper frequency not supported %lu", temp_data32);
-                    }
-                }
+            // Default frequency (optional)
+            if(!flipper_format_rewind(fff_data_file)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            if(flipper_format_read_uint32(fff_data_file, "Default_frequency", &temp_data32, 1)) {
+                subghz_setting_set_default_frequency(instance, temp_data32);
+            }
 
-                // Default frequency (optional)
-                if(!flipper_format_rewind(fff_data_file)) {
-                    FURI_LOG_E(TAG, "Rewind error");
-                    break;
-                }
-                if(flipper_format_read_uint32(
-                       fff_data_file, "Default_frequency", &temp_data32, 1)) {
-                    subghz_setting_set_default_frequency(instance, temp_data32);
-                }
-
-                // custom preset (optional)
-                if(!flipper_format_rewind(fff_data_file)) {
-                    FURI_LOG_E(TAG, "Rewind error");
-                    break;
-                }
-                while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
-                    FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
-                    subghz_setting_load_custom_preset(
-                        instance, furi_string_get_cstr(temp_str), fff_data_file);
-                }
+            // custom preset (optional)
+            if(!flipper_format_rewind(fff_data_file)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
+                FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
+                subghz_setting_load_custom_preset(
+                    instance, furi_string_get_cstr(temp_str), fff_data_file);
             }
 
         } while(false);

@@ -77,28 +77,38 @@ def add_env(name, value, file):
     print(f"{delimeter}", file=file)
 
 
-def add_envs(data, env_file, args):
-    add_env("COMMIT_MSG", data["commit_comment"], env_file)
-    add_env("COMMIT_HASH", data["commit_hash"], env_file)
-    add_env("COMMIT_SHA", data["commit_sha"], env_file)
-    add_env("SUFFIX", data["suffix"], env_file)
-    add_env("BRANCH_NAME", data["branch_name"], env_file)
-    add_env("DIST_SUFFIX", data["suffix"], env_file)
-    add_env("WORKFLOW_BRANCH_OR_TAG", data["branch_name"], env_file)
+def add_set_output_var(name, value, file):
+    print(f"{name}={value}", file=file)
+
+
+def add_envs(data, gh_env_file, gh_out_file, args):
+    add_env("COMMIT_MSG", data["commit_comment"], gh_env_file)
+    add_env("COMMIT_HASH", data["commit_hash"], gh_env_file)
+    add_env("COMMIT_SHA", data["commit_sha"], gh_env_file)
+    add_env("SUFFIX", data["suffix"], gh_env_file)
+    add_env("BRANCH_NAME", data["branch_name"], gh_env_file)
+    add_env("DIST_SUFFIX", data["suffix"], gh_env_file)
+    add_env("WORKFLOW_BRANCH_OR_TAG", data["branch_name"], gh_env_file)
+    add_set_output_var("branch_name", data["branch_name"], gh_out_file)
+    add_set_output_var("commit_sha", data["commit_sha"], gh_out_file)
+    add_set_output_var("default_target", os.getenv("DEFAULT_TARGET"), gh_out_file)
+    add_set_output_var("suffix", data["suffix"], gh_out_file)
     if args.type == "pull":
-        add_env("PULL_ID", data["pull_id"], env_file)
-        add_env("PULL_NAME", data["pull_name"], env_file)
+        add_env("PULL_ID", data["pull_id"], gh_env_file)
+        add_env("PULL_NAME", data["pull_name"], gh_env_file)
 
 
 def main():
     args = parse_args()
-    event_file = open(args.event_file)
+    event_file = open(args.event_file, "r")
     event = json.load(event_file)
-    env_file = open(os.environ["GITHUB_ENV"], "a")
+    gh_env_file = open(os.environ["GITHUB_ENV"], "a")
+    gh_out_file = open(os.environ["GITHUB_OUTPUT"], "a")
     data = get_details(event, args)
-    add_envs(data, env_file, args)
+    add_envs(data, gh_env_file, gh_out_file, args)
     event_file.close()
-    env_file.close()
+    gh_env_file.close()
+    gh_out_file.close()
 
 
 if __name__ == "__main__":

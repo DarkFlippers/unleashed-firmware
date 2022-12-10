@@ -6,7 +6,7 @@
 #include <lib/nfc/helpers/mf_classic_dict.h>
 #include <lib/digital_signal/digital_signal.h>
 #include <lib/nfc/nfc_device.h>
-#include <applications/main/nfc/helpers/nfc_generators.h>
+#include <lib/nfc/helpers/nfc_generators.h>
 
 #include <lib/flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/file_stream.h>
@@ -102,7 +102,10 @@ static bool nfc_test_digital_signal_test_encode(
 
     do {
         // Read test data
-        if(!nfc_test_read_signal_from_file(file_name)) break;
+        if(!nfc_test_read_signal_from_file(file_name)) {
+            FURI_LOG_E(TAG, "Failed to read signal from file");
+            break;
+        }
 
         // Encode signal
         FURI_CRITICAL_ENTER();

@@ -20,8 +20,8 @@ ARRAY_DEF(SubmenuItemArray, SubmenuItem, M_POD_OPLIST);
 typedef struct {
     SubmenuItemArray_t items;
     const char* header;
-    uint8_t position;
-    uint8_t window_position;
+    size_t position;
+    size_t window_position;
 } SubmenuModel;
 
 static void submenu_process_up(Submenu* submenu);
@@ -36,19 +36,19 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_clear(canvas);
 
-    uint8_t position = 0;
-    SubmenuItemArray_it_t it;
-
     if(model->header) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 4, 11, model->header);
     }
 
     canvas_set_font(canvas, FontSecondary);
+
+    size_t position = 0;
+    SubmenuItemArray_it_t it;
     for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
         SubmenuItemArray_next(it)) {
-        uint8_t item_position = position - model->window_position;
-        uint8_t items_on_screen = model->header ? 3 : 4;
+        const size_t item_position = position - model->window_position;
+        const size_t items_on_screen = model->header ? 3 : 4;
         uint8_t y_offset = model->header ? 16 : 0;
 
         if(item_position < items_on_screen) {
@@ -198,7 +198,7 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
         submenu->view,
         SubmenuModel * model,
         {
-            uint32_t position = 0;
+            size_t position = 0;
             SubmenuItemArray_it_t it;
             for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
                 SubmenuItemArray_next(it)) {
@@ -208,7 +208,9 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
                 position++;
             }
 
-            if(position >= SubmenuItemArray_size(model->items)) {
+            const size_t items_size = SubmenuItemArray_size(model->items);
+
+            if(position >= items_size) {
                 position = 0;
             }
 
@@ -219,16 +221,12 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
                 model->window_position -= 1;
             }
 
-            uint8_t items_on_screen = model->header ? 3 : 4;
+            const size_t items_on_screen = model->header ? 3 : 4;
 
-            if(SubmenuItemArray_size(model->items) <= items_on_screen) {
+            if(items_size <= items_on_screen) {
                 model->window_position = 0;
-            } else {
-                if(model->window_position >=
-                   (SubmenuItemArray_size(model->items) - items_on_screen)) {
-                    model->window_position =
-                        (SubmenuItemArray_size(model->items) - items_on_screen);
-                }
+            } else if(model->window_position >= items_size - items_on_screen) {
+                model->window_position = items_size - items_on_screen;
             }
         },
         true);
@@ -239,16 +237,18 @@ void submenu_process_up(Submenu* submenu) {
         submenu->view,
         SubmenuModel * model,
         {
-            uint8_t items_on_screen = model->header ? 3 : 4;
+            const size_t items_on_screen = model->header ? 3 : 4;
+            const size_t items_size = SubmenuItemArray_size(model->items);
+
             if(model->position > 0) {
                 model->position--;
-                if(((model->position - model->window_position) < 1) &&
-                   model->window_position > 0) {
+                if((model->position - model->window_position < 1) &&
+                   (model->window_position > 0)) {
                     model->window_position--;
                 }
             } else {
-                model->position = SubmenuItemArray_size(model->items) - 1;
-                if(model->position > (items_on_screen - 1)) {
+                model->position = items_size - 1;
+                if(model->position > items_on_screen - 1) {
                     model->window_position = model->position - (items_on_screen - 1);
                 }
             }
@@ -261,12 +261,13 @@ void submenu_process_down(Submenu* submenu) {
         submenu->view,
         SubmenuModel * model,
         {
-            uint8_t items_on_screen = model->header ? 3 : 4;
-            if(model->position < (SubmenuItemArray_size(model->items) - 1)) {
+            const size_t items_on_screen = model->header ? 3 : 4;
+            const size_t items_size = SubmenuItemArray_size(model->items);
+
+            if(model->position < items_size - 1) {
                 model->position++;
-                if((model->position - model->window_position) > (items_on_screen - 2) &&
-                   model->window_position <
-                       (SubmenuItemArray_size(model->items) - items_on_screen)) {
+                if((model->position - model->window_position > items_on_screen - 2) &&
+                   (model->window_position < items_size - items_on_screen)) {
                     model->window_position++;
                 }
             } else {
@@ -284,7 +285,8 @@ void submenu_process_ok(Submenu* submenu) {
         submenu->view,
         SubmenuModel * model,
         {
-            if(model->position < (SubmenuItemArray_size(model->items))) {
+            const size_t items_size = SubmenuItemArray_size(model->items);
+            if(model->position < items_size) {
                 item = SubmenuItemArray_get(model->items, model->position);
             }
         },

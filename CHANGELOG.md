@@ -1,21 +1,11 @@
 ### New changes
-* API: Version was changed due to breaking changes - from 8.x to 10.x - Extra pack was updated, download it by using link below ([- Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps))
-* SubGHz: Improve signals visibility in history
-* Infrared: Update universal remote assets **(TV universal remote now works much faster)** (by @Amec0e)
-* Plugins: Weather Station -> Improved signal info dashboard, added signal age counter. (PR by @LY2NEO | #197) (Modified and improved by @xMasterX, new icons and UI changes recommendations by @Karator in OFW PR 2087)
-* Plugins: Weather Station -> Oregon2 - add support for RTHN129
-* Plugins: iButton Fuzzer -> change minimal delay (after @Tobirg successfully verified stability with lower delay)
-* Plugins: iButton Fuzzer + RFID Fuzzer -> Attempt to fix crash when exiting from uids from file attack
-* OFW: NFC bug fixes **(breaking change, affects API version)**
-* OFW: UART echo: fix race conditions causing null pointer dereference
-* OFW: File browser base folder **(breaking change, affects API version)**
-* OFW: Change NFC emulation screens
-* OFW: SubGhz: add RPC error
-* OFW: FuriHal, Power, UnitTests: battery charging voltage limit API 
-* OFW: Fix logical error in storage script 
-* OFW: VCP session close fix
-* OFW: Dolphin: new animation L2_Wake_up_128x64 
-* OFW: FuriHal: add i2c unit tests
+* SubGHz: app launch times improved significantly, also setting_user file no longer overwritten by firmware updates, this update will remove this file (only this version, next ones will not touch it (if you skip this version file will be removed in any case on next update)), be sure to backup if you have custom changes in it! 
+Now this file is actually should be created by user and will be not removed every update!
+* Plugins: Add POCSAG Pager [(by xMasterX & Shmuma)](https://github.com/xMasterX/flipper-pager)
+* Misc fixes
+* OFW: IR button overflow fix
+* OFW: Weather Station: proper event flow for view redraw.
+* OFW: Untangle NFC from Unit Tests 
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
@@ -24,6 +14,7 @@
 [-> Download qFlipper (official link)](https://flipperzero.one/update)
 
 ## Please support development of the project
+* Boosty: https://boosty.to/mmxdev
 * destream (100 EUR min): https://destream.net/live/MMX/donate
 * cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * YooMoney (only RU payments accepted): https://yoomoney.ru/fundraise/XA49mgQLPA0.221209
@@ -39,6 +30,8 @@
 **Note: To avoid issues with .dfu, prefer installing using .tgz with qFlipper, web updater or by self update package, all needed assets will be installed**
 
 **Recommended option - Web Updater**
+
+What means `n` in - `flipper-z-f7-update-(version)n.tgz` ? - that means this build comes without our custom animations, only official flipper animations
 
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or download `.tgz` for mobile app / qFlipper
 

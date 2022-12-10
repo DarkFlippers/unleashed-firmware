@@ -30,7 +30,7 @@ struct ButtonMenu {
 
 typedef struct {
     ButtonMenuItemArray_t items;
-    uint8_t position;
+    size_t position;
     const char* header;
 } ButtonMenuModel;
 
@@ -102,11 +102,9 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
     ButtonMenuModel* model = (ButtonMenuModel*)_model;
     canvas_set_font(canvas, FontSecondary);
 
-    uint8_t item_position = 0;
-    int8_t active_screen = model->position / BUTTONS_PER_SCREEN;
-    size_t items_size = ButtonMenuItemArray_size(model->items);
-    int8_t max_screen = ((int16_t)items_size - 1) / BUTTONS_PER_SCREEN;
-    ButtonMenuItemArray_it_t it;
+    const size_t active_screen = model->position / BUTTONS_PER_SCREEN;
+    const size_t items_size = ButtonMenuItemArray_size(model->items);
+    const size_t max_screen = items_size ? (items_size - 1) / BUTTONS_PER_SCREEN : 0;
 
     if(active_screen > 0) {
         canvas_draw_icon(canvas, 28, 1, &I_InfraredArrowUp_4x8);
@@ -124,6 +122,9 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
             canvas, 32, 10, AlignCenter, AlignCenter, furi_string_get_cstr(disp_str));
         furi_string_free(disp_str);
     }
+
+    size_t item_position = 0;
+    ButtonMenuItemArray_it_t it;
 
     for(ButtonMenuItemArray_it(it, model->items); !ButtonMenuItemArray_end_p(it);
         ButtonMenuItemArray_next(it), ++item_position) {
@@ -195,14 +196,14 @@ static void button_menu_process_ok(ButtonMenu* button_menu, InputType type) {
     if(item) {
         if(item->type == ButtonMenuItemTypeControl) {
             if(type == InputTypeShort) {
-                if(item && item->callback) {
+                if(item->callback) {
                     item->callback(item->callback_context, item->index, type);
                 }
             }
         }
         if(item->type == ButtonMenuItemTypeCommon) {
             if((type == InputTypePress) || (type == InputTypeRelease)) {
-                if(item && item->callback) {
+                if(item->callback) {
                     item->callback(item->callback_context, item->index, type);
                 }
             }
@@ -341,7 +342,7 @@ void button_menu_set_selected_item(ButtonMenu* button_menu, uint32_t index) {
         button_menu->view,
         ButtonMenuModel * model,
         {
-            uint8_t item_position = 0;
+            size_t item_position = 0;
             ButtonMenuItemArray_it_t it;
             for(ButtonMenuItemArray_it(it, model->items); !ButtonMenuItemArray_end_p(it);
                 ButtonMenuItemArray_next(it), ++item_position) {
