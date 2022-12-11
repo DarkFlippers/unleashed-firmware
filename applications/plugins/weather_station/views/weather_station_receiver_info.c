@@ -82,8 +82,14 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
     if(model->generic->temp != WS_NO_TEMPERATURE) {
         canvas_draw_icon(canvas, 6, 43, &I_Therm_7x16);
         snprintf(buffer, sizeof(buffer), "%3.1f C", (double)model->generic->temp);
-        canvas_draw_str_aligned(canvas, 47, 47, AlignRight, AlignTop, buffer);
-        canvas_draw_circle(canvas, 38, 46, 1);
+        uint8_t temp_x1 = 47;
+        uint8_t temp_x2 = 38;
+        if(model->generic->temp < -9.0) {
+            temp_x1 = 49;
+            temp_x2 = 40;
+        }
+        canvas_draw_str_aligned(canvas, temp_x1, 47, AlignRight, AlignTop, buffer);
+        canvas_draw_circle(canvas, temp_x2, 46, 1);
     }
 
     if(model->generic->humidity != WS_NO_HUMIDITY) {
