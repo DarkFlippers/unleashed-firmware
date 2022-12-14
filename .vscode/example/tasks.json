@@ -128,6 +128,38 @@
             "group": "build",
             "type": "shell",
             "command": "./fbt COMPACT=1 DEBUG=0 launch_app APPSRC=${relativeFileDirname}"
+        },
+        {
+            "label": "[Debug] Launch App on Flipper with Serial Console",
+            "dependsOrder": "sequence",
+            "group": "build",
+            "dependsOn": [
+                "[Debug] Launch App on Flipper",
+                "Serial Console"
+            ]
+        },
+        {
+            // Press Ctrl+] to quit
+            "label": "Serial Console",
+            "type": "shell",
+            "command": "./fbt cli",
+            "group": "none",
+            "isBackground": true,
+			"options": {
+                "env": {
+                    "FBT_NO_SYNC": "0"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "revealProblems": "never",
+                "showReuseMessage": false,
+                "panel": "dedicated",
+                "focus": true,
+                "echo": true,
+                "close": true,
+                "group": "Logger"
+            }
         }
     ]
 }

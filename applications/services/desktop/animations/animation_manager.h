@@ -157,3 +157,11 @@ void animation_manager_unload_and_stall_animation(AnimationManager* animation_ma
  * @animation_manager   instance
  */
 void animation_manager_load_and_continue_animation(AnimationManager* animation_manager);
+
+/**
+ * Enable or disable dummy mode backgrounds of animation manager.
+ *
+ * @animation_manager    instance
+ * @enabled              bool
+ */
+void animation_manager_set_dummy_mode_state(AnimationManager* animation_manager, bool enabled);
