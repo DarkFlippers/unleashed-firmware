@@ -36,5 +36,6 @@
 #include "intertechno_v3.h"
 #include "clemsa.h"
 #include "ansonic.h"
+#include "smc5326.h"
 
 extern const SubGhzProtocolRegistry subghz_protocol_registry;
