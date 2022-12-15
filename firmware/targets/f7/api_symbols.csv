@@ -2830,6 +2830,14 @@ Function,-,subghz_protocol_decoder_secplus_v2_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_secplus_v2_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_secplus_v2_reset,void,void*
 Function,-,subghz_protocol_decoder_secplus_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_smc5326_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_smc5326_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_smc5326_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_smc5326_free,void,void*
+Function,-,subghz_protocol_decoder_smc5326_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_smc5326_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_smc5326_reset,void,void*
+Function,-,subghz_protocol_decoder_smc5326_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_somfy_keytis_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_somfy_keytis_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_somfy_keytis_feed,void,"void*, _Bool, uint32_t"
@@ -3000,6 +3008,11 @@ Function,-,subghz_protocol_encoder_secplus_v2_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_encoder_secplus_v2_free,void,void*
 Function,-,subghz_protocol_encoder_secplus_v2_stop,void,void*
 Function,-,subghz_protocol_encoder_secplus_v2_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_smc5326_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_smc5326_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_smc5326_free,void,void*
+Function,-,subghz_protocol_encoder_smc5326_stop,void,void*
+Function,-,subghz_protocol_encoder_smc5326_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_star_line_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_star_line_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_star_line_free,void,void*
@@ -4820,6 +4833,9 @@ Variable,-,subghz_protocol_secplus_v1_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_secplus_v2,const SubGhzProtocol,
 Variable,-,subghz_protocol_secplus_v2_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_secplus_v2_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_smc5326,const SubGhzProtocol,
+Variable,-,subghz_protocol_smc5326_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_smc5326_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_somfy_keytis,const SubGhzProtocol,
 Variable,-,subghz_protocol_somfy_keytis_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_somfy_keytis_encoder,const SubGhzProtocolEncoder,

@@ -68,6 +68,7 @@ Also check changelog in releases for latest updates!
 
 ## Please support development of the project
 * Boosty: https://boosty.to/mmxdev
+* Ko-Fi: https://ko-fi.com/masterx
 * destream (100 EUR min): https://destream.net/live/MMX/donate
 * cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * YooMoney (only RU payments accepted): https://yoomoney.ru/fundraise/XA49mgQLPA0.221209
