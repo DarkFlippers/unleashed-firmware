@@ -1,43 +1,43 @@
 #include "../subghz_i.h"
 
-#define TAG "SubGhzSetCntFaac433"
+#define TAG "SubGhzSetFixFaac"
 
-void subghz_scene_set_cnt_faac_433_byte_input_callback(void* context) {
+void subghz_scene_set_fix_faac_byte_input_callback(void* context) {
     SubGhz* subghz = context;
 
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventByteInputDone);
 }
 
-void subghz_scene_set_cnt_faac_433_on_enter(void* context) {
+void subghz_scene_set_fix_faac_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;
-    byte_input_set_header_text(byte_input, "Enter COUNTER in hex, 20bits");
+    byte_input_set_header_text(byte_input, "Enter FIX in hex");
     byte_input_set_result_callback(
         byte_input,
-        subghz_scene_set_cnt_faac_433_byte_input_callback,
+        subghz_scene_set_fix_faac_byte_input_callback,
         NULL,
         subghz,
-        subghz->txrx->secure_data->cnt,
-        3);
+        subghz->txrx->secure_data->fix,
+        4);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
 
-bool subghz_scene_set_cnt_faac_433_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_set_fix_faac_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventByteInputDone) {
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSeedFaac433);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetCntFaac);
             consumed = true;
         }
     }
     return consumed;
 }
 
-void subghz_scene_set_cnt_faac_433_on_exit(void* context) {
+void subghz_scene_set_fix_faac_on_exit(void* context) {
     SubGhz* subghz = context;
 
     // Clear view

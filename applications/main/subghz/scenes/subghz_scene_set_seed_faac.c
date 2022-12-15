@@ -2,15 +2,15 @@
 #include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/faac_slh.h>
 
-#define TAG "SubGhzSetSeedFaac868"
+#define TAG "SubGhzSetSeedFaac"
 
-void subghz_scene_set_seed_faac_868_byte_input_callback(void* context) {
+void subghz_scene_set_seed_faac_byte_input_callback(void* context) {
     SubGhz* subghz = context;
 
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventByteInputDone);
 }
 
-void subghz_scene_set_seed_faac_868_on_enter(void* context) {
+void subghz_scene_set_seed_faac_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
@@ -18,7 +18,7 @@ void subghz_scene_set_seed_faac_868_on_enter(void* context) {
     byte_input_set_header_text(byte_input, "Enter SEED in hex");
     byte_input_set_result_callback(
         byte_input,
-        subghz_scene_set_seed_faac_868_byte_input_callback,
+        subghz_scene_set_seed_faac_byte_input_callback,
         NULL,
         subghz,
         subghz->txrx->secure_data->seed,
@@ -26,7 +26,7 @@ void subghz_scene_set_seed_faac_868_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
 
-bool subghz_scene_set_seed_faac_868_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_set_seed_faac_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     bool consumed = false;
     bool generated_protocol = false;
@@ -48,7 +48,14 @@ bool subghz_scene_set_seed_faac_868_on_event(void* context, SceneManagerEvent ev
             subghz->txrx->transmitter =
                 subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
             if(subghz->txrx->transmitter) {
-                subghz_preset_init(subghz, "AM650", 868350000, NULL, 0);
+                SubGhzCustomEvent state =
+                    scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType);
+
+                if(state == SubmenuIndexFaacSLH_433) {
+                    subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
+                } else if(state == SubmenuIndexFaacSLH_868) {
+                    subghz_preset_init(subghz, "AM650", 868350000, NULL, 0);
+                }
                 subghz_protocol_faac_slh_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
@@ -58,7 +65,7 @@ bool subghz_scene_set_seed_faac_868_on_event(void* context, SceneManagerEvent ev
                     seed,
                     "FAAC_SLH",
                     subghz->txrx->preset);
-                // roguemastter dont steal!!
+                // rogueemaster dont steal!
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
                 for(size_t i = 0; i < sizeof(uint32_t); i++) {
                     seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
@@ -94,7 +101,7 @@ bool subghz_scene_set_seed_faac_868_on_event(void* context, SceneManagerEvent ev
     return consumed;
 }
 
-void subghz_scene_set_seed_faac_868_on_exit(void* context) {
+void subghz_scene_set_seed_faac_on_exit(void* context) {
     SubGhz* subghz = context;
 
     // Clear view
