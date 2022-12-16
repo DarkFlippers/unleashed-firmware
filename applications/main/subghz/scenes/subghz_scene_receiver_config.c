@@ -5,6 +5,7 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexFrequency,
     SubGhzSettingIndexHopping,
     SubGhzSettingIndexModulation,
+    SubGhzSettingIndexSound,
     SubGhzSettingIndexLock,
     SubGhzSettingIndexRAWThesholdRSSI,
 };
@@ -46,6 +47,16 @@ const char* const hopping_text[HOPPING_COUNT] = {
 const uint32_t hopping_value[HOPPING_COUNT] = {
     SubGhzHopperStateOFF,
     SubGhzHopperStateRunnig,
+};
+
+#define SPEAKER_COUNT 2
+const char* const speaker_text[SPEAKER_COUNT] = {
+    "OFF",
+    "ON",
+};
+const uint32_t speaker_value[SPEAKER_COUNT] = {
+    SubGhzSpeakerStateShutdown,
+    SubGhzSpeakerStateEnable,
 };
 
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
@@ -167,6 +178,14 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
     subghz->txrx->hopper_state = hopping_value[index];
 }
 
+static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, speaker_text[index]);
+    subghz->txrx->speaker_state = speaker_value[index];
+}
+
 static void subghz_scene_receiver_config_set_raw_threshold_rssi(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
@@ -234,6 +253,16 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(
         item, subghz_setting_get_preset_name(subghz->setting, value_index));
+
+    item = variable_item_list_add(
+        subghz->variable_item_list,
+        "Sound:",
+        SPEAKER_COUNT,
+        subghz_scene_receiver_config_set_speaker,
+        subghz);
+    value_index = value_index_uint32(subghz->txrx->speaker_state, speaker_value, SPEAKER_COUNT);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, speaker_text[value_index]);
 
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
        SubGhzCustomEventManagerSet) {
