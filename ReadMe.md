@@ -27,6 +27,12 @@ Our Discord Community:
 <br>
 <br>
 
+## Dev builds
+- https://dev.unleashedflip.com/
+- https://t.me/kotnehleb
+## Releases in Telegram
+- https://t.me/unleashed_fw
+
 # What's changed
 * SubGHz regional TX restrictions removed
 * SubGHz frequency range can be extended in settings file (Warning: It can damage flipper's hardware)
