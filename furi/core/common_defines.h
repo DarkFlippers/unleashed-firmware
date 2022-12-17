@@ -11,6 +11,10 @@ extern "C" {
 
 #include <cmsis_compiler.h>
 
+#ifndef FURI_WARN_UNUSED
+#define FURI_WARN_UNUSED __attribute__((warn_unused_result))
+#endif
+
 #ifndef FURI_IS_IRQ_MASKED
 #define FURI_IS_IRQ_MASKED() (__get_PRIMASK() != 0U)
 #endif

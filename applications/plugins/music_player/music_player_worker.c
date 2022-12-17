@@ -47,47 +47,51 @@ static int32_t music_player_worker_thread_callback(void* context) {
 
     NoteBlockArray_it_t it;
     NoteBlockArray_it(it, instance->notes);
+    if(furi_hal_speaker_acquire(1000)) {
+        while(instance->should_work) {
+            if(NoteBlockArray_end_p(it)) {
+                NoteBlockArray_it(it, instance->notes);
+                furi_delay_ms(10);
+            } else {
+                NoteBlock* note_block = NoteBlockArray_ref(it);
 
-    while(instance->should_work) {
-        if(NoteBlockArray_end_p(it)) {
-            NoteBlockArray_it(it, instance->notes);
-            furi_delay_ms(10);
-        } else {
-            NoteBlock* note_block = NoteBlockArray_ref(it);
+                float note_from_a4 = (float)note_block->semitone - NOTE_C4_SEMITONE;
+                float frequency = NOTE_C4 * powf(TWO_POW_TWELTH_ROOT, note_from_a4);
+                float duration = 60.0 * furi_kernel_get_tick_frequency() * 4 / instance->bpm /
+                                 note_block->duration;
+                uint32_t dots = note_block->dots;
+                while(dots > 0) {
+                    duration += duration / 2;
+                    dots--;
+                }
+                uint32_t next_tick = furi_get_tick() + duration;
+                float volume = instance->volume;
 
-            float note_from_a4 = (float)note_block->semitone - NOTE_C4_SEMITONE;
-            float frequency = NOTE_C4 * powf(TWO_POW_TWELTH_ROOT, note_from_a4);
-            float duration =
-                60.0 * furi_kernel_get_tick_frequency() * 4 / instance->bpm / note_block->duration;
-            uint32_t dots = note_block->dots;
-            while(dots > 0) {
-                duration += duration / 2;
-                dots--;
+                if(instance->callback) {
+                    instance->callback(
+                        note_block->semitone,
+                        note_block->dots,
+                        note_block->duration,
+                        0.0,
+                        instance->callback_context);
+                }
+
+                furi_hal_speaker_stop();
+                furi_hal_speaker_start(frequency, volume);
+                while(instance->should_work && furi_get_tick() < next_tick) {
+                    volume *= 0.9945679;
+                    furi_hal_speaker_set_volume(volume);
+                    furi_delay_ms(2);
+                }
+                NoteBlockArray_next(it);
             }
-            uint32_t next_tick = furi_get_tick() + duration;
-            float volume = instance->volume;
-
-            if(instance->callback) {
-                instance->callback(
-                    note_block->semitone,
-                    note_block->dots,
-                    note_block->duration,
-                    0.0,
-                    instance->callback_context);
-            }
-
-            furi_hal_speaker_stop();
-            furi_hal_speaker_start(frequency, volume);
-            while(instance->should_work && furi_get_tick() < next_tick) {
-                volume *= 0.9945679;
-                furi_hal_speaker_set_volume(volume);
-                furi_delay_ms(2);
-            }
-            NoteBlockArray_next(it);
         }
-    }
 
-    furi_hal_speaker_stop();
+        furi_hal_speaker_stop();
+        furi_hal_speaker_release();
+    } else {
+        FURI_LOG_E(TAG, "Speaker system is busy with another process.");
+    }
 
     return 0;
 }
