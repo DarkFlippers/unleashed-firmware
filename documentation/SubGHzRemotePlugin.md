@@ -2,7 +2,7 @@
 
 ### The UniRF Tool *requires* the creation of custom user map with `.txt` extension in the `unirf` folder on the sdcard. 
 
-#### If these files are not exist or not configured properly, **you will receive an error each time you try to select wrong file in the UniRF Tool**.
+#### If these files do not exist or are not configured properly, **you will receive an error each time you try to select the wrong file in the UniRF Tool**.
 
 ## You can add as many `.txt` map files as you want, file name doesn't matter!
 
