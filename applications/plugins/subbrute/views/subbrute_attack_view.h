@@ -1,12 +1,9 @@
 #pragma once
 
+#include "../subbrute_custom_event.h"
 #include <gui/view.h>
-#include "assets_icons.h"
 #include <input/input.h>
 #include <gui/elements.h>
-#include <gui/icon.h>
-#include <subghz/types.h>
-#include "../subbrute_custom_event.h"
 
 typedef void (*SubBruteAttackViewCallback)(SubBruteCustomEvent event, void* context);
 typedef struct SubBruteAttackView SubBruteAttackView;

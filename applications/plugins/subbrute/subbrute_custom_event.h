@@ -1,8 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
-
 typedef enum {
     // Reserve first 100 events for button types and indexes, starting from 0
     SubBruteCustomEventTypeReserved = 100,
@@ -10,7 +7,7 @@ typedef enum {
     SubBruteCustomEventTypeBackPressed,
     SubBruteCustomEventTypeIndexSelected,
     SubBruteCustomEventTypeTransmitStarted,
-    SubBruteCustomEventTypeTransmitContinuousStarted,
+    SubBruteCustomEventTypeError,
     SubBruteCustomEventTypeTransmitFinished,
     SubBruteCustomEventTypeTransmitNotStarted,
     SubBruteCustomEventTypeTransmitCustom,

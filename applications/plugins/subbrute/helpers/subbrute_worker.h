@@ -1,39 +1,39 @@
 #pragma once
 
-#include <furi_hal_subghz.h>
-
-typedef struct SubBruteWorker SubBruteWorker;
-/**
- * Same like SubGhzTxRxWorkerStatus in subghz_tx_rx_worker.h
- * using just to not include that file
+#include "../subbrute_protocols.h"
 
 typedef enum {
-    SubBruteWorkerStatusIDLE,
-    SubBruteWorkerStatusTx,
-    // SubBruteWorkerStatusRx,
-} SubBruteWorkerStatus;
+    SubBruteWorkerStateIDLE,
+    SubBruteWorkerStateReady,
+    SubBruteWorkerStateTx,
+    SubBruteWorkerStateFinished
+} SubBruteWorkerState;
 
-//typedef void (*SubBruteWorkerCallback)(SubBruteWorkerStatus event, void* context);
-*/
+typedef void (*SubBruteWorkerCallback)(void* context, SubBruteWorkerState state);
+
+typedef struct SubBruteWorker SubBruteWorker;
+
 SubBruteWorker* subbrute_worker_alloc();
 void subbrute_worker_free(SubBruteWorker* instance);
-bool subbrute_worker_start(
-    SubBruteWorker* instance,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* protocol_name);
-void subbrute_worker_stop(SubBruteWorker* instance);
-bool subbrute_worker_get_continuous_worker(SubBruteWorker* instance);
-void subbrute_worker_set_continuous_worker(SubBruteWorker* instance, bool is_continuous_worker);
-//bool subbrute_worker_write(SubBruteWorker* instance, uint8_t* data, size_t size);
+uint64_t subbrute_worker_get_step(SubBruteWorker* instance);
+bool subbrute_worker_set_step(SubBruteWorker* instance, uint64_t step);
 bool subbrute_worker_is_running(SubBruteWorker* instance);
-bool subbrute_worker_can_transmit(SubBruteWorker* instance);
-bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance, bool is_button_pressed);
-bool subbrute_worker_transmit(SubBruteWorker* instance, const char* payload);
-bool subbrute_worker_init_manual_transmit(
+bool subbrute_worker_init_default_attack(
     SubBruteWorker* instance,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* protocol_name);
-bool subbrute_worker_manual_transmit(SubBruteWorker* instance, const char* payload);
-void subbrute_worker_manual_transmit_stop(SubBruteWorker* instance);
+    SubBruteAttacks attack_type,
+    uint64_t step,
+    const SubBruteProtocol* protocol);
+bool subbrute_worker_init_file_attack(
+    SubBruteWorker* instance,
+    uint64_t step,
+    uint8_t load_index,
+    const char* file_key,
+    SubBruteProtocol* protocol);
+bool subbrute_worker_start(SubBruteWorker* instance);
+void subbrute_worker_stop(SubBruteWorker* instance);
+bool subbrute_worker_transmit_current_key(SubBruteWorker* instance, uint64_t step);
+bool subbrute_worker_can_manual_transmit(SubBruteWorker* instance);
+void subbrute_worker_set_callback(
+    SubBruteWorker* instance,
+    SubBruteWorkerCallback callback,
+    void* context);

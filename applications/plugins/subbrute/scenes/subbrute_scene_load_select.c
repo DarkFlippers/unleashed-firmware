@@ -1,6 +1,5 @@
 #include "../subbrute_i.h"
-#include "../subbrute_custom_event.h"
-#include "../views/subbrute_main_view.h"
+#include "subbrute_scene.h"
 
 #define TAG "SubBruteSceneStart"
 
@@ -8,9 +7,6 @@ void subbrute_scene_load_select_callback(SubBruteCustomEvent event, void* contex
     furi_assert(context);
 
     SubBruteState* instance = (SubBruteState*)context;
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "subbrute_scene_load_select_callback");
-#endif
     view_dispatcher_send_custom_event(instance->view_dispatcher, event);
 }
 
@@ -43,9 +39,14 @@ bool subbrute_scene_load_select_on_event(void* context, SceneManagerEvent event)
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubBruteCustomEventTypeIndexSelected) {
             instance->device->load_index = subbrute_main_view_get_index(instance->view_main);
-#ifdef FURI_DEBUG
-            FURI_LOG_D(TAG, "load_index: %d", instance->device->load_index);
-#endif
+            if(!subbrute_worker_init_file_attack(
+                   instance->worker,
+                   instance->device->key_index,
+                   instance->device->load_index,
+                   instance->device->file_key,
+                   instance->device->file_protocol_info)) {
+                furi_crash("Invalid attack set!");
+            }
             scene_manager_next_scene(instance->scene_manager, SubBruteSceneSetupAttack);
             consumed = true;
         }

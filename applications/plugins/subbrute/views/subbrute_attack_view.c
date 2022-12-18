@@ -1,11 +1,12 @@
 #include "subbrute_attack_view.h"
 #include "../subbrute_i.h"
+#include "../subbrute_protocols.h"
 
-#include "assets_icons.h"
 #include <input/input.h>
 #include <gui/elements.h>
-#include <gui/icon_i.h>
-#include <gui/icon_animation_i.h>
+#include <gui/icon.h>
+#include <gui/icon_animation.h>
+#include <assets_icons.h>
 
 #define TAG "SubBruteAttackView"
 
@@ -46,21 +47,23 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
         instance->callback(SubBruteCustomEventTypeBackPressed, instance->context);
         with_view_model(
-            instance->view, (SubBruteAttackViewModel * model) {
+            instance->view,
+            SubBruteAttackViewModel * model,
+            {
                 model->is_attacking = false;
                 model->is_continuous_worker = false;
-                return true;
-            });
+            },
+            true);
         return true;
     }
 
     bool is_attacking = false;
 
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
-            is_attacking = model->is_attacking;
-            return false;
-        });
+        instance->view,
+        SubBruteAttackViewModel * model,
+        { is_attacking = model->is_attacking; },
+        false);
 
     //    if(!is_attacking) {
     //        instance->callback(SubBruteCustomEventTypeTransmitNotStarted, instance->context);
@@ -74,13 +77,15 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
             FURI_LOG_D(TAG, "InputKey: %d OK", event->key);
 #endif
             with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view,
+                SubBruteAttackViewModel * model,
+                {
                     model->is_attacking = true;
                     model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
-                    return true;
-                });
+                },
+                true);
             instance->callback(SubBruteCustomEventTypeTransmitStarted, instance->context);
             /*if(event->type == InputTypeRepeat && event->key == InputKeyOk) {
 #ifdef FURI_DEBUG
@@ -151,13 +156,15 @@ bool subbrute_attack_view_input(InputEvent* event, void* context) {
         if((event->type == InputTypeShort || event->type == InputTypeRepeat) &&
            (event->key == InputKeyOk || event->key == InputKeyBack)) {
             with_view_model(
-                instance->view, (SubBruteAttackViewModel * model) {
+                instance->view,
+                SubBruteAttackViewModel * model,
+                {
                     model->is_attacking = false;
                     model->is_continuous_worker = false;
                     icon_animation_stop(model->icon);
                     icon_animation_start(model->icon);
-                    return true;
-                });
+                },
+                true);
             instance->callback(SubBruteCustomEventTypeTransmitNotStarted, instance->context);
         }
     }
@@ -173,11 +180,13 @@ SubBruteAttackView* subbrute_attack_view_alloc() {
     view_set_context(instance->view, instance);
 
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view,
+        SubBruteAttackViewModel * model,
+        {
             model->icon = icon_animation_alloc(&A_Sub1ghz_14);
             view_tie_icon_animation(instance->view, model->icon);
-            return false;
-        });
+        },
+        false);
 
     view_set_draw_callback(instance->view, (ViewDrawCallback)subbrute_attack_view_draw);
     view_set_input_callback(instance->view, subbrute_attack_view_input);
@@ -203,10 +212,10 @@ void subbrute_attack_view_free(SubBruteAttackView* instance) {
 #endif
 
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
-            icon_animation_free(model->icon);
-            return false;
-        });
+        instance->view,
+        SubBruteAttackViewModel * model,
+        { icon_animation_free(model->icon); },
+        false);
 
     view_free(instance->view);
     free(instance);
@@ -223,19 +232,19 @@ void subbrute_attack_view_set_current_step(SubBruteAttackView* instance, uint64_
     //FURI_LOG_D(TAG, "Set step: %d", current_step);
 #endif
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
-            model->current_step = current_step;
-            return true;
-        });
+        instance->view,
+        SubBruteAttackViewModel * model,
+        { model->current_step = current_step; },
+        true);
 }
 
 void subbrute_attack_view_set_worker_type(SubBruteAttackView* instance, bool is_continuous_worker) {
     furi_assert(instance);
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
-            model->is_continuous_worker = is_continuous_worker;
-            return true;
-        });
+        instance->view,
+        SubBruteAttackViewModel * model,
+        { model->is_continuous_worker = is_continuous_worker; },
+        true);
 }
 
 // We need to call init every time, because not every time we calls enter
@@ -248,10 +257,16 @@ void subbrute_attack_view_init_values(
     bool is_attacking) {
 #ifdef FURI_DEBUG
     FURI_LOG_D(
-        TAG, "init, index: %d, max_value: %d, current_step: %d", index, max_value, current_step);
+        TAG,
+        "init, index: %d, max_value: %lld, current_step: %lld",
+        index,
+        max_value,
+        current_step);
 #endif
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
+        instance->view,
+        SubBruteAttackViewModel * model,
+        {
             model->max_value = max_value;
             model->index = index;
             model->current_step = current_step;
@@ -261,8 +276,8 @@ void subbrute_attack_view_init_values(
             } else {
                 icon_animation_stop(model->icon);
             }
-            return true;
-        });
+        },
+        true);
 }
 
 void subbrute_attack_view_exit(void* context) {
@@ -272,75 +287,73 @@ void subbrute_attack_view_exit(void* context) {
     FURI_LOG_D(TAG, "subbrute_attack_view_exit");
 #endif
     with_view_model(
-        instance->view, (SubBruteAttackViewModel * model) {
-            icon_animation_stop(model->icon);
-            return false;
-        });
+        instance->view,
+        SubBruteAttackViewModel * model,
+        { icon_animation_stop(model->icon); },
+        false);
 }
 
+/**
+ * Thanks to the author of metronome
+ * @param canvas
+ * @param str
+ */
 void elements_button_top_left(Canvas* canvas, const char* str) {
     const Icon* icon = &I_ButtonUp_7x4;
 
     const uint8_t button_height = 12;
-    const uint8_t vertical_offset = 9; //
+    const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const uint8_t icon_h_offset = 3;
-    const uint8_t icon_width_with_offset = icon->width + icon_h_offset;
-    const uint8_t icon_v_offset = icon->height; //
-    const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset + 1;
+    const uint8_t icon_width_with_offset = icon_get_width(icon) + icon_h_offset;
+    const uint8_t icon_v_offset = icon_get_height(icon) + vertical_offset;
+    const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
 
     const uint8_t x = 0;
-    const uint8_t y = 0;
+    const uint8_t y = 0 + button_height;
 
-    canvas_draw_box(canvas, x, y, button_width, button_height);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(
-        TAG, "lbox, x: %d, y: %d, width: %d, height: %d", x, y, button_width, button_height);
-#endif
-    //    canvas_draw_line(canvas, x + button_width + 0, y, x + button_width + 0, y + button_height - 0); //
-    //    canvas_draw_line(canvas, x + button_width + 1, y, x + button_width + 1, y + button_height - 1);
-    //    canvas_draw_line(canvas, x + button_width + 2, y, x + button_width + 2, y + button_height - 2);
+    canvas_draw_box(canvas, x, y - button_height, button_width, button_height);
+    canvas_draw_line(canvas, x + button_width + 0, y - button_height, x + button_width + 0, y - 1);
+    canvas_draw_line(canvas, x + button_width + 1, y - button_height, x + button_width + 1, y - 2);
+    canvas_draw_line(canvas, x + button_width + 2, y - button_height, x + button_width + 2, y - 3);
 
     canvas_invert_color(canvas);
-    canvas_draw_icon(canvas, x + horizontal_offset, y + icon_v_offset, icon);
+    canvas_draw_icon(canvas, x + horizontal_offset, y - icon_v_offset, icon);
     canvas_draw_str(
-        canvas, x + horizontal_offset + icon_width_with_offset, y + vertical_offset, str);
+        canvas, x + horizontal_offset + icon_width_with_offset, y - vertical_offset, str);
     canvas_invert_color(canvas);
 }
 
+/**
+ * Thanks to the author of metronome
+ * @param canvas
+ * @param str
+ */
 void elements_button_top_right(Canvas* canvas, const char* str) {
     const Icon* icon = &I_ButtonDown_7x4;
 
     const uint8_t button_height = 12;
-    const uint8_t vertical_offset = 9;
+    const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const uint8_t icon_h_offset = 3;
-    const uint8_t icon_width_with_offset = icon->width + icon_h_offset;
-    const uint8_t icon_v_offset = icon->height; // + vertical_offset;
-    const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset + 1;
+    const uint8_t icon_width_with_offset = icon_get_width(icon) + icon_h_offset;
+    const uint8_t icon_v_offset = icon_get_height(icon) + vertical_offset + 1;
+    const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
 
     const uint8_t x = canvas_width(canvas);
-    const uint8_t y = 0;
+    const uint8_t y = 0 + button_height;
 
-    canvas_draw_box(canvas, x - button_width, y, button_width, button_height);
-#ifdef FURI_DEBUG
-    FURI_LOG_D(
-        TAG,
-        "rbox, x: %d, y: %d, width: %d, height: %d",
-        x - button_width,
-        y,
-        button_width,
-        button_height);
-#endif
-    //    canvas_draw_line(canvas, x - button_width - 1, y, x + button_width - 1, y + button_height - 0);
-    //    canvas_draw_line(canvas, x - button_width - 2, y, x + button_width - 2, y + button_height - 1);
-    //    canvas_draw_line(canvas, x - button_width - 3, y, x + button_width - 3, y + button_height - 2);
+    canvas_draw_box(canvas, x - button_width, y - button_height, button_width, button_height);
+    canvas_draw_line(canvas, x - button_width - 1, y - button_height, x - button_width - 1, y - 1);
+    canvas_draw_line(canvas, x - button_width - 2, y - button_height, x - button_width - 2, y - 2);
+    canvas_draw_line(canvas, x - button_width - 3, y - button_height, x - button_width - 3, y - 3);
 
     canvas_invert_color(canvas);
-    canvas_draw_str(canvas, x - button_width + horizontal_offset, y + vertical_offset, str);
-    canvas_draw_icon(canvas, x - horizontal_offset - icon->width, y + icon_v_offset, icon);
+    canvas_draw_str(canvas, x - button_width + horizontal_offset, y - vertical_offset, str);
+    canvas_draw_icon(
+        canvas, x - horizontal_offset - icon_get_width(icon), y - icon_v_offset, icon);
     canvas_invert_color(canvas);
 }
 
@@ -350,7 +363,7 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
     char buffer[26];
 
     const char* attack_name = NULL;
-    attack_name = subbrute_get_menu_name(model->index);
+    attack_name = subbrute_protocol_name(model->index);
     // Title
     if(model->is_attacking) {
         canvas_set_color(canvas, ColorBlack);
@@ -379,8 +392,9 @@ void subbrute_attack_view_draw(Canvas* canvas, void* context) {
         }
         // canvas_draw_icon_animation
         const uint8_t icon_h_offset = 0;
-        const uint8_t icon_width_with_offset = model->icon->icon->width + icon_h_offset;
-        const uint8_t icon_v_offset = model->icon->icon->height; // + vertical_offset;
+        const uint8_t icon_width_with_offset =
+            icon_animation_get_width(model->icon) + icon_h_offset;
+        const uint8_t icon_v_offset = icon_animation_get_height(model->icon); // + vertical_offset;
         const uint8_t x = canvas_width(canvas);
         const uint8_t y = canvas_height(canvas);
         canvas_draw_icon_animation(
