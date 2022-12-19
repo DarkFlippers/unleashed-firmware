@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#define WS_VERSION_APP "0.6"
+#define WS_VERSION_APP "0.6.1"
 #define WS_DEVELOPED "SkorP"
 #define WS_GITHUB "https://github.com/flipperdevices/flipperzero-firmware"
 

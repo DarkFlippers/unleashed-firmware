@@ -134,8 +134,8 @@ static void ws_protocol_ambient_weather_remote_controller(WSBlockGeneric* instan
     instance->id = (instance->data >> 32) & 0xFF;
     instance->battery_low = (instance->data >> 31) & 1;
     instance->channel = ((instance->data >> 28) & 0x07) + 1;
-    instance->temp = ws_block_generic_fahrenheit_to_celsius(
-        ((float)((instance->data >> 16) & 0x0FFF) - 400.0f) / 10.0f);
+    instance->temp =
+        locale_fahrenheit_to_celsius(((float)((instance->data >> 16) & 0x0FFF) - 400.0f) / 10.0f);
     instance->humidity = (instance->data >> 8) & 0xFF;
     instance->btn = WS_NO_BTN;
 
