@@ -71,6 +71,7 @@ struct SubGhzTxRx {
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;
     SubGhzHopperState hopper_state;
+    SubGhzSpeakerState speaker_state;
     uint8_t hopper_timeout;
     uint8_t hopper_idx_frequency;
     SubGhzRxKeyState rx_key_state;
@@ -160,6 +161,10 @@ void subghz_file_name_clear(SubGhz* subghz);
 bool subghz_path_is_file(FuriString* path);
 uint32_t subghz_random_serial(void);
 void subghz_hopper_update(SubGhz* subghz);
+void subghz_speaker_on(SubGhz* subghz);
+void subghz_speaker_off(SubGhz* subghz);
+void subghz_speaker_mute(SubGhz* subghz);
+void subghz_speaker_unmute(SubGhz* subghz);
 
 extern const NotificationSequence subghz_sequence_rx;
 extern const NotificationSequence subghz_sequence_rx_locked;

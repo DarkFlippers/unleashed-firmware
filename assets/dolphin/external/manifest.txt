@@ -36,10 +36,10 @@ Min level: 1
 Max level: 1
 Weight: 3
 
-Name: L2_Wake_up_128x64
+Name: L1_Happy_holidays_128x64
 Min butthurt: 0
-Max butthurt: 12
-Min level: 2
+Max butthurt: 14
+Min level: 1
 Max level: 3
 Weight: 4
 
@@ -92,6 +92,13 @@ Min level: 1
 Max level: 3
 Weight: 3
 
+Name: L2_Wake_up_128x64
+Min butthurt: 0
+Max butthurt: 12
+Min level: 2
+Max level: 3
+Weight: 4
+
 Name: L2_Furippa2_128x64
 Min butthurt: 0
 Max butthurt: 6
@@ -139,7 +146,7 @@ Min butthurt: 0
 Max butthurt: 10
 Min level: 1
 Max level: 3
-Weight: 7
+Weight: 2
 
 Name: L3_Fireplace_128x64
 Min butthurt: 0

@@ -212,10 +212,10 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         uint32_t key = subghz_random_serial();
         switch(event.event) {
         case SubmenuIndexFaacSLH_868:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac868);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
             break;
         case SubmenuIndexFaacSLH_433:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac433);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
             break;
         case SubmenuIndexBFT:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixBft);

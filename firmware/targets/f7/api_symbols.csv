@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,10.1,,
+Version,+,11.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -30,6 +30,7 @@ Header,+,applications/services/gui/view_dispatcher.h,,
 Header,+,applications/services/gui/view_stack.h,,
 Header,+,applications/services/input/input.h,,
 Header,+,applications/services/loader/loader.h,,
+Header,+,applications/services/locale/locale.h,,
 Header,+,applications/services/notification/notification.h,,
 Header,+,applications/services/notification/notification_messages.h,,
 Header,+,applications/services/power/power_service/power.h,,
@@ -1283,6 +1284,9 @@ Function,+,furi_hal_rtc_get_boot_mode,FuriHalRtcBootMode,
 Function,+,furi_hal_rtc_get_datetime,void,FuriHalRtcDateTime*
 Function,+,furi_hal_rtc_get_fault_data,uint32_t,
 Function,+,furi_hal_rtc_get_heap_track_mode,FuriHalRtcHeapTrackMode,
+Function,+,furi_hal_rtc_get_locale_dateformat,FuriHalRtcLocaleDateFormat,
+Function,+,furi_hal_rtc_get_locale_timeformat,FuriHalRtcLocaleTimeFormat,
+Function,+,furi_hal_rtc_get_locale_units,FuriHalRtcLocaleUnits,
 Function,+,furi_hal_rtc_get_log_level,uint8_t,
 Function,+,furi_hal_rtc_get_pin_fails,uint32_t,
 Function,+,furi_hal_rtc_get_register,uint32_t,FuriHalRtcRegister
@@ -1296,11 +1300,18 @@ Function,+,furi_hal_rtc_set_datetime,void,FuriHalRtcDateTime*
 Function,+,furi_hal_rtc_set_fault_data,void,uint32_t
 Function,+,furi_hal_rtc_set_flag,void,FuriHalRtcFlag
 Function,+,furi_hal_rtc_set_heap_track_mode,void,FuriHalRtcHeapTrackMode
+Function,+,furi_hal_rtc_set_locale_dateformat,void,FuriHalRtcLocaleDateFormat
+Function,+,furi_hal_rtc_set_locale_timeformat,void,FuriHalRtcLocaleTimeFormat
+Function,+,furi_hal_rtc_set_locale_units,void,FuriHalRtcLocaleUnits
 Function,+,furi_hal_rtc_set_log_level,void,uint8_t
 Function,+,furi_hal_rtc_set_pin_fails,void,uint32_t
 Function,+,furi_hal_rtc_set_register,void,"FuriHalRtcRegister, uint32_t"
 Function,+,furi_hal_rtc_validate_datetime,_Bool,FuriHalRtcDateTime*
+Function,+,furi_hal_speaker_acquire,_Bool,uint32_t
+Function,-,furi_hal_speaker_deinit,void,
 Function,-,furi_hal_speaker_init,void,
+Function,+,furi_hal_speaker_is_mine,_Bool,
+Function,+,furi_hal_speaker_release,void,
 Function,+,furi_hal_speaker_set_volume,void,float
 Function,+,furi_hal_speaker_start,void,"float, float"
 Function,+,furi_hal_speaker_stop,void,
@@ -1335,6 +1346,7 @@ Function,+,furi_hal_subghz_read_packet,void,"uint8_t*, uint8_t*"
 Function,+,furi_hal_subghz_reset,void,
 Function,+,furi_hal_subghz_rx,void,
 Function,+,furi_hal_subghz_rx_pipe_not_empty,_Bool,
+Function,+,furi_hal_subghz_set_async_mirror_pin,void,const GpioPin*
 Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
@@ -1752,6 +1764,16 @@ Function,+,loader_update_menu,void,
 Function,+,loading_alloc,Loading*,
 Function,+,loading_free,void,Loading*
 Function,+,loading_get_view,View*,Loading*
+Function,+,locale_celsius_to_fahrenheit,float,float
+Function,+,locale_fahrenheit_to_celsius,float,float
+Function,+,locale_format_date,void,"FuriString*, const FuriHalRtcDateTime*, const LocaleDateFormat, const char*"
+Function,+,locale_format_time,void,"FuriString*, const FuriHalRtcDateTime*, const LocaleTimeFormat, const _Bool"
+Function,+,locale_get_date_format,LocaleDateFormat,
+Function,+,locale_get_measurement_unit,LocaleMeasurementUnits,
+Function,+,locale_get_time_format,LocaleTimeFormat,
+Function,+,locale_set_date_format,void,LocaleDateFormat
+Function,+,locale_set_measurement_unit,void,LocaleMeasurementUnits
+Function,+,locale_set_time_format,void,LocaleTimeFormat
 Function,-,localtime,tm*,const time_t*
 Function,-,localtime_r,tm*,"const time_t*, tm*"
 Function,-,log,double,double
@@ -2830,6 +2852,14 @@ Function,-,subghz_protocol_decoder_secplus_v2_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_secplus_v2_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_secplus_v2_reset,void,void*
 Function,-,subghz_protocol_decoder_secplus_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_smc5326_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_smc5326_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_smc5326_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_smc5326_free,void,void*
+Function,-,subghz_protocol_decoder_smc5326_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_smc5326_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_smc5326_reset,void,void*
+Function,-,subghz_protocol_decoder_smc5326_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_somfy_keytis_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_somfy_keytis_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_somfy_keytis_feed,void,"void*, _Bool, uint32_t"
@@ -3000,6 +3030,11 @@ Function,-,subghz_protocol_encoder_secplus_v2_deserialize,_Bool,"void*, FlipperF
 Function,-,subghz_protocol_encoder_secplus_v2_free,void,void*
 Function,-,subghz_protocol_encoder_secplus_v2_stop,void,void*
 Function,-,subghz_protocol_encoder_secplus_v2_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_smc5326_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_smc5326_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_smc5326_free,void,void*
+Function,-,subghz_protocol_encoder_smc5326_stop,void,void*
+Function,-,subghz_protocol_encoder_smc5326_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_star_line_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_star_line_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_star_line_free,void,void*
@@ -4820,6 +4855,9 @@ Variable,-,subghz_protocol_secplus_v1_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_secplus_v2,const SubGhzProtocol,
 Variable,-,subghz_protocol_secplus_v2_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_secplus_v2_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_smc5326,const SubGhzProtocol,
+Variable,-,subghz_protocol_smc5326_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_smc5326_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_somfy_keytis,const SubGhzProtocol,
 Variable,-,subghz_protocol_somfy_keytis_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_somfy_keytis_encoder,const SubGhzProtocolEncoder,

@@ -27,6 +27,12 @@ Our Discord Community:
 <br>
 <br>
 
+## Dev builds
+- https://dev.unleashedflip.com/
+- https://t.me/kotnehleb
+## Releases in Telegram
+- https://t.me/unleashed_fw
+
 # What's changed
 * SubGHz regional TX restrictions removed
 * SubGHz frequency range can be extended in settings file (Warning: It can damage flipper's hardware)
@@ -68,6 +74,7 @@ Also check changelog in releases for latest updates!
 
 ## Please support development of the project
 * Boosty: https://boosty.to/mmxdev
+* Ko-Fi: https://ko-fi.com/masterx
 * destream (100 EUR min): https://destream.net/live/MMX/donate
 * cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * YooMoney (only RU payments accepted): https://yoomoney.ru/fundraise/XA49mgQLPA0.221209

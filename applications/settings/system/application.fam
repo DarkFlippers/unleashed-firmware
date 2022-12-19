@@ -3,7 +3,7 @@ App(
     name="System",
     apptype=FlipperAppType.SETTINGS,
     entry_point="system_settings_app",
-    requires=["gui"],
+    requires=["gui", "locale"],
     stack_size=1 * 1024,
     order=70,
 )
