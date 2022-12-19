@@ -61,17 +61,23 @@ static int32_t morse_code_worker_thread_callback(void* context) {
     bool spaced = true;
     while(instance->is_running) {
         furi_delay_ms(SLEEP);
+
         if(instance->play) {
             if(!was_playing) {
                 start_tick = furi_get_tick();
-                furi_hal_speaker_start(FREQUENCY, instance->volume);
+                if(furi_hal_speaker_acquire(1000)) {
+                    furi_hal_speaker_start(FREQUENCY, instance->volume);
+                }
                 was_playing = true;
             }
         } else {
             if(was_playing) {
                 pushed = false;
                 spaced = false;
-                furi_hal_speaker_stop();
+                if(furi_hal_speaker_is_mine()) {
+                    furi_hal_speaker_stop();
+                    furi_hal_speaker_release();
+                }
                 end_tick = furi_get_tick();
                 was_playing = false;
                 morse_code_worker_fill_buffer(instance, end_tick - start_tick);

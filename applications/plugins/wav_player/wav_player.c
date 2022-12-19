@@ -237,65 +237,71 @@ static void app_run(WavPlayerApp* app) {
 
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, wav_player_dma_isr, app->queue);
 
-    wav_player_dma_start();
-    wav_player_speaker_start();
+    if(furi_hal_speaker_acquire(1000)) {
+        wav_player_dma_start();
+        wav_player_speaker_start();
 
-    WavPlayerEvent event;
+        WavPlayerEvent event;
 
-    while(1) {
-        if(furi_message_queue_get(app->queue, &event, FuriWaitForever) == FuriStatusOk) {
-            if(event.type == WavPlayerEventHalfTransfer) {
-                eof = fill_data(app, 0);
-                wav_player_view_set_current(app->view, stream_tell(app->stream));
-                if(eof) {
-                    stream_seek(
-                        app->stream,
-                        wav_parser_get_data_start(app->parser),
-                        StreamOffsetFromStart);
+        while(1) {
+            if(furi_message_queue_get(app->queue, &event, FuriWaitForever) == FuriStatusOk) {
+                if(event.type == WavPlayerEventHalfTransfer) {
+                    eof = fill_data(app, 0);
+                    wav_player_view_set_current(app->view, stream_tell(app->stream));
+                    if(eof) {
+                        stream_seek(
+                            app->stream,
+                            wav_parser_get_data_start(app->parser),
+                            StreamOffsetFromStart);
+                    }
+
+                } else if(event.type == WavPlayerEventFullTransfer) {
+                    eof = fill_data(app, app->samples_count_half);
+                    wav_player_view_set_current(app->view, stream_tell(app->stream));
+                    if(eof) {
+                        stream_seek(
+                            app->stream,
+                            wav_parser_get_data_start(app->parser),
+                            StreamOffsetFromStart);
+                    }
+                } else if(event.type == WavPlayerEventCtrlVolUp) {
+                    if(app->volume < 9.9) app->volume += 0.4;
+                    wav_player_view_set_volume(app->view, app->volume);
+                } else if(event.type == WavPlayerEventCtrlVolDn) {
+                    if(app->volume > 0.01) app->volume -= 0.4;
+                    wav_player_view_set_volume(app->view, app->volume);
+                } else if(event.type == WavPlayerEventCtrlMoveL) {
+                    int32_t seek =
+                        stream_tell(app->stream) - wav_parser_get_data_start(app->parser);
+                    seek =
+                        MIN(seek, (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
+                    stream_seek(app->stream, -seek, StreamOffsetFromCurrent);
+                    wav_player_view_set_current(app->view, stream_tell(app->stream));
+                } else if(event.type == WavPlayerEventCtrlMoveR) {
+                    int32_t seek = wav_parser_get_data_end(app->parser) - stream_tell(app->stream);
+                    seek =
+                        MIN(seek, (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
+                    stream_seek(app->stream, seek, StreamOffsetFromCurrent);
+                    wav_player_view_set_current(app->view, stream_tell(app->stream));
+                } else if(event.type == WavPlayerEventCtrlOk) {
+                    app->play = !app->play;
+                    wav_player_view_set_play(app->view, app->play);
+
+                    if(!app->play) {
+                        wav_player_speaker_stop();
+                    } else {
+                        wav_player_speaker_start();
+                    }
+                } else if(event.type == WavPlayerEventCtrlBack) {
+                    break;
                 }
-
-            } else if(event.type == WavPlayerEventFullTransfer) {
-                eof = fill_data(app, app->samples_count_half);
-                wav_player_view_set_current(app->view, stream_tell(app->stream));
-                if(eof) {
-                    stream_seek(
-                        app->stream,
-                        wav_parser_get_data_start(app->parser),
-                        StreamOffsetFromStart);
-                }
-            } else if(event.type == WavPlayerEventCtrlVolUp) {
-                if(app->volume < 9.9) app->volume += 0.4;
-                wav_player_view_set_volume(app->view, app->volume);
-            } else if(event.type == WavPlayerEventCtrlVolDn) {
-                if(app->volume > 0.01) app->volume -= 0.4;
-                wav_player_view_set_volume(app->view, app->volume);
-            } else if(event.type == WavPlayerEventCtrlMoveL) {
-                int32_t seek = stream_tell(app->stream) - wav_parser_get_data_start(app->parser);
-                seek = MIN(seek, (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
-                stream_seek(app->stream, -seek, StreamOffsetFromCurrent);
-                wav_player_view_set_current(app->view, stream_tell(app->stream));
-            } else if(event.type == WavPlayerEventCtrlMoveR) {
-                int32_t seek = wav_parser_get_data_end(app->parser) - stream_tell(app->stream);
-                seek = MIN(seek, (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
-                stream_seek(app->stream, seek, StreamOffsetFromCurrent);
-                wav_player_view_set_current(app->view, stream_tell(app->stream));
-            } else if(event.type == WavPlayerEventCtrlOk) {
-                app->play = !app->play;
-                wav_player_view_set_play(app->view, app->play);
-
-                if(!app->play) {
-                    wav_player_speaker_stop();
-                } else {
-                    wav_player_speaker_start();
-                }
-            } else if(event.type == WavPlayerEventCtrlBack) {
-                break;
             }
         }
-    }
 
-    wav_player_speaker_stop();
-    wav_player_dma_stop();
+        wav_player_speaker_stop();
+        wav_player_dma_stop();
+        furi_hal_speaker_release();
+    }
 
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, NULL, NULL);
 }
