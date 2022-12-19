@@ -1,7 +1,7 @@
 #pragma once
 
 #include <input/input.h>
-#include "clock_settings.h"
+#include <locale/locale.h>
 
 #define TAG "Clock"
 
@@ -28,7 +28,8 @@ typedef struct {
 } PluginEvent;
 
 typedef struct {
-    ClockSettings settings;
+    LocaleDateFormat date_format;
+    LocaleTimeFormat time_format;
     FuriHalRtcDateTime datetime;
     FuriMutex* mutex;
     FuriMessageQueue* event_queue;
