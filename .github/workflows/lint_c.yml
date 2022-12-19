@@ -11,6 +11,8 @@ on:
 
 env:
   TARGETS: f7
+  FBT_TOOLCHAIN_PATH: /runner/_work
+  SET_GH_OUTPUT: 1
 
 jobs:
   lint_c_cpp:
@@ -30,7 +32,7 @@ jobs:
 
       - name: 'Check code formatting'
         id: syntax_check
-        run: SET_GH_OUTPUT=1 FBT_TOOLCHAIN_PATH=/runner/_work ./fbt lint
+        run: ./fbt lint
 
       - name: Report code formatting errors
         if: failure() && steps.syntax_check.outputs.errors && github.event.pull_request

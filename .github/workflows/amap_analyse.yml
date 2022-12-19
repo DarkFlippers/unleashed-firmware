@@ -11,6 +11,7 @@ on:
 
 env:
   TARGETS: f7
+  FBT_TOOLCHAIN_PATH: /opt
 
 jobs:
   amap_analyse:
@@ -78,7 +79,7 @@ jobs:
 
       - name: 'Upload report to DB'
         run: |
-          FBT_TOOLCHAIN_PATH=/opt source scripts/toolchain/fbtenv.sh
+          source scripts/toolchain/fbtenv.sh
           get_size()
           {
             SECTION="$1";

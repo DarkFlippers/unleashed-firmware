@@ -12,6 +12,7 @@ on:
 env:
   TARGETS: f7
   DEFAULT_TARGET: f7
+  FBT_TOOLCHAIN_PATH: /runner/_work
 
 jobs:
   analyse_c_cpp:
@@ -49,11 +50,11 @@ jobs:
 
       - name: 'Generate compile_comands.json'
         run: |
-          FBT_TOOLCHAIN_PATH=/runner/_work ./fbt COMPACT=1 version_json proto_ver icons firmware_cdb dolphin_internal dolphin_blocking _fap_icons
+          ./fbt COMPACT=1 version_json proto_ver icons firmware_cdb dolphin_internal dolphin_blocking _fap_icons
 
       - name: 'Static code analysis'
         run: |
-          FBT_TOOLCHAIN_PATH=/runner/_work source scripts/toolchain/fbtenv.sh
+          source scripts/toolchain/fbtenv.sh
           pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
           pvs-studio-analyzer analyze \
               @.pvsoptions \

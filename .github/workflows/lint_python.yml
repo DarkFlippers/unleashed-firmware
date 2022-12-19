@@ -9,6 +9,10 @@ on:
       - '*'
   pull_request:
 
+env:
+    FBT_TOOLCHAIN_PATH: /runner/_work
+    SET_GH_OUTPUT: 1
+
 jobs:
   lint_python:
     runs-on: [self-hosted,FlipperZeroShell]
@@ -26,4 +30,4 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Check code formatting'
-        run: SET_GH_OUTPUT=1 FBT_TOOLCHAIN_PATH=/runner/_work ./fbt lint_py
+        run: ./fbt lint_py

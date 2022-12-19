@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - dev
+
+env:
+  FBT_TOOLCHAIN_PATH: /runner/_work
+
 jobs:
   merge_report:
     runs-on: [self-hosted,FlipperZeroShell]
@@ -33,7 +37,7 @@ jobs:
 
       - name: 'Check ticket and report'
         run: |
-          FBT_TOOLCHAIN_PATH=/runner/_work source scripts/toolchain/fbtenv.sh
+          source scripts/toolchain/fbtenv.sh
           python3 -m pip install slack_sdk
           python3 scripts/merge_report_qa.py \
               ${{ secrets.QA_REPORT_SLACK_TOKEN }} \
