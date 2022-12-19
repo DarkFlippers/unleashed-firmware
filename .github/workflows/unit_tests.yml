@@ -72,12 +72,12 @@ jobs:
 
       - name: 'Get last release tag'
         id: release_tag
-        if: success()
+        if: always()
         run: |
           echo "tag=$(git tag -l --sort=-version:refname | grep -v "rc\|RC" | head -1)" >> $GITHUB_OUTPUT
 
       - name: 'Decontaminate previous build leftovers'
-        if: success()
+        if: always()
         run: |
           if [ -d .git ]; then
             git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
@@ -85,25 +85,25 @@ jobs:
 
       - name: 'Checkout latest release'
         uses: actions/checkout@v3
-        if: success()
+        if: always()
         with:
           fetch-depth: 0
           ref: ${{ steps.release_tag.outputs.tag }}
 
       - name: 'Flash last release'
-        if: success()
+        if: always()
         run: |
           ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
 
       - name: 'Wait for flipper to finish updating'
-        if: success()
+        if: always()
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
 
       - name: 'Format flipper SD card'
         id: format
-        if: success()
+        if: always()
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext
