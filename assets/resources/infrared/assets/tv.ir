@@ -1761,3 +1761,15 @@ protocol: NEC
 address: 00 00 00 00
 command: 33 00 00 00
 #
+name: POWER
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 10 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 11 00 00 00
+# 
