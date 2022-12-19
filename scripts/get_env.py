@@ -89,13 +89,18 @@ def add_envs(data, gh_env_file, gh_out_file, args):
     add_env("BRANCH_NAME", data["branch_name"], gh_env_file)
     add_env("DIST_SUFFIX", data["suffix"], gh_env_file)
     add_env("WORKFLOW_BRANCH_OR_TAG", data["branch_name"], gh_env_file)
-    add_set_output_var("branch_name", data["branch_name"], gh_out_file)
+    add_set_output_var("commit_msg", data["commit_comment"], gh_out_file)
+    add_set_output_var("commit_hash", data["commit_hash"], gh_out_file)
     add_set_output_var("commit_sha", data["commit_sha"], gh_out_file)
-    add_set_output_var("default_target", os.getenv("DEFAULT_TARGET"), gh_out_file)
     add_set_output_var("suffix", data["suffix"], gh_out_file)
+    add_set_output_var("branch_name", data["branch_name"], gh_out_file)
+    add_set_output_var("dist_suffix", data["suffix"], gh_out_file)
+    add_set_output_var("default_target", os.getenv("DEFAULT_TARGET"), gh_out_file)
     if args.type == "pull":
         add_env("PULL_ID", data["pull_id"], gh_env_file)
         add_env("PULL_NAME", data["pull_name"], gh_env_file)
+        add_set_output_var("pull_id", data["pull_id"], gh_out_file)
+        add_set_output_var("pull_name", data["pull_name"], gh_out_file)
 
 
 def main():

@@ -99,12 +99,22 @@ jobs:
           rm ./deploy_key;
 
       - name: 'Trigger map file analyser'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
+        if: ${{ (github.event_name != 'pull_request')
+            && !github.event.pull_request.head.repo.fork }}
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: make_map_analyse
-          client-payload: '{"branch_name": "${{steps.names.outputs.branch_name}}"}'
+          client-payload: '{"branch_name": "${{steps.names.outputs.branch_name}}", "commit_hash": "${{steps.names.outputs.commit_hash}}", "commit_msg": "${{steps.names.outputs.commit_msg}}", "event_type": "push"}'
+
+      - name: 'Trigger map file analyser'
+        if: ${{ (github.event_name == 'pull_request')
+            && !github.event.pull_request.head.repo.fork }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: make_map_analyse
+          client-payload: '{"branch_name": "${{steps.names.outputs.branch_name}}", "commit_hash": "${{steps.names.outputs.commit_hash}}", "commit_msg": "${{steps.names.outputs.commit_msg}}", "pull_id": "${{steps.names.outputs.pull_id}}", "pull_name": "${{steps.names.outputs.pull_name}}", "event_type": "pr"}'
 
       - name: 'Trigger update server reindex'
         if: ${{ !github.event.pull_request.head.repo.fork }}

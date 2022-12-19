@@ -24,6 +24,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 'Get commit details'
+        run: |
+          export COMMIT_HASH=${{ github.event.client_payload.commit_hash }}
+          export COMMIT_MSG=${{ github.event.client_payload.commit_msg }}
+          export BRANCH_NAME=${{ github.event.client_payload.branch_name }}
+          if [[ ${{ github.event.client_payload.event_type }}  == "pr" ]]; then
+              export PULL_ID=${{ github.event.client_payload.pull_id }}
+              export PULL_NAME=${{ github.event.client_payload.pull_name }}
+          fi
+
       - name: 'Make artifacts directory'
         run: |
           rm -rf artifacts
@@ -43,7 +53,7 @@ jobs:
       - name: 'Make .map file analyze'
         run: |
           cd artifacts/
-          /Applications/amap/Contents/MacOS/amap -f "flipper-z-f7-firmware-${SUFFIX}.elf.map"
+          /Applications/amap/Contents/MacOS/amap -f flipper-z-f7-firmware-${{ github.event.client_payload.suffix }}.elf.map
 
       - name: 'Upload report to DB'
         run: |
@@ -67,5 +77,5 @@ jobs:
             ${{ secrets.AMAP_MARIADB_HOST }} \
             ${{ secrets.AMAP_MARIADB_PORT }} \
             ${{ secrets.AMAP_MARIADB_DATABASE }} \
-            artifacts/flipper-z-f7-firmware-$SUFFIX.elf.map.all
+            artifacts/flipper-z-f7-firmware-${{ github.event.client_payload.suffix }}.elf.map.all
 
