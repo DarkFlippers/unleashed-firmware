@@ -8,6 +8,7 @@
 #include "furi.h"
 #include "furi_hal.h"
 #include <lib/subghz/types.h>
+#include <locale/locale.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,8 +62,6 @@ bool ws_block_generic_serialize(
  * @return true On success
  */
 bool ws_block_generic_deserialize(WSBlockGeneric* instance, FlipperFormat* flipper_format);
-
-float ws_block_generic_fahrenheit_to_celsius(float fahrenheit);
 
 #ifdef __cplusplus
 }
