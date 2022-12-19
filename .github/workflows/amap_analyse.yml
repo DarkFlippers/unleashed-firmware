@@ -1,13 +1,8 @@
 name: 'Analyze .map file with Amap'
 
 on:
-  push:
-    branches:
-      - dev
-      - "release*"
-    tags:
-      - '*'
-  pull_request:
+  repository_dispatch:
+    types: [make_map_analyse]
 
 env:
   TARGETS: f7
@@ -15,24 +10,9 @@ env:
 
 jobs:
   amap_analyse:
-    if: ${{ !github.event.pull_request.head.repo.fork }}
     runs-on: [self-hosted,FlipperZeroMacShell]
-    timeout-minutes: 15
+    timeout-minutes: 5
     steps:
-      - name: 'Wait Build workflow'
-        uses: fountainhead/action-wait-for-check@v1.0.0
-        id: wait-for-build
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: 'main'
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          intervalSeconds: 20
-
-      - name: 'Check Build workflow status'
-        if: steps.wait-for-build.outputs.conclusion == 'failure'
-        run: |
-          exit 1
-
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]; then
@@ -43,18 +23,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: 'Get commit details'
-        run: |
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            TYPE="pull"
-          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            TYPE="tag"
-          else
-            TYPE="other"
-          fi
-          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
 
       - name: 'Make artifacts directory'
         run: |
@@ -69,7 +37,7 @@ jobs:
           chmod 600 ./deploy_key;
           rsync -avzP \
               -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
-              ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${BRANCH_NAME}/" artifacts/;
+              ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{ github.event.client_payload.branch_name }}/" artifacts/;
           rm ./deploy_key;
 
       - name: 'Make .map file analyze'

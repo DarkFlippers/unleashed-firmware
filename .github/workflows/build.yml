@@ -98,6 +98,14 @@ jobs:
               artifacts/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${BRANCH_NAME}/";
           rm ./deploy_key;
 
+      - name: 'Trigger map file analyser'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: make_map_analyse
+          client-payload: '{"branch_name": "${{steps.names.outputs.branch_name}}"}'
+
       - name: 'Trigger update server reindex'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: curl -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
