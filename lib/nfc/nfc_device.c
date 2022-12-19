@@ -27,6 +27,7 @@ NfcDevice* nfc_device_alloc() {
     nfc_dev->dialogs = furi_record_open(RECORD_DIALOGS);
     nfc_dev->load_path = furi_string_alloc();
     nfc_dev->dev_data.parsed_data = furi_string_alloc();
+    nfc_dev->folder = furi_string_alloc();
 
     // Rename cache folder name for backward compatibility
     if(storage_common_stat(nfc_dev->storage, "/ext/nfc/cache", NULL) == FSE_OK) {
@@ -42,6 +43,7 @@ void nfc_device_free(NfcDevice* nfc_dev) {
     furi_record_close(RECORD_DIALOGS);
     furi_string_free(nfc_dev->load_path);
     furi_string_free(nfc_dev->dev_data.parsed_data);
+    furi_string_free(nfc_dev->folder);
     free(nfc_dev);
 }
 
@@ -1046,6 +1048,16 @@ static void nfc_device_get_shadow_path(FuriString* orig_path, FuriString* shadow
     furi_string_cat_printf(shadow_path, "%s", NFC_APP_SHADOW_EXTENSION);
 }
 
+static void nfc_device_get_folder_from_path(FuriString* path, FuriString* folder) {
+    size_t last_slash = furi_string_search_rchar(path, '/');
+    if(last_slash == FURI_STRING_FAILURE) {
+        // No slashes in the path, treat the whole path as a folder
+        furi_string_set(folder, path);
+    } else {
+        furi_string_set_n(folder, path, 0, last_slash);
+    }
+}
+
 bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
     furi_assert(dev);
 
@@ -1056,10 +1068,19 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
     temp_str = furi_string_alloc();
 
     do {
-        // Create nfc directory if necessary
-        if(!storage_simply_mkdir(dev->storage, NFC_APP_FOLDER)) break;
+        // Create directory if necessary
+        FuriString* folder = furi_string_alloc();
+        // Get folder from filename (filename is in the form of "folder/filename.nfc", so the folder is "folder/")
+        furi_string_set(temp_str, dev_name);
+        // Get folder from filename
+        nfc_device_get_folder_from_path(temp_str, folder);
+        FURI_LOG_I("Nfc", "Saving to folder %s", furi_string_get_cstr(folder));
+        if(!storage_simply_mkdir(dev->storage, furi_string_get_cstr(folder))) {
+            FURI_LOG_E("Nfc", "Failed to create folder %s", furi_string_get_cstr(folder));
+            break;
+        }
+        furi_string_free(folder);
         // First remove nfc device file if it was saved
-        furi_string_printf(temp_str, "%s", dev_name);
         // Open file
         if(!flipper_format_file_open_always(file, furi_string_get_cstr(temp_str))) break;
         // Write header
@@ -1229,10 +1250,9 @@ bool nfc_device_load(NfcDevice* dev, const char* file_path, bool show_dialog) {
 
 bool nfc_file_select(NfcDevice* dev) {
     furi_assert(dev);
+    const char* folder = furi_string_get_cstr(dev->folder);
 
     // Input events and views are managed by file_browser
-    FuriString* nfc_app_folder;
-    nfc_app_folder = furi_string_alloc_set(NFC_APP_FOLDER);
 
     const DialogsFileBrowserOptions browser_options = {
         .extension = NFC_APP_EXTENSION,
@@ -1242,13 +1262,12 @@ bool nfc_file_select(NfcDevice* dev) {
         .hide_ext = true,
         .item_loader_callback = NULL,
         .item_loader_context = NULL,
-        .base_path = NFC_APP_FOLDER,
+        .base_path = folder,
     };
 
     bool res =
         dialog_file_browser_show(dev->dialogs, dev->load_path, dev->load_path, &browser_options);
 
-    furi_string_free(nfc_app_folder);
     if(res) {
         FuriString* filename;
         filename = furi_string_alloc();
@@ -1301,7 +1320,11 @@ bool nfc_device_delete(NfcDevice* dev, bool use_load_path) {
             furi_string_set(file_path, dev->load_path);
         } else {
             furi_string_printf(
-                file_path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_EXTENSION);
+                file_path,
+                "%s/%s%s",
+                furi_string_get_cstr(dev->folder),
+                dev->dev_name,
+                NFC_APP_EXTENSION);
         }
         if(!storage_simply_remove(dev->storage, furi_string_get_cstr(file_path))) break;
         // Delete shadow file if it exists
@@ -1310,7 +1333,11 @@ bool nfc_device_delete(NfcDevice* dev, bool use_load_path) {
                 nfc_device_get_shadow_path(dev->load_path, file_path);
             } else {
                 furi_string_printf(
-                    file_path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_SHADOW_EXTENSION);
+                    file_path,
+                    "%s/%s%s",
+                    furi_string_get_cstr(dev->folder),
+                    dev->dev_name,
+                    NFC_APP_SHADOW_EXTENSION);
             }
             if(!storage_simply_remove(dev->storage, furi_string_get_cstr(file_path))) break;
         }
@@ -1339,14 +1366,23 @@ bool nfc_device_restore(NfcDevice* dev, bool use_load_path) {
             nfc_device_get_shadow_path(dev->load_path, path);
         } else {
             furi_string_printf(
-                path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_SHADOW_EXTENSION);
+                path,
+                "%s/%s%s",
+                furi_string_get_cstr(dev->folder),
+                dev->dev_name,
+                NFC_APP_SHADOW_EXTENSION);
         }
         if(!storage_simply_remove(dev->storage, furi_string_get_cstr(path))) break;
         dev->shadow_file_exist = false;
         if(use_load_path && !furi_string_empty(dev->load_path)) {
             furi_string_set(path, dev->load_path);
         } else {
-            furi_string_printf(path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_EXTENSION);
+            furi_string_printf(
+                path,
+                "%s/%s%s",
+                furi_string_get_cstr(dev->folder),
+                dev->dev_name,
+                NFC_APP_EXTENSION);
         }
         if(!nfc_device_load_data(dev, path, true)) break;
         restored = true;

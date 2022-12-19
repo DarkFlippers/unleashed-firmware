@@ -49,6 +49,7 @@ NfcMagic* nfc_magic_alloc() {
 
     // Nfc device
     nfc_magic->nfc_dev = nfc_device_alloc();
+    furi_string_set(nfc_magic->nfc_dev->folder, NFC_APP_FOLDER);
 
     // Open GUI record
     nfc_magic->gui = furi_record_open(RECORD_GUI);
