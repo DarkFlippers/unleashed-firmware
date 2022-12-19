@@ -1,8 +1,13 @@
 name: 'Analyze .map file with Amap'
 
 on:
-  repository_dispatch:
-    types: [make_map_analyse]
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+      - '*'
+  pull_request:
 
 env:
   TARGETS: f7
@@ -10,9 +15,24 @@ env:
 
 jobs:
   amap_analyse:
+    if: ${{ !github.event.pull_request.head.repo.fork }}
     runs-on: [self-hosted,FlipperZeroMacShell]
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
+      - name: 'Wait Build workflow'
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: 'main'
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          intervalSeconds: 20
+
+      - name: 'Check Build workflow status'
+        if: steps.wait-for-build.outputs.conclusion == 'failure'
+        run: |
+          exit 1
+
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]; then
@@ -23,16 +43,18 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Get commit details'
         run: |
-          export COMMIT_HASH=${{ github.event.client_payload.commit_hash }}
-          export COMMIT_MSG=${{ github.event.client_payload.commit_msg }}
-          export BRANCH_NAME=${{ github.event.client_payload.branch_name }}
-          if [[ ${{ github.event.client_payload.event_type }}  == "pr" ]]; then
-              export PULL_ID=${{ github.event.client_payload.pull_id }}
-              export PULL_NAME=${{ github.event.client_payload.pull_name }}
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            TYPE="pull"
+          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TYPE="tag"
+          else
+            TYPE="other"
           fi
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
 
       - name: 'Make artifacts directory'
         run: |
@@ -47,13 +69,13 @@ jobs:
           chmod 600 ./deploy_key;
           rsync -avzP \
               -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
-              ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{ github.event.client_payload.branch_name }}/" artifacts/;
+              ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${BRANCH_NAME}/" artifacts/;
           rm ./deploy_key;
 
       - name: 'Make .map file analyze'
         run: |
           cd artifacts/
-          /Applications/amap/Contents/MacOS/amap -f flipper-z-f7-firmware-${{ github.event.client_payload.suffix }}.elf.map
+          /Applications/amap/Contents/MacOS/amap -f "flipper-z-f7-firmware-${SUFFIX}.elf.map"
 
       - name: 'Upload report to DB'
         run: |
@@ -77,5 +99,5 @@ jobs:
             ${{ secrets.AMAP_MARIADB_HOST }} \
             ${{ secrets.AMAP_MARIADB_PORT }} \
             ${{ secrets.AMAP_MARIADB_DATABASE }} \
-            artifacts/flipper-z-f7-firmware-${{ github.event.client_payload.suffix }}.elf.map.all
+            artifacts/flipper-z-f7-firmware-$SUFFIX.elf.map.all
 
