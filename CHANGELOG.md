@@ -1,4 +1,5 @@
 ### New changes
+* **Fixed sound issues with WAV Player, Metronome, Morse code, DTMF Dolphin**
 * API: Version was changed due to breaking changes - from 10.x to 11.x - Extra pack was updated, download it by using link below ([- Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps))
 * Plugins: Add (UniTemp) Temp sensor reader (PR #216 | by @quen0n) [(plugin repo)](https://github.com/quen0n/unitemp-flipperzero) and Remove DHT Monitor and AM2320 plugins (unitemp has support for that sensors)
 * Plugins -> SubGHz Bruteforcer: Add support for PT2260, SMC5326, UNILARM, Honeywell(file only) protocols

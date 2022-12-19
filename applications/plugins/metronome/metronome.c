@@ -149,7 +149,9 @@ static void timer_callback(void* ctx) {
         notification_message(metronome_state->notifications, &sequence_set_only_red_255);
         switch(metronome_state->output_mode) {
         case Loud:
-            furi_hal_speaker_start(440.0f, 1.0f);
+            if(furi_hal_speaker_acquire(1000)) {
+                furi_hal_speaker_start(440.0f, 1.0f);
+            }
             break;
         case Vibro:
             notification_message(metronome_state->notifications, &sequence_set_vibro_on);
@@ -162,7 +164,9 @@ static void timer_callback(void* ctx) {
         notification_message(metronome_state->notifications, &sequence_set_only_green_255);
         switch(metronome_state->output_mode) {
         case Loud:
-            furi_hal_speaker_start(220.0f, 1.0f);
+            if(furi_hal_speaker_acquire(1000)) {
+                furi_hal_speaker_start(220.0f, 1.0f);
+            }
             break;
         case Vibro:
             notification_message(metronome_state->notifications, &sequence_set_vibro_on);
@@ -176,7 +180,10 @@ static void timer_callback(void* ctx) {
     switch(metronome_state->output_mode) {
     case Loud:
         furi_delay_ms(BEEP_DELAY_MS);
-        furi_hal_speaker_stop();
+        if(furi_hal_speaker_is_mine()) {
+            furi_hal_speaker_stop();
+            furi_hal_speaker_release();
+        }
         break;
     case Vibro:
         if(metronome_state->current_beat == 1) {
