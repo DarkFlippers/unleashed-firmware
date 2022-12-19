@@ -1,6 +1,7 @@
 #include "system_settings.h"
 #include <loader/loader.h>
 #include <lib/toolbox/value_index.h>
+#include <locale/locale.h>
 
 const char* const log_level_text[] = {
     "Default",
@@ -70,6 +71,59 @@ static void heap_trace_mode_changed(VariableItem* item) {
     furi_hal_rtc_set_heap_track_mode(heap_trace_mode_value[index]);
 }
 
+const char* const mesurement_units_text[] = {
+    "Metric",
+    "Imperial",
+};
+
+const uint32_t mesurement_units_value[] = {
+    LocaleMeasurementUnitsMetric,
+    LocaleMeasurementUnitsImperial,
+};
+
+static void mesurement_units_changed(VariableItem* item) {
+    // SystemSettings* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, mesurement_units_text[index]);
+    locale_set_measurement_unit(mesurement_units_value[index]);
+}
+
+const char* const time_format_text[] = {
+    "24h",
+    "12h",
+};
+
+const uint32_t time_format_value[] = {
+    LocaleTimeFormat24h,
+    LocaleTimeFormat12h,
+};
+
+static void time_format_changed(VariableItem* item) {
+    // SystemSettings* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, time_format_text[index]);
+    locale_set_time_format(time_format_value[index]);
+}
+
+const char* const date_format_text[] = {
+    "D/M/Y",
+    "M/D/Y",
+    "Y/M/D",
+};
+
+const uint32_t date_format_value[] = {
+    LocaleDateFormatDMY,
+    LocaleDateFormatMDY,
+    LocaleDateFormatYMD,
+};
+
+static void date_format_changed(VariableItem* item) {
+    // SystemSettings* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, date_format_text[index]);
+    locale_set_date_format(date_format_value[index]);
+}
+
 static uint32_t system_settings_exit(void* context) {
     UNUSED(context);
     return VIEW_NONE;
@@ -90,6 +144,31 @@ SystemSettings* system_settings_alloc() {
     VariableItem* item;
     uint8_t value_index;
     app->var_item_list = variable_item_list_alloc();
+
+    item = variable_item_list_add(
+        app->var_item_list,
+        "Units",
+        COUNT_OF(mesurement_units_text),
+        mesurement_units_changed,
+        app);
+    value_index = value_index_uint32(
+        locale_get_measurement_unit(), mesurement_units_value, COUNT_OF(mesurement_units_value));
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, mesurement_units_text[value_index]);
+
+    item = variable_item_list_add(
+        app->var_item_list, "Time Format", COUNT_OF(time_format_text), time_format_changed, app);
+    value_index = value_index_uint32(
+        locale_get_time_format(), time_format_value, COUNT_OF(time_format_value));
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, time_format_text[value_index]);
+
+    item = variable_item_list_add(
+        app->var_item_list, "Date Format", COUNT_OF(date_format_text), date_format_changed, app);
+    value_index = value_index_uint32(
+        locale_get_date_format(), date_format_value, COUNT_OF(date_format_value));
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, date_format_text[value_index]);
 
     item = variable_item_list_add(
         app->var_item_list, "Log Level", COUNT_OF(log_level_text), log_level_changed, app);
