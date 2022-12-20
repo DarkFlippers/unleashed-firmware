@@ -51,6 +51,9 @@ void locale_format_time(
         } else {
             am_pm = 1;
         }
+        if(hours == 0) {
+            hours = 12;
+        }
     }
 
     if(show_seconds) {

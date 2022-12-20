@@ -547,6 +547,52 @@ void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width
     }
 }
 
+void elements_scrollable_text_line(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    FuriString* string,
+    size_t scroll,
+    bool ellipsis) {
+    FuriString* line = furi_string_alloc_set(string);
+
+    size_t len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
+    if(len_px > width) {
+        if(ellipsis) {
+            width -= canvas_string_width(canvas, "...");
+        }
+
+        // Calculate scroll size
+        size_t scroll_size = furi_string_size(string);
+        size_t right_width = 0;
+        for(size_t i = scroll_size; i > 0; i--) {
+            right_width += canvas_glyph_width(canvas, furi_string_get_char(line, i));
+            if(right_width > width) break;
+            scroll_size--;
+            if(!scroll_size) break;
+        }
+        // Ensure that we have something to scroll
+        if(scroll_size) {
+            scroll_size += 3;
+            scroll = scroll % scroll_size;
+            furi_string_right(line, scroll);
+        }
+
+        do {
+            furi_string_left(line, furi_string_size(line) - 1);
+            len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
+        } while(len_px > width);
+
+        if(ellipsis) {
+            furi_string_cat(line, "...");
+        }
+    }
+
+    canvas_draw_str(canvas, x, y, furi_string_get_cstr(line));
+    furi_string_free(line);
+}
+
 void elements_text_box(
     Canvas* canvas,
     uint8_t x,

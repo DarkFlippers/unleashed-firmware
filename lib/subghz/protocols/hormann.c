@@ -8,6 +8,8 @@
 
 #define TAG "SubGhzProtocolHormannHSM"
 
+#define HORMANN_HSM_PATTERN 0xFF000000003
+
 static const SubGhzBlockConst subghz_protocol_hormann_const = {
     .te_short = 500,
     .te_long = 1000,
@@ -101,20 +103,13 @@ static bool subghz_protocol_encoder_hormann_get_upload(SubGhzProtocolEncoderHorm
     furi_assert(instance);
 
     size_t index = 0;
-    size_t size_upload = 3 + (instance->generic.data_count_bit * 2 + 2) * 20 + 1;
+    size_t size_upload = (instance->generic.data_count_bit * 2 + 2) * 20 + 1;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
     } else {
         instance->encoder.size_upload = size_upload;
     }
-    //Send header
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_hormann_const.te_short * 64);
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_hormann_const.te_short * 64);
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_hormann_const.te_short * 64);
     instance->encoder.repeat = 10; //original remote does 10 repeats
 
     for(size_t repeat = 0; repeat < 20; repeat++) {
@@ -209,6 +204,10 @@ void subghz_protocol_decoder_hormann_free(void* context) {
     free(instance);
 }
 
+static bool subghz_protocol_decoder_hormann_check_pattern(SubGhzProtocolDecoderHormann* instance) {
+    return (instance->decoder.decode_data & HORMANN_HSM_PATTERN) == HORMANN_HSM_PATTERN;
+}
+
 void subghz_protocol_decoder_hormann_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderHormann* instance = context;
@@ -221,25 +220,9 @@ void subghz_protocol_decoder_hormann_feed(void* context, bool level, uint32_t du
 
     switch(instance->decoder.parser_step) {
     case HormannDecoderStepReset:
-        if((level) && (DURATION_DIFF(duration, subghz_protocol_hormann_const.te_short * 64) <
-                       subghz_protocol_hormann_const.te_delta * 64)) {
-            instance->decoder.parser_step = HormannDecoderStepFoundStartHeader;
-        }
-        break;
-    case HormannDecoderStepFoundStartHeader:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_hormann_const.te_short * 64) <
-                        subghz_protocol_hormann_const.te_delta * 64)) {
-            instance->decoder.parser_step = HormannDecoderStepFoundHeader;
-        } else {
-            instance->decoder.parser_step = HormannDecoderStepReset;
-        }
-        break;
-    case HormannDecoderStepFoundHeader:
         if((level) && (DURATION_DIFF(duration, subghz_protocol_hormann_const.te_short * 24) <
                        subghz_protocol_hormann_const.te_delta * 24)) {
             instance->decoder.parser_step = HormannDecoderStepFoundStartBit;
-        } else {
-            instance->decoder.parser_step = HormannDecoderStepReset;
         }
         break;
     case HormannDecoderStepFoundStartBit:
@@ -254,7 +237,8 @@ void subghz_protocol_decoder_hormann_feed(void* context, bool level, uint32_t du
         break;
     case HormannDecoderStepSaveDuration:
         if(level) { //save interval
-            if(duration >= (subghz_protocol_hormann_const.te_short * 5)) {
+            if(duration >= (subghz_protocol_hormann_const.te_short * 5) &&
+               subghz_protocol_decoder_hormann_check_pattern(instance)) {
                 instance->decoder.parser_step = HormannDecoderStepFoundStartBit;
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_hormann_const.min_count_bit_for_found) {

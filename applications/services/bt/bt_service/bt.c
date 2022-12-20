@@ -117,6 +117,8 @@ Bt* bt_alloc() {
     if(!bt_settings_load(&bt->bt_settings)) {
         bt_settings_save(&bt->bt_settings);
     }
+    // Keys storage
+    bt->keys_storage = bt_keys_storage_alloc(BT_KEYS_STORAGE_PATH);
     // Alloc queue
     bt->message_queue = furi_message_queue_alloc(8, sizeof(BtMessage));
 
@@ -285,8 +287,10 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
 static void bt_on_key_storage_change_callback(uint8_t* addr, uint16_t size, void* context) {
     furi_assert(context);
     Bt* bt = context;
-    FURI_LOG_I(TAG, "Changed addr start: %p, size changed: %d", addr, size);
-    BtMessage message = {.type = BtMessageTypeKeysStorageUpdated};
+    BtMessage message = {
+        .type = BtMessageTypeKeysStorageUpdated,
+        .data.key_storage_data.start_address = addr,
+        .data.key_storage_data.size = size};
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
 }
@@ -331,6 +335,8 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
             furi_profile = FuriHalBtProfileSerial;
         }
 
+        bt_keys_storage_load(bt->keys_storage);
+
         if(furi_hal_bt_change_app(furi_profile, bt_on_gap_event_callback, bt)) {
             FURI_LOG_I(TAG, "Bt App started");
             if(bt->bt_settings.enabled) {
@@ -358,6 +364,7 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
 
 static void bt_close_connection(Bt* bt) {
     bt_close_rpc_connection(bt);
+    furi_hal_bt_stop_advertising();
     furi_event_flag_set(bt->api_event, BT_API_UNLOCK_EVENT);
 }
 
@@ -372,8 +379,8 @@ int32_t bt_srv(void* p) {
         return 0;
     }
 
-    // Read keys
-    if(!bt_keys_storage_load(bt)) {
+    // Load keys
+    if(!bt_keys_storage_load(bt->keys_storage)) {
         FURI_LOG_W(TAG, "Failed to load bonding keys");
     }
 
@@ -418,13 +425,16 @@ int32_t bt_srv(void* p) {
             // Display PIN code
             bt_pin_code_show(bt, message.data.pin_code);
         } else if(message.type == BtMessageTypeKeysStorageUpdated) {
-            bt_keys_storage_save(bt);
+            bt_keys_storage_update(
+                bt->keys_storage,
+                message.data.key_storage_data.start_address,
+                message.data.key_storage_data.size);
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
         } else if(message.type == BtMessageTypeDisconnect) {
             bt_close_connection(bt);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
-            bt_keys_storage_delete(bt);
+            bt_keys_storage_delete(bt->keys_storage);
         }
     }
     return 0;
