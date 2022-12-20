@@ -56,7 +56,7 @@ static void clock_render_callback(Canvas* canvas, void* ctx) {
             31,
             AlignLeft,
             AlignCenter,
-            (data->datetime.hour > 12) ? "AM" : "PM");
+            (data->datetime.hour > 12) ? "PM" : "AM");
     }
 
     canvas_set_font(canvas, FontSecondary);

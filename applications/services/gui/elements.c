@@ -564,7 +564,7 @@ void elements_scrollable_text_line(
         }
 
         // Calculate scroll size
-        size_t scroll_size = furi_string_size(string);
+        size_t scroll_size = furi_string_size(line);
         size_t right_width = 0;
         for(size_t i = scroll_size; i > 0; i--) {
             right_width += canvas_glyph_width(canvas, furi_string_get_char(line, i));
@@ -579,10 +579,11 @@ void elements_scrollable_text_line(
             furi_string_right(line, scroll);
         }
 
-        do {
+        len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
+        while(len_px > width) {
             furi_string_left(line, furi_string_size(line) - 1);
             len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
-        } while(len_px > width);
+        }
 
         if(ellipsis) {
             furi_string_cat(line, "...");

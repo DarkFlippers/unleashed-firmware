@@ -72,13 +72,13 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyOk) {
-                main_view->callback(DesktopMainEventOpenGameMenu, main_view->context);
+                main_view->callback(DesktopMainEventOpenGame, main_view->context);
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
             } else if(event->key == InputKeyDown) {
-                main_view->callback(DesktopMainEventOpenPassport, main_view->context);
+                main_view->callback(DesktopMainEventOpenMusicPlayer, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenPassport, main_view->context);
+                main_view->callback(DesktopMainEventOpenClock, main_view->context);
             }
             // Right key is handled by animation manager
         }
