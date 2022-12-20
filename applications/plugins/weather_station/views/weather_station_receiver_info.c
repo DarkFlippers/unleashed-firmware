@@ -81,13 +81,33 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
 
     if(model->generic->temp != WS_NO_TEMPERATURE) {
         canvas_draw_icon(canvas, 6, 43, &I_Therm_7x16);
-        snprintf(buffer, sizeof(buffer), "%3.1f C", (double)model->generic->temp);
-        uint8_t temp_x1 = 47;
-        uint8_t temp_x2 = 38;
-        if(model->generic->temp < -9.0) {
-            temp_x1 = 49;
-            temp_x2 = 40;
+
+        uint8_t temp_x1 = 0;
+        uint8_t temp_x2 = 0;
+        if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+            snprintf(buffer, sizeof(buffer), "%3.1f C", (double)model->generic->temp);
+            if(model->generic->temp < -9.0f) {
+                temp_x1 = 49;
+                temp_x2 = 40;
+            } else {
+                temp_x1 = 47;
+                temp_x2 = 38;
+            }
+        } else {
+            snprintf(
+                buffer,
+                sizeof(buffer),
+                "%3.1f F",
+                (double)locale_celsius_to_fahrenheit(model->generic->temp));
+            if((model->generic->temp < -27.77f) || (model->generic->temp > 37.77f)) {
+                temp_x1 = 50;
+                temp_x2 = 42;
+            } else {
+                temp_x1 = 48;
+                temp_x2 = 40;
+            }
         }
+
         canvas_draw_str_aligned(canvas, temp_x1, 47, AlignRight, AlignTop, buffer);
         canvas_draw_circle(canvas, temp_x2, 46, 1);
     }

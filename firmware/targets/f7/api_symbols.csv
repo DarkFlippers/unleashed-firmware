@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.0,,
+Version,+,11.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -30,6 +30,7 @@ Header,+,applications/services/gui/view_dispatcher.h,,
 Header,+,applications/services/gui/view_stack.h,,
 Header,+,applications/services/input/input.h,,
 Header,+,applications/services/loader/loader.h,,
+Header,+,applications/services/locale/locale.h,,
 Header,+,applications/services/notification/notification.h,,
 Header,+,applications/services/notification/notification_messages.h,,
 Header,+,applications/services/power/power_service/power.h,,
@@ -1283,6 +1284,9 @@ Function,+,furi_hal_rtc_get_boot_mode,FuriHalRtcBootMode,
 Function,+,furi_hal_rtc_get_datetime,void,FuriHalRtcDateTime*
 Function,+,furi_hal_rtc_get_fault_data,uint32_t,
 Function,+,furi_hal_rtc_get_heap_track_mode,FuriHalRtcHeapTrackMode,
+Function,+,furi_hal_rtc_get_locale_dateformat,FuriHalRtcLocaleDateFormat,
+Function,+,furi_hal_rtc_get_locale_timeformat,FuriHalRtcLocaleTimeFormat,
+Function,+,furi_hal_rtc_get_locale_units,FuriHalRtcLocaleUnits,
 Function,+,furi_hal_rtc_get_log_level,uint8_t,
 Function,+,furi_hal_rtc_get_pin_fails,uint32_t,
 Function,+,furi_hal_rtc_get_register,uint32_t,FuriHalRtcRegister
@@ -1296,6 +1300,9 @@ Function,+,furi_hal_rtc_set_datetime,void,FuriHalRtcDateTime*
 Function,+,furi_hal_rtc_set_fault_data,void,uint32_t
 Function,+,furi_hal_rtc_set_flag,void,FuriHalRtcFlag
 Function,+,furi_hal_rtc_set_heap_track_mode,void,FuriHalRtcHeapTrackMode
+Function,+,furi_hal_rtc_set_locale_dateformat,void,FuriHalRtcLocaleDateFormat
+Function,+,furi_hal_rtc_set_locale_timeformat,void,FuriHalRtcLocaleTimeFormat
+Function,+,furi_hal_rtc_set_locale_units,void,FuriHalRtcLocaleUnits
 Function,+,furi_hal_rtc_set_log_level,void,uint8_t
 Function,+,furi_hal_rtc_set_pin_fails,void,uint32_t
 Function,+,furi_hal_rtc_set_register,void,"FuriHalRtcRegister, uint32_t"
@@ -1757,6 +1764,16 @@ Function,+,loader_update_menu,void,
 Function,+,loading_alloc,Loading*,
 Function,+,loading_free,void,Loading*
 Function,+,loading_get_view,View*,Loading*
+Function,+,locale_celsius_to_fahrenheit,float,float
+Function,+,locale_fahrenheit_to_celsius,float,float
+Function,+,locale_format_date,void,"FuriString*, const FuriHalRtcDateTime*, const LocaleDateFormat, const char*"
+Function,+,locale_format_time,void,"FuriString*, const FuriHalRtcDateTime*, const LocaleTimeFormat, const _Bool"
+Function,+,locale_get_date_format,LocaleDateFormat,
+Function,+,locale_get_measurement_unit,LocaleMeasurementUnits,
+Function,+,locale_get_time_format,LocaleTimeFormat,
+Function,+,locale_set_date_format,void,LocaleDateFormat
+Function,+,locale_set_measurement_unit,void,LocaleMeasurementUnits
+Function,+,locale_set_time_format,void,LocaleTimeFormat
 Function,-,localtime,tm*,const time_t*
 Function,-,localtime_r,tm*,"const time_t*, tm*"
 Function,-,log,double,double

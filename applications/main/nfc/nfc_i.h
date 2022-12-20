@@ -44,6 +44,7 @@
 ARRAY_DEF(MfClassicUserKeys, char*, M_PTR_OPLIST);
 
 #define NFC_TEXT_STORE_SIZE 128
+#define NFC_APP_FOLDER ANY_PATH("nfc")
 
 typedef enum {
     NfcRpcStateIdle,

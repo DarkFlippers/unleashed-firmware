@@ -209,7 +209,3 @@ bool ws_block_generic_deserialize(WSBlockGeneric* instance, FlipperFormat* flipp
 
     return res;
 }
-
-float ws_block_generic_fahrenheit_to_celsius(float fahrenheit) {
-    return (fahrenheit - 32.0f) / 1.8f;
-}

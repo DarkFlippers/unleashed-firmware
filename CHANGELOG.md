@@ -1,11 +1,23 @@
 ### New changes
-* SubGHz: app launch times improved significantly, also setting_user file no longer overwritten by firmware updates, this update will remove this file (only this version, next ones will not touch it (if you skip this version file will be removed in any case on next update)), be sure to backup if you have custom changes in it! 
-Now this file is actually should be created by user and will be not removed every update!
-* Plugins: Add POCSAG Pager [(by xMasterX & Shmuma)](https://github.com/xMasterX/flipper-pager)
+* **Fixed sound issues with WAV Player, Metronome, Morse code, DTMF Dolphin**
+* API: Version was changed due to breaking changes - from 10.x to 11.x - Extra pack was updated, download it by using link below ([- Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps))
+* Plugins: Add (UniTemp) Temp sensor reader (PR #216 | by @quen0n) [(plugin repo)](https://github.com/quen0n/unitemp-flipperzero) and Remove DHT Monitor and AM2320 plugins (unitemp has support for that sensors)
+* Plugins -> SubGHz Bruteforcer: Add support for PT2260, SMC5326, UNILARM, Honeywell(file only) protocols
+* Plugins: Add mouse jiggler to USB Keyboard&Mouse App
+* Clock: Use system locale settings
+* Infrared: Update universal remote assets (by @Amec0e) + (PR #215 | by @airs0urce)
+* SubGHz: Removing duplicate code in subghz FAAC scenes. (PR #208 | by @gid9798)
+* Plugins -> Weather Station: Fix display of temps lower than -9
 * Misc fixes
-* OFW: IR button overflow fix
-* OFW: Weather Station: proper event flow for view redraw.
-* OFW: Untangle NFC from Unit Tests 
+* OFW: Notification: fix recursive speaker acquire
+* OFW: Locale settings
+* OFW: Audio support for SubGhz **(Breaking API change)**
+* OFW: Dolphin: add new animation (Happy holidays)
+* OFW: SubGhz: add SMC5326, UNILARM protocol
+* OFW: Added support for IDTECK cards
+* OFW: WS: fix protocol and add new (Oregon_v1, TX8300)
+* OFW: VSCode: add task 'Serial console' and group task with sequence calling
+* OFW: Dictionary stuff: iClass keys
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

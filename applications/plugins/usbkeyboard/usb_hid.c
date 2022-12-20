@@ -10,6 +10,7 @@ enum UsbDebugSubmenuIndex {
     UsbHidSubmenuIndexKeyboard,
     UsbHidSubmenuIndexMedia,
     UsbHidSubmenuIndexMouse,
+    UsbHidSubmenuIndexMouseJiggler,
 };
 
 void usb_hid_submenu_callback(void* context, uint32_t index) {
@@ -27,6 +28,9 @@ void usb_hid_submenu_callback(void* context, uint32_t index) {
     } else if(index == UsbHidSubmenuIndexMouse) {
         app->view_id = UsbHidViewMouse;
         view_dispatcher_switch_to_view(app->view_dispatcher, UsbHidViewMouse);
+    } else if(index == UsbHidSubmenuIndexMouseJiggler) {
+        app->view_id = UsbHidViewMouseJiggler;
+        view_dispatcher_switch_to_view(app->view_dispatcher, UsbHidViewMouseJiggler);
     }
 }
 
@@ -76,6 +80,12 @@ UsbHid* usb_hid_app_alloc() {
         app->submenu, "Media", UsbHidSubmenuIndexMedia, usb_hid_submenu_callback, app);
     submenu_add_item(
         app->submenu, "Mouse", UsbHidSubmenuIndexMouse, usb_hid_submenu_callback, app);
+    submenu_add_item(
+        app->submenu,
+        "Mouse Jiggler",
+        UsbHidSubmenuIndexMouseJiggler,
+        usb_hid_submenu_callback,
+        app);
     view_set_previous_callback(submenu_get_view(app->submenu), usb_hid_exit);
     view_dispatcher_add_view(
         app->view_dispatcher, UsbHidViewSubmenu, submenu_get_view(app->submenu));
@@ -121,6 +131,15 @@ UsbHid* usb_hid_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, UsbHidViewMouse, usb_hid_mouse_get_view(app->usb_hid_mouse));
 
+    // Mouse jiggler view
+    app->hid_mouse_jiggler = hid_mouse_jiggler_alloc(app);
+    view_set_previous_callback(
+        hid_mouse_jiggler_get_view(app->hid_mouse_jiggler), usb_hid_exit_confirm_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        UsbHidViewMouseJiggler,
+        hid_mouse_jiggler_get_view(app->hid_mouse_jiggler));
+
     // TODO switch to menu after Media is done
     app->view_id = UsbHidViewSubmenu;
     view_dispatcher_switch_to_view(app->view_dispatcher, app->view_id);
@@ -147,6 +166,8 @@ void usb_hid_app_free(UsbHid* app) {
     usb_hid_media_free(app->usb_hid_media);
     view_dispatcher_remove_view(app->view_dispatcher, UsbHidViewMouse);
     usb_hid_mouse_free(app->usb_hid_mouse);
+    view_dispatcher_remove_view(app->view_dispatcher, UsbHidViewMouseJiggler);
+    hid_mouse_jiggler_free(app->hid_mouse_jiggler);
     view_dispatcher_free(app->view_dispatcher);
     // Close records
     furi_record_close(RECORD_GUI);
