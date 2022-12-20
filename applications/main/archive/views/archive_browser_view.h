@@ -78,6 +78,7 @@ struct ArchiveBrowserView {
     FuriString* path;
     InputKey last_tab_switch_dir;
     bool is_root;
+    FuriTimer* scroll_timer;
 };
 
 typedef struct {
@@ -96,6 +97,7 @@ typedef struct {
     int32_t item_idx;
     int32_t array_offset;
     int32_t list_offset;
+    size_t scroll_counter;
 } ArchiveBrowserViewModel;
 
 void archive_browser_set_callback(

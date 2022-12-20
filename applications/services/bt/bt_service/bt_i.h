@@ -13,8 +13,14 @@
 #include <power/power_service/power.h>
 #include <rpc/rpc.h>
 #include <notification/notification.h>
+#include <storage/storage.h>
 
 #include <bt/bt_settings.h>
+#include <bt/bt_service/bt_keys_storage.h>
+
+#include "bt_keys_filename.h"
+
+#define BT_KEYS_STORAGE_PATH INT_PATH(BT_KEYS_STORAGE_FILE_NAME)
 
 #define BT_API_UNLOCK_EVENT (1UL << 0)
 
@@ -29,10 +35,16 @@ typedef enum {
     BtMessageTypeForgetBondedDevices,
 } BtMessageType;
 
+typedef struct {
+    uint8_t* start_address;
+    uint16_t size;
+} BtKeyStorageUpdateData;
+
 typedef union {
     uint32_t pin_code;
     uint8_t battery_level;
     BtProfile profile;
+    BtKeyStorageUpdateData key_storage_data;
 } BtMessageData;
 
 typedef struct {
@@ -46,6 +58,7 @@ struct Bt {
     uint16_t bt_keys_size;
     uint16_t max_packet_size;
     BtSettings bt_settings;
+    BtKeysStorage* keys_storage;
     BtStatus status;
     BtProfile profile;
     FuriMessageQueue* message_queue;
