@@ -125,3 +125,54 @@ bool saved_struct_load(const char* path, void* data, size_t size, uint8_t magic,
 
     return result;
 }
+
+bool saved_struct_get_payload_size(
+    const char* path,
+    uint8_t magic,
+    uint8_t version,
+    size_t* payload_size) {
+    furi_assert(path);
+    furi_assert(payload_size);
+
+    SavedStructHeader header;
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* file = storage_file_alloc(storage);
+
+    bool result = false;
+    do {
+        if(!storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING)) {
+            FURI_LOG_E(
+                TAG, "Failed to read \"%s\". Error: %s", path, storage_file_get_error_desc(file));
+            break;
+        }
+
+        uint16_t bytes_count = storage_file_read(file, &header, sizeof(SavedStructHeader));
+        if(bytes_count != sizeof(SavedStructHeader)) {
+            FURI_LOG_E(TAG, "Failed to read header");
+            break;
+        }
+
+        if((header.magic != magic) || (header.version != version)) {
+            FURI_LOG_E(
+                TAG,
+                "Magic(%d != %d) or Version(%d != %d) mismatch of file \"%s\"",
+                header.magic,
+                magic,
+                header.version,
+                version,
+                path);
+            break;
+        }
+
+        uint64_t file_size = storage_file_size(file);
+        *payload_size = file_size - sizeof(SavedStructHeader);
+
+        result = true;
+    } while(false);
+
+    storage_file_close(file);
+    storage_file_free(file);
+    furi_record_close(RECORD_STORAGE);
+
+    return result;
+}

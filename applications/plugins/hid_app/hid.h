@@ -11,6 +11,7 @@
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <notification/notification.h>
+#include <storage/storage.h>
 
 #include <gui/modules/submenu.h>
 #include <gui/modules/dialog_ex.h>
@@ -21,6 +22,8 @@
 #include "views/hid_mouse.h"
 #include "views/hid_mouse_jiggler.h"
 #include "views/hid_tiktok.h"
+
+#define HID_BT_KEYS_STORAGE_PATH EXT_PATH("apps/Tools/.bt_hid.keys")
 
 typedef enum {
     HidTransportUsb,

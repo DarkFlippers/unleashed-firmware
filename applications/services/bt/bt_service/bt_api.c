@@ -39,3 +39,18 @@ void bt_forget_bonded_devices(Bt* bt) {
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
 }
+
+void bt_keys_storage_set_storage_path(Bt* bt, const char* keys_storage_path) {
+    furi_assert(bt);
+    furi_assert(bt->keys_storage);
+    furi_assert(keys_storage_path);
+
+    bt_keys_storage_set_file_path(bt->keys_storage, keys_storage_path);
+}
+
+void bt_keys_storage_set_default_path(Bt* bt) {
+    furi_assert(bt);
+    furi_assert(bt->keys_storage);
+
+    bt_keys_storage_set_file_path(bt->keys_storage, BT_KEYS_STORAGE_PATH);
+}
