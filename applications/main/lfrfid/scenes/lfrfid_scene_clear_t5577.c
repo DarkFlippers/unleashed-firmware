@@ -54,7 +54,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
             56,
             AlignCenter,
             AlignCenter);
-    notification_message(app->notifications, &sequence_blink_start_red);
+    notification_message(app->notifications, &sequence_blink_start_magenta);
     for(uint8_t i = 0; i < default_passwords_len; i++) {
         FURI_CRITICAL_ENTER();
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
@@ -96,8 +96,7 @@ bool lfrfid_scene_clear_t5577_on_event(void* context, SceneManagerEvent event) {
     
     const uint32_t prev_scene = LfRfidSceneExtraActions;
 
-    if((event.type == SceneManagerEventTypeBack) ||
-       ((event.type == SceneManagerEventTypeCustom) && (event.event == LfRfidEventPopupClosed))) {
+    if (event.type == SceneManagerEventTypeCustom && event.event == LfRfidEventPopupClosed) {
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, prev_scene);
         consumed = true;
     }
