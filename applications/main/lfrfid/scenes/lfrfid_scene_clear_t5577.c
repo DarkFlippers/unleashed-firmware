@@ -80,7 +80,6 @@ void lfrfid_scene_clear_t5577_on_enter(void* context) {
     FuriString* cmd;
     cmd = furi_string_alloc();
 
-    // what is it?
     lfrfid_cli_t5577_clear_password_and_config_to_EM(cli, cmd, app);
 
     widget_add_string_element(
@@ -119,4 +118,5 @@ void lfrfid_scene_clear_t5577_on_exit(void* context) {
     LfRfid* app = context;
     popup_reset(app->popup);
     widget_reset(app->widget);
+    
 }
