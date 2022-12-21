@@ -58,16 +58,15 @@ static void lfrfid_cli_t5577_clear_password_and_config_to_EM(Cli* cli, FuriStrin
             AlignCenter);
 
     for(uint8_t i = 0; i < default_passwords_len; i++) { 
+        FURI_CRITICAL_ENTER();
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
         view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
-
-        FURI_CRITICAL_ENTER();
         writer_start();
         write_block(t55xxtiming, 0, 0, false, em_config_block_data, true, default_passwords[i]);
         write_reset(t55xxtiming);
         writer_stop();
-        furi_delay_ms(5);
         FURI_CRITICAL_EXIT();
+        furi_delay_ms(8);
     }
     popup_reset(app->popup);
     free(t55xxtiming);
