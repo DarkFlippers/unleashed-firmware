@@ -49,7 +49,7 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_nam
 
 /**
  * New remote generation.
- * @param context Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param serial Serial number
  * @param btn Button number, 4 bit
