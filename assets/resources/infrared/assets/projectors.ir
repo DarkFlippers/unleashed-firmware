@@ -1,7 +1,31 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 20th Dec, 2022
-# Last Checked 20th Dec, 2022
+# Last Updated 21th Dec, 2022
+# Last Checked 21th Dec, 2022
+#
+name: VOL +
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 48 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 49 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 14 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 0B 00 00 00
 #
 name: VOL-
 type: parsed
