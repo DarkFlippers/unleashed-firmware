@@ -31,12 +31,6 @@ void write_bit(T55xxTiming* t55xxtiming, bool value) {
     write_gap(t55xxtiming->write_gap);
 }
 
-void write_byte(T55xxTiming* t55xxtiming, uint8_t value) {
-    for(uint8_t i = 0; i < 8; i++) {
-        write_bit(t55xxtiming, (value >> i) & 1);
-    }
-}
-
 void write_block(
     T55xxTiming* t55xxtiming,
     uint8_t page,

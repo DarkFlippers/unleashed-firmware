@@ -1,11 +1,7 @@
 #include "../lfrfid_i.h"
 #include "../helpers/rfid_writer.h"
 
-static void writer_initialize(T55xxTiming* t55xxtiming, T55xxCmd* t55xxcmd) {
-    t55xxcmd->opcode_page_0 = 0b10;
-    t55xxcmd->opcode_page_1 = 0b11;
-    t55xxcmd->opcode_reset = 0b00;
-
+static void writer_initialize(T55xxTiming* t55xxtiming) {
     t55xxtiming->wait_time = 400;
     t55xxtiming->start_gap = 30;
     t55xxtiming->write_gap = 18;
@@ -16,7 +12,6 @@ static void writer_initialize(T55xxTiming* t55xxtiming, T55xxCmd* t55xxcmd) {
 
 static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     T55xxTiming* t55xxtiming = malloc(sizeof(T55xxTiming));
-    T55xxCmd* t55xxcmd = malloc(sizeof(T55xxCmd));
     Popup* popup = app->popup;
     char curr_buf[32] = {};
     //TODO: use .txt file in resourses for passwords.
@@ -43,7 +38,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     const uint32_t em_config_block_data =
         0b00000000000101001000000001000000; //no pwd&aor config block
 
-    writer_initialize(t55xxtiming, t55xxcmd);
+    writer_initialize(t55xxtiming);
 
     popup_set_header(popup, "Removing\npassword", 90, 36, AlignCenter, AlignCenter);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
@@ -70,7 +65,6 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(app->popup);
     free(t55xxtiming);
-    free(t55xxcmd);
 }
 
 void lfrfid_scene_clear_t5577_on_enter(void* context) {
