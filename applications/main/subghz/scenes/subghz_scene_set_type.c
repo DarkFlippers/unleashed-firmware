@@ -1,5 +1,6 @@
 #include "../subghz_i.h"
 #include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/faac_slh.h>
 #include <lib/subghz/protocols/secplus_v1.h>
 #include <lib/subghz/protocols/secplus_v2.h>
@@ -100,6 +101,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz->submenu,
         "Nice Flo 24bit 433MHz",
         SubmenuIndexNiceFlo24bit,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Nice Smilo 433MHz",
+        SubmenuIndexNiceSmilo_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Nice FloR-S 433MHz",
+        SubmenuIndexNiceFlorS_433_92,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -330,6 +343,55 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     0x2,
                     0x0003,
                     "DoorHan",
+                    subghz->txrx->preset);
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexNiceFlorS_433_92:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
+            subghz_preset_init(
+                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_nice_flor_s_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    key & 0x0FFFFFFF,
+                    0x1,
+                    0x0003,
+                    subghz->txrx->preset);
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexNiceSmilo_433_92:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+            subghz_preset_init(
+                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_keeloq_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    key & 0x00FFFFFF,
+                    0x2,
+                    0x0003,
+                    "NICE_Smilo",
                     subghz->txrx->preset);
                 generated_protocol = true;
             } else {
