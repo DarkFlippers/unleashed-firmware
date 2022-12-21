@@ -42,6 +42,9 @@
 
 /applications/debug/unit_tests/ @skotopes @DrZlo13 @hedger @nminaylov @gornekich @Astrrra @gsurkov @Skorpionm
 
+# Assets
+/assets/resources/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
+
 # Documentation
 /documentation/ @skotopes @DrZlo13 @hedger @drunkbatya
 /scripts/toolchain/ @skotopes @DrZlo13 @hedger @drunkbatya
