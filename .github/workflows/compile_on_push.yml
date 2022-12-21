@@ -1,0 +1,34 @@
+name: Compile and build FW
+
+# Trigger the workflow on push or pull request on any branch
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      # Install common reqired packages: gcc, avr-libc, avrdude, python3, python3-pip
+      run: sudo apt-get install -y gcc-avr binutils-avr avr-libc avrdude python3 python3-pip zip
+    - name: Compile Dev 
+      run: ./fbt
+    - name: Upload dev artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: firmware_dev-full.dfu
+        path: dist/f7-D/flipper-z-f7-full-local.dfu
+    - name: Compile Prod (DEBUG=0, COMPACT=1)
+      run: ./fbt COMPACT=1 DEBUG=0 updater_package
+    - name: Upload prod artifact (DFU)
+      uses: actions/upload-artifact@v2
+      with:
+        name: firmware_prod-full.dfu
+        path: dist/f7-C/flipper-z-f7-full-local.dfu
+    - name: Create prod artifact (ZIP)
+      run: zip -r firmware_prod-full.zip dist/f7-C/f7-update-local
+    - name: Upload prod artifact (ZIP)
+      uses: actions/upload-artifact@v2
+      with:
+        name: firmware_prod-full.zip
+        path: firmware_prod-full.zip
