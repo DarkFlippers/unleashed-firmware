@@ -42,15 +42,9 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
 
     popup_set_header(popup, "Removing\npassword", 90, 36, AlignCenter, AlignCenter);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
-    popup_set_text(
-            popup,
-            curr_buf,
-            90,
-            56,
-            AlignCenter,
-            AlignCenter);
+    popup_set_text(popup, curr_buf, 90, 56, AlignCenter, AlignCenter);
     notification_message(app->notifications, &sequence_blink_start_magenta);
-    
+
     for(uint8_t i = 0; i < default_passwords_len; i++) {
         FURI_CRITICAL_ENTER();
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
@@ -70,7 +64,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
 void lfrfid_scene_clear_t5577_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
-    
+
     lfrfid_clear_t5577_password_and_config_to_EM(app);
 
     notification_message(app->notifications, &sequence_success);
@@ -88,10 +82,10 @@ void lfrfid_scene_clear_t5577_on_enter(void* context) {
 bool lfrfid_scene_clear_t5577_on_event(void* context, SceneManagerEvent event) {
     LfRfid* app = context;
     bool consumed = false;
-    
+
     const uint32_t prev_scene = LfRfidSceneExtraActions;
 
-    if (event.type == SceneManagerEventTypeCustom && event.event == LfRfidEventPopupClosed) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == LfRfidEventPopupClosed) {
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, prev_scene);
         consumed = true;
     }
