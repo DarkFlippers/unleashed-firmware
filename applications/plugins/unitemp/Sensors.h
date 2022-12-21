@@ -321,4 +321,5 @@ const GPIO*
 //BMP280, BME280
 #include "./sensors/BMx280.h"
 #include "./sensors/AM2320.h"
+#include "./sensors/DHT20.h"
 #endif

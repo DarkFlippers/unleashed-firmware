@@ -21,6 +21,7 @@
 #include "../unitemp.h"
 #include "../Sensors.h"
 extern const SensorType DHT20;
+extern const SensorType AHT10;
 /**
  * @brief Выделение памяти и установка начальных значений датчика DHT20
  *
