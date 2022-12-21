@@ -1,6 +1,19 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 6th Dec, 2022
+# Last Updated 20th Dec, 2022
+# Last Checked 20th Dec, 2022
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 40 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 12 00 00 00
 # 
 name: POWER
 type: parsed
