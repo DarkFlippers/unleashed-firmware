@@ -14,9 +14,7 @@ static void writer_initialize(T55xxTiming* t55xxtiming, T55xxCmd* t55xxcmd) {
     t55xxtiming->program = 700;
 }
 
-static void lfrfid_cli_t5577_clear_password_and_config_to_EM(Cli* cli, FuriString* args, LfRfid* app) {
-    UNUSED(cli);
-    UNUSED(args);
+static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     T55xxTiming* t55xxtiming = malloc(sizeof(T55xxTiming));
     T55xxCmd* t55xxcmd = malloc(sizeof(T55xxCmd));
     Popup* popup = app->popup;
@@ -56,8 +54,8 @@ static void lfrfid_cli_t5577_clear_password_and_config_to_EM(Cli* cli, FuriStrin
             56,
             AlignCenter,
             AlignCenter);
-
-    for(uint8_t i = 0; i < default_passwords_len; i++) { 
+    notification_message(app->notifications, &sequence_blink_start_red);
+    for(uint8_t i = 0; i < default_passwords_len; i++) {
         FURI_CRITICAL_ENTER();
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
         view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
@@ -68,6 +66,7 @@ static void lfrfid_cli_t5577_clear_password_and_config_to_EM(Cli* cli, FuriStrin
         FURI_CRITICAL_EXIT();
         furi_delay_ms(8);
     }
+    notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(app->popup);
     free(t55xxtiming);
     free(t55xxcmd);
@@ -75,48 +74,38 @@ static void lfrfid_cli_t5577_clear_password_and_config_to_EM(Cli* cli, FuriStrin
 
 void lfrfid_scene_clear_t5577_on_enter(void* context) {
     LfRfid* app = context;
-    Widget* widget = app->widget;
-    Cli* cli = furi_record_open(RECORD_CLI);
-    FuriString* cmd;
-    cmd = furi_string_alloc();
-
-    lfrfid_cli_t5577_clear_password_and_config_to_EM(cli, cmd, app);
-
-    widget_add_string_element(
-        widget, 64, 14, AlignCenter, AlignTop, FontPrimary, "Done!");
-
-    widget_add_string_element(
-        widget,
-        64,
-        36,
-        AlignCenter,
-        AlignBottom,
-        FontSecondary,
-        "Test your T5577 now");
-
-    widget_add_button_element(widget, GuiButtonTypeLeft, "Exit", lfrfid_widget_callback, app);
-    view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
+    Popup* popup = app->popup;
     
-    furi_string_free(cmd);
+    lfrfid_clear_t5577_password_and_config_to_EM(app);
+
+    notification_message(app->notifications, &sequence_success);
+    popup_set_header(popup, "Done!", 94, 3, AlignCenter, AlignTop);
+    popup_set_icon(popup, 0, 3, &I_RFIDDolphinSuccess_108x57);
+    popup_set_context(popup, app);
+    popup_set_callback(popup, lfrfid_popup_timeout_callback);
+    popup_set_timeout(popup, 1500);
+    popup_enable_timeout(popup);
+
+    view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
+    notification_message_block(app->notifications, &sequence_set_green_255);
 }
 
 bool lfrfid_scene_clear_t5577_on_event(void* context, SceneManagerEvent event) {
     LfRfid* app = context;
     bool consumed = false;
-    SceneManager* scene_manager = app->scene_manager;
+    
+    const uint32_t prev_scene = LfRfidSceneExtraActions;
 
-    if(event.type == SceneManagerEventTypeCustom) {
+    if((event.type == SceneManagerEventTypeBack) ||
+       ((event.type == SceneManagerEventTypeCustom) && (event.event == LfRfidEventPopupClosed))) {
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, prev_scene);
         consumed = true;
-        } if(event.event == GuiButtonTypeLeft) {
-            scene_manager_previous_scene(scene_manager);
-        }
-
+    }
     return consumed;
 }
 
 void lfrfid_scene_clear_t5577_on_exit(void* context) {
     LfRfid* app = context;
     popup_reset(app->popup);
-    widget_reset(app->widget);
-    
+    notification_message_block(app->notifications, &sequence_reset_green);
 }
