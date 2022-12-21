@@ -48,6 +48,8 @@ void ibutton_scene_read_success_on_enter(void* context) {
     dialog_ex_set_context(dialog_ex, ibutton);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewDialogEx);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageGreenOn);
 }
 
 bool ibutton_scene_read_success_on_event(void* context, SceneManagerEvent event) {
