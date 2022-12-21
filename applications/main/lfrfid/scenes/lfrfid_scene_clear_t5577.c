@@ -55,6 +55,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
             AlignCenter,
             AlignCenter);
     notification_message(app->notifications, &sequence_blink_start_magenta);
+    
     for(uint8_t i = 0; i < default_passwords_len; i++) {
         FURI_CRITICAL_ENTER();
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
@@ -79,8 +80,8 @@ void lfrfid_scene_clear_t5577_on_enter(void* context) {
     lfrfid_clear_t5577_password_and_config_to_EM(app);
 
     notification_message(app->notifications, &sequence_success);
-    popup_set_header(popup, "Done!", 94, 3, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 3, &I_RFIDDolphinSuccess_108x57);
+    popup_set_header(popup, "Done!", 94, 10, AlignCenter, AlignTop);
+    popup_set_icon(popup, 0, 7, &I_RFIDDolphinSuccess_108x57);
     popup_set_context(popup, app);
     popup_set_callback(popup, lfrfid_popup_timeout_callback);
     popup_set_timeout(popup, 1500);
