@@ -130,6 +130,7 @@ Games:
 - Game15 [(by x27)](https://github.com/x27/flipperzero-game15)
 - Solitaire [(by teeebor)](https://github.com/teeebor/flipper_games)
 - BlackJack [(by teeebor)](https://github.com/teeebor/flipper_games)
+- 2048 game [(by eugene-kirzhanov)](https://github.com/eugene-kirzhanov/flipper-zero-2048-game)
 
 ### Other changes
 
