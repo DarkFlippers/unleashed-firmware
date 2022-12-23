@@ -707,7 +707,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                         nfc_worker->callback(NfcWorkerEventFoundKeyB, nfc_worker->context);
                         nfc_worker_mf_classic_key_attack(nfc_worker, key, &tx_rx, i + 1);
                     }
-                    eactivated = true;
+                    deactivated = true;
                 }
                 if(is_key_a_found && is_key_b_found) break;
                 if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;
