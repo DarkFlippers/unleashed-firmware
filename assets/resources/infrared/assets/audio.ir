@@ -242,3 +242,46 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 4639 4406 586 418 585 393 559 447 557 447 557 1477 532 1477 532 472 532 472 532 1476 533 1476 532 1476 532 1476 532 473 555 449 555 449 555 449 555 4455 554 450 554 450 554 450 554 450 554 1455 554 450 554 450 554 450 554 1455 554 1455 553 1455 553 450 554 450 554 1455 554 1455 554 1455 554 450 554 450 554 450 554 1455 554 55454 4557 4458 555 449 555 449 555 450 554 450 554 1455 554 1455 553 450 554 450 554 1455 554 1455 554 1454 554 1455 554 450 554 450 554 450 555 450 554 4455 553 450 554 450 554 450 554 450 554 1455 554 450 554 450 554 450 554 1455 554 1455 554 1455 553 450 554 450 554 1455 554 1455 553 1455 554 450 554 450 554 450 554 1455 554
+#
+# Model: Edifier R1850DB
+name: Power
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 46 B9 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 5E A1 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 05 FA 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 49 B6 00 00
+#
+name: Next
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 02 FD 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 1E E1 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 41 BE 00 00
