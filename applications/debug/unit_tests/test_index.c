@@ -73,7 +73,6 @@ void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);
     UNUSED(context);
-    uint32_t failed_tests = 0;
     minunit_run = 0;
     minunit_assert = 0;
     minunit_fail = 0;
@@ -99,32 +98,35 @@ void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
 
             if(furi_string_size(args)) {
                 if(furi_string_cmp_str(args, unit_tests[i].name) == 0) {
-                    failed_tests += unit_tests[i].entry();
+                    unit_tests[i].entry();
                 } else {
                     printf("Skipping %s\r\n", unit_tests[i].name);
                 }
             } else {
-                failed_tests += unit_tests[i].entry();
+                unit_tests[i].entry();
             }
         }
-        printf("\r\nFailed tests: %lu\r\n", failed_tests);
 
-        // Time report
-        cycle_counter = (furi_get_tick() - cycle_counter);
-        printf("Consumed: %lu ms\r\n", cycle_counter);
+        if(minunit_run != 0) {
+            printf("\r\nFailed tests: %u\r\n", minunit_fail);
 
-        // Wait for tested services and apps to deallocate memory
-        furi_delay_ms(200);
-        uint32_t heap_after = memmgr_get_free_heap();
-        printf("Leaked: %ld\r\n", heap_before - heap_after);
+            // Time report
+            cycle_counter = (furi_get_tick() - cycle_counter);
+            printf("Consumed: %lu ms\r\n", cycle_counter);
 
-        // Final Report
-        if(failed_tests == 0) {
-            notification_message(notification, &sequence_success);
-            printf("Status: PASSED\r\n");
-        } else {
-            notification_message(notification, &sequence_error);
-            printf("Status: FAILED\r\n");
+            // Wait for tested services and apps to deallocate memory
+            furi_delay_ms(200);
+            uint32_t heap_after = memmgr_get_free_heap();
+            printf("Leaked: %ld\r\n", heap_before - heap_after);
+
+            // Final Report
+            if(minunit_fail == 0) {
+                notification_message(notification, &sequence_success);
+                printf("Status: PASSED\r\n");
+            } else {
+                notification_message(notification, &sequence_error);
+                printf("Status: FAILED\r\n");
+            }
         }
     }
 
