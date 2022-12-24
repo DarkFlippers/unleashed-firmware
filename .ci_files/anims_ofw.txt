@@ -1,5 +1,5 @@
 Filetype: Flipper Animation Manifest
-Version: 1
+Version: 1,
 
 Name: L1_Waves_128x50
 Min butthurt: 0
