@@ -307,7 +307,7 @@ bool pcsg_view_receiver_input(InputEvent* event, void* context) {
             pcsg_receiver->view,
             PCSGReceiverModel * model,
             {
-                if(model->idx != model->history_item - 1) model->idx++;
+                if(model->history_item && model->idx != model->history_item - 1) model->idx++;
             },
             true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
