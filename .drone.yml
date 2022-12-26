@@ -244,8 +244,7 @@ steps:
         from_secret: dep_port
       command_timeout: 30s
       script:
-        - cd web/unleashedflip.com/public_html/fw/dev
-        - rm -f ./*
+        - cd web/unleashedflip.com/public_html/fw/dev && rm -f ./*
 
   - name: "Upload default to updates srv"
     image: appleboy/drone-scp
