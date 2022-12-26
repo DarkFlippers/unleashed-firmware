@@ -134,8 +134,14 @@ void totp_cli_command_pin_handle(PluginState* plugin_state, FuriString* args, Cl
                 plugin_state->crypto_verify_data = NULL;
             }
 
-            totp_crypto_seed_iv(
-                plugin_state, new_pin_length > 0 ? &new_pin[0] : NULL, new_pin_length);
+            if(!totp_crypto_seed_iv(
+                   plugin_state, new_pin_length > 0 ? &new_pin[0] : NULL, new_pin_length)) {
+                memset_s(&new_pin[0], TOTP_IV_SIZE, 0, TOTP_IV_SIZE);
+                TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
+                break;
+            }
+
+            memset_s(&new_pin[0], TOTP_IV_SIZE, 0, TOTP_IV_SIZE);
 
             TOTP_LIST_FOREACH(plugin_state->tokens_list, node, {
                 TokenInfo* token_info = node->data;
@@ -152,15 +158,18 @@ void totp_cli_command_pin_handle(PluginState* plugin_state, FuriString* args, Cl
                 free(plain_token);
             });
 
-            totp_full_save_config_file(plugin_state);
-
             TOTP_CLI_DELETE_LAST_LINE();
 
-            if(do_change) {
-                TOTP_CLI_PRINTF("PIN has been successfully changed\r\n");
-            } else if(do_remove) {
-                TOTP_CLI_PRINTF("PIN has been successfully removed\r\n");
+            if(totp_full_save_config_file(plugin_state) == TotpConfigFileUpdateSuccess) {
+                if(do_change) {
+                    TOTP_CLI_PRINTF("PIN has been successfully changed\r\n");
+                } else if(do_remove) {
+                    TOTP_CLI_PRINTF("PIN has been successfully removed\r\n");
+                }
+            } else {
+                TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
             }
+
         } while(false);
 
         if(load_generate_token_scene) {

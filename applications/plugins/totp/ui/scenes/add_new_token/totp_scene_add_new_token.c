@@ -7,6 +7,7 @@
 #include "../../../lib/list/list.h"
 #include "../../../services/config/config.h"
 #include "../../ui_controls.h"
+#include "../../common_dialogs.h"
 #include "../../../lib/roll_value/roll_value.h"
 #include "../../../types/nullable.h"
 #include "../generate_token/totp_scene_generate_token.h"
@@ -248,7 +249,11 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
                 TOTP_LIST_INIT_OR_ADD(plugin_state->tokens_list, tokenInfo, furi_check);
                 plugin_state->tokens_count++;
 
-                totp_config_file_save_new_token(tokenInfo);
+                if(totp_config_file_save_new_token(tokenInfo) != TotpConfigFileUpdateSuccess) {
+                    token_info_free(tokenInfo);
+                    totp_dialogs_config_updating_error(plugin_state);
+                    return false;
+                }
 
                 GenerateTokenSceneContext generate_scene_context = {
                     .current_token_index = plugin_state->tokens_count - 1};

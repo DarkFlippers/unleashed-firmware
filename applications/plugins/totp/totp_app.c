@@ -15,6 +15,7 @@
 #include "types/common.h"
 #include "ui/scene_director.h"
 #include "ui/constants.h"
+#include "ui/common_dialogs.h"
 #include "services/crypto/crypto.h"
 #include "cli/cli.h"
 
@@ -36,17 +37,7 @@ static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queu
     furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
-static bool totp_plugin_state_init(PluginState* const plugin_state) {
-    plugin_state->gui = furi_record_open(RECORD_GUI);
-    plugin_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
-    plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);
-
-    totp_config_file_load_base(plugin_state);
-
-    totp_cli_register_command_handler(plugin_state);
-
-    totp_scene_director_init_scenes(plugin_state);
-
+static bool totp_activate_initial_scene(PluginState* const plugin_state) {
     if(plugin_state->crypto_verify_data == NULL) {
         DialogMessage* message = dialog_message_alloc();
         dialog_message_set_buttons(message, "No", NULL, "Yes");
@@ -63,13 +54,19 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
         if(dialog_result == DialogMessageButtonRight) {
             totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
         } else {
-            totp_crypto_seed_iv(plugin_state, NULL, 0);
+            if(!totp_crypto_seed_iv(plugin_state, NULL, 0)) {
+                totp_dialogs_config_loading_error(plugin_state);
+                return false;
+            }
             totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
         }
     } else if(plugin_state->pin_set) {
         totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
     } else {
-        totp_crypto_seed_iv(plugin_state, NULL, 0);
+        if(!totp_crypto_seed_iv(plugin_state, NULL, 0)) {
+            totp_dialogs_config_loading_error(plugin_state);
+            return false;
+        }
         if(totp_crypto_verify_key(plugin_state)) {
             totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
         } else {
@@ -94,13 +91,20 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
     return true;
 }
 
+static bool totp_plugin_state_init(PluginState* const plugin_state) {
+    plugin_state->gui = furi_record_open(RECORD_GUI);
+    plugin_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
+    plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);
+
+    if(totp_config_file_load_base(plugin_state) != TotpConfigFileOpenSuccess) {
+        totp_dialogs_config_loading_error(plugin_state);
+        return false;
+    }
+
+    return true;
+}
+
 static void totp_plugin_state_free(PluginState* plugin_state) {
-    totp_cli_unregister_command_handler();
-
-    totp_scene_director_deactivate_active_scene(plugin_state);
-
-    totp_scene_director_dispose(plugin_state);
-
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_DIALOGS);
@@ -139,6 +143,14 @@ int32_t totp_app() {
         return 255;
     }
 
+    totp_cli_register_command_handler(plugin_state);
+    totp_scene_director_init_scenes(plugin_state);
+    if(!totp_activate_initial_scene(plugin_state)) {
+        FURI_LOG_E(LOGGING_TAG, "An error ocurred during activating initial scene\r\n");
+        totp_plugin_state_free(plugin_state);
+        return 253;
+    }
+
     // Set system callbacks
     ViewPort* view_port = view_port_alloc();
     view_port_draw_callback_set(view_port, render_callback, &state_mutex);
@@ -170,6 +182,10 @@ int32_t totp_app() {
         view_port_update(view_port);
         release_mutex(&state_mutex, plugin_state_m);
     }
+
+    totp_cli_unregister_command_handler();
+    totp_scene_director_deactivate_active_scene(plugin_state);
+    totp_scene_director_dispose(plugin_state);
 
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(plugin_state->gui, view_port);

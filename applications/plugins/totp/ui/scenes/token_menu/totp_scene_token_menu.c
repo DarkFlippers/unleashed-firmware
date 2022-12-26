@@ -2,6 +2,7 @@
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
 #include "../../ui_controls.h"
+#include "../../common_dialogs.h"
 #include "../../constants.h"
 #include "../../scene_director.h"
 #include "../../../services/config/config.h"
@@ -156,7 +157,10 @@ bool totp_scene_token_menu_handle_event(const PluginEvent* const event, PluginSt
                 furi_check(tokenInfo != NULL);
                 token_info_free(tokenInfo);
 
-                totp_full_save_config_file(plugin_state);
+                if(totp_full_save_config_file(plugin_state) != TotpConfigFileUpdateSuccess) {
+                    totp_dialogs_config_updating_error(plugin_state);
+                    return false;
+                }
                 totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
             }
             break;
