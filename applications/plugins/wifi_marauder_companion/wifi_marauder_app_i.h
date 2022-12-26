@@ -14,7 +14,7 @@
 #include <gui/modules/text_input.h>
 #include <gui/modules/variable_item_list.h>
 
-#define NUM_MENU_ITEMS (15)
+#define NUM_MENU_ITEMS (16)
 
 #define WIFI_MARAUDER_TEXT_BOX_STORE_SIZE (4096)
 #define WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE (512)
@@ -41,6 +41,11 @@ struct WifiMarauderApp {
     bool is_custom_tx_string;
     bool focus_console_start;
     bool show_stopscan_tip;
+
+    // For input source and destination MAC in targeted deauth attack
+    int special_case_input_step;
+    char special_case_input_src_addr[20];
+    char special_case_input_dst_addr[20];
 };
 
 // Supported commands:

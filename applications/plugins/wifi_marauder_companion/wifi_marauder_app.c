@@ -50,6 +50,8 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
         app->selected_option_index[i] = 0;
     }
 
+    app->special_case_input_step = 0;
+
     app->text_box = text_box_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, WifiMarauderAppViewConsoleOutput, text_box_get_view(app->text_box));
