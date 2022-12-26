@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define TOPBIT(X) (1 << (X - 1))
+#define TOPBIT(X) (1 << ((X)-1))
 
 typedef enum {
     BitLibParityEven,
@@ -26,13 +26,13 @@ typedef enum {
  *  @param data value to test
  *  @param index bit index to test
  */
-#define bit_lib_bit_is_set(data, index) ((data & (1 << (index))) != 0)
+#define bit_lib_bit_is_set(data, index) (((data) & (1 << (index))) != 0)
 
 /** @brief Test if a bit is not set.
  *  @param data value to test
  *  @param index bit index to test
  */
-#define bit_lib_bit_is_not_set(data, index) ((data & (1 << (index))) == 0)
+#define bit_lib_bit_is_not_set(data, index) (((data) & (1 << (index))) == 0)
 
 /** @brief Push a bit into a byte array.
  *  @param data array to push bit into

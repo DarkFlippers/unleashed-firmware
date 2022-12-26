@@ -244,10 +244,8 @@ static bool animation_manager_check_blocking(AnimationManager* animation_manager
     furi_record_close(RECORD_DOLPHIN);
     if(!blocking_animation && stats.level_up_is_pending) {
         blocking_animation = animation_storage_find_animation(NEW_MAIL_ANIMATION_NAME);
-        furi_assert(blocking_animation);
-        if(blocking_animation) {
-            animation_manager->levelup_pending = true;
-        }
+        furi_check(blocking_animation);
+        animation_manager->levelup_pending = true;
     }
 
     if(blocking_animation) {
@@ -448,7 +446,7 @@ void animation_manager_unload_and_stall_animation(AnimationManager* animation_ma
 
     if(animation_manager->state == AnimationManagerStateBlocked) {
         animation_manager->state = AnimationManagerStateFreezedBlocked;
-    } else if(animation_manager->state == AnimationManagerStateIdle) {
+    } else if(animation_manager->state == AnimationManagerStateIdle) { //-V547
         animation_manager->state = AnimationManagerStateFreezedIdle;
 
         animation_manager->freezed_animation_time_left =
@@ -491,7 +489,7 @@ void animation_manager_load_and_continue_animation(AnimationManager* animation_m
         furi_assert(restore_animation);
         animation_manager_replace_current_animation(animation_manager, restore_animation);
         animation_manager->state = AnimationManagerStateBlocked;
-    } else if(animation_manager->state == AnimationManagerStateFreezedIdle) {
+    } else if(animation_manager->state == AnimationManagerStateFreezedIdle) { //-V547
         /* check if we missed some system notifications, and set current_animation */
         bool blocked = animation_manager_check_blocking(animation_manager);
         if(!blocked) {

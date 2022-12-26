@@ -249,30 +249,19 @@ static void hid_keyboard_draw_callback(Canvas* canvas, void* context) {
 
 static uint8_t hid_keyboard_get_selected_key(HidKeyboardModel* model) {
     HidKeyboardKey key = hid_keyboard_keyset[model->y][model->x];
-    // Use upper case if shift is toggled
-    bool useUppercase = model->shift;
-    // Check if the key has an upper case version
-    bool hasUppercase = key.shift_key != 0;
-    if(useUppercase && hasUppercase)
-        return key.value;
-    else
-        return key.value;
+    return key.value;
 }
 
 static void hid_keyboard_get_select_key(HidKeyboardModel* model, HidKeyboardPoint delta) {
     // Keep going until a valid spot is found, this allows for nulls and zero width keys in the map
     do {
-        if(((int8_t)model->y) + delta.y < 0)
-            model->y = ROW_COUNT - 1;
-        else
-            model->y = (model->y + delta.y) % ROW_COUNT;
+        const int delta_sum = model->y + delta.y;
+        model->y = delta_sum < 0 ? ROW_COUNT - 1 : delta_sum % ROW_COUNT;
     } while(delta.y != 0 && hid_keyboard_keyset[model->y][model->x].value == 0);
 
     do {
-        if(((int8_t)model->x) + delta.x < 0)
-            model->x = COLUMN_COUNT - 1;
-        else
-            model->x = (model->x + delta.x) % COLUMN_COUNT;
+        const int delta_sum = model->x + delta.x;
+        model->x = delta_sum < 0 ? COLUMN_COUNT - 1 : delta_sum % COLUMN_COUNT;
     } while(delta.x != 0 && hid_keyboard_keyset[model->y][model->x].width ==
                                 0); // Skip zero width keys, pretend they are one key
 }

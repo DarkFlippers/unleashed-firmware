@@ -514,7 +514,7 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
             scroll_counter = 0;
         }
 
-        if(custom_icon_data) {
+        if(custom_icon_data) { //-V547
             // Currently only 10*10 icons are supported
             canvas_draw_bitmap(
                 canvas, 2, Y_OFFSET + 1 + i * FRAME_HEIGHT, 10, 10, custom_icon_data);
@@ -657,9 +657,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
 
             if(!is_root && !file_browser_worker_is_in_start_folder(browser->worker)) {
                 consumed = true;
-                if(!is_root) {
-                    file_browser_worker_folder_exit(browser->worker);
-                }
+                file_browser_worker_folder_exit(browser->worker);
             }
         }
     }

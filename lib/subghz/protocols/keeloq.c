@@ -119,8 +119,8 @@ void subghz_protocol_encoder_keeloq_free(void* context) {
  */
 static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instance, uint8_t btn) {
     instance->generic.cnt++;
-    uint32_t fix = btn << 28 | instance->generic.serial;
-    uint32_t decrypt = btn << 28 |
+    uint32_t fix = (uint32_t)btn << 28 | instance->generic.serial;
+    uint32_t decrypt = (uint32_t)btn << 28 |
                        (instance->generic.serial & 0x3FF)
                            << 16 | //ToDo in some protocols the discriminator is 0
                        instance->generic.cnt;
@@ -271,7 +271,8 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
         subghz_protocol_keeloq_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
 
-        if(strcmp(instance->manufacture_name, "DoorHan")) {
+        if(strcmp(instance->manufacture_name, "DoorHan") != 0) {
+            FURI_LOG_E(TAG, "Wrong manufacturer name");
             break;
         }
 
@@ -287,7 +288,7 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");

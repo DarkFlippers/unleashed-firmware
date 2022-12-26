@@ -116,7 +116,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventFileMenuPin: {
             const char* name = archive_get_name(browser);
             if(favorites) {
-                archive_favorites_delete(name);
+                archive_favorites_delete("%s", name);
                 archive_file_array_rm_selected(browser);
                 archive_show_file_menu(browser, false);
             } else if(archive_is_known_app(selected->type)) {

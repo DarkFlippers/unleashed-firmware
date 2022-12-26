@@ -127,12 +127,12 @@ static void signal_gen_pwm_draw_callback(Canvas* canvas, void* _model) {
     char* line_label = NULL;
     char val_text[16];
 
-    for(uint8_t line = 0; line < LineIndexTotalCount; line++) {
+    for(size_t line = 0; line < LineIndexTotalCount; line++) {
         if(line == LineIndexChannel) {
             line_label = "GPIO Pin";
         } else if(line == LineIndexFrequency) {
             line_label = "Frequency";
-        } else if(line == LineIndexDuty) {
+        } else if(line == LineIndexDuty) { //-V547
             line_label = "Pulse width";
         }
 
@@ -169,7 +169,7 @@ static void signal_gen_pwm_draw_callback(Canvas* canvas, void* _model) {
                 canvas_draw_icon(canvas, icon_x, text_y - 9, &I_SmallArrowUp_3x5);
                 canvas_draw_icon(canvas, icon_x, text_y + 5, &I_SmallArrowDown_3x5);
             }
-        } else if(line == LineIndexDuty) {
+        } else if(line == LineIndexDuty) { //-V547
             snprintf(val_text, sizeof(val_text), "%d%%", model->duty);
             canvas_draw_str_aligned(canvas, VALUE_X, text_y, AlignCenter, AlignCenter, val_text);
             if(model->duty != 0) {

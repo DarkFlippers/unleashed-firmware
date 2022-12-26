@@ -74,7 +74,7 @@ static bool infrared_signal_is_raw_valid(InfraredRawSignal* raw) {
     } else if((raw->timings_size <= 0) || (raw->timings_size > MAX_TIMINGS_AMOUNT)) {
         FURI_LOG_E(
             TAG,
-            "Timings amount is out of range (0 - %X): %X",
+            "Timings amount is out of range (0 - %X): %zX",
             MAX_TIMINGS_AMOUNT,
             raw->timings_size);
         return false;
@@ -275,8 +275,8 @@ bool infrared_signal_search_and_read(
             is_name_found = furi_string_equal(name, tmp);
             if(is_name_found) break;
         }
-        if(!is_name_found) break;
-        if(!infrared_signal_read_body(signal, ff)) break;
+        if(!is_name_found) break; //-V547
+        if(!infrared_signal_read_body(signal, ff)) break; //-V779
         success = true;
     } while(false);
 

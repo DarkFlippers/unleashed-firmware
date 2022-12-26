@@ -360,11 +360,11 @@ bool furi_hal_hid_consumer_key_release(uint16_t button) {
 static void* hid_set_string_descr(char* str) {
     furi_assert(str);
 
-    uint8_t len = strlen(str);
+    size_t len = strlen(str);
     struct usb_string_descriptor* dev_str_desc = malloc(len * 2 + 2);
     dev_str_desc->bLength = len * 2 + 2;
     dev_str_desc->bDescriptorType = USB_DTYPE_STRING;
-    for(uint8_t i = 0; i < len; i++) dev_str_desc->wString[i] = str[i];
+    for(size_t i = 0; i < len; i++) dev_str_desc->wString[i] = str[i];
 
     return dev_str_desc;
 }

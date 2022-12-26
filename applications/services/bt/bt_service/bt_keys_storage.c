@@ -115,7 +115,7 @@ bool bt_keys_storage_update(BtKeysStorage* instance, uint8_t* start_addr, uint32
 
     FURI_LOG_I(
         TAG,
-        "Base address: %p. Start update address: %p. Size changed: %ld",
+        "Base address: %p. Start update address: %p. Size changed: %lu",
         (void*)instance->nvm_sram_buff,
         start_addr,
         size);

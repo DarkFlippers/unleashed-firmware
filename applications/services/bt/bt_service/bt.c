@@ -36,7 +36,7 @@ static void bt_pin_code_view_port_draw_callback(Canvas* canvas, void* context) {
     Bt* bt = context;
     char pin_code_info[24];
     canvas_draw_icon(canvas, 0, 0, &I_BLE_Pairing_128x64);
-    snprintf(pin_code_info, sizeof(pin_code_info), "Pairing code\n%06ld", bt->pin_code);
+    snprintf(pin_code_info, sizeof(pin_code_info), "Pairing code\n%06lu", bt->pin_code);
     elements_multiline_text_aligned(canvas, 64, 4, AlignCenter, AlignTop, pin_code_info);
     elements_button_left(canvas, "Quit");
 }
@@ -78,7 +78,7 @@ static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
     notification_message(bt->notification, &sequence_display_backlight_on);
     FuriString* pin_str;
     dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
-    pin_str = furi_string_alloc_printf("Verify code\n%06ld", pin);
+    pin_str = furi_string_alloc_printf("Verify code\n%06lu", pin);
     dialog_message_set_text(
         bt->dialog_message, furi_string_get_cstr(pin_str), 64, 4, AlignCenter, AlignTop);
     dialog_message_set_buttons(bt->dialog_message, "Cancel", "OK", NULL);
@@ -163,7 +163,7 @@ static uint16_t bt_serial_event_callback(SerialServiceEvent event, void* context
             rpc_session_feed(bt->rpc_session, event.data.buffer, event.data.size, 1000);
         if(bytes_processed != event.data.size) {
             FURI_LOG_E(
-                TAG, "Only %d of %d bytes processed by RPC", bytes_processed, event.data.size);
+                TAG, "Only %zu of %u bytes processed by RPC", bytes_processed, event.data.size);
         }
         ret = rpc_session_get_available_size(bt->rpc_session);
     } else if(event.event == SerialServiceEventTypeDataSent) {

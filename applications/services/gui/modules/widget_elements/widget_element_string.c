@@ -62,4 +62,4 @@ WidgetElement* widget_element_string_create(
     gui_string->model = model;
 
     return gui_string;
-}
+} //-V773

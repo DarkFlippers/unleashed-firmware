@@ -240,7 +240,6 @@ void subghz_protocol_decoder_holtek_feed(void* context, bool level, uint32_t dur
         if(!level) {
             if(duration >= ((uint32_t)subghz_protocol_holtek_const.te_short * 10 +
                             subghz_protocol_holtek_const.te_delta)) {
-                instance->decoder.parser_step = HoltekDecoderStepSaveDuration;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_holtek_const.min_count_bit_for_found) {
                     if((instance->decoder.decode_data & HOLTEK_HEADER_MASK) == HOLTEK_HEADER) {

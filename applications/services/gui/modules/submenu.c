@@ -225,8 +225,11 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
 
             if(items_size <= items_on_screen) {
                 model->window_position = 0;
-            } else if(model->window_position >= items_size - items_on_screen) {
-                model->window_position = items_size - items_on_screen;
+            } else {
+                const size_t pos = items_size - items_on_screen;
+                if(model->window_position > pos) {
+                    model->window_position = pos;
+                }
             }
         },
         true);
@@ -242,8 +245,7 @@ void submenu_process_up(Submenu* submenu) {
 
             if(model->position > 0) {
                 model->position--;
-                if((model->position - model->window_position < 1) &&
-                   (model->window_position > 0)) {
+                if((model->position == model->window_position) && (model->window_position > 0)) {
                     model->window_position--;
                 }
             } else {

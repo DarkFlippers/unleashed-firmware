@@ -130,7 +130,7 @@ static void snake_game_render_callback(Canvas* const canvas, void* ctx) {
 
         canvas_set_font(canvas, FontSecondary);
         char buffer[12];
-        snprintf(buffer, sizeof(buffer), "Score: %u", snake_state->len - 7);
+        snprintf(buffer, sizeof(buffer), "Score: %u", snake_state->len - 7U);
         canvas_draw_str_aligned(canvas, 64, 41, AlignCenter, AlignBottom, buffer);
     }
 
@@ -153,7 +153,7 @@ static void snake_game_update_timer_callback(FuriMessageQueue* event_queue) {
 
 static void snake_game_init_game(SnakeState* const snake_state) {
     Point p[] = {{8, 6}, {7, 6}, {6, 6}, {5, 6}, {4, 6}, {3, 6}, {2, 6}};
-    memcpy(snake_state->points, p, sizeof(p));
+    memcpy(snake_state->points, p, sizeof(p)); //-V1086
 
     snake_state->len = 7;
 

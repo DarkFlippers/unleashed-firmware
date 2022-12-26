@@ -67,7 +67,7 @@ void infrared_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool star
 
 FuriHalInfraredTxGetDataState
     infrared_get_data_callback(void* context, uint32_t* duration, bool* level) {
-    FuriHalInfraredTxGetDataState state = FuriHalInfraredTxGetDataStateLastDone;
+    FuriHalInfraredTxGetDataState state;
     InfraredEncoderHandler* handler = context;
     InfraredStatus status = InfraredStatusError;
 
@@ -82,9 +82,10 @@ FuriHalInfraredTxGetDataState
     } else if(status == InfraredStatusOk) {
         state = FuriHalInfraredTxGetDataStateOk;
     } else if(status == InfraredStatusDone) {
-        state = FuriHalInfraredTxGetDataStateDone;
         if(--infrared_tx_number_of_transmissions == 0) {
             state = FuriHalInfraredTxGetDataStateLastDone;
+        } else {
+            state = FuriHalInfraredTxGetDataStateDone;
         }
     } else {
         furi_crash(NULL);

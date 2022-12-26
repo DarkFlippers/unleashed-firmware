@@ -4,8 +4,7 @@
 #include "../protocols/ws_generic.h"
 #include <input/input.h>
 #include <gui/elements.h>
-
-#define abs(x) ((x) > 0 ? (x) : -(x))
+#include <float_tools.h>
 
 struct WSReceiverInfo {
     View* view;
@@ -79,7 +78,7 @@ void ws_view_receiver_info_draw(Canvas* canvas, WSReceiverInfoModel* model) {
     elements_bold_rounded_frame(canvas, 0, 38, 127, 25);
     canvas_set_font(canvas, FontPrimary);
 
-    if(model->generic->temp != WS_NO_TEMPERATURE) {
+    if(!float_is_equal(model->generic->temp, WS_NO_TEMPERATURE)) {
         canvas_draw_icon(canvas, 6, 43, &I_Therm_7x16);
 
         uint8_t temp_x1 = 0;

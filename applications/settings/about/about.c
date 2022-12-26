@@ -119,7 +119,7 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     c2_ver = ble_glue_get_c2_info();
 #endif
 
-    if(!ver) {
+    if(!ver) { //-V1051
         furi_string_cat_printf(buffer, "No info\n");
     } else {
         furi_string_cat_printf(

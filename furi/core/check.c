@@ -117,7 +117,7 @@ FURI_NORETURN void __furi_crash() {
     if(debug) {
         furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
         furi_hal_console_puts("\033[0m\r\n");
-        RESTORE_REGISTERS_AND_HALT_MCU(debug);
+        RESTORE_REGISTERS_AND_HALT_MCU(true);
     } else {
         furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
         furi_hal_console_puts("\r\nRebooting system.\r\n");

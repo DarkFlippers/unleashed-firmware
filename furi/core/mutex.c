@@ -30,6 +30,8 @@ FuriMutex* furi_mutex_alloc(FuriMutexType type) {
 
 void furi_mutex_free(FuriMutex* instance) {
     furi_assert(!FURI_IS_IRQ_MODE());
+    furi_assert(instance);
+
     vSemaphoreDelete((SemaphoreHandle_t)((uint32_t)instance & ~1U));
 }
 

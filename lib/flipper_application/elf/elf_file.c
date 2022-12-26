@@ -6,8 +6,8 @@
 #define TAG "elf"
 
 #define ELF_NAME_BUFFER_LEN 32
-#define SECTION_OFFSET(e, n) (e->section_table + n * sizeof(Elf32_Shdr))
-#define IS_FLAGS_SET(v, m) ((v & m) == m)
+#define SECTION_OFFSET(e, n) ((e)->section_table + (n) * sizeof(Elf32_Shdr))
+#define IS_FLAGS_SET(v, m) (((v) & (m)) == (m))
 #define RESOLVER_THREAD_YIELD_STEP 30
 
 // #define ELF_DEBUG_LOG 1
@@ -758,15 +758,13 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
 
     AddressCache_init(elf->relocation_cache);
 
-    if(status == ELFFileLoadStatusSuccess) {
-        for(ELFSectionDict_it(it, elf->sections); !ELFSectionDict_end_p(it);
-            ELFSectionDict_next(it)) {
-            ELFSectionDict_itref_t* itref = ELFSectionDict_ref(it);
-            FURI_LOG_D(TAG, "Relocating section '%s'", itref->key);
-            if(!elf_relocate_section(elf, &itref->value)) {
-                FURI_LOG_E(TAG, "Error relocating section '%s'", itref->key);
-                status = ELFFileLoadStatusMissingImports;
-            }
+    for(ELFSectionDict_it(it, elf->sections); !ELFSectionDict_end_p(it);
+        ELFSectionDict_next(it)) {
+        ELFSectionDict_itref_t* itref = ELFSectionDict_ref(it);
+        FURI_LOG_D(TAG, "Relocating section '%s'", itref->key);
+        if(!elf_relocate_section(elf, &itref->value)) {
+            FURI_LOG_E(TAG, "Error relocating section '%s'", itref->key);
+            status = ELFFileLoadStatusMissingImports;
         }
     }
 
@@ -793,7 +791,7 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
             ELFSectionDict_itref_t* itref = ELFSectionDict_ref(it);
             total_size += itref->value.size;
         }
-        FURI_LOG_I(TAG, "Total size of loaded sections: %u", total_size);
+        FURI_LOG_I(TAG, "Total size of loaded sections: %u", total_size); //-V576
     }
 
     return status;

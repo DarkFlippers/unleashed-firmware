@@ -32,7 +32,7 @@ static void rpc_command_callback(RpcAppSystemEvent rpc_event, void* context) {
 }
 
 static LfRfid* lfrfid_alloc() {
-    LfRfid* lfrfid = malloc(sizeof(LfRfid)); //-V773
+    LfRfid* lfrfid = malloc(sizeof(LfRfid));
 
     lfrfid->storage = furi_record_open(RECORD_STORAGE);
     lfrfid->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -100,7 +100,7 @@ static LfRfid* lfrfid_alloc() {
         lfrfid->view_dispatcher, LfRfidViewRead, lfrfid_view_read_get_view(lfrfid->read_view));
 
     return lfrfid;
-}
+} //-V773
 
 static void lfrfid_free(LfRfid* lfrfid) {
     furi_assert(lfrfid);

@@ -241,4 +241,4 @@ WidgetElement* widget_element_text_scroll_create(
     text_scroll->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
     return text_scroll;
-}
+} //-V773

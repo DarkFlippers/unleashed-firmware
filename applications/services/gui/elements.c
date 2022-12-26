@@ -291,11 +291,11 @@ void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* t
         end = strchr(start, '\n');
         if(end) {
             furi_string_set_strn(str, start, end - start);
+            start = end + 1;
         } else {
             furi_string_set(str, start);
         }
         canvas_draw_str(canvas, x, y, furi_string_get_cstr(str));
-        start = end + 1;
         y += font_height;
     } while(end && y < 64);
     furi_string_free(str);

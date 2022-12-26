@@ -7,7 +7,10 @@
 FuriMessageQueue* furi_message_queue_alloc(uint32_t msg_count, uint32_t msg_size) {
     furi_assert((furi_is_irq_context() == 0U) && (msg_count > 0U) && (msg_size > 0U));
 
-    return ((FuriMessageQueue*)xQueueCreate(msg_count, msg_size));
+    QueueHandle_t handle = xQueueCreate(msg_count, msg_size);
+    furi_check(handle);
+
+    return ((FuriMessageQueue*)handle);
 }
 
 void furi_message_queue_free(FuriMessageQueue* instance) {

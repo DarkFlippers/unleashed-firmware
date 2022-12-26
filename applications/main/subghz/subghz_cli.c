@@ -152,11 +152,11 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
         "Protocol: Princeton\n"
         "Bit: 24\n"
         "Key: 00 00 00 00 00 %02X %02X %02X\n"
-        "TE: %ld\n"
-        "Repeat: %ld\n",
-        (uint8_t)((key >> 16) & 0xFF),
-        (uint8_t)((key >> 8) & 0xFF),
-        (uint8_t)(key & 0xFF),
+        "TE: %lu\n"
+        "Repeat: %lu\n",
+        (uint8_t)((key >> 16) & 0xFFU),
+        (uint8_t)((key >> 8) & 0xFFU),
+        (uint8_t)(key & 0xFFU),
         te,
         repeat);
     FlipperFormat* flipper_format = flipper_format_string_alloc();
@@ -300,7 +300,7 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
 
     furi_hal_power_suppress_charge_exit();
 
-    printf("\r\nPackets received %u\r\n", instance->packet_count);
+    printf("\r\nPackets received %zu\r\n", instance->packet_count);
 
     // Cleanup
     subghz_receiver_free(receiver);
@@ -787,8 +787,9 @@ static bool subghz_on_system_start_istream_decode_band(
     }
 
     region->bands_count += 1;
-    region =
-        realloc(region, sizeof(FuriHalRegion) + sizeof(FuriHalRegionBand) * region->bands_count);
+    region = realloc( //-V701
+        region,
+        sizeof(FuriHalRegion) + sizeof(FuriHalRegionBand) * region->bands_count);
     size_t pos = region->bands_count - 1;
     region->bands[pos].start = band.start;
     region->bands[pos].end = band.end;
@@ -798,7 +799,7 @@ static bool subghz_on_system_start_istream_decode_band(
 
     FURI_LOG_I(
         "SubGhzOnStart",
-        "Add allowed band: start %ldHz, stop %ldHz, power_limit %ddBm, duty_cycle %d%%",
+        "Add allowed band: start %luHz, stop %luHz, power_limit %ddBm, duty_cycle %u%%",
         band.start,
         band.end,
         band.power_limit,

@@ -541,7 +541,7 @@ static size_t _etoa(
     exp2 = (int)(expval * 3.321928094887362 + 0.5);
     const double z = expval * 2.302585092994046 - exp2 * 0.6931471805599453;
     const double z2 = z * z;
-    conv.U = ((uint64_t)exp2 + 1023) << 52U;
+    conv.U = ((uint64_t)exp2 + 1023) << 52U; //-V519
     // compute exp(z) using continued fractions, see https://en.wikipedia.org/wiki/Exponential_function#Continued_fractions_for_ex
     conv.F *= 1 + 2 * z / (2 - z + (z2 / (6 + (z2 / (10 + z2 / 14)))));
     // correct for rounding errors

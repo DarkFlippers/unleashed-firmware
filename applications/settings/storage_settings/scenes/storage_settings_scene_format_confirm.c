@@ -40,8 +40,6 @@ bool storage_settings_scene_format_confirm_on_event(void* context, SceneManagerE
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DialogExResultLeft:
-            consumed = scene_manager_previous_scene(app->scene_manager);
-            break;
         case DialogExResultCenter:
             consumed = scene_manager_previous_scene(app->scene_manager);
             break;

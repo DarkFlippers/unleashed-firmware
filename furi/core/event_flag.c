@@ -9,7 +9,11 @@
 
 FuriEventFlag* furi_event_flag_alloc() {
     furi_assert(!FURI_IS_IRQ_MODE());
-    return ((FuriEventFlag*)xEventGroupCreate());
+
+    EventGroupHandle_t handle = xEventGroupCreate();
+    furi_check(handle);
+
+    return ((FuriEventFlag*)handle);
 }
 
 void furi_event_flag_free(FuriEventFlag* instance) {

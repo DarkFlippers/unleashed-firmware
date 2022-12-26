@@ -49,7 +49,7 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
         snprintf(
             value,
             sizeof(value),
-            "%ld.%ldV   %ldmA",
+            "%lu.%luV   %lumA",
             (uint32_t)(data->vbus_voltage),
             (uint32_t)(data->vbus_voltage * 10) % 10,
             charge_current);
@@ -75,7 +75,7 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
         snprintf(
             value,
             sizeof(value),
-            "%ld.%ldV",
+            "%lu.%luV",
             (uint32_t)(data->charging_voltage),
             (uint32_t)(data->charging_voltage * 10) % 10);
     } else {
@@ -100,14 +100,14 @@ static void battery_info_draw_callback(Canvas* canvas, void* context) {
     char voltage[10];
     char health[10];
 
-    snprintf(batt_level, sizeof(batt_level), "%ld%%", (uint32_t)model->charge);
-    snprintf(temperature, sizeof(temperature), "%ld C", (uint32_t)model->gauge_temperature);
+    snprintf(batt_level, sizeof(batt_level), "%lu%%", (uint32_t)model->charge);
+    snprintf(temperature, sizeof(temperature), "%lu C", (uint32_t)model->gauge_temperature);
     snprintf(
         voltage,
         sizeof(voltage),
-        "%ld.%01ld V",
+        "%lu.%01lu V",
         (uint32_t)model->gauge_voltage,
-        (uint32_t)(model->gauge_voltage * 10) % 10);
+        (uint32_t)(model->gauge_voltage * 10) % 10UL);
     snprintf(health, sizeof(health), "%d%%", model->health);
 
     draw_stat(canvas, 8, 42, &I_Battery_16x16, batt_level);
