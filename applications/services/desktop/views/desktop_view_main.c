@@ -102,7 +102,6 @@ DesktopMainView* desktop_main_alloc() {
     DesktopMainView* main_view = malloc(sizeof(DesktopMainView));
 
     main_view->view = view_alloc();
-    view_allocate_model(main_view->view, ViewModelTypeLockFree, 1);
     view_set_context(main_view->view, main_view);
     view_set_input_callback(main_view->view, desktop_main_input_callback);
 

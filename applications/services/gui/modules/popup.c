@@ -117,7 +117,7 @@ Popup* popup_alloc() {
     popup->timer_enabled = false;
 
     view_set_context(popup->view, popup);
-    view_allocate_model(popup->view, ViewModelTypeLockFree, sizeof(PopupModel));
+    view_allocate_model(popup->view, ViewModelTypeLocking, sizeof(PopupModel));
     view_set_draw_callback(popup->view, popup_view_draw_callback);
     view_set_input_callback(popup->view, popup_view_input_callback);
     view_set_enter_callback(popup->view, popup_start_timer);
