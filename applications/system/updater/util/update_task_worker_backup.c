@@ -176,7 +176,7 @@ int32_t update_task_worker_backup_restore(void* context) {
 
         if(boot_mode == FuriHalRtcBootModePreUpdate) {
             success = update_task_pre_update(update_task);
-        } else if(boot_mode == FuriHalRtcBootModePostUpdate) {
+        } else if(boot_mode == FuriHalRtcBootModePostUpdate) { //-V547
             success = update_task_post_update(update_task);
             if(success) {
                 update_operation_disarm();

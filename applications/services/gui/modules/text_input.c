@@ -92,14 +92,16 @@ static uint8_t get_row_size(uint8_t row_index) {
 
     switch(row_index + 1) {
     case 1:
-        row_size = sizeof(keyboard_keys_row_1) / sizeof(TextInputKey);
+        row_size = COUNT_OF(keyboard_keys_row_1);
         break;
     case 2:
-        row_size = sizeof(keyboard_keys_row_2) / sizeof(TextInputKey);
+        row_size = COUNT_OF(keyboard_keys_row_2);
         break;
     case 3:
-        row_size = sizeof(keyboard_keys_row_3) / sizeof(TextInputKey);
+        row_size = COUNT_OF(keyboard_keys_row_3);
         break;
+    default:
+        furi_crash(NULL);
     }
 
     return row_size;
@@ -118,6 +120,8 @@ static const TextInputKey* get_row(uint8_t row_index) {
     case 3:
         row = keyboard_keys_row_3;
         break;
+    default:
+        furi_crash(NULL);
     }
 
     return row;
@@ -184,7 +188,7 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_set_font(canvas, FontKeyboard);
 
-    for(uint8_t row = 0; row <= keyboard_row_count; row++) {
+    for(uint8_t row = 0; row < keyboard_row_count; row++) {
         const uint8_t column_count = get_row_size(row);
         const TextInputKey* keys = get_row(row);
 
@@ -303,7 +307,7 @@ static void text_input_handle_right(TextInput* text_input, TextInputModel* model
 
 static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, bool shift) {
     char selected = get_selected_char(model);
-    uint8_t text_length = strlen(model->text_buffer);
+    size_t text_length = strlen(model->text_buffer);
 
     if(shift) {
         selected = char_to_uppercase(selected);
@@ -481,7 +485,6 @@ void text_input_reset(TextInput* text_input) {
         text_input->view,
         TextInputModel * model,
         {
-            model->text_buffer_size = 0;
             model->header = "";
             model->selected_row = 0;
             model->selected_column = 0;

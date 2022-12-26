@@ -152,8 +152,8 @@ void subghz_protocol_decoder_scher_khan_feed(void* context, bool level, uint32_t
         break;
     case ScherKhanDecoderStepSaveDuration:
         if(level) {
-            if(duration >= (uint32_t)(subghz_protocol_scher_khan_const.te_long +
-                            subghz_protocol_scher_khan_const.te_delta * 2)) {
+            if(duration >= (subghz_protocol_scher_khan_const.te_delta * 2UL +
+                            subghz_protocol_scher_khan_const.te_long)) {
                 //Found stop bit
                 instance->decoder.parser_step = ScherKhanDecoderStepReset;
                 if(instance->decoder.decode_count_bit >=

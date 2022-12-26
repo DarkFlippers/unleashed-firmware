@@ -35,7 +35,7 @@ uint8_t dfu_file_validate_headers(File* dfuf, const DfuValidationParams* referen
         return 0;
     }
 
-    if(memcmp(dfu_prefix.szSignature, DFU_SIGNATURE, sizeof(dfu_prefix.szSignature))) {
+    if(memcmp(dfu_prefix.szSignature, DFU_SIGNATURE, sizeof(dfu_prefix.szSignature)) != 0) {
         return 0;
     }
 

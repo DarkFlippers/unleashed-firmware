@@ -151,7 +151,7 @@ static bool subghz_protocol_secplus_v2_mix_order_decode(uint8_t order, uint16_t 
     case 0x06: // 0b0110  2, 1, 0],
     case 0x09: // 0b1001  2, 1, 0],
         p[2] = a;
-        p[1] = b;
+        // p[1]: no change
         p[0] = c;
         break;
     case 0x08: // 0b1000  1, 2, 0],
@@ -166,20 +166,18 @@ static bool subghz_protocol_secplus_v2_mix_order_decode(uint8_t order, uint16_t 
         p[1] = c;
         break;
     case 0x00: // 0b0000  0, 2, 1],
-        p[0] = a;
+        // p[0]: no change
         p[2] = b;
         p[1] = c;
         break;
     case 0x05: // 0b0101 1, 0, 2],
         p[1] = a;
         p[0] = b;
-        p[2] = c;
+        // p[2]: no change
         break;
     case 0x02: // 0b0010 0, 1, 2],
     case 0x0A: // 0b1010 0, 1, 2],
-        p[0] = a;
-        p[1] = b;
-        p[2] = c;
+        // no reordering
         break;
     default:
         FURI_LOG_E(TAG, "Order FAIL");
@@ -539,7 +537,7 @@ bool subghz_protocol_encoder_secplus_v2_deserialize(void* context, FlipperFormat
 
         //update data
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -547,7 +545,7 @@ bool subghz_protocol_encoder_secplus_v2_deserialize(void* context, FlipperFormat
         }
 
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(
                flipper_format, "Secplus_packet_1", key_data, sizeof(uint64_t))) {
@@ -605,7 +603,7 @@ bool subghz_protocol_secplus_v2_create_data(
 
     uint8_t key_data[sizeof(uint64_t)] = {0};
     for(size_t i = 0; i < sizeof(uint64_t); i++) {
-        key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> i * 8) & 0xFF;
+        key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> (i * 8)) & 0xFF;
     }
 
     if(res &&
@@ -691,7 +689,7 @@ void subghz_protocol_decoder_secplus_v2_feed(void* context, bool level, uint32_t
                 subghz_protocol_secplus_v2_const.te_delta) {
                 event = ManchesterEventLongLow;
             } else if(
-                duration >= (uint32_t)(subghz_protocol_secplus_v2_const.te_long * 2 +
+                duration >= (subghz_protocol_secplus_v2_const.te_long * 2UL +
                              subghz_protocol_secplus_v2_const.te_delta)) {
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_secplus_v2_const.min_count_bit_for_found) {
@@ -766,7 +764,7 @@ bool subghz_protocol_decoder_secplus_v2_serialize(
 
     uint8_t key_data[sizeof(uint64_t)] = {0};
     for(size_t i = 0; i < sizeof(uint64_t); i++) {
-        key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> i * 8) & 0xFF;
+        key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> (i * 8)) & 0xFF;
     }
 
     if(res &&

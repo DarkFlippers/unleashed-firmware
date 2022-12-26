@@ -117,19 +117,6 @@ bool two_cities_parser_parse(NfcDeviceData* dev_data) {
     for(size_t i = 0; i < 7; i++) {
         card_number = (card_number << 8) | card_number_arr[i];
     }
-    // Convert card number to string
-    FuriString* card_number_str;
-    card_number_str = furi_string_alloc();
-    // Should look like "361301047292848684"
-    furi_string_printf(card_number_str, "%llu", card_number);
-    // Add suffix with luhn checksum (1 digit) to the card number string
-    FuriString* card_number_suffix;
-    card_number_suffix = furi_string_alloc();
-
-    furi_string_cat_printf(card_number_suffix, "-");
-    furi_string_cat_printf(card_number_str, furi_string_get_cstr(card_number_suffix));
-    // Free all not needed strings
-    furi_string_free(card_number_suffix);
 
     // =====
     // --PLANTAIN--
@@ -149,12 +136,11 @@ bool two_cities_parser_parse(NfcDeviceData* dev_data) {
 
     furi_string_printf(
         dev_data->parsed_data,
-        "\e#Troika+Plantain\nPN: %s\nPB: %ld rur.\nTN: %ld\nTB: %d rur.\n",
-        furi_string_get_cstr(card_number_str),
+        "\e#Troika+Plantain\nPN: %llu-\nPB: %ld rur.\nTN: %ld\nTB: %d rur.\n",
+        card_number,
         balance,
         troika_number,
         troika_balance);
-    furi_string_free(card_number_str);
 
     return true;
 }

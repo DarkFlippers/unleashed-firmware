@@ -26,13 +26,13 @@ void nfc_scene_mf_desfire_read_success_on_enter(void* context) {
         furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
     }
 
-    uint32_t bytes_total = 1 << (data->version.sw_storage >> 1);
+    uint32_t bytes_total = 1UL << (data->version.sw_storage >> 1);
     uint32_t bytes_free = data->free_memory ? data->free_memory->bytes : 0;
-    furi_string_cat_printf(temp_str, "\n%ld", bytes_total);
+    furi_string_cat_printf(temp_str, "\n%lu", bytes_total);
     if(data->version.sw_storage & 1) {
         furi_string_push_back(temp_str, '+');
     }
-    furi_string_cat_printf(temp_str, " bytes, %ld bytes free\n", bytes_free);
+    furi_string_cat_printf(temp_str, " bytes, %lu bytes free\n", bytes_free);
 
     uint16_t n_apps = 0;
     uint16_t n_files = 0;

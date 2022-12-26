@@ -318,7 +318,10 @@ bool subghz_hal_async_tx_test_run(SubGhzHalAsyncTxTestType type) {
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     furi_hal_subghz_set_frequency_and_path(433920000);
 
-    furi_hal_subghz_start_async_tx(subghz_hal_async_tx_test_yield, &test);
+    if(!furi_hal_subghz_start_async_tx(subghz_hal_async_tx_test_yield, &test)) {
+        return false;
+    }
+
     while(!furi_hal_subghz_is_async_tx_complete()) {
         furi_delay_ms(10);
     }

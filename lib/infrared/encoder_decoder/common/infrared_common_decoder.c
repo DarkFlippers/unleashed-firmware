@@ -107,7 +107,7 @@ static InfraredStatus infrared_common_decode_bits(InfraredCommonDecoder* decoder
         decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 1);
 
         /* check if largest protocol version can be decoded */
-        if(level && (decoder->protocol->databit_len[0] == decoder->databit_cnt) &&
+        if(level && (decoder->protocol->databit_len[0] == decoder->databit_cnt) && //-V1051
            !timings->min_split_time) {
             status = InfraredStatusReady;
             break;

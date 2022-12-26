@@ -291,7 +291,7 @@ bool subghz_protocol_encoder_secplus_v1_deserialize(void* context, FlipperFormat
 
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -550,7 +550,7 @@ bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed) {
 
     do {
         if(id1 == 0) return false;
-        if(!(btn == 0 || btn == 1 || btn == 2)) return false;
+        if(!(btn == 0 || btn == 1 || btn == 2)) return false; //-V560
     } while(false);
     return true;
 }
@@ -588,7 +588,7 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
 
         if(pin <= 9999) {
             furi_string_cat_printf(output, " pin:%d", pin);
-        } else if(10000 <= pin && pin <= 11029) {
+        } else if(pin <= 11029) {
             furi_string_cat_printf(output, " pin:enter");
         }
 
@@ -618,7 +618,7 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
             furi_string_cat_printf(output, " Btn:left\r\n");
         } else if(instance->generic.btn == 0) {
             furi_string_cat_printf(output, " Btn:middle\r\n");
-        } else if(instance->generic.btn == 2) {
+        } else if(instance->generic.btn == 2) { //-V547
             furi_string_cat_printf(output, " Btn:right\r\n");
         }
 

@@ -25,7 +25,7 @@ void bit_lib_set_bits(uint8_t* data, size_t position, uint8_t byte, uint8_t leng
 
     for(uint8_t i = 0; i < length; ++i) {
         uint8_t shift = (length - 1) - i;
-        bit_lib_set_bit(data, position + i, (byte >> shift) & 1);
+        bit_lib_set_bit(data, position + i, (byte >> shift) & 1); //-V610
     }
 }
 
@@ -69,9 +69,9 @@ uint32_t bit_lib_get_bits_32(const uint8_t* data, size_t position, uint8_t lengt
         value |= bit_lib_get_bits(data, position + 8, 8) << (length - 16);
         value |= bit_lib_get_bits(data, position + 16, length - 16);
     } else {
-        value = bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= bit_lib_get_bits(data, position + 8, 8) << (length - 16);
-        value |= bit_lib_get_bits(data, position + 16, 8) << (length - 24);
+        value = (uint32_t)bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= (uint32_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= (uint32_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
         value |= bit_lib_get_bits(data, position + 24, length - 24);
     }
 

@@ -363,7 +363,7 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n"
         "Sn:0x%05lX Btn:%01X\r\n"
-        "Te:%ldus\r\n",
+        "Te:%luus\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data & 0xFFFFFF),

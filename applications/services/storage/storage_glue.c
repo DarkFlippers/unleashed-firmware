@@ -17,7 +17,7 @@ void storage_file_init_set(StorageFile* obj, const StorageFile* src) {
     obj->path = furi_string_alloc_set(src->path);
 }
 
-void storage_file_set(StorageFile* obj, const StorageFile* src) {
+void storage_file_set(StorageFile* obj, const StorageFile* src) { //-V524
     obj->file = src->file;
     obj->type = src->type;
     obj->file_data = src->file_data;
@@ -172,7 +172,6 @@ void storage_push_storage_file(
     StorageType type,
     StorageData* storage) {
     StorageFile* storage_file = StorageFileList_push_new(storage->files);
-    furi_check(storage_file != NULL);
 
     file->file_id = (uint32_t)storage_file;
     storage_file->file = file;

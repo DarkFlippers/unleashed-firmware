@@ -84,7 +84,7 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
         scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(strcmp(FLIPPER_APPS[event.event].name, FAP_LOADER_APP_NAME)) {
+        if(strcmp(FLIPPER_APPS[event.event].name, FAP_LOADER_APP_NAME) != 0) {
             if(primary_favorite) {
                 app->settings.favorite_primary.is_external = false;
                 strncpy(

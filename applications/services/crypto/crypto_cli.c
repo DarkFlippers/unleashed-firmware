@@ -142,7 +142,7 @@ void crypto_cli_decrypt(Cli* cli, FuriString* args) {
             if(args_read_hex_bytes(hex_input, input, size)) {
                 if(furi_hal_crypto_decrypt(input, output, size)) {
                     printf("Decrypted data:\r\n");
-                    printf("%s\r\n", output);
+                    printf("%s\r\n", output); //-V576
                 } else {
                     printf("Failed to decrypt\r\n");
                 }

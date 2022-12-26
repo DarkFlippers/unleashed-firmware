@@ -568,12 +568,12 @@ void dap_common_usb_set_state_callback(DapStateCallback callback) {
 static void* dap_usb_alloc_string_descr(const char* str) {
     furi_assert(str);
 
-    uint8_t len = strlen(str);
-    uint8_t wlen = (len + 1) * sizeof(uint16_t);
+    size_t len = strlen(str);
+    size_t wlen = (len + 1) * sizeof(uint16_t);
     struct usb_string_descriptor* dev_str_desc = malloc(wlen);
     dev_str_desc->bLength = wlen;
     dev_str_desc->bDescriptorType = USB_DTYPE_STRING;
-    for(uint8_t i = 0; i < len; i++) {
+    for(size_t i = 0; i < len; i++) {
         dev_str_desc->wString[i] = str[i];
     }
 

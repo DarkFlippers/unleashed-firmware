@@ -147,7 +147,7 @@ static void ws_protocol_oregon_v1_remote_controller(WSBlockGeneric* instance) {
         instance->temp = -temp_raw;
     }
 
-    instance->battery_low = !(instance->data >> 23) & 1;
+    instance->battery_low = !((instance->data >> 23) & 1ULL);
 
     instance->btn = WS_NO_BTN;
     instance->humidity = WS_NO_HUMIDITY;

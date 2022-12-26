@@ -92,7 +92,7 @@ void subghz_read_raw_update_sample_write(SubGhzReadRAW* instance, size_t sample)
     with_view_model(
         instance->view,
         SubGhzReadRAWModel * model,
-        { furi_string_printf(model->sample_write, "%d spl.", sample); },
+        { furi_string_printf(model->sample_write, "%zu spl.", sample); },
         false);
 }
 
@@ -162,7 +162,7 @@ void subghz_read_raw_draw_sin(Canvas* canvas, SubGhzReadRAWModel* model) {
         canvas_draw_line(
             canvas,
             i + 1,
-            32 - subghz_read_raw_tab_sin((i + model->ind_sin * 16)) / SUBGHZ_RAW_SIN_AMPLITUDE,
+            32 - subghz_read_raw_tab_sin(i + model->ind_sin * 16) / SUBGHZ_RAW_SIN_AMPLITUDE,
             i + 2,
             32 + subghz_read_raw_tab_sin((i + model->ind_sin * 16 + 1) * 2) /
                      SUBGHZ_RAW_SIN_AMPLITUDE);

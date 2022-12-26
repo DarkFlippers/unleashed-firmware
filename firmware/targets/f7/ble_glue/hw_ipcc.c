@@ -24,9 +24,9 @@
 /* Global variables ---------------------------------------------------------*/
 /* Private defines -----------------------------------------------------------*/
 #define HW_IPCC_TX_PENDING(channel) \
-    (!(LL_C1_IPCC_IsActiveFlag_CHx(IPCC, channel))) && (((~(IPCC->C1MR)) & (channel << 16U)))
+    (!(LL_C1_IPCC_IsActiveFlag_CHx(IPCC, channel))) && (((~(IPCC->C1MR)) & ((channel) << 16U)))
 #define HW_IPCC_RX_PENDING(channel) \
-    (LL_C2_IPCC_IsActiveFlag_CHx(IPCC, channel)) && (((~(IPCC->C1MR)) & (channel << 0U)))
+    (LL_C2_IPCC_IsActiveFlag_CHx(IPCC, channel)) && (((~(IPCC->C1MR)) & ((channel) << 0U)))
 
 /* Private macros ------------------------------------------------------------*/
 /* Private typedef -----------------------------------------------------------*/

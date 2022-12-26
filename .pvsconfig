@@ -1,4 +1,5 @@
 # MLib macros we can't do much about.
+//-V:M_LET:1048,1044
 //-V:M_EACH:1048,1044
 //-V:ARRAY_DEF:760,747,568,776,729,712,654
 //-V:LIST_DEF:760,747,568,712,729,654,776
@@ -16,8 +17,30 @@
 # Potentially null argument warnings
 //-V:memset:575
 //-V:memcpy:575
+//-V:memcmp:575
+//-V:strlen:575
 //-V:strcpy:575
+//-V:strncpy:575
 //-V:strchr:575
 
 # For loop warning on M_FOREACH
 //-V:for:1044
+
+# Bitwise OR
+//-V:bit:792
+
+# Do not complain about similar code
+//-V::525
+
+# Common embedded development pointer operations
+//-V::566
+//-V::1032
+
+# Warnings about length mismatch
+//-V:property_value_out:666
+
+# Model-related warnings
+//-V:with_view_model:1044,1048
+
+# Functions that always return the same error code
+//-V:picopass_device_decrypt:1048

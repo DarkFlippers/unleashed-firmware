@@ -308,7 +308,7 @@ void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t
                 }
                 instance->decoder.decode_data = 0;
                 instance->decoder.decode_count_bit = 0;
-                instance->decoder.parser_step = NeroRadioDecoderStepReset;
+                instance->decoder.parser_step = NeroRadioDecoderStepReset; //-V1048
                 break;
             } else if(
                 (DURATION_DIFF(

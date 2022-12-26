@@ -445,9 +445,8 @@ uint8_t* subghz_setting_get_preset_data_by_name(SubGhzSetting* instance, const c
 
 uint32_t subghz_setting_get_frequency(SubGhzSetting* instance, size_t idx) {
     furi_assert(instance);
-    uint32_t* ret = FrequencyList_get(instance->frequencies, idx);
-    if(ret) {
-        return (*ret) & FREQUENCY_MASK;
+    if(idx < FrequencyList_size(instance->frequencies)) {
+        return (*FrequencyList_get(instance->frequencies, idx)) & FREQUENCY_MASK;
     } else {
         return 0;
     }
@@ -455,9 +454,8 @@ uint32_t subghz_setting_get_frequency(SubGhzSetting* instance, size_t idx) {
 
 uint32_t subghz_setting_get_hopper_frequency(SubGhzSetting* instance, size_t idx) {
     furi_assert(instance);
-    uint32_t* ret = FrequencyList_get(instance->hopper_frequencies, idx);
-    if(ret) {
-        return *ret;
+    if(idx < FrequencyList_size(instance->frequencies)) {
+        return *FrequencyList_get(instance->hopper_frequencies, idx);
     } else {
         return 0;
     }

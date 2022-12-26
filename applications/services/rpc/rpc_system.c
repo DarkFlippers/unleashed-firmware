@@ -30,7 +30,6 @@ static void rpc_system_system_ping_process(const PB_Main* request, void* context
     }
 
     PB_Main response = PB_Main_init_default;
-    response.has_next = false;
     response.command_status = PB_CommandStatus_OK;
     response.command_id = request->command_id;
     response.which_content = PB_Main_system_ping_response_tag;

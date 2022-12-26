@@ -225,11 +225,11 @@ static void reader_analyzer_write(
     data_sent = furi_stream_buffer_send(
         instance->stream, &header, sizeof(ReaderAnalyzerHeader), FuriWaitForever);
     if(data_sent != sizeof(ReaderAnalyzerHeader)) {
-        FURI_LOG_W(TAG, "Sent %d out of %d bytes", data_sent, sizeof(ReaderAnalyzerHeader));
+        FURI_LOG_W(TAG, "Sent %zu out of %zu bytes", data_sent, sizeof(ReaderAnalyzerHeader));
     }
     data_sent = furi_stream_buffer_send(instance->stream, data, len, FuriWaitForever);
     if(data_sent != len) {
-        FURI_LOG_W(TAG, "Sent %d out of %d bytes", data_sent, len);
+        FURI_LOG_W(TAG, "Sent %zu out of %u bytes", data_sent, len);
     }
 }
 

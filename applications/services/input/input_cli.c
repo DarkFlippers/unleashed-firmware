@@ -89,7 +89,7 @@ static void input_cli_send(Cli* cli, FuriString* args, Input* input) {
         parsed = true;
     } while(false);
 
-    if(parsed) {
+    if(parsed) { //-V547
         furi_pubsub_publish(input->event_pubsub, &event);
     } else {
         input_cli_send_print_usage();
