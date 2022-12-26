@@ -63,11 +63,20 @@ jobs:
               -f build/f7-firmware-DC/compile_commands.json \
               -o PVS-Studio.log
 
-      - name: 'Convert PVS-Studio output to html page'
-        run: plog-converter -a GA:1,2,3 -t fullhtml PVS-Studio.log -o reports/${DEFAULT_TARGET}-${SUFFIX}
+      - name: 'Convert PVS-Studio output to html and detect warnings'
+        id: pvs-warn
+        run: |
+          WARNINGS=0
+          plog-converter \
+              -a GA:1,2,3 \
+              -t fullhtml \
+              --indicate-warnings \
+              PVS-Studio.log \
+              -o reports/${DEFAULT_TARGET}-${SUFFIX} || WARNINGS=1
+          echo "warnings=${WARNINGS}" >> $GITHUB_OUTPUT
 
       - name: 'Upload artifacts to update server'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
+        if: ${{ !github.event.pull_request.head.repo.fork && (steps.pvs-warn.outputs.warnings != 0) }}
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.RSYNC_DEPLOY_PORT }} -H ${{ secrets.RSYNC_DEPLOY_HOST }} > ~/.ssh/known_hosts
@@ -79,8 +88,8 @@ jobs:
           rm ./deploy_key;
 
       - name: 'Find Previous Comment'
-        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
-        uses: peter-evans/find-comment@v1
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request && (steps.pvs-warn.outputs.warnings != 0) }}
+        uses: peter-evans/find-comment@v2
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -88,7 +97,7 @@ jobs:
           body-includes: 'PVS-Studio report for commit'
 
       - name: 'Create or update comment'
-        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request}}
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request && (steps.pvs-warn.outputs.warnings != 0) }}
         uses: peter-evans/create-or-update-comment@v1
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
@@ -97,3 +106,10 @@ jobs:
             **PVS-Studio report for commit `${{steps.names.outputs.commit_sha}}`:**
             - [Report](https://update.flipperzero.one/builds/firmware-pvs-studio-report/${{steps.names.outputs.branch_name}}/${{steps.names.outputs.default_target}}-${{steps.names.outputs.suffix}}/index.html)
           edit-mode: replace
+
+      - name: 'Raise exception'
+        if: ${{ steps.pvs-warn.outputs.warnings != 0 }}
+        run: |
+          echo "Please fix all PVS varnings before merge"
+          exit 1
+
