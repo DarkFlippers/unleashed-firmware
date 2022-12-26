@@ -73,6 +73,17 @@ Also check changelog in releases for latest updates!
 - Star Line
 
 ## Please support development of the project
+The majority of this project is developed and maintained by me, @xMasterX.
+I'm unemployed because of the war, and the only income I receive is from your donations.
+Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.
+- @Svaarich - UI design and animations
+- @Amec0e - Infrared assets
+- Community moderators in Telegram, Discord, and Reddit
+- And of course our GitHub community. Your PRs are a very important part of this firmware and open-source development.
+
+The amount of work done on this project is huge and we need your support, no matter how large or small. Even if you just say, "Thank you Unleashed firmware developers!" somewhere. Doing so will help us continue our work and will help drive us to make the firmware better every time.
+Also, regarding our releases, every build has and always will be free and open-source. There will be no paywall releases or closed-source apps within the firmware. As long as I am working on this project it will never happen.
+You can support us by using links or addresses below:
 * Boosty: https://boosty.to/mmxdev
 * Ko-Fi: https://ko-fi.com/masterx
 * destream (100 EUR min): https://destream.net/live/MMX/donate
