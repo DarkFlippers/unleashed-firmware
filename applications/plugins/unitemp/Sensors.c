@@ -81,6 +81,8 @@ static const SensorType* sensorTypes[] = {
     &AM2320_SW,
     &AM2320_I2C,
     &AHT10,
+    &SHT30,
+    &GXHT30,
     &LM75,
     &BMP280,
     &BME280};
