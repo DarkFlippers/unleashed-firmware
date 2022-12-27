@@ -25,6 +25,7 @@ typedef struct {
     bool back_pressed;
     bool connected;
     char key_string[5];
+    HidTransport transport;
 } HidKeyboardModel;
 
 typedef struct {
@@ -207,7 +208,7 @@ static void hid_keyboard_draw_callback(Canvas* canvas, void* context) {
     HidKeyboardModel* model = context;
 
     // Header
-    if(!model->connected) {
+    if((!model->connected) && (model->transport == HidTransportBle)) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
         canvas_set_font(canvas, FontPrimary);
         elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keyboard");
@@ -360,6 +361,12 @@ HidKeyboard* hid_keyboard_alloc(Hid* bt_hid) {
     view_allocate_model(hid_keyboard->view, ViewModelTypeLocking, sizeof(HidKeyboardModel));
     view_set_draw_callback(hid_keyboard->view, hid_keyboard_draw_callback);
     view_set_input_callback(hid_keyboard->view, hid_keyboard_input_callback);
+
+    with_view_model(
+        hid_keyboard->view,
+        HidKeyboardModel * model,
+        { model->transport = bt_hid->transport; },
+        true);
 
     return hid_keyboard;
 }
