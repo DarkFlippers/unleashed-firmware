@@ -41,6 +41,31 @@ void elements_progress_bar(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, 
     canvas_draw_box(canvas, x + 1, y + 1, progress_length, height - 2);
 }
 
+void elements_progress_bar_with_text(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    float progress,
+    const char* text) {
+    furi_assert(canvas);
+    furi_assert((progress >= 0.0f) && (progress <= 1.0f));
+    uint8_t height = 11;
+
+    uint8_t progress_length = roundf(progress * (width - 2));
+
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_box(canvas, x + 1, y + 1, width - 2, height - 2);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_draw_rframe(canvas, x, y, width, height, 3);
+
+    canvas_draw_box(canvas, x + 1, y + 1, progress_length, height - 2);
+
+    canvas_set_color(canvas, ColorXOR);
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str_aligned(canvas, x + width / 2, y + 2, AlignCenter, AlignTop, text);
+}
+
 void elements_scrollbar_pos(
     Canvas* canvas,
     uint8_t x,

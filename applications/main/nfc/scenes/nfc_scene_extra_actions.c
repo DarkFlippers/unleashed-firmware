@@ -50,7 +50,7 @@ bool nfc_scene_extra_actions_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexMfClassicKeys) {
-            if(mf_classic_dict_check_presence(MfClassicDictTypeFlipper)) {
+            if(mf_classic_dict_check_presence(MfClassicDictTypeSystem)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicKeys);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);

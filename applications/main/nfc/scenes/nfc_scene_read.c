@@ -109,7 +109,7 @@ bool nfc_scene_read_on_event(void* context, SceneManagerEvent event) {
             }
             consumed = true;
         } else if(event.event == NfcWorkerEventReadMfClassicDictAttackRequired) {
-            if(mf_classic_dict_check_presence(MfClassicDictTypeFlipper)) {
+            if(mf_classic_dict_check_presence(MfClassicDictTypeSystem)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDictAttack);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);

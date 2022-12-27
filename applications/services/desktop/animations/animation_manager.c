@@ -52,6 +52,7 @@ struct AnimationManager {
     FuriString* freezed_animation_name;
     int32_t freezed_animation_time_left;
     ViewStack* view_stack;
+    bool dummy_mode;
 };
 
 static StorageAnimation*
@@ -91,6 +92,12 @@ void animation_manager_set_interact_callback(
     AnimationManagerInteractCallback callback) {
     furi_assert(animation_manager);
     animation_manager->interact_callback = callback;
+}
+
+void animation_manager_set_dummy_mode_state(AnimationManager* animation_manager, bool enabled) {
+    furi_assert(animation_manager);
+    animation_manager->dummy_mode = enabled;
+    animation_manager_start_new_idle(animation_manager);
 }
 
 static void animation_manager_check_blocking_callback(const void* message, void* context) {
@@ -237,10 +244,8 @@ static bool animation_manager_check_blocking(AnimationManager* animation_manager
     furi_record_close(RECORD_DOLPHIN);
     if(!blocking_animation && stats.level_up_is_pending) {
         blocking_animation = animation_storage_find_animation(NEW_MAIL_ANIMATION_NAME);
-        furi_assert(blocking_animation);
-        if(blocking_animation) {
-            animation_manager->levelup_pending = true;
-        }
+        furi_check(blocking_animation);
+        animation_manager->levelup_pending = true;
     }
 
     if(blocking_animation) {
@@ -363,7 +368,9 @@ static bool animation_manager_is_valid_idle_animation(
 
 static StorageAnimation*
     animation_manager_select_idle_animation(AnimationManager* animation_manager) {
-    UNUSED(animation_manager);
+    if(animation_manager->dummy_mode) {
+        return animation_storage_find_animation(HARDCODED_ANIMATION_NAME);
+    }
     StorageAnimationList_t animation_list;
     StorageAnimationList_init(animation_list);
     animation_storage_fill_animation_list(&animation_list);
@@ -439,7 +446,7 @@ void animation_manager_unload_and_stall_animation(AnimationManager* animation_ma
 
     if(animation_manager->state == AnimationManagerStateBlocked) {
         animation_manager->state = AnimationManagerStateFreezedBlocked;
-    } else if(animation_manager->state == AnimationManagerStateIdle) {
+    } else if(animation_manager->state == AnimationManagerStateIdle) { //-V547
         animation_manager->state = AnimationManagerStateFreezedIdle;
 
         animation_manager->freezed_animation_time_left =
@@ -482,7 +489,7 @@ void animation_manager_load_and_continue_animation(AnimationManager* animation_m
         furi_assert(restore_animation);
         animation_manager_replace_current_animation(animation_manager, restore_animation);
         animation_manager->state = AnimationManagerStateBlocked;
-    } else if(animation_manager->state == AnimationManagerStateFreezedIdle) {
+    } else if(animation_manager->state == AnimationManagerStateFreezedIdle) { //-V547
         /* check if we missed some system notifications, and set current_animation */
         bool blocked = animation_manager_check_blocking(animation_manager);
         if(!blocked) {

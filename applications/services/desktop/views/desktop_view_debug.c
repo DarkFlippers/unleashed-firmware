@@ -52,7 +52,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 #ifdef SRV_BT
         c2_ver = ble_glue_get_c2_info();
 #endif
-        if(!ver) {
+        if(!ver) { //-V1051
             canvas_draw_str(canvas, 0, 30 + STATUS_BAR_Y_SHIFT, "No info");
             return;
         }
@@ -87,19 +87,19 @@ void desktop_debug_render(Canvas* canvas, void* model) {
         uint32_t remaining = dolphin_state_xp_to_levelup(m->icounter);
 
         canvas_set_font(canvas, FontSecondary);
-        snprintf(buffer, sizeof(buffer), "Icounter: %ld  Butthurt %ld", m->icounter, m->butthurt);
+        snprintf(buffer, sizeof(buffer), "Icounter: %lu  Butthurt %lu", m->icounter, m->butthurt);
         canvas_draw_str(canvas, 5, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
             buffer,
             sizeof(buffer),
-            "Level: %ld  To level up: %ld",
+            "Level: %lu  To level up: %lu",
             current_lvl,
             (remaining == (uint32_t)(-1) ? remaining : 0));
         canvas_draw_str(canvas, 5, 29 + STATUS_BAR_Y_SHIFT, buffer);
 
         // even if timestamp is uint64_t, it's safe to cast it to uint32_t, because furi_hal_rtc_datetime_to_timestamp only returns uint32_t
-        snprintf(buffer, sizeof(buffer), "%ld", (uint32_t)m->timestamp);
+        snprintf(buffer, sizeof(buffer), "%lu", (uint32_t)m->timestamp);
 
         canvas_draw_str(canvas, 5, 39 + STATUS_BAR_Y_SHIFT, buffer);
         canvas_draw_str(canvas, 0, 49 + STATUS_BAR_Y_SHIFT, "[< >] icounter value   [ok] save");
