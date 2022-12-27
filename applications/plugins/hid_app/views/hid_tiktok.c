@@ -19,6 +19,7 @@ typedef struct {
     bool ok_pressed;
     bool connected;
     bool is_cursor_set;
+    HidTransport transport;
 } HidTikTokModel;
 
 static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
@@ -26,11 +27,14 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
     HidTikTokModel* model = context;
 
     // Header
-    if(model->connected) {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-    } else {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+    if(model->transport == HidTransportBle) {
+        if(model->connected) {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+        } else {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+        }
     }
+
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "TikTok");
     canvas_set_font(canvas, FontSecondary);
@@ -206,6 +210,9 @@ HidTikTok* hid_tiktok_alloc(Hid* bt_hid) {
     view_allocate_model(hid_tiktok->view, ViewModelTypeLocking, sizeof(HidTikTokModel));
     view_set_draw_callback(hid_tiktok->view, hid_tiktok_draw_callback);
     view_set_input_callback(hid_tiktok->view, hid_tiktok_input_callback);
+
+    with_view_model(
+        hid_tiktok->view, HidTikTokModel * model, { model->transport = bt_hid->transport; }, true);
 
     return hid_tiktok;
 }

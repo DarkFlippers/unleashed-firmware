@@ -372,8 +372,8 @@ void subghz_protocol_decoder_smc5326_get_string(void* context, FuriString* outpu
 
     furi_string_cat_printf(
         output,
-        "%s %dbit\r\n"
-        "Key:%07lX         Te:%ldus\r\n"
+        "%s %ubit\r\n"
+        "Key:%07lX         Te:%luus\r\n"
         "  +:   " DIP_PATTERN "\r\n"
         "  o:   " DIP_PATTERN "    ",
         instance->generic.protocol_name,

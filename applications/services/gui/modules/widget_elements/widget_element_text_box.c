@@ -71,4 +71,4 @@ WidgetElement* widget_element_text_box_create(
     gui_string->model = model;
 
     return gui_string;
-}
+} //-V773

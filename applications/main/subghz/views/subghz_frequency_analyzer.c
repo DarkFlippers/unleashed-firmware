@@ -10,6 +10,7 @@
 #include "../helpers/subghz_frequency_analyzer_worker.h"
 
 #include <assets_icons.h>
+#include <float_tools.h>
 
 #define TAG "frequency_analyzer"
 
@@ -425,7 +426,7 @@ void subghz_frequency_analyzer_pair_callback(
     float rssi,
     bool signal) {
     SubGhzFrequencyAnalyzer* instance = context;
-    if((rssi == 0.f) && (instance->locked)) {
+    if(float_is_equal(rssi, 0.f) && instance->locked) {
         if(instance->callback) {
             instance->callback(SubGhzCustomEventSceneAnalyzerUnlock, instance->context);
         }

@@ -15,7 +15,7 @@ size_t varint_uint32_unpack(uint32_t* value, const uint8_t* input, size_t input_
     uint32_t parsed = 0;
 
     for(i = 0; i < input_size; i++) {
-        parsed |= (input[i] & 0x7F) << (7 * i);
+        parsed |= (input[i] & 0x7FUL) << (7 * i);
 
         if(!(input[i] & 0x80)) {
             break;

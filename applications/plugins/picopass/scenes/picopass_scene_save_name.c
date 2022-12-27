@@ -54,7 +54,7 @@ bool picopass_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == PicopassCustomEventTextInputDone) {
-            if(strcmp(picopass->dev->dev_name, "")) {
+            if(strcmp(picopass->dev->dev_name, "") != 0) {
                 // picopass_device_delete(picopass->dev, true);
             }
             strlcpy(

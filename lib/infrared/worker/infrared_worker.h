@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define MAX_TIMINGS_AMOUNT 1024
+#define MAX_TIMINGS_AMOUNT 1024U
 
 /** Interface struct of infrared worker */
 typedef struct InfraredWorker InfraredWorker;

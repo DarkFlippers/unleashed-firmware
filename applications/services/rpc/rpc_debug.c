@@ -10,7 +10,7 @@ static size_t rpc_debug_print_file_msg(
     for(size_t i = 0; i < msg_files_size; ++i, ++msg_file) {
         furi_string_cat_printf(
             str,
-            "%s[%c] size: %5ld",
+            "%s[%c] size: %5lu",
             prefix,
             msg_file->type == PB_Storage_File_FileType_DIR ? 'd' : 'f',
             msg_file->size);
@@ -40,7 +40,7 @@ void rpc_debug_print_data(const char* prefix, uint8_t* buffer, size_t size) {
     str = furi_string_alloc();
     furi_string_reserve(str, 100 + size * 5);
 
-    furi_string_cat_printf(str, "\r\n%s DEC(%d): {", prefix, size);
+    furi_string_cat_printf(str, "\r\n%s DEC(%zu): {", prefix, size);
     for(size_t i = 0; i < size; ++i) {
         furi_string_cat_printf(str, "%d, ", buffer[i]);
     }
@@ -50,7 +50,7 @@ void rpc_debug_print_data(const char* prefix, uint8_t* buffer, size_t size) {
     furi_string_reset(str);
     furi_string_reserve(str, 100 + size * 3);
 
-    furi_string_cat_printf(str, "%s HEX(%d): {", prefix, size);
+    furi_string_cat_printf(str, "%s HEX(%zu): {", prefix, size);
     for(size_t i = 0; i < size; ++i) {
         furi_string_cat_printf(str, "%02X", buffer[i]);
     }
@@ -66,7 +66,7 @@ void rpc_debug_print_message(const PB_Main* message) {
 
     furi_string_cat_printf(
         str,
-        "PB_Main: {\r\n\tresult: %d cmd_id: %ld (%s)\r\n",
+        "PB_Main: {\r\n\tresult: %d cmd_id: %lu (%s)\r\n",
         message->command_status,
         message->command_id,
         message->has_next ? "has_next" : "last");
@@ -110,9 +110,9 @@ void rpc_debug_print_message(const PB_Main* message) {
     }
     case PB_Main_storage_md5sum_response_tag: {
         furi_string_cat_printf(str, "\tmd5sum_response {\r\n");
-        const char* path = message->content.storage_md5sum_response.md5sum;
-        if(path) {
-            furi_string_cat_printf(str, "\t\tmd5sum: %s\r\n", path);
+        const char* md5sum = message->content.storage_md5sum_response.md5sum;
+        if(md5sum) { //-V547
+            furi_string_cat_printf(str, "\t\tmd5sum: %s\r\n", md5sum);
         }
         break;
     }

@@ -114,7 +114,6 @@ void lfrfid_raw_worker_stop(LFRFIDRawWorker* worker) {
     worker->emulate_callback = NULL;
     worker->context = NULL;
     worker->read_callback = NULL;
-    worker->context = NULL;
     furi_event_flag_set(worker->events, 1 << LFRFIDRawWorkerEventStop);
     furi_thread_join(worker->thread);
 }
@@ -335,7 +334,7 @@ static int32_t lfrfid_raw_emulate_worker_thread(void* thread_context) {
     }
 
     if(data->ctx.overrun_count) {
-        FURI_LOG_E(TAG_EMULATE, "overruns: %u", data->ctx.overrun_count);
+        FURI_LOG_E(TAG_EMULATE, "overruns: %zu", data->ctx.overrun_count);
     }
 
     furi_stream_buffer_free(data->ctx.stream);

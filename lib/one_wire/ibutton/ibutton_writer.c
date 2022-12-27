@@ -72,7 +72,7 @@ static bool writer_write_TM2004(iButtonWriter* writer, iButtonKey* key) {
             writer_write_one_bit(writer, 1, 50000);
 
             // read written key byte
-            answer = onewire_host_read(writer->host);
+            answer = onewire_host_read(writer->host); //-V519
 
             // check that written and read are same
             if(ibutton_key_get_data_p(key)[i] != answer) {

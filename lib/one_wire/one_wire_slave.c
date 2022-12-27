@@ -41,7 +41,7 @@ uint32_t onewire_slave_wait_while_gpio_is(OneWireSlave* bus, uint32_t time, cons
     uint32_t time_ticks = time * furi_hal_cortex_instructions_per_microsecond();
     uint32_t time_captured;
 
-    do {
+    do { //-V1044
         time_captured = DWT->CYCCNT;
         if(furi_hal_ibutton_pin_get_level() != pin_value) {
             uint32_t remaining_time = time_ticks - (time_captured - start);
@@ -155,8 +155,10 @@ bool onewire_slave_receive_and_process_cmd(OneWireSlave* bus) {
     uint8_t cmd;
     onewire_slave_receive(bus, &cmd, 1);
 
-    if(bus->error == RESET_IN_PROGRESS) return true;
-    if(bus->error != NO_ERROR) return false;
+    if(bus->error == RESET_IN_PROGRESS)
+        return true;
+    else if(bus->error != NO_ERROR)
+        return false;
 
     switch(cmd) {
     case 0xF0:
@@ -172,10 +174,8 @@ bool onewire_slave_receive_and_process_cmd(OneWireSlave* bus) {
 
     default: // Unknown command
         bus->error = INCORRECT_ONEWIRE_CMD;
+        return false;
     }
-
-    if(bus->error == RESET_IN_PROGRESS) return true;
-    return (bus->error == NO_ERROR);
 }
 
 bool onewire_slave_bus_start(OneWireSlave* bus) {

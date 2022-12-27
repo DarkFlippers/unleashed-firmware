@@ -576,7 +576,7 @@ static bool nfc_device_save_mifare_df_data(FlipperFormat* file, NfcDevice* dev) 
             tmp = malloc(n_apps * 3);
             int i = 0;
             for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
-                memcpy(tmp + i, app->id, 3);
+                memcpy(tmp + i, app->id, 3); //-V769
                 i += 3;
             }
             if(!flipper_format_write_hex(file, "Application IDs", tmp, n_apps * 3)) break;
@@ -1115,7 +1115,7 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
         saved = true;
     } while(0);
 
-    if(!saved) {
+    if(!saved) { //-V547
         dialog_message_show_storage_error(dev->dialogs, "Can not save\nkey file");
     }
     furi_string_free(temp_str);

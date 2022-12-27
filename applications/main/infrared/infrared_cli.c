@@ -55,7 +55,7 @@ static void signal_received_callback(void* context, InfraredWorkerSignal* receiv
         size_t timings_cnt;
         infrared_worker_get_raw_signal(received_signal, &timings, &timings_cnt);
 
-        buf_cnt = snprintf(buf, sizeof(buf), "RAW, %d samples:\r\n", timings_cnt);
+        buf_cnt = snprintf(buf, sizeof(buf), "RAW, %zu samples:\r\n", timings_cnt);
         cli_write(cli, (uint8_t*)buf, buf_cnt);
         for(size_t i = 0; i < timings_cnt; ++i) {
             buf_cnt = snprintf(buf, sizeof(buf), "%lu ", timings[i]);
@@ -276,7 +276,9 @@ static bool infrared_cli_decode_file(FlipperFormat* input_file, FlipperFormat* o
         }
         InfraredRawSignal* raw_signal = infrared_signal_get_raw_signal(signal);
         printf(
-            "Raw signal: %s, %u samples\r\n", furi_string_get_cstr(tmp), raw_signal->timings_size);
+            "Raw signal: %s, %zu samples\r\n",
+            furi_string_get_cstr(tmp),
+            raw_signal->timings_size);
         if(!infrared_cli_decode_raw_signal(
                raw_signal, decoder, output_file, furi_string_get_cstr(tmp)))
             break;
@@ -382,7 +384,7 @@ static void infrared_cli_list_remote_signals(FuriString* remote_name) {
         while(flipper_format_read_string(ff, "name", signal_name)) {
             furi_string_set_str(key, furi_string_get_cstr(signal_name));
             int* v = dict_signals_get(signals_dict, key);
-            if(v != NULL) {
+            if(v != NULL) { //-V547
                 (*v)++;
                 max = M_MAX(*v, max);
             } else {
@@ -436,7 +438,7 @@ static void
             break;
         }
 
-        printf("Sending %ld signal(s)...\r\n", record_count);
+        printf("Sending %lu signal(s)...\r\n", record_count);
         printf("Press Ctrl-C to stop.\r\n");
 
         int records_sent = 0;

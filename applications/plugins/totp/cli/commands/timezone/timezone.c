@@ -33,8 +33,11 @@ void totp_cli_command_timezone_handle(PluginState* plugin_state, FuriString* arg
         float tz = strtof(furi_string_get_cstr(temp_str), NULL);
         if(tz >= -12.75f && tz <= 12.75f) {
             plugin_state->timezone_offset = tz;
-            totp_config_file_update_timezone_offset(tz);
-            TOTP_CLI_PRINTF("Timezone is set to %f\r\n", tz);
+            if(totp_config_file_update_timezone_offset(tz) == TotpConfigFileUpdateSuccess) {
+                TOTP_CLI_PRINTF("Timezone is set to %f\r\n", tz);
+            } else {
+                TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
+            }
             if(plugin_state->current_scene == TotpSceneGenerateToken) {
                 totp_scene_director_activate_scene(plugin_state, TotpSceneNone, NULL);
                 totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);

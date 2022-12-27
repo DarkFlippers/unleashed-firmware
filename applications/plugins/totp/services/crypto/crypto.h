@@ -35,8 +35,9 @@ uint8_t* totp_crypto_decrypt(
  * @param plugin_state application state
  * @param pin user's PIN
  * @param pin_length user's PIN length
+ * @return \c true on success; \c false otherwise
  */
-void totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length);
+bool totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length);
 
 /**
  * @brief Verifies whether cryptographic information (certificate + IV) is valid and can be used for encryption and decryption

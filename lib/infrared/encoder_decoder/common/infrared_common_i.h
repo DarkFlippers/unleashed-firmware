@@ -4,7 +4,7 @@
 #include "infrared.h"
 #include "infrared_i.h"
 
-#define MATCH_TIMING(x, v, delta) (((x) < (v + delta)) && ((x) > (v - delta)))
+#define MATCH_TIMING(x, v, delta) (((x) < ((v) + (delta))) && ((x) > ((v) - (delta))))
 
 typedef struct InfraredCommonDecoder InfraredCommonDecoder;
 typedef struct InfraredCommonEncoder InfraredCommonEncoder;

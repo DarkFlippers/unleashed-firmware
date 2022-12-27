@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.2,,
+Version,+,11.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -773,6 +773,7 @@ Function,+,elements_multiline_text,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,elements_multiline_text_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,elements_multiline_text_framed,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,elements_progress_bar,void,"Canvas*, uint8_t, uint8_t, uint8_t, float"
+Function,+,elements_progress_bar_with_text,void,"Canvas*, uint8_t, uint8_t, uint8_t, float, const char*"
 Function,+,elements_scrollable_text_line,void,"Canvas*, uint8_t, uint8_t, uint8_t, FuriString*, size_t, _Bool"
 Function,+,elements_scrollbar,void,"Canvas*, uint16_t, uint16_t"
 Function,+,elements_scrollbar_pos,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint16_t, uint16_t"
@@ -2685,6 +2686,14 @@ Function,-,subghz_protocol_decoder_holtek_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_holtek_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_holtek_reset,void,void*
 Function,-,subghz_protocol_decoder_holtek_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_holtek_th12x_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_holtek_th12x_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_holtek_th12x_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_holtek_th12x_free,void,void*
+Function,-,subghz_protocol_decoder_holtek_th12x_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_holtek_th12x_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_holtek_th12x_reset,void,void*
+Function,-,subghz_protocol_decoder_holtek_th12x_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_honeywell_wdb_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_feed,void,"void*, _Bool, uint32_t"
@@ -2943,6 +2952,11 @@ Function,-,subghz_protocol_encoder_holtek_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_holtek_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_holtek_free,void,void*
 Function,-,subghz_protocol_encoder_holtek_stop,void,void*
+Function,-,subghz_protocol_encoder_holtek_th12x_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_holtek_th12x_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_holtek_th12x_free,void,void*
+Function,-,subghz_protocol_encoder_holtek_th12x_stop,void,void*
+Function,-,subghz_protocol_encoder_holtek_th12x_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_holtek_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_honeywell_wdb_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_honeywell_wdb_deserialize,_Bool,"void*, FlipperFormat*"
@@ -4796,6 +4810,9 @@ Variable,-,subghz_protocol_gate_tx_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_holtek,const SubGhzProtocol,
 Variable,-,subghz_protocol_holtek_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_holtek_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_holtek_th12x,const SubGhzProtocol,
+Variable,-,subghz_protocol_holtek_th12x_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_holtek_th12x_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_honeywell_wdb,const SubGhzProtocol,
 Variable,-,subghz_protocol_honeywell_wdb_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_honeywell_wdb_encoder,const SubGhzProtocolEncoder,

@@ -154,7 +154,7 @@ void furi_hal_rtc_deinit_early() {
 }
 
 void furi_hal_rtc_init() {
-    LL_RTC_InitTypeDef RTC_InitStruct = {0};
+    LL_RTC_InitTypeDef RTC_InitStruct;
     RTC_InitStruct.HourFormat = LL_RTC_HOURFORMAT_24HOUR;
     RTC_InitStruct.AsynchPrescaler = 127;
     RTC_InitStruct.SynchPrescaler = 255;

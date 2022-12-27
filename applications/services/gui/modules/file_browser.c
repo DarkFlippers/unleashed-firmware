@@ -514,7 +514,7 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
             scroll_counter = 0;
         }
 
-        if(custom_icon_data) {
+        if(custom_icon_data) { //-V547
             // Currently only 10*10 icons are supported
             canvas_draw_bitmap(
                 canvas, 2, Y_OFFSET + 1 + i * FRAME_HEIGHT, 10, 10, custom_icon_data);
@@ -542,6 +542,18 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
             canvas_height(canvas) - Y_OFFSET,
             model->item_idx,
             model->item_cnt);
+    }
+
+    uint32_t folder_item_cnt = (model->is_root) ? (model->item_cnt) : (model->item_cnt - 1);
+    if(folder_item_cnt == 0) {
+        canvas_set_color(canvas, ColorBlack);
+        canvas_draw_str_aligned(
+            canvas,
+            canvas_width(canvas) / 2,
+            canvas_height(canvas) / 2,
+            AlignCenter,
+            AlignCenter,
+            "<Empty>");
     }
 
     furi_string_free(filename);
@@ -657,9 +669,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
 
             if(!is_root && !file_browser_worker_is_in_start_folder(browser->worker)) {
                 consumed = true;
-                if(!is_root) {
-                    file_browser_worker_folder_exit(browser->worker);
-                }
+                file_browser_worker_folder_exit(browser->worker);
             }
         }
     }

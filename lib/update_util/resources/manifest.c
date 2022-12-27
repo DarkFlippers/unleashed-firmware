@@ -98,7 +98,7 @@ ResourceManifestEntry* resource_manifest_reader_next(ResourceManifestReader* res
             furi_string_right(resource_manifest->linebuf, offs + 1);
 
             furi_string_set(resource_manifest->entry.name, resource_manifest->linebuf);
-        } else if(resource_manifest->entry.type == ResourceManifestEntryTypeDirectory) {
+        } else if(resource_manifest->entry.type == ResourceManifestEntryTypeDirectory) { //-V547
             /* Parse directory entry
                D:<name> */
 

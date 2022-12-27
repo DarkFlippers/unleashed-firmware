@@ -236,7 +236,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
         return 0;
     }
 
-    FURI_LOG_D(TAG, "Extracting %d bytes to '%s'", header->size, header->name);
+    FURI_LOG_D(TAG, "Extracting %u bytes to '%s'", header->size, header->name);
 
     FuriString* converted_fname = furi_string_alloc_set(header->name);
     if(op_params->converter) {

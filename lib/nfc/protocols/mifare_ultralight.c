@@ -170,6 +170,7 @@ bool mf_ultralight_read_version(
 }
 
 bool mf_ultralight_authenticate(FuriHalNfcTxRxContext* tx_rx, uint32_t key, uint16_t* pack) {
+    furi_assert(pack);
     bool authenticated = false;
 
     do {
@@ -189,9 +190,7 @@ bool mf_ultralight_authenticate(FuriHalNfcTxRxContext* tx_rx, uint32_t key, uint
             break;
         }
 
-        if(pack != NULL) {
-            *pack = (tx_rx->rx_data[1] << 8) | tx_rx->rx_data[0];
-        }
+        *pack = (tx_rx->rx_data[1] << 8) | tx_rx->rx_data[0];
 
         FURI_LOG_I(TAG, "Auth success. Password: %08lX. PACK: %04X", key, *pack);
         authenticated = true;
@@ -492,7 +491,7 @@ MfUltralightConfigPages* mf_ultralight_get_config_pages(MfUltralightData* data) 
     } else if(
         data->type >= MfUltralightTypeNTAGI2CPlus1K &&
         data->type <= MfUltralightTypeNTAGI2CPlus2K) {
-        return (MfUltralightConfigPages*)&data->data[0xe3 * 4];
+        return (MfUltralightConfigPages*)&data->data[0xe3 * 4]; //-V641
     } else {
         return NULL;
     }
@@ -561,7 +560,7 @@ bool mf_ultralight_read_pages_direct(
         FURI_LOG_D(TAG, "Failed to read pages %d - %d", start_index, start_index + 3);
         return false;
     }
-    memcpy(data, tx_rx->rx_data, 16);
+    memcpy(data, tx_rx->rx_data, 16); //-V1086
     return true;
 }
 
@@ -584,7 +583,8 @@ bool mf_ultralight_read_pages(
             curr_sector_index = tag_sector;
         }
 
-        FURI_LOG_D(TAG, "Reading pages %d - %d", i, i + (valid_pages > 4 ? 4 : valid_pages) - 1);
+        FURI_LOG_D(
+            TAG, "Reading pages %zu - %zu", i, i + (valid_pages > 4 ? 4 : valid_pages) - 1U);
         tx_rx->tx_data[0] = MF_UL_READ_CMD;
         tx_rx->tx_data[1] = tag_page;
         tx_rx->tx_bits = 16;
@@ -593,9 +593,9 @@ bool mf_ultralight_read_pages(
         if(!furi_hal_nfc_tx_rx(tx_rx, 50) || tx_rx->rx_bits < 16 * 8) {
             FURI_LOG_D(
                 TAG,
-                "Failed to read pages %d - %d",
+                "Failed to read pages %zu - %zu",
                 i,
-                i + (valid_pages > 4 ? 4 : valid_pages) - 1);
+                i + (valid_pages > 4 ? 4 : valid_pages) - 1U);
             break;
         }
 
@@ -857,7 +857,7 @@ static void mf_ul_ntag_i2c_fill_cross_area_read(
     }
 
     if(apply) {
-        while(tx_page_offset < 0 && page_length > 0) {
+        while(tx_page_offset < 0 && page_length > 0) { //-V614
             ++tx_page_offset;
             ++data_page_offset;
             --page_length;
@@ -987,9 +987,9 @@ static bool mf_ul_check_lock(MfUltralightEmulator* emulator, int16_t write_page)
     switch(emulator->data.type) {
     // low byte LSB range, MSB range
     case MfUltralightTypeNTAG203:
-        if(write_page >= 16 && write_page <= 27)
+        if(write_page >= 16 && write_page <= 27) //-V560
             shift = (write_page - 16) / 4 + 1;
-        else if(write_page >= 28 && write_page <= 39)
+        else if(write_page >= 28 && write_page <= 39) //-V560
             shift = (write_page - 28) / 4 + 5;
         else if(write_page == 41)
             shift = 12;
@@ -1216,7 +1216,7 @@ static void mf_ul_emulate_write(
             page_buff[0] = new_locks & 0xff;
             page_buff[1] = new_locks >> 8;
             page_buff[2] = new_block_locks;
-            if(emulator->data.type >= MfUltralightTypeUL21 &&
+            if(emulator->data.type >= MfUltralightTypeUL21 && //-V1016
                emulator->data.type <= MfUltralightTypeNTAG216)
                 page_buff[3] = MF_UL_TEARING_FLAG_DEFAULT;
             else

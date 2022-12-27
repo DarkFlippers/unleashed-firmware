@@ -402,9 +402,9 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
                 FURI_LOG_E(TAG, "Unable to load encryption key");
                 break;
             }
-            memset(&cnt, 0, 32);
-            if(!furi_hal_crypto_decrypt(cnt_encr, (uint8_t*)&cnt, 32)) {
-                memset(&cnt, 0, 32);
+            memset(&cnt, 0, sizeof(U2fCounterData));
+            if(!furi_hal_crypto_decrypt(cnt_encr, (uint8_t*)&cnt, sizeof(U2fCounterData))) {
+                memset(&cnt, 0, sizeof(U2fCounterData));
                 FURI_LOG_E(TAG, "Decryption failed");
                 break;
             }

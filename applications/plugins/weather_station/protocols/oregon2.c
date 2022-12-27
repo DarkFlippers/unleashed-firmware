@@ -343,7 +343,7 @@ bool ws_protocol_decoder_oregon2_deserialize(void* context, FlipperFormat* flipp
                flipper_format,
                "VarData",
                (uint8_t*)&instance->var_data,
-               sizeof(instance->var_data))) {
+               sizeof(instance->var_data))) { //-V1051
             FURI_LOG_E(TAG, "Missing VarData");
             break;
         }

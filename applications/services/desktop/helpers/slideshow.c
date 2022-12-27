@@ -41,7 +41,7 @@ Slideshow* slideshow_alloc() {
 
 void slideshow_free(Slideshow* slideshow) {
     Icon* icon = &slideshow->icon;
-    if(icon) {
+    if(icon) { //-V547
         for(int frame_idx = 0; frame_idx < icon->frame_count; ++frame_idx) {
             uint8_t* frame_data = (uint8_t*)icon->frames[frame_idx];
             free(frame_data);

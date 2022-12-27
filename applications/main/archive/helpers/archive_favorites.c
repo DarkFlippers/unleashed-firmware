@@ -177,7 +177,7 @@ bool archive_favorites_read(void* context) {
 
     archive_set_item_count(browser, file_count);
 
-    if(need_refresh) {
+    if(need_refresh) { //-V547
         archive_favourites_rescan();
     }
 
