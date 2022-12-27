@@ -20,7 +20,7 @@ bool mf_classic_dict_check_presence(MfClassicDictType dict_type) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     bool dict_present = false;
-    if(dict_type == MfClassicDictTypeFlipper) {
+    if(dict_type == MfClassicDictTypeSystem) {
         dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_FLIPPER_PATH, NULL) == FSE_OK;
     } else if(dict_type == MfClassicDictTypeUser) {
         dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_USER_PATH, NULL) == FSE_OK;
@@ -42,7 +42,7 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
 
     bool dict_loaded = false;
     do {
-        if(dict_type == MfClassicDictTypeFlipper) {
+        if(dict_type == MfClassicDictTypeSystem) {
             if(!buffered_file_stream_open(
                    dict->stream,
                    MF_CLASSIC_DICT_FLIPPER_PATH,

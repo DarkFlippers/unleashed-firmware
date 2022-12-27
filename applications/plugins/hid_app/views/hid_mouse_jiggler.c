@@ -16,6 +16,7 @@ typedef struct {
     bool connected;
     bool running;
     uint8_t counter;
+    HidTransport transport;
 } HidMouseJigglerModel;
 
 static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
@@ -23,11 +24,14 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     HidMouseJigglerModel* model = context;
 
     // Header
-    if(model->connected) {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-    } else {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+    if(model->transport == HidTransportBle) {
+        if(model->connected) {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+        } else {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+        }
     }
+
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Mouse Jiggler");
 
@@ -119,6 +123,12 @@ HidMouseJiggler* hid_mouse_jiggler_alloc(Hid* hid) {
 
     hid_mouse_jiggler->timer = furi_timer_alloc(
         hid_mouse_jiggler_timer_callback, FuriTimerTypePeriodic, hid_mouse_jiggler);
+
+    with_view_model(
+        hid_mouse_jiggler->view,
+        HidMouseJigglerModel * model,
+        { model->transport = hid->transport; },
+        true);
 
     return hid_mouse_jiggler;
 }
