@@ -8,7 +8,7 @@
 
 typedef enum {
     MfClassicDictTypeUser,
-    MfClassicDictTypeFlipper,
+    MfClassicDictTypeSystem,
     MfClassicDictTypeUnitTest,
 } MfClassicDictType;
 
