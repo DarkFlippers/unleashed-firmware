@@ -1,1 +1,0 @@
-ComeBride:d=4,o=5,b=90:d,16g,8p,16g,g,p,d,8a,16p,16f#,g,p,d,8g,16p,16b,d6,8b,16p,16g,e,16a,8p,16b,g

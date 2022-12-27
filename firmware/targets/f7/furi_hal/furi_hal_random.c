@@ -1,7 +1,6 @@
 #include "furi_hal_random.h"
 #include <furi.h>
 #include <furi_hal.h>
-
 #include <stm32wbxx_ll_rng.h>
 #include <stm32wbxx_ll_hsem.h>
 

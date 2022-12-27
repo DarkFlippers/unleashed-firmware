@@ -25,16 +25,32 @@ void wifi_deauther_scene_text_input_on_enter(void* context) {
     // Setup view
     TextInput* text_input = app->text_input;
     // Add help message to header
-    if(0 == strncmp("ssid -a -g", app->selected_tx_string, strlen("ssid -a -g"))) {
-        text_input_set_header_text(text_input, "Enter # SSIDs to generate");
-    } else if(0 == strncmp("ssid -a -n", app->selected_tx_string, strlen("ssid -a -n"))) {
-        text_input_set_header_text(text_input, "Enter SSID name to add");
-    } else if(0 == strncmp("ssid -r", app->selected_tx_string, strlen("ssid -r"))) {
-        text_input_set_header_text(text_input, "Remove target from SSID list");
-    } else if(0 == strncmp("select -a", app->selected_tx_string, strlen("select -a"))) {
-        text_input_set_header_text(text_input, "Add target from AP list");
-    } else if(0 == strncmp("select -s", app->selected_tx_string, strlen("select -s"))) {
-        text_input_set_header_text(text_input, "Add target from SSID list");
+    if(0 == strncmp("select aps", app->selected_tx_string, strlen("select aps"))) {
+        text_input_set_header_text(text_input, "Enter SSID ID to attack");
+    } else if(0 == strncmp("select stations", app->selected_tx_string, strlen("select stations"))) {
+        text_input_set_header_text(text_input, "Enter Station ID to attack");
+    }
+    if(0 == strncmp("deselect aps", app->selected_tx_string, strlen("deselect aps"))) {
+        text_input_set_header_text(text_input, "Enter SSID ID to remove");
+    } else if(
+        0 == strncmp("deselect stations", app->selected_tx_string, strlen("deselect stations"))) {
+        text_input_set_header_text(text_input, "Enter Station ID to remove");
+    } else if(0 == strncmp("get settings", app->selected_tx_string, strlen("get settings"))) {
+        text_input_set_header_text(text_input, "Get setting. Enter for all");
+    } else if(
+        0 ==
+        strncmp(
+            "set webinterface false", app->selected_tx_string, strlen("set webinterface false"))) {
+        text_input_set_header_text(text_input, "Disable PWNED management AP");
+    } else if(0 == strncmp("set ssid: pwned", app->selected_tx_string, strlen("set ssid: pwned"))) {
+        text_input_set_header_text(text_input, "Change management SSID");
+    } else if(
+        0 ==
+        strncmp(
+            "set password: deauther", app->selected_tx_string, strlen("set password: deauther"))) {
+        text_input_set_header_text(text_input, "Change management PWD");
+    } else if(0 == strncmp("save settings", app->selected_tx_string, strlen("save settings"))) {
+        text_input_set_header_text(text_input, "Save Settings");
     } else {
         text_input_set_header_text(text_input, "Add command arguments");
     }
@@ -49,6 +65,7 @@ void wifi_deauther_scene_text_input_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, WifideautherAppViewTextInput);
 }
 
+///*
 bool wifi_deauther_scene_text_input_on_event(void* context, SceneManagerEvent event) {
     WifideautherApp* app = context;
     bool consumed = false;
@@ -70,3 +87,4 @@ void wifi_deauther_scene_text_input_on_exit(void* context) {
 
     text_input_reset(app->text_input);
 }
+//*/

@@ -43,3 +43,18 @@ App(
     fap_category="Music",
     fap_icon_assets="icons",
 )
+App(
+    appid="SAM_WTF",
+    name="SAM WTF",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="sam_app_wtf",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=4 * 1024,
+    order=20,
+    fap_icon="icons/music_10px.png",
+    fap_category="Music",
+    fap_icon_assets="icons",
+)

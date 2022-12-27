@@ -1,0 +1,12 @@
+REMOTE: /ext/infrared/Roku.ir
+UP: Up
+DOWN: Down
+LEFT: Left
+RIGHT: Right
+OK: Ok
+BACK: Back
+UPHOLD: V_up
+DOWNHOLD: V_down
+LEFTHOLD: Play
+RIGHTHOLD: Home
+OKHOLD: Power

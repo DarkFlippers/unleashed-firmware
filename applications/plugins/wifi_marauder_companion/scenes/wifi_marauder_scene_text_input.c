@@ -3,13 +3,34 @@
 void wifi_marauder_scene_text_input_callback(void* context) {
     WifiMarauderApp* app = context;
 
-    view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventStartConsole);
+    switch(app->special_case_input_step) {
+    case 0: // most commands
+        view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventStartConsole);
+        break;
+    case 1: // special case for deauth: save source MAC
+        view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventSaveSourceMac);
+        break;
+    case 2: // special case for deauth: save destination MAC
+        view_dispatcher_send_custom_event(
+            app->view_dispatcher, WifiMarauderEventSaveDestinationMac);
+        break;
+    default:
+        break;
+    }
 }
 
 void wifi_marauder_scene_text_input_on_enter(void* context) {
     WifiMarauderApp* app = context;
 
-    if(false == app->is_custom_tx_string) {
+    if(0 ==
+       strncmp("attack -t deauth -s", app->selected_tx_string, strlen("attack -t deauth -s"))) {
+        // Special case for manual deauth input
+        app->special_case_input_step = 1;
+        bzero(app->text_input_store, WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE);
+    } else if(false == app->is_custom_tx_string) {
+        // Most commands
+        app->special_case_input_step = 0;
+
         // Fill text input with selected string so that user can add to it
         size_t length = strlen(app->selected_tx_string);
         furi_assert(length < WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE);
@@ -25,7 +46,9 @@ void wifi_marauder_scene_text_input_on_enter(void* context) {
     // Setup view
     TextInput* text_input = app->text_input;
     // Add help message to header
-    if(0 == strncmp("ssid -a -g", app->selected_tx_string, strlen("ssid -a -g"))) {
+    if(app->special_case_input_step == 1) {
+        text_input_set_header_text(text_input, "Enter source MAC");
+    } else if(0 == strncmp("ssid -a -g", app->selected_tx_string, strlen("ssid -a -g"))) {
         text_input_set_header_text(text_input, "Enter # SSIDs to generate");
     } else if(0 == strncmp("ssid -a -n", app->selected_tx_string, strlen("ssid -a -n"))) {
         text_input_set_header_text(text_input, "Enter SSID name to add");
@@ -58,6 +81,65 @@ bool wifi_marauder_scene_text_input_on_event(void* context, SceneManagerEvent ev
             // Point to custom string to send
             app->selected_tx_string = app->text_input_store;
             scene_manager_next_scene(app->scene_manager, WifiMarauderAppViewConsoleOutput);
+            consumed = true;
+        } else if(event.event == WifiMarauderEventSaveSourceMac) {
+            if(12 != strlen(app->text_input_store)) {
+                text_input_set_header_text(app->text_input, "MAC must be 12 hex chars!");
+            } else {
+                snprintf(
+                    app->special_case_input_src_addr,
+                    sizeof(app->special_case_input_src_addr),
+                    "%c%c:%c%c:%c%c:%c%c:%c%c:%c%c",
+                    app->text_input_store[0],
+                    app->text_input_store[1],
+                    app->text_input_store[2],
+                    app->text_input_store[3],
+                    app->text_input_store[4],
+                    app->text_input_store[5],
+                    app->text_input_store[6],
+                    app->text_input_store[7],
+                    app->text_input_store[8],
+                    app->text_input_store[9],
+                    app->text_input_store[10],
+                    app->text_input_store[11]);
+
+                // Advance scene to input destination MAC, clear text input
+                app->special_case_input_step = 2;
+                bzero(app->text_input_store, WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE);
+                text_input_set_header_text(app->text_input, "Enter destination MAC");
+            }
+            consumed = true;
+        } else if(event.event == WifiMarauderEventSaveDestinationMac) {
+            if(12 != strlen(app->text_input_store)) {
+                text_input_set_header_text(app->text_input, "MAC must be 12 hex chars!");
+            } else {
+                snprintf(
+                    app->special_case_input_dst_addr,
+                    sizeof(app->special_case_input_dst_addr),
+                    "%c%c:%c%c:%c%c:%c%c:%c%c:%c%c",
+                    app->text_input_store[0],
+                    app->text_input_store[1],
+                    app->text_input_store[2],
+                    app->text_input_store[3],
+                    app->text_input_store[4],
+                    app->text_input_store[5],
+                    app->text_input_store[6],
+                    app->text_input_store[7],
+                    app->text_input_store[8],
+                    app->text_input_store[9],
+                    app->text_input_store[10],
+                    app->text_input_store[11]);
+
+                // Construct command with source and destination MACs
+                snprintf(
+                    app->text_input_store,
+                    WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE,
+                    "attack -t deauth -s %18s -d %18s",
+                    app->special_case_input_src_addr,
+                    app->special_case_input_dst_addr);
+                app->selected_tx_string = app->text_input_store;
+                scene_manager_next_scene(app->scene_manager, WifiMarauderAppViewConsoleOutput);
+            }
             consumed = true;
         }
     }

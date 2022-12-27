@@ -3,7 +3,7 @@
 #include <furi_hal_nfc.h>
 #include <helpers/mrtd_helpers.h>
 
-#define MRTD_APP_FOLDER NFC_APP_FOLDER "/mrtd"
+#define MRTD_APP_FOLDER "/mrtd"
 #define MRTD_APP_EXTENSION ".mrtd"
 
 typedef struct {

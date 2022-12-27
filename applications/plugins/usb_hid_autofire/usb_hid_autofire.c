@@ -31,12 +31,12 @@ static void usb_hid_autofire_render_callback(Canvas* canvas, void* ctx) {
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 0, 10, "USB HID Autofire");
+    canvas_draw_str(canvas, 0, 34, btn_left_autofire ? "<active>" : "<inactive>");
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 90, 10, "v");
     canvas_draw_str(canvas, 96, 10, VERSION);
     canvas_draw_str(canvas, 0, 22, "Press [ok] for auto left clicking");
-    canvas_draw_str(canvas, 0, 34, btn_left_autofire ? "<active>" : "<inactive>");
     canvas_draw_str(canvas, 0, 46, "delay [ms]:");
     canvas_draw_str(canvas, 50, 46, autofire_delay_str);
     canvas_draw_str(canvas, 0, 63, "Press [back] to exit");

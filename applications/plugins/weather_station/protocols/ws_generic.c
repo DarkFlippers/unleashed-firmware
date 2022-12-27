@@ -79,7 +79,7 @@ bool ws_block_generic_serialize(
 
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->data >> (i * 8)) & 0xFF;
         }
 
         if(!flipper_format_write_hex(flipper_format, "Data", key_data, sizeof(uint64_t))) {
@@ -96,6 +96,17 @@ bool ws_block_generic_serialize(
         temp_data = instance->humidity;
         if(!flipper_format_write_uint32(flipper_format, "Hum", &temp_data, 1)) {
             FURI_LOG_E(TAG, "Unable to add Humidity");
+            break;
+        }
+
+        //DATE AGE set
+        FuriHalRtcDateTime curr_dt;
+        furi_hal_rtc_get_datetime(&curr_dt);
+        uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+
+        temp_data = curr_ts;
+        if(!flipper_format_write_uint32(flipper_format, "Ts", &temp_data, 1)) {
+            FURI_LOG_E(TAG, "Unable to add timestamp");
             break;
         }
 
@@ -168,6 +179,12 @@ bool ws_block_generic_deserialize(WSBlockGeneric* instance, FlipperFormat* flipp
         }
         instance->humidity = (uint8_t)temp_data;
 
+        if(!flipper_format_read_uint32(flipper_format, "Ts", (uint32_t*)&temp_data, 1)) {
+            FURI_LOG_E(TAG, "Missing timestamp");
+            break;
+        }
+        instance->timestamp = (uint32_t)temp_data;
+
         if(!flipper_format_read_uint32(flipper_format, "Ch", (uint32_t*)&temp_data, 1)) {
             FURI_LOG_E(TAG, "Missing Channel");
             break;
@@ -191,8 +208,4 @@ bool ws_block_generic_deserialize(WSBlockGeneric* instance, FlipperFormat* flipp
     } while(0);
 
     return res;
-}
-
-float ws_block_generic_fahrenheit_to_celsius(float fahrenheit) {
-    return (fahrenheit - 32.0f) / 1.8f;
 }

@@ -1,0 +1,86 @@
+ID 1234:5678 Apple:Keyboard
+REM You can change these values to VID/PID of original Apple keyboard
+REM to bypass Keyboard Setup Assistant
+
+REM This is BadUSB demo script for macOS
+
+REM Open terminal window
+DELAY 1000
+GUI SPACE
+DELAY 500
+STRING terminal
+DELAY 500
+ENTER
+DELAY 750
+
+REM Copy-Paste previous string
+UP
+CTRL c
+
+REM Bigger shell script example
+STRING cat > /dev/null << EOF
+ENTER
+
+STRING Hello World!
+ENTER
+
+DEFAULT_DELAY 50
+
+STRING =
+REPEAT 59
+ENTER
+ENTER
+
+STRING               _.-------.._                    -,
+ENTER
+HOME
+STRING           .-"```"--..,,_/ /`-,               -,  \ 
+ENTER
+HOME
+STRING        .:"          /:/  /'\  \     ,_...,  `. |  |
+ENTER
+HOME
+STRING       /       ,----/:/  /`\ _\~`_-"`     _;
+ENTER
+HOME
+STRING      '      / /`"""'\ \ \.~`_-'      ,-"'/ 
+ENTER
+HOME
+STRING     |      | |  0    | | .-'      ,/`  /
+ENTER
+HOME
+STRING    |    ,..\ \     ,.-"`       ,/`    /
+ENTER
+HOME
+STRING   ;    :    `/`""\`           ,/--==,/-----,
+ENTER
+HOME
+STRING   |    `-...|        -.___-Z:_______J...---;
+ENTER
+HOME
+STRING   :         `                           _-'
+ENTER
+HOME
+STRING  _L_  _     ___  ___  ___  ___  ____--"`
+ENTER
+HOME
+STRING | __|| |   |_ _|| _ \| _ \| __|| _ \ 
+ENTER
+HOME
+STRING | _| | |__  | | |  _/|  _/| _| |   / 
+ENTER
+HOME
+STRING |_|  |____||___||_|  |_|  |___||_|_\ 
+ENTER
+HOME
+ENTER
+
+STRING Flipper Zero BadUSB feature is compatible with USB Rubber Ducky script format
+ENTER
+STRING More information about script syntax can be found here:
+ENTER
+STRING https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript
+ENTER
+
+STRING EOF
+ENTER

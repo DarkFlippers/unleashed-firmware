@@ -57,12 +57,16 @@ int32_t usb_midi_app(void* p) {
                             if(event->type == NoteOn) {
                                 NoteOnEvent note_on = AsNoteOn(event);
                                 current_note = note_on.note;
-                                furi_hal_speaker_start(
-                                    note_to_frequency(note_on.note), note_on.velocity / 127.0f);
+                                if(furi_hal_speaker_is_mine() || furi_hal_speaker_acquire(30)) {
+                                    furi_hal_speaker_start(
+                                        note_to_frequency(note_on.note),
+                                        note_on.velocity / 127.0f);
+                                }
                             } else if(event->type == NoteOff) {
                                 NoteOffEvent note_off = AsNoteOff(event);
-                                if(note_off.note == current_note) {
+                                if(note_off.note == current_note && furi_hal_speaker_is_mine()) {
                                     furi_hal_speaker_stop();
+                                    furi_hal_speaker_release();
                                 }
                             }
                         }

@@ -1,0 +1,10 @@
+# Example Playlist
+sub: /ext/subghz/Vehicles/Tesla/Tesla_charge_AM270.sub
+sub: /ext/subghz/Vehicles/Tesla/Tesla_charge_AM650.sub
+sub: /ext/subghz/Vehicles/Tesla/433_Tesla_AM270_EU_AUS.sub
+sub: /ext/subghz/Vehicles/Tesla/433_Tesla_AM650_EU_AUS.sub
+sub: /ext/subghz/Vehicles/Tesla/433_Tesla_Captured_EU_AUS.sub
+sub: /ext/subghz/Vehicles/Tesla/433b_Tesla_Captured_EU_AUS.sub
+sub: /ext/subghz/Vehicles/Tesla/EU_Tesla_S3X.sub
+sub: /ext/subghz/Vehicles/Tesla/EU_Tesla_Y.sub
+sub: /ext/subghz/Vehicles/Tesla/Tesla_Captured.sub

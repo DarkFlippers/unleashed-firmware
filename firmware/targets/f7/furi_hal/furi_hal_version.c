@@ -200,8 +200,6 @@ static void furi_hal_version_load_otp_v2() {
 void furi_hal_version_init() {
     switch(furi_hal_version_get_otp_version()) {
     case FuriHalVersionOtpVersionUnknown:
-        furi_hal_version_load_otp_default();
-        break;
     case FuriHalVersionOtpVersionEmpty:
         furi_hal_version_load_otp_default();
         break;

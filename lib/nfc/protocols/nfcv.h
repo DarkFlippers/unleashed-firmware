@@ -8,6 +8,10 @@
 #include "nfc_util.h"
 #include <furi_hal_nfc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NFCV_FC (13560000.0f) /* MHz */
 #define NFCV_RESP_SUBC1_PULSE_32 (1.0f / (NFCV_FC / 32) / 2.0f) /*  1.1799 µs */
 #define NFCV_RESP_SUBC1_UNMOD_256 (256.0f / NFCV_FC) /* 18.8791 µs */
@@ -20,6 +24,10 @@
 #define NFCV_TOTAL_BLOCKS_MAX 256
 #define NFCV_BLOCK_SIZE 4
 #define NFCV_MAX_DUMP_SIZE (NFCV_BLOCK_SIZE * NFCV_TOTAL_BLOCKS_MAX)
+
+/* helpers to calculate the send time based on DWT->CYCCNT */
+#define NFCV_FDT_USEC(usec) (usec * 64)
+#define NFCV_FDT_FC(ticks) (ticks * 6400 / 1356)
 
 #define NFCV_FRAME_STATE_SOF1 0
 #define NFCV_FRAME_STATE_SOF2 1
@@ -73,7 +81,7 @@ typedef enum {
     NfcVTypeSlixS = 2,
     NfcVTypeSlixL = 3,
     NfcVTypeSlix2 = 4,
-} NfcVType;
+} NfcVSubtype;
 
 typedef enum {
     NfcVSendFlagsNormal = 0,
@@ -113,10 +121,16 @@ typedef struct {
     DigitalSequence* nfcv_signal;
 } NfcVEmuAir;
 
-typedef struct {
-    uint8_t* frame; /* ISO15693-2 incoming raw data from air layer */
-    uint8_t frame_length; /* ISO15693-2 length of incoming data */
+typedef void (*NfcVEmuProtocolHandler)(
+    FuriHalNfcTxRxContext* tx_rx,
+    FuriHalNfcDevData* nfc_data,
+    void* nfcv_data);
+typedef bool (*NfcVEmuProtocolFilter)(
+    FuriHalNfcTxRxContext* tx_rx,
+    FuriHalNfcDevData* nfc_data,
+    void* nfcv_data);
 
+typedef struct {
     uint8_t flags; /* ISO15693-3 flags of the header as specified */
     uint8_t command; /* ISO15693-3 command at offset 1 as specified */
     bool addressed; /* ISO15693-3 flags: addressed frame */
@@ -126,21 +140,13 @@ typedef struct {
 
     uint8_t response_buffer[128]; /* pre-allocated response buffer */
     NfcVSendFlags response_flags; /* flags to use when sending response */
+    uint32_t send_time; /* timestamp when to send the response */
+
+    NfcVEmuProtocolFilter emu_protocol_filter;
 } NfcVEmuProtocolCtx;
 
-typedef void (*NfcVEmuProtocolHandler)(
-    FuriHalNfcTxRxContext* tx_rx,
-    FuriHalNfcDevData* nfc_data,
-    void* nfcv_data,
-    uint8_t* payload,
-    uint32_t payload_length);
-typedef bool (*NfcVEmuProtocolFilter)(
-    FuriHalNfcTxRxContext* tx_rx,
-    FuriHalNfcDevData* nfc_data,
-    void* nfcv_data);
-
 typedef struct {
-    /* common ISO15693 fields */
+    /* common ISO15693 fields, being specified in ISO15693-3 */
     uint8_t dsfid;
     uint8_t afi;
     uint8_t ic_ref;
@@ -149,18 +155,24 @@ typedef struct {
     uint8_t data[NFCV_MAX_DUMP_SIZE];
 
     /* specfic variant infos */
-    NfcVType type;
+    NfcVSubtype sub_type;
     NfcVSubtypeData sub_data;
+    NfcVAuthMethod auth_method;
+
+    /* precalced air level data */
     NfcVEmuAir emu_air;
-    NfcVEmuProtocolCtx emu_protocol_ctx;
+
+    uint8_t* frame; /* ISO15693-2 incoming raw data from air layer */
+    uint8_t frame_length; /* ISO15693-2 length of incoming data */
+    uint32_t eof_timestamp; /* ISO15693-2 EOF timestamp, read from DWT->CYCCNT */
+
+    /* handler for the protocol layer as specified in ISO15693-3 */
     NfcVEmuProtocolHandler emu_protocol_handler;
-    NfcVEmuProtocolFilter emu_protocol_filter;
+    void* emu_protocol_ctx;
 
     /* runtime data */
     char last_command[128];
     char error[32];
-    NfcVAuthMethod auth_method;
-    bool auth_success;
 } NfcVData;
 
 typedef struct {
@@ -175,7 +187,6 @@ bool nfcv_read_card(NfcVReader* reader, FuriHalNfcDevData* nfc_data, NfcVData* d
 
 void nfcv_emu_init(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data);
 void nfcv_emu_deinit(NfcVData* nfcv_data);
-
 bool nfcv_emu_loop(
     FuriHalNfcTxRxContext* tx_rx,
     FuriHalNfcDevData* nfc_data,
@@ -186,4 +197,9 @@ void nfcv_emu_send(
     NfcVData* nfcv,
     uint8_t* data,
     uint8_t length,
-    NfcVSendFlags flags);
+    NfcVSendFlags flags,
+    uint32_t send_time);
+
+#ifdef __cplusplus
+}
+#endif

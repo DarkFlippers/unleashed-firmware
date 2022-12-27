@@ -35,7 +35,8 @@ void nfc_scene_nfcv_unlock_set_state(Nfc* nfc, NfcSceneNfcVUnlockState state) {
         Popup* popup = nfc->popup;
         if(state == NfcSceneNfcVUnlockStateDetecting) {
             popup_reset(popup);
-            popup_set_text(popup, "Put Tonie On\nFlipper's Back", 97, 24, AlignCenter, AlignTop);
+            popup_set_text(
+                popup, "Put figurine on\nFlipper's back", 97, 24, AlignCenter, AlignTop);
             popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
         } else if(state == NfcSceneNfcVUnlockStateUnlocked) {
             popup_reset(popup);
@@ -43,7 +44,8 @@ void nfc_scene_nfcv_unlock_set_state(Nfc* nfc, NfcSceneNfcVUnlockState state) {
             if(nfc_worker_get_state(nfc->worker) == NfcWorkerStateNfcVUnlockAndSave) {
                 nfc_text_store_set(
                     nfc,
-                    "SLIX_%02X%02X%02X%02X%02X%02X%02X%02X",
+                    "%s/SLIX_%02X%02X%02X%02X%02X%02X%02X%02X%s",
+                    NFC_APP_FOLDER,
                     nfc_data->uid[0],
                     nfc_data->uid[1],
                     nfc_data->uid[2],
@@ -51,7 +53,8 @@ void nfc_scene_nfcv_unlock_set_state(Nfc* nfc, NfcSceneNfcVUnlockState state) {
                     nfc_data->uid[4],
                     nfc_data->uid[5],
                     nfc_data->uid[6],
-                    nfc_data->uid[7]);
+                    nfc_data->uid[7],
+                    NFC_APP_EXTENSION);
 
                 nfc->dev->format = NfcDeviceSaveFormatNfcV;
 

@@ -216,7 +216,7 @@ bool furi_hal_bt_hid_kb_release_all() {
 
 bool furi_hal_bt_hid_consumer_key_press(uint16_t button) {
     furi_assert(consumer_report);
-    for(uint8_t i = 0; i < FURI_HAL_BT_HID_CONSUMER_MAX_KEYS; i++) {
+    for(uint8_t i = 0; i < FURI_HAL_BT_HID_CONSUMER_MAX_KEYS; i++) { //-V1008
         if(consumer_report->key[i] == 0) {
             consumer_report->key[i] = button;
             break;
@@ -228,7 +228,7 @@ bool furi_hal_bt_hid_consumer_key_press(uint16_t button) {
 
 bool furi_hal_bt_hid_consumer_key_release(uint16_t button) {
     furi_assert(consumer_report);
-    for(uint8_t i = 0; i < FURI_HAL_BT_HID_CONSUMER_MAX_KEYS; i++) {
+    for(uint8_t i = 0; i < FURI_HAL_BT_HID_CONSUMER_MAX_KEYS; i++) { //-V1008
         if(consumer_report->key[i] == button) {
             consumer_report->key[i] = 0;
             break;
@@ -240,7 +240,7 @@ bool furi_hal_bt_hid_consumer_key_release(uint16_t button) {
 
 bool furi_hal_bt_hid_consumer_key_release_all() {
     furi_assert(consumer_report);
-    for(uint8_t i = 0; i < FURI_HAL_BT_HID_CONSUMER_MAX_KEYS; i++) {
+    for(uint8_t i = 0; i < FURI_HAL_BT_HID_CONSUMER_MAX_KEYS; i++) { //-V1008
         consumer_report->key[i] = 0;
     }
     return hid_svc_update_input_report(

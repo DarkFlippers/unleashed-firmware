@@ -1,0 +1,12 @@
+Filetype: Flipper SubGhz RAW File
+Version: 1
+UP: /any/subghz/Vehicles/Tesla/Tesla_charge_AM270.sub
+DOWN: /any/subghz/Vehicles/Tesla/Tesla_charge_AM650.sub
+LEFT: /any/subghz/Handicap/handicap_push_door.sub
+RIGHT: /any/subghz/Handicap/Handicap_button_1270.sub
+OK: /any/subghz/Handicap/Handicap_button_1650.sub
+ULABEL: Tesla AM270
+DLABEL: Tesla AM650
+LLABEL: Handicap Door
+RLABEL: Handicap 1270
+OKLABEL: Handicap 1650

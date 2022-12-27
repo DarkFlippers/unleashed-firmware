@@ -5,9 +5,6 @@
 #include <lib/flipper_format/flipper_format.h>
 #include "protocols/protocol_items.h"
 
-// Comment next line to build on OFW
-#define IS_UNLEASHED
-
 static bool pocsag_pager_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     POCSAGPagerApp* app = context;
@@ -84,12 +81,10 @@ POCSAGPagerApp* pocsag_pager_app_alloc() {
     //init setting
     app->setting = subghz_setting_alloc();
 
-//ToDo FIX  file name setting
-#ifdef IS_UNLEASHED
-    subghz_setting_load(app->setting, EXT_PATH("pocsag/settings.txt"), true);
-#else
+    //ToDo FIX  file name setting
+
     subghz_setting_load(app->setting, EXT_PATH("pocsag/settings.txt"));
-#endif
+
     //init Worker & Protocol & History
     app->lock = PCSGLockOff;
     app->txrx = malloc(sizeof(POCSAGPagerTxRx));
@@ -107,16 +102,6 @@ POCSAGPagerApp* pocsag_pager_app_alloc() {
     subghz_setting_load_custom_preset(app->setting, (const char*)"FM95", temp_fm_preset);
 
     flipper_format_free(temp_fm_preset);
-
-    FlipperFormat* temp_fm_preset2 = flipper_format_string_alloc();
-    flipper_format_write_string_cstr(
-        temp_fm_preset2,
-        (const char*)"Custom_preset_data",
-        (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 31 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
-    flipper_format_rewind(temp_fm_preset2);
-    subghz_setting_load_custom_preset(app->setting, (const char*)"FM150", temp_fm_preset2);
-
-    flipper_format_free(temp_fm_preset2);
 
     // custom presets loading - end
 

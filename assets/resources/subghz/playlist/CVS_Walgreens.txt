@@ -1,0 +1,6 @@
+# Walgreens / CVS Playlist
+sub: /ext/subghz/Walgreens/Walgreens_Cough.sub
+sub: /ext/subghz/Walgreens/Walgreens_Skincare.sub
+sub: /ext/subghz/Walgreens/Walgreens_Vitamin.sub
+sub: /ext/subghz/CVS/CVS_Dental.sub
+sub: /ext/subghz/CVS/CVS_Stomach.sub

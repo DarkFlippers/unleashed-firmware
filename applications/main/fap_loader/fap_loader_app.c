@@ -200,7 +200,7 @@ static FapLoader* fap_loader_alloc(const char* path) {
         loader->view_dispatcher, loader->gui, ViewDispatcherTypeFullscreen);
     view_dispatcher_add_view(loader->view_dispatcher, 0, loading_get_view(loader->loading));
     return loader;
-}
+} //-V773
 
 static void fap_loader_free(FapLoader* loader) {
     view_dispatcher_remove_view(loader->view_dispatcher, 0);

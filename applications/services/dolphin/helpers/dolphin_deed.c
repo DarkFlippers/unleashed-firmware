@@ -51,8 +51,8 @@ static uint8_t dolphin_deed_limits[] = {
     100, // DolphinAppIr
     100, // DolphinAppIbutton
     100, // DolphinAppBadusb
-    // 100, // DolphinAppU2f
-    // 100, // DolphinAppGpio
+//    100, // DolphinAppU2f
+//    100, // DolphinAppGpio
     100, // DolphinAppPlugin
 };
 

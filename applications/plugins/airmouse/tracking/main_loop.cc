@@ -43,7 +43,7 @@ static inline float highpass(float oldVal, float newVal)
     return newVal + alpha * delta;
 }
 
-void sendCurrentState(MouseMoveCallback mouse_move)
+void sendCurrentState(MouseMoveCallback mouse_move, void *context)
 {
     float dX = g_dYaw * CURSOR_SPEED;
     float dY = g_dPitch * CURSOR_SPEED;
@@ -69,7 +69,7 @@ void sendCurrentState(MouseMoveCallback mouse_move)
     const int8_t x = (int8_t)std::floor(dX + 0.5);
     const int8_t y = (int8_t)std::floor(dY + 0.5);
 
-    mouse_move(x, y);
+    mouse_move(x, y, context);
 
     // Only subtract the part of the error that was already sent.
     if (x != 0) {
@@ -160,7 +160,7 @@ void tracking_begin() {
     tracker.Resume();
 }
 
-void tracking_step(MouseMoveCallback mouse_move) {
+void tracking_step(MouseMoveCallback mouse_move, void *context) {
     double vec[6];
     int ret = imu_read(vec);
     if (ret != 0) {
@@ -177,7 +177,7 @@ void tracking_step(MouseMoveCallback mouse_move) {
                     .data = cardboard::Vector3(vec[3], vec[4], vec[5]) };
             cardboard::Vector4 pose = tracker.OnGyroscopeData(gdata);
             onOrientation(pose);
-            sendCurrentState(mouse_move);
+            sendCurrentState(mouse_move, context);
         }
     }
 }

@@ -9,6 +9,6 @@ App(
     stack_size=4 * 1024,
     order=20,
     fap_icon="usb_midi.png",
-    fap_category="NeedsTesting",
+    fap_category="Music",
     # fap_icon_assets="icons",
 )

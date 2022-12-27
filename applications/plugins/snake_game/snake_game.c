@@ -78,7 +78,7 @@ static void snake_game_render_callback(Canvas* const canvas, void* ctx) {
     if(snake_state->state != GameStateGameOver) {
         char buffer2[6];
         canvas_set_font(canvas, FontBatteryPercent);
-        snprintf(buffer2, sizeof(buffer2), "%u", snake_state->len);
+        snprintf(buffer2, sizeof(buffer2), "%u", (snake_state->len - 7));
         canvas_draw_str_aligned(canvas, 124, 10, AlignRight, AlignBottom, buffer2);
     }
     // Game Over banner
@@ -124,7 +124,7 @@ static void snake_game_update_timer_callback(FuriMessageQueue* event_queue) {
 
 static void snake_game_init_game(SnakeState* const snake_state) {
     Point p[] = {{8, 6}, {7, 6}, {6, 6}, {5, 6}, {4, 6}, {3, 6}, {2, 6}};
-    memcpy(snake_state->points, p, sizeof(p));
+    memcpy(snake_state->points, p, sizeof(p)); //-V1086
 
     snake_state->len = 7;
 

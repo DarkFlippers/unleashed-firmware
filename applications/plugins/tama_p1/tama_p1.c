@@ -246,7 +246,7 @@ int32_t tama_p1_app(void* p) {
             } else if(event.type == EventTypeInput) {
                 FURI_LOG_D(
                     TAG,
-                    "EventTypeInput: %d %d %d",
+                    "EventTypeInput: %ld %d %d",
                     event.input.sequence,
                     event.input.key,
                     event.input.type);

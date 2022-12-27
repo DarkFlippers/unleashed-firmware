@@ -69,7 +69,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     }
 
     submenu_set_header(
-        submenu, primary_favorite ? "Primary favorite app:" : "Secondary favorite app:");
+        submenu, primary_favorite ? "Secondary favorite app:" : "Primary favorite app:");
     submenu_set_selected_item(submenu, pre_select_item); // If set during loop, visual glitch.
 
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
@@ -84,7 +84,7 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
         scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(strcmp(FLIPPER_APPS[event.event].name, FAP_LOADER_APP_NAME)) {
+        if(strcmp(FLIPPER_APPS[event.event].name, FAP_LOADER_APP_NAME) != 0) {
             if(primary_favorite) {
                 app->settings.favorite_primary.is_external = false;
                 strncpy(

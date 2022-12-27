@@ -291,11 +291,11 @@ void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* t
         end = strchr(start, '\n');
         if(end) {
             furi_string_set_strn(str, start, end - start);
+            start = end + 1;
         } else {
             furi_string_set(str, start);
         }
         canvas_draw_str(canvas, x, y, furi_string_get_cstr(str));
-        start = end + 1;
         y += font_height;
     } while(end && y < 64);
     furi_string_free(str);
@@ -545,6 +545,53 @@ void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width
         } while(len_px > width);
         furi_string_cat(string, "...");
     }
+}
+
+void elements_scrollable_text_line(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    FuriString* string,
+    size_t scroll,
+    bool ellipsis) {
+    FuriString* line = furi_string_alloc_set(string);
+
+    size_t len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
+    if(len_px > width) {
+        if(ellipsis) {
+            width -= canvas_string_width(canvas, "...");
+        }
+
+        // Calculate scroll size
+        size_t scroll_size = furi_string_size(line);
+        size_t right_width = 0;
+        for(size_t i = scroll_size; i > 0; i--) {
+            right_width += canvas_glyph_width(canvas, furi_string_get_char(line, i));
+            if(right_width > width) break;
+            scroll_size--;
+            if(!scroll_size) break;
+        }
+        // Ensure that we have something to scroll
+        if(scroll_size) {
+            scroll_size += 3;
+            scroll = scroll % scroll_size;
+            furi_string_right(line, scroll);
+        }
+
+        len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
+        while(len_px > width) {
+            furi_string_left(line, furi_string_size(line) - 1);
+            len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
+        }
+
+        if(ellipsis) {
+            furi_string_cat(line, "...");
+        }
+    }
+
+    canvas_draw_str(canvas, x, y, furi_string_get_cstr(line));
+    furi_string_free(line);
 }
 
 void elements_text_box(

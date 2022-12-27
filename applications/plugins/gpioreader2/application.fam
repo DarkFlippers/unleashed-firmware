@@ -1,0 +1,11 @@
+App(
+    appid="GPIO_Reader_A",
+    name="GPIO Reader (Aurelilc)",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="GPIO_reader_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_category="GPIO",
+    fap_icon="icon.png",
+    order=1,
+)

@@ -1,0 +1,11 @@
+Rate: 1
+Ch: 2
+ESB: 1
+DPL: 0
+CRC: 2
+Payload: 4
+P0: C8C8C0
+P1: C8C8C1
+P2: C2
+P3: C3
+P4: E5

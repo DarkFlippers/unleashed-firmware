@@ -81,7 +81,7 @@ WeatherStationApp* weather_station_app_alloc() {
     app->setting = subghz_setting_alloc();
 
     //ToDo FIX  file name setting
-    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"), true);
+    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
 
     //init Worker & Protocol & History
     app->lock = WSLockOff;

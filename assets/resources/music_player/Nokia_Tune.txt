@@ -1,1 +1,0 @@
-NokiaTune:d=16,o=5,b=64,l=15:32d6,32c6,e,f#,32b,32a,c,d,32a,32g,b4,d,8g.,8p.,4p,4p,p,32d6,32c6,e,f#,32b,32a,c,d,32a,32g,b4,d,8g.,8p.,4p,4p

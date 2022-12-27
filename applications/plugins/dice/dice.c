@@ -510,7 +510,7 @@ int32_t dice_app(void* p) {
                         } else if(plugin_state->diceSelect == 20) {
                             plugin_state->diceSelect = 100;
                         } else if(plugin_state->diceSelect == 100) {
-                            if(plugin_state->desktop_settings->is_dumbmode) {
+                            if(plugin_state->desktop_settings->is_sfwmode) {
                                 plugin_state->diceSelect = 231;
                             } else {
                                 plugin_state->diceSelect = 230;
@@ -524,7 +524,7 @@ int32_t dice_app(void* p) {
                         } else if(plugin_state->diceSelect == 229) {
                             plugin_state->diceSelect = 228;
                         } else if(plugin_state->diceSelect == 228) {
-                            if(plugin_state->desktop_settings->is_dumbmode) {
+                            if(plugin_state->desktop_settings->is_sfwmode) {
                                 plugin_state->diceSelect = 59;
                             } else {
                                 plugin_state->diceSelect = 232;

@@ -135,6 +135,10 @@ static void ws_protocol_nexus_th_remote_controller(WSBlockGeneric* instance) {
     }
 
     instance->humidity = instance->data & 0xFF;
+    if(instance->humidity > 95)
+        instance->humidity = 95;
+    else if(instance->humidity < 20)
+        instance->humidity = 20;
 }
 
 void ws_protocol_decoder_nexus_th_feed(void* context, bool level, uint32_t duration) {

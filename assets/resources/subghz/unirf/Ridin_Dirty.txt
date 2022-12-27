@@ -1,0 +1,10 @@
+UP: /ext/subghz/Misc/Sextoy/Egg Vibrator/Egg_vib_intensity.sub
+DOWN: /ext/subghz/Misc/Sextoy/Egg Vibrator/Egg_vib_mode.sub
+LEFT: /ext/subghz/Misc/Sextoy/Egg Vibrator/Egg_vib_power.sub
+RIGHT: /ext/subghz/Misc/Sextoy/Sinful Bullet Vibrator/Sinful_level.sub
+OK: /ext/subghz/Misc/Sextoy/Sinful Bullet Vibrator/Sinful_power.sub
+ULABEL: Egg Intense
+DLABEL: Egg Mode
+LLABEL: Egg PWR
+RLABEL: Bullet Intense
+OKLABEL: Bullet PWR

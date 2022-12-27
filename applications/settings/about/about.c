@@ -99,7 +99,7 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
         furi_string_cat_printf(buffer, "%02X", uid[i]);
     }
 
-    dialog_message_set_header(message, "HW Version Info:", 0, 0, AlignLeft, AlignTop);
+    dialog_message_set_header(message, "Hardware Info:", 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, furi_string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
@@ -119,7 +119,7 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     c2_ver = ble_glue_get_c2_info();
 #endif
 
-    if(!ver) {
+    if(!ver) { //-V1051
         furi_string_cat_printf(buffer, "No info\n");
     } else {
         furi_string_cat_printf(
@@ -135,8 +135,8 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
             version_get_gitbranch(ver));
     }
 
-    dialog_message_set_header(message, "FW Version Info:", 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, furi_string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
+    dialog_message_set_header(message, "Firmware Info:", 0, 0, AlignLeft, AlignTop);
+    dialog_message_set_text(message, "XFW - Xtreme Firmware\nGithub.com/ClaraCrazy/Flipper-Xtreme", 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
@@ -147,12 +147,13 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
 
 const AboutDialogScreen about_screens[] = {
     product_screen,
-    compliance_screen,
-    address_screen,
+    hw_version_screen,
+    fw_version_screen,
     icon1_screen,
     icon2_screen,
-    hw_version_screen,
-    fw_version_screen};
+    compliance_screen,
+    address_screen};
+
 
 const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScreen);
 

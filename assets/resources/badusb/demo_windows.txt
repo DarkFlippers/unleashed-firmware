@@ -1,0 +1,84 @@
+REM This is BadUSB demo script for windows
+
+REM Open windows notepad
+DELAY 1000
+GUI r
+DELAY 500
+STRING notepad
+DELAY 500
+ENTER
+DELAY 750
+
+STRING Hello World!
+ENTER
+DEFAULT_DELAY 50
+
+REM Copy-Paste previous string
+UP
+HOME
+SHIFT DOWN
+CTRL c
+RIGHT
+CTRL v
+CTRL v
+
+REM Alt code input demo
+ALTCHAR 7
+ALTSTRING This line was print using Alt+Numpad input method. It works even if non-US keyboard layout is selected
+ENTER
+
+STRING =
+REPEAT 59
+ENTER
+ENTER
+
+STRING               _.-------.._                    -,
+ENTER
+HOME
+STRING           .-"```"--..,,_/ /`-,               -,  \ 
+ENTER
+HOME
+STRING        .:"          /:/  /'\  \     ,_...,  `. |  |
+ENTER
+HOME
+STRING       /       ,----/:/  /`\ _\~`_-"`     _;
+ENTER
+HOME
+STRING      '      / /`"""'\ \ \.~`_-'      ,-"'/ 
+ENTER
+HOME
+STRING     |      | |  0    | | .-'      ,/`  /
+ENTER
+HOME
+STRING    |    ,..\ \     ,.-"`       ,/`    /
+ENTER
+HOME
+STRING   ;    :    `/`""\`           ,/--==,/-----,
+ENTER
+HOME
+STRING   |    `-...|        -.___-Z:_______J...---;
+ENTER
+HOME
+STRING   :         `                           _-'
+ENTER
+HOME
+STRING  _L_  _     ___  ___  ___  ___  ____--"`
+ENTER
+HOME
+STRING | __|| |   |_ _|| _ \| _ \| __|| _ \ 
+ENTER
+HOME
+STRING | _| | |__  | | |  _/|  _/| _| |   / 
+ENTER
+HOME
+STRING |_|  |____||___||_|  |_|  |___||_|_\ 
+ENTER
+HOME
+ENTER
+
+STRING Flipper Zero BadUSB feature is compatible with USB Rubber Ducky script format
+ENTER
+STRING More information about script syntax can be found here:
+ENTER
+STRING https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript
+ENTER

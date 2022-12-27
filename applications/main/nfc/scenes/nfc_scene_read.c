@@ -76,7 +76,7 @@ bool nfc_scene_read_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == NfcWorkerEventReadMfUltralight) {
             notification_message(nfc->notifications, &sequence_success);
             // Set unlock password input to 0xFFFFFFFF only on fresh read
-            memset(nfc->byte_input_store, 0xFF, 4);
+            memset(nfc->byte_input_store, 0xFF, sizeof(nfc->byte_input_store));
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightReadSuccess);
             DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
             consumed = true;

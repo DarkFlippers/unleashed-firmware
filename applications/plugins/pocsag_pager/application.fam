@@ -1,5 +1,5 @@
 App(
-    appid="pocsag_pager",
+    appid="POCSAG_Pager",
     name="POCSAG Pager",
     apptype=FlipperAppType.PLUGIN,
     entry_point="pocsag_pager_app",

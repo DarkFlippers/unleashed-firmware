@@ -38,6 +38,9 @@
     TOTP_CLI_PRINTF(                       \
         "Invalid command arguments. use \"help\" command to get list of available commands")
 
+#define TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE() \
+    TOTP_CLI_PRINTF("An error has occurred during updating config file\r\n")
+
 /**
  * @brief Checks whether user is authenticated and entered correct PIN.
  *        If user is not authenticated it prompts user to enter correct PIN to authenticate.

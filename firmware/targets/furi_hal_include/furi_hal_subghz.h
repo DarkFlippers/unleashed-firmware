@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <toolbox/level_duration.h>
+#include <furi_hal_gpio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +35,9 @@ typedef enum {
 /** Switchable Radio Paths */
 typedef enum {
     FuriHalSubGhzPathIsolate, /**< Isolate Radio from antenna */
-    FuriHalSubGhzPath433, /**< Center Frquency: 433MHz. Path 1: SW1RF1-SW2RF2, LCLCL */
-    FuriHalSubGhzPath315, /**< Center Frquency: 315MHz. Path 2: SW1RF2-SW2RF1, LCLCLCL */
-    FuriHalSubGhzPath868, /**< Center Frquency: 868MHz. Path 3: SW1RF3-SW2RF3, LCLC */
+    FuriHalSubGhzPath433, /**< Center Frequency: 433MHz. Path 1: SW1RF1-SW2RF2, LCLCL */
+    FuriHalSubGhzPath315, /**< Center Frequency: 315MHz. Path 2: SW1RF2-SW2RF1, LCLCLCL */
+    FuriHalSubGhzPath868, /**< Center Frequency: 868MHz. Path 3: SW1RF3-SW2RF3, LCLC */
 } FuriHalSubGhzPath;
 
 /** SubGhz state */
@@ -60,8 +61,17 @@ typedef enum {
     SubGhzRegulationTxRx, /**TxRx*/
 } SubGhzRegulation;
 
+/* Mirror RX/TX async modulation signal to specified pin
+ *
+ * @warning    Configures pin to output mode. Make sure it is not connected
+ *             directly to power or ground.
+ *
+ * @param[in]  pin   pointer to the gpio pin structure or NULL to disable
+ */
+void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin);
+
 /** Initialize and switch to power save mode Used by internal API-HAL
- * initalization routine Can be used to reinitialize device to safe state and
+ * initialization routine Can be used to reinitialize device to safe state and
  * send it to sleep
  */
 void furi_hal_subghz_init();
@@ -105,13 +115,13 @@ void furi_hal_subghz_load_patable(const uint8_t data[8]);
  */
 void furi_hal_subghz_write_packet(const uint8_t* data, uint8_t size);
 
-/** Check if recieve pipe is not empty
+/** Check if receive pipe is not empty
  *
  * @return     true if not empty
  */
 bool furi_hal_subghz_rx_pipe_not_empty();
 
-/** Check if recieved data crc is valid
+/** Check if received data crc is valid
  *
  * @return     true if valid
  */
@@ -132,7 +142,7 @@ void furi_hal_subghz_flush_rx();
  */
 void furi_hal_subghz_flush_tx();
 
-/** Shutdown Issue spwd command
+/** Shutdown Issue SPWD command
  * @warning    registers content will be lost
  */
 void furi_hal_subghz_shutdown();
@@ -146,7 +156,7 @@ void furi_hal_subghz_reset();
  */
 void furi_hal_subghz_idle();
 
-/** Switch to Recieve
+/** Switch to Receive
  */
 void furi_hal_subghz_rx();
 
@@ -172,7 +182,7 @@ uint8_t furi_hal_subghz_get_lqi();
  *
  * @param      value  frequency in Hz
  *
- * @return     true if frequncy is valid, otherwise false
+ * @return     true if frequency is valid, otherwise false
  */
 bool furi_hal_subghz_is_frequency_valid(uint32_t value);
 
@@ -181,7 +191,7 @@ bool furi_hal_subghz_is_frequency_valid(uint32_t value);
  *
  * @param      value  frequency in Hz
  *
- * @return     real frequency in herz
+ * @return     real frequency in Hz
  */
 uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value);
 
@@ -197,7 +207,7 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value);
  *
  * @param      value  frequency in Hz
  *
- * @return     real frequency in herz
+ * @return     real frequency in Hz
  */
 uint32_t furi_hal_subghz_set_frequency(uint32_t value);
 

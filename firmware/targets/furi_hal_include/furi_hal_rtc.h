@@ -59,6 +59,22 @@ typedef enum {
     FuriHalRtcRegisterMAX, /**< Service value, do not use */
 } FuriHalRtcRegister;
 
+typedef enum {
+    FuriHalRtcLocaleUnitsMetric = 0, /**< Metric measurement units */
+    FuriHalRtcLocaleUnitsImperial = 1, /**< Imperial measurement units */
+} FuriHalRtcLocaleUnits;
+
+typedef enum {
+    FuriHalRtcLocaleTimeFormat24h = 0, /**< 24-hour format */
+    FuriHalRtcLocaleTimeFormat12h = 1, /**< 12-hour format */
+} FuriHalRtcLocaleTimeFormat;
+
+typedef enum {
+    FuriHalRtcLocaleDateFormatDMY = 0, /**< Day/Month/Year */
+    FuriHalRtcLocaleDateFormatMDY = 1, /**< Month/Day/Year */
+    FuriHalRtcLocaleDateFormatYMD = 2, /**< Year/Month/Day */
+} FuriHalRtcLocaleDateFormat;
+
 /** Early initialization */
 void furi_hal_rtc_init_early();
 
@@ -89,6 +105,47 @@ FuriHalRtcBootMode furi_hal_rtc_get_boot_mode();
 void furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackMode mode);
 
 FuriHalRtcHeapTrackMode furi_hal_rtc_get_heap_track_mode();
+
+/** Set locale units
+ *
+ * @param[in]  mode  The RTC Locale Units
+ */
+void furi_hal_rtc_set_locale_units(FuriHalRtcLocaleUnits value);
+
+/** Get RTC Locale Units
+ *
+ * @return     The RTC Locale Units.
+ */
+FuriHalRtcLocaleUnits furi_hal_rtc_get_locale_units();
+
+/** Set RTC Locale Time Format
+ *
+ * @param[in]  value  The RTC Locale Time Format
+ */
+void furi_hal_rtc_set_locale_timeformat(FuriHalRtcLocaleTimeFormat value);
+
+/** Get RTC Locale Time Format
+ *
+ * @return     The RTC Locale Time Format.
+ */
+FuriHalRtcLocaleTimeFormat furi_hal_rtc_get_locale_timeformat();
+
+/** Set RTC Locale Date Format
+ *
+ * @param[in]  value  The RTC Locale Date Format
+ */
+void furi_hal_rtc_set_locale_dateformat(FuriHalRtcLocaleDateFormat value);
+
+/** Get RTC Locale Date Format
+ *
+ * @return     The RTC Locale Date Format
+ */
+FuriHalRtcLocaleDateFormat furi_hal_rtc_get_locale_dateformat();
+
+/** Set RTC Date Time
+ *
+ * @param      datetime  The date time to set
+ */
 
 void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime);
 

@@ -198,8 +198,5 @@ uint32_t pulse_reader_receive(PulseReader* signal, int timeout_us) {
         if(elapsed > timeout_ticks) {
             return PULSE_READER_NO_EDGE;
         }
-
-        //furi_delay_ms(0);
-
     } while(true);
 }

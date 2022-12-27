@@ -87,7 +87,7 @@ void hid_svc_start() {
 
 #if(HID_SVC_REPORT_COUNT != 0)
     for(uint8_t i = 0; i < HID_SVC_REPORT_COUNT; i++) {
-        if(i < HID_SVC_INPUT_REPORT_COUNT) {
+        if(i < HID_SVC_INPUT_REPORT_COUNT) { //-V547
             uint8_t buf[2] = {i + 1, 1}; // 1 input
             char_uuid.Char_UUID_16 = REPORT_CHAR_UUID;
             status = aci_gatt_add_char(

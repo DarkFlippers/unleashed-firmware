@@ -114,11 +114,17 @@ static void decrease_volume(TuningForkState* tuning_fork_state) {
 }
 
 static void play(TuningForkState* tuning_fork_state) {
-    furi_hal_speaker_start(current_tuning_note_freq(tuning_fork_state), tuning_fork_state->volume);
+    if(furi_hal_speaker_is_mine() || furi_hal_speaker_acquire(30)) {
+        furi_hal_speaker_start(
+            current_tuning_note_freq(tuning_fork_state), tuning_fork_state->volume);
+    }
 }
 
 static void stop() {
-    furi_hal_speaker_stop();
+    if(furi_hal_speaker_is_mine()) {
+        furi_hal_speaker_stop();
+        furi_hal_speaker_release();
+    }
 }
 
 static void replay(TuningForkState* tuning_fork_state) {

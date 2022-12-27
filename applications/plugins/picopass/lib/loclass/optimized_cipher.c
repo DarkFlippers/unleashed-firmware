@@ -111,9 +111,9 @@ static void init_opt_select_LUT(void) {
 ***********************************************************************************/
 
 #define loclass_opt__select(x, y, r)                                                        \
-    (4 & (((r & (r << 2)) >> 5) ^ ((r & ~(r << 2)) >> 4) ^ ((r | r << 2) >> 3))) |          \
-        (2 & (((r | r << 2) >> 6) ^ ((r | r << 2) >> 1) ^ (r >> 5) ^ r ^ ((x ^ y) << 1))) | \
-        (1 & (((r & ~(r << 2)) >> 4) ^ ((r & (r << 2)) >> 3) ^ r ^ x))
+    (4 & ((((r) & ((r) << 2)) >> 5) ^ (((r) & ~((r) << 2)) >> 4) ^ (((r) | (r) << 2) >> 3))) |          \
+        (2 & ((((r) | (r) << 2) >> 6) ^ (((r) | (r) << 2) >> 1) ^ ((r) >> 5) ^ (r) ^ (((x) ^ (y)) << 1))) | \
+        (1 & ((((r) & ~((r) << 2)) >> 4) ^ (((r) & ((r) << 2)) >> 3) ^ (r) ^ (x)))
 
 static void loclass_opt_successor(const uint8_t* k, LoclassState_t* s, uint8_t y) {
     uint16_t Tt = s->t & 0xc533;
@@ -149,30 +149,11 @@ static void loclass_opt_suc(
     uint8_t length,
     bool add32Zeroes) {
     for(int i = 0; i < length; i++) {
-        uint8_t head;
-        head = in[i];
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
-
-        head >>= 1;
-        loclass_opt_successor(k, s, head);
+        uint8_t head = in[i];
+        for(int j = 0; j < 8; j++) {
+            loclass_opt_successor(k, s, head);
+            head >>= 1;
+        }
     }
     //For tag MAC, an additional 32 zeroes
     if(add32Zeroes) {

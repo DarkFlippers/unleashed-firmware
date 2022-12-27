@@ -78,13 +78,18 @@ void usb_mouse_enter_callback(void* context) {
     view_dispatcher_send_custom_event(usb_mouse->view_dispatcher, 0);
 }
 
+bool usb_mouse_move(int8_t dx, int8_t dy, void* context) {
+    UNUSED(context);
+    return furi_hal_hid_mouse_move(dx, dy);
+}
+
 bool usb_mouse_custom_callback(uint32_t event, void* context) {
     UNUSED(event);
     furi_assert(context);
     UsbMouse* usb_mouse = context;
 
-    tracking_step(furi_hal_hid_mouse_move);
-    furi_delay_ms(1); // Magic! Removing this will break the buttons
+    tracking_step(usb_mouse_move, context);
+    furi_delay_ms(3); // Magic! Removing this will break the buttons
 
     view_dispatcher_send_custom_event(usb_mouse->view_dispatcher, 0);
     return true;

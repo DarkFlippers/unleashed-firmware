@@ -190,9 +190,8 @@ uint8_t nrf24_set_packetlen(FuriHalSpiBusHandle* handle, uint8_t len) {
     return status;
 }
 
-uint8_t nrf24_rxpacket(FuriHalSpiBusHandle* handle, uint8_t* packet, uint8_t* packetsize, bool full) {
+uint8_t nrf24_rxpacket(FuriHalSpiBusHandle* handle, uint8_t* packet, uint8_t* ret_packetsize, uint8_t packet_size) {
     uint8_t status = 0;
-    uint8_t size = 0;
     uint8_t tx_cmd[33] = {0}; // 32 max payload size + 1 for command
     uint8_t tmp_packet[33] = {0};
 
@@ -203,24 +202,23 @@ uint8_t nrf24_rxpacket(FuriHalSpiBusHandle* handle, uint8_t* packet, uint8_t* pa
         if((tmp_packet[1] & 1) == 0) status |= RX_DR; // packet in FIFO buffer
     }
     if(status & RX_DR) {
-        if(full)
-            size = nrf24_get_packetlen(handle, (status >> 1) & 7);
-        else {
+        if(packet_size == 1)
+            packet_size = nrf24_get_packetlen(handle, (status >> 1) & 7);
+        else if(packet_size == 0){
             tx_cmd[0] = R_RX_PL_WID; tx_cmd[1] = 0;
             nrf24_spi_trx(handle, tx_cmd, tmp_packet, 2, nrf24_TIMEOUT);
-            size = tmp_packet[1];
+            packet_size = tmp_packet[1];
         }
-        if(size > 32) size = 32;
-        if(size == 0) size = 32;
+        if(packet_size > 32 || packet_size == 0) packet_size = 32;
         tx_cmd[0] = R_RX_PAYLOAD; tx_cmd[1] = 0;
-        nrf24_spi_trx(handle, tx_cmd, tmp_packet, size + 1, nrf24_TIMEOUT);
-        memcpy(packet, &tmp_packet[1], size);
+        nrf24_spi_trx(handle, tx_cmd, tmp_packet, packet_size + 1, nrf24_TIMEOUT);
+        memcpy(packet, &tmp_packet[1], packet_size);
         nrf24_write_reg(handle, REG_STATUS, RX_DR); // clear RX_DR
     } else if(status & (TX_DS | MAX_RT)) { // MAX_RT, TX_DS
         nrf24_write_reg(handle, REG_STATUS, (TX_DS | MAX_RT)); // clear RX_DR, MAX_RT.
     }
 
-    *packetsize = size;
+    *ret_packetsize = packet_size;
     return status;
 }
 
@@ -525,4 +523,11 @@ uint8_t nrf24_find_channel(
     }
 
     return ch;
+}
+
+uint8_t nrf24_set_mac(uint8_t mac_addr, uint8_t *mac, uint8_t mlen)
+{
+    uint8_t addr[5];
+	for(int i = 0; i < mlen; i++) addr[i] = mac[mlen - i - 1];
+	return nrf24_write_buf_reg(nrf24_HANDLE, mac_addr, addr, mlen);
 }

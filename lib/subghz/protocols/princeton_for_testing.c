@@ -94,12 +94,12 @@ void subghz_encoder_princeton_for_testing_print_log(void* context) {
         ((float)instance->time_high / (instance->time_high + instance->time_low)) * 100;
     FURI_LOG_I(
         TAG "Encoder",
-        "Radio tx_time=%ldus  ON=%ldus, OFF=%ldus, DutyCycle=%ld,%ld%%",
+        "Radio tx_time=%luus  ON=%luus, OFF=%luus, DutyCycle=%lu,%lu%%",
         instance->time_high + instance->time_low,
         instance->time_high,
         instance->time_low,
         (uint32_t)duty_cycle,
-        (uint32_t)((duty_cycle - (uint32_t)duty_cycle) * 100));
+        (uint32_t)((duty_cycle - (uint32_t)duty_cycle) * 100UL));
 }
 
 LevelDuration subghz_encoder_princeton_for_testing_yield(void* context) {

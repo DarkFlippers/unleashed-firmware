@@ -1,1 +1,0 @@
-MichaelJacksonBlackWhite:d=8,o=5,b=125:32p,b4,e,g#,a,g#,e,b4,a4,g#4,a4,2b4,p,16b4,16b4,e,g#,a,g#,e,b4,a4,g#4,a4,4b.4,p,16b4,16b4,c#,16c#,e,16e,f#.,16e,e,p,16e,16e,c#,c#,e,e,f#,e,f#,4g#.

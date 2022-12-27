@@ -2,6 +2,7 @@
 #include <math.h>
 #include <Authenticator_icons.h>
 #include "../../ui_controls.h"
+#include "../../common_dialogs.h"
 #include "../../scene_director.h"
 #include "../token_menu/totp_scene_token_menu.h"
 #include "../../constants.h"
@@ -202,7 +203,12 @@ bool totp_scene_app_settings_handle_event(
                                                    NotificationMethodNone) |
                 (scene_state->notification_vibro ? NotificationMethodVibro :
                                                    NotificationMethodNone);
-            totp_config_file_update_user_settings(plugin_state);
+
+            if(totp_config_file_update_user_settings(plugin_state) !=
+               TotpConfigFileUpdateSuccess) {
+                totp_dialogs_config_updating_error(plugin_state);
+                return false;
+            }
 
             if(!scene_state->current_token_index.is_null) {
                 TokenMenuSceneContext generate_scene_context = {

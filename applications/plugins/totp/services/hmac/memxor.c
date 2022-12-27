@@ -18,8 +18,6 @@
 /* Written by Simon Josefsson.  The interface was inspired by memxor
    in Niels Möller's Nettle. */
 
-/* #include <config.h> */
-
 #include "memxor.h"
 
 void* memxor(void* /*restrict*/ dest, const void* /*restrict*/ src, size_t n) {

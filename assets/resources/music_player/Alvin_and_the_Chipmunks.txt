@@ -1,1 +1,0 @@
-AlvinAndChip:d=8,o=5,b=160:g,4p,a,4p,b,b,c6,4c6,4p,a,g,d,4g,d,4p,a,g,d,4g,4a

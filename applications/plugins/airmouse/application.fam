@@ -1,9 +1,9 @@
 App(
-    appid="Air_Mouse",
+    appid="BMI160_Air_Mouse",
     name="[BMI160] Air Mouse",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="air_mouse_app",
     stack_size=10 * 1024,
     fap_icon="mouse_10px.png",
-    fap_category="NeedsTesting",
+    fap_category="GPIO",
 )

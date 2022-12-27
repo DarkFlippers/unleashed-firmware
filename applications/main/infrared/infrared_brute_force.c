@@ -38,11 +38,6 @@ InfraredBruteForce* infrared_brute_force_alloc() {
     return brute_force;
 }
 
-void infrared_brute_force_clear_records(InfraredBruteForce* brute_force) {
-    furi_assert(!brute_force->is_started);
-    InfraredBruteForceRecordDict_reset(brute_force->records);
-}
-
 void infrared_brute_force_free(InfraredBruteForce* brute_force) {
     furi_assert(!brute_force->is_started);
     InfraredBruteForceRecordDict_clear(brute_force->records);
@@ -70,7 +65,7 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
         while(flipper_format_read_string(ff, "name", signal_name)) {
             InfraredBruteForceRecord* record =
                 InfraredBruteForceRecordDict_get(brute_force->records, signal_name);
-            if(record) {
+            if(record) { //-V547
                 ++(record->count);
             }
         }

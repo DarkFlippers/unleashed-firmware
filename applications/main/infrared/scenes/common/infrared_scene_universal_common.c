@@ -87,6 +87,6 @@ void infrared_scene_universal_common_on_exit(void* context) {
     Infrared* infrared = context;
     ButtonPanel* button_panel = infrared->button_panel;
     view_stack_remove_view(infrared->view_stack, button_panel_get_view(button_panel));
-    infrared_brute_force_clear_records(infrared->brute_force);
+    infrared_brute_force_reset(infrared->brute_force);
     button_panel_reset(button_panel);
 }

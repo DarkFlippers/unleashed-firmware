@@ -1,0 +1,12 @@
+Filetype: Flipper SubGhz RAW File
+Version: 1
+UP: /any/subghz/Walgreens/Walgreens_Cough.sub
+DOWN: /any/subghz/CVS/CVS_Dental.sub
+LEFT: /any/subghz/Walgreens/Walgreens_Skincare.sub
+RIGHT: /subghz/Walgreens/Walgreens_Vitamin.sub
+OK: /any/subghz/CVS/CVS_Stomach.sub
+ULABEL: Cough_Wal
+DLABEL: Dental_CVS
+LLABEL: Skincare_Wal
+RLABEL: Vitamin_Wal
+OKLABEL: Stomach_CVS

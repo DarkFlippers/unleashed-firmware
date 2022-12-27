@@ -1,0 +1,14 @@
+App(
+    appid="infrared_rem_loader",
+    name="IR Remote",
+    apptype=FlipperAppType.APP,
+    entry_point="infrared_rem_loader_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=int(2 * 1024),
+    icon="A_Infrared_14",
+    order=41,
+	link="/ext/apps/Tools/IR_Remote.fap",
+)

@@ -94,7 +94,6 @@ InfraredStatus
     case InfraredCommonEncoderStateSilence:
         *duration = encoder->protocol->timings.silence_time;
         *level = false;
-        status = InfraredStatusOk;
         encoder->state = InfraredCommonEncoderStatePreamble;
         ++encoder->timings_encoded;
         encoder->timings_sum = 0;

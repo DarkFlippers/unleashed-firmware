@@ -1,1 +1,0 @@
-Smurfs:d=32,o=5,b=200:4c6,16p,4f6,p,16c6,p,8d6,p,8a#,p,4g,16p,4c6,p,16a,p,8f,p,8a,p,4g,4p,g,g#,a,a#,b,4c6,16p,4f6,p,16c6,p,8d6,p,8a#,p,4g,16p,4c6,p,16a,p,8a#,p,8e,p,4f

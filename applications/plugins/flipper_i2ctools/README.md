@@ -1,7 +1,5 @@
 # flipperzero-i2ctools
 
-[Original link](https://github.com/NaejEL/flipperzero-i2ctools)
-
 Set of i2c tools for Flipper Zero
 
 ![Preview](i2ctools.gif)

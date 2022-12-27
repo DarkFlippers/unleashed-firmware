@@ -94,7 +94,7 @@ static void u2f_hid_send_response(U2fHid* u2f_hid) {
     uint16_t data_ptr = 0;
 
     memset(packet_buf, 0, HID_U2F_PACKET_LEN);
-    memcpy(packet_buf, &(u2f_hid->packet.cid), 4);
+    memcpy(packet_buf, &(u2f_hid->packet.cid), sizeof(uint32_t)); //-V1086
 
     // Init packet
     packet_buf[4] = u2f_hid->packet.cmd;
@@ -166,7 +166,7 @@ static bool u2f_hid_parse_request(U2fHid* u2f_hid) {
             return false;
         u2f_hid->packet.len = 17;
         uint32_t random_cid = furi_hal_random_get();
-        memcpy(&(u2f_hid->packet.payload[8]), &random_cid, 4);
+        memcpy(&(u2f_hid->packet.payload[8]), &random_cid, sizeof(uint32_t)); //-V1086
         u2f_hid->packet.payload[12] = 2; // Protocol version
         u2f_hid->packet.payload[13] = 1; // Device version major
         u2f_hid->packet.payload[14] = 0; // Device version minor
@@ -177,7 +177,7 @@ static bool u2f_hid_parse_request(U2fHid* u2f_hid) {
     } else if(u2f_hid->packet.cmd == U2F_HID_WINK) { // WINK - notify user
         if(u2f_hid->packet.len != 0) return false;
         u2f_wink(u2f_hid->u2f_instance);
-        u2f_hid->packet.len = 0;
+        u2f_hid->packet.len = 0; //-V1048
         u2f_hid_send_response(u2f_hid);
     } else
         return false;

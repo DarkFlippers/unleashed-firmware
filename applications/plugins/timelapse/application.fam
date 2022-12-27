@@ -1,14 +1,21 @@
 App(
-    appid="GPIO_Timelapse",
-    name="[GPIO] Timelapse",
+    appid="GPIO_Intervalometer",
+    name="[GPIO] Intervalometer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="zeitraffer_app",
     cdefines=["APP_ZEITRAFFER"],
     requires=[
         "gui",
+		"input", 
+        "notification",
+		"gpio"
     ],
-    stack_size=1 * 1024,
+    stack_size=2 * 1024,
     order=90,
+	fap_icon_assets="icons",
 	fap_icon="zeitraffer.png",
     fap_category="GPIO",
+	fap_description="Simple intervalometer app",
+    fap_author="Aurelius Rosenbaum",
+	fap_weburl="https://github.com/theageoflove/flipperzero-zeitraffer",
 )

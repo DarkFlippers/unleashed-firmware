@@ -182,11 +182,53 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     //init setting
     subghz->setting = subghz_setting_alloc();
-    if(alloc_for_tx_only) {
-        subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user.txt"), false);
-    } else {
-        subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user.txt"), true);
-    }
+    subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user.txt"));
+
+    // Custom Presets load without using config file
+
+    FlipperFormat* temp_fm_preset = flipper_format_string_alloc();
+    flipper_format_write_string_cstr(
+        temp_fm_preset,
+        (const char*)"Custom_preset_data",
+        (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 24 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
+    flipper_format_rewind(temp_fm_preset);
+    subghz_setting_load_custom_preset(subghz->setting, (const char*)"FM95", temp_fm_preset);
+
+    flipper_format_free(temp_fm_preset);
+
+    // #2-FSK 200khz BW / 135kHz Filter/ 15.86Khz Deviation + Ramping
+    FlipperFormat* temp_fm_preset2 = flipper_format_string_alloc();
+    flipper_format_write_string_cstr(
+        temp_fm_preset2,
+        (const char*)"Custom_preset_data",
+        (const char*)"02 0D 03 47 08 32 0B 06 15 32 14 00 13 00 12 00 11 32 10 A7 18 18 19 1D 1D 92 1C 00 1B 04 20 FB 22 17 21 B6 00 00 00 12 0E 34 60 C5 C1 C0");
+    flipper_format_rewind(temp_fm_preset2);
+    subghz_setting_load_custom_preset(subghz->setting, (const char*)"FM15k", temp_fm_preset2);
+
+    flipper_format_free(temp_fm_preset2);
+
+    // # HND - FM presets
+    FlipperFormat* temp_fm_preset3 = flipper_format_string_alloc();
+    flipper_format_write_string_cstr(
+        temp_fm_preset3,
+        (const char*)"Custom_preset_data",
+        (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 36 10 69 15 32 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
+    flipper_format_rewind(temp_fm_preset3);
+    subghz_setting_load_custom_preset(subghz->setting, (const char*)"HND_1", temp_fm_preset3);
+
+    flipper_format_free(temp_fm_preset3);
+
+    FlipperFormat* temp_fm_preset4 = flipper_format_string_alloc();
+    flipper_format_write_string_cstr(
+        temp_fm_preset4,
+        (const char*)"Custom_preset_data",
+        (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 07 11 36 10 E9 15 32 18 18 19 16 1D 92 1C 40 1B 03 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
+    flipper_format_rewind(temp_fm_preset4);
+    subghz_setting_load_custom_preset(subghz->setting, (const char*)"HND_2", temp_fm_preset4);
+
+    flipper_format_free(temp_fm_preset4);
+
+    // custom presets loading - end
 
     // Load last used values for Read, Read RAW, etc. or default
     if(!alloc_for_tx_only) {
@@ -223,6 +265,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     }
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
+    subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
     subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
     if(!alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();

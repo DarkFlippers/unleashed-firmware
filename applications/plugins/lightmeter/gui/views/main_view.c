@@ -41,7 +41,7 @@ static const int nd_numbers[] = {
     [ND_4096] = 4096,
 };
 
-static const float aperture_numbers[] = {
+const float aperture_numbers[] = {
     [AP_1] = 1.0,
     [AP_1_4] = 1.4,
     [AP_2] = 2.0,
@@ -59,7 +59,7 @@ static const float aperture_numbers[] = {
     [AP_128] = 128,
 };
 
-static const float speed_numbers[] = {
+const float speed_numbers[] = {
     [SPEED_8000] = 1.0 / 8000, [SPEED_4000] = 1.0 / 4000, [SPEED_2000] = 1.0 / 2000,
     [SPEED_1000] = 1.0 / 1000, [SPEED_500] = 1.0 / 500,   [SPEED_250] = 1.0 / 250,
     [SPEED_125] = 1.0 / 125,   [SPEED_60] = 1.0 / 60,     [SPEED_30] = 1.0 / 30,
@@ -94,37 +94,39 @@ static void main_view_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     MainViewModel* model = context;
 
-    // FURI_LOG_D("MAIN VIEW", "Drawing");
-
     canvas_clear(canvas);
-
-    // top row
-    draw_top_row(canvas, model);
-
-    // add f, T values
-    canvas_set_font(canvas, FontBigNumbers);
-
-    // draw f icon and number
-    canvas_draw_icon(canvas, 15, 17, &I_f_10x14);
-    draw_aperture(canvas, model);
-
-    // draw T icon and number
-    canvas_draw_icon(canvas, 15, 34, &I_T_10x14);
-    draw_speed(canvas, model);
 
     // draw button
     canvas_set_font(canvas, FontSecondary);
     elements_button_left(canvas, "Config");
 
-    // draw ND number
-    draw_nd_number(canvas, model);
+    if(!model->lux_only) {
+        // top row
+        draw_top_row(canvas, model);
 
-    // draw EV number
-    canvas_set_font(canvas, FontSecondary);
-    draw_EV_number(canvas, model);
+        // add f, T values
+        canvas_set_font(canvas, FontBigNumbers);
 
-    // draw mode indicator
-    draw_mode_indicator(canvas, model);
+        // draw f icon and number
+        canvas_draw_icon(canvas, 15, 17, &I_f_10x14);
+        draw_aperture(canvas, model);
+
+        // draw T icon and number
+        canvas_draw_icon(canvas, 15, 34, &I_T_10x14);
+        draw_speed(canvas, model);
+
+        // draw ND number
+        draw_nd_number(canvas, model);
+
+        // draw EV number
+        canvas_set_font(canvas, FontSecondary);
+        draw_EV_number(canvas, model);
+
+        // draw mode indicator
+        draw_mode_indicator(canvas, model);
+    } else {
+        draw_lux_only_mode(canvas, model);
+    }
 }
 
 static void main_view_process(MainView* main_view, InputEvent* event) {
@@ -267,6 +269,12 @@ void main_view_set_dome(MainView* main_view, bool dome) {
         main_view->view, MainViewModel * model, { model->dome = dome; }, true);
 }
 
+void main_view_set_lux_only(MainView* main_view, bool lux_only) {
+    furi_assert(main_view);
+    with_view_model(
+        main_view->view, MainViewModel * model, { model->lux_only = lux_only; }, true);
+}
+
 bool main_view_get_dome(MainView* main_view) {
     furi_assert(main_view);
     bool val = false;
@@ -307,7 +315,7 @@ void draw_top_row(Canvas* canvas, MainViewModel* context) {
 
         canvas_set_font(canvas, FontPrimary);
         // metering mode A – ambient, F – flash
-        canvas_draw_str_aligned(canvas, 1, 1, AlignLeft, AlignTop, "A");
+        // canvas_draw_str_aligned(canvas, 1, 1, AlignLeft, AlignTop, "A");
 
         snprintf(str, sizeof(str), "ISO: %d", iso_numbers[model->iso]);
         canvas_draw_str_aligned(canvas, 19, 1, AlignLeft, AlignTop, str);
@@ -412,6 +420,8 @@ void draw_nd_number(Canvas* canvas, MainViewModel* context) {
 
     char str[9];
 
+    canvas_set_font(canvas, FontSecondary);
+
     if(model->response) {
         snprintf(str, sizeof(str), "ND: %d", nd_numbers[model->nd]);
     } else {
@@ -430,5 +440,31 @@ void draw_EV_number(Canvas* canvas, MainViewModel* context) {
         canvas_draw_str_aligned(canvas, 87, 29, AlignLeft, AlignBottom, str);
     } else {
         canvas_draw_str_aligned(canvas, 87, 29, AlignLeft, AlignBottom, "EV: --");
+    }
+}
+
+void draw_lux_only_mode(Canvas* canvas, MainViewModel* context) {
+    MainViewModel* model = context;
+
+    if(!model->response) {
+        canvas_draw_box(canvas, 0, 0, 128, 12);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str(canvas, 24, 10, "No sensor found");
+        canvas_set_color(canvas, ColorBlack);
+    } else {
+        char str[12];
+
+        canvas_set_font(canvas, FontPrimary);
+
+        canvas_draw_line(canvas, 0, 10, 128, 10);
+        canvas_draw_str_aligned(canvas, 64, 1, AlignCenter, AlignTop, "Lux meter mode");
+
+        canvas_set_font(canvas, FontBigNumbers);
+        snprintf(str, sizeof(str), "%.0f", (double)model->lux);
+        canvas_draw_str_aligned(canvas, 80, 32, AlignRight, AlignCenter, str);
+
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(canvas, 85, 39, AlignLeft, AlignBottom, "Lux");
     }
 }

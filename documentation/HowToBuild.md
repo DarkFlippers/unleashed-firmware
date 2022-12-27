@@ -16,7 +16,7 @@ For development:
 You should clone with
 
 ```shell
-git clone --recursive https://github.com/RogueMaster/flipperzero-firmware-wPlugins.git
+git clone --recursive https://github.com/ClaraCrazy/Flipper-Xtreme.git
 ```
 
 ## Building

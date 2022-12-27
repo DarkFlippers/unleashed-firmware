@@ -10,7 +10,7 @@
 #define SCENE_EVENT_SELECT_PIN_SETUP 2
 #define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 3
 #define SCENE_EVENT_SELECT_BATTERY_DISPLAY 4
-#define SCENE_EVENT_SELECT_DUMBMODE 5
+#define SCENE_EVENT_SELECT_SFWMODE 5
 
 #define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -39,13 +39,13 @@ const uint32_t displayBatteryPercentage_value[BATTERY_VIEW_COUNT] = {0, 1, 2, 3,
 
 uint8_t origBattDisp_value = 0;
 
-#define DUMBMODE_COUNT 2
-const char* const dumbmode_text[DUMBMODE_COUNT] = {
+#define SFWMODE_COUNT 2
+const char* const sfwmode_text[SFWMODE_COUNT] = {
     "OFF",
     "ON",
 };
 
-const uint32_t dumbmode_value[DUMBMODE_COUNT] = {0, 1};
+const uint32_t sfwmode_value[SFWMODE_COUNT] = {0, 1};
 
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -68,12 +68,12 @@ static void desktop_settings_scene_start_battery_view_changed(VariableItem* item
     app->settings.displayBatteryPercentage = index;
 }
 
-static void desktop_settings_scene_start_dumbmode_changed(VariableItem* item) {
+static void desktop_settings_scene_start_sfwmode_changed(VariableItem* item) {
     DesktopSettingsApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    variable_item_set_current_value_text(item, dumbmode_text[index]);
-    app->settings.is_dumbmode = dumbmode_value[index];
+    variable_item_set_current_value_text(item, sfwmode_text[index]);
+    app->settings.is_sfwmode = sfwmode_value[index];
 }
 
 void desktop_settings_scene_start_on_enter(void* context) {
@@ -120,14 +120,14 @@ void desktop_settings_scene_start_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Games Only",
-        DUMBMODE_COUNT,
-        desktop_settings_scene_start_dumbmode_changed,
+        "SFW Content Only",
+        SFWMODE_COUNT,
+        desktop_settings_scene_start_sfwmode_changed,
         app);
 
-    value_index = value_index_uint32(app->settings.is_dumbmode, dumbmode_value, DUMBMODE_COUNT);
+    value_index = value_index_uint32(app->settings.is_sfwmode, sfwmode_value, SFWMODE_COUNT);
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, dumbmode_text[value_index]);
+    variable_item_set_current_value_text(item, sfwmode_text[value_index]);
 
     variable_item_list_set_enter_callback(
         variable_item_list, desktop_settings_scene_start_var_list_enter_callback, app);
@@ -165,7 +165,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent sme)
         case SCENE_EVENT_SELECT_BATTERY_DISPLAY:
             consumed = true;
             break;
-        case SCENE_EVENT_SELECT_DUMBMODE:
+        case SCENE_EVENT_SELECT_SFWMODE:
             consumed = true;
             break;
         }

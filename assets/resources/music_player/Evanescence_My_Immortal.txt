@@ -1,1 +1,0 @@
-MyImmortal:d=4,o=5,b=100:8g#,a,8b,8a,a,16p,32p,g#,a.,8b,8b,8a,g#,8a,8g#,16g#,f#,16f#,8a,g#,a.,8b,8b,8a,g#,8a,8g#,16g#,f#.

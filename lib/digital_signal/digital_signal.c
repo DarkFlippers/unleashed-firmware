@@ -250,6 +250,7 @@ void digital_sequence_alloc_sequence(DigitalSequence* sequence, uint32_t size) {
     sequence->sequence_used = 0;
     sequence->sequence_size = size;
     sequence->sequence = malloc(sequence->sequence_size);
+    sequence->send_time = 0;
 }
 
 DigitalSequence* digital_sequence_alloc(uint32_t size, const GpioPin* gpio) {
@@ -285,6 +286,10 @@ void digital_sequence_set_signal(
     signal->reload_reg_remainder = 0;
 
     digital_signal_prepare(signal);
+}
+
+void digital_sequence_set_sendtime(DigitalSequence* sequence, uint32_t send_time) {
+    sequence->send_time = send_time;
 }
 
 void digital_sequence_add(DigitalSequence* sequence, uint8_t signal_index) {
@@ -347,7 +352,8 @@ void digital_signal_update_dma(DigitalSignal* signal) {
     LL_DMA_ClearFlag_TC2(DMA1);
 }
 
-static bool digital_sequence_send_signal(DigitalSignal* signal) {
+static bool digital_sequence_send_signal(DigitalSequence* sequence, DigitalSignal* signal) {
+    furi_assert(sequence);
     furi_assert(signal);
 
     /* the first iteration has to set up the whole machinery */
@@ -357,6 +363,17 @@ static bool digital_sequence_send_signal(DigitalSignal* signal) {
             return false;
         }
         digital_signal_setup_timer();
+
+        /* if the send time is specified, wait till the core timer passed beyond that time */
+        if(sequence->send_time != 0) {
+            while(true) {
+                uint32_t delta = sequence->send_time - DWT->CYCCNT;
+                /* yeah, it's making use of underflows... */
+                if(delta > 0x80000000) {
+                    break;
+                }
+            }
+        }
         digital_signal_start_timer();
     } else {
         /* configure next polarities and timings */
@@ -438,7 +455,7 @@ bool digital_sequence_send(DigitalSequence* sequence) {
             sequence->signals_prolonged[signal_index] = needs_prolongation;
         }
 
-        bool success = digital_sequence_send_signal(sig);
+        bool success = digital_sequence_send_signal(sequence, sig);
 
         if(!success) {
             break;

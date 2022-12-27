@@ -12,40 +12,88 @@ void init_types() {
     upcA->name = "UPC-A";
     upcA->numberOfDigits = 12;
     upcA->startPos = 19;
+    upcA->bartype = BarTypeUPCA;
     barcodeTypes[0] = upcA;
 
     BarcodeType* ean8 = malloc(sizeof(BarcodeType));
     ean8->name = "EAN-8";
     ean8->numberOfDigits = 8;
     ean8->startPos = 33;
+    ean8->bartype = BarTypeEAN8;
     barcodeTypes[1] = ean8;
+
+    BarcodeType* ean13 = malloc(sizeof(BarcodeType));
+    ean13->name = "EAN-13";
+    ean13->numberOfDigits = 13;
+    ean13->startPos = 19;
+    ean13->bartype = BarTypeEAN13;
+    barcodeTypes[2] = ean13;
 }
 
-void draw_digit(Canvas* canvas, int digit, bool rightHand, int startingPosition) {
+void draw_digit(
+    Canvas* canvas,
+    int digit,
+    BarEncodingType rightHand,
+    int startingPosition,
+    bool drawlines) {
     char digitStr[2];
     snprintf(digitStr, 2, "%u", digit);
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_str(
         canvas, startingPosition, BARCODE_Y_START + BARCODE_HEIGHT + BARCODE_TEXT_OFFSET, digitStr);
-    if(rightHand) {
-        canvas_set_color(canvas, ColorBlack);
-    } else {
-        canvas_set_color(canvas, ColorWhite);
-    }
 
-    int count = 0;
-    for(int i = 0; i < 4; i++) {
-        canvas_draw_box(
-            canvas, startingPosition + count, BARCODE_Y_START, DIGITS[digit][i], BARCODE_HEIGHT);
-        canvas_invert_color(canvas);
-        count += DIGITS[digit][i];
+    if(drawlines) {
+        switch(rightHand) {
+        case BarEncodingTypeLeft:
+        case BarEncodingTypeRight:
+            canvas_set_color(
+                canvas, (rightHand == BarEncodingTypeRight) ? ColorBlack : ColorWhite);
+            //int count = 0;
+            for(int i = 0; i < 4; i++) {
+                canvas_draw_box(
+                    canvas, startingPosition, BARCODE_Y_START, DIGITS[digit][i], BARCODE_HEIGHT);
+                canvas_invert_color(canvas);
+                startingPosition += DIGITS[digit][i];
+            }
+            break;
+        case BarEncodingTypeG:
+            canvas_set_color(canvas, ColorWhite);
+            //int count = 0;
+            for(int i = 3; i >= 0; i--) {
+                canvas_draw_box(
+                    canvas, startingPosition, BARCODE_Y_START, DIGITS[digit][i], BARCODE_HEIGHT);
+                canvas_invert_color(canvas);
+                startingPosition += DIGITS[digit][i];
+            }
+            break;
+        default:
+            break;
+        }
     }
 }
 
 int get_digit_position(int index, BarcodeType* type) {
-    int pos = type->startPos + index * 7;
-    if(index >= type->numberOfDigits / 2) {
-        pos += 5;
+    int pos = 0;
+    switch(type->bartype) {
+    case BarTypeEAN8:
+    case BarTypeUPCA:
+        pos = type->startPos + index * 7;
+        if(index >= type->numberOfDigits / 2) {
+            pos += 5;
+        }
+        break;
+    case BarTypeEAN13:
+        if(index == 0)
+            pos = type->startPos - 10;
+        else {
+            pos = type->startPos + (index - 1) * 7;
+            if((index - 1) >= type->numberOfDigits / 2) {
+                pos += 5;
+            }
+        }
+        break;
+    default:
+        break;
     }
     return pos;
 }
@@ -54,18 +102,30 @@ int get_menu_text_location(int index) {
     return 20 + 10 * index;
 }
 
+int get_barcode_max_index(PluginState* plugin_state) {
+    return plugin_state->doParityCalculation ?
+               barcodeTypes[plugin_state->barcodeTypeIndex]->numberOfDigits - 1 :
+               barcodeTypes[plugin_state->barcodeTypeIndex]->numberOfDigits;
+}
+
 int calculate_check_digit(PluginState* plugin_state, BarcodeType* type) {
     int checkDigit = 0;
+    int checkDigitOdd = 0;
+    int checkDigitEven = 0;
     //add all odd positions. Confusing because 0index
     for(int i = 0; i < type->numberOfDigits - 1; i += 2) {
-        checkDigit += plugin_state->barcodeNumeral[i];
+        checkDigitOdd += plugin_state->barcodeNumeral[i];
     }
-
-    checkDigit = checkDigit * 3; //times 3
 
     //add all even positions to above. Confusing because 0index
     for(int i = 1; i < type->numberOfDigits - 1; i += 2) {
-        checkDigit += plugin_state->barcodeNumeral[i];
+        checkDigitEven += plugin_state->barcodeNumeral[i];
+    }
+
+    if(type->bartype == BarTypeEAN13) {
+        checkDigit = checkDigitEven * 3 + checkDigitOdd;
+    } else {
+        checkDigit = checkDigitOdd * 3 + checkDigitEven;
     }
 
     checkDigit = checkDigit % 10; //mod 10
@@ -103,34 +163,57 @@ static void render_callback(Canvas* const canvas, void* ctx) {
             AlignCenter,
             (barcodeTypes[plugin_state->barcodeTypeIndex])->name);
         canvas_draw_disc(
-            canvas, 40, get_menu_text_location(plugin_state->menuIndex) - 1, 2); //draw menu cursor
+            canvas,
+            40,
+            get_menu_text_location(plugin_state->menuIndex) - 1,
+            2); //draw menu cursor
     } else {
         BarcodeType* type = barcodeTypes[plugin_state->barcodeTypeIndex];
 
+        //start saftey
         canvas_set_color(canvas, ColorBlack);
         canvas_draw_box(canvas, type->startPos - 3, BARCODE_Y_START, 1, BARCODE_HEIGHT + 2);
-        canvas_draw_box(
-            canvas,
-            (type->startPos - 1),
-            BARCODE_Y_START,
-            1,
-            BARCODE_HEIGHT + 2); //start saftey
+        canvas_draw_box(canvas, (type->startPos - 1), BARCODE_Y_START, 1, BARCODE_HEIGHT + 2);
 
-        for(int index = 0; index < type->numberOfDigits; index++) {
-            bool isOnRight = false;
-            if(index >= type->numberOfDigits / 2) {
-                isOnRight = true;
+        int startpos = 0;
+        int endpos = type->numberOfDigits;
+        if(type->bartype == BarTypeEAN13) {
+            startpos++;
+            draw_digit(
+                canvas,
+                plugin_state->barcodeNumeral[0],
+                BarEncodingTypeRight,
+                get_digit_position(0, barcodeTypes[plugin_state->barcodeTypeIndex]),
+                false);
+        }
+        if(plugin_state->doParityCalculation) { //calculate the check digit
+            plugin_state->barcodeNumeral[type->numberOfDigits - 1] =
+                calculate_check_digit(plugin_state, type);
+        }
+        for(int index = startpos; index < endpos; index++) {
+            BarEncodingType barEncodingType = BarEncodingTypeLeft;
+            if(type->bartype == BarTypeEAN13) {
+                if(index - 1 >= (type->numberOfDigits - 1) / 2) {
+                    barEncodingType = BarEncodingTypeRight;
+                } else {
+                    barEncodingType =
+                        (FURI_BIT(EAN13ENCODE[plugin_state->barcodeNumeral[0]], index - 1)) ?
+                            BarEncodingTypeG :
+                            BarEncodingTypeLeft;
+                }
+            } else {
+                if(index >= type->numberOfDigits / 2) {
+                    barEncodingType = BarEncodingTypeRight;
+                }
             }
-            if((index == type->numberOfDigits - 1) &&
-               (plugin_state->doParityCalculation)) { //calculate the check digit
-                int checkDigit = calculate_check_digit(plugin_state, type);
-                plugin_state->barcodeNumeral[type->numberOfDigits - 1] = checkDigit;
-            }
+
             int digitPosition =
                 get_digit_position(index, barcodeTypes[plugin_state->barcodeTypeIndex]);
-            draw_digit(canvas, plugin_state->barcodeNumeral[index], isOnRight, digitPosition);
+            draw_digit(
+                canvas, plugin_state->barcodeNumeral[index], barEncodingType, digitPosition, true);
         }
 
+        //central separator
         canvas_set_color(canvas, ColorBlack);
         canvas_draw_box(canvas, 62, BARCODE_Y_START, 1, BARCODE_HEIGHT + 2);
         canvas_draw_box(canvas, 64, BARCODE_Y_START, 1, BARCODE_HEIGHT + 2);
@@ -147,15 +230,11 @@ static void render_callback(Canvas* const canvas, void* ctx) {
                 1); //draw editing cursor
         }
 
+        //end safety
         int endSafetyPosition = get_digit_position(type->numberOfDigits - 1, type) + 7;
         canvas_set_color(canvas, ColorBlack);
         canvas_draw_box(canvas, endSafetyPosition, BARCODE_Y_START, 1, BARCODE_HEIGHT + 2);
-        canvas_draw_box(
-            canvas,
-            (endSafetyPosition + 2),
-            BARCODE_Y_START,
-            1,
-            BARCODE_HEIGHT + 2); //end safety
+        canvas_draw_box(canvas, (endSafetyPosition + 2), BARCODE_Y_START, 1, BARCODE_HEIGHT + 2);
     }
 
     release_mutex((ValueMutex*)ctx, plugin_state);
@@ -169,7 +248,7 @@ static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queu
 }
 
 static void barcode_generator_state_init(PluginState* const plugin_state) {
-    for(int i = 0; i < 12; ++i) {
+    for(int i = 0; i < BARCODE_MAX_LENS; ++i) {
         plugin_state->barcodeNumeral[i] = i % 10;
     }
     plugin_state->editingIndex = 0;
@@ -194,9 +273,7 @@ static bool handle_key_press_view(InputKey key, PluginState* plugin_state) {
 }
 
 static bool handle_key_press_edit(InputKey key, PluginState* plugin_state) {
-    int barcodeMaxIndex = plugin_state->doParityCalculation ?
-                              barcodeTypes[plugin_state->barcodeTypeIndex]->numberOfDigits - 1 :
-                              barcodeTypes[plugin_state->barcodeTypeIndex]->numberOfDigits;
+    int barcodeMaxIndex = get_barcode_max_index(plugin_state);
 
     switch(key) {
     case InputKeyUp:
@@ -286,6 +363,9 @@ static bool handle_key_press_menu(InputKey key, PluginState* plugin_state) {
     default:
         break;
     }
+    int barcodeMaxIndex = get_barcode_max_index(plugin_state);
+    if(plugin_state->editingIndex >= barcodeMaxIndex)
+        plugin_state->editingIndex = barcodeMaxIndex - 1;
 
     return true;
 }

@@ -62,6 +62,23 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
         } else { //default bar display, added here to serve as fallback/default behaviour.
             canvas_draw_box(canvas, 2, 2, (power->info.charge + 4) / 5, 4);
         }
+
+        // TODO: Verify if it displays correctly with custom battery skins !!!
+        if(power->info.voltage_battery_charging < 4.2) {
+            // Battery charging voltage is modified, indicate with cross pattern
+            canvas_invert_color(canvas);
+            uint8_t battery_bar_width = (power->info.charge + 4) / 5;
+            bool cross_odd = false;
+            // Start 1 further in from the battery bar's x position
+            for(uint8_t x = 3; x <= battery_bar_width; x++) {
+                // Cross pattern is from the center of the battery bar
+                // y = 2 + 1 (inset) + 1 (for every other)
+                canvas_draw_dot(canvas, x, 3 + (uint8_t)cross_odd);
+                cross_odd = !cross_odd;
+            }
+            canvas_invert_color(canvas);
+        }
+
         if(power->state == PowerStateCharging) {
             canvas_set_bitmap_mode(canvas, 1);
             // TODO: replace -1 magic for uint8_t with re-framing
@@ -144,6 +161,18 @@ static void power_auto_shutdown_inhibit(Power* power) {
     }
 }
 
+static void power_loader_callback(const void* message, void* context) {
+    furi_assert(context);
+    Power* power = context;
+    const LoaderEvent* event = message;
+
+    if(event->type == LoaderEventTypeApplicationStarted) {
+        power_auto_shutdown_inhibit(power);
+    } else if(event->type == LoaderEventTypeApplicationStopped) {
+        power_auto_shutdown_arm(power);
+    }
+}
+
 static void power_auto_shutdown_timer_callback(void* context) {
     furi_assert(context);
     Power* power = context;
@@ -172,9 +201,13 @@ Power* power_alloc() {
     // Pubsub
     power->event_pubsub = furi_pubsub_alloc();
     power->settings_events = furi_pubsub_alloc();
-    furi_pubsub_subscribe(power->settings_events, power_shutdown_time_changed_callback, power);
+    power->loader = furi_record_open(RECORD_LOADER);
     power->input_events_pubsub = furi_record_open(RECORD_INPUT_EVENTS);
     power->input_events_subscription = NULL;
+    power->app_start_stop_subscription =
+        furi_pubsub_subscribe(loader_get_pubsub(power->loader), power_loader_callback, power);
+    power->settings_events_subscription =
+        furi_pubsub_subscribe(power->settings_events, power_shutdown_time_changed_callback, power);
 
     power->input_events_pubsub = furi_record_open(RECORD_INPUT_EVENTS);
     power->input_events_subscription = NULL;
@@ -224,14 +257,18 @@ void power_free(Power* power) {
     furi_mutex_free(power->api_mtx);
 
     // FuriPubSub
-    furi_pubsub_free(power->event_pubsub);
-    furi_pubsub_free(power->settings_events);
-    furi_pubsub_free(power->input_events_pubsub);
+    furi_pubsub_unsubscribe(loader_get_pubsub(power->loader), power->app_start_stop_subscription);
+    furi_pubsub_unsubscribe(power->settings_events, power->settings_events_subscription);
 
     if(power->input_events_subscription) {
         furi_pubsub_unsubscribe(power->input_events_pubsub, power->input_events_subscription);
         power->input_events_subscription = NULL;
     }
+
+    furi_pubsub_free(power->event_pubsub);
+    furi_pubsub_free(power->settings_events);
+    power->loader = NULL;
+    power->input_events_pubsub = NULL;
 
     //Auto shutdown timer
     furi_timer_free(power->auto_shutdown_timer);
@@ -239,6 +276,8 @@ void power_free(Power* power) {
     // Records
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_LOADER);
+    furi_record_close(RECORD_INPUT_EVENTS);
 
     free(power);
 }
@@ -281,6 +320,7 @@ static bool power_update_info(Power* power) {
     info.capacity_full = furi_hal_power_get_battery_full_capacity();
     info.current_charger = furi_hal_power_get_battery_current(FuriHalPowerICCharger);
     info.current_gauge = furi_hal_power_get_battery_current(FuriHalPowerICFuelGauge);
+    info.voltage_battery_charging = furi_hal_power_get_battery_charging_voltage();
     info.voltage_charger = furi_hal_power_get_battery_voltage(FuriHalPowerICCharger);
     info.voltage_gauge = furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge);
     info.voltage_vbus = furi_hal_power_get_usb_voltage();

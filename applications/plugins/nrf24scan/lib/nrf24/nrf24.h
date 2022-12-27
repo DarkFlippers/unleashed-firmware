@@ -268,13 +268,13 @@ uint8_t nrf24_set_dst_mac(FuriHalSpiBusHandle* handle, uint8_t* mac, uint8_t siz
  *
  * @param      handle  - pointer to FuriHalSpiHandle
  * @param[out] packet - the packet contents
- * @param[out] packetsize - size of the received packet
- * @param      full - boolean set to true, packet length is determined by RX_PW_P0 register, false it is determined by dynamic payload length command
+ * @param[out] ret_packetsize - size of the received packet
+ * @param      packet_size: >1 - size, 1 - packet length is determined by RX_PW_P0 register, 0 - it is determined by dynamic payload length command
  * 
  * @return     device status
  */
 uint8_t
-    nrf24_rxpacket(FuriHalSpiBusHandle* handle, uint8_t* packet, uint8_t* packetsize, bool full);
+    nrf24_rxpacket(FuriHalSpiBusHandle* handle, uint8_t* packet, uint8_t* ret_packetsize, uint8_t packet_size_flag);
 
 /** Sends TX packet
  *
@@ -308,6 +308,9 @@ void nrf24_configure(
     uint8_t channel,
     bool noack,
     bool disable_aa);
+
+// Set mac address (MSB first), Return: Status
+uint8_t  nrf24_set_mac(uint8_t mac_addr, uint8_t *mac, uint8_t mlen);
 
 /** Configures the radio for "promiscuous mode" and primes it for rx
  * This is not an actual mode of the nrf24, but this function exploits a few bugs in the chip that allows it to act as if it were.

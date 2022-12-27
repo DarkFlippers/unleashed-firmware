@@ -10,6 +10,7 @@ App(
         "ibutton_loader",
         # "infrared",
         "infrared_loader",
+        "infrared_rem_loader",
         "lfrfid",
         # "lfrfid_loader",
         "nfc",

@@ -143,7 +143,6 @@ static void update_task_wait_for_restart(UpdateTask* update_task) {
 }
 
 static bool update_task_write_stack(UpdateTask* update_task) {
-    bool success = false;
     UpdateManifest* manifest = update_task->manifest;
     do {
         FURI_LOG_W(TAG, "Writing stack");
@@ -162,13 +161,11 @@ static bool update_task_write_stack(UpdateTask* update_task) {
         update_task_set_progress(update_task, UpdateTaskStageRadioInstall, 100);
         /* ...system will restart here. */
         update_task_wait_for_restart(update_task);
-        success = true;
     } while(false);
-    return success;
+    return false; /* will return only in the case of failure */
 }
 
 static bool update_task_remove_stack(UpdateTask* update_task) {
-    bool success = false;
     do {
         FURI_LOG_W(TAG, "Removing stack");
         update_task_set_progress(update_task, UpdateTaskStageRadioErase, 30);
@@ -178,9 +175,8 @@ static bool update_task_remove_stack(UpdateTask* update_task) {
         update_task_set_progress(update_task, UpdateTaskStageRadioErase, 100);
         /* ...system will restart here. */
         update_task_wait_for_restart(update_task);
-        success = true;
     } while(false);
-    return success;
+    return false; /* will return only in the case of failure */
 }
 
 static bool update_task_manage_radiostack(UpdateTask* update_task) {

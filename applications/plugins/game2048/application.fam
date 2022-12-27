@@ -1,6 +1,6 @@
 App(
     appid="2048",
-    name="2048",
+    name="2048 (Original)",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="game_2048_app",
     cdefines=["APP_2048_GAME"],

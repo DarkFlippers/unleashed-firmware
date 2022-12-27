@@ -90,7 +90,7 @@ int32_t counterapp(void) {
                 furi_mutex_release(c->mutex);
                 state_free(c);
                 return 0;
-            } else if(input.key == InputKeyUp && c->count < MAX_COUNT) {
+            } else if((input.key == InputKeyUp || input.key == InputKeyOk) && c->count < MAX_COUNT) {
                 c->pressed = true;
                 c->boxtimer = BOXTIME;
                 c->count++;

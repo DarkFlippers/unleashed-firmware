@@ -1,1 +1,0 @@
-EccoTheme:d=8,o=5,b=150:32p,4f,c6,16p,d#,g#,1a#,2a#,c6,d#6,c6,a#,g#,g,g#,16f,16g#,16f,c,32d#,f,2g

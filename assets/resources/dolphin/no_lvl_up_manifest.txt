@@ -1,0 +1,212 @@
+Filetype: Flipper Animation Manifest
+Version: 1
+
+Name: lvl_1
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_2
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_3
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_4
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_5
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_6
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_7
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_8
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_9
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_10
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_11
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_12
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_13
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_14
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_15
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_16
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_17
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_18
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_19
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_20
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_21
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_22
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_23
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_24
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_25
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_26
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_27
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_28
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_29
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7
+
+Name: lvl_30
+Min butthurt: 0
+Max butthurt: 3
+Min level: 1
+Max level: 30
+Weight: 7

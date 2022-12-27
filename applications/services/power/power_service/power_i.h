@@ -6,6 +6,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/gui.h>
 #include <assets_icons.h>
+#include <loader/loader.h>
 
 #include <gui/modules/popup.h>
 #include "views/power_off.h"
@@ -34,6 +35,8 @@ struct Power {
     FuriPubSub* settings_events;
     FuriPubSub* input_events_pubsub;
     FuriPubSubSubscription* input_events_subscription;
+    FuriPubSubSubscription* app_start_stop_subscription;
+    FuriPubSubSubscription* settings_events_subscription;
     PowerEvent event;
 
     PowerState state;
@@ -47,7 +50,7 @@ struct Power {
 
     uint32_t shutdown_idle_delay_ms;
     FuriTimer* auto_shutdown_timer;
-
+    Loader* loader;
     FuriMutex* api_mtx;
 };
 

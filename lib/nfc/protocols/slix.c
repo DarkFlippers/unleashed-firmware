@@ -147,7 +147,7 @@ bool slix_generic_protocol_filter(
     furi_assert(nfcv_data_in);
 
     NfcVData* nfcv_data = (NfcVData*)nfcv_data_in;
-    NfcVEmuProtocolCtx* ctx = &nfcv_data->emu_protocol_ctx;
+    NfcVEmuProtocolCtx* ctx = nfcv_data->emu_protocol_ctx;
     NfcVSlixData* slix = &nfcv_data->sub_data.slix;
 
     if(slix->privacy && ctx->command != ISO15693_CMD_NXP_GET_RANDOM_NUMBER &&
@@ -172,7 +172,8 @@ bool slix_generic_protocol_filter(
         ctx->response_buffer[1] = slix->rand[1];
         ctx->response_buffer[2] = slix->rand[0];
 
-        nfcv_emu_send(tx_rx, nfcv_data, ctx->response_buffer, 3, ctx->response_flags);
+        nfcv_emu_send(
+            tx_rx, nfcv_data, ctx->response_buffer, 3, ctx->response_flags, ctx->send_time);
         snprintf(
             nfcv_data->last_command,
             sizeof(nfcv_data->last_command),
@@ -185,13 +186,13 @@ bool slix_generic_protocol_filter(
     }
 
     case ISO15693_CMD_NXP_SET_PASSWORD: {
-        uint8_t password_id = ctx->frame[ctx->payload_offset];
+        uint8_t password_id = nfcv_data->frame[ctx->payload_offset];
 
         if(!(password_id & password_supported)) {
             break;
         }
 
-        uint8_t* password_xored = &ctx->frame[ctx->payload_offset + 1];
+        uint8_t* password_xored = &nfcv_data->frame[ctx->payload_offset + 1];
         uint8_t* rand = slix->rand;
         uint8_t* password = NULL;
         uint8_t password_rcv[4];
@@ -241,7 +242,8 @@ bool slix_generic_protocol_filter(
                 break;
             }
             ctx->response_buffer[0] = ISO15693_NOERROR;
-            nfcv_emu_send(tx_rx, nfcv_data, ctx->response_buffer, 1, ctx->response_flags);
+            nfcv_emu_send(
+                tx_rx, nfcv_data, ctx->response_buffer, 1, ctx->response_flags, ctx->send_time);
             snprintf(
                 nfcv_data->last_command,
                 sizeof(nfcv_data->last_command),
@@ -264,7 +266,8 @@ bool slix_generic_protocol_filter(
     case ISO15693_CMD_NXP_ENABLE_PRIVACY: {
         ctx->response_buffer[0] = ISO15693_NOERROR;
 
-        nfcv_emu_send(tx_rx, nfcv_data, ctx->response_buffer, 1, ctx->response_flags);
+        nfcv_emu_send(
+            tx_rx, nfcv_data, ctx->response_buffer, 1, ctx->response_flags, ctx->send_time);
         snprintf(
             nfcv_data->last_command,
             sizeof(nfcv_data->last_command),
@@ -309,7 +312,8 @@ void slix_l_prepare(NfcVData* nfcv_data) {
     FURI_LOG_D(TAG, "  EAS     pass: 0x%08lX", slix_read_be(nfcv_data->sub_data.slix.key_eas, 4));
     FURI_LOG_D(TAG, "  Privacy mode: %s", nfcv_data->sub_data.slix.privacy ? "ON" : "OFF");
 
-    nfcv_data->emu_protocol_filter = &slix_l_protocol_filter;
+    NfcVEmuProtocolCtx* ctx = nfcv_data->emu_protocol_ctx;
+    ctx->emu_protocol_filter = &slix_l_protocol_filter;
 }
 
 bool slix_s_protocol_filter(
@@ -338,7 +342,8 @@ void slix_s_prepare(NfcVData* nfcv_data) {
     FURI_LOG_D(TAG, "  EAS     pass: 0x%08lX", slix_read_be(nfcv_data->sub_data.slix.key_eas, 4));
     FURI_LOG_D(TAG, "  Privacy mode: %s", nfcv_data->sub_data.slix.privacy ? "ON" : "OFF");
 
-    nfcv_data->emu_protocol_filter = &slix_s_protocol_filter;
+    NfcVEmuProtocolCtx* ctx = nfcv_data->emu_protocol_ctx;
+    ctx->emu_protocol_filter = &slix_s_protocol_filter;
 }
 
 bool slix_protocol_filter(
@@ -367,7 +372,8 @@ void slix_prepare(NfcVData* nfcv_data) {
     FURI_LOG_D(TAG, "  EAS     pass: 0x%08lX", slix_read_be(nfcv_data->sub_data.slix.key_eas, 4));
     FURI_LOG_D(TAG, "  Privacy mode: %s", nfcv_data->sub_data.slix.privacy ? "ON" : "OFF");
 
-    nfcv_data->emu_protocol_filter = &slix_protocol_filter;
+    NfcVEmuProtocolCtx* ctx = nfcv_data->emu_protocol_ctx;
+    ctx->emu_protocol_filter = &slix_protocol_filter;
 }
 
 bool slix2_protocol_filter(
@@ -396,5 +402,6 @@ void slix2_prepare(NfcVData* nfcv_data) {
     FURI_LOG_D(TAG, "  EAS     pass: 0x%08lX", slix_read_be(nfcv_data->sub_data.slix.key_eas, 4));
     FURI_LOG_D(TAG, "  Privacy mode: %s", nfcv_data->sub_data.slix.privacy ? "ON" : "OFF");
 
-    nfcv_data->emu_protocol_filter = &slix2_protocol_filter;
+    NfcVEmuProtocolCtx* ctx = nfcv_data->emu_protocol_ctx;
+    ctx->emu_protocol_filter = &slix2_protocol_filter;
 }

@@ -360,7 +360,8 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
             subghz_receiver->view,
             SubGhzViewReceiverModel * model,
             {
-                if(model->idx != model->history_item - 1) model->idx++;
+                if((model->history_item != 0) && (model->idx != model->history_item - 1))
+                    model->idx++;
             },
             true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {

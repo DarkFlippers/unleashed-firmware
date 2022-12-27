@@ -2,6 +2,7 @@
 #include <lib/drivers/cc1101.h>
 
 #include <furi.h>
+#include <float_tools.h>
 
 #define TAG "SubghzFrequencyAnalyzerWorker"
 
@@ -200,7 +201,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             rssi_temp = frequency_rssi.rssi_fine;
             frequency_temp = frequency_rssi.frequency_fine;
 
-            if(instance->filVal) {
+            if(!float_is_equal(instance->filVal, 0.f)) {
                 frequency_rssi.frequency_fine =
                     subghz_frequency_analyzer_worker_expRunningAverageAdaptive(
                         instance, frequency_rssi.frequency_fine);
@@ -225,7 +226,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             instance->sample_hold_counter = 20;
             rssi_temp = frequency_rssi.rssi_coarse;
             frequency_temp = frequency_rssi.frequency_coarse;
-            if(instance->filVal) {
+            if(!float_is_equal(instance->filVal, 0.f)) {
                 frequency_rssi.frequency_coarse =
                     subghz_frequency_analyzer_worker_expRunningAverageAdaptive(
                         instance, frequency_rssi.frequency_coarse);

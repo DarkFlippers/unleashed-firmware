@@ -6,7 +6,7 @@
 english version [below](#eng)
 
 ![zeitraffer for flipper zero](https://theageoflove.ru/uploads/2022/11/photo_2022-11-10_15-54-25.jpg)
-Видео работы: https://youtube.com/shorts/QKyQa7_s7IE
+Видео работы: https://youtu.be/VPSpRLJXYAc
 
 Готовый фап под последнюю релизную прошивку [можно скачать здесь](https://nightly.link/theageoflove/flipperzero-zeitraffer/workflows/build/main/zeitraffer.fap.zip).
 

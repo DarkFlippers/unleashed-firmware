@@ -1,1 +1,0 @@
-AquaDrJones:d=32,o=5,b=70:p,16e,b,e,16e6,b,e,16f#,b,f#,16f#6,b,f#,16a,c#6,a,16e6,e,e6,16b,e6,b,f#6,b,16g#6,16e,b,e,16e6,b,e,16f#,b,f#,16f#6,b,f#,16g#,c#6,g#,16d#6,g#,e6,16b,e6,b,f#6,b,16g#6

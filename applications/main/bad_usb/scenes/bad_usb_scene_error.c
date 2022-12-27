@@ -32,7 +32,7 @@ void bad_usb_scene_error_on_enter(void* context) {
     } else if(app->error == BadUsbAppErrorCloseRpc) {
         widget_add_icon_element(app->widget, 78, 0, &I_ActiveConnection_50x64);
         widget_add_string_multiline_element(
-            app->widget, 3, 2, AlignLeft, AlignTop, FontPrimary, "Connection\nis active!");
+            app->widget, 3, 2, AlignLeft, AlignTop, FontPrimary, "I am not\na whore!");
         widget_add_string_multiline_element(
             app->widget,
             3,
@@ -40,7 +40,7 @@ void bad_usb_scene_error_on_enter(void* context) {
             AlignLeft,
             AlignTop,
             FontSecondary,
-            "Disconnect from\nPC or phone to\nuse this function.");
+            "Pull out from\nPC or phone to\nuse me like this.");
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, BadUsbAppViewError);

@@ -37,6 +37,7 @@
 #include "clemsa.h"
 #include "ansonic.h"
 #include "pocsag.h"
+#include "smc5326.h"
 
 #ifdef __cplusplus
 extern "C" {

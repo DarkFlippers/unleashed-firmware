@@ -1,5 +1,5 @@
 #include <gui/icon.h>
-#include "Dice_app_icons.h"
+#include "DND_Dice_app_icons.h"
 
 #define TAG "DiceApp"
 
@@ -14,6 +14,9 @@
 #define DICE_Y_T 0
 
 #define DICE_GAP 44
+
+#define RESULT_BORDER_X 44
+#define RESULT_OFFSET 20
 
 #define SWIPE_DIST 11
 
@@ -33,6 +36,7 @@ const Icon* coin_frames[] = {
     &I_coin_1,
 };
 
+const int8_t result_frame_pos_y[] = {-30, -20, -10, 0};
 const Icon* dice_frames[] = {
     &I_d4_1,   &I_d4_2,   &I_d4_3,   &I_d4_1, // d4
     &I_d6_1,   &I_d6_2,   &I_d6_3,   &I_d6_4, // d6
@@ -64,7 +68,14 @@ static const Dice dice_types[] = {
 };
 
 typedef enum { EventTypeTick, EventTypeKey } EventType;
-typedef enum { SelectState, SwipeLeftState, SwipeRightState, AnimState, ResultState } AppState;
+typedef enum {
+    SelectState,
+    SwipeLeftState,
+    SwipeRightState,
+    AnimState,
+    AnimResultState,
+    ResultState
+} AppState;
 
 typedef struct {
     EventType type;
@@ -78,6 +89,7 @@ typedef struct {
     uint8_t anim_frame;
     uint8_t dice_index;
     uint8_t dice_count;
+    int8_t result_pos;
     Dice dices[DICE_TYPES];
 } State;
 
@@ -113,4 +125,35 @@ void coin_set_end(uint16_t type) {
         coin_frames[MAX_COIN_FRAMES - 2] = coin_tails_end[0];
         coin_frames[MAX_COIN_FRAMES - 1] = coin_tails_end[1];
     }
+}
+
+bool isResultVisible(AppState state, uint8_t dice_index) {
+    return (state == ResultState || state == AnimResultState) && dice_index != 0;
+}
+
+bool isDiceNameVisible(AppState state) {
+    return state != SwipeLeftState && state != SwipeRightState;
+}
+
+bool isDiceButtonsVisible(AppState state) {
+    return isDiceNameVisible(state) && state != AnimResultState && state != ResultState &&
+           state != AnimState;
+}
+
+bool isOneDice(uint8_t dice_index) {
+    return dice_index == 0 || dice_index == 7;
+}
+
+bool isDiceSettingsDisabled(AppState state, uint8_t dice_index) {
+    return isOneDice(dice_index) || state == ResultState || state == AnimResultState ||
+           state == AnimState;
+}
+
+bool isAnimState(AppState state) {
+    return state == SwipeLeftState || state == SwipeRightState || state == AnimResultState ||
+           state == AnimState;
+}
+
+bool isMenuState(AppState state) {
+    return state == SwipeLeftState || state == SwipeRightState || state == SelectState;
 }

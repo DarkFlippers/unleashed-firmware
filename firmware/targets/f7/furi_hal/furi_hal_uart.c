@@ -26,7 +26,7 @@ static void furi_hal_usart_init(uint32_t baud) {
         GpioSpeedVeryHigh,
         GpioAltFn7USART1);
 
-    LL_USART_InitTypeDef USART_InitStruct = {0};
+    LL_USART_InitTypeDef USART_InitStruct;
     USART_InitStruct.PrescalerValue = LL_USART_PRESCALER_DIV1;
     USART_InitStruct.BaudRate = baud;
     USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
@@ -62,7 +62,7 @@ static void furi_hal_lpuart_init(uint32_t baud) {
         GpioSpeedVeryHigh,
         GpioAltFn8LPUART1);
 
-    LL_LPUART_InitTypeDef LPUART_InitStruct = {0};
+    LL_LPUART_InitTypeDef LPUART_InitStruct;
     LPUART_InitStruct.PrescalerValue = LL_LPUART_PRESCALER_DIV1;
     LPUART_InitStruct.BaudRate = 115200;
     LPUART_InitStruct.DataWidth = LL_LPUART_DATAWIDTH_8B;

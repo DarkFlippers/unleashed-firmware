@@ -32,9 +32,7 @@ bool desktop_settings_scene_pin_setup_howto_on_event(void* context, SceneManager
             consumed = true;
             break;
         default:
-            furi_assert(0);
-            consumed = true;
-            break;
+            furi_crash(NULL);
         }
     }
     return consumed;

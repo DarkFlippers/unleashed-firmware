@@ -1,7 +1,7 @@
 
 # Update firmware
 
-## [Get Latest Firmware from GitHub Releases](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/releases)
+## [Get Latest Firmware from GitHub Releases](https://github.com/ClaraCrazy/Flipper-Xtreme/releases)
 
 <br>
 <br>
@@ -15,7 +15,7 @@
 ## With iOS mobile app
 
 - Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
-- Open latest release page - [Releases](https://github.com/RogueMaster/flipperzero-firmware/releases/latest)
+- Open latest release page - [Releases](https://github.com/ClaraCrazy/Flipper-Xtreme/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - Open downloads in ios Files app, select downloaded `.tgz` file, click Share, select Flipper App
 - In flipper app click green `Update` button, be sure it shows `Custom flipper-z-f7-update...` in Update Channel
@@ -32,7 +32,7 @@
 ## With Android mobile app (with .tgz download)
 
 - Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
-- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
+- Open latest release page - [Releases](https://github.com/ClaraCrazy/Flipper-Xtreme/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - In flipper app click `Update channel` button, select `Custom`
 - Select downloaded `.tgz` file
@@ -49,7 +49,7 @@
 ## With Android mobile app (via web updater link)
 
 - Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
-- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
+- Open latest release page - [Releases](https://github.com/ClaraCrazy/Flipper-Xtreme/releases/latest)
 - Click `Install via Web Updater`
 - It will ask to open with browser or Flipper app, select Flipper App
 - Continue to install
@@ -66,7 +66,7 @@
 
 - Download qFlipper that allows `.tgz` installation [Download qFlipper (official link)](https://flipperzero.one/update)
 - Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
-- Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
+- Open latest release page - [Releases](https://github.com/ClaraCrazy/Flipper-Xtreme/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - Launch qFlipper
 - Connect your device and select `Install from file`
@@ -102,7 +102,3 @@
 # After install:
 - ### If you installed using .dfu - unpack files from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
 <br>
-
-- ## [Read instructions how to use plugins and more](https://github.com/DarkFlippers/unleashed-firmware#instructions)
-
-- ## [How To: Configure Sub-GHz Remote App](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)

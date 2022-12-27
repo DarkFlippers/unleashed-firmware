@@ -1,0 +1,12 @@
+App(
+    appid="Orgasmotron",
+    name="Orgasmotron",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="orgasmotron_app",
+    cdefines=["ORGASMOTRON"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=20,
+    fap_icon="orgasmotron_10px.png",
+    fap_category="Misc",
+)

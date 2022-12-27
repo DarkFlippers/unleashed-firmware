@@ -12,7 +12,7 @@ void power_settings_scene_power_off_on_enter(void* context) {
 
     dialog_ex_set_header(dialog, "Turn Off Device?", 64, 2, AlignCenter, AlignTop);
     dialog_ex_set_text(
-        dialog, "   I will be\nwaiting for\n you here...", 78, 16, AlignLeft, AlignTop);
+        dialog, "   I will be\nwaiting for\n you master", 78, 16, AlignLeft, AlignTop);
     dialog_ex_set_icon(dialog, 21, 13, &I_Cry_dolph_55x52);
     dialog_ex_set_left_button_text(dialog, "Back");
     dialog_ex_set_right_button_text(dialog, "OFF");

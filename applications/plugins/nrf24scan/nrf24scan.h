@@ -23,6 +23,12 @@ typedef struct {
     int y;
 } PluginState;
 
+struct FOUND {
+    uint8_t addr_size;
+    uint8_t addr[5];
+    uint16_t total;
+};
+
 typedef struct {
     Gui* gui;
     FuriMessageQueue* event_queue;
@@ -31,4 +37,5 @@ typedef struct {
     Storage* storage;
     NotificationApp* notification;
     uint8_t* log_arr;
+    struct FOUND* found;
 } Nrf24Scan;

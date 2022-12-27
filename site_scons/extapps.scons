@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass, field
 from SCons.Node import NodeList
 from SCons.Warnings import warn, WarningOnByDefault
@@ -109,11 +110,24 @@ if appsrc := appenv.subst("$APPSRC"):
     app_artifacts = appenv.GetExtAppFromPath(appsrc)
     appenv.PhonyTarget(
         "launch_app",
-        '${PYTHON3} "${APP_RUN_SCRIPT}" "${SOURCE}" --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
+        '${PYTHON3} "${APP_RUN_SCRIPT}" --launch "${SOURCE}" --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
         source=app_artifacts.compact,
         FAP_CATEGORY=app_artifacts.app.fap_category,
     )
     appenv.Alias("launch_app", app_artifacts.validator)
+
+appenv.PhonyTarget(
+    "faps_copy",
+    os.linesep.join(
+        [
+            '${PYTHON3} "${APP_RUN_SCRIPT}"'
+            f' "{app_artifact.compact[0].rstr()}"'
+            f' --fap_dst_dir "/ext/apps/{app_artifact.app.fap_category}"'
+            for app_artifact in appenv["EXT_APPS"].values()
+        ]
+    ),
+    source=["faps"],
+)
 
 # SDK management
 

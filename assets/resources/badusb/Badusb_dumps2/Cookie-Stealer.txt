@@ -1,3 +1,0 @@
-Not working, removed for now.
-
-SEE: https://github.com/UberGuidoZ/Flipper/commit/50a8e1cbe43de86924e3ee8715dfc6676272e020

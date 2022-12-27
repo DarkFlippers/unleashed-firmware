@@ -1,0 +1,5 @@
+SNIFF
+ESB: 1
+CRC: 2
+P0: 00AA
+P1: 0055

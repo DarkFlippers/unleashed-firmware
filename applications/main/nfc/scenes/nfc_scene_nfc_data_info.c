@@ -55,7 +55,7 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
     } else if(protocol == NfcDeviceProtocolMifareDesfire) {
         furi_string_cat_printf(temp_str, "\e#MIFARE DESfire\n");
     } else if(protocol == NfcDeviceProtocolNfcV) {
-        switch(dev_data->nfcv_data.type) {
+        switch(dev_data->nfcv_data.sub_type) {
         case NfcVTypePlain:
             furi_string_cat_printf(temp_str, "\e#ISO15693\n");
             break;
@@ -113,7 +113,7 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
         }
         furi_string_cat_printf(temp_str, "\n");
 
-        switch(dev_data->nfcv_data.type) {
+        switch(dev_data->nfcv_data.sub_type) {
         case NfcVTypePlain:
             furi_string_cat_printf(temp_str, "Type: Plain\n");
             break;
@@ -208,13 +208,13 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
     // Set application specific data
     if(protocol == NfcDeviceProtocolMifareDesfire) {
         MifareDesfireData* data = &dev_data->mf_df_data;
-        uint32_t bytes_total = 1 << (data->version.sw_storage >> 1);
+        uint32_t bytes_total = 1UL << (data->version.sw_storage >> 1);
         uint32_t bytes_free = data->free_memory ? data->free_memory->bytes : 0;
-        furi_string_cat_printf(temp_str, "\n%ld", bytes_total);
+        furi_string_cat_printf(temp_str, "\n%lu", bytes_total);
         if(data->version.sw_storage & 1) {
             furi_string_push_back(temp_str, '+');
         }
-        furi_string_cat_printf(temp_str, " bytes, %ld bytes free\n", bytes_free);
+        furi_string_cat_printf(temp_str, " bytes, %lu bytes free\n", bytes_free);
 
         uint16_t n_apps = 0;
         uint16_t n_files = 0;

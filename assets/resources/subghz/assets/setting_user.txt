@@ -64,7 +64,6 @@ Frequency: 928000000
 Hopper_frequency: 310000000
 Hopper_frequency: 313000000
 Hopper_frequency: 315000000
-Hopper_frequency: 318000000
 Hopper_frequency: 390000000
 Hopper_frequency: 433920000
 Hopper_frequency: 434420000

@@ -456,17 +456,15 @@ BleGlueCommandResult ble_glue_fus_get_status() {
 
 BleGlueCommandResult ble_glue_fus_wait_operation() {
     furi_check(ble_glue->c2_info.mode == BleGlueC2ModeFUS);
-    bool wip;
-    do {
-        BleGlueCommandResult fus_status = ble_glue_fus_get_status();
-        if(fus_status == BleGlueCommandResultError) {
-            return BleGlueCommandResultError;
-        }
-        wip = fus_status == BleGlueCommandResultOperationOngoing;
-        if(wip) {
-            furi_delay_ms(20);
-        }
-    } while(wip);
 
-    return BleGlueCommandResultOK;
+    while(true) {
+        BleGlueCommandResult fus_status = ble_glue_fus_get_status();
+        if(fus_status == BleGlueCommandResultOperationOngoing) {
+            furi_delay_ms(20);
+        } else if(fus_status == BleGlueCommandResultError) {
+            return BleGlueCommandResultError;
+        } else {
+            return BleGlueCommandResultOK;
+        }
+    }
 }

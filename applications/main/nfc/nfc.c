@@ -46,6 +46,7 @@ Nfc* nfc_alloc() {
 
     // Nfc device
     nfc->dev = nfc_device_alloc();
+    furi_string_set(nfc->dev->folder, NFC_APP_FOLDER);
 
     // Open GUI record
     nfc->gui = furi_record_open(RECORD_GUI);

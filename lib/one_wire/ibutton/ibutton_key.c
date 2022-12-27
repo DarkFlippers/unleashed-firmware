@@ -62,8 +62,6 @@ const char* ibutton_key_get_string_by_type(iButtonKeyType key_type) {
         break;
     default:
         furi_crash("Invalid iButton type");
-        return "";
-        break;
     }
 }
 

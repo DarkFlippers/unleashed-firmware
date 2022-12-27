@@ -130,7 +130,6 @@ bool ibutton_worker_read_comparator(iButtonWorker* worker) {
                 ibutton_key_set_data(worker->key_p, worker->key_data, ibutton_key_get_max_size());
                 result = true;
                 break;
-                break;
             default:
                 break;
             }

@@ -30,6 +30,9 @@ Brewfile.lock.json
 # Visual Studio Code
 .vscode/
 
+# Visual Studio
+.vs/
+
 # legendary cmake's
 build
 CMakeLists.txt
@@ -57,3 +60,11 @@ openocd.log
 PVS-Studio.log
 
 .gdbinit
+
+
+# XFW-specific:
+
+# Automate files, etc
+automate.py
+fbt_options.py
+commitnotes.md

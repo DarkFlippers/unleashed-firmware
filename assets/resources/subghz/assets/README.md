@@ -13,7 +13,7 @@ RogueMaster allows unofficially supported frequencies with the extend_range.txt 
 **NOTE: Going outside the supported frequencies may DAMAGE YOUR FLIPPER AMP.<br>
 Please understand what you're doing if trying to break out of official frequencies.**
 
-You'll need to edit the [extended range file](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/420/documentation/DangerousSettings.md) to enable frequencies outside of the Official above.
+You'll need to edit the [extended range file](https://github.com/ClaraCrazy/Flipper-Xtreme/blob/main/documentation/DangerousSettings.md) to enable frequencies outside of the Official above.
 
 # CAUTION within 402-408 range!<br>Medical devices can operate here.
 

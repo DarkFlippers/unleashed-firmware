@@ -149,7 +149,7 @@ static UpdateManifest* flipper_update_process_manifest(const FuriString* manifes
 
     do {
         uint16_t size_read = 0;
-        if(f_read(&file, manifest_data + bytes_read, MAX_READ, &size_read) != FR_OK) {
+        if(f_read(&file, manifest_data + bytes_read, MAX_READ, &size_read) != FR_OK) { //-V769
             break;
         }
         bytes_read += size_read;

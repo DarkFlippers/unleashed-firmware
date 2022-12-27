@@ -1,1 +1,0 @@
-GigiD'AgostinoTheRiddle:d=16,o=5,b=150:8c,8e,4f,8f,8g,8f,8e,8d,8c,4c,8d,8e,4e,8d,8e,4f,4g,8f,8e,8d,8c,4d,8d,8c,4c,8c,8e,4f,8f,8g,8f,8e,8d,8c,4c,8d,8e,4e,8d,8e,4f,4g,8f,8e,8d,8c,4d,8d,8c,4c
