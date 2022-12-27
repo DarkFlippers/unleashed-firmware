@@ -488,7 +488,7 @@ static const FuriHalFlashObMapping furi_hal_flash_ob_reg_map[FURI_HAL_FLASH_OB_T
     OB_REG_DEF(FuriHalFlashObInvalid, (NULL)),
     OB_REG_DEF(FuriHalFlashObInvalid, (NULL)),
 
-    OB_REG_DEF(FuriHalFlashObRegisterIPCCMail, (NULL)),
+    OB_REG_DEF(FuriHalFlashObRegisterIPCCMail, (&FLASH->IPCCBR)),
     OB_REG_DEF(FuriHalFlashObRegisterSecureFlash, (NULL)),
     OB_REG_DEF(FuriHalFlashObRegisterC2Opts, (NULL)),
 };
