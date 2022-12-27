@@ -1,6 +1,6 @@
 App(
     appid="Dice",
-    name="Multi-Dice",
+    name="Dice [RM]",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="dice_app",
     cdefines=["APP_DICE"],

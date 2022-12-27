@@ -18,7 +18,7 @@ struct DesktopSettingsViewPinSetupHowto2 {
 
 static void desktop_settings_view_pin_setup_howto2_draw(Canvas* canvas, void* model) {
     furi_assert(canvas);
-    UNUSED(model);
+    furi_assert(model);
 
     canvas_set_font(canvas, FontSecondary);
     elements_multiline_text_aligned(
@@ -29,7 +29,7 @@ static void desktop_settings_view_pin_setup_howto2_draw(Canvas* canvas, void* mo
         AlignCenter,
         "Forgotten PIN can only be\n"
         "reset with entire device.\n"
-        "Read docs: How to reset PIN.");
+        "Read docs How to reset PIN.");
 
     elements_button_right(canvas, "OK");
     elements_button_left(canvas, "Cancel");
@@ -79,6 +79,7 @@ void desktop_settings_view_pin_setup_howto2_set_ok_callback(
 DesktopSettingsViewPinSetupHowto2* desktop_settings_view_pin_setup_howto2_alloc() {
     DesktopSettingsViewPinSetupHowto2* view = malloc(sizeof(DesktopSettingsViewPinSetupHowto2));
     view->view = view_alloc();
+    view_allocate_model(view->view, ViewModelTypeLockFree, 1);
     view_set_context(view->view, view);
     view_set_draw_callback(view->view, desktop_settings_view_pin_setup_howto2_draw);
     view_set_input_callback(view->view, desktop_settings_view_pin_setup_howto2_input);

@@ -21,7 +21,6 @@ typedef struct {
     bool down_pressed;
     bool ok_pressed;
     bool connected;
-    HidTransport transport;
 } HidMediaModel;
 
 static void hid_media_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
@@ -42,14 +41,11 @@ static void hid_media_draw_callback(Canvas* canvas, void* context) {
     HidMediaModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
-
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Media");
     canvas_set_font(canvas, FontSecondary);
@@ -193,9 +189,6 @@ HidMedia* hid_media_alloc(Hid* hid) {
     view_allocate_model(hid_media->view, ViewModelTypeLocking, sizeof(HidMediaModel));
     view_set_draw_callback(hid_media->view, hid_media_draw_callback);
     view_set_input_callback(hid_media->view, hid_media_input_callback);
-
-    with_view_model(
-        hid_media->view, HidMediaModel * model, { model->transport = hid->transport; }, true);
 
     return hid_media;
 }

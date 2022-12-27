@@ -173,7 +173,7 @@ void dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
 
     FURI_LOG_D(
         TAG,
-        "icounter %lu, butthurt %ld",
+        "icounter %ld, butthurt %ld",
         dolphin_state->data.icounter,
         dolphin_state->data.butthurt);
 }
