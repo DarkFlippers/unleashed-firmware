@@ -5,15 +5,15 @@
 ![Show me the code](https://media.discordapp.net/attachments/746304505879986267/1043574668940021760/image.png)
 
 Welcome to [Dexv Zero](https://discord.gg/dexvirus)'s Firmware repo!
-My goal is to make a really nice flipper cfw, to make it a pleasure for everyone to work with.
+My goal is to make a really nice flipper CFW, and to make it a pleasure for everyone to work with.
 
 ## Change Log
 
-+Added EVERY apps i could find for the flipper.
++Added ALL apps I could find for the Flipper.
 
-+Added dumps for Nfc, Rfid, Badusb, Subghz and a bunch of music player dumps.
++Added dumps for NFC, RFID, Bad-Usb, Sub-Ghz and a bunch of music player dumps.
 
-+Added Dexv-themed graphics to everything
++Added Dexv-themed graphics to everything.
 
 # Clone the Repository
 
@@ -24,31 +24,31 @@ $ git clone --recursive https://github.com/DXVVAY/dexv0
 
 # Read the Docs
 
-Check out details on [how to build firmware](documentation/fbt.md), [write applications](documentation/AppsOnSDCard.md), [un-brick your device](documentation/KeyCombo.md) and more in `documentation` folder made by the flipper team. 
+Check out details on [how to build firmware](documentation/fbt.md), [write applications](documentation/AppsOnSDCard.md), [un-brick your device](documentation/KeyCombo.md) and more in the `documentation` folder made by the Flipper team. 
 
 
 ## Install without compiling
 
 1.Install the latest firmware release from [releases](https://github.com/DXVVAY/Dexvmaster0/releases).
 
-2.Go to qFlipper then connect your flipper to your pc and click on install from file then choose the .tgz file
+2.Go to qFlipper then connect your Flipper to your pc via USB cable and click on install from file, then choose the .tgz file.
 
 ![image](https://user-images.githubusercontent.com/89728480/209699196-d8eedef0-6fe8-4c80-b151-b52847876466.png)
 
-Now just wait tills its done.
+Now just wait until it's done.
 
-the Latest Firmware update will be uploaded in [releases](https://github.com/DXVVAY/Dexvmaster0/releases).
+The latest Firmware update will be uploaded in [releases](https://github.com/DXVVAY/Dexvmaster0/releases).
 
-Flipper Zero's firmware consists of two components:
+The Flipper Zero's firmware consists of two components:
 
 - Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory, and you should never update it.
 - Core1 Firmware - HAL + OS + Drivers + Applications.
 
-They both must be flashed in the order described.
+They must both be flashed in the order described.
 
 ## With offline update package
 
-With Flipper attached over USB:
+With Flipper attached via USB:
 
 `./fbt flash_usb`
 
