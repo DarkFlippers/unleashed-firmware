@@ -87,12 +87,14 @@ jobs:
           cp build/core2_firmware.tgz "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz"
 
       - name: 'Copy map analyser files'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           cp build/f7-firmware-*/firmware.elf.map map_analyser_files/firmware.elf.map
           cp build/f7-firmware-*/firmware.elf map_analyser_files/firmware.elf
           cp ${{ github.event_path }} map_analyser_files/event.json
 
       - name: 'Upload map analyser files to storage'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: keithweaver/aws-s3-github-action@v1.0.0
         with:
           source: map_analyser_files/
@@ -103,6 +105,7 @@ jobs:
           flags: --recursive
 
       - name: 'Trigger map file reporter'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: peter-evans/repository-dispatch@v2
         with:
           repository: flipperdevices/flipper-map-reporter
