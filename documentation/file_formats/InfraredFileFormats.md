@@ -95,17 +95,17 @@ Note: a single parsed signal must be represented as an array of size 1.
 | data       | raw          | uint32 | Ditto. |
 
 #### Signal names
-The signal names in an `.irtest` file folow a convention `<name><test_number>`, where the name is one of:
+The signal names in an `.irtest` file follow a convention `<name><test_number>`, where the name is one of:
 - decoder_input
 - decoder_expected
 - encoder_decoder_input,
 
 and the number is a sequential integer: 1, 2, 3...etc, which produces names like `decoder_input1`, `encoder_decoder_input3`, and so on.
 
-| Name                  | Type         | Description |
-| --------------------- | ------------ | ----------- |
-| decoder_input         | raw          | A raw signal contaning the decoder input. Is also used as the expected encoder output. |
+| Name                  | Type         | Description                                                                                           |
+| --------------------- | ------------ |-------------------------------------------------------------------------------------------------------|
+| decoder_input         | raw          | A raw signal containing the decoder input. Is also used as the expected encoder output.               |
 | decoder_expected      | parsed_array | An array of parsed signals containing the expected decoder output. Is also used as the encoder input. |
-| encoder_decoder_input | parsed_array | An array of parsed signals containing both the encoder-decoder input and expected output. |
+| encoder_decoder_input | parsed_array | An array of parsed signals containing both the encoder-decoder input and expected output.             |
 
 See [Unit Tests](/documentation/UnitTests.md#infrared) for more info.

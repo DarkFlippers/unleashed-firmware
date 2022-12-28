@@ -236,7 +236,7 @@ Games:
 
 - `applications`    - Applications and services used in firmware
 - `assets`          - Assets used by applications and services
-- `furi`            - Furi Core: os level primitives and helpers
+- `furi`            - Furi Core: OS-level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
@@ -244,4 +244,4 @@ Games:
 - `site_scons`      - Build helpers
 - `scripts`         - Supplementary scripts and python libraries home
 
-Also pay attention to `ReadMe.md` files inside those directories.
+Also, pay attention to `ReadMe.md` files inside those directories.

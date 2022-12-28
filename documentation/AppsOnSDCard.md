@@ -37,7 +37,7 @@ With it, you can debug FAPs as if they were a part of main firmware — inspect 
 
 ### Setting up debugging environment
 
-Debugging support script looks up debugging information in latest firmware build dir (`build/latest`). That directory is symlinked by fbt to the latest firmware configuration (Debug or Release) build dir, when you run `./fbt` for chosen configuration. See [fbt docs](./fbt.md#nb) for details.
+Debugging support script looks up debugging information in the latest firmware build dir (`build/latest`). That directory is symlinked by fbt to the latest firmware configuration (Debug or Release) build dir, when you run `./fbt` for chosen configuration. See [fbt docs](./fbt.md#nb) for details.
 
 So, to debug FAPs, do the following:
 1. Build firmware with `./fbt`

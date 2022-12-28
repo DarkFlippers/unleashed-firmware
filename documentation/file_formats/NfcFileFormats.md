@@ -68,7 +68,7 @@ This file format is used to store the UID, SAK and ATQA of a Mifare Ultralight/N
 
 The "Signature" field contains the reply of the tag to the READ_SIG command. More on that can be found here: <https://www.nxp.com/docs/en/data-sheet/MF0ULX1.pdf> (page 31)
 
-The "Mifare version" field is not related to the file format version, but to the Mifare Ultralight version. It contains the responce of the tag to the GET_VERSION command. More on that can be found here: <https://www.nxp.com/docs/en/data-sheet/MF0ULX1.pdf> (page 21)
+The "Mifare version" field is not related to the file format version, but to the Mifare Ultralight version. It contains the response of the tag to the GET_VERSION command. More on that can be found here: <https://www.nxp.com/docs/en/data-sheet/MF0ULX1.pdf> (page 21)
 
 Other fields are the direct representation of the card's internal state, more on them can be found in the same datasheet.
 
