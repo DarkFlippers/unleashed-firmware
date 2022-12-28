@@ -24,25 +24,50 @@ steps:
       - ls -laS artifacts-default/f7-update-${DRONE_TAG}
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
       - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '' >> CHANGELOG.md
+      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)' >> CHANGELOG.md
+      - echo '' >> CHANGELOG.md
+      - echo '### [Version with extra apps - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
 
-  - name: "Build no anims FW"
+  - name: "Build with extra apps"
+    image: hfdj/fztools
+    pull: never
+    commands:
+      - git clone https://github.com/xMasterX/unleashed-extra-pack.git
+      - cp -R unleashed-extra-pack/apps/ assets/resources/apps
+      - rm -rf unleashed-extra-pack
+      - export DIST_SUFFIX=${DRONE_TAG}e
+      - export WORKFLOW_BRANCH_OR_TAG=release-cfw
+      - export FORCE_NO_DIRTY=yes
+      - rm -f build/f7-firmware-C/toolbox/version.*
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir artifacts-extra-apps
+      - mv dist/f7-C/* artifacts-extra-apps/
+      - ls -laS artifacts-extra-apps
+      - ls -laS artifacts-extra-apps/f7-update-${DRONE_TAG}e
+    environment:
+      FBT_TOOLS_CUSTOM_LINK:
+        from_secret: fbt_link
+
+  - name: "Build with ofw anims"
     image: hfdj/fztools
     pull: never
     commands:
       - rm -f assets/dolphin/external/manifest.txt
       - cp .ci_files/anims_ofw.txt assets/dolphin/external/manifest.txt
+      - rm -rf assets/resources/apps/
       - export DIST_SUFFIX=${DRONE_TAG}n
       - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
+      - export FORCE_NO_DIRTY=yes
+      - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-ofw-anims
       - mv dist/f7-C/* artifacts-ofw-anims/
       - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}n
-      - echo '' >> CHANGELOG.md
-      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -50,13 +75,17 @@ steps:
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
+      - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.tgz .
       - cp artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
+      - zip -r artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.zip artifacts-extra-apps/f7-update-${DRONE_TAG}e
       - zip -r artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}n
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
       - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts debug
+      - rm -rf artifacts-extra-apps/f7-update-${DRONE_TAG}
       - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
+      - ls -laS artifacts-extra-apps
       - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-default
       - mv artifacts-default/ ${DRONE_TAG}
@@ -98,6 +127,21 @@ steps:
         from_secret: dep_target_noanim
       source: flipper-z-f7-update-${DRONE_TAG}n.tgz
 
+  - name: "Upload extra apps version to updates srv"
+    image: appleboy/drone-scp
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target_extra
+      source: flipper-z-f7-update-${DRONE_TAG}e.tgz
+
   - name: "Do Github release"
     image: ddplugins/github-release
     pull: never
@@ -111,6 +155,7 @@ steps:
         - ${DRONE_TAG}/*.tgz
         - ${DRONE_TAG}/*.zip
         - artifacts-ofw-anims/*.tgz
+        - artifacts-extra-apps/*.tgz
       title: ${DRONE_TAG}
       note: CHANGELOG.md
       checksum:
@@ -155,6 +200,9 @@ steps:
         [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
 
 
+        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}e.tgz&channel=release-cfw&version=${DRONE_TAG}e)
+
+
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
       document:
         - ${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz
@@ -182,6 +230,9 @@ steps:
 
 
         [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
+
+
+        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}e.tgz&channel=release-cfw&version=${DRONE_TAG}e)
 
 
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
