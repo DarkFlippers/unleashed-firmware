@@ -23,8 +23,8 @@ Before writing code and creating PR make sure that it aligns with our mission an
 - PR that contains code intended to commit crimes is not going to be accepted.
 - Your PR must comply with our [Coding Style](CODING_STYLE.md)
 - Your PR must contain code compatible with project [LICENSE](LICENSE).
-- PR will only be merged if it pass CI/CD.
-- PR will only be merged if it pass review by code owner.
+- PR will only be merged if it passes CI/CD.
+- PR will only be merged if it passes review by code owner.
 
 Feel free to ask questions in issues if you're not sure.
 
@@ -59,7 +59,7 @@ Commit the changes once you are happy with them. Make sure that code compilation
 ### Pull Request
 
 When you're done making the changes, open a pull request, often referred to as a PR. 
-- Fill out the "Ready for review" template so we can review your PR. This template helps reviewers understand your changes and the purpose of your pull request. 
+- Fill out the "Ready for review" template, so we can review your PR. This template helps reviewers understand your changes and the purpose of your pull request. 
 - Don't forget to [link PR to issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) if you are solving one.
 - Enable the checkbox to [allow maintainer edits](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
 Once you submit your PR, a Docs team member will review your proposal. We may ask questions or request for additional information.

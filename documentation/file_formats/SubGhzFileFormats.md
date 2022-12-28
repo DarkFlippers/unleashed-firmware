@@ -197,7 +197,7 @@ For each key, a name and encryption method must be specified, according to comme
 
 ## SubGhz `setting_user` File
 
-This file contains additional radio presets and frequencies for SubGhz application. It is used to add new presets and frequencies for existing presets. This file is be loaded on subghz application start and is located at path `/ext/subghz/assets/setting_user`.
+This file contains additional radio presets and frequencies for SubGhz application. It is used to add new presets and frequencies for existing presets. This file is being loaded on subghz application start and is located at path `/ext/subghz/assets/setting_user`.
 
 ### File Format
 

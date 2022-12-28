@@ -14,7 +14,7 @@ body:
     description: |
       Please describe your feature request in as many details as possible.
         - Describe what it should do.
-        - Note whetever it is to extend existing functionality or introduce new functionality.
+        - Note whether it is to extend existing functionality or introduce new functionality.
   validations:
     required: true
 - type: textarea
