@@ -60,7 +60,13 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
         if(progress > 1.0) {
             progress = 1.0;
         }
-        snprintf(draw_str, sizeof(draw_str), "%d/%d", m->dict_keys_current, m->dict_keys_total);
+        if(m->dict_keys_current == 0) {
+            // Cause when people see 0 they think it's broken
+            snprintf(draw_str, sizeof(draw_str), "%d/%d", 1, m->dict_keys_total);
+        } else {
+            snprintf(
+                draw_str, sizeof(draw_str), "%d/%d", m->dict_keys_current, m->dict_keys_total);
+        }
         elements_progress_bar_with_text(canvas, 0, 20, 128, dict_progress, draw_str);
         canvas_set_font(canvas, FontSecondary);
         snprintf(draw_str, sizeof(draw_str), "Keys found: %d/%d", m->keys_found, m->keys_total);
