@@ -106,7 +106,6 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case DesktopMainEventLock:
             if(desktop->settings.pin_code.length > 0) {
-                scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 1);
                 desktop_pin_lock(&desktop->settings);
                 desktop_lock(desktop);
             } else {
