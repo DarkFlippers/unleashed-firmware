@@ -9,7 +9,7 @@ env:
   FBT_TOOLCHAIN_PATH: /opt
 
 jobs:
-  run_units_on_test_bench:
+  run_units_on_bench:
     runs-on: [self-hosted, FlipperZeroTest]
     steps:
       - name: 'Decontaminate previous build leftovers'
@@ -29,81 +29,38 @@ jobs:
         run: |
           echo "flipper=/dev/ttyACM0" >> $GITHUB_OUTPUT
 
-      - name: 'Flashing target firmware'
-        id: first_full_flash
-        run: |
-          ./fbt flash_usb_full PORT=${{steps.device.outputs.flipper}} FORCE=1
-          source scripts/toolchain/fbtenv.sh
-          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
-
-      - name: 'Validating updater'
-        id: second_full_flash
-        if: success()
-        run: |
-          ./fbt flash_usb_full PORT=${{steps.device.outputs.flipper}} FORCE=1
-          source scripts/toolchain/fbtenv.sh
-          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
-
       - name: 'Flash unit tests firmware'
         id: flashing
         if: success()
-        run: |
+        run: |                               
           ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
 
-      - name: 'Wait for flipper to finish updating'
-        id: connect
+      - name: 'Wait for flipper and format ext'
+        id: format_ext
         if: steps.flashing.outcome == 'success'
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
+          python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext
 
-      - name: 'Copy assets and unit tests data to flipper'
+      - name: 'Copy assets and unit data, reboot and wait for flipper'
         id: copy
-        if: steps.connect.outcome == 'success'
+        if: steps.format_ext.outcome == 'success'
         run: |
           source scripts/toolchain/fbtenv.sh
+          python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} -f send assets/resources /ext
           python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} -f send assets/unit_tests /ext/unit_tests
+          python3 scripts/power.py -p ${{steps.device.outputs.flipper}} reboot
+          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
 
       - name: 'Run units and validate results'
+        id: run_units
         if: steps.copy.outcome == 'success'
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/testing/units.py ${{steps.device.outputs.flipper}}
 
-      - name: 'Get last release tag'
-        id: release_tag
-        if: always()
+      - name: 'Check GDB output'
+        if: failure()
         run: |
-          echo "tag=$(git tag -l --sort=-version:refname | grep -v "rc\|RC" | head -1)" >> $GITHUB_OUTPUT
-
-      - name: 'Decontaminate previous build leftovers'
-        if: always()
-        run: |
-          if [ -d .git ]; then
-            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
-          fi
-
-      - name: 'Checkout latest release'
-        uses: actions/checkout@v3
-        if: always()
-        with:
-          fetch-depth: 0
-          ref: ${{ steps.release_tag.outputs.tag }}
-
-      - name: 'Flash last release'
-        if: always()
-        run: |
-          ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
-
-      - name: 'Wait for flipper to finish updating'
-        if: always()
-        run: |
-          source scripts/toolchain/fbtenv.sh
-          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
-
-      - name: 'Format flipper SD card'
-        id: format
-        if: always()
-        run: |
-          source scripts/toolchain/fbtenv.sh
-          python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext
+          ./fbt gdb_trace_all OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1

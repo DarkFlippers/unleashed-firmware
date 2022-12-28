@@ -1,0 +1,77 @@
+name: 'Updater test'
+
+on:
+  pull_request:
+
+env:
+  TARGETS: f7
+  DEFAULT_TARGET: f7
+  FBT_TOOLCHAIN_PATH: /opt
+
+jobs:
+  test_updater_on_bench:
+    runs-on: [self-hosted, FlipperZeroTest] # currently on same bench as units, needs different bench
+    steps:
+      - name: 'Decontaminate previous build leftovers'
+        run: |
+          if [ -d .git ]; then
+            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Get flipper from device manager (mock)'
+        id: device
+        run: |
+          echo "flipper=/dev/ttyACM0" >> $GITHUB_OUTPUT
+
+      - name: 'Flashing target firmware'
+        id: first_full_flash
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          ./fbt flash_usb_full PORT=${{steps.device.outputs.flipper}} FORCE=1
+          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
+
+      - name: 'Validating updater'
+        id: second_full_flash
+        if: success()
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          ./fbt flash_usb PORT=${{steps.device.outputs.flipper}} FORCE=1
+          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
+
+      - name: 'Get last release tag'
+        id: release_tag
+        if: failure()
+        run: |
+          echo "tag=$(git tag -l --sort=-version:refname | grep -v "rc\|RC" | head -1)" >> $GITHUB_OUTPUT
+
+      - name: 'Decontaminate previous build leftovers'
+        if: failure()
+        run: |
+          if [ -d .git ]; then
+            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+          fi
+
+      - name: 'Checkout latest release'
+        uses: actions/checkout@v3
+        if: failure()
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.release_tag.outputs.tag }}
+
+      - name: 'Flash last release'
+        if: failure()
+        run: |
+          ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FORCE=1
+
+      - name: 'Wait for flipper and format ext'
+        if: failure()
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
+          python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext

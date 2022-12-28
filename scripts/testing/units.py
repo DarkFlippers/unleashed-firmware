@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
-
-import sys, os
-import serial
+import logging
 import re
+import sys
 
+import serial
 from await_flipper import flp_serial_by_name
 
 
-LEAK_THRESHOLD = 3000  # added until units are fixed
-
-
 def main():
+    logging.basicConfig(
+        format="%(asctime)s %(levelname)-8s %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logging.info("Trying to run units on flipper")
     flp_serial = flp_serial_by_name(sys.argv[1])
 
     if flp_serial == "":
-        print("Name or serial port is invalid")
+        logging.error("Flipper not found!")
         sys.exit(1)
 
     with serial.Serial(flp_serial, timeout=1) as flipper:
+        logging.info(f"Found Flipper at {flp_serial}")
         flipper.baudrate = 230400
         flipper.flushOutput()
         flipper.flushInput()
 
-        flipper.timeout = 300
+        flipper.timeout = 180
 
         flipper.read_until(b">: ").decode("utf-8")
         flipper.write(b"unit_tests\r")
@@ -41,9 +45,13 @@ def main():
         status_pattern = re.compile(status_re)
 
         tests, time, leak, status = None, None, None, None
+        total = 0
 
         for line in lines:
-            print(line)
+            logging.info(line)
+            if "()" in line:
+                total += 1
+
             if not tests:
                 tests = re.match(tests_pattern, line)
             if not time:
@@ -53,8 +61,8 @@ def main():
             if not status:
                 status = re.match(status_pattern, line)
 
-        if leak is None or time is None or leak is None or status is None:
-            print("Failed to get data. Or output is corrupt")
+        if None in (tests, time, leak, status):
+            logging.error(f"Failed to parse output: {leak} {time} {leak} {status}")
             sys.exit(1)
 
         leak = int(re.findall(r"[- ]\d+", leak.group(0))[0])
@@ -62,16 +70,18 @@ def main():
         tests = int(re.findall(r"\d+", tests.group(0))[0])
         time = int(re.findall(r"\d+", time.group(0))[0])
 
-        if tests > 0 or leak > LEAK_THRESHOLD or status != "PASSED":
-            print(f"Got {tests} failed tests.")
-            print(f"Leaked {leak} bytes.")
-            print(f"Status by flipper: {status}")
-            print(f"Time elapsed {time/1000} seconds.")
+        if tests > 0 or status != "PASSED":
+            logging.error(f"Got {tests} failed tests.")
+            logging.error(f"Leaked (not failing on this stat): {leak}")
+            logging.error(f"Status: {status}")
+            logging.error(f"Time: {time/1000} seconds")
             sys.exit(1)
 
-        print(
-            f"Tests ran successfully! Time elapsed {time/1000} seconds. Passed {tests} tests."
+        logging.info(f"Leaked (not failing on this stat): {leak}")
+        logging.info(
+            f"Tests ran successfully! Time elapsed {time/1000} seconds. Passed {total} tests."
         )
+
         sys.exit(0)
 
 
