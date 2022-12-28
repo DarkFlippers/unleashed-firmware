@@ -1,7 +1,15 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 20th Dec, 2022
-# Last Checked 26th Dec, 2022
+# Last Updated 28th Dec, 2022
+# Last Checked 28th Dec, 2022
+#
+# Sony KDL40RD453
+#
+name: POWER
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 2445 582 1221 603 548 602 1191 609 572 602 1191 609 542 607 544 631 1172 603 568 606 545 605 566 608 543 26263 2414 611 1192 607 544 606 1197 602 569 606 1197 602 539 611 540 635 1168 606 565 610 541 608 563 587 564
 #
 name: POWER
 type: parsed
@@ -1773,4 +1781,4 @@ type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 33 00 00 00
-#
+# 
