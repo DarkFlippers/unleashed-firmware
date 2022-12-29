@@ -20,7 +20,7 @@ ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
 
 void gui_update(Gui* gui) {
     furi_assert(gui);
-    furi_thread_flags_set(gui->thread_id, GUI_THREAD_FLAG_DRAW);
+    if(!gui->direct_draw) furi_thread_flags_set(gui->thread_id, GUI_THREAD_FLAG_DRAW);
 }
 
 void gui_input_events_callback(const void* value, void* ctx) {
@@ -34,7 +34,7 @@ void gui_input_events_callback(const void* value, void* ctx) {
 }
 
 // Only Fullscreen supports vertical display for now
-bool gui_redraw_fs(Gui* gui) {
+static bool gui_redraw_fs(Gui* gui) {
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
@@ -192,7 +192,7 @@ static void gui_redraw_status_bar(Gui* gui, bool need_attention) {
     }
 }
 
-bool gui_redraw_window(Gui* gui) {
+static bool gui_redraw_window(Gui* gui) {
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(gui->canvas, GUI_WINDOW_X, GUI_WINDOW_Y, GUI_WINDOW_WIDTH, GUI_WINDOW_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
@@ -203,7 +203,7 @@ bool gui_redraw_window(Gui* gui) {
     return false;
 }
 
-bool gui_redraw_desktop(Gui* gui) {
+static bool gui_redraw_desktop(Gui* gui) {
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
@@ -215,37 +215,44 @@ bool gui_redraw_desktop(Gui* gui) {
     return false;
 }
 
-void gui_redraw(Gui* gui) {
+static void gui_redraw(Gui* gui) {
     furi_assert(gui);
     gui_lock(gui);
 
-    canvas_reset(gui->canvas);
+    do {
+        if(gui->direct_draw) break;
 
-    if(gui->lockdown) {
-        gui_redraw_desktop(gui);
-        bool need_attention =
-            (gui_view_port_find_enabled(gui->layers[GuiLayerWindow]) != 0 ||
-             gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]) != 0);
-        gui_redraw_status_bar(gui, need_attention);
-    } else {
-        if(!gui_redraw_fs(gui)) {
-            if(!gui_redraw_window(gui)) {
-                gui_redraw_desktop(gui);
+        canvas_reset(gui->canvas);
+
+        if(gui->lockdown) {
+            gui_redraw_desktop(gui);
+            bool need_attention =
+                (gui_view_port_find_enabled(gui->layers[GuiLayerWindow]) != 0 ||
+                 gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]) != 0);
+            gui_redraw_status_bar(gui, need_attention);
+        } else {
+            if(!gui_redraw_fs(gui)) {
+                if(!gui_redraw_window(gui)) {
+                    gui_redraw_desktop(gui);
+                }
+                gui_redraw_status_bar(gui, false);
             }
-            gui_redraw_status_bar(gui, false);
         }
-    }
 
-    canvas_commit(gui->canvas);
-    for
-        M_EACH(p, gui->canvas_callback_pair, CanvasCallbackPairArray_t) {
-            p->callback(
-                canvas_get_buffer(gui->canvas), canvas_get_buffer_size(gui->canvas), p->context);
-        }
+        canvas_commit(gui->canvas);
+        for
+            M_EACH(p, gui->canvas_callback_pair, CanvasCallbackPairArray_t) {
+                p->callback(
+                    canvas_get_buffer(gui->canvas),
+                    canvas_get_buffer_size(gui->canvas),
+                    p->context);
+            }
+    } while(false);
+
     gui_unlock(gui);
 }
 
-void gui_input(Gui* gui, InputEvent* input_event) {
+static void gui_input(Gui* gui, InputEvent* input_event) {
     furi_assert(gui);
     furi_assert(input_event);
 
@@ -267,42 +274,48 @@ void gui_input(Gui* gui, InputEvent* input_event) {
 
     gui_lock(gui);
 
-    ViewPort* view_port = NULL;
+    do {
+        if(gui->direct_draw && !gui->ongoing_input_view_port) {
+            break;
+        }
 
-    if(gui->lockdown) {
-        view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
-    } else {
-        view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
-        if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
-        if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
-    }
+        ViewPort* view_port = NULL;
 
-    if(!(gui->ongoing_input & ~key_bit) && input_event->type == InputTypePress) {
-        gui->ongoing_input_view_port = view_port;
-    }
+        if(gui->lockdown) {
+            view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
+        } else {
+            view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
+            if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
+            if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
+        }
 
-    if(view_port && view_port == gui->ongoing_input_view_port) {
-        view_port_input(view_port, input_event);
-    } else if(gui->ongoing_input_view_port && input_event->type == InputTypeRelease) {
-        FURI_LOG_D(
-            TAG,
-            "ViewPort changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view port",
-            gui->ongoing_input_view_port,
-            view_port,
-            input_get_key_name(input_event->key),
-            input_get_type_name(input_event->type),
-            (void*)input_event->sequence);
-        view_port_input(gui->ongoing_input_view_port, input_event);
-    } else {
-        FURI_LOG_D(
-            TAG,
-            "ViewPort changed while key press %p -> %p. Discarding key: %s, type: %s, sequence: %p",
-            gui->ongoing_input_view_port,
-            view_port,
-            input_get_key_name(input_event->key),
-            input_get_type_name(input_event->type),
-            (void*)input_event->sequence);
-    }
+        if(!(gui->ongoing_input & ~key_bit) && input_event->type == InputTypePress) {
+            gui->ongoing_input_view_port = view_port;
+        }
+
+        if(view_port && view_port == gui->ongoing_input_view_port) {
+            view_port_input(view_port, input_event);
+        } else if(gui->ongoing_input_view_port && input_event->type == InputTypeRelease) {
+            FURI_LOG_D(
+                TAG,
+                "ViewPort changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view port",
+                gui->ongoing_input_view_port,
+                view_port,
+                input_get_key_name(input_event->key),
+                input_get_type_name(input_event->type),
+                (void*)input_event->sequence);
+            view_port_input(gui->ongoing_input_view_port, input_event);
+        } else {
+            FURI_LOG_D(
+                TAG,
+                "ViewPort changed while key press %p -> %p. Discarding key: %s, type: %s, sequence: %p",
+                gui->ongoing_input_view_port,
+                view_port,
+                input_get_key_name(input_event->key),
+                input_get_type_name(input_event->type),
+                (void*)input_event->sequence);
+        }
+    } while(false);
 
     gui_unlock(gui);
 }
@@ -468,6 +481,31 @@ void gui_set_lockdown(Gui* gui, bool lockdown) {
     gui_unlock(gui);
 
     // Request redraw
+    gui_update(gui);
+}
+
+Canvas* gui_direct_draw_acquire(Gui* gui) {
+    furi_assert(gui);
+    gui_lock(gui);
+    gui->direct_draw = true;
+    gui_unlock(gui);
+
+    canvas_reset(gui->canvas);
+    canvas_commit(gui->canvas);
+
+    return gui->canvas;
+}
+
+void gui_direct_draw_release(Gui* gui) {
+    furi_assert(gui);
+
+    canvas_reset(gui->canvas);
+    canvas_commit(gui->canvas);
+
+    gui_lock(gui);
+    gui->direct_draw = false;
+    gui_unlock(gui);
+
     gui_update(gui);
 }
 

@@ -1,0 +1,10 @@
+App(
+    appid="direct_draw",
+    name="Direct Draw",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="direct_draw_app",
+    requires=["gui", "input"],
+    stack_size=2 * 1024,
+    order=70,
+    fap_category="Debug",
+)

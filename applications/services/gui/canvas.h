@@ -68,6 +68,18 @@ typedef struct {
 /** Canvas anonymous structure */
 typedef struct Canvas Canvas;
 
+/** Reset canvas drawing tools configuration
+ *
+ * @param      canvas  Canvas instance
+ */
+void canvas_reset(Canvas* canvas);
+
+/** Commit canvas. Send buffer to display
+ *
+ * @param      canvas  Canvas instance
+ */
+void canvas_commit(Canvas* canvas);
+
 /** Get Canvas width
  *
  * @param      canvas  Canvas instance
