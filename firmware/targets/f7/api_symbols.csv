@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.3,,
+Version,+,11.4,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -593,6 +593,7 @@ Function,+,byte_input_set_result_callback,void,"ByteInput*, ByteInputCallback, B
 Function,-,bzero,void,"void*, size_t"
 Function,-,calloc,void*,"size_t, size_t"
 Function,+,canvas_clear,void,Canvas*
+Function,+,canvas_commit,void,Canvas*
 Function,+,canvas_current_font_height,uint8_t,Canvas*
 Function,+,canvas_draw_bitmap,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, const uint8_t*"
 Function,+,canvas_draw_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
@@ -614,6 +615,7 @@ Function,+,canvas_get_font_params,CanvasFontParameters*,"Canvas*, Font"
 Function,+,canvas_glyph_width,uint8_t,"Canvas*, char"
 Function,+,canvas_height,uint8_t,Canvas*
 Function,+,canvas_invert_color,void,Canvas*
+Function,+,canvas_reset,void,Canvas*
 Function,+,canvas_set_bitmap_mode,void,"Canvas*, _Bool"
 Function,+,canvas_set_color,void,"Canvas*, Color"
 Function,+,canvas_set_font,void,"Canvas*, Font"
@@ -1554,6 +1556,8 @@ Function,-,gmtime,tm*,const time_t*
 Function,-,gmtime_r,tm*,"const time_t*, tm*"
 Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
+Function,+,gui_direct_draw_acquire,Canvas*,Gui*
+Function,+,gui_direct_draw_release,void,Gui*
 Function,+,gui_get_framebuffer_size,size_t,Gui*
 Function,+,gui_remove_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
