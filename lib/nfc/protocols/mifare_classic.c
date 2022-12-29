@@ -403,15 +403,16 @@ static bool mf_classic_auth(
     uint32_t block,
     uint64_t key,
     MfClassicKey key_type,
-    Crypto1* crypto) {
+    Crypto1* crypto,
+    bool skip_activate,
+    uint32_t cuid) {
     bool auth_success = false;
-    uint32_t cuid = 0;
     memset(tx_rx->tx_data, 0, sizeof(tx_rx->tx_data));
     memset(tx_rx->tx_parity, 0, sizeof(tx_rx->tx_parity));
     tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
 
     do {
-        if(!furi_hal_nfc_activate_nfca(200, &cuid)) break;
+        if(!skip_activate && !furi_hal_nfc_activate_nfca(200, &cuid)) break;
         if(key_type == MfClassicKeyA) {
             tx_rx->tx_data[0] = MF_CLASSIC_AUTH_KEY_A_CMD;
         } else {
@@ -460,7 +461,23 @@ bool mf_classic_authenticate(
     furi_assert(tx_rx);
 
     Crypto1 crypto = {};
-    bool key_found = mf_classic_auth(tx_rx, block_num, key, key_type, &crypto);
+    bool key_found = mf_classic_auth(tx_rx, block_num, key, key_type, &crypto, false, 0);
+    furi_hal_nfc_sleep();
+    return key_found;
+}
+
+bool mf_classic_authenticate_skip_activate(
+    FuriHalNfcTxRxContext* tx_rx,
+    uint8_t block_num,
+    uint64_t key,
+    MfClassicKey key_type,
+    bool skip_activate,
+    uint32_t cuid) {
+    furi_assert(tx_rx);
+
+    Crypto1 crypto = {};
+    bool key_found =
+        mf_classic_auth(tx_rx, block_num, key, key_type, &crypto, skip_activate, cuid);
     furi_hal_nfc_sleep();
     return key_found;
 }
@@ -483,7 +500,9 @@ bool mf_classic_auth_attempt(
                mf_classic_get_first_block_num_of_sector(auth_ctx->sector),
                key,
                MfClassicKeyA,
-               &crypto)) {
+               &crypto,
+               false,
+               0)) {
             auth_ctx->key_a = key;
             found_key = true;
         }
@@ -500,7 +519,9 @@ bool mf_classic_auth_attempt(
                mf_classic_get_first_block_num_of_sector(auth_ctx->sector),
                key,
                MfClassicKeyB,
-               &crypto)) {
+               &crypto,
+               false,
+               0)) {
             auth_ctx->key_b = key;
             found_key = true;
         }
@@ -568,7 +589,7 @@ void mf_classic_read_sector(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data, u
         if(!key_a_found) break;
         FURI_LOG_D(TAG, "Try to read blocks with key A");
         key = nfc_util_bytes2num(sec_tr->key_a, sizeof(sec_tr->key_a));
-        if(!mf_classic_auth(tx_rx, start_block, key, MfClassicKeyA, &crypto)) break;
+        if(!mf_classic_auth(tx_rx, start_block, key, MfClassicKeyA, &crypto, false, 0)) break;
         for(size_t i = start_block; i < start_block + total_blocks; i++) {
             if(!mf_classic_is_block_read(data, i)) {
                 if(mf_classic_read_block(tx_rx, &crypto, i, &block_tmp)) {
@@ -587,7 +608,7 @@ void mf_classic_read_sector(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data, u
         FURI_LOG_D(TAG, "Try to read blocks with key B");
         key = nfc_util_bytes2num(sec_tr->key_b, sizeof(sec_tr->key_b));
         furi_hal_nfc_sleep();
-        if(!mf_classic_auth(tx_rx, start_block, key, MfClassicKeyB, &crypto)) break;
+        if(!mf_classic_auth(tx_rx, start_block, key, MfClassicKeyB, &crypto, false, 0)) break;
         for(size_t i = start_block; i < start_block + total_blocks; i++) {
             if(!mf_classic_is_block_read(data, i)) {
                 if(mf_classic_read_block(tx_rx, &crypto, i, &block_tmp)) {
@@ -631,7 +652,7 @@ static bool mf_classic_read_sector_with_reader(
         }
 
         // Auth to first block in sector
-        if(!mf_classic_auth(tx_rx, first_block, key, key_type, crypto)) {
+        if(!mf_classic_auth(tx_rx, first_block, key, key_type, crypto, false, 0)) {
             // Set key to MF_CLASSIC_NO_KEY to prevent further attempts
             if(key_type == MfClassicKeyA) {
                 sector_reader->key_a = MF_CLASSIC_NO_KEY;
@@ -961,7 +982,7 @@ bool mf_classic_write_block(
 
     do {
         furi_hal_nfc_sleep();
-        if(!mf_classic_auth(tx_rx, block_num, key, key_type, &crypto)) {
+        if(!mf_classic_auth(tx_rx, block_num, key, key_type, &crypto, false, 0)) {
             FURI_LOG_D(TAG, "Auth fail");
             break;
         }
