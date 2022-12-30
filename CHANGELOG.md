@@ -2,6 +2,7 @@
 * CI/CD: Builds with extra apps pack included, see new option below
 * SubGHz: Allow manual creation of Nice Flor S, Nice Smilo
 * LF RFID: Allow removing password from T5577 to make it operational (PR #225 | by @TQMatvey & Tobirg (grvpvl))
+* Plugins -> Arkanoid: Fix bug with unability to continue game after first level
 * Plugins -> Morse Code: Fixed crashes, fixed known issues (PR #249 | by @gid9798)
 * Plugins -> USB Keyboard & Mouse: Added ESCAPE key (PR #243 | by @huuck)
 * Plugins -> SubGHz Bruteforcer: Add holtek HT12X protocol support
