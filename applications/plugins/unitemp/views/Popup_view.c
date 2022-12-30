@@ -18,7 +18,6 @@
 #include "UnitempViews.h"
 #include <gui/modules/variable_item_list.h>
 #include <stdio.h>
-#include <assets_icons.h>
 
 uint32_t _prev_view_id;
 

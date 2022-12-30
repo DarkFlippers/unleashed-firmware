@@ -18,7 +18,9 @@
 #include "UnitempViews.h"
 #include "unitemp_icons.h"
 
-#include <assets_icons.h>
+extern const Icon I_ButtonRight_4x7;
+extern const Icon I_ButtonLeft_4x7;
+extern const Icon I_Ok_btn_9x9;
 
 static View* view;
 
