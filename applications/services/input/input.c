@@ -80,9 +80,7 @@ int32_t input_srv(void* p) {
 
 #ifdef SRV_CLI
     input->cli = furi_record_open(RECORD_CLI);
-    if(input->cli) {
-        cli_add_command(input->cli, "input", CliCommandFlagParallelSafe, input_cli, input);
-    }
+    cli_add_command(input->cli, "input", CliCommandFlagParallelSafe, input_cli, input);
 #endif
 
     input->pin_states = malloc(input_pins_count * sizeof(InputPinState));

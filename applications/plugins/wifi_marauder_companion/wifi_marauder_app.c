@@ -50,6 +50,8 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
         app->selected_option_index[i] = 0;
     }
 
+    app->special_case_input_step = 0;
+
     app->text_box = text_box_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, WifiMarauderAppViewConsoleOutput, text_box_get_view(app->text_box));
@@ -90,6 +92,9 @@ void wifi_marauder_app_free(WifiMarauderApp* app) {
 
 int32_t wifi_marauder_app(void* p) {
     UNUSED(p);
+    furi_hal_power_enable_otg();
+    furi_delay_ms(300);
+
     WifiMarauderApp* wifi_marauder_app = wifi_marauder_app_alloc();
 
     wifi_marauder_app->uart = wifi_marauder_uart_init(wifi_marauder_app);
@@ -97,6 +102,8 @@ int32_t wifi_marauder_app(void* p) {
     view_dispatcher_run(wifi_marauder_app->view_dispatcher);
 
     wifi_marauder_app_free(wifi_marauder_app);
+
+    furi_hal_power_disable_otg();
 
     return 0;
 }

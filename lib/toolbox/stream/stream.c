@@ -315,8 +315,8 @@ void stream_dump_data(Stream* stream) {
     size_t size = stream_size(stream);
     size_t tell = stream_tell(stream);
     printf("stream %p\r\n", stream);
-    printf("size = %u\r\n", size);
-    printf("tell = %u\r\n", tell);
+    printf("size = %zu\r\n", size);
+    printf("tell = %zu\r\n", tell);
     printf("DATA START\r\n");
     uint8_t* data = malloc(STREAM_CACHE_SIZE);
     stream_rewind(stream);

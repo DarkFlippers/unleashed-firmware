@@ -120,7 +120,7 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
         furi_hal_version_get_hw_target(),
         furi_hal_version_get_hw_body(),
         furi_hal_version_get_hw_connect(),
-        furi_hal_version_get_hw_region_name(),
+        furi_hal_version_get_hw_region_name_otp(),
         furi_hal_region_get_name(),
         my_name ? my_name : "Unknown");
 
@@ -150,7 +150,7 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     c2_ver = ble_glue_get_c2_info();
 #endif
 
-    if(!ver) {
+    if(!ver) { //-V1051
         furi_string_cat_printf(buffer, "No info\n");
     } else {
         furi_string_cat_printf(

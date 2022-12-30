@@ -212,7 +212,8 @@ static inline void traceFREE(void* pointer, size_t size) {
             MemmgrHeapThreadDict_get(memmgr_heap_thread_dict, (uint32_t)thread_id);
         if(alloc_dict) {
             // In some cases thread may want to release memory that was not allocated by it
-            (void)MemmgrHeapAllocDict_erase(*alloc_dict, (uint32_t)pointer);
+            const bool res = MemmgrHeapAllocDict_erase(*alloc_dict, (uint32_t)pointer);
+            UNUSED(res);
         }
         memmgr_heap_thread_trace_depth--;
     }
@@ -520,8 +521,8 @@ void vPortFree(void* pv) {
                 {
                     furi_assert((size_t)pv >= SRAM_BASE);
                     furi_assert((size_t)pv < SRAM_BASE + 1024 * 256);
+                    furi_assert(pxLink->xBlockSize >= xHeapStructSize);
                     furi_assert((pxLink->xBlockSize - xHeapStructSize) < 1024 * 256);
-                    furi_assert((int32_t)(pxLink->xBlockSize - xHeapStructSize) >= 0);
 
                     /* Add this block to the list of free blocks. */
                     xFreeBytesRemaining += pxLink->xBlockSize;

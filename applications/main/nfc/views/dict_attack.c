@@ -24,6 +24,8 @@ typedef struct {
     uint8_t keys_found;
     uint16_t dict_keys_total;
     uint16_t dict_keys_current;
+    bool is_key_attack;
+    uint8_t key_attack_current_sector;
 } DictAttackViewModel;
 
 static void dict_attack_draw_callback(Canvas* canvas, void* model) {
@@ -36,10 +38,19 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
             canvas, 64, 23, AlignCenter, AlignTop, "Make sure the tag is\npositioned correctly.");
     } else if(m->state == DictAttackStateRead) {
         char draw_str[32] = {};
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(
-            canvas, 64, 2, AlignCenter, AlignTop, furi_string_get_cstr(m->header));
         canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas, 64, 0, AlignCenter, AlignTop, furi_string_get_cstr(m->header));
+        if(m->is_key_attack) {
+            snprintf(
+                draw_str,
+                sizeof(draw_str),
+                "Reuse key check for sector: %d",
+                m->key_attack_current_sector);
+        } else {
+            snprintf(draw_str, sizeof(draw_str), "Unlocking sector: %d", m->sector_current);
+        }
+        canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignTop, draw_str);
         float dict_progress = m->dict_keys_total == 0 ?
                                   0 :
                                   (float)(m->dict_keys_current) / (float)(m->dict_keys_total);
@@ -49,13 +60,20 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
         if(progress > 1.0) {
             progress = 1.0;
         }
-        elements_progress_bar(canvas, 5, 15, 120, progress);
+        if(m->dict_keys_current == 0) {
+            // Cause when people see 0 they think it's broken
+            snprintf(draw_str, sizeof(draw_str), "%d/%d", 1, m->dict_keys_total);
+        } else {
+            snprintf(
+                draw_str, sizeof(draw_str), "%d/%d", m->dict_keys_current, m->dict_keys_total);
+        }
+        elements_progress_bar_with_text(canvas, 0, 20, 128, dict_progress, draw_str);
         canvas_set_font(canvas, FontSecondary);
         snprintf(draw_str, sizeof(draw_str), "Keys found: %d/%d", m->keys_found, m->keys_total);
-        canvas_draw_str_aligned(canvas, 1, 28, AlignLeft, AlignTop, draw_str);
+        canvas_draw_str_aligned(canvas, 0, 33, AlignLeft, AlignTop, draw_str);
         snprintf(
             draw_str, sizeof(draw_str), "Sectors Read: %d/%d", m->sectors_read, m->sectors_total);
-        canvas_draw_str_aligned(canvas, 1, 40, AlignLeft, AlignTop, draw_str);
+        canvas_draw_str_aligned(canvas, 0, 43, AlignLeft, AlignTop, draw_str);
     }
     elements_button_center(canvas, "Skip");
 }
@@ -113,6 +131,7 @@ void dict_attack_reset(DictAttack* dict_attack) {
             model->keys_found = 0;
             model->dict_keys_total = 0;
             model->dict_keys_current = 0;
+            model->is_key_attack = false;
             furi_string_reset(model->header);
         },
         false);
@@ -231,6 +250,31 @@ void dict_attack_inc_current_dict_key(DictAttack* dict_attack, uint16_t keys_tri
         {
             if(model->dict_keys_current + keys_tried < model->dict_keys_total) {
                 model->dict_keys_current += keys_tried;
+            }
+        },
+        true);
+}
+
+void dict_attack_set_key_attack(DictAttack* dict_attack, bool is_key_attack, uint8_t sector) {
+    furi_assert(dict_attack);
+    with_view_model(
+        dict_attack->view,
+        DictAttackViewModel * model,
+        {
+            model->is_key_attack = is_key_attack;
+            model->key_attack_current_sector = sector;
+        },
+        true);
+}
+
+void dict_attack_inc_key_attack_current_sector(DictAttack* dict_attack) {
+    furi_assert(dict_attack);
+    with_view_model(
+        dict_attack->view,
+        DictAttackViewModel * model,
+        {
+            if(model->key_attack_current_sector < model->sectors_total) {
+                model->key_attack_current_sector++;
             }
         },
         true);

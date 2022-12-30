@@ -15,12 +15,12 @@ static void
     app->pwm_freq = freq;
     app->pwm_duty = duty;
 
-    if(app->pwm_ch != pwm_ch_id[channel_id]) {
+    if(app->pwm_ch != pwm_ch_id[channel_id]) { //-V1051
         app->pwm_ch_prev = app->pwm_ch;
         app->pwm_ch = pwm_ch_id[channel_id];
         view_dispatcher_send_custom_event(app->view_dispatcher, SignalGenPwmEventChannelChange);
     } else {
-        app->pwm_ch = pwm_ch_id[channel_id];
+        app->pwm_ch = pwm_ch_id[channel_id]; //-V1048
         view_dispatcher_send_custom_event(app->view_dispatcher, SignalGenPwmEventUpdate);
     }
 }

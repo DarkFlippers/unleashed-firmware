@@ -114,7 +114,7 @@ static void subghz_test_packet_draw(Canvas* canvas, SubGhzTestPacketModel* model
     snprintf(buffer, sizeof(buffer), "Path: %d - %s", model->path, path_name);
     canvas_draw_str(canvas, 0, 31, buffer);
 
-    snprintf(buffer, sizeof(buffer), "Packets: %d", model->packets);
+    snprintf(buffer, sizeof(buffer), "Packets: %zu", model->packets);
     canvas_draw_str(canvas, 0, 42, buffer);
 
     if(model->status == SubGhzTestPacketModelStatusRx) {

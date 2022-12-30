@@ -36,7 +36,7 @@ static void bt_pin_code_view_port_draw_callback(Canvas* canvas, void* context) {
     Bt* bt = context;
     char pin_code_info[24];
     canvas_draw_icon(canvas, 0, 0, &I_BLE_Pairing_128x64);
-    snprintf(pin_code_info, sizeof(pin_code_info), "Pairing code\n%06ld", bt->pin_code);
+    snprintf(pin_code_info, sizeof(pin_code_info), "Pairing code\n%06lu", bt->pin_code);
     elements_multiline_text_aligned(canvas, 64, 4, AlignCenter, AlignTop, pin_code_info);
     elements_button_left(canvas, "Quit");
 }
@@ -78,7 +78,7 @@ static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
     notification_message(bt->notification, &sequence_display_backlight_on);
     FuriString* pin_str;
     dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
-    pin_str = furi_string_alloc_printf("Verify code\n%06ld", pin);
+    pin_str = furi_string_alloc_printf("Verify code\n%06lu", pin);
     dialog_message_set_text(
         bt->dialog_message, furi_string_get_cstr(pin_str), 64, 4, AlignCenter, AlignTop);
     dialog_message_set_buttons(bt->dialog_message, "Cancel", "OK", NULL);
@@ -117,6 +117,8 @@ Bt* bt_alloc() {
     if(!bt_settings_load(&bt->bt_settings)) {
         bt_settings_save(&bt->bt_settings);
     }
+    // Keys storage
+    bt->keys_storage = bt_keys_storage_alloc(BT_KEYS_STORAGE_PATH);
     // Alloc queue
     bt->message_queue = furi_message_queue_alloc(8, sizeof(BtMessage));
 
@@ -161,7 +163,7 @@ static uint16_t bt_serial_event_callback(SerialServiceEvent event, void* context
             rpc_session_feed(bt->rpc_session, event.data.buffer, event.data.size, 1000);
         if(bytes_processed != event.data.size) {
             FURI_LOG_E(
-                TAG, "Only %d of %d bytes processed by RPC", bytes_processed, event.data.size);
+                TAG, "Only %zu of %u bytes processed by RPC", bytes_processed, event.data.size);
         }
         ret = rpc_session_get_available_size(bt->rpc_session);
     } else if(event.event == SerialServiceEventTypeDataSent) {
@@ -285,8 +287,10 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
 static void bt_on_key_storage_change_callback(uint8_t* addr, uint16_t size, void* context) {
     furi_assert(context);
     Bt* bt = context;
-    FURI_LOG_I(TAG, "Changed addr start: %p, size changed: %d", addr, size);
-    BtMessage message = {.type = BtMessageTypeKeysStorageUpdated};
+    BtMessage message = {
+        .type = BtMessageTypeKeysStorageUpdated,
+        .data.key_storage_data.start_address = addr,
+        .data.key_storage_data.size = size};
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
 }
@@ -331,6 +335,8 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
             furi_profile = FuriHalBtProfileSerial;
         }
 
+        bt_keys_storage_load(bt->keys_storage);
+
         if(furi_hal_bt_change_app(furi_profile, bt_on_gap_event_callback, bt)) {
             FURI_LOG_I(TAG, "Bt App started");
             if(bt->bt_settings.enabled) {
@@ -358,6 +364,7 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
 
 static void bt_close_connection(Bt* bt) {
     bt_close_rpc_connection(bt);
+    furi_hal_bt_stop_advertising();
     furi_event_flag_set(bt->api_event, BT_API_UNLOCK_EVENT);
 }
 
@@ -372,8 +379,8 @@ int32_t bt_srv(void* p) {
         return 0;
     }
 
-    // Read keys
-    if(!bt_keys_storage_load(bt)) {
+    // Load keys
+    if(!bt_keys_storage_load(bt->keys_storage)) {
         FURI_LOG_W(TAG, "Failed to load bonding keys");
     }
 
@@ -418,13 +425,16 @@ int32_t bt_srv(void* p) {
             // Display PIN code
             bt_pin_code_show(bt, message.data.pin_code);
         } else if(message.type == BtMessageTypeKeysStorageUpdated) {
-            bt_keys_storage_save(bt);
+            bt_keys_storage_update(
+                bt->keys_storage,
+                message.data.key_storage_data.start_address,
+                message.data.key_storage_data.size);
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
         } else if(message.type == BtMessageTypeDisconnect) {
             bt_close_connection(bt);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
-            bt_keys_storage_delete(bt);
+            bt_keys_storage_delete(bt->keys_storage);
         }
     }
     return 0;

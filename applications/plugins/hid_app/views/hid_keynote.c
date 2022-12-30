@@ -19,6 +19,7 @@ typedef struct {
     bool ok_pressed;
     bool back_pressed;
     bool connected;
+    HidTransport transport;
 } HidKeynoteModel;
 
 static void hid_keynote_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
@@ -39,11 +40,14 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
     HidKeynoteModel* model = context;
 
     // Header
-    if(model->connected) {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-    } else {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+    if(model->transport == HidTransportBle) {
+        if(model->connected) {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+        } else {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+        }
     }
+
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keynote");
 
@@ -185,6 +189,9 @@ HidKeynote* hid_keynote_alloc(Hid* hid) {
     view_allocate_model(hid_keynote->view, ViewModelTypeLocking, sizeof(HidKeynoteModel));
     view_set_draw_callback(hid_keynote->view, hid_keynote_draw_callback);
     view_set_input_callback(hid_keynote->view, hid_keynote_input_callback);
+
+    with_view_model(
+        hid_keynote->view, HidKeynoteModel * model, { model->transport = hid->transport; }, true);
 
     return hid_keynote;
 }

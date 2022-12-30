@@ -42,6 +42,13 @@ class GitVersion:
             or ""
         )
 
+        force_no_dirty = (
+            os.environ.get("FORCE_NO_DIRTY", None)
+            or ""
+        )
+        if (force_no_dirty != ""):
+            dirty = False
+
         if (custom_fz_name != "") and (len(custom_fz_name) <= 8) and (custom_fz_name.isalnum()) and (custom_fz_name.isascii()):
             return {
                 "GIT_COMMIT": commit,

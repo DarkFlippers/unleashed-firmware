@@ -147,17 +147,17 @@ void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, C
     }
 
     if(token_updated) {
-        totp_full_save_config_file(plugin_state);
+        if(totp_full_save_config_file(plugin_state) == TotpConfigFileUpdateSuccess) {
+            TOTP_CLI_PRINTF("Token \"%s\" has been successfully updated\r\n", token_info->name);
+        } else {
+            TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
+        }
+    } else {
+        TOTP_CLI_PRINT_INVALID_ARGUMENTS();
     }
 
     if(activate_generate_token_scene) {
         totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
-    }
-
-    if(token_updated) {
-        TOTP_CLI_PRINTF("Token \"%s\" has been successfully updated\r\n", token_info->name);
-    } else {
-        TOTP_CLI_PRINT_INVALID_ARGUMENTS();
     }
 
     furi_string_free(temp_str);

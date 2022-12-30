@@ -121,7 +121,7 @@ uint32_t cc1101_set_intermediate_frequency(FuriHalSpiBusHandle* handle, uint32_t
 }
 
 void cc1101_set_pa_table(FuriHalSpiBusHandle* handle, const uint8_t value[8]) {
-    uint8_t tx[9] = {CC1101_PATABLE | CC1101_BURST};
+    uint8_t tx[9] = {CC1101_PATABLE | CC1101_BURST}; //-V1009
     CC1101Status rx[9] = {0};
 
     memcpy(&tx[1], &value[0], 8);

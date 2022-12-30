@@ -73,24 +73,14 @@ bool all_in_one_parser_parse(NfcDeviceData* dev_data) {
         return false;
     }
 
-    // If the layout is a then the ride count is stored in the first byte of page 8
     uint8_t ride_count = 0;
     uint32_t serial = 0;
     if(all_in_one_get_layout(dev_data) == ALL_IN_ONE_LAYOUT_A) {
+        // If the layout is A then the ride count is stored in the first byte of page 8
         ride_count = dev_data->mf_ul_data.data[4 * 8];
     } else if(all_in_one_get_layout(dev_data) == ALL_IN_ONE_LAYOUT_D) {
         // If the layout is D, the ride count is stored in the second byte of page 9
         ride_count = dev_data->mf_ul_data.data[4 * 9 + 1];
-        // I hate this with a burning passion.
-
-        // The number starts at the second half of the third byte on page 4, and is 32 bits long
-        // So we get the second half of the third byte, then bytes 4-6, and then the first half of the 7th byte
-        // B8 17 A2 A4 BD becomes 81 7A 2A 4B
-        serial = (dev_data->mf_ul_data.data[4 * 4 + 2] & 0x0F) << 28 |
-                 dev_data->mf_ul_data.data[4 * 4 + 3] << 20 |
-                 dev_data->mf_ul_data.data[4 * 4 + 4] << 12 |
-                 dev_data->mf_ul_data.data[4 * 4 + 5] << 4 |
-                 (dev_data->mf_ul_data.data[4 * 4 + 6] >> 4);
     } else {
         FURI_LOG_I("all_in_one", "Unknown layout: %d", all_in_one_get_layout(dev_data));
         ride_count = 137;

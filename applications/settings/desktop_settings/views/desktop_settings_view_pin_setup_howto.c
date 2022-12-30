@@ -17,7 +17,7 @@ struct DesktopSettingsViewPinSetupHowto {
 
 static void desktop_settings_view_pin_setup_howto_draw(Canvas* canvas, void* model) {
     furi_assert(canvas);
-    furi_assert(model);
+    UNUSED(model);
 
     canvas_draw_icon(canvas, 16, 18, &I_Pin_attention_dpad_29x29);
     elements_button_right(canvas, "Next");
@@ -57,7 +57,6 @@ void desktop_settings_view_pin_setup_howto_set_callback(
 DesktopSettingsViewPinSetupHowto* desktop_settings_view_pin_setup_howto_alloc() {
     DesktopSettingsViewPinSetupHowto* view = malloc(sizeof(DesktopSettingsViewPinSetupHowto));
     view->view = view_alloc();
-    view_allocate_model(view->view, ViewModelTypeLockFree, 1);
     view_set_context(view->view, view);
     view_set_draw_callback(view->view, desktop_settings_view_pin_setup_howto_draw);
     view_set_input_callback(view->view, desktop_settings_view_pin_setup_howto_input);

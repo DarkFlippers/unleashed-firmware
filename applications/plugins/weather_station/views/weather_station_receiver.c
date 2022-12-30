@@ -303,7 +303,7 @@ bool ws_view_receiver_input(InputEvent* event, void* context) {
             ws_receiver->view,
             WSReceiverModel * model,
             {
-                if(model->idx != model->history_item - 1) model->idx++;
+                if(model->history_item && model->idx != model->history_item - 1) model->idx++;
             },
             true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {

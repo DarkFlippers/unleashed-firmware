@@ -53,7 +53,7 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
     canvas_draw_icon(canvas, 116, 0 + STATUS_BAR_Y_SHIFT, &I_DoorRight_70x55);
     canvas_set_font(canvas, FontSecondary);
 
-    for(uint8_t i = 0; i < DesktopLockMenuIndexTotalCount; ++i) {
+    for(size_t i = 0; i < DesktopLockMenuIndexTotalCount; ++i) {
         const char* str = NULL;
 
         if(i == DesktopLockMenuIndexLock) {
@@ -64,7 +64,7 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
             } else {
                 str = "Set PIN";
             }
-        } else if(i == DesktopLockMenuIndexDummy) {
+        } else if(i == DesktopLockMenuIndexDummy) { //-V547
             if(m->dummy_mode) {
                 str = "Brainiac Mode";
             } else {
@@ -72,7 +72,7 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
             }
         }
 
-        if(str)
+        if(str) //-V547
             canvas_draw_str_aligned(
                 canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
 

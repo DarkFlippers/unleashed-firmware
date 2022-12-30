@@ -415,7 +415,7 @@ float furi_hal_bt_get_rssi() {
             val += 6.0;
             rssi >>= 1;
         }
-        val += (417 * rssi + 18080) >> 10;
+        val += (float)((417 * rssi + 18080) >> 10);
     }
     return val;
 }

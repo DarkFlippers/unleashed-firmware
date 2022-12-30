@@ -111,11 +111,8 @@ void ws_hopper_update(WeatherStationApp* app) {
 
     switch(app->txrx->hopper_state) {
     case WSHopperStateOFF:
-        return;
-        break;
     case WSHopperStatePause:
         return;
-        break;
     case WSHopperStateRSSITimeOut:
         if(app->txrx->hopper_timeout != 0) {
             app->txrx->hopper_timeout--;

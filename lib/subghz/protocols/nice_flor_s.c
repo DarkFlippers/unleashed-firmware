@@ -340,6 +340,29 @@ static uint64_t
     return data;
 }
 
+bool subghz_protocol_nice_flor_s_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderNiceFlorS* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->generic.data_count_bit = 52;
+    uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
+    uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(
+        decrypt, instance->nice_flor_s_rainbow_table_file_name);
+    uint8_t byte = btn << 4 | (0xF ^ btn ^ 0x3);
+    instance->generic.data = (uint64_t)byte << 44 | enc_part;
+
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+
+    return res;
+}
+
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolDecoderNiceFlorS));
     instance->base.protocol = &subghz_protocol_nice_flor_s;

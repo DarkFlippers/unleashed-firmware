@@ -77,7 +77,7 @@ static int storage_int_device_read(
 
     FURI_LOG_T(
         TAG,
-        "Device read: block %ld, off %ld, buffer: %p, size %ld, translated address: %p",
+        "Device read: block %lu, off %lu, buffer: %p, size %lu, translated address: %p",
         block,
         off,
         buffer,
@@ -100,7 +100,7 @@ static int storage_int_device_prog(
 
     FURI_LOG_T(
         TAG,
-        "Device prog: block %ld, off %ld, buffer: %p, size %ld, translated address: %p",
+        "Device prog: block %lu, off %lu, buffer: %p, size %lu, translated address: %p",
         block,
         off,
         buffer,
@@ -122,7 +122,7 @@ static int storage_int_device_erase(const struct lfs_config* c, lfs_block_t bloc
     LFSData* lfs_data = c->context;
     size_t page = lfs_data->start_page + block;
 
-    FURI_LOG_D(TAG, "Device erase: page %ld, translated page: %x", block, page);
+    FURI_LOG_D(TAG, "Device erase: page %lu, translated page: %zx", block, page);
 
     furi_hal_flash_erase(page);
     return 0;
@@ -240,56 +240,38 @@ static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
 /****************** Common Functions ******************/
 
 static FS_Error storage_int_parse_error(int error) {
-    FS_Error result = FSE_INTERNAL;
+    FS_Error result;
 
     if(error >= LFS_ERR_OK) {
         result = FSE_OK;
     } else {
         switch(error) {
-        case LFS_ERR_IO:
-            result = FSE_INTERNAL;
-            break;
-        case LFS_ERR_CORRUPT:
-            result = FSE_INTERNAL;
-            break;
         case LFS_ERR_NOENT:
             result = FSE_NOT_EXIST;
             break;
         case LFS_ERR_EXIST:
             result = FSE_EXIST;
             break;
-        case LFS_ERR_NOTDIR:
-            result = FSE_INVALID_NAME;
-            break;
-        case LFS_ERR_ISDIR:
-            result = FSE_INVALID_NAME;
-            break;
         case LFS_ERR_NOTEMPTY:
             result = FSE_DENIED;
             break;
-        case LFS_ERR_BADF:
-            result = FSE_INVALID_NAME;
-            break;
-        case LFS_ERR_FBIG:
-            result = FSE_INTERNAL;
-            break;
         case LFS_ERR_INVAL:
-            result = FSE_INVALID_PARAMETER;
-            break;
-        case LFS_ERR_NOSPC:
-            result = FSE_INTERNAL;
-            break;
-        case LFS_ERR_NOMEM:
-            result = FSE_INTERNAL;
-            break;
         case LFS_ERR_NOATTR:
             result = FSE_INVALID_PARAMETER;
             break;
+        case LFS_ERR_BADF:
+        case LFS_ERR_ISDIR:
+        case LFS_ERR_NOTDIR:
         case LFS_ERR_NAMETOOLONG:
             result = FSE_INVALID_NAME;
             break;
+        case LFS_ERR_IO:
+        case LFS_ERR_FBIG:
+        case LFS_ERR_NOSPC:
+        case LFS_ERR_NOMEM:
+        case LFS_ERR_CORRUPT:
         default:
-            break;
+            result = FSE_INTERNAL;
         }
     }
 
@@ -740,7 +722,7 @@ void storage_int_init(StorageData* storage) {
     LFSData* lfs_data = storage_int_lfs_data_alloc();
     FURI_LOG_I(
         TAG,
-        "Config: start %p, read %ld, write %ld, page size: %ld, page count: %ld, cycles: %ld",
+        "Config: start %p, read %lu, write %lu, page size: %lu, page count: %lu, cycles: %ld",
         (void*)lfs_data->start_address,
         lfs_data->config.read_size,
         lfs_data->config.prog_size,

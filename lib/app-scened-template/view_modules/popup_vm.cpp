@@ -1,4 +1,5 @@
 #include "popup_vm.h"
+#include "gui/modules/popup.h"
 PopupVM::PopupVM() {
     popup = popup_alloc();
 }
@@ -50,5 +51,5 @@ void PopupVM::enable_timeout() {
 }
 
 void PopupVM::disable_timeout() {
-    popup_enable_timeout(popup);
+    popup_disable_timeout(popup);
 }

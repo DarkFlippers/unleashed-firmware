@@ -20,7 +20,7 @@ bool mf_classic_dict_check_presence(MfClassicDictType dict_type) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     bool dict_present = false;
-    if(dict_type == MfClassicDictTypeFlipper) {
+    if(dict_type == MfClassicDictTypeSystem) {
         dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_FLIPPER_PATH, NULL) == FSE_OK;
     } else if(dict_type == MfClassicDictTypeUser) {
         dict_present = storage_common_stat(storage, MF_CLASSIC_DICT_USER_PATH, NULL) == FSE_OK;
@@ -42,7 +42,7 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
 
     bool dict_loaded = false;
     do {
-        if(dict_type == MfClassicDictTypeFlipper) {
+        if(dict_type == MfClassicDictTypeSystem) {
             if(!buffered_file_stream_open(
                    dict->stream,
                    MF_CLASSIC_DICT_FLIPPER_PATH,
@@ -90,7 +90,7 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
             }
             FURI_LOG_T(
                 TAG,
-                "Read line: %s, len: %d",
+                "Read line: %s, len: %zu",
                 furi_string_get_cstr(next_line),
                 furi_string_size(next_line));
             if(furi_string_get_char(next_line, 0) == '#') continue;
@@ -101,7 +101,7 @@ MfClassicDict* mf_classic_dict_alloc(MfClassicDictType dict_type) {
         stream_rewind(dict->stream);
 
         dict_loaded = true;
-        FURI_LOG_I(TAG, "Loaded dictionary with %ld keys", dict->total_keys);
+        FURI_LOG_I(TAG, "Loaded dictionary with %lu keys", dict->total_keys);
     } while(false);
 
     if(!dict_loaded) {
@@ -136,7 +136,7 @@ static void mf_classic_dict_str_to_int(FuriString* key_str, uint64_t* key_int) {
     for(uint8_t i = 0; i < 12; i += 2) {
         args_char_to_hex(
             furi_string_get_char(key_str, i), furi_string_get_char(key_str, i + 1), &key_byte_tmp);
-        *key_int |= (uint64_t)key_byte_tmp << 8 * (5 - i / 2);
+        *key_int |= (uint64_t)key_byte_tmp << (8 * (5 - i / 2));
     }
 }
 
@@ -193,7 +193,7 @@ bool mf_classic_dict_is_key_present_str(MfClassicDict* dict, FuriString* key) {
 
     bool key_found = false;
     stream_rewind(dict->stream);
-    while(!key_found) {
+    while(!key_found) { //-V654
         if(!stream_read_line(dict->stream, next_line)) break;
         if(furi_string_get_char(next_line, 0) == '#') continue;
         if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN) continue;
@@ -294,7 +294,7 @@ bool mf_classic_dict_find_index_str(MfClassicDict* dict, FuriString* key, uint32
     bool key_found = false;
     uint32_t index = 0;
     stream_rewind(dict->stream);
-    while(!key_found) {
+    while(!key_found) { //-V654
         if(!stream_read_line(dict->stream, next_line)) break;
         if(furi_string_get_char(next_line, 0) == '#') continue;
         if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN) continue;

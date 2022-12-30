@@ -13,6 +13,7 @@ const SubGhzProtocol* subghz_protocol_registry_items[] = {
     &subghz_protocol_bett,          &subghz_protocol_doitrand,    &subghz_protocol_phoenix_v2,
     &subghz_protocol_honeywell_wdb, &subghz_protocol_magellan,    &subghz_protocol_intertechno_v3,
     &subghz_protocol_clemsa,        &subghz_protocol_ansonic,     &subghz_protocol_smc5326,
+    &subghz_protocol_holtek_th12x,
 };
 
 const SubGhzProtocolRegistry subghz_protocol_registry = {

@@ -71,11 +71,13 @@ static uint8_t byte_input_get_row_size(uint8_t row_index) {
 
     switch(row_index + 1) {
     case 1:
-        row_size = sizeof(keyboard_keys_row_1) / sizeof(ByteInputKey);
+        row_size = COUNT_OF(keyboard_keys_row_1);
         break;
     case 2:
-        row_size = sizeof(keyboard_keys_row_2) / sizeof(ByteInputKey);
+        row_size = COUNT_OF(keyboard_keys_row_2);
         break;
+    default:
+        furi_crash(NULL);
     }
 
     return row_size;
@@ -97,6 +99,8 @@ static const ByteInputKey* byte_input_get_row(uint8_t row_index) {
     case 2:
         row = keyboard_keys_row_2;
         break;
+    default:
+        furi_crash(NULL);
     }
 
     return row;
@@ -383,6 +387,7 @@ static void byte_input_dec_selected_byte(ByteInputModel* model) {
     if(model->selected_byte > 0) {
         model->selected_byte -= 1;
 
+        furi_assert(model->selected_byte >= model->first_visible_byte);
         if(model->selected_byte - model->first_visible_byte < 1) {
             if(model->first_visible_byte > 0) {
                 model->first_visible_byte--;

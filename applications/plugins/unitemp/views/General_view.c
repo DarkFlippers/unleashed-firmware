@@ -18,7 +18,9 @@
 #include "UnitempViews.h"
 #include "unitemp_icons.h"
 
-#include <assets_icons.h>
+extern const Icon I_ButtonRight_4x7;
+extern const Icon I_ButtonLeft_4x7;
+extern const Icon I_Ok_btn_9x9;
 
 static View* view;
 
@@ -362,7 +364,8 @@ static void _draw_carousel_info(Canvas* canvas) {
             BUFF_SIZE,
             "0x%02X",
             ((I2CSensor*)unitemp_sensor_getActive(generalview_sensor_index)->instance)
-                ->currentI2CAdr);
+                    ->currentI2CAdr >>
+                1);
         canvas_draw_str(canvas, 57, 35, app->buff);
         canvas_draw_str(canvas, 54, 46, "15 (C0)");
         canvas_draw_str(canvas, 54, 58, "16 (C1)");

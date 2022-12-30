@@ -11,7 +11,7 @@
 - `infrared`            - Infrared library
 - `libusb_stm32`        - STM32 USB library
 - `littlefs`            - Internal storage file system
-- `micro-ecc`           - Elliptic Curve Crpytography library
+- `micro-ecc`           - Elliptic Curve Crytography library
 - `microtar`            - TAR archive support library
 - `mlib`                - Algorithms and containers
 - `nanopb`              - Nano Protobuf library

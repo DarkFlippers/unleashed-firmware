@@ -147,7 +147,7 @@ DialogEx* dialog_ex_alloc() {
     DialogEx* dialog_ex = malloc(sizeof(DialogEx));
     dialog_ex->view = view_alloc();
     view_set_context(dialog_ex->view, dialog_ex);
-    view_allocate_model(dialog_ex->view, ViewModelTypeLockFree, sizeof(DialogExModel));
+    view_allocate_model(dialog_ex->view, ViewModelTypeLocking, sizeof(DialogExModel));
     view_set_draw_callback(dialog_ex->view, dialog_ex_view_draw_callback);
     view_set_input_callback(dialog_ex->view, dialog_ex_view_input_callback);
     with_view_model(

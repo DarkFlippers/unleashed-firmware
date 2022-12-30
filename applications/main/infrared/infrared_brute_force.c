@@ -65,7 +65,7 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
         while(flipper_format_read_string(ff, "name", signal_name)) {
             InfraredBruteForceRecord* record =
                 InfraredBruteForceRecordDict_get(brute_force->records, signal_name);
-            if(record) {
+            if(record) { //-V547
                 ++(record->count);
             }
         }

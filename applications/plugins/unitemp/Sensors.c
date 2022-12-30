@@ -17,7 +17,6 @@
 */
 #include "Sensors.h"
 #include <furi_hal_power.h>
-#include <m-string.h>
 
 //Порты ввода/вывода, которые не были обозначены в общем списке
 const GpioPin SWC_10 = {.pin = LL_GPIO_PIN_14, .port = GPIOA};
@@ -71,8 +70,21 @@ const Interface ONE_WIRE = {
 //Перечень интерфейсов подключения
 //static const Interface* interfaces[] = {&SINGLE_WIRE, &I2C, &ONE_WIRE};
 //Перечень датчиков
-static const SensorType* sensorTypes[] =
-    {&DHT11, &DHT12_SW, &DHT21, &DHT22, &AM2320_SW, &AM2320_I2C, &LM75, &BMP280, &BME280, &Dallas};
+static const SensorType* sensorTypes[] = {
+    &DHT11,
+    &DHT12_SW,
+    &DHT20,
+    &DHT21,
+    &DHT22,
+    &Dallas,
+    &AM2320_SW,
+    &AM2320_I2C,
+    &AHT10,
+    &SHT30,
+    &GXHT30,
+    &LM75,
+    &BMP280,
+    &BME280};
 
 const SensorType* unitemp_sensors_getTypeFromInt(uint8_t index) {
     if(index > SENSOR_TYPES_COUNT) return NULL;
@@ -331,7 +343,7 @@ bool unitemp_sensors_load(void) {
     //Сколько байт до конца строки
     size_t line_end = 0;
 
-    while(line_end != STRING_FAILURE && line_end != (size_t)(file_size - 1)) {
+    while(line_end != ((size_t)-1) && line_end != (size_t)(file_size - 1)) {
         //Имя датчика
         char name[11] = {0};
         //Тип датчика

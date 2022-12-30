@@ -1,69 +1,79 @@
 #!/usr/bin/env python3
 
-import logging
-import argparse
-import subprocess
-import sys
-import os
+from os import path
 
 from flipper.app import App
-from flipper.cube import CubeProgrammer
+from flipper.utils.programmer_openocd import OpenOCDProgrammer
 
 
 class Main(App):
     def init(self):
+        # Subparsers
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
+
+        # Check command
         self.parser_check = self.subparsers.add_parser(
             "check", help="Check Option Bytes"
         )
-        self._addArgsSWD(self.parser_check)
+        self._add_args(self.parser_check)
         self.parser_check.set_defaults(func=self.check)
+
         # Set command
         self.parser_set = self.subparsers.add_parser("set", help="Set Option Bytes")
-        self._addArgsSWD(self.parser_set)
+        self._add_args(self.parser_set)
         self.parser_set.set_defaults(func=self.set)
-        # OB
-        self.ob = {}
 
-    def _addArgsSWD(self, parser):
+    def _add_args(self, parser):
         parser.add_argument(
-            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
+            "--port-base", type=int, help="OpenOCD port base", default=3333
         )
-        parser.add_argument("--serial", type=str, help="ST-Link Serial Number")
-
-    def _getCubeParams(self):
-        return {
-            "port": self.args.port,
-            "serial": self.args.serial,
-        }
-
-    def before(self):
-        self.logger.info(f"Loading Option Bytes data")
-        file_path = os.path.join(os.path.dirname(sys.argv[0]), "ob.data")
-        with open(file_path, "r") as file:
-            for line in file.readlines():
-                k, v, o = line.split(":")
-                self.ob[k.strip()] = v.strip(), o.strip()
+        parser.add_argument(
+            "--interface",
+            type=str,
+            help="OpenOCD interface",
+            default="interface/cmsis-dap.cfg",
+        )
+        parser.add_argument(
+            "--serial", type=str, help="OpenOCD interface serial number"
+        )
+        parser.add_argument(
+            "--ob-path",
+            type=str,
+            help="Option bytes file",
+            default=path.join(path.dirname(__file__), "ob.data"),
+        )
 
     def check(self):
         self.logger.info(f"Checking Option Bytes")
-        cp = CubeProgrammer(self._getCubeParams())
-        if cp.checkOptionBytes(self.ob):
-            self.logger.info(f"OB Check OK")
-            return 0
-        else:
-            self.logger.error(f"OB Check FAIL")
-            return 255
+
+        # OpenOCD
+        openocd = OpenOCDProgrammer(
+            self.args.interface,
+            self.args.port_base,
+            self.args.serial,
+        )
+
+        return_code = 1
+        if openocd.option_bytes_validate(self.args.ob_path):
+            return_code = 0
+
+        return return_code
 
     def set(self):
         self.logger.info(f"Setting Option Bytes")
-        cp = CubeProgrammer(self._getCubeParams())
-        if cp.setOptionBytes(self.ob):
-            self.logger.info(f"OB Set OK")
-            return 0
-        else:
-            self.logger.error(f"OB Set FAIL")
-            return 255
+
+        # OpenOCD
+        openocd = OpenOCDProgrammer(
+            self.args.interface,
+            self.args.port_base,
+            self.args.serial,
+        )
+
+        return_code = 1
+        if openocd.option_bytes_set(self.args.ob_path):
+            return_code = 0
+
+        return return_code
 
 
 if __name__ == "__main__":

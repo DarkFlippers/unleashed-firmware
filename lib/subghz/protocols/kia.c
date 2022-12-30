@@ -142,7 +142,7 @@ void subghz_protocol_decoder_kia_feed(void* context, bool level, uint32_t durati
     case KIADecoderStepSaveDuration:
         if(level) {
             if(duration >=
-               (uint32_t)(subghz_protocol_kia_const.te_long + subghz_protocol_kia_const.te_delta * 2)) {
+               (subghz_protocol_kia_const.te_long + subghz_protocol_kia_const.te_delta * 2UL)) {
                 //Found stop bit
                 instance->decoder.parser_step = KIADecoderStepReset;
                 if(instance->decoder.decode_count_bit ==

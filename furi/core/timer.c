@@ -32,44 +32,28 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
     TimerHandle_t hTimer;
     TimerCallback_t* callb;
     UBaseType_t reload;
-    uint32_t callb_dyn;
 
     hTimer = NULL;
-    callb = NULL;
-    callb_dyn = 0U;
 
     /* Dynamic memory allocation is available: if memory for callback and */
     /* its context is not provided, allocate it from dynamic memory pool */
-    if(callb == NULL) {
-        callb = (TimerCallback_t*)malloc(sizeof(TimerCallback_t));
+    callb = (TimerCallback_t*)malloc(sizeof(TimerCallback_t));
 
-        if(callb != NULL) {
-            /* Callback memory was allocated from dynamic pool, set flag */
-            callb_dyn = 1U;
-        }
+    callb->func = func;
+    callb->context = context;
+
+    if(type == FuriTimerTypeOnce) {
+        reload = pdFALSE;
+    } else {
+        reload = pdTRUE;
     }
 
-    if(callb != NULL) {
-        callb->func = func;
-        callb->context = context;
-
-        if(type == FuriTimerTypeOnce) {
-            reload = pdFALSE;
-        } else {
-            reload = pdTRUE;
-        }
-
-        /* Store callback memory dynamic allocation flag */
-        callb = (TimerCallback_t*)((uint32_t)callb | callb_dyn);
-        // TimerCallback function is always provided as a callback and is used to call application
-        // specified function with its context both stored in structure callb.
-        hTimer = xTimerCreate(NULL, 1, reload, callb, TimerCallback);
-        if((hTimer == NULL) && (callb != NULL) && (callb_dyn == 1U)) {
-            /* Failed to create a timer, release allocated resources */
-            callb = (TimerCallback_t*)((uint32_t)callb & ~1U);
-            free(callb);
-        }
-    }
+    /* Store callback memory dynamic allocation flag */
+    callb = (TimerCallback_t*)((uint32_t)callb | 1U);
+    // TimerCallback function is always provided as a callback and is used to call application
+    // specified function with its context both stored in structure callb.
+    hTimer = xTimerCreate(NULL, 1, reload, callb, TimerCallback);
+    furi_check(hTimer);
 
     /* Return timer ID */
     return ((FuriTimer*)hTimer);

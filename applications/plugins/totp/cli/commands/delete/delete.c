@@ -93,14 +93,17 @@ void totp_cli_command_delete_handle(PluginState* plugin_state, FuriString* args,
         plugin_state->tokens_list = list_remove(plugin_state->tokens_list, list_node);
         plugin_state->tokens_count--;
 
-        totp_full_save_config_file(plugin_state);
+        if(totp_full_save_config_file(plugin_state) == TotpConfigFileUpdateSuccess) {
+            TOTP_CLI_PRINTF("Token \"%s\" has been successfully deleted\r\n", token_info->name);
+        } else {
+            TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
+        }
+
+        token_info_free(token_info);
 
         if(activate_generate_token_scene) {
             totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
         }
-
-        TOTP_CLI_PRINTF("Token \"%s\" has been successfully deleted\r\n", token_info->name);
-        token_info_free(token_info);
     } else {
         TOTP_CLI_PRINTF("User not confirmed\r\n");
     }

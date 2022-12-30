@@ -123,18 +123,18 @@ const UsbHidKeyboardKey usb_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
         {.width = 1, .icon = &I_ButtonRight_4x7, .value = HID_KEYBOARD_RIGHT_ARROW},
     },
     {
-        {.width = 3, .icon = NULL, .key = "Ctrl", .value = HID_KEYBOARD_L_CTRL},
+        {.width = 2, .icon = NULL, .key = "Ctl", .value = HID_KEYBOARD_L_CTRL},
         {.width = 0, .icon = NULL, .value = HID_KEYBOARD_L_CTRL},
-        {.width = 0, .icon = NULL, .value = HID_KEYBOARD_L_CTRL},
-        {.width = 3, .icon = NULL, .key = "Alt", .value = HID_KEYBOARD_L_ALT},
+        {.width = 2, .icon = NULL, .key = "Alt", .value = HID_KEYBOARD_L_ALT},
         {.width = 0, .icon = NULL, .value = HID_KEYBOARD_L_ALT},
-        {.width = 0, .icon = NULL, .value = HID_KEYBOARD_L_ALT},
-        {.width = 3, .icon = NULL, .key = "Cmd", .value = HID_KEYBOARD_L_GUI},
+        {.width = 2, .icon = NULL, .key = "Cmd", .value = HID_KEYBOARD_L_GUI},
         {.width = 0, .icon = NULL, .value = HID_KEYBOARD_L_GUI},
-        {.width = 0, .icon = NULL, .value = HID_KEYBOARD_L_GUI},
-        {.width = 3, .icon = NULL, .key = "Tab", .value = HID_KEYBOARD_TAB},
+        {.width = 2, .icon = NULL, .key = "Tab", .value = HID_KEYBOARD_TAB},
         {.width = 0, .icon = NULL, .value = HID_KEYBOARD_TAB},
-        {.width = 0, .icon = NULL, .value = HID_KEYBOARD_TAB},
+        {.width = 2, .icon = NULL, .key = "Esc", .value = HID_KEYBOARD_ESCAPE},
+        {.width = 0, .icon = NULL, .value = HID_KEYBOARD_ESCAPE},
+        {.width = 2, .icon = NULL, .key = "Del", .value = HID_KEYBOARD_DELETE_FORWARD},
+        {.width = 0, .icon = NULL, .value = HID_KEYBOARD_DELETE_FORWARD},
     },
     {
         {.width = 1, .icon = NULL, .key = "1", .shift_key = "1", .value = HID_KEYBOARD_F1},
@@ -149,9 +149,7 @@ const UsbHidKeyboardKey usb_hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
         {.width = 1, .icon = NULL, .key = "0", .shift_key = "0", .value = HID_KEYBOARD_F10},
         {.width = 1, .icon = NULL, .key = "1", .shift_key = "1", .value = HID_KEYBOARD_F11},
         {.width = 1, .icon = NULL, .key = "2", .shift_key = "2", .value = HID_KEYBOARD_F12},
-    }
-
-};
+    }};
 
 static void usb_hid_keyboard_to_upper(char* str) {
     while(*str) {
@@ -232,6 +230,7 @@ static void usb_hid_keyboard_draw_callback(Canvas* canvas, void* context) {
             // Select if back is clicked and its the backspace key
             // Deselect when the button clicked or not hovered
             bool keySelected = (x <= model->x && model->x < (x + key.width)) && y == model->y;
+            // Revert selection for function keys
             keySelected = y == ROW_COUNT - 1 ? !keySelected : keySelected;
             bool backSelected = model->back_pressed && key.value == HID_KEYBOARD_DELETE;
             usb_hid_keyboard_draw_key(

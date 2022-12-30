@@ -102,7 +102,7 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
             level_duration = level_duration_make(false, -duration);
         } else if(duration > 0) {
             level_duration = level_duration_make(true, duration);
-        } else if(duration == 0) {
+        } else if(duration == 0) { //-V547
             level_duration = level_duration_reset();
             FURI_LOG_I(TAG, "Stop transmission");
             instance->worker_stoping = true;

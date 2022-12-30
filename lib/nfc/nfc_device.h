@@ -18,9 +18,8 @@ extern "C" {
 
 #define NFC_DEV_NAME_MAX_LEN 22
 #define NFC_READER_DATA_MAX_SIZE 64
-#define NFC_DICT_KEY_BATCH_SIZE 50
+#define NFC_DICT_KEY_BATCH_SIZE 10
 
-#define NFC_APP_FOLDER ANY_PATH("nfc")
 #define NFC_APP_EXTENSION ".nfc"
 #define NFC_APP_SHADOW_EXTENSION ".shd"
 
@@ -49,6 +48,7 @@ typedef struct {
 
 typedef struct {
     MfClassicDict* dict;
+    uint8_t current_sector;
 } NfcMfClassicDictAttackData;
 
 typedef enum {
@@ -84,6 +84,7 @@ typedef struct {
     NfcDeviceData dev_data;
     char dev_name[NFC_DEV_NAME_MAX_LEN + 1];
     FuriString* load_path;
+    FuriString* folder;
     NfcDeviceSaveFormat format;
     bool shadow_file_exist;
 

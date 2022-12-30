@@ -108,7 +108,7 @@ void mf_df_cat_version(MifareDesfireVersion* version, FuriString* out) {
 }
 
 void mf_df_cat_free_mem(MifareDesfireFreeMemory* free_mem, FuriString* out) {
-    furi_string_cat_printf(out, "freeMem %ld\n", free_mem->bytes);
+    furi_string_cat_printf(out, "freeMem %lu\n", free_mem->bytes);
 }
 
 void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, FuriString* out) {
@@ -191,10 +191,10 @@ void mf_df_cat_file(MifareDesfireFile* file, FuriString* out) {
     case MifareDesfireFileTypeValue:
         size = 4;
         furi_string_cat_printf(
-            out, "lo %ld hi %ld\n", file->settings.value.lo_limit, file->settings.value.hi_limit);
+            out, "lo %lu hi %lu\n", file->settings.value.lo_limit, file->settings.value.hi_limit);
         furi_string_cat_printf(
             out,
-            "limit %ld enabled %d\n",
+            "limit %lu enabled %d\n",
             file->settings.value.limited_credit_value,
             file->settings.value.limited_credit_enabled);
         break;
@@ -203,7 +203,7 @@ void mf_df_cat_file(MifareDesfireFile* file, FuriString* out) {
         size = file->settings.record.size;
         num = file->settings.record.cur;
         furi_string_cat_printf(out, "size %d\n", size);
-        furi_string_cat_printf(out, "num %d max %ld\n", num, file->settings.record.max);
+        furi_string_cat_printf(out, "num %d max %lu\n", num, file->settings.record.max);
         break;
     }
     uint8_t* data = file->contents;
@@ -220,8 +220,9 @@ void mf_df_cat_file(MifareDesfireFile* file, FuriString* out) {
                     }
                 }
                 for(int i = 0; i < 4 && ch + i < size; i++) {
-                    if(isprint(data[rec * size + ch + i])) {
-                        furi_string_cat_printf(out, "%c", data[rec * size + ch + i]);
+                    const size_t data_index = rec * size + ch + i;
+                    if(isprint(data[data_index])) {
+                        furi_string_cat_printf(out, "%c", data[data_index]);
                     } else {
                         furi_string_cat_printf(out, ".");
                     }
@@ -547,7 +548,8 @@ bool mf_df_read_card(FuriHalNfcTxRxContext* tx_rx, MifareDesfireData* data) {
         for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
             tx_rx->tx_bits = 8 * mf_df_prepare_select_application(tx_rx->tx_data, app->id);
             if(!furi_hal_nfc_tx_rx_full(tx_rx) ||
-               !mf_df_parse_select_application_response(tx_rx->rx_data, tx_rx->rx_bits / 8)) {
+               !mf_df_parse_select_application_response(
+                   tx_rx->rx_data, tx_rx->rx_bits / 8)) { //-V1051
                 FURI_LOG_W(TAG, "Bad exchange selecting application");
                 continue;
             }

@@ -86,7 +86,7 @@ void view_allocate_model(View* view, ViewModelType type, size_t size) {
         model->data = malloc(size);
         view->model = model;
     } else {
-        furi_assert(false);
+        furi_crash(NULL);
     }
 }
 
@@ -103,7 +103,7 @@ void view_free_model(View* view) {
         free(model);
         view->model = NULL;
     } else {
-        furi_assert(false);
+        furi_crash(NULL);
     }
 }
 

@@ -360,7 +360,6 @@ static bool animation_storage_load_bubbles(BubbleAnimation* animation, FlipperFo
         if(u32value > 20) break;
         animation->frame_bubble_sequences_count = u32value;
         if(animation->frame_bubble_sequences_count == 0) {
-            animation->frame_bubble_sequences = NULL;
             success = true;
             break;
         }
@@ -481,7 +480,7 @@ static BubbleAnimation* animation_storage_load_animation(const char* name) {
         if(!animation_storage_load_frames(storage, name, animation, u32array, width, height))
             break;
 
-        if(!flipper_format_read_uint32(ff, "Active cycles", &u32value, 1)) break;
+        if(!flipper_format_read_uint32(ff, "Active cycles", &u32value, 1)) break; //-V779
         animation->active_cycles = u32value;
         if(!flipper_format_read_uint32(ff, "Frame rate", &u32value, 1)) break;
         FURI_CONST_ASSIGN(animation->icon_animation.frame_rate, u32value);
@@ -500,7 +499,7 @@ static BubbleAnimation* animation_storage_load_animation(const char* name) {
         free(u32array);
     }
 
-    if(!success) {
+    if(!success) { //-V547
         if(animation->frame_order) {
             free((void*)animation->frame_order);
         }

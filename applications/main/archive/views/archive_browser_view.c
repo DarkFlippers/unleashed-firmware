@@ -6,6 +6,8 @@
 #include "../helpers/archive_browser.h"
 
 #define TAG "Archive"
+#define SCROLL_INTERVAL (333)
+#define SCROLL_DELAY (2)
 
 static const char* ArchiveTabNames[] = {
     [ArchiveTabFavorites] = "Favorites",
@@ -268,13 +270,18 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
             furi_string_set(str_buf, "---");
         }
 
-        elements_string_fit_width(
-            canvas, str_buf, (scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX) - x_offset);
+        size_t scroll_counter = model->scroll_counter;
 
         if(model->item_idx == idx) {
             archive_draw_frame(canvas, i, scrollbar, model->move_fav);
+            if(scroll_counter < SCROLL_DELAY) {
+                scroll_counter = 0;
+            } else {
+                scroll_counter -= SCROLL_DELAY;
+            }
         } else {
             canvas_set_color(canvas, ColorBlack);
+            scroll_counter = 0;
         }
 
         if(custom_icon_data) {
@@ -284,8 +291,15 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
             canvas_draw_icon(
                 canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file_type]);
         }
-        canvas_draw_str(
-            canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, furi_string_get_cstr(str_buf));
+
+        elements_scrollable_text_line(
+            canvas,
+            15 + x_offset,
+            24 + i * FRAME_HEIGHT,
+            ((scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX) - x_offset),
+            str_buf,
+            scroll_counter,
+            (model->item_idx != idx));
 
         furi_string_free(str_buf);
     }
@@ -454,6 +468,7 @@ static bool archive_view_input(InputEvent* event, void* context) {
                         if(move_fav_mode) {
                             browser->callback(ArchiveBrowserEventFavMoveUp, browser->context);
                         }
+                        model->scroll_counter = 0;
                     } else if(event->key == InputKeyDown) {
                         model->item_idx = (model->item_idx + 1) % model->item_cnt;
                         if(is_file_list_load_required(model)) {
@@ -463,6 +478,7 @@ static bool archive_view_input(InputEvent* event, void* context) {
                         if(move_fav_mode) {
                             browser->callback(ArchiveBrowserEventFavMoveDown, browser->context);
                         }
+                        model->scroll_counter = 0;
                     }
                 },
                 true);
@@ -502,6 +518,27 @@ static bool archive_view_input(InputEvent* event, void* context) {
     return true;
 }
 
+static void browser_scroll_timer(void* context) {
+    furi_assert(context);
+    ArchiveBrowserView* browser = context;
+    with_view_model(
+        browser->view, ArchiveBrowserViewModel * model, { model->scroll_counter++; }, true);
+}
+
+static void browser_view_enter(void* context) {
+    furi_assert(context);
+    ArchiveBrowserView* browser = context;
+    with_view_model(
+        browser->view, ArchiveBrowserViewModel * model, { model->scroll_counter = 0; }, true);
+    furi_timer_start(browser->scroll_timer, SCROLL_INTERVAL);
+}
+
+static void browser_view_exit(void* context) {
+    furi_assert(context);
+    ArchiveBrowserView* browser = context;
+    furi_timer_stop(browser->scroll_timer);
+}
+
 ArchiveBrowserView* browser_alloc() {
     ArchiveBrowserView* browser = malloc(sizeof(ArchiveBrowserView));
     browser->view = view_alloc();
@@ -509,6 +546,10 @@ ArchiveBrowserView* browser_alloc() {
     view_set_context(browser->view, browser);
     view_set_draw_callback(browser->view, archive_view_render);
     view_set_input_callback(browser->view, archive_view_input);
+    view_set_enter_callback(browser->view, browser_view_enter);
+    view_set_exit_callback(browser->view, browser_view_exit);
+
+    browser->scroll_timer = furi_timer_alloc(browser_scroll_timer, FuriTimerTypePeriodic, browser);
 
     browser->path = furi_string_alloc_set(archive_get_default_path(TAB_DEFAULT));
 
@@ -527,6 +568,8 @@ ArchiveBrowserView* browser_alloc() {
 
 void browser_free(ArchiveBrowserView* browser) {
     furi_assert(browser);
+
+    furi_timer_free(browser->scroll_timer);
 
     if(browser->worker_running) {
         file_browser_worker_free(browser->worker);

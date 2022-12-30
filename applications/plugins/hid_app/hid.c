@@ -42,10 +42,12 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
     furi_assert(context);
     Hid* hid = context;
     bool connected = (status == BtStatusConnected);
-    if(connected) {
-        notification_internal_message(hid->notifications, &sequence_set_blue_255);
-    } else {
-        notification_internal_message(hid->notifications, &sequence_reset_blue);
+    if(hid->transport == HidTransportBle) {
+        if(connected) {
+            notification_internal_message(hid->notifications, &sequence_set_blue_255);
+        } else {
+            notification_internal_message(hid->notifications, &sequence_reset_blue);
+        }
     }
     hid_keynote_set_connected_status(hid->hid_keynote, connected);
     hid_keyboard_set_connected_status(hid->hid_keyboard, connected);
@@ -186,7 +188,9 @@ void hid_free(Hid* app) {
     furi_assert(app);
 
     // Reset notification
-    notification_internal_message(app->notifications, &sequence_reset_blue);
+    if(app->transport == HidTransportBle) {
+        notification_internal_message(app->notifications, &sequence_reset_blue);
+    }
 
     // Free views
     view_dispatcher_remove_view(app->view_dispatcher, HidViewSubmenu);
@@ -367,9 +371,17 @@ int32_t hid_ble_app(void* p) {
     Hid* app = hid_alloc(HidTransportBle);
     app = hid_app_alloc_view(app);
 
+    bt_disconnect(app->bt);
+
+    // Wait 2nd core to update nvm storage
+    furi_delay_ms(200);
+
+    bt_keys_storage_set_storage_path(app->bt, HID_BT_KEYS_STORAGE_PATH);
+
     if(!bt_set_profile(app->bt, BtProfileHidKeyboard)) {
-        FURI_LOG_E(TAG, "Failed to switch profile");
+        FURI_LOG_E(TAG, "Failed to switch to HID profile");
     }
+
     furi_hal_bt_start_advertising();
     bt_set_status_changed_callback(app->bt, bt_hid_connection_status_changed_callback, app);
 
@@ -378,7 +390,17 @@ int32_t hid_ble_app(void* p) {
     view_dispatcher_run(app->view_dispatcher);
 
     bt_set_status_changed_callback(app->bt, NULL, NULL);
-    bt_set_profile(app->bt, BtProfileSerial);
+
+    bt_disconnect(app->bt);
+
+    // Wait 2nd core to update nvm storage
+    furi_delay_ms(200);
+
+    bt_keys_storage_set_default_path(app->bt);
+
+    if(!bt_set_profile(app->bt, BtProfileSerial)) {
+        FURI_LOG_E(TAG, "Failed to switch to Serial profile");
+    }
 
     hid_free(app);
 

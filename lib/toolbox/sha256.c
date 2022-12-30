@@ -62,15 +62,15 @@ static void memcpy_output_bswap32(unsigned char* dst, const uint32_t* p) {
     }
 }
 
-#define rotr32(x, n) (((x) >> n) | ((x) << (32 - n)))
+#define rotr32(x, n) (((x) >> n) | ((x) << (32 - (n))))
 
 #define ch(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
 #define maj(x, y, z) (((x) & (y)) | ((z) & ((x) ^ (y))))
 
 /* round transforms for SHA256 compression functions */
-#define vf(n, i) v[(n - i) & 7]
+#define vf(n, i) v[((n) - (i)) & 7]
 
-#define hf(i) (p[i & 15] += g_1(p[(i + 14) & 15]) + p[(i + 9) & 15] + g_0(p[(i + 1) & 15]))
+#define hf(i) (p[(i)&15] += g_1(p[((i) + 14) & 15]) + p[((i) + 9) & 15] + g_0(p[((i) + 1) & 15]))
 
 #define v_cycle0(i)                                                               \
     p[i] = __builtin_bswap32(p[i]);                                               \
@@ -176,8 +176,8 @@ void sha256_finish(sha256_context* ctx, unsigned char output[32]) {
     uint32_t last = (ctx->total[0] & SHA256_MASK);
 
     ctx->wbuf[last >> 2] = __builtin_bswap32(ctx->wbuf[last >> 2]);
-    ctx->wbuf[last >> 2] &= 0xffffff80 << (8 * (~last & 3));
-    ctx->wbuf[last >> 2] |= 0x00000080 << (8 * (~last & 3));
+    ctx->wbuf[last >> 2] &= 0xffffff80UL << (8 * (~last & 3));
+    ctx->wbuf[last >> 2] |= 0x00000080UL << (8 * (~last & 3));
     ctx->wbuf[last >> 2] = __builtin_bswap32(ctx->wbuf[last >> 2]);
 
     if(last > SHA256_BLOCK_SIZE - 9) {

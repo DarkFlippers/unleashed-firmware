@@ -115,7 +115,7 @@ void md5_process(md5_context* ctx, const unsigned char data[64]) {
     GET_UINT32_LE(X[14], data, 56);
     GET_UINT32_LE(X[15], data, 60);
 
-#define S(x, n) ((x << n) | ((x & 0xFFFFFFFF) >> (32 - n)))
+#define S(x, n) (((x) << (n)) | (((x)&0xFFFFFFFF) >> (32 - (n))))
 
 #define P(a, b, c, d, k, s, t)      \
     {                               \
@@ -128,7 +128,7 @@ void md5_process(md5_context* ctx, const unsigned char data[64]) {
     C = ctx->state[2];
     D = ctx->state[3];
 
-#define F(x, y, z) (z ^ (x & (y ^ z)))
+#define F(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
 
     P(A, B, C, D, 0, 7, 0xD76AA478);
     P(D, A, B, C, 1, 12, 0xE8C7B756);
@@ -149,7 +149,7 @@ void md5_process(md5_context* ctx, const unsigned char data[64]) {
 
 #undef F
 
-#define F(x, y, z) (y ^ (z & (x ^ y)))
+#define F(x, y, z) ((y) ^ ((z) & ((x) ^ (y))))
 
     P(A, B, C, D, 1, 5, 0xF61E2562);
     P(D, A, B, C, 6, 9, 0xC040B340);
@@ -170,7 +170,7 @@ void md5_process(md5_context* ctx, const unsigned char data[64]) {
 
 #undef F
 
-#define F(x, y, z) (x ^ y ^ z)
+#define F(x, y, z) ((x) ^ (y) ^ (z))
 
     P(A, B, C, D, 5, 4, 0xFFFA3942);
     P(D, A, B, C, 8, 11, 0x8771F681);
@@ -191,7 +191,7 @@ void md5_process(md5_context* ctx, const unsigned char data[64]) {
 
 #undef F
 
-#define F(x, y, z) (y ^ (x | ~z))
+#define F(x, y, z) ((y) ^ ((x) | ~(z)))
 
     P(A, B, C, D, 0, 6, 0xF4292244);
     P(D, A, B, C, 7, 10, 0x432AFF97);
@@ -295,5 +295,5 @@ void md5(const unsigned char* input, size_t ilen, unsigned char output[16]) {
     md5_update(&ctx, input, ilen);
     md5_finish(&ctx, output);
 
-    memset(&ctx, 0, sizeof(md5_context));
+    memset(&ctx, 0, sizeof(md5_context)); //-V597
 }

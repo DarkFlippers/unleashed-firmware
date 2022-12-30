@@ -1,0 +1,8 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: Holtek_HT12X
+Bit: 12
+Key: 00 00 00 00 00 00 0F FB
+TE: 205

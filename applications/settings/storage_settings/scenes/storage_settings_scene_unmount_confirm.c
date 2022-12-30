@@ -41,8 +41,6 @@ bool storage_settings_scene_unmount_confirm_on_event(void* context, SceneManager
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DialogExResultCenter:
-            consumed = scene_manager_previous_scene(app->scene_manager);
-            break;
         case DialogExResultLeft:
             consumed = scene_manager_previous_scene(app->scene_manager);
             break;

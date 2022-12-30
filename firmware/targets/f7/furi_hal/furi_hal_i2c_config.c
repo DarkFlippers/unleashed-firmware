@@ -108,7 +108,7 @@ void furi_hal_i2c_bus_handle_power_event(
             GpioSpeedLow,
             GpioAltFn4I2C1);
 
-        LL_I2C_InitTypeDef I2C_InitStruct = {0};
+        LL_I2C_InitTypeDef I2C_InitStruct;
         I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
         I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
         I2C_InitStruct.DigitalFilter = 0;
@@ -152,7 +152,7 @@ void furi_hal_i2c_bus_handle_external_event(
         furi_hal_gpio_init_ex(
             &gpio_ext_pc1, GpioModeAltFunctionOpenDrain, GpioPullNo, GpioSpeedLow, GpioAltFn4I2C3);
 
-        LL_I2C_InitTypeDef I2C_InitStruct = {0};
+        LL_I2C_InitTypeDef I2C_InitStruct;
         I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
         I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
         I2C_InitStruct.DigitalFilter = 0;

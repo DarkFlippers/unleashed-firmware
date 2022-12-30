@@ -180,7 +180,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
     // note stack view_port
     x_pos = 73;
-    y_pos = 0;
+    y_pos = 0; //-V1048
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_frame(canvas, x_pos, y_pos, 49, 64);

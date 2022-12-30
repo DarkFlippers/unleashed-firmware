@@ -385,9 +385,7 @@ FS_Error storage_common_remove(Storage* storage, const char* path) {
 FS_Error storage_common_rename(Storage* storage, const char* old_path, const char* new_path) {
     FS_Error error = storage_common_copy(storage, old_path, new_path);
     if(error == FSE_OK) {
-        if(storage_simply_remove_recursive(storage, old_path)) {
-            error = FSE_OK;
-        } else {
+        if(!storage_simply_remove_recursive(storage, old_path)) {
             error = FSE_INTERNAL;
         }
     }
@@ -743,7 +741,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
         return true;
     }
 
-    char* name = malloc(MAX_NAME_LENGTH + 1);
+    char* name = malloc(MAX_NAME_LENGTH + 1); //-V799
     File* dir = storage_file_alloc(storage);
     cur_dir = furi_string_alloc_set(path);
     bool go_deeper = false;
@@ -790,7 +788,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
     furi_string_free(cur_dir);
     free(name);
     return result;
-}
+} //-V773
 
 bool storage_simply_remove(Storage* storage, const char* path) {
     FS_Error result;

@@ -20,6 +20,7 @@ env.Append(
         File("args.h"),
         File("saved_struct.h"),
         File("version.h"),
+        File("float_tools.h"),
         File("tar/tar_archive.h"),
         File("stream/stream.h"),
         File("stream/file_stream.h"),

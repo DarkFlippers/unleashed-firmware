@@ -18,7 +18,7 @@
 #include "UnitempViews.h"
 #include "unitemp_icons.h"
 
-#include <assets_icons.h>
+extern const Icon I_DolphinCommon_56x48;
 
 void unitemp_widgets_alloc(void) {
     app->widget = widget_alloc();
@@ -132,7 +132,7 @@ void unitemp_widget_delete_switch(Sensor* sensor) {
             app->buff,
             BUFF_SIZE,
             "\e#I2C addr:\e# 0x%02X",
-            ((I2CSensor*)current_sensor->instance)->currentI2CAdr);
+            ((I2CSensor*)current_sensor->instance)->currentI2CAdr >> 1);
         widget_add_text_box_element(
             app->widget, 0, 28, 128, 23, AlignLeft, AlignTop, app->buff, false);
     }

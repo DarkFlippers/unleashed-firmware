@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.1,,
+Version,+,11.5,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -178,6 +178,7 @@ Header,+,lib/subghz/transmitter.h,,
 Header,+,lib/toolbox/args.h,,
 Header,+,lib/toolbox/crc32_calc.h,,
 Header,+,lib/toolbox/dir_walk.h,,
+Header,+,lib/toolbox/float_tools.h,,
 Header,+,lib/toolbox/hmac_sha256.h,,
 Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
@@ -570,6 +571,8 @@ Function,+,ble_glue_wait_for_c2_start,_Bool,int32_t
 Function,-,bsearch,void*,"const void*, const void*, size_t, size_t, __compar_fn_t"
 Function,+,bt_disconnect,void,Bt*
 Function,+,bt_forget_bonded_devices,void,Bt*
+Function,+,bt_keys_storage_set_default_path,void,Bt*
+Function,+,bt_keys_storage_set_storage_path,void,"Bt*, const char*"
 Function,+,bt_set_profile,_Bool,"Bt*, BtProfile"
 Function,+,bt_set_status_changed_callback,void,"Bt*, BtStatusChangedCallback, void*"
 Function,+,buffered_file_stream_alloc,Stream*,Storage*
@@ -600,7 +603,7 @@ Function,+,byte_input_set_result_callback,void,"ByteInput*, ByteInputCallback, B
 Function,-,bzero,void,"void*, size_t"
 Function,-,calloc,void*,"size_t, size_t"
 Function,+,canvas_clear,void,Canvas*
-Function,-,canvas_commit,void,Canvas*
+Function,+,canvas_commit,void,Canvas*
 Function,+,canvas_current_font_height,uint8_t,Canvas*
 Function,+,canvas_draw_bitmap,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, const uint8_t*"
 Function,+,canvas_draw_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
@@ -629,7 +632,7 @@ Function,+,canvas_glyph_width,uint8_t,"Canvas*, char"
 Function,+,canvas_height,uint8_t,Canvas*
 Function,-,canvas_init,Canvas*,
 Function,+,canvas_invert_color,void,Canvas*
-Function,-,canvas_reset,void,Canvas*
+Function,+,canvas_reset,void,Canvas*
 Function,+,canvas_set_bitmap_mode,void,"Canvas*, _Bool"
 Function,+,canvas_set_color,void,"Canvas*, Color"
 Function,+,canvas_set_font,void,"Canvas*, Font"
@@ -771,6 +774,8 @@ Function,+,elements_multiline_text,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,elements_multiline_text_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,elements_multiline_text_framed,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,elements_progress_bar,void,"Canvas*, uint8_t, uint8_t, uint8_t, float"
+Function,+,elements_progress_bar_with_text,void,"Canvas*, uint8_t, uint8_t, uint8_t, float, const char*"
+Function,+,elements_scrollable_text_line,void,"Canvas*, uint8_t, uint8_t, uint8_t, FuriString*, size_t, _Bool"
 Function,+,elements_scrollbar,void,"Canvas*, uint16_t, uint16_t"
 Function,+,elements_scrollbar_pos,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint16_t, uint16_t"
 Function,+,elements_slightly_rounded_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
@@ -921,6 +926,7 @@ Function,+,flipper_format_write_int32,_Bool,"FlipperFormat*, const char*, const 
 Function,+,flipper_format_write_string,_Bool,"FlipperFormat*, const char*, FuriString*"
 Function,+,flipper_format_write_string_cstr,_Bool,"FlipperFormat*, const char*, const char*"
 Function,+,flipper_format_write_uint32,_Bool,"FlipperFormat*, const char*, const uint32_t*, const uint16_t"
+Function,+,float_is_equal,_Bool,"float, float"
 Function,-,flockfile,void,FILE*
 Function,-,floor,double,double
 Function,-,floorf,float,float
@@ -1387,6 +1393,8 @@ Function,+,furi_hal_version_get_hw_connect,uint8_t,
 Function,+,furi_hal_version_get_hw_display,FuriHalVersionDisplay,
 Function,+,furi_hal_version_get_hw_region,FuriHalVersionRegion,
 Function,+,furi_hal_version_get_hw_region_name,const char*,
+Function,+,furi_hal_version_get_hw_region_name_otp,const char*,
+Function,+,furi_hal_version_get_hw_region_otp,FuriHalVersionRegion,
 Function,+,furi_hal_version_get_hw_target,uint8_t,
 Function,+,furi_hal_version_get_hw_timestamp,uint32_t,
 Function,+,furi_hal_version_get_hw_version,uint8_t,
@@ -1569,6 +1577,8 @@ Function,-,gmtime,tm*,const time_t*
 Function,-,gmtime_r,tm*,"const time_t*, tm*"
 Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
+Function,+,gui_direct_draw_acquire,Canvas*,Gui*
+Function,+,gui_direct_draw_release,void,Gui*
 Function,+,gui_get_framebuffer_size,size_t,Gui*
 Function,+,gui_remove_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
@@ -1871,6 +1881,7 @@ Function,+,menu_set_selected_item,void,"Menu*, uint32_t"
 Function,-,mf_classic_auth_attempt,_Bool,"FuriHalNfcTxRxContext*, MfClassicAuthContext*, uint64_t"
 Function,-,mf_classic_auth_init_context,void,"MfClassicAuthContext*, uint8_t"
 Function,-,mf_classic_authenticate,_Bool,"FuriHalNfcTxRxContext*, uint8_t, uint64_t, MfClassicKey"
+Function,-,mf_classic_authenticate_skip_activate,_Bool,"FuriHalNfcTxRxContext*, uint8_t, uint64_t, MfClassicKey, _Bool, uint32_t"
 Function,-,mf_classic_check_card_type,_Bool,"uint8_t, uint8_t, uint8_t"
 Function,-,mf_classic_dict_add_key,_Bool,"MfClassicDict*, uint8_t*"
 Function,-,mf_classic_dict_add_key_str,_Bool,"MfClassicDict*, FuriString*"
@@ -2341,6 +2352,7 @@ Function,+,rpc_system_app_set_data_exchange_callback,void,"RpcAppSystem*, RpcApp
 Function,+,rpc_system_app_set_error_code,void,"RpcAppSystem*, uint32_t"
 Function,+,rpc_system_app_set_error_text,void,"RpcAppSystem*, const char*"
 Function,-,rpmatch,int,const char*
+Function,+,saved_struct_get_payload_size,_Bool,"const char*, uint8_t, uint8_t, size_t*"
 Function,+,saved_struct_load,_Bool,"const char*, void*, size_t, uint8_t, uint8_t"
 Function,+,saved_struct_save,_Bool,"const char*, void*, size_t, uint8_t, uint8_t"
 Function,-,scalbln,double,"double, long int"
@@ -2681,6 +2693,14 @@ Function,-,subghz_protocol_decoder_holtek_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_holtek_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_holtek_reset,void,void*
 Function,-,subghz_protocol_decoder_holtek_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_holtek_th12x_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_holtek_th12x_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_holtek_th12x_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_holtek_th12x_free,void,void*
+Function,-,subghz_protocol_decoder_holtek_th12x_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_holtek_th12x_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_holtek_th12x_reset,void,void*
+Function,-,subghz_protocol_decoder_holtek_th12x_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_honeywell_wdb_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_feed,void,"void*, _Bool, uint32_t"
@@ -2939,6 +2959,11 @@ Function,-,subghz_protocol_encoder_holtek_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_holtek_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_holtek_free,void,void*
 Function,-,subghz_protocol_encoder_holtek_stop,void,void*
+Function,-,subghz_protocol_encoder_holtek_th12x_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_holtek_th12x_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_holtek_th12x_free,void,void*
+Function,-,subghz_protocol_encoder_holtek_th12x_stop,void,void*
+Function,-,subghz_protocol_encoder_holtek_th12x_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_holtek_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_honeywell_wdb_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_honeywell_wdb_deserialize,_Bool,"void*, FlipperFormat*"
@@ -3043,6 +3068,7 @@ Function,-,subghz_protocol_encoder_star_line_yield,LevelDuration,void*
 Function,-,subghz_protocol_faac_slh_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_keeloq_bft_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_nice_flor_s_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,-,subghz_protocol_nice_flor_s_encrypt,uint64_t,"uint64_t, const char*"
 Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
 Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*"
@@ -4791,6 +4817,9 @@ Variable,-,subghz_protocol_gate_tx_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_holtek,const SubGhzProtocol,
 Variable,-,subghz_protocol_holtek_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_holtek_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_holtek_th12x,const SubGhzProtocol,
+Variable,-,subghz_protocol_holtek_th12x_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_holtek_th12x_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_honeywell_wdb,const SubGhzProtocol,
 Variable,-,subghz_protocol_honeywell_wdb_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_honeywell_wdb_encoder,const SubGhzProtocolEncoder,

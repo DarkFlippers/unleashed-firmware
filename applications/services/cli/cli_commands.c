@@ -364,7 +364,7 @@ void cli_command_ps(Cli* cli, FuriString* args, void* context) {
     for(uint8_t i = 0; i < thread_num; i++) {
         TaskControlBlock* tcb = (TaskControlBlock*)threads_ids[i];
         printf(
-            "%-20s 0x%-12lx %-8d %-8ld %-8ld\r\n",
+            "%-20s 0x%-12lx %-8zu %-8lu %-8lu\r\n",
             furi_thread_get_name(threads_ids[i]),
             (uint32_t)tcb->pxStack,
             memmgr_heap_get_thread_memory(threads_ids[i]),
@@ -379,13 +379,13 @@ void cli_command_free(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     UNUSED(context);
 
-    printf("Free heap size: %d\r\n", memmgr_get_free_heap());
-    printf("Total heap size: %d\r\n", memmgr_get_total_heap());
-    printf("Minimum heap size: %d\r\n", memmgr_get_minimum_free_heap());
-    printf("Maximum heap block: %d\r\n", memmgr_heap_get_max_free_block());
+    printf("Free heap size: %zu\r\n", memmgr_get_free_heap());
+    printf("Total heap size: %zu\r\n", memmgr_get_total_heap());
+    printf("Minimum heap size: %zu\r\n", memmgr_get_minimum_free_heap());
+    printf("Maximum heap block: %zu\r\n", memmgr_heap_get_max_free_block());
 
-    printf("Pool free: %d\r\n", memmgr_pool_get_free());
-    printf("Maximum pool block: %d\r\n", memmgr_pool_get_max_block());
+    printf("Pool free: %zu\r\n", memmgr_pool_get_free());
+    printf("Maximum pool block: %zu\r\n", memmgr_pool_get_max_block());
 }
 
 void cli_command_free_blocks(Cli* cli, FuriString* args, void* context) {

@@ -183,7 +183,7 @@ void button_panel_add_item(
     void* callback_context) {
     furi_assert(button_panel);
 
-    with_view_model(
+    with_view_model( //-V773
         button_panel->view,
         ButtonPanelModel * model,
         {

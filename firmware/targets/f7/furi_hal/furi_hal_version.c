@@ -190,8 +190,6 @@ static void furi_hal_version_load_otp_v2() {
 void furi_hal_version_init() {
     switch(furi_hal_version_get_otp_version()) {
     case FuriHalVersionOtpVersionUnknown:
-        furi_hal_version_load_otp_default();
-        break;
     case FuriHalVersionOtpVersionEmpty:
         furi_hal_version_load_otp_default();
         break;
@@ -268,8 +266,16 @@ FuriHalVersionRegion furi_hal_version_get_hw_region() {
     return FuriHalVersionRegionUnknown;
 }
 
+FuriHalVersionRegion furi_hal_version_get_hw_region_otp() {
+    return furi_hal_version.board_region;
+}
+
 const char* furi_hal_version_get_hw_region_name() {
-    switch(furi_hal_version_get_hw_region()) {
+    return "R00";
+}
+
+const char* furi_hal_version_get_hw_region_name_otp() {
+    switch(furi_hal_version_get_hw_region_otp()) {
     case FuriHalVersionRegionUnknown:
         return "R00";
     case FuriHalVersionRegionEuRu:

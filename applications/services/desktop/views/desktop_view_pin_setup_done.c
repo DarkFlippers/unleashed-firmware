@@ -18,7 +18,7 @@ struct DesktopViewPinSetupDone {
 
 static void desktop_view_pin_done_draw(Canvas* canvas, void* model) {
     furi_assert(canvas);
-    furi_assert(model);
+    UNUSED(model);
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(
@@ -59,7 +59,6 @@ void desktop_view_pin_done_set_callback(
 DesktopViewPinSetupDone* desktop_view_pin_done_alloc() {
     DesktopViewPinSetupDone* view = malloc(sizeof(DesktopViewPinSetupDone));
     view->view = view_alloc();
-    view_allocate_model(view->view, ViewModelTypeLockFree, 1);
     view_set_context(view->view, view);
     view_set_draw_callback(view->view, desktop_view_pin_done_draw);
     view_set_input_callback(view->view, desktop_view_pin_done_input);

@@ -67,7 +67,7 @@ static void desktop_view_pin_timeout_draw(Canvas* canvas, void* _model) {
 
     canvas_set_font(canvas, FontSecondary);
     char str[30] = {0};
-    snprintf(str, sizeof(str), "Timeout: %lds", model->time_left);
+    snprintf(str, sizeof(str), "Timeout: %lus", model->time_left);
     canvas_draw_str_aligned(canvas, 64, 38, AlignCenter, AlignCenter, str);
 }
 

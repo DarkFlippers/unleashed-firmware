@@ -26,7 +26,7 @@ Version: 1
 - `Name` - name of animation. Must be exact animation directory name.
 - `Min butthurt`, `Max butthurt` - range of dolphin's butthurt for this animation.
 - `Min level`, `Max level` - range of dolphin's level for this animation. If 0, this animation doesn't participate in random idle animation selection and can only be selected by exact name.
-- `Weight` - chance of this animation to be choosen at random animation selection.
+- `Weight` - chance of this animation to be chosen at random animation selection.
 
 Some animations can be excluded from participation in random animation selection, such as `L1_NoSd_128x49`.
 

@@ -61,7 +61,7 @@ uint8_t* totp_crypto_decrypt(
     return decrypted_data;
 }
 
-void totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length) {
+bool totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length) {
     if(plugin_state->crypto_verify_data == NULL) {
         FURI_LOG_D(LOGGING_TAG, "Generating new IV");
         furi_hal_random_fill_buf(&plugin_state->base_iv[0], TOTP_IV_SIZE);
@@ -94,13 +94,12 @@ void totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t 
         }
     }
 
+    bool result = true;
     if(plugin_state->crypto_verify_data == NULL) {
         FURI_LOG_D(LOGGING_TAG, "Generating crypto verify data");
         plugin_state->crypto_verify_data = malloc(CRYPTO_VERIFY_KEY_LENGTH);
         furi_check(plugin_state->crypto_verify_data != NULL);
         plugin_state->crypto_verify_data_length = CRYPTO_VERIFY_KEY_LENGTH;
-        Storage* storage = totp_open_storage();
-        FlipperFormat* config_file = totp_open_config_file(storage);
 
         plugin_state->crypto_verify_data = totp_crypto_encrypt(
             (uint8_t*)CRYPTO_VERIFY_KEY,
@@ -108,19 +107,13 @@ void totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t 
             &plugin_state->iv[0],
             &plugin_state->crypto_verify_data_length);
 
-        flipper_format_insert_or_update_hex(
-            config_file, TOTP_CONFIG_KEY_BASE_IV, plugin_state->base_iv, TOTP_IV_SIZE);
-        flipper_format_insert_or_update_hex(
-            config_file,
-            TOTP_CONFIG_KEY_CRYPTO_VERIFY,
-            plugin_state->crypto_verify_data,
-            CRYPTO_VERIFY_KEY_LENGTH);
         plugin_state->pin_set = pin != NULL && pin_length > 0;
-        flipper_format_insert_or_update_bool(
-            config_file, TOTP_CONFIG_KEY_PINSET, &plugin_state->pin_set, 1);
-        totp_close_config_file(config_file);
-        totp_close_storage();
+
+        result = totp_config_file_update_crypto_signatures(plugin_state) ==
+                 TotpConfigFileUpdateSuccess;
     }
+
+    return result;
 }
 
 bool totp_crypto_verify_key(const PluginState* plugin_state) {

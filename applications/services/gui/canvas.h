@@ -17,6 +17,7 @@ extern "C" {
 typedef enum {
     ColorWhite = 0x00,
     ColorBlack = 0x01,
+    ColorXOR = 0x02,
 } Color;
 
 /** Fonts enumeration */
@@ -66,6 +67,18 @@ typedef struct {
 
 /** Canvas anonymous structure */
 typedef struct Canvas Canvas;
+
+/** Reset canvas drawing tools configuration
+ *
+ * @param      canvas  Canvas instance
+ */
+void canvas_reset(Canvas* canvas);
+
+/** Commit canvas. Send buffer to display
+ *
+ * @param      canvas  Canvas instance
+ */
+void canvas_commit(Canvas* canvas);
 
 /** Get Canvas width
  *

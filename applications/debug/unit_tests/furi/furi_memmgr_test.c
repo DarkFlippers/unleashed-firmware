@@ -3,98 +3,37 @@
 #include <string.h>
 #include <stdbool.h>
 
-// this test is not accurate, but gives a basic understanding
-// that memory management is working fine
-
-// do not include memmgr.h here
-// we also test that we are linking against stdlib
-extern size_t memmgr_get_free_heap(void);
-extern size_t memmgr_get_minimum_free_heap(void);
-
-// current heap management realization consume:
-// X bytes after allocate and 0 bytes after allocate and free,
-// where X = sizeof(void*) + sizeof(size_t), look to BlockLink_t
-const size_t heap_overhead_max_size = sizeof(void*) + sizeof(size_t);
-
-bool heap_equal(size_t heap_size, size_t heap_size_old) {
-    // heap borders with overhead
-    const size_t heap_low = heap_size_old - heap_overhead_max_size;
-    const size_t heap_high = heap_size_old + heap_overhead_max_size;
-
-    // not exact, so we must test it against bigger numbers than "overhead size"
-    const bool result = ((heap_size >= heap_low) && (heap_size <= heap_high));
-
-    // debug allocation info
-    if(!result) {
-        printf("\n(hl: %zu) <= (p: %zu) <= (hh: %zu)\n", heap_low, heap_size, heap_high);
-    }
-
-    return result;
-}
-
 void test_furi_memmgr() {
-    size_t heap_size = 0;
-    size_t heap_size_old = 0;
-    const int alloc_size = 128;
-
-    void* ptr = NULL;
-    void* original_ptr = NULL;
-
-    // do not include furi memmgr.h case
-#ifdef FURI_MEMMGR_GUARD
-    mu_fail("do not link against furi memmgr.h");
-#endif
+    void* ptr;
 
     // allocate memory case
-    heap_size_old = memmgr_get_free_heap();
-    ptr = malloc(alloc_size);
-    heap_size = memmgr_get_free_heap();
-    mu_assert_pointers_not_eq(ptr, NULL);
-    mu_assert(heap_equal(heap_size, heap_size_old - alloc_size), "allocate failed");
-
-    // free memory case
-    heap_size_old = memmgr_get_free_heap();
+    ptr = malloc(100);
+    mu_check(ptr != NULL);
+    // test that memory is zero-initialized after allocation
+    for(int i = 0; i < 100; i++) {
+        mu_assert_int_eq(0, ((uint8_t*)ptr)[i]);
+    }
     free(ptr);
-    ptr = NULL;
-    heap_size = memmgr_get_free_heap();
-    mu_assert(heap_equal(heap_size, heap_size_old + alloc_size), "free failed");
 
     // reallocate memory case
+    ptr = malloc(100);
+    memset(ptr, 66, 100);
+    ptr = realloc(ptr, 200);
+    mu_check(ptr != NULL);
 
-    // get filled array with some data
-    original_ptr = malloc(alloc_size);
-    mu_assert_pointers_not_eq(original_ptr, NULL);
-    for(int i = 0; i < alloc_size; i++) {
-        *(unsigned char*)(original_ptr + i) = i;
+    // test that memory is really reallocated
+    for(int i = 0; i < 100; i++) {
+        mu_assert_int_eq(66, ((uint8_t*)ptr)[i]);
     }
 
-    // malloc array and copy data
-    ptr = malloc(alloc_size);
-    mu_assert_pointers_not_eq(ptr, NULL);
-    memcpy(ptr, original_ptr, alloc_size);
-
-    // reallocate array
-    heap_size_old = memmgr_get_free_heap();
-    ptr = realloc(ptr, alloc_size * 2);
-    heap_size = memmgr_get_free_heap();
-    mu_assert(heap_equal(heap_size, heap_size_old - alloc_size), "reallocate failed");
-    mu_assert_int_eq(memcmp(original_ptr, ptr, alloc_size), 0);
-    free(original_ptr);
+    // TODO: fix realloc to copy only old size, and write testcase that leftover of reallocated memory is zero-initialized
     free(ptr);
 
     // allocate and zero-initialize array (calloc)
-    original_ptr = malloc(alloc_size);
-    mu_assert_pointers_not_eq(original_ptr, NULL);
-
-    for(int i = 0; i < alloc_size; i++) {
-        *(unsigned char*)(original_ptr + i) = 0;
+    ptr = calloc(100, 2);
+    mu_check(ptr != NULL);
+    for(int i = 0; i < 100 * 2; i++) {
+        mu_assert_int_eq(0, ((uint8_t*)ptr)[i]);
     }
-    heap_size_old = memmgr_get_free_heap();
-    ptr = calloc(1, alloc_size);
-    heap_size = memmgr_get_free_heap();
-    mu_assert(heap_equal(heap_size, heap_size_old - alloc_size), "callocate failed");
-    mu_assert_int_eq(memcmp(original_ptr, ptr, alloc_size), 0);
-
-    free(original_ptr);
     free(ptr);
 }

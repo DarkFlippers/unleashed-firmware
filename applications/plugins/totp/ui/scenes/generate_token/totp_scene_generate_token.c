@@ -128,7 +128,7 @@ static void int_token_to_str(uint32_t i_token_code, char* str, TokenDigitsCount 
     str[len] = '\0';
 }
 
-TOTP_ALGO get_totp_algo_impl(TokenHashAlgo algo) {
+static TOTP_ALGO get_totp_algo_impl(TokenHashAlgo algo) {
     switch(algo) {
     case SHA1:
         return TOTP_ALGO_SHA1;
@@ -143,7 +143,7 @@ TOTP_ALGO get_totp_algo_impl(TokenHashAlgo algo) {
     return NULL;
 }
 
-void update_totp_params(PluginState* const plugin_state) {
+static void update_totp_params(PluginState* const plugin_state) {
     SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
 
     if(scene_state->current_token_index < plugin_state->tokens_count) {

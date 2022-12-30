@@ -35,18 +35,6 @@ Canvas* canvas_init();
  */
 void canvas_free(Canvas* canvas);
 
-/** Reset canvas drawing tools configuration
- *
- * @param      canvas  Canvas instance
- */
-void canvas_reset(Canvas* canvas);
-
-/** Commit canvas. Send buffer to display
- *
- * @param      canvas  Canvas instance
- */
-void canvas_commit(Canvas* canvas);
-
 /** Get canvas buffer.
  *
  * @param      canvas  Canvas instance

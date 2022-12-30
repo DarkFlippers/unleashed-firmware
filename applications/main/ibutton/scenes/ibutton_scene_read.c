@@ -52,7 +52,6 @@ bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
 
             if(success) {
                 ibutton_notification_message(ibutton, iButtonNotificationMessageSuccess);
-                ibutton_notification_message(ibutton, iButtonNotificationMessageGreenOn);
                 scene_manager_next_scene(scene_manager, iButtonSceneReadSuccess);
                 DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
             }
