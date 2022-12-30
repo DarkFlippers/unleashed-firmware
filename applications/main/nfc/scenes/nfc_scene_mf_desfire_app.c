@@ -51,23 +51,18 @@ void nfc_scene_mf_desfire_app_on_enter(void* context) {
             nfc_scene_mf_desfire_app_submenu_callback,
             nfc);
 
-        uint16_t cap = NFC_TEXT_STORE_SIZE;
-        char* buf = nfc->text_store;
+        FuriString* label = furi_string_alloc();
         int idx = SubmenuIndexDynamic;
         for(MifareDesfireFile* file = app->file_head; file; file = file->next) {
-            int size = snprintf(buf, cap, "File %d", file->id);
-            if(size < 0 || size >= cap) {
-                FURI_LOG_W(
-                    TAG,
-                    "Exceeded NFC_TEXT_STORE_SIZE when preparing file id strings; menu truncated");
-                break;
-            }
-            char* label = buf;
-            cap -= size + 1;
-            buf += size + 1;
+            furi_string_printf(label, "File %d", file->id);
             submenu_add_item(
-                nfc->submenu, label, idx++, nfc_scene_mf_desfire_app_submenu_callback, nfc);
+                nfc->submenu,
+                furi_string_get_cstr(label),
+                idx++,
+                nfc_scene_mf_desfire_app_submenu_callback,
+                nfc);
         }
+        furi_string_free(label);
 
         view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
     }
