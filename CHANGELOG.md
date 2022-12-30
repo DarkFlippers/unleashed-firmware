@@ -5,6 +5,7 @@
 * Plugins -> Arkanoid: Fix bug with unability to continue game after first level
 * Plugins -> Morse Code: Fixed crashes, fixed known issues (PR #249 | by @gid9798)
 * Plugins -> USB Keyboard & Mouse: Added ESCAPE key (PR #243 | by @huuck)
+* Plugins -> USB Keyboard & Mouse: Added Delete key
 * Plugins -> SubGHz Bruteforcer: Add holtek HT12X protocol support
 * Plugins -> POCSAG Pager: Fix UI bug
 * Plugins -> Barcode Generator: Add EAN-13 support (PR #234 | by @gid9798)
