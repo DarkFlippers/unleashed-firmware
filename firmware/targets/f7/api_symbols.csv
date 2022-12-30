@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.4,,
+Version,+,11.5,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -174,6 +174,7 @@ Header,+,lib/subghz/transmitter.h,,
 Header,+,lib/toolbox/args.h,,
 Header,+,lib/toolbox/crc32_calc.h,,
 Header,+,lib/toolbox/dir_walk.h,,
+Header,+,lib/toolbox/float_tools.h,,
 Header,+,lib/toolbox/hmac_sha256.h,,
 Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
@@ -908,6 +909,7 @@ Function,+,flipper_format_write_int32,_Bool,"FlipperFormat*, const char*, const 
 Function,+,flipper_format_write_string,_Bool,"FlipperFormat*, const char*, FuriString*"
 Function,+,flipper_format_write_string_cstr,_Bool,"FlipperFormat*, const char*, const char*"
 Function,+,flipper_format_write_uint32,_Bool,"FlipperFormat*, const char*, const uint32_t*, const uint16_t"
+Function,+,float_is_equal,_Bool,"float, float"
 Function,-,flockfile,void,FILE*
 Function,-,floor,double,double
 Function,-,floorf,float,float
