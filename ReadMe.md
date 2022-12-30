@@ -72,7 +72,7 @@ Also check the changelog in releases for latest updates!
 - Security+ v1 & v2
 - Star Line
 
-## Please support the development of the project
+## Please support development of the project
 The majority of this project is developed and maintained by me, @xMasterX.
 I'm unemployed because of the war, and the only income I receive is from your donations.
 Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.
