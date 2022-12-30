@@ -2,13 +2,14 @@
 * CI/CD: Builds with extra apps pack included, see new option below
 * SubGHz: Allow manual creation of Nice Flor S, Nice Smilo
 * LF RFID: Allow removing password from T5577 to make it operational (PR #225 | by @TQMatvey & Tobirg (grvpvl))
+* Plugins -> Barcode Generator: Save last used barcode, and load on app start
+* Plugins -> Barcode Generator: Add EAN-13 support (PR #234 | by @gid9798)
 * Plugins -> Arkanoid: Fix bug with unability to continue game after first level
 * Plugins -> Morse Code: Fixed crashes, fixed known issues (PR #249 | by @gid9798)
 * Plugins -> USB Keyboard & Mouse: Added ESCAPE key (PR #243 | by @huuck)
 * Plugins -> USB Keyboard & Mouse: Added Delete key
 * Plugins -> SubGHz Bruteforcer: Add holtek HT12X protocol support
 * Plugins -> POCSAG Pager: Fix UI bug
-* Plugins -> Barcode Generator: Add EAN-13 support (PR #234 | by @gid9798)
 * Plugins -> Wifi Marauder: Enable +5volt on plugin start, to allow usage with custom boards
 * Plugins: Add 2048 Game (PR #233 | by @eugene-kirzhanov)
 * Plugins: Update TOTP, UniTemp, Wifi marauder to latest commits from their repo's
