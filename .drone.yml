@@ -296,7 +296,7 @@ steps:
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
-      - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz .
+      - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz .
       - rm -rf artifacts-default/f7-update-${DRONE_BUILD_NUMBER}
       - ls -laS artifacts-default
