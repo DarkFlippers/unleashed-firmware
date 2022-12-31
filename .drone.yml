@@ -273,9 +273,30 @@ steps:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
 
+  - name: "Build dev with extra apps"
+    image: hfdj/fztools
+    pull: never
+    commands:
+      - git clone https://github.com/xMasterX/unleashed-extra-pack.git
+      - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
+      - rm -rf unleashed-extra-pack
+      - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
+      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - export FORCE_NO_DIRTY=yes
+      - rm -f build/f7-firmware-C/toolbox/version.*
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir artifacts-extra-apps
+      - mv dist/f7-C/* artifacts-extra-apps/
+      - ls -laS artifacts-extra-apps
+      - ls -laS artifacts-extra-apps/f7-update-${DRONE_BUILD_NUMBER}e
+    environment:
+      FBT_TOOLS_CUSTOM_LINK:
+        from_secret: fbt_link
+
   - name: "Bundle self-update packages"
     image: kramos/alpine-zip
     commands:
+      - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz .
       - rm -rf artifacts-default/f7-update-${DRONE_BUILD_NUMBER}
       - ls -laS artifacts-default
@@ -318,6 +339,21 @@ steps:
         - dev/*.dfu
         - dev/*.bin
 
+  - name: "Upload extra apps version to updates srv"
+    image: appleboy/drone-scp
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target_extra
+      source: flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz
+
   - name: "Trigger update server reindex"
     image: hfdj/fztools
     pull: never
@@ -346,6 +382,9 @@ steps:
 
 
         Commit: {{commit.message}}
+
+
+        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}e)
 
 
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})"
