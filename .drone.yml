@@ -37,7 +37,7 @@ steps:
     pull: never
     commands:
       - git clone https://github.com/xMasterX/unleashed-extra-pack.git
-      - cp -R unleashed-extra-pack/apps/ assets/resources/apps
+      - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
       - rm -rf unleashed-extra-pack
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
