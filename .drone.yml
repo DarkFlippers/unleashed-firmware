@@ -96,7 +96,7 @@ steps:
       - ls -laS ${DRONE_TAG}
 
   - name: "Upload default to updates srv"
-    image: appleboy/drone-scp
+    image: appleboy/drone-scp:linux-amd64
     settings:
       host:
         from_secret: dep_host
@@ -117,7 +117,7 @@ steps:
         - ${DRONE_TAG}/*.bin
 
   - name: "Upload no-anims to updates srv"
-    image: appleboy/drone-scp
+    image: appleboy/drone-scp:linux-amd64
     settings:
       host:
         from_secret: dep_host
@@ -132,7 +132,7 @@ steps:
       source: flipper-z-f7-update-${DRONE_TAG}n.tgz
 
   - name: "Upload extra apps version to updates srv"
-    image: appleboy/drone-scp
+    image: appleboy/drone-scp:linux-amd64
     settings:
       host:
         from_secret: dep_host
@@ -327,7 +327,7 @@ steps:
         - cd web/unleashedflip.com/public_html/fw/dev && rm -f ./*
 
   - name: "Upload default to updates srv"
-    image: appleboy/drone-scp
+    image: appleboy/drone-scp:linux-amd64
     settings:
       host:
         from_secret: dep_host
@@ -348,7 +348,7 @@ steps:
         - dev/*.bin
 
   - name: "Upload extra apps version to updates srv"
-    image: appleboy/drone-scp
+    image: appleboy/drone-scp:linux-amd64
     settings:
       host:
         from_secret: dep_host
