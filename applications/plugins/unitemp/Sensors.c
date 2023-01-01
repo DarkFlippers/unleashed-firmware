@@ -83,6 +83,7 @@ static const SensorType* sensorTypes[] = {
     &SHT30,
     &GXHT30,
     &LM75,
+    &BMP180,
     &BMP280,
     &BME280};
 
