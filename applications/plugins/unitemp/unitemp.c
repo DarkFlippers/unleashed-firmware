@@ -21,7 +21,6 @@
 #include "./views/UnitempViews.h"
 
 #include <furi_hal_power.h>
-#include <m-string.h>
 
 /* Переменные */
 //Данные приложения
@@ -147,7 +146,7 @@ bool unitemp_loadSettings(void) {
     //Сколько байт до конца строки
     size_t line_end = 0;
 
-    while(line_end != STRING_FAILURE && line_end != (size_t)(file_size - 1)) {
+    while(line_end != ((size_t)-1) && line_end != (size_t)(file_size - 1)) {
         char buff[20] = {0};
         sscanf(((char*)(file_buf + line_end)), "%s", buff);
 

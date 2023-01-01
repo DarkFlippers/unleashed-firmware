@@ -106,6 +106,28 @@ size_t gui_get_framebuffer_size(Gui* gui);
  */
 void gui_set_lockdown(Gui* gui, bool lockdown);
 
+/** Acquire Direct Draw lock and get Canvas instance
+ *
+ * This method return Canvas instance for use in monopoly mode. Direct draw lock
+ * disables input and draw call dispatch functions in GUI service. No other
+ * applications or services will be able to draw until gui_direct_draw_release
+ * call.
+ *
+ * @param      gui   The graphical user interface
+ *
+ * @return     Canvas instance
+ */
+Canvas* gui_direct_draw_acquire(Gui* gui);
+
+/** Release Direct Draw Lock
+ *
+ * Release Direct Draw Lock, enables Input and Draw call processing. Canvas
+ * acquired in gui_direct_draw_acquire will become invalid after this call.
+ *
+ * @param      gui   Gui instance
+ */
+void gui_direct_draw_release(Gui* gui);
+
 #ifdef __cplusplus
 }
 #endif

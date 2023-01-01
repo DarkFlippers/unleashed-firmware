@@ -1,5 +1,5 @@
 # Command syntax
-BadUsb app uses extended Duckyscript syntax. It is compatible with classic USB Rubber Ducky 1.0 scripts, but provides some additional commands and features, such as custom USB ID, ALT+Numpad input method, SYSRQ command and more fuctional keys.
+BadUsb app uses extended Duckyscript syntax. It is compatible with classic USB Rubber Ducky 1.0 scripts, but provides some additional commands and features, such as custom USB ID, ALT+Numpad input method, SYSRQ command and more functional keys.
 # Script file format
 BadUsb app can execute only text scrips from .txt files, no compilation is required. Both `\n` and `\r\n` line endings are supported. Empty lines are allowed. You can use spaces ore tabs for line indentation.
 # Command set

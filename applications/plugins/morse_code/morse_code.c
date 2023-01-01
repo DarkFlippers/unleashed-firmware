@@ -44,15 +44,10 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     canvas_draw_frame(canvas, vol_bar_x_pos, vol_bar_y_pos, 4, 64);
     canvas_draw_box(canvas, vol_bar_x_pos, vol_bar_y_pos + (64 - volume_h), 4, volume_h);
 
-    //dit bpm
-    canvas_draw_str_aligned(
-        canvas,
-        0,
-        10,
-        AlignLeft,
-        AlignCenter,
-        furi_string_get_cstr(
-            furi_string_alloc_printf("Dit: %ld ms", morse_code->model->dit_delta)));
+    //dit bpms
+    FuriString* ditbpm = furi_string_alloc_printf("Dit: %ld ms", morse_code->model->dit_delta);
+    canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignCenter, furi_string_get_cstr(ditbpm));
+    furi_string_free(ditbpm);
 
     //button info
     elements_button_center(canvas, "Press/Hold");
@@ -67,7 +62,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 static void morse_code_worker_callback(FuriString* words, void* context) {
     MorseCode* morse_code = context;
     furi_check(furi_mutex_acquire(morse_code->model_mutex, FuriWaitForever) == FuriStatusOk);
-    morse_code->model->words = words;
+    furi_string_set(morse_code->model->words, words);
     furi_mutex_release(morse_code->model_mutex);
     view_port_update(morse_code->view_port);
 }
@@ -109,6 +104,7 @@ void morse_code_free(MorseCode* instance) {
 
     furi_mutex_free(instance->model_mutex);
 
+    furi_string_free(instance->model->words);
     free(instance->model);
     free(instance);
 }
@@ -116,10 +112,12 @@ void morse_code_free(MorseCode* instance) {
 int32_t morse_code_app() {
     MorseCode* morse_code = morse_code_alloc();
     InputEvent input;
+
     morse_code_worker_start(morse_code->worker);
     morse_code_worker_set_volume(
         morse_code->worker, MORSE_CODE_VOLUMES[morse_code->model->volume]);
     morse_code_worker_set_dit_delta(morse_code->worker, morse_code->model->dit_delta);
+
     while(furi_message_queue_get(morse_code->input_queue, &input, FuriWaitForever) ==
           FuriStatusOk) {
         furi_check(furi_mutex_acquire(morse_code->model_mutex, FuriWaitForever) == FuriStatusOk);
@@ -128,6 +126,7 @@ int32_t morse_code_app() {
             break;
         } else if(input.key == InputKeyBack && input.type == InputTypeShort) {
             morse_code_worker_reset_text(morse_code->worker);
+            furi_string_reset(morse_code->model->words);
         } else if(input.key == InputKeyOk) {
             if(input.type == InputTypePress)
                 morse_code_worker_play(morse_code->worker, true);
@@ -160,6 +159,7 @@ int32_t morse_code_app() {
         furi_mutex_release(morse_code->model_mutex);
         view_port_update(morse_code->view_port);
     }
+
     morse_code_worker_stop(morse_code->worker);
     morse_code_free(morse_code);
     return 0;

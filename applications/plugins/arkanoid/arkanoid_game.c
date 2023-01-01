@@ -276,6 +276,7 @@ void reset_level(Canvas* canvas, ArkanoidState* arkanoid_state) {
     arkanoid_state->ball_state.yb = 60;
     arkanoid_state->brickCount = 0;
     arkanoid_state->ball_state.released = false;
+    arkanoid_state->gameStarted = false;
 
     // Reset all brick hit states
     for(unsigned int row = 0; row < arkanoid_state->ROWS; row++) {

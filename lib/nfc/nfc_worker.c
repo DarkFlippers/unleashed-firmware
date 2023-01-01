@@ -573,17 +573,24 @@ static void nfc_worker_mf_classic_key_attack(
     FuriHalNfcTxRxContext* tx_rx,
     uint16_t start_sector) {
     furi_assert(nfc_worker);
+    furi_assert(nfc_worker->callback);
 
     bool card_found_notified = true;
     bool card_removed_notified = false;
 
     MfClassicData* data = &nfc_worker->dev_data->mf_classic_data;
+    NfcMfClassicDictAttackData* dict_attack_data =
+        &nfc_worker->dev_data->mf_classic_dict_attack_data;
     uint32_t total_sectors = mf_classic_get_total_sectors_num(data->type);
 
     furi_assert(start_sector < total_sectors);
 
+    nfc_worker->callback(NfcWorkerEventKeyAttackStart, nfc_worker->context);
+
     // Check every sector's A and B keys with the given key
     for(size_t i = start_sector; i < total_sectors; i++) {
+        nfc_worker->callback(NfcWorkerEventKeyAttackNextSector, nfc_worker->context);
+        dict_attack_data->current_sector = i;
         furi_hal_nfc_sleep();
         if(furi_hal_nfc_activate_nfca(200, NULL)) {
             furi_hal_nfc_sleep();
@@ -632,6 +639,7 @@ static void nfc_worker_mf_classic_key_attack(
         }
         if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;
     }
+    nfc_worker->callback(NfcWorkerEventKeyAttackStop, nfc_worker->context);
 }
 
 void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
@@ -672,13 +680,15 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                 nfc_worker->callback(NfcWorkerEventNewDictKeyBatch, nfc_worker->context);
             }
             furi_hal_nfc_sleep();
-            if(furi_hal_nfc_activate_nfca(200, NULL)) {
-                furi_hal_nfc_sleep();
+            uint32_t cuid;
+            if(furi_hal_nfc_activate_nfca(200, &cuid)) {
+                bool deactivated = false;
                 if(!card_found_notified) {
                     nfc_worker->callback(NfcWorkerEventCardDetected, nfc_worker->context);
                     card_found_notified = true;
                     card_removed_notified = false;
                     nfc_worker_mf_classic_key_attack(nfc_worker, prev_key, &tx_rx, i);
+                    deactivated = true;
                 }
                 FURI_LOG_D(
                     TAG,
@@ -688,22 +698,26 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     (uint32_t)key);
                 if(!is_key_a_found) {
                     is_key_a_found = mf_classic_is_key_found(data, i, MfClassicKeyA);
-                    if(mf_classic_authenticate(&tx_rx, block_num, key, MfClassicKeyA)) {
+                    if(mf_classic_authenticate_skip_activate(
+                           &tx_rx, block_num, key, MfClassicKeyA, !deactivated, cuid)) {
                         mf_classic_set_key_found(data, i, MfClassicKeyA, key);
                         FURI_LOG_D(TAG, "Key found");
                         nfc_worker->callback(NfcWorkerEventFoundKeyA, nfc_worker->context);
                         nfc_worker_mf_classic_key_attack(nfc_worker, key, &tx_rx, i + 1);
                     }
                     furi_hal_nfc_sleep();
+                    deactivated = true;
                 }
                 if(!is_key_b_found) {
                     is_key_b_found = mf_classic_is_key_found(data, i, MfClassicKeyB);
-                    if(mf_classic_authenticate(&tx_rx, block_num, key, MfClassicKeyB)) {
+                    if(mf_classic_authenticate_skip_activate(
+                           &tx_rx, block_num, key, MfClassicKeyB, !deactivated, cuid)) {
                         FURI_LOG_D(TAG, "Key found");
                         mf_classic_set_key_found(data, i, MfClassicKeyB, key);
                         nfc_worker->callback(NfcWorkerEventFoundKeyB, nfc_worker->context);
                         nfc_worker_mf_classic_key_attack(nfc_worker, key, &tx_rx, i + 1);
                     }
+                    deactivated = true;
                 }
                 if(is_key_a_found && is_key_b_found) break;
                 if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;

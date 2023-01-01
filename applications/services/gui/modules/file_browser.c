@@ -544,6 +544,18 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
             model->item_cnt);
     }
 
+    uint32_t folder_item_cnt = (model->is_root) ? (model->item_cnt) : (model->item_cnt - 1);
+    if(folder_item_cnt == 0) {
+        canvas_set_color(canvas, ColorBlack);
+        canvas_draw_str_aligned(
+            canvas,
+            canvas_width(canvas) / 2,
+            canvas_height(canvas) / 2,
+            AlignCenter,
+            AlignCenter,
+            "<Empty>");
+    }
+
     furi_string_free(filename);
 }
 

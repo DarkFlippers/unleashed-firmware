@@ -27,6 +27,8 @@ bool token_info_set_secret(
     const char* base32_token_secret,
     size_t token_secret_length,
     const uint8_t* iv) {
+    if(token_secret_length == 0) return false;
+
     uint8_t* plain_secret = malloc(token_secret_length);
     furi_check(plain_secret != NULL);
     int plain_secret_length =

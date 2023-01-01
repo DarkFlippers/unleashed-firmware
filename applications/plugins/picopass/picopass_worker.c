@@ -175,13 +175,12 @@ ReturnCode picopass_read_preauth(PicopassBlock* AA1) {
     return ERR_NONE;
 }
 
-ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
+static ReturnCode picopass_auth_standard(uint8_t* csn, uint8_t* div_key) {
     rfalPicoPassReadCheckRes rcRes;
     rfalPicoPassCheckRes chkRes;
 
     ReturnCode err;
 
-    uint8_t div_key[8] = {0};
     uint8_t mac[4] = {0};
     uint8_t ccnr[12] = {0};
 
@@ -192,26 +191,34 @@ ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    loclass_diversifyKey(AA1[PICOPASS_CSN_BLOCK_INDEX].data, picopass_iclass_key, div_key);
+    loclass_diversifyKey(csn, picopass_iclass_key, div_key);
     loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
-    err = rfalPicoPassPollerCheck(mac, &chkRes);
-    if(err == ERR_NONE) {
-        return ERR_NONE;
-    }
-    FURI_LOG_E(TAG, "rfalPicoPassPollerCheck error %d", err);
+    return rfalPicoPassPollerCheck(mac, &chkRes);
+}
 
-    FURI_LOG_E(TAG, "Starting dictionary attack");
+static ReturnCode picopass_auth_dict(
+    uint8_t* csn,
+    PicopassPacs* pacs,
+    uint8_t* div_key,
+    IclassEliteDictType dict_type) {
+    rfalPicoPassReadCheckRes rcRes;
+    rfalPicoPassCheckRes chkRes;
+
+    ReturnCode err = ERR_PARAM;
+
+    uint8_t mac[4] = {0};
+    uint8_t ccnr[12] = {0};
 
     size_t index = 0;
     uint8_t key[PICOPASS_BLOCK_LEN] = {0};
 
-    if(!iclass_elite_dict_check_presence(IclassEliteDictTypeFlipper)) {
+    if(!iclass_elite_dict_check_presence(dict_type)) {
         FURI_LOG_E(TAG, "Dictionary not found");
         return ERR_PARAM;
     }
 
-    IclassEliteDict* dict = iclass_elite_dict_alloc(IclassEliteDictTypeFlipper);
+    IclassEliteDict* dict = iclass_elite_dict_alloc(dict_type);
     if(!dict) {
         FURI_LOG_E(TAG, "Dictionary not allocated");
         return ERR_PARAM;
@@ -235,11 +242,11 @@ ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
         err = rfalPicoPassPollerReadCheck(&rcRes);
         if(err != ERR_NONE) {
             FURI_LOG_E(TAG, "rfalPicoPassPollerReadCheck error %d", err);
-            return err;
+            break;
         }
         memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-        loclass_iclass_calc_div_key(AA1[PICOPASS_CSN_BLOCK_INDEX].data, key, div_key, true);
+        loclass_iclass_calc_div_key(csn, key, div_key, true);
         loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
         err = rfalPicoPassPollerCheck(mac, &chkRes);
@@ -254,6 +261,39 @@ ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
     return err;
 }
 
+ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
+    ReturnCode err;
+
+    FURI_LOG_E(TAG, "Trying standard legacy key");
+    err = picopass_auth_standard(
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data, AA1[PICOPASS_KD_BLOCK_INDEX].data);
+    if(err == ERR_NONE) {
+        return ERR_NONE;
+    }
+
+    FURI_LOG_E(TAG, "Starting user dictionary attack");
+    err = picopass_auth_dict(
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
+        pacs,
+        AA1[PICOPASS_KD_BLOCK_INDEX].data,
+        IclassEliteDictTypeUser);
+    if(err == ERR_NONE) {
+        return ERR_NONE;
+    }
+
+    FURI_LOG_E(TAG, "Starting in-built dictionary attack");
+    err = picopass_auth_dict(
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
+        pacs,
+        AA1[PICOPASS_KD_BLOCK_INDEX].data,
+        IclassEliteDictTypeFlipper);
+    if(err == ERR_NONE) {
+        return ERR_NONE;
+    }
+
+    return err;
+}
+
 ReturnCode picopass_read_card(PicopassBlock* AA1) {
     ReturnCode err;
 
@@ -262,6 +302,11 @@ ReturnCode picopass_read_card(PicopassBlock* AA1) {
                            PICOPASS_MAX_APP_LIMIT;
 
     for(size_t i = 2; i < app_limit; i++) {
+        if(i == PICOPASS_KD_BLOCK_INDEX) {
+            // Skip over Kd block which is populated earlier (READ of Kd returns all FF's)
+            continue;
+        }
+
         rfalPicoPassReadBlockRes block;
         err = rfalPicoPassPollerReadBlock(i, &block);
         if(err != ERR_NONE) {

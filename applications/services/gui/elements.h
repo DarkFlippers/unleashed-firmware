@@ -31,6 +31,23 @@ extern "C" {
  */
 void elements_progress_bar(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, float progress);
 
+/** Draw progress bar with text.
+ *
+ * @param   canvas      Canvas instance
+ * @param   x           progress bar position on X axis
+ * @param   y           progress bar position on Y axis
+ * @param   width       progress bar width
+ * @param   progress    progress (0.0 - 1.0)
+ * @param   text        text to draw
+ */
+void elements_progress_bar_with_text(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    float progress,
+    const char* text);
+
 /** Draw scrollbar on canvas at specific position.
  *
  * @param   canvas  Canvas instance

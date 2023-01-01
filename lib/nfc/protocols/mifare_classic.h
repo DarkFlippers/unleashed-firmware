@@ -156,6 +156,14 @@ bool mf_classic_authenticate(
     uint64_t key,
     MfClassicKey key_type);
 
+bool mf_classic_authenticate_skip_activate(
+    FuriHalNfcTxRxContext* tx_rx,
+    uint8_t block_num,
+    uint64_t key,
+    MfClassicKey key_type,
+    bool skip_activate,
+    uint32_t cuid);
+
 bool mf_classic_auth_attempt(
     FuriHalNfcTxRxContext* tx_rx,
     MfClassicAuthContext* auth_ctx,

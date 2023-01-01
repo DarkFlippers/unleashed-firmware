@@ -42,10 +42,12 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
     furi_assert(context);
     Hid* hid = context;
     bool connected = (status == BtStatusConnected);
-    if(connected) {
-        notification_internal_message(hid->notifications, &sequence_set_blue_255);
-    } else {
-        notification_internal_message(hid->notifications, &sequence_reset_blue);
+    if(hid->transport == HidTransportBle) {
+        if(connected) {
+            notification_internal_message(hid->notifications, &sequence_set_blue_255);
+        } else {
+            notification_internal_message(hid->notifications, &sequence_reset_blue);
+        }
     }
     hid_keynote_set_connected_status(hid->hid_keynote, connected);
     hid_keyboard_set_connected_status(hid->hid_keyboard, connected);
@@ -186,7 +188,9 @@ void hid_free(Hid* app) {
     furi_assert(app);
 
     // Reset notification
-    notification_internal_message(app->notifications, &sequence_reset_blue);
+    if(app->transport == HidTransportBle) {
+        notification_internal_message(app->notifications, &sequence_reset_blue);
+    }
 
     // Free views
     view_dispatcher_remove_view(app->view_dispatcher, HidViewSubmenu);

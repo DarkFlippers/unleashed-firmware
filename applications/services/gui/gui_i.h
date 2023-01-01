@@ -62,6 +62,7 @@ struct Gui {
 
     // Layers and Canvas
     bool lockdown;
+    bool direct_draw;
     ViewPortArray_t layers[GuiLayerMAX];
     Canvas* canvas;
     CanvasCallbackPairArray_t canvas_callback_pair;

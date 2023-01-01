@@ -1,3 +1,34 @@
+#pragma once
+
+#include <furi.h>
+#include <gui/gui.h>
+#include <input/input.h>
+#include <stdlib.h>
+#include <storage/storage.h>
+#include <toolbox/saved_struct.h>
+
+#define BARCODE_SETTINGS_FILE_NAME "apps/Misc/barcodegen.save"
+
+#define BARCODE_SETTINGS_VER (1)
+#define BARCODE_SETTINGS_PATH EXT_PATH(BARCODE_SETTINGS_FILE_NAME)
+#define BARCODE_SETTINGS_MAGIC (0xC2)
+
+#define SAVE_BARCODE_SETTINGS(x) \
+    saved_struct_save(           \
+        BARCODE_SETTINGS_PATH,   \
+        (x),                     \
+        sizeof(BarcodeState),    \
+        BARCODE_SETTINGS_MAGIC,  \
+        BARCODE_SETTINGS_VER)
+
+#define LOAD_BARCODE_SETTINGS(x) \
+    saved_struct_load(           \
+        BARCODE_SETTINGS_PATH,   \
+        (x),                     \
+        sizeof(BarcodeState),    \
+        BARCODE_SETTINGS_MAGIC,  \
+        BARCODE_SETTINGS_VER)
+
 #define BARCODE_HEIGHT 50
 #define BARCODE_Y_START 3
 #define BARCODE_TEXT_OFFSET 9
@@ -45,11 +76,15 @@ typedef struct {
 
 typedef struct {
     int barcodeNumeral[BARCODE_MAX_LENS]; //The current barcode number
+    bool doParityCalculation; //Should do parity check?
+    int barcodeTypeIndex;
+} BarcodeState;
+
+typedef struct {
+    BarcodeState barcode_state;
     int editingIndex; //The index of the editing symbol
     int menuIndex; //The index of the menu cursor
     Mode mode; //View, edit or menu
-    bool doParityCalculation; //Should do parity check?
-    int barcodeTypeIndex;
 } PluginState;
 
 static const int DIGITS[10][4] = {

@@ -119,7 +119,9 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
     //Send header
     instance->encoder.upload[index++] = level_duration_make(
         false,
-        ((instance->generic.data_count_bit == CAME_24_COUNT_BIT) ?
+        (((instance->generic.data_count_bit == CAME_24_COUNT_BIT) ||
+          (instance->generic.data_count_bit ==
+           subghz_protocol_came_const.min_count_bit_for_found)) ?
              (uint32_t)subghz_protocol_came_const.te_short * 76 :
              (uint32_t)subghz_protocol_came_const.te_short * 39));
     //Send start bit

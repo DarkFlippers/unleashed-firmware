@@ -42,7 +42,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             furi_hal_version_get_hw_target(),
             furi_hal_version_get_hw_body(),
             furi_hal_version_get_hw_connect(),
-            furi_hal_version_get_hw_region_name(),
+            furi_hal_version_get_hw_region_name_otp(),
             furi_hal_region_get_name(),
             my_name ? my_name : "Unknown");
         canvas_draw_str(canvas, 0, 19 + STATUS_BAR_Y_SHIFT, buffer);

@@ -3,15 +3,15 @@
 Nice to see you reading this document, we really appreciate it.
 
 As all documents of this kind it's unable to cover everything.
-But it will cover general rules that we enforcing on PR review.
+But it will cover general rules that we are enforcing on PR review.
 
-Also we already have automatic rules checking and formatting,
-but it got it's limitations and this guide is still mandatory.
+Also, we already have automatic rules checking and formatting,
+but it got its limitations and this guide is still mandatory.
 
-Some part of this project do have it's own naming and coding guides.
+Some part of this project do have its own naming and coding guides.
 For example: assets. Take a look into `ReadMe.md` in assets folder for more details.
 
-Also 3rd party libraries are none of our concern.
+Also, 3rd party libraries are none of our concern.
 
 And yes, this set is not final and we are open to discussion.
 If you want to add/remove/change something here please feel free to open new ticket.
@@ -30,7 +30,7 @@ Our guide is inspired by, but not claiming to be compatible with:
 
 Code we write is intended to be public.
 Avoid one-liners from hell and keep code complexity under control.
-Try to make code self explanatory and add comments if needed.
+Try to make code self-explanatory and add comments if needed.
 Leave references to standards that you are implementing.
 Use project wiki to document new/reverse engineered standards.
 
@@ -89,7 +89,7 @@ Enforced by linter.
 Suffixes:
 
 - `alloc` - allocate and init instance. C style constructor. Returns pointer to instance.
-- `free` - deinit and release instance. C style destructor. Takes pointer to instance.
+- `free` - de-init and release instance. C style destructor. Takes pointer to instance.
 
 # C++ coding style
 

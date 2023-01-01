@@ -14,7 +14,7 @@ What does it do?
 |-----------|-------------------|-----------------------|-----------------------|
 | f7        | 0x08000000        | L+Back, release both  | L+Back, release Back  |
 
-Also there is a "hardware" ST bootloader combo available even on a bricked or empty device: L+Ok+Back, release Back, Left.
+Also, there is a "hardware" ST bootloader combo available even on a bricked or empty device: L+Ok+Back, release Back, Left.
 Target independent code and headers in `target/include` folders. More details in `documentation/KeyCombo.md`
 
 # Building
