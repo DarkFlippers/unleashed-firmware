@@ -2,6 +2,10 @@ kind: pipeline
 type: docker
 name: "Release firmware"
 
+platform:
+  os: linux
+  arch: amd64
+
 steps:
   - name: "Update submodules"
     image: alpine/git
@@ -249,6 +253,10 @@ kind: pipeline
 type: docker
 name: "Dev build"
 
+platform:
+  os: linux
+  arch: amd64
+
 steps:
   - name: "Update submodules"
     image: alpine/git
@@ -304,7 +312,7 @@ steps:
       - ls -laS dev
 
   - name: "Clean dev folder"
-    image: appleboy/drone-ssh
+    image: appleboy/drone-ssh:linux-amd64
     settings:
       host:
         from_secret: dep_host
