@@ -34,7 +34,7 @@ bool token_info_set_secret(
     int plain_secret_length =
         base32_decode((const uint8_t*)base32_token_secret, plain_secret, token_secret_length);
     bool result;
-    if(plain_secret_length >= 0) {
+    if(plain_secret_length > 0) {
         token_info->token =
             totp_crypto_encrypt(plain_secret, plain_secret_length, iv, &token_info->token_length);
         result = true;
