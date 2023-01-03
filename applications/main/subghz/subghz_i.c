@@ -30,6 +30,12 @@ void subghz_preset_init(
     subghz->txrx->preset->frequency = frequency;
     subghz->txrx->preset->data = preset_data;
     subghz->txrx->preset->data_size = preset_data_size;
+
+    subghz->txrx->raw_bandwidth =
+        subghz_preset_custom_get_bandwidth(preset_data, preset_data_size);
+    subghz->txrx->raw_manchester_enabled =
+        subghz_preset_custom_get_machester_enable(preset_data, preset_data_size);
+    subghz->txrx->raw_datarate = subghz_preset_custom_get_datarate(preset_data, preset_data_size);
 }
 
 bool subghz_set_preset(SubGhz* subghz, const char* preset) {
