@@ -338,7 +338,7 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
 
-    if(!(value >= 299999755 && value <= 348000335) &&
+    if(!(value >= 299999755 && value <= 350000335) &&
        !(value >= 386999938 && value <= 464000000) &&
        !(value >= 778999847 && value <= 928000000) && !(is_extended)) {
         FURI_LOG_I(TAG, "Frequency blocked - outside default range");
