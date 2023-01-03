@@ -26,16 +26,8 @@ bool subghz_scene_show_error_sub_on_event(void* context, SceneManagerEvent event
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneShowErrorSub) {
-            if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowErrorSub) ==
-               SubGhzCustomEventSceneSettingError) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerSet);
-                scene_manager_search_and_switch_to_previous_scene(
-                    subghz->scene_manager, SubGhzSceneReceiverConfig);
-            } else {
-                scene_manager_search_and_switch_to_previous_scene(
-                    subghz->scene_manager, SubGhzSceneStart);
-            }
+            scene_manager_search_and_switch_to_previous_scene(
+                subghz->scene_manager, SubGhzSceneStart);
             return true;
         }
     }
