@@ -1,7 +1,157 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 26th Dec, 2022
-# Last Checked 26th Dec, 2022
+# Last Updated 5th Jan, 2023
+# Last Checked 5th Jan, 2023
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 77 00 00 00
+command: F1 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NEC
+address: 77 00 00 00
+command: F3 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NEC
+address: 77 00 00 00
+command: FB 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 77 00 00 00
+command: FC 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 1A 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 46 B9 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 06 F9 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 47 B8 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 41 BE 00 00
+#
+name: POWER
+type: parsed
+protocol: RC5
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: RC5
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: RC5
+address: 10 00 00 00
+command: 10 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: RC5
+address: 10 00 00 00
+command: 11 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 40 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 41 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 45 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 48 00 00 00
+# 
+name: POWER
+type: parsed
+protocol: NECext
+address: 2D D3 00 00
+command: 12 ED 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 2D D3 00 00
+command: 11 EE 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 2D D3 00 00
+command: 10 EF 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NECext
+address: 2D D3 00 00
+command: 13 EC 00 00
+# 
+name: POWER
+type: parsed
+protocol: SIRC15
+address: 44 00 00 00
+command: 15 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: SIRC15
+address: 44 00 00 00
+command: 12 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: SIRC15
+address: 44 00 00 00
+command: 13 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: SIRC15
+address: 44 00 00 00
+command: 14 00 00 00
 #
 name: POWER
 type: parsed
@@ -1270,30 +1420,6 @@ protocol: NECext
 address: EF 01 00 00
 command: 28 D7 00 00
 #
-name: POWER
-type: parsed
-protocol: NEC
-address: 00 00 00 00
-command: 40 00 00 00
-#
-name: VOL+
-type: parsed
-protocol: NEC
-address: 00 00 00 00
-command: 41 00 00 00
-#
-name: VOL-
-type: parsed
-protocol: NEC
-address: 00 00 00 00
-command: 45 00 00 00
-#
-name: MUTE
-type: parsed
-protocol: NEC
-address: 00 00 00 00
-command: 48 00 00 00
-#
 name: VOL+
 type: raw
 frequency: 38000
@@ -1461,24 +1587,6 @@ type: parsed
 protocol: RC5
 address: 14 00 00 00
 command: 10 00 00 00
-#
-name: MUTE
-type: parsed
-protocol: RC5
-address: 10 00 00 00
-command: 0D 00 00 00
-#
-name: VOL+
-type: parsed
-protocol: RC5
-address: 10 00 00 00
-command: 10 00 00 00
-#
-name: VOL-
-type: parsed
-protocol: RC5
-address: 10 00 00 00
-command: 11 00 00 00
 #
 name: POWER
 type: parsed
@@ -1722,24 +1830,6 @@ command: 57 00 00 00
 #
 name: VOL+
 type: parsed
-protocol: NECext
-address: 10 E7 00 00
-command: 06 F9 00 00
-#
-name: VOL-
-type: parsed
-protocol: NECext
-address: 10 E7 00 00
-command: 47 B8 00 00
-#
-name: MUTE
-type: parsed
-protocol: NECext
-address: 10 E7 00 00
-command: 41 BE 00 00
-#
-name: VOL+
-type: parsed
 protocol: NEC
 address: 4D 00 00 00
 command: 04 00 00 00
@@ -1859,3 +1949,56 @@ protocol: Kaseikyo
 address: A0 02 20 00
 command: 10 02 00 00
 # 
+name: POWER
+type: parsed
+protocol: SIRC
+address: 0F 00 00 00
+command: 15 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 10 00 00 00
+command: 1E 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: Samsung32
+address: 10 00 00 00
+command: 17 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Samsung32
+address: 10 00 00 00
+command: 16 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: Samsung32
+address: 10 00 00 00
+command: 1F 00 00 00
+# 
+name: POWER
+type: parsed
+protocol: Kaseikyo
+address: 51 54 32 01
+command: 03 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: Kaseikyo
+address: 51 54 32 01
+command: 04 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Kaseikyo
+address: 51 54 32 01
+command: 05 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: Kaseikyo
+address: 51 54 32 01
+command: 06 00 00 00
