@@ -1,15 +1,115 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 28th Dec, 2022
-# Last Checked 28th Dec, 2022
-#
-# Sony KDL40RD453
+# Last Updated 5th Jan, 2023
+# Last Checked 5th Jan, 2023
 #
 name: POWER
-type: raw
-frequency: 38000
-duty_cycle: 0.33
-data: 2445 582 1221 603 548 602 1191 609 572 602 1191 609 542 607 544 631 1172 603 568 606 545 605 566 608 543 26263 2414 611 1192 607 544 606 1197 602 569 606 1197 602 539 611 540 635 1168 606 565 610 541 608 563 587 564
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 15 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 13 00 00 00
+#
+name: CH+
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: CH-
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 14 00 00 00
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 0B 00 00 00
+# 
+name: CH+
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 11 00 00 00
+# 
+name: CH-
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 10 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 13 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 12 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 14 00 00 00
+#
+name: POWER
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: D0 03 00 00
+#
+name: VOL+
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 00 02 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 10 02 00 00
+#
+name: MUTE
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 20 03 00 00
+# 
+name: CH+
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 40 03 00 00
+# 
+name: CH-
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 50 03 00 00
 #
 name: POWER
 type: parsed
@@ -58,42 +158,6 @@ type: parsed
 protocol: NECext
 address: 00 7F 00 00
 command: 18 E7 00 00
-#
-name: POWER
-type: parsed
-protocol: Kaseikyo
-address: 80 02 20 00
-command: D0 03 00 00
-#
-name: MUTE
-type: parsed
-protocol: Kaseikyo
-address: 80 02 20 00
-command: 20 03 00 00
-#
-name: VOL+
-type: parsed
-protocol: Kaseikyo
-address: 80 02 20 00
-command: 00 02 00 00
-#
-name: VOL-
-type: parsed
-protocol: Kaseikyo
-address: 80 02 20 00
-command: 10 02 00 00
-#
-name: CH+
-type: parsed
-protocol: Kaseikyo
-address: 80 02 20 00
-command: 40 03 00 00
-#
-name: CH-
-type: parsed
-protocol: Kaseikyo
-address: 80 02 20 00
-command: 50 03 00 00
 #
 name: MUTE
 type: parsed
@@ -291,12 +355,6 @@ command: E9 16 00 00
 name: POWER
 type: parsed
 protocol: SIRC
-address: 01 00 00 00
-command: 15 00 00 00
-#
-name: POWER
-type: parsed
-protocol: SIRC
 address: 10 00 00 00
 command: 15 00 00 00
 #
@@ -425,12 +483,6 @@ type: parsed
 protocol: NEC
 address: 50 00 00 00
 command: 17 00 00 00
-#
-name: POWER
-type: parsed
-protocol: NEC
-address: 40 00 00 00
-command: 12 00 00 00
 #
 name: POWER
 type: parsed
@@ -1116,36 +1168,6 @@ protocol: Samsung32
 address: 07 00 00 00
 command: 98 00 00 00
 #
-name: VOL+
-type: parsed
-protocol: SIRC
-address: 01 00 00 00
-command: 12 00 00 00
-#
-name: VOL-
-type: parsed
-protocol: SIRC
-address: 01 00 00 00
-command: 13 00 00 00
-#
-name: CH+
-type: parsed
-protocol: SIRC
-address: 01 00 00 00
-command: 10 00 00 00
-#
-name: CH-
-type: parsed
-protocol: SIRC
-address: 01 00 00 00
-command: 11 00 00 00
-#
-name: MUTE
-type: parsed
-protocol: SIRC
-address: 01 00 00 00
-command: 14 00 00 00
-#
 name: POWER
 type: parsed
 protocol: SIRC
@@ -1199,12 +1221,6 @@ type: parsed
 protocol: NEC
 address: 40 00 00 00
 command: 1E 00 00 00
-#
-name: MUTE
-type: parsed
-protocol: NEC
-address: 40 00 00 00
-command: 10 00 00 00
 #
 name: CH+
 type: parsed
@@ -1781,4 +1797,3 @@ type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 33 00 00 00
-# 
