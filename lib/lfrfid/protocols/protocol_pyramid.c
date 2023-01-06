@@ -88,7 +88,7 @@ static bool protocol_pyramid_can_be_decoded(uint8_t* data) {
     }
     uint8_t fmt_len = 105 - j;
 
-    // Only suppport 26bit format for now
+    // Only support 26bit format for now
     if(fmt_len != 26) return false;
 
     return true;

@@ -856,7 +856,7 @@ static bool nfc_device_load_mifare_classic_data(FlipperFormat* file, NfcDevice* 
         bool old_format = false;
         // Read Mifare Classic format version
         if(!flipper_format_read_uint32(file, "Data format version", &data_format_version, 1)) {
-            // Load unread sectors with zero keys access for backward compatability
+            // Load unread sectors with zero keys access for backward compatibility
             if(!flipper_format_rewind(file)) break;
             old_format = true;
         } else {
@@ -1125,7 +1125,7 @@ static bool nfc_device_load_data(NfcDevice* dev, FuriString* path, bool show_dia
     }
 
     do {
-        // Check existance of shadow file
+        // Check existence of shadow file
         nfc_device_get_shadow_path(path, temp_str);
         dev->shadow_file_exist =
             storage_common_stat(dev->storage, furi_string_get_cstr(temp_str), NULL) == FSE_OK;

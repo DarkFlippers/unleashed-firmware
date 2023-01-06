@@ -26,7 +26,7 @@ void subghz_environment_free(SubGhzEnvironment* instance);
  * Downloading the manufacture key file.
  * @param instance Pointer to a SubGhzEnvironment instance
  * @param filename Full path to the file
- * @return true On succes
+ * @return true On success
  */
 bool subghz_environment_load_keystore(SubGhzEnvironment* instance, const char* filename);
 
