@@ -107,7 +107,7 @@ bool two_cities_parser_parse(NfcDeviceData* dev_data) {
     // Point to block 0 of sector 0, value 0
     temp_ptr = &data->block[0 * 4].value[0];
     // Read first 7 bytes of block 0 of sector 0 from last to first and convert them to uint64_t
-    // 80 5C 23 8A 16 31 04 becomes 04 31 16 8A 23 5C 80, and equals to 36130104729284868 decimal
+    // 04 31 16 8A 23 5C 80 becomes 80 5C 23 8A 16 31 04, and equals to 36130104729284868 decimal
     uint8_t card_number_arr[7];
     for(size_t i = 0; i < 7; i++) {
         card_number_arr[i] = temp_ptr[6 - i];

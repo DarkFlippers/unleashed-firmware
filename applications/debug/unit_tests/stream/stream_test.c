@@ -72,8 +72,32 @@ MU_TEST_1(stream_composite_subtest, Stream* stream) {
     mu_check(stream_seek(stream, -3, StreamOffsetFromEnd));
     mu_check(stream_tell(stream) == 4);
 
-    // write string with replacemet
+    // test seeks to char. content: '1337_69'
+    stream_rewind(stream);
+    mu_check(stream_seek_to_char(stream, '3', StreamDirectionForward));
+    mu_check(stream_tell(stream) == 1);
+    mu_check(stream_seek_to_char(stream, '3', StreamDirectionForward));
+    mu_check(stream_tell(stream) == 2);
+    mu_check(stream_seek_to_char(stream, '_', StreamDirectionForward));
+    mu_check(stream_tell(stream) == 4);
+    mu_check(stream_seek_to_char(stream, '9', StreamDirectionForward));
+    mu_check(stream_tell(stream) == 6);
+    mu_check(!stream_seek_to_char(stream, '9', StreamDirectionForward));
+    mu_check(stream_tell(stream) == 6);
+    mu_check(stream_seek_to_char(stream, '_', StreamDirectionBackward));
+    mu_check(stream_tell(stream) == 4);
+    mu_check(stream_seek_to_char(stream, '3', StreamDirectionBackward));
+    mu_check(stream_tell(stream) == 2);
+    mu_check(stream_seek_to_char(stream, '3', StreamDirectionBackward));
+    mu_check(stream_tell(stream) == 1);
+    mu_check(!stream_seek_to_char(stream, '3', StreamDirectionBackward));
+    mu_check(stream_tell(stream) == 1);
+    mu_check(stream_seek_to_char(stream, '1', StreamDirectionBackward));
+    mu_check(stream_tell(stream) == 0);
+
+    // write string with replacement
     // "1337_69" -> "1337lee"
+    mu_check(stream_seek(stream, 4, StreamOffsetFromStart));
     mu_check(stream_write_string(stream, string_lee) == 3);
     mu_check(stream_size(stream) == 7);
     mu_check(stream_tell(stream) == 7);

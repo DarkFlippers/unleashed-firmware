@@ -19,9 +19,9 @@ This file format is used to store the UID, SAK and ATQA of a NFC-A device. It do
 
 Version differences:
 
-  1. Initial version, deprecated
-  2. LSB ATQA (e.g. 4400 instead of 0044)
-  3. MSB ATQA (current version)
+1. Initial version, deprecated
+2. LSB ATQA (e.g. 4400 instead of 0044)
+3. MSB ATQA (current version)
 
 UID can be either 4 or 7 bytes long. ATQA is 2 bytes long. SAK is 1 byte long.
 
@@ -68,13 +68,13 @@ This file format is used to store the UID, SAK and ATQA of a Mifare Ultralight/N
 
 The "Signature" field contains the reply of the tag to the READ_SIG command. More on that can be found here: <https://www.nxp.com/docs/en/data-sheet/MF0ULX1.pdf> (page 31)
 
-The "Mifare version" field is not related to the file format version, but to the Mifare Ultralight version. It contains the response of the tag to the GET_VERSION command. More on that can be found here: <https://www.nxp.com/docs/en/data-sheet/MF0ULX1.pdf> (page 21)
+The "Mifare version" field is not related to the file format version but to the Mifare Ultralight version. It contains the response of the tag to the GET_VERSION command. More on that can be found here: <https://www.nxp.com/docs/en/data-sheet/MF0ULX1.pdf> (page 21)
 
-Other fields are the direct representation of the card's internal state, more on them can be found in the same datasheet.
+Other fields are the direct representation of the card's internal state. Learn more about them in the same datasheet.
 
 Version differences:
 
-  1. Current version
+1. Current version
 
 ## Mifare Classic
 
@@ -126,7 +126,7 @@ This file format is used to store the NFC-A and Mifare Classic specific data of 
 
 Version differences:
 
-  1. Initial version, has Key A and Key B masks instead of marking unknown data with '??'.
+1. Initial version, has Key A and Key B masks instead of marking unknown data with '??'.
 
 Example:
 
@@ -137,8 +137,8 @@ Example:
     Key B map: 000000000000FFFF
     # Mifare Classic blocks
     ...
-  
-  2. Current version
+
+2. Current version
 
 ## Mifare DESFire
 
@@ -200,7 +200,7 @@ This file format is used to store the NFC-A and Mifare DESFire specific data of 
     hf mfdes write --aid 123456 --fid 01 -d 1337
 
 Version differences:
-  None, there are no versions yet.
+None, there are no versions yet.
 
 ## Mifare Classic Dictionary
 
@@ -252,4 +252,4 @@ This file stores a list of EMV currency codes, country codes, or AIDs and their 
 
 Version differences:
 
-  1. Initial version
+1. Initial version

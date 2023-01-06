@@ -88,7 +88,7 @@
 #define RFAL_T4T_ISO7816_P2_SELECT_RETURN_FCI_TEMPLATE \
     0x00U /*!< b4b3      P2 value for Return FCI template                      */
 #define RFAL_T4T_ISO7816_P2_SELECT_NO_RESPONSE_DATA \
-    0x0CU /*!< b4b3      P2 value for No responce data                         */
+    0x0CU /*!< b4b3      P2 value for No response data                         */
 
 #define RFAL_T4T_ISO7816_STATUS_COMPLETE \
     0x9000U /*!< Command completed \ Normal processing - No further qualification*/

@@ -3975,7 +3975,7 @@ FRESULT f_getcwd (
 #endif
 			if (i == len) {					/* Root-directory */
 				*tp++ = '/';
-			} else {						/* Sub-directroy */
+			} else {						/* Sub-directory */
 				do		/* Add stacked path str */
 					*tp++ = buff[i++];
 				while (i < len);
@@ -4673,7 +4673,7 @@ FRESULT f_mkdir (
 				}
 			}
 			if (res == FR_OK) {
-				res = dir_register(&dj);	/* Register the object to the directoy */
+				res = dir_register(&dj);	/* Register the object to the directory */
 			}
 			if (res == FR_OK) {
 #if _FS_EXFAT

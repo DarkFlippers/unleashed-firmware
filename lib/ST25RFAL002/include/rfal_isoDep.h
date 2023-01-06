@@ -857,7 +857,7 @@ ReturnCode rfalIsoDepATTRIB(
  *  \brief  Deselects PICC
  *
  *  This function sends a deselect command to PICC and waits for it`s
- *  responce in a blocking way
+ *  response in a blocking way
  *
  *  \return ERR_NONE   : Deselect successfully sent and acknowledged by PICC 
  *  \return ERR_TIMEOUT: No response rcvd from PICC 

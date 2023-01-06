@@ -14,6 +14,7 @@ int run_minunit_test_furi_hal();
 int run_minunit_test_furi_string();
 int run_minunit_test_infrared();
 int run_minunit_test_rpc();
+int run_minunit_test_manifest();
 int run_minunit_test_flipper_format();
 int run_minunit_test_flipper_format_string();
 int run_minunit_test_stream();
@@ -43,6 +44,7 @@ const UnitTest unit_tests[] = {
     {.name = "storage", .entry = run_minunit_test_storage},
     {.name = "stream", .entry = run_minunit_test_stream},
     {.name = "dirwalk", .entry = run_minunit_test_dirwalk},
+    {.name = "manifest", .entry = run_minunit_test_manifest},
     {.name = "flipper_format", .entry = run_minunit_test_flipper_format},
     {.name = "flipper_format_string", .entry = run_minunit_test_flipper_format_string},
     {.name = "rpc", .entry = run_minunit_test_rpc},

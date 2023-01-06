@@ -5,102 +5,99 @@ It is invoked by `./fbt` in the firmware project root directory. Internally, it 
 
 ## Requirements
 
-Please install Python packages required by assets build scripts: `pip3 install -r scripts/requirements.txt`
+Install Python packages required by assets build scripts: `pip3 install -r scripts/requirements.txt`
 
 ## NB
 
-* `fbt` constructs all referenced environments & their targets' dependency trees on startup. So, to keep startup time as low as possible, we're hiding construction of certain targets behind command-line options.
-* `fbt` always performs `git submodule update --init` on start, unless you set `FBT_NO_SYNC=1` in environment:
-    * On Windows, that's `set "FBT_NO_SYNC=1"` in the shell you're running `fbt` from
-    * On \*nix, it's `$ FBT_NO_SYNC=1 ./fbt ...`
-* `fbt` builds updater & firmware in separate subdirectories in `build`, with their names depending on optimization settings (`COMPACT` & `DEBUG` options). However, for ease of integration with IDEs, latest built variant's directory is always linked as `built/latest`. Additionally, `compile_commands.json` is generated in that folder, which is used for code completion support in IDE.
+- `fbt` constructs all referenced environments and their targets' dependency trees on startup. So, to keep startup time as low as possible, we're hiding the construction of certain targets behind command-line options.
+- `fbt` always performs `git submodule update --init` on start, unless you set `FBT_NO_SYNC=1` in the environment:
+  - On Windows, it's `set "FBT_NO_SYNC=1"` in the shell you're running `fbt` from
+  - On \*nix, it's `$ FBT_NO_SYNC=1 ./fbt ...`
+- `fbt` builds updater & firmware in separate subdirectories in `build`, and their names depend on optimization settings (`COMPACT` & `DEBUG` options). However, for ease of integration with IDEs, the latest built variant's directory is always linked as `built/latest`. Additionally, `compile_commands.json` is generated in that folder (used for code completion support in IDE).
 
 ## Invoking FBT
 
-To build with FBT, call it specifying configuration options & targets to build. For example,
+To build with FBT, call it and specify configuration options & targets to build. For example:
 
 `./fbt COMPACT=1 DEBUG=0 VERBOSE=1 updater_package copro_dist`
 
-To run cleanup (think of `make clean`) for specified targets, add `-c` option.
+To run cleanup (think of `make clean`) for specified targets, add the `-c` option.
 
 ## VSCode integration
 
-`fbt` includes basic development environment configuration for VSCode. To deploy it, run `./fbt vscode_dist`. That will copy initial environment configuration to `.vscode` folder. After that, you can use that configuration by starting VSCode and choosing firmware root folder in "File > Open Folder" menu.
+`fbt` includes basic development environment configuration for VS Code. Run `./fbt vscode_dist` to deploy it. That will copy the initial environment configuration to the `.vscode` folder. After that, you can use that configuration by starting VS Code and choosing the firmware root folder in the "File > Open Folder" menu.
 
- * On first start, you'll be prompted to install recommended plug-ins. Please install them for best development experience. _You can find a list of them in `.vscode/extensions.json`._
- * Basic build tasks are invoked in Ctrl+Shift+B menu.
- * Debugging requires a supported probe. That includes:
-    * Wi-Fi devboard with stock firmware (blackmagic),
-    * ST-Link and compatible devices,
-    * J-Link for flashing and debugging (in VSCode only). _Note that J-Link tools are not included with our toolchain and you have to [download](https://www.segger.com/downloads/jlink/) them yourself and put on your system's PATH._
- * Without a supported probe, you can install firmware on Flipper using USB installation method.
-
+- On the first start, you'll be prompted to install recommended plugins. We highly recommend installing them for the best development experience. _You can find a list of them in `.vscode/extensions.json`._
+- Basic build tasks are invoked in the Ctrl+Shift+B menu.
+- Debugging requires a supported probe. That includes:
+  - Wi-Fi devboard with stock firmware (blackmagic).
+  - ST-Link and compatible devices.
+  - J-Link for flashing and debugging (in VSCode only). _Note that J-Link tools are not included with our toolchain and you have to [download](https://www.segger.com/downloads/jlink/) them yourself and put them on your system's PATH._
+- Without a supported probe, you can install firmware on Flipper using the USB installation method.
 
 ## FBT targets
 
 **`fbt`** keeps track of internal dependencies, so you only need to build the highest-level target you need, and **`fbt`** will make sure everything they depend on is up-to-date.
 
 ### High-level (what you most likely need)
- 
-- `fw_dist` - build & publish firmware to `dist` folder. This is a default target, when no other are specified
-- `fap_dist` - build external plugins & publish to `dist` folder  
-- `updater_package`, `updater_minpackage` - build self-update package. Minimal version only includes firmware's DFU file; full version also includes radio stack & resources for SD card
-- `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper
-- `flash` - flash attached device with OpenOCD over ST-Link
-- `flash_usb`, `flash_usb_full` - build, upload and install update package to device over USB. See details on `updater_package`, `updater_minpackage` 
-- `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded
-- `debug_other`, `debug_other_blackmagic` - attach gdb without loading any .elf. Allows to manually add external elf files with `add-symbol-file` in gdb
-- `updater_debug` - attach gdb with updater's .elf loaded
-- `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board)
-- `openocd` - just start OpenOCD
-- `get_blackmagic` - output blackmagic address in gdb remote format. Useful for IDE integration
+
+- `fw_dist` - build & publish firmware to the `dist` folder. This is a default target when no others are specified.
+- `fap_dist` - build external plugins & publish to the `dist` folder.
+- `updater_package`, `updater_minpackage` - build a self-update package. The minimal version only includes the firmware's DFU file; the full version also includes a radio stack & resources for the SD card.
+- `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper.
+- `flash` - flash the attached device with OpenOCD over ST-Link.
+- `flash_usb`, `flash_usb_full` - build, upload and install the update package to the device over USB. See details on `updater_package` and `updater_minpackage`.
+- `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded.
+- `debug_other`, `debug_other_blackmagic` - attach GDB without loading any `.elf`. It will allow you to manually add external `.elf` files with `add-symbol-file` in GDB.
+- `updater_debug` - attach GDB with the updater's `.elf` loaded.
+- `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board).
+- `openocd` - just start OpenOCD.
+- `get_blackmagic` - output the blackmagic address in the GDB remote format. Useful for IDE integration.
 - `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `OPENOCD_ADAPTER_SERIAL=...`.
-- `lint`, `format` - run clang-format on C source code to check and reformat it according to `.clang-format` specs
-- `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on Python source code, build system files & application manifests 
-- `cli` - start Flipper CLI session over USB
+- `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs.
+- `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests.
+- `cli` - start a Flipper CLI session over USB.
 
 ### Firmware targets
 
-- `faps` - build all external & plugin apps as [.faps](./AppsOnSDCard.md#fap-flipper-application-package). 
+- `faps` - build all external & plugin apps as [`.faps`](./AppsOnSDCard.md#fap-flipper-application-package).
 - **`fbt`** also defines per-app targets. For example, for an app with `appid=snake_game` target names are:
-    - `fap_snake_game`, etc - build single app as .fap by its application ID.
-    - Check out [`--extra-ext-apps`](#command-line-parameters) for force adding extra apps to external build
-    - `fap_snake_game_list`, etc - generate source + assembler listing for app's .fap
-- `flash`, `firmware_flash` - flash current version to attached device with OpenOCD over ST-Link
-- `jflash` - flash current version to attached device with JFlash using J-Link probe. JFlash executable must be on your $PATH
-- `flash_blackmagic` - flash current version to attached device with Blackmagic probe
-- `firmware_all`, `updater_all` - build basic set of binaries
-- `firmware_list`, `updater_list` - generate source + assembler listing
-- `firmware_cdb`, `updater_cdb` - generate `compilation_database.json` file for external tools and IDEs. It can be created without actually building the firmware. 
+  - `fap_snake_game`, etc. - build single app as `.fap` by its application ID.
+  - Check out [`--extra-ext-apps`](#command-line-parameters) for force adding extra apps to external build.
+  - `fap_snake_game_list`, etc - generate source + assembler listing for app's `.fap`.
+- `flash`, `firmware_flash` - flash the current version to the attached device with OpenOCD over ST-Link.
+- `jflash` - flash the current version to the attached device with JFlash using a J-Link probe. The JFlash executable must be on your `$PATH`.
+- `flash_blackmagic` - flash the current version to the attached device with a Blackmagic probe.
+- `firmware_all`, `updater_all` - build a basic set of binaries.
+- `firmware_list`, `updater_list` - generate source + assembler listing.
+- `firmware_cdb`, `updater_cdb` - generate a `compilation_database.json` file for external tools and IDEs. It can be created without actually building the firmware.
 
 ### Assets
 
-- `resources` - build resources and their Manifest
-    - `dolphin_ext` - process dolphin animations for SD card 
-- `icons` - generate .c+.h for icons from png assets
-- `proto` - generate .pb.c+.pb.h for .proto sources
-- `proto_ver` - generate .h with protobuf version 
-- `dolphin_internal`, `dolphin_blocking` - generate .c+.h for corresponding dolphin assets
- 
+- `resources` - build resources and their manifest files
+  - `dolphin_ext` - process dolphin animations for the SD card
+- `icons` - generate `.c+.h` for icons from PNG assets
+- `proto` - generate `.pb.c+.pb.h` for `.proto` sources
+- `proto_ver` - generate `.h` with a protobuf version
+- `dolphin_internal`, `dolphin_blocking` - generate `.c+.h` for corresponding dolphin assets
 
 ## Command-line parameters
 
-- `--options optionfile.py` (default value `fbt_options.py`) - load file with multiple configuration values
-- `--extra-int-apps=app1,app2,appN` - forces listed apps to be built as internal with `firmware` target
-- `--extra-ext-apps=app1,app2,appN` - forces listed apps to be built as external with `firmware_extapps` target
-- `--proxy-env=VAR1,VAR2` - additional environment variables to expose to subprocesses spawned by `fbt`. By default, `fbt` sanitizes execution environment and doesn't forward all inherited environment variables. You can find list of variables that are always forwarded in `environ.scons` file. 
+- `--options optionfile.py` (default value `fbt_options.py`) - load a file with multiple configuration values
+- `--extra-int-apps=app1,app2,appN` - force listed apps to be built as internal with the `firmware` target
+- `--extra-ext-apps=app1,app2,appN` - force listed apps to be built as external with the `firmware_extapps` target
+- `--proxy-env=VAR1,VAR2` - additional environment variables to expose to subprocesses spawned by `fbt`. By default, `fbt` sanitizes the execution environment and doesn't forward all inherited environment variables. You can find the list of variables that are always forwarded in the `environ.scons` file.
 
+## Configuration
 
-## Configuration 
-
-Default configuration variables are set in the configuration file `fbt_options.py`. 
-Values set on command-line have higher precedence over configuration file.
+Default configuration variables are set in the configuration file: `fbt_options.py`.
+Values set in the command line have higher precedence over the configuration file.
 
 You can find out available options with `./fbt -h`.
 
 ### Firmware application set
 
-You can create customized firmware builds by modifying the application list to be included in the build. Application presets are configured with the `FIRMWARE_APPS` option, which is a map(configuration_name:str -> application_list:tuple(str)). To specify application set to use in a build, set `FIRMWARE_APP_SET` to its name.
+You can create customized firmware builds by modifying the list of applications to be included in the build. Application presets are configured with the `FIRMWARE_APPS` option, which is a `map(configuration_name:str -> application_list:tuple(str))`. To specify an application set to use in the build, set `FIRMWARE_APP_SET` to its name.
 For example, to build a firmware image with unit tests, run `./fbt FIRMWARE_APP_SET=unit_tests`.
 
 Check out `fbt_options.py` for details.
