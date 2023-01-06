@@ -262,7 +262,7 @@ UnitempStatus unitemp_singlewire_update(Sensor* sensor) {
         //Проверка на отрицательность температуры
         if(READ_BIT(raw, 1 << 15)) {
             //Проверка на способ кодирования данных
-            if(READ_BIT(raw, 0x60)) {
+            if(READ_BIT(raw, 0x6000)) {
                 //Не оригинал
                 sensor->temp = (float)((int16_t)raw) / 10;
             } else {
