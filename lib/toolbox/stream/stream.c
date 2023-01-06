@@ -4,6 +4,8 @@
 #include <core/check.h>
 #include <core/common_defines.h>
 
+#define STREAM_BUFFER_SIZE (32U)
+
 void stream_free(Stream* stream) {
     furi_assert(stream);
     stream->vtable->free(stream);
@@ -22,6 +24,82 @@ bool stream_eof(Stream* stream) {
 bool stream_seek(Stream* stream, int32_t offset, StreamOffset offset_type) {
     furi_assert(stream);
     return stream->vtable->seek(stream, offset, offset_type);
+}
+
+static bool stream_seek_to_char_forward(Stream* stream, char c) {
+    // Search is starting from seconds character
+    if(!stream_seek(stream, 1, StreamOffsetFromCurrent)) {
+        return false;
+    }
+
+    // Search character in a stream
+    bool result = false;
+    while(!result) {
+        uint8_t buffer[STREAM_BUFFER_SIZE] = {0};
+        size_t ret = stream_read(stream, buffer, STREAM_BUFFER_SIZE);
+        for(size_t i = 0; i < ret; i++) {
+            if(buffer[i] == c) {
+                stream_seek(stream, (int32_t)i - ret, StreamOffsetFromCurrent);
+                result = true;
+                break;
+            }
+        }
+        if(ret != STREAM_BUFFER_SIZE) break;
+    }
+    return result;
+}
+
+static bool stream_seek_to_char_backward(Stream* stream, char c) {
+    size_t anchor = stream_tell(stream);
+
+    // Special case, no previous characters
+    if(anchor == 0) {
+        return false;
+    }
+
+    bool result = false;
+    while(!result) {
+        // Seek back
+        uint8_t buffer[STREAM_BUFFER_SIZE] = {0};
+        size_t to_read = STREAM_BUFFER_SIZE;
+        if(to_read > anchor) {
+            to_read = anchor;
+        }
+
+        anchor -= to_read;
+        furi_check(stream_seek(stream, anchor, StreamOffsetFromStart));
+
+        size_t ret = stream_read(stream, buffer, to_read);
+        for(size_t i = 0; i < ret; i++) {
+            size_t cursor = ret - i - 1;
+            if(buffer[cursor] == c) {
+                result = true;
+                furi_check(stream_seek(stream, anchor + cursor, StreamOffsetFromStart));
+                break;
+            } else {
+            }
+        }
+        if(ret != STREAM_BUFFER_SIZE) break;
+    }
+    return result;
+}
+
+bool stream_seek_to_char(Stream* stream, char c, StreamDirection direction) {
+    const size_t old_position = stream_tell(stream);
+
+    bool result = false;
+    if(direction == StreamDirectionForward) {
+        result = stream_seek_to_char_forward(stream, c);
+    } else if(direction == StreamDirectionBackward) {
+        result = stream_seek_to_char_backward(stream, c);
+    }
+
+    // Rollback
+    if(!result) {
+        stream_seek(stream, old_position, StreamOffsetFromStart);
+    }
+
+    return result;
 }
 
 size_t stream_tell(Stream* stream) {
@@ -69,11 +147,10 @@ static bool stream_write_struct(Stream* stream, const void* context) {
 
 bool stream_read_line(Stream* stream, FuriString* str_result) {
     furi_string_reset(str_result);
-    const uint8_t buffer_size = 32;
-    uint8_t buffer[buffer_size];
+    uint8_t buffer[STREAM_BUFFER_SIZE];
 
     do {
-        uint16_t bytes_were_read = stream_read(stream, buffer, buffer_size);
+        uint16_t bytes_were_read = stream_read(stream, buffer, STREAM_BUFFER_SIZE);
         if(bytes_were_read == 0) break;
 
         bool result = false;

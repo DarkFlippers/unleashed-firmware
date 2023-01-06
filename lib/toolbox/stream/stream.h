@@ -16,6 +16,11 @@ typedef enum {
     StreamOffsetFromEnd,
 } StreamOffset;
 
+typedef enum {
+    StreamDirectionForward,
+    StreamDirectionBackward,
+} StreamDirection;
+
 typedef bool (*StreamWriteCB)(Stream* stream, const void* context);
 
 /**
@@ -31,15 +36,15 @@ void stream_free(Stream* stream);
 void stream_clean(Stream* stream);
 
 /**
- * Indicates that the rw pointer is at the end of the stream
+ * Indicates that the RW pointer is at the end of the stream
  * @param stream Stream instance
- * @return true if rw pointer is at the end of the stream
- * @return false if rw pointer is not at the end of the stream
+ * @return true if RW pointer is at the end of the stream
+ * @return false if RW pointer is not at the end of the stream
  */
 bool stream_eof(Stream* stream);
 
 /**
- * Moves the rw pointer.
+ * Moves the RW pointer.
  * @param stream Stream instance
  * @param offset how much to move the pointer
  * @param offset_type starting from what
@@ -48,10 +53,20 @@ bool stream_eof(Stream* stream);
  */
 bool stream_seek(Stream* stream, int32_t offset, StreamOffset offset_type);
 
+/** Seek to next occurrence of the character
+ *
+ * @param      stream     Pointer to the stream instance
+ * @param[in]  c          The Character
+ * @param[in]  direction  The Direction
+ *
+ * @return     true on success
+ */
+bool stream_seek_to_char(Stream* stream, char c, StreamDirection direction);
+
 /**
- * Gets the value of the rw pointer
+ * Gets the value of the RW pointer
  * @param stream Stream instance
- * @return size_t value of the rw pointer
+ * @return size_t value of the RW pointer
  */
 size_t stream_tell(Stream* stream);
 
@@ -101,13 +116,13 @@ bool stream_delete_and_insert(
  * Read line from a stream (supports LF and CRLF line endings)
  * @param stream 
  * @param str_result 
- * @return true if line lenght is not zero
+ * @return true if line length is not zero
  * @return false otherwise
  */
 bool stream_read_line(Stream* stream, FuriString* str_result);
 
 /**
- * Moves the rw pointer to the start
+ * Moves the RW pointer to the start
  * @param stream Stream instance
  */
 bool stream_rewind(Stream* stream);
@@ -157,7 +172,7 @@ size_t stream_write_vaformat(Stream* stream, const char* format, va_list args);
 
 /**
  * Insert N chars to the stream, starting at the current pointer.
- * Data will be inserted, not overwritteт, so the stream will be increased in size.
+ * Data will be inserted, not overwritten, so the stream will be increased in size.
  * @param stream Stream instance
  * @param data data to be inserted
  * @param size size of data to be inserted
@@ -273,7 +288,7 @@ bool stream_delete_and_insert_vaformat(
 
 /**
  * Remove N chars from the stream, starting at the current pointer.
- * The size may be larger than stream size, the stream will be cleared from current rw pointer to the end.
+ * The size may be larger than stream size, the stream will be cleared from current RW pointer to the end.
  * @param stream Stream instance
  * @param size how many chars need to be deleted
  * @return true if the operation was successful
@@ -282,7 +297,7 @@ bool stream_delete_and_insert_vaformat(
 bool stream_delete(Stream* stream, size_t size);
 
 /**
- * Copy data from one stream to another. Data will be copied from current rw pointer and to current rw pointer.
+ * Copy data from one stream to another. Data will be copied from current RW pointer and to current RW pointer.
  * @param stream_from 
  * @param stream_to 
  * @param size 
@@ -328,7 +343,7 @@ size_t stream_load_from_file(Stream* stream, Storage* storage, const char* path)
 size_t stream_save_to_file(Stream* stream, Storage* storage, const char* path, FS_OpenMode mode);
 
 /**
- * Dump stream inner data (size, RW positiot, content)
+ * Dump stream inner data (size, RW position, content)
  * @param stream Stream instance 
  */
 void stream_dump_data(Stream* stream);
