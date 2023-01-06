@@ -76,43 +76,6 @@ static void furi_string_secure_free(FuriString* str) {
     furi_string_free(str);
 }
 
-static bool totp_cli_read_secret(Cli* cli, FuriString* out_str, bool mask_user_input) {
-    uint8_t c;
-    while(cli_read(cli, &c, 1) == 1) {
-        if(c == CliSymbolAsciiEsc) {
-            // Some keys generating escape-sequences
-            // We need to ignore them as we care about alpha-numerics only
-            uint8_t c2;
-            cli_read_timeout(cli, &c2, 1, 0);
-            cli_read_timeout(cli, &c2, 1, 0);
-        } else if(c == CliSymbolAsciiETX) {
-            TOTP_CLI_DELETE_CURRENT_LINE();
-            TOTP_CLI_PRINTF("Cancelled by user\r\n");
-            return false;
-        } else if((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-            if(mask_user_input) {
-                putc('*', stdout);
-            } else {
-                putc(c, stdout);
-            }
-            fflush(stdout);
-            furi_string_push_back(out_str, c);
-        } else if(c == CliSymbolAsciiBackspace || c == CliSymbolAsciiDel) {
-            size_t out_str_size = furi_string_size(out_str);
-            if(out_str_size > 0) {
-                TOTP_CLI_DELETE_LAST_CHAR();
-                furi_string_left(out_str, out_str_size - 1);
-            }
-        } else if(c == CliSymbolAsciiCR) {
-            cli_nl();
-            break;
-        }
-    }
-
-    TOTP_CLI_DELETE_LAST_LINE();
-    return true;
-}
-
 void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
     FuriString* temp_str = furi_string_alloc();
     TokenInfo* token_info = token_info_alloc();
@@ -178,12 +141,16 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
     // Reading token secret
     furi_string_reset(temp_str);
     TOTP_CLI_PRINTF("Enter token secret and confirm with [ENTER]\r\n");
-    if(!totp_cli_read_secret(cli, temp_str, mask_user_input) ||
+    if(!totp_cli_read_line(cli, temp_str, mask_user_input) ||
        !totp_cli_ensure_authenticated(plugin_state, cli)) {
+        TOTP_CLI_DELETE_LAST_LINE();
+        TOTP_CLI_PRINTF("Cancelled by user\r\n");
         furi_string_secure_free(temp_str);
         token_info_free(token_info);
         return;
     }
+
+    TOTP_CLI_DELETE_LAST_LINE();
 
     if(!token_info_set_secret(
            token_info,

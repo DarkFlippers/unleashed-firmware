@@ -143,7 +143,7 @@ int32_t totp_app() {
         return 255;
     }
 
-    totp_cli_register_command_handler(plugin_state);
+    TotpCliContext* cli_context = totp_cli_register_command_handler(plugin_state, event_queue);
     totp_scene_director_init_scenes(plugin_state);
     if(!totp_activate_initial_scene(plugin_state)) {
         FURI_LOG_E(LOGGING_TAG, "An error ocurred during activating initial scene\r\n");
@@ -172,7 +172,11 @@ int32_t totp_app() {
                 last_user_interaction_time = furi_get_tick();
             }
 
-            processing = totp_scene_director_handle_event(&event, plugin_state_m);
+            if(event.type == EventForceCloseApp) {
+                processing = false;
+            } else {
+                processing = totp_scene_director_handle_event(&event, plugin_state_m);
+            }
         } else if(
             plugin_state_m->pin_set && plugin_state_m->current_scene != TotpSceneAuthentication &&
             furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
@@ -183,7 +187,7 @@ int32_t totp_app() {
         release_mutex(&state_mutex, plugin_state_m);
     }
 
-    totp_cli_unregister_command_handler();
+    totp_cli_unregister_command_handler(cli_context);
     totp_scene_director_deactivate_active_scene(plugin_state);
     totp_scene_director_dispose(plugin_state);
 

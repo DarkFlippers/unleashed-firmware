@@ -731,3 +731,9 @@ TotpConfigFileUpdateResult
     totp_close_storage();
     return update_result;
 }
+
+void totp_config_file_reset() {
+    Storage* storage = totp_open_storage();
+    storage_simply_remove(storage, CONFIG_FILE_PATH);
+    totp_close_storage();
+}
