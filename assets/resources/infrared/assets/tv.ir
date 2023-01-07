@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 5th Jan, 2023
-# Last Checked 5th Jan, 2023
+# Last Updated 7th Jan, 2023
+# Last Checked 7th Jan, 2023
 #
 name: POWER
 type: parsed
@@ -1143,25 +1143,13 @@ type: parsed
 protocol: RC6
 address: 00 00 00 00
 command: 0D 00 00 00
-#
+# Samsung Standby
 name: POWER
 type: parsed
 protocol: Samsung32
 address: 07 00 00 00
 command: E0 00 00 00
-#
-name: VOL-
-type: parsed
-protocol: Samsung32
-address: 07 00 00 00
-command: 23 00 00 00
-#
-name: CH-
-type: parsed
-protocol: Samsung32
-address: 07 00 00 00
-command: 13 00 00 00
-#
+# Samsung Power Off
 name: POWER
 type: parsed
 protocol: Samsung32
