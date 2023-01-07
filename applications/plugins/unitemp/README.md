@@ -3,9 +3,9 @@
 [![GitHub release](https://img.shields.io/github/release/quen0n/unitemp-flipperzero?include_prereleases=&sort=semver&color=blue)](https://github.com/quen0n/unitemp-flipperzero/releases/)
 [![GitHub](https://img.shields.io/github/license/quen0n/unitemp-flipperzero)](https://github.com/quen0n/unitemp-flipperzero/blob/dev/LICENSE.md)
 [![Build dev](https://github.com/quen0n/unitemp-flipperzero/actions/workflows/build_dev.yml/badge.svg?branch=dev)](https://github.com/quen0n/unitemp-flipperzero/actions/workflows/build_dev.yml)  
-[Flipper Zero](https://flipperzero.one/) application for reading temperature, humidity and pressure sensors using Onewire, Singlewire, I2C protocols.   
+[Flipper Zero](https://flipperzero.one/) application for reading temperature, humidity and pressure sensors like a DHT11/22, DS18B20, BMP280, HTU21 and more. 
 ## List of supported sensors (supplemented)
-![image](https://user-images.githubusercontent.com/10090793/210119924-51119deb-f950-40ee-bc27-22b971243527.png)
+![image](https://user-images.githubusercontent.com/10090793/211131502-c1560eb5-f59c-4cfa-86f7-27f037490a35.png)
 ## Installation
 Copy the contents of the repository to the `applications/plugins/unitemp` folder and build the project. Flash FZ along with resources. [More...](https://github.com/flipperdevices/flipperzero-firmware/blob/dev/documentation/fbt.md)
 ## Some community photos

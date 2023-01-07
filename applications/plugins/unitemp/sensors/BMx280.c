@@ -180,22 +180,19 @@ static bool bmx280_readCalValues(I2CSensor* i2c_sensor) {
     if(!unitemp_i2c_readRegArray(
            i2c_sensor, TEMP_CAL_START_ADDR, 6, (uint8_t*)&bmx280_instance->temp_cal))
         return false;
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(
-        APP_NAME,
+
+    UNITEMP_DEBUG(
         "Sensor BMx280 (0x%02X) T1-T3: %d, %d, %d",
         i2c_sensor->currentI2CAdr,
         bmx280_instance->temp_cal.dig_T1,
         bmx280_instance->temp_cal.dig_T2,
         bmx280_instance->temp_cal.dig_T3);
-#endif
 
     if(!unitemp_i2c_readRegArray(
            i2c_sensor, PRESS_CAL_START_ADDR, 18, (uint8_t*)&bmx280_instance->press_cal))
         return false;
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(
-        APP_NAME,
+
+    UNITEMP_DEBUG(
         "Sensor BMx280 (0x%02X): P1-P9: %d, %d, %d, %d, %d, %d, %d, %d, %d",
         i2c_sensor->currentI2CAdr,
         bmx280_instance->press_cal.dig_P1,
@@ -207,7 +204,6 @@ static bool bmx280_readCalValues(I2CSensor* i2c_sensor) {
         bmx280_instance->press_cal.dig_P7,
         bmx280_instance->press_cal.dig_P8,
         bmx280_instance->press_cal.dig_P9);
-#endif
 
     if(bmx280_instance->chip_id == BME280_ID) {
         uint8_t buff[7] = {0};
@@ -221,9 +217,7 @@ static bool bmx280_readCalValues(I2CSensor* i2c_sensor) {
         bmx280_instance->hum_cal.dig_H5 = (buff[4] & 0x0F) | ((int16_t)buff[5] << 4);
         bmx280_instance->hum_cal.dig_H6 = buff[6];
 
-#ifdef UNITEMP_DEBUG
-        FURI_LOG_D(
-            APP_NAME,
+        UNITEMP_DEBUG(
             "Sensor BMx280 (0x%02X): H1-H6: %d, %d, %d, %d, %d, %d",
             i2c_sensor->currentI2CAdr,
             bmx280_instance->hum_cal.dig_H1,
@@ -232,7 +226,6 @@ static bool bmx280_readCalValues(I2CSensor* i2c_sensor) {
             bmx280_instance->hum_cal.dig_H4,
             bmx280_instance->hum_cal.dig_H5,
             bmx280_instance->hum_cal.dig_H6);
-#endif
     }
 
     bmx280_instance->last_cal_update_time = furi_get_tick();

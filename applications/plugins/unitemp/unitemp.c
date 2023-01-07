@@ -78,9 +78,7 @@ bool unitemp_saveSettings(void) {
 }
 
 bool unitemp_loadSettings(void) {
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(APP_NAME, "Loading settings...");
-#endif
+    UNITEMP_DEBUG("Loading settings...");
 
     //Выделение памяти на поток
     app->file_stream = file_stream_alloc(app->storage);

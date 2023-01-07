@@ -58,9 +58,7 @@ OneWireBus* uintemp_onewire_bus_alloc(const GPIO* gpio) {
     bus->device_count = 0;
     bus->gpio = gpio;
     bus->powerMode = PWR_PASSIVE;
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(APP_NAME, "one wire bus (port %d) allocated", gpio->num);
-#endif
+    UNITEMP_DEBUG("one wire bus (port %d) allocated", gpio->num);
 
     return bus;
 }
@@ -84,9 +82,7 @@ bool unitemp_onewire_bus_init(OneWireBus* bus) {
     return true;
 }
 bool unitemp_onewire_bus_deinit(OneWireBus* bus) {
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(APP_NAME, "devices on wire %d: %d", bus->gpio->num, bus->device_count);
-#endif
+    UNITEMP_DEBUG("devices on wire %d: %d", bus->gpio->num, bus->device_count);
     bus->device_count--;
     if(bus->device_count <= 0) {
         bus->device_count = 0;
@@ -236,15 +232,11 @@ void unitemp_onewire_bus_enum_init(void) {
 uint8_t* unitemp_onewire_bus_enum_next(OneWireBus* bus) {
     furi_delay_ms(10);
     if(!onewire_enum_fork_bit) { // Если на предыдущем шаге уже не было разногласий
-#ifdef UNITEMP_DEBUG
-        FURI_LOG_D(APP_NAME, "All devices on wire %d is found", unitemp_gpio_toInt(bus->gpio));
-#endif
+        UNITEMP_DEBUG("All devices on wire %d is found", unitemp_gpio_toInt(bus->gpio));
         return 0; // то просто выходим ничего не возвращая
     }
     if(!unitemp_onewire_bus_start(bus)) {
-#ifdef UNITEMP_DEBUG
-        FURI_LOG_D(APP_NAME, "Wire %d is empty", unitemp_gpio_toInt(bus->gpio));
-#endif
+        UNITEMP_DEBUG("Wire %d is empty", unitemp_gpio_toInt(bus->gpio));
         return 0;
     }
     uint8_t bp = 8;
@@ -278,9 +270,8 @@ uint8_t* unitemp_onewire_bus_enum_next(OneWireBus* bus) {
             if(!not1) { // Присутствует единица
                 next |= 0x80;
             } else { // Нет ни нулей ни единиц - ошибочная ситуация
-#ifdef UNITEMP_DEBUG
-                FURI_LOG_D(APP_NAME, "Wrong wire %d situation", unitemp_gpio_toInt(bus->gpio));
-#endif
+
+                UNITEMP_DEBUG("Wrong wire %d situation", unitemp_gpio_toInt(bus->gpio));
                 return 0;
             }
         }
@@ -421,9 +412,7 @@ UnitempStatus unitemp_onewire_sensor_update(Sensor* sensor) {
             unitemp_onewire_bus_send_byte(instance->bus, 0xBE); // Read Scratch-pad
             unitemp_onewire_bus_read_byteArray(instance->bus, buff, 9);
             if(!unitemp_onewire_CRC_check(buff, 9)) {
-#ifdef UNITEMP_DEBUG
-                FURI_LOG_D(APP_NAME, "Sensor %s is not found", sensor->name);
-#endif
+                UNITEMP_DEBUG("Sensor %s is not found", sensor->name);
                 return UT_SENSORSTATUS_TIMEOUT;
             }
         }
@@ -462,9 +451,7 @@ UnitempStatus unitemp_onewire_sensor_update(Sensor* sensor) {
         unitemp_onewire_bus_send_byte(instance->bus, 0xBE); // Read Scratch-pad
         unitemp_onewire_bus_read_byteArray(instance->bus, buff, 9);
         if(!unitemp_onewire_CRC_check(buff, 9)) {
-#ifdef UNITEMP_DEBUG
-            FURI_LOG_D(APP_NAME, "Failed CRC check: %s", sensor->name);
-#endif
+            UNITEMP_DEBUG("Failed CRC check: %s", sensor->name);
             return UT_SENSORSTATUS_BADCRC;
         }
         int16_t raw = buff[0] | ((int16_t)buff[1] << 8);

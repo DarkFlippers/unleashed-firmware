@@ -101,9 +101,8 @@ bool unitemp_BMP180_init(Sensor* sensor) {
     bmp180_instance->bmp180_cal.MC = (buff[18] << 8) | buff[19];
     bmp180_instance->bmp180_cal.MD = (buff[20] << 8) | buff[21];
 
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(
-        APP_NAME,
+
+UNITEMP_DEBUG(
         "Sensor BMP180 (0x%02X) calibration values: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d",
         i2c_sensor->currentI2CAdr,
         bmp180_instance->bmp180_cal.AC1,
@@ -117,7 +116,6 @@ bool unitemp_BMP180_init(Sensor* sensor) {
         bmp180_instance->bmp180_cal.MB,
         bmp180_instance->bmp180_cal.MC,
         bmp180_instance->bmp180_cal.MD);
-#endif
     return true;
 }
 

@@ -39,19 +39,25 @@
 /* Объявление макроподстановок */
 //Имя приложения
 #define APP_NAME "Unitemp"
+//Версия приложения
+#define UNITEMP_APP_VER "1.1"
 //Путь хранения файлов плагина
 #define APP_PATH_FOLDER "/ext/unitemp"
 //Имя файла с настройками
 #define APP_FILENAME_SETTINGS "settings.cfg"
 //Имя файла с датчиками
 #define APP_FILENAME_SENSORS "sensors.cfg"
-//Версия приложения
-#define UNITEMP_APP_VER "1.0"
 
 //Размер буффера текста
 #define BUFF_SIZE 32
 
-#define UNITEMP_DEBUG
+#define UNITEMP_D
+
+#ifdef FURI_DEBUG
+#define UNITEMP_DEBUG(msg, ...) FURI_LOG_D(APP_NAME, msg, ##__VA_ARGS__)
+#else
+#define UNITEMP_DEBUG(msg, ...)
+#endif
 
 /* Объявление перечислений */
 //Единицы измерения температуры
