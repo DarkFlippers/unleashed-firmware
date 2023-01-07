@@ -20,6 +20,7 @@
 
 const SensorType HTU21x = {
     .typename = "HTU21x",
+    .altname = "HTU21x/SI70xx/SHT2x",
     .interface = &I2C,
     .datatype = UT_DATA_TYPE_TEMP_HUM,
     .pollingInterval = 250,
@@ -45,7 +46,7 @@ bool unitemp_HTU21x_alloc(Sensor* sensor, char* args) {
 
     //Адреса на шине I2C (7 бит)
     i2c_sensor->minI2CAdr = 0x40 << 1;
-    i2c_sensor->maxI2CAdr = 0x40 << 1;
+    i2c_sensor->maxI2CAdr = 0x41 << 1;
     return true;
 }
 
