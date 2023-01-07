@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 5th Jan, 2023
-# Last Checked 5th Jan, 2023
+# Last Updated 7th Jan, 2023
+# Last Checked 7th Jan, 2023
 #
 name: POWER
 type: raw
@@ -1269,3 +1269,21 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9384 4452 658 485 657 484 658 484 659 485 657 1597 658 1597 682 487 655 488 654 1603 652 1603 653 1603 653 1604 653 491 653 491 653 1603 653 1603 653 1603 653 491 653 1604 652 490 654 1603 652 490 653 490 653 1603 652 490 653 1603 652 490 653 1603 652 490 653 1603 652 1603 652 490 653 39953 9263 2181 652
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 83 00 00 00
+# 
+name: SPEED+
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 87 00 00 00
+# 
+name: TIMER
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 8B 00 00 00
