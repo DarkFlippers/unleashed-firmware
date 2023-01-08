@@ -7,7 +7,7 @@ enum SubmenuIndex {
     SubmenuIndexDetectReader,
     SubmenuIndexSaved,
     SubmenuIndexExtraAction,
-    SubmenuIndexAddManualy,
+    SubmenuIndexAddManually,
     SubmenuIndexDebug,
 };
 
@@ -28,7 +28,7 @@ void nfc_scene_start_on_enter(void* context) {
     submenu_add_item(
         submenu, "Extra Actions", SubmenuIndexExtraAction, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Add Manually", SubmenuIndexAddManualy, nfc_scene_start_submenu_callback, nfc);
+        submenu, "Add Manually", SubmenuIndexAddManually, nfc_scene_start_submenu_callback, nfc);
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         submenu_add_item(
@@ -68,7 +68,7 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubmenuIndexExtraAction) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneExtraActions);
             consumed = true;
-        } else if(event.event == SubmenuIndexAddManualy) {
+        } else if(event.event == SubmenuIndexAddManually) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetType);
             consumed = true;
         } else if(event.event == SubmenuIndexDebug) {
