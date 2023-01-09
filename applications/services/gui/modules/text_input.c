@@ -138,7 +138,7 @@ static bool char_is_lowercase(char letter) {
 static char char_to_uppercase(const char letter) {
     if(letter == '_') {
         return 0x20;
-    } else if(isalpha(letter)) {
+    } else if(islower(letter)) {
         return (letter - 0x20);
     } else {
         return letter;
@@ -309,7 +309,9 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, b
     char selected = get_selected_char(model);
     size_t text_length = strlen(model->text_buffer);
 
-    if(shift) {
+    bool toogle_case = text_length == 0;
+    if(shift) toogle_case = !toogle_case;
+    if(toogle_case) {
         selected = char_to_uppercase(selected);
     }
 
@@ -329,9 +331,6 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, b
             text_length = 0;
         }
         if(text_length < (model->text_buffer_size - 1)) {
-            if(text_length == 0 && char_is_lowercase(selected)) {
-                selected = char_to_uppercase(selected);
-            }
             model->text_buffer[text_length] = selected;
             model->text_buffer[text_length + 1] = 0;
         }
