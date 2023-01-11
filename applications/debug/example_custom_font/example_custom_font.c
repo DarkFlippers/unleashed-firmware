@@ -4,11 +4,6 @@
 #include <gui/gui.h>
 #include <input/input.h>
 
-
-//This include enables font usage
-
-#include <u8g2_glue.h>
-
 //This arrays contains the font itself. You can use any u8g2 font you want
 
 /*
@@ -17,7 +12,7 @@ Copyright:
 Glyphs: 95/203
 BBX Build Mode: 0
 */
-const uint8_t u8g2_font_tom_thumb_4x6_tr[725] U8G2_FONT_SECTION("u8g2_font_tom_thumb_4x6_tr") =
+const uint8_t u8g2_font_tom_thumb_4x6_tr[725] =
 	"_\0\2\2\2\3\3\4\4\3\6\0\377\5\377\5\0\0\352\1\330\2\270 \5\340\315\0!\6\265\310"
 	"\254\0\42\6\213\313$\25#\10\227\310\244\241\206\12$\10\227\310\215\70b\2%\10\227\310d\324F\1"
 	"&\10\227\310(\65R\22'\5\251\313\10(\6\266\310\251\62)\10\226\310\304\224\24\0*\6\217\312\244"
