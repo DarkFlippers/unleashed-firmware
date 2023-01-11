@@ -165,6 +165,14 @@ Alias("fap_dist", fap_dist)
 
 distenv.Depends(firmware_env["FW_RESOURCES"], firmware_env["FW_EXTAPPS"].resources_dist)
 
+# Copy all faps to device
+
+fap_deploy = distenv.PhonyTarget(
+    "fap_deploy",
+    "${PYTHON3} ${ROOT_DIR}/scripts/storage.py send ${SOURCE} /ext/apps",
+    source=Dir("#/assets/resources/apps"),
+)
+
 
 # Target for bundling core2 package for qFlipper
 copro_dist = distenv.CoproBuilder(
