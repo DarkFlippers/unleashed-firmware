@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.6,,
+Version,+,11.7,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1630,6 +1630,7 @@ Function,+,infrared_get_protocol_by_name,InfraredProtocol,const char*
 Function,+,infrared_get_protocol_command_length,uint8_t,InfraredProtocol
 Function,+,infrared_get_protocol_duty_cycle,float,InfraredProtocol
 Function,+,infrared_get_protocol_frequency,uint32_t,InfraredProtocol
+Function,+,infrared_get_protocol_min_repeat_count,size_t,InfraredProtocol
 Function,+,infrared_get_protocol_name,const char*,InfraredProtocol
 Function,+,infrared_is_protocol_valid,_Bool,InfraredProtocol
 Function,+,infrared_reset_decoder,void,InfraredDecoderHandler*
