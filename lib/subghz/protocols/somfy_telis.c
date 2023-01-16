@@ -11,7 +11,7 @@
 
 static const SubGhzBlockConst subghz_protocol_somfy_telis_const = {
     .te_short = 640,
-    .te_long = 1280,
+    .te_long = 1208,
     .te_delta = 250,
     .min_count_bit_for_found = 56,
 };
@@ -83,7 +83,7 @@ void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment) 
     instance->keystore = subghz_environment_get_keystore(environment);
 
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 256;
+    instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
 
@@ -177,21 +177,25 @@ static bool subghz_protocol_encoder_somfy_telis_get_upload(
     }
 
     size_t index = 0;
-    size_t size_upload = 6 * 2 + (instance->generic.data_count_bit * 2);
-    if(size_upload > instance->encoder.size_upload) {
-        FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
-        return false;
-    } else {
-        instance->encoder.size_upload = size_upload;
-    }
 
     //Send header
-    for(uint8_t i = 6; i > 0; i--) {
+    //Wake-up
+    // instance->encoder.upload[index++] =
+    // level_duration_make(true, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 15);
+    // instance->encoder.upload[index++] =
+    // level_duration_make(false, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 148);
+    //Hardware sync
+    for(uint8_t i = 7; i > 0; i--) {
         instance->encoder.upload[index++] =
-            level_duration_make(true, (uint32_t)subghz_protocol_somfy_telis_const.te_long * 2);
+            level_duration_make(true, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 4);
         instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_somfy_telis_const.te_long * 2);
+            level_duration_make(false, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 4);
     }
+    //Software sync
+    instance->encoder.upload[index++] =
+        level_duration_make(true, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 7);
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 1);
 
     //Send key data
     for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
@@ -210,6 +214,16 @@ static bool subghz_protocol_encoder_somfy_telis_get_upload(
         }
     }
 
+    //Inter-frame silence
+    level_duration_make(false, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 50);
+
+    size_t size_upload = index;
+    if(size_upload > instance->encoder.size_upload) {
+        FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
+        return false;
+    } else {
+        instance->encoder.size_upload = size_upload;
+    }
     return true;
 }
 
