@@ -35,6 +35,13 @@ void subghz_protocol_encoder_somfy_telis_free(void* context);
  * @param preset Modulation, SubGhzRadioPreset
  * @return true On success
  */
+bool subghz_protocol_somfy_telis_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize and generating an upload to send.

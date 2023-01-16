@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.7,,
+Version,+,11.8,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -3087,6 +3087,7 @@ Function,+,subghz_protocol_registry_get_by_index,const SubGhzProtocol*,"const Su
 Function,+,subghz_protocol_registry_get_by_name,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, const char*"
 Function,-,subghz_protocol_secplus_v1_check_fixed,_Bool,uint32_t
 Function,-,subghz_protocol_secplus_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, SubGhzRadioPreset*"
+Function,-,subghz_protocol_somfy_telis_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,-,subghz_protocol_star_line_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
 Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"
