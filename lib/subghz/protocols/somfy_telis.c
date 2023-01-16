@@ -99,14 +99,20 @@ void subghz_protocol_encoder_somfy_telis_free(void* context) {
 
 static bool
     subghz_protocol_somfy_telis_gen_data(SubGhzProtocolEncoderSomfyTelis* instance, uint8_t btn) {
-    // if(instance->generic.cnt < 0xFFFF) {
-    // instance->generic.cnt++;
-    // } else if(instance->generic.cnt >= 0xFFFF) {
-    // instance->generic.cnt = 0;
-    // }
+    UNUSED(btn);
+    uint64_t data = instance->generic.data ^ (instance->generic.data >> 8);
+    instance->generic.btn = (data >> 44) & 0xF; // ctrl
+    instance->generic.cnt = (data >> 24) & 0xFFFF; // rolling code
+    instance->generic.serial = data & 0xFFFFFF; // address
+
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
     uint8_t frame[7];
-    frame[0] = 0xA7;
-    frame[1] = btn << 4;
+    frame[0] = data >> 48;
+    frame[1] = instance->generic.btn << 4;
     frame[2] = instance->generic.cnt >> 8;
     frame[3] = instance->generic.cnt;
     frame[4] = instance->generic.serial >> 16;
@@ -124,7 +130,7 @@ static bool
     for(uint8_t i = 1; i < 7; i++) {
         frame[i] ^= frame[i - 1];
     }
-    uint64_t data = 0;
+    data = 0;
     for(uint8_t i = 0; i < 7; ++i) {
         data <<= 8;
         data |= frame[i];
@@ -566,14 +572,14 @@ void subghz_protocol_decoder_somfy_telis_get_string(void* context, FuriString* o
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
-        "Key:0x%lX\r\n"
+        "Key:0x%X\r\n"
         "Address:0x%03lX \r\n"
         "Cnt:0x%04lX\r\n"
         "Btn:%s\r\n",
 
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 52),
+        (uint16_t)(instance->generic.data >> 48),
         instance->generic.serial,
         instance->generic.cnt,
         subghz_protocol_somfy_telis_get_name_button(instance->generic.btn));
