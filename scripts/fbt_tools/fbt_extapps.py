@@ -32,6 +32,7 @@ def BuildAppElf(env, app):
     ext_apps_work_dir = env.subst("$EXT_APPS_WORK_DIR")
     app_work_dir = os.path.join(ext_apps_work_dir, app.appid)
 
+    env.SetDefault(_APP_ICONS=[])
     env.VariantDir(app_work_dir, app._appdir, duplicate=False)
 
     app_env = env.Clone(FAP_SRC_DIR=app._appdir, FAP_WORK_DIR=app_work_dir)
@@ -63,6 +64,7 @@ def BuildAppElf(env, app):
             icon_bundle_name=f"{app.fap_icon_assets_symbol if app.fap_icon_assets_symbol else app.appid }_icons",
         )
         app_env.Alias("_fap_icons", fap_icons)
+        env.Append(_APP_ICONS=[fap_icons])
 
     private_libs = []
 

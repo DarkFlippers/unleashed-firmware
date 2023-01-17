@@ -235,6 +235,11 @@ vars.AddVariables(
             ("applications_user", False),
         ],
     ),
+    BoolVariable(
+        "PVSNOBROWSER",
+        help="Don't open browser after generating error repots",
+        default=False,
+    ),
 )
 
 Return("vars")

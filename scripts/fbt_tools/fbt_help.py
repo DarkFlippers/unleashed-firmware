@@ -31,6 +31,8 @@ Other:
         run linters
     format, format_py:
         run code formatters
+    firmware_pvs:
+        generate a PVS-Studio report
 
 For more targets & info, see documentation/fbt.md
 """

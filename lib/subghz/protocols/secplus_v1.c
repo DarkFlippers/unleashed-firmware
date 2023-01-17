@@ -224,7 +224,7 @@ static bool subghz_protocol_secplus_v1_encode(SubGhzProtocolEncoderSecPlus_v1* i
     instance->generic.data &= 0xFFFFFFFF00000000;
     instance->generic.data |= rolling;
 
-    if(rolling > 0xFFFFFFFF) {
+    if(rolling == 0xFFFFFFFF) {
         rolling = 0xE6000000;
     }
     if(fixed > 0xCFD41B90) {

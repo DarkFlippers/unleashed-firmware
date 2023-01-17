@@ -106,6 +106,12 @@
             "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_usb_full"
         },
         {
+            "label": "[Debug] Create PVS-Studio report",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt firmware_pvs"
+        },
+        {
             "label": "[Debug] Build FAPs",
             "group": "build",
             "type": "shell",

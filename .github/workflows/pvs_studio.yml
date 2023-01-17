@@ -43,36 +43,15 @@ jobs:
           fi
           python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
 
-      - name: 'Make reports directory'
+      - name: 'Supply PVS credentials'
         run: |
-          rm -rf reports/
-          mkdir reports
-
-      - name: 'Generate compile_comands.json'
-        run: |
-          ./fbt COMPACT=1 version_json proto_ver icons firmware_cdb dolphin_internal dolphin_blocking _fap_icons api_syms
-
-      - name: 'Static code analysis'
-        run: |
-          source scripts/toolchain/fbtenv.sh
           pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
-          pvs-studio-analyzer analyze \
-              @.pvsoptions \
-              -C gccarm \
-              -j$(grep -c processor /proc/cpuinfo) \
-              -f build/f7-firmware-DC/compile_commands.json \
-              -o PVS-Studio.log
 
       - name: 'Convert PVS-Studio output to html and detect warnings'
         id: pvs-warn
         run: |
           WARNINGS=0
-          plog-converter \
-              -a GA:1,2,3 \
-              -t fullhtml \
-              --indicate-warnings \
-              PVS-Studio.log \
-              -o reports/${DEFAULT_TARGET}-${SUFFIX} || WARNINGS=1
+          ./fbt COMPACT=1 PVSNOBROWSER=1 firmware_pvs || WARNINGS=1
           echo "warnings=${WARNINGS}" >> $GITHUB_OUTPUT
 
       - name: 'Upload artifacts to update server'
@@ -84,7 +63,7 @@ jobs:
           chmod 600 ./deploy_key;
           rsync -avrzP --mkpath \
               -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
-              reports/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:/home/data/firmware-pvs-studio-report/"${BRANCH_NAME}/";
+              build/f7-firmware-DC/pvsreport/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:/home/data/firmware-pvs-studio-report/"${BRANCH_NAME}/${{steps.names.outputs.default_target}}-${{steps.names.outputs.suffix}}/";
           rm ./deploy_key;
 
       - name: 'Find Previous Comment'

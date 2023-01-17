@@ -280,9 +280,9 @@ static bool subghz_protocol_chamb_code_to_bit(uint64_t* data, uint8_t size) {
     uint64_t data_tmp = data[0];
     uint64_t data_res = 0;
     for(uint8_t i = 0; i < size; i++) {
-        if((data_tmp & 0xF) == CHAMBERLAIN_CODE_BIT_0) {
+        if((data_tmp & 0xFll) == CHAMBERLAIN_CODE_BIT_0) {
             bit_write(data_res, i, 0);
-        } else if((data_tmp & 0xF) == CHAMBERLAIN_CODE_BIT_1) {
+        } else if((data_tmp & 0xFll) == CHAMBERLAIN_CODE_BIT_1) {
             bit_write(data_res, i, 1);
         } else {
             return false;
