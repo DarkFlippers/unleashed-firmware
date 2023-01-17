@@ -418,6 +418,7 @@ bool subghz_history_add_to_history(
         for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
             data = (data << 8) | key_data[i];
         }
+        FURI_LOG_D(TAG, "Recieved data:%llx", data);
         if(!(uint32_t)(data >> 32)) {
             furi_string_printf(
                 item->item_str,
