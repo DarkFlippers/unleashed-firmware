@@ -65,9 +65,8 @@ class FlipperExtAppBuildArtifacts:
 apps_to_build_as_faps = [
     FlipperAppType.PLUGIN,
     FlipperAppType.EXTERNAL,
+    FlipperAppType.DEBUG,
 ]
-if appenv["DEBUG_TOOLS"]:
-    apps_to_build_as_faps.append(FlipperAppType.DEBUG)
 
 known_extapps = [
     app

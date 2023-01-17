@@ -31,7 +31,8 @@ void AccessorApp::run(void) {
     onewire_host_stop(onewire_host);
 }
 
-AccessorApp::AccessorApp() {
+AccessorApp::AccessorApp()
+    : text_store{0} {
     notification = static_cast<NotificationApp*>(furi_record_open(RECORD_NOTIFICATION));
     onewire_host = onewire_host_alloc();
     furi_hal_power_enable_otg();

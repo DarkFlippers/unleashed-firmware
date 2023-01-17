@@ -148,9 +148,12 @@ fap_dist = [
             for app_artifact in firmware_env["FW_EXTAPPS"].applications.values()
         ),
     ),
-    distenv.Install(
-        f"#/dist/{dist_dir}/apps",
-        "#/assets/resources/apps",
+    *(
+        distenv.Install(
+            f"#/dist/{dist_dir}/apps/{app_artifact.app.fap_category}",
+            app_artifact.compact[0],
+        )
+        for app_artifact in firmware_env["FW_EXTAPPS"].applications.values()
     ),
 ]
 Depends(

@@ -2,8 +2,11 @@
 
 #include <gui/canvas.h>
 #include <gui/elements.h>
+
+#include <lib/toolbox/float_tools.h>
 #include <m-array.h>
 #include <furi.h>
+#include <inttypes.h>
 #include <stdint.h>
 
 struct BtTestParam {
@@ -98,16 +101,16 @@ static void bt_test_draw_callback(Canvas* canvas, void* _model) {
     elements_scrollbar(canvas, model->position, BtTestParamArray_size(model->params));
     canvas_draw_str(canvas, 6, 60, model->message);
     if(model->state == BtTestStateStarted) {
-        if(model->rssi != 0.0f) {
+        if(!float_is_equal(model->rssi, 0.0f)) {
             snprintf(info_str, sizeof(info_str), "RSSI:%3.1f dB", (double)model->rssi);
             canvas_draw_str_aligned(canvas, 124, 60, AlignRight, AlignBottom, info_str);
         }
     } else if(model->state == BtTestStateStopped) {
         if(model->packets_num_rx) {
-            snprintf(info_str, sizeof(info_str), "%ld pack rcv", model->packets_num_rx);
+            snprintf(info_str, sizeof(info_str), "%" PRIu32 " pack rcv", model->packets_num_rx);
             canvas_draw_str_aligned(canvas, 124, 60, AlignRight, AlignBottom, info_str);
         } else if(model->packets_num_tx) {
-            snprintf(info_str, sizeof(info_str), "%ld pack sent", model->packets_num_tx);
+            snprintf(info_str, sizeof(info_str), "%" PRIu32 " pack sent", model->packets_num_tx);
             canvas_draw_str_aligned(canvas, 124, 60, AlignRight, AlignBottom, info_str);
         }
     }
@@ -153,7 +156,7 @@ static bool bt_test_input_callback(InputEvent* event, void* context) {
 }
 
 void bt_test_process_up(BtTest* bt_test) {
-    with_view_model(
+    with_view_model( // -V658
         bt_test->view,
         BtTestModel * model,
         {
