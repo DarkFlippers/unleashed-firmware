@@ -7,7 +7,7 @@ from SCons.Node import NodeList
 import SCons.Warnings
 
 from fbt.elfmanifest import assemble_manifest_data
-from fbt.appmanifest import FlipperApplication, FlipperManifestException
+from fbt.appmanifest import FlipperApplication, FlipperManifestException, FlipperAppType
 from fbt.sdk.cache import SdkCache
 from fbt.util import extract_abs_dir_path
 
@@ -32,6 +32,7 @@ def BuildAppElf(env, app):
     ext_apps_work_dir = env.subst("$EXT_APPS_WORK_DIR")
     app_work_dir = os.path.join(ext_apps_work_dir, app.appid)
 
+    env.SetDefault(_APP_ICONS=[])
     env.VariantDir(app_work_dir, app._appdir, duplicate=False)
 
     app_env = env.Clone(FAP_SRC_DIR=app._appdir, FAP_WORK_DIR=app_work_dir)
@@ -63,6 +64,7 @@ def BuildAppElf(env, app):
             icon_bundle_name=f"{app.fap_icon_assets_symbol if app.fap_icon_assets_symbol else app.appid }_icons",
         )
         app_env.Alias("_fap_icons", fap_icons)
+        env.Append(_APP_ICONS=[fap_icons])
 
     private_libs = []
 
@@ -232,11 +234,18 @@ def GetExtAppFromPath(env, app_dir):
     return app_artifacts
 
 
-def fap_dist_emitter(target, source, env):
+def resources_fap_dist_emitter(target, source, env):
     target_dir = target[0]
 
     target = []
     for _, app_artifacts in env["EXT_APPS"].items():
+        # We don't deploy example apps & debug tools with SD card resources
+        if (
+            app_artifacts.app.apptype == FlipperAppType.DEBUG
+            or app_artifacts.app.fap_category == "Examples"
+        ):
+            continue
+
         source.extend(app_artifacts.compact)
         target.append(
             target_dir.Dir(app_artifacts.app.fap_category).File(
@@ -247,7 +256,7 @@ def fap_dist_emitter(target, source, env):
     return (target, source)
 
 
-def fap_dist_action(target, source, env):
+def resources_fap_dist_action(target, source, env):
     # FIXME
     target_dir = env.Dir("#/assets/resources/apps")
 
@@ -280,10 +289,10 @@ def generate(env, **kw):
         BUILDERS={
             "FapDist": Builder(
                 action=Action(
-                    fap_dist_action,
+                    resources_fap_dist_action,
                     "$FAPDISTCOMSTR",
                 ),
-                emitter=fap_dist_emitter,
+                emitter=resources_fap_dist_emitter,
             ),
             "EmbedAppMetadata": Builder(
                 action=[

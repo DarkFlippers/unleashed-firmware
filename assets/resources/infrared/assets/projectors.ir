@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 5th Jan, 2023
-# Last Checked 7th Jan, 2023
+# Last Updated 13th Jan, 2023
+# Last Checked 13th Jan, 2023
 #
 # ON
 name: POWER
@@ -712,3 +712,69 @@ type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 8C 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 45 00 00
+command: 17 E8 00 00
+# 
+name: VOL+
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9064 4354 666 1559 666 1562 662 1586 638 475 636 477 635 477 635 478 635 1590 635 1591 634 478 635 1591 634 478 634 478 635 478 634 1591 635 478 634 1591 634 478 635 478 634 478 635 1591 634 478 634 1591 635 478 634 478 634 1591 634 1591 635 1591 634 478 635 1591 634 478 634 1591 635 40957 9035 2144 634 95483 9047 2155 632 95484 9048 2153 633
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 87 45 00 00
+command: 50 AF 00 00
+# 
+name: MUTE
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9034 4385 638 1587 664 1562 663 1587 637 476 635 478 634 478 635 478 635 1591 634 1591 634 478 635 1591 635 478 634 478 635 478 635 1591 635 478 634 478 634 1591 634 478 635 479 634 1591 635 478 634 1591 635 478 634 1592 634 478 634 1591 635 1591 635 478 634 1592 634 478 634 1591 634 40958 9033 2144 635
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: FF FF 00 00
+command: E8 17 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: FF FF 00 00
+command: BD 42 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: FF FF 00 00
+command: F2 0D 00 00
+#
+name: POWER
+type: parsed
+protocol: Kaseikyo
+address: 41 54 32 00
+command: 05 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: Kaseikyo
+address: 41 54 32 00
+command: 70 01 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Kaseikyo
+address: 41 54 32 00
+command: 71 01 00 00
+#
+name: POWER
+type: parsed
+protocol: NEC
+address: 31 00 00 00
+command: 81 00 00 00

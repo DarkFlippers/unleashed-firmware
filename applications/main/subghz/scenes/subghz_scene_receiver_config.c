@@ -45,35 +45,6 @@ const float raw_theshold_rssi_value[RAW_THRESHOLD_RSSI_COUNT] = {
     -40.0f,
 };
 
-#define BANDWIDTH_COUNT 16
-const char* const bandwidth_labels[BANDWIDTH_COUNT] = {
-    "58 kHz",
-    "68 kHz",
-    "81 kHz",
-    "102 kHz",
-    "116 kHz",
-    "135 kHz",
-    "162 kHz",
-    "203 kHz",
-    "232 kHz",
-    "270 kHz",
-    "325 kHz",
-    "406 kHz",
-    "464 kHz",
-    "541 kHz",
-    "650 kHz",
-    "812 kHz",
-};
-
-// Bandwidths values are ordered from F (58kHz) to 0 (812kHz)
-#define BANDWIDTH_INDEX(value) ((uint8_t)15 - ((uint8_t)(value >> 4) & 0x0F))
-
-#define MANCHESTER_FLAG_COUNT 2
-const char* const manchester_flag_text[MANCHESTER_FLAG_COUNT] = {
-    "OFF",
-    "ON",
-};
-
 #define HOPPING_COUNT 2
 const char* const hopping_text[HOPPING_COUNT] = {
     "OFF",
@@ -128,18 +99,6 @@ const uint32_t speaker_value[SPEAKER_COUNT] = {
     SubGhzSpeakerStateEnable,
 };
 
-// Allow advanced edit only on specific preset
-bool subghz_scene_receiver_config_can_edit_current_preset(SubGhz* subghz) {
-    SubGhzRadioPreset* preset = subghz->txrx->preset;
-
-    bool preset_name_allow_edit =
-        !strcmp(furi_string_get_cstr(preset->name), ADVANCED_AM_PRESET_NAME) ||
-        !strcmp(furi_string_get_cstr(preset->name), "CUSTOM");
-
-    return preset && preset_name_allow_edit &&
-           subghz_preset_custom_is_ook_modulation(preset->data, preset->data_size);
-}
-
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -168,52 +127,6 @@ uint8_t subghz_scene_receiver_config_next_preset(const char* preset_name, void* 
         }
     }
     return index;
-}
-
-// Advanced settings of preset may change if preset was changed.
-// In that case - update values
-static void subghz_scene_receiver_config_update_advanced(SubGhz* subghz) {
-    uint8_t value_index;
-
-    if(subghz->variable_item_bandwidth) {
-        value_index = BANDWIDTH_INDEX(subghz->txrx->raw_bandwidth);
-        variable_item_set_current_value_index(subghz->variable_item_bandwidth, value_index);
-        variable_item_set_current_value_text(
-            subghz->variable_item_bandwidth, bandwidth_labels[value_index]);
-    }
-
-    if(subghz->variable_item_datarate) {
-        variable_item_set_current_value_index(subghz->variable_item_datarate, 0);
-
-        char datarate_str[16] = {0};
-        subghz_preset_custom_printf_datarate(
-            subghz->txrx->raw_datarate, datarate_str, sizeof(datarate_str));
-        variable_item_set_current_value_text(subghz->variable_item_datarate, datarate_str);
-    }
-
-    if(subghz->variable_item_manchester) {
-        value_index = subghz->txrx->raw_manchester_enabled ? 1 : 0;
-
-        variable_item_set_current_value_index(subghz->variable_item_manchester, value_index);
-        variable_item_set_current_value_text(
-            subghz->variable_item_manchester, manchester_flag_text[value_index]);
-    }
-}
-
-// Apply advanced configuration to advanced am preset
-static void subghz_scene_receiver_config_apply_advanced(SubGhz* subghz) {
-    if(subghz_scene_receiver_config_can_edit_current_preset(subghz)) {
-        SubGhzRadioPreset* preset = subghz->txrx->preset;
-
-        subghz_preset_custom_set_bandwidth(
-            preset->data, preset->data_size, subghz->txrx->raw_bandwidth);
-
-        subghz_preset_custom_set_machester_enable(
-            preset->data, preset->data_size, subghz->txrx->raw_manchester_enabled);
-
-        subghz_preset_custom_set_datarate(
-            preset->data, preset->data_size, subghz->txrx->raw_datarate);
-    }
 }
 
 uint8_t subghz_scene_receiver_config_hopper_value_index(
@@ -301,8 +214,6 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
         subghz->txrx->preset->frequency,
         subghz_setting_get_preset_data(subghz->setting, index),
         subghz_setting_get_preset_data_size(subghz->setting, index));
-
-    subghz_scene_receiver_config_update_advanced(subghz);
 }
 
 static void subghz_scene_receiver_config_set_rssi_threshold(VariableItem* item) {
@@ -394,107 +305,6 @@ static void subghz_scene_receiver_config_set_raw_threshold_rssi(VariableItem* it
 
     variable_item_set_current_value_text(item, raw_theshold_rssi_text[index]);
     subghz->txrx->raw_threshold_rssi = raw_theshold_rssi_value[index];
-}
-
-static void subghz_scene_receiver_config_set_raw_ook_bandwidth(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    if(subghz_scene_receiver_config_can_edit_current_preset(subghz)) {
-        // update bandwidth value from selected index
-        uint8_t index = variable_item_get_current_value_index(item);
-        subghz->txrx->raw_bandwidth = subghz_preset_custom_bandwidth_values[index];
-
-        subghz_scene_receiver_config_update_advanced(subghz);
-    } else {
-        furi_string_set(
-            subghz->error_str, "Read-only\nsetting!\nUse '" ADVANCED_AM_PRESET_NAME "'\npreset.");
-        view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubGhzCustomEventSceneSettingError);
-    }
-}
-
-static void subghz_scene_receiver_config_set_manchester_flag(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    if(subghz_scene_receiver_config_can_edit_current_preset(subghz)) {
-        // update enable flag from view
-        uint8_t index = variable_item_get_current_value_index(item);
-        subghz->txrx->raw_manchester_enabled = index == 0 ? false : true;
-
-        subghz_scene_receiver_config_update_advanced(subghz);
-    } else {
-        furi_string_set(
-            subghz->error_str, "Read-only\nsetting!\nUse '" ADVANCED_AM_PRESET_NAME "'\npreset.");
-        view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubGhzCustomEventSceneSettingError);
-    }
-}
-
-static void subghz_scene_receiver_config_datarate_input_callback(void* context) {
-    furi_assert(context);
-    SubGhz* subghz = context;
-
-    float value = atoff(subghz->datarate_input_str);
-    if(value != 0 && value > 0) {
-        subghz->txrx->raw_datarate = value;
-        subghz_scene_receiver_config_update_advanced(subghz);
-    }
-
-    // show list view
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdVariableItemList);
-}
-
-static bool subghz_scene_receiver_config_datarate_input_validate(
-    const char* text,
-    FuriString* error,
-    void* context) {
-    UNUSED(context);
-
-    float value = atoff(text);
-    if(value == 0) {
-        furi_string_printf(error, "Cannot parse\r\nvalue");
-    } else if(value < 0) {
-        furi_string_printf(error, "Value\r\nshould be\r\ngreater\r\nthan 0");
-    } else {
-        return true;
-    }
-
-    return false;
-}
-
-static void subghz_scene_receiver_config_show_datarate_input(SubGhz* subghz) {
-    TextInput* text_input = subghz->text_input;
-
-    snprintf(
-        subghz->datarate_input_str,
-        sizeof(subghz->datarate_input_str),
-        "%.2f",
-        (double)subghz->txrx->raw_datarate);
-
-    text_input_set_header_text(text_input, "Datarate bauds (not kBauds)");
-    text_input_set_result_callback(
-        text_input,
-        subghz_scene_receiver_config_datarate_input_callback,
-        subghz,
-        subghz->datarate_input_str,
-        sizeof(subghz->datarate_input_str),
-        false);
-
-    text_input_set_validator(
-        text_input, subghz_scene_receiver_config_datarate_input_validate, NULL);
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdTextInput);
-}
-
-static void subghz_scene_receiver_config_set_datarate(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    if(subghz_scene_receiver_config_can_edit_current_preset(subghz)) {
-        // reset value index in order to show '>' symbol always
-        variable_item_set_current_value_index(item, 0);
-        subghz_scene_receiver_config_show_datarate_input(subghz);
-    } else {
-        furi_string_set(
-            subghz->error_str, "Read-only\nsetting!\nUse '" ADVANCED_AM_PRESET_NAME "'\npreset.");
-        view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubGhzCustomEventSceneSettingError);
-    }
 }
 
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
@@ -627,33 +437,6 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz->txrx->raw_threshold_rssi, raw_theshold_rssi_value, RAW_THRESHOLD_RSSI_COUNT);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, raw_theshold_rssi_text[value_index]);
-
-        // Advanced MODEM settings. RW only for ADVANCED_AM_PRESET_NAME
-        // Bandwidth
-        subghz->variable_item_bandwidth = variable_item_list_add(
-            subghz->variable_item_list,
-            "Bandwidth:",
-            BANDWIDTH_COUNT,
-            subghz_scene_receiver_config_set_raw_ook_bandwidth,
-            subghz);
-
-        // Data rate (editable via OK click)
-        subghz->variable_item_datarate = variable_item_list_add(
-            subghz->variable_item_list,
-            "Data rate:",
-            2,
-            subghz_scene_receiver_config_set_datarate,
-            subghz);
-
-        // Manchester codec flag
-        subghz->variable_item_manchester = variable_item_list_add(
-            subghz->variable_item_list,
-            "Manch. Enc.:",
-            MANCHESTER_FLAG_COUNT,
-            subghz_scene_receiver_config_set_manchester_flag,
-            subghz);
-
-        subghz_scene_receiver_config_update_advanced(subghz);
     }
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdVariableItemList);
 }
@@ -667,11 +450,6 @@ bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent even
             subghz->lock = SubGhzLockOn;
             scene_manager_previous_scene(subghz->scene_manager);
             consumed = true;
-        } else if(event.event == SubGhzCustomEventSceneSettingError) {
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
-            scene_manager_set_scene_state(
-                subghz->scene_manager, SubGhzSceneShowErrorSub, event.event);
-            consumed = true;
         }
     }
     return consumed;
@@ -679,16 +457,6 @@ bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent even
 
 void subghz_scene_receiver_config_on_exit(void* context) {
     SubGhz* subghz = context;
-
-    // reset UI variable list items (next scene may be not RAW config)
-    subghz->variable_item_bandwidth = NULL;
-    subghz->variable_item_datarate = NULL;
-    subghz->variable_item_manchester = NULL;
-    text_input_set_validator(subghz->text_input, NULL, NULL);
-
-    // apply advanced preset variables (if applicable)
-    subghz_scene_receiver_config_apply_advanced(subghz);
-
     variable_item_list_set_selected_item(subghz->variable_item_list, 0);
     variable_item_list_reset(subghz->variable_item_list);
     subghz_last_settings_save(subghz->last_settings);

@@ -65,9 +65,8 @@ class FlipperExtAppBuildArtifacts:
 apps_to_build_as_faps = [
     FlipperAppType.PLUGIN,
     FlipperAppType.EXTERNAL,
+    FlipperAppType.DEBUG,
 ]
-if appenv["DEBUG_TOOLS"]:
-    apps_to_build_as_faps.append(FlipperAppType.DEBUG)
 
 known_extapps = [
     app
@@ -143,6 +142,11 @@ sdk_apisyms = appenv.SDKSymGenerator(
     "${BUILD_DIR}/assets/compiled/symbols.h", appenv["SDK_DEFINITION"]
 )
 Alias("api_syms", sdk_apisyms)
+ENV.Replace(
+    SDK_APISYMS=sdk_apisyms,
+    _APP_ICONS=appenv["_APP_ICONS"],
+)
+
 
 if appenv["FORCE"]:
     appenv.AlwaysBuild(sdk_source, sdk_tree, sdk_apicheck, sdk_apisyms)

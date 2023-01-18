@@ -6,7 +6,6 @@
 #include <lib/subghz/subghz_keystore.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
 #include <lib/subghz/protocols/protocol_items.h>
-#include <lib/subghz/helpers/subghz_config_preset_custom.h>
 #include <flipper_format/flipper_format_i.h>
 
 #define TAG "SubGhz TEST"
@@ -202,132 +201,6 @@ static bool subghz_encoder_test(const char* path) {
     furi_string_free(temp_str);
 
     return subghz_test_decoder_count ? true : false;
-}
-
-static bool subghz_custom_preset_test(void) {
-    static const uint8_t preset_data[][2] = {
-        {CC1101_MDMCFG0, 0},
-        {CC1101_MDMCFG1, 0},
-        {CC1101_MDMCFG2, 0},
-        {CC1101_MDMCFG3, 0},
-        {CC1101_MDMCFG4, 0},
-    };
-
-    static uint8_t test_data[sizeof(preset_data)] = {0};
-    memcpy(test_data, preset_data, sizeof(preset_data));
-
-    uint8_t* test_data_ptr = &test_data[0];
-
-    { // CHEKING BANDWIDTH SET
-        for(uint32_t i = 0; i < CH_BANDWIDTH_NUM; ++i) {
-            uint8_t bw_value = subghz_preset_custom_bandwidth_values[i];
-
-            bool result =
-                subghz_preset_custom_set_bandwidth(test_data_ptr, sizeof(test_data), bw_value);
-            if(!result) {
-                FURI_LOG_E(TAG, "Failed to set BW value: %hhu", bw_value);
-                return false;
-            }
-
-            uint8_t get_bw_value =
-                subghz_preset_custom_get_bandwidth(test_data_ptr, sizeof(test_data));
-            if(get_bw_value != bw_value) {
-                FURI_LOG_E(
-                    TAG,
-                    "BW value from preset: %hhu is not equal expected value: %hhu",
-                    get_bw_value,
-                    bw_value);
-                return false;
-            }
-
-            FURI_LOG_T(TAG, "Bandwidth check OK: %hhu", bw_value);
-        }
-    }
-
-    { // CHEKING MACHESTER SET
-        bool result =
-            subghz_preset_custom_set_machester_enable(test_data_ptr, sizeof(test_data), false);
-        if(!result) {
-            FURI_LOG_E(TAG, "Failed to set manchester enable flag");
-            return false;
-        }
-        bool flag = subghz_preset_custom_get_machester_enable(test_data_ptr, sizeof(test_data));
-        if(flag != false) {
-            FURI_LOG_E(TAG, "Manchester disable flag setup failed!");
-            return false;
-        }
-
-        subghz_preset_custom_set_machester_enable(test_data_ptr, sizeof(test_data), true);
-        flag = subghz_preset_custom_get_machester_enable(test_data_ptr, sizeof(test_data));
-        if(flag != true) {
-            FURI_LOG_E(TAG, "Manchester enable flag setup failed!");
-            return false;
-        }
-
-        FURI_LOG_T(TAG, "Manchester flag check OK");
-    }
-    { // CHEKING DATARATE SET
-        const float datarateRoughMax = 1600000.0f; // bauds
-        const float datarateRoughStep = 5000.0f;
-
-        const float datarateFineMax = 30000.0f;
-        const float datarateFineStep = 50.0f;
-
-        bool result = false;
-        char datarate_set_str[16] = {0};
-        char datarate_get_str[16] = {0};
-
-        float datarate_set = datarateRoughMax;
-        float datarate_get = -1.0f;
-        while(datarate_set > 0) {
-            subghz_preset_custom_printf_datarate(
-                datarate_set, datarate_set_str, sizeof(datarate_set_str));
-
-            result =
-                subghz_preset_custom_set_datarate(test_data_ptr, sizeof(test_data), datarate_set);
-            if(!result) {
-                FURI_LOG_E(TAG, "Failed to set datarate: %s!", datarate_set_str);
-                return false;
-            }
-
-            datarate_get = subghz_preset_custom_get_datarate(test_data_ptr, sizeof(test_data));
-            subghz_preset_custom_printf_datarate(
-                datarate_get, datarate_get_str, sizeof(datarate_get_str));
-
-            if(datarate_get < 0) {
-                FURI_LOG_E(TAG, "Failed to get datarate!");
-                return false;
-            }
-
-            if(datarate_set > datarateFineMax) {
-                result = fabsf(datarate_get - datarate_set) <= datarateRoughStep;
-                datarate_set -= datarateRoughStep;
-            } else {
-                result = fabsf(datarate_get - datarate_set) <= datarateFineStep;
-                datarate_set -= datarateFineStep;
-            }
-
-            if(result) {
-                FURI_LOG_T(
-                    TAG,
-                    "Datarate check OK: Set: %s - Get: %s",
-                    datarate_set_str,
-                    datarate_get_str);
-            } else {
-                FURI_LOG_E(
-                    TAG,
-                    "Datarate check failed!: %s is way to diff %s! DRATE_E: %hhu DRATE_M: %hhu",
-                    datarate_set_str,
-                    datarate_get_str,
-                    test_data[4 * 2 + 1] & 0b00001111,
-                    test_data[3 * 2 + 1]);
-                return false;
-            }
-        }
-    }
-
-    FURI_LOG_I(TAG, "Sub GHz custom preset test: OK");
-    return true;
 }
 
 MU_TEST(subghz_keystore_test) {
@@ -874,10 +747,6 @@ MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
 
-MU_TEST(subghz_preset_test) {
-    mu_assert(subghz_custom_preset_test(), "Custom preset logic error\r\n");
-}
-
 MU_TEST_SUITE(subghz) {
     subghz_test_init();
     MU_RUN_TEST(subghz_keystore_test);
@@ -948,16 +817,7 @@ MU_TEST_SUITE(subghz) {
     subghz_test_deinit();
 }
 
-MU_TEST_SUITE(subghz_app) {
-    MU_RUN_TEST(subghz_preset_test);
-}
-
 int run_minunit_test_subghz() {
     MU_RUN_SUITE(subghz);
-    return MU_EXIT_CODE;
-}
-
-int run_minunit_test_subghz_app() {
-    MU_RUN_SUITE(subghz_app);
     return MU_EXIT_CODE;
 }

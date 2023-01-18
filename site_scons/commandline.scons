@@ -81,16 +81,6 @@ vars.AddVariables(
             "7",
         ],
     ),
-    BoolVariable(
-        "DEBUG_TOOLS",
-        help="Enable debug tools to be built",
-        default=False,
-    ),
-    BoolVariable(
-        "FAP_EXAMPLES",
-        help="Enable example applications to be built",
-        default=False,
-    ),
     (
         "DIST_SUFFIX",
         "Suffix for binaries in build output for dist targets",
@@ -242,8 +232,14 @@ vars.AddVariables(
             ("applications/system", False),
             ("applications/debug", False),
             ("applications/plugins", False),
+            ("applications/examples", False),
             ("applications_user", False),
         ],
+    ),
+    BoolVariable(
+        "PVSNOBROWSER",
+        help="Don't open browser after generating error repots",
+        default=False,
     ),
 )
 
