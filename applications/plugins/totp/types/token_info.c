@@ -61,3 +61,12 @@ bool token_info_set_digits_from_int(TokenInfo* token_info, uint8_t digits) {
 
     return false;
 }
+
+bool token_info_set_duration_from_int(TokenInfo* token_info, uint8_t duration) {
+    if(duration >= 15) {
+        token_info->duration = duration;
+        return true;
+    }
+
+    return false;
+}

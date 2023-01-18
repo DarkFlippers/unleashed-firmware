@@ -2,6 +2,8 @@
 
 #include <inttypes.h>
 
+#define TOTP_TOKEN_DURATION_DEFAULT 30
+
 typedef uint8_t TokenHashAlgo;
 typedef uint8_t TokenDigitsCount;
 
@@ -70,6 +72,11 @@ typedef struct {
      * @brief Desired TOTP token length 
      */
     TokenDigitsCount digits;
+
+    /**
+     * @brief Desired TOTP token duration in seconds
+     */
+    uint8_t duration;
 } TokenInfo;
 
 /**
@@ -102,6 +109,14 @@ bool token_info_set_secret(
  * @brief Sets token digits count from \c uint8_t value
  * @param token_info instance whichs token digits count length should be updated
  * @param digits desired token digits count length
- * @return \c true if token digits count length has been updated; \c false p
+ * @return \c true if token digits count length has been updated; \c false otherwise
  */
 bool token_info_set_digits_from_int(TokenInfo* token_info, uint8_t digits);
+
+/**
+ * @brief Sets token duration from \c uint8_t value
+ * @param token_info instance whichs token digits count length should be updated
+ * @param duration desired token duration in seconds
+ * @return \c true if token duration has been updated; \c false otherwise
+ */
+bool token_info_set_duration_from_int(TokenInfo* token_info, uint8_t duration);

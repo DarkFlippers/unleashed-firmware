@@ -21,6 +21,7 @@ typedef enum {
     TokenSecretTextBox,
     TokenAlgoSelect,
     TokenLengthSelect,
+    TokenDurationSelect,
     ConfirmButton,
 } Control;
 
@@ -39,6 +40,8 @@ typedef struct {
     int16_t screen_y_offset;
     TokenHashAlgo algo;
     uint8_t digits_count_index;
+    uint8_t duration;
+    FuriString* duration_text;
 } SceneState;
 
 void totp_scene_add_new_token_init(const PluginState* plugin_state) {
@@ -61,6 +64,10 @@ static void on_token_secret_user_comitted(InputTextSceneCallbackResult* result) 
     scene_state->token_secret_length = result->user_input_length;
     scene_state->input_started_at = 0;
     free(result);
+}
+
+static void update_duration_text(SceneState* scene_state) {
+    furi_string_printf(scene_state->duration_text, "%d sec.", scene_state->duration);
 }
 
 void totp_scene_add_new_token_activate(
@@ -89,6 +96,9 @@ void totp_scene_add_new_token_activate(
     scene_state->screen_y_offset = 0;
 
     scene_state->input_state = NULL;
+    scene_state->duration = TOTP_TOKEN_DURATION_DEFAULT;
+    scene_state->duration_text = furi_string_alloc();
+    update_duration_text(scene_state);
 
     if(context == NULL) {
         TOTP_NULLABLE_NULL(scene_state->current_token_index);
@@ -124,14 +134,23 @@ void totp_scene_add_new_token_render(Canvas* const canvas, PluginState* plugin_s
     ui_control_select_render(
         canvas,
         0,
-        63 - scene_state->screen_y_offset,
+        61 - scene_state->screen_y_offset,
         SCREEN_WIDTH,
         TOKEN_DIGITS_TEXT_LIST[scene_state->digits_count_index],
         scene_state->selected_control == TokenLengthSelect);
+
+    ui_control_select_render(
+        canvas,
+        0,
+        78 - scene_state->screen_y_offset,
+        SCREEN_WIDTH,
+        furi_string_get_cstr(scene_state->duration_text),
+        scene_state->selected_control == TokenDurationSelect);
+
     ui_control_button_render(
         canvas,
         SCREEN_WIDTH_CENTER - 24,
-        85 - scene_state->screen_y_offset,
+        101 - scene_state->screen_y_offset,
         48,
         13,
         "Confirm",
@@ -146,8 +165,12 @@ void totp_scene_add_new_token_render(Canvas* const canvas, PluginState* plugin_s
 }
 
 void update_screen_y_offset(SceneState* scene_state) {
-    if(scene_state->selected_control > TokenAlgoSelect) {
-        scene_state->screen_y_offset = 35;
+    if(scene_state->selected_control > TokenLengthSelect) {
+        scene_state->screen_y_offset = 51;
+    } else if(scene_state->selected_control > TokenAlgoSelect) {
+        scene_state->screen_y_offset = 34;
+    } else if(scene_state->selected_control > TokenSecretTextBox) {
+        scene_state->screen_y_offset = 17;
     } else {
         scene_state->screen_y_offset = 0;
     }
@@ -197,6 +220,9 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         } else if(scene_state->selected_control == TokenLengthSelect) {
             totp_roll_value_uint8_t(
                 &scene_state->digits_count_index, 1, 0, 1, RollOverflowBehaviorRoll);
+        } else if(scene_state->selected_control == TokenDurationSelect) {
+            totp_roll_value_uint8_t(&scene_state->duration, 15, 15, 255, RollOverflowBehaviorStop);
+            update_duration_text(scene_state);
         }
         break;
     case InputKeyLeft:
@@ -206,6 +232,10 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         } else if(scene_state->selected_control == TokenLengthSelect) {
             totp_roll_value_uint8_t(
                 &scene_state->digits_count_index, -1, 0, 1, RollOverflowBehaviorRoll);
+        } else if(scene_state->selected_control == TokenDurationSelect) {
+            totp_roll_value_uint8_t(
+                &scene_state->duration, -15, 15, 255, RollOverflowBehaviorStop);
+            update_duration_text(scene_state);
         }
         break;
     case InputKeyOk:
@@ -230,6 +260,8 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
             break;
         case TokenLengthSelect:
             break;
+        case TokenDurationSelect:
+            break;
         case ConfirmButton: {
             TokenInfo* tokenInfo = token_info_alloc();
             bool token_secret_set = token_info_set_secret(
@@ -245,6 +277,7 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
                     tokenInfo->name, scene_state->token_name, scene_state->token_name_length + 1);
                 tokenInfo->algo = scene_state->algo;
                 tokenInfo->digits = TOKEN_DIGITS_VALUE_LIST[scene_state->digits_count_index];
+                tokenInfo->duration = scene_state->duration;
 
                 TOTP_LIST_INIT_OR_ADD(plugin_state->tokens_list, tokenInfo, furi_check);
                 plugin_state->tokens_count++;
@@ -309,6 +342,8 @@ void totp_scene_add_new_token_deactivate(PluginState* plugin_state) {
 
     free(scene_state->token_secret_input_context->header_text);
     free(scene_state->token_secret_input_context);
+
+    furi_string_free(scene_state->duration_text);
 
     if(scene_state->input_state != NULL) {
         totp_input_text_free(scene_state->input_state);
