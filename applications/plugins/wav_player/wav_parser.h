@@ -1,6 +1,18 @@
 #pragma once
 #include <toolbox/stream/stream.h>
 
+#include <furi.h>
+#include <furi_hal.h>
+#include <cli/cli.h>
+#include <gui/gui.h>
+#include <stm32wbxx_ll_dma.h>
+#include <dialogs/dialogs.h>
+#include <notification/notification_messages.h>
+#include <gui/view_dispatcher.h>
+#include <toolbox/stream/file_stream.h>
+
+#include "wav_player_view.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,11 +46,37 @@ typedef struct {
 
 typedef struct WavParser WavParser;
 
+typedef struct {
+    Storage* storage;
+    Stream* stream;
+    WavParser* parser;
+    uint16_t* sample_buffer;
+    uint8_t* tmp_buffer;
+
+    uint32_t sample_rate;
+
+    uint16_t num_channels;
+    uint16_t bits_per_sample;
+
+    size_t samples_count_half;
+    size_t samples_count;
+
+    FuriMessageQueue* queue;
+
+    float volume;
+    bool play;
+
+    WavPlayerView* view;
+    ViewDispatcher* view_dispatcher;
+    Gui* gui;
+    NotificationApp* notification;
+} WavPlayerApp;
+
 WavParser* wav_parser_alloc();
 
 void wav_parser_free(WavParser* parser);
 
-bool wav_parser_parse(WavParser* parser, Stream* stream);
+bool wav_parser_parse(WavParser* parser, Stream* stream, WavPlayerApp* app);
 
 size_t wav_parser_get_data_start(WavParser* parser);
 

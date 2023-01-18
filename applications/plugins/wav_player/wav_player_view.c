@@ -1,22 +1,5 @@
 #include "wav_player_view.h"
 
-#define DATA_COUNT 116
-
-struct WavPlayerView {
-    View* view;
-    WavPlayerCtrlCallback callback;
-    void* context;
-};
-
-typedef struct {
-    bool play;
-    float volume;
-    size_t start;
-    size_t end;
-    size_t current;
-    uint8_t data[DATA_COUNT];
-} WavPlayerViewModel;
-
 float map(float x, float in_min, float in_max, float out_min, float out_max) {
     return (x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min;
 }
@@ -30,7 +13,7 @@ static void wav_player_view_draw_callback(Canvas* canvas, void* _model) {
     uint8_t y_pos = 0;
 
     // volume
-    x_pos = 124;
+    x_pos = 123;
     y_pos = 0;
     const float volume = (64 / 10.0f) * model->volume;
     canvas_draw_frame(canvas, x_pos, y_pos, 4, 64);
