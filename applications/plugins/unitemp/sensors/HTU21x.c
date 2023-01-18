@@ -89,6 +89,7 @@ UnitempStatus unitemp_HTU21x_update(Sensor* sensor) {
             sensor->hum = ((0.001907 * (raw ^ 0x02)) - 6);
         }
         temp_hum = !temp_hum;
+        if(temp_hum) return UT_SENSORSTATUS_EARLYPOOL;
         return UT_SENSORSTATUS_OK;
     }
 

@@ -1,6 +1,6 @@
 /*
     Unitemp - Universal temperature reader
-    Copyright (C) 2022  Victor Nikitchuk (https://github.com/quen0n)
+    Copyright (C) 2022-2023  Victor Nikitchuk (https://github.com/quen0n)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,5 +42,6 @@ void unitemp_SensorNameEdit_switch(Sensor* sensor) {
     view_dispatcher_switch_to_view(app->view_dispatcher, VIEW_ID);
 }
 void unitemp_SensorNameEdit_free(void) {
+    view_dispatcher_remove_view(app->view_dispatcher, VIEW_ID);
     text_input_free(text_input);
 }
