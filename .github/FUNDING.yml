@@ -1,2 +1,7 @@
 ko_fi: masterx
-custom: ['https://boosty.to/mmxdev', 'https://destream.net/live/MMX/donate', 'https://pay.cloudtips.ru/p/7b3e9d65', 'https://yoomoney.ru/fundraise/XA49mgQLPA0.221209']
+custom:
+  [
+    "https://boosty.to/mmxdev",
+    "https://pay.cloudtips.ru/p/7b3e9d65",
+    "https://yoomoney.ru/fundraise/XA49mgQLPA0.221209",
+  ]
