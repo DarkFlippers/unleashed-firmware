@@ -1,6 +1,5 @@
 #include "somfy_telis.h"
 #include <lib/toolbox/manchester_decoder.h>
-#include <lib/toolbox/manchester_encoder.h>
 
 #include "../blocks/const.h"
 #include "../blocks/decoder.h"
@@ -84,7 +83,7 @@ void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment) 
     instance->keystore = subghz_environment_get_keystore(environment);
 
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 128;
+    instance->encoder.size_upload = 512;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
 
@@ -106,11 +105,12 @@ static bool
     instance->generic.cnt = (data >> 24) & 0xFFFF; // rolling code
     instance->generic.serial = data & 0xFFFFFF; // address
 
-    // if(instance->generic.cnt < 0xFFFF) {
-    // instance->generic.cnt++;
-    // } else if(instance->generic.cnt >= 0xFFFF) {
-    // instance->generic.cnt = 0;
-    // }
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
+
     uint8_t frame[7];
     frame[0] = data >> 48;
     frame[1] = instance->generic.btn << 4;
@@ -226,6 +226,52 @@ static bool subghz_protocol_encoder_somfy_telis_get_upload(
 
     //Inter-frame silence
     instance->encoder.upload[index++] = level_duration_make(false, 30415);
+    //Retransmission
+    for(uint8_t i = 0; i < 2; i++) {
+        //Hardware sync
+        for(uint8_t i = 0; i < 7; ++i) {
+            instance->encoder.upload[index++] = level_duration_make(
+                true, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 4); // 1
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_somfy_telis_const.te_short * 4); // 0
+        }
+        //Software sync
+        instance->encoder.upload[index++] = level_duration_make(true, (uint32_t)4550); // 1
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 0
+
+        //Send key data MSB manchester
+
+        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+            if(bit_read(instance->generic.data, i - 1)) {
+                if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+                    instance->encoder.upload[index - 1].duration *= 2; // 00
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 1
+                } else {
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 0
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 1
+                }
+
+            } else {
+                if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_HIGH) {
+                    instance->encoder.upload[index - 1].duration *= 2; // 11
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 0
+                } else {
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 1
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_telis_const.te_short); // 0
+                }
+            }
+        }
+
+        //Inter-frame silence
+        instance->encoder.upload[index++] = level_duration_make(false, 30415);
+    }
 
     size_t size_upload = index;
     FURI_LOG_D(TAG, "Size upload: %d", size_upload);
