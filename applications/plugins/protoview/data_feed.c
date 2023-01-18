@@ -14,7 +14,7 @@ const SubGhzProtocol subghz_protocol_protoview;
 
 /* The feed() method puts data in the RawSamples global (protected by
  * a mutex). */
-extern RawSamplesBuffer *RawSamples;
+extern RawSamplesBuffer* RawSamples;
 
 /* This is totally dummy: we just define the decoder base for the async
  * system to work but we don't really use it if not to collect raw
@@ -26,8 +26,7 @@ typedef struct SubGhzProtocolDecoderprotoview {
 void* subghz_protocol_decoder_protoview_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
 
-    SubGhzProtocolDecoderprotoview* instance =
-        malloc(sizeof(SubGhzProtocolDecoderprotoview));
+    SubGhzProtocolDecoderprotoview* instance = malloc(sizeof(SubGhzProtocolDecoderprotoview));
     instance->base.protocol = &subghz_protocol_protoview;
     return instance;
 }
@@ -66,8 +65,7 @@ uint8_t subghz_protocol_decoder_protoview_get_hash_data(void* context) {
 bool subghz_protocol_decoder_protoview_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset)
-{
+    SubGhzRadioPreset* preset) {
     UNUSED(context);
     UNUSED(flipper_format);
     UNUSED(preset);
@@ -75,15 +73,13 @@ bool subghz_protocol_decoder_protoview_serialize(
 }
 
 /* Not used. */
-bool subghz_protocol_decoder_protoview_deserialize(void* context, FlipperFormat* flipper_format)
-{
+bool subghz_protocol_decoder_protoview_deserialize(void* context, FlipperFormat* flipper_format) {
     UNUSED(context);
     UNUSED(flipper_format);
     return false;
 }
 
-void subhz_protocol_decoder_protoview_get_string(void* context, FuriString* output)
-{
+void subhz_protocol_decoder_protoview_get_string(void* context, FuriString* output) {
     furi_assert(context);
     furi_string_cat_printf(output, "Protoview");
 }
@@ -116,5 +112,4 @@ const SubGhzProtocol* protoview_protocol_registry_items[] = {
 
 const SubGhzProtocolRegistry protoview_protocol_registry = {
     .items = protoview_protocol_registry_items,
-    .size = COUNT_OF(protoview_protocol_registry_items)
-};
+    .size = COUNT_OF(protoview_protocol_registry_items)};

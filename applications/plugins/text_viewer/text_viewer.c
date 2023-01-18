@@ -228,14 +228,16 @@ int32_t text_viewer_app(void* p) {
             if(input.key == InputKeyBack) {
                 break;
             } else if(input.key == InputKeyUp) {
-                furi_check(furi_mutex_acquire(text_viewer->mutex, FuriWaitForever) == FuriStatusOk);
+                furi_check(
+                    furi_mutex_acquire(text_viewer->mutex, FuriWaitForever) == FuriStatusOk);
                 if(text_viewer->model->file_offset > 0) {
                     text_viewer->model->file_offset -= TEXT_VIEWER_BYTES_PER_LINE;
                     if(!text_viewer_read_file(text_viewer)) break;
                 }
                 furi_mutex_release(text_viewer->mutex);
             } else if(input.key == InputKeyDown) {
-                furi_check(furi_mutex_acquire(text_viewer->mutex, FuriWaitForever) == FuriStatusOk);
+                furi_check(
+                    furi_mutex_acquire(text_viewer->mutex, FuriWaitForever) == FuriStatusOk);
                 uint32_t last_byte_on_screen =
                     text_viewer->model->file_offset + text_viewer->model->file_read_bytes;
 
@@ -245,7 +247,8 @@ int32_t text_viewer_app(void* p) {
                 }
                 furi_mutex_release(text_viewer->mutex);
             } else if(input.key == InputKeyLeft) {
-                furi_check(furi_mutex_acquire(text_viewer->mutex, FuriWaitForever) == FuriStatusOk);
+                furi_check(
+                    furi_mutex_acquire(text_viewer->mutex, FuriWaitForever) == FuriStatusOk);
                 text_viewer->model->mode = !text_viewer->model->mode;
                 furi_mutex_release(text_viewer->mutex);
             } else if(input.key == InputKeyRight) {

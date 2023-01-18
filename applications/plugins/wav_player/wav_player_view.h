@@ -45,10 +45,6 @@ typedef struct {
     uint8_t data[DATA_COUNT];
 } WavPlayerViewModel;
 
-
-
-
-
 WavPlayerView* wav_player_view_alloc();
 
 void wav_player_view_free(WavPlayerView* wav_view);

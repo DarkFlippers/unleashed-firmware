@@ -86,8 +86,8 @@ static void _enter_callback(void* context, uint32_t index) {
         return;
     }
 
-    //Выбор первого доступного порта для датчика single wire
-    if(type->interface == &SINGLE_WIRE) {
+    //Выбор первого доступного порта для датчика single wire и SPI
+    if(type->interface == &SINGLE_WIRE || type->interface == &SPI) {
         snprintf(
             args,
             4,
