@@ -71,6 +71,7 @@ Also check the changelog in releases for latest updates!
 - BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - Security+ v1 & v2
 - Star Line
+- Somfy Telis (by @assasinfil & @TQMatvey)
 
 ## Please support development of the project
 The majority of this project is developed and maintained by me, @xMasterX.
