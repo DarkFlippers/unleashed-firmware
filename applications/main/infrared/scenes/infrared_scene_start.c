@@ -71,7 +71,6 @@ bool infrared_scene_start_on_event(void* context, SceneManagerEvent event) {
         } else if(
             submenu_index == SubmenuIndexLearnNewRemote ||
             submenu_index == SubmenuIndexLearnNewRemoteRaw) {
-
             // enable automatic signal decoding if "Learn New Remote"
             // disable automatic signal decoding if "Learn New Remote (RAW)"
             infrared_worker_rx_enable_signal_decoding(

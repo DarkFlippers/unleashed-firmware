@@ -62,8 +62,9 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
         } else if(
             (power->displayBatteryPercentage == DISPLAY_BATTERY_BAR_PERCENT) &&
             (power->state != PowerStateCharging) && // Default bar display with percentage
-            (power->info.voltage_battery_charging >= 4.2)) { // not looking nice with low voltage indicator
-            canvas_set_font(canvas, FontBatteryPercent);            
+            (power->info.voltage_battery_charging >=
+             4.2)) { // not looking nice with low voltage indicator
+            canvas_set_font(canvas, FontBatteryPercent);
 
             // align charge dispaly value with digits to draw
             uint8_t bar_charge = power->info.charge;
@@ -153,7 +154,6 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
                 canvas_draw_str_aligned(
                     canvas, 16, 4, AlignCenter, AlignCenter, batteryPercentile);
             } else if(power->displayBatteryPercentage == DISPLAY_BATTERY_BAR_PERCENT) {
-
                 // clean-up default charging bar display
                 canvas_set_color(canvas, ColorWhite);
                 canvas_draw_box(canvas, 1, 1, 22, 6);
