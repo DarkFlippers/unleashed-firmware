@@ -14,9 +14,12 @@ static const char* uart_ch[] = {"13,14", "15,16"};
 static const char* flow_pins[] = {"None", "2,3", "6,7", "16,15"};
 static const char* baudrate_mode[] = {"Host"};
 static const uint32_t baudrate_list[] = {
+    1200,
     2400,
+    4800,
     9600,
     19200,
+    28800,
     38400,
     57600,
     115200,

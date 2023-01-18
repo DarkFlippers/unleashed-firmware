@@ -48,7 +48,7 @@ FileBrowserApp* file_browser_app_alloc(char* arg) {
 
     app->file_path = furi_string_alloc();
     app->file_browser = file_browser_alloc(app->file_path);
-    file_browser_configure(app->file_browser, "*", NULL, true, &I_badusb_10px, true);
+    file_browser_configure(app->file_browser, "*", NULL, true, false, &I_badusb_10px, true);
 
     view_dispatcher_add_view(
         app->view_dispatcher, FileBrowserAppViewStart, widget_get_view(app->widget));

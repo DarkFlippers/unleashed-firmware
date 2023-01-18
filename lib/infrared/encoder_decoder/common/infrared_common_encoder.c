@@ -1,10 +1,9 @@
-#include <core/check.h>
-#include "infrared.h"
 #include "infrared_common_i.h"
-#include <stdbool.h>
-#include <furi.h>
-#include "infrared_i.h"
-#include <stdint.h>
+
+#include <stdlib.h>
+#include <string.h>
+#include <core/check.h>
+#include <core/common_defines.h>
 
 static InfraredStatus
     infrared_common_encode_bits(InfraredCommonEncoder* encoder, uint32_t* duration, bool* level) {

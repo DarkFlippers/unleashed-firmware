@@ -43,9 +43,11 @@ fbtenv_restore_env()
 
     PYTHONNOUSERSITE="$SAVED_PYTHONNOUSERSITE";
     PYTHONPATH="$SAVED_PYTHONPATH";
+    PYTHONHOME="$SAVED_PYTHONHOME";
 
     unset SAVED_PYTHONNOUSERSITE;
     unset SAVED_PYTHONPATH;
+    unset SAVED_PYTHONHOME;
 
     unset SCRIPT_PATH;
     unset FBT_TOOLCHAIN_VERSION;
@@ -69,7 +71,7 @@ fbtenv_check_sourced()
     return 1;
 }
 
-fbtenv_chck_many_source()
+fbtenv_check_if_sourced_multiple_times()
 {
     if ! echo "${PS1:-""}" | grep -qF "[fbt]"; then
         if ! echo "${PROMPT:-""}" | grep -qF "[fbt]"; then
@@ -285,7 +287,7 @@ fbtenv_main()
         fbtenv_restore_env;
         return 0;
     fi
-    fbtenv_chck_many_source;  # many source it's just a warning
+    fbtenv_check_if_sourced_multiple_times;  # many source it's just a warning
     fbtenv_check_script_path || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
@@ -293,12 +295,14 @@ fbtenv_main()
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/openocd/bin:$PATH";
-    
+
     SAVED_PYTHONNOUSERSITE="${PYTHONNOUSERSITE:-""}";
     SAVED_PYTHONPATH="${PYTHONPATH:-""}";
+    SAVED_PYTHONHOME="${PYTHONHOME:-""}";
 
     PYTHONNOUSERSITE=1;
     PYTHONPATH=;
+    PYTHONHOME=;
 }
 
 fbtenv_main "${1:-""}";

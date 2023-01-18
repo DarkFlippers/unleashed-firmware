@@ -1,9 +1,7 @@
+#include "infrared_protocol_samsung_i.h"
+
 #include <core/check.h>
-#include "common/infrared_common_i.h"
-#include <stdint.h>
-#include "../infrared_i.h"
-#include "infrared_protocol_defs_i.h"
-#include <furi.h>
+#include <core/common_defines.h>
 
 static const uint32_t repeat_timings[] = {
     INFRARED_SAMSUNG_REPEAT_PAUSE2,
@@ -58,7 +56,7 @@ InfraredStatus infrared_encoder_samsung32_encode_repeat(
 }
 
 void* infrared_encoder_samsung32_alloc(void) {
-    return infrared_common_encoder_alloc(&protocol_samsung32);
+    return infrared_common_encoder_alloc(&infrared_protocol_samsung32);
 }
 
 void infrared_encoder_samsung32_free(void* encoder_ptr) {
