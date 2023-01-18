@@ -8,5 +8,5 @@ App(
     stack_size=2 * 1024,
     order=70,
     fap_icon="uart_10px.png",
-    fap_category="Misc",
+    fap_category="GPIO",
 )

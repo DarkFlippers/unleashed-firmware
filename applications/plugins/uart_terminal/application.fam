@@ -1,0 +1,13 @@
+App(
+    appid="uart_terminal",
+    name="UART Terminal",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="uart_terminal_app",
+    cdefines=["APP_UART_TERMINAL"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=90,
+    fap_icon="uart_terminal.png",
+    fap_category="GPIO",
+    fap_icon_assets="assets",
+)
