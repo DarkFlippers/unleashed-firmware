@@ -14,7 +14,7 @@ extern const SubGhzProtocol subghz_protocol_somfy_telis;
 /**
  * Allocate SubGhzProtocolEncoderSomfyTelis.
  * @param environment Pointer to a SubGhzEnvironment instance
- * @return SubGhzProtocolEncoderSomfyTelis* pointer to a SubGhzProtocolEncoderSSomfyTelis instance
+ * @return SubGhzProtocolEncoderSomfyTelis* pointer to a SubGhzProtocolEncoderSomfyTelis instance
  */
 void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment);
 
@@ -31,7 +31,6 @@ void subghz_protocol_encoder_somfy_telis_free(void* context);
  * @param serial Serial number, 24 bit
  * @param btn Button number, 8 bit
  * @param cnt Counter value, 16 bit
- * @param manufacture_name Name of manufacturer's key
  * @param preset Modulation, SubGhzRadioPreset
  * @return true On success
  */

@@ -31,8 +31,6 @@ struct SubGhzProtocolEncoderSomfyTelis {
 
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
-
-    SubGhzKeystore* keystore;
 };
 
 typedef enum {
@@ -76,11 +74,11 @@ const SubGhzProtocol subghz_protocol_somfy_telis = {
 };
 
 void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderSomfyTelis* instance = malloc(sizeof(SubGhzProtocolEncoderSomfyTelis));
 
     instance->base.protocol = &subghz_protocol_somfy_telis;
     instance->generic.protocol_name = instance->base.protocol->name;
-    instance->keystore = subghz_environment_get_keystore(environment);
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 512;
@@ -641,14 +639,15 @@ void subghz_protocol_decoder_somfy_telis_get_string(void* context, FuriString* o
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
-        "Key:0x%X\r\n"
-        "Address:0x%03lX \r\n"
+        "Key:0x%lX%08lX\r\n"
+        "Sn:0x%06lX \r\n"
         "Cnt:0x%04lX\r\n"
         "Btn:%s\r\n",
 
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
-        (uint16_t)(instance->generic.data >> 48),
+        (uint32_t)(instance->generic.data >> 32),
+        (uint32_t)instance->generic.data,
         instance->generic.serial,
         instance->generic.cnt,
         subghz_protocol_somfy_telis_get_name_button(instance->generic.btn));
