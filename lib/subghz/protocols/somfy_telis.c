@@ -137,7 +137,6 @@ static bool
         data |= frame[i];
     }
     instance->generic.data = data;
-    FURI_LOG_D(TAG, "New data: %llx", instance->generic.data);
     return true;
 }
 
@@ -274,7 +273,7 @@ static bool subghz_protocol_encoder_somfy_telis_get_upload(
     }
 
     size_t size_upload = index;
-    FURI_LOG_D(TAG, "Size upload: %d", size_upload);
+
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -401,7 +400,6 @@ void subghz_protocol_decoder_somfy_telis_feed(void* context, bool level, uint32_
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_somfy_telis_const.te_short * 4) <
                         subghz_protocol_somfy_telis_const.te_delta * 4)) {
             instance->decoder.parser_step = SomfyTelisDecoderStepCheckPreambula;
-            FURI_LOG_D(TAG, "Found preambula");
         } else {
             instance->header_count = 0;
             instance->decoder.parser_step = SomfyTelisDecoderStepReset;
@@ -413,7 +411,6 @@ void subghz_protocol_decoder_somfy_telis_feed(void* context, bool level, uint32_
                subghz_protocol_somfy_telis_const.te_delta * 4) {
                 instance->decoder.parser_step = SomfyTelisDecoderStepFoundPreambula;
                 instance->header_count++;
-                FURI_LOG_D(TAG, "Hardware sync");
             } else if(
                 (instance->header_count > 1) &&
                 (DURATION_DIFF(duration, subghz_protocol_somfy_telis_const.te_short * 7) <
@@ -432,7 +429,6 @@ void subghz_protocol_decoder_somfy_telis_feed(void* context, bool level, uint32_
                     ManchesterEventLongHigh,
                     &instance->manchester_saved_state,
                     NULL);
-                FURI_LOG_D(TAG, "Software sync");
             }
         }
 
@@ -443,31 +439,24 @@ void subghz_protocol_decoder_somfy_telis_feed(void* context, bool level, uint32_
             if(DURATION_DIFF(duration, subghz_protocol_somfy_telis_const.te_short) <
                subghz_protocol_somfy_telis_const.te_delta) {
                 event = ManchesterEventShortLow;
-                FURI_LOG_D(TAG, "Data decode short");
             } else if(
                 DURATION_DIFF(duration, subghz_protocol_somfy_telis_const.te_long) <
                 subghz_protocol_somfy_telis_const.te_delta) {
                 event = ManchesterEventLongLow;
-                FURI_LOG_D(TAG, "Data decode long");
             } else if(
                 duration >= (subghz_protocol_somfy_telis_const.te_long +
                              subghz_protocol_somfy_telis_const.te_delta)) {
-                FURI_LOG_D(
-                    TAG, "Data decode manchester bit: %d", instance->decoder.decode_count_bit);
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_somfy_telis_const.min_count_bit_for_found) {
                     //check crc
                     uint64_t data_tmp = instance->decoder.decode_data ^
                                         (instance->decoder.decode_data >> 8);
-                    FURI_LOG_D(TAG, "Check crc: %llx", (data_tmp >> 40) & 0xF);
                     if(((data_tmp >> 40) & 0xF) == subghz_protocol_somfy_telis_crc(data_tmp)) {
                         instance->generic.data = instance->decoder.decode_data;
                         instance->generic.data_count_bit = instance->decoder.decode_count_bit;
 
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
-                    } else {
-                        FURI_LOG_D(TAG, "Bad crc");
                     }
                 }
                 instance->decoder.decode_data = 0;
@@ -649,7 +638,6 @@ void subghz_protocol_decoder_somfy_telis_get_string(void* context, FuriString* o
     SubGhzProtocolDecoderSomfyTelis* instance = context;
 
     subghz_protocol_somfy_telis_check_remote_controller(&instance->generic);
-    FURI_LOG_D(TAG, "Data: %llx", instance->generic.data);
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
