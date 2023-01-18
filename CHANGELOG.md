@@ -2,7 +2,7 @@
 * SubGHz: **Somfy Telis Encoder** (PR #289 | by @assasinfil & @TQMatvey)
 * SubGHz: Add 350Mhz to default range
 * Plugins -> Solitaire: Fix for solitaire card placement bug (PR #253 | by @teeebor)
-* Plugins -> UniTemp, TOTP - Updated to latest commits
+* Plugins -> UniTemp (New sensors added), TOTP - Updated to latest commits
 * Plugins -> Added Text Viewer [(by kowalski7cc & kyhwana)](https://github.com/kowalski7cc/flipper-zero-text-viewer/tree/refactor-text-app)
 * Plugins -> Added **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
 * Plugins -> Added **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
@@ -19,6 +19,7 @@
 * OFW: Change broken BadUSB link to Hak5 duckyscript quick reference webpage
 * OFW: **Per protocol signal repeat count** - **Fixes issues with Sony remotes with SIRC protocol (bruteforce also fixed now!)**
 * OFW: Add the ability to turn pages in infrared 
+* OFW: **BadUSB backspace/delete fix**
 * OFW: relocate R_ARM_CALL
 * OFW: fbt: PVS support
 * OFW: fbt: removed DEBUG_TOOLS & FAP_EXAMPLES flags
