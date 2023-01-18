@@ -80,5 +80,5 @@ STRING Flipper Zero BadUSB feature is compatible with USB Rubber Ducky script fo
 ENTER
 STRING More information about script syntax can be found here:
 ENTER
-STRING https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript
+STRING https://github.com/flipperdevices/flipperzero-firmware/blob/dev/documentation/file_formats/BadUsbScriptFormat.md
 ENTER

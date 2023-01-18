@@ -1,10 +1,7 @@
+#include "infrared_protocol_nec_i.h"
+
+#include <core/core_defines.h>
 #include <core/check.h>
-#include "infrared.h"
-#include "common/infrared_common_i.h"
-#include <stdint.h>
-#include "../infrared_i.h"
-#include "infrared_protocol_defs_i.h"
-#include <furi.h>
 
 static const uint32_t repeat_timings[] = {
     INFRARED_NEC_REPEAT_PERIOD - INFRARED_NEC_REPEAT_MARK - INFRARED_NEC_REPEAT_SPACE -
@@ -81,7 +78,7 @@ InfraredStatus infrared_encoder_nec_encode_repeat(
 }
 
 void* infrared_encoder_nec_alloc(void) {
-    return infrared_common_encoder_alloc(&protocol_nec);
+    return infrared_common_encoder_alloc(&infrared_protocol_nec);
 }
 
 void infrared_encoder_nec_free(void* encoder_ptr) {

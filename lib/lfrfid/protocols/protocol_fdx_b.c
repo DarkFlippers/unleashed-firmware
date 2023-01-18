@@ -244,7 +244,7 @@ LevelDuration protocol_fdx_b_encoder_yield(ProtocolFDXB* protocol) {
 static uint64_t protocol_fdx_b_get_national_code(const uint8_t* data) {
     uint64_t national_code = bit_lib_get_bits_32(data, 0, 32);
     national_code = national_code << 32;
-    national_code |= bit_lib_get_bits_32(data, 32, 6) << (32 - 6);
+    national_code |= (uint64_t)bit_lib_get_bits_32(data, 32, 6) << (32 - 6);
     bit_lib_reverse_bits((uint8_t*)&national_code, 0, 64);
     return national_code;
 }

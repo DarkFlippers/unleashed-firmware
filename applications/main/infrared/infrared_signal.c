@@ -295,6 +295,6 @@ void infrared_signal_transmit(InfraredSignal* signal) {
             raw_signal->duty_cycle);
     } else {
         InfraredMessage* message = &signal->payload.message;
-        infrared_send(message, 2);
+        infrared_send(message, 1);
     }
 }
