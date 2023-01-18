@@ -1,6 +1,16 @@
 #pragma once
 #include <gui/view.h>
 
+#include <furi.h>
+#include <furi_hal.h>
+#include <cli/cli.h>
+#include <gui/gui.h>
+#include <stm32wbxx_ll_dma.h>
+#include <dialogs/dialogs.h>
+#include <notification/notification_messages.h>
+#include <gui/view_dispatcher.h>
+#include <toolbox/stream/file_stream.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,6 +27,23 @@ typedef enum {
 } WavPlayerCtrl;
 
 typedef void (*WavPlayerCtrlCallback)(WavPlayerCtrl ctrl, void* context);
+
+#define DATA_COUNT 116
+
+struct WavPlayerView {
+    View* view;
+    WavPlayerCtrlCallback callback;
+    void* context;
+};
+
+typedef struct {
+    bool play;
+    float volume;
+    size_t start;
+    size_t end;
+    size_t current;
+    uint8_t data[DATA_COUNT];
+} WavPlayerViewModel;
 
 WavPlayerView* wav_player_view_alloc();
 

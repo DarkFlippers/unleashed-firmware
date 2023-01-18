@@ -3,7 +3,7 @@ enum SubmenuIndex {
     SubmenuIndexRead,
     SubmenuIndexRunScript,
     SubmenuIndexSaved,
-    SubmenuIndexAddManualy,
+    SubmenuIndexAddManually,
     SubmenuIndexDebug,
 };
 

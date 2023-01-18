@@ -315,6 +315,7 @@ static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf3
         FURI_LOG_D(TAG, "  R_ARM_ABS32 relocated is 0x%08X", (unsigned int)*((uint32_t*)relAddr));
         break;
     case R_ARM_THM_PC22:
+    case R_ARM_CALL:
     case R_ARM_THM_JUMP24:
         elf_relocate_jmp_call(elf, relAddr, type, symAddr);
         FURI_LOG_D(

@@ -16,13 +16,11 @@
 #include "../token_menu/totp_scene_token_menu.h"
 #include "../../../workers/type_code/type_code.h"
 
-#define TOKEN_LIFETIME 30
-
 typedef struct {
     uint16_t current_token_index;
     char last_code[TOTP_TOKEN_DIGITS_MAX_COUNT + 1];
-    char* last_code_name;
     bool need_token_update;
+    TokenInfo* current_token;
     uint32_t last_token_gen_time;
     TotpTypeCodeWorkerContext* type_code_worker_context;
     NotificationMessage const** notification_sequence_new_token;
@@ -151,7 +149,7 @@ static void update_totp_params(PluginState* const plugin_state) {
             list_element_at(plugin_state->tokens_list, scene_state->current_token_index)->data;
 
         scene_state->need_token_update = true;
-        scene_state->last_code_name = tokenInfo->name;
+        scene_state->current_token = tokenInfo;
     }
 }
 
@@ -229,7 +227,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
     furi_hal_rtc_get_datetime(&curr_dt);
     uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
 
-    bool is_new_token_time = curr_ts % TOKEN_LIFETIME == 0;
+    bool is_new_token_time = curr_ts % scene_state->current_token->duration == 0;
     if(is_new_token_time && scene_state->last_token_gen_time != curr_ts) {
         scene_state->need_token_update = true;
     }
@@ -238,10 +236,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
         scene_state->need_token_update = false;
         scene_state->last_token_gen_time = curr_ts;
 
-        const TokenInfo* tokenInfo =
-            (TokenInfo*)(list_element_at(
-                             plugin_state->tokens_list, scene_state->current_token_index)
-                             ->data);
+        const TokenInfo* tokenInfo = scene_state->current_token;
 
         if(tokenInfo->token != NULL && tokenInfo->token_length > 0) {
             furi_mutex_acquire(
@@ -258,7 +253,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
                     key_length,
                     curr_ts,
                     plugin_state->timezone_offset,
-                    TOKEN_LIFETIME),
+                    tokenInfo->duration),
                 scene_state->last_code,
                 tokenInfo->digits);
             memset_s(key, key_length, 0, key_length);
@@ -279,7 +274,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
     }
 
     canvas_set_font(canvas, FontPrimary);
-    uint16_t token_name_width = canvas_string_width(canvas, scene_state->last_code_name);
+    uint16_t token_name_width = canvas_string_width(canvas, scene_state->current_token->name);
     if(SCREEN_WIDTH - token_name_width > 18) {
         canvas_draw_str_aligned(
             canvas,
@@ -287,7 +282,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             SCREEN_HEIGHT_CENTER - 20,
             AlignCenter,
             AlignCenter,
-            scene_state->last_code_name);
+            scene_state->current_token->name);
     } else {
         canvas_draw_str_aligned(
             canvas,
@@ -295,7 +290,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             SCREEN_HEIGHT_CENTER - 20,
             AlignLeft,
             AlignCenter,
-            scene_state->last_code_name);
+            scene_state->current_token->name);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_box(canvas, 0, SCREEN_HEIGHT_CENTER - 24, 9, 9);
         canvas_draw_box(canvas, SCREEN_WIDTH - 10, SCREEN_HEIGHT_CENTER - 24, 9, 9);
@@ -313,6 +308,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
 
     const uint8_t BAR_MARGIN = 3;
     const uint8_t BAR_HEIGHT = 4;
+    const uint8_t TOKEN_LIFETIME = scene_state->current_token->duration;
     float percentDone = (float)(TOKEN_LIFETIME - curr_ts % TOKEN_LIFETIME) / (float)TOKEN_LIFETIME;
     uint8_t barWidth = (uint8_t)((float)(SCREEN_WIDTH - (BAR_MARGIN << 1)) * percentDone);
     uint8_t barX = ((SCREEN_WIDTH - (BAR_MARGIN << 1) - barWidth) >> 1) + BAR_MARGIN;

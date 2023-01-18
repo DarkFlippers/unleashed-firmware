@@ -1,6 +1,7 @@
 #include "config_migration_v1_to_v2.h"
 #include <flipper_format/flipper_format.h>
 #include "../constants.h"
+#include "../../../types/token_info.h"
 
 #define NEW_VERSION 2
 
@@ -36,7 +37,7 @@ bool totp_config_migrate_v1_to_v2(
 
         flipper_format_write_string_cstr(
             fff_data_file, TOTP_CONFIG_KEY_TOKEN_ALGO, TOTP_CONFIG_TOKEN_ALGO_SHA1_NAME);
-        uint32_t default_digits = 6;
+        const uint32_t default_digits = TOTP_6_DIGITS;
         flipper_format_write_uint32(
             fff_data_file, TOTP_CONFIG_KEY_TOKEN_DIGITS, &default_digits, 1);
     }

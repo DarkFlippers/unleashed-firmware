@@ -5,6 +5,7 @@
 #include "../../types/common.h"
 #include "../../types/token_info.h"
 #include "migrations/config_migration_v1_to_v2.h"
+#include "migrations/config_migration_v2_to_v3.h"
 
 #define CONFIG_FILE_DIRECTORY_PATH EXT_PATH("authenticator")
 #define CONFIG_FILE_PATH CONFIG_FILE_DIRECTORY_PATH "/totp.conf"
@@ -173,6 +174,13 @@ static TotpConfigFileOpenResult totp_open_config_file(Storage* storage, FlipperF
         flipper_format_write_comment(fff_data_file, temp_str);
         flipper_format_write_comment_cstr(fff_data_file, " ");
 
+        flipper_format_write_comment_cstr(
+            fff_data_file,
+            "# Token lifetime duration in seconds. Should be between 15 and 255. Majority websites requires 30, however some rare websites may require custom lifetime. If you are not sure which one to use - use 30");
+        furi_string_printf(temp_str, "%s: 30", TOTP_CONFIG_KEY_TOKEN_DURATION);
+        flipper_format_write_comment(fff_data_file, temp_str);
+        flipper_format_write_comment_cstr(fff_data_file, " ");
+
         flipper_format_write_comment_cstr(fff_data_file, "=== TOKEN SAMPLE END ===");
         flipper_format_write_comment_cstr(fff_data_file, " ");
 
@@ -228,6 +236,12 @@ TotpConfigFileUpdateResult
 
         uint32_t tmp_uint32 = token_info->digits;
         if(!flipper_format_write_uint32(file, TOTP_CONFIG_KEY_TOKEN_DIGITS, &tmp_uint32, 1)) {
+            update_result = TotpConfigFileUpdateError;
+            break;
+        }
+
+        tmp_uint32 = token_info->duration;
+        if(!flipper_format_write_uint32(file, TOTP_CONFIG_KEY_TOKEN_DURATION, &tmp_uint32, 1)) {
             update_result = TotpConfigFileUpdateError;
             break;
         }
@@ -483,9 +497,22 @@ TotpConfigFileOpenResult totp_config_file_load_base(PluginState* const plugin_st
                 if(file_version == 1) {
                     if(totp_config_migrate_v1_to_v2(fff_data_file, fff_backup_data_file)) {
                         FURI_LOG_I(LOGGING_TAG, "Applied migration from v1 to v2");
+                        file_version = 2;
                     } else {
                         FURI_LOG_W(
                             LOGGING_TAG, "An error occurred during migration from v1 to v2");
+                        result = TotpConfigFileOpenError;
+                        break;
+                    }
+                }
+
+                if(file_version == 2) {
+                    if(totp_config_migrate_v2_to_v3(fff_data_file, fff_backup_data_file)) {
+                        FURI_LOG_I(LOGGING_TAG, "Applied migration from v2 to v3");
+                        file_version = 3;
+                    } else {
+                        FURI_LOG_W(
+                            LOGGING_TAG, "An error occurred during migration from v2 to v3");
                         result = TotpConfigFileOpenError;
                         break;
                     }
@@ -669,6 +696,12 @@ TokenLoadingResult totp_config_file_load_tokens(PluginState* const plugin_state)
             tokenInfo->digits = TOTP_6_DIGITS;
         }
 
+        if(!flipper_format_read_uint32(
+               fff_data_file, TOTP_CONFIG_KEY_TOKEN_DURATION, &temp_data32, 1) ||
+           !token_info_set_duration_from_int(tokenInfo, temp_data32)) {
+            tokenInfo->duration = TOTP_TOKEN_DURATION_DEFAULT;
+        }
+
         FURI_LOG_D(LOGGING_TAG, "Found token \"%s\"", tokenInfo->name);
 
         TOTP_LIST_INIT_OR_ADD(plugin_state->tokens_list, tokenInfo, furi_check);
@@ -730,4 +763,10 @@ TotpConfigFileUpdateResult
 
     totp_close_storage();
     return update_result;
+}
+
+void totp_config_file_reset() {
+    Storage* storage = totp_open_storage();
+    storage_simply_remove(storage, CONFIG_FILE_PATH);
+    totp_close_storage();
 }

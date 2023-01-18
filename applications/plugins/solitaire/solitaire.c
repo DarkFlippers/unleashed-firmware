@@ -255,6 +255,9 @@ bool place_on_top(Card* where, Card what) {
         int8_t b_letter = (int8_t)what.character;
         if(a_letter == 12) a_letter = -1;
         if(b_letter == 12) b_letter = -1;
+
+        if(where->disabled && b_letter != -1) return false;
+
         if((a_letter + 1) == b_letter) {
             where->disabled = what.disabled;
             where->pip = what.pip;

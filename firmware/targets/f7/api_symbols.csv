@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.5,,
+Version,+,11.7,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1649,6 +1649,7 @@ Function,+,infrared_get_protocol_by_name,InfraredProtocol,const char*
 Function,+,infrared_get_protocol_command_length,uint8_t,InfraredProtocol
 Function,+,infrared_get_protocol_duty_cycle,float,InfraredProtocol
 Function,+,infrared_get_protocol_frequency,uint32_t,InfraredProtocol
+Function,+,infrared_get_protocol_min_repeat_count,size_t,InfraredProtocol
 Function,+,infrared_get_protocol_name,const char*,InfraredProtocol
 Function,+,infrared_is_protocol_valid,_Bool,InfraredProtocol
 Function,+,infrared_reset_decoder,void,InfraredDecoderHandler*
@@ -2503,6 +2504,7 @@ Function,+,stream_read_line,_Bool,"Stream*, FuriString*"
 Function,+,stream_rewind,_Bool,Stream*
 Function,+,stream_save_to_file,size_t,"Stream*, Storage*, const char*, FS_OpenMode"
 Function,+,stream_seek,_Bool,"Stream*, int32_t, StreamOffset"
+Function,+,stream_seek_to_char,_Bool,"Stream*, char, StreamDirection"
 Function,+,stream_size,size_t,Stream*
 Function,+,stream_split,_Bool,"Stream*, Stream*, Stream*"
 Function,+,stream_tell,size_t,Stream*
@@ -3060,6 +3062,11 @@ Function,-,subghz_protocol_encoder_smc5326_deserialize,_Bool,"void*, FlipperForm
 Function,-,subghz_protocol_encoder_smc5326_free,void,void*
 Function,-,subghz_protocol_encoder_smc5326_stop,void,void*
 Function,-,subghz_protocol_encoder_smc5326_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_somfy_telis_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_somfy_telis_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_somfy_telis_free,void,void*
+Function,-,subghz_protocol_encoder_somfy_telis_stop,void,void*
+Function,-,subghz_protocol_encoder_somfy_telis_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_star_line_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_star_line_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_star_line_free,void,void*
@@ -3081,6 +3088,7 @@ Function,+,subghz_protocol_registry_get_by_index,const SubGhzProtocol*,"const Su
 Function,+,subghz_protocol_registry_get_by_name,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, const char*"
 Function,-,subghz_protocol_secplus_v1_check_fixed,_Bool,uint32_t
 Function,-,subghz_protocol_secplus_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, SubGhzRadioPreset*"
+Function,-,subghz_protocol_somfy_telis_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,-,subghz_protocol_star_line_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
 Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"

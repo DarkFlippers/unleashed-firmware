@@ -1,6 +1,6 @@
 /*
     Unitemp - Universal temperature reader
-    Copyright (C) 2022  Victor Nikitchuk (https://github.com/quen0n)
+    Copyright (C) 2022-2023  Victor Nikitchuk (https://github.com/quen0n)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,9 +66,14 @@ const Interface ONE_WIRE = {
     .allocator = unitemp_onewire_sensor_alloc,
     .mem_releaser = unitemp_onewire_sensor_free,
     .updater = unitemp_onewire_sensor_update};
+const Interface SPI = {
+    .name = "SPI",
+    .allocator = unitemp_spi_sensor_alloc,
+    .mem_releaser = unitemp_spi_sensor_free,
+    .updater = unitemp_spi_sensor_update};
 
 //Перечень интерфейсов подключения
-//static const Interface* interfaces[] = {&SINGLE_WIRE, &I2C, &ONE_WIRE};
+//static const Interface* interfaces[] = {&SINGLE_WIRE, &I2C, &ONE_WIRE, &SPI};
 //Перечень датчиков
 static const SensorType* sensorTypes[] = {
     &DHT11,
@@ -79,12 +84,16 @@ static const SensorType* sensorTypes[] = {
     &Dallas,
     &AM2320_SW,
     &AM2320_I2C,
+    &HTU21x,
     &AHT10,
     &SHT30,
     &GXHT30,
     &LM75,
+    &HDC1080,
+    &BMP180,
     &BMP280,
-    &BME280};
+    &BME280,
+    &MAX31855};
 
 const SensorType* unitemp_sensors_getTypeFromInt(uint8_t index) {
     if(index > SENSOR_TYPES_COUNT) return NULL;
@@ -163,7 +172,7 @@ uint8_t unitemp_gpio_getAviablePortsCount(const Interface* interface, const GPIO
         }
 
         //Проверка для single wire
-        if(interface == &SINGLE_WIRE) {
+        if(interface == &SINGLE_WIRE || interface == &SPI) {
             if(gpio_interfaces_list[i] == NULL || (unitemp_gpio_getFromIndex(i) == extraport)) {
                 aviable_ports_count++;
             }
@@ -202,6 +211,13 @@ const GPIO*
             return NULL;
         }
     }
+    if(interface == &SPI) {
+        if(!((gpio_interfaces_list[0] == NULL || gpio_interfaces_list[0] == &SPI) &&
+             (gpio_interfaces_list[1] == NULL || gpio_interfaces_list[1] == &SPI) &&
+             (gpio_interfaces_list[3] == NULL || gpio_interfaces_list[3] == &SPI))) {
+            return NULL;
+        }
+    }
 
     uint8_t aviable_index = 0;
     for(uint8_t i = 0; i < GPIO_ITEMS; i++) {
@@ -219,7 +235,7 @@ const GPIO*
             }
         }
         //Проверка для single wire
-        if(interface == &SINGLE_WIRE) {
+        if(interface == &SINGLE_WIRE || interface == &SPI) {
             if(gpio_interfaces_list[i] == NULL || unitemp_gpio_getFromIndex(i) == extraport) {
                 if(aviable_index == index) {
                     return unitemp_gpio_getFromIndex(i);
@@ -280,9 +296,7 @@ void unitemp_sensors_add(Sensor* sensor) {
 }
 
 bool unitemp_sensors_load(void) {
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(APP_NAME, "Loading sensors...");
-#endif
+    UNITEMP_DEBUG("Loading sensors...");
 
     //Выделение памяти на поток
     app->file_stream = file_stream_alloc(app->storage);
@@ -391,9 +405,7 @@ bool unitemp_sensors_load(void) {
 }
 
 bool unitemp_sensors_save(void) {
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(APP_NAME, "Saving sensors...");
-#endif
+    UNITEMP_DEBUG("Saving sensors...");
 
     //Выделение памяти для потока
     app->file_stream = file_stream_alloc(app->storage);
@@ -436,6 +448,11 @@ bool unitemp_sensors_save(void) {
             stream_write_format(
                 app->file_stream, "%d\n", unitemp_singlewire_sensorGetGPIO(sensor)->num);
         }
+        if(sensor->type->interface == &SPI) {
+            uint8_t gpio_num = ((SPISensor*)sensor->instance)->CS_pin->num;
+            stream_write_format(app->file_stream, "%d\n", gpio_num);
+        }
+
         if(sensor->type->interface == &I2C) {
             stream_write_format(
                 app->file_stream, "%X\n", ((I2CSensor*)sensor->instance)->currentI2CAdr);
@@ -513,7 +530,7 @@ Sensor* unitemp_sensor_alloc(char* name, const SensorType* type, char* args) {
 
     //Выход если датчик успешно развёрнут
     if(status) {
-        FURI_LOG_I(APP_NAME, "Sensor %s allocated", name);
+        UNITEMP_DEBUG("Sensor %s allocated", name);
         return sensor;
     }
     //Выход с очисткой если память для датчика не была выделена
@@ -539,17 +556,13 @@ void unitemp_sensor_free(Sensor* sensor) {
     bool status = false;
     //Высвобождение памяти под инстанс
     status = sensor->type->interface->mem_releaser(sensor);
-    UNUSED(status);
-#ifdef UNITEMP_DEBUG
 
     if(status) {
-        FURI_LOG_D(APP_NAME, "Sensor %s memory successfully released", sensor->name);
+        UNITEMP_DEBUG("Sensor %s memory successfully released", sensor->name);
     } else {
         FURI_LOG_E(APP_NAME, "Sensor %s memory is not released", sensor->name);
     }
-#endif
     free(sensor->name);
-    //free(sensor);
 }
 
 void unitemp_sensors_free(void) {
@@ -568,9 +581,7 @@ bool unitemp_sensors_init(void) {
         //Может пропасть при отключении USB
         if(furi_hal_power_is_otg_enabled() != true) {
             furi_hal_power_enable_otg();
-#ifdef UNITEMP_DEBUG
-            FURI_LOG_D(APP_NAME, "OTG enabled");
-#endif
+            UNITEMP_DEBUG("OTG enabled");
         }
         if(!(*app->sensors[i]->type->initializer)(app->sensors[i])) {
             FURI_LOG_E(
@@ -579,9 +590,7 @@ bool unitemp_sensors_init(void) {
                 app->sensors[i]->name);
             result = false;
         }
-#ifdef UNITEMP_DEBUG
-        FURI_LOG_D(APP_NAME, "Sensor %s successfully initialized", app->sensors[i]->name);
-#endif
+        FURI_LOG_I(APP_NAME, "Sensor %s successfully initialized", app->sensors[i]->name);
     }
     app->sensors_ready = true;
     return result;
@@ -592,9 +601,7 @@ bool unitemp_sensors_deInit(void) {
     //Выключение 5 В если до этого оно не было включено
     if(app->settings.lastOTGState != true) {
         furi_hal_power_disable_otg();
-#ifdef UNITEMP_DEBUG
-        FURI_LOG_D(APP_NAME, "OTG disabled");
-#endif
+        UNITEMP_DEBUG("OTG disabled");
     }
 
     //Перебор датчиков из списка
@@ -630,13 +637,14 @@ UnitempStatus unitemp_sensor_updateData(Sensor* sensor) {
 
     sensor->status = sensor->type->interface->updater(sensor);
 
-#ifdef UNITEMP_DEBUG
-    if(sensor->status != UT_SENSORSTATUS_OK && sensor->status != UT_SENSORSTATUS_POLLING)
-        FURI_LOG_D(APP_NAME, "Sensor %s update status %d", sensor->name, sensor->status);
-#endif
+    if(sensor->status != UT_SENSORSTATUS_OK && sensor->status != UT_SENSORSTATUS_POLLING) {
+        UNITEMP_DEBUG("Sensor %s update status %d", sensor->name, sensor->status);
+    }
 
-    if(app->settings.temp_unit == UT_TEMP_FAHRENHEIT && sensor->status == UT_SENSORSTATUS_OK)
+    if(app->settings.temp_unit == UT_TEMP_FAHRENHEIT && sensor->status == UT_SENSORSTATUS_OK) {
         uintemp_celsiumToFarengate(sensor);
+    }
+
     if(sensor->status == UT_SENSORSTATUS_OK) {
         sensor->temp += sensor->temp_offset / 10.f;
         if(app->settings.pressure_unit == UT_PRESSURE_MM_HG) {

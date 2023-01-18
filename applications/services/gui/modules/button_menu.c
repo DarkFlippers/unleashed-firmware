@@ -178,6 +178,47 @@ static void button_menu_process_down(ButtonMenu* button_menu) {
         true);
 }
 
+static void button_menu_process_right(ButtonMenu* button_menu) {
+    furi_assert(button_menu);
+
+    with_view_model(
+        button_menu->view,
+        ButtonMenuModel * model,
+        {
+            if(ButtonMenuItemArray_size(model->items) > BUTTONS_PER_SCREEN) {
+                size_t position_candidate = model->position + BUTTONS_PER_SCREEN;
+                position_candidate -= position_candidate % BUTTONS_PER_SCREEN;
+                if(position_candidate < (ButtonMenuItemArray_size(model->items))) {
+                    model->position = position_candidate;
+                } else {
+                    model->position = 0;
+                }
+            }
+        },
+        true);
+}
+
+static void button_menu_process_left(ButtonMenu* button_menu) {
+    furi_assert(button_menu);
+
+    with_view_model(
+        button_menu->view,
+        ButtonMenuModel * model,
+        {
+            if(ButtonMenuItemArray_size(model->items) > BUTTONS_PER_SCREEN) {
+                size_t position_candidate;
+                if(model->position < BUTTONS_PER_SCREEN) {
+                    position_candidate = (ButtonMenuItemArray_size(model->items) - 1);
+                } else {
+                    position_candidate = model->position - BUTTONS_PER_SCREEN;
+                };
+                position_candidate -= position_candidate % BUTTONS_PER_SCREEN;
+                model->position = position_candidate;
+            }
+        },
+        true);
+}
+
 static void button_menu_process_ok(ButtonMenu* button_menu, InputType type) {
     furi_assert(button_menu);
 
@@ -238,6 +279,14 @@ static bool button_menu_view_input_callback(InputEvent* event, void* context) {
         case InputKeyDown:
             consumed = true;
             button_menu_process_down(button_menu);
+            break;
+        case InputKeyRight:
+            consumed = true;
+            button_menu_process_right(button_menu);
+            break;
+        case InputKeyLeft:
+            consumed = true;
+            button_menu_process_left(button_menu);
             break;
         default:
             break;

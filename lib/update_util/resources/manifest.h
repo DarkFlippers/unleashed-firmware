@@ -11,6 +11,8 @@ extern "C" {
 
 typedef enum {
     ResourceManifestEntryTypeUnknown = 0,
+    ResourceManifestEntryTypeVersion,
+    ResourceManifestEntryTypeTimestamp,
     ResourceManifestEntryTypeDirectory,
     ResourceManifestEntryTypeFile,
 } ResourceManifestEntryType;
@@ -51,6 +53,18 @@ bool resource_manifest_reader_open(ResourceManifestReader* resource_manifest, co
  * @return entry or NULL if end of file
  */
 ResourceManifestEntry* resource_manifest_reader_next(ResourceManifestReader* resource_manifest);
+
+/** Read previous file/dir entry from manifest
+ *
+ * You must be at the end of the manifest to use this function.
+ * Intended to be used after reaching end with resource_manifest_reader_next
+ *
+ * @param      resource_manifest  Pointer to the ResourceManifestReader instance
+ *
+ * @return     entry or NULL if end of file
+ */
+ResourceManifestEntry*
+    resource_manifest_reader_previous(ResourceManifestReader* resource_manifest);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -1,6 +1,6 @@
 /*
     Unitemp - Universal temperature reader
-    Copyright (C) 2022  Victor Nikitchuk (https://github.com/quen0n)
+    Copyright (C) 2022-2023  Victor Nikitchuk (https://github.com/quen0n)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -63,13 +63,9 @@ bool _onewire_id_exist(uint8_t* id) {
 
 static void _onewire_scan(void) {
     OneWireSensor* ow_sensor = editable_sensor->instance;
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(
-        APP_NAME,
-        "devices on wire %d: %d",
-        ow_sensor->bus->gpio->num,
-        ow_sensor->bus->device_count);
-#endif
+
+    UNITEMP_DEBUG(
+        "devices on wire %d: %d", ow_sensor->bus->gpio->num, ow_sensor->bus->device_count);
 
     //Сканирование шины one wire
     unitemp_onewire_bus_init(ow_sensor->bus);
@@ -101,9 +97,8 @@ static void _onewire_scan(void) {
 
     memcpy(ow_sensor->deviceID, id, 8);
     ow_sensor->familyCode = id[0];
-#ifdef UNITEMP_DEBUG
-    FURI_LOG_D(
-        APP_NAME,
+
+    UNITEMP_DEBUG(
         "Found sensor's ID: %02X%02X%02X%02X%02X%02X%02X%02X",
         id[0],
         id[1],
@@ -113,7 +108,6 @@ static void _onewire_scan(void) {
         id[5],
         id[6],
         id[7]);
-#endif
 
     if(ow_sensor->familyCode != 0) {
         char id_buff[10];
@@ -198,6 +192,12 @@ static void _gpio_change_callback(VariableItem* item) {
         instance->gpio =
             unitemp_gpio_getAviablePort(editable_sensor->type->interface, index, initial_gpio);
         variable_item_set_current_value_text(item, instance->gpio->name);
+    }
+    if(editable_sensor->type->interface == &SPI) {
+        SPISensor* instance = editable_sensor->instance;
+        instance->CS_pin =
+            unitemp_gpio_getAviablePort(editable_sensor->type->interface, index, initial_gpio);
+        variable_item_set_current_value_text(item, instance->CS_pin->name);
     }
     if(editable_sensor->type->interface == &ONE_WIRE) {
         OneWireSensor* instance = editable_sensor->instance;
@@ -302,12 +302,15 @@ void unitemp_SensorEdit_switch(Sensor* sensor) {
         offset_buff, OFFSET_BUFF_SIZE, "%+1.1f", (double)(editable_sensor->temp_offset / 10.0));
     variable_item_set_current_value_text(temp_offset_item, offset_buff);
 
-    //Порт подключения датчка (для one wire и single wire)
-    if(sensor->type->interface == &ONE_WIRE || sensor->type->interface == &SINGLE_WIRE) {
+    //Порт подключения датчка (для one wire, SPI и single wire)
+    if(sensor->type->interface == &ONE_WIRE || sensor->type->interface == &SINGLE_WIRE ||
+       sensor->type->interface == &SPI) {
         if(sensor->type->interface == &ONE_WIRE) {
             initial_gpio = ((OneWireSensor*)editable_sensor->instance)->bus->gpio;
-        } else {
+        } else if(sensor->type->interface == &SINGLE_WIRE) {
             initial_gpio = ((SingleWireSensor*)editable_sensor->instance)->gpio;
+        } else if(sensor->type->interface == &SPI) {
+            initial_gpio = ((SPISensor*)editable_sensor->instance)->CS_pin;
         }
 
         uint8_t aviable_gpio_count =

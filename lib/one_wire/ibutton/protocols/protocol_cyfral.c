@@ -181,7 +181,7 @@ static bool protocol_cyfral_decoder_feed(ProtocolCyfral* proto, bool level, uint
                     cyfral->index++;
                 }
 
-                // succefully read 8 nibbles
+                // successfully read 8 nibbles
                 if(cyfral->index == 8) {
                     cyfral->state = CYFRAL_READ_STOP_NIBBLE;
                 }

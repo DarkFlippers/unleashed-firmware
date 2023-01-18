@@ -1,10 +1,7 @@
-#include "infrared.h"
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <furi.h>
-#include "../infrared_i.h"
-#include "../infrared_protocol_defs_i.h"
+#include "infrared_protocol_rc5_i.h"
+
+#include <stdlib.h>
+#include <core/check.h>
 
 typedef struct {
     InfraredCommonDecoder* common_decoder;
@@ -60,7 +57,7 @@ bool infrared_decoder_rc5_interpret(InfraredCommonDecoder* decoder) {
 void* infrared_decoder_rc5_alloc(void) {
     InfraredRc5Decoder* decoder = malloc(sizeof(InfraredRc5Decoder));
     decoder->toggle = false;
-    decoder->common_decoder = infrared_common_decoder_alloc(&protocol_rc5);
+    decoder->common_decoder = infrared_common_decoder_alloc(&infrared_protocol_rc5);
     decoder->common_decoder->context = decoder;
     return decoder;
 }

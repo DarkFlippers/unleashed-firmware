@@ -1,6 +1,6 @@
 /*
     Unitemp - Universal temperature reader
-    Copyright (C) 2022  Victor Nikitchuk (https://github.com/quen0n)
+    Copyright (C) 2022-2023  Victor Nikitchuk (https://github.com/quen0n)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -262,7 +262,7 @@ UnitempStatus unitemp_singlewire_update(Sensor* sensor) {
         //Проверка на отрицательность температуры
         if(READ_BIT(raw, 1 << 15)) {
             //Проверка на способ кодирования данных
-            if(READ_BIT(raw, 0x60)) {
+            if(READ_BIT(raw, 0x6000)) {
                 //Не оригинал
                 sensor->temp = (float)((int16_t)raw) / 10;
             } else {

@@ -171,9 +171,6 @@ bool WIEGAND::DoWiegandConversion() {
                     return true;
                 } else {
                     _lastWiegand = sysTick;
-                    _bitCount = 0;
-                    _cardTemp = 0;
-                    _cardTempHigh = 0;
                     return false;
                 }
 

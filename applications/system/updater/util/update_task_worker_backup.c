@@ -79,8 +79,8 @@ static void
                 update_task_set_progress(
                     update_task,
                     UpdateTaskStageProgress,
-                    /* For this stage, first 30% of progress = cleanup */
-                    (n_processed_files++ * 30) / (n_approx_file_entries + 1));
+                    /* For this stage, first 20% of progress = cleanup files */
+                    (n_processed_files++ * 20) / (n_approx_file_entries + 1));
 
                 FuriString* file_path = furi_string_alloc();
                 path_concat(
@@ -88,6 +88,46 @@ static void
                 FURI_LOG_D(TAG, "Removing %s", furi_string_get_cstr(file_path));
                 storage_simply_remove(update_task->storage, furi_string_get_cstr(file_path));
                 furi_string_free(file_path);
+            }
+        }
+
+        while((entry_ptr = resource_manifest_reader_previous(manifest_reader))) {
+            if(entry_ptr->type == ResourceManifestEntryTypeDirectory) {
+                update_task_set_progress(
+                    update_task,
+                    UpdateTaskStageProgress,
+                    /* For this stage, second 10% of progress = cleanup directories */
+                    (n_processed_files++ * 10) / (n_approx_file_entries + 1));
+
+                FuriString* folder_path = furi_string_alloc();
+                File* folder_file = storage_file_alloc(update_task->storage);
+
+                do {
+                    path_concat(
+                        STORAGE_EXT_PATH_PREFIX,
+                        furi_string_get_cstr(entry_ptr->name),
+                        folder_path);
+
+                    FURI_LOG_D(TAG, "Removing folder %s", furi_string_get_cstr(folder_path));
+                    if(!storage_dir_open(folder_file, furi_string_get_cstr(folder_path))) {
+                        FURI_LOG_W(
+                            TAG,
+                            "%s can't be opened, skipping",
+                            furi_string_get_cstr(folder_path));
+                        break;
+                    }
+
+                    if(storage_dir_read(folder_file, NULL, NULL, 0)) {
+                        FURI_LOG_I(
+                            TAG, "%s is not empty, skipping", furi_string_get_cstr(folder_path));
+                        break;
+                    }
+
+                    storage_simply_remove(update_task->storage, furi_string_get_cstr(folder_path));
+                } while(false);
+
+                storage_file_free(folder_file);
+                furi_string_free(folder_path);
             }
         }
     } while(false);

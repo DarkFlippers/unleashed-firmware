@@ -3,6 +3,7 @@
 enum SubmenuIndex {
     SubmenuIndexUniversalRemotes,
     SubmenuIndexLearnNewRemote,
+    SubmenuIndexLearnNewRemoteRaw,
     SubmenuIndexSavedRemotes,
     SubmenuIndexDebug
 };
@@ -38,6 +39,12 @@ void infrared_scene_start_on_enter(void* context) {
 
     if(infrared->app_state.is_debug_enabled) {
         submenu_add_item(
+            submenu,
+            "Learn New Remote RAW",
+            SubmenuIndexLearnNewRemoteRaw,
+            infrared_scene_start_submenu_callback,
+            infrared);
+        submenu_add_item(
             submenu, "Debug", SubmenuIndexDebug, infrared_scene_start_submenu_callback, infrared);
     }
 
@@ -61,7 +68,14 @@ bool infrared_scene_start_on_event(void* context, SceneManagerEvent event) {
         if(submenu_index == SubmenuIndexUniversalRemotes) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversal);
             consumed = true;
-        } else if(submenu_index == SubmenuIndexLearnNewRemote) {
+        } else if(
+            submenu_index == SubmenuIndexLearnNewRemote ||
+            submenu_index == SubmenuIndexLearnNewRemoteRaw) {
+            // enable automatic signal decoding if "Learn New Remote"
+            // disable automatic signal decoding if "Learn New Remote (RAW)"
+            infrared_worker_rx_enable_signal_decoding(
+                infrared->worker, submenu_index == SubmenuIndexLearnNewRemote);
+
             infrared->app_state.is_learning_new_remote = true;
             scene_manager_next_scene(scene_manager, InfraredSceneLearn);
             consumed = true;

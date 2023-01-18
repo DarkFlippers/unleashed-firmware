@@ -1,11 +1,8 @@
+#include "infrared_common_i.h"
+
+#include <stdlib.h>
 #include <core/check.h>
 #include <core/common_defines.h>
-#include "infrared.h"
-#include "infrared_common_i.h"
-#include <stdbool.h>
-#include <furi.h>
-#include "infrared_i.h"
-#include <stdint.h>
 
 static void infrared_common_decoder_reset_state(InfraredCommonDecoder* decoder);
 

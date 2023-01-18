@@ -15,6 +15,7 @@ env = ENV.Clone(
         ("compilation_db", {"COMPILATIONDB_COMSTR": "\tCDB\t${TARGET}"}),
         "fwbin",
         "fbt_apps",
+        "pvsstudio",
     ],
     COMPILATIONDB_USE_ABSPATH=False,
     BUILD_DIR=fw_build_meta["build_dir"],
@@ -69,6 +70,8 @@ env = ENV.Clone(
             ],
         },
     },
+    SDK_APISYMS=None,
+    _APP_ICONS=None,
 )
 
 
@@ -127,9 +130,6 @@ else:
 if extra_int_apps := GetOption("extra_int_apps"):
     fwenv.Append(APPS=extra_int_apps.split(","))
 
-
-if fwenv["FAP_EXAMPLES"]:
-    fwenv.Append(APPDIRS=[("applications/examples", False)])
 
 for app_dir, _ in env["APPDIRS"]:
     app_dir_node = env.Dir("#").Dir(app_dir)
@@ -272,6 +272,24 @@ AlwaysBuild(fwcdb)
 Precious(fwcdb)
 NoClean(fwcdb)
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
+
+pvscheck = fwenv.PVSCheck("pvsreport.log", fwcdb)
+Depends(
+    pvscheck,
+    [
+        fwenv["FW_VERSION_JSON"],
+        fwenv["FW_ASSETS_HEADERS"],
+        fwenv["SDK_APISYMS"],
+        fwenv["_APP_ICONS"],
+    ],
+)
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_pvscheck", pvscheck)
+AlwaysBuild(pvscheck)
+Precious(pvscheck)
+
+pvsreport = fwenv.PVSReport(None, pvscheck, REPORT_DIR=Dir("pvsreport"))
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_pvs", pvsreport)
+AlwaysBuild(pvsreport)
 
 # If current configuration was explicitly requested, generate compilation database
 # and link its directory as build/latest

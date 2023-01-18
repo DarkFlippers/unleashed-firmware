@@ -117,3 +117,8 @@ TotpConfigFileUpdateResult totp_config_file_update_user_settings(const PluginSta
  */
 TotpConfigFileUpdateResult
     totp_config_file_update_crypto_signatures(const PluginState* plugin_state);
+
+/**
+ * @brief Reset all the settings to default
+ */
+void totp_config_file_reset();

@@ -1,6 +1,6 @@
 /*
     Unitemp - Universal temperature reader
-    Copyright (C) 2022  Victor Nikitchuk (https://github.com/quen0n)
+    Copyright (C) 2022-2023  Victor Nikitchuk (https://github.com/quen0n)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ static void _draw_temperature(Canvas* canvas, Sensor* sensor, uint8_t x, uint8_t
         app->buff[0] = '-';
         offset = 1;
     }
-    snprintf((char*)(app->buff + offset), BUFF_SIZE, "%d", (int8_t)sensor->temp);
+    snprintf((char*)(app->buff + offset), BUFF_SIZE, "%d", (int16_t)sensor->temp);
     canvas_set_font(canvas, FontBigNumbers);
     canvas_draw_str_aligned(
         canvas,
@@ -237,6 +237,7 @@ static void _draw_carousel_values(Canvas* canvas) {
         canvas_draw_icon(canvas, 34, 23, frames[furi_get_tick() % 2250 / 750]);
 
         canvas_set_font(canvas, FontSecondary);
+        //TODO: Оптимизировать эту срань
         if(unitemp_sensor_getActive(generalview_sensor_index)->type->interface == &SINGLE_WIRE) {
             snprintf(
                 app->buff,
@@ -255,6 +256,9 @@ static void _draw_carousel_values(Canvas* canvas) {
         }
         if(unitemp_sensor_getActive(generalview_sensor_index)->type->interface == &I2C) {
             snprintf(app->buff, BUFF_SIZE, "Waiting for module on I2C pins");
+        }
+        if(unitemp_sensor_getActive(generalview_sensor_index)->type->interface == &SPI) {
+            snprintf(app->buff, BUFF_SIZE, "Waiting for module on SPI pins");
         }
         canvas_draw_str_aligned(canvas, 64, 19, AlignCenter, AlignCenter, app->buff);
         return;
@@ -304,6 +308,8 @@ static void _draw_carousel_values(Canvas* canvas) {
         break;
     }
 }
+
+//TODO: Оптимизировать вывод информации
 static void _draw_carousel_info(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 10, 23, "Type:");
@@ -349,6 +355,25 @@ static void _draw_carousel_info(Canvas* canvas) {
             35,
             ((SingleWireSensor*)unitemp_sensor_getActive(generalview_sensor_index)->instance)
                 ->gpio->name);
+    }
+
+    if(unitemp_sensor_getActive(generalview_sensor_index)->type->interface == &SPI) {
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str(canvas, 10, 35, "MISO pin:");
+        canvas_draw_str(canvas, 10, 46, "CS pin:");
+        canvas_draw_str(canvas, 10, 58, "SCK pin:");
+
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(
+            canvas, 41, 23, unitemp_sensor_getActive(generalview_sensor_index)->type->typename);
+        canvas_draw_str(canvas, 60, 35, unitemp_gpio_getFromInt(3)->name);
+        canvas_draw_str(
+            canvas,
+            47,
+            46,
+            ((SPISensor*)unitemp_sensor_getActive(generalview_sensor_index)->instance)
+                ->CS_pin->name);
+        canvas_draw_str(canvas, 54, 58, unitemp_gpio_getFromInt(5)->name);
     }
 
     if(unitemp_sensor_getActive(generalview_sensor_index)->type->interface == &I2C) {
@@ -542,6 +567,10 @@ static bool _input_callback(InputEvent* event, void* context) {
             return true;
         }
     }
+    //Обработка длинного нажатия "Ок"
+    if(event->key == InputKeyOk && event->type == InputTypeLong) {
+        app->settings.temp_unit = !app->settings.temp_unit;
+    }
 
     return true;
 }
@@ -561,5 +590,6 @@ void unitemp_General_switch(void) {
 }
 
 void unitemp_General_free(void) {
+    view_dispatcher_remove_view(app->view_dispatcher, UnitempViewGeneral);
     view_free(view);
 }
