@@ -125,6 +125,7 @@ ProtoViewApp* protoview_app_alloc() {
 
     // GUI
     app->gui = furi_record_open(RECORD_GUI);
+    app->notification = furi_record_open(RECORD_NOTIFICATION);
     app->view_port = view_port_alloc();
     view_port_draw_callback_set(app->view_port, render_callback, app);
     view_port_input_callback_set(app->view_port, input_callback, app);
@@ -185,7 +186,7 @@ ProtoViewApp* protoview_app_alloc() {
 void protoview_app_free(ProtoViewApp* app) {
     furi_assert(app);
 
-    // Put CC1101 on sleep.
+    // Put CC1101 on sleep, this also restores charging.
     radio_sleep(app);
 
     // View related.
@@ -193,6 +194,7 @@ void protoview_app_free(ProtoViewApp* app) {
     gui_remove_view_port(app->gui, app->view_port);
     view_port_free(app->view_port);
     furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
     furi_message_queue_free(app->event_queue);
     app->gui = NULL;
 
