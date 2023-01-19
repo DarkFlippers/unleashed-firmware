@@ -222,7 +222,12 @@ static bool subghz_protocol_encoder_somfy_telis_get_upload(
     }
 
     //Inter-frame silence
-    instance->encoder.upload[index++] = level_duration_make(false, 30415);
+    if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+        instance->encoder.upload[index - 1].duration += (uint32_t)30415;
+    } else {
+        instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)30415);
+    }
+
     //Retransmission
     for(uint8_t i = 0; i < 2; i++) {
         //Hardware sync
@@ -267,7 +272,11 @@ static bool subghz_protocol_encoder_somfy_telis_get_upload(
         }
 
         //Inter-frame silence
-        instance->encoder.upload[index++] = level_duration_make(false, 30415);
+        if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+            instance->encoder.upload[index - 1].duration += (uint32_t)30415;
+        } else {
+            instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)30415);
+        }
     }
 
     size_t size_upload = index;
