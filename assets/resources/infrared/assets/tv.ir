@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 13th Jan, 2023
-# Last Checked 13th Jan, 2023
+# Last Updated 19th Jan, 2023
+# Last Checked 19th Jan, 2023
 #
 name: POWER
 type: parsed
@@ -1821,3 +1821,21 @@ type: parsed
 protocol: NEC
 address: 28 00 00 00
 command: 10 00 00 00
+# 
+name: CH+
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 14 00 00 00
+# 
+name: CH+
+type: parsed
+protocol: SIRC20
+address: 5A 0E 00 00
+command: 10 00 00 00
+# 
+name: CH-
+type: parsed
+protocol: SIRC20
+address: 5A 0E 00 00
+command: 11 00 00 00
