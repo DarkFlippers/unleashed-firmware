@@ -231,64 +231,64 @@ static void subghz_scene_receiver_config_set_detect_raw(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    //if(subghz->txrx->hopper_state == 0) {
-    variable_item_set_current_value_text(item, detect_raw_text[index]);
+    if(subghz->txrx->hopper_state == 0) {
+        variable_item_set_current_value_text(item, detect_raw_text[index]);
 #ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-    subghz->last_settings->detect_raw = index;
+        subghz->last_settings->detect_raw = index;
 
-    subghz_last_settings_set_detect_raw_values(subghz);
+        subghz_last_settings_set_detect_raw_values(subghz);
 #else
-    subghz_receiver_set_filter(subghz->txrx->receiver, detect_raw_value[index]);
+        subghz_receiver_set_filter(subghz->txrx->receiver, detect_raw_value[index]);
 
-    subghz_protocol_decoder_raw_set_auto_mode(
-        subghz_receiver_search_decoder_base_by_name(
-            subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-        (index == 1));
+        subghz_protocol_decoder_raw_set_auto_mode(
+            subghz_receiver_search_decoder_base_by_name(
+                subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
+            (index == 1));
 #endif
-    /*} else {
+    } else {
         variable_item_set_current_value_index(item, 0);
-    }*/
+    }
 }
 
 static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    //if(subghz_receiver_get_filter(subghz->txrx->receiver) == SubGhzProtocolFlag_Decodable) {
-    variable_item_set_current_value_text(item, hopping_text[index]);
-    if(hopping_value[index] == SubGhzHopperStateOFF) {
-        char text_buf[10] = {0};
-        snprintf(
-            text_buf,
-            sizeof(text_buf),
-            "%lu.%02lu",
-            subghz_setting_get_default_frequency(subghz->setting) / 1000000,
-            (subghz_setting_get_default_frequency(subghz->setting) % 1000000) / 10000);
-        variable_item_set_current_value_text(
-            (VariableItem*)scene_manager_get_scene_state(
-                subghz->scene_manager, SubGhzSceneReceiverConfig),
-            text_buf);
-        subghz->txrx->preset->frequency = subghz_setting_get_default_frequency(subghz->setting);
-        variable_item_set_current_value_index(
-            (VariableItem*)scene_manager_get_scene_state(
-                subghz->scene_manager, SubGhzSceneReceiverConfig),
-            subghz_setting_get_frequency_default_index(subghz->setting));
-    } else {
-        variable_item_set_current_value_text(
-            (VariableItem*)scene_manager_get_scene_state(
-                subghz->scene_manager, SubGhzSceneReceiverConfig),
-            " -----");
-        variable_item_set_current_value_index(
-            (VariableItem*)scene_manager_get_scene_state(
-                subghz->scene_manager, SubGhzSceneReceiverConfig),
-            subghz_setting_get_frequency_default_index(subghz->setting));
-    }
+    if(subghz_receiver_get_filter(subghz->txrx->receiver) == SubGhzProtocolFlag_Decodable) {
+        variable_item_set_current_value_text(item, hopping_text[index]);
+        if(hopping_value[index] == SubGhzHopperStateOFF) {
+            char text_buf[10] = {0};
+            snprintf(
+                text_buf,
+                sizeof(text_buf),
+                "%lu.%02lu",
+                subghz_setting_get_default_frequency(subghz->setting) / 1000000,
+                (subghz_setting_get_default_frequency(subghz->setting) % 1000000) / 10000);
+            variable_item_set_current_value_text(
+                (VariableItem*)scene_manager_get_scene_state(
+                    subghz->scene_manager, SubGhzSceneReceiverConfig),
+                text_buf);
+            subghz->txrx->preset->frequency =
+                subghz_setting_get_default_frequency(subghz->setting);
+            variable_item_set_current_value_index(
+                (VariableItem*)scene_manager_get_scene_state(
+                    subghz->scene_manager, SubGhzSceneReceiverConfig),
+                subghz_setting_get_frequency_default_index(subghz->setting));
+        } else {
+            variable_item_set_current_value_text(
+                (VariableItem*)scene_manager_get_scene_state(
+                    subghz->scene_manager, SubGhzSceneReceiverConfig),
+                " -----");
+            variable_item_set_current_value_index(
+                (VariableItem*)scene_manager_get_scene_state(
+                    subghz->scene_manager, SubGhzSceneReceiverConfig),
+                subghz_setting_get_frequency_default_index(subghz->setting));
+        }
 
-    subghz->txrx->hopper_state = hopping_value[index];
-    subghz_history_set_hopper_state(subghz->txrx->history, (index == 1));
-    /*} else {
+        subghz->txrx->hopper_state = hopping_value[index];
+    } else {
         variable_item_set_current_value_index(item, 0);
-    }*/
+    }
 }
 
 static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {

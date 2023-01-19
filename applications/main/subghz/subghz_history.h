@@ -110,10 +110,3 @@ bool subghz_history_add_to_history(
  * @return SubGhzProtocolCommonLoad*
  */
 FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx);
-
-/** Set hopper state for internal usage in history
- * 
- * @param instance  - SubGhzHistory instance
- * @param hopper_state - bool is hopper running?
- */
-void subghz_history_set_hopper_state(SubGhzHistory* instance, bool hopper_state);
