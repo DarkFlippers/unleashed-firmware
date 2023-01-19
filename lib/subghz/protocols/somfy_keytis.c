@@ -284,6 +284,15 @@ static bool subghz_protocol_encoder_somfy_keytis_get_upload(
         }
     }
 
+    //Inter-frame silence
+    if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+        instance->encoder.upload[index - 1].duration +=
+            (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3;
+    } else {
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3);
+    }
+
     for(uint8_t i = 0; i < 2; ++i) {
         //Hardware sync
         for(uint8_t i = 0; i < 6; ++i) {
@@ -353,13 +362,18 @@ static bool subghz_protocol_encoder_somfy_keytis_get_upload(
             }
         }
         //Inter-frame silence
-        instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short);
+        if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+            instance->encoder.upload[index - 1].duration +=
+                (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3;
+        } else {
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3);
+        }
     }
 
     //Inter-frame silence
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_somfy_keytis_const.te_long);
+    instance->encoder.upload[index - 1].duration +=
+        (uint32_t)30415 - (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3;
 
     size_t size_upload = index;
 
