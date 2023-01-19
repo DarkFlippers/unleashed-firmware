@@ -38,6 +38,7 @@
 #include "ansonic.h"
 #include "smc5326.h"
 #include "holtek_ht12x.h"
+#include "dooya.h"
 
 #ifdef __cplusplus
 extern "C" {
