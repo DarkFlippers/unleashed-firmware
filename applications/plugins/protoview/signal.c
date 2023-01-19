@@ -118,6 +118,26 @@ uint32_t search_coherent_signal(RawSamplesBuffer* s, uint32_t idx) {
     return len;
 }
 
+/* Called when we detect a message. Just blinks when the message was
+ * not decoded. Vibrates, too, when the message was correctly decoded. */
+void notify_signal_detected(ProtoViewApp* app, bool decoded) {
+    static const NotificationSequence decoded_seq = {
+        &message_vibro_on,
+        &message_green_255,
+        &message_delay_50,
+        &message_green_0,
+        &message_vibro_off,
+        NULL};
+
+    static const NotificationSequence unknown_seq = {
+        &message_red_255, &message_delay_50, &message_red_0, NULL};
+
+    if(decoded)
+        notification_message(app->notification, &decoded_seq);
+    else
+        notification_message(app->notification, &unknown_seq);
+}
+
 /* Search the buffer with the stored signal (last N samples received)
  * in order to find a coherent signal. If a signal that does not appear to
  * be just noise is found, it is set in DetectedSamples global signal
@@ -179,6 +199,7 @@ void scan_for_signal(ProtoViewApp* app) {
                     app->us_scale = 10;
                 else if(DetectedSamples->short_pulse_dur < 145)
                     app->us_scale = 30;
+                notify_signal_detected(app, decoded);
             } else {
                 /* If the structure was not filled, discard it. Otherwise
                  * now the owner is app->msg_info. */
