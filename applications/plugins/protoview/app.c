@@ -64,10 +64,13 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     case ViewDirectSampling:
         render_view_direct_sampling(canvas, app);
         break;
-    case ViewLast:
-        furi_crash(TAG " ViewLast selected");
+    default:
+        furi_crash(TAG "Invalid view selected");
         break;
     }
+
+    /* Draw the alert box if set. */
+    ui_draw_alert_if_needed(canvas, app);
 }
 
 /* Here all we do is putting the events into the queue that will be handled
@@ -79,17 +82,23 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 
 /* Called to switch view (when left/right is pressed). Handles
  * changing the current view ID and calling the enter/exit view
- * callbacks if needed. */
-static void app_switch_view(ProtoViewApp* app, SwitchViewDirection dir) {
+ * callbacks if needed.
+ *
+ * The 'switchto' parameter can be the identifier of a view, or the
+ * special views ViewGoNext and ViewGoPrev in order to move to
+ * the logical next/prev view. */
+static void app_switch_view(ProtoViewApp* app, ProtoViewCurrentView switchto) {
     ProtoViewCurrentView old = app->current_view;
-    if(dir == AppNextView) {
+    if(switchto == ViewGoNext) {
         app->current_view++;
         if(app->current_view == ViewLast) app->current_view = 0;
-    } else if(dir == AppPrevView) {
+    } else if(switchto == ViewGoPrev) {
         if(app->current_view == 0)
             app->current_view = ViewLast - 1;
         else
             app->current_view--;
+    } else {
+        app->current_view = switchto;
     }
     ProtoViewCurrentView new = app->current_view;
 
@@ -108,6 +117,7 @@ static void app_switch_view(ProtoViewApp* app, SwitchViewDirection dir) {
      * the main thing. */
     app->current_subview[old] = 0;
     memset(app->view_privdata, 0, PROTOVIEW_VIEW_PRIVDATA_LEN);
+    ui_dismiss_alert(app);
 }
 
 /* Allocate the application state and initialize a number of stuff.
@@ -134,6 +144,7 @@ ProtoViewApp* protoview_app_alloc() {
     app->view_dispatcher = NULL;
     app->text_input = NULL;
     app->show_text_input = false;
+    app->alert_dismiss_time = 0;
     app->current_view = ViewRawPulses;
     for(int j = 0; j < ViewLast; j++) app->current_subview[j] = 0;
     app->direct_sampling_enabled = false;
@@ -266,18 +277,26 @@ int32_t protoview_app_entry(void* p) {
             /* Handle navigation here. Then handle view-specific inputs
              * in the view specific handling function. */
             if(input.type == InputTypeShort && input.key == InputKeyBack) {
-                /* Exit the app. */
+                if(app->current_view != ViewRawPulses) {
+                    /* If this is not the main app view, go there. */
+                    app_switch_view(app, ViewRawPulses);
+                } else {
+                    /* If we are in the main app view, warn the user
+                     * they needs to long press to really quit. */
+                    ui_show_alert(app, "Long press to exit", 1000);
+                }
+            } else if(input.type == InputTypeLong && input.key == InputKeyBack) {
                 app->running = 0;
             } else if(
                 input.type == InputTypeShort && input.key == InputKeyRight &&
-                get_current_subview(app) == 0) {
+                ui_get_current_subview(app) == 0) {
                 /* Go to the next view. */
-                app_switch_view(app, AppNextView);
+                app_switch_view(app, ViewGoNext);
             } else if(
                 input.type == InputTypeShort && input.key == InputKeyLeft &&
-                get_current_subview(app) == 0) {
+                ui_get_current_subview(app) == 0) {
                 /* Go to the previous view. */
-                app_switch_view(app, AppPrevView);
+                app_switch_view(app, ViewGoPrev);
             } else {
                 /* This is where we pass the control to the currently
                  * active view input processing. */
@@ -295,8 +314,8 @@ int32_t protoview_app_entry(void* p) {
                 case ViewDirectSampling:
                     process_input_direct_sampling(app, input);
                     break;
-                case ViewLast:
-                    furi_crash(TAG " ViewLast selected");
+                default:
+                    furi_crash(TAG "Invalid view selected");
                     break;
                 }
             }

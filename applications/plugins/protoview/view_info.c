@@ -103,7 +103,7 @@ void render_view_info(Canvas* const canvas, ProtoViewApp* app) {
         return;
     }
 
-    show_available_subviews(canvas, app, SubViewInfoLast);
+    ui_show_available_subviews(canvas, app, SubViewInfoLast);
     switch(app->current_subview[app->current_view]) {
     case SubViewInfoMain:
         render_subview_main(canvas, app);
@@ -126,7 +126,7 @@ void text_input_done_callback(void* context) {
     furi_string_free(save_path);
 
     free(privdata->filename);
-    dismiss_keyboard(app);
+    ui_dismiss_keyboard(app);
 }
 
 /* Replace all the occurrences of character c1 with c2 in the specified
@@ -261,9 +261,12 @@ void notify_signal_sent(ProtoViewApp* app) {
 
 /* Handle input for the info view. */
 void process_input_info(ProtoViewApp* app, InputEvent input) {
-    if(process_subview_updown(app, input, SubViewInfoLast)) return;
+    /* If we don't have a decoded signal, we don't allow to go up/down
+     * in the subviews: they are only useful when a loaded signal. */
+    if(app->signal_decoded && ui_process_subview_updown(app, input, SubViewInfoLast)) return;
+
     InfoViewPrivData* privdata = app->view_privdata;
-    int subview = get_current_subview(app);
+    int subview = ui_get_current_subview(app);
 
     /* Main subview. */
     if(subview == SubViewInfoMain) {
@@ -280,7 +283,7 @@ void process_input_info(ProtoViewApp* app, InputEvent input) {
         } else if(input.type == InputTypeLong && input.key == InputKeyOk) {
             privdata->filename = malloc(SAVE_FILENAME_LEN);
             set_signal_random_filename(app, privdata->filename, SAVE_FILENAME_LEN);
-            show_keyboard(app, privdata->filename, SAVE_FILENAME_LEN, text_input_done_callback);
+            ui_show_keyboard(app, privdata->filename, SAVE_FILENAME_LEN, text_input_done_callback);
         } else if(input.type == InputTypeShort && input.key == InputKeyOk) {
             SendSignalCtx send_state;
             send_signal_init(&send_state, app);
