@@ -23,7 +23,7 @@ static const Version version = {
 #ifdef FURI_CUSTOM_FLIPPER_NAME
     .custom_flipper_name = FURI_CUSTOM_FLIPPER_NAME,
 #else
-    .custom_flipper_name = NULL,
+    .custom_flipper_name = "cyber.pz",
 #endif
     .version = VERSION
 #ifdef FURI_RAM_EXEC
