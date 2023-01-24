@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 13th Jan, 2023
-# Last Checked 13th Jan, 2023
+# Last Updated 19th Jan, 2023
+# Last Checked 19th Jan, 2023
 # 
 name: POWER
 type: parsed
@@ -2002,3 +2002,15 @@ type: parsed
 protocol: NEC
 address: 20 00 00 00
 command: 50 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 0C 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 47 00 00 00

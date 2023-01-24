@@ -1,27 +1,9 @@
 ### New changes
-* SubGHz: **Somfy Telis Encoder** (PR #289 | by @assasinfil & @TQMatvey)
-* SubGHz: Add 350Mhz to default range
-* Plugins -> Solitaire: Fix for solitaire card placement bug (PR #253 | by @teeebor)
-* Plugins -> UniTemp, TOTP - Updated to latest commits
-* Plugins -> Added Text Viewer [(by kowalski7cc & kyhwana)](https://github.com/kowalski7cc/flipper-zero-text-viewer/tree/refactor-text-app)
-* Plugins -> Added **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
-* Plugins -> Added **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
-* Plugins -> WAV Player - Replaced with fixed and improved version by [@LTVA1](https://github.com/LTVA1/wav_player)
-* Clock: Fix 12AM was displaying as 00 AM (PR #288 | by @Smileycathy1128)
-* Infrared: Allow disabling automatic signal decoding (aka Learn RAW) - works only when debug enabled (PR #273 | by @darmiel)
-* Infrared: Update universal remote assets (by @amec0e)
-* Desktop: New battery display (Bar %) - (PR #278 | by @Fasjeit)
-* BadUSB: Adding CZ keyboard layout (PR #255 | by @peoblouk)
-* OFW: Various improvements: Toolbox, Updater and Unit Tests. 
-* OFW: Fix typos in source code
-* OFW: Add the sleigh ride animation
-* OFW: Documentation: edit texts, markdown linting 
-* OFW: Change broken BadUSB link to Hak5 duckyscript quick reference webpage
-* OFW: **Per protocol signal repeat count** - **Fixes issues with Sony remotes with SIRC protocol (bruteforce also fixed now!)**
-* OFW: Add the ability to turn pages in infrared 
-* OFW: relocate R_ARM_CALL
-* OFW: fbt: PVS support
-* OFW: fbt: removed DEBUG_TOOLS & FAP_EXAMPLES flags
+* SubGHz: **Somfy Keytis Encoder** and Somfy Telis fixes (PR #297 | by @assasinfil)
+* SubGHz: Change hopping frequency list to have only most used frequencies
+* SubGHz: Block usage of hopping with detect raw at same time (its efficiency is almost 0, it looses signals and all that you can capture is a micro part of end of the signal) (Detect raw also will be removed in a future (and replaced with more correct solution))
+* Plugins -> Updated **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
+* Infrared: Update universal remote assets (by @amec0e) (PR #298)
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

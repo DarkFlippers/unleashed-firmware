@@ -173,7 +173,6 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
                 subghz_sleep(subghz);
             }
             subghz->txrx->hopper_state = SubGhzHopperStateOFF;
-            subghz_history_set_hopper_state(subghz->txrx->history, false);
             subghz->txrx->idx_menu_chosen = 0;
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
 

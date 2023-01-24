@@ -72,6 +72,7 @@ Also check the changelog in releases for latest updates!
 - Security+ v1 & v2
 - Star Line
 - Somfy Telis (by @assasinfil & @TQMatvey)
+- Somfy Keytis (by @assasinfil)
 
 ## Please support development of the project
 The majority of this project is developed and maintained by me, @xMasterX.

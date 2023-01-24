@@ -55,24 +55,39 @@ const SubGhzProtocolDecoder subghz_protocol_somfy_keytis_decoder = {
     .get_string = subghz_protocol_decoder_somfy_keytis_get_string,
 };
 
-const SubGhzProtocolEncoder subghz_protocol_somfy_keytis_encoder = {
-    .alloc = NULL,
-    .free = NULL,
-
-    .deserialize = NULL,
-    .stop = NULL,
-    .yield = NULL,
-};
-
 const SubGhzProtocol subghz_protocol_somfy_keytis = {
     .name = SUBGHZ_PROTOCOL_SOMFY_KEYTIS_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_868 | SubGhzProtocolFlag_AM |
-            SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Save,
+            SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_somfy_keytis_decoder,
     .encoder = &subghz_protocol_somfy_keytis_encoder,
 };
+
+const SubGhzProtocolEncoder subghz_protocol_somfy_keytis_encoder = {
+    .alloc = subghz_protocol_encoder_somfy_keytis_alloc,
+    .free = subghz_protocol_encoder_somfy_keytis_free,
+
+    .deserialize = subghz_protocol_encoder_somfy_keytis_deserialize,
+    .stop = subghz_protocol_encoder_somfy_keytis_stop,
+    .yield = subghz_protocol_encoder_somfy_keytis_yield,
+};
+
+void* subghz_protocol_encoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
+    SubGhzProtocolEncoderSomfyKeytis* instance = malloc(sizeof(SubGhzProtocolEncoderSomfyKeytis));
+
+    instance->base.protocol = &subghz_protocol_somfy_keytis;
+    instance->generic.protocol_name = instance->base.protocol->name;
+
+    instance->encoder.repeat = 10;
+    instance->encoder.size_upload = 512;
+    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
+    instance->encoder.is_running = false;
+
+    return instance;
+}
 
 void* subghz_protocol_decoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
@@ -81,6 +96,13 @@ void* subghz_protocol_decoder_somfy_keytis_alloc(SubGhzEnvironment* environment)
     instance->generic.protocol_name = instance->base.protocol->name;
 
     return instance;
+}
+
+void subghz_protocol_encoder_somfy_keytis_free(void* context) {
+    furi_assert(context);
+    SubGhzProtocolEncoderSomfyKeytis* instance = context;
+    free(instance->encoder.upload);
+    free(instance);
 }
 
 void subghz_protocol_decoder_somfy_keytis_free(void* context) {
@@ -98,6 +120,330 @@ void subghz_protocol_decoder_somfy_keytis_reset(void* context) {
         ManchesterEventReset,
         &instance->manchester_saved_state,
         NULL);
+}
+
+static bool
+    subghz_protocol_somfy_keytis_gen_data(SubGhzProtocolEncoderSomfyKeytis* instance, uint8_t btn) {
+    UNUSED(btn);
+    uint64_t data = instance->generic.data ^ (instance->generic.data >> 8);
+    instance->generic.btn = (data >> 48) & 0xF;
+    instance->generic.cnt = (data >> 24) & 0xFFFF;
+    instance->generic.serial = data & 0xFFFFFF;
+
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
+
+    uint8_t frame[10];
+    frame[0] = (0xA << 4) | instance->generic.btn;
+    frame[1] = 0xF << 4;
+    frame[2] = instance->generic.cnt >> 8;
+    frame[3] = instance->generic.cnt;
+    frame[4] = instance->generic.serial >> 16;
+    frame[5] = instance->generic.serial >> 8;
+    frame[6] = instance->generic.serial;
+    frame[7] = 0xC4;
+    frame[8] = 0x00;
+    frame[9] = 0x19;
+
+    uint8_t checksum = 0;
+    for(uint8_t i = 0; i < 7; i++) {
+        checksum = checksum ^ frame[i] ^ (frame[i] >> 4);
+    }
+    checksum &= 0xF;
+
+    frame[1] |= checksum;
+
+    for(uint8_t i = 1; i < 7; i++) {
+        frame[i] ^= frame[i - 1];
+    }
+    data = 0;
+    for(uint8_t i = 0; i < 7; ++i) {
+        data <<= 8;
+        data |= frame[i];
+    }
+    instance->generic.data = data;
+    data = 0;
+    for(uint8_t i = 7; i < 10; ++i) {
+        data <<= 8;
+        data |= frame[i];
+    }
+    instance->generic.data_2 = data;
+    return true;
+}
+
+bool subghz_protocol_somfy_keytis_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderSomfyKeytis* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->generic.data_count_bit = 80;
+    bool res = subghz_protocol_somfy_keytis_gen_data(instance, btn);
+    if(res) {
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    }
+    return res;
+}
+
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @return true On success
+ */
+static bool subghz_protocol_encoder_somfy_keytis_get_upload(
+    SubGhzProtocolEncoderSomfyKeytis* instance,
+    uint8_t btn) {
+    furi_assert(instance);
+
+    //gen new key
+    if(subghz_protocol_somfy_keytis_gen_data(instance, btn)) {
+        //ToDo if you need to add a callback to automatically update the data on the display
+    } else {
+        return false;
+    }
+
+    size_t index = 0;
+
+    //Send header
+    //Wake up
+    instance->encoder.upload[index++] = level_duration_make(true, (uint32_t)9415); // 1
+    instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)89565); // 0
+    //Hardware sync
+    for(uint8_t i = 0; i < 12; ++i) {
+        instance->encoder.upload[index++] = level_duration_make(
+            true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 4); // 1
+        instance->encoder.upload[index++] = level_duration_make(
+            false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 4); // 0
+    }
+    //Software sync
+    instance->encoder.upload[index++] = level_duration_make(true, (uint32_t)4550); // 1
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+
+    //Send key data MSB manchester
+
+    for(uint8_t i = instance->generic.data_count_bit - 24; i > 0; i--) {
+        if(bit_read(instance->generic.data, i - 1)) {
+            if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+                instance->encoder.upload[index - 1].duration *= 2; // 00
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+            } else {
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+            }
+
+        } else {
+            if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_HIGH) {
+                instance->encoder.upload[index - 1].duration *= 2; // 11
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+            } else {
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+            }
+        }
+    }
+
+    for(uint8_t i = 24; i > 0; i--) {
+        if(bit_read(instance->generic.data_2, i - 1)) {
+            if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+                instance->encoder.upload[index - 1].duration *= 2; // 00
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+            } else {
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+            }
+
+        } else {
+            if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_HIGH) {
+                instance->encoder.upload[index - 1].duration *= 2; // 11
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+            } else {
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+            }
+        }
+    }
+
+    //Inter-frame silence
+    if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+        instance->encoder.upload[index - 1].duration +=
+            (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3;
+    } else {
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3);
+    }
+
+    for(uint8_t i = 0; i < 2; ++i) {
+        //Hardware sync
+        for(uint8_t i = 0; i < 6; ++i) {
+            instance->encoder.upload[index++] = level_duration_make(
+                true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 4); // 1
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 4); // 0
+        }
+        //Software sync
+        instance->encoder.upload[index++] = level_duration_make(true, (uint32_t)4550); // 1
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+
+        //Send key data MSB manchester
+
+        for(uint8_t i = instance->generic.data_count_bit - 24; i > 0; i--) {
+            if(bit_read(instance->generic.data, i - 1)) {
+                if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+                    instance->encoder.upload[index - 1].duration *= 2; // 00
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                } else {
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                }
+
+            } else {
+                if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_HIGH) {
+                    instance->encoder.upload[index - 1].duration *= 2; // 11
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                } else {
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                }
+            }
+        }
+
+        for(uint8_t i = 24; i > 0; i--) {
+            if(bit_read(instance->generic.data_2, i - 1)) {
+                if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+                    instance->encoder.upload[index - 1].duration *= 2; // 00
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                } else {
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                }
+
+            } else {
+                if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_HIGH) {
+                    instance->encoder.upload[index - 1].duration *= 2; // 11
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                } else {
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 1
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short); // 0
+                }
+            }
+        }
+        //Inter-frame silence
+        if(instance->encoder.upload[index - 1].level == LEVEL_DURATION_LEVEL_LOW) {
+            instance->encoder.upload[index - 1].duration +=
+                (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3;
+        } else {
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3);
+        }
+    }
+
+    //Inter-frame silence
+    instance->encoder.upload[index - 1].duration +=
+        (uint32_t)30415 - (uint32_t)subghz_protocol_somfy_keytis_const.te_short * 3;
+
+    size_t size_upload = index;
+
+    if(size_upload > instance->encoder.size_upload) {
+        FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
+        return false;
+    } else {
+        instance->encoder.size_upload = size_upload;
+    }
+    return true;
+}
+
+bool subghz_protocol_encoder_somfy_keytis_deserialize(void* context, FlipperFormat* flipper_format) {
+    furi_assert(context);
+    SubGhzProtocolEncoderSomfyKeytis* instance = context;
+    bool res = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+
+        //optional parameter parameter
+        flipper_format_read_uint32(
+            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        subghz_protocol_encoder_somfy_keytis_get_upload(instance, instance->generic.btn);
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+        uint8_t key_data[sizeof(uint64_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
+            FURI_LOG_E(TAG, "Unable to add Key");
+            break;
+        }
+
+        instance->encoder.is_running = true;
+
+        res = true;
+    } while(false);
+
+    return res;
+}
+
+void subghz_protocol_encoder_somfy_keytis_stop(void* context) {
+    SubGhzProtocolEncoderSomfyKeytis* instance = context;
+    instance->encoder.is_running = false;
+}
+
+LevelDuration subghz_protocol_encoder_somfy_keytis_yield(void* context) {
+    SubGhzProtocolEncoderSomfyKeytis* instance = context;
+
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
+        instance->encoder.is_running = false;
+        return level_duration_reset();
+    }
+
+    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
+
+    if(++instance->encoder.front == instance->encoder.size_upload) {
+        instance->encoder.repeat--;
+        instance->encoder.front = 0;
+    }
+
+    return ret;
 }
 
 /** 
