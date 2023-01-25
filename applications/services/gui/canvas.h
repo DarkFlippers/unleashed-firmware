@@ -151,7 +151,7 @@ void canvas_set_font(Canvas* canvas, Font font);
  * @param      canvas  Canvas instance
  * @param      font    Pointer to u8g2 const uint8_t* font array
  */
-void canvas_set_custom_font(Canvas* canvas, const uint8_t* font);
+void canvas_set_custom_u8g2_font(Canvas* canvas, const uint8_t* font);
 
 /** Draw string at position of baseline defined by x, y.
  *
