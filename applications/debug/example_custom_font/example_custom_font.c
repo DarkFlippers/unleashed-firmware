@@ -44,7 +44,7 @@ static void app_draw_callback(Canvas* canvas, void* ctx) {
 
     canvas_clear(canvas);
 
-    canvas_set_custom_font(canvas, u8g2_font_tom_thumb_4x6_tr);
+    canvas_set_custom_u8g2_font(canvas, u8g2_font_tom_thumb_4x6_tr);
 
     canvas_draw_str(canvas, 0, 6, "This is a tiny custom font");
     canvas_draw_str(canvas, 0, 12, "012345.?! ,:;\"\'@#$%");
