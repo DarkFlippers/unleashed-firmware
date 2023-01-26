@@ -48,7 +48,8 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text(canvas, AlignLeft, 26, "Interval (ms):");
     canvas_set_font(canvas, FontSecondary);
     if(model->interval_idx != 0) canvas_draw_icon(canvas, 74, 19, &I_ButtonLeft_4x7);
-    if(model->interval_idx != 5) canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
+    if(model->interval_idx != LENGTH(intervals) - 1)
+        canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
     elements_multiline_text(canvas, 91, 26, string_get_cstr(interval_str));
 
     canvas_set_font(canvas, FontPrimary);
