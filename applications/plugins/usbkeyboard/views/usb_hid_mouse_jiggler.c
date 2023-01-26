@@ -105,7 +105,7 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
                 consumed = true;
             }
             if(event->type == InputTypePress && event->key == InputKeyRight && !model->running &&
-               model->interval_idx < LENGTH(intervals)) {
+               model->interval_idx < LENGTH(intervals) - 1) {
                 model->interval_idx++;
                 consumed = true;
             }
