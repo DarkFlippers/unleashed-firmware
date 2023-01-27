@@ -13,7 +13,9 @@
 #define MF_CLASSIC_WRITE_BLOCK_CMD (0xA0)
 
 const char* mf_classic_get_type_str(MfClassicType type) {
-    if(type == MfClassicType1k) {
+    if(type == MfClassicTypeMini) {
+        return "MIFARE Mini 0.3K";
+    } else if(type == MfClassicType1k) {
         return "MIFARE Classic 1K";
     } else if(type == MfClassicType4k) {
         return "MIFARE Classic 4K";
@@ -73,7 +75,9 @@ MfClassicSectorTrailer*
 }
 
 uint8_t mf_classic_get_total_sectors_num(MfClassicType type) {
-    if(type == MfClassicType1k) {
+    if(type == MfClassicTypeMini) {
+        return MF_MINI_TOTAL_SECTORS_NUM;
+    } else if(type == MfClassicType1k) {
         return MF_CLASSIC_1K_TOTAL_SECTORS_NUM;
     } else if(type == MfClassicType4k) {
         return MF_CLASSIC_4K_TOTAL_SECTORS_NUM;
@@ -83,7 +87,9 @@ uint8_t mf_classic_get_total_sectors_num(MfClassicType type) {
 }
 
 uint16_t mf_classic_get_total_block_num(MfClassicType type) {
-    if(type == MfClassicType1k) {
+    if(type == MfClassicTypeMini) {
+        return 20;
+    } else if(type == MfClassicType1k) {
         return 64;
     } else if(type == MfClassicType4k) {
         return 256;
@@ -363,8 +369,12 @@ bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
 
 MfClassicType mf_classic_get_classic_type(int8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
     UNUSED(ATQA1);
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
-        return MfClassicType1k;
+    if((ATQA0 == 0x44 || ATQA0 == 0x04)) {
+        if((SAK == 0x08 || SAK == 0x88)) {
+            return MfClassicType1k;
+        } else if(SAK == 0x09) {
+            return MfClassicTypeMini;
+        }
     } else if((ATQA0 == 0x01) && (ATQA1 == 0x0F) && (SAK == 0x01)) {
         //skylanders support
         return MfClassicType1k;
