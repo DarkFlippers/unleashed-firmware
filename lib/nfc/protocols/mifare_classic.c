@@ -595,6 +595,14 @@ void mf_classic_read_sector(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data, u
                 if(mf_classic_read_block(tx_rx, &crypto, i, &block_tmp)) {
                     mf_classic_set_block_read(data, i, &block_tmp);
                     blocks_read++;
+                } else if(i > start_block) {
+                    // Try to re-auth to read block in case prevous block was protected from read
+                    furi_hal_nfc_sleep();
+                    if(!mf_classic_auth(tx_rx, i, key, MfClassicKeyA, &crypto, false, 0)) break;
+                    if(mf_classic_read_block(tx_rx, &crypto, i, &block_tmp)) {
+                        mf_classic_set_block_read(data, i, &block_tmp);
+                        blocks_read++;
+                    }
                 }
             } else {
                 blocks_read++;
@@ -607,13 +615,20 @@ void mf_classic_read_sector(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data, u
         if(!key_b_found) break;
         FURI_LOG_D(TAG, "Try to read blocks with key B");
         key = nfc_util_bytes2num(sec_tr->key_b, sizeof(sec_tr->key_b));
-        furi_hal_nfc_sleep();
         if(!mf_classic_auth(tx_rx, start_block, key, MfClassicKeyB, &crypto, false, 0)) break;
         for(size_t i = start_block; i < start_block + total_blocks; i++) {
             if(!mf_classic_is_block_read(data, i)) {
                 if(mf_classic_read_block(tx_rx, &crypto, i, &block_tmp)) {
                     mf_classic_set_block_read(data, i, &block_tmp);
                     blocks_read++;
+                } else if(i > start_block) {
+                    // Try to re-auth to read block in case prevous block was protected from read
+                    furi_hal_nfc_sleep();
+                    if(!mf_classic_auth(tx_rx, i, key, MfClassicKeyB, &crypto, false, 0)) break;
+                    if(mf_classic_read_block(tx_rx, &crypto, i, &block_tmp)) {
+                        mf_classic_set_block_read(data, i, &block_tmp);
+                        blocks_read++;
+                    }
                 }
             } else {
                 blocks_read++;
@@ -665,6 +680,11 @@ static bool mf_classic_read_sector_with_reader(
 
         // Read blocks
         for(uint8_t i = 0; i < sector->total_blocks; i++) {
+            if(mf_classic_read_block(tx_rx, crypto, first_block + i, &sector->block[i])) continue;
+            if(i == 0) continue;
+            // Try to auth to read next block in case previous is locked
+            furi_hal_nfc_sleep();
+            if(!mf_classic_auth(tx_rx, first_block + i, key, key_type, crypto, false, 0)) continue;
             mf_classic_read_block(tx_rx, crypto, first_block + i, &sector->block[i]);
         }
         // Save sector keys in last block
