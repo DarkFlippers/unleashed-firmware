@@ -3,7 +3,6 @@
 #include "memmgr.h"
 #include "kernel.h"
 
-#include "core/common_defines.h"
 #include <FreeRTOS.h>
 #include <timers.h>
 
@@ -27,7 +26,7 @@ static void TimerCallback(TimerHandle_t hTimer) {
 }
 
 FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* context) {
-    furi_assert((furi_is_irq_context() == 0U) && (func != NULL));
+    furi_assert((furi_kernel_is_irq_or_masked() == 0U) && (func != NULL));
 
     TimerHandle_t hTimer;
     TimerCallback_t* callb;
@@ -60,7 +59,7 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
 }
 
 void furi_timer_free(FuriTimer* instance) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;
@@ -82,7 +81,7 @@ void furi_timer_free(FuriTimer* instance) {
 }
 
 FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;
@@ -99,7 +98,7 @@ FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks) {
 }
 
 FuriStatus furi_timer_stop(FuriTimer* instance) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;
@@ -117,7 +116,7 @@ FuriStatus furi_timer_stop(FuriTimer* instance) {
 }
 
 uint32_t furi_timer_is_running(FuriTimer* instance) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;

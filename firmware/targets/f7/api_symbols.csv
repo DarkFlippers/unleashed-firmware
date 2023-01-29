@@ -1389,6 +1389,7 @@ Function,+,furi_hal_version_uid_size,size_t,
 Function,-,furi_hal_vibro_init,void,
 Function,+,furi_hal_vibro_on,void,_Bool
 Function,-,furi_init,void,
+Function,+,furi_kernel_is_irq_or_masked,_Bool,
 Function,+,furi_kernel_get_tick_frequency,uint32_t,
 Function,+,furi_kernel_lock,int32_t,
 Function,+,furi_kernel_restore_lock,int32_t,int32_t
