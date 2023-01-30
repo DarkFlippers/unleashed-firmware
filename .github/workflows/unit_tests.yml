@@ -56,6 +56,7 @@ jobs:
       - name: 'Run units and validate results'
         id: run_units
         if: steps.copy.outcome == 'success'
+        timeout-minutes: 2.5
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/testing/units.py ${{steps.device.outputs.flipper}}
