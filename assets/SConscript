@@ -54,13 +54,14 @@ assetsenv.Alias("proto_ver", proto_ver)
 
 # Gather everything into a static lib
 assets_parts = (icons, proto, dolphin_blocking, dolphin_internal, proto_ver)
+env.Replace(FW_ASSETS_HEADERS=assets_parts)
 
 assetslib = assetsenv.Library("${FW_LIB_NAME}", assets_parts)
 assetsenv.Install("${LIB_DIST_DIR}", assetslib)
 
 
 # Resources for SD card
-
+env.SetDefault(FW_RESOURCES=None)
 if assetsenv["IS_BASE_FIRMWARE"]:
     # External dolphin animations
     dolphin_external = assetsenv.DolphinExtBuilder(
@@ -92,8 +93,7 @@ if assetsenv["IS_BASE_FIRMWARE"]:
     )
 
     # Exporting resources node to external environment
-    env["FW_ASSETS_HEADERS"] = assets_parts
-    env["FW_RESOURCES"] = resources
+    env.Replace(FW_RESOURCES=resources)
     assetsenv.Alias("resources", resources)
 
 Return("assetslib")

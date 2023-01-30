@@ -466,6 +466,10 @@ static void mf_classic_generator_test(uint8_t uid_len, MfClassicType type) {
     nfc_device_free(nfc_keys);
 }
 
+MU_TEST(mf_mini_file_test) {
+    mf_classic_generator_test(4, MfClassicTypeMini);
+}
+
 MU_TEST(mf_classic_1k_4b_file_test) {
     mf_classic_generator_test(4, MfClassicType1k);
 }
@@ -486,6 +490,7 @@ MU_TEST_SUITE(nfc) {
     nfc_test_alloc();
 
     MU_RUN_TEST(nfca_file_test);
+    MU_RUN_TEST(mf_mini_file_test);
     MU_RUN_TEST(mf_classic_1k_4b_file_test);
     MU_RUN_TEST(mf_classic_4k_4b_file_test);
     MU_RUN_TEST(mf_classic_1k_7b_file_test);

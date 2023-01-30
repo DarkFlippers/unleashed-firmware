@@ -5,6 +5,7 @@ App(
     entry_point="display_test_app",
     cdefines=["APP_DISPLAY_TEST"],
     requires=["gui"],
+    fap_libs=["misc"],
     stack_size=1 * 1024,
     order=120,
     fap_category="Debug",

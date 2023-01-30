@@ -227,6 +227,12 @@ const char* furi_thread_get_name(FuriThreadId thread_id);
 
 uint32_t furi_thread_get_stack_space(FuriThreadId thread_id);
 
+/** Get STDOUT callback for thead
+ *
+ * @return STDOUT callback
+ */
+FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback();
+
 /** Set STDOUT callback for thread
  * 
  * @param      callback  callback or NULL to clear

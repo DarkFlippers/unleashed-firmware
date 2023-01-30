@@ -31,9 +31,6 @@ uint32_t bt_debug_start_view(void* context) {
 BtDebugApp* bt_debug_app_alloc() {
     BtDebugApp* app = malloc(sizeof(BtDebugApp));
 
-    // Load settings
-    bt_settings_load(&app->settings);
-
     // Gui
     app->gui = furi_record_open(RECORD_GUI);
 
@@ -105,13 +102,15 @@ int32_t bt_debug_app(void* p) {
     }
 
     BtDebugApp* app = bt_debug_app_alloc();
+    // Was bt active?
+    const bool was_active = furi_hal_bt_is_active();
     // Stop advertising
     furi_hal_bt_stop_advertising();
 
     view_dispatcher_run(app->view_dispatcher);
 
     // Restart advertising
-    if(app->settings.enabled) {
+    if(was_active) {
         furi_hal_bt_start_advertising();
     }
     bt_debug_app_free(app);

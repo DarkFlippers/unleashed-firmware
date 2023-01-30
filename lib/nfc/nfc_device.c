@@ -745,7 +745,10 @@ static bool nfc_device_save_mifare_classic_data(FlipperFormat* file, NfcDevice* 
     do {
         if(!flipper_format_write_comment_cstr(file, "Mifare Classic specific data")) break;
 
-        if(data->type == MfClassicType1k) {
+        if(data->type == MfClassicTypeMini) {
+            if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "MINI")) break;
+            blocks = 20;
+        } else if(data->type == MfClassicType1k) {
             if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "1K")) break;
             blocks = 64;
         } else if(data->type == MfClassicType4k) {
@@ -843,7 +846,10 @@ static bool nfc_device_load_mifare_classic_data(FlipperFormat* file, NfcDevice* 
     do {
         // Read Mifare Classic type
         if(!flipper_format_read_string(file, "Mifare Classic type", temp_str)) break;
-        if(!furi_string_cmp(temp_str, "1K")) {
+        if(!furi_string_cmp(temp_str, "MINI")) {
+            data->type = MfClassicTypeMini;
+            data_blocks = 20;
+        } else if(!furi_string_cmp(temp_str, "1K")) {
             data->type = MfClassicType1k;
             data_blocks = 64;
         } else if(!furi_string_cmp(temp_str, "4K")) {
@@ -918,7 +924,9 @@ static bool nfc_device_save_mifare_classic_keys(NfcDevice* dev) {
         if(!flipper_format_file_open_always(file, furi_string_get_cstr(temp_str))) break;
         if(!flipper_format_write_header_cstr(file, nfc_keys_file_header, nfc_keys_file_version))
             break;
-        if(data->type == MfClassicType1k) {
+        if(data->type == MfClassicTypeMini) {
+            if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "MINI")) break;
+        } else if(data->type == MfClassicType1k) {
             if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "1K")) break;
         } else if(data->type == MfClassicType4k) {
             if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "4K")) break;
@@ -968,7 +976,9 @@ bool nfc_device_load_key_cache(NfcDevice* dev) {
         if(furi_string_cmp_str(temp_str, nfc_keys_file_header)) break;
         if(version != nfc_keys_file_version) break;
         if(!flipper_format_read_string(file, "Mifare Classic type", temp_str)) break;
-        if(!furi_string_cmp(temp_str, "1K")) {
+        if(!furi_string_cmp(temp_str, "MINI")) {
+            data->type = MfClassicTypeMini;
+        } else if(!furi_string_cmp(temp_str, "1K")) {
             data->type = MfClassicType1k;
         } else if(!furi_string_cmp(temp_str, "4K")) {
             data->type = MfClassicType4k;

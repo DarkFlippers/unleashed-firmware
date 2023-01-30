@@ -159,6 +159,7 @@ void reader_analyzer_stop(ReaderAnalyzer* instance) {
     }
     if(instance->pcap) {
         nfc_debug_pcap_free(instance->pcap);
+        instance->pcap = NULL;
     }
 }
 
