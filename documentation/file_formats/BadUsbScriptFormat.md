@@ -67,6 +67,7 @@ Can be combined with a special key command or a single character.
 |ALT-SHIFT|ALT+SHIFT|
 |ALT-GUI|ALT+WIN|
 |GUI-SHIFT|WIN+SHIFT|
+|GUI-CTRL|WIN+CTRL|
 
 ## String
 

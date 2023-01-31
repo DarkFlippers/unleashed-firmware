@@ -10,7 +10,7 @@ env:
 
 jobs:
   test_updater_on_bench:
-    runs-on: [self-hosted, FlipperZeroTest] # currently on same bench as units, needs different bench
+    runs-on: [self-hosted, FlipperZeroTestMac1]
     steps:
       - name: 'Decontaminate previous build leftovers'
         run: |
@@ -27,7 +27,8 @@ jobs:
       - name: 'Get flipper from device manager (mock)'
         id: device
         run: |
-          echo "flipper=/dev/ttyACM0" >> $GITHUB_OUTPUT
+          echo "flipper=/dev/tty.usbmodemflip_Rekigyn1" >> $GITHUB_OUTPUT
+          echo "stlink=0F020D026415303030303032" >> $GITHUB_OUTPUT
 
       - name: 'Flashing target firmware'
         id: first_full_flash
@@ -67,7 +68,7 @@ jobs:
       - name: 'Flash last release'
         if: failure()
         run: |
-          ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FORCE=1
+          ./fbt flash OPENOCD_ADAPTER_SERIAL=${{steps.device.outputs.stlink}} FORCE=1
 
       - name: 'Wait for flipper and format ext'
         if: failure()
