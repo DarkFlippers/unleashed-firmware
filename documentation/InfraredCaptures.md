@@ -1,6 +1,6 @@
 # Infrared Captures
 
-**Credits go to @gsurkov, @skotopes, @knrn-ai, @DrZlo13 and @ahumeniy for making and contributing to the original `UniversalRemotes.md` Documentation.** 
+**Credits go to @gsurkov, @skotopes, @knrn-ai, @DrZlo13 and @ahumeniy for making and contributing to the original `UniversalRemotes.md` Documentation located [Here](https://github.com/flipperdevices/flipperzero-firmware/blob/dev/documentation/UniversalRemotes.md).** 
 
 **slightly adapted by @amec0e**
 
@@ -15,8 +15,8 @@ Each signal is recorded using the following process:
 
 The signal names are self-explanatory. Remember to make sure that every recorded signal does what it's supposed to.
 
-
-**NOTE:** It's possible some devices around you will cause interference and may force your capture into raw data instead of a parsed code. If you notice you get a parsed code when capturing it's best to click "Retry" a few times on the flipper when capturing to ensure the device is not suffering from any interference, and that the cleanest capture is possible.
+**NOTE:** It's possible some devices around you will cause interference and may force your capture into raw data instead of a parsed code. 
+If you notice you get a parsed code when capturing it's best to click "Retry" a few times on the flipper when capturing to ensure the device is not suffering from any interference, and that the cleanest capture is possible.
 
 ##### Types of data
 
