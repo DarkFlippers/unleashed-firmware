@@ -18,7 +18,7 @@ The signal names are self-explanatory. Remember to make sure that every recorded
 **NOTE:** It's possible some devices around you will cause interference and may force your capture into raw data instead of a parsed code. 
 If you notice you get a parsed code when capturing it's best to click "Retry" a few times on the flipper when capturing to ensure the device is not suffering from any interference, and that the cleanest capture is possible.
 
-##### Types of data
+## Types of data
 
 **Parsed data**
 
