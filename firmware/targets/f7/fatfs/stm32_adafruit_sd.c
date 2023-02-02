@@ -779,25 +779,10 @@ uint8_t SD_GetCIDRegister(SD_CID* Cid) {
             Cid->ManufacturerID = CID_Tab[0];
 
             /* Byte 1 */
-            Cid->OEM_AppliID = CID_Tab[1] << 8;
-
-            /* Byte 2 */
-            Cid->OEM_AppliID |= CID_Tab[2];
+            memcpy(Cid->OEM_AppliID, CID_Tab + 1, 2);
 
             /* Byte 3 */
-            Cid->ProdName1 = CID_Tab[3] << 24;
-
-            /* Byte 4 */
-            Cid->ProdName1 |= CID_Tab[4] << 16;
-
-            /* Byte 5 */
-            Cid->ProdName1 |= CID_Tab[5] << 8;
-
-            /* Byte 6 */
-            Cid->ProdName1 |= CID_Tab[6];
-
-            /* Byte 7 */
-            Cid->ProdName2 = CID_Tab[7];
+            memcpy(Cid->ProdName, CID_Tab + 3, 5);
 
             /* Byte 8 */
             Cid->ProdRev = CID_Tab[8];
@@ -815,11 +800,12 @@ uint8_t SD_GetCIDRegister(SD_CID* Cid) {
             Cid->ProdSN |= CID_Tab[12];
 
             /* Byte 13 */
-            Cid->Reserved1 |= (CID_Tab[13] & 0xF0) >> 4;
-            Cid->ManufactDate = (CID_Tab[13] & 0x0F) << 8;
+            Cid->Reserved1 = (CID_Tab[13] & 0xF0) >> 4;
+            Cid->ManufactYear = (CID_Tab[13] & 0x0F) << 4;
 
             /* Byte 14 */
-            Cid->ManufactDate |= CID_Tab[14];
+            Cid->ManufactYear |= (CID_Tab[14] & 0xF0) >> 4;
+            Cid->ManufactMonth = (CID_Tab[14] & 0x0F);
 
             /* Byte 15 */
             Cid->CID_CRC = (CID_Tab[15] & 0xFE) >> 1;
@@ -834,6 +820,21 @@ uint8_t SD_GetCIDRegister(SD_CID* Cid) {
     SD_IO_WriteByte(SD_DUMMY_BYTE);
 
     /* Return the reponse */
+    return retr;
+}
+
+uint8_t BSP_SD_GetCIDRegister(SD_CID* Cid) {
+    uint8_t retr = BSP_SD_ERROR;
+
+    /* Slow speed init */
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_slow);
+    furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_slow;
+
+    memset(Cid, 0, sizeof(SD_CID));
+    retr = SD_GetCIDRegister(Cid);
+
+    furi_hal_sd_spi_handle = NULL;
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_slow);
     return retr;
 }
 

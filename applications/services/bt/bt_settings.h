@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     bool enabled;
 } BtSettings;
@@ -12,3 +16,7 @@ typedef struct {
 bool bt_settings_load(BtSettings* bt_settings);
 
 bool bt_settings_save(BtSettings* bt_settings);
+
+#ifdef __cplusplus
+}
+#endif
