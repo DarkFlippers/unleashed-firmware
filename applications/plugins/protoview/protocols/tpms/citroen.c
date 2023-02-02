@@ -1,4 +1,7 @@
-/* Citroen TPMS. Usually 443.92 Mhz FSK.
+/* Copyright (C) 2022-2023 Salvatore Sanfilippo -- All Rights Reserved
+ * See the LICENSE file for information about the license.
+ *
+ * Citroen TPMS. Usually 443.92 Mhz FSK.
  *
  * Preamble of ~14 high/low 52 us pulses
  * Sync of high 100us pulse then 50us low
@@ -43,33 +46,13 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
     int temp = raw[7] - 50;
     int battery = raw[8]; /* This may be the battery. It's not clear. */
 
-    snprintf(info->name, sizeof(info->name), "%s", "Citroen TPMS");
-    snprintf(
-        info->raw,
-        sizeof(info->raw),
-        "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-        raw[0],
-        raw[1],
-        raw[2],
-        raw[3],
-        raw[4],
-        raw[5],
-        raw[6],
-        raw[7],
-        raw[8],
-        raw[9]);
-    snprintf(
-        info->info1,
-        sizeof(info->info1),
-        "Tire ID %02X%02X%02X%02X",
-        raw[1],
-        raw[2],
-        raw[3],
-        raw[4]);
-    snprintf(info->info2, sizeof(info->info2), "Pressure %.2f kpa", (double)kpa);
-    snprintf(info->info3, sizeof(info->info3), "Temperature %d C", temp);
-    snprintf(info->info4, sizeof(info->info4), "Repeat %d, Bat %d", repeat, battery);
+    fieldset_add_bytes(info->fieldset, "Tire ID", raw + 1, 4 * 2);
+    fieldset_add_float(info->fieldset, "Pressure kpa", kpa, 2);
+    fieldset_add_int(info->fieldset, "Temperature C", temp, 8);
+    fieldset_add_uint(info->fieldset, "Repeat", repeat, 4);
+    fieldset_add_uint(info->fieldset, "Battery", battery, 8);
     return true;
 }
 
-ProtoViewDecoder CitroenTPMSDecoder = {"Citroen TPMS", decode};
+ProtoViewDecoder CitroenTPMSDecoder =
+    {.name = "Citroen TPMS", .decode = decode, .get_fields = NULL, .build_message = NULL};

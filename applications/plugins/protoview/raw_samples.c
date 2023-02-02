@@ -5,7 +5,7 @@
 #include <furi/core/string.h>
 #include <furi.h>
 #include <furi_hal.h>
-#include "app_buffer.h"
+#include "raw_samples.h"
 
 /* Allocate and initialize a samples buffer. */
 RawSamplesBuffer* raw_samples_alloc(void) {
@@ -45,6 +45,29 @@ void raw_samples_add(RawSamplesBuffer* s, bool level, uint32_t dur) {
     s->samples[s->idx].level = level;
     s->samples[s->idx].dur = dur;
     s->idx = (s->idx + 1) % RAW_SAMPLES_NUM;
+    furi_mutex_release(s->mutex);
+}
+
+/* This is like raw_samples_add(), however in case a sample of the
+ * same level of the previous one is added, the duration of the last
+ * sample is updated instead. Needed mainly for the decoders build_message()
+ * methods: it is simpler to write an encoder of a signal like that,
+ * just creating messages piece by piece.
+ *
+ * This function is a bit slower so the internal data sampling should
+ * be performed with raw_samples_add(). */
+void raw_samples_add_or_update(RawSamplesBuffer* s, bool level, uint32_t dur) {
+    furi_mutex_acquire(s->mutex, FuriWaitForever);
+    uint32_t previdx = (s->idx - 1) % RAW_SAMPLES_NUM;
+    if(s->samples[previdx].level == level && s->samples[previdx].dur != 0) {
+        /* Update the last sample: it has the same level. */
+        s->samples[previdx].dur += dur;
+    } else {
+        /* Add a new sample. */
+        s->samples[s->idx].level = level;
+        s->samples[s->idx].dur = dur;
+        s->idx = (s->idx + 1) % RAW_SAMPLES_NUM;
+    }
     furi_mutex_release(s->mutex);
 }
 
