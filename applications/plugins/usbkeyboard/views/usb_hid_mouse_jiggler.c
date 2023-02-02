@@ -33,12 +33,13 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     // Timeout
     FuriString* interval_str = furi_string_alloc_printf("%d", intervals[model->interval_idx]);
     elements_multiline_text(canvas, AlignLeft, 26, "Interval (ms):");
-    elements_multiline_text(canvas, AlignLeft, 26, "Interval (ms):");
     canvas_set_font(canvas, FontSecondary);
     if(model->interval_idx != 0) canvas_draw_icon(canvas, 74, 19, &I_ButtonLeft_4x7);
     if(model->interval_idx != LENGTH(intervals) - 1)
         canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
     elements_multiline_text(canvas, 91, 26, furi_string_get_cstr(interval_str));
+
+    furi_string_free(interval_str);
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text(canvas, AlignLeft, 40, "Press Start\nto jiggle");

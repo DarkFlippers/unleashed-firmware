@@ -49,6 +49,8 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
         canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
     elements_multiline_text(canvas, 91, 26, furi_string_get_cstr(interval_str));
 
+    furi_string_free(interval_str);
+
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text(canvas, AlignLeft, 40, "Press Start\nto jiggle");
     canvas_set_font(canvas, FontSecondary);
