@@ -1,7 +1,6 @@
 #include "usb_hid_mouse_jiggler.h"
 #include <furi.h>
 #include <furi_hal_usb_hid.h>
-#include <m-string.h>
 #include <gui/elements.h>
 
 #include <USB_Keyboard_icons.h>
@@ -32,15 +31,13 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 17, 2, AlignLeft, AlignTop, "Mouse Jiggler");
 
     // Timeout
-    string_t interval_str;
-    string_init(interval_str);
-    string_printf(interval_str, "%d", intervals[model->interval_idx]);
     elements_multiline_text(canvas, AlignLeft, 26, "Interval (ms):");
     canvas_set_font(canvas, FontSecondary);
     if(model->interval_idx != 0) canvas_draw_icon(canvas, 74, 19, &I_ButtonLeft_4x7);
     if(model->interval_idx != LENGTH(intervals) - 1)
         canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
-    elements_multiline_text(canvas, 91, 26, string_get_cstr(interval_str));
+    FuriString* interval_str = furi_string_alloc_printf("%d", intervals[model->interval_idx]);
+    elements_multiline_text(canvas, 91, 26, furi_string_get_cstr(interval_str));
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text(canvas, AlignLeft, 40, "Press Start\nto jiggle");
