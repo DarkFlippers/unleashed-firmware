@@ -75,25 +75,10 @@ const Interface SPI = {
 //Перечень интерфейсов подключения
 //static const Interface* interfaces[] = {&SINGLE_WIRE, &I2C, &ONE_WIRE, &SPI};
 //Перечень датчиков
-static const SensorType* sensorTypes[] = {
-    &DHT11,
-    &DHT12_SW,
-    &DHT20,
-    &DHT21,
-    &DHT22,
-    &Dallas,
-    &AM2320_SW,
-    &AM2320_I2C,
-    &HTU21x,
-    &AHT10,
-    &SHT30,
-    &GXHT30,
-    &LM75,
-    &HDC1080,
-    &BMP180,
-    &BMP280,
-    &BME280,
-    &MAX31855};
+static const SensorType* sensorTypes[] = {&DHT11,  &DHT12_SW,  &DHT20,      &DHT21,    &DHT22,
+                                          &Dallas, &AM2320_SW, &AM2320_I2C, &HTU21x,   &AHT10,
+                                          &SHT30,  &GXHT30,    &LM75,       &HDC1080,  &BMP180,
+                                          &BMP280, &BME280,    &BME680,     &MAX31855, &MAX6675};
 
 const SensorType* unitemp_sensors_getTypeFromInt(uint8_t index) {
     if(index > SENSOR_TYPES_COUNT) return NULL;
