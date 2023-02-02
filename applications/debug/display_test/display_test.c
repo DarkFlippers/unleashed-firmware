@@ -91,7 +91,6 @@ static void display_test_reload_config(DisplayTest* instance) {
         instance->config_contrast,
         instance->config_regulation_ratio,
         instance->config_bias);
-    gui_update(instance->gui);
 }
 
 static void display_config_set_bias(VariableItem* item) {

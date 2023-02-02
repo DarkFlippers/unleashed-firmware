@@ -352,9 +352,25 @@ void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType
         }
         // Set SAK to 08
         data->nfc_data.sak = 0x08;
+    } else if(type == MfClassicTypeMini) {
+        // Set every block to 0xFF
+        for(uint16_t i = 1; i < MF_MINI_TOTAL_SECTORS_NUM * 4; i += 1) {
+            if(mf_classic_is_sector_trailer(i)) {
+                nfc_generate_mf_classic_sector_trailer(mfc, i);
+            } else {
+                memset(&mfc->block[i].value, 0xFF, 16);
+            }
+            mf_classic_set_block_read(mfc, i, &mfc->block[i]);
+        }
+        // Set SAK to 09
+        data->nfc_data.sak = 0x09;
     }
 
     mfc->type = type;
+}
+
+static void nfc_generate_mf_mini(NfcDeviceData* data) {
+    nfc_generate_mf_classic(data, 4, MfClassicTypeMini);
 }
 
 static void nfc_generate_mf_classic_1k_4b_uid(NfcDeviceData* data) {
@@ -438,6 +454,11 @@ static const NfcGenerator ntag_i2c_plus_2k_generator = {
     .generator_func = nfc_generate_ntag_i2c_plus_2k,
 };
 
+static const NfcGenerator mifare_mini_generator = {
+    .name = "Mifare Mini",
+    .generator_func = nfc_generate_mf_mini,
+};
+
 static const NfcGenerator mifare_classic_1k_4b_uid_generator = {
     .name = "Mifare Classic 1k 4byte UID",
     .generator_func = nfc_generate_mf_classic_1k_4b_uid,
@@ -472,6 +493,7 @@ const NfcGenerator* const nfc_generators[] = {
     &ntag_i2c_2k_generator,
     &ntag_i2c_plus_1k_generator,
     &ntag_i2c_plus_2k_generator,
+    &mifare_mini_generator,
     &mifare_classic_1k_4b_uid_generator,
     &mifare_classic_1k_7b_uid_generator,
     &mifare_classic_4k_4b_uid_generator,
