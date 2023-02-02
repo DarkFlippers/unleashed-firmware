@@ -36,13 +36,13 @@ struct SubGhzFrequencyAnalyzerWorker {
 };
 
 static void subghz_frequency_analyzer_worker_load_registers(const uint8_t data[][2]) {
-    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
+    furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
     size_t i = 0;
     while(data[i][0]) {
-        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, data[i][0], data[i][1]);
+        cc1101_write_reg(furi_hal_subghz.spi_bus_handle, data[i][0], data[i][1]);
         i++;
     }
-    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+    furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);
 }
 
 // running average with adaptive coefficient
@@ -80,26 +80,26 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     //Start CC1101
     furi_hal_subghz_reset();
 
-    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-    cc1101_flush_rx(&furi_hal_spi_bus_handle_subghz);
-    cc1101_flush_tx(&furi_hal_spi_bus_handle_subghz);
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW);
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_MDMCFG3,
+    furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
+    cc1101_flush_rx(furi_hal_subghz.spi_bus_handle);
+    cc1101_flush_tx(furi_hal_subghz.spi_bus_handle);
+    cc1101_write_reg(furi_hal_subghz.spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHW);
+    cc1101_write_reg(furi_hal_subghz.spi_bus_handle, CC1101_MDMCFG3,
                      0b01111111); // symbol rate
     cc1101_write_reg(
-        &furi_hal_spi_bus_handle_subghz,
+        furi_hal_subghz.spi_bus_handle,
         CC1101_AGCCTRL2,
         0b00000111); // 00 - DVGA all; 000 - MAX LNA+LNA2; 111 - MAGN_TARGET 42 dB
     cc1101_write_reg(
-        &furi_hal_spi_bus_handle_subghz,
+        furi_hal_subghz.spi_bus_handle,
         CC1101_AGCCTRL1,
         0b00001000); // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 1000 - Absolute carrier sense threshold disabled
     cc1101_write_reg(
-        &furi_hal_spi_bus_handle_subghz,
+        furi_hal_subghz.spi_bus_handle,
         CC1101_AGCCTRL0,
         0b00110000); // 00 - No hysteresis, medium asymmetric dead zone, medium gain ; 11 - 64 samples agc; 00 - Normal AGC, 00 - 4dB boundary
 
-    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+    furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
 
@@ -118,20 +118,23 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         // First stage: coarse scan
         for(size_t i = 0; i < subghz_setting_get_frequency_count(instance->setting); i++) {
             if(furi_hal_subghz_is_frequency_valid(
-                   subghz_setting_get_frequency(instance->setting, i))) {
-                furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-                cc1101_switch_to_idle(&furi_hal_spi_bus_handle_subghz);
+                   subghz_setting_get_frequency(instance->setting, i)) &&
+               !((furi_hal_subghz.radio_type == SubGhzRadioExternal) &&
+                 (subghz_setting_get_frequency(instance->setting, i) >= 311900000 &&
+                  subghz_setting_get_frequency(instance->setting, i) <= 312200000))) {
+                furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
+                cc1101_switch_to_idle(furi_hal_subghz.spi_bus_handle);
                 frequency = cc1101_set_frequency(
-                    &furi_hal_spi_bus_handle_subghz,
+                    furi_hal_subghz.spi_bus_handle,
                     subghz_setting_get_frequency(instance->setting, i));
 
-                cc1101_calibrate(&furi_hal_spi_bus_handle_subghz);
+                cc1101_calibrate(furi_hal_subghz.spi_bus_handle);
                 do {
-                    status = cc1101_get_status(&furi_hal_spi_bus_handle_subghz);
+                    status = cc1101_get_status(furi_hal_subghz.spi_bus_handle);
                 } while(status.STATE != CC1101StateIDLE);
 
-                cc1101_switch_to_rx(&furi_hal_spi_bus_handle_subghz);
-                furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+                cc1101_switch_to_rx(furi_hal_subghz.spi_bus_handle);
+                furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);
 
                 furi_delay_ms(2);
 
@@ -166,17 +169,17 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 i < frequency_rssi.frequency_coarse + 300000;
                 i += 20000) {
                 if(furi_hal_subghz_is_frequency_valid(i)) {
-                    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-                    cc1101_switch_to_idle(&furi_hal_spi_bus_handle_subghz);
-                    frequency = cc1101_set_frequency(&furi_hal_spi_bus_handle_subghz, i);
+                    furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
+                    cc1101_switch_to_idle(furi_hal_subghz.spi_bus_handle);
+                    frequency = cc1101_set_frequency(furi_hal_subghz.spi_bus_handle, i);
 
-                    cc1101_calibrate(&furi_hal_spi_bus_handle_subghz);
+                    cc1101_calibrate(furi_hal_subghz.spi_bus_handle);
                     do {
-                        status = cc1101_get_status(&furi_hal_spi_bus_handle_subghz);
+                        status = cc1101_get_status(furi_hal_subghz.spi_bus_handle);
                     } while(status.STATE != CC1101StateIDLE);
 
-                    cc1101_switch_to_rx(&furi_hal_spi_bus_handle_subghz);
-                    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+                    cc1101_switch_to_rx(furi_hal_subghz.spi_bus_handle);
+                    furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);
 
                     furi_delay_ms(2);
 

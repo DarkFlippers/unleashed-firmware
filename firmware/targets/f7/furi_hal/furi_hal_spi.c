@@ -1,6 +1,7 @@
 #include "furi_hal_spi.h"
 #include "furi_hal_resources.h"
 #include <furi_hal_power.h>
+#include <furi_hal_subghz.h>
 
 #include <stdbool.h>
 #include <string.h>
@@ -25,7 +26,7 @@ void furi_hal_spi_deinit_early() {
 void furi_hal_spi_init() {
     furi_hal_spi_bus_init(&furi_hal_spi_bus_r);
 
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_subghz);
+    furi_hal_spi_bus_handle_init(furi_hal_subghz.spi_bus_handle);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_nfc);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_slow);

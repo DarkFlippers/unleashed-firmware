@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <toolbox/level_duration.h>
 #include <furi_hal_gpio.h>
+#include <furi_hal_spi_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,6 +62,25 @@ typedef enum {
     SubGhzRegulationTxRx, /**TxRx*/
 } SubGhzRegulation;
 
+/** SubGhz radio types */
+typedef enum {
+    SubGhzRadioInternal,
+    SubGhzRadioExternal,
+} SubGhzRadioType;
+
+/** Structure for accessing SubGhz settings*/
+typedef struct {
+    volatile SubGhzState state;
+    volatile SubGhzRegulation regulation;
+    volatile FuriHalSubGhzPreset preset;
+    const GpioPin* async_mirror_pin;
+    SubGhzRadioType radio_type;
+    FuriHalSpiBusHandle* spi_bus_handle;
+    const GpioPin* cc1101_g0_pin;
+} FuriHalSubGhz;
+
+extern volatile FuriHalSubGhz furi_hal_subghz;
+
 /* Mirror RX/TX async modulation signal to specified pin
  *
  * @warning    Configures pin to output mode. Make sure it is not connected
@@ -75,6 +95,13 @@ void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin);
  * send it to sleep
  */
 void furi_hal_subghz_init();
+
+/** Initialize and switch to power save mode Used by internal API-HAL
+ * initialization routine Can be used to reinitialize device to safe state and
+ * send it to sleep
+ * @return     true if initialisation is successfully
+ */
+bool furi_hal_subghz_init_check(void);
 
 /** Send device to sleep mode
  */
@@ -257,6 +284,30 @@ bool furi_hal_subghz_is_async_tx_complete();
 /** Stop async transmission and cleanup resources Resets GPIO, TIM2, and DMA1
  */
 void furi_hal_subghz_stop_async_tx();
+
+/** Switching between internal and external radio
+ * @param      state SubGhzRadioInternal or SubGhzRadioExternal
+ * @return     true if switching is successful
+ */
+bool furi_hal_subghz_set_radio_type(SubGhzRadioType state);
+
+/** Get current radio
+ * @return     SubGhzRadioInternal or SubGhzRadioExternal
+ */
+SubGhzRadioType furi_hal_subghz_get_radio_type(void);
+
+/** Check for a radio module
+ * @return     true if check is successful
+ */
+bool furi_hal_subghz_check_radio(void);
+
+/** Turn on the power of the external radio module
+ */
+void furi_hal_subghz_enable_ext_power(void);
+
+/** Turn off the power of the external radio module
+ */
+void furi_hal_subghz_disable_ext_power(void);
 
 #ifdef __cplusplus
 }

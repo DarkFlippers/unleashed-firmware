@@ -52,7 +52,7 @@ void radio_begin(ProtoViewApp* app) {
     } else {
         furi_hal_subghz_load_custom_preset(ProtoViewModulations[app->modulation].custom);
     }
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
     app->txrx->txrx_state = TxRxStateIDLE;
 }
 
@@ -80,7 +80,7 @@ uint32_t radio_rx(ProtoViewApp* app) {
     furi_hal_subghz_idle(); /* Put it into idle state in case it is sleeping. */
     uint32_t value = furi_hal_subghz_set_frequency_and_path(app->frequency);
     FURI_LOG_E(TAG, "Switched to frequency: %lu", value);
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
     furi_hal_subghz_flush_rx();
     furi_hal_subghz_rx();
     if(!app->txrx->debug_timer_sampling) {
@@ -134,8 +134,9 @@ void radio_tx_signal(ProtoViewApp* app, FuriHalSubGhzAsyncTxCallback data_feeder
     furi_hal_subghz_idle();
     uint32_t value = furi_hal_subghz_set_frequency_and_path(app->frequency);
     FURI_LOG_E(TAG, "Switched to frequency: %lu", value);
-    furi_hal_gpio_write(&gpio_cc1101_g0, false);
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, false);
+    furi_hal_gpio_init(
+        furi_hal_subghz.cc1101_g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
 
     furi_hal_subghz_start_async_tx(data_feeder, ctx);
     while(!furi_hal_subghz_is_async_tx_complete()) furi_delay_ms(10);
@@ -156,7 +157,7 @@ void radio_tx_signal(ProtoViewApp* app, FuriHalSubGhzAsyncTxCallback data_feeder
 void protoview_timer_isr(void* ctx) {
     ProtoViewApp* app = ctx;
 
-    bool level = furi_hal_gpio_read(&gpio_cc1101_g0);
+    bool level = furi_hal_gpio_read(furi_hal_subghz.cc1101_g0_pin);
     if(app->txrx->last_g0_value != level) {
         uint32_t now = DWT->CYCCNT;
         uint32_t dur = now - app->txrx->last_g0_change_time;

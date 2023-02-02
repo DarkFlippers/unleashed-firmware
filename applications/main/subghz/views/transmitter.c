@@ -85,8 +85,9 @@ void subghz_view_transmitter_draw(Canvas* canvas, SubGhzViewTransmitterModel* mo
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
     elements_multiline_text(canvas, 0, 7, furi_string_get_cstr(model->key_str));
-    canvas_draw_str(canvas, 78, 7, furi_string_get_cstr(model->frequency_str));
-    canvas_draw_str(canvas, 113, 7, furi_string_get_cstr(model->preset_str));
+    canvas_draw_str(canvas, 72, 7, furi_string_get_cstr(model->frequency_str));
+    canvas_draw_str(canvas, 107, 7, furi_string_get_cstr(model->preset_str));
+    canvas_draw_str(canvas, 123, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
     if(model->show_button) subghz_view_transmitter_button_right(canvas, "Send");
 }
 

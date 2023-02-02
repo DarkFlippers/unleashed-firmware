@@ -53,7 +53,10 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         } else {
             subghz_get_frequency_modulation(subghz, frequency_str, NULL);
             furi_string_printf(
-                modulation_str, "Mod: %s", furi_string_get_cstr(subghz->txrx->preset->name));
+                modulation_str,
+                "%s        Mod: %s",
+                furi_hal_subghz_get_radio_type() ? "Ext" : "Int",
+                furi_string_get_cstr(subghz->txrx->preset->name));
         }
 #else
         subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
