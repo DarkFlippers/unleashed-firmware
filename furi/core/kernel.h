@@ -10,7 +10,26 @@
 extern "C" {
 #endif
 
+/** Check if CPU is in IRQ or kernel running and IRQ is masked
+ * 
+ * Originally this primitive was born as a workaround for FreeRTOS kernel primitives shenanigans with PRIMASK.
+ * 
+ * Meaningful use cases are:
+ * 
+ * - When kernel is started and you want to ensure that you are not in IRQ or IRQ is not masked(like in critical section)
+ * - When kernel is not started and you want to make sure that you are not in IRQ mode, ignoring PRIMASK.
+ * 
+ * As you can see there will be edge case when kernel is not started and PRIMASK is not 0 that may cause some funky behavior.
+ * Most likely it will happen after kernel primitives being used, but control not yet passed to kernel.
+ * It's up to you to figure out if it is safe for your code or not.
+ * 
+ * @return     true if CPU is in IRQ or kernel running and IRQ is masked
+ */
+bool furi_kernel_is_irq_or_masked();
+
 /** Lock kernel, pause process scheduling
+ *
+ * @warning This should never be called in interrupt request context.
  *
  * @return     previous lock state(0 - unlocked, 1 - locked)
  */
@@ -18,11 +37,15 @@ int32_t furi_kernel_lock();
 
 /** Unlock kernel, resume process scheduling
  *
+ * @warning This should never be called in interrupt request context.
+ *
  * @return     previous lock state(0 - unlocked, 1 - locked)
  */
 int32_t furi_kernel_unlock();
 
 /** Restore kernel lock state
+ *
+ * @warning This should never be called in interrupt request context.
  *
  * @param[in]  lock  The lock state
  *
@@ -37,7 +60,9 @@ int32_t furi_kernel_restore_lock(int32_t lock);
 uint32_t furi_kernel_get_tick_frequency();
 
 /** Delay execution
- * 
+ *
+ * @warning This should never be called in interrupt request context.
+ *
  * Also keep in mind delay is aliased to scheduler timer intervals.
  *
  * @param[in]  ticks  The ticks count to pause
@@ -45,6 +70,8 @@ uint32_t furi_kernel_get_tick_frequency();
 void furi_delay_tick(uint32_t ticks);
 
 /** Delay until tick
+ *
+ * @warning This should never be called in interrupt request context.
  *
  * @param[in]  ticks  The tick until which kerel should delay task execution
  *

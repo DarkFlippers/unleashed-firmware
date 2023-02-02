@@ -136,17 +136,45 @@ LevelDuration protocol_paradox_encoder_yield(ProtocolParadox* protocol) {
     return level_duration_make(level, duration);
 };
 
+static uint8_t protocol_paradox_calculate_checksum(uint8_t fc, uint16_t card_id) {
+    uint8_t card_hi = (card_id >> 8) & 0xff;
+    uint8_t card_lo = card_id & 0xff;
+
+    uint8_t arr[5] = {0, 0, fc, card_hi, card_lo};
+
+    uint8_t manchester[9];
+
+    bit_lib_push_bit(manchester, 9, false);
+    bit_lib_push_bit(manchester, 9, false);
+    bit_lib_push_bit(manchester, 9, false);
+    bit_lib_push_bit(manchester, 9, false);
+
+    for(uint8_t i = 6; i < 40; i += 1) {
+        if(bit_lib_get_bit(arr, i) == 0b1) {
+            bit_lib_push_bit(manchester, 9, true);
+            bit_lib_push_bit(manchester, 9, false);
+        } else {
+            bit_lib_push_bit(manchester, 9, false);
+            bit_lib_push_bit(manchester, 9, true);
+        }
+    }
+
+    uint8_t output = bit_lib_crc8(manchester, 9, 0x31, 0x00, true, true, 0x06);
+
+    return output;
+}
+
 void protocol_paradox_render_data(ProtocolParadox* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
     uint8_t fc = bit_lib_get_bits(decoded_data, 10, 8);
     uint16_t card_id = bit_lib_get_bits_16(decoded_data, 18, 16);
+    uint8_t card_crc = bit_lib_get_bits_16(decoded_data, 34, 8);
+    uint8_t calc_crc = protocol_paradox_calculate_checksum(fc, card_id);
 
     furi_string_cat_printf(result, "Facility: %u\r\n", fc);
     furi_string_cat_printf(result, "Card: %u\r\n", card_id);
-    furi_string_cat_printf(result, "Data: ");
-    for(size_t i = 0; i < PARADOX_DECODED_DATA_SIZE; i++) {
-        furi_string_cat_printf(result, "%02X", decoded_data[i]);
-    }
+    furi_string_cat_printf(result, "CRC: %u   Calc CRC: %u\r\n", card_crc, calc_crc);
+    if(card_crc != calc_crc) furi_string_cat_printf(result, "CRC Mismatch, Invalid Card!\r\n");
 };
 
 void protocol_paradox_render_brief_data(ProtocolParadox* protocol, FuriString* result) {
@@ -154,8 +182,15 @@ void protocol_paradox_render_brief_data(ProtocolParadox* protocol, FuriString* r
 
     uint8_t fc = bit_lib_get_bits(decoded_data, 10, 8);
     uint16_t card_id = bit_lib_get_bits_16(decoded_data, 18, 16);
+    uint8_t card_crc = bit_lib_get_bits_16(decoded_data, 34, 8);
+    uint8_t calc_crc = protocol_paradox_calculate_checksum(fc, card_id);
 
-    furi_string_cat_printf(result, "FC: %03u, Card: %05u", fc, card_id);
+    furi_string_cat_printf(result, "FC: %03u, Card: %05u\r\n", fc, card_id);
+    if(calc_crc == card_crc) {
+        furi_string_cat_printf(result, "CRC : %03u", card_crc);
+    } else {
+        furi_string_cat_printf(result, "Card is Invalid!");
+    }
 };
 
 bool protocol_paradox_write_data(ProtocolParadox* protocol, void* data) {

@@ -3,7 +3,7 @@
 #include "queue.h"
 
 void furi_init() {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED);
 
     furi_log_init();
@@ -11,7 +11,7 @@ void furi_init() {
 }
 
 void furi_run() {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED);
 
 #if(__ARM_ARCH_7A__ == 0U)

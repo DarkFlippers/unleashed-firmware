@@ -530,6 +530,12 @@ bool furi_thread_set_stdout_callback(FuriThreadStdoutWriteCallback callback) {
     return true;
 }
 
+FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback() {
+    FuriThread* thread = furi_thread_get_current();
+
+    return thread->output.write_callback;
+}
+
 size_t furi_thread_stdout_write(const char* data, size_t size) {
     FuriThread* thread = furi_thread_get_current();
 
