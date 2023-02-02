@@ -47,7 +47,7 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     if(model->interval_idx != LENGTH(intervals) - 1)
         canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
     FuriString* interval_str = furi_string_alloc_printf("%d", intervals[model->interval_idx]);
-    elements_multiline_text(canvas, 91, 26, furi_furi_string_get_cstr(interval_str));
+    elements_multiline_text(canvas, 91, 26, furi_string_get_cstr(interval_str));
     furi_string_free(interval_str);
 
     canvas_set_font(canvas, FontPrimary);
