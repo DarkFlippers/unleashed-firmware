@@ -44,11 +44,20 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
     UNUSED(subghz);
     UNUSED(event);
 
+    furi_hal_subghz_set_radio_type(value_index);
+
+    if(!furi_hal_subghz_check_radio()) {
+        value_index = 0;
+        furi_hal_subghz_set_radio_type(value_index);
+        furi_string_set(subghz->error_str, "Please connect\nexternal radio");
+        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
+    }
+
     return false;
 }
 
 void subghz_scene_ext_module_settings_on_exit(void* context) {
     SubGhz* subghz = context;
     variable_item_list_reset(subghz->variable_item_list);
-    furi_hal_subghz_set_radio_type(value_index);
+    //furi_hal_subghz_set_radio_type(value_index);
 }
