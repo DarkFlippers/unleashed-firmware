@@ -606,7 +606,7 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
         furi_string_cat_printf(
             output,
             "Sn:0x%08lX\r\n"
-            "Cnt:0x%03lX\r\n"
+            "Cnt:0x%03lX "
             "Sw_id:0x%X\r\n",
             instance->generic.serial,
             instance->generic.cnt,
@@ -625,7 +625,7 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
         furi_string_cat_printf(
             output,
             "Sn:0x%08lX\r\n"
-            "Cnt:0x%03lX\r\n"
+            "Cnt:0x%03lX "
             "Sw_id:0x%X\r\n",
             instance->generic.serial,
             instance->generic.cnt,
