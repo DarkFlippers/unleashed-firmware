@@ -45,9 +45,11 @@ extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;
 
 extern const GpioPin gpio_cc1101_g0;
+extern const GpioPin gpio_cc1101_g0_ext;
 extern const GpioPin gpio_rf_sw_0;
 
 extern const GpioPin gpio_subghz_cs;
+extern const GpioPin gpio_subghz_cs_ext;
 extern const GpioPin gpio_display_cs;
 extern const GpioPin gpio_display_rst_n;
 extern const GpioPin gpio_display_di;
@@ -68,6 +70,9 @@ extern const GpioPin gpio_spi_d_sck;
 extern const GpioPin gpio_spi_r_miso;
 extern const GpioPin gpio_spi_r_mosi;
 extern const GpioPin gpio_spi_r_sck;
+extern const GpioPin gpio_spi_r_miso_ext;
+extern const GpioPin gpio_spi_r_mosi_ext;
+extern const GpioPin gpio_spi_r_sck_ext;
 
 extern const GpioPin gpio_ext_pc0;
 extern const GpioPin gpio_ext_pc1;

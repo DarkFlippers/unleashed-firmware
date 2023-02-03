@@ -280,8 +280,26 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
     uint8_t graphics_mode = 1;
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 5, 7, furi_string_get_cstr(model->frequency_str));
-    canvas_draw_str(canvas, 40, 7, furi_string_get_cstr(model->preset_str));
+    canvas_draw_str(canvas, 0, 7, furi_string_get_cstr(model->frequency_str));
+    canvas_draw_str(canvas, 35, 7, furi_string_get_cstr(model->preset_str));
+
+    switch(model->status) {
+    case SubGhzReadRAWStatusIDLE:
+        canvas_draw_str(canvas, 70, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
+        break;
+    case SubGhzReadRAWStatusLoadKeyIDLE:
+    case SubGhzReadRAWStatusTX:
+    case SubGhzReadRAWStatusTXRepeat:
+    case SubGhzReadRAWStatusLoadKeyTX:
+    case SubGhzReadRAWStatusLoadKeyTXRepeat:
+    case SubGhzReadRAWStatusStart:
+        canvas_draw_str(canvas, 77, 7, furi_hal_subghz_get_radio_type() ? "R: Ext" : "R: Int");
+        break;
+    default:
+        canvas_draw_str(canvas, 70, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
+        break;
+    }
+
     canvas_draw_str_aligned(
         canvas, 126, 0, AlignRight, AlignTop, furi_string_get_cstr(model->sample_write));
 

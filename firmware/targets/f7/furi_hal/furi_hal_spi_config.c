@@ -260,6 +260,15 @@ static void furi_hal_spi_bus_handle_subghz_event_callback(
     furi_hal_spi_bus_r_handle_event_callback(handle, event, &furi_hal_spi_preset_1edge_low_8m);
 }
 
+FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz_int = {
+    .bus = &furi_hal_spi_bus_r,
+    .callback = furi_hal_spi_bus_handle_subghz_event_callback,
+    .miso = &gpio_spi_r_miso,
+    .mosi = &gpio_spi_r_mosi,
+    .sck = &gpio_spi_r_sck,
+    .cs = &gpio_subghz_cs,
+};
+
 FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz = {
     .bus = &furi_hal_spi_bus_r,
     .callback = furi_hal_spi_bus_handle_subghz_event_callback,
@@ -267,6 +276,15 @@ FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz = {
     .mosi = &gpio_spi_r_mosi,
     .sck = &gpio_spi_r_sck,
     .cs = &gpio_subghz_cs,
+};
+
+FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz_ext = {
+    .bus = &furi_hal_spi_bus_r,
+    .callback = furi_hal_spi_bus_handle_subghz_event_callback,
+    .miso = &gpio_ext_pa6,
+    .mosi = &gpio_ext_pa7,
+    .sck = &gpio_ext_pb3,
+    .cs = &gpio_ext_pa4,
 };
 
 static void furi_hal_spi_bus_handle_nfc_event_callback(

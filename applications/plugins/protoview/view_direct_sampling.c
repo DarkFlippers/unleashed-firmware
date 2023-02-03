@@ -95,7 +95,7 @@ void view_enter_direct_sampling(ProtoViewApp* app) {
          * to stop the async RX will put it into idle) and configure the
          * G0 pin for reading. */
         furi_hal_subghz_rx();
-        furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+        furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
     } else {
         raw_sampling_worker_stop(app);
     }
@@ -127,7 +127,7 @@ static void ds_timer_isr(void* ctx) {
     DirectSamplingViewPrivData* privdata = app->view_privdata;
 
     if(app->direct_sampling_enabled) {
-        bool level = furi_hal_gpio_read(&gpio_cc1101_g0);
+        bool level = furi_hal_gpio_read(furi_hal_subghz.cc1101_g0_pin);
         bitmap_set(privdata->captured, CAPTURED_BITMAP_BYTES, privdata->captured_idx, level);
         privdata->captured_idx = (privdata->captured_idx + 1) % CAPTURED_BITMAP_BITS;
     }
