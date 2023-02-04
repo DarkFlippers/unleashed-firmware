@@ -1,4 +1,7 @@
-/* Toyota tires TPMS. Usually 443.92 Mhz FSK (In Europe).
+/* Copyright (C) 2022-2023 Salvatore Sanfilippo -- All Rights Reserved
+ * See the LICENSE file for information about the license.
+ *
+ * Toyota tires TPMS. Usually 443.92 Mhz FSK (In Europe).
  *
  * Preamble + sync + 64 bits of data. ~48us short pulse length.
  *
@@ -65,34 +68,14 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
 
     info->pulses_count = (off + 8 * 9 * 2) - info->start_off;
 
-    float kpa = (float)((raw[4] & 0x7f) << 1 | raw[5] >> 7) * 0.25 - 7;
+    float psi = (float)((raw[4] & 0x7f) << 1 | raw[5] >> 7) * 0.25 - 7;
     int temp = ((raw[5] & 0x7f) << 1 | raw[6] >> 7) - 40;
 
-    snprintf(info->name, sizeof(info->name), "%s", "Toyota TPMS");
-    snprintf(
-        info->raw,
-        sizeof(info->raw),
-        "%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-        raw[0],
-        raw[1],
-        raw[2],
-        raw[3],
-        raw[4],
-        raw[5],
-        raw[6],
-        raw[7],
-        raw[8]);
-    snprintf(
-        info->info1,
-        sizeof(info->info1),
-        "Tire ID %02X%02X%02X%02X",
-        raw[0],
-        raw[1],
-        raw[2],
-        raw[3]);
-    snprintf(info->info2, sizeof(info->info2), "Pressure %.2f psi", (double)kpa);
-    snprintf(info->info3, sizeof(info->info3), "Temperature %d C", temp);
+    fieldset_add_bytes(info->fieldset, "Tire ID", raw, 4 * 2);
+    fieldset_add_float(info->fieldset, "Pressure psi", psi, 2);
+    fieldset_add_int(info->fieldset, "Temperature C", temp, 8);
     return true;
 }
 
-ProtoViewDecoder ToyotaTPMSDecoder = {"Toyota TPMS", decode};
+ProtoViewDecoder ToyotaTPMSDecoder =
+    {.name = "Toyota TPMS", .decode = decode, .get_fields = NULL, .build_message = NULL};

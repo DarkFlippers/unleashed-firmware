@@ -1,4 +1,7 @@
-/* Oregon remote termometers. Usually 443.92 Mhz OOK.
+/* Copyright (C) 2022-2023 Salvatore Sanfilippo -- All Rights Reserved
+ * See the LICENSE file for information about the license.
+ *
+ * Oregon remote termometers. Usually 443.92 Mhz OOK.
  *
  * The protocol is described here:
  * https://wmrx00.sourceforge.net/Arduino/OregonScientific-RF-Protocols.pdf
@@ -27,7 +30,8 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
     if(decoded < 11 * 4) return false; /* Minimum len to extract some data. */
     info->pulses_count = (off + 11 * 4 * 4) - info->start_off;
 
-    char temp[3] = {0}, deviceid[2] = {0}, hum[2] = {0};
+    char temp[3] = {0}, hum[2] = {0};
+    uint8_t deviceid[2];
     for(int j = 0; j < 64; j += 4) {
         uint8_t nib[1];
         nib[0] =
@@ -67,25 +71,14 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
         }
     }
 
-    snprintf(info->name, sizeof(info->name), "%s", "Oregon v2.1");
-    /* The following line crashes the Flipper because of broken
-     * snprintf() implementation. */
-    snprintf(
-        info->raw,
-        sizeof(info->raw),
-        "%02X%02X%02X%02X%02X%02X%02X%02X",
-        raw[0],
-        raw[1],
-        raw[2],
-        raw[3],
-        raw[4],
-        raw[5],
-        raw[6],
-        raw[7]);
-    snprintf(info->info1, sizeof(info->info1), "Sensor ID %02X%02X", deviceid[0], deviceid[1]);
-    snprintf(info->info2, sizeof(info->info2), "Temperature %d%d.%d", temp[0], temp[1], temp[2]);
-    snprintf(info->info3, sizeof(info->info3), "Humidity %d%d", hum[0], hum[1]);
+    float tempval = ((temp[0] - '0') * 10) + (temp[1] - '0') + ((float)(temp[2] - '0') * 0.1);
+    int humval = (hum[0] - '0') * 10 + (hum[1] - '0');
+
+    fieldset_add_bytes(info->fieldset, "Sensor ID", deviceid, 4);
+    fieldset_add_float(info->fieldset, "Temperature", tempval, 1);
+    fieldset_add_uint(info->fieldset, "Humidity", humval, 7);
     return true;
 }
 
-ProtoViewDecoder Oregon2Decoder = {"Oregon2", decode};
+ProtoViewDecoder Oregon2Decoder =
+    {.name = "Oregon2", .decode = decode, .get_fields = NULL, .build_message = NULL};

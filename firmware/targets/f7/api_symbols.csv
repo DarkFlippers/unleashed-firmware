@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,11.7,,
+Version,+,11.10,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -636,6 +636,7 @@ Function,+,canvas_reset,void,Canvas*
 Function,+,canvas_set_bitmap_mode,void,"Canvas*, _Bool"
 Function,+,canvas_set_color,void,"Canvas*, Color"
 Function,+,canvas_set_font,void,"Canvas*, Font"
+Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
 Function,-,canvas_set_orientation,void,"Canvas*, CanvasOrientation"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
@@ -1333,13 +1334,18 @@ Function,+,furi_hal_spi_deinit_early,void,
 Function,-,furi_hal_spi_init,void,
 Function,+,furi_hal_spi_init_early,void,
 Function,+,furi_hal_spi_release,void,FuriHalSpiBusHandle*
+Function,+,furi_hal_subghz_check_radio,_Bool,
+Function,+,furi_hal_subghz_disable_ext_power,void,
 Function,-,furi_hal_subghz_dump_state,void,
+Function,+,furi_hal_subghz_enable_ext_power,void,
 Function,+,furi_hal_subghz_flush_rx,void,
 Function,+,furi_hal_subghz_flush_tx,void,
 Function,+,furi_hal_subghz_get_lqi,uint8_t,
+Function,+,furi_hal_subghz_get_radio_type,SubGhzRadioType,
 Function,+,furi_hal_subghz_get_rssi,float,
 Function,+,furi_hal_subghz_idle,void,
 Function,-,furi_hal_subghz_init,void,
+Function,+,furi_hal_subghz_init_check,_Bool,
 Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
 Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
 Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
@@ -1356,6 +1362,7 @@ Function,+,furi_hal_subghz_set_async_mirror_pin,void,const GpioPin*
 Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
+Function,+,furi_hal_subghz_set_radio_type,_Bool,SubGhzRadioType
 Function,-,furi_hal_subghz_shutdown,void,
 Function,+,furi_hal_subghz_sleep,void,
 Function,+,furi_hal_subghz_start_async_rx,void,"FuriHalSubGhzCaptureCallback, void*"
@@ -1408,6 +1415,7 @@ Function,-,furi_hal_vibro_init,void,
 Function,+,furi_hal_vibro_on,void,_Bool
 Function,-,furi_init,void,
 Function,+,furi_kernel_get_tick_frequency,uint32_t,
+Function,+,furi_kernel_is_irq_or_masked,_Bool,
 Function,+,furi_kernel_lock,int32_t,
 Function,+,furi_kernel_restore_lock,int32_t,int32_t
 Function,+,furi_kernel_unlock,int32_t,
@@ -1532,6 +1540,7 @@ Function,+,furi_thread_get_name,const char*,FuriThreadId
 Function,+,furi_thread_get_return_code,int32_t,FuriThread*
 Function,+,furi_thread_get_stack_space,uint32_t,FuriThreadId
 Function,+,furi_thread_get_state,FuriThreadState,FuriThread*
+Function,+,furi_thread_get_stdout_callback,FuriThreadStdoutWriteCallback,
 Function,+,furi_thread_is_suspended,_Bool,FuriThreadId
 Function,+,furi_thread_join,_Bool,FuriThread*
 Function,+,furi_thread_mark_as_service,void,FuriThread*
@@ -1901,7 +1910,7 @@ Function,-,mf_classic_dict_is_key_present,_Bool,"MfClassicDict*, uint8_t*"
 Function,-,mf_classic_dict_is_key_present_str,_Bool,"MfClassicDict*, FuriString*"
 Function,-,mf_classic_dict_rewind,_Bool,MfClassicDict*
 Function,-,mf_classic_emulator,_Bool,"MfClassicEmulator*, FuriHalNfcTxRxContext*"
-Function,-,mf_classic_get_classic_type,MfClassicType,"int8_t, uint8_t, uint8_t"
+Function,-,mf_classic_get_classic_type,MfClassicType,"uint8_t, uint8_t, uint8_t"
 Function,-,mf_classic_get_read_sectors_and_keys,void,"MfClassicData*, uint8_t*, uint8_t*"
 Function,-,mf_classic_get_sector_by_block,uint8_t,uint8_t
 Function,-,mf_classic_get_sector_trailer_block_num_by_sector,uint8_t,uint8_t
@@ -2087,7 +2096,7 @@ Function,-,posix_memalign,int,"void**, size_t, size_t"
 Function,-,pow,double,"double, double"
 Function,-,pow10,double,double
 Function,-,pow10f,float,float
-Function,-,power_enable_low_battery_level_notification,void,"Power*, _Bool"
+Function,+,power_enable_low_battery_level_notification,void,"Power*, _Bool"
 Function,+,power_get_info,void,"Power*, PowerInfo*"
 Function,+,power_get_pubsub,FuriPubSub*,Power*
 Function,+,power_is_battery_healthy,_Bool,Power*
@@ -4348,11 +4357,11 @@ Function,-,vTaskSetTaskNumber,void,"TaskHandle_t, const UBaseType_t"
 Function,-,vTaskSetThreadLocalStoragePointer,void,"TaskHandle_t, BaseType_t, void*"
 Function,-,vTaskSetTimeOutState,void,TimeOut_t*
 Function,-,vTaskStartScheduler,void,
-Function,-,vTaskStepTick,void,const TickType_t
+Function,-,vTaskStepTick,void,TickType_t
 Function,-,vTaskSuspend,void,TaskHandle_t
 Function,-,vTaskSuspendAll,void,
 Function,-,vTaskSwitchContext,void,
-Function,-,vTimerSetReloadMode,void,"TimerHandle_t, const UBaseType_t"
+Function,-,vTimerSetReloadMode,void,"TimerHandle_t, const BaseType_t"
 Function,-,vTimerSetTimerID,void,"TimerHandle_t, void*"
 Function,-,vTimerSetTimerNumber,void,"TimerHandle_t, UBaseType_t"
 Function,+,validator_is_file_alloc_init,ValidatorIsFile*,"const char*, const char*, const char*"
@@ -4509,12 +4518,13 @@ Function,-,xTaskPriorityInherit,BaseType_t,const TaskHandle_t
 Function,-,xTaskRemoveFromEventList,BaseType_t,const List_t*
 Function,-,xTaskResumeAll,BaseType_t,
 Function,-,xTaskResumeFromISR,BaseType_t,TaskHandle_t
-Function,-,xTimerCreate,TimerHandle_t,"const char*, const TickType_t, const UBaseType_t, void*, TimerCallbackFunction_t"
-Function,-,xTimerCreateStatic,TimerHandle_t,"const char*, const TickType_t, const UBaseType_t, void*, TimerCallbackFunction_t, StaticTimer_t*"
+Function,-,xTimerCreate,TimerHandle_t,"const char*, const TickType_t, const BaseType_t, void*, TimerCallbackFunction_t"
+Function,-,xTimerCreateStatic,TimerHandle_t,"const char*, const TickType_t, const BaseType_t, void*, TimerCallbackFunction_t, StaticTimer_t*"
 Function,-,xTimerCreateTimerTask,BaseType_t,
 Function,-,xTimerGenericCommand,BaseType_t,"TimerHandle_t, const BaseType_t, const TickType_t, BaseType_t*, const TickType_t"
 Function,-,xTimerGetExpiryTime,TickType_t,TimerHandle_t
 Function,-,xTimerGetPeriod,TickType_t,TimerHandle_t
+Function,-,xTimerGetReloadMode,BaseType_t,TimerHandle_t
 Function,-,xTimerGetTimerDaemonTaskHandle,TaskHandle_t,
 Function,-,xTimerIsTimerActive,BaseType_t,TimerHandle_t
 Function,-,xTimerPendFunctionCall,BaseType_t,"PendedFunction_t, void*, uint32_t, TickType_t"
@@ -4552,12 +4562,15 @@ Variable,+,furi_hal_spi_bus_handle_nfc,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_sd_fast,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_sd_slow,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_subghz,FuriHalSpiBusHandle,
+Variable,+,furi_hal_spi_bus_handle_subghz_ext,FuriHalSpiBusHandle,
+Variable,+,furi_hal_spi_bus_handle_subghz_int,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_r,FuriHalSpiBus,
 Variable,+,furi_hal_spi_preset_1edge_low_16m,const LL_SPI_InitTypeDef,
 Variable,+,furi_hal_spi_preset_1edge_low_2m,const LL_SPI_InitTypeDef,
 Variable,+,furi_hal_spi_preset_1edge_low_4m,const LL_SPI_InitTypeDef,
 Variable,+,furi_hal_spi_preset_1edge_low_8m,const LL_SPI_InitTypeDef,
 Variable,+,furi_hal_spi_preset_2edge_low_8m,const LL_SPI_InitTypeDef,
+Variable,+,furi_hal_subghz,volatile FuriHalSubGhz,
 Variable,+,gpio_button_back,const GpioPin,
 Variable,+,gpio_button_down,const GpioPin,
 Variable,+,gpio_button_left,const GpioPin,
@@ -4565,6 +4578,7 @@ Variable,+,gpio_button_ok,const GpioPin,
 Variable,+,gpio_button_right,const GpioPin,
 Variable,+,gpio_button_up,const GpioPin,
 Variable,+,gpio_cc1101_g0,const GpioPin,
+Variable,+,gpio_cc1101_g0_ext,const GpioPin,
 Variable,+,gpio_display_cs,const GpioPin,
 Variable,+,gpio_display_di,const GpioPin,
 Variable,+,gpio_display_rst_n,const GpioPin,
@@ -4593,9 +4607,13 @@ Variable,+,gpio_spi_d_miso,const GpioPin,
 Variable,+,gpio_spi_d_mosi,const GpioPin,
 Variable,+,gpio_spi_d_sck,const GpioPin,
 Variable,+,gpio_spi_r_miso,const GpioPin,
+Variable,+,gpio_spi_r_miso_ext,const GpioPin,
 Variable,+,gpio_spi_r_mosi,const GpioPin,
+Variable,+,gpio_spi_r_mosi_ext,const GpioPin,
 Variable,+,gpio_spi_r_sck,const GpioPin,
+Variable,+,gpio_spi_r_sck_ext,const GpioPin,
 Variable,+,gpio_subghz_cs,const GpioPin,
+Variable,+,gpio_subghz_cs_ext,const GpioPin,
 Variable,+,gpio_usart_rx,const GpioPin,
 Variable,+,gpio_usart_tx,const GpioPin,
 Variable,+,gpio_usb_dm,const GpioPin,

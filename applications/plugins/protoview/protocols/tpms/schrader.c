@@ -1,4 +1,7 @@
-/* Schrader TPMS. Usually 443.92 Mhz OOK, 120us pulse len.
+/* Copyright (C) 2022-2023 Salvatore Sanfilippo -- All Rights Reserved
+ * See the LICENSE file for information about the license.
+ *
+ * Schrader TPMS. Usually 443.92 Mhz OOK, 120us pulse len.
  *
  * 500us high pulse + Preamble + Manchester coded bits where:
  * 1 = 10
@@ -34,6 +37,7 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
                   0011 = 0x3. */
 
     uint8_t raw[8];
+    uint8_t id[4];
     uint32_t decoded = convert_from_line_code(
         raw, sizeof(raw), bits, numbytes, off, "01", "10"); /* Manchester code. */
     FURI_LOG_E(TAG, "Schrader TPMS decoded bits: %lu", decoded);
@@ -51,31 +55,16 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
 
     float kpa = (float)raw[5] * 2.5;
     int temp = raw[6] - 50;
+    id[0] = raw[1] & 7;
+    id[1] = raw[2];
+    id[2] = raw[3];
+    id[3] = raw[4];
 
-    snprintf(info->name, sizeof(info->name), "%s", "Schrader TPMS");
-    snprintf(
-        info->raw,
-        sizeof(info->raw),
-        "%02X%02X%02X%02X%02X%02X%02X%02X",
-        raw[0],
-        raw[1],
-        raw[2],
-        raw[3],
-        raw[4],
-        raw[5],
-        raw[6],
-        raw[7]);
-    snprintf(
-        info->info1,
-        sizeof(info->info1),
-        "Tire ID %01X%02X%02X%02X",
-        raw[1] & 7,
-        raw[2],
-        raw[3],
-        raw[4]); /* Only 28 bits of ID, not 32. */
-    snprintf(info->info2, sizeof(info->info2), "Pressure %.2f kpa", (double)kpa);
-    snprintf(info->info3, sizeof(info->info3), "Temperature %d C", temp);
+    fieldset_add_bytes(info->fieldset, "Tire ID", id, 4 * 2);
+    fieldset_add_float(info->fieldset, "Pressure kpa", kpa, 2);
+    fieldset_add_int(info->fieldset, "Temperature C", temp, 8);
     return true;
 }
 
-ProtoViewDecoder SchraderTPMSDecoder = {"Schrader TPMS", decode};
+ProtoViewDecoder SchraderTPMSDecoder =
+    {.name = "Schrader TPMS", .decode = decode, .get_fields = NULL, .build_message = NULL};

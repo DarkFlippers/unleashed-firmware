@@ -7,6 +7,8 @@
 
 #define TAG "HidMouseJiggler"
 
+#define LENGTH(x) (int)(sizeof(x) / sizeof((x)[0]))
+
 struct HidMouseJiggler {
     View* view;
     FuriTimer* timer;
@@ -14,8 +16,11 @@ struct HidMouseJiggler {
 
 typedef struct {
     bool running;
+    int interval_idx;
     uint8_t counter;
 } HidMouseJigglerModel;
+
+const int intervals[6] = {500, 2000, 5000, 10000, 30000, 60000};
 
 static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
@@ -23,29 +28,39 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
 
     // Header
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Mouse Jiggler");
+    elements_multiline_text_aligned(canvas, 17, 2, AlignLeft, AlignTop, "Mouse Jiggler");
+
+    // Timeout
+    elements_multiline_text(canvas, AlignLeft, 26, "Interval (ms):");
+    canvas_set_font(canvas, FontSecondary);
+    if(model->interval_idx != 0) canvas_draw_icon(canvas, 74, 19, &I_ButtonLeft_4x7);
+    if(model->interval_idx != LENGTH(intervals) - 1)
+        canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
+    FuriString* interval_str = furi_string_alloc_printf("%d", intervals[model->interval_idx]);
+    elements_multiline_text(canvas, 91, 26, furi_string_get_cstr(interval_str));
+    furi_string_free(interval_str);
 
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text(canvas, AlignLeft, 35, "Press Start\nto jiggle");
+    elements_multiline_text(canvas, AlignLeft, 40, "Press Start\nto jiggle");
     canvas_set_font(canvas, FontSecondary);
 
     // Ok
-    canvas_draw_icon(canvas, 63, 25, &I_Space_65x18);
+    canvas_draw_icon(canvas, 63, 30, &I_Space_65x18);
     if(model->running) {
-        elements_slightly_rounded_box(canvas, 66, 27, 60, 13);
+        elements_slightly_rounded_box(canvas, 66, 32, 60, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 74, 29, &I_Ok_btn_9x9);
+    canvas_draw_icon(canvas, 74, 34, &I_Ok_btn_9x9);
     if(model->running) {
-        elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Stop");
+        elements_multiline_text_aligned(canvas, 91, 41, AlignLeft, AlignBottom, "Stop");
     } else {
-        elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Start");
+        elements_multiline_text_aligned(canvas, 91, 41, AlignLeft, AlignBottom, "Start");
     }
     canvas_set_color(canvas, ColorBlack);
 
     // Back
-    canvas_draw_icon(canvas, 74, 49, &I_Pin_back_arrow_10x8);
-    elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Quit");
+    canvas_draw_icon(canvas, 74, 54, &I_Pin_back_arrow_10x8);
+    elements_multiline_text_aligned(canvas, 91, 62, AlignLeft, AlignBottom, "Quit");
 }
 
 static void hid_mouse_jiggler_timer_callback(void* context) {
@@ -64,13 +79,6 @@ static void hid_mouse_jiggler_timer_callback(void* context) {
         false);
 }
 
-static void hid_mouse_jiggler_enter_callback(void* context) {
-    furi_assert(context);
-    HidMouseJiggler* hid_mouse_jiggler = context;
-
-    furi_timer_start(hid_mouse_jiggler->timer, 500);
-}
-
 static void hid_mouse_jiggler_exit_callback(void* context) {
     furi_assert(context);
     HidMouseJiggler* hid_mouse_jiggler = context;
@@ -83,14 +91,30 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
 
     bool consumed = false;
 
-    if(event->key == InputKeyOk) {
-        with_view_model(
-            hid_mouse_jiggler->view,
-            HidMouseJigglerModel * model,
-            { model->running = !model->running; },
-            true);
-        consumed = true;
-    }
+    with_view_model(
+        hid_mouse_jiggler->view,
+        HidMouseJigglerModel * model,
+        {
+            if(event->type == InputTypePress && event->key == InputKeyOk) {
+                model->running = !model->running;
+                if(model->running) {
+                    furi_timer_stop(hid_mouse_jiggler->timer);
+                    furi_timer_start(hid_mouse_jiggler->timer, intervals[model->interval_idx]);
+                };
+                consumed = true;
+            }
+            if(event->type == InputTypePress && event->key == InputKeyRight && !model->running &&
+               model->interval_idx < LENGTH(intervals) - 1) {
+                model->interval_idx++;
+                consumed = true;
+            }
+            if(event->type == InputTypePress && event->key == InputKeyLeft && !model->running &&
+               model->interval_idx > 0) {
+                model->interval_idx--;
+                consumed = true;
+            }
+        },
+        true);
 
     return consumed;
 }
@@ -104,11 +128,13 @@ HidMouseJiggler* hid_mouse_jiggler_alloc() {
         hid_mouse_jiggler->view, ViewModelTypeLocking, sizeof(HidMouseJigglerModel));
     view_set_draw_callback(hid_mouse_jiggler->view, hid_mouse_jiggler_draw_callback);
     view_set_input_callback(hid_mouse_jiggler->view, hid_mouse_jiggler_input_callback);
-    view_set_enter_callback(hid_mouse_jiggler->view, hid_mouse_jiggler_enter_callback);
     view_set_exit_callback(hid_mouse_jiggler->view, hid_mouse_jiggler_exit_callback);
 
     hid_mouse_jiggler->timer = furi_timer_alloc(
         hid_mouse_jiggler_timer_callback, FuriTimerTypePeriodic, hid_mouse_jiggler);
+
+    with_view_model(
+        hid_mouse_jiggler->view, HidMouseJigglerModel * model, { model->interval_idx = 2; }, true);
 
     return hid_mouse_jiggler;
 }

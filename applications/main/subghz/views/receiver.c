@@ -230,13 +230,21 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 
     if(model->history_item == 0) {
         if(model->mode == SubGhzViewReceiverModeLive) {
-            canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+            canvas_draw_icon(
+                canvas,
+                0,
+                0,
+                furi_hal_subghz_get_radio_type() ? &I_Fishing_123x52 : &I_Scanning_123x52);
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str(canvas, 63, 46, "Scanning...");
             canvas_draw_line(canvas, 46, 51, 125, 51);
             canvas_set_font(canvas, FontSecondary);
         } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+            canvas_draw_icon(
+                canvas,
+                0,
+                0,
+                furi_hal_subghz_get_radio_type() ? &I_Fishing_123x52 : &I_Scanning_123x52);
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str(canvas, 63, 46, "Decoding...");
             canvas_set_font(canvas, FontSecondary);
@@ -250,7 +258,28 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         break;
     case SubGhzViewReceiverBarShowToUnlockPress:
         canvas_draw_str(canvas, 44, 62, furi_string_get_cstr(model->frequency_str));
+#ifdef SUBGHZ_EXT_PRESET_NAME
+        if(model->history_item == 0 && model->mode == SubGhzViewReceiverModeLive) {
+            canvas_draw_str(
+                canvas,
+                44 + canvas_string_width(canvas, furi_string_get_cstr(model->frequency_str)) + 1,
+                62,
+                "MHz");
+            const char* str = furi_string_get_cstr(model->preset_str);
+            const uint8_t vertical_offset = 7;
+            const uint8_t horizontal_offset = 3;
+            const uint8_t string_width = canvas_string_width(canvas, str);
+            canvas_draw_str(
+                canvas,
+                canvas_width(canvas) - (string_width + horizontal_offset),
+                vertical_offset,
+                str);
+        } else {
+            canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
+        }
+#else
         canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
+#endif
         canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
         canvas_set_font(canvas, FontSecondary);
         elements_bold_rounded_frame(canvas, 14, 8, 99, 48);

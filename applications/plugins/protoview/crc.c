@@ -1,3 +1,6 @@
+/* Copyright (C) 2022-2023 Salvatore Sanfilippo -- All Rights Reserved
+ * See the LICENSE file for information about the license. */
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -16,4 +19,18 @@ uint8_t crc8(const uint8_t* data, size_t len, uint8_t init, uint8_t poly) {
         }
     }
     return crc;
+}
+
+/* Sum all the specified bytes modulo 256.
+ * Initialize the sum with 'init' (usually 0). */
+uint8_t sum_bytes(const uint8_t* data, size_t len, uint8_t init) {
+    for(size_t i = 0; i < len; i++) init += data[i];
+    return init;
+}
+
+/* Perform the bitwise xor of all the specified bytes.
+ * Initialize xor value with 'init' (usually 0). */
+uint8_t xor_bytes(const uint8_t* data, size_t len, uint8_t init) {
+    for(size_t i = 0; i < len; i++) init ^= data[i];
+    return init;
 }

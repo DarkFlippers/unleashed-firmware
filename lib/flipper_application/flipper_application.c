@@ -1,5 +1,6 @@
 #include "flipper_application.h"
 #include "elf/elf_file.h"
+#include <notification/notification_messages.h>
 
 #define TAG "fapp"
 
@@ -95,6 +96,15 @@ static int32_t flipper_application_thread(void* context) {
     elf_file_pre_run(last_loaded_app->elf);
     int32_t result = elf_file_run(last_loaded_app->elf, context);
     elf_file_post_run(last_loaded_app->elf);
+
+    // wait until all notifications from RAM are completed
+    NotificationApp* notifications = furi_record_open(RECORD_NOTIFICATION);
+    const NotificationSequence sequence_empty = {
+        NULL,
+    };
+    notification_message_block(notifications, &sequence_empty);
+    furi_record_close(RECORD_NOTIFICATION);
+
     return result;
 }
 

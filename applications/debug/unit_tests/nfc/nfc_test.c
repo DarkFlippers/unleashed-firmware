@@ -348,13 +348,37 @@ static void mf_classic_generator_test(uint8_t uid_len, MfClassicType type) {
     memcpy(atqa, nfc_dev->dev_data.nfc_data.atqa, 2);
 
     MfClassicData* mf_data = &nfc_dev->dev_data.mf_classic_data;
-    // Check the manufacturer block (should be uid[uid_len] + 0xFF[rest])
+    // Check the manufacturer block (should be uid[uid_len] + BCC (for 4byte only) + SAK + ATQA0 + ATQA1 + 0xFF[rest])
     uint8_t manufacturer_block[16] = {0};
     memcpy(manufacturer_block, nfc_dev->dev_data.mf_classic_data.block[0].value, 16);
     mu_assert(
         memcmp(manufacturer_block, uid, uid_len) == 0,
         "manufacturer_block uid doesn't match the file\r\n");
-    for(uint8_t i = uid_len; i < 16; i++) {
+
+    uint8_t position = 0;
+    if(uid_len == 4) {
+        position = uid_len;
+
+        uint8_t bcc = 0;
+
+        for(int i = 0; i < uid_len; i++) {
+            bcc ^= uid[i];
+        }
+
+        mu_assert(manufacturer_block[position] == bcc, "manufacturer_block bcc assert failed\r\n");
+    } else {
+        position = uid_len - 1;
+    }
+
+    mu_assert(manufacturer_block[position + 1] == sak, "manufacturer_block sak assert failed\r\n");
+
+    mu_assert(
+        manufacturer_block[position + 2] == atqa[0], "manufacturer_block atqa0 assert failed\r\n");
+
+    mu_assert(
+        manufacturer_block[position + 3] == atqa[1], "manufacturer_block atqa1 assert failed\r\n");
+
+    for(uint8_t i = position + 4; i < 16; i++) {
         mu_assert(
             manufacturer_block[i] == 0xFF, "manufacturer_block[i] == 0xFF assert failed\r\n");
     }
@@ -466,6 +490,10 @@ static void mf_classic_generator_test(uint8_t uid_len, MfClassicType type) {
     nfc_device_free(nfc_keys);
 }
 
+MU_TEST(mf_mini_file_test) {
+    mf_classic_generator_test(4, MfClassicTypeMini);
+}
+
 MU_TEST(mf_classic_1k_4b_file_test) {
     mf_classic_generator_test(4, MfClassicType1k);
 }
@@ -486,6 +514,7 @@ MU_TEST_SUITE(nfc) {
     nfc_test_alloc();
 
     MU_RUN_TEST(nfca_file_test);
+    MU_RUN_TEST(mf_mini_file_test);
     MU_RUN_TEST(mf_classic_1k_4b_file_test);
     MU_RUN_TEST(mf_classic_4k_4b_file_test);
     MU_RUN_TEST(mf_classic_1k_7b_file_test);

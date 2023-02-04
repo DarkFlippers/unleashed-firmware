@@ -7,8 +7,32 @@
 
 #include CMSIS_device_header
 
+bool furi_kernel_is_irq_or_masked() {
+    bool irq = false;
+    BaseType_t state;
+
+    if(FURI_IS_IRQ_MODE()) {
+        /* Called from interrupt context */
+        irq = true;
+    } else {
+        /* Get FreeRTOS scheduler state */
+        state = xTaskGetSchedulerState();
+
+        if(state != taskSCHEDULER_NOT_STARTED) {
+            /* Scheduler was started */
+            if(FURI_IS_IRQ_MASKED()) {
+                /* Interrupts are masked */
+                irq = true;
+            }
+        }
+    }
+
+    /* Return context, 0: thread context, 1: IRQ context */
+    return (irq);
+}
+
 int32_t furi_kernel_lock() {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
 
     int32_t lock;
 
@@ -33,7 +57,7 @@ int32_t furi_kernel_lock() {
 }
 
 int32_t furi_kernel_unlock() {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
 
     int32_t lock;
 
@@ -63,7 +87,7 @@ int32_t furi_kernel_unlock() {
 }
 
 int32_t furi_kernel_restore_lock(int32_t lock) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
 
     switch(xTaskGetSchedulerState()) {
     case taskSCHEDULER_SUSPENDED:
@@ -99,7 +123,7 @@ uint32_t furi_kernel_get_tick_frequency() {
 }
 
 void furi_delay_tick(uint32_t ticks) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
     if(ticks == 0U) {
         taskYIELD();
     } else {
@@ -108,7 +132,7 @@ void furi_delay_tick(uint32_t ticks) {
 }
 
 FuriStatus furi_delay_until_tick(uint32_t tick) {
-    furi_assert(!furi_is_irq_context());
+    furi_assert(!furi_kernel_is_irq_or_masked());
 
     TickType_t tcnt, delay;
     FuriStatus stat;
@@ -137,7 +161,7 @@ FuriStatus furi_delay_until_tick(uint32_t tick) {
 uint32_t furi_get_tick() {
     TickType_t ticks;
 
-    if(furi_is_irq_context() != 0U) {
+    if(furi_kernel_is_irq_or_masked() != 0U) {
         ticks = xTaskGetTickCountFromISR();
     } else {
         ticks = xTaskGetTickCount();

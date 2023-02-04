@@ -3,32 +3,6 @@
 
 #include "app.h"
 
-/* If this define is enabled, ProtoView is going to mess with the
- * otherwise opaque SubGhzWorker structure in order to disable
- * its filter for samples shorter than a given amount (30us at the
- * time I'm writing this comment).
- *
- * This structure must be taken in sync with the one of the firmware. */
-#define PROTOVIEW_DISABLE_SUBGHZ_FILTER 0
-
-#ifdef PROTOVIEW_DISABLE_SUBGHZ_FILTER
-struct SubGhzWorker {
-    FuriThread* thread;
-    FuriStreamBuffer* stream;
-
-    volatile bool running;
-    volatile bool overrun;
-
-    LevelDuration filter_level_duration;
-    bool filter_running;
-    uint16_t filter_duration;
-
-    SubGhzWorkerOverrunCallback overrun_callback;
-    SubGhzWorkerPairCallback pair_callback;
-    void* context;
-};
-#endif
-
 RawSamplesBuffer *RawSamples, *DetectedSamples;
 extern const SubGhzProtocolRegistry protoview_protocol_registry;
 
@@ -42,6 +16,7 @@ extern const SubGhzProtocolRegistry protoview_protocol_registry;
  * and setting color to black. */
 static void render_callback(Canvas* const canvas, void* ctx) {
     ProtoViewApp* app = ctx;
+    furi_mutex_acquire(app->view_updating_mutex, FuriWaitForever);
 
     /* Clear screen. */
     canvas_set_color(canvas, ColorWhite);
@@ -64,10 +39,17 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     case ViewDirectSampling:
         render_view_direct_sampling(canvas, app);
         break;
-    case ViewLast:
-        furi_crash(TAG " ViewLast selected");
+    case ViewBuildMessage:
+        render_view_build_message(canvas, app);
+        break;
+    default:
+        furi_crash(TAG "Invalid view selected");
         break;
     }
+
+    /* Draw the alert box if set. */
+    ui_draw_alert_if_needed(canvas, app);
+    furi_mutex_release(app->view_updating_mutex);
 }
 
 /* Here all we do is putting the events into the queue that will be handled
@@ -79,23 +61,33 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 
 /* Called to switch view (when left/right is pressed). Handles
  * changing the current view ID and calling the enter/exit view
- * callbacks if needed. */
-static void app_switch_view(ProtoViewApp* app, SwitchViewDirection dir) {
+ * callbacks if needed.
+ *
+ * The 'switchto' parameter can be the identifier of a view, or the
+ * special views ViewGoNext and ViewGoPrev in order to move to
+ * the logical next/prev view. */
+static void app_switch_view(ProtoViewApp* app, ProtoViewCurrentView switchto) {
+    furi_mutex_acquire(app->view_updating_mutex, FuriWaitForever);
+
+    /* Switch to the specified view. */
     ProtoViewCurrentView old = app->current_view;
-    if(dir == AppNextView) {
+    if(switchto == ViewGoNext) {
         app->current_view++;
         if(app->current_view == ViewLast) app->current_view = 0;
-    } else if(dir == AppPrevView) {
+    } else if(switchto == ViewGoPrev) {
         if(app->current_view == 0)
             app->current_view = ViewLast - 1;
         else
             app->current_view--;
+    } else {
+        app->current_view = switchto;
     }
     ProtoViewCurrentView new = app->current_view;
 
-    /* Call the enter/exit view callbacks if needed. */
+    /* Call the exit view callbacks. */
     if(old == ViewDirectSampling) view_exit_direct_sampling(app);
-    if(new == ViewDirectSampling) view_enter_direct_sampling(app);
+    if(old == ViewBuildMessage) view_exit_build_message(app);
+    if(old == ViewInfo) view_exit_info(app);
     /* The frequency/modulation settings are actually a single view:
      * as long as the user stays between the two modes of this view we
      * don't need to call the exit-view callback. */
@@ -103,11 +95,24 @@ static void app_switch_view(ProtoViewApp* app, SwitchViewDirection dir) {
        (old == ViewModulationSettings && new != ViewFrequencySettings))
         view_exit_settings(app);
 
-    /* Set the current subview of the view we just left to zero, that is
-     * the main subview of the view. When re re-enter it we want to see
-     * the main thing. */
-    app->current_subview[old] = 0;
+    /* Reset the view private data each time, before calling the enter
+     * callbacks that may want to setup some state. */
     memset(app->view_privdata, 0, PROTOVIEW_VIEW_PRIVDATA_LEN);
+
+    /* Call the enter view callbacks after all the exit callback
+     * of the old view was already executed. */
+    if(new == ViewDirectSampling) view_enter_direct_sampling(app);
+    if(new == ViewBuildMessage) view_enter_build_message(app);
+
+    /* Set the current subview of the view we just left to zero. This is
+     * the main subview of the old view. When we re-enter the view we are
+     * lefting, we want to see the main thing again. */
+    app->current_subview[old] = 0;
+
+    /* If there is an alert on screen, dismiss it: if the user is
+     * switching view she already read it. */
+    ui_dismiss_alert(app);
+    furi_mutex_release(app->view_updating_mutex);
 }
 
 /* Allocate the application state and initialize a number of stuff.
@@ -134,7 +139,9 @@ ProtoViewApp* protoview_app_alloc() {
     app->view_dispatcher = NULL;
     app->text_input = NULL;
     app->show_text_input = false;
+    app->alert_dismiss_time = 0;
     app->current_view = ViewRawPulses;
+    app->view_updating_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     for(int j = 0; j < ViewLast; j++) app->current_subview[j] = 0;
     app->direct_sampling_enabled = false;
     app->view_privdata = malloc(PROTOVIEW_VIEW_PRIVDATA_LEN);
@@ -151,25 +158,11 @@ ProtoViewApp* protoview_app_alloc() {
     // Init Worker & Protocol
     app->txrx = malloc(sizeof(ProtoViewTxRx));
 
-    /* Setup rx worker and environment. */
+    /* Setup rx state. */
     app->txrx->freq_mod_changed = false;
     app->txrx->debug_timer_sampling = false;
     app->txrx->last_g0_change_time = DWT->CYCCNT;
     app->txrx->last_g0_value = false;
-    app->txrx->worker = subghz_worker_alloc();
-#ifdef PROTOVIEW_DISABLE_SUBGHZ_FILTER
-    app->txrx->worker->filter_running = 0;
-#endif
-    app->txrx->environment = subghz_environment_alloc();
-    subghz_environment_set_protocol_registry(
-        app->txrx->environment, (void*)&protoview_protocol_registry);
-    app->txrx->receiver = subghz_receiver_alloc_init(app->txrx->environment);
-    subghz_receiver_set_filter(app->txrx->receiver, SubGhzProtocolFlag_Decodable);
-    subghz_worker_set_overrun_callback(
-        app->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
-    subghz_worker_set_pair_callback(
-        app->txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
-    subghz_worker_set_context(app->txrx->worker, app->txrx->receiver);
 
     app->frequency = subghz_setting_get_default_frequency(app->setting);
     app->modulation = 0; /* Defaults to ProtoViewModulations[0]. */
@@ -196,17 +189,13 @@ void protoview_app_free(ProtoViewApp* app) {
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
     furi_message_queue_free(app->event_queue);
+    furi_mutex_free(app->view_updating_mutex);
     app->gui = NULL;
 
     // Frequency setting.
     subghz_setting_free(app->setting);
 
     // Worker stuff.
-    if(!app->txrx->debug_timer_sampling) {
-        subghz_receiver_free(app->txrx->receiver);
-        subghz_environment_free(app->txrx->environment);
-        subghz_worker_free(app->txrx->worker);
-    }
     free(app->txrx);
 
     // Raw samples buffers.
@@ -236,9 +225,25 @@ static void timer_callback(void* ctx) {
     }
     if(delta < RawSamples->total / 2) return;
     app->signal_last_scan_idx = RawSamples->idx;
-    scan_for_signal(app);
+    scan_for_signal(app, RawSamples, ProtoViewModulations[app->modulation].duration_filter);
 }
 
+/* This is the navigation callback we use in the view dispatcher used
+ * to display the "text input" widget, that is the keyboard to get text.
+ * The text input view is implemented to ignore the "back" short press,
+ * so the event is not consumed and is handled by the view dispatcher.
+ * However the view dispatcher implementation has the strange behavior that
+ * if no navigation callback is set, it will not stop when handling back.
+ *
+ * We just need a dummy callback returning false. We believe the
+ * implementation should be changed and if no callback is set, it should be
+ * the same as returning false. */
+static bool keyboard_view_dispatcher_navigation_callback(void* ctx) {
+    UNUSED(ctx);
+    return false;
+}
+
+/* App entry point, as specified in application.fam. */
 int32_t protoview_app_entry(void* p) {
     UNUSED(p);
     ProtoViewApp* app = protoview_app_alloc();
@@ -266,18 +271,26 @@ int32_t protoview_app_entry(void* p) {
             /* Handle navigation here. Then handle view-specific inputs
              * in the view specific handling function. */
             if(input.type == InputTypeShort && input.key == InputKeyBack) {
-                /* Exit the app. */
+                if(app->current_view != ViewRawPulses) {
+                    /* If this is not the main app view, go there. */
+                    app_switch_view(app, ViewRawPulses);
+                } else {
+                    /* If we are in the main app view, warn the user
+                     * they needs to long press to really quit. */
+                    ui_show_alert(app, "Long press to exit", 1000);
+                }
+            } else if(input.type == InputTypeLong && input.key == InputKeyBack) {
                 app->running = 0;
             } else if(
                 input.type == InputTypeShort && input.key == InputKeyRight &&
-                get_current_subview(app) == 0) {
+                ui_get_current_subview(app) == 0) {
                 /* Go to the next view. */
-                app_switch_view(app, AppNextView);
+                app_switch_view(app, ViewGoNext);
             } else if(
                 input.type == InputTypeShort && input.key == InputKeyLeft &&
-                get_current_subview(app) == 0) {
+                ui_get_current_subview(app) == 0) {
                 /* Go to the previous view. */
-                app_switch_view(app, AppPrevView);
+                app_switch_view(app, ViewGoPrev);
             } else {
                 /* This is where we pass the control to the currently
                  * active view input processing. */
@@ -295,8 +308,11 @@ int32_t protoview_app_entry(void* p) {
                 case ViewDirectSampling:
                     process_input_direct_sampling(app, input);
                     break;
-                case ViewLast:
-                    furi_crash(TAG " ViewLast selected");
+                case ViewBuildMessage:
+                    process_input_build_message(app, input);
+                    break;
+                default:
+                    furi_crash(TAG "Invalid view selected");
                     break;
                 }
             }
@@ -318,6 +334,11 @@ int32_t protoview_app_entry(void* p) {
              * and activate it. */
             app->view_dispatcher = view_dispatcher_alloc();
             view_dispatcher_enable_queue(app->view_dispatcher);
+            /* We need to set a navigation callback for the view dispatcher
+             * otherwise when the user presses back on the keyboard to
+             * abort, the dispatcher will not stop. */
+            view_dispatcher_set_navigation_event_callback(
+                app->view_dispatcher, keyboard_view_dispatcher_navigation_callback);
             app->text_input = text_input_alloc();
             view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
             view_dispatcher_add_view(

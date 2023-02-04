@@ -6,6 +6,43 @@
 bool decode_signal(RawSamplesBuffer* s, uint64_t len, ProtoViewMsgInfo* info);
 
 /* =============================================================================
+ * Protocols table.
+ *
+ * Supported protocols go here, with the relevant implementation inside
+ * protocols/<name>.c
+ * ===========================================================================*/
+
+extern ProtoViewDecoder Oregon2Decoder;
+extern ProtoViewDecoder B4B1Decoder;
+extern ProtoViewDecoder RenaultTPMSDecoder;
+extern ProtoViewDecoder ToyotaTPMSDecoder;
+extern ProtoViewDecoder SchraderTPMSDecoder;
+extern ProtoViewDecoder SchraderEG53MA4TPMSDecoder;
+extern ProtoViewDecoder CitroenTPMSDecoder;
+extern ProtoViewDecoder FordTPMSDecoder;
+extern ProtoViewDecoder KeeloqDecoder;
+extern ProtoViewDecoder ProtoViewChatDecoder;
+extern ProtoViewDecoder UnknownDecoder;
+
+ProtoViewDecoder* Decoders[] = {
+    &Oregon2Decoder, /* Oregon sensors v2.1 protocol. */
+    &B4B1Decoder, /* PT, SC, ... 24 bits remotes. */
+    &RenaultTPMSDecoder, /* Renault TPMS. */
+    &ToyotaTPMSDecoder, /* Toyota TPMS. */
+    &SchraderTPMSDecoder, /* Schrader TPMS. */
+    &SchraderEG53MA4TPMSDecoder, /* Schrader EG53MA4 TPMS. */
+    &CitroenTPMSDecoder, /* Citroen TPMS. */
+    &FordTPMSDecoder, /* Ford TPMS. */
+    &KeeloqDecoder, /* Keeloq remote. */
+    &ProtoViewChatDecoder, /* Protoview simple text messages. */
+
+    /* Warning: the following decoder must stay at the end of the
+     * list. Otherwise would detect most signals and prevent the actaul
+     * decoders from handling them. */
+    &UnknownDecoder, /* General protocol detector. */
+    NULL};
+
+/* =============================================================================
  * Raw signal detection
  * ===========================================================================*/
 
@@ -39,23 +76,28 @@ void reset_current_signal(ProtoViewApp* app) {
  * For instance Oregon2 sensors, in the case of protocol 2.1 will send
  * pulses of ~400us (RF on) VS ~580us (RF off). */
 #define SEARCH_CLASSES 3
-uint32_t search_coherent_signal(RawSamplesBuffer* s, uint32_t idx) {
+uint32_t search_coherent_signal(RawSamplesBuffer* s, uint32_t idx, uint32_t min_duration) {
     struct {
         uint32_t dur[2]; /* dur[0] = low, dur[1] = high */
         uint32_t count[2]; /* Associated observed frequency. */
     } classes[SEARCH_CLASSES];
 
     memset(classes, 0, sizeof(classes));
-    uint32_t minlen = 30, maxlen = 4000; /* Depends on data rate, here we
-                                            allow for high and low. */
+
+    // Set a min/max duration limit for samples to be considered part of a
+    // coherent signal. The maximum length is fixed while the minimum
+    // is passed as argument, as depends on the data rate and in general
+    // on the signal to analyze.
+    uint32_t max_duration = 4000;
+
     uint32_t len = 0; /* Observed len of coherent samples. */
     s->short_pulse_dur = 0;
-    for(uint32_t j = idx; j < idx + 500; j++) {
+    for(uint32_t j = idx; j < idx + s->total; j++) {
         bool level;
         uint32_t dur;
         raw_samples_get(s, j, &level, &dur);
 
-        if(dur < minlen || dur > maxlen) break; /* return. */
+        if(dur < min_duration || dur > max_duration) break; /* return. */
 
         /* Let's see if it matches a class we already have or if we
          * can populate a new (yet empty) class. */
@@ -138,15 +180,15 @@ void notify_signal_detected(ProtoViewApp* app, bool decoded) {
         notification_message(app->notification, &unknown_seq);
 }
 
-/* Search the buffer with the stored signal (last N samples received)
+/* Search the source buffer with the stored signal (last N samples received)
  * in order to find a coherent signal. If a signal that does not appear to
  * be just noise is found, it is set in DetectedSamples global signal
  * buffer, that is what is rendered on the screen. */
-void scan_for_signal(ProtoViewApp* app) {
-    /* We need to work on a copy: the RawSamples buffer is populated
+void scan_for_signal(ProtoViewApp* app, RawSamplesBuffer* source, uint32_t min_duration) {
+    /* We need to work on a copy: the source buffer may be populated
      * by the background thread receiving data. */
     RawSamplesBuffer* copy = raw_samples_alloc();
-    raw_samples_copy(copy, RawSamples);
+    raw_samples_copy(copy, source);
 
     /* Try to seek on data that looks to have a regular high low high low
      * pattern. */
@@ -157,7 +199,7 @@ void scan_for_signal(ProtoViewApp* app) {
     uint32_t i = 0;
 
     while(i < copy->total - 1) {
-        uint32_t thislen = search_coherent_signal(copy, i);
+        uint32_t thislen = search_coherent_signal(copy, i, min_duration);
 
         /* For messages that are long enough, attempt decoding. */
         if(thislen > minlen) {
@@ -179,8 +221,11 @@ void scan_for_signal(ProtoViewApp* app) {
             /* Accept this signal as the new signal if either it's longer
              * than the previous undecoded one, or the previous one was
              * unknown and this is decoded. */
-            if((thislen > app->signal_bestlen && app->signal_decoded == false) ||
-               (app->signal_decoded == false && decoded)) {
+            bool oldsignal_not_decoded = app->signal_decoded == false ||
+                                         app->msg_info->decoder == &UnknownDecoder;
+
+            if(oldsignal_not_decoded &&
+               (thislen > app->signal_bestlen || (decoded && info->decoder != &UnknownDecoder))) {
                 free_msg_info(app->msg_info);
                 app->msg_info = info;
                 app->signal_bestlen = thislen;
@@ -193,13 +238,8 @@ void scan_for_signal(ProtoViewApp* app) {
                     (int)thislen,
                     DetectedSamples->short_pulse_dur);
 
-                /* Adjust raw view scale if the signal has an high
-                 * data rate. */
-                if(DetectedSamples->short_pulse_dur < 75)
-                    app->us_scale = 10;
-                else if(DetectedSamples->short_pulse_dur < 145)
-                    app->us_scale = 30;
-                notify_signal_detected(app, decoded);
+                adjust_raw_view_scale(app, DetectedSamples->short_pulse_dur);
+                if(app->msg_info->decoder != &UnknownDecoder) notify_signal_detected(app, decoded);
             } else {
                 /* If the structure was not filled, discard it. Otherwise
                  * now the owner is app->msg_info. */
@@ -346,7 +386,7 @@ void bitmap_copy(
 /* We decode bits assuming the first bit we receive is the MSB
  * (see bitmap_set/get functions). Certain devices send data
  * encoded in the reverse way. */
-void bitmap_reverse_bytes(uint8_t* p, uint32_t len) {
+void bitmap_reverse_bytes_bits(uint8_t* p, uint32_t len) {
     for(uint32_t j = 0; j < len; j++) {
         uint32_t b = p[j];
         /* Step 1: swap the two nibbles: 12345678 -> 56781234 */
@@ -390,6 +430,33 @@ uint32_t bitmap_seek_bits(
     for(uint32_t j = startpos; j < endpos; j++)
         if(bitmap_match_bits(b, blen, j, bits)) return j;
     return BITMAP_SEEK_NOT_FOUND;
+}
+
+/* Compare bitmaps b1 and b2 (possibly overlapping or the same bitmap),
+ * at the specified offsets, for cmplen bits. Returns true if the
+ * exact same bits are found, otherwise false. */
+bool bitmap_match_bitmap(
+    uint8_t* b1,
+    uint32_t b1len,
+    uint32_t b1off,
+    uint8_t* b2,
+    uint32_t b2len,
+    uint32_t b2off,
+    uint32_t cmplen) {
+    for(uint32_t j = 0; j < cmplen; j++) {
+        bool bit1 = bitmap_get(b1, b1len, b1off + j);
+        bool bit2 = bitmap_get(b2, b2len, b2off + j);
+        if(bit1 != bit2) return false;
+    }
+    return true;
+}
+
+/* Convert 'len' bitmap bits of the bitmap 'bitmap' into a null terminated
+ * string, stored at 'dst', that must have space at least for len+1 bytes.
+ * The bits are extracted from the specified offset. */
+void bitmap_to_string(char* dst, uint8_t* b, uint32_t blen, uint32_t off, uint32_t len) {
+    for(uint32_t j = 0; j < len; j++) dst[j] = bitmap_get(b, blen, off + j) ? '1' : '0';
+    dst[len] = 0;
 }
 
 /* Set the pattern 'pat' into the bitmap 'b' of max length 'blen' bytes,
@@ -508,7 +575,7 @@ uint32_t convert_from_line_code(
 }
 
 /* Convert the differential Manchester code to bits. This is similar to
- * convert_from_line_code() but specific for Manchester. The user must
+ * convert_from_line_code() but specific for diff-Manchester. The user must
  * supply the value of the previous symbol before this stream, since
  * in differential codings the next bits depend on the previous one.
  *
@@ -533,34 +600,10 @@ uint32_t convert_from_diff_manchester(
     return decoded;
 }
 
-/* Supported protocols go here, with the relevant implementation inside
- * protocols/<name>.c */
-
-extern ProtoViewDecoder Oregon2Decoder;
-extern ProtoViewDecoder B4B1Decoder;
-extern ProtoViewDecoder RenaultTPMSDecoder;
-extern ProtoViewDecoder ToyotaTPMSDecoder;
-extern ProtoViewDecoder SchraderTPMSDecoder;
-extern ProtoViewDecoder SchraderEG53MA4TPMSDecoder;
-extern ProtoViewDecoder CitroenTPMSDecoder;
-extern ProtoViewDecoder FordTPMSDecoder;
-extern ProtoViewDecoder KeeloqDecoder;
-
-ProtoViewDecoder* Decoders[] = {
-    &Oregon2Decoder, /* Oregon sensors v2.1 protocol. */
-    &B4B1Decoder, /* PT, SC, ... 24 bits remotes. */
-    &RenaultTPMSDecoder, /* Renault TPMS. */
-    &ToyotaTPMSDecoder, /* Toyota TPMS. */
-    &SchraderTPMSDecoder, /* Schrader TPMS. */
-    &SchraderEG53MA4TPMSDecoder, /* Schrader EG53MA4 TPMS. */
-    &CitroenTPMSDecoder, /* Citroen TPMS. */
-    &FordTPMSDecoder, /* Ford TPMS. */
-    &KeeloqDecoder, /* Keeloq remote. */
-    NULL};
-
 /* Free the message info and allocated data. */
 void free_msg_info(ProtoViewMsgInfo* i) {
     if(i == NULL) return;
+    fieldset_free(i->fieldset);
     free(i->bits);
     free(i);
 }
@@ -571,6 +614,7 @@ void init_msg_info(ProtoViewMsgInfo* i, ProtoViewApp* app) {
     UNUSED(app);
     memset(i, 0, sizeof(ProtoViewMsgInfo));
     i->bits = NULL;
+    i->fieldset = fieldset_new();
 }
 
 /* This function is called when a new signal is detected. It converts it
@@ -615,22 +659,17 @@ bool decode_signal(RawSamplesBuffer* s, uint64_t len, ProtoViewMsgInfo* info) {
         decoded = Decoders[j]->decode(bitmap, bitmap_size, bits, info);
         uint32_t delta = furi_get_tick() - start_time;
         FURI_LOG_E(TAG, "Decoder %s took %lu ms", Decoders[j]->name, (unsigned long)delta);
-        if(decoded) break;
+        if(decoded) {
+            info->decoder = Decoders[j];
+            break;
+        }
         j++;
     }
 
     if(!decoded) {
         FURI_LOG_E(TAG, "No decoding possible");
     } else {
-        FURI_LOG_E(
-            TAG,
-            "Decoded %s, raw=%s info=[%s,%s,%s,%s]",
-            info->name,
-            info->raw,
-            info->info1,
-            info->info2,
-            info->info3,
-            info->info4);
+        FURI_LOG_E(TAG, "+++ Decoded %s", info->decoder->name);
         /* The message was correctly decoded: fill the info structure
          * with the decoded signal. The decoder may not implement offset/len
          * filling of the structure. In such case we have no info and

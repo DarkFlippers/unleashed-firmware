@@ -52,7 +52,7 @@ Almost everything in flipper firmware is built around this concept.
 
 ## Naming
 
-### Type names are CamelCase
+### Type names are PascalCase
 
 Examples:
 

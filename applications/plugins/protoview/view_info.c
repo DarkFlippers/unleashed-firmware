@@ -2,7 +2,7 @@
  * See the LICENSE file for information about the license. */
 
 #include "app.h"
-#include <gui/view_i.h>
+#include <gui/view.h>
 #include <lib/toolbox/random_name.h>
 
 /* This view has subviews accessible navigating up/down. This
@@ -21,33 +21,56 @@ typedef struct {
      * you can move to next rows. Here we store where we are. */
     uint32_t signal_display_start_row;
     char* filename;
+    uint8_t cur_info_page; // Info page to display. Useful when there are
+        // too many fields populated by the decoder that
+        // a single page is not enough.
 } InfoViewPrivData;
 
+/* Draw the text label and value of the specified info field at x,y. */
+static void render_info_field(Canvas* const canvas, ProtoViewField* f, uint8_t x, uint8_t y) {
+    char buf[64];
+    char strval[32];
+
+    field_to_string(strval, sizeof(strval), f);
+    snprintf(buf, sizeof(buf), "%s: %s", f->name, strval);
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, x, y, buf);
+}
+
 /* Render the view with the detected message information. */
+#define INFO_LINES_PER_PAGE 5
 static void render_subview_main(Canvas* const canvas, ProtoViewApp* app) {
+    InfoViewPrivData* privdata = app->view_privdata;
+    uint8_t pages =
+        (app->msg_info->fieldset->numfields + (INFO_LINES_PER_PAGE - 1)) / INFO_LINES_PER_PAGE;
+    privdata->cur_info_page %= pages;
+    uint8_t current_page = privdata->cur_info_page;
+    char buf[32];
+
     /* Protocol name as title. */
     canvas_set_font(canvas, FontPrimary);
     uint8_t y = 8, lineheight = 10;
-    canvas_draw_str(canvas, 0, y, app->msg_info->name);
-    y += lineheight;
 
-    /* Info fields. */
-    char buf[128];
-    canvas_set_font(canvas, FontSecondary);
-    if(app->msg_info->raw[0]) {
-        snprintf(buf, sizeof(buf), "Raw: %s", app->msg_info->raw);
+    if(pages > 1) {
+        snprintf(
+            buf, sizeof(buf), "%s %u/%u", app->msg_info->decoder->name, current_page + 1, pages);
         canvas_draw_str(canvas, 0, y, buf);
-        y += lineheight;
+    } else {
+        canvas_draw_str(canvas, 0, y, app->msg_info->decoder->name);
     }
-    canvas_draw_str(canvas, 0, y, app->msg_info->info1);
-    y += lineheight;
-    canvas_draw_str(canvas, 0, y, app->msg_info->info2);
-    y += lineheight;
-    canvas_draw_str(canvas, 0, y, app->msg_info->info3);
-    y += lineheight;
-    canvas_draw_str(canvas, 0, y, app->msg_info->info4);
     y += lineheight;
 
+    /* Draw the info fields. */
+    uint8_t max_lines = INFO_LINES_PER_PAGE;
+    uint32_t j = current_page * max_lines;
+    while(j < app->msg_info->fieldset->numfields) {
+        render_info_field(canvas, app->msg_info->fieldset->fields[j++], 0, y);
+        y += lineheight;
+        if(--max_lines == 0) break;
+    }
+
+    /* Draw a vertical "save" label. Temporary solution, to switch to
+     * something better ASAP. */
     y = 37;
     lineheight = 7;
     canvas_draw_str(canvas, 119, y, "s");
@@ -103,7 +126,7 @@ void render_view_info(Canvas* const canvas, ProtoViewApp* app) {
         return;
     }
 
-    show_available_subviews(canvas, app, SubViewInfoLast);
+    ui_show_available_subviews(canvas, app, SubViewInfoLast);
     switch(app->current_subview[app->current_view]) {
     case SubViewInfoMain:
         render_subview_main(canvas, app);
@@ -116,7 +139,7 @@ void render_view_info(Canvas* const canvas, ProtoViewApp* app) {
 
 /* The user typed the file name. Let's save it and remove the keyboard
  * view. */
-void text_input_done_callback(void* context) {
+static void text_input_done_callback(void* context) {
     ProtoViewApp* app = context;
     InfoViewPrivData* privdata = app->view_privdata;
 
@@ -126,7 +149,9 @@ void text_input_done_callback(void* context) {
     furi_string_free(save_path);
 
     free(privdata->filename);
-    dismiss_keyboard(app);
+    privdata->filename = NULL; // Don't free it again on view exit
+    ui_dismiss_keyboard(app);
+    ui_show_alert(app, "Signal saved", 1500);
 }
 
 /* Replace all the occurrences of character c1 with c2 in the specified
@@ -143,7 +168,7 @@ void str_replace(char* buf, char c1, char c2) {
 void set_signal_random_filename(ProtoViewApp* app, char* buf, size_t buflen) {
     char suffix[6];
     set_random_name(suffix, sizeof(suffix));
-    snprintf(buf, buflen, "%.10s-%s-%d", app->msg_info->name, suffix, rand() % 1000);
+    snprintf(buf, buflen, "%.10s-%s-%d", app->msg_info->decoder->name, suffix, rand() % 1000);
     str_replace(buf, ' ', '_');
     str_replace(buf, '-', '_');
     str_replace(buf, '/', '_');
@@ -261,15 +286,21 @@ void notify_signal_sent(ProtoViewApp* app) {
 
 /* Handle input for the info view. */
 void process_input_info(ProtoViewApp* app, InputEvent input) {
-    if(process_subview_updown(app, input, SubViewInfoLast)) return;
+    /* If we don't have a decoded signal, we don't allow to go up/down
+     * in the subviews: they are only useful when a loaded signal. */
+    if(app->signal_decoded && ui_process_subview_updown(app, input, SubViewInfoLast)) return;
+
     InfoViewPrivData* privdata = app->view_privdata;
-    int subview = get_current_subview(app);
+    int subview = ui_get_current_subview(app);
 
     /* Main subview. */
     if(subview == SubViewInfoMain) {
-        if(input.type == InputTypeShort && input.key == InputKeyOk) {
+        if(input.type == InputTypeLong && input.key == InputKeyOk) {
             /* Reset the current sample to capture the next. */
             reset_current_signal(app);
+        } else if(input.type == InputTypeShort && input.key == InputKeyOk) {
+            /* Show next info page. */
+            privdata->cur_info_page++;
         }
     } else if(subview == SubViewInfoSave) {
         /* Save subview. */
@@ -278,9 +309,11 @@ void process_input_info(ProtoViewApp* app, InputEvent input) {
         } else if(input.type == InputTypePress && input.key == InputKeyLeft) {
             if(privdata->signal_display_start_row != 0) privdata->signal_display_start_row--;
         } else if(input.type == InputTypeLong && input.key == InputKeyOk) {
-            privdata->filename = malloc(SAVE_FILENAME_LEN);
+            // We have have the buffer already allocated, in case the
+            // user aborted with BACK a previous saving.
+            if(privdata->filename == NULL) privdata->filename = malloc(SAVE_FILENAME_LEN);
             set_signal_random_filename(app, privdata->filename, SAVE_FILENAME_LEN);
-            show_keyboard(app, privdata->filename, SAVE_FILENAME_LEN, text_input_done_callback);
+            ui_show_keyboard(app, privdata->filename, SAVE_FILENAME_LEN, text_input_done_callback);
         } else if(input.type == InputTypeShort && input.key == InputKeyOk) {
             SendSignalCtx send_state;
             send_signal_init(&send_state, app);
@@ -288,4 +321,12 @@ void process_input_info(ProtoViewApp* app, InputEvent input) {
             notify_signal_sent(app);
         }
     }
+}
+
+/* Called on view exit. */
+void view_exit_info(ProtoViewApp* app) {
+    InfoViewPrivData* privdata = app->view_privdata;
+    // When the user aborts the keyboard input, we are left with the
+    // filename buffer allocated.
+    if(privdata->filename) free(privdata->filename);
 }

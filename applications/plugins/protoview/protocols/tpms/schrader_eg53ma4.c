@@ -1,4 +1,7 @@
-/* Schrader variant EG53MA4 TPMS.
+/* Copyright (C) 2022-2023 Salvatore Sanfilippo -- All Rights Reserved
+ * See the LICENSE file for information about the license.
+ *
+ * Schrader variant EG53MA4 TPMS.
  * Usually 443.92 Mhz OOK, 100us pulse len.
  *
  * Preamble: alternating pulse/gap, 100us.
@@ -49,31 +52,11 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
     int temp_f = raw[8];
     int temp_c = (temp_f - 32) * 5 / 9; /* Convert Fahrenheit to Celsius. */
 
-    snprintf(info->name, sizeof(info->name), "%s", "Schrader EG53MA4 TPMS");
-    snprintf(
-        info->raw,
-        sizeof(info->raw),
-        "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-        raw[0],
-        raw[1],
-        raw[2],
-        raw[3],
-        raw[4],
-        raw[5],
-        raw[6],
-        raw[7],
-        raw[8],
-        raw[9]);
-    snprintf(
-        info->info1,
-        sizeof(info->info1),
-        "Tire ID %02X%02X%02X",
-        raw[4],
-        raw[5],
-        raw[6]); /* Only 28 bits of ID, not 32. */
-    snprintf(info->info2, sizeof(info->info2), "Pressure %.2f kpa", (double)kpa);
-    snprintf(info->info3, sizeof(info->info3), "Temperature %d C", temp_c);
+    fieldset_add_bytes(info->fieldset, "Tire ID", raw + 4, 3 * 2);
+    fieldset_add_float(info->fieldset, "Pressure kpa", kpa, 2);
+    fieldset_add_int(info->fieldset, "Temperature C", temp_c, 8);
     return true;
 }
 
-ProtoViewDecoder SchraderEG53MA4TPMSDecoder = {"Schrader EG53MA4 TPMS", decode};
+ProtoViewDecoder SchraderEG53MA4TPMSDecoder =
+    {.name = "Schrader EG53MA4 TPMS", .decode = decode, .get_fields = NULL, .build_message = NULL};

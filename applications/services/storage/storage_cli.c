@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
+#include <stm32_adafruit_sd.h>
 
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
@@ -60,17 +61,28 @@ static void storage_cli_info(Cli* cli, FuriString* path) {
         }
     } else if(furi_string_cmp_str(path, STORAGE_EXT_PATH_PREFIX) == 0) {
         SDInfo sd_info;
+        SD_CID sd_cid;
         FS_Error error = storage_sd_info(api, &sd_info);
+        BSP_SD_GetCIDRegister(&sd_cid);
 
         if(error != FSE_OK) {
             storage_cli_print_error(error);
         } else {
             printf(
-                "Label: %s\r\nType: %s\r\n%luKiB total\r\n%luKiB free\r\n",
+                "Label: %s\r\nType: %s\r\n%luKiB total\r\n%luKiB free\r\n"
+                "%02x%2.2s %5.5s %i.%i\r\nSN:%04lx %02i/%i\r\n",
                 sd_info.label,
                 sd_api_get_fs_type_text(sd_info.fs_type),
                 sd_info.kb_total,
-                sd_info.kb_free);
+                sd_info.kb_free,
+                sd_cid.ManufacturerID,
+                sd_cid.OEM_AppliID,
+                sd_cid.ProdName,
+                sd_cid.ProdRev >> 4,
+                sd_cid.ProdRev & 0xf,
+                sd_cid.ProdSN,
+                sd_cid.ManufactMonth,
+                sd_cid.ManufactYear + 2000);
         }
     } else {
         storage_cli_print_usage();
