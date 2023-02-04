@@ -1,9 +1,29 @@
 ### New changes
-* SubGHz: **Somfy Keytis Encoder** and Somfy Telis fixes (PR #297 | by @assasinfil)
-* SubGHz: Change hopping frequency list to have only most used frequencies
-* SubGHz: Block usage of hopping with detect raw at same time (its efficiency is almost 0, it looses signals and all that you can capture is a micro part of end of the signal) (Detect raw also will be removed in a future (and replaced with more correct solution))
+* SubGHz: External CC1101 support (by @quen0n | PR #307) - [How to connect](https://github.com/quen0n/flipperzero-ext-cc1101)
+* SubGHz: Fix GUI receiver bug - When keyboard is locked and popup appears it now shows bottom text correctly
+* Plugins: Added movement interval in mouse_jiggler USB & BLE (by @DocKuro | PR #303)
+* Plugins: Solitaire and Blackjack now affect Flipper's level (by @teeebor | PR #305)
 * Plugins -> Updated **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
-* Infrared: Update universal remote assets (by @amec0e) (PR #298)
+* Plugins -> Updated **UniTemp** [(by quen0n)](https://github.com/quen0n/unitemp-flipperzero)
+* Infrared: Update universal remote assets (by @amec0e) (PR #306)
+* NFC: Remove invalid keys from mf classic dict (Fixes #304)
+* GUI: Custom font set function (by @LTVA1) - [Link](https://github.com/LTVA1/flipperzero-firmware-wPlugins/tree/patch-custom-font)
+* OFW: FreeRTOS: update to 10.5.1
+* OFW: NFC: fix creating MF Classic tags from "Add Manually" menu (BCC calulation and ATQA/SAK writing)
+* OFW: Print card CID in storage info
+* OFW: Add support for `GUI-CTRL` in bad_usb
+* OFW: Furi: getter for current thread stdout write callback 
+* OFW: LF-RFID: add CRC calculation to paradox protocol
+* OFW: WS: add protocol LaCrosse-TX (TFA Dostmann) 
+* OFW: Assets: correct MicroSD card pinout in service animations
+* OFW: Furi: make `furi_is_irq_context` public
+* OFW: debug apps: made runnable as .faps; sdk: resolved additional APIs in use by faps 
+* OFW: NFC: change from int8_t to uint8_t
+* OFW: NFC: add MIFARE MINI support
+* OFW: emv: parse track1&2 equivalent data
+* OFW: nfc: Fix sector reads when one block is unreadable for MIFARE Classic
+* OFW: nfc: Fix crash when using debug PCAP trace
+* OFW: ELF-loader: wait for notification to complete on app exit
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
