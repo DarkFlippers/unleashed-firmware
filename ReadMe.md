@@ -49,6 +49,7 @@ Our Discord Community:
 * Customizable Flipper name
 * Sub-GHz -> Press OK in frequency analyzer to use detected frequency in Read modes
 * Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu 
+* Sub-GHz -> External CC1101 module support
 * Other small fixes and changes throughout
 * See other changes in changelog and in readme below
 
