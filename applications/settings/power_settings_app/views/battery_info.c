@@ -2,6 +2,7 @@
 #include <furi.h>
 #include <gui/elements.h>
 #include <assets_icons.h>
+#include <locale/locale.h>
 
 #define LOW_CHARGE_THRESHOLD 10
 #define HIGH_DRAIN_CURRENT_THRESHOLD 100
@@ -101,7 +102,15 @@ static void battery_info_draw_callback(Canvas* canvas, void* context) {
     char health[10];
 
     snprintf(batt_level, sizeof(batt_level), "%lu%%", (uint32_t)model->charge);
-    snprintf(temperature, sizeof(temperature), "%lu C", (uint32_t)model->gauge_temperature);
+    if(locale_get_measurement_unit() == LocaleMeasurementUnitsMetric) {
+        snprintf(temperature, sizeof(temperature), "%lu C", (uint32_t)model->gauge_temperature);
+    } else {
+        snprintf(
+            temperature,
+            sizeof(temperature),
+            "%lu F",
+            (uint32_t)locale_celsius_to_fahrenheit(model->gauge_temperature));
+    }
     snprintf(
         voltage,
         sizeof(voltage),
