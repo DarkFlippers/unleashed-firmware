@@ -2135,7 +2135,6 @@ Function,-,putchar_unlocked,int,int
 Function,-,putenv,int,char*
 Function,-,puts,int,const char*
 Function,-,putw,int,"int, FILE*"
-Function,-,pvPortCalloc,void*,"size_t, size_t"
 Function,-,pvPortMalloc,void*,size_t
 Function,-,pvTaskGetThreadLocalStoragePointer,void*,"TaskHandle_t, BaseType_t"
 Function,-,pvTaskIncrementMutexHeldCount,TaskHandle_t,
