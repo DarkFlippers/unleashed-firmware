@@ -571,6 +571,8 @@ int32_t blackjack_app(void* p) {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     AppEvent event;
+
+    // Call dolphin deed on game start
     DOLPHIN_DEED(DolphinDeedPluginGameStart);
 
     for(bool processing = true; processing;) {
