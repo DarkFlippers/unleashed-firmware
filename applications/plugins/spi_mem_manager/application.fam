@@ -1,0 +1,17 @@
+App(
+    appid="spi_mem_manager",
+    name="SPI Mem Manager",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="spi_mem_app",
+    requires=["gui"],
+    stack_size=1 * 2048,
+    order=30,
+    fap_icon="images/Dip8_10px.png",
+    fap_category="Tools",
+    fap_icon_assets="images",
+    fap_private_libs=[
+        Lib(
+            name="spi",
+        ),
+    ],
+)
