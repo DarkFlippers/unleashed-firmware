@@ -6,6 +6,7 @@ App(
     requires=[
         "gui",
         "power",
+        "locale",
     ],
     flags=["InsomniaSafe"],
     stack_size=1 * 1024,

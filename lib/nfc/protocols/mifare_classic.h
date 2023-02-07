@@ -120,6 +120,12 @@ bool mf_classic_is_allowed_access_data_block(
     MfClassicKey key,
     MfClassicAction action);
 
+bool mf_classic_is_value_block(MfClassicData* data, uint8_t block_num);
+
+bool mf_classic_block_to_value(const uint8_t* block, int32_t* value, uint8_t* addr);
+
+void mf_classic_value_to_block(int32_t value, uint8_t addr, uint8_t* block);
+
 bool mf_classic_is_key_found(MfClassicData* data, uint8_t sector_num, MfClassicKey key_type);
 
 void mf_classic_set_key_found(
@@ -177,6 +183,12 @@ void mf_classic_reader_add_sector(
     uint64_t key_a,
     uint64_t key_b);
 
+bool mf_classic_read_block(
+    FuriHalNfcTxRxContext* tx_rx,
+    Crypto1* crypto,
+    uint8_t block_num,
+    MfClassicBlock* block);
+
 void mf_classic_read_sector(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data, uint8_t sec_num);
 
 uint8_t mf_classic_read_card(
@@ -188,12 +200,37 @@ uint8_t mf_classic_update_card(FuriHalNfcTxRxContext* tx_rx, MfClassicData* data
 
 bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_rx);
 
+void mf_classic_halt(FuriHalNfcTxRxContext* tx_rx, Crypto1* crypto);
+
 bool mf_classic_write_block(
+    FuriHalNfcTxRxContext* tx_rx,
+    Crypto1* crypto,
+    uint8_t block_num,
+    MfClassicBlock* src_block);
+
+bool mf_classic_auth_write_block(
     FuriHalNfcTxRxContext* tx_rx,
     MfClassicBlock* src_block,
     uint8_t block_num,
     MfClassicKey key_type,
     uint64_t key);
+
+bool mf_classic_transfer(FuriHalNfcTxRxContext* tx_rx, Crypto1* crypto, uint8_t block_num);
+
+bool mf_classic_value_cmd(
+    FuriHalNfcTxRxContext* tx_rx,
+    Crypto1* crypto,
+    uint8_t block_num,
+    uint8_t cmd,
+    int32_t d_value);
+
+bool mf_classic_value_cmd_full(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfClassicBlock* src_block,
+    uint8_t block_num,
+    MfClassicKey key_type,
+    uint64_t key,
+    int32_t d_value);
 
 bool mf_classic_write_sector(
     FuriHalNfcTxRxContext* tx_rx,
