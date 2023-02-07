@@ -438,9 +438,9 @@ bool mf_classic_block_to_value(const uint8_t* block, int32_t* value, uint8_t* ad
 void mf_classic_value_to_block(int32_t value, uint8_t addr, uint8_t* block) {
     uint32_t v_inv = ~((uint32_t)value);
 
-    memcpy(block, &value, 4);
-    memcpy(block + 4, &v_inv, 4);
-    memcpy(block + 8, &value, 4);
+    memcpy(block, &value, 4); //-V1086
+    memcpy(block + 4, &v_inv, 4); //-V1086
+    memcpy(block + 8, &value, 4); //-V1086
 
     block[12] = addr;
     block[13] = ~addr & 0xFF;
