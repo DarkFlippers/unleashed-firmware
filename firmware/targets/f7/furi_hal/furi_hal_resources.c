@@ -78,8 +78,18 @@ const InputPin input_pins[] = {
 
 const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
 
+static void furi_hal_resources_init_input_pins(GpioMode mode) {
+    for(size_t i = 0; i < input_pins_count; i++) {
+        furi_hal_gpio_init(
+            input_pins[i].gpio,
+            mode,
+            (input_pins[i].inverted) ? GpioPullUp : GpioPullDown,
+            GpioSpeedLow);
+    }
+}
+
 void furi_hal_resources_init_early() {
-    furi_hal_gpio_init(&gpio_button_left, GpioModeInput, GpioPullUp, GpioSpeedLow);
+    furi_hal_resources_init_input_pins(GpioModeInput);
 
     // SD Card stepdown control
     furi_hal_gpio_write(&periph_power, 1);
@@ -122,14 +132,12 @@ void furi_hal_resources_init_early() {
 }
 
 void furi_hal_resources_deinit_early() {
+    furi_hal_resources_init_input_pins(GpioModeAnalog);
 }
 
 void furi_hal_resources_init() {
     // Button pins
-    for(size_t i = 0; i < input_pins_count; i++) {
-        furi_hal_gpio_init(
-            input_pins[i].gpio, GpioModeInterruptRiseFall, GpioPullUp, GpioSpeedLow);
-    }
+    furi_hal_resources_init_input_pins(GpioModeInterruptRiseFall);
 
     // Display pins
     furi_hal_gpio_init(&gpio_display_rst_n, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
