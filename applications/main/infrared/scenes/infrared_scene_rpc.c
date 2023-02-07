@@ -1,5 +1,5 @@
 #include "../infrared_i.h"
-#include "gui/canvas.h"
+#include <gui/canvas.h>
 
 typedef enum {
     InfraredRpcStateIdle,

@@ -1,13 +1,14 @@
-#include <stdint.h>
-#include <furi.h>
-#include <assets_icons.h>
+#include "loading.h"
+
 #include <gui/icon_animation.h>
 #include <gui/elements.h>
 #include <gui/canvas.h>
 #include <gui/view.h>
 #include <input/input.h>
 
-#include "loading.h"
+#include <furi.h>
+#include <assets_icons.h>
+#include <stdint.h>
 
 struct Loading {
     View* view;

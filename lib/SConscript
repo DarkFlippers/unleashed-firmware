@@ -8,7 +8,6 @@ env.Append(
         Dir("flipper_format"),
         Dir("infrared"),
         Dir("nfc"),
-        Dir("one_wire"),
         Dir("ST25RFAL002"),
         Dir("subghz"),
         Dir("toolbox"),
@@ -16,15 +15,8 @@ env.Append(
         Dir("update_util"),
         Dir("print"),
     ],
-    SDK_HEADERS=[
-        File("one_wire/one_wire_host_timing.h"),
-        File("one_wire/one_wire_host.h"),
-        File("one_wire/one_wire_slave.h"),
-        File("one_wire/one_wire_device.h"),
-        File("one_wire/ibutton/ibutton_worker.h"),
-        File("one_wire/maxim_crc.h"),
-    ],
 )
+
 
 env.Append(
     CPPPATH=[
@@ -33,6 +25,23 @@ env.Append(
         "#/lib/mlib",
         # Ugly hack
         Dir("../assets/compiled"),
+    ],
+    SDK_HEADERS=[
+        *(
+            File(f"#/lib/mlib/m-{name}.h")
+            for name in (
+                "algo",
+                "array",
+                "bptree",
+                "core",
+                "deque",
+                "dict",
+                "list",
+                "rbtree",
+                "tuple",
+                "variant",
+            )
+        ),
     ],
     CPPDEFINES=[
         '"M_MEMORY_FULL(x)=abort()"',
@@ -47,13 +56,13 @@ env.Append(
 # littlefs
 # subghz
 # toolbox
+# one_wire
+# micro-ecc
 # misc
 #    digital_signal
-#    fnv1a-hash
-#    micro-ecc
+#    fnv1a_hash
 #    microtar
 #    nfc
-#    one_wire
 #    qrcode
 #    u8g2
 #    update_util
@@ -77,6 +86,7 @@ libs = env.BuildModules(
         "drivers",
         "fatfs",
         "flipper_format",
+        "one_wire",
         "infrared",
         "littlefs",
         "mbedtls",

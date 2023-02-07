@@ -38,8 +38,17 @@ typedef struct {
     const char* name;
 } InputPin;
 
+typedef struct {
+    const GpioPin* pin;
+    const char* name;
+    const bool debug;
+} GpioPinRecord;
+
 extern const InputPin input_pins[];
 extern const size_t input_pins_count;
+
+extern const GpioPinRecord gpio_pins[];
+extern const size_t gpio_pins_count;
 
 extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;

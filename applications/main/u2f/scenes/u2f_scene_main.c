@@ -1,7 +1,7 @@
 #include "../u2f_app_i.h"
 #include "../views/u2f_view.h"
 #include <dolphin/dolphin.h>
-#include "furi_hal.h"
+#include <furi_hal.h>
 #include "../u2f.h"
 
 #define U2F_REQUEST_TIMEOUT 500

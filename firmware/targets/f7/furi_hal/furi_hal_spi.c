@@ -1,37 +1,13 @@
-#include "furi_hal_spi.h"
-#include "furi_hal_resources.h"
+#include <furi_hal_spi.h>
+#include <furi_hal_resources.h>
 #include <furi_hal_power.h>
 
 #include <stdbool.h>
 #include <string.h>
-#include <furi.h>
 
 #include <stm32wbxx_ll_spi.h>
 #include <stm32wbxx_ll_utils.h>
 #include <stm32wbxx_ll_cortex.h>
-
-#define TAG "FuriHalSpi"
-
-void furi_hal_spi_init_early() {
-    furi_hal_spi_bus_init(&furi_hal_spi_bus_d);
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_display);
-}
-
-void furi_hal_spi_deinit_early() {
-    furi_hal_spi_bus_handle_deinit(&furi_hal_spi_bus_handle_display);
-    furi_hal_spi_bus_deinit(&furi_hal_spi_bus_d);
-}
-
-void furi_hal_spi_init() {
-    furi_hal_spi_bus_init(&furi_hal_spi_bus_r);
-
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_subghz);
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_nfc);
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_fast);
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_slow);
-
-    FURI_LOG_I(TAG, "Init OK");
-}
 
 void furi_hal_spi_bus_init(FuriHalSpiBus* bus) {
     furi_assert(bus);

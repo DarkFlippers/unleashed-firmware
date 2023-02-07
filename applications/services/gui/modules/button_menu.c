@@ -1,11 +1,14 @@
 #include "button_menu.h"
-#include "gui/canvas.h"
-#include "gui/elements.h"
-#include "input/input.h"
-#include <m-array.h>
+
+#include <gui/canvas.h>
+#include <gui/elements.h>
+#include <input/input.h>
+
 #include <furi.h>
-#include <stdint.h>
 #include <assets_icons.h>
+
+#include <stdint.h>
+#include <m-array.h>
 
 #define ITEM_FIRST_OFFSET 17
 #define ITEM_NEXT_OFFSET 4

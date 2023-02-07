@@ -1,14 +1,15 @@
 #pragma once
 
+#include "../helpers/archive_files.h"
+#include "../helpers/archive_favorites.h"
+
 #include <gui/gui_i.h>
 #include <gui/view.h>
 #include <gui/canvas.h>
 #include <gui/elements.h>
-#include <furi.h>
+#include <gui/modules/file_browser_worker.h>
 #include <storage/storage.h>
-#include "../helpers/archive_files.h"
-#include "../helpers/archive_favorites.h"
-#include "gui/modules/file_browser_worker.h"
+#include <furi.h>
 
 #define MAX_LEN_PX 110
 #define MAX_NAME_LEN 255

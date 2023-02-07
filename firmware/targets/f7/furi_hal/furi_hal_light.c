@@ -1,5 +1,5 @@
 #include <core/common_defines.h>
-#include "furi_hal_resources.h"
+#include <furi_hal_resources.h>
 #include <furi_hal_light.h>
 #include <lp5562.h>
 #include <stdint.h>

@@ -17,7 +17,7 @@ void furi_hal_init_early() {
 
     furi_hal_os_init();
 
-    furi_hal_spi_init_early();
+    furi_hal_spi_config_init_early();
 
     furi_hal_i2c_init_early();
     furi_hal_light_init();
@@ -29,7 +29,7 @@ void furi_hal_deinit_early() {
     furi_hal_rtc_deinit_early();
 
     furi_hal_i2c_deinit_early();
-    furi_hal_spi_deinit_early();
+    furi_hal_spi_config_deinit_early();
 
     furi_hal_resources_deinit_early();
 
@@ -52,7 +52,7 @@ void furi_hal_init() {
     furi_hal_version_init();
     furi_hal_region_init();
 
-    furi_hal_spi_init();
+    furi_hal_spi_config_init();
 
     furi_hal_ibutton_init();
     FURI_LOG_I(TAG, "iButton OK");

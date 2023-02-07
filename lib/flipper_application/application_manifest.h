@@ -65,6 +65,14 @@ bool flipper_application_manifest_is_compatible(
     const FlipperApplicationManifest* manifest,
     const ElfApiInterface* api_interface);
 
+/**
+ * @brief Check if application is compatible with current hardware
+ * 
+ * @param manifest
+ * @return bool 
+ */
+bool flipper_application_manifest_is_target_compatible(const FlipperApplicationManifest* manifest);
+
 #ifdef __cplusplus
 }
 #endif

@@ -89,6 +89,6 @@ jobs:
       - name: 'Raise exception'
         if: ${{ steps.pvs-warn.outputs.warnings != 0 }}
         run: |
-          echo "Please fix all PVS varnings before merge"
+          echo "Please fix all PVS warnings before merge"
           exit 1
 

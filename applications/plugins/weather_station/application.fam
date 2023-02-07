@@ -2,6 +2,7 @@ App(
     appid="weather_station",
     name="Weather Station",
     apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
     entry_point="weather_station_app",
     cdefines=["APP_WEATHER_STATION"],
     requires=["gui"],

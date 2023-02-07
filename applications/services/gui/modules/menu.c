@@ -1,9 +1,9 @@
 #include "menu.h"
 
-#include <m-array.h>
 #include <gui/elements.h>
 #include <assets_icons.h>
 #include <furi.h>
+#include <m-array.h>
 
 struct Menu {
     View* view;

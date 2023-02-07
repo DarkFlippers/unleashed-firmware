@@ -22,6 +22,8 @@ def BuildModule(env, module):
 def BuildModules(env, modules):
     result = []
     for module in modules:
+        if module in env.get("SKIP_MODULES", []):
+            continue
         build_res = env.BuildModule(module)
         # print("module ", module, build_res)
         if build_res is None:

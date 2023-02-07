@@ -1,7 +1,7 @@
 #include "../bad_usb_script.h"
 #include "../bad_usb_app_i.h"
 #include "../views/bad_usb_view.h"
-#include "furi_hal.h"
+#include <furi_hal.h>
 #include "toolbox/path.h"
 
 void bad_usb_scene_work_ok_callback(InputType type, void* context) {

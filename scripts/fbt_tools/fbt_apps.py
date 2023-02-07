@@ -1,5 +1,6 @@
 from SCons.Builder import Builder
 from SCons.Action import Action
+from SCons.Errors import StopError
 from SCons.Warnings import warn, WarningOnByDefault
 from ansi.color import fg
 
@@ -32,9 +33,13 @@ def LoadAppManifest(env, entry):
 
 
 def PrepareApplicationsBuild(env):
-    appbuild = env["APPBUILD"] = env["APPMGR"].filter_apps(
-        env["APPS"], env.subst("f${TARGET_HW}")
-    )
+    try:
+        appbuild = env["APPBUILD"] = env["APPMGR"].filter_apps(
+            env["APPS"], env.subst("f${TARGET_HW}")
+        )
+    except Exception as e:
+        raise StopError(e)
+
     env.Append(
         SDK_HEADERS=appbuild.get_sdk_headers(),
     )

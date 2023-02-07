@@ -1,4 +1,4 @@
-#include "furi_hal_infrared.h"
+#include <furi_hal_infrared.h>
 #include <core/check.h>
 #include "stm32wbxx_ll_dma.h"
 #include "sys/_stdint.h"

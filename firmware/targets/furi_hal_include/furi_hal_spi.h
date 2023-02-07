@@ -8,13 +8,13 @@ extern "C" {
 #endif
 
 /** Early initialize SPI HAL */
-void furi_hal_spi_init_early();
+void furi_hal_spi_config_init_early();
 
 /** Early deinitialize SPI HAL */
-void furi_hal_spi_deinit_early();
+void furi_hal_spi_config_deinit_early();
 
 /** Initialize SPI HAL */
-void furi_hal_spi_init();
+void furi_hal_spi_config_init();
 
 /** Initialize SPI Bus
  *

@@ -4,7 +4,7 @@
 
 #include <furi.h>
 #include <m-list.h>
-#include "furi_hal_subghz_configs.h"
+#include <furi_hal_subghz_configs.h>
 
 #define TAG "SubGhzSetting"
 

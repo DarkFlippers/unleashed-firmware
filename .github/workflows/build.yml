@@ -10,7 +10,7 @@ on:
   pull_request:
 
 env:
-  TARGETS: f7
+  TARGETS: f7 f18
   DEFAULT_TARGET: f7
   FBT_TOOLCHAIN_PATH: /runner/_work
 
@@ -60,8 +60,9 @@ jobs:
         run: |
           set -e
           for TARGET in ${TARGETS}; do
-                ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
-                copro_dist updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+            TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
+            ./fbt TARGET_HW=$TARGET copro_dist updater_package \
+            ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
           done
 
       - name: 'Move upload files'
@@ -186,6 +187,6 @@ jobs:
         run: |
           set -e
           for TARGET in ${TARGETS}; do
-                ./fbt TARGET_HW="$(echo "${TARGET}" | sed 's/f//')" \
-                updater_package DEBUG=0 COMPACT=1
+            TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
+            ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 updater_package 
           done

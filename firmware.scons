@@ -16,6 +16,7 @@ env = ENV.Clone(
         "fwbin",
         "fbt_apps",
         "pvsstudio",
+        "fbt_hwtarget",
     ],
     COMPILATIONDB_USE_ABSPATH=False,
     BUILD_DIR=fw_build_meta["build_dir"],
@@ -31,10 +32,6 @@ env = ENV.Clone(
     CPPPATH=[
         "#/furi",
         *(f"#/{app_dir[0]}" for app_dir in ENV["APPDIRS"] if app_dir[1]),
-        "#/firmware/targets/f${TARGET_HW}/ble_glue",
-        "#/firmware/targets/f${TARGET_HW}/fatfs",
-        "#/firmware/targets/f${TARGET_HW}/furi_hal",
-        "#/firmware/targets/f${TARGET_HW}/Inc",
         "#/firmware/targets/furi_hal_include",
     ],
     # Specific flags for building libraries - always do optimized builds
@@ -74,20 +71,6 @@ env = ENV.Clone(
     _APP_ICONS=None,
 )
 
-
-def ApplyLibFlags(env):
-    flags_to_apply = env["FW_LIB_OPTS"].get(
-        env.get("FW_LIB_NAME"),
-        env["FW_LIB_OPTS"]["Default"],
-    )
-    # print("Flags for ", env.get("FW_LIB_NAME", "Default"), flags_to_apply)
-    env.MergeFlags(flags_to_apply)
-
-
-env.AddMethod(ApplyLibFlags)
-
-Export("env")
-
 if env["IS_BASE_FIRMWARE"]:
     env.Append(
         FIRMWARE_BUILD_CFG="firmware",
@@ -102,7 +85,11 @@ else:
         ],
     )
 
-# Invoke child SConscripts to populate global `env` + build their own part of the code
+env.ConfigureForTarget(env.subst("${TARGET_HW}"))
+
+Export("env")
+
+# Invoke child SCopscripts to populate global `env` + build their own part of the code
 lib_targets = env.BuildModules(
     [
         "lib",
@@ -131,7 +118,7 @@ if extra_int_apps := GetOption("extra_int_apps"):
     fwenv.Append(APPS=extra_int_apps.split(","))
 
 
-for app_dir, _ in env["APPDIRS"]:
+for app_dir, _ in fwenv["APPDIRS"]:
     app_dir_node = env.Dir("#").Dir(app_dir)
 
     for entry in app_dir_node.glob("*"):
@@ -196,37 +183,11 @@ sources.extend(
 fwelf = fwenv["FW_ELF"] = fwenv.Program(
     "${FIRMWARE_BUILD_CFG}",
     sources,
-    LIBS=[
-        "print",
-        "flipper${TARGET_HW}",
-        "furi",
-        "freertos",
-        "stm32cubewb",
-        "hwdrivers",
-        "fatfs",
-        "littlefs",
-        "subghz",
-        "flipperformat",
-        "toolbox",
-        "nfc",
-        "microtar",
-        "usb_stm32",
-        "st25rfal002",
-        "infrared",
-        "appframe",
-        "assets",
-        "misc",
-        "mbedtls",
-        "lfrfid",
-        "flipper_application",
-        # 2nd round
-        "flipperformat",
-        "toolbox",
-    ],
+    LIBS=fwenv["TARGET_CFG"].linker_dependencies,
 )
 
 # Firmware depends on everything child builders returned
-Depends(fwelf, lib_targets)
+# Depends(fwelf, lib_targets)
 # Output extra details after building firmware
 AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
 AddPostAction(

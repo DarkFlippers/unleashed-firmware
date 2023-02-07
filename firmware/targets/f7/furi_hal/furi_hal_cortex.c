@@ -1,4 +1,4 @@
-#include "furi_hal_cortex.h"
+#include <furi_hal_cortex.h>
 
 #include <stm32wbxx.h>
 

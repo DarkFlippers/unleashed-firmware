@@ -1,4 +1,4 @@
-#include "furi_hal_resources.h"
+#include <furi_hal_resources.h>
 #include "notification.h"
 #include "notification_messages_notes.h"
 #include <stddef.h>

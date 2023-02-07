@@ -1,5 +1,5 @@
 #include "../signal_gen_app_i.h"
-#include "furi_hal.h"
+#include <furi_hal.h>
 #include <gui/elements.h>
 #include <signal_generator_icons.h>
 

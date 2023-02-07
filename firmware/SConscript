@@ -2,15 +2,6 @@ Import("env")
 
 env.Append(
     LINT_SOURCES=[Dir(".")],
-    SDK_HEADERS=[
-        *env.GlobRecursive("*.h", "targets/furi_hal_include", "*_i.h"),
-        *env.GlobRecursive("*.h", "targets/f${TARGET_HW}/furi_hal", "*_i.h"),
-        File("targets/f7/platform_specific/intrinsic_export.h"),
-    ],
-)
-
-env.SetDefault(
-    SDK_DEFINITION=env.File("./targets/f${TARGET_HW}/api_symbols.csv").srcnode()
 )
 
 libenv = env.Clone(FW_LIB_NAME="flipper${TARGET_HW}")
@@ -22,9 +13,9 @@ libenv.Append(
 libenv.ApplyLibFlags()
 
 
-sources = ["targets/f${TARGET_HW}/startup_stm32wb55xx_cm4.s"]
-sources += libenv.GlobRecursive("*.c")
-
-lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+lib = libenv.StaticLibrary(
+    "${FW_LIB_NAME}",
+    env.get("TARGET_CFG").gatherSources(),
+)
 libenv.Install("${LIB_DIST_DIR}", lib)
 Return("lib")

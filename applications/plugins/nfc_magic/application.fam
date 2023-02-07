@@ -2,6 +2,7 @@ App(
     appid="nfc_magic",
     name="Nfc Magic",
     apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
     entry_point="nfc_magic_app",
     requires=[
         "storage",

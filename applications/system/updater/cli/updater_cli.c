@@ -76,8 +76,8 @@ static void updater_cli_ep(Cli* cli, FuriString* args, void* context) {
     for(size_t idx = 0; idx < COUNT_OF(update_cli_subcommands); ++idx) {
         const CliSubcommand* subcmd_def = &update_cli_subcommands[idx];
         if(furi_string_cmp_str(subcommand, subcmd_def->command) == 0) {
-            furi_string_free(subcommand);
             subcmd_def->handler(args);
+            furi_string_free(subcommand);
             return;
         }
     }

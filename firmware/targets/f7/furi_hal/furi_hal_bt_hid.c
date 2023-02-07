@@ -1,5 +1,5 @@
-#include "furi_hal_bt_hid.h"
-#include "furi_hal_usb_hid.h"
+#include <furi_hal_bt_hid.h>
+#include <furi_hal_usb_hid.h>
 #include "usb_hid.h"
 #include "dev_info_service.h"
 #include "battery_service.h"

@@ -1,16 +1,17 @@
 #include "elements.h"
-#include "m-core.h"
+#include <m-core.h>
 #include <assets_icons.h>
-#include "furi_hal_resources.h"
+#include <furi_hal_resources.h>
 #include <furi_hal.h>
-#include "gui/canvas.h"
 
+#include <gui/canvas.h>
 #include <gui/icon_i.h>
 #include <gui/icon_animation_i.h>
 
 #include <furi.h>
 #include "canvas_i.h"
 
+#include <math.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

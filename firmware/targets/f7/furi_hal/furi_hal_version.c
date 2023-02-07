@@ -195,14 +195,6 @@ void furi_hal_version_init() {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-bool furi_hal_version_do_i_belong_here() {
-    return furi_hal_version_get_hw_target() == 7;
-}
-
-const char* furi_hal_version_get_model_name() {
-    return "Flipper Zero";
-}
-
 FuriHalVersionOtpVersion furi_hal_version_get_otp_version() {
     if(*(uint64_t*)FURI_HAL_VERSION_OTP_ADDRESS == 0xFFFFFFFF) {
         return FuriHalVersionOtpVersionEmpty;
