@@ -21,6 +21,7 @@
 #include "gate_tx.h"
 #include "raw.h"
 #include "linear.h"
+#include "linear_delta3.h"
 #include "secplus_v2.h"
 #include "secplus_v1.h"
 #include "megacode.h"

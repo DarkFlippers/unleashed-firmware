@@ -694,7 +694,7 @@ void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layou
     }
 
     File* layout_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
-    if(!furi_string_empty(layout_path)) {
+    if(!furi_string_empty(layout_path)) { //-V1051
         if(storage_file_open(
                layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
             uint16_t layout[128];
