@@ -14,6 +14,9 @@
 
 #define TAG "SubGhzProtocoNiceFlorS"
 
+#define NICE_ONE_COUNT_BIT 72
+#define NICE_ONE_NAME "Nice One"
+
 static const SubGhzBlockConst subghz_protocol_nice_flor_s_const = {
     .te_short = 500,
     .te_long = 1000,
@@ -28,6 +31,7 @@ struct SubGhzProtocolDecoderNiceFlorS {
     SubGhzBlockGeneric generic;
 
     const char* nice_flor_s_rainbow_table_file_name;
+    uint64_t data;
 };
 
 struct SubGhzProtocolEncoderNiceFlorS {
@@ -76,6 +80,64 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
     .decoder = &subghz_protocol_nice_flor_s_decoder,
     .encoder = &subghz_protocol_nice_flor_s_encoder,
 };
+
+// /**
+//  * Read bytes from rainbow table
+//  * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-P8-P9-P10
+//  * @return crc
+//  */
+// static uint32_t subghz_protocol_nice_one_crc(uint8_t* p) {
+//     uint8_t crc = 0;
+//     uint8_t crc_data = 0xff;
+//     for(uint8_t i = 4; i < 68; i++) {
+//         if(subghz_protocol_blocks_get_bit_array(p, i)) {
+//             crc = crc_data ^ 1;
+//         } else {
+//             crc = crc_data;
+//         }
+//         crc_data >>= 1;
+//         if((crc & 0x01)) {
+//             crc_data ^= 0x97;
+//         }
+//     }
+//     crc = 0;
+//     for(uint8_t i = 0; i < 8; i++) {
+//         crc <<= 1;
+//         if((crc_data >> i) & 0x01) crc = crc | 1;
+//     }
+//     return crc;
+// }
+
+// /**
+//  * Read bytes from rainbow table
+//  * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-XX-XX-XX
+//  * @param num_parcel  parcel number 0..15
+//  * @param hold_bit  0 - the button was only pressed, 1 - the button was held down
+//  */
+// static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t hold_bit) {
+//     uint8_t k = 0;
+//     uint8_t crc = 0;
+//     p[1] = (p[1] & 0x0f) | ((0x0f ^ (p[0] & 0x0F) ^ num_parcel) << 4);
+//     if(num_parcel < 4) {
+//         k = 0x8f;
+//     } else {
+//         k = 0x80;
+//     }
+
+//     if(!hold_bit) {
+//         hold_bit = 0;
+//     } else {
+//         hold_bit = 0x10;
+//     }
+//     k = num_parcel ^ k;
+//     p[7] = k;
+//     p[8] = hold_bit ^ (k << 4);
+
+//     crc = subghz_protocol_nice_one_crc(p);
+
+//     p[8] |= crc >> 4;
+//     p[9] = crc << 4;
+// }
 
 /** 
  * Read bytes from rainbow table
@@ -237,10 +299,14 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
                subghz_protocol_nice_flor_s_const.te_delta) {
                 //Found STOP bit
                 instance->decoder.parser_step = NiceFlorSDecoderStepReset;
-                if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_nice_flor_s_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
+                if((instance->decoder.decode_count_bit ==
+                    subghz_protocol_nice_flor_s_const.min_count_bit_for_found) ||
+                   (instance->decoder.decode_count_bit == NICE_ONE_COUNT_BIT)) {
+                    instance->generic.data = instance->data;
+                    instance->data = instance->decoder.decode_data;
+                    instance->decoder.decode_data = instance->generic.data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -274,6 +340,11 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
         } else {
             instance->decoder.parser_step = NiceFlorSDecoderStepReset;
         }
+        if(instance->decoder.decode_count_bit ==
+           subghz_protocol_nice_flor_s_const.min_count_bit_for_found) {
+            instance->data = instance->decoder.decode_data;
+            instance->decoder.decode_data = 0;
+        }
         break;
     }
 }
@@ -287,6 +358,7 @@ static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,
     const char* file_name) {
     /*
+    * Protocol Nice Flor-S
     * Packet format Nice Flor-s: START-P0-P1-P2-P3-P4-P5-P6-P7-STOP
     * P0 (4-bit)    - button positional code - 1:0x1, 2:0x2, 3:0x4, 4:0x8;
     * P1 (4-bit)    - batch repetition number, calculated by the formula:
@@ -306,6 +378,24 @@ static void subghz_protocol_nice_flor_s_remote_controller(
     *
     * data    => 0x1c5783607f7b3     key  serial  cnt
     * decrypt => 0x10436c6820444 => 0x1  0436c682 0444
+    * 
+    * Protocol Nice One
+    * Generally repeats the Nice Flor-S protocol, but there are a few changes
+    * Packet format first 52 bytes repeat Nice Flor-S protocol
+    * The additional 20 bytes contain the code of the pressed button,
+    *    the button hold bit and the CRC of the entire message.
+    *       START-P0-P1-P2-P3-P4-P5-P6-P7-P8-P9-P10-STOP
+    * P7 (byte)     - if (n<4) k=0x8f : k=0x80; P7= k^n;
+    * P8 (byte)     - if (hold bit) b=0x00 : b=0x10; P8= b^(k<<4) | 4 hi bit crc
+    * P10 (4-bit)   - 4 lo bit crc 
+    *                            key+b crc  
+    * data    => 0x1724A7D9A522F  899  D6 hold bit = 0 - just pressed the button
+    * data    => 0x1424A7D9A522F  8AB  03 hold bit = 1 - button hold
+    * 
+    * A small button hold counter (0..15) is stored between each press,
+    *  i.e. if 1 press of the button stops counter 6, then the next press 
+    *  of the button will start from the value 7 (hold bit = 0), 8 (hold bit = 1)...
+    *  further up to 15 with overflow
     * 
     */
     if(!file_name) {
@@ -333,7 +423,15 @@ bool subghz_protocol_decoder_nice_flor_s_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        if(res &&
+           !flipper_format_write_uint32(flipper_format, "Data", (uint32_t*)&instance->data, 1)) {
+            FURI_LOG_E(TAG, "Unable to add Data");
+            res = false;
+        }
+    }
+    return res;
 }
 
 bool subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
@@ -344,11 +442,25 @@ bool subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperForma
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             break;
         }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_nice_flor_s_const.min_count_bit_for_found) {
+        if((instance->generic.data_count_bit !=
+            subghz_protocol_nice_flor_s_const.min_count_bit_for_found) &&
+           (instance->generic.data_count_bit != NICE_ONE_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
+        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+            if(!flipper_format_rewind(flipper_format)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            uint32_t temp = 0;
+            if(!flipper_format_read_uint32(flipper_format, "Data", (uint32_t*)&temp, 1)) {
+                FURI_LOG_E(TAG, "Missing Data");
+                break;
+            }
+            instance->data = (uint64_t)temp;
+        }
+
         ret = true;
     } while(false);
     return ret;
@@ -360,20 +472,33 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
 
     subghz_protocol_nice_flor_s_remote_controller(
         &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
-    furi_string_cat_printf(
-        output,
-        "%s %dbit\r\n"
-        "Key:0x%lX%08lX\r\n"
-        "Sn:%05lX\r\n"
-        "Cnt:%04lX Btn:%02X\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        code_found_hi,
-        code_found_lo,
-        instance->generic.serial,
-        instance->generic.cnt,
-        instance->generic.btn);
+    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:0x%013llX%llX\r\n"
+            "Sn:%05lX\r\n"
+            "Cnt:%04lX Btn:%02X\r\n",
+            NICE_ONE_NAME,
+            instance->generic.data_count_bit,
+            instance->generic.data,
+            instance->data,
+            instance->generic.serial,
+            instance->generic.cnt,
+            instance->generic.btn);
+    } else {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:0x%013llX\r\n"
+            "Sn:%05lX\r\n"
+            "Cnt:%04lX Btn:%02X\r\n",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            instance->generic.data,
+            instance->generic.serial,
+            instance->generic.cnt,
+            instance->generic.btn);
+    }
 }
