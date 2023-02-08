@@ -17,6 +17,8 @@ static bool bad_usb_layout_select(BadUsbApp* bad_usb) {
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(
         &browser_options, BAD_USB_APP_LAYOUT_EXTENSION, &I_keyboard_10px);
+    browser_options.base_path = BAD_USB_APP_PATH_LAYOUT_FOLDER;
+    browser_options.skip_assets = false;
 
     // Input events and views are managed by file_browser
     bool res = dialog_file_browser_show(
