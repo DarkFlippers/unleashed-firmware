@@ -812,9 +812,8 @@ void furi_hal_subghz_stop_async_tx() {
 
     // Shutdown radio
     furi_hal_subghz_idle();
-#ifdef FURI_HAL_SUBGHZ_TX_GPIO
-    furi_hal_gpio_write(&FURI_HAL_SUBGHZ_TX_GPIO, false);
-#endif
+
+    furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, false);
 
     // Deinitialize Timer
     FURI_CRITICAL_ENTER();
@@ -829,10 +828,7 @@ void furi_hal_subghz_stop_async_tx() {
     // Deinitialize GPIO
     furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 
-    // Stop debug
-    if(furi_hal_subghz_stop_debug()) {
-        LL_DMA_DisableChannel(SUBGHZ_DMA_CH2_DEF);
-    }
+    LL_DMA_DisableChannel(SUBGHZ_DMA_CH2_DEF);
 
     FURI_CRITICAL_EXIT();
 
