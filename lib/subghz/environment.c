@@ -6,6 +6,7 @@ struct SubGhzEnvironment {
     const SubGhzProtocolRegistry* protocol_registry;
     const char* came_atomo_rainbow_table_file_name;
     const char* nice_flor_s_rainbow_table_file_name;
+    const char* alutech_at_4n_rainbow_table_file_name;
 };
 
 SubGhzEnvironment* subghz_environment_alloc() {
@@ -55,6 +56,21 @@ const char*
     furi_assert(instance);
 
     return instance->came_atomo_rainbow_table_file_name;
+}
+
+void subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+    SubGhzEnvironment* instance,
+    const char* filename) {
+    furi_assert(instance);
+
+    instance->alutech_at_4n_rainbow_table_file_name = filename;
+}
+
+const char*
+    subghz_environment_get_alutech_at_4n_rainbow_table_file_name(SubGhzEnvironment* instance) {
+    furi_assert(instance);
+
+    return instance->alutech_at_4n_rainbow_table_file_name;
 }
 
 void subghz_environment_set_nice_flor_s_rainbow_table_file_name(

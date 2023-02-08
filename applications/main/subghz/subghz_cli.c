@@ -253,6 +253,8 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
     subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
     subghz_environment_set_came_atomo_rainbow_table_file_name(
         environment, EXT_PATH("subghz/assets/came_atomo"));
+    subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+        environment, EXT_PATH("subghz/assets/alutech_at_4n"));
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         environment, EXT_PATH("subghz/assets/nice_flor_s"));
     subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
@@ -448,6 +450,8 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
         }
         subghz_environment_set_came_atomo_rainbow_table_file_name(
             environment, EXT_PATH("subghz/assets/came_atomo"));
+        subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+            environment, EXT_PATH("subghz/assets/alutech_at_4n"));
         subghz_environment_set_nice_flor_s_rainbow_table_file_name(
             environment, EXT_PATH("subghz/assets/nice_flor_s"));
         subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
