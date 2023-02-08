@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,12.2,,
+Version,+,13.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -910,6 +910,7 @@ Function,-,furi_hal_flash_write_dword,void,"size_t, uint64_t"
 Function,+,furi_hal_gpio_add_int_callback,void,"const GpioPin*, GpioExtiCallback, void*"
 Function,+,furi_hal_gpio_disable_int_callback,void,const GpioPin*
 Function,+,furi_hal_gpio_enable_int_callback,void,const GpioPin*
+Function,+,furi_hal_resources_get_ext_pin_number,int32_t,const GpioPin*
 Function,+,furi_hal_gpio_init,void,"const GpioPin*, const GpioMode, const GpioPull, const GpioSpeed"
 Function,+,furi_hal_gpio_init_ex,void,"const GpioPin*, const GpioMode, const GpioPull, const GpioSpeed, const GpioAltFn"
 Function,+,furi_hal_gpio_init_simple,void,"const GpioPin*, const GpioMode"

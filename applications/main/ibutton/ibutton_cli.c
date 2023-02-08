@@ -271,7 +271,7 @@ void onewire_cli_print_usage() {
 
 static void onewire_cli_search(Cli* cli) {
     UNUSED(cli);
-    OneWireHost* onewire = onewire_host_alloc();
+    OneWireHost* onewire = onewire_host_alloc(&ibutton_gpio);
     uint8_t address[8];
     bool done = false;
 

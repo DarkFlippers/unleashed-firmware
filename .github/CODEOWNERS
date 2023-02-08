@@ -42,6 +42,8 @@
 
 /applications/debug/unit_tests/ @skotopes @DrZlo13 @hedger @nminaylov @gornekich @Astrrra @gsurkov @Skorpionm
 
+/applications/examples/example_thermo/ @skotopes @DrZlo13 @hedger @gsurkov
+
 # Assets
 /assets/resources/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
 

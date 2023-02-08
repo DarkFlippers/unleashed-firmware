@@ -216,6 +216,13 @@ void furi_hal_resources_deinit_early();
 
 void furi_hal_resources_init();
 
+/**
+ * Get a corresponding external connector pin number for a gpio
+ * @param gpio GpioPin
+ * @return pin number or -1 if gpio is not on the external connector
+ */
+int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio);
+
 #ifdef __cplusplus
 }
 #endif

@@ -25,8 +25,8 @@ iButtonWorker* ibutton_worker_alloc() {
     iButtonWorker* worker = malloc(sizeof(iButtonWorker));
     worker->key_p = NULL;
     worker->key_data = malloc(ibutton_key_get_max_size());
-    worker->host = onewire_host_alloc();
-    worker->slave = onewire_slave_alloc();
+    worker->host = onewire_host_alloc(&ibutton_gpio);
+    worker->slave = onewire_slave_alloc(&ibutton_gpio);
     worker->writer = ibutton_writer_alloc(worker->host);
     worker->device = onewire_device_alloc(0, 0, 0, 0, 0, 0, 0, 0);
     worker->messages = furi_message_queue_alloc(1, sizeof(iButtonMessage));

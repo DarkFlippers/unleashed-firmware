@@ -22,10 +22,10 @@ typedef struct OneWireHost OneWireHost;
 
 /**
  * Allocate onewire host bus
- * @param gpio 
+ * @param pin
  * @return OneWireHost* 
  */
-OneWireHost* onewire_host_alloc();
+OneWireHost* onewire_host_alloc(const GpioPin* gpio_pin);
 
 /**
  * Deallocate onewire host bus
@@ -114,7 +114,7 @@ void onewire_host_target_search(OneWireHost* host, uint8_t family_code);
  * @param mode 
  * @return uint8_t 
  */
-uint8_t onewire_host_search(OneWireHost* host, uint8_t* newAddr, OneWireHostSearchMode mode);
+uint8_t onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearchMode mode);
 
 #ifdef __cplusplus
 }
