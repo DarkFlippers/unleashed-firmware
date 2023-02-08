@@ -10,7 +10,7 @@ on:
   pull_request:
 
 env:
-  TARGETS: f7 f18
+  TARGETS: f7
   DEFAULT_TARGET: f7
   FBT_TOOLCHAIN_PATH: /runner/_work
 
