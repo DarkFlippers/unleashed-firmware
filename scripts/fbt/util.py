@@ -8,6 +8,10 @@ import os
 
 WINPATHSEP_RE = re.compile(r"\\([^\"'\\]|$)")
 
+# Used by default when globbing for files with GlobRecursive
+# Excludes all files ending with ~, usually created by editors as backup files
+GLOB_FILE_EXCLUSION = ["*~"]
+
 
 def tempfile_arg_esc_func(arg):
     arg = quote_spaces(arg)

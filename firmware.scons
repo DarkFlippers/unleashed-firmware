@@ -2,6 +2,7 @@ Import("ENV", "fw_build_meta")
 
 from SCons.Errors import UserError
 from SCons.Node import FS
+
 import itertools
 
 from fbt_extra.util import (
@@ -171,7 +172,7 @@ sources = [apps_c]
 # Gather sources only from app folders in current configuration
 sources.extend(
     itertools.chain.from_iterable(
-        fwenv.GlobRecursive(source_type, appdir.relpath, exclude="lib")
+        fwenv.GlobRecursive(source_type, appdir.relpath, exclude=["lib"])
         for appdir, source_type in fwenv["APPBUILD"].get_builtin_app_folders()
     )
 )
