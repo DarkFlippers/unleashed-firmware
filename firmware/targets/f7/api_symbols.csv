@@ -2636,6 +2636,14 @@ Function,+,subghz_protocol_blocks_parity_bytes,uint8_t,"const uint8_t[], size_t"
 Function,+,subghz_protocol_blocks_reverse_key,uint64_t,"uint64_t, uint8_t"
 Function,+,subghz_protocol_blocks_set_bit_array,void,"_Bool, uint8_t[], size_t, size_t"
 Function,+,subghz_protocol_blocks_xor_bytes,uint8_t,"const uint8_t[], size_t"
+Function,-,subghz_protocol_decoder_alutech_at_4n_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_alutech_at_4n_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_alutech_at_4n_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_alutech_at_4n_free,void,void*
+Function,-,subghz_protocol_decoder_alutech_at_4n_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_alutech_at_4n_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_alutech_at_4n_reset,void,void*
+Function,-,subghz_protocol_decoder_alutech_at_4n_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_ansonic_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_ansonic_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_ansonic_feed,void,"void*, _Bool, uint32_t"
@@ -2705,6 +2713,14 @@ Function,-,subghz_protocol_decoder_doitrand_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_doitrand_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_doitrand_reset,void,void*
 Function,-,subghz_protocol_decoder_doitrand_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_dooya_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_dooya_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_dooya_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_dooya_free,void,void*
+Function,-,subghz_protocol_decoder_dooya_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_dooya_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_dooya_reset,void,void*
+Function,-,subghz_protocol_decoder_dooya_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_faac_slh_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_faac_slh_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_faac_slh_feed,void,"void*, _Bool, uint32_t"
@@ -2786,6 +2802,14 @@ Function,-,subghz_protocol_decoder_kia_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_kia_reset,void,void*
 Function,-,subghz_protocol_decoder_kia_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_linear_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_linear_delta3_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_linear_delta3_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_linear_delta3_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_linear_delta3_free,void,void*
+Function,-,subghz_protocol_decoder_linear_delta3_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_linear_delta3_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_linear_delta3_reset,void,void*
+Function,-,subghz_protocol_decoder_linear_delta3_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_linear_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_linear_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_linear_free,void,void*
@@ -2980,6 +3004,11 @@ Function,-,subghz_protocol_encoder_doitrand_deserialize,_Bool,"void*, FlipperFor
 Function,-,subghz_protocol_encoder_doitrand_free,void,void*
 Function,-,subghz_protocol_encoder_doitrand_stop,void,void*
 Function,-,subghz_protocol_encoder_doitrand_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_dooya_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_dooya_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_dooya_free,void,void*
+Function,-,subghz_protocol_encoder_dooya_stop,void,void*
+Function,-,subghz_protocol_encoder_dooya_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_faac_slh_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_faac_slh_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_faac_slh_free,void,void*
@@ -3022,6 +3051,11 @@ Function,-,subghz_protocol_encoder_keeloq_free,void,void*
 Function,-,subghz_protocol_encoder_keeloq_stop,void,void*
 Function,-,subghz_protocol_encoder_keeloq_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_linear_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_linear_delta3_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_linear_delta3_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_linear_delta3_free,void,void*
+Function,-,subghz_protocol_encoder_linear_delta3_stop,void,void*
+Function,-,subghz_protocol_encoder_linear_delta3_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_linear_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_linear_free,void,void*
 Function,-,subghz_protocol_encoder_linear_stop,void,void*
@@ -4844,6 +4878,9 @@ Variable,+,sequence_set_vibro_on,const NotificationSequence,
 Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
+Variable,-,subghz_protocol_alutech_at_4n,const SubGhzProtocol,
+Variable,-,subghz_protocol_alutech_at_4n_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_alutech_at_4n_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_ansonic,const SubGhzProtocol,
 Variable,-,subghz_protocol_ansonic_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_ansonic_encoder,const SubGhzProtocolEncoder,
@@ -4868,6 +4905,9 @@ Variable,-,subghz_protocol_clemsa_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_doitrand,const SubGhzProtocol,
 Variable,-,subghz_protocol_doitrand_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_doitrand_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_dooya,const SubGhzProtocol,
+Variable,-,subghz_protocol_dooya_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_dooya_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_faac_slh,const SubGhzProtocol,
 Variable,-,subghz_protocol_faac_slh_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_faac_slh_encoder,const SubGhzProtocolEncoder,
@@ -4900,6 +4940,9 @@ Variable,-,subghz_protocol_kia_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_kia_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_linear,const SubGhzProtocol,
 Variable,-,subghz_protocol_linear_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_linear_delta3,const SubGhzProtocol,
+Variable,-,subghz_protocol_linear_delta3_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_linear_delta3_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_linear_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_magellan,const SubGhzProtocol,
 Variable,-,subghz_protocol_magellan_decoder,const SubGhzProtocolDecoder,
