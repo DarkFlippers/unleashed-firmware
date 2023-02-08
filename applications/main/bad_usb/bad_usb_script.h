@@ -33,6 +33,8 @@ BadUsbScript* bad_usb_script_open(FuriString* file_path);
 
 void bad_usb_script_close(BadUsbScript* bad_usb);
 
+void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layout_path);
+
 void bad_usb_script_start(BadUsbScript* bad_usb);
 
 void bad_usb_script_stop(BadUsbScript* bad_usb);

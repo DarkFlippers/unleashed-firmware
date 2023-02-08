@@ -16,6 +16,9 @@
 #define SCRIPT_STATE_END (-2)
 #define SCRIPT_STATE_NEXT_LINE (-3)
 
+#define BADUSB_ASCII_TO_KEY(script, x) \
+    (((uint8_t)x < 128) ? (script->layout[(uint8_t)x]) : HID_KEYBOARD_NONE)
+
 typedef enum {
     WorkerEvtToggle = (1 << 0),
     WorkerEvtEnd = (1 << 1),
@@ -28,6 +31,7 @@ struct BadUsbScript {
     BadUsbState st;
     FuriString* file_path;
     uint32_t defdelay;
+    uint16_t layout[128];
     FuriThread* thread;
     uint8_t file_buf[FILE_BUFFER_LEN + 1];
     uint8_t buf_start;
@@ -205,10 +209,10 @@ static bool ducky_altstring(const char* param) {
     return state;
 }
 
-static bool ducky_string(const char* param) {
+static bool ducky_string(BadUsbScript* bad_usb, const char* param) {
     uint32_t i = 0;
     while(param[i] != '\0') {
-        uint16_t keycode = HID_ASCII_TO_KEY(param[i]);
+        uint16_t keycode = BADUSB_ASCII_TO_KEY(bad_usb, param[i]);
         if(keycode != HID_KEYBOARD_NONE) {
             furi_hal_hid_kb_press(keycode);
             furi_hal_hid_kb_release(keycode);
@@ -218,7 +222,7 @@ static bool ducky_string(const char* param) {
     return true;
 }
 
-static uint16_t ducky_get_keycode(const char* param, bool accept_chars) {
+static uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept_chars) {
     for(size_t i = 0; i < (sizeof(ducky_keys) / sizeof(ducky_keys[0])); i++) {
         size_t key_cmd_len = strlen(ducky_keys[i].name);
         if((strncmp(param, ducky_keys[i].name, key_cmd_len) == 0) &&
@@ -227,7 +231,7 @@ static uint16_t ducky_get_keycode(const char* param, bool accept_chars) {
         }
     }
     if((accept_chars) && (strlen(param) > 0)) {
-        return (HID_ASCII_TO_KEY(param[0]) & 0xFF);
+        return (BADUSB_ASCII_TO_KEY(bad_usb, param[0]) & 0xFF);
     }
     return 0;
 }
@@ -276,7 +280,7 @@ static int32_t
     } else if(strncmp(line_tmp, ducky_cmd_string, strlen(ducky_cmd_string)) == 0) {
         // STRING
         line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        state = ducky_string(line_tmp);
+        state = ducky_string(bad_usb, line_tmp);
         if(!state && error != NULL) {
             snprintf(error, error_len, "Invalid string %s", line_tmp);
         }
@@ -312,14 +316,14 @@ static int32_t
     } else if(strncmp(line_tmp, ducky_cmd_sysrq, strlen(ducky_cmd_sysrq)) == 0) {
         // SYSRQ
         line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        uint16_t key = ducky_get_keycode(line_tmp, true);
+        uint16_t key = ducky_get_keycode(bad_usb, line_tmp, true);
         furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT | HID_KEYBOARD_PRINT_SCREEN);
         furi_hal_hid_kb_press(key);
         furi_hal_hid_kb_release_all();
         return (0);
     } else {
         // Special keys + modifiers
-        uint16_t key = ducky_get_keycode(line_tmp, false);
+        uint16_t key = ducky_get_keycode(bad_usb, line_tmp, false);
         if(key == HID_KEYBOARD_NONE) {
             if(error != NULL) {
                 snprintf(error, error_len, "No keycode defined for %s", line_tmp);
@@ -329,7 +333,7 @@ static int32_t
         if((key & 0xFF00) != 0) {
             // It's a modifier key
             line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-            key |= ducky_get_keycode(line_tmp, true);
+            key |= ducky_get_keycode(bad_usb, line_tmp, true);
         }
         furi_hal_hid_kb_press(key);
         furi_hal_hid_kb_release(key);
@@ -650,12 +654,19 @@ static int32_t bad_usb_worker(void* context) {
     return 0;
 }
 
+static void bad_usb_script_set_default_keyboard_layout(BadUsbScript* bad_usb) {
+    furi_assert(bad_usb);
+    memset(bad_usb->layout, HID_KEYBOARD_NONE, sizeof(bad_usb->layout));
+    memcpy(bad_usb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(bad_usb->layout)));
+}
+
 BadUsbScript* bad_usb_script_open(FuriString* file_path) {
     furi_assert(file_path);
 
     BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
     bad_usb->file_path = furi_string_alloc();
     furi_string_set(bad_usb->file_path, file_path);
+    bad_usb_script_set_default_keyboard_layout(bad_usb);
 
     bad_usb->st.state = BadUsbStateInit;
     bad_usb->st.error[0] = '\0';
@@ -672,6 +683,30 @@ void bad_usb_script_close(BadUsbScript* bad_usb) {
     furi_thread_free(bad_usb->thread);
     furi_string_free(bad_usb->file_path);
     free(bad_usb);
+}
+
+void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layout_path) {
+    furi_assert(bad_usb);
+
+    if((bad_usb->st.state == BadUsbStateRunning) || (bad_usb->st.state == BadUsbStateDelay)) {
+        // do not update keyboard layout while a script is running
+        return;
+    }
+
+    File* layout_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
+    if(!furi_string_empty(layout_path)) {
+        if(storage_file_open(
+               layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+            uint16_t layout[128];
+            if(storage_file_read(layout_file, layout, sizeof(layout)) == sizeof(layout)) {
+                memcpy(bad_usb->layout, layout, sizeof(layout));
+            }
+        }
+        storage_file_close(layout_file);
+    } else {
+        bad_usb_script_set_default_keyboard_layout(bad_usb);
+    }
+    storage_file_free(layout_file);
 }
 
 void bad_usb_script_toggle(BadUsbScript* bad_usb) {
