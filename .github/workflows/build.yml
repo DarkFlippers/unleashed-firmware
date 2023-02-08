@@ -188,5 +188,5 @@ jobs:
           set -e
           for TARGET in ${TARGETS}; do
             TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
-            ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 updater_package 
+            ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 fap_dist updater_package
           done
