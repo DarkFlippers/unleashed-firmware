@@ -41,6 +41,7 @@
 #include "holtek_ht12x.h"
 #include "dooya.h"
 #include "alutech_at_4n.h"
+#include "kinggates_stylo_4k.h"
 
 #ifdef __cplusplus
 extern "C" {
