@@ -2801,6 +2801,14 @@ Function,-,subghz_protocol_decoder_kia_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_kia_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_kia_reset,void,void*
 Function,-,subghz_protocol_decoder_kia_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_free,void,void*
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_reset,void,void*
+Function,-,subghz_protocol_decoder_kinggates_stylo_4k_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_linear_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_linear_delta3_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_linear_delta3_deserialize,_Bool,"void*, FlipperFormat*"
@@ -4938,6 +4946,9 @@ Variable,-,subghz_protocol_keeloq_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_kia,const SubGhzProtocol,
 Variable,-,subghz_protocol_kia_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_kia_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_kinggates_stylo_4k,const SubGhzProtocol,
+Variable,-,subghz_protocol_kinggates_stylo_4k_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_kinggates_stylo_4k_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_linear,const SubGhzProtocol,
 Variable,-,subghz_protocol_linear_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_linear_delta3,const SubGhzProtocol,
