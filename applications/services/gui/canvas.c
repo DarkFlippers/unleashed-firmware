@@ -137,6 +137,12 @@ void canvas_set_font(Canvas* canvas, Font font) {
     }
 }
 
+void canvas_set_custom_u8g2_font(Canvas* canvas, const uint8_t* font) {
+    furi_assert(canvas);
+    u8g2_SetFontMode(&canvas->fb, 1);
+    u8g2_SetFont(&canvas->fb, font);
+}
+
 void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str) {
     furi_assert(canvas);
     if(!str) return;

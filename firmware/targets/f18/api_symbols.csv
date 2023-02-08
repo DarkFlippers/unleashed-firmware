@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,13.0,,
+Version,+,13.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -546,6 +546,7 @@ Function,+,canvas_invert_color,void,Canvas*
 Function,+,canvas_reset,void,Canvas*
 Function,+,canvas_set_bitmap_mode,void,"Canvas*, _Bool"
 Function,+,canvas_set_color,void,"Canvas*, Color"
+Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
@@ -910,7 +911,6 @@ Function,-,furi_hal_flash_write_dword,void,"size_t, uint64_t"
 Function,+,furi_hal_gpio_add_int_callback,void,"const GpioPin*, GpioExtiCallback, void*"
 Function,+,furi_hal_gpio_disable_int_callback,void,const GpioPin*
 Function,+,furi_hal_gpio_enable_int_callback,void,const GpioPin*
-Function,+,furi_hal_resources_get_ext_pin_number,int32_t,const GpioPin*
 Function,+,furi_hal_gpio_init,void,"const GpioPin*, const GpioMode, const GpioPull, const GpioSpeed"
 Function,+,furi_hal_gpio_init_ex,void,"const GpioPin*, const GpioMode, const GpioPull, const GpioSpeed, const GpioAltFn"
 Function,+,furi_hal_gpio_init_simple,void,"const GpioPin*, const GpioMode"
@@ -1017,6 +1017,7 @@ Function,+,furi_hal_region_is_frequency_allowed,_Bool,uint32_t
 Function,+,furi_hal_region_is_provisioned,_Bool,
 Function,+,furi_hal_region_set,void,FuriHalRegion*
 Function,-,furi_hal_resources_deinit_early,void,
+Function,+,furi_hal_resources_get_ext_pin_number,int32_t,const GpioPin*
 Function,-,furi_hal_resources_init,void,
 Function,-,furi_hal_resources_init_early,void,
 Function,+,furi_hal_rtc_datetime_to_timestamp,uint32_t,FuriHalRtcDateTime*
