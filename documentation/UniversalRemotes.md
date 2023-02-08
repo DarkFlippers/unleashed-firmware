@@ -25,6 +25,13 @@ Make sure that every signal does what it's supposed to.
 
 If everything checks out, append these signals **to the end** of the [audio player universal remote file](/assets/resources/infrared/assets/audio.ir).
 
+## Projectors
+
+Adding your projector to the universal remote is really simple. Up to 4 signals can be recorded: `Power`, `Mute`, `Vol_up`, `Vol_dn`. Any of them can be omitted if not supported by your projector.
+To save time, please make sure every recording has been named accordingly.
+In case of omitting, on most projectors with the 4 following buttons, you should not have a problem.
+
+
 ## Air conditioners
 
 Air conditioners differ from most other infrared-controlled devices because their state is tracked by the remote.

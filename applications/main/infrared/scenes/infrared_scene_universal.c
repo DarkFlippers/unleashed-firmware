@@ -4,6 +4,7 @@ typedef enum {
     SubmenuIndexUniversalTV,
     SubmenuIndexUniversalAC,
     SubmenuIndexUniversalAudio,
+    SubmenuIndexUniversalProjector,
 } SubmenuIndex;
 
 static void infrared_scene_universal_submenu_callback(void* context, uint32_t index) {
@@ -25,6 +26,12 @@ void infrared_scene_universal_on_enter(void* context) {
         submenu,
         "Audio Players",
         SubmenuIndexUniversalAudio,
+        infrared_scene_universal_submenu_callback,
+        context);
+    submenu_add_item(
+        submenu,
+        "Projectors",
+        SubmenuIndexUniversalProjector,
         infrared_scene_universal_submenu_callback,
         context);
     submenu_add_item(
@@ -53,6 +60,9 @@ bool infrared_scene_universal_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == SubmenuIndexUniversalAudio) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversalAudio);
+            consumed = true;
+        } else if(event.event == SubmenuIndexUniversalProjector) {
+            scene_manager_next_scene(scene_manager, InfraredSceneUniversalProjector);
             consumed = true;
         }
         scene_manager_set_scene_state(scene_manager, InfraredSceneUniversal, event.event);
