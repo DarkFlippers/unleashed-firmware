@@ -89,7 +89,7 @@ static void test_rpc_setup(void) {
     }
     furi_check(rpc_session[0].session);
 
-    rpc_session[0].output_stream = furi_stream_buffer_alloc(1000, 1);
+    rpc_session[0].output_stream = furi_stream_buffer_alloc(4096, 1);
     rpc_session_set_send_bytes_callback(rpc_session[0].session, output_bytes_callback);
     rpc_session[0].close_session_semaphore = xSemaphoreCreateBinary();
     rpc_session[0].terminate_semaphore = xSemaphoreCreateBinary();

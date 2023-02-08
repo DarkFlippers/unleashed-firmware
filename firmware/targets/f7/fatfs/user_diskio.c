@@ -46,7 +46,7 @@ static volatile DSTATUS Stat = STA_NOINIT;
 static DSTATUS User_CheckStatus(BYTE lun) {
     UNUSED(lun);
     Stat = STA_NOINIT;
-    if(BSP_SD_GetCardState() == MSD_OK) {
+    if(sd_get_card_state() == SdSpiStatusOK) {
         Stat &= ~STA_NOINIT;
     }
 
@@ -128,11 +128,18 @@ DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
 
-    if(BSP_SD_ReadBlocks((uint32_t*)buff, (uint32_t)(sector), count, SD_DATATIMEOUT) == MSD_OK) {
+    if(sd_read_blocks((uint32_t*)buff, (uint32_t)(sector), count, SD_TIMEOUT_MS) ==
+       SdSpiStatusOK) {
+        FuriHalCortexTimer timer = furi_hal_cortex_timer_get(SD_TIMEOUT_MS * 1000);
+
         /* wait until the read operation is finished */
-        while(BSP_SD_GetCardState() != MSD_OK) {
-        }
         res = RES_OK;
+        while(sd_get_card_state() != SdSpiStatusOK) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
+                res = RES_ERROR;
+                break;
+            }
+        }
     }
 
     furi_hal_sd_spi_handle = NULL;
@@ -160,11 +167,18 @@ DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
 
-    if(BSP_SD_WriteBlocks((uint32_t*)buff, (uint32_t)(sector), count, SD_DATATIMEOUT) == MSD_OK) {
+    if(sd_write_blocks((uint32_t*)buff, (uint32_t)(sector), count, SD_TIMEOUT_MS) ==
+       SdSpiStatusOK) {
+        FuriHalCortexTimer timer = furi_hal_cortex_timer_get(SD_TIMEOUT_MS * 1000);
+
         /* wait until the Write operation is finished */
-        while(BSP_SD_GetCardState() != MSD_OK) {
-        }
         res = RES_OK;
+        while(sd_get_card_state() != SdSpiStatusOK) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
+                res = RES_ERROR;
+                break;
+            }
+        }
     }
 
     furi_hal_sd_spi_handle = NULL;
@@ -187,7 +201,7 @@ DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     /* USER CODE BEGIN IOCTL */
     UNUSED(pdrv);
     DRESULT res = RES_ERROR;
-    BSP_SD_CardInfo CardInfo;
+    SD_CardInfo CardInfo;
 
     if(Stat & STA_NOINIT) return RES_NOTRDY;
 
@@ -202,21 +216,21 @@ DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
 
     /* Get number of sectors on the disk (DWORD) */
     case GET_SECTOR_COUNT:
-        BSP_SD_GetCardInfo(&CardInfo);
+        sd_get_card_info(&CardInfo);
         *(DWORD*)buff = CardInfo.LogBlockNbr;
         res = RES_OK;
         break;
 
     /* Get R/W sector size (WORD) */
     case GET_SECTOR_SIZE:
-        BSP_SD_GetCardInfo(&CardInfo);
+        sd_get_card_info(&CardInfo);
         *(WORD*)buff = CardInfo.LogBlockSize;
         res = RES_OK;
         break;
 
     /* Get erase block size in unit of sector (DWORD) */
     case GET_BLOCK_SIZE:
-        BSP_SD_GetCardInfo(&CardInfo);
+        sd_get_card_info(&CardInfo);
         *(DWORD*)buff = CardInfo.LogBlockSize;
         res = RES_OK;
         break;

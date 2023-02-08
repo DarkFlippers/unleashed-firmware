@@ -31,29 +31,13 @@ void storage_file_clear(StorageFile* obj) {
 /****************** storage data ******************/
 
 void storage_data_init(StorageData* storage) {
-    storage->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-    furi_check(storage->mutex != NULL);
     storage->data = NULL;
     storage->status = StorageStatusNotReady;
     StorageFileList_init(storage->files);
 }
 
-bool storage_data_lock(StorageData* storage) {
-    return (furi_mutex_acquire(storage->mutex, FuriWaitForever) == FuriStatusOk);
-}
-
-bool storage_data_unlock(StorageData* storage) {
-    return (furi_mutex_release(storage->mutex) == FuriStatusOk);
-}
-
 StorageStatus storage_data_status(StorageData* storage) {
-    StorageStatus status;
-
-    storage_data_lock(storage);
-    status = storage->status;
-    storage_data_unlock(storage);
-
-    return status;
+    return storage->status;
 }
 
 const char* storage_data_status_text(StorageData* storage) {

@@ -51,6 +51,7 @@ void furi_hal_init() {
     furi_hal_version_init();
 
     furi_hal_spi_config_init();
+    furi_hal_spi_dma_init();
 
     furi_hal_speaker_init();
     FURI_LOG_I(TAG, "Speaker OK");
