@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,13.0,,
+Version,+,13.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2675,6 +2675,7 @@ Function,+,subghz_worker_free,void,SubGhzWorker*
 Function,+,subghz_worker_is_running,_Bool,SubGhzWorker*
 Function,+,subghz_worker_rx_callback,void,"_Bool, uint32_t, void*"
 Function,+,subghz_worker_set_context,void,"SubGhzWorker*, void*"
+Function,+,subghz_worker_set_filter,void,"SubGhzWorker*, uint16_t"
 Function,+,subghz_worker_set_overrun_callback,void,"SubGhzWorker*, SubGhzWorkerOverrunCallback"
 Function,+,subghz_worker_set_pair_callback,void,"SubGhzWorker*, SubGhzWorkerPairCallback"
 Function,+,subghz_worker_start,void,SubGhzWorker*

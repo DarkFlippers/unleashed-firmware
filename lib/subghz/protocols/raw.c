@@ -159,6 +159,7 @@ bool subghz_protocol_raw_save_to_file_init(
         instance->upload_raw = malloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
         instance->file_is_open = RAWFileIsOpenWrite;
         instance->sample_write = 0;
+        instance->last_level = false;
         instance->pause = false;
         init = true;
     } while(0);
