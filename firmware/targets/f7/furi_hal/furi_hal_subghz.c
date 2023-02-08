@@ -31,13 +31,6 @@ static bool last_OTG_state = false;
 #define SUBGHZ_DMA_CH1_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH1_CHANNEL
 #define SUBGHZ_DMA_CH2_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH2_CHANNEL
 
-typedef struct {
-    volatile SubGhzState state;
-    volatile SubGhzRegulation regulation;
-    volatile FuriHalSubGhzPreset preset;
-    const GpioPin* async_mirror_pin;
-} FuriHalSubGhz;
-
 volatile FuriHalSubGhz furi_hal_subghz = {
     .state = SubGhzStateInit,
     .regulation = SubGhzRegulationTxRx,
@@ -785,20 +778,20 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     furi_hal_subghz_debug_gpio_buff[0] = (uint32_t)gpio->pin << GPIO_NUMBER;
     furi_hal_subghz_debug_gpio_buff[1] = gpio->pin;
 
-        dma_config.MemoryOrM2MDstAddress = (uint32_t)furi_hal_subghz_debug_gpio_buff;
-        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (gpio->port->BSRR);
-        dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
-        dma_config.Mode = LL_DMA_MODE_CIRCULAR;
-        dma_config.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
-        dma_config.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
-        dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
-        dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
-        dma_config.NbData = 2;
-        dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
-        dma_config.Priority = LL_DMA_PRIORITY_VERYHIGH;
-        LL_DMA_Init(SUBGHZ_DMA_CH2_DEF, &dma_config);
-        LL_DMA_SetDataLength(SUBGHZ_DMA_CH2_DEF, 2);
-        LL_DMA_EnableChannel(SUBGHZ_DMA_CH2_DEF);
+    dma_config.MemoryOrM2MDstAddress = (uint32_t)furi_hal_subghz_debug_gpio_buff;
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (gpio->port->BSRR);
+    dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+    dma_config.Mode = LL_DMA_MODE_CIRCULAR;
+    dma_config.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+    dma_config.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+    dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
+    dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
+    dma_config.NbData = 2;
+    dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
+    dma_config.Priority = LL_DMA_PRIORITY_VERYHIGH;
+    LL_DMA_Init(SUBGHZ_DMA_CH2_DEF, &dma_config);
+    LL_DMA_SetDataLength(SUBGHZ_DMA_CH2_DEF, 2);
+    LL_DMA_EnableChannel(SUBGHZ_DMA_CH2_DEF);
 
     return true;
 }

@@ -3,7 +3,6 @@
 #include <furi_hal_resources.h>
 #include <furi_hal_power.h>
 #include <furi_hal_interrupt.h>
-#include <furi_hal_subghz.h>
 
 #include <stm32wbxx_ll_dma.h>
 #include <stm32wbxx_ll_spi.h>

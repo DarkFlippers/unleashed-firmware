@@ -42,6 +42,7 @@ env.Append(
                 "variant",
             )
         ),
+        File("u8g2/u8g2.h"),
     ],
     CPPDEFINES=[
         '"M_MEMORY_FULL(x)=abort()"',
