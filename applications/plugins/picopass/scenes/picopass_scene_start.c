@@ -32,13 +32,18 @@ bool picopass_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexRead) {
+            scene_manager_set_scene_state(
+                picopass->scene_manager, PicopassSceneStart, SubmenuIndexRead);
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneReadCard);
             consumed = true;
         } else if(event.event == SubmenuIndexSaved) {
+            // Explicitly save state so that the correct item is
+            // reselected if the user cancels loading a file.
+            scene_manager_set_scene_state(
+                picopass->scene_manager, PicopassSceneStart, SubmenuIndexSaved);
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneFileSelect);
             consumed = true;
         }
-        scene_manager_set_scene_state(picopass->scene_manager, PicopassSceneStart, event.event);
     }
 
     return consumed;

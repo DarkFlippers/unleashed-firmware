@@ -34,6 +34,8 @@ void nfc_scene_extra_actions_on_enter(void* context) {
         SubmenuIndexMfUltralightUnlock,
         nfc_scene_extra_actions_submenu_callback,
         nfc);
+    submenu_set_selected_item(
+        submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneExtraActions));
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
