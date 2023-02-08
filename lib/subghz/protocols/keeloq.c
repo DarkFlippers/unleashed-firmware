@@ -390,11 +390,14 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                             subghz_protocol_keeloq_const.te_delta)) {
                 // Found end TX
                 instance->decoder.parser_step = KeeloqDecoderStepReset;
-                if(instance->decoder.decode_count_bit >=
-                   subghz_protocol_keeloq_const.min_count_bit_for_found) {
+                if((instance->decoder.decode_count_bit >=
+                    subghz_protocol_keeloq_const.min_count_bit_for_found) &&
+                   (instance->decoder.decode_count_bit <=
+                    subghz_protocol_keeloq_const.min_count_bit_for_found + 2)) {
                     if(instance->generic.data != instance->decoder.decode_data) {
                         instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                        instance->generic.data_count_bit =
+                            subghz_protocol_keeloq_const.min_count_bit_for_found;
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
                     }
@@ -411,6 +414,8 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
+                } else {
+                    instance->decoder.decode_count_bit++;
                 }
                 instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
             } else if(
@@ -421,6 +426,8 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
+                } else {
+                    instance->decoder.decode_count_bit++;
                 }
                 instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
             } else {

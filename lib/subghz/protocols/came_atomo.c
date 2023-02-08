@@ -189,7 +189,7 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
 /** 
  * Read bytes from rainbow table
  * @param file_name Full path to rainbow table the file 
- * @param number_atomo_magic_xor Сell number in the array
+ * @param number_atomo_magic_xor number in the array
  * @return atomo_magic_xor
  */
 static uint64_t subghz_protocol_came_atomo_get_magic_xor_in_file(
