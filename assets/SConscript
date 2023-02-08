@@ -78,7 +78,9 @@ if assetsenv["IS_BASE_FIRMWARE"]:
     resources = assetsenv.Command(
         "#/assets/resources/Manifest",
         assetsenv.GlobRecursive(
-            "*", assetsenv.Dir("resources").srcnode(), exclude="Manifest"
+            "*",
+            assetsenv.Dir("resources").srcnode(),
+            exclude=["Manifest"],
         ),
         action=Action(
             '${PYTHON3} "${ASSETS_COMPILER}" manifest "${TARGET.dir.posix}" --timestamp=${GIT_UNIX_TIMESTAMP}',

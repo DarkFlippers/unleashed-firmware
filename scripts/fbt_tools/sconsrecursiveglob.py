@@ -1,7 +1,11 @@
 import SCons
+from SCons.Script import Flatten
+from fbt.util import GLOB_FILE_EXCLUSION
 
 
-def GlobRecursive(env, pattern, node=".", exclude=None):
+def GlobRecursive(env, pattern, node=".", exclude=[]):
+    exclude = list(set(Flatten(exclude) + GLOB_FILE_EXCLUSION))
+    # print(f"Starting glob for {pattern} from {node} (exclude: {exclude})")
     results = []
     if isinstance(node, str):
         node = env.Dir(node)
@@ -13,7 +17,7 @@ def GlobRecursive(env, pattern, node=".", exclude=None):
         source=True,
         exclude=exclude,
     )
-    # print(f"Glob for {pattern} from {node}: {results}")
+    # print(f"Glob result for {pattern} from {node}: {results}")
     return results
 
 

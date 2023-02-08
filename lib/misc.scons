@@ -1,5 +1,7 @@
 Import("env")
 
+from fbt.util import GLOB_FILE_EXCLUSION
+
 env.Append(
     CPPPATH=[
         "#/lib/digital_signal",
@@ -39,7 +41,11 @@ libs_plain = [
 ]
 
 for lib in libs_plain:
-    sources += Glob(lib + "/*.c*", source=True)
+    sources += Glob(
+        lib + "/*.c*",
+        exclude=GLOB_FILE_EXCLUSION,
+        source=True,
+    )
 
 lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
 libenv.Install("${LIB_DIST_DIR}", lib)
