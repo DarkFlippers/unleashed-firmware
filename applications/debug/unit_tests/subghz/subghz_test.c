@@ -13,7 +13,7 @@
 #define CAME_ATOMO_DIR_NAME EXT_PATH("subghz/assets/came_atomo")
 #define NICE_FLOR_S_DIR_NAME EXT_PATH("subghz/assets/nice_flor_s")
 #define TEST_RANDOM_DIR_NAME EXT_PATH("unit_tests/subghz/test_random_raw.sub")
-#define TEST_RANDOM_COUNT_PARSE 295
+#define TEST_RANDOM_COUNT_PARSE 300
 #define TEST_TIMEOUT 10000
 
 static SubGhzEnvironment* environment_handler;
@@ -612,6 +612,13 @@ MU_TEST(subghz_decoder_holtek_ht12x_test) {
         "Test decoder " SUBGHZ_PROTOCOL_HOLTEK_HT12X_NAME " error\r\n");
 }
 
+MU_TEST(subghz_decoder_dooya_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/dooya_raw.sub"), SUBGHZ_PROTOCOL_DOOYA_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_DOOYA_NAME " error\r\n");
+}
+
 //test encoders
 MU_TEST(subghz_encoder_princeton_test) {
     mu_assert(
@@ -757,6 +764,12 @@ MU_TEST(subghz_encoder_holtek_ht12x_test) {
         "Test encoder " SUBGHZ_PROTOCOL_HOLTEK_HT12X_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_dooya_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/dooya.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_DOOYA_NAME " error\r\n");
+}
+
 MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
@@ -803,6 +816,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_ansonic_test);
     MU_RUN_TEST(subghz_decoder_smc5326_test);
     MU_RUN_TEST(subghz_decoder_holtek_ht12x_test);
+    MU_RUN_TEST(subghz_decoder_dooya_test);
 
     MU_RUN_TEST(subghz_encoder_princeton_test);
     MU_RUN_TEST(subghz_encoder_came_test);
@@ -828,6 +842,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_ansonic_test);
     MU_RUN_TEST(subghz_encoder_smc5326_test);
     MU_RUN_TEST(subghz_encoder_holtek_ht12x_test);
+    MU_RUN_TEST(subghz_encoder_dooya_test);
 
     MU_RUN_TEST(subghz_random_test);
     subghz_test_deinit();

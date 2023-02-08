@@ -39,6 +39,7 @@ const SubGhzProtocol* subghz_protocol_registry_items[] = {
     &subghz_protocol_smc5326,
     &subghz_protocol_holtek_th12x,
     &subghz_protocol_linear_delta3,
+    &subghz_protocol_dooya,
 };
 
 const SubGhzProtocolRegistry subghz_protocol_registry = {
