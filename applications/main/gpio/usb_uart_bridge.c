@@ -1,10 +1,10 @@
 #include "usb_uart_bridge.h"
-#include "furi_hal.h"
-#include <furi_hal_usb_cdc.h>
 #include "usb_cdc.h"
-#include "cli/cli_vcp.h"
+#include <cli/cli_vcp.h>
+#include <cli/cli.h>
 #include <toolbox/api_lock.h>
-#include "cli/cli.h"
+#include <furi_hal.h>
+#include <furi_hal_usb_cdc.h>
 
 #define USB_CDC_PKT_LEN CDC_DATA_SZ
 #define USB_UART_RX_BUF_SIZE (USB_CDC_PKT_LEN * 5)

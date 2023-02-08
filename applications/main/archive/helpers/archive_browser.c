@@ -1,10 +1,11 @@
-#include <archive/views/archive_browser_view.h>
 #include "archive_files.h"
 #include "archive_apps.h"
 #include "archive_browser.h"
+#include "../views/archive_browser_view.h"
+
 #include <core/common_defines.h>
 #include <core/log.h>
-#include "gui/modules/file_browser_worker.h"
+#include <gui/modules/file_browser_worker.h>
 #include <fap_loader/fap_loader_app.h>
 #include <math.h>
 

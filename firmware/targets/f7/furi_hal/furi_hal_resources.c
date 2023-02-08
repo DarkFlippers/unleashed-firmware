@@ -67,6 +67,23 @@ const GpioPin periph_power = {.port = GPIOA, .pin = LL_GPIO_PIN_3};
 const GpioPin gpio_usb_dm = {.port = GPIOA, .pin = LL_GPIO_PIN_11};
 const GpioPin gpio_usb_dp = {.port = GPIOA, .pin = LL_GPIO_PIN_12};
 
+const GpioPinRecord gpio_pins[] = {
+    {.pin = &gpio_ext_pa7, .name = "PA7", .debug = false},
+    {.pin = &gpio_ext_pa6, .name = "PA6", .debug = false},
+    {.pin = &gpio_ext_pa4, .name = "PA4", .debug = false},
+    {.pin = &gpio_ext_pb3, .name = "PB3", .debug = false},
+    {.pin = &gpio_ext_pb2, .name = "PB2", .debug = false},
+    {.pin = &gpio_ext_pc3, .name = "PC3", .debug = false},
+    {.pin = &gpio_ext_pc1, .name = "PC1", .debug = false},
+    {.pin = &gpio_ext_pc0, .name = "PC0", .debug = false},
+
+    /* Dangerous pins, may damage hardware */
+    {.pin = &gpio_usart_rx, .name = "PB7", .debug = true},
+    {.pin = &gpio_speaker, .name = "PB8", .debug = true},
+};
+
+const size_t gpio_pins_count = sizeof(gpio_pins) / sizeof(GpioPinRecord);
+
 const InputPin input_pins[] = {
     {.gpio = &gpio_button_up, .key = InputKeyUp, .inverted = true, .name = "Up"},
     {.gpio = &gpio_button_down, .key = InputKeyDown, .inverted = true, .name = "Down"},
@@ -178,4 +195,27 @@ void furi_hal_resources_init() {
 
     NVIC_SetPriority(EXTI15_10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
+int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio) {
+    if(gpio == &gpio_ext_pa7)
+        return 2;
+    else if(gpio == &gpio_ext_pa6)
+        return 3;
+    else if(gpio == &gpio_ext_pa4)
+        return 4;
+    else if(gpio == &gpio_ext_pb3)
+        return 5;
+    else if(gpio == &gpio_ext_pb2)
+        return 6;
+    else if(gpio == &gpio_ext_pc3)
+        return 7;
+    else if(gpio == &gpio_ext_pc1)
+        return 15;
+    else if(gpio == &gpio_ext_pc0)
+        return 16;
+    else if(gpio == &ibutton_gpio)
+        return 17;
+    else
+        return -1;
 }

@@ -38,8 +38,6 @@ void storage_file_set(StorageFile* obj, const StorageFile* src);
 void storage_file_clear(StorageFile* obj);
 
 void storage_data_init(StorageData* storage);
-bool storage_data_lock(StorageData* storage);
-bool storage_data_unlock(StorageData* storage);
 StorageStatus storage_data_status(StorageData* storage);
 const char* storage_data_status_text(StorageData* storage);
 void storage_data_timestamp(StorageData* storage);
@@ -57,7 +55,6 @@ struct StorageData {
     const FS_Api* fs_api;
     StorageApi api;
     void* data;
-    FuriMutex* mutex;
     StorageStatus status;
     StorageFileList_t files;
     uint32_t timestamp;

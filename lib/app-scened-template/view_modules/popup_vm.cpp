@@ -1,5 +1,6 @@
 #include "popup_vm.h"
-#include "gui/modules/popup.h"
+#include <gui/modules/popup.h>
+
 PopupVM::PopupVM() {
     popup = popup_alloc();
 }

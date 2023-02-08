@@ -1,11 +1,13 @@
 #pragma once
 
+#include "../gpio_items.h"
+
 #include <gui/view.h>
 
 typedef struct GpioTest GpioTest;
 typedef void (*GpioTestOkCallback)(InputType type, void* context);
 
-GpioTest* gpio_test_alloc();
+GpioTest* gpio_test_alloc(GPIOItems* gpio_items);
 
 void gpio_test_free(GpioTest* gpio_test);
 

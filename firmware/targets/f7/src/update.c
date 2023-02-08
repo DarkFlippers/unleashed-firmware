@@ -23,8 +23,8 @@ static FATFS* pfs = NULL;
     }
 
 static bool flipper_update_mount_sd() {
-    for(int i = 0; i < BSP_SD_MaxMountRetryCount(); ++i) {
-        if(BSP_SD_Init((i % 2) == 0) != MSD_OK) {
+    for(int i = 0; i < sd_max_mount_retry_count(); ++i) {
+        if(sd_init((i % 2) == 0) != SdSpiStatusOK) {
             /* Next attempt will be without card reset, let it settle */
             furi_delay_ms(1000);
             continue;
@@ -42,7 +42,7 @@ static bool flipper_update_init() {
     furi_hal_rtc_init();
     furi_hal_interrupt_init();
 
-    furi_hal_spi_init();
+    furi_hal_spi_config_init();
 
     MX_FATFS_Init();
     if(!hal_sd_detect()) {

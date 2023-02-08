@@ -1,6 +1,6 @@
 #include "princeton_for_testing.h"
 
-#include "furi_hal.h"
+#include <furi_hal.h>
 #include "../blocks/math.h"
 
 /*

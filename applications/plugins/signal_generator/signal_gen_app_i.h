@@ -2,8 +2,8 @@
 
 #include "scenes/signal_gen_scene.h"
 
-#include "furi_hal_clock.h"
-#include "furi_hal_pwm.h"
+#include <furi_hal_clock.h>
+#include <furi_hal_pwm.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>

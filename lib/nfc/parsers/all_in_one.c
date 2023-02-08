@@ -4,7 +4,7 @@
 #include <gui/modules/widget.h>
 #include <nfc_worker_i.h>
 
-#include "furi_hal.h"
+#include <furi_hal.h>
 
 #define ALL_IN_ONE_LAYOUT_UNKNOWN 0
 #define ALL_IN_ONE_LAYOUT_A 1

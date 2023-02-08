@@ -1,7 +1,7 @@
 #include "../storage_move_to_sd.h"
-#include "gui/canvas.h"
-#include "gui/modules/widget_elements/widget_element_i.h"
-#include "storage/storage.h"
+#include <gui/canvas.h>
+#include <gui/modules/widget_elements/widget_element_i.h>
+#include <storage/storage.h>
 
 static void storage_move_to_sd_scene_confirm_widget_callback(
     GuiButtonType result,

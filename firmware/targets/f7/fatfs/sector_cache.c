@@ -8,7 +8,6 @@
 
 #define SECTOR_SIZE 512
 #define N_SECTORS 8
-#define TAG "SDCache"
 
 typedef struct {
     uint32_t itr;
@@ -20,15 +19,11 @@ static SectorCache* cache = NULL;
 
 void sector_cache_init() {
     if(cache == NULL) {
-        // TODO: tuneup allocation order, to place cache in mem pool (MEM2)
         cache = memmgr_alloc_from_pool(sizeof(SectorCache));
     }
 
     if(cache != NULL) {
-        FURI_LOG_I(TAG, "Init");
         memset(cache, 0, sizeof(SectorCache));
-    } else {
-        FURI_LOG_E(TAG, "Init failed");
     }
 }
 

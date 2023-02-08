@@ -1,10 +1,10 @@
 #include "infrared_debug_view.h"
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <gui/canvas.h>
 #include <gui/elements.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 #define INFRARED_DEBUG_TEXT_LENGTH 64
 

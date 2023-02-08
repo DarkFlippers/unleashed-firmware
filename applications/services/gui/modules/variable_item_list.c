@@ -1,8 +1,8 @@
 #include "variable_item_list.h"
-#include "gui/canvas.h"
-#include <m-array.h>
-#include <furi.h>
 #include <gui/elements.h>
+#include <gui/canvas.h>
+#include <furi.h>
+#include <m-array.h>
 #include <stdint.h>
 
 struct VariableItem {

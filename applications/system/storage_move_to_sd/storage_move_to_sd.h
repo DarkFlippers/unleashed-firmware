@@ -1,17 +1,16 @@
 #pragma once
-#include "gui/modules/widget_elements/widget_element_i.h"
-#include <furi.h>
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
-#include <notification/notification_messages.h>
-
 #include <gui/modules/widget.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/widget_elements/widget_element_i.h>
 
+#include <notification/notification_messages.h>
 #include <storage/storage.h>
 #include <storage/storage_sd_api.h>
+#include <furi.h>
 
 #include "scenes/storage_move_to_sd_scene.h"
 

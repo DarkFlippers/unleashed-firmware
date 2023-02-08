@@ -49,18 +49,15 @@ ENV.AppendUnique(
     ],
 )
 
-ENV.SetDefault(
-    LINKER_SCRIPT_PATH="firmware/targets/f${TARGET_HW}/${LINKER_SCRIPT}.ld",
-)
 
 if ENV["FIRMWARE_BUILD_CFG"] == "updater":
     ENV.Append(
         IMAGE_BASE_ADDRESS="0x20000000",
-        LINKER_SCRIPT="stm32wb55xx_ram_fw",
+        LINKER_SCRIPT_PATH=ENV["TARGET_CFG"].linker_script_ram,
     )
 else:
     ENV.Append(
         IMAGE_BASE_ADDRESS="0x8000000",
-        LINKER_SCRIPT="stm32wb55xx_flash",
-        APP_LINKER_SCRIPT="application_ext",
+        LINKER_SCRIPT_PATH=ENV["TARGET_CFG"].linker_script_flash,
+        APP_LINKER_SCRIPT_PATH=ENV["TARGET_CFG"].linker_script_app,
     )

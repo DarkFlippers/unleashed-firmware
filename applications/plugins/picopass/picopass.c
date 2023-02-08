@@ -137,9 +137,9 @@ void picopass_text_store_clear(Picopass* picopass) {
     memset(picopass->text_store, 0, sizeof(picopass->text_store));
 }
 
-static const NotificationSequence picopass_sequence_blink_start_blue = {
+static const NotificationSequence picopass_sequence_blink_start_cyan = {
     &message_blink_start_10,
-    &message_blink_set_color_blue,
+    &message_blink_set_color_cyan,
     &message_do_not_reset,
     NULL,
 };
@@ -150,7 +150,7 @@ static const NotificationSequence picopass_sequence_blink_stop = {
 };
 
 void picopass_blink_start(Picopass* picopass) {
-    notification_message(picopass->notifications, &picopass_sequence_blink_start_blue);
+    notification_message(picopass->notifications, &picopass_sequence_blink_start_cyan);
 }
 
 void picopass_blink_stop(Picopass* picopass) {

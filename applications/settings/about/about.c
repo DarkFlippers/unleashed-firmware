@@ -13,16 +13,28 @@ typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMess
 static DialogMessageButton product_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    const char* screen_header = "Product: Flipper Zero\n"
-                                "Model: FZ.1\n";
-    const char* screen_text = "FCC ID: 2A2V6-FZ\n"
-                              "IC: 27624-FZ";
+    FuriString* screen_header = furi_string_alloc_printf(
+        "Product: %s\n"
+        "Model: %s",
+        furi_hal_version_get_model_name(),
+        furi_hal_version_get_model_code());
 
-    dialog_message_set_header(message, screen_header, 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, screen_text, 0, 26, AlignLeft, AlignTop);
+    FuriString* screen_text = furi_string_alloc_printf(
+        "FCC ID: %s\n"
+        "IC: %s",
+        furi_hal_version_get_fcc_id(),
+        furi_hal_version_get_ic_id());
+
+    dialog_message_set_header(
+        message, furi_string_get_cstr(screen_header), 0, 0, AlignLeft, AlignTop);
+    dialog_message_set_text(
+        message, furi_string_get_cstr(screen_text), 0, 26, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
+
+    furi_string_free(screen_header);
+    furi_string_free(screen_text);
 
     return result;
 }

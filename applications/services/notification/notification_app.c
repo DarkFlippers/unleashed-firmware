@@ -1,4 +1,4 @@
-#include "furi_hal_light.h"
+#include <furi_hal_light.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <storage/storage.h>

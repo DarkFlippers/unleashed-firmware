@@ -2,15 +2,7 @@
 #include <m-list.h>
 #include <m-dict.h>
 
-#define FS_CALL(_storage, _fn)   \
-    storage_data_lock(_storage); \
-    ret = _storage->fs_api->_fn; \
-    storage_data_unlock(_storage);
-
-#define ST_CALL(_storage, _fn)   \
-    storage_data_lock(_storage); \
-    ret = _storage->api._fn;     \
-    storage_data_unlock(_storage);
+#define FS_CALL(_storage, _fn) ret = _storage->fs_api->_fn;
 
 static StorageData* storage_get_storage_by_type(Storage* app, StorageType type) {
     furi_check(type == ST_EXT || type == ST_INT);
@@ -44,16 +36,11 @@ static const char* remove_vfs(const char* path) {
 
 static StorageType storage_get_type_by_path(Storage* app, const char* path) {
     StorageType type = ST_ERROR;
-    if(strlen(path) >= strlen(STORAGE_EXT_PATH_PREFIX) &&
-       memcmp(path, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
+    if(memcmp(path, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
         type = ST_EXT;
-    } else if(
-        strlen(path) >= strlen(STORAGE_INT_PATH_PREFIX) &&
-        memcmp(path, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
+    } else if(memcmp(path, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
         type = ST_INT;
-    } else if(
-        strlen(path) >= strlen(STORAGE_ANY_PATH_PREFIX) &&
-        memcmp(path, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
+    } else if(memcmp(path, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
         type = ST_ANY;
     }
 
@@ -68,21 +55,15 @@ static StorageType storage_get_type_by_path(Storage* app, const char* path) {
 }
 
 static void storage_path_change_to_real_storage(FuriString* path, StorageType real_storage) {
-    if(memcmp(
-           furi_string_get_cstr(path), STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) ==
-       0) {
+    if(furi_string_search(path, STORAGE_ANY_PATH_PREFIX) == 0) {
         switch(real_storage) {
         case ST_EXT:
-            furi_string_set_char(path, 0, STORAGE_EXT_PATH_PREFIX[0]);
-            furi_string_set_char(path, 1, STORAGE_EXT_PATH_PREFIX[1]);
-            furi_string_set_char(path, 2, STORAGE_EXT_PATH_PREFIX[2]);
-            furi_string_set_char(path, 3, STORAGE_EXT_PATH_PREFIX[3]);
+            furi_string_replace_at(
+                path, 0, strlen(STORAGE_EXT_PATH_PREFIX), STORAGE_EXT_PATH_PREFIX);
             break;
         case ST_INT:
-            furi_string_set_char(path, 0, STORAGE_INT_PATH_PREFIX[0]);
-            furi_string_set_char(path, 1, STORAGE_INT_PATH_PREFIX[1]);
-            furi_string_set_char(path, 2, STORAGE_INT_PATH_PREFIX[2]);
-            furi_string_set_char(path, 3, STORAGE_INT_PATH_PREFIX[3]);
+            furi_string_replace_at(
+                path, 0, strlen(STORAGE_INT_PATH_PREFIX), STORAGE_INT_PATH_PREFIX);
             break;
         default:
             break;
@@ -604,7 +585,7 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     }
 
-    furi_semaphore_release(message->semaphore);
+    api_lock_unlock(message->lock);
 }
 
 void storage_process_message(Storage* app, StorageMessage* message) {

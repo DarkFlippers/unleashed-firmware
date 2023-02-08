@@ -1,7 +1,7 @@
-#include "furi_hal_version.h"
-#include "furi_hal_usb_i.h"
-#include "furi_hal_usb.h"
-#include "furi_hal_usb_hid.h"
+#include <furi_hal_version.h>
+#include <furi_hal_usb_i.h>
+#include <furi_hal_usb.h>
+#include <furi_hal_usb_hid.h>
 #include <furi.h>
 
 #include "usb.h"

@@ -79,6 +79,7 @@ vars.AddVariables(
         default="7",
         allowed_values=[
             "7",
+            "18",
         ],
     ),
     (
@@ -207,7 +208,7 @@ vars.AddVariables(
                 # "basic_plugins",
                 # Debug
                 # "debug_apps",
-            )
+            ),
         },
     ),
     (

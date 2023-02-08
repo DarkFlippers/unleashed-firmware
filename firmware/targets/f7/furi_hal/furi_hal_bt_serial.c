@@ -1,4 +1,4 @@
-#include "furi_hal_bt_serial.h"
+#include <furi_hal_bt_serial.h>
 #include "dev_info_service.h"
 #include "battery_service.h"
 #include "serial_service.h"

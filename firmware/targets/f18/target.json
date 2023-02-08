@@ -1,0 +1,55 @@
+{
+    "inherit": "7",
+    "include_paths": [
+        "furi_hal"
+    ],
+    "sdk_header_paths": [
+        "../furi_hal_include",
+        "furi_hal",
+        "platform_specific"
+    ],
+    "sdk_symbols": "api_symbols.csv",
+    "linker_dependencies": [
+        "print",
+        "flipper18",
+        "furi",
+        "freertos",
+        "stm32cubewb",
+        "hwdrivers",
+        "fatfs",
+        "littlefs",
+        "flipperformat",
+        "toolbox",
+        "microtar",
+        "usb_stm32",
+        "appframe",
+        "assets",
+        "misc",
+        "flipper_application",
+        "flipperformat",
+        "toolbox",
+        "flipper18"
+    ],
+    "excluded_sources": [
+        "furi_hal_infrared.c",
+        "furi_hal_nfc.c",
+        "furi_hal_rfid.c",
+        "furi_hal_subghz.c"
+    ],
+    "excluded_headers": [
+        "furi_hal_infrared.h",
+        "furi_hal_nfc.h",
+        "furi_hal_rfid.h",
+        "furi_hal_subghz.h",
+        "furi_hal_ibutton.h",
+        "furi_hal_subghz_configs.h"
+    ],
+    "excluded_modules": [
+        "one_wire",
+        "nfc",
+        "lfrfid",
+        "subghz",
+        "infrared",
+        "st25rfal002"
+    ]
+}

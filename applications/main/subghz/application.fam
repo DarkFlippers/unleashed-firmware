@@ -2,6 +2,7 @@ App(
     appid="subghz",
     name="Sub-GHz",
     apptype=FlipperAppType.APP,
+    targets=["f7"],
     entry_point="subghz_app",
     cdefines=["APP_SUBGHZ"],
     requires=[

@@ -25,6 +25,7 @@ GpioApp* gpio_app_alloc() {
     GpioApp* app = malloc(sizeof(GpioApp));
 
     app->gui = furi_record_open(RECORD_GUI);
+    app->gpio_items = gpio_items_alloc();
 
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&gpio_scene_handlers, app);
@@ -47,7 +48,7 @@ GpioApp* gpio_app_alloc() {
         app->view_dispatcher,
         GpioAppViewVarItemList,
         variable_item_list_get_view(app->var_item_list));
-    app->gpio_test = gpio_test_alloc();
+    app->gpio_test = gpio_test_alloc(app->gpio_items);
     view_dispatcher_add_view(
         app->view_dispatcher, GpioAppViewGpioTest, gpio_test_get_view(app->gpio_test));
 
@@ -91,6 +92,7 @@ void gpio_app_free(GpioApp* app) {
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
 
+    gpio_items_free(app->gpio_items);
     free(app);
 }
 

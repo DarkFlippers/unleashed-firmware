@@ -6,7 +6,7 @@
 
 #include <lib/flipper_format/flipper_format.h>
 #include "furi.h"
-#include "furi_hal.h"
+#include <furi_hal.h>
 #include <lib/subghz/types.h>
 #include <locale/locale.h>
 

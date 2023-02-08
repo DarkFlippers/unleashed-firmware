@@ -1,0 +1,10 @@
+App(
+    appid="example_thermo",
+    name="Example: Thermometer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_thermo_main",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_icon="example_thermo_10px.png",
+    fap_category="Examples",
+)

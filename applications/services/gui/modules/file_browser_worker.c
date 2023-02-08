@@ -1,13 +1,16 @@
 #include "file_browser_worker.h"
+
+#include <storage/filesystem_api_defines.h>
+#include <storage/storage.h>
+
+#include <toolbox/path.h>
 #include <core/check.h>
 #include <core/common_defines.h>
-#include "storage/filesystem_api_defines.h"
+#include <furi.h>
+
 #include <m-array.h>
 #include <stdbool.h>
-#include <storage/storage.h>
-#include <furi.h>
 #include <stddef.h>
-#include "toolbox/path.h"
 
 #define TAG "BrowserWorker"
 

@@ -12,9 +12,7 @@
 
 #define TAG "StorageAPI"
 
-#define S_API_PROLOGUE                                     \
-    FuriSemaphore* semaphore = furi_semaphore_alloc(1, 0); \
-    furi_check(semaphore != NULL);
+#define S_API_PROLOGUE FuriApiLock lock = api_lock_alloc_locked();
 
 #define S_FILE_API_PROLOGUE           \
     Storage* storage = file->storage; \
@@ -24,13 +22,12 @@
     furi_check(                                                                      \
         furi_message_queue_put(storage->message_queue, &message, FuriWaitForever) == \
         FuriStatusOk);                                                               \
-    furi_semaphore_acquire(semaphore, FuriWaitForever);                              \
-    furi_semaphore_free(semaphore);
+    api_lock_wait_unlock_and_free(lock)
 
 #define S_API_MESSAGE(_command)      \
     SAReturn return_data;            \
     StorageMessage message = {       \
-        .semaphore = semaphore,      \
+        .lock = lock,                \
         .command = _command,         \
         .data = &data,               \
         .return_data = &return_data, \
