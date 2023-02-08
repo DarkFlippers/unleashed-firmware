@@ -285,11 +285,11 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
 
     switch(model->status) {
     case SubGhzReadRAWStatusIDLE:
-        canvas_draw_str(canvas, 70, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
-        break;
     case SubGhzReadRAWStatusLoadKeyIDLE:
     case SubGhzReadRAWStatusTX:
     case SubGhzReadRAWStatusTXRepeat:
+        canvas_draw_str(canvas, 70, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
+        break;
     case SubGhzReadRAWStatusLoadKeyTX:
     case SubGhzReadRAWStatusLoadKeyTXRepeat:
     case SubGhzReadRAWStatusStart:
