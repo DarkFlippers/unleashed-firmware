@@ -563,8 +563,9 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
     // Switch to RX
     furi_hal_subghz_rx();
 
-    //Clear the variable after the end of the session
-    furi_hal_subghz_capture_delta_duration = 0;
+    // Not used with current implementation
+    // Clear the variable after the end of the session
+    //furi_hal_subghz_capture_delta_duration = 0;
 }
 
 void furi_hal_subghz_stop_async_rx() {
