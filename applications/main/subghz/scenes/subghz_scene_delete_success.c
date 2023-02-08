@@ -28,13 +28,8 @@ bool subghz_scene_delete_success_on_event(void* context, SceneManagerEvent event
         if(event.event == SubGhzCustomEventSceneDeleteSuccess) {
             if(scene_manager_search_and_switch_to_previous_scene(
                    subghz->scene_manager, SubGhzSceneReadRAW)) {
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
             } else if(scene_manager_search_and_switch_to_previous_scene(
                           subghz->scene_manager, SubGhzSceneSaved)) {
-                // Commented so that the user doesn't have to press
-                // back twice to get to the main SubGhz menu after
-                // deleting a file.
-                //scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
             } else {
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);

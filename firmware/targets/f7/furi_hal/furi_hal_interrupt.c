@@ -75,6 +75,21 @@ __attribute__((always_inline)) static inline void
 }
 
 __attribute__((always_inline)) static inline void
+    furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
+    NVIC_ClearPendingIRQ(furi_hal_interrupt_irqn[index]);
+}
+
+__attribute__((always_inline)) static inline void
+    furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
+    NVIC_GetPendingIRQ(furi_hal_interrupt_irqn[index]);
+}
+
+__attribute__((always_inline)) static inline void
+    furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
+    NVIC_SetPendingIRQ(furi_hal_interrupt_irqn[index]);
+}
+
+__attribute__((always_inline)) static inline void
     furi_hal_interrupt_disable(FuriHalInterruptId index) {
     NVIC_DisableIRQ(furi_hal_interrupt_irqn[index]);
 }
@@ -123,6 +138,7 @@ void furi_hal_interrupt_set_isr_ex(
         // Pre ISR clear
         furi_assert(furi_hal_interrupt_isr[index].isr != NULL);
         furi_hal_interrupt_disable(index);
+        furi_hal_interrupt_clear_pending(index);
     }
 
     furi_hal_interrupt_isr[index].isr = isr;
@@ -131,6 +147,7 @@ void furi_hal_interrupt_set_isr_ex(
 
     if(isr) {
         // Post ISR set
+        furi_hal_interrupt_clear_pending(index);
         furi_hal_interrupt_enable(index, priority);
     } else {
         // Post ISR clear

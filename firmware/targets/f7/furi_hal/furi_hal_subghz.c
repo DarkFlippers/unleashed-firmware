@@ -544,7 +544,7 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
     TIM_InitStruct.Prescaler = 64 - 1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
     TIM_InitStruct.Autoreload = 0x7FFFFFFE;
-    TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV4;
+    TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV4; // Clock division for capture filter
     LL_TIM_Init(TIM2, &TIM_InitStruct);
 
     // Timer: advanced
@@ -562,6 +562,9 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
 
     // Switch to RX
     furi_hal_subghz_rx();
+
+    //Clear the variable after the end of the session
+    furi_hal_subghz_capture_delta_duration = 0;
 }
 
 void furi_hal_subghz_stop_async_rx() {
