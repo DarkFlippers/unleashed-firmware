@@ -11,6 +11,60 @@ extern const SubGhzProtocolEncoder subghz_protocol_alutech_at_4n_encoder;
 extern const SubGhzProtocol subghz_protocol_alutech_at_4n;
 
 /**
+ * Allocate SubGhzProtocolEncoderAlutech_at_4n.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderAlutech_at_4n* pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
+ */
+void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderAlutech_at_4n.
+ * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
+ */
+void subghz_protocol_encoder_alutech_at_4n_free(void* context);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 24 bit
+ * @param btn Button number, 8 bit
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_alutech_at_4n_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_encoder_alutech_at_4n_deserialize(
+    void* context,
+    FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
+ */
+void subghz_protocol_encoder_alutech_at_4n_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_alutech_at_4n_yield(void* context);
+
+/**
  * Allocate SubGhzProtocolDecoderAlutech_at_4n.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderAlutech_at_4n* pointer to a SubGhzProtocolDecoderAlutech_at_4n instance
