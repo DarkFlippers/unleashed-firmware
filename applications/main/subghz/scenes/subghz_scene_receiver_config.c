@@ -278,14 +278,11 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         variable_item_set_current_value_text(item, hopping_text[value_index]);
     }
 
-    // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)
-    item = variable_item_list_add(
-        subghz->variable_item_list,
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
        SubGhzCustomEventManagerSet) {
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Bin_RAW:",
+            "Bin RAW:",
             BIN_RAW_COUNT,
             subghz_scene_receiver_config_set_bin_raw,
             subghz);
@@ -294,6 +291,9 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         variable_item_set_current_value_text(item, bin_raw_text[value_index]);
     }
 
+    // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)
+    item = variable_item_list_add(
+        subghz->variable_item_list,
         "Sound:",
         SPEAKER_COUNT,
         subghz_scene_receiver_config_set_speaker,

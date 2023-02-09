@@ -636,11 +636,11 @@ Function,+,canvas_draw_xbm,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, co
 Function,-,canvas_frame_set,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,-,canvas_free,void,Canvas*
 Function,+,canvas_get_buffer,uint8_t*,Canvas*
-Function,+,canvas_get_buffer_size,size_t,Canvas*
-Function,+,canvas_get_font_params,CanvasFontParameters*,"Canvas*, Font"
+Function,+,canvas_get_buffer_size,size_t,const Canvas*
+Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
 Function,-,canvas_get_orientation,CanvasOrientation,const Canvas*
 Function,+,canvas_glyph_width,uint8_t,"Canvas*, char"
-Function,+,canvas_height,uint8_t,Canvas*
+Function,+,canvas_height,uint8_t,const Canvas*
 Function,-,canvas_init,Canvas*,
 Function,+,canvas_invert_color,void,Canvas*
 Function,+,canvas_reset,void,Canvas*
@@ -2666,6 +2666,15 @@ Function,-,subghz_protocol_decoder_bett_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_bett_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_bett_reset,void,void*
 Function,-,subghz_protocol_decoder_bett_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_bin_raw_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_bin_raw_data_input_rssi,void,"SubGhzProtocolDecoderBinRAW*, float"
+Function,-,subghz_protocol_decoder_bin_raw_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_bin_raw_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_bin_raw_free,void,void*
+Function,-,subghz_protocol_decoder_bin_raw_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_bin_raw_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_bin_raw_reset,void,void*
+Function,-,subghz_protocol_decoder_bin_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_came_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_came_atomo_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_came_atomo_deserialize,_Bool,"void*, FlipperFormat*"
@@ -2978,6 +2987,11 @@ Function,-,subghz_protocol_encoder_bett_deserialize,_Bool,"void*, FlipperFormat*
 Function,-,subghz_protocol_encoder_bett_free,void,void*
 Function,-,subghz_protocol_encoder_bett_stop,void,void*
 Function,-,subghz_protocol_encoder_bett_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_bin_raw_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_bin_raw_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_bin_raw_free,void,void*
+Function,-,subghz_protocol_encoder_bin_raw_stop,void,void*
+Function,-,subghz_protocol_encoder_bin_raw_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_came_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_came_atomo_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_came_atomo_deserialize,_Bool,"void*, FlipperFormat*"
@@ -4889,6 +4903,9 @@ Variable,-,subghz_protocol_ansonic_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_bett,const SubGhzProtocol,
 Variable,-,subghz_protocol_bett_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_bett_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_bin_raw,const SubGhzProtocol,
+Variable,-,subghz_protocol_bin_raw_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_bin_raw_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_came,const SubGhzProtocol,
 Variable,-,subghz_protocol_came_atomo,const SubGhzProtocol,
 Variable,-,subghz_protocol_came_atomo_decoder,const SubGhzProtocolDecoder,

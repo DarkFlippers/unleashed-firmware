@@ -34,7 +34,7 @@ static const Icon* ReceiverItemIcons[] = {
     [SubGhzProtocolTypeUnknown] = &I_Quest_7x8,
     [SubGhzProtocolTypeStatic] = &I_Static_9x7,
     [SubGhzProtocolTypeDynamic] = &I_Dynamic_9x7,
-    [SubGhzProtocolTypeRAW] = &I_Raw_9x7,
+    [SubGhzProtocolTypeBinRAW] = &I_Raw_9x7,
 };
 
 typedef enum {

@@ -111,7 +111,7 @@ const SubGhzProtocolEncoder subghz_protocol_bin_raw_encoder = {
 
 const SubGhzProtocol subghz_protocol_bin_raw = {
     .name = SUBGHZ_PROTOCOL_BIN_RAW_NAME,
-    .type = SubGhzProtocolTypeStatic,
+    .type = SubGhzProtocolTypeBinRAW,
 #ifdef BIN_RAW_DEBUG
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_315 | SubGhzProtocolFlag_868 |
             SubGhzProtocolFlag_AM | SubGhzProtocolFlag_FM | SubGhzProtocolFlag_Decodable |
