@@ -82,7 +82,6 @@ const SubGhzProtocol subghz_protocol_kinggates_stylo_4k = {
 // Pre define function
 static void subghz_protocol_kinggates_stylo_4k_remote_controller(
     SubGhzBlockGeneric* instance,
-    uint64_t data,
     SubGhzKeystore* keystore);
 
 void* subghz_protocol_encoder_kinggates_stylo_4k_alloc(SubGhzEnvironment* environment) {
@@ -139,29 +138,47 @@ LevelDuration subghz_protocol_encoder_kinggates_stylo_4k_yield(void* context) {
 static bool subghz_protocol_kinggates_stylo_4k_gen_data(
     SubGhzProtocolEncoderKingGates_stylo_4k* instance,
     uint8_t btn) {
-    if(instance->generic.cnt < 0xFFFF) {
-        instance->generic.cnt++;
-    } else if(instance->generic.cnt >= 0xFFFF) {
-        instance->generic.cnt = 0;
-    }
-    //uint64_t fix = instance->generic.data;
-    uint32_t decrypt = btn << 28 | 0x0C << 24 | (instance->generic.serial & 0xFF) << 16 |
-                       instance->generic.cnt;
-    uint32_t hop = 0;
+    uint32_t hop = subghz_protocol_blocks_reverse_key(instance->generic.data_2 >> 4, 32);
+    uint64_t fix = subghz_protocol_blocks_reverse_key(instance->generic.data, 53);
     int res = 0;
+    uint32_t decrypt = 0;
 
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
             res = strcmp(furi_string_get_cstr(manufacture_code->name), "Kingates_Stylo4k");
             if(res == 0) {
                 //Simple Learning
-                hop = subghz_protocol_keeloq_common_encrypt(decrypt, manufacture_code->key);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
+                break;
+            }
+        }
+    instance->generic.cnt = decrypt & 0xFFFF;
+
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
+
+    instance->generic.btn = (fix >> 17) & 0x0F;
+    instance->generic.serial = ((fix >> 5) & 0xFFFF0000) | (fix & 0xFFFF);
+    //uint64_t fix = instance->generic.data;
+    uint32_t data = btn << 28 | 0x0C << 24 | (instance->generic.serial & 0xFF) << 16 |
+                    instance->generic.cnt;
+
+    uint32_t encrypt = 0;
+    for
+        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
+            res = strcmp(furi_string_get_cstr(manufacture_code->name), "Kingates_Stylo4k");
+            if(res == 0) {
+                //Simple Learning
+                encrypt = subghz_protocol_keeloq_common_encrypt(data, manufacture_code->key);
                 break;
             }
         }
 
-    if(hop) {
-        instance->generic.data_2 = subghz_protocol_blocks_reverse_key(hop, 32);
+    if(encrypt) {
+        instance->generic.data_2 = subghz_protocol_blocks_reverse_key(encrypt, 32);
         return true;
     }
     return false;
@@ -246,7 +263,7 @@ bool subghz_protocol_encoder_kinggates_stylo_4k_deserialize(
         }
 
         subghz_protocol_kinggates_stylo_4k_remote_controller(
-            &instance->generic, instance->generic.data_2, instance->keystore);
+            &instance->generic, instance->keystore);
 
         //optional parameter parameter
         flipper_format_read_uint32(
@@ -260,9 +277,9 @@ bool subghz_protocol_encoder_kinggates_stylo_4k_deserialize(
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data_2 >> i * 8) & 0xFF;
         }
-        if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
+        if(!flipper_format_update_hex(flipper_format, "Data", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
             break;
         }
@@ -408,7 +425,6 @@ void subghz_protocol_decoder_kinggates_stylo_4k_feed(void* context, bool level, 
  */
 static void subghz_protocol_kinggates_stylo_4k_remote_controller(
     SubGhzBlockGeneric* instance,
-    uint64_t data,
     SubGhzKeystore* keystore) {
     /**
  *  9500us   12*(400/400)  2200/800|1-bit|0-bit|
@@ -431,7 +447,7 @@ static void subghz_protocol_kinggates_stylo_4k_remote_controller(
  * 
 */
 
-    uint32_t hop = subghz_protocol_blocks_reverse_key(data >> 4, 32);
+    uint32_t hop = subghz_protocol_blocks_reverse_key(instance->data_2 >> 4, 32);
     uint64_t fix = subghz_protocol_blocks_reverse_key(instance->data, 53);
     bool ret = false;
     uint32_t decrypt = 0;
@@ -511,6 +527,7 @@ bool subghz_protocol_decoder_kinggates_stylo_4k_deserialize(
             FURI_LOG_E(TAG, "Missing Data");
             break;
         }
+
         for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
             instance->generic.data_2 = instance->generic.data_2 << 8 | key_data[i];
         }
@@ -522,8 +539,7 @@ bool subghz_protocol_decoder_kinggates_stylo_4k_deserialize(
 void subghz_protocol_decoder_kinggates_stylo_4k_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderKingGates_stylo_4k* instance = context;
-    subghz_protocol_kinggates_stylo_4k_remote_controller(
-        &instance->generic, instance->generic.data_2, instance->keystore);
+    subghz_protocol_kinggates_stylo_4k_remote_controller(&instance->generic, instance->keystore);
 
     furi_string_cat_printf(
         output,
