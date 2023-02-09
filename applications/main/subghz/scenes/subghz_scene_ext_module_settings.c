@@ -37,18 +37,7 @@ static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         if(value_index2 == 1) {
             furi_hal_subghz_set_async_mirror_pin(&gpio_ext_pa7);
-            if(furi_hal_subghz.async_mirror_pin != NULL) {
-                furi_hal_gpio_init(
-                    furi_hal_subghz.async_mirror_pin,
-                    GpioModeOutputPushPull,
-                    GpioPullNo,
-                    GpioSpeedVeryHigh);
-            }
         } else {
-            if(furi_hal_subghz.async_mirror_pin != NULL) {
-                furi_hal_gpio_init(
-                    furi_hal_subghz.async_mirror_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-            }
             furi_hal_subghz_set_async_mirror_pin(NULL);
         }
     }
@@ -90,13 +79,6 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
     UNUSED(subghz);
     UNUSED(event);
 
-    return false;
-}
-
-void subghz_scene_ext_module_settings_on_exit(void* context) {
-    SubGhz* subghz = context;
-    variable_item_list_reset(subghz->variable_item_list);
-
     // Set selected radio module
     furi_hal_subghz_set_radio_type(value_index);
 
@@ -107,4 +89,11 @@ void subghz_scene_ext_module_settings_on_exit(void* context) {
         furi_string_set(subghz->error_str, "Please connect\nexternal radio");
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
     }
+
+    return false;
+}
+
+void subghz_scene_ext_module_settings_on_exit(void* context) {
+    SubGhz* subghz = context;
+    variable_item_list_reset(subghz->variable_item_list);
 }
