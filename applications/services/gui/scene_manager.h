@@ -63,7 +63,7 @@ void scene_manager_set_scene_state(SceneManager* scene_manager, uint32_t scene_i
  *
  * @return     Scene state
  */
-uint32_t scene_manager_get_scene_state(SceneManager* scene_manager, uint32_t scene_id);
+uint32_t scene_manager_get_scene_state(const SceneManager* scene_manager, uint32_t scene_id);
 
 /** Scene Manager allocation and configuration
  *
@@ -134,7 +134,7 @@ bool scene_manager_previous_scene(SceneManager* scene_manager);
  *
  * @return     true if previous scene was found, false otherwise
  */
-bool scene_manager_has_previous_scene(SceneManager* scene_manager, uint32_t scene_id);
+bool scene_manager_has_previous_scene(const SceneManager* scene_manager, uint32_t scene_id);
 
 /** Search and switch to previous Scene
  *

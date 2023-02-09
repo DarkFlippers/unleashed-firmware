@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,13.1,,
+Version,+,14.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -522,7 +522,7 @@ Function,-,bzero,void,"void*, size_t"
 Function,-,calloc,void*,"size_t, size_t"
 Function,+,canvas_clear,void,Canvas*
 Function,+,canvas_commit,void,Canvas*
-Function,+,canvas_current_font_height,uint8_t,Canvas*
+Function,+,canvas_current_font_height,uint8_t,const Canvas*
 Function,+,canvas_draw_bitmap,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, const uint8_t*"
 Function,+,canvas_draw_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,canvas_draw_circle,void,"Canvas*, uint8_t, uint8_t, uint8_t"
@@ -539,9 +539,9 @@ Function,+,canvas_draw_str,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,canvas_draw_str_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,canvas_draw_triangle,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, CanvasDirection"
 Function,+,canvas_draw_xbm,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, const uint8_t*"
-Function,+,canvas_get_font_params,CanvasFontParameters*,"Canvas*, Font"
+Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
 Function,+,canvas_glyph_width,uint8_t,"Canvas*, char"
-Function,+,canvas_height,uint8_t,Canvas*
+Function,+,canvas_height,uint8_t,const Canvas*
 Function,+,canvas_invert_color,void,Canvas*
 Function,+,canvas_reset,void,Canvas*
 Function,+,canvas_set_bitmap_mode,void,"Canvas*, _Bool"
@@ -550,7 +550,7 @@ Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
-Function,+,canvas_width,uint8_t,Canvas*
+Function,+,canvas_width,uint8_t,const Canvas*
 Function,-,cfree,void,void*
 Function,-,clearerr,void,FILE*
 Function,-,clearerr_unlocked,void,FILE*
@@ -1063,9 +1063,9 @@ Function,+,furi_hal_spi_bus_handle_deinit,void,FuriHalSpiBusHandle*
 Function,+,furi_hal_spi_bus_handle_init,void,FuriHalSpiBusHandle*
 Function,+,furi_hal_spi_bus_init,void,FuriHalSpiBus*
 Function,+,furi_hal_spi_bus_rx,_Bool,"FuriHalSpiBusHandle*, uint8_t*, size_t, uint32_t"
-Function,+,furi_hal_spi_bus_trx,_Bool,"FuriHalSpiBusHandle*, uint8_t*, uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_spi_bus_trx,_Bool,"FuriHalSpiBusHandle*, const uint8_t*, uint8_t*, size_t, uint32_t"
 Function,+,furi_hal_spi_bus_trx_dma,_Bool,"FuriHalSpiBusHandle*, uint8_t*, uint8_t*, size_t, uint32_t"
-Function,+,furi_hal_spi_bus_tx,_Bool,"FuriHalSpiBusHandle*, uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_spi_bus_tx,_Bool,"FuriHalSpiBusHandle*, const uint8_t*, size_t, uint32_t"
 Function,-,furi_hal_spi_config_deinit_early,void,
 Function,-,furi_hal_spi_config_init,void,
 Function,-,furi_hal_spi_config_init_early,void,
@@ -1123,6 +1123,7 @@ Function,+,furi_kernel_unlock,int32_t,
 Function,+,furi_log_get_level,FuriLogLevel,
 Function,-,furi_log_init,void,
 Function,+,furi_log_print_format,void,"FuriLogLevel, const char*, const char*, ..."
+Function,+,furi_log_print_raw_format,void,"FuriLogLevel, const char*, ..."
 Function,+,furi_log_set_level,void,FuriLogLevel
 Function,-,furi_log_set_puts,void,FuriLogPuts
 Function,-,furi_log_set_timestamp,void,FuriLogTimestamp
@@ -1287,7 +1288,7 @@ Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, voi
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
 Function,+,gui_direct_draw_acquire,Canvas*,Gui*
 Function,+,gui_direct_draw_release,void,Gui*
-Function,+,gui_get_framebuffer_size,size_t,Gui*
+Function,+,gui_get_framebuffer_size,size_t,const Gui*
 Function,+,gui_remove_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
 Function,+,gui_set_lockdown,void,"Gui*, _Bool"
@@ -1301,9 +1302,9 @@ Function,+,hmac_sha256_init,void,"hmac_sha256_context*, const uint8_t*"
 Function,+,hmac_sha256_update,void,"const hmac_sha256_context*, const uint8_t*, unsigned"
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
-Function,+,icon_animation_get_height,uint8_t,IconAnimation*
-Function,+,icon_animation_get_width,uint8_t,IconAnimation*
-Function,+,icon_animation_is_last_frame,_Bool,IconAnimation*
+Function,+,icon_animation_get_height,uint8_t,const IconAnimation*
+Function,+,icon_animation_get_width,uint8_t,const IconAnimation*
+Function,+,icon_animation_is_last_frame,_Bool,const IconAnimation*
 Function,+,icon_animation_set_update_callback,void,"IconAnimation*, IconAnimationCallback, void*"
 Function,+,icon_animation_start,void,IconAnimation*
 Function,+,icon_animation_stop,void,IconAnimation*
@@ -1352,7 +1353,7 @@ Function,-,ldiv,ldiv_t,"long, long"
 Function,-,llabs,long long,long long
 Function,-,lldiv,lldiv_t,"long long, long long"
 Function,+,loader_get_pubsub,FuriPubSub*,Loader*
-Function,+,loader_is_locked,_Bool,Loader*
+Function,+,loader_is_locked,_Bool,const Loader*
 Function,+,loader_lock,_Bool,Loader*
 Function,+,loader_show_menu,void,
 Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*"
@@ -1570,11 +1571,11 @@ Function,+,saved_struct_save,_Bool,"const char*, void*, size_t, uint8_t, uint8_t
 Function,-,scanf,int,"const char*, ..."
 Function,+,scene_manager_alloc,SceneManager*,"const SceneManagerHandlers*, void*"
 Function,+,scene_manager_free,void,SceneManager*
-Function,+,scene_manager_get_scene_state,uint32_t,"SceneManager*, uint32_t"
+Function,+,scene_manager_get_scene_state,uint32_t,"const SceneManager*, uint32_t"
 Function,+,scene_manager_handle_back_event,_Bool,SceneManager*
 Function,+,scene_manager_handle_custom_event,_Bool,"SceneManager*, uint32_t"
 Function,+,scene_manager_handle_tick_event,void,SceneManager*
-Function,+,scene_manager_has_previous_scene,_Bool,"SceneManager*, uint32_t"
+Function,+,scene_manager_has_previous_scene,_Bool,"const SceneManager*, uint32_t"
 Function,+,scene_manager_next_scene,void,"SceneManager*, uint32_t"
 Function,+,scene_manager_previous_scene,_Bool,SceneManager*
 Function,+,scene_manager_search_and_switch_to_another_scene,_Bool,"SceneManager*, uint32_t"
@@ -1946,11 +1947,11 @@ Function,+,view_port_alloc,ViewPort*,
 Function,+,view_port_draw_callback_set,void,"ViewPort*, ViewPortDrawCallback, void*"
 Function,+,view_port_enabled_set,void,"ViewPort*, _Bool"
 Function,+,view_port_free,void,ViewPort*
-Function,+,view_port_get_height,uint8_t,ViewPort*
+Function,+,view_port_get_height,uint8_t,const ViewPort*
 Function,+,view_port_get_orientation,ViewPortOrientation,const ViewPort*
-Function,+,view_port_get_width,uint8_t,ViewPort*
+Function,+,view_port_get_width,uint8_t,const ViewPort*
 Function,+,view_port_input_callback_set,void,"ViewPort*, ViewPortInputCallback, void*"
-Function,+,view_port_is_enabled,_Bool,ViewPort*
+Function,+,view_port_is_enabled,_Bool,const ViewPort*
 Function,+,view_port_set_height,void,"ViewPort*, uint8_t"
 Function,+,view_port_set_orientation,void,"ViewPort*, ViewPortOrientation"
 Function,+,view_port_set_width,void,"ViewPort*, uint8_t"

@@ -419,6 +419,6 @@ void subghz_scene_read_raw_on_exit(void* context) {
     subghz->state_notifications = SubGhzNotificationStateIDLE;
     notification_message(subghz->notifications, &sequence_reset_rgb);
 
-    // filter restoration
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+    //filter restoration
+    subghz_receiver_set_filter(subghz->txrx->receiver, subghz->txrx->filter);
 }

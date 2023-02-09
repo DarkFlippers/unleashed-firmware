@@ -29,7 +29,7 @@ void icon_animation_set_update_callback(
     instance->callback_context = context;
 }
 
-const uint8_t* icon_animation_get_data(IconAnimation* instance) {
+const uint8_t* icon_animation_get_data(const IconAnimation* instance) {
     return instance->icon->frames[instance->frame];
 }
 
@@ -51,12 +51,12 @@ void icon_animation_timer_callback(void* context) {
     }
 }
 
-uint8_t icon_animation_get_width(IconAnimation* instance) {
+uint8_t icon_animation_get_width(const IconAnimation* instance) {
     furi_assert(instance);
     return instance->icon->width;
 }
 
-uint8_t icon_animation_get_height(IconAnimation* instance) {
+uint8_t icon_animation_get_height(const IconAnimation* instance) {
     furi_assert(instance);
     return instance->icon->height;
 }
@@ -83,7 +83,7 @@ void icon_animation_stop(IconAnimation* instance) {
     }
 }
 
-bool icon_animation_is_last_frame(IconAnimation* instance) {
+bool icon_animation_is_last_frame(const IconAnimation* instance) {
     furi_assert(instance);
     return instance->icon->frame_count - instance->frame <= 1;
 }

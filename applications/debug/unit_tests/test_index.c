@@ -70,7 +70,7 @@ void minunit_print_progress() {
 }
 
 void minunit_print_fail(const char* str) {
-    printf(FURI_LOG_CLR_E "%s\r\n" FURI_LOG_CLR_RESET, str);
+    printf(_FURI_LOG_CLR_E "%s\r\n" _FURI_LOG_CLR_RESET, str);
 }
 
 void unit_tests_cli(Cli* cli, FuriString* args, void* context) {

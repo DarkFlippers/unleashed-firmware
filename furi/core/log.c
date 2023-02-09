@@ -28,27 +28,27 @@ void furi_log_print_format(FuriLogLevel level, const char* tag, const char* form
         FuriString* string;
         string = furi_string_alloc();
 
-        const char* color = FURI_LOG_CLR_RESET;
+        const char* color = _FURI_LOG_CLR_RESET;
         const char* log_letter = " ";
         switch(level) {
         case FuriLogLevelError:
-            color = FURI_LOG_CLR_E;
+            color = _FURI_LOG_CLR_E;
             log_letter = "E";
             break;
         case FuriLogLevelWarn:
-            color = FURI_LOG_CLR_W;
+            color = _FURI_LOG_CLR_W;
             log_letter = "W";
             break;
         case FuriLogLevelInfo:
-            color = FURI_LOG_CLR_I;
+            color = _FURI_LOG_CLR_I;
             log_letter = "I";
             break;
         case FuriLogLevelDebug:
-            color = FURI_LOG_CLR_D;
+            color = _FURI_LOG_CLR_D;
             log_letter = "D";
             break;
         case FuriLogLevelTrace:
-            color = FURI_LOG_CLR_T;
+            color = _FURI_LOG_CLR_T;
             log_letter = "T";
             break;
         default:
@@ -58,7 +58,7 @@ void furi_log_print_format(FuriLogLevel level, const char* tag, const char* form
         // Timestamp
         furi_string_printf(
             string,
-            "%lu %s[%s][%s] " FURI_LOG_CLR_RESET,
+            "%lu %s[%s][%s] " _FURI_LOG_CLR_RESET,
             furi_log.timestamp(),
             color,
             log_letter,
@@ -75,6 +75,23 @@ void furi_log_print_format(FuriLogLevel level, const char* tag, const char* form
         furi_string_free(string);
 
         furi_log.puts("\r\n");
+
+        furi_mutex_release(furi_log.mutex);
+    }
+}
+
+void furi_log_print_raw_format(FuriLogLevel level, const char* format, ...) {
+    if(level <= furi_log.log_level &&
+       furi_mutex_acquire(furi_log.mutex, FuriWaitForever) == FuriStatusOk) {
+        FuriString* string;
+        string = furi_string_alloc();
+        va_list args;
+        va_start(args, format);
+        furi_string_vprintf(string, format, args);
+        va_end(args);
+
+        furi_log.puts(furi_string_get_cstr(string));
+        furi_string_free(string);
 
         furi_mutex_release(furi_log.mutex);
     }

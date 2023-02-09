@@ -22,21 +22,21 @@ typedef enum {
     FuriLogLevelTrace = 6,
 } FuriLogLevel;
 
-#define FURI_LOG_CLR(clr) "\033[0;" clr "m"
-#define FURI_LOG_CLR_RESET "\033[0m"
+#define _FURI_LOG_CLR(clr) "\033[0;" clr "m"
+#define _FURI_LOG_CLR_RESET "\033[0m"
 
-#define FURI_LOG_CLR_BLACK "30"
-#define FURI_LOG_CLR_RED "31"
-#define FURI_LOG_CLR_GREEN "32"
-#define FURI_LOG_CLR_BROWN "33"
-#define FURI_LOG_CLR_BLUE "34"
-#define FURI_LOG_CLR_PURPLE "35"
+#define _FURI_LOG_CLR_BLACK "30"
+#define _FURI_LOG_CLR_RED "31"
+#define _FURI_LOG_CLR_GREEN "32"
+#define _FURI_LOG_CLR_BROWN "33"
+#define _FURI_LOG_CLR_BLUE "34"
+#define _FURI_LOG_CLR_PURPLE "35"
 
-#define FURI_LOG_CLR_E FURI_LOG_CLR(FURI_LOG_CLR_RED)
-#define FURI_LOG_CLR_W FURI_LOG_CLR(FURI_LOG_CLR_BROWN)
-#define FURI_LOG_CLR_I FURI_LOG_CLR(FURI_LOG_CLR_GREEN)
-#define FURI_LOG_CLR_D FURI_LOG_CLR(FURI_LOG_CLR_BLUE)
-#define FURI_LOG_CLR_T FURI_LOG_CLR(FURI_LOG_CLR_PURPLE)
+#define _FURI_LOG_CLR_E _FURI_LOG_CLR(_FURI_LOG_CLR_RED)
+#define _FURI_LOG_CLR_W _FURI_LOG_CLR(_FURI_LOG_CLR_BROWN)
+#define _FURI_LOG_CLR_I _FURI_LOG_CLR(_FURI_LOG_CLR_GREEN)
+#define _FURI_LOG_CLR_D _FURI_LOG_CLR(_FURI_LOG_CLR_BLUE)
+#define _FURI_LOG_CLR_T _FURI_LOG_CLR(_FURI_LOG_CLR_PURPLE)
 
 typedef void (*FuriLogPuts)(const char* data);
 typedef uint32_t (*FuriLogTimestamp)(void);
@@ -53,6 +53,15 @@ void furi_log_init();
  */
 void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...)
     _ATTRIBUTE((__format__(__printf__, 3, 4)));
+
+/** Print log record
+ * 
+ * @param level 
+ * @param format 
+ * @param ... 
+ */
+void furi_log_print_raw_format(FuriLogLevel level, const char* format, ...)
+    _ATTRIBUTE((__format__(__printf__, 2, 3)));
 
 /** Set log level
  *
@@ -94,6 +103,22 @@ void furi_log_set_timestamp(FuriLogTimestamp timestamp);
     furi_log_print_format(FuriLogLevelDebug, tag, format, ##__VA_ARGS__)
 #define FURI_LOG_T(tag, format, ...) \
     furi_log_print_format(FuriLogLevelTrace, tag, format, ##__VA_ARGS__)
+
+/** Log methods
+ *
+ * @param      format  The raw format 
+ * @param      ...     VA Args
+ */
+#define FURI_LOG_RAW_E(format, ...) \
+    furi_log_print_raw_format(FuriLogLevelError, format, ##__VA_ARGS__)
+#define FURI_LOG_RAW_W(format, ...) \
+    furi_log_print_raw_format(FuriLogLevelWarn, format, ##__VA_ARGS__)
+#define FURI_LOG_RAW_I(format, ...) \
+    furi_log_print_raw_format(FuriLogLevelInfo, format, ##__VA_ARGS__)
+#define FURI_LOG_RAW_D(format, ...) \
+    furi_log_print_raw_format(FuriLogLevelDebug, format, ##__VA_ARGS__)
+#define FURI_LOG_RAW_T(format, ...) \
+    furi_log_print_raw_format(FuriLogLevelTrace, format, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }

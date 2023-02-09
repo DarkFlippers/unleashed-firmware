@@ -90,6 +90,7 @@ typedef enum {
     SubGhzProtocolFlag_Save = (1 << 7),
     SubGhzProtocolFlag_Load = (1 << 8),
     SubGhzProtocolFlag_Send = (1 << 9),
+    SubGhzProtocolFlag_BinRAW = (1 << 10),
 } SubGhzProtocolFlag;
 
 typedef struct {

@@ -19,6 +19,11 @@ typedef struct {
 
 } SubGhzProtocolBlockEncoder;
 
+typedef enum {
+    SubGhzProtocolBlockAlignBitLeft,
+    SubGhzProtocolBlockAlignBitRight,
+} SubGhzProtocolBlockAlignBit;
+
 /**
  * Set data bit when encoding HEX array.
  * @param bit_value The value of the bit to be set
@@ -47,13 +52,15 @@ bool subghz_protocol_blocks_get_bit_array(uint8_t data_array[], size_t read_inde
  * @param upload Pointer to a LevelDuration
  * @param max_size_upload upload size, check not to overflow
  * @param duration_bit duration 1 bit
+ * @param align_bit alignment of useful bits in an array
  */
-size_t subghz_protocol_blocks_get_upload(
+size_t subghz_protocol_blocks_get_upload_from_bit_array(
     uint8_t data_array[],
     size_t count_bit_data_array,
     LevelDuration* upload,
     size_t max_size_upload,
-    uint32_t duration_bit);
+    uint32_t duration_bit,
+    SubGhzProtocolBlockAlignBit align_bit);
 
 #ifdef __cplusplus
 }

@@ -196,12 +196,13 @@ static bool
         break;
     }
 
-    instance->encoder.size_upload = subghz_protocol_blocks_get_upload(
+    instance->encoder.size_upload = subghz_protocol_blocks_get_upload_from_bit_array(
         upload_hex_data,
         upload_hex_count_bit,
         instance->encoder.upload,
         instance->encoder.size_upload,
-        subghz_protocol_chamb_code_const.te_short);
+        subghz_protocol_chamb_code_const.te_short,
+        SubGhzProtocolBlockAlignBitLeft);
 
     return true;
 }

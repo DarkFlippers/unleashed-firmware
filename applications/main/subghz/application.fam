@@ -12,7 +12,7 @@ App(
     ],
     provides=["subghz_start"],
     icon="A_Sub1ghz_14",
-    stack_size=2 * 1024,
+    stack_size=3 * 1024,
     order=10,
 )
 

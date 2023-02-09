@@ -12,6 +12,8 @@
 #define MENU_ITEMS 4u
 #define UNLOCK_CNT 3
 
+#define SUBGHZ_RAW_TRESHOLD_MIN -90.0f
+
 typedef struct {
     FuriString* item_str;
     uint8_t type;
@@ -62,6 +64,7 @@ typedef struct {
     uint16_t history_item;
     SubGhzViewReceiverBarShow bar_show;
     SubGhzViewReceiverMode mode;
+    uint8_t u_rssi;
 } SubGhzViewReceiverModel;
 
 void subghz_view_receiver_set_mode(
@@ -69,6 +72,21 @@ void subghz_view_receiver_set_mode(
     SubGhzViewReceiverMode mode) {
     with_view_model(
         subghz_receiver->view, SubGhzViewReceiverModel * model, { model->mode = mode; }, true);
+}
+
+void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi) {
+    furi_assert(instance);
+    with_view_model(
+        instance->view,
+        SubGhzViewReceiverModel * model,
+        {
+            if(rssi < SUBGHZ_RAW_TRESHOLD_MIN) {
+                model->u_rssi = 0;
+            } else {
+                model->u_rssi = (uint8_t)(rssi - SUBGHZ_RAW_TRESHOLD_MIN);
+            }
+        },
+        true);
 }
 
 void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock lock) {
@@ -189,6 +207,16 @@ static void subghz_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool s
     canvas_draw_dot(canvas, scrollbar ? 121 : 126, (0 + idx * FRAME_HEIGHT) + 11);
 }
 
+static void subghz_view_rssi_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
+    for(uint8_t i = 1; i < model->u_rssi; i++) {
+        if(i % 5) {
+            canvas_draw_dot(canvas, 46 + i, 50);
+            canvas_draw_dot(canvas, 47 + i, 51);
+            canvas_draw_dot(canvas, 46 + i, 52);
+        }
+    }
+}
+
 void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -251,6 +279,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         }
     }
 
+    subghz_view_rssi_draw(canvas, model);
     switch(model->bar_show) {
     case SubGhzViewReceiverBarShowLock:
         canvas_draw_icon(canvas, 64, 55, &I_Lock_7x8);

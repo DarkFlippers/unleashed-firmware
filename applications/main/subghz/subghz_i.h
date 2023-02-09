@@ -62,6 +62,7 @@ struct SubGhzTxRx {
     SubGhzEnvironment* environment;
     SubGhzReceiver* receiver;
     SubGhzTransmitter* transmitter;
+    SubGhzProtocolFlag filter;
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
     SecureData* secure_data;

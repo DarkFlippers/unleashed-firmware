@@ -261,16 +261,16 @@ static bool
     data = order << 4 | invert;
     int k = 0;
     for(int i = 6; i >= 0; i -= 2) {
-        roll_array[k++] = (data >> i) & 0x03;
-        if(roll_array[k] == 3) {
+        roll_array[k] = (data >> i) & 0x03;
+        if(roll_array[k++] == 3) {
             FURI_LOG_E(TAG, "Roll_Array FAIL");
             return false;
         }
     }
 
     for(int i = 8; i >= 0; i -= 2) {
-        roll_array[k++] = (p[2] >> i) & 0x03;
-        if(roll_array[k] == 3) {
+        roll_array[k] = (p[2] >> i) & 0x03;
+        if(roll_array[k++] == 3) {
             FURI_LOG_E(TAG, "Roll_Array FAIL");
             return false;
         }
