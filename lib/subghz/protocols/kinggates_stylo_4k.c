@@ -138,6 +138,7 @@ LevelDuration subghz_protocol_encoder_kinggates_stylo_4k_yield(void* context) {
 static bool subghz_protocol_kinggates_stylo_4k_gen_data(
     SubGhzProtocolEncoderKingGates_stylo_4k* instance,
     uint8_t btn) {
+    UNUSED(btn);
     uint32_t hop = subghz_protocol_blocks_reverse_key(instance->generic.data_2 >> 4, 32);
     uint64_t fix = subghz_protocol_blocks_reverse_key(instance->generic.data, 53);
     int res = 0;
@@ -154,33 +155,32 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
         }
     instance->generic.cnt = decrypt & 0xFFFF;
 
-    if(instance->generic.cnt < 0xFFFF) {
-        instance->generic.cnt++;
-    } else if(instance->generic.cnt >= 0xFFFF) {
-        instance->generic.cnt = 0;
-    }
+    // if(instance->generic.cnt < 0xFFFF) {
+    // instance->generic.cnt++;
+    // } else if(instance->generic.cnt >= 0xFFFF) {
+    // instance->generic.cnt = 0;
+    // }
 
     instance->generic.btn = (fix >> 17) & 0x0F;
     instance->generic.serial = ((fix >> 5) & 0xFFFF0000) | (fix & 0xFFFF);
     //uint64_t fix = instance->generic.data;
-    uint32_t data = btn << 28 | 0x0C << 24 | (instance->generic.serial & 0xFF) << 16 |
-                    instance->generic.cnt;
+    uint32_t data = decrypt >> 16;
+    data <<= 16;
+    data |= instance->generic.cnt;
 
-    uint32_t encrypt = 0;
+    uint64_t encrypt = 0;
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
             res = strcmp(furi_string_get_cstr(manufacture_code->name), "Kingates_Stylo4k");
             if(res == 0) {
                 //Simple Learning
                 encrypt = subghz_protocol_keeloq_common_encrypt(data, manufacture_code->key);
-                break;
+                // encrypt = subghz_protocol_blocks_reverse_key(encrypt, 32);
+                instance->generic.data_2 = encrypt << 4;
+                return true;
             }
         }
 
-    if(encrypt) {
-        instance->generic.data_2 = subghz_protocol_blocks_reverse_key(encrypt, 32);
-        return true;
-    }
     return false;
 }
 
@@ -227,8 +227,23 @@ static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
         level_duration_make(true, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_short * 2);
 
     // Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = instance->generic.data_count_bit; i > 64; i--) {
+        if(bit_read(instance->generic.data, i - 1 - 64)) {
+            //send bit 1
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_short);
+            instance->encoder.upload[index++] = level_duration_make(
+                true, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_long);
+        } else {
+            //send bit 0
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_long);
+            instance->encoder.upload[index++] = level_duration_make(
+                true, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_short);
+        }
+    }
+    for(uint8_t i = 64; i > 0; i--) {
+        if(bit_read(instance->generic.data_2, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] = level_duration_make(
                 false, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_short);
@@ -269,13 +284,29 @@ bool subghz_protocol_encoder_kinggates_stylo_4k_deserialize(
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint8_t key_data[sizeof(uint64_t)] = {0};
+        if(!flipper_format_read_hex(flipper_format, "Data", key_data, sizeof(uint64_t))) {
+            FURI_LOG_E(TAG, "Missing Data");
+            break;
+        }
+
+        for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
+            instance->generic.data_2 = instance->generic.data_2 << 8 | key_data[i];
+        }
+
         subghz_protocol_encoder_kinggates_stylo_4k_get_upload(instance, instance->generic.btn);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
             break;
         }
-        uint8_t key_data[sizeof(uint64_t)] = {0};
+
+        // uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
             key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data_2 >> i * 8) & 0xFF;
         }
