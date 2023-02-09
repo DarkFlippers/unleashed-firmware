@@ -1,29 +1,34 @@
 ### New changes
-* SubGHz: External CC1101 support (by @quen0n | PR #307) - [How to connect](https://github.com/quen0n/flipperzero-ext-cc1101)
-* SubGHz: Fix GUI receiver bug - When keyboard is locked and popup appears it now shows bottom text correctly
-* Plugins: Added movement interval in mouse_jiggler USB & BLE (by @DocKuro | PR #303)
-* Plugins: Solitaire and Blackjack now affect Flipper's level (by @teeebor | PR #305)
-* Plugins -> Updated **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
-* Plugins -> Updated **UniTemp** [(by quen0n)](https://github.com/quen0n/unitemp-flipperzero)
-* Infrared: Update universal remote assets (by @amec0e) (PR #306)
-* NFC: Remove invalid keys from mf classic dict (Fixes #304)
-* GUI: Custom font set function (by @LTVA1) - [Link](https://github.com/LTVA1/flipperzero-firmware-wPlugins/tree/patch-custom-font)
-* OFW: FreeRTOS: update to 10.5.1
-* OFW: NFC: fix creating MF Classic tags from "Add Manually" menu (BCC calulation and ATQA/SAK writing)
-* OFW: Print card CID in storage info
-* OFW: Add support for `GUI-CTRL` in bad_usb
-* OFW: Furi: getter for current thread stdout write callback 
-* OFW: LF-RFID: add CRC calculation to paradox protocol
-* OFW: WS: add protocol LaCrosse-TX (TFA Dostmann) 
-* OFW: Assets: correct MicroSD card pinout in service animations
-* OFW: Furi: make `furi_is_irq_context` public
-* OFW: debug apps: made runnable as .faps; sdk: resolved additional APIs in use by faps 
-* OFW: NFC: change from int8_t to uint8_t
-* OFW: NFC: add MIFARE MINI support
-* OFW: emv: parse track1&2 equivalent data
-* OFW: nfc: Fix sector reads when one block is unreadable for MIFARE Classic
-* OFW: nfc: Fix crash when using debug PCAP trace
-* OFW: ELF-loader: wait for notification to complete on app exit
+* SubGHz: **Fixed bug in SubGHz HAL, now CC1101 shutdowns properly, (also this fixed unstable TX)**
+* SubGHz: GUI Fixes
+* SubGHz: Removed bugged Detect RAW feature, now its replaced with BinRAW
+* Plugins: SubGHz Bruteforcer - Added support for Linear Delta-3 310MHz
+* Plugins: Fix CTRL-SHIFT in mousejacker (by @notmarek | PR #316)
+* Infrared: Update universal remote assets (by @amec0e) (PR #318)
+* OFW: SubGhz: fix cc1101_read_fifo func
+* OFW: feat: add missing `const` qualifiers
+* OFW: **SubGhz: add protocol BinRAW (binarization of data quantized by the minimum correlated duration)**
+* OFW: Picopass: show elite key used from dictionary 
+* OFW: Firmware fixes and improvements for flashing via blackmagic
+* OFW: fbt: building fap_dist for compact gh build; accessor: fixed for latest ibutton changes 
+* OFW: Move CSN space to revent overflow
+* OFW: **SubGhz: add protocol KingGates Stylo4k**
+* OFW: **SubGhz: add protocol Nice One**
+* OFW: **SubGhz: add protocol Alutech at-4n**
+* OFW: **SubGhz: add DOOYA protocol**
+* OFW: **SubGhz: add protocol "Linear Delta-3"**
+* OFW: **SubGhz: Fix Raw write, add short duration filter setting**
+* OFW: Update Missing SD Card icon from PR 2373
+* OFW: SCons: do not include backup files in build
+* OFW: Fix minor UI inconsistencies and bugs
+* OFW: Allow use of any suitable pin for 1-Wire devices
+* OFW: **SD over SPI improvements**
+* OFW: Multitarget support for fbt (includes support for non released yet flipper hardware)
+* OFW: Pin Reset
+* OFW: nfc: Add mifare classic value block commands
+* OFW: battery info temperature shown in C or F based on settings
+* OFW: Script that can find programmer and flash firmware via it.
+* OFW: **SPI Mem Manager C port**
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
