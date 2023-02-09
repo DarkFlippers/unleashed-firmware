@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include "../views/receiver.h"
 #include <dolphin/dolphin.h>
+#include <lib/subghz/protocols/bin_raw.h>
 
 static const NotificationSequence subghs_sequence_rx = {
     &message_green_255,
@@ -143,6 +144,11 @@ void subghz_scene_receiver_on_enter(void* context) {
     }
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
 
+    //to use a universal decoder, we are looking for a link to it
+    subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
+        subghz->txrx->receiver, SUBGHZ_PROTOCOL_BIN_RAW_NAME);
+    furi_assert(subghz->txrx->decoder_result);
+
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
 }
 
@@ -208,6 +214,13 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz_hopper_update(subghz);
             subghz_scene_receiver_update_statusbar(subghz);
         }
+
+        //get RSSI
+        float rssi = furi_hal_subghz_get_rssi();
+        subghz_receiver_rssi(subghz->subghz_receiver, rssi);
+        subghz_protocol_decoder_bin_raw_data_input_rssi(
+            (SubGhzProtocolDecoderBinRAW*)subghz->txrx->decoder_result, rssi);
+
         switch(subghz->state_notifications) {
         case SubGhzNotificationStateRx:
             notification_message(subghz->notifications, &sequence_blink_cyan_10);

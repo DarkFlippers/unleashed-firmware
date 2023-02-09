@@ -79,7 +79,6 @@ void subghz_frequency_analyzer_draw_rssi(Canvas* canvas, uint8_t rssi, uint8_t x
 void subghz_frequency_analyzer_draw_log_rssi(Canvas* canvas, uint8_t rssi, uint8_t x, uint8_t y) {
     uint8_t column_height = 6;
     if(rssi) {
-        //rssi = rssi
         if(rssi > 54) rssi = 54;
         for(uint8_t i = 1; i < rssi; i++) {
             if(i % 5) {

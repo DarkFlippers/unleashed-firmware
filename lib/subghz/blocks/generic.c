@@ -100,7 +100,7 @@ bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperForma
             FURI_LOG_E(TAG, "Missing Bit");
             break;
         }
-        instance->data_count_bit = (uint8_t)temp_data;
+        instance->data_count_bit = (uint16_t)temp_data;
 
         uint8_t key_data[sizeof(uint64_t)] = {0};
         if(!flipper_format_read_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {

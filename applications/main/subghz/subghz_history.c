@@ -5,6 +5,7 @@
 #include <furi.h>
 
 #define SUBGHZ_HISTORY_MAX 50
+#define SUBGHZ_HISTORY_FREE_HEAP 20480
 #define TAG "SubGhzHistory"
 
 typedef struct {
@@ -121,8 +122,12 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
 }
 bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* output) {
     furi_assert(instance);
+    if(memmgr_get_free_heap() < SUBGHZ_HISTORY_FREE_HEAP) {
+        if(output != NULL) furi_string_printf(output, "    Free heap LOW");
+        return true;
+    }
     if(instance->last_index_write == SUBGHZ_HISTORY_MAX) {
-        if(output != NULL) furi_string_printf(output, "Memory is FULL");
+        if(output != NULL) furi_string_printf(output, "   Memory is FULL");
         return true;
     }
     if(output != NULL)
@@ -142,6 +147,7 @@ bool subghz_history_add_to_history(
     furi_assert(instance);
     furi_assert(context);
 
+    if(memmgr_get_free_heap() < SUBGHZ_HISTORY_FREE_HEAP) return false;
     if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) return false;
 
     SubGhzProtocolDecoderBase* decoder_base = context;
@@ -200,27 +206,31 @@ bool subghz_history_add_to_history(
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         if(!flipper_format_read_hex(item->flipper_string, "Key", key_data, sizeof(uint64_t))) {
-            FURI_LOG_E(TAG, "Missing Key");
-            break;
+            FURI_LOG_D(TAG, "No Key");
         }
         uint64_t data = 0;
         for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
             data = (data << 8) | key_data[i];
         }
-        if(!(uint32_t)(data >> 32)) {
-            furi_string_printf(
-                item->item_str,
-                "%s %lX",
-                furi_string_get_cstr(instance->tmp_string),
-                (uint32_t)(data & 0xFFFFFFFF));
+        if(data != 0) {
+            if(!(uint32_t)(data >> 32)) {
+                furi_string_printf(
+                    item->item_str,
+                    "%s %lX",
+                    furi_string_get_cstr(instance->tmp_string),
+                    (uint32_t)(data & 0xFFFFFFFF));
+            } else {
+                furi_string_printf(
+                    item->item_str,
+                    "%s %lX%08lX",
+                    furi_string_get_cstr(instance->tmp_string),
+                    (uint32_t)(data >> 32),
+                    (uint32_t)(data & 0xFFFFFFFF));
+            }
         } else {
-            furi_string_printf(
-                item->item_str,
-                "%s %lX%08lX",
-                furi_string_get_cstr(instance->tmp_string),
-                (uint32_t)(data >> 32),
-                (uint32_t)(data & 0xFFFFFFFF));
+            furi_string_printf(item->item_str, "%s", furi_string_get_cstr(instance->tmp_string));
         }
+
     } while(false);
 
     furi_string_free(text);

@@ -5,6 +5,7 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexFrequency,
     SubGhzSettingIndexHopping,
     SubGhzSettingIndexModulation,
+    SubGhzSettingIndexBinRAW,
     SubGhzSettingIndexSound,
     SubGhzSettingIndexLock,
     SubGhzSettingIndexRAWThesholdRSSI,
@@ -57,6 +58,15 @@ const char* const speaker_text[SPEAKER_COUNT] = {
 const uint32_t speaker_value[SPEAKER_COUNT] = {
     SubGhzSpeakerStateShutdown,
     SubGhzSpeakerStateEnable,
+};
+#define BIN_RAW_COUNT 2
+const char* const bin_raw_text[BIN_RAW_COUNT] = {
+    "OFF",
+    "ON",
+};
+const uint32_t bin_raw_value[BIN_RAW_COUNT] = {
+    SubGhzProtocolFlag_Decodable,
+    SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_BinRAW,
 };
 
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
@@ -186,6 +196,15 @@ static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
     subghz->txrx->speaker_state = speaker_value[index];
 }
 
+static void subghz_scene_receiver_config_set_bin_raw(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, bin_raw_text[index]);
+    subghz->txrx->filter = bin_raw_value[index];
+    subghz_receiver_set_filter(subghz->txrx->receiver, subghz->txrx->filter);
+}
+
 static void subghz_scene_receiver_config_set_raw_threshold_rssi(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
@@ -253,6 +272,19 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(
         item, subghz_setting_get_preset_name(subghz->setting, value_index));
+
+    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
+       SubGhzCustomEventManagerSet) {
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Bin_RAW:",
+            BIN_RAW_COUNT,
+            subghz_scene_receiver_config_set_bin_raw,
+            subghz);
+        value_index = value_index_uint32(subghz->txrx->filter, bin_raw_value, BIN_RAW_COUNT);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, bin_raw_text[value_index]);
+    }
 
     item = variable_item_list_add(
         subghz->variable_item_list,

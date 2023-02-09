@@ -194,7 +194,8 @@ SubGhz* subghz_alloc() {
     subghz_environment_set_protocol_registry(
         subghz->txrx->environment, (void*)&subghz_protocol_registry);
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+    subghz->txrx->filter = SubGhzProtocolFlag_Decodable;
+    subghz_receiver_set_filter(subghz->txrx->receiver, subghz->txrx->filter);
 
     subghz_worker_set_overrun_callback(
         subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
@@ -217,6 +218,8 @@ void subghz_free(SubGhz* subghz) {
         subghz_blink_stop(subghz);
         subghz->rpc_ctx = NULL;
     }
+
+    subghz_speaker_off(subghz);
 
     // Packet Test
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestPacket);
