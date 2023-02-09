@@ -30,6 +30,7 @@ typedef struct {
     SubGhzReadRAWStatus status;
     bool raw_send_only;
     float raw_threshold_rssi;
+    bool not_showing_samples;
 } SubGhzReadRAWModel;
 
 void subghz_read_raw_set_callback(
@@ -92,7 +93,10 @@ void subghz_read_raw_update_sample_write(SubGhzReadRAW* instance, size_t sample)
     with_view_model(
         instance->view,
         SubGhzReadRAWModel * model,
-        { furi_string_printf(model->sample_write, "%zu spl.", sample); },
+        {
+            model->not_showing_samples = false;
+            furi_string_printf(model->sample_write, "%zu spl.", sample);
+        },
         false);
 }
 
@@ -283,21 +287,10 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
     canvas_draw_str(canvas, 0, 7, furi_string_get_cstr(model->frequency_str));
     canvas_draw_str(canvas, 35, 7, furi_string_get_cstr(model->preset_str));
 
-    switch(model->status) {
-    case SubGhzReadRAWStatusIDLE:
-    case SubGhzReadRAWStatusLoadKeyIDLE:
-    case SubGhzReadRAWStatusTX:
-    case SubGhzReadRAWStatusTXRepeat:
-        canvas_draw_str(canvas, 70, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
-        break;
-    case SubGhzReadRAWStatusLoadKeyTX:
-    case SubGhzReadRAWStatusLoadKeyTXRepeat:
-    case SubGhzReadRAWStatusStart:
+    if(model->not_showing_samples) {
         canvas_draw_str(canvas, 77, 7, furi_hal_subghz_get_radio_type() ? "R: Ext" : "R: Int");
-        break;
-    default:
+    } else {
         canvas_draw_str(canvas, 70, 7, furi_hal_subghz_get_radio_type() ? "E" : "I");
-        break;
     }
 
     canvas_draw_str_aligned(
@@ -466,6 +459,7 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                         model->status = SubGhzReadRAWStatusStart;
                         model->rssi_history_end = false;
                         model->ind_write = 0;
+                        model->not_showing_samples = true;
                         furi_string_set(model->sample_write, "0 spl.");
                         furi_string_reset(model->file_name);
                         instance->callback(SubGhzCustomEventViewReadRAWErase, instance->context);
@@ -527,6 +521,7 @@ void subghz_read_raw_set_status(
                 model->status = SubGhzReadRAWStatusStart;
                 model->rssi_history_end = false;
                 model->ind_write = 0;
+                model->not_showing_samples = true;
                 furi_string_reset(model->file_name);
                 furi_string_set(model->sample_write, "0 spl.");
                 model->raw_threshold_rssi = raw_threshold_rssi;
@@ -548,6 +543,7 @@ void subghz_read_raw_set_status(
                 model->status = SubGhzReadRAWStatusLoadKeyIDLE;
                 model->rssi_history_end = false;
                 model->ind_write = 0;
+                model->not_showing_samples = true;
                 furi_string_set(model->file_name, file_name);
                 furi_string_set(model->sample_write, "RAW");
             },
@@ -560,6 +556,7 @@ void subghz_read_raw_set_status(
             {
                 model->status = SubGhzReadRAWStatusLoadKeyIDLE;
                 if(!model->ind_write) {
+                    model->not_showing_samples = true;
                     furi_string_set(model->file_name, file_name);
                     furi_string_set(model->sample_write, "RAW");
                 } else {
