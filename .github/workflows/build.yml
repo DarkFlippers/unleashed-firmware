@@ -96,14 +96,14 @@ jobs:
 
       - name: 'Upload map analyser files to storage'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: keithweaver/aws-s3-github-action@v1.0.0
+        uses: prewk/s3-cp-action@v2
         with:
-          source: map_analyser_files/
-          destination: "s3://${{ secrets.MAP_REPORT_AWS_BUCKET }}/${{steps.names.outputs.random_hash}}"
+          aws_s3_endpoint: "${{ secrets.MAP_REPORT_AWS_ENDPOINT }}"
           aws_access_key_id: "${{ secrets.MAP_REPORT_AWS_ACCESS_KEY }}"
           aws_secret_access_key: "${{ secrets.MAP_REPORT_AWS_SECRET_KEY }}"
-          aws_region: "${{ secrets.MAP_REPORT_AWS_REGION }}"
-          flags: --recursive
+          source: "./map_analyser_files/"
+          dest: "s3://${{ secrets.MAP_REPORT_AWS_BUCKET }}/${{steps.names.outputs.random_hash}}"
+          flags: "--recursive --acl public-read"
 
       - name: 'Trigger map file reporter'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -113,7 +113,6 @@ jobs:
           token: ${{ secrets.REPOSITORY_DISPATCH_TOKEN }}
           event-type: map-file-analyse
           client-payload: '{"random_hash": "${{steps.names.outputs.random_hash}}", "event_type": "${{steps.names.outputs.event_type}}"}'
-
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
