@@ -103,7 +103,7 @@ bool furi_hal_spi_bus_rx(
 
 bool furi_hal_spi_bus_tx(
     FuriHalSpiBusHandle* handle,
-    uint8_t* buffer,
+    const uint8_t* buffer,
     size_t size,
     uint32_t timeout) {
     furi_assert(handle);
@@ -128,7 +128,7 @@ bool furi_hal_spi_bus_tx(
 
 bool furi_hal_spi_bus_trx(
     FuriHalSpiBusHandle* handle,
-    uint8_t* tx_buffer,
+    const uint8_t* tx_buffer,
     uint8_t* rx_buffer,
     size_t size,
     uint32_t timeout) {

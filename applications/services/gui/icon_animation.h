@@ -55,7 +55,7 @@ void icon_animation_set_update_callback(
  *
  * @return     width in pixels
  */
-uint8_t icon_animation_get_width(IconAnimation* instance);
+uint8_t icon_animation_get_width(const IconAnimation* instance);
 
 /** Get icon animation height
  *
@@ -63,7 +63,7 @@ uint8_t icon_animation_get_width(IconAnimation* instance);
  *
  * @return     height in pixels
  */
-uint8_t icon_animation_get_height(IconAnimation* instance);
+uint8_t icon_animation_get_height(const IconAnimation* instance);
 
 /** Start icon animation
  *
@@ -83,7 +83,7 @@ void icon_animation_stop(IconAnimation* instance);
  *
  * @return     true if last frame
  */
-bool icon_animation_is_last_frame(IconAnimation* instance);
+bool icon_animation_is_last_frame(const IconAnimation* instance);
 
 #ifdef __cplusplus
 }

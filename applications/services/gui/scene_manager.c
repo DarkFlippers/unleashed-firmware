@@ -34,7 +34,7 @@ void scene_manager_set_scene_state(SceneManager* scene_manager, uint32_t scene_i
     scene_manager->scene[scene_id].state = state;
 }
 
-uint32_t scene_manager_get_scene_state(SceneManager* scene_manager, uint32_t scene_id) {
+uint32_t scene_manager_get_scene_state(const SceneManager* scene_manager, uint32_t scene_id) {
     furi_assert(scene_manager);
     furi_assert(scene_id < scene_manager->scene_handlers->scene_num);
 
@@ -184,7 +184,7 @@ bool scene_manager_search_and_switch_to_previous_scene_one_of(
     return scene_found;
 }
 
-bool scene_manager_has_previous_scene(SceneManager* scene_manager, uint32_t scene_id) {
+bool scene_manager_has_previous_scene(const SceneManager* scene_manager, uint32_t scene_id) {
     furi_assert(scene_manager);
     bool scene_found = false;
 
