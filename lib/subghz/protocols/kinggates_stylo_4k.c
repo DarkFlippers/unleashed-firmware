@@ -155,15 +155,15 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
         }
     instance->generic.cnt = decrypt & 0xFFFF;
 
-    // if(instance->generic.cnt < 0xFFFF) {
-    // instance->generic.cnt++;
-    // } else if(instance->generic.cnt >= 0xFFFF) {
-    // instance->generic.cnt = 0;
-    // }
+    if(instance->generic.cnt < 0xFFFF) {
+        instance->generic.cnt++;
+    } else if(instance->generic.cnt >= 0xFFFF) {
+        instance->generic.cnt = 0;
+    }
 
     instance->generic.btn = (fix >> 17) & 0x0F;
     instance->generic.serial = ((fix >> 5) & 0xFFFF0000) | (fix & 0xFFFF);
-    //uint64_t fix = instance->generic.data;
+
     uint32_t data = decrypt >> 16;
     data <<= 16;
     data |= instance->generic.cnt;
@@ -175,7 +175,7 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
             if(res == 0) {
                 //Simple Learning
                 encrypt = subghz_protocol_keeloq_common_encrypt(data, manufacture_code->key);
-                // encrypt = subghz_protocol_blocks_reverse_key(encrypt, 32);
+                encrypt = subghz_protocol_blocks_reverse_key(encrypt, 32);
                 instance->generic.data_2 = encrypt << 4;
                 return true;
             }
@@ -306,7 +306,7 @@ bool subghz_protocol_encoder_kinggates_stylo_4k_deserialize(
             break;
         }
 
-        // uint8_t key_data[sizeof(uint64_t)] = {0};
+        // uint8_t key_data2[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
             key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data_2 >> i * 8) & 0xFF;
         }
