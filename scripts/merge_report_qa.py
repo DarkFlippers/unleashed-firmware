@@ -17,7 +17,7 @@ def parse_args():
 
 
 def checkCommitMessage(msg):
-    regex = re.compile(r"^'?\[FL-\d+\]")
+    regex = re.compile(r"^'?\[(FL-\d+,?\s?)+\]")
     if regex.match(msg):
         return True
     return False

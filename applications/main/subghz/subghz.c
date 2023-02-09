@@ -236,20 +236,11 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz->last_settings = subghz_last_settings_alloc();
         subghz_last_settings_load(subghz->last_settings, 0);
 #if FURI_DEBUG
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-        FURI_LOG_D(
-            TAG,
-            "last frequency: %ld, preset: %ld, detect_raw: %d",
-            subghz->last_settings->frequency,
-            subghz->last_settings->preset,
-            subghz->last_settings->detect_raw);
-#else
         FURI_LOG_D(
             TAG,
             "last frequency: %ld, preset: %ld",
             subghz->last_settings->frequency,
             subghz->last_settings->preset);
-#endif
 #endif
         subghz_setting_set_default_frequency(subghz->setting, subghz->last_settings->frequency);
     }
@@ -268,6 +259,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
     subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
     subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+    subghz->txrx->debug_pin_state = false;
     if(!alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();
     }
@@ -288,11 +280,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz_environment_set_protocol_registry(
         subghz->txrx->environment, (void*)&subghz_protocol_registry);
     subghz->txrx->receiver = subghz_receiver_alloc_init(subghz->txrx->environment);
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-    subghz_last_settings_set_detect_raw_values(subghz);
-#else
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
-#endif
+    subghz->txrx->filter = SubGhzProtocolFlag_Decodable;
+    subghz_receiver_set_filter(subghz->txrx->receiver, subghz->txrx->filter);
 
     subghz_worker_set_overrun_callback(
         subghz->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
@@ -315,6 +304,8 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
         subghz_blink_stop(subghz);
         subghz->rpc_ctx = NULL;
     }
+
+    subghz_speaker_off(subghz);
 
 #if FURI_DEBUG
     // Packet Test

@@ -262,7 +262,7 @@ void loader_unlock(Loader* instance) {
     FURI_CRITICAL_EXIT();
 }
 
-bool loader_is_locked(Loader* instance) {
+bool loader_is_locked(const Loader* instance) {
     return instance->lock_count > 0;
 }
 

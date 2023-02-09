@@ -94,7 +94,7 @@ void gui_remove_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback,
  * @param      gui       Gui instance
  * @return     size_t    size of frame buffer in bytes
  */
-size_t gui_get_framebuffer_size(Gui* gui);
+size_t gui_get_framebuffer_size(const Gui* gui);
 
 /** Set lockdown mode
  *

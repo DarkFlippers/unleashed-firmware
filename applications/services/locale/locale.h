@@ -81,7 +81,7 @@ void locale_format_time(
  *
  * @return     The Locale DateFormat.
  */
-LocaleDateFormat locale_get_date_format();
+LocaleDateFormat locale_get_date_format(void);
 
 /** Set Locale DateFormat
  *

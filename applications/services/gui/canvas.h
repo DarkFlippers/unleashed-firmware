@@ -86,7 +86,7 @@ void canvas_commit(Canvas* canvas);
  *
  * @return     width in pixels.
  */
-uint8_t canvas_width(Canvas* canvas);
+uint8_t canvas_width(const Canvas* canvas);
 
 /** Get Canvas height
  *
@@ -94,7 +94,7 @@ uint8_t canvas_width(Canvas* canvas);
  *
  * @return     height in pixels.
  */
-uint8_t canvas_height(Canvas* canvas);
+uint8_t canvas_height(const Canvas* canvas);
 
 /** Get current font height
  *
@@ -102,7 +102,7 @@ uint8_t canvas_height(Canvas* canvas);
  *
  * @return     height in pixels.
  */
-uint8_t canvas_current_font_height(Canvas* canvas);
+uint8_t canvas_current_font_height(const Canvas* canvas);
 
 /** Get font parameters
  *
@@ -111,7 +111,7 @@ uint8_t canvas_current_font_height(Canvas* canvas);
  *
  * @return     pointer to CanvasFontParameters structure
  */
-CanvasFontParameters* canvas_get_font_params(Canvas* canvas, Font font);
+const CanvasFontParameters* canvas_get_font_params(const Canvas* canvas, Font font);
 
 /** Clear canvas
  *

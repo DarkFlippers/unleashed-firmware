@@ -60,13 +60,6 @@ void subghz_receiver_set_rx_callback(
 void subghz_receiver_set_filter(SubGhzReceiver* instance, SubGhzProtocolFlag filter);
 
 /**
- * Get the filter of receivers that will work at the moment.
- * @param instance Pointer to a SubGhzReceiver instance
- * @return filter Filter, SubGhzProtocolFlag
- */
-SubGhzProtocolFlag subghz_receiver_get_filter(SubGhzReceiver* instance);
-
-/**
  * Search for a cattery by his name.
  * @param instance Pointer to a SubGhzReceiver instance
  * @param decoder_name Receiver name

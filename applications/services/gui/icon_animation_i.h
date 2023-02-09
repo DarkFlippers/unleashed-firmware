@@ -24,7 +24,7 @@ struct IconAnimation {
  *
  * @return     pointer to current frame XBM bitmap data
  */
-const uint8_t* icon_animation_get_data(IconAnimation* instance);
+const uint8_t* icon_animation_get_data(const IconAnimation* instance);
 
 /** Advance to next frame
  *

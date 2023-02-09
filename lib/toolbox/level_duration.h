@@ -13,8 +13,8 @@
 #define LEVEL_DURATION_RESERVED 0x800000U
 
 typedef struct {
-    uint32_t level;
-    uint32_t duration;
+    uint32_t duration : 30;
+    uint8_t level : 2;
 } LevelDuration;
 
 static inline LevelDuration level_duration_make(bool level, uint32_t duration) {
