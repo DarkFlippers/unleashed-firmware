@@ -34,13 +34,6 @@ static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
 
     variable_item_set_current_value_text(item, debug_pin_text[index]);
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        if(value_index2 == 1) {
-            furi_hal_subghz_set_async_mirror_pin(&gpio_ext_pa7);
-        } else {
-            furi_hal_subghz_set_async_mirror_pin(NULL);
-        }
-    }
     subghz->txrx->debug_pin_state = index == 1;
 }
 

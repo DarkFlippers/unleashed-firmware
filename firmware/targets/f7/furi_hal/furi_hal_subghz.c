@@ -777,8 +777,18 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
 
-    //Signal generation for external G0
+    //Signal generation for external module
+
+    // Start debug (and speaker)
+    furi_hal_subghz_start_debug();
+
     const GpioPin* gpio = furi_hal_subghz.cc1101_g0_pin;
+
+    if((furi_hal_subghz.async_mirror_pin != NULL) &&
+       (furi_hal_subghz.radio_type == SubGhzRadioInternal)) {
+        gpio = furi_hal_subghz.async_mirror_pin;
+    }
+
     furi_hal_subghz_debug_gpio_buff[0] = (uint32_t)gpio->pin << GPIO_NUMBER;
     furi_hal_subghz_debug_gpio_buff[1] = gpio->pin;
 
@@ -827,6 +837,9 @@ void furi_hal_subghz_stop_async_tx() {
 
     // Deinitialize GPIO
     furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+    // Stop debug
+    furi_hal_subghz_stop_debug();
 
     LL_DMA_DisableChannel(SUBGHZ_DMA_CH2_DEF);
 
