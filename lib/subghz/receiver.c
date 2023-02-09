@@ -64,7 +64,7 @@ void subghz_receiver_decode(SubGhzReceiver* instance, bool level, uint32_t durat
 
     for
         M_EACH(slot, instance->slots, SubGhzReceiverSlotArray_t) {
-            if((slot->base->protocol->flag & instance->filter) != 0) {
+            if((slot->base->protocol->flag & instance->filter) == instance->filter) {
                 slot->base->protocol->decoder->feed(slot->base, level, duration);
             }
         }
@@ -106,11 +106,6 @@ void subghz_receiver_set_rx_callback(
 void subghz_receiver_set_filter(SubGhzReceiver* instance, SubGhzProtocolFlag filter) {
     furi_assert(instance);
     instance->filter = filter;
-}
-
-SubGhzProtocolFlag subghz_receiver_get_filter(SubGhzReceiver* instance) {
-    furi_assert(instance);
-    return instance->filter;
 }
 
 SubGhzProtocolDecoderBase* subghz_receiver_search_decoder_base_by_name(

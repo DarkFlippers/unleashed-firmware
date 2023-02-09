@@ -23,15 +23,6 @@ void subghz_scene_start_on_enter(void* context) {
     if(subghz->state_notifications == SubGhzNotificationStateStarting) {
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-    subghz_last_settings_set_detect_raw_values(subghz);
-#else
-    subghz_protocol_decoder_raw_set_auto_mode(
-        subghz_receiver_search_decoder_base_by_name(
-            subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-        false);
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
-#endif
 
     submenu_add_item(
         subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);

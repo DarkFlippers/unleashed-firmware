@@ -2909,13 +2909,8 @@ Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
 Function,+,subghz_protocol_decoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
 Function,+,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
 Function,+,subghz_protocol_decoder_raw_free,void,void*
-Function,+,subghz_protocol_decoder_raw_get_hash_data,uint8_t,void*
 Function,+,subghz_protocol_decoder_raw_get_string,void,"void*, FuriString*"
 Function,+,subghz_protocol_decoder_raw_reset,void,void*
-Function,+,subghz_protocol_decoder_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
-Function,+,subghz_protocol_decoder_raw_set_auto_mode,void,"void*, _Bool"
-Function,+,subghz_protocol_decoder_raw_set_rssi_threshold,void,"void*, int"
-Function,+,subghz_protocol_decoder_raw_write_data,_Bool,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_scher_khan_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_scher_khan_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_scher_khan_feed,void,"void*, _Bool, uint32_t"
@@ -3027,7 +3022,6 @@ Function,-,subghz_protocol_encoder_gate_tx_deserialize,_Bool,"void*, FlipperForm
 Function,-,subghz_protocol_encoder_gate_tx_free,void,void*
 Function,-,subghz_protocol_encoder_gate_tx_stop,void,void*
 Function,-,subghz_protocol_encoder_gate_tx_yield,LevelDuration,void*
-Function,-,subghz_protocol_encoder_get_rssi_threshold,int,void*
 Function,-,subghz_protocol_encoder_holtek_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_holtek_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_holtek_free,void,void*
@@ -3175,7 +3169,6 @@ Function,-,subghz_protocol_star_line_create_data,_Bool,"void*, FlipperFormat*, u
 Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
 Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"
 Function,+,subghz_receiver_free,void,SubGhzReceiver*
-Function,+,subghz_receiver_get_filter,SubGhzProtocolFlag,SubGhzReceiver*
 Function,+,subghz_receiver_reset,void,SubGhzReceiver*
 Function,+,subghz_receiver_search_decoder_base_by_name,SubGhzProtocolDecoderBase*,"SubGhzReceiver*, const char*"
 Function,+,subghz_receiver_set_filter,void,"SubGhzReceiver*, SubGhzProtocolFlag"
