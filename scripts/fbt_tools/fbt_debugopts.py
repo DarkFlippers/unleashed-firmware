@@ -47,6 +47,7 @@ def generate(env, **kw):
             "source ${FBT_DEBUG_DIR}/gdbinit",
         ],
         GDBOPTS_BLACKMAGIC=[
+            "-q",
             "-ex",
             "monitor swdp_scan",
             "-ex",
