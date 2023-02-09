@@ -242,7 +242,8 @@ static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
                 true, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_short);
         }
     }
-    for(uint8_t i = 64; i > 0; i--) {
+
+    for(uint8_t i = 36; i > 0; i--) {
         if(bit_read(instance->generic.data_2, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] = level_duration_make(
