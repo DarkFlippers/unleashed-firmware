@@ -224,7 +224,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 
     if(model->mode == SubGhzViewReceiverModeLive) {
         elements_button_left(canvas, "Config");
-        canvas_draw_line(canvas, 46, 51, 125, 51);
+        //canvas_draw_line(canvas, 46, 51, 125, 51);
     } else {
         canvas_draw_str(canvas, 3, 62, furi_string_get_cstr(model->progress_str));
     }
@@ -265,7 +265,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
                 furi_hal_subghz_get_radio_type() ? &I_Fishing_123x52 : &I_Scanning_123x52);
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str(canvas, 63, 46, "Scanning...");
-            canvas_draw_line(canvas, 46, 51, 125, 51);
+            //canvas_draw_line(canvas, 46, 51, 125, 51);
             canvas_set_font(canvas, FontSecondary);
         } else {
             canvas_draw_icon(
