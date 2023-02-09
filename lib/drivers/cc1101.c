@@ -150,9 +150,8 @@ uint8_t cc1101_write_fifo(FuriHalSpiBusHandle* handle, const uint8_t* data, uint
 }
 
 uint8_t cc1101_read_fifo(FuriHalSpiBusHandle* handle, uint8_t* data, uint8_t* size) {
-    uint8_t buff_tx[64];
-    buff_tx[0] = CC1101_FIFO | CC1101_READ | CC1101_BURST;
-    uint8_t buff_rx[2];
+    uint8_t buff_trx[2];
+    buff_trx[0] = CC1101_FIFO | CC1101_READ | CC1101_BURST;
 
     // Start transaction
     // Wait IC to become ready
@@ -160,15 +159,15 @@ uint8_t cc1101_read_fifo(FuriHalSpiBusHandle* handle, uint8_t* data, uint8_t* si
         ;
 
     // First byte - packet length
-    furi_hal_spi_bus_trx(handle, buff_tx, buff_rx, 2, CC1101_TIMEOUT);
+    furi_hal_spi_bus_trx(handle, buff_trx, buff_trx, 2, CC1101_TIMEOUT);
 
     // Check that the packet is placed in the receive buffer
-    if(buff_rx[1] > 64) {
+    if(buff_trx[1] > 64) {
         *size = 64;
     } else {
-        *size = buff_rx[1];
+        *size = buff_trx[1];
     }
-    furi_hal_spi_bus_trx(handle, &buff_tx[1], data, *size, CC1101_TIMEOUT);
+    furi_hal_spi_bus_trx(handle, NULL, data, *size, CC1101_TIMEOUT);
 
     return *size;
 }
