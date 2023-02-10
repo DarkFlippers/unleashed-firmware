@@ -399,6 +399,17 @@ steps:
       document:
         - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
 
+  - name: "Send discord notification"
+    image: hfdj/fztools
+    pull: never
+    environment:
+      DISCORD_WEBHOOK:
+        from_secret: dis_dev_webhook
+    commands:
+      - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
+      - chmod +x ./discord.sh
+      - ./discord.sh --text 'Unleashed firmware dev build successful!\n\nBuild: '${DRONE_BUILD_NUMBER}'\n\nSHA: '${DRONE_COMMIT_SHA}'\n\nCommit: '${DRONE_COMMIT_MESSAGE}'\n\n\n[-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'e.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'e)\n\n[-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}')'
+
 trigger:
   branch:
     - dev
