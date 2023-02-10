@@ -291,7 +291,7 @@ static bool mj_process_ducky_line(
         strncmp(line_tmp, "CONTROL-SHIFT", strlen("CONTROL-SHIFT")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 4 | 2, dk.hid, plugin_state);
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 1 | 2, dk.hid, plugin_state);
         return true;
     } else if(
         strncmp(line_tmp, "CTRL", strlen("CTRL")) == 0 ||
