@@ -3067,6 +3067,11 @@ Function,-,subghz_protocol_encoder_keeloq_deserialize,_Bool,"void*, FlipperForma
 Function,-,subghz_protocol_encoder_keeloq_free,void,void*
 Function,-,subghz_protocol_encoder_keeloq_stop,void,void*
 Function,-,subghz_protocol_encoder_keeloq_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_kinggates_stylo_4k_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_kinggates_stylo_4k_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_kinggates_stylo_4k_free,void,void*
+Function,-,subghz_protocol_encoder_kinggates_stylo_4k_stop,void,void*
+Function,-,subghz_protocol_encoder_kinggates_stylo_4k_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_linear_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_linear_delta3_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_linear_delta3_deserialize,_Bool,"void*, FlipperFormat*"
