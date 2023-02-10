@@ -597,6 +597,10 @@ void subghz_hopper_update(SubGhz* subghz) {
 }
 
 void subghz_speaker_on(SubGhz* subghz) {
+    if(subghz->txrx->debug_pin_state) {
+        furi_hal_subghz_set_async_mirror_pin(&gpio_ext_pa7);
+    }
+
     if(subghz->txrx->speaker_state == SubGhzSpeakerStateEnable) {
         if(furi_hal_speaker_acquire(30)) {
             if(!subghz->txrx->debug_pin_state) {
@@ -609,6 +613,9 @@ void subghz_speaker_on(SubGhz* subghz) {
 }
 
 void subghz_speaker_off(SubGhz* subghz) {
+    if(subghz->txrx->debug_pin_state) {
+        furi_hal_subghz_set_async_mirror_pin(NULL);
+    }
     if(subghz->txrx->speaker_state != SubGhzSpeakerStateDisable) {
         if(furi_hal_speaker_is_mine()) {
             if(!subghz->txrx->debug_pin_state) {
@@ -622,6 +629,9 @@ void subghz_speaker_off(SubGhz* subghz) {
 }
 
 void subghz_speaker_mute(SubGhz* subghz) {
+    if(subghz->txrx->debug_pin_state) {
+        furi_hal_subghz_set_async_mirror_pin(NULL);
+    }
     if(subghz->txrx->speaker_state == SubGhzSpeakerStateEnable) {
         if(furi_hal_speaker_is_mine()) {
             if(!subghz->txrx->debug_pin_state) {
@@ -632,6 +642,9 @@ void subghz_speaker_mute(SubGhz* subghz) {
 }
 
 void subghz_speaker_unmute(SubGhz* subghz) {
+    if(subghz->txrx->debug_pin_state) {
+        furi_hal_subghz_set_async_mirror_pin(&gpio_ext_pa7);
+    }
     if(subghz->txrx->speaker_state == SubGhzSpeakerStateEnable) {
         if(furi_hal_speaker_is_mine()) {
             if(!subghz->txrx->debug_pin_state) {
