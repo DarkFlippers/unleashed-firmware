@@ -331,7 +331,7 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     }
 
     instance->encoder.upload[index - 1].duration +=
-        (uint32_t)subghz_protocol_alutech_at_4n_const.te_long * 4;
+        (uint32_t)subghz_protocol_alutech_at_4n_const.te_short * 9;
 
     // Send key data
     for(uint8_t i = 64; i > 0; --i) {
