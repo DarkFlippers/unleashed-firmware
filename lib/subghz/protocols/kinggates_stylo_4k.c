@@ -164,9 +164,7 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
     instance->generic.btn = (fix >> 17) & 0x0F;
     instance->generic.serial = ((fix >> 5) & 0xFFFF0000) | (fix & 0xFFFF);
 
-    uint32_t data = decrypt >> 16;
-    data <<= 16;
-    data |= instance->generic.cnt;
+    uint32_t data = (decrypt & 0xFFFF0000) | instance->generic.cnt;
 
     uint64_t encrypt = 0;
     for
@@ -176,8 +174,6 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
                 //Simple Learning
                 encrypt = subghz_protocol_keeloq_common_encrypt(data, manufacture_code->key);
                 encrypt = subghz_protocol_blocks_reverse_key(encrypt, 32);
-                // instance->generic.data =
-                // subghz_protocol_blocks_reverse_key(instance->generic.data, 64);
                 instance->generic.data_2 = encrypt << 4;
                 return true;
             }
@@ -204,13 +200,6 @@ static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
     }
 
     size_t index = 0;
-    /*size_t size_upload = (instance->generic.data_count_bit * 2);
-    if(size_upload > instance->encoder.size_upload) {
-        FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
-        return false;
-    } else {
-        instance->encoder.size_upload = size_upload;
-    }*/
 
     // Start
     instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)9500);
@@ -229,7 +218,7 @@ static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_kinggates_stylo_4k_const.te_short * 2);
 
-    // Send key data
+    // Send key fix
     for(uint8_t i = 53; i > 0; i--) {
         if(bit_read(instance->generic.data, i - 1)) {
             //send bit 1
@@ -246,6 +235,7 @@ static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
         }
     }
 
+    // Send key hop
     for(uint8_t i = 36; i > 0; i--) {
         if(bit_read(instance->generic.data_2, i - 1)) {
             //send bit 1
@@ -310,7 +300,6 @@ bool subghz_protocol_encoder_kinggates_stylo_4k_deserialize(
             break;
         }
 
-        // uint8_t key_data2[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
             key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data_2 >> i * 8) & 0xFF;
         }
