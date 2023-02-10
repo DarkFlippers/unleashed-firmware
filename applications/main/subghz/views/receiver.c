@@ -226,7 +226,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         elements_button_left(canvas, "Config");
         //canvas_draw_line(canvas, 46, 51, 125, 51);
     } else {
-        canvas_draw_line(canvas, 2, 51, 125, 51);
+        canvas_draw_line(canvas, 2, 52, 125, 52);
         canvas_draw_str(canvas, 3, 62, furi_string_get_cstr(model->progress_str));
     }
 
