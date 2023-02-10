@@ -334,7 +334,7 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         (uint32_t)subghz_protocol_alutech_at_4n_const.te_long * 4;
 
     // Send key data
-    for(uint8_t i = 64; i > 0; ++i) {
+    for(uint8_t i = 64; i > 0; --i) {
         if(bit_read(instance->generic.data, i - 1)) {
             //1
             instance->encoder.upload[index++] =
@@ -350,7 +350,7 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         }
     }
     // Send crc
-    for(uint8_t i = 8; i > 0; ++i) {
+    for(uint8_t i = 8; i > 0; --i) {
         if(bit_read(instance->crc, i - 1)) {
             //1
             instance->encoder.upload[index++] =
