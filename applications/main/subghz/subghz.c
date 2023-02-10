@@ -259,6 +259,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
     subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
     subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+    subghz->txrx->debug_pin_state = false;
     if(!alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();
     }

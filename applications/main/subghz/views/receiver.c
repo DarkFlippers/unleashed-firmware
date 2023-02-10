@@ -226,6 +226,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         elements_button_left(canvas, "Config");
         //canvas_draw_line(canvas, 46, 51, 125, 51);
     } else {
+        canvas_draw_line(canvas, 2, 52, 125, 52);
         canvas_draw_str(canvas, 3, 62, furi_string_get_cstr(model->progress_str));
     }
 
@@ -279,7 +280,9 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         }
     }
 
-    subghz_view_rssi_draw(canvas, model);
+    if(model->mode == SubGhzViewReceiverModeLive) {
+        subghz_view_rssi_draw(canvas, model);
+    }
     switch(model->bar_show) {
     case SubGhzViewReceiverBarShowLock:
         canvas_draw_icon(canvas, 64, 55, &I_Lock_7x8);
