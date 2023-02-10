@@ -274,15 +274,14 @@ static bool subghz_protocol_alutech_at_4n_gen_data(
         instance->generic.cnt = 0;
     }
     crc = subghz_protocol_alutech_at_4n_decrypt_data_crc((uint8_t)(instance->generic.cnt & 0xFF));
-    instance->crc = crc;
     data = (uint64_t)crc << 56 | (uint64_t)instance->generic.serial << 24 |
            (uint32_t)instance->generic.cnt << 8 | instance->generic.btn;
 
     data = subghz_protocol_alutech_at_4n_encrypt(
         data, instance->alutech_at_4n_rainbow_table_file_name);
-
+    crc = subghz_protocol_alutech_at_4n_crc(data);
     instance->generic.data = subghz_protocol_blocks_reverse_key(data, 64);
-
+    instance->crc = subghz_protocol_blocks_reverse_key(crc, 8);
     return true;
 }
 
