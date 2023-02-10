@@ -322,6 +322,52 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     }
 
     size_t index = 0;
+    // Send preambula
+    for(uint8_t i = 0; i < 12; ++i) {
+        instance->encoder.upload[index++] =
+            level_duration_make(true, (uint32_t)subghz_protocol_alutech_at_4n_const.te_short); // 1
+        instance->encoder.upload[index++] = level_duration_make(
+            false, (uint32_t)subghz_protocol_alutech_at_4n_const.te_short); // 0
+    }
+
+    instance->encoder.upload[index - 1].duration +=
+        (uint32_t)subghz_protocol_alutech_at_4n_const.te_long * 4;
+
+    // Send key data
+    for(uint8_t i = 64; i > 0; ++i) {
+        if(bit_read(instance->generic.data, i - 1)) {
+            //1
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_alutech_at_4n_const.te_short);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_alutech_at_4n_const.te_long);
+        } else {
+            //0
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_alutech_at_4n_const.te_long);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_alutech_at_4n_const.te_short);
+        }
+    }
+    // Send crc
+    for(uint8_t i = 8; i > 0; ++i) {
+        if(bit_read(instance->crc, i - 1)) {
+            //1
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_alutech_at_4n_const.te_short);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_alutech_at_4n_const.te_long);
+        } else {
+            //0
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_alutech_at_4n_const.te_long);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_alutech_at_4n_const.te_short);
+        }
+    }
+    // Inter-frame silence
+    instance->encoder.upload[index - 1].duration +=
+        (uint32_t)subghz_protocol_alutech_at_4n_const.te_long * 20;
 
     size_t size_upload = index;
 
