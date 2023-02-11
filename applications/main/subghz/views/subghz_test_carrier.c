@@ -120,7 +120,10 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
                 furi_hal_subghz_rx();
             } else {
                 furi_hal_gpio_init(
-                    furi_hal_subghz.cc1101_g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+                    furi_hal_subghz.cc1101_g0_pin,
+                    GpioModeOutputPushPull,
+                    GpioPullNo,
+                    GpioSpeedLow);
                 furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, true);
                 if(!furi_hal_subghz_tx()) {
                     furi_hal_gpio_init(
