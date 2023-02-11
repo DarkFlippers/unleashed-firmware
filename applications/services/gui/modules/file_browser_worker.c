@@ -15,6 +15,8 @@
 #define TAG "BrowserWorker"
 
 #define ASSETS_DIR "assets"
+#define BADUSB_LAYOUTS_DIR "layouts"
+#define SUBGHZ_TEMP_DIR "tmp_history"
 #define BROWSER_ROOT STORAGE_ANY_PATH_PREFIX
 #define FILE_NAME_LEN_MAX 256
 #define LONG_LOAD_THRESHOLD 100
@@ -90,7 +92,9 @@ static bool browser_filter_by_name(BrowserWorker* browser, FuriString* name, boo
     if(is_folder) {
         // Skip assets folders (if enabled)
         if(browser->skip_assets) {
-            return ((furi_string_cmp_str(name, ASSETS_DIR) == 0) ? (false) : (true));
+            return ((furi_string_cmp_str(name, ASSETS_DIR) == 0) ? (false) : (true)) &&
+                   ((furi_string_cmp_str(name, BADUSB_LAYOUTS_DIR) == 0) ? (false) : (true)) &&
+                   ((furi_string_cmp_str(name, SUBGHZ_TEMP_DIR) == 0) ? (false) : (true));
         } else {
             return true;
         }
@@ -202,55 +206,58 @@ static bool
 
     uint32_t items_cnt = 0;
 
+    bool ret = false;
     do {
         if(!storage_dir_open(directory, furi_string_get_cstr(path))) {
             break;
         }
 
-        items_cnt = 0;
-        while(items_cnt < offset) {
-            if(!storage_dir_read(directory, &file_info, name_temp, FILE_NAME_LEN_MAX)) {
-                break;
-            }
-            if(storage_file_get_error(directory) == FSE_OK) {
-                furi_string_set(name_str, name_temp);
-                if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
-                    items_cnt++;
-                }
-            } else {
-                break;
-            }
-        }
-        if(items_cnt != offset) {
-            break;
-        }
+        // items_cnt = 0;
+        // while(items_cnt < offset) {
+        //     if(!storage_dir_read(directory, &file_info, name_temp, FILE_NAME_LEN_MAX)) {
+        //         break;
+        //     }
+        //     if(storage_file_get_error(directory) == FSE_OK) {
+        //         furi_string_set(name_str, name_temp);
+        //         if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
+        //             items_cnt++;
+        //         }
+        //     } else {
+        //         break;
+        //     }
+        // }
+        // if(items_cnt != offset) {
+        //     break;
+        // }
 
+        // FLIPPER DEVS MOMENT
+        // this used to load the file list in chunks, and then sort it...
+        // so while scrolling, it loads more files and sorts them...
+        // chances are, the new files are higher in the sorted list...
+        // so the files keep shifting around while scrolling...
+        // now this does something intelligent and loads all in one go.
+        // might take a few milliseconds longer, but atleast it works :kekw:
+        UNUSED(offset);
+        UNUSED(count);
         if(browser->list_load_cb) {
-            browser->list_load_cb(browser->cb_ctx, offset);
+            browser->list_load_cb(browser->cb_ctx, 0);
         }
-
-        items_cnt = 0;
-        while(items_cnt < count) {
-            if(!storage_dir_read(directory, &file_info, name_temp, FILE_NAME_LEN_MAX)) {
-                break;
-            }
-            if(storage_file_get_error(directory) == FSE_OK) {
-                furi_string_set(name_str, name_temp);
-                if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
-                    furi_string_printf(name_str, "%s/%s", furi_string_get_cstr(path), name_temp);
-                    if(browser->list_item_cb) {
-                        browser->list_item_cb(
-                            browser->cb_ctx, name_str, (file_info.flags & FSF_DIRECTORY), false);
-                    }
-                    items_cnt++;
+        while(storage_dir_read(directory, &file_info, name_temp, FILE_NAME_LEN_MAX) &&
+              storage_file_get_error(directory) == FSE_OK) {
+            furi_string_set(name_str, name_temp);
+            if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
+                furi_string_printf(name_str, "%s/%s", furi_string_get_cstr(path), name_temp);
+                if(browser->list_item_cb) {
+                    browser->list_item_cb(
+                        browser->cb_ctx, name_str, (file_info.flags & FSF_DIRECTORY), false);
                 }
-            } else {
-                break;
+                items_cnt++;
             }
         }
         if(browser->list_item_cb) {
             browser->list_item_cb(browser->cb_ctx, NULL, false, true);
         }
+        ret = true;
     } while(0);
 
     furi_string_free(name_str);
@@ -260,7 +267,7 @@ static bool
 
     furi_record_close(RECORD_STORAGE);
 
-    return (items_cnt == count);
+    return ret;
 }
 
 static int32_t browser_worker(void* context) {
