@@ -457,13 +457,10 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
 
     browser->last_tab_switch_dir = key;
 
-    for(int i = 0; i < 2; i++) {
-        if(key == InputKeyLeft) {
-            tab = ((tab - 1) + ArchiveTabTotal) % ArchiveTabTotal;
-        } else {
-            tab = (tab + 1) % ArchiveTabTotal;
-        }
-        break;
+    if(key == InputKeyLeft) {
+        tab = ((tab - 1) + ArchiveTabTotal) % ArchiveTabTotal;
+    } else {
+        tab = (tab + 1) % ArchiveTabTotal;
     }
 
     browser->is_root = true;
