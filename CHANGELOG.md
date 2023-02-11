@@ -10,6 +10,7 @@
 * Plugins: Fix CTRL-SHIFT in mousejacker (by @notmarek | PR #316)
 * Infrared: Update universal remote assets (by @amec0e) (PR #318)
 * NFC: Add Mifare Classic keys (by @Bon-Jorik (scaff.walker) | PR #324)
+* Misc: Playing games now affect Flipper's level
 * OFW: Fixed typo in nfc_magic_scene_wrong_card.c 
 * OFW: SubGhz: fix cc1101_read_fifo func
 * OFW: feat: add missing `const` qualifiers
