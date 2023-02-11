@@ -11,7 +11,6 @@
 #include <core/check.h>
 #include <core/common_defines.h>
 #include <core/log.h>
-#include "m-string.h"
 #include "m-algo.h"
 #include <m-array.h>
 

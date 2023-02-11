@@ -8,6 +8,7 @@
 #include <gui/modules/file_browser_worker.h>
 #include <fap_loader/fap_loader_app.h>
 #include <math.h>
+#include <furi_hal.h>
 
 static void
     archive_folder_open_cb(void* context, uint32_t item_cnt, int32_t file_idx, bool is_root) {
@@ -461,6 +462,13 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
         tab = ((tab - 1) + ArchiveTabTotal) % ArchiveTabTotal;
     } else {
         tab = (tab + 1) % ArchiveTabTotal;
+    }
+    if(tab == ArchiveTabInternal && !furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        if(key == InputKeyLeft) {
+            tab = ((tab - 1) + ArchiveTabTotal) % ArchiveTabTotal;
+        } else {
+            tab = (tab + 1) % ArchiveTabTotal;
+        }
     }
 
     browser->is_root = true;

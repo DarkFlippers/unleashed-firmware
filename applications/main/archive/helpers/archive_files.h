@@ -3,7 +3,6 @@
 #include <m-array.h>
 #include <furi.h>
 #include <m-algo.h>
-#include <m-string.h>
 #include <storage/storage.h>
 #include "toolbox/path.h"
 
