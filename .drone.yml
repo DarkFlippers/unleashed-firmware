@@ -192,7 +192,7 @@ steps:
         Version: {{build.tag}}
 
 
-        [-Github-](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
+        [-Github - Changelog-](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
 
 
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
@@ -201,45 +201,26 @@ steps:
         [-Download latest extra apps pack-](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
 
-        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
+        [-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})
 
 
-        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}e.tgz&channel=release-cfw&version=${DRONE_TAG}e)
+        [-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
 
 
-        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
+        [-Version with extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}e.tgz&channel=release-cfw&version=${DRONE_TAG}e)"
       document:
         - ${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz
 
   - name: "Send discord notification"
-    image: appleboy/drone-discord
-    settings:
-      webhook_id:
-        from_secret: ds_wh_id
-      webhook_token:
-        from_secret: ds_wh_token
-      message: "New Unleashed firmware released!
-
-
-        Version: {{build.tag}}
-
-
-        [[Github]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/${DRONE_TAG})
-
-
-        [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
-
-
-        [-Download latest extra apps pack-](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
-
-
-        [-Version without custom animations - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
-
-
-        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}e.tgz&channel=release-cfw&version=${DRONE_TAG}e)
-
-
-        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})"
+    image: hfdj/fztools
+    pull: never
+    environment:
+      DISCORD_WEBHOOK:
+        from_secret: dis_release_webhook
+    commands:
+      - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
+      - chmod +x ./discord.sh
+      - ./discord.sh --text 'New Unleashed firmware released!\n\nVersion - '${DRONE_TAG}'\n\n[[Github - Changelog]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')\n\n[-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)\n\n[-Download latest extra apps pack-](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)\n\n[-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/'${DRONE_TAG}'/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')\n\n[-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)\n\n[-Version with extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)'
 
 trigger:
   event:
@@ -398,6 +379,17 @@ steps:
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})"
       document:
         - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
+
+  - name: "Send discord notification"
+    image: hfdj/fztools
+    pull: never
+    environment:
+      DISCORD_WEBHOOK:
+        from_secret: dis_dev_webhook
+    commands:
+      - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
+      - chmod +x ./discord.sh
+      - ./discord.sh --text 'Unleashed firmware dev build successful!\n\nBuild - '${DRONE_BUILD_NUMBER}'\n\nSHA - '${DRONE_COMMIT_SHA}'\n\n[-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'e.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'e)\n\n[-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}')'
 
 trigger:
   branch:

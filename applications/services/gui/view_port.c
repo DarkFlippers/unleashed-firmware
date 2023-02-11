@@ -89,7 +89,7 @@ void view_port_set_width(ViewPort* view_port, uint8_t width) {
     view_port->width = width;
 }
 
-uint8_t view_port_get_width(ViewPort* view_port) {
+uint8_t view_port_get_width(const ViewPort* view_port) {
     furi_assert(view_port);
     return view_port->width;
 }
@@ -99,7 +99,7 @@ void view_port_set_height(ViewPort* view_port, uint8_t height) {
     view_port->height = height;
 }
 
-uint8_t view_port_get_height(ViewPort* view_port) {
+uint8_t view_port_get_height(const ViewPort* view_port) {
     furi_assert(view_port);
     return view_port->height;
 }
@@ -112,7 +112,7 @@ void view_port_enabled_set(ViewPort* view_port, bool enabled) {
     }
 }
 
-bool view_port_is_enabled(ViewPort* view_port) {
+bool view_port_is_enabled(const ViewPort* view_port) {
     furi_assert(view_port);
     return view_port->is_enabled;
 }

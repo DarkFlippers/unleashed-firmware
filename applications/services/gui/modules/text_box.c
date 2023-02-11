@@ -1,7 +1,7 @@
 #include "text_box.h"
-#include "gui/canvas.h"
-#include <furi.h>
+#include <gui/canvas.h>
 #include <gui/elements.h>
+#include <furi.h>
 #include <stdint.h>
 
 struct TextBox {

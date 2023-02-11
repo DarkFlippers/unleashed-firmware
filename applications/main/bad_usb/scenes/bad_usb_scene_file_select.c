@@ -1,6 +1,6 @@
 #include "../bad_usb_app_i.h"
-#include "furi_hal_power.h"
-#include "furi_hal_usb.h"
+#include <furi_hal_power.h>
+#include <furi_hal_usb.h>
 #include <storage/storage.h>
 
 static bool bad_usb_file_select(BadUsbApp* bad_usb) {

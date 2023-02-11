@@ -1,0 +1,45 @@
+{
+    "include_paths": [
+        "ble_glue",
+        "fatfs",
+        "furi_hal",
+        "inc"
+    ],
+    "sdk_header_paths": [
+        "../furi_hal_include",
+        "furi_hal",
+        "platform_specific"
+    ],
+    "startup_script": "startup_stm32wb55xx_cm4.s",
+    "linker_script_flash": "stm32wb55xx_flash.ld",
+    "linker_script_ram": "stm32wb55xx_ram_fw.ld",
+    "linker_script_app": "application_ext.ld",
+    "sdk_symbols": "api_symbols.csv",
+    "linker_dependencies": [
+        "print",
+        "flipper7",
+        "furi",
+        "freertos",
+        "stm32cubewb",
+        "hwdrivers",
+        "fatfs",
+        "littlefs",
+        "subghz",
+        "flipperformat",
+        "toolbox",
+        "nfc",
+        "microtar",
+        "usb_stm32",
+        "st25rfal002",
+        "infrared",
+        "appframe",
+        "assets",
+        "one_wire",
+        "misc",
+        "mbedtls",
+        "lfrfid",
+        "flipper_application",
+        "flipperformat",
+        "toolbox"
+    ]
+}

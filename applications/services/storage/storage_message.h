@@ -1,5 +1,6 @@
 #pragma once
 #include <furi.h>
+#include <toolbox/api_lock.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,7 +131,7 @@ typedef enum {
 } StorageCommand;
 
 typedef struct {
-    FuriSemaphore* semaphore;
+    FuriApiLock lock;
     StorageCommand command;
     SAData* data;
     SAReturn* return_data;

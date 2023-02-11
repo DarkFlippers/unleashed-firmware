@@ -1,8 +1,8 @@
 #include "submenu.h"
 
-#include <m-array.h>
 #include <gui/elements.h>
 #include <furi.h>
+#include <m-array.h>
 
 struct Submenu {
     View* view;

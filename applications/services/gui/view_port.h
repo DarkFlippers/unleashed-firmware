@@ -56,7 +56,7 @@ void view_port_free(ViewPort* view_port);
  * @param      width      wanted width, 0 - auto.
  */
 void view_port_set_width(ViewPort* view_port, uint8_t width);
-uint8_t view_port_get_width(ViewPort* view_port);
+uint8_t view_port_get_width(const ViewPort* view_port);
 
 /** Set view_port height.
  *
@@ -66,7 +66,7 @@ uint8_t view_port_get_width(ViewPort* view_port);
  * @param      height     wanted height, 0 - auto.
  */
 void view_port_set_height(ViewPort* view_port, uint8_t height);
-uint8_t view_port_get_height(ViewPort* view_port);
+uint8_t view_port_get_height(const ViewPort* view_port);
 
 /** Enable or disable view_port rendering.
  *
@@ -75,7 +75,7 @@ uint8_t view_port_get_height(ViewPort* view_port);
  * @warning    automatically dispatches update event
  */
 void view_port_enabled_set(ViewPort* view_port, bool enabled);
-bool view_port_is_enabled(ViewPort* view_port);
+bool view_port_is_enabled(const ViewPort* view_port);
 
 /** ViewPort event callbacks
  *

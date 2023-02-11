@@ -8,13 +8,16 @@ extern "C" {
 #endif
 
 /** Early initialize SPI HAL */
-void furi_hal_spi_init_early();
+void furi_hal_spi_config_init_early();
 
 /** Early deinitialize SPI HAL */
-void furi_hal_spi_deinit_early();
+void furi_hal_spi_config_deinit_early();
 
 /** Initialize SPI HAL */
-void furi_hal_spi_init();
+void furi_hal_spi_config_init();
+
+/** Initialize SPI DMA HAL */
+void furi_hal_spi_dma_init();
 
 /** Initialize SPI Bus
  *
@@ -82,7 +85,7 @@ bool furi_hal_spi_bus_rx(
  */
 bool furi_hal_spi_bus_tx(
     FuriHalSpiBusHandle* handle,
-    uint8_t* buffer,
+    const uint8_t* buffer,
     size_t size,
     uint32_t timeout);
 
@@ -98,10 +101,27 @@ bool furi_hal_spi_bus_tx(
  */
 bool furi_hal_spi_bus_trx(
     FuriHalSpiBusHandle* handle,
-    uint8_t* tx_buffer,
+    const uint8_t* tx_buffer,
     uint8_t* rx_buffer,
     size_t size,
     uint32_t timeout);
+
+/** SPI Transmit and Receive with DMA
+ *
+ * @param      handle     pointer to FuriHalSpiBusHandle instance
+ * @param      tx_buffer  pointer to tx buffer
+ * @param      rx_buffer  pointer to rx buffer
+ * @param      size       transaction size (buffer size)
+ * @param      timeout_ms operation timeout in ms
+ *
+ * @return     true on success
+ */
+bool furi_hal_spi_bus_trx_dma(
+    FuriHalSpiBusHandle* handle,
+    uint8_t* tx_buffer,
+    uint8_t* rx_buffer,
+    size_t size,
+    uint32_t timeout_ms);
 
 #ifdef __cplusplus
 }

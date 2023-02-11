@@ -1,7 +1,8 @@
-#include "gui/view.h"
-#include <core/memmgr.h>
 #include "view_stack.h"
 #include "view_i.h"
+
+#include <gui/view.h>
+#include <core/memmgr.h>
 
 #define MAX_VIEWS 3
 

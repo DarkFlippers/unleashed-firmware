@@ -1,12 +1,15 @@
 #include "button_panel.h"
-#include "furi_hal_resources.h"
-#include "gui/canvas.h"
+
+#include <gui/canvas.h>
+#include <gui/elements.h>
+
+#include <furi.h>
+#include <furi_hal_resources.h>
+#include <stdint.h>
+
 #include <m-array.h>
 #include <m-i-list.h>
 #include <m-list.h>
-#include <furi.h>
-#include <gui/elements.h>
-#include <stdint.h>
 
 typedef struct {
     // uint16_t to support multi-screen, wide button panel

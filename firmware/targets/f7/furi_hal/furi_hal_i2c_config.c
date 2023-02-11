@@ -1,4 +1,4 @@
-#include "furi_hal_i2c_config.h"
+#include <furi_hal_i2c_config.h>
 #include <furi_hal_resources.h>
 #include <furi_hal_version.h>
 #include <stm32wbxx_ll_bus.h>

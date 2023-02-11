@@ -1,0 +1,27 @@
+Import("env")
+
+env.Append(
+    LINT_SOURCES=[
+        Dir("."),
+    ],
+    CPPPATH=[
+        "#/lib/one_wire",
+    ],
+    SDK_HEADERS=[
+        File("one_wire_host_timing.h"),
+        File("one_wire_host.h"),
+        File("one_wire_slave.h"),
+        File("one_wire_device.h"),
+        File("ibutton/ibutton_worker.h"),
+        File("maxim_crc.h"),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="one_wire")
+libenv.ApplyLibFlags()
+
+sources = libenv.GlobRecursive("*.c*")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

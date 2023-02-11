@@ -1,4 +1,3 @@
-#include "gui/canvas.h"
 #include "gui_i.h"
 #include <assets_icons.h>
 
@@ -468,7 +467,7 @@ void gui_remove_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback,
     gui_unlock(gui);
 }
 
-size_t gui_get_framebuffer_size(Gui* gui) {
+size_t gui_get_framebuffer_size(const Gui* gui) {
     furi_assert(gui);
     return canvas_get_buffer_size(gui->canvas);
 }

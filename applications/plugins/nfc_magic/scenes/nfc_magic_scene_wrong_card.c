@@ -26,7 +26,7 @@ void nfc_magic_scene_wrong_card_on_enter(void* context) {
         AlignLeft,
         AlignTop,
         FontSecondary,
-        "Writing is supported\nonly for 4 bytes UID\nMifare CLassic 1k");
+        "Writing is supported\nonly for 4 bytes UID\nMifare Classic 1k");
     widget_add_button_element(
         widget, GuiButtonTypeLeft, "Retry", nfc_magic_scene_wrong_card_widget_callback, nfc_magic);
 

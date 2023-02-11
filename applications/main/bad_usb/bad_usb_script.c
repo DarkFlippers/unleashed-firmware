@@ -120,8 +120,6 @@ static const char ducky_cmd_altchar[] = {"ALTCHAR "};
 static const char ducky_cmd_altstr_1[] = {"ALTSTRING "};
 static const char ducky_cmd_altstr_2[] = {"ALTCODE "};
 
-static const char ducky_cmd_lang[] = {"DUCKY_LANG"};
-
 static const uint8_t numpad_keys[10] = {
     HID_KEYPAD_0,
     HID_KEYPAD_1,
@@ -256,9 +254,6 @@ static int32_t
         return (0);
     } else if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
         // ID - executed in ducky_script_preload
-        return (0);
-    } else if(strncmp(line_tmp, ducky_cmd_lang, strlen(ducky_cmd_lang)) == 0) {
-        // DUCKY_LANG - ignore command to retain compatibility with existing scripts
         return (0);
     } else if(strncmp(line_tmp, ducky_cmd_delay, strlen(ducky_cmd_delay)) == 0) {
         // DELAY
@@ -699,7 +694,7 @@ void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layou
     }
 
     File* layout_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
-    if(!furi_string_empty(layout_path)) {
+    if(!furi_string_empty(layout_path)) { //-V1051
         if(storage_file_open(
                layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
             uint16_t layout[128];

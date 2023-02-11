@@ -1,16 +1,17 @@
 #include "elements.h"
-#include "m-core.h"
+#include <m-core.h>
 #include <assets_icons.h>
-#include "furi_hal_resources.h"
+#include <furi_hal_resources.h>
 #include <furi_hal.h>
-#include "gui/canvas.h"
 
+#include <gui/canvas.h>
 #include <gui/icon_i.h>
 #include <gui/icon_animation_i.h>
 
 #include <furi.h>
 #include "canvas_i.h"
 
+#include <math.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -638,7 +639,7 @@ void elements_text_box(
     bool inversed_present = false;
     Font current_font = FontSecondary;
     Font prev_font = FontSecondary;
-    CanvasFontParameters* font_params = canvas_get_font_params(canvas, current_font);
+    const CanvasFontParameters* font_params = canvas_get_font_params(canvas, current_font);
 
     // Fill line parameters
     uint8_t line_leading_min = font_params->leading_min;

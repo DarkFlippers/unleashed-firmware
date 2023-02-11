@@ -49,7 +49,7 @@ uint8_t* canvas_get_buffer(Canvas* canvas);
  *
  * @return     size of canvas in bytes
  */
-size_t canvas_get_buffer_size(Canvas* canvas);
+size_t canvas_get_buffer_size(const Canvas* canvas);
 
 /** Set drawing region relative to real screen buffer
  *

@@ -1,7 +1,8 @@
-#include <furi.h>
-#include <gui/elements.h>
-#include <assets_icons.h>
 #include "byte_input.h"
+
+#include <gui/elements.h>
+#include <furi.h>
+#include <assets_icons.h>
 
 struct ByteInput {
     View* view;

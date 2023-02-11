@@ -1,6 +1,7 @@
 #include <furi.h>
 #include <furi_hal_gpio.h>
 #include <furi_hal_version.h>
+#include <furi_hal_resources.h>
 #include <stm32wbxx_ll_comp.h>
 
 #define GET_SYSCFG_EXTI_PORT(gpio)                \
@@ -224,85 +225,85 @@ static void furi_hal_gpio_int_call(uint16_t pin_num) {
 /* Interrupt handlers */
 void EXTI0_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_0)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
         furi_hal_gpio_int_call(0);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
     }
 }
 
 void EXTI1_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
         furi_hal_gpio_int_call(1);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
     }
 }
 
 void EXTI2_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_2)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
         furi_hal_gpio_int_call(2);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
     }
 }
 
 void EXTI3_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_3)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_3);
         furi_hal_gpio_int_call(3);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_3);
     }
 }
 
 void EXTI4_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_4)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_4);
         furi_hal_gpio_int_call(4);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_4);
     }
 }
 
 void EXTI9_5_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_5)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_5);
         furi_hal_gpio_int_call(5);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_5);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_6)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_6);
         furi_hal_gpio_int_call(6);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_6);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_7)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_7);
         furi_hal_gpio_int_call(7);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_7);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_8)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_8);
         furi_hal_gpio_int_call(8);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_8);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_9)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);
         furi_hal_gpio_int_call(9);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);
     }
 }
 
 void EXTI15_10_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_10)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_10);
         furi_hal_gpio_int_call(10);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_10);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_11)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_11);
         furi_hal_gpio_int_call(11);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_11);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_12)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_12);
         furi_hal_gpio_int_call(12);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_12);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_13)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
         furi_hal_gpio_int_call(13);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_14)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_14);
         furi_hal_gpio_int_call(14);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_14);
     }
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_15)) {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_15);
         furi_hal_gpio_int_call(15);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_15);
     }
 }

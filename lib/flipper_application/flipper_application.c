@@ -43,6 +43,10 @@ static FlipperApplicationPreloadStatus
         return FlipperApplicationPreloadStatusInvalidManifest;
     }
 
+    if(!flipper_application_manifest_is_target_compatible(&app->manifest)) {
+        return FlipperApplicationPreloadStatusTargetMismatch;
+    }
+
     if(!flipper_application_manifest_is_compatible(
            &app->manifest, elf_file_get_api_interface(app->elf))) {
         return FlipperApplicationPreloadStatusApiMismatch;

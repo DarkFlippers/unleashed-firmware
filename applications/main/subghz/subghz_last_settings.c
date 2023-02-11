@@ -1,8 +1,5 @@
 #include "subghz_last_settings.h"
 #include "subghz_i.h"
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-#include <lib/subghz/protocols/raw.h>
-#endif
 
 #define TAG "SubGhzLastSettings"
 
@@ -15,11 +12,6 @@
 #define SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY 433920000
 #define SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL 2
 #define SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER -93.0f
-
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-#define SUBGHZ_LAST_SETTING_DEFAULT_READ_RAW 0
-#define SUBGHZ_LAST_SETTING_FIELD_DETECT_RAW "DetectRaw"
-#endif
 
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY "Frequency"
 //#define SUBGHZ_LAST_SETTING_FIELD_PRESET "Preset"
@@ -52,9 +44,6 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     //int32_t temp_preset = 0;
     bool frequency_analyzer_feedback_level_was_read = false;
     bool frequency_analyzer_trigger_was_read = false;
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-    uint32_t temp_read_raw = 0;
-#endif
 
     if(FSE_OK == storage_sd_status(storage) && SUBGHZ_LAST_SETTINGS_PATH &&
        flipper_format_file_open_existing(fff_data_file, SUBGHZ_LAST_SETTINGS_PATH)) {
@@ -73,10 +62,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER,
             (float*)&temp_frequency_analyzer_trigger,
             1);
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-        flipper_format_read_uint32(
-            fff_data_file, SUBGHZ_LAST_SETTING_FIELD_DETECT_RAW, (uint32_t*)&temp_read_raw, 1);
-#endif
+
     } else {
         FURI_LOG_E(TAG, "Error open file %s", SUBGHZ_LAST_SETTINGS_PATH);
     }
@@ -88,9 +74,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->frequency_analyzer_feedback_level =
             SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL;
         instance->frequency_analyzer_trigger = SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-        instance->detect_raw = SUBGHZ_LAST_SETTING_DEFAULT_READ_RAW;
-#endif
+
     } else {
         instance->frequency = temp_frequency;
         instance->frequency_analyzer_feedback_level =
@@ -101,9 +85,6 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->frequency_analyzer_trigger = frequency_analyzer_trigger_was_read ?
                                                    temp_frequency_analyzer_trigger :
                                                    SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-        instance->detect_raw = temp_read_raw;
-#endif
 
         /*if(temp_preset > (int32_t)preset_count - 1 || temp_preset < 0) {
             FURI_LOG_W(TAG, "Last used preset no found");*/
@@ -164,12 +145,6 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
                1)) {
             break;
         }
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-        if(!flipper_format_insert_or_update_uint32(
-               file, SUBGHZ_LAST_SETTING_FIELD_DETECT_RAW, &instance->detect_raw, 1)) {
-            break;
-        }
-#endif
         saved = true;
     } while(0);
 
@@ -183,17 +158,3 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
 
     return saved;
 }
-
-#ifdef SUBGHZ_SAVE_DETECT_RAW_SETTING
-void subghz_last_settings_set_detect_raw_values(void* context) {
-    furi_assert(context);
-    SubGhz* instance = (SubGhz*)context;
-    bool is_detect_raw = instance->last_settings->detect_raw > 0;
-    subghz_receiver_set_filter(
-        instance->txrx->receiver, is_detect_raw ? DETECT_RAW_TRUE : DETECT_RAW_FALSE);
-    subghz_protocol_decoder_raw_set_auto_mode(
-        subghz_receiver_search_decoder_base_by_name(
-            instance->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME),
-        is_detect_raw);
-}
-#endif

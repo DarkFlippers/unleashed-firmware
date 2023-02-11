@@ -2,6 +2,7 @@ App(
     appid="ibutton",
     name="iButton",
     apptype=FlipperAppType.APP,
+    targets=["f7"],
     entry_point="ibutton_app",
     cdefines=["APP_IBUTTON"],
     requires=[

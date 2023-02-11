@@ -8,16 +8,11 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#include <furi.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
-#include <stm32wbxx_ll_rtc.h>
 
 #define TAG "SubGhzProtocolRAW"
 #define SUBGHZ_DOWNLOAD_MAX_SIZE 512
-#define SUBGHZ_AUTO_DETECT_DOWNLOAD_MAX_SIZE 2048
-#define SUBGHZ_AUTO_DETECT_RAW_THRESHOLD -72.0f
-#define SUBGHZ_AUTO_DETECT_RAW_POSTROLL_FRAMES 40
 
 static const SubGhzBlockConst subghz_protocol_raw_const = {
     .te_short = 50,
@@ -29,8 +24,6 @@ static const SubGhzBlockConst subghz_protocol_raw_const = {
 struct SubGhzProtocolDecoderRAW {
     SubGhzProtocolDecoderBase base;
 
-    SubGhzBlockDecoder decoder;
-
     int32_t* upload_raw;
     uint16_t ind_write;
     Storage* storage;
@@ -39,10 +32,6 @@ struct SubGhzProtocolDecoderRAW {
     FuriString* file_name;
     size_t sample_write;
     bool last_level;
-    bool auto_mode;
-    bool has_rssi_above_threshold;
-    int rssi_threshold;
-    uint8_t postroll_frames;
     bool pause;
 };
 
@@ -67,8 +56,8 @@ const SubGhzProtocolDecoder subghz_protocol_raw_decoder = {
     .feed = subghz_protocol_decoder_raw_feed,
     .reset = subghz_protocol_decoder_raw_reset,
 
-    .get_hash_data = subghz_protocol_decoder_raw_get_hash_data,
-    .serialize = subghz_protocol_decoder_raw_serialize,
+    .get_hash_data = NULL,
+    .serialize = NULL,
     .deserialize = subghz_protocol_decoder_raw_deserialize,
     .get_string = subghz_protocol_decoder_raw_get_string,
 };
@@ -170,6 +159,7 @@ bool subghz_protocol_raw_save_to_file_init(
         instance->upload_raw = malloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
         instance->file_is_open = RAWFileIsOpenWrite;
         instance->sample_write = 0;
+        instance->last_level = false;
         instance->pause = false;
         init = true;
     } while(0);
@@ -212,36 +202,6 @@ void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolDecoderRAW* instance) {
     instance->file_is_open = RAWFileIsOpenClose;
 }
 
-void subghz_protocol_decoder_raw_set_rssi_threshold(void* context, int rssi_threshold) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRAW* instance = context;
-
-    FURI_LOG_D(TAG, "RSSI set: (%d)", rssi_threshold);
-
-    instance->rssi_threshold = rssi_threshold;
-
-    subghz_protocol_decoder_raw_reset(context);
-}
-
-void subghz_protocol_decoder_raw_set_auto_mode(void* context, bool auto_mode) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRAW* instance = context;
-    instance->auto_mode = auto_mode;
-
-    if(auto_mode) {
-        if(instance->upload_raw == NULL) {
-            instance->upload_raw = malloc(SUBGHZ_AUTO_DETECT_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
-        }
-    } else {
-        if(instance->upload_raw != NULL) {
-            free(instance->upload_raw);
-            instance->upload_raw = NULL;
-        }
-    }
-
-    subghz_protocol_decoder_raw_reset(context);
-}
-
 void subghz_protocol_raw_save_to_file_pause(SubGhzProtocolDecoderRAW* instance, bool pause) {
     furi_assert(instance);
 
@@ -262,8 +222,6 @@ void* subghz_protocol_decoder_raw_alloc(SubGhzEnvironment* environment) {
     instance->ind_write = 0;
     instance->last_level = false;
     instance->file_is_open = RAWFileIsOpenClose;
-    instance->postroll_frames = 0;
-    instance->rssi_threshold = SUBGHZ_AUTO_DETECT_RAW_THRESHOLD;
     instance->file_name = furi_string_alloc();
 
     return instance;
@@ -273,10 +231,6 @@ void subghz_protocol_decoder_raw_free(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderRAW* instance = context;
     furi_string_free(instance->file_name);
-    if(instance->upload_raw != NULL) {
-        free(instance->upload_raw);
-        instance->upload_raw = NULL;
-    }
     free(instance);
 }
 
@@ -284,66 +238,23 @@ void subghz_protocol_decoder_raw_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderRAW* instance = context;
     instance->ind_write = 0;
-    instance->has_rssi_above_threshold = false;
     instance->last_level = false;
-    instance->postroll_frames = 0;
-}
-
-bool subghz_protocol_decoder_raw_write_data(void* context, bool level, uint32_t duration) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRAW* instance = context;
-
-    bool wrote_data = false;
-
-    if(instance->last_level != level) {
-        instance->last_level = (level ? true : false);
-        instance->upload_raw[instance->ind_write++] = (level ? duration : -duration);
-        subghz_protocol_blocks_add_bit(&instance->decoder, (level) ? 1 : 0);
-        wrote_data = true;
-    }
-
-    if(instance->ind_write == SUBGHZ_AUTO_DETECT_DOWNLOAD_MAX_SIZE) {
-        if(instance->base.callback)
-            instance->base.callback(&instance->base, instance->base.context);
-
-        return false;
-    }
-
-    return wrote_data;
 }
 
 void subghz_protocol_decoder_raw_feed(void* context, bool level, uint32_t duration) {
     furi_assert(context);
     SubGhzProtocolDecoderRAW* instance = context;
 
-    if(instance->upload_raw != NULL && !instance->pause &&
-       duration > subghz_protocol_raw_const.te_short) {
-        if(instance->auto_mode) {
-            float rssi = furi_hal_subghz_get_rssi();
-
-            if(rssi >= instance->rssi_threshold) {
-                subghz_protocol_decoder_raw_write_data(context, level, duration);
-                instance->has_rssi_above_threshold = true;
-                instance->postroll_frames = 0;
-            } else if(instance->has_rssi_above_threshold) {
-                subghz_protocol_decoder_raw_write_data(instance, level, duration);
-                instance->postroll_frames++;
-
-                if(instance->postroll_frames >= SUBGHZ_AUTO_DETECT_RAW_POSTROLL_FRAMES) {
-                    if(instance->base.callback)
-                        instance->base.callback(&instance->base, instance->base.context);
-                }
-            }
-        } else {
+    if(!instance->pause && (instance->upload_raw != NULL)) {
+        if(duration > subghz_protocol_raw_const.te_short) {
             if(instance->last_level != level) {
                 instance->last_level = (level ? true : false);
                 instance->upload_raw[instance->ind_write++] = (level ? duration : -duration);
-                subghz_protocol_blocks_add_bit(&instance->decoder, (level) ? 1 : 0);
             }
+        }
 
-            if(instance->ind_write == SUBGHZ_DOWNLOAD_MAX_SIZE) {
-                subghz_protocol_raw_save_to_file_write(instance);
-            }
+        if(instance->ind_write == SUBGHZ_DOWNLOAD_MAX_SIZE) {
+            subghz_protocol_raw_save_to_file_write(instance);
         }
     }
 }
@@ -354,13 +265,6 @@ bool subghz_protocol_decoder_raw_deserialize(void* context, FlipperFormat* flipp
     UNUSED(flipper_format);
     //ToDo stub, for backwards compatibility
     return true;
-}
-
-uint8_t subghz_protocol_decoder_raw_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRAW* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 void subghz_protocol_decoder_raw_get_string(void* context, FuriString* output) {
@@ -379,13 +283,6 @@ void* subghz_protocol_encoder_raw_alloc(SubGhzEnvironment* environment) {
     instance->file_name = furi_string_alloc();
     instance->is_running = false;
     return instance;
-}
-
-int subghz_protocol_encoder_get_rssi_threshold(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRAW* instance = context;
-
-    return instance->rssi_threshold;
 }
 
 void subghz_protocol_encoder_raw_stop(void* context) {
@@ -443,70 +340,6 @@ void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char*
             break;
         }
     } while(false);
-}
-
-bool subghz_protocol_decoder_raw_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRAW* instance = context;
-    if(instance->auto_mode) {
-        furi_assert(instance);
-        bool res = false;
-        FuriString* temp_str;
-        temp_str = furi_string_alloc();
-
-        do {
-            stream_clean(flipper_format_get_raw_stream(flipper_format));
-            if(!flipper_format_write_header_cstr(
-                   flipper_format, SUBGHZ_RAW_FILE_TYPE, SUBGHZ_RAW_FILE_VERSION)) {
-                FURI_LOG_E(TAG, "Unable to add header");
-                break;
-            }
-
-            if(!flipper_format_write_uint32(flipper_format, "Frequency", &preset->frequency, 1)) {
-                FURI_LOG_E(TAG, "Unable to add Frequency");
-                break;
-            }
-            subghz_block_generic_get_preset_name(furi_string_get_cstr(preset->name), temp_str);
-            if(!flipper_format_write_string_cstr(
-                   flipper_format, "Preset", furi_string_get_cstr(temp_str))) {
-                FURI_LOG_E(TAG, "Unable to add Preset");
-                break;
-            }
-            if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
-                if(!flipper_format_write_string_cstr(
-                       flipper_format, "Custom_preset_module", "CC1101")) {
-                    FURI_LOG_E(TAG, "Unable to add Custom_preset_module");
-                    break;
-                }
-                if(!flipper_format_write_hex(
-                       flipper_format, "Custom_preset_data", preset->data, preset->data_size)) {
-                    FURI_LOG_E(TAG, "Unable to add Custom_preset_data");
-                    break;
-                }
-            }
-            if(!flipper_format_write_string_cstr(
-                   flipper_format, "Protocol", instance->base.protocol->name)) {
-                FURI_LOG_E(TAG, "Unable to add Protocol");
-                break;
-            }
-
-            if(!flipper_format_write_int32(
-                   flipper_format, "RAW_Data", instance->upload_raw, instance->ind_write)) {
-                FURI_LOG_E(TAG, "Unable to add Raw Data");
-                break;
-            } else {
-                instance->ind_write = 0;
-            }
-            res = true;
-        } while(false);
-        furi_string_free(temp_str);
-        return res;
-    } else {
-        return false;
-    }
 }
 
 bool subghz_protocol_encoder_raw_deserialize(void* context, FlipperFormat* flipper_format) {

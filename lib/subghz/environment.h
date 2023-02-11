@@ -53,6 +53,23 @@ void subghz_environment_set_came_atomo_rainbow_table_file_name(
 const char* subghz_environment_get_came_atomo_rainbow_table_file_name(SubGhzEnvironment* instance);
 
 /**
+ * Set filename to work with Alutech at-4n.
+ * @param instance Pointer to a SubGhzEnvironment instance
+ * @param filename Full path to the file
+ */
+void subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+    SubGhzEnvironment* instance,
+    const char* filename);
+
+/**
+ * Get filename to work with Alutech at-4n.
+ * @param instance Pointer to a SubGhzEnvironment instance
+ * @return Full path to the file
+ */
+const char*
+    subghz_environment_get_alutech_at_4n_rainbow_table_file_name(SubGhzEnvironment* instance);
+
+/**
  * Set filename to work with Nice Flor-S.
  * @param instance Pointer to a SubGhzEnvironment instance
  * @param filename Full path to the file

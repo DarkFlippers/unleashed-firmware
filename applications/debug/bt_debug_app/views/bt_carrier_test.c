@@ -1,7 +1,7 @@
 #include "bt_carrier_test.h"
 #include "bt_test.h"
 #include "bt_test_types.h"
-#include "furi_hal_bt.h"
+#include <furi_hal_bt.h>
 
 struct BtCarrierTest {
     BtTest* bt_test;

@@ -30,7 +30,7 @@ extern "C" {
 /* USER CODE BEGIN 0 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32_adafruit_sd.h"
+#include "sd_spi_io.h"
 #include "fatfs/ff_gen_drv.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

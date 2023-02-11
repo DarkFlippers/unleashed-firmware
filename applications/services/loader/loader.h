@@ -43,7 +43,7 @@ bool loader_lock(Loader* instance);
 void loader_unlock(Loader* instance);
 
 /** Get loader lock status */
-bool loader_is_locked(Loader* instance);
+bool loader_is_locked(const Loader* instance);
 
 /** Show primary loader */
 void loader_show_menu();

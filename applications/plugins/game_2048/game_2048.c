@@ -13,6 +13,7 @@
 #include <gui/gui.h>
 #include <input/input.h>
 #include <storage/storage.h>
+#include <dolphin/dolphin.h>
 
 #include "digits.h"
 #include "array_utils.h"
@@ -382,7 +383,7 @@ int32_t game_2048_app() {
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, game_state, sizeof(GameState))) {
-        FURI_LOG_E("SnakeGame", "cannot create mutex\r\n");
+        FURI_LOG_E("2048Game", "cannot create mutex\r\n");
         free(game_state);
         return 255;
     }
@@ -396,6 +397,9 @@ int32_t game_2048_app() {
 
     Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
+
+    // Call dolphin deed on game start
+    DOLPHIN_DEED(DolphinDeedPluginGameStart);
 
     bool is_finished = false;
     while(!is_finished) {

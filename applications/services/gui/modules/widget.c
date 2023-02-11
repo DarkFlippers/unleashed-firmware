@@ -1,7 +1,7 @@
-#include <furi.h>
 #include "widget.h"
-#include <m-array.h>
 #include "widget_elements/widget_element_i.h"
+#include <furi.h>
+#include <m-array.h>
 
 ARRAY_DEF(ElementArray, WidgetElement*, M_PTR_OPLIST);
 

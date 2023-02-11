@@ -28,7 +28,7 @@ bool nfc_scene_set_sak_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventByteInputDone) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetAtqua);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetAtqa);
             consumed = true;
         }
     }

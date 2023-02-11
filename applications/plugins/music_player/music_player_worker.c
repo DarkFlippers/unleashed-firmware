@@ -6,6 +6,7 @@
 #include <storage/storage.h>
 #include <lib/flipper_format/flipper_format.h>
 
+#include <math.h>
 #include <m-array.h>
 
 #define TAG "MusicPlayerWorker"

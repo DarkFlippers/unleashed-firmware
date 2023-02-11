@@ -33,7 +33,7 @@ void picopass_scene_read_card_success_on_enter(void* context) {
     uint8_t csn[PICOPASS_BLOCK_LEN];
     memcpy(csn, &AA1->data[PICOPASS_CSN_BLOCK_INDEX], PICOPASS_BLOCK_LEN);
     for(uint8_t i = 0; i < PICOPASS_BLOCK_LEN; i++) {
-        furi_string_cat_printf(csn_str, " %02X", csn[i]);
+        furi_string_cat_printf(csn_str, "%02X ", csn[i]);
     }
 
     // Neither of these are valid.  Indicates the block was all 0x00 or all 0xff
@@ -67,6 +67,19 @@ void picopass_scene_read_card_success_on_enter(void* context) {
 
         if(pacs->sio) {
             furi_string_cat_printf(sio_str, "+SIO");
+        }
+
+        if(pacs->key) {
+            if(pacs->sio) {
+                furi_string_cat_printf(sio_str, " ");
+            }
+            furi_string_cat_printf(sio_str, "Key: ");
+
+            uint8_t key[PICOPASS_BLOCK_LEN];
+            memcpy(key, &pacs->key, PICOPASS_BLOCK_LEN);
+            for(uint8_t i = 0; i < PICOPASS_BLOCK_LEN; i++) {
+                furi_string_cat_printf(sio_str, "%02X", key[i]);
+            }
         }
 
         widget_add_button_element(

@@ -1,7 +1,7 @@
 /**
 *****************************************************************************
 **
-**  File        : stm32wb55xx_flash_cm4.ld
+**  File        : stm32wb55xx_ram_fw.ld
 **
 **  Abstract    : System Workbench Minimal System calls file
 **

@@ -21,6 +21,14 @@
 #define RFID_CAPTURE_IND_CH LL_TIM_CHANNEL_CH3
 #define RFID_CAPTURE_DIR_CH LL_TIM_CHANNEL_CH4
 
+/* DMA Channels definition */
+#define RFID_DMA DMA2
+#define RFID_DMA_CH1_CHANNEL LL_DMA_CHANNEL_1
+#define RFID_DMA_CH2_CHANNEL LL_DMA_CHANNEL_2
+#define RFID_DMA_CH1_IRQ FuriHalInterruptIdDma2Ch1
+#define RFID_DMA_CH1_DEF RFID_DMA, RFID_DMA_CH1_CHANNEL
+#define RFID_DMA_CH2_DEF RFID_DMA, RFID_DMA_CH2_CHANNEL
+
 typedef struct {
     FuriHalRfidEmulateCallback callback;
     FuriHalRfidDMACallback dma_callback;
@@ -69,7 +77,7 @@ void furi_hal_rfid_init() {
 
 void furi_hal_rfid_pins_reset() {
     // ibutton bus disable
-    furi_hal_ibutton_stop();
+    furi_hal_ibutton_pin_reset();
 
     // pulldown rfid antenna
     furi_hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
@@ -86,8 +94,8 @@ void furi_hal_rfid_pins_reset() {
 
 void furi_hal_rfid_pins_emulate() {
     // ibutton low
-    furi_hal_ibutton_start_drive();
-    furi_hal_ibutton_pin_low();
+    furi_hal_ibutton_pin_configure();
+    furi_hal_ibutton_pin_write(false);
 
     // pull pin to timer out
     furi_hal_gpio_init_ex(
@@ -107,8 +115,8 @@ void furi_hal_rfid_pins_emulate() {
 
 void furi_hal_rfid_pins_read() {
     // ibutton low
-    furi_hal_ibutton_start_drive();
-    furi_hal_ibutton_pin_low();
+    furi_hal_ibutton_pin_configure();
+    furi_hal_ibutton_pin_write(false);
 
     // dont pull rfid antenna
     furi_hal_gpio_init(&gpio_nfc_irq_rfid_pull, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
@@ -302,15 +310,19 @@ void furi_hal_rfid_tim_read_capture_stop() {
 }
 
 static void furi_hal_rfid_dma_isr() {
-    if(LL_DMA_IsActiveFlag_HT1(DMA1)) {
-        LL_DMA_ClearFlag_HT1(DMA1);
+#if RFID_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1
+    if(LL_DMA_IsActiveFlag_HT1(RFID_DMA)) {
+        LL_DMA_ClearFlag_HT1(RFID_DMA);
         furi_hal_rfid->dma_callback(true, furi_hal_rfid->context);
     }
 
-    if(LL_DMA_IsActiveFlag_TC1(DMA1)) {
-        LL_DMA_ClearFlag_TC1(DMA1);
+    if(LL_DMA_IsActiveFlag_TC1(RFID_DMA)) {
+        LL_DMA_ClearFlag_TC1(RFID_DMA);
         furi_hal_rfid->dma_callback(false, furi_hal_rfid->context);
     }
+#else
+#error Update this code. Would you kindly?
+#endif
 }
 
 void furi_hal_rfid_tim_emulate_dma_start(
@@ -347,8 +359,8 @@ void furi_hal_rfid_tim_emulate_dma_start(
     dma_config.NbData = length;
     dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
     dma_config.Priority = LL_DMA_MODE_NORMAL;
-    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &dma_config);
-    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_Init(RFID_DMA_CH1_DEF, &dma_config);
+    LL_DMA_EnableChannel(RFID_DMA_CH1_DEF);
 
     // configure DMA "mem -> CCR3" channel
 #if FURI_HAL_RFID_EMULATE_TIMER_CHANNEL == LL_TIM_CHANNEL_CH3
@@ -366,13 +378,13 @@ void furi_hal_rfid_tim_emulate_dma_start(
     dma_config.NbData = length;
     dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
     dma_config.Priority = LL_DMA_MODE_NORMAL;
-    LL_DMA_Init(DMA1, LL_DMA_CHANNEL_2, &dma_config);
-    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_2);
+    LL_DMA_Init(RFID_DMA_CH2_DEF, &dma_config);
+    LL_DMA_EnableChannel(RFID_DMA_CH2_DEF);
 
     // attach interrupt to one of DMA channels
-    furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, furi_hal_rfid_dma_isr, NULL);
-    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_1);
-    LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_1);
+    furi_hal_interrupt_set_isr(RFID_DMA_CH1_IRQ, furi_hal_rfid_dma_isr, NULL);
+    LL_DMA_EnableIT_TC(RFID_DMA_CH1_DEF);
+    LL_DMA_EnableIT_HT(RFID_DMA_CH1_DEF);
 
     // start
     LL_TIM_EnableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
@@ -385,14 +397,14 @@ void furi_hal_rfid_tim_emulate_dma_stop() {
     LL_TIM_DisableCounter(FURI_HAL_RFID_EMULATE_TIMER);
     LL_TIM_DisableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
 
-    furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, NULL, NULL);
-    LL_DMA_DisableIT_TC(DMA1, LL_DMA_CHANNEL_1);
-    LL_DMA_DisableIT_HT(DMA1, LL_DMA_CHANNEL_1);
+    furi_hal_interrupt_set_isr(RFID_DMA_CH1_IRQ, NULL, NULL);
+    LL_DMA_DisableIT_TC(RFID_DMA_CH1_DEF);
+    LL_DMA_DisableIT_HT(RFID_DMA_CH1_DEF);
 
     FURI_CRITICAL_ENTER();
 
-    LL_DMA_DeInit(DMA1, LL_DMA_CHANNEL_1);
-    LL_DMA_DeInit(DMA1, LL_DMA_CHANNEL_2);
+    LL_DMA_DeInit(RFID_DMA_CH1_DEF);
+    LL_DMA_DeInit(RFID_DMA_CH2_DEF);
     LL_TIM_DeInit(FURI_HAL_RFID_EMULATE_TIMER);
 
     FURI_CRITICAL_EXIT();

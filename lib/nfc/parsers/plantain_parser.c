@@ -3,7 +3,7 @@
 #include <gui/modules/widget.h>
 #include <nfc_worker_i.h>
 
-#include "furi_hal.h"
+#include <furi_hal.h>
 
 static const MfClassicAuthContext plantain_keys[] = {
     {.sector = 0, .key_a = 0xffffffffffff, .key_b = 0xffffffffffff},

@@ -491,6 +491,8 @@ int32_t solitaire_app(void* p) {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     AppEvent event;
+
+    // Call Dolphin deed on game start
     DOLPHIN_DEED(DolphinDeedPluginGameStart);
 
     for(bool processing = true; processing;) {

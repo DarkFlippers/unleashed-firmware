@@ -1,4 +1,4 @@
-#include "furi_hal_pwm.h"
+#include <furi_hal_pwm.h>
 #include <core/check.h>
 #include <furi_hal_resources.h>
 

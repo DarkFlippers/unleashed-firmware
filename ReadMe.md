@@ -40,7 +40,7 @@ Our Discord Community:
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
 * Sub-GHz static code brute-force plugin
 * LFRFID Fuzzer plugin
-* Custom community plugins and games added
+* Custom community plugins and games added + all known working apps can be downloaded in extra pack in every release
 * Extra Sub-GHz frequencies + extra Mifare Classic keys
 * Picopass/iClass plugin included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
@@ -72,8 +72,10 @@ Also check the changelog in releases for latest updates!
 - BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - Security+ v1 & v2
 - Star Line
-- Somfy Telis (by @assasinfil & @TQMatvey)
-- Somfy Keytis (by @assasinfil)
+- Somfy Telis (encoder by @assasinfil & @TQMatvey)
+- Somfy Keytis (encoder by @assasinfil)
+- KingGates Stylo 4k (encoder by @assasinfil)
+- Alutech AT-4N (encoder by @assasinfil)
 
 ## Please support development of the project
 The majority of this project is developed and maintained by me, @xMasterX.
@@ -152,7 +154,6 @@ Games:
 - BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 - Sub-GHz -> External CC1101 module support - [(by quen0n)](https://github.com/DarkFlippers/unleashed-firmware/pull/307)
 - Sub-GHz -> New frequency analyzer - [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
-- Sub-GHz -> Detect RAW feature - [(by perspecdev)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/152)
 - Sub-GHz -> Save last used frequency [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 - Sub-GHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 - Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)

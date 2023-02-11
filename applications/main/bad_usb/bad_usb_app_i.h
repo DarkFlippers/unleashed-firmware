@@ -16,7 +16,7 @@
 #include "views/bad_usb_view.h"
 
 #define BAD_USB_APP_BASE_FOLDER ANY_PATH("badusb")
-#define BAD_USB_APP_PATH_LAYOUT_FOLDER BAD_USB_APP_BASE_FOLDER "/layouts"
+#define BAD_USB_APP_PATH_LAYOUT_FOLDER BAD_USB_APP_BASE_FOLDER "/assets/layouts"
 #define BAD_USB_APP_SCRIPT_EXTENSION ".txt"
 #define BAD_USB_APP_LAYOUT_EXTENSION ".kl"
 

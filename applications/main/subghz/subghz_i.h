@@ -62,6 +62,7 @@ struct SubGhzTxRx {
     SubGhzEnvironment* environment;
     SubGhzReceiver* receiver;
     SubGhzTransmitter* transmitter;
+    SubGhzProtocolFlag filter;
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
     SecureData* secure_data;
@@ -75,6 +76,8 @@ struct SubGhzTxRx {
     uint8_t hopper_timeout;
     uint8_t hopper_idx_frequency;
     SubGhzRxKeyState rx_key_state;
+
+    bool debug_pin_state;
 
     float raw_threshold_rssi;
     uint8_t raw_threshold_rssi_low_count;

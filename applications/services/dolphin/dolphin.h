@@ -1,8 +1,9 @@
 #pragma once
 
-#include <core/pubsub.h>
-#include "gui/view.h"
 #include "helpers/dolphin_deed.h"
+
+#include <gui/view.h>
+#include <core/pubsub.h>
 #include <stdbool.h>
 
 #ifdef __cplusplus

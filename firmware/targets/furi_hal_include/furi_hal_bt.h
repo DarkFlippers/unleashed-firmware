@@ -12,7 +12,7 @@
 #include <ble_glue.h>
 #include <ble_app.h>
 
-#include "furi_hal_bt_serial.h"
+#include <furi_hal_bt_serial.h>
 
 #define FURI_HAL_BT_STACK_VERSION_MAJOR (1)
 #define FURI_HAL_BT_STACK_VERSION_MINOR (12)
