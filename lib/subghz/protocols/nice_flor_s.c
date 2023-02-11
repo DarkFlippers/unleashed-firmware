@@ -188,7 +188,7 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             add_data[9] = 0;
             subghz_protocol_nice_one_get_data(add_data, i, 0);
             for(size_t j = 6; j < 9; j++) {
-                instance->generic.data_2 = instance->generic.data_2 << 8 | add_data[i];
+                instance->generic.data_2 = instance->generic.data_2 << 8 | add_data[j];
             }
 
             //Send key data
@@ -247,6 +247,18 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
             break;
+        }
+
+        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+            if(!flipper_format_rewind(flipper_format)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            uint32_t data = instance->generic.data_2 & 0xffffff;
+            if(res && !flipper_format_write_uint32(flipper_format, "Data", &data, 1)) {
+                FURI_LOG_E(TAG, "Unable to add Data");
+                res = false;
+            }
         }
 
         instance->encoder.is_running = true;
