@@ -9,6 +9,7 @@
 * Plugins: SubGHz Bruteforcer - Added support for Linear Delta-3 310MHz
 * Plugins: Fix CTRL-SHIFT in mousejacker (by @notmarek | PR #316)
 * Infrared: Update universal remote assets (by @amec0e) (PR #318)
+* NFC: Add Mifare Classic keys (by @Bon-Jorik (scaff.walker) | PR #324)
 * OFW: Fixed typo in nfc_magic_scene_wrong_card.c 
 * OFW: SubGhz: fix cc1101_read_fifo func
 * OFW: feat: add missing `const` qualifiers
