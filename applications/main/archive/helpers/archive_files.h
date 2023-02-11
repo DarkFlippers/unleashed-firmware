@@ -6,7 +6,6 @@
 #include <m-string.h>
 #include <storage/storage.h>
 #include "toolbox/path.h"
-#include "../../../settings/xtreme_settings/xtreme_settings.h"
 
 #define FAP_MANIFEST_MAX_ICON_SIZE 32
 
@@ -85,13 +84,11 @@ static void ArchiveFile_t_clear(ArchiveFile_t* obj) {
 }
 
 static int ArchiveFile_t_cmp(const ArchiveFile_t* a, const ArchiveFile_t* b) {
-    if(!XTREME_SETTINGS()->sort_ignore_dirs) {
-        if(a->type == ArchiveFileTypeFolder && b->type != ArchiveFileTypeFolder) {
-            return -1;
-        }
-        if(a->type != ArchiveFileTypeFolder && b->type == ArchiveFileTypeFolder) {
-            return 1;
-        }
+    if(a->type == ArchiveFileTypeFolder && b->type != ArchiveFileTypeFolder) {
+        return -1;
+    }
+    if(a->type != ArchiveFileTypeFolder && b->type == ArchiveFileTypeFolder) {
+        return 1;
     }
 
     return furi_string_cmpi(a->path, b->path);

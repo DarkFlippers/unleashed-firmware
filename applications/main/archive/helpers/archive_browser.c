@@ -463,7 +463,6 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
         } else {
             tab = (tab + 1) % ArchiveTabTotal;
         }
-        if(tab == ArchiveTabInternal && !furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) continue;
         break;
     }
 
