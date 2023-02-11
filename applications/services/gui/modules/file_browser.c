@@ -515,19 +515,25 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
     for(uint32_t i = 0; i < MIN(model->item_cnt, LIST_ITEMS); i++) {
         int32_t idx = CLAMP((uint32_t)(i + model->list_offset), model->item_cnt, 0u);
 
-        BrowserItemType item_type = BrowserItemTypeLoading;
+        BrowserItemType item_type;
         uint8_t* custom_icon_data = NULL;
 
         if(browser_is_item_in_array(model, idx)) {
             BrowserItem_t* item = items_array_get(
                 model->items, CLAMP(idx - model->array_offset, (int32_t)(array_size - 1), 0));
             item_type = item->type;
-            furi_string_set(filename, item->display_name);
-            if(item_type == BrowserItemTypeFile) {
-                custom_icon_data = item->custom_icon_data;
+            if(model->list_loading && item_type != BrowserItemTypeBack) {
+                furi_string_set(filename, "---");
+                item_type = BrowserItemTypeLoading;
+            } else {
+                furi_string_set(filename, item->display_name);
+                if(item_type == BrowserItemTypeFile) {
+                    custom_icon_data = item->custom_icon_data;
+                }
             }
         } else {
             furi_string_set(filename, "---");
+            item_type = BrowserItemTypeLoading;
         }
 
         if(item_type == BrowserItemTypeBack) {
