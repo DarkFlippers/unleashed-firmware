@@ -187,8 +187,10 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             add_data[8] = 0;
             add_data[9] = 0;
             subghz_protocol_nice_one_get_data(add_data, i, 1);
-            for(size_t j = 6; j < 9; j++) {
-                instance->generic.data_2 = instance->generic.data_2 << 8 | add_data[j];
+            instance->generic.data_2 = 0;
+            for(size_t j = 7; j < 10; j++) {
+                instance->generic.data_2 <<= 8;
+                instance->generic.data_2 += add_data[j];
             }
 
             //Send key data
