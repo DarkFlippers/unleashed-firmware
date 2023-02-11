@@ -143,11 +143,6 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
 
-    uint8_t add_data[10] = {0};
-    for(size_t i = 0; i < 7; i++) {
-        add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
-    }
-
     for(int i = 0; i < 16; i++) {
         static const uint64_t loops[16] = {
             0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
@@ -183,9 +178,10 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             }
         }
         if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
-            add_data[7] = 0;
-            add_data[8] = 0;
-            add_data[9] = 0;
+            uint8_t add_data[10] = {0};
+            for(size_t i = 0; i < 7; i++) {
+                add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
+            }
             subghz_protocol_nice_one_get_data(add_data, i, 1);
             instance->generic.data_2 = 0;
             for(size_t j = 7; j < 10; j++) {
@@ -232,6 +228,8 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+        flipper_format_read_uint32(
+            flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1);
 
         subghz_protocol_nice_flor_s_remote_controller(
             &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
@@ -256,8 +254,8 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
             }
-            uint32_t data = instance->generic.data_2 & 0xffffff;
-            if(res && !flipper_format_write_uint32(flipper_format, "Data", &data, 1)) {
+            if(res && !flipper_format_update_uint32(
+                          flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1)) {
                 FURI_LOG_E(TAG, "Unable to add Data");
                 res = false;
             }
