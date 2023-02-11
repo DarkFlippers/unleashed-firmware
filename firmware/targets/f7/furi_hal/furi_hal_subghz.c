@@ -534,7 +534,7 @@ static void furi_hal_subghz_capture_ISR() {
             }
         }
         //Forced correction for improved accuracy
-        TIM2->CNT = 9;
+        TIM2->CNT = 7;
     } else {
         // Channel 1
         if(LL_TIM_IsActiveFlag_CC1(TIM2)) {
