@@ -11,6 +11,7 @@
 #include <core/check.h>
 #include <core/common_defines.h>
 #include <core/log.h>
+#include "m-algo.h"
 #include <m-array.h>
 
 #define LIST_ITEMS 5u
@@ -77,13 +78,36 @@ static void BrowserItem_t_clear(BrowserItem_t* obj) {
     }
 }
 
-ARRAY_DEF(
-    items_array,
-    BrowserItem_t,
-    (INIT(API_2(BrowserItem_t_init)),
-     SET(API_6(BrowserItem_t_set)),
-     INIT_SET(API_6(BrowserItem_t_init_set)),
-     CLEAR(API_2(BrowserItem_t_clear))))
+static int BrowserItem_t_cmp(const BrowserItem_t* a, const BrowserItem_t* b) {
+    // Back indicator comes before everything, then folders, then all other files.
+    if(a->type == BrowserItemTypeBack) {
+        return -1;
+    }
+    if(b->type == BrowserItemTypeBack) {
+        return 1;
+    }
+    if(a->type == BrowserItemTypeFolder && b->type != BrowserItemTypeFolder) {
+        return -1;
+    }
+    if(a->type != BrowserItemTypeFolder && b->type == BrowserItemTypeFolder) {
+        return 1;
+    }
+
+    return furi_string_cmpi(a->path, b->path);
+}
+
+#define M_OPL_BrowserItem_t()                 \
+    (INIT(API_2(BrowserItem_t_init)),         \
+     SET(API_6(BrowserItem_t_set)),           \
+     INIT_SET(API_6(BrowserItem_t_init_set)), \
+     CLEAR(API_2(BrowserItem_t_clear)),       \
+     CMP(API_6(BrowserItem_t_cmp)),           \
+     SWAP(M_SWAP_DEFAULT),                    \
+     EQUAL(API_6(M_EQUAL_DEFAULT)))
+
+ARRAY_DEF(items_array, BrowserItem_t)
+
+ALGO_DEF(items_array, ARRAY_OPLIST(items_array, M_OPL_BrowserItem_t()))
 
 struct FileBrowser {
     View* view;
@@ -438,7 +462,13 @@ static void
         }
     } else {
         with_view_model(
-            browser->view, FileBrowserModel * model, { model->list_loading = false; }, true);
+            browser->view,
+            FileBrowserModel * model,
+            {
+                items_array_sort(model->items);
+                model->list_loading = false;
+            },
+            true);
     }
 }
 
@@ -485,19 +515,25 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
     for(uint32_t i = 0; i < MIN(model->item_cnt, LIST_ITEMS); i++) {
         int32_t idx = CLAMP((uint32_t)(i + model->list_offset), model->item_cnt, 0u);
 
-        BrowserItemType item_type = BrowserItemTypeLoading;
+        BrowserItemType item_type;
         uint8_t* custom_icon_data = NULL;
 
         if(browser_is_item_in_array(model, idx)) {
             BrowserItem_t* item = items_array_get(
                 model->items, CLAMP(idx - model->array_offset, (int32_t)(array_size - 1), 0));
             item_type = item->type;
-            furi_string_set(filename, item->display_name);
-            if(item_type == BrowserItemTypeFile) {
-                custom_icon_data = item->custom_icon_data;
+            if(model->list_loading && item_type != BrowserItemTypeBack) {
+                furi_string_set(filename, "---");
+                item_type = BrowserItemTypeLoading;
+            } else {
+                furi_string_set(filename, item->display_name);
+                if(item_type == BrowserItemTypeFile) {
+                    custom_icon_data = item->custom_icon_data;
+                }
             }
         } else {
             furi_string_set(filename, "---");
+            item_type = BrowserItemTypeLoading;
         }
 
         if(item_type == BrowserItemTypeBack) {

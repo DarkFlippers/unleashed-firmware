@@ -1146,13 +1146,23 @@ Function,+,furi_hal_i2c_tx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, const uin
 Function,+,furi_hal_i2c_write_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint8_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_16,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint16_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_8,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t, uint32_t"
+Function,+,furi_hal_ibutton_add_interrupt,void,"GpioExtiCallback, void*"
 Function,+,furi_hal_ibutton_emulate_set_next,void,uint32_t
 Function,+,furi_hal_ibutton_emulate_start,void,"uint32_t, FuriHalIbuttonEmulateCallback, void*"
 Function,+,furi_hal_ibutton_emulate_stop,void,
 Function,-,furi_hal_ibutton_init,void,
 Function,+,furi_hal_ibutton_pin_configure,void,
+Function,+,furi_hal_ibutton_pin_get_level,_Bool,
+Function,+,furi_hal_ibutton_pin_high,void,
+Function,+,furi_hal_ibutton_pin_low,void,
 Function,+,furi_hal_ibutton_pin_reset,void,
 Function,+,furi_hal_ibutton_pin_write,void,const _Bool
+Function,+,furi_hal_ibutton_remove_interrupt,void,
+Function,+,furi_hal_ibutton_start_drive,void,
+Function,+,furi_hal_ibutton_start_drive_in_isr,void,
+Function,+,furi_hal_ibutton_start_interrupt,void,
+Function,+,furi_hal_ibutton_start_interrupt_in_isr,void,
+Function,+,furi_hal_ibutton_stop,void,
 Function,+,furi_hal_info_get,void,"PropertyValueCallback, char, void*"
 Function,+,furi_hal_infrared_async_rx_set_capture_isr_callback,void,"FuriHalInfraredRxCaptureCallback, void*"
 Function,+,furi_hal_infrared_async_rx_set_timeout,void,uint32_t

@@ -1,41 +1,8 @@
 ### New changes
-* API: Due to OFW changes API was updated to 14.x, extra pack was updated you can install it separatly or use build with extra pack included
-* SubGHz: **Fixed bug in SubGHz HAL, now CC1101 shutdowns properly, (also this fixed unstable TX)**
-* SubGHz: **Alutech AT-4N** encoder (support for sending signals) (by @assasinfil | PR #322)
-* SubGHz: **KingGates Stylo 4k** encoder (support for sending signals) (by @assasinfil | PR #321)
-* SubGHz: Added Debug Pin setting for protocol development and fixed debug (and sound) with internal module
-* SubGHz: GUI Fixes
-* SubGHz: Removed bugged Detect RAW feature, now its replaced with BinRAW
-* Plugins: SubGHz Bruteforcer - Added support for Linear Delta-3 310MHz
-* Plugins: Fix CTRL-SHIFT in mousejacker (by @notmarek | PR #316)
-* Infrared: Update universal remote assets (by @amec0e) (PR #318)
-* NFC: Add Mifare Classic keys (by @Bon-Jorik (scaff.walker) | PR #324)
-* Misc: Playing games now affect Flipper's level
-* OFW: Fixed typo in nfc_magic_scene_wrong_card.c 
-* OFW: SubGhz: fix cc1101_read_fifo func
-* OFW: feat: add missing `const` qualifiers
-* OFW: **SubGhz: add protocol BinRAW (binarization of data quantized by the minimum correlated duration)**
-* OFW: Picopass: show elite key used from dictionary 
-* OFW: Firmware fixes and improvements for flashing via blackmagic
-* OFW: fbt: building fap_dist for compact gh build; accessor: fixed for latest ibutton changes 
-* OFW: Move CSN space to revent overflow
-* OFW: **SubGhz: add protocol KingGates Stylo4k**
-* OFW: **SubGhz: add protocol Nice One**
-* OFW: **SubGhz: add protocol Alutech at-4n**
-* OFW: **SubGhz: add DOOYA protocol**
-* OFW: **SubGhz: add protocol "Linear Delta-3"**
-* OFW: **SubGhz: Fix Raw write, add short duration filter setting**
-* OFW: Update Missing SD Card icon from PR 2373
-* OFW: SCons: do not include backup files in build
-* OFW: Fix minor UI inconsistencies and bugs
-* OFW: Allow use of any suitable pin for 1-Wire devices
-* OFW: **SD over SPI improvements**
-* OFW: Multitarget support for fbt (includes support for non released yet flipper hardware)
-* OFW: Pin Reset
-* OFW: nfc: Add mifare classic value block commands
-* OFW: battery info temperature shown in C or F based on settings
-* OFW: Script that can find programmer and flash firmware via it.
-* OFW: **SPI Mem Manager C port** (You can use flipper as programmer to flash supported chips)
+* iButton: **Temp Fix of non working emulation on Metakom and Cyfral protocols**
+* Archive and FileBrowser: **Sort files and folders alphabetically.** Added a "Internal" tab to the Browser (only in DEBUG mode), other misc changes (by @ClaraCrazy and @Willy-JL | PR #327)
+* SubGHz: Custom modulation for lrs pagers and added frequency 467.75 to default list (by @jbohack | PR #328)
+* SubGHz: **Small fixes in SubGHz HAL**
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

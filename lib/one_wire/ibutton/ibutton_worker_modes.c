@@ -234,13 +234,16 @@ void ibutton_worker_emulate_timer_cb(void* context) {
     furi_assert(context);
     iButtonWorker* worker = context;
 
-    const LevelDuration level_duration =
+    LevelDuration level =
         protocol_dict_encoder_yield(worker->protocols, worker->protocol_to_encode);
 
-    const bool level = level_duration_get_level(level_duration);
+    furi_hal_ibutton_emulate_set_next(level_duration_get_duration(level));
 
-    furi_hal_ibutton_emulate_set_next(level);
-    furi_hal_ibutton_pin_write(level);
+    if(level_duration_get_level(level)) {
+        furi_hal_ibutton_pin_high();
+    } else {
+        furi_hal_ibutton_pin_low();
+    }
 }
 
 void ibutton_worker_emulate_timer_start(iButtonWorker* worker) {
@@ -263,7 +266,7 @@ void ibutton_worker_emulate_timer_start(iButtonWorker* worker) {
     protocol_dict_set_data(worker->protocols, worker->protocol_to_encode, key_id, key_size);
     protocol_dict_encoder_start(worker->protocols, worker->protocol_to_encode);
 
-    furi_hal_ibutton_pin_configure();
+    furi_hal_ibutton_start_drive();
     furi_hal_ibutton_emulate_start(0, ibutton_worker_emulate_timer_cb, worker);
 }
 
