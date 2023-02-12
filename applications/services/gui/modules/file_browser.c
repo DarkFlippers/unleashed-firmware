@@ -161,8 +161,12 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context);
 static void
     browser_folder_open_cb(void* context, uint32_t item_cnt, int32_t file_idx, bool is_root);
 static void browser_list_load_cb(void* context, uint32_t list_load_offset);
-static void
-    browser_list_item_cb(void* context, FuriString* item_path, uint32_t idx, bool is_folder, bool is_last);
+static void browser_list_item_cb(
+    void* context,
+    FuriString* item_path,
+    uint32_t idx,
+    bool is_folder,
+    bool is_last);
 static void browser_long_load_cb(void* context);
 
 static void file_browser_scroll_timer_callback(void* context) {
@@ -416,8 +420,12 @@ static void browser_list_load_cb(void* context, uint32_t list_load_offset) {
     BrowserItem_t_clear(&back_item);
 }
 
-static void
-    browser_list_item_cb(void* context, FuriString* item_path, uint32_t idx, bool is_folder, bool is_last) {
+static void browser_list_item_cb(
+    void* context,
+    FuriString* item_path,
+    uint32_t idx,
+    bool is_folder,
+    bool is_last) {
     furi_assert(context);
     FileBrowser* browser = (FileBrowser*)context;
 
@@ -470,16 +478,21 @@ static void
             browser->view,
             FileBrowserModel * model,
             {
-                FuriString* selected = NULL;
-                if(model->item_idx > 0) {
-                    selected = furi_string_alloc_set(items_array_get(model->items, model->item_idx)->path);
-                }
-                items_array_sort(model->items);
-                if(selected) {
-                    for(uint32_t i = 0; i < model->item_cnt; i++) {
-                        if(!furi_string_cmp(items_array_get(model->items, i)->path, selected)) {
-                            model->item_idx = i;
-                            break;
+                if(model->item_cnt < 430) {
+                    FuriString* selected = NULL;
+                    if(model->item_idx > 0) {
+                        selected = furi_string_alloc_set(
+                            items_array_get(model->items, model->item_idx)->path);
+                    }
+
+                    items_array_sort(model->items);
+
+                    if(selected != NULL) {
+                        for(uint32_t i = 0; i < model->item_cnt; i++) {
+                            if(!furi_string_cmp(items_array_get(model->items, i)->path, selected)) {
+                                model->item_idx = i;
+                                break;
+                            }
                         }
                     }
                 }
