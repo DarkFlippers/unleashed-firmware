@@ -13,7 +13,7 @@ const char* const radio_modules_variables_text[] = {
 #define DEBUG_P_COUNT 2
 const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "OFF",
-    "A7",
+    "17(1W)",
 };
 
 static void subghz_scene_ext_module_changed(VariableItem* item) {
