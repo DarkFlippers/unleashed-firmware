@@ -209,7 +209,7 @@ steps:
 
         [-Version with extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}e.tgz&channel=release-cfw&version=${DRONE_TAG}e)"
       document:
-        - ${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz
+        - flipper-z-f7-update-${DRONE_TAG}e.tgz
 
   - name: "Send discord notification"
     image: hfdj/fztools
@@ -378,7 +378,7 @@ steps:
 
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})"
       document:
-        - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
+        - flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz
 
   - name: "Send discord notification"
     image: hfdj/fztools
