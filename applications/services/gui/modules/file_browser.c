@@ -351,7 +351,7 @@ static void browser_update_offset(FileBrowser* browser) {
                     CLAMP(model->item_idx - 1, (int32_t)model->item_cnt - bounds, 0);
             }
         },
-        false);
+        true);
 }
 
 static void
@@ -383,7 +383,7 @@ static void
             model->list_loading = true;
             model->folder_loading = false;
         },
-        true);
+        false);
     browser_update_offset(browser);
 
     file_browser_worker_load(browser->worker, load_offset, ITEM_LIST_LEN_MAX);
@@ -459,7 +459,7 @@ static void
                 items_array_push_back(model->items, item);
                 // TODO: calculate if element is visible
             },
-            true);
+            false);
         furi_string_free(item.display_name);
         furi_string_free(item.path);
         if(item.custom_icon_data) {
@@ -485,7 +485,7 @@ static void
                 }
                 model->list_loading = false;
             },
-            true);
+            false);
         browser_update_offset(browser);
     }
 }
@@ -670,7 +670,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                         model->scroll_counter = 0;
                     }
                 },
-                true);
+                false);
             browser_update_offset(browser);
             consumed = true;
         }
