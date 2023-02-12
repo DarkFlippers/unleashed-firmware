@@ -189,6 +189,7 @@ static bool browser_folder_init(
     return state;
 }
 
+// Load files list by chunks, like it was originally, not compatible with sorting, sorting needs to be disabled to use this
 static bool browser_folder_load_chunked(
     BrowserWorker* browser,
     FuriString* path,
@@ -270,8 +271,8 @@ static bool browser_folder_load_chunked(
     return (items_cnt == count);
 }
 
-static bool
-    browser_folder_load(BrowserWorker* browser, FuriString* path, uint32_t offset, uint32_t count) {
+// Load all files at once, may cause memory overflow so need to limit that to about 400 files
+static bool browser_folder_load_full(BrowserWorker* browser, FuriString* path) {
     FileInfo file_info;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -288,35 +289,6 @@ static bool
         if(!storage_dir_open(directory, furi_string_get_cstr(path))) {
             break;
         }
-
-        // items_cnt = 0;
-        // while(items_cnt < offset) {
-        //     if(!storage_dir_read(directory, &file_info, name_temp, FILE_NAME_LEN_MAX)) {
-        //         break;
-        //     }
-        //     if(storage_file_get_error(directory) == FSE_OK) {
-        //         furi_string_set(name_str, name_temp);
-        //         if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
-        //             items_cnt++;
-        //         }
-        //     } else {
-        //         break;
-        //     }
-        // }
-        // if(items_cnt != offset) {
-        //     break;
-        // }
-
-        // ROGUE MASTER MOMENT
-        // this used to load the file list in chunks, which makes sense
-        // but then RM made it sort the files, still in chunks...
-        // so while scrolling, it loads more files and sorts them...
-        // chances are, the new files are higher in the sorted list...
-        // so the files keep shifting around while scrolling...
-        // now this does something intelligent: loads and sorts all in one go.
-        // might take a few milliseconds longer, but atleast it works
-        UNUSED(offset);
-        UNUSED(count);
         if(browser->list_load_cb) {
             browser->list_load_cb(browser->cb_ctx, 0);
         }
@@ -450,7 +422,7 @@ static int32_t browser_worker(void* context) {
                 browser_folder_load_chunked(
                     browser, path, browser->load_offset, browser->load_count);
             } else {
-                browser_folder_load(browser, path, browser->load_offset, browser->load_count);
+                browser_folder_load_full(browser, path);
             }
         }
 
