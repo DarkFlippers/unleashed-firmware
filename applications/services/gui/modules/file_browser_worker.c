@@ -226,13 +226,14 @@ static bool
         //     break;
         // }
 
-        // FLIPPER DEVS MOMENT
-        // this used to load the file list in chunks, and then sort it...
+        // ROGUE MASTER MOMENT
+        // this used to load the file list in chunks, which makes sense
+        // but then RM made it sort the files, still in chunks...
         // so while scrolling, it loads more files and sorts them...
         // chances are, the new files are higher in the sorted list...
         // so the files keep shifting around while scrolling...
-        // now this does something intelligent and loads all in one go.
-        // might take a few milliseconds longer, but atleast it works :kekw:
+        // now this does something intelligent: loads and sorts all in one go.
+        // might take a few milliseconds longer, but atleast it works
         UNUSED(offset);
         UNUSED(count);
         if(browser->list_load_cb) {
@@ -245,13 +246,13 @@ static bool
                 furi_string_printf(name_str, "%s/%s", furi_string_get_cstr(path), name_temp);
                 if(browser->list_item_cb) {
                     browser->list_item_cb(
-                        browser->cb_ctx, name_str, (file_info.flags & FSF_DIRECTORY), false);
+                        browser->cb_ctx, name_str, items_cnt, (file_info.flags & FSF_DIRECTORY), false);
                 }
                 items_cnt++;
             }
         }
         if(browser->list_item_cb) {
-            browser->list_item_cb(browser->cb_ctx, NULL, false, true);
+            browser->list_item_cb(browser->cb_ctx, NULL, 0, false, true);
         }
         ret = true;
     } while(0);
