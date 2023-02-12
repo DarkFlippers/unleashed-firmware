@@ -482,7 +482,7 @@ static bool archive_view_input(InputEvent* event, void* context) {
                         model->scroll_counter = 0;
                     }
                 },
-                true);
+                false);
             archive_update_offset(browser);
         }
 

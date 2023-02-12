@@ -34,6 +34,7 @@ typedef enum {
 } BrowserItemType;
 
 typedef struct {
+    uint32_t unsorted_idx;
     FuriString* path;
     BrowserItemType type;
     uint8_t* custom_icon_data;
@@ -41,6 +42,7 @@ typedef struct {
 } BrowserItem_t;
 
 static void BrowserItem_t_init(BrowserItem_t* obj) {
+    obj->unsorted_idx = 0;
     obj->type = BrowserItemTypeLoading;
     obj->path = furi_string_alloc();
     obj->display_name = furi_string_alloc();
@@ -48,6 +50,7 @@ static void BrowserItem_t_init(BrowserItem_t* obj) {
 }
 
 static void BrowserItem_t_init_set(BrowserItem_t* obj, const BrowserItem_t* src) {
+    obj->unsorted_idx = src->unsorted_idx;
     obj->type = src->type;
     obj->path = furi_string_alloc_set(src->path);
     obj->display_name = furi_string_alloc_set(src->display_name);
@@ -60,6 +63,7 @@ static void BrowserItem_t_init_set(BrowserItem_t* obj, const BrowserItem_t* src)
 }
 
 static void BrowserItem_t_set(BrowserItem_t* obj, const BrowserItem_t* src) {
+    obj->unsorted_idx = src->unsorted_idx;
     obj->type = src->type;
     furi_string_set(obj->path, src->path);
     furi_string_set(obj->display_name, src->display_name);
@@ -157,8 +161,12 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context);
 static void
     browser_folder_open_cb(void* context, uint32_t item_cnt, int32_t file_idx, bool is_root);
 static void browser_list_load_cb(void* context, uint32_t list_load_offset);
-static void
-    browser_list_item_cb(void* context, FuriString* item_path, bool is_folder, bool is_last);
+static void browser_list_item_cb(
+    void* context,
+    FuriString* item_path,
+    uint32_t idx,
+    bool is_folder,
+    bool is_last);
 static void browser_long_load_cb(void* context);
 
 static void file_browser_scroll_timer_callback(void* context) {
@@ -347,7 +355,7 @@ static void browser_update_offset(FileBrowser* browser) {
                     CLAMP(model->item_idx - 1, (int32_t)model->item_cnt - bounds, 0);
             }
         },
-        false);
+        true);
 }
 
 static void
@@ -379,7 +387,7 @@ static void
             model->list_loading = true;
             model->folder_loading = false;
         },
-        true);
+        false);
     browser_update_offset(browser);
 
     file_browser_worker_load(browser->worker, load_offset, ITEM_LIST_LEN_MAX);
@@ -412,13 +420,18 @@ static void browser_list_load_cb(void* context, uint32_t list_load_offset) {
     BrowserItem_t_clear(&back_item);
 }
 
-static void
-    browser_list_item_cb(void* context, FuriString* item_path, bool is_folder, bool is_last) {
+static void browser_list_item_cb(
+    void* context,
+    FuriString* item_path,
+    uint32_t idx,
+    bool is_folder,
+    bool is_last) {
     furi_assert(context);
     FileBrowser* browser = (FileBrowser*)context;
 
     BrowserItem_t item;
     item.custom_icon_data = NULL;
+    item.unsorted_idx = idx;
 
     if(!is_last) {
         item.path = furi_string_alloc_set(item_path);
@@ -454,7 +467,7 @@ static void
                 items_array_push_back(model->items, item);
                 // TODO: calculate if element is visible
             },
-            true);
+            false);
         furi_string_free(item.display_name);
         furi_string_free(item.path);
         if(item.custom_icon_data) {
@@ -465,10 +478,28 @@ static void
             browser->view,
             FileBrowserModel * model,
             {
-                items_array_sort(model->items);
+                if(model->item_cnt < 430) {
+                    FuriString* selected = NULL;
+                    if(model->item_idx > 0) {
+                        selected = furi_string_alloc_set(
+                            items_array_get(model->items, model->item_idx)->path);
+                    }
+
+                    items_array_sort(model->items);
+
+                    if(selected != NULL) {
+                        for(uint32_t i = 0; i < model->item_cnt; i++) {
+                            if(!furi_string_cmp(items_array_get(model->items, i)->path, selected)) {
+                                model->item_idx = i;
+                                break;
+                            }
+                        }
+                    }
+                }
                 model->list_loading = false;
             },
-            true);
+            false);
+        browser_update_offset(browser);
     }
 }
 
@@ -652,7 +683,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                         model->scroll_counter = 0;
                     }
                 },
-                true);
+                false);
             browser_update_offset(browser);
             consumed = true;
         }
@@ -667,10 +698,7 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                     if(browser_is_item_in_array(model, model->item_idx)) {
                         selected_item =
                             items_array_get(model->items, model->item_idx - model->array_offset);
-                        select_index = model->item_idx;
-                        if((!model->is_root) && (select_index > 0)) {
-                            select_index -= 1;
-                        }
+                        select_index = selected_item->unsorted_idx;
                     }
                 },
                 false);
