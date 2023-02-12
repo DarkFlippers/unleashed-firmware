@@ -19,6 +19,7 @@ static const char* ArchiveTabNames[] = {
     [ArchiveTabBadUsb] = "Bad USB",
     [ArchiveTabU2f] = "U2F",
     [ArchiveTabApplications] = "Apps",
+    [ArchiveTabInternal] = "Internal",
     [ArchiveTabBrowser] = "Browser",
 };
 

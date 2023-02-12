@@ -2,7 +2,6 @@
 
 #include "../helpers/archive_files.h"
 #include "../helpers/archive_favorites.h"
-#include "../helpers/archive_menu.h"
 
 #include <gui/gui_i.h>
 #include <gui/view.h>
@@ -10,7 +9,10 @@
 #include <gui/elements.h>
 #include <gui/modules/file_browser_worker.h>
 #include <storage/storage.h>
-#include <furi.h>
+#include "../helpers/archive_files.h"
+#include "../helpers/archive_menu.h"
+#include "../helpers/archive_favorites.h"
+#include "gui/modules/file_browser_worker.h"
 
 #define MAX_LEN_PX 110
 #define MAX_NAME_LEN 255
@@ -29,6 +31,7 @@ typedef enum {
     ArchiveTabBadUsb,
     ArchiveTabU2f,
     ArchiveTabApplications,
+    ArchiveTabInternal,
     ArchiveTabBrowser,
     ArchiveTabTotal,
 } ArchiveTabEnum;
