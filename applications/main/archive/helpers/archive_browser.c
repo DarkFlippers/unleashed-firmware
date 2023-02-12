@@ -58,8 +58,9 @@ static void archive_list_load_cb(void* context, uint32_t list_load_offset) {
 }
 
 static void
-    archive_list_item_cb(void* context, FuriString* item_path, bool is_folder, bool is_last) {
+    archive_list_item_cb(void* context, FuriString* item_path, uint32_t idx, bool is_folder, bool is_last) {
     furi_assert(context);
+    UNUSED(idx);
     ArchiveBrowserView* browser = (ArchiveBrowserView*)context;
 
     if(!is_last) {

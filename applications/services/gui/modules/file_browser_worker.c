@@ -247,13 +247,13 @@ static bool
                 furi_string_printf(name_str, "%s/%s", furi_string_get_cstr(path), name_temp);
                 if(browser->list_item_cb) {
                     browser->list_item_cb(
-                        browser->cb_ctx, name_str, (file_info.flags & FSF_DIRECTORY), false);
+                        browser->cb_ctx, name_str, items_cnt, (file_info.flags & FSF_DIRECTORY), false);
                 }
                 items_cnt++;
             }
         }
         if(browser->list_item_cb) {
-            browser->list_item_cb(browser->cb_ctx, NULL, false, true);
+            browser->list_item_cb(browser->cb_ctx, NULL, 0, false, true);
         }
         ret = true;
     } while(0);
