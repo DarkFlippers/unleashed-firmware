@@ -233,8 +233,7 @@ static bool
         // chances are, the new files are higher in the sorted list...
         // so the files keep shifting around while scrolling...
         // now this does something intelligent: loads and sorts all in one go.
-        // might take a few milliseconds longer, but atleast it works :kekw:
-        // and yes skotopes, most definitely a "limitation of fatfs driver" :roflmao:
+        // might take a few milliseconds longer, but atleast it works
         UNUSED(offset);
         UNUSED(count);
         if(browser->list_load_cb) {
