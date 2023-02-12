@@ -1,8 +1,8 @@
 ### New changes
-* iButton: **Temp Fix of non working emulation on Metakom and Cyfral protocols**
-* Archive and FileBrowser: **Sort files and folders alphabetically.** Added a "Internal" tab to the Browser (only in DEBUG mode), other misc changes (by @ClaraCrazy and @Willy-JL | PR #327)
-* SubGHz: Custom modulation for lrs pagers and added frequency 467.75 to default list (by @jbohack | PR #328)
-* SubGHz: **Small fixes in SubGHz HAL**
+* Archive and FileBrowser: Fixed #332 (large folders parse issue)
+* Archive and FileBrowser: Fixed navigation issues and improved performance (by @Willy-JL | PR #333)
+* SubGHz -> HAL: **Fixed external CC1101 module issues** (transmission now works correctly) (fixed issue #331)
+* SubGHz: Use 17 (1W) pin for subghz debug mode
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
