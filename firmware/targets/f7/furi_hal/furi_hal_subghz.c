@@ -800,6 +800,7 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
             GpioSpeedLow,
             GpioAltFn1TIM2);
     } else {
+        //Signal generation with mem-to-mem DMA
         furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, true);
         furi_hal_gpio_init(
             furi_hal_subghz.cc1101_g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
@@ -863,24 +864,28 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
 
-    //Signal generation for external module
+    // Start debug
+    if(furi_hal_subghz_start_debug() || furi_hal_subghz.radio_type == SubGhzRadioExternal) {
+        const GpioPin* gpio = furi_hal_subghz.cc1101_g0_pin;
+        //Preparing bit mask
+        //Debug pin is may be only PORTB! (PB0, PB1, .., PB15)
+        furi_hal_subghz_debug_gpio_buff[0] = 0;
+        furi_hal_subghz_debug_gpio_buff[1] = 0;
 
-    // Start debug (and speaker)
-    furi_hal_subghz_start_debug();
+        //Mirror pin (for example, speaker)
+        if(furi_hal_subghz.async_mirror_pin != NULL) {
+            furi_hal_subghz_debug_gpio_buff[0] |= (uint32_t)furi_hal_subghz.async_mirror_pin->pin
+                                                  << GPIO_NUMBER;
+            furi_hal_subghz_debug_gpio_buff[1] |= furi_hal_subghz.async_mirror_pin->pin;
+            gpio = furi_hal_subghz.async_mirror_pin;
+        }
 
-    const GpioPin* gpio = furi_hal_subghz.cc1101_g0_pin;
-
-    if((furi_hal_subghz.async_mirror_pin != NULL) &&
-       (furi_hal_subghz.radio_type == SubGhzRadioInternal)) {
-        gpio = furi_hal_subghz.async_mirror_pin;
-    }
-    if(((furi_hal_subghz.async_mirror_pin != NULL) &&
-        (furi_hal_subghz.radio_type == SubGhzRadioInternal)) ||
-       (furi_hal_subghz.radio_type == SubGhzRadioExternal)) {
-        furi_hal_subghz_debug_gpio_buff[0] =
-            ((uint32_t)gpio->pin << GPIO_NUMBER) |
-            ((uint32_t)furi_hal_subghz.async_mirror_pin->pin << GPIO_NUMBER);
-        furi_hal_subghz_debug_gpio_buff[1] = gpio->pin | furi_hal_subghz.async_mirror_pin->pin;
+        //G0 singnal generation for external radio
+        if(furi_hal_subghz.radio_type == SubGhzRadioExternal) {
+            furi_hal_subghz_debug_gpio_buff[0] |= (uint32_t)furi_hal_subghz.cc1101_g0_pin->pin
+                                                  << GPIO_NUMBER;
+            furi_hal_subghz_debug_gpio_buff[1] |= furi_hal_subghz.cc1101_g0_pin->pin;
+        }
 
         dma_config.MemoryOrM2MDstAddress = (uint32_t)furi_hal_subghz_debug_gpio_buff;
         dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (gpio->port->BSRR);
