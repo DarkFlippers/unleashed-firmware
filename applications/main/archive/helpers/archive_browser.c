@@ -74,7 +74,9 @@ static void archive_list_item_cb(
             browser->view,
             ArchiveBrowserViewModel * model,
             {
-                files_array_sort(model->files);
+                if(model->item_cnt <= BROWSER_SORT_THRESHOLD) {
+                    files_array_sort(model->files);
+                }
                 model->list_loading = false;
             },
             true);

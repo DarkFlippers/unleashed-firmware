@@ -418,7 +418,7 @@ static int32_t browser_worker(void* context) {
         if(flags & WorkerEvtLoad) {
             FURI_LOG_D(
                 TAG, "Load offset: %lu cnt: %lu", browser->load_offset, browser->load_count);
-            if(items_cnt > 430) {
+            if(items_cnt > BROWSER_SORT_THRESHOLD) {
                 browser_folder_load_chunked(
                     browser, path, browser->load_offset, browser->load_count);
             } else {

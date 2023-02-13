@@ -478,7 +478,7 @@ static void browser_list_item_cb(
             browser->view,
             FileBrowserModel * model,
             {
-                if(model->item_cnt < 430) {
+                if(model->item_cnt <= BROWSER_SORT_THRESHOLD) {
                     FuriString* selected = NULL;
                     if(model->item_idx > 0) {
                         selected = furi_string_alloc_set(
