@@ -1,7 +1,7 @@
 App(
     appid="example_custom_font",
     name="Example: custom font",
-    apptype=FlipperAppType.EXTERNAL,
+    apptype=FlipperAppType.DEBUG,
     entry_point="example_custom_font_main",
     requires=["gui"],
     stack_size=1 * 1024,
