@@ -229,6 +229,8 @@ steps:
         from_secret: tgtoken
       to:
         from_secret: tgid
+      format: markdown
+      message: "Build with extra apps pack:"
       document:
         - flipper-z-f7-update-${DRONE_TAG}e.tgz
 
@@ -397,6 +399,8 @@ steps:
         from_secret: tgtoken
       to:
         from_secret: tgid_dev
+      format: markdown
+      message: "Build with extra apps pack:"
       document:
         - flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz
 
