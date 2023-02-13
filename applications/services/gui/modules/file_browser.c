@@ -646,7 +646,10 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
     bool is_loading = false;
 
     with_view_model(
-        browser->view, FileBrowserModel * model, { is_loading = model->folder_loading; }, false);
+        browser->view,
+        FileBrowserModel * model,
+        { is_loading = model->folder_loading || model->list_loading; },
+        false);
 
     if(is_loading) {
         return false;
