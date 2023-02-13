@@ -56,6 +56,10 @@ Our Discord Community:
 Also check the changelog in releases for latest updates!
 
 ### Current modified and new Sub-GHz protocols list:
+Thanks to Official team (to thier SubGHz Developer, Skorp) for implementing decoders for these protocols.
+
+Encoders/sending made by Eng1n33r & @xMasterX:
+
 - Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
 - Keeloq: HCS101
 - Keeloq: AN-Motors
@@ -72,15 +76,19 @@ Also check the changelog in releases for latest updates!
 - BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - Security+ v1 & v2
 - Star Line
-- Somfy Telis (encoder by @assasinfil & @TQMatvey)
-- Somfy Keytis (encoder by @assasinfil)
-- KingGates Stylo 4k (encoder by @assasinfil)
-- Alutech AT-4N (encoder by @assasinfil)
+
+Encoders made by @assasinfil & @xMasterX:
+- Somfy Telis
+- Somfy Keytis
+- KingGates Stylo 4k
+- Alutech AT-4N
+- Nice ON2E (Nice One)
 
 ## Please support development of the project
 The majority of this project is developed and maintained by me, @xMasterX.
 I'm unemployed because of the war, and the only income I receive is from your donations.
 Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.
+- @assasinfil - SubGHz
 - @Svaarich - UI design and animations
 - @Amec0e - Infrared assets
 - Community moderators in Telegram, Discord, and Reddit
