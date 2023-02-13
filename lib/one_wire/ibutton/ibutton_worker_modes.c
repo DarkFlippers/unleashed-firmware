@@ -237,10 +237,8 @@ void ibutton_worker_emulate_timer_cb(void* context) {
     const LevelDuration level_duration =
         protocol_dict_encoder_yield(worker->protocols, worker->protocol_to_encode);
 
-    const bool level = level_duration_get_level(level_duration);
-
-    furi_hal_ibutton_emulate_set_next(level);
-    furi_hal_ibutton_pin_write(level);
+    furi_hal_ibutton_emulate_set_next(level_duration_get_duration(level_duration));
+    furi_hal_ibutton_pin_write(level_duration_get_level(level_duration));
 }
 
 void ibutton_worker_emulate_timer_start(iButtonWorker* worker) {
