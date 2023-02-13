@@ -195,6 +195,10 @@ bool weather_station_scene_receiver_on_event(void* context, SceneManagerEvent ev
             ws_hopper_update(app);
             weather_station_scene_receiver_update_statusbar(app);
         }
+        // Get current RSSI
+        float rssi = furi_hal_subghz_get_rssi();
+        ws_receiver_rssi(app->ws_receiver, rssi);
+
         if(app->txrx->txrx_state == WSTxRxStateRx) {
             notification_message(app->notifications, &sequence_blink_cyan_10);
         }

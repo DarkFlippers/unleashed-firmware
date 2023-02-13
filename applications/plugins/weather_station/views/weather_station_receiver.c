@@ -12,6 +12,7 @@
 #define MENU_ITEMS 4u
 #define UNLOCK_CNT 3
 
+#define SUBGHZ_RAW_TRESHOLD_MIN -90.0f
 typedef struct {
     FuriString* item_str;
     uint8_t type;
@@ -59,7 +60,23 @@ typedef struct {
     uint16_t list_offset;
     uint16_t history_item;
     WSReceiverBarShow bar_show;
+    uint8_t u_rssi;
 } WSReceiverModel;
+
+void ws_receiver_rssi(WSReceiver* instance, float rssi) {
+    furi_assert(instance);
+    with_view_model(
+        instance->view,
+        WSReceiverModel * model,
+        {
+            if(rssi < SUBGHZ_RAW_TRESHOLD_MIN) {
+                model->u_rssi = 0;
+            } else {
+                model->u_rssi = (uint8_t)(rssi - SUBGHZ_RAW_TRESHOLD_MIN);
+            }
+        },
+        true);
+}
 
 void ws_view_receiver_set_lock(WSReceiver* ws_receiver, WSLock lock) {
     furi_assert(ws_receiver);
@@ -164,13 +181,23 @@ static void ws_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool scrol
     canvas_draw_dot(canvas, scrollbar ? 121 : 126, (0 + idx * FRAME_HEIGHT) + 11);
 }
 
+static void ws_view_rssi_draw(Canvas* canvas, WSReceiverModel* model) {
+    for(uint8_t i = 1; i < model->u_rssi; i++) {
+        if(i % 5) {
+            canvas_draw_dot(canvas, 46 + i, 50);
+            canvas_draw_dot(canvas, 47 + i, 51);
+            canvas_draw_dot(canvas, 46 + i, 52);
+        }
+    }
+}
+
 void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
 
     elements_button_left(canvas, "Config");
-    canvas_draw_line(canvas, 46, 51, 125, 51);
+    //canvas_draw_line(canvas, 46, 51, 125, 51);
 
     bool scrollbar = model->history_item > 4;
     FuriString* str_buff;
@@ -203,9 +230,12 @@ void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
         canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 63, 46, "Scanning...");
-        canvas_draw_line(canvas, 46, 51, 125, 51);
+        //canvas_draw_line(canvas, 46, 51, 125, 51);
         canvas_set_font(canvas, FontSecondary);
     }
+
+    // Draw RSSI
+    ws_view_rssi_draw(canvas, model);
 
     switch(model->bar_show) {
     case WSReceiverBarShowLock:
