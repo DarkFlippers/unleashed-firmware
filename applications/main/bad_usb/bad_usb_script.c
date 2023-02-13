@@ -490,8 +490,6 @@ static int32_t bad_usb_worker(void* context) {
     BadUsbWorkerState worker_state = BadUsbStateInit;
     int32_t delay_val = 0;
 
-    FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
-
     FURI_LOG_I(WORKER_TAG, "Init");
     File* script_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
     bad_usb->line = furi_string_alloc();
@@ -641,8 +639,6 @@ static int32_t bad_usb_worker(void* context) {
     }
 
     furi_hal_hid_set_state_callback(NULL, NULL);
-
-    furi_hal_usb_set_config(usb_mode_prev, NULL);
 
     storage_file_close(script_file);
     storage_file_free(script_file);

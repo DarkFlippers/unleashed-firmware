@@ -115,8 +115,12 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 
     if(furi_hal_usb_is_locked()) {
         app->error = BadUsbAppErrorCloseRpc;
+        app->usb_if_prev = NULL;
         scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
     } else {
+        app->usb_if_prev = furi_hal_usb_get_config();
+        furi_check(furi_hal_usb_set_config(NULL, NULL));
+
         if(!furi_string_empty(app->file_path)) {
             app->bad_usb_script = bad_usb_script_open(app->file_path);
             bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
@@ -136,6 +140,10 @@ void bad_usb_app_free(BadUsbApp* app) {
     if(app->bad_usb_script) {
         bad_usb_script_close(app->bad_usb_script);
         app->bad_usb_script = NULL;
+    }
+
+    if(app->usb_if_prev) {
+        furi_check(furi_hal_usb_set_config(app->usb_if_prev, NULL));
     }
 
     // Views

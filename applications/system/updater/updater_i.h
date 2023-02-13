@@ -33,12 +33,6 @@ typedef enum {
     UpdaterCustomEventSdUnmounted,
 } UpdaterCustomEvent;
 
-typedef struct UpdaterManifestProcessingState {
-    UpdateManifest* manifest;
-    FuriString* message;
-    bool ready_to_be_applied;
-} UpdaterManifestProcessingState;
-
 typedef struct {
     // GUI
     Gui* gui;
@@ -49,7 +43,7 @@ typedef struct {
 
     UpdaterMainView* main_view;
 
-    UpdaterManifestProcessingState* pending_update;
+    UpdateManifest* loaded_manifest;
     UpdatePrepareResult preparation_result;
 
     UpdateTask* update_task;

@@ -21,11 +21,9 @@ void updater_scene_loadcfg_apply_callback(GuiButtonType result, InputType type, 
 
 void updater_scene_loadcfg_on_enter(void* context) {
     Updater* updater = (Updater*)context;
-    UpdaterManifestProcessingState* pending_upd = updater->pending_update =
-        malloc(sizeof(UpdaterManifestProcessingState));
-    pending_upd->manifest = update_manifest_alloc();
+    UpdateManifest* loaded_manifest = updater->loaded_manifest = update_manifest_alloc();
 
-    if(update_manifest_init(pending_upd->manifest, furi_string_get_cstr(updater->startup_arg))) {
+    if(update_manifest_init(loaded_manifest, furi_string_get_cstr(updater->startup_arg))) {
         widget_add_string_element(
             updater->widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, "Update");
 
@@ -37,7 +35,7 @@ void updater_scene_loadcfg_on_enter(void* context) {
             32,
             AlignCenter,
             AlignCenter,
-            furi_string_get_cstr(pending_upd->manifest->version),
+            furi_string_get_cstr(loaded_manifest->version),
             true);
 
         widget_add_button_element(
@@ -95,13 +93,12 @@ bool updater_scene_loadcfg_on_event(void* context, SceneManagerEvent event) {
 }
 
 void updater_scene_loadcfg_on_exit(void* context) {
+    furi_assert(context);
     Updater* updater = (Updater*)context;
 
-    if(updater->pending_update) {
-        update_manifest_free(updater->pending_update->manifest);
-        furi_string_free(updater->pending_update->message);
-    }
-
     widget_reset(updater->widget);
-    free(updater->pending_update);
+
+    if(updater->loaded_manifest) {
+        update_manifest_free(updater->loaded_manifest);
+    }
 }

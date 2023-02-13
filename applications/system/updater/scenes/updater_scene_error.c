@@ -58,8 +58,12 @@ bool updater_scene_error_on_event(void* context, SceneManagerEvent event) {
 }
 
 void updater_scene_error_on_exit(void* context) {
+    furi_assert(context);
     Updater* updater = (Updater*)context;
 
     widget_reset(updater->widget);
-    free(updater->pending_update);
+
+    if(updater->loaded_manifest) {
+        update_manifest_free(updater->loaded_manifest);
+    }
 }
