@@ -100,7 +100,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 1728; //wrong!! upload 186*16 = 2976 - actual size about 1728
+    instance->encoder.size_upload = 2400; //wrong!! upload 186*16 = 2976 - actual size about 1728
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -112,6 +112,8 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
     free(instance->encoder.upload);
     free(instance);
 }
+
+static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t hold_bit);
 
 /**
  * Generating an upload from data.
@@ -160,8 +162,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
 
         //Send key data
-        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-            if(bit_read(instance->generic.data, i - 1)) {
+        for(uint8_t j = 52; j > 0; j--) {
+            if(bit_read(instance->generic.data, j - 1)) {
                 //send bit 1
                 instance->encoder.upload[index++] =
                     level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
@@ -173,6 +175,35 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
                     true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
                 instance->encoder.upload[index++] = level_duration_make(
                     false, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+            }
+        }
+        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+            uint8_t add_data[10] = {0};
+            for(size_t i = 0; i < 7; i++) {
+                add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
+            }
+            subghz_protocol_nice_one_get_data(add_data, loops[i], loops[i]);
+            instance->generic.data_2 = 0;
+            for(size_t j = 7; j < 10; j++) {
+                instance->generic.data_2 <<= 8;
+                instance->generic.data_2 += add_data[j];
+            }
+
+            //Send key data
+            for(uint8_t j = 24; j > 4; j--) {
+                if(bit_read(instance->generic.data_2, j - 1)) {
+                    //send bit 1
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+                } else {
+                    //send bit 0
+                    instance->encoder.upload[index++] = level_duration_make(
+                        true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+                    instance->encoder.upload[index++] = level_duration_make(
+                        false, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+                }
             }
         }
         //Send stop bit
@@ -197,6 +228,8 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+        // flipper_format_read_uint32(
+        // flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1);
 
         subghz_protocol_nice_flor_s_remote_controller(
             &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
@@ -214,6 +247,17 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
             break;
+        }
+
+        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+            if(!flipper_format_rewind(flipper_format)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            uint32_t temp = (instance->generic.data_2 >> 4) & 0xFFFFF;
+            if(!flipper_format_update_uint32(flipper_format, "Data", &temp, 1)) {
+                FURI_LOG_E(TAG, "Unable to add Data");
+            }
         }
 
         instance->encoder.is_running = true;
@@ -247,63 +291,63 @@ LevelDuration subghz_protocol_encoder_nice_flor_s_yield(void* context) {
     return ret;
 }
 
-// /**
-//  * Read bytes from rainbow table
-//  * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-P8-P9-P10
-//  * @return crc
-//  */
-// static uint32_t subghz_protocol_nice_one_crc(uint8_t* p) {
-//     uint8_t crc = 0;
-//     uint8_t crc_data = 0xff;
-//     for(uint8_t i = 4; i < 68; i++) {
-//         if(subghz_protocol_blocks_get_bit_array(p, i)) {
-//             crc = crc_data ^ 1;
-//         } else {
-//             crc = crc_data;
-//         }
-//         crc_data >>= 1;
-//         if((crc & 0x01)) {
-//             crc_data ^= 0x97;
-//         }
-//     }
-//     crc = 0;
-//     for(uint8_t i = 0; i < 8; i++) {
-//         crc <<= 1;
-//         if((crc_data >> i) & 0x01) crc = crc | 1;
-//     }
-//     return crc;
-// }
+/**
+ * Read bytes from rainbow table
+ * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-P8-P9-P10
+ * @return crc
+ */
+static uint32_t subghz_protocol_nice_one_crc(uint8_t* p) {
+    uint8_t crc = 0;
+    uint8_t crc_data = 0xff;
+    for(uint8_t i = 4; i < 68; i++) {
+        if(subghz_protocol_blocks_get_bit_array(p, i)) {
+            crc = crc_data ^ 1;
+        } else {
+            crc = crc_data;
+        }
+        crc_data >>= 1;
+        if((crc & 0x01)) {
+            crc_data ^= 0x97;
+        }
+    }
+    crc = 0;
+    for(uint8_t i = 0; i < 8; i++) {
+        crc <<= 1;
+        if((crc_data >> i) & 0x01) crc = crc | 1;
+    }
+    return crc;
+}
 
-// /**
-//  * Read bytes from rainbow table
-//  * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-XX-XX-XX
-//  * @param num_parcel  parcel number 0..15
-//  * @param hold_bit  0 - the button was only pressed, 1 - the button was held down
-//  */
-// static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t hold_bit) {
-//     uint8_t k = 0;
-//     uint8_t crc = 0;
-//     p[1] = (p[1] & 0x0f) | ((0x0f ^ (p[0] & 0x0F) ^ num_parcel) << 4);
-//     if(num_parcel < 4) {
-//         k = 0x8f;
-//     } else {
-//         k = 0x80;
-//     }
+/**
+ * Read bytes from rainbow table
+ * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-XX-XX-XX
+ * @param num_parcel  parcel number 0..15
+ * @param hold_bit  0 - the button was only pressed, 1 - the button was held down
+ */
+static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t hold_bit) {
+    uint8_t k = 0;
+    uint8_t crc = 0;
+    p[1] = (p[1] & 0x0f) | ((0x0f ^ (p[0] & 0x0F) ^ num_parcel) << 4);
+    if(num_parcel < 4) {
+        k = 0x8f;
+    } else {
+        k = 0x80;
+    }
 
-//     if(!hold_bit) {
-//         hold_bit = 0;
-//     } else {
-//         hold_bit = 0x10;
-//     }
-//     k = num_parcel ^ k;
-//     p[7] = k;
-//     p[8] = hold_bit ^ (k << 4);
+    if(!hold_bit) {
+        hold_bit = 0;
+    } else {
+        hold_bit = 0x10;
+    }
+    k = num_parcel ^ k;
+    p[7] = k;
+    p[8] = hold_bit ^ (k << 4);
 
-//     crc = subghz_protocol_nice_one_crc(p);
+    crc = subghz_protocol_nice_one_crc(p);
 
-//     p[8] |= crc >> 4;
-//     p[9] = crc << 4;
-// }
+    p[8] |= crc >> 4;
+    p[9] = crc << 4;
+}
 
 /** 
  * Read bytes from rainbow table
