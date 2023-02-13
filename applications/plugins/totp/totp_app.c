@@ -7,6 +7,7 @@
 #include <flipper_format/flipper_format.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
+#include <dolphin/dolphin.h>
 #include "services/config/config.h"
 #include "types/plugin_state.h"
 #include "types/token_info.h"
@@ -150,6 +151,9 @@ int32_t totp_app() {
         totp_plugin_state_free(plugin_state);
         return 253;
     }
+
+    // Affecting dolphin level
+    DOLPHIN_DEED(DolphinDeedPluginStart);
 
     // Set system callbacks
     ViewPort* view_port = view_port_alloc();

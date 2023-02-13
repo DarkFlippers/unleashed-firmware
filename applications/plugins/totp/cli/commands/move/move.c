@@ -34,10 +34,10 @@ void totp_cli_command_move_docopt_usage() {
 void totp_cli_command_move_docopt_options() {
     TOTP_CLI_PRINTF("  " DOCOPT_OPTION(
         TOTP_CLI_COMMAND_MOVE_ARG_NEW_NAME_PREFIX,
-        DOCOPT_ARGUMENT(TOTP_CLI_COMMAND_MOVE_ARG_NEW_NAME)) "      New token name.\r\n");
+        DOCOPT_ARGUMENT(TOTP_CLI_COMMAND_MOVE_ARG_NEW_NAME)) "      New token name\r\n");
     TOTP_CLI_PRINTF("  " DOCOPT_OPTION(
         TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX_PREFIX,
-        DOCOPT_ARGUMENT(TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX)) "     New token index.\r\n");
+        DOCOPT_ARGUMENT(TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX)) "     New token index\r\n");
 }
 
 void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
