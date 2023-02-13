@@ -196,7 +196,7 @@ static TotpConfigFileOpenResult totp_open_config_file(Storage* storage, FlipperF
     return TotpConfigFileOpenSuccess;
 }
 
-TotpConfigFileUpdateResult
+static TotpConfigFileUpdateResult
     totp_config_file_save_new_token_i(FlipperFormat* file, const TokenInfo* token_info) {
     TotpConfigFileUpdateResult update_result;
     do {

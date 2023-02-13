@@ -77,7 +77,7 @@ void furi_hal_rfid_init() {
 
 void furi_hal_rfid_pins_reset() {
     // ibutton bus disable
-    furi_hal_ibutton_stop();
+    furi_hal_ibutton_pin_reset();
 
     // pulldown rfid antenna
     furi_hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
@@ -94,8 +94,8 @@ void furi_hal_rfid_pins_reset() {
 
 void furi_hal_rfid_pins_emulate() {
     // ibutton low
-    furi_hal_ibutton_start_drive();
-    furi_hal_ibutton_pin_low();
+    furi_hal_ibutton_pin_configure();
+    furi_hal_ibutton_pin_write(false);
 
     // pull pin to timer out
     furi_hal_gpio_init_ex(
@@ -115,8 +115,8 @@ void furi_hal_rfid_pins_emulate() {
 
 void furi_hal_rfid_pins_read() {
     // ibutton low
-    furi_hal_ibutton_start_drive();
-    furi_hal_ibutton_pin_low();
+    furi_hal_ibutton_pin_configure();
+    furi_hal_ibutton_pin_write(false);
 
     // dont pull rfid antenna
     furi_hal_gpio_init(&gpio_nfc_irq_rfid_pull, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);

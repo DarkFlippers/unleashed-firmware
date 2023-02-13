@@ -1,8 +1,12 @@
 ### New changes
-* Archive and FileBrowser: Fixed #332 (large folders parse issue)
-* Archive and FileBrowser: Fixed navigation issues and improved performance (by @Willy-JL | PR #333)
-* SubGHz -> HAL: **Fixed external CC1101 module issues** (transmission now works correctly) (fixed issue #331)
-* SubGHz: Use 17 (1W) pin for subghz debug mode
+* SubGHz: **Nice ON2E (Nice One)** support (by @assasinfil | PR #335)
+* SubGHz: Remove 467.75 From freq analyzer since it has too much noise (Frequency is still can be used, just excluded from FA to avoid false detections)
+* Archive and FileBrowser: **Fixed more navigation issues** (by @Willy-JL | PR #334)
+* Plugins -> SubGHz Bruteforcer: Fix Linear Delta 3 repeats (now its more stable and we will be sure signal is received correctly)
+* Plugins: Updated TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* OFW: **Fix Cyfral & Metakom emulation (My temp fix removed and proper fix from OFW applied)**
+* OFW: BadUSB: disable CDC mode, USB mode switch fix
+* OFW: Updater visual fixes
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

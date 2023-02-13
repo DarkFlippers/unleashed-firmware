@@ -41,6 +41,14 @@ static bool update_task_pre_update(UpdateTask* update_task) {
     return success;
 }
 
+typedef enum {
+    UpdateTaskResourcesWeightsFileCleanup = 20,
+    UpdateTaskResourcesWeightsDirCleanup = 20,
+    UpdateTaskResourcesWeightsFileUnpack = 60,
+} UpdateTaskResourcesWeights;
+
+#define UPDATE_TASK_RESOURCES_FILE_TO_TOTAL_PERCENT 90
+
 typedef struct {
     UpdateTask* update_task;
     int32_t total_files, processed_files;
@@ -54,33 +62,36 @@ static bool update_task_resource_unpack_cb(const char* name, bool is_directory, 
     update_task_set_progress(
         unpack_progress->update_task,
         UpdateTaskStageProgress,
-        /* For this stage, last 70% of progress = extraction */
-        30 + (unpack_progress->processed_files * 70) / (unpack_progress->total_files + 1));
+        /* For this stage, last progress segment = extraction */
+        (UpdateTaskResourcesWeightsFileCleanup + UpdateTaskResourcesWeightsDirCleanup) +
+            (unpack_progress->processed_files * UpdateTaskResourcesWeightsFileUnpack) /
+                (unpack_progress->total_files + 1));
     return true;
 }
 
-static void
-    update_task_cleanup_resources(UpdateTask* update_task, uint32_t n_approx_file_entries) {
+static void update_task_cleanup_resources(UpdateTask* update_task, const uint32_t n_tar_entries) {
     ResourceManifestReader* manifest_reader = resource_manifest_reader_alloc(update_task->storage);
     do {
-        FURI_LOG_I(TAG, "Cleaning up old manifest");
+        FURI_LOG_D(TAG, "Cleaning up old manifest");
         if(!resource_manifest_reader_open(manifest_reader, EXT_PATH("Manifest"))) {
             FURI_LOG_W(TAG, "No existing manifest");
             break;
         }
 
-        /* We got # of entries in TAR file. Approx 1/4th is dir entries, we skip them */
-        n_approx_file_entries = n_approx_file_entries * 3 / 4 + 1;
-        uint32_t n_processed_files = 0;
+        const uint32_t n_approx_file_entries =
+            n_tar_entries * UPDATE_TASK_RESOURCES_FILE_TO_TOTAL_PERCENT / 100 + 1;
+        uint32_t n_dir_entries = 1;
 
         ResourceManifestEntry* entry_ptr = NULL;
+        uint32_t n_processed_entries = 0;
         while((entry_ptr = resource_manifest_reader_next(manifest_reader))) {
             if(entry_ptr->type == ResourceManifestEntryTypeFile) {
                 update_task_set_progress(
                     update_task,
                     UpdateTaskStageProgress,
-                    /* For this stage, first 20% of progress = cleanup files */
-                    (n_processed_files++ * 20) / (n_approx_file_entries + 1));
+                    /* For this stage, first pass = old manifest's file cleanup */
+                    (n_processed_entries++ * UpdateTaskResourcesWeightsFileCleanup) /
+                        n_approx_file_entries);
 
                 FuriString* file_path = furi_string_alloc();
                 path_concat(
@@ -88,16 +99,21 @@ static void
                 FURI_LOG_D(TAG, "Removing %s", furi_string_get_cstr(file_path));
                 storage_simply_remove(update_task->storage, furi_string_get_cstr(file_path));
                 furi_string_free(file_path);
+            } else if(entry_ptr->type == ResourceManifestEntryTypeDirectory) {
+                n_dir_entries++;
             }
         }
 
+        n_processed_entries = 0;
         while((entry_ptr = resource_manifest_reader_previous(manifest_reader))) {
             if(entry_ptr->type == ResourceManifestEntryTypeDirectory) {
                 update_task_set_progress(
                     update_task,
                     UpdateTaskStageProgress,
                     /* For this stage, second 10% of progress = cleanup directories */
-                    (n_processed_files++ * 10) / (n_approx_file_entries + 1));
+                    UpdateTaskResourcesWeightsFileCleanup +
+                        (n_processed_entries++ * UpdateTaskResourcesWeightsDirCleanup) /
+                            n_dir_entries);
 
                 FuriString* folder_path = furi_string_alloc();
                 File* folder_file = storage_file_alloc(update_task->storage);

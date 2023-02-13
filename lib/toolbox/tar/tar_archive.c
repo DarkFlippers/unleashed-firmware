@@ -106,6 +106,7 @@ void tar_archive_set_file_callback(TarArchive* archive, tar_unpack_file_cb callb
 static int tar_archive_entry_counter(mtar_t* tar, const mtar_header_t* header, void* param) {
     UNUSED(tar);
     UNUSED(header);
+    furi_assert(param);
     int32_t* counter = param;
     (*counter)++;
     return 0;

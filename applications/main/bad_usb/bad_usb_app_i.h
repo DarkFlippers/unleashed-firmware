@@ -14,6 +14,7 @@
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/widget.h>
 #include "views/bad_usb_view.h"
+#include <furi_hal_usb.h>
 
 #define BAD_USB_APP_BASE_FOLDER ANY_PATH("badusb")
 #define BAD_USB_APP_PATH_LAYOUT_FOLDER BAD_USB_APP_BASE_FOLDER "/assets/layouts"
@@ -39,6 +40,8 @@ struct BadUsbApp {
     FuriString* keyboard_layout;
     BadUsb* bad_usb_view;
     BadUsbScript* bad_usb_script;
+
+    FuriHalUsbInterface* usb_if_prev;
 };
 
 typedef enum {

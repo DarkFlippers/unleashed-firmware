@@ -222,6 +222,18 @@ steps:
       - chmod +x ./discord.sh
       - ./discord.sh --text 'New Unleashed firmware released!\n\nVersion - '${DRONE_TAG}'\n\n[[Github - Changelog]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')\n\n[-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)\n\n[-Download latest extra apps pack-](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)\n\n[-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/'${DRONE_TAG}'/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')\n\n[-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)\n\n[-Version with extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)'
 
+  - name: "Send extra pack build to telegram"
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: tgtoken
+      to:
+        from_secret: tgid
+      format: markdown
+      message: "Build with extra apps pack:"
+      document:
+        - flipper-z-f7-update-${DRONE_TAG}e.tgz
+
 trigger:
   event:
     - tag
@@ -379,6 +391,18 @@ steps:
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})"
       document:
         - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
+
+  - name: "Send extra pack build to telegram"
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: tgtoken
+      to:
+        from_secret: tgid_dev
+      format: markdown
+      message: "Build with extra apps pack:"
+      document:
+        - flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz
 
   - name: "Send discord notification"
     image: hfdj/fztools

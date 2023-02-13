@@ -19,7 +19,7 @@ typedef void (*OneWireSlaveResultCallback)(void* context);
 
 /**
  * Allocate onewire slave
- * @param pin 
+ * @param gpio_pin
  * @return OneWireSlave* 
  */
 OneWireSlave* onewire_slave_alloc(const GpioPin* gpio_pin);

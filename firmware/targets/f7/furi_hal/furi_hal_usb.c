@@ -340,7 +340,7 @@ static void usb_process_mode_start(FuriHalUsbInterface* interface, void* context
 }
 
 static void usb_process_mode_change(FuriHalUsbInterface* interface, void* context) {
-    if(interface != usb.interface) {
+    if((interface != usb.interface) || (context != usb.interface_context)) {
         if(usb.enabled) {
             // Disable current interface
             susp_evt(&udev, 0, 0);
