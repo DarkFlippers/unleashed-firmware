@@ -100,7 +100,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 4096; //wrong!! upload 186*16 = 2976 - actual size about 1728
+    instance->encoder.size_upload = 2400; //wrong!! upload 186*16 = 2976 - actual size about 1728
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -228,8 +228,8 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-        flipper_format_read_uint32(
-            flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1);
+        // flipper_format_read_uint32(
+        // flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1);
 
         subghz_protocol_nice_flor_s_remote_controller(
             &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
@@ -254,10 +254,9 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
             }
-            if(res && !flipper_format_update_uint32(
-                          flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1)) {
+            uint32_t temp = (instance->generic.data_2 >> 4) & 0xFFFFF;
+            if(!flipper_format_update_uint32(flipper_format, "Data", &temp, 1)) {
                 FURI_LOG_E(TAG, "Unable to add Data");
-                res = false;
             }
         }
 
