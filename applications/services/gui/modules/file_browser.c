@@ -478,7 +478,7 @@ static void browser_list_item_cb(
             browser->view,
             FileBrowserModel * model,
             {
-                if(model->item_cnt < 430) {
+                if(model->item_cnt <= BROWSER_SORT_THRESHOLD) {
                     FuriString* selected = NULL;
                     if(model->item_idx > 0) {
                         selected = furi_string_alloc_set(
@@ -646,7 +646,10 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
     bool is_loading = false;
 
     with_view_model(
-        browser->view, FileBrowserModel * model, { is_loading = model->folder_loading; }, false);
+        browser->view,
+        FileBrowserModel * model,
+        { is_loading = model->folder_loading || model->list_loading; },
+        false);
 
     if(is_loading) {
         return false;
