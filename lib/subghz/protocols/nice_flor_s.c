@@ -457,7 +457,7 @@ bool subghz_protocol_nice_flor_s_create_data(
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
-    // instance->generic.data_count_bit = 52;
+    instance->generic.data_count_bit = 52;
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(
         decrypt, instance->nice_flor_s_rainbow_table_file_name);
