@@ -182,7 +182,7 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             for(size_t i = 0; i < 7; i++) {
                 add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
             }
-            subghz_protocol_nice_one_get_data(add_data, i, 1);
+            subghz_protocol_nice_one_get_data(add_data, loops[i], loops[i]);
             instance->generic.data_2 = 0;
             for(size_t j = 7; j < 10; j++) {
                 instance->generic.data_2 <<= 8;
