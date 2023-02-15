@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 19th Jan, 2023
-# Last Checked 8th Feb, 2023
+# Last Updated 15th Feb, 2023
+# Last Checked 15th Feb, 2023
 #
 name: POWER
 type: parsed
@@ -1839,3 +1839,27 @@ type: parsed
 protocol: SIRC20
 address: 5A 0E 00 00
 command: 11 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 15 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 14 00 00 00
+# 
+name: CH+
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 18 00 00 00
+# 
+name: CH-
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 17 00 00 00
