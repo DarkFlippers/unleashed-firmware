@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"19"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"20"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 
 fbtenv_show_usage()
@@ -35,6 +35,7 @@ fbtenv_restore_env()
     PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
     PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
     PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
+    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
     if [ -n "${PS1:-""}" ]; then
         PS1="$(echo "$PS1" | sed 's/\[fbt\]//g')";
     elif [ -n "${PROMPT:-""}" ]; then
@@ -248,6 +249,7 @@ fbtenv_check_download_toolchain()
     elif [ ! -f "$TOOLCHAIN_ARCH_DIR/VERSION" ]; then
         fbtenv_download_toolchain || return 1;
     elif [ "$(cat "$TOOLCHAIN_ARCH_DIR/VERSION")" -ne "$FBT_TOOLCHAIN_VERSION" ]; then
+        echo "FBT: starting toolchain upgrade process.."
         fbtenv_download_toolchain || return 1;
     fi
     return 0;
@@ -269,6 +271,11 @@ fbtenv_download_toolchain()
     return 0;
 }
 
+fbtenv_print_version()
+{
+    echo "FBT: using toolchain version $(cat "$TOOLCHAIN_ARCH_DIR/VERSION")";
+}
+
 fbtenv_main()
 {
     fbtenv_check_sourced || return 1;
@@ -281,10 +288,12 @@ fbtenv_main()
     fbtenv_check_script_path || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
+    fbtenv_print_version;
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/openocd/bin:$PATH";
+    PATH="$TOOLCHAIN_ARCH_DIR/openssl/bin:$PATH";
 
     SAVED_PYTHONNOUSERSITE="${PYTHONNOUSERSITE:-""}";
     SAVED_PYTHONPATH="${PYTHONPATH:-""}";
