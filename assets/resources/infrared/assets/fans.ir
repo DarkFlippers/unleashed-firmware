@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 8th Feb, 2023
-# Last Checked 8th Feb, 2023
+# Last Updated 15th Feb, 2023
+# Last Checked 15th Feb, 2023
 #
 name: POWER
 type: raw
@@ -1401,3 +1401,21 @@ type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 0D 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 80 DE 00 00
+command: 00 FF 00 00
+# 
+name: SPEED+
+type: parsed
+protocol: NECext
+address: 80 DE 00 00
+command: 08 F7 00 00
+# 
+name: SPEED-
+type: parsed
+protocol: NECext
+address: 80 DE 00 00
+command: 10 EF 00 00
