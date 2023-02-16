@@ -12,8 +12,6 @@
 
 Our goal is to make all features possible on this device without any limitations! 
 
-Please help us implement emulation for all Sub-GHz dynamic (rolling code) protocols!
-
 <br>
 
 ### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also, this software is made without any support from Flipper Devices and is in no way related to the official devs. 
@@ -230,8 +228,6 @@ Games:
 # Where I can find IR, Sub-GHz, ... files, DBs, and other stuff?
 ## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
 ## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
-## [CAME-12bit, NICE-12bit, Linear-10bit, PT-2240 - Sub-GHz fixed code bruteforce](https://github.com/tobiabocchi/flipperzero-bruteforce)
-## [SMC5326, UNILARM - Sub-GHz fixed code bruteforce](https://github.com/Hong5489/flipperzero-gate-bruteforce)
 
 <br>
 <br>
@@ -239,6 +235,9 @@ Games:
 # Links
 
 * Unofficial Discord: [discord.unleashedflip.com](https://discord.unleashedflip.com)
+* Hello world - plugin tutorial (English): [https://github.com/DroomOne/Flipper-Plugin-Tutorial](https://github.com/DroomOne/Flipper-Plugin-Tutorial)
+* Hello world - plugin tutorial (in Russian): [https://yakovlev.me/hello-flipper-zero/](https://yakovlev.me/hello-flipper-zero/)
+* CLion IDE - How to setup workspace for flipper firmware development: [https://krasovs.ky/2022/11/01/flipper-zero-clion.html](https://krasovs.ky/2022/11/01/flipper-zero-clion.html)
 * Docs by atmanos / How to write your own app (outdated API): [https://flipper.atmanos.com/docs/overview/intro](https://flipper.atmanos.com/docs/overview/intro)
 
 * Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
