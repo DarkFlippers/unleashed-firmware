@@ -1,6 +1,6 @@
 ## How to extend SubGHz supported frequency range
 
-#### CC1101 Frequency range specs: 300-348 MHz, 386-464 MHz, and 778-928 MHz  (+ 350MHz was added to default range)
+#### CC1101 Frequency range specs: 300-348 MHz, 386-464 MHz, and 778-928 MHz  (+ 350MHz and 467MHz was added to default range)
 #### This setting will extend to: 281-361 MHz, 378-481 MHz, and 749-962 MHz
 
 1. Please do not do that unless you know what exactly you are doing

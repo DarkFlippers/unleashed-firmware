@@ -22,7 +22,6 @@ def _convert_image(source_filename: str):
 
 
 class DolphinBubbleAnimation:
-
     FILE_TYPE = "Flipper Animation"
     FILE_VERSION = 1
 
@@ -243,7 +242,6 @@ class DolphinBubbleAnimation:
 
 
 class DolphinManifest:
-
     FILE_TYPE = "Flipper Animation Manifest"
     FILE_VERSION = 1
 
