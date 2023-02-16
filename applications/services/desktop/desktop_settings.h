@@ -63,4 +63,5 @@ typedef struct {
     uint32_t auto_lock_delay_ms;
     uint8_t displayBatteryPercentage;
     uint8_t dummy_mode;
+    bool auto_lock_with_pin;
 } DesktopSettings;
