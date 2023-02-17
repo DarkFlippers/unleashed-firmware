@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"20"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"19"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 FBT_VERBOSE="${FBT_VERBOSE:-""}";
 
@@ -292,9 +292,6 @@ fbtenv_main()
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
     fbtenv_print_version;
-    if [ "$SYS_TYPE" = "Linux" ]; then
-        export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-    fi
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
