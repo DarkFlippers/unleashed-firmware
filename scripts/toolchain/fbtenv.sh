@@ -290,7 +290,7 @@ fbtenv_main()
     fbtenv_set_shell_prompt;
     fbtenv_print_version;
     if [ "$SYS_TYPE" = "Linux" ]; then
-        SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+        export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
     fi
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
