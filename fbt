@@ -6,16 +6,21 @@ set -eu;
 
 # private variables
 SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)";
-SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built";
-SCONS_EP="python3 -m SCons"
+SCONS_DEFAULT_FLAGS="--warn=target-not-built";
+SCONS_EP="python3 -m SCons";
 
 # public variables
 FBT_NOENV="${FBT_NOENV:-""}";
 FBT_NO_SYNC="${FBT_NO_SYNC:-""}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
+FBT_VERBOSE="${FBT_VERBOSE:-""}";
 
 if [ -z "$FBT_NOENV" ]; then
-    . "$SCRIPT_PATH/scripts/toolchain/fbtenv.sh";
+    FBT_VERBOSE="$FBT_VERBOSE" . "$SCRIPT_PATH/scripts/toolchain/fbtenv.sh";
+fi
+
+if [ -z "$FBT_VERBOSE" ]; then
+    SCONS_DEFAULT_FLAGS="$SCONS_DEFAULT_FLAGS -Q";
 fi
 
 if [ -z "$FBT_NO_SYNC" ]; then
