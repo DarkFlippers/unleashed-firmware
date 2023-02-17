@@ -12,5 +12,10 @@ if [%FBT_NO_SYNC%] == [] (
     )
 )
 
-set "SCONS_DEFAULT_FLAGS=-Q --warn=target-not-built"
+set "SCONS_DEFAULT_FLAGS=--warn=target-not-built"
+
+if not defined FBT_VERBOSE (
+    set "SCONS_DEFAULT_FLAGS=%SCONS_DEFAULT_FLAGS% -Q"
+)
+
 %SCONS_EP% %SCONS_DEFAULT_FLAGS% %*
