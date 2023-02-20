@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,14.0,,
+Version,+,14.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1171,6 +1171,7 @@ Function,+,furi_hal_mpu_protect_disable,void,FuriHalMpuRegion
 Function,+,furi_hal_mpu_protect_no_access,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
 Function,+,furi_hal_mpu_protect_read_only,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
 Function,+,furi_hal_nfc_activate_nfca,_Bool,"uint32_t, uint32_t*"
+Function,-,furi_hal_nfc_deinit,void,
 Function,+,furi_hal_nfc_detect,_Bool,"FuriHalNfcDevData*, uint32_t"
 Function,+,furi_hal_nfc_emulate_nfca,_Bool,"uint8_t*, uint8_t, uint8_t*, uint8_t, FuriHalNfcEmulateCallback, void*, uint32_t"
 Function,+,furi_hal_nfc_exit_sleep,void,
