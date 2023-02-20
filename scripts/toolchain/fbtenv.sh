@@ -5,7 +5,7 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"19"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"21"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
 FBT_VERBOSE="${FBT_VERBOSE:-""}";
 
@@ -43,10 +43,19 @@ fbtenv_restore_env()
         PROMPT="$(echo "$PROMPT" | sed 's/\[fbt\]//g')";
     fi
 
+    if [ -n "$SAVED_SSL_CERT_FILE" ]; then
+        export SSL_CERT_FILE="$SAVED_SSL_CERT_FILE";
+        export REQUESTS_CA_BUNDLE="$SAVED_REQUESTS_CA_BUNDLE";
+    else
+        unset SSL_CERT_FILE;
+        unset REQUESTS_CA_BUNDLE;
+    fi
     export PYTHONNOUSERSITE="$SAVED_PYTHONNOUSERSITE";
     export PYTHONPATH="$SAVED_PYTHONPATH";
     export PYTHONHOME="$SAVED_PYTHONHOME";
 
+    unset SAVED_SSL_CERT_FILE;
+    unset SAVED_REQUESTS_CA_BUNDLE;
     unset SAVED_PYTHONNOUSERSITE;
     unset SAVED_PYTHONPATH;
     unset SAVED_PYTHONHOME;
@@ -299,10 +308,14 @@ fbtenv_main()
     PATH="$TOOLCHAIN_ARCH_DIR/openssl/bin:$PATH";
     export PATH;
 
+    export SAVED_SSL_CERT_FILE="${SSL_CERT_FILE:-""}";
+    export SAVED_REQUESTS_CA_BUNDLE="${REQUESTS_CA_BUNDLE:-""}";
     export SAVED_PYTHONNOUSERSITE="${PYTHONNOUSERSITE:-""}";
     export SAVED_PYTHONPATH="${PYTHONPATH:-""}";
     export SAVED_PYTHONHOME="${PYTHONHOME:-""}";
 
+    export SSL_CERT_FILE="$TOOLCHAIN_ARCH_DIR/python/lib/python3.11/site-packages/certifi/cacert.pem";
+    export REQUESTS_CA_BUNDLE="$SSL_CERT_FILE";
     export PYTHONNOUSERSITE=1;
     export PYTHONPATH=;
     export PYTHONHOME=;
