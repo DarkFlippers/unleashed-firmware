@@ -285,3 +285,46 @@ type: parsed
 protocol: NECext
 address: 10 E7 00 00
 command: 41 BE 00 00
+# 
+# Model: Grundig CMS 5000
+name: Power
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 10 EF 00 00
+# Also Pause
+name: Play
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 02 FD 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 0D F2 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 17 E8 00 00
+#
+name: Next
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 13 EC 00 00
+# 
+name: Prev
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 11 EE 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 0C F3 00 00
