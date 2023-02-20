@@ -363,7 +363,7 @@ void canvas_draw_rframe(
     uint8_t height,
     uint8_t radius);
 
-/** Draw rounded-corner box of width, height at x,y, with round value raduis
+/** Draw rounded-corner box of width, height at x,y, with round value radius
  *
  * @param      canvas  Canvas instance
  * @param      x       x coordinate

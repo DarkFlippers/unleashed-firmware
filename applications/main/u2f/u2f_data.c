@@ -178,7 +178,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
     uint8_t key_slot = 0;
     uint32_t version = 0;
 
-    // Check if unique key exists in secure eclave and generate it if missing
+    // Check if unique key exists in secure eclave(typo?) and generate it if missing
     if(!furi_hal_crypto_verify_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE)) return false;
 
     FuriString* filetype;

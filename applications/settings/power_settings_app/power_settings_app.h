@@ -19,7 +19,7 @@ typedef struct {
     Gui* gui;
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
-    BatteryInfo* batery_info;
+    BatteryInfo* battery_info;
     Submenu* submenu;
     DialogEx* dialog;
     PowerInfo info;

@@ -640,7 +640,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
         //canvas_draw_str(canvas, 0, 40, "D: ");
         //canvas_draw_str(canvas, 0, 50, "Ok: ");
 
-        //PNGs are located in assets/icons/UniRFRemix before compiliation
+        //PNGs are located in assets/icons/UniRFRemix before compilation
 
         //Icons for Labels
         //canvas_draw_icon(canvas, 0, 0, &I_UniRFRemix_LeftAlignedButtons_9x64);

@@ -152,7 +152,7 @@ bool animation_manager_is_animation_loaded(AnimationManager* animation_manager);
 void animation_manager_unload_and_stall_animation(AnimationManager* animation_manager);
 
 /**
- * Load and Contunue execution of animation manager.
+ * Load and Continue execution of animation manager.
  *
  * @animation_manager   instance
  */

@@ -70,7 +70,7 @@ if you need your custom one, make sure it doesn't listed here
 
 ### User frequencies added AFTER that default list! You need to continue until you reach the end of that list
 
-### If you want to disable default list and use ONLY user added frequecies from user settings file
+### If you want to disable default list and use ONLY user added frequencies from user settings file
 Change that line
 `#Add_standard_frequencies: true`
 to
@@ -81,7 +81,7 @@ Just add new line
 `Frequency: 928000000` - where `928000000` is your frequency, keep it in that format! it should be 9 digits!
 
 ### Hopper frequency list
-To add new frequecy to hopper:
+To add new frequency to hopper:
 add new line `Hopper_frequency: 345000000`<br>
 But remember! You should keep it as small as possible, or hopper functionality would be useless!<br>
 If `#Add_standard_frequencies: true` is not changed<br>

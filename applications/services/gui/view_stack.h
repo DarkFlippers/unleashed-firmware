@@ -3,7 +3,7 @@
  * GUI: ViewStack API
  *
  * ViewStack accumulates several Views in one stack.
- * Draw callbacks are called sequenctially starting from
+ * Draw callbacks are called sequentially starting from
  * first added. Input callbacks are called in reverse order.
  * Consumed input is not passed on underlying layers.
  */

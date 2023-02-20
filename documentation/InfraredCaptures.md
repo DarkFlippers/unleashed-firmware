@@ -22,7 +22,7 @@ If you notice you get a parsed code when capturing it's best to click "Retry" a 
 
 **Parsed data**
 
-This is the cleanest type of data because it means it is a recognised code.
+This is the cleanest type of data because it means it is a recognized code.
 
 ```
 name: EXAMPLE

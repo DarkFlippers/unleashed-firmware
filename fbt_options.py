@@ -32,7 +32,7 @@ COPRO_STACK_TYPE = "ble_light"
 # Leave 0 to let scripts automatically calculate it
 COPRO_STACK_ADDR = "0x0"
 
-# If you override COPRO_CUBE_DIR on commandline, override this as well
+# If you override COPRO_CUBE_DIR on command-line, override this as well
 COPRO_STACK_BIN_DIR = posixpath.join(
     COPRO_CUBE_DIR,
     "Projects",

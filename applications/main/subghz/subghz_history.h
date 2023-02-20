@@ -80,7 +80,7 @@ void subghz_history_get_text_item_menu(SubGhzHistory* instance, FuriString* outp
  * 
  * @param instance  - SubGhzHistory instance
  * @param output    - FuriString* output
- * @return bool - is FUUL
+ * @return bool - is FULL
  */
 bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* output);
 

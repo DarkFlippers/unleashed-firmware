@@ -23,7 +23,7 @@ typedef enum {
 /** SubGhzHopperState state */
 typedef enum {
     SubGhzHopperStateOFF,
-    SubGhzHopperStateRunnig,
+    SubGhzHopperStateRunning,
     SubGhzHopperStatePause,
     SubGhzHopperStateRSSITimeOut,
 } SubGhzHopperState;

@@ -14,7 +14,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     T55xxTiming* t55xxtiming = malloc(sizeof(T55xxTiming));
     Popup* popup = app->popup;
     char curr_buf[32] = {};
-    //TODO: use .txt file in resourses for passwords.
+    //TODO: use .txt file in resources for passwords.
     const uint32_t default_passwords[] = {
         0x51243648, 0x000D8787, 0x19920427, 0x50524F58, 0xF9DCEBA0, 0x65857569, 0x05D73B9F,
         0x89A69E60, 0x314159E0, 0xAA55BBBB, 0xA5B4C3D2, 0x1C0B5848, 0x00434343, 0x444E4752,

@@ -11,7 +11,7 @@ static void power_settings_scene_battery_info_update_model(PowerSettingsApp* app
         .charge = app->info.charge,
         .health = app->info.health,
     };
-    battery_info_set_data(app->batery_info, &battery_info_data);
+    battery_info_set_data(app->battery_info, &battery_info_data);
 }
 
 void power_settings_scene_battery_info_on_enter(void* context) {

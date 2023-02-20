@@ -93,7 +93,7 @@ class HardwareTargetLoader:
         sdk_headers = []
         seen_sdk_headers = set(self.excluded_headers)
         for sdk_path in self.sdk_header_paths:
-            # dirty, but fast - exclude headers from overlayed targets by name
+            # dirty, but fast - exclude headers from overlaid targets by name
             # proper way would be to use relative paths, but names will do for now
             for header in self.env.GlobRecursive("*.h", sdk_path, "*_i.h"):
                 if header.name not in seen_sdk_headers:

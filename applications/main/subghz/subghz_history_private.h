@@ -92,7 +92,7 @@ uint32_t subghz_history_rand_range(uint32_t min, uint32_t max);
  * 
  * @param file - Stream*
  * @param is_negative_start - first value is negative or positive?
- * @param current_position - 0 if started from begining
+ * @param current_position - 0 if started from beginning
  * @param empty_line - add RAW_Data to this line
  * @return true 
  * @return false 
