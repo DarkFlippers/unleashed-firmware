@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 15th Feb, 2023
-# Last Checked 15th Feb, 2023
+# Last Updated 21st Feb, 2023
+# Last Checked 21st Feb, 2023
 # 
 name: POWER
 type: parsed
@@ -2068,3 +2068,27 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 325 50440 173 137541 4551 4465 530 475 529 475 529 474 530 474 530 1479 530 1479 529 476 528 477 527 1480 554 1457 551 1480 528 1481 527 477 527 478 526 478 526 478 526 4497 525 478 526 478 526 478 526 478 526 479 525 479 525 479 525 1484 525 1483 526 1484 525 1483 526 479 525 1483 526 1483 526 1483 526 479 525 479 525 479 525 479 525 1484 525
+# 
+name: POWER
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 10 EF 00 00
+# 
+name: MUTE
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 0C F3 00 00
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 0D F2 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 30 FC 00 00
+command: 17 E8 00 00
