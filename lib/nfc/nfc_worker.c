@@ -56,6 +56,8 @@ void nfc_worker_start(
     while(furi_hal_nfc_is_busy()) {
         furi_delay_ms(10);
     }
+    furi_hal_nfc_deinit();
+    furi_hal_nfc_init();
 
     nfc_worker->callback = callback;
     nfc_worker->context = context;

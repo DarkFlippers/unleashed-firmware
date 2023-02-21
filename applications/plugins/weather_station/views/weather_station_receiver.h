@@ -8,7 +8,7 @@ typedef struct WSReceiver WSReceiver;
 
 typedef void (*WSReceiverCallback)(WSCustomEvent event, void* context);
 
-void ws_receiver_rssi(WSReceiver* instance, float rssi);
+void ws_view_receiver_set_rssi(WSReceiver* instance, float rssi);
 
 void ws_view_receiver_set_lock(WSReceiver* ws_receiver, WSLock keyboard);
 
