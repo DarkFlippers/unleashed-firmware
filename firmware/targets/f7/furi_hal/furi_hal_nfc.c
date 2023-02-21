@@ -24,13 +24,29 @@ FuriEventFlag* event = NULL;
 #define FURI_HAL_NFC_UID_INCOMPLETE (0x04)
 
 void furi_hal_nfc_init() {
+    furi_assert(!event);
+    event = furi_event_flag_alloc();
+
     ReturnCode ret = rfalNfcInitialize();
     if(ret == ERR_NONE) {
         furi_hal_nfc_start_sleep();
-        event = furi_event_flag_alloc();
         FURI_LOG_I(TAG, "Init OK");
     } else {
-        FURI_LOG_W(TAG, "Initialization failed, RFAL returned: %d", ret);
+        FURI_LOG_W(TAG, "Init Failed, RFAL returned: %d", ret);
+    }
+}
+
+void furi_hal_nfc_deinit() {
+    ReturnCode ret = rfalDeinitialize();
+    if(ret == ERR_NONE) {
+        FURI_LOG_I(TAG, "Deinit OK");
+    } else {
+        FURI_LOG_W(TAG, "Deinit Failed, RFAL returned: %d", ret);
+    }
+
+    if(event) {
+        furi_event_flag_free(event);
+        event = NULL;
     }
 }
 

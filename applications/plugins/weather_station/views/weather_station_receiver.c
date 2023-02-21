@@ -63,7 +63,7 @@ typedef struct {
     uint8_t u_rssi;
 } WSReceiverModel;
 
-void ws_receiver_rssi(WSReceiver* instance, float rssi) {
+void ws_view_receiver_set_rssi(WSReceiver* instance, float rssi) {
     furi_assert(instance);
     with_view_model(
         instance->view,
@@ -197,7 +197,6 @@ void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
     canvas_set_font(canvas, FontSecondary);
 
     elements_button_left(canvas, "Config");
-    //canvas_draw_line(canvas, 46, 51, 125, 51);
 
     bool scrollbar = model->history_item > 4;
     FuriString* str_buff;
@@ -230,7 +229,6 @@ void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
         canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 63, 46, "Scanning...");
-        //canvas_draw_line(canvas, 46, 51, 125, 51);
         canvas_set_font(canvas, FontSecondary);
     }
 
