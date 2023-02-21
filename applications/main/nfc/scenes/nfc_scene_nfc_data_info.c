@@ -14,7 +14,8 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
     NfcDeviceData* dev_data = &nfc->dev->dev_data;
     NfcProtocol protocol = dev_data->protocol;
     uint8_t text_scroll_height = 0;
-    if((protocol == NfcDeviceProtocolMifareDesfire) || (protocol == NfcDeviceProtocolMifareUl)) {
+    if((protocol == NfcDeviceProtocolMifareDesfire) || (protocol == NfcDeviceProtocolMifareUl) ||
+       (protocol == NfcDeviceProtocolMifareClassic)) {
         widget_add_button_element(
             widget, GuiButtonTypeRight, "More", nfc_scene_nfc_data_info_widget_callback, nfc);
         text_scroll_height = 52;
@@ -135,6 +136,9 @@ bool nfc_scene_nfc_data_info_on_event(void* context, SceneManagerEvent event) {
                 consumed = true;
             } else if(protocol == NfcDeviceProtocolMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightData);
+                consumed = true;
+            } else if(protocol == NfcDeviceProtocolMifareClassic) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicData);
                 consumed = true;
             }
         }

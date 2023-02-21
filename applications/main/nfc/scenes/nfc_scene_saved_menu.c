@@ -150,6 +150,8 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
                 application_info_present = nfc_supported_card_verify_and_parse(dev_data);
             }
 
+            FURI_LOG_I("nfc", "application_info_present: %d", application_info_present);
+
             if(application_info_present) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
             } else {
