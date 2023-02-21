@@ -3,7 +3,7 @@
 #include <gui/view.h>
 #include "../helpers/subghz_custom_event.h"
 
-#define SUBGHZ_RAW_TRESHOLD_MIN -90.0f
+#define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
 
 typedef struct SubGhzReadRAW SubGhzReadRAW;
 

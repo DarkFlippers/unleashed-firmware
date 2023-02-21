@@ -305,14 +305,14 @@ typedef void (*Storage_name_converter)(FuriString*);
 
 /** Backs up internal storage to a tar archive
  * @param api pointer to the api
- * @param dstmane destination archive path
+ * @param dstname destination archive path
  * @return FS_Error operation result
  */
 FS_Error storage_int_backup(Storage* api, const char* dstname);
 
 /** Restores internal storage from a tar archive
  * @param api pointer to the api
- * @param dstmane archive path
+ * @param dstname archive path
  * @param converter pointer to filename conversion function, may be NULL
  * @return FS_Error operation result
  */

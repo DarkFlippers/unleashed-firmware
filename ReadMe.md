@@ -54,7 +54,7 @@ Our Discord Community:
 Also check the changelog in releases for latest updates!
 
 ### Current modified and new Sub-GHz protocols list:
-Thanks to Official team (to thier SubGHz Developer, Skorp) for implementing decoders for these protocols.
+Thanks to Official team (to their SubGHz Developer, Skorp) for implementing decoders for these protocols.
 
 Encoders/sending made by Eng1n33r & @xMasterX:
 

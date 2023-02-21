@@ -12,7 +12,7 @@
 #define MENU_ITEMS 4u
 #define UNLOCK_CNT 3
 
-#define SUBGHZ_RAW_TRESHOLD_MIN -90.0f
+#define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
 
 typedef struct {
     FuriString* item_str;
@@ -80,10 +80,10 @@ void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi) {
         instance->view,
         SubGhzViewReceiverModel * model,
         {
-            if(rssi < SUBGHZ_RAW_TRESHOLD_MIN) {
+            if(rssi < SUBGHZ_RAW_THRESHOLD_MIN) {
                 model->u_rssi = 0;
             } else {
-                model->u_rssi = (uint8_t)(rssi - SUBGHZ_RAW_TRESHOLD_MIN);
+                model->u_rssi = (uint8_t)(rssi - SUBGHZ_RAW_THRESHOLD_MIN);
             }
         },
         true);

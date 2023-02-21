@@ -14,7 +14,7 @@ void crypto_cli_print_usage() {
         "\tdecrypt <key_slot:int> <iv:hex>\t - Using key from secure enclave and IV decrypt hex encoded encrypted with AES256CBC data to plain text\r\n");
     printf("\thas_key <key_slot:int>\t - Check if secure enclave has key in slot\r\n");
     printf(
-        "\tstore_key <key_slot:int> <key_type:str> <key_size:int> <key_data:hex>\t - Store key in secure enclave. !!! NON-REVERSABLE OPERATION - READ MANUAL FIRST !!!\r\n");
+        "\tstore_key <key_slot:int> <key_type:str> <key_size:int> <key_data:hex>\t - Store key in secure enclave. !!! NON-REVERSIBLE OPERATION - READ MANUAL FIRST !!!\r\n");
 };
 
 void crypto_cli_encrypt(Cli* cli, FuriString* args) {

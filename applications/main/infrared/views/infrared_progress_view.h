@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-/** Anonumous instance */
+/** Anonymous instance */
 typedef struct InfraredProgressView InfraredProgressView;
 
 /** Callback for back button handling */

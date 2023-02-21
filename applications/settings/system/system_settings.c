@@ -71,21 +71,21 @@ static void heap_trace_mode_changed(VariableItem* item) {
     furi_hal_rtc_set_heap_track_mode(heap_trace_mode_value[index]);
 }
 
-const char* const mesurement_units_text[] = {
+const char* const measurement_units_text[] = {
     "Metric",
     "Imperial",
 };
 
-const uint32_t mesurement_units_value[] = {
+const uint32_t measurement_units_value[] = {
     LocaleMeasurementUnitsMetric,
     LocaleMeasurementUnitsImperial,
 };
 
-static void mesurement_units_changed(VariableItem* item) {
+static void measurement_units_changed(VariableItem* item) {
     // SystemSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
-    variable_item_set_current_value_text(item, mesurement_units_text[index]);
-    locale_set_measurement_unit(mesurement_units_value[index]);
+    variable_item_set_current_value_text(item, measurement_units_text[index]);
+    locale_set_measurement_unit(measurement_units_value[index]);
 }
 
 const char* const time_format_text[] = {
@@ -148,13 +148,13 @@ SystemSettings* system_settings_alloc() {
     item = variable_item_list_add(
         app->var_item_list,
         "Units",
-        COUNT_OF(mesurement_units_text),
-        mesurement_units_changed,
+        COUNT_OF(measurement_units_text),
+        measurement_units_changed,
         app);
     value_index = value_index_uint32(
-        locale_get_measurement_unit(), mesurement_units_value, COUNT_OF(mesurement_units_value));
+        locale_get_measurement_unit(), measurement_units_value, COUNT_OF(measurement_units_value));
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, mesurement_units_text[value_index]);
+    variable_item_set_current_value_text(item, measurement_units_text[value_index]);
 
     item = variable_item_list_add(
         app->var_item_list, "Time Format", COUNT_OF(time_format_text), time_format_changed, app);

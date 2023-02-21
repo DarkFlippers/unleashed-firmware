@@ -16,7 +16,7 @@ struct SubGhzFileEncoderWorker {
     FlipperFormat* flipper_format;
 
     volatile bool worker_running;
-    volatile bool worker_stoping;
+    volatile bool worker_stopping;
     bool level;
     bool is_storage_slow;
     FuriString* str_data;
@@ -105,7 +105,7 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
         } else if(duration == 0) { //-V547
             level_duration = level_duration_reset();
             FURI_LOG_I(TAG, "Stop transmission");
-            instance->worker_stoping = true;
+            instance->worker_stopping = true;
         }
         return level_duration;
     } else {
@@ -142,7 +142,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         //skip the end of the previous line "\n"
         stream_seek(stream, 1, StreamOffsetFromCurrent);
         res = true;
-        instance->worker_stoping = false;
+        instance->worker_stopping = false;
         FURI_LOG_I(TAG, "Start transmission");
     } while(0);
 
@@ -174,7 +174,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     }
     FURI_LOG_I(TAG, "End transmission");
     while(instance->worker_running) {
-        if(instance->worker_stoping) {
+        if(instance->worker_stopping) {
             if(instance->callback_end) instance->callback_end(instance->context_end);
         }
         furi_delay_ms(50);
@@ -198,7 +198,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     instance->str_data = furi_string_alloc();
     instance->file_path = furi_string_alloc();
     instance->level = false;
-    instance->worker_stoping = true;
+    instance->worker_stopping = true;
 
     return instance;
 }

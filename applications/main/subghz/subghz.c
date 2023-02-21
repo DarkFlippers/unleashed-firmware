@@ -275,7 +275,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();
     }
 
-    subghz->txrx->raw_threshold_rssi = SUBGHZ_RAW_TRESHOLD_MIN;
+    subghz->txrx->raw_threshold_rssi = SUBGHZ_RAW_THRESHOLD_MIN;
     subghz->txrx->worker = subghz_worker_alloc();
 
     subghz->txrx->fff_data = flipper_format_string_alloc();

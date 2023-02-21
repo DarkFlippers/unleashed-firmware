@@ -137,7 +137,7 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
 }
 
 void cli_command_src(Cli* cli, FuriString* args, void* context) {
-    // Quality of life feaature for people exploring CLI on lab.flipper.net/cli
+    // Quality of life feature for people exploring CLI on lab.flipper.net/cli
     // By Yousef AK
     UNUSED(cli);
     UNUSED(args);

@@ -327,9 +327,10 @@ static void
                 uint16_t oldNumLines = tetris_state->numLines;
                 tetris_state->numLines += numLines;
                 if((oldNumLines / 10) % 10 != (tetris_state->numLines / 10) % 10) {
-                    nextFallSpeed = tetris_state->fallSpeed - (100 / (tetris_state->numLines / 10));
-                    if (nextFallSpeed >= MIN_FALL_SPEED){
-                            tetris_state->fallSpeed = nextFallSpeed;
+                    nextFallSpeed =
+                        tetris_state->fallSpeed - (100 / (tetris_state->numLines / 10));
+                    if(nextFallSpeed >= MIN_FALL_SPEED) {
+                        tetris_state->fallSpeed = nextFallSpeed;
                     }
                 }
             }

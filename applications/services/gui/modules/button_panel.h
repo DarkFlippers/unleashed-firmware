@@ -61,7 +61,7 @@ void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t re
  * @param      matrix_place_x      coordinates by x-axis on virtual grid, it
  *                                 is only used for navigation
  * @param      matrix_place_y      coordinates by y-axis on virtual grid, it
- *                                 is only used for naviagation
+ *                                 is only used for navigation
  * @param      x                   x-coordinate to draw icon on
  * @param      y                   y-coordinate to draw icon on
  * @param      icon_name           name of the icon to draw
