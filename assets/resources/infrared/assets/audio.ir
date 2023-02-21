@@ -1913,7 +1913,7 @@ protocol: SIRC
 address: 0F 00 00 00
 command: 15 00 00 00
 # 
-name: Power
+name: POWER
 type: parsed
 protocol: Samsung32
 address: 10 00 00 00
