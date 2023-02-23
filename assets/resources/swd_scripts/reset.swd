@@ -1,0 +1,8 @@
+errors ignore
+status 0
+message 0 "HAMMER TIME! Try to halt the CPU"
+.label l1
+ap_select 0
+mem_write 0xE000EDF0 0xA05F0001
+mem_write 0xE000ED0C 0x05FA0004
+goto l1
