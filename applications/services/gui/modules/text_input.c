@@ -138,7 +138,7 @@ static bool char_is_lowercase(char letter) {
 static char char_to_uppercase(const char letter) {
     if(letter == '_') {
         return 0x20;
-    } else if(islower(letter)) {
+    } else if(char_is_lowercase(letter)) {
         return (letter - 0x20);
     } else {
         return letter;
@@ -237,8 +237,7 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
                     canvas_set_color(canvas, ColorBlack);
                 }
 
-                if(model->clear_default_text ||
-                   (text_length == 0 && char_is_lowercase(keys[column].text))) {
+                if(model->clear_default_text || text_length == 0) {
                     canvas_draw_glyph(
                         canvas,
                         keyboard_origin_x + keys[column].x,
@@ -309,12 +308,6 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, b
     char selected = get_selected_char(model);
     size_t text_length = strlen(model->text_buffer);
 
-    bool toggle_case = text_length == 0;
-    if(shift) toggle_case = !toggle_case;
-    if(toggle_case) {
-        selected = char_to_uppercase(selected);
-    }
-
     if(selected == ENTER_KEY) {
         if(model->validator_callback &&
            (!model->validator_callback(
@@ -331,6 +324,9 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, b
             text_length = 0;
         }
         if(text_length < (model->text_buffer_size - 1)) {
+            if(shift != (text_length == 0)) {
+                selected = char_to_uppercase(selected);
+            }
             model->text_buffer[text_length] = selected;
             model->text_buffer[text_length + 1] = 0;
         }
