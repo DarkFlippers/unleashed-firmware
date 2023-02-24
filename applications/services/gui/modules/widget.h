@@ -91,7 +91,7 @@ void widget_add_string_element(
  * @param[in]  text             Formatted text. The following formats are available:
  *                               "\e#Bold text\e#" - bold font is used
  *                               "\e*Monospaced text\e*" - monospaced font is used
- *                               "\e!Inversed text\e!" - white text on black background
+ *                               "\e!Inverted text\e!" - white text on black background
  * @param      strip_to_dots    Strip text to ... if does not fit to width
  */
 void widget_add_text_box_element(

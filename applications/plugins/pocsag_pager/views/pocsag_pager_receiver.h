@@ -8,6 +8,8 @@ typedef struct PCSGReceiver PCSGReceiver;
 
 typedef void (*PCSGReceiverCallback)(PCSGCustomEvent event, void* context);
 
+void pcsg_receiver_rssi(PCSGReceiver* instance, float rssi);
+
 void pcsg_view_receiver_set_lock(PCSGReceiver* pcsg_receiver, PCSGLock keyboard);
 
 void pcsg_view_receiver_set_callback(

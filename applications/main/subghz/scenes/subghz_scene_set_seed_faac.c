@@ -65,7 +65,7 @@ bool subghz_scene_set_seed_faac_on_event(void* context, SceneManagerEvent event)
                     seed,
                     "FAAC_SLH",
                     subghz->txrx->preset);
-                // rogueemaster dont steal!
+                // RogueMaster dont steal!
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
                 for(size_t i = 0; i < sizeof(uint32_t); i++) {
                     seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;

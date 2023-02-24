@@ -31,7 +31,7 @@ typedef enum {
 
 /**
  * Init UART
- * Configures GPIO to UART function, сonfigures UART hardware, enables UART hardware
+ * Configures GPIO to UART function, configures UART hardware, enables UART hardware
  * @param channel UART channel
  * @param baud baudrate
  */

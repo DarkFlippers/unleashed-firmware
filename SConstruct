@@ -139,7 +139,7 @@ if GetOption("fullenv") or any(
 basic_dist = distenv.DistCommand("fw_dist", distenv["DIST_DEPENDS"])
 distenv.Default(basic_dist)
 
-dist_dir = distenv.GetProjetDirName()
+dist_dir = distenv.GetProjectDirName()
 fap_dist = [
     distenv.Install(
         distenv.Dir(f"#/dist/{dist_dir}/apps/debug_elf"),

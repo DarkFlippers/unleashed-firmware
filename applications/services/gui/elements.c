@@ -635,8 +635,8 @@ void elements_text_box(
     ElementTextBoxLine line[ELEMENTS_MAX_LINES_NUM];
     bool bold = false;
     bool mono = false;
-    bool inversed = false;
-    bool inversed_present = false;
+    bool inverse = false;
+    bool inverse_present = false;
     Font current_font = FontSecondary;
     Font prev_font = FontSecondary;
     const CanvasFontParameters* font_params = canvas_get_font_params(canvas, current_font);
@@ -692,8 +692,8 @@ void elements_text_box(
                 canvas_set_font(canvas, FontKeyboard);
                 mono = !mono;
             }
-            if(text[i] == ELEMENTS_INVERSED_MARKER) {
-                inversed_present = true;
+            if(text[i] == ELEMENTS_INVERSE_MARKER) {
+                inverse_present = true;
             }
             continue;
         }
@@ -709,10 +709,10 @@ void elements_text_box(
             if(text[i] == '\0') {
                 full_text_processed = true;
             }
-            if(inversed_present) {
+            if(inverse_present) {
                 line_leading_min += 1;
                 line_leading_default += 1;
-                inversed_present = false;
+                inverse_present = false;
             }
             line[line_num].leading_min = line_leading_min;
             line[line_num].leading_default = line_leading_default;
@@ -775,7 +775,7 @@ void elements_text_box(
     canvas_set_font(canvas, FontSecondary);
     bold = false;
     mono = false;
-    inversed = false;
+    inverse = false;
     for(uint8_t i = 0; i < line_num; i++) {
         for(uint8_t j = 0; j < line[i].len; j++) {
             // Process format symbols
@@ -799,11 +799,11 @@ void elements_text_box(
                 mono = !mono;
                 continue;
             }
-            if(line[i].text[j] == ELEMENTS_INVERSED_MARKER) {
-                inversed = !inversed;
+            if(line[i].text[j] == ELEMENTS_INVERSE_MARKER) {
+                inverse = !inverse;
                 continue;
             }
-            if(inversed) {
+            if(inverse) {
                 canvas_draw_box(
                     canvas,
                     line[i].x - 1,

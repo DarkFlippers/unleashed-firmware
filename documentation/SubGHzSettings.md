@@ -1,6 +1,6 @@
 ## How to add new SubGHz frequencies
 
-#### CC1101 Frequency range specs: 300-348 MHz, 386-464 MHz, and 778-928 MHz  (+ 350MHz was added to default range)
+#### CC1101 Frequency range specs: 300-348 MHz, 386-464 MHz, and 778-928 MHz  (+ 350MHz and 467MHz was added to default range)
 
 Edit user settings file located on your microSD card - `subghz/assets/setting_user`
 
@@ -54,6 +54,7 @@ if you need your custom one, make sure it doesn't listed here
     438900000,
     440175000,
     464000000,
+    467750000,
 
     /* 779 - 928 */
     779000000,
@@ -69,7 +70,7 @@ if you need your custom one, make sure it doesn't listed here
 
 ### User frequencies added AFTER that default list! You need to continue until you reach the end of that list
 
-### If you want to disable default list and use ONLY user added frequecies from user settings file
+### If you want to disable default list and use ONLY user added frequencies from user settings file
 Change that line
 `#Add_standard_frequencies: true`
 to
@@ -80,7 +81,7 @@ Just add new line
 `Frequency: 928000000` - where `928000000` is your frequency, keep it in that format! it should be 9 digits!
 
 ### Hopper frequency list
-To add new frequecy to hopper:
+To add new frequency to hopper:
 add new line `Hopper_frequency: 345000000`<br>
 But remember! You should keep it as small as possible, or hopper functionality would be useless!<br>
 If `#Add_standard_frequencies: true` is not changed<br>

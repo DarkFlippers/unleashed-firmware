@@ -32,7 +32,7 @@ static void nfc_cli_detect(Cli* cli, FuriString* args) {
     while(!cmd_exit) {
         cmd_exit |= cli_cmd_interrupt_received(cli);
         if(furi_hal_nfc_detect(&dev_data, 400)) {
-            printf("found: %s ", nfc_get_dev_type(dev_data.type));
+            printf("Found: %s ", nfc_get_dev_type(dev_data.type));
             printf("UID length: %d, UID:", dev_data.uid_len);
             for(size_t i = 0; i < dev_data.uid_len; i++) {
                 printf("%02X", dev_data.uid[i]);

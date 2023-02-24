@@ -10,7 +10,7 @@ SceneManager* scene_manager_alloc(const SceneManagerHandlers* app_scene_handlers
     scene_manager->scene_handlers = app_scene_handlers;
     // Allocate all scenes
     scene_manager->scene = malloc(sizeof(AppScene) * app_scene_handlers->scene_num);
-    // Initialize ScaneManager array for navigation
+    // Initialize SceneManager array for navigation
     SceneManagerIdStack_init(scene_manager->scene_id_stack);
 
     return scene_manager;
@@ -19,7 +19,7 @@ SceneManager* scene_manager_alloc(const SceneManagerHandlers* app_scene_handlers
 void scene_manager_free(SceneManager* scene_manager) {
     furi_assert(scene_manager);
 
-    // Clear ScaneManager array
+    // Clear SceneManager array
     SceneManagerIdStack_clear(scene_manager->scene_id_stack);
     // Clear allocated scenes
     free(scene_manager->scene);

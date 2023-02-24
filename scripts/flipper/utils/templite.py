@@ -173,12 +173,14 @@ class Templite:
         """Renders the template according to the given namespace."""
         stack = []
         namespace["__file__"] = self.file
+
         # add write method
         def write(*args):
             for value in args:
                 stack.append(str(value))
 
         namespace["write"] = write
+
         # add include method
         def include(file):
             if not os.path.isabs(file):

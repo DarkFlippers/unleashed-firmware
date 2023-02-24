@@ -1,14 +1,14 @@
-#App(
-#    appid="hid_usb",
-#    name="USB Remote",
-#    apptype=FlipperAppType.PLUGIN,
-#    entry_point="hid_usb_app",
-#    stack_size=1 * 1024,
-#    fap_category="Tools",
-#    fap_icon="hid_usb_10px.png",
-#    fap_icon_assets="assets",
-#    fap_icon_assets_symbol="hid",
-#)
+App(
+    appid="hid_usb",
+    name="USB Keyboard & Mouse",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="hid_usb_app",
+    stack_size=1 * 1024,
+    fap_category="Misc",
+    fap_icon="hid_usb_10px.png",
+    fap_icon_assets="assets",
+    fap_icon_assets_symbol="hid",
+)
 
 
 App(
@@ -17,7 +17,7 @@ App(
     apptype=FlipperAppType.PLUGIN,
     entry_point="hid_ble_app",
     stack_size=1 * 1024,
-    fap_category="Tools",
+    fap_category="Misc",
     fap_icon="hid_ble_10px.png",
     fap_icon_assets="assets",
     fap_icon_assets_symbol="hid",

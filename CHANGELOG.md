@@ -1,12 +1,19 @@
 ### New changes
-* SubGHz: **Nice ON2E (Nice One)** support (by @assasinfil | PR #335)
-* SubGHz: Remove 467.75 From freq analyzer since it has too much noise (Frequency is still can be used, just excluded from FA to avoid false detections)
-* Archive and FileBrowser: **Fixed more navigation issues** (by @Willy-JL | PR #334)
-* Plugins -> SubGHz Bruteforcer: Fix Linear Delta 3 repeats (now its more stable and we will be sure signal is received correctly)
-* Plugins: Updated TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* OFW: **Fix Cyfral & Metakom emulation (My temp fix removed and proper fix from OFW applied)**
-* OFW: BadUSB: disable CDC mode, USB mode switch fix
-* OFW: Updater visual fixes
+* Desktop: Autolock with PIN Code (by @Willy-JL | PR #338) - **Desktop settings (pin code, favourite app, autolock time) will be resetted!!! Only one time after installing - due to changes in settings structure, after installing of this release desktop settings will not be reset with next release**
+* Desktop: Faster back button hold time for power off, was 2 seconds, now 1.3sec
+* GUI: Fix keyboard capitalization bug (by @Willy-JL | PR #362) (fixes #361)
+* Plugins: Added **SWD Probe** [(by g3gg0)](https://github.com/g3gg0/flipper-swd_probe) (moved from extra pack into main FW)
+* Plugins: Show RSSI in Weather Station app and in POCSAG Pager app
+* Plugins: Improve Tetris fall speed algorithm (by @p3ngu19z | PR #343)
+* Plugins: Add missing buttons into HID app, remove old keyboard app, move Bluetooth remote to Misc
+* Infrared: Assets update (by @amec0e | PR #340 / #357 / #358)
+* Misc: Typo combing (by @Round-Pi | PR #352)
+* OFW: Dolphin: drop holiday animation
+* OFW: fbt: FBT_QUIET option; docs on environment
+* OFW: Delete rwfiletest.bin on exit SDcard benchmark
+* OFW: Re-init NFC when starting the worker 
+* OFW: Up toolchain version to 21
+* OFW: Display Mifare Classic data in NFC app
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

@@ -66,7 +66,7 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
              4.2)) { // not looking nice with low voltage indicator
             canvas_set_font(canvas, FontBatteryPercent);
 
-            // align charge dispaly value with digits to draw
+            // align charge display value with digits to draw
             uint8_t bar_charge = power->info.charge;
             if(bar_charge > 23 && bar_charge < 38) {
                 bar_charge = 23;
@@ -158,7 +158,7 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
                 canvas_set_color(canvas, ColorWhite);
                 canvas_draw_box(canvas, 1, 1, 22, 6);
 
-                // align charge dispaly value with digits to draw
+                // align charge display value with digits to draw
                 uint8_t bar_charge = power->info.charge;
 
                 if(bar_charge > 48 && bar_charge < 63) {

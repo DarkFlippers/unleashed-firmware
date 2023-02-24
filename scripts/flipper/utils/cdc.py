@@ -1,5 +1,6 @@
 import serial.tools.list_ports as list_ports
 
+
 # Returns a valid port or None, if it cannot be found
 def resolve_port(logger, portname: str = "auto"):
     if portname != "auto":

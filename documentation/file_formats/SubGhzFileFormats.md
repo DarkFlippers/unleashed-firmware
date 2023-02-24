@@ -141,7 +141,7 @@ Long payload not fitting into internal memory buffer and consisting of short dur
     Frequency: 433920000
     Preset: FuriHalSubGhzPresetCustom
     Custom_preset_module: CC1101
-    Сustom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
+    Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
     Protocol: RAW
     RAW_Data: 29262 361 -68 2635 -66 24113 -66 11 ...
     RAW_Data: -424 205 -412 159 -412 381 -240 181 ...

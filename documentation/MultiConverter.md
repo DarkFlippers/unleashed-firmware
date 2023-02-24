@@ -14,7 +14,7 @@ I wrote it with the idea of _expanding the unit list_ on mind, so adding new one
 ## Current conversions
 
 - `Decimal / Hexadecimal / Binary`
-- `Celsius / Fahernheit / Kelvin`
+- `Celsius / Fahrenheit / Kelvin`
 - `Kilometers / Meters / Centimeters / Miles / Feet / Inches`
 - `Degree / Radian`
 

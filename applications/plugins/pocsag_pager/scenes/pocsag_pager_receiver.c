@@ -195,6 +195,10 @@ bool pocsag_pager_scene_receiver_on_event(void* context, SceneManagerEvent event
             pcsg_hopper_update(app);
             pocsag_pager_scene_receiver_update_statusbar(app);
         }
+        // Get current RSSI
+        float rssi = furi_hal_subghz_get_rssi();
+        pcsg_receiver_rssi(app->pcsg_receiver, rssi);
+
         if(app->txrx->txrx_state == PCSGTxRxStateRx) {
             notification_message(app->notifications, &sequence_blink_cyan_10);
         }

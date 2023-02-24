@@ -5,15 +5,16 @@
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
 SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"19"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"21"}";
 FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
+FBT_VERBOSE="${FBT_VERBOSE:-""}";
 
 fbtenv_show_usage()
 {
     echo "Running this script manually is wrong, please source it";
     echo "Example:";
     printf "\tsource scripts/toolchain/fbtenv.sh\n";
-    echo "To restore your environment source fbtenv.sh with '--restore'."
+    echo "To restore your environment, source fbtenv.sh with '--restore'."
     echo "Example:";
     printf "\tsource scripts/toolchain/fbtenv.sh --restore\n";
 }
@@ -35,16 +36,26 @@ fbtenv_restore_env()
     PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
     PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
     PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
+    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
     if [ -n "${PS1:-""}" ]; then
         PS1="$(echo "$PS1" | sed 's/\[fbt\]//g')";
     elif [ -n "${PROMPT:-""}" ]; then
         PROMPT="$(echo "$PROMPT" | sed 's/\[fbt\]//g')";
     fi
 
-    PYTHONNOUSERSITE="$SAVED_PYTHONNOUSERSITE";
-    PYTHONPATH="$SAVED_PYTHONPATH";
-    PYTHONHOME="$SAVED_PYTHONHOME";
+    if [ -n "$SAVED_SSL_CERT_FILE" ]; then
+        export SSL_CERT_FILE="$SAVED_SSL_CERT_FILE";
+        export REQUESTS_CA_BUNDLE="$SAVED_REQUESTS_CA_BUNDLE";
+    else
+        unset SSL_CERT_FILE;
+        unset REQUESTS_CA_BUNDLE;
+    fi
+    export PYTHONNOUSERSITE="$SAVED_PYTHONNOUSERSITE";
+    export PYTHONPATH="$SAVED_PYTHONPATH";
+    export PYTHONHOME="$SAVED_PYTHONHOME";
 
+    unset SAVED_SSL_CERT_FILE;
+    unset SAVED_REQUESTS_CA_BUNDLE;
     unset SAVED_PYTHONNOUSERSITE;
     unset SAVED_PYTHONPATH;
     unset SAVED_PYTHONHOME;
@@ -131,7 +142,7 @@ fbtenv_get_kernel_type()
             TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
         fi
     elif echo "$SYS_TYPE" | grep -q "MINGW"; then
-        echo "In MinGW shell use \"[u]fbt.cmd\" instead of \"[u]fbt\"";
+        echo "In MinGW shell, use \"[u]fbt.cmd\" instead of \"[u]fbt\"";
         return 1;
     else
         echo "Your system configuration is not supported. Sorry.. Please report us your configuration.";
@@ -258,6 +269,7 @@ fbtenv_check_download_toolchain()
     elif [ ! -f "$TOOLCHAIN_ARCH_DIR/VERSION" ]; then
         fbtenv_download_toolchain || return 1;
     elif [ "$(cat "$TOOLCHAIN_ARCH_DIR/VERSION")" -ne "$FBT_TOOLCHAIN_VERSION" ]; then
+        echo "FBT: starting toolchain upgrade process.."
         fbtenv_download_toolchain || return 1;
     fi
     return 0;
@@ -279,6 +291,13 @@ fbtenv_download_toolchain()
     return 0;
 }
 
+fbtenv_print_version()
+{
+    if [ -n "$FBT_VERBOSE" ]; then
+        echo "FBT: using toolchain version $(cat "$TOOLCHAIN_ARCH_DIR/VERSION")";
+    fi
+}
+
 fbtenv_main()
 {
     fbtenv_check_sourced || return 1;
@@ -291,18 +310,25 @@ fbtenv_main()
     fbtenv_check_script_path || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
+    fbtenv_print_version;
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/openocd/bin:$PATH";
+    PATH="$TOOLCHAIN_ARCH_DIR/openssl/bin:$PATH";
+    export PATH;
 
-    SAVED_PYTHONNOUSERSITE="${PYTHONNOUSERSITE:-""}";
-    SAVED_PYTHONPATH="${PYTHONPATH:-""}";
-    SAVED_PYTHONHOME="${PYTHONHOME:-""}";
+    export SAVED_SSL_CERT_FILE="${SSL_CERT_FILE:-""}";
+    export SAVED_REQUESTS_CA_BUNDLE="${REQUESTS_CA_BUNDLE:-""}";
+    export SAVED_PYTHONNOUSERSITE="${PYTHONNOUSERSITE:-""}";
+    export SAVED_PYTHONPATH="${PYTHONPATH:-""}";
+    export SAVED_PYTHONHOME="${PYTHONHOME:-""}";
 
-    PYTHONNOUSERSITE=1;
-    PYTHONPATH=;
-    PYTHONHOME=;
+    export SSL_CERT_FILE="$TOOLCHAIN_ARCH_DIR/python/lib/python3.11/site-packages/certifi/cacert.pem";
+    export REQUESTS_CA_BUNDLE="$SSL_CERT_FILE";
+    export PYTHONNOUSERSITE=1;
+    export PYTHONPATH=;
+    export PYTHONHOME=;
 }
 
 fbtenv_main "${1:-""}";

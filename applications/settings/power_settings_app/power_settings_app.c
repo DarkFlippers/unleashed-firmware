@@ -39,11 +39,11 @@ PowerSettingsApp* power_settings_app_alloc(uint32_t first_scene) {
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
     // Views
-    app->batery_info = battery_info_alloc();
+    app->battery_info = battery_info_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher,
         PowerSettingsAppViewBatteryInfo,
-        battery_info_get_view(app->batery_info));
+        battery_info_get_view(app->battery_info));
     app->submenu = submenu_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, PowerSettingsAppViewSubmenu, submenu_get_view(app->submenu));
@@ -60,7 +60,7 @@ void power_settings_app_free(PowerSettingsApp* app) {
     furi_assert(app);
     // Views
     view_dispatcher_remove_view(app->view_dispatcher, PowerSettingsAppViewBatteryInfo);
-    battery_info_free(app->batery_info);
+    battery_info_free(app->battery_info);
     view_dispatcher_remove_view(app->view_dispatcher, PowerSettingsAppViewSubmenu);
     submenu_free(app->submenu);
     view_dispatcher_remove_view(app->view_dispatcher, PowerSettingsAppViewDialog);

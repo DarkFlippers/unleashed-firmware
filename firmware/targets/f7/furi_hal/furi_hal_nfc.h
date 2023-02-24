@@ -101,6 +101,10 @@ typedef struct {
  */
 void furi_hal_nfc_init();
 
+/** Deinit nfc
+ */
+void furi_hal_nfc_deinit();
+
 /** Check if nfc worker is busy
  *
  * @return     true if busy

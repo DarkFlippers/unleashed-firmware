@@ -9,7 +9,7 @@
  * @param aid - AID number array
  * @param aid_len - AID length
  * @param aid_name - string to keep AID name
- * @return - true if AID found, false otherwies
+ * @return - true if AID found, false otherwise
  */
 bool nfc_emv_parser_get_aid_name(
     Storage* storage,
@@ -21,7 +21,7 @@ bool nfc_emv_parser_get_aid_name(
  * @param storage Storage instance
  * @param country_code - ISO 3166 country code
  * @param country_name - string to keep country name
- * @return - true if country found, false otherwies
+ * @return - true if country found, false otherwise
  */
 bool nfc_emv_parser_get_country_name(
     Storage* storage,
@@ -32,7 +32,7 @@ bool nfc_emv_parser_get_country_name(
  * @param storage Storage instance
  * @param currency_code - ISO 3166 currency code
  * @param currency_name - string to keep currency name
- * @return - true if currency found, false otherwies
+ * @return - true if currency found, false otherwise
  */
 bool nfc_emv_parser_get_currency_name(
     Storage* storage,

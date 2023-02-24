@@ -26,7 +26,7 @@ Other:
     cli:
         Open a Flipper CLI session over USB
     firmware_cdb, updater_cdb:
-        Generate сompilation_database.json
+        Generate compilation_database.json
     lint, lint_py:
         run linters
     format, format_py:

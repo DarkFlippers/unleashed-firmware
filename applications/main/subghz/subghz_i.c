@@ -575,7 +575,7 @@ void subghz_hopper_update(SubGhz* subghz) {
             return;
         }
     } else {
-        subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
+        subghz->txrx->hopper_state = SubGhzHopperStateRunning;
     }
     // Select next frequency
     if(subghz->txrx->hopper_idx_frequency <

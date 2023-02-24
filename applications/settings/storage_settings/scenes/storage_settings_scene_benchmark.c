@@ -103,6 +103,9 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
             break;
 
         furi_string_cat_printf(app->text_string, "R %luK", bench_r_speed[i]);
+
+        storage_common_remove(app->fs_api, BENCH_FILE);
+
         dialog_ex_set_text(
             dialog_ex, furi_string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
     }
