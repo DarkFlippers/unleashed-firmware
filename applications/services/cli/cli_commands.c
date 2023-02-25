@@ -31,7 +31,7 @@ void cli_command_device_info(Cli* cli, FuriString* args, void* context) {
 void cli_command_help(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     UNUSED(context);
-    printf("Commands we have:");
+    printf("Commands available:");
 
     // Command count
     const size_t commands_count = CliCommandTree_size(cli->commands);
@@ -61,9 +61,9 @@ void cli_command_help(Cli* cli, FuriString* args, void* context) {
 
     if(furi_string_size(args) > 0) {
         cli_nl();
-        printf("Also I have no clue what '");
+        printf("`");
         printf("%s", furi_string_get_cstr(args));
-        printf("' is.");
+        printf("` command not found");
     }
 }
 
