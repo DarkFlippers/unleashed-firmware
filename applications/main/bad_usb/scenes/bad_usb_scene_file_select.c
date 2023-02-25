@@ -22,7 +22,6 @@ static bool bad_usb_file_select(BadUsbApp* bad_usb) {
 void bad_usb_scene_file_select_on_enter(void* context) {
     BadUsbApp* bad_usb = context;
 
-    furi_hal_usb_disable();
     if(bad_usb->bad_usb_script) {
         bad_usb_script_close(bad_usb->bad_usb_script);
         bad_usb->bad_usb_script = NULL;
@@ -34,7 +33,6 @@ void bad_usb_scene_file_select_on_enter(void* context) {
 
         scene_manager_next_scene(bad_usb->scene_manager, BadUsbSceneWork);
     } else {
-        furi_hal_usb_enable();
         view_dispatcher_stop(bad_usb->view_dispatcher);
     }
 }
