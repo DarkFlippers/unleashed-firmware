@@ -193,6 +193,11 @@ static bool subghz_protocol_keeloq_gen_data(
         decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
     }
 
+    // Beninca -> 4bit serial - simple XOR
+    if(strcmp(instance->manufacture_name, "Beninca") == 0) {
+        decrypt = btn << 28 | (instance->generic.serial & 0xF) << 16 | instance->generic.cnt;
+    }
+
     if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         code_found_reverse = subghz_protocol_blocks_reverse_key(
             instance->generic.data, instance->generic.data_count_bit);
