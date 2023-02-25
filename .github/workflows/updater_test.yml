@@ -10,7 +10,7 @@ env:
 
 jobs:
   test_updater_on_bench:
-    runs-on: [self-hosted, FlipperZeroTestMac1]
+    runs-on: [self-hosted, FlipperZeroUpdaterTest]
     steps:
       - name: 'Decontaminate previous build leftovers'
         run: |
@@ -27,7 +27,7 @@ jobs:
       - name: 'Get flipper from device manager (mock)'
         id: device
         run: |
-          echo "flipper=/dev/tty.usbmodemflip_Rekigyn1" >> $GITHUB_OUTPUT
+          echo "flipper=Rekigyn" >> $GITHUB_OUTPUT
           echo "stlink=0F020D026415303030303032" >> $GITHUB_OUTPUT
 
       - name: 'Flashing target firmware'
