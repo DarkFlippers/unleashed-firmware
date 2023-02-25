@@ -104,7 +104,7 @@ static bool
     instance->generic.serial = data & 0xFFFFFF; // address
 
     if(instance->generic.cnt < 0xFFFF) {
-        instance->generic.cnt++;
+        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
     } else if(instance->generic.cnt >= 0xFFFF) {
         instance->generic.cnt = 0;
     }

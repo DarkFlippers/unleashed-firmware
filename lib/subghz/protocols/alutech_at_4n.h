@@ -10,6 +10,14 @@ extern const SubGhzProtocolDecoder subghz_protocol_alutech_at_4n_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_alutech_at_4n_encoder;
 extern const SubGhzProtocol subghz_protocol_alutech_at_4n;
 
+// Custom buttons
+void alutech_set_btn(uint8_t b);
+
+uint8_t alutech_get_original_btn();
+uint8_t alutech_get_custom_btn();
+
+void alutech_reset_original_btn();
+
 /**
  * Allocate SubGhzProtocolEncoderAlutech_at_4n.
  * @param environment Pointer to a SubGhzEnvironment instance

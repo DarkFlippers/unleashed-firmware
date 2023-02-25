@@ -19,6 +19,7 @@
 #include <lib/subghz/types.h>
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/protocols/star_line.h>
+#include <lib/subghz/protocols/alutech_at_4n.h>
 
 #define UNIRFMAP_FOLDER "/ext/unirf"
 #define UNIRFMAP_EXTENSION ".txt"
@@ -481,6 +482,8 @@ void unirfremix_tx_stop(UniRFRemix* app) {
 
         keeloq_reset_mfname();
         keeloq_reset_kl_type();
+        keeloq_reset_original_btn();
+        alutech_reset_original_btn();
         star_line_reset_mfname();
         star_line_reset_kl_type();
     }

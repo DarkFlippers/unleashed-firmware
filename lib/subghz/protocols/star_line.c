@@ -139,7 +139,7 @@ void subghz_protocol_encoder_star_line_free(void* context) {
 static bool
     subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
     if(instance->generic.cnt < 0xFFFF) {
-        instance->generic.cnt++;
+        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
     } else if(instance->generic.cnt >= 0xFFFF) {
         instance->generic.cnt = 0;
     }

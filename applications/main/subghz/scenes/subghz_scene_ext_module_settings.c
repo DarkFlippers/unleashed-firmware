@@ -3,6 +3,7 @@
 
 uint8_t value_index;
 uint8_t value_index2;
+uint8_t value_index3;
 
 #define EXT_MODULES_COUNT (sizeof(radio_modules_variables_text) / sizeof(char* const))
 const char* const radio_modules_variables_text[] = {
@@ -14,6 +15,13 @@ const char* const radio_modules_variables_text[] = {
 const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "OFF",
     "17(1W)",
+};
+
+#define DEBUG_COUNTER_COUNT 3
+const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
+    "+1",
+    "+5",
+    "+10",
 };
 
 static void subghz_scene_ext_module_changed(VariableItem* item) {
@@ -35,6 +43,26 @@ static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
     variable_item_set_current_value_text(item, debug_pin_text[index]);
 
     subghz->txrx->debug_pin_state = index == 1;
+}
+
+static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, debug_counter_text[index]);
+
+    switch(index) {
+    case 0:
+        furi_hal_subghz_set_rolling_counter_mult(1);
+        break;
+    case 1:
+        furi_hal_subghz_set_rolling_counter_mult(5);
+        break;
+    case 2:
+        furi_hal_subghz_set_rolling_counter_mult(10);
+        break;
+    default:
+        break;
+    }
 }
 
 void subghz_scene_ext_module_settings_on_enter(void* context) {
@@ -62,6 +90,28 @@ void subghz_scene_ext_module_settings_on_enter(void* context) {
         value_index2 = subghz->txrx->debug_pin_state;
         variable_item_set_current_value_index(item, value_index2);
         variable_item_set_current_value_text(item, debug_pin_text[value_index2]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Counter Mult:",
+            DEBUG_COUNTER_COUNT,
+            subghz_scene_receiver_config_set_debug_counter,
+            subghz);
+        switch(furi_hal_subghz_get_rolling_counter_mult()) {
+        case 1:
+            value_index3 = 0;
+            break;
+        case 5:
+            value_index3 = 1;
+            break;
+        case 10:
+            value_index3 = 2;
+            break;
+        default:
+            break;
+        }
+        variable_item_set_current_value_index(item, value_index3);
+        variable_item_set_current_value_text(item, debug_counter_text[value_index3]);
     }
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdVariableItemList);
