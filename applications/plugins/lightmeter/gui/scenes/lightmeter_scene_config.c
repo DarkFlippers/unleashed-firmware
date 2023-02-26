@@ -1,5 +1,7 @@
 #include "../../lightmeter.h"
 
+#define TAG "Scene Config"
+
 static const char* iso_numbers[] = {
     [ISO_6] = "6",
     [ISO_12] = "12",
@@ -39,10 +41,24 @@ static const char* diffusion_dome[] = {
     [WITH_DOME] = "Yes",
 };
 
+static const char* backlight[] = {
+    [BACKLIGHT_AUTO] = "Auto",
+    [BACKLIGHT_ON] = "On",
+};
+
+static const char* lux_only[] = {
+    [LUX_ONLY_OFF] = "Off",
+    [LUX_ONLY_ON] = "On",
+};
+
 enum LightMeterSubmenuIndex {
     LightMeterSubmenuIndexISO,
     LightMeterSubmenuIndexND,
     LightMeterSubmenuIndexDome,
+    LightMeterSubmenuIndexBacklight,
+    LightMeterSubmenuIndexLuxMeter,
+    LightMeterSubmenuIndexHelp,
+    LightMeterSubmenuIndexAbout,
 };
 
 static void iso_numbers_cb(VariableItem* item) {
@@ -78,14 +94,47 @@ static void dome_presence_cb(VariableItem* item) {
     lightmeter_app_set_config(app, config);
 }
 
+static void backlight_cb(VariableItem* item) {
+    LightMeterApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, backlight[index]);
+
+    LightMeterConfig* config = app->config;
+    if(index != config->backlight) {
+        if(index == BACKLIGHT_ON) {
+            notification_message(
+                app->notifications,
+                &sequence_display_backlight_enforce_on); // force on backlight
+        } else {
+            notification_message(
+                app->notifications,
+                &sequence_display_backlight_enforce_auto); // force auto backlight
+        }
+    }
+    config->backlight = index;
+    lightmeter_app_set_config(app, config);
+}
+
+static void lux_only_cb(VariableItem* item) {
+    LightMeterApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, lux_only[index]);
+
+    LightMeterConfig* config = app->config;
+    config->lux_only = index;
+    lightmeter_app_set_config(app, config);
+}
+
 static void ok_cb(void* context, uint32_t index) {
     LightMeterApp* app = context;
     UNUSED(app);
     switch(index) {
-    case 3:
+    case LightMeterSubmenuIndexHelp:
         view_dispatcher_send_custom_event(app->view_dispatcher, LightMeterAppCustomEventHelp);
         break;
-    case 4:
+    case LightMeterSubmenuIndexAbout:
         view_dispatcher_send_custom_event(app->view_dispatcher, LightMeterAppCustomEventAbout);
         break;
     default:
@@ -113,6 +162,16 @@ void lightmeter_scene_config_on_enter(void* context) {
         var_item_list, "Diffusion dome", COUNT_OF(diffusion_dome), dome_presence_cb, app);
     variable_item_set_current_value_index(item, config->dome);
     variable_item_set_current_value_text(item, diffusion_dome[config->dome]);
+
+    item =
+        variable_item_list_add(var_item_list, "Backlight", COUNT_OF(backlight), backlight_cb, app);
+    variable_item_set_current_value_index(item, config->backlight);
+    variable_item_set_current_value_text(item, backlight[config->backlight]);
+
+    item = variable_item_list_add(
+        var_item_list, "Lux meter only", COUNT_OF(lux_only), lux_only_cb, app);
+    variable_item_set_current_value_index(item, config->lux_only);
+    variable_item_set_current_value_text(item, lux_only[config->lux_only]);
 
     item = variable_item_list_add(var_item_list, "Help and Pinout", 0, NULL, NULL);
     item = variable_item_list_add(var_item_list, "About", 0, NULL, NULL);
@@ -153,4 +212,5 @@ void lightmeter_scene_config_on_exit(void* context) {
     main_view_set_iso(app->main_view, app->config->iso);
     main_view_set_nd(app->main_view, app->config->nd);
     main_view_set_dome(app->main_view, app->config->dome);
+    main_view_set_lux_only(app->main_view, app->config->lux_only);
 }

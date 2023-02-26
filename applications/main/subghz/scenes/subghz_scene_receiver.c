@@ -204,6 +204,16 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
             consumed = true;
             break;
+        case SubGhzCustomEventViewReceiverDeleteItem:
+            subghz->txrx->idx_menu_chosen =
+                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+
+            subghz_history_delete_item(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+            subghz_view_receiver_delete_element_callback(subghz->subghz_receiver);
+
+            subghz_scene_receiver_update_statusbar(subghz);
+            consumed = true;
+            break;
         case SubGhzCustomEventViewReceiverConfig:
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz->txrx->idx_menu_chosen =

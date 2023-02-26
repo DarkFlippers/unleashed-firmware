@@ -148,6 +148,12 @@ static Infrared* infrared_alloc() {
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewTextInput, text_input_get_view(infrared->text_input));
 
+    infrared->variable_item_list = variable_item_list_alloc();
+    view_dispatcher_add_view(
+        infrared->view_dispatcher,
+        InfraredViewVariableItemList,
+        variable_item_list_get_view(infrared->variable_item_list));
+
     infrared->dialog_ex = dialog_ex_alloc();
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewDialogEx, dialog_ex_get_view(infrared->dialog_ex));
@@ -194,6 +200,9 @@ static void infrared_free(Infrared* infrared) {
 
     view_dispatcher_remove_view(view_dispatcher, InfraredViewTextInput);
     text_input_free(infrared->text_input);
+
+    view_dispatcher_remove_view(infrared->view_dispatcher, InfraredViewVariableItemList);
+    variable_item_list_free(infrared->variable_item_list);
 
     view_dispatcher_remove_view(view_dispatcher, InfraredViewDialogEx);
     dialog_ex_free(infrared->dialog_ex);

@@ -15,6 +15,13 @@ void keeloq_reset_mfname();
 
 void keeloq_reset_kl_type();
 
+void keeloq_set_btn(uint8_t b);
+
+uint8_t keeloq_get_original_btn();
+uint8_t keeloq_get_custom_btn();
+
+void keeloq_reset_original_btn();
+
 /**
  * Allocate SubGhzProtocolEncoderKeeloq.
  * @param environment Pointer to a SubGhzEnvironment instance

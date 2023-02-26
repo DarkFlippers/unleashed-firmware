@@ -77,6 +77,25 @@ const SubGhzProtocol subghz_protocol_alutech_at_4n = {
     .encoder = &subghz_protocol_alutech_at_4n_encoder,
 };
 
+static uint8_t al_btn_temp_id;
+static uint8_t al_btn_temp_id_original;
+
+void alutech_set_btn(uint8_t b) {
+    al_btn_temp_id = b;
+}
+
+uint8_t alutech_get_original_btn() {
+    return al_btn_temp_id_original;
+}
+
+uint8_t alutech_get_custom_btn() {
+    return al_btn_temp_id;
+}
+
+void alutech_reset_original_btn() {
+    al_btn_temp_id_original = 0;
+}
+
 void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolEncoderAlutech_at_4n* instance =
@@ -255,8 +274,6 @@ static uint64_t subghz_protocol_alutech_at_4n_encrypt(uint64_t data, const char*
 static bool subghz_protocol_alutech_at_4n_gen_data(
     SubGhzProtocolEncoderAlutech_at_4n* instance,
     uint8_t btn) {
-    UNUSED(btn);
-
     uint64_t data = subghz_protocol_blocks_reverse_key(instance->generic.data, 64);
 
     data = subghz_protocol_alutech_at_4n_decrypt(
@@ -269,13 +286,17 @@ static bool subghz_protocol_alutech_at_4n_gen_data(
     }
 
     if(instance->generic.cnt < 0xFFFF) {
-        instance->generic.cnt++;
+        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
+            instance->generic.cnt = 0;
+        } else {
+            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+        }
     } else if(instance->generic.cnt >= 0xFFFF) {
         instance->generic.cnt = 0;
     }
     crc = subghz_protocol_alutech_at_4n_decrypt_data_crc((uint8_t)(instance->generic.cnt & 0xFF));
     data = (uint64_t)crc << 56 | (uint64_t)instance->generic.serial << 24 |
-           (uint32_t)instance->generic.cnt << 8 | instance->generic.btn;
+           (uint32_t)instance->generic.cnt << 8 | btn;
 
     data = subghz_protocol_alutech_at_4n_encrypt(
         data, instance->alutech_at_4n_rainbow_table_file_name);
@@ -306,7 +327,7 @@ bool subghz_protocol_alutech_at_4n_create_data(
 
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @param instance Pointer to a SubGhzProtocolEncoderAlutech instance
  * @return true On success
  */
 static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
@@ -314,6 +335,104 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     uint8_t btn) {
     furi_assert(instance);
 
+    // Save original button for later use
+    if(al_btn_temp_id_original == 0) {
+        al_btn_temp_id_original = btn;
+    }
+
+    // Set custom button
+    if(al_btn_temp_id == 1) {
+        switch(al_btn_temp_id_original) {
+        case 0x11:
+            btn = 0x22;
+            break;
+        case 0x22:
+            btn = 0x11;
+            break;
+        case 0xFF:
+            btn = 0x11;
+            break;
+        case 0x44:
+            btn = 0x11;
+            break;
+        case 0x33:
+            btn = 0x11;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(al_btn_temp_id == 2) {
+        switch(al_btn_temp_id_original) {
+        case 0x11:
+            btn = 0x44;
+            break;
+        case 0x22:
+            btn = 0x44;
+            break;
+        case 0xFF:
+            btn = 0x44;
+            break;
+        case 0x44:
+            btn = 0xFF;
+            break;
+        case 0x33:
+            btn = 0x44;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(al_btn_temp_id == 3) {
+        switch(al_btn_temp_id_original) {
+        case 0x11:
+            btn = 0x33;
+            break;
+        case 0x22:
+            btn = 0x33;
+            break;
+        case 0xFF:
+            btn = 0x33;
+            break;
+        case 0x44:
+            btn = 0x33;
+            break;
+        case 0x33:
+            btn = 0x22;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(al_btn_temp_id == 4) {
+        switch(al_btn_temp_id_original) {
+        case 0x11:
+            btn = 0xFF;
+            break;
+        case 0x22:
+            btn = 0xFF;
+            break;
+        case 0xFF:
+            btn = 0x22;
+            break;
+        case 0x44:
+            btn = 0x22;
+            break;
+        case 0x33:
+            btn = 0xFF;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if((al_btn_temp_id == 0) && (al_btn_temp_id_original != 0)) {
+        btn = al_btn_temp_id_original;
+    }
     //gen new key
     if(subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
         //ToDo if you need to add a callback to automatically update the data on the display
@@ -607,6 +726,11 @@ static void subghz_protocol_alutech_at_4n_remote_controller(
         instance->btn = 0;
         instance->cnt = 0;
         instance->serial = 0;
+    }
+
+    // Save original button for later use
+    if(al_btn_temp_id_original == 0) {
+        al_btn_temp_id_original = instance->btn;
     }
 }
 

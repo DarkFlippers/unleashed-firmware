@@ -199,7 +199,7 @@ class Main(App):
 
     def disclaimer(self):
         self.logger.error(
-            "You might brick you device into a state in which you'd need an SWD programmer to fix it."
+            "You might brick your device into a state in which you'd need an SWD programmer to fix it."
         )
         self.logger.error(
             "Please confirm that you REALLY want to do that with --I-understand-what-I-am-doing=yes"

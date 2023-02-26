@@ -77,6 +77,7 @@ typedef struct {
     SubGhzRadioType radio_type;
     FuriHalSpiBusHandle* spi_bus_handle;
     const GpioPin* cc1101_g0_pin;
+    uint8_t rolling_counter_mult;
 } FuriHalSubGhz;
 
 extern volatile FuriHalSubGhz furi_hal_subghz;
@@ -308,6 +309,16 @@ void furi_hal_subghz_enable_ext_power(void);
 /** Turn off the power of the external radio module
  */
 void furi_hal_subghz_disable_ext_power(void);
+
+/** Get the current rolling protocols counter ++ value
+ * @return    uint8_t current value
+ */
+uint8_t furi_hal_subghz_get_rolling_counter_mult(void);
+
+/** Set the current rolling protocols counter ++ value
+ * @param      mult uint8_t = 1, 2, 4, 8
+ */
+void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult);
 
 #ifdef __cplusplus
 }

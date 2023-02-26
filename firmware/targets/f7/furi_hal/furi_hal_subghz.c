@@ -39,6 +39,7 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .radio_type = SubGhzRadioInternal,
     .spi_bus_handle = &furi_hal_spi_bus_handle_subghz,
     .cc1101_g0_pin = &gpio_cc1101_g0,
+    .rolling_counter_mult = 1,
 };
 
 bool furi_hal_subghz_set_radio_type(SubGhzRadioType state) {
@@ -60,6 +61,14 @@ bool furi_hal_subghz_set_radio_type(SubGhzRadioType state) {
 
 SubGhzRadioType furi_hal_subghz_get_radio_type(void) {
     return furi_hal_subghz.radio_type;
+}
+
+uint8_t furi_hal_subghz_get_rolling_counter_mult(void) {
+    return furi_hal_subghz.rolling_counter_mult;
+}
+
+void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult) {
+    furi_hal_subghz.rolling_counter_mult = mult;
 }
 
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {

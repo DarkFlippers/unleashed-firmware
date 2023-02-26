@@ -10,6 +10,8 @@ void lightmeter_scene_help_on_enter(void* context) {
     furi_string_cat(temp_str, "\e#Pinout:\r\n");
     furi_string_cat(
         temp_str,
+        "    VCC: 3.3V\r\n"
+        "    GND: GND\r\n"
         "    SDA: 15 [C1]\r\n"
         "    SCL: 16 [C0]\r\n");
 

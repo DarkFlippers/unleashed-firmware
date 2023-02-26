@@ -427,6 +427,34 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
             true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
         subghz_receiver->callback(SubGhzCustomEventViewReceiverConfig, subghz_receiver->context);
+    } else if(event->key == InputKeyRight && event->type == InputTypeLong) {
+        with_view_model(
+            subghz_receiver->view,
+            SubGhzViewReceiverModel * model,
+            {
+                if(model->history_item != 0) {
+                    SubGhzReceiverMenuItemArray_it_t it;
+                    // SubGhzReceiverMenuItem* target_item =
+                    //     SubGhzReceiverMenuItemArray_get(model->history->data, model->idx);
+                    SubGhzReceiverMenuItemArray_it_last(it, model->history->data);
+                    while(!SubGhzReceiverMenuItemArray_end_p(it)) {
+                        SubGhzReceiverMenuItem* item = SubGhzReceiverMenuItemArray_ref(it);
+
+                        if(it->index == (size_t)(model->idx)) {
+                            furi_string_free(item->item_str);
+                            item->type = 0;
+                            SubGhzReceiverMenuItemArray_remove(model->history->data, it);
+                        }
+
+                        SubGhzReceiverMenuItemArray_previous(it);
+                    }
+
+                    // Callback
+                    subghz_receiver->callback(
+                        SubGhzCustomEventViewReceiverDeleteItem, subghz_receiver->context);
+                }
+            },
+            true);
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(
             subghz_receiver->view,
@@ -540,10 +568,32 @@ View* subghz_view_receiver_get_view(SubGhzViewReceiver* subghz_receiver) {
 
 uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver) {
     furi_assert(subghz_receiver);
-    uint32_t idx = 0;
+    uint16_t idx = 0;
     with_view_model(
         subghz_receiver->view, SubGhzViewReceiverModel * model, { idx = model->idx; }, false);
     return idx;
+}
+
+void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+
+    with_view_model(
+        subghz_receiver->view,
+        SubGhzViewReceiverModel * model,
+        {
+            if(model->history_item == 5) {
+                if(model->idx >= 2) {
+                    model->idx = model->history_item - 1;
+                }
+            }
+            model->history_item--;
+
+            if(model->idx != 0) {
+                model->idx--;
+            }
+        },
+        true);
+    furi_delay_ms(200);
 }
 
 void subghz_view_receiver_set_idx_menu(SubGhzViewReceiver* subghz_receiver, uint16_t idx) {

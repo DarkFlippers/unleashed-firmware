@@ -64,6 +64,7 @@ typedef enum {
     SubGhzCustomEventViewReceiverBack,
     SubGhzCustomEventViewReceiverOffDisplay,
     SubGhzCustomEventViewReceiverUnlock,
+    SubGhzCustomEventViewReceiverDeleteItem,
 
     SubGhzCustomEventViewReadRAWBack,
     SubGhzCustomEventViewReadRAWIDLE,

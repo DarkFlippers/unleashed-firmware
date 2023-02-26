@@ -50,6 +50,13 @@ typedef enum {
 BH1750_STATUS bh1750_init();
 
 /**
+ * @brief Change the I2C device address and then initialize the sensor.
+ * 
+ * @return BH1750_STATUS
+ */
+BH1750_STATUS bh1750_init_with_addr(uint8_t addr);
+
+/**
  * @brief Reset all registers to the default value.
  * 
  * @return BH1750_STATUS 

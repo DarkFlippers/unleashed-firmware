@@ -85,7 +85,25 @@ const SubGhzProtocol subghz_protocol_keeloq = {
 };
 
 static const char* mfname;
-static int kl_type;
+static uint8_t kl_type;
+static uint8_t btn_temp_id;
+static uint8_t btn_temp_id_original;
+
+void keeloq_set_btn(uint8_t b) {
+    btn_temp_id = b;
+}
+
+uint8_t keeloq_get_original_btn() {
+    return btn_temp_id_original;
+}
+
+uint8_t keeloq_get_custom_btn() {
+    return btn_temp_id;
+}
+
+void keeloq_reset_original_btn() {
+    btn_temp_id_original = 0;
+}
 
 void keeloq_reset_mfname() {
     mfname = "";
@@ -136,11 +154,20 @@ void subghz_protocol_encoder_keeloq_free(void* context) {
  * @param instance Pointer to a SubGhzProtocolEncoderKeeloq* instance
  * @param btn Button number, 4 bit
  */
-static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instance, uint8_t btn) {
-    if(instance->generic.cnt < 0xFFFF) {
-        instance->generic.cnt++;
-    } else if(instance->generic.cnt >= 0xFFFF) {
-        instance->generic.cnt = 0;
+static bool subghz_protocol_keeloq_gen_data(
+    SubGhzProtocolEncoderKeeloq* instance,
+    uint8_t btn,
+    bool counter_up) {
+    if(counter_up) {
+        if(instance->generic.cnt < 0xFFFF) {
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
+        } else if(instance->generic.cnt >= 0xFFFF) {
+            instance->generic.cnt = 0;
+        }
     }
     uint32_t fix = (uint32_t)btn << 28 | instance->generic.serial;
     uint32_t decrypt = (uint32_t)btn << 28 |
@@ -170,15 +197,20 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
         decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
     }
 
+    // Beninca -> 4bit serial - simple XOR
+    if(strcmp(instance->manufacture_name, "Beninca") == 0) {
+        decrypt = btn << 28 | (instance->generic.serial & 0xF) << 16 | instance->generic.cnt;
+    }
+
     if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         code_found_reverse = subghz_protocol_blocks_reverse_key(
             instance->generic.data, instance->generic.data_count_bit);
         hop = code_found_reverse & 0x00000000ffffffff;
     } else if(strcmp(instance->manufacture_name, "AN-Motors") == 0) {
         hop = (instance->generic.cnt & 0xFF) << 24 | (instance->generic.cnt & 0xFF) << 16 |
-              (instance->generic.btn & 0xF) << 12 | 0x404;
+              (btn & 0xF) << 12 | 0x404;
     } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
-        hop = instance->generic.cnt << 16 | (instance->generic.btn & 0xF) << 12 | 0x000;
+        hop = instance->generic.cnt << 16 | (btn & 0xF) << 12 | 0x000;
     } else {
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
@@ -261,7 +293,7 @@ bool subghz_protocol_keeloq_create_data(
     instance->generic.cnt = cnt;
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
-    bool res = subghz_protocol_keeloq_gen_data(instance, btn);
+    bool res = subghz_protocol_keeloq_gen_data(instance, btn, false);
     if(res) {
         res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
@@ -286,7 +318,7 @@ bool subghz_protocol_keeloq_bft_create_data(
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
     // roguuemaster don't steal.!!!!
-    bool res = subghz_protocol_keeloq_gen_data(instance, btn);
+    bool res = subghz_protocol_keeloq_gen_data(instance, btn, false);
     if(res) {
         res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
@@ -302,8 +334,107 @@ static bool
     subghz_protocol_encoder_keeloq_get_upload(SubGhzProtocolEncoderKeeloq* instance, uint8_t btn) {
     furi_assert(instance);
 
+    // Save original button
+    if(btn_temp_id_original == 0) {
+        btn_temp_id_original = btn;
+    }
+
+    // Set custom button
+    if(btn_temp_id == 1) {
+        switch(btn_temp_id_original) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0xA:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+        case 0x8:
+            btn = 0x1;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(btn_temp_id == 2) {
+        switch(btn_temp_id_original) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0xA:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0xA;
+            break;
+        case 0x8:
+            btn = 0x4;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(btn_temp_id == 3) {
+        switch(btn_temp_id_original) {
+        case 0x1:
+            btn = 0x8;
+            break;
+        case 0x2:
+            btn = 0x8;
+            break;
+        case 0xA:
+            btn = 0x8;
+            break;
+        case 0x4:
+            btn = 0x8;
+            break;
+        case 0x8:
+            btn = 0x2;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(btn_temp_id == 4) {
+        switch(btn_temp_id_original) {
+        case 0x1:
+            btn = 0xA;
+            break;
+        case 0x2:
+            btn = 0xA;
+            break;
+        case 0xA:
+            btn = 0x2;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+        case 0x8:
+            btn = 0xA;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if((btn_temp_id == 0) && (btn_temp_id_original != 0)) {
+        btn = btn_temp_id_original;
+    }
+
     //gen new key
-    if(subghz_protocol_keeloq_gen_data(instance, btn)) {
+    if(subghz_protocol_keeloq_gen_data(instance, btn, true)) {
         //ToDo if you need to add a callback to automatically update the data on the display
     } else {
         return false;
@@ -974,6 +1105,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
 
     instance->serial = key_fix & 0x0FFFFFFF;
     instance->btn = key_fix >> 28;
+
+    // Save original button for later use
+    if(btn_temp_id_original == 0) {
+        btn_temp_id_original = instance->btn;
+    }
 }
 
 uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context) {
