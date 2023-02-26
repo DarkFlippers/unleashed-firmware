@@ -151,12 +151,6 @@ void bq25896_set_vreg_voltage(FuriHalI2cBusHandle* handle, uint16_t vreg_voltage
     // Values are truncated downward as needed (e.g. 4200mV -> 4192 mV)
     bq25896_regs.r06.VREG = (uint8_t)((vreg_voltage - 3840) / 16);
 
-    // Double check: do not allow values above 23 (0x17, 4208mV)
-    // Exceeding 4.2v will overcharge the battery!
-    if(bq25896_regs.r06.VREG > 23) {
-        bq25896_regs.r06.VREG = 23;
-    }
-
     // Apply changes
     furi_hal_i2c_write_reg_8(
         handle, BQ25896_ADDRESS, 0x06, *(uint8_t*)&bq25896_regs.r06, BQ25896_I2C_TIMEOUT);
