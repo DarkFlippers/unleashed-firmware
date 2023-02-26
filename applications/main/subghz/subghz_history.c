@@ -92,14 +92,12 @@ void subghz_history_delete_item(SubGhzHistory* instance, uint16_t item_id) {
     furi_assert(instance);
 
     SubGhzHistoryItemArray_it_t it;
-    SubGhzHistoryItem* target_item = SubGhzHistoryItemArray_get(instance->history->data, item_id);
+    //SubGhzHistoryItem* target_item = SubGhzHistoryItemArray_get(instance->history->data, item_id);
     SubGhzHistoryItemArray_it_last(it, instance->history->data);
     while(!SubGhzHistoryItemArray_end_p(it)) {
         SubGhzHistoryItem* item = SubGhzHistoryItemArray_ref(it);
 
-        if(strcmp(
-               furi_string_get_cstr(item->item_str),
-               furi_string_get_cstr(target_item->item_str)) == 0) {
+        if(it->index == (size_t)(item_id)) {
             furi_string_free(item->item_str);
             furi_string_free(item->preset->name);
             free(item->preset);

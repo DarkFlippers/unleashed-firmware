@@ -207,16 +207,9 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverDeleteItem:
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
-            if(subghz->txrx->idx_menu_chosen == 0) {
-                subghz_history_delete_item(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
-                subghz_view_receiver_set_idx_menu(
-                    subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
-            } else {
-                subghz_history_delete_item(
-                    subghz->txrx->history, subghz->txrx->idx_menu_chosen + 1);
-                subghz_view_receiver_set_idx_menu(
-                    subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
-            }
+
+            subghz_history_delete_item(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+            subghz_view_receiver_delete_element_callback(subghz->subghz_receiver);
 
             subghz_scene_receiver_update_statusbar(subghz);
             consumed = true;
