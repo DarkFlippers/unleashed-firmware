@@ -17,6 +17,8 @@
 #include "helpers/pin_lock.h"
 #include "helpers/slideshow_filename.h"
 
+#define TAG "Desktop"
+
 static void desktop_auto_lock_arm(Desktop*);
 static void desktop_auto_lock_inhibit(Desktop*);
 static void desktop_start_auto_lock_timer(Desktop*);
@@ -321,6 +323,12 @@ static bool desktop_check_file_flag(const char* flag_path) {
 
 int32_t desktop_srv(void* p) {
     UNUSED(p);
+
+    if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
+        FURI_LOG_W(TAG, "Skipping start in special boot mode");
+        return 0;
+    }
+
     Desktop* desktop = desktop_alloc();
 
     bool loaded = DESKTOP_SETTINGS_LOAD(&desktop->settings);

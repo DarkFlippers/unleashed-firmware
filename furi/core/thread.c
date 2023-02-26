@@ -96,9 +96,9 @@ static void furi_thread_body(void* context) {
     furi_assert(thread->state == FuriThreadStateRunning);
 
     if(thread->is_service) {
-        FURI_LOG_E(
+        FURI_LOG_W(
             TAG,
-            "%s service thread exited. Thread memory cannot be reclaimed.",
+            "%s service thread TCB memory will not be reclaimed",
             thread->name ? thread->name : "<unknown service>");
     }
 
