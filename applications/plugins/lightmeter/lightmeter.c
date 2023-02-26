@@ -1,7 +1,7 @@
 #include "lightmeter.h"
 #include "lightmeter_helper.h"
 
-#define WORKER_TAG "MAIN APP"
+#define TAG "MAIN APP"
 
 static bool lightmeter_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -31,7 +31,6 @@ LightMeterApp* lightmeter_app_alloc(uint32_t first_scene) {
     bh1750_set_power_state(1);
     bh1750_init();
     bh1750_set_mode(ONETIME_HIGH_RES_MODE);
-    bh1750_set_mt_reg(100);
 
     // Set default values to config
     app->config = malloc(sizeof(LightMeterConfig));
@@ -39,12 +38,11 @@ LightMeterApp* lightmeter_app_alloc(uint32_t first_scene) {
     app->config->nd = DEFAULT_ND;
     app->config->aperture = DEFAULT_APERTURE;
     app->config->dome = DEFAULT_DOME;
+    app->config->backlight = DEFAULT_BACKLIGHT;
 
     // Records
     app->gui = furi_record_open(RECORD_GUI);
     app->notifications = furi_record_open(RECORD_NOTIFICATION);
-    notification_message(
-        app->notifications, &sequence_display_backlight_enforce_on); // force on backlight
 
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -112,9 +110,11 @@ void lightmeter_app_free(LightMeterApp* app) {
 
     // Records
     furi_record_close(RECORD_GUI);
-    notification_message(
-        app->notifications,
-        &sequence_display_backlight_enforce_auto); // set backlight back to auto
+    if(app->config->backlight != BACKLIGHT_AUTO) {
+        notification_message(
+            app->notifications,
+            &sequence_display_backlight_enforce_auto); // set backlight back to auto
+    }
     furi_record_close(RECORD_NOTIFICATION);
 
     bh1750_set_power_state(0);

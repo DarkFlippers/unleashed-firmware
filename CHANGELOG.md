@@ -5,6 +5,7 @@
 * SubGHz: Debug mode counter increase settings (+5, +10, default: +1)
 * Infrared: Debug TX PIN output settings (ability to move tx signal out to GPIO)
 * BadUSB: Fixed #365 (BadUSB won't detect connection and/or hangs)
+* Plugins: Updated -> [BH1750] Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 

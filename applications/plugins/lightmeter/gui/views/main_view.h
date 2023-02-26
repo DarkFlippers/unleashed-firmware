@@ -27,6 +27,7 @@ typedef struct {
     int aperture;
     int speed;
     bool dome;
+    bool lux_only;
 } MainViewModel;
 
 typedef void (*LightMeterMainViewButtonCallback)(void* context);
@@ -58,6 +59,8 @@ void main_view_set_speed(MainView* main_view, int val);
 
 void main_view_set_dome(MainView* main_view, bool val);
 
+void main_view_set_lux_only(MainView* main_view, bool val);
+
 bool main_view_get_dome(MainView* main_view);
 
 void draw_top_row(Canvas* canvas, MainViewModel* context);
@@ -71,3 +74,5 @@ void draw_mode_indicator(Canvas* canvas, MainViewModel* context);
 void draw_nd_number(Canvas* canvas, MainViewModel* context);
 
 void draw_EV_number(Canvas* canvas, MainViewModel* context);
+
+void draw_lux_only_mode(Canvas* canvas, MainViewModel* context);
