@@ -13,8 +13,8 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
 
     if(power->info.gauge_is_ok) {
         canvas_draw_box(canvas, 2, 2, (power->info.charge + 4) / 5, 4);
-        if(power->info.voltage_battery_charging < 4.2) {
-            // Battery charging voltage is modified, indicate with cross pattern
+        if(power->info.voltage_battery_charge_limit < 4.2) {
+            // Battery charge voltage limit is modified, indicate with cross pattern
             canvas_invert_color(canvas);
             uint8_t battery_bar_width = (power->info.charge + 4) / 5;
             bool cross_odd = false;
@@ -147,7 +147,7 @@ static bool power_update_info(Power* power) {
     info.capacity_full = furi_hal_power_get_battery_full_capacity();
     info.current_charger = furi_hal_power_get_battery_current(FuriHalPowerICCharger);
     info.current_gauge = furi_hal_power_get_battery_current(FuriHalPowerICFuelGauge);
-    info.voltage_battery_charging = furi_hal_power_get_battery_charging_voltage();
+    info.voltage_battery_charge_limit = furi_hal_power_get_battery_charge_voltage_limit();
     info.voltage_charger = furi_hal_power_get_battery_voltage(FuriHalPowerICCharger);
     info.voltage_gauge = furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge);
     info.voltage_vbus = furi_hal_power_get_usb_voltage();
