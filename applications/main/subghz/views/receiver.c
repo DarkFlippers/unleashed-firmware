@@ -593,6 +593,7 @@ void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_rec
             }
         },
         true);
+    furi_delay_ms(200);
 }
 
 void subghz_view_receiver_set_idx_menu(SubGhzViewReceiver* subghz_receiver, uint16_t idx) {
