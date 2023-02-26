@@ -344,7 +344,11 @@ static bool mj_process_ducky_line(
         if(!mj_get_ducky_key("SPACE", 5, &dk)) return false;
         send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
         return true;
-    }
+    } else if(strncmp(line_tmp, "TAB", strlen("TAB")) == 0) {
+        if(!mj_get_ducky_key("TAB", 3, &dk)) return false;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        return true;
+    } 
 
     return false;
 }
