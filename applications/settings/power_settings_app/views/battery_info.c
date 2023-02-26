@@ -69,7 +69,7 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
             drain_current > HIGH_DRAIN_CURRENT_THRESHOLD ? "mA!" : "mA");
     } else if(drain_current != 0) {
         snprintf(header, 20, "...");
-    } else if(data->charging_voltage < 4.2) {
+    } else if(data->charge_voltage_limit < 4.2) {
         // Non-default battery charging limit, mention it
         snprintf(emote, sizeof(emote), "Charged!");
         snprintf(header, sizeof(header), "Limited to");
@@ -77,8 +77,8 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
             value,
             sizeof(value),
             "%lu.%luV",
-            (uint32_t)(data->charging_voltage),
-            (uint32_t)(data->charging_voltage * 10) % 10);
+            (uint32_t)(data->charge_voltage_limit),
+            (uint32_t)(data->charge_voltage_limit * 10) % 10);
     } else {
         snprintf(header, sizeof(header), "Charged!");
     }

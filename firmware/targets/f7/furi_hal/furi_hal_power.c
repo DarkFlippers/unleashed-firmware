@@ -341,14 +341,14 @@ bool furi_hal_power_is_otg_enabled() {
     return ret;
 }
 
-float furi_hal_power_get_battery_charging_voltage() {
+float furi_hal_power_get_battery_charge_voltage_limit() {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     float ret = (float)bq25896_get_vreg_voltage(&furi_hal_i2c_handle_power) / 1000.0f;
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
     return ret;
 }
 
-void furi_hal_power_set_battery_charging_voltage(float voltage) {
+void furi_hal_power_set_battery_charge_voltage_limit(float voltage) {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     // Adding 0.0005 is necessary because 4.016f is 4.015999794000, which gets truncated
     bq25896_set_vreg_voltage(&furi_hal_i2c_handle_power, (uint16_t)(voltage * 1000.0f + 0.0005f));
@@ -486,7 +486,7 @@ void furi_hal_power_info_get(PropertyValueCallback out, char sep, void* context)
         property_value_out(&property_context, NULL, 2, "format", "major", "2");
         property_value_out(&property_context, NULL, 2, "format", "minor", "1");
     } else {
-        property_value_out(&property_context, NULL, 3, "power", "info", "major", "1");
+        property_value_out(&property_context, NULL, 3, "power", "info", "major", "2");
         property_value_out(&property_context, NULL, 3, "power", "info", "minor", "1");
     }
 
@@ -505,8 +505,10 @@ void furi_hal_power_info_get(PropertyValueCallback out, char sep, void* context)
     }
 
     property_value_out(&property_context, NULL, 2, "charge", "state", charge_state);
-    uint16_t charge_voltage = (uint16_t)(furi_hal_power_get_battery_charging_voltage() * 1000.f);
-    property_value_out(&property_context, "%u", 2, "charge", "voltage", charge_voltage);
+    uint16_t charge_voltage_limit =
+        (uint16_t)(furi_hal_power_get_battery_charge_voltage_limit() * 1000.f);
+    property_value_out(
+        &property_context, "%u", 3, "charge", "voltage", "limit", charge_voltage_limit);
     uint16_t voltage =
         (uint16_t)(furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge) * 1000.f);
     property_value_out(&property_context, "%u", 2, "battery", "voltage", voltage);

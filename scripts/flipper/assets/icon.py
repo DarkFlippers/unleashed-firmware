@@ -105,7 +105,7 @@ def file2image(file):
     data_enc = bytearray([len(data_enc) & 0xFF, len(data_enc) >> 8]) + data_enc
 
     # Use encoded data only if its length less than original, including header
-    if len(data_enc) < len(data_bin) + 1:
+    if len(data_enc) + 2 < len(data_bin) + 1:
         data = b"\x01\x00" + data_enc
     else:
         data = b"\x00" + data_bin

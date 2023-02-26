@@ -154,6 +154,12 @@ static void dolphin_update_clear_limits_timer_period(Dolphin* dolphin) {
 
 int32_t dolphin_srv(void* p) {
     UNUSED(p);
+
+    if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
+        FURI_LOG_W(TAG, "Skipping start in special boot mode");
+        return 0;
+    }
+
     Dolphin* dolphin = dolphin_alloc();
     furi_record_create(RECORD_DOLPHIN, dolphin);
 
