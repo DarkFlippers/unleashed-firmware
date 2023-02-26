@@ -93,6 +93,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
             if(keeloq_get_custom_btn() != 0) {
                 keeloq_set_btn(0);
                 alutech_set_btn(0);
+                uint8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
                 // Calling restore!
                 if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
@@ -106,7 +107,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 }
                 subghz_tx_stop(subghz);
                 subghz_sleep(subghz);
-                furi_hal_subghz_set_rolling_counter_mult(1);
+                furi_hal_subghz_set_rolling_counter_mult(tmp_counter);
             }
             return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterBack) {
