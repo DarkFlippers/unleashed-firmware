@@ -3,6 +3,7 @@
 static const char ducky_cmd_comment[] = {"REM"};
 static const char ducky_cmd_delay[] = {"DELAY "};
 static const char ducky_cmd_string[] = {"STRING "};
+static const char ducky_cmd_altstring[] = {"ALTSTRING "};
 static const char ducky_cmd_repeat[] = {"REPEAT "};
 
 static uint8_t LOGITECH_HID_TEMPLATE[] =
@@ -69,7 +70,10 @@ MJDuckyKey mj_ducky_keys[] = {{" ", 44, 0},         {"!", 30, 2},          {"\""
                               {"LEFTARROW", 80, 0}, {"RIGHTARROW", 79, 0}, {"PAGEDOWN", 78, 0},
                               {"PAUSE", 72, 0},     {"SPACE", 44, 0},      {"UPARROW", 82, 0},
                               {"F11", 68, 0},       {"F7", 64, 0},         {"UP", 82, 0},
-                              {"LEFT", 80, 0}};
+                              {"LEFT", 80, 0},      {"NUM 1", 89, 0},      {"NUM 2", 90, 0},
+                              {"NUM 3", 91, 0},     {"NUM 4", 92, 0},      {"NUM 5", 93, 0},
+                              {"NUM 6", 94, 0},     {"NUM 7", 95, 0},      {"NUM 8", 96, 0},
+                              {"NUM 9", 97, 0},     {"NUM 0", 98, 0}};
 
 /*
 static bool mj_ducky_get_number(const char* param, uint32_t* val) {
@@ -278,6 +282,32 @@ static bool mj_process_ducky_line(
             send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
         }
 
+        return true;
+    } else if(strncmp(line_tmp, ducky_cmd_altstring, strlen(ducky_cmd_altstring)) == 0) {
+        // ALTSTRING 
+        line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
+        for(size_t i = 0; i < strlen(line_tmp); i++) {
+            if((line_tmp[i] < ' ') || (line_tmp[i] > '~')) {
+                continue; // Skip non-printable chars
+            }
+
+            char alt_code[4];
+            // Getting altcode of the char
+            snprintf(alt_code, 4, "%u", line_tmp[i]);
+            
+            uint8_t j = 0;
+            while(!ducky_end_line(alt_code[j])) {
+                char pad_num[5] = {'N', 'U', 'M', ' ', alt_code[j]};
+                if(!mj_get_ducky_key(pad_num, 5, &dk)) return false;
+                holding_alt = true;
+                FURI_LOG_D(TAG, "Sending %s", pad_num);
+                send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+                j++;
+            }
+            holding_alt = false;
+            release_key(handle, addr, addr_size, rate, plugin_state);
+        }
+        
         return true;
     } else if(strncmp(line_tmp, ducky_cmd_repeat, strlen(ducky_cmd_repeat)) == 0) {
         // REPEAT
