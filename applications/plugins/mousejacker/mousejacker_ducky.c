@@ -210,6 +210,10 @@ static void send_hid_packet(
     furi_delay_ms(12);
 }
 
+static bool ducky_end_line(const char chr) {
+    return ((chr == ' ') || (chr == '\0') || (chr == '\r') || (chr == '\n'));
+}
+
 // returns false if there was an error processing script line
 static bool mj_process_ducky_line(
     FuriHalSpiBusHandle* handle,
@@ -307,7 +311,7 @@ static bool mj_process_ducky_line(
             holding_alt = false;
             release_key(handle, addr, addr_size, rate, plugin_state);
         }
-        
+
         return true;
     } else if(strncmp(line_tmp, ducky_cmd_repeat, strlen(ducky_cmd_repeat)) == 0) {
         // REPEAT
