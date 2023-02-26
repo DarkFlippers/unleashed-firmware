@@ -1,6 +1,6 @@
 App(
     appid="Picopass",
-    name="PicoPass Reader",
+    name="[iClass] PicoPass",
     apptype=FlipperAppType.EXTERNAL,
     targets=["f7"],
     entry_point="picopass_app",

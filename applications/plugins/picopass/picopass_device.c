@@ -368,7 +368,7 @@ ReturnCode picopass_device_parse_wiegand(uint8_t* data, PicopassWiegandRecord* r
 
         record->CardNumber = (bot >> 1) & 0xFFFF;
         record->FacilityCode = (bot >> 17) & 0xFF;
-        FURI_LOG_D(TAG, "FC:%u CN: %u\n", record->FacilityCode, record->CardNumber);
+        FURI_LOG_D(TAG, "FC: %u CN: %u", record->FacilityCode, record->CardNumber);
         record->valid = true;
     } else {
         record->CardNumber = 0;
