@@ -171,6 +171,16 @@ void picopass_show_loading_popup(void* context, bool show) {
     }
 }
 
+bool picopass_is_memset(const uint8_t* data, const uint8_t pattern, size_t size) {
+    bool result = size > 0;
+    while(size > 0) {
+        result &= (*data == pattern);
+        data++;
+        size--;
+    }
+    return result;
+}
+
 int32_t picopass_app(void* p) {
     UNUSED(p);
     Picopass* picopass = picopass_alloc();

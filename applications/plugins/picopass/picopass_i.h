@@ -81,3 +81,15 @@ void picopass_blink_start(Picopass* picopass);
 void picopass_blink_stop(Picopass* picopass);
 
 void picopass_show_loading_popup(void* context, bool show);
+
+/** Check if memory is set to pattern
+ *
+ * @warning    zero size will return false
+ *
+ * @param[in]  data     Pointer to the byte array
+ * @param[in]  pattern  The pattern
+ * @param[in]  size     The byte array size
+ *
+ * @return     True if memory is set to pattern, false otherwise
+ */
+bool picopass_is_memset(const uint8_t* data, const uint8_t pattern, size_t size);
