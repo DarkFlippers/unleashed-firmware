@@ -31,8 +31,6 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 void bad_usb_scene_work_on_enter(void* context) {
     BadUsbApp* app = context;
 
-    furi_check(furi_hal_usb_set_config(NULL, NULL));
-
     FuriString* file_name;
     file_name = furi_string_alloc();
     path_extract_filename(app->file_path, file_name, true);
