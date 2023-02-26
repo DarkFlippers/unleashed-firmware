@@ -75,6 +75,14 @@ Can be combined with a special key command or a single character.
 | ------- | ----------- | ----------------- |
 | STRING  | Text string | Print text string |
 
+## String delay
+
+Delay between keypresses.
+|Command|Parameters|Notes|
+|-|-|-|
+|STRING_DELAY|Delay value in ms|Applied once to next appearing string|
+|STRINGDELAY|Delay value in ms|Same as STRING_DELAY|
+
 ## Repeat
 
 | Command | Parameters                   | Notes                   |
