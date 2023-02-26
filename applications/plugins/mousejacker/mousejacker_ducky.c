@@ -97,7 +97,7 @@ static uint32_t mj_ducky_get_command_len(const char* line) {
 static bool mj_get_ducky_key(char* key, size_t keylen, MJDuckyKey* dk) {
     //FURI_LOG_D(TAG, "looking up key %s with length %d", key, keylen);
     for(uint i = 0; i < sizeof(mj_ducky_keys) / sizeof(MJDuckyKey); i++) {
-        if(strncmp(mj_ducky_keys[i].name, key, keylen) == 0) {
+        if(strlen(mj_ducky_keys[i].name) == keylen && !strncmp(mj_ducky_keys[i].name, key, keylen)) {
             memcpy(dk, &mj_ducky_keys[i], sizeof(MJDuckyKey));
             return true;
         }
