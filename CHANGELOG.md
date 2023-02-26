@@ -3,6 +3,8 @@
 * SubGHz: **Hold right in received signal list to delete selected signal**
 * SubGHz: **Custom buttons for Keeloq and Alutech AT4N** - now you can use arrow buttons to send signal with different button code
 * SubGHz: Debug mode counter increase settings (+5, +10, default: +1)
+* Infrared: Debug TX PIN output settings (ability to move tx signal out to GPIO)
+* BadUSB: Fixed #365 (BadUSB won't detect connection and/or hangs)
 
 #### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
 
