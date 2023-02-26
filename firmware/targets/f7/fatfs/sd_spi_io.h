@@ -5,6 +5,7 @@
 #define __IO volatile
 
 #define SD_TIMEOUT_MS (1000)
+#define SD_BLOCK_SIZE 512
 
 typedef enum {
     SdSpiStatusOK,
