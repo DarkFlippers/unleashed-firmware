@@ -1168,7 +1168,9 @@ Function,+,furi_hal_infrared_async_tx_set_signal_sent_isr_callback,void,"FuriHal
 Function,+,furi_hal_infrared_async_tx_start,void,"uint32_t, float"
 Function,+,furi_hal_infrared_async_tx_stop,void,
 Function,+,furi_hal_infrared_async_tx_wait_termination,void,
+Function,+,furi_hal_infrared_get_debug_out_status,_Bool,
 Function,+,furi_hal_infrared_is_busy,_Bool,
+Function,+,furi_hal_infrared_set_debug_out,void,_Bool
 Function,-,furi_hal_init,void,
 Function,-,furi_hal_init_early,void,
 Function,-,furi_hal_interrupt_init,void,

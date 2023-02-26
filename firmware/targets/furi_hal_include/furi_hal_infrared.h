@@ -48,6 +48,12 @@ typedef void (*FuriHalInfraredRxCaptureCallback)(void* ctx, bool level, uint32_t
  */
 typedef void (*FuriHalInfraredRxTimeoutCallback)(void* ctx);
 
+// Debug TX pin set
+void furi_hal_infrared_set_debug_out(bool enable);
+
+// Debug TX pin get status
+bool furi_hal_infrared_get_debug_out_status(void);
+
 /** Initialize INFRARED RX timer to receive interrupts.
  *
  * It provides interrupts for every RX-signal edge changing with its duration.
