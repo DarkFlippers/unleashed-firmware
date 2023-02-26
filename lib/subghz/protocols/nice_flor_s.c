@@ -84,6 +84,25 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
     .encoder = &subghz_protocol_nice_flor_s_encoder,
 };
 
+static uint8_t n_btn_temp_id;
+static uint8_t n_btn_temp_id_original;
+
+void nice_flors_set_btn(uint8_t b) {
+    n_btn_temp_id = b;
+}
+
+uint8_t nice_flors_get_original_btn() {
+    return n_btn_temp_id_original;
+}
+
+uint8_t nice_flors_get_custom_btn() {
+    return n_btn_temp_id;
+}
+
+void nice_flors_reset_original_btn() {
+    n_btn_temp_id_original = 0;
+}
+
 static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,
     const char* file_name);
@@ -127,6 +146,74 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     furi_assert(instance);
     size_t index = 0;
     btn = instance->generic.btn;
+
+    // Save original button for later use
+    if(n_btn_temp_id_original == 0) {
+        n_btn_temp_id_original = btn;
+    }
+
+    // Set custom button
+    if(n_btn_temp_id == 1) {
+        switch(n_btn_temp_id_original) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+        case 0x8:
+            btn = 0x1;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(n_btn_temp_id == 2) {
+        switch(n_btn_temp_id_original) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+        case 0x8:
+            btn = 0x4;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(n_btn_temp_id == 3) {
+        switch(n_btn_temp_id_original) {
+        case 0x1:
+            btn = 0x8;
+            break;
+        case 0x2:
+            btn = 0x8;
+            break;
+        case 0x4:
+            btn = 0x8;
+            break;
+        case 0x8:
+            btn = 0x2;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if((n_btn_temp_id == 0) && (n_btn_temp_id_original != 0)) {
+        btn = n_btn_temp_id_original;
+    }
 
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
@@ -645,6 +732,11 @@ static void subghz_protocol_nice_flor_s_remote_controller(
         instance->cnt = decrypt & 0xFFFF;
         instance->serial = (decrypt >> 16) & 0xFFFFFFF;
         instance->btn = (decrypt >> 48) & 0xF;
+    }
+
+    // Save original button for later use
+    if(n_btn_temp_id_original == 0) {
+        n_btn_temp_id_original = instance->btn;
     }
 }
 

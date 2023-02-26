@@ -166,7 +166,7 @@ Games:
 - Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
 - Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
 * SubGHz -> **Hold right in received signal list to delete selected signal**
-* SubGHz -> **Custom buttons for Keeloq and Alutech AT4N** - now you can use arrow buttons to send signal with different button code
+* SubGHz -> **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S** - now you can use arrow buttons to send signal with different button code
 * SubGHz -> Debug mode counter increase settings (+5, +10, default: +1)
 * SubGHz -> Debug PIN output settings for protocol development
 * Infrared -> Debug TX PIN output settings
