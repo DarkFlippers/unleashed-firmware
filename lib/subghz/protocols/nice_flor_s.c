@@ -543,17 +543,35 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint32_t serial,
     uint8_t btn,
     uint16_t cnt,
-    SubGhzRadioPreset* preset) {
+    SubGhzRadioPreset* preset,
+    bool nice_one) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
-    instance->generic.data_count_bit = 52;
+    if(nice_one) {
+        instance->generic.data_count_bit = NICE_ONE_COUNT_BIT;
+    } else {
+        instance->generic.data_count_bit = 52;
+    }
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(
         decrypt, instance->nice_flor_s_rainbow_table_file_name);
     uint8_t byte = btn << 4 | (0xF ^ btn ^ 0x3);
     instance->generic.data = (uint64_t)byte << 44 | enc_part;
+
+    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        uint8_t add_data[10] = {0};
+        for(size_t i = 0; i < 7; i++) {
+            add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
+        }
+        subghz_protocol_nice_one_get_data(add_data, 0, 0);
+        instance->generic.data_2 = 0;
+        for(size_t j = 7; j < 10; j++) {
+            instance->generic.data_2 <<= 8;
+            instance->generic.data_2 += add_data[j];
+        }
+    }
 
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 

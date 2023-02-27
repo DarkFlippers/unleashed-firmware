@@ -63,6 +63,7 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_nam
  * @param btn Button number, 4 bit
  * @param cnt Counter value, 16 bit
  * @param preset Modulation, SubGhzRadioPreset
+ * @param nice_one Nice One if true, Nice Flor S if false
  * @return true On success
  */
 bool subghz_protocol_nice_flor_s_create_data(
@@ -71,7 +72,8 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint32_t serial,
     uint8_t btn,
     uint16_t cnt,
-    SubGhzRadioPreset* preset);
+    SubGhzRadioPreset* preset,
+    bool nice_one);
 
 /**
  * Allocate SubGhzProtocolDecoderNiceFlorS.

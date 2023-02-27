@@ -13,6 +13,7 @@ typedef enum {
     SubmenuIndexNiceFlo12bit,
     SubmenuIndexNiceFlo24bit,
     SubmenuIndexNiceFlorS_433_92,
+    SubmenuIndexNiceOne_433_92,
     SubmenuIndexNiceSmilo_433_92,
     SubmenuIndexCAME12bit,
     SubmenuIndexCAME24bit,
