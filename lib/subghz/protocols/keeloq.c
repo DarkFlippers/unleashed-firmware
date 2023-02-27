@@ -339,6 +339,11 @@ static bool
         btn_temp_id_original = btn;
     }
 
+    uint8_t klq_last_custom_btn = 0xA;
+    if(strcmp(instance->manufacture_name, "BFT") == 0) {
+        klq_last_custom_btn = 0xF;
+    }
+
     // Set custom button
     if(btn_temp_id == 1) {
         switch(btn_temp_id_original) {
@@ -355,6 +360,9 @@ static bool
             btn = 0x1;
             break;
         case 0x8:
+            btn = 0x1;
+            break;
+        case 0xF:
             btn = 0x1;
             break;
 
@@ -374,9 +382,12 @@ static bool
             btn = 0x4;
             break;
         case 0x4:
-            btn = 0xA;
+            btn = klq_last_custom_btn;
             break;
         case 0x8:
+            btn = 0x4;
+            break;
+        case 0xF:
             btn = 0x4;
             break;
 
@@ -401,6 +412,9 @@ static bool
         case 0x8:
             btn = 0x2;
             break;
+        case 0xF:
+            btn = 0x8;
+            break;
 
         default:
             break;
@@ -409,10 +423,10 @@ static bool
     if(btn_temp_id == 4) {
         switch(btn_temp_id_original) {
         case 0x1:
-            btn = 0xA;
+            btn = klq_last_custom_btn;
             break;
         case 0x2:
-            btn = 0xA;
+            btn = klq_last_custom_btn;
             break;
         case 0xA:
             btn = 0x2;
@@ -421,7 +435,10 @@ static bool
             btn = 0x2;
             break;
         case 0x8:
-            btn = 0xA;
+            btn = klq_last_custom_btn;
+            break;
+        case 0xF:
+            btn = 0x2;
             break;
 
         default:

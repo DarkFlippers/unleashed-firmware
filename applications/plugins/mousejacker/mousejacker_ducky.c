@@ -97,7 +97,8 @@ static uint32_t mj_ducky_get_command_len(const char* line) {
 static bool mj_get_ducky_key(char* key, size_t keylen, MJDuckyKey* dk) {
     //FURI_LOG_D(TAG, "looking up key %s with length %d", key, keylen);
     for(uint i = 0; i < sizeof(mj_ducky_keys) / sizeof(MJDuckyKey); i++) {
-        if(strlen(mj_ducky_keys[i].name) == keylen && !strncmp(mj_ducky_keys[i].name, key, keylen)) {
+        if(strlen(mj_ducky_keys[i].name) == keylen &&
+           !strncmp(mj_ducky_keys[i].name, key, keylen)) {
             memcpy(dk, &mj_ducky_keys[i], sizeof(MJDuckyKey));
             return true;
         }
@@ -165,26 +166,23 @@ static void release_key(
     uint8_t* addr,
     uint8_t addr_size,
     uint8_t rate,
-    PluginState* plugin_state
-) {
+    PluginState* plugin_state) {
     // This function release keys currently pressed, but keep pressing special keys
     // if holding mod keys variable are set to true
 
     uint8_t hid_payload[LOGITECH_HID_TEMPLATE_SIZE] = {0};
     build_hid_packet(
-        0 | holding_ctrl 
-        | holding_shift << 1 
-        | holding_alt << 2 
-        | holding_gui << 3,
-        0, hid_payload);
+        0 | holding_ctrl | holding_shift << 1 | holding_alt << 2 | holding_gui << 3,
+        0,
+        hid_payload);
     inject_packet(
-            handle,
-            addr,
-            addr_size,
-            rate,
-            hid_payload,
-            LOGITECH_HID_TEMPLATE_SIZE,
-            plugin_state); // empty hid packet
+        handle,
+        addr,
+        addr_size,
+        rate,
+        hid_payload,
+        LOGITECH_HID_TEMPLATE_SIZE,
+        plugin_state); // empty hid packet
 }
 
 static void send_hid_packet(
@@ -196,15 +194,13 @@ static void send_hid_packet(
     uint8_t hid,
     PluginState* plugin_state) {
     uint8_t hid_payload[LOGITECH_HID_TEMPLATE_SIZE] = {0};
-    if(hid == prev_hid )
-        release_key(handle, addr, addr_size, rate, plugin_state);
+    if(hid == prev_hid) release_key(handle, addr, addr_size, rate, plugin_state);
 
     prev_hid = hid;
-    build_hid_packet(mod 
-        | holding_ctrl 
-        | holding_shift << 1 
-        | holding_alt << 2 
-        | holding_gui << 3, hid, hid_payload);
+    build_hid_packet(
+        mod | holding_ctrl | holding_shift << 1 | holding_alt << 2 | holding_gui << 3,
+        hid,
+        hid_payload);
     inject_packet(
         handle, addr, addr_size, rate, hid_payload, LOGITECH_HID_TEMPLATE_SIZE, plugin_state);
     furi_delay_ms(12);
@@ -288,7 +284,7 @@ static bool mj_process_ducky_line(
 
         return true;
     } else if(strncmp(line_tmp, ducky_cmd_altstring, strlen(ducky_cmd_altstring)) == 0) {
-        // ALTSTRING 
+        // ALTSTRING
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         for(size_t i = 0; i < strlen(line_tmp); i++) {
             if((line_tmp[i] < ' ') || (line_tmp[i] > '~')) {
@@ -298,7 +294,7 @@ static bool mj_process_ducky_line(
             char alt_code[4];
             // Getting altcode of the char
             snprintf(alt_code, 4, "%u", line_tmp[i]);
-            
+
             uint8_t j = 0;
             while(!ducky_end_line(alt_code[j])) {
                 char pad_num[5] = {'N', 'U', 'M', ' ', alt_code[j]};
@@ -425,7 +421,7 @@ static bool mj_process_ducky_line(
         if(!mj_get_ducky_key("TAB", 3, &dk)) return false;
         send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
         return true;
-    } 
+    }
 
     return false;
 }
