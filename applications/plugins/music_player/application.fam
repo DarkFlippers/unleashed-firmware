@@ -12,7 +12,7 @@ App(
     stack_size=2 * 1024,
     order=20,
     fap_icon="icons/music_10px.png",
-    fap_category="Misc",
+    fap_category="Media",
     fap_icon_assets="icons",
 )
 

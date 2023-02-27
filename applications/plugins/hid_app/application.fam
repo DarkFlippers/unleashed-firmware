@@ -1,10 +1,10 @@
 App(
     appid="hid_usb",
-    name="USB Remote",
+    name="Remote",
     apptype=FlipperAppType.PLUGIN,
     entry_point="hid_usb_app",
     stack_size=1 * 1024,
-    fap_category="Tools",
+    fap_category="USB",
     fap_icon="hid_usb_10px.png",
     fap_icon_assets="assets",
     fap_icon_assets_symbol="hid",
@@ -13,11 +13,11 @@ App(
 
 App(
     appid="hid_ble",
-    name="Bluetooth Remote",
+    name="Remote",
     apptype=FlipperAppType.PLUGIN,
     entry_point="hid_ble_app",
     stack_size=1 * 1024,
-    fap_category="Tools",
+    fap_category="Bluetooth",
     fap_icon="hid_ble_10px.png",
     fap_icon_assets="assets",
     fap_icon_assets_symbol="hid",
