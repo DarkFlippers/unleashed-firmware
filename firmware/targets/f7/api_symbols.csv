@@ -2463,6 +2463,10 @@ Function,-,siprintf,int,"char*, const char*, ..."
 Function,-,siscanf,int,"const char*, const char*, ..."
 Function,-,sniprintf,int,"char*, size_t, const char*, ..."
 Function,+,snprintf,int,"char*, size_t, const char*, ..."
+Function,-,somfy_telis_get_custom_btn,uint8_t,
+Function,-,somfy_telis_get_original_btn,uint8_t,
+Function,-,somfy_telis_reset_original_btn,void,
+Function,-,somfy_telis_set_btn,void,uint8_t
 Function,-,sprintf,int,"char*, const char*, ..."
 Function,-,sqrt,double,double
 Function,-,sqrtf,float,float

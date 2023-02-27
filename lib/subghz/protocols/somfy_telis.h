@@ -11,6 +11,14 @@ extern const SubGhzProtocolDecoder subghz_protocol_somfy_telis_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_somfy_telis_encoder;
 extern const SubGhzProtocol subghz_protocol_somfy_telis;
 
+// Custom buttons
+void somfy_telis_set_btn(uint8_t b);
+
+uint8_t somfy_telis_get_original_btn();
+uint8_t somfy_telis_get_custom_btn();
+
+void somfy_telis_reset_original_btn();
+
 /**
  * Allocate SubGhzProtocolEncoderSomfyTelis.
  * @param environment Pointer to a SubGhzEnvironment instance

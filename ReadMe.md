@@ -72,7 +72,7 @@ Encoders/sending made by Eng1n33r & @xMasterX:
 - CAME Atomo
 - Nice Flor S
 - FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
-- BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
+- Keeloq: BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - Security+ v1 & v2
 - Star Line
 
@@ -166,7 +166,8 @@ Games:
 - Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
 - Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
 * SubGHz -> **Hold right in received signal list to delete selected signal**
-* SubGHz -> **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S** - now you can use arrow buttons to send signal with different button code
+* SubGHz -> **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S / Somfy Telis** - now you can use arrow buttons to send signal with different button code
+* SubGHz -> BFT Mitto / Somfy Telis manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis)
 * SubGHz -> Debug mode counter increase settings (+5, +10, default: +1)
 * SubGHz -> Debug PIN output settings for protocol development
 * Infrared -> Debug TX PIN output settings
