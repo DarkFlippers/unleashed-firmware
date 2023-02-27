@@ -48,15 +48,11 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
     if((model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone) ||
        (model->state.state == BadUsbStateNotConnected)) {
         elements_button_center(canvas, "Run");
+        elements_button_left(canvas, "Config");
     } else if((model->state.state == BadUsbStateRunning) || (model->state.state == BadUsbStateDelay)) {
         elements_button_center(canvas, "Stop");
     } else if(model->state.state == BadUsbStateWillRun) {
         elements_button_center(canvas, "Cancel");
-    }
-
-    if((model->state.state == BadUsbStateNotConnected) ||
-       (model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone)) {
-        elements_button_left(canvas, "Config");
     }
 
     if(model->state.state == BadUsbStateNotConnected) {
@@ -203,6 +199,7 @@ void bad_usb_set_layout(BadUsb* bad_usb, const char* layout) {
         { strlcpy(model->layout, layout, MAX_NAME_LEN); },
         true);
 }
+
 void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st) {
     furi_assert(st);
     with_view_model(
@@ -213,4 +210,20 @@ void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st) {
             model->anim_frame ^= 1;
         },
         true);
+}
+
+bool bad_usb_is_idle_state(BadUsb* bad_usb) {
+    bool is_idle = false;
+    with_view_model(
+        bad_usb->view,
+        BadUsbModel * model,
+        {
+            if((model->state.state == BadUsbStateIdle) ||
+               (model->state.state == BadUsbStateDone) ||
+               (model->state.state == BadUsbStateNotConnected)) {
+                is_idle = true;
+            }
+        },
+        false);
+    return is_idle;
 }
