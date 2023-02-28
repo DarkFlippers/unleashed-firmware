@@ -81,8 +81,14 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "BFT [Manual] 433MHz",
+        SubmenuIndexBFTClone,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "BFT Mitto 433MHz",
-        SubmenuIndexBFT,
+        SubmenuIndexBFTMitto,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -236,7 +242,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexFaacSLH_433:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
             break;
-        case SubmenuIndexBFT:
+        case SubmenuIndexBFTClone:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixBft);
             break;
         case SubmenuIndexPricenton:
@@ -310,6 +316,42 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             if(subghz_scene_set_type_submenu_gen_data_protocol(
                    subghz, SUBGHZ_PROTOCOL_GATE_TX_NAME, rev_key, 24, 433920000, "AM650")) {
                 generated_protocol = true;
+            }
+            break;
+        case SubmenuIndexBFTMitto:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_keeloq_bft_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    key & 0x000FFFFF,
+                    0x2,
+                    0x0002,
+                    key & 0x000FFFFF,
+                    "BFT",
+                    subghz->txrx->preset);
+
+                uint8_t seed_data[sizeof(uint32_t)] = {0};
+                for(size_t i = 0; i < sizeof(uint32_t); i++) {
+                    seed_data[sizeof(uint32_t) - i - 1] = ((key & 0x000FFFFF) >> i * 8) & 0xFF;
+                }
+
+                flipper_format_write_hex(
+                    subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
+
+                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
+
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexDoorHan_433_92:

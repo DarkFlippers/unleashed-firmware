@@ -8,7 +8,8 @@ typedef enum {
     //SubmenuIndex
     SubmenuIndexFaacSLH_433,
     SubmenuIndexFaacSLH_868,
-    SubmenuIndexBFT,
+    SubmenuIndexBFTClone,
+    SubmenuIndexBFTMitto,
     SubmenuIndexPricenton,
     SubmenuIndexNiceFlo12bit,
     SubmenuIndexNiceFlo24bit,
