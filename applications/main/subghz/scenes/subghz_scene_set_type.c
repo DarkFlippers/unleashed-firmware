@@ -93,6 +93,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "Somfy Telis 433MHz",
+        SubmenuIndexSomfyTelis,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "Princeton 433MHz",
         SubmenuIndexPricenton,
         subghz_scene_set_type_submenu_callback,
@@ -343,6 +349,30 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
                 flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
 
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexSomfyTelis:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_SOMFY_TELIS_NAME);
+            subghz_preset_init(
+                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_somfy_telis_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    key & 0x00FFFFFF,
+                    0x2,
+                    0x0003,
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
