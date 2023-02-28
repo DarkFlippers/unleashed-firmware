@@ -1,6 +1,12 @@
 ### New changes
 * SubGHz: **Custom buttons for Nice Flor S / Somfy Telis (+Programming mode)** - now you can use arrow buttons to send signal with different button code
 * SubGHz: Somfy Telis -> Add manually (create new remote, now with programming button (Prog / 0x8) you can write it into receiver)
+* SubGHz: BFT Mitto -> Add manually (create new remote, now with programming button (0xF) you can write it into receiver)
+* SubGHz: Nice One -> Add manually (programming is possible using regular button)
+* SubGHz: More precise settings for debug counter increase value
+* Plugins -> MouseJacker: Features, Fixes and improvements (by @MatthisC | PR #366)
+* OFW: BadUSB UI fixes
+* OFW: Plugins: move to designated categories -> **We moved some plugins to new categories too**
 * OFW: Drivers: remove excessive check in bq25896 and make PVS happy
 * OFW: FuriHal, Power, UnitTests: fix, rename battery charging voltage limit API -> **Breaking API change, api was changed from 14.x to 15.x** 
 **(this will make your manually copied plugins not work, update them in same way you installed them, or delete `apps` folder and then install firmware, if you using extra pack builds (with `e` in version) all apps in _Extra will be updated automatically)**
