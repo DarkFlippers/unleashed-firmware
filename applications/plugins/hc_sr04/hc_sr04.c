@@ -165,7 +165,8 @@ static void hc_sr04_measure(PluginState* const plugin_state) {
 
     //FURI_CRITICAL_EXIT();
 
-    plugin_state->echo = (pulse_end - pulse_start) / furi_hal_cortex_instructions_per_microsecond();
+    plugin_state->echo =
+        (pulse_end - pulse_start) / furi_hal_cortex_instructions_per_microsecond();
     plugin_state->distance = hc_sr04_us_to_m(plugin_state->echo);
     plugin_state->measurement_made = true;
 

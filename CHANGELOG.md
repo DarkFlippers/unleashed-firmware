@@ -5,6 +5,7 @@
 * SubGHz: Nice One -> Add manually (programming is possible using regular button)
 * SubGHz: More precise settings for debug counter increase value
 * Plugins -> MouseJacker: Features, Fixes and improvements (by @MatthisC | PR #366)
+* Plugins -> HC-SR04: Improve accuracy by measuring microseconds (by @clashlab | PR #367)
 * OFW: BadUSB UI fixes
 * OFW: Plugins: move to designated categories -> **We moved some plugins to new categories too**
 * OFW: Drivers: remove excessive check in bq25896 and make PVS happy
