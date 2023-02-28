@@ -1,4 +1,5 @@
 ### New changes
+* Remove `apps` folder on your microSD before installing this release to avoid issues!
 * SubGHz: **Custom buttons for Nice Flor S / Somfy Telis (+Programming mode)** - now you can use arrow buttons to send signal with different button code
 * SubGHz: Somfy Telis -> Add manually (create new remote, now with programming button (Prog / 0x8) you can write it into receiver)
 * SubGHz: BFT Mitto -> Add manually (create new remote, now with programming button (0xF) you can write it into receiver)
