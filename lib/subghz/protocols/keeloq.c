@@ -105,6 +105,8 @@ uint8_t keeloq_get_custom_btn() {
 
 void keeloq_reset_original_btn() {
     btn_temp_id_original = 0;
+    temp_counter = 0;
+    bft_prog_mode = false;
 }
 
 void keeloq_reset_mfname() {
