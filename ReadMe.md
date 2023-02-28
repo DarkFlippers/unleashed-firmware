@@ -25,7 +25,7 @@ Our Discord Community:
 <br>
 <br>
 
-## Dev builds
+## Dev builds (unstable)
 - https://dev.unleashedflip.com/
 - https://t.me/kotnehleb
 ## Releases in Telegram
@@ -35,7 +35,7 @@ Our Discord Community:
 * Sub-GHz regional TX restrictions removed
 * Sub-GHz frequency range can be extended in settings file (Warning: It can damage Flipper's hardware)
 * Many rolling code protocols now have the ability to save & send captured signals
-* FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
+* FAAC SLH (Spa) & BFT Mitto (keeloq secure with seed) manual creation
 * Sub-GHz static code brute-force plugin
 * LFRFID Fuzzer plugin
 * Custom community plugins and games added + all known working apps can be downloaded in extra pack in every release
@@ -43,13 +43,25 @@ Our Discord Community:
 * Picopass/iClass plugin included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
 * Universal remote for Projectors, Fans, A/Cs and Audio(soundbars, etc.)
-* BadUSB keyboard layouts
 * Customizable Flipper name
+- BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
+- Sub-GHz -> External CC1101 module support - [(by quen0n)](https://github.com/DarkFlippers/unleashed-firmware/pull/307)
+- Sub-GHz -> New frequency analyzer - [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
+- Sub-GHz -> Save last used frequency [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
+- Sub-GHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
+- Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
+- Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
 * Sub-GHz -> Press OK in frequency analyzer to use detected frequency in Read modes
 * Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu 
 * Sub-GHz -> External CC1101 module support
+* SubGHz -> **Hold right in received signal list to delete selected signal**
+* SubGHz -> **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S / Somfy Telis** - now you can use arrow buttons to send signal with different button code
+* SubGHz -> BFT Mitto / Somfy Telis / Nice Flor S manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis)
+* SubGHz -> Debug mode counter increase settings (+1 -> +5, +10, default: +1)
+* SubGHz -> Debug PIN output settings for protocol development
+* Infrared -> Debug TX PIN output settings
 * Other small fixes and changes throughout
-* See other changes in changelog and in readme below
+* See other changes in readme below
 
 Also check the changelog in releases for latest updates!
 
@@ -156,21 +168,6 @@ Games:
 - BlackJack [(by teeebor)](https://github.com/teeebor/flipper_games)
 - 2048 game [(by eugene-kirzhanov)](https://github.com/eugene-kirzhanov/flipper-zero-2048-game)
 
-### Other changes
-
-- BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
-- Sub-GHz -> External CC1101 module support - [(by quen0n)](https://github.com/DarkFlippers/unleashed-firmware/pull/307)
-- Sub-GHz -> New frequency analyzer - [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
-- Sub-GHz -> Save last used frequency [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
-- Sub-GHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
-- Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
-- Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
-* SubGHz -> **Hold right in received signal list to delete selected signal**
-* SubGHz -> **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S / Somfy Telis** - now you can use arrow buttons to send signal with different button code
-* SubGHz -> BFT Mitto / Somfy Telis / Nice Flor S manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis)
-* SubGHz -> Debug mode counter increase settings (+5, +10, default: +1)
-* SubGHz -> Debug PIN output settings for protocol development
-* Infrared -> Debug TX PIN output settings
 
 # Instructions
 ## [- How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)

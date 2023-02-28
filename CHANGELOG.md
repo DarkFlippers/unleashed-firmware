@@ -1,5 +1,7 @@
 ### New changes
-* Remove `apps` folder on your microSD before installing this release to avoid issues!
+* If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
+* SubGHz: Fixed timings for static CAME 12 bit and other types (fixed issue #280)
+* SubGHz: Fix #370 and fix other protocol counter issues
 * SubGHz: **Custom buttons for Nice Flor S / Somfy Telis (+Programming mode)** - now you can use arrow buttons to send signal with different button code
 * SubGHz: Somfy Telis -> Add manually (create new remote, now with programming button (Prog / 0x8) you can write it into receiver)
 * SubGHz: BFT Mitto -> Add manually (create new remote, now with programming button (0xF) you can write it into receiver)
@@ -7,6 +9,8 @@
 * SubGHz: More precise settings for debug counter increase value
 * Plugins -> MouseJacker: Features, Fixes and improvements (by @MatthisC | PR #366)
 * Plugins -> HC-SR04: Improve accuracy by measuring microseconds (by @clashlab | PR #367)
+* OFW PR: 2441 - Infrared: Fix hangups on repeated button press (by gsurkov)
+* OFW PR: 2440 - Fix navigation on unsupported card types (by Astrrra)
 * OFW: BadUSB UI fixes
 * OFW: Plugins: move to designated categories -> **We moved some plugins to new categories too**
 * OFW: Drivers: remove excessive check in bq25896 and make PVS happy
@@ -19,7 +23,7 @@
 * OFW: SD Cache: moved to diskio layer, invalidation in case of error
 * OFW: Picopass: factory key support, minor code cleanup
 
-#### [🎲 Download latest extra apps pack](https://download-directory.github.io/?url=https://github.com/xMasterX/unleashed-extra-pack/tree/main/apps)
+#### [🎲 Download latest extra apps pack](https://github.com/xMasterX/unleashed-extra-pack/archive/refs/heads/main.zip)
 
 [-> How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
