@@ -41,6 +41,7 @@ void flipper_init() {
             FLIPPER_SERVICES[i].app,
             NULL);
         furi_thread_mark_as_service(thread);
+        furi_thread_set_appid(thread, FLIPPER_SERVICES[i].appid);
 
         furi_thread_start(thread);
     }

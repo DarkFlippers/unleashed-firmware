@@ -10,10 +10,12 @@ extern "C" {
 #define STORAGE_INT_PATH_PREFIX "/int"
 #define STORAGE_EXT_PATH_PREFIX "/ext"
 #define STORAGE_ANY_PATH_PREFIX "/any"
+#define STORAGE_APP_DATA_PATH_PREFIX "/app"
 
 #define INT_PATH(path) STORAGE_INT_PATH_PREFIX "/" path
 #define EXT_PATH(path) STORAGE_EXT_PATH_PREFIX "/" path
 #define ANY_PATH(path) STORAGE_ANY_PATH_PREFIX "/" path
+#define APP_DATA_PATH(path) STORAGE_APP_DATA_PATH_PREFIX "/" path
 
 #define RECORD_STORAGE "storage"
 
@@ -175,6 +177,15 @@ bool storage_dir_read(File* file, FileInfo* fileinfo, char* name, uint16_t name_
  */
 bool storage_dir_rewind(File* file);
 
+/**
+ * @brief Check that dir exists
+ * 
+ * @param storage 
+ * @param path 
+ * @return bool 
+ */
+bool storage_dir_exists(Storage* storage, const char* path);
+
 /******************* Common Functions *******************/
 
 /** Retrieves unix timestamp of last access
@@ -245,6 +256,36 @@ FS_Error storage_common_fs_info(
     const char* fs_path,
     uint64_t* total_space,
     uint64_t* free_space);
+
+/**
+ * @brief Parse aliases in path and replace them with real path
+ * Also will create special folders if they are not exist
+ * 
+ * @param storage 
+ * @param path 
+ * @return bool 
+ */
+void storage_common_resolve_path_and_ensure_app_directory(Storage* storage, FuriString* path);
+
+/**
+ * @brief Move content of one folder to another, with rename of all conflicting files. 
+ * Source folder will be deleted if the migration is successful.
+ * 
+ * @param storage 
+ * @param source 
+ * @param dest 
+ * @return FS_Error 
+ */
+FS_Error storage_common_migrate(Storage* storage, const char* source, const char* dest);
+
+/**
+ * @brief Check that file or dir exists
+ * 
+ * @param storage 
+ * @param path 
+ * @return bool 
+ */
+bool storage_common_exists(Storage* storage, const char* path);
 
 /******************* Error Functions *******************/
 

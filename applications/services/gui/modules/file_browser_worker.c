@@ -60,7 +60,7 @@ static bool browser_path_is_file(FuriString* path) {
     FileInfo file_info;
     Storage* storage = furi_record_open(RECORD_STORAGE);
     if(storage_common_stat(storage, furi_string_get_cstr(path), &file_info) == FSE_OK) {
-        if((file_info.flags & FSF_DIRECTORY) == 0) {
+        if(!file_info_is_dir(&file_info)) {
             state = true;
         }
     }
@@ -119,7 +119,7 @@ static bool browser_folder_check_and_switch(FuriString* path) {
     while(1) {
         // Check if folder is existing and navigate back if not
         if(storage_common_stat(storage, furi_string_get_cstr(path), &file_info) == FSE_OK) {
-            if(file_info.flags & FSF_DIRECTORY) {
+            if(file_info_is_dir(&file_info)) {
                 break;
             }
         }
@@ -161,7 +161,7 @@ static bool browser_folder_init(
             if((storage_file_get_error(directory) == FSE_OK) && (name_temp[0] != '\0')) {
                 total_files_cnt++;
                 furi_string_set(name_str, name_temp);
-                if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
+                if(browser_filter_by_name(browser, name_str, file_info_is_dir(&file_info))) {
                     if(!furi_string_empty(filename)) {
                         if(furi_string_cmp(name_str, filename) == 0) {
                             *file_idx = *item_cnt;
@@ -214,7 +214,7 @@ static bool
             }
             if(storage_file_get_error(directory) == FSE_OK) {
                 furi_string_set(name_str, name_temp);
-                if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
+                if(browser_filter_by_name(browser, name_str, file_info_is_dir(&file_info))) {
                     items_cnt++;
                 }
             } else {
@@ -236,11 +236,11 @@ static bool
             }
             if(storage_file_get_error(directory) == FSE_OK) {
                 furi_string_set(name_str, name_temp);
-                if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
+                if(browser_filter_by_name(browser, name_str, file_info_is_dir(&file_info))) {
                     furi_string_printf(name_str, "%s/%s", furi_string_get_cstr(path), name_temp);
                     if(browser->list_item_cb) {
                         browser->list_item_cb(
-                            browser->cb_ctx, name_str, (file_info.flags & FSF_DIRECTORY), false);
+                            browser->cb_ctx, name_str, file_info_is_dir(&file_info), false);
                     }
                     items_cnt++;
                 }

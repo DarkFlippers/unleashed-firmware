@@ -35,6 +35,8 @@ struct FuriThread {
     void* state_context;
 
     char* name;
+    char* appid;
+
     configSTACK_DEPTH_TYPE stack_size;
     FuriThreadPriority priority;
 
@@ -122,11 +124,25 @@ FuriThread* furi_thread_alloc() {
     thread->output.buffer = furi_string_alloc();
     thread->is_service = false;
 
+    FuriThread* parent = NULL;
+    if(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+        // TLS is not available, if we called not from thread context
+        parent = pvTaskGetThreadLocalStoragePointer(NULL, 0);
+
+        if(parent && parent->appid) {
+            furi_thread_set_appid(thread, parent->appid);
+        } else {
+            furi_thread_set_appid(thread, "unknown");
+        }
+    } else {
+        // if scheduler is not started, we are starting driver thread
+        furi_thread_set_appid(thread, "driver");
+    }
+
     FuriHalRtcHeapTrackMode mode = furi_hal_rtc_get_heap_track_mode();
     if(mode == FuriHalRtcHeapTrackModeAll) {
         thread->heap_trace_enabled = true;
     } else if(mode == FuriHalRtcHeapTrackModeTree && furi_thread_get_current_id()) {
-        FuriThread* parent = pvTaskGetThreadLocalStoragePointer(NULL, 0);
         if(parent) thread->heap_trace_enabled = parent->heap_trace_enabled;
     } else {
         thread->heap_trace_enabled = false;
@@ -153,6 +169,7 @@ void furi_thread_free(FuriThread* thread) {
     furi_assert(thread->state == FuriThreadStateStopped);
 
     if(thread->name) free((void*)thread->name);
+    if(thread->appid) free((void*)thread->appid);
     furi_string_free(thread->output.buffer);
 
     free(thread);
@@ -163,6 +180,13 @@ void furi_thread_set_name(FuriThread* thread, const char* name) {
     furi_assert(thread->state == FuriThreadStateStopped);
     if(thread->name) free((void*)thread->name);
     thread->name = name ? strdup(name) : NULL;
+}
+
+void furi_thread_set_appid(FuriThread* thread, const char* appid) {
+    furi_assert(thread);
+    furi_assert(thread->state == FuriThreadStateStopped);
+    if(thread->appid) free((void*)thread->appid);
+    thread->appid = appid ? strdup(appid) : NULL;
 }
 
 void furi_thread_mark_as_service(FuriThread* thread) {
@@ -496,6 +520,20 @@ const char* furi_thread_get_name(FuriThreadId thread_id) {
     }
 
     return (name);
+}
+
+const char* furi_thread_get_appid(FuriThreadId thread_id) {
+    TaskHandle_t hTask = (TaskHandle_t)thread_id;
+    const char* appid = "system";
+
+    if(!FURI_IS_IRQ_MODE() && (hTask != NULL)) {
+        FuriThread* thread = (FuriThread*)pvTaskGetThreadLocalStoragePointer(hTask, 0);
+        if(thread) {
+            appid = thread->appid;
+        }
+    }
+
+    return (appid);
 }
 
 uint32_t furi_thread_get_stack_space(FuriThreadId thread_id) {

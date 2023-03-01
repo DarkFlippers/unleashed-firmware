@@ -23,7 +23,7 @@
 #include "views/hid_mouse_jiggler.h"
 #include "views/hid_tiktok.h"
 
-#define HID_BT_KEYS_STORAGE_PATH EXT_PATH("apps/Tools/.bt_hid.keys")
+#define HID_BT_KEYS_STORAGE_NAME ".bt_hid.keys"
 
 typedef enum {
     HidTransportUsb,

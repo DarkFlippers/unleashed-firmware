@@ -3,8 +3,8 @@
 #include <lib/toolbox/args.h>
 #include <lib/flipper_format/flipper_format.h>
 
-#define ICLASS_ELITE_DICT_FLIPPER_PATH EXT_PATH("picopass/assets/iclass_elite_dict.txt")
-#define ICLASS_ELITE_DICT_USER_PATH EXT_PATH("picopass/assets/iclass_elite_dict_user.txt")
+#define ICLASS_ELITE_DICT_FLIPPER_NAME APP_DATA_PATH("assets/iclass_elite_dict.txt")
+#define ICLASS_ELITE_DICT_USER_NAME APP_DATA_PATH("assets/iclass_elite_dict_user.txt")
 
 #define TAG "IclassEliteDict"
 
@@ -21,10 +21,10 @@ bool iclass_elite_dict_check_presence(IclassEliteDictType dict_type) {
 
     bool dict_present = false;
     if(dict_type == IclassEliteDictTypeFlipper) {
-        dict_present = storage_common_stat(storage, ICLASS_ELITE_DICT_FLIPPER_PATH, NULL) ==
-                       FSE_OK;
+        dict_present =
+            (storage_common_stat(storage, ICLASS_ELITE_DICT_FLIPPER_NAME, NULL) == FSE_OK);
     } else if(dict_type == IclassEliteDictTypeUser) {
-        dict_present = storage_common_stat(storage, ICLASS_ELITE_DICT_USER_PATH, NULL) == FSE_OK;
+        dict_present = (storage_common_stat(storage, ICLASS_ELITE_DICT_USER_NAME, NULL) == FSE_OK);
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -36,27 +36,26 @@ IclassEliteDict* iclass_elite_dict_alloc(IclassEliteDictType dict_type) {
     IclassEliteDict* dict = malloc(sizeof(IclassEliteDict));
     Storage* storage = furi_record_open(RECORD_STORAGE);
     dict->stream = buffered_file_stream_alloc(storage);
-    furi_record_close(RECORD_STORAGE);
     FuriString* next_line = furi_string_alloc();
 
     bool dict_loaded = false;
     do {
         if(dict_type == IclassEliteDictTypeFlipper) {
             if(!buffered_file_stream_open(
-                   dict->stream, ICLASS_ELITE_DICT_FLIPPER_PATH, FSAM_READ, FSOM_OPEN_EXISTING)) {
+                   dict->stream, ICLASS_ELITE_DICT_FLIPPER_NAME, FSAM_READ, FSOM_OPEN_EXISTING)) {
                 buffered_file_stream_close(dict->stream);
                 break;
             }
         } else if(dict_type == IclassEliteDictTypeUser) {
             if(!buffered_file_stream_open(
-                   dict->stream, ICLASS_ELITE_DICT_USER_PATH, FSAM_READ_WRITE, FSOM_OPEN_ALWAYS)) {
+                   dict->stream, ICLASS_ELITE_DICT_USER_NAME, FSAM_READ_WRITE, FSOM_OPEN_ALWAYS)) {
                 buffered_file_stream_close(dict->stream);
                 break;
             }
         }
 
         // Read total amount of keys
-        while(true) {
+        while(true) { //-V547
             if(!stream_read_line(dict->stream, next_line)) break;
             if(furi_string_get_char(next_line, 0) == '#') continue;
             if(furi_string_size(next_line) != ICLASS_ELITE_KEY_LINE_LEN) continue;
@@ -69,12 +68,13 @@ IclassEliteDict* iclass_elite_dict_alloc(IclassEliteDictType dict_type) {
         FURI_LOG_I(TAG, "Loaded dictionary with %lu keys", dict->total_keys);
     } while(false);
 
-    if(!dict_loaded) {
+    if(!dict_loaded) { //-V547
         buffered_file_stream_close(dict->stream);
         free(dict);
         dict = NULL;
     }
 
+    furi_record_close(RECORD_STORAGE);
     furi_string_free(next_line);
 
     return dict;

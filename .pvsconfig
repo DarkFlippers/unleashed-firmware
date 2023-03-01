@@ -44,3 +44,6 @@
 
 # Functions that always return the same error code
 //-V:picopass_device_decrypt:1048
+
+# Examples
+//V_EXCLUDE_PATH applications/examples/

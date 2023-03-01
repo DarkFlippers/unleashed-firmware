@@ -191,7 +191,7 @@ static void clean_directory(Storage* fs_api, const char* clean_dir) {
             size_t size = strlen(clean_dir) + strlen(name) + 1 + 1;
             char* fullname = malloc(size);
             snprintf(fullname, size, "%s/%s", clean_dir, name);
-            if(fileinfo.flags & FSF_DIRECTORY) {
+            if(file_info_is_dir(&fileinfo)) {
                 clean_directory(fs_api, fullname);
             }
             FS_Error error = storage_common_remove(fs_api, fullname);
@@ -608,9 +608,8 @@ static void test_rpc_storage_list_create_expected_list(
             }
 
             if(path_contains_only_ascii(name)) {
-                list->file[i].type = (fileinfo.flags & FSF_DIRECTORY) ?
-                                         PB_Storage_File_FileType_DIR :
-                                         PB_Storage_File_FileType_FILE;
+                list->file[i].type = file_info_is_dir(&fileinfo) ? PB_Storage_File_FileType_DIR :
+                                                                   PB_Storage_File_FileType_FILE;
                 list->file[i].size = fileinfo.size;
                 list->file[i].data = NULL;
                 /* memory free inside rpc_encode_and_send() -> pb_release() */
@@ -873,7 +872,7 @@ static void test_rpc_storage_stat_run(const char* path, uint32_t command_id) {
     if(error == FSE_OK) {
         response->which_content = PB_Main_storage_stat_response_tag;
         response->content.storage_stat_response.has_file = true;
-        response->content.storage_stat_response.file.type = (fileinfo.flags & FSF_DIRECTORY) ?
+        response->content.storage_stat_response.file.type = file_info_is_dir(&fileinfo) ?
                                                                 PB_Storage_File_FileType_DIR :
                                                                 PB_Storage_File_FileType_FILE;
         response->content.storage_stat_response.file.size = fileinfo.size;

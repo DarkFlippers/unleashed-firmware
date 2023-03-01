@@ -36,3 +36,7 @@ const char* filesystem_api_error_get_desc(FS_Error error_id) {
     }
     return result;
 }
+
+bool file_info_is_dir(const FileInfo* file_info) {
+    return (file_info->flags & FSF_DIRECTORY);
+}

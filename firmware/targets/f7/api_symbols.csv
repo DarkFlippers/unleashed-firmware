@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,15.0,,
+Version,+,15.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -847,6 +847,7 @@ Function,+,file_browser_worker_set_folder_callback,void,"BrowserWorker*, Browser
 Function,+,file_browser_worker_set_item_callback,void,"BrowserWorker*, BrowserWorkerListItemCallback"
 Function,+,file_browser_worker_set_list_callback,void,"BrowserWorker*, BrowserWorkerListLoadCallback"
 Function,+,file_browser_worker_set_long_load_callback,void,"BrowserWorker*, BrowserWorkerLongLoadCallback"
+Function,+,file_info_is_dir,_Bool,const FileInfo*
 Function,+,file_stream_alloc,Stream*,Storage*
 Function,+,file_stream_close,_Bool,Stream*
 Function,+,file_stream_get_error,FS_Error,Stream*
@@ -1521,6 +1522,7 @@ Function,+,furi_thread_flags_get,uint32_t,
 Function,+,furi_thread_flags_set,uint32_t,"FuriThreadId, uint32_t"
 Function,+,furi_thread_flags_wait,uint32_t,"uint32_t, uint32_t, uint32_t"
 Function,+,furi_thread_free,void,FuriThread*
+Function,+,furi_thread_get_appid,const char*,FuriThreadId
 Function,+,furi_thread_get_current,FuriThread*,
 Function,+,furi_thread_get_current_id,FuriThreadId,
 Function,+,furi_thread_get_current_priority,FuriThreadPriority,
@@ -1535,6 +1537,7 @@ Function,+,furi_thread_is_suspended,_Bool,FuriThreadId
 Function,+,furi_thread_join,_Bool,FuriThread*
 Function,+,furi_thread_mark_as_service,void,FuriThread*
 Function,+,furi_thread_resume,void,FuriThreadId
+Function,+,furi_thread_set_appid,void,"FuriThread*, const char*"
 Function,+,furi_thread_set_callback,void,"FuriThread*, FuriThreadCallback"
 Function,+,furi_thread_set_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_current_priority,void,FuriThreadPriority
@@ -2430,14 +2433,18 @@ Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
 Function,+,sscanf,int,"const char*, const char*, ..."
 Function,+,storage_common_copy,FS_Error,"Storage*, const char*, const char*"
+Function,+,storage_common_exists,_Bool,"Storage*, const char*"
 Function,+,storage_common_fs_info,FS_Error,"Storage*, const char*, uint64_t*, uint64_t*"
 Function,+,storage_common_merge,FS_Error,"Storage*, const char*, const char*"
+Function,+,storage_common_migrate,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_mkdir,FS_Error,"Storage*, const char*"
 Function,+,storage_common_remove,FS_Error,"Storage*, const char*"
 Function,+,storage_common_rename,FS_Error,"Storage*, const char*, const char*"
+Function,+,storage_common_resolve_path_and_ensure_app_directory,void,"Storage*, FuriString*"
 Function,+,storage_common_stat,FS_Error,"Storage*, const char*, FileInfo*"
 Function,+,storage_common_timestamp,FS_Error,"Storage*, const char*, uint32_t*"
 Function,+,storage_dir_close,_Bool,File*
+Function,+,storage_dir_exists,_Bool,"Storage*, const char*"
 Function,+,storage_dir_open,_Bool,"File*, const char*"
 Function,+,storage_dir_read,_Bool,"File*, FileInfo*, char*, uint16_t"
 Function,-,storage_dir_rewind,_Bool,File*
