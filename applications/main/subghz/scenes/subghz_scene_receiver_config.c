@@ -134,6 +134,7 @@ static void subghz_scene_receiver_config_set_frequency(VariableItem* item) {
         variable_item_set_current_value_text(item, text_buf);
         subghz->txrx->preset->frequency = subghz_setting_get_frequency(subghz->setting, index);
         subghz->last_settings->frequency = subghz->txrx->preset->frequency;
+        subghz_setting_set_default_frequency(subghz->setting, subghz->txrx->preset->frequency);
     } else {
         variable_item_set_current_value_index(
             item, subghz_setting_get_frequency_default_index(subghz->setting));

@@ -363,8 +363,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexSomfyTelis:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_SOMFY_TELIS_NAME);
-            subghz_preset_init(
-                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_somfy_telis_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -387,8 +386,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexDoorHan_433_92:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(
-                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -436,8 +434,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexNiceFlorS_433_92:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
-            subghz_preset_init(
-                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_nice_flor_s_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -461,8 +458,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexNiceOne_433_92:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
-            subghz_preset_init(
-                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_nice_flor_s_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -486,8 +482,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexNiceSmilo_433_92:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(
-                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
