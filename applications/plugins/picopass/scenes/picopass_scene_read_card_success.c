@@ -15,6 +15,7 @@ void picopass_scene_read_card_success_widget_callback(
 
 void picopass_scene_read_card_success_on_enter(void* context) {
     Picopass* picopass = context;
+
     FuriString* csn_str = furi_string_alloc_set("CSN:");
     FuriString* credential_str = furi_string_alloc();
     FuriString* wiegand_str = furi_string_alloc();
@@ -30,27 +31,31 @@ void picopass_scene_read_card_success_on_enter(void* context) {
     PicopassPacs* pacs = &picopass->dev->dev_data.pacs;
     Widget* widget = picopass->widget;
 
-    uint8_t csn[PICOPASS_BLOCK_LEN];
-    memcpy(csn, &AA1->data[PICOPASS_CSN_BLOCK_INDEX], PICOPASS_BLOCK_LEN);
+    uint8_t csn[PICOPASS_BLOCK_LEN] = {0};
+    memcpy(csn, AA1[PICOPASS_CSN_BLOCK_INDEX].data, PICOPASS_BLOCK_LEN);
     for(uint8_t i = 0; i < PICOPASS_BLOCK_LEN; i++) {
         furi_string_cat_printf(csn_str, "%02X ", csn[i]);
     }
 
-    // Neither of these are valid.  Indicates the block was all 0x00 or all 0xff
-    if(pacs->record.bitLength == 0 || pacs->record.bitLength == 255) {
+    bool no_key = picopass_is_memset(pacs->key, 0x00, PICOPASS_BLOCK_LEN);
+    bool empty =
+        picopass_is_memset(AA1[PICOPASS_PACS_CFG_BLOCK_INDEX].data, 0xFF, PICOPASS_BLOCK_LEN);
+
+    if(no_key) {
         furi_string_cat_printf(wiegand_str, "Read Failed");
 
         if(pacs->se_enabled) {
             furi_string_cat_printf(credential_str, "SE enabled");
         }
+    } else if(empty) {
+        furi_string_cat_printf(wiegand_str, "Empty");
+    } else if(pacs->record.bitLength == 0 || pacs->record.bitLength == 255) {
+        // Neither of these are valid.  Indicates the block was all 0x00 or all 0xff
+        furi_string_cat_printf(wiegand_str, "Invalid PACS");
 
-        widget_add_button_element(
-            widget,
-            GuiButtonTypeLeft,
-            "Retry",
-            picopass_scene_read_card_success_widget_callback,
-            picopass);
-
+        if(pacs->se_enabled) {
+            furi_string_cat_printf(credential_str, "SE enabled");
+        }
     } else {
         size_t bytesLength = 1 + pacs->record.bitLength / 8;
         furi_string_set(credential_str, "");
@@ -84,18 +89,18 @@ void picopass_scene_read_card_success_on_enter(void* context) {
 
         widget_add_button_element(
             widget,
-            GuiButtonTypeLeft,
-            "Retry",
-            picopass_scene_read_card_success_widget_callback,
-            picopass);
-
-        widget_add_button_element(
-            widget,
             GuiButtonTypeRight,
             "More",
             picopass_scene_read_card_success_widget_callback,
             picopass);
     }
+
+    widget_add_button_element(
+        widget,
+        GuiButtonTypeLeft,
+        "Retry",
+        picopass_scene_read_card_success_widget_callback,
+        picopass);
 
     widget_add_string_element(
         widget, 64, 5, AlignCenter, AlignCenter, FontSecondary, furi_string_get_cstr(csn_str));

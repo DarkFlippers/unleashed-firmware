@@ -117,13 +117,25 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
         instance->encoder.size_upload = size_upload;
     }
     //Send header
-    instance->encoder.upload[index++] = level_duration_make(
-        false,
-        (((instance->generic.data_count_bit == CAME_24_COUNT_BIT) ||
-          (instance->generic.data_count_bit ==
-           subghz_protocol_came_const.min_count_bit_for_found)) ?
-             (uint32_t)subghz_protocol_came_const.te_short * 76 :
-             (uint32_t)subghz_protocol_came_const.te_short * 39));
+    // CAME 24 Bit = 24320 us
+    if(instance->generic.data_count_bit == CAME_24_COUNT_BIT) {
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_short * 76);
+    } else if(
+        (instance->generic.data_count_bit == subghz_protocol_came_const.min_count_bit_for_found) ||
+        (instance->generic.data_count_bit == AIRFORCE_COUNT_BIT)) {
+        // CAME 12 Bit Original only! and Airforce protocol = 15040 us
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_short * 47);
+    } else if(instance->generic.data_count_bit == PRASTEL_COUNT_BIT) {
+        // PRASTEL = 11520 us
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_short * 36);
+    } else {
+        // Some wrong detected protocols, 5120 us
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_short * 16);
+    }
     //Send start bit
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_const.te_short);

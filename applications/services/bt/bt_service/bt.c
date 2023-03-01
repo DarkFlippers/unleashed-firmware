@@ -373,7 +373,7 @@ int32_t bt_srv(void* p) {
     Bt* bt = bt_alloc();
 
     if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
-        FURI_LOG_W(TAG, "Skipped BT init: device in special startup mode");
+        FURI_LOG_W(TAG, "Skipping start in special boot mode");
         ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT);
         furi_record_create(RECORD_BT, bt);
         return 0;

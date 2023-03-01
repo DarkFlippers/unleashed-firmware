@@ -140,19 +140,16 @@ uint16_t bq25896_get_vreg_voltage(FuriHalI2cBusHandle* handle) {
 
 void bq25896_set_vreg_voltage(FuriHalI2cBusHandle* handle, uint16_t vreg_voltage) {
     if(vreg_voltage < 3840) {
-        // Minimum value is 3840 mV
-        bq25896_regs.r06.VREG = 0;
-    } else {
-        // Find the nearest voltage value (subtract offset, divide into sections)
-        // Values are truncated downward as needed (e.g. 4200mV -> 4192 mV)
-        bq25896_regs.r06.VREG = (uint8_t)((vreg_voltage - 3840) / 16);
+        // Minimum valid value is 3840 mV
+        vreg_voltage = 3840;
+    } else if(vreg_voltage > 4208) {
+        // Maximum safe value is 4208 mV
+        vreg_voltage = 4208;
     }
 
-    // Do not allow values above 23 (0x17, 4208mV)
-    // Exceeding 4.2v will overcharge the battery!
-    if(bq25896_regs.r06.VREG > 23) {
-        bq25896_regs.r06.VREG = 23;
-    }
+    // Find the nearest voltage value (subtract offset, divide into sections)
+    // Values are truncated downward as needed (e.g. 4200mV -> 4192 mV)
+    bq25896_regs.r06.VREG = (uint8_t)((vreg_voltage - 3840) / 16);
 
     // Apply changes
     furi_hal_i2c_write_reg_8(

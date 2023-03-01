@@ -17,7 +17,6 @@
 #define SD_DUMMY_BYTE 0xFF
 #define SD_ANSWER_RETRY_COUNT 8
 #define SD_IDLE_RETRY_COUNT 100
-#define SD_BLOCK_SIZE 512
 
 #define FLAG_SET(x, y) (((x) & (y)) == (y))
 
@@ -598,23 +597,6 @@ static SdSpiStatus sd_spi_get_cid(SD_CID* Cid) {
     return ret;
 }
 
-static inline bool sd_cache_get(uint32_t address, uint32_t* data) {
-    uint8_t* cached_data = sector_cache_get(address);
-    if(cached_data) {
-        memcpy(data, cached_data, SD_BLOCK_SIZE);
-        return true;
-    }
-    return false;
-}
-
-static inline void sd_cache_put(uint32_t address, uint32_t* data) {
-    sector_cache_put(address, (uint8_t*)data);
-}
-
-static inline void sd_cache_invalidate_range(uint32_t start_sector, uint32_t end_sector) {
-    sector_cache_invalidate_range(start_sector, end_sector);
-}
-
 static SdSpiStatus
     sd_spi_cmd_read_blocks(uint32_t* data, uint32_t address, uint32_t blocks, uint32_t timeout_ms) {
     uint32_t block_address = address;
@@ -833,30 +815,12 @@ SdSpiStatus sd_get_card_info(SD_CardInfo* card_info) {
 
 SdSpiStatus
     sd_read_blocks(uint32_t* data, uint32_t address, uint32_t blocks, uint32_t timeout_ms) {
-    SdSpiStatus status = SdSpiStatusError;
-
-    bool single_sector_read = (blocks == 1);
-
-    if(single_sector_read) {
-        if(sd_cache_get(address, data)) {
-            return SdSpiStatusOK;
-        }
-
-        status = sd_spi_cmd_read_blocks(data, address, blocks, timeout_ms);
-
-        if(status == SdSpiStatusOK) {
-            sd_cache_put(address, data);
-        }
-    } else {
-        status = sd_spi_cmd_read_blocks(data, address, blocks, timeout_ms);
-    }
-
+    SdSpiStatus status = sd_spi_cmd_read_blocks(data, address, blocks, timeout_ms);
     return status;
 }
 
 SdSpiStatus
     sd_write_blocks(uint32_t* data, uint32_t address, uint32_t blocks, uint32_t timeout_ms) {
-    sd_cache_invalidate_range(address, address + blocks);
     SdSpiStatus status = sd_spi_cmd_write_blocks(data, address, blocks, timeout_ms);
     return status;
 }

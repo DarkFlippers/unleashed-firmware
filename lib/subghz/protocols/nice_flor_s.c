@@ -84,6 +84,25 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
     .encoder = &subghz_protocol_nice_flor_s_encoder,
 };
 
+static uint8_t n_btn_temp_id;
+static uint8_t n_btn_temp_id_original;
+
+void nice_flors_set_btn(uint8_t b) {
+    n_btn_temp_id = b;
+}
+
+uint8_t nice_flors_get_original_btn() {
+    return n_btn_temp_id_original;
+}
+
+uint8_t nice_flors_get_custom_btn() {
+    return n_btn_temp_id;
+}
+
+void nice_flors_reset_original_btn() {
+    n_btn_temp_id_original = 0;
+}
+
 static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,
     const char* file_name);
@@ -127,6 +146,74 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     furi_assert(instance);
     size_t index = 0;
     btn = instance->generic.btn;
+
+    // Save original button for later use
+    if(n_btn_temp_id_original == 0) {
+        n_btn_temp_id_original = btn;
+    }
+
+    // Set custom button
+    if(n_btn_temp_id == 1) {
+        switch(n_btn_temp_id_original) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+        case 0x8:
+            btn = 0x1;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(n_btn_temp_id == 2) {
+        switch(n_btn_temp_id_original) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+        case 0x8:
+            btn = 0x4;
+            break;
+
+        default:
+            break;
+        }
+    }
+    if(n_btn_temp_id == 3) {
+        switch(n_btn_temp_id_original) {
+        case 0x1:
+            btn = 0x8;
+            break;
+        case 0x2:
+            btn = 0x8;
+            break;
+        case 0x4:
+            btn = 0x8;
+            break;
+        case 0x8:
+            btn = 0x2;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if((n_btn_temp_id == 0) && (n_btn_temp_id_original != 0)) {
+        btn = n_btn_temp_id_original;
+    }
 
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
@@ -456,17 +543,35 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint32_t serial,
     uint8_t btn,
     uint16_t cnt,
-    SubGhzRadioPreset* preset) {
+    SubGhzRadioPreset* preset,
+    bool nice_one) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
-    instance->generic.data_count_bit = 52;
+    if(nice_one) {
+        instance->generic.data_count_bit = NICE_ONE_COUNT_BIT;
+    } else {
+        instance->generic.data_count_bit = 52;
+    }
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(
         decrypt, instance->nice_flor_s_rainbow_table_file_name);
     uint8_t byte = btn << 4 | (0xF ^ btn ^ 0x3);
     instance->generic.data = (uint64_t)byte << 44 | enc_part;
+
+    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        uint8_t add_data[10] = {0};
+        for(size_t i = 0; i < 7; i++) {
+            add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
+        }
+        subghz_protocol_nice_one_get_data(add_data, 0, 0);
+        instance->generic.data_2 = 0;
+        for(size_t j = 7; j < 10; j++) {
+            instance->generic.data_2 <<= 8;
+            instance->generic.data_2 += add_data[j];
+        }
+    }
 
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
@@ -645,6 +750,11 @@ static void subghz_protocol_nice_flor_s_remote_controller(
         instance->cnt = decrypt & 0xFFFF;
         instance->serial = (decrypt >> 16) & 0xFFFFFFF;
         instance->btn = (decrypt >> 48) & 0xF;
+    }
+
+    // Save original button for later use
+    if(n_btn_temp_id_original == 0) {
+        n_btn_temp_id_original = instance->btn;
     }
 }
 

@@ -16,6 +16,7 @@ void picopass_scene_write_card_success_widget_callback(
 void picopass_scene_write_card_success_on_enter(void* context) {
     Picopass* picopass = context;
     Widget* widget = picopass->widget;
+    FuriString* str = furi_string_alloc_set("Write Success!");
 
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
@@ -28,6 +29,18 @@ void picopass_scene_write_card_success_on_enter(void* context) {
         "Retry",
         picopass_scene_write_card_success_widget_callback,
         picopass);
+
+    widget_add_button_element(
+        widget,
+        GuiButtonTypeRight,
+        "Menu",
+        picopass_scene_write_card_success_widget_callback,
+        picopass);
+
+    widget_add_string_element(
+        widget, 64, 5, AlignCenter, AlignCenter, FontSecondary, furi_string_get_cstr(str));
+
+    furi_string_free(str);
 
     view_dispatcher_switch_to_view(picopass->view_dispatcher, PicopassViewWidget);
 }

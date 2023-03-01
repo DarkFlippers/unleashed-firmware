@@ -110,11 +110,7 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 }
 
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
-    if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
-        instance->generic.cnt = 0;
-    } else {
-        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-    }
+    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
     uint32_t hop = 0;
     uint32_t decrypt = 0;

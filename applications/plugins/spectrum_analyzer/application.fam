@@ -8,5 +8,5 @@ App(
     stack_size=2 * 1024,
     order=12,
     fap_icon="spectrum_10px.png",
-    fap_category="Tools",
+    fap_category="Sub-GHz",
 )

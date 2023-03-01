@@ -13,7 +13,7 @@ App(
     order=20,
     fap_icon="icons/music_10px.png",
     fap_icon_assets="icons",
-    fap_category="Music",
+    fap_category="Media",
 )
 
 App(

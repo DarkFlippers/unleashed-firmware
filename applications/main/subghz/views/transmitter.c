@@ -6,6 +6,8 @@
 
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/protocols/alutech_at_4n.h>
+#include <lib/subghz/protocols/nice_flor_s.h>
+#include <lib/subghz/protocols/somfy_telis.h>
 
 struct SubGhzViewTransmitter {
     View* view;
@@ -159,6 +161,8 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
     if(can_be_sent && event->key == InputKeyUp && event->type == InputTypePress) {
         keeloq_set_btn(1);
         alutech_set_btn(1);
+        nice_flors_set_btn(1);
+        somfy_telis_set_btn(1);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
@@ -169,6 +173,14 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
                     model->draw_temp_button = true;
                 } else if(alutech_get_original_btn() != 0) {
                     furi_string_printf(model->temp_button_id, "%01X", alutech_get_original_btn());
+                    model->draw_temp_button = true;
+                } else if(nice_flors_get_original_btn() != 0) {
+                    furi_string_printf(
+                        model->temp_button_id, "%01X", nice_flors_get_original_btn());
+                    model->draw_temp_button = true;
+                } else if(somfy_telis_get_original_btn() != 0) {
+                    furi_string_printf(
+                        model->temp_button_id, "%01X", somfy_telis_get_original_btn());
                     model->draw_temp_button = true;
                 }
             },
@@ -185,6 +197,8 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
     if(can_be_sent && event->key == InputKeyDown && event->type == InputTypePress) {
         keeloq_set_btn(2);
         alutech_set_btn(2);
+        nice_flors_set_btn(2);
+        somfy_telis_set_btn(2);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
@@ -195,6 +209,14 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
                     model->draw_temp_button = true;
                 } else if(alutech_get_original_btn() != 0) {
                     furi_string_printf(model->temp_button_id, "%01X", alutech_get_original_btn());
+                    model->draw_temp_button = true;
+                } else if(nice_flors_get_original_btn() != 0) {
+                    furi_string_printf(
+                        model->temp_button_id, "%01X", nice_flors_get_original_btn());
+                    model->draw_temp_button = true;
+                } else if(somfy_telis_get_original_btn() != 0) {
+                    furi_string_printf(
+                        model->temp_button_id, "%01X", somfy_telis_get_original_btn());
                     model->draw_temp_button = true;
                 }
             },
@@ -211,6 +233,8 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
     if(can_be_sent && event->key == InputKeyLeft && event->type == InputTypePress) {
         keeloq_set_btn(3);
         alutech_set_btn(3);
+        nice_flors_set_btn(3);
+        somfy_telis_set_btn(3);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
@@ -221,6 +245,14 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
                     model->draw_temp_button = true;
                 } else if(alutech_get_original_btn() != 0) {
                     furi_string_printf(model->temp_button_id, "%01X", alutech_get_original_btn());
+                    model->draw_temp_button = true;
+                } else if(nice_flors_get_original_btn() != 0) {
+                    furi_string_printf(
+                        model->temp_button_id, "%01X", nice_flors_get_original_btn());
+                    model->draw_temp_button = true;
+                } else if(somfy_telis_get_original_btn() != 0) {
+                    furi_string_printf(
+                        model->temp_button_id, "%01X", somfy_telis_get_original_btn());
                     model->draw_temp_button = true;
                 }
             },

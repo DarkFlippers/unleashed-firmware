@@ -10,7 +10,7 @@ App(
     stack_size=4 * 1024,
     order=20,
     fap_icon="dap_link.png",
-    fap_category="Tools",
+    fap_category="GPIO",
     fap_private_libs=[
         Lib(
             name="free-dap",

@@ -36,10 +36,10 @@ void bq25896_disable_otg(FuriHalI2cBusHandle* handle);
 /** Is otg enabled */
 bool bq25896_is_otg_enabled(FuriHalI2cBusHandle* handle);
 
-/** Get VREG (charging) voltage in mV */
+/** Get VREG (charging limit) voltage in mV */
 uint16_t bq25896_get_vreg_voltage(FuriHalI2cBusHandle* handle);
 
-/** Set VREG (charging) voltage in mV
+/** Set VREG (charging limit) voltage in mV
  *
  * Valid range: 3840mV - 4208mV, in steps of 16mV
  */

@@ -97,7 +97,16 @@ static void update_task_cleanup_resources(UpdateTask* update_task, const uint32_
                 path_concat(
                     STORAGE_EXT_PATH_PREFIX, furi_string_get_cstr(entry_ptr->name), file_path);
                 FURI_LOG_D(TAG, "Removing %s", furi_string_get_cstr(file_path));
-                storage_simply_remove(update_task->storage, furi_string_get_cstr(file_path));
+
+                FS_Error result =
+                    storage_common_remove(update_task->storage, furi_string_get_cstr(file_path));
+                if(result != FSE_OK && result != FSE_EXIST) {
+                    FURI_LOG_E(
+                        TAG,
+                        "%s remove failed, cause %s",
+                        furi_string_get_cstr(file_path),
+                        storage_error_get_desc(result));
+                }
                 furi_string_free(file_path);
             } else if(entry_ptr->type == ResourceManifestEntryTypeDirectory) {
                 n_dir_entries++;
@@ -116,7 +125,6 @@ static void update_task_cleanup_resources(UpdateTask* update_task, const uint32_
                             n_dir_entries);
 
                 FuriString* folder_path = furi_string_alloc();
-                File* folder_file = storage_file_alloc(update_task->storage);
 
                 do {
                     path_concat(
@@ -125,24 +133,17 @@ static void update_task_cleanup_resources(UpdateTask* update_task, const uint32_
                         folder_path);
 
                     FURI_LOG_D(TAG, "Removing folder %s", furi_string_get_cstr(folder_path));
-                    if(!storage_dir_open(folder_file, furi_string_get_cstr(folder_path))) {
-                        FURI_LOG_W(
+                    FS_Error result = storage_common_remove(
+                        update_task->storage, furi_string_get_cstr(folder_path));
+                    if(result != FSE_OK && result != FSE_EXIST) {
+                        FURI_LOG_E(
                             TAG,
-                            "%s can't be opened, skipping",
-                            furi_string_get_cstr(folder_path));
-                        break;
+                            "%s remove failed, cause %s",
+                            furi_string_get_cstr(folder_path),
+                            storage_error_get_desc(result));
                     }
-
-                    if(storage_dir_read(folder_file, NULL, NULL, 0)) {
-                        FURI_LOG_I(
-                            TAG, "%s is not empty, skipping", furi_string_get_cstr(folder_path));
-                        break;
-                    }
-
-                    storage_simply_remove(update_task->storage, furi_string_get_cstr(folder_path));
                 } while(false);
 
-                storage_file_free(folder_file);
                 furi_string_free(folder_path);
             }
         }

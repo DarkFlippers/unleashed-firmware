@@ -3,6 +3,7 @@
 static const char ducky_cmd_comment[] = {"REM"};
 static const char ducky_cmd_delay[] = {"DELAY "};
 static const char ducky_cmd_string[] = {"STRING "};
+static const char ducky_cmd_altstring[] = {"ALTSTRING "};
 static const char ducky_cmd_repeat[] = {"REPEAT "};
 
 static uint8_t LOGITECH_HID_TEMPLATE[] =
@@ -11,6 +12,10 @@ static uint8_t LOGITECH_HELLO[] = {0x00, 0x4F, 0x00, 0x04, 0xB0, 0x10, 0x00, 0x0
 static uint8_t LOGITECH_KEEPALIVE[] = {0x00, 0x40, 0x00, 0x55, 0x6B};
 
 uint8_t prev_hid = 0;
+static bool holding_ctrl = false;
+static bool holding_shift = false;
+static bool holding_alt = false;
+static bool holding_gui = false;
 
 #define RT_THRESHOLD 50
 #define LOGITECH_MIN_CHANNEL 2
@@ -65,7 +70,10 @@ MJDuckyKey mj_ducky_keys[] = {{" ", 44, 0},         {"!", 30, 2},          {"\""
                               {"LEFTARROW", 80, 0}, {"RIGHTARROW", 79, 0}, {"PAGEDOWN", 78, 0},
                               {"PAUSE", 72, 0},     {"SPACE", 44, 0},      {"UPARROW", 82, 0},
                               {"F11", 68, 0},       {"F7", 64, 0},         {"UP", 82, 0},
-                              {"LEFT", 80, 0}};
+                              {"LEFT", 80, 0},      {"NUM 1", 89, 0},      {"NUM 2", 90, 0},
+                              {"NUM 3", 91, 0},     {"NUM 4", 92, 0},      {"NUM 5", 93, 0},
+                              {"NUM 6", 94, 0},     {"NUM 7", 95, 0},      {"NUM 8", 96, 0},
+                              {"NUM 9", 97, 0},     {"NUM 0", 98, 0}};
 
 /*
 static bool mj_ducky_get_number(const char* param, uint32_t* val) {
@@ -89,7 +97,8 @@ static uint32_t mj_ducky_get_command_len(const char* line) {
 static bool mj_get_ducky_key(char* key, size_t keylen, MJDuckyKey* dk) {
     //FURI_LOG_D(TAG, "looking up key %s with length %d", key, keylen);
     for(uint i = 0; i < sizeof(mj_ducky_keys) / sizeof(MJDuckyKey); i++) {
-        if(!strncmp(mj_ducky_keys[i].name, key, keylen)) {
+        if(strlen(mj_ducky_keys[i].name) == keylen &&
+           !strncmp(mj_ducky_keys[i].name, key, keylen)) {
             memcpy(dk, &mj_ducky_keys[i], sizeof(MJDuckyKey));
             return true;
         }
@@ -152,6 +161,30 @@ static void build_hid_packet(uint8_t mod, uint8_t hid, uint8_t* payload) {
     checksum(payload, LOGITECH_HID_TEMPLATE_SIZE);
 }
 
+static void release_key(
+    FuriHalSpiBusHandle* handle,
+    uint8_t* addr,
+    uint8_t addr_size,
+    uint8_t rate,
+    PluginState* plugin_state) {
+    // This function release keys currently pressed, but keep pressing special keys
+    // if holding mod keys variable are set to true
+
+    uint8_t hid_payload[LOGITECH_HID_TEMPLATE_SIZE] = {0};
+    build_hid_packet(
+        0 | holding_ctrl | holding_shift << 1 | holding_alt << 2 | holding_gui << 3,
+        0,
+        hid_payload);
+    inject_packet(
+        handle,
+        addr,
+        addr_size,
+        rate,
+        hid_payload,
+        LOGITECH_HID_TEMPLATE_SIZE,
+        plugin_state); // empty hid packet
+}
+
 static void send_hid_packet(
     FuriHalSpiBusHandle* handle,
     uint8_t* addr,
@@ -161,22 +194,20 @@ static void send_hid_packet(
     uint8_t hid,
     PluginState* plugin_state) {
     uint8_t hid_payload[LOGITECH_HID_TEMPLATE_SIZE] = {0};
-    build_hid_packet(0, 0, hid_payload);
-    if(hid == prev_hid)
-        inject_packet(
-            handle,
-            addr,
-            addr_size,
-            rate,
-            hid_payload,
-            LOGITECH_HID_TEMPLATE_SIZE,
-            plugin_state); // empty hid packet
+    if(hid == prev_hid) release_key(handle, addr, addr_size, rate, plugin_state);
 
     prev_hid = hid;
-    build_hid_packet(mod, hid, hid_payload);
+    build_hid_packet(
+        mod | holding_ctrl | holding_shift << 1 | holding_alt << 2 | holding_gui << 3,
+        hid,
+        hid_payload);
     inject_packet(
         handle, addr, addr_size, rate, hid_payload, LOGITECH_HID_TEMPLATE_SIZE, plugin_state);
     furi_delay_ms(12);
+}
+
+static bool ducky_end_line(const char chr) {
+    return ((chr == ' ') || (chr == '\0') || (chr == '\r') || (chr == '\n'));
 }
 
 // returns false if there was an error processing script line
@@ -252,6 +283,32 @@ static bool mj_process_ducky_line(
         }
 
         return true;
+    } else if(strncmp(line_tmp, ducky_cmd_altstring, strlen(ducky_cmd_altstring)) == 0) {
+        // ALTSTRING
+        line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
+        for(size_t i = 0; i < strlen(line_tmp); i++) {
+            if((line_tmp[i] < ' ') || (line_tmp[i] > '~')) {
+                continue; // Skip non-printable chars
+            }
+
+            char alt_code[4];
+            // Getting altcode of the char
+            snprintf(alt_code, 4, "%u", line_tmp[i]);
+
+            uint8_t j = 0;
+            while(!ducky_end_line(alt_code[j])) {
+                char pad_num[5] = {'N', 'U', 'M', ' ', alt_code[j]};
+                if(!mj_get_ducky_key(pad_num, 5, &dk)) return false;
+                holding_alt = true;
+                FURI_LOG_D(TAG, "Sending %s", pad_num);
+                send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+                j++;
+            }
+            holding_alt = false;
+            release_key(handle, addr, addr_size, rate, plugin_state);
+        }
+
+        return true;
     } else if(strncmp(line_tmp, ducky_cmd_repeat, strlen(ducky_cmd_repeat)) == 0) {
         // REPEAT
         uint32_t repeat_cnt = 0;
@@ -269,7 +326,9 @@ static bool mj_process_ducky_line(
     } else if(strncmp(line_tmp, "ALT", strlen("ALT")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 4, dk.hid, plugin_state);
+        holding_alt = true;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        holding_alt = false;
         return true;
     } else if(
         strncmp(line_tmp, "GUI", strlen("GUI")) == 0 ||
@@ -277,33 +336,47 @@ static bool mj_process_ducky_line(
         strncmp(line_tmp, "COMMAND", strlen("COMMAND")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 8, dk.hid, plugin_state);
+        holding_gui = true;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        holding_gui = false;
         return true;
     } else if(
         strncmp(line_tmp, "CTRL-ALT", strlen("CTRL-ALT")) == 0 ||
         strncmp(line_tmp, "CONTROL-ALT", strlen("CONTROL-ALT")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 4 | 1, dk.hid, plugin_state);
+        holding_ctrl = true;
+        holding_alt = true;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        holding_ctrl = false;
+        holding_alt = false;
         return true;
     } else if(
         strncmp(line_tmp, "CTRL-SHIFT", strlen("CTRL-SHIFT")) == 0 ||
         strncmp(line_tmp, "CONTROL-SHIFT", strlen("CONTROL-SHIFT")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 1 | 2, dk.hid, plugin_state);
+        holding_ctrl = true;
+        holding_shift = true;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        holding_ctrl = false;
+        holding_shift = false;
         return true;
     } else if(
         strncmp(line_tmp, "CTRL", strlen("CTRL")) == 0 ||
         strncmp(line_tmp, "CONTROL", strlen("CONTROL")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 1, dk.hid, plugin_state);
+        holding_ctrl = true;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        holding_ctrl = false;
         return true;
     } else if(strncmp(line_tmp, "SHIFT", strlen("SHIFT")) == 0) {
         line_tmp = &line_tmp[mj_ducky_get_command_len(line_tmp) + 1];
         if(!mj_get_ducky_key(line_tmp, strlen(line_tmp), &dk)) return false;
-        send_hid_packet(handle, addr, addr_size, rate, dk.mod | 2, dk.hid, plugin_state);
+        holding_shift = true;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        holding_shift = false;
         return true;
     } else if(
         strncmp(line_tmp, "ESC", strlen("ESC")) == 0 ||
@@ -342,6 +415,10 @@ static bool mj_process_ducky_line(
         return true;
     } else if(strncmp(line_tmp, "SPACE", strlen("SPACE")) == 0) {
         if(!mj_get_ducky_key("SPACE", 5, &dk)) return false;
+        send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
+        return true;
+    } else if(strncmp(line_tmp, "TAB", strlen("TAB")) == 0) {
+        if(!mj_get_ducky_key("TAB", 3, &dk)) return false;
         send_hid_packet(handle, addr, addr_size, rate, dk.mod, dk.hid, plugin_state);
         return true;
     }

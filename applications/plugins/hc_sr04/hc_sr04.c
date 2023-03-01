@@ -3,6 +3,7 @@
 // Ported and modified by @xMasterX
 
 #include <furi.h>
+#include <furi_hal.h>
 #include <furi_hal_power.h>
 #include <furi_hal_console.h>
 #include <gui/gui.h>
@@ -26,7 +27,7 @@ typedef struct {
     NotificationApp* notification;
     bool have_5v;
     bool measurement_made;
-    uint32_t echo; // ms
+    uint32_t echo; // us
     float distance; // meters
 } PluginState;
 
@@ -72,7 +73,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
 
             FuriString* str_buf;
             str_buf = furi_string_alloc();
-            furi_string_printf(str_buf, "Echo: %ld ms", plugin_state->echo);
+            furi_string_printf(str_buf, "Echo: %ld us", plugin_state->echo);
 
             canvas_draw_str_aligned(
                 canvas, 8, 38, AlignLeft, AlignTop, furi_string_get_cstr(str_buf));
@@ -110,9 +111,11 @@ static void hc_sr04_state_init(PluginState* const plugin_state) {
     }
 }
 
-float hc_sr04_ms_to_m(uint32_t ms) {
-    const float speed_sound_m_per_s = 343.0f;
-    const float time_s = ms / 1e3f;
+float hc_sr04_us_to_m(uint32_t us) {
+    //speed of sound for 20°C, 50% relative humidity
+    //331.3 + 20 * 0.606 + 50 * 0.0124 = 0.034404
+    const float speed_sound_m_per_s = 344.04f;
+    const float time_s = us / 1e6f;
     const float total_dist = time_s * speed_sound_m_per_s;
     return total_dist / 2.0f;
 }
@@ -147,10 +150,6 @@ static void hc_sr04_measure(PluginState* const plugin_state) {
     furi_delay_ms(10);
     furi_hal_gpio_write(&gpio_usart_tx, false);
 
-    // TODO change from furi_get_tick(), which returns ms,
-    // to DWT->CYCCNT, which is a more precise counter with
-    // us precision (see furi_hal_cortex_delay_us)
-
     const uint32_t start = furi_get_tick();
 
     while(furi_get_tick() - start < timeout_ms && furi_hal_gpio_read(&gpio_usart_rx))
@@ -158,16 +157,17 @@ static void hc_sr04_measure(PluginState* const plugin_state) {
     while(furi_get_tick() - start < timeout_ms && !furi_hal_gpio_read(&gpio_usart_rx))
         ;
 
-    const uint32_t pulse_start = furi_get_tick();
+    const uint32_t pulse_start = DWT->CYCCNT;
 
     while(furi_get_tick() - start < timeout_ms && furi_hal_gpio_read(&gpio_usart_rx))
         ;
+    const uint32_t pulse_end = DWT->CYCCNT;
 
-    const uint32_t pulse_end = furi_get_tick();
     //FURI_CRITICAL_EXIT();
 
-    plugin_state->echo = pulse_end - pulse_start;
-    plugin_state->distance = hc_sr04_ms_to_m(pulse_end - pulse_start);
+    plugin_state->echo =
+        (pulse_end - pulse_start) / furi_hal_cortex_instructions_per_microsecond();
+    plugin_state->distance = hc_sr04_us_to_m(plugin_state->echo);
     plugin_state->measurement_made = true;
 
     //furi_hal_light_set(LightRed, 0x00);

@@ -142,10 +142,6 @@ void bad_usb_app_free(BadUsbApp* app) {
         app->bad_usb_script = NULL;
     }
 
-    if(app->usb_if_prev) {
-        furi_check(furi_hal_usb_set_config(app->usb_if_prev, NULL));
-    }
-
     // Views
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewWork);
     bad_usb_free(app->bad_usb_view);
@@ -171,6 +167,10 @@ void bad_usb_app_free(BadUsbApp* app) {
 
     furi_string_free(app->file_path);
     furi_string_free(app->keyboard_layout);
+
+    if(app->usb_if_prev) {
+        furi_check(furi_hal_usb_set_config(app->usb_if_prev, NULL));
+    }
 
     free(app);
 }
