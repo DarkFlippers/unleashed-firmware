@@ -1,10 +1,6 @@
-#include "ibutton.h"
-#include "assets_icons.h"
 #include "ibutton_i.h"
-#include "ibutton/scenes/ibutton_scene.h"
+
 #include <toolbox/path.h>
-#include <flipper_format/flipper_format.h>
-#include <rpc/rpc_app.h>
 #include <dolphin/dolphin.h>
 
 #define TAG "iButtonApp"
@@ -34,50 +30,13 @@ static const NotificationSequence* ibutton_notification_sequences[] = {
 };
 
 static void ibutton_make_app_folder(iButton* ibutton) {
-    if(!storage_simply_mkdir(ibutton->storage, IBUTTON_APP_FOLDER)) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+
+    if(!storage_simply_mkdir(storage, IBUTTON_APP_FOLDER)) {
         dialog_message_show_storage_error(ibutton->dialogs, "Cannot create\napp folder");
     }
-}
 
-bool ibutton_load_key_data(iButton* ibutton, FuriString* key_path, bool show_dialog) {
-    FlipperFormat* file = flipper_format_file_alloc(ibutton->storage);
-    bool result = false;
-    FuriString* data;
-    data = furi_string_alloc();
-
-    do {
-        if(!flipper_format_file_open_existing(file, furi_string_get_cstr(key_path))) break;
-
-        // header
-        uint32_t version;
-        if(!flipper_format_read_header(file, data, &version)) break;
-        if(furi_string_cmp_str(data, IBUTTON_APP_FILE_TYPE) != 0) break;
-        if(version != 1) break;
-
-        // key type
-        iButtonKeyType type;
-        if(!flipper_format_read_string(file, "Key type", data)) break;
-        if(!ibutton_key_get_type_by_string(furi_string_get_cstr(data), &type)) break;
-
-        // key data
-        uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0};
-        if(!flipper_format_read_hex(file, "Data", key_data, ibutton_key_get_size_by_type(type)))
-            break;
-
-        ibutton_key_set_type(ibutton->key, type);
-        ibutton_key_set_data(ibutton->key, key_data, IBUTTON_KEY_DATA_SIZE);
-
-        result = true;
-    } while(false);
-
-    flipper_format_free(file);
-    furi_string_free(data);
-
-    if((!result) && (show_dialog)) {
-        dialog_message_show_storage_error(ibutton->dialogs, "Cannot load\nkey file");
-    }
-
-    return result;
+    furi_record_close(RECORD_STORAGE);
 }
 
 static void ibutton_rpc_command_callback(RpcAppSystemEvent event, void* context) {
@@ -87,14 +46,14 @@ static void ibutton_rpc_command_callback(RpcAppSystemEvent event, void* context)
     if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(
             ibutton->view_dispatcher, iButtonCustomEventRpcSessionClose);
-        rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
-        ibutton->rpc_ctx = NULL;
+        rpc_system_app_set_callback(ibutton->rpc, NULL, NULL);
+        ibutton->rpc = NULL;
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
     } else if(event == RpcAppEventLoadFile) {
         view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcLoad);
     } else {
-        rpc_system_app_confirm(ibutton->rpc_ctx, event, false);
+        rpc_system_app_confirm(ibutton->rpc, event, false);
     }
 }
 
@@ -135,13 +94,13 @@ iButton* ibutton_alloc() {
 
     ibutton->gui = furi_record_open(RECORD_GUI);
 
-    ibutton->storage = furi_record_open(RECORD_STORAGE);
     ibutton->dialogs = furi_record_open(RECORD_DIALOGS);
     ibutton->notifications = furi_record_open(RECORD_NOTIFICATION);
 
-    ibutton->key = ibutton_key_alloc();
-    ibutton->key_worker = ibutton_worker_alloc();
-    ibutton_worker_start_thread(ibutton->key_worker);
+    ibutton->protocols = ibutton_protocols_alloc();
+    ibutton->key = ibutton_key_alloc(ibutton_protocols_get_max_data_size(ibutton->protocols));
+    ibutton->worker = ibutton_worker_alloc(ibutton->protocols);
+    ibutton_worker_start_thread(ibutton->worker);
 
     ibutton->submenu = submenu_alloc();
     view_dispatcher_add_view(
@@ -163,9 +122,9 @@ iButton* ibutton_alloc() {
     view_dispatcher_add_view(
         ibutton->view_dispatcher, iButtonViewWidget, widget_get_view(ibutton->widget));
 
-    ibutton->dialog_ex = dialog_ex_alloc();
+    ibutton->loading = loading_alloc();
     view_dispatcher_add_view(
-        ibutton->view_dispatcher, iButtonViewDialogEx, dialog_ex_get_view(ibutton->dialog_ex));
+        ibutton->view_dispatcher, iButtonViewLoading, loading_get_view(ibutton->loading));
 
     return ibutton;
 }
@@ -173,8 +132,8 @@ iButton* ibutton_alloc() {
 void ibutton_free(iButton* ibutton) {
     furi_assert(ibutton);
 
-    view_dispatcher_remove_view(ibutton->view_dispatcher, iButtonViewDialogEx);
-    dialog_ex_free(ibutton->dialog_ex);
+    view_dispatcher_remove_view(ibutton->view_dispatcher, iButtonViewLoading);
+    loading_free(ibutton->loading);
 
     view_dispatcher_remove_view(ibutton->view_dispatcher, iButtonViewWidget);
     widget_free(ibutton->widget);
@@ -194,9 +153,6 @@ void ibutton_free(iButton* ibutton) {
     view_dispatcher_free(ibutton->view_dispatcher);
     scene_manager_free(ibutton->scene_manager);
 
-    furi_record_close(RECORD_STORAGE);
-    ibutton->storage = NULL;
-
     furi_record_close(RECORD_NOTIFICATION);
     ibutton->notifications = NULL;
 
@@ -206,103 +162,83 @@ void ibutton_free(iButton* ibutton) {
     furi_record_close(RECORD_GUI);
     ibutton->gui = NULL;
 
-    ibutton_worker_stop_thread(ibutton->key_worker);
-    ibutton_worker_free(ibutton->key_worker);
+    ibutton_worker_stop_thread(ibutton->worker);
+    ibutton_worker_free(ibutton->worker);
     ibutton_key_free(ibutton->key);
+    ibutton_protocols_free(ibutton->protocols);
 
     furi_string_free(ibutton->file_path);
 
     free(ibutton);
 }
 
-bool ibutton_file_select(iButton* ibutton) {
-    DialogsFileBrowserOptions browser_options;
-    dialog_file_browser_set_basic_options(&browser_options, IBUTTON_APP_EXTENSION, &I_ibutt_10px);
-    browser_options.base_path = IBUTTON_APP_FOLDER;
+bool ibutton_load_key(iButton* ibutton) {
+    view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewLoading);
 
-    bool success = dialog_file_browser_show(
-        ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options);
+    const bool success = ibutton_protocols_load(
+        ibutton->protocols, ibutton->key, furi_string_get_cstr(ibutton->file_path));
 
-    if(success) {
-        success = ibutton_load_key_data(ibutton, ibutton->file_path, true);
+    if(!success) {
+        dialog_message_show_storage_error(ibutton->dialogs, "Cannot load\nkey file");
+
+    } else {
+        FuriString* tmp = furi_string_alloc();
+
+        path_extract_filename(ibutton->file_path, tmp, true);
+        strncpy(ibutton->key_name, furi_string_get_cstr(tmp), IBUTTON_KEY_NAME_SIZE);
+
+        furi_string_free(tmp);
     }
 
     return success;
 }
 
-bool ibutton_save_key(iButton* ibutton, const char* key_name) {
-    // Create ibutton directory if necessary
+bool ibutton_select_and_load_key(iButton* ibutton) {
+    DialogsFileBrowserOptions browser_options;
+    dialog_file_browser_set_basic_options(&browser_options, IBUTTON_APP_EXTENSION, &I_ibutt_10px);
+    browser_options.base_path = IBUTTON_APP_FOLDER;
+
+    if(furi_string_empty(ibutton->file_path)) {
+        furi_string_set(ibutton->file_path, browser_options.base_path);
+    }
+
+    return dialog_file_browser_show(
+               ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options) &&
+           ibutton_load_key(ibutton);
+}
+
+bool ibutton_save_key(iButton* ibutton) {
+    view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewLoading);
+
     ibutton_make_app_folder(ibutton);
 
-    FlipperFormat* file = flipper_format_file_alloc(ibutton->storage);
     iButtonKey* key = ibutton->key;
+    const bool success =
+        ibutton_protocols_save(ibutton->protocols, key, furi_string_get_cstr(ibutton->file_path));
 
-    bool result = false;
-
-    do {
-        // Check if we has old key
-        if(furi_string_end_with(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
-            // First remove old key
-            ibutton_delete_key(ibutton);
-
-            // Remove old key name from path
-            size_t filename_start = furi_string_search_rchar(ibutton->file_path, '/');
-            furi_string_left(ibutton->file_path, filename_start);
-        }
-
-        furi_string_cat_printf(ibutton->file_path, "/%s%s", key_name, IBUTTON_APP_EXTENSION);
-
-        // Open file for write
-        if(!flipper_format_file_open_always(file, furi_string_get_cstr(ibutton->file_path))) break;
-
-        // Write header
-        if(!flipper_format_write_header_cstr(file, IBUTTON_APP_FILE_TYPE, 1)) break;
-
-        // Write key type
-        if(!flipper_format_write_comment_cstr(file, "Key type can be Cyfral, Dallas or Metakom"))
-            break;
-        const char* key_type = ibutton_key_get_string_by_type(ibutton_key_get_type(key));
-        if(!flipper_format_write_string_cstr(file, "Key type", key_type)) break;
-
-        // Write data
-        if(!flipper_format_write_comment_cstr(
-               file, "Data size for Cyfral is 2, for Metakom is 4, for Dallas is 8"))
-            break;
-
-        if(!flipper_format_write_hex(
-               file, "Data", ibutton_key_get_data_p(key), ibutton_key_get_data_size(key)))
-            break;
-        result = true;
-
-    } while(false);
-
-    flipper_format_free(file);
-
-    if(!result) { //-V547
+    if(!success) {
         dialog_message_show_storage_error(ibutton->dialogs, "Cannot save\nkey file");
     }
 
-    return result;
+    return success;
 }
 
 bool ibutton_delete_key(iButton* ibutton) {
     bool result = false;
-    result = storage_simply_remove(ibutton->storage, furi_string_get_cstr(ibutton->file_path));
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    result = storage_simply_remove(storage, furi_string_get_cstr(ibutton->file_path));
+    furi_record_close(RECORD_STORAGE);
+
+    ibutton_reset_key(ibutton);
 
     return result;
 }
 
-void ibutton_text_store_set(iButton* ibutton, const char* text, ...) {
-    va_list args;
-    va_start(args, text);
-
-    vsnprintf(ibutton->text_store, IBUTTON_TEXT_STORE_SIZE, text, args);
-
-    va_end(args);
-}
-
-void ibutton_text_store_clear(iButton* ibutton) {
-    memset(ibutton->text_store, 0, IBUTTON_TEXT_STORE_SIZE + 1);
+void ibutton_reset_key(iButton* ibutton) {
+    memset(ibutton->key_name, 0, IBUTTON_KEY_NAME_SIZE + 1);
+    furi_string_reset(ibutton->file_path);
+    ibutton_key_reset(ibutton->key);
 }
 
 void ibutton_notification_message(iButton* ibutton, uint32_t message) {
@@ -310,36 +246,44 @@ void ibutton_notification_message(iButton* ibutton, uint32_t message) {
     notification_message(ibutton->notifications, ibutton_notification_sequences[message]);
 }
 
-int32_t ibutton_app(void* p) {
+void ibutton_submenu_callback(void* context, uint32_t index) {
+    iButton* ibutton = context;
+    view_dispatcher_send_custom_event(ibutton->view_dispatcher, index);
+}
+
+void ibutton_widget_callback(GuiButtonType result, InputType type, void* context) {
+    iButton* ibutton = context;
+    if(type == InputTypeShort) {
+        view_dispatcher_send_custom_event(ibutton->view_dispatcher, result);
+    }
+}
+
+int32_t ibutton_app(void* arg) {
     iButton* ibutton = ibutton_alloc();
 
     ibutton_make_app_folder(ibutton);
 
     bool key_loaded = false;
-    bool rpc_mode = false;
 
-    if(p && strlen(p)) {
-        uint32_t rpc_ctx = 0;
-        if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
+    if((arg != NULL) && (strlen(arg) != 0)) {
+        if(sscanf(arg, "RPC %lX", (uint32_t*)&ibutton->rpc) == 1) {
             FURI_LOG_D(TAG, "Running in RPC mode");
-            ibutton->rpc_ctx = (void*)rpc_ctx;
-            rpc_mode = true;
-            rpc_system_app_set_callback(ibutton->rpc_ctx, ibutton_rpc_command_callback, ibutton);
-            rpc_system_app_send_started(ibutton->rpc_ctx);
+
+            rpc_system_app_set_callback(ibutton->rpc, ibutton_rpc_command_callback, ibutton);
+            rpc_system_app_send_started(ibutton->rpc);
+
         } else {
-            furi_string_set(ibutton->file_path, (const char*)p);
-            if(ibutton_load_key_data(ibutton, ibutton->file_path, true)) {
-                key_loaded = true;
-                // TODO: Display an error if the key from p could not be loaded
-            }
+            furi_string_set(ibutton->file_path, (const char*)arg);
+            key_loaded = ibutton_load_key(ibutton);
         }
     }
 
-    if(rpc_mode) {
+    if(ibutton->rpc != NULL) {
         view_dispatcher_attach_to_gui(
             ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeDesktop);
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRpc);
         DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
+
     } else {
         view_dispatcher_attach_to_gui(
             ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeFullscreen);
@@ -353,9 +297,9 @@ int32_t ibutton_app(void* p) {
 
     view_dispatcher_run(ibutton->view_dispatcher);
 
-    if(ibutton->rpc_ctx) {
-        rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
-        rpc_system_app_send_exited(ibutton->rpc_ctx);
+    if(ibutton->rpc) {
+        rpc_system_app_set_callback(ibutton->rpc, NULL, NULL);
+        rpc_system_app_send_exited(ibutton->rpc);
     }
     ibutton_free(ibutton);
     return 0;

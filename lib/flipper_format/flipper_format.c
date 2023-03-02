@@ -91,6 +91,12 @@ bool flipper_format_file_open_always(FlipperFormat* flipper_format, const char* 
     return file_stream_open(flipper_format->stream, path, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS);
 }
 
+bool flipper_format_buffered_file_open_always(FlipperFormat* flipper_format, const char* path) {
+    furi_assert(flipper_format);
+    return buffered_file_stream_open(
+        flipper_format->stream, path, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS);
+}
+
 bool flipper_format_file_open_new(FlipperFormat* flipper_format, const char* path) {
     furi_assert(flipper_format);
     return file_stream_open(flipper_format->stream, path, FSAM_READ_WRITE, FSOM_CREATE_NEW);

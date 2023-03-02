@@ -131,7 +131,7 @@ bool flipper_format_file_open_existing(FlipperFormat* flipper_format, const char
 
 /**
  * Open existing file, buffered mode.
- * Use only if FlipperFormat allocated as a file.
+ * Use only if FlipperFormat allocated as a buffered file.
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param path File path
  * @return True on success
@@ -155,6 +155,15 @@ bool flipper_format_file_open_append(FlipperFormat* flipper_format, const char* 
  * @return True on success
  */
 bool flipper_format_file_open_always(FlipperFormat* flipper_format, const char* path);
+
+/**
+ * Open file. Creates a new file, or deletes the contents of the file if it already exists, buffered mode.
+ * Use only if FlipperFormat allocated as a buffered file.
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param path File path
+ * @return True on success
+ */
+bool flipper_format_buffered_file_open_always(FlipperFormat* flipper_format, const char* path);
 
 /**
  * Open file. Creates a new file, fails if file already exists.

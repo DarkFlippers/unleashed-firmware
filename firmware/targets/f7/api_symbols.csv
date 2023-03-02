@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,15.1,,
+Version,+,16.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -162,9 +162,10 @@ Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
 Header,+,lib/nfc/nfc_device.h,,
+Header,+,lib/one_wire/ibutton/ibutton_key.h,,
+Header,+,lib/one_wire/ibutton/ibutton_protocols.h,,
 Header,+,lib/one_wire/ibutton/ibutton_worker.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
-Header,+,lib/one_wire/one_wire_device.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_host_timing.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
@@ -191,6 +192,7 @@ Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
 Header,+,lib/toolbox/md5.h,,
 Header,+,lib/toolbox/path.h,,
+Header,+,lib/toolbox/pretty_format.h,,
 Header,+,lib/toolbox/protocols/protocol_dict.h,,
 Header,+,lib/toolbox/random_name.h,,
 Header,+,lib/toolbox/saved_struct.h,,
@@ -874,6 +876,7 @@ Function,-,flipper_application_preload_status_to_string,const char*,FlipperAppli
 Function,+,flipper_application_spawn,FuriThread*,"FlipperApplication*, void*"
 Function,+,flipper_format_buffered_file_alloc,FlipperFormat*,Storage*
 Function,+,flipper_format_buffered_file_close,_Bool,FlipperFormat*
+Function,+,flipper_format_buffered_file_open_always,_Bool,"FlipperFormat*, const char*"
 Function,+,flipper_format_buffered_file_open_existing,_Bool,"FlipperFormat*, const char*"
 Function,+,flipper_format_delete_key,_Bool,"FlipperFormat*, const char*"
 Function,+,flipper_format_file_alloc,FlipperFormat*,Storage*
@@ -1597,22 +1600,33 @@ Function,+,hmac_sha256_update,void,"const hmac_sha256_context*, const uint8_t*, 
 Function,-,hypot,double,"double, double"
 Function,-,hypotf,float,"float, float"
 Function,-,hypotl,long double,"long double, long double"
-Function,+,ibutton_key_alloc,iButtonKey*,
-Function,+,ibutton_key_clear_data,void,iButtonKey*
-Function,+,ibutton_key_dallas_crc_is_valid,_Bool,iButtonKey*
-Function,+,ibutton_key_dallas_is_1990_key,_Bool,iButtonKey*
+Function,+,ibutton_key_alloc,iButtonKey*,size_t
 Function,+,ibutton_key_free,void,iButtonKey*
-Function,+,ibutton_key_get_data_p,const uint8_t*,iButtonKey*
-Function,+,ibutton_key_get_data_size,uint8_t,iButtonKey*
-Function,+,ibutton_key_get_max_size,uint8_t,
-Function,+,ibutton_key_get_size_by_type,uint8_t,iButtonKeyType
-Function,+,ibutton_key_get_string_by_type,const char*,iButtonKeyType
-Function,+,ibutton_key_get_type,iButtonKeyType,iButtonKey*
-Function,+,ibutton_key_get_type_by_string,_Bool,"const char*, iButtonKeyType*"
-Function,+,ibutton_key_set,void,"iButtonKey*, const iButtonKey*"
-Function,+,ibutton_key_set_data,void,"iButtonKey*, uint8_t*, uint8_t"
-Function,+,ibutton_key_set_type,void,"iButtonKey*, iButtonKeyType"
-Function,+,ibutton_worker_alloc,iButtonWorker*,
+Function,+,ibutton_key_get_protocol_id,iButtonProtocolId,const iButtonKey*
+Function,+,ibutton_key_reset,void,iButtonKey*
+Function,+,ibutton_key_set_protocol_id,void,"iButtonKey*, iButtonProtocolId"
+Function,+,ibutton_protocols_alloc,iButtonProtocols*,
+Function,+,ibutton_protocols_apply_edits,void,"iButtonProtocols*, const iButtonKey*"
+Function,+,ibutton_protocols_emulate_start,void,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_emulate_stop,void,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_free,void,iButtonProtocols*
+Function,+,ibutton_protocols_get_editable_data,void,"iButtonProtocols*, const iButtonKey*, iButtonEditableData*"
+Function,+,ibutton_protocols_get_features,uint32_t,"iButtonProtocols*, iButtonProtocolId"
+Function,+,ibutton_protocols_get_id_by_name,iButtonProtocolId,"iButtonProtocols*, const char*"
+Function,+,ibutton_protocols_get_manufacturer,const char*,"iButtonProtocols*, iButtonProtocolId"
+Function,+,ibutton_protocols_get_max_data_size,size_t,iButtonProtocols*
+Function,+,ibutton_protocols_get_name,const char*,"iButtonProtocols*, iButtonProtocolId"
+Function,+,ibutton_protocols_get_protocol_count,uint32_t,
+Function,+,ibutton_protocols_is_valid,_Bool,"iButtonProtocols*, const iButtonKey*"
+Function,+,ibutton_protocols_load,_Bool,"iButtonProtocols*, iButtonKey*, const char*"
+Function,+,ibutton_protocols_read,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_render_brief_data,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
+Function,+,ibutton_protocols_render_data,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
+Function,+,ibutton_protocols_render_error,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
+Function,+,ibutton_protocols_save,_Bool,"iButtonProtocols*, const iButtonKey*, const char*"
+Function,+,ibutton_protocols_write_blank,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_write_copy,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_worker_alloc,iButtonWorker*,iButtonProtocols*
 Function,+,ibutton_worker_emulate_set_callback,void,"iButtonWorker*, iButtonWorkerEmulateCallback, void*"
 Function,+,ibutton_worker_emulate_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_free,void,iButtonWorker*
@@ -1621,8 +1635,9 @@ Function,+,ibutton_worker_read_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_start_thread,void,iButtonWorker*
 Function,+,ibutton_worker_stop,void,iButtonWorker*
 Function,+,ibutton_worker_stop_thread,void,iButtonWorker*
+Function,+,ibutton_worker_write_blank_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_write_copy_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
-Function,+,ibutton_worker_write_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
 Function,+,icon_animation_get_height,uint8_t,const IconAnimation*
@@ -2034,12 +2049,6 @@ Function,+,notification_message,void,"NotificationApp*, const NotificationSequen
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,-,nrand48,long,unsigned short[3]
 Function,-,on_exit,int,"void (*)(int, void*), void*"
-Function,+,onewire_device_alloc,OneWireDevice*,"uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t"
-Function,+,onewire_device_attach,void,"OneWireDevice*, OneWireSlave*"
-Function,+,onewire_device_detach,void,OneWireDevice*
-Function,+,onewire_device_free,void,OneWireDevice*
-Function,+,onewire_device_get_id_p,uint8_t*,OneWireDevice*
-Function,+,onewire_device_send_id,void,OneWireDevice*
 Function,+,onewire_host_alloc,OneWireHost*,const GpioPin*
 Function,+,onewire_host_free,void,OneWireHost*
 Function,+,onewire_host_read,uint8_t,OneWireHost*
@@ -2054,10 +2063,15 @@ Function,+,onewire_host_stop,void,OneWireHost*
 Function,+,onewire_host_target_search,void,"OneWireHost*, uint8_t"
 Function,+,onewire_host_write,void,"OneWireHost*, uint8_t"
 Function,+,onewire_host_write_bit,void,"OneWireHost*, _Bool"
+Function,+,onewire_host_write_bytes,void,"OneWireHost*, const uint8_t*, uint16_t"
 Function,+,onewire_slave_alloc,OneWireSlave*,const GpioPin*
-Function,+,onewire_slave_attach,void,"OneWireSlave*, OneWireDevice*"
-Function,+,onewire_slave_detach,void,OneWireSlave*
 Function,+,onewire_slave_free,void,OneWireSlave*
+Function,+,onewire_slave_receive,_Bool,"OneWireSlave*, uint8_t*, size_t"
+Function,+,onewire_slave_receive_bit,_Bool,OneWireSlave*
+Function,+,onewire_slave_send,_Bool,"OneWireSlave*, const uint8_t*, size_t"
+Function,+,onewire_slave_send_bit,_Bool,"OneWireSlave*, _Bool"
+Function,+,onewire_slave_set_command_callback,void,"OneWireSlave*, OneWireSlaveCommandCallback, void*"
+Function,+,onewire_slave_set_reset_callback,void,"OneWireSlave*, OneWireSlaveResetCallback, void*"
 Function,+,onewire_slave_set_result_callback,void,"OneWireSlave*, OneWireSlaveResultCallback, void*"
 Function,+,onewire_slave_start,void,OneWireSlave*
 Function,+,onewire_slave_stop,void,OneWireSlave*
@@ -2105,6 +2119,7 @@ Function,+,power_off,void,Power*
 Function,+,power_reboot,void,PowerBootMode
 Function,+,powf,float,"float, float"
 Function,-,powl,long double,"long double, long double"
+Function,+,pretty_format_bytes_hex_canonical,void,"FuriString*, size_t, const char*, const uint8_t*, size_t"
 Function,-,printf,int,"const char*, ..."
 Function,-,prng_successor,uint32_t,"uint32_t, uint32_t"
 Function,+,property_value_out,void,"PropertyValueContext*, const char*, unsigned int, ..."

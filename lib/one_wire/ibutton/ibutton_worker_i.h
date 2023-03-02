@@ -5,13 +5,11 @@
  */
 
 #pragma once
+
+#include <core/thread.h>
+#include <core/message_queue.h>
+
 #include "ibutton_worker.h"
-#include "ibutton_writer.h"
-#include "../one_wire_host.h"
-#include "../one_wire_slave.h"
-#include "../one_wire_device.h"
-#include <toolbox/protocols/protocol_dict.h>
-#include "protocols/ibutton_protocols.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,19 +23,16 @@ typedef struct {
 } iButtonWorkerModeType;
 
 typedef enum {
-    iButtonWorkerIdle = 0,
-    iButtonWorkerRead = 1,
-    iButtonWorkerWrite = 2,
-    iButtonWorkerEmulate = 3,
+    iButtonWorkerModeIdle,
+    iButtonWorkerModeRead,
+    iButtonWorkerModeWriteBlank,
+    iButtonWorkerModeWriteCopy,
+    iButtonWorkerModeEmulate,
 } iButtonWorkerMode;
 
 struct iButtonWorker {
-    iButtonKey* key_p;
-    uint8_t* key_data;
-    OneWireHost* host;
-    OneWireSlave* slave;
-    OneWireDevice* device;
-    iButtonWriter* writer;
+    iButtonKey* key;
+    iButtonProtocols* protocols;
     iButtonWorkerMode mode_index;
     FuriMessageQueue* messages;
     FuriThread* thread;
@@ -45,10 +40,8 @@ struct iButtonWorker {
     iButtonWorkerReadCallback read_cb;
     iButtonWorkerWriteCallback write_cb;
     iButtonWorkerEmulateCallback emulate_cb;
-    void* cb_ctx;
 
-    ProtocolDict* protocols;
-    iButtonProtocol protocol_to_encode;
+    void* cb_ctx;
 };
 
 extern const iButtonWorkerModeType ibutton_worker_modes[];

@@ -115,6 +115,7 @@ void widget_add_text_box_element(
  * @param[in]  text             Formatted text. Default format: align left, Secondary font.
  *                              The following formats are available:
  *                               "\e#Bold text" - sets bold font before until next '\n' symbol
+ *                               "\e*Monospaced text\e*" - sets monospaced font before until next '\n' symbol
  *                               "\ecCenter-aligned text" - sets center horizontal align until the next '\n' symbol
  *                               "\erRight-aligned text" - sets right horizontal align until the next '\n' symbol
  */

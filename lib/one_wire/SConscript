@@ -11,8 +11,9 @@ env.Append(
         File("one_wire_host_timing.h"),
         File("one_wire_host.h"),
         File("one_wire_slave.h"),
-        File("one_wire_device.h"),
+        File("ibutton/ibutton_key.h"),
         File("ibutton/ibutton_worker.h"),
+        File("ibutton/ibutton_protocols.h"),
         File("maxim_crc.h"),
     ],
 )

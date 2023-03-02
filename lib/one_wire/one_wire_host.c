@@ -116,6 +116,12 @@ void onewire_host_write(OneWireHost* host, uint8_t value) {
     }
 }
 
+void onewire_host_write_bytes(OneWireHost* host, const uint8_t* buffer, uint16_t count) {
+    for(uint16_t i = 0; i < count; ++i) {
+        onewire_host_write(host, buffer[i]);
+    }
+}
+
 void onewire_host_skip(OneWireHost* host) {
     onewire_host_write(host, 0xCC);
 }
@@ -175,10 +181,10 @@ uint8_t onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSea
 
         // issue the search command
         switch(mode) {
-        case CONDITIONAL_SEARCH:
+        case OneWireHostSearchModeConditional:
             onewire_host_write(host, 0xEC);
             break;
-        case NORMAL_SEARCH:
+        case OneWireHostSearchModeNormal:
             onewire_host_write(host, 0xF0);
             break;
         }

@@ -5,7 +5,9 @@
  */
 
 #pragma once
+
 #include "ibutton_key.h"
+#include "ibutton_protocols.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +30,7 @@ typedef struct iButtonWorker iButtonWorker;
  * Allocate ibutton worker
  * @return iButtonWorker* 
  */
-iButtonWorker* ibutton_worker_alloc();
+iButtonWorker* ibutton_worker_alloc(iButtonProtocols* protocols);
 
 /**
  * Free ibutton worker
@@ -78,11 +80,18 @@ void ibutton_worker_write_set_callback(
     void* context);
 
 /**
- * Start write mode
+ * Start write blank mode
  * @param worker 
  * @param key 
  */
-void ibutton_worker_write_start(iButtonWorker* worker, iButtonKey* key);
+void ibutton_worker_write_blank_start(iButtonWorker* worker, iButtonKey* key);
+
+/**
+ * Start write copy mode
+ * @param worker
+ * @param key
+ */
+void ibutton_worker_write_copy_start(iButtonWorker* worker, iButtonKey* key);
 
 /**
  * Set "emulate success" callback
