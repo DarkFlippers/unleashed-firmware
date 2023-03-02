@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
+
 #include "protocol_cyfral.h"
 
 #define CYFRAL_DATA_SIZE sizeof(uint16_t)
@@ -324,7 +325,13 @@ static LevelDuration protocol_cyfral_encoder_yield(ProtocolCyfral* proto) {
     return result;
 }
 
-const ProtocolBase protocol_cyfral = {
+static void protocol_cyfral_render_brief_data(ProtocolCyfral* proto, FuriString* result) {
+    for(size_t i = 0; i < CYFRAL_DATA_SIZE; ++i) {
+        furi_string_cat_printf(result, "%02X ", ((uint8_t*)&proto->data)[i]);
+    }
+}
+
+const ProtocolBase ibutton_protocol_misc_cyfral = {
     .name = "Cyfral",
     .manufacturer = "Cyfral",
     .data_size = CYFRAL_DATA_SIZE,
@@ -341,4 +348,5 @@ const ProtocolBase protocol_cyfral = {
             .start = (ProtocolEncoderStart)protocol_cyfral_encoder_start,
             .yield = (ProtocolEncoderYield)protocol_cyfral_encoder_yield,
         },
+    .render_brief_data = (ProtocolRenderData)protocol_cyfral_render_brief_data,
 };

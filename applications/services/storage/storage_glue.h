@@ -18,7 +18,6 @@ typedef struct {
 
 typedef struct {
     File* file;
-    StorageType type;
     void* file_data;
     FuriString* path;
 } StorageFile;
@@ -66,11 +65,7 @@ bool storage_path_already_open(FuriString* path, StorageFileList_t files);
 void storage_set_storage_file_data(const File* file, void* file_data, StorageData* storage);
 void* storage_get_storage_file_data(const File* file, StorageData* storage);
 
-void storage_push_storage_file(
-    File* file,
-    FuriString* path,
-    StorageType type,
-    StorageData* storage);
+void storage_push_storage_file(File* file, FuriString* path, StorageData* storage);
 bool storage_pop_storage_file(File* file, StorageData* storage);
 
 #ifdef __cplusplus

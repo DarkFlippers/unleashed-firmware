@@ -131,7 +131,7 @@ static void storage_cli_list(Cli* cli, FuriString* path) {
 
             while(storage_dir_read(file, &fileinfo, name, MAX_NAME_LENGTH)) {
                 read_done = true;
-                if(fileinfo.flags & FSF_DIRECTORY) {
+                if(file_info_is_dir(&fileinfo)) {
                     printf("\t[D] %s\r\n", name);
                 } else {
                     printf("\t[F] %s %lub\r\n", name, (uint32_t)(fileinfo.size));
@@ -169,7 +169,7 @@ static void storage_cli_tree(Cli* cli, FuriString* path) {
 
             while(dir_walk_read(dir_walk, name, &fileinfo) == DirWalkOK) {
                 read_done = true;
-                if(fileinfo.flags & FSF_DIRECTORY) {
+                if(file_info_is_dir(&fileinfo)) {
                     printf("\t[D] %s\r\n", furi_string_get_cstr(name));
                 } else {
                     printf(
@@ -383,7 +383,7 @@ static void storage_cli_stat(Cli* cli, FuriString* path) {
         FS_Error error = storage_common_stat(api, furi_string_get_cstr(path), &fileinfo);
 
         if(error == FSE_OK) {
-            if(fileinfo.flags & FSF_DIRECTORY) {
+            if(file_info_is_dir(&fileinfo)) {
                 printf("Directory\r\n");
             } else {
                 printf("File, size: %lub\r\n", (uint32_t)(fileinfo.size));

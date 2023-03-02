@@ -14,8 +14,8 @@ extern "C" {
 #endif
 
 typedef enum {
-    CONDITIONAL_SEARCH = 0, /**< Search for alarmed device */
-    NORMAL_SEARCH = 1, /**< Search all devices */
+    OneWireHostSearchModeConditional = 0, /**< Search for alarmed device */
+    OneWireHostSearchModeNormal = 1, /**< Search all devices */
 } OneWireHostSearchMode;
 
 typedef struct OneWireHost OneWireHost;
@@ -75,6 +75,14 @@ void onewire_host_write_bit(OneWireHost* host, bool value);
  * @param value 
  */
 void onewire_host_write(OneWireHost* host, uint8_t value);
+
+/**
+ * Write many bytes
+ * @param host
+ * @param buffer
+ * @param count
+ */
+void onewire_host_write_bytes(OneWireHost* host, const uint8_t* buffer, uint16_t count);
 
 /**
  * Skip ROM command

@@ -10,14 +10,13 @@ void ibutton_scene_read_on_enter(void* context) {
     iButton* ibutton = context;
     Popup* popup = ibutton->popup;
     iButtonKey* key = ibutton->key;
-    iButtonWorker* worker = ibutton->key_worker;
+    iButtonWorker* worker = ibutton->worker;
 
     popup_set_header(popup, "iButton", 95, 26, AlignCenter, AlignBottom);
     popup_set_text(popup, "Waiting\nfor key ...", 95, 30, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 5, &I_DolphinWait_61x59);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
-    furi_string_set(ibutton->file_path, IBUTTON_APP_FOLDER);
 
     ibutton_worker_read_set_callback(worker, ibutton_scene_read_callback, ibutton);
     ibutton_worker_read_start(worker, key);
@@ -35,25 +34,14 @@ bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
     } else if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == iButtonCustomEventWorkerRead) {
-            bool success = false;
-            iButtonKey* key = ibutton->key;
-
-            if(ibutton_key_get_type(key) == iButtonKeyDS1990) {
-                if(!ibutton_key_dallas_crc_is_valid(key)) {
-                    scene_manager_next_scene(scene_manager, iButtonSceneReadCRCError);
-                } else if(!ibutton_key_dallas_is_1990_key(key)) {
-                    scene_manager_next_scene(scene_manager, iButtonSceneReadNotKeyError);
-                } else {
-                    success = true;
-                }
-            } else {
-                success = true;
-            }
-
-            if(success) {
+            if(ibutton_protocols_is_valid(ibutton->protocols, ibutton->key)) {
                 ibutton_notification_message(ibutton, iButtonNotificationMessageSuccess);
                 scene_manager_next_scene(scene_manager, iButtonSceneReadSuccess);
+
                 DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
+
+            } else {
+                scene_manager_next_scene(scene_manager, iButtonSceneReadError);
             }
         }
     }
@@ -64,7 +52,7 @@ bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
 void ibutton_scene_read_on_exit(void* context) {
     iButton* ibutton = context;
     Popup* popup = ibutton->popup;
-    ibutton_worker_stop(ibutton->key_worker);
+    ibutton_worker_stop(ibutton->worker);
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);

@@ -1,66 +1,54 @@
 #include "../ibutton_i.h"
-#include <toolbox/path.h>
 
 void ibutton_scene_info_on_enter(void* context) {
     iButton* ibutton = context;
-    Widget* widget = ibutton->widget;
     iButtonKey* key = ibutton->key;
+    Widget* widget = ibutton->widget;
 
-    const uint8_t* key_data = ibutton_key_get_data_p(key);
+    const iButtonProtocolId protocol_id = ibutton_key_get_protocol_id(key);
 
-    FuriString* key_name;
-    key_name = furi_string_alloc();
-    path_extract_filename(ibutton->file_path, key_name, true);
+    FuriString* tmp = furi_string_alloc();
 
-    ibutton_text_store_set(ibutton, "%s", furi_string_get_cstr(key_name));
+    furi_string_printf(
+        tmp,
+        "\e#%s [%s]\e#",
+        ibutton->key_name,
+        ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+
     widget_add_text_box_element(
-        widget, 0, 0, 128, 23, AlignCenter, AlignCenter, ibutton->text_store, true);
+        widget, 0, 2, 128, 12, AlignLeft, AlignTop, furi_string_get_cstr(tmp), true);
 
-    switch(ibutton_key_get_type(key)) {
-    case iButtonKeyDS1990:
-        ibutton_text_store_set(
-            ibutton,
-            "%02X %02X %02X %02X %02X %02X %02X %02X",
-            key_data[0],
-            key_data[1],
-            key_data[2],
-            key_data[3],
-            key_data[4],
-            key_data[5],
-            key_data[6],
-            key_data[7]);
-        widget_add_string_element(widget, 64, 36, AlignCenter, AlignBottom, FontPrimary, "Dallas");
-        break;
+    furi_string_reset(tmp);
+    ibutton_protocols_render_brief_data(ibutton->protocols, key, tmp);
 
-    case iButtonKeyMetakom:
-        ibutton_text_store_set(
-            ibutton, "%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
-        widget_add_string_element(
-            widget, 64, 36, AlignCenter, AlignBottom, FontPrimary, "Metakom");
-        break;
+    widget_add_string_multiline_element(
+        widget, 0, 16, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(tmp));
 
-    case iButtonKeyCyfral:
-        ibutton_text_store_set(ibutton, "%02X %02X", key_data[0], key_data[1]);
-        widget_add_string_element(widget, 64, 36, AlignCenter, AlignBottom, FontPrimary, "Cyfral");
-        break;
+    if(ibutton_protocols_get_features(ibutton->protocols, protocol_id) &
+       iButtonProtocolFeatureExtData) {
+        widget_add_button_element(
+            widget, GuiButtonTypeRight, "More", ibutton_widget_callback, context);
     }
 
-    widget_add_string_element(
-        widget, 64, 50, AlignCenter, AlignBottom, FontSecondary, ibutton->text_store);
-
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
-
-    furi_string_free(key_name);
+    furi_string_free(tmp);
 }
 
 bool ibutton_scene_info_on_event(void* context, SceneManagerEvent event) {
-    UNUSED(context);
-    UNUSED(event);
-    return false;
+    iButton* ibutton = context;
+    bool consumed = false;
+
+    if(event.type == SceneManagerEventTypeCustom) {
+        consumed = true;
+        if(event.event == GuiButtonTypeRight) {
+            scene_manager_next_scene(ibutton->scene_manager, iButtonSceneViewData);
+        }
+    }
+
+    return consumed;
 }
 
 void ibutton_scene_info_on_exit(void* context) {
     iButton* ibutton = context;
-    ibutton_text_store_clear(ibutton);
     widget_reset(ibutton->widget);
 }

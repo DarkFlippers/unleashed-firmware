@@ -87,6 +87,16 @@ void furi_thread_free(FuriThread* thread);
  */
 void furi_thread_set_name(FuriThread* thread, const char* name);
 
+/**
+ * @brief Set FuriThread appid
+ * Technically, it is like a "process id", but it is not a system-wide unique identifier.
+ * All threads spawned by the same app will have the same appid.
+ * 
+ * @param thread 
+ * @param appid 
+ */
+void furi_thread_set_appid(FuriThread* thread, const char* appid);
+
 /** Mark thread as service
  * The service cannot be stopped or removed, and cannot exit from the thread body
  * 
@@ -233,10 +243,37 @@ uint32_t furi_thread_flags_get(void);
 
 uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeout);
 
+/**
+ * @brief Enumerate threads
+ * 
+ * @param thread_array array of FuriThreadId, where thread ids will be stored
+ * @param array_items array size
+ * @return uint32_t threads count
+ */
 uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_items);
 
+/**
+ * @brief Get thread name
+ * 
+ * @param thread_id 
+ * @return const char* name or NULL
+ */
 const char* furi_thread_get_name(FuriThreadId thread_id);
 
+/**
+ * @brief Get thread appid
+ * 
+ * @param thread_id 
+ * @return const char* appid
+ */
+const char* furi_thread_get_appid(FuriThreadId thread_id);
+
+/**
+ * @brief Get thread stack watermark
+ * 
+ * @param thread_id 
+ * @return uint32_t 
+ */
 uint32_t furi_thread_get_stack_space(FuriThreadId thread_id);
 
 /** Get STDOUT callback for thead

@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
+
 #include "protocol_metakom.h"
 
 #define METAKOM_DATA_SIZE sizeof(uint32_t)
@@ -300,7 +301,13 @@ static LevelDuration protocol_metakom_encoder_yield(ProtocolMetakom* proto) {
     return result;
 }
 
-const ProtocolBase protocol_metakom = {
+static void protocol_metakom_render_brief_data(ProtocolMetakom* proto, FuriString* result) {
+    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
+        furi_string_cat_printf(result, "%02X ", ((uint8_t*)&proto->data)[i]);
+    }
+}
+
+const ProtocolBase ibutton_protocol_misc_metakom = {
     .name = "Metakom",
     .manufacturer = "Metakom",
     .data_size = METAKOM_DATA_SIZE,
@@ -317,4 +324,5 @@ const ProtocolBase protocol_metakom = {
             .start = (ProtocolEncoderStart)protocol_metakom_encoder_start,
             .yield = (ProtocolEncoderYield)protocol_metakom_encoder_yield,
         },
+    .render_brief_data = (ProtocolRenderData)protocol_metakom_render_brief_data,
 };

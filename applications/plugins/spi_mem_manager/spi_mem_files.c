@@ -1,11 +1,5 @@
 #include "spi_mem_app_i.h"
 
-void spi_mem_file_create_folder(SPIMemApp* app) {
-    if(!storage_simply_mkdir(app->storage, SPI_MEM_FILE_FOLDER)) {
-        dialog_message_show_storage_error(app->dialogs, "Cannot create\napp folder");
-    }
-}
-
 bool spi_mem_file_delete(SPIMemApp* app) {
     return (storage_simply_remove(app->storage, furi_string_get_cstr(app->file_path)));
 }
@@ -13,7 +7,7 @@ bool spi_mem_file_delete(SPIMemApp* app) {
 bool spi_mem_file_select(SPIMemApp* app) {
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, SPI_MEM_FILE_EXTENSION, &I_Dip8_10px);
-    browser_options.base_path = SPI_MEM_FILE_FOLDER;
+    browser_options.base_path = STORAGE_APP_DATA_PATH_PREFIX;
     bool success =
         dialog_file_browser_show(app->dialogs, app->file_path, app->file_path, &browser_options);
     return success;

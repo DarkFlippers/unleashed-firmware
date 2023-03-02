@@ -37,6 +37,8 @@ static bool
             line->horizontal = AlignRight;
         } else if(ctrl_symbol == '#') {
             line->font = FontPrimary;
+        } else if(ctrl_symbol == '*') {
+            line->font = FontKeyboard;
         }
         furi_string_right(text, 2);
         processed = true;

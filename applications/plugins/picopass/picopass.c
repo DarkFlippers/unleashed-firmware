@@ -171,6 +171,12 @@ void picopass_show_loading_popup(void* context, bool show) {
     }
 }
 
+static void picopass_migrate_from_old_folder() {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    storage_common_migrate(storage, "/ext/picopass", STORAGE_APP_DATA_PATH_PREFIX);
+    furi_record_close(RECORD_STORAGE);
+}
+
 bool picopass_is_memset(const uint8_t* data, const uint8_t pattern, size_t size) {
     bool result = size > 0;
     while(size > 0) {
@@ -183,6 +189,8 @@ bool picopass_is_memset(const uint8_t* data, const uint8_t pattern, size_t size)
 
 int32_t picopass_app(void* p) {
     UNUSED(p);
+    picopass_migrate_from_old_folder();
+
     Picopass* picopass = picopass_alloc();
 
     scene_manager_next_scene(picopass->scene_manager, PicopassSceneStart);

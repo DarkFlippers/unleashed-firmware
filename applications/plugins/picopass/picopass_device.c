@@ -48,13 +48,9 @@ static bool picopass_device_save_file(
         if(use_load_path && !furi_string_empty(dev->load_path)) {
             // Get directory name
             path_extract_dirname(furi_string_get_cstr(dev->load_path), temp_str);
-            // Create picopass directory if necessary
-            if(!storage_simply_mkdir(dev->storage, furi_string_get_cstr(temp_str))) break;
             // Make path to file to save
             furi_string_cat_printf(temp_str, "/%s%s", dev_name, extension);
         } else {
-            // Create picopass directory if necessary
-            if(!storage_simply_mkdir(dev->storage, PICOPASS_APP_FOLDER)) break;
             // First remove picopass device file if it was saved
             furi_string_printf(temp_str, "%s/%s%s", folder, dev_name, extension);
         }
@@ -126,10 +122,11 @@ static bool picopass_device_save_file(
 bool picopass_device_save(PicopassDevice* dev, const char* dev_name) {
     if(dev->format == PicopassDeviceSaveFormatHF) {
         return picopass_device_save_file(
-            dev, dev_name, PICOPASS_APP_FOLDER, PICOPASS_APP_EXTENSION, true);
+            dev, dev_name, STORAGE_APP_DATA_PATH_PREFIX, PICOPASS_APP_EXTENSION, true);
     } else if(dev->format == PicopassDeviceSaveFormatLF) {
         return picopass_device_save_file(dev, dev_name, ANY_PATH("lfrfid"), ".rfid", true);
     }
+
     return false;
 }
 
@@ -225,13 +222,12 @@ void picopass_device_free(PicopassDevice* picopass_dev) {
 bool picopass_file_select(PicopassDevice* dev) {
     furi_assert(dev);
 
-    // Input events and views are managed by file_browser
     FuriString* picopass_app_folder;
-    picopass_app_folder = furi_string_alloc_set(PICOPASS_APP_FOLDER);
+    picopass_app_folder = furi_string_alloc_set(STORAGE_APP_DATA_PATH_PREFIX);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, PICOPASS_APP_EXTENSION, &I_Nfc_10px);
-    browser_options.base_path = PICOPASS_APP_FOLDER;
+    browser_options.base_path = STORAGE_APP_DATA_PATH_PREFIX;
 
     bool res = dialog_file_browser_show(
         dev->dialogs, dev->load_path, picopass_app_folder, &browser_options);
@@ -274,7 +270,7 @@ bool picopass_device_delete(PicopassDevice* dev, bool use_load_path) {
             furi_string_set(file_path, dev->load_path);
         } else {
             furi_string_printf(
-                file_path, "%s/%s%s", PICOPASS_APP_FOLDER, dev->dev_name, PICOPASS_APP_EXTENSION);
+                file_path, APP_DATA_PATH("%s%s"), dev->dev_name, PICOPASS_APP_EXTENSION);
         }
         if(!storage_simply_remove(dev->storage, furi_string_get_cstr(file_path))) break;
         deleted = true;

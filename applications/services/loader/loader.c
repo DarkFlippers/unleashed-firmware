@@ -29,6 +29,8 @@ static bool
     }
 
     furi_thread_set_name(loader_instance->application_thread, loader_instance->application->name);
+    furi_thread_set_appid(
+        loader_instance->application_thread, loader_instance->application->appid);
     furi_thread_set_stack_size(
         loader_instance->application_thread, loader_instance->application->stack_size);
     furi_thread_set_context(

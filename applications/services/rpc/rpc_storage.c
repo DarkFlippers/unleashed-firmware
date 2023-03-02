@@ -201,7 +201,7 @@ static void rpc_system_storage_stat_process(const PB_Main* request, void* contex
     if(error == FSE_OK) {
         response->which_content = PB_Main_storage_stat_response_tag;
         response->content.storage_stat_response.has_file = true;
-        response->content.storage_stat_response.file.type = (fileinfo.flags & FSF_DIRECTORY) ?
+        response->content.storage_stat_response.file.type = file_info_is_dir(&fileinfo) ?
                                                                 PB_Storage_File_FileType_DIR :
                                                                 PB_Storage_File_FileType_FILE;
         response->content.storage_stat_response.file.size = fileinfo.size;
@@ -291,9 +291,8 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
                     rpc_send_and_release(session, &response);
                     i = 0;
                 }
-                list->file[i].type = (fileinfo.flags & FSF_DIRECTORY) ?
-                                         PB_Storage_File_FileType_DIR :
-                                         PB_Storage_File_FileType_FILE;
+                list->file[i].type = file_info_is_dir(&fileinfo) ? PB_Storage_File_FileType_DIR :
+                                                                   PB_Storage_File_FileType_FILE;
                 list->file[i].size = fileinfo.size;
                 list->file[i].data = NULL;
                 list->file[i].name = name;
@@ -458,7 +457,7 @@ static bool rpc_system_storage_is_dir_is_empty(Storage* fs_api, const char* path
     FileInfo fileinfo;
     bool is_dir_is_empty = true;
     FS_Error error = storage_common_stat(fs_api, path, &fileinfo);
-    if((error == FSE_OK) && (fileinfo.flags & FSF_DIRECTORY)) {
+    if((error == FSE_OK) && file_info_is_dir(&fileinfo)) {
         File* dir = storage_file_alloc(fs_api);
         if(storage_dir_open(dir, path)) {
             char* name = malloc(MAX_NAME_LENGTH);

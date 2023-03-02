@@ -13,7 +13,7 @@
 
 static bool storage_move_to_sd_check_entry(const char* name, FileInfo* fileinfo, void* ctx) {
     UNUSED(ctx);
-    if((fileinfo->flags & FSF_DIRECTORY) != 0) {
+    if(file_info_is_dir(fileinfo)) {
         return true;
     }
 
