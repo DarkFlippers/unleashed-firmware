@@ -295,15 +295,11 @@ static bool browser_folder_load_full(BrowserWorker* browser, FuriString* path) {
         while(storage_dir_read(directory, &file_info, name_temp, FILE_NAME_LEN_MAX) &&
               storage_file_get_error(directory) == FSE_OK) {
             furi_string_set(name_str, name_temp);
-            if(browser_filter_by_name(browser, name_str, (file_info.flags & FSF_DIRECTORY))) {
+            if(browser_filter_by_name(browser, name_str, file_info_is_dir(&file_info))) {
                 furi_string_printf(name_str, "%s/%s", furi_string_get_cstr(path), name_temp);
                 if(browser->list_item_cb) {
                     browser->list_item_cb(
-                        browser->cb_ctx,
-                        name_str,
-                        items_cnt,
-                        (file_info.flags & FSF_DIRECTORY),
-                        false);
+                        browser->cb_ctx, name_str, items_cnt, file_info_is_dir(&file_info), false);
                 }
                 items_cnt++;
             }
