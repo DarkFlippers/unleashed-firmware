@@ -510,11 +510,15 @@ void archive_enter_dir(ArchiveBrowserView* browser, FuriString* path) {
         browser->view, ArchiveBrowserViewModel * model, { idx_temp = model->item_idx; }, false);
 
     furi_string_set(browser->path, path);
+
     file_browser_worker_folder_enter(browser->worker, path, idx_temp);
 }
 
 void archive_leave_dir(ArchiveBrowserView* browser) {
     furi_assert(browser);
+
+    size_t dirname_start = furi_string_search_rchar(browser->path, '/');
+    furi_string_left(browser->path, dirname_start);
 
     file_browser_worker_folder_exit(browser->worker);
 }
