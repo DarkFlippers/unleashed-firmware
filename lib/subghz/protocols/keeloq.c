@@ -312,7 +312,8 @@ bool subghz_protocol_keeloq_create_data(
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_keeloq_gen_data(instance, btn, false);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -337,7 +338,8 @@ bool subghz_protocol_keeloq_bft_create_data(
     // roguuemaster don't steal.!!!!
     bool res = subghz_protocol_keeloq_gen_data(instance, btn, false);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -1196,7 +1198,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
         }
-        if(res && !flipper_format_write_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
+        if((res == SubGhzProtocolStatusOk) &&
+           !flipper_format_write_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_E(TAG, "DECODER Serialize: Unable to add Seed");
             res = SubGhzProtocolStatusError;
         }
@@ -1204,8 +1207,9 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
                                  seed_data[3];
     }
 
-    if(res && !flipper_format_write_string_cstr(
-                  flipper_format, "Manufacture", instance->manufacture_name)) {
+    if((res == SubGhzProtocolStatusOk) &&
+       !flipper_format_write_string_cstr(
+           flipper_format, "Manufacture", instance->manufacture_name)) {
         FURI_LOG_E(TAG, "DECODER Serialize: Unable to add manufacture name");
         res = SubGhzProtocolStatusError;
     }

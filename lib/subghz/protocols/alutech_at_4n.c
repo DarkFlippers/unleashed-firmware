@@ -320,7 +320,8 @@ bool subghz_protocol_alutech_at_4n_create_data(
     instance->generic.data_count_bit = 72;
     bool res = subghz_protocol_alutech_at_4n_gen_data(instance, btn);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }

@@ -221,7 +221,8 @@ bool subghz_protocol_star_line_create_data(
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_star_line_gen_data(instance, btn);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -733,7 +734,7 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
@@ -749,7 +750,7 @@ SubGhzProtocolStatus
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
         }
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;

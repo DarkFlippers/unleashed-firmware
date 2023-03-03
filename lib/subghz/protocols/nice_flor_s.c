@@ -574,9 +574,10 @@ bool subghz_protocol_nice_flor_s_create_data(
         }
     }
 
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    SubGhzProtocolStatus res =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
-    return res;
+    return res == SubGhzProtocolStatusOk;
 }
 
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {

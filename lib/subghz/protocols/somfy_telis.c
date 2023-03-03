@@ -252,7 +252,8 @@ bool subghz_protocol_somfy_telis_create_data(
     instance->generic.data_count_bit = 56;
     bool res = subghz_protocol_somfy_telis_gen_data(instance, btn, true);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
