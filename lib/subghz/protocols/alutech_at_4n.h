@@ -55,9 +55,8 @@ bool subghz_protocol_alutech_at_4n_create_data(
  * @param flipper_format Pointer to a FlipperFormat instance
  * @return true On success
  */
-bool subghz_protocol_encoder_alutech_at_4n_deserialize(
-    void* context,
-    FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_alutech_at_4n_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -111,9 +110,9 @@ uint8_t subghz_protocol_decoder_alutech_at_4n_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderAlutech_at_4n instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_alutech_at_4n_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_alutech_at_4n_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -122,11 +121,10 @@ bool subghz_protocol_decoder_alutech_at_4n_serialize(
  * Deserialize data SubGhzProtocolDecoderAlutech_at_4n.
  * @param context Pointer to a SubGhzProtocolDecoderAlutech_at_4n instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_alutech_at_4n_deserialize(
-    void* context,
-    FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_alutech_at_4n_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

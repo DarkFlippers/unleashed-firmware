@@ -146,31 +146,31 @@ static bool subghz_protocol_encoder_dooya_get_upload(SubGhzProtocolEncoderDooya*
     return true;
 }
 
-bool subghz_protocol_encoder_dooya_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_dooya_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderDooya* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            FURI_LOG_E(TAG, "Deserialize error");
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_dooya_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
+        ret = subghz_block_generic_deserialize_check_count_bit(
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_dooya_const.min_count_bit_for_found);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        if(!subghz_protocol_encoder_dooya_get_upload(instance)) break;
+        if(!subghz_protocol_encoder_dooya_get_upload(instance)) {
+            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
+            break;
+        }
         instance->encoder.is_running = true;
-
-        res = true;
     } while(false);
 
-    return res;
+    return ret;
 }
 
 void subghz_protocol_encoder_dooya_stop(void* context) {
@@ -354,7 +354,7 @@ uint8_t subghz_protocol_decoder_dooya_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_dooya_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_dooya_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -363,22 +363,12 @@ bool subghz_protocol_decoder_dooya_serialize(
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool subghz_protocol_decoder_dooya_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_dooya_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderDooya* instance = context;
-    bool ret = false;
-    do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_dooya_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
-            break;
-        }
-        ret = true;
-    } while(false);
-    return ret;
+    return subghz_block_generic_deserialize_check_count_bit(
+        &instance->generic, flipper_format, subghz_protocol_dooya_const.min_count_bit_for_found);
 }
 
 /**

@@ -217,10 +217,11 @@ static bool subghz_protocol_encoder_faac_slh_get_upload(SubGhzProtocolEncoderFaa
     return true;
 }
 
-bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderFaacSLH* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
@@ -261,7 +262,7 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
 
         instance->encoder.is_running = true;
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;
@@ -422,7 +423,7 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_faac_slh_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -448,7 +449,8 @@ bool subghz_protocol_decoder_faac_slh_serialize(
     return res;
 }
 
-bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
     bool res = false;

@@ -28,9 +28,9 @@ void subghz_protocol_encoder_intertechno_v3_free(void* context);
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderIntertechno_V3 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return Starus error
  */
-bool subghz_protocol_encoder_intertechno_v3_deserialize(
+SubGhzProtocolStatus subghz_protocol_encoder_intertechno_v3_deserialize(
     void* context,
     FlipperFormat* flipper_format);
 
@@ -86,9 +86,9 @@ uint8_t subghz_protocol_decoder_intertechno_v3_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return Starus error
  */
-bool subghz_protocol_decoder_intertechno_v3_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_intertechno_v3_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -97,9 +97,9 @@ bool subghz_protocol_decoder_intertechno_v3_serialize(
  * Deserialize data SubGhzProtocolDecoderIntertechno_V3.
  * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return Starus error
  */
-bool subghz_protocol_decoder_intertechno_v3_deserialize(
+SubGhzProtocolStatus subghz_protocol_decoder_intertechno_v3_deserialize(
     void* context,
     FlipperFormat* flipper_format);
 

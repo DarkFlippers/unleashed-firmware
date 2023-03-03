@@ -532,13 +532,17 @@ static bool
     return true;
 }
 
-bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            FURI_LOG_E(TAG, "Deserialize error");
+        ret = subghz_block_generic_deserialize_check_count_bit(
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_keeloq_const.min_count_bit_for_found);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         if(instance->generic.data_count_bit !=
@@ -578,10 +582,13 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        if(!subghz_protocol_encoder_keeloq_get_upload(instance, instance->generic.btn)) break;
-
+        if(!subghz_protocol_encoder_keeloq_get_upload(instance, instance->generic.btn)) {
+            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
+            break;
+        }
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
+            ret = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
@@ -590,15 +597,14 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
+            ret = SubGhzProtocolStatusErrorParserKey;
             break;
         }
 
         instance->encoder.is_running = true;
-
-        res = true;
     } while(false);
 
-    return res;
+    return ret;
 }
 
 void subghz_protocol_encoder_keeloq_stop(void* context) {
@@ -1172,14 +1178,15 @@ uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_keeloq_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
 
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    SubGhzProtocolStatus res =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
     subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
@@ -1191,7 +1198,7 @@ bool subghz_protocol_decoder_keeloq_serialize(
         }
         if(res && !flipper_format_write_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_E(TAG, "DECODER Serialize: Unable to add Seed");
-            res = false;
+            res = SubGhzProtocolStatusError;
         }
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
@@ -1200,15 +1207,16 @@ bool subghz_protocol_decoder_keeloq_serialize(
     if(res && !flipper_format_write_string_cstr(
                   flipper_format, "Manufacture", instance->manufacture_name)) {
         FURI_LOG_E(TAG, "DECODER Serialize: Unable to add manufacture name");
-        res = false;
+        res = SubGhzProtocolStatusError;
     }
     return res;
 }
 
-bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
@@ -1244,7 +1252,7 @@ bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* fl
             break;
         }
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;

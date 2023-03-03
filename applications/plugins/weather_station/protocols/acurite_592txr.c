@@ -258,7 +258,7 @@ uint8_t ws_protocol_decoder_acurite_592txr_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool ws_protocol_decoder_acurite_592txr_serialize(
+SubGhzProtocolStatus ws_protocol_decoder_acurite_592txr_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -267,22 +267,14 @@ bool ws_protocol_decoder_acurite_592txr_serialize(
     return ws_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool ws_protocol_decoder_acurite_592txr_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    ws_protocol_decoder_acurite_592txr_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     WSProtocolDecoderAcurite_592TXR* instance = context;
-    bool ret = false;
-    do {
-        if(!ws_block_generic_deserialize(&instance->generic, flipper_format)) {
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           ws_protocol_acurite_592txr_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
-            break;
-        }
-        ret = true;
-    } while(false);
-    return ret;
+    return ws_block_generic_deserialize_check_count_bit(
+        &instance->generic,
+        flipper_format,
+        ws_protocol_acurite_592txr_const.min_count_bit_for_found);
 }
 
 void ws_protocol_decoder_acurite_592txr_get_string(void* context, FuriString* output) {

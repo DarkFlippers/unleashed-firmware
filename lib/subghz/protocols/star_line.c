@@ -280,10 +280,11 @@ static bool subghz_protocol_encoder_star_line_get_upload(
     return true;
 }
 
-bool subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderStarLine* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
@@ -323,7 +324,7 @@ bool subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat*
 
         instance->encoder.is_running = true;
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;
@@ -702,7 +703,7 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_star_line_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -710,22 +711,26 @@ bool subghz_protocol_decoder_star_line_serialize(
     SubGhzProtocolDecoderStarLine* instance = context;
     subghz_protocol_star_line_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    SubGhzProtocolStatus ret =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
-    if(res && !flipper_format_write_string_cstr(
-                  flipper_format, "Manufacture", instance->manufacture_name)) {
+    if((ret == SubGhzProtocolStatusOk) &&
+       !flipper_format_write_string_cstr(
+           flipper_format, "Manufacture", instance->manufacture_name)) {
         FURI_LOG_E(TAG, "Unable to add manufacture name");
-        res = false;
+        ret = SubGhzProtocolStatusErrorParserOthers;
     }
-    if(res && instance->generic.data_count_bit !=
-                  subghz_protocol_star_line_const.min_count_bit_for_found) {
+    if((ret == SubGhzProtocolStatusOk) &&
+       instance->generic.data_count_bit !=
+           subghz_protocol_star_line_const.min_count_bit_for_found) {
         FURI_LOG_E(TAG, "Wrong number of bits in key");
-        res = false;
+        ret = SubGhzProtocolStatusErrorParserOthers;
     }
-    return res;
+    return ret;
 }
 
-bool subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
     bool res = false;
