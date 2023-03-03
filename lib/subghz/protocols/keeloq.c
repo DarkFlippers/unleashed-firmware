@@ -1222,7 +1222,8 @@ SubGhzProtocolStatus
     SubGhzProtocolDecoderKeeloq* instance = context;
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+        if(SubGhzProtocolStatusOk !=
+           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
