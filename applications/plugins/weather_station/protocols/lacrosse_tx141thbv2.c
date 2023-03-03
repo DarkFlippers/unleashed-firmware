@@ -247,7 +247,7 @@ uint8_t ws_protocol_decoder_lacrosse_tx141thbv2_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool ws_protocol_decoder_lacrosse_tx141thbv2_serialize(
+SubGhzProtocolStatus ws_protocol_decoder_lacrosse_tx141thbv2_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -256,24 +256,15 @@ bool ws_protocol_decoder_lacrosse_tx141thbv2_serialize(
     return ws_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool ws_protocol_decoder_lacrosse_tx141thbv2_deserialize(
+SubGhzProtocolStatus ws_protocol_decoder_lacrosse_tx141thbv2_deserialize(
     void* context,
     FlipperFormat* flipper_format) {
     furi_assert(context);
     WSProtocolDecoderLaCrosse_TX141THBv2* instance = context;
-    bool ret = false;
-    do {
-        if(!ws_block_generic_deserialize(&instance->generic, flipper_format)) {
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           ws_protocol_lacrosse_tx141thbv2_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
-            break;
-        }
-        ret = true;
-    } while(false);
-    return ret;
+    return ws_block_generic_deserialize_check_count_bit(
+        &instance->generic,
+        flipper_format,
+        ws_protocol_lacrosse_tx141thbv2_const.min_count_bit_for_found);
 }
 
 void ws_protocol_decoder_lacrosse_tx141thbv2_get_string(void* context, FuriString* output) {

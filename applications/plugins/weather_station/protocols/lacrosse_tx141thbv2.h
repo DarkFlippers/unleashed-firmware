@@ -56,9 +56,9 @@ uint8_t ws_protocol_decoder_lacrosse_tx141thbv2_get_hash_data(void* context);
  * @param context Pointer to a WSProtocolDecoderLaCrosse_TX141THBv2 instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool ws_protocol_decoder_lacrosse_tx141thbv2_serialize(
+SubGhzProtocolStatus ws_protocol_decoder_lacrosse_tx141thbv2_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -67,9 +67,9 @@ bool ws_protocol_decoder_lacrosse_tx141thbv2_serialize(
  * Deserialize data WSProtocolDecoderLaCrosse_TX141THBv2.
  * @param context Pointer to a WSProtocolDecoderLaCrosse_TX141THBv2 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool ws_protocol_decoder_lacrosse_tx141thbv2_deserialize(
+SubGhzProtocolStatus ws_protocol_decoder_lacrosse_tx141thbv2_deserialize(
     void* context,
     FlipperFormat* flipper_format);
 

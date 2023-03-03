@@ -56,9 +56,9 @@ uint8_t ws_protocol_decoder_acurite_609txc_get_hash_data(void* context);
  * @param context Pointer to a WSProtocolDecoderAcurite_609TXC instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool ws_protocol_decoder_acurite_609txc_serialize(
+SubGhzProtocolStatus ws_protocol_decoder_acurite_609txc_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -67,9 +67,10 @@ bool ws_protocol_decoder_acurite_609txc_serialize(
  * Deserialize data WSProtocolDecoderAcurite_609TXC.
  * @param context Pointer to a WSProtocolDecoderAcurite_609TXC instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool ws_protocol_decoder_acurite_609txc_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    ws_protocol_decoder_acurite_609txc_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

@@ -20,12 +20,12 @@ void subghz_block_generic_get_preset_name(const char* preset_name, FuriString* p
     furi_string_set(preset_str, preset_name_temp);
 }
 
-bool subghz_block_generic_serialize(
+SubGhzProtocolStatus subghz_block_generic_serialize(
     SubGhzBlockGeneric* instance,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(instance);
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     FuriString* temp_str;
     temp_str = furi_string_alloc();
     do {
@@ -33,11 +33,13 @@ bool subghz_block_generic_serialize(
         if(!flipper_format_write_header_cstr(
                flipper_format, SUBGHZ_KEY_FILE_TYPE, SUBGHZ_KEY_FILE_VERSION)) {
             FURI_LOG_E(TAG, "Unable to add header");
+            res = SubGhzProtocolStatusErrorParserHeader;
             break;
         }
 
         if(!flipper_format_write_uint32(flipper_format, "Frequency", &preset->frequency, 1)) {
             FURI_LOG_E(TAG, "Unable to add Frequency");
+            res = SubGhzProtocolStatusErrorParserFrequency;
             break;
         }
 
@@ -45,27 +47,32 @@ bool subghz_block_generic_serialize(
         if(!flipper_format_write_string_cstr(
                flipper_format, "Preset", furi_string_get_cstr(temp_str))) {
             FURI_LOG_E(TAG, "Unable to add Preset");
+            res = SubGhzProtocolStatusErrorParserPreset;
             break;
         }
         if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
             if(!flipper_format_write_string_cstr(
                    flipper_format, "Custom_preset_module", "CC1101")) {
                 FURI_LOG_E(TAG, "Unable to add Custom_preset_module");
+                res = SubGhzProtocolStatusErrorParserCustomPreset;
                 break;
             }
             if(!flipper_format_write_hex(
                    flipper_format, "Custom_preset_data", preset->data, preset->data_size)) {
                 FURI_LOG_E(TAG, "Unable to add Custom_preset_data");
+                res = SubGhzProtocolStatusErrorParserCustomPreset;
                 break;
             }
         }
         if(!flipper_format_write_string_cstr(flipper_format, "Protocol", instance->protocol_name)) {
             FURI_LOG_E(TAG, "Unable to add Protocol");
+            res = SubGhzProtocolStatusErrorParserProtocolName;
             break;
         }
         uint32_t temp = instance->data_count_bit;
         if(!flipper_format_write_uint32(flipper_format, "Bit", &temp, 1)) {
             FURI_LOG_E(TAG, "Unable to add Bit");
+            res = SubGhzProtocolStatusErrorParserBitCount;
             break;
         }
 
@@ -76,17 +83,19 @@ bool subghz_block_generic_serialize(
 
         if(!flipper_format_write_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
+            res = SubGhzProtocolStatusErrorParserKey;
             break;
         }
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
     furi_string_free(temp_str);
     return res;
 }
 
-bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperFormat* flipper_format) {
     furi_assert(instance);
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     FuriString* temp_str;
     temp_str = furi_string_alloc();
     uint32_t temp_data = 0;
@@ -94,10 +103,12 @@ bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperForma
     do {
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
+            res = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
         if(!flipper_format_read_uint32(flipper_format, "Bit", (uint32_t*)&temp_data, 1)) {
             FURI_LOG_E(TAG, "Missing Bit");
+            res = SubGhzProtocolStatusErrorParserBitCount;
             break;
         }
         instance->data_count_bit = (uint16_t)temp_data;
@@ -105,16 +116,36 @@ bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperForma
         uint8_t key_data[sizeof(uint64_t)] = {0};
         if(!flipper_format_read_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Missing Key");
+            res = SubGhzProtocolStatusErrorParserKey;
             break;
         }
         for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
             instance->data = instance->data << 8 | key_data[i];
         }
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(0);
 
     furi_string_free(temp_str);
 
     return res;
+}
+
+SubGhzProtocolStatus subghz_block_generic_deserialize_check_count_bit(
+    SubGhzBlockGeneric* instance,
+    FlipperFormat* flipper_format,
+    uint16_t count_bit) {
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
+    do {
+        ret = subghz_block_generic_deserialize(instance, flipper_format);
+        if(ret != SubGhzProtocolStatusOk) {
+            break;
+        }
+        if(instance->data_count_bit != count_bit) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            ret = SubGhzProtocolStatusErrorValueBitCount;
+            break;
+        }
+    } while(false);
+    return ret;
 }

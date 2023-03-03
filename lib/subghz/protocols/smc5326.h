@@ -28,9 +28,10 @@ void subghz_protocol_encoder_smc5326_free(void* context);
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderSMC5326 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_encoder_smc5326_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_smc5326_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -84,9 +85,9 @@ uint8_t subghz_protocol_decoder_smc5326_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderSMC5326 instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_smc5326_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_smc5326_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -95,9 +96,10 @@ bool subghz_protocol_decoder_smc5326_serialize(
  * Deserialize data SubGhzProtocolDecoderSMC5326.
  * @param context Pointer to a SubGhzProtocolDecoderSMC5326 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_smc5326_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_smc5326_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

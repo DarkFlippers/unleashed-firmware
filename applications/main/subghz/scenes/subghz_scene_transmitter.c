@@ -9,9 +9,8 @@ void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
 }
 
 bool subghz_scene_transmitter_update_data_show(void* context) {
-    //ToDo Fix
     SubGhz* subghz = context;
-
+    bool ret = false;
     if(subghz->txrx->decoder_result) {
         FuriString* key_str;
         FuriString* frequency_str;
@@ -22,30 +21,29 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
         modulation_str = furi_string_alloc();
         uint8_t show_button = 0;
 
-        subghz_protocol_decoder_base_deserialize(
-            subghz->txrx->decoder_result, subghz->txrx->fff_data);
-        subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, key_str);
+        if(subghz_protocol_decoder_base_deserialize(
+               subghz->txrx->decoder_result, subghz->txrx->fff_data) == SubGhzProtocolStatusOk) {
+            subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, key_str);
 
-        if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
-           SubGhzProtocolFlag_Send) {
-            show_button = 1;
+            if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
+               SubGhzProtocolFlag_Send) {
+                show_button = 1;
+            }
+
+            subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+            subghz_view_transmitter_add_data_to_show(
+                subghz->subghz_transmitter,
+                furi_string_get_cstr(key_str),
+                furi_string_get_cstr(frequency_str),
+                furi_string_get_cstr(modulation_str),
+                show_button);
+            ret = true;
         }
-
-        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
-        subghz_view_transmitter_add_data_to_show(
-            subghz->subghz_transmitter,
-            furi_string_get_cstr(key_str),
-            furi_string_get_cstr(frequency_str),
-            furi_string_get_cstr(modulation_str),
-            show_button);
-
         furi_string_free(frequency_str);
         furi_string_free(modulation_str);
         furi_string_free(key_str);
-
-        return true;
     }
-    return false;
+    return ret;
 }
 
 void subghz_scene_transmitter_on_enter(void* context) {

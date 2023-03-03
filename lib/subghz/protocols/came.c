@@ -13,6 +13,7 @@
  */
 
 #define TAG "SubGhzProtocolCAME"
+#define CAME_12_COUNT_BIT 12
 #define CAME_24_COUNT_BIT 24
 #define PRASTEL_COUNT_BIT 25
 #define PRASTEL_NAME "Prastel"
@@ -108,6 +109,7 @@ void subghz_protocol_encoder_came_free(void* context) {
  */
 static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* instance) {
     furi_assert(instance);
+    uint32_t header_te = 0;
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
@@ -117,13 +119,28 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
         instance->encoder.size_upload = size_upload;
     }
     //Send header
-    instance->encoder.upload[index++] = level_duration_make(
-        false,
-        (((instance->generic.data_count_bit == CAME_24_COUNT_BIT) ||
-          (instance->generic.data_count_bit ==
-           subghz_protocol_came_const.min_count_bit_for_found)) ?
-             (uint32_t)subghz_protocol_came_const.te_short * 76 :
-             (uint32_t)subghz_protocol_came_const.te_short * 39));
+
+    switch(instance->generic.data_count_bit) {
+    case CAME_24_COUNT_BIT:
+        // CAME 24 Bit = 24320 us
+        header_te = 76;
+        break;
+    case CAME_12_COUNT_BIT:
+    case AIRFORCE_COUNT_BIT:
+        // CAME 12 Bit Original only! and Airforce protocol = 15040 us
+        header_te = 47;
+        break;
+    case PRASTEL_COUNT_BIT:
+        // PRASTEL = 11520 us
+        header_te = 36;
+        break;
+    default:
+        // Some wrong detected protocols, 5120 us
+        header_te = 16;
+        break;
+    }
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_short * header_te);
     //Send start bit
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_const.te_short);
@@ -146,30 +163,33 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
     return true;
 }
 
-bool subghz_protocol_encoder_came_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_came_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderCame* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            FURI_LOG_E(TAG, "Deserialize error");
+        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         if((instance->generic.data_count_bit > PRASTEL_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
+            ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        if(!subghz_protocol_encoder_came_get_upload(instance)) break;
+        if(!subghz_protocol_encoder_came_get_upload(instance)) {
+            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
+            break;
+        }
         instance->encoder.is_running = true;
-
-        res = true;
     } while(false);
 
-    return res;
+    return ret;
 }
 
 void subghz_protocol_encoder_came_stop(void* context) {
@@ -244,8 +264,11 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
         if(!level) { //save interval
             if(duration >= (subghz_protocol_came_const.te_short * 4)) {
                 instance->decoder.parser_step = CameDecoderStepFoundStartBit;
-                if(instance->decoder.decode_count_bit >=
-                   subghz_protocol_came_const.min_count_bit_for_found) {
+                if((instance->decoder.decode_count_bit ==
+                    subghz_protocol_came_const.min_count_bit_for_found) ||
+                   (instance->decoder.decode_count_bit == AIRFORCE_COUNT_BIT) ||
+                   (instance->decoder.decode_count_bit == PRASTEL_COUNT_BIT) ||
+                   (instance->decoder.decode_count_bit == CAME_24_COUNT_BIT)) {
                     instance->generic.serial = 0x0;
                     instance->generic.btn = 0x0;
 
@@ -294,7 +317,7 @@ uint8_t subghz_protocol_decoder_came_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_came_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_came_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -303,19 +326,21 @@ bool subghz_protocol_decoder_came_serialize(
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool subghz_protocol_decoder_came_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_came_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderCame* instance = context;
-    bool ret = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         if((instance->generic.data_count_bit > PRASTEL_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
+            ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
-        ret = true;
     } while(false);
     return ret;
 }

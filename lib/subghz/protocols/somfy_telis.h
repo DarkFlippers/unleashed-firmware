@@ -50,9 +50,9 @@ uint8_t subghz_protocol_decoder_somfy_telis_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderSomfyTelis instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_somfy_telis_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_somfy_telis_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -61,9 +61,10 @@ bool subghz_protocol_decoder_somfy_telis_serialize(
  * Deserialize data SubGhzProtocolDecoderSomfyTelis.
  * @param context Pointer to a SubGhzProtocolDecoderSomfyTelis instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_somfy_telis_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_somfy_telis_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

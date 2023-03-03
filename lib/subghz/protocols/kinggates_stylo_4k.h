@@ -49,9 +49,9 @@ uint8_t subghz_protocol_decoder_kinggates_stylo_4k_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderKingGates_stylo_4k instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_kinggates_stylo_4k_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_kinggates_stylo_4k_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -60,9 +60,9 @@ bool subghz_protocol_decoder_kinggates_stylo_4k_serialize(
  * Deserialize data SubGhzProtocolDecoderKingGates_stylo_4k.
  * @param context Pointer to a SubGhzProtocolDecoderKingGates_stylo_4k instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_kinggates_stylo_4k_deserialize(
+SubGhzProtocolStatus subghz_protocol_decoder_kinggates_stylo_4k_deserialize(
     void* context,
     FlipperFormat* flipper_format);
 
