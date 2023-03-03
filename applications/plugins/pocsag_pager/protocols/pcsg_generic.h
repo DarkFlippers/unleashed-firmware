@@ -35,7 +35,7 @@ void pcsg_block_generic_get_preset_name(const char* preset_name, FuriString* pre
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
  * @return true On success
  */
-bool pcsg_block_generic_serialize(
+SubGhzProtocolStatus pcsg_block_generic_serialize(
     PCSGBlockGeneric* instance,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -46,7 +46,8 @@ bool pcsg_block_generic_serialize(
  * @param flipper_format Pointer to a FlipperFormat instance
  * @return true On success
  */
-bool pcsg_block_generic_deserialize(PCSGBlockGeneric* instance, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    pcsg_block_generic_deserialize(PCSGBlockGeneric* instance, FlipperFormat* flipper_format);
 
 float pcsg_block_generic_fahrenheit_to_celsius(float fahrenheit);
 
