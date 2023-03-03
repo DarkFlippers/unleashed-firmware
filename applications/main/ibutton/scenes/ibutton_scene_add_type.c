@@ -8,11 +8,20 @@ void ibutton_scene_add_type_on_enter(void* context) {
 
     for(uint32_t protocol_id = 0; protocol_id < ibutton_protocols_get_protocol_count();
         ++protocol_id) {
-        furi_string_printf(
-            tmp,
-            "%s %s",
-            ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
-            ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+        if((strcmp(
+                ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
+                ibutton_protocols_get_name(ibutton->protocols, protocol_id)) != 0) &&
+           (strcmp(ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id), "N/A") !=
+            0)) {
+            furi_string_printf(
+                tmp,
+                "%s %s",
+                ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
+                ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+        } else {
+            furi_string_printf(
+                tmp, "%s", ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+        }
 
         submenu_add_item(
             submenu, furi_string_get_cstr(tmp), protocol_id, ibutton_submenu_callback, context);
