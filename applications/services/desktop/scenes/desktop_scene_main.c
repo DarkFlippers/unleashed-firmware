@@ -12,7 +12,7 @@
 
 #define TAG "DesktopSrv"
 
-#define MUSIC_PLAYER_APP EXT_PATH("/apps/Misc/music_player.fap")
+#define MUSIC_PLAYER_APP EXT_PATH("/apps/Media/music_player.fap")
 #define SNAKE_GAME_APP EXT_PATH("/apps/Games/snake_game.fap")
 #define CLOCK_APP EXT_PATH("/apps/Tools/clock.fap")
 
