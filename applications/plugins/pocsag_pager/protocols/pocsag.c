@@ -323,7 +323,8 @@ SubGhzProtocolStatus
     uint8_t* buf;
 
     do {
-        if(!pcsg_block_generic_deserialize(&instance->generic, flipper_format)) {
+        if(SubGhzProtocolStatusOk !=
+           pcsg_block_generic_deserialize(&instance->generic, flipper_format)) {
             break;
         }
 
