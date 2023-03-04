@@ -392,6 +392,7 @@ static bool
             break;
 
         default:
+            btn = 0x1;
             break;
         }
     }
@@ -417,6 +418,7 @@ static bool
             break;
 
         default:
+            btn = 0x4;
             break;
         }
     }
@@ -442,6 +444,7 @@ static bool
             break;
 
         default:
+            btn = 0x8;
             break;
         }
     }
@@ -467,6 +470,7 @@ static bool
             break;
 
         default:
+            btn = 0x2;
             break;
         }
     }
