@@ -44,6 +44,16 @@ jobs:
           echo random_hash=$(openssl rand -base64 40 | shasum -a 256 | awk '{print $1}') >> $GITHUB_OUTPUT
           echo "event_type=$TYPE" >> $GITHUB_OUTPUT
 
+      - name: 'Check API versions'
+        run: |
+          set -e
+          N_API_HEADER_SIGNATURES=`ls -1 firmware/targets/f*/api_symbols.csv | xargs -I {} sh -c "head -n2 {} | md5sum" | sort -u | wc -l`
+          if [ $N_API_HEADER_SIGNATURES != 1 ] ; then
+            echo API versions aren\'t matching for available targets. Please update!
+            head -n2 firmware/targets/f*/api_symbols.csv
+            exit 1
+          fi
+
       - name: 'Make artifacts directory'
         run: |
           rm -rf artifacts
