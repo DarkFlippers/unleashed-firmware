@@ -402,7 +402,9 @@ bool unirfremix_key_load(
         preset->decoder = subghz_receiver_search_decoder_base_by_name(
             receiver, furi_string_get_cstr(preset->protocol));
         if(preset->decoder) {
-            if(!subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data)) {
+            SubGhzProtocolStatus status = subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
+            if(status != SubGhzProtocolStatusOk) {
+                FURI_LOG_E(TAG, "Protocol deserialize failed, status = %d", status);
                 break;
             }
         } else {
