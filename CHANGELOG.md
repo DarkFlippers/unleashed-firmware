@@ -3,6 +3,7 @@
 * SubGHz: Default custom buttons layout for non standard remotes (for example your remote has broken buttons and transmit only 0xC, now you can use other buttons)
 * SubGHz: Fix and update subghz protocols to use new error system
 * SubGHz: Fix default frequency being overwritten bug (Add manually fixes)
+* SubGHz: Fix 464Mhz was showing up in Frequency analyzer all the time due to noise
 * iButton: Fix ibutton app - add manually - duplicate names
 * Plugins: Update POCSAG Pager app to new error system
 * Plugins: Update iButton Fuzzer to new iButton system

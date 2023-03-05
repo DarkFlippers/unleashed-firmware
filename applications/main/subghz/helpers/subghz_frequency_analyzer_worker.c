@@ -119,7 +119,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         for(size_t i = 0; i < subghz_setting_get_frequency_count(instance->setting); i++) {
             uint32_t current_frequency = subghz_setting_get_frequency(instance->setting, i);
             if(furi_hal_subghz_is_frequency_valid(current_frequency) &&
-               (current_frequency != 467750000) &&
+               (current_frequency != 467750000) && (current_frequency != 464000000) &&
                !((furi_hal_subghz.radio_type == SubGhzRadioExternal) &&
                  (current_frequency >= 311900000 && current_frequency <= 312200000))) {
                 furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
