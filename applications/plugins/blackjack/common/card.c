@@ -173,7 +173,7 @@ uint8_t hand_count(const Card* cards, uint8_t count) {
     }
 
     for(uint8_t i = 0; i < aceCount; i++) {
-        if((score + 11) <= 21)
+        if((score + 11 + (aceCount - 1)) <= 21)
             score += 11;
         else
             score++;
