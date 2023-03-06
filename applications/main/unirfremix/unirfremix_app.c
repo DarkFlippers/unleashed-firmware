@@ -402,7 +402,8 @@ bool unirfremix_key_load(
         preset->decoder = subghz_receiver_search_decoder_base_by_name(
             receiver, furi_string_get_cstr(preset->protocol));
         if(preset->decoder) {
-            SubGhzProtocolStatus status = subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
+            SubGhzProtocolStatus status =
+                subghz_protocol_decoder_base_deserialize(preset->decoder, fff_data);
             if(status != SubGhzProtocolStatusOk) {
                 FURI_LOG_E(TAG, "Protocol deserialize failed, status = %d", status);
                 break;
@@ -736,6 +737,8 @@ UniRFRemix* unirfremix_alloc(void) {
     UniRFRemix* app = malloc(sizeof(UniRFRemix));
 
     furi_hal_power_suppress_charge_enter();
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
 
     app->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
@@ -756,6 +759,9 @@ UniRFRemix* unirfremix_alloc(void) {
 
 void unirfremix_free(UniRFRemix* app, bool with_subghz) {
     furi_hal_power_suppress_charge_exit();
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 
     furi_string_free(app->up_file);
     furi_string_free(app->down_file);

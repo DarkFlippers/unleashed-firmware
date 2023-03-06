@@ -170,6 +170,9 @@ ProtoViewApp* protoview_app_alloc() {
     furi_hal_power_suppress_charge_enter();
     app->running = 1;
 
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
+
     return app;
 }
 
@@ -181,6 +184,9 @@ void protoview_app_free(ProtoViewApp* app) {
 
     // Put CC1101 on sleep, this also restores charging.
     radio_sleep(app);
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 
     // View related.
     view_port_enabled_set(app->view_port, false);

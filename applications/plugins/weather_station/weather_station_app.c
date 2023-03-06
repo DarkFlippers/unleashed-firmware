@@ -107,6 +107,9 @@ WeatherStationApp* weather_station_app_alloc() {
 
     furi_hal_power_suppress_charge_enter();
 
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
+
     scene_manager_next_scene(app->scene_manager, WeatherStationSceneStart);
 
     return app;
@@ -117,6 +120,9 @@ void weather_station_app_free(WeatherStationApp* app) {
 
     //CC1101 off
     ws_sleep(app);
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, WeatherStationViewSubmenu);

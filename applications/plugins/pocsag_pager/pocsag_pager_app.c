@@ -124,6 +124,9 @@ POCSAGPagerApp* pocsag_pager_app_alloc() {
 
     furi_hal_power_suppress_charge_enter();
 
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
+
     scene_manager_next_scene(app->scene_manager, POCSAGPagerSceneStart);
 
     return app;
@@ -134,6 +137,9 @@ void pocsag_pager_app_free(POCSAGPagerApp* app) {
 
     //CC1101 off
     pcsg_sleep(app);
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, POCSAGPagerViewSubmenu);
