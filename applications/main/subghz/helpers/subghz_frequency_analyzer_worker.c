@@ -121,6 +121,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             if(furi_hal_subghz_is_frequency_valid(current_frequency) &&
                (current_frequency != 467750000) && (current_frequency != 464000000) &&
                !((furi_hal_subghz.radio_type == SubGhzRadioExternal) &&
+                 (current_frequency != 390000000) &&
                  (current_frequency >= 311900000 && current_frequency <= 312200000))) {
                 furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
                 cc1101_switch_to_idle(furi_hal_subghz.spi_bus_handle);
