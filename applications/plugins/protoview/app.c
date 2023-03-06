@@ -167,11 +167,11 @@ ProtoViewApp* protoview_app_alloc() {
     app->frequency = subghz_setting_get_default_frequency(app->setting);
     app->modulation = 0; /* Defaults to ProtoViewModulations[0]. */
 
-    furi_hal_power_suppress_charge_enter();
-    app->running = 1;
-
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
+
+    furi_hal_power_suppress_charge_enter();
+    app->running = 1;
 
     return app;
 }

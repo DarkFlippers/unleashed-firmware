@@ -736,9 +736,10 @@ void subghz_remote_subghz_alloc(SubGHzRemote* app) {
 SubGHzRemote* subghz_remote_alloc(void) {
     SubGHzRemote* app = malloc(sizeof(SubGHzRemote));
 
-    furi_hal_power_suppress_charge_enter();
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
+
+    furi_hal_power_suppress_charge_enter();
 
     app->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 

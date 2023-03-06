@@ -81,7 +81,7 @@ void furi_hal_subghz_init(void) {
 }
 
 void furi_hal_subghz_enable_ext_power(void) {
-    if(ext_power_is_enabled_already) return;
+    if(ext_power_is_enabled_already && furi_hal_power_is_otg_enabled()) return;
     ext_power_is_enabled_already = true;
     last_OTG_state = furi_hal_power_is_otg_enabled();
     if(furi_hal_subghz.radio_type != SubGhzRadioInternal && !furi_hal_power_is_otg_enabled()) {

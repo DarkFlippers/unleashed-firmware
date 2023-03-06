@@ -403,10 +403,10 @@ int32_t spectrum_analyzer_app(void* p) {
     SpectrumAnalyzer* spectrum_analyzer = spectrum_analyzer_alloc();
     InputEvent input;
 
-    furi_hal_power_suppress_charge_enter();
-
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
+
+    furi_hal_power_suppress_charge_enter();
 
     FURI_LOG_D("Spectrum", "Main Loop - Starting worker");
     furi_delay_ms(50);

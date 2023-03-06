@@ -122,10 +122,10 @@ POCSAGPagerApp* pocsag_pager_app_alloc() {
         app->txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
     subghz_worker_set_context(app->txrx->worker, app->txrx->receiver);
 
-    furi_hal_power_suppress_charge_enter();
-
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
+
+    furi_hal_power_suppress_charge_enter();
 
     scene_manager_next_scene(app->scene_manager, POCSAGPagerSceneStart);
 
