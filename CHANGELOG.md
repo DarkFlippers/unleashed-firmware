@@ -1,10 +1,14 @@
 ### New changes
 * If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
 * SubGHz: Default custom buttons layout for non standard remotes (for example your remote has broken buttons and transmit only 0xC, now you can use other buttons)
+* SubGHz: Fix issues with external module 5v power (now all works automatically, enabling +5v manually not required) (**Only for modules that work with 5v->3.3v converter!!!!!**)
 * SubGHz: Fix and update subghz protocols to use new error system
 * SubGHz: Fix default frequency being overwritten bug (Add manually fixes)
-* SubGHz: Fix 464Mhz was showing up in Frequency analyzer all the time due to noise
+* SubGHz: Fix 464Mhz and (390MHz for external module only) was showing up in Frequency analyzer all the time due to noise
 * iButton: Fix ibutton app - add manually - duplicate names
+* Plugins: Properly rename unirf remix to subghz remote - And automatically migrate user files to new folder (unirf -> subghz_remote)
+* Plugins: Fix unirf freeze (protocol deserialize status ok) (by @Willy-JL | PR #375)
+* Plugins: Blackjack game: fix bug counting more than one ace (by @403-Fruit | PR #374)
 * Plugins: Update POCSAG Pager app to new error system
 * Plugins: Update iButton Fuzzer to new iButton system
 * OFW: Archive browser: update path on dir leave 
