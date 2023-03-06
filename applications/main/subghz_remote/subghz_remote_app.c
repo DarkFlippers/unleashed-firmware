@@ -23,10 +23,10 @@
 #include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/somfy_telis.h>
 
-#define UNIRFMAP_FOLDER "/ext/unirf"
-#define UNIRFMAP_EXTENSION ".txt"
+#define SUBREMOTEMAP_FOLDER "/ext/subghz_remote"
+#define SUBREMOTEMAP_EXTENSION ".txt"
 
-#define TAG "UniRF Remix"
+#define TAG "SubGHzRemote"
 
 typedef struct {
     uint32_t frequency;
@@ -39,7 +39,7 @@ typedef struct {
     size_t data_size;
 
     SubGhzProtocolDecoderBase* decoder;
-} UniRFPreset;
+} SubRemotePreset;
 
 typedef struct {
     FuriMutex* model_mutex;
@@ -53,7 +53,7 @@ typedef struct {
     SubGhzEnvironment* environment;
     SubGhzReceiver* subghz_receiver;
     NotificationApp* notification;
-    UniRFPreset* txpreset;
+    SubRemotePreset* txpreset;
 
     FuriString* up_file;
     FuriString* down_file;
@@ -88,17 +88,17 @@ typedef struct {
     bool tx_not_allowed;
 
     FuriString* signal;
-} UniRFRemix;
+} SubGHzRemote;
 
-UniRFPreset* unirfremix_preset_alloc(void) {
-    UniRFPreset* preset = malloc(sizeof(UniRFPreset));
+SubRemotePreset* subghz_remote_preset_alloc(void) {
+    SubRemotePreset* preset = malloc(sizeof(SubRemotePreset));
     preset->name = furi_string_alloc();
     preset->protocol = furi_string_alloc();
     preset->repeat = 200;
     return preset;
 }
 
-void unirfremix_preset_free(UniRFPreset* preset) {
+void subghz_remote_preset_free(SubRemotePreset* preset) {
     furi_string_free(preset->name);
     furi_string_free(preset->protocol);
     free(preset);
@@ -170,7 +170,7 @@ static void cfg_read_file_label(
  * set error flag if missing map file
  */
 
-void unirfremix_cfg_set_check(UniRFRemix* app, FuriString* file_name) {
+void subghz_remote_cfg_set_check(SubGHzRemote* app, FuriString* file_name) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
@@ -313,11 +313,11 @@ void unirfremix_cfg_set_check(UniRFRemix* app, FuriString* file_name) {
     }
 }
 
-static void unirfremix_end_send(UniRFRemix* app) {
+static void subghz_remote_end_send(SubGHzRemote* app) {
     app->processing = 0;
 }
 
-bool unirfremix_set_preset(UniRFPreset* p, const char* preset) {
+bool subghz_remote_set_preset(SubRemotePreset* p, const char* preset) {
     if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
         furi_string_set(p->name, "AM270");
     } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
@@ -337,8 +337,8 @@ bool unirfremix_set_preset(UniRFPreset* p, const char* preset) {
     return true;
 }
 
-bool unirfremix_key_load(
-    UniRFPreset* preset,
+bool subghz_remote_key_load(
+    SubRemotePreset* preset,
     FlipperFormat* fff_file,
     FlipperFormat* fff_data,
     SubGhzSetting* setting,
@@ -367,7 +367,7 @@ bool unirfremix_key_load(
             FURI_LOG_W(TAG, "Could not read Preset. Defaulting to Ook650Async");
             furi_string_set(temp_str, "FuriHalSubGhzPresetOok650Async");
         }
-        if(!unirfremix_set_preset(preset, furi_string_get_cstr(temp_str))) {
+        if(!subghz_remote_set_preset(preset, furi_string_get_cstr(temp_str))) {
             FURI_LOG_E(TAG, "Could not set preset");
             break;
         }
@@ -422,7 +422,7 @@ bool unirfremix_key_load(
 
 // method modified from subghz_i.c
 // https://github.com/flipperdevices/flipperzero-firmware/blob/b0daa601ad5b87427a45f9089c8b403a01f72c2a/applications/subghz/subghz_i.c#L417-L456
-bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_file_name) {
+bool subghz_remote_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_file_name) {
     furi_assert(fff_file);
     furi_assert(dev_file_name);
 
@@ -459,7 +459,7 @@ bool unirfremix_save_protocol_to_file(FlipperFormat* fff_file, const char* dev_f
     return saved;
 }
 
-void unirfremix_tx_stop(UniRFRemix* app) {
+void subghz_remote_tx_stop(SubGHzRemote* app) {
     if(app->processing == 0) {
         return;
     }
@@ -483,7 +483,7 @@ void unirfremix_tx_stop(UniRFRemix* app) {
     FURI_LOG_D(TAG, "Protocol-TYPE %d", proto->type);
     if(proto && proto->type == SubGhzProtocolTypeDynamic) {
         FURI_LOG_D(TAG, "Protocol is dynamic. Saving key");
-        unirfremix_save_protocol_to_file(app->tx_fff_data, app->tx_file_path);
+        subghz_remote_save_protocol_to_file(app->tx_fff_data, app->tx_file_path);
 
         keeloq_reset_mfname();
         keeloq_reset_kl_type();
@@ -500,22 +500,22 @@ void unirfremix_tx_stop(UniRFRemix* app) {
 
     notification_message(app->notification, &sequence_blink_stop);
 
-    unirfremix_preset_free(app->txpreset);
+    subghz_remote_preset_free(app->txpreset);
     flipper_format_free(app->tx_fff_data);
-    unirfremix_end_send(app);
+    subghz_remote_end_send(app);
 }
 
-static bool unirfremix_send_sub(UniRFRemix* app, FlipperFormat* fff_data) {
+static bool subghz_remote_send_sub(SubGHzRemote* app, FlipperFormat* fff_data) {
     //
     bool res = false;
     do {
         if(!furi_hal_subghz_is_tx_allowed(app->txpreset->frequency)) {
             printf(
                 "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
-                "the actual operation of the unirf app is not possible\r\n ",
+                "the actual operation of the subghz remote app is not possible\r\n ",
                 app->txpreset->frequency);
             app->tx_not_allowed = true;
-            unirfremix_end_send(app);
+            subghz_remote_end_send(app);
             break;
         } else {
             app->tx_not_allowed = false;
@@ -557,14 +557,14 @@ static bool unirfremix_send_sub(UniRFRemix* app, FlipperFormat* fff_data) {
     return res;
 }
 
-static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, const char* path) {
+static void subghz_remote_send_signal(SubGHzRemote* app, Storage* storage, const char* path) {
     FURI_LOG_D(TAG, "Sending: %s", path);
 
     app->tx_file_path = path;
 
     app->tx_fff_data = flipper_format_string_alloc();
 
-    app->txpreset = unirfremix_preset_alloc();
+    app->txpreset = subghz_remote_preset_alloc();
 
     // load settings/stream from .sub file
     FlipperFormat* fff_file = flipper_format_file_alloc(storage);
@@ -574,7 +574,7 @@ static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, const char
             FURI_LOG_E(TAG, "Could not open file %s", path);
             break;
         }
-        if(!unirfremix_key_load(
+        if(!subghz_remote_key_load(
                app->txpreset,
                fff_file,
                app->tx_fff_data,
@@ -592,25 +592,25 @@ static void unirfremix_send_signal(UniRFRemix* app, Storage* storage, const char
         return;
     }
 
-    unirfremix_send_sub(app, app->tx_fff_data);
+    subghz_remote_send_sub(app, app->tx_fff_data);
 }
 
-static void unirfremix_process_signal(UniRFRemix* app, FuriString* signal) {
+static void subghz_remote_process_signal(SubGHzRemote* app, FuriString* signal) {
     view_port_update(app->view_port);
 
     FURI_LOG_D(TAG, "signal = %s", furi_string_get_cstr(signal));
 
     if(strlen(furi_string_get_cstr(signal)) > 12) {
         Storage* storage = furi_record_open(RECORD_STORAGE);
-        unirfremix_send_signal(app, storage, furi_string_get_cstr(signal));
+        subghz_remote_send_signal(app, storage, furi_string_get_cstr(signal));
         furi_record_close(RECORD_STORAGE);
     } else if(strlen(furi_string_get_cstr(signal)) < 10) {
-        unirfremix_end_send(app);
+        subghz_remote_end_send(app);
     }
 }
 
 static void render_callback(Canvas* canvas, void* ctx) {
-    UniRFRemix* app = ctx;
+    SubGHzRemote* app = ctx;
     furi_check(furi_mutex_acquire(app->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     //setup different canvas settings
@@ -650,10 +650,10 @@ static void render_callback(Canvas* canvas, void* ctx) {
         //canvas_draw_str(canvas, 0, 40, "D: ");
         //canvas_draw_str(canvas, 0, 50, "Ok: ");
 
-        //PNGs are located in assets/icons/UniRFRemix before compilation
+        //PNGs are located in assets/icons/SubGHzRemote before compilation
 
         //Icons for Labels
-        //canvas_draw_icon(canvas, 0, 0, &I_UniRFRemix_LeftAlignedButtons_9x64);
+        //canvas_draw_icon(canvas, 0, 0, &I_SubGHzRemote_LeftAlignedButtons_9x64);
         canvas_draw_icon(canvas, 1, 5, &I_ButtonUp_7x4);
         canvas_draw_icon(canvas, 1, 15, &I_ButtonDown_7x4);
         canvas_draw_icon(canvas, 2, 23, &I_ButtonLeft_4x7);
@@ -702,7 +702,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
         //Repeat indicator
         //canvas_draw_str_aligned(canvas, 125, 40, AlignRight, AlignBottom, "Repeat:");
-        //canvas_draw_icon(canvas, 115, 39, &I_UniRFRemix_Repeat_12x14);
+        //canvas_draw_icon(canvas, 115, 39, &I_SubGHzRemote_Repeat_12x14);
         //canvas_draw_str_aligned(canvas, 125, 62, AlignRight, AlignBottom, int_to_char(app->repeat));
     }
 
@@ -710,11 +710,11 @@ static void render_callback(Canvas* canvas, void* ctx) {
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
-    UniRFRemix* app = ctx;
+    SubGHzRemote* app = ctx;
     furi_message_queue_put(app->input_queue, input_event, 0);
 }
 
-void unirfremix_subghz_alloc(UniRFRemix* app) {
+void subghz_remote_subghz_alloc(SubGHzRemote* app) {
     // load subghz presets
     app->setting = subghz_setting_alloc();
     subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
@@ -733,8 +733,8 @@ void unirfremix_subghz_alloc(UniRFRemix* app) {
     app->subghz_receiver = subghz_receiver_alloc_init(app->environment);
 }
 
-UniRFRemix* unirfremix_alloc(void) {
-    UniRFRemix* app = malloc(sizeof(UniRFRemix));
+SubGHzRemote* subghz_remote_alloc(void) {
+    SubGHzRemote* app = malloc(sizeof(SubGHzRemote));
 
     furi_hal_power_suppress_charge_enter();
     // Enable power for External CC1101 if it is connected
@@ -757,7 +757,7 @@ UniRFRemix* unirfremix_alloc(void) {
     return app;
 }
 
-void unirfremix_free(UniRFRemix* app, bool with_subghz) {
+void subghz_remote_free(SubGHzRemote* app, bool with_subghz) {
     furi_hal_power_suppress_charge_exit();
 
     // Disable power for External CC1101 if it was enabled and module is connected
@@ -794,9 +794,9 @@ void unirfremix_free(UniRFRemix* app, bool with_subghz) {
     free(app);
 }
 
-int32_t unirfremix_app(void* p) {
+int32_t subghz_remote_app(void* p) {
     UNUSED(p);
-    UniRFRemix* app = unirfremix_alloc();
+    SubGHzRemote* app = subghz_remote_alloc();
 
     app->file_path = furi_string_alloc();
     app->signal = furi_string_alloc();
@@ -811,33 +811,35 @@ int32_t unirfremix_app(void* p) {
     app->file_result = 3;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    if(!storage_simply_mkdir(storage, UNIRFMAP_FOLDER)) {
-        FURI_LOG_E(TAG, "Could not create folder %s", UNIRFMAP_FOLDER);
+    storage_common_migrate(storage, EXT_PATH("unirf"), SUBREMOTEMAP_FOLDER);
+
+    if(!storage_simply_mkdir(storage, SUBREMOTEMAP_FOLDER)) {
+        FURI_LOG_E(TAG, "Could not create folder %s", SUBREMOTEMAP_FOLDER);
     }
     furi_record_close(RECORD_STORAGE);
 
-    furi_string_set(app->file_path, UNIRFMAP_FOLDER);
+    furi_string_set(app->file_path, SUBREMOTEMAP_FOLDER);
 
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
 
     DialogsFileBrowserOptions browser_options;
-    dialog_file_browser_set_basic_options(&browser_options, UNIRFMAP_EXTENSION, &I_sub1_10px);
-    browser_options.base_path = UNIRFMAP_FOLDER;
+    dialog_file_browser_set_basic_options(&browser_options, SUBREMOTEMAP_EXTENSION, &I_sub1_10px);
+    browser_options.base_path = SUBREMOTEMAP_FOLDER;
 
     bool res = dialog_file_browser_show(dialogs, app->file_path, app->file_path, &browser_options);
 
     furi_record_close(RECORD_DIALOGS);
     if(!res) {
         FURI_LOG_E(TAG, "No file selected");
-        unirfremix_free(app, false);
+        subghz_remote_free(app, false);
         return 255;
     } else {
         //check map and population variables
-        unirfremix_cfg_set_check(app, app->file_path);
+        subghz_remote_cfg_set_check(app, app->file_path);
     }
 
     // init subghz stuff
-    unirfremix_subghz_alloc(app);
+    subghz_remote_subghz_alloc(app);
 
     bool exit_loop = false;
 
@@ -887,7 +889,7 @@ int32_t unirfremix_app(void* p) {
                 }
                 if(input.type == InputTypeRelease) {
                     if(app->up_enabled) {
-                        unirfremix_tx_stop(app);
+                        subghz_remote_tx_stop(app);
                     }
                 }
                 break;
@@ -905,7 +907,7 @@ int32_t unirfremix_app(void* p) {
                 }
                 if(input.type == InputTypeRelease) {
                     if(app->down_enabled) {
-                        unirfremix_tx_stop(app);
+                        subghz_remote_tx_stop(app);
                     }
                 }
                 break;
@@ -923,7 +925,7 @@ int32_t unirfremix_app(void* p) {
                 }
                 if(input.type == InputTypeRelease) {
                     if(app->right_enabled) {
-                        unirfremix_tx_stop(app);
+                        subghz_remote_tx_stop(app);
                     }
                 }
                 break;
@@ -941,7 +943,7 @@ int32_t unirfremix_app(void* p) {
                 }
                 if(input.type == InputTypeRelease) {
                     if(app->left_enabled) {
-                        unirfremix_tx_stop(app);
+                        subghz_remote_tx_stop(app);
                     }
                 }
                 break;
@@ -959,13 +961,13 @@ int32_t unirfremix_app(void* p) {
                 }
                 if(input.type == InputTypeRelease) {
                     if(app->ok_enabled) {
-                        unirfremix_tx_stop(app);
+                        subghz_remote_tx_stop(app);
                     }
                 }
                 break;
 
             case InputKeyBack:
-                unirfremix_tx_stop(app);
+                subghz_remote_tx_stop(app);
                 exit_loop = true;
                 break;
             default:
@@ -1002,7 +1004,7 @@ int32_t unirfremix_app(void* p) {
 
                 app->processing = 2;
 
-                unirfremix_process_signal(app, app->signal);
+                subghz_remote_process_signal(app, app->signal);
             }
 
             if(exit_loop == true) {
@@ -1058,7 +1060,7 @@ int32_t unirfremix_app(void* p) {
     }
 
     // remove & free all stuff created by app
-    unirfremix_free(app, true);
+    subghz_remote_free(app, true);
 
     return 0;
 }
