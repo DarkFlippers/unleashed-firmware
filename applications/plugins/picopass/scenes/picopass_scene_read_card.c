@@ -1,7 +1,7 @@
 #include "../picopass_i.h"
 #include <dolphin/dolphin.h>
 
-const uint8_t picopass_factory_key_check[] = {0xf0, 0xe1, 0xd2, 0xc3, 0xb4, 0xa5, 0x96, 0x87};
+extern const uint8_t picopass_factory_debit_key[];
 
 void picopass_read_card_worker_callback(PicopassWorkerEvent event, void* context) {
     UNUSED(event);
@@ -38,7 +38,7 @@ bool picopass_scene_read_card_on_event(void* context, SceneManagerEvent event) {
         if(event.event == PicopassCustomEventWorkerExit) {
             if(memcmp(
                    picopass->dev->dev_data.pacs.key,
-                   picopass_factory_key_check,
+                   picopass_factory_debit_key,
                    PICOPASS_BLOCK_LEN) == 0) {
                 scene_manager_next_scene(picopass->scene_manager, PicopassSceneReadFactorySuccess);
             } else {
