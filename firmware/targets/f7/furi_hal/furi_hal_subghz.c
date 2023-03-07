@@ -21,8 +21,6 @@
 #define INIT_TIMEOUT 10
 
 static uint32_t furi_hal_subghz_debug_gpio_buff[2];
-static bool last_OTG_state = false;
-static bool ext_power_is_enabled_already = false;
 
 /* DMA Channels definition */
 #define SUBGHZ_DMA DMA2
@@ -80,26 +78,26 @@ void furi_hal_subghz_init(void) {
     furi_hal_subghz_init_check();
 }
 
-void furi_hal_subghz_enable_ext_power(void) {
-    if(ext_power_is_enabled_already && furi_hal_power_is_otg_enabled()) return;
-    ext_power_is_enabled_already = true;
-    last_OTG_state = furi_hal_power_is_otg_enabled();
-    if(furi_hal_subghz.radio_type != SubGhzRadioInternal && !furi_hal_power_is_otg_enabled()) {
-        furi_hal_power_enable_otg();
+bool furi_hal_subghz_enable_ext_power(void) {
+    if(furi_hal_subghz.radio_type != SubGhzRadioInternal) {
+        uint8_t attempts = 0;
+        while(!furi_hal_power_is_otg_enabled() && attempts++ < 2) {
+            furi_hal_power_enable_otg();
+            //CC1101 power-up time
+            furi_delay_ms(5);
+        }
     }
+    return furi_hal_power_is_otg_enabled();
 }
 
 void furi_hal_subghz_disable_ext_power(void) {
-    ext_power_is_enabled_already = false;
-    if(furi_hal_subghz.radio_type != SubGhzRadioInternal && !last_OTG_state) {
+    if(furi_hal_subghz.radio_type != SubGhzRadioInternal) {
         furi_hal_power_disable_otg();
     }
 }
 
 bool furi_hal_subghz_check_radio(void) {
     bool result = true;
-
-    furi_hal_subghz_enable_ext_power();
 
     furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
 
@@ -113,7 +111,6 @@ bool furi_hal_subghz_check_radio(void) {
 
         result = false;
     }
-    furi_hal_subghz_disable_ext_power();
     return result;
 }
 
@@ -124,7 +121,6 @@ bool furi_hal_subghz_init_check(void) {
     furi_hal_subghz.state = SubGhzStateIdle;
     furi_hal_subghz.preset = FuriHalSubGhzPresetIDLE;
 
-    furi_hal_subghz_enable_ext_power();
     furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
 
 #ifdef FURI_HAL_SUBGHZ_TX_GPIO
@@ -176,7 +172,6 @@ bool furi_hal_subghz_init_check(void) {
     } else {
         FURI_LOG_E(TAG, "Failed to initialization");
     }
-    furi_hal_subghz_disable_ext_power();
     return result;
 }
 
@@ -192,8 +187,6 @@ void furi_hal_subghz_sleep() {
     cc1101_shutdown(furi_hal_subghz.spi_bus_handle);
 
     furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);
-
-    furi_hal_subghz_disable_ext_power();
 
     furi_hal_subghz.preset = FuriHalSubGhzPresetIDLE;
 }
@@ -339,7 +332,6 @@ void furi_hal_subghz_shutdown() {
     // Reset and shutdown
     cc1101_shutdown(furi_hal_subghz.spi_bus_handle);
     furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);
-    furi_hal_subghz_disable_ext_power();
 }
 
 void furi_hal_subghz_reset() {
@@ -352,7 +344,6 @@ void furi_hal_subghz_reset() {
 }
 
 void furi_hal_subghz_idle() {
-    furi_hal_subghz_enable_ext_power();
     furi_hal_spi_acquire(furi_hal_subghz.spi_bus_handle);
     cc1101_switch_to_idle(furi_hal_subghz.spi_bus_handle);
     furi_hal_spi_release(furi_hal_subghz.spi_bus_handle);

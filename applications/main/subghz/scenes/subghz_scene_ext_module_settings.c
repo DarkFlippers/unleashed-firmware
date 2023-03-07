@@ -146,6 +146,8 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
     // Set selected radio module
     furi_hal_subghz_set_radio_type(value_index_exm);
 
+    furi_hal_subghz_enable_ext_power();
+
     // Check if module is present, if no -> show error
     if(!furi_hal_subghz_check_radio()) {
         value_index_exm = 0;

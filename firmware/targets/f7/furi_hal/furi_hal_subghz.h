@@ -303,8 +303,9 @@ SubGhzRadioType furi_hal_subghz_get_radio_type(void);
 bool furi_hal_subghz_check_radio(void);
 
 /** Turn on the power of the external radio module
+ * @return     true if power-up is successful
  */
-void furi_hal_subghz_enable_ext_power(void);
+bool furi_hal_subghz_enable_ext_power(void);
 
 /** Turn off the power of the external radio module
  */

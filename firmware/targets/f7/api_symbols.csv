@@ -1354,7 +1354,7 @@ Function,+,furi_hal_spi_release,void,FuriHalSpiBusHandle*
 Function,+,furi_hal_subghz_check_radio,_Bool,
 Function,+,furi_hal_subghz_disable_ext_power,void,
 Function,-,furi_hal_subghz_dump_state,void,
-Function,+,furi_hal_subghz_enable_ext_power,void,
+Function,+,furi_hal_subghz_enable_ext_power,_Bool,
 Function,+,furi_hal_subghz_flush_rx,void,
 Function,+,furi_hal_subghz_flush_tx,void,
 Function,+,furi_hal_subghz_get_lqi,uint8_t,

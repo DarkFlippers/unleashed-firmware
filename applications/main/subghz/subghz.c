@@ -421,6 +421,9 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
 
     // The rest
     free(subghz);
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 }
 
 int32_t subghz_app(void* p) {
