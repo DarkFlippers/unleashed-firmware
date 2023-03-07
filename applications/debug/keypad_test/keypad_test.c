@@ -11,6 +11,7 @@ typedef struct {
     uint16_t left;
     uint16_t right;
     uint16_t ok;
+    FuriMutex* mutex;
 } KeypadTestState;
 
 static void keypad_test_reset_state(KeypadTestState* state) {
@@ -22,7 +23,8 @@ static void keypad_test_reset_state(KeypadTestState* state) {
 }
 
 static void keypad_test_render_callback(Canvas* canvas, void* ctx) {
-    KeypadTestState* state = (KeypadTestState*)acquire_mutex((ValueMutex*)ctx, 25);
+    KeypadTestState* state = ctx;
+    furi_mutex_acquire(state->mutex, FuriWaitForever);
     canvas_clear(canvas);
     char strings[5][20];
 
@@ -51,7 +53,7 @@ static void keypad_test_render_callback(Canvas* canvas, void* ctx) {
 
     canvas_draw_str(canvas, 10, 63, "[back] - reset, hold to exit");
 
-    release_mutex((ValueMutex*)ctx, state);
+    furi_mutex_release(state->mutex);
 }
 
 static void keypad_test_input_callback(InputEvent* input_event, void* ctx) {
@@ -64,17 +66,17 @@ int32_t keypad_test_app(void* p) {
     FuriMessageQueue* event_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
     furi_check(event_queue);
 
-    KeypadTestState _state = {{false, false, false, false, false}, 0, 0, 0, 0, 0};
+    KeypadTestState state = {{false, false, false, false, false}, 0, 0, 0, 0, 0, NULL};
+    state.mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, &_state, sizeof(KeypadTestState))) {
+    if(!state.mutex) {
         FURI_LOG_E(TAG, "cannot create mutex");
         return 0;
     }
 
     ViewPort* view_port = view_port_alloc();
 
-    view_port_draw_callback_set(view_port, keypad_test_render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, keypad_test_render_callback, &state);
     view_port_input_callback_set(view_port, keypad_test_input_callback, event_queue);
 
     // Open GUI and register view_port
@@ -83,7 +85,7 @@ int32_t keypad_test_app(void* p) {
 
     InputEvent event;
     while(furi_message_queue_get(event_queue, &event, FuriWaitForever) == FuriStatusOk) {
-        KeypadTestState* state = (KeypadTestState*)acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(state.mutex, FuriWaitForever);
         FURI_LOG_I(
             TAG,
             "key: %s type: %s",
@@ -92,54 +94,54 @@ int32_t keypad_test_app(void* p) {
 
         if(event.key == InputKeyRight) {
             if(event.type == InputTypePress) {
-                state->press[0] = true;
+                state.press[0] = true;
             } else if(event.type == InputTypeRelease) {
-                state->press[0] = false;
+                state.press[0] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->right;
+                ++state.right;
             }
         } else if(event.key == InputKeyLeft) {
             if(event.type == InputTypePress) {
-                state->press[1] = true;
+                state.press[1] = true;
             } else if(event.type == InputTypeRelease) {
-                state->press[1] = false;
+                state.press[1] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->left;
+                ++state.left;
             }
         } else if(event.key == InputKeyUp) {
             if(event.type == InputTypePress) {
-                state->press[2] = true;
+                state.press[2] = true;
             } else if(event.type == InputTypeRelease) {
-                state->press[2] = false;
+                state.press[2] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->up;
+                ++state.up;
             }
         } else if(event.key == InputKeyDown) {
             if(event.type == InputTypePress) {
-                state->press[3] = true;
+                state.press[3] = true;
             } else if(event.type == InputTypeRelease) {
-                state->press[3] = false;
+                state.press[3] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->down;
+                ++state.down;
             }
         } else if(event.key == InputKeyOk) {
             if(event.type == InputTypePress) {
-                state->press[4] = true;
+                state.press[4] = true;
             } else if(event.type == InputTypeRelease) {
-                state->press[4] = false;
+                state.press[4] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->ok;
+                ++state.ok;
             }
         } else if(event.key == InputKeyBack) {
             if(event.type == InputTypeLong) {
-                release_mutex(&state_mutex, state);
+                furi_mutex_release(state.mutex);
                 break;
             } else if(event.type == InputTypeShort) {
-                keypad_test_reset_state(state);
+                keypad_test_reset_state(&state);
             }
         }
 
-        release_mutex(&state_mutex, state);
+        furi_mutex_release(state.mutex);
         view_port_update(view_port);
     }
 
@@ -147,7 +149,7 @@ int32_t keypad_test_app(void* p) {
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(state.mutex);
 
     furi_record_close(RECORD_GUI);
 
