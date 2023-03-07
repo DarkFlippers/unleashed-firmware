@@ -167,6 +167,8 @@ static bool picopass_device_load_data(PicopassDevice* dev, FuriString* path, boo
         }
 
         size_t app_limit = AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0];
+        // Fix for unpersonalized cards that have app_limit set to 0xFF
+        if(app_limit > PICOPASS_MAX_APP_LIMIT) app_limit = PICOPASS_MAX_APP_LIMIT;
         for(size_t i = 6; i < app_limit; i++) {
             furi_string_printf(temp_str, "Block %d", i);
             if(!flipper_format_read_hex(
