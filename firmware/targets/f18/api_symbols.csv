@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,17.0,,
+Version,+,18.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -156,6 +156,7 @@ Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
 Header,+,lib/toolbox/md5.h,,
 Header,+,lib/toolbox/path.h,,
+Header,+,lib/toolbox/pretty_format.h,,
 Header,+,lib/toolbox/protocols/protocol_dict.h,,
 Header,+,lib/toolbox/random_name.h,,
 Header,+,lib/toolbox/saved_struct.h,,
@@ -439,7 +440,6 @@ Function,-,_wctomb_r,int,"_reent*, char*, wchar_t, _mbstate_t*"
 Function,-,a64l,long,const char*
 Function,+,abort,void,
 Function,-,abs,int,int
-Function,+,acquire_mutex,void*,"ValueMutex*, uint32_t"
 Function,-,aligned_alloc,void*,"size_t, size_t"
 Function,+,aligned_free,void,void*
 Function,+,aligned_malloc,void*,"size_t, size_t"
@@ -573,7 +573,6 @@ Function,-,ctermid,char*,char*
 Function,-,ctime,char*,const time_t*
 Function,-,ctime_r,char*,"const time_t*, char*"
 Function,-,cuserid,char*,char*
-Function,+,delete_mutex,_Bool,ValueMutex*
 Function,+,dialog_ex_alloc,DialogEx*,
 Function,+,dialog_ex_disable_extended_events,void,DialogEx*
 Function,+,dialog_ex_enable_extended_events,void,DialogEx*
@@ -684,6 +683,7 @@ Function,+,file_browser_worker_set_folder_callback,void,"BrowserWorker*, Browser
 Function,+,file_browser_worker_set_item_callback,void,"BrowserWorker*, BrowserWorkerListItemCallback"
 Function,+,file_browser_worker_set_list_callback,void,"BrowserWorker*, BrowserWorkerListLoadCallback"
 Function,+,file_browser_worker_set_long_load_callback,void,"BrowserWorker*, BrowserWorkerLongLoadCallback"
+Function,+,file_info_is_dir,_Bool,const FileInfo*
 Function,+,file_stream_alloc,Stream*,Storage*
 Function,+,file_stream_close,_Bool,Stream*
 Function,+,file_stream_get_error,FS_Error,Stream*
@@ -707,6 +707,7 @@ Function,-,flipper_application_preload_status_to_string,const char*,FlipperAppli
 Function,+,flipper_application_spawn,FuriThread*,"FlipperApplication*, void*"
 Function,+,flipper_format_buffered_file_alloc,FlipperFormat*,Storage*
 Function,+,flipper_format_buffered_file_close,_Bool,FlipperFormat*
+Function,+,flipper_format_buffered_file_open_always,_Bool,"FlipperFormat*, const char*"
 Function,+,flipper_format_buffered_file_open_existing,_Bool,"FlipperFormat*, const char*"
 Function,+,flipper_format_delete_key,_Bool,"FlipperFormat*, const char*"
 Function,+,flipper_format_file_alloc,FlipperFormat*,Storage*
@@ -1234,6 +1235,7 @@ Function,+,furi_thread_flags_get,uint32_t,
 Function,+,furi_thread_flags_set,uint32_t,"FuriThreadId, uint32_t"
 Function,+,furi_thread_flags_wait,uint32_t,"uint32_t, uint32_t, uint32_t"
 Function,+,furi_thread_free,void,FuriThread*
+Function,+,furi_thread_get_appid,const char*,FuriThreadId
 Function,+,furi_thread_get_current,FuriThread*,
 Function,+,furi_thread_get_current_id,FuriThreadId,
 Function,+,furi_thread_get_current_priority,FuriThreadPriority,
@@ -1248,6 +1250,7 @@ Function,+,furi_thread_is_suspended,_Bool,FuriThreadId
 Function,+,furi_thread_join,_Bool,FuriThread*
 Function,+,furi_thread_mark_as_service,void,FuriThread*
 Function,+,furi_thread_resume,void,FuriThreadId
+Function,+,furi_thread_set_appid,void,"FuriThread*, const char*"
 Function,+,furi_thread_set_callback,void,"FuriThread*, FuriThreadCallback"
 Function,+,furi_thread_set_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_current_priority,void,FuriThreadPriority
@@ -1312,7 +1315,6 @@ Function,+,icon_get_data,const uint8_t*,const Icon*
 Function,+,icon_get_height,uint8_t,const Icon*
 Function,+,icon_get_width,uint8_t,const Icon*
 Function,-,index,char*,"const char*, int"
-Function,+,init_mutex,_Bool,"ValueMutex*, void*, size_t"
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
 Function,+,input_get_type_name,const char*,InputType
@@ -1491,6 +1493,7 @@ Function,+,power_get_pubsub,FuriPubSub*,Power*
 Function,+,power_is_battery_healthy,_Bool,Power*
 Function,+,power_off,void,Power*
 Function,+,power_reboot,void,PowerBootMode
+Function,+,pretty_format_bytes_hex_canonical,void,"FuriString*, size_t, const char*, const uint8_t*, size_t"
 Function,-,printf,int,"const char*, ..."
 Function,+,property_value_out,void,"PropertyValueContext*, const char*, unsigned int, ..."
 Function,+,protocol_dict_alloc,ProtocolDict*,"const ProtocolBase**, size_t"
@@ -1534,12 +1537,10 @@ Function,+,rand,int,
 Function,-,rand_r,int,unsigned*
 Function,+,random,long,
 Function,-,rawmemchr,void*,"const void*, int"
-Function,-,read_mutex,_Bool,"ValueMutex*, void*, size_t, uint32_t"
 Function,+,realloc,void*,"void*, size_t"
 Function,-,reallocarray,void*,"void*, size_t, size_t"
 Function,-,reallocf,void*,"void*, size_t"
 Function,-,realpath,char*,"const char*, char*"
-Function,+,release_mutex,_Bool,"ValueMutex*, const void*"
 Function,-,remove,int,const char*
 Function,-,rename,int,"const char*, const char*"
 Function,-,renameat,int,"int, const char*, int, const char*"
@@ -1617,14 +1618,18 @@ Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
 Function,+,sscanf,int,"const char*, const char*, ..."
 Function,+,storage_common_copy,FS_Error,"Storage*, const char*, const char*"
+Function,+,storage_common_exists,_Bool,"Storage*, const char*"
 Function,+,storage_common_fs_info,FS_Error,"Storage*, const char*, uint64_t*, uint64_t*"
 Function,+,storage_common_merge,FS_Error,"Storage*, const char*, const char*"
+Function,+,storage_common_migrate,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_mkdir,FS_Error,"Storage*, const char*"
 Function,+,storage_common_remove,FS_Error,"Storage*, const char*"
 Function,+,storage_common_rename,FS_Error,"Storage*, const char*, const char*"
+Function,+,storage_common_resolve_path_and_ensure_app_directory,void,"Storage*, FuriString*"
 Function,+,storage_common_stat,FS_Error,"Storage*, const char*, FileInfo*"
 Function,+,storage_common_timestamp,FS_Error,"Storage*, const char*, uint32_t*"
 Function,+,storage_dir_close,_Bool,File*
+Function,+,storage_dir_exists,_Bool,"Storage*, const char*"
 Function,+,storage_dir_open,_Bool,"File*, const char*"
 Function,+,storage_dir_read,_Bool,"File*, FileInfo*, char*, uint16_t"
 Function,-,storage_dir_rewind,_Bool,File*
@@ -1995,7 +2000,6 @@ Function,+,widget_alloc,Widget*,
 Function,+,widget_free,void,Widget*
 Function,+,widget_get_view,View*,Widget*
 Function,+,widget_reset,void,Widget*
-Function,-,write_mutex,_Bool,"ValueMutex*, void*, size_t, uint32_t"
 Function,-,xPortGetFreeHeapSize,size_t,
 Function,-,xPortGetMinimumEverFreeHeapSize,size_t,
 Function,-,xPortStartScheduler,BaseType_t,

@@ -16,7 +16,6 @@
 #include "core/semaphore.h"
 #include "core/thread.h"
 #include "core/timer.h"
-#include "core/valuemutex.h"
 #include "core/string.h"
 #include "core/stream_buffer.h"
 

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,17.0,,
+Version,+,18.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -491,7 +491,6 @@ Function,-,acosh,double,double
 Function,-,acoshf,float,float
 Function,-,acoshl,long double,long double
 Function,-,acosl,long double,long double
-Function,+,acquire_mutex,void*,"ValueMutex*, uint32_t"
 Function,-,aligned_alloc,void*,"size_t, size_t"
 Function,+,aligned_free,void,void*
 Function,+,aligned_malloc,void*,"size_t, size_t"
@@ -703,7 +702,6 @@ Function,-,ctermid,char*,char*
 Function,-,ctime,char*,const time_t*
 Function,-,ctime_r,char*,"const time_t*, char*"
 Function,-,cuserid,char*,char*
-Function,+,delete_mutex,_Bool,ValueMutex*
 Function,+,dialog_ex_alloc,DialogEx*,
 Function,+,dialog_ex_disable_extended_events,void,DialogEx*
 Function,+,dialog_ex_enable_extended_events,void,DialogEx*
@@ -1692,7 +1690,6 @@ Function,+,infrared_worker_tx_set_get_signal_callback,void,"InfraredWorker*, Inf
 Function,+,infrared_worker_tx_set_signal_sent_callback,void,"InfraredWorker*, InfraredWorkerMessageSentCallback, void*"
 Function,+,infrared_worker_tx_start,void,InfraredWorker*
 Function,+,infrared_worker_tx_stop,void,InfraredWorker*
-Function,+,init_mutex,_Bool,"ValueMutex*, void*, size_t"
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
 Function,+,input_get_type_name,const char*,InputType
@@ -2164,12 +2161,10 @@ Function,+,rand,int,
 Function,-,rand_r,int,unsigned*
 Function,+,random,long,
 Function,-,rawmemchr,void*,"const void*, int"
-Function,-,read_mutex,_Bool,"ValueMutex*, void*, size_t, uint32_t"
 Function,+,realloc,void*,"void*, size_t"
 Function,-,reallocarray,void*,"void*, size_t, size_t"
 Function,-,reallocf,void*,"void*, size_t"
 Function,-,realpath,char*,"const char*, char*"
-Function,+,release_mutex,_Bool,"ValueMutex*, const void*"
 Function,-,remainder,double,"double, double"
 Function,-,remainderf,float,"float, float"
 Function,-,remainderl,long double,"long double, long double"
@@ -2967,7 +2962,6 @@ Function,+,widget_alloc,Widget*,
 Function,+,widget_free,void,Widget*
 Function,+,widget_get_view,View*,Widget*
 Function,+,widget_reset,void,Widget*
-Function,-,write_mutex,_Bool,"ValueMutex*, void*, size_t, uint32_t"
 Function,-,xPortGetFreeHeapSize,size_t,
 Function,-,xPortGetMinimumEverFreeHeapSize,size_t,
 Function,-,xPortStartScheduler,BaseType_t,
