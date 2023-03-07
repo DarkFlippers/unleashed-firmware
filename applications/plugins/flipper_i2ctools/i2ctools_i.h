@@ -13,6 +13,7 @@
 
 // App datas
 typedef struct {
+    FuriMutex* mutex;
     ViewPort* view_port;
     i2cMainView* main_view;
 

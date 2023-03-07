@@ -87,4 +87,5 @@ typedef struct {
      * @brief Notification method
      */
     NotificationMethod notification_method;
+    FuriMutex* mutex;
 } PluginState;

@@ -62,6 +62,7 @@ typedef struct SGpioButtons {
 } SGpioButtons;
 
 typedef struct SWiFiDeauthApp {
+    FuriMutex* mutex;
     Gui* m_gui;
     FuriThread* m_worker_thread;
     //NotificationApp* m_notification;
@@ -121,10 +122,9 @@ static void esp8266_deauth_app_init(SWiFiDeauthApp* const app) {
 }
 
 static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ctx) {
-    SWiFiDeauthApp* app = acquire_mutex((ValueMutex*)ctx, 25);
-    if(app == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    SWiFiDeauthApp* app = ctx;
+    furi_mutex_acquire(app->mutex, FuriWaitForever);
 
     //if(app->m_needUpdateGUI)
     //{
@@ -206,7 +206,7 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
         break;
     }
 
-    release_mutex((ValueMutex*)ctx, app);
+    furi_mutex_release(app->mutex);
 }
 
 static void
@@ -235,14 +235,15 @@ static int32_t uart_worker(void* context) {
     furi_assert(context);
     DEAUTH_APP_LOG_I("[UART] Worker thread init");
 
-    SWiFiDeauthApp* app = acquire_mutex((ValueMutex*)context, 25);
+    SWiFiDeauthApp* app = context;
+    furi_mutex_acquire(app->mutex, FuriWaitForever);
     if(app == NULL) {
         return 1;
     }
 
     FuriStreamBuffer* rx_stream = app->m_rx_stream;
 
-    release_mutex((ValueMutex*)context, app);
+    furi_mutex_release(app->mutex);
 
 #if ENABLE_MODULE_POWER
     bool initialized = false;
@@ -259,7 +260,8 @@ static int32_t uart_worker(void* context) {
         if(events & WorkerEventStop) break;
         if(events & WorkerEventRx) {
             DEAUTH_APP_LOG_I("[UART] Received data");
-            SWiFiDeauthApp* app = acquire_mutex((ValueMutex*)context, 25);
+            SWiFiDeauthApp* app = context;
+            furi_mutex_acquire(app->mutex, FuriWaitForever);
             if(app == NULL) {
                 return 1;
             }
@@ -307,7 +309,7 @@ static int32_t uart_worker(void* context) {
             }
 #endif // ENABLE_MODULE_POWER
 
-            release_mutex((ValueMutex*)context, app);
+            furi_mutex_release(app->mutex);
         }
     }
 
@@ -356,8 +358,8 @@ int32_t esp8266_deauth_app(void* p) {
 #endif
 #endif // ENABLE_MODULE_DETECTION
 
-    ValueMutex app_data_mutex;
-    if(!init_mutex(&app_data_mutex, app, sizeof(SWiFiDeauthApp))) {
+    app->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!app->mutex) {
         DEAUTH_APP_LOG_E("cannot create mutex\r\n");
         free(app);
         return 255;
@@ -365,10 +367,10 @@ int32_t esp8266_deauth_app(void* p) {
 
     DEAUTH_APP_LOG_I("Mutex created");
 
-    //app->m_notification = furi_record_open("notification");
+    //app->m_notification = furi_record_open(RECORD_NOTIFICATION);
 
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, esp8266_deauth_module_render_callback, &app_data_mutex);
+    view_port_draw_callback_set(view_port, esp8266_deauth_module_render_callback, app);
     view_port_input_callback_set(view_port, esp8266_deauth_module_input_callback, event_queue);
 
     // Open GUI and register view_port
@@ -382,7 +384,7 @@ int32_t esp8266_deauth_app(void* p) {
     app->m_worker_thread = furi_thread_alloc();
     furi_thread_set_name(app->m_worker_thread, "WiFiDeauthModuleUARTWorker");
     furi_thread_set_stack_size(app->m_worker_thread, 1 * 1024);
-    furi_thread_set_context(app->m_worker_thread, &app_data_mutex);
+    furi_thread_set_context(app->m_worker_thread, app);
     furi_thread_set_callback(app->m_worker_thread, uart_worker);
     furi_thread_start(app->m_worker_thread);
     DEAUTH_APP_LOG_I("UART thread allocated");
@@ -398,7 +400,7 @@ int32_t esp8266_deauth_app(void* p) {
     SPluginEvent event;
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
-        SWiFiDeauthApp* app = (SWiFiDeauthApp*)acquire_mutex_block(&app_data_mutex);
+        furi_mutex_acquire(app->mutex, FuriWaitForever);
 
 #if ENABLE_MODULE_DETECTION
         if(!app->m_wifiDeauthModuleAttached) {
@@ -484,7 +486,7 @@ int32_t esp8266_deauth_app(void* p) {
 #endif
 
         view_port_update(view_port);
-        release_mutex(&app_data_mutex, app);
+        furi_mutex_release(app->mutex);
     }
 
     DEAUTH_APP_LOG_I("Start exit app");
@@ -514,7 +516,7 @@ int32_t esp8266_deauth_app(void* p) {
 
     // Close gui record
     furi_record_close(RECORD_GUI);
-    furi_record_close("notification");
+    //furi_record_close(RECORD_NOTIFICATION);
     app->m_gui = NULL;
 
     view_port_free(view_port);
@@ -523,7 +525,7 @@ int32_t esp8266_deauth_app(void* p) {
 
     furi_stream_buffer_free(app->m_rx_stream);
 
-    delete_mutex(&app_data_mutex);
+    furi_mutex_free(app->mutex);
 
     // Free rest
     free(app);

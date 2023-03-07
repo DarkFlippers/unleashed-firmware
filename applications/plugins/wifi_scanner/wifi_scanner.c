@@ -83,6 +83,7 @@ typedef enum EWorkerEventFlags {
 } EWorkerEventFlags;
 
 typedef struct SWiFiScannerApp {
+    FuriMutex* mutex;
     Gui* m_gui;
     FuriThread* m_worker_thread;
     NotificationApp* m_notification;
@@ -162,10 +163,9 @@ void DrawSignalStrengthBar(Canvas* canvas, int rssi, int x, int y, int width, in
 }
 
 static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
-    SWiFiScannerApp* app = acquire_mutex((ValueMutex*)ctx, 25);
-    if(app == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    SWiFiScannerApp* app = ctx;
+    furi_mutex_acquire(app->mutex, FuriWaitForever);
 
     canvas_clear(canvas);
 
@@ -433,7 +433,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
             break;
         }
     }
-    release_mutex((ValueMutex*)ctx, app);
+    furi_mutex_release(app->mutex);
 }
 
 static void wifi_module_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -460,14 +460,15 @@ static void uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
 static int32_t uart_worker(void* context) {
     furi_assert(context);
 
-    SWiFiScannerApp* app = acquire_mutex((ValueMutex*)context, 25);
+    SWiFiScannerApp* app = context;
+    furi_mutex_acquire(app->mutex, FuriWaitForever);
     if(app == NULL) {
         return 1;
     }
 
     FuriStreamBuffer* rx_stream = app->m_rx_stream;
 
-    release_mutex((ValueMutex*)context, app);
+    furi_mutex_release(app->mutex);
 
     while(true) {
         uint32_t events = furi_thread_flags_wait(
@@ -527,7 +528,8 @@ static int32_t uart_worker(void* context) {
                 } while(end < stringSize);
                 furi_string_free(chunk);
 
-                app = acquire_mutex((ValueMutex*)context, 25);
+                app = context;
+                furi_mutex_acquire(app->mutex, FuriWaitForever);
                 if(app == NULL) {
                     return 1;
                 }
@@ -584,7 +586,7 @@ static int32_t uart_worker(void* context) {
                     }
                 }
 
-                release_mutex((ValueMutex*)context, app);
+                furi_mutex_release(app->mutex);
 
                 // Clear string array
                 for(index = 0; index < EChunkArrayData_ENUM_MAX; ++index) {
@@ -665,8 +667,9 @@ int32_t wifi_scanner_app(void* p) {
 #endif // ENABLE_MODULE_POWER
 #endif // ENABLE_MODULE_DETECTION
 
-    ValueMutex app_data_mutex;
-    if(!init_mutex(&app_data_mutex, app, sizeof(SWiFiScannerApp))) {
+    app->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+
+    if(!app->mutex) {
         WIFI_APP_LOG_E("cannot create mutex\r\n");
         free(app);
         return 255;
@@ -674,10 +677,10 @@ int32_t wifi_scanner_app(void* p) {
 
     WIFI_APP_LOG_I("Mutex created");
 
-    app->m_notification = furi_record_open("notification");
+    app->m_notification = furi_record_open(RECORD_NOTIFICATION);
 
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, wifi_module_render_callback, &app_data_mutex);
+    view_port_draw_callback_set(view_port, wifi_module_render_callback, app);
     view_port_input_callback_set(view_port, wifi_module_input_callback, event_queue);
 
     // Open GUI and register view_port
@@ -691,7 +694,7 @@ int32_t wifi_scanner_app(void* p) {
     app->m_worker_thread = furi_thread_alloc();
     furi_thread_set_name(app->m_worker_thread, "WiFiModuleUARTWorker");
     furi_thread_set_stack_size(app->m_worker_thread, 1024);
-    furi_thread_set_context(app->m_worker_thread, &app_data_mutex);
+    furi_thread_set_context(app->m_worker_thread, app);
     furi_thread_set_callback(app->m_worker_thread, uart_worker);
     furi_thread_start(app->m_worker_thread);
     WIFI_APP_LOG_I("UART thread allocated");
@@ -710,7 +713,7 @@ int32_t wifi_scanner_app(void* p) {
     SPluginEvent event;
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
-        SWiFiScannerApp* app = (SWiFiScannerApp*)acquire_mutex_block(&app_data_mutex);
+        furi_mutex_acquire(app->mutex, FuriWaitForever);
 
 #if ENABLE_MODULE_DETECTION
         if(!app->m_wifiModuleAttached) {
@@ -807,7 +810,7 @@ int32_t wifi_scanner_app(void* p) {
 #endif
 
         view_port_update(view_port);
-        release_mutex(&app_data_mutex, app);
+        furi_mutex_release(app->mutex);
     }
 
     WIFI_APP_LOG_I("Start exit app");
@@ -831,7 +834,7 @@ int32_t wifi_scanner_app(void* p) {
 
     // Close gui record
     furi_record_close(RECORD_GUI);
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     app->m_gui = NULL;
 
     view_port_free(view_port);
@@ -840,7 +843,7 @@ int32_t wifi_scanner_app(void* p) {
 
     furi_stream_buffer_free(app->m_rx_stream);
 
-    delete_mutex(&app_data_mutex);
+    furi_mutex_free(app->mutex);
 
     // Free rest
     free(app);

@@ -33,11 +33,9 @@ static void draw_ui(Canvas* const canvas, const GameState* game_state) {
 }
 
 static void render_callback(Canvas* const canvas, void* ctx) {
-    const GameState* game_state = acquire_mutex((ValueMutex*)ctx, 25);
-
-    if(game_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    const GameState* game_state = ctx;
+    furi_mutex_acquire(game_state->mutex, FuriWaitForever);
 
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_frame(canvas, 0, 0, 128, 64);
@@ -60,7 +58,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
         settings_page(canvas, game_state);
     }
 
-    release_mutex((ValueMutex*)ctx, game_state);
+    furi_mutex_release(game_state->mutex);
 }
 
 //region card draw
@@ -553,21 +551,21 @@ int32_t blackjack_app(void* p) {
 
     game_state->state = GameStateStart;
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, game_state, sizeof(GameState))) {
+    game_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!game_state->mutex) {
         FURI_LOG_E(APP_NAME, "cannot create mutex\r\n");
         return_code = 255;
         goto free_and_exit;
     }
 
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, render_callback, game_state);
     view_port_input_callback_set(view_port, input_callback, event_queue);
 
     FuriTimer* timer = furi_timer_alloc(update_timer_callback, FuriTimerTypePeriodic, event_queue);
     furi_timer_start(timer, furi_kernel_get_tick_frequency() / 25);
 
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     AppEvent event;
@@ -577,47 +575,44 @@ int32_t blackjack_app(void* p) {
 
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
-        GameState* localstate = (GameState*)acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(game_state->mutex, FuriWaitForever);
         if(event_status == FuriStatusOk) {
             if(event.type == EventTypeKey) {
                 if(event.input.type == InputTypePress) {
                     switch(event.input.key) {
                     case InputKeyUp:
-                        localstate->selectDirection = DirectionUp;
+                        game_state->selectDirection = DirectionUp;
                         break;
                     case InputKeyDown:
-                        localstate->selectDirection = DirectionDown;
+                        game_state->selectDirection = DirectionDown;
                         break;
                     case InputKeyRight:
-                        localstate->selectDirection = DirectionRight;
+                        game_state->selectDirection = DirectionRight;
                         break;
                     case InputKeyLeft:
-                        localstate->selectDirection = DirectionLeft;
+                        game_state->selectDirection = DirectionLeft;
                         break;
                     case InputKeyBack:
-                        if(localstate->state == GameStateSettings) {
-                            localstate->state = GameStateStart;
-                            save_settings(localstate->settings);
+                        if(game_state->state == GameStateSettings) {
+                            game_state->state = GameStateStart;
+                            save_settings(game_state->settings);
                         } else
                             processing = false;
                         break;
                     case InputKeyOk:
-                        localstate->selectDirection = Select;
+                        game_state->selectDirection = Select;
                         break;
                     default:
                         break;
                     }
                 }
             } else if(event.type == EventTypeTick) {
-                tick(localstate);
-                processing = localstate->processing;
+                tick(game_state);
+                processing = game_state->processing;
             }
-        } else {
-            //FURI_LOG_D(APP_NAME, "osMessageQueue: event timeout");
-            // event timeout
         }
         view_port_update(view_port);
-        release_mutex(&state_mutex, localstate);
+        furi_mutex_release(game_state->mutex);
     }
 
     furi_timer_free(timer);
@@ -625,7 +620,7 @@ int32_t blackjack_app(void* p) {
     gui_remove_view_port(gui, view_port);
     furi_record_close(RECORD_GUI);
     view_port_free(view_port);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(game_state->mutex);
 
 free_and_exit:
     free(game_state->deck.cards);

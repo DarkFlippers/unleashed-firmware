@@ -57,8 +57,10 @@ static void totp_type_code_worker_type_code(TotpTypeCodeWorkerContext* context) 
 }
 
 static int32_t totp_type_code_worker_callback(void* context) {
-    ValueMutex context_mutex;
-    if(!init_mutex(&context_mutex, context, sizeof(TotpTypeCodeWorkerContext))) {
+    furi_assert(context);
+    TotpTypeCodeWorkerContext* ctxx = context;
+    ctxx->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!ctxx->mutex) {
         return 251;
     }
 
@@ -70,15 +72,16 @@ static int32_t totp_type_code_worker_callback(void* context) {
         furi_check((flags & FuriFlagError) == 0); //-V562
         if(flags & TotpTypeCodeWorkerEventStop) break;
 
-        TotpTypeCodeWorkerContext* h_context = acquire_mutex_block(&context_mutex);
+        TotpTypeCodeWorkerContext* h_context = context;
+        furi_mutex_acquire(ctxx->mutex, FuriWaitForever);
         if(flags & TotpTypeCodeWorkerEventType) {
             totp_type_code_worker_type_code(h_context);
         }
 
-        release_mutex(&context_mutex, h_context);
+        furi_mutex_release(ctxx->mutex);
     }
 
-    delete_mutex(&context_mutex);
+    furi_mutex_free(ctxx->mutex);
 
     return 0;
 }

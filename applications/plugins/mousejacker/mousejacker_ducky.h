@@ -21,6 +21,7 @@ typedef struct {
 } MJDuckyKey;
 
 typedef struct {
+    FuriMutex* mutex;
     bool ducky_err;
     bool addr_err;
     bool is_thread_running;

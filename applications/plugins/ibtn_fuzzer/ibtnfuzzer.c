@@ -9,11 +9,9 @@
 #define IBTNFUZZER_APP_FOLDER "/ext/ibtnfuzzer"
 
 static void ibtnfuzzer_draw_callback(Canvas* const canvas, void* ctx) {
-    iBtnFuzzerState* ibtnfuzzer_state = (iBtnFuzzerState*)acquire_mutex((ValueMutex*)ctx, 100);
-
-    if(ibtnfuzzer_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    iBtnFuzzerState* ibtnfuzzer_state = ctx;
+    furi_mutex_acquire(ibtnfuzzer_state->mutex, FuriWaitForever);
 
     // Draw correct Canvas
     switch(ibtnfuzzer_state->current_scene) {
@@ -35,7 +33,7 @@ static void ibtnfuzzer_draw_callback(Canvas* const canvas, void* ctx) {
         break;
     }
 
-    release_mutex((ValueMutex*)ctx, ibtnfuzzer_state);
+    furi_mutex_release(ibtnfuzzer_state->mutex);
 }
 
 void ibtnfuzzer_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -120,11 +118,9 @@ int32_t ibtnfuzzer_start(void* p) {
     FURI_LOG_I(TAG, "Initializing input");
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(iBtnFuzzerEvent));
     iBtnFuzzerState* ibtnfuzzer_state = ibtnfuzzer_alloc();
-    ValueMutex ibtnfuzzer_state_mutex;
 
-    // Mutex
-    FURI_LOG_I(TAG, "Initializing ibtnfuzzer mutex");
-    if(!init_mutex(&ibtnfuzzer_state_mutex, ibtnfuzzer_state, sizeof(iBtnFuzzerState))) {
+    ibtnfuzzer_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!ibtnfuzzer_state->mutex) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
         furi_record_close(RECORD_NOTIFICATION);
@@ -141,7 +137,7 @@ int32_t ibtnfuzzer_start(void* p) {
     // Configure view port
     FURI_LOG_I(TAG, "Initializing viewport");
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, ibtnfuzzer_draw_callback, &ibtnfuzzer_state_mutex);
+    view_port_draw_callback_set(view_port, ibtnfuzzer_draw_callback, ibtnfuzzer_state);
     view_port_input_callback_set(view_port, ibtnfuzzer_input_callback, event_queue);
 
     // Configure timer
@@ -160,6 +156,7 @@ int32_t ibtnfuzzer_start(void* p) {
     while(ibtnfuzzer_state->is_running) {
         // Get next event
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 25);
+        //furi_mutex_acquire(ibtnfuzzer_state->mutex, FuriWaitForever);
         if(event_status == FuriStatusOk) {
             if(event.evt_type == EventTypeKey) {
                 //Handle event key
@@ -250,6 +247,7 @@ int32_t ibtnfuzzer_start(void* p) {
                 view_port_update(view_port);
             }
         }
+        //furi_mutex_release(ibtnfuzzer_state->mutex);
     }
 
     // Cleanup
@@ -262,6 +260,7 @@ int32_t ibtnfuzzer_start(void* p) {
     furi_message_queue_free(event_queue);
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
+    furi_mutex_free(ibtnfuzzer_state->mutex);
     ibtnfuzzer_free(ibtnfuzzer_state);
 
     return 0;

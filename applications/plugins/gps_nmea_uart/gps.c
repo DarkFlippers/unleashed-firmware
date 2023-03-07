@@ -15,10 +15,9 @@ typedef struct {
 } PluginEvent;
 
 static void render_callback(Canvas* const canvas, void* context) {
-    const GpsUart* gps_uart = acquire_mutex((ValueMutex*)context, 25);
-    if(gps_uart == NULL) {
-        return;
-    }
+    furi_assert(context);
+    const GpsUart* gps_uart = context;
+    furi_mutex_acquire(gps_uart->mutex, FuriWaitForever);
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 32, 8, AlignCenter, AlignBottom, "Latitude");
@@ -57,7 +56,7 @@ static void render_callback(Canvas* const canvas, void* context) {
         gps_uart->status.time_seconds);
     canvas_draw_str_aligned(canvas, 96, 62, AlignCenter, AlignBottom, buffer);
 
-    release_mutex((ValueMutex*)context, gps_uart);
+    furi_mutex_release(gps_uart->mutex);
 }
 
 static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -74,8 +73,8 @@ int32_t gps_app(void* p) {
 
     GpsUart* gps_uart = gps_uart_enable();
 
-    ValueMutex gps_uart_mutex;
-    if(!init_mutex(&gps_uart_mutex, gps_uart, sizeof(GpsUart))) {
+    gps_uart->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!gps_uart->mutex) {
         FURI_LOG_E("GPS", "cannot create mutex\r\n");
         free(gps_uart);
         return 255;
@@ -83,18 +82,18 @@ int32_t gps_app(void* p) {
 
     // set system callbacks
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, render_callback, &gps_uart_mutex);
+    view_port_draw_callback_set(view_port, render_callback, gps_uart);
     view_port_input_callback_set(view_port, input_callback, event_queue);
 
     // open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     PluginEvent event;
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
-        GpsUart* gps_uart = (GpsUart*)acquire_mutex_block(&gps_uart_mutex);
+        furi_mutex_acquire(gps_uart->mutex, FuriWaitForever);
 
         if(event_status == FuriStatusOk) {
             // press events
@@ -118,15 +117,15 @@ int32_t gps_app(void* p) {
         }
 
         view_port_update(view_port);
-        release_mutex(&gps_uart_mutex, gps_uart);
+        furi_mutex_release(gps_uart->mutex);
     }
 
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&gps_uart_mutex);
+    furi_mutex_free(gps_uart->mutex);
     gps_uart_disable(gps_uart);
 
     return 0;

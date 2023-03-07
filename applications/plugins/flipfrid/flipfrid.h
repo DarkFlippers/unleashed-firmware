@@ -58,6 +58,7 @@ typedef struct {
 
 // STRUCTS
 typedef struct {
+    FuriMutex* mutex;
     bool is_running;
     bool is_attacking;
     FlipFridScene current_scene;

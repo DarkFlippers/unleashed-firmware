@@ -24,6 +24,7 @@ typedef struct {
 } PluginEvent;
 
 typedef struct {
+    FuriMutex* mutex;
     NotificationApp* notification;
     bool have_5v;
     bool measurement_made;
@@ -41,10 +42,10 @@ const NotificationSequence sequence_done = {
 };
 
 static void render_callback(Canvas* const canvas, void* ctx) {
-    const PluginState* plugin_state = acquire_mutex((ValueMutex*)ctx, 25);
-    if(plugin_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    const PluginState* plugin_state = ctx;
+    furi_mutex_acquire(plugin_state->mutex, FuriWaitForever);
+
     // border around the edge of the screen
     // canvas_draw_frame(canvas, 0, 0, 128, 64);
 
@@ -85,7 +86,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
         }
     }
 
-    release_mutex((ValueMutex*)ctx, plugin_state);
+    furi_mutex_release(plugin_state->mutex);
 }
 
 static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -184,8 +185,8 @@ int32_t hc_sr04_app() {
 
     furi_hal_console_disable();
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, plugin_state, sizeof(PluginState))) {
+    plugin_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!plugin_state->mutex) {
         FURI_LOG_E("hc_sr04", "cannot create mutex\r\n");
         if(furi_hal_power_is_otg_enabled()) {
             furi_hal_power_disable_otg();
@@ -201,7 +202,7 @@ int32_t hc_sr04_app() {
 
     // Set system callbacks
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, render_callback, plugin_state);
     view_port_input_callback_set(view_port, input_callback, event_queue);
 
     // Open GUI and register view_port
@@ -212,7 +213,7 @@ int32_t hc_sr04_app() {
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
-        PluginState* plugin_state = (PluginState*)acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(plugin_state->mutex, FuriWaitForever);
 
         if(event_status == FuriStatusOk) {
             // press events
@@ -238,7 +239,7 @@ int32_t hc_sr04_app() {
         }
 
         view_port_update(view_port);
-        release_mutex(&state_mutex, plugin_state);
+        furi_mutex_release(plugin_state->mutex);
     }
 
     if(furi_hal_power_is_otg_enabled()) {
@@ -267,7 +268,8 @@ int32_t hc_sr04_app() {
     furi_record_close(RECORD_NOTIFICATION);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(plugin_state->mutex);
+    free(plugin_state);
 
     return 0;
 }

@@ -81,6 +81,7 @@ typedef struct {
 } BarcodeState;
 
 typedef struct {
+    FuriMutex* mutex;
     BarcodeState barcode_state;
     int editingIndex; //The index of the editing symbol
     int menuIndex; //The index of the menu cursor

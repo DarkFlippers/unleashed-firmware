@@ -22,6 +22,7 @@ typedef struct {
 } GpsStatus;
 
 typedef struct {
+    FuriMutex* mutex;
     FuriThread* thread;
     FuriStreamBuffer* rx_stream;
     uint8_t rx_buf[RX_BUF_SIZE];
