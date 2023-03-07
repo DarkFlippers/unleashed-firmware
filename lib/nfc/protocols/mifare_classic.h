@@ -174,6 +174,7 @@ bool mf_classic_authenticate_skip_activate(
 
 bool mf_classic_auth_attempt(
     FuriHalNfcTxRxContext* tx_rx,
+    Crypto1* crypto,
     MfClassicAuthContext* auth_ctx,
     uint64_t key);
 
