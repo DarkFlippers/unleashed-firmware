@@ -3,6 +3,7 @@
 enum SubmenuIndex {
     SubmenuIndexSave,
     SubmenuIndexSaveAsLF,
+    SubmenuIndexChangeKey,
 };
 
 void picopass_scene_card_menu_submenu_callback(void* context, uint32_t index) {
@@ -25,6 +26,13 @@ void picopass_scene_card_menu_on_enter(void* context) {
             picopass_scene_card_menu_submenu_callback,
             picopass);
     }
+    submenu_add_item(
+        submenu,
+        "Change Key",
+        SubmenuIndexChangeKey,
+        picopass_scene_card_menu_submenu_callback,
+        picopass);
+
     submenu_set_selected_item(
         picopass->submenu,
         scene_manager_get_scene_state(picopass->scene_manager, PicopassSceneCardMenu));
@@ -48,6 +56,11 @@ bool picopass_scene_card_menu_on_event(void* context, SceneManagerEvent event) {
                 picopass->scene_manager, PicopassSceneCardMenu, SubmenuIndexSaveAsLF);
             picopass->dev->format = PicopassDeviceSaveFormatLF;
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneSaveName);
+            consumed = true;
+        } else if(event.event == SubmenuIndexChangeKey) {
+            scene_manager_set_scene_state(
+                picopass->scene_manager, PicopassSceneCardMenu, SubmenuIndexChangeKey);
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneKeyMenu);
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {

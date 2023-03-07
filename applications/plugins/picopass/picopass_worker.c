@@ -7,6 +7,9 @@
 const uint8_t picopass_iclass_key[] = {0xaf, 0xa7, 0x85, 0xa7, 0xda, 0xb3, 0x33, 0x78};
 const uint8_t picopass_factory_credit_key[] = {0x76, 0x65, 0x54, 0x43, 0x32, 0x21, 0x10, 0x00};
 const uint8_t picopass_factory_debit_key[] = {0xf0, 0xe1, 0xd2, 0xc3, 0xb4, 0xa5, 0x96, 0x87};
+const uint8_t picopass_xice_key[] = {0x20, 0x20, 0x66, 0x66, 0x66, 0x66, 0x88, 0x88};
+const uint8_t picopass_xicl_key[] = {0x20, 0x20, 0x66, 0x66, 0x66, 0x66, 0x88, 0x88};
+const uint8_t picopass_xics_key[] = {0x66, 0x66, 0x20, 0x20, 0x66, 0x66, 0x88, 0x88};
 
 static void picopass_worker_enable_field() {
     furi_hal_nfc_ll_txrx_on();
@@ -192,7 +195,7 @@ static ReturnCode picopass_auth_standard(uint8_t* csn, uint8_t* div_key) {
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    loclass_diversifyKey(csn, picopass_iclass_key, div_key);
+    loclass_iclass_calc_div_key(csn, (uint8_t*)picopass_iclass_key, div_key, false);
     loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
     return rfalPicoPassPollerCheck(mac, &chkRes);
@@ -214,7 +217,7 @@ static ReturnCode picopass_auth_factory(uint8_t* csn, uint8_t* div_key) {
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    loclass_diversifyKey(csn, picopass_factory_debit_key, div_key);
+    loclass_iclass_calc_div_key(csn, (uint8_t*)picopass_factory_debit_key, div_key, false);
     loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
     return rfalPicoPassPollerCheck(mac, &chkRes);
@@ -224,7 +227,8 @@ static ReturnCode picopass_auth_dict(
     uint8_t* csn,
     PicopassPacs* pacs,
     uint8_t* div_key,
-    IclassEliteDictType dict_type) {
+    IclassEliteDictType dict_type,
+    bool elite) {
     rfalPicoPassReadCheckRes rcRes;
     rfalPicoPassCheckRes chkRes;
 
@@ -269,7 +273,7 @@ static ReturnCode picopass_auth_dict(
         }
         memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-        loclass_iclass_calc_div_key(csn, key, div_key, true);
+        loclass_iclass_calc_div_key(csn, key, div_key, elite);
         loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
         err = rfalPicoPassPollerCheck(mac, &chkRes);
@@ -303,22 +307,35 @@ ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
         return ERR_NONE;
     }
 
-    FURI_LOG_I(TAG, "Starting user dictionary attack");
+    FURI_LOG_I(TAG, "Starting user dictionary attack [Elite KDF]");
     err = picopass_auth_dict(
         AA1[PICOPASS_CSN_BLOCK_INDEX].data,
         pacs,
         AA1[PICOPASS_KD_BLOCK_INDEX].data,
-        IclassEliteDictTypeUser);
+        IclassEliteDictTypeUser,
+        true);
     if(err == ERR_NONE) {
         return ERR_NONE;
     }
 
-    FURI_LOG_I(TAG, "Starting system dictionary attack");
+    FURI_LOG_I(TAG, "Starting system dictionary attack [Elite KDF]");
     err = picopass_auth_dict(
         AA1[PICOPASS_CSN_BLOCK_INDEX].data,
         pacs,
         AA1[PICOPASS_KD_BLOCK_INDEX].data,
-        IclassEliteDictTypeFlipper);
+        IclassEliteDictTypeFlipper,
+        true);
+    if(err == ERR_NONE) {
+        return ERR_NONE;
+    }
+
+    FURI_LOG_I(TAG, "Starting system dictionary attack [Standard KDF]");
+    err = picopass_auth_dict(
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
+        pacs,
+        AA1[PICOPASS_KD_BLOCK_INDEX].data,
+        IclassEliteDictTypeFlipper,
+        false);
     if(err == ERR_NONE) {
         return ERR_NONE;
     }
@@ -396,7 +413,7 @@ ReturnCode picopass_write_card(PicopassBlock* AA1) {
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    loclass_diversifyKey(selRes.CSN, picopass_iclass_key, div_key);
+    loclass_iclass_calc_div_key(selRes.CSN, (uint8_t*)picopass_iclass_key, div_key, false);
     loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
     err = rfalPicoPassPollerCheck(mac, &chkRes);
@@ -438,7 +455,7 @@ ReturnCode picopass_write_card(PicopassBlock* AA1) {
     return ERR_NONE;
 }
 
-ReturnCode picopass_write_block(PicopassPacs* pacs, uint8_t blockNo, uint8_t* newBlock) {
+ReturnCode picopass_write_block(PicopassBlock* AA1, uint8_t blockNo, uint8_t* newBlock) {
     rfalPicoPassIdentifyRes idRes;
     rfalPicoPassSelectRes selRes;
     rfalPicoPassReadCheckRes rcRes;
@@ -446,7 +463,6 @@ ReturnCode picopass_write_block(PicopassPacs* pacs, uint8_t blockNo, uint8_t* ne
 
     ReturnCode err;
 
-    uint8_t div_key[8] = {0};
     uint8_t mac[4] = {0};
     uint8_t ccnr[12] = {0};
 
@@ -469,9 +485,12 @@ ReturnCode picopass_write_block(PicopassPacs* pacs, uint8_t blockNo, uint8_t* ne
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    loclass_diversifyKey(selRes.CSN, pacs->key, div_key);
-    loclass_opt_doReaderMAC(ccnr, div_key, mac);
+    if(memcmp(selRes.CSN, AA1[PICOPASS_CSN_BLOCK_INDEX].data, PICOPASS_BLOCK_LEN) != 0) {
+        FURI_LOG_E(TAG, "Wrong CSN for write");
+        return ERR_REQUEST;
+    }
 
+    loclass_opt_doReaderMAC(ccnr, AA1[PICOPASS_KD_BLOCK_INDEX].data, mac);
     err = rfalPicoPassPollerCheck(mac, &chkRes);
     if(err != ERR_NONE) {
         FURI_LOG_E(TAG, "rfalPicoPassPollerCheck error %d", err);
@@ -489,7 +508,7 @@ ReturnCode picopass_write_block(PicopassPacs* pacs, uint8_t blockNo, uint8_t* ne
         newBlock[5],
         newBlock[6],
         newBlock[7]};
-    loclass_doMAC_N(data, sizeof(data), div_key, mac);
+    loclass_doMAC_N(data, sizeof(data), AA1[PICOPASS_KD_BLOCK_INDEX].data, mac);
     FURI_LOG_D(
         TAG,
         "loclass_doMAC_N %d %02x%02x%02x%02x%02x%02x%02x%02x %02x%02x%02x%02x",
@@ -524,8 +543,8 @@ int32_t picopass_worker_task(void* context) {
         picopass_worker_detect(picopass_worker);
     } else if(picopass_worker->state == PicopassWorkerStateWrite) {
         picopass_worker_write(picopass_worker);
-    } else if(picopass_worker->state == PicopassWorkerStateWriteStandardKey) {
-        picopass_worker_write_standard_key(picopass_worker);
+    } else if(picopass_worker->state == PicopassWorkerStateWriteKey) {
+        picopass_worker_write_key(picopass_worker);
     }
     picopass_worker_disable_field(ERR_NONE);
 
@@ -633,7 +652,7 @@ void picopass_worker_write(PicopassWorker* picopass_worker) {
     }
 }
 
-void picopass_worker_write_standard_key(PicopassWorker* picopass_worker) {
+void picopass_worker_write_key(PicopassWorker* picopass_worker) {
     PicopassDeviceData* dev_data = picopass_worker->dev_data;
     PicopassBlock* AA1 = dev_data->AA1;
     PicopassPacs* pacs = &dev_data->pacs;
@@ -646,7 +665,7 @@ void picopass_worker_write_standard_key(PicopassWorker* picopass_worker) {
     uint8_t* oldKey = AA1[PICOPASS_KD_BLOCK_INDEX].data;
 
     uint8_t newKey[PICOPASS_BLOCK_LEN] = {0};
-    loclass_diversifyKey(csn, picopass_iclass_key, newKey);
+    loclass_iclass_calc_div_key(csn, pacs->key, newKey, false);
 
     if((fuses & 0x80) == 0x80) {
         FURI_LOG_D(TAG, "Plain write for personalized mode key change");
@@ -658,9 +677,9 @@ void picopass_worker_write_standard_key(PicopassWorker* picopass_worker) {
         }
     }
 
-    while(picopass_worker->state == PicopassWorkerStateWriteStandardKey) {
+    while(picopass_worker->state == PicopassWorkerStateWriteKey) {
         if(picopass_detect_card(1000) == ERR_NONE) {
-            err = picopass_write_block(pacs, PICOPASS_KD_BLOCK_INDEX, newKey);
+            err = picopass_write_block(AA1, PICOPASS_KD_BLOCK_INDEX, newKey);
             if(err != ERR_NONE) {
                 FURI_LOG_E(TAG, "picopass_write_block error %d", err);
                 nextState = PicopassWorkerEventFail;

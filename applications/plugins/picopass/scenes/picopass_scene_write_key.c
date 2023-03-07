@@ -20,7 +20,7 @@ void picopass_scene_write_key_on_enter(void* context) {
     view_dispatcher_switch_to_view(picopass->view_dispatcher, PicopassViewPopup);
     picopass_worker_start(
         picopass->worker,
-        PicopassWorkerStateWriteStandardKey,
+        PicopassWorkerStateWriteKey,
         &picopass->dev->dev_data,
         picopass_write_key_worker_callback,
         picopass);

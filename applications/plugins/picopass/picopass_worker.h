@@ -12,7 +12,7 @@ typedef enum {
     // Main worker states
     PicopassWorkerStateDetect,
     PicopassWorkerStateWrite,
-    PicopassWorkerStateWriteStandardKey,
+    PicopassWorkerStateWriteKey,
     // Transition
     PicopassWorkerStateStop,
 } PicopassWorkerState;
