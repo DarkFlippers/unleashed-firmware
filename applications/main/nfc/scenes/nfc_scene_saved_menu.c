@@ -51,20 +51,20 @@ void nfc_scene_saved_menu_on_enter(void* context) {
         if(!mf_classic_is_card_read(&nfc->dev->dev_data.mf_classic_data)) {
             submenu_add_item(
                 submenu,
-                "Detect reader",
+                "Detect Reader",
                 SubmenuIndexDetectReader,
                 nfc_scene_saved_menu_submenu_callback,
                 nfc);
         }
         submenu_add_item(
             submenu,
-            "Write To Initial Card",
+            "Write to Initial Card",
             SubmenuIndexWrite,
             nfc_scene_saved_menu_submenu_callback,
             nfc);
         submenu_add_item(
             submenu,
-            "Update From Initial Card",
+            "Update from Initial Card",
             SubmenuIndexUpdate,
             nfc_scene_saved_menu_submenu_callback,
             nfc);
@@ -75,13 +75,13 @@ void nfc_scene_saved_menu_on_enter(void* context) {
        !mf_ul_is_full_capture(&nfc->dev->dev_data.mf_ul_data)) {
         submenu_add_item(
             submenu,
-            "Unlock With Reader",
+            "Unlock with Reader",
             SubmenuIndexMfUlUnlockByReader,
             nfc_scene_saved_menu_submenu_callback,
             nfc);
         submenu_add_item(
             submenu,
-            "Unlock With Password",
+            "Unlock with Password",
             SubmenuIndexMfUlUnlockByPassword,
             nfc_scene_saved_menu_submenu_callback,
             nfc);
