@@ -6,6 +6,7 @@
 * SubGHz: Fix default frequency being overwritten bug (Add manually fixes)
 * SubGHz: Fix 464Mhz and (390MHz for external module only) was showing up in Frequency analyzer all the time due to noise
 * iButton: Fix ibutton app - add manually - duplicate names
+* Plugins: NFC Magic fix - reinit nfc at app start
 * Plugins: Update **SWD Probe** [(by g3gg0)](https://github.com/g3gg0/flipper-swd_probe)
 * Plugins: Massive plugins refactoring - not full refactoring, only small issues is fixed and moved all plugins to furi mutex instead of valuemutex
 * Plugins: Many small issues was found and fixed due mutex upgrade
