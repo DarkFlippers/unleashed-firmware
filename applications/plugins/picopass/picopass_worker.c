@@ -4,13 +4,6 @@
 
 #define TAG "PicopassWorker"
 
-const uint8_t picopass_iclass_key[] = {0xaf, 0xa7, 0x85, 0xa7, 0xda, 0xb3, 0x33, 0x78};
-const uint8_t picopass_factory_credit_key[] = {0x76, 0x65, 0x54, 0x43, 0x32, 0x21, 0x10, 0x00};
-const uint8_t picopass_factory_debit_key[] = {0xf0, 0xe1, 0xd2, 0xc3, 0xb4, 0xa5, 0x96, 0x87};
-const uint8_t picopass_xice_key[] = {0x20, 0x20, 0x66, 0x66, 0x66, 0x66, 0x88, 0x88};
-const uint8_t picopass_xicl_key[] = {0x20, 0x20, 0x66, 0x66, 0x66, 0x66, 0x88, 0x88};
-const uint8_t picopass_xics_key[] = {0x66, 0x66, 0x20, 0x20, 0x66, 0x66, 0x88, 0x88};
-
 static void picopass_worker_enable_field() {
     furi_hal_nfc_ll_txrx_on();
     furi_hal_nfc_exit_sleep();
@@ -179,50 +172,6 @@ ReturnCode picopass_read_preauth(PicopassBlock* AA1) {
     return ERR_NONE;
 }
 
-static ReturnCode picopass_auth_standard(uint8_t* csn, uint8_t* div_key) {
-    rfalPicoPassReadCheckRes rcRes;
-    rfalPicoPassCheckRes chkRes;
-
-    ReturnCode err;
-
-    uint8_t mac[4] = {0};
-    uint8_t ccnr[12] = {0};
-
-    err = rfalPicoPassPollerReadCheck(&rcRes);
-    if(err != ERR_NONE) {
-        FURI_LOG_E(TAG, "rfalPicoPassPollerReadCheck error %d", err);
-        return err;
-    }
-    memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
-
-    loclass_iclass_calc_div_key(csn, (uint8_t*)picopass_iclass_key, div_key, false);
-    loclass_opt_doReaderMAC(ccnr, div_key, mac);
-
-    return rfalPicoPassPollerCheck(mac, &chkRes);
-}
-
-static ReturnCode picopass_auth_factory(uint8_t* csn, uint8_t* div_key) {
-    rfalPicoPassReadCheckRes rcRes;
-    rfalPicoPassCheckRes chkRes;
-
-    ReturnCode err;
-
-    uint8_t mac[4] = {0};
-    uint8_t ccnr[12] = {0};
-
-    err = rfalPicoPassPollerReadCheck(&rcRes);
-    if(err != ERR_NONE) {
-        FURI_LOG_E(TAG, "rfalPicoPassPollerReadCheck error %d", err);
-        return err;
-    }
-    memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
-
-    loclass_iclass_calc_div_key(csn, (uint8_t*)picopass_factory_debit_key, div_key, false);
-    loclass_opt_doReaderMAC(ccnr, div_key, mac);
-
-    return rfalPicoPassPollerCheck(mac, &chkRes);
-}
-
 static ReturnCode picopass_auth_dict(
     uint8_t* csn,
     PicopassPacs* pacs,
@@ -291,19 +240,14 @@ static ReturnCode picopass_auth_dict(
 ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
     ReturnCode err;
 
-    FURI_LOG_I(TAG, "Trying standard legacy key");
-    err = picopass_auth_standard(
-        AA1[PICOPASS_CSN_BLOCK_INDEX].data, AA1[PICOPASS_KD_BLOCK_INDEX].data);
+    FURI_LOG_I(TAG, "Starting system dictionary attack [Standard KDF]");
+    err = picopass_auth_dict(
+        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
+        pacs,
+        AA1[PICOPASS_KD_BLOCK_INDEX].data,
+        IclassEliteDictTypeFlipper,
+        false);
     if(err == ERR_NONE) {
-        memcpy(pacs->key, picopass_iclass_key, PICOPASS_BLOCK_LEN);
-        return ERR_NONE;
-    }
-
-    FURI_LOG_I(TAG, "Trying factory default key");
-    err = picopass_auth_factory(
-        AA1[PICOPASS_CSN_BLOCK_INDEX].data, AA1[PICOPASS_KD_BLOCK_INDEX].data);
-    if(err == ERR_NONE) {
-        memcpy(pacs->key, picopass_factory_debit_key, PICOPASS_BLOCK_LEN);
         return ERR_NONE;
     }
 
@@ -325,17 +269,6 @@ ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
         AA1[PICOPASS_KD_BLOCK_INDEX].data,
         IclassEliteDictTypeFlipper,
         true);
-    if(err == ERR_NONE) {
-        return ERR_NONE;
-    }
-
-    FURI_LOG_I(TAG, "Starting system dictionary attack [Standard KDF]");
-    err = picopass_auth_dict(
-        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
-        pacs,
-        AA1[PICOPASS_KD_BLOCK_INDEX].data,
-        IclassEliteDictTypeFlipper,
-        false);
     if(err == ERR_NONE) {
         return ERR_NONE;
     }

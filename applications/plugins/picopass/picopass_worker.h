@@ -1,6 +1,7 @@
 #pragma once
 
 #include "picopass_device.h"
+#include "picopass_keys.h"
 
 typedef struct PicopassWorker PicopassWorker;
 

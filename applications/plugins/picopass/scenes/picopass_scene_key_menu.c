@@ -1,4 +1,5 @@
 #include "../picopass_i.h"
+#include "../picopass_keys.h"
 
 enum SubmenuIndex {
     SubmenuIndexWriteStandard,
@@ -7,11 +8,6 @@ enum SubmenuIndex {
     SubmenuIndexWriteiCS,
     SubmenuIndexWriteCustom, //TODO: user input of key
 };
-
-extern const uint8_t picopass_xice_key[];
-extern const uint8_t picopass_xicl_key[];
-extern const uint8_t picopass_xics_key[];
-extern const uint8_t picopass_iclass_key[];
 
 void picopass_scene_key_menu_submenu_callback(void* context, uint32_t index) {
     Picopass* picopass = context;
