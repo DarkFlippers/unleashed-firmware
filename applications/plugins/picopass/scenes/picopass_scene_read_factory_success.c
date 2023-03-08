@@ -1,7 +1,6 @@
 #include "../picopass_i.h"
 #include <dolphin/dolphin.h>
-
-extern const uint8_t picopass_iclass_key[];
+#include "../picopass_keys.h"
 
 void picopass_scene_read_factory_success_widget_callback(
     GuiButtonType result,

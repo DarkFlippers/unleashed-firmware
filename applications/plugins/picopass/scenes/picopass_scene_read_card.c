@@ -1,7 +1,6 @@
 #include "../picopass_i.h"
 #include <dolphin/dolphin.h>
-
-extern const uint8_t picopass_factory_debit_key[];
+#include "../picopass_keys.h"
 
 void picopass_read_card_worker_callback(PicopassWorkerEvent event, void* context) {
     UNUSED(event);

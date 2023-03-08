@@ -25,7 +25,7 @@ void nfc_scene_mf_classic_menu_on_enter(void* context) {
     if(!mf_classic_is_card_read(&nfc->dev->dev_data.mf_classic_data)) {
         submenu_add_item(
             submenu,
-            "Detect reader",
+            "Detect Reader",
             SubmenuIndexDetectReader,
             nfc_scene_mf_classic_menu_submenu_callback,
             nfc);
