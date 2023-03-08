@@ -91,7 +91,7 @@ bool furi_hal_subghz_enable_ext_power(void) {
 }
 
 void furi_hal_subghz_disable_ext_power(void) {
-    if(furi_hal_subghz.radio_type != SubGhzRadioInternal) {
+    if(furi_hal_power_is_otg_enabled()) {
         furi_hal_power_disable_otg();
     }
 }
