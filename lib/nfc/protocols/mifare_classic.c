@@ -291,6 +291,10 @@ bool mf_classic_is_allowed_access_data_block(
     uint8_t* sector_trailer =
         data->block[mf_classic_get_sector_trailer_num_by_block(block_num)].value;
 
+    if(block_num == 0 && action == MfClassicActionDataWrite) {
+        return false;
+    }
+
     uint8_t sector_block;
     if(block_num <= 128) {
         sector_block = block_num & 0x03;
