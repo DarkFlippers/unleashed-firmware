@@ -4,6 +4,7 @@
 
 #include <furi.h>
 #include <furi_hal.h>
+#include <furi_hal_rtc.h>
 #include <stdint.h>
 #include <u8g2_glue.h>
 
@@ -376,39 +377,36 @@ void canvas_set_bitmap_mode(Canvas* canvas, bool alpha) {
 
 void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation) {
     furi_assert(canvas);
+    const u8g2_cb_t* rotate_cb = NULL;
+    bool need_swap = false;
     if(canvas->orientation != orientation) {
         switch(orientation) {
         case CanvasOrientationHorizontal:
-            if(canvas->orientation == CanvasOrientationVertical ||
-               canvas->orientation == CanvasOrientationVerticalFlip) {
-                FURI_SWAP(canvas->width, canvas->height);
-            }
-            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R0);
+            need_swap = canvas->orientation == CanvasOrientationVertical ||
+                        canvas->orientation == CanvasOrientationVerticalFlip;
+            rotate_cb = U8G2_R0;
             break;
         case CanvasOrientationHorizontalFlip:
-            if(canvas->orientation == CanvasOrientationVertical ||
-               canvas->orientation == CanvasOrientationVerticalFlip) {
-                FURI_SWAP(canvas->width, canvas->height);
-            }
-            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R2);
+            need_swap = canvas->orientation == CanvasOrientationVertical ||
+                        canvas->orientation == CanvasOrientationVerticalFlip;
+            rotate_cb = U8G2_R2;
             break;
         case CanvasOrientationVertical:
-            if(canvas->orientation == CanvasOrientationHorizontal ||
-               canvas->orientation == CanvasOrientationHorizontalFlip) {
-                FURI_SWAP(canvas->width, canvas->height);
-            };
-            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R3);
+            need_swap = canvas->orientation == CanvasOrientationHorizontal ||
+                        canvas->orientation == CanvasOrientationHorizontalFlip;
+            rotate_cb = U8G2_R3;
             break;
         case CanvasOrientationVerticalFlip:
-            if(canvas->orientation == CanvasOrientationHorizontal ||
-               canvas->orientation == CanvasOrientationHorizontalFlip) {
-                FURI_SWAP(canvas->width, canvas->height);
-            }
-            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R1);
+            need_swap = canvas->orientation == CanvasOrientationHorizontal ||
+                        canvas->orientation == CanvasOrientationHorizontalFlip;
+            rotate_cb = U8G2_R1;
             break;
         default:
             furi_assert(0);
         }
+
+        if(need_swap) FURI_SWAP(canvas->width, canvas->height);
+        u8g2_SetDisplayRotation(&canvas->fb, rotate_cb);
         canvas->orientation = orientation;
     }
 }

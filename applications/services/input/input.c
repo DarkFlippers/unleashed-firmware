@@ -23,7 +23,8 @@ inline static void input_timer_stop(FuriTimer* timer_id) {
 void input_press_timer_callback(void* arg) {
     InputPinState* input_pin = arg;
     InputEvent event;
-    event.sequence = input_pin->counter;
+    event.sequence_source = INPUT_SEQUENCE_SOURCE_HARDWARE;
+    event.sequence_counter = input_pin->counter;
     event.key = input_pin->pin->key;
     input_pin->press_counter++;
     if(input_pin->press_counter == INPUT_LONG_PRESS_COUNTS) {
@@ -114,16 +115,17 @@ int32_t input_srv(void* p) {
 
                 // Common state info
                 InputEvent event;
+                event.sequence_source = INPUT_SEQUENCE_SOURCE_HARDWARE;
                 event.key = input->pin_states[i].pin->key;
 
                 // Short / Long / Repeat timer routine
                 if(state) {
                     input->counter++;
                     input->pin_states[i].counter = input->counter;
-                    event.sequence = input->pin_states[i].counter;
+                    event.sequence_counter = input->pin_states[i].counter;
                     input_timer_start(input->pin_states[i].press_timer, INPUT_PRESS_TICKS);
                 } else {
-                    event.sequence = input->pin_states[i].counter;
+                    event.sequence_counter = input->pin_states[i].counter;
                     input_timer_stop(input->pin_states[i].press_timer);
                     if(input->pin_states[i].press_counter < INPUT_LONG_PRESS_COUNTS) {
                         event.type = InputTypeShort;

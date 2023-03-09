@@ -12,6 +12,8 @@ extern "C" {
 #endif
 
 #define RECORD_INPUT_EVENTS "input_events"
+#define INPUT_SEQUENCE_SOURCE_HARDWARE (0u)
+#define INPUT_SEQUENCE_SOURCE_SOFTWARE (1u)
 
 /** Input Types
  * Some of them are physical events and some logical
@@ -27,7 +29,13 @@ typedef enum {
 
 /** Input Event, dispatches with FuriPubSub */
 typedef struct {
-    uint32_t sequence;
+    union {
+        uint32_t sequence;
+        struct {
+            uint8_t sequence_source : 2;
+            uint32_t sequence_counter : 30;
+        };
+    };
     InputKey key;
     InputType type;
 } InputEvent;

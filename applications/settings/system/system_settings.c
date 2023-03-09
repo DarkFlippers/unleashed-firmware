@@ -124,6 +124,23 @@ static void date_format_changed(VariableItem* item) {
     locale_set_date_format(date_format_value[index]);
 }
 
+const char* const hand_mode[] = {
+    "Righty",
+    "Lefty",
+};
+
+static void hand_orient_changed(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, hand_mode[index]);
+    if(index) {
+        furi_hal_rtc_set_flag(FuriHalRtcFlagHandOrient);
+    } else {
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagHandOrient);
+    }
+
+    loader_update_menu();
+}
+
 static uint32_t system_settings_exit(void* context) {
     UNUSED(context);
     return VIEW_NONE;
@@ -144,6 +161,12 @@ SystemSettings* system_settings_alloc() {
     VariableItem* item;
     uint8_t value_index;
     app->var_item_list = variable_item_list_alloc();
+
+    item = variable_item_list_add(
+        app->var_item_list, "Hand Orient", COUNT_OF(hand_mode), hand_orient_changed, app);
+    value_index = furi_hal_rtc_is_flag_set(FuriHalRtcFlagHandOrient) ? 1 : 0;
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, hand_mode[value_index]);
 
     item = variable_item_list_add(
         app->var_item_list,

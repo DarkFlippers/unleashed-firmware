@@ -320,6 +320,13 @@ void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t
         furi_message_queue_put(view_dispatcher->queue, &message, FuriWaitForever) == FuriStatusOk);
 }
 
+static const ViewPortOrientation view_dispatcher_view_port_orientation_table[] = {
+    [ViewOrientationVertical] = ViewPortOrientationVertical,
+    [ViewOrientationVerticalFlip] = ViewPortOrientationVerticalFlip,
+    [ViewOrientationHorizontal] = ViewPortOrientationHorizontal,
+    [ViewOrientationHorizontalFlip] = ViewPortOrientationHorizontalFlip,
+};
+
 void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* view) {
     furi_assert(view_dispatcher);
     // Dispatch view exit event
@@ -330,15 +337,12 @@ void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* vie
     view_dispatcher->current_view = view;
     // Dispatch view enter event
     if(view_dispatcher->current_view) {
-        if(view->orientation == ViewOrientationVertical) {
-            view_port_set_orientation(view_dispatcher->view_port, ViewPortOrientationVertical);
-        } else if(view->orientation == ViewOrientationVerticalFlip) {
-            view_port_set_orientation(view_dispatcher->view_port, ViewPortOrientationVerticalFlip);
-        } else if(view->orientation == ViewOrientationHorizontal) {
-            view_port_set_orientation(view_dispatcher->view_port, ViewPortOrientationHorizontal);
-        } else if(view->orientation == ViewOrientationHorizontalFlip) {
-            view_port_set_orientation(
-                view_dispatcher->view_port, ViewPortOrientationHorizontalFlip);
+        ViewPortOrientation orientation =
+            view_dispatcher_view_port_orientation_table[view->orientation];
+        if(view_port_get_orientation(view_dispatcher->view_port) != orientation) {
+            view_port_set_orientation(view_dispatcher->view_port, orientation);
+            // we just rotated input keys, now it's time to sacrifice some input
+            view_dispatcher->ongoing_input = 0;
         }
         view_enter(view_dispatcher->current_view);
         view_port_enabled_set(view_dispatcher->view_port, true);
