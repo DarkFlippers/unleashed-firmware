@@ -10,6 +10,8 @@
 #include "../../../types/user_pin_codes.h"
 
 #define MAX_CODE_LENGTH TOTP_IV_SIZE
+static const uint8_t PIN_ASTERISK_RADIUS = 3;
+static const uint8_t PIN_ASTERISK_STEP = (PIN_ASTERISK_RADIUS << 1) + 2;
 
 typedef struct {
     TotpUserPinCode code_input[MAX_CODE_LENGTH];
@@ -61,8 +63,7 @@ void totp_scene_authenticate_render(Canvas* const canvas, PluginState* plugin_st
             AlignCenter,
             "Use arrow keys to enter PIN");
     }
-    const uint8_t PIN_ASTERISK_RADIUS = 3;
-    const uint8_t PIN_ASTERISK_STEP = (PIN_ASTERISK_RADIUS << 1) + 2;
+
     if(scene_state->code_length > 0) {
         uint8_t left_start_x = ((scene_state->code_length - 1) * PIN_ASTERISK_STEP) >> 1;
         for(uint8_t i = 0; i < scene_state->code_length; i++) {

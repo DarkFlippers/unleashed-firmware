@@ -174,16 +174,13 @@ void sha1_process_bytes(const void* buffer, size_t len, struct sha1_ctx* ctx) {
 /* --- Code below is the primary difference between md5.c and sha1.c --- */
 
 /* SHA1 round constants */
-#define K1 0x5a827999
-#define K2 0x6ed9eba1
-#define K3 0x8f1bbcdc
-#define K4 0xca62c1d6
+static const int sha1_round_constants[4] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
 
 /* Round functions.  Note that F2 is the same as F4.  */
 #define F1(B, C, D) (D ^ (B & (C ^ D)))
-#define F2(B, C, D) (B ^ C ^ D)
+#define F2_4(B, C, D) (B ^ C ^ D)
 #define F3(B, C, D) ((B & C) | (D & (B | C)))
-#define F4(B, C, D) (B ^ C ^ D)
+#define FN(I, B, C, D) (I == 0 ? F1(B, C, D) : (I == 2 ? F3(B, C, D) : F2_4(B, C, D)))
 
 /* Process LEN bytes of BUFFER, accumulating context into CTX.
    It is assumed that LEN % 64 == 0.
@@ -213,10 +210,10 @@ void sha1_process_block(const void* buffer, size_t len, struct sha1_ctx* ctx) {
     (tm = x[I & 0x0f] ^ x[(I - 14) & 0x0f] ^ x[(I - 8) & 0x0f] ^ x[(I - 3) & 0x0f], \
      (x[I & 0x0f] = rol(tm, 1)))
 
-#define R(A, B, C, D, E, F, K, M)            \
-    do {                                     \
-        E += rol(A, 5) + F(B, C, D) + K + M; \
-        B = rol(B, 30);                      \
+#define R(A, B, C, D, E, F, K, M, KI)            \
+    do {                                         \
+        E += rol(A, 5) + F(KI, B, C, D) + K + M; \
+        B = rol(B, 30);                          \
     } while(0)
 
     while(words < endp) {
@@ -227,24 +224,11 @@ void sha1_process_block(const void* buffer, size_t len, struct sha1_ctx* ctx) {
             words++;
         }
 
-        for(int i = 0; i < 80; i++) {
-            uint32_t xx = i < 16 ? x[i] : M(i);
-            uint32_t ki = i / 20;
-            switch(ki) {
-            case 0:
-                R(a, b, c, d, e, F1, K1, xx);
-                break;
-            case 1:
-                R(a, b, c, d, e, F2, K2, xx);
-                break;
-            case 2:
-                R(a, b, c, d, e, F3, K3, xx);
-                break;
-            default:
-                R(a, b, c, d, e, F4, K4, xx);
-                break;
-            }
-
+        for(uint8_t i = 0; i < 80; i++) {
+            uint32_t m = i < 16 ? x[i] : M(i);
+            uint8_t ki = i / 20;
+            int k_const = sha1_round_constants[ki];
+            R(a, b, c, d, e, FN, k_const, m, ki);
             uint32_t tt = a;
             a = e;
             e = d;

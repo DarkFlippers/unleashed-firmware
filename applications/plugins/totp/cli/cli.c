@@ -14,7 +14,7 @@
 #include "commands/reset/reset.h"
 
 static void totp_cli_print_unknown_command(const FuriString* unknown_command) {
-    TOTP_CLI_PRINTF(
+    TOTP_CLI_PRINTF_ERROR(
         "Command \"%s\" is unknown. Use \"" TOTP_CLI_COMMAND_HELP
         "\" command to get list of available commands.",
         furi_string_get_cstr(unknown_command));

@@ -22,6 +22,31 @@
         _Pragma(STRINGIFY(GCC diagnostic pop))                              \
     } while(false)
 
+#define TOTP_CLI_PRINTF_COLORFUL(color, format, ...)                        \
+    do {                                                                    \
+        _Pragma(STRINGIFY(GCC diagnostic push))                             \
+            _Pragma(STRINGIFY(GCC diagnostic ignored "-Wdouble-promotion")) \
+                printf("\e[%s", color);                                     \
+        printf(format, ##__VA_ARGS__);                                      \
+        printf("\e[0m");                                                    \
+        fflush(stdout);                                                     \
+        _Pragma(STRINGIFY(GCC diagnostic pop))                              \
+    } while(false)
+
+#define TOTP_CLI_COLOR_ERROR "91m"
+#define TOTP_CLI_COLOR_WARNING "93m"
+#define TOTP_CLI_COLOR_SUCCESS "92m"
+#define TOTP_CLI_COLOR_INFO "96m"
+
+#define TOTP_CLI_PRINTF_ERROR(format, ...) \
+    TOTP_CLI_PRINTF_COLORFUL(TOTP_CLI_COLOR_ERROR, format, ##__VA_ARGS__)
+#define TOTP_CLI_PRINTF_WARNING(format, ...) \
+    TOTP_CLI_PRINTF_COLORFUL(TOTP_CLI_COLOR_WARNING, format, ##__VA_ARGS__)
+#define TOTP_CLI_PRINTF_SUCCESS(format, ...) \
+    TOTP_CLI_PRINTF_COLORFUL(TOTP_CLI_COLOR_SUCCESS, format, ##__VA_ARGS__)
+#define TOTP_CLI_PRINTF_INFO(format, ...) \
+    TOTP_CLI_PRINTF_COLORFUL(TOTP_CLI_COLOR_INFO, format, ##__VA_ARGS__)
+
 #define TOTP_CLI_DELETE_LAST_LINE()    \
     TOTP_CLI_PRINTF("\033[A\33[2K\r"); \
     fflush(stdout)
@@ -35,11 +60,11 @@
     fflush(stdout)
 
 #define TOTP_CLI_PRINT_INVALID_ARGUMENTS() \
-    TOTP_CLI_PRINTF(                       \
+    TOTP_CLI_PRINTF_ERROR(                 \
         "Invalid command arguments. use \"help\" command to get list of available commands")
 
 #define TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE() \
-    TOTP_CLI_PRINTF("An error has occurred during updating config file\r\n")
+    TOTP_CLI_PRINTF_ERROR("An error has occurred during updating config file\r\n")
 
 /**
  * @brief Checks whether user is authenticated and entered correct PIN.

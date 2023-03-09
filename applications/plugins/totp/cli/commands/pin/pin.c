@@ -65,7 +65,7 @@ static bool totp_cli_read_pin(Cli* cli, uint8_t* pin, uint8_t* pin_length) {
             }
         } else if(c == CliSymbolAsciiETX) {
             TOTP_CLI_DELETE_CURRENT_LINE();
-            TOTP_CLI_PRINTF("Cancelled by user\r\n");
+            TOTP_CLI_PRINTF_INFO("Cancelled by user\r\n");
             return false;
         } else if(c == CliSymbolAsciiBackspace || c == CliSymbolAsciiDel) {
             if(*pin_length > 0) {
@@ -162,9 +162,9 @@ void totp_cli_command_pin_handle(PluginState* plugin_state, FuriString* args, Cl
 
             if(totp_full_save_config_file(plugin_state) == TotpConfigFileUpdateSuccess) {
                 if(do_change) {
-                    TOTP_CLI_PRINTF("PIN has been successfully changed\r\n");
+                    TOTP_CLI_PRINTF_SUCCESS("PIN has been successfully changed\r\n");
                 } else if(do_remove) {
-                    TOTP_CLI_PRINTF("PIN has been successfully removed\r\n");
+                    TOTP_CLI_PRINTF_SUCCESS("PIN has been successfully removed\r\n");
                 }
             } else {
                 TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();

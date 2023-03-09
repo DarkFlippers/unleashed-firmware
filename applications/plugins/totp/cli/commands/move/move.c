@@ -65,7 +65,7 @@ void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, C
         bool parsed = false;
         if(furi_string_cmpi_str(temp_str, TOTP_CLI_COMMAND_MOVE_ARG_NEW_NAME_PREFIX) == 0) {
             if(!args_read_string_and_trim(args, temp_str)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "Missed value for argument \"" TOTP_CLI_COMMAND_MOVE_ARG_NEW_NAME_PREFIX
                     "\"\r\n");
             } else {
@@ -87,11 +87,11 @@ void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, C
             }
         } else if(furi_string_cmpi_str(temp_str, TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX_PREFIX) == 0) {
             if(!args_read_int_and_trim(args, &new_token_index)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "Missed value for argument \"" TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX_PREFIX
                     "\"\r\n");
             } else if(new_token_index < 1 || new_token_index > plugin_state->tokens_count) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "\"%" PRId16
                     "\" is incorrect value for argument \"" TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX_PREFIX
                     "\"\r\n",
@@ -100,7 +100,7 @@ void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, C
                 parsed = true;
             }
         } else {
-            TOTP_CLI_PRINTF("Unknown argument \"%s\"\r\n", furi_string_get_cstr(temp_str));
+            TOTP_CLI_PRINTF_ERROR("Unknown argument \"%s\"\r\n", furi_string_get_cstr(temp_str));
         }
 
         if(!parsed) {
@@ -148,7 +148,8 @@ void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, C
 
     if(token_updated) {
         if(totp_full_save_config_file(plugin_state) == TotpConfigFileUpdateSuccess) {
-            TOTP_CLI_PRINTF("Token \"%s\" has been successfully updated\r\n", token_info->name);
+            TOTP_CLI_PRINTF_SUCCESS(
+                "Token \"%s\" has been successfully updated\r\n", token_info->name);
         } else {
             TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
         }

@@ -115,10 +115,10 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
         bool parsed = false;
         if(furi_string_cmpi_str(temp_str, TOTP_CLI_COMMAND_ADD_ARG_ALGO_PREFIX) == 0) {
             if(!args_read_string_and_trim(args, temp_str)) {
-                TOTP_CLI_PRINTF("Missed value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_ALGO_PREFIX
-                                "\"\r\n");
+                TOTP_CLI_PRINTF_ERROR(
+                    "Missed value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_ALGO_PREFIX "\"\r\n");
             } else if(!token_info_set_algo_from_str(token_info, temp_str)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "\"%s\" is incorrect value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_ALGO_PREFIX
                     "\"\r\n",
                     furi_string_get_cstr(temp_str));
@@ -128,11 +128,11 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
         } else if(furi_string_cmpi_str(temp_str, TOTP_CLI_COMMAND_ADD_ARG_DIGITS_PREFIX) == 0) {
             uint8_t digit_value;
             if(!args_read_uint8_and_trim(args, &digit_value)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "Missed or incorrect value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_DIGITS_PREFIX
                     "\"\r\n");
             } else if(!token_info_set_digits_from_int(token_info, digit_value)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "\"%" PRIu8
                     "\" is incorrect value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_DIGITS_PREFIX
                     "\"\r\n",
@@ -143,11 +143,11 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
         } else if(furi_string_cmpi_str(temp_str, TOTP_CLI_COMMAND_ADD_ARG_DURATION_PREFIX) == 0) {
             uint8_t duration_value;
             if(!args_read_uint8_and_trim(args, &duration_value)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "Missed or incorrect value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_DURATION_PREFIX
                     "\"\r\n");
             } else if(!token_info_set_duration_from_int(token_info, duration_value)) {
-                TOTP_CLI_PRINTF(
+                TOTP_CLI_PRINTF_ERROR(
                     "\"%" PRIu8
                     "\" is incorrect value for argument \"" TOTP_CLI_COMMAND_ADD_ARG_DURATION_PREFIX
                     "\"\r\n",
@@ -159,7 +159,7 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
             mask_user_input = false;
             parsed = true;
         } else {
-            TOTP_CLI_PRINTF("Unknown argument \"%s\"\r\n", furi_string_get_cstr(temp_str));
+            TOTP_CLI_PRINTF_ERROR("Unknown argument \"%s\"\r\n", furi_string_get_cstr(temp_str));
         }
 
         if(!parsed) {
@@ -176,7 +176,7 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
     if(!totp_cli_read_line(cli, temp_str, mask_user_input) ||
        !totp_cli_ensure_authenticated(plugin_state, cli)) {
         TOTP_CLI_DELETE_LAST_LINE();
-        TOTP_CLI_PRINTF("Cancelled by user\r\n");
+        TOTP_CLI_PRINTF_INFO("Cancelled by user\r\n");
         furi_string_secure_free(temp_str);
         token_info_free(token_info);
         return;
@@ -189,7 +189,7 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
            furi_string_get_cstr(temp_str),
            furi_string_size(temp_str),
            plugin_state->iv)) {
-        TOTP_CLI_PRINTF("Token secret seems to be invalid and can not be parsed\r\n");
+        TOTP_CLI_PRINTF_ERROR("Token secret seems to be invalid and can not be parsed\r\n");
         furi_string_secure_free(temp_str);
         token_info_free(token_info);
         return;
@@ -206,7 +206,7 @@ void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cl
     TOTP_LIST_INIT_OR_ADD(plugin_state->tokens_list, token_info, furi_check);
     plugin_state->tokens_count++;
     if(totp_config_file_save_new_token(token_info) == TotpConfigFileUpdateSuccess) {
-        TOTP_CLI_PRINTF("Token \"%s\" has been successfully added\r\n", token_info->name);
+        TOTP_CLI_PRINTF_SUCCESS("Token \"%s\" has been successfully added\r\n", token_info->name);
     } else {
         TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
     }

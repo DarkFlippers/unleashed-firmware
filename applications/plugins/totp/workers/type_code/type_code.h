@@ -12,7 +12,6 @@ typedef struct {
     FuriThread* thread;
     FuriMutex* string_sync;
     FuriHalUsbInterface* usb_mode_prev;
-    FuriMutex* mutex;
 } TotpTypeCodeWorkerContext;
 
 enum TotpTypeCodeWorkerEvents {

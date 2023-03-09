@@ -16,6 +16,9 @@
 #include "../token_menu/totp_scene_token_menu.h"
 #include "../../../workers/type_code/type_code.h"
 
+static const uint8_t PROGRESS_BAR_MARGIN = 3;
+static const uint8_t PROGRESS_BAR_HEIGHT = 4;
+
 typedef struct {
     uint16_t current_token_index;
     char last_code[TOTP_TOKEN_DIGITS_MAX_COUNT + 1];
@@ -306,14 +309,18 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
         AlignCenter,
         scene_state->last_code);
 
-    const uint8_t BAR_MARGIN = 3;
-    const uint8_t BAR_HEIGHT = 4;
     const uint8_t TOKEN_LIFETIME = scene_state->current_token->duration;
     float percentDone = (float)(TOKEN_LIFETIME - curr_ts % TOKEN_LIFETIME) / (float)TOKEN_LIFETIME;
-    uint8_t barWidth = (uint8_t)((float)(SCREEN_WIDTH - (BAR_MARGIN << 1)) * percentDone);
-    uint8_t barX = ((SCREEN_WIDTH - (BAR_MARGIN << 1) - barWidth) >> 1) + BAR_MARGIN;
+    uint8_t barWidth = (uint8_t)((float)(SCREEN_WIDTH - (PROGRESS_BAR_MARGIN << 1)) * percentDone);
+    uint8_t barX =
+        ((SCREEN_WIDTH - (PROGRESS_BAR_MARGIN << 1) - barWidth) >> 1) + PROGRESS_BAR_MARGIN;
 
-    canvas_draw_box(canvas, barX, SCREEN_HEIGHT - BAR_MARGIN - BAR_HEIGHT, barWidth, BAR_HEIGHT);
+    canvas_draw_box(
+        canvas,
+        barX,
+        SCREEN_HEIGHT - PROGRESS_BAR_MARGIN - PROGRESS_BAR_HEIGHT,
+        barWidth,
+        PROGRESS_BAR_HEIGHT);
 
     if(plugin_state->tokens_count > 1) {
         canvas_draw_icon(canvas, 0, SCREEN_HEIGHT_CENTER - 24, &I_totp_arrow_left_8x9);

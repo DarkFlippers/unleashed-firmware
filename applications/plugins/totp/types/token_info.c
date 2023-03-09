@@ -12,6 +12,7 @@ TokenInfo* token_info_alloc() {
     furi_check(tokenInfo != NULL);
     tokenInfo->algo = SHA1;
     tokenInfo->digits = TOTP_6_DIGITS;
+    tokenInfo->duration = TOTP_TOKEN_DURATION_DEFAULT;
     return tokenInfo;
 }
 

@@ -64,11 +64,11 @@ void totp_cli_command_delete_handle(PluginState* plugin_state, FuriString* args,
 
     bool confirmed = !confirm_needed;
     if(confirm_needed) {
-        TOTP_CLI_PRINTF("WARNING!\r\n");
-        TOTP_CLI_PRINTF(
+        TOTP_CLI_PRINTF_WARNING("WARNING!\r\n");
+        TOTP_CLI_PRINTF_WARNING(
             "TOKEN \"%s\" WILL BE PERMANENTLY DELETED WITHOUT ABILITY TO RECOVER IT.\r\n",
             token_info->name);
-        TOTP_CLI_PRINTF("Confirm? [y/n]\r\n");
+        TOTP_CLI_PRINTF_WARNING("Confirm? [y/n]\r\n");
         fflush(stdout);
         char user_pick;
         do {
@@ -94,7 +94,8 @@ void totp_cli_command_delete_handle(PluginState* plugin_state, FuriString* args,
         plugin_state->tokens_count--;
 
         if(totp_full_save_config_file(plugin_state) == TotpConfigFileUpdateSuccess) {
-            TOTP_CLI_PRINTF("Token \"%s\" has been successfully deleted\r\n", token_info->name);
+            TOTP_CLI_PRINTF_SUCCESS(
+                "Token \"%s\" has been successfully deleted\r\n", token_info->name);
         } else {
             TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
         }
@@ -105,6 +106,6 @@ void totp_cli_command_delete_handle(PluginState* plugin_state, FuriString* args,
             totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
         }
     } else {
-        TOTP_CLI_PRINTF("User not confirmed\r\n");
+        TOTP_CLI_PRINTF_INFO("User has not confirmed\r\n");
     }
 }

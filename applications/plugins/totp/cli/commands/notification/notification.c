@@ -28,21 +28,21 @@ void totp_cli_command_notification_docopt_arguments() {
         ", " TOTP_CLI_COMMAND_NOTIFICATION_METHOD_VIBRO "]\r\n");
 }
 
-static void totp_cli_command_notification_print_method(NotificationMethod method) {
+static void totp_cli_command_notification_print_method(NotificationMethod method, char* color) {
     bool has_previous_method = false;
     if(method & NotificationMethodSound) {
-        TOTP_CLI_PRINTF("\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_SOUND "\"");
+        TOTP_CLI_PRINTF_COLORFUL(color, "\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_SOUND "\"");
         has_previous_method = true;
     }
     if(method & NotificationMethodVibro) {
         if(has_previous_method) {
-            TOTP_CLI_PRINTF(" and ");
+            TOTP_CLI_PRINTF_COLORFUL(color, " and ");
         }
 
-        TOTP_CLI_PRINTF("\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_VIBRO "\"");
+        TOTP_CLI_PRINTF_COLORFUL(color, "\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_VIBRO "\"");
     }
     if(method == NotificationMethodNone) {
-        TOTP_CLI_PRINTF("\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_NONE "\"");
+        TOTP_CLI_PRINTF_COLORFUL(color, "\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_NONE "\"");
     }
 }
 
@@ -88,8 +88,8 @@ void totp_cli_command_notification_handle(PluginState* plugin_state, FuriString*
             plugin_state->notification_method = new_method;
             if(totp_config_file_update_notification_method(new_method) ==
                TotpConfigFileUpdateSuccess) {
-                TOTP_CLI_PRINTF("Notification method is set to ");
-                totp_cli_command_notification_print_method(new_method);
+                TOTP_CLI_PRINTF_SUCCESS("Notification method is set to ");
+                totp_cli_command_notification_print_method(new_method, TOTP_CLI_COLOR_SUCCESS);
                 cli_nl();
             } else {
                 TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
@@ -99,8 +99,9 @@ void totp_cli_command_notification_handle(PluginState* plugin_state, FuriString*
                 totp_scene_director_activate_scene(plugin_state, previous_scene, NULL);
             }
         } else {
-            TOTP_CLI_PRINTF("Current notification method is ");
-            totp_cli_command_notification_print_method(plugin_state->notification_method);
+            TOTP_CLI_PRINTF_INFO("Current notification method is ");
+            totp_cli_command_notification_print_method(
+                plugin_state->notification_method, TOTP_CLI_COLOR_INFO);
             cli_nl();
         }
     } while(false);

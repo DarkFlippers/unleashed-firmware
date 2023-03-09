@@ -30,11 +30,12 @@ void totp_cli_command_timezone_handle(PluginState* plugin_state, FuriString* arg
 
     FuriString* temp_str = furi_string_alloc();
     if(args_read_string_and_trim(args, temp_str)) {
-        float tz = strtof(furi_string_get_cstr(temp_str), NULL);
-        if(tz >= -12.75f && tz <= 12.75f) {
+        char* strtof_endptr;
+        float tz = strtof(furi_string_get_cstr(temp_str), &strtof_endptr);
+        if(*strtof_endptr == 0 && tz >= -12.75f && tz <= 12.75f) {
             plugin_state->timezone_offset = tz;
             if(totp_config_file_update_timezone_offset(tz) == TotpConfigFileUpdateSuccess) {
-                TOTP_CLI_PRINTF("Timezone is set to %f\r\n", tz);
+                TOTP_CLI_PRINTF_SUCCESS("Timezone is set to %f\r\n", tz);
             } else {
                 TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
             }
@@ -46,10 +47,10 @@ void totp_cli_command_timezone_handle(PluginState* plugin_state, FuriString* arg
                 totp_scene_director_activate_scene(plugin_state, TotpSceneAppSettings, NULL);
             }
         } else {
-            TOTP_CLI_PRINTF("Invalid timezone offset\r\n");
+            TOTP_CLI_PRINTF_ERROR("Invalid timezone offset\r\n");
         }
     } else {
-        TOTP_CLI_PRINTF("Current timezone offset is %f\r\n", plugin_state->timezone_offset);
+        TOTP_CLI_PRINTF_INFO("Current timezone offset is %f\r\n", plugin_state->timezone_offset);
     }
     furi_string_free(temp_str);
 }
