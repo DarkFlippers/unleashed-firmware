@@ -39,6 +39,7 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .spi_bus_handle = &furi_hal_spi_bus_handle_subghz,
     .cc1101_g0_pin = &gpio_cc1101_g0,
     .rolling_counter_mult = 1,
+    .ext_module_power_disabled = false,
 };
 
 bool furi_hal_subghz_set_radio_type(SubGhzRadioType state) {
@@ -70,6 +71,14 @@ void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult) {
     furi_hal_subghz.rolling_counter_mult = mult;
 }
 
+void furi_hal_subghz_set_external_power_disable(bool state) {
+    furi_hal_subghz.ext_module_power_disabled = state;
+}
+
+bool furi_hal_subghz_get_external_power_disable(void) {
+    return furi_hal_subghz.ext_module_power_disabled;
+}
+
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {
     furi_hal_subghz.async_mirror_pin = pin;
 }
@@ -79,6 +88,9 @@ void furi_hal_subghz_init(void) {
 }
 
 bool furi_hal_subghz_enable_ext_power(void) {
+    if(furi_hal_subghz.ext_module_power_disabled) {
+        return false;
+    }
     if(furi_hal_subghz.radio_type != SubGhzRadioInternal) {
         uint8_t attempts = 0;
         while(!furi_hal_power_is_otg_enabled() && attempts++ < 2) {
