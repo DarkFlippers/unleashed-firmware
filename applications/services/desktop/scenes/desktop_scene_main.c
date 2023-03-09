@@ -79,6 +79,7 @@ static void desktop_scene_main_open_app_or_profile(Desktop* desktop, const char*
 
 void desktop_scene_main_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
+    if(desktop->in_transition) return;
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
 

@@ -69,6 +69,8 @@ struct Desktop {
     FuriPubSub* input_events_pubsub;
     FuriPubSubSubscription* input_events_subscription;
     FuriTimer* auto_lock_timer;
+
+    bool in_transition;
 };
 
 Desktop* desktop_alloc();
