@@ -116,14 +116,20 @@ static void _draw_humidity(Canvas* canvas, Sensor* sensor, const uint8_t pos[2])
 static void _draw_pressure(Canvas* canvas, Sensor* sensor) {
     const uint8_t x = 29, y = 39;
     //Рисование рамки
-    canvas_draw_rframe(canvas, x, y, 69, 20, 3);
-    canvas_draw_rframe(canvas, x, y, 69, 19, 3);
+    if(app->settings.pressure_unit == UT_PRESSURE_HPA) {
+        canvas_draw_rframe(canvas, x, y, 84, 20, 3);
+        canvas_draw_rframe(canvas, x, y, 84, 19, 3);
+    } else {
+        canvas_draw_rframe(canvas, x, y, 69, 20, 3);
+        canvas_draw_rframe(canvas, x, y, 69, 19, 3);
+    }
 
     //Рисование иконки
     canvas_draw_icon(canvas, x + 3, y + 4, &I_pressure_7x13);
 
     int16_t press_int = sensor->pressure;
-    int8_t press_dec = (int16_t)(sensor->temp * 10) % 10;
+    // Change Temp for Pressure
+    int8_t press_dec = (int16_t)(sensor->pressure * 10) % 10;
 
     //Целая часть давления
     snprintf(app->buff, BUFF_SIZE, "%d", press_int);
@@ -136,15 +142,23 @@ static void _draw_pressure(Canvas* canvas, Sensor* sensor) {
         snprintf(app->buff, BUFF_SIZE, ".%d", press_dec);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, x + 27 + int_len / 2 + 2, y + 10 + 7, app->buff);
+    } else if(app->settings.pressure_unit == UT_PRESSURE_HPA) {
+        uint8_t int_len = canvas_string_width(canvas, app->buff);
+        snprintf(app->buff, BUFF_SIZE, ".%d", press_dec);
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str(canvas, x + 32 + int_len / 2 + 2, y + 10 + 7, app->buff);
     }
     canvas_set_font(canvas, FontSecondary);
     //Единица измерения
+
     if(app->settings.pressure_unit == UT_PRESSURE_MM_HG) {
         canvas_draw_icon(canvas, x + 50, y + 2, &I_mm_hg_15x15);
     } else if(app->settings.pressure_unit == UT_PRESSURE_IN_HG) {
         canvas_draw_icon(canvas, x + 50, y + 2, &I_in_hg_15x15);
     } else if(app->settings.pressure_unit == UT_PRESSURE_KPA) {
         canvas_draw_str(canvas, x + 52, y + 13, "kPa");
+    } else if(app->settings.pressure_unit == UT_PRESSURE_HPA) {
+        canvas_draw_str(canvas, x + 67, y + 13, "hPa");
     }
 }
 

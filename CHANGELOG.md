@@ -2,11 +2,13 @@
 * If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
 * SubGHz: Default custom buttons layout for non standard remotes (for example your remote has broken buttons and transmit only 0xC, now you can use other buttons)
 * SubGHz: Fix issues with external module 5v power (now all works automatically, enabling +5v manually not required) (**Only for modules that work with 5v->3.3v converter!!!!!**)
+* SubGHz: Option to disable automatic 5v power for external modules - (5v is enabled by default, if you are using module without converter you can set this option to OFF)
 * SubGHz: Fix and update subghz protocols to use new error system
 * SubGHz: Fix default frequency being overwritten bug (Add manually fixes)
 * SubGHz: Fix 464Mhz and (390MHz for external module only) was showing up in Frequency analyzer all the time due to noise
 * iButton: Fix ibutton app - add manually - duplicate names
 * Plugins: NFC Magic fix - reinit nfc at app start
+* Plugins: Update **Unitemp - Temperature sensors reader** (DHT11/22, DS18B20, BMP280, HTU21x and more) [(by quen0n)](https://github.com/quen0n/unitemp-flipperzero)
 * Plugins: Update **SWD Probe** [(by g3gg0)](https://github.com/g3gg0/flipper-swd_probe)
 * Plugins: Massive plugins refactoring - not full refactoring, only small issues is fixed and moved all plugins to furi mutex instead of valuemutex
 * Plugins: Many small issues was found and fixed due mutex upgrade
