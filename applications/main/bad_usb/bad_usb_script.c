@@ -6,11 +6,11 @@
 #include <furi_hal_usb_hid.h>
 #include <storage/storage.h>
 #include "bad_usb_script.h"
+#include "mnemonic.h"
 #include <dolphin/dolphin.h>
 
 #define TAG "BadUSB"
 #define WORKER_TAG TAG "Worker"
-#define FILE_BUFFER_LEN 16
 
 #define SCRIPT_STATE_ERROR (-1)
 #define SCRIPT_STATE_END (-2)
@@ -25,24 +25,6 @@ typedef enum {
     WorkerEvtConnect = (1 << 2),
     WorkerEvtDisconnect = (1 << 3),
 } WorkerEvtFlags;
-
-struct BadUsbScript {
-    FuriHalUsbHidConfig hid_cfg;
-    BadUsbState st;
-    FuriString* file_path;
-    uint32_t defdelay;
-    uint16_t layout[128];
-    uint32_t stringdelay;
-    FuriThread* thread;
-    uint8_t file_buf[FILE_BUFFER_LEN + 1];
-    uint8_t buf_start;
-    uint8_t buf_len;
-    bool file_end;
-    FuriString* line;
-
-    FuriString* line_prev;
-    uint32_t repeat_cnt;
-};
 
 typedef struct {
     char* name;
@@ -112,40 +94,21 @@ static const char ducky_cmd_comment[] = {"REM"};
 static const char ducky_cmd_id[] = {"ID"};
 static const char ducky_cmd_delay[] = {"DELAY "};
 static const char ducky_cmd_string[] = {"STRING "};
+static const char ducky_cmd_stringln[] = {"STRINGLN "};
 static const char ducky_cmd_defdelay_1[] = {"DEFAULT_DELAY "};
 static const char ducky_cmd_defdelay_2[] = {"DEFAULTDELAY "};
 static const char ducky_cmd_stringdelay_1[] = {"STRINGDELAY "};
 static const char ducky_cmd_stringdelay_2[] = {"STRING_DELAY "};
 static const char ducky_cmd_repeat[] = {"REPEAT "};
 static const char ducky_cmd_sysrq[] = {"SYSRQ "};
+static const char ducky_cmd_hold[] = {"HOLD "};
+static const char ducky_cmd_release[] = {"RELEASE "};
 
 static const char ducky_cmd_altchar[] = {"ALTCHAR "};
 static const char ducky_cmd_altstr_1[] = {"ALTSTRING "};
 static const char ducky_cmd_altstr_2[] = {"ALTCODE "};
 
-static const uint8_t numpad_keys[10] = {
-    HID_KEYPAD_0,
-    HID_KEYPAD_1,
-    HID_KEYPAD_2,
-    HID_KEYPAD_3,
-    HID_KEYPAD_4,
-    HID_KEYPAD_5,
-    HID_KEYPAD_6,
-    HID_KEYPAD_7,
-    HID_KEYPAD_8,
-    HID_KEYPAD_9,
-};
-
-static bool ducky_get_number(const char* param, uint32_t* val) {
-    uint32_t value = 0;
-    if(sscanf(param, "%lu", &value) == 1) {
-        *val = value;
-        return true;
-    }
-    return false;
-}
-
-static uint32_t ducky_get_command_len(const char* line) {
+uint32_t ducky_get_command_len(const char* line) {
     uint32_t len = strlen(line);
     for(uint32_t i = 0; i < len; i++) {
         if(line[i] == ' ') return i;
@@ -153,84 +116,11 @@ static uint32_t ducky_get_command_len(const char* line) {
     return 0;
 }
 
-static bool ducky_is_line_end(const char chr) {
+bool ducky_is_line_end(const char chr) {
     return ((chr == ' ') || (chr == '\0') || (chr == '\r') || (chr == '\n'));
 }
 
-static void ducky_numlock_on() {
-    if((furi_hal_hid_get_led_state() & HID_KB_LED_NUM) == 0) {
-        furi_hal_hid_kb_press(HID_KEYBOARD_LOCK_NUM_LOCK);
-        furi_hal_hid_kb_release(HID_KEYBOARD_LOCK_NUM_LOCK);
-    }
-}
-
-static bool ducky_numpad_press(const char num) {
-    if((num < '0') || (num > '9')) return false;
-
-    uint16_t key = numpad_keys[num - '0'];
-    furi_hal_hid_kb_press(key);
-    furi_hal_hid_kb_release(key);
-
-    return true;
-}
-
-static bool ducky_altchar(const char* charcode) {
-    uint8_t i = 0;
-    bool state = false;
-
-    FURI_LOG_I(WORKER_TAG, "char %s", charcode);
-
-    furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT);
-
-    while(!ducky_is_line_end(charcode[i])) {
-        state = ducky_numpad_press(charcode[i]);
-        if(state == false) break;
-        i++;
-    }
-
-    furi_hal_hid_kb_release(KEY_MOD_LEFT_ALT);
-    return state;
-}
-
-static bool ducky_altstring(const char* param) {
-    uint32_t i = 0;
-    bool state = false;
-
-    while(param[i] != '\0') {
-        if((param[i] < ' ') || (param[i] > '~')) {
-            i++;
-            continue; // Skip non-printable chars
-        }
-
-        char temp_str[4];
-        snprintf(temp_str, 4, "%u", param[i]);
-
-        state = ducky_altchar(temp_str);
-        if(state == false) break;
-        i++;
-    }
-    return state;
-}
-
-static bool ducky_string(BadUsbScript* bad_usb, const char* param) {
-    uint32_t i = 0;
-
-    while(param[i] != '\0') {
-        uint16_t keycode = BADUSB_ASCII_TO_KEY(bad_usb, param[i]);
-        if(keycode != HID_KEYBOARD_NONE) {
-            furi_hal_hid_kb_press(keycode);
-            furi_hal_hid_kb_release(keycode);
-            if(bad_usb->stringdelay > 0) {
-                furi_delay_ms(bad_usb->stringdelay);
-            }
-        }
-        i++;
-    }
-    bad_usb->stringdelay = 0;
-    return true;
-}
-
-static uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept_chars) {
+uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept_chars) {
     for(size_t i = 0; i < (sizeof(ducky_keys) / sizeof(ducky_keys[0])); i++) {
         size_t key_cmd_len = strlen(ducky_keys[i].name);
         if((strncmp(param, ducky_keys[i].name, key_cmd_len) == 0) &&
@@ -248,119 +138,68 @@ static int32_t
     ducky_parse_line(BadUsbScript* bad_usb, FuriString* line, char* error, size_t error_len) {
     uint32_t line_len = furi_string_size(line);
     const char* line_tmp = furi_string_get_cstr(line);
-    bool state = false;
+    const char* ducky_cmd_table[] = {
+        ducky_cmd_comment,
+        ducky_cmd_id,
+        ducky_cmd_delay,
+        ducky_cmd_string,
+        ducky_cmd_defdelay_1,
+        ducky_cmd_defdelay_2,
+        ducky_cmd_stringdelay_1,
+        ducky_cmd_stringdelay_2,
+        ducky_cmd_repeat,
+        ducky_cmd_sysrq,
+        ducky_cmd_altchar,
+        ducky_cmd_altstr_1,
+        ducky_cmd_altstr_2,
+        ducky_cmd_stringln,
+        ducky_cmd_hold,
+        ducky_cmd_release,
+        NULL};
+    int32_t (*fnc_ptr[])(BadUsbScript*, FuriString*, const char*, char*, size_t) = {
+        &ducky_fnc_noop,
+        &ducky_fnc_noop,
+        &ducky_fnc_delay,
+        &ducky_fnc_string,
+        &ducky_fnc_defdelay,
+        &ducky_fnc_defdelay,
+        &ducky_fnc_strdelay,
+        &ducky_fnc_strdelay,
+        &ducky_fnc_repeat,
+        &ducky_fnc_sysrq,
+        &ducky_fnc_altchar,
+        &ducky_fnc_altstring,
+        &ducky_fnc_altstring,
+        &ducky_fnc_stringln,
+        &ducky_fnc_hold,
+        &ducky_fnc_release,
+        NULL};
 
     if(line_len == 0) {
         return SCRIPT_STATE_NEXT_LINE; // Skip empty lines
     }
-
     FURI_LOG_D(WORKER_TAG, "line:%s", line_tmp);
-
-    // General commands
-    if(strncmp(line_tmp, ducky_cmd_comment, strlen(ducky_cmd_comment)) == 0) {
-        // REM - comment line
-        return (0);
-    } else if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
-        // ID - executed in ducky_script_preload
-        return (0);
-    } else if(strncmp(line_tmp, ducky_cmd_delay, strlen(ducky_cmd_delay)) == 0) {
-        // DELAY
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        uint32_t delay_val = 0;
-        state = ducky_get_number(line_tmp, &delay_val);
-        if((state) && (delay_val > 0)) {
-            return (int32_t)delay_val;
-        }
-        if(error != NULL) {
-            snprintf(error, error_len, "Invalid number %s", line_tmp);
-        }
-        return SCRIPT_STATE_ERROR;
-    } else if(
-        (strncmp(line_tmp, ducky_cmd_defdelay_1, strlen(ducky_cmd_defdelay_1)) == 0) ||
-        (strncmp(line_tmp, ducky_cmd_defdelay_2, strlen(ducky_cmd_defdelay_2)) == 0)) {
-        // DEFAULT_DELAY
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        state = ducky_get_number(line_tmp, &bad_usb->defdelay);
-        if(!state && error != NULL) {
-            snprintf(error, error_len, "Invalid number %s", line_tmp);
-        }
-        return (state) ? (0) : SCRIPT_STATE_ERROR;
-    } else if(
-        (strncmp(line_tmp, ducky_cmd_stringdelay_1, strlen(ducky_cmd_stringdelay_1)) == 0) ||
-        (strncmp(line_tmp, ducky_cmd_stringdelay_2, strlen(ducky_cmd_stringdelay_2)) == 0)) {
-        //STRINGDELAY, finally it's here
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        state = ducky_get_number(line_tmp, &bad_usb->stringdelay);
-        if((state) && (bad_usb->stringdelay > 0)) {
-            return state;
-        }
-        if(error != NULL) {
-            snprintf(error, error_len, "Invalid number %s", line_tmp);
-        }
-        return SCRIPT_STATE_ERROR;
-
-    } else if(strncmp(line_tmp, ducky_cmd_string, strlen(ducky_cmd_string)) == 0) {
-        // STRING
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        state = ducky_string(bad_usb, line_tmp);
-        if(!state && error != NULL) {
-            snprintf(error, error_len, "Invalid string %s", line_tmp);
-        }
-        return (state) ? (0) : SCRIPT_STATE_ERROR;
-    } else if(strncmp(line_tmp, ducky_cmd_altchar, strlen(ducky_cmd_altchar)) == 0) {
-        // ALTCHAR
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        ducky_numlock_on();
-        state = ducky_altchar(line_tmp);
-        if(!state && error != NULL) {
-            snprintf(error, error_len, "Invalid altchar %s", line_tmp);
-        }
-        return (state) ? (0) : SCRIPT_STATE_ERROR;
-    } else if(
-        (strncmp(line_tmp, ducky_cmd_altstr_1, strlen(ducky_cmd_altstr_1)) == 0) ||
-        (strncmp(line_tmp, ducky_cmd_altstr_2, strlen(ducky_cmd_altstr_2)) == 0)) {
-        // ALTSTRING
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        ducky_numlock_on();
-        state = ducky_altstring(line_tmp);
-        if(!state && error != NULL) {
-            snprintf(error, error_len, "Invalid altstring %s", line_tmp);
-        }
-        return (state) ? (0) : SCRIPT_STATE_ERROR;
-    } else if(strncmp(line_tmp, ducky_cmd_repeat, strlen(ducky_cmd_repeat)) == 0) {
-        // REPEAT
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        state = ducky_get_number(line_tmp, &bad_usb->repeat_cnt);
-        if(!state && error != NULL) {
-            snprintf(error, error_len, "Invalid number %s", line_tmp);
-        }
-        return (state) ? (0) : SCRIPT_STATE_ERROR;
-    } else if(strncmp(line_tmp, ducky_cmd_sysrq, strlen(ducky_cmd_sysrq)) == 0) {
-        // SYSRQ
-        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-        uint16_t key = ducky_get_keycode(bad_usb, line_tmp, true);
-        furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT | HID_KEYBOARD_PRINT_SCREEN);
-        furi_hal_hid_kb_press(key);
-        furi_hal_hid_kb_release_all();
-        return (0);
-    } else {
-        // Special keys + modifiers
-        uint16_t key = ducky_get_keycode(bad_usb, line_tmp, false);
-        if(key == HID_KEYBOARD_NONE) {
-            if(error != NULL) {
-                snprintf(error, error_len, "No keycode defined for %s", line_tmp);
-            }
-            return SCRIPT_STATE_ERROR;
-        }
-        if((key & 0xFF00) != 0) {
-            // It's a modifier key
-            line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
-            key |= ducky_get_keycode(bad_usb, line_tmp, true);
-        }
-        furi_hal_hid_kb_press(key);
-        furi_hal_hid_kb_release(key);
-        return (0);
+    // Ducky Lang Functions
+    for(size_t i = 0; ducky_cmd_table[i]; i++) {
+        if(strncmp(line_tmp, ducky_cmd_table[i], strlen(ducky_cmd_table[i])) == 0)
+            return ((fnc_ptr[i])(bad_usb, line, line_tmp, error, error_len));
     }
+    // Special keys + modifiers
+    uint16_t key = ducky_get_keycode(bad_usb, line_tmp, false);
+    if(key == HID_KEYBOARD_NONE) {
+        if(error != NULL) {
+            snprintf(error, error_len, "No keycode defined for %s", line_tmp);
+        }
+        return SCRIPT_STATE_ERROR;
+    }
+    if((key & 0xFF00) != 0) {
+        // It's a modifier key
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        key |= ducky_get_keycode(bad_usb, line_tmp, true);
+    }
+    furi_hal_hid_kb_press(key);
+    furi_hal_hid_kb_release(key);
+    return (0);
 }
 
 static bool ducky_set_usb_id(BadUsbScript* bad_usb, const char* line) {

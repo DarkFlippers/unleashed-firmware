@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,18.0,,
+Version,+,18.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2511,6 +2511,7 @@ Function,-,storage_dir_rewind,_Bool,File*
 Function,+,storage_error_get_desc,const char*,FS_Error
 Function,+,storage_file_alloc,File*,Storage*
 Function,+,storage_file_close,_Bool,File*
+Function,+,storage_file_copy_to_file,_Bool,"File*, File*, uint32_t"
 Function,+,storage_file_eof,_Bool,File*
 Function,+,storage_file_exists,_Bool,"Storage*, const char*"
 Function,+,storage_file_free,void,File*

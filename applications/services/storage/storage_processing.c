@@ -454,7 +454,7 @@ void storage_process_alias(
         FuriString* apps_data_path_with_appsid = furi_string_alloc_set(APPS_DATA_PATH "/");
         furi_string_cat(apps_data_path_with_appsid, furi_thread_get_appid(thread_id));
 
-        // "/app" -> "/ext/apps_data/appsid"
+        // "/data" -> "/ext/apps_data/appsid"
         furi_string_replace_at(
             path,
             0,
@@ -472,6 +472,18 @@ void storage_process_alias(
         }
 
         furi_string_free(apps_data_path_with_appsid);
+    } else if(furi_string_start_with(path, STORAGE_APP_ASSETS_PATH_PREFIX)) {
+        FuriString* apps_assets_path_with_appsid = furi_string_alloc_set(APPS_ASSETS_PATH "/");
+        furi_string_cat(apps_assets_path_with_appsid, furi_thread_get_appid(thread_id));
+
+        // "/assets" -> "/ext/apps_assets/appsid"
+        furi_string_replace_at(
+            path,
+            0,
+            strlen(STORAGE_APP_ASSETS_PATH_PREFIX),
+            furi_string_get_cstr(apps_assets_path_with_appsid));
+
+        furi_string_free(apps_assets_path_with_appsid);
     }
 }
 

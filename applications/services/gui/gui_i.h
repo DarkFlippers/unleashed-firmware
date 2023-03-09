@@ -8,6 +8,7 @@
 #include "gui.h"
 
 #include <furi.h>
+#include <furi_hal_rtc.h>
 #include <m-array.h>
 #include <m-algo.h>
 #include <stdio.h>
