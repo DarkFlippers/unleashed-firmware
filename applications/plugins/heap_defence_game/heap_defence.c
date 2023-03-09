@@ -496,7 +496,9 @@ static void heap_defense_input_callback(InputEvent* input_event, FuriMessageQueu
 static void heap_defense_timer_callback(FuriMessageQueue* event_queue) {
     furi_assert(event_queue);
 
-    GameEvent event = {.type = EventGameTick, .input = {0}};
+    GameEvent event;
+    event.type = EventGameTick;
+    event.input = (InputEvent){0};
     furi_message_queue_put(event_queue, &event, 0);
 }
 
