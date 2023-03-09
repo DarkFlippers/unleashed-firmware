@@ -90,6 +90,11 @@ static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
     variable_item_set_current_value_text(item, ext_mod_power_text[index]);
 
     furi_hal_subghz_set_external_power_disable(index == 1);
+    if(index == 1) {
+        furi_hal_subghz_disable_ext_power();
+    } else {
+        furi_hal_subghz_enable_ext_power();
+    }
 }
 
 void subghz_scene_ext_module_settings_on_enter(void* context) {
