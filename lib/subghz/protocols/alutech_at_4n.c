@@ -320,7 +320,8 @@ bool subghz_protocol_alutech_at_4n_create_data(
     instance->generic.data_count_bit = 72;
     bool res = subghz_protocol_alutech_at_4n_gen_data(instance, btn);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -499,14 +500,15 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     return true;
 }
 
-bool subghz_protocol_encoder_alutech_at_4n_deserialize(
+SubGhzProtocolStatus subghz_protocol_encoder_alutech_at_4n_deserialize(
     void* context,
     FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderAlutech_at_4n* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+        if(SubGhzProtocolStatusOk !=
+           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -540,7 +542,7 @@ bool subghz_protocol_encoder_alutech_at_4n_deserialize(
 
         instance->encoder.is_running = true;
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;
@@ -740,46 +742,46 @@ uint8_t subghz_protocol_decoder_alutech_at_4n_get_hash_data(void* context) {
     return (uint8_t)instance->crc;
 }
 
-bool subghz_protocol_decoder_alutech_at_4n_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_alutech_at_4n_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderAlutech_at_4n* instance = context;
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if(res && !flipper_format_write_uint32(flipper_format, "CRC", &instance->crc, 1)) {
+    SubGhzProtocolStatus res =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    if((res == SubGhzProtocolStatusOk) &&
+       !flipper_format_write_uint32(flipper_format, "CRC", &instance->crc, 1)) {
         FURI_LOG_E(TAG, "Unable to add CRC");
-        res = false;
+        res = SubGhzProtocolStatusErrorParserOthers;
     }
     return res;
-
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool subghz_protocol_decoder_alutech_at_4n_deserialize(
+SubGhzProtocolStatus subghz_protocol_decoder_alutech_at_4n_deserialize(
     void* context,
     FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderAlutech_at_4n* instance = context;
-    bool ret = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_alutech_at_4n_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
+        ret = subghz_block_generic_deserialize_check_count_bit(
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_alutech_at_4n_const.min_count_bit_for_found);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
+            ret = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
         if(!flipper_format_read_uint32(flipper_format, "CRC", (uint32_t*)&instance->crc, 1)) {
             FURI_LOG_E(TAG, "Missing CRC");
+            ret = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
-        ret = true;
     } while(false);
     return ret;
 }

@@ -56,6 +56,7 @@ typedef struct {
 
 // STRUCTS
 typedef struct {
+    FuriMutex* mutex;
     bool is_running;
     bool is_attacking;
     iBtnFuzzerScene current_scene;
@@ -78,7 +79,8 @@ typedef struct {
     uint8_t key_index;
     iButtonWorker* worker;
     iButtonKey* key;
-    iButtonKeyType keytype;
+    iButtonProtocolId keytype;
+    iButtonProtocols* protocols;
     bool workr_rund;
     bool enter_rerun;
     bool attack_stop_called;

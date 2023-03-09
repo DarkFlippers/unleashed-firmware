@@ -241,18 +241,17 @@ static void subghz_protocol_came_twee_remote_controller(SubGhzBlockGeneric* inst
     instance->cnt = data >> 6;
 }
 
-bool subghz_protocol_encoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderCameTwee* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            FURI_LOG_E(TAG, "Deserialize error");
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_came_twee_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
+        res = subghz_block_generic_deserialize_check_count_bit(
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_came_twee_const.min_count_bit_for_found);
+        if(res != SubGhzProtocolStatusOk) {
             break;
         }
         //optional parameter parameter
@@ -262,8 +261,6 @@ bool subghz_protocol_encoder_came_twee_deserialize(void* context, FlipperFormat*
         subghz_protocol_came_twee_remote_controller(&instance->generic);
         subghz_protocol_encoder_came_twee_get_upload(instance);
         instance->encoder.is_running = true;
-
-        res = true;
     } while(false);
 
     return res;
@@ -419,7 +416,7 @@ uint8_t subghz_protocol_decoder_came_twee_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_came_twee_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_came_twee_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -428,22 +425,14 @@ bool subghz_protocol_decoder_came_twee_serialize(
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool subghz_protocol_decoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderCameTwee* instance = context;
-    bool ret = false;
-    do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_came_twee_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
-            break;
-        }
-        ret = true;
-    } while(false);
-    return ret;
+    return subghz_block_generic_deserialize_check_count_bit(
+        &instance->generic,
+        flipper_format,
+        subghz_protocol_came_twee_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_came_twee_get_string(void* context, FuriString* output) {

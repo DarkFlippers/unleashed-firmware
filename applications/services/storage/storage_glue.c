@@ -5,21 +5,18 @@
 
 void storage_file_init(StorageFile* obj) {
     obj->file = NULL;
-    obj->type = ST_ERROR;
     obj->file_data = NULL;
     obj->path = furi_string_alloc();
 }
 
 void storage_file_init_set(StorageFile* obj, const StorageFile* src) {
     obj->file = src->file;
-    obj->type = src->type;
     obj->file_data = src->file_data;
     obj->path = furi_string_alloc_set(src->path);
 }
 
 void storage_file_set(StorageFile* obj, const StorageFile* src) { //-V524
     obj->file = src->file;
-    obj->type = src->type;
     obj->file_data = src->file_data;
     furi_string_set(obj->path, src->path);
 }
@@ -150,16 +147,10 @@ void* storage_get_storage_file_data(const File* file, StorageData* storage) {
     return founded_file->file_data;
 }
 
-void storage_push_storage_file(
-    File* file,
-    FuriString* path,
-    StorageType type,
-    StorageData* storage) {
+void storage_push_storage_file(File* file, FuriString* path, StorageData* storage) {
     StorageFile* storage_file = StorageFileList_push_new(storage->files);
-
     file->file_id = (uint32_t)storage_file;
     storage_file->file = file;
-    storage_file->type = type;
     furi_string_set(storage_file->path, path);
 }
 

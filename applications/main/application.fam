@@ -14,7 +14,7 @@ App(
         "fap_loader",
         "archive",
         "clock",
-        "unirfremix",
+        "subghz_remote",
     ],
 )
 

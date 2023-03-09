@@ -2,6 +2,7 @@
 #include "dialogs_i.h"
 #include <toolbox/api_lock.h>
 #include <assets_icons.h>
+#include <storage/storage.h>
 
 /****************** File browser ******************/
 
@@ -12,6 +13,22 @@ bool dialog_file_browser_show(
     const DialogsFileBrowserOptions* options) {
     FuriApiLock lock = api_lock_alloc_locked();
     furi_check(lock != NULL);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FuriString* base_path = furi_string_alloc();
+
+    if(options && options->base_path) {
+        furi_string_set(base_path, options->base_path);
+        storage_common_resolve_path_and_ensure_app_directory(storage, base_path);
+    }
+
+    if(result_path) {
+        storage_common_resolve_path_and_ensure_app_directory(storage, result_path);
+    }
+
+    if(path) {
+        storage_common_resolve_path_and_ensure_app_directory(storage, path);
+    }
 
     DialogsAppData data = {
         .file_browser = {
@@ -24,7 +41,7 @@ bool dialog_file_browser_show(
             .preselected_filename = path,
             .item_callback = options ? options->item_loader_callback : NULL,
             .item_callback_context = options ? options->item_loader_context : NULL,
-            .base_path = options ? options->base_path : NULL,
+            .base_path = furi_string_get_cstr(base_path),
         }};
 
     DialogsAppReturn return_data;
@@ -38,6 +55,9 @@ bool dialog_file_browser_show(
     furi_check(
         furi_message_queue_put(context->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     api_lock_wait_unlock_and_free(lock);
+
+    furi_record_close(RECORD_STORAGE);
+    furi_string_free(base_path);
 
     return return_data.bool_value;
 }

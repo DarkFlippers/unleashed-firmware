@@ -21,12 +21,12 @@ void pcsg_block_generic_get_preset_name(const char* preset_name, FuriString* pre
     furi_string_set(preset_str, preset_name_temp);
 }
 
-bool pcsg_block_generic_serialize(
+SubGhzProtocolStatus pcsg_block_generic_serialize(
     PCSGBlockGeneric* instance,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(instance);
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     FuriString* temp_str;
     temp_str = furi_string_alloc();
     do {
@@ -75,15 +75,16 @@ bool pcsg_block_generic_serialize(
             break;
         }
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
     furi_string_free(temp_str);
     return res;
 }
 
-bool pcsg_block_generic_deserialize(PCSGBlockGeneric* instance, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    pcsg_block_generic_deserialize(PCSGBlockGeneric* instance, FlipperFormat* flipper_format) {
     furi_assert(instance);
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     FuriString* temp_data = furi_string_alloc();
     FuriString* temp_data2 = furi_string_alloc();
 
@@ -113,7 +114,7 @@ bool pcsg_block_generic_deserialize(PCSGBlockGeneric* instance, FlipperFormat* f
             instance->result_msg = furi_string_alloc_set(temp_data);
         }
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(0);
 
     furi_string_free(temp_data);

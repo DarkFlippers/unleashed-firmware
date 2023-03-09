@@ -4,11 +4,18 @@
 uint8_t value_index_exm;
 uint8_t value_index_dpin;
 uint8_t value_index_cnt;
+uint8_t value_index_pwr;
 
 #define EXT_MODULES_COUNT (sizeof(radio_modules_variables_text) / sizeof(char* const))
 const char* const radio_modules_variables_text[] = {
     "Internal",
     "External",
+};
+
+#define EXT_MOD_POWER_COUNT 2
+const char* const ext_mod_power_text[EXT_MOD_POWER_COUNT] = {
+    "ON",
+    "OFF",
 };
 
 #define DEBUG_P_COUNT 2
@@ -77,6 +84,19 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
     }
 }
 
+static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, ext_mod_power_text[index]);
+
+    furi_hal_subghz_set_external_power_disable(index == 1);
+    if(index == 1) {
+        furi_hal_subghz_disable_ext_power();
+    } else {
+        furi_hal_subghz_enable_ext_power();
+    }
+}
+
 void subghz_scene_ext_module_settings_on_enter(void* context) {
     SubGhz* subghz = context;
 
@@ -92,10 +112,20 @@ void subghz_scene_ext_module_settings_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index_exm);
     variable_item_set_current_value_text(item, radio_modules_variables_text[value_index_exm]);
 
+    item = variable_item_list_add(
+        subghz->variable_item_list,
+        "Ext Radio 5v",
+        EXT_MOD_POWER_COUNT,
+        subghz_scene_receiver_config_set_ext_mod_power,
+        subghz);
+    value_index_pwr = furi_hal_subghz_get_external_power_disable();
+    variable_item_set_current_value_index(item, value_index_pwr);
+    variable_item_set_current_value_text(item, ext_mod_power_text[value_index_pwr]);
+
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Debug Pin:",
+            "Debug Pin",
             DEBUG_P_COUNT,
             subghz_scene_receiver_config_set_debug_pin,
             subghz);
@@ -105,7 +135,7 @@ void subghz_scene_ext_module_settings_on_enter(void* context) {
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Counter Mult:",
+            "Counter incr.",
             DEBUG_COUNTER_COUNT,
             subghz_scene_receiver_config_set_debug_counter,
             subghz);
@@ -145,6 +175,8 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
 
     // Set selected radio module
     furi_hal_subghz_set_radio_type(value_index_exm);
+
+    furi_hal_subghz_enable_ext_power();
 
     // Check if module is present, if no -> show error
     if(!furi_hal_subghz_check_radio()) {

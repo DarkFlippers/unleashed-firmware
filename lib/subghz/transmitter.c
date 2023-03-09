@@ -47,9 +47,10 @@ bool subghz_transmitter_stop(SubGhzTransmitter* instance) {
     return ret;
 }
 
-bool subghz_transmitter_deserialize(SubGhzTransmitter* instance, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_transmitter_deserialize(SubGhzTransmitter* instance, FlipperFormat* flipper_format) {
     furi_assert(instance);
-    bool ret = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     if(instance->protocol && instance->protocol->encoder &&
        instance->protocol->encoder->deserialize) {
         ret =

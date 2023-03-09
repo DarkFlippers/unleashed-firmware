@@ -20,7 +20,6 @@
 #include "OneWireSensor.h"
 #include <furi.h>
 #include <furi_hal.h>
-#include <one_wire/one_wire_host.h>
 
 const SensorType Dallas = {
     .typename = "Dallas",
@@ -37,8 +36,6 @@ const SensorType Dallas = {
 // Переменные для хранения промежуточного результата сканирования шины
 // найденный восьмибайтовый адрес
 static uint8_t onewire_enum[8] = {0};
-// последний нулевой бит, где была неоднозначность (нумеруя с единицы)
-static uint8_t onewire_enum_fork_bit = 65;
 
 OneWireBus* uintemp_onewire_bus_alloc(const GPIO* gpio) {
     if(gpio == NULL) {
@@ -55,9 +52,11 @@ OneWireBus* uintemp_onewire_bus_alloc(const GPIO* gpio) {
     }
 
     OneWireBus* bus = malloc(sizeof(OneWireBus));
+
     bus->device_count = 0;
     bus->gpio = gpio;
     bus->powerMode = PWR_PASSIVE;
+
     UNITEMP_DEBUG("one wire bus (port %d) allocated", gpio->num);
 
     return bus;
@@ -68,6 +67,8 @@ bool unitemp_onewire_bus_init(OneWireBus* bus) {
     bus->device_count++;
     //Выход если шина уже была инициализирована
     if(bus->device_count > 1) return true;
+
+    bus->host = onewire_host_alloc(bus->gpio->pin);
 
     unitemp_gpio_lock(bus->gpio, &ONE_WIRE);
     //Высокий уровень по умолчанию
@@ -81,6 +82,7 @@ bool unitemp_onewire_bus_init(OneWireBus* bus) {
 
     return true;
 }
+
 bool unitemp_onewire_bus_deinit(OneWireBus* bus) {
     UNITEMP_DEBUG("devices on wire %d: %d", bus->gpio->num, bus->device_count);
     bus->device_count--;
@@ -100,84 +102,34 @@ bool unitemp_onewire_bus_deinit(OneWireBus* bus) {
         return false;
     }
 }
-bool unitemp_onewire_bus_start(OneWireBus* bus) {
-    furi_hal_gpio_write(bus->gpio->pin, false);
-    furi_delay_us(500);
-
-    furi_hal_gpio_write(bus->gpio->pin, true);
-
-    //Ожидание подъёма шины
-    uint32_t t = furi_get_tick();
-    while(!furi_hal_gpio_read(bus->gpio->pin)) {
-        //Выход если шина не поднялась
-        if(furi_get_tick() - t > 10) return false;
-    }
-
-    furi_delay_us(100);
-    bool status = !furi_hal_gpio_read(bus->gpio->pin);
-    furi_delay_us(400);
-    return status;
+inline bool unitemp_onewire_bus_start(OneWireBus* bus) {
+    return onewire_host_reset(bus->host);
 }
 
-void unitemp_onewire_bus_send_bit(OneWireBus* bus, bool state) {
-    //Необходимо для стабильной работы при пассивном питании
-    if(bus->powerMode == PWR_PASSIVE) furi_delay_us(100);
-
-    if(state) {
-        // write 1
-        furi_hal_gpio_write(bus->gpio->pin, false);
-        furi_delay_us(1);
-        furi_hal_gpio_write(bus->gpio->pin, true);
-        furi_delay_us(90);
-    } else {
-        furi_hal_gpio_write(bus->gpio->pin, false);
-        furi_delay_us(90);
-        furi_hal_gpio_write(bus->gpio->pin, true);
-        //Ожидание подъёма шины
-        uint32_t t = furi_get_tick();
-        while(!furi_hal_gpio_read(bus->gpio->pin)) {
-            //Выход если шина не поднялась
-            if(furi_get_tick() - t > 10) return;
-        }
-    }
+inline void unitemp_onewire_bus_send_bit(OneWireBus* bus, bool state) {
+    onewire_host_write_bit(bus->host, state);
 }
 
-void unitemp_onewire_bus_send_byte(OneWireBus* bus, uint8_t data) {
-    for(int i = 0; i < 8; i++) {
-        unitemp_onewire_bus_send_bit(bus, (data & (1 << i)) != 0);
-    }
+inline void unitemp_onewire_bus_send_byte(OneWireBus* bus, uint8_t data) {
+    onewire_host_write(bus->host, data);
 }
 
 void unitemp_onewire_bus_send_byteArray(OneWireBus* bus, uint8_t* data, uint8_t len) {
     for(uint8_t i = 0; i < len; i++) {
-        unitemp_onewire_bus_send_byte(bus, data[i]);
+        onewire_host_write(bus->host, data[i]);
     }
 }
 
-bool unitemp_onewire_bus_read_bit(OneWireBus* bus) {
-    furi_delay_ms(1);
-    furi_hal_gpio_write(bus->gpio->pin, false);
-    furi_delay_us(2); // Длительность низкого уровня, минимум 1 мкс
-    furi_hal_gpio_write(bus->gpio->pin, true);
-    furi_delay_us(8); // Пауза до момента сэмплирования, всего не более 15 мкс
-    bool r = furi_hal_gpio_read(bus->gpio->pin);
-    furi_delay_us(80); // Ожидание до следующего тайм-слота, минимум 60 мкс с начала низкого уровня
-    return r;
+inline bool unitemp_onewire_bus_read_bit(OneWireBus* bus) {
+    return onewire_host_read_bit(bus->host);
 }
 
-uint8_t unitemp_onewire_bus_read_byte(OneWireBus* bus) {
-    uint8_t r = 0;
-    for(uint8_t p = 8; p; p--) {
-        r >>= 1;
-        if(unitemp_onewire_bus_read_bit(bus)) r |= 0x80;
-    }
-    return r;
+inline uint8_t unitemp_onewire_bus_read_byte(OneWireBus* bus) {
+    return onewire_host_read(bus->host);
 }
 
 void unitemp_onewire_bus_read_byteArray(OneWireBus* bus, uint8_t* data, uint8_t len) {
-    for(uint8_t i = 0; i < len; i++) {
-        data[i] = unitemp_onewire_bus_read_byte(bus);
-    }
+    onewire_host_read_bytes(bus->host, data, len);
 }
 
 static uint8_t onewire_CRC_update(uint8_t crc, uint8_t b) {
@@ -222,77 +174,16 @@ bool unitemp_onewire_sensor_readID(OneWireSensor* instance) {
     return true;
 }
 
-void unitemp_onewire_bus_enum_init(void) {
-    for(uint8_t p = 0; p < 8; p++) {
-        onewire_enum[p] = 0;
-    }
-    onewire_enum_fork_bit = 65; // правее правого
+void unitemp_onewire_bus_enum_init(OneWireBus* bus) {
+    onewire_host_reset_search(bus->host);
 }
 
 uint8_t* unitemp_onewire_bus_enum_next(OneWireBus* bus) {
-    furi_delay_ms(10);
-    if(!onewire_enum_fork_bit) { // Если на предыдущем шаге уже не было разногласий
-        UNITEMP_DEBUG("All devices on wire %d is found", unitemp_gpio_toInt(bus->gpio));
-        return 0; // то просто выходим ничего не возвращая
+    if(onewire_host_search(bus->host, onewire_enum, OneWireHostSearchModeNormal)) {
+        return onewire_enum;
+    } else {
+        return NULL;
     }
-    if(!unitemp_onewire_bus_start(bus)) {
-        UNITEMP_DEBUG("Wire %d is empty", unitemp_gpio_toInt(bus->gpio));
-        return 0;
-    }
-    uint8_t bp = 8;
-    uint8_t* pprev = &onewire_enum[0];
-    uint8_t prev = *pprev;
-    uint8_t next = 0;
-
-    uint8_t p = 1;
-    unitemp_onewire_bus_send_byte(bus, 0xF0);
-    uint8_t newfork = 0;
-    for(;;) {
-        uint8_t not0 = unitemp_onewire_bus_read_bit(bus);
-        uint8_t not1 = unitemp_onewire_bus_read_bit(bus);
-        if(!not0) { // Если присутствует в адресах бит ноль
-            if(!not1) { // Но также присустствует бит 1 (вилка)
-                if(p <
-                   onewire_enum_fork_bit) { // Если мы левее прошлого правого конфликтного бита,
-                    if(prev & 1) {
-                        next |= 0x80; // то копируем значение бита из прошлого прохода
-                    } else {
-                        newfork = p; // если ноль, то запомним конфликтное место
-                    }
-                } else if(p == onewire_enum_fork_bit) {
-                    next |=
-                        0x80; // если на этом месте в прошлый раз был правый конфликт с нулём, выведем 1
-                } else {
-                    newfork = p; // правее - передаём ноль и запоминаем конфликтное место
-                }
-            } // в противном случае идём, выбирая ноль в адресе
-        } else {
-            if(!not1) { // Присутствует единица
-                next |= 0x80;
-            } else { // Нет ни нулей ни единиц - ошибочная ситуация
-
-                UNITEMP_DEBUG("Wrong wire %d situation", unitemp_gpio_toInt(bus->gpio));
-                return 0;
-            }
-        }
-        unitemp_onewire_bus_send_bit(bus, next & 0x80);
-        bp--;
-        if(!bp) {
-            *pprev = next;
-            if(p >= 64) break;
-            next = 0;
-            pprev++;
-            prev = *pprev;
-            bp = 8;
-        } else {
-            if(p >= 64) break;
-            prev >>= 1;
-            next >>= 1;
-        }
-        p++;
-    }
-    onewire_enum_fork_bit = newfork;
-    return &onewire_enum[0];
 }
 
 void unitemp_onewire_bus_select_sensor(OneWireSensor* instance) {
@@ -364,7 +255,6 @@ bool unitemp_onewire_sensor_init(Sensor* sensor) {
     }
 
     unitemp_onewire_bus_init(instance->bus);
-    furi_delay_ms(1);
 
     if(instance->familyCode == FC_DS18B20 || instance->familyCode == FC_DS1822) {
         //Установка разрядности в 10 бит

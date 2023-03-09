@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 21st Feb, 2023
-# Last Checked 21st Feb, 2023
+# Last Updated 07th Mar, 2023
+# Last Checked 07th Mar, 2023
 # 
 name: POWER
 type: parsed
@@ -2092,3 +2092,9 @@ type: parsed
 protocol: NECext
 address: 30 FC 00 00
 command: 17 E8 00 00
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 04 00 00 00

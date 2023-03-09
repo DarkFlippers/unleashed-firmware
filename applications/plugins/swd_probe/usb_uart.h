@@ -26,4 +26,4 @@ void usb_uart_get_config(UsbUart* usb_uart, UsbUartConfig* cfg);
 
 void usb_uart_get_state(UsbUart* usb_uart, UsbUartState* st);
 
-void usb_uart_tx_data(UsbUart* usb_uart, uint8_t* data, size_t length);
+bool usb_uart_tx_data(UsbUart* usb_uart, uint8_t* data, size_t length);

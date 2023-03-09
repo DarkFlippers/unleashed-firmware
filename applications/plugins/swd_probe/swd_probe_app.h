@@ -88,6 +88,21 @@ typedef enum {
 #define AP_IDR 0xFC
 #define AP_BASE 0xF8
 
+#define SCS_CPUID 0xE000ED00u
+#define SCS_CPACR 0xE000ED88u
+#define SCS_DHCSR 0xE000EDF0u
+#define SCS_DHCSR_S_HALT (1u << 17)
+#define SCS_DHCSR_C_MASKINTS (1u << 3)
+#define SCS_DHCSR_C_STEP (1u << 2)
+#define SCS_DHCSR_C_HALT (1u << 1)
+#define SCS_DHCSR_C_DEBUGEN (1u << 0)
+#define SCS_DHCSR_KEY 0xA05F0000u
+#define SCS_DCRSR 0xE000EDF4u
+#define SCS_DCRSR_RD 0x00000000u
+#define SCS_DCRSR_WR 0x00010000u
+#define SCS_DCRDR 0xE000EDF8u
+#define SCS_DEMCR 0xE000EDFCu
+
 typedef enum { KeyNone, KeyUp, KeyRight, KeyDown, KeyLeft, KeyOK } KeyCode;
 
 typedef enum {

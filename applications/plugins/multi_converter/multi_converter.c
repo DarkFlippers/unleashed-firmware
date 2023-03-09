@@ -8,10 +8,9 @@
 #include "multi_converter_mode_select.h"
 
 static void multi_converter_render_callback(Canvas* const canvas, void* ctx) {
-    const MultiConverterState* multi_converter_state = acquire_mutex((ValueMutex*)ctx, 25);
-    if(multi_converter_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    const MultiConverterState* multi_converter_state = ctx;
+    furi_mutex_acquire(multi_converter_state->mutex, FuriWaitForever);
 
     if(multi_converter_state->mode == ModeDisplay) {
         multi_converter_mode_display_draw(canvas, multi_converter_state);
@@ -19,7 +18,7 @@ static void multi_converter_render_callback(Canvas* const canvas, void* ctx) {
         multi_converter_mode_select_draw(canvas, multi_converter_state);
     }
 
-    release_mutex((ValueMutex*)ctx, multi_converter_state);
+    furi_mutex_release(multi_converter_state->mutex);
 }
 
 static void
@@ -62,8 +61,8 @@ int32_t multi_converter_app(void* p) {
     MultiConverterState* multi_converter_state = malloc(sizeof(MultiConverterState));
 
     // set mutex for plugin state (different threads can access it)
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, multi_converter_state, sizeof(multi_converter_state))) {
+    multi_converter_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!multi_converter_state->mutex) {
         FURI_LOG_E("MultiConverter", "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
         free(multi_converter_state);
@@ -72,11 +71,11 @@ int32_t multi_converter_app(void* p) {
 
     // register callbacks for drawing and input processing
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, multi_converter_render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, multi_converter_render_callback, multi_converter_state);
     view_port_input_callback_set(view_port, multi_converter_input_callback, event_queue);
 
     // open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     multi_converter_init(multi_converter_state);
@@ -85,8 +84,7 @@ int32_t multi_converter_app(void* p) {
     MultiConverterEvent event;
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
-        MultiConverterState* multi_converter_state =
-            (MultiConverterState*)acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(multi_converter_state->mutex, FuriWaitForever);
 
         if(event_status == FuriStatusOk) {
             // press events
@@ -148,20 +146,18 @@ int32_t multi_converter_app(void* p) {
             } else if(multi_converter_state->keyboard_lock) {
                 multi_converter_state->keyboard_lock = 0;
             }
-        } else {
-            // event timeout
         }
 
         view_port_update(view_port);
-        release_mutex(&state_mutex, multi_converter_state);
+        furi_mutex_release(multi_converter_state->mutex);
     }
 
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(multi_converter_state->mutex);
     free(multi_converter_state);
 
     return 0;

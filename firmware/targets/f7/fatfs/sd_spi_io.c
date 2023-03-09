@@ -585,6 +585,8 @@ static SdSpiStatus sd_spi_get_cid(SD_CID* Cid) {
             Cid->ProdSN |= cid_data[12];
             Cid->Reserved1 = (cid_data[13] & 0xF0) >> 4;
             Cid->ManufactYear = (cid_data[13] & 0x0F) << 4;
+            Cid->ManufactYear |= (cid_data[14] & 0xF0) >> 4;
+            Cid->ManufactMonth = (cid_data[14] & 0x0F);
             Cid->CID_CRC = (cid_data[15] & 0xFE) >> 1;
             Cid->Reserved2 = 1;
 

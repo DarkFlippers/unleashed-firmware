@@ -392,6 +392,9 @@ void spectrum_analyzer_free(SpectrumAnalyzer* instance) {
 
     furi_hal_subghz_idle();
     furi_hal_subghz_sleep();
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 }
 
 int32_t spectrum_analyzer_app(void* p) {
@@ -399,6 +402,9 @@ int32_t spectrum_analyzer_app(void* p) {
 
     SpectrumAnalyzer* spectrum_analyzer = spectrum_analyzer_alloc();
     InputEvent input;
+
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
 
     furi_hal_power_suppress_charge_enter();
 

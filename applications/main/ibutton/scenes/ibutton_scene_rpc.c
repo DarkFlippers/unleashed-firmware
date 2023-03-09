@@ -1,6 +1,4 @@
 #include "../ibutton_i.h"
-#include <toolbox/path.h>
-#include <rpc/rpc_app.h>
 
 void ibutton_scene_rpc_on_enter(void* context) {
     iButton* ibutton = context;
@@ -17,8 +15,6 @@ void ibutton_scene_rpc_on_enter(void* context) {
 }
 
 bool ibutton_scene_rpc_on_event(void* context, SceneManagerEvent event) {
-    UNUSED(context);
-    UNUSED(event);
     iButton* ibutton = context;
     Popup* popup = ibutton->popup;
 
@@ -26,40 +22,32 @@ bool ibutton_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
-        if(event.event == iButtonCustomEventRpcLoad) {
-            const char* arg = rpc_system_app_get_data(ibutton->rpc_ctx);
-            bool result = false;
-            if(arg && (furi_string_empty(ibutton->file_path))) {
-                furi_string_set(ibutton->file_path, arg);
-                if(ibutton_load_key_data(ibutton, ibutton->file_path, false)) {
-                    ibutton_worker_emulate_start(ibutton->key_worker, ibutton->key);
-                    FuriString* key_name;
-                    key_name = furi_string_alloc();
-                    if(furi_string_end_with(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
-                        path_extract_filename(ibutton->file_path, key_name, true);
-                    }
 
-                    if(!furi_string_empty(key_name)) {
-                        ibutton_text_store_set(
-                            ibutton, "emulating\n%s", furi_string_get_cstr(key_name));
-                    } else {
-                        ibutton_text_store_set(ibutton, "emulating");
-                    }
-                    popup_set_text(popup, ibutton->text_store, 82, 32, AlignCenter, AlignTop);
+        if(event.event == iButtonCustomEventRpcLoad) {
+            bool result = false;
+            const char* file_path = rpc_system_app_get_data(ibutton->rpc);
+
+            if(file_path && (furi_string_empty(ibutton->file_path))) {
+                furi_string_set(ibutton->file_path, file_path);
+
+                if(ibutton_load_key(ibutton)) {
+                    popup_set_text(popup, ibutton->key_name, 82, 32, AlignCenter, AlignTop);
+                    view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
 
                     ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
+                    ibutton_worker_emulate_start(ibutton->worker, ibutton->key);
 
-                    furi_string_free(key_name);
                     result = true;
-                } else {
-                    furi_string_reset(ibutton->file_path);
                 }
             }
-            rpc_system_app_confirm(ibutton->rpc_ctx, RpcAppEventLoadFile, result);
+
+            rpc_system_app_confirm(ibutton->rpc, RpcAppEventLoadFile, result);
+
         } else if(event.event == iButtonCustomEventRpcExit) {
-            rpc_system_app_confirm(ibutton->rpc_ctx, RpcAppEventAppExit, true);
+            rpc_system_app_confirm(ibutton->rpc, RpcAppEventAppExit, true);
             scene_manager_stop(ibutton->scene_manager);
             view_dispatcher_stop(ibutton->view_dispatcher);
+
         } else if(event.event == iButtonCustomEventRpcSessionClose) {
             scene_manager_stop(ibutton->scene_manager);
             view_dispatcher_stop(ibutton->view_dispatcher);

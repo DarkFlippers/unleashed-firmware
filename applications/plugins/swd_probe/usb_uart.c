@@ -76,7 +76,7 @@ static void usb_uart_vcp_deinit(UsbUart* usb_uart, uint8_t vcp_ch) {
     }
 }
 
-void usb_uart_tx_data(UsbUart* usb_uart, uint8_t* data, size_t length) {
+bool usb_uart_tx_data(UsbUart* usb_uart, uint8_t* data, size_t length) {
     uint32_t pos = 0;
     while(pos < length) {
         size_t pkt_size = length - pos;
@@ -85,14 +85,19 @@ void usb_uart_tx_data(UsbUart* usb_uart, uint8_t* data, size_t length) {
             pkt_size = USB_CDC_PKT_LEN;
         }
 
-        if(furi_semaphore_acquire(usb_uart->tx_sem, 100) == FuriStatusOk) {
-            furi_check(furi_mutex_acquire(usb_uart->usb_mutex, FuriWaitForever) == FuriStatusOk);
-            furi_hal_cdc_send(usb_uart->cfg.vcp_ch, &data[pos], pkt_size);
-            furi_check(furi_mutex_release(usb_uart->usb_mutex) == FuriStatusOk);
-            usb_uart->st.tx_cnt += pkt_size;
-            pos += pkt_size;
+        if(furi_semaphore_acquire(usb_uart->tx_sem, 100) != FuriStatusOk) {
+            return false;
         }
+        if(furi_mutex_acquire(usb_uart->usb_mutex, 100) != FuriStatusOk) {
+            furi_semaphore_release(usb_uart->tx_sem);
+            return false;
+        }
+        furi_hal_cdc_send(usb_uart->cfg.vcp_ch, &data[pos], pkt_size);
+        furi_mutex_release(usb_uart->usb_mutex);
+        usb_uart->st.tx_cnt += pkt_size;
+        pos += pkt_size;
     }
+    return true;
 }
 
 static int32_t usb_uart_worker(void* context) {
@@ -118,10 +123,11 @@ static int32_t usb_uart_worker(void* context) {
         }
 
         if(events & WorkerEvtCdcRx) {
-            furi_check(furi_mutex_acquire(usb_uart->usb_mutex, FuriWaitForever) == FuriStatusOk);
-            size_t len =
-                furi_hal_cdc_receive(usb_uart->cfg.vcp_ch, &data[remain], USB_CDC_PKT_LEN);
-            furi_check(furi_mutex_release(usb_uart->usb_mutex) == FuriStatusOk);
+            size_t len = 0;
+            if(furi_mutex_acquire(usb_uart->usb_mutex, 100) == FuriStatusOk) {
+                len = furi_hal_cdc_receive(usb_uart->cfg.vcp_ch, &data[remain], USB_CDC_PKT_LEN);
+                furi_mutex_release(usb_uart->usb_mutex);
+            }
 
             if(len > 0) {
                 usb_uart->st.rx_cnt += len;

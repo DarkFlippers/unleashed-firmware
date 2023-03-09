@@ -13,7 +13,7 @@
 3) Open application on your Flipper: `Applications->GPIO->Temp sensors reader`  
 Note: If you get the message "API version mismatch" after updating the firmware, download and install Unitemp again
 ## Need help? Discussions?
-Join the discussion, ask a question or just send a photo of the flipper with sensors to [Discord](https://discord.com/channels/740930220399525928/1056727938747351060)
+Join the discussion, ask a question or just send a photo of the flipper with sensors to [Discord](https://discord.com/channels/740930220399525928/1056727938747351060). [Invite link](https://discord.com/invite/flipper)
 ## Gratitudes
 Thanks to [@Svaarich](https://github.com/Svaarich) for the UI design and to the Unleashed firmware community for sensors testing and feedbacks.
 

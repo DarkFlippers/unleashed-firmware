@@ -72,14 +72,15 @@ void ibtnfuzzer_scene_run_attack_on_enter(iBtnFuzzerState* context) {
     context->time_between_cards = 8;
     context->attack_step = 0;
     context->attack_stop_called = false;
-    context->key = ibutton_key_alloc();
-    context->worker = ibutton_worker_alloc();
+    context->protocols = ibutton_protocols_alloc();
+    context->key = ibutton_key_alloc(ibutton_protocols_get_max_data_size(context->protocols));
+    context->worker = ibutton_worker_alloc(context->protocols);
     if(context->proto == Metakom) {
-        context->keytype = iButtonKeyMetakom;
+        context->keytype = ibutton_protocols_get_id_by_name(context->protocols, "Metakom");
     } else if(context->proto == Cyfral) {
-        context->keytype = iButtonKeyCyfral;
+        context->keytype = ibutton_protocols_get_id_by_name(context->protocols, "Cyfral");
     } else {
-        context->keytype = iButtonKeyDS1990;
+        context->keytype = ibutton_protocols_get_id_by_name(context->protocols, "DS1990");
     }
     context->workr_rund = false;
 }
@@ -90,8 +91,9 @@ void ibtnfuzzer_scene_run_attack_on_exit(iBtnFuzzerState* context) {
         ibutton_worker_stop_thread(context->worker);
         context->workr_rund = false;
     }
-    ibutton_worker_free(context->worker);
     ibutton_key_free(context->key);
+    ibutton_worker_free(context->worker);
+    ibutton_protocols_free(context->protocols);
     notification_message(context->notify, &sequence_blink_stop);
 }
 
@@ -99,9 +101,14 @@ void ibtnfuzzer_scene_run_attack_on_tick(iBtnFuzzerState* context) {
     if(context->is_attacking) {
         if(1 == counter) {
             ibutton_worker_start_thread(context->worker);
-            ibutton_key_set_type(context->key, context->keytype);
-            ibutton_key_set_data(
-                context->key, context->payload, ibutton_key_get_size_by_type(context->keytype));
+            ibutton_key_set_protocol_id(context->key, context->keytype);
+            iButtonEditableData data;
+            ibutton_protocols_get_editable_data(context->protocols, context->key, &data);
+            data.size = sizeof(context->payload);
+            for(size_t i = 0; i < data.size; i++) {
+                data.ptr[i] = context->payload[i];
+            }
+
             ibutton_worker_emulate_start(context->worker, context->key);
             context->workr_rund = true;
         } else if(0 == counter) {

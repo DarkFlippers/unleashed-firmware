@@ -78,6 +78,7 @@ typedef struct {
     FuriHalSpiBusHandle* spi_bus_handle;
     const GpioPin* cc1101_g0_pin;
     uint8_t rolling_counter_mult;
+    bool ext_module_power_disabled;
 } FuriHalSubGhz;
 
 extern volatile FuriHalSubGhz furi_hal_subghz;
@@ -303,8 +304,9 @@ SubGhzRadioType furi_hal_subghz_get_radio_type(void);
 bool furi_hal_subghz_check_radio(void);
 
 /** Turn on the power of the external radio module
+ * @return     true if power-up is successful
  */
-void furi_hal_subghz_enable_ext_power(void);
+bool furi_hal_subghz_enable_ext_power(void);
 
 /** Turn off the power of the external radio module
  */
@@ -319,6 +321,14 @@ uint8_t furi_hal_subghz_get_rolling_counter_mult(void);
  * @param      mult uint8_t = 1, 2, 4, 8
  */
 void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult);
+
+/** If true - disable 5v power of the external radio module
+ */
+void furi_hal_subghz_set_external_power_disable(bool state);
+
+/** Get the current state of the external power disable flag
+ */
+bool furi_hal_subghz_get_external_power_disable(void);
 
 #ifdef __cplusplus
 }

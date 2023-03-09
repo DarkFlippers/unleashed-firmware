@@ -192,7 +192,8 @@ bool subghz_protocol_somfy_keytis_create_data(
     instance->generic.data_count_bit = 80;
     bool res = subghz_protocol_somfy_keytis_gen_data(instance, btn);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        return SubGhzProtocolStatusOk ==
+               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -390,12 +391,14 @@ static bool subghz_protocol_encoder_somfy_keytis_get_upload(
     return true;
 }
 
-bool subghz_protocol_encoder_somfy_keytis_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_somfy_keytis_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderSomfyKeytis* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+        if(SubGhzProtocolStatusOk !=
+           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -421,7 +424,7 @@ bool subghz_protocol_encoder_somfy_keytis_deserialize(void* context, FlipperForm
 
         instance->encoder.is_running = true;
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;
@@ -729,37 +732,39 @@ uint8_t subghz_protocol_decoder_somfy_keytis_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_somfy_keytis_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_somfy_keytis_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderSomfyKeytis* instance = context;
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if(res && !flipper_format_write_uint32(
-                  flipper_format, "Duration_Counter", &instance->press_duration_counter, 1)) {
+    SubGhzProtocolStatus ret =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    if((ret == SubGhzProtocolStatusOk) &&
+       !flipper_format_write_uint32(
+           flipper_format, "Duration_Counter", &instance->press_duration_counter, 1)) {
         FURI_LOG_E(TAG, "Unable to add Duration_Counter");
-        res = false;
+        ret = SubGhzProtocolStatusErrorParserOthers;
     }
-    return res;
+    return ret;
 }
 
-bool subghz_protocol_decoder_somfy_keytis_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_somfy_keytis_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderSomfyKeytis* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
-            FURI_LOG_E(TAG, "Deserialize error");
-            break;
-        }
-        if(instance->generic.data_count_bit !=
-           subghz_protocol_somfy_keytis_const.min_count_bit_for_found) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
+        ret = subghz_block_generic_deserialize_check_count_bit(
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_somfy_keytis_const.min_count_bit_for_found);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
+            ret = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
         if(!flipper_format_read_uint32(
@@ -768,12 +773,12 @@ bool subghz_protocol_decoder_somfy_keytis_deserialize(void* context, FlipperForm
                (uint32_t*)&instance->press_duration_counter,
                1)) {
             FURI_LOG_E(TAG, "Missing Duration_Counter");
+            ret = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
-        res = true;
     } while(false);
 
-    return res;
+    return ret;
 }
 
 void subghz_protocol_decoder_somfy_keytis_get_string(void* context, FuriString* output) {

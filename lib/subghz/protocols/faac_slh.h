@@ -52,7 +52,8 @@ bool subghz_protocol_faac_slh_create_data(
  * @param flipper_format Pointer to a FlipperFormat instance
  * @return true On success
  */
-bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -106,9 +107,9 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_faac_slh_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -117,9 +118,10 @@ bool subghz_protocol_decoder_faac_slh_serialize(
  * Deserialize data SubGhzProtocolDecoderFaacSLH.
  * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

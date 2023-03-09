@@ -45,7 +45,14 @@ void bt_keys_storage_set_storage_path(Bt* bt, const char* keys_storage_path) {
     furi_assert(bt->keys_storage);
     furi_assert(keys_storage_path);
 
-    bt_keys_storage_set_file_path(bt->keys_storage, keys_storage_path);
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FuriString* path = furi_string_alloc_set(keys_storage_path);
+    storage_common_resolve_path_and_ensure_app_directory(storage, path);
+
+    bt_keys_storage_set_file_path(bt->keys_storage, furi_string_get_cstr(path));
+
+    furi_string_free(path);
+    furi_record_close(RECORD_STORAGE);
 }
 
 void bt_keys_storage_set_default_path(Bt* bt) {

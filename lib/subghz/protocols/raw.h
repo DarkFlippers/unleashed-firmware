@@ -73,9 +73,10 @@ void subghz_protocol_decoder_raw_feed(void* context, bool level, uint32_t durati
  * Deserialize data SubGhzProtocolDecoderRAW.
  * @param context Pointer to a SubGhzProtocolDecoderRAW instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_raw_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_raw_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.
@@ -132,9 +133,10 @@ void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char*
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderRAW instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_encoder_raw_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_raw_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting the level and duration of the upload to be loaded into DMA.

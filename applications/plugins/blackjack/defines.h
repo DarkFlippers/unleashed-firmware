@@ -54,6 +54,7 @@ typedef enum {
 } Direction;
 
 typedef struct {
+    FuriMutex* mutex;
     Card player_cards[21];
     Card dealer_cards[21];
     uint8_t player_card_count;

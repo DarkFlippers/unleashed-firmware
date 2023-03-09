@@ -57,6 +57,7 @@ typedef struct {
     int flags_set;
     bool game_started;
     uint32_t game_started_tick;
+    FuriMutex* mutex;
 } Minesweeper;
 
 static void timer_callback(void* ctx) {
@@ -74,10 +75,10 @@ static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queu
 }
 
 static void render_callback(Canvas* const canvas, void* ctx) {
-    const Minesweeper* minesweeper_state = acquire_mutex((ValueMutex*)ctx, 25);
-    if(minesweeper_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    const Minesweeper* minesweeper_state = ctx;
+    furi_mutex_acquire(minesweeper_state->mutex, FuriWaitForever);
+
     FuriString* mineStr;
     FuriString* timeStr;
     mineStr = furi_string_alloc();
@@ -162,7 +163,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
 
     furi_string_free(mineStr);
     furi_string_free(timeStr);
-    release_mutex((ValueMutex*)ctx, minesweeper_state);
+    furi_mutex_release(minesweeper_state->mutex);
 }
 
 static void setup_playfield(Minesweeper* minesweeper_state) {
@@ -396,8 +397,8 @@ int32_t minesweeper_app(void* p) {
     // setup
     minesweeper_state_init(minesweeper_state);
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, minesweeper_state, sizeof(minesweeper_state))) {
+    minesweeper_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!minesweeper_state->mutex) {
         FURI_LOG_E("Minesweeper", "cannot create mutex\r\n");
         free(minesweeper_state);
         return 255;
@@ -406,12 +407,13 @@ int32_t minesweeper_app(void* p) {
 
     // Set system callbacks
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, render_callback, minesweeper_state);
     view_port_input_callback_set(view_port, input_callback, event_queue);
-    minesweeper_state->timer = furi_timer_alloc(timer_callback, FuriTimerTypeOnce, &state_mutex);
+    minesweeper_state->timer =
+        furi_timer_alloc(timer_callback, FuriTimerTypeOnce, minesweeper_state);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     // Call dolphin deed on game start
@@ -420,7 +422,7 @@ int32_t minesweeper_app(void* p) {
     PluginEvent event;
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
-        Minesweeper* minesweeper_state = (Minesweeper*)acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(minesweeper_state->mutex, FuriWaitForever);
         if(event_status == FuriStatusOk) {
             // press events
             if(event.type == EventTypeKey) {
@@ -508,19 +510,16 @@ int32_t minesweeper_app(void* p) {
                     }
                 }
             }
-        } else {
-            // event timeout
-            ;
         }
         view_port_update(view_port);
-        release_mutex(&state_mutex, minesweeper_state);
+        furi_mutex_release(minesweeper_state->mutex);
     }
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(minesweeper_state->mutex);
     furi_timer_free(minesweeper_state->timer);
     free(minesweeper_state);
 

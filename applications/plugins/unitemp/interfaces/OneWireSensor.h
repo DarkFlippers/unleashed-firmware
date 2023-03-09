@@ -19,6 +19,7 @@
 #define UNITEMP_OneWire
 
 #include "../unitemp.h"
+#include <one_wire/one_wire_host.h>
 
 //Коды семейства устройств
 typedef enum DallasFamilyCode {
@@ -42,6 +43,8 @@ typedef struct {
     int8_t device_count;
     //Режим питания датчиков на шине
     PowerMode powerMode;
+
+    OneWireHost* host;
 } OneWireBus;
 
 //Инстанс датчика one wire
@@ -155,7 +158,7 @@ bool unitemp_onewire_bus_read_bit(OneWireBus* bus);
  * 
  * @param bus Указатель на шину one wire
  * @return Байт информации
- */
+ **/
 uint8_t unitemp_onewire_bus_read_byte(OneWireBus* bus);
 
 /**
@@ -201,7 +204,7 @@ void unitemp_onewire_bus_select_sensor(OneWireSensor* instance);
 /**
  * @brief Инициализация процесса поиска адресов на шине one wire
  */
-void unitemp_onewire_bus_enum_init(void);
+void unitemp_onewire_bus_enum_init(OneWireBus* bus);
 
 /**
  * @brief Перечисляет устройства на шине one wire и получает очередной адрес

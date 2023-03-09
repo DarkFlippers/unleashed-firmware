@@ -67,6 +67,7 @@ typedef enum {
     UT_PRESSURE_MM_HG,
     UT_PRESSURE_IN_HG,
     UT_PRESSURE_KPA,
+    UT_PRESSURE_HPA,
 
     UT_PRESSURE_COUNT
 } pressureMeasureUnit;
@@ -134,6 +135,12 @@ void unitemp_pascalToKPa(Sensor* sensor);
  * @brief Конвертация давления из паскалей в дюйм рт.ст.
  * 
  * @param sensor Указатель на датчик
+ */
+void unitemp_pascalToHPa(Sensor* sensor);
+/**
+ * 
+ * Mod BySepa - linktr.ee/BySepa
+ * 
  */
 void unitemp_pascalToInHg(Sensor* sensor);
 

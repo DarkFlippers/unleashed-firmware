@@ -70,6 +70,7 @@ struct MultiConverterUnit {
 };
 
 struct MultiConverterState {
+    FuriMutex* mutex;
     char buffer_orig[MULTI_CONVERTER_NUMBER_DIGITS + 1];
     char buffer_dest[MULTI_CONVERTER_NUMBER_DIGITS + 1];
     MultiConverterUnitType unit_type_orig;

@@ -12,6 +12,8 @@ extern "C" {
 
 #define STORAGE_COUNT (ST_INT + 1)
 
+#define APPS_DATA_PATH EXT_PATH("apps_data")
+
 typedef struct {
     ViewPort* view_port;
     bool enabled;

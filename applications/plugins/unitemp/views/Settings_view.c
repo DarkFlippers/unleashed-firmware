@@ -25,7 +25,7 @@ static VariableItemList* variable_item_list;
 
 static const char states[2][9] = {"Auto", "Infinity"};
 static const char temp_units[UT_TEMP_COUNT][3] = {"*C", "*F"};
-static const char pressure_units[UT_PRESSURE_COUNT][6] = {"mm Hg", "in Hg", "kPa"};
+static const char pressure_units[UT_PRESSURE_COUNT][6] = {"mm Hg", "in Hg", "kPa", "hPA"};
 
 //Элемент списка - бесконечная подсветка
 VariableItem* infinity_backlight_item;

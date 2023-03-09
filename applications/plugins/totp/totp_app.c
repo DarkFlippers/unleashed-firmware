@@ -23,12 +23,14 @@
 #define IDLE_TIMEOUT 60000
 
 static void render_callback(Canvas* const canvas, void* ctx) {
-    PluginState* plugin_state = acquire_mutex((ValueMutex*)ctx, 25);
+    furi_assert(ctx);
+    PluginState* plugin_state = ctx;
+    furi_mutex_acquire(plugin_state->mutex, FuriWaitForever);
     if(plugin_state != NULL) {
         totp_scene_director_render(canvas, plugin_state);
     }
 
-    release_mutex((ValueMutex*)ctx, plugin_state);
+    furi_mutex_release(plugin_state->mutex);
 }
 
 static void input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -137,8 +139,8 @@ int32_t totp_app() {
         return 254;
     }
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, plugin_state, sizeof(PluginState))) {
+    plugin_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!plugin_state->mutex) {
         FURI_LOG_E(LOGGING_TAG, "Cannot create mutex\r\n");
         totp_plugin_state_free(plugin_state);
         return 255;
@@ -157,7 +159,7 @@ int32_t totp_app() {
 
     // Set system callbacks
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, render_callback, plugin_state);
     view_port_input_callback_set(view_port, input_callback, event_queue);
 
     // Open GUI and register view_port
@@ -169,7 +171,7 @@ int32_t totp_app() {
     while(processing) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
-        PluginState* plugin_state_m = acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(plugin_state->mutex, FuriWaitForever);
 
         if(event_status == FuriStatusOk) {
             if(event.type == EventTypeKey) {
@@ -179,16 +181,16 @@ int32_t totp_app() {
             if(event.type == EventForceCloseApp) {
                 processing = false;
             } else {
-                processing = totp_scene_director_handle_event(&event, plugin_state_m);
+                processing = totp_scene_director_handle_event(&event, plugin_state);
             }
         } else if(
-            plugin_state_m->pin_set && plugin_state_m->current_scene != TotpSceneAuthentication &&
+            plugin_state->pin_set && plugin_state->current_scene != TotpSceneAuthentication &&
             furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
-            totp_scene_director_activate_scene(plugin_state_m, TotpSceneAuthentication, NULL);
+            totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
         }
 
         view_port_update(view_port);
-        release_mutex(&state_mutex, plugin_state_m);
+        furi_mutex_release(plugin_state->mutex);
     }
 
     totp_cli_unregister_command_handler(cli_context);
@@ -199,7 +201,7 @@ int32_t totp_app() {
     gui_remove_view_port(plugin_state->gui, view_port);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(plugin_state->mutex);
     totp_plugin_state_free(plugin_state);
     return 0;
 }

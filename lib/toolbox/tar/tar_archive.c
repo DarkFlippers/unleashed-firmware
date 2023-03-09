@@ -344,7 +344,7 @@ bool tar_archive_add_dir(TarArchive* archive, const char* fs_full_path, const ch
                 furi_string_set(element_name, name);
             }
 
-            if(file_info.flags & FSF_DIRECTORY) {
+            if(file_info_is_dir(&file_info)) {
                 success =
                     tar_archive_dir_add_element(archive, furi_string_get_cstr(element_name)) &&
                     tar_archive_add_dir(

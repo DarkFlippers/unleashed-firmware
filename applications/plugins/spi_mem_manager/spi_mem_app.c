@@ -16,9 +16,9 @@ static bool spi_mem_back_event_callback(void* context) {
 }
 
 SPIMemApp* spi_mem_alloc(void) {
-    SPIMemApp* instance = malloc(sizeof(SPIMemApp));
+    SPIMemApp* instance = malloc(sizeof(SPIMemApp)); //-V799
 
-    instance->file_path = furi_string_alloc();
+    instance->file_path = furi_string_alloc_set(STORAGE_APP_DATA_PATH_PREFIX);
     instance->gui = furi_record_open(RECORD_GUI);
     instance->notifications = furi_record_open(RECORD_NOTIFICATION);
     instance->view_dispatcher = view_dispatcher_alloc();
@@ -37,7 +37,8 @@ SPIMemApp* spi_mem_alloc(void) {
     instance->text_input = text_input_alloc();
     instance->mode = SPIMemModeUnknown;
 
-    furi_string_set(instance->file_path, SPI_MEM_FILE_FOLDER);
+    // Migrate data from old sd-card folder
+    storage_common_migrate(instance->storage, EXT_PATH("spimem"), STORAGE_APP_DATA_PATH_PREFIX);
 
     view_dispatcher_enable_queue(instance->view_dispatcher);
     view_dispatcher_set_event_callback_context(instance->view_dispatcher, instance);
@@ -70,7 +71,7 @@ SPIMemApp* spi_mem_alloc(void) {
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_external);
     scene_manager_next_scene(instance->scene_manager, SPIMemSceneStart);
     return instance;
-}
+} //-V773
 
 void spi_mem_free(SPIMemApp* instance) {
     view_dispatcher_remove_view(instance->view_dispatcher, SPIMemViewSubmenu);
@@ -105,7 +106,6 @@ void spi_mem_free(SPIMemApp* instance) {
 int32_t spi_mem_app(void* p) {
     UNUSED(p);
     SPIMemApp* instance = spi_mem_alloc();
-    spi_mem_file_create_folder(instance);
     view_dispatcher_run(instance->view_dispatcher);
     spi_mem_free(instance);
     return 0;

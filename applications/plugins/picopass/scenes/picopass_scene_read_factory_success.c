@@ -1,5 +1,6 @@
 #include "../picopass_i.h"
 #include <dolphin/dolphin.h>
+#include "../picopass_keys.h"
 
 void picopass_scene_read_factory_success_widget_callback(
     GuiButtonType result,
@@ -63,6 +64,7 @@ bool picopass_scene_read_factory_success_on_event(void* context, SceneManagerEve
         if(event.event == GuiButtonTypeLeft) {
             consumed = scene_manager_previous_scene(picopass->scene_manager);
         } else if(event.event == GuiButtonTypeCenter) {
+            memcpy(picopass->dev->dev_data.pacs.key, picopass_iclass_key, PICOPASS_BLOCK_LEN);
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneWriteKey);
             consumed = true;
         }

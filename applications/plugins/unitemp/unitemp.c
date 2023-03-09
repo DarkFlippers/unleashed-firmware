@@ -36,6 +36,9 @@ void unitemp_pascalToMmHg(Sensor* sensor) {
 void unitemp_pascalToKPa(Sensor* sensor) {
     sensor->pressure = sensor->pressure / 1000.0f;
 }
+void unitemp_pascalToHPa(Sensor* sensor) {
+    sensor->pressure = sensor->pressure / 100.0f;
+}
 void unitemp_pascalToInHg(Sensor* sensor) {
     sensor->pressure = sensor->pressure * 0.0002953007;
 }

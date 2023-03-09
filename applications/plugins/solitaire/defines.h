@@ -53,4 +53,5 @@ typedef struct {
     int8_t selected_card;
     CardAnimation animation;
     uint8_t* buffer;
+    FuriMutex* mutex;
 } GameState;

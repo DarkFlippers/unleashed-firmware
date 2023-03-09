@@ -9,11 +9,9 @@
 #define RFIDFUZZER_APP_FOLDER "/ext/rfidfuzzer"
 
 static void flipfrid_draw_callback(Canvas* const canvas, void* ctx) {
-    FlipFridState* flipfrid_state = (FlipFridState*)acquire_mutex((ValueMutex*)ctx, 100);
-
-    if(flipfrid_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    FlipFridState* flipfrid_state = ctx;
+    furi_mutex_acquire(flipfrid_state->mutex, FuriWaitForever);
 
     // Draw correct Canvas
     switch(flipfrid_state->current_scene) {
@@ -35,7 +33,7 @@ static void flipfrid_draw_callback(Canvas* const canvas, void* ctx) {
         break;
     }
 
-    release_mutex((ValueMutex*)ctx, flipfrid_state);
+    furi_mutex_release(flipfrid_state->mutex);
 }
 
 void flipfrid_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -116,11 +114,9 @@ int32_t flipfrid_start(void* p) {
     FURI_LOG_I(TAG, "Initializing input");
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(FlipFridEvent));
     FlipFridState* flipfrid_state = flipfrid_alloc();
-    ValueMutex flipfrid_state_mutex;
 
-    // Mutex
-    FURI_LOG_I(TAG, "Initializing flipfrid mutex");
-    if(!init_mutex(&flipfrid_state_mutex, flipfrid_state, sizeof(FlipFridState))) {
+    flipfrid_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!flipfrid_state->mutex) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
         furi_record_close(RECORD_NOTIFICATION);
@@ -137,7 +133,7 @@ int32_t flipfrid_start(void* p) {
     // Configure view port
     FURI_LOG_I(TAG, "Initializing viewport");
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, flipfrid_draw_callback, &flipfrid_state_mutex);
+    view_port_draw_callback_set(view_port, flipfrid_draw_callback, flipfrid_state);
     view_port_input_callback_set(view_port, flipfrid_input_callback, event_queue);
 
     // Configure timer
@@ -258,6 +254,7 @@ int32_t flipfrid_start(void* p) {
     furi_message_queue_free(event_queue);
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
+    furi_mutex_free(flipfrid_state->mutex);
     flipfrid_free(flipfrid_state);
 
     return 0;

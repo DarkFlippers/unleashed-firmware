@@ -54,6 +54,7 @@ typedef enum {
     SubGhzLoadKeyStateOK,
     SubGhzLoadKeyStateParseErr,
     SubGhzLoadKeyStateOnlyRx,
+    SubGhzLoadKeyStateProtocolDescriptionErr,
 } SubGhzLoadKeyState;
 
 /** SubGhzLock */

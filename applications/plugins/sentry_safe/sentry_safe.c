@@ -7,6 +7,7 @@
 
 typedef struct {
     uint8_t status;
+    FuriMutex* mutex;
 } SentryState;
 
 typedef enum {
@@ -22,10 +23,9 @@ typedef struct {
 const char* status_texts[3] = {"[Press OK to open safe]", "Sending...", "Done !"};
 
 static void sentry_safe_render_callback(Canvas* const canvas, void* ctx) {
-    const SentryState* sentry_state = acquire_mutex((ValueMutex*)ctx, 25);
-    if(sentry_state == NULL) {
-        return;
-    }
+    furi_assert(ctx);
+    const SentryState* sentry_state = ctx;
+    furi_mutex_acquire(sentry_state->mutex, FuriWaitForever);
 
     // Before the function is called, the state is set with the canvas_reset(canvas)
 
@@ -41,7 +41,7 @@ static void sentry_safe_render_callback(Canvas* const canvas, void* ctx) {
     canvas_draw_str_aligned(
         canvas, 64, 50, AlignCenter, AlignBottom, status_texts[sentry_state->status]);
 
-    release_mutex((ValueMutex*)ctx, sentry_state);
+    furi_mutex_release(sentry_state->mutex);
 }
 
 static void sentry_safe_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
@@ -89,8 +89,8 @@ int32_t sentry_safe_app(void* p) {
 
     sentry_state->status = 0;
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, sentry_state, sizeof(SentryState))) {
+    sentry_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(!sentry_state->mutex) {
         FURI_LOG_E("SentrySafe", "cannot create mutex\r\n");
         furi_message_queue_free(event_queue);
         free(sentry_state);
@@ -98,7 +98,7 @@ int32_t sentry_safe_app(void* p) {
     }
 
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, sentry_safe_render_callback, &state_mutex);
+    view_port_draw_callback_set(view_port, sentry_safe_render_callback, sentry_state);
     view_port_input_callback_set(view_port, sentry_safe_input_callback, event_queue);
 
     // Open GUI and register view_port
@@ -109,7 +109,7 @@ int32_t sentry_safe_app(void* p) {
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
-        SentryState* sentry_state = (SentryState*)acquire_mutex_block(&state_mutex);
+        furi_mutex_acquire(sentry_state->mutex, FuriWaitForever);
 
         if(event_status == FuriStatusOk) {
             // press events
@@ -151,7 +151,7 @@ int32_t sentry_safe_app(void* p) {
         }
 
         view_port_update(view_port);
-        release_mutex(&state_mutex, sentry_state);
+        furi_mutex_release(sentry_state->mutex);
     }
 
     // Reset GPIO pins to default state
@@ -162,7 +162,7 @@ int32_t sentry_safe_app(void* p) {
     furi_record_close(RECORD_GUI);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
-    delete_mutex(&state_mutex);
+    furi_mutex_free(sentry_state->mutex);
     free(sentry_state);
 
     return 0;

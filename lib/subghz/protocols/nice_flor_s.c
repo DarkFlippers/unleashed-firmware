@@ -306,12 +306,14 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     instance->encoder.size_upload = index;
 }
 
-bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
-    bool res = false;
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+        if(SubGhzProtocolStatusOk !=
+           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -353,7 +355,7 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
 
         instance->encoder.is_running = true;
 
-        res = true;
+        res = SubGhzProtocolStatusOk;
     } while(false);
 
     return res;
@@ -573,9 +575,10 @@ bool subghz_protocol_nice_flor_s_create_data(
         }
     }
 
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    SubGhzProtocolStatus res =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
-    return res;
+    return res == SubGhzProtocolStatusOk;
 }
 
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
@@ -765,51 +768,55 @@ uint8_t subghz_protocol_decoder_nice_flor_s_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_nice_flor_s_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    SubGhzProtocolStatus ret =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
-        if(res &&
+        if((ret == SubGhzProtocolStatusOk) &&
            !flipper_format_write_uint32(flipper_format, "Data", (uint32_t*)&instance->data, 1)) {
             FURI_LOG_E(TAG, "Unable to add Data");
-            res = false;
+            ret = SubGhzProtocolStatusErrorParserOthers;
         }
     }
-    return res;
+    return ret;
 }
 
-bool subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
-    bool ret = false;
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        if(ret != SubGhzProtocolStatusOk) {
             break;
         }
         if((instance->generic.data_count_bit !=
             subghz_protocol_nice_flor_s_const.min_count_bit_for_found) &&
            (instance->generic.data_count_bit != NICE_ONE_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
+            ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
         if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
             if(!flipper_format_rewind(flipper_format)) {
                 FURI_LOG_E(TAG, "Rewind error");
+                ret = SubGhzProtocolStatusErrorParserOthers;
                 break;
             }
             uint32_t temp = 0;
             if(!flipper_format_read_uint32(flipper_format, "Data", (uint32_t*)&temp, 1)) {
                 FURI_LOG_E(TAG, "Missing Data");
+                ret = SubGhzProtocolStatusErrorParserOthers;
                 break;
             }
             instance->data = (uint64_t)temp;
         }
-
-        ret = true;
     } while(false);
     return ret;
 }

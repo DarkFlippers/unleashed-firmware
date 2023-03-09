@@ -83,7 +83,7 @@ static DirWalkResult
                 end = true;
             }
 
-            if((info.flags & FSF_DIRECTORY) && dir_walk->recursive) {
+            if(file_info_is_dir(&info) && dir_walk->recursive) {
                 // step into
                 DirIndexList_push_back(dir_walk->index_list, dir_walk->current_index);
                 dir_walk->current_index = 0;

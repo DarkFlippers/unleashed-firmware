@@ -95,6 +95,7 @@ FS_Error buffered_file_stream_get_error(Stream* _stream) {
 
 static void buffered_file_stream_free(BufferedFileStream* stream) {
     furi_assert(stream);
+    buffered_file_stream_sync((Stream*)stream);
     stream_free(stream->file_stream);
     stream_cache_free(stream->cache);
     free(stream);

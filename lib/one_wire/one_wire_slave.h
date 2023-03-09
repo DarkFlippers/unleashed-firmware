@@ -1,12 +1,14 @@
 /**
  * @file one_wire_slave.h
  * 
- * 1-Wire slave library. Currently it can only emulate ID.
+ * 1-Wire slave library.
  */
 
 #pragma once
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+
 #include <furi_hal_gpio.h>
 
 #ifdef __cplusplus
@@ -15,7 +17,10 @@ extern "C" {
 
 typedef struct OneWireDevice OneWireDevice;
 typedef struct OneWireSlave OneWireSlave;
+
+typedef void (*OneWireSlaveResetCallback)(void* context);
 typedef void (*OneWireSlaveResultCallback)(void* context);
+typedef bool (*OneWireSlaveCommandCallback)(uint8_t command, void* context);
 
 /**
  * Allocate onewire slave
@@ -43,17 +48,54 @@ void onewire_slave_start(OneWireSlave* bus);
 void onewire_slave_stop(OneWireSlave* bus);
 
 /**
- * Attach device for emulation
- * @param bus 
- * @param device 
+ * TODO: description comment
  */
-void onewire_slave_attach(OneWireSlave* bus, OneWireDevice* device);
+bool onewire_slave_receive_bit(OneWireSlave* bus);
 
 /**
- * Detach device from bus
- * @param bus 
+ * TODO: description comment
  */
-void onewire_slave_detach(OneWireSlave* bus);
+bool onewire_slave_send_bit(OneWireSlave* bus, bool value);
+
+/**
+ * Send data
+ * @param bus
+ * @param data
+ * @param data_size
+ * @return bool
+ */
+bool onewire_slave_send(OneWireSlave* bus, const uint8_t* data, size_t data_size);
+
+/**
+ * Receive data
+ * @param bus
+ * @param data
+ * @param data_size
+ * @return bool
+ */
+bool onewire_slave_receive(OneWireSlave* bus, uint8_t* data, size_t data_size);
+
+/**
+ * Set a callback to be called on each reset
+ * @param bus
+ * @param callback
+ * @param context
+ */
+void onewire_slave_set_reset_callback(
+    OneWireSlave* bus,
+    OneWireSlaveResetCallback callback,
+    void* context);
+
+/**
+ * Set a callback to be called on each command
+ * @param bus
+ * @param callback
+ * @param context
+ */
+void onewire_slave_set_command_callback(
+    OneWireSlave* bus,
+    OneWireSlaveCommandCallback callback,
+    void* context);
 
 /**
  * Set a callback to report emulation success

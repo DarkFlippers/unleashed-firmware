@@ -56,9 +56,9 @@ uint8_t ws_protocol_decoder_gt_wt_02_get_hash_data(void* context);
  * @param context Pointer to a WSProtocolDecoderGT_WT02 instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool ws_protocol_decoder_gt_wt_02_serialize(
+SubGhzProtocolStatus ws_protocol_decoder_gt_wt_02_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -67,9 +67,10 @@ bool ws_protocol_decoder_gt_wt_02_serialize(
  * Deserialize data WSProtocolDecoderGT_WT02.
  * @param context Pointer to a WSProtocolDecoderGT_WT02 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool ws_protocol_decoder_gt_wt_02_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    ws_protocol_decoder_gt_wt_02_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

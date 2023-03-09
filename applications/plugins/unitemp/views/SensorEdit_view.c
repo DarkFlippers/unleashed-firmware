@@ -75,7 +75,7 @@ static void _onewire_scan(void) {
     } while(_onewire_id_exist(id));
 
     if(id == NULL) {
-        unitemp_onewire_bus_enum_init();
+        unitemp_onewire_bus_enum_init(ow_sensor->bus);
         id = unitemp_onewire_bus_enum_next(ow_sensor->bus);
         if(_onewire_id_exist(id)) {
             do {
