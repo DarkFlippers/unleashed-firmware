@@ -10,12 +10,14 @@ extern "C" {
 #define STORAGE_INT_PATH_PREFIX "/int"
 #define STORAGE_EXT_PATH_PREFIX "/ext"
 #define STORAGE_ANY_PATH_PREFIX "/any"
-#define STORAGE_APP_DATA_PATH_PREFIX "/app"
+#define STORAGE_APP_DATA_PATH_PREFIX "/data"
+#define STORAGE_APP_ASSETS_PATH_PREFIX "/assets"
 
 #define INT_PATH(path) STORAGE_INT_PATH_PREFIX "/" path
 #define EXT_PATH(path) STORAGE_EXT_PATH_PREFIX "/" path
 #define ANY_PATH(path) STORAGE_ANY_PATH_PREFIX "/" path
 #define APP_DATA_PATH(path) STORAGE_APP_DATA_PATH_PREFIX "/" path
+#define APP_ASSETS_PATH(path) STORAGE_APP_ASSETS_PATH_PREFIX "/" path
 
 #define RECORD_STORAGE "storage"
 
@@ -145,6 +147,17 @@ bool storage_file_eof(File* file);
  * @return true if file exists
  */
 bool storage_file_exists(Storage* storage, const char* path);
+
+/**
+ * @brief Copy data from one opened file to another opened file
+ * Size bytes will be copied from current position of source file to current position of destination file
+ * 
+ * @param source source file
+ * @param destination destination file
+ * @param size size of data to copy
+ * @return bool success flag
+ */
+bool storage_file_copy_to_file(File* source, File* destination, uint32_t size);
 
 /******************* Dir Functions *******************/
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, TypedDict
 from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Errors import UserError
@@ -15,6 +15,8 @@ import os
 import pathlib
 import itertools
 import shutil
+import struct
+import hashlib
 
 from ansi.color import fg
 
@@ -151,10 +153,22 @@ def BuildAppElf(env, app):
         app_artifacts.compact,
         [app_env["SDK_DEFINITION"], app_env.Value(manifest_vals)],
     )
+
+    # Add dependencies on icon files
     if app.fap_icon:
         app_env.Depends(
             app_artifacts.compact,
             app_env.File(f"{app._apppath}/{app.fap_icon}"),
+        )
+
+    # Add dependencies on file assets
+    if app.fap_file_assets:
+        app_env.Depends(
+            app_artifacts.compact,
+            app_env.GlobRecursive(
+                "*",
+                app._appdir.Dir(app.fap_file_assets),
+            ),
         )
 
     app_artifacts.validator = app_env.ValidateAppImports(app_artifacts.compact)
@@ -266,6 +280,159 @@ def resources_fap_dist_action(target, source, env):
         shutil.copy(src.path, target.path)
 
 
+def generate_embed_app_metadata_emitter(target, source, env):
+    app = env["APP"]
+
+    meta_file_name = source[0].path + ".meta"
+    target.append("#" + meta_file_name)
+
+    if app.fap_file_assets:
+        files_section = source[0].path + ".files.section"
+        target.append("#" + files_section)
+
+    return (target, source)
+
+
+class File(TypedDict):
+    path: str
+    size: int
+    content_path: str
+
+
+class Dir(TypedDict):
+    path: str
+
+
+def prepare_app_files(target, source, env):
+    app = env["APP"]
+
+    directory = app._appdir.Dir(app.fap_file_assets)
+    directory_path = directory.abspath
+
+    if not directory.exists():
+        raise UserError(f"File asset directory {directory} does not exist")
+
+    file_list: list[File] = []
+    directory_list: list[Dir] = []
+
+    for root, dirs, files in os.walk(directory_path):
+        for file_info in files:
+            file_path = os.path.join(root, file_info)
+            file_size = os.path.getsize(file_path)
+            file_list.append(
+                {
+                    "path": os.path.relpath(file_path, directory_path),
+                    "size": file_size,
+                    "content_path": file_path,
+                }
+            )
+
+        for dir_info in dirs:
+            dir_path = os.path.join(root, dir_info)
+            dir_size = sum(
+                os.path.getsize(os.path.join(dir_path, f)) for f in os.listdir(dir_path)
+            )
+            directory_list.append(
+                {
+                    "path": os.path.relpath(dir_path, directory_path),
+                }
+            )
+
+    file_list.sort(key=lambda f: f["path"])
+    directory_list.sort(key=lambda d: d["path"])
+
+    files_section = source[0].path + ".files.section"
+
+    with open(files_section, "wb") as f:
+        # u32 magic
+        # u32 version
+        # u32 dirs_count
+        # u32 files_count
+        # u32 signature_size
+        # u8[] signature
+        # Dirs:
+        #   u32 dir_name length
+        #   u8[] dir_name
+        # Files:
+        #   u32 file_name length
+        #   u8[] file_name
+        #   u32 file_content_size
+        #   u8[] file_content
+
+        # Write header magic and version
+        f.write(struct.pack("<II", 0x4F4C5A44, 0x01))
+
+        # Write dirs count
+        f.write(struct.pack("<I", len(directory_list)))
+
+        # Write files count
+        f.write(struct.pack("<I", len(file_list)))
+
+        md5_hash = hashlib.md5()
+        md5_hash_size = len(md5_hash.digest())
+
+        # write signature size and null signature, we'll fill it in later
+        f.write(struct.pack("<I", md5_hash_size))
+        signature_offset = f.tell()
+        f.write(b"\x00" * md5_hash_size)
+
+        # Write dirs
+        for dir_info in directory_list:
+            f.write(struct.pack("<I", len(dir_info["path"]) + 1))
+            f.write(dir_info["path"].encode("ascii") + b"\x00")
+            md5_hash.update(dir_info["path"].encode("ascii") + b"\x00")
+
+        # Write files
+        for file_info in file_list:
+            f.write(struct.pack("<I", len(file_info["path"]) + 1))
+            f.write(file_info["path"].encode("ascii") + b"\x00")
+            f.write(struct.pack("<I", file_info["size"]))
+            md5_hash.update(file_info["path"].encode("ascii") + b"\x00")
+
+            with open(file_info["content_path"], "rb") as content_file:
+                content = content_file.read()
+                f.write(content)
+                md5_hash.update(content)
+
+        # Write signature
+        f.seek(signature_offset)
+        f.write(md5_hash.digest())
+
+
+def generate_embed_app_metadata_actions(source, target, env, for_signature):
+    app = env["APP"]
+
+    actions = [
+        Action(prepare_app_metadata, "$APPMETA_COMSTR"),
+    ]
+
+    objcopy_str = (
+        "${OBJCOPY} "
+        "--remove-section .ARM.attributes "
+        "--add-section .fapmeta=${SOURCE}.meta "
+    )
+
+    if app.fap_file_assets:
+        actions.append(Action(prepare_app_files, "$APPFILE_COMSTR"))
+        objcopy_str += "--add-section .fapassets=${SOURCE}.files.section "
+
+    objcopy_str += (
+        "--set-section-flags .fapmeta=contents,noload,readonly,data "
+        "--strip-debug --strip-unneeded "
+        "--add-gnu-debuglink=${SOURCE} "
+        "${SOURCES} ${TARGET}"
+    )
+
+    actions.append(
+        Action(
+            objcopy_str,
+            "$APPMETAEMBED_COMSTR",
+        )
+    )
+
+    return Action(actions)
+
+
 def generate(env, **kw):
     env.SetDefault(
         EXT_APPS_WORK_DIR="${FBT_FAP_DEBUG_ELF_ROOT}",
@@ -275,6 +442,7 @@ def generate(env, **kw):
         env.SetDefault(
             FAPDISTCOMSTR="\tFAPDIST\t${TARGET}",
             APPMETA_COMSTR="\tAPPMETA\t${TARGET}",
+            APPFILE_COMSTR="\tAPPFILE\t${TARGET}",
             APPMETAEMBED_COMSTR="\tFAP\t${TARGET}",
             APPCHECK_COMSTR="\tAPPCHK\t${SOURCE}",
         )
@@ -295,21 +463,10 @@ def generate(env, **kw):
                 emitter=resources_fap_dist_emitter,
             ),
             "EmbedAppMetadata": Builder(
-                action=[
-                    Action(prepare_app_metadata, "$APPMETA_COMSTR"),
-                    Action(
-                        "${OBJCOPY} "
-                        "--remove-section .ARM.attributes "
-                        "--add-section .fapmeta=${SOURCE}.meta "
-                        "--set-section-flags .fapmeta=contents,noload,readonly,data "
-                        "--strip-debug --strip-unneeded "
-                        "--add-gnu-debuglink=${SOURCE} "
-                        "${SOURCES} ${TARGET}",
-                        "$APPMETAEMBED_COMSTR",
-                    ),
-                ],
+                generator=generate_embed_app_metadata_actions,
                 suffix=".fap",
                 src_suffix=".elf",
+                emitter=generate_embed_app_metadata_emitter,
             ),
             "ValidateAppImports": Builder(
                 action=[

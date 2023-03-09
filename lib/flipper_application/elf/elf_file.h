@@ -37,6 +37,14 @@ typedef enum {
     ELFFileLoadStatusMissingImports,
 } ELFFileLoadStatus;
 
+typedef enum {
+    ElfProcessSectionResultNotFound,
+    ElfProcessSectionResultCannotProcess,
+    ElfProcessSectionResultSuccess,
+} ElfProcessSectionResult;
+
+typedef bool(ElfProcessSection)(File* file, size_t offset, size_t size, void* context);
+
 /**
  * @brief Allocate ELFFile instance
  * @param storage 
@@ -60,20 +68,11 @@ void elf_file_free(ELFFile* elf_file);
 bool elf_file_open(ELFFile* elf_file, const char* path);
 
 /**
- * @brief Load ELF file manifest
- * @param elf 
- * @param manifest 
- * @return bool 
- */
-bool elf_file_load_manifest(ELFFile* elf, FlipperApplicationManifest* manifest);
-
-/**
  * @brief Load ELF file section table (load stage #1)
  * @param elf_file 
- * @param manifest 
  * @return bool 
  */
-bool elf_file_load_section_table(ELFFile* elf_file, FlipperApplicationManifest* manifest);
+bool elf_file_load_section_table(ELFFile* elf_file);
 
 /**
  * @brief Load and relocate ELF file sections (load stage #2)
@@ -121,6 +120,21 @@ void elf_file_init_debug_info(ELFFile* elf_file, ELFDebugInfo* debug_info);
  * @param debug_info 
  */
 void elf_file_clear_debug_info(ELFDebugInfo* debug_info);
+
+/**
+ * @brief Process ELF file section
+ * 
+ * @param elf_file 
+ * @param name 
+ * @param process_section 
+ * @param context 
+ * @return ElfProcessSectionResult 
+ */
+ElfProcessSectionResult elf_process_section(
+    ELFFile* elf_file,
+    const char* name,
+    ElfProcessSection* process_section,
+    void* context);
 
 #ifdef __cplusplus
 }
