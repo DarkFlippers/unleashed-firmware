@@ -67,6 +67,7 @@ class FlipperApplication:
     fap_icon_assets_symbol: Optional[str] = None
     fap_extbuild: List[ExternallyBuiltFile] = field(default_factory=list)
     fap_private_libs: List[Library] = field(default_factory=list)
+    fap_file_assets: Optional[str] = None
     # Internally used by fbt
     _appdir: Optional[object] = None
     _apppath: Optional[str] = None

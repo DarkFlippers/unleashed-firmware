@@ -9,6 +9,7 @@
 
 #define MAX_NAME_LENGTH 256
 #define MAX_EXT_LEN 16
+#define FILE_BUFFER_SIZE 512
 
 #define TAG "StorageAPI"
 
@@ -249,6 +250,26 @@ bool storage_file_exists(Storage* storage, const char* path) {
     }
 
     return exist;
+}
+
+bool storage_file_copy_to_file(File* source, File* destination, uint32_t size) {
+    uint8_t* buffer = malloc(FILE_BUFFER_SIZE);
+
+    while(size) {
+        uint32_t read_size = size > FILE_BUFFER_SIZE ? FILE_BUFFER_SIZE : size;
+        if(storage_file_read(source, buffer, read_size) != read_size) {
+            break;
+        }
+
+        if(storage_file_write(destination, buffer, read_size) != read_size) {
+            break;
+        }
+
+        size -= read_size;
+    }
+
+    free(buffer);
+    return size == 0;
 }
 
 /****************** DIR ******************/
