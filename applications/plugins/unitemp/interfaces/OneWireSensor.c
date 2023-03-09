@@ -179,7 +179,7 @@ void unitemp_onewire_bus_enum_init(OneWireBus* bus) {
 }
 
 uint8_t* unitemp_onewire_bus_enum_next(OneWireBus* bus) {
-    if(onewire_host_search(bus->host, onewire_enum, NORMAL_SEARCH)) {
+    if(onewire_host_search(bus->host, onewire_enum, OneWireHostSearchModeNormal)) {
         return onewire_enum;
     } else {
         return NULL;
