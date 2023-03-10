@@ -466,7 +466,7 @@ def generate(env, **kw):
                 generator=generate_embed_app_metadata_actions,
                 suffix=".fap",
                 src_suffix=".elf",
-                emitter=generate_embed_app_metadata_emitter,
+                # emitter=generate_embed_app_metadata_emitter,
             ),
             "ValidateAppImports": Builder(
                 action=[
