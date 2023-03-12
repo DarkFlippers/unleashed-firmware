@@ -296,59 +296,54 @@ static void
     tetris_game_process_step(TetrisState* tetris_state, Piece* newPiece, bool wasDownMove) {
     if(tetris_state->gameState == GameStateGameOver) return;
 
-    tetris_game_remove_curr_piece(tetris_state);
+    if(wasDownMove && tetris_game_piece_at_bottom(tetris_state, newPiece)) {
+        furi_timer_stop(tetris_state->timer);
 
-    if(wasDownMove) {
-        if(tetris_game_piece_at_bottom(tetris_state, newPiece)) {
-            furi_timer_stop(tetris_state->timer);
+        uint8_t numLines = 0;
+        uint8_t lines[] = {0, 0, 0, 0};
+        uint16_t nextFallSpeed;
 
-            tetris_game_render_curr_piece(tetris_state);
-            uint8_t numLines = 0;
-            uint8_t lines[] = {0, 0, 0, 0};
-            uint16_t nextFallSpeed;
-
-            tetris_game_check_for_lines(tetris_state, lines, &numLines);
-            if(numLines > 0) {
-                for(int i = 0; i < numLines; i++) {
-                    // zero out row
-                    for(int j = 0; j < FIELD_WIDTH; j++) {
-                        tetris_state->playField[lines[i]][j] = false;
-                    }
-                    // move all above rows down
-                    for(int k = lines[i]; k >= 0; k--) {
-                        for(int m = 0; m < FIELD_WIDTH; m++) {
-                            tetris_state->playField[k][m] =
-                                (k == 0) ? false : tetris_state->playField[k - 1][m];
-                        }
-                    }
+        tetris_game_check_for_lines(tetris_state, lines, &numLines);
+        if(numLines > 0) {
+            for(int i = 0; i < numLines; i++) {
+                // zero out row
+                for(int j = 0; j < FIELD_WIDTH; j++) {
+                    tetris_state->playField[lines[i]][j] = false;
                 }
-
-                uint16_t oldNumLines = tetris_state->numLines;
-                tetris_state->numLines += numLines;
-                if((oldNumLines / 10) % 10 != (tetris_state->numLines / 10) % 10) {
-                    nextFallSpeed =
-                        tetris_state->fallSpeed - (100 / (tetris_state->numLines / 10));
-                    if(nextFallSpeed >= MIN_FALL_SPEED) {
-                        tetris_state->fallSpeed = nextFallSpeed;
+                // move all above rows down
+                for(int k = lines[i]; k >= 0; k--) {
+                    for(int m = 0; m < FIELD_WIDTH; m++) {
+                        tetris_state->playField[k][m] =
+                            (k == 0) ? false : tetris_state->playField[k - 1][m];
                     }
                 }
             }
 
-            // Check for game over
-            Piece* spawnedPiece = &shapes[rand() % 7];
-            if(!tetris_game_is_valid_pos(tetris_state, spawnedPiece->p)) {
-                tetris_state->gameState = GameStateGameOver;
-            } else {
-                memcpy(&tetris_state->currPiece, spawnedPiece, sizeof(tetris_state->currPiece));
-                furi_timer_start(tetris_state->timer, tetris_state->fallSpeed);
+            uint16_t oldNumLines = tetris_state->numLines;
+            tetris_state->numLines += numLines;
+            if((oldNumLines / 10) % 10 != (tetris_state->numLines / 10) % 10) {
+                nextFallSpeed =
+                    tetris_state->fallSpeed - (100 / (tetris_state->numLines / 10));
+                if(nextFallSpeed >= MIN_FALL_SPEED) {
+                    tetris_state->fallSpeed = nextFallSpeed;
+                }
             }
         }
-    }
 
-    if(tetris_game_is_valid_pos(tetris_state, newPiece->p)) {
-        memcpy(&tetris_state->currPiece, newPiece, sizeof(tetris_state->currPiece));
+        // Check for game over
+        Piece* spawnedPiece = &shapes[rand() % 7];
+        if(!tetris_game_is_valid_pos(tetris_state, spawnedPiece->p)) {
+            tetris_state->gameState = GameStateGameOver;
+        } else {
+            memcpy(&tetris_state->currPiece, spawnedPiece, sizeof(tetris_state->currPiece));
+            furi_timer_start(tetris_state->timer, tetris_state->fallSpeed);
+        }
+    }else{
+        tetris_game_remove_curr_piece(tetris_state);
+        if(tetris_game_is_valid_pos(tetris_state, newPiece->p)) {
+            memcpy(&tetris_state->currPiece, newPiece, sizeof(tetris_state->currPiece));
+        }
     }
-
     tetris_game_render_curr_piece(tetris_state);
 }
 
