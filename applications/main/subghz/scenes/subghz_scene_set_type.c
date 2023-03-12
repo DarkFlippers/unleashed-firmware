@@ -529,9 +529,9 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz_protocol_keeloq_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
-                    key & 0x0FFFFFFF,
-                    0x2,
-                    0x0003,
+                    key & 0x00FFFFF0,
+                    0x4,
+                    0x0005,
                     "IronLogic",
                     subghz->txrx->preset);
                 flipper_format_write_string_cstr(
@@ -609,7 +609,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     subghz->txrx->fff_data,
                     key & 0x000FFFFF,
                     0x2,
-                    0x0003,
+                    0x0005,
                     "DTM_Neo",
                     subghz->txrx->preset);
                 flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "DTM_Neo");
