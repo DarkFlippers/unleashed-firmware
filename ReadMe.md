@@ -46,6 +46,7 @@ Our Discord Community:
 * Customizable Flipper name
 - BadUSB -> Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 - Sub-GHz -> External CC1101 module support - [(by quen0n)](https://github.com/DarkFlippers/unleashed-firmware/pull/307)
+- Sub-GHz -> `Add manually` menu extended with new protocols
 - Sub-GHz -> New frequency analyzer - [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
 - Sub-GHz -> Save last used frequency [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 - Sub-GHz -> Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
@@ -81,6 +82,8 @@ Encoders/sending made by Eng1n33r & @xMasterX:
 - Keeloq: Mutancode
 - Keeloq: Normstahl
 - Keeloq: Beninca
+- Keeloq: Stilmatic / Schellenberg
+- Keeloq: CAME Space
 - CAME Atomo
 - Nice Flor S
 - FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 

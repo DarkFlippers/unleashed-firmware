@@ -1,4 +1,7 @@
 ### New changes
+* SubGHz: New protocols support: CAME Space, Stilmatic / Schellenberg
+* SubGHz: Add Manually - new protocols -> Beninca, Sommer(FSK), IronLogic, DTM Neo, Gibidi, Elmes Electronic (Elmes Poland), CAME Space
+* SubGHz: Removed 330MHz from default freq hopper to make it faster, to change freq hopper settings and remove/add your freqs see -> [Instruction](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSettings.md)
 * Plugins: Updated **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (fixed issue #379)
 * Plugins: Update for SubGHz Bruteforcer, added - Holtek HT12X 12bit AM 433.920MHz/315MHz/868MHz/915MHz (TE: 433us)
 * OFW: Fbt: fix broken resource deployment
