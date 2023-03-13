@@ -1,7 +1,7 @@
 App(
     appid="Signal_Generator",
     name="Signal Generator",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="signal_gen_app",
     cdefines=["APP_SIGNAL_GEN"],
     requires=["gui"],

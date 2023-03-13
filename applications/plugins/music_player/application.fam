@@ -1,7 +1,7 @@
 App(
     appid="Music_Player",
     name="Music Player",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="music_player_app",
     cdefines=["APP_MUSIC_PLAYER"],
     requires=[

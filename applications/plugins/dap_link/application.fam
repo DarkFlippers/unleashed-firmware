@@ -1,7 +1,7 @@
 App(
     appid="dap_link",
     name="DAP Link",
-    apptype=FlipperAppType.PLUGIN,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="dap_link_app",
     requires=[
         "gui",
