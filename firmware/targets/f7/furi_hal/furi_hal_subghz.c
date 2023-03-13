@@ -93,10 +93,10 @@ bool furi_hal_subghz_enable_ext_power(void) {
     }
     if(furi_hal_subghz.radio_type != SubGhzRadioInternal) {
         uint8_t attempts = 0;
-        while(!furi_hal_power_is_otg_enabled() && attempts++ < 2) {
+        while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
             furi_hal_power_enable_otg();
             //CC1101 power-up time
-            furi_delay_ms(5);
+            furi_delay_ms(10);
         }
     }
     return furi_hal_power_is_otg_enabled();

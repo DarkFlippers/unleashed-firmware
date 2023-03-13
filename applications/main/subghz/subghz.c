@@ -73,6 +73,9 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->in_decoder_scene = false;
     subghz->in_decoder_scene_skip = false;
 
+    // Call enable power for external module
+    furi_hal_subghz_enable_ext_power();
+
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(subghz->view_dispatcher);

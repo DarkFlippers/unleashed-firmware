@@ -181,7 +181,7 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
     // Check if module is present, if no -> show error
     if(!furi_hal_subghz_check_radio()) {
         value_index_exm = 0;
-        furi_hal_subghz_set_radio_type(value_index_exm);
+        furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
         furi_string_set(subghz->error_str, "Please connect\nexternal radio");
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
     }
