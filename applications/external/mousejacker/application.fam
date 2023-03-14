@@ -3,7 +3,6 @@ App(
     name="[NRF24] Mouse Jacker",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="mousejacker_app",
-    cdefines=["APP_MOUSEJACKER"],
     requires=[
         "gui",
         "dialogs",

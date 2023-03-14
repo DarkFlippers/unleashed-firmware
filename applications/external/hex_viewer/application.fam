@@ -3,7 +3,6 @@ App(
     name="HEX Viewer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="hex_viewer_app",
-    cdefines=["APP_HEX_VIEWER"],
     requires=[
         "gui",
         "dialogs",

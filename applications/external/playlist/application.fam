@@ -3,7 +3,6 @@ App(
     name="Sub-GHz Playlist",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="playlist_app",
-    cdefines=["APP_PLAYLIST"],
     requires=["storage", "gui", "dialogs", "subghz"],
     stack_size=2 * 1024,
     order=14,

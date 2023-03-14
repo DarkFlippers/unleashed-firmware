@@ -3,7 +3,6 @@ App(
     name="[BH1750] Lightmeter",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="lightmeter_app",
-    cdefines=["APP_LIGHTMETER"],
     requires=[
         "gui",
     ],

@@ -3,7 +3,6 @@ App(
     name="SWD Probe",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="swd_probe_app_main",
-    cdefines=["APP_SWD_PROBE"],
     requires=["notification", "gui", "storage", "dialogs", "cli"],
     stack_size=2 * 1024,
     order=10,

@@ -3,7 +3,6 @@ App(
     name="Text Viewer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="text_viewer_app",
-    cdefines=["APP_TEXT_VIEWER"],
     requires=[
         "gui",
         "dialogs",

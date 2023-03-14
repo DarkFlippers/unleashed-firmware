@@ -3,7 +3,6 @@ App(
     name="[NMEA] GPS",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="gps_app",
-    cdefines=["APP_GPS"],
     requires=["gui"],
     stack_size=1 * 1024,
     order=35,

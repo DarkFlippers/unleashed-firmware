@@ -3,7 +3,6 @@ App(
     name="ProtoView",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="protoview_app_entry",
-    cdefines=["APP_PROTOVIEW"],
     requires=["gui"],
     stack_size=8*1024,
     order=50,

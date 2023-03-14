@@ -3,7 +3,6 @@ App(
     name="DTMF Dolphin",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="dtmf_dolphin_app",
-    cdefines=["DTMF_DOLPHIN"],
     requires=[
         "storage",
         "gui",

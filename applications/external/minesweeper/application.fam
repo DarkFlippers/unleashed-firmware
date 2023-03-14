@@ -3,7 +3,6 @@ App(
     name="Minesweeper",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="minesweeper_app",
-    cdefines=["APP_MINESWEEPER"],
     requires=["gui"],
     stack_size=8 * 1024,
     fap_category="Games",

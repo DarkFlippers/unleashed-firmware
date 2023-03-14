@@ -3,7 +3,6 @@ App(
     name="Morse Code",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="morse_code_app",
-    cdefines=["APP_MORSE_CODE"],
     requires=[
         "gui",
     ],

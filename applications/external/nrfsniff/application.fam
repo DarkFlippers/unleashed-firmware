@@ -3,7 +3,6 @@ App(
     name="[NRF24] Sniffer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="nrfsniff_app",
-    cdefines=["APP_NRFSNIFF"],
     requires=["gui"],
     stack_size=2 * 1024,
     order=70,

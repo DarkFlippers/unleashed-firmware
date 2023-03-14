@@ -3,7 +3,6 @@ App(
     name="iButton Fuzzer",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="ibtnfuzzer_start",
-    cdefines=["APP_IBTN_FUZZ"],
     requires=["gui", "storage", "dialogs", "input", "notification"],
     stack_size=1 * 1024,
     order=15,

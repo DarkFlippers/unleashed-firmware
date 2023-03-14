@@ -3,7 +3,6 @@ App(
     name="DOOM",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="doom_app",
-    cdefines=["APP_DOOM_GAME"],
     requires=[
         "gui",
         "music_player",
