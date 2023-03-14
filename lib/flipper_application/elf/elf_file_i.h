@@ -45,6 +45,8 @@ struct ELFFile {
     ELFSection* preinit_array;
     ELFSection* init_array;
     ELFSection* fini_array;
+
+    bool init_array_called;
 };
 
 #ifdef __cplusplus

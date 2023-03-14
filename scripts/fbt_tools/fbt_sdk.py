@@ -220,7 +220,7 @@ def gen_sdk_data(sdk_cache: SdkCache):
 def _check_sdk_is_up2date(sdk_cache: SdkCache):
     if not sdk_cache.is_buildable():
         raise UserError(
-            "SDK version is not finalized, please review changes and re-run operation"
+            "SDK version is not finalized, please review changes and re-run operation. See AppsOnSDCard.md for more details"
         )
 
 

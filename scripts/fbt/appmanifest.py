@@ -12,13 +12,13 @@ class FlipperAppType(Enum):
     SERVICE = "Service"
     SYSTEM = "System"
     APP = "App"
-    PLUGIN = "Plugin"
     DEBUG = "Debug"
     ARCHIVE = "Archive"
     SETTINGS = "Settings"
     STARTUP = "StartupHook"
     EXTERNAL = "External"
     METAPACKAGE = "Package"
+    PLUGIN = "Plugin"
 
 
 @dataclass
@@ -69,11 +69,21 @@ class FlipperApplication:
     fap_private_libs: List[Library] = field(default_factory=list)
     fap_file_assets: Optional[str] = None
     # Internally used by fbt
+    _appmanager: Optional["AppManager"] = None
     _appdir: Optional[object] = None
     _apppath: Optional[str] = None
+    _plugins: List["FlipperApplication"] = field(default_factory=list)
 
     def supports_hardware_target(self, target: str):
         return target in self.targets or "all" in self.targets
+
+    @property
+    def is_default_deployable(self):
+        return self.apptype != FlipperAppType.DEBUG and self.fap_category != "Examples"
+
+    def __post_init__(self):
+        if self.apptype == FlipperAppType.PLUGIN:
+            self.stack_size = 0
 
 
 class AppManager:
@@ -94,6 +104,23 @@ class AppManager:
                 return app
         return None
 
+    def _validate_app_params(self, *args, **kw):
+        apptype = kw.get("apptype")
+        if apptype == FlipperAppType.PLUGIN:
+            if kw.get("stack_size"):
+                raise FlipperManifestException(
+                    f"Plugin {kw.get('appid')} cannot have stack (did you mean FlipperAppType.EXTERNAL?)"
+                )
+            if not kw.get("requires"):
+                raise FlipperManifestException(
+                    f"Plugin {kw.get('appid')} must have 'requires' in manifest"
+                )
+        # Harmless - cdefines for external apps are meaningless
+        # if apptype == FlipperAppType.EXTERNAL and kw.get("cdefines"):
+        #     raise FlipperManifestException(
+        #         f"External app {kw.get('appid')} must not have 'cdefines' in manifest"
+        #     )
+
     def load_manifest(self, app_manifest_path: str, app_dir_node: object):
         if not os.path.exists(app_manifest_path):
             raise FlipperManifestException(
@@ -105,12 +132,14 @@ class AppManager:
 
         def App(*args, **kw):
             nonlocal app_manifests
+            self._validate_app_params(*args, **kw)
             app_manifests.append(
                 FlipperApplication(
                     *args,
                     **kw,
                     _appdir=app_dir_node,
                     _apppath=os.path.dirname(app_manifest_path),
+                    _appmanager=self,
                 ),
             )
 
@@ -155,7 +184,6 @@ class AppBuildset:
         FlipperAppType.SERVICE,
         FlipperAppType.SYSTEM,
         FlipperAppType.APP,
-        FlipperAppType.PLUGIN,
         FlipperAppType.DEBUG,
         FlipperAppType.ARCHIVE,
         FlipperAppType.SETTINGS,
@@ -182,6 +210,7 @@ class AppBuildset:
         self._check_conflicts()
         self._check_unsatisfied()  # unneeded?
         self._check_target_match()
+        self._group_plugins()
         self.apps = sorted(
             list(map(self.appmgr.get, self.appnames)),
             key=lambda app: app.appid,
@@ -260,6 +289,18 @@ class AppBuildset:
                 f"Apps incompatible with target {self.hw_target}: {', '.join(incompatible)}"
             )
 
+    def _group_plugins(self):
+        known_extensions = self.get_apps_of_type(FlipperAppType.PLUGIN, all_known=True)
+        for extension_app in known_extensions:
+            for parent_app_id in extension_app.requires:
+                try:
+                    parent_app = self.appmgr.get(parent_app_id)
+                    parent_app._plugins.append(extension_app)
+                except FlipperManifestException as e:
+                    self._writer(
+                        f"Module {extension_app.appid} has unknown parent {parent_app_id}"
+                    )
+
     def get_apps_cdefs(self):
         cdefs = set()
         for app in self.apps:
@@ -301,7 +342,6 @@ class ApplicationsCGenerator:
         FlipperAppType.SERVICE: ("FlipperApplication", "FLIPPER_SERVICES"),
         FlipperAppType.SYSTEM: ("FlipperApplication", "FLIPPER_SYSTEM_APPS"),
         FlipperAppType.APP: ("FlipperApplication", "FLIPPER_APPS"),
-        FlipperAppType.PLUGIN: ("FlipperApplication", "FLIPPER_PLUGINS"),
         FlipperAppType.DEBUG: ("FlipperApplication", "FLIPPER_DEBUG_APPS"),
         FlipperAppType.SETTINGS: ("FlipperApplication", "FLIPPER_SETTINGS_APPS"),
         FlipperAppType.STARTUP: ("FlipperOnStartHook", "FLIPPER_ON_SYSTEM_START"),

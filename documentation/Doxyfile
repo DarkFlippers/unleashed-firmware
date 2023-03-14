@@ -938,7 +938,7 @@ EXCLUDE = \
     lib/microtar \
     lib/mbedtls \
     lib/cxxheaderparser \
-    applications/plugins/dap_link/lib/free-dap
+    applications/external/dap_link/lib/free-dap
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
