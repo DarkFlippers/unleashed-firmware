@@ -7,6 +7,6 @@ App(
     requires=["gui"],
     stack_size=1 * 1024,
     order=60,
-    fap_icon="../../plugins/mousejacker/mouse_10px.png",
+    fap_icon="../../external/mousejacker/mouse_10px.png",
     fap_category="Debug",
 )
