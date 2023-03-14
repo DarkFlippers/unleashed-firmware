@@ -115,6 +115,40 @@ FlipperApplicationLoadStatus flipper_application_map_to_memory(FlipperApplicatio
  */
 FuriThread* flipper_application_spawn(FlipperApplication* app, void* args);
 
+/**
+ * @brief Check if application is a plugin (not a runnable standalone app)
+ * @param app Application pointer
+ * @return true if application is a plugin, false otherwise
+ */
+bool flipper_application_is_plugin(FlipperApplication* app);
+
+/**
+ * @brief Entry point prototype for standalone applications
+ */
+typedef int32_t (*FlipperApplicationEntryPoint)(void*);
+
+/**
+ * @brief An object that describes a plugin - must be returned by plugin's entry point 
+ */
+typedef struct {
+    const char* appid;
+    const uint32_t ep_api_version;
+    const void* entry_point;
+} FlipperAppPluginDescriptor;
+
+/**
+ * @brief Entry point prototype for plugins
+ */
+typedef const FlipperAppPluginDescriptor* (*FlipperApplicationPluginEntryPoint)(void);
+
+/**
+ * @brief Get plugin descriptor for preloaded plugin
+ * @param app Application pointer
+ * @return Pointer to plugin descriptor
+ */
+const FlipperAppPluginDescriptor*
+    flipper_application_plugin_get_descriptor(FlipperApplication* app);
+
 #ifdef __cplusplus
 }
 #endif

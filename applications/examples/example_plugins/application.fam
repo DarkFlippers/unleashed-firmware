@@ -1,0 +1,31 @@
+App(
+    appid="example_plugins",
+    name="Example: App w/plugin",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_plugins_app",
+    stack_size=2 * 1024,
+    fap_category="Examples",
+)
+
+App(
+    appid="example_plugins_multi",
+    name="Example: App w/plugins",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_plugins_multi_app",
+    stack_size=2 * 1024,
+    fap_category="Examples",
+)
+
+App(
+    appid="example_plugin1",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="example_plugin1_ep",
+    requires=["example_plugins", "example_plugins_multi"],
+)
+
+App(
+    appid="example_plugin2",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="example_plugin2_ep",
+    requires=["example_plugins_multi"],
+)

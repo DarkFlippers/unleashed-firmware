@@ -194,10 +194,6 @@ vars.AddVariables(
                 "system_apps",
                 # Settings
                 "settings_apps",
-                # Plugins
-                # "basic_plugins",
-                # Debug
-                # "debug_apps",
             ),
         },
     ),
@@ -222,7 +218,7 @@ vars.AddVariables(
             ("applications/settings", False),
             ("applications/system", False),
             ("applications/debug", False),
-            ("applications/plugins", False),
+            ("applications/external", False),
             ("applications/examples", False),
             ("applications_user", False),
         ],

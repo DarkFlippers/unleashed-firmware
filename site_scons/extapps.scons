@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
+from os.path import dirname
+
 from SCons.Node import NodeList
 from SCons.Warnings import warn, WarningOnByDefault
-
+from SCons.Errors import UserError
 
 Import("ENV")
 
@@ -12,7 +14,8 @@ appenv = ENV["APPENV"] = ENV.Clone(
         "fbt_extapps",
         "fbt_assets",
         "fbt_sdk",
-    ]
+    ],
+    RESOURCES_ROOT=ENV.Dir("#/assets/resources"),
 )
 
 appenv.Replace(
@@ -57,7 +60,7 @@ appenv.AppendUnique(
 
 @dataclass
 class FlipperExtAppBuildArtifacts:
-    applications: dict = field(default_factory=dict)
+    application_map: dict = field(default_factory=dict)
     resources_dist: NodeList = field(default_factory=NodeList)
     sdk_tree: NodeList = field(default_factory=NodeList)
 
@@ -86,6 +89,9 @@ for app in known_extapps:
 
     appenv.BuildAppElf(app)
 
+extapps = FlipperExtAppBuildArtifacts()
+extapps.application_map = appenv["EXT_APPS"]
+
 if incompatible_apps:
     warn(
         WarningOnByDefault,
@@ -95,27 +101,60 @@ if incompatible_apps:
 
 if appenv["FORCE"]:
     appenv.AlwaysBuild(
-        list(app_artifact.compact for app_artifact in appenv["EXT_APPS"].values())
+        list(app_artifact.compact for app_artifact in extapps.application_map.values())
     )
 
 
 Alias(
-    "faps", list(app_artifact.validator for app_artifact in appenv["EXT_APPS"].values())
+    "faps",
+    list(app_artifact.validator for app_artifact in extapps.application_map.values()),
 )
 
-extapps = FlipperExtAppBuildArtifacts()
-extapps.applications = appenv["EXT_APPS"]
-extapps.resources_dist = appenv.FapDist(appenv.Dir("#/assets/resources/apps"), [])
+extapps.resources_dist = appenv.FapDist(appenv["RESOURCES_ROOT"], [])
 
 if appsrc := appenv.subst("$APPSRC"):
-    app_artifacts = appenv.GetExtAppFromPath(appsrc)
+    deploy_sources, flipp_dist_paths, validators = [], [], []
+    run_script_extra_ars = ""
+
+    def _add_dist_targets(app_artifacts):
+        validators.append(app_artifacts.validator)
+        for _, ext_path in app_artifacts.dist_entries:
+            deploy_sources.append(app_artifacts.compact)
+            flipp_dist_paths.append(f"/ext/{ext_path}")
+        return app_artifacts
+
+    def _add_host_app_to_targets(host_app):
+        artifacts_app_to_run = appenv["EXT_APPS"].get(host_app.appid, None)
+        _add_dist_targets(artifacts_app_to_run)
+        for plugin in host_app._plugins:
+            _add_dist_targets(appenv["EXT_APPS"].get(plugin.appid, None))
+
+    artifacts_app_to_run = appenv.GetExtAppByIdOrPath(appsrc)
+    if artifacts_app_to_run.app.apptype == FlipperAppType.PLUGIN:
+        # We deploy host app instead
+        host_app = appenv["APPMGR"].get(artifacts_app_to_run.app.requires[0])
+
+        if host_app:
+            if host_app.apptype == FlipperAppType.EXTERNAL:
+                _add_host_app_to_targets(host_app)
+            else:
+                # host app is a built-in app
+                run_script_extra_ars = f"-a {host_app.name}"
+                _add_dist_targets(artifacts_app_to_run)
+        else:
+            raise UserError("Host app is unknown")
+    else:
+        _add_host_app_to_targets(artifacts_app_to_run.app)
+
+    # print(deploy_sources, flipp_dist_paths)
     appenv.PhonyTarget(
         "launch_app",
-        '${PYTHON3} "${APP_RUN_SCRIPT}" "${SOURCE}" --fap_dst_dir "/ext/apps/${FAP_CATEGORY}"',
-        source=app_artifacts.compact,
-        FAP_CATEGORY=app_artifacts.app.fap_category,
+        '${PYTHON3} "${APP_RUN_SCRIPT}" ${EXTRA_ARGS} -s ${SOURCES} -t ${FLIPPER_FILE_TARGETS}',
+        source=deploy_sources,
+        FLIPPER_FILE_TARGETS=flipp_dist_paths,
+        EXTRA_ARGS=run_script_extra_ars,
     )
-    appenv.Alias("launch_app", app_artifacts.validator)
+    appenv.Alias("launch_app", validators)
 
 # SDK management
 

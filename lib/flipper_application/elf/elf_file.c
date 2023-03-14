@@ -17,6 +17,8 @@
 #define FURI_LOG_D(...)
 #endif
 
+#define ELF_INVALID_ADDRESS 0xFFFFFFFF
+
 #define TRAMPOLINE_CODE_SIZE 6
 
 /**
@@ -166,7 +168,7 @@ static ELFSection* elf_section_of(ELFFile* elf, int index) {
 static Elf32_Addr elf_address_of(ELFFile* elf, Elf32_Sym* sym, const char* sName) {
     if(sym->st_shndx == SHN_UNDEF) {
         Elf32_Addr addr = 0;
-        if(elf->api_interface->resolver_callback(sName, &addr)) {
+        if(elf->api_interface->resolver_callback(elf->api_interface, sName, &addr)) {
             return addr;
         }
     } else {
@@ -514,10 +516,13 @@ static SectionType elf_preload_section(
         section_p->sec_idx = section_idx;
 
         if(section_header->sh_type == SHT_PREINIT_ARRAY) {
+            furi_assert(elf->preinit_array == NULL);
             elf->preinit_array = section_p;
         } else if(section_header->sh_type == SHT_INIT_ARRAY) {
+            furi_assert(elf->init_array == NULL);
             elf->init_array = section_p;
         } else if(section_header->sh_type == SHT_FINI_ARRAY) {
+            furi_assert(elf->fini_array == NULL);
             elf->fini_array = section_p;
         }
 
@@ -605,10 +610,17 @@ ELFFile* elf_file_alloc(Storage* storage, const ElfApiInterface* api_interface) 
     elf->api_interface = api_interface;
     ELFSectionDict_init(elf->sections);
     AddressCache_init(elf->trampoline_cache);
+    elf->init_array_called = false;
     return elf;
 }
 
 void elf_file_free(ELFFile* elf) {
+    // furi_check(!elf->init_array_called);
+    if(elf->init_array_called) {
+        FURI_LOG_W(TAG, "Init array was called, but fini array wasn't");
+        elf_file_call_section_list(elf->fini_array, true);
+    }
+
     // free sections data
     {
         ELFSectionDict_it_t it;
@@ -774,19 +786,26 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
     return status;
 }
 
-void elf_file_pre_run(ELFFile* elf) {
+void elf_file_call_init(ELFFile* elf) {
+    furi_check(!elf->init_array_called);
     elf_file_call_section_list(elf->preinit_array, false);
     elf_file_call_section_list(elf->init_array, false);
+    elf->init_array_called = true;
 }
 
-int32_t elf_file_run(ELFFile* elf, void* args) {
-    int32_t result;
-    result = ((int32_t(*)(void*))elf->entry)(args);
-    return result;
+bool elf_file_is_init_complete(ELFFile* elf) {
+    return elf->init_array_called;
 }
 
-void elf_file_post_run(ELFFile* elf) {
+void* elf_file_get_entry_point(ELFFile* elf) {
+    furi_check(elf->init_array_called);
+    return (void*)elf->entry;
+}
+
+void elf_file_call_fini(ELFFile* elf) {
+    furi_check(elf->init_array_called);
     elf_file_call_section_list(elf->fini_array, true);
+    elf->init_array_called = false;
 }
 
 const ElfApiInterface* elf_file_get_api_interface(ELFFile* elf_file) {

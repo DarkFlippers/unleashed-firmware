@@ -1,9 +1,0 @@
-ansi==0.3.6
-black==22.6.0
-colorlog==6.7.0
-heatshrink2==0.11.0
-Pillow==9.1.1
-protobuf==3.20.1
-pyserial==3.5
-python3-protobuf==2.5.0
-SCons==4.4.0

@@ -39,18 +39,6 @@ extern const size_t FLIPPER_APPS_COUNT;
 extern const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[];
 extern const size_t FLIPPER_ON_SYSTEM_START_COUNT;
 
-/* Plugins list
- * Spawned by loader
- */
-extern const FlipperApplication FLIPPER_PLUGINS[];
-extern const size_t FLIPPER_PLUGINS_COUNT;
-
-/* Debug menu apps
- * Spawned by loader
- */
-extern const FlipperApplication FLIPPER_DEBUG_APPS[];
-extern const size_t FLIPPER_DEBUG_APPS_COUNT;
-
 /* System apps
  * Can only be spawned by loader by name
  */

@@ -1,0 +1,24 @@
+App(
+    appid="example_advanced_plugins",
+    name="Example: advanced plugins",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_advanced_plugins_app",
+    stack_size=2 * 1024,
+    fap_category="Examples",
+)
+
+App(
+    appid="advanced_plugin1",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="advanced_plugin1_ep",
+    requires=["example_advanced_plugins"],
+    sources=["plugin1.c"],
+)
+
+App(
+    appid="advanced_plugin2",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="advanced_plugin2_ep",
+    requires=["example_advanced_plugins"],
+    sources=["plugin2.c"],
+)

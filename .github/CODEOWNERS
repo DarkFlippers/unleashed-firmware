@@ -22,8 +22,8 @@
 /applications/main/subghz/ @skotopes @DrZlo13 @hedger @Skorpionm
 /applications/main/u2f/ @skotopes @DrZlo13 @hedger @nminaylov
 
-/applications/plugins/bt_hid_app/ @skotopes @DrZlo13 @hedger @gornekich
-/applications/plugins/picopass/ @skotopes @DrZlo13 @hedger @gornekich
+/applications/external/bt_hid_app/ @skotopes @DrZlo13 @hedger @gornekich
+/applications/external/picopass/ @skotopes @DrZlo13 @hedger @gornekich
 
 /applications/services/bt/ @skotopes @DrZlo13 @hedger @gornekich
 /applications/services/cli/ @skotopes @DrZlo13 @hedger @nminaylov

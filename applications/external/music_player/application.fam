@@ -1,0 +1,24 @@
+App(
+    appid="music_player",
+    name="Music Player",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="music_player_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    provides=["music_player_start"],
+    stack_size=2 * 1024,
+    order=20,
+    fap_icon="icons/music_10px.png",
+    fap_category="Media",
+    fap_icon_assets="icons",
+)
+
+App(
+    appid="music_player_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="music_player_on_system_start",
+    requires=["music_player"],
+    order=30,
+)
