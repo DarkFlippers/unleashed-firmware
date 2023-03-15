@@ -136,7 +136,7 @@ bool two_cities_parser_parse(NfcDeviceData* dev_data) {
 
     furi_string_printf(
         dev_data->parsed_data,
-        "\e#Troika+Plantain\nPN: %llu-\nPB: %ld rur.\nTN: %ld\nTB: %d rur.\n",
+        "\e#Troika+Plantain\nPN: %llu-\nPB: %lu rur.\nTN: %lu\nTB: %u rur.\n",
         card_number,
         balance,
         troika_number,

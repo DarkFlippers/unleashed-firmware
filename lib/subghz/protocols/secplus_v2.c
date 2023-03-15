@@ -611,7 +611,7 @@ bool subghz_protocol_secplus_v2_create_data(
     if((res == SubGhzProtocolStatusOk) &&
        !flipper_format_write_hex(flipper_format, "Secplus_packet_1", key_data, sizeof(uint64_t))) {
         FURI_LOG_E(TAG, "Unable to add Secplus_packet_1");
-        res = SubGhzProtocolStatusError;
+        res = SubGhzProtocolStatusErrorParserOthers;
     }
     return res == SubGhzProtocolStatusOk;
 }

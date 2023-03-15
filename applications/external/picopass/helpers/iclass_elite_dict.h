@@ -9,6 +9,7 @@
 typedef enum {
     IclassEliteDictTypeUser,
     IclassEliteDictTypeFlipper,
+    IclassStandardDictTypeFlipper,
 } IclassEliteDictType;
 
 typedef struct IclassEliteDict IclassEliteDict;

@@ -91,7 +91,7 @@ bool plantain_parser_parse(NfcDeviceData* dev_data) {
     }
 
     furi_string_printf(
-        dev_data->parsed_data, "\e#Plantain\nN:%llu-\nBalance:%ld\n", card_number, balance);
+        dev_data->parsed_data, "\e#Plantain\nN:%llu-\nBalance:%lu\n", card_number, balance);
 
     return true;
 }
