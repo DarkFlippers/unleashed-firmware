@@ -309,9 +309,9 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, b
     char selected = get_selected_char(model);
     size_t text_length = strlen(model->text_buffer);
 
-    bool toogle_case = text_length == 0;
-    if(shift) toogle_case = !toogle_case;
-    if(toogle_case) {
+    bool toggle_case = text_length == 0 || model->clear_default_text;
+    if(shift) toggle_case = !toggle_case;
+    if(toggle_case) {
         selected = char_to_uppercase(selected);
     }
 
