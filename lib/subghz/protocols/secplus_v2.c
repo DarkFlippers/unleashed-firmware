@@ -599,19 +599,20 @@ bool subghz_protocol_secplus_v2_create_data(
     instance->generic.data_count_bit =
         (uint8_t)subghz_protocol_secplus_v2_const.min_count_bit_for_found;
     subghz_protocol_secplus_v2_encode(instance);
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    SubGhzProtocolStatus res =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
     uint8_t key_data[sizeof(uint64_t)] = {0};
     for(size_t i = 0; i < sizeof(uint64_t); i++) {
         key_data[sizeof(uint64_t) - i - 1] = (instance->secplus_packet_1 >> (i * 8)) & 0xFF;
     }
 
-    if(res &&
+    if((res == SubGhzProtocolStatusOk) &&
        !flipper_format_write_hex(flipper_format, "Secplus_packet_1", key_data, sizeof(uint64_t))) {
         FURI_LOG_E(TAG, "Unable to add Secplus_packet_1");
-        res = false;
+        res = SubGhzProtocolStatusErrorParserOthers;
     }
-    return res;
+    return res == SubGhzProtocolStatusOk;
 }
 
 void* subghz_protocol_decoder_secplus_v2_alloc(SubGhzEnvironment* environment) {

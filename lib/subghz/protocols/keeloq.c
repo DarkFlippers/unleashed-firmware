@@ -182,7 +182,9 @@ bool subghz_protocol_keeloq_create_data(
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_keeloq_gen_data(instance, btn);
     if(res) {
-        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        if(subghz_block_generic_serialize(&instance->generic, flipper_format, preset) !=
+           SubGhzProtocolStatusOk)
+            res = false;
     }
     return res;
 }
