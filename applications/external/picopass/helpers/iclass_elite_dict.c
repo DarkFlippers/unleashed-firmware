@@ -5,6 +5,7 @@
 
 #define ICLASS_ELITE_DICT_FLIPPER_NAME APP_DATA_PATH("assets/iclass_elite_dict.txt")
 #define ICLASS_ELITE_DICT_USER_NAME APP_DATA_PATH("assets/iclass_elite_dict_user.txt")
+#define ICLASS_STANDARD_DICT_FLIPPER_NAME APP_DATA_PATH("assets/iclass_standard_dict.txt")
 
 #define TAG "IclassEliteDict"
 
@@ -25,6 +26,9 @@ bool iclass_elite_dict_check_presence(IclassEliteDictType dict_type) {
             (storage_common_stat(storage, ICLASS_ELITE_DICT_FLIPPER_NAME, NULL) == FSE_OK);
     } else if(dict_type == IclassEliteDictTypeUser) {
         dict_present = (storage_common_stat(storage, ICLASS_ELITE_DICT_USER_NAME, NULL) == FSE_OK);
+    } else if(dict_type == IclassStandardDictTypeFlipper) {
+        dict_present =
+            (storage_common_stat(storage, ICLASS_STANDARD_DICT_FLIPPER_NAME, NULL) == FSE_OK);
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -49,6 +53,15 @@ IclassEliteDict* iclass_elite_dict_alloc(IclassEliteDictType dict_type) {
         } else if(dict_type == IclassEliteDictTypeUser) {
             if(!buffered_file_stream_open(
                    dict->stream, ICLASS_ELITE_DICT_USER_NAME, FSAM_READ_WRITE, FSOM_OPEN_ALWAYS)) {
+                buffered_file_stream_close(dict->stream);
+                break;
+            }
+        } else if(dict_type == IclassStandardDictTypeFlipper) {
+            if(!buffered_file_stream_open(
+                   dict->stream,
+                   ICLASS_STANDARD_DICT_FLIPPER_NAME,
+                   FSAM_READ,
+                   FSOM_OPEN_EXISTING)) {
                 buffered_file_stream_close(dict->stream);
                 break;
             }

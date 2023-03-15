@@ -172,14 +172,18 @@ ReturnCode picopass_read_preauth(PicopassBlock* AA1) {
     return ERR_NONE;
 }
 
-static ReturnCode picopass_auth_dict(
-    uint8_t* csn,
-    PicopassPacs* pacs,
-    uint8_t* div_key,
-    IclassEliteDictType dict_type,
-    bool elite) {
+static ReturnCode
+    picopass_auth_dict(PicopassWorker* picopass_worker, IclassEliteDictType dict_type) {
     rfalPicoPassReadCheckRes rcRes;
     rfalPicoPassCheckRes chkRes;
+    bool elite = (dict_type != IclassStandardDictTypeFlipper);
+
+    PicopassDeviceData* dev_data = picopass_worker->dev_data;
+    PicopassBlock* AA1 = dev_data->AA1;
+    PicopassPacs* pacs = &dev_data->pacs;
+
+    uint8_t* csn = AA1[PICOPASS_CSN_BLOCK_INDEX].data;
+    uint8_t* div_key = AA1[PICOPASS_KD_BLOCK_INDEX].data;
 
     ReturnCode err = ERR_PARAM;
 
@@ -204,7 +208,8 @@ static ReturnCode picopass_auth_dict(
     while(iclass_elite_dict_get_next_key(dict, key)) {
         FURI_LOG_D(
             TAG,
-            "Try to auth with key %zu %02x%02x%02x%02x%02x%02x%02x%02x",
+            "Try to %s auth with key %zu %02x%02x%02x%02x%02x%02x%02x%02x",
+            elite ? "elite" : "standard",
             index++,
             key[0],
             key[1],
@@ -230,6 +235,8 @@ static ReturnCode picopass_auth_dict(
             memcpy(pacs->key, key, PICOPASS_BLOCK_LEN);
             break;
         }
+
+        if(picopass_worker->state != PicopassWorkerStateDetect) break;
     }
 
     iclass_elite_dict_free(dict);
@@ -237,38 +244,23 @@ static ReturnCode picopass_auth_dict(
     return err;
 }
 
-ReturnCode picopass_auth(PicopassBlock* AA1, PicopassPacs* pacs) {
+ReturnCode picopass_auth(PicopassWorker* picopass_worker) {
     ReturnCode err;
 
     FURI_LOG_I(TAG, "Starting system dictionary attack [Standard KDF]");
-    err = picopass_auth_dict(
-        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
-        pacs,
-        AA1[PICOPASS_KD_BLOCK_INDEX].data,
-        IclassEliteDictTypeFlipper,
-        false);
+    err = picopass_auth_dict(picopass_worker, IclassStandardDictTypeFlipper);
     if(err == ERR_NONE) {
         return ERR_NONE;
     }
 
     FURI_LOG_I(TAG, "Starting user dictionary attack [Elite KDF]");
-    err = picopass_auth_dict(
-        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
-        pacs,
-        AA1[PICOPASS_KD_BLOCK_INDEX].data,
-        IclassEliteDictTypeUser,
-        true);
+    err = picopass_auth_dict(picopass_worker, IclassEliteDictTypeUser);
     if(err == ERR_NONE) {
         return ERR_NONE;
     }
 
     FURI_LOG_I(TAG, "Starting system dictionary attack [Elite KDF]");
-    err = picopass_auth_dict(
-        AA1[PICOPASS_CSN_BLOCK_INDEX].data,
-        pacs,
-        AA1[PICOPASS_KD_BLOCK_INDEX].data,
-        IclassEliteDictTypeFlipper,
-        true);
+    err = picopass_auth_dict(picopass_worker, IclassEliteDictTypeFlipper);
     if(err == ERR_NONE) {
         return ERR_NONE;
     }
@@ -520,7 +512,7 @@ void picopass_worker_detect(PicopassWorker* picopass_worker) {
             }
 
             if(nextState == PicopassWorkerEventSuccess) {
-                err = picopass_auth(AA1, pacs);
+                err = picopass_auth(picopass_worker);
                 if(err != ERR_NONE) {
                     FURI_LOG_E(TAG, "picopass_try_auth error %d", err);
                     nextState = PicopassWorkerEventFail;
