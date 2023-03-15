@@ -25,6 +25,9 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
     WifiMarauderApp* app = malloc(sizeof(WifiMarauderApp));
 
     app->gui = furi_record_open(RECORD_GUI);
+    app->dialogs = furi_record_open(RECORD_DIALOGS);
+    app->storage = furi_record_open(RECORD_STORAGE);
+    app->capture_file = storage_file_alloc(app->storage);
 
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&wifi_marauder_scene_handlers, app);
@@ -67,6 +70,14 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
     return app;
 }
 
+void wifi_marauder_make_app_folder(WifiMarauderApp* app) {
+    furi_assert(app);
+
+    if(!storage_simply_mkdir(app->storage, MARAUDER_APP_FOLDER)) {
+        dialog_message_show_storage_error(app->dialogs, "Cannot create\napp folder");
+    }
+}
+
 void wifi_marauder_app_free(WifiMarauderApp* app) {
     furi_assert(app);
 
@@ -77,33 +88,47 @@ void wifi_marauder_app_free(WifiMarauderApp* app) {
     text_box_free(app->text_box);
     furi_string_free(app->text_box_store);
     text_input_free(app->text_input);
+    storage_file_free(app->capture_file);
 
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
 
     wifi_marauder_uart_free(app->uart);
+    wifi_marauder_uart_free(app->lp_uart);
 
     // Close records
     furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_STORAGE);
+    furi_record_close(RECORD_DIALOGS);
 
     free(app);
 }
 
 int32_t wifi_marauder_app(void* p) {
     UNUSED(p);
-    furi_hal_power_enable_otg();
-    furi_delay_ms(300);
+
+    uint8_t attempts = 0;
+    while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
+        furi_hal_power_enable_otg();
+        furi_delay_ms(10);
+    }
+    furi_delay_ms(200);
 
     WifiMarauderApp* wifi_marauder_app = wifi_marauder_app_alloc();
 
-    wifi_marauder_app->uart = wifi_marauder_uart_init(wifi_marauder_app);
+    wifi_marauder_make_app_folder(wifi_marauder_app);
+
+    wifi_marauder_app->uart = wifi_marauder_usart_init(wifi_marauder_app);
+    wifi_marauder_app->lp_uart = wifi_marauder_lp_uart_init(wifi_marauder_app);
 
     view_dispatcher_run(wifi_marauder_app->view_dispatcher);
 
     wifi_marauder_app_free(wifi_marauder_app);
 
-    furi_hal_power_disable_otg();
+    if(furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_disable_otg();
+    }
 
     return 0;
 }

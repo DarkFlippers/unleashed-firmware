@@ -2,10 +2,12 @@
 #include "wifi_marauder_uart.h"
 
 #define UART_CH (FuriHalUartIdUSART1)
+#define LP_UART_CH (FuriHalUartIdLPUART1)
 #define BAUDRATE (115200)
 
 struct WifiMarauderUart {
     WifiMarauderApp* app;
+    FuriHalUartId channel;
     FuriThread* rx_thread;
     FuriStreamBuffer* rx_stream;
     uint8_t rx_buf[RX_BUF_SIZE + 1];
@@ -60,23 +62,40 @@ void wifi_marauder_uart_tx(uint8_t* data, size_t len) {
     furi_hal_uart_tx(UART_CH, data, len);
 }
 
-WifiMarauderUart* wifi_marauder_uart_init(WifiMarauderApp* app) {
+void wifi_marauder_lp_uart_tx(uint8_t* data, size_t len) {
+    furi_hal_uart_tx(LP_UART_CH, data, len);
+}
+
+WifiMarauderUart*
+    wifi_marauder_uart_init(WifiMarauderApp* app, FuriHalUartId channel, const char* thread_name) {
     WifiMarauderUart* uart = malloc(sizeof(WifiMarauderUart));
 
     uart->app = app;
+    uart->channel = channel;
     uart->rx_stream = furi_stream_buffer_alloc(RX_BUF_SIZE, 1);
     uart->rx_thread = furi_thread_alloc();
-    furi_thread_set_name(uart->rx_thread, "WifiMarauderUartRxThread");
+    furi_thread_set_name(uart->rx_thread, thread_name);
     furi_thread_set_stack_size(uart->rx_thread, 1024);
     furi_thread_set_context(uart->rx_thread, uart);
     furi_thread_set_callback(uart->rx_thread, uart_worker);
     furi_thread_start(uart->rx_thread);
-
-    furi_hal_console_disable();
-    furi_hal_uart_set_br(UART_CH, BAUDRATE);
-    furi_hal_uart_set_irq_cb(UART_CH, wifi_marauder_uart_on_irq_cb, uart);
+    if(channel == FuriHalUartIdUSART1) {
+        furi_hal_console_disable();
+    } else if(channel == FuriHalUartIdLPUART1) {
+        furi_hal_uart_init(channel, BAUDRATE);
+    }
+    furi_hal_uart_set_br(channel, BAUDRATE);
+    furi_hal_uart_set_irq_cb(channel, wifi_marauder_uart_on_irq_cb, uart);
 
     return uart;
+}
+
+WifiMarauderUart* wifi_marauder_usart_init(WifiMarauderApp* app) {
+    return wifi_marauder_uart_init(app, UART_CH, "WifiMarauderUartRxThread");
+}
+
+WifiMarauderUart* wifi_marauder_lp_uart_init(WifiMarauderApp* app) {
+    return wifi_marauder_uart_init(app, LP_UART_CH, "WifiMarauderLPUartRxThread");
 }
 
 void wifi_marauder_uart_free(WifiMarauderUart* uart) {
@@ -86,7 +105,7 @@ void wifi_marauder_uart_free(WifiMarauderUart* uart) {
     furi_thread_join(uart->rx_thread);
     furi_thread_free(uart->rx_thread);
 
-    furi_hal_uart_set_irq_cb(UART_CH, NULL, NULL);
+    furi_hal_uart_set_irq_cb(uart->channel, NULL, NULL);
     furi_hal_console_enable();
 
     free(uart);

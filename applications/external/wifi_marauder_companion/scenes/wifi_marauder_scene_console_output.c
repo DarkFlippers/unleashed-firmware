@@ -14,8 +14,24 @@ void wifi_marauder_console_output_handle_rx_data_cb(uint8_t* buf, size_t len, vo
     // Null-terminate buf and append to text box store
     buf[len] = '\0';
     furi_string_cat_printf(app->text_box_store, "%s", buf);
-
     view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventRefreshConsoleOutput);
+}
+
+void wifi_marauder_console_output_handle_rx_packets_cb(uint8_t* buf, size_t len, void* context) {
+    furi_assert(context);
+    WifiMarauderApp* app = context;
+
+    // If it is a sniff function, open the pcap file for recording
+    if(strncmp("sniff", app->selected_tx_string, strlen("sniff")) == 0 && !app->is_writing) {
+        app->is_writing = true;
+        if(!app->capture_file || !storage_file_is_open(app->capture_file)) {
+            wifi_marauder_create_pcap_file(app);
+        }
+    }
+
+    if(app->is_writing) {
+        storage_file_write(app->capture_file, buf, len);
+    }
 }
 
 void wifi_marauder_scene_console_output_on_enter(void* context) {
@@ -33,8 +49,8 @@ void wifi_marauder_scene_console_output_on_enter(void* context) {
         furi_string_reset(app->text_box_store);
         app->text_box_store_strlen = 0;
         if(0 == strncmp("help", app->selected_tx_string, strlen("help"))) {
-            const char* help_msg =
-                "Marauder companion v0.3.0\nFor app support/feedback,\nreach out to me:\n@cococode#6011 (discord)\n0xchocolate (github)\n";
+            const char* help_msg = "Marauder companion " WIFI_MARAUDER_APP_VERSION
+                                   "\nby @0xchocolate\nmodified by @tcpassos\n";
             furi_string_cat_str(app->text_box_store, help_msg);
             app->text_box_store_strlen += strlen(help_msg);
         }
@@ -54,7 +70,11 @@ void wifi_marauder_scene_console_output_on_enter(void* context) {
 
     // Register callback to receive data
     wifi_marauder_uart_set_handle_rx_data_cb(
-        app->uart, wifi_marauder_console_output_handle_rx_data_cb); // setup callback for rx thread
+        app->uart,
+        wifi_marauder_console_output_handle_rx_data_cb); // setup callback for general log rx thread
+    wifi_marauder_uart_set_handle_rx_data_cb(
+        app->lp_uart,
+        wifi_marauder_console_output_handle_rx_packets_cb); // setup callback for packets rx thread
 
     // Send command with newline '\n'
     if(app->is_command && app->selected_tx_string) {
@@ -84,9 +104,15 @@ void wifi_marauder_scene_console_output_on_exit(void* context) {
 
     // Unregister rx callback
     wifi_marauder_uart_set_handle_rx_data_cb(app->uart, NULL);
+    wifi_marauder_uart_set_handle_rx_data_cb(app->lp_uart, NULL);
 
     // Automatically stop the scan when exiting view
     if(app->is_command) {
         wifi_marauder_uart_tx((uint8_t*)("stopscan\n"), strlen("stopscan\n"));
+    }
+
+    app->is_writing = false;
+    if(app->capture_file && storage_file_is_open(app->capture_file)) {
+        storage_file_close(app->capture_file);
     }
 }

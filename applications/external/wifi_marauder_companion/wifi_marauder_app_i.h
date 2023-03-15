@@ -6,6 +6,7 @@
 #include "scenes/wifi_marauder_scene.h"
 #include "wifi_marauder_custom_event.h"
 #include "wifi_marauder_uart.h"
+#include "wifi_marauder_pcap.h"
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
@@ -14,10 +15,15 @@
 #include <gui/modules/text_input.h>
 #include <gui/modules/variable_item_list.h>
 
+#include <storage/storage.h>
+#include <dialogs/dialogs.h>
+
 #define NUM_MENU_ITEMS (16)
 
 #define WIFI_MARAUDER_TEXT_BOX_STORE_SIZE (4096)
 #define WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE (512)
+
+#define MARAUDER_APP_FOLDER EXT_PATH("apps_data/marauder")
 
 struct WifiMarauderApp {
     Gui* gui;
@@ -29,11 +35,14 @@ struct WifiMarauderApp {
     size_t text_box_store_strlen;
     TextBox* text_box;
     TextInput* text_input;
-    //Widget* widget;
+    Storage* storage;
+    File* capture_file;
+    DialogsApp* dialogs;
 
     VariableItemList* var_item_list;
 
     WifiMarauderUart* uart;
+    WifiMarauderUart* lp_uart;
     int selected_menu_index;
     int selected_option_index[NUM_MENU_ITEMS];
     const char* selected_tx_string;
@@ -41,6 +50,7 @@ struct WifiMarauderApp {
     bool is_custom_tx_string;
     bool focus_console_start;
     bool show_stopscan_tip;
+    bool is_writing;
 
     // For input source and destination MAC in targeted deauth attack
     int special_case_input_step;
