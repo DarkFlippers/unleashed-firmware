@@ -663,7 +663,12 @@ int32_t wifi_scanner_app(void* p) {
 #else
     app->m_context = Initializing;
 #if ENABLE_MODULE_POWER
-    furi_hal_power_enable_otg();
+    uint8_t attempts = 0;
+    while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
+        furi_hal_power_enable_otg();
+        furi_delay_ms(10);
+    }
+    furi_delay_ms(200);
 #endif // ENABLE_MODULE_POWER
 #endif // ENABLE_MODULE_DETECTION
 
@@ -722,7 +727,12 @@ int32_t wifi_scanner_app(void* p) {
                 app->m_wifiModuleAttached = true;
                 app->m_context = Initializing;
 #if ENABLE_MODULE_POWER
-                furi_hal_power_enable_otg();
+                uint8_t attempts2 = 0;
+                while(!furi_hal_power_is_otg_enabled() && attempts2++ < 3) {
+                    furi_hal_power_enable_otg();
+                    furi_delay_ms(10);
+                }
+
 #endif
             }
         }
@@ -851,7 +861,9 @@ int32_t wifi_scanner_app(void* p) {
     WIFI_APP_LOG_I("App freed");
 
 #if ENABLE_MODULE_POWER
-    furi_hal_power_disable_otg();
+    if(furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_disable_otg();
+    }
 #endif
 
     return 0;

@@ -352,7 +352,12 @@ int32_t esp8266_deauth_app(void* p) {
 #else
 #if ENABLE_MODULE_POWER
     app->m_context = Initializing;
-    furi_hal_power_enable_otg();
+    uint8_t attempts = 0;
+    while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
+        furi_hal_power_enable_otg();
+        furi_delay_ms(10);
+    }
+    furi_delay_ms(200);
 #else
     app->m_context = ModuleActive;
 #endif
@@ -409,7 +414,11 @@ int32_t esp8266_deauth_app(void* p) {
                 app->m_wifiDeauthModuleAttached = true;
 #if ENABLE_MODULE_POWER
                 app->m_context = Initializing;
-                furi_hal_power_enable_otg();
+                uint8_t attempts2 = 0;
+                while(!furi_hal_power_is_otg_enabled() && attempts2++ < 3) {
+                    furi_hal_power_enable_otg();
+                    furi_delay_ms(10);
+                }
 #else
                 app->m_context = ModuleActive;
 #endif
@@ -533,7 +542,9 @@ int32_t esp8266_deauth_app(void* p) {
     DEAUTH_APP_LOG_I("App freed");
 
 #if ENABLE_MODULE_POWER
-    furi_hal_power_disable_otg();
+    if(furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_disable_otg();
+    }
 #endif
 
     return 0;
