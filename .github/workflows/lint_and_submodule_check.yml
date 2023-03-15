@@ -1,4 +1,4 @@
-name: 'Check submodules branch'
+name: 'Lint sources & check submodule integrity'
 
 on:
   push:
@@ -9,9 +9,14 @@ on:
       - '*'
   pull_request:
 
+env:
+  TARGETS: f7
+  FBT_TOOLCHAIN_PATH: /runner/_work
+  SET_GH_OUTPUT: 1
+
 jobs:
-  check_protobuf:
-    runs-on: [self-hosted, FlipperZeroShell]
+  lint_sources_check_submodules:
+    runs-on: [self-hosted,FlipperZeroShell]
     steps:
       - name: 'Decontaminate previous build leftovers'
         run: |
@@ -22,8 +27,9 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+
 
       - name: 'Check protobuf branch'
         run: |
@@ -36,12 +42,28 @@ jobs:
           BRANCHES=$(git branch -r --contains "$SUBMODULE_HASH");
           COMMITS_IN_BRANCH="$(git rev-list --count dev)";
           if [ $COMMITS_IN_BRANCH -lt $SUB_COMMITS_MIN ]; then
-            echo "name=fails::error" >> $GITHUB_OUTPUT
+            echo "name=fails::error" >> $GITHUB_OUTPUT;
             echo "::error::Error: Too low commits in $SUB_BRANCH of submodule $SUB_PATH: $COMMITS_IN_BRANCH(expected $SUB_COMMITS_MIN+)";
             exit 1;
           fi
           if ! grep -q "/$SUB_BRANCH" <<< "$BRANCHES"; then
-            echo "name=fails::error" >> $GITHUB_OUTPUT
+            echo "name=fails::error" >> $GITHUB_OUTPUT;
             echo "::error::Error: Submodule $SUB_PATH is not on branch $SUB_BRANCH";
             exit 1;
           fi
+
+      - name: 'Check Python code formatting'
+        id: syntax_check_py
+        run: ./fbt lint_py 2>&1 >/dev/null || echo "errors=1" >> $GITHUB_OUTPUT
+
+      - name: 'Check C++ code formatting'
+        if: always()
+        id: syntax_check_cpp
+        run: ./fbt lint 2>&1 >/dev/null || echo "errors=1" >> $GITHUB_OUTPUT
+
+      - name: Report code formatting errors
+        if: ( steps.syntax_check_py.outputs.errors || steps.syntax_check_cpp.outputs.errors ) && github.event.pull_request
+        run: |
+          echo "Code formatting errors found";
+          echo "Please run './fbt format' or './fbt format_py' to fix them";
+          exit 1;
