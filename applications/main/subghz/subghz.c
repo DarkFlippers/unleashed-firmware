@@ -73,10 +73,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->in_decoder_scene = false;
     subghz->in_decoder_scene_skip = false;
 
-    // Call enable power for external module
-    furi_hal_subghz_enable_ext_power();
-    furi_delay_ms(15);
-
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(subghz->view_dispatcher);
@@ -425,9 +421,6 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
 
     // The rest
     free(subghz);
-
-    // Disable power for External CC1101 if it was enabled and module is connected
-    furi_hal_subghz_disable_ext_power();
 }
 
 int32_t subghz_app(void* p) {
@@ -451,6 +444,9 @@ int32_t subghz_app(void* p) {
         subghz->txrx->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
     subghz_environment_load_keystore(
         subghz->txrx->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+
+    // Call enable power for external module
+    furi_hal_subghz_enable_ext_power();
 
     // Auto switch to internal radio if external radio is not available
     if(!furi_hal_subghz_check_radio()) {
@@ -509,6 +505,8 @@ int32_t subghz_app(void* p) {
     view_dispatcher_run(subghz->view_dispatcher);
 
     furi_hal_power_suppress_charge_exit();
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
 
     subghz_free(subghz, alloc_for_tx);
 
