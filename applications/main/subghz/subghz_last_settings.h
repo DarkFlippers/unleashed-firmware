@@ -10,6 +10,7 @@ typedef struct {
     int32_t preset;
     uint32_t frequency_analyzer_feedback_level;
     float frequency_analyzer_trigger;
+    bool external_module_enabled;
 } SubGhzLastSettings;
 
 SubGhzLastSettings* subghz_last_settings_alloc(void);

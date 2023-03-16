@@ -37,10 +37,13 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
 static void subghz_scene_ext_module_changed(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     value_index_exm = variable_item_get_current_value_index(item);
-    UNUSED(subghz);
 
     variable_item_set_current_value_text(item, radio_modules_variables_text[value_index_exm]);
+
+    subghz->last_settings->external_module_enabled = value_index_exm == 1;
+    subghz_last_settings_save(subghz->last_settings);
 }
+
 static void subghz_ext_module_start_var_list_enter_callback(void* context, uint32_t index) {
     SubGhz* subghz = context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
