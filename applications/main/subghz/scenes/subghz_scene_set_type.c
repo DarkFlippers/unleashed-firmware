@@ -220,7 +220,7 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "CAME Space 433MHz",
+        "KL: CAME Space 433MHz",
         SubmenuIndexCAMESpace,
         subghz_scene_set_type_submenu_callback,
         subghz);
