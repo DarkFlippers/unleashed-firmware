@@ -24,12 +24,13 @@ Changelog:
 
 #### Format fields
 
-| Name      | Type   | Description                                  |
-| --------- | ------ | -------------------------------------------- |
-| Protocol  | string | Currently supported: DS1990, DS1992, DS1996, DSGeneric*, Cyfral, Metakom |
-| Rom Data  | hex    | Read-only memory data (Dallas protocols only) |
-| Sram Data | hex    | Static RAM data (DS1992 and DS1996 only)
-| Data      | hex    | Key data (Cyfral & Metakom only)              |
+| Name        | Type   | Description                                  |
+| ----------- | ------ | -------------------------------------------- |
+| Protocol    | string | Currently supported: DS1990, DS1992, DS1996, DS1997, DSGeneric*, Cyfral, Metakom |
+| Rom Data    | hex    | Read-only memory data (Dallas protocols only) |
+| Sram Data   | hex    | Static RAM data (DS1992 and DS1996 only)
+| Eeprom Data | hex    | EEPROM data (DS1971 only)
+| Data        | hex    | Key data (Cyfral & Metakom only)              |
 
 NOTE 1: DSGeneric is a catch-all protocol for all unknown 1-Wire devices. It reads only the ROM and does not perform any checks on the read data. 
 It can also be used if a key with a deliberately invalid family code or checksum is required.

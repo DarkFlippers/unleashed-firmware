@@ -21,6 +21,7 @@
 
 #define BITS_IN_BYTE 8U
 #define BITS_IN_KBIT 1024U
+#define BITS_IN_MBIT (BITS_IN_KBIT * 1024U)
 
 bool dallas_common_skip_rom(OneWireHost* host) {
     onewire_host_write(host, DALLAS_COMMON_CMD_SKIP_ROM);
@@ -210,25 +211,35 @@ bool dallas_common_is_valid_crc(const DallasCommonRomData* rom_data) {
 void dallas_common_render_brief_data(
     FuriString* result,
     const DallasCommonRomData* rom_data,
-    const uint8_t* sram_data,
-    size_t sram_data_size) {
+    const uint8_t* mem_data,
+    size_t mem_size,
+    const char* mem_name) {
     for(size_t i = 0; i < sizeof(rom_data->bytes); ++i) {
         furi_string_cat_printf(result, "%02X ", rom_data->bytes[i]);
     }
 
+    const char* size_prefix = "";
+    size_t mem_size_bits = mem_size * BITS_IN_BYTE;
+
+    if(mem_size_bits >= BITS_IN_MBIT) {
+        size_prefix = "M";
+        mem_size_bits /= BITS_IN_MBIT;
+    } else if(mem_size_bits >= BITS_IN_KBIT) {
+        size_prefix = "K";
+        mem_size_bits /= BITS_IN_KBIT;
+    }
+
     furi_string_cat_printf(
-        result,
-        "\nInternal SRAM: %zu Kbit\n",
-        (size_t)(sram_data_size * BITS_IN_BYTE / BITS_IN_KBIT));
+        result, "\nInternal %s: %zu %sbit\n", mem_name, mem_size_bits, size_prefix);
 
     for(size_t i = 0; i < DALLAS_COMMON_BRIEF_HEAD_COUNT; ++i) {
-        furi_string_cat_printf(result, "%02X ", sram_data[i]);
+        furi_string_cat_printf(result, "%02X ", mem_data[i]);
     }
 
     furi_string_cat_printf(result, "[  . . .  ]");
 
-    for(size_t i = sram_data_size - DALLAS_COMMON_BRIEF_TAIL_COUNT; i < sram_data_size; ++i) {
-        furi_string_cat_printf(result, " %02X", sram_data[i]);
+    for(size_t i = mem_size - DALLAS_COMMON_BRIEF_TAIL_COUNT; i < mem_size; ++i) {
+        furi_string_cat_printf(result, " %02X", mem_data[i]);
     }
 }
 
