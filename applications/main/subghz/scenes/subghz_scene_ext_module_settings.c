@@ -88,6 +88,7 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
 }
 
 static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, ext_mod_power_text[index]);
@@ -98,6 +99,9 @@ static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
     } else {
         furi_hal_subghz_enable_ext_power();
     }
+
+    subghz->last_settings->external_module_power_5v_disable = index == 1;
+    subghz_last_settings_save(subghz->last_settings);
 }
 
 void subghz_scene_ext_module_settings_on_enter(void* context) {
