@@ -11,6 +11,8 @@
 * Plugins: Removed `cdefines` from external plugins as it was not used in any way
 * Plugins: Updated **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (fixed issue #379)
 * Plugins: Update for SubGHz Bruteforcer, added - Holtek HT12X 12bit AM 433.920MHz/315MHz/868MHz/915MHz (TE: 433us)
+* OFW: iButton: Add support for Dallas DS1971
+* OFW: fbt: explicitly set dist suffix length, not depending on environment settings
 * OFW: NFC -> Skip the read when the card is not present
 * OFW: NFC -> Mark keys as not found when they couldn't auth successfully
 * OFW: Storage -> Require the trailing slash for root paths
