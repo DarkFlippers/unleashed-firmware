@@ -2462,6 +2462,10 @@ Function,+,scene_manager_search_and_switch_to_previous_scene_one_of,_Bool,"Scene
 Function,+,scene_manager_set_scene_state,void,"SceneManager*, uint32_t, uint32_t"
 Function,+,scene_manager_stop,void,SceneManager*
 Function,+,sd_api_get_fs_type_text,const char*,SDFsType
+Function,-,secplus2_get_custom_btn,uint8_t,
+Function,-,secplus2_get_original_btn,uint8_t,
+Function,-,secplus2_reset_original_btn,void,
+Function,-,secplus2_set_btn,void,uint8_t
 Function,-,secure_getenv,char*,const char*
 Function,-,seed48,unsigned short*,unsigned short[3]
 Function,-,select,int,"int, fd_set*, fd_set*, fd_set*, timeval*"

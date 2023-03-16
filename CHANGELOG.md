@@ -1,6 +1,7 @@
 ### New changes
 * SubGHz: New protocols support: CAME Space, Stilmatic / Schellenberg
 * SubGHz: Add Manually - new protocols -> Beninca, Sommer(FSK), IronLogic, DTM Neo, Gibidi, Elmes Electronic (Elmes Poland), CAME Space
+* SubGHz: Security+ 2.0 -> Ability to send custom buttons codes (0x80, 0x81, 0xE2)
 * SubGHz: Remember last external module setting and power setting, so if you turn off flipper it will remember last external module settings (only for subghz app)
 * SubGHz: Fix issues when external module is not found but plugins tries to use it, now they will fallback to internal in that case
 * SubGHz: Fixed external CC1101 module power issues, added more checks, fixed issues when launching subghz favourites
