@@ -1,13 +1,18 @@
 ### New changes
 * SubGHz: New protocols support: CAME Space, Stilmatic / Schellenberg
 * SubGHz: Add Manually - new protocols -> Beninca, Sommer(FSK), IronLogic, DTM Neo, Gibidi, Elmes Electronic (Elmes Poland), CAME Space
+* SubGHz: Remember last external module setting, so if you turn off flipper it will remember last external module setting (only for subghz app)
+* SubGHz: Fix issues when external module is not found but plugins tries to use it, now they will fallback to internal in that case
 * SubGHz: Fixed external CC1101 module power issues, added more checks, fixed issues when launching subghz favourites
 * SubGHz: Removed 330MHz from default freq hopper to make it faster, to change freq hopper settings and remove/add your freqs see -> [Instruction](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSettings.md)
 * Plugins: Added delay and retries to avoid power issues in plugins -> WiFi Scanner, ESP8266 Deauther
-* Plugins: Update for WiFi Marauder companion -> `sniff` saves pcaps in `YourFlippersMicroSD/apps_data/marauder/` -> Only with custom marauder build (It is necessary to uncomment "#define WRITE_PACKETS_SERIAL" in configs.h (in marauder fw) and compile the firmware for the wifi board.) Or download precompiled build -> [Download .bin](https://github.com/tcpassos/ESP32Marauder/releases/download/0.10.1/esp32_marauder_no_sd_20230301.bin) - [(by tcpassos)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion/pull/7)
+* Plugins: Update for WiFi Marauder companion -> `sniff` saves pcaps in `YourFlippersMicroSD/apps_data/marauder/` -> Only with custom marauder build (It is necessary to uncomment "#define WRITE_PACKETS_SERIAL" in configs.h (in marauder fw) and compile the firmware for the wifi board.) Or download precompiled build -> [Download esp32_marauder_ver_flipper_sd_serial.bin](https://github.com/justcallmekoko/ESP32Marauder/releases/latest) - [(by tcpassos)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion/pull/7)
 * Plugins: Removed `cdefines` from external plugins as it was not used in any way
 * Plugins: Updated **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (fixed issue #379)
 * Plugins: Update for SubGHz Bruteforcer, added - Holtek HT12X 12bit AM 433.920MHz/315MHz/868MHz/915MHz (TE: 433us)
+* OFW: NFC -> Skip the read when the card is not present
+* OFW: NFC -> Mark keys as not found when they couldn't auth successfully
+* OFW: Storage -> Require the trailing slash for root paths
 * OFW: gh: use shallow clones whenever possible
 * OFW: Add new nfc apdu cli command 
 * OFW: Picopass standard KDF dictionary 
