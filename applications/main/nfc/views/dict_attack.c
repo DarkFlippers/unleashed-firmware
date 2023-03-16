@@ -11,6 +11,7 @@ struct DictAttack {
     View* view;
     DictAttackCallback callback;
     void* context;
+    bool card_present;
 };
 
 typedef struct {
@@ -162,6 +163,7 @@ void dict_attack_set_header(DictAttack* dict_attack, const char* header) {
 
 void dict_attack_set_card_detected(DictAttack* dict_attack, MfClassicType type) {
     furi_assert(dict_attack);
+    dict_attack->card_present = true;
     with_view_model(
         dict_attack->view,
         DictAttackViewModel * model,
@@ -175,11 +177,17 @@ void dict_attack_set_card_detected(DictAttack* dict_attack, MfClassicType type) 
 
 void dict_attack_set_card_removed(DictAttack* dict_attack) {
     furi_assert(dict_attack);
+    dict_attack->card_present = false;
     with_view_model(
         dict_attack->view,
         DictAttackViewModel * model,
         { model->state = DictAttackStateCardRemoved; },
         true);
+}
+
+bool dict_attack_get_card_state(DictAttack* dict_attack) {
+    furi_assert(dict_attack);
+    return dict_attack->card_present;
 }
 
 void dict_attack_set_sector_read(DictAttack* dict_attack, uint8_t sec_read) {
