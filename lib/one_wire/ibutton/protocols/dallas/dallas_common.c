@@ -85,7 +85,7 @@ bool dallas_common_read_mem(OneWireHost* host, uint16_t address, uint8_t* data, 
     onewire_host_write(host, DALLAS_COMMON_CMD_READ_MEM);
 
     onewire_host_write(host, (uint8_t)address);
-    onewire_host_write(host, (uint8_t)(address > BITS_IN_BYTE));
+    onewire_host_write(host, (uint8_t)(address >> BITS_IN_BYTE));
 
     onewire_host_read_bytes(host, data, (uint16_t)data_size);
 
