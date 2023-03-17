@@ -2,6 +2,17 @@
 #include <m-list.h>
 #include <m-dict.h>
 
+#define STORAGE_PATH_PREFIX_LEN 4u
+_Static_assert(
+    sizeof(STORAGE_ANY_PATH_PREFIX) == STORAGE_PATH_PREFIX_LEN + 1,
+    "Any path prefix len mismatch");
+_Static_assert(
+    sizeof(STORAGE_EXT_PATH_PREFIX) == STORAGE_PATH_PREFIX_LEN + 1,
+    "Ext path prefix len mismatch");
+_Static_assert(
+    sizeof(STORAGE_INT_PATH_PREFIX) == STORAGE_PATH_PREFIX_LEN + 1,
+    "Int path prefix len mismatch");
+
 #define FS_CALL(_storage, _fn) ret = _storage->fs_api->_fn;
 
 static bool storage_type_is_valid(StorageType type) {
@@ -26,34 +37,29 @@ static StorageData* get_storage_by_file(File* file, StorageData* storages) {
 
 static const char* cstr_path_without_vfs_prefix(FuriString* path) {
     const char* path_cstr = furi_string_get_cstr(path);
-    return path_cstr + MIN(4u, strlen(path_cstr));
+    return path_cstr + MIN(STORAGE_PATH_PREFIX_LEN, strlen(path_cstr));
 }
 
 static StorageType storage_get_type_by_path(FuriString* path) {
     StorageType type = ST_ERROR;
     const char* path_cstr = furi_string_get_cstr(path);
 
-    if(furi_string_size(path) == 4) {
-        if(memcmp(path_cstr, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
-            type = ST_EXT;
-        } else if(memcmp(path_cstr, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
-            type = ST_INT;
-        } else if(memcmp(path_cstr, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
-            type = ST_ANY;
+    if(furi_string_size(path) > STORAGE_PATH_PREFIX_LEN) {
+        if(path_cstr[STORAGE_PATH_PREFIX_LEN] != '/') {
+            return ST_ERROR;
         }
-    } else if(furi_string_size(path) > 4) {
-        if(memcmp(path_cstr, EXT_PATH(""), strlen(EXT_PATH(""))) == 0) {
-            type = ST_EXT;
-        } else if(memcmp(path_cstr, INT_PATH(""), strlen(INT_PATH(""))) == 0) {
-            type = ST_INT;
-        } else if(memcmp(path_cstr, ANY_PATH(""), strlen(ANY_PATH(""))) == 0) {
-            type = ST_ANY;
-        }
+    }
+
+    if(memcmp(path_cstr, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
+        type = ST_EXT;
+    } else if(memcmp(path_cstr, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
+        type = ST_INT;
+    } else if(memcmp(path_cstr, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
+        type = ST_ANY;
     }
 
     return type;
 }
-
 static void storage_path_change_to_real_storage(FuriString* path, StorageType real_storage) {
     if(furi_string_search(path, STORAGE_ANY_PATH_PREFIX) == 0) {
         switch(real_storage) {
