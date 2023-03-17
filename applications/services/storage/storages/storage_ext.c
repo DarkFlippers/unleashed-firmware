@@ -619,7 +619,7 @@ static const FS_Api fs_api = {
 
 void storage_ext_init(StorageData* storage) {
     SDData* sd_data = malloc(sizeof(SDData));
-    sd_data->fs = &USERFatFS;
+    sd_data->fs = &fatfs_object;
     sd_data->path = "0:/";
     sd_data->sd_was_present = true;
 

@@ -76,7 +76,7 @@ void furi_hal_init() {
     furi_hal_compress_icon_init();
 
     // FatFS driver initialization
-    MX_FATFS_Init();
+    fatfs_init();
     FURI_LOG_I(TAG, "FATFS OK");
 }
 

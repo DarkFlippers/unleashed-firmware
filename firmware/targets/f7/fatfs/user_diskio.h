@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
  ******************************************************************************
   * @file    user_diskio.h
@@ -17,32 +16,18 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USER_DISKIO_H
-#define __USER_DISKIO_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* USER CODE BEGIN 0 */
-
-/* Includes ------------------------------------------------------------------*/
 #include "sd_spi_io.h"
 #include "fatfs/ff_gen_drv.h"
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-extern Diskio_drvTypeDef USER_Driver;
 
-/* USER CODE END 0 */
+extern Diskio_drvTypeDef sd_fatfs_driver;
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __USER_DISKIO_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
