@@ -1,0 +1,14 @@
+App(
+    appid="morse_code",
+    name="Morse Code",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="morse_code_app",
+    requires=[
+        "gui",
+    ],
+    stack_size=1 * 1024,
+    order=20,
+    fap_icon="morse_code_10px.png",
+    fap_category="Media"
+
+)

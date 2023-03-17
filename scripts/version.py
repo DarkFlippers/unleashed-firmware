@@ -9,11 +9,16 @@ from datetime import date, datetime
 
 
 class GitVersion:
+    REVISION_SUFFIX_LENGTH = 8
+
     def __init__(self, source_dir):
         self.source_dir = source_dir
 
     def get_version_info(self):
-        commit = self._exec_git("rev-parse --short HEAD") or "unknown"
+        commit = (
+            self._exec_git(f"rev-parse --short={self.REVISION_SUFFIX_LENGTH} HEAD")
+            or "unknown"
+        )
 
         dirty = False
         try:

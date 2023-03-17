@@ -1,0 +1,11 @@
+App(
+    appid="Spectrum_Analyzer",
+    name="Spectrum Analyzer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="spectrum_analyzer_app",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=12,
+    fap_icon="spectrum_10px.png",
+    fap_category="Sub-GHz",
+)

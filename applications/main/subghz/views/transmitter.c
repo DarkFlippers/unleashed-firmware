@@ -8,6 +8,7 @@
 #include <lib/subghz/protocols/alutech_at_4n.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/somfy_telis.h>
+#include <lib/subghz/protocols/secplus_v2.h>
 
 struct SubGhzViewTransmitter {
     View* view;
@@ -163,6 +164,7 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
         alutech_set_btn(1);
         nice_flors_set_btn(1);
         somfy_telis_set_btn(1);
+        secplus2_set_btn(1);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
@@ -199,6 +201,7 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
         alutech_set_btn(2);
         nice_flors_set_btn(2);
         somfy_telis_set_btn(2);
+        secplus2_set_btn(2);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
@@ -235,6 +238,7 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
         alutech_set_btn(3);
         nice_flors_set_btn(3);
         somfy_telis_set_btn(3);
+        secplus2_set_btn(3);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,

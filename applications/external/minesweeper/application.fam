@@ -1,0 +1,11 @@
+App(
+    appid="Minesweeper",
+    name="Minesweeper",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="minesweeper_app",
+    requires=["gui"],
+    stack_size=8 * 1024,
+    fap_category="Games",
+    fap_icon="minesweeper_icon.png",
+    order=35,
+)

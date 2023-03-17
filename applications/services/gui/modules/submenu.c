@@ -98,7 +98,7 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
 
             FuriString* disp_str;
             disp_str = furi_string_alloc_set(SubmenuItemArray_cref(it)->label);
-            elements_string_fit_width(canvas, disp_str, item_width - 20);
+            elements_string_fit_width(canvas, disp_str, item_width - 11);
 
             canvas_draw_str(
                 canvas,

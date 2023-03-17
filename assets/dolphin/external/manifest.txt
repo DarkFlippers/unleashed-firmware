@@ -69,7 +69,7 @@ Min butthurt: 0
 Max butthurt: 9
 Min level: 1
 Max level: 3
-Weight: 4
+Weight: 3
 
 Name: L1_Painting_128x64
 Min butthurt: 0
@@ -85,12 +85,19 @@ Min level: 1
 Max level: 3
 Weight: 3
 
+Name: L1_Senpai_128x64
+Min butthurt: 0
+Max butthurt: 5
+Min level: 1
+Max level: 3
+Weight: 4
+
 Name: L2_Wake_up_128x64
 Min butthurt: 0
 Max butthurt: 12
 Min level: 2
 Max level: 3
-Weight: 4
+Weight: 3
 
 Name: L2_Furippa2_128x64
 Min butthurt: 0
@@ -134,12 +141,6 @@ Min level: 3
 Max level: 3
 Weight: 3
 
-Name: L1_Sleigh_ride_128x64
-Min butthurt: 0
-Max butthurt: 14
-Min level: 1
-Max level: 3
-Weight: 4
 
 Name: L3_Fireplace_128x64
 Min butthurt: 0

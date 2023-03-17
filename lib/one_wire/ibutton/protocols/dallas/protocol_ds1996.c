@@ -15,6 +15,7 @@
 #define DS1996_DATA_BYTE_COUNT 4U
 
 #define DS1996_SRAM_DATA_KEY "Sram Data"
+#define DS1996_MEMORY_TYPE "SRAM"
 
 typedef struct {
     OneWireSlave* bus;
@@ -182,7 +183,7 @@ void dallas_ds1996_render_data(FuriString* result, const iButtonProtocolData* pr
 void dallas_ds1996_render_brief_data(FuriString* result, const iButtonProtocolData* protocol_data) {
     const DS1996ProtocolData* data = protocol_data;
     dallas_common_render_brief_data(
-        result, &data->rom_data, data->sram_data, DS1996_SRAM_DATA_SIZE);
+        result, &data->rom_data, data->sram_data, DS1996_SRAM_DATA_SIZE, DS1996_MEMORY_TYPE);
 }
 
 void dallas_ds1996_render_error(FuriString* result, const iButtonProtocolData* protocol_data) {

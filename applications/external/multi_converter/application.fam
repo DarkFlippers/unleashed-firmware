@@ -1,0 +1,11 @@
+App(
+    appid="Multi_Converter",
+    name="Multi Converter",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="multi_converter_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=19,
+    fap_icon="converter_10px.png",
+    fap_category="Misc",
+)

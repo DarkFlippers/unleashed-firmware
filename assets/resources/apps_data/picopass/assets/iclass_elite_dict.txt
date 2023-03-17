@@ -1,16 +1,10 @@
 
 ## From https://github.com/RfidResearchGroup/proxmark3/blob/master/client/dictionaries/iclass_default_keys.dic
 
-# AA1
-AEA684A6DAB23278
 # key1/Kc from PicoPass 2k documentation
 7665544332211000
 # SAGEM
 0123456789ABCDEF
-# from loclass demo file.
-5b7c62c491c11b39
-# Kd from PicoPass 2k documentation
-F0E1D2C3B4A59687
 # PicoPass Default Exchange Key
 5CBCF1DA45D5FB4F
 # From HID multiclassSE reader
@@ -18,12 +12,6 @@ F0E1D2C3B4A59687
 # From pastebin: https://pastebin.com/uHqpjiuU
 6EFD46EFCBB3C875
 E033CA419AEE43F9
-
-# iCopy-x DRM keys
-# iCL tags
-2020666666668888
-# iCS tags reversed from the SOs
-6666202066668888
 
 # default picopass KD / Page 0 / Book 1
 FDCB5A52EA8F3090

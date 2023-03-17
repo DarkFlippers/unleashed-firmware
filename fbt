@@ -25,10 +25,10 @@ fi
 
 if [ -z "$FBT_NO_SYNC" ]; then
     if [ ! -d "$SCRIPT_PATH/.git" ]; then
-        echo "\".git\" directory not found, please clone repo via \"git clone --recursive\"";
+        echo "\".git\" directory not found, please clone repo via \"git clone\"";
         exit 1;
     fi
-    git submodule update --init;
+    git submodule update --init --depth 1;
 fi
 
 $SCONS_EP $SCONS_DEFAULT_FLAGS "$@"

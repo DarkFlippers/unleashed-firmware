@@ -5,9 +5,9 @@ set SCONS_EP=python -m SCons
 
 if [%FBT_NO_SYNC%] == [] (
     if exist ".git" (
-        git submodule update --init
+        git submodule update --init --depth 1
     ) else (
-        echo Not in a git repo, please clone with git clone --recursive
+        echo Not in a git repo, please clone with "git clone"
         exit /b 1
     )
 )

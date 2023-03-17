@@ -1,0 +1,11 @@
+App(
+    appid="protoview",
+    name="ProtoView",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="protoview_app_entry",
+    requires=["gui"],
+    stack_size=8*1024,
+    order=50,
+    fap_icon="appicon.png",
+    fap_category="Sub-GHz",
+)

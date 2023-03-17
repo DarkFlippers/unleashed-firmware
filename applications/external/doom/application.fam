@@ -1,0 +1,14 @@
+App(
+    appid="DOOM",
+    name="DOOM",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="doom_app",
+    requires=[
+        "gui",
+        "music_player",
+    ],
+    stack_size=4 * 1024,
+    order=75,
+    fap_icon="doom_10px.png",
+    fap_category="Games",
+)

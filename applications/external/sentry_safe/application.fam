@@ -1,0 +1,11 @@
+App(
+    appid="GPIO_Sentry_Safe",
+    name="[GPIO] Sentry Safe",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="sentry_safe_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=80,
+    fap_icon="safe_10px.png",
+    fap_category="GPIO",
+)

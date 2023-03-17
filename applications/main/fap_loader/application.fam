@@ -7,6 +7,7 @@ App(
     requires=[
         "gui",
         "storage",
+        "loader",
     ],
     stack_size=int(1.5 * 1024),
     icon="A_Plugins_14",

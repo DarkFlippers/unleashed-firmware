@@ -1,0 +1,11 @@
+App(
+    appid="Zombiez",
+    name="Zombiez",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="zombiez_game_app",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=280,
+    fap_icon="zombie_10px.png",
+    fap_category="Games",
+)

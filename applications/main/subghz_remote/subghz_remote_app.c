@@ -22,6 +22,7 @@
 #include <lib/subghz/protocols/alutech_at_4n.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/somfy_telis.h>
+#include <lib/subghz/protocols/secplus_v2.h>
 
 #define SUBREMOTEMAP_FOLDER "/ext/subghz_remote"
 #define SUBREMOTEMAP_EXTENSION ".txt"
@@ -491,6 +492,7 @@ void subghz_remote_tx_stop(SubGHzRemote* app) {
         alutech_reset_original_btn();
         nice_flors_reset_original_btn();
         somfy_telis_reset_original_btn();
+        secplus2_reset_original_btn();
         star_line_reset_mfname();
         star_line_reset_kl_type();
     }
@@ -738,6 +740,11 @@ SubGHzRemote* subghz_remote_alloc(void) {
 
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
+    // Auto switch to internal radio if external radio is not available
+    furi_delay_ms(15);
+    if(!furi_hal_subghz_check_radio()) {
+        furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
+    }
 
     furi_hal_power_suppress_charge_enter();
 

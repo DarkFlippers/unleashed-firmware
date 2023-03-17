@@ -17,6 +17,8 @@
 //#define SUBGHZ_LAST_SETTING_FIELD_PRESET "Preset"
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL "FeedbackLevel"
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER "FATrigger"
+#define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_ENABLED "External"
+#define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER "ExtPower"
 
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
@@ -41,6 +43,8 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     uint32_t temp_frequency = 0;
     uint32_t temp_frequency_analyzer_feedback_level = 0;
     float temp_frequency_analyzer_trigger = 0;
+    bool temp_external_module_enabled = false;
+    bool temp_external_module_power_5v_disable = false;
     //int32_t temp_preset = 0;
     bool frequency_analyzer_feedback_level_was_read = false;
     bool frequency_analyzer_trigger_was_read = false;
@@ -62,6 +66,16 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER,
             (float*)&temp_frequency_analyzer_trigger,
             1);
+        flipper_format_read_bool(
+            fff_data_file,
+            SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_ENABLED,
+            (bool*)&temp_external_module_enabled,
+            1);
+        flipper_format_read_bool(
+            fff_data_file,
+            SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER,
+            (bool*)&temp_external_module_power_5v_disable,
+            1);
 
     } else {
         FURI_LOG_E(TAG, "Error open file %s", SUBGHZ_LAST_SETTINGS_PATH);
@@ -74,6 +88,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->frequency_analyzer_feedback_level =
             SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL;
         instance->frequency_analyzer_trigger = SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
+        instance->external_module_enabled = false;
 
     } else {
         instance->frequency = temp_frequency;
@@ -89,6 +104,21 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         /*if(temp_preset > (int32_t)preset_count - 1 || temp_preset < 0) {
             FURI_LOG_W(TAG, "Last used preset no found");*/
         instance->preset = SUBGHZ_LAST_SETTING_DEFAULT_PRESET;
+
+        instance->external_module_enabled = temp_external_module_enabled;
+
+        instance->external_module_power_5v_disable = temp_external_module_power_5v_disable;
+
+        if(instance->external_module_power_5v_disable) {
+            furi_hal_subghz_set_external_power_disable(true);
+            furi_hal_subghz_disable_ext_power();
+        }
+
+        // Set selected radio module
+        if(instance->external_module_enabled) {
+            furi_hal_subghz_set_radio_type(SubGhzRadioExternal);
+        }
+
         /*/} else {
             instance->preset = temp_preset;
         }*/
@@ -142,6 +172,20 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
                file,
                SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER,
                &instance->frequency_analyzer_trigger,
+               1)) {
+            break;
+        }
+        if(!flipper_format_insert_or_update_bool(
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_ENABLED,
+               &instance->external_module_enabled,
+               1)) {
+            break;
+        }
+        if(!flipper_format_insert_or_update_bool(
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER,
+               &instance->external_module_power_5v_disable,
                1)) {
             break;
         }

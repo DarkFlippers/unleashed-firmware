@@ -36,15 +36,20 @@ Applications for main Flipper menu.
 - `u2f`                 - U2F Application
 
 
-## plugins
+## External
 
-Extra apps for Plugins & App Loader menus.
+External applications deployed to SD Card
 
-- `bt_hid_app`          - BT Remote controller
+- `clock`               - Clock application
+- `dap_link`            - DAP Link OnChip debugger
+- `hid_app`             - USB/BT Remote controller
 - `music_player`        - Music player app (demo)
-- `picopass`            - Picopass tool
+- `nfc_magic`           - NFC MFC Magic card application
+- `picopass`            - Picopass reader / writer
+- `signal_generator`    - Signal generator app: PWM and clock generator
 - `snake_game`          - Snake game application
-
+- `spi_mem_manager`     - SPI Memory reader / flasher
+- `weather_station`     - SubGHz weather station
 
 ## services
 

@@ -1,0 +1,11 @@
+App(
+    appid="WiFi_Scanner",
+    name="[WiFi] Scanner",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="wifi_scanner_app",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=110,
+    fap_icon="wifi_10px.png",
+    fap_category="GPIO",
+)

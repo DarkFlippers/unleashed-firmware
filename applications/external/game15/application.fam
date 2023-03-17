@@ -1,0 +1,11 @@
+App(
+    appid="game15",
+    name="Game 15",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="game15_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_icon="game15_10px.png",
+    order=30,
+    fap_category="Games",
+)

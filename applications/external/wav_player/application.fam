@@ -1,0 +1,11 @@
+App(
+    appid="WAV_Player",
+    name="WAV Player",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="wav_player_app",
+    stack_size=4 * 1024,
+    order=46,
+    fap_icon="wav_10px.png",
+    fap_category="Media",
+    fap_icon_assets="images",
+)

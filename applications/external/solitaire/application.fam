@@ -1,0 +1,12 @@
+App(
+    appid="Solitaire",
+    name="Solitaire",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="solitaire_app",
+    requires=["gui","storage","canvas"],
+    stack_size=2 * 1024,
+    order=30,
+    fap_icon="solitaire_10px.png",
+    fap_category="Games",
+    fap_icon_assets="assets"
+)

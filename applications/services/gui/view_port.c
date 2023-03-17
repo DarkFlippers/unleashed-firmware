@@ -1,6 +1,8 @@
 #include "view_port_i.h"
 
 #include <furi.h>
+#include <furi_hal.h>
+#include <furi_hal_rtc.h>
 
 #include "gui.h"
 #include "gui_i.h"
@@ -48,27 +50,45 @@ static const InputKey view_port_input_mapping[ViewPortOrientationMAX][InputKeyMA
      InputKeyBack}, //ViewPortOrientationVerticalFlip
 };
 
+static const InputKey view_port_left_hand_input_mapping[InputKeyMAX] =
+    {InputKeyDown, InputKeyUp, InputKeyLeft, InputKeyRight, InputKeyOk, InputKeyBack};
+
+static const CanvasOrientation view_port_orientation_mapping[ViewPortOrientationMAX] = {
+    [ViewPortOrientationHorizontal] = CanvasOrientationHorizontal,
+    [ViewPortOrientationHorizontalFlip] = CanvasOrientationHorizontalFlip,
+    [ViewPortOrientationVertical] = CanvasOrientationVertical,
+    [ViewPortOrientationVerticalFlip] = CanvasOrientationVerticalFlip,
+};
+
 // Remaps directional pad buttons on Flipper based on ViewPort orientation
 static void view_port_map_input(InputEvent* event, ViewPortOrientation orientation) {
     furi_assert(orientation < ViewPortOrientationMAX && event->key < InputKeyMAX);
+
+    if(event->sequence_source != INPUT_SEQUENCE_SOURCE_HARDWARE) {
+        return;
+    }
+
+    if(orientation == ViewPortOrientationHorizontal ||
+       orientation == ViewPortOrientationHorizontalFlip) {
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagHandOrient)) {
+            event->key = view_port_left_hand_input_mapping[event->key];
+        }
+    }
     event->key = view_port_input_mapping[orientation][event->key];
 }
 
 static void view_port_setup_canvas_orientation(const ViewPort* view_port, Canvas* canvas) {
-    switch(view_port->orientation) {
-    case ViewPortOrientationHorizontalFlip:
-        canvas_set_orientation(canvas, CanvasOrientationHorizontalFlip);
-        break;
-    case ViewPortOrientationVertical:
-        canvas_set_orientation(canvas, CanvasOrientationVertical);
-        break;
-    case ViewPortOrientationVerticalFlip:
-        canvas_set_orientation(canvas, CanvasOrientationVerticalFlip);
-        break;
-    default:
-        canvas_set_orientation(canvas, CanvasOrientationHorizontal);
-        break;
-    };
+    CanvasOrientation orientation = view_port_orientation_mapping[view_port->orientation];
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagHandOrient)) {
+        if(orientation == CanvasOrientationHorizontal) {
+            orientation = CanvasOrientationHorizontalFlip;
+        } else if(orientation == CanvasOrientationHorizontalFlip) {
+            orientation = CanvasOrientationHorizontal;
+        }
+    }
+
+    canvas_set_orientation(canvas, orientation);
 }
 
 ViewPort* view_port_alloc() {

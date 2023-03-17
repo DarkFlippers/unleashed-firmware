@@ -1,0 +1,15 @@
+App(
+    appid="text_viewer",
+    name="Text Viewer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="text_viewer_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=2 * 1024,
+    order=20,
+    fap_icon="icons/text_10px.png",
+    fap_category="Misc",
+    fap_icon_assets="icons",
+)

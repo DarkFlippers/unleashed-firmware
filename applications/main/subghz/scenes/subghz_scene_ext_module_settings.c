@@ -37,10 +37,13 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
 static void subghz_scene_ext_module_changed(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     value_index_exm = variable_item_get_current_value_index(item);
-    UNUSED(subghz);
 
     variable_item_set_current_value_text(item, radio_modules_variables_text[value_index_exm]);
+
+    subghz->last_settings->external_module_enabled = value_index_exm == 1;
+    subghz_last_settings_save(subghz->last_settings);
 }
+
 static void subghz_ext_module_start_var_list_enter_callback(void* context, uint32_t index) {
     SubGhz* subghz = context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
@@ -85,6 +88,7 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
 }
 
 static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, ext_mod_power_text[index]);
@@ -95,6 +99,9 @@ static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
     } else {
         furi_hal_subghz_enable_ext_power();
     }
+
+    subghz->last_settings->external_module_power_5v_disable = index == 1;
+    subghz_last_settings_save(subghz->last_settings);
 }
 
 void subghz_scene_ext_module_settings_on_enter(void* context) {
@@ -181,7 +188,7 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
     // Check if module is present, if no -> show error
     if(!furi_hal_subghz_check_radio()) {
         value_index_exm = 0;
-        furi_hal_subghz_set_radio_type(value_index_exm);
+        furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
         furi_string_set(subghz->error_str, "Please connect\nexternal radio");
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
     }

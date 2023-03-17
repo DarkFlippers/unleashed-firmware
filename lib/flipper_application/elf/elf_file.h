@@ -37,6 +37,14 @@ typedef enum {
     ELFFileLoadStatusMissingImports,
 } ELFFileLoadStatus;
 
+typedef enum {
+    ElfProcessSectionResultNotFound,
+    ElfProcessSectionResultCannotProcess,
+    ElfProcessSectionResultSuccess,
+} ElfProcessSectionResult;
+
+typedef bool(ElfProcessSection)(File* file, size_t offset, size_t size, void* context);
+
 /**
  * @brief Allocate ELFFile instance
  * @param storage 
@@ -60,20 +68,11 @@ void elf_file_free(ELFFile* elf_file);
 bool elf_file_open(ELFFile* elf_file, const char* path);
 
 /**
- * @brief Load ELF file manifest
- * @param elf 
- * @param manifest 
- * @return bool 
- */
-bool elf_file_load_manifest(ELFFile* elf, FlipperApplicationManifest* manifest);
-
-/**
  * @brief Load ELF file section table (load stage #1)
  * @param elf_file 
- * @param manifest 
  * @return bool 
  */
-bool elf_file_load_section_table(ELFFile* elf_file, FlipperApplicationManifest* manifest);
+bool elf_file_load_section_table(ELFFile* elf_file);
 
 /**
  * @brief Load and relocate ELF file sections (load stage #2)
@@ -83,24 +82,34 @@ bool elf_file_load_section_table(ELFFile* elf_file, FlipperApplicationManifest* 
 ELFFileLoadStatus elf_file_load_sections(ELFFile* elf_file);
 
 /**
- * @brief Execute ELF file pre-run stage, call static constructors for example (load stage #3)
+ * @brief Execute ELF file pre-run stage, 
+ * call static constructors for example (load stage #3)
+ * Must be done before invoking any code from the ELF file
  * @param elf 
  */
-void elf_file_pre_run(ELFFile* elf);
+void elf_file_call_init(ELFFile* elf);
 
 /**
- * @brief Run ELF file (load stage #4)
+ * @brief Check if ELF file pre-run stage was executed and its code is runnable
+ * @param elf 
+ */
+bool elf_file_is_init_complete(ELFFile* elf);
+
+/**
+ * @brief Get actual entry point for ELF file
  * @param elf_file 
  * @param args 
  * @return int32_t 
  */
-int32_t elf_file_run(ELFFile* elf_file, void* args);
+void* elf_file_get_entry_point(ELFFile* elf_file);
 
 /**
- * @brief Execute ELF file post-run stage, call static destructors for example (load stage #5)
+ * @brief Execute ELF file post-run stage, 
+ * call static destructors for example (load stage #5)
+ * Must be done if any code from the ELF file was executed
  * @param elf 
  */
-void elf_file_post_run(ELFFile* elf);
+void elf_file_call_fini(ELFFile* elf);
 
 /**
  * @brief Get ELF file API interface
@@ -121,6 +130,21 @@ void elf_file_init_debug_info(ELFFile* elf_file, ELFDebugInfo* debug_info);
  * @param debug_info 
  */
 void elf_file_clear_debug_info(ELFDebugInfo* debug_info);
+
+/**
+ * @brief Process ELF file section
+ * 
+ * @param elf_file 
+ * @param name 
+ * @param process_section 
+ * @param context 
+ * @return ElfProcessSectionResult 
+ */
+ElfProcessSectionResult elf_process_section(
+    ELFFile* elf_file,
+    const char* name,
+    ElfProcessSection* process_section,
+    void* context);
 
 #ifdef __cplusplus
 }

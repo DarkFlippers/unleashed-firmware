@@ -33,12 +33,22 @@ static StorageType storage_get_type_by_path(FuriString* path) {
     StorageType type = ST_ERROR;
     const char* path_cstr = furi_string_get_cstr(path);
 
-    if(memcmp(path_cstr, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
-        type = ST_EXT;
-    } else if(memcmp(path_cstr, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
-        type = ST_INT;
-    } else if(memcmp(path_cstr, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
-        type = ST_ANY;
+    if(furi_string_size(path) == 4) {
+        if(memcmp(path_cstr, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
+            type = ST_EXT;
+        } else if(memcmp(path_cstr, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
+            type = ST_INT;
+        } else if(memcmp(path_cstr, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
+            type = ST_ANY;
+        }
+    } else if(furi_string_size(path) > 4) {
+        if(memcmp(path_cstr, EXT_PATH(""), strlen(EXT_PATH(""))) == 0) {
+            type = ST_EXT;
+        } else if(memcmp(path_cstr, INT_PATH(""), strlen(INT_PATH(""))) == 0) {
+            type = ST_INT;
+        } else if(memcmp(path_cstr, ANY_PATH(""), strlen(ANY_PATH(""))) == 0) {
+            type = ST_ANY;
+        }
     }
 
     return type;
@@ -454,7 +464,7 @@ void storage_process_alias(
         FuriString* apps_data_path_with_appsid = furi_string_alloc_set(APPS_DATA_PATH "/");
         furi_string_cat(apps_data_path_with_appsid, furi_thread_get_appid(thread_id));
 
-        // "/app" -> "/ext/apps_data/appsid"
+        // "/data" -> "/ext/apps_data/appsid"
         furi_string_replace_at(
             path,
             0,
@@ -472,6 +482,18 @@ void storage_process_alias(
         }
 
         furi_string_free(apps_data_path_with_appsid);
+    } else if(furi_string_start_with(path, STORAGE_APP_ASSETS_PATH_PREFIX)) {
+        FuriString* apps_assets_path_with_appsid = furi_string_alloc_set(APPS_ASSETS_PATH "/");
+        furi_string_cat(apps_assets_path_with_appsid, furi_thread_get_appid(thread_id));
+
+        // "/assets" -> "/ext/apps_assets/appsid"
+        furi_string_replace_at(
+            path,
+            0,
+            strlen(STORAGE_APP_ASSETS_PATH_PREFIX),
+            furi_string_get_cstr(apps_assets_path_with_appsid));
+
+        furi_string_free(apps_assets_path_with_appsid);
     }
 }
 

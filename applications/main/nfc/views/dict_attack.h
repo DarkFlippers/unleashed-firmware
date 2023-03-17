@@ -25,6 +25,8 @@ void dict_attack_set_card_detected(DictAttack* dict_attack, MfClassicType type);
 
 void dict_attack_set_card_removed(DictAttack* dict_attack);
 
+bool dict_attack_get_card_state(DictAttack* dict_attack);
+
 void dict_attack_set_sector_read(DictAttack* dict_attack, uint8_t sec_read);
 
 void dict_attack_set_keys_found(DictAttack* dict_attack, uint8_t keys_found);

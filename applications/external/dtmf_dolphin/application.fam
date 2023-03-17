@@ -1,0 +1,15 @@
+App(
+    appid="dtmf_dolphin",
+    name="DTMF Dolphin",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="dtmf_dolphin_app",
+    requires=[
+        "storage",
+        "gui",
+        "dialogs",
+    ],
+    fap_icon="phone.png",
+    stack_size=8 * 1024,
+    order=20,
+    fap_category="Tools",
+)

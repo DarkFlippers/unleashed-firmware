@@ -362,8 +362,8 @@ static size_t storage_test_apps_count = COUNT_OF(storage_test_apps);
 static int32_t storage_test_app(void* arg) {
     UNUSED(arg);
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    storage_common_remove(storage, "/app/test");
-    int32_t ret = storage_file_create(storage, "/app/test", "test");
+    storage_common_remove(storage, "/data/test");
+    int32_t ret = storage_file_create(storage, "/data/test", "test");
     furi_record_close(RECORD_STORAGE);
     return ret;
 }
@@ -401,7 +401,7 @@ MU_TEST(test_storage_data_path) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     File* file = storage_file_alloc(storage);
-    mu_check(storage_dir_open(file, "/app"));
+    mu_check(storage_dir_open(file, "/data"));
     mu_check(storage_dir_close(file));
     storage_file_free(file);
 
