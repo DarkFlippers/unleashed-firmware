@@ -9,8 +9,12 @@ img: .image_build
 	touch .image_build
 	docker images
 
+check_port:
+	@echo "Checking if flipper device is connected somewhere in /dev ...."
+	[ -f $(PORT) ]
+
 # Build and flash flipper
-flash: img
+flash: img check_port
 	docker run --device $(PORT):$(PORT) --env CUSTOM_FLIPPER_NAME="${CUSTOM_FLIPPER_NAME}" ${IMG} ./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_usb_full
 
 bash: img
