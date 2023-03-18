@@ -1,6 +1,7 @@
 ### New changes
 * iButton: Add support for DS1420 (not fully tested)
 * Desktop: Option to set Tertiary favourite app (Hold right arrow on desktop) - **Desktop settings (pin code, favourite app, autolock time) will be resetted!!! Only one time after installing - due to changes in settings structure, after installing of this release desktop settings will not be reset with next release**
+* Desktop: Ability to disable favourite app (use last element in a main list `None (disable)`)
 * Desktop: Fix issue #387 (Ok button was showing invalid file error in dummy mode)
 * OFW PR: SD Driver: reinit sd card on error (by DrZlo13 | OFW PR 2493)
 * OFW PR: iButton -> Fix a typo: use right shift instead of greater than (by gsurkov | OFW PR 2506)

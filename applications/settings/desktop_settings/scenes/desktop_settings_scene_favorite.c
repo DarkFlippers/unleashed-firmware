@@ -73,6 +73,12 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
             }
         }
     }
+    submenu_add_item(
+        submenu,
+        "None (disable)",
+        FLIPPER_APPS_COUNT + 1,
+        desktop_settings_scene_favorite_submenu_callback,
+        app);
 
     if(primary_favorite == 0) {
         submenu_set_header(submenu, "Primary favorite app:");
@@ -95,6 +101,23 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
         scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
 
     if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event >= (FLIPPER_APPS_COUNT + 1)) {
+            if(primary_favorite == 0) {
+                app->settings.favorite_primary.is_external = false;
+                strncpy(app->settings.favorite_primary.name_or_path, "", MAX_APP_LENGTH);
+            } else if(primary_favorite == 1) {
+                app->settings.favorite_secondary.is_external = false;
+                strncpy(app->settings.favorite_secondary.name_or_path, "", MAX_APP_LENGTH);
+            } else if(primary_favorite == 2) {
+                app->settings.favorite_tertiary.is_external = false;
+                strncpy(app->settings.favorite_tertiary.name_or_path, "", MAX_APP_LENGTH);
+            }
+
+            scene_manager_previous_scene(app->scene_manager);
+            consumed = true;
+            furi_string_free(temp_path);
+            return consumed;
+        }
         if(strcmp(FLIPPER_APPS[event.event].name, FAP_LOADER_APP_NAME) != 0) {
             if(primary_favorite == 0) {
                 app->settings.favorite_primary.is_external = false;
