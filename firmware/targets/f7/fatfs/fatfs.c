@@ -18,22 +18,13 @@
 
 #include "fatfs.h"
 
-uint8_t retUSER; /* Return value for USER */
-char USERPath[4]; /* USER logical drive path */
-FATFS USERFatFS; /* File system object for USER logical drive */
-FIL USERFile; /* File object for USER */
+/** logical drive path */
+char fatfs_path[4];
+/** File system object */
+FATFS fatfs_object;
 
-/* USER CODE BEGIN Variables */
-
-/* USER CODE END Variables */
-
-void MX_FATFS_Init(void) {
-    /*## FatFS: Link the USER driver ###########################*/
-    retUSER = FATFS_LinkDriver(&USER_Driver, USERPath);
-
-    /* USER CODE BEGIN Init */
-    /* additional user code for init */
-    /* USER CODE END Init */
+void fatfs_init(void) {
+    FATFS_LinkDriver(&sd_fatfs_driver, fatfs_path);
 }
 
 /**
@@ -42,13 +33,7 @@ void MX_FATFS_Init(void) {
   * @retval Time in DWORD
   */
 DWORD get_fattime(void) {
-    /* USER CODE BEGIN get_fattime */
     return 0;
-    /* USER CODE END get_fattime */
 }
-
-/* USER CODE BEGIN Application */
-
-/* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

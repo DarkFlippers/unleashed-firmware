@@ -82,7 +82,7 @@ void furi_hal_init() {
 #endif
 
     // FatFS driver initialization
-    MX_FATFS_Init();
+    fatfs_init();
     FURI_LOG_I(TAG, "FATFS OK");
 }
 

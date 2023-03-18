@@ -26,7 +26,7 @@ Changelog:
 
 | Name        | Type   | Description                                  |
 | ----------- | ------ | -------------------------------------------- |
-| Protocol    | string | Currently supported: DS1990, DS1992, DS1996, DS1971, DSGeneric*, Cyfral, Metakom |
+| Protocol    | string | Currently supported: DS1990, DS1992, DS1996, DS1971, DS1420, DSGeneric, Cyfral, Metakom |
 | Rom Data    | hex    | Read-only memory data (Dallas protocols only) |
 | Sram Data   | hex    | Static RAM data (DS1992 and DS1996 only)
 | Eeprom Data | hex    | EEPROM data (DS1971 only)
@@ -36,6 +36,8 @@ NOTE 1: DSGeneric is a catch-all protocol for all unknown 1-Wire devices. It rea
 It can also be used if a key with a deliberately invalid family code or checksum is required.
 
 NOTE 2: When adding new protocols, it is not necessarily to increase the format version, define the format in the protocol implementation instead.
+
+**DS1420 is fully compatible with DS1990, only difference is a familiy code 0x01 for DS1990 and 0x81 for DS1420**
 
 ### 1. Initial version.
 Deprecated, will be converted to current version upon saving.
