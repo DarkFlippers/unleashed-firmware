@@ -35,7 +35,7 @@ void wav_player_speaker_init(uint32_t sample_rate) {
     TIM_InitStruct.Prescaler = 0;
     //TIM_InitStruct.Autoreload = 1451; //64 000 000 / 1451 ~= 44100 Hz
 
-    TIM_InitStruct.Autoreload = 64000000 / sample_rate; //to support various sample rates
+    TIM_InitStruct.Autoreload = 64000000 / sample_rate - 1; //to support various sample rates
 
     LL_TIM_Init(SAMPLE_RATE_TIMER, &TIM_InitStruct);
 
@@ -48,16 +48,12 @@ void wav_player_speaker_init(uint32_t sample_rate) {
     //=========================================================
     //configuring PA6 pin as TIM16 output
 
-    //furi_hal_gpio_init_ex(&gpio_ext_pa6, (GpioMode)GpioPullNo, (GpioPull)GpioModeAltFunctionPushPull, GpioSpeedVeryHigh, GpioAltFn14TIM16);
-    //furi_hal_gpio_init_ex(&gpio_ext_pa6, (GpioMode)GpioPullNo, (GpioPull)GpioModeAltFunctionPushPull, GpioSpeedLow, GpioAltFn14TIM16);
     furi_hal_gpio_init_ex(
         &gpio_ext_pa6,
         GpioModeAltFunctionPushPull,
         GpioPullNo,
         GpioSpeedVeryHigh,
         GpioAltFn14TIM16);
-    //furi_hal_gpio_init_simple(&gpio_ext_pa6, GpioModeOutputPushPull);
-    //furi_hal_gpio_write(&gpio_ext_pa6, false);
 }
 
 void wav_player_speaker_start() {
