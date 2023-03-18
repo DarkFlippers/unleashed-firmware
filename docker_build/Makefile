@@ -11,7 +11,7 @@ img: .image_build
 
 check_port:
 	@echo "Checking if flipper device is connected somewhere in /dev ...."
-	[ -f $(PORT) ]
+	[ -c $(PORT) ] && echo "Flipper Connected!"
 
 # Build and flash flipper
 flash: img check_port
