@@ -111,7 +111,7 @@ Our team is small and the guys are working on this project as much as they can s
 The amount of work done on this project is huge and we need your support, no matter how large or small. Even if you just say, "Thank you Unleashed firmware developers!" somewhere. Doing so will help us continue our work and will help drive us to make the firmware better every time.
 Also, regarding our releases, every build has and always will be free and open-source. There will be no paywall releases or closed-source apps within the firmware. As long as I am working on this project it will never happen.
 You can support us by using links or addresses below:
-* Boosty: https://boosty.to/mmxdev
+* **Boosty** (patreon alternative): https://boosty.to/mmxdev
 * Ko-Fi: https://ko-fi.com/masterx
 * cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * YooMoney (only RU payments accepted): https://yoomoney.ru/fundraise/XA49mgQLPA0.221209
