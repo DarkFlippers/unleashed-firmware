@@ -4,6 +4,7 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "gpio",
+        "onewire",
         "ibutton",
         "infrared",
         "lfrfid",
