@@ -17,8 +17,8 @@
 
 #include <iBtn_Fuzzer_icons.h>
 
-#include <lib/one_wire/ibutton/ibutton_worker.h>
-#include <lib/one_wire/ibutton/ibutton_key.h>
+#include <lib/ibutton/ibutton_worker.h>
+#include <lib/ibutton/ibutton_key.h>
 
 #define TAG "iBtnFuzzer"
 
