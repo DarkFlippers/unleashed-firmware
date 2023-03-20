@@ -1,11 +1,13 @@
 ### New changes
-* iButton: Add support for DS1420 (not fully tested)
-* Desktop: Option to set Tertiary favourite app (Hold right arrow on desktop) - **Desktop settings (pin code, favourite app, autolock time) will be resetted!!! Only one time after installing - due to changes in settings structure, after installing of this release desktop settings will not be reset with next release**
-* Desktop: Ability to disable favourite app (use last element in a main list `None (disable)`)
-* Desktop: Fix issue #387 (Ok button was showing invalid file error in dummy mode)
-* OFW PR: SD Driver: reinit sd card on error (by DrZlo13 | OFW PR 2493)
-* OFW PR: iButton -> Fix a typo: use right shift instead of greater than (by gsurkov | OFW PR 2506)
-* OFW: Optimize trailing slash check
+* Plugins: Fix minesweeper freeze bugs, do some refactoring
+* Plugins: Update WAV Player, 16 bit support by @LTVA1
+* OFW PR: Fixed writing gen1a magic tags with invalid BCC [(PR 2511 by AloneLiberty)](https://github.com/AloneLiberty/flipperzero-firmware/tree/nfc-magic-write-fix)
+* OFW: BadUSB: Script interpreter refactoring
+* OFW: SubGhz: fix Incorrect comparison in subghz_setting_get_hopper_frequency
+* OFW: Add one_wire lib to f18, separate ibutton
+* OFW: Improved debugging experience for external apps
+* OFW: SD Driver: reinit sd card on error
+* OFW: OTP programmer: return exit code based on error type
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/unleashed-extra-pack/archive/refs/heads/main.zip)
 
