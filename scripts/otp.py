@@ -34,8 +34,16 @@ OTP_DISPLAYS = {
 }
 
 from flipper.app import App
-from flipper.cube import CubeProgrammer
-from flipper.utils.programmer_openocd import OpenOCDProgrammer
+from flipper.utils.programmer_openocd import OpenOCDProgrammer, OpenOCDProgrammerResult
+
+
+class OTPException(Exception):
+    def __init__(self, message: str, result: OpenOCDProgrammerResult):
+        self.message = message
+        self.result = result
+
+    def get_exit_code(self) -> int:
+        return int(self.result.value)
 
 
 class Main(App):
@@ -183,13 +191,14 @@ class Main(App):
                 self.args.serial,
             )
 
-            if not openocd.otp_write(0x1FFF7000, filename):
-                raise Exception("Failed to flash OTP")
+            programmer_result = openocd.otp_write(0x1FFF7000, filename)
+            if programmer_result != OpenOCDProgrammerResult.Success:
+                raise OTPException("Failed to flash OTP", programmer_result)
 
             self.logger.info(f"Flashed Successfully")
-        except Exception as e:
+        except OTPException as e:
             self.logger.exception(e)
-            return 1
+            return e.get_exit_code()
         finally:
             os.remove(filename)
 
@@ -215,13 +224,14 @@ class Main(App):
                 self.args.serial,
             )
 
-            if not openocd.otp_write(0x1FFF7010, filename):
-                raise Exception("Failed to flash OTP")
+            programmer_result = openocd.otp_write(0x1FFF7010, filename)
+            if programmer_result != OpenOCDProgrammerResult.Success:
+                raise OTPException("Failed to flash OTP", programmer_result)
 
             self.logger.info(f"Flashed Successfully")
-        except Exception as e:
+        except OTPException as e:
             self.logger.exception(e)
-            return 1
+            return e.get_exit_code()
         finally:
             os.remove(filename)
 
@@ -249,13 +259,14 @@ class Main(App):
                 self.args.serial,
             )
 
-            if not openocd.otp_write(0x1FFF7000, filename):
-                raise Exception("Failed to flash OTP")
+            programmer_result = openocd.otp_write(0x1FFF7000, filename)
+            if programmer_result != OpenOCDProgrammerResult.Success:
+                raise OTPException("Failed to flash OTP", programmer_result)
 
             self.logger.info(f"Flashed Successfully")
-        except Exception as e:
+        except OTPException as e:
             self.logger.exception(e)
-            return 1
+            return e.get_exit_code()
         finally:
             os.remove(filename)
 

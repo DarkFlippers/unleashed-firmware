@@ -1,11 +1,20 @@
 import logging
 import os
 import typing
+from enum import Enum
 
 from flipper.utils.programmer import Programmer
 from flipper.utils.openocd import OpenOCD
 from flipper.utils.stm32wb55 import STM32WB55
 from flipper.assets.obdata import OptionBytesData
+
+
+class OpenOCDProgrammerResult(Enum):
+    Success = 0
+    ErrorGeneric = 1
+    ErrorAlignment = 2
+    ErrorAlreadyWritten = 3
+    ErrorValidation = 4
 
 
 class OpenOCDProgrammer(Programmer):
@@ -199,18 +208,18 @@ class OpenOCDProgrammer(Programmer):
 
         return True
 
-    def otp_write(self, address: int, file_path: str) -> bool:
+    def otp_write(self, address: int, file_path: str) -> OpenOCDProgrammerResult:
         # Open file, check that it aligned to 8 bytes
         with open(file_path, "rb") as f:
             data = f.read()
             if len(data) % 8 != 0:
                 self.logger.error(f"File {file_path} is not aligned to 8 bytes")
-                return False
+                return OpenOCDProgrammerResult.ErrorAlignment
 
         # Check that address is aligned to 8 bytes
         if address % 8 != 0:
             self.logger.error(f"Address {address} is not aligned to 8 bytes")
-            return False
+            return OpenOCDProgrammerResult.ErrorAlignment
 
         # Get size of data
         data_size = len(data)
@@ -218,7 +227,7 @@ class OpenOCDProgrammer(Programmer):
         # Check that data size is aligned to 8 bytes
         if data_size % 8 != 0:
             self.logger.error(f"Data size {data_size} is not aligned to 8 bytes")
-            return False
+            return OpenOCDProgrammerResult.ErrorAlignment
 
         self.logger.debug(f"Writing {data_size} bytes to OTP at {address:08X}")
         self.logger.debug(f"Data: {data.hex().upper()}")
@@ -241,14 +250,14 @@ class OpenOCDProgrammer(Programmer):
                     self.logger.error(
                         f"OTP memory at {address + i:08X} is not empty: {device_word:08X}"
                     )
-                    raise Exception("OTP memory is not empty")
+                    return OpenOCDProgrammerResult.ErrorAlreadyWritten
 
                 if device_word != file_word:
                     already_written = False
 
             if already_written:
                 self.logger.info(f"OTP memory is already written with the given data")
-                return True
+                return OpenOCDProgrammerResult.Success
 
             self.reset(self.RunMode.Stop)
             stm32.clear_flash_errors(oocd)
@@ -278,4 +287,8 @@ class OpenOCDProgrammer(Programmer):
             stm32.reset(oocd, stm32.RunMode.Run)
             oocd.stop()
 
-        return validation_result
+        return (
+            OpenOCDProgrammerResult.Success
+            if validation_result
+            else OpenOCDProgrammerResult.ErrorValidation
+        )
