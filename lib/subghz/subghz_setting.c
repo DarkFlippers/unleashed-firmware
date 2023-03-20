@@ -541,7 +541,7 @@ uint32_t subghz_setting_get_frequency(SubGhzSetting* instance, size_t idx) {
 
 uint32_t subghz_setting_get_hopper_frequency(SubGhzSetting* instance, size_t idx) {
     furi_assert(instance);
-    if(idx < FrequencyList_size(instance->frequencies)) {
+    if(idx < FrequencyList_size(instance->hopper_frequencies)) {
         return *FrequencyList_get(instance->hopper_frequencies, idx);
     } else {
         return 0;
