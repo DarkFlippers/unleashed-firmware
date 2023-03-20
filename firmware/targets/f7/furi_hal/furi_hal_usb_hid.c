@@ -11,9 +11,6 @@
 #define HID_EP_OUT 0x01
 #define HID_EP_SZ 0x10
 
-#define HID_KB_MAX_KEYS 6
-#define HID_CONSUMER_MAX_KEYS 2
-
 #define HID_INTERVAL 2
 
 #define HID_VID_DEFAULT 0x046D
