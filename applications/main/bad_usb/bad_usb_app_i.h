@@ -2,7 +2,7 @@
 
 #include "bad_usb_app.h"
 #include "scenes/bad_usb_scene.h"
-#include "bad_usb_script.h"
+#include "helpers/ducky_script.h"
 
 #include <gui/gui.h>
 #include <assets_icons.h>

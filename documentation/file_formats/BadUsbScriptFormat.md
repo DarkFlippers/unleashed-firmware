@@ -11,18 +11,18 @@ BadUsb app can execute only text scrips from `.txt` files, no compilation is req
 ## Comment line
 
 Just a single comment line. The interpreter will ignore all text after the REM command.
-|Command|Parameters|Notes|
-|-|-|-|
-|REM|Comment text||
+| Command | Parameters   | Notes |
+| ------- | ------------ | ----- |
+| REM     | Comment text |       |
 
 ## Delay
 
 Pause script execution by a defined time.
-|Command|Parameters|Notes|
-|-|-|-|
-|DELAY|Delay value in ms|Single delay|
-|DEFAULT_DELAY|Delay value in ms|Add delay before every next command|
-|DEFAULTDELAY|Delay value in ms|Same as DEFAULT_DELAY|
+| Command       | Parameters        | Notes                               |
+| ------------- | ----------------- | ----------------------------------- |
+| DELAY         | Delay value in ms | Single delay                        |
+| DEFAULT_DELAY | Delay value in ms | Add delay before every next command |
+| DEFAULTDELAY  | Delay value in ms | Same as DEFAULT_DELAY               |
 
 ## Special keys
 
@@ -56,32 +56,42 @@ Pause script execution by a defined time.
 ## Modifier keys
 
 Can be combined with a special key command or a single character.
-|Command|Notes|
-|-|-|
-|CONTROL / CTRL||
-|SHIFT||
-|ALT||
-|WINDOWS / GUI||
-|CTRL-ALT|CTRL+ALT|
-|CTRL-SHIFT|CTRL+SHIFT|
-|ALT-SHIFT|ALT+SHIFT|
-|ALT-GUI|ALT+WIN|
-|GUI-SHIFT|WIN+SHIFT|
-|GUI-CTRL|WIN+CTRL|
+| Command        | Notes      |
+| -------------- | ---------- |
+| CONTROL / CTRL |            |
+| SHIFT          |            |
+| ALT            |            |
+| WINDOWS / GUI  |            |
+| CTRL-ALT       | CTRL+ALT   |
+| CTRL-SHIFT     | CTRL+SHIFT |
+| ALT-SHIFT      | ALT+SHIFT  |
+| ALT-GUI        | ALT+WIN    |
+| GUI-SHIFT      | WIN+SHIFT  |
+| GUI-CTRL       | WIN+CTRL   |
+
+## Key hold and release
+
+Up to 5 keys can be hold simultaneously.
+| Command | Parameters                      | Notes                                     |
+| ------- | ------------------------------- | ----------------------------------------- |
+| HOLD    | Special key or single character | Press and hold key untill RELEASE command |
+| RELEASE | Special key or single character | Release key                               |
+
 
 ## String
 
-| Command | Parameters  | Notes             |
-| ------- | ----------- | ----------------- |
-| STRING  | Text string | Print text string |
+| Command  | Parameters  | Notes                                      |
+| -------  | ----------- | -----------------                          |
+| STRING   | Text string | Print text string                          |
+| STRINGLN | Text string | Print text string and press enter after it |
 
 ## String delay
 
 Delay between keypresses.
-|Command|Parameters|Notes|
-|-|-|-|
-|STRING_DELAY|Delay value in ms|Applied once to next appearing string|
-|STRINGDELAY|Delay value in ms|Same as STRING_DELAY|
+| Command      | Parameters        | Notes                                         |
+| ------------ | ----------------- | --------------------------------------------- |
+| STRING_DELAY | Delay value in ms | Applied once to next appearing STRING command |
+| STRINGDELAY  | Delay value in ms | Same as STRING_DELAY                          |
 
 ## Repeat
 
@@ -91,19 +101,19 @@ Delay between keypresses.
 
 ## ALT+Numpad input
 
-On Windows and some Linux systems, you can print characters by pressing `ALT` key and entering its code on Numpad.
-|Command|Parameters|Notes|
-|-|-|-|
-|ALTCHAR|Character code|Print single character|
-|ALTSTRING|Text string|Print text string using ALT+Numpad method|
-|ALTCODE|Text string|Same as ALTSTRING, presents in some Duckyscript implementations|
+On Windows and some Linux systems, you can print characters by holding `ALT` key and entering its code on Numpad.
+| Command   | Parameters     | Notes                                                           |
+| --------- | -------------- | --------------------------------------------------------------- |
+| ALTCHAR   | Character code | Print single character                                          |
+| ALTSTRING | Text string    | Print text string using ALT+Numpad method                       |
+| ALTCODE   | Text string    | Same as ALTSTRING, presents in some Duckyscript implementations |
 
 ## SysRq
 
 Send [SysRq command](https://en.wikipedia.org/wiki/Magic_SysRq_key)
-|Command|Parameters|Notes|
-|-|-|-|
-|SYSRQ|Single character||
+| Command | Parameters       | Notes |
+| ------- | ---------------- | ----- |
+| SYSRQ   | Single character |       |
 
 ## USB device ID
 
