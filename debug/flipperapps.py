@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Dict, ClassVar
 import struct
 import posixpath
-import os
 import zlib
 
 import gdb
@@ -66,9 +65,9 @@ class AppState:
     def get_gdb_unload_command(self) -> str:
         return f"remove-symbol-file -a 0x{self.text_address:08x}"
 
-    def is_loaded_in_gdb(self, gdb_app) -> bool:
-        # Avoid constructing full app wrapper for comparison
-        return self.entry_address == int(gdb_app["state"]["entry"])
+    @staticmethod
+    def get_gdb_app_ep(app) -> int:
+        return int(app["state"]["entry"])
 
     @staticmethod
     def parse_debug_link_data(section_data: bytes) -> Tuple[str, int]:
@@ -79,10 +78,10 @@ class AppState:
         crc32 = struct.unpack("<I", section_data[-4:])[0]
         return (elf_name, crc32)
 
-    @staticmethod
-    def from_gdb(gdb_app: "AppState") -> "AppState":
+    @classmethod
+    def from_gdb(cls, gdb_app: "AppState") -> "AppState":
         state = AppState(str(gdb_app["manifest"]["name"].string()))
-        state.entry_address = int(gdb_app["state"]["entry"])
+        state.entry_address = cls.get_gdb_app_ep(gdb_app)
 
         app_state = gdb_app["state"]
         if debug_link_size := int(app_state["debug_link_info"]["debug_link_size"]):
@@ -123,59 +122,83 @@ class SetFapDebugElfRoot(gdb.Command):
         try:
             global helper
             print(f"Set '{arg}' as debug info lookup path for Flipper external apps")
-            helper.attach_fw()
+            helper.attach_to_fw()
             gdb.events.stop.connect(helper.handle_stop)
+            gdb.events.exited.connect(helper.handle_exit)
         except gdb.error as e:
             print(f"Support for Flipper external apps debug is not available: {e}")
 
 
-SetFapDebugElfRoot()
-
-
-class FlipperAppDebugHelper:
+class FlipperAppStateHelper:
     def __init__(self):
-        self.app_ptr = None
         self.app_type_ptr = None
-        self.current_app: AppState = None
+        self.app_list_ptr = None
+        self.app_list_entry_type = None
+        self._current_apps: list[AppState] = []
 
-    def attach_fw(self) -> None:
-        self.app_ptr = gdb.lookup_global_symbol("last_loaded_app")
-        self.app_type_ptr = gdb.lookup_type("FlipperApplication").pointer()
-        self._check_app_state()
+    def _walk_app_list(self, list_head):
+        while list_head:
+            if app := list_head["data"]:
+                yield app.dereference()
+            list_head = list_head["next"]
 
-    def _check_app_state(self) -> None:
-        app_ptr_value = self.app_ptr.value()
-        if not app_ptr_value and self.current_app:
-            # There is an ELF loaded in GDB, but nothing is running on the device
-            self._unload_debug_elf()
-        elif app_ptr_value:
-            # There is an app running on the device
-            loaded_app = app_ptr_value.cast(self.app_type_ptr).dereference()
-
-            if self.current_app and not self.current_app.is_loaded_in_gdb(loaded_app):
-                # Currently loaded ELF is not the one running on the device
-                self._unload_debug_elf()
-
-            if not self.current_app:
-                # Load ELF for the app running on the device
-                self._load_debug_elf(loaded_app)
-
-    def _unload_debug_elf(self) -> None:
+    def _exec_gdb_command(self, command: str) -> bool:
         try:
-            gdb.execute(self.current_app.get_gdb_unload_command())
+            gdb.execute(command)
+            return True
         except gdb.error as e:
-            print(f"Failed to unload debug ELF: {e} (might not be an error)")
-        self.current_app = None
+            print(f"Failed to execute GDB command '{command}': {e}")
+            return False
 
-    def _load_debug_elf(self, app_object) -> None:
-        self.current_app = AppState.from_gdb(app_object)
+    def _sync_apps(self) -> None:
+        self.set_debug_mode(True)
+        if not (app_list := self.app_list_ptr.value()):
+            print("Reset app loader state")
+            for app in self._current_apps:
+                self._exec_gdb_command(app.get_gdb_unload_command())
+            self._current_apps = []
+            return
 
-        if self.current_app.is_debug_available():
-            gdb.execute(self.current_app.get_gdb_load_command())
+        loaded_apps: dict[int, gdb.Value] = dict(
+            (AppState.get_gdb_app_ep(app), app)
+            for app in self._walk_app_list(app_list[0])
+        )
+
+        for app in self._current_apps.copy():
+            if app.entry_address not in loaded_apps:
+                print(f"Application {app.name} is no longer loaded")
+                if not self._exec_gdb_command(app.get_gdb_unload_command()):
+                    print(f"Failed to unload debug info for {app.name}")
+                self._current_apps.remove(app)
+
+        for entry_point, app in loaded_apps.items():
+            if entry_point not in set(app.entry_address for app in self._current_apps):
+                new_app_state = AppState.from_gdb(app)
+                print(f"New application loaded. Adding debug info")
+                if self._exec_gdb_command(new_app_state.get_gdb_load_command()):
+                    self._current_apps.append(new_app_state)
+                else:
+                    print(f"Failed to load debug info for {new_app_state}")
+
+    def attach_to_fw(self) -> None:
+        print("Attaching to Flipper firmware")
+        self.app_list_ptr = gdb.lookup_global_symbol(
+            "flipper_application_loaded_app_list"
+        )
+        self.app_type_ptr = gdb.lookup_type("FlipperApplication").pointer()
+        self.app_list_entry_type = gdb.lookup_type("struct FlipperApplicationList_s")
 
     def handle_stop(self, event) -> None:
-        self._check_app_state()
+        self._sync_apps()
+
+    def handle_exit(self, event) -> None:
+        self.set_debug_mode(False)
+
+    def set_debug_mode(self, mode: bool) -> None:
+        gdb.execute(f"set variable fap_loader_debug_active = {int(mode)}")
 
 
-helper = FlipperAppDebugHelper()
+# Init additional 'fap-set-debug-elf-root' command and set up hooks
+SetFapDebugElfRoot()
+helper = FlipperAppStateHelper()
 print("Support for Flipper external apps debug is loaded")

@@ -12,6 +12,12 @@ static void wav_player_view_draw_callback(Canvas* canvas, void* _model) {
     uint8_t x_pos = 0;
     uint8_t y_pos = 0;
 
+    /*char buffer[20];
+    snprintf(buffer, sizeof(buffer), "%d", model->num_channels);
+    canvas_draw_str(canvas, 0, 10, buffer);
+    snprintf(buffer, sizeof(buffer), "%d", model->bits_per_sample);
+    canvas_draw_str(canvas, 0, 20, buffer);*/
+
     // volume
     x_pos = 123;
     y_pos = 0;
@@ -154,6 +160,18 @@ void wav_player_view_set_play(WavPlayerView* wav_view, bool play) {
     furi_assert(wav_view);
     with_view_model(
         wav_view->view, WavPlayerViewModel * model, { model->play = play; }, true);
+}
+
+void wav_player_view_set_chans(WavPlayerView* wav_view, uint16_t chn) {
+    furi_assert(wav_view);
+    with_view_model(
+        wav_view->view, WavPlayerViewModel * model, { model->num_channels = chn; }, true);
+}
+
+void wav_player_view_set_bits(WavPlayerView* wav_view, uint16_t bit) {
+    furi_assert(wav_view);
+    with_view_model(
+        wav_view->view, WavPlayerViewModel * model, { model->bits_per_sample = bit; }, true);
 }
 
 void wav_player_view_set_data(WavPlayerView* wav_view, uint16_t* data, size_t data_count) {

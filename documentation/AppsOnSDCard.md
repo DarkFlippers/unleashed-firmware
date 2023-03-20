@@ -32,6 +32,8 @@ Images and animated icons should follow the same [naming convention](../assets/R
 
 With it, you can debug FAPs as if they were a part of the main firmware — inspect variables, set breakpoints, step through the code, etc.
 
+If debugging session is active, firmware will trigger a breakpoint after loading a FAP it into memory, but before running any code from it. This allows you to set breakpoints in the FAP's code. Note that any breakpoints set before the FAP is loaded may need re-setting after the FAP is actually loaded, since before loading it debugger cannot know the exact address of the FAP's code.
+
 ### Setting up debugging environment
 
 The debugging support script looks up debugging information in the latest firmware build directory (`build/latest`). That directory is symlinked by `fbt` to the latest firmware configuration (Debug or Release) build directory when you run `./fbt` for the chosen configuration. See [fbt docs](./fbt.md#nb) for details.

@@ -151,6 +151,10 @@ Header,+,lib/mlib/m-list.h,,
 Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
+Header,+,lib/one_wire/maxim_crc.h,,
+Header,+,lib/one_wire/one_wire_host.h,,
+Header,+,lib/one_wire/one_wire_host_timing.h,,
+Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
 Header,+,lib/toolbox/args.h,,
 Header,+,lib/toolbox/crc32_calc.h,,
@@ -1394,6 +1398,7 @@ Function,+,manchester_advance,_Bool,"ManchesterState, ManchesterEvent, Mancheste
 Function,+,manchester_encoder_advance,_Bool,"ManchesterEncoderState*, const _Bool, ManchesterEncoderResult*"
 Function,+,manchester_encoder_finish,ManchesterEncoderResult,ManchesterEncoderState*
 Function,+,manchester_encoder_reset,void,ManchesterEncoderState*
+Function,+,maxim_crc8,uint8_t,"const uint8_t*, const uint8_t, const uint8_t"
 Function,-,mbedtls_des3_crypt_cbc,int,"mbedtls_des3_context*, int, size_t, unsigned char[8], const unsigned char*, unsigned char*"
 Function,-,mbedtls_des3_crypt_ecb,int,"mbedtls_des3_context*, const unsigned char[8], unsigned char[8]"
 Function,-,mbedtls_des3_free,void,mbedtls_des3_context*
@@ -1472,6 +1477,32 @@ Function,+,notification_message,void,"NotificationApp*, const NotificationSequen
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,-,nrand48,long,unsigned short[3]
 Function,-,on_exit,int,"void (*)(int, void*), void*"
+Function,+,onewire_host_alloc,OneWireHost*,const GpioPin*
+Function,+,onewire_host_free,void,OneWireHost*
+Function,+,onewire_host_read,uint8_t,OneWireHost*
+Function,+,onewire_host_read_bit,_Bool,OneWireHost*
+Function,+,onewire_host_read_bytes,void,"OneWireHost*, uint8_t*, uint16_t"
+Function,+,onewire_host_reset,_Bool,OneWireHost*
+Function,+,onewire_host_reset_search,void,OneWireHost*
+Function,+,onewire_host_search,uint8_t,"OneWireHost*, uint8_t*, OneWireHostSearchMode"
+Function,+,onewire_host_skip,void,OneWireHost*
+Function,+,onewire_host_start,void,OneWireHost*
+Function,+,onewire_host_stop,void,OneWireHost*
+Function,+,onewire_host_target_search,void,"OneWireHost*, uint8_t"
+Function,+,onewire_host_write,void,"OneWireHost*, uint8_t"
+Function,+,onewire_host_write_bit,void,"OneWireHost*, _Bool"
+Function,+,onewire_host_write_bytes,void,"OneWireHost*, const uint8_t*, uint16_t"
+Function,+,onewire_slave_alloc,OneWireSlave*,const GpioPin*
+Function,+,onewire_slave_free,void,OneWireSlave*
+Function,+,onewire_slave_receive,_Bool,"OneWireSlave*, uint8_t*, size_t"
+Function,+,onewire_slave_receive_bit,_Bool,OneWireSlave*
+Function,+,onewire_slave_send,_Bool,"OneWireSlave*, const uint8_t*, size_t"
+Function,+,onewire_slave_send_bit,_Bool,"OneWireSlave*, _Bool"
+Function,+,onewire_slave_set_command_callback,void,"OneWireSlave*, OneWireSlaveCommandCallback, void*"
+Function,+,onewire_slave_set_reset_callback,void,"OneWireSlave*, OneWireSlaveResetCallback, void*"
+Function,+,onewire_slave_set_result_callback,void,"OneWireSlave*, OneWireSlaveResultCallback, void*"
+Function,+,onewire_slave_start,void,OneWireSlave*
+Function,+,onewire_slave_stop,void,OneWireSlave*
 Function,-,open_memstream,FILE*,"char**, size_t*"
 Function,+,path_append,void,"FuriString*, const char*"
 Function,+,path_concat,void,"const char*, const char*, FuriString*"

@@ -88,15 +88,17 @@ void nfc_magic_worker_write(NfcMagicWorker* nfc_magic_worker) {
                 card_found_notified = true;
             }
             furi_hal_nfc_sleep();
-
             if(!magic_wupa()) {
-                FURI_LOG_E(TAG, "Not Magic card");
+                FURI_LOG_E(TAG, "No card response to WUPA (not a magic card)");
                 nfc_magic_worker->callback(
                     NfcMagicWorkerEventWrongCard, nfc_magic_worker->context);
                 break;
             }
+            furi_hal_nfc_sleep();
+        }
+        if(magic_wupa()) {
             if(!magic_data_access_cmd()) {
-                FURI_LOG_E(TAG, "Not Magic card");
+                FURI_LOG_E(TAG, "No card response to data access command (not a magic card)");
                 nfc_magic_worker->callback(
                     NfcMagicWorkerEventWrongCard, nfc_magic_worker->context);
                 break;

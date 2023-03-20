@@ -17,7 +17,7 @@ void bad_usb_scene_config_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Keyboard Layout",
+        "Keyboard Layout (global)",
         SubmenuIndexKeyboardLayout,
         bad_usb_scene_config_submenu_callback,
         bad_usb);

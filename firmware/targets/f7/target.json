@@ -35,6 +35,7 @@
         "appframe",
         "assets",
         "one_wire",
+        "ibutton",
         "misc",
         "mbedtls",
         "lfrfid",
