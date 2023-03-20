@@ -26,7 +26,7 @@ Changelog:
 
 | Name        | Type   | Description                                  |
 | ----------- | ------ | -------------------------------------------- |
-| Protocol    | string | Currently supported: DS1990, DS1992, DS1996, DS1997, DSGeneric*, Cyfral, Metakom |
+| Protocol    | string | Currently supported: DS1990, DS1992, DS1996, DS1971, DSGeneric*, Cyfral, Metakom |
 | Rom Data    | hex    | Read-only memory data (Dallas protocols only) |
 | Sram Data   | hex    | Static RAM data (DS1992 and DS1996 only)
 | Eeprom Data | hex    | EEPROM data (DS1971 only)
