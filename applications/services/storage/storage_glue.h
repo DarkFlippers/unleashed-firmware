@@ -60,7 +60,7 @@ struct StorageData {
 };
 
 bool storage_has_file(const File* file, StorageData* storage_data);
-bool storage_path_already_open(FuriString* path, StorageFileList_t files);
+bool storage_path_already_open(FuriString* path, StorageData* storage_data);
 
 void storage_set_storage_file_data(const File* file, void* file_data, StorageData* storage);
 void* storage_get_storage_file_data(const File* file, StorageData* storage);

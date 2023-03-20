@@ -1,50 +1,10 @@
-/* USER CODE BEGIN Header */
-/**
- ******************************************************************************
- * @file    user_diskio.c
- * @brief   This file includes a diskio driver skeleton to be completed by the user.
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at:
- *                             www.st.com/SLA0044
- *
- ******************************************************************************
- */
-/* USER CODE END Header */
-
-#ifdef USE_OBSOLETE_USER_CODE_SECTION_0
-/* 
- * Warning: the user section 0 is no more in use (starting from CubeMx version 4.16.0)
- * To be suppressed in the future. 
- * Kept to ensure backward compatibility with previous CubeMx versions when 
- * migrating projects. 
- * User code previously added there should be copied in the new user sections before 
- * the section contents can be deleted.
- */
-/* USER CODE BEGIN 0 */
-/* USER CODE END 0 */
-#endif
-
-/* USER CODE BEGIN DECL */
-
-/* Includes ------------------------------------------------------------------*/
 #include "user_diskio.h"
 #include <furi_hal.h>
 #include "sector_cache.h"
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
 
-/* Private variables ---------------------------------------------------------*/
-/* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
 
-static DSTATUS User_CheckStatus(BYTE lun) {
+static DSTATUS driver_check_status(BYTE lun) {
     UNUSED(lun);
     Stat = STA_NOINIT;
     if(sd_get_card_state() == SdSpiStatusOK) {
@@ -54,32 +14,20 @@ static DSTATUS User_CheckStatus(BYTE lun) {
     return Stat;
 }
 
-/* USER CODE END DECL */
+static DSTATUS driver_initialize(BYTE pdrv);
+static DSTATUS driver_status(BYTE pdrv);
+static DRESULT driver_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
+static DRESULT driver_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
+static DRESULT driver_ioctl(BYTE pdrv, BYTE cmd, void* buff);
 
-/* Private function prototypes -----------------------------------------------*/
-DSTATUS USER_initialize(BYTE pdrv);
-DSTATUS USER_status(BYTE pdrv);
-DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
-#if _USE_WRITE == 1
-DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
-#endif /* _USE_WRITE == 1 */
-#if _USE_IOCTL == 1
-DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff);
-#endif /* _USE_IOCTL == 1 */
-
-Diskio_drvTypeDef USER_Driver = {
-    USER_initialize,
-    USER_status,
-    USER_read,
-#if _USE_WRITE
-    USER_write,
-#endif /* _USE_WRITE == 1 */
-#if _USE_IOCTL == 1
-    USER_ioctl,
-#endif /* _USE_IOCTL == 1 */
+Diskio_drvTypeDef sd_fatfs_driver = {
+    driver_initialize,
+    driver_status,
+    driver_read,
+    driver_write,
+    driver_ioctl,
 };
 
-/* Private functions ---------------------------------------------------------*/
 static inline bool sd_cache_get(uint32_t address, uint32_t* data) {
     uint8_t* cached_data = sector_cache_get(address);
     if(cached_data) {
@@ -101,24 +49,73 @@ static inline void sd_cache_invalidate_all() {
     sector_cache_init();
 }
 
+static bool sd_device_read(uint32_t* buff, uint32_t sector, uint32_t count) {
+    bool result = false;
+
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
+    furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
+
+    if(sd_read_blocks(buff, sector, count, SD_TIMEOUT_MS) == SdSpiStatusOK) {
+        FuriHalCortexTimer timer = furi_hal_cortex_timer_get(SD_TIMEOUT_MS * 1000);
+
+        /* wait until the read operation is finished */
+        result = true;
+        while(sd_get_card_state() != SdSpiStatusOK) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
+                result = false;
+                break;
+            }
+        }
+    }
+
+    furi_hal_sd_spi_handle = NULL;
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
+
+    return result;
+}
+
+static bool sd_device_write(uint32_t* buff, uint32_t sector, uint32_t count) {
+    bool result = false;
+
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
+    furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
+
+    if(sd_write_blocks(buff, sector, count, SD_TIMEOUT_MS) == SdSpiStatusOK) {
+        FuriHalCortexTimer timer = furi_hal_cortex_timer_get(SD_TIMEOUT_MS * 1000);
+
+        /* wait until the Write operation is finished */
+        result = true;
+        while(sd_get_card_state() != SdSpiStatusOK) {
+            if(furi_hal_cortex_timer_is_expired(timer)) {
+                sd_cache_invalidate_all();
+
+                result = false;
+                break;
+            }
+        }
+    }
+
+    furi_hal_sd_spi_handle = NULL;
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
+
+    return result;
+}
+
 /**
   * @brief  Initializes a Drive
   * @param  pdrv: Physical drive number (0..)
   * @retval DSTATUS: Operation status
   */
-DSTATUS USER_initialize(BYTE pdrv) {
-    /* USER CODE BEGIN INIT */
-
+static DSTATUS driver_initialize(BYTE pdrv) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
 
-    DSTATUS status = User_CheckStatus(pdrv);
+    DSTATUS status = driver_check_status(pdrv);
 
     furi_hal_sd_spi_handle = NULL;
     furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
 
     return status;
-    /* USER CODE END INIT */
 }
 
 /**
@@ -126,11 +123,9 @@ DSTATUS USER_initialize(BYTE pdrv) {
   * @param  pdrv: Physical drive number (0..)
   * @retval DSTATUS: Operation status
   */
-DSTATUS USER_status(BYTE pdrv) {
-    /* USER CODE BEGIN STATUS */
+static DSTATUS driver_status(BYTE pdrv) {
     UNUSED(pdrv);
     return Stat;
-    /* USER CODE END STATUS */
 }
 
 /**
@@ -141,11 +136,10 @@ DSTATUS USER_status(BYTE pdrv) {
   * @param  count: Number of sectors to read (1..128)
   * @retval DRESULT: Operation result
   */
-DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
-    /* USER CODE BEGIN READ */
+static DRESULT driver_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
     UNUSED(pdrv);
-    DRESULT res = RES_ERROR;
 
+    bool result;
     bool single_sector = count == 1;
 
     if(single_sector) {
@@ -154,32 +148,33 @@ DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
         }
     }
 
-    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
-    furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
+    result = sd_device_read((uint32_t*)buff, (uint32_t)(sector), count);
 
-    if(sd_read_blocks((uint32_t*)buff, (uint32_t)(sector), count, SD_TIMEOUT_MS) ==
-       SdSpiStatusOK) {
-        FuriHalCortexTimer timer = furi_hal_cortex_timer_get(SD_TIMEOUT_MS * 1000);
+    if(!result) {
+        uint8_t counter = sd_max_mount_retry_count();
 
-        /* wait until the read operation is finished */
-        res = RES_OK;
-        while(sd_get_card_state() != SdSpiStatusOK) {
-            if(furi_hal_cortex_timer_is_expired(timer)) {
-                res = RES_ERROR;
-                break;
+        while(result == false && counter > 0 && hal_sd_detect()) {
+            SdSpiStatus status;
+
+            if((counter % 2) == 0) {
+                // power reset sd card
+                status = sd_init(true);
+            } else {
+                status = sd_init(false);
             }
+
+            if(status == SdSpiStatusOK) {
+                result = sd_device_read((uint32_t*)buff, (uint32_t)(sector), count);
+            }
+            counter--;
         }
     }
 
-    furi_hal_sd_spi_handle = NULL;
-    furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
-
-    if(single_sector && res == RES_OK) {
+    if(single_sector && result == true) {
         sd_cache_put(sector, (uint32_t*)buff);
     }
 
-    return res;
-    /* USER CODE END READ */
+    return result ? RES_OK : RES_ERROR;
 }
 
 /**
@@ -190,41 +185,36 @@ DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
   * @param  count: Number of sectors to write (1..128)
   * @retval DRESULT: Operation result
   */
-#if _USE_WRITE == 1
-DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
-    /* USER CODE BEGIN WRITE */
-    /* USER CODE HERE */
+static DRESULT driver_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
     UNUSED(pdrv);
-    DRESULT res = RES_ERROR;
+    bool result;
 
     sd_cache_invalidate_range(sector, sector + count);
 
-    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
-    furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
+    result = sd_device_write((uint32_t*)buff, (uint32_t)(sector), count);
 
-    if(sd_write_blocks((uint32_t*)buff, (uint32_t)(sector), count, SD_TIMEOUT_MS) ==
-       SdSpiStatusOK) {
-        FuriHalCortexTimer timer = furi_hal_cortex_timer_get(SD_TIMEOUT_MS * 1000);
+    if(!result) {
+        uint8_t counter = sd_max_mount_retry_count();
 
-        /* wait until the Write operation is finished */
-        res = RES_OK;
-        while(sd_get_card_state() != SdSpiStatusOK) {
-            if(furi_hal_cortex_timer_is_expired(timer)) {
-                sd_cache_invalidate_all();
+        while(result == false && counter > 0 && hal_sd_detect()) {
+            SdSpiStatus status;
 
-                res = RES_ERROR;
-                break;
+            if((counter % 2) == 0) {
+                // power reset sd card
+                status = sd_init(true);
+            } else {
+                status = sd_init(false);
             }
+
+            if(status == SdSpiStatusOK) {
+                result = sd_device_write((uint32_t*)buff, (uint32_t)(sector), count);
+            }
+            counter--;
         }
     }
 
-    furi_hal_sd_spi_handle = NULL;
-    furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
-
-    return res;
-    /* USER CODE END WRITE */
+    return result ? RES_OK : RES_ERROR;
 }
-#endif /* _USE_WRITE == 1 */
 
 /**
   * @brief  I/O control operation  
@@ -233,9 +223,7 @@ DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
   * @param  *buff: Buffer to send/receive control data
   * @retval DRESULT: Operation result
   */
-#if _USE_IOCTL == 1
-DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
-    /* USER CODE BEGIN IOCTL */
+static DRESULT driver_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     UNUSED(pdrv);
     DRESULT res = RES_ERROR;
     SD_CardInfo CardInfo;
@@ -280,8 +268,4 @@ DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
 
     return res;
-    /* USER CODE END IOCTL */
 }
-#endif /* _USE_IOCTL == 1 */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

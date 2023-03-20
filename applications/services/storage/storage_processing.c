@@ -77,7 +77,7 @@ static void storage_path_change_to_real_storage(FuriString* path, StorageType re
     }
 }
 
-FS_Error storage_get_data(Storage* app, FuriString* path, StorageData** storage) {
+static FS_Error storage_get_data(Storage* app, FuriString* path, StorageData** storage) {
     StorageType type = storage_get_type_by_path(path);
 
     if(storage_type_is_valid(type)) {
@@ -111,7 +111,7 @@ bool storage_process_file_open(
     file->error_id = storage_get_data(app, path, &storage);
 
     if(file->error_id == FSE_OK) {
-        if(storage_path_already_open(path, storage->files)) {
+        if(storage_path_already_open(path, storage)) {
             file->error_id = FSE_ALREADY_OPEN;
         } else {
             if(access_mode & FSAM_WRITE) {
@@ -268,7 +268,7 @@ bool storage_process_dir_open(Storage* app, File* file, FuriString* path) {
     file->error_id = storage_get_data(app, path, &storage);
 
     if(file->error_id == FSE_OK) {
-        if(storage_path_already_open(path, storage->files)) {
+        if(storage_path_already_open(path, storage)) {
             file->error_id = FSE_ALREADY_OPEN;
         } else {
             storage_push_storage_file(file, path, storage);
@@ -357,7 +357,7 @@ static FS_Error storage_process_common_remove(Storage* app, FuriString* path) {
     FS_Error ret = storage_get_data(app, path, &storage);
 
     do {
-        if(storage_path_already_open(path, storage->files)) {
+        if(storage_path_already_open(path, storage)) {
             ret = FSE_ALREADY_OPEN;
             break;
         }

@@ -3,8 +3,6 @@
 
 #include <stm32wbxx_ll_cortex.h>
 
-#include <fatfs.h>
-
 #define TAG "FuriHal"
 
 void furi_hal_init_early() {
@@ -74,10 +72,6 @@ void furi_hal_init() {
 #endif
     furi_hal_bt_init();
     furi_hal_compress_icon_init();
-
-    // FatFS driver initialization
-    MX_FATFS_Init();
-    FURI_LOG_I(TAG, "FATFS OK");
 }
 
 void furi_hal_switch(void* address) {
