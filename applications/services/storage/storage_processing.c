@@ -77,7 +77,7 @@ static void storage_path_change_to_real_storage(FuriString* path, StorageType re
     }
 }
 
-FS_Error storage_get_data(Storage* app, FuriString* path, StorageData** storage) {
+static FS_Error storage_get_data(Storage* app, FuriString* path, StorageData** storage) {
     StorageType type = storage_get_type_by_path(path);
 
     if(storage_type_is_valid(type)) {

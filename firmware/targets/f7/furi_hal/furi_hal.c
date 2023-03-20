@@ -4,8 +4,6 @@
 
 #include <stm32wbxx_ll_cortex.h>
 
-#include <fatfs.h>
-
 #define TAG "FuriHal"
 
 void furi_hal_init_early() {
@@ -80,10 +78,6 @@ void furi_hal_init() {
     furi_hal_nfc_init();
     furi_hal_rfid_init();
 #endif
-
-    // FatFS driver initialization
-    fatfs_init();
-    FURI_LOG_I(TAG, "FATFS OK");
 }
 
 void furi_hal_switch(void* address) {

@@ -1,16 +1,17 @@
+#include "fap_loader_app.h"
+
 #include <furi.h>
-#include <gui/gui.h>
+
 #include <assets_icons.h>
+#include <gui/gui.h>
 #include <gui/view_dispatcher.h>
-#include <storage/storage.h>
 #include <gui/modules/loading.h>
 #include <dialogs/dialogs.h>
 #include <toolbox/path.h>
 #include <flipper_application/flipper_application.h>
 #include <loader/firmware_api/firmware_api.h>
-#include "fap_loader_app.h"
 
-#define TAG "fap_loader_app"
+#define TAG "FapLoader"
 
 struct FapLoader {
     FlipperApplication* app;
@@ -21,6 +22,8 @@ struct FapLoader {
     ViewDispatcher* view_dispatcher;
     Loading* loading;
 };
+
+volatile bool fap_loader_debug_active = false;
 
 bool fap_loader_load_name_and_icon(
     FuriString* path,
@@ -106,6 +109,14 @@ static bool fap_loader_run_selected_app(FapLoader* loader) {
         FURI_LOG_I(TAG, "FAP Loader is starting app");
 
         FuriThread* thread = flipper_application_spawn(loader->app, NULL);
+
+        /* This flag is set by the debugger - to break on app start */
+        if(fap_loader_debug_active) {
+            FURI_LOG_W(TAG, "Triggering BP for debugger");
+            /* After hitting this, you can set breakpoints in your .fap's code
+             * Note that you have to toggle breakpoints that were set before */
+            __asm volatile("bkpt 0");
+        }
 
         FuriString* app_name = furi_string_alloc();
         path_extract_filename_no_ext(furi_string_get_cstr(loader->fap_path), app_name);

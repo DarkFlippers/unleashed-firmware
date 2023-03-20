@@ -3,7 +3,9 @@
 #include <notification/notification_messages.h>
 #include "application_assets.h"
 
-#define TAG "fapp"
+#include <m-list.h>
+
+#define TAG "Fap"
 
 struct FlipperApplication {
     ELFDebugInfo state;
@@ -13,8 +15,39 @@ struct FlipperApplication {
     void* ep_thread_args;
 };
 
-/* For debugger access to app state */
-FlipperApplication* last_loaded_app = NULL;
+/********************** Debugger access to loader state **********************/
+
+LIST_DEF(FlipperApplicationList, const FlipperApplication*, M_POD_OPLIST);
+
+FlipperApplicationList_t flipper_application_loaded_app_list = {0};
+static bool flipper_application_loaded_app_list_initialized = false;
+
+static void flipper_application_list_add_app(const FlipperApplication* app) {
+    furi_assert(app);
+
+    if(!flipper_application_loaded_app_list_initialized) {
+        FlipperApplicationList_init(flipper_application_loaded_app_list);
+        flipper_application_loaded_app_list_initialized = true;
+    }
+    FlipperApplicationList_push_back(flipper_application_loaded_app_list, app);
+}
+
+static void flipper_application_list_remove_app(const FlipperApplication* app) {
+    furi_assert(flipper_application_loaded_app_list_initialized);
+    furi_assert(app);
+
+    FlipperApplicationList_it_t it;
+    for(FlipperApplicationList_it(it, flipper_application_loaded_app_list);
+        !FlipperApplicationList_end_p(it);
+        FlipperApplicationList_next(it)) {
+        if(*FlipperApplicationList_ref(it) == app) {
+            FlipperApplicationList_remove(flipper_application_loaded_app_list, it);
+            break;
+        }
+    }
+}
+
+/*****************************************************************************/
 
 FlipperApplication*
     flipper_application_alloc(Storage* storage, const ElfApiInterface* api_interface) {
@@ -37,8 +70,8 @@ void flipper_application_free(FlipperApplication* app) {
         furi_thread_free(app->thread);
     }
 
-    if(!flipper_application_is_plugin(app)) {
-        last_loaded_app = NULL;
+    if(app->state.entry) {
+        flipper_application_list_remove_app(app);
     }
 
     elf_file_clear_debug_info(&app->state);
@@ -153,14 +186,12 @@ const FlipperApplicationManifest* flipper_application_get_manifest(FlipperApplic
 }
 
 FlipperApplicationLoadStatus flipper_application_map_to_memory(FlipperApplication* app) {
-    if(!flipper_application_is_plugin(app)) {
-        last_loaded_app = app;
-    }
     ELFFileLoadStatus status = elf_file_load_sections(app->elf);
 
     switch(status) {
     case ELFFileLoadStatusSuccess:
         elf_file_init_debug_info(app->elf, &app->state);
+        flipper_application_list_add_app(app);
         return FlipperApplicationLoadStatusSuccess;
     case ELFFileLoadStatusNoFreeMemory:
         return FlipperApplicationLoadStatusNoFreeMemory;

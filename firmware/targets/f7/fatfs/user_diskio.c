@@ -1,21 +1,3 @@
-/**
- ******************************************************************************
- * @file    user_diskio.c
- * @brief   This file includes a diskio driver skeleton to be completed by the user.
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at:
- *                             www.st.com/SLA0044
- *
- ******************************************************************************
- */
-
 #include "user_diskio.h"
 #include <furi_hal.h>
 #include "sector_cache.h"
@@ -287,5 +269,3 @@ static DRESULT driver_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
 
     return res;
 }
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

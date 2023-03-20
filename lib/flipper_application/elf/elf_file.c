@@ -830,8 +830,9 @@ void elf_file_init_debug_info(ELFFile* elf, ELFDebugInfo* debug_info) {
 
         const void* data_ptr = itref->value.data;
         if(data_ptr) {
-            debug_info->mmap_entries[mmap_entry_idx].address = (uint32_t)data_ptr;
-            debug_info->mmap_entries[mmap_entry_idx].name = itref->key;
+            ELFMemoryMapEntry* entry = &debug_info->mmap_entries[mmap_entry_idx];
+            entry->address = (uint32_t)data_ptr;
+            entry->name = itref->key;
             mmap_entry_idx++;
         }
     }

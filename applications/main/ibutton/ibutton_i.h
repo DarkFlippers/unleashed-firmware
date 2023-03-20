@@ -7,8 +7,8 @@
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
 
-#include <one_wire/ibutton/ibutton_worker.h>
-#include <one_wire/ibutton/ibutton_protocols.h>
+#include <ibutton/ibutton_worker.h>
+#include <ibutton/ibutton_protocols.h>
 
 #include <rpc/rpc_app.h>
 #include <storage/storage.h>
