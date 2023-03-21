@@ -281,7 +281,7 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone https://github.com/xMasterX/unleashed-extra-pack.git
+      - git clone --branch dev https://github.com/xMasterX/unleashed-extra-pack.git
       - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
       - rm -rf unleashed-extra-pack
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
