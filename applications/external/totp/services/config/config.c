@@ -4,6 +4,7 @@
 #include "../list/list.h"
 #include "../../types/common.h"
 #include "../../types/token_info.h"
+#include "../../features_config.h"
 #include "migrations/config_migration_v1_to_v2.h"
 #include "migrations/config_migration_v2_to_v3.h"
 
@@ -135,6 +136,14 @@ static TotpConfigFileOpenResult totp_open_config_file(Storage* storage, FlipperF
             "How to notify user when new token is generated or badusb mode is activated (possible values: 0 - do not notify, 1 - sound, 2 - vibro, 3 sound and vibro)");
         flipper_format_write_uint32(
             fff_data_file, TOTP_CONFIG_KEY_NOTIFICATION_METHOD, &tmp_uint32, 1);
+
+        tmp_uint32 = AutomationMethodBadUsb;
+        flipper_format_write_comment_cstr(fff_data_file, " ");
+        flipper_format_write_comment_cstr(
+            fff_data_file,
+            "Automation method (0 - None, 1 - BadUSB, 2 - BadBT, 3 - BadUSB and BadBT)");
+        flipper_format_write_uint32(
+            fff_data_file, TOTP_CONFIG_KEY_AUTOMATION_METHOD, &tmp_uint32, 1);
 
         FuriString* temp_str = furi_string_alloc();
 
@@ -329,6 +338,33 @@ TotpConfigFileUpdateResult
     return update_result;
 }
 
+TotpConfigFileUpdateResult
+    totp_config_file_update_automation_method(AutomationMethod new_automation_method) {
+    Storage* cfg_storage = totp_open_storage();
+    FlipperFormat* file;
+    TotpConfigFileUpdateResult update_result;
+
+    if(totp_open_config_file(cfg_storage, &file) == TotpConfigFileOpenSuccess) {
+        do {
+            uint32_t tmp_uint32 = new_automation_method;
+            if(!flipper_format_insert_or_update_uint32(
+                   file, TOTP_CONFIG_KEY_AUTOMATION_METHOD, &tmp_uint32, 1)) {
+                update_result = TotpConfigFileUpdateError;
+                break;
+            }
+
+            update_result = TotpConfigFileUpdateSuccess;
+        } while(false);
+
+        totp_close_config_file(file);
+    } else {
+        update_result = TotpConfigFileUpdateError;
+    }
+
+    totp_close_storage();
+    return update_result;
+}
+
 TotpConfigFileUpdateResult totp_config_file_update_user_settings(const PluginState* plugin_state) {
     Storage* cfg_storage = totp_open_storage();
     FlipperFormat* file;
@@ -343,6 +379,13 @@ TotpConfigFileUpdateResult totp_config_file_update_user_settings(const PluginSta
             uint32_t tmp_uint32 = plugin_state->notification_method;
             if(!flipper_format_insert_or_update_uint32(
                    file, TOTP_CONFIG_KEY_NOTIFICATION_METHOD, &tmp_uint32, 1)) {
+                update_result = TotpConfigFileUpdateError;
+                break;
+            }
+
+            tmp_uint32 = plugin_state->automation_method;
+            if(!flipper_format_insert_or_update_uint32(
+                   file, TOTP_CONFIG_KEY_AUTOMATION_METHOD, &tmp_uint32, 1)) {
                 update_result = TotpConfigFileUpdateError;
                 break;
             }
@@ -405,6 +448,13 @@ TotpConfigFileUpdateResult totp_full_save_config_file(const PluginState* const p
         uint32_t tmp_uint32 = plugin_state->notification_method;
         if(!flipper_format_write_uint32(
                fff_data_file, TOTP_CONFIG_KEY_NOTIFICATION_METHOD, &tmp_uint32, 1)) {
+            result = TotpConfigFileUpdateError;
+            break;
+        }
+
+        tmp_uint32 = plugin_state->automation_method;
+        if(!flipper_format_write_uint32(
+               fff_data_file, TOTP_CONFIG_KEY_AUTOMATION_METHOD, &tmp_uint32, 1)) {
             result = TotpConfigFileUpdateError;
             break;
         }
@@ -594,6 +644,15 @@ TotpConfigFileOpenResult totp_config_file_load_base(PluginState* const plugin_st
         }
 
         plugin_state->notification_method = tmp_uint32;
+
+        flipper_format_rewind(fff_data_file);
+
+        if(!flipper_format_read_uint32(
+               fff_data_file, TOTP_CONFIG_KEY_AUTOMATION_METHOD, &tmp_uint32, 1)) {
+            tmp_uint32 = AutomationMethodBadUsb;
+        }
+
+        plugin_state->automation_method = tmp_uint32;
     } while(false);
 
     furi_string_free(temp_str);

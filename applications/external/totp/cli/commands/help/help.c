@@ -8,6 +8,7 @@
 #include "../pin/pin.h"
 #include "../notification/notification.h"
 #include "../reset/reset.h"
+#include "../automation/automation.h"
 
 void totp_cli_command_help_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_HELP ", " TOTP_CLI_COMMAND_HELP_ALT
@@ -31,6 +32,7 @@ void totp_cli_command_help_handle() {
     totp_cli_command_pin_docopt_usage();
     totp_cli_command_notification_docopt_usage();
     totp_cli_command_reset_docopt_usage();
+    totp_cli_command_automation_docopt_usage();
     cli_nl();
     TOTP_CLI_PRINTF("Commands:\r\n");
     totp_cli_command_help_docopt_commands();
@@ -42,12 +44,14 @@ void totp_cli_command_help_handle() {
     totp_cli_command_pin_docopt_commands();
     totp_cli_command_notification_docopt_commands();
     totp_cli_command_reset_docopt_commands();
+    totp_cli_command_automation_docopt_commands();
     cli_nl();
     TOTP_CLI_PRINTF("Arguments:\r\n");
     totp_cli_command_add_docopt_arguments();
     totp_cli_command_delete_docopt_arguments();
     totp_cli_command_timezone_docopt_arguments();
     totp_cli_command_notification_docopt_arguments();
+    totp_cli_command_automation_docopt_arguments();
     cli_nl();
     TOTP_CLI_PRINTF("Options:\r\n");
     totp_cli_command_add_docopt_options();

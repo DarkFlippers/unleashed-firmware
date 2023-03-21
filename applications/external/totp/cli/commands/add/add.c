@@ -62,7 +62,7 @@ void totp_cli_command_add_docopt_usage() {
 }
 
 void totp_cli_command_add_docopt_arguments() {
-    TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_ADD_ARG_NAME "        Token name\r\n");
+    TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_ADD_ARG_NAME "          Token name\r\n");
 }
 
 void totp_cli_command_add_docopt_options() {

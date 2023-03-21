@@ -104,6 +104,14 @@ TotpConfigFileUpdateResult
     totp_config_file_update_notification_method(NotificationMethod new_notification_method);
 
 /**
+ * @brief Updates automation method in an application config file
+ * @param new_automation_method new automation method to be set
+ * @return Config file update result
+ */
+TotpConfigFileUpdateResult
+    totp_config_file_update_automation_method(AutomationMethod new_automation_method);
+
+/**
  * @brief Updates application user settings
  * @param plugin_state application state
  * @return Config file update result

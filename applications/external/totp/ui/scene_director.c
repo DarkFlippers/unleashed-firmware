@@ -37,7 +37,9 @@ void totp_scene_director_activate_scene(
 }
 
 void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state) {
-    switch(plugin_state->current_scene) {
+    Scene current_scene = plugin_state->current_scene;
+    plugin_state->current_scene = TotpSceneNone;
+    switch(current_scene) {
     case TotpSceneGenerateToken:
         totp_scene_generate_token_deactivate(plugin_state);
         break;
