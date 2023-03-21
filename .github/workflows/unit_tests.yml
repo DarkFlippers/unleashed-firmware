@@ -15,7 +15,12 @@ jobs:
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]; then
-            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+            git submodule status || (
+              git ls-files --stage | egrep '^160000' | awk '{print $4}' | while read submodule
+              do
+                git rm -rf --cached "$submodule"
+              done
+            )
           fi
 
       - name: Checkout code
@@ -32,7 +37,7 @@ jobs:
       - name: 'Flash unit tests firmware'
         id: flashing
         if: success()
-        run: |                               
+        run: |
           ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
 
       - name: 'Wait for flipper and format ext'
