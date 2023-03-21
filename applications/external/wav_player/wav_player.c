@@ -404,14 +404,20 @@ static void app_run(WavPlayerApp* app) {
                 } else if(event.type == WavPlayerEventCtrlMoveL) {
                     int32_t seek =
                         stream_tell(app->stream) - wav_parser_get_data_start(app->parser);
-                    seek =
-                        MIN(seek, (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
+                    seek = MIN(
+                        seek,
+                        (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100) % 2 ?
+                            ((int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100) - 1) :
+                            (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
                     stream_seek(app->stream, -seek, StreamOffsetFromCurrent);
                     wav_player_view_set_current(app->view, stream_tell(app->stream));
                 } else if(event.type == WavPlayerEventCtrlMoveR) {
                     int32_t seek = wav_parser_get_data_end(app->parser) - stream_tell(app->stream);
-                    seek =
-                        MIN(seek, (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
+                    seek = MIN(
+                        seek,
+                        (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100) % 2 ?
+                            ((int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100) - 1) :
+                            (int32_t)(wav_parser_get_data_len(app->parser) / (size_t)100));
                     stream_seek(app->stream, seek, StreamOffsetFromCurrent);
                     wav_player_view_set_current(app->view, stream_tell(app->stream));
                 } else if(event.type == WavPlayerEventCtrlOk) {
