@@ -6,8 +6,7 @@
 
 #define MAGIC_CMD_WUPA (0x40)
 #define MAGIC_CMD_WIPE (0x41)
-#define MAGIC_CMD_READ (0x43)
-#define MAGIC_CMD_WRITE (0x43)
+#define MAGIC_CMD_ACCESS (0x43)
 
 #define MAGIC_MIFARE_READ_CMD (0x30)
 #define MAGIC_MIFARE_WRITE_CMD (0xA0)
@@ -70,7 +69,7 @@ bool magic_data_access_cmd() {
     FuriHalNfcReturn ret = 0;
 
     do {
-        tx_data[0] = MAGIC_CMD_WRITE;
+        tx_data[0] = MAGIC_CMD_ACCESS;
         ret = furi_hal_nfc_ll_txrx_bits(
             tx_data,
             8,
