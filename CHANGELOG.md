@@ -1,6 +1,7 @@
 ### New changes
 * Plugins: Fix minesweeper freeze bugs, do some refactoring
 * Plugins: Update WAV Player, 16 bit support by @LTVA1
+* Infrared: Update universal remote assets (by @amec0e | PR #394)
 * OFW PR: Fixed writing gen1a magic tags with invalid BCC [(PR 2511 by AloneLiberty)](https://github.com/AloneLiberty/flipperzero-firmware/tree/nfc-magic-write-fix)
 * OFW: BadUSB: Script interpreter refactoring
 * OFW: SubGhz: fix Incorrect comparison in subghz_setting_get_hopper_frequency
