@@ -91,7 +91,6 @@ Your frequencies will be added after default ones
 ```
     310000000,
     315000000,
-    433420000,
     433920000,
     868350000,
 ```
