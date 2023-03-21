@@ -2,7 +2,7 @@
 * If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
 * Dev Builds: Add extra pack dev branch to avoid "bug" reports with `API mismatch`
 * SubGHz: Add manually -> GSN protocol support
-* SubGHz: Add 318 MHz back to hopping list
+* SubGHz: Add 318 and 418 MHz back to hopping list
 * SubGHz: Fix hopper stuck at 433.42 due to wide range signals - 
 When we using 433.92 remote flipper in hopping mode will stuck at 433.42 and may loose signal because of that, need to avoid using close freqs in hopping, only freqs with bigger difference like 310 -> 315
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) -> BadBT Support
