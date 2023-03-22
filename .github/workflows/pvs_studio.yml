@@ -25,7 +25,7 @@ jobs:
             git submodule status || (
               git ls-files --stage | egrep '^160000' | awk '{print $4}' | while read submodule
               do
-                git rm -rf --cached "$submodule"
+                git rm -rf "$submodule"
               done
             )
           fi
