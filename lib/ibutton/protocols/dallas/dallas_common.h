@@ -1,9 +1,9 @@
 #pragma once
 
-#include <flipper_format.h>
-
 #include <one_wire/one_wire_host.h>
 #include <one_wire/one_wire_slave.h>
+
+#include <flipper_format/flipper_format.h>
 
 #define DALLAS_COMMON_MANUFACTURER_NAME "Dallas"
 

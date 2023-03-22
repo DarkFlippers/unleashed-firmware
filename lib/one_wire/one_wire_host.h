@@ -15,114 +15,115 @@ extern "C" {
 
 typedef enum {
     OneWireHostSearchModeConditional = 0, /**< Search for alarmed device */
-    OneWireHostSearchModeNormal = 1, /**< Search all devices */
+    OneWireHostSearchModeNormal = 1, /**< Search for all devices */
 } OneWireHostSearchMode;
 
 typedef struct OneWireHost OneWireHost;
 
 /**
- * Allocate onewire host bus
- * @param pin
- * @return OneWireHost* 
+ * Allocate OneWireHost instance
+ * @param [in] gpio_pin connection pin
+ * @return pointer to OneWireHost instance
  */
 OneWireHost* onewire_host_alloc(const GpioPin* gpio_pin);
 
 /**
- * Deallocate onewire host bus
- * @param host 
+ * Destroy OneWireHost instance, free resources
+ * @param [in] host pointer to OneWireHost instance
  */
 void onewire_host_free(OneWireHost* host);
 
 /**
- * Reset bus
- * @param host 
- * @return bool 
+ * Reset the 1-Wire bus
+ * @param [in] host pointer to OneWireHost instance
+ * @return true if presence was detected, false otherwise
  */
 bool onewire_host_reset(OneWireHost* host);
 
 /**
  * Read one bit
- * @param host 
- * @return bool 
+ * @param [in] host pointer to OneWireHost instance
+ * @return received bit value
  */
 bool onewire_host_read_bit(OneWireHost* host);
 
 /**
  * Read one byte
- * @param host 
- * @return uint8_t 
+ * @param [in] host pointer to OneWireHost instance
+ * @return received byte value
  */
 uint8_t onewire_host_read(OneWireHost* host);
 
 /**
- * Read many bytes
- * @param host 
- * @param buffer 
- * @param count 
+ * Read one or more bytes
+ * @param [in] host pointer to OneWireHost instance
+ * @param [out] buffer received data buffer
+ * @param [in] count number of bytes to read
  */
 void onewire_host_read_bytes(OneWireHost* host, uint8_t* buffer, uint16_t count);
 
 /**
  * Write one bit
- * @param host 
- * @param value 
+ * @param [in] host pointer to OneWireHost instance
+ * @param value bit value to write
  */
 void onewire_host_write_bit(OneWireHost* host, bool value);
 
 /**
  * Write one byte
- * @param host 
- * @param value 
+ * @param [in] host pointer to OneWireHost instance
+ * @param value byte value to write
  */
 void onewire_host_write(OneWireHost* host, uint8_t value);
 
 /**
- * Write many bytes
- * @param host
- * @param buffer
- * @param count
+ * Write one or more bytes
+ * @param [in] host pointer to OneWireHost instance
+ * @param [in] buffer pointer to the data to write
+ * @param [in] count size of the data to write
  */
 void onewire_host_write_bytes(OneWireHost* host, const uint8_t* buffer, uint16_t count);
 
 /**
- * Skip ROM command
- * @param host 
- */
-void onewire_host_skip(OneWireHost* host);
-
-/**
  * Start working with the bus
- * @param host 
+ * @param [in] host pointer to OneWireHost instance
  */
 void onewire_host_start(OneWireHost* host);
 
 /**
  * Stop working with the bus
- * @param host 
+ * @param [in] host pointer to OneWireHost instance
  */
 void onewire_host_stop(OneWireHost* host);
 
 /**
- * 
- * @param host 
+ * Reset previous search results
+ * @param [in] host pointer to OneWireHost instance
  */
 void onewire_host_reset_search(OneWireHost* host);
 
 /**
- * 
- * @param host 
- * @param family_code 
+ * Set the family code to search for
+ * @param [in] host pointer to OneWireHost instance
+ * @param [in] family_code device family code
  */
 void onewire_host_target_search(OneWireHost* host, uint8_t family_code);
 
 /**
- * 
- * @param host 
- * @param newAddr 
- * @param mode 
- * @return uint8_t 
+ * Search for devices on the 1-Wire bus
+ * @param [in] host pointer to OneWireHost instance
+ * @param [out] new_addr pointer to the buffer to contain the unique ROM of the found device
+ * @param [in] mode search mode
+ * @return true on success, false otherwise
  */
-uint8_t onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearchMode mode);
+bool onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearchMode mode);
+
+/**
+ * Enable overdrive mode
+ * @param [in] host pointer to OneWireHost instance
+ * @param [in] set true to turn overdrive on, false to turn it off
+ */
+void onewire_host_set_overdrive(OneWireHost* host, bool set);
 
 #ifdef __cplusplus
 }
