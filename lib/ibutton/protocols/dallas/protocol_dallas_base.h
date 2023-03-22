@@ -2,10 +2,10 @@
 
 #include "../protocol_common_i.h"
 
-#include <flipper_format.h>
-
 #include <one_wire/one_wire_host.h>
 #include <one_wire/one_wire_slave.h>
+
+#include <flipper_format/flipper_format.h>
 
 typedef bool (*iButtonProtocolDallasReadWriteFunc)(OneWireHost*, iButtonProtocolData*);
 typedef void (*iButtonProtocolDallasEmulateFunc)(OneWireSlave*, iButtonProtocolData*);

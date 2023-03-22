@@ -87,10 +87,16 @@ bool dallas_ds1992_write_copy(OneWireHost* host, iButtonProtocolData* protocol_d
         DS1992_SRAM_DATA_SIZE);
 }
 
-static void dallas_ds1992_reset_callback(void* context) {
+static bool dallas_ds1992_reset_callback(bool is_short, void* context) {
     furi_assert(context);
     DS1992ProtocolData* data = context;
-    data->state.command_state = DallasCommonCommandStateIdle;
+
+    if(!is_short) {
+        data->state.command_state = DallasCommonCommandStateIdle;
+        onewire_slave_set_overdrive(data->state.bus, is_short);
+    }
+
+    return !is_short;
 }
 
 static bool dallas_ds1992_command_callback(uint8_t command, void* context) {

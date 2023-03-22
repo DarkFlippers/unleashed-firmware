@@ -61,6 +61,14 @@ bool ds_generic_write_blank(OneWireHost* host, iButtonProtocolData* protocol_dat
     return tm2004_write(host, data->rom_data.bytes, sizeof(DallasCommonRomData));
 }
 
+static bool ds_generic_reset_callback(bool is_short, void* context) {
+    DallasGenericProtocolData* data = context;
+    if(!is_short) {
+        onewire_slave_set_overdrive(data->state.bus, is_short);
+    }
+    return !is_short;
+}
+
 static bool ds_generic_command_callback(uint8_t command, void* context) {
     furi_assert(context);
     DallasGenericProtocolData* data = context;
@@ -85,7 +93,7 @@ void ds_generic_emulate(OneWireSlave* bus, iButtonProtocolData* protocol_data) {
     DallasGenericProtocolData* data = protocol_data;
     data->state.bus = bus;
 
-    onewire_slave_set_reset_callback(bus, NULL, NULL);
+    onewire_slave_set_reset_callback(bus, ds_generic_reset_callback, NULL);
     onewire_slave_set_command_callback(bus, ds_generic_command_callback, protocol_data);
 }
 
