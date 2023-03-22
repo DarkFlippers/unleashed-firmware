@@ -706,6 +706,13 @@ Function,+,composite_api_resolver_add,void,"CompositeApiResolver*, const ElfApiI
 Function,+,composite_api_resolver_alloc,CompositeApiResolver*,
 Function,+,composite_api_resolver_free,void,CompositeApiResolver*
 Function,+,composite_api_resolver_get,const ElfApiInterface*,CompositeApiResolver*
+Function,-,compress_alloc,Compress*,uint16_t
+Function,-,compress_decode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
+Function,-,compress_encode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
+Function,-,compress_free,void,Compress*
+Function,-,compress_icon_alloc,CompressIcon*,
+Function,-,compress_icon_decode,void,"CompressIcon*, const uint8_t*, uint8_t**"
+Function,-,compress_icon_free,void,CompressIcon*
 Function,-,copysign,double,"double, double"
 Function,-,copysignf,float,"float, float"
 Function,-,copysignl,long double,"long double, long double"
