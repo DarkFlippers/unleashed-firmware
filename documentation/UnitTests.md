@@ -17,11 +17,11 @@ To run the unit tests, follow these steps:
 
 1. Compile the firmware with the tests enabled: `./fbt FIRMWARE_APP_SET=unit_tests`.
 2. Flash the firmware using your preferred method.
-3. Copy the [assets/unit_tests](assets/unit_tests) folder to the root of your Flipper Zero's SD card.
+3. Copy the [assets/unit_tests](/assets/unit_tests) folder to the root of your Flipper Zero's SD card.
 4. Launch the CLI session and run the `unit_tests` command.
 
 **NOTE:** To run a particular test (and skip all others), specify its name as the command argument.
-See [test_index.c](applications/debug/unit_tests/test_index.c) for the complete list of test names.
+See [test_index.c](/applications/debug/unit_tests/test_index.c) for the complete list of test names.
 
 ## Adding unit tests
 
@@ -29,7 +29,7 @@ See [test_index.c](applications/debug/unit_tests/test_index.c) for the complete 
 
 #### Entry point
 
-The common entry point for all tests is the [unit_tests](applications/debug/unit_tests) application. Test-specific code is placed into an arbitrarily named subdirectory and is then called from the [test_index.c](applications/debug/unit_tests/test_index.c) source file.
+The common entry point for all tests is the [unit_tests](/applications/debug/unit_tests) application. Test-specific code is placed into an arbitrarily named subdirectory and is then called from the [test_index.c](/applications/debug/unit_tests/test_index.c) source file.
 
 #### Test assets
 
@@ -42,10 +42,10 @@ Some unit tests require external data in order to function. These files (commonl
 Each infrared protocol has a corresponding set of unit tests, so it makes sense to implement one when adding support for a new protocol.
 To add unit tests for your protocol, follow these steps:
 
-1. Create a file named `test_<your_protocol_name>.irtest` in the [assets](assets/unit_tests/infrared) directory.
+1. Create a file named `test_<your_protocol_name>.irtest` in the [assets](/assets/unit_tests/infrared) directory.
 2. Fill it with the test data (more on it below).
-3. Add the test code to [infrared_test.c](applications/debug/unit_tests/infrared/infrared_test.c).
-4. Update the [assets](assets/unit_tests/infrared) on your Flipper Zero and run the tests to see if they pass.
+3. Add the test code to [infrared_test.c](/applications/debug/unit_tests/infrared/infrared_test.c).
+4. Update the [assets](/assets/unit_tests/infrared) on your Flipper Zero and run the tests to see if they pass.
 
 ##### Test data format
 
