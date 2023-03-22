@@ -41,8 +41,8 @@ steps:
     pull: never
     commands:
       - git clone https://github.com/xMasterX/all-the-plugins.git
-      - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
-      - rm -rf unleashed-extra-pack
+      - cp -R all-the-plugins/apps/* assets/resources/apps/
+      - rm -rf all-the-plugins
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
@@ -282,8 +282,8 @@ steps:
     pull: never
     commands:
       - git clone --branch dev https://github.com/xMasterX/all-the-plugins.git
-      - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
-      - rm -rf unleashed-extra-pack
+      - cp -R all-the-plugins/apps/* assets/resources/apps/
+      - rm -rf all-the-plugins
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
