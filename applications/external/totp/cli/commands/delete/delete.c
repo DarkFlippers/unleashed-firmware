@@ -24,7 +24,7 @@ void totp_cli_command_delete_docopt_usage() {
 }
 
 void totp_cli_command_delete_docopt_arguments() {
-    TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_DELETE_ARG_INDEX "       Token index in the list\r\n");
+    TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_DELETE_ARG_INDEX "         Token index in the list\r\n");
 }
 
 void totp_cli_command_delete_docopt_options() {

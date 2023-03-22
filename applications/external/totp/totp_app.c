@@ -8,6 +8,7 @@
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <dolphin/dolphin.h>
+#include "features_config.h"
 #include "services/config/config.h"
 #include "types/plugin_state.h"
 #include "types/token_info.h"
@@ -108,6 +109,14 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
         return false;
     }
 
+#ifdef TOTP_BADBT_TYPE_ENABLED
+    if(plugin_state->automation_method & AutomationMethodBadBt) {
+        plugin_state->bt_type_code_worker_context = totp_bt_type_code_worker_init();
+    } else {
+        plugin_state->bt_type_code_worker_context = NULL;
+    }
+#endif
+
     return true;
 }
 
@@ -129,6 +138,13 @@ static void totp_plugin_state_free(PluginState* plugin_state) {
     if(plugin_state->crypto_verify_data != NULL) {
         free(plugin_state->crypto_verify_data);
     }
+
+#ifdef TOTP_BADBT_TYPE_ENABLED
+    if(plugin_state->bt_type_code_worker_context != NULL) {
+        totp_bt_type_code_worker_free(plugin_state->bt_type_code_worker_context);
+        plugin_state->bt_type_code_worker_context = NULL;
+    }
+#endif
 
     furi_mutex_free(plugin_state->mutex);
     free(plugin_state);

@@ -12,6 +12,7 @@
 #include "commands/pin/pin.h"
 #include "commands/notification/notification.h"
 #include "commands/reset/reset.h"
+#include "commands/automation/automation.h"
 
 static void totp_cli_print_unknown_command(const FuriString* unknown_command) {
     TOTP_CLI_PRINTF_ERROR(
@@ -57,6 +58,8 @@ static void totp_cli_handler(Cli* cli, FuriString* args, void* context) {
         totp_cli_command_pin_handle(plugin_state, args, cli);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_NOTIFICATION) == 0) {
         totp_cli_command_notification_handle(plugin_state, args, cli);
+    } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_AUTOMATION) == 0) {
+        totp_cli_command_automation_handle(plugin_state, args, cli);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_RESET) == 0) {
         totp_cli_command_reset_handle(cli, cli_context->event_queue);
     } else {

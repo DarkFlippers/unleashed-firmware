@@ -3,9 +3,14 @@
 #include <notification/notification.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
+#include "../features_config.h"
 #include "../lib/list/list.h"
 #include "../ui/totp_scenes_enum.h"
 #include "notification_method.h"
+#include "automation_method.h"
+#ifdef TOTP_BADBT_TYPE_ENABLED
+#include "../workers/bt_type_code/bt_type_code.h"
+#endif
 
 #define TOTP_IV_SIZE 16
 
@@ -92,4 +97,16 @@ typedef struct {
      * @brief Main rendering loop mutex
      */
     FuriMutex* mutex;
+
+    /**
+     * @brief Automation method
+     */
+    AutomationMethod automation_method;
+
+#ifdef TOTP_BADBT_TYPE_ENABLED
+    /**
+     * @brief Bad-Bluetooth worker context
+     */
+    TotpBtTypeCodeWorkerContext* bt_type_code_worker_context;
+#endif
 } PluginState;

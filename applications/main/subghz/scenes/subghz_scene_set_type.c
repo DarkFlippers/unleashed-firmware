@@ -154,6 +154,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "KL: GSN 433MHz",
+        SubmenuIndexGSN,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: Elmes (PL) 433MHz",
         SubmenuIndexElmesElectronic,
         subghz_scene_set_type_submenu_callback,
@@ -510,6 +516,31 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     "Gibidi",
                     subghz->txrx->preset);
                 flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "Gibidi");
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexGSN:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_keeloq_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    key & 0x0FFFFFFF,
+                    0x2,
+                    0x0003,
+                    "GSN",
+                    subghz->txrx->preset);
+                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "GSN");
                 generated_protocol = true;
             } else {
                 generated_protocol = false;

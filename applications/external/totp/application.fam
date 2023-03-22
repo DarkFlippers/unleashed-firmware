@@ -9,10 +9,14 @@ App(
         "dialogs",
         "storage",
         "input", 
-        "notification"
+        "notification",
+        "bt"
     ],
     stack_size=2 * 1024,
     order=20,
+    fap_author="Alexander Kopachov (@akopachov)",
+    fap_description="Software-based TOTP authenticator for Flipper Zero device",
+    fap_weburl="https://github.com/akopachov/flipper-zero_authenticator",
     fap_category="Misc",
     fap_icon_assets="images",
     fap_icon="totp_10px.png",

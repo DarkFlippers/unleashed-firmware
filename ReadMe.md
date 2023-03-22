@@ -195,7 +195,7 @@ Games:
 
 ### **Plugins**
 
-## [- 🎲 Download Extra plugins for Unleashed](https://github.com/xMasterX/unleashed-extra-pack)
+## [- 🎲 Download Extra plugins for Unleashed](https://github.com/xMasterX/all-the-plugins)
 
 ## [- TOTP (Authenticator) config description](https://github.com/akopachov/flipper-zero_authenticator/blob/master/docs/conf-file_description.md)
 

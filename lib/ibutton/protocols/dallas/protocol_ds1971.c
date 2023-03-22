@@ -53,7 +53,7 @@ const iButtonProtocolDallasBase ibutton_protocol_ds1971 = {
     .name = DS1971_FAMILY_NAME,
 
     .read = dallas_ds1971_read,
-    .write_blank = NULL, /* No data to write a blank */
+    .write_blank = NULL, // TODO: Implement writing to blank
     .write_copy = dallas_ds1971_write_copy,
     .emulate = dallas_ds1971_emulate,
     .save = dallas_ds1971_save,
@@ -76,7 +76,7 @@ bool dallas_ds1971_write_copy(OneWireHost* host, iButtonProtocolData* protocol_d
     DS1971ProtocolData* data = protocol_data;
 
     onewire_host_reset(host);
-    onewire_host_skip(host);
+    onewire_host_write(host, DALLAS_COMMON_CMD_SKIP_ROM);
     // Starting writing from address 0x0000
     onewire_host_write(host, DALLAS_COMMON_CMD_WRITE_SCRATCH);
     onewire_host_write(host, 0x00);
@@ -87,7 +87,7 @@ bool dallas_ds1971_write_copy(OneWireHost* host, iButtonProtocolData* protocol_d
     bool pad_valid = false;
     if(onewire_host_reset(host)) {
         pad_valid = true;
-        onewire_host_skip(host);
+        onewire_host_write(host, DALLAS_COMMON_CMD_SKIP_ROM);
         onewire_host_write(host, DALLAS_COMMON_CMD_READ_SCRATCH);
         onewire_host_write(host, 0x00);
 
@@ -103,7 +103,7 @@ bool dallas_ds1971_write_copy(OneWireHost* host, iButtonProtocolData* protocol_d
     // Copy scratchpad to memory and confirm
     if(pad_valid) {
         if(onewire_host_reset(host)) {
-            onewire_host_skip(host);
+            onewire_host_write(host, DALLAS_COMMON_CMD_SKIP_ROM);
             onewire_host_write(host, DALLAS_COMMON_CMD_COPY_SCRATCH);
             onewire_host_write(host, DS1971_CMD_FINALIZATION);
 
@@ -114,10 +114,16 @@ bool dallas_ds1971_write_copy(OneWireHost* host, iButtonProtocolData* protocol_d
     return pad_valid;
 }
 
-static void dallas_ds1971_reset_callback(void* context) {
+static bool dallas_ds1971_reset_callback(bool is_short, void* context) {
     furi_assert(context);
     DS1971ProtocolData* data = context;
-    data->state.command_state = DallasCommonCommandStateIdle;
+
+    if(!is_short) {
+        data->state.command_state = DallasCommonCommandStateIdle;
+        onewire_slave_set_overdrive(data->state.bus, is_short);
+    }
+
+    return !is_short;
 }
 
 static bool dallas_ds1971_command_callback(uint8_t command, void* context) {

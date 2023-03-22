@@ -7,7 +7,7 @@
 #include <littlefs/lfs_util.h> // for lfs_tobe32
 
 #include "toolbox/sha256.h"
-#include "toolbox/hmac_sha256.h"
+#include "hmac_sha256.h"
 #include "micro-ecc/uECC.h"
 
 #define TAG "U2F"

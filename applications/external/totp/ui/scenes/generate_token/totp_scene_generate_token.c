@@ -14,7 +14,11 @@
 #include "../../../lib/roll_value/roll_value.h"
 #include "../../scene_director.h"
 #include "../token_menu/totp_scene_token_menu.h"
-#include "../../../workers/type_code/type_code.h"
+#include "../../../features_config.h"
+#include "../../../workers/usb_type_code/usb_type_code.h"
+#ifdef TOTP_BADBT_TYPE_ENABLED
+#include "../../../workers/bt_type_code/bt_type_code.h"
+#endif
 
 static const uint8_t PROGRESS_BAR_MARGIN = 3;
 static const uint8_t PROGRESS_BAR_HEIGHT = 4;
@@ -25,9 +29,10 @@ typedef struct {
     bool need_token_update;
     TokenInfo* current_token;
     uint32_t last_token_gen_time;
-    TotpTypeCodeWorkerContext* type_code_worker_context;
+    TotpUsbTypeCodeWorkerContext* usb_type_code_worker_context;
     NotificationMessage const** notification_sequence_new_token;
     NotificationMessage const** notification_sequence_badusb;
+    FuriMutex* last_code_update_sync;
 } SceneState;
 
 static const NotificationSequence*
@@ -72,7 +77,7 @@ static const NotificationSequence*
 }
 
 static const NotificationSequence*
-    get_notification_sequence_badusb(const PluginState* plugin_state, SceneState* scene_state) {
+    get_notification_sequence_automation(const PluginState* plugin_state, SceneState* scene_state) {
     if(scene_state->notification_sequence_badusb == NULL) {
         uint8_t i = 0;
         uint8_t length = 3;
@@ -201,9 +206,28 @@ void totp_scene_generate_token_activate(
     plugin_state->current_scene_state = scene_state;
     FURI_LOG_D(LOGGING_TAG, "Timezone set to: %f", (double)plugin_state->timezone_offset);
     update_totp_params(plugin_state);
-    scene_state->type_code_worker_context = totp_type_code_worker_start();
-    scene_state->type_code_worker_context->string = &scene_state->last_code[0];
-    scene_state->type_code_worker_context->string_length = TOTP_TOKEN_DIGITS_MAX_COUNT + 1;
+
+    scene_state->last_code_update_sync = furi_mutex_alloc(FuriMutexTypeNormal);
+    if(plugin_state->automation_method & AutomationMethodBadUsb) {
+        scene_state->usb_type_code_worker_context = totp_usb_type_code_worker_start(
+            &scene_state->last_code[0],
+            TOTP_TOKEN_DIGITS_MAX_COUNT + 1,
+            scene_state->last_code_update_sync);
+    }
+
+#ifdef TOTP_BADBT_TYPE_ENABLED
+
+    if(plugin_state->automation_method & AutomationMethodBadBt) {
+        if(plugin_state->bt_type_code_worker_context == NULL) {
+            plugin_state->bt_type_code_worker_context = totp_bt_type_code_worker_init();
+        }
+        totp_bt_type_code_worker_start(
+            plugin_state->bt_type_code_worker_context,
+            &scene_state->last_code[0],
+            TOTP_TOKEN_DIGITS_MAX_COUNT + 1,
+            scene_state->last_code_update_sync);
+    }
+#endif
 }
 
 void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_state) {
@@ -242,8 +266,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
         const TokenInfo* tokenInfo = scene_state->current_token;
 
         if(tokenInfo->token != NULL && tokenInfo->token_length > 0) {
-            furi_mutex_acquire(
-                scene_state->type_code_worker_context->string_sync, FuriWaitForever);
+            furi_mutex_acquire(scene_state->last_code_update_sync, FuriWaitForever);
             size_t key_length;
             uint8_t* key = totp_crypto_decrypt(
                 tokenInfo->token, tokenInfo->token_length, &plugin_state->iv[0], &key_length);
@@ -262,12 +285,11 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             memset_s(key, key_length, 0, key_length);
             free(key);
         } else {
-            furi_mutex_acquire(
-                scene_state->type_code_worker_context->string_sync, FuriWaitForever);
+            furi_mutex_acquire(scene_state->last_code_update_sync, FuriWaitForever);
             int_token_to_str(0, scene_state->last_code, tokenInfo->digits);
         }
 
-        furi_mutex_release(scene_state->type_code_worker_context->string_sync);
+        furi_mutex_release(scene_state->last_code_update_sync);
 
         if(is_new_token_time) {
             notification_message(
@@ -327,6 +349,15 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
         canvas_draw_icon(
             canvas, SCREEN_WIDTH - 9, SCREEN_HEIGHT_CENTER - 24, &I_totp_arrow_right_8x9);
     }
+
+#if defined(TOTP_BADBT_TYPE_ENABLED) && defined(TOTP_BADBT_TYPE_ICON_ENABLED)
+    if(plugin_state->automation_method & AutomationMethodBadBt &&
+       plugin_state->bt_type_code_worker_context != NULL &&
+       plugin_state->bt_type_code_worker_context->is_advertising) {
+        canvas_draw_icon(
+            canvas, SCREEN_WIDTH_CENTER - 5, SCREEN_HEIGHT_CENTER + 13, &I_hid_ble_10x7);
+    }
+#endif
 }
 
 bool totp_scene_generate_token_handle_event(
@@ -341,14 +372,27 @@ bool totp_scene_generate_token_handle_event(
     }
 
     SceneState* scene_state;
-    if(event->input.type == InputTypeLong && event->input.key == InputKeyDown) {
-        scene_state = (SceneState*)plugin_state->current_scene_state;
-        totp_type_code_worker_notify(
-            scene_state->type_code_worker_context, TotpTypeCodeWorkerEventType);
-        notification_message(
-            plugin_state->notification_app,
-            get_notification_sequence_badusb(plugin_state, scene_state));
-        return true;
+    if(event->input.type == InputTypeLong) {
+        if(event->input.key == InputKeyDown && plugin_state->automation_method & AutomationMethodBadUsb) {
+            scene_state = (SceneState*)plugin_state->current_scene_state;
+            totp_usb_type_code_worker_notify(
+                scene_state->usb_type_code_worker_context, TotpUsbTypeCodeWorkerEventType);
+            notification_message(
+                plugin_state->notification_app,
+                get_notification_sequence_automation(plugin_state, scene_state));
+            return true;
+        }
+#ifdef TOTP_BADBT_TYPE_ENABLED
+        else if(event->input.key == InputKeyUp && plugin_state->automation_method & AutomationMethodBadBt) {
+            scene_state = (SceneState*)plugin_state->current_scene_state;
+            totp_bt_type_code_worker_notify(
+                plugin_state->bt_type_code_worker_context, TotpBtTypeCodeWorkerEventType);
+            notification_message(
+                plugin_state->notification_app,
+                get_notification_sequence_automation(plugin_state, scene_state));
+            return true;
+        }
+#endif
     }
 
     if(event->input.type != InputTypePress && event->input.type != InputTypeRepeat) {
@@ -400,7 +444,14 @@ void totp_scene_generate_token_deactivate(PluginState* plugin_state) {
     if(plugin_state->current_scene_state == NULL) return;
     SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
 
-    totp_type_code_worker_stop(scene_state->type_code_worker_context);
+    if(plugin_state->automation_method & AutomationMethodBadUsb) {
+        totp_usb_type_code_worker_stop(scene_state->usb_type_code_worker_context);
+    }
+#ifdef TOTP_BADBT_TYPE_ENABLED
+    if(plugin_state->automation_method & AutomationMethodBadBt) {
+        totp_bt_type_code_worker_stop(plugin_state->bt_type_code_worker_context);
+    }
+#endif
 
     if(scene_state->notification_sequence_new_token != NULL) {
         free(scene_state->notification_sequence_new_token);
@@ -409,6 +460,8 @@ void totp_scene_generate_token_deactivate(PluginState* plugin_state) {
     if(scene_state->notification_sequence_badusb != NULL) {
         free(scene_state->notification_sequence_badusb);
     }
+
+    furi_mutex_free(scene_state->last_code_update_sync);
 
     free(scene_state);
     plugin_state->current_scene_state = NULL;
