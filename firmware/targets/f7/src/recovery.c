@@ -4,6 +4,7 @@
 #include <alt_boot.h>
 #include <u8g2_glue.h>
 #include <assets_icons.h>
+#include <toolbox/compress.h>
 
 #define COUNTER_VALUE (136U)
 
@@ -27,9 +28,9 @@ void flipper_boot_recovery_exec() {
     u8g2_Setup_st756x_flipper(fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
     u8g2_InitDisplay(fb);
 
-    furi_hal_compress_icon_init();
+    CompressIcon* compress_icon = compress_icon_alloc();
     uint8_t* splash_data = NULL;
-    furi_hal_compress_icon_decode(icon_get_data(&I_Erase_pin_128x64), &splash_data);
+    compress_icon_decode(compress_icon, icon_get_data(&I_Erase_pin_128x64), &splash_data);
 
     u8g2_ClearBuffer(fb);
     u8g2_SetDrawColor(fb, 0x01);
@@ -38,6 +39,7 @@ void flipper_boot_recovery_exec() {
     u8g2_DrawXBM(fb, 0, 0, 128, 64, splash_data);
     u8g2_SendBuffer(fb);
     u8g2_SetPowerSave(fb, 0);
+    compress_icon_free(compress_icon);
 
     size_t counter = COUNTER_VALUE;
     while(counter) {

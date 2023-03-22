@@ -62,7 +62,6 @@ Header,+,firmware/targets/furi_hal_include/furi_hal.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt_hid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt_serial.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_compress.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_cortex.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_crypto.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_debug.h,,
@@ -1057,12 +1056,6 @@ Function,-,furi_hal_clock_resume_tick,void,
 Function,-,furi_hal_clock_suspend_tick,void,
 Function,-,furi_hal_clock_switch_to_hsi,void,
 Function,-,furi_hal_clock_switch_to_pll,void,
-Function,-,furi_hal_compress_alloc,FuriHalCompress*,uint16_t
-Function,-,furi_hal_compress_decode,_Bool,"FuriHalCompress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
-Function,-,furi_hal_compress_encode,_Bool,"FuriHalCompress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
-Function,-,furi_hal_compress_free,void,FuriHalCompress*
-Function,-,furi_hal_compress_icon_decode,void,"const uint8_t*, uint8_t**"
-Function,-,furi_hal_compress_icon_init,void,
 Function,+,furi_hal_console_disable,void,
 Function,+,furi_hal_console_enable,void,
 Function,+,furi_hal_console_init,void,

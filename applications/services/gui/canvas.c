@@ -17,6 +17,7 @@ const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
 
 Canvas* canvas_init() {
     Canvas* canvas = malloc(sizeof(Canvas));
+    canvas->compress_icon = compress_icon_alloc();
 
     // Setup u8g2
     u8g2_Setup_st756x_flipper(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
@@ -35,6 +36,7 @@ Canvas* canvas_init() {
 
 void canvas_free(Canvas* canvas) {
     furi_assert(canvas);
+    compress_icon_free(canvas->compress_icon);
     free(canvas);
 }
 
@@ -218,7 +220,7 @@ void canvas_draw_bitmap(
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* bitmap_data = NULL;
-    furi_hal_compress_icon_decode(compressed_bitmap_data, &bitmap_data);
+    compress_icon_decode(canvas->compress_icon, compressed_bitmap_data, &bitmap_data);
     u8g2_DrawXBM(&canvas->fb, x, y, width, height, bitmap_data);
 }
 
@@ -233,7 +235,8 @@ void canvas_draw_icon_animation(
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
-    furi_hal_compress_icon_decode(icon_animation_get_data(icon_animation), &icon_data);
+    compress_icon_decode(
+        canvas->compress_icon, icon_animation_get_data(icon_animation), &icon_data);
     u8g2_DrawXBM(
         &canvas->fb,
         x,
@@ -250,7 +253,7 @@ void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
-    furi_hal_compress_icon_decode(icon_get_data(icon), &icon_data);
+    compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
     u8g2_DrawXBM(&canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data);
 }
 

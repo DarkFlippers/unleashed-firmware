@@ -7,6 +7,7 @@
 
 #include "canvas.h"
 #include <u8g2.h>
+#include <toolbox/compress.h>
 
 /** Canvas structure
  */
@@ -17,6 +18,7 @@ struct Canvas {
     uint8_t offset_y;
     uint8_t width;
     uint8_t height;
+    CompressIcon* compress_icon;
 };
 
 /** Allocate memory and initialize canvas

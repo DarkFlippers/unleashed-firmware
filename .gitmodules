@@ -31,3 +31,6 @@
 [submodule "applications/external/dap_link/lib/free-dap"]
 	path = applications/external/dap_link/lib/free-dap
 	url = https://github.com/ataradov/free-dap.git
+[submodule "lib/heatshrink"]
+	path = lib/heatshrink
+	url = https://github.com/flipperdevices/heatshrink.git

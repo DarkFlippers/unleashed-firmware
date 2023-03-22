@@ -7,6 +7,7 @@
 
 #include <furi.h>
 
+#define TAG "FuriHalIbutton"
 #define FURI_HAL_IBUTTON_TIMER TIM1
 #define FURI_HAL_IBUTTON_TIMER_IRQ FuriHalInterruptIdTim1UpTim16
 
@@ -33,6 +34,8 @@ static void furi_hal_ibutton_emulate_isr() {
 void furi_hal_ibutton_init() {
     furi_hal_ibutton = malloc(sizeof(FuriHalIbutton));
     furi_hal_ibutton->state = FuriHalIbuttonStateIdle;
+
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_ibutton_emulate_start(
