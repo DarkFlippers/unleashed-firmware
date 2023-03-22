@@ -12,16 +12,8 @@ jobs:
   test_updater_on_bench:
     runs-on: [self-hosted, FlipperZeroUpdaterTest]
     steps:
-      - name: 'Decontaminate previous build leftovers'
-        run: |
-          if [ -d .git ]; then
-            git submodule status || (
-              git ls-files --stage | egrep '^160000' | awk '{print $4}' | while read submodule
-              do
-                git rm -rf "$submodule"
-              done
-            )
-          fi
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -57,12 +49,8 @@ jobs:
         run: |
           echo "tag=$(git tag -l --sort=-version:refname | grep -v "rc\|RC" | head -1)" >> $GITHUB_OUTPUT
 
-      - name: 'Decontaminate previous build leftovers'
-        if: failure()
-        run: |
-          if [ -d .git ]; then
-            git submodule status || git checkout "$(git rev-list --max-parents=0 HEAD | tail -n 1)"
-          fi
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
 
       - name: 'Checkout latest release'
         uses: actions/checkout@v3

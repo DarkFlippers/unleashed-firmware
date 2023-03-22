@@ -19,16 +19,8 @@ jobs:
     if: ${{ !github.event.pull_request.head.repo.fork }}
     runs-on: [self-hosted, FlipperZeroShell]
     steps:
-      - name: 'Decontaminate previous build leftovers'
-        run: |
-          if [ -d .git ]; then
-            git submodule status || (
-              git ls-files --stage | egrep '^160000' | awk '{print $4}' | while read submodule
-              do
-                git rm -rf "$submodule"
-              done
-            )
-          fi
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
 
       - name: 'Checkout code'
         uses: actions/checkout@v3
