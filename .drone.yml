@@ -40,7 +40,7 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone https://github.com/xMasterX/unleashed-extra-pack.git
+      - git clone https://github.com/xMasterX/all-the-plugins.git
       - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
       - rm -rf unleashed-extra-pack
       - export DIST_SUFFIX=${DRONE_TAG}e
@@ -201,7 +201,7 @@ steps:
         [-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
 
-        [-Download latest extra apps pack-](https://github.com/xMasterX/unleashed-extra-pack/archive/refs/heads/main.zip)
+        [-Download latest extra apps pack-](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 
 
         [-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})
@@ -223,7 +223,7 @@ steps:
     commands:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
       - chmod +x ./discord.sh
-      - ./discord.sh --text 'New Unleashed firmware released!\n\nVersion - '${DRONE_TAG}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[[Github - Changelog]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')\n\n[-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)\n\n[-Download latest extra apps pack-](https://github.com/xMasterX/unleashed-extra-pack/archive/refs/heads/main.zip)\n\n[-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/'${DRONE_TAG}'/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')\n\n[-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)\n\n[-Version with extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)'
+      - ./discord.sh --text 'New Unleashed firmware released!\n\nVersion - '${DRONE_TAG}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[[Github - Changelog]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')\n\n[-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)\n\n[-Download latest extra apps pack-](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)\n\n[-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/'${DRONE_TAG}'/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')\n\n[-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)\n\n[-Version with extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)'
 
   - name: "Send extra pack build to telegram"
     image: appleboy/drone-telegram
@@ -281,7 +281,7 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone --branch dev https://github.com/xMasterX/unleashed-extra-pack.git
+      - git clone --branch dev https://github.com/xMasterX/all-the-plugins.git
       - cp -R unleashed-extra-pack/apps/* assets/resources/apps/
       - rm -rf unleashed-extra-pack
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
