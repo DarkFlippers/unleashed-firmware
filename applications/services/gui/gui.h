@@ -27,7 +27,11 @@ typedef enum {
 } GuiLayer;
 
 /** Gui Canvas Commit Callback */
-typedef void (*GuiCanvasCommitCallback)(uint8_t* data, size_t size, void* context);
+typedef void (*GuiCanvasCommitCallback)(
+    uint8_t* data,
+    size_t size,
+    CanvasOrientation orientation,
+    void* context);
 
 #define RECORD_GUI "gui"
 

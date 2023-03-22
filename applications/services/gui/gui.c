@@ -250,6 +250,7 @@ static void gui_redraw(Gui* gui) {
                 p->callback(
                     canvas_get_buffer(gui->canvas),
                     canvas_get_buffer_size(gui->canvas),
+                    canvas_get_orientation(gui->canvas),
                     p->context);
             }
     } while(false);

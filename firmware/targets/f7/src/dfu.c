@@ -4,10 +4,11 @@
 #include <alt_boot.h>
 #include <u8g2_glue.h>
 #include <assets_icons.h>
+#include <toolbox/compress.h>
 
 void flipper_boot_dfu_show_splash() {
     // Initialize
-    furi_hal_compress_icon_init();
+    CompressIcon* compress_icon = compress_icon_alloc();
 
     u8g2_t* fb = malloc(sizeof(u8g2_t));
     memset(fb, 0, sizeof(u8g2_t));
@@ -15,13 +16,15 @@ void flipper_boot_dfu_show_splash() {
     u8g2_InitDisplay(fb);
     u8g2_SetDrawColor(fb, 0x01);
     uint8_t* splash_data = NULL;
-    furi_hal_compress_icon_decode(icon_get_data(&I_DFU_128x50), &splash_data);
+    compress_icon_decode(compress_icon, icon_get_data(&I_DFU_128x50), &splash_data);
     u8g2_DrawXBM(fb, 0, 64 - 50, 128, 50, splash_data);
     u8g2_SetFont(fb, u8g2_font_helvB08_tr);
     u8g2_DrawStr(fb, 2, 8, "Update & Recovery Mode");
     u8g2_DrawStr(fb, 2, 21, "DFU Started");
     u8g2_SetPowerSave(fb, 0);
     u8g2_SendBuffer(fb);
+
+    compress_icon_free(compress_icon);
 }
 
 void flipper_boot_dfu_exec() {
