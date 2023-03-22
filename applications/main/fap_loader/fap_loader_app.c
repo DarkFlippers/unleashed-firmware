@@ -63,7 +63,7 @@ static bool fap_loader_item_callback(
     return fap_loader_load_name_and_icon(path, fap_loader->storage, icon_ptr, item_name);
 }
 
-static bool fap_loader_run_selected_app(FapLoader* loader) {
+static bool fap_loader_run_selected_app(FapLoader* loader, bool ignore_mismatch) {
     furi_assert(loader);
 
     FuriString* error_message;
@@ -72,6 +72,7 @@ static bool fap_loader_run_selected_app(FapLoader* loader) {
 
     bool file_selected = false;
     bool show_error = true;
+    bool retry = false;
     do {
         file_selected = true;
         loader->app = flipper_application_alloc(loader->storage, firmware_api_interface);
@@ -82,14 +83,29 @@ static bool fap_loader_run_selected_app(FapLoader* loader) {
         FlipperApplicationPreloadStatus preload_res =
             flipper_application_preload(loader->app, furi_string_get_cstr(loader->fap_path));
         if(preload_res != FlipperApplicationPreloadStatusSuccess) {
-            const char* err_msg = flipper_application_preload_status_to_string(preload_res);
-            furi_string_printf(error_message, "Preload failed: %s", err_msg);
-            FURI_LOG_E(
-                TAG,
-                "FAP Loader failed to preload %s: %s",
-                furi_string_get_cstr(loader->fap_path),
-                err_msg);
-            break;
+            if(preload_res == FlipperApplicationPreloadStatusApiMismatch) {
+                if(!ignore_mismatch) {
+                    DialogMessage* message = dialog_message_alloc();
+                    dialog_message_set_header(message, "API Mismatch", 64, 0, AlignCenter, AlignTop);
+                    dialog_message_set_buttons(message, "Cancel", NULL, "Continue");
+                    dialog_message_set_text(message, "This app might not\nwork correctly\nContinue anyways?", 64, 32, AlignCenter, AlignCenter);
+                    if(dialog_message_show(loader->dialogs, message) == DialogMessageButtonRight) {
+                        retry = true;
+                    }
+                    dialog_message_free(message);
+                    show_error = false;
+                    break;
+                }
+            } else {
+                const char* err_msg = flipper_application_preload_status_to_string(preload_res);
+                furi_string_printf(error_message, "Preload failed: %s", err_msg);
+                FURI_LOG_E(
+                    TAG,
+                    "FAP Loader failed to preload %s: %s",
+                    furi_string_get_cstr(loader->fap_path),
+                    err_msg);
+                break;
+            }
         }
 
         FURI_LOG_I(TAG, "FAP Loader is mapping");
@@ -155,7 +171,7 @@ static bool fap_loader_run_selected_app(FapLoader* loader) {
         flipper_application_free(loader->app);
     }
 
-    return file_selected;
+    return retry;
 }
 
 static bool fap_loader_select_app(FapLoader* loader) {
@@ -203,12 +219,16 @@ int32_t fap_loader_app(void* p) {
     if(p) {
         loader = fap_loader_alloc((const char*)p);
         view_dispatcher_switch_to_view(loader->view_dispatcher, 0);
-        fap_loader_run_selected_app(loader);
+        if(fap_loader_run_selected_app(loader, false)) {
+            fap_loader_run_selected_app(loader, true);
+        }
     } else {
         loader = fap_loader_alloc(EXT_PATH("apps"));
         while(fap_loader_select_app(loader)) {
             view_dispatcher_switch_to_view(loader->view_dispatcher, 0);
-            fap_loader_run_selected_app(loader);
+            if(fap_loader_run_selected_app(loader, false)) {
+                fap_loader_run_selected_app(loader, true);
+            }
         };
     }
 
