@@ -86,9 +86,16 @@ static bool fap_loader_run_selected_app(FapLoader* loader, bool ignore_mismatch)
             if(preload_res == FlipperApplicationPreloadStatusApiMismatch) {
                 if(!ignore_mismatch) {
                     DialogMessage* message = dialog_message_alloc();
-                    dialog_message_set_header(message, "API Mismatch", 64, 0, AlignCenter, AlignTop);
+                    dialog_message_set_header(
+                        message, "API Mismatch", 64, 0, AlignCenter, AlignTop);
                     dialog_message_set_buttons(message, "Cancel", NULL, "Continue");
-                    dialog_message_set_text(message, "This app might not\nwork correctly\nContinue anyways?", 64, 32, AlignCenter, AlignCenter);
+                    dialog_message_set_text(
+                        message,
+                        "This app might not\nwork correctly\nContinue anyways?",
+                        64,
+                        32,
+                        AlignCenter,
+                        AlignCenter);
                     if(dialog_message_show(loader->dialogs, message) == DialogMessageButtonRight) {
                         retry = true;
                     }

@@ -119,7 +119,7 @@ bool furi_hal_subghz_check_radio(void) {
     if((ver != 0) && (ver != 255)) {
         FURI_LOG_D(TAG, "Radio check ok");
     } else {
-        FURI_LOG_D(TAG, "Radio check failed");
+        FURI_LOG_D(TAG, "Radio check failed, revert to default");
 
         result = false;
     }
@@ -182,7 +182,7 @@ bool furi_hal_subghz_init_check(void) {
     if(result) {
         FURI_LOG_I(TAG, "Init OK");
     } else {
-        FURI_LOG_E(TAG, "Failed to initialization");
+        FURI_LOG_E(TAG, "Selected CC1101 module init failed, revert to default");
     }
     return result;
 }
