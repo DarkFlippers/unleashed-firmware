@@ -100,6 +100,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "AN-Motors AT4 433MHz",
+        SubmenuIndexANMotorsAT4,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Alutech AT4N 433MHz",
+        SubmenuIndexAlutechAT4N,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: DoorHan 315MHz",
         SubmenuIndexDoorHan_315_00,
         subghz_scene_set_type_submenu_callback,
@@ -508,6 +520,32 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
+        case SubmenuIndexANMotorsAT4:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_keeloq_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    (key & 0x00FFFFFF) | 0x04000000,
+                    0x2,
+                    0x0021,
+                    "AN-Motors",
+                    subghz->txrx->preset);
+                flipper_format_write_string_cstr(
+                    subghz->txrx->fff_data, "Manufacture", "AN-Motors");
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
         case SubmenuIndexAprimatic:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
@@ -738,6 +776,29 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
                 flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
 
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexAlutechAT4N:
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_ALUTECH_AT_4N_NAME);
+            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_alutech_at_4n_create_data(
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+                    subghz->txrx->fff_data,
+                    (key & 0x000FFFFF) | 0x00100000,
+                    0x44,
+                    0x0003,
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;

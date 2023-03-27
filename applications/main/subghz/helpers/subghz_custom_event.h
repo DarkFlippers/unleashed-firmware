@@ -21,6 +21,8 @@ typedef enum {
     SubmenuIndexGibidi433,
     SubmenuIndexGSN,
     SubmenuIndexAprimatic,
+    SubmenuIndexANMotorsAT4,
+    SubmenuIndexAlutechAT4N,
     SubmenuIndexNiceFlo12bit,
     SubmenuIndexNiceFlo24bit,
     SubmenuIndexNiceFlorS_433_92,
