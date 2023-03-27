@@ -20,6 +20,7 @@ typedef enum {
     SubmenuIndexDTMNeo433,
     SubmenuIndexGibidi433,
     SubmenuIndexGSN,
+    SubmenuIndexAprimatic,
     SubmenuIndexNiceFlo12bit,
     SubmenuIndexNiceFlo24bit,
     SubmenuIndexNiceFlorS_433_92,
