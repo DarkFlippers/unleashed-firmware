@@ -517,7 +517,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
                     (key & 0x000FFFFF) | 0x00600000,
-                    0x2,
+                    0x4,
                     0x0003,
                     "Aprimatic",
                     subghz->txrx->preset);
