@@ -2,7 +2,7 @@
 
 #include "furi_hal.h"
 
-#define RX_BUF_SIZE (320)
+#define RX_BUF_SIZE (2048)
 
 typedef struct WifiMarauderUart WifiMarauderUart;
 

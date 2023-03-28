@@ -80,7 +80,7 @@ bool wifi_marauder_scene_text_input_on_event(void* context, SceneManagerEvent ev
         if(event.event == WifiMarauderEventStartConsole) {
             // Point to custom string to send
             app->selected_tx_string = app->text_input_store;
-            scene_manager_next_scene(app->scene_manager, WifiMarauderAppViewConsoleOutput);
+            scene_manager_next_scene(app->scene_manager, WifiMarauderSceneConsoleOutput);
             consumed = true;
         } else if(event.event == WifiMarauderEventSaveSourceMac) {
             if(12 != strlen(app->text_input_store)) {
@@ -138,7 +138,7 @@ bool wifi_marauder_scene_text_input_on_event(void* context, SceneManagerEvent ev
                     app->special_case_input_src_addr,
                     app->special_case_input_dst_addr);
                 app->selected_tx_string = app->text_input_store;
-                scene_manager_next_scene(app->scene_manager, WifiMarauderAppViewConsoleOutput);
+                scene_manager_next_scene(app->scene_manager, WifiMarauderSceneConsoleOutput);
             }
             consumed = true;
         }
