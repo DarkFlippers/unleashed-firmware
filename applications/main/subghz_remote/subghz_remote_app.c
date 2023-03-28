@@ -61,7 +61,6 @@ typedef struct {
     FuriString* left_file;
     FuriString* right_file;
     FuriString* ok_file;
-    FuriString* back_file;
 
     FuriString* file_path;
 
@@ -70,14 +69,12 @@ typedef struct {
     char* left_label;
     char* right_label;
     char* ok_label;
-    char* back_label;
 
     int up_enabled;
     int down_enabled;
     int left_enabled;
     int right_enabled;
     int ok_enabled;
-    int back_enabled;
 
     char* send_status;
     int send_status_c;
@@ -185,7 +182,6 @@ void subghz_remote_cfg_set_check(SubGHzRemote* app, FuriString* file_name) {
     app->left_enabled = 0;
     app->right_enabled = 0;
     app->ok_enabled = 0;
-    app->back_enabled = 0;
 
     //check that map file exists
     if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
@@ -207,7 +203,6 @@ void subghz_remote_cfg_set_check(SubGHzRemote* app, FuriString* file_name) {
             fff_data_file, app->right_file, &app->right_label, "RIGHT", &app->right_enabled);
 
         cfg_read_file_path(fff_data_file, app->ok_file, &app->ok_label, "OK", &app->ok_enabled);
-        cfg_read_file_path(fff_data_file, app->back_file, &app->back_label, "BACK", &app->back_enabled);
 
         //File definitions are done.
         //File checks will follow after label assignment in order to close the universal_rf_map file without the need to reopen it again.
@@ -219,7 +214,6 @@ void subghz_remote_cfg_set_check(SubGHzRemote* app, FuriString* file_name) {
         cfg_read_file_label(fff_data_file, &app->left_label, "LLABEL", app->left_enabled);
         cfg_read_file_label(fff_data_file, &app->right_label, "RLABEL", app->right_enabled);
         cfg_read_file_label(fff_data_file, &app->ok_label, "OKLABEL", app->ok_enabled);
-        cfg_read_file_label(fff_data_file, &app->back_label, "BKLABEL", app->back_enabled);
     }
 
     flipper_format_file_close(fff_data_file);
@@ -310,25 +304,10 @@ void subghz_remote_cfg_set_check(SubGHzRemote* app, FuriString* file_name) {
         flipper_format_free(fff_data_file);
     }
 
-    if(app->back_enabled == 1) {
-        furi_string_set(file_name, app->back_file);
-        fff_data_file = flipper_format_file_alloc(storage);
-
-        if(!flipper_format_file_open_existing(fff_data_file, furi_string_get_cstr(file_name))) {
-            FURI_LOG_W(TAG, "Could not open BACK file %s", furi_string_get_cstr(file_name));
-
-            app->back_enabled = 0;
-            app->back_label = "N/A";
-        }
-
-        flipper_format_file_close(fff_data_file);
-        flipper_format_free(fff_data_file);
-    }
-
     furi_record_close(RECORD_STORAGE);
 
     if(app->up_enabled == 0 && app->down_enabled == 0 && app->left_enabled == 0 &&
-       app->right_enabled == 0 && app->ok_enabled == 0 && app->back_enabled == 0) {
+       app->right_enabled == 0 && app->ok_enabled == 0) {
         app->file_result = 1;
     } else {
         app->file_result = 2;
@@ -683,11 +662,6 @@ static void render_callback(Canvas* canvas, void* ctx) {
         canvas_draw_icon(canvas, 2, 33, &I_ButtonRight_4x7);
         canvas_draw_icon(canvas, 0, 42, &I_Ok_btn_9x9);
         canvas_draw_icon(canvas, 0, 53, &I_back_10px);
-        if(app->back_enabled == 1) {
-            canvas_draw_icon(canvas, 78, 53, &I_back_10px);
-        } else {
-            canvas_draw_icon(canvas, 73, 53, &I_back_10px);
-        }
 
         //Labels
         canvas_set_font(canvas, FontSecondary);
@@ -697,12 +671,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
         canvas_draw_str(canvas, 10, 40, app->right_label);
         canvas_draw_str(canvas, 10, 50, app->ok_label);
 
-        canvas_draw_str_aligned(canvas, 10, 62, AlignLeft, AlignBottom, app->back_label);
-        if(app->back_enabled == 1) {
-            canvas_draw_str_aligned(canvas, 128, 62, AlignRight, AlignBottom, "Hold=Exit");
-        } else {
-            canvas_draw_str_aligned(canvas, 128, 62, AlignRight, AlignBottom, "Press=Exit");
-        }
+        canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Press=Exit.");
 
         //Status text and indicator
         canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, app->send_status);
@@ -730,10 +699,6 @@ static void render_callback(Canvas* canvas, void* ctx) {
         case 5:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
             canvas_draw_icon(canvas, 116, 18, &I_Pin_star_7x7);
-            break;
-        case 6:
-            canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
-            canvas_draw_icon(canvas, 114.5, 16.5, &I_back_10px);
             break;
         }
 
@@ -811,7 +776,6 @@ void subghz_remote_free(SubGHzRemote* app, bool with_subghz) {
     furi_string_free(app->left_file);
     furi_string_free(app->right_file);
     furi_string_free(app->ok_file);
-    furi_string_free(app->back_file);
 
     furi_string_free(app->file_path);
     furi_string_free(app->signal);
@@ -851,7 +815,6 @@ int32_t subghz_remote_app(void* p) {
     app->left_file = furi_string_alloc();
     app->right_file = furi_string_alloc();
     app->ok_file = furi_string_alloc();
-    app->back_file = furi_string_alloc();
 
     app->file_result = 3;
 
@@ -891,13 +854,12 @@ int32_t subghz_remote_app(void* p) {
     if(app->file_result == 2) {
         FURI_LOG_D(
             TAG,
-            "U: %s - D: %s - L: %s - R: %s - O: %s - B: %s",
+            "U: %s - D: %s - L: %s - R: %s - O: %s ",
             furi_string_get_cstr(app->up_file),
             furi_string_get_cstr(app->down_file),
             furi_string_get_cstr(app->left_file),
             furi_string_get_cstr(app->right_file),
-            furi_string_get_cstr(app->ok_file),
-            furi_string_get_cstr(app->back_file));
+            furi_string_get_cstr(app->ok_file));
 
         //variables to control multiple button presses and status updates
         app->send_status = "Idle";
@@ -1013,28 +975,8 @@ int32_t subghz_remote_app(void* p) {
                 break;
 
             case InputKeyBack:
-                if(app->back_enabled) {
-                    if(app->processing == 0) {
-                        if(input.type == InputTypeShort) {
-                            furi_string_reset(app->signal);
-                            furi_string_set(app->signal, app->back_file);
-                            app->button = 6;
-                            app->processing = 1;
-                            break;
-                        } else if(input.type == InputTypeLong) {
-                            subghz_remote_tx_stop(app);
-                            exit_loop = true;
-                        }
-                    }
-                } else {
-                    subghz_remote_tx_stop(app);
-                    exit_loop = true;
-                }
-                if(input.type == InputTypeRelease) {
-                    if(app->back_enabled) {
-                        subghz_remote_tx_stop(app);
-                    }
-                }
+                subghz_remote_tx_stop(app);
+                exit_loop = true;
                 break;
             default:
                 break;
@@ -1065,9 +1007,6 @@ int32_t subghz_remote_app(void* p) {
                     break;
                 case 5:
                     app->send_status_c = 5;
-                    break;
-                case 6:
-                    app->send_status_c = 6;
                     break;
                 }
 
@@ -1110,9 +1049,7 @@ int32_t subghz_remote_app(void* p) {
             case InputKeyOk:
                 break;
             case InputKeyBack:
-                if(input.type == InputTypeLong) {
-                    exit_loop = true;
-                }
+                exit_loop = true;
                 break;
             default:
                 break;
