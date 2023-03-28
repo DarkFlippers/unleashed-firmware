@@ -73,11 +73,10 @@ typedef enum {
 #define USB_SRV_ALL_EVENTS (UsbEventReset | UsbEventRequest | UsbEventMessage)
 
 PLACE_IN_SECTION("MB_MEM2") static UsbSrv usb = {0};
+PLACE_IN_SECTION("MB_MEM2") static uint32_t ubuf[0x20];
+PLACE_IN_SECTION("MB_MEM2") usbd_device udev;
 
 static const struct usb_string_descriptor dev_lang_desc = USB_ARRAY_DESC(USB_LANGID_ENG_US);
-
-static uint32_t ubuf[0x20];
-usbd_device udev;
 
 static int32_t furi_hal_usb_thread(void* context);
 static usbd_respond usb_descriptor_get(usbd_ctlreq* req, void** address, uint16_t* length);

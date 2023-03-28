@@ -24,7 +24,6 @@ struct FuriThreadStdout {
 };
 
 struct FuriThread {
-    bool is_service;
     FuriThreadState state;
     int32_t ret;
 
@@ -37,14 +36,19 @@ struct FuriThread {
     char* name;
     char* appid;
 
-    configSTACK_DEPTH_TYPE stack_size;
     FuriThreadPriority priority;
 
     TaskHandle_t task_handle;
-    bool heap_trace_enabled;
     size_t heap_size;
 
     FuriThreadStdout output;
+
+    // Keep all non-alignable byte types in one place,
+    // this ensures that the size of this structure is minimal
+    bool is_service;
+    bool heap_trace_enabled;
+
+    configSTACK_DEPTH_TYPE stack_size;
 };
 
 static size_t __furi_thread_stdout_write(FuriThread* thread, const char* data, size_t size);
@@ -107,14 +111,8 @@ static void furi_thread_body(void* context) {
     // flush stdout
     __furi_thread_stdout_flush(thread);
 
-    // from here we can't use thread pointer
     furi_thread_set_state(thread, FuriThreadStateStopped);
 
-    // clear thread local storage
-    furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) != NULL);
-    vTaskSetThreadLocalStoragePointer(NULL, 0, NULL);
-
-    thread->task_handle = NULL;
     vTaskDelete(NULL);
     furi_thread_catch();
 }
@@ -249,11 +247,11 @@ void furi_thread_start(FuriThread* thread) {
     furi_assert(thread);
     furi_assert(thread->callback);
     furi_assert(thread->state == FuriThreadStateStopped);
-    furi_assert(thread->stack_size > 0 && thread->stack_size < 0xFFFF * 4);
+    furi_assert(thread->stack_size > 0 && thread->stack_size < (UINT16_MAX * sizeof(StackType_t)));
 
     furi_thread_set_state(thread, FuriThreadStateStarting);
 
-    uint32_t stack = thread->stack_size / 4;
+    uint32_t stack = thread->stack_size / sizeof(StackType_t);
     UBaseType_t priority = thread->priority ? thread->priority : FuriThreadPriorityNormal;
     if(thread->is_service) {
         thread->task_handle = xTaskCreateStatic(
@@ -273,12 +271,25 @@ void furi_thread_start(FuriThread* thread) {
     furi_check(thread->task_handle);
 }
 
+void furi_thread_cleanup_tcb_event(TaskHandle_t task) {
+    FuriThread* thread = pvTaskGetThreadLocalStoragePointer(task, 0);
+    if(thread) {
+        // clear thread local storage
+        vTaskSetThreadLocalStoragePointer(task, 0, NULL);
+
+        thread->task_handle = NULL;
+    }
+}
+
 bool furi_thread_join(FuriThread* thread) {
     furi_assert(thread);
 
     furi_check(furi_thread_get_current() != thread);
 
-    // Wait for thread to stop
+    // !!! IMPORTANT NOTICE !!!
+    //
+    // If your thread exited, but your app stuck here: some other thread uses
+    // all cpu time, which delays kernel from releasing task handle
     while(thread->task_handle) {
         furi_delay_ms(10);
     }
