@@ -84,6 +84,7 @@ Encoders/sending made by Eng1n33r & @xMasterX:
 - Keeloq: Beninca
 - Keeloq: Stilmatic / Schellenberg
 - Keeloq: CAME Space
+- Keeloq: Aprimatic (model TR and similar)
 - CAME Atomo
 - Nice Flor S
 - FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
@@ -189,7 +190,7 @@ Games:
 
 ## [- How to add extra Sub-GHz frequencies](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSettings.md)
 
-## [- How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis)](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
+## [- How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 
 ## [- Configure Sub-GHz Remote App](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)
 

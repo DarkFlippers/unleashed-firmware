@@ -1,5 +1,55 @@
 # How to use Flipper as a new SubGHz remote (not clone of original remote)
 
+### If your system is not added here that doesn't mean flipper don't support it! Look into add manually menu, and search for your manufacturers inscturctions!
+### Also many supported systems can be used only from `Read` mode, `Add Manually` is used only to make new remotes that can be binded with receiver
+
+## AN-Motors AT4
+
+**This instruction for older boards, if your has no** `Learn` **button but has buttons** `F`, `CL`, `+`, `-` **read instruction from Alutech AT4N**
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> AN-Motors AT4 433Mhz
+2. Open your new remote file
+3. Open your receiver box, find button `Learn` click it one time, led will turn on.
+4. Press `Send` on your flipper one time, led on receiver board will turn off.
+5. Press `Send` on your flipper again, led on receiver will start flashing, wait couple seconds until led turns off.
+6. Done
+
+Watch this video to learn more (video in Russian language): https://www.youtube.com/watch?v=URVMtTELcnU
+
+## Alutech AT4N (AN-Motors)
+
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> Alutech AT4N 433Mhz
+2. Open your new remote file
+3. Open your receiver box, find button `F` press it for ~3sec, display will show `Pr`.
+4. Click `F` button couple times until you see `Lr` on screen
+5. Using buttons `+` / `-` select free number that has no remotes in it (if it has remote programmed on that number, it will show a red dot on the down right corner)
+6. Press `Send` on your flipper one time, display on receiver board will flash and red dot will appear next to remote number.
+7. Press button `F` on receiver board for ~3sec to exit programming mode
+8. Done
+
+Watch this video to learn more and see how different boards can be programmed (video in Russian language): https://www.youtube.com/watch?v=XrOVVYhFXDg
+
+## Aprimatic TR
+
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> KL: Aprimatic 433Mhz
+2. Open your new remote file
+3. Push all 4 buttons at same time on your existing remote thats already works with receiver
+4. Receiver makes a continuous beep
+5. Press `Send` on your flipper for ~2 seconds
+6. Wait until receiver stops beeping 
+7. Done?
+
+## Doorhan
+
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> KL: Doorhan 433Mhz or 315Mhz depends on your receiver (find out by reading your existing remote)
+2. Open your new remote file
+3. Push `P` button for ~2 sec, led will start flashing
+4. Press `Send` on your flipper for ~2 seconds
+5. Led on the receiver board will flash and turn off
+6. Done!
+
+Also you can program new remote using old remote on newer boards! See first video below:
+Watch this videos to learn more (videos in Russian language): https://www.youtube.com/watch?v=wZ5121HYv50 / https://www.youtube.com/watch?v=1ucrDKF3vWc
+
 ## Somfy Telis
 
 1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> Somfy Telis 433Mhz
