@@ -2,6 +2,7 @@
 * SubGHz: AN-Motors AT4 + Alutech AT4N - Add Manually support 
 * SubGHz: Aprimatic keeloq emulation support + Add Manually
 * NFC: MF Classic User Dict -> Fix deleting of the key in extra actions menu
+* Plugins: Update WiFi Marauder [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
 * Plugins: Fix POCSAG pager `RIC:` text repetition and overlap (by @Willy-JL | PR #398)
 * OFW: NFC: MF Classic - Additional checks before invalidating the key (Fixes issues with not using MF keys from user dict)
 * OFW: Fix crash when emulating a DSGeneric key
