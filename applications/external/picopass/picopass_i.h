@@ -21,6 +21,7 @@
 #include <input/input.h>
 
 #include "scenes/picopass_scene.h"
+#include "views/dict_attack.h"
 
 #include <storage/storage.h>
 #include <lib/toolbox/path.h>
@@ -36,6 +37,7 @@ enum PicopassCustomEvent {
     PicopassCustomEventWorkerExit,
     PicopassCustomEventByteInputDone,
     PicopassCustomEventTextInputDone,
+    PicopassCustomEventDictAttackSkip,
 };
 
 typedef enum {
@@ -60,6 +62,7 @@ struct Picopass {
     Loading* loading;
     TextInput* text_input;
     Widget* widget;
+    DictAttack* dict_attack;
 };
 
 typedef enum {
@@ -68,6 +71,7 @@ typedef enum {
     PicopassViewLoading,
     PicopassViewTextInput,
     PicopassViewWidget,
+    PicopassViewDictAttack,
 } PicopassView;
 
 Picopass* picopass_alloc();

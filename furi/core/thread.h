@@ -76,6 +76,8 @@ FuriThread* furi_thread_alloc_ex(
 
 /** Release FuriThread
  *
+ * @warning    see furi_thread_join
+ *
  * @param      thread  FuriThread instance
  */
 void furi_thread_free(FuriThread* thread);
@@ -173,6 +175,9 @@ FuriThreadState furi_thread_get_state(FuriThread* thread);
 void furi_thread_start(FuriThread* thread);
 
 /** Join FuriThread
+ *
+ * @warning    Use this method only when CPU is not busy(Idle task receives
+ *             control), otherwise it will wait forever.
  *
  * @param      thread  FuriThread instance
  *

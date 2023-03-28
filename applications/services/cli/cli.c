@@ -37,9 +37,11 @@ char cli_getc(Cli* cli) {
     if(cli->session != NULL) {
         if(cli->session->rx((uint8_t*)&c, 1, FuriWaitForever) == 0) {
             cli_reset(cli);
+            furi_delay_tick(10);
         }
     } else {
         cli_reset(cli);
+        furi_delay_tick(10);
     }
     return c;
 }

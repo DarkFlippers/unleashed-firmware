@@ -58,6 +58,7 @@ extern uint32_t SystemCoreClock;
 #define configTIMER_SERVICE_TASK_NAME "TimersSrv"
 
 #define configIDLE_TASK_NAME "(-_-)"
+#define configIDLE_TASK_STACK_DEPTH 128
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
@@ -138,3 +139,7 @@ standard names. */
 #define traceTASK_SWITCHED_IN()                                     \
     extern void furi_hal_mpu_set_stack_protection(uint32_t* stack); \
     furi_hal_mpu_set_stack_protection((uint32_t*)pxCurrentTCB->pxStack)
+
+#define portCLEAN_UP_TCB(pxTCB)                                   \
+    extern void furi_thread_cleanup_tcb_event(TaskHandle_t task); \
+    furi_thread_cleanup_tcb_event(pxTCB)

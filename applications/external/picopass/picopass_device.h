@@ -27,7 +27,15 @@
 #define PICOPASS_APP_EXTENSION ".picopass"
 #define PICOPASS_APP_SHADOW_EXTENSION ".pas"
 
+#define PICOPASS_DICT_KEY_BATCH_SIZE 10
+
 typedef void (*PicopassLoadingCallback)(void* context, bool state);
+
+typedef struct {
+    IclassEliteDict* dict;
+    IclassEliteDictType type;
+    uint8_t current_sector;
+} IclassEliteDictAttackData;
 
 typedef enum {
     PicopassDeviceEncryptionUnknown = 0,
@@ -69,6 +77,7 @@ typedef struct {
 typedef struct {
     PicopassBlock AA1[PICOPASS_MAX_APP_LIMIT];
     PicopassPacs pacs;
+    IclassEliteDictAttackData iclass_elite_dict_attack_data;
 } PicopassDeviceData;
 
 typedef struct {
