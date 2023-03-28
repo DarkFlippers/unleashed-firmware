@@ -320,8 +320,12 @@ bool subghz_protocol_alutech_at_4n_create_data(
     instance->generic.data_count_bit = 72;
     bool res = subghz_protocol_alutech_at_4n_gen_data(instance, btn);
     if(res) {
-        return SubGhzProtocolStatusOk ==
-               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        if((res == SubGhzProtocolStatusOk) &&
+           !flipper_format_write_uint32(flipper_format, "CRC", &instance->crc, 1)) {
+            FURI_LOG_E(TAG, "Unable to add CRC");
+            res = false;
+        }
     }
     return res;
 }

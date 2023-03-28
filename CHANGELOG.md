@@ -1,18 +1,11 @@
 ### New changes
-* If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
-* Dev Builds: Add extra pack dev branch to avoid "bug" reports with `API mismatch`
-* App Loader: Add option to ignore api mismatch (warning! some apps WILL not work, please update them to avoid any issues) -> (by @Willy-JL | PR #395)
-* SubGHz: Add manually -> GSN protocol support
-* SubGHz: Add 318 and 418 MHz back to hopping list
-* SubGHz: Fix hopper stuck at 433.42 due to wide range signals - 
-When we using 433.92 remote flipper in hopping mode will stuck at 433.42 and may loose signal because of that, need to avoid using close freqs in hopping, only freqs with bigger difference like 310 -> 315
-* Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) -> BadBT Support
-* OFW: Screen streaming improvements
-* OFW: 1-Wire Overdrive Mode -> **Breaking API change, api was changed from 19.x to 20.x** 
-* OFW: Disable UART IRQs by default
-* OFW: BadUSB: implement boot protocol
-* OFW: Remove hmac_sha256 from public API -> **Breaking API change, api was changed from 18.x to 19.x** 
-**(this will make your manually copied plugins not work, update them in same way you installed them, or delete `apps` folder and then install firmware, if you using extra pack builds (with `e` in version) all apps in _Extra will be updated automatically)**
+* SubGHz: AN-Motors AT4 + Alutech AT4N - Add Manually support 
+* SubGHz: Aprimatic keeloq emulation support + Add Manually
+* NFC: MF Classic User Dict -> Fix deleting of the key in extra actions menu
+* Plugins: Update WiFi Marauder [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
+* Plugins: Fix POCSAG pager `RIC:` text repetition and overlap (by @Willy-JL | PR #398)
+* OFW: NFC: MF Classic - Additional checks before invalidating the key (Fixes issues with not using MF keys from user dict)
+* OFW: Fix crash when emulating a DSGeneric key
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 

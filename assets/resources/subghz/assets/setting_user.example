@@ -1,7 +1,7 @@
 # to use manual settings and prevent them from being deleted on upgrade, rename *_user.example files to *_user
 Filetype: Flipper SubGhz Setting File
 Version: 1
-# Add Standard frequencies for your region
+# Add Standard frequencies included with firmware and place user frequencies after them
 #Add_standard_frequencies: true
 
 # Default Frequency: used as default for "Read" and "Read Raw"

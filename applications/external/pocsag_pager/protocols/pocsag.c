@@ -157,8 +157,7 @@ static bool pocsag_decode_message_word(SubGhzProtocolDecoderPocsag* instance, ui
 // Function called when current message got decoded, but other messages might follow
 static void pocsag_message_done(SubGhzProtocolDecoderPocsag* instance) {
     // append the message to the long-term storage string
-    furi_string_cat_printf(
-        instance->generic.result_ric, "\e#RIC: %" PRIu32 "\e# | ", instance->ric);
+    furi_string_printf(instance->generic.result_ric, "\e#RIC: %" PRIu32 "\e# | ", instance->ric);
     furi_string_cat_str(instance->generic.result_ric, func_msg[instance->func]);
     if(instance->func != POCSAG_FUNC_ALERT1) {
         furi_string_cat(instance->done_msg, instance->msg);
