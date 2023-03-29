@@ -1,11 +1,15 @@
 ### New changes
-* SubGHz: AN-Motors AT4 + Alutech AT4N - Add Manually support 
-* SubGHz: Aprimatic keeloq emulation support + Add Manually
-* NFC: MF Classic User Dict -> Fix deleting of the key in extra actions menu
-* Plugins: Update WiFi Marauder [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
-* Plugins: Fix POCSAG pager `RIC:` text repetition and overlap (by @Willy-JL | PR #398)
-* OFW: NFC: MF Classic - Additional checks before invalidating the key (Fixes issues with not using MF keys from user dict)
-* OFW: Fix crash when emulating a DSGeneric key
+* SubGHz: Clear code in "Add Manually" scene (by @gid9798 | PR #403)
+* Infrared: Universal remote assets updated (by @amec0e | PR #404)
+* Plugins: GPS NMEA (UART) modifications
+```
+- Ability to change baudrate using Up button, hold button to switch between baudrates (9600, 57600, 115200) (i set 57600 as default)
+- Ok button will set backlight to always on mode, to disable press ok button again (it will restore default settings after app exit too)
+- Exit from app using long press on back button instead of short press, may be useful in case you want to turn backlight on and accidentally click back
+```
+* OFW: Picopass: Elite progress
+* OFW: Improved thread lifecycle
+* OFW: View Model: recursive mutex
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 
