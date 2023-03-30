@@ -226,10 +226,15 @@ void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
-        canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+        canvas_draw_icon(
+            canvas,
+            0,
+            0,
+            furi_hal_subghz_get_radio_type() ? &I_Fishing_123x52 : &I_Scanning_123x52);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 63, 46, "Scanning...");
         canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 44, 10, furi_hal_subghz_get_radio_type() ? "Ext" : "Int");
     }
 
     // Draw RSSI
