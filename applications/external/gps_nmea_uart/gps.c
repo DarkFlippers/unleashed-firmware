@@ -37,7 +37,11 @@ static void render_callback(Canvas* const canvas, void* context) {
         canvas_draw_str_aligned(canvas, 96, 18, AlignCenter, AlignBottom, buffer);
         snprintf(buffer, 64, "%.1f", (double)gps_uart->status.course);
         canvas_draw_str_aligned(canvas, 21, 40, AlignCenter, AlignBottom, buffer);
-        snprintf(buffer, 64, "%.2f kn", (double)gps_uart->status.speed);
+        if(!gps_uart->speed_in_kms) {
+            snprintf(buffer, 64, "%.2f kn", (double)gps_uart->status.speed);
+        } else {
+            snprintf(buffer, 64, "%.2f km", (double)(gps_uart->status.speed * 1.852));
+        }
         canvas_draw_str_aligned(canvas, 64, 40, AlignCenter, AlignBottom, buffer);
         snprintf(
             buffer,
@@ -153,6 +157,13 @@ int32_t gps_app(void* p) {
                         gps_uart->changing_baudrate = true;
                         view_port_update(view_port);
                         furi_mutex_release(gps_uart->mutex);
+                        break;
+                    case InputKeyRight:
+                        if(gps_uart->speed_in_kms) {
+                            gps_uart->speed_in_kms = false;
+                        } else {
+                            gps_uart->speed_in_kms = true;
+                        }
                         break;
                     case InputKeyBack:
                         processing = false;

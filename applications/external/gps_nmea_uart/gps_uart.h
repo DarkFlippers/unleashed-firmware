@@ -33,6 +33,7 @@ typedef struct {
     uint32_t baudrate;
     bool changing_baudrate;
     bool backlight_on;
+    bool speed_in_kms;
 
     GpsStatus status;
 } GpsUart;
