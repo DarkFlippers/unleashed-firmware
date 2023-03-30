@@ -1,4 +1,5 @@
 ### New changes
+* Plugins: Show External CC1101 module status in Weather Station and in POCSAG Pager plugins
 * SubGHz: Clear code in "Add Manually" scene (by @gid9798 | PR #403)
 * Infrared: Universal remote assets updated (by @amec0e | PR #404)
 * Plugins: GPS NMEA (UART) modifications
