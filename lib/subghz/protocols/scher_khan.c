@@ -220,18 +220,30 @@ static void subghz_protocol_scher_khan_check_remote_controller(
     */
 
     switch(instance->data_count_bit) {
-    // case 35: //MAGIC CODE, Static
-    //     instance->protocol_name = "MAGIC CODE, Static";
-    //     break;
+    case 35: //MAGIC CODE, Static
+        *protocol_name = "MAGIC CODE, Static";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
     case 51: //MAGIC CODE, Dynamic
         *protocol_name = "MAGIC CODE, Dynamic";
         instance->serial = ((instance->data >> 24) & 0xFFFFFF0) | ((instance->data >> 20) & 0x0F);
         instance->btn = (instance->data >> 24) & 0x0F;
         instance->cnt = instance->data & 0xFFFF;
         break;
-        // case 57: //MAGIC CODE PRO / PRO2
-        //     instance->protocol_name = "MAGIC CODE PRO / PRO2";
-        //     break;
+    case 57: //MAGIC CODE PRO / PRO2
+        *protocol_name = "MAGIC CODE PRO / PRO2";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
+    case 81: //MAGIC CODE PRO / PRO2 Response
+        *protocol_name = "MAGIC CODE PRO, Response";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
 
     default:
         *protocol_name = "Unknown";
