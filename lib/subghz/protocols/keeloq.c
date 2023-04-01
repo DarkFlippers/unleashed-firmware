@@ -243,9 +243,9 @@ static bool subghz_protocol_keeloq_gen_data(
             decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
         }
 
-        // Beninca -> 4bit serial - simple XOR
+        // Beninca / Allmatic -> no serial - simple XOR
         if(strcmp(instance->manufacture_name, "Beninca") == 0) {
-            decrypt = btn << 28 | (instance->generic.serial & 0xF) << 16 | instance->generic.cnt;
+            decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
         }
 
         if(strcmp(instance->manufacture_name, "Unknown") == 0) {
@@ -812,6 +812,13 @@ static inline bool subghz_protocol_keeloq_check_decrypt(
     if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0xFF) == end_serial) ||
                                   ((((uint16_t)(decrypt >> 16)) & 0xFF) == 0))) {
         instance->cnt = decrypt & 0x0000FFFF;
+        FURI_LOG_I(
+            "DED",
+            "btn: %d, decrypt: %lx, end_serial: %lx, serial: %lx",
+            btn,
+            decrypt,
+            end_serial,
+            instance->serial);
         return true;
     }
     return false;
