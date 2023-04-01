@@ -233,7 +233,7 @@ static void subghz_protocol_scher_khan_check_remote_controller(
         instance->cnt = instance->data & 0xFFFF;
         break;
     case 57: //MAGIC CODE PRO / PRO2
-        *protocol_name = "MAGIC CODE PRO / PRO2";
+        *protocol_name = "MAGIC CODE PRO/PRO2";
         instance->serial = 0;
         instance->btn = 0;
         instance->cnt = 0;
@@ -244,20 +244,20 @@ static void subghz_protocol_scher_khan_check_remote_controller(
         instance->btn = 0;
         instance->cnt = 0;
         break;
-    case 64: //MAGICAR, Response
+    case 64: //MAGICAR, Response ???
         *protocol_name = "MAGICAR, Response";
         instance->serial = 0;
         instance->btn = 0;
         instance->cnt = 0;
         break;
-    case 81: //MAGIC CODE PRO / PRO2 Response
-        *protocol_name = "MAGIC CODE PRO, Response";
+    case 81: //MAGIC CODE PRO / PRO2 Response ???
+        *protocol_name = "MAGIC CODE PRO,\n Response";
         instance->serial = 0;
         instance->btn = 0;
         instance->cnt = 0;
         break;
     case 82: //MAGIC CODE PRO / PRO2 Response ???
-        *protocol_name = "MAGIC CODE PRO, Response ?";
+        *protocol_name = "MAGIC CODE PRO,\n Response";
         instance->serial = 0;
         instance->btn = 0;
         instance->cnt = 0;
