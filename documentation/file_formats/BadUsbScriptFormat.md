@@ -77,6 +77,13 @@ Up to 5 keys can be hold simultaneously.
 | HOLD    | Special key or single character | Press and hold key untill RELEASE command |
 | RELEASE | Special key or single character | Release key                               |
 
+## Wait for button press
+
+Will wait indefinitely for a button to be pressed
+| Command               | Parameters   | Notes                                                                 |
+| --------------------- | ------------ | --------------------------------------------------------------------- |
+| WAIT_FOR_BUTTON_PRESS | None         | Will wait for the user to press a button to continue script execution |
+
 
 ## String
 
