@@ -2,10 +2,8 @@
 #include "../helpers/subghz_custom_event.h"
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/protocols/star_line.h>
-#include <lib/subghz/protocols/alutech_at_4n.h>
-#include <lib/subghz/protocols/nice_flor_s.h>
-#include <lib/subghz/protocols/somfy_telis.h>
-#include <lib/subghz/protocols/secplus_v2.h>
+
+#include <lib/subghz/blocks/custom_btn.h>
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
@@ -238,10 +236,7 @@ void subghz_scene_receiver_info_on_exit(void* context) {
     keeloq_reset_mfname();
     keeloq_reset_kl_type();
     keeloq_reset_original_btn();
-    alutech_reset_original_btn();
-    nice_flors_reset_original_btn();
-    somfy_telis_reset_original_btn();
-    secplus2_reset_original_btn();
+    subghz_custom_btns_reset();
     star_line_reset_mfname();
     star_line_reset_kl_type();
 }

@@ -5,6 +5,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn.h"
+
 #define TAG "SubGhzProtocoAlutech_at_4n"
 
 #define SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE 0xFFFFFFFF
@@ -76,25 +78,6 @@ const SubGhzProtocol subghz_protocol_alutech_at_4n = {
     .decoder = &subghz_protocol_alutech_at_4n_decoder,
     .encoder = &subghz_protocol_alutech_at_4n_encoder,
 };
-
-static uint8_t al_btn_temp_id;
-static uint8_t al_btn_temp_id_original;
-
-void alutech_set_btn(uint8_t b) {
-    al_btn_temp_id = b;
-}
-
-uint8_t alutech_get_original_btn() {
-    return al_btn_temp_id_original;
-}
-
-uint8_t alutech_get_custom_btn() {
-    return al_btn_temp_id;
-}
-
-void alutech_reset_original_btn() {
-    al_btn_temp_id_original = 0;
-}
 
 void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
@@ -341,13 +324,16 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     furi_assert(instance);
 
     // Save original button for later use
-    if(al_btn_temp_id_original == 0) {
-        al_btn_temp_id_original = btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(btn);
     }
+
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_num = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(al_btn_temp_id == 1) {
-        switch(al_btn_temp_id_original) {
+    if(custom_btn_id == 1) {
+        switch(original_btn_num) {
         case 0x11:
             btn = 0x22;
             break;
@@ -368,8 +354,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
             break;
         }
     }
-    if(al_btn_temp_id == 2) {
-        switch(al_btn_temp_id_original) {
+    if(custom_btn_id == 2) {
+        switch(original_btn_num) {
         case 0x11:
             btn = 0x44;
             break;
@@ -390,8 +376,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
             break;
         }
     }
-    if(al_btn_temp_id == 3) {
-        switch(al_btn_temp_id_original) {
+    if(custom_btn_id == 3) {
+        switch(original_btn_num) {
         case 0x11:
             btn = 0x33;
             break;
@@ -412,8 +398,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
             break;
         }
     }
-    if(al_btn_temp_id == 4) {
-        switch(al_btn_temp_id_original) {
+    if(custom_btn_id == 4) {
+        switch(original_btn_num) {
         case 0x11:
             btn = 0xFF;
             break;
@@ -435,8 +421,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         }
     }
 
-    if((al_btn_temp_id == 0) && (al_btn_temp_id_original != 0)) {
-        btn = al_btn_temp_id_original;
+    if((custom_btn_id == 0) && (original_btn_num != 0)) {
+        btn = original_btn_num;
     }
     //gen new key
     if(subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
@@ -735,9 +721,10 @@ static void subghz_protocol_alutech_at_4n_remote_controller(
     }
 
     // Save original button for later use
-    if(al_btn_temp_id_original == 0) {
-        al_btn_temp_id_original = instance->btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
     }
+    subghz_custom_btn_set_max(4);
 }
 
 uint8_t subghz_protocol_decoder_alutech_at_4n_get_hash_data(void* context) {
