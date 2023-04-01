@@ -1,5 +1,6 @@
 ### New changes
 * Plugins: Show External CC1101 module status in Weather Station and in POCSAG Pager plugins
+* Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (Fixes BT issues)
 * SubGHz: Fix false detections of StarLine 72bit, flipper can decode only 64bit
 * SubGHz: ScherKhan, more informative messages instead of "Unknown", may be not correct, because we guessing type by bits
 * SubGHz: Clear code in "Add Manually" scene (by @gid9798 | PR #403)
@@ -11,6 +12,8 @@
 - Long press Right button to change speed from knots to kilometers per hour
 - Exit from app using long press on back button instead of short press, may be useful in case you want to turn backlight on and accidentally click back
 ```
+* OFW: FatFS: use rtc for timestamping
+* OFW: RPC: increase max message size
 * OFW: Picopass: Elite progress
 * OFW: Improved thread lifecycle
 * OFW: View Model: recursive mutex
