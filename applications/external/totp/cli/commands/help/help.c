@@ -1,6 +1,7 @@
 #include "help.h"
 #include "../../cli_helpers.h"
 #include "../add/add.h"
+#include "../update/update.h"
 #include "../delete/delete.h"
 #include "../list/list.h"
 #include "../timezone/timezone.h"
@@ -9,6 +10,7 @@
 #include "../notification/notification.h"
 #include "../reset/reset.h"
 #include "../automation/automation.h"
+#include "../details/details.h"
 
 void totp_cli_command_help_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_HELP ", " TOTP_CLI_COMMAND_HELP_ALT
@@ -25,7 +27,9 @@ void totp_cli_command_help_handle() {
     TOTP_CLI_PRINTF("Usage:\r\n");
     totp_cli_command_help_docopt_usage();
     totp_cli_command_list_docopt_usage();
+    totp_cli_command_details_docopt_usage();
     totp_cli_command_add_docopt_usage();
+    totp_cli_command_update_docopt_usage();
     totp_cli_command_delete_docopt_usage();
     totp_cli_command_timezone_docopt_usage();
     totp_cli_command_move_docopt_usage();
@@ -37,7 +41,9 @@ void totp_cli_command_help_handle() {
     TOTP_CLI_PRINTF("Commands:\r\n");
     totp_cli_command_help_docopt_commands();
     totp_cli_command_list_docopt_commands();
+    totp_cli_command_details_docopt_commands();
     totp_cli_command_add_docopt_commands();
+    totp_cli_command_update_docopt_commands();
     totp_cli_command_delete_docopt_commands();
     totp_cli_command_timezone_docopt_commands();
     totp_cli_command_move_docopt_commands();
@@ -49,12 +55,13 @@ void totp_cli_command_help_handle() {
     TOTP_CLI_PRINTF("Arguments:\r\n");
     totp_cli_command_add_docopt_arguments();
     totp_cli_command_delete_docopt_arguments();
+    totp_cli_command_move_docopt_arguments();
     totp_cli_command_timezone_docopt_arguments();
     totp_cli_command_notification_docopt_arguments();
     totp_cli_command_automation_docopt_arguments();
     cli_nl();
     TOTP_CLI_PRINTF("Options:\r\n");
     totp_cli_command_add_docopt_options();
+    totp_cli_command_update_docopt_options();
     totp_cli_command_delete_docopt_options();
-    totp_cli_command_move_docopt_options();
 }

@@ -5,21 +5,6 @@
 #include "../../../services/config/constants.h"
 #include "../../cli_helpers.h"
 
-static char* get_algo_as_cstr(TokenHashAlgo algo) {
-    switch(algo) {
-    case SHA1:
-        return TOTP_CONFIG_TOKEN_ALGO_SHA1_NAME;
-    case SHA256:
-        return TOTP_CONFIG_TOKEN_ALGO_SHA256_NAME;
-    case SHA512:
-        return TOTP_CONFIG_TOKEN_ALGO_SHA512_NAME;
-    default:
-        break;
-    }
-
-    return "UNKNOWN";
-}
-
 void totp_cli_command_list_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_LIST ", " TOTP_CLI_COMMAND_LIST_ALT
                     "         List all available tokens\r\n");
@@ -41,8 +26,7 @@ void totp_cli_command_list_handle(PluginState* plugin_state, Cli* cli) {
     }
 
     TOTP_CLI_PRINTF("+-----+---------------------------+--------+----+-----+\r\n");
-    TOTP_CLI_PRINTF(
-        "| %-*s | %-*s | %-*s | %-s | %-s |\r\n", 3, "#", 25, "Name", 6, "Algo", "Ln", "Dur");
+    TOTP_CLI_PRINTF("| %-3s | %-25s | %-6s | %-s | %-s |\r\n", "#", "Name", "Algo", "Ln", "Dur");
     TOTP_CLI_PRINTF("+-----+---------------------------+--------+----+-----+\r\n");
     uint16_t index = 1;
     TOTP_LIST_FOREACH(plugin_state->tokens_list, node, {
@@ -51,7 +35,7 @@ void totp_cli_command_list_handle(PluginState* plugin_state, Cli* cli) {
             "| %-3" PRIu16 " | %-25.25s | %-6s | %-2" PRIu8 " | %-3" PRIu8 " |\r\n",
             index,
             token_info->name,
-            get_algo_as_cstr(token_info->algo),
+            token_info_get_algo_as_cstr(token_info),
             token_info->digits,
             token_info->duration);
         index++;

@@ -5,6 +5,7 @@
 #include "cli_helpers.h"
 #include "commands/list/list.h"
 #include "commands/add/add.h"
+#include "commands/update/update.h"
 #include "commands/delete/delete.h"
 #include "commands/timezone/timezone.h"
 #include "commands/help/help.h"
@@ -13,6 +14,7 @@
 #include "commands/notification/notification.h"
 #include "commands/reset/reset.h"
 #include "commands/automation/automation.h"
+#include "commands/details/details.h"
 
 static void totp_cli_print_unknown_command(const FuriString* unknown_command) {
     TOTP_CLI_PRINTF_ERROR(
@@ -62,6 +64,12 @@ static void totp_cli_handler(Cli* cli, FuriString* args, void* context) {
         totp_cli_command_automation_handle(plugin_state, args, cli);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_RESET) == 0) {
         totp_cli_command_reset_handle(cli, cli_context->event_queue);
+    } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_UPDATE) == 0) {
+        totp_cli_command_update_handle(plugin_state, args, cli);
+    } else if(
+        furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_DETAILS) == 0 ||
+        furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_DETAILS_ALT) == 0) {
+        totp_cli_command_details_handle(plugin_state, args, cli);
     } else {
         totp_cli_print_unknown_command(cmd);
     }

@@ -1,4 +1,3 @@
-#include <furi/furi.h>
 #include <furi_hal.h>
 #include "token_info.h"
 #include "stdlib.h"
@@ -6,6 +5,7 @@
 #include "../lib/base32/base32.h"
 #include "../services/crypto/crypto.h"
 #include "../lib/polyfills/memset_s.h"
+#include "../lib/polyfills/strnlen.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
@@ -13,6 +13,7 @@ TokenInfo* token_info_alloc() {
     tokenInfo->algo = SHA1;
     tokenInfo->digits = TOTP_6_DIGITS;
     tokenInfo->duration = TOTP_TOKEN_DURATION_DEFAULT;
+    tokenInfo->automation_features = TOKEN_AUTOMATION_FEATURE_NONE;
     return tokenInfo;
 }
 
@@ -70,4 +71,78 @@ bool token_info_set_duration_from_int(TokenInfo* token_info, uint8_t duration) {
     }
 
     return false;
+}
+
+bool token_info_set_algo_from_str(TokenInfo* token_info, const FuriString* str) {
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_ALGO_SHA1_NAME) == 0) {
+        token_info->algo = SHA1;
+        return true;
+    }
+
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_ALGO_SHA256_NAME) == 0) {
+        token_info->algo = SHA256;
+        return true;
+    }
+
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_ALGO_SHA512_NAME) == 0) {
+        token_info->algo = SHA512;
+        return true;
+    }
+
+    return false;
+}
+
+char* token_info_get_algo_as_cstr(const TokenInfo* token_info) {
+    switch(token_info->algo) {
+    case SHA1:
+        return TOTP_TOKEN_ALGO_SHA1_NAME;
+    case SHA256:
+        return TOTP_TOKEN_ALGO_SHA256_NAME;
+    case SHA512:
+        return TOTP_TOKEN_ALGO_SHA512_NAME;
+    default:
+        break;
+    }
+
+    return NULL;
+}
+
+bool token_info_set_automation_feature_from_str(TokenInfo* token_info, const FuriString* str) {
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_AUTOMATION_FEATURE_ENTER_AT_THE_END_NAME) == 0) {
+        token_info->automation_features |= TOKEN_AUTOMATION_FEATURE_ENTER_AT_THE_END;
+        return true;
+    }
+
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_AUTOMATION_FEATURE_TAB_AT_THE_END_NAME) == 0) {
+        token_info->automation_features |= TOKEN_AUTOMATION_FEATURE_TAB_AT_THE_END;
+        return true;
+    }
+
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER_NAME) == 0) {
+        token_info->automation_features |= TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER;
+        return true;
+    }
+
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_AUTOMATION_FEATURE_NONE_NAME) == 0) {
+        token_info->automation_features = TOKEN_AUTOMATION_FEATURE_NONE;
+        return true;
+    }
+
+    return false;
+}
+
+TokenInfo* token_info_clone(const TokenInfo* src) {
+    TokenInfo* clone = token_info_alloc();
+    memcpy(clone, src, sizeof(TokenInfo));
+
+    clone->token = malloc(src->token_length);
+    furi_check(clone->token != NULL);
+    memcpy(clone->token, src->token, src->token_length);
+
+    int name_length = strnlen(src->name, TOTP_TOKEN_MAX_LENGTH);
+    clone->name = malloc(name_length + 1);
+    furi_check(clone->name != NULL);
+    strlcpy(clone->name, src->name, name_length + 1);
+
+    return clone;
 }

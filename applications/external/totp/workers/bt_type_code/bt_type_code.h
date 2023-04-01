@@ -10,16 +10,18 @@ typedef uint8_t TotpBtTypeCodeWorkerEvent;
 typedef struct {
     char* string;
     uint8_t string_length;
+    uint8_t flags;
     FuriThread* thread;
     FuriMutex* string_sync;
     Bt* bt;
     bool is_advertising;
+    bool is_connected;
 } TotpBtTypeCodeWorkerContext;
 
 enum TotpBtTypeCodeWorkerEvents {
-    TotpBtTypeCodeWorkerEventReserved = (1 << 0),
-    TotpBtTypeCodeWorkerEventStop = (1 << 1),
-    TotpBtTypeCodeWorkerEventType = (1 << 2)
+    TotpBtTypeCodeWorkerEventReserved = 0b0000,
+    TotpBtTypeCodeWorkerEventStop = 0b0100,
+    TotpBtTypeCodeWorkerEventType = 0b1000
 };
 
 TotpBtTypeCodeWorkerContext* totp_bt_type_code_worker_init();
@@ -32,4 +34,5 @@ void totp_bt_type_code_worker_start(
 void totp_bt_type_code_worker_stop(TotpBtTypeCodeWorkerContext* context);
 void totp_bt_type_code_worker_notify(
     TotpBtTypeCodeWorkerContext* context,
-    TotpBtTypeCodeWorkerEvent event);
+    TotpBtTypeCodeWorkerEvent event,
+    uint8_t flags);

@@ -350,13 +350,33 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             canvas, SCREEN_WIDTH - 9, SCREEN_HEIGHT_CENTER - 24, &I_totp_arrow_right_8x9);
     }
 
-#if defined(TOTP_BADBT_TYPE_ENABLED) && defined(TOTP_BADBT_TYPE_ICON_ENABLED)
+#ifdef TOTP_AUTOMATION_ICONS_ENABLED
+    if(plugin_state->automation_method & AutomationMethodBadUsb) {
+        canvas_draw_icon(
+            canvas,
+#ifdef TOTP_BADBT_TYPE_ENABLED
+            SCREEN_WIDTH_CENTER -
+                (plugin_state->automation_method & AutomationMethodBadBt ? 33 : 15),
+#else
+            SCREEN_WIDTH_CENTER - 15,
+#endif
+
+            SCREEN_HEIGHT_CENTER + 12,
+            &I_hid_usb_31x9);
+    }
+
+#ifdef TOTP_BADBT_TYPE_ENABLED
     if(plugin_state->automation_method & AutomationMethodBadBt &&
        plugin_state->bt_type_code_worker_context != NULL &&
        plugin_state->bt_type_code_worker_context->is_advertising) {
         canvas_draw_icon(
-            canvas, SCREEN_WIDTH_CENTER - 5, SCREEN_HEIGHT_CENTER + 13, &I_hid_ble_10x7);
+            canvas,
+            SCREEN_WIDTH_CENTER +
+                (plugin_state->automation_method & AutomationMethodBadUsb ? 2 : -15),
+            SCREEN_HEIGHT_CENTER + 12,
+            &I_hid_ble_31x9);
     }
+#endif
 #endif
 }
 
@@ -377,7 +397,9 @@ bool totp_scene_generate_token_handle_event(
            plugin_state->automation_method & AutomationMethodBadUsb) {
             scene_state = (SceneState*)plugin_state->current_scene_state;
             totp_usb_type_code_worker_notify(
-                scene_state->usb_type_code_worker_context, TotpUsbTypeCodeWorkerEventType);
+                scene_state->usb_type_code_worker_context,
+                TotpUsbTypeCodeWorkerEventType,
+                scene_state->current_token->automation_features);
             notification_message(
                 plugin_state->notification_app,
                 get_notification_sequence_automation(plugin_state, scene_state));
@@ -389,7 +411,9 @@ bool totp_scene_generate_token_handle_event(
             plugin_state->automation_method & AutomationMethodBadBt) {
             scene_state = (SceneState*)plugin_state->current_scene_state;
             totp_bt_type_code_worker_notify(
-                plugin_state->bt_type_code_worker_context, TotpBtTypeCodeWorkerEventType);
+                plugin_state->bt_type_code_worker_context,
+                TotpBtTypeCodeWorkerEventType,
+                scene_state->current_token->automation_features);
             notification_message(
                 plugin_state->notification_app,
                 get_notification_sequence_automation(plugin_state, scene_state));
