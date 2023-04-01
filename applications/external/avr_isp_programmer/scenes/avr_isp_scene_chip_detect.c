@@ -24,7 +24,7 @@ void avr_isp_scene_chip_detect_on_enter(void* context) {
         break;
 
     default:
-    avr_isp_chip_detect_set_state(
+        avr_isp_chip_detect_set_state(
             app->avr_isp_chip_detect_view, AvrIspChipDetectViewStateNoDetect);
         break;
     }

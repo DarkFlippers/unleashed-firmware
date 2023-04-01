@@ -20,7 +20,7 @@ void avr_isp_reader_set_file_path(
     AvrIspReaderView* instance,
     const char* file_path,
     const char* file_name);
-    
+
 void avr_isp_reader_view_set_callback(
     AvrIspReaderView* instance,
     AvrIspReaderViewCallback callback,

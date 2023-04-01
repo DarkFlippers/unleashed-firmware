@@ -22,7 +22,7 @@ void avr_isp_writer_set_file_path(
     AvrIspWriterView* instance,
     const char* file_path,
     const char* file_name);
-    
+
 void avr_isp_writer_view_set_callback(
     AvrIspWriterView* instance,
     AvrIspWriterViewCallback callback,
