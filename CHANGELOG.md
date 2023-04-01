@@ -1,4 +1,6 @@
 ### New changes
+* SubGHz: Support for Allmatic(reads as Beninca), also fix Beninca protocol 
+* SubGHz: Allmatic -> Add Manually
 * Plugins: Show External CC1101 module status in Weather Station and in POCSAG Pager plugins
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (Fixes BT issues)
 * SubGHz: Fix false detections of StarLine 72bit, flipper can decode only 64bit

@@ -173,6 +173,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "KL: Allmatic 433MHz",
+        SubmenuIndexAllmatic433,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: Allmatic 868MHz",
+        SubmenuIndexAllmatic868,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: Sommer 434MHz",
         SubmenuIndexSommer_FM_434,
         subghz_scene_set_type_submenu_callback,
@@ -500,6 +512,30 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                    868350000,
                    (key & 0x000FFF00) | 0x00800080,
                    0x1,
+                   0x0005,
+                   "Beninca")) {
+                generated_protocol = true;
+            }
+            break;
+        case SubmenuIndexAllmatic433:
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   433920000,
+                   (key & 0x00FFFF00) | 0x01000011,
+                   0xC,
+                   0x0005,
+                   "Beninca")) {
+                generated_protocol = true;
+            }
+            break;
+        case SubmenuIndexAllmatic868:
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   868350000,
+                   (key & 0x00FFFF00) | 0x01000011,
+                   0xC,
                    0x0005,
                    "Beninca")) {
                 generated_protocol = true;
