@@ -7,6 +7,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn.h"
+
 /*
 * Help
 * https://github.com/argilo/secplus
@@ -82,25 +84,6 @@ const SubGhzProtocol subghz_protocol_secplus_v2 = {
     .decoder = &subghz_protocol_secplus_v2_decoder,
     .encoder = &subghz_protocol_secplus_v2_encoder,
 };
-
-static uint8_t sc_btn_temp_id;
-static uint8_t sc_btn_temp_id_original;
-
-void secplus2_set_btn(uint8_t b) {
-    sc_btn_temp_id = b;
-}
-
-uint8_t secplus2_get_original_btn() {
-    return sc_btn_temp_id_original;
-}
-
-uint8_t secplus2_get_custom_btn() {
-    return sc_btn_temp_id;
-}
-
-void secplus2_reset_original_btn() {
-    sc_btn_temp_id_original = 0;
-}
 
 void* subghz_protocol_encoder_secplus_v2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
@@ -359,9 +342,10 @@ static void
     }
 
     // Save original button for later use
-    if(sc_btn_temp_id_original == 0) {
-        sc_btn_temp_id_original = instance->btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
     }
+    subghz_custom_btn_set_max(3);
 }
 
 /** 
@@ -398,13 +382,16 @@ static uint64_t subghz_protocol_secplus_v2_encode_half(uint8_t roll_array[], uin
 
 static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* instance) {
     // Save original button for later use
-    if(sc_btn_temp_id_original == 0) {
-        sc_btn_temp_id_original = instance->generic.btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->generic.btn);
     }
+
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_num = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(sc_btn_temp_id == 1) {
-        switch(sc_btn_temp_id_original) {
+    if(custom_btn_id == 1) {
+        switch(original_btn_num) {
         case 0x68:
             instance->generic.btn = 0x80;
             break;
@@ -422,8 +409,8 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
             break;
         }
     }
-    if(sc_btn_temp_id == 2) {
-        switch(sc_btn_temp_id_original) {
+    if(custom_btn_id == 2) {
+        switch(original_btn_num) {
         case 0x68:
             instance->generic.btn = 0x81;
             break;
@@ -441,8 +428,8 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
             break;
         }
     }
-    if(sc_btn_temp_id == 3) {
-        switch(sc_btn_temp_id_original) {
+    if(custom_btn_id == 3) {
+        switch(original_btn_num) {
         case 0x68:
             instance->generic.btn = 0xE2;
             break;
@@ -460,8 +447,8 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
             break;
         }
     }
-    if((sc_btn_temp_id == 0) && (sc_btn_temp_id_original != 0)) {
-        instance->generic.btn = sc_btn_temp_id_original;
+    if((custom_btn_id == 0) && (original_btn_num != 0)) {
+        instance->generic.btn = original_btn_num;
     }
     uint32_t fixed_1[1] = {instance->generic.btn << 12 | instance->generic.serial >> 20};
     uint32_t fixed_2[1] = {instance->generic.serial & 0xFFFFF};

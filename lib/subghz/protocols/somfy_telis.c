@@ -7,6 +7,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn.h"
+
 #define TAG "SubGhzProtocolSomfyTelis"
 
 static const SubGhzBlockConst subghz_protocol_somfy_telis_const = {
@@ -73,25 +75,6 @@ const SubGhzProtocol subghz_protocol_somfy_telis = {
     .encoder = &subghz_protocol_somfy_telis_encoder,
 };
 
-static uint8_t st_btn_temp_id;
-static uint8_t st_btn_temp_id_original;
-
-void somfy_telis_set_btn(uint8_t b) {
-    st_btn_temp_id = b;
-}
-
-uint8_t somfy_telis_get_original_btn() {
-    return st_btn_temp_id_original;
-}
-
-uint8_t somfy_telis_get_custom_btn() {
-    return st_btn_temp_id;
-}
-
-void somfy_telis_reset_original_btn() {
-    st_btn_temp_id_original = 0;
-}
-
 void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolEncoderSomfyTelis* instance = malloc(sizeof(SubGhzProtocolEncoderSomfyTelis));
@@ -128,13 +111,16 @@ static bool subghz_protocol_somfy_telis_gen_data(
     }
 
     // Save original button for later use
-    if(st_btn_temp_id_original == 0) {
-        st_btn_temp_id_original = btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(btn);
     }
+
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_num = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(st_btn_temp_id == 1) {
-        switch(st_btn_temp_id_original) {
+    if(custom_btn_id == 1) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x2;
             break;
@@ -152,8 +138,8 @@ static bool subghz_protocol_somfy_telis_gen_data(
             break;
         }
     }
-    if(st_btn_temp_id == 2) {
-        switch(st_btn_temp_id_original) {
+    if(custom_btn_id == 2) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x4;
             break;
@@ -171,8 +157,8 @@ static bool subghz_protocol_somfy_telis_gen_data(
             break;
         }
     }
-    if(st_btn_temp_id == 3) {
-        switch(st_btn_temp_id_original) {
+    if(custom_btn_id == 3) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x8;
             break;
@@ -191,8 +177,8 @@ static bool subghz_protocol_somfy_telis_gen_data(
         }
     }
 
-    if((st_btn_temp_id == 0) && (st_btn_temp_id_original != 0)) {
-        btn = st_btn_temp_id_original;
+    if((custom_btn_id == 0) && (original_btn_num != 0)) {
+        btn = original_btn_num;
     }
 
     if(instance->generic.cnt < 0xFFFF) {
@@ -684,9 +670,10 @@ static void subghz_protocol_somfy_telis_check_remote_controller(SubGhzBlockGener
     instance->serial = data & 0xFFFFFF; // address
 
     // Save original button for later use
-    if(st_btn_temp_id_original == 0) {
-        st_btn_temp_id_original = instance->btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
     }
+    subghz_custom_btn_set_max(3);
 }
 
 /** 
