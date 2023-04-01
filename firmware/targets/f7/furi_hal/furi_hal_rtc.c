@@ -281,8 +281,10 @@ FuriHalRtcLocaleDateFormat furi_hal_rtc_get_locale_dateformat() {
 }
 
 void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime) {
+    furi_check(!FURI_IS_IRQ_MODE());
     furi_assert(datetime);
 
+    FURI_CRITICAL_ENTER();
     /* Disable write protection */
     LL_RTC_DisableWriteProtection(RTC);
 
@@ -319,13 +321,17 @@ void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime) {
 
     /* Enable write protection */
     LL_RTC_EnableWriteProtection(RTC);
+    FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_rtc_get_datetime(FuriHalRtcDateTime* datetime) {
+    furi_check(!FURI_IS_IRQ_MODE());
     furi_assert(datetime);
 
+    FURI_CRITICAL_ENTER();
     uint32_t time = LL_RTC_TIME_Get(RTC); // 0x00HHMMSS
     uint32_t date = LL_RTC_DATE_Get(RTC); // 0xWWDDMMYY
+    FURI_CRITICAL_EXIT();
 
     datetime->second = __LL_RTC_CONVERT_BCD2BIN((time >> 0) & 0xFF);
     datetime->minute = __LL_RTC_CONVERT_BCD2BIN((time >> 8) & 0xFF);
