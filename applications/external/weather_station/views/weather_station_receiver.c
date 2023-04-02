@@ -202,6 +202,8 @@ void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
     FuriString* str_buff;
     str_buff = furi_string_alloc();
 
+    bool ext_module = furi_hal_subghz_get_radio_type();
+
     WSReceiverMenuItem* item_menu;
 
     for(size_t i = 0; i < MIN(model->history_item, MENU_ITEMS); ++i) {
@@ -226,10 +228,11 @@ void ws_view_receiver_draw(Canvas* canvas, WSReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
-        canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+        canvas_draw_icon(canvas, 0, 0, ext_module ? &I_Fishing_123x52 : &I_Scanning_123x52);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 63, 46, "Scanning...");
         canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 44, 10, ext_module ? "Ext" : "Int");
     }
 
     // Draw RSSI

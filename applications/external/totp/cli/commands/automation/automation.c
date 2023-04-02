@@ -23,12 +23,12 @@ void totp_cli_command_automation_docopt_usage() {
 void totp_cli_command_automation_docopt_arguments() {
     TOTP_CLI_PRINTF(
         "  " TOTP_CLI_COMMAND_AUTOMATION_ARG_METHOD
-        "    Automation method to be set. Must be one of [" TOTP_CLI_COMMAND_AUTOMATION_METHOD_NONE
+        "    Automation method to be set. Must be one of: " TOTP_CLI_COMMAND_AUTOMATION_METHOD_NONE
         ", " TOTP_CLI_COMMAND_AUTOMATION_METHOD_USB
 #ifdef TOTP_BADBT_TYPE_ENABLED
         ", " TOTP_CLI_COMMAND_AUTOMATION_METHOD_BT
 #endif
-        "]\r\n");
+        "\r\n");
 }
 
 static void totp_cli_command_automation_print_method(AutomationMethod method, char* color) {

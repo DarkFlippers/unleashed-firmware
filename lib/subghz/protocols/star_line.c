@@ -419,11 +419,14 @@ void subghz_protocol_decoder_star_line_feed(void* context, bool level, uint32_t 
             if(duration >= (subghz_protocol_star_line_const.te_long +
                             subghz_protocol_star_line_const.te_delta)) {
                 instance->decoder.parser_step = StarLineDecoderStepReset;
-                if(instance->decoder.decode_count_bit >=
-                   subghz_protocol_star_line_const.min_count_bit_for_found) {
+                if((instance->decoder.decode_count_bit >=
+                    subghz_protocol_star_line_const.min_count_bit_for_found) &&
+                   (instance->decoder.decode_count_bit <=
+                    subghz_protocol_star_line_const.min_count_bit_for_found + 2)) {
                     if(instance->generic.data != instance->decoder.decode_data) {
                         instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                        instance->generic.data_count_bit =
+                            subghz_protocol_star_line_const.min_count_bit_for_found;
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
                     }
@@ -447,14 +450,24 @@ void subghz_protocol_decoder_star_line_feed(void* context, bool level, uint32_t 
                 subghz_protocol_star_line_const.te_delta) &&
                (DURATION_DIFF(duration, subghz_protocol_star_line_const.te_short) <
                 subghz_protocol_star_line_const.te_delta)) {
-                subghz_protocol_blocks_add_bit(&instance->decoder, 0);
+                if(instance->decoder.decode_count_bit <
+                   subghz_protocol_star_line_const.min_count_bit_for_found) {
+                    subghz_protocol_blocks_add_bit(&instance->decoder, 0);
+                } else {
+                    instance->decoder.decode_count_bit++;
+                }
                 instance->decoder.parser_step = StarLineDecoderStepSaveDuration;
             } else if(
                 (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_star_line_const.te_long) <
                  subghz_protocol_star_line_const.te_delta) &&
                 (DURATION_DIFF(duration, subghz_protocol_star_line_const.te_long) <
                  subghz_protocol_star_line_const.te_delta)) {
-                subghz_protocol_blocks_add_bit(&instance->decoder, 1);
+                if(instance->decoder.decode_count_bit <
+                   subghz_protocol_star_line_const.min_count_bit_for_found) {
+                    subghz_protocol_blocks_add_bit(&instance->decoder, 1);
+                } else {
+                    instance->decoder.decode_count_bit++;
+                }
                 instance->decoder.parser_step = StarLineDecoderStepSaveDuration;
             } else {
                 instance->decoder.parser_step = StarLineDecoderStepReset;

@@ -9,4 +9,4 @@
 void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, Cli* cli);
 void totp_cli_command_move_docopt_commands();
 void totp_cli_command_move_docopt_usage();
-void totp_cli_command_move_docopt_options();
+void totp_cli_command_move_docopt_arguments();

@@ -23,7 +23,7 @@ PicopassWorker* picopass_worker_alloc() {
 
     // Worker thread attributes
     picopass_worker->thread =
-        furi_thread_alloc_ex("PicopassWorker", 8192, picopass_worker_task, picopass_worker);
+        furi_thread_alloc_ex("PicopassWorker", 8 * 1024, picopass_worker_task, picopass_worker);
 
     picopass_worker->callback = NULL;
     picopass_worker->context = NULL;
@@ -66,14 +66,12 @@ void picopass_worker_start(
 
 void picopass_worker_stop(PicopassWorker* picopass_worker) {
     furi_assert(picopass_worker);
-    if(picopass_worker->state == PicopassWorkerStateBroken ||
-       picopass_worker->state == PicopassWorkerStateReady) {
-        return;
-    }
-    picopass_worker_disable_field(ERR_NONE);
+    furi_assert(picopass_worker->thread);
 
-    picopass_worker_change_state(picopass_worker, PicopassWorkerStateStop);
-    furi_thread_join(picopass_worker->thread);
+    if(furi_thread_get_state(picopass_worker->thread) != FuriThreadStateStopped) {
+        picopass_worker_change_state(picopass_worker, PicopassWorkerStateStop);
+        furi_thread_join(picopass_worker->thread);
+    }
 }
 
 void picopass_worker_change_state(PicopassWorker* picopass_worker, PicopassWorkerState state) {
@@ -460,6 +458,132 @@ ReturnCode picopass_write_block(PicopassBlock* AA1, uint8_t blockNo, uint8_t* ne
     return ERR_NONE;
 }
 
+void picopass_worker_elite_dict_attack(PicopassWorker* picopass_worker) {
+    furi_assert(picopass_worker);
+    furi_assert(picopass_worker->callback);
+
+    picopass_device_data_clear(picopass_worker->dev_data);
+    PicopassDeviceData* dev_data = picopass_worker->dev_data;
+    PicopassBlock* AA1 = dev_data->AA1;
+    PicopassPacs* pacs = &dev_data->pacs;
+
+    for(size_t i = 0; i < PICOPASS_MAX_APP_LIMIT; i++) {
+        memset(AA1[i].data, 0, sizeof(AA1[i].data));
+    }
+    memset(pacs, 0, sizeof(PicopassPacs));
+
+    IclassEliteDictAttackData* dict_attack_data =
+        &picopass_worker->dev_data->iclass_elite_dict_attack_data;
+    bool elite = (dict_attack_data->type != IclassStandardDictTypeFlipper);
+
+    rfalPicoPassReadCheckRes rcRes;
+    rfalPicoPassCheckRes chkRes;
+
+    ReturnCode err;
+    uint8_t mac[4] = {0};
+    uint8_t ccnr[12] = {0};
+
+    size_t index = 0;
+    uint8_t key[PICOPASS_BLOCK_LEN] = {0};
+
+    // Load dictionary
+    IclassEliteDict* dict = dict_attack_data->dict;
+    if(!dict) {
+        FURI_LOG_E(TAG, "Dictionary not found");
+        picopass_worker->callback(PicopassWorkerEventNoDictFound, picopass_worker->context);
+        return;
+    }
+
+    do {
+        if(picopass_detect_card(1000) == ERR_NONE) {
+            picopass_worker->callback(PicopassWorkerEventCardDetected, picopass_worker->context);
+
+            // Process first found device
+            err = picopass_read_preauth(AA1);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_read_preauth error %d", err);
+                picopass_worker->callback(PicopassWorkerEventAborted, picopass_worker->context);
+                return;
+            }
+
+            // Thank you proxmark!
+            pacs->legacy = picopass_is_memset(AA1[5].data, 0xFF, 8);
+            pacs->se_enabled = (memcmp(AA1[5].data, "\xff\xff\xff\x00\x06\xff\xff\xff", 8) == 0);
+            if(pacs->se_enabled) {
+                FURI_LOG_D(TAG, "SE enabled");
+                picopass_worker->callback(PicopassWorkerEventAborted, picopass_worker->context);
+                return;
+            }
+
+            break;
+        } else {
+            picopass_worker->callback(PicopassWorkerEventNoCardDetected, picopass_worker->context);
+        }
+        if(picopass_worker->state != PicopassWorkerStateEliteDictAttack) break;
+
+        furi_delay_ms(100);
+    } while(true);
+
+    FURI_LOG_D(
+        TAG, "Start Dictionary attack, Key Count %lu", iclass_elite_dict_get_total_keys(dict));
+    while(iclass_elite_dict_get_next_key(dict, key)) {
+        FURI_LOG_T(TAG, "Key %zu", index);
+        if(++index % PICOPASS_DICT_KEY_BATCH_SIZE == 0) {
+            picopass_worker->callback(
+                PicopassWorkerEventNewDictKeyBatch, picopass_worker->context);
+        }
+
+        err = rfalPicoPassPollerReadCheck(&rcRes);
+        if(err != ERR_NONE) {
+            FURI_LOG_E(TAG, "rfalPicoPassPollerReadCheck error %d", err);
+            break;
+        }
+        memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
+
+        uint8_t* csn = AA1[PICOPASS_CSN_BLOCK_INDEX].data;
+        uint8_t* div_key = AA1[PICOPASS_KD_BLOCK_INDEX].data;
+
+        loclass_iclass_calc_div_key(csn, key, div_key, elite);
+        loclass_opt_doReaderMAC(ccnr, div_key, mac);
+
+        err = rfalPicoPassPollerCheck(mac, &chkRes);
+        if(err == ERR_NONE) {
+            FURI_LOG_I(TAG, "Found key");
+            memcpy(pacs->key, key, PICOPASS_BLOCK_LEN);
+            err = picopass_read_card(AA1);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_read_card error %d", err);
+                picopass_worker->callback(PicopassWorkerEventFail, picopass_worker->context);
+                break;
+            }
+
+            err = picopass_device_parse_credential(AA1, pacs);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_device_parse_credential error %d", err);
+                picopass_worker->callback(PicopassWorkerEventFail, picopass_worker->context);
+                break;
+            }
+
+            err = picopass_device_parse_wiegand(pacs->credential, &pacs->record);
+            if(err != ERR_NONE) {
+                FURI_LOG_E(TAG, "picopass_device_parse_wiegand error %d", err);
+                picopass_worker->callback(PicopassWorkerEventFail, picopass_worker->context);
+                break;
+            }
+            picopass_worker->callback(PicopassWorkerEventSuccess, picopass_worker->context);
+            break;
+        }
+
+        if(picopass_worker->state != PicopassWorkerStateEliteDictAttack) break;
+    }
+    FURI_LOG_D(TAG, "Dictionary complete");
+    if(picopass_worker->state == PicopassWorkerStateEliteDictAttack) {
+        picopass_worker->callback(PicopassWorkerEventSuccess, picopass_worker->context);
+    } else {
+        picopass_worker->callback(PicopassWorkerEventAborted, picopass_worker->context);
+    }
+}
+
 int32_t picopass_worker_task(void* context) {
     PicopassWorker* picopass_worker = context;
 
@@ -470,9 +594,12 @@ int32_t picopass_worker_task(void* context) {
         picopass_worker_write(picopass_worker);
     } else if(picopass_worker->state == PicopassWorkerStateWriteKey) {
         picopass_worker_write_key(picopass_worker);
+    } else if(picopass_worker->state == PicopassWorkerStateEliteDictAttack) {
+        picopass_worker_elite_dict_attack(picopass_worker);
+    } else {
+        FURI_LOG_W(TAG, "Unknown state %d", picopass_worker->state);
     }
     picopass_worker_disable_field(ERR_NONE);
-
     picopass_worker_change_state(picopass_worker, PicopassWorkerStateReady);
 
     return 0;

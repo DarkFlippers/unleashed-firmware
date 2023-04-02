@@ -6,6 +6,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn.h"
+
 /*
  * https://phreakerclub.com/1615
  * https://phreakerclub.com/forum/showthread.php?t=2360
@@ -84,25 +86,6 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
     .encoder = &subghz_protocol_nice_flor_s_encoder,
 };
 
-static uint8_t n_btn_temp_id;
-static uint8_t n_btn_temp_id_original;
-
-void nice_flors_set_btn(uint8_t b) {
-    n_btn_temp_id = b;
-}
-
-uint8_t nice_flors_get_original_btn() {
-    return n_btn_temp_id_original;
-}
-
-uint8_t nice_flors_get_custom_btn() {
-    return n_btn_temp_id;
-}
-
-void nice_flors_reset_original_btn() {
-    n_btn_temp_id_original = 0;
-}
-
 static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,
     const char* file_name);
@@ -148,13 +131,16 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     btn = instance->generic.btn;
 
     // Save original button for later use
-    if(n_btn_temp_id_original == 0) {
-        n_btn_temp_id_original = btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(btn);
     }
+
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_num = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(n_btn_temp_id == 1) {
-        switch(n_btn_temp_id_original) {
+    if(custom_btn_id == 1) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x2;
             break;
@@ -172,8 +158,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             break;
         }
     }
-    if(n_btn_temp_id == 2) {
-        switch(n_btn_temp_id_original) {
+    if(custom_btn_id == 2) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x4;
             break;
@@ -191,8 +177,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             break;
         }
     }
-    if(n_btn_temp_id == 3) {
-        switch(n_btn_temp_id_original) {
+    if(custom_btn_id == 3) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x8;
             break;
@@ -211,8 +197,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         }
     }
 
-    if((n_btn_temp_id == 0) && (n_btn_temp_id_original != 0)) {
-        btn = n_btn_temp_id_original;
+    if((custom_btn_id == 0) && (original_btn_num != 0)) {
+        btn = original_btn_num;
     }
 
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
@@ -756,9 +742,10 @@ static void subghz_protocol_nice_flor_s_remote_controller(
     }
 
     // Save original button for later use
-    if(n_btn_temp_id_original == 0) {
-        n_btn_temp_id_original = instance->btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
     }
+    subghz_custom_btn_set_max(3);
 }
 
 uint8_t subghz_protocol_decoder_nice_flor_s_get_hash_data(void* context) {

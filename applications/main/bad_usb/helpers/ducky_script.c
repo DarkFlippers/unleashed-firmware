@@ -283,6 +283,10 @@ static int32_t ducky_script_execute_next(BadUsbScript* bad_usb, File* script_fil
         delay_val = ducky_parse_line(bad_usb, bad_usb->line_prev);
         if(delay_val == SCRIPT_STATE_NEXT_LINE) { // Empty line
             return 0;
+        } else if(delay_val == SCRIPT_STATE_STRING_START) { // Print string with delays
+            return delay_val;
+        } else if(delay_val == SCRIPT_STATE_WAIT_FOR_BTN) { // wait for button
+            return delay_val;
         } else if(delay_val < 0) { // Script error
             bad_usb->st.error_line = bad_usb->st.line_cur - 1;
             FURI_LOG_E(WORKER_TAG, "Unknown command at line %u", bad_usb->st.line_cur - 1U);
@@ -319,6 +323,8 @@ static int32_t ducky_script_execute_next(BadUsbScript* bad_usb, File* script_fil
                 if(delay_val == SCRIPT_STATE_NEXT_LINE) { // Empty line
                     return 0;
                 } else if(delay_val == SCRIPT_STATE_STRING_START) { // Print string with delays
+                    return delay_val;
+                } else if(delay_val == SCRIPT_STATE_WAIT_FOR_BTN) { // wait for button
                     return delay_val;
                 } else if(delay_val < 0) {
                     bad_usb->st.error_line = bad_usb->st.line_cur;
@@ -509,12 +515,32 @@ static int32_t bad_usb_worker(void* context) {
                     delay_val = bad_usb->defdelay;
                     bad_usb->string_print_pos = 0;
                     worker_state = BadUsbStateStringDelay;
+                } else if(delay_val == SCRIPT_STATE_WAIT_FOR_BTN) { // set state to wait for user input
+                    worker_state = BadUsbStateWaitForBtn;
+                    bad_usb->st.state = BadUsbStateWaitForBtn; // Show long delays
                 } else if(delay_val > 1000) {
                     bad_usb->st.state = BadUsbStateDelay; // Show long delays
                     bad_usb->st.delay_remain = delay_val / 1000;
                 }
             } else {
                 furi_check((flags & FuriFlagError) == 0);
+            }
+        } else if(worker_state == BadUsbStateWaitForBtn) { // State: Wait for button Press
+            uint16_t delay_cur = (delay_val > 1000) ? (1000) : (delay_val);
+            uint32_t flags = furi_thread_flags_wait(
+                WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect, FuriFlagWaitAny, delay_cur);
+            if(!(flags & FuriFlagError)) {
+                if(flags & WorkerEvtEnd) {
+                    break;
+                } else if(flags & WorkerEvtToggle) {
+                    delay_val = 0;
+                    worker_state = BadUsbStateRunning;
+                } else if(flags & WorkerEvtDisconnect) {
+                    worker_state = BadUsbStateNotConnected; // USB disconnected
+                    furi_hal_hid_kb_release_all();
+                }
+                bad_usb->st.state = worker_state;
+                continue;
             }
         } else if(worker_state == BadUsbStateStringDelay) { // State: print string with delays
             uint32_t flags = furi_thread_flags_wait(

@@ -10,14 +10,6 @@ extern const SubGhzProtocolDecoder subghz_protocol_secplus_v2_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_secplus_v2_encoder;
 extern const SubGhzProtocol subghz_protocol_secplus_v2;
 
-// Custom buttons
-void secplus2_set_btn(uint8_t b);
-
-uint8_t secplus2_get_original_btn();
-uint8_t secplus2_get_custom_btn();
-
-void secplus2_reset_original_btn();
-
 /**
  * Allocate SubGhzProtocolEncoderSecPlus_v2.
  * @param environment Pointer to a SubGhzEnvironment instance

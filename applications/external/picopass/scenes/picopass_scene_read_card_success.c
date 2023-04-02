@@ -47,8 +47,21 @@ void picopass_scene_read_card_success_on_enter(void* context) {
         if(pacs->se_enabled) {
             furi_string_cat_printf(credential_str, "SE enabled");
         }
+
+        widget_add_button_element(
+            widget,
+            GuiButtonTypeCenter,
+            "Menu",
+            picopass_scene_read_card_success_widget_callback,
+            picopass);
     } else if(empty) {
         furi_string_cat_printf(wiegand_str, "Empty");
+        widget_add_button_element(
+            widget,
+            GuiButtonTypeCenter,
+            "Menu",
+            picopass_scene_read_card_success_widget_callback,
+            picopass);
     } else if(pacs->record.bitLength == 0 || pacs->record.bitLength == 255) {
         // Neither of these are valid.  Indicates the block was all 0x00 or all 0xff
         furi_string_cat_printf(wiegand_str, "Invalid PACS");
@@ -56,6 +69,12 @@ void picopass_scene_read_card_success_on_enter(void* context) {
         if(pacs->se_enabled) {
             furi_string_cat_printf(credential_str, "SE enabled");
         }
+        widget_add_button_element(
+            widget,
+            GuiButtonTypeCenter,
+            "Menu",
+            picopass_scene_read_card_success_widget_callback,
+            picopass);
     } else {
         size_t bytesLength = 1 + pacs->record.bitLength / 8;
         furi_string_set(credential_str, "");
@@ -137,6 +156,9 @@ bool picopass_scene_read_card_success_on_event(void* context, SceneManagerEvent 
             picopass_device_set_name(picopass->dev, "");
             scene_manager_next_scene(picopass->scene_manager, PicopassSceneCardMenu);
             consumed = true;
+        } else if(event.event == GuiButtonTypeCenter) {
+            consumed = scene_manager_search_and_switch_to_another_scene(
+                picopass->scene_manager, PicopassSceneStart);
         }
     }
     return consumed;

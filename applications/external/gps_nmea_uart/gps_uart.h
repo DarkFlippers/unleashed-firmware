@@ -3,7 +3,9 @@
 #include <furi_hal.h>
 #include <notification/notification_messages.h>
 
-#define GPS_BAUDRATE 9600
+#define GPS_BAUDRATE_9k 9600
+#define GPS_BAUDRATE_57k 57600
+#define GPS_BAUDRATE_115k 115200
 #define RX_BUF_SIZE 1024
 
 typedef struct {
@@ -28,9 +30,16 @@ typedef struct {
     uint8_t rx_buf[RX_BUF_SIZE];
 
     NotificationApp* notifications;
+    uint32_t baudrate;
+    bool changing_baudrate;
+    bool backlight_on;
+    bool speed_in_kms;
 
     GpsStatus status;
 } GpsUart;
+
+void gps_uart_init_thread(GpsUart* gps_uart);
+void gps_uart_deinit_thread(GpsUart* gps_uart);
 
 GpsUart* gps_uart_enable();
 

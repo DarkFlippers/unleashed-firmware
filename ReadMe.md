@@ -69,9 +69,9 @@ Also check the changelog in releases for latest updates!
 ### Current modified and new Sub-GHz protocols list:
 Thanks to Official team (to their SubGHz Developer, Skorp) for implementing decoders for these protocols.
 
-Encoders/sending made by Eng1n33r & @xMasterX:
+Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
 
-- Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
+Encoders or sending made by @xMasterX:
 - Keeloq: HCS101
 - Keeloq: AN-Motors
 - Keeloq: JCM Tech
@@ -81,16 +81,18 @@ Encoders/sending made by Eng1n33r & @xMasterX:
 - Keeloq: FAAC RC,XT
 - Keeloq: Mutancode
 - Keeloq: Normstahl
-- Keeloq: Beninca
+- Keeloq: Beninca + Allmatic
 - Keeloq: Stilmatic / Schellenberg
 - Keeloq: CAME Space
 - Keeloq: Aprimatic (model TR and similar)
+
+Encoders/sending made by @Eng1n33r & @xMasterX:
 - CAME Atomo
 - Nice Flor S
 - FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
 - Keeloq: BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
-- Security+ v1 & v2
 - Star Line
+- Security+ v1 & v2
 
 Encoders made by @assasinfil & @xMasterX:
 - Somfy Telis

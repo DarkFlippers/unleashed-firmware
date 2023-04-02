@@ -382,10 +382,10 @@ steps:
 
         Build: {{build.number}}
 
-        SHA: {{commit.sha}}
+        Commit: https://github.com/DarkFlippers/unleashed-firmware/commit/{{commit.sha}}
 
 
-        Commit: {{commit.message}}
+        Commit message: {{commit.message}}
 
 
         [-> Sponsor our project](https://boosty.to/mmxdev)
@@ -419,7 +419,7 @@ steps:
     commands:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
       - chmod +x ./discord.sh
-      - ./discord.sh --text 'Unleashed firmware dev build successful!\n\nBuild - '${DRONE_BUILD_NUMBER}'\n\nSHA - '${DRONE_COMMIT_SHA}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'e.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'e)\n\n[-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}')'
+      - ./discord.sh --text 'Unleashed firmware dev build successful!\n\nBuild - '${DRONE_BUILD_NUMBER}'\n\nCommit - https://github.com/DarkFlippers/unleashed-firmware/commit/'${DRONE_COMMIT_SHA}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'e.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'e)\n\n[-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}')'
 
 trigger:
   branch:

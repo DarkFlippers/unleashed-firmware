@@ -54,8 +54,8 @@ void vApplicationGetIdleTaskMemory(
     StackType_t** stack_ptr,
     uint32_t* stack_size) {
     *tcb_ptr = memmgr_alloc_from_pool(sizeof(StaticTask_t));
-    *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configMINIMAL_STACK_SIZE);
-    *stack_size = configMINIMAL_STACK_SIZE;
+    *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configIDLE_TASK_STACK_DEPTH);
+    *stack_size = configIDLE_TASK_STACK_DEPTH;
 }
 
 void vApplicationGetTimerTaskMemory(

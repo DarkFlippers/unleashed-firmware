@@ -60,6 +60,43 @@ bool subghz_scene_set_type_submenu_gen_data_protocol(
     return res;
 }
 
+bool subghz_scene_set_type_submenu_gen_data_keeloq(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    const char* manufacture_name) {
+    SubGhz* subghz = context;
+
+    bool res = false;
+
+    subghz->txrx->transmitter =
+        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
+
+    if(subghz->txrx->transmitter &&
+       subghz_protocol_keeloq_create_data(
+           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
+           subghz->txrx->fff_data,
+           serial,
+           btn,
+           cnt,
+           manufacture_name,
+           subghz->txrx->preset)) {
+        flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", manufacture_name);
+        res = true;
+    }
+
+    subghz_transmitter_free(subghz->txrx->transmitter);
+    if(!res) {
+        furi_string_set(subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+    }
+    return res;
+}
+
 void subghz_scene_set_type_submenu_callback(void* context, uint32_t index) {
     SubGhz* subghz = context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
@@ -132,6 +169,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz->submenu,
         "KL: Beninca 868MHz",
         SubmenuIndexBeninca868,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: Allmatic 433MHz",
+        SubmenuIndexAllmatic433,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: Allmatic 868MHz",
+        SubmenuIndexAllmatic868,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -445,310 +494,129 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexBeninca433:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    (key & 0x000FFF00) | 0x00800080,
-                    0x1,
-                    0x0005,
-                    "Beninca",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "Beninca");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   433920000,
+                   (key & 0x000FFF00) | 0x00800080,
+                   0x1,
+                   0x0005,
+                   "Beninca")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexBeninca868:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 868350000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    (key & 0x000FFF00) | 0x00800080,
-                    0x1,
-                    0x0005,
-                    "Beninca",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "Beninca");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   868350000,
+                   (key & 0x000FFF00) | 0x00800080,
+                   0x1,
+                   0x0005,
+                   "Beninca")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
             }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            break;
+        case SubmenuIndexAllmatic433:
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   433920000,
+                   (key & 0x00FFFF00) | 0x01000011,
+                   0xC,
+                   0x0005,
+                   "Beninca")) {
+                generated_protocol = true;
+            }
+            break;
+        case SubmenuIndexAllmatic868:
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   868350000,
+                   (key & 0x00FFFF00) | 0x01000011,
+                   0xC,
+                   0x0005,
+                   "Beninca")) {
+                generated_protocol = true;
             }
             break;
         case SubmenuIndexElmesElectronic:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    (key & 0x00FFFFFF) | 0x02000000,
-                    0x2,
-                    0x0003,
-                    "Elmes_Poland",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "Elmes_Poland");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   433920000,
+                   (key & 0x00FFFFFF) | 0x02000000,
+                   0x2,
+                   0x0003,
+                   "Elmes_Poland")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexANMotorsAT4:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    (key & 0x00FFFFFF) | 0x04000000,
-                    0x2,
-                    0x0021,
-                    "AN-Motors",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "AN-Motors");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   433920000,
+                   (key & 0x00FFFFFF) | 0x04000000,
+                   0x2,
+                   0x0021,
+                   "AN-Motors")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexAprimatic:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    (key & 0x000FFFFF) | 0x00600000,
-                    0x4,
-                    0x0003,
-                    "Aprimatic",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "Aprimatic");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz,
+                   "AM650",
+                   433920000,
+                   (key & 0x000FFFFF) | 0x00600000,
+                   0x4,
+                   0x0003,
+                   "Aprimatic")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexGibidi433:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x00FFFFFF,
-                    0x2,
-                    0x0003,
-                    "Gibidi",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "Gibidi");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Gibidi")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexGSN:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x0FFFFFFF,
-                    0x2,
-                    0x0003,
-                    "GSN",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "GSN");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x0FFFFFFF, 0x2, 0x0003, "GSN")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexIronLogic:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x00FFFFF0,
-                    0x4,
-                    0x0005,
-                    "IronLogic",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "IronLogic");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x00FFFFF0, 0x4, 0x0005, "IronLogic")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexSommer_FM_434:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "FM476", 434420000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x0FFFFFFF,
-                    0x4,
-                    0x0003,
-                    "Sommer(fsk476)",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "Sommer(fsk476)");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "FM476", 434420000, key & 0x0FFFFFFF, 0x4, 0x0003, "Sommer(fsk476)")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexSommer_FM_868:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "FM476", 868800000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x0FFFFFFF,
-                    0x4,
-                    0x0003,
-                    "Sommer(fsk476)",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "Sommer(fsk476)");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "FM476", 868800000, key & 0x0FFFFFFF, 0x4, 0x0003, "Sommer(fsk476)")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexDTMNeo433:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x000FFFFF,
-                    0x2,
-                    0x0005,
-                    "DTM_Neo",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "DTM_Neo");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x000FFFFF, 0x2, 0x0005, "DTM_Neo")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexCAMESpace:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x00FFFFFF,
-                    0x2,
-                    0x0003,
-                    "Came_Space",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "Came_Space");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Came_Space")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexBFTMitto:
@@ -834,53 +702,15 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexDoorHan_433_92:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x0FFFFFFF,
-                    0x2,
-                    0x0003,
-                    "DoorHan",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "DoorHan");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x0FFFFFFF, 0x2, 0x0003, "DoorHan")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexDoorHan_315_00:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 315000000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x0FFFFFFF,
-                    0x2,
-                    0x0003,
-                    "DoorHan",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "DoorHan");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 315000000, key & 0x0FFFFFFF, 0x2, 0x0003, "DoorHan")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexNiceFlorS_433_92:
@@ -932,29 +762,9 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexNiceSmilo_433_92:
-            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-            subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_keeloq_create_data(
-                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                    subghz->txrx->fff_data,
-                    key & 0x00FFFFFF,
-                    0x2,
-                    0x0003,
-                    "NICE_Smilo",
-                    subghz->txrx->preset);
-                flipper_format_write_string_cstr(
-                    subghz->txrx->fff_data, "Manufacture", "NICE_Smilo");
+            if(subghz_scene_set_type_submenu_gen_data_keeloq(
+                   subghz, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "NICE_Smilo")) {
                 generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                furi_string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
         case SubmenuIndexLiftMaster_315_00:

@@ -10,6 +10,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn.h"
+
 #define TAG "SubGhzProtocolKeeloq"
 
 static const SubGhzBlockConst subghz_protocol_keeloq_const = {
@@ -86,25 +88,12 @@ const SubGhzProtocol subghz_protocol_keeloq = {
 
 static const char* mfname;
 static uint8_t kl_type;
-static uint8_t btn_temp_id;
-static uint8_t btn_temp_id_original;
 static uint8_t klq_prog_mode;
 static uint16_t temp_counter;
 
-void keeloq_set_btn(uint8_t b) {
-    btn_temp_id = b;
-}
-
-uint8_t keeloq_get_original_btn() {
-    return btn_temp_id_original;
-}
-
-uint8_t keeloq_get_custom_btn() {
-    return btn_temp_id;
-}
-
 void keeloq_reset_original_btn() {
-    btn_temp_id_original = 0;
+    subghz_custom_btn_set_original(0);
+    subghz_custom_btn_set_max(0);
     temp_counter = 0;
     klq_prog_mode = 0;
 }
@@ -243,9 +232,9 @@ static bool subghz_protocol_keeloq_gen_data(
             decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
         }
 
-        // Beninca -> 4bit serial - simple XOR
+        // Beninca / Allmatic -> no serial - simple XOR
         if(strcmp(instance->manufacture_name, "Beninca") == 0) {
-            decrypt = btn << 28 | (instance->generic.serial & 0xF) << 16 | instance->generic.cnt;
+            decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
         }
 
         if(strcmp(instance->manufacture_name, "Unknown") == 0) {
@@ -384,8 +373,8 @@ static bool
     furi_assert(instance);
 
     // Save original button
-    if(btn_temp_id_original == 0) {
-        btn_temp_id_original = btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(btn);
     }
 
     if(instance->manufacture_name == 0x0) {
@@ -402,9 +391,12 @@ static bool
         klq_last_custom_btn = 0xF;
     }
 
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_num = subghz_custom_btn_get_original();
+
     // Set custom button
-    if(btn_temp_id == 1) {
-        switch(btn_temp_id_original) {
+    if(custom_btn_id == 1) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x2;
             break;
@@ -429,8 +421,8 @@ static bool
             break;
         }
     }
-    if(btn_temp_id == 2) {
-        switch(btn_temp_id_original) {
+    if(custom_btn_id == 2) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x4;
             break;
@@ -455,8 +447,8 @@ static bool
             break;
         }
     }
-    if(btn_temp_id == 3) {
-        switch(btn_temp_id_original) {
+    if(custom_btn_id == 3) {
+        switch(original_btn_num) {
         case 0x1:
             btn = 0x8;
             break;
@@ -481,8 +473,8 @@ static bool
             break;
         }
     }
-    if(btn_temp_id == 4) {
-        switch(btn_temp_id_original) {
+    if(custom_btn_id == 4) {
+        switch(original_btn_num) {
         case 0x1:
             btn = klq_last_custom_btn;
             break;
@@ -508,8 +500,8 @@ static bool
         }
     }
 
-    if((btn_temp_id == 0) && (btn_temp_id_original != 0)) {
-        btn = btn_temp_id_original;
+    if((custom_btn_id == 0) && (original_btn_num != 0)) {
+        btn = original_btn_num;
     }
 
     // Generate new key
@@ -1213,9 +1205,10 @@ static void subghz_protocol_keeloq_check_remote_controller(
     instance->btn = key_fix >> 28;
 
     // Save original button for later use
-    if(btn_temp_id_original == 0) {
-        btn_temp_id_original = instance->btn;
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
     }
+    subghz_custom_btn_set_max(4);
 }
 
 uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context) {
