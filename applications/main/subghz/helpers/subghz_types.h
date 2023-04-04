@@ -35,6 +35,12 @@ typedef enum {
     SubGhzSpeakerStateEnable,
 } SubGhzSpeakerState;
 
+/** SubGhzStarLineIgnore state */
+typedef enum {
+    SubGhzStarLineIgnoreDisable,
+    SubGhzStarLineIgnoreEnable,
+} SubGhzStarLineIgnoreState;
+
 /** SubGhzRxKeyState state */
 typedef enum {
     SubGhzRxKeyStateIDLE,
