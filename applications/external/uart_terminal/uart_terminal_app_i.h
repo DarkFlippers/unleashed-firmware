@@ -12,7 +12,7 @@
 #include <gui/modules/variable_item_list.h>
 #include "uart_text_input.h"
 
-#define NUM_MENU_ITEMS (4)
+#define NUM_MENU_ITEMS (5)
 
 #define UART_TERMINAL_TEXT_BOX_STORE_SIZE (4096)
 #define UART_TERMINAL_TEXT_INPUT_STORE_SIZE (512)
@@ -40,6 +40,7 @@ struct UART_TerminalApp {
     bool focus_console_start;
     bool show_stopscan_tip;
     int BAUDRATE;
+    int TERMINAL_MODE; //1=AT mode, 0=other mode
 };
 
 typedef enum {

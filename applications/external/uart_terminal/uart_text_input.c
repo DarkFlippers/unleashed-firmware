@@ -1,6 +1,7 @@
 #include "uart_text_input.h"
 #include <gui/elements.h>
 #include "uart_terminal_icons.h"
+#include "uart_terminal_app_i.h"
 #include <furi.h>
 
 struct UART_TextInput {
@@ -35,6 +36,8 @@ typedef struct {
 static const uint8_t keyboard_origin_x = 1;
 static const uint8_t keyboard_origin_y = 29;
 static const uint8_t keyboard_row_count = 4;
+
+#define mode_AT "Send AT command to UART"
 
 #define ENTER_KEY '\r'
 #define BACKSPACE_KEY '\b'
@@ -163,6 +166,47 @@ static bool char_is_lowercase(char letter) {
     return (letter >= 0x61 && letter <= 0x7A);
 }
 
+static bool char_is_uppercase(char letter) {
+    return (letter >= 0x41 && letter <= 0x5A);
+}
+
+static char char_to_lowercase(const char letter) {
+    switch(letter) {
+    case ' ':
+        return 0x5f;
+        break;
+    case ')':
+        return 0x28;
+        break;
+    case '}':
+        return 0x7b;
+        break;
+    case ']':
+        return 0x5b;
+        break;
+    case '\\':
+        return 0x2f;
+        break;
+    case ':':
+        return 0x3b;
+        break;
+    case ',':
+        return 0x2e;
+        break;
+    case '?':
+        return 0x21;
+        break;
+    case '>':
+        return 0x3c;
+        break;
+    }
+    if(char_is_uppercase(letter)) {
+        return (letter + 0x20);
+    } else {
+        return letter;
+    }
+}
+
 static char char_to_uppercase(const char letter) {
     switch(letter) {
     case '_':
@@ -193,7 +237,7 @@ static char char_to_uppercase(const char letter) {
         return 0x3e;
         break;
     }
-    if(isalpha(letter)) {
+    if(char_is_lowercase(letter)) {
         return (letter - 0x20);
     } else {
         return letter;
@@ -209,7 +253,7 @@ static void uart_text_input_backspace_cb(UART_TextInputModel* model) {
 
 static void uart_text_input_view_draw_callback(Canvas* canvas, void* _model) {
     UART_TextInputModel* model = _model;
-    uint8_t text_length = model->text_buffer ? strlen(model->text_buffer) : 0;
+    //uint8_t text_length = model->text_buffer ? strlen(model->text_buffer) : 0;
     uint8_t needed_string_width = canvas_width(canvas) - 8;
     uint8_t start_pos = 4;
 
@@ -291,15 +335,12 @@ static void uart_text_input_view_draw_callback(Canvas* canvas, void* _model) {
                 } else {
                     canvas_set_color(canvas, ColorBlack);
                 }
-
-                if(model->clear_default_text ||
-                   (text_length == 0 && char_is_lowercase(keys[column].text))) {
+                if(0 == strcmp(model->header, mode_AT)) {
                     canvas_draw_glyph(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        //char_to_uppercase(keys[column].text));
-                        keys[column].text);
+                        char_to_uppercase(keys[column].text));
                 } else {
                     canvas_draw_glyph(
                         canvas,
@@ -372,8 +413,16 @@ static void uart_text_input_handle_ok(
     char selected = get_selected_char(model);
     uint8_t text_length = strlen(model->text_buffer);
 
-    if(shift) {
+    if(0 == strcmp(model->header, mode_AT)) {
         selected = char_to_uppercase(selected);
+    }
+
+    if(shift) {
+        if(0 == strcmp(model->header, mode_AT)) {
+            selected = char_to_lowercase(selected);
+        } else {
+            selected = char_to_uppercase(selected);
+        }
     }
 
     if(selected == ENTER_KEY) {
@@ -392,9 +441,6 @@ static void uart_text_input_handle_ok(
             text_length = 0;
         }
         if(text_length < (model->text_buffer_size - 1)) {
-            if(text_length == 0 && char_is_lowercase(selected)) {
-                //selected = char_to_uppercase(selected);
-            }
             model->text_buffer[text_length] = selected;
             model->text_buffer[text_length + 1] = 0;
         }
