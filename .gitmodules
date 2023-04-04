@@ -33,7 +33,7 @@
 	url = https://github.com/ataradov/free-dap.git
 [submodule "applications/external/subbrute"]
 	path = applications/external/subbrute
-	url = https://github.com/derskythe/flipperzero-subbrute.git
+	url = https://github.com/DarkFlippers/flipperzero-subbrute.git
 [submodule "lib/heatshrink"]
 	path = lib/heatshrink
 	url = https://github.com/flipperdevices/heatshrink.git
