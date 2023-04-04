@@ -69,11 +69,11 @@ const uint32_t bin_raw_value[BIN_RAW_COUNT] = {
     SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_BinRAW,
 };
 #define STAR_LINE_COUNT 2
-const char* const star_line_text[BIN_RAW_COUNT] = {
+const char* const star_line_text[STAR_LINE_COUNT] = {
     "OFF",
     "ON",
 };
-const uint32_t star_line_value[SPEAKER_COUNT] = {
+const uint32_t star_line_value[STAR_LINE_COUNT] = {
     SubGhzStarLineIgnoreDisable,
     SubGhzStarLineIgnoreEnable,
 };
