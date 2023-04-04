@@ -68,6 +68,15 @@ const uint32_t bin_raw_value[BIN_RAW_COUNT] = {
     SubGhzProtocolFlag_Decodable,
     SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_BinRAW,
 };
+#define STAR_LINE_COUNT 2
+const char* const star_line_text[STAR_LINE_COUNT] = {
+    "OFF",
+    "ON",
+};
+const uint32_t star_line_value[STAR_LINE_COUNT] = {
+    SubGhzStarLineIgnoreDisable,
+    SubGhzStarLineIgnoreEnable,
+};
 
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
     furi_assert(context);
@@ -217,6 +226,14 @@ static void subghz_scene_receiver_config_set_raw_threshold_rssi(VariableItem* it
     subghz->txrx->raw_threshold_rssi = raw_threshold_rssi_value[index];
 }
 
+static void subghz_scene_receiver_config_set_starline(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, star_line_text[index]);
+    subghz->txrx->starline_state = star_line_value[index];
+}
+
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -289,6 +306,21 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         value_index = value_index_uint32(subghz->txrx->filter, bin_raw_value, BIN_RAW_COUNT);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, bin_raw_text[value_index]);
+    }
+
+    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
+       SubGhzCustomEventManagerSet) {
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Ignore StarLine:",
+            STAR_LINE_COUNT,
+            subghz_scene_receiver_config_set_starline,
+            subghz);
+
+        value_index =
+            value_index_uint32(subghz->txrx->starline_state, star_line_value, STAR_LINE_COUNT);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, star_line_text[value_index]);
     }
 
     // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)
