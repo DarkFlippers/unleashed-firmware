@@ -1,5 +1,9 @@
-# UART Terminal for Flipper Zero
+# UART Terminal for Flipper Zero 
 [Flipper Zero](https://flipperzero.one/) app to control various devices via UART interface.
+## Download fap
+| **FW Official** | **FW Unleashed** |
+| - | - |
+| [![FAP Factory](https://flipc.org/api/v1/cool4uma/UART_Terminal/badge)](https://flipc.org/cool4uma/UART_Terminal) | [![FAP Factory](https://flipc.org/api/v1/cool4uma/UART_Terminal/badge?firmware=unleashed)](https://flipc.org/cool4uma/UART_Terminal?firmware=unleashed) |
 
 ## Capabilities
 - Read log and command output by uart
@@ -29,6 +33,7 @@ Copy the contents of the repository to the applications_user/uart_terminal folde
 
 Or use the tool [uFBT](https://github.com/flipperdevices/flipperzero-ufbt) for building applications for Flipper Zero.
 
+
 ## How it works
 
 
@@ -42,4 +47,4 @@ Or use the tool [uFBT](https://github.com/flipperdevices/flipperzero-ufbt) for b
 
 ## INFO:
 
-~70% of the source code is taken from the [Wifi Marauder](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion) project. Many thanks to the developers of the Wifi Marauder project.
+~60% of the source code is taken from the [Wifi Marauder](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion) project. Many thanks to the developers of the Wifi Marauder project.
