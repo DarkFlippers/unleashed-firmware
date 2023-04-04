@@ -434,9 +434,6 @@ bool subghz_remote_save_protocol_to_file(FlipperFormat* fff_file, const char* de
 
     path_extract_dirname(dev_file_name, file_dir);
     do {
-        flipper_format_delete_key(fff_file, "Repeat");
-        //flipper_format_delete_key(fff_file, "Manufacture");
-
         if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {
             FURI_LOG_E(TAG, "(save) Cannot mkdir");
             break;
@@ -474,14 +471,18 @@ void subghz_remote_tx_stop(SubGHzRemote* app) {
     //FURI_LOG_I(TAG, "TX Done!");
     subghz_transmitter_stop(app->tx_transmitter);
 
-    FURI_LOG_D(TAG, "Checking if protocol is dynamic");
+    //FURI_LOG_D(TAG, "Checking if protocol is dynamic");
     const SubGhzProtocolRegistry* protocol_registry_items =
         subghz_environment_get_protocol_registry(app->environment);
     const SubGhzProtocol* proto = subghz_protocol_registry_get_by_name(
         protocol_registry_items, furi_string_get_cstr(app->txpreset->protocol));
-    FURI_LOG_D(TAG, "Protocol-TYPE %d", proto->type);
+    //FURI_LOG_D(TAG, "Protocol-TYPE %d", proto->type);
+
+    // Remove repeat if it was present
+    flipper_format_delete_key(app->tx_fff_data, "Repeat");
+
     if(proto && proto->type == SubGhzProtocolTypeDynamic) {
-        FURI_LOG_D(TAG, "Protocol is dynamic. Saving key");
+        //FURI_LOG_D(TAG, "Protocol is dynamic. Saving key");
         subghz_remote_save_protocol_to_file(app->tx_fff_data, app->tx_file_path);
 
         keeloq_reset_mfname();
