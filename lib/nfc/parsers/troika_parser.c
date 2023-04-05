@@ -70,13 +70,14 @@ bool troika_parser_parse(NfcDeviceData* dev_data) {
         // Parse data
         uint8_t* temp_ptr = &data->block[8 * 4 + 1].value[5];
         uint16_t balance = ((temp_ptr[0] << 8) | temp_ptr[1]) / 25;
-        temp_ptr = &data->block[8 * 4].value[3];
+        temp_ptr = &data->block[8 * 4].value[2];
         uint32_t number = 0;
-        for(size_t i = 0; i < 4; i++) {
+        for(size_t i = 1; i < 5; i++) {
             number <<= 8;
             number |= temp_ptr[i];
         }
         number >>= 4;
+        number |= (temp_ptr[0] & 0xf) << 28;
 
         furi_string_printf(
             dev_data->parsed_data, "\e#Troika\nNum: %lu\nBalance: %u rur.", number, balance);
