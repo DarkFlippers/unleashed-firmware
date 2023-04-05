@@ -7,9 +7,13 @@
 #define TOTP_TOKEN_DURATION_DEFAULT 30
 
 #define TOTP_TOKEN_ALGO_SHA1_NAME "sha1"
+#define TOTP_TOKEN_ALGO_STEAM_NAME "steam"
 #define TOTP_TOKEN_ALGO_SHA256_NAME "sha256"
 #define TOTP_TOKEN_ALGO_SHA512_NAME "sha512"
 #define TOTP_TOKEN_MAX_LENGTH 255
+
+#define PLAIN_TOKEN_ENCODING_BASE32_NAME "base32"
+#define PLAIN_TOKEN_ENCODING_BASE64_NAME "base64"
 
 #define TOTP_TOKEN_AUTOMATION_FEATURE_NONE_NAME "none"
 #define TOTP_TOKEN_AUTOMATION_FEATURE_ENTER_AT_THE_END_NAME "enter"
@@ -19,6 +23,7 @@
 typedef uint8_t TokenHashAlgo;
 typedef uint8_t TokenDigitsCount;
 typedef uint8_t TokenAutomationFeature;
+typedef uint8_t PlainTokenSecretEncoding;
 
 /**
  * @brief Hashing algorithm to be used to generate token
@@ -37,13 +42,23 @@ enum TokenHashAlgos {
     /**
      * @brief SHA512 hashing algorithm
      */
-    SHA512
+    SHA512,
+
+    /**
+     * @brief Algorithm used by Steam (Valve)
+     */
+    STEAM
 };
 
 /**
  * @brief Token digits count to be generated.
  */
 enum TokenDigitsCounts {
+    /**
+     * @brief 6 digits
+     */
+    TOTP_5_DIGITS = 5,
+
     /**
      * @brief 6 digits
      */
@@ -78,6 +93,11 @@ enum TokenAutomationFeatures {
      * @brief Press keys slower and wait longer between keystrokes
      */
     TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER = 0b100
+};
+
+enum PlainTokenSecretEncodings {
+    PLAIN_TOKEN_ENCODING_BASE32 = 0,
+    PLAIN_TOKEN_ENCODING_BASE64 = 1
 };
 
 #define TOTP_TOKEN_DIGITS_MAX_COUNT 8
@@ -139,13 +159,15 @@ void token_info_free(TokenInfo* token_info);
  * @param token_info instance where secret should be updated
  * @param base32_token_secret plain token secret in Base32 format
  * @param token_secret_length plain token secret length
+ * @param plain_token_secret_encoding plain token secret encoding
  * @param iv initialization vecor (IV) to be used for encryption
  * @return \c true if token successfully set; \c false otherwise
  */
 bool token_info_set_secret(
     TokenInfo* token_info,
-    const char* base32_token_secret,
+    const char* plain_token_secret,
     size_t token_secret_length,
+    PlainTokenSecretEncoding plain_token_secret_encoding,
     const uint8_t* iv);
 
 /**

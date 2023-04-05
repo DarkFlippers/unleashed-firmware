@@ -11,7 +11,7 @@
 #include "../hmac/byteswap.h"
 #include "../../lib/timezone_utils/timezone_utils.h"
 
-#define HMAC_MAX_SIZE 64
+#define HMAC_MAX_RESULT_SIZE HMAC_SHA512_RESULT_SIZE
 
 /**
  * @brief Generates the timeblock for a time in seconds.
@@ -29,19 +29,17 @@ uint64_t totp_timecode(uint8_t interval, uint64_t for_time) {
 /**
  * @brief Generates an OTP (One Time Password)
  * @param algo hashing algorithm to be used
- * @param digits desired TOTP code length
  * @param plain_secret plain token secret
  * @param plain_secret_length plain token secret length
  * @param input input data for OTP code generation
  * @return OTP code if code was successfully generated; 0 otherwise
  */
-uint32_t otp_generate(
+uint64_t otp_generate(
     TOTP_ALGO algo,
-    uint8_t digits,
     const uint8_t* plain_secret,
     size_t plain_secret_length,
     uint64_t input) {
-    uint8_t hmac[HMAC_MAX_SIZE] = {0};
+    uint8_t hmac[HMAC_MAX_RESULT_SIZE] = {0};
 
     uint64_t input_swapped = swap_uint64(input);
 
@@ -55,14 +53,12 @@ uint32_t otp_generate(
     uint64_t i_code =
         ((hmac[offset] & 0x7F) << 24 | (hmac[offset + 1] & 0xFF) << 16 |
          (hmac[offset + 2] & 0xFF) << 8 | (hmac[offset + 3] & 0xFF));
-    i_code %= (uint64_t)pow(10, digits);
 
     return i_code;
 }
 
-uint32_t totp_at(
+uint64_t totp_at(
     TOTP_ALGO algo,
-    uint8_t digits,
     const uint8_t* plain_secret,
     size_t plain_secret_length,
     uint64_t for_time,
@@ -71,11 +67,7 @@ uint32_t totp_at(
     uint64_t for_time_adjusted =
         timezone_offset_apply(for_time, timezone_offset_from_hours(timezone));
     return otp_generate(
-        algo,
-        digits,
-        plain_secret,
-        plain_secret_length,
-        totp_timecode(interval, for_time_adjusted));
+        algo, plain_secret, plain_secret_length, totp_timecode(interval, for_time_adjusted));
 }
 
 static int totp_algo_sha1(

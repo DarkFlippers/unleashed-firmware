@@ -39,7 +39,6 @@ extern const TOTP_ALGO TOTP_ALGO_SHA512;
 /**
  * @brief Generates a OTP key using the totp algorithm.
  * @param algo hashing algorithm to be used
- * @param digits desired TOTP code length
  * @param plain_secret plain token secret
  * @param plain_secret_length plain token secret length
  * @param for_time the time the generated key will be created for
@@ -47,9 +46,8 @@ extern const TOTP_ALGO TOTP_ALGO_SHA512;
  * @param interval token lifetime in seconds
  * @return TOTP code if code was successfully generated; 0 otherwise
  */
-uint32_t totp_at(
+uint64_t totp_at(
     TOTP_ALGO algo,
-    uint8_t digits,
     const uint8_t* plain_secret,
     size_t plain_secret_length,
     uint64_t for_time,

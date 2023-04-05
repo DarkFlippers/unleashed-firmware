@@ -41,7 +41,7 @@ static void totp_type_code_worker_type_code(TotpUsbTypeCodeWorkerContext* contex
 }
 
 static int32_t totp_type_code_worker_callback(void* context) {
-    furi_assert(context);
+    furi_check(context);
     FuriMutex* context_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     if(context_mutex == NULL) {
         return 251;
@@ -89,7 +89,7 @@ TotpUsbTypeCodeWorkerContext* totp_usb_type_code_worker_start(
 }
 
 void totp_usb_type_code_worker_stop(TotpUsbTypeCodeWorkerContext* context) {
-    furi_assert(context != NULL);
+    furi_check(context != NULL);
     furi_thread_flags_set(furi_thread_get_id(context->thread), TotpUsbTypeCodeWorkerEventStop);
     furi_thread_join(context->thread);
     furi_thread_free(context->thread);
@@ -101,7 +101,7 @@ void totp_usb_type_code_worker_notify(
     TotpUsbTypeCodeWorkerContext* context,
     TotpUsbTypeCodeWorkerEvent event,
     uint8_t flags) {
-    furi_assert(context != NULL);
+    furi_check(context != NULL);
     context->flags = flags;
     furi_thread_flags_set(furi_thread_get_id(context->thread), event);
 }

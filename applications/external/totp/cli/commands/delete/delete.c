@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <lib/toolbox/args.h>
-#include "../../../lib/list/list.h"
+#include <linked_list.h>
 #include "../../../services/config/config.h"
 #include "../../cli_helpers.h"
 #include "../../../ui/scene_director.h"

@@ -41,7 +41,9 @@ bool totp_cli_read_line(Cli* cli, FuriString* out_str, bool mask_user_input) {
         } else if(c == CliSymbolAsciiETX) {
             cli_nl();
             return false;
-        } else if((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+        } else if(
+            (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+            c == '/' || c == '=' || c == '+') {
             if(mask_user_input) {
                 putc('*', stdout);
             } else {

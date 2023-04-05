@@ -2,11 +2,12 @@
 
 #include <stdlib.h>
 #include <lib/toolbox/args.h>
+#include <linked_list.h>
 #include "../../../types/token_info.h"
 #include "../../../types/user_pin_codes.h"
 #include "../../../services/config/config.h"
 #include "../../cli_helpers.h"
-#include "../../../lib/polyfills/memset_s.h"
+#include <memset_s.h>
 #include "../../../services/crypto/crypto.h"
 #include "../../../ui/scene_director.h"
 

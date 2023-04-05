@@ -8,7 +8,7 @@
 #include "../../constants.h"
 #include "../../../services/config/config.h"
 #include "../../../services/convert/convert.h"
-#include "../../../lib/roll_value/roll_value.h"
+#include <roll_value.h>
 #include "../../../types/nullable.h"
 #include "../../../features_config.h"
 #ifdef TOTP_BADBT_TYPE_ENABLED

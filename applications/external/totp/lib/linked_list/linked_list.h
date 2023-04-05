@@ -84,19 +84,15 @@ ListNode* list_insert_at(ListNode* head, uint16_t index, void* data);
 void list_free(ListNode* head);
 
 #define TOTP_LIST_INIT_OR_ADD(head, item, assert) \
-    do {                                          \
-        if(head == NULL) {                        \
-            head = list_init_head(item);          \
-            assert(head != NULL);                 \
-        } else {                                  \
-            assert(list_add(head, item) != NULL); \
-        }                                         \
-    } while(false)
+    if(head == NULL) {                            \
+        head = list_init_head(item);              \
+        assert(head != NULL);                     \
+    } else {                                      \
+        assert(list_add(head, item) != NULL);     \
+    }
 
 #define TOTP_LIST_FOREACH(head, node, action) \
-    do {                                      \
-        ListNode* node = head;                \
-        while(node != NULL) {                 \
-            action node = node->next;         \
-        }                                     \
-    } while(false)
+    ListNode* node = head;                    \
+    while(node != NULL) {                     \
+        action node = node->next;             \
+    }

@@ -1,11 +1,11 @@
-#include <furi_hal.h>
 #include "token_info.h"
-#include "stdlib.h"
+#include <furi_hal.h>
+#include <base32.h>
+#include <base64.h>
+#include <memset_s.h>
+#include <strnlen.h>
 #include "common.h"
-#include "../lib/base32/base32.h"
 #include "../services/crypto/crypto.h"
-#include "../lib/polyfills/memset_s.h"
-#include "../lib/polyfills/strnlen.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
@@ -26,15 +26,32 @@ void token_info_free(TokenInfo* token_info) {
 
 bool token_info_set_secret(
     TokenInfo* token_info,
-    const char* base32_token_secret,
+    const char* plain_token_secret,
     size_t token_secret_length,
+    PlainTokenSecretEncoding plain_token_secret_encoding,
     const uint8_t* iv) {
     if(token_secret_length == 0) return false;
+    uint8_t* plain_secret;
+    size_t plain_secret_length;
+    size_t plain_secret_size;
+    if(plain_token_secret_encoding == PLAIN_TOKEN_ENCODING_BASE32) {
+        plain_secret_size = token_secret_length;
+        plain_secret = malloc(plain_secret_size);
+        furi_check(plain_secret != NULL);
+        plain_secret_length =
+            base32_decode((const uint8_t*)plain_token_secret, plain_secret, plain_secret_size);
+    } else if(plain_token_secret_encoding == PLAIN_TOKEN_ENCODING_BASE64) {
+        plain_secret_length = 0;
+        plain_secret = base64_decode(
+            (const uint8_t*)plain_token_secret,
+            token_secret_length,
+            &plain_secret_length,
+            &plain_secret_size);
+        furi_check(plain_secret != NULL);
+    } else {
+        return false;
+    }
 
-    uint8_t* plain_secret = malloc(token_secret_length);
-    furi_check(plain_secret != NULL);
-    int plain_secret_length =
-        base32_decode((const uint8_t*)base32_token_secret, plain_secret, token_secret_length);
     bool result;
     if(plain_secret_length > 0) {
         token_info->token =
@@ -44,13 +61,16 @@ bool token_info_set_secret(
         result = false;
     }
 
-    memset_s(plain_secret, token_secret_length, 0, token_secret_length);
+    memset_s(plain_secret, plain_secret_size, 0, plain_secret_size);
     free(plain_secret);
     return result;
 }
 
 bool token_info_set_digits_from_int(TokenInfo* token_info, uint8_t digits) {
     switch(digits) {
+    case 5:
+        token_info->digits = TOTP_5_DIGITS;
+        return true;
     case 6:
         token_info->digits = TOTP_6_DIGITS;
         return true;
@@ -89,6 +109,11 @@ bool token_info_set_algo_from_str(TokenInfo* token_info, const FuriString* str) 
         return true;
     }
 
+    if(furi_string_cmpi_str(str, TOTP_TOKEN_ALGO_STEAM_NAME) == 0) {
+        token_info->algo = STEAM;
+        return true;
+    }
+
     return false;
 }
 
@@ -100,6 +125,8 @@ char* token_info_get_algo_as_cstr(const TokenInfo* token_info) {
         return TOTP_TOKEN_ALGO_SHA256_NAME;
     case SHA512:
         return TOTP_TOKEN_ALGO_SHA512_NAME;
+    case STEAM:
+        return TOTP_TOKEN_ALGO_STEAM_NAME;
     default:
         break;
     }

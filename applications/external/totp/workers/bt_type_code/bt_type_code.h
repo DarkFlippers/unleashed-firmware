@@ -4,6 +4,12 @@
 #include <furi/furi.h>
 #include <furi_hal.h>
 #include <bt/bt_service/bt.h>
+#include "../../features_config.h"
+
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#define TOTP_BT_WORKER_BT_ADV_NAME_MAX_LEN 18
+#define TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN GAP_MAC_ADDR_SIZE
+#endif
 
 typedef uint8_t TotpBtTypeCodeWorkerEvent;
 
@@ -16,6 +22,11 @@ typedef struct {
     Bt* bt;
     bool is_advertising;
     bool is_connected;
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+    uint8_t bt_mac[TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN];
+    char previous_bt_name[TOTP_BT_WORKER_BT_ADV_NAME_MAX_LEN + 1];
+    uint8_t previous_bt_mac[TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN];
+#endif
 } TotpBtTypeCodeWorkerContext;
 
 enum TotpBtTypeCodeWorkerEvents {

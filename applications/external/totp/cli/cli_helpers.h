@@ -14,24 +14,13 @@
 #define DOCOPT_OPTIONS "[options]"
 #define DOCOPT_DEFAULT(val) "[default: " val "]"
 
-#define TOTP_CLI_PRINTF(format, ...)                                        \
-    do {                                                                    \
-        _Pragma(STRINGIFY(GCC diagnostic push))                             \
-            _Pragma(STRINGIFY(GCC diagnostic ignored "-Wdouble-promotion")) \
-                printf(format, ##__VA_ARGS__);                              \
-        _Pragma(STRINGIFY(GCC diagnostic pop))                              \
-    } while(false)
+#define TOTP_CLI_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 
-#define TOTP_CLI_PRINTF_COLORFUL(color, format, ...)                        \
-    do {                                                                    \
-        _Pragma(STRINGIFY(GCC diagnostic push))                             \
-            _Pragma(STRINGIFY(GCC diagnostic ignored "-Wdouble-promotion")) \
-                printf("\e[%s", color);                                     \
-        printf(format, ##__VA_ARGS__);                                      \
-        printf("\e[0m");                                                    \
-        fflush(stdout);                                                     \
-        _Pragma(STRINGIFY(GCC diagnostic pop))                              \
-    } while(false)
+#define TOTP_CLI_PRINTF_COLORFUL(color, format, ...) \
+    printf("\e[%s", color);                          \
+    printf(format, ##__VA_ARGS__);                   \
+    printf("\e[0m");                                 \
+    fflush(stdout)
 
 #define TOTP_CLI_COLOR_ERROR "91m"
 #define TOTP_CLI_COLOR_WARNING "93m"

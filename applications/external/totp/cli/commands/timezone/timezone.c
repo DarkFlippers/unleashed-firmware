@@ -35,7 +35,7 @@ void totp_cli_command_timezone_handle(PluginState* plugin_state, FuriString* arg
         if(*strtof_endptr == 0 && tz >= -12.75f && tz <= 12.75f) {
             plugin_state->timezone_offset = tz;
             if(totp_config_file_update_timezone_offset(tz) == TotpConfigFileUpdateSuccess) {
-                TOTP_CLI_PRINTF_SUCCESS("Timezone is set to %f\r\n", tz);
+                TOTP_CLI_PRINTF_SUCCESS("Timezone is set to %f\r\n", (double)tz);
             } else {
                 TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
             }
@@ -50,7 +50,8 @@ void totp_cli_command_timezone_handle(PluginState* plugin_state, FuriString* arg
             TOTP_CLI_PRINTF_ERROR("Invalid timezone offset\r\n");
         }
     } else {
-        TOTP_CLI_PRINTF_INFO("Current timezone offset is %f\r\n", plugin_state->timezone_offset);
+        TOTP_CLI_PRINTF_INFO(
+            "Current timezone offset is %f\r\n", (double)plugin_state->timezone_offset);
     }
     furi_string_free(temp_str);
 }
