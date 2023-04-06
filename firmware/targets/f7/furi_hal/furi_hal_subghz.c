@@ -636,6 +636,8 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
             GpioModeInterruptRiseFall,
             GpioPullUp,
             GpioSpeedVeryHigh);
+        furi_hal_gpio_disable_int_callback(furi_hal_subghz.cc1101_g0_pin);
+        furi_hal_gpio_remove_int_callback(furi_hal_subghz.cc1101_g0_pin);
         furi_hal_gpio_add_int_callback(
             furi_hal_subghz.cc1101_g0_pin,
             furi_hal_subghz_capture_ext_ISR,
