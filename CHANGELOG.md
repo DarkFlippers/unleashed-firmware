@@ -1,6 +1,7 @@
 ### New changes
 * SubGHz: AN-Motors AT4 - Add manually fixes
 * SubGHz: StarLine ignore option (in Read -> Config) (by @gid9798 | PR #410)
+* Plugins: Fix `Repeat: 200` bug in SubGHz Remote and Bruteforcer
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (Steam guard support)
 * Plugins: Update **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main) (AT commands support)
 * Plugins: Add IR Scope app. (by @kallanreed | PR #407)
