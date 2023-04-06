@@ -28,6 +28,7 @@ env.Append(
         File("stream/buffered_file_stream.h"),
         File("protocols/protocol_dict.h"),
         File("pretty_format.h"),
+        File("hex.h"),
     ],
 )
 
