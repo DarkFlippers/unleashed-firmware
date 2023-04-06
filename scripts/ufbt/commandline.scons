@@ -1,0 +1,90 @@
+AddOption(
+    "--proxy-env",
+    action="store",
+    dest="proxy_env",
+    default="",
+    help="Comma-separated list of additional environment variables to pass to child SCons processes",
+)
+
+AddOption(
+    "--channel",
+    action="store",
+    dest="sdk_channel",
+    choices=["dev", "rc", "release"],
+    default="",
+    help="Release channel to use for SDK",
+)
+
+AddOption(
+    "--branch",
+    action="store",
+    dest="sdk_branch",
+    help="Custom main repo branch to use for SDK",
+)
+
+AddOption(
+    "--hw-target",
+    action="store",
+    dest="sdk_target",
+    help="SDK Hardware target",
+)
+
+vars = Variables("ufbt_options.py", ARGUMENTS)
+
+vars.AddVariables(
+    BoolVariable(
+        "VERBOSE",
+        help="Print full commands",
+        default=False,
+    ),
+    BoolVariable(
+        "FORCE",
+        help="Force target action (for supported targets)",
+        default=False,
+    ),
+    # These 2 are inherited from SDK
+    # BoolVariable(
+    #     "DEBUG",
+    #     help="Enable debug build",
+    #     default=True,
+    # ),
+    # BoolVariable(
+    #     "COMPACT",
+    #     help="Optimize for size",
+    #     default=False,
+    # ),
+    PathVariable(
+        "OTHER_ELF",
+        help="Path to prebuilt ELF file to debug",
+        validator=PathVariable.PathAccept,
+        default="",
+    ),
+    (
+        "OPENOCD_OPTS",
+        "Options to pass to OpenOCD",
+        "",
+    ),
+    (
+        "BLACKMAGIC",
+        "Blackmagic probe location",
+        "auto",
+    ),
+    (
+        "OPENOCD_ADAPTER_SERIAL",
+        "OpenOCD adapter serial number",
+        "auto",
+    ),
+    (
+        "APPID",
+        "Application id",
+        "",
+    ),
+    PathVariable(
+        "UFBT_APP_DIR",
+        help="Application dir to work with",
+        validator=PathVariable.PathIsDir,
+        default="",
+    ),
+)
+
+Return("vars")

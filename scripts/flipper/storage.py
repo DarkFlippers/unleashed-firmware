@@ -56,11 +56,11 @@ class StorageErrorCode(enum.Enum):
 
 
 class FlipperStorageException(Exception):
-    def __init__(self, message):
-        super().__init__(f"Storage error: {message}")
-
-    def __init__(self, path: str, error_code: StorageErrorCode):
-        super().__init__(f"Storage error: path '{path}': {error_code.value}")
+    @staticmethod
+    def from_error_code(path: str, error_code: StorageErrorCode):
+        return FlipperStorageException(
+            f"Storage error: path '{path}': {error_code.value}"
+        )
 
 
 class BufferedRead:
@@ -247,7 +247,9 @@ class FlipperStorage:
                 if self.has_error(answer):
                     last_error = self.get_error(answer)
                     self.read.until(self.CLI_PROMPT)
-                    raise FlipperStorageException(filename_to, last_error)
+                    raise FlipperStorageException.from_error_code(
+                        filename_to, last_error
+                    )
 
                 self.port.write(filedata)
                 self.read.until(self.CLI_PROMPT)
@@ -319,7 +321,7 @@ class FlipperStorage:
                 StorageErrorCode.INVALID_NAME,
             ):
                 return False
-            raise FlipperStorageException(path, error_code)
+            raise FlipperStorageException.from_error_code(path, error_code)
 
         return True
 
@@ -333,7 +335,7 @@ class FlipperStorage:
 
     def _check_no_error(self, response, path=None):
         if self.has_error(response):
-            raise FlipperStorageException(self.get_error(response))
+            raise FlipperStorageException.from_error_code(self.get_error(response))
 
     def size(self, path: str):
         """file size on Flipper"""

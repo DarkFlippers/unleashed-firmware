@@ -75,12 +75,12 @@ Example for building an app from Rust sources:
   Library sources must be placed in a subfolder of the `lib` folder within the application's source folder.
   Each library is defined as a call to the `Lib()` function, accepting the following parameters:
 
-      - **name**: name of the library's folder. Required.
-      - **fap_include_paths**: list of the library's relative paths to add to the parent fap's include path list. The default value is `["."]`, meaning the library's source root.
-      - **sources**: list of filename masks to be used for gathering include files for this library. Paths are relative to the library's source root. The default value is `["*.c*"]`.
-      - **cflags**: list of additional compiler flags to be used for building this library. The default value is `[]`.
-      - **cdefines**: list of additional preprocessor definitions to be used for building this library. The default value is `[]`.
-      - **cincludes**: list of additional include paths to be used for building this library. Paths are relative to the application's root. This can be used for providing external search paths for this library's code — for configuration headers. The default value is `[]`.
+    - **name**: name of the library's folder. Required.
+    - **fap_include_paths**: list of the library's relative paths to add to the parent fap's include path list. The default value is `["."]`, meaning the library's source root.
+    - **sources**: list of filename masks to be used for gathering include files for this library. Paths are relative to the library's source root. The default value is `["*.c*"]`.
+    - **cflags**: list of additional compiler flags to be used for building this library. The default value is `[]`.
+    - **cdefines**: list of additional preprocessor definitions to be used for building this library. The default value is `[]`.
+    - **cincludes**: list of additional include paths to be used for building this library. Paths are relative to the application's root. This can be used for providing external search paths for this library's code — for configuration headers. The default value is `[]`.
 
 Example for building an app with a private library:
 
