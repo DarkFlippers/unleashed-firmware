@@ -84,21 +84,16 @@ class Main(App):
             if exists(sdk_folder := join(obj_directory, foldertype)):
                 self.note_dist_component(foldertype, "dir", sdk_folder)
 
-    def package_zip(self, foldertype, sdk_folder):
+        # TODO: remove this after everyone migrates to new uFBT
+        self.create_zip_stub("lib")
+
+    def create_zip_stub(self, foldertype):
         with zipfile.ZipFile(
             self.get_dist_path(self.get_dist_file_name(foldertype, "zip")),
             "w",
             zipfile.ZIP_DEFLATED,
-        ) as zf:
-            for root, _, files in walk(sdk_folder):
-                for file in files:
-                    zf.write(
-                        join(root, file),
-                        relpath(
-                            join(root, file),
-                            sdk_folder,
-                        ),
-                    )
+        ) as _:
+            pass
 
     def copy(self) -> int:
         self._dist_components: dict[str, str] = dict()
