@@ -217,11 +217,6 @@ void ws_protocol_decoder_lacrosse_tx141thbv2_feed(void* context, bool level, uin
                  ws_protocol_lacrosse_tx141thbv2_const.te_delta * 2) &&
                 (DURATION_DIFF(duration, ws_protocol_lacrosse_tx141thbv2_const.te_short * 4) <
                  ws_protocol_lacrosse_tx141thbv2_const.te_delta * 2))) {
-                FURI_LOG_E(
-                    "WS",
-                    "%llX %d",
-                    instance->decoder.decode_data,
-                    instance->decoder.decode_count_bit);
                 if((instance->decoder.decode_count_bit ==
                     ws_protocol_lacrosse_tx141thbv2_const.min_count_bit_for_found) ||
                    (instance->decoder.decode_count_bit == LACROSSE_TX141TH_BV2_BIT_COUNT)) {
