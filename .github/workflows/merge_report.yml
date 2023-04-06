@@ -30,7 +30,7 @@ jobs:
           else
             TYPE="other"
           fi
-          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
 
       - name: 'Check ticket and report'
         run: |

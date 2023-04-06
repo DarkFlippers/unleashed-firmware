@@ -37,7 +37,7 @@ jobs:
           else
             TYPE="other"
           fi
-          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
           echo random_hash=$(openssl rand -base64 40 | shasum -a 256 | awk '{print $1}') >> $GITHUB_OUTPUT
           echo "event_type=$TYPE" >> $GITHUB_OUTPUT
 
@@ -182,7 +182,7 @@ jobs:
           else
             TYPE="other"
           fi
-          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
 
       - name: 'Build the firmware'
         run: |
