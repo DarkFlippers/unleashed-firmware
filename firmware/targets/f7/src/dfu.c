@@ -2,29 +2,24 @@
 #include <furi_hal.h>
 #include <flipper.h>
 #include <alt_boot.h>
-#include <u8g2_glue.h>
 #include <assets_icons.h>
 #include <toolbox/compress.h>
+#include <gui/canvas.h>
+#include <gui/canvas_i.h>
 
 void flipper_boot_dfu_show_splash() {
     // Initialize
-    CompressIcon* compress_icon = compress_icon_alloc();
+    Canvas* canvas = canvas_init();
 
-    u8g2_t* fb = malloc(sizeof(u8g2_t));
-    memset(fb, 0, sizeof(u8g2_t));
-    u8g2_Setup_st756x_flipper(fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
-    u8g2_InitDisplay(fb);
-    u8g2_SetDrawColor(fb, 0x01);
-    uint8_t* splash_data = NULL;
-    compress_icon_decode(compress_icon, icon_get_data(&I_DFU_128x50), &splash_data);
-    u8g2_DrawXBM(fb, 0, 64 - 50, 128, 50, splash_data);
-    u8g2_SetFont(fb, u8g2_font_helvB08_tr);
-    u8g2_DrawStr(fb, 2, 8, "Update & Recovery Mode");
-    u8g2_DrawStr(fb, 2, 21, "DFU Started");
-    u8g2_SetPowerSave(fb, 0);
-    u8g2_SendBuffer(fb);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
 
-    compress_icon_free(compress_icon);
+    canvas_draw_icon(canvas, 0, 64 - 50, &I_DFU_128x50);
+    canvas_draw_str(canvas, 2, 8, "Update & Recovery Mode");
+    canvas_draw_str(canvas, 2, 21, "DFU Started");
+    canvas_commit(canvas);
+
+    canvas_free(canvas);
 }
 
 void flipper_boot_dfu_exec() {
