@@ -700,15 +700,15 @@ static void render_callback(Canvas* canvas, void* ctx) {
             break;
         case 2:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
-            canvas_draw_icon(canvas, 116, 17, &I_Pin_arrow_down_7x9);
+            canvas_draw_icon_ex(canvas, 116, 17, &I_Pin_arrow_up_7x9, IconRotation180);
             break;
         case 3:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
-            canvas_draw_icon(canvas, 115, 18, &I_Pin_arrow_right_9x7);
+            canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation90);
             break;
         case 4:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
-            canvas_draw_icon(canvas, 115, 18, &I_Pin_arrow_left_9x7);
+            canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation270);
             break;
         case 5:
             canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
