@@ -53,8 +53,8 @@ void furi_hal_gpio_init(
     const GpioPull pull,
     const GpioSpeed speed) {
     // we cannot set alternate mode in this function
-    furi_check(mode != GpioModeAltFunctionPushPull);
-    furi_check(mode != GpioModeAltFunctionOpenDrain);
+    furi_assert(mode != GpioModeAltFunctionPushPull);
+    furi_assert(mode != GpioModeAltFunctionOpenDrain);
 
     furi_hal_gpio_init_ex(gpio, mode, pull, speed, GpioAltFnUnused);
 }
@@ -178,7 +178,7 @@ void furi_hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, vo
 
     FURI_CRITICAL_ENTER();
     uint8_t pin_num = furi_hal_gpio_get_pin_num(gpio);
-    furi_check(gpio_interrupt[pin_num].callback == NULL);
+    furi_assert(gpio_interrupt[pin_num].callback == NULL);
     gpio_interrupt[pin_num].callback = cb;
     gpio_interrupt[pin_num].context = ctx;
     gpio_interrupt[pin_num].ready = true;
