@@ -338,12 +338,12 @@ static void avr_isp_worker_rw_get_dump_flash(AvrIspWorkerRW* instance, const cha
             sizeof(data));
         flipper_i32hex_file_bin_to_i32hex_set_data(
             flipper_hex_flash, data, avr_isp_chip_arr[instance->chip_arr_ind].pagesize);
-        //FURI_LOG_D(TAG, "%s", flipper_i32hex_file_get_string(flipper_hex_flash));
+        FURI_LOG_D(TAG, "%s", flipper_i32hex_file_get_string(flipper_hex_flash));
         instance->progress_flash =
             (float)(i) / ((float)avr_isp_chip_arr[instance->chip_arr_ind].flashsize / 2.0f);
     }
     flipper_i32hex_file_bin_to_i32hex_set_end_line(flipper_hex_flash);
-    //FURI_LOG_D(TAG, "%s", flipper_i32hex_file_get_string(flipper_hex_flash));
+    FURI_LOG_D(TAG, "%s", flipper_i32hex_file_get_string(flipper_hex_flash));
     flipper_i32hex_file_close(flipper_hex_flash);
     instance->progress_flash = 1.0f;
 }

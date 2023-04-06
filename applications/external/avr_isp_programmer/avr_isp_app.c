@@ -21,13 +21,6 @@ static void avr_isp_app_tick_event_callback(void* context) {
 AvrIspApp* avr_isp_app_alloc() {
     AvrIspApp* app = malloc(sizeof(AvrIspApp));
 
-    // Enable 5v power, multiple attempts to avoid issues with power chip protection false triggering
-    uint8_t attempts = 0;
-    while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
-        furi_hal_power_enable_otg();
-        furi_delay_ms(10);
-    }
-
     app->file_path = furi_string_alloc();
     furi_string_set(app->file_path, STORAGE_APP_DATA_PATH_PREFIX);
     app->error = AvrIspErrorNoError;
@@ -102,6 +95,13 @@ AvrIspApp* avr_isp_app_alloc() {
         AvrIspViewChipDetect,
         avr_isp_chip_detect_view_get_view(app->avr_isp_chip_detect_view));
 
+    // Enable 5v power, multiple attempts to avoid issues with power chip protection false triggering
+    uint8_t attempts = 0;
+    while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
+        furi_hal_power_enable_otg();
+        furi_delay_ms(10);
+    }
+
     scene_manager_next_scene(app->scene_manager, AvrIspSceneStart);
 
     return app;
@@ -109,6 +109,11 @@ AvrIspApp* avr_isp_app_alloc() {
 
 void avr_isp_app_free(AvrIspApp* app) {
     furi_assert(app);
+
+    // Disable 5v power
+    if(furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_disable_otg();
+    }
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, AvrIspViewSubmenu);
@@ -158,11 +163,6 @@ void avr_isp_app_free(AvrIspApp* app) {
 
     // Path strings
     furi_string_free(app->file_path);
-
-    // Disable 5v power
-    if(furi_hal_power_is_otg_enabled()) {
-        furi_hal_power_disable_otg();
-    }
 
     free(app);
 }
