@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,20.0,,
+Version,+,20.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -540,6 +540,7 @@ Function,+,canvas_draw_frame,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,canvas_draw_glyph,void,"Canvas*, uint8_t, uint8_t, uint16_t"
 Function,+,canvas_draw_icon,void,"Canvas*, uint8_t, uint8_t, const Icon*"
 Function,+,canvas_draw_icon_animation,void,"Canvas*, uint8_t, uint8_t, IconAnimation*"
+Function,+,canvas_draw_icon_ex,void,"Canvas*, uint8_t, uint8_t, const Icon*, IconRotation"
 Function,+,canvas_draw_line,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,canvas_draw_rbox,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,canvas_draw_rframe,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t"
@@ -876,12 +877,6 @@ Function,-,furi_hal_clock_resume_tick,void,
 Function,-,furi_hal_clock_suspend_tick,void,
 Function,-,furi_hal_clock_switch_to_hsi,void,
 Function,-,furi_hal_clock_switch_to_pll,void,
-Function,-,compress_alloc,Compress*,uint16_t
-Function,-,compress_decode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
-Function,-,compress_encode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
-Function,-,compress_free,void,Compress*
-Function,-,compress_icon_decode,void,"const uint8_t*, uint8_t**"
-Function,-,compress_icon_init,void,
 Function,+,furi_hal_console_disable,void,
 Function,+,furi_hal_console_enable,void,
 Function,+,furi_hal_console_init,void,

@@ -558,7 +558,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                    subghz,
                    "AM650",
                    433920000,
-                   (key & 0x00FFFFFF) | 0x04000000,
+                   (key & 0x000FFFFF) | 0x04700000,
                    0x2,
                    0x0021,
                    "AN-Motors")) {

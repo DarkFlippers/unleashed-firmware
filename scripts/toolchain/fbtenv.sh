@@ -4,9 +4,15 @@
 
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
-SCRIPT_PATH="${SCRIPT_PATH:-$DEFAULT_SCRIPT_PATH}";
 FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"21"}";
-FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
+
+if [ -z ${FBT_TOOLCHAIN_PATH+x} ] ; then
+    FBT_TOOLCHAIN_PATH_WAS_SET=0;
+else
+    FBT_TOOLCHAIN_PATH_WAS_SET=1;
+fi
+
+FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$DEFAULT_SCRIPT_PATH}";
 FBT_VERBOSE="${FBT_VERBOSE:-""}";
 
 fbtenv_show_usage()
@@ -60,7 +66,6 @@ fbtenv_restore_env()
     unset SAVED_PYTHONPATH;
     unset SAVED_PYTHONHOME;
 
-    unset SCRIPT_PATH;
     unset FBT_TOOLCHAIN_VERSION;
     unset FBT_TOOLCHAIN_PATH;
 }
@@ -104,13 +109,14 @@ fbtenv_set_shell_prompt()
     return 0;  # all other shells
 }
 
-fbtenv_check_script_path()
+fbtenv_check_env_vars()
 {
-    if [ ! -x "$SCRIPT_PATH/fbt" ] && [ ! -x "$SCRIPT_PATH/ufbt" ] ; then
-        echo "Please source this script from [u]fbt root directory, or specify 'SCRIPT_PATH' variable manually";
+    # Return error if FBT_TOOLCHAIN_PATH is not set before script is sourced or if fbt executable is not in DEFAULT_SCRIPT_PATH
+    if [ "$FBT_TOOLCHAIN_PATH_WAS_SET" -eq 0 ] && [ ! -x "$DEFAULT_SCRIPT_PATH/fbt" ] && [ ! -x "$DEFAULT_SCRIPT_PATH/ufbt" ] ; then
+        echo "Please source this script from [u]fbt root directory, or specify 'FBT_TOOLCHAIN_PATH' variable manually";
         echo "Example:";
-        printf "\tSCRIPT_PATH=lang/c/flipperzero-firmware source lang/c/flipperzero-firmware/scripts/fbtenv.sh\n";
-        echo "If current directory is right, type 'unset SCRIPT_PATH' and try again"
+        printf "\tFBT_TOOLCHAIN_PATH=lang/c/flipperzero-firmware source lang/c/flipperzero-firmware/scripts/fbtenv.sh\n";
+        echo "If current directory is right, type 'unset FBT_TOOLCHAIN_PATH' and try again"
         return 1;
     fi
     return 0;
@@ -217,7 +223,7 @@ fbtenv_show_unpack_percentage()
 
 fbtenv_unpack_toolchain()
 {
-    echo "Unpacking toolchain:";
+    echo "Unpacking toolchain to '$FBT_TOOLCHAIN_PATH/toolchain':";
     tar -xvf "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" -C "$FBT_TOOLCHAIN_PATH/toolchain" 2>&1 | fbtenv_show_unpack_percentage;
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
     mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_DIR" "$TOOLCHAIN_ARCH_DIR" || return 1;
@@ -225,7 +231,7 @@ fbtenv_unpack_toolchain()
     return 0;
 }
 
-fbtenv_clearing()
+fbtenv_cleanup()
 {
     printf "Cleaning up..";
     if [ -n "${FBT_TOOLCHAIN_PATH:-""}" ]; then
@@ -280,14 +286,14 @@ fbtenv_download_toolchain()
     fbtenv_check_tar || return 1;
     TOOLCHAIN_TAR="$(basename "$TOOLCHAIN_URL")";
     TOOLCHAIN_DIR="$(echo "$TOOLCHAIN_TAR" | sed "s/-$FBT_TOOLCHAIN_VERSION.tar.gz//g")";
-    trap fbtenv_clearing 2;  # trap will be restored in fbtenv_clearing
+    trap fbtenv_cleanup 2;  # trap will be restored in fbtenv_cleanup
     if ! fbtenv_check_downloaded_toolchain; then
         fbtenv_curl_wget_check || return 1;
         fbtenv_download_toolchain_tar || return 1;
     fi
     fbtenv_remove_old_tooclhain;
     fbtenv_unpack_toolchain || return 1;
-    fbtenv_clearing;
+    fbtenv_cleanup;
     return 0;
 }
 
@@ -306,8 +312,8 @@ fbtenv_main()
         fbtenv_restore_env;
         return 0;
     fi
-    fbtenv_check_if_sourced_multiple_times;  # many source it's just a warning
-    fbtenv_check_script_path || return 1;
+    fbtenv_check_if_sourced_multiple_times;
+    fbtenv_check_env_vars || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
     fbtenv_print_version;

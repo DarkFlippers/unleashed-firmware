@@ -31,9 +31,10 @@ def parse_args():
 
 def get_commit_json(event):
     context = ssl._create_unverified_context()
-    with urllib.request.urlopen(
-        event["pull_request"]["_links"]["commits"]["href"], context=context
-    ) as commit_file:
+    commit_url = event["pull_request"]["base"]["repo"]["commits_url"].replace(
+        "{/sha}", f"/{event['after']}"
+    )
+    with urllib.request.urlopen(commit_url, context=context) as commit_file:
         commit_json = json.loads(commit_file.read().decode("utf-8"))
     return commit_json
 
@@ -43,8 +44,8 @@ def get_details(event, args):
     current_time = datetime.datetime.utcnow().date()
     if args.type == "pull":
         commit_json = get_commit_json(event)
-        data["commit_comment"] = shlex.quote(commit_json[-1]["commit"]["message"])
-        data["commit_hash"] = commit_json[-1]["sha"]
+        data["commit_comment"] = shlex.quote(commit_json["commit"]["message"])
+        data["commit_hash"] = commit_json["sha"]
         ref = event["pull_request"]["head"]["ref"]
         data["pull_id"] = event["pull_request"]["number"]
         data["pull_name"] = shlex.quote(event["pull_request"]["title"])

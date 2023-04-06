@@ -73,6 +73,7 @@ struct SubGhzTxRx {
     SubGhzTxRxState txrx_state;
     SubGhzHopperState hopper_state;
     SubGhzSpeakerState speaker_state;
+    SubGhzStarLineIgnoreState starline_state;
     uint8_t hopper_timeout;
     uint8_t hopper_idx_frequency;
     SubGhzRxKeyState rx_key_state;

@@ -6,13 +6,13 @@
 #include "../../constants.h"
 #include "../../scene_director.h"
 #include "../../../services/config/config.h"
-#include "../../../lib/list/list.h"
+#include <linked_list.h>
 #include "../../../types/token_info.h"
 #include "../generate_token/totp_scene_generate_token.h"
 #include "../add_new_token/totp_scene_add_new_token.h"
 #include "../app_settings/totp_app_settings.h"
 #include "../../../types/nullable.h"
-#include "../../../lib/roll_value/roll_value.h"
+#include <roll_value.h>
 
 #define SCREEN_HEIGHT_THIRD (SCREEN_HEIGHT / 3)
 #define SCREEN_HEIGHT_THIRD_CENTER (SCREEN_HEIGHT_THIRD >> 1)

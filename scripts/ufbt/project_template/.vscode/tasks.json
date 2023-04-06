@@ -1,0 +1,54 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "PATH": "${workspaceFolder}@UFBT_VSCODE_PATH_SEP@${env:PATH}@UFBT_VSCODE_PATH_SEP@@UFBT_ROOT_DIR@"
+        }
+    },
+    "tasks": [
+        {
+            "label": "Launch App on Flipper",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt launch"
+        },
+        {
+            "label": "Build",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt"
+        },
+        {
+            "label": "Flash FW (ST-Link)",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt FORCE=1 flash"
+        },
+        // {
+        //     "label": "[NOTIMPL] Flash FW (blackmagic)",
+        //     "group": "build",
+        //     "type": "shell",
+        //     "command": "ufbt flash_blackmagic"
+        // },
+        // {
+        //     "label": "[NOTIMPL] Flash FW (JLink)",
+        //     "group": "build",
+        //     "type": "shell",
+        //     "command": "ufbt FORCE=1 jflash"
+        // },
+        {
+            "label": "Flash FW (USB, with resources)",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt FORCE=1 flash_usb"
+        },
+        {
+            "label": "Update uFBT SDK",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt update"
+        }
+    ]
+}

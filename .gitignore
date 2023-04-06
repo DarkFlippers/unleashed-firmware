@@ -61,5 +61,6 @@ openocd.log
 # PVS Studio temporary files
 .PVS-Studio/
 PVS-Studio.log
+*.PVS-Studio.*
 
 .gdbinit

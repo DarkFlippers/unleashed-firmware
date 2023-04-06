@@ -1,4 +1,4 @@
-#include "list.h"
+#include "linked_list.h"
 
 ListNode* list_init_head(void* data) {
     ListNode* new = malloc(sizeof(ListNode));

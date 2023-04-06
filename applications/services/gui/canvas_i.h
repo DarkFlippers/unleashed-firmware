@@ -83,6 +83,25 @@ void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation);
  */
 CanvasOrientation canvas_get_orientation(const Canvas* canvas);
 
+/** Draw a u8g2 bitmap
+ *
+ * @param      canvas   Canvas instance
+ * @param      x        x coordinate
+ * @param      y        y coordinate
+ * @param      width    width
+ * @param      height   height
+ * @param      bitmap   bitmap
+ * @param      rotation rotation
+ */
+void canvas_draw_u8g2_bitmap(
+    u8g2_t* u8g2,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    const uint8_t* bitmap,
+    uint8_t rotation);
+
 #ifdef __cplusplus
 }
 #endif

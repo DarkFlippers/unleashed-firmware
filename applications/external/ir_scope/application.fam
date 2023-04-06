@@ -1,0 +1,11 @@
+App(
+    appid="ir_scope",
+    name="IR Scope",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ir_scope_app",
+    cdefines=["APP_IR_SCOPE"],
+    requires=["gui"],
+    stack_size=2 * 1024,
+    fap_icon="ir_scope.png",
+    fap_category="Tools",
+)

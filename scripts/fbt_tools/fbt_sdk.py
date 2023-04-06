@@ -38,13 +38,13 @@ def ProcessSdkDepends(env, filename):
     return depends
 
 
-def prebuild_sdk_emitter(target, source, env):
+def api_amalgam_emitter(target, source, env):
     target.append(env.ChangeFileExtension(target[0], ".d"))
     target.append(env.ChangeFileExtension(target[0], ".i.c"))
     return target, source
 
 
-def prebuild_sdk_create_origin_file(target, source, env):
+def api_amalgam_gen_origin_header(target, source, env):
     mega_file = env.subst("${TARGET}.c", target=target[0])
     with open(mega_file, "wt") as sdk_c:
         sdk_c.write(
@@ -87,6 +87,7 @@ class SdkMeta:
 class SdkTreeBuilder:
     SDK_DIR_SUBST = "SDK_ROOT_DIR"
     SDK_APP_EP_SUBST = "SDK_APP_EP_SUBST"
+    HEADER_EXTENSIONS = [".h", ".hpp"]
 
     def __init__(self, env, target, source) -> None:
         self.env = env
@@ -111,7 +112,10 @@ class SdkTreeBuilder:
             lines = LogicalLines(deps_f).readlines()
             _, depends = lines[0].split(":", 1)
             self.header_depends = list(
-                filter(lambda fname: fname.endswith(".h"), depends.split()),
+                filter(
+                    lambda fname: any(map(fname.endswith, self.HEADER_EXTENSIONS)),
+                    depends.split(),
+                ),
             )
             self.header_depends.append(self.sdk_env.subst("${LINKER_SCRIPT_PATH}"))
             self.header_depends.append(self.sdk_env.subst("${SDK_DEFINITION}"))
@@ -180,12 +184,12 @@ class SdkTreeBuilder:
         self._generate_sdk_meta()
 
 
-def deploy_sdk_tree_action(target, source, env):
+def deploy_sdk_header_tree_action(target, source, env):
     sdk_tree = SdkTreeBuilder(env, target, source)
     return sdk_tree.deploy_action()
 
 
-def deploy_sdk_tree_emitter(target, source, env):
+def deploy_sdk_header_tree_emitter(target, source, env):
     sdk_tree = SdkTreeBuilder(env, target, source)
     return sdk_tree.emitter(target, source, env)
 
@@ -224,7 +228,7 @@ def _check_sdk_is_up2date(sdk_cache: SdkCache):
         )
 
 
-def validate_sdk_cache(source, target, env):
+def validate_api_cache(source, target, env):
     # print(f"Generating SDK for {source[0]} to {target[0]}")
     current_sdk = SdkCollector()
     current_sdk.process_source_file_for_sdk(source[0].path)
@@ -237,7 +241,7 @@ def validate_sdk_cache(source, target, env):
     _check_sdk_is_up2date(sdk_cache)
 
 
-def generate_sdk_symbols(source, target, env):
+def generate_api_table(source, target, env):
     sdk_cache = SdkCache(source[0].path)
     _check_sdk_is_up2date(sdk_cache)
 
@@ -249,11 +253,11 @@ def generate_sdk_symbols(source, target, env):
 def generate(env, **kw):
     if not env["VERBOSE"]:
         env.SetDefault(
-            SDK_PREGEN_COMSTR="\tPREGEN\t${TARGET}",
-            SDK_COMSTR="\tSDKSRC\t${TARGET}",
+            SDK_AMALGAMATE_HEADER_COMSTR="\tAPIPREP\t${TARGET}",
+            SDK_AMALGAMATE_PP_COMSTR="\tAPIPP\t${TARGET}",
             SDKSYM_UPDATER_COMSTR="\tSDKCHK\t${TARGET}",
-            SDKSYM_GENERATOR_COMSTR="\tSDKSYM\t${TARGET}",
-            SDKDEPLOY_COMSTR="\tSDKTREE\t${TARGET}",
+            APITABLE_GENERATOR_COMSTR="\tAPITBL\t${TARGET}",
+            SDKTREE_COMSTR="\tSDKTREE\t${TARGET}",
         )
 
     # Filtering out things cxxheaderparser cannot handle
@@ -274,40 +278,40 @@ def generate(env, **kw):
     env.AddMethod(ProcessSdkDepends)
     env.Append(
         BUILDERS={
-            "SDKPrebuilder": Builder(
-                emitter=prebuild_sdk_emitter,
+            "ApiAmalgamator": Builder(
+                emitter=api_amalgam_emitter,
                 action=[
                     Action(
-                        prebuild_sdk_create_origin_file,
-                        "$SDK_PREGEN_COMSTR",
+                        api_amalgam_gen_origin_header,
+                        "$SDK_AMALGAMATE_HEADER_COMSTR",
                     ),
                     Action(
                         "$CC -o $TARGET -E -P $CCFLAGS $_CCCOMCOM $SDK_PP_FLAGS -MMD ${TARGET}.c",
-                        "$SDK_COMSTR",
+                        "$SDK_AMALGAMATE_PP_COMSTR",
                     ),
                 ],
                 suffix=".i",
             ),
-            "SDKTree": Builder(
+            "SDKHeaderTreeExtractor": Builder(
                 action=Action(
-                    deploy_sdk_tree_action,
-                    "$SDKDEPLOY_COMSTR",
+                    deploy_sdk_header_tree_action,
+                    "$SDKTREE_COMSTR",
                 ),
-                emitter=deploy_sdk_tree_emitter,
+                emitter=deploy_sdk_header_tree_emitter,
                 src_suffix=".d",
             ),
-            "SDKSymUpdater": Builder(
+            "ApiTableValidator": Builder(
                 action=Action(
-                    validate_sdk_cache,
+                    validate_api_cache,
                     "$SDKSYM_UPDATER_COMSTR",
                 ),
                 suffix=".csv",
                 src_suffix=".i",
             ),
-            "SDKSymGenerator": Builder(
+            "ApiSymbolTable": Builder(
                 action=Action(
-                    generate_sdk_symbols,
-                    "$SDKSYM_GENERATOR_COMSTR",
+                    generate_api_table,
+                    "$APITABLE_GENERATOR_COMSTR",
                 ),
                 suffix=".h",
                 src_suffix=".csv",

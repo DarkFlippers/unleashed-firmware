@@ -31,6 +31,7 @@ const UART_TerminalItem items[NUM_MENU_ITEMS] = {
      FOCUS_CONSOLE_TOGGLE,
      NO_TIP},
     {"Send command", {""}, 1, {""}, INPUT_ARGS, FOCUS_CONSOLE_END, NO_TIP},
+    {"Send AT command", {""}, 1, {"AT"}, INPUT_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Fast cmd",
      {"help", "uptime", "date", "df -h", "ps", "dmesg", "reboot", "poweroff"},
      8,

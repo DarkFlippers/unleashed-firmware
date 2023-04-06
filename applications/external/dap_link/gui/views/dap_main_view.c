@@ -51,10 +51,10 @@ static void dap_main_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_color(canvas, ColorBlack);
     if(model->dap_active) {
         canvas_draw_icon(canvas, 14, 16, &I_ArrowUpFilled_12x18);
-        canvas_draw_icon(canvas, 28, 16, &I_ArrowDownFilled_12x18);
+        canvas_draw_icon_ex(canvas, 28, 16, &I_ArrowUpFilled_12x18, IconRotation180);
     } else {
         canvas_draw_icon(canvas, 14, 16, &I_ArrowUpEmpty_12x18);
-        canvas_draw_icon(canvas, 28, 16, &I_ArrowDownEmpty_12x18);
+        canvas_draw_icon_ex(canvas, 28, 16, &I_ArrowUpEmpty_12x18, IconRotation180);
     }
 
     switch(model->mode) {
@@ -76,9 +76,9 @@ static void dap_main_view_draw_callback(Canvas* canvas, void* _model) {
     }
 
     if(model->rx_active) {
-        canvas_draw_icon(canvas, 101, 16, &I_ArrowDownFilled_12x18);
+        canvas_draw_icon_ex(canvas, 101, 16, &I_ArrowUpFilled_12x18, IconRotation180);
     } else {
-        canvas_draw_icon(canvas, 101, 16, &I_ArrowDownEmpty_12x18);
+        canvas_draw_icon_ex(canvas, 101, 16, &I_ArrowUpEmpty_12x18, IconRotation180);
     }
 
     canvas_draw_str_aligned(canvas, 100, 38, AlignCenter, AlignTop, "UART");

@@ -1,6 +1,6 @@
 from SCons.Builder import Builder
 from SCons.Action import Action
-from SCons.Errors import SConsEnvironmentError
+from SCons.Errors import StopError
 
 import os
 import subprocess
@@ -90,7 +90,7 @@ def proto_ver_generator(target, source, env):
             source_dir=src_dir,
         )
     except (subprocess.CalledProcessError, EnvironmentError) as e:
-        raise SConsEnvironmentError("Git: describe failed")
+        raise StopError("Git: describe failed")
 
     git_major, git_minor = git_describe.split(".")
     version_file_data = (

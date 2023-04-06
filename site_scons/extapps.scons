@@ -112,86 +112,47 @@ Alias(
 
 extapps.resources_dist = appenv.FapDist(appenv["RESOURCES_ROOT"], [])
 
+
 if appsrc := appenv.subst("$APPSRC"):
-    deploy_sources, flipp_dist_paths, validators = [], [], []
-    run_script_extra_ars = ""
+    appenv.AddAppLaunchTarget(appsrc, "launch_app")
 
-    def _add_dist_targets(app_artifacts):
-        validators.append(app_artifacts.validator)
-        for _, ext_path in app_artifacts.dist_entries:
-            deploy_sources.append(app_artifacts.compact)
-            flipp_dist_paths.append(f"/ext/{ext_path}")
-        return app_artifacts
-
-    def _add_host_app_to_targets(host_app):
-        artifacts_app_to_run = appenv["EXT_APPS"].get(host_app.appid, None)
-        _add_dist_targets(artifacts_app_to_run)
-        for plugin in host_app._plugins:
-            _add_dist_targets(appenv["EXT_APPS"].get(plugin.appid, None))
-
-    artifacts_app_to_run = appenv.GetExtAppByIdOrPath(appsrc)
-    if artifacts_app_to_run.app.apptype == FlipperAppType.PLUGIN:
-        # We deploy host app instead
-        host_app = appenv["APPMGR"].get(artifacts_app_to_run.app.requires[0])
-
-        if host_app:
-            if host_app.apptype == FlipperAppType.EXTERNAL:
-                _add_host_app_to_targets(host_app)
-            else:
-                # host app is a built-in app
-                run_script_extra_ars = f"-a {host_app.name}"
-                _add_dist_targets(artifacts_app_to_run)
-        else:
-            raise UserError("Host app is unknown")
-    else:
-        _add_host_app_to_targets(artifacts_app_to_run.app)
-
-    # print(deploy_sources, flipp_dist_paths)
-    appenv.PhonyTarget(
-        "launch_app",
-        '${PYTHON3} "${APP_RUN_SCRIPT}" ${EXTRA_ARGS} -s ${SOURCES} -t ${FLIPPER_FILE_TARGETS}',
-        source=deploy_sources,
-        FLIPPER_FILE_TARGETS=flipp_dist_paths,
-        EXTRA_ARGS=run_script_extra_ars,
-    )
-    appenv.Alias("launch_app", validators)
 
 # SDK management
 
-sdk_origin_path = "${BUILD_DIR}/sdk_origin"
-sdk_source = appenv.SDKPrebuilder(
-    sdk_origin_path,
+amalgamated_api = "${BUILD_DIR}/sdk_origin"
+sdk_source = appenv.ApiAmalgamator(
+    amalgamated_api,
     # Deps on root SDK headers and generated files
     (appenv["SDK_HEADERS"], appenv["FW_ASSETS_HEADERS"]),
 )
 # Extra deps on headers included in deeper levels
 # Available on second and subsequent builds
-Depends(sdk_source, appenv.ProcessSdkDepends(f"{sdk_origin_path}.d"))
+Depends(sdk_source, appenv.ProcessSdkDepends(f"{amalgamated_api}.d"))
 
-appenv["SDK_DIR"] = appenv.Dir("${BUILD_DIR}/sdk")
-sdk_tree = appenv.SDKTree(appenv["SDK_DIR"], sdk_origin_path)
+appenv["SDK_DIR"] = appenv.Dir("${BUILD_DIR}/sdk_headers")
+sdk_header_tree = appenv.SDKHeaderTreeExtractor(appenv["SDK_DIR"], amalgamated_api)
 # AlwaysBuild(sdk_tree)
-Alias("sdk_tree", sdk_tree)
-extapps.sdk_tree = sdk_tree
+Alias("sdk_tree", sdk_header_tree)
+extapps.sdk_tree = sdk_header_tree
 
-sdk_apicheck = appenv.SDKSymUpdater(appenv["SDK_DEFINITION"], sdk_origin_path)
-Precious(sdk_apicheck)
-NoClean(sdk_apicheck)
-AlwaysBuild(sdk_apicheck)
-Alias("sdk_check", sdk_apicheck)
+api_check = appenv.ApiTableValidator(appenv["SDK_DEFINITION"], amalgamated_api)
+Precious(api_check)
+NoClean(api_check)
+AlwaysBuild(api_check)
+Alias("api_check", api_check)
 
-sdk_apisyms = appenv.SDKSymGenerator(
-    "${BUILD_DIR}/assets/compiled/symbols.h", appenv["SDK_DEFINITION"]
+firmware_apitable = appenv.ApiSymbolTable(
+    "${BUILD_DIR}/assets/compiled/firmware_api_table.h", appenv["SDK_DEFINITION"]
 )
-Alias("api_syms", sdk_apisyms)
+Alias("api_table", firmware_apitable)
 ENV.Replace(
-    SDK_APISYMS=sdk_apisyms,
+    FW_API_TABLE=firmware_apitable,
     _APP_ICONS=appenv["_APP_ICONS"],
 )
 
 
 if appenv["FORCE"]:
-    appenv.AlwaysBuild(sdk_source, sdk_tree, sdk_apicheck, sdk_apisyms)
+    appenv.AlwaysBuild(sdk_source, sdk_header_tree, api_check, firmware_apitable)
 
 
 Return("extapps")

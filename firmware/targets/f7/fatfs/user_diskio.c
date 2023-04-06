@@ -2,16 +2,14 @@
 #include <furi_hal.h>
 #include "sector_cache.h"
 
-static volatile DSTATUS Stat = STA_NOINIT;
-
 static DSTATUS driver_check_status(BYTE lun) {
     UNUSED(lun);
-    Stat = STA_NOINIT;
-    if(sd_get_card_state() == SdSpiStatusOK) {
-        Stat &= ~STA_NOINIT;
+    DSTATUS status = 0;
+    if(sd_get_card_state() != SdSpiStatusOK) {
+        status = STA_NOINIT;
     }
 
-    return Stat;
+    return status;
 }
 
 static DSTATUS driver_initialize(BYTE pdrv);
@@ -107,6 +105,16 @@ static bool sd_device_write(uint32_t* buff, uint32_t sector, uint32_t count) {
   * @retval DSTATUS: Operation status
   */
 static DSTATUS driver_initialize(BYTE pdrv) {
+    UNUSED(pdrv);
+    return RES_OK;
+}
+
+/**
+  * @brief  Gets Disk Status 
+  * @param  pdrv: Physical drive number (0..)
+  * @retval DSTATUS: Operation status
+  */
+static DSTATUS driver_status(BYTE pdrv) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
 
@@ -116,16 +124,6 @@ static DSTATUS driver_initialize(BYTE pdrv) {
     furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_fast);
 
     return status;
-}
-
-/**
-  * @brief  Gets Disk Status 
-  * @param  pdrv: Physical drive number (0..)
-  * @retval DSTATUS: Operation status
-  */
-static DSTATUS driver_status(BYTE pdrv) {
-    UNUSED(pdrv);
-    return Stat;
 }
 
 /**
@@ -224,14 +222,14 @@ static DRESULT driver_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT coun
   * @retval DRESULT: Operation result
   */
 static DRESULT driver_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
-    UNUSED(pdrv);
     DRESULT res = RES_ERROR;
     SD_CardInfo CardInfo;
 
-    if(Stat & STA_NOINIT) return RES_NOTRDY;
-
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_fast;
+
+    DSTATUS status = driver_check_status(pdrv);
+    if(status & STA_NOINIT) return RES_NOTRDY;
 
     switch(cmd) {
     /* Make sure that no pending write process */

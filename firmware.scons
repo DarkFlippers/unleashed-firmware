@@ -68,7 +68,7 @@ env = ENV.Clone(
             ],
         },
     },
-    SDK_APISYMS=None,
+    FW_API_TABLE=None,
     _APP_ICONS=None,
 )
 
@@ -241,7 +241,7 @@ Depends(
     [
         fwenv["FW_VERSION_JSON"],
         fwenv["FW_ASSETS_HEADERS"],
-        fwenv["SDK_APISYMS"],
+        fwenv["FW_API_TABLE"],
         fwenv["_APP_ICONS"],
     ],
 )

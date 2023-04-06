@@ -19,7 +19,9 @@
 #ifdef TOTP_BADBT_TYPE_ENABLED
 #include "../../../workers/bt_type_code/bt_type_code.h"
 #endif
+#include "../../fonts/mode-nine/mode_nine.h"
 
+static const char* STEAM_ALGO_ALPHABET = "23456789BCDFGHJKMNPQRTVWXY";
 static const uint8_t PROGRESS_BAR_MARGIN = 3;
 static const uint8_t PROGRESS_BAR_HEIGHT = 4;
 
@@ -121,13 +123,21 @@ static const NotificationSequence*
     return (NotificationSequence*)scene_state->notification_sequence_badusb;
 }
 
-static void int_token_to_str(uint32_t i_token_code, char* str, TokenDigitsCount len) {
+static void
+    int_token_to_str(uint64_t i_token_code, char* str, TokenDigitsCount len, TokenHashAlgo algo) {
     if(i_token_code == OTP_ERROR) {
         memset(&str[0], '-', len);
     } else {
-        for(int i = len - 1; i >= 0; i--) {
-            str[i] = CONVERT_DIGIT_TO_CHAR(i_token_code % 10);
-            i_token_code = i_token_code / 10;
+        if(algo == STEAM) {
+            for(uint8_t i = 0; i < len; i++) {
+                str[i] = STEAM_ALGO_ALPHABET[i_token_code % 26];
+                i_token_code = i_token_code / 26;
+            }
+        } else {
+            for(int8_t i = len - 1; i >= 0; i--) {
+                str[i] = CONVERT_DIGIT_TO_CHAR(i_token_code % 10);
+                i_token_code = i_token_code / 10;
+            }
         }
     }
 
@@ -137,6 +147,7 @@ static void int_token_to_str(uint32_t i_token_code, char* str, TokenDigitsCount 
 static TOTP_ALGO get_totp_algo_impl(TokenHashAlgo algo) {
     switch(algo) {
     case SHA1:
+    case STEAM:
         return TOTP_ALGO_SHA1;
     case SHA256:
         return TOTP_ALGO_SHA256;
@@ -158,6 +169,27 @@ static void update_totp_params(PluginState* const plugin_state) {
 
         scene_state->need_token_update = true;
         scene_state->current_token = tokenInfo;
+    }
+}
+
+static void draw_totp_code(Canvas* const canvas, const SceneState* const scene_state) {
+    uint8_t code_length = scene_state->current_token->digits;
+    uint8_t char_width = modeNine_15ptFontInfo.charInfo[0].width;
+    uint8_t total_length = code_length * (char_width + modeNine_15ptFontInfo.spacePixels);
+    uint8_t offset_x = (SCREEN_WIDTH - total_length) >> 1;
+    uint8_t offset_y = SCREEN_HEIGHT_CENTER - (modeNine_15ptFontInfo.height >> 1);
+    for(uint8_t i = 0; i < code_length; i++) {
+        char ch = scene_state->last_code[i];
+        uint8_t char_index = ch - modeNine_15ptFontInfo.startChar;
+        canvas_draw_xbm(
+            canvas,
+            offset_x,
+            offset_y,
+            char_width,
+            modeNine_15ptFontInfo.height,
+            &modeNine_15ptFontInfo.data[modeNine_15ptFontInfo.charInfo[char_index].offset]);
+
+        offset_x += char_width + modeNine_15ptFontInfo.spacePixels;
     }
 }
 
@@ -274,19 +306,19 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             int_token_to_str(
                 totp_at(
                     get_totp_algo_impl(tokenInfo->algo),
-                    tokenInfo->digits,
                     key,
                     key_length,
                     curr_ts,
                     plugin_state->timezone_offset,
                     tokenInfo->duration),
                 scene_state->last_code,
-                tokenInfo->digits);
+                tokenInfo->digits,
+                tokenInfo->algo);
             memset_s(key, key_length, 0, key_length);
             free(key);
         } else {
             furi_mutex_acquire(scene_state->last_code_update_sync, FuriWaitForever);
-            int_token_to_str(0, scene_state->last_code, tokenInfo->digits);
+            int_token_to_str(0, scene_state->last_code, tokenInfo->digits, tokenInfo->algo);
         }
 
         furi_mutex_release(scene_state->last_code_update_sync);
@@ -322,14 +354,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
         canvas_set_color(canvas, ColorBlack);
     }
 
-    canvas_set_font(canvas, FontBigNumbers);
-    canvas_draw_str_aligned(
-        canvas,
-        SCREEN_WIDTH_CENTER,
-        SCREEN_HEIGHT_CENTER,
-        AlignCenter,
-        AlignCenter,
-        scene_state->last_code);
+    draw_totp_code(canvas, scene_state);
 
     const uint8_t TOKEN_LIFETIME = scene_state->current_token->duration;
     float percentDone = (float)(TOKEN_LIFETIME - curr_ts % TOKEN_LIFETIME) / (float)TOKEN_LIFETIME;

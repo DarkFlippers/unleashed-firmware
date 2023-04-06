@@ -21,6 +21,10 @@ from fbt.sdk.cache import SdkCache
 from fbt.util import extract_abs_dir_path
 
 
+_FAP_META_SECTION = ".fapmeta"
+_FAP_FILEASSETS_SECTION = ".fapassets"
+
+
 @dataclass
 class FlipperExternalAppInfo:
     app: FlipperApplication
@@ -234,6 +238,8 @@ def BuildAppElf(env, app):
 
 
 def prepare_app_metadata(target, source, env):
+    metadata_node = next(filter(lambda t: t.name.endswith(_FAP_META_SECTION), target))
+
     sdk_cache = SdkCache(env["SDK_DEFINITION"].path, load_version_only=True)
 
     if not sdk_cache.is_buildable():
@@ -242,8 +248,7 @@ def prepare_app_metadata(target, source, env):
         )
 
     app = env["APP"]
-    meta_file_name = source[0].path + ".meta"
-    with open(meta_file_name, "wb") as f:
+    with open(metadata_node.abspath, "wb") as f:
         f.write(
             assemble_manifest_data(
                 app_manifest=app,
@@ -337,24 +342,26 @@ def embed_app_metadata_emitter(target, source, env):
     if app.apptype == FlipperAppType.PLUGIN:
         target[0].name = target[0].name.replace(".fap", ".fal")
 
-    meta_file_name = source[0].path + ".meta"
-    target.append("#" + meta_file_name)
+    target.append(env.File(source[0].abspath + _FAP_META_SECTION))
 
     if app.fap_file_assets:
-        files_section = source[0].path + ".files.section"
-        target.append("#" + files_section)
+        target.append(env.File(source[0].abspath + _FAP_FILEASSETS_SECTION))
 
     return (target, source)
 
 
 def prepare_app_files(target, source, env):
+    files_section_node = next(
+        filter(lambda t: t.name.endswith(_FAP_FILEASSETS_SECTION), target)
+    )
+
     app = env["APP"]
-    directory = app._appdir.Dir(app.fap_file_assets)
+    directory = env.Dir(app._apppath).Dir(app.fap_file_assets)
     if not directory.exists():
         raise UserError(f"File asset directory {directory} does not exist")
 
     bundler = FileBundler(directory.abspath)
-    bundler.export(source[0].path + ".files.section")
+    bundler.export(files_section_node.abspath)
 
 
 def generate_embed_app_metadata_actions(source, target, env, for_signature):
@@ -367,15 +374,15 @@ def generate_embed_app_metadata_actions(source, target, env, for_signature):
     objcopy_str = (
         "${OBJCOPY} "
         "--remove-section .ARM.attributes "
-        "--add-section .fapmeta=${SOURCE}.meta "
+        "--add-section ${_FAP_META_SECTION}=${SOURCE}${_FAP_META_SECTION} "
     )
 
     if app.fap_file_assets:
         actions.append(Action(prepare_app_files, "$APPFILE_COMSTR"))
-        objcopy_str += "--add-section .fapassets=${SOURCE}.files.section "
+        objcopy_str += "--add-section ${_FAP_FILEASSETS_SECTION}=${SOURCE}${_FAP_FILEASSETS_SECTION} "
 
     objcopy_str += (
-        "--set-section-flags .fapmeta=contents,noload,readonly,data "
+        "--set-section-flags ${_FAP_META_SECTION}=contents,noload,readonly,data "
         "--strip-debug --strip-unneeded "
         "--add-gnu-debuglink=${SOURCE} "
         "${SOURCES} ${TARGET}"
@@ -389,6 +396,51 @@ def generate_embed_app_metadata_actions(source, target, env, for_signature):
     )
 
     return Action(actions)
+
+
+def AddAppLaunchTarget(env, appname, launch_target_name):
+    deploy_sources, flipp_dist_paths, validators = [], [], []
+    run_script_extra_ars = ""
+
+    def _add_dist_targets(app_artifacts):
+        validators.append(app_artifacts.validator)
+        for _, ext_path in app_artifacts.dist_entries:
+            deploy_sources.append(app_artifacts.compact)
+            flipp_dist_paths.append(f"/ext/{ext_path}")
+        return app_artifacts
+
+    def _add_host_app_to_targets(host_app):
+        artifacts_app_to_run = env["EXT_APPS"].get(host_app.appid, None)
+        _add_dist_targets(artifacts_app_to_run)
+        for plugin in host_app._plugins:
+            _add_dist_targets(env["EXT_APPS"].get(plugin.appid, None))
+
+    artifacts_app_to_run = env.GetExtAppByIdOrPath(appname)
+    if artifacts_app_to_run.app.apptype == FlipperAppType.PLUGIN:
+        # We deploy host app instead
+        host_app = env["APPMGR"].get(artifacts_app_to_run.app.requires[0])
+
+        if host_app:
+            if host_app.apptype == FlipperAppType.EXTERNAL:
+                _add_host_app_to_targets(host_app)
+            else:
+                # host app is a built-in app
+                run_script_extra_ars = f"-a {host_app.name}"
+                _add_dist_targets(artifacts_app_to_run)
+        else:
+            raise UserError("Host app is unknown")
+    else:
+        _add_host_app_to_targets(artifacts_app_to_run.app)
+
+    # print(deploy_sources, flipp_dist_paths)
+    env.PhonyTarget(
+        launch_target_name,
+        '${PYTHON3} "${APP_RUN_SCRIPT}" ${EXTRA_ARGS} -s ${SOURCES} -t ${FLIPPER_FILE_TARGETS}',
+        source=deploy_sources,
+        FLIPPER_FILE_TARGETS=flipp_dist_paths,
+        EXTRA_ARGS=run_script_extra_ars,
+    )
+    env.Alias(launch_target_name, validators)
 
 
 def generate(env, **kw):
@@ -410,10 +462,14 @@ def generate(env, **kw):
         EXT_APPS={},  # appid -> FlipperExternalAppInfo
         EXT_LIBS={},
         _APP_ICONS=[],
+        _FAP_META_SECTION=_FAP_META_SECTION,
+        _FAP_FILEASSETS_SECTION=_FAP_FILEASSETS_SECTION,
     )
 
     env.AddMethod(BuildAppElf)
     env.AddMethod(GetExtAppByIdOrPath)
+    env.AddMethod(AddAppLaunchTarget)
+
     env.Append(
         BUILDERS={
             "FapDist": Builder(

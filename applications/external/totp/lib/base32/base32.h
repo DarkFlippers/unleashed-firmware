@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <stdlib.h>
 #include <stdint.h>
 
 /**
@@ -34,6 +35,6 @@
  * @param encoded Base-32 encoded bytes
  * @param[out] result result output buffer
  * @param bufSize result output buffer size
- * @return Decoded result length in bytes if successfully decoded; \c -1 otherwise
+ * @return Decoded result length in bytes if successfully decoded; \c 0 otherwise
  */
-int base32_decode(const uint8_t* encoded, uint8_t* result, int bufSize);
+size_t base32_decode(const uint8_t* encoded, uint8_t* result, size_t bufSize);

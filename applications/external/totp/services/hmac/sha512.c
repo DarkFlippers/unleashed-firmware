@@ -26,12 +26,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef WORDS_BIGENDIAN
-#define SWAP(n) (n)
-#else
 #include "byteswap.h"
+
 #define SWAP(n) swap_uint64(n)
-#endif
 
 /* This array contains the bytes used to pad the buffer to the next
    128-byte boundary.  */

@@ -369,7 +369,7 @@ steps:
     commands:
       - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
 
-  - name: "Send files to telegram"
+  - name: "Send message to telegram"
     image: appleboy/drone-telegram
     settings:
       token:
@@ -385,16 +385,24 @@ steps:
         Commit: https://github.com/DarkFlippers/unleashed-firmware/commit/{{commit.sha}}
 
 
-        Commit message: {{commit.message}}
-
 
         [-> Sponsor our project](https://boosty.to/mmxdev)
 
 
-        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}e)
+        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})
+        
 
+        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}e)"
 
-        [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})"
+  - name: "Send build to telegram"
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: tgtoken
+      to:
+        from_secret: tgid_dev
+      format: markdown
+      message: "Regular Build:"
       document:
         - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
 

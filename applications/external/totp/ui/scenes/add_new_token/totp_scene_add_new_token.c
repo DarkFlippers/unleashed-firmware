@@ -4,17 +4,17 @@
 #include "../../scene_director.h"
 #include "totp_input_text.h"
 #include "../../../types/token_info.h"
-#include "../../../lib/list/list.h"
+#include <linked_list.h>
 #include "../../../services/config/config.h"
 #include "../../ui_controls.h"
 #include "../../common_dialogs.h"
-#include "../../../lib/roll_value/roll_value.h"
+#include <roll_value.h>
 #include "../../../types/nullable.h"
 #include "../generate_token/totp_scene_generate_token.h"
 
-char* TOKEN_ALGO_LIST[] = {"SHA1", "SHA256", "SHA512"};
-char* TOKEN_DIGITS_TEXT_LIST[] = {"6 digits", "8 digits"};
-TokenDigitsCount TOKEN_DIGITS_VALUE_LIST[] = {TOTP_6_DIGITS, TOTP_8_DIGITS};
+char* TOKEN_ALGO_LIST[] = {"SHA1", "SHA256", "SHA512", "Steam"};
+char* TOKEN_DIGITS_TEXT_LIST[] = {"5 digits", "6 digits", "8 digits"};
+TokenDigitsCount TOKEN_DIGITS_VALUE_LIST[] = {TOTP_5_DIGITS, TOTP_6_DIGITS, TOTP_8_DIGITS};
 
 typedef enum {
     TokenNameTextBox,
@@ -94,6 +94,8 @@ void totp_scene_add_new_token_activate(
     scene_state->token_secret_input_context->callback = on_token_secret_user_comitted;
 
     scene_state->screen_y_offset = 0;
+
+    scene_state->digits_count_index = 1;
 
     scene_state->input_state = NULL;
     scene_state->duration = TOTP_TOKEN_DURATION_DEFAULT;
@@ -216,10 +218,10 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         break;
     case InputKeyRight:
         if(scene_state->selected_control == TokenAlgoSelect) {
-            totp_roll_value_uint8_t(&scene_state->algo, 1, SHA1, SHA512, RollOverflowBehaviorRoll);
+            totp_roll_value_uint8_t(&scene_state->algo, 1, SHA1, STEAM, RollOverflowBehaviorRoll);
         } else if(scene_state->selected_control == TokenLengthSelect) {
             totp_roll_value_uint8_t(
-                &scene_state->digits_count_index, 1, 0, 1, RollOverflowBehaviorRoll);
+                &scene_state->digits_count_index, 1, 0, 2, RollOverflowBehaviorRoll);
         } else if(scene_state->selected_control == TokenDurationSelect) {
             totp_roll_value_uint8_t(&scene_state->duration, 15, 15, 255, RollOverflowBehaviorStop);
             update_duration_text(scene_state);
@@ -227,11 +229,10 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         break;
     case InputKeyLeft:
         if(scene_state->selected_control == TokenAlgoSelect) {
-            totp_roll_value_uint8_t(
-                &scene_state->algo, -1, SHA1, SHA512, RollOverflowBehaviorRoll);
+            totp_roll_value_uint8_t(&scene_state->algo, -1, SHA1, STEAM, RollOverflowBehaviorRoll);
         } else if(scene_state->selected_control == TokenLengthSelect) {
             totp_roll_value_uint8_t(
-                &scene_state->digits_count_index, -1, 0, 1, RollOverflowBehaviorRoll);
+                &scene_state->digits_count_index, -1, 0, 2, RollOverflowBehaviorRoll);
         } else if(scene_state->selected_control == TokenDurationSelect) {
             totp_roll_value_uint8_t(
                 &scene_state->duration, -15, 15, 255, RollOverflowBehaviorStop);
@@ -268,6 +269,7 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
                 tokenInfo,
                 scene_state->token_secret,
                 scene_state->token_secret_length,
+                PLAIN_TOKEN_ENCODING_BASE32,
                 &plugin_state->iv[0]);
 
             if(token_secret_set) {

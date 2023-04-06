@@ -111,11 +111,21 @@ void uart_terminal_scene_console_output_on_enter(void* context) {
     uart_terminal_uart_set_handle_rx_data_cb(
         app->uart, uart_terminal_console_output_handle_rx_data_cb); // setup callback for rx thread
 
-    // Send command with newline '\n'
+    // Send command with CR+LF or newline '\n'
     if(app->is_command && app->selected_tx_string) {
-        uart_terminal_uart_tx(
-            (uint8_t*)(app->selected_tx_string), strlen(app->selected_tx_string));
-        uart_terminal_uart_tx((uint8_t*)("\n"), 1);
+        if(app->TERMINAL_MODE == 1) {
+            // char buffer[240];
+            // snprintf(buffer, 240, "%s\r\n", (app->selected_tx_string));
+            // uart_terminal_uart_tx((unsigned char *)buffer, strlen(buffer));
+            uart_terminal_uart_tx(
+                (uint8_t*)(app->selected_tx_string), strlen(app->selected_tx_string));
+            uart_terminal_uart_tx((uint8_t*)("\r"), 1);
+            uart_terminal_uart_tx((uint8_t*)("\n"), 1);
+        } else {
+            uart_terminal_uart_tx(
+                (uint8_t*)(app->selected_tx_string), strlen(app->selected_tx_string));
+            uart_terminal_uart_tx((uint8_t*)("\n"), 1);
+        }
     }
 }
 
