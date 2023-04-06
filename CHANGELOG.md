@@ -4,7 +4,6 @@
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (Steam guard support)
 * Plugins: Update **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main) (AT commands support)
 * Plugins: Add IR Scope app. (by @kallanreed | PR #407)
-* OFW PR 2567: Fix state gpio AVR Programmer (by @Skorpionm)
 * OFW: scripts: sconsdist: added stub file artifact for older ufbt 
 * OFW: Graphics cleanup and icon rotation
 * OFW: Moved ufbt to fbt codebase
