@@ -2,44 +2,43 @@
 #include <furi_hal.h>
 #include <flipper.h>
 #include <alt_boot.h>
-#include <u8g2_glue.h>
 #include <assets_icons.h>
 #include <toolbox/compress.h>
+#include <gui/canvas.h>
+#include <gui/canvas_i.h>
 
 #define COUNTER_VALUE (136U)
 
-static void flipper_boot_recovery_draw_splash(u8g2_t* fb, size_t progress) {
+static void flipper_boot_recovery_draw_progress(Canvas* canvas, size_t progress) {
     if(progress < COUNTER_VALUE) {
         // Fill the progress bar while the progress is going down
-        u8g2_SetDrawColor(fb, 0x01);
-        u8g2_DrawRFrame(fb, 59, 41, 69, 8, 2);
+        canvas_draw_rframe(canvas, 59, 41, 69, 8, 2);
         size_t width = (COUNTER_VALUE - progress) * 68 / COUNTER_VALUE;
-        u8g2_DrawBox(fb, 60, 42, width, 6);
+        canvas_draw_box(canvas, 60, 42, width, 6);
     } else {
-        u8g2_SetDrawColor(fb, 0x00);
-        u8g2_DrawRBox(fb, 59, 41, 69, 8, 2);
+        canvas_draw_rframe(canvas, 59, 41, 69, 8, 2);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, 60, 42, 67, 6);
+        canvas_set_color(canvas, ColorBlack);
     }
 
-    u8g2_SendBuffer(fb);
+    canvas_commit(canvas);
+}
+
+void flipper_boot_recovery_draw_splash(Canvas* canvas) {
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+
+    canvas_draw_icon(canvas, 0, 0, &I_Erase_pin_128x64);
+
+    canvas_commit(canvas);
 }
 
 void flipper_boot_recovery_exec() {
-    u8g2_t* fb = malloc(sizeof(u8g2_t));
-    u8g2_Setup_st756x_flipper(fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
-    u8g2_InitDisplay(fb);
+    Canvas* canvas = canvas_init();
 
-    CompressIcon* compress_icon = compress_icon_alloc();
-    uint8_t* splash_data = NULL;
-    compress_icon_decode(compress_icon, icon_get_data(&I_Erase_pin_128x64), &splash_data);
-
-    u8g2_ClearBuffer(fb);
-    u8g2_SetDrawColor(fb, 0x01);
-
-    // Draw the recovery picture
-    u8g2_DrawXBM(fb, 0, 0, 128, 64, splash_data);
-    u8g2_SendBuffer(fb);
-    u8g2_SetPowerSave(fb, 0);
-    compress_icon_free(compress_icon);
+    // Show recovery splashscreen
+    flipper_boot_recovery_draw_splash(canvas);
 
     size_t counter = COUNTER_VALUE;
     while(counter) {
@@ -53,7 +52,7 @@ void flipper_boot_recovery_exec() {
             counter = COUNTER_VALUE;
         }
 
-        flipper_boot_recovery_draw_splash(fb, counter);
+        flipper_boot_recovery_draw_progress(canvas, counter);
     }
 
     if(!counter) {

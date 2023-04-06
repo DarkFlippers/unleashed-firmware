@@ -4,7 +4,7 @@
 #include <flipper_application/api_hashtable/compilesort.hpp>
 
 /* Generated table */
-#include <symbols.h>
+#include <firmware_api_table.h>
 
 static_assert(!has_hash_collisions(elf_api_table), "Detected API method hash collision!");
 

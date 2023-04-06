@@ -37,7 +37,7 @@ static void desktop_loader_callback(const void* message, void* context) {
 static void desktop_lock_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
-    canvas_draw_icon(canvas, 0, 0, &I_Lock_8x8);
+    canvas_draw_icon(canvas, 0, 0, &I_Lock_7x8);
 }
 
 static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context) {
@@ -233,7 +233,7 @@ Desktop* desktop_alloc() {
 
     // Lock icon
     desktop->lock_icon_viewport = view_port_alloc();
-    view_port_set_width(desktop->lock_icon_viewport, icon_get_width(&I_Lock_8x8));
+    view_port_set_width(desktop->lock_icon_viewport, icon_get_width(&I_Lock_7x8));
     view_port_draw_callback_set(
         desktop->lock_icon_viewport, desktop_lock_icon_draw_callback, desktop);
     view_port_enabled_set(desktop->lock_icon_viewport, false);

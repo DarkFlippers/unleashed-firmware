@@ -3,6 +3,8 @@
 FBT is the entry point for firmware-related commands and utilities.
 It is invoked by `./fbt` in the firmware project root directory. Internally, it is a wrapper around [scons](https://scons.org/) build system.
 
+If you don't need all features of `fbt` - like building the whole firmware - and only want to build and debug a single application, you can use [ufbt](https://pypi.org/project/ufbt/).
+
 ## Environment
 
 To use `fbt`, you only need `git` installed in your system.

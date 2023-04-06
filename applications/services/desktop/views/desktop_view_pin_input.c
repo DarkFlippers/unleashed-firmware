@@ -115,16 +115,18 @@ static void desktop_view_pin_input_draw_cells(Canvas* canvas, DesktopViewPinInpu
             } else {
                 switch(model->pin.data[i]) {
                 case InputKeyDown:
-                    canvas_draw_icon(canvas, x + 3, y + 2, &I_Pin_arrow_down_7x9);
+                    canvas_draw_icon_ex(
+                        canvas, x + 3, y + 2, &I_Pin_arrow_up_7x9, IconRotation180);
                     break;
                 case InputKeyUp:
-                    canvas_draw_icon(canvas, x + 3, y + 2, &I_Pin_arrow_up_7x9);
+                    canvas_draw_icon_ex(canvas, x + 3, y + 2, &I_Pin_arrow_up_7x9, IconRotation0);
                     break;
                 case InputKeyLeft:
-                    canvas_draw_icon(canvas, x + 2, y + 3, &I_Pin_arrow_left_9x7);
+                    canvas_draw_icon_ex(
+                        canvas, x + 2, y + 3, &I_Pin_arrow_up_7x9, IconRotation270);
                     break;
                 case InputKeyRight:
-                    canvas_draw_icon(canvas, x + 2, y + 3, &I_Pin_arrow_right_9x7);
+                    canvas_draw_icon_ex(canvas, x + 2, y + 3, &I_Pin_arrow_up_7x9, IconRotation90);
                     break;
                 default:
                     furi_assert(0);
@@ -147,7 +149,8 @@ static void desktop_view_pin_input_draw(Canvas* canvas, void* context) {
     desktop_view_pin_input_draw_cells(canvas, model);
 
     if((model->pin.length > 0) && !model->locked_input) {
-        canvas_draw_icon(canvas, 4, 53, &I_Pin_back_full_40x8);
+        canvas_draw_icon(canvas, 4, 53, &I_Pin_back_arrow_10x8);
+        canvas_draw_str(canvas, 16, 60, "= clear");
     }
 
     if(model->button_label && ((model->pin.length >= MIN_PIN_SIZE) || model->locked_input)) {

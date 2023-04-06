@@ -45,16 +45,19 @@ void platformDisableIrqCallback() {
 
 void platformSetIrqCallback(PlatformIrqCallback callback) {
     rfal_platform.callback = callback;
-    rfal_platform.thread =
-        furi_thread_alloc_ex("RfalIrqDriver", 1024, rfal_platform_irq_thread, NULL);
-    furi_thread_mark_as_service(rfal_platform.thread);
-    furi_thread_set_priority(rfal_platform.thread, FuriThreadPriorityIsr);
-    furi_thread_start(rfal_platform.thread);
 
-    furi_hal_gpio_add_int_callback(&gpio_nfc_irq_rfid_pull, nfc_isr, NULL);
-    // Disable interrupt callback as the pin is shared between 2 apps
-    // It is enabled in rfalLowPowerModeStop()
-    furi_hal_gpio_disable_int_callback(&gpio_nfc_irq_rfid_pull);
+    if(!rfal_platform.thread) {
+        rfal_platform.thread =
+            furi_thread_alloc_ex("RfalIrqDriver", 1024, rfal_platform_irq_thread, NULL);
+        furi_thread_mark_as_service(rfal_platform.thread);
+        furi_thread_set_priority(rfal_platform.thread, FuriThreadPriorityIsr);
+        furi_thread_start(rfal_platform.thread);
+
+        furi_hal_gpio_add_int_callback(&gpio_nfc_irq_rfid_pull, nfc_isr, NULL);
+        // Disable interrupt callback as the pin is shared between 2 apps
+        // It is enabled in rfalLowPowerModeStop()
+        furi_hal_gpio_disable_int_callback(&gpio_nfc_irq_rfid_pull);
+    }
 }
 
 bool platformSpiTxRx(const uint8_t* txBuf, uint8_t* rxBuf, uint16_t len) {

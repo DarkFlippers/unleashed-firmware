@@ -224,7 +224,7 @@ void canvas_draw_bitmap(
     y += canvas->offset_y;
     uint8_t* bitmap_data = NULL;
     compress_icon_decode(canvas->compress_icon, compressed_bitmap_data, &bitmap_data);
-    u8g2_DrawXBM(&canvas->fb, x, y, width, height, bitmap_data);
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap_data, IconRotation0);
 }
 
 void canvas_draw_icon_animation(
@@ -240,13 +240,138 @@ void canvas_draw_icon_animation(
     uint8_t* icon_data = NULL;
     compress_icon_decode(
         canvas->compress_icon, icon_animation_get_data(icon_animation), &icon_data);
-    u8g2_DrawXBM(
+    canvas_draw_u8g2_bitmap(
         &canvas->fb,
         x,
         y,
         icon_animation_get_width(icon_animation),
         icon_animation_get_height(icon_animation),
-        icon_data);
+        icon_data,
+        IconRotation0);
+}
+
+static void canvas_draw_u8g2_bitmap_int(
+    u8g2_t* u8g2,
+    u8g2_uint_t x,
+    u8g2_uint_t y,
+    u8g2_uint_t w,
+    u8g2_uint_t h,
+    bool mirror,
+    bool rotation,
+    const uint8_t* bitmap) {
+    u8g2_uint_t blen;
+    blen = w;
+    blen += 7;
+    blen >>= 3;
+
+    if(rotation && !mirror) {
+        x += w + 1;
+    } else if(mirror && !rotation) {
+        y += h - 1;
+    }
+
+    while(h > 0) {
+        const uint8_t* b = bitmap;
+        uint16_t len = w;
+        uint16_t x0 = x;
+        uint16_t y0 = y;
+        uint8_t mask;
+        uint8_t color = u8g2->draw_color;
+        uint8_t ncolor = (color == 0 ? 1 : 0);
+        mask = 1;
+
+        while(len > 0) {
+            if(u8x8_pgm_read(b) & mask) {
+                u8g2->draw_color = color;
+                u8g2_DrawHVLine(u8g2, x0, y0, 1, 0);
+            } else if(u8g2->bitmap_transparency == 0) {
+                u8g2->draw_color = ncolor;
+                u8g2_DrawHVLine(u8g2, x0, y0, 1, 0);
+            }
+
+            if(rotation) {
+                y0++;
+            } else {
+                x0++;
+            }
+
+            mask <<= 1;
+            if(mask == 0) {
+                mask = 1;
+                b++;
+            }
+            len--;
+        }
+
+        u8g2->draw_color = color;
+        bitmap += blen;
+
+        if(mirror) {
+            if(rotation) {
+                x++;
+            } else {
+                y--;
+            }
+        } else {
+            if(rotation) {
+                x--;
+            } else {
+                y++;
+            }
+        }
+        h--;
+    }
+}
+
+void canvas_draw_u8g2_bitmap(
+    u8g2_t* u8g2,
+    u8g2_uint_t x,
+    u8g2_uint_t y,
+    u8g2_uint_t w,
+    u8g2_uint_t h,
+    const uint8_t* bitmap,
+    IconRotation rotation) {
+    u8g2_uint_t blen;
+    blen = w;
+    blen += 7;
+    blen >>= 3;
+#ifdef U8G2_WITH_INTERSECTION
+    if(u8g2_IsIntersection(u8g2, x, y, x + w, y + h) == 0) return;
+#endif /* U8G2_WITH_INTERSECTION */
+
+    switch(rotation) {
+    case IconRotation0:
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 0, 0, bitmap);
+        break;
+    case IconRotation90:
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 0, 1, bitmap);
+        break;
+    case IconRotation180:
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 1, 0, bitmap);
+        break;
+    case IconRotation270:
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 1, 1, bitmap);
+        break;
+    default:
+        break;
+    }
+}
+
+void canvas_draw_icon_ex(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    const Icon* icon,
+    IconRotation rotation) {
+    furi_assert(canvas);
+    furi_assert(icon);
+
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    uint8_t* icon_data = NULL;
+    compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
+    canvas_draw_u8g2_bitmap(
+        &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data, rotation);
 }
 
 void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
@@ -257,7 +382,8 @@ void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
     compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
-    u8g2_DrawXBM(&canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data);
+    canvas_draw_u8g2_bitmap(
+        &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data, IconRotation0);
 }
 
 void canvas_draw_dot(Canvas* canvas, uint8_t x, uint8_t y) {
@@ -367,7 +493,7 @@ void canvas_draw_xbm(
     furi_assert(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
-    u8g2_DrawXBM(&canvas->fb, x, y, w, h, bitmap);
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, w, h, bitmap, IconRotation0);
 }
 
 void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch) {

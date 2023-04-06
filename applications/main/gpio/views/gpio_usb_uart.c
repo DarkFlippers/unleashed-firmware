@@ -80,9 +80,9 @@ static void gpio_usb_uart_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_icon(canvas, 48, 14, &I_ArrowUpEmpty_14x15);
 
     if(model->rx_active)
-        canvas_draw_icon(canvas, 48, 34, &I_ArrowDownFilled_14x15);
+        canvas_draw_icon_ex(canvas, 48, 34, &I_ArrowUpFilled_14x15, IconRotation180);
     else
-        canvas_draw_icon(canvas, 48, 34, &I_ArrowDownEmpty_14x15);
+        canvas_draw_icon_ex(canvas, 48, 34, &I_ArrowUpEmpty_14x15, IconRotation180);
 }
 
 static bool gpio_usb_uart_input_callback(InputEvent* event, void* context) {
