@@ -18,7 +18,6 @@ struct AvrIspSpiSw {
 AvrIspSpiSw* avr_isp_spi_sw_init(AvrIspSpiSwSpeed speed) {
     AvrIspSpiSw* instance = malloc(sizeof(AvrIspSpiSw));
     instance->speed_wait_time = speed;
-
     instance->miso = AVR_ISP_SPI_SW_MISO;
     instance->mosi = AVR_ISP_SPI_SW_MOSI;
     instance->sck = AVR_ISP_SPI_SW_SCK;
@@ -40,7 +39,6 @@ void avr_isp_spi_sw_free(AvrIspSpiSw* instance) {
     furi_hal_gpio_init(instance->miso, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_init(instance->mosi, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_init(instance->sck, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-
     free(instance);
 }
 
