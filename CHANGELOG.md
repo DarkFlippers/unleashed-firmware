@@ -1,4 +1,6 @@
 ### New changes
+* **SubGHz: Keyboard lock fixed**
+### Previous changes
 * SubGHz: AN-Motors AT4 - Add manually fixes
 * SubGHz: StarLine ignore option (in Read -> Config) (by @gid9798 | PR #410)
 * Plugins: Fix `Repeat: 200` bug in SubGHz Remote and Bruteforcer
