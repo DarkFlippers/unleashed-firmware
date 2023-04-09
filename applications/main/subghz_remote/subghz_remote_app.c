@@ -354,6 +354,8 @@ bool subghz_remote_key_load(
 
     bool res = false;
 
+    subghz_custom_btn_set(0);
+
     do {
         // load frequency from file
         if(!flipper_format_read_uint32(fff_file, "Frequency", &preset->frequency, 1)) {

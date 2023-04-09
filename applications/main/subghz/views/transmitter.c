@@ -137,6 +137,7 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
         true);
 
     if(can_be_sent && event->key == InputKeyOk && event->type == InputTypePress) {
+        subghz_custom_btn_set(0);
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
