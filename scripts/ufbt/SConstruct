@@ -163,6 +163,18 @@ dist_env.Alias("flash", openocd_target)
 if env["FORCE"]:
     env.AlwaysBuild(openocd_target)
 
+
+firmware_jflash = dist_env.JFlash(
+    dist_env["UFBT_STATE_DIR"].File("jflash"),
+    dist_env["FW_BIN"],
+    JFLASHADDR="0x20000000",
+)
+dist_env.Alias("firmware_jflash", firmware_jflash)
+dist_env.Alias("jflash", firmware_jflash)
+if env["FORCE"]:
+    env.AlwaysBuild(firmware_jflash)
+
+
 firmware_debug = dist_env.PhonyTarget(
     "debug",
     "${GDBPYCOM}",
@@ -391,3 +403,13 @@ AddPostAction(
 dist_env.Precious(app_template_dist)
 dist_env.NoClean(app_template_dist)
 dist_env.Alias("create", app_template_dist)
+
+dist_env.PhonyTarget(
+    "get_blackmagic",
+    "@echo $( ${BLACKMAGIC_ADDR} $)",
+)
+
+dist_env.PhonyTarget(
+    "get_apiversion",
+    "@echo $( ${UFBT_API_VERSION} $)",
+)

@@ -181,9 +181,9 @@ class Main(App):
         ) as zf:
             for component_key in sdk_components_keys:
                 component_path = self._dist_components.get(component_key)
-                components_paths[component_key] = basename(component_path)
 
                 if component_key.endswith(".dir"):
+                    components_paths[component_key] = basename(component_path)
                     for root, dirnames, files in walk(component_path):
                         if "__pycache__" in dirnames:
                             dirnames.remove("__pycache__")
@@ -199,7 +199,9 @@ class Main(App):
                                 ),
                             )
                 else:
-                    zf.write(component_path, basename(component_path))
+                    # We use fixed names for files to avoid having to regenerate VSCode project
+                    components_paths[component_key] = component_key
+                    zf.write(component_path, component_key)
 
             zf.writestr(
                 "components.json",

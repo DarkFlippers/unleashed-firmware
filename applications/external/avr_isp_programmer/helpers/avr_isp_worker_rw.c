@@ -198,9 +198,10 @@ bool avr_isp_worker_rw_detect_chip(AvrIspWorkerRW* instance) {
         }
         avr_isp_end_pmode(instance->avr_isp);
 
-        furi_hal_pwm_stop(FuriHalPwmOutputIdLptim2PA4);
-
     } while(0);
+
+    furi_hal_pwm_stop(FuriHalPwmOutputIdLptim2PA4);
+
     if(instance->callback) {
         if(instance->chip_arr_ind > avr_isp_chip_arr_size) {
             instance->callback(instance->context, "No detect", instance->chip_detect, 0);
