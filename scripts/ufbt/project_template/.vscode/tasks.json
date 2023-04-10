@@ -21,23 +21,29 @@
             "command": "ufbt"
         },
         {
+            "label": "Clean",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt -c"
+        },
+        {
             "label": "Flash FW (ST-Link)",
             "group": "build",
             "type": "shell",
             "command": "ufbt FORCE=1 flash"
         },
-        // {
-        //     "label": "[NOTIMPL] Flash FW (blackmagic)",
-        //     "group": "build",
-        //     "type": "shell",
-        //     "command": "ufbt flash_blackmagic"
-        // },
-        // {
-        //     "label": "[NOTIMPL] Flash FW (JLink)",
-        //     "group": "build",
-        //     "type": "shell",
-        //     "command": "ufbt FORCE=1 jflash"
-        // },
+        {
+            "label": "Flash FW (blackmagic)",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt flash_blackmagic"
+        },
+        {
+            "label": "Flash FW (JLink)",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt FORCE=1 jflash"
+        },
         {
             "label": "Flash FW (USB, with resources)",
             "group": "build",
@@ -49,6 +55,12 @@
             "group": "build",
             "type": "shell",
             "command": "ufbt update"
+        },
+        {
+            "label": "Update VSCode config for current SDK",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt vscode_dist"
         }
     ]
 }
