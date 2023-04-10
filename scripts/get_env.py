@@ -32,7 +32,7 @@ def parse_args():
 def get_commit_json(event):
     context = ssl._create_unverified_context()
     commit_url = event["pull_request"]["base"]["repo"]["commits_url"].replace(
-        "{/sha}", f"/{event['after']}"
+        "{/sha}", f"/{event['pull_request']['head']['sha']}"
     )
     with urllib.request.urlopen(commit_url, context=context) as commit_file:
         commit_json = json.loads(commit_file.read().decode("utf-8"))

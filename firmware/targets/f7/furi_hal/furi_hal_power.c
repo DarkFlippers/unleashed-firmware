@@ -440,11 +440,11 @@ float furi_hal_power_get_usb_voltage() {
 }
 
 void furi_hal_power_enable_external_3_3v() {
-    furi_hal_gpio_write(&periph_power, 1);
+    furi_hal_gpio_write(&gpio_periph_power, 1);
 }
 
 void furi_hal_power_disable_external_3_3v() {
-    furi_hal_gpio_write(&periph_power, 0);
+    furi_hal_gpio_write(&gpio_periph_power, 0);
 }
 
 void furi_hal_power_suppress_charge_enter() {
