@@ -282,6 +282,8 @@ static void game_tick() {
         }
         break;
     }
+notification_message(notification, &sequence_double_vibro);
+
 }
 
 static void draw_cell(Canvas* canvas, uint8_t x, uint8_t y, uint8_t cell_number) {
