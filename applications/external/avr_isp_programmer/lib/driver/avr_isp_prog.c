@@ -317,7 +317,12 @@ static bool avr_isp_prog_auto_set_spi_speed_start_pmode(AvrIspProg* instance) {
             }
         }
     }
-    if(instance->spi) avr_isp_spi_sw_free(instance->spi);
+
+    if(instance->spi) {
+        avr_isp_spi_sw_free(instance->spi);
+        instance->spi = NULL;
+    }
+
     return false;
 }
 
