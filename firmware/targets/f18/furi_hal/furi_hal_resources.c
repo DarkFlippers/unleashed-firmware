@@ -166,8 +166,9 @@ void furi_hal_resources_init() {
     furi_hal_resources_init_input_pins(GpioModeInterruptRiseFall);
 
     // Explicit pulls pins
-    furi_hal_gpio_init(&gpio_speaker, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_vibro, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
+    LL_PWR_EnablePUPDCfg();
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_8); // gpio_speaker
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_8); // gpio_vibro
 
     // Display pins
     furi_hal_gpio_init(&gpio_display_rst_n, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
