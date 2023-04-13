@@ -5,6 +5,7 @@
 #include <furi_hal_console.h>
 #include <furi_hal_power.h>
 #include <furi_hal_rtc.h>
+#include <furi_hal_debug.h>
 #include <stdio.h>
 
 #include <FreeRTOS.h>
@@ -117,6 +118,8 @@ FURI_NORETURN void __furi_crash() {
     if(debug) {
         furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
         furi_hal_console_puts("\033[0m\r\n");
+        furi_hal_debug_enable();
+
         RESTORE_REGISTERS_AND_HALT_MCU(true);
     } else {
         furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);

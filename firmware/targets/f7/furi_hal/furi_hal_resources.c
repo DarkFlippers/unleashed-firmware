@@ -6,6 +6,9 @@
 
 #define TAG "FuriHalResources"
 
+const GpioPin gpio_swdio = {.port = GPIOA, .pin = LL_GPIO_PIN_13};
+const GpioPin gpio_swclk = {.port = GPIOA, .pin = LL_GPIO_PIN_14};
+
 const GpioPin gpio_vibro = {.port = VIBRO_GPIO_Port, .pin = VIBRO_Pin};
 const GpioPin gpio_ibutton = {.port = iBTN_GPIO_Port, .pin = iBTN_Pin};
 
