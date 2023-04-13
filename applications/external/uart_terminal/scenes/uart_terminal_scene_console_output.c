@@ -113,7 +113,7 @@ void uart_terminal_scene_console_output_on_enter(void* context) {
 
     // Send command with CR+LF or newline '\n'
     if(app->is_command && app->selected_tx_string) {
-        if(app->TERMINAL_MODE == 1){
+        if(app->TERMINAL_MODE == 1) {
             uart_terminal_uart_tx(
                 (uint8_t*)(app->selected_tx_string), strlen(app->selected_tx_string));
             uart_terminal_uart_tx((uint8_t*)("\r\n"), 2);
