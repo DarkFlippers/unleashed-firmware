@@ -93,17 +93,23 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Ok
     if(model->left_mouse_pressed) {
-        canvas_draw_icon(canvas, 81, 25, &I_Ok_btn_pressed_13x13);
-    } else {
-        canvas_draw_icon(canvas, 83, 27, &I_Left_mouse_icon_9x9);
+        canvas_set_bitmap_mode(canvas, 1);
+        canvas_draw_icon(canvas, 81, 25, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_color(canvas, ColorWhite);
     }
+    canvas_draw_icon(canvas, 83, 27, &I_Left_mouse_icon_9x9);
+    canvas_set_color(canvas, ColorBlack);
 
     // Back
     if(model->right_mouse_pressed) {
-        canvas_draw_icon(canvas, 108, 48, &I_Ok_btn_pressed_13x13);
-    } else {
-        canvas_draw_icon(canvas, 110, 50, &I_Right_mouse_icon_9x9);
+        canvas_set_bitmap_mode(canvas, 1);
+        canvas_draw_icon(canvas, 108, 48, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_color(canvas, ColorWhite);
     }
+    canvas_draw_icon(canvas, 110, 50, &I_Right_mouse_icon_9x9);
+    canvas_set_color(canvas, ColorBlack);
 }
 
 static void hid_mouse_process(HidMouse* hid_mouse, InputEvent* event) {
