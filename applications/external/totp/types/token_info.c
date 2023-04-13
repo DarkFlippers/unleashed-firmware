@@ -1,9 +1,7 @@
 #include "token_info.h"
-#include <furi_hal.h>
 #include <base32.h>
 #include <base64.h>
 #include <memset_s.h>
-#include <strnlen.h>
 #include "common.h"
 #include "../services/crypto/crypto.h"
 

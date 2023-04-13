@@ -23,23 +23,11 @@ void totp_scene_director_activate_scene(
 void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state);
 
 /**
- * @brief Initializes all the available scenes
- * @param plugin_state application state
- */
-void totp_scene_director_init_scenes(PluginState* const plugin_state);
-
-/**
  * @brief Renders current scene
  * @param canvas canvas to render at
  * @param plugin_state application state
  */
 void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_state);
-
-/**
- * @brief Disposes all the available scenes
- * @param plugin_state application state
- */
-void totp_scene_director_dispose(const PluginState* const plugin_state);
 
 /**
  * @brief Handles application event for the current scene

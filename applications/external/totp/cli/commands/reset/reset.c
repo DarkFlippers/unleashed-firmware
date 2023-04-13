@@ -1,7 +1,7 @@
 #include "reset.h"
 
 #include <stdlib.h>
-#include <furi/furi.h>
+#include <furi/core/string.h>
 #include "../../cli_helpers.h"
 #include "../../../services/config/config.h"
 

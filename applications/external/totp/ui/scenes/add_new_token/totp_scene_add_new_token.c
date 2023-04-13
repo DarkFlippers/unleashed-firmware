@@ -44,10 +44,6 @@ typedef struct {
     FuriString* duration_text;
 } SceneState;
 
-void totp_scene_add_new_token_init(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
-}
-
 static void on_token_name_user_comitted(InputTextSceneCallbackResult* result) {
     SceneState* scene_state = result->callback_data;
     free(scene_state->token_name);
@@ -353,8 +349,4 @@ void totp_scene_add_new_token_deactivate(PluginState* plugin_state) {
 
     free(plugin_state->current_scene_state);
     plugin_state->current_scene_state = NULL;
-}
-
-void totp_scene_add_new_token_free(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
 }
