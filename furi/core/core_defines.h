@@ -24,6 +24,10 @@ extern "C" {
     })
 #endif
 
+#ifndef ABS
+#define ABS(a) ({ (a) < 0 ? -(a) : (a); })
+#endif
+
 #ifndef ROUND_UP_TO
 #define ROUND_UP_TO(a, b)       \
     ({                          \

@@ -63,6 +63,10 @@ void furi_hal_clock_init() {
     LL_RCC_HSI_Enable();
     while(!HS_CLOCK_IS_READY())
         ;
+    /* Select HSI as system clock source after Wake Up from Stop mode
+     * Must be set before enabling CSS */
+    LL_RCC_SetClkAfterWakeFromStop(LL_RCC_STOP_WAKEUPCLOCK_HSI);
+
     LL_RCC_HSE_EnableCSS();
 
     /* LSE and LSI1 configuration and activation */
@@ -215,10 +219,13 @@ void furi_hal_clock_switch_to_hsi() {
 void furi_hal_clock_switch_to_pll() {
     LL_RCC_HSE_Enable();
     LL_RCC_PLL_Enable();
+    LL_RCC_PLLSAI1_Enable();
 
     while(!LL_RCC_HSE_IsReady())
         ;
     while(!LL_RCC_PLL_IsReady())
+        ;
+    while(!LL_RCC_PLLSAI1_IsReady())
         ;
 
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_3);
