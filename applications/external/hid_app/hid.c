@@ -10,6 +10,7 @@ enum HidDebugSubmenuIndex {
     HidSubmenuIndexKeyboard,
     HidSubmenuIndexMedia,
     HidSubmenuIndexTikTok,
+    HidSubmenuIndexYTShorts,
     HidSubmenuIndexMouse,
     HidSubmenuIndexMouseJiggler,
 };
@@ -32,6 +33,9 @@ static void hid_submenu_callback(void* context, uint32_t index) {
     } else if(index == HidSubmenuIndexTikTok) {
         app->view_id = BtHidViewTikTok;
         view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewTikTok);
+    } else if(index == HidSubmenuIndexYTShorts) {
+        app->view_id = BtHidViewYTShorts;
+        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewYTShorts);
     } else if(index == HidSubmenuIndexMouseJiggler) {
         app->view_id = HidViewMouseJiggler;
         view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMouseJiggler);
@@ -55,6 +59,7 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
     hid_mouse_set_connected_status(hid->hid_mouse, connected);
     hid_mouse_jiggler_set_connected_status(hid->hid_mouse_jiggler, connected);
     hid_tiktok_set_connected_status(hid->hid_tiktok, connected);
+    hid_ytshorts_set_connected_status(hid->hid_ytshorts, connected);
 }
 
 static void hid_dialog_callback(DialogExResult result, void* context) {
@@ -113,6 +118,12 @@ Hid* hid_alloc(HidTransport transport) {
             HidSubmenuIndexTikTok,
             hid_submenu_callback,
             app);
+        submenu_add_item(
+            app->device_type_submenu,
+            "YT Shorts Controller",
+            HidSubmenuIndexYTShorts,
+            hid_submenu_callback,
+            app);
     }
     submenu_add_item(
         app->device_type_submenu,
@@ -166,6 +177,12 @@ Hid* hid_app_alloc_view(void* context) {
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewTikTok, hid_tiktok_get_view(app->hid_tiktok));
 
+    // YTShorts view
+    app->hid_ytshorts = hid_ytshorts_alloc(app);
+    view_set_previous_callback(hid_ytshorts_get_view(app->hid_ytshorts), hid_exit_confirm_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher, BtHidViewYTShorts, hid_ytshorts_get_view(app->hid_ytshorts));
+
     // Mouse view
     app->hid_mouse = hid_mouse_alloc(app);
     view_set_previous_callback(hid_mouse_get_view(app->hid_mouse), hid_exit_confirm_view);
@@ -209,6 +226,8 @@ void hid_free(Hid* app) {
     hid_mouse_jiggler_free(app->hid_mouse_jiggler);
     view_dispatcher_remove_view(app->view_dispatcher, BtHidViewTikTok);
     hid_tiktok_free(app->hid_tiktok);
+    view_dispatcher_remove_view(app->view_dispatcher, BtHidViewYTShorts);
+    hid_ytshorts_free(app->hid_ytshorts);
     view_dispatcher_free(app->view_dispatcher);
 
     // Close records
