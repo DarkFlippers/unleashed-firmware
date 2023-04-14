@@ -9,35 +9,19 @@
 
 #define TAG "FuriHalRandom"
 
-static uint32_t furi_hal_random_read_rng() {
-    while(LL_RNG_IsActiveFlag_CECS(RNG) && LL_RNG_IsActiveFlag_SECS(RNG) &&
-          !LL_RNG_IsActiveFlag_DRDY(RNG)) {
-        /* Error handling as described in RM0434, pg. 582-583 */
-        if(LL_RNG_IsActiveFlag_CECS(RNG)) {
-            /* Clock error occurred */
-            LL_RNG_ClearFlag_CEIS(RNG);
-        }
-
-        if(LL_RNG_IsActiveFlag_SECS(RNG)) {
-            /* Noise source error occurred */
-            LL_RNG_ClearFlag_SEIS(RNG);
-
-            for(uint32_t i = 0; i < 12; ++i) {
-                const volatile uint32_t discard = LL_RNG_ReadRandData32(RNG);
-                UNUSED(discard);
-            }
-        }
-    }
-
-    return LL_RNG_ReadRandData32(RNG);
-}
-
 uint32_t furi_hal_random_get() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID))
         ;
     LL_RNG_Enable(RNG);
 
-    const uint32_t random_val = furi_hal_random_read_rng();
+    while(!LL_RNG_IsActiveFlag_DRDY(RNG))
+        ;
+
+    if((LL_RNG_IsActiveFlag_CECS(RNG)) || (LL_RNG_IsActiveFlag_SECS(RNG))) {
+        furi_crash("TRNG error");
+    }
+
+    uint32_t random_val = LL_RNG_ReadRandData32(RNG);
 
     LL_RNG_Disable(RNG);
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RNG_SEMID, 0);
@@ -51,7 +35,15 @@ void furi_hal_random_fill_buf(uint8_t* buf, uint32_t len) {
     LL_RNG_Enable(RNG);
 
     for(uint32_t i = 0; i < len; i += 4) {
-        const uint32_t random_val = furi_hal_random_read_rng();
+        while(!LL_RNG_IsActiveFlag_DRDY(RNG))
+            ;
+
+        if((LL_RNG_IsActiveFlag_CECS(RNG)) || (LL_RNG_IsActiveFlag_SECS(RNG))) {
+            furi_crash("TRNG error");
+        }
+
+        uint32_t random_val = LL_RNG_ReadRandData32(RNG);
+
         uint8_t len_cur = ((i + 4) < len) ? (4) : (len - i);
         memcpy(&buf[i], &random_val, len_cur);
     }
