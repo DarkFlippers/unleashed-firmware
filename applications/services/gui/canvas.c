@@ -131,7 +131,7 @@ void canvas_set_font(Canvas* canvas, Font font) {
     if(font == FontPrimary) {
         u8g2_SetFont(&canvas->fb, u8g2_font_helvB08_tr);
     } else if(font == FontSecondary) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
+        u8g2_SetFont(&canvas->fb, u8g2_font_nokiafc22_tr); //u8g2_font_haxrcorp4089_tr
     } else if(font == FontKeyboard) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont11_mr);
     } else if(font == FontBigNumbers) {
