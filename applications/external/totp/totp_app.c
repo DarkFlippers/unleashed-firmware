@@ -1,10 +1,7 @@
-#include <furi.h>
-#include <furi_hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
 #include <dialogs/dialogs.h>
 #include <stdlib.h>
-#include <flipper_format/flipper_format.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <dolphin/dolphin.h>
@@ -21,7 +18,7 @@
 #include "services/crypto/crypto.h"
 #include "cli/cli.h"
 
-#define IDLE_TIMEOUT 60000
+#define IDLE_TIMEOUT (60000)
 
 static void render_callback(Canvas* const canvas, void* ctx) {
     furi_assert(ctx);
@@ -97,6 +94,7 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
     plugin_state->gui = furi_record_open(RECORD_GUI);
     plugin_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
     plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);
+    memset(&plugin_state->iv[0], 0, TOTP_IV_SIZE);
 
     if(totp_config_file_load_base(plugin_state) != TotpConfigFileOpenSuccess) {
         totp_dialogs_config_loading_error(plugin_state);
@@ -104,10 +102,6 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
     }
 
     plugin_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-    if(plugin_state->mutex == NULL) {
-        FURI_LOG_E(LOGGING_TAG, "Cannot create mutex\r\n");
-        return false;
-    }
 
 #ifdef TOTP_BADBT_TYPE_ENABLED
     if(plugin_state->automation_method & AutomationMethodBadBt) {
@@ -162,7 +156,7 @@ int32_t totp_app() {
     }
 
     TotpCliContext* cli_context = totp_cli_register_command_handler(plugin_state, event_queue);
-    totp_scene_director_init_scenes(plugin_state);
+
     if(!totp_activate_initial_scene(plugin_state)) {
         FURI_LOG_E(LOGGING_TAG, "An error ocurred during activating initial scene\r\n");
         totp_plugin_state_free(plugin_state);
@@ -210,7 +204,6 @@ int32_t totp_app() {
 
     totp_cli_unregister_command_handler(cli_context);
     totp_scene_director_deactivate_active_scene(plugin_state);
-    totp_scene_director_dispose(plugin_state);
 
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(plugin_state->gui, view_port);

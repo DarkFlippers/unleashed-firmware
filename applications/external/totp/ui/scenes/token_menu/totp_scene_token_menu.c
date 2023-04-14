@@ -24,10 +24,6 @@ typedef struct {
     TotpNullable_uint16_t current_token_index;
 } SceneState;
 
-void totp_scene_token_menu_init(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
-}
-
 void totp_scene_token_menu_activate(
     PluginState* plugin_state,
     const TokenMenuSceneContext* context) {
@@ -203,8 +199,4 @@ void totp_scene_token_menu_deactivate(PluginState* plugin_state) {
 
     free(plugin_state->current_scene_state);
     plugin_state->current_scene_state = NULL;
-}
-
-void totp_scene_token_menu_free(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
 }

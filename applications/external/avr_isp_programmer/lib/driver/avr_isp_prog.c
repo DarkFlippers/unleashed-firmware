@@ -196,7 +196,7 @@ static void avr_isp_prog_set_cfg(AvrIspProg* instance) {
     instance->cfg->lockbytes = instance->buff[6];
     instance->cfg->fusebytes = instance->buff[7];
     instance->cfg->flashpoll = instance->buff[8];
-    // ignore (instance->buff[9] == instance->buff[8]) //FLASH polling value. Same as “flashpoll”
+    // ignore (instance->buff[9] == instance->buff[8]) //FLASH polling value. Same as ï¿½flashpollï¿½
     instance->cfg->eeprompoll = instance->buff[10] << 8 | instance->buff[11];
     instance->cfg->pagesize = instance->buff[12] << 8 | instance->buff[13];
     instance->cfg->eepromsize = instance->buff[14] << 8 | instance->buff[15];
@@ -317,6 +317,12 @@ static bool avr_isp_prog_auto_set_spi_speed_start_pmode(AvrIspProg* instance) {
             }
         }
     }
+
+    if(instance->spi) {
+        avr_isp_spi_sw_free(instance->spi);
+        instance->spi = NULL;
+    }
+
     return false;
 }
 

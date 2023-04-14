@@ -1,7 +1,7 @@
 #pragma once
 
 #define CONFIG_FILE_HEADER "Flipper TOTP plugin config file"
-#define CONFIG_FILE_ACTUAL_VERSION 4
+#define CONFIG_FILE_ACTUAL_VERSION (4)
 
 #define TOTP_CONFIG_KEY_TIMEZONE "Timezone"
 #define TOTP_CONFIG_KEY_TOKEN_NAME "TokenName"

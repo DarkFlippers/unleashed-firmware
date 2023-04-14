@@ -1,15 +1,13 @@
 #include "totp.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 #include <math.h>
+#include <timezone_utils.h>
 #include "../hmac/hmac_sha1.h"
 #include "../hmac/hmac_sha256.h"
 #include "../hmac/hmac_sha512.h"
 #include "../hmac/byteswap.h"
-#include "../../lib/timezone_utils/timezone_utils.h"
 
 #define HMAC_MAX_RESULT_SIZE HMAC_SHA512_RESULT_SIZE
 

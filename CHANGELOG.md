@@ -1,18 +1,23 @@
 ### New changes
-* **SubGHz: Keyboard lock fixed**
-### Previous changes
-* SubGHz: AN-Motors AT4 - Add manually fixes
-* SubGHz: StarLine ignore option (in Read -> Config) (by @gid9798 | PR #410)
-* Plugins: Fix `Repeat: 200` bug in SubGHz Remote and Bruteforcer
-* Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (Steam guard support)
-* Plugins: Update **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main) (AT commands support)
-* Plugins: Add IR Scope app. (by @kallanreed | PR #407)
-* OFW: scripts: sconsdist: added stub file artifact for older ufbt 
-* OFW: Graphics cleanup and icon rotation
-* OFW: Moved ufbt to fbt codebase
-* OFW: SD Driver: do not cache sd status.
-* OFW: Furi: more gpio checks in HAL
-* OFW: WeatherStation: fix protocol TX141TH-BV2
+* If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
+* SubGHz: (Bug that I decided to keep as a feature) You can change default button (Ok) for remote by holding custom button and pressing back at same time (same can be used to restore your button if you changed it accidentally) - Be careful, it might be unstable, I will make proper option to change button in next releases
+* SubGHz: Fixes for custom button bugs in SubGHz Remote app
+* SubGHz: Add alutech table to enviroment alloc and free
+* Docs: Fix and update docs - thanks to @lesterrry
+* Plugins: Bluetooth Remote - implemented YouTube Shorts Remote (may be unstable)
+* Plugins: Bluetooth Remote - improvements and fixes for TikTok remote (by @krolchonok | PR #420)
+* Plugins: Implement an array for baudrates on GPS UART app (+ add 19200 baud) (by @p0ns | PR #416)
+* Plugins: Remove UART Echo from releases since it is locked on 115200 baud, and we have **UART Terminal** with ability to set baudrate
+* Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: Update **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
+* OFW: Deep Sleep Idle - **Improves battery usage!!!** -> **Breaking API change, api was changed from 21.x to 22.x** 
+* OFW: FuriHal: pwr pulls for some pins
+* OFW: Bugfix: ISP Programmer and SubGhz
+* OFW: AVR_ISP: fix NULL pointer dereference
+* OFW: Fix gpio state isp programmer
+* OFW: ufbt: project & debugging updates
+* OFW: FuriHal: fix gpio naming and add explicit pulls for vibro, speaker and ir_tx -> **Breaking API change, api was changed from 20.x to 21.x** 
+**(this will make your manually copied plugins not work, update them in same way you installed them, or delete `apps` folder and then install firmware, if you using extra pack builds (with `e` in version) all apps in _Extra will be updated automatically)**
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 

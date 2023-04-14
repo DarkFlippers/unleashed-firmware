@@ -169,7 +169,7 @@ GpsUart* gps_uart_enable() {
 
     gps_uart->notifications = furi_record_open(RECORD_NOTIFICATION);
 
-    gps_uart->baudrate = GPS_BAUDRATE_57k;
+    gps_uart->baudrate = gps_baudrates[current_gps_baudrate];
 
     gps_uart_init_thread(gps_uart);
 

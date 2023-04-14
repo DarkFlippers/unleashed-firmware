@@ -52,7 +52,7 @@ void furi_hal_speaker_release() {
     furi_check(furi_hal_speaker_is_mine());
 
     furi_hal_speaker_stop();
-    furi_hal_gpio_init(&gpio_speaker, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_speaker, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
     furi_hal_power_insomnia_exit();
 
     furi_check(furi_mutex_release(furi_hal_speaker_mutex) == FuriStatusOk);
