@@ -3,9 +3,13 @@
 * SubGHz: (Bug that I decided to keep as a feature) You can change default button (Ok) for remote by holding custom button and pressing back at same time (same can be used to restore your button if you changed it accidentally) - Be careful, it might be unstable, I will make proper option to change button in next releases
 * SubGHz: Fixes for custom button bugs in SubGHz Remote app
 * SubGHz: Add alutech table to enviroment alloc and free
+* Docs: Fix and update docs - thanks to @lesterrry
+* Plugins: Bluetooth Remote - implemented YouTube Shorts Remote (may be unstable)
+* Plugins: Bluetooth Remote - improvements and fixes for TikTok remote (by @krolchonok | PR #420)
+* Plugins: Implement an array for baudrates on GPS UART app (+ add 19200 baud) (by @p0ns | PR #416)
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Update **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
-* OFW: Deep Sleep Idle - **Improves battery usage!!!**
+* OFW: Deep Sleep Idle - **Improves battery usage!!!** -> **Breaking API change, api was changed from 21.x to 22.x** 
 * OFW: FuriHal: pwr pulls for some pins
 * OFW: Bugfix: ISP Programmer and SubGhz
 * OFW: AVR_ISP: fix NULL pointer dereference
