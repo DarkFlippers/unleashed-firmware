@@ -1,7 +1,6 @@
 #pragma once
 
 #include <flipper_format/flipper_format.h>
-#include <furi.h>
 #include "../../types/plugin_state.h"
 #include "../../types/token_info.h"
 #include "constants.h"
@@ -59,6 +58,12 @@ enum TotpConfigFileUpdateResults {
      */
     TotpConfigFileUpdateError
 };
+
+/**
+ * @brief Tries to take a config file backup
+ * @return backup path if backup successfully taken; \c NULL otherwise
+ */
+char* totp_config_file_backup();
 
 /**
  * @brief Saves all the settings and tokens to an application config file

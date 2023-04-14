@@ -93,15 +93,15 @@ void furi_hal_ibutton_emulate_stop() {
 }
 
 void furi_hal_ibutton_pin_configure() {
-    furi_hal_gpio_write(&ibutton_gpio, true);
-    furi_hal_gpio_init(&ibutton_gpio, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_write(&gpio_ibutton, true);
+    furi_hal_gpio_init(&gpio_ibutton, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 }
 
 void furi_hal_ibutton_pin_reset() {
-    furi_hal_gpio_write(&ibutton_gpio, true);
-    furi_hal_gpio_init(&ibutton_gpio, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_write(&gpio_ibutton, true);
+    furi_hal_gpio_init(&gpio_ibutton, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void furi_hal_ibutton_pin_write(const bool state) {
-    furi_hal_gpio_write(&ibutton_gpio, state);
+    furi_hal_gpio_write(&gpio_ibutton, state);
 }

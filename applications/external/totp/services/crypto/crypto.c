@@ -1,14 +1,15 @@
 #include "crypto.h"
-#include <furi.h>
-#include <furi_hal.h>
+#include <furi_hal_crypto.h>
+#include <furi_hal_random.h>
+#include <furi_hal_version.h>
 #include "../config/config.h"
 #include "../../types/common.h"
 #include "memset_s.h"
 
-#define CRYPTO_KEY_SLOT 2
+#define CRYPTO_KEY_SLOT (2)
 #define CRYPTO_VERIFY_KEY "FFF_Crypto_pass"
-#define CRYPTO_VERIFY_KEY_LENGTH 16
-#define CRYPTO_ALIGNMENT_FACTOR 16
+#define CRYPTO_VERIFY_KEY_LENGTH (16)
+#define CRYPTO_ALIGNMENT_FACTOR (16)
 
 uint8_t* totp_crypto_encrypt(
     const uint8_t* plain_data,

@@ -139,20 +139,14 @@ int32_t gps_app(void* p) {
                     switch(event.input.key) {
                     case InputKeyUp:
                         gps_uart_deinit_thread(gps_uart);
-                        switch(gps_uart->baudrate) {
-                        case GPS_BAUDRATE_9k:
-                            gps_uart->baudrate = GPS_BAUDRATE_57k;
-                            break;
-                        case GPS_BAUDRATE_57k:
-                            gps_uart->baudrate = GPS_BAUDRATE_115k;
-                            break;
-                        case GPS_BAUDRATE_115k:
-                            gps_uart->baudrate = GPS_BAUDRATE_9k;
-                            break;
-
-                        default:
-                            break;
+                        const int baudrate_length =
+                            sizeof(gps_baudrates) / sizeof(gps_baudrates[0]);
+                        current_gps_baudrate++;
+                        if(current_gps_baudrate >= baudrate_length) {
+                            current_gps_baudrate = 0;
                         }
+                        gps_uart->baudrate = gps_baudrates[current_gps_baudrate];
+
                         gps_uart_init_thread(gps_uart);
                         gps_uart->changing_baudrate = true;
                         view_port_update(view_port);

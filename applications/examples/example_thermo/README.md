@@ -33,10 +33,10 @@ It is possible to use other GPIO pin as a 1-Wire data pin. In order to change it
  - gpio_ext_pa4
  - gpio_ext_pa6
  - gpio_ext_pa7
- - ibutton_gpio
+ - gpio_ibutton
 */
 
-#define THERMO_GPIO_PIN (ibutton_gpio)
+#define THERMO_GPIO_PIN (gpio_ibutton)
 ```
 Do not forget about the external pull-up resistor as these pins do not have one built-in.
 

@@ -36,6 +36,7 @@ ENV.AppendUnique(
     ],
     CPPDEFINES=[
         "_GNU_SOURCE",
+        *GetOption("extra_defines"),
     ],
     LINKFLAGS=[
         "-mcpu=cortex-m4",

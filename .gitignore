@@ -30,7 +30,7 @@ bindings/
 Brewfile.lock.json
 
 # Visual Studio Code
-.vscode/
+/.vscode/
 
 # Kate
 .kateproject

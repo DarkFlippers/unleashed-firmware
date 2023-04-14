@@ -9,11 +9,7 @@
 #define _GLHMAC_CONCAT_(prefix, suffix) prefix##suffix
 #define _GLHMAC_CONCAT(prefix, suffix) _GLHMAC_CONCAT_(prefix, suffix)
 
-#if GL_HMAC_NAME == 5
-#define HMAC_ALG md5
-#else
 #define HMAC_ALG _GLHMAC_CONCAT(sha, GL_HMAC_NAME)
-#endif
 
 #define GL_HMAC_CTX _GLHMAC_CONCAT(HMAC_ALG, _ctx)
 #define GL_HMAC_FN _GLHMAC_CONCAT(hmac_, HMAC_ALG)
