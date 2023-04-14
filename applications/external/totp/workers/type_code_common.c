@@ -1,6 +1,6 @@
-#include "common.h"
-#include <furi/furi.h>
-#include <furi_hal.h>
+#include "type_code_common.h"
+#include <furi_hal_usb_hid.h>
+#include <furi/core/kernel.h>
 #include "../../services/convert/convert.h"
 
 static const uint8_t hid_number_keys[] = {
@@ -42,18 +42,18 @@ static void totp_type_code_worker_press_key(
 void totp_type_code_worker_execute_automation(
     TOTP_AUTOMATION_KEY_HANDLER key_press_fn,
     TOTP_AUTOMATION_KEY_HANDLER key_release_fn,
-    const char* string,
-    uint8_t string_length,
+    const char* code_buffer,
+    uint8_t code_buffer_size,
     TokenAutomationFeature features) {
     furi_delay_ms(500);
     uint8_t i = 0;
     totp_type_code_worker_press_key(
         HID_KEYBOARD_CAPS_LOCK, key_press_fn, key_release_fn, features);
 
-    while(i < string_length && string[i] != 0) {
-        uint8_t char_index = CONVERT_CHAR_TO_DIGIT(string[i]);
+    while(i < code_buffer_size && code_buffer[i] != 0) {
+        uint8_t char_index = CONVERT_CHAR_TO_DIGIT(code_buffer[i]);
         if(char_index > 9) {
-            char_index = string[i] - 0x41 + 10;
+            char_index = code_buffer[i] - 0x41 + 10;
         }
 
         if(char_index > 35) break;

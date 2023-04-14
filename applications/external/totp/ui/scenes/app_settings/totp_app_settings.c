@@ -44,10 +44,6 @@ typedef struct {
     Control selected_control;
 } SceneState;
 
-void totp_scene_app_settings_init(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
-}
-
 void totp_scene_app_settings_activate(
     PluginState* plugin_state,
     const AppSettingsSceneContext* context) {
@@ -331,8 +327,4 @@ void totp_scene_app_settings_deactivate(PluginState* plugin_state) {
 
     free(plugin_state->current_scene_state);
     plugin_state->current_scene_state = NULL;
-}
-
-void totp_scene_app_settings_free(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
 }

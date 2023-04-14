@@ -1,6 +1,5 @@
 #include "totp_input_text.h"
 #include <gui/view_i.h>
-#include "../../../lib/polyfills/strnlen.h"
 
 void view_draw(View* view, Canvas* canvas) {
     furi_assert(view);

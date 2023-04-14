@@ -2,8 +2,8 @@
 #include <totp_icons.h>
 #include "constants.h"
 
-#define TEXT_BOX_HEIGHT 13
-#define TEXT_BOX_MARGIN 4
+#define TEXT_BOX_HEIGHT (13)
+#define TEXT_BOX_MARGIN (4)
 
 void ui_control_text_box_render(
     Canvas* const canvas,

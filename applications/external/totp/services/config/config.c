@@ -9,7 +9,7 @@
 
 #define CONFIG_FILE_DIRECTORY_PATH EXT_PATH("authenticator")
 #define CONFIG_FILE_PATH CONFIG_FILE_DIRECTORY_PATH "/totp.conf"
-#define CONFIG_FILE_BACKUP_PATH CONFIG_FILE_PATH ".backup"
+#define CONFIG_FILE_BACKUP_BASE_PATH CONFIG_FILE_PATH ".backup"
 #define CONFIG_FILE_TEMP_PATH CONFIG_FILE_PATH ".tmp"
 #define CONFIG_FILE_ORIG_PATH CONFIG_FILE_PATH ".orig"
 #define CONFIG_FILE_PATH_PREVIOUS EXT_PATH("apps/Misc") "/totp.conf"
@@ -37,6 +37,34 @@ static void totp_close_config_file(FlipperFormat* file) {
     if(file == NULL) return;
     flipper_format_file_close(file);
     flipper_format_free(file);
+}
+
+/**
+ * @brief Tries to take a config file backup
+ * @param storage storage record
+ * @return backup path if backup successfully taken; \c NULL otherwise
+ */
+static char* totp_config_file_backup_i(Storage* storage) {
+    uint8_t backup_path_size = sizeof(CONFIG_FILE_BACKUP_BASE_PATH) + 5;
+    char* backup_path = malloc(backup_path_size);
+    furi_check(backup_path != NULL);
+    memcpy(backup_path, CONFIG_FILE_BACKUP_BASE_PATH, sizeof(CONFIG_FILE_BACKUP_BASE_PATH));
+    uint16_t i = 1;
+    bool backup_file_exists;
+    while((backup_file_exists = storage_common_exists(storage, backup_path)) && i <= 9999) {
+        snprintf(backup_path, backup_path_size, CONFIG_FILE_BACKUP_BASE_PATH ".%" PRIu16, i);
+        i++;
+    }
+
+    if(backup_file_exists ||
+       storage_common_copy(storage, CONFIG_FILE_PATH, backup_path) != FSE_OK) {
+        FURI_LOG_E(LOGGING_TAG, "Unable to take a backup");
+        free(backup_path);
+        return NULL;
+    }
+
+    FURI_LOG_I(LOGGING_TAG, "Took config file backup to %s", backup_path);
+    return backup_path;
 }
 
 /**
@@ -248,6 +276,13 @@ static TotpConfigFileUpdateResult
     } while(false);
 
     return update_result;
+}
+
+char* totp_config_file_backup() {
+    Storage* storage = totp_open_storage();
+    char* result = totp_config_file_backup_i(storage);
+    totp_close_storage();
+    return result;
 }
 
 TotpConfigFileUpdateResult totp_config_file_save_new_token(const TokenInfo* token_info) {
@@ -513,20 +548,16 @@ TotpConfigFileOpenResult totp_config_file_load_base(PluginState* const plugin_st
                 CONFIG_FILE_ACTUAL_VERSION);
             totp_close_config_file(fff_data_file);
 
-            if(storage_common_stat(storage, CONFIG_FILE_BACKUP_PATH, NULL) == FSE_OK) {
-                storage_simply_remove(storage, CONFIG_FILE_BACKUP_PATH);
-            }
+            char* backup_path = totp_config_file_backup_i(storage);
 
-            if(storage_common_copy(storage, CONFIG_FILE_PATH, CONFIG_FILE_BACKUP_PATH) == FSE_OK) {
-                FURI_LOG_I(LOGGING_TAG, "Took config file backup to %s", CONFIG_FILE_BACKUP_PATH);
+            if(backup_path != NULL) {
                 if(totp_open_config_file(storage, &fff_data_file) != TotpConfigFileOpenSuccess) {
                     result = TotpConfigFileOpenError;
                     break;
                 }
 
                 FlipperFormat* fff_backup_data_file = flipper_format_file_alloc(storage);
-                if(!flipper_format_file_open_existing(
-                       fff_backup_data_file, CONFIG_FILE_BACKUP_PATH)) {
+                if(!flipper_format_file_open_existing(fff_backup_data_file, backup_path)) {
                     flipper_format_file_close(fff_backup_data_file);
                     flipper_format_free(fff_backup_data_file);
                     result = TotpConfigFileOpenError;
@@ -551,12 +582,12 @@ TotpConfigFileOpenResult totp_config_file_load_base(PluginState* const plugin_st
                 flipper_format_file_close(fff_backup_data_file);
                 flipper_format_free(fff_backup_data_file);
                 flipper_format_rewind(fff_data_file);
+                free(backup_path);
             } else {
                 FURI_LOG_E(
                     LOGGING_TAG,
-                    "An error occurred during taking backup of %s into %s before migration",
-                    CONFIG_FILE_PATH,
-                    CONFIG_FILE_BACKUP_PATH);
+                    "An error occurred during taking backup of %s before migration",
+                    CONFIG_FILE_PATH);
                 result = TotpConfigFileOpenError;
                 break;
             }

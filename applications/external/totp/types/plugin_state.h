@@ -12,7 +12,7 @@
 #include "../workers/bt_type_code/bt_type_code.h"
 #endif
 
-#define TOTP_IV_SIZE 16
+#define TOTP_IV_SIZE (16)
 
 /**
  * @brief Application state structure

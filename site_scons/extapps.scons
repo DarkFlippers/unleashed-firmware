@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from os.path import dirname
 
 from SCons.Node import NodeList
 from SCons.Warnings import warn, WarningOnByDefault
@@ -131,6 +130,7 @@ Depends(sdk_source, appenv.ProcessSdkDepends(f"{amalgamated_api}.d"))
 
 appenv["SDK_DIR"] = appenv.Dir("${BUILD_DIR}/sdk_headers")
 sdk_header_tree = appenv.SDKHeaderTreeExtractor(appenv["SDK_DIR"], amalgamated_api)
+Depends(sdk_header_tree, appenv["SDK_DEFINITION"])
 # AlwaysBuild(sdk_tree)
 Alias("sdk_tree", sdk_header_tree)
 extapps.sdk_tree = sdk_header_tree

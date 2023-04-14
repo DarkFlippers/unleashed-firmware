@@ -121,6 +121,19 @@ void totp_cli_command_pin_handle(PluginState* plugin_state, FuriString* args, Cl
                 memset(&new_pin[0], 0, TOTP_IV_SIZE);
             }
 
+            char* backup_path = totp_config_file_backup();
+            if(backup_path != NULL) {
+                TOTP_CLI_PRINTF_WARNING("Backup conf file %s has been created\r\n", backup_path);
+                TOTP_CLI_PRINTF_WARNING(
+                    "Once you make sure everything is fine and works as expected, please delete this backup file\r\n");
+                free(backup_path);
+            } else {
+                memset_s(&new_pin[0], TOTP_IV_SIZE, 0, TOTP_IV_SIZE);
+                TOTP_CLI_PRINTF_ERROR(
+                    "An error has occurred during taking backup of config file\r\n");
+                break;
+            }
+
             if(plugin_state->current_scene == TotpSceneGenerateToken) {
                 totp_scene_director_activate_scene(plugin_state, TotpSceneNone, NULL);
                 load_generate_token_scene = true;

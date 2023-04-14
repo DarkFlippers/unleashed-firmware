@@ -1,7 +1,7 @@
 #include "custom_btn.h"
 
-static uint8_t custom_btn_id;
-static uint8_t custom_btn_original;
+static uint8_t custom_btn_id = 0;
+static uint8_t custom_btn_original = 0;
 static uint8_t custom_btn_max_btns = 0;
 
 void subghz_custom_btn_set(uint8_t b) {

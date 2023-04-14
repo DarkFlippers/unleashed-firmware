@@ -6,7 +6,7 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="@FBT_APPID@_app",
     stack_size=2 * 1024,
-    fap_category="Misc",
+    fap_category="Examples",
     # Optional values
     # fap_version=(0, 1),  # (major, minor)
     fap_icon="@FBT_APPID@.png",  # 10x10 1-bit PNG

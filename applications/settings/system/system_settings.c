@@ -141,6 +141,21 @@ static void hand_orient_changed(VariableItem* item) {
     loader_update_menu();
 }
 
+const char* const sleep_method[] = {
+    "Default",
+    "Legacy",
+};
+
+static void sleep_method_changed(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, sleep_method[index]);
+    if(index) {
+        furi_hal_rtc_set_flag(FuriHalRtcFlagLegacySleep);
+    } else {
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagLegacySleep);
+    }
+}
+
 static uint32_t system_settings_exit(void* context) {
     UNUSED(context);
     return VIEW_NONE;
@@ -217,6 +232,12 @@ SystemSettings* system_settings_alloc() {
     furi_hal_rtc_set_heap_track_mode(heap_trace_mode_value[value_index]);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, heap_trace_mode_text[value_index]);
+
+    item = variable_item_list_add(
+        app->var_item_list, "Sleep Method", COUNT_OF(sleep_method), sleep_method_changed, app);
+    value_index = furi_hal_rtc_is_flag_set(FuriHalRtcFlagLegacySleep) ? 1 : 0;
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, sleep_method[value_index]);
 
     view_set_previous_callback(
         variable_item_list_get_view(app->var_item_list), system_settings_exit);

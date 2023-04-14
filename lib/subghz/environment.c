@@ -16,6 +16,7 @@ SubGhzEnvironment* subghz_environment_alloc() {
     instance->protocol_registry = NULL;
     instance->came_atomo_rainbow_table_file_name = NULL;
     instance->nice_flor_s_rainbow_table_file_name = NULL;
+    instance->alutech_at_4n_rainbow_table_file_name = NULL;
 
     return instance;
 }
@@ -26,6 +27,7 @@ void subghz_environment_free(SubGhzEnvironment* instance) {
     instance->protocol_registry = NULL;
     instance->came_atomo_rainbow_table_file_name = NULL;
     instance->nice_flor_s_rainbow_table_file_name = NULL;
+    instance->alutech_at_4n_rainbow_table_file_name = NULL;
     subghz_keystore_free(instance->keystore);
 
     free(instance);

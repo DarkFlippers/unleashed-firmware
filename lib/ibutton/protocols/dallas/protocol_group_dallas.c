@@ -14,8 +14,8 @@ typedef struct {
 static iButtonProtocolGroupDallas* ibutton_protocol_group_dallas_alloc() {
     iButtonProtocolGroupDallas* group = malloc(sizeof(iButtonProtocolGroupDallas));
 
-    group->host = onewire_host_alloc(&ibutton_gpio);
-    group->bus = onewire_slave_alloc(&ibutton_gpio);
+    group->host = onewire_host_alloc(&gpio_ibutton);
+    group->bus = onewire_slave_alloc(&gpio_ibutton);
 
     return group;
 }

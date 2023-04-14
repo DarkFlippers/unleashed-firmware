@@ -43,10 +43,10 @@
  - gpio_ext_pa4
  - gpio_ext_pa6
  - gpio_ext_pa7
- - ibutton_gpio
+ - gpio_ibutton
 */
 
-#define THERMO_GPIO_PIN (ibutton_gpio)
+#define THERMO_GPIO_PIN (gpio_ibutton)
 
 /* Flags which the reader thread responds to */
 typedef enum {

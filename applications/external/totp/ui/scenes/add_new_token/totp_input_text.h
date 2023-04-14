@@ -6,6 +6,8 @@
 #include "../../../types/plugin_state.h"
 #include "../../../types/plugin_event.h"
 
+#define INPUT_BUFFER_SIZE (255)
+
 typedef struct {
     char* user_input;
     size_t user_input_length;
@@ -19,8 +21,6 @@ typedef struct {
     char* header_text;
     void* callback_data;
 } InputTextSceneContext;
-
-#define INPUT_BUFFER_SIZE 255
 
 typedef struct {
     TextInput* text_input;

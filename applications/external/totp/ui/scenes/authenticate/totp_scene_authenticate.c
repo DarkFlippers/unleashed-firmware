@@ -18,10 +18,6 @@ typedef struct {
     uint8_t code_length;
 } SceneState;
 
-void totp_scene_authenticate_init(PluginState* plugin_state) {
-    memset(&plugin_state->iv[0], 0, TOTP_IV_SIZE);
-}
-
 void totp_scene_authenticate_activate(PluginState* plugin_state) {
     SceneState* scene_state = malloc(sizeof(SceneState));
     furi_check(scene_state != NULL);
@@ -161,8 +157,4 @@ void totp_scene_authenticate_deactivate(PluginState* plugin_state) {
     if(plugin_state->current_scene_state == NULL) return;
     free(plugin_state->current_scene_state);
     plugin_state->current_scene_state = NULL;
-}
-
-void totp_scene_authenticate_free(const PluginState* plugin_state) {
-    UNUSED(plugin_state);
 }

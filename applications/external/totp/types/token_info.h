@@ -2,15 +2,15 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
-#include <furi/furi.h>
+#include <furi/core/string.h>
 
-#define TOTP_TOKEN_DURATION_DEFAULT 30
+#define TOTP_TOKEN_DURATION_DEFAULT (30)
 
 #define TOTP_TOKEN_ALGO_SHA1_NAME "sha1"
 #define TOTP_TOKEN_ALGO_STEAM_NAME "steam"
 #define TOTP_TOKEN_ALGO_SHA256_NAME "sha256"
 #define TOTP_TOKEN_ALGO_SHA512_NAME "sha512"
-#define TOTP_TOKEN_MAX_LENGTH 255
+#define TOTP_TOKEN_MAX_LENGTH (255)
 
 #define PLAIN_TOKEN_ENCODING_BASE32_NAME "base32"
 #define PLAIN_TOKEN_ENCODING_BASE64_NAME "base64"
@@ -95,12 +95,23 @@ enum TokenAutomationFeatures {
     TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER = 0b100
 };
 
+/**
+ * @brief Plain token secret encodings.
+ */
 enum PlainTokenSecretEncodings {
+
+    /**
+     * @brief Base32 encoding
+     */
     PLAIN_TOKEN_ENCODING_BASE32 = 0,
+
+    /**
+     * @brief Base64 encoding
+     */
     PLAIN_TOKEN_ENCODING_BASE64 = 1
 };
 
-#define TOTP_TOKEN_DIGITS_MAX_COUNT 8
+#define TOTP_TOKEN_DIGITS_MAX_COUNT (8)
 
 /**
  * @brief TOTP token information

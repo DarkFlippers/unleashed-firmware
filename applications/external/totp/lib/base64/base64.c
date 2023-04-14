@@ -22,14 +22,14 @@ static const uint8_t dtable[] = {0x3e, 0x80, 0x80, 0x80, 0x3f, 0x34, 0x35, 0x36,
                                  0x80, 0x80, 0x80, 0x80, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
                                  0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29,
                                  0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33};
-// "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 static uint8_t get_dtable_value(uint8_t index) {
     return (index < 43 || index > 122) ? 0x80 : dtable[index - 43];
 }
 
 uint8_t* base64_decode(const uint8_t* src, size_t len, size_t* out_len, size_t* out_size) {
-    uint8_t *out;
-    uint8_t *pos;
+    uint8_t* out;
+    uint8_t* pos;
     uint8_t in[4];
     uint8_t block[4];
     uint8_t tmp;

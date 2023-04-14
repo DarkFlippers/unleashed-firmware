@@ -3,10 +3,10 @@
 #include <furi_hal.h>
 #include <notification/notification_messages.h>
 
-#define GPS_BAUDRATE_9k 9600
-#define GPS_BAUDRATE_57k 57600
-#define GPS_BAUDRATE_115k 115200
 #define RX_BUF_SIZE 1024
+
+static const int gps_baudrates[5] = {9600, 19200, 38400, 57600, 115200};
+static int current_gps_baudrate = 3;
 
 typedef struct {
     bool valid;
