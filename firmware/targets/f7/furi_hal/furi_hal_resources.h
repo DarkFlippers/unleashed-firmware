@@ -50,6 +50,9 @@ extern const size_t input_pins_count;
 extern const GpioPinRecord gpio_pins[];
 extern const size_t gpio_pins_count;
 
+extern const GpioPin gpio_swdio;
+extern const GpioPin gpio_swclk;
+
 extern const GpioPin gpio_vibro;
 extern const GpioPin gpio_ibutton;
 
