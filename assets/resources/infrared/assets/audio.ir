@@ -2146,3 +2146,33 @@ type: parsed
 protocol: NECext
 address: 10 E7 00 00
 command: 4D B2 00 00
+# 
+name: POWER
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 83 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 86 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 84 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 85 00 00 00
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 46 00 00 00
