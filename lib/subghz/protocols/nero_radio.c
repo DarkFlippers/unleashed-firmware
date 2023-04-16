@@ -117,8 +117,7 @@ static bool
     }
 
     //Send start bit
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_nero_radio_const.te_short * 4);
+    instance->encoder.upload[index++] = level_duration_make(true, (uint32_t)830);
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_nero_radio_const.te_short);
 
