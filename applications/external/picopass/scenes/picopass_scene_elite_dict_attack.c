@@ -116,8 +116,7 @@ bool picopass_scene_elite_dict_attack_on_event(void* context, SceneManagerEvent 
     uint32_t state =
         scene_manager_get_scene_state(picopass->scene_manager, PicopassSceneEliteDictAttack);
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == PicopassWorkerEventSuccess ||
-           event.event == PicopassWorkerEventAborted) {
+        if(event.event == PicopassWorkerEventSuccess) {
             if(state == DictAttackStateUserDictInProgress ||
                state == DictAttackStateStandardDictInProgress) {
                 picopass_worker_stop(picopass->worker);
@@ -127,6 +126,9 @@ bool picopass_scene_elite_dict_attack_on_event(void* context, SceneManagerEvent 
                 scene_manager_next_scene(picopass->scene_manager, PicopassSceneReadCardSuccess);
                 consumed = true;
             }
+        } else if(event.event == PicopassWorkerEventAborted) {
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneReadCardSuccess);
+            consumed = true;
         } else if(event.event == PicopassWorkerEventCardDetected) {
             dict_attack_set_card_detected(picopass->dict_attack);
             consumed = true;
