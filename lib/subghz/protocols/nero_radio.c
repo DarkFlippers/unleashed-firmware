@@ -117,8 +117,7 @@ static bool
     }
 
     //Send start bit
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_nero_radio_const.te_short * 4);
+    instance->encoder.upload[index++] = level_duration_make(true, (uint32_t)830);
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_nero_radio_const.te_short);
 
@@ -142,14 +141,22 @@ static bool
         //send bit 1
         instance->encoder.upload[index++] =
             level_duration_make(true, (uint32_t)subghz_protocol_nero_radio_const.te_long);
-        instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_nero_radio_const.te_short * 37);
+        if(instance->generic.data_count_bit == 57) {
+            instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)1300);
+        } else {
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_nero_radio_const.te_short * 23);
+        }
     } else {
         //send bit 0
         instance->encoder.upload[index++] =
             level_duration_make(true, (uint32_t)subghz_protocol_nero_radio_const.te_short);
-        instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_nero_radio_const.te_short * 37);
+        if(instance->generic.data_count_bit == 57) {
+            instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)1300);
+        } else {
+            instance->encoder.upload[index++] = level_duration_make(
+                false, (uint32_t)subghz_protocol_nero_radio_const.te_short * 23);
+        }
     }
     return true;
 }
@@ -164,8 +171,14 @@ SubGhzProtocolStatus
             &instance->generic,
             flipper_format,
             subghz_protocol_nero_radio_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
+
+        if((ret == SubGhzProtocolStatusErrorValueBitCount) &&
+           (instance->generic.data_count_bit == 57)) {
+            ret = SubGhzProtocolStatusOk;
+        } else {
+            if(ret != SubGhzProtocolStatusOk) {
+                break;
+            }
         }
         //optional parameter parameter
         flipper_format_read_uint32(
@@ -284,8 +297,7 @@ void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t
         break;
     case NeroRadioDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= ((uint32_t)subghz_protocol_nero_radio_const.te_short * 10 +
-                            subghz_protocol_nero_radio_const.te_delta * 2)) {
+            if(duration >= ((uint32_t)1250)) {
                 //Found stop bit
                 if(DURATION_DIFF(
                        instance->decoder.te_last, subghz_protocol_nero_radio_const.te_short) <
@@ -298,8 +310,10 @@ void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 instance->decoder.parser_step = NeroRadioDecoderStepReset;
-                if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_nero_radio_const.min_count_bit_for_found) {
+                if((instance->decoder.decode_count_bit ==
+                    subghz_protocol_nero_radio_const.min_count_bit_for_found) ||
+                   (instance->decoder.decode_count_bit ==
+                    subghz_protocol_nero_radio_const.min_count_bit_for_found + 1)) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
 
@@ -356,10 +370,19 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_nero_radio_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroRadio* instance = context;
-    return subghz_block_generic_deserialize_check_count_bit(
+    SubGhzProtocolStatus stat;
+
+    stat = subghz_block_generic_deserialize_check_count_bit(
         &instance->generic,
         flipper_format,
         subghz_protocol_nero_radio_const.min_count_bit_for_found);
+
+    if((stat == SubGhzProtocolStatusErrorValueBitCount) &&
+       (instance->generic.data_count_bit == 57)) {
+        return SubGhzProtocolStatusOk;
+    } else {
+        return stat;
+    }
 }
 
 void subghz_protocol_decoder_nero_radio_get_string(void* context, FuriString* output) {

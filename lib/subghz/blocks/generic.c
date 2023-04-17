@@ -152,7 +152,7 @@ SubGhzProtocolStatus subghz_block_generic_deserialize_check_count_bit(
             break;
         }
         if(instance->data_count_bit != count_bit) {
-            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            FURI_LOG_D(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
