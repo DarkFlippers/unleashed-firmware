@@ -56,6 +56,7 @@ void subghz_file_encoder_worker_add_level_duration(
 
 bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, const char* strStart) {
     char* str1;
+    int32_t temp_ds = 0;
     bool res = false;
     // Line sample: "RAW_Data: -1, 2, -2..."
 
@@ -72,7 +73,13 @@ bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, co
 
             // Skip space
             str1 += 1;
-            subghz_file_encoder_worker_add_level_duration(instance, atoi(str1));
+            //
+            temp_ds = atoi(str1);
+            if((temp_ds < -1000000) || (temp_ds > 1000000)) {
+                //FURI_LOG_I("PARSE", "Number overflow - %d", atoi(str1));
+            } else {
+                subghz_file_encoder_worker_add_level_duration(instance, temp_ds);
+            }
         }
         res = true;
     }
