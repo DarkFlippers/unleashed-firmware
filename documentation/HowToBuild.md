@@ -62,6 +62,8 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 ./fbt.cmd COMPACT=1 DEBUG=0 updater_package
 ```
 
+**You may need to change** `/` **to** `\` **in front of fbt command (Only for Windows)!**
+
 Check `dist/` for build outputs.
 
 Use **`flipper-z-{target}-update-{suffix}.tgz`** to flash your device.
