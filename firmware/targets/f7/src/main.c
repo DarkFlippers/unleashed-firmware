@@ -29,6 +29,8 @@ int main() {
     FuriThread* main_thread = furi_thread_alloc_ex("Init", 4096, init_task, NULL);
 
 #ifdef FURI_RAM_EXEC
+    // Prevent entering sleep mode when executed from RAM
+    furi_hal_power_insomnia_enter();
     furi_thread_start(main_thread);
 #else
     furi_hal_light_sequence("RGB");
@@ -44,6 +46,7 @@ int main() {
         furi_hal_power_reset();
     } else if(boot_mode == FuriHalRtcBootModeUpdate) {
         furi_hal_light_sequence("rgb BR");
+        // Do update
         flipper_boot_update_exec();
         // if things go nice, we shouldn't reach this point.
         // But if we do, abandon to avoid bootloops
