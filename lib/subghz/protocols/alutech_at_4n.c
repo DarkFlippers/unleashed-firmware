@@ -79,6 +79,11 @@ const SubGhzProtocol subghz_protocol_alutech_at_4n = {
     .encoder = &subghz_protocol_alutech_at_4n_encoder,
 };
 
+static void subghz_protocol_alutech_at_4n_remote_controller(
+    SubGhzBlockGeneric* instance,
+    uint8_t crc,
+    const char* file_name);
+
 void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolEncoderAlutech_at_4n* instance =
@@ -503,9 +508,17 @@ SubGhzProtocolStatus subghz_protocol_encoder_alutech_at_4n_deserialize(
             break;
         }
 
+        if(!flipper_format_read_uint32(flipper_format, "CRC", (uint32_t*)&instance->crc, 1)) {
+            FURI_LOG_E(TAG, "Missing CRC");
+            break;
+        }
+
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        subghz_protocol_alutech_at_4n_remote_controller(
+            &instance->generic, instance->crc, instance->alutech_at_4n_rainbow_table_file_name);
 
         subghz_protocol_encoder_alutech_at_4n_get_upload(instance, instance->generic.btn);
 
