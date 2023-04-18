@@ -1,4 +1,12 @@
-### New changes
+### New changes 
+* OFW: Various stop mode fixes -> **Fixes all known issues with BLE (Random freezes, menu freeze, BT Remote plugin freeze) and other similar issues**
+* OFW: Picopass: Correctly aborts when correct key is found -> Fixes Bug (Picopass app not reading elite keyed cards anymore. #413)
+* SubGhz: Nero Radio 57bit **experimental** support + encoder improvements and decoder changes
+* SubGhz: Fix RAW recording and reading, (bug where raw file plays endlessly) 
+* Plugins: Improve wifi marauder keyboard (added extra symbols!) (Port uart terminal keyboard into wifi marauder)
+* Infrared: Update universal remote assets (by @amec0e | PR #421)
+* Docs: Update build docs (by @PhoenixSheppy | PR #425)
+### Previous changes
 * If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
 * SubGHz: (Bug that I decided to keep as a feature) You can change default button (Ok) for remote by holding custom button and pressing back at same time (same can be used to restore your button if you changed it accidentally) - Be careful, it might be unstable, I will make proper option to change button in next releases
 * SubGHz: Fixes for custom button bugs in SubGHz Remote app

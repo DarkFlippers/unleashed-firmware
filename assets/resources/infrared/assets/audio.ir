@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 29th Mar, 2023
-# Last Checked 29th Mar, 2023
+# Last Updated 14th Apr, 2023
+# Last Checked 14th Apr, 2023
 # 
 name: POWER
 type: parsed
@@ -2134,3 +2134,45 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 2701 861 496 420 445 444 444 885 446 871 892 441 444 441 444 441 471 415 471 415 470 417 467 444 440 446 883 891 436 449 437 449 437 450 436 450 436 449 883 448 437 451 436 894 436 450 436 450 436 450 436 450 436 450 882 449 436 894 883 116552 2698 862 469 448 438 449 438 894 437 880 884 448 437 449 437 448 438 449 437 449 437 449 437 449 437 449 884 890 437 449 437 449 437 449 437 449 437 449 884 448 437 450 437 893 437 449 437 449 437 449 437 449 437 449 884 448 436 894 883
+# 
+name: VOL+
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 3C C3 00 00
+# 
+name: VOL-
+type: parsed
+protocol: NECext
+address: 10 E7 00 00
+command: 4D B2 00 00
+# 
+name: POWER
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 83 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 86 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 84 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Kaseikyo
+address: 52 54 32 00
+command: 85 00 00 00
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 46 00 00 00
