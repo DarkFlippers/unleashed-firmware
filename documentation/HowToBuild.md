@@ -53,13 +53,13 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 ### Compile everything for development
 
 ```sh
-.\fbt.cmd FIRMWARE_APP_SET=debug_pack updater_package
+./fbt.cmd FIRMWARE_APP_SET=debug_pack updater_package
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
 
 ```sh
-.\fbt.cmd COMPACT=1 DEBUG=0 updater_package
+./fbt.cmd COMPACT=1 DEBUG=0 updater_package
 ```
 
 Check `dist/` for build outputs.
