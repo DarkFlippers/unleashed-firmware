@@ -1,0 +1,181 @@
+name: 'Build'
+
+on:
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+      - '*'
+  pull_request:
+
+env:
+  TARGETS: f7
+  DEFAULT_TARGET: f7
+  FBT_TOOLCHAIN_PATH: /runner/_work
+
+jobs:
+  main:
+    runs-on: [self-hosted,FlipperZeroShell]
+    steps:
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Get commit details'
+        id: names
+        run: |
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            TYPE="pull"
+          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TYPE="tag"
+          else
+            TYPE="other"
+          fi
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
+          echo random_hash=$(openssl rand -base64 40 | shasum -a 256 | awk '{print $1}') >> $GITHUB_OUTPUT
+          echo "event_type=$TYPE" >> $GITHUB_OUTPUT
+      - name: 'Check API versions'
+        run: |
+          set -e
+          N_API_HEADER_SIGNATURES=`ls -1 firmware/targets/f*/api_symbols.csv | xargs -I {} sh -c "head -n2 {} | md5sum" | sort -u | wc -l`
+          if [ $N_API_HEADER_SIGNATURES != 1 ] ; then
+            echo API versions aren\'t matching for available targets. Please update!
+            head -n2 firmware/targets/f*/api_symbols.csv
+            exit 1
+          fi
+      - name: 'Make artifacts directory'
+        run: |
+          rm -rf artifacts
+          rm -rf map_analyser_files
+          mkdir artifacts
+          mkdir map_analyser_files
+      - name: 'Bundle scripts'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts debug
+      - name: 'Build the firmware'
+        run: |
+          set -e
+          for TARGET in ${TARGETS}; do
+            TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
+            ./fbt TARGET_HW=$TARGET copro_dist updater_package \
+            ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+          done
+      - name: 'Move upload files'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          set -e
+          for TARGET in ${TARGETS}; do
+            mv dist/${TARGET}-*/* artifacts/
+          done
+      - name: "Check for uncommitted changes"
+        run: |
+          git diff --exit-code
+      - name: 'Bundle resources'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          tar czpf "artifacts/flipper-z-any-resources-${SUFFIX}.tgz" -C assets resources
+      - name: 'Bundle core2 firmware'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          cp build/core2_firmware.tgz "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz"
+      - name: 'Copy map analyser files'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          cp build/f7-firmware-*/firmware.elf.map map_analyser_files/firmware.elf.map
+          cp build/f7-firmware-*/firmware.elf map_analyser_files/firmware.elf
+          cp ${{ github.event_path }} map_analyser_files/event.json
+      - name: 'Upload map analyser files to storage'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: prewk/s3-cp-action@v2
+        with:
+          aws_s3_endpoint: "${{ secrets.MAP_REPORT_AWS_ENDPOINT }}"
+          aws_access_key_id: "${{ secrets.MAP_REPORT_AWS_ACCESS_KEY }}"
+          aws_secret_access_key: "${{ secrets.MAP_REPORT_AWS_SECRET_KEY }}"
+          source: "./map_analyser_files/"
+          dest: "s3://${{ secrets.MAP_REPORT_AWS_BUCKET }}/${{steps.names.outputs.random_hash}}"
+          flags: "--recursive --acl public-read"
+
+      - name: 'Trigger map file reporter'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          repository: flipperdevices/flipper-map-reporter
+          token: ${{ secrets.REPOSITORY_DISPATCH_TOKEN }}
+          event-type: map-file-analyse
+          client-payload: '{"random_hash": "${{steps.names.outputs.random_hash}}", "event_type": "${{steps.names.outputs.event_type}}"}'
+
+      - name: 'Upload artifacts to update server'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.RSYNC_DEPLOY_PORT }} -H ${{ secrets.RSYNC_DEPLOY_HOST }} > ~/.ssh/known_hosts
+          echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
+          chmod 600 ./deploy_key;
+          rsync -avzP --delete --mkpath \
+              -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
+              artifacts/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${BRANCH_NAME}/";
+          rm ./deploy_key;
+      - name: 'Trigger update server reindex'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: curl -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
+
+      - name: 'Find Previous Comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'Compiled firmware for commit'
+
+      - name: 'Create or update comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request}}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Compiled firmware for commit `${{steps.names.outputs.commit_sha}}`:**
+            - [📦 Update package](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz)
+            - [📥 DFU file](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-full-${{steps.names.outputs.suffix}}.dfu)
+            - [☁️ Web/App updater](https://lab.flipper.net/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.branch_name}}&version=${{steps.names.outputs.commit_sha}})
+          edit-mode: replace
+
+  compact:
+    if: ${{ !startsWith(github.ref, 'refs/tags') }}
+    runs-on: [self-hosted,FlipperZeroShell]
+    steps:
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          submodules: false
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Get commit details'
+        run: |
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            TYPE="pull"
+          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TYPE="tag"
+          else
+            TYPE="other"
+          fi
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
+      - name: 'Build the firmware'
+        run: |
+          set -e
+          for TARGET in ${TARGETS}; do
+            TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
+            ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 fap_dist updater_package
+          done
