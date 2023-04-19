@@ -163,18 +163,33 @@ static NotificationAppSettings* alloc_settings() {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, backlight_text[value_index]);
 
-    item = variable_item_list_add(
-        app->variable_item_list, "Volume", VOLUME_COUNT, volume_changed, app);
-    value_index =
-        value_index_float(app->notification->settings.speaker_volume, volume_value, VOLUME_COUNT);
-    variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, volume_text[value_index]);
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode)) {
+        item = variable_item_list_add(app->variable_item_list, "Volume", 1, NULL, app);
+        value_index = 0;
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, "Stealth");
+    } else {
+        item = variable_item_list_add(
+            app->variable_item_list, "Volume", VOLUME_COUNT, volume_changed, app);
+        value_index = value_index_float(
+            app->notification->settings.speaker_volume, volume_value, VOLUME_COUNT);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, volume_text[value_index]);
+    }
 
-    item =
-        variable_item_list_add(app->variable_item_list, "Vibro", VIBRO_COUNT, vibro_changed, app);
-    value_index = value_index_bool(app->notification->settings.vibro_on, vibro_value, VIBRO_COUNT);
-    variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, vibro_text[value_index]);
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode)) {
+        item = variable_item_list_add(app->variable_item_list, "Vibro", 1, NULL, app);
+        value_index = 0;
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, "Stealth");
+    } else {
+        item = variable_item_list_add(
+            app->variable_item_list, "Vibro", VIBRO_COUNT, vibro_changed, app);
+        value_index =
+            value_index_bool(app->notification->settings.vibro_on, vibro_value, VIBRO_COUNT);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, vibro_text[value_index]);
+    }
 
     app->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(app->view_dispatcher);
