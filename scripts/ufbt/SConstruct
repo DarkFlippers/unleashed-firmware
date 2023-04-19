@@ -1,6 +1,8 @@
 from SCons.Platform import TempFileMunge
 from SCons.Node import FS
 from SCons.Errors import UserError
+from SCons.Warnings import warn, WarningOnByDefault
+
 
 import os
 import multiprocessing
@@ -246,13 +248,25 @@ known_extapps = [
     for apptype in apps_to_build_as_faps
     for app in appenv["APPBUILD"].get_apps_of_type(apptype, True)
 ]
+incompatible_apps = []
 for app in known_extapps:
+    if not app.supports_hardware_target(appenv.subst("f${TARGET_HW}")):
+        incompatible_apps.append(app)
+        continue
+
     app_artifacts = appenv.BuildAppElf(app)
     app_src_dir = extract_abs_dir(app_artifacts.app._appdir)
     app_artifacts.installer = [
         appenv.Install(app_src_dir.Dir("dist"), app_artifacts.compact),
         appenv.Install(app_src_dir.Dir("dist").Dir("debug"), app_artifacts.debug),
     ]
+
+if len(incompatible_apps):
+    print(
+        "WARNING: The following apps are not compatible with the current target hardware and will not be built: {}".format(
+            ", ".join([app.name for app in incompatible_apps])
+        )
+    )
 
 if appenv["FORCE"]:
     appenv.AlwaysBuild([extapp.compact for extapp in apps_artifacts.values()])

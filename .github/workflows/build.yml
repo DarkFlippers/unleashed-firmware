@@ -139,7 +139,7 @@ jobs:
 
       - name: 'Find Previous Comment'
         if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -148,7 +148,7 @@ jobs:
 
       - name: 'Create or update comment'
         if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request}}
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -162,6 +162,9 @@ jobs:
   compact:
     if: ${{ !startsWith(github.ref, 'refs/tags') }}
     runs-on: [self-hosted,FlipperZeroShell]
+    strategy:
+      matrix:
+        target: [f7, f18]
     steps:
       - name: 'Wipe workspace'
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
@@ -185,9 +188,40 @@ jobs:
           python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
 
       - name: 'Build the firmware'
+        id: build-fw
         run: |
           set -e
-          for TARGET in ${TARGETS}; do
-            TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
-            ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 fap_dist updater_package
+          TARGET="$(echo '${{ matrix.target }}' | sed 's/f//')"; \
+          ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 fap_dist updater_package
+          echo "sdk-file=$(ls dist/${{ matrix.target }}-*/flipper-z-${{ matrix.target }}-sdk-*.zip)" >> $GITHUB_OUTPUT
+
+      - name: Deploy uFBT with SDK
+        uses: flipperdevices/flipperzero-ufbt-action@v0.1.0
+        with:
+          task: setup
+          sdk-file: ${{ steps.build-fw.outputs.sdk-file }}
+
+      - name: Build test app with SDK
+        run: |
+          mkdir testapp
+          cd testapp
+          ufbt create APPID=testapp
+          ufbt
+      
+      - name: Build example & external apps with uFBT
+        run: |
+          for appdir in 'applications/external' 'applications/examples'; do
+            for app in $(find "$appdir" -maxdepth 1 -mindepth 1 -type d); do
+              pushd $app
+              TARGETS_FAM=$(grep "targets" application.fam || echo "${{ matrix.target }}")
+              if ! grep -q "${{ matrix.target }}" <<< $TARGETS_FAM ; then
+                  echo Skipping unsupported app: $app
+                  popd
+                  continue
+              fi
+              echo Building $app
+              ufbt
+              popd
+            done
           done
+

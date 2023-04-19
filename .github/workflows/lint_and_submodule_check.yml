@@ -40,7 +40,7 @@ jobs:
           COMMITS_IN_BRANCH="$(git rev-list --count dev)";
           if [ $COMMITS_IN_BRANCH -lt $SUB_COMMITS_MIN ]; then
             echo "name=fails::error" >> $GITHUB_OUTPUT;
-            echo "::error::Error: Too low commits in $SUB_BRANCH of submodule $SUB_PATH: $COMMITS_IN_BRANCH(expected $SUB_COMMITS_MIN+)";
+            echo "::error::Error: Too few commits in $SUB_BRANCH of submodule $SUB_PATH: $COMMITS_IN_BRANCH(expected $SUB_COMMITS_MIN+)";
             exit 1;
           fi
           if ! grep -q "/$SUB_BRANCH" <<< "$BRANCHES"; then
@@ -51,12 +51,36 @@ jobs:
 
       - name: 'Check Python code formatting'
         id: syntax_check_py
-        run: ./fbt lint_py 2>&1 >/dev/null || echo "errors=1" >> $GITHUB_OUTPUT
-
+        run: |
+          set +e;
+          ./fbt -s lint_py 2>&1 | tee lint-py.log;
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            # Save multiline output
+            echo "errors=1" >> $GITHUB_OUTPUT;
+            printf "Python Lint errors:\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY;
+            echo "$(cat lint-py.log)" >> $GITHUB_STEP_SUMMARY;
+            printf "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY;
+            exit 1;
+          else
+            echo "Python Lint: all good ✨" >> $GITHUB_STEP_SUMMARY;
+          fi
+  
       - name: 'Check C++ code formatting'
-        if: always()
         id: syntax_check_cpp
-        run: ./fbt lint 2>&1 >/dev/null || echo "errors=1" >> $GITHUB_OUTPUT
+        if: always()
+        run: |
+          set +e;
+          ./fbt -s lint 2>&1 | tee lint-cpp.log;
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            # Save multiline output
+            echo "errors=1" >> $GITHUB_OUTPUT;
+            printf "C Lint errors:\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY;
+            echo "$(cat lint-cpp.log)" >> $GITHUB_STEP_SUMMARY;
+            printf "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY;
+            exit 1;
+          else
+            echo "C Lint: all good ✨" >> $GITHUB_STEP_SUMMARY;
+          fi
 
       - name: Report code formatting errors
         if: ( steps.syntax_check_py.outputs.errors || steps.syntax_check_cpp.outputs.errors ) && github.event.pull_request
