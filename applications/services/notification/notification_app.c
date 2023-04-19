@@ -20,9 +20,9 @@ static const uint8_t reset_sound_mask = 1 << 4;
 static const uint8_t reset_display_mask = 1 << 5;
 static const uint8_t reset_blink_mask = 1 << 6;
 
-void notification_vibro_on();
+void notification_vibro_on(bool force);
 void notification_vibro_off();
-void notification_sound_on(float freq, float volume);
+void notification_sound_on(float freq, float volume, bool force);
 void notification_sound_off();
 
 uint8_t notification_settings_get_display_brightness(NotificationApp* app, uint8_t value);
@@ -141,17 +141,21 @@ uint32_t notification_settings_display_off_delay_ticks(NotificationApp* app) {
 }
 
 // generics
-void notification_vibro_on() {
-    furi_hal_vibro_on(true);
+void notification_vibro_on(bool force) {
+    if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode) || force) {
+        furi_hal_vibro_on(true);
+    }
 }
 
 void notification_vibro_off() {
     furi_hal_vibro_on(false);
 }
 
-void notification_sound_on(float freq, float volume) {
-    if(furi_hal_speaker_is_mine() || furi_hal_speaker_acquire(30)) {
-        furi_hal_speaker_start(freq, volume);
+void notification_sound_on(float freq, float volume, bool force) {
+    if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode) || force) {
+        if(furi_hal_speaker_is_mine() || furi_hal_speaker_acquire(30)) {
+            furi_hal_speaker_start(freq, volume);
+        }
     }
 }
 
@@ -174,6 +178,8 @@ void notification_process_notification_message(
     NotificationApp* app,
     NotificationAppMessage* message) {
     uint32_t notification_message_index = 0;
+    bool force_volume = false;
+    bool force_vibro = false;
     const NotificationMessage* notification_message;
     notification_message = (*message->sequence)[notification_message_index];
 
@@ -269,7 +275,7 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeVibro:
             if(notification_message->data.vibro.on) {
-                if(vibro_setting) notification_vibro_on();
+                if(vibro_setting) notification_vibro_on(force_vibro);
             } else {
                 notification_vibro_off();
             }
@@ -278,7 +284,8 @@ void notification_process_notification_message(
         case NotificationMessageTypeSoundOn:
             notification_sound_on(
                 notification_message->data.sound.frequency,
-                notification_message->data.sound.volume * speaker_volume_setting);
+                notification_message->data.sound.volume * speaker_volume_setting,
+                force_volume);
             reset_mask |= reset_sound_mask;
             break;
         case NotificationMessageTypeSoundOff:
@@ -307,9 +314,11 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeForceSpeakerVolumeSetting:
             speaker_volume_setting = notification_message->data.forced_settings.speaker_volume;
+            force_volume = true;
             break;
         case NotificationMessageTypeForceVibroSetting:
             vibro_setting = notification_message->data.forced_settings.vibro;
+            force_vibro = true;
             break;
         case NotificationMessageTypeForceDisplayBrightnessSetting:
             display_brightness_setting =
