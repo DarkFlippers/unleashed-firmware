@@ -137,38 +137,33 @@ static int32_t ble_app_hci_thread(void* arg) {
 // Called by WPAN lib
 void hci_notify_asynch_evt(void* pdata) {
     UNUSED(pdata);
-    if(ble_app) {
-        FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
-        furi_assert(thread_id);
-        furi_thread_flags_set(thread_id, BLE_APP_FLAG_HCI_EVENT);
-    }
+    furi_check(ble_app);
+    FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
+    furi_assert(thread_id);
+    furi_thread_flags_set(thread_id, BLE_APP_FLAG_HCI_EVENT);
 }
 
 void hci_cmd_resp_release(uint32_t flag) {
     UNUSED(flag);
-    if(ble_app) {
-        furi_semaphore_release(ble_app->hci_sem);
-    }
+    furi_check(ble_app);
+    furi_check(furi_semaphore_release(ble_app->hci_sem) == FuriStatusOk);
 }
 
 void hci_cmd_resp_wait(uint32_t timeout) {
-    UNUSED(timeout);
-    if(ble_app) {
-        furi_semaphore_acquire(ble_app->hci_sem, FuriWaitForever);
-    }
+    furi_check(ble_app);
+    furi_check(furi_semaphore_acquire(ble_app->hci_sem, timeout) == FuriStatusOk);
 }
 
 static void ble_app_hci_event_handler(void* pPayload) {
     SVCCTL_UserEvtFlowStatus_t svctl_return_status;
     tHCI_UserEvtRxParam* pParam = (tHCI_UserEvtRxParam*)pPayload;
 
-    if(ble_app) {
-        svctl_return_status = SVCCTL_UserEvtRx((void*)&(pParam->pckt->evtserial));
-        if(svctl_return_status != SVCCTL_UserEvtFlowDisable) {
-            pParam->status = HCI_TL_UserEventFlow_Enable;
-        } else {
-            pParam->status = HCI_TL_UserEventFlow_Disable;
-        }
+    furi_check(ble_app);
+    svctl_return_status = SVCCTL_UserEvtRx((void*)&(pParam->pckt->evtserial));
+    if(svctl_return_status != SVCCTL_UserEvtFlowDisable) {
+        pParam->status = HCI_TL_UserEventFlow_Enable;
+    } else {
+        pParam->status = HCI_TL_UserEventFlow_Disable;
     }
 }
 

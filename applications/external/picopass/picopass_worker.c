@@ -570,7 +570,7 @@ void picopass_worker_elite_dict_attack(PicopassWorker* picopass_worker) {
                 picopass_worker->callback(PicopassWorkerEventFail, picopass_worker->context);
                 break;
             }
-            picopass_worker->callback(PicopassWorkerEventSuccess, picopass_worker->context);
+            picopass_worker->callback(PicopassWorkerEventAborted, picopass_worker->context);
             break;
         }
 
@@ -596,6 +596,9 @@ int32_t picopass_worker_task(void* context) {
         picopass_worker_write_key(picopass_worker);
     } else if(picopass_worker->state == PicopassWorkerStateEliteDictAttack) {
         picopass_worker_elite_dict_attack(picopass_worker);
+    } else if(picopass_worker->state == PicopassWorkerStateStop) {
+        FURI_LOG_D(TAG, "Worker state stop");
+        // no-op
     } else {
         FURI_LOG_W(TAG, "Unknown state %d", picopass_worker->state);
     }

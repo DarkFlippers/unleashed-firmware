@@ -44,24 +44,24 @@ void wifi_marauder_scene_text_input_on_enter(void* context) {
     }
 
     // Setup view
-    TextInput* text_input = app->text_input;
+    WIFI_TextInput* text_input = app->text_input;
     // Add help message to header
     if(app->special_case_input_step == 1) {
-        text_input_set_header_text(text_input, "Enter source MAC");
+        wifi_text_input_set_header_text(text_input, "Enter source MAC");
     } else if(0 == strncmp("ssid -a -g", app->selected_tx_string, strlen("ssid -a -g"))) {
-        text_input_set_header_text(text_input, "Enter # SSIDs to generate");
+        wifi_text_input_set_header_text(text_input, "Enter # SSIDs to generate");
     } else if(0 == strncmp("ssid -a -n", app->selected_tx_string, strlen("ssid -a -n"))) {
-        text_input_set_header_text(text_input, "Enter SSID name to add");
+        wifi_text_input_set_header_text(text_input, "Enter SSID name to add");
     } else if(0 == strncmp("ssid -r", app->selected_tx_string, strlen("ssid -r"))) {
-        text_input_set_header_text(text_input, "Remove target from SSID list");
+        wifi_text_input_set_header_text(text_input, "Remove target from SSID list");
     } else if(0 == strncmp("select -a", app->selected_tx_string, strlen("select -a"))) {
-        text_input_set_header_text(text_input, "Add target from AP list");
+        wifi_text_input_set_header_text(text_input, "Add target from AP list");
     } else if(0 == strncmp("select -s", app->selected_tx_string, strlen("select -s"))) {
-        text_input_set_header_text(text_input, "Add target from SSID list");
+        wifi_text_input_set_header_text(text_input, "Add target from SSID list");
     } else {
-        text_input_set_header_text(text_input, "Add command arguments");
+        wifi_text_input_set_header_text(text_input, "Add command arguments");
     }
-    text_input_set_result_callback(
+    wifi_text_input_set_result_callback(
         text_input,
         wifi_marauder_scene_text_input_callback,
         app,
@@ -84,7 +84,7 @@ bool wifi_marauder_scene_text_input_on_event(void* context, SceneManagerEvent ev
             consumed = true;
         } else if(event.event == WifiMarauderEventSaveSourceMac) {
             if(12 != strlen(app->text_input_store)) {
-                text_input_set_header_text(app->text_input, "MAC must be 12 hex chars!");
+                wifi_text_input_set_header_text(app->text_input, "MAC must be 12 hex chars!");
             } else {
                 snprintf(
                     app->special_case_input_src_addr,
@@ -106,12 +106,12 @@ bool wifi_marauder_scene_text_input_on_event(void* context, SceneManagerEvent ev
                 // Advance scene to input destination MAC, clear text input
                 app->special_case_input_step = 2;
                 bzero(app->text_input_store, WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE);
-                text_input_set_header_text(app->text_input, "Enter destination MAC");
+                wifi_text_input_set_header_text(app->text_input, "Enter destination MAC");
             }
             consumed = true;
         } else if(event.event == WifiMarauderEventSaveDestinationMac) {
             if(12 != strlen(app->text_input_store)) {
-                text_input_set_header_text(app->text_input, "MAC must be 12 hex chars!");
+                wifi_text_input_set_header_text(app->text_input, "MAC must be 12 hex chars!");
             } else {
                 snprintf(
                     app->special_case_input_dst_addr,
@@ -150,5 +150,5 @@ bool wifi_marauder_scene_text_input_on_event(void* context, SceneManagerEvent ev
 void wifi_marauder_scene_text_input_on_exit(void* context) {
     WifiMarauderApp* app = context;
 
-    text_input_reset(app->text_input);
+    wifi_text_input_reset(app->text_input);
 }

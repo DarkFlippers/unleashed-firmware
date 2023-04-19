@@ -1,6 +1,7 @@
 #include "fap_loader_app.h"
 
 #include <furi.h>
+#include <furi_hal_debug.h>
 
 #include <assets_icons.h>
 #include <gui/gui.h>
@@ -22,8 +23,6 @@ struct FapLoader {
     ViewDispatcher* view_dispatcher;
     Loading* loading;
 };
-
-volatile bool fap_loader_debug_active = false;
 
 bool fap_loader_load_name_and_icon(
     FuriString* path,
@@ -134,7 +133,7 @@ static bool fap_loader_run_selected_app(FapLoader* loader, bool ignore_mismatch)
         FuriThread* thread = flipper_application_spawn(loader->app, NULL);
 
         /* This flag is set by the debugger - to break on app start */
-        if(fap_loader_debug_active) {
+        if(furi_hal_debug_is_gdb_session_active()) {
             FURI_LOG_W(TAG, "Triggering BP for debugger");
             /* After hitting this, you can set breakpoints in your .fap's code
              * Note that you have to toggle breakpoints that were set before */
