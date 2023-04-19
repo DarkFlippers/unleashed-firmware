@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,22.0,,
+Version,+,23.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1596,7 +1596,8 @@ Function,-,rindex,char*,"const char*, int"
 Function,+,rpc_session_close,void,RpcSession*
 Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, TickType_t"
 Function,+,rpc_session_get_available_size,size_t,RpcSession*
-Function,+,rpc_session_open,RpcSession*,Rpc*
+Function,+,rpc_session_get_owner,RpcOwner,RpcSession*
+Function,+,rpc_session_open,RpcSession*,"Rpc*, RpcOwner"
 Function,+,rpc_session_set_buffer_is_empty_callback,void,"RpcSession*, RpcBufferIsEmptyCallback"
 Function,+,rpc_session_set_close_callback,void,"RpcSession*, RpcSessionClosedCallback"
 Function,+,rpc_session_set_context,void,"RpcSession*, void*"
