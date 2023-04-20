@@ -393,7 +393,6 @@ static bool
 
     uint8_t custom_btn_id = subghz_custom_btn_get();
     uint8_t original_btn_num = subghz_custom_btn_get_original();
-
     // Set custom button
     if(custom_btn_id == 1) {
         switch(original_btn_num) {
@@ -499,11 +498,9 @@ static bool
             break;
         }
     }
-
     if((custom_btn_id == 0) && (original_btn_num != 0)) {
         btn = original_btn_num;
     }
-
     // Generate new key
 
     if(subghz_protocol_keeloq_gen_data(instance, btn, true)) {

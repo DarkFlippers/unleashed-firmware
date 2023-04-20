@@ -23,6 +23,7 @@
 #include <ble/core/ble_std.h>
 #include <ble/core/ble_defs.h>
 #include "osal.h"
+#include "compiler.h"
 
 /* Default BLE variant */
 #ifndef BASIC_FEATURES
@@ -33,6 +34,9 @@
 #endif
 #ifndef LL_ONLY
 #define LL_ONLY 0
+#endif
+#ifndef LL_ONLY_BASIC
+#define LL_ONLY_BASIC 0
 #endif
 #ifndef BEACON_ONLY
 #define BEACON_ONLY 0

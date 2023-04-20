@@ -46,6 +46,12 @@ static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context)
     canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 }
 
+static void desktop_stealth_mode_icon_draw_callback(Canvas* canvas, void* context) {
+    UNUSED(context);
+    furi_assert(canvas);
+    canvas_draw_icon(canvas, 0, 0, &I_Muted_8x8);
+}
+
 static bool desktop_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     Desktop* desktop = (Desktop*)context;
@@ -156,6 +162,17 @@ void desktop_set_dummy_mode_state(Desktop* desktop, bool enabled) {
     desktop->in_transition = false;
 }
 
+void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled) {
+    desktop->in_transition = true;
+    if(enabled) {
+        furi_hal_rtc_set_flag(FuriHalRtcFlagStealthMode);
+    } else {
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagStealthMode);
+    }
+    view_port_enabled_set(desktop->stealth_mode_icon_viewport, enabled);
+    desktop->in_transition = false;
+}
+
 Desktop* desktop_alloc() {
     Desktop* desktop = malloc(sizeof(Desktop));
 
@@ -246,6 +263,18 @@ Desktop* desktop_alloc() {
         desktop->dummy_mode_icon_viewport, desktop_dummy_mode_icon_draw_callback, desktop);
     view_port_enabled_set(desktop->dummy_mode_icon_viewport, false);
     gui_add_view_port(desktop->gui, desktop->dummy_mode_icon_viewport, GuiLayerStatusBarLeft);
+
+    // Stealth mode icon
+    desktop->stealth_mode_icon_viewport = view_port_alloc();
+    view_port_set_width(desktop->stealth_mode_icon_viewport, icon_get_width(&I_Muted_8x8));
+    view_port_draw_callback_set(
+        desktop->stealth_mode_icon_viewport, desktop_stealth_mode_icon_draw_callback, desktop);
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode)) {
+        view_port_enabled_set(desktop->stealth_mode_icon_viewport, true);
+    } else {
+        view_port_enabled_set(desktop->stealth_mode_icon_viewport, false);
+    }
+    gui_add_view_port(desktop->gui, desktop->stealth_mode_icon_viewport, GuiLayerStatusBarLeft);
 
     // Special case: autostart application is already running
     desktop->loader = furi_record_open(RECORD_LOADER);

@@ -52,6 +52,10 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
 
 void subghz_scene_transmitter_on_enter(void* context) {
     SubGhz* subghz = context;
+
+    keeloq_reset_original_btn();
+    subghz_custom_btns_reset();
+
     if(!subghz_scene_transmitter_update_data_show(subghz)) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventViewTransmitterError);
