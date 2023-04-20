@@ -29,6 +29,14 @@
 #define FURI_HAL_POWER_DEBUG_STOP_GPIO (&gpio_ext_pc3)
 #endif
 
+#ifndef FURI_HAL_POWER_DEBUG_ABNORMAL_GPIO
+#define FURI_HAL_POWER_DEBUG_ABNORMAL_GPIO (&gpio_ext_pb3)
+#endif
+
+#ifndef FURI_HAL_POWER_STOP_MODE
+#define FURI_HAL_POWER_STOP_MODE (LL_PWR_MODE_STOP2)
+#endif
+
 typedef struct {
     volatile uint8_t insomnia;
     volatile uint8_t suppress_charge;
@@ -84,14 +92,16 @@ void furi_hal_power_init() {
 #ifdef FURI_HAL_POWER_DEBUG
     furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_WFI_GPIO, GpioModeOutputPushPull);
     furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_STOP_GPIO, GpioModeOutputPushPull);
+    furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_ABNORMAL_GPIO, GpioModeOutputPushPull);
     furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
     furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
+    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_ABNORMAL_GPIO, 0);
 #endif
 
     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
-    LL_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
-    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
+    LL_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
+    LL_C2_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     bq27220_init(&furi_hal_i2c_handle_power, &cedv);
@@ -148,7 +158,9 @@ bool furi_hal_power_sleep_available() {
 
 static inline bool furi_hal_power_deep_sleep_available() {
     return furi_hal_bt_is_alive() && !furi_hal_rtc_is_flag_set(FuriHalRtcFlagLegacySleep) &&
-           !furi_hal_debug_is_gdb_session_active();
+           !furi_hal_debug_is_gdb_session_active() && !LL_PWR_IsActiveFlag_CRPE() &&
+           !LL_PWR_IsActiveFlag_CRP() && !LL_PWR_IsActiveFlag_BLEA() &&
+           !LL_PWR_IsActiveFlag_BLEWU();
 }
 
 static inline void furi_hal_power_light_sleep() {
@@ -199,7 +211,16 @@ static inline void furi_hal_power_deep_sleep() {
     __force_stores();
 #endif
 
-    __WFI();
+    bool should_abort_sleep = LL_PWR_IsActiveFlag_CRPE() || LL_PWR_IsActiveFlag_CRP() ||
+                              LL_PWR_IsActiveFlag_BLEA() || LL_PWR_IsActiveFlag_BLEWU();
+
+    if(should_abort_sleep) {
+#ifdef FURI_HAL_POWER_DEBUG
+        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_ABNORMAL_GPIO, 1);
+#endif
+    } else {
+        __WFI();
+    }
 
     LL_LPM_EnableSleep();
 

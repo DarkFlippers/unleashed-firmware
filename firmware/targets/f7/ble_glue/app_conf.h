@@ -8,6 +8,8 @@
 
 #define CFG_TX_POWER (0x19) /* +0dBm */
 
+#define CFG_IDENTITY_ADDRESS GAP_PUBLIC_ADDR
+
 /**
  * Define Advertising parameters
  */
