@@ -33,7 +33,8 @@ PLACE_IN_SECTION("MB_MEM2")
 ALIGN(4) static SHCI_C2_DEBUG_TracesConfig_t APPD_TracesConfig = {0, 0, 0, 0};
 PLACE_IN_SECTION("MB_MEM2")
 ALIGN(4)
-static SHCI_C2_DEBUG_GeneralConfig_t APPD_GeneralConfig = {BLE_DTB_CFG, SYS_DBG_CFG1, {0, 0}};
+static SHCI_C2_DEBUG_GeneralConfig_t APPD_GeneralConfig =
+    {BLE_DTB_CFG, SYS_DBG_CFG1, {0, 0}, 0, 0, 0, 0, 0};
 
 /**
  * THE DEBUG ON GPIO FOR CPU2 IS INTENDED TO BE USED ONLY ON REQUEST FROM ST SUPPORT
