@@ -403,7 +403,9 @@ void shci_cmd_resp_release(uint32_t flag) {
 void shci_cmd_resp_wait(uint32_t timeout) {
     UNUSED(timeout);
     if(ble_glue) {
+        furi_hal_power_insomnia_enter();
         furi_semaphore_acquire(ble_glue->shci_sem, FuriWaitForever);
+        furi_hal_power_insomnia_exit();
     }
 }
 

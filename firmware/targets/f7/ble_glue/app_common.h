@@ -33,6 +33,7 @@ extern "C" {
 #include <stdarg.h>
 
 #include <core/common_defines.h>
+#include <tl.h>
 
 #include "app_conf.h"
 
