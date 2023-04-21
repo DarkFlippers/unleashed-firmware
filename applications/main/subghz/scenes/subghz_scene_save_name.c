@@ -59,8 +59,8 @@ void subghz_scene_save_name_on_enter(void* context) {
     if(!subghz_path_is_file(subghz->file_path)) {
         char file_name_buf[SUBGHZ_MAX_LEN_NAME] = {0};
         if(furi_hal_subghz_get_timestamp_file_names()) {
-            if(subghz->txrx->decoder_result->protocol->name != 0x0) {
-                if(subghz->txrx->decoder_result->protocol->name != NULL) {
+            if(subghz->txrx->decoder_result != 0x0) {
+                if(subghz->txrx->decoder_result != NULL) {
                     if(strlen(subghz->txrx->decoder_result->protocol->name) != 0) {
                         if(strcmp(subghz->txrx->decoder_result->protocol->name, "BinRAW") == 0) {
                             subghz_scene_save_name_get_timefilename(file_name, "S", true);
