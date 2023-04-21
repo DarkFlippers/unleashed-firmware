@@ -7,6 +7,7 @@
 * SubGhz: Nero Radio 57bit **experimental** support + encoder improvements and decoder changes
 * SubGhz: Fix RAW recording and reading, (bug where raw file plays endlessly) (Fixes issue #431)
 * SubGHz Remote: Add Alutech AT4N Support, fix some issues
+* Power GUI: Changing battery style doesnt require reboot (Added API to trigger UI change from different place) (Inspired by @ESurge work)
 * Plugins: BLE Remote -> Keynote with vertical layout (by @Kami-no | PR #428)
 * Plugins: Improve wifi marauder keyboard (added extra symbols!) (Port uart terminal keyboard into wifi marauder)
 * Infrared: Update universal remote assets (by @amec0e | PR #421)
