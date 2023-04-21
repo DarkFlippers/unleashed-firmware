@@ -1,19 +1,32 @@
 ### New changes 
-* OFW: Various stop mode fixes -> **Fixes all known issues with BLE (Random freezes, menu freeze, BT Remote plugin freeze) and other similar issues**
-* OFW: Picopass: Correctly aborts when correct key is found -> Fixes Bug (Picopass app not reading elite keyed cards anymore. #413)
+* Note: Due to latest official changes this release was delayed - release was tested by group of users, and some of them reported getting one crash on "furi_check failed", but this can not be reproduced in any way we tried, so, please if you found any issues with BLE (+ Mobile app) that results in crash, create issue with all details how you got it and how many times, and detailed steps on repeating such issue, if you got one crash and can't get it again, collect information how it happened and create issue with as much details as possible -> Thanks!
+* SubGHz: New option to use timestamps + protocol name when you saving file, instead of random name - Enable in `Radio Settings -> Time in names = ON`
+* SubGHz: Read mode UI improvements (scrolling text, + shows time when signal was received) (by @wosk | PR #429)
+* SubGHz: New options to ignore Magellan, Cars(ScherKhan, Kia)(no you can't send that signals)
+* SubGHz: Fix keeloq custom buttons bugs
 * SubGhz: Nero Radio 57bit **experimental** support + encoder improvements and decoder changes
-* SubGhz: Fix RAW recording and reading, (bug where raw file plays endlessly) 
+* SubGhz: Fix RAW recording and reading, (bug where raw file plays endlessly) (Fixes issue #431)
+* SubGHz Remote: Add Alutech AT4N Support, fix some issues
+* Power GUI: Changing battery style doesnt require reboot (Added API to trigger UI change from different place) (Inspired by @ESurge work)
+* Plugins: BLE Remote -> Keynote with vertical layout (by @Kami-no | PR #428)
 * Plugins: Improve wifi marauder keyboard (added extra symbols!) (Port uart terminal keyboard into wifi marauder)
 * Infrared: Update universal remote assets (by @amec0e | PR #421)
 * Docs: Update build docs (by @PhoenixSheppy | PR #425)
-### Previous changes
+* OFW: cubewb: updated to v1.16.0 -> **Part 2 of "Various stop mode fixes"**
+* OFW: github: testing SDK with ufbt action 
+* OFW: Raw RFID documentation
+* OFW: Introduce stealth mode and auto-selective lock
+* OFW: Active RPC session icon -> **Breaking API change, api was changed from 22.x to 23.x** 
+* OFW: Various stop mode fixes -> **Should fix known issues with BLE (Random freezes, menu freeze, BT Remote plugin freeze) and other similar issues**
+* OFW: Picopass: Correctly aborts when correct key is found -> Fixes Bug (Picopass app not reading elite keyed cards anymore. #413)
+### Pre-release changes
 * If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
 * SubGHz: (Bug that I decided to keep as a feature) You can change default button (Ok) for remote by holding custom button and pressing back at same time (same can be used to restore your button if you changed it accidentally) - Be careful, it might be unstable, I will make proper option to change button in next releases
 * SubGHz: Fixes for custom button bugs in SubGHz Remote app
 * SubGHz: Add alutech table to enviroment alloc and free
 * Docs: Fix and update docs - thanks to @lesterrry
 * Plugins: Bluetooth Remote - implemented YouTube Shorts Remote (may be unstable)
-* Plugins: Bluetooth Remote - improvements and fixes for TikTok remote (by @krolchonok | PR #420)
+* Plugins: Bluetooth Remote - improvements and fixes for TikTok remote (by @krolchonok | PR #420 and #432)
 * Plugins: Implement an array for baudrates on GPS UART app (+ add 19200 baud) (by @p0ns | PR #416)
 * Plugins: Remove UART Echo from releases since it is locked on 115200 baud, and we have **UART Terminal** with ability to set baudrate
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)

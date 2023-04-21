@@ -154,6 +154,7 @@ class Main(App):
             "firmware_commit": current_info["GIT_COMMIT"],
             "firmware_branch": current_info["GIT_BRANCH"],
             "firmware_target": current_info["TARGET"],
+            "firmware_version": current_info["VERSION"],
         }
         with open(version_json_name, "w", newline="\n") as file:
             json.dump(version_json, file, indent=4)
