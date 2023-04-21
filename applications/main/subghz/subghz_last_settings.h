@@ -12,6 +12,7 @@ typedef struct {
     float frequency_analyzer_trigger;
     bool external_module_enabled;
     bool external_module_power_5v_disable;
+    bool timestamp_file_names;
 } SubGhzLastSettings;
 
 SubGhzLastSettings* subghz_last_settings_alloc(void);

@@ -40,6 +40,7 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .cc1101_g0_pin = &gpio_cc1101_g0,
     .rolling_counter_mult = 1,
     .ext_module_power_disabled = false,
+    .timestamp_file_names = false,
 };
 
 bool furi_hal_subghz_set_radio_type(SubGhzRadioType state) {
@@ -77,6 +78,14 @@ void furi_hal_subghz_set_external_power_disable(bool state) {
 
 bool furi_hal_subghz_get_external_power_disable(void) {
     return furi_hal_subghz.ext_module_power_disabled;
+}
+
+void furi_hal_subghz_set_timestamp_file_names(bool state) {
+    furi_hal_subghz.timestamp_file_names = state;
+}
+
+bool furi_hal_subghz_get_timestamp_file_names(void) {
+    return furi_hal_subghz.timestamp_file_names;
 }
 
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {

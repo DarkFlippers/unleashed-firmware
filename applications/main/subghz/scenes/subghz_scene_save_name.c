@@ -14,18 +14,34 @@ void subghz_scene_save_name_text_input_callback(void* context) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneSaveName);
 }
 
-void subghz_scene_save_name_get_timefilename(FuriString* name) {
+void subghz_scene_save_name_get_timefilename(
+    FuriString* name,
+    const char* proto_name,
+    bool fulldate) {
     FuriHalRtcDateTime datetime = {0};
     furi_hal_rtc_get_datetime(&datetime);
-    furi_string_printf(
-        name,
-        "RAW_%.4d%.2d%.2d-%.2d%.2d%.2d",
-        datetime.year,
-        datetime.month,
-        datetime.day,
-        datetime.hour,
-        datetime.minute,
-        datetime.second);
+    if(fulldate) {
+        furi_string_printf(
+            name,
+            "%s_%.4d%.2d%.2d-%.2d%.2d%.2d",
+            proto_name,
+            datetime.year,
+            datetime.month,
+            datetime.day,
+            datetime.hour,
+            datetime.minute,
+            datetime.second);
+    } else {
+        furi_string_printf(
+            name,
+            "%s_%.2d%.2d-%.2d%.2d%.2d",
+            proto_name,
+            datetime.month,
+            datetime.day,
+            datetime.hour,
+            datetime.minute,
+            datetime.second);
+    }
 }
 
 void subghz_scene_save_name_on_enter(void* context) {
@@ -42,8 +58,25 @@ void subghz_scene_save_name_on_enter(void* context) {
 
     if(!subghz_path_is_file(subghz->file_path)) {
         char file_name_buf[SUBGHZ_MAX_LEN_NAME] = {0};
-        set_random_name(file_name_buf, SUBGHZ_MAX_LEN_NAME);
-        furi_string_set(file_name, file_name_buf);
+        if(furi_hal_subghz_get_timestamp_file_names()) {
+            if(subghz->txrx->decoder_result->protocol->name != 0x0) {
+                if(subghz->txrx->decoder_result->protocol->name != NULL) {
+                    if(strlen(subghz->txrx->decoder_result->protocol->name) != 0) {
+                        subghz_scene_save_name_get_timefilename(
+                            file_name, subghz->txrx->decoder_result->protocol->name, false);
+                    } else {
+                        subghz_scene_save_name_get_timefilename(file_name, "S", true);
+                    }
+                } else {
+                    subghz_scene_save_name_get_timefilename(file_name, "S", true);
+                }
+            } else {
+                subghz_scene_save_name_get_timefilename(file_name, "S", true);
+            }
+        } else {
+            set_random_name(file_name_buf, SUBGHZ_MAX_LEN_NAME);
+            furi_string_set(file_name, file_name_buf);
+        }
         furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
         //highlighting the entire filename by default
         dev_name_empty = true;
@@ -57,7 +90,7 @@ void subghz_scene_save_name_on_enter(void* context) {
             if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
                SubGhzCustomEventManagerSetRAW) {
                 dev_name_empty = true;
-                subghz_scene_save_name_get_timefilename(file_name);
+                subghz_scene_save_name_get_timefilename(file_name, "RAW", true);
             }
         }
         furi_string_set(subghz->file_path, dir_name);
