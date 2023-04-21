@@ -7,6 +7,7 @@
 
 enum HidDebugSubmenuIndex {
     HidSubmenuIndexKeynote,
+    HidSubmenuIndexKeynoteVertical,
     HidSubmenuIndexKeyboard,
     HidSubmenuIndexMedia,
     HidSubmenuIndexTikTok,
@@ -21,6 +22,9 @@ static void hid_submenu_callback(void* context, uint32_t index) {
     if(index == HidSubmenuIndexKeynote) {
         app->view_id = HidViewKeynote;
         view_dispatcher_switch_to_view(app->view_dispatcher, HidViewKeynote);
+    } else if(index == HidSubmenuIndexKeynoteVertical) {
+        app->view_id = HidViewKeynoteVertical;
+        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewKeynoteVertical);
     } else if(index == HidSubmenuIndexKeyboard) {
         app->view_id = HidViewKeyboard;
         view_dispatcher_switch_to_view(app->view_dispatcher, HidViewKeyboard);
@@ -54,6 +58,7 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
         }
     }
     hid_keynote_set_connected_status(hid->hid_keynote, connected);
+    hid_keynote_vertical_set_connected_status(hid->hid_keynote_vertical, connected);
     hid_keyboard_set_connected_status(hid->hid_keyboard, connected);
     hid_media_set_connected_status(hid->hid_media, connected);
     hid_mouse_set_connected_status(hid->hid_mouse, connected);
@@ -106,6 +111,12 @@ Hid* hid_alloc(HidTransport transport) {
     submenu_add_item(
         app->device_type_submenu, "Keynote", HidSubmenuIndexKeynote, hid_submenu_callback, app);
     submenu_add_item(
+        app->device_type_submenu,
+        "Keynote Vertical",
+        HidSubmenuIndexKeynoteVertical,
+        hid_submenu_callback,
+        app);
+    submenu_add_item(
         app->device_type_submenu, "Keyboard", HidSubmenuIndexKeyboard, hid_submenu_callback, app);
     submenu_add_item(
         app->device_type_submenu, "Media", HidSubmenuIndexMedia, hid_submenu_callback, app);
@@ -120,7 +131,7 @@ Hid* hid_alloc(HidTransport transport) {
             app);
         submenu_add_item(
             app->device_type_submenu,
-            "YT Shorts Controller",
+            "[Beta]YT Shorts Controller",
             HidSubmenuIndexYTShorts,
             hid_submenu_callback,
             app);
@@ -158,6 +169,15 @@ Hid* hid_app_alloc_view(void* context) {
     view_set_previous_callback(hid_keynote_get_view(app->hid_keynote), hid_exit_confirm_view);
     view_dispatcher_add_view(
         app->view_dispatcher, HidViewKeynote, hid_keynote_get_view(app->hid_keynote));
+
+    // Keynote Vertical view
+    app->hid_keynote_vertical = hid_keynote_vertical_alloc(app);
+    view_set_previous_callback(
+        hid_keynote_vertical_get_view(app->hid_keynote_vertical), hid_exit_confirm_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        HidViewKeynoteVertical,
+        hid_keynote_vertical_get_view(app->hid_keynote_vertical));
 
     // Keyboard view
     app->hid_keyboard = hid_keyboard_alloc(app);
@@ -216,6 +236,8 @@ void hid_free(Hid* app) {
     dialog_ex_free(app->dialog);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewKeynote);
     hid_keynote_free(app->hid_keynote);
+    view_dispatcher_remove_view(app->view_dispatcher, HidViewKeynoteVertical);
+    hid_keynote_vertical_free(app->hid_keynote_vertical);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewKeyboard);
     hid_keyboard_free(app->hid_keyboard);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewMedia);

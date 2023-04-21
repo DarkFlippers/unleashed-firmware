@@ -135,7 +135,7 @@ static void cfg_read_file_path(
         *is_enabled = 0;
     } else {
         *text_file_label = extract_filename(furi_string_get_cstr(text_file_path), 16);
-        FURI_LOG_D(TAG, "%s file: %s", read_key, furi_string_get_cstr(text_file_path));
+        //FURI_LOG_D(TAG, "%s file: %s", read_key, furi_string_get_cstr(text_file_path));
         *is_enabled = 1;
     }
     flipper_format_rewind(fff_file);
@@ -154,7 +154,7 @@ static void cfg_read_file_label(
         if(is_enabled == 1) {
             *text_file_label = char_to_str((char*)furi_string_get_cstr(temp_label), 16);
         }
-        FURI_LOG_D(TAG, "%s label: %s", read_key, *text_file_label);
+        //FURI_LOG_D(TAG, "%s label: %s", read_key, *text_file_label);
     }
     flipper_format_rewind(fff_file);
     furi_string_free(temp_label);
@@ -355,6 +355,8 @@ bool subghz_remote_key_load(
     bool res = false;
 
     subghz_custom_btn_set(0);
+    keeloq_reset_original_btn();
+    subghz_custom_btns_reset();
 
     do {
         // load frequency from file
@@ -387,6 +389,10 @@ bool subghz_remote_key_load(
             FURI_LOG_E(TAG, "Could not read Protocol.");
             break;
         }
+        if(!flipper_format_rewind(fff_data)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            return false;
+        }
 
         if(!furi_string_cmp_str(preset->protocol, "RAW")) {
             subghz_protocol_raw_gen_fff_data(fff_data, path);
@@ -395,10 +401,7 @@ bool subghz_remote_key_load(
                 FURI_LOG_E(TAG, "Unable to insert or update Repeat");
                 break;
             }
-            if(!flipper_format_rewind(fff_data)) {
-                FURI_LOG_E(TAG, "Rewind error");
-                return false;
-            }
+
         } else {
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
@@ -406,10 +409,6 @@ bool subghz_remote_key_load(
             if(!flipper_format_insert_or_update_uint32(fff_data, "Repeat", &preset->repeat, 1)) {
                 FURI_LOG_E(TAG, "Unable to insert or update Repeat");
                 break;
-            }
-            if(!flipper_format_rewind(fff_data)) {
-                FURI_LOG_E(TAG, "Rewind error");
-                return false;
             }
         }
 
@@ -468,7 +467,7 @@ bool subghz_remote_save_protocol_to_file(FlipperFormat* fff_file, const char* de
         stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
 
         saved = true;
-        FURI_LOG_D(TAG, "(save) OK Save");
+        //FURI_LOG_D(TAG, "(save) OK Save");
     } while(0);
     furi_string_free(file_dir);
     furi_record_close(RECORD_STORAGE);
@@ -528,7 +527,8 @@ static bool subghz_remote_send_sub(SubGHzRemote* app, FlipperFormat* fff_data) {
     bool res = false;
     do {
         if(!furi_hal_subghz_is_tx_allowed(app->txpreset->frequency)) {
-            printf(
+            FURI_LOG_E(
+                TAG,
                 "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
                 "the actual operation of the subghz remote app is not possible\r\n ",
                 app->txpreset->frequency);
@@ -545,7 +545,11 @@ static bool subghz_remote_send_sub(SubGHzRemote* app, FlipperFormat* fff_data) {
             break;
         }
 
-        subghz_transmitter_deserialize(app->tx_transmitter, fff_data);
+        if(subghz_transmitter_deserialize(app->tx_transmitter, fff_data) !=
+           SubGhzProtocolStatusOk) {
+            FURI_LOG_E(TAG, "Deserialize error!");
+            break;
+        }
 
         furi_hal_subghz_reset();
         furi_hal_subghz_idle();
@@ -576,7 +580,7 @@ static bool subghz_remote_send_sub(SubGHzRemote* app, FlipperFormat* fff_data) {
 }
 
 static void subghz_remote_send_signal(SubGHzRemote* app, Storage* storage, const char* path) {
-    FURI_LOG_D(TAG, "Sending: %s", path);
+    //FURI_LOG_D(TAG, "Sending: %s", path);
 
     app->tx_file_path = path;
 
@@ -616,7 +620,7 @@ static void subghz_remote_send_signal(SubGHzRemote* app, Storage* storage, const
 static void subghz_remote_process_signal(SubGHzRemote* app, FuriString* signal) {
     view_port_update(app->view_port);
 
-    FURI_LOG_D(TAG, "signal = %s", furi_string_get_cstr(signal));
+    //FURI_LOG_D(TAG, "signal = %s", furi_string_get_cstr(signal));
 
     if(strlen(furi_string_get_cstr(signal)) > 12) {
         Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -746,6 +750,8 @@ void subghz_remote_subghz_alloc(SubGHzRemote* app) {
         app->environment, EXT_PATH("subghz/assets/came_atomo"));
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
+    subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/alutech_at_4n"));
     subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
 
     app->subghz_receiver = subghz_receiver_alloc_init(app->environment);
@@ -868,14 +874,14 @@ int32_t subghz_remote_app(void* p) {
     bool exit_loop = false;
 
     if(app->file_result == 2) {
-        FURI_LOG_D(
-            TAG,
-            "U: %s - D: %s - L: %s - R: %s - O: %s ",
-            furi_string_get_cstr(app->up_file),
-            furi_string_get_cstr(app->down_file),
-            furi_string_get_cstr(app->left_file),
-            furi_string_get_cstr(app->right_file),
-            furi_string_get_cstr(app->ok_file));
+        //FURI_LOG_D(
+        //TAG,
+        //"U: %s - D: %s - L: %s - R: %s - O: %s ",
+        //furi_string_get_cstr(app->up_file),
+        //furi_string_get_cstr(app->down_file),
+        //furi_string_get_cstr(app->left_file),
+        //furi_string_get_cstr(app->right_file),
+        //furi_string_get_cstr(app->ok_file));
 
         //variables to control multiple button presses and status updates
         app->send_status = "Idle";
@@ -893,11 +899,11 @@ int32_t subghz_remote_app(void* p) {
         while(1) {
             furi_check(
                 furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
-            FURI_LOG_D(
-                TAG,
-                "key: %s type: %s",
-                input_get_key_name(input.key),
-                input_get_type_name(input.type));
+            //FURI_LOG_D(
+            //TAG,
+            //"key: %s type: %s",
+            //input_get_key_name(input.key),
+            //input_get_type_name(input.type));
 
             switch(input.key) {
             case InputKeyUp:
@@ -999,12 +1005,12 @@ int32_t subghz_remote_app(void* p) {
             }
 
             if(app->processing == 0) {
-                FURI_LOG_D(TAG, "processing 0");
+                //FURI_LOG_D(TAG, "processing 0");
                 app->send_status = "Idle";
                 app->send_status_c = 0;
                 app->button = 0;
             } else if(app->processing == 1) {
-                FURI_LOG_D(TAG, "processing 1");
+                //FURI_LOG_D(TAG, "processing 1");
 
                 app->send_status = "Send";
 
@@ -1047,11 +1053,11 @@ int32_t subghz_remote_app(void* p) {
         while(1) {
             furi_check(
                 furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
-            FURI_LOG_D(
-                TAG,
-                "key: %s type: %s",
-                input_get_key_name(input.key),
-                input_get_type_name(input.type));
+            //FURI_LOG_D(
+            //TAG,
+            //"key: %s type: %s",
+            //input_get_key_name(input.key),
+            //input_get_type_name(input.type));
 
             switch(input.key) {
             case InputKeyRight:

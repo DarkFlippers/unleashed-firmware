@@ -3,6 +3,7 @@
 
 #include "../desktop_settings_app.h"
 #include "desktop_settings_scene.h"
+#include <power/power_service/power.h>
 
 #define SCENE_EVENT_SELECT_FAVORITE_PRIMARY 0
 #define SCENE_EVENT_SELECT_FAVORITE_SECONDARY 1
@@ -169,4 +170,9 @@ void desktop_settings_scene_start_on_exit(void* context) {
     DesktopSettingsApp* app = context;
     variable_item_list_reset(app->variable_item_list);
     DESKTOP_SETTINGS_SAVE(&app->settings);
+
+    // Trigger UI update in case we changed battery layout
+    Power* power = furi_record_open(RECORD_POWER);
+    power_trigger_ui_update(power);
+    furi_record_close(RECORD_POWER);
 }

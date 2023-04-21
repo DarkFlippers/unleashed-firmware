@@ -54,6 +54,8 @@ Our Discord Community:
 - Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
 * Sub-GHz -> Short press OK in frequency analyzer to save detected frequency for usage in Read modes
 * Sub-GHz -> Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu and automatically use selected frequency
+* SubGHz -> New option to use timestamps + protocol name when you saving file, instead of random name - Enable in `Radio Settings -> Time in names = ON`
+* SubGHz -> Read mode UI improvements (scrolling text, + shows time when signal was received) (by @wosk)
 * Sub-GHz -> External CC1101 module support (Hardware SPI used)
 * SubGHz -> **Hold right in received signal list to delete selected signal**
 * SubGHz -> **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S / Somfy Telis / Security+ 2.0** - now you can use arrow buttons to send signal with different button code
@@ -72,6 +74,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing deco
 Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
 
 Encoders or sending made by @xMasterX:
+- Nero Radio 57bit (experimental) (+ 56bit encoder improvements)
 - Keeloq: HCS101
 - Keeloq: AN-Motors
 - Keeloq: JCM Tech

@@ -1,10 +1,11 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 
-uint8_t value_index_exm;
-uint8_t value_index_dpin;
-uint8_t value_index_cnt;
-uint8_t value_index_pwr;
+static uint8_t value_index_exm;
+static uint8_t value_index_dpin;
+static uint8_t value_index_cnt;
+static uint8_t value_index_pwr;
+static uint8_t value_index_time;
 
 #define EXT_MODULES_COUNT (sizeof(radio_modules_variables_text) / sizeof(char* const))
 const char* const radio_modules_variables_text[] = {
@@ -16,6 +17,12 @@ const char* const radio_modules_variables_text[] = {
 const char* const ext_mod_power_text[EXT_MOD_POWER_COUNT] = {
     "ON",
     "OFF",
+};
+
+#define TIMESTAMP_NAMES_COUNT 2
+const char* const timestamp_names_text[TIMESTAMP_NAMES_COUNT] = {
+    "OFF",
+    "ON",
 };
 
 #define DEBUG_P_COUNT 2
@@ -104,6 +111,17 @@ static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
     subghz_last_settings_save(subghz->last_settings);
 }
 
+static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, timestamp_names_text[index]);
+
+    furi_hal_subghz_set_timestamp_file_names((index == 1));
+    subghz->last_settings->timestamp_file_names = (index == 1);
+    subghz_last_settings_save(subghz->last_settings);
+}
+
 void subghz_scene_ext_module_settings_on_enter(void* context) {
     SubGhz* subghz = context;
 
@@ -128,6 +146,16 @@ void subghz_scene_ext_module_settings_on_enter(void* context) {
     value_index_pwr = furi_hal_subghz_get_external_power_disable();
     variable_item_set_current_value_index(item, value_index_pwr);
     variable_item_set_current_value_text(item, ext_mod_power_text[value_index_pwr]);
+
+    item = variable_item_list_add(
+        subghz->variable_item_list,
+        "Time in names",
+        TIMESTAMP_NAMES_COUNT,
+        subghz_scene_receiver_config_set_timestamp_file_names,
+        subghz);
+    value_index_time = furi_hal_subghz_get_timestamp_file_names();
+    variable_item_set_current_value_index(item, value_index_time);
+    variable_item_set_current_value_text(item, timestamp_names_text[value_index_time]);
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         item = variable_item_list_add(

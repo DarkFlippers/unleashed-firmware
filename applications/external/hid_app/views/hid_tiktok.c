@@ -178,32 +178,25 @@ static bool hid_tiktok_input_callback(InputEvent* event, void* context) {
             } else if(event->type == InputTypeShort) {
                 if(event->key == InputKeyOk) {
                     hid_hal_mouse_press(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
+                    furi_delay_ms(25);
                     hid_hal_mouse_release(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
+                    furi_delay_ms(100);
                     hid_hal_mouse_press(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
+                    furi_delay_ms(25);
                     hid_hal_mouse_release(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
                     consumed = true;
                 } else if(event->key == InputKeyDown) {
                     // Swipe to new video
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 6);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 12);
                     hid_hal_mouse_scroll(hid_tiktok->hid, 19);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 12);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 6);
                     consumed = true;
                 } else if(event->key == InputKeyUp) {
                     // Swipe to previous video
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -6);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -12);
                     hid_hal_mouse_scroll(hid_tiktok->hid, -19);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -12);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -6);
                     consumed = true;
                 } else if(event->key == InputKeyBack) {
                     // Pause
                     hid_hal_mouse_press(hid_tiktok->hid, HID_MOUSE_BTN_RIGHT);
+                    furi_delay_ms(25);
                     hid_hal_mouse_release(hid_tiktok->hid, HID_MOUSE_BTN_RIGHT);
                     consumed = true;
                 }

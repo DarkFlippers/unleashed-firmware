@@ -33,7 +33,8 @@ PLACE_IN_SECTION("MB_MEM2")
 ALIGN(4) static SHCI_C2_DEBUG_TracesConfig_t APPD_TracesConfig = {0, 0, 0, 0};
 PLACE_IN_SECTION("MB_MEM2")
 ALIGN(4)
-static SHCI_C2_DEBUG_GeneralConfig_t APPD_GeneralConfig = {BLE_DTB_CFG, SYS_DBG_CFG1, {0, 0}};
+static SHCI_C2_DEBUG_GeneralConfig_t APPD_GeneralConfig =
+    {BLE_DTB_CFG, SYS_DBG_CFG1, {0, 0}, 0, 0, 0, 0, 0};
 
 /**
  * THE DEBUG ON GPIO FOR CPU2 IS INTENDED TO BE USED ONLY ON REQUEST FROM ST SUPPORT
@@ -68,7 +69,7 @@ static const APPD_GpioConfig_t aGpioConfigList[GPIO_CFG_NBR_OF_FEATURES] = {
     {GPIOA, LL_GPIO_PIN_0, 0, 0}, /* END_OF_CONNECTION_EVENT - Set on Entry / Reset on Exit */
     {GPIOA, LL_GPIO_PIN_0, 0, 0}, /* TIMER_SERVER_CALLBACK - Toggle on Entry */
     {GPIOA, LL_GPIO_PIN_4, 1, 0}, /* PES_ACTIVITY - Set on Entry / Reset on Exit */
-    {GPIOB, LL_GPIO_PIN_2, 1, 0}, /* MB_BLE_SEND_EVT - Set on Entry / Reset on Exit */
+    {GPIOC, LL_GPIO_PIN_0, 1, 0}, /* MB_BLE_SEND_EVT - Set on Entry / Reset on Exit */
     /* From v1.3.0 */
     {GPIOA, LL_GPIO_PIN_0, 0, 0}, /* BLE_NO_DELAY - Set on Entry / Reset on Exit */
     {GPIOA, LL_GPIO_PIN_0, 0, 0}, /* BLE_STACK_STORE_NVM_CB - Set on Entry / Reset on Exit */

@@ -18,8 +18,8 @@ PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static TL_CmdPacket_t ble_app_cmd_buffer;
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint32_t ble_app_nvm[BLE_NVM_SRAM_SIZE];
 
 _Static_assert(
-    sizeof(SHCI_C2_Ble_Init_Cmd_Packet_t) == 49,
-    "Ble stack config structure size mismatch");
+    sizeof(SHCI_C2_Ble_Init_Cmd_Packet_t) == 58,
+    "Ble stack config structure size mismatch (check new config options - last updated for v.1.16.0)");
 
 typedef struct {
     FuriMutex* hci_mtx;
@@ -88,6 +88,12 @@ bool ble_app_init() {
             .min_tx_power = 0,
             .max_tx_power = 0,
             .rx_model_config = 1,
+            /* New stack (13.3->16.0)*/
+            .max_adv_set_nbr = 1, // Only used if SHCI_C2_BLE_INIT_OPTIONS_EXT_ADV is set
+            .max_adv_data_len = 31, // Only used if SHCI_C2_BLE_INIT_OPTIONS_EXT_ADV is set
+            .tx_path_compens = 0, // RF TX Path Compensation, * 0.1 dB
+            .rx_path_compens = 0, // RF RX Path Compensation, * 0.1 dB
+            .ble_core_version = 11, // BLE Core Version: 11(5.2), 12(5.3)
         }};
     status = SHCI_C2_BLE_Init(&ble_init_cmd_packet);
     if(status) {
@@ -137,38 +143,33 @@ static int32_t ble_app_hci_thread(void* arg) {
 // Called by WPAN lib
 void hci_notify_asynch_evt(void* pdata) {
     UNUSED(pdata);
-    if(ble_app) {
-        FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
-        furi_assert(thread_id);
-        furi_thread_flags_set(thread_id, BLE_APP_FLAG_HCI_EVENT);
-    }
+    furi_check(ble_app);
+    FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
+    furi_assert(thread_id);
+    furi_thread_flags_set(thread_id, BLE_APP_FLAG_HCI_EVENT);
 }
 
 void hci_cmd_resp_release(uint32_t flag) {
     UNUSED(flag);
-    if(ble_app) {
-        furi_semaphore_release(ble_app->hci_sem);
-    }
+    furi_check(ble_app);
+    furi_check(furi_semaphore_release(ble_app->hci_sem) == FuriStatusOk);
 }
 
 void hci_cmd_resp_wait(uint32_t timeout) {
-    UNUSED(timeout);
-    if(ble_app) {
-        furi_semaphore_acquire(ble_app->hci_sem, FuriWaitForever);
-    }
+    furi_check(ble_app);
+    furi_check(furi_semaphore_acquire(ble_app->hci_sem, timeout) == FuriStatusOk);
 }
 
 static void ble_app_hci_event_handler(void* pPayload) {
     SVCCTL_UserEvtFlowStatus_t svctl_return_status;
     tHCI_UserEvtRxParam* pParam = (tHCI_UserEvtRxParam*)pPayload;
 
-    if(ble_app) {
-        svctl_return_status = SVCCTL_UserEvtRx((void*)&(pParam->pckt->evtserial));
-        if(svctl_return_status != SVCCTL_UserEvtFlowDisable) {
-            pParam->status = HCI_TL_UserEventFlow_Enable;
-        } else {
-            pParam->status = HCI_TL_UserEventFlow_Disable;
-        }
+    furi_check(ble_app);
+    svctl_return_status = SVCCTL_UserEvtRx((void*)&(pParam->pckt->evtserial));
+    if(svctl_return_status != SVCCTL_UserEvtFlowDisable) {
+        pParam->status = HCI_TL_UserEventFlow_Enable;
+    } else {
+        pParam->status = HCI_TL_UserEventFlow_Disable;
     }
 }
 
