@@ -22,7 +22,8 @@ typedef struct {
     HidTransport transport;
 } HidKeynoteVerticalModel;
 
-static void hid_keynote_vertical_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
+static void
+    hid_keynote_vertical_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
     canvas_draw_triangle(canvas, x, y, 5, 3, dir);
     if(dir == CanvasDirectionBottomToTop) {
         canvas_draw_line(canvas, x, y + 6, x, y - 1);
@@ -51,7 +52,8 @@ static void hid_keynote_vertical_draw_callback(Canvas* canvas, void* context) {
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keynote");
     canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text_aligned(canvas, 24, 14, AlignLeft, AlignTop, "Vertical");
+    elements_multiline_text_aligned(
+        canvas, 24, 14, AlignLeft, AlignTop, "Vertical              Up --->");
 
     canvas_draw_icon(canvas, 68, 2, &I_Pin_back_arrow_10x8);
     canvas_set_font(canvas, FontSecondary);
@@ -76,21 +78,21 @@ static void hid_keynote_vertical_draw_callback(Canvas* canvas, void* context) {
     canvas_set_color(canvas, ColorBlack);
 
     // Left
-    canvas_draw_icon(canvas, 0, 45, &I_Button_18x18);
+    canvas_draw_icon(canvas, 0, 35, &I_Button_18x18);
     if(model->left_pressed) {
-        elements_slightly_rounded_box(canvas, 3, 47, 13, 13);
+        elements_slightly_rounded_box(canvas, 3, 37, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    hid_keynote_vertical_draw_arrow(canvas, 7, 53, CanvasDirectionRightToLeft);
+    hid_keynote_vertical_draw_arrow(canvas, 7, 43, CanvasDirectionRightToLeft);
     canvas_set_color(canvas, ColorBlack);
 
     // Right
-    canvas_draw_icon(canvas, 42, 45, &I_Button_18x18);
+    canvas_draw_icon(canvas, 42, 35, &I_Button_18x18);
     if(model->right_pressed) {
-        elements_slightly_rounded_box(canvas, 45, 47, 13, 13);
+        elements_slightly_rounded_box(canvas, 45, 37, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    hid_keynote_vertical_draw_arrow(canvas, 53, 53, CanvasDirectionLeftToRight);
+    hid_keynote_vertical_draw_arrow(canvas, 53, 43, CanvasDirectionLeftToRight);
     canvas_set_color(canvas, ColorBlack);
 
     // Ok
@@ -113,7 +115,8 @@ static void hid_keynote_vertical_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Back");
 }
 
-static void hid_keynote_vertical_process(HidKeynoteVertical* hid_keynote_vertical, InputEvent* event) {
+static void
+    hid_keynote_vertical_process(HidKeynoteVertical* hid_keynote_vertical, InputEvent* event) {
     with_view_model(
         hid_keynote_vertical->view,
         HidKeynoteVerticalModel * model,
@@ -188,12 +191,16 @@ HidKeynoteVertical* hid_keynote_vertical_alloc(Hid* hid) {
     hid_keynote_vertical->view = view_alloc();
     hid_keynote_vertical->hid = hid;
     view_set_context(hid_keynote_vertical->view, hid_keynote_vertical);
-    view_allocate_model(hid_keynote_vertical->view, ViewModelTypeLocking, sizeof(HidKeynoteVerticalModel));
+    view_allocate_model(
+        hid_keynote_vertical->view, ViewModelTypeLocking, sizeof(HidKeynoteVerticalModel));
     view_set_draw_callback(hid_keynote_vertical->view, hid_keynote_vertical_draw_callback);
     view_set_input_callback(hid_keynote_vertical->view, hid_keynote_vertical_input_callback);
 
     with_view_model(
-        hid_keynote_vertical->view, HidKeynoteVerticalModel * model, { model->transport = hid->transport; }, true);
+        hid_keynote_vertical->view,
+        HidKeynoteVerticalModel * model,
+        { model->transport = hid->transport; },
+        true);
 
     return hid_keynote_vertical;
 }
@@ -209,8 +216,13 @@ View* hid_keynote_vertical_get_view(HidKeynoteVertical* hid_keynote_vertical) {
     return hid_keynote_vertical->view;
 }
 
-void hid_keynote_vertical_set_connected_status(HidKeynoteVertical* hid_keynote_vertical, bool connected) {
+void hid_keynote_vertical_set_connected_status(
+    HidKeynoteVertical* hid_keynote_vertical,
+    bool connected) {
     furi_assert(hid_keynote_vertical);
     with_view_model(
-        hid_keynote_vertical->view, HidKeynoteVerticalModel * model, { model->connected = connected; }, true);
+        hid_keynote_vertical->view,
+        HidKeynoteVerticalModel * model,
+        { model->connected = connected; },
+        true);
 }

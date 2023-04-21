@@ -111,7 +111,11 @@ Hid* hid_alloc(HidTransport transport) {
     submenu_add_item(
         app->device_type_submenu, "Keynote", HidSubmenuIndexKeynote, hid_submenu_callback, app);
     submenu_add_item(
-        app->device_type_submenu, "Keynote Vertical", HidSubmenuIndexKeynoteVertical, hid_submenu_callback, app);
+        app->device_type_submenu,
+        "Keynote Vertical",
+        HidSubmenuIndexKeynoteVertical,
+        hid_submenu_callback,
+        app);
     submenu_add_item(
         app->device_type_submenu, "Keyboard", HidSubmenuIndexKeyboard, hid_submenu_callback, app);
     submenu_add_item(
@@ -168,9 +172,12 @@ Hid* hid_app_alloc_view(void* context) {
 
     // Keynote Vertical view
     app->hid_keynote_vertical = hid_keynote_vertical_alloc(app);
-    view_set_previous_callback(hid_keynote_vertical_get_view(app->hid_keynote_vertical), hid_exit_confirm_view);
+    view_set_previous_callback(
+        hid_keynote_vertical_get_view(app->hid_keynote_vertical), hid_exit_confirm_view);
     view_dispatcher_add_view(
-        app->view_dispatcher, HidViewKeynoteVertical, hid_keynote_vertical_get_view(app->hid_keynote_vertical));
+        app->view_dispatcher,
+        HidViewKeynoteVertical,
+        hid_keynote_vertical_get_view(app->hid_keynote_vertical));
 
     // Keyboard view
     app->hid_keyboard = hid_keyboard_alloc(app);

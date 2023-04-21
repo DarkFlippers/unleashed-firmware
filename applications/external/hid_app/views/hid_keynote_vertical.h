@@ -11,4 +11,6 @@ void hid_keynote_vertical_free(HidKeynoteVertical* hid_keynote_vertical);
 
 View* hid_keynote_vertical_get_view(HidKeynoteVertical* hid_keynote_vertical);
 
-void hid_keynote_vertical_set_connected_status(HidKeynoteVertical* hid_keynote_vertical, bool connected);
+void hid_keynote_vertical_set_connected_status(
+    HidKeynoteVertical* hid_keynote_vertical,
+    bool connected);
