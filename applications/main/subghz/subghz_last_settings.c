@@ -19,6 +19,7 @@
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER "FATrigger"
 #define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_ENABLED "External"
 #define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER "ExtPower"
+#define SUBGHZ_LAST_SETTING_FIELD_TIMESTAMP_FILE_NAMES "TimestampNames"
 
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
@@ -45,6 +46,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     float temp_frequency_analyzer_trigger = 0;
     bool temp_external_module_enabled = false;
     bool temp_external_module_power_5v_disable = false;
+    bool temp_timestamp_file_names = false;
     //int32_t temp_preset = 0;
     bool frequency_analyzer_feedback_level_was_read = false;
     bool frequency_analyzer_trigger_was_read = false;
@@ -76,6 +78,11 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER,
             (bool*)&temp_external_module_power_5v_disable,
             1);
+        flipper_format_read_bool(
+            fff_data_file,
+            SUBGHZ_LAST_SETTING_FIELD_TIMESTAMP_FILE_NAMES,
+            (bool*)&temp_timestamp_file_names,
+            1);
 
     } else {
         FURI_LOG_E(TAG, "Error open file %s", SUBGHZ_LAST_SETTINGS_PATH);
@@ -89,6 +96,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL;
         instance->frequency_analyzer_trigger = SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
         instance->external_module_enabled = false;
+        instance->timestamp_file_names = false;
 
     } else {
         instance->frequency = temp_frequency;
@@ -108,6 +116,11 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->external_module_enabled = temp_external_module_enabled;
 
         instance->external_module_power_5v_disable = temp_external_module_power_5v_disable;
+
+        instance->timestamp_file_names = temp_timestamp_file_names;
+
+        // Set globally
+        furi_hal_subghz_set_timestamp_file_names(instance->timestamp_file_names);
 
         if(instance->external_module_power_5v_disable) {
             furi_hal_subghz_set_external_power_disable(true);
@@ -186,6 +199,13 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
                file,
                SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER,
                &instance->external_module_power_5v_disable,
+               1)) {
+            break;
+        }
+        if(!flipper_format_insert_or_update_bool(
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_TIMESTAMP_FILE_NAMES,
+               &instance->timestamp_file_names,
                1)) {
             break;
         }
