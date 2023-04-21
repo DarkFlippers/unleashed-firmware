@@ -126,19 +126,6 @@ bool subghz_protocol_raw_save_to_file_init(
             break;
         }
 
-        FuriHalRtcDateTime now;
-        furi_hal_rtc_get_datetime(&now);
-        // Format should be locale independent for transfer across devices with different locales
-        furi_string_printf(
-            temp_str,
-            "%.4d/%.2d/%.2d %.2d:%.2d:%.2d",
-            now.year,
-            now.month,
-            now.day,
-            now.hour,
-            now.minute,
-            now.second);
-
         if(!flipper_format_write_uint32(
                instance->flipper_file, "Frequency", &preset->frequency, 1)) {
             FURI_LOG_E(TAG, "Unable to add Frequency");

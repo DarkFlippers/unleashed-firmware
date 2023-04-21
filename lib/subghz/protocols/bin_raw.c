@@ -987,25 +987,6 @@ SubGhzProtocolStatus subghz_protocol_decoder_bin_raw_serialize(
             break;
         }
 
-        FuriHalRtcDateTime now;
-        furi_hal_rtc_get_datetime(&now);
-        // Format should be locale independent for transfer across devices with different locales
-        furi_string_printf(
-            temp_str,
-            "%.4d/%.2d/%.2d %.2d:%.2d:%.2d",
-            now.year,
-            now.month,
-            now.day,
-            now.hour,
-            now.minute,
-            now.second);
-        if(!flipper_format_write_string_cstr(
-               flipper_format, "Date", furi_string_get_cstr(temp_str))) {
-            FURI_LOG_E(TAG, "Unable to add Date");
-            res = SubGhzProtocolStatusError;
-            break;
-        }
-
         if(!flipper_format_write_uint32(flipper_format, "Frequency", &preset->frequency, 1)) {
             FURI_LOG_E(TAG, "Unable to add Frequency");
             res = SubGhzProtocolStatusErrorParserFrequency;
