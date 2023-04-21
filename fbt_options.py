@@ -20,7 +20,7 @@ DIST_SUFFIX = "local"
 COPRO_OB_DATA = "scripts/ob.data"
 
 # Must match lib/STM32CubeWB version
-COPRO_CUBE_VERSION = "1.13.3"
+COPRO_CUBE_VERSION = "1.16.0"
 
 COPRO_CUBE_DIR = "lib/STM32CubeWB"
 

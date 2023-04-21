@@ -76,12 +76,18 @@ struct RpcSession {
     RpcBufferIsEmptyCallback buffer_is_empty_callback;
     RpcSessionClosedCallback closed_callback;
     RpcSessionTerminatedCallback terminated_callback;
+    RpcOwner owner;
     void* context;
 };
 
 struct Rpc {
     FuriMutex* busy_mutex;
 };
+
+RpcOwner rpc_session_get_owner(RpcSession* session) {
+    furi_assert(session);
+    return session->owner;
+}
 
 static void rpc_close_session_process(const PB_Main* request, void* context) {
     furi_assert(request);
@@ -348,7 +354,7 @@ static void rpc_session_free_callback(FuriThreadState thread_state, void* contex
     }
 }
 
-RpcSession* rpc_session_open(Rpc* rpc) {
+RpcSession* rpc_session_open(Rpc* rpc, RpcOwner owner) {
     furi_assert(rpc);
 
     RpcSession* session = malloc(sizeof(RpcSession));
@@ -357,6 +363,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
     session->rpc = rpc;
     session->terminate = false;
     session->decode_error = false;
+    session->owner = owner;
     RpcHandlerDict_init(session->handlers);
 
     session->decoded_message = malloc(sizeof(PB_Main));

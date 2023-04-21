@@ -30,6 +30,21 @@ typedef void (*RpcSessionClosedCallback)(void* context);
  * and all operations were finished */
 typedef void (*RpcSessionTerminatedCallback)(void* context);
 
+/** RPC owner */
+typedef enum {
+    RpcOwnerUnknown = 0,
+    RpcOwnerBle,
+    RpcOwnerUsb,
+    RpcOwnerCount,
+} RpcOwner;
+
+/** Get RPC session owner
+ *
+ * @param   session     pointer to RpcSession descriptor
+ * @return              session owner
+ */
+RpcOwner rpc_session_get_owner(RpcSession* session);
+
 /** Open RPC session
  *
  * USAGE:
@@ -44,10 +59,11 @@ typedef void (*RpcSessionTerminatedCallback)(void* context);
  *
  *
  * @param   rpc     instance
+ * @param   owner   owner of session
  * @return          pointer to RpcSession descriptor, or
  *                  NULL if RPC is busy and can't open session now
  */
-RpcSession* rpc_session_open(Rpc* rpc);
+RpcSession* rpc_session_open(Rpc* rpc, RpcOwner owner);
 
 /** Close RPC session
  * It is guaranteed that no callbacks will be called

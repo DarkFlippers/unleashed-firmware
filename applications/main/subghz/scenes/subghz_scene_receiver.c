@@ -147,10 +147,37 @@ void subghz_scene_receiver_on_enter(void* context) {
     subghz_receiver_set_rx_callback(
         subghz->txrx->receiver, subghz_scene_add_to_history_callback, subghz);
 
-    if(subghz->txrx->starline_state == SubGhzStarLineIgnoreEnable) {
+    // TODO: Replace with proper solution based on protocol flags, remove kostily and velosipedy from here
+    // Needs to be done after subghz refactoring merge!!!
+    if(subghz->txrx->ignore_starline == true) {
         SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
         protocoldecoderbase =
             subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Star Line");
+        if(protocoldecoderbase) {
+            subghz_protocol_decoder_base_set_decoder_callback(
+                protocoldecoderbase, NULL, subghz->txrx->receiver);
+        }
+    }
+    if(subghz->txrx->ignore_auto_alarms == true) {
+        SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
+        protocoldecoderbase =
+            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "KIA Seed");
+        if(protocoldecoderbase) {
+            subghz_protocol_decoder_base_set_decoder_callback(
+                protocoldecoderbase, NULL, subghz->txrx->receiver);
+        }
+        protocoldecoderbase = NULL;
+        protocoldecoderbase =
+            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Scher-Khan");
+        if(protocoldecoderbase) {
+            subghz_protocol_decoder_base_set_decoder_callback(
+                protocoldecoderbase, NULL, subghz->txrx->receiver);
+        }
+    }
+    if(subghz->txrx->ignore_magellan == true) {
+        SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
+        protocoldecoderbase =
+            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Magellan");
         if(protocoldecoderbase) {
             subghz_protocol_decoder_base_set_decoder_callback(
                 protocoldecoderbase, NULL, subghz->txrx->receiver);
