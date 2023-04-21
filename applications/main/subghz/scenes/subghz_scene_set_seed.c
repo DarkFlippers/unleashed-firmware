@@ -1,5 +1,4 @@
 #include "../subghz_i.h"
-#include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/faac_slh.h>
 #include <lib/subghz/protocols/keeloq.h>
 
@@ -151,7 +150,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
         if(generated_protocol) {
             subghz_file_name_clear(subghz);
-            DOLPHIN_DEED(DolphinDeedSubGhzAddManually);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneSetType, SubGhzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
