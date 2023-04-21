@@ -12,6 +12,7 @@ typedef struct {
     FlipperFormat* flipper_string;
     uint8_t type;
     SubGhzRadioPreset* preset;
+    FuriHalRtcDateTime datetime;
 } SubGhzHistoryItem;
 
 ARRAY_DEF(SubGhzHistoryItemArray, SubGhzHistoryItem, M_POD_OPLIST)
@@ -161,7 +162,9 @@ uint16_t subghz_history_get_last_index(SubGhzHistory* instance) {
 }
 void subghz_history_get_text_item_menu(SubGhzHistory* instance, FuriString* output, uint16_t idx) {
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
-    furi_string_set(output, item->item_str);
+    FuriHalRtcDateTime* t = &item->datetime;
+    furi_string_printf(output, "%.2d:%.2d:%.2d ", t->hour, t->minute, t->second);
+    furi_string_cat(output, item->item_str);
 }
 
 bool subghz_history_add_to_history(
@@ -195,6 +198,7 @@ bool subghz_history_add_to_history(
     furi_string_set(item->preset->name, preset->name);
     item->preset->data = preset->data;
     item->preset->data_size = preset->data_size;
+    furi_hal_rtc_get_datetime(&item->datetime);
 
     item->item_str = furi_string_alloc();
     item->flipper_string = flipper_format_string_alloc();
