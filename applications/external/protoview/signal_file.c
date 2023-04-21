@@ -28,12 +28,28 @@ bool save_signal(ProtoViewApp* app, const char* filename) {
         FuriString* file_content = furi_string_alloc();
         const char* preset_id = ProtoViewModulations[app->modulation].id;
 
+        char str_date[30];
+        FuriHalRtcDateTime now;
+        furi_hal_rtc_get_datetime(&now);
+        snprintf(
+            str_date,
+            sizeof(str_date),
+            "%.4d/%.2d/%.2d %.2d:%.2d:%.2d",
+            now.year,
+            now.month,
+            now.day,
+            now.hour,
+            now.minute,
+            now.second);
+
         furi_string_printf(
             file_content,
             "Filetype: Flipper SubGhz RAW File\n"
             "Version: 1\n"
+            "Date: %s\n"
             "Frequency: %ld\n"
             "Preset: %s\n",
+            str_date,
             app->frequency,
             preset_id ? preset_id : "FuriHalSubGhzPresetCustom");
 
