@@ -40,6 +40,7 @@ void subghz_view_receiver_add_data_progress(
 void subghz_view_receiver_add_item_to_menu(
     SubGhzViewReceiver* subghz_receiver,
     const char* name,
+    const char* time,
     uint8_t type);
 
 uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver);
