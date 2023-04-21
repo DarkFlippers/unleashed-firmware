@@ -14,7 +14,7 @@
 
 #define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
 
-#define SCROLL_INTERVAL (333)
+#define SCROLL_INTERVAL (606)
 #define SCROLL_DELAY (2)
 
 typedef struct {
