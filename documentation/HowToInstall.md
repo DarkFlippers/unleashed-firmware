@@ -20,10 +20,10 @@
 after that on web updater page - press `Connect` button
 - Press `Install` button
 
-- And wait, if all flashed successfully - you will have all needed assets pre installed
+- And wait, if all flashed![Picture1](https://user-images.githubusercontent.com/40743392/233779036-4fc59f87-1498-4a4e-b24c-9ae000b8f885.png)
+ successfully - you will have all needed assets pre installed
 - Done
-
-![web](https://user-images.githubusercontent.com/10697207/233754320-1c952aa7-f73f-43a9-adf2-9eaf95e97249.jpg)
+![web](https://user-images.githubusercontent.com/40743392/233779040-596ad9a9-87cd-4b19-a831-16fdc678ba35.png)
 
 
 <br>
@@ -40,9 +40,7 @@ after that on web updater page - press `Connect` button
 - Error in ios app will show up, but flipper will be updated successfully
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-
-![ios](https://user-images.githubusercontent.com/10697207/233754364-a8474a48-2628-4be4-bb6e-a1c99fe99912.jpg)
-
+![ios](https://user-images.githubusercontent.com/40743392/233779071-10e37af5-a7d9-41d6-81cd-9bb660352b4d.png)
 
 <br>
 <br>
@@ -58,8 +56,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-
-![andro_tgz](https://user-images.githubusercontent.com/10697207/197042029-a5824787-08bc-4fd8-93ee-b7faff082c54.jpg)
+![andro_tgz](https://user-images.githubusercontent.com/40743392/233779082-6b298bc7-1e34-4e0a-84f2-71a53806a638.png)
 
 <br>
 <br>
@@ -94,7 +91,7 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![qflip](https://user-images.githubusercontent.com/10697207/233754408-089f9f3e-9da7-4e40-840c-9b118361538e.jpg)
+![qflip](https://user-images.githubusercontent.com/40743392/233779095-e5f47a33-4c1d-4ecc-a5ba-b8b766d12113.png)
 
 
 <br>
@@ -113,8 +110,7 @@ after that on web updater page - press `Connect` button
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages
 - Done
-
-![manual](https://user-images.githubusercontent.com/10697207/233754434-0d219490-634c-4dad-ad74-f0ae5f68ccb7.jpg)
+![manual](https://user-images.githubusercontent.com/40743392/233779101-7e1b4397-b95e-4e9a-82a5-99d5e52384b5.png)
 
 
 <br>
