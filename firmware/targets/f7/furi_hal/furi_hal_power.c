@@ -4,8 +4,6 @@
 #include <furi_hal_vibro.h>
 #include <furi_hal_resources.h>
 #include <furi_hal_uart.h>
-#include <furi_hal_rtc.h>
-#include <furi_hal_debug.h>
 
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_pwr.h>
@@ -21,16 +19,15 @@
 
 #define TAG "FuriHalPower"
 
-#ifndef FURI_HAL_POWER_DEBUG_WFI_GPIO
-#define FURI_HAL_POWER_DEBUG_WFI_GPIO (&gpio_ext_pb2)
-#endif
-
-#ifndef FURI_HAL_POWER_DEBUG_STOP_GPIO
-#define FURI_HAL_POWER_DEBUG_STOP_GPIO (&gpio_ext_pc3)
+#ifdef FURI_HAL_POWER_DEEP_SLEEP_ENABLED
+#define FURI_HAL_POWER_DEEP_INSOMNIA 0
+#else
+#define FURI_HAL_POWER_DEEP_INSOMNIA 1
 #endif
 
 typedef struct {
     volatile uint8_t insomnia;
+    volatile uint8_t deep_insomnia;
     volatile uint8_t suppress_charge;
 
     uint8_t gauge_initialized;
@@ -39,6 +36,7 @@ typedef struct {
 
 static volatile FuriHalPower furi_hal_power = {
     .insomnia = 0,
+    .deep_insomnia = FURI_HAL_POWER_DEEP_INSOMNIA,
     .suppress_charge = 0,
 };
 
@@ -81,22 +79,18 @@ const ParamCEDV cedv = {
 };
 
 void furi_hal_power_init() {
-#ifdef FURI_HAL_POWER_DEBUG
-    furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_WFI_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_STOP_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
-    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
-#endif
-
     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
-    LL_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
-    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     bq27220_init(&furi_hal_i2c_handle_power, &cedv);
     bq25896_init(&furi_hal_i2c_handle_power);
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
+#ifdef FURI_HAL_OS_DEBUG
+    furi_hal_gpio_init_simple(&gpio_ext_pb2, GpioModeOutputPushPull);
+    furi_hal_gpio_init_simple(&gpio_ext_pc3, GpioModeOutputPushPull);
+#endif
 
     FURI_LOG_I(TAG, "Init OK");
 }
@@ -146,12 +140,11 @@ bool furi_hal_power_sleep_available() {
     return furi_hal_power.insomnia == 0;
 }
 
-static inline bool furi_hal_power_deep_sleep_available() {
-    return furi_hal_bt_is_alive() && !furi_hal_rtc_is_flag_set(FuriHalRtcFlagLegacySleep) &&
-           !furi_hal_debug_is_gdb_session_active();
+bool furi_hal_power_deep_sleep_available() {
+    return furi_hal_bt_is_alive() && furi_hal_power.deep_insomnia == 0;
 }
 
-static inline void furi_hal_power_light_sleep() {
+void furi_hal_power_light_sleep() {
     __WFI();
 }
 
@@ -159,15 +152,17 @@ static inline void furi_hal_power_suspend_aux_periphs() {
     // Disable USART
     furi_hal_uart_suspend(FuriHalUartIdUSART1);
     furi_hal_uart_suspend(FuriHalUartIdLPUART1);
+    // TODO: Disable USB
 }
 
 static inline void furi_hal_power_resume_aux_periphs() {
     // Re-enable USART
     furi_hal_uart_resume(FuriHalUartIdUSART1);
     furi_hal_uart_resume(FuriHalUartIdLPUART1);
+    // TODO: Re-enable USB
 }
 
-static inline void furi_hal_power_deep_sleep() {
+void furi_hal_power_deep_sleep() {
     furi_hal_power_suspend_aux_periphs();
 
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
@@ -192,6 +187,8 @@ static inline void furi_hal_power_deep_sleep() {
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
 
     // Prepare deep sleep
+    LL_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
+    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
     LL_LPM_EnableDeepSleep();
 
 #if defined(__CC_ARM)
@@ -202,6 +199,13 @@ static inline void furi_hal_power_deep_sleep() {
     __WFI();
 
     LL_LPM_EnableSleep();
+
+    // Make sure that values differ to prevent disaster on wfi
+    LL_PWR_SetPowerMode(LL_PWR_MODE_STOP0);
+    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+
+    LL_PWR_ClearFlag_C1STOP_C1STB();
+    LL_PWR_ClearFlag_C2STOP_C2STB();
 
     /* Release ENTRY_STOP_MODE semaphore */
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
@@ -216,25 +220,28 @@ static inline void furi_hal_power_deep_sleep() {
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
 
     furi_hal_power_resume_aux_periphs();
-    furi_hal_rtc_sync_shadow();
 }
 
 void furi_hal_power_sleep() {
     if(furi_hal_power_deep_sleep_available()) {
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 1);
+#ifdef FURI_HAL_OS_DEBUG
+        furi_hal_gpio_write(&gpio_ext_pc3, 1);
 #endif
+
         furi_hal_power_deep_sleep();
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
+
+#ifdef FURI_HAL_OS_DEBUG
+        furi_hal_gpio_write(&gpio_ext_pc3, 0);
 #endif
     } else {
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 1);
+#ifdef FURI_HAL_OS_DEBUG
+        furi_hal_gpio_write(&gpio_ext_pb2, 1);
 #endif
+
         furi_hal_power_light_sleep();
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
+
+#ifdef FURI_HAL_OS_DEBUG
+        furi_hal_gpio_write(&gpio_ext_pb2, 0);
 #endif
     }
 }

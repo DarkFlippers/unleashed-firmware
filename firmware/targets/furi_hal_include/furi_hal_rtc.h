@@ -87,9 +87,6 @@ void furi_hal_rtc_deinit_early();
 /** Initialize RTC subsystem */
 void furi_hal_rtc_init();
 
-/** Force sync shadow registers */
-void furi_hal_rtc_sync_shadow();
-
 /** Get RTC register content
  *
  * @param[in]  reg   The register identifier

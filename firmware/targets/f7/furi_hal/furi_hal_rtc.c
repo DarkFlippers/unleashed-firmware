@@ -165,14 +165,6 @@ void furi_hal_rtc_init() {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_rtc_sync_shadow() {
-    if(!LL_RTC_IsShadowRegBypassEnabled(RTC)) {
-        LL_RTC_ClearFlag_RS(RTC);
-        while(!LL_RTC_IsActiveFlag_RS(RTC)) {
-        };
-    }
-}
-
 uint32_t furi_hal_rtc_get_register(FuriHalRtcRegister reg) {
     return LL_RTC_BAK_GetRegister(RTC, reg);
 }
@@ -320,7 +312,12 @@ void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime) {
     /* Exit Initialization mode */
     LL_RTC_DisableInitMode(RTC);
 
-    furi_hal_rtc_sync_shadow();
+    /* If RTC_CR_BYPSHAD bit = 0, wait for synchro else this check is not needed */
+    if(!LL_RTC_IsShadowRegBypassEnabled(RTC)) {
+        LL_RTC_ClearFlag_RS(RTC);
+        while(!LL_RTC_IsActiveFlag_RS(RTC)) {
+        };
+    }
 
     /* Enable write protection */
     LL_RTC_EnableWriteProtection(RTC);
