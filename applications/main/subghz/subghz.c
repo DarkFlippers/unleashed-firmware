@@ -72,7 +72,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     subghz->in_decoder_scene = false;
     subghz->in_decoder_scene_skip = false;
-    subghz->from_add_manually = false;
 
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();

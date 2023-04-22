@@ -105,8 +105,6 @@ void subghz_scene_set_type_submenu_callback(void* context, uint32_t index) {
 void subghz_scene_set_type_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    subghz->from_add_manually = true;
-
     submenu_add_item(
         subghz->submenu,
         "Faac SLH 868MHz",

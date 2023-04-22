@@ -62,7 +62,8 @@ void subghz_scene_save_name_on_enter(void* context) {
             if(subghz->txrx->decoder_result != 0x0) {
                 if(subghz->txrx->decoder_result != NULL) {
                     if(strlen(subghz->txrx->decoder_result->protocol->name) != 0) {
-                        if(subghz->from_add_manually) {
+                        if(scene_manager_has_previous_scene(
+                               subghz->scene_manager, SubGhzSceneSetType)) {
                             subghz_scene_save_name_get_timefilename(file_name, "S", true);
                         } else {
                             subghz_scene_save_name_get_timefilename(
@@ -197,8 +198,6 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_save_name_on_exit(void* context) {
     SubGhz* subghz = context;
-
-    subghz->from_add_manually = false;
 
     // Clear validator
     void* validator_context = text_input_get_validator_callback_context(subghz->text_input);
