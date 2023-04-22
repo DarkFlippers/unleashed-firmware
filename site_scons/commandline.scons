@@ -27,14 +27,6 @@ AddOption(
 )
 
 AddOption(
-    "--extra-define",
-    action="append",
-    dest="extra_defines",
-    default=[],
-    help="Extra global define that will be passed to C/C++ compiler, can be specified multiple times",
-)
-
-AddOption(
     "--extra-ext-apps",
     action="store",
     dest="extra_ext_apps",
