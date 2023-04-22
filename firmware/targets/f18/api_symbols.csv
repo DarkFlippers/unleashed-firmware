@@ -199,8 +199,8 @@ Function,-,LL_EXTI_StructInit,void,LL_EXTI_InitTypeDef*
 Function,-,LL_GPIO_DeInit,ErrorStatus,GPIO_TypeDef*
 Function,+,LL_GPIO_Init,ErrorStatus,"GPIO_TypeDef*, LL_GPIO_InitTypeDef*"
 Function,-,LL_GPIO_StructInit,void,LL_GPIO_InitTypeDef*
-Function,-,LL_I2C_DeInit,ErrorStatus,const I2C_TypeDef*
-Function,+,LL_I2C_Init,ErrorStatus,"I2C_TypeDef*, const LL_I2C_InitTypeDef*"
+Function,-,LL_I2C_DeInit,ErrorStatus,I2C_TypeDef*
+Function,+,LL_I2C_Init,ErrorStatus,"I2C_TypeDef*, LL_I2C_InitTypeDef*"
 Function,-,LL_I2C_StructInit,void,LL_I2C_InitTypeDef*
 Function,-,LL_Init1msTick,void,uint32_t
 Function,+,LL_LPTIM_DeInit,ErrorStatus,LPTIM_TypeDef*
