@@ -58,6 +58,12 @@ void furi_hal_power_insomnia_exit();
  */
 bool furi_hal_power_sleep_available();
 
+/** Check if deep sleep availble
+ *
+ * @return     true if available
+ */
+bool furi_hal_power_deep_sleep_available();
+
 /** Go to sleep
  */
 void furi_hal_power_sleep();

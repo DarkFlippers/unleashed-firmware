@@ -23,7 +23,7 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![web_instr](https://user-images.githubusercontent.com/10697207/190942577-9d137e01-468b-4c74-8587-c2a17c3c7534.jpg)
+![web](https://user-images.githubusercontent.com/10697207/233754320-1c952aa7-f73f-43a9-adf2-9eaf95e97249.jpg)
 
 
 <br>
@@ -41,7 +41,8 @@ after that on web updater page - press `Connect` button
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![ios](https://user-images.githubusercontent.com/10697207/192114863-75693972-31fb-4b5f-bcc4-4122abb352c2.jpg)
+![ios](https://user-images.githubusercontent.com/10697207/233754364-a8474a48-2628-4be4-bb6e-a1c99fe99912.jpg)
+
 
 <br>
 <br>
@@ -74,7 +75,8 @@ after that on web updater page - press `Connect` button
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![andro_web](https://user-images.githubusercontent.com/10697207/197042413-cfc93f31-8b84-4cdb-967b-276f46224e50.jpg)
+![androweb](https://user-images.githubusercontent.com/10697207/233754394-abbbd446-9b16-4a92-9a57-b9b9d0d1b45b.jpg)
+
 
 <br>
 <br>
@@ -92,7 +94,8 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![qflip](https://user-images.githubusercontent.com/10697207/192114874-4edae5f5-6bff-4674-8e3b-030ceaf17abc.png)
+![qflip](https://user-images.githubusercontent.com/10697207/233754408-089f9f3e-9da7-4e40-840c-9b118361538e.jpg)
+
 
 <br>
 <br>
@@ -111,7 +114,8 @@ after that on web updater page - press `Connect` button
 - Update will start, wait for all stages
 - Done
 
-![manual](https://user-images.githubusercontent.com/10697207/192114890-b9220265-1fe3-4837-8e98-ed267282e11e.png)
+![manual](https://user-images.githubusercontent.com/10697207/233754434-0d219490-634c-4dad-ad74-f0ae5f68ccb7.jpg)
+
 
 <br>
 <br>
