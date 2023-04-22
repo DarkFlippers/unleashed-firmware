@@ -1,5 +1,6 @@
 #include <furi_hal_flash.h>
 #include <furi_hal_bt.h>
+#include <furi_hal_power.h>
 #include <furi.h>
 #include <ble/ble.h>
 #include <interface/patterns/ble_thread/shci/shci.h>
@@ -114,6 +115,7 @@ static void furi_hal_flash_lock(void) {
 }
 
 static void furi_hal_flash_begin_with_core2(bool erase_flag) {
+    furi_hal_power_insomnia_enter();
     /* Take flash controller ownership */
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) != 0) {
         furi_thread_yield();
@@ -188,6 +190,7 @@ static void furi_hal_flash_end_with_core2(bool erase_flag) {
 
     /* Release flash controller ownership */
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, 0);
+    furi_hal_power_insomnia_exit();
 }
 
 static void furi_hal_flash_end(bool erase_flag) {
