@@ -56,7 +56,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![andro_tgz](https://user-images.githubusercontent.com/10697207/197042029-a5824787-08bc-4fd8-93ee-b7faff082c54.jpg)
+![andro_tgz 3](https://user-images.githubusercontent.com/40743392/233782284-a7da72fc-98d0-4283-8641-6bdccf43bb33.png)
 
 <br>
 <br>
@@ -71,8 +71,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![androweb](https://user-images.githubusercontent.com/40743392/233779253-a72db3e2-c836-42f1-94cc-cd268f3d6766.png)
-
+![androweb](https://user-images.githubusercontent.com/40743392/233782296-d4903190-d136-4001-b59c-29051032c91f.png)
 
 
 <br>
