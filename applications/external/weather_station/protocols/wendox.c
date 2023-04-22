@@ -101,7 +101,7 @@ void ws_protocol_decoder_wendox_reset(void* context) {
  */
 static void ws_protocol_wendox_remote_controller(WSBlockGeneric* instance) {
     instance->id = (instance->data >> 4) & 0xFF;
-    instance->battery_low = WS_NO_BATT;
+    instance->battery_low = (instance->data >> 5) & 1;
     instance->channel = WS_NO_CHANNEL;
 
     if(((instance->data >> 22) & 1)) {
