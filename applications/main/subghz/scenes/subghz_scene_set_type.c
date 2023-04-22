@@ -105,6 +105,8 @@ void subghz_scene_set_type_submenu_callback(void* context, uint32_t index) {
 void subghz_scene_set_type_on_enter(void* context) {
     SubGhz* subghz = context;
 
+    subghz->from_add_manually = true;
+
     submenu_add_item(
         subghz->submenu,
         "Faac SLH 868MHz",
@@ -389,13 +391,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         uint32_t key = subghz_random_serial();
         switch(event.event) {
         case SubmenuIndexFaacSLH_868:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             break;
         case SubmenuIndexFaacSLH_433:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             break;
         case SubmenuIndexBFTClone:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixBft);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             break;
         case SubmenuIndexPricenton:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8

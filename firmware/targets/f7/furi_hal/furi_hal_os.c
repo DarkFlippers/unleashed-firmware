@@ -28,24 +28,11 @@
 // Arbitrary (but small) number for better tick consistency
 #define FURI_HAL_OS_EXTRA_CNT 3
 
-#ifndef FURI_HAL_OS_DEBUG_AWAKE_GPIO
-#define FURI_HAL_OS_DEBUG_AWAKE_GPIO (&gpio_ext_pa7)
-#endif
-
-#ifndef FURI_HAL_OS_DEBUG_TICK_GPIO
-#define FURI_HAL_OS_DEBUG_TICK_GPIO (&gpio_ext_pa6)
-#endif
-
-#ifndef FURI_HAL_OS_DEBUG_SECOND_GPIO
-#define FURI_HAL_OS_DEBUG_SECOND_GPIO (&gpio_ext_pa4)
-#endif
-
 #ifdef FURI_HAL_OS_DEBUG
 #include <stm32wbxx_ll_gpio.h>
 
 void furi_hal_os_timer_callback() {
-    furi_hal_gpio_write(
-        FURI_HAL_OS_DEBUG_SECOND_GPIO, !furi_hal_gpio_read(FURI_HAL_OS_DEBUG_SECOND_GPIO));
+    furi_hal_gpio_write(&gpio_ext_pa4, !furi_hal_gpio_read(&gpio_ext_pa4));
 }
 #endif
 
@@ -57,11 +44,9 @@ void furi_hal_os_init() {
     furi_hal_idle_timer_init();
 
 #ifdef FURI_HAL_OS_DEBUG
-    furi_hal_gpio_init_simple(FURI_HAL_OS_DEBUG_AWAKE_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_init_simple(FURI_HAL_OS_DEBUG_TICK_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_init_simple(FURI_HAL_OS_DEBUG_SECOND_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_write(FURI_HAL_OS_DEBUG_AWAKE_GPIO, 1);
-
+    furi_hal_gpio_init_simple(&gpio_ext_pa7, GpioModeOutputPushPull);
+    furi_hal_gpio_init_simple(&gpio_ext_pa6, GpioModeOutputPushPull);
+    furi_hal_gpio_init_simple(&gpio_ext_pa4, GpioModeOutputPushPull);
     FuriTimer* second_timer =
         furi_timer_alloc(furi_hal_os_timer_callback, FuriTimerTypePeriodic, NULL);
     furi_timer_start(second_timer, FURI_HAL_OS_TICK_HZ);
@@ -73,8 +58,7 @@ void furi_hal_os_init() {
 void furi_hal_os_tick() {
     if(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
 #ifdef FURI_HAL_OS_DEBUG
-        furi_hal_gpio_write(
-            FURI_HAL_OS_DEBUG_TICK_GPIO, !furi_hal_gpio_read(FURI_HAL_OS_DEBUG_TICK_GPIO));
+        furi_hal_gpio_write(&gpio_ext_pa6, !furi_hal_gpio_read(&gpio_ext_pa6));
 #endif
         xPortSysTickHandler();
     }
@@ -137,14 +121,14 @@ static inline uint32_t furi_hal_os_sleep(TickType_t expected_idle_ticks) {
     furi_hal_idle_timer_start(FURI_HAL_OS_TICKS_TO_IDLE_CNT(expected_idle_ticks));
 
 #ifdef FURI_HAL_OS_DEBUG
-    furi_hal_gpio_write(FURI_HAL_OS_DEBUG_AWAKE_GPIO, 0);
+    furi_hal_gpio_write(&gpio_ext_pa7, 0);
 #endif
 
     // Go to sleep mode
     furi_hal_power_sleep();
 
 #ifdef FURI_HAL_OS_DEBUG
-    furi_hal_gpio_write(FURI_HAL_OS_DEBUG_AWAKE_GPIO, 1);
+    furi_hal_gpio_write(&gpio_ext_pa7, 1);
 #endif
 
     // Calculate how much time we spent in the sleep
