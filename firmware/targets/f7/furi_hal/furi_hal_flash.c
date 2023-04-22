@@ -1,6 +1,7 @@
 #include <furi_hal_flash.h>
 #include <furi_hal_bt.h>
 #include <furi_hal_power.h>
+#include <furi_hal_cortex.h>
 #include <furi.h>
 #include <ble/ble.h>
 #include <interface/patterns/ble_thread/shci/shci.h>
@@ -231,17 +232,14 @@ static void furi_hal_flush_cache(void) {
 
 bool furi_hal_flash_wait_last_operation(uint32_t timeout) {
     uint32_t error = 0;
-    uint32_t countdown = 0;
 
     /* Wait for the FLASH operation to complete by polling on BUSY flag to be reset.
        Even if the FLASH operation fails, the BUSY flag will be reset and an error
        flag will be set */
-    countdown = timeout;
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(timeout * 1000);
+
     while(READ_BIT(FLASH->SR, FLASH_SR_BSY)) {
-        if(LL_SYSTICK_IsActiveCounterFlag()) {
-            countdown--;
-        }
-        if(countdown == 0) {
+        if(furi_hal_cortex_timer_is_expired(timer)) {
             return false;
         }
     }
@@ -264,12 +262,10 @@ bool furi_hal_flash_wait_last_operation(uint32_t timeout) {
     CLEAR_BIT(FLASH->SR, error);
 
     /* Wait for control register to be written */
-    countdown = timeout;
+    timer = furi_hal_cortex_timer_get(timeout * 1000);
+
     while(READ_BIT(FLASH->SR, FLASH_SR_CFGBSY)) {
-        if(LL_SYSTICK_IsActiveCounterFlag()) {
-            countdown--;
-        }
-        if(countdown == 0) {
+        if(furi_hal_cortex_timer_is_expired(timer)) {
             return false;
         }
     }
