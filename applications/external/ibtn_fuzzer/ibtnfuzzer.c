@@ -58,6 +58,14 @@ iBtnFuzzerState* ibtnfuzzer_alloc() {
     ibtnfuzzer->proto_name = furi_string_alloc();
     ibtnfuzzer->data_str = furi_string_alloc();
 
+    ibtnfuzzer->main_menu_items[0] = furi_string_alloc_set("Default Values");
+    ibtnfuzzer->main_menu_items[1] = furi_string_alloc_set("Load File");
+    ibtnfuzzer->main_menu_items[2] = furi_string_alloc_set("Load UIDs from file");
+
+    ibtnfuzzer->main_menu_proto_items[0] = furi_string_alloc_set("DS1990");
+    ibtnfuzzer->main_menu_proto_items[1] = furi_string_alloc_set("Metakom");
+    ibtnfuzzer->main_menu_proto_items[2] = furi_string_alloc_set("Cyfral");
+
     ibtnfuzzer->previous_scene = NoneScene;
     ibtnfuzzer->current_scene = SceneEntryPoint;
     ibtnfuzzer->is_running = true;
@@ -103,6 +111,14 @@ void ibtnfuzzer_free(iBtnFuzzerState* ibtnfuzzer) {
     furi_string_free(ibtnfuzzer->attack_name);
     furi_string_free(ibtnfuzzer->proto_name);
     furi_string_free(ibtnfuzzer->data_str);
+
+    for(uint32_t i = 0; i < 3; i++) {
+        furi_string_free(ibtnfuzzer->main_menu_items[i]);
+    }
+
+    for(uint32_t i = 0; i < 3; i++) {
+        furi_string_free(ibtnfuzzer->main_menu_proto_items[i]);
+    }
 
     free(ibtnfuzzer->data);
     free(ibtnfuzzer->payload);
