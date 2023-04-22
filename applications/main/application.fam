@@ -14,8 +14,8 @@ App(
         "u2f",
         "fap_loader",
         "archive",
-        # "clock",
-        # "subghz_remote",
+        "clock",
+        "subghz_remote",
     ],
 )
 
@@ -25,13 +25,13 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "gpio",
-        # "ibutton",
+        #"ibutton",
         "infrared",
         "lfrfid",
         "nfc",
         "subghz",
-        # "bad_usb",
-        # "u2f",
+        #"bad_usb",
+        #"u2f",
         "fap_loader",
         "archive",
     ],

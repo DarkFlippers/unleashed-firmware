@@ -1,6 +1,6 @@
 App(
     appid="lfrfid",
-    name="RFID",
+    name="125 kHz RFID",
     apptype=FlipperAppType.APP,
     targets=["f7"],
     entry_point="lfrfid_app",
@@ -13,7 +13,7 @@ App(
         "lfrfid_start",
     ],
     icon="A_125khz_14",
-    stack_size=2 * 1024, 
+    stack_size=2 * 1024,
     order=20,
     fap_libs=["assets"],
 )
