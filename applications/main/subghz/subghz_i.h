@@ -127,6 +127,7 @@ struct SubGhz {
 
     bool in_decoder_scene;
     bool in_decoder_scene_skip;
+    bool from_add_manually;
 
     SubGhzDecodeRawState decode_raw_state;
     SubGhzFileEncoderWorker* decode_raw_file_worker_encoder;
