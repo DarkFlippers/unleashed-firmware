@@ -34,7 +34,7 @@ class Copro:
         self.mcu_copro = None
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def loadCubeInfo(self, cube_dir, cube_version):
+    def loadCubeInfo(self, cube_dir, reference_cube_version):
         if not os.path.isdir(cube_dir):
             raise Exception(f'"{cube_dir}" doesn\'t exists')
         self.cube_dir = cube_dir
@@ -50,7 +50,7 @@ class Copro:
         if not cube_version or not cube_version.startswith("FW.WB"):
             raise Exception(f"Incorrect Cube package or version info")
         cube_version = cube_version.replace("FW.WB.", "", 1)
-        if cube_version != cube_version:
+        if cube_version != reference_cube_version:
             raise Exception(f"Unsupported cube version")
         self.version = cube_version
 
