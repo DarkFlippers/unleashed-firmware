@@ -20,10 +20,10 @@
 after that on web updater page - press `Connect` button
 - Press `Install` button
 
-- And wait, if all flashed successfully - you will have all needed assets pre installed
+- And wait, if all flashed
+ successfully - you will have all needed assets pre installed
 - Done
-
-![web_instr](https://user-images.githubusercontent.com/10697207/190942577-9d137e01-468b-4c74-8587-c2a17c3c7534.jpg)
+![web](https://user-images.githubusercontent.com/40743392/233779040-596ad9a9-87cd-4b19-a831-16fdc678ba35.png)
 
 
 <br>
@@ -40,8 +40,7 @@ after that on web updater page - press `Connect` button
 - Error in ios app will show up, but flipper will be updated successfully
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-
-![ios](https://user-images.githubusercontent.com/10697207/192114863-75693972-31fb-4b5f-bcc4-4122abb352c2.jpg)
+![ios](https://user-images.githubusercontent.com/40743392/233779071-10e37af5-a7d9-41d6-81cd-9bb660352b4d.png)
 
 <br>
 <br>
@@ -57,8 +56,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-
-![andro_tgz](https://user-images.githubusercontent.com/10697207/197042029-a5824787-08bc-4fd8-93ee-b7faff082c54.jpg)
+![andro_tgz](https://user-images.githubusercontent.com/40743392/233782806-e81c9634-4694-4faf-88ce-08b89a8b6fa0.png)
 
 <br>
 <br>
@@ -73,8 +71,8 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
+![androweb](https://user-images.githubusercontent.com/40743392/233782906-1f8f1ebf-c488-4d9f-9a6f-67a4e693cbda.png)
 
-![andro_web](https://user-images.githubusercontent.com/10697207/197042413-cfc93f31-8b84-4cdb-967b-276f46224e50.jpg)
 
 <br>
 <br>
@@ -92,7 +90,9 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![qflip](https://user-images.githubusercontent.com/10697207/192114874-4edae5f5-6bff-4674-8e3b-030ceaf17abc.png)
+![qflip](https://user-images.githubusercontent.com/40743392/233779331-3f21c662-6e77-42e5-a928-f5441bd85bd4.png)
+
+
 
 <br>
 <br>
@@ -111,7 +111,9 @@ after that on web updater page - press `Connect` button
 - Update will start, wait for all stages
 - Done
 
-![manual](https://user-images.githubusercontent.com/10697207/192114890-b9220265-1fe3-4837-8e98-ed267282e11e.png)
+![manual](https://user-images.githubusercontent.com/40743392/233779363-faf5b35b-e136-4dca-b1fb-15188b26eb6a.png)
+
+
 
 <br>
 <br>
