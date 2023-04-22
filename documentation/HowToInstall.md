@@ -71,7 +71,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![androweb](https://user-images.githubusercontent.com/40743392/233782858-44acdd83-a300-45e0-a27b-46d68f5ec443.png)
+![androweb](https://user-images.githubusercontent.com/40743392/233782906-1f8f1ebf-c488-4d9f-9a6f-67a4e693cbda.png)
 
 
 <br>
