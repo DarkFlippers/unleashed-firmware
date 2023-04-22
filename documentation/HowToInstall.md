@@ -56,7 +56,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![andro_tgz](https://user-images.githubusercontent.com/40743392/233779082-6b298bc7-1e34-4e0a-84f2-71a53806a638.png)
+![andro_tgz](https://user-images.githubusercontent.com/10697207/197042029-a5824787-08bc-4fd8-93ee-b7faff082c54.jpg)
 
 <br>
 <br>
@@ -71,8 +71,8 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
+![androweb](https://user-images.githubusercontent.com/40743392/233779253-a72db3e2-c836-42f1-94cc-cd268f3d6766.png)
 
-![androweb](https://user-images.githubusercontent.com/10697207/233754394-abbbd446-9b16-4a92-9a57-b9b9d0d1b45b.jpg)
 
 
 <br>
@@ -91,7 +91,8 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
 
-![qflip](https://user-images.githubusercontent.com/40743392/233779095-e5f47a33-4c1d-4ecc-a5ba-b8b766d12113.png)
+![qflip](https://user-images.githubusercontent.com/40743392/233779331-3f21c662-6e77-42e5-a928-f5441bd85bd4.png)
+
 
 
 <br>
@@ -110,7 +111,9 @@ after that on web updater page - press `Connect` button
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages
 - Done
-![manual](https://user-images.githubusercontent.com/40743392/233779101-7e1b4397-b95e-4e9a-82a5-99d5e52384b5.png)
+
+![manual](https://user-images.githubusercontent.com/40743392/233779363-faf5b35b-e136-4dca-b1fb-15188b26eb6a.png)
+
 
 
 <br>
