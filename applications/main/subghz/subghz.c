@@ -451,7 +451,8 @@ int32_t subghz_app(void* p) {
     // Auto switch to internal radio if external radio is not available
     if(!furi_hal_subghz_check_radio()) {
         subghz->last_settings->external_module_enabled = false;
-        furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
     }
     // Check argument and run corresponding scene
     if(p && strlen(p)) {
@@ -507,6 +508,8 @@ int32_t subghz_app(void* p) {
     furi_hal_power_suppress_charge_exit();
     // Disable power for External CC1101 if it was enabled and module is connected
     furi_hal_subghz_disable_ext_power();
+    // Reinit SPI handles for internal radio / nfc
+    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     subghz_free(subghz, alloc_for_tx);
 

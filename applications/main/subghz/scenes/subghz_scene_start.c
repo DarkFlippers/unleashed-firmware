@@ -84,7 +84,8 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
             furi_hal_subghz_enable_ext_power();
 
             if(!furi_hal_subghz_check_radio()) {
-                furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
+                furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+                furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
                 subghz->last_settings->external_module_enabled = false;
                 furi_string_set(subghz->error_str, "Please connect\nexternal radio");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);

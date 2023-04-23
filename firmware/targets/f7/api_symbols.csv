@@ -1377,6 +1377,7 @@ Function,+,furi_hal_subghz_get_timestamp_file_names,_Bool,
 Function,+,furi_hal_subghz_idle,void,
 Function,-,furi_hal_subghz_init,void,
 Function,+,furi_hal_subghz_init_check,_Bool,
+Function,+,furi_hal_subghz_init_radio_type,_Bool,SubGhzRadioType
 Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
 Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
 Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
@@ -1389,12 +1390,12 @@ Function,+,furi_hal_subghz_read_packet,void,"uint8_t*, uint8_t*"
 Function,+,furi_hal_subghz_reset,void,
 Function,+,furi_hal_subghz_rx,void,
 Function,+,furi_hal_subghz_rx_pipe_not_empty,_Bool,
+Function,+,furi_hal_subghz_select_radio_type,void,SubGhzRadioType
 Function,+,furi_hal_subghz_set_async_mirror_pin,void,const GpioPin*
 Function,+,furi_hal_subghz_set_external_power_disable,void,_Bool
 Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
-Function,+,furi_hal_subghz_set_radio_type,_Bool,SubGhzRadioType
 Function,+,furi_hal_subghz_set_rolling_counter_mult,void,uint8_t
 Function,+,furi_hal_subghz_set_timestamp_file_names,void,_Bool
 Function,-,furi_hal_subghz_shutdown,void,
