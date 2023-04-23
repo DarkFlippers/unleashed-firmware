@@ -75,6 +75,8 @@ typedef struct {
     FlipFridProtos proto;
     FuriString* attack_name;
     FuriString* proto_name;
+    FuriString* main_menu_items[4];
+    FuriString* main_menu_proto_items[4];
 
     DialogsApp* dialogs;
     FuriString* notification_msg;

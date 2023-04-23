@@ -73,6 +73,8 @@ typedef struct {
     iBtnFuzzerProtos proto;
     FuriString* attack_name;
     FuriString* proto_name;
+    FuriString* main_menu_items[3];
+    FuriString* main_menu_proto_items[3];
 
     DialogsApp* dialogs;
     FuriString* notification_msg;

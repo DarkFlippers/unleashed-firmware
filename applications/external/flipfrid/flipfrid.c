@@ -58,6 +58,16 @@ FlipFridState* flipfrid_alloc() {
     flipfrid->proto_name = furi_string_alloc();
     flipfrid->data_str = furi_string_alloc();
 
+    flipfrid->main_menu_items[0] = furi_string_alloc_set("Default Values");
+    flipfrid->main_menu_items[1] = furi_string_alloc_set("BF Customer ID");
+    flipfrid->main_menu_items[2] = furi_string_alloc_set("Load File");
+    flipfrid->main_menu_items[3] = furi_string_alloc_set("Load UIDs from file");
+
+    flipfrid->main_menu_proto_items[0] = furi_string_alloc_set("EM4100");
+    flipfrid->main_menu_proto_items[1] = furi_string_alloc_set("HIDProx");
+    flipfrid->main_menu_proto_items[2] = furi_string_alloc_set("PAC/Stanley");
+    flipfrid->main_menu_proto_items[3] = furi_string_alloc_set("H10301");
+
     flipfrid->previous_scene = NoneScene;
     flipfrid->current_scene = SceneEntryPoint;
     flipfrid->is_running = true;
@@ -99,6 +109,14 @@ void flipfrid_free(FlipFridState* flipfrid) {
     furi_string_free(flipfrid->attack_name);
     furi_string_free(flipfrid->proto_name);
     furi_string_free(flipfrid->data_str);
+
+    for(uint32_t i = 0; i < 4; i++) {
+        furi_string_free(flipfrid->main_menu_items[i]);
+    }
+
+    for(uint32_t i = 0; i < 4; i++) {
+        furi_string_free(flipfrid->main_menu_proto_items[i]);
+    }
 
     free(flipfrid->data);
     free(flipfrid->payload);

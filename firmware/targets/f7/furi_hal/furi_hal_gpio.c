@@ -178,10 +178,13 @@ void furi_hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, vo
 
     FURI_CRITICAL_ENTER();
     uint8_t pin_num = furi_hal_gpio_get_pin_num(gpio);
-    furi_assert(gpio_interrupt[pin_num].callback == NULL);
-    gpio_interrupt[pin_num].callback = cb;
-    gpio_interrupt[pin_num].context = ctx;
-    gpio_interrupt[pin_num].ready = true;
+    volatile GpioInterrupt* interrupt = &gpio_interrupt[pin_num];
+    furi_check(
+        (interrupt->callback == NULL) ||
+        ((interrupt->callback == cb) && (interrupt->context == ctx)));
+    interrupt->callback = cb;
+    interrupt->context = ctx;
+    interrupt->ready = true;
     FURI_CRITICAL_EXIT();
 }
 
