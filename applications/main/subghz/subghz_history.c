@@ -125,6 +125,11 @@ uint8_t subghz_history_get_type_protocol(SubGhzHistory* instance, uint16_t idx) 
 const char* subghz_history_get_protocol_name(SubGhzHistory* instance, uint16_t idx) {
     furi_assert(instance);
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
+    if(!item || !item->flipper_string) {
+        FURI_LOG_E(TAG, "Missing Item");
+        furi_string_reset(instance->tmp_string);
+        return furi_string_get_cstr(instance->tmp_string);
+    }
     flipper_format_rewind(item->flipper_string);
     if(!flipper_format_read_string(item->flipper_string, "Protocol", instance->tmp_string)) {
         FURI_LOG_E(TAG, "Missing Protocol");
