@@ -137,9 +137,9 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
 
     if(event->key == InputKeyOk) {
         if((idx == DesktopLockMenuIndexLock)) {
-            if((pin_is_set) && (event->type == InputTypeShort)) {
+            if((pin_is_set) && (event->type == InputTypeLong)) {
                 lock_menu->callback(DesktopLockMenuEventPinLock, lock_menu->context);
-            } else if((pin_is_set == false) && (event->type == InputTypeShort)) {
+            } else if(event->type == InputTypeShort) {
                 lock_menu->callback(DesktopLockMenuEventLock, lock_menu->context);
             }
         } else if(idx == DesktopLockMenuIndexStealth) {
