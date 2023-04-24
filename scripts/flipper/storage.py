@@ -335,7 +335,9 @@ class FlipperStorage:
 
     def _check_no_error(self, response, path=None):
         if self.has_error(response):
-            raise FlipperStorageException.from_error_code(self.get_error(response))
+            raise FlipperStorageException.from_error_code(
+                path, self.get_error(response)
+            )
 
     def size(self, path: str):
         """file size on Flipper"""
