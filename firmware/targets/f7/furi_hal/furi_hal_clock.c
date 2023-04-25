@@ -213,7 +213,11 @@ void furi_hal_clock_switch_to_hsi() {
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
         ;
 
-    LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
+    LL_C2_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
+
+    LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
+    while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_0)
+        ;
 }
 
 void furi_hal_clock_switch_to_pll() {
@@ -228,7 +232,11 @@ void furi_hal_clock_switch_to_pll() {
     while(!LL_RCC_PLLSAI1_IsReady())
         ;
 
+    LL_C2_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_2);
+
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_3);
+    while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_3)
+        ;
 
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
     LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSE);
