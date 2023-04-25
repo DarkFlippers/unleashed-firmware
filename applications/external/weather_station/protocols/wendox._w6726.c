@@ -15,9 +15,17 @@
  *  
  *  bit 0: 1955-hi, 5865-lo
  *  bit 1: 5865-hi, 1955-lo
- * 
  *  guard time: 12*1955+(lo last bit) 
  *  data: 29 bit
+ * 
+ *  IIIII | ZTTTTTTTTT | uuuuuuuBuu | CCCC
+ * 
+ *  I: identification;
+ *  Z: temperature sign;
+ *  T: temperature sign dependent +12 Ѱ;
+ *  B: battery low; flag to indicate low battery voltage;
+ *  C: CRC4 (polynomial = 0x9, start_data = 0xD);
+ *  u: unknown; 
  */
 
 static const SubGhzBlockConst ws_protocol_wendox_w6726_const = {
