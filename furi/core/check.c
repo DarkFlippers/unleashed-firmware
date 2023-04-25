@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 PLACE_IN_SECTION("MB_MEM2") const char* __furi_check_message = NULL;
-PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
+PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[13] = {0};
 
 /** Load r12 value to __furi_check_message and store registers to __furi_check_registers */
 #define GET_MESSAGE_AND_STORE_REGISTERS()               \
@@ -22,6 +22,7 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[12] = {0};
                  "str r12, [r11]                    \n" \
                  "ldr r12, =__furi_check_registers  \n" \
                  "stm r12, {r0-r11}                 \n" \
+                 "str lr, [r12, #48]                \n" \
                  :                                      \
                  :                                      \
                  : "memory");
@@ -60,6 +61,25 @@ static void __furi_put_uint32_as_text(uint32_t data) {
     char tmp_str[] = "-2147483648";
     itoa(data, tmp_str, 10);
     furi_hal_console_puts(tmp_str);
+}
+
+static void __furi_put_uint32_as_hex(uint32_t data) {
+    char tmp_str[] = "0xFFFFFFFF";
+    itoa(data, tmp_str, 16);
+    furi_hal_console_puts(tmp_str);
+}
+
+static void __furi_print_register_info() {
+    // Print registers
+    for(uint8_t i = 0; i < 12; i++) {
+        furi_hal_console_puts("\r\n\tr");
+        __furi_put_uint32_as_text(i);
+        furi_hal_console_puts(" : ");
+        __furi_put_uint32_as_hex(__furi_check_registers[i]);
+    }
+
+    furi_hal_console_puts("\r\n\tlr : ");
+    __furi_put_uint32_as_hex(__furi_check_registers[12]);
 }
 
 static void __furi_print_stack_info() {
@@ -101,32 +121,41 @@ FURI_NORETURN void __furi_crash() {
 
     if(__furi_check_message == NULL) {
         __furi_check_message = "Fatal Error";
+    } else if(__furi_check_message == (void*)__FURI_ASSERT_MESSAGE_FLAG) {
+        __furi_check_message = "furi_assert failed";
+    } else if(__furi_check_message == (void*)__FURI_CHECK_MESSAGE_FLAG) {
+        __furi_check_message = "furi_check failed";
     }
 
     furi_hal_console_puts("\r\n\033[0;31m[CRASH]");
     __furi_print_name(isr);
     furi_hal_console_puts(__furi_check_message);
 
+    __furi_print_register_info();
     if(!isr) {
         __furi_print_stack_info();
     }
     __furi_print_heap_info();
 
+#ifndef FURI_DEBUG
     // Check if debug enabled by DAP
     // https://developer.arm.com/documentation/ddi0403/d/Debug-Architecture/ARMv7-M-Debug/Debug-register-support-in-the-SCS/Debug-Halting-Control-and-Status-Register--DHCSR?lang=en
     bool debug = CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk;
     if(debug) {
+#endif
         furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
         furi_hal_console_puts("\033[0m\r\n");
         furi_hal_debug_enable();
 
         RESTORE_REGISTERS_AND_HALT_MCU(true);
+#ifndef FURI_DEBUG
     } else {
         furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
         furi_hal_console_puts("\r\nRebooting system.\r\n");
         furi_hal_console_puts("\033[0m\r\n");
         furi_hal_power_reset();
     }
+#endif
     __builtin_unreachable();
 }
 
