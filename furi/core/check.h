@@ -48,20 +48,20 @@ FURI_NORETURN void __furi_halt();
     } while(0)
 
 /** Check condition and crash if check failed */
-#define furi_check(__e)                             \
-    do {                                            \
-        if(!(__e)) {                                \
-            furi_crash(__FURI_ASSERT_MESSAGE_FLAG); \
-        }                                           \
-    } while(0)
-
-/** Only in debug build: Assert condition and crash if assert failed  */
-#ifdef FURI_DEBUG
-#define furi_assert(__e)                           \
+#define furi_check(__e)                            \
     do {                                           \
         if(!(__e)) {                               \
             furi_crash(__FURI_CHECK_MESSAGE_FLAG); \
         }                                          \
+    } while(0)
+
+/** Only in debug build: Assert condition and crash if assert failed  */
+#ifdef FURI_DEBUG
+#define furi_assert(__e)                            \
+    do {                                            \
+        if(!(__e)) {                                \
+            furi_crash(__FURI_ASSERT_MESSAGE_FLAG); \
+        }                                           \
     } while(0)
 #else
 #define furi_assert(__e) \
