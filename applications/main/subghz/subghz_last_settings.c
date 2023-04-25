@@ -129,7 +129,8 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
 
         // Set selected radio module
         if(instance->external_module_enabled) {
-            furi_hal_subghz_set_radio_type(SubGhzRadioExternal);
+            furi_hal_subghz_select_radio_type(SubGhzRadioExternal);
+            furi_hal_subghz_init_radio_type(SubGhzRadioExternal);
         }
 
         /*/} else {

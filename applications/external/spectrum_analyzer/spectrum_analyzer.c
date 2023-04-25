@@ -395,6 +395,8 @@ void spectrum_analyzer_free(SpectrumAnalyzer* instance) {
 
     // Disable power for External CC1101 if it was enabled and module is connected
     furi_hal_subghz_disable_ext_power();
+    // Reinit SPI handles for internal radio / nfc
+    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 }
 
 int32_t spectrum_analyzer_app(void* p) {
@@ -408,7 +410,8 @@ int32_t spectrum_analyzer_app(void* p) {
     // Auto switch to internal radio if external radio is not available
     furi_delay_ms(15);
     if(!furi_hal_subghz_check_radio()) {
-        furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
     }
 
     furi_hal_power_suppress_charge_enter();
