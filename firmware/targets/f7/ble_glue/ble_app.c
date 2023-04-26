@@ -88,7 +88,7 @@ bool ble_app_init() {
             .min_tx_power = 0,
             .max_tx_power = 0,
             .rx_model_config = 1,
-            /* New stack (13.3->16.0)*/
+            /* New stack (13.3->15.0) */
             .max_adv_set_nbr = 1, // Only used if SHCI_C2_BLE_INIT_OPTIONS_EXT_ADV is set
             .max_adv_data_len = 31, // Only used if SHCI_C2_BLE_INIT_OPTIONS_EXT_ADV is set
             .tx_path_compens = 0, // RF TX Path Compensation, * 0.1 dB
