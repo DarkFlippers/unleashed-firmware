@@ -80,7 +80,7 @@ bool lfrfid_scene_extra_actions_on_event(void* context, SceneManagerEvent event)
             DOLPHIN_DEED(DolphinDeedRfidRead);
             consumed = true;
         } else if(event.event == SubmenuIndexClearT5577) {
-            scene_manager_next_scene(app->scene_manager, LfRfidSceneClearT5577);
+            scene_manager_next_scene(app->scene_manager, LfRfidSceneClearT5577Confirm);
             consumed = true;
         } else if(event.event == SubmenuIndexRAW) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRawName);
