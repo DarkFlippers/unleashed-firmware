@@ -28,7 +28,8 @@ void totp_cli_command_notification_docopt_arguments() {
         ", " TOTP_CLI_COMMAND_NOTIFICATION_METHOD_VIBRO "\r\n");
 }
 
-static void totp_cli_command_notification_print_method(NotificationMethod method, char* color) {
+static void
+    totp_cli_command_notification_print_method(NotificationMethod method, const char* color) {
     bool has_previous_method = false;
     if(method & NotificationMethodSound) {
         TOTP_CLI_PRINTF_COLORFUL(color, "\"" TOTP_CLI_COMMAND_NOTIFICATION_METHOD_SOUND "\"");
@@ -73,31 +74,23 @@ void totp_cli_command_notification_handle(PluginState* plugin_state, FuriString*
 
     do {
         if(!args_valid) {
-            TOTP_CLI_PRINT_INVALID_ARGUMENTS();
+            totp_cli_print_invalid_arguments();
             break;
         }
 
         if(new_method_provided) {
-            Scene previous_scene = TotpSceneNone;
-            if(plugin_state->current_scene == TotpSceneGenerateToken ||
-               plugin_state->current_scene == TotpSceneAppSettings) {
-                previous_scene = plugin_state->current_scene;
-                totp_scene_director_activate_scene(plugin_state, TotpSceneNone, NULL);
-            }
+            TOTP_CLI_LOCK_UI(plugin_state);
 
             plugin_state->notification_method = new_method;
-            if(totp_config_file_update_notification_method(new_method) ==
-               TotpConfigFileUpdateSuccess) {
+            if(totp_config_file_update_notification_method(plugin_state)) {
                 TOTP_CLI_PRINTF_SUCCESS("Notification method is set to ");
                 totp_cli_command_notification_print_method(new_method, TOTP_CLI_COLOR_SUCCESS);
                 cli_nl();
             } else {
-                TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
+                totp_cli_print_error_updating_config_file();
             }
 
-            if(previous_scene != TotpSceneNone) {
-                totp_scene_director_activate_scene(plugin_state, previous_scene, NULL);
-            }
+            TOTP_CLI_UNLOCK_UI(plugin_state);
         } else {
             TOTP_CLI_PRINTF_INFO("Current notification method is ");
             totp_cli_command_notification_print_method(

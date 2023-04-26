@@ -1,8 +1,21 @@
 #include "usb_type_code.h"
+#include <furi_hal_usb.h>
 #include <furi_hal_usb_hid.h>
+#include <furi/core/thread.h>
+#include <furi/core/kernel.h>
+#include <furi/core/check.h>
 #include "../../services/convert/convert.h"
 #include "../../types/token_info.h"
 #include "../type_code_common.h"
+
+struct TotpUsbTypeCodeWorkerContext {
+    char* code_buffer;
+    uint8_t code_buffer_size;
+    uint8_t flags;
+    FuriThread* thread;
+    FuriMutex* code_buffer_sync;
+    FuriHalUsbInterface* usb_mode_prev;
+};
 
 static void totp_type_code_worker_restore_usb_mode(TotpUsbTypeCodeWorkerContext* context) {
     if(context->usb_mode_prev != NULL) {

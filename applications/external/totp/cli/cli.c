@@ -63,7 +63,7 @@ static void totp_cli_handler(Cli* cli, FuriString* args, void* context) {
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_AUTOMATION) == 0) {
         totp_cli_command_automation_handle(plugin_state, args, cli);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_RESET) == 0) {
-        totp_cli_command_reset_handle(cli, cli_context->event_queue);
+        totp_cli_command_reset_handle(plugin_state, cli, cli_context->event_queue);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_UPDATE) == 0) {
         totp_cli_command_update_handle(plugin_state, args, cli);
     } else if(

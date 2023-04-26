@@ -4,6 +4,14 @@
 
 typedef bool (*TOTP_AUTOMATION_KEY_HANDLER)(uint16_t key);
 
+/**
+ * @brief Executes token input automation using given key press\release handlers
+ * @param key_press_fn key press handler
+ * @param key_release_fn key release handler
+ * @param code_buffer code buffer to be typed
+ * @param code_buffer_size code buffer size
+ * @param features automation features
+ */
 void totp_type_code_worker_execute_automation(
     TOTP_AUTOMATION_KEY_HANDLER key_press_fn,
     TOTP_AUTOMATION_KEY_HANDLER key_release_fn,

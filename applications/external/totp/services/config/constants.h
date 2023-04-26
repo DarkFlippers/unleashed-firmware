@@ -1,7 +1,10 @@
 #pragma once
 
+#include <storage/storage.h>
+
+#define CONFIG_FILE_DIRECTORY_PATH EXT_PATH("authenticator")
 #define CONFIG_FILE_HEADER "Flipper TOTP plugin config file"
-#define CONFIG_FILE_ACTUAL_VERSION (4)
+#define CONFIG_FILE_ACTUAL_VERSION (5)
 
 #define TOTP_CONFIG_KEY_TIMEZONE "Timezone"
 #define TOTP_CONFIG_KEY_TOKEN_NAME "TokenName"

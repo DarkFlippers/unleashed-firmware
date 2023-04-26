@@ -51,23 +51,39 @@ static bool totp_activate_initial_scene(PluginState* const plugin_state) {
             dialog_message_show(plugin_state->dialogs_app, message);
         dialog_message_free(message);
         if(dialog_result == DialogMessageButtonRight) {
-            totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
+            totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication);
         } else {
-            if(!totp_crypto_seed_iv(plugin_state, NULL, 0)) {
+            CryptoSeedIVResult seed_result = totp_crypto_seed_iv(plugin_state, NULL, 0);
+            if(seed_result & CryptoSeedIVResultFlagSuccess &&
+               seed_result & CryptoSeedIVResultFlagNewCryptoVerifyData) {
+                if(!totp_config_file_update_crypto_signatures(plugin_state)) {
+                    totp_dialogs_config_loading_error(plugin_state);
+                    return false;
+                }
+            } else if(seed_result == CryptoSeedIVResultFailed) {
                 totp_dialogs_config_loading_error(plugin_state);
                 return false;
             }
-            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
+
+            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
         }
     } else if(plugin_state->pin_set) {
-        totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
+        totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication);
     } else {
-        if(!totp_crypto_seed_iv(plugin_state, NULL, 0)) {
+        CryptoSeedIVResult seed_result = totp_crypto_seed_iv(plugin_state, NULL, 0);
+        if(seed_result & CryptoSeedIVResultFlagSuccess &&
+           seed_result & CryptoSeedIVResultFlagNewCryptoVerifyData) {
+            if(!totp_config_file_update_crypto_signatures(plugin_state)) {
+                totp_dialogs_config_loading_error(plugin_state);
+                return false;
+            }
+        } else if(seed_result == CryptoSeedIVResultFailed) {
             totp_dialogs_config_loading_error(plugin_state);
             return false;
         }
+
         if(totp_crypto_verify_key(plugin_state)) {
-            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
+            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
         } else {
             FURI_LOG_E(
                 LOGGING_TAG,
@@ -96,7 +112,7 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
     plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);
     memset(&plugin_state->iv[0], 0, TOTP_IV_SIZE);
 
-    if(totp_config_file_load_base(plugin_state) != TotpConfigFileOpenSuccess) {
+    if(!totp_config_file_load(plugin_state)) {
         totp_dialogs_config_loading_error(plugin_state);
         return false;
     }
@@ -119,15 +135,7 @@ static void totp_plugin_state_free(PluginState* plugin_state) {
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_DIALOGS);
 
-    ListNode* node = plugin_state->tokens_list;
-    ListNode* tmp;
-    while(node != NULL) {
-        tmp = node->next;
-        TokenInfo* tokenInfo = node->data;
-        token_info_free(tokenInfo);
-        free(node);
-        node = tmp;
-    }
+    totp_config_file_close(plugin_state);
 
     if(plugin_state->crypto_verify_data != NULL) {
         free(plugin_state->crypto_verify_data);
@@ -193,8 +201,9 @@ int32_t totp_app() {
                 }
             } else if(
                 plugin_state->pin_set && plugin_state->current_scene != TotpSceneAuthentication &&
+                plugin_state->current_scene != TotpSceneStandby &&
                 furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
-                totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication, NULL);
+                totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication);
             }
 
             view_port_update(view_port);

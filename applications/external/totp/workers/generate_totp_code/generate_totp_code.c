@@ -1,4 +1,5 @@
 #include "generate_totp_code.h"
+#include <furi/core/thread.h>
 #include "../../services/crypto/crypto.h"
 #include "../../services/totp/totp.h"
 #include "../../services/convert/convert.h"
@@ -6,6 +7,19 @@
 #include <memset_s.h>
 
 #define ONE_SEC_MS (1000)
+
+struct TotpGenerateCodeWorkerContext {
+    char* code_buffer;
+    FuriThread* thread;
+    FuriMutex* code_buffer_sync;
+    const TokenInfo* token_info;
+    float timezone_offset;
+    uint8_t* iv;
+    TOTP_NEW_CODE_GENERATED_HANDLER on_new_code_generated_handler;
+    void* on_new_code_generated_handler_context;
+    TOTP_CODE_LIFETIME_CHANGED_HANDLER on_code_lifetime_changed_handler;
+    void* on_code_lifetime_changed_handler_context;
+};
 
 static const char* STEAM_ALGO_ALPHABET = "23456789BCDFGHJKMNPQRTVWXY";
 
@@ -93,7 +107,7 @@ static int32_t totp_generate_worker_callback(void* context) {
 
         if(flags & TotpGenerateCodeWorkerEventStop) break;
 
-        const TokenInfo* token_info = *(t_context->token_info);
+        const TokenInfo* token_info = t_context->token_info;
         if(token_info == NULL) {
             continue;
         }
@@ -127,7 +141,7 @@ static int32_t totp_generate_worker_callback(void* context) {
 
 TotpGenerateCodeWorkerContext* totp_generate_code_worker_start(
     char* code_buffer,
-    TokenInfo** token_info,
+    const TokenInfo* token_info,
     FuriMutex* code_buffer_sync,
     float timezone_offset,
     uint8_t* iv) {

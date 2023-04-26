@@ -14,7 +14,7 @@ static const uint8_t hid_number_keys[] = {
     HID_KEYBOARD_Z};
 
 static uint32_t get_keystroke_delay(TokenAutomationFeature features) {
-    if(features & TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER) {
+    if(features & TokenAutomationFeatureTypeSlower) {
         return 100;
     }
 
@@ -22,7 +22,7 @@ static uint32_t get_keystroke_delay(TokenAutomationFeature features) {
 }
 
 static uint32_t get_keypress_delay(TokenAutomationFeature features) {
-    if(features & TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER) {
+    if(features & TokenAutomationFeatureTypeSlower) {
         return 60;
     }
 
@@ -64,13 +64,13 @@ void totp_type_code_worker_execute_automation(
         i++;
     }
 
-    if(features & TOKEN_AUTOMATION_FEATURE_ENTER_AT_THE_END) {
+    if(features & TokenAutomationFeatureEnterAtTheEnd) {
         furi_delay_ms(get_keystroke_delay(features));
         totp_type_code_worker_press_key(
             HID_KEYBOARD_RETURN, key_press_fn, key_release_fn, features);
     }
 
-    if(features & TOKEN_AUTOMATION_FEATURE_TAB_AT_THE_END) {
+    if(features & TokenAutomationFeatureTabAtTheEnd) {
         furi_delay_ms(get_keystroke_delay(features));
         totp_type_code_worker_press_key(HID_KEYBOARD_TAB, key_press_fn, key_release_fn, features);
     }

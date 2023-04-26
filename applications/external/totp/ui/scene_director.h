@@ -11,10 +11,7 @@
  * @param scene scene to be activated
  * @param context scene context to be passed to the scene activation method
  */
-void totp_scene_director_activate_scene(
-    PluginState* const plugin_state,
-    Scene scene,
-    const void* context);
+void totp_scene_director_activate_scene(PluginState* const plugin_state, Scene scene);
 
 /**
  * @brief Deactivate current scene

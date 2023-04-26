@@ -2,6 +2,26 @@
 
 #include "../../types/plugin_state.h"
 
+typedef uint8_t CryptoSeedIVResult;
+
+enum CryptoSeedIVResults {
+
+    /**
+     * @brief IV seeding operation failed
+     */
+    CryptoSeedIVResultFailed = 0b00,
+
+    /**
+     * @brief IV seeding operation succeeded
+     */
+    CryptoSeedIVResultFlagSuccess = 0b01,
+
+    /**
+     * @brief As a part of IV seeding operation new crypto verify data has been generated
+     */
+    CryptoSeedIVResultFlagNewCryptoVerifyData = 0b10
+};
+
 /**
  * @brief Encrypts plain data using built-in certificate and given initialization vector (IV)
  * @param plain_data plain data to be encrypted
@@ -35,9 +55,10 @@ uint8_t* totp_crypto_decrypt(
  * @param plugin_state application state
  * @param pin user's PIN
  * @param pin_length user's PIN length
- * @return \c true on success; \c false otherwise
+ * @return Results of seeding IV
  */
-bool totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length);
+CryptoSeedIVResult
+    totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length);
 
 /**
  * @brief Verifies whether cryptographic information (certificate + IV) is valid and can be used for encryption and decryption

@@ -2,7 +2,6 @@
 #include <furi_hal_crypto.h>
 #include <furi_hal_random.h>
 #include <furi_hal_version.h>
-#include "../config/config.h"
 #include "../../types/common.h"
 #include "memset_s.h"
 
@@ -62,9 +61,11 @@ uint8_t* totp_crypto_decrypt(
     return decrypted_data;
 }
 
-bool totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length) {
+CryptoSeedIVResult
+    totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length) {
+    CryptoSeedIVResult result;
     if(plugin_state->crypto_verify_data == NULL) {
-        FURI_LOG_D(LOGGING_TAG, "Generating new IV");
+        FURI_LOG_I(LOGGING_TAG, "Generating new IV");
         furi_hal_random_fill_buf(&plugin_state->base_iv[0], TOTP_IV_SIZE);
     }
 
@@ -95,9 +96,9 @@ bool totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t 
         }
     }
 
-    bool result = true;
+    result = CryptoSeedIVResultFlagSuccess;
     if(plugin_state->crypto_verify_data == NULL) {
-        FURI_LOG_D(LOGGING_TAG, "Generating crypto verify data");
+        FURI_LOG_I(LOGGING_TAG, "Generating crypto verify data");
         plugin_state->crypto_verify_data = malloc(CRYPTO_VERIFY_KEY_LENGTH);
         furi_check(plugin_state->crypto_verify_data != NULL);
         plugin_state->crypto_verify_data_length = CRYPTO_VERIFY_KEY_LENGTH;
@@ -110,8 +111,7 @@ bool totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t 
 
         plugin_state->pin_set = pin != NULL && pin_length > 0;
 
-        result = totp_config_file_update_crypto_signatures(plugin_state) ==
-                 TotpConfigFileUpdateSuccess;
+        result |= CryptoSeedIVResultFlagNewCryptoVerifyData;
     }
 
     return result;
