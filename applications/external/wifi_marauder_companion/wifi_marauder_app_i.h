@@ -6,20 +6,27 @@
 #include "scenes/wifi_marauder_scene.h"
 #include "wifi_marauder_custom_event.h"
 #include "wifi_marauder_uart.h"
-#include "wifi_marauder_pcap.h"
+#include "file/sequential_file.h"
+#include "script/wifi_marauder_script.h"
+#include "script/wifi_marauder_script_worker.h"
+#include "script/wifi_marauder_script_executor.h"
+#include "script/menu/wifi_marauder_script_stage_menu.h"
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/text_box.h>
+#include <gui/modules/submenu.h>
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/widget.h>
 #include "wifi_marauder_text_input.h"
 
+#include <ESP32_WiFi_Marauder_icons.h>
 #include <storage/storage.h>
+#include <lib/toolbox/path.h>
 #include <dialogs/dialogs.h>
 
-#define NUM_MENU_ITEMS (17)
+#define NUM_MENU_ITEMS (18)
 
 #define WIFI_MARAUDER_TEXT_BOX_STORE_SIZE (4096)
 #define WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE (512)
@@ -30,8 +37,16 @@
 #define MARAUDER_APP_FOLDER_LOGS MARAUDER_APP_FOLDER "/logs"
 #define MARAUDER_APP_FOLDER_USER_PCAPS MARAUDER_APP_FOLDER_USER "/pcaps"
 #define MARAUDER_APP_FOLDER_USER_LOGS MARAUDER_APP_FOLDER_USER "/logs"
+#define MARAUDER_APP_FOLDER_SCRIPTS MARAUDER_APP_FOLDER "/scripts"
+#define MARAUDER_APP_SCRIPT_PATH(file_name) MARAUDER_APP_FOLDER_SCRIPTS "/" file_name ".json"
 #define SAVE_PCAP_SETTING_FILEPATH MARAUDER_APP_FOLDER "/save_pcaps_here.setting"
 #define SAVE_LOGS_SETTING_FILEPATH MARAUDER_APP_FOLDER "/save_logs_here.setting"
+
+typedef enum WifiMarauderUserInputType {
+    WifiMarauderUserInputTypeString,
+    WifiMarauderUserInputTypeNumber,
+    WifiMarauderUserInputTypeFileName
+} WifiMarauderUserInputType;
 
 struct WifiMarauderApp {
     Gui* gui;
@@ -58,6 +73,7 @@ struct WifiMarauderApp {
 
     VariableItemList* var_item_list;
     Widget* widget;
+    Submenu* submenu;
     int open_log_file_page;
     int open_log_file_num_pages;
 
@@ -72,6 +88,26 @@ struct WifiMarauderApp {
     bool show_stopscan_tip;
     bool is_writing_pcap;
     bool is_writing_log;
+
+    // User input
+    WifiMarauderUserInputType user_input_type;
+    char** user_input_string_reference;
+    int* user_input_number_reference;
+    char* user_input_file_dir;
+    char* user_input_file_extension;
+
+    // Automation script
+    WifiMarauderScript* script;
+    WifiMarauderScriptWorker* script_worker;
+    FuriString** script_list;
+    int script_list_count;
+    WifiMarauderScriptStage* script_edit_selected_stage;
+    WifiMarauderScriptStageMenu* script_stage_menu;
+    WifiMarauderScriptStageListItem* script_stage_edit_first_item;
+    char*** script_stage_edit_strings_reference;
+    int* script_stage_edit_string_count_reference;
+    int** script_stage_edit_numbers_reference;
+    int* script_stage_edit_number_count_reference;
 
     // For input source and destination MAC in targeted deauth attack
     int special_case_input_step;
@@ -105,4 +141,5 @@ typedef enum {
     WifiMarauderAppViewConsoleOutput,
     WifiMarauderAppViewTextInput,
     WifiMarauderAppViewWidget,
+    WifiMarauderAppViewSubmenu,
 } WifiMarauderAppView;
