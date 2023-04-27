@@ -17,6 +17,7 @@
 * OFW PR 2616: Picopass: remove spaces in CSN (by bettse)
 * OFW PR 2604: WS: add protocol "Wendox W6726" (by Skorpionm)
 * OFW PR 2607: BadUSB: command parser fix (by nminaylov)
+* OFW: Keep HSI16 working in stop mode.
 * OFW: FuriHal: use proper divider for core2 when transition to sleep, remove extra stop mode transition checks, cleanup code. Furi: proper assert and check messages.
 * OFW: Don't reboot on crash in debug builds
 * OFW: cubewb: downgraded to v1.15.0 
