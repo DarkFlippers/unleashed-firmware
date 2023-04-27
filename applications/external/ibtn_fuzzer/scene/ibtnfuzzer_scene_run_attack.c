@@ -125,7 +125,7 @@ void ibtnfuzzer_scene_run_attack_on_tick(iBtnFuzzerState* context) {
                     context->payload[6] = id_list_ds1990[context->attack_step][6];
                     context->payload[7] = id_list_ds1990[context->attack_step][7];
 
-                    if(context->attack_step == 24) {
+                    if(context->attack_step == 17) {
                         context->attack_step = 0;
                         counter = 0;
                         context->is_attacking = false;
@@ -155,7 +155,7 @@ void ibtnfuzzer_scene_run_attack_on_tick(iBtnFuzzerState* context) {
                     context->payload[0] = id_list_cyfral[context->attack_step][0];
                     context->payload[1] = id_list_cyfral[context->attack_step][1];
 
-                    if(context->attack_step == 13) {
+                    if(context->attack_step == 15) {
                         context->attack_step = 0;
                         counter = 0;
                         context->is_attacking = false;
