@@ -11,12 +11,14 @@
 * Plugins: Update **ESP32: WiFi Marauder companion** plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion) merged [PR by @tcpassos](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion/pull/11)
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Fix RFID Fuzzer and iButton Fuzzer crashes
+* Plugins: iButton Fuzzer default keys update (by @team-orangeBlue)
 * Infrared: Updated infrared assets (by @amec0e | PR #441)
 * Docs: Update **How To Install** images (by @krolchonok | PR #436)
 * OFW PR 2620: NFC: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys (by Astrrra)
 * OFW PR 2616: Picopass: remove spaces in CSN (by bettse)
 * OFW PR 2604: WS: add protocol "Wendox W6726" (by Skorpionm)
 * OFW PR 2607: BadUSB: command parser fix (by nminaylov)
+* OFW: Keep HSI16 working in stop mode.
 * OFW: FuriHal: use proper divider for core2 when transition to sleep, remove extra stop mode transition checks, cleanup code. Furi: proper assert and check messages.
 * OFW: Don't reboot on crash in debug builds
 * OFW: cubewb: downgraded to v1.15.0 
