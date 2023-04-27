@@ -110,7 +110,8 @@ after that on web updater page - press `Connect` button
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages
 - Done
-![manual](https://user-images.githubusercontent.com/40743392/235005942-c4debf85-b251-41c1-ad0b-c7bd94b999fb.png)
+![manual](https://user-images.githubusercontent.com/40743392/235006093-5f76f28c-6159-4785-a7ca-a06354dffab6.png)
+
 
 
 
