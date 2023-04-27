@@ -11,6 +11,7 @@
 * Plugins: Update **ESP32: WiFi Marauder companion** plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion) merged [PR by @tcpassos](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion/pull/11)
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Fix RFID Fuzzer and iButton Fuzzer crashes
+* Plugins: iButton Fuzzer default keys update (by @team-orangeBlue)
 * Infrared: Updated infrared assets (by @amec0e | PR #441)
 * Docs: Update **How To Install** images (by @krolchonok | PR #436)
 * OFW PR 2620: NFC: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys (by Astrrra)
