@@ -292,7 +292,7 @@ void furi_hal_subghz_stop_async_tx();
  * @param      state SubGhzRadioInternal or SubGhzRadioExternal
  * @return     true if switching is successful
  */
-bool furi_hal_subghz_set_radio_type(SubGhzRadioType state);
+bool furi_hal_subghz_init_radio_type(SubGhzRadioType state);
 
 /** Get current radio
  * @return     SubGhzRadioInternal or SubGhzRadioExternal
@@ -338,6 +338,10 @@ void furi_hal_subghz_set_timestamp_file_names(bool state);
 /** Get the current state of the timestamp instead of random name flag
  */
 bool furi_hal_subghz_get_timestamp_file_names(void);
+
+/** Set what radio module we will be using
+ */
+void furi_hal_subghz_select_radio_type(SubGhzRadioType state);
 
 #ifdef __cplusplus
 }

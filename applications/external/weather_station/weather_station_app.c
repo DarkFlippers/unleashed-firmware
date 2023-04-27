@@ -110,7 +110,8 @@ WeatherStationApp* weather_station_app_alloc() {
     // Auto switch to internal radio if external radio is not available
     furi_delay_ms(15);
     if(!furi_hal_subghz_check_radio()) {
-        furi_hal_subghz_set_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
     }
 
     furi_hal_power_suppress_charge_enter();
@@ -128,6 +129,8 @@ void weather_station_app_free(WeatherStationApp* app) {
 
     // Disable power for External CC1101 if it was enabled and module is connected
     furi_hal_subghz_disable_ext_power();
+    // Reinit SPI handles for internal radio / nfc
+    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, WeatherStationViewSubmenu);

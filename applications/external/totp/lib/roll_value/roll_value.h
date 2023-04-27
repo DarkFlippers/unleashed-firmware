@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef uint8_t TotpRollValueOverflowBehavior;
 
@@ -47,7 +48,7 @@ TOTP_ROLL_VALUE_FN_HEADER(int8_t, int8_t);
 TOTP_ROLL_VALUE_FN_HEADER(uint8_t, int8_t);
 
 /**
- * @brief Rolls \c uint16_t \p value using \p min and \p max as an value constraints with \p step step.
+ * @brief Rolls \c size_t \p value using \p min and \p max as an value constraints with \p step step.
  *        When value reaches constraint value \p overflow_behavior defines what to do next.
  * @param[in,out] value value to roll
  * @param step step to be used to change value
@@ -55,4 +56,4 @@ TOTP_ROLL_VALUE_FN_HEADER(uint8_t, int8_t);
  * @param max maximum possible value
  * @param overflow_behavior defines what to do when value reaches constraint value
  */
-TOTP_ROLL_VALUE_FN_HEADER(uint16_t, int16_t);
+TOTP_ROLL_VALUE_FN_HEADER(size_t, int16_t);

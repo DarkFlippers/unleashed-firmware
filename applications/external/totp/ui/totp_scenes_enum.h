@@ -34,5 +34,10 @@ enum Scenes {
     /**
      * @brief Scene where user can change application settings 
      */
-    TotpSceneAppSettings
+    TotpSceneAppSettings,
+
+    /**
+     * @brief Scene which informs user that CLI command is running
+     */
+    TotpSceneStandby
 };

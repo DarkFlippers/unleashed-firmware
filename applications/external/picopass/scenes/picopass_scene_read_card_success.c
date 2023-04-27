@@ -34,7 +34,7 @@ void picopass_scene_read_card_success_on_enter(void* context) {
     uint8_t csn[PICOPASS_BLOCK_LEN] = {0};
     memcpy(csn, AA1[PICOPASS_CSN_BLOCK_INDEX].data, PICOPASS_BLOCK_LEN);
     for(uint8_t i = 0; i < PICOPASS_BLOCK_LEN; i++) {
-        furi_string_cat_printf(csn_str, "%02X ", csn[i]);
+        furi_string_cat_printf(csn_str, "%02X", csn[i]);
     }
 
     bool no_key = picopass_is_memset(pacs->key, 0x00, PICOPASS_BLOCK_LEN);

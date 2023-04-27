@@ -25,4 +25,4 @@ TOTP_ROLL_VALUE_FN(int8_t, int8_t)
 
 TOTP_ROLL_VALUE_FN(uint8_t, int8_t)
 
-TOTP_ROLL_VALUE_FN(uint16_t, int16_t);
+TOTP_ROLL_VALUE_FN(size_t, int16_t);

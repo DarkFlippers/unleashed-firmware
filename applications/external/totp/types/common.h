@@ -1,3 +1,3 @@
 #pragma once
 
-#define LOGGING_TAG "TOTP APP"
+extern const char* LOGGING_TAG;

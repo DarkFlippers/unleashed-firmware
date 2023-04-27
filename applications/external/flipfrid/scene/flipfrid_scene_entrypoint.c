@@ -1,8 +1,5 @@
 #include "flipfrid_scene_entrypoint.h"
 
-FuriString* main_menu_items[4];
-FuriString* main_menu_proto_items[4];
-
 void flipfrid_scene_entrypoint_menu_callback(
     FlipFridState* context,
     uint32_t index,
@@ -68,31 +65,14 @@ void flipfrid_scene_entrypoint_on_enter(FlipFridState* context) {
         menu_items[i] = furi_string_alloc();
     }*/
 
-    main_menu_items[0] = furi_string_alloc_set("Default Values");
-    main_menu_items[1] = furi_string_alloc_set("BF Customer ID");
-    main_menu_items[2] = furi_string_alloc_set("Load File");
-    main_menu_items[3] = furi_string_alloc_set("Load UIDs from file");
-
     context->menu_proto_index = 0;
     /*for(uint32_t i = 0; i < 4; i++) {
         menu_proto_items[i] = furi_string_alloc();
     }*/
-
-    main_menu_proto_items[0] = furi_string_alloc_set("EM4100");
-    main_menu_proto_items[1] = furi_string_alloc_set("HIDProx");
-    main_menu_proto_items[2] = furi_string_alloc_set("PAC/Stanley");
-    main_menu_proto_items[3] = furi_string_alloc_set("H10301");
 }
 
 void flipfrid_scene_entrypoint_on_exit(FlipFridState* context) {
     UNUSED(context);
-    for(uint32_t i = 0; i < 4; i++) {
-        furi_string_free(main_menu_items[i]);
-    }
-
-    for(uint32_t i = 0; i < 4; i++) {
-        furi_string_free(main_menu_proto_items[i]);
-    }
 }
 
 void flipfrid_scene_entrypoint_on_tick(FlipFridState* context) {
@@ -145,73 +125,77 @@ void flipfrid_scene_entrypoint_on_draw(Canvas* canvas, FlipFridState* context) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    if(main_menu_items[context->menu_index] != NULL) {
-        if(context->menu_index > FlipFridAttackDefaultValues) {
-            canvas_set_font(canvas, FontSecondary);
+    if(context->main_menu_items != NULL) {
+        if(context->main_menu_items[context->menu_index] != NULL) {
+            if(context->menu_index > FlipFridAttackDefaultValues) {
+                canvas_set_font(canvas, FontSecondary);
+                canvas_draw_str_aligned(
+                    canvas,
+                    64,
+                    24,
+                    AlignCenter,
+                    AlignTop,
+                    furi_string_get_cstr(context->main_menu_items[context->menu_index - 1]));
+            }
+
+            canvas_set_font(canvas, FontPrimary);
             canvas_draw_str_aligned(
                 canvas,
                 64,
-                24,
+                36,
                 AlignCenter,
                 AlignTop,
-                furi_string_get_cstr(main_menu_items[context->menu_index - 1]));
-        }
+                furi_string_get_cstr(context->main_menu_items[context->menu_index]));
 
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(
-            canvas,
-            64,
-            36,
-            AlignCenter,
-            AlignTop,
-            furi_string_get_cstr(main_menu_items[context->menu_index]));
+            if(context->menu_index < FlipFridAttackLoadFileCustomUids) {
+                canvas_set_font(canvas, FontSecondary);
+                canvas_draw_str_aligned(
+                    canvas,
+                    64,
+                    48,
+                    AlignCenter,
+                    AlignTop,
+                    furi_string_get_cstr(context->main_menu_items[context->menu_index + 1]));
+            }
 
-        if(context->menu_index < FlipFridAttackLoadFileCustomUids) {
-            canvas_set_font(canvas, FontSecondary);
+            if(context->menu_proto_index > EM4100) {
+                canvas_set_font(canvas, FontSecondary);
+                canvas_draw_str_aligned(
+                    canvas,
+                    64,
+                    -12,
+                    AlignCenter,
+                    AlignTop,
+                    furi_string_get_cstr(
+                        context->main_menu_proto_items[context->menu_proto_index - 1]));
+            }
+
+            canvas_set_font(canvas, FontPrimary);
+            canvas_draw_str_aligned(canvas, 27, 4, AlignCenter, AlignTop, "<");
+
+            canvas_set_font(canvas, FontPrimary);
             canvas_draw_str_aligned(
                 canvas,
                 64,
-                48,
+                4,
                 AlignCenter,
                 AlignTop,
-                furi_string_get_cstr(main_menu_items[context->menu_index + 1]));
-        }
+                furi_string_get_cstr(context->main_menu_proto_items[context->menu_proto_index]));
 
-        if(context->menu_proto_index > EM4100) {
-            canvas_set_font(canvas, FontSecondary);
-            canvas_draw_str_aligned(
-                canvas,
-                64,
-                -12,
-                AlignCenter,
-                AlignTop,
-                furi_string_get_cstr(main_menu_proto_items[context->menu_proto_index - 1]));
-        }
+            canvas_set_font(canvas, FontPrimary);
+            canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
 
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, 27, 4, AlignCenter, AlignTop, "<");
-
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(
-            canvas,
-            64,
-            4,
-            AlignCenter,
-            AlignTop,
-            furi_string_get_cstr(main_menu_proto_items[context->menu_proto_index]));
-
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
-
-        if(context->menu_proto_index < H10301) {
-            canvas_set_font(canvas, FontSecondary);
-            canvas_draw_str_aligned(
-                canvas,
-                64,
-                -12,
-                AlignCenter,
-                AlignTop,
-                furi_string_get_cstr(main_menu_proto_items[context->menu_proto_index + 1]));
+            if(context->menu_proto_index < H10301) {
+                canvas_set_font(canvas, FontSecondary);
+                canvas_draw_str_aligned(
+                    canvas,
+                    64,
+                    -12,
+                    AlignCenter,
+                    AlignTop,
+                    furi_string_get_cstr(
+                        context->main_menu_proto_items[context->menu_proto_index + 1]));
+            }
         }
     }
 }

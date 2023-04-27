@@ -5,29 +5,28 @@
 #include "scenes/add_new_token/totp_scene_add_new_token.h"
 #include "scenes/token_menu/totp_scene_token_menu.h"
 #include "scenes/app_settings/totp_app_settings.h"
+#include "scenes/standby/standby.h"
 
-void totp_scene_director_activate_scene(
-    PluginState* const plugin_state,
-    Scene scene,
-    const void* context) {
+void totp_scene_director_activate_scene(PluginState* const plugin_state, Scene scene) {
     totp_scene_director_deactivate_active_scene(plugin_state);
     switch(scene) {
     case TotpSceneGenerateToken:
-        totp_scene_generate_token_activate(plugin_state, context);
+        totp_scene_generate_token_activate(plugin_state);
         break;
     case TotpSceneAuthentication:
         totp_scene_authenticate_activate(plugin_state);
         break;
     case TotpSceneAddNewToken:
-        totp_scene_add_new_token_activate(plugin_state, context);
+        totp_scene_add_new_token_activate(plugin_state);
         break;
     case TotpSceneTokenMenu:
-        totp_scene_token_menu_activate(plugin_state, context);
+        totp_scene_token_menu_activate(plugin_state);
         break;
     case TotpSceneAppSettings:
-        totp_scene_app_settings_activate(plugin_state, context);
+        totp_scene_app_settings_activate(plugin_state);
         break;
     case TotpSceneNone:
+    case TotpSceneStandby:
         break;
     default:
         break;
@@ -56,6 +55,7 @@ void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state
         totp_scene_app_settings_deactivate(plugin_state);
         break;
     case TotpSceneNone:
+    case TotpSceneStandby:
         break;
     default:
         break;
@@ -81,6 +81,9 @@ void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_
         break;
     case TotpSceneNone:
         break;
+    case TotpSceneStandby:
+        totp_scene_standby_render(canvas);
+        break;
     default:
         break;
     }
@@ -105,6 +108,7 @@ bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* con
         processing = totp_scene_app_settings_handle_event(event, plugin_state);
         break;
     case TotpSceneNone:
+    case TotpSceneStandby:
         break;
     default:
         break;

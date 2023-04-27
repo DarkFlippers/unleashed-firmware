@@ -131,7 +131,7 @@ Hid* hid_alloc(HidTransport transport) {
             app);
         submenu_add_item(
             app->device_type_submenu,
-            "[Beta]YT Shorts Controller",
+            "YT Shorts Controller",
             HidSubmenuIndexYTShorts,
             hid_submenu_callback,
             app);

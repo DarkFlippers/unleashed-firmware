@@ -31,7 +31,7 @@ void totp_cli_command_automation_docopt_arguments() {
         "\r\n");
 }
 
-static void totp_cli_command_automation_print_method(AutomationMethod method, char* color) {
+static void totp_cli_command_automation_print_method(AutomationMethod method, const char* color) {
 #ifdef TOTP_BADBT_TYPE_ENABLED
     bool has_previous_method = false;
 #endif
@@ -88,26 +88,20 @@ void totp_cli_command_automation_handle(PluginState* plugin_state, FuriString* a
 
     do {
         if(!args_valid) {
-            TOTP_CLI_PRINT_INVALID_ARGUMENTS();
+            totp_cli_print_invalid_arguments();
             break;
         }
 
         if(new_method_provided) {
-            Scene previous_scene = TotpSceneNone;
-            if(plugin_state->current_scene == TotpSceneGenerateToken ||
-               plugin_state->current_scene == TotpSceneAppSettings) {
-                previous_scene = plugin_state->current_scene;
-                totp_scene_director_activate_scene(plugin_state, TotpSceneNone, NULL);
-            }
+            TOTP_CLI_LOCK_UI(plugin_state);
 
             plugin_state->automation_method = new_method;
-            if(totp_config_file_update_automation_method(new_method) ==
-               TotpConfigFileUpdateSuccess) {
+            if(totp_config_file_update_automation_method(plugin_state)) {
                 TOTP_CLI_PRINTF_SUCCESS("Automation method is set to ");
                 totp_cli_command_automation_print_method(new_method, TOTP_CLI_COLOR_SUCCESS);
                 cli_nl();
             } else {
-                TOTP_CLI_PRINT_ERROR_UPDATING_CONFIG_FILE();
+                totp_cli_print_error_updating_config_file();
             }
 
 #ifdef TOTP_BADBT_TYPE_ENABLED
@@ -118,9 +112,7 @@ void totp_cli_command_automation_handle(PluginState* plugin_state, FuriString* a
             }
 #endif
 
-            if(previous_scene != TotpSceneNone) {
-                totp_scene_director_activate_scene(plugin_state, previous_scene, NULL);
-            }
+            TOTP_CLI_UNLOCK_UI(plugin_state);
         } else {
             TOTP_CLI_PRINTF_INFO("Current automation method is ");
             totp_cli_command_automation_print_method(

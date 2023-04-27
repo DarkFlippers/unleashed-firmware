@@ -62,7 +62,8 @@ void subghz_scene_save_name_on_enter(void* context) {
             if(subghz->txrx->decoder_result != 0x0) {
                 if(subghz->txrx->decoder_result != NULL) {
                     if(strlen(subghz->txrx->decoder_result->protocol->name) != 0) {
-                        if(strcmp(subghz->txrx->decoder_result->protocol->name, "BinRAW") == 0) {
+                        if(scene_manager_has_previous_scene(
+                               subghz->scene_manager, SubGhzSceneSetType)) {
                             subghz_scene_save_name_get_timefilename(file_name, "S", true);
                         } else {
                             subghz_scene_save_name_get_timefilename(

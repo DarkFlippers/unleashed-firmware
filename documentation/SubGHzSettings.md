@@ -76,6 +76,8 @@ Change that line
 to
 `Add_standard_frequencies: false`
 
+**You need to have custom frequencies added in both lists! in main frequency list and in hopping list! Replacing only hopping freqs will not work with that setting set on false, you need to add something in main list since it will be empty**
+
 ### To add your own frequency to user list 
 Just add new line
 `Frequency: 928000000` - where `928000000` is your frequency, keep it in that format! it should be 9 digits!

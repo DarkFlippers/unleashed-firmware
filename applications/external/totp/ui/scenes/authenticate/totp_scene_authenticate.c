@@ -114,12 +114,18 @@ bool totp_scene_authenticate_handle_event(
             scene_state->code_length++;
         }
         break;
-    case InputKeyOk:
-        totp_crypto_seed_iv(plugin_state, &scene_state->code_input[0], scene_state->code_length);
+    case InputKeyOk: {
+        CryptoSeedIVResult seed_result = totp_crypto_seed_iv(
+            plugin_state, &scene_state->code_input[0], scene_state->code_length);
+
+        if(seed_result & CryptoSeedIVResultFlagSuccess &&
+           seed_result & CryptoSeedIVResultFlagNewCryptoVerifyData) {
+            totp_config_file_update_crypto_signatures(plugin_state);
+        }
 
         if(totp_crypto_verify_key(plugin_state)) {
             FURI_LOG_D(LOGGING_TAG, "PIN is valid");
-            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken, NULL);
+            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
         } else {
             FURI_LOG_D(LOGGING_TAG, "PIN is NOT valid");
             memset(&scene_state->code_input[0], 0, MAX_CODE_LENGTH);
@@ -140,6 +146,7 @@ bool totp_scene_authenticate_handle_event(
             dialog_message_free(message);
         }
         break;
+    }
     case InputKeyBack:
         if(scene_state->code_length > 0) {
             scene_state->code_input[scene_state->code_length - 1] = 0;

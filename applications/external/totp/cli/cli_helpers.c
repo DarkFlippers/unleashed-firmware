@@ -3,6 +3,11 @@
 #include <lib/toolbox/args.h>
 #include "../types/plugin_event.h"
 
+const char* TOTP_CLI_COLOR_ERROR = "91m";
+const char* TOTP_CLI_COLOR_WARNING = "93m";
+const char* TOTP_CLI_COLOR_SUCCESS = "92m";
+const char* TOTP_CLI_COLOR_INFO = "96m";
+
 bool totp_cli_ensure_authenticated(const PluginState* plugin_state, Cli* cli) {
     if(plugin_state->current_scene == TotpSceneAuthentication) {
         TOTP_CLI_PRINTF("Pleases enter PIN on your flipper device\r\n");
@@ -13,10 +18,11 @@ bool totp_cli_ensure_authenticated(const PluginState* plugin_state, Cli* cli) {
             furi_delay_ms(100);
         }
 
-        TOTP_CLI_DELETE_LAST_LINE();
+        totp_cli_delete_last_line();
 
         if(plugin_state->current_scene == TotpSceneAuthentication || //-V560
            plugin_state->current_scene == TotpSceneNone) { //-V560
+            TOTP_CLI_PRINTF_INFO("Cancelled by user\r\n");
             return false;
         }
     }
@@ -54,7 +60,7 @@ bool totp_cli_read_line(Cli* cli, FuriString* out_str, bool mask_user_input) {
         } else if(c == CliSymbolAsciiBackspace || c == CliSymbolAsciiDel) {
             size_t out_str_size = furi_string_size(out_str);
             if(out_str_size > 0) {
-                TOTP_CLI_DELETE_LAST_CHAR();
+                totp_cli_delete_last_char();
                 furi_string_left(out_str, out_str_size - 1);
             }
         } else if(c == CliSymbolAsciiCR) {
@@ -82,4 +88,36 @@ void furi_string_secure_free(FuriString* str) {
     }
 
     furi_string_free(str);
+}
+
+void totp_cli_print_invalid_arguments() {
+    TOTP_CLI_PRINTF_ERROR(
+        "Invalid command arguments. use \"help\" command to get list of available commands");
+}
+
+void totp_cli_print_error_updating_config_file() {
+    TOTP_CLI_PRINTF_ERROR("An error has occurred during updating config file\r\n");
+}
+
+void totp_cli_print_error_loading_token_info() {
+    TOTP_CLI_PRINTF_ERROR("An error has occurred during loading token information\r\n");
+}
+
+void totp_cli_print_processing() {
+    TOTP_CLI_PRINTF("Processing, please wait...\r\n");
+}
+
+void totp_cli_delete_last_char() {
+    TOTP_CLI_PRINTF("\b \b");
+    fflush(stdout);
+}
+
+void totp_cli_delete_current_line() {
+    TOTP_CLI_PRINTF("\33[2K\r");
+    fflush(stdout);
+}
+
+void totp_cli_delete_last_line() {
+    TOTP_CLI_PRINTF("\033[A\33[2K\r");
+    fflush(stdout);
 }

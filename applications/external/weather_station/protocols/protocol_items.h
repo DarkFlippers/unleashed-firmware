@@ -16,5 +16,6 @@
 #include "auriol_hg0601a.h"
 #include "oregon_v1.h"
 #include "tx_8300.h"
+#include "wendox_w6726.h"
 
 extern const SubGhzProtocolRegistry weather_station_protocol_registry;

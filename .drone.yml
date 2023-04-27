@@ -11,7 +11,7 @@ steps:
     image: alpine/git
     commands:
       - git submodule sync
-      - git -c protocol.version=2 submodule update --init --force --recursive
+      - git -c protocol.version=2 submodule update --init --force --recursive --jobs 4
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
@@ -258,7 +258,7 @@ steps:
     image: alpine/git
     commands:
       - git submodule sync
-      - git -c protocol.version=2 submodule update --init --force --recursive
+      - git -c protocol.version=2 submodule update --init --force --recursive --jobs 4
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 

@@ -1,44 +1,25 @@
 ### New changes 
-* Note: Due to latest official changes this release was delayed - release was tested by group of users, and some of them reported getting one crash on "furi_check failed", but this can not be reproduced in any way we tried, so, please if you found any issues with BLE (+ Mobile app) that results in crash, create issue with all details how you got it and how many times, and detailed steps on repeating such issue, if you got one crash and can't get it again, collect information how it happened and create issue with as much details as possible -> Thanks!
-* SubGHz: New option to use timestamps + protocol name when you saving file, instead of random name - Enable in `Radio Settings -> Time in names = ON`
-* SubGHz: Read mode UI improvements (scrolling text, + shows time when signal was received) (by @wosk | PR #429)
-* SubGHz: New options to ignore Magellan, Cars(ScherKhan, Kia)(no you can't send that signals)
-* SubGHz: Fix keeloq custom buttons bugs
-* SubGhz: Nero Radio 57bit **experimental** support + encoder improvements and decoder changes
-* SubGhz: Fix RAW recording and reading, (bug where raw file plays endlessly) (Fixes issue #431)
-* SubGHz Remote: Add Alutech AT4N Support, fix some issues
-* Power GUI: Changing battery style doesnt require reboot (Added API to trigger UI change from different place) (Inspired by @ESurge work)
-* Plugins: BLE Remote -> Keynote with vertical layout (by @Kami-no | PR #428)
-* Plugins: Improve wifi marauder keyboard (added extra symbols!) (Port uart terminal keyboard into wifi marauder)
-* Infrared: Update universal remote assets (by @amec0e | PR #421)
-* Docs: Update build docs (by @PhoenixSheppy | PR #425)
-* OFW: cubewb: updated to v1.16.0 -> **Part 2 of "Various stop mode fixes"**
-* OFW: github: testing SDK with ufbt action 
-* OFW: Raw RFID documentation
-* OFW: Introduce stealth mode and auto-selective lock
-* OFW: Active RPC session icon -> **Breaking API change, api was changed from 22.x to 23.x** 
-* OFW: Various stop mode fixes -> **Should fix known issues with BLE (Random freezes, menu freeze, BT Remote plugin freeze) and other similar issues**
-* OFW: Picopass: Correctly aborts when correct key is found -> Fixes Bug (Picopass app not reading elite keyed cards anymore. #413)
-### Pre-release changes
-* If you have copied apps into `apps` folder - remove `apps` folder on your microSD before installing this release to avoid issues!
-* SubGHz: (Bug that I decided to keep as a feature) You can change default button (Ok) for remote by holding custom button and pressing back at same time (same can be used to restore your button if you changed it accidentally) - Be careful, it might be unstable, I will make proper option to change button in next releases
-* SubGHz: Fixes for custom button bugs in SubGHz Remote app
-* SubGHz: Add alutech table to enviroment alloc and free
-* Docs: Fix and update docs - thanks to @lesterrry
-* Plugins: Bluetooth Remote - implemented YouTube Shorts Remote (may be unstable)
-* Plugins: Bluetooth Remote - improvements and fixes for TikTok remote (by @krolchonok | PR #420 and #432)
-* Plugins: Implement an array for baudrates on GPS UART app (+ add 19200 baud) (by @p0ns | PR #416)
-* Plugins: Remove UART Echo from releases since it is locked on 115200 baud, and we have **UART Terminal** with ability to set baudrate
+* Power + BLE: DeepSleep + required ble stack upgrade added back, all known issues was fixed in OFW, no issues was found during our tests
+* Desktop: Allow locking without pin using Up menu on desktop (Short click on `Lock` = Without PIN / Long = With PIN)
+* RFID: Add confirmation message before running `Clear T5577 Password` 
+* RFID: Add more user friendly RAW emulation via UI [(by Dan Caprita)](https://forum.flipperzero.one/t/electra-intercom/6368/43)
+* SubGHz: Fixed `Frequency Analyzer` issues, fixed `Read` mode issues
+* SubGHz: Fix NFC crash when using external CC1101 radio module
+* SubGHz: Fix multiple external CC1101 radio module issues, (int callbacks, SPI handlers init/reinit)
+* SubGHz: Using scene manager function in add manually (by @gid9798 | PR #437)
+* Plugins: ESP32: WiFi Marauder - add icon for log files in logs browser
+* Plugins: Update **ESP32: WiFi Marauder companion** plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion) merged [PR by @tcpassos](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion/pull/11)
 * Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Update **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
-* OFW: Deep Sleep Idle - **Improves battery usage!!!** -> **Breaking API change, api was changed from 21.x to 22.x** 
-* OFW: FuriHal: pwr pulls for some pins
-* OFW: Bugfix: ISP Programmer and SubGhz
-* OFW: AVR_ISP: fix NULL pointer dereference
-* OFW: Fix gpio state isp programmer
-* OFW: ufbt: project & debugging updates
-* OFW: FuriHal: fix gpio naming and add explicit pulls for vibro, speaker and ir_tx -> **Breaking API change, api was changed from 20.x to 21.x** 
-**(this will make your manually copied plugins not work, update them in same way you installed them, or delete `apps` folder and then install firmware, if you using extra pack builds (with `e` in version) all apps in _Extra will be updated automatically)**
+* Plugins: Fix RFID Fuzzer and iButton Fuzzer crashes
+* Infrared: Updated infrared assets (by @amec0e | PR #441)
+* Docs: Update **How To Install** images (by @krolchonok | PR #436)
+* OFW PR 2620: NFC: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys (by Astrrra)
+* OFW PR 2616: Picopass: remove spaces in CSN (by bettse)
+* OFW PR 2604: WS: add protocol "Wendox W6726" (by Skorpionm)
+* OFW PR 2607: BadUSB: command parser fix (by nminaylov)
+* OFW: FuriHal: use proper divider for core2 when transition to sleep, remove extra stop mode transition checks, cleanup code. Furi: proper assert and check messages.
+* OFW: Don't reboot on crash in debug builds
+* OFW: cubewb: downgraded to v1.15.0 
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 

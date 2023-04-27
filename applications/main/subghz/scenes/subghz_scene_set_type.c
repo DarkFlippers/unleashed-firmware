@@ -389,13 +389,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         uint32_t key = subghz_random_serial();
         switch(event.event) {
         case SubmenuIndexFaacSLH_868:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             break;
         case SubmenuIndexFaacSLH_433:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             break;
         case SubmenuIndexBFTClone:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixBft);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             break;
         case SubmenuIndexPricenton:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8

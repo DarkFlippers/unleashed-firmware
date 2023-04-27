@@ -127,6 +127,7 @@ const WifiMarauderItem items[NUM_MENU_ITEMS] = {
     {"Update", {"ota", "sd"}, 2, {"update -w", "update -s"}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Reboot", {""}, 1, {"reboot"}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Help", {""}, 1, {"help"}, NO_ARGS, FOCUS_CONSOLE_START, SHOW_STOPSCAN_TIP},
+    {"Scripts", {""}, 1, {""}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Save to flipper sdcard", // keep as last entry or change logic in callback below
      {""},
      1,
@@ -143,13 +144,6 @@ static void wifi_marauder_scene_start_var_list_enter_callback(void* context, uin
     furi_assert(index < NUM_MENU_ITEMS);
     const WifiMarauderItem* item = &items[index];
 
-    if(index == NUM_MENU_ITEMS - 1) {
-        // "Save to flipper sdcard" special case - start SettingsInit widget
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, WifiMarauderEventStartSettingsInit);
-        return;
-    }
-
     const int selected_option_index = app->selected_option_index[index];
     furi_assert(selected_option_index < item->num_options_menu);
     app->selected_tx_string = item->actual_commands[selected_option_index];
@@ -164,6 +158,20 @@ static void wifi_marauder_scene_start_var_list_enter_callback(void* context, uin
     if(!app->is_command && selected_option_index == 0) {
         // View Log from start
         view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventStartLogViewer);
+        return;
+    }
+
+    // Select automation script
+    if(index == NUM_MENU_ITEMS - 2) {
+        view_dispatcher_send_custom_event(
+            app->view_dispatcher, WifiMarauderEventStartScriptSelect);
+        return;
+    }
+
+    if(index == NUM_MENU_ITEMS - 1) {
+        // "Save to flipper sdcard" special case - start SettingsInit widget
+        view_dispatcher_send_custom_event(
+            app->view_dispatcher, WifiMarauderEventStartSettingsInit);
         return;
     }
 
@@ -242,6 +250,10 @@ bool wifi_marauder_scene_start_on_event(void* context, SceneManagerEvent event) 
             scene_manager_set_scene_state(
                 app->scene_manager, WifiMarauderSceneStart, app->selected_menu_index);
             scene_manager_next_scene(app->scene_manager, WifiMarauderSceneLogViewer);
+        } else if(event.event == WifiMarauderEventStartScriptSelect) {
+            scene_manager_set_scene_state(
+                app->scene_manager, WifiMarauderSceneStart, app->selected_menu_index);
+            scene_manager_next_scene(app->scene_manager, WifiMarauderSceneScriptSelect);
         }
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {

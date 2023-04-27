@@ -1,137 +1,90 @@
 #pragma once
 
-#include <flipper_format/flipper_format.h>
 #include "../../types/plugin_state.h"
 #include "../../types/token_info.h"
+#include "config_file_context.h"
 #include "constants.h"
+#include "token_info_iterator.h"
 
-typedef uint8_t TokenLoadingResult;
 typedef uint8_t TotpConfigFileOpenResult;
 typedef uint8_t TotpConfigFileUpdateResult;
 
 /**
- * @brief Token loading results
- */
-enum TokenLoadingResults {
-    /**
-     * @brief All the tokens loaded successfully 
-     */
-    TokenLoadingResultSuccess,
-
-    /**
-     * @brief All the tokens loaded, but there are some warnings
-     */
-    TokenLoadingResultWarning,
-
-    /**
-     * @brief Tokens not loaded because of error(s) 
-     */
-    TokenLoadingResultError
-};
-
-/**
- * @brief Config file opening result
- */
-enum TotpConfigFileOpenResults {
-    /**
-     * @brief Config file opened successfully
-     */
-    TotpConfigFileOpenSuccess = 0,
-
-    /**
-     * @brief An error has occurred during opening config file
-     */
-    TotpConfigFileOpenError = 1
-};
-
-/**
- * @brief Config file updating result
- */
-enum TotpConfigFileUpdateResults {
-    /**
-     * @brief Config file updated successfully
-     */
-    TotpConfigFileUpdateSuccess,
-
-    /**
-     * @brief An error has occurred during updating config file
-     */
-    TotpConfigFileUpdateError
-};
-
-/**
  * @brief Tries to take a config file backup
+ * @param plugin_state application state
  * @return backup path if backup successfully taken; \c NULL otherwise
  */
-char* totp_config_file_backup();
-
-/**
- * @brief Saves all the settings and tokens to an application config file
- * @param plugin_state application state
- * @return Config file update result
- */
-TotpConfigFileUpdateResult totp_full_save_config_file(const PluginState* const plugin_state);
+char* totp_config_file_backup(const PluginState* plugin_state);
 
 /**
  * @brief Loads basic information from an application config file into application state without loading all the tokens
  * @param plugin_state application state
  * @return Config file open result
  */
-TotpConfigFileOpenResult totp_config_file_load_base(PluginState* const plugin_state);
-
-/**
- * @brief Loads tokens from an application config file into application state
- * @param plugin_state application state
- * @return Results of the loading
- */
-TokenLoadingResult totp_config_file_load_tokens(PluginState* const plugin_state);
-
-/**
- * @brief Add new token to the end of the application config file
- * @param token_info token information to be saved
- * @return Config file update result
- */
-TotpConfigFileUpdateResult totp_config_file_save_new_token(const TokenInfo* token_info);
+bool totp_config_file_load(PluginState* const plugin_state);
 
 /**
  * @brief Updates timezone offset in an application config file
- * @param new_timezone_offset new timezone offset to be set
+ * @param plugin_state application state
  * @return Config file update result
  */
-TotpConfigFileUpdateResult totp_config_file_update_timezone_offset(float new_timezone_offset);
+bool totp_config_file_update_timezone_offset(const PluginState* plugin_state);
 
 /**
  * @brief Updates notification method in an application config file
- * @param new_notification_method new notification method to be set
+ * @param plugin_state application state
  * @return Config file update result
  */
-TotpConfigFileUpdateResult
-    totp_config_file_update_notification_method(NotificationMethod new_notification_method);
+bool totp_config_file_update_notification_method(const PluginState* plugin_state);
 
 /**
  * @brief Updates automation method in an application config file
- * @param new_automation_method new automation method to be set
+ * @param plugin_state application state
  * @return Config file update result
  */
-TotpConfigFileUpdateResult
-    totp_config_file_update_automation_method(AutomationMethod new_automation_method);
+bool totp_config_file_update_automation_method(const PluginState* plugin_state);
 
 /**
  * @brief Updates application user settings
  * @param plugin_state application state
  * @return Config file update result
  */
-TotpConfigFileUpdateResult totp_config_file_update_user_settings(const PluginState* plugin_state);
+bool totp_config_file_update_user_settings(const PluginState* plugin_state);
 
 /**
  * @brief Updates crypto signatures information
  * @param plugin_state application state
  * @return Config file update result
  */
-TotpConfigFileUpdateResult
-    totp_config_file_update_crypto_signatures(const PluginState* plugin_state);
+bool totp_config_file_update_crypto_signatures(const PluginState* plugin_state);
 
 /**
  * @brief Reset all the settings to default
+ * @param plugin_state application state
  */
-void totp_config_file_reset();
+void totp_config_file_reset(PluginState* const plugin_state);
+
+/**
+ * @brief Closes config file and releases all the resources
+ * @param plugin_state application state
+ */
+void totp_config_file_close(PluginState* const plugin_state);
+
+/**
+ * @brief Updates config file encryption by re-encrypting it using new user's PIN and new randomly generated IV
+ * @param plugin_state application state
+ * @param new_pin new user's PIN
+ * @param new_pin_length new user's PIN length
+ * @return \c true if config file encryption successfully updated; \c false otherwise
+ */
+bool totp_config_file_update_encryption(
+    PluginState* plugin_state,
+    const uint8_t* new_pin,
+    uint8_t new_pin_length);
+
+/**
+ * @brief Gets token info iterator context
+ * @param plugin_state application state
+ * @return token info iterator context
+ */
+TokenInfoIteratorContext* totp_config_get_token_iterator_context(const PluginState* plugin_state);
