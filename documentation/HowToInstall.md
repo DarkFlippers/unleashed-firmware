@@ -23,7 +23,7 @@ after that on web updater page - press `Connect` button
 - And wait, if all flashed
  successfully - you will have all needed assets pre installed
 - Done
-![web](https://user-images.githubusercontent.com/40743392/233779040-596ad9a9-87cd-4b19-a831-16fdc678ba35.png)
+![web](https://user-images.githubusercontent.com/40743392/235005830-98ceda39-a143-47ef-ad4d-5489bc3df98b.png)
 
 
 <br>
@@ -40,7 +40,7 @@ after that on web updater page - press `Connect` button
 - Error in ios app will show up, but flipper will be updated successfully
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![ios](https://user-images.githubusercontent.com/40743392/233779071-10e37af5-a7d9-41d6-81cd-9bb660352b4d.png)
+![ios](https://user-images.githubusercontent.com/40743392/235005844-bea8f2fd-f50d-41b1-9191-e3842d8658d2.png)
 
 <br>
 <br>
@@ -56,7 +56,8 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![andro_tgz](https://user-images.githubusercontent.com/40743392/233782806-e81c9634-4694-4faf-88ce-08b89a8b6fa0.png)
+![andro_tgz](https://user-images.githubusercontent.com/40743392/235005877-d4f5f73c-241c-4a7b-a51d-b8407983856c.png)
+
 
 <br>
 <br>
@@ -71,7 +72,7 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-![androweb](https://user-images.githubusercontent.com/40743392/233782906-1f8f1ebf-c488-4d9f-9a6f-67a4e693cbda.png)
+![androweb](https://user-images.githubusercontent.com/40743392/235005891-19ef6bb6-094f-437d-afcd-75d60921e3c4.png)
 
 
 <br>
@@ -89,8 +90,7 @@ after that on web updater page - press `Connect` button
 - Update will start
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
-
-![qflip](https://user-images.githubusercontent.com/40743392/233779331-3f21c662-6e77-42e5-a928-f5441bd85bd4.png)
+![qflip](https://user-images.githubusercontent.com/40743392/235005910-819abd34-65d4-4aaa-a11c-9c28bea737e9.png)
 
 
 
@@ -110,8 +110,9 @@ after that on web updater page - press `Connect` button
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages
 - Done
+![manual](https://user-images.githubusercontent.com/40743392/235006410-19eaf58e-2425-4e8e-8ec9-973bda362c47.png)
 
-![manual](https://user-images.githubusercontent.com/40743392/233779363-faf5b35b-e136-4dca-b1fb-15188b26eb6a.png)
+
 
 
 
