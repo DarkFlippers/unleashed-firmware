@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - "release*"
     tags:
       - '*'
   pull_request:
@@ -19,7 +18,7 @@ jobs:
     runs-on: [self-hosted,FlipperZeroShell]
     steps:
       - name: 'Wipe workspace'
-        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout code'
         uses: actions/checkout@v3
@@ -167,7 +166,7 @@ jobs:
         target: [f7, f18]
     steps:
       - name: 'Wipe workspace'
-        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout code'
         uses: actions/checkout@v3
@@ -207,7 +206,7 @@ jobs:
           cd testapp
           ufbt create APPID=testapp
           ufbt
-      
+
       - name: Build example & external apps with uFBT
         run: |
           for appdir in 'applications/external' 'applications/examples'; do

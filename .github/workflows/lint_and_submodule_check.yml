@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - "release*"
     tags:
       - '*'
   pull_request:
@@ -19,7 +18,7 @@ jobs:
     runs-on: [self-hosted,FlipperZeroShell]
     steps:
       - name: 'Wipe workspace'
-        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout code'
         uses: actions/checkout@v3
@@ -64,7 +63,7 @@ jobs:
           else
             echo "Python Lint: all good ✨" >> $GITHUB_STEP_SUMMARY;
           fi
-  
+
       - name: 'Check C++ code formatting'
         id: syntax_check_cpp
         if: always()

@@ -13,13 +13,13 @@ jobs:
     runs-on: [self-hosted, FlipperZeroUpdaterTest]
     steps:
       - name: 'Wipe workspace'
-        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-          submodules: false          
+          submodules: false
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Get flipper from device manager (mock)'
@@ -50,7 +50,7 @@ jobs:
           echo "tag=$(git tag -l --sort=-version:refname | grep -v "rc\|RC" | head -1)" >> $GITHUB_OUTPUT
 
       - name: 'Wipe workspace'
-        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout latest release'
         uses: actions/checkout@v3

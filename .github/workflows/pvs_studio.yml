@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - "release*"
     tags:
       - '*'
   pull_request:
@@ -20,7 +19,7 @@ jobs:
     runs-on: [self-hosted, FlipperZeroShell]
     steps:
       - name: 'Wipe workspace'
-        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \; 
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout code'
         uses: actions/checkout@v3
