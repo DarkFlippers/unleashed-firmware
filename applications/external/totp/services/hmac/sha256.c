@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "sha_pad_buffer.h"
 
 #ifdef WORDS_BIGENDIAN
 #define SWAP(n) (n)
@@ -32,10 +33,6 @@
 #include "byteswap.h"
 #define SWAP(n) swap_uint32(n)
 #endif
-
-/* This array contains the bytes used to pad the buffer to the next
-   64-byte boundary.  */
-static const unsigned char fillbuf[64] = {0x80, 0 /* , 0, 0, ...  */};
 
 /*
   Takes a pointer to a 256 bit block of data (eight 32 bit ints) and
@@ -91,7 +88,7 @@ static void sha256_conclude_ctx(struct sha256_ctx* ctx) {
     set_uint32((char*)&ctx->buffer[size - 2], SWAP((ctx->total[1] << 3) | (ctx->total[0] >> 29)));
     set_uint32((char*)&ctx->buffer[size - 1], SWAP(ctx->total[0] << 3));
 
-    memcpy(&((char*)ctx->buffer)[bytes], fillbuf, (size - 2) * 4 - bytes);
+    sha_pad_buffer(&((uint8_t*)ctx->buffer)[bytes], (size - 2) * 4 - bytes);
 
     /* Process last bytes.  */
     sha256_process_block(ctx->buffer, size * 4, ctx);
