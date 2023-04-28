@@ -33,7 +33,7 @@ void dev_info_svc_start() {
     dev_info_svc->version_string = furi_string_alloc_printf(
         "%s %s %s %s",
         version_get_githash(NULL),
-        version_get_gitbranch(NULL),
+        version_get_version(NULL),
         version_get_gitbranchnum(NULL),
         version_get_builddate(NULL));
     snprintf(
