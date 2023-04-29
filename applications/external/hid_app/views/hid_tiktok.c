@@ -190,12 +190,12 @@ static bool hid_tiktok_input_callback(InputEvent* event, void* context) {
                     hid_hal_mouse_release(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
                     consumed = true;
                 } else if(event->key == InputKeyDown) {
-                    // Swipe to new video
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -19);
-                    consumed = true;
-                } else if(event->key == InputKeyUp) {
                     // Swipe to previous video
                     hid_hal_mouse_scroll(hid_tiktok->hid, 19);
+                    consumed = true;
+                } else if(event->key == InputKeyUp) {
+                    // Swipe to new video
+                    hid_hal_mouse_scroll(hid_tiktok->hid, -19);
                     consumed = true;
                 } else if(event->key == InputKeyBack) {
                     // Pause
