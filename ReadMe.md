@@ -161,6 +161,7 @@ You can support us by using links or addresses below:
 - **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
 - **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
 - **SWD Probe** [(by g3gg0)](https://github.com/g3gg0/flipper-swd_probe)
+- IR Scope [(by kallanreed)](https://github.com/DarkFlippers/unleashed-firmware/pull/407)
 
 Games:
 - DOOM (fixed) [(by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
