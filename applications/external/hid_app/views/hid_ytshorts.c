@@ -109,7 +109,6 @@ static void hid_ytshorts_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Hold to exit");
 }
 
-
 static void hid_ytshorts_reset_cursor(HidYTShorts* hid_ytshorts) {
     // Set cursor to the phone's left up corner
     // Delays to guarantee one packet per connection interval

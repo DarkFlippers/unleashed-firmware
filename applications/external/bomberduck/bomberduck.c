@@ -21,7 +21,6 @@ int min(int a, int b) {
 #define WorldSizeY 6
 #define BombRange 1
 
-
 typedef struct {
     FuriMutex* mutex;
 } BomberState;
@@ -105,7 +104,7 @@ void init() {
         }
     }
     world.running = 1;
-    world.bombs_count =0;
+    world.bombs_count = 0;
     vibration = false;
     for(int j = max(0, player.y - BombRange); j < min(WorldSizeY, player.y + BombRange + 1); j++) {
         world.matrix[j][player.x] = 0;
@@ -190,7 +189,6 @@ static const NotificationSequence vibr1 = {
 
     NULL,
 };
-
 
 void intToStr(int num, char* str) {
     int i = 0, sign = 0;
@@ -344,7 +342,7 @@ static void draw_callback(Canvas* canvas, void* ctx) {
         if(world.player->x == world.endx && world.player->y == world.endy) {
             if(world.level == 20) {
                 canvas_draw_str(canvas, 30, 35, "You win!");
-            }else{
+            } else {
                 canvas_draw_str(canvas, 30, 35, "Next level!");
                 char str[20];
                 intToStr(world.level, str);
@@ -427,24 +425,24 @@ int32_t bomberduck_app(void* p) {
                 if(world.running) {
                     if(event.key == InputKeyUp) {
                         if(world.player->y > 0 &&
-                        world.matrix[world.player->y - 1][world.player->x] == 0)
+                           world.matrix[world.player->y - 1][world.player->x] == 0)
                             world.player->y--;
                     }
                     if(event.key == InputKeyDown) {
                         if(world.player->y < WorldSizeY - 1 &&
-                        world.matrix[world.player->y + 1][world.player->x] == 0)
+                           world.matrix[world.player->y + 1][world.player->x] == 0)
                             world.player->y++;
                     }
                     if(event.key == InputKeyLeft) {
                         world.player->side = 0;
                         if(world.player->x > 0 &&
-                        world.matrix[world.player->y][world.player->x - 1] == 0)
+                           world.matrix[world.player->y][world.player->x - 1] == 0)
                             world.player->x--;
                     }
                     if(event.key == InputKeyRight) {
                         world.player->side = 1;
                         if(world.player->x < WorldSizeX - 1 &&
-                        world.matrix[world.player->y][world.player->x + 1] == 0)
+                           world.matrix[world.player->y][world.player->x + 1] == 0)
                             world.player->x++;
                     }
                 }
@@ -459,7 +457,7 @@ int32_t bomberduck_app(void* p) {
                 notification_message(notification, &end);
                 world.running = 0;
                 world.level += 1;
-                if(world.level%5==0){
+                if(world.level % 5 == 0) {
                     DOLPHIN_DEED(DolphinDeedPluginGameWin);
                 }
             }
@@ -524,13 +522,18 @@ int32_t bomberduck_app(void* p) {
                         world.bombs[j] = world.bombs[j + 1];
                     }
                     world.bombs_count--;
-                } else if(furi_get_tick() - world.bombs[i].planted > (unsigned long)max((3000 - world.level * 150)*2/3, 666)&&world.matrix[world.bombs[i].y][world.bombs[i].x]!=5) {
-                        world.matrix[world.bombs[i].y][world.bombs[i].x] = 5;
-                        vibration=true;
+                } else if(
+                    furi_get_tick() - world.bombs[i].planted >
+                        (unsigned long)max((3000 - world.level * 150) * 2 / 3, 666) &&
+                    world.matrix[world.bombs[i].y][world.bombs[i].x] != 5) {
+                    world.matrix[world.bombs[i].y][world.bombs[i].x] = 5;
+                    vibration = true;
 
-                } else if(furi_get_tick() - world.bombs[i].planted > (unsigned long)max((3000 - world.level * 150)/3, 333)&& world.matrix[world.bombs[i].y][world.bombs[i].x]!=4) {
-                        world.matrix[world.bombs[i].y][world.bombs[i].x] = 4;
-                    
+                } else if(
+                    furi_get_tick() - world.bombs[i].planted >
+                        (unsigned long)max((3000 - world.level * 150) / 3, 333) &&
+                    world.matrix[world.bombs[i].y][world.bombs[i].x] != 4) {
+                    world.matrix[world.bombs[i].y][world.bombs[i].x] = 4;
                 }
             }
             for(int e = 0; e < world.enemies_count; e++) {
@@ -618,7 +621,7 @@ int32_t bomberduck_app(void* p) {
                     }
                 }
             }
-            if(vibration){
+            if(vibration) {
                 notification_message(notification, &vibr1);
             }
         }
