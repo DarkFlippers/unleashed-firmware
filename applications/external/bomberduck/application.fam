@@ -3,7 +3,6 @@ App(
     name="Bomberduck",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="bomberduck_app",
-    cdefines=["BOMBERDUCK"],
     requires=[
         "gui",
     ],
