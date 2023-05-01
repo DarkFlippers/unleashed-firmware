@@ -3166,6 +3166,11 @@ int32_t swd_probe_app_main(void* p) {
     furi_message_queue_free(app->event_queue);
     furi_mutex_free(app->gui_mutex);
     furi_mutex_free(app->swd_mutex);
+
+    // Reset GPIO pins to default state
+    for(int io = 0; io < 8; io++) {
+        furi_hal_gpio_init(gpios[io], GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    }
     free(app);
 
     furi_record_close(RECORD_GUI);
