@@ -27,12 +27,9 @@
 #include <string.h>
 
 #include "byteswap.h"
+#include "sha_pad_buffer.h"
 
 #define SWAP(n) swap_uint64(n)
-
-/* This array contains the bytes used to pad the buffer to the next
-   128-byte boundary.  */
-static const unsigned char fillbuf[128] = {0x80, 0 /* , 0, 0, ...  */};
 
 /*
   Takes a pointer to a 512 bit block of data (eight 64 bit ints) and
@@ -90,7 +87,7 @@ static void sha512_conclude_ctx(struct sha512_ctx* ctx) {
         SWAP(u64or(u64shl(ctx->total[1], 3), u64shr(ctx->total[0], 61))));
     set_uint64((char*)&ctx->buffer[size - 1], SWAP(u64shl(ctx->total[0], 3)));
 
-    memcpy(&((char*)ctx->buffer)[bytes], fillbuf, (size - 2) * 8 - bytes);
+    sha_pad_buffer(&((uint8_t*)ctx->buffer)[bytes], (size - 2) * 8 - bytes);
 
     /* Process last bytes.  */
     sha512_process_block(ctx->buffer, size * 8, ctx);

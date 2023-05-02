@@ -41,64 +41,68 @@ static void hid_ytshorts_draw_callback(Canvas* canvas, void* context) {
     canvas_set_font(canvas, FontSecondary);
 
     // Keypad circles
-    canvas_draw_icon(canvas, 66, 8, &I_Circles_47x47);
+    canvas_draw_icon(canvas, 58, 3, &I_OutCircles);
 
     // Pause
     if(model->back_mouse_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 106, 46, &I_Pressed_Button_13x13);
+        canvas_draw_icon(canvas, 107, 33, &I_Pressed_Button_19x19);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 108, 48, &I_Pause_icon_9x9);
+    canvas_draw_icon(canvas, 113, 37, &I_Pause_icon_9x9);
     canvas_set_color(canvas, ColorBlack);
 
     // Up
     if(model->up_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 83, 9, &I_Pressed_Button_13x13);
+        canvas_draw_icon(canvas, 68, 6, &I_S_UP);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 86, 11, &I_Arr_up_7x9);
+    canvas_draw_icon(canvas, 80, 8, &I_Arr_up_7x9);
     canvas_set_color(canvas, ColorBlack);
 
     // Down
     if(model->down_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 83, 41, &I_Pressed_Button_13x13);
+        canvas_draw_icon(canvas, 68, 36, &I_S_DOWN);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 86, 44, &I_Arr_dwn_7x9);
+    canvas_draw_icon(canvas, 80, 40, &I_Arr_dwn_7x9);
     canvas_set_color(canvas, ColorBlack);
 
     // Left
     if(model->left_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 67, 25, &I_Pressed_Button_13x13);
+        canvas_draw_icon(canvas, 61, 13, &I_S_LEFT);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 71, 29, &I_Voldwn_6x6);
+    canvas_draw_icon(canvas, 64, 25, &I_Voldwn_6x6);
     canvas_set_color(canvas, ColorBlack);
 
     // Right
     if(model->right_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 99, 25, &I_Pressed_Button_13x13);
+        canvas_draw_icon(canvas, 91, 13, &I_S_RIGHT);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 101, 29, &I_Volup_8x6);
+    canvas_draw_icon(canvas, 95, 25, &I_Volup_8x6);
     canvas_set_color(canvas, ColorBlack);
 
     // Ok
     if(model->ok_pressed) {
-        canvas_draw_icon(canvas, 81, 23, &I_Like_pressed_17x17);
-    } else {
-        canvas_draw_icon(canvas, 84, 27, &I_Like_def_11x9);
+        canvas_set_bitmap_mode(canvas, 1);
+        canvas_draw_icon(canvas, 74, 19, &I_Pressed_Button_19x19);
+        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_color(canvas, ColorWhite);
     }
+    canvas_draw_icon(canvas, 78, 25, &I_Like_def_11x9);
+    canvas_set_color(canvas, ColorBlack);
+
     // Exit
     canvas_draw_icon(canvas, 0, 54, &I_Pin_back_arrow_10x8);
     canvas_set_font(canvas, FontSecondary);

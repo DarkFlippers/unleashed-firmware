@@ -1,5 +1,4 @@
 #include <string.h>
-#include "sha256.h"
 #include "memxor.h"
 
 #define IPAD 0x36

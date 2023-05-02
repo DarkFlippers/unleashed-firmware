@@ -118,7 +118,6 @@ The amount of work done on this project is huge and we need your support, no mat
 Also, regarding our releases, every build has and always will be free and open-source. There will be no paywall releases or closed-source apps within the firmware. As long as I am working on this project it will never happen.
 You can support us by using links or addresses below:
 * **Boosty** (patreon alternative): https://boosty.to/mmxdev
-* Ko-Fi: https://ko-fi.com/masterx
 * cloudtips (only RU payments accepted): https://pay.cloudtips.ru/p/7b3e9d65
 * YooMoney (only RU payments accepted): https://yoomoney.ru/fundraise/XA49mgQLPA0.221209
 * USDT(TRC20): `TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`
@@ -162,6 +161,7 @@ You can support us by using links or addresses below:
 - **UART Terminal** [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
 - **ProtoView** [(by antirez)](https://github.com/antirez/protoview)
 - **SWD Probe** [(by g3gg0)](https://github.com/g3gg0/flipper-swd_probe)
+- IR Scope [(by kallanreed)](https://github.com/DarkFlippers/unleashed-firmware/pull/407)
 
 Games:
 - DOOM (fixed) [(by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
@@ -176,6 +176,7 @@ Games:
 - Solitaire [(by teeebor)](https://github.com/teeebor/flipper_games)
 - BlackJack [(by teeebor)](https://github.com/teeebor/flipper_games)
 - 2048 game [(by eugene-kirzhanov)](https://github.com/eugene-kirzhanov/flipper-zero-2048-game)
+- Bomberduck [(by leo-need-more-coffee)](https://github.com/leo-need-more-coffee/flipperzero-bomberduck)
 
 
 # Instructions

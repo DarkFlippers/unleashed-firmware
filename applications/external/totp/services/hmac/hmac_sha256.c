@@ -15,6 +15,7 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #include "hmac_sha256.h"
+#include "sha256.h"
 
 #define GL_HMAC_NAME 256
 #define GL_HMAC_BLOCKSIZE 64

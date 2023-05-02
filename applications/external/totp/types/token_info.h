@@ -168,7 +168,7 @@ void token_info_free(TokenInfo* token_info);
 /**
  * @brief Encrypts & sets plain token secret to the given instance of \c TokenInfo
  * @param token_info instance where secret should be updated
- * @param base32_token_secret plain token secret in Base32 format
+ * @param plain_token_secret plain token secret
  * @param token_secret_length plain token secret length
  * @param plain_token_secret_encoding plain token secret encoding
  * @param iv initialization vecor (IV) to be used for encryption
@@ -201,9 +201,17 @@ bool token_info_set_duration_from_int(TokenInfo* token_info, uint8_t duration);
  * @brief Sets token hashing algorithm from \c str value
  * @param token_info instance whichs token hashing algorithm should be updated
  * @param str desired token algorithm
- * @return \c true if token hahsing algorithm has been updated; \c false otherwise
+ * @return \c true if token hashing algorithm has been updated; \c false otherwise
  */
 bool token_info_set_algo_from_str(TokenInfo* token_info, const FuriString* str);
+
+/**
+ * @brief Sets token hashing algorithm from \c algo_code code
+ * @param token_info instance whichs token hashing algorithm should be updated
+ * @param algo_code desired token algorithm code
+ * @return \c true if token hashing algorithm has been updated; \c false otherwise
+ */
+bool token_info_set_algo_from_int(TokenInfo* token_info, uint8_t algo_code);
 
 /**
  * @brief Gets token hahsing algorithm name as C-string

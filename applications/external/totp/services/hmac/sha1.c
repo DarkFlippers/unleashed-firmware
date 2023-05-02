@@ -27,16 +27,14 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "sha_pad_buffer.h"
+
 #ifdef WORDS_BIGENDIAN
 #define SWAP(n) (n)
 #else
 #include "byteswap.h"
 #define SWAP(n) swap_uint32(n)
 #endif
-
-/* This array contains the bytes used to pad the buffer to the next
-   64-byte boundary.  (RFC 1321, 3.1: Step 1)  */
-static const unsigned char fillbuf[64] = {0x80, 0 /* , 0, 0, ...  */};
 
 /* Take a pointer to a 160 bit block of data (five 32 bit ints) and
    initialize it to the start constants of the SHA1 algorithm.  This
@@ -87,7 +85,7 @@ void* sha1_finish_ctx(struct sha1_ctx* ctx, void* resbuf) {
     ctx->buffer[size - 2] = SWAP((ctx->total[1] << 3) | (ctx->total[0] >> 29));
     ctx->buffer[size - 1] = SWAP(ctx->total[0] << 3);
 
-    memcpy(&((char*)ctx->buffer)[bytes], fillbuf, (size - 2) * 4 - bytes);
+    sha_pad_buffer(&((uint8_t*)ctx->buffer)[bytes], (size - 2) * 4 - bytes);
 
     /* Process last bytes.  */
     sha1_process_block(ctx->buffer, size * 4, ctx);

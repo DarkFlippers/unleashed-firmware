@@ -892,25 +892,11 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
             MfClassicSectorTrailer* sector_trailer =
                 (MfClassicSectorTrailer*)emulator->data.block[sector_trailer_block].value;
             if(cmd == MF_CLASSIC_AUTH_KEY_A_CMD) {
-                if(mf_classic_is_key_found(
-                       &emulator->data, mf_classic_get_sector_by_block(block), MfClassicKeyA)) {
-                    key = nfc_util_bytes2num(sector_trailer->key_a, 6);
-                    access_key = MfClassicKeyA;
-                } else {
-                    FURI_LOG_D(TAG, "Key not known");
-                    command_processed = true;
-                    break;
-                }
+                key = nfc_util_bytes2num(sector_trailer->key_a, 6);
+                access_key = MfClassicKeyA;
             } else {
-                if(mf_classic_is_key_found(
-                       &emulator->data, mf_classic_get_sector_by_block(block), MfClassicKeyB)) {
-                    key = nfc_util_bytes2num(sector_trailer->key_b, 6);
-                    access_key = MfClassicKeyB;
-                } else {
-                    FURI_LOG_D(TAG, "Key not known");
-                    command_processed = true;
-                    break;
-                }
+                key = nfc_util_bytes2num(sector_trailer->key_b, 6);
+                access_key = MfClassicKeyB;
             }
 
             uint32_t nonce = prng_successor(DWT->CYCCNT, 32) ^ 0xAA;
