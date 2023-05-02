@@ -30,7 +30,7 @@ static uint32_t get_keypress_delay(TokenAutomationFeature features) {
 }
 
 static void totp_type_code_worker_press_key(
-    uint8_t key,
+    uint16_t key,
     TOTP_AUTOMATION_KEY_HANDLER key_press_fn,
     TOTP_AUTOMATION_KEY_HANDLER key_release_fn,
     TokenAutomationFeature features) {
@@ -47,8 +47,6 @@ void totp_type_code_worker_execute_automation(
     TokenAutomationFeature features) {
     furi_delay_ms(500);
     uint8_t i = 0;
-    totp_type_code_worker_press_key(
-        HID_KEYBOARD_CAPS_LOCK, key_press_fn, key_release_fn, features);
 
     while(i < code_buffer_size && code_buffer[i] != 0) {
         uint8_t char_index = CONVERT_CHAR_TO_DIGIT(code_buffer[i]);
@@ -58,7 +56,11 @@ void totp_type_code_worker_execute_automation(
 
         if(char_index > 35) break;
 
-        uint8_t hid_kb_key = hid_number_keys[char_index];
+        uint16_t hid_kb_key = hid_number_keys[char_index];
+        if(char_index > 9) {
+            hid_kb_key |= KEY_MOD_LEFT_SHIFT;
+        }
+
         totp_type_code_worker_press_key(hid_kb_key, key_press_fn, key_release_fn, features);
         furi_delay_ms(get_keystroke_delay(features));
         i++;
@@ -74,7 +76,4 @@ void totp_type_code_worker_execute_automation(
         furi_delay_ms(get_keystroke_delay(features));
         totp_type_code_worker_press_key(HID_KEYBOARD_TAB, key_press_fn, key_release_fn, features);
     }
-
-    totp_type_code_worker_press_key(
-        HID_KEYBOARD_CAPS_LOCK, key_press_fn, key_release_fn, features);
 }

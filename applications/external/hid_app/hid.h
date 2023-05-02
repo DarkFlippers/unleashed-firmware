@@ -25,6 +25,7 @@
 #include "views/hid_mouse_jiggler.h"
 #include "views/hid_tiktok.h"
 #include "views/hid_ytshorts.h"
+#include "views/hid_mouse_clicker.h"
 
 #define HID_BT_KEYS_STORAGE_NAME ".bt_hid.keys"
 
@@ -48,6 +49,7 @@ struct Hid {
     HidNumpad* hid_numpad;
     HidMedia* hid_media;
     HidMouse* hid_mouse;
+    HidMouseClicker* hid_mouse_clicker;
     HidMouseJiggler* hid_mouse_jiggler;
     HidTikTok* hid_tiktok;
     HidYTShorts* hid_ytshorts;
