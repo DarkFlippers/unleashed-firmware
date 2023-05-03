@@ -1,6 +1,7 @@
 import struct
 import math
-import os, os.path
+import os
+import os.path
 import sys
 
 

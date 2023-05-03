@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from flipper.app import App
 import json
+
+from flipper.app import App
 
 
 class Main(App):

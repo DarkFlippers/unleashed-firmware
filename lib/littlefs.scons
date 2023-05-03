@@ -4,14 +4,16 @@ env.Append(
     CPPPATH=[
         "#/lib/littlefs",
     ],
-    CPPDEFINES=[
-        ("LFS_CONFIG", "lfs_config.h"),
-    ],
 )
 
 
 libenv = env.Clone(FW_LIB_NAME="littlefs")
 libenv.ApplyLibFlags()
+libenv.Append(
+    CPPDEFINES=[
+        ("LFS_CONFIG", "lfs_config.h"),
+    ],
+)
 
 sources = Glob("littlefs/*.c", source=True)
 

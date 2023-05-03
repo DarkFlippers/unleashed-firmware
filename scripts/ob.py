@@ -44,7 +44,7 @@ class Main(App):
         )
 
     def check(self):
-        self.logger.info(f"Checking Option Bytes")
+        self.logger.info("Checking Option Bytes")
 
         # OpenOCD
         openocd = OpenOCDProgrammer(
@@ -60,7 +60,7 @@ class Main(App):
         return return_code
 
     def set(self):
-        self.logger.info(f"Setting Option Bytes")
+        self.logger.info("Setting Option Bytes")
 
         # OpenOCD
         openocd = OpenOCDProgrammer(

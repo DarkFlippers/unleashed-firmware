@@ -15,6 +15,10 @@ extern "C" {
 #define FURI_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+#ifndef FURI_WEAK
+#define FURI_WEAK __attribute__((weak))
+#endif
+
 #ifndef FURI_IS_IRQ_MASKED
 #define FURI_IS_IRQ_MASKED() (__get_PRIMASK() != 0U)
 #endif

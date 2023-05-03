@@ -1,20 +1,13 @@
-import operator
-import os
 import csv
 import operator
-
-from enum import Enum, auto
-from typing import Set, ClassVar, Any
+import os
 from dataclasses import dataclass
+from enum import Enum, auto
+from typing import Any, ClassVar, Set
 
 from ansi.color import fg
 
-from . import (
-    ApiEntries,
-    ApiEntryFunction,
-    ApiEntryVariable,
-    ApiHeader,
-)
+from . import ApiEntries, ApiEntryFunction, ApiEntryVariable, ApiHeader
 
 
 @dataclass(frozen=True)
@@ -137,7 +130,7 @@ class SdkCache:
                     f"API version is still WIP: {self.version}. Review the changes and re-run command."
                 )
             )
-            print(f"CSV file entries to mark up:")
+            print("CSV file entries to mark up:")
             print(
                 fg.yellow(
                     "\n".join(

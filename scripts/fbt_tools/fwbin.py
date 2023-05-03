@@ -1,6 +1,6 @@
-from SCons.Builder import Builder
-from SCons.Action import Action
 import SCons
+from SCons.Action import Action
+from SCons.Builder import Builder
 
 __OBJCOPY_ARM_BIN = "arm-none-eabi-objcopy"
 __NM_ARM_BIN = "arm-none-eabi-nm"

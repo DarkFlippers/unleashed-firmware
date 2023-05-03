@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-from typing import final
-from flipper.app import App
-from flipper.storage import FlipperStorage, FlipperStorageOperations
-from flipper.utils.cdc import resolve_port
-
 import logging
 import os
 import pathlib
-import serial.tools.list_ports as list_ports
+
+from flipper.app import App
+from flipper.storage import FlipperStorage, FlipperStorageOperations
+from flipper.utils.cdc import resolve_port
 
 
 class Main(App):
@@ -54,7 +52,7 @@ class Main(App):
                     f"update install {flipper_update_path}/{manifest_name}\r"
                 )
                 result = storage.read.until(storage.CLI_EOL)
-                if not b"Verifying" in result:
+                if b"Verifying" not in result:
                     self.logger.error(f"Unexpected response: {result.decode('ascii')}")
                     return 3
                 result = storage.read.until(storage.CLI_EOL)

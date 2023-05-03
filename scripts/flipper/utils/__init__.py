@@ -1,6 +1,5 @@
 import datetime
 import hashlib
-import os
 
 
 def timestamp():

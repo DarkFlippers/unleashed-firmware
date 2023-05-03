@@ -1,7 +1,3 @@
-from SCons.Builder import Builder
-from SCons.Action import Action
-
-
 def generate(env):
     env.SetDefault(
         GDB="gdb",

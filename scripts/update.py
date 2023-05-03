@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-from flipper.app import App
-from flipper.utils.fff import FlipperFormatFile
-from flipper.assets.coprobin import CoproBinary, get_stack_type
-from flipper.assets.obdata import OptionBytesData, ObReferenceValues
-from os.path import basename, join, exists
+import math
 import os
 import shutil
-import zlib
 import tarfile
-import math
+import zlib
+from os.path import exists, join
 
+from flipper.app import App
+from flipper.assets.coprobin import CoproBinary, get_stack_type
+from flipper.assets.obdata import ObReferenceValues, OptionBytesData
+from flipper.utils.fff import FlipperFormatFile
 from slideshow import Main as SlideshowMain
 
 
@@ -267,9 +267,9 @@ class Main(App):
 
     @staticmethod
     def batch(iterable, n=1):
-        l = len(iterable)
-        for ndx in range(0, l, n):
-            yield iterable[ndx : min(ndx + n, l)]
+        iterable_len = len(iterable)
+        for ndx in range(0, iterable_len, n):
+            yield iterable[ndx : min(ndx + n, iterable_len)]
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
-from SCons.Builder import Builder
 from SCons.Action import Action
+from SCons.Builder import Builder
 
 
 def version_emitter(target, source, env):

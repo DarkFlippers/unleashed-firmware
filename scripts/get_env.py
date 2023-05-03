@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import ssl
-import json
-import os
-import shlex
-import re
-import string
-import random
 import argparse
 import datetime
+import json
+import os
+import random
+import re
+import shlex
+import ssl
+import string
 import urllib.request
 
 

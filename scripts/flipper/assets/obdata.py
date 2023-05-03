@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import logging
-import struct
 
 from enum import Enum
 from dataclasses import dataclass
@@ -181,7 +179,7 @@ class OptionBytesData:
 
     def gen_values(self):
         obref = ObReferenceValuesGenerator()
-        converted_refs = list(obref.apply(ob) for ob in self.obs)
+        list(obref.apply(ob) for ob in self.obs)
         return obref
 
 

@@ -151,7 +151,7 @@ class FlipperStorage:
             try:
                 # TODO: better decoding, considering non-ascii characters
                 line = line.decode("ascii")
-            except:
+            except Exception:
                 continue
 
             line = line.strip()
@@ -194,7 +194,7 @@ class FlipperStorage:
             try:
                 # TODO: better decoding, considering non-ascii characters
                 line = line.decode("ascii")
-            except:
+            except Exception:
                 continue
 
             line = line.strip()
