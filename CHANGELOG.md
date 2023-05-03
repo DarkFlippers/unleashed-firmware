@@ -1,14 +1,12 @@
 ### New changes 
-* NFC: Temp fix for Detect reader not collecting nonces
-* Desktop: Temp fix for old backlight bug when locking by holding up arrow
-* IR: Add Sharp and Vizio to Universal TV remote
-* BLE Info: Show version instead of branch
-* Plugins: Add new game - Bomberduck (by @leo-need-more-coffee | PR #450)
-* Plugins: Fix `SWD Probe` plugin GPIO pins state reset on exit
-* Plugins: Bluetooth Remote - new UI (by @krolchonok | PR #447)
-* Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Docs: Update HowToInstall (by @krolchonok | PR #443)
-* OFW PR 2627: Add HID mouse auto-clicker (by @rwl4)
+* Plugins: Added Numpad keyboard to HID app (by @clipboard1 | PR #452)
+* Infrared: Updated universal remote assets (by @amec0e | PR #454)
+* Update slideshow: Replace QR code with good old link
+* OFW: Dolphin builder in ufbt; minor ufbt/fbt improvements
+* OFW: Added API version to device info 
+* OFW: Gui: relax some asserts in view
+* OFW: Move gauge calibration to separate header, add f18 calibration
+* OFW: Fix TERMINFO on Linux systems 
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 
