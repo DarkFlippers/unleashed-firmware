@@ -31,13 +31,13 @@ class OpenOCDProgrammer(Programmer):
         config["interface"] = interface
         config["target"] = "target/stm32wbx.cfg"
 
-        if not serial is None:
+        if serial is not None:
             if interface == "interface/cmsis-dap.cfg":
                 config["serial"] = f"cmsis_dap_serial {serial}"
             elif "stlink" in interface:
                 config["serial"] = f"stlink_serial {serial}"
 
-        if not port_base is None:
+        if port_base is not None:
             config["port_base"] = port_base
 
         self.openocd = OpenOCD(config)
@@ -59,7 +59,7 @@ class OpenOCDProgrammer(Programmer):
             raise Exception(f"File {file_path} not found")
 
         self.openocd.start()
-        self.openocd.send_tcl(f"init")
+        self.openocd.send_tcl("init")
         self.openocd.send_tcl(
             f"program {file_path} 0x{address:08x}{' verify' if verify else ''} reset exit"
         )
@@ -196,7 +196,7 @@ class OpenOCDProgrammer(Programmer):
         if ob_need_to_apply:
             stm32.option_bytes_apply(self.openocd)
         else:
-            self.logger.info(f"Option Bytes are already correct")
+            self.logger.info("Option Bytes are already correct")
 
         # Load Option Bytes
         # That will reset and also lock the Option Bytes and the Flash
@@ -256,7 +256,7 @@ class OpenOCDProgrammer(Programmer):
                     already_written = False
 
             if already_written:
-                self.logger.info(f"OTP memory is already written with the given data")
+                self.logger.info("OTP memory is already written with the given data")
                 return OpenOCDProgrammerResult.Success
 
             self.reset(self.RunMode.Stop)

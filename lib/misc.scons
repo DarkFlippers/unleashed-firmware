@@ -1,6 +1,6 @@
-Import("env")
-
 from fbt.util import GLOB_FILE_EXCLUSION
+
+Import("env")
 
 env.Append(
     CPPPATH=[

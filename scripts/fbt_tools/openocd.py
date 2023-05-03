@@ -1,7 +1,7 @@
-from SCons.Builder import Builder
-from SCons.Action import Action
-from SCons.Defaults import Touch
 import SCons
+from SCons.Action import Action
+from SCons.Builder import Builder
+from SCons.Defaults import Touch
 
 __OPENOCD_BIN = "openocd"
 

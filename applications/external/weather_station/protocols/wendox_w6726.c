@@ -5,7 +5,7 @@
 /*
  * Wendox W6726
  *   
- *  Temperature -50°Ñ to +70°Ñ
+ *  Temperature -50C to +70C
  *    _     _     _          __   _
  *  _| |___| |___| |___ ... |  |_| |__...._______________
  *    preamble                data           guard time
@@ -22,7 +22,7 @@
  * 
  *  I: identification;
  *  Z: temperature sign;
- *  T: temperature sign dependent +12 Ñ°;
+ *  T: temperature sign dependent +12C;
  *  B: battery low; flag to indicate low battery voltage;
  *  C: CRC4 (polynomial = 0x9, start_data = 0xD);
  *  u: unknown; 

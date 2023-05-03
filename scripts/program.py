@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-import typing
-import subprocess
 import logging
-import time
 import os
 import socket
-
+import subprocess
+import time
+import typing
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+
 from flipper.app import App
 
 
@@ -223,7 +223,7 @@ class BlackmagicProgrammer(Programmer):
         try:
             socket.inet_aton(address)
             return True
-        except:
+        except Exception:
             return False
 
     def set_serial(self, serial: str):
@@ -415,12 +415,12 @@ class Main(App):
             if len(interfaces) == 0:
                 interfaces = [p for p in network_programmers if p.get_name() == i_name]
         else:
-            self.logger.info(f"Probing for interfaces...")
+            self.logger.info("Probing for interfaces...")
             interfaces = self._search_interface(self.args.serial)
 
             if len(interfaces) == 0:
                 # Probe network blackmagic
-                self.logger.info(f"Probing for network interfaces...")
+                self.logger.info("Probing for network interfaces...")
                 interfaces = self._search_network_interface(self.args.serial)
 
             if len(interfaces) == 0:

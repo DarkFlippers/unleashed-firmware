@@ -1,13 +1,11 @@
 import multiprocessing
 import logging
 import os
-import sys
-import shutil
 from collections import Counter
 
-from flipper.utils.fff import *
-from flipper.utils.templite import *
-from .icon import *
+from flipper.utils.fff import FlipperFormatFile
+from flipper.utils.templite import Templite
+from .icon import ImageTools, file2image
 
 
 def _convert_image_to_bm(pair: set):
@@ -121,7 +119,7 @@ class DolphinBubbleAnimation:
                 self.meta["Passive frames"] + self.meta["Active frames"]
                 == ordered_frames_count
             )
-        except EOFError as e:
+        except EOFError:
             raise Exception("Invalid meta file: too short")
         except AssertionError as e:
             self.logger.exception(e)
@@ -158,7 +156,7 @@ class DolphinBubbleAnimation:
             except AssertionError as e:
                 self.logger.exception(e)
                 self.logger.error(
-                    f"Animation {self.name} bubble slot {bubble_slot} got incorrect data: {bubble}"
+                    f"Animation {self.name} bubble slot {bubble['Slot']} got incorrect data: {bubble}"
                 )
                 raise Exception("Meta file is invalid: incorrect bubble data")
             except EOFError:

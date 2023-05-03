@@ -56,6 +56,16 @@ fbtenv_restore_env()
         unset SSL_CERT_FILE;
         unset REQUESTS_CA_BUNDLE;
     fi
+
+    if [ "$SYS_TYPE" = "Linux" ]; then
+        if [ -n "$SAVED_TERMINFO_DIRS" ]; then
+            export TERMINFO_DIRS="$SAVED_TERMINFO_DIRS";
+        else
+            unset TERMINFO_DIRS;
+        fi
+        unset SAVED_TERMINFO_DIRS;
+    fi
+
     export PYTHONNOUSERSITE="$SAVED_PYTHONNOUSERSITE";
     export PYTHONPATH="$SAVED_PYTHONPATH";
     export PYTHONHOME="$SAVED_PYTHONHOME";
@@ -335,6 +345,11 @@ fbtenv_main()
     export PYTHONNOUSERSITE=1;
     export PYTHONPATH=;
     export PYTHONHOME=;
+
+    if [ "$SYS_TYPE" = "Linux" ]; then
+        export SAVED_TERMINFO_DIRS="${TERMINFO_DIRS:-""}";
+        export TERMINFO_DIRS="$TOOLCHAIN_ARCH_DIR/ncurses/share/terminfo";
+    fi
 }
 
 fbtenv_main "${1:-""}";

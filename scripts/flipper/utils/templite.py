@@ -77,8 +77,8 @@ class TempliteCompiler:
             return
 
         lines = self.block.splitlines()
-        margin = min(len(l) - len(l.lstrip()) for l in lines if l.strip())
-        self.block = "\n".join("\t" * self.offset + l[margin:] for l in lines)
+        margin = min(len(line) - len(line.lstrip()) for line in lines if line.strip())
+        self.block = "\n".join("\t" * self.offset + line[margin:] for line in lines)
         self.blocks.append(self.block)
         if self.block.endswith(":"):
             self.offset += 1

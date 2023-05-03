@@ -1,10 +1,10 @@
-from SCons.Builder import Builder
-from SCons.Action import Action
-from SCons.Errors import StopError
-
 import os
 import subprocess
+
 from ansi.color import fg
+from SCons.Action import Action
+from SCons.Builder import Builder
+from SCons.Errors import StopError
 
 
 def icons_emitter(target, source, env):
@@ -76,11 +76,11 @@ def proto_ver_generator(target, source, env):
     target_file = target[0]
     src_dir = source[0].dir.abspath
     try:
-        git_fetch = _invoke_git(
+        _invoke_git(
             ["fetch", "--tags"],
             source_dir=src_dir,
         )
-    except (subprocess.CalledProcessError, EnvironmentError) as e:
+    except (subprocess.CalledProcessError, EnvironmentError):
         # Not great, not terrible
         print(fg.boldred("Git: fetch failed"))
 
@@ -89,7 +89,7 @@ def proto_ver_generator(target, source, env):
             ["describe", "--tags", "--abbrev=0"],
             source_dir=src_dir,
         )
-    except (subprocess.CalledProcessError, EnvironmentError) as e:
+    except (subprocess.CalledProcessError, EnvironmentError):
         raise StopError("Git: describe failed")
 
     git_major, git_minor = git_describe.split(".")

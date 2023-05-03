@@ -4,9 +4,6 @@ env.Append(
     CPPPATH=[
         "#/lib/libusb_stm32/inc",
     ],
-    CPPDEFINES=[
-        ("USB_PMASIZE", "0x400"),
-    ],
     SDK_HEADERS=env.GlobRecursive(
         "*.h",
         Dir("libusb_stm32/inc"),
@@ -16,6 +13,11 @@ env.Append(
 
 libenv = env.Clone(FW_LIB_NAME="usb_stm32")
 libenv.ApplyLibFlags()
+libenv.Append(
+    CPPDEFINES=[
+        ("USB_PMASIZE", "0x400"),
+    ],
+)
 
 
 sources = [

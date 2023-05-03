@@ -1,9 +1,6 @@
 import logging
-import argparse
 import subprocess
 import io
-import os
-import sys
 
 ICONS_SUPPORTED_FORMATS = ["png"]
 
@@ -36,11 +33,8 @@ class ImageTools:
     @staticmethod
     def is_processing_slow():
         try:
-            from PIL import Image, ImageOps
-            import heatshrink2
-
             return False
-        except ImportError as e:
+        except ImportError:
             return True
 
     def __init__(self):
@@ -52,7 +46,7 @@ class ImageTools:
 
         try:
             from PIL import Image, ImageOps
-        except ImportError as e:
+        except ImportError:
             self.__pil_unavailable = True
             self.logger.info("pillow module is missing, using convert cli util")
             return self.png2xbm(file)
@@ -72,7 +66,7 @@ class ImageTools:
 
         try:
             import heatshrink2
-        except ImportError as e:
+        except ImportError:
             self.__hs2_unavailable = True
             self.logger.info("heatshrink2 module is missing, using heatshrink cli util")
             return self.xbm2hs(data)

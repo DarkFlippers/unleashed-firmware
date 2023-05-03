@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 import posixpath
 import os
 
-from flipper.utils import *
+from flipper.utils import file_sha256, timestamp
 from flipper.assets.coprobin import CoproBinary, get_stack_type
 
 
@@ -45,13 +45,13 @@ class Copro:
         cube_manifest = ET.parse(cube_manifest_file)
         cube_package = cube_manifest.find("PackDescription")
         if not cube_package:
-            raise Exception(f"Unknown Cube manifest format")
+            raise Exception("Unknown Cube manifest format")
         cube_version = cube_package.get("Patch") or cube_package.get("Release")
         if not cube_version or not cube_version.startswith("FW.WB"):
-            raise Exception(f"Incorrect Cube package or version info")
+            raise Exception("Incorrect Cube package or version info")
         cube_version = cube_version.replace("FW.WB.", "", 1)
         if cube_version != reference_cube_version:
-            raise Exception(f"Unsupported cube version")
+            raise Exception("Unsupported cube version")
         self.version = cube_version
 
     def _getFileName(self, name):

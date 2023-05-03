@@ -7,6 +7,7 @@ env.Append(
     SDK_HEADERS=[
         File("flipper_format.h"),
         File("flipper_format_i.h"),
+        File("flipper_format_stream.h"),
     ],
 )
 

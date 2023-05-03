@@ -1,14 +1,12 @@
+import os
+import sys
+import traceback
+
 import SCons.Warnings as Warnings
+from ansi.color import fg
 from SCons.Errors import UserError
 
-
 # from SCons.Script.Main import find_deepest_user_frame
-
-from ansi.color import fg, bg, fx
-
-import traceback
-import sys
-import os
 
 
 def find_deepest_user_frame(tb):

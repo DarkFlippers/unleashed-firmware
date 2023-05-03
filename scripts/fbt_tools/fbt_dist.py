@@ -1,6 +1,5 @@
-from SCons.Builder import Builder
 from SCons.Action import Action
-from SCons.Script import Mkdir
+from SCons.Builder import Builder
 from SCons.Defaults import Touch
 
 
