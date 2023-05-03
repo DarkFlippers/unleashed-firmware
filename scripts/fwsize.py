@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from flipper.app import App
-import subprocess
-import os
 import math
+import os
+import subprocess
+
 from ansi.color import fg
+from flipper.app import App
 
 
 class Main(App):

@@ -1,20 +1,19 @@
+import json
+import os.path
+import pathlib
+import posixpath
 import shutil
-from SCons.Builder import Builder
+
+from fbt.sdk.cache import SdkCache
+from fbt.sdk.collector import SdkCollector
+from fbt.util import path_as_posix
 from SCons.Action import Action
+from SCons.Builder import Builder
 from SCons.Errors import UserError
 
 # from SCons.Scanner import C
 from SCons.Script import Entry
 from SCons.Util import LogicalLines
-
-import os.path
-import posixpath
-import pathlib
-import json
-
-from fbt.sdk.collector import SdkCollector
-from fbt.sdk.cache import SdkCache
-from fbt.util import path_as_posix
 
 
 def ProcessSdkDepends(env, filename):

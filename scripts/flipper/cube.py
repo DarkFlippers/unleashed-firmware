@@ -14,7 +14,7 @@ class CubeProgrammer:
         if "port" in config and config["port"]:
             connect.append(f"port={config['port']}")
         else:
-            connect.append(f"port=swd")
+            connect.append("port=swd")
         if "serial" in config and config["serial"]:
             connect.append(f"sn={config['serial']}")
         self.params.append("-c " + " ".join(connect))
@@ -43,20 +43,20 @@ class CubeProgrammer:
         return output.decode()
 
     def getVersion(self):
-        output = self._execute(["--version"])
+        self._execute(["--version"])
 
     def checkOptionBytes(self, option_bytes):
         output = self._execute(["-ob displ"])
         ob_correct = True
         for line in output.split("\n"):
             line = line.strip()
-            if not ":" in line:
+            if ":" not in line:
                 self.logger.debug(f"Skipping line: {line}")
                 continue
             key, data = line.split(":", 1)
             key = key.strip()
             data = data.strip()
-            if not key in option_bytes.keys():
+            if key not in option_bytes.keys():
                 self.logger.debug(f"Skipping key: {key}")
                 continue
             self.logger.debug(f"Processing key: {key} {data}")

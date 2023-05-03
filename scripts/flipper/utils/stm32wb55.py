@@ -123,7 +123,7 @@ class STM32WB55:
     def clear_flash_errors(self, oocd: OpenOCD):
         # Errata 2.2.9: Flash OPTVERR flag is always set after system reset
         # And also clear all other flash error flags
-        self.logger.debug(f"Resetting flash errors")
+        self.logger.debug("Resetting flash errors")
         self.FLASH_SR.load(oocd)
         self.FLASH_SR.OP_ERR = 1
         self.FLASH_SR.PROG_ERR = 1
@@ -218,7 +218,7 @@ class STM32WB55:
             raise Exception("Flash lock failed")
 
     def option_bytes_apply(self, oocd: OpenOCD):
-        self.logger.debug(f"Applying Option Bytes")
+        self.logger.debug("Applying Option Bytes")
 
         self.FLASH_CR.load(oocd)
         self.FLASH_CR.OPT_STRT = 1
@@ -228,7 +228,7 @@ class STM32WB55:
         self.flash_wait_for_operation(oocd)
 
     def option_bytes_load(self, oocd: OpenOCD):
-        self.logger.debug(f"Loading Option Bytes")
+        self.logger.debug("Loading Option Bytes")
         self.FLASH_CR.load(oocd)
         self.FLASH_CR.OBL_LAUNCH = 1
         self.FLASH_CR.store(oocd)

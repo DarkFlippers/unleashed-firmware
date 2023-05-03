@@ -1,7 +1,7 @@
-Import("env")
-
 from fbt.version import get_fast_git_version_id
 
+
+Import("env")
 
 env.Append(
     CPPPATH=[

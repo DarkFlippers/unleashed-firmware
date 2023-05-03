@@ -193,12 +193,14 @@ jobs:
           TARGET="$(echo '${{ matrix.target }}' | sed 's/f//')"; \
           ./fbt TARGET_HW=$TARGET DEBUG=0 COMPACT=1 fap_dist updater_package
           echo "sdk-file=$(ls dist/${{ matrix.target }}-*/flipper-z-${{ matrix.target }}-sdk-*.zip)" >> $GITHUB_OUTPUT
+          echo "hw-target-code=$TARGET" >> $GITHUB_OUTPUT
 
       - name: Deploy uFBT with SDK
         uses: flipperdevices/flipperzero-ufbt-action@v0.1.0
         with:
           task: setup
           sdk-file: ${{ steps.build-fw.outputs.sdk-file }}
+          sdk-hw-target: ${{ steps.build-fw.outputs.hw-target-code }}
 
       - name: Build test app with SDK
         run: |
