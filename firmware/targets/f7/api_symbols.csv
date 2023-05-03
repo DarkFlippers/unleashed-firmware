@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,23.0,,
+Version,+,23.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1148,6 +1148,7 @@ Function,+,furi_hal_ibutton_pin_configure,void,
 Function,+,furi_hal_ibutton_pin_reset,void,
 Function,+,furi_hal_ibutton_pin_write,void,const _Bool
 Function,+,furi_hal_info_get,void,"PropertyValueCallback, char, void*"
+Function,+,furi_hal_info_get_api_version,void,"uint16_t*, uint16_t*"
 Function,+,furi_hal_infrared_async_rx_set_capture_isr_callback,void,"FuriHalInfraredRxCaptureCallback, void*"
 Function,+,furi_hal_infrared_async_rx_set_timeout,void,uint32_t
 Function,+,furi_hal_infrared_async_rx_set_timeout_isr_callback,void,"FuriHalInfraredRxTimeoutCallback, void*"
