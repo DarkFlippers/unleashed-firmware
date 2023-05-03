@@ -95,7 +95,7 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
 
     bool consumed = false;
 
-    if(event->key == InputKeyOk) {
+    if(event->type == InputTypeShort && event->key == InputKeyOk) {
         with_view_model(
             hid_mouse_jiggler->view,
             HidMouseJigglerModel * model,
