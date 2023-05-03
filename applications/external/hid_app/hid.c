@@ -129,7 +129,7 @@ Hid* hid_alloc(HidTransport transport) {
     submenu_add_item(
         app->device_type_submenu, "Keyboard", HidSubmenuIndexKeyboard, hid_submenu_callback, app);
     submenu_add_item(
-        app->device_type_submenu, "Numpad keyboard", HidSubmenuIndexNumpad, hid_submenu_callback, app);
+        app->device_type_submenu, "Numpad", HidSubmenuIndexNumpad, hid_submenu_callback, app);
     submenu_add_item(
         app->device_type_submenu, "Media", HidSubmenuIndexMedia, hid_submenu_callback, app);
     submenu_add_item(
