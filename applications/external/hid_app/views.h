@@ -3,6 +3,7 @@ typedef enum {
     HidViewKeynote,
     HidViewKeynoteVertical,
     HidViewKeyboard,
+    HidViewNumpad,
     HidViewMedia,
     HidViewMouse,
     HidViewMouseClicker,
