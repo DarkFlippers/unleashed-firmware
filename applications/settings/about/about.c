@@ -127,13 +127,12 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
 
     furi_string_cat_printf(
         buffer,
-        "%d.F%dB%dC%d %s:%s %s\n",
+        "%d.F%dB%dC%d %s %s\n",
         furi_hal_version_get_hw_version(),
         furi_hal_version_get_hw_target(),
         furi_hal_version_get_hw_body(),
         furi_hal_version_get_hw_connect(),
         furi_hal_version_get_hw_region_name_otp(),
-        furi_hal_region_get_name(),
         my_name ? my_name : "Unknown");
 
     furi_string_cat_printf(buffer, "Serial Number:\n");
