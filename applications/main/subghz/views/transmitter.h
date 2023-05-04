@@ -23,4 +23,4 @@ void subghz_view_transmitter_add_data_to_show(
     const char* key_str,
     const char* frequency_str,
     const char* preset_str,
-    uint8_t show_button);
+    bool show_button);
