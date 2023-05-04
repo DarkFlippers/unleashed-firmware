@@ -14,7 +14,7 @@ typedef struct {
     FuriString* frequency_str;
     FuriString* preset_str;
     FuriString* key_str;
-    uint8_t show_button;
+    bool show_button;
 } SubGhzViewTransmitterModel;
 
 void subghz_view_transmitter_set_callback(
@@ -32,7 +32,7 @@ void subghz_view_transmitter_add_data_to_show(
     const char* key_str,
     const char* frequency_str,
     const char* preset_str,
-    uint8_t show_button) {
+    bool show_button) {
     furi_assert(subghz_transmitter);
     with_view_model(
         subghz_transmitter->view,
@@ -104,7 +104,7 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
                 furi_string_reset(model->frequency_str);
                 furi_string_reset(model->preset_str);
                 furi_string_reset(model->key_str);
-                model->show_button = 0;
+                model->show_button = false;
             },
             false);
         return false;

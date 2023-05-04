@@ -12,7 +12,7 @@
 #define MENU_ITEMS 4u
 #define UNLOCK_CNT 3
 
-#define SUBGHZ_RAW_TRESHOLD_MIN -90.0f
+#define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
 
 typedef struct {
     FuriString* item_str;
@@ -44,7 +44,7 @@ typedef enum {
 } SubGhzViewReceiverBarShow;
 
 struct SubGhzViewReceiver {
-    SubGhzLock lock;
+    bool lock;
     uint8_t lock_count;
     FuriTimer* timer;
     View* view;
@@ -70,20 +70,21 @@ void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi) {
         instance->view,
         SubGhzViewReceiverModel * model,
         {
-            if(rssi < SUBGHZ_RAW_TRESHOLD_MIN) {
+            if(rssi < SUBGHZ_RAW_THRESHOLD_MIN) {
                 model->u_rssi = 0;
             } else {
-                model->u_rssi = (uint8_t)(rssi - SUBGHZ_RAW_TRESHOLD_MIN);
+                model->u_rssi = (uint8_t)(rssi - SUBGHZ_RAW_THRESHOLD_MIN);
             }
         },
         true);
 }
 
-void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock lock) {
+void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, bool lock) {
     furi_assert(subghz_receiver);
     subghz_receiver->lock_count = 0;
-    if(lock == SubGhzLockOn) {
-        subghz_receiver->lock = lock;
+
+    if(lock == true) {
+        subghz_receiver->lock = true;
         with_view_model(
             subghz_receiver->view,
             SubGhzViewReceiverModel * model,
@@ -280,7 +281,7 @@ static void subghz_view_receiver_timer_callback(void* context) {
         subghz_receiver->callback(
             SubGhzCustomEventViewReceiverOffDisplay, subghz_receiver->context);
     } else {
-        subghz_receiver->lock = SubGhzLockOff;
+        subghz_receiver->lock = false;
         subghz_receiver->callback(SubGhzCustomEventViewReceiverUnlock, subghz_receiver->context);
     }
     subghz_receiver->lock_count = 0;
@@ -290,7 +291,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubGhzViewReceiver* subghz_receiver = context;
 
-    if(subghz_receiver->lock == SubGhzLockOn) {
+    if(subghz_receiver->lock == true) {
         with_view_model(
             subghz_receiver->view,
             SubGhzViewReceiverModel * model,
@@ -310,7 +311,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 SubGhzViewReceiverModel * model,
                 { model->bar_show = SubGhzViewReceiverBarShowUnlock; },
                 true);
-            //subghz_receiver->lock = SubGhzLockOff;
+            //subghz_receiver->lock = false;
             furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(650));
         }
 
@@ -394,7 +395,7 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
     // View allocation and configuration
     subghz_receiver->view = view_alloc();
 
-    subghz_receiver->lock = SubGhzLockOff;
+    subghz_receiver->lock = false;
     subghz_receiver->lock_count = 0;
     view_allocate_model(
         subghz_receiver->view, ViewModelTypeLocking, sizeof(SubGhzViewReceiverModel));

@@ -261,7 +261,7 @@ SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc(void* cont
     instance->thread = furi_thread_alloc_ex(
         "SubGhzFAWorker", 2048, subghz_frequency_analyzer_worker_thread, instance);
     SubGhz* subghz = context;
-    instance->setting = subghz->setting;
+    instance->setting = subghz_txrx_get_setting(subghz->txrx);
     return instance;
 }
 

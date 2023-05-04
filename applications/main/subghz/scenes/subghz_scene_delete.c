@@ -19,7 +19,7 @@ void subghz_scene_delete_on_enter(void* context) {
     modulation_str = furi_string_alloc();
     text = furi_string_alloc();
 
-    subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+    subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str);
     widget_add_string_element(
         subghz->widget,
         78,
@@ -37,7 +37,7 @@ void subghz_scene_delete_on_enter(void* context) {
         AlignTop,
         FontSecondary,
         furi_string_get_cstr(modulation_str));
-    subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, text);
+    subghz_protocol_decoder_base_get_string(subghz_txrx_get_decoder(subghz->txrx), text);
     widget_add_string_multiline_element(
         subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(text));
 
