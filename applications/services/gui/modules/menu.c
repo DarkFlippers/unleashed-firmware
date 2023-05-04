@@ -154,6 +154,8 @@ Menu* menu_alloc() {
 void menu_free(Menu* menu) {
     furi_assert(menu);
     menu_reset(menu);
+    with_view_model(
+        menu->view, MenuModel * model, { MenuItemArray_clear(model->items); }, false);
     view_free(menu->view);
     free(menu);
 }
