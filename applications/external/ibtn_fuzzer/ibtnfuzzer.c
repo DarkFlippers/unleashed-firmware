@@ -120,9 +120,6 @@ void ibtnfuzzer_free(iBtnFuzzerState* ibtnfuzzer) {
         furi_string_free(ibtnfuzzer->main_menu_proto_items[i]);
     }
 
-    free(ibtnfuzzer->data);
-    free(ibtnfuzzer->payload);
-
     // The rest
     free(ibtnfuzzer);
 }

@@ -118,9 +118,6 @@ void flipfrid_free(FlipFridState* flipfrid) {
         furi_string_free(flipfrid->main_menu_proto_items[i]);
     }
 
-    free(flipfrid->data);
-    free(flipfrid->payload);
-
     // The rest
     free(flipfrid);
 }
