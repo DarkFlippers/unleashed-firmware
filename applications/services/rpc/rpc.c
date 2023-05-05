@@ -326,31 +326,35 @@ static int32_t rpc_session_worker(void* context) {
     return 0;
 }
 
-static void rpc_session_free_callback(FuriThreadState thread_state, void* context) {
-    furi_assert(context);
-
+static void rpc_session_thread_pending_callback(void* context, uint32_t arg) {
+    UNUSED(arg);
     RpcSession* session = (RpcSession*)context;
 
+    for(size_t i = 0; i < COUNT_OF(rpc_systems); ++i) {
+        if(rpc_systems[i].free) {
+            (rpc_systems[i].free)(session->system_contexts[i]);
+        }
+    }
+    free(session->system_contexts);
+    free(session->decoded_message);
+    RpcHandlerDict_clear(session->handlers);
+    furi_stream_buffer_free(session->stream);
+
+    furi_mutex_acquire(session->callbacks_mutex, FuriWaitForever);
+    if(session->terminated_callback) {
+        session->terminated_callback(session->context);
+    }
+    furi_mutex_release(session->callbacks_mutex);
+
+    furi_mutex_free(session->callbacks_mutex);
+    furi_thread_join(session->thread);
+    furi_thread_free(session->thread);
+    free(session);
+}
+
+static void rpc_session_thread_state_callback(FuriThreadState thread_state, void* context) {
     if(thread_state == FuriThreadStateStopped) {
-        for(size_t i = 0; i < COUNT_OF(rpc_systems); ++i) {
-            if(rpc_systems[i].free) {
-                rpc_systems[i].free(session->system_contexts[i]);
-            }
-        }
-        free(session->system_contexts);
-        free(session->decoded_message);
-        RpcHandlerDict_clear(session->handlers);
-        furi_stream_buffer_free(session->stream);
-
-        furi_mutex_acquire(session->callbacks_mutex, FuriWaitForever);
-        if(session->terminated_callback) {
-            session->terminated_callback(session->context);
-        }
-        furi_mutex_release(session->callbacks_mutex);
-
-        furi_mutex_free(session->callbacks_mutex);
-        furi_thread_free(session->thread);
-        free(session);
+        furi_timer_pending_callback(rpc_session_thread_pending_callback, context, 0);
     }
 }
 
@@ -385,7 +389,7 @@ RpcSession* rpc_session_open(Rpc* rpc, RpcOwner owner) {
     session->thread = furi_thread_alloc_ex("RpcSessionWorker", 3072, rpc_session_worker, session);
 
     furi_thread_set_state_context(session->thread, session);
-    furi_thread_set_state_callback(session->thread, rpc_session_free_callback);
+    furi_thread_set_state_callback(session->thread, rpc_session_thread_state_callback);
 
     furi_thread_start(session->thread);
 

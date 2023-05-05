@@ -85,22 +85,10 @@ static void updater_cli_ep(Cli* cli, FuriString* args, void* context) {
     updater_cli_help(args);
 }
 
-static int32_t updater_spawner_thread_worker(void* arg) {
+static void updater_start_app(void* context, uint32_t arg) {
+    UNUSED(context);
     UNUSED(arg);
-    Loader* loader = furi_record_open(RECORD_LOADER);
-    loader_start(loader, "UpdaterApp", NULL);
-    furi_record_close(RECORD_LOADER);
-    return 0;
-}
 
-static void updater_spawner_thread_cleanup(FuriThreadState state, void* context) {
-    FuriThread* thread = context;
-    if(state == FuriThreadStateStopped) {
-        furi_thread_free(thread);
-    }
-}
-
-static void updater_start_app() {
     FuriHalRtcBootMode mode = furi_hal_rtc_get_boot_mode();
     if((mode != FuriHalRtcBootModePreUpdate) && (mode != FuriHalRtcBootModePostUpdate)) {
         return;
@@ -110,11 +98,9 @@ static void updater_start_app() {
      * inside loader process, at startup. 
      * So, accessing its record would cause a deadlock 
      */
-    FuriThread* thread =
-        furi_thread_alloc_ex("UpdateAppSpawner", 768, updater_spawner_thread_worker, NULL);
-    furi_thread_set_state_callback(thread, updater_spawner_thread_cleanup);
-    furi_thread_set_state_context(thread, thread);
-    furi_thread_start(thread);
+    Loader* loader = furi_record_open(RECORD_LOADER);
+    loader_start(loader, "UpdaterApp", NULL);
+    furi_record_close(RECORD_LOADER);
 }
 
 void updater_on_system_start() {
@@ -126,7 +112,7 @@ void updater_on_system_start() {
     UNUSED(updater_cli_ep);
 #endif
 #ifndef FURI_RAM_EXEC
-    updater_start_app();
+    furi_timer_pending_callback(updater_start_app, NULL, 0);
 #else
     UNUSED(updater_start_app);
 #endif
