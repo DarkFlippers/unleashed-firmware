@@ -51,10 +51,8 @@ void subghz_scene_save_name_on_enter(void* context) {
     TextInput* text_input = subghz->text_input;
     bool dev_name_empty = false;
 
-    FuriString* file_name;
-    FuriString* dir_name;
-    file_name = furi_string_alloc();
-    dir_name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
+    FuriString* dir_name = furi_string_alloc();
 
     if(!subghz_path_is_file(subghz->file_path)) {
         char file_name_buf[SUBGHZ_MAX_LEN_NAME] = {0};
@@ -109,7 +107,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         subghz_scene_save_name_text_input_callback,
         subghz,
         subghz->file_name_tmp,
-        MAX_TEXT_INPUT_LEN, // buffer size
+        MAX_TEXT_INPUT_LEN,
         dev_name_empty);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(

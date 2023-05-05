@@ -239,8 +239,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     }
 
     bool scrollbar = model->history_item > 4;
-    FuriString* str_buff;
-    str_buff = furi_string_alloc();
+    FuriString* str_buff = furi_string_alloc();
 
     SubGhzReceiverMenuItem* item_menu;
 

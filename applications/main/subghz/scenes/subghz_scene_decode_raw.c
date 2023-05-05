@@ -24,14 +24,10 @@
 
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
-    FuriString* history_stat_str;
-    history_stat_str = furi_string_alloc();
+    FuriString* history_stat_str = furi_string_alloc();
     if(!subghz_history_get_text_space_left(subghz->txrx->history, history_stat_str)) {
-        FuriString* frequency_str;
-        FuriString* modulation_str;
-
-        frequency_str = furi_string_alloc();
-        modulation_str = furi_string_alloc();
+        FuriString* frequency_str = furi_string_alloc();
+        FuriString* modulation_str = furi_string_alloc();
 
         subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
 
@@ -62,11 +58,9 @@ static void subghz_scene_add_to_history_callback(
     void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    FuriString* item_name;
-    FuriString* item_time;
+    FuriString* item_name = furi_string_alloc();
+    FuriString* item_time = furi_string_alloc();
     uint16_t idx = subghz_history_get_item(subghz->txrx->history);
-    item_name = furi_string_alloc();
-    item_time = furi_string_alloc();
 
     if(subghz_history_add_to_history(subghz->txrx->history, decoder_base, subghz->txrx->preset)) {
         furi_string_reset(item_name);
@@ -90,8 +84,7 @@ static void subghz_scene_add_to_history_callback(
 }
 
 bool subghz_scene_decode_raw_start(SubGhz* subghz) {
-    FuriString* file_name;
-    file_name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
     bool success = false;
     do {
         if(!flipper_format_rewind(subghz->txrx->fff_data)) {
@@ -148,8 +141,7 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
     }
 
     // Update progress info
-    FuriString* progress_str;
-    progress_str = furi_string_alloc();
+    FuriString* progress_str = furi_string_alloc();
     subghz_file_encoder_worker_get_text_progress(
         subghz->decode_raw_file_worker_encoder, progress_str);
 
@@ -164,10 +156,8 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
 void subghz_scene_decode_raw_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    FuriString* item_name;
-    FuriString* item_time;
-    item_name = furi_string_alloc();
-    item_time = furi_string_alloc();
+    FuriString* item_name = furi_string_alloc();
+    FuriString* item_time = furi_string_alloc();
 
     subghz_view_receiver_set_lock(subghz->subghz_receiver, subghz->lock);
     subghz_view_receiver_set_mode(subghz->subghz_receiver, SubGhzViewReceiverModeFile);

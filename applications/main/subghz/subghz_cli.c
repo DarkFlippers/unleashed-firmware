@@ -215,8 +215,7 @@ static void subghz_cli_command_rx_callback(
     SubGhzCliCommandRx* instance = context;
     instance->packet_count++;
 
-    FuriString* text;
-    text = furi_string_alloc();
+    FuriString* text = furi_string_alloc();
     subghz_protocol_decoder_base_get_string(decoder_base, text);
     subghz_receiver_reset(receiver);
     printf("%s", furi_string_get_cstr(text));
@@ -384,14 +383,12 @@ void subghz_cli_command_rx_raw(Cli* cli, FuriString* args, void* context) {
 }
 void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    FuriString* file_name;
-    file_name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
     furi_string_set(file_name, ANY_PATH("subghz/test.sub"));
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-    FuriString* temp_str;
-    temp_str = furi_string_alloc();
+    FuriString* temp_str = furi_string_alloc();
     uint32_t temp_data32;
     bool check_file = false;
 
@@ -526,10 +523,8 @@ static void subghz_cli_command_encrypt_keeloq(Cli* cli, FuriString* args) {
     UNUSED(cli);
     uint8_t iv[16];
 
-    FuriString* source;
-    FuriString* destination;
-    source = furi_string_alloc();
-    destination = furi_string_alloc();
+    FuriString* source = furi_string_alloc();
+    FuriString* destination = furi_string_alloc();
 
     SubGhzKeystore* keystore = subghz_keystore_alloc();
 
@@ -569,10 +564,8 @@ static void subghz_cli_command_encrypt_raw(Cli* cli, FuriString* args) {
     UNUSED(cli);
     uint8_t iv[16];
 
-    FuriString* source;
-    FuriString* destination;
-    source = furi_string_alloc();
-    destination = furi_string_alloc();
+    FuriString* source = furi_string_alloc();
+    FuriString* destination = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, source)) {
@@ -645,14 +638,10 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 
     size_t message_max_len = 64;
     uint8_t message[64] = {0};
-    FuriString* input;
-    input = furi_string_alloc();
-    FuriString* name;
-    name = furi_string_alloc();
-    FuriString* output;
-    output = furi_string_alloc();
-    FuriString* sysmsg;
-    sysmsg = furi_string_alloc();
+    FuriString* input = furi_string_alloc();
+    FuriString* name = furi_string_alloc();
+    FuriString* output = furi_string_alloc();
+    FuriString* sysmsg = furi_string_alloc();
     bool exit = false;
     SubGhzChatEvent chat_event;
 
@@ -785,8 +774,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 }
 
 static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
-    FuriString* cmd;
-    cmd = furi_string_alloc();
+    FuriString* cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {

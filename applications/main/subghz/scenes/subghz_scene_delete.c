@@ -11,13 +11,9 @@ void subghz_scene_delete_callback(GuiButtonType result, InputType type, void* co
 
 void subghz_scene_delete_on_enter(void* context) {
     SubGhz* subghz = context;
-    FuriString* frequency_str;
-    FuriString* modulation_str;
-    FuriString* text;
-
-    frequency_str = furi_string_alloc();
-    modulation_str = furi_string_alloc();
-    text = furi_string_alloc();
+    FuriString* frequency_str = furi_string_alloc();
+    FuriString* modulation_str = furi_string_alloc();
+    FuriString* text = furi_string_alloc();
 
     subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
     widget_add_string_element(
