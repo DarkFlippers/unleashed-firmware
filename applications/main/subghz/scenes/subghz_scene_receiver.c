@@ -283,10 +283,11 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         }
 
         //get RSSI
-        float rssi = furi_hal_subghz_get_rssi();
-        subghz_receiver_rssi(subghz->subghz_receiver, rssi);
+        SubGhzThresholdRssiData ret_rssi = subghz_threshold_get_rssi_data(subghz->threshold_rssi);
+
+        subghz_receiver_rssi(subghz->subghz_receiver, ret_rssi.rssi);
         subghz_protocol_decoder_bin_raw_data_input_rssi(
-            (SubGhzProtocolDecoderBinRAW*)subghz->txrx->decoder_result, rssi);
+            (SubGhzProtocolDecoderBinRAW*)subghz->txrx->decoder_result, ret_rssi.rssi);
 
         switch(subghz->state_notifications) {
         case SubGhzNotificationStateRx:

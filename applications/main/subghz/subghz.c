@@ -255,6 +255,10 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 #endif
         subghz_setting_set_default_frequency(subghz->setting, subghz->last_settings->frequency);
     }
+
+    //init threshold rssi
+    subghz->threshold_rssi = subghz_threshold_rssi_alloc();
+
     //init Worker & Protocol & History & KeyBoard
     subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
@@ -275,7 +279,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();
     }
 
-    subghz->txrx->raw_threshold_rssi = SUBGHZ_RAW_THRESHOLD_MIN;
     subghz->txrx->worker = subghz_worker_alloc();
 
     subghz->txrx->fff_data = flipper_format_string_alloc();
@@ -386,11 +389,15 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     furi_record_close(RECORD_GUI);
     subghz->gui = NULL;
 
-    //setting
+    // setting
     subghz_setting_free(subghz->setting);
     if(!alloc_for_tx_only) {
         subghz_last_settings_free(subghz->last_settings);
     }
+
+    // threshold rssi
+    subghz_threshold_rssi_free(subghz->threshold_rssi);
+
     //Worker & Protocol & History
 
     subghz_receiver_free(subghz->txrx->receiver);
