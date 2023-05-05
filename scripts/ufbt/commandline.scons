@@ -1,32 +1,18 @@
 AddOption(
+    "--extra-define",
+    action="append",
+    dest="extra_defines",
+    default=[],
+    help="Extra global define that will be passed to C/C++ compiler, can be specified multiple times",
+)
+
+AddOption(
     "--proxy-env",
     action="store",
     dest="proxy_env",
     default="",
-    help="Comma-separated list of additional environment variables to pass to child SCons processes",
-)
-
-AddOption(
-    "--channel",
-    action="store",
-    dest="sdk_channel",
-    choices=["dev", "rc", "release"],
-    default="",
-    help="Release channel to use for SDK",
-)
-
-AddOption(
-    "--branch",
-    action="store",
-    dest="sdk_branch",
-    help="Custom main repo branch to use for SDK",
-)
-
-AddOption(
-    "--hw-target",
-    action="store",
-    dest="sdk_target",
-    help="SDK Hardware target",
+    help="Comma-separated list of additional environment variables to pass to "
+    "child SCons processes",
 )
 
 vars = Variables("ufbt_options.py", ARGUMENTS)

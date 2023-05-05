@@ -230,11 +230,9 @@ void cli_command_sysctl_debug(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     if(!furi_string_cmp(args, "0")) {
         furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
-        loader_update_menu();
         printf("Debug disabled.");
     } else if(!furi_string_cmp(args, "1")) {
         furi_hal_rtc_set_flag(FuriHalRtcFlagDebug);
-        loader_update_menu();
         printf("Debug enabled.");
     } else {
         cli_print_usage("sysctl debug", "<1|0>", furi_string_get_cstr(args));

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import os
+import posixpath
+
 from flipper.app import App
 from flipper.storage import FlipperStorage, FlipperStorageOperations
 from flipper.utils.cdc import resolve_port
-
-import os
-import posixpath
 
 
 class Main(App):

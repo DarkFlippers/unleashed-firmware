@@ -7,9 +7,6 @@ env.Append(
         "#/lib/FreeRTOS-Kernel/portable/GCC/ARM_CM4F",
         "#/lib/FreeRTOS-glue",
     ],
-    CPPDEFINES=[
-        "HAVE_FREERTOS",
-    ],
 )
 
 

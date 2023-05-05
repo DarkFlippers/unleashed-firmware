@@ -1,5 +1,6 @@
-import posixpath
 import os
+import posixpath
+
 from SCons.Errors import UserError
 
 

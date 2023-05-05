@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
+import datetime
 import logging
-import argparse
-import subprocess
 import os
-import sys
 import re
 import struct
-import datetime
+
+from flipper.app import App
+from flipper.utils.programmer_openocd import OpenOCDProgrammer, OpenOCDProgrammerResult
 
 OTP_MAGIC = 0xBABE
 OTP_VERSION = 0x02
@@ -32,9 +32,6 @@ OTP_DISPLAYS = {
     "erc": 0x01,
     "mgg": 0x02,
 }
-
-from flipper.app import App
-from flipper.utils.programmer_openocd import OpenOCDProgrammer, OpenOCDProgrammerResult
 
 
 class OTPException(Exception):
@@ -158,7 +155,7 @@ class Main(App):
         )
 
     def generate_all(self):
-        self.logger.info(f"Generating OTP")
+        self.logger.info("Generating OTP")
         self._processFirstArgs()
         self._processSecondArgs()
         with open(f"{self.args.file}_first.bin", "wb") as file:
@@ -172,18 +169,18 @@ class Main(App):
         return 0
 
     def flash_first(self):
-        self.logger.info(f"Flashing first block of OTP")
+        self.logger.info("Flashing first block of OTP")
 
         self._processFirstArgs()
 
         filename = f"otp_unknown_first_{self.timestamp}.bin"
 
         try:
-            self.logger.info(f"Packing binary data")
+            self.logger.info("Packing binary data")
             with open(filename, "wb") as file:
                 file.write(self._packFirst())
 
-            self.logger.info(f"Flashing OTP")
+            self.logger.info("Flashing OTP")
 
             openocd = OpenOCDProgrammer(
                 self.args.interface,
@@ -195,7 +192,7 @@ class Main(App):
             if programmer_result != OpenOCDProgrammerResult.Success:
                 raise OTPException("Failed to flash OTP", programmer_result)
 
-            self.logger.info(f"Flashed Successfully")
+            self.logger.info("Flashed Successfully")
         except OTPException as e:
             self.logger.exception(e)
             return e.get_exit_code()
@@ -205,18 +202,18 @@ class Main(App):
         return 0
 
     def flash_second(self):
-        self.logger.info(f"Flashing second block of OTP")
+        self.logger.info("Flashing second block of OTP")
 
         self._processSecondArgs()
 
         filename = f"otp_{self.args.name}_second_{self.timestamp}.bin"
 
         try:
-            self.logger.info(f"Packing binary data")
+            self.logger.info("Packing binary data")
             with open(filename, "wb") as file:
                 file.write(self._packSecond())
 
-            self.logger.info(f"Flashing OTP")
+            self.logger.info("Flashing OTP")
 
             openocd = OpenOCDProgrammer(
                 self.args.interface,
@@ -228,7 +225,7 @@ class Main(App):
             if programmer_result != OpenOCDProgrammerResult.Success:
                 raise OTPException("Failed to flash OTP", programmer_result)
 
-            self.logger.info(f"Flashed Successfully")
+            self.logger.info("Flashed Successfully")
         except OTPException as e:
             self.logger.exception(e)
             return e.get_exit_code()
@@ -238,7 +235,7 @@ class Main(App):
         return 0
 
     def flash_all(self):
-        self.logger.info(f"Flashing OTP")
+        self.logger.info("Flashing OTP")
 
         self._processFirstArgs()
         self._processSecondArgs()
@@ -246,12 +243,12 @@ class Main(App):
         filename = f"otp_{self.args.name}_whole_{self.timestamp}.bin"
 
         try:
-            self.logger.info(f"Packing binary data")
+            self.logger.info("Packing binary data")
             with open(filename, "wb") as file:
                 file.write(self._packFirst())
                 file.write(self._packSecond())
 
-            self.logger.info(f"Flashing OTP")
+            self.logger.info("Flashing OTP")
 
             openocd = OpenOCDProgrammer(
                 self.args.interface,
@@ -263,7 +260,7 @@ class Main(App):
             if programmer_result != OpenOCDProgrammerResult.Success:
                 raise OTPException("Failed to flash OTP", programmer_result)
 
-            self.logger.info(f"Flashed Successfully")
+            self.logger.info("Flashed Successfully")
         except OTPException as e:
             self.logger.exception(e)
             return e.get_exit_code()

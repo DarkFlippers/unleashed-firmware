@@ -1,11 +1,12 @@
-from SCons.Builder import Builder
-from SCons.Action import Action
-from SCons.Script import Delete, Mkdir, GetBuildFailures, Flatten
-import multiprocessing
-import webbrowser
 import atexit
-import sys
+import multiprocessing
 import subprocess
+import sys
+import webbrowser
+
+from SCons.Action import Action
+from SCons.Builder import Builder
+from SCons.Script import Delete, Flatten, GetBuildFailures, Mkdir
 
 __no_browser = False
 

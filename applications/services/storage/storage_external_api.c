@@ -803,6 +803,7 @@ void storage_file_free(File* file) {
 }
 
 FuriPubSub* storage_get_pubsub(Storage* storage) {
+    furi_assert(storage);
     return storage->pubsub;
 }
 

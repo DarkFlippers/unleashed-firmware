@@ -1,5 +1,3 @@
-from re import search
-
 from SCons.Errors import UserError
 
 

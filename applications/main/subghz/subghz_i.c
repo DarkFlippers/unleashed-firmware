@@ -145,8 +145,7 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
     furi_assert(subghz);
 
     bool ret = false;
-    FuriString* temp_str;
-    temp_str = furi_string_alloc();
+    FuriString* temp_str = furi_string_alloc();
     uint32_t repeat = 200;
     do {
         if(!flipper_format_rewind(flipper_format)) {
@@ -254,8 +253,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
     Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
 
     SubGhzLoadKeyState load_key_state = SubGhzLoadKeyStateParseErr;
-    FuriString* temp_str;
-    temp_str = furi_string_alloc();
+    FuriString* temp_str = furi_string_alloc();
     uint32_t temp_data32;
 
     do {
@@ -393,13 +391,9 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
     furi_assert(subghz);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    FuriString* temp_str;
-    FuriString* file_name;
-    FuriString* file_path;
-
-    temp_str = furi_string_alloc();
-    file_name = furi_string_alloc();
-    file_path = furi_string_alloc();
+    FuriString* temp_str = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
+    FuriString* file_path = furi_string_alloc();
 
     bool res = false;
 
@@ -446,8 +440,7 @@ bool subghz_save_protocol_to_file(
     Stream* flipper_format_stream = flipper_format_get_raw_stream(flipper_format);
 
     bool saved = false;
-    FuriString* file_dir;
-    file_dir = furi_string_alloc();
+    FuriString* file_dir = furi_string_alloc();
 
     path_extract_dirname(dev_file_name, file_dir);
     do {
@@ -478,8 +471,7 @@ bool subghz_save_protocol_to_file(
 bool subghz_load_protocol_from_file(SubGhz* subghz) {
     furi_assert(subghz);
 
-    FuriString* file_path;
-    file_path = furi_string_alloc();
+    FuriString* file_path = furi_string_alloc();
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, SUBGHZ_APP_EXTENSION, &I_sub1_10px);

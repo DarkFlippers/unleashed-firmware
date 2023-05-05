@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
+import multiprocessing
 import os
 import re
 import shutil
 import subprocess
-import multiprocessing
 
 from flipper.app import App
-
 
 SOURCE_CODE_FILE_EXTENSIONS = [".h", ".c", ".cpp", ".cxx", ".hpp"]
 SOURCE_CODE_FILE_PATTERN = r"^[0-9A-Za-z_]+\.[a-z]+$"
@@ -59,7 +58,7 @@ class Main(App):
                         show_message = True
         if show_message:
             self.logger.warning(
-                f"Folders are not renamed automatically, please fix it by yourself"
+                "Folders are not renamed automatically, please fix it by yourself"
             )
 
     def _find_sources(self, folders: list):
@@ -70,7 +69,7 @@ class Main(App):
 
                 for filename in filenames:
                     ext = os.path.splitext(filename.lower())[1]
-                    if not ext in SOURCE_CODE_FILE_EXTENSIONS:
+                    if ext not in SOURCE_CODE_FILE_EXTENSIONS:
                         continue
                     output.append(os.path.join(dirpath, filename))
         return output
@@ -80,7 +79,7 @@ class Main(App):
         try:
             subprocess.check_call(task)
             return True
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             return False
 
     def _format_sources(self, sources: list, dry_run: bool = False):
@@ -144,7 +143,7 @@ class Main(App):
 
     def _apply_file_permissions(self, sources: list, dry_run: bool = False):
         execute_permissions = 0o111
-        pattern = re.compile(SOURCE_CODE_FILE_PATTERN)
+        re.compile(SOURCE_CODE_FILE_PATTERN)
         good = []
         bad = []
         # Check sources for unexpected execute permissions

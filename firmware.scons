@@ -1,5 +1,3 @@
-Import("ENV", "fw_build_meta")
-
 from SCons.Errors import UserError
 from SCons.Node import FS
 
@@ -9,6 +7,8 @@ from fbt_extra.util import (
     should_gen_cdb_and_link_dir,
     link_elf_dir_as_latest,
 )
+
+Import("ENV", "fw_build_meta")
 
 # Building initial C environment for libs
 env = ENV.Clone(

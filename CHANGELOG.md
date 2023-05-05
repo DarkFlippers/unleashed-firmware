@@ -1,14 +1,19 @@
 ### New changes 
-* NFC: Temp fix for Detect reader not collecting nonces
-* Desktop: Temp fix for old backlight bug when locking by holding up arrow
-* IR: Add Sharp and Vizio to Universal TV remote
-* BLE Info: Show version instead of branch
-* Plugins: Add new game - Bomberduck (by @leo-need-more-coffee | PR #450)
-* Plugins: Fix `SWD Probe` plugin GPIO pins state reset on exit
-* Plugins: Bluetooth Remote - new UI (by @krolchonok | PR #447)
-* Plugins: Update **TOTP (Authenticator)** [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Docs: Update HowToInstall (by @krolchonok | PR #443)
-* OFW PR 2627: Add HID mouse auto-clicker (by @rwl4)
+* If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues!
+* Plugins: RFID and iButton Fuzzer remove excessive free's (thanks @Willy-JL)
+* Plugins: Use COUNT_OF in mouse jiggler
+* Plugins: Added Numpad keyboard to HID app (by @clipboard1 | PR #452)
+* About: Don't show 00 on about screens
+* SubGHz: Combine FuriString allocs and other small changes
+* Infrared: Updated universal remote assets (by @amec0e | PR #454)
+* Update slideshow: Replace QR code with good old link
+* OFW: Various Furi/FuriHal bug fixes and improvements -> **Breaking API change, api was changed from 24.x to 26.x** 
+* OFW: Loader refactoring, part 1 -> **Breaking API change, api was changed from 23.x to 24.x** **(this will make your manually copied plugins not work, update them in same way you installed them, or delete `apps` folder and then install firmware, if you using extra pack builds (with `e` in version) all apps in _Extra will be updated automatically)**
+* OFW: Dolphin builder in ufbt; minor ufbt/fbt improvements
+* OFW: Added API version to device info 
+* OFW: Gui: relax some asserts in view
+* OFW: Move gauge calibration to separate header, add f18 calibration
+* OFW: Fix TERMINFO on Linux systems 
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 

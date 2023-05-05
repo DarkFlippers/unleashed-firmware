@@ -1,8 +1,9 @@
 import logging
-import subprocess
-from flipper.utils.cdc import resolve_port
 import os
+import subprocess
 import sys
+
+from flipper.utils.cdc import resolve_port
 
 
 def main():

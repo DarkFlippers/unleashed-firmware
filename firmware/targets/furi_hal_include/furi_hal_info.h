@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 
+void furi_hal_info_get_api_version(uint16_t* major, uint16_t* minor);
+
 /** Get device information
  *
  * @param[in]  callback     callback to provide with new data

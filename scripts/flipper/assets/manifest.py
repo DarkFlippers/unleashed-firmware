@@ -1,11 +1,10 @@
-import datetime
 import logging
 import os
 import posixpath
 from pathlib import Path
 
-from flipper.utils import *
-from flipper.utils.fstree import *
+from flipper.utils import timestamp, file_md5
+from flipper.utils.fstree import FsNode, compare_fs_trees
 
 MANIFEST_VERSION = 0
 

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
+import operator
+from functools import reduce
+
 from flipper.app import App
 from flipper.storage import FlipperStorage, FlipperStorageOperations
 from flipper.utils.cdc import resolve_port
-
-import os
-import posixpath
-from functools import reduce
-import operator
 
 
 class Main(App):
@@ -38,8 +36,8 @@ class Main(App):
         self.parser.set_defaults(func=self.install)
 
     @staticmethod
-    def flatten(l):
-        return reduce(operator.concat, l, [])
+    def flatten(item_list):
+        return reduce(operator.concat, item_list, [])
 
     def install(self):
         self.args.sources = self.flatten(self.args.sources)

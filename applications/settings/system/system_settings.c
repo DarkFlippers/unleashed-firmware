@@ -43,7 +43,6 @@ static void debug_changed(VariableItem* item) {
     } else {
         furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
     }
-    loader_update_menu();
 }
 
 const char* const heap_trace_mode_text[] = {
@@ -137,8 +136,6 @@ static void hand_orient_changed(VariableItem* item) {
     } else {
         furi_hal_rtc_reset_flag(FuriHalRtcFlagHandOrient);
     }
-
-    loader_update_menu();
 }
 
 const char* const sleep_method[] = {

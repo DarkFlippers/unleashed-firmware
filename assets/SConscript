@@ -1,6 +1,6 @@
-Import("env")
-
 from fbt.version import get_git_commit_unix_timestamp
+
+Import("env")
 
 assetsenv = env.Clone(
     tools=["fbt_assets"],

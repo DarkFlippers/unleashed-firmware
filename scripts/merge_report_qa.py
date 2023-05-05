@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import re
 import sys
-import argparse
+
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 

@@ -124,3 +124,13 @@ uint32_t furi_timer_is_running(FuriTimer* instance) {
     /* Return 0: not running, 1: running */
     return (uint32_t)xTimerIsTimerActive(hTimer);
 }
+
+void furi_timer_pending_callback(FuriTimerPendigCallback callback, void* context, uint32_t arg) {
+    BaseType_t ret = pdFAIL;
+    if(furi_kernel_is_irq_or_masked()) {
+        ret = xTimerPendFunctionCallFromISR(callback, context, arg, NULL);
+    } else {
+        ret = xTimerPendFunctionCall(callback, context, arg, FuriWaitForever);
+    }
+    furi_check(ret == pdPASS);
+}

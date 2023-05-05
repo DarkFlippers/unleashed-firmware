@@ -8,6 +8,11 @@
 #include <furi.h>
 #include <protobuf_version.h>
 
+FURI_WEAK void furi_hal_info_get_api_version(uint16_t* major, uint16_t* minor) {
+    *major = 0;
+    *minor = 0;
+}
+
 void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
     FuriString* key = furi_string_alloc();
     FuriString* value = furi_string_alloc();
@@ -18,10 +23,10 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
     // Device Info version
     if(sep == '.') {
         property_value_out(&property_context, NULL, 2, "format", "major", "3");
-        property_value_out(&property_context, NULL, 2, "format", "minor", "0");
+        property_value_out(&property_context, NULL, 2, "format", "minor", "1");
     } else {
         property_value_out(&property_context, NULL, 3, "device", "info", "major", "2");
-        property_value_out(&property_context, NULL, 3, "device", "info", "minor", "0");
+        property_value_out(&property_context, NULL, 3, "device", "info", "minor", "1");
     }
 
     // Model name
@@ -161,6 +166,13 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
             version_get_builddate(firmware_version));
         property_value_out(
             &property_context, "%d", 2, "firmware", "target", version_get_target(firmware_version));
+
+        uint16_t api_version_major, api_version_minor;
+        furi_hal_info_get_api_version(&api_version_major, &api_version_minor);
+        property_value_out(
+            &property_context, "%d", 3, "firmware", "api", "major", api_version_major);
+        property_value_out(
+            &property_context, "%d", 3, "firmware", "api", "minor", api_version_minor);
     }
 
     if(furi_hal_bt_is_alive()) {
