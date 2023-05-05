@@ -337,6 +337,7 @@ static bool storage_ext_file_close(void* ctx, File* file) {
     file->internal_error_id = f_close(file_data);
     file->error_id = storage_ext_parse_error(file->internal_error_id);
     free(file_data);
+    storage_set_storage_file_data(file, NULL, storage);
     return (file->error_id == FSE_OK);
 }
 

@@ -248,6 +248,7 @@ static void loader_do_app_closed(Loader* loader) {
     free(loader->app.name);
     loader->app.name = NULL;
 
+    furi_thread_join(loader->app.thread);
     furi_thread_free(loader->app.thread);
     loader->app.thread = NULL;
 }
