@@ -143,7 +143,7 @@ static void subghz_scene_receiver_config_set_frequency(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    if(subghz->txrx->hopper_state == SubGhzHopperStateOFF) {
+    if(subghz_hopper_get_state(subghz) == SubGhzHopperStateOFF) {
         char text_buf[10] = {0};
         snprintf(
             text_buf,
@@ -209,7 +209,7 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
             subghz_setting_get_frequency_default_index(subghz->setting));
     }
 
-    subghz->txrx->hopper_state = hopping_value[index];
+    subghz_hopper_set_state(subghz, hopping_value[index]);
 }
 
 static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
@@ -317,7 +317,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz_scene_receiver_config_set_hopping_running,
             subghz);
         value_index = subghz_scene_receiver_config_hopper_value_index(
-            subghz->txrx->hopper_state, hopping_value, HOPPING_COUNT, subghz);
+            subghz_hopper_get_state(subghz), hopping_value, HOPPING_COUNT, subghz);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, hopping_text[value_index]);
     }

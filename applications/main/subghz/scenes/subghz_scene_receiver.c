@@ -215,7 +215,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz_txrx_stop(subghz);
-            subghz->txrx->hopper_state = SubGhzHopperStateOFF;
+            subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
             subghz->txrx->idx_menu_chosen = 0;
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
 
@@ -269,7 +269,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
+        if(subghz_hopper_get_state(subghz) != SubGhzHopperStateOFF) {
             subghz_hopper_update(subghz);
             subghz_scene_receiver_update_statusbar(subghz);
         }

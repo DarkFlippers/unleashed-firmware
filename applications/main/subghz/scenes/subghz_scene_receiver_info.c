@@ -122,9 +122,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
             //CC1101 Stop RX -> Start TX
-            if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
-                subghz->txrx->hopper_state = SubGhzHopperStatePause;
-            }
+            subghz_subghz_hopper_set_pause(subghz);
 
             subghz_txrx_stop(subghz);
 
@@ -142,9 +140,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                     subghz_setting_get_preset_data_by_name(
                         subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
                 subghz_rx(subghz, subghz->txrx->preset->frequency);
-                if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
-                    subghz->txrx->hopper_state = SubGhzHopperStateRunning;
-                }
+                subghz_hopper_remove_pause(subghz);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             } else {
                 subghz->state_notifications = SubGhzNotificationStateTx;
@@ -165,16 +161,14 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                         subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
                 subghz_rx(subghz, subghz->txrx->preset->frequency);
 
-                if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
-                    subghz->txrx->hopper_state = SubGhzHopperStateRunning;
-                }
+                subghz_hopper_remove_pause(subghz);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz->txrx->hopper_state = SubGhzHopperStateOFF;
+            subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
 
             subghz_txrx_stop(subghz);
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
@@ -193,7 +187,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             return true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
+        if(subghz_hopper_get_state(subghz) != SubGhzHopperStateOFF) {
             subghz_hopper_update(subghz);
         }
         switch(subghz->state_notifications) {

@@ -271,7 +271,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
     }
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
-    subghz->txrx->hopper_state = SubGhzHopperStateOFF;
+    subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
     subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
     subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
     subghz->txrx->debug_pin_state = false;

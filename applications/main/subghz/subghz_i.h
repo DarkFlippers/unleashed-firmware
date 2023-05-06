@@ -180,6 +180,10 @@ void subghz_speaker_unmute(SubGhz* subghz);
 
 void subghz_txrx_stop(SubGhz* subghz);
 SubGhzTxRxState subghz_txrx_get_state(SubGhz* subghz);
+SubGhzHopperState subghz_hopper_get_state(SubGhz* subghz);
+void subghz_hopper_set_state(SubGhz* subghz, SubGhzHopperState state);
+void subghz_hopper_remove_pause(SubGhz* subghz);
+void subghz_subghz_hopper_set_pause(SubGhz* subghz);
 
 extern const NotificationSequence subghz_sequence_rx;
 extern const NotificationSequence subghz_sequence_rx_locked;
