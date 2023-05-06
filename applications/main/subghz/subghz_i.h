@@ -85,7 +85,6 @@ struct SubGhzTxRx {
     bool ignore_auto_alarms;
     bool ignore_magellan;
 
-    SubGhzRxKeyState rx_key_state;
     SubGhzLoadTypeFile load_type_file;
 
     bool debug_pin_state;
@@ -137,6 +136,7 @@ struct SubGhz {
     SubGhzFileEncoderWorker* decode_raw_file_worker_encoder;
 
     SubGhzThresholdRssi* threshold_rssi;
+    SubGhzRxKeyState rx_key_state;
 
     void* rpc_ctx;
 };
@@ -191,6 +191,9 @@ void subghz_unlock(SubGhz* subghz);
 bool subghz_is_locked(SubGhz* subghz);
 
 SubGhzLoadTypeFile subghz_get_load_type_file(SubGhz* subghz);
+
+void subghz_rx_key_state_set(SubGhz* subghz, SubGhzRxKeyState state);
+SubGhzRxKeyState subghz_rx_key_state_get(SubGhz* subghz);
 
 extern const NotificationSequence subghz_sequence_rx;
 extern const NotificationSequence subghz_sequence_rx_locked;

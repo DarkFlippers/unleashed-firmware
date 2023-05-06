@@ -273,7 +273,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
     subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
     subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
-    subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+    subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
     subghz->txrx->debug_pin_state = false;
     if(!alloc_for_tx_only) {
         subghz->txrx->history = subghz_history_alloc();
@@ -480,7 +480,7 @@ int32_t subghz_app(void* p) {
 
                 if((subghz_get_load_type_file(subghz) == SubGhzLoadTypeFileRaw)) {
                     //Load Raw TX
-                    subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
+                    subghz_rx_key_state_set(subghz, SubGhzRxKeyStateRAWLoad);
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
                 } else {
                     //Load transmitter TX

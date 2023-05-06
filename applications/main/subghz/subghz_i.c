@@ -732,3 +732,13 @@ bool subghz_is_locked(SubGhz* subghz) {
     furi_assert(subghz);
     return (subghz->lock == SubGhzLockOn);
 }
+
+void subghz_rx_key_state_set(SubGhz* subghz, SubGhzRxKeyState state) {
+    furi_assert(subghz);
+    subghz->rx_key_state = state;
+}
+
+SubGhzRxKeyState subghz_rx_key_state_get(SubGhz* subghz) {
+    furi_assert(subghz);
+    return subghz->rx_key_state;
+}
