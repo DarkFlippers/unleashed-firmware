@@ -217,7 +217,7 @@ static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, speaker_text[index]);
-    subghz->txrx->speaker_state = speaker_value[index];
+    subghz_speaker_set_state(subghz, speaker_value[index]);
 }
 
 static void subghz_scene_receiver_config_set_bin_raw(VariableItem* item) {
@@ -378,7 +378,8 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         SPEAKER_COUNT,
         subghz_scene_receiver_config_set_speaker,
         subghz);
-    value_index = value_index_uint32(subghz->txrx->speaker_state, speaker_value, SPEAKER_COUNT);
+    value_index =
+        value_index_uint32(subghz_speaker_get_state(subghz), speaker_value, SPEAKER_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, speaker_text[value_index]);
 
