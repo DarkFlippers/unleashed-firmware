@@ -228,6 +228,31 @@ void subghz_tx_stop(SubGhz* subghz) {
     notification_message(subghz->notifications, &sequence_reset_red);
 }
 
+void subghz_txrx_stop(SubGhz* subghz) {
+    furi_assert(subghz);
+
+    switch(subghz->txrx->txrx_state) {
+    case SubGhzTxRxStateTx:
+        subghz_tx_stop(subghz);
+        subghz_speaker_unmute(subghz);
+        subghz_sleep(subghz);
+        break;
+    case SubGhzTxRxStateRx:
+        subghz_rx_end(subghz);
+        subghz_speaker_mute(subghz);
+        subghz_sleep(subghz);
+        break;
+
+    default:
+        break;
+    }
+}
+
+SubGhzTxRxState subghz_txrx_get_state(SubGhz* subghz) {
+    furi_assert(subghz);
+    return subghz->txrx->txrx_state;
+}
+
 void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();

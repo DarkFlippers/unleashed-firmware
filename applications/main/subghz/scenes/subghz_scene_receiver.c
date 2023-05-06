@@ -190,17 +190,12 @@ void subghz_scene_receiver_on_enter(void* context) {
     }
 
     subghz->state_notifications = SubGhzNotificationStateRx;
-    if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-        subghz_rx_end(subghz);
-    }
-    if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
-       (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
-        subghz_begin(
-            subghz,
-            subghz_setting_get_preset_data_by_name(
-                subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
-        subghz_rx(subghz, subghz->txrx->preset->frequency);
-    }
+    subghz_txrx_stop(subghz);
+    subghz_begin(
+        subghz,
+        subghz_setting_get_preset_data_by_name(
+            subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
+    subghz_rx(subghz, subghz->txrx->preset->frequency);
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
 
     //to use a universal decoder, we are looking for a link to it
@@ -219,10 +214,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverBack:
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-                subghz_rx_end(subghz);
-                subghz_sleep(subghz);
-            }
+            subghz_txrx_stop(subghz);
             subghz->txrx->hopper_state = SubGhzHopperStateOFF;
             subghz->txrx->idx_menu_chosen = 0;
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
