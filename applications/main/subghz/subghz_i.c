@@ -356,8 +356,10 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
         if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
             //if RAW
+            subghz->txrx->load_type_file = SubGhzLoadTypeFileRaw;
             subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, file_path);
         } else {
+            subghz->txrx->load_type_file = SubGhzLoadTypeFileKey;
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_data_file),
                 flipper_format_get_raw_stream(subghz->txrx->fff_data));
@@ -410,6 +412,11 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         furi_crash("SubGhz: Unknown load_key_state.");
         return false;
     }
+}
+
+SubGhzLoadTypeFile subghz_get_load_type_file(SubGhz* subghz) {
+    furi_assert(subghz);
+    return subghz->txrx->load_type_file;
 }
 
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {

@@ -86,6 +86,7 @@ struct SubGhzTxRx {
     bool ignore_magellan;
 
     SubGhzRxKeyState rx_key_state;
+    SubGhzLoadTypeFile load_type_file;
 
     bool debug_pin_state;
 };
@@ -188,6 +189,8 @@ void subghz_subghz_hopper_set_pause(SubGhz* subghz);
 void subghz_lock(SubGhz* subghz);
 void subghz_unlock(SubGhz* subghz);
 bool subghz_is_locked(SubGhz* subghz);
+
+SubGhzLoadTypeFile subghz_get_load_type_file(SubGhz* subghz);
 
 extern const NotificationSequence subghz_sequence_rx;
 extern const NotificationSequence subghz_sequence_rx_locked;

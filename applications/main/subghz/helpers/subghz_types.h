@@ -80,6 +80,13 @@ typedef enum {
     SubGhzViewIdTestPacket,
 } SubGhzViewId;
 
+/** SubGhz load type file */
+typedef enum {
+    SubGhzLoadTypeFileNoLoad,
+    SubGhzLoadTypeFileKey,
+    SubGhzLoadTypeFileRaw,
+} SubGhzLoadTypeFile;
+
 typedef enum {
     SubGhzViewReceiverModeLive,
     SubGhzViewReceiverModeFile,

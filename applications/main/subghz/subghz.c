@@ -478,7 +478,7 @@ int32_t subghz_app(void* p) {
             if(subghz_key_load(subghz, p, true)) {
                 furi_string_set(subghz->file_path, (const char*)p);
 
-                if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
+                if((subghz_get_load_type_file(subghz) == SubGhzLoadTypeFileRaw)) {
                     //Load Raw TX
                     subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
