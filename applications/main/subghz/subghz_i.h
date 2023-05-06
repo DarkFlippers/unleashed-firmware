@@ -185,5 +185,9 @@ void subghz_hopper_set_state(SubGhz* subghz, SubGhzHopperState state);
 void subghz_hopper_remove_pause(SubGhz* subghz);
 void subghz_subghz_hopper_set_pause(SubGhz* subghz);
 
+void subghz_lock(SubGhz* subghz);
+void subghz_unlock(SubGhz* subghz);
+bool subghz_is_locked(SubGhz* subghz);
+
 extern const NotificationSequence subghz_sequence_rx;
 extern const NotificationSequence subghz_sequence_rx_locked;

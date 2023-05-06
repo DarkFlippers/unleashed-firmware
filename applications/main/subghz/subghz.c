@@ -260,7 +260,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->threshold_rssi = subghz_threshold_rssi_alloc();
 
     //init Worker & Protocol & History & KeyBoard
-    subghz->lock = SubGhzLockOff;
+    subghz_unlock(subghz);
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->preset = malloc(sizeof(SubGhzRadioPreset));
     subghz->txrx->preset->name = furi_string_alloc();

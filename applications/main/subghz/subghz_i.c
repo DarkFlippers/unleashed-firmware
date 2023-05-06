@@ -710,3 +710,18 @@ void subghz_speaker_unmute(SubGhz* subghz) {
         }
     }
 }
+
+void subghz_lock(SubGhz* subghz) {
+    furi_assert(subghz);
+    subghz->lock = SubGhzLockOn;
+}
+
+void subghz_unlock(SubGhz* subghz) {
+    furi_assert(subghz);
+    subghz->lock = SubGhzLockOff;
+}
+
+bool subghz_is_locked(SubGhz* subghz) {
+    furi_assert(subghz);
+    return (subghz->lock == SubGhzLockOn);
+}
