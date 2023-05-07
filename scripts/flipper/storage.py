@@ -323,7 +323,7 @@ class FlipperStorage:
                 return False
             raise FlipperStorageException.from_error_code(path, error_code)
 
-        return True
+        return response == b"Directory" or response.startswith(b"Storage")
 
     def exist_file(self, path: str):
         """Does file exist on Flipper"""
