@@ -78,10 +78,8 @@ def generate(env, **kw):
     env.SetDefault(
         # Paths
         SDK_DEFINITION=env.File(sdk_data["sdk_symbols"]),
-        FBT_DEBUG_DIR=pathlib.Path(
-            sdk_current_sdk_dir_node.Dir(sdk_components["debug.dir"]).abspath
-        ).as_posix(),
         FBT_SCRIPT_DIR=scripts_dir,
+        FBT_DEBUG_DIR=scripts_dir.Dir("debug"),
         LIBPATH=sdk_current_sdk_dir_node.Dir(sdk_components["lib.dir"]),
         FW_ELF=sdk_current_sdk_dir_node.File(sdk_components["firmware.elf"]),
         FW_BIN=sdk_current_sdk_dir_node.File(sdk_components["full.bin"]),

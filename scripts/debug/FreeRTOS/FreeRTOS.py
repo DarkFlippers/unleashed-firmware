@@ -29,7 +29,6 @@ from FreeRTOSgdb.GDBCommands import ShowQueueInfo
 
 class Scheduler:
     def __init__(self):
-
         self._blocked = ListInspector("xSuspendedTaskList")
         self._delayed1 = ListInspector("xDelayedTaskList1")
         self._delayed2 = ListInspector("xDelayedTaskList2")

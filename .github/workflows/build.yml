@@ -60,7 +60,7 @@ jobs:
       - name: 'Bundle scripts'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts debug
+          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts
 
       - name: 'Build the firmware'
         run: |

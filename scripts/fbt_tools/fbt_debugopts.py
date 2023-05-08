@@ -18,7 +18,7 @@ def GetDevices(env):
 def generate(env, **kw):
     env.AddMethod(GetDevices)
     env.SetDefault(
-        FBT_DEBUG_DIR="${ROOT_DIR}/debug",
+        FBT_DEBUG_DIR="${FBT_SCRIPT_DIR}/debug",
     )
 
     if (adapter_serial := env.subst("$OPENOCD_ADAPTER_SERIAL")) != "auto":
