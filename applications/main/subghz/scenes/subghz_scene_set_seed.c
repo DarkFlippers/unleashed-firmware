@@ -1,6 +1,4 @@
 #include "../subghz_i.h"
-#include <lib/subghz/protocols/faac_slh.h>
-#include <lib/subghz/protocols/keeloq.h>
 
 #define TAG "SubGhzSetSeed"
 
@@ -50,34 +48,15 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                        subghz->txrx->secure_data->seed[2] << 8 |
                        subghz->txrx->secure_data->seed[3];
 
-                subghz->txrx->transmitter =
-                    subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
-                if(subghz->txrx->transmitter) {
-                    subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-                    subghz_protocol_keeloq_bft_create_data(
-                        subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                        subghz->txrx->fff_data,
-                        fix_part & 0x0FFFFFFF,
-                        fix_part >> 28,
-                        cnt,
-                        seed,
-                        "BFT",
-                        subghz->txrx->preset);
-
-                    uint8_t seed_data[sizeof(uint32_t)] = {0};
-                    for(size_t i = 0; i < sizeof(uint32_t); i++) {
-                        seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-                    }
-
-                    flipper_format_write_hex(
-                        subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-
-                    flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
-
-                    generated_protocol = true;
-                }
-
-                subghz_transmitter_free(subghz->txrx->transmitter);
+                generated_protocol = subghz_scene_set_type_submenu_gen_data_keeloq_bft(
+                    subghz,
+                    "AM650",
+                    433920000,
+                    fix_part & 0x0FFFFFFF,
+                    fix_part >> 28,
+                    cnt,
+                    seed,
+                    "BFT");
 
                 if(!generated_protocol) {
                     furi_string_set(
@@ -101,39 +80,27 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                        subghz->txrx->secure_data->seed[2] << 8 |
                        subghz->txrx->secure_data->seed[3];
 
-                subghz->txrx->transmitter =
-                    subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
-                if(subghz->txrx->transmitter) {
-                    SubGhzCustomEvent state =
-                        scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType);
-
-                    if(state == SubmenuIndexFaacSLH_433) {
-                        subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-                    } else if(state == SubmenuIndexFaacSLH_868) {
-                        subghz_preset_init(subghz, "AM650", 868350000, NULL, 0);
-                    }
-                    subghz_protocol_faac_slh_create_data(
-                        subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                        subghz->txrx->fff_data,
+                if(state == SubmenuIndexFaacSLH_433) {
+                    generated_protocol = subghz_scene_set_type_submenu_gen_data_faac_slh(
+                        subghz,
+                        "AM650",
+                        433920000,
                         fix_part >> 4,
                         fix_part & 0xf,
                         (cnt & 0xFFFFF),
                         seed,
-                        "FAAC_SLH",
-                        subghz->txrx->preset);
-                    // RogueMaster dont steal!
-                    uint8_t seed_data[sizeof(uint32_t)] = {0};
-                    for(size_t i = 0; i < sizeof(uint32_t); i++) {
-                        seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-                    }
-
-                    flipper_format_write_hex(
-                        subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-
-                    generated_protocol = true;
+                        "FAAC_SLH");
+                } else if(state == SubmenuIndexFaacSLH_868) {
+                    generated_protocol = subghz_scene_set_type_submenu_gen_data_faac_slh(
+                        subghz,
+                        "AM650",
+                        868350000,
+                        fix_part >> 4,
+                        fix_part & 0xf,
+                        (cnt & 0xFFFFF),
+                        seed,
+                        "FAAC_SLH");
                 }
-
-                subghz_transmitter_free(subghz->txrx->transmitter);
 
                 if(!generated_protocol) {
                     furi_string_set(
