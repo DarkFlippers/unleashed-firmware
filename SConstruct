@@ -335,3 +335,9 @@ vscode_dist = distenv.Install("#.vscode", distenv.Glob("#.vscode/example/*"))
 distenv.Precious(vscode_dist)
 distenv.NoClean(vscode_dist)
 distenv.Alias("vscode_dist", vscode_dist)
+
+# Configure shell with build tools
+distenv.PhonyTarget(
+    "env",
+    "@echo $( ${FBT_SCRIPT_DIR}/toolchain/fbtenv.sh $)",
+)

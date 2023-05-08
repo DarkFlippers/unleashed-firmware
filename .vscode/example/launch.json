@@ -11,11 +11,10 @@
             "args": {
                 "useSingleResult": true,
                 "env": {
-                    "PATH": "${workspaceFolder};${env:PATH}",
-                    "FBT_QUIET": 1
+                    "PATH": "${workspaceFolder}${command:extension.commandvariable.envListSep}${env:PATH}"
                 },
-                "command": "fbt get_blackmagic",
-                "description": "Get Blackmagic device",
+                "command": "fbt -s get_blackmagic",
+                "description": "Get Blackmagic device"
             }
         }
     ],

@@ -7,6 +7,7 @@
 #include <furi_hal_version.h>
 #include <furi_hal_region.h>
 #include <furi_hal_bt.h>
+#include <furi_hal_info.h>
 
 typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMessage* message);
 
@@ -164,14 +165,17 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     if(!ver) { //-V1051
         furi_string_cat_printf(buffer, "No info\n");
     } else {
+        uint16_t api_major, api_minor;
+        furi_hal_info_get_api_version(&api_major, &api_minor);
         furi_string_cat_printf(
             buffer,
-            "%s [%s]\n%s%s [%s] %s\n[%d] %s",
+            "%s [%s]\n%s%s [%d.%d] %s\n[%d] %s",
             version_get_version(ver),
             version_get_builddate(ver),
             version_get_dirty_flag(ver) ? "[!] " : "",
             version_get_githash(ver),
-            version_get_gitbranchnum(ver),
+            api_major,
+            api_minor,
             c2_ver ? c2_ver->StackTypeString : "<none>",
             version_get_target(ver),
             version_get_gitbranch(ver));
