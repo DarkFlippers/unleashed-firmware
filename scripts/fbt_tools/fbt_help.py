@@ -34,6 +34,9 @@ Other:
     firmware_pvs:
         generate a PVS-Studio report
 
+How to open a shell with toolchain environment and other build tools:
+    In your shell, type "source `./fbt -s env`". You can also use "." instead of "source".
+
 For more targets & info, see documentation/fbt.md
 """
 

@@ -9,6 +9,7 @@ from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Errors import StopError
 from SCons.Warnings import WarningOnByDefault, warn
+from SCons.Script import GetOption
 
 # Adding objects for application management to env
 #  AppManager env["APPMGR"] - loads all manifests; manages list of known apps
@@ -28,7 +29,8 @@ def LoadAppManifest(env, entry):
         env["APPMGR"].load_manifest(app_manifest_file_path, entry)
         env.Append(PY_LINT_SOURCES=[app_manifest_file_path])
     except FlipperManifestException as e:
-        warn(WarningOnByDefault, str(e))
+        if not GetOption("silent"):
+            warn(WarningOnByDefault, str(e))
 
 
 def PrepareApplicationsBuild(env):
