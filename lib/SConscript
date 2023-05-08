@@ -76,7 +76,7 @@ env.Append(
 
 libs = env.BuildModules(
     [
-        "STM32CubeWB",
+        "stm32wb",
         "freertos",
         "print",
         "microtar",

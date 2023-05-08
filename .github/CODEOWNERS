@@ -56,7 +56,7 @@
 
 # Lib
 /lib/ST25RFAL002/ @skotopes @DrZlo13 @hedger @gornekich
-/lib/STM32CubeWB/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/stm32wb_copro/ @skotopes @DrZlo13 @hedger @gornekich
 /lib/digital_signal/ @skotopes @DrZlo13 @hedger @gornekich
 /lib/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
 /lib/lfrfid/ @skotopes @DrZlo13 @hedger @nminaylov

@@ -20,7 +20,7 @@
         "flipper7",
         "furi",
         "freertos",
-        "stm32cubewb",
+        "stm32wb",
         "hwdrivers",
         "fatfs",
         "littlefs",

@@ -60,7 +60,6 @@ class Main(App):
         )
         self.parser_copro.add_argument("cube_dir", help="Path to Cube folder")
         self.parser_copro.add_argument("output_dir", help="Path to output folder")
-        self.parser_copro.add_argument("mcu", help="MCU series as in copro folder")
         self.parser_copro.add_argument(
             "--cube_ver", dest="cube_ver", help="Cube version", required=True
         )
@@ -254,16 +253,20 @@ class Main(App):
         from flipper.assets.copro import Copro
 
         self.logger.info("Bundling coprocessor binaries")
-        copro = Copro(self.args.mcu)
-        self.logger.info("Loading CUBE info")
-        copro.loadCubeInfo(self.args.cube_dir, self.args.cube_ver)
-        self.logger.info("Bundling")
-        copro.bundle(
-            self.args.output_dir,
-            self.args.stack_file,
-            self.args.stack_type,
-            self.args.stack_addr,
-        )
+        copro = Copro()
+        try:
+            self.logger.info("Loading CUBE info")
+            copro.loadCubeInfo(self.args.cube_dir, self.args.cube_ver)
+            self.logger.info("Bundling")
+            copro.bundle(
+                self.args.output_dir,
+                self.args.stack_file,
+                self.args.stack_type,
+                self.args.stack_addr,
+            )
+        except Exception as e:
+            self.logger.error(f"Failed to bundle: {e}")
+            return 1
         self.logger.info("Complete")
 
         return 0

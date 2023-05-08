@@ -19,7 +19,9 @@
 - `one_wire`            - One wire library
 - `qrcode`              - Qr code generator library
 - `ST25RFAL002`         - ST253916 driver and NFC hal
-- `STM32CubeWB`         - STM32WB series cube package
+- `stm32wb_cmsis`       - STM32WB series CMSIS component
+- `stm32wb_copro`       - STM32WB Coprocessor fimrware + WPAN library
+- `stm32wb_hal_driver`  - STM32WB series HAL
 - `subghz`              - SubGhz library
 - `toolbox`             - Toolbox of things that we are using but don't place in core
 - `u8g2`                - Graphics library that we use to draw GUI
