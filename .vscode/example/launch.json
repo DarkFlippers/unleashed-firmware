@@ -36,6 +36,8 @@
                 "./debug/stm32wbx.cfg",
             ],
             "postAttachCommands": [
+                "source debug/flipperversion.py",
+                "fw-version",
                 // "compare-sections",
                 "source debug/flipperapps.py",
                 "fap-set-debug-elf-root build/latest/.extapps",
@@ -59,6 +61,8 @@
                 "attach 1",
                 "set confirm off",
                 "set mem inaccessible-by-default off",
+                "source debug/flipperversion.py",
+                "fw-version",
                 "source debug/flipperapps.py",
                 "fap-set-debug-elf-root build/latest/.extapps",
                 // "compare-sections",
@@ -77,6 +81,8 @@
             "svdFile": "./debug/STM32WB55_CM4.svd",
             "rtos": "FreeRTOS",
             "postAttachCommands": [
+                "source debug/flipperversion.py",
+                "fw-version",
                 "source debug/flipperapps.py",
                 "fap-set-debug-elf-root build/latest/.extapps",
             ]
@@ -97,19 +103,12 @@
                 "./debug/stm32wbx.cfg",
             ],
             "postAttachCommands": [
+                "source debug/flipperversion.py",
+                "fw-version",
                 "source debug/flipperapps.py",
                 "fap-set-debug-elf-root build/latest/.extapps",
             ],
             // "showDevDebugOutput": "raw",
-        },
-        {
-            "name": "fbt debug",
-            "type": "python",
-            "request": "launch",
-            "program": "./lib/scons/scripts/scons.py",
-            "args": [
-                "plugin_dist"
-            ]
         },
         {
             "name": "python debug",

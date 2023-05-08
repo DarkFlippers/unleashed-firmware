@@ -29,6 +29,8 @@
                 "@UFBT_DEBUG_DIR@/stm32wbx.cfg"
             ],
             "postAttachCommands": [
+                "source @UFBT_DEBUG_DIR@/flipperversion.py",
+                "fw-version",
                 "source @UFBT_DEBUG_DIR@/flipperapps.py",
                 "fap-set-debug-elf-root @UFBT_DEBUG_ELF_DIR@"
             ],
@@ -49,6 +51,8 @@
                 "@UFBT_DEBUG_DIR@/stm32wbx.cfg"
             ],
             "postAttachCommands": [
+                "source @UFBT_DEBUG_DIR@/flipperversion.py",
+                "fw-version",
                 "source @UFBT_DEBUG_DIR@/flipperapps.py",
                 "fap-set-debug-elf-root @UFBT_DEBUG_ELF_DIR@"
             ],
@@ -69,6 +73,8 @@
                 "attach 1",
                 "set confirm off",
                 "set mem inaccessible-by-default off",
+                "source @UFBT_DEBUG_DIR@/flipperversion.py",
+                "fw-version",
                 "source @UFBT_DEBUG_DIR@/flipperapps.py",
                 "fap-set-debug-elf-root @UFBT_DEBUG_ELF_DIR@"
             ]
@@ -86,6 +92,8 @@
             "svdFile": "@UFBT_DEBUG_DIR@/STM32WB55_CM4.svd",
             "rtos": "FreeRTOS",
             "postAttachCommands": [
+                "source @UFBT_DEBUG_DIR@/flipperversion.py",
+                "fw-version",
                 "source @UFBT_DEBUG_DIR@/flipperapps.py",
                 "fap-set-debug-elf-root @UFBT_DEBUG_ELF_DIR@"
             ]
