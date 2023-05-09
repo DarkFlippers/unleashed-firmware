@@ -84,7 +84,8 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 subghz_txrx_stop(subghz->txrx);
 
                 if(!subghz_tx_start(subghz, subghz_txtx_get_fff_data(subghz->txrx))) {
-                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
+                    scene_manager_next_scene(
+                        subghz->scene_manager, SubGhzSceneShowOnlyRx); //TODO Is this necessary?
                 }
 
                 subghz_txrx_stop(subghz->txrx);
