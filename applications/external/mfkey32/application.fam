@@ -10,7 +10,7 @@ App(
     ],
     stack_size=1 * 1024,
     fap_icon="mfkey.png",
-    fap_category="Nfc",
+    fap_category="Tools",
     fap_author="noproto",
     fap_icon_assets="images",
     fap_weburl="https://github.com/noproto/FlipperMfkey",
