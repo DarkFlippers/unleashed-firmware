@@ -42,9 +42,9 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             view_dispatcher_stop(subghz->view_dispatcher);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonPress) {
             bool result = false;
-            if((subghz_txrx_get_state(subghz) == SubGhzTxRxStateSleep) &&
+            if((subghz_txrx_get_state(subghz->txrx) == SubGhzTxRxStateSleep) &&
                (state == SubGhzRpcStateLoaded)) {
-                result = subghz_tx_start(subghz, subghz->txrx->fff_data);
+                result = subghz_tx_start(subghz->txrx, subghz_txtx_get_fff_data(subghz->txrx));
                 if(result) subghz_blink_start(subghz);
             }
             if(!result) {
@@ -56,8 +56,8 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonPress, result);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonRelease) {
             bool result = false;
-            if(subghz_txrx_get_state(subghz) == SubGhzTxRxStateTx) {
-                subghz_txrx_stop(subghz);
+            if(subghz_txrx_get_state(subghz->txrx) == SubGhzTxRxStateTx) {
+                subghz_txrx_stop(subghz->txrx);
                 subghz_blink_stop(subghz);
                 result = true;
             }
@@ -96,8 +96,8 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_rpc_on_exit(void* context) {
     SubGhz* subghz = context;
 
-    if(subghz_txrx_get_state(subghz) == SubGhzTxRxStateTx) {
-        subghz_txrx_stop(subghz);
+    if(subghz_txrx_get_state(subghz->txrx) == SubGhzTxRxStateTx) {
+        subghz_txrx_stop(subghz->txrx);
         subghz_blink_stop(subghz);
     }
 

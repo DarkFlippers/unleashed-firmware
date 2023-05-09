@@ -25,18 +25,18 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
     SubGhz* subghz = context;
     subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
         subghz->txrx->receiver,
-        subghz_history_get_protocol_name(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
+        subghz_history_get_protocol_name(subghz->txrx->history, subghz->idx_menu_chosen));
 
     if(subghz->txrx->decoder_result) {
         //todo we are trying to deserialize without checking for errors, since it is assumed that we just received this chignal
         subghz_protocol_decoder_base_deserialize(
             subghz->txrx->decoder_result,
-            subghz_history_get_raw_data(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
+            subghz_history_get_raw_data(subghz->txrx->history, subghz->idx_menu_chosen));
 
         SubGhzRadioPreset* preset =
-            subghz_history_get_radio_preset(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+            subghz_history_get_radio_preset(subghz->txrx->history, subghz->idx_menu_chosen);
         subghz_preset_init(
-            subghz,
+            subghz->txrx,
             furi_string_get_cstr(preset->name),
             preset->frequency,
             preset->data,
@@ -122,25 +122,24 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
             //CC1101 Stop RX -> Start TX
-            subghz_subghz_hopper_set_pause(subghz);
+            subghz_subghz_hopper_set_pause(subghz->txrx);
 
-            subghz_txrx_stop(subghz);
+            subghz_txrx_stop(subghz->txrx);
 
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
 
             if(!subghz_tx_start(
-                   subghz,
-                   subghz_history_get_raw_data(
-                       subghz->txrx->history, subghz->txrx->idx_menu_chosen))) {
-                subghz_txrx_stop(subghz);
+                   subghz->txrx,
+                   subghz_history_get_raw_data(subghz->txrx->history, subghz->idx_menu_chosen))) {
+                subghz_txrx_stop(subghz->txrx);
                 subghz_begin(
-                    subghz,
+                    subghz->txrx,
                     subghz_setting_get_preset_data_by_name(
-                        subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
-                subghz_rx(subghz, subghz->txrx->preset->frequency);
-                subghz_hopper_remove_pause(subghz);
+                        subghz->txrx->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
+                subghz_rx(subghz->txrx, subghz->txrx->preset->frequency);
+                subghz_hopper_remove_pause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             } else {
                 subghz->state_notifications = SubGhzNotificationStateTx;
@@ -153,24 +152,24 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             widget_reset(subghz->widget);
             subghz_scene_receiver_info_draw_widget(subghz);
 
-            subghz_txrx_stop(subghz);
+            subghz_txrx_stop(subghz->txrx);
             if(!subghz->in_decoder_scene) {
                 subghz_begin(
-                    subghz,
+                    subghz->txrx,
                     subghz_setting_get_preset_data_by_name(
-                        subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
-                subghz_rx(subghz, subghz->txrx->preset->frequency);
+                        subghz->txrx->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
+                subghz_rx(subghz->txrx, subghz->txrx->preset->frequency);
 
-                subghz_hopper_remove_pause(subghz);
+                subghz_hopper_remove_pause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
+            subghz_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
 
-            subghz_txrx_stop(subghz);
+            subghz_txrx_stop(subghz->txrx);
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
@@ -187,8 +186,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             return true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz_hopper_get_state(subghz) != SubGhzHopperStateOFF) {
-            subghz_hopper_update(subghz);
+        if(subghz_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
+            subghz_hopper_update(subghz->txrx);
         }
         switch(subghz->state_notifications) {
         case SubGhzNotificationStateTx:

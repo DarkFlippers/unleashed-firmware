@@ -180,10 +180,11 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz_test_static_get_view(subghz->subghz_test_static));
 #endif
 
+    subghz->txrx = malloc(sizeof(SubGhzTxRx));
     //init setting
-    subghz->setting = subghz_setting_alloc();
+    subghz->txrx->setting = subghz_setting_alloc();
 
-    subghz_setting_load(subghz->setting, EXT_PATH("subghz/assets/setting_user"));
+    subghz_setting_load(subghz->txrx->setting, EXT_PATH("subghz/assets/setting_user"));
 
     // Custom Presets load without using config file
     if(!alloc_for_tx_only) {
@@ -193,7 +194,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             (const char*)"Custom_preset_data",
             (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 24 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
         flipper_format_rewind(temp_fm_preset);
-        subghz_setting_load_custom_preset(subghz->setting, (const char*)"FM95", temp_fm_preset);
+        subghz_setting_load_custom_preset(
+            subghz->txrx->setting, (const char*)"FM95", temp_fm_preset);
 
         flipper_format_free(temp_fm_preset);
 
@@ -204,7 +206,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             (const char*)"Custom_preset_data",
             (const char*)"02 0D 03 47 08 32 0B 06 15 32 14 00 13 00 12 00 11 32 10 A7 18 18 19 1D 1D 92 1C 00 1B 04 20 FB 22 17 21 B6 00 00 00 12 0E 34 60 C5 C1 C0");
         flipper_format_rewind(temp_fm_preset2);
-        subghz_setting_load_custom_preset(subghz->setting, (const char*)"FM15k", temp_fm_preset2);
+        subghz_setting_load_custom_preset(
+            subghz->txrx->setting, (const char*)"FM15k", temp_fm_preset2);
 
         flipper_format_free(temp_fm_preset2);
 
@@ -215,7 +218,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             (const char*)"Custom_preset_data",
             (const char*)"02 0D 07 04 08 32 0B 06 10 64 11 93 12 0C 13 02 14 00 15 15 18 18 19 16 1B 07 1C 00 1D 91 20 FB 21 56 22 10 00 00 C0 00 00 00 00 00 00 00");
         flipper_format_rewind(temp_fm_preset3);
-        subghz_setting_load_custom_preset(subghz->setting, (const char*)"Pagers", temp_fm_preset3);
+        subghz_setting_load_custom_preset(
+            subghz->txrx->setting, (const char*)"Pagers", temp_fm_preset3);
 
         flipper_format_free(temp_fm_preset3);
 
@@ -226,7 +230,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             (const char*)"Custom_preset_data",
             (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 36 10 69 15 32 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
         flipper_format_rewind(temp_fm_preset4);
-        subghz_setting_load_custom_preset(subghz->setting, (const char*)"HND_1", temp_fm_preset4);
+        subghz_setting_load_custom_preset(
+            subghz->txrx->setting, (const char*)"HND_1", temp_fm_preset4);
 
         flipper_format_free(temp_fm_preset4);
 
@@ -236,7 +241,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             (const char*)"Custom_preset_data",
             (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 07 11 36 10 E9 15 32 18 18 19 16 1D 92 1C 40 1B 03 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
         flipper_format_rewind(temp_fm_preset5);
-        subghz_setting_load_custom_preset(subghz->setting, (const char*)"HND_2", temp_fm_preset5);
+        subghz_setting_load_custom_preset(
+            subghz->txrx->setting, (const char*)"HND_2", temp_fm_preset5);
 
         flipper_format_free(temp_fm_preset5);
     }
@@ -253,7 +259,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             subghz->last_settings->frequency,
             subghz->last_settings->preset);
 #endif
-        subghz_setting_set_default_frequency(subghz->setting, subghz->last_settings->frequency);
+        subghz_setting_set_default_frequency(
+            subghz->txrx->setting, subghz->last_settings->frequency);
     }
 
     //init threshold rssi
@@ -261,18 +268,22 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     //init Worker & Protocol & History & KeyBoard
     subghz_unlock(subghz);
-    subghz->txrx = malloc(sizeof(SubGhzTxRx));
+
     subghz->txrx->preset = malloc(sizeof(SubGhzRadioPreset));
     subghz->txrx->preset->name = furi_string_alloc();
     if(!alloc_for_tx_only) {
-        subghz_preset_init(subghz, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz_preset_init(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
     } else {
         subghz_preset_init(
-            subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
+            subghz->txrx,
+            "AM650",
+            subghz_setting_get_default_frequency(subghz->txrx->setting),
+            NULL,
+            0);
     }
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
-    subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
-    subghz_speaker_set_state(subghz, SubGhzSpeakerStateDisable);
+    subghz_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
+    subghz_speaker_set_state(subghz->txrx, SubGhzSpeakerStateDisable);
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
     subghz->txrx->debug_pin_state = false;
     if(!alloc_for_tx_only) {
@@ -282,7 +293,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->txrx->worker = subghz_worker_alloc();
 
     subghz->txrx->fff_data = flipper_format_string_alloc();
-    subghz->txrx->secure_data = malloc(sizeof(SecureData));
+    subghz->secure_data = malloc(sizeof(SecureData));
 
     subghz->txrx->environment = subghz_environment_alloc();
     subghz_environment_set_came_atomo_rainbow_table_file_name(
@@ -303,6 +314,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz->txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
     subghz_worker_set_context(subghz->txrx->worker, subghz->txrx->receiver);
 
+    subghz_txrx_need_save_callback_set(subghz->txrx, subghz_save_to_file, subghz);
+
     //Init Error_str
     subghz->error_str = furi_string_alloc();
 
@@ -319,7 +332,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
         subghz->rpc_ctx = NULL;
     }
 
-    subghz_speaker_off(subghz);
+    subghz_speaker_off(subghz->txrx);
 
 #if FURI_DEBUG
     // Packet Test
@@ -390,7 +403,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     subghz->gui = NULL;
 
     // setting
-    subghz_setting_free(subghz->setting);
+    subghz_setting_free(subghz->txrx->setting);
     if(!alloc_for_tx_only) {
         subghz_last_settings_free(subghz->last_settings);
     }
@@ -412,7 +425,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     }
     furi_string_free(subghz->txrx->preset->name);
     free(subghz->txrx->preset);
-    free(subghz->txrx->secure_data);
+    free(subghz->secure_data);
     free(subghz->txrx);
 
     //Error string

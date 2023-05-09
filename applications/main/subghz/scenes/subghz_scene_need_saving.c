@@ -48,7 +48,8 @@ bool subghz_scene_need_saving_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubGhzCustomEventSceneExit) {
             if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateExit) {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
-                subghz_preset_init(subghz, "AM650", subghz->last_settings->frequency, NULL, 0);
+                subghz_preset_init(
+                    subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
             } else {

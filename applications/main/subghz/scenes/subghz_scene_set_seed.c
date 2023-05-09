@@ -19,7 +19,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
         subghz_scene_set_seed_byte_input_callback,
         NULL,
         subghz,
-        subghz->txrx->secure_data->seed,
+        subghz->secure_data->seed,
         4);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
@@ -36,20 +36,16 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
             switch(state) {
             case SubmenuIndexBFTClone:
-                fix_part = subghz->txrx->secure_data->fix[0] << 24 |
-                           subghz->txrx->secure_data->fix[1] << 16 |
-                           subghz->txrx->secure_data->fix[2] << 8 |
-                           subghz->txrx->secure_data->fix[3];
+                fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
+                           subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
-                cnt = subghz->txrx->secure_data->cnt[0] << 8 | subghz->txrx->secure_data->cnt[1];
+                cnt = subghz->secure_data->cnt[0] << 8 | subghz->secure_data->cnt[1];
 
-                seed = subghz->txrx->secure_data->seed[0] << 24 |
-                       subghz->txrx->secure_data->seed[1] << 16 |
-                       subghz->txrx->secure_data->seed[2] << 8 |
-                       subghz->txrx->secure_data->seed[3];
+                seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
+                       subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
                 generated_protocol = subghz_scene_set_type_submenu_gen_data_keeloq_bft(
-                    subghz,
+                    subghz->txrx,
                     "AM650",
                     433920000,
                     fix_part & 0x0FFFFFFF,
@@ -67,22 +63,18 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 break;
             case SubmenuIndexFaacSLH_433:
             case SubmenuIndexFaacSLH_868:
-                fix_part = subghz->txrx->secure_data->fix[0] << 24 |
-                           subghz->txrx->secure_data->fix[1] << 16 |
-                           subghz->txrx->secure_data->fix[2] << 8 |
-                           subghz->txrx->secure_data->fix[3];
+                fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
+                           subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
-                cnt = subghz->txrx->secure_data->cnt[0] << 16 |
-                      subghz->txrx->secure_data->cnt[1] << 8 | subghz->txrx->secure_data->cnt[2];
+                cnt = subghz->secure_data->cnt[0] << 16 | subghz->secure_data->cnt[1] << 8 |
+                      subghz->secure_data->cnt[2];
 
-                seed = subghz->txrx->secure_data->seed[0] << 24 |
-                       subghz->txrx->secure_data->seed[1] << 16 |
-                       subghz->txrx->secure_data->seed[2] << 8 |
-                       subghz->txrx->secure_data->seed[3];
+                seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
+                       subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
                 if(state == SubmenuIndexFaacSLH_433) {
                     generated_protocol = subghz_scene_set_type_submenu_gen_data_faac_slh(
-                        subghz,
+                        subghz->txrx,
                         "AM650",
                         433920000,
                         fix_part >> 4,
@@ -92,7 +84,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                         "FAAC_SLH");
                 } else if(state == SubmenuIndexFaacSLH_868) {
                     generated_protocol = subghz_scene_set_type_submenu_gen_data_faac_slh(
-                        subghz,
+                        subghz->txrx,
                         "AM650",
                         868350000,
                         fix_part >> 4,

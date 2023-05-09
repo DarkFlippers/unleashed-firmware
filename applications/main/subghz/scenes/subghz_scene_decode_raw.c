@@ -87,12 +87,13 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
     FuriString* file_name = furi_string_alloc();
     bool success = false;
     do {
-        if(!flipper_format_rewind(subghz->txrx->fff_data)) {
+        if(!flipper_format_rewind(subghz_txtx_get_fff_data(subghz->txrx))) {
             FURI_LOG_E(TAG, "Rewind error");
             break;
         }
 
-        if(!flipper_format_read_string(subghz->txrx->fff_data, "File_name", file_name)) {
+        if(!flipper_format_read_string(
+               subghz_txtx_get_fff_data(subghz->txrx), "File_name", file_name)) {
             FURI_LOG_E(TAG, "Missing File_name");
             break;
         }
@@ -193,7 +194,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
         }
         furi_string_free(item_name);
         furi_string_free(item_time);
-        subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
+        subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
     }
 
     subghz_scene_receiver_update_statusbar(subghz);
@@ -208,7 +209,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
             subghz->decode_raw_state = SubGhzDecodeRawStateStart;
-            subghz->txrx->idx_menu_chosen = 0;
+            subghz->idx_menu_chosen = 0;
             subghz->in_decoder_scene = false;
             subghz->in_decoder_scene_skip = false;
 
@@ -227,8 +228,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverOK:
-            subghz->txrx->idx_menu_chosen =
-                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz->in_decoder_scene = true;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);

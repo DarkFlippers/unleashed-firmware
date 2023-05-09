@@ -122,7 +122,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
-        subghz_preset_init(subghz, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz_preset_init(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
         subghz_history_reset(subghz->txrx->history);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);
     }
@@ -154,7 +154,7 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     // TODO: Replace with proper solution based on protocol flags, remove kostily and velosipedy from here
     // Needs to be done after subghz refactoring merge!!!
-    if(subghz->txrx->ignore_starline == true) {
+    if(subghz->ignore_starline == true) {
         SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
         protocoldecoderbase =
             subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Star Line");
@@ -163,7 +163,7 @@ void subghz_scene_receiver_on_enter(void* context) {
                 protocoldecoderbase, NULL, subghz->txrx->receiver);
         }
     }
-    if(subghz->txrx->ignore_auto_alarms == true) {
+    if(subghz->ignore_auto_alarms == true) {
         SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
         protocoldecoderbase =
             subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "KIA Seed");
@@ -179,7 +179,7 @@ void subghz_scene_receiver_on_enter(void* context) {
                 protocoldecoderbase, NULL, subghz->txrx->receiver);
         }
     }
-    if(subghz->txrx->ignore_magellan == true) {
+    if(subghz->ignore_magellan == true) {
         SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
         protocoldecoderbase =
             subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Magellan");
@@ -190,13 +190,13 @@ void subghz_scene_receiver_on_enter(void* context) {
     }
 
     subghz->state_notifications = SubGhzNotificationStateRx;
-    subghz_txrx_stop(subghz);
+    subghz_txrx_stop(subghz->txrx);
     subghz_begin(
-        subghz,
+        subghz->txrx,
         subghz_setting_get_preset_data_by_name(
-            subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
-    subghz_rx(subghz, subghz->txrx->preset->frequency);
-    subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
+            subghz->txrx->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
+    subghz_rx(subghz->txrx, subghz->txrx->preset->frequency);
+    subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
 
     //to use a universal decoder, we are looking for a link to it
     subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
@@ -214,9 +214,9 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverBack:
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz_txrx_stop(subghz);
-            subghz_hopper_set_state(subghz, SubGhzHopperStateOFF);
-            subghz->txrx->idx_menu_chosen = 0;
+            subghz_txrx_stop(subghz->txrx);
+            subghz_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
+            subghz->idx_menu_chosen = 0;
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
 
             if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateAddKey) {
@@ -224,7 +224,8 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
-                subghz_preset_init(subghz, "AM650", subghz->last_settings->frequency, NULL, 0);
+                subghz_preset_init(
+                    subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
             }
@@ -232,17 +233,15 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubGhzCustomEventViewReceiverOK:
             // Show file info, scene: receiver_info
-            subghz->txrx->idx_menu_chosen =
-                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
             DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverDeleteItem:
-            subghz->txrx->idx_menu_chosen =
-                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
 
-            subghz_history_delete_item(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+            subghz_history_delete_item(subghz->txrx->history, subghz->idx_menu_chosen);
             subghz_view_receiver_delete_element_callback(subghz->subghz_receiver);
 
             subghz_scene_receiver_update_statusbar(subghz);
@@ -250,8 +249,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubGhzCustomEventViewReceiverConfig:
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz->txrx->idx_menu_chosen =
-                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzViewIdReceiver, SubGhzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
@@ -269,8 +267,8 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz_hopper_get_state(subghz) != SubGhzHopperStateOFF) {
-            subghz_hopper_update(subghz);
+        if(subghz_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
+            subghz_hopper_update(subghz->txrx);
             subghz_scene_receiver_update_statusbar(subghz);
         }
 

@@ -18,38 +18,6 @@
 
 #define TAG "SubGhz"
 
-void subghz_preset_init(
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint8_t* preset_data,
-    size_t preset_data_size) {
-    furi_assert(context);
-    SubGhz* subghz = context;
-    furi_string_set(subghz->txrx->preset->name, preset_name);
-    subghz->txrx->preset->frequency = frequency;
-    subghz->txrx->preset->data = preset_data;
-    subghz->txrx->preset->data_size = preset_data_size;
-}
-
-bool subghz_set_preset(SubGhz* subghz, const char* preset) {
-    if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
-        furi_string_set(subghz->txrx->preset->name, "AM270");
-    } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
-        furi_string_set(subghz->txrx->preset->name, "AM650");
-    } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev238Async")) {
-        furi_string_set(subghz->txrx->preset->name, "FM238");
-    } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
-        furi_string_set(subghz->txrx->preset->name, "FM476");
-    } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
-        furi_string_set(subghz->txrx->preset->name, "CUSTOM");
-    } else {
-        FURI_LOG_E(TAG, "Unknown preset");
-        return false;
-    }
-    return true;
-}
-
 void subghz_get_frequency_modulation(SubGhz* subghz, FuriString* frequency, FuriString* modulation) {
     furi_assert(subghz);
     if(frequency != NULL) {
@@ -62,195 +30,6 @@ void subghz_get_frequency_modulation(SubGhz* subghz, FuriString* frequency, Furi
     if(modulation != NULL) {
         furi_string_printf(modulation, "%.2s", furi_string_get_cstr(subghz->txrx->preset->name));
     }
-}
-
-void subghz_begin(SubGhz* subghz, uint8_t* preset_data) {
-    furi_assert(subghz);
-    furi_hal_subghz_reset();
-    furi_hal_subghz_idle();
-    furi_hal_subghz_load_custom_preset(preset_data);
-    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
-    subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
-}
-
-uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
-    furi_assert(subghz);
-    if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_crash("SubGhz: Incorrect RX frequency.");
-    }
-    furi_assert(
-        subghz->txrx->txrx_state != SubGhzTxRxStateRx &&
-        subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
-
-    furi_hal_subghz_idle();
-    uint32_t value = furi_hal_subghz_set_frequency_and_path(frequency);
-    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
-    furi_hal_subghz_flush_rx();
-    subghz_speaker_on(subghz);
-    furi_hal_subghz_rx();
-
-    furi_hal_subghz_start_async_rx(subghz_worker_rx_callback, subghz->txrx->worker);
-    subghz_worker_start(subghz->txrx->worker);
-    subghz->txrx->txrx_state = SubGhzTxRxStateRx;
-    return value;
-}
-
-static bool subghz_tx(SubGhz* subghz, uint32_t frequency) {
-    furi_assert(subghz);
-    if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_crash("SubGhz: Incorrect TX frequency.");
-    }
-    furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
-    furi_hal_subghz_idle();
-    furi_hal_subghz_set_frequency_and_path(frequency);
-    furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, false);
-    furi_hal_gpio_init(
-        furi_hal_subghz.cc1101_g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    bool ret = furi_hal_subghz_tx();
-    if(ret) {
-        subghz_speaker_on(subghz);
-        subghz->txrx->txrx_state = SubGhzTxRxStateTx;
-    }
-    return ret;
-}
-
-void subghz_idle(SubGhz* subghz) {
-    furi_assert(subghz);
-    furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
-    furi_hal_subghz_idle();
-    subghz_speaker_off(subghz);
-    subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
-}
-
-void subghz_rx_end(SubGhz* subghz) {
-    furi_assert(subghz);
-    furi_assert(subghz->txrx->txrx_state == SubGhzTxRxStateRx);
-
-    if(subghz_worker_is_running(subghz->txrx->worker)) {
-        subghz_worker_stop(subghz->txrx->worker);
-        furi_hal_subghz_stop_async_rx();
-    }
-    furi_hal_subghz_idle();
-    subghz_speaker_off(subghz);
-    subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
-}
-
-void subghz_sleep(SubGhz* subghz) {
-    furi_assert(subghz);
-    furi_hal_subghz_sleep();
-    subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
-}
-
-bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
-    furi_assert(subghz);
-
-    bool ret = false;
-    FuriString* temp_str = furi_string_alloc();
-    uint32_t repeat = 200;
-    do {
-        if(!flipper_format_rewind(flipper_format)) {
-            FURI_LOG_E(TAG, "Rewind error");
-            break;
-        }
-        if(!flipper_format_read_string(flipper_format, "Protocol", temp_str)) {
-            FURI_LOG_E(TAG, "Missing Protocol");
-            break;
-        }
-        if(!flipper_format_insert_or_update_uint32(flipper_format, "Repeat", &repeat, 1)) {
-            FURI_LOG_E(TAG, "Unable Repeat");
-            break;
-        }
-
-        subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-            subghz->txrx->environment, furi_string_get_cstr(temp_str));
-
-        if(subghz->txrx->transmitter) {
-            if(subghz_transmitter_deserialize(subghz->txrx->transmitter, flipper_format) ==
-               SubGhzProtocolStatusOk) {
-                if(strcmp(furi_string_get_cstr(subghz->txrx->preset->name), "") != 0) {
-                    subghz_begin(
-                        subghz,
-                        subghz_setting_get_preset_data_by_name(
-                            subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name)));
-                } else {
-                    FURI_LOG_E(
-                        TAG,
-                        "Unknown name preset \" %s \"",
-                        furi_string_get_cstr(subghz->txrx->preset->name));
-                    subghz_begin(
-                        subghz, subghz_setting_get_preset_data_by_name(subghz->setting, "AM650"));
-                }
-                if(subghz->txrx->preset->frequency) {
-                    ret = subghz_tx(subghz, subghz->txrx->preset->frequency);
-                } else {
-                    ret = subghz_tx(subghz, 433920000);
-                }
-                if(ret) {
-                    //Start TX
-                    furi_hal_subghz_start_async_tx(
-                        subghz_transmitter_yield, subghz->txrx->transmitter);
-                } else {
-                    subghz_dialog_message_show_only_rx(subghz);
-                }
-            } else {
-                dialog_message_show_storage_error(
-                    subghz->dialogs, "Error in protocol\nparameters\ndescription");
-            }
-        }
-        if(!ret) {
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(subghz->txrx->txrx_state != SubGhzTxRxStateSleep) {
-                subghz_idle(subghz);
-            }
-        }
-
-    } while(false);
-    furi_string_free(temp_str);
-    return ret;
-}
-
-void subghz_tx_stop(SubGhz* subghz) {
-    furi_assert(subghz);
-    furi_assert(subghz->txrx->txrx_state == SubGhzTxRxStateTx);
-    //Stop TX
-    furi_hal_subghz_stop_async_tx();
-    subghz_transmitter_stop(subghz->txrx->transmitter);
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    //if protocol dynamic then we save the last upload
-    if((subghz->txrx->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) &&
-       (subghz_path_is_file(subghz->file_path))) {
-        subghz_save_protocol_to_file(
-            subghz, subghz->txrx->fff_data, furi_string_get_cstr(subghz->file_path));
-    }
-    subghz_idle(subghz);
-    subghz_speaker_off(subghz);
-    notification_message(subghz->notifications, &sequence_reset_red);
-}
-
-void subghz_txrx_stop(SubGhz* subghz) {
-    furi_assert(subghz);
-
-    switch(subghz->txrx->txrx_state) {
-    case SubGhzTxRxStateTx:
-        subghz_tx_stop(subghz);
-        subghz_speaker_unmute(subghz);
-        subghz_sleep(subghz);
-        break;
-    case SubGhzTxRxStateRx:
-        subghz_rx_end(subghz);
-        subghz_speaker_mute(subghz);
-        subghz_sleep(subghz);
-        break;
-
-    default:
-        break;
-    }
-}
-
-SubGhzTxRxState subghz_txrx_get_state(SubGhz* subghz) {
-    furi_assert(subghz);
-    return subghz->txrx->txrx_state;
 }
 
 void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
@@ -275,7 +54,8 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-    Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
+    Stream* fff_data_stream =
+        flipper_format_get_raw_stream(subghz_txtx_get_fff_data(subghz->txrx));
 
     SubGhzLoadKeyState load_key_state = SubGhzLoadKeyStateParseErr;
     FuriString* temp_str = furi_string_alloc();
@@ -301,6 +81,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
+        //Load frequency
         if(!flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
             FURI_LOG_E(TAG, "Missing Frequency");
             break;
@@ -316,14 +97,15 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
-        subghz->txrx->preset->frequency = temp_data32;
+        //subghz->txrx->preset->frequency = temp_data32;
 
+        //Load preset
         if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
             FURI_LOG_E(TAG, "Missing Preset");
             break;
         }
 
-        if(!subghz_set_preset(subghz, furi_string_get_cstr(temp_str))) {
+        if(!subghz_set_preset(subghz->txrx, furi_string_get_cstr(temp_str))) {
             break;
         }
 
@@ -331,10 +113,11 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             //Todo add Custom_preset_module
             //delete preset if it already exists
             subghz_setting_delete_custom_preset(
-                subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name));
+                subghz_txrx_get_setting(subghz->txrx),
+                furi_string_get_cstr(subghz->txrx->preset->name));
             //load custom preset from file
             if(!subghz_setting_load_custom_preset(
-                   subghz->setting,
+                   subghz_txrx_get_setting(subghz->txrx),
                    furi_string_get_cstr(subghz->txrx->preset->name),
                    fff_data_file)) {
                 FURI_LOG_E(TAG, "Missing Custom preset");
@@ -342,34 +125,37 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             }
         }
         size_t preset_index = subghz_setting_get_inx_preset_by_name(
-            subghz->setting, furi_string_get_cstr(subghz->txrx->preset->name));
+            subghz_txrx_get_setting(subghz->txrx),
+            furi_string_get_cstr(subghz->txrx->preset->name));
         subghz_preset_init(
-            subghz,
+            subghz->txrx,
             furi_string_get_cstr(subghz->txrx->preset->name),
-            subghz->txrx->preset->frequency,
-            subghz_setting_get_preset_data(subghz->setting, preset_index),
-            subghz_setting_get_preset_data_size(subghz->setting, preset_index));
+            temp_data32,
+            subghz_setting_get_preset_data(subghz_txrx_get_setting(subghz->txrx), preset_index),
+            subghz_setting_get_preset_data_size(
+                subghz_txrx_get_setting(subghz->txrx), preset_index));
 
+        //Load protocol
         if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {
             FURI_LOG_E(TAG, "Missing Protocol");
             break;
         }
         if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
             //if RAW
-            subghz->txrx->load_type_file = SubGhzLoadTypeFileRaw;
-            subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, file_path);
+            subghz->load_type_file = SubGhzLoadTypeFileRaw;
+            subghz_protocol_raw_gen_fff_data(subghz_txtx_get_fff_data(subghz->txrx), file_path);
         } else {
-            subghz->txrx->load_type_file = SubGhzLoadTypeFileKey;
+            subghz->load_type_file = SubGhzLoadTypeFileKey;
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_data_file),
-                flipper_format_get_raw_stream(subghz->txrx->fff_data));
+                flipper_format_get_raw_stream(subghz_txtx_get_fff_data(subghz->txrx)));
         }
 
         subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
             subghz->txrx->receiver, furi_string_get_cstr(temp_str));
         if(subghz->txrx->decoder_result) {
             SubGhzProtocolStatus status = subghz_protocol_decoder_base_deserialize(
-                subghz->txrx->decoder_result, subghz->txrx->fff_data);
+                subghz->txrx->decoder_result, subghz_txtx_get_fff_data(subghz->txrx));
             if(status != SubGhzProtocolStatusOk) {
                 load_key_state = SubGhzLoadKeyStateProtocolDescriptionErr;
                 break;
@@ -416,7 +202,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
 
 SubGhzLoadTypeFile subghz_get_load_type_file(SubGhz* subghz) {
     furi_assert(subghz);
-    return subghz->txrx->load_type_file;
+    return subghz->load_type_file;
 }
 
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
@@ -458,6 +244,17 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
     furi_record_close(RECORD_STORAGE);
 
     return res;
+}
+
+void subghz_save_to_file(void* context) {
+    furi_assert(context);
+    SubGhz* subghz = context;
+    if(subghz_path_is_file(subghz->file_path)) {
+        subghz_save_protocol_to_file(
+            subghz,
+            subghz_txtx_get_fff_data(subghz->txrx),
+            furi_string_get_cstr(subghz->file_path));
+    }
 }
 
 bool subghz_save_protocol_to_file(
@@ -583,151 +380,6 @@ bool subghz_path_is_file(FuriString* path) {
     return furi_string_end_with(path, SUBGHZ_APP_EXTENSION);
 }
 
-uint32_t subghz_random_serial(void) {
-    return (uint32_t)rand();
-}
-
-void subghz_hopper_update(SubGhz* subghz) {
-    furi_assert(subghz);
-
-    switch(subghz->txrx->hopper_state) {
-    case SubGhzHopperStateOFF:
-    case SubGhzHopperStatePause:
-        return;
-    case SubGhzHopperStateRSSITimeOut:
-        if(subghz->txrx->hopper_timeout != 0) {
-            subghz->txrx->hopper_timeout--;
-            return;
-        }
-        break;
-    default:
-        break;
-    }
-    float rssi = -127.0f;
-    if(subghz->txrx->hopper_state != SubGhzHopperStateRSSITimeOut) {
-        // See RSSI Calculation timings in CC1101 17.3 RSSI
-        rssi = furi_hal_subghz_get_rssi();
-
-        // Stay if RSSI is high enough
-        if(rssi > -90.0f) {
-            subghz->txrx->hopper_timeout = 10;
-            subghz->txrx->hopper_state = SubGhzHopperStateRSSITimeOut;
-            return;
-        }
-    } else {
-        subghz->txrx->hopper_state = SubGhzHopperStateRunning;
-    }
-    // Select next frequency
-    if(subghz->txrx->hopper_idx_frequency <
-       subghz_setting_get_hopper_frequency_count(subghz->setting) - 1) {
-        subghz->txrx->hopper_idx_frequency++;
-    } else {
-        subghz->txrx->hopper_idx_frequency = 0;
-    }
-
-    if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-        subghz_rx_end(subghz);
-    };
-    if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
-        subghz_receiver_reset(subghz->txrx->receiver);
-        subghz->txrx->preset->frequency = subghz_setting_get_hopper_frequency(
-            subghz->setting, subghz->txrx->hopper_idx_frequency);
-        subghz_rx(subghz, subghz->txrx->preset->frequency);
-    }
-}
-
-SubGhzHopperState subghz_hopper_get_state(SubGhz* subghz) {
-    furi_assert(subghz);
-    return subghz->txrx->hopper_state;
-}
-
-void subghz_hopper_set_state(SubGhz* subghz, SubGhzHopperState state) {
-    furi_assert(subghz);
-    subghz->txrx->hopper_state = state;
-}
-
-void subghz_hopper_remove_pause(SubGhz* subghz) {
-    furi_assert(subghz);
-    if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
-        subghz->txrx->hopper_state = SubGhzHopperStateRunning;
-    }
-}
-
-void subghz_subghz_hopper_set_pause(SubGhz* subghz) {
-    furi_assert(subghz);
-    if(subghz->txrx->hopper_state == SubGhzHopperStateOFF) {
-        subghz->txrx->hopper_state = SubGhzHopperStatePause;
-    }
-}
-
-void subghz_speaker_on(SubGhz* subghz) {
-    if(subghz->txrx->debug_pin_state) {
-        furi_hal_subghz_set_async_mirror_pin(&gpio_ibutton);
-    }
-
-    if(subghz->txrx->speaker_state == SubGhzSpeakerStateEnable) {
-        if(furi_hal_speaker_acquire(30)) {
-            if(!subghz->txrx->debug_pin_state) {
-                furi_hal_subghz_set_async_mirror_pin(&gpio_speaker);
-            }
-        } else {
-            subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
-        }
-    }
-}
-
-void subghz_speaker_off(SubGhz* subghz) {
-    if(subghz->txrx->debug_pin_state) {
-        furi_hal_subghz_set_async_mirror_pin(NULL);
-    }
-    if(subghz->txrx->speaker_state != SubGhzSpeakerStateDisable) {
-        if(furi_hal_speaker_is_mine()) {
-            if(!subghz->txrx->debug_pin_state) {
-                furi_hal_subghz_set_async_mirror_pin(NULL);
-            }
-            furi_hal_speaker_release();
-            if(subghz->txrx->speaker_state == SubGhzSpeakerStateShutdown)
-                subghz->txrx->speaker_state = SubGhzSpeakerStateDisable;
-        }
-    }
-}
-
-void subghz_speaker_mute(SubGhz* subghz) {
-    if(subghz->txrx->debug_pin_state) {
-        furi_hal_subghz_set_async_mirror_pin(NULL);
-    }
-    if(subghz->txrx->speaker_state == SubGhzSpeakerStateEnable) {
-        if(furi_hal_speaker_is_mine()) {
-            if(!subghz->txrx->debug_pin_state) {
-                furi_hal_subghz_set_async_mirror_pin(NULL);
-            }
-        }
-    }
-}
-
-void subghz_speaker_unmute(SubGhz* subghz) {
-    if(subghz->txrx->debug_pin_state) {
-        furi_hal_subghz_set_async_mirror_pin(&gpio_ibutton);
-    }
-    if(subghz->txrx->speaker_state == SubGhzSpeakerStateEnable) {
-        if(furi_hal_speaker_is_mine()) {
-            if(!subghz->txrx->debug_pin_state) {
-                furi_hal_subghz_set_async_mirror_pin(&gpio_speaker);
-            }
-        }
-    }
-}
-
-void subghz_speaker_set_state(SubGhz* subghz, SubGhzSpeakerState state) {
-    furi_assert(subghz);
-    subghz->txrx->speaker_state = state;
-}
-
-SubGhzSpeakerState subghz_speaker_get_state(SubGhz* subghz) {
-    furi_assert(subghz);
-    return subghz->txrx->speaker_state;
-}
-
 void subghz_lock(SubGhz* subghz) {
     furi_assert(subghz);
     subghz->lock = SubGhzLockOn;
@@ -751,345 +403,4 @@ void subghz_rx_key_state_set(SubGhz* subghz, SubGhzRxKeyState state) {
 SubGhzRxKeyState subghz_rx_key_state_get(SubGhz* subghz) {
     furi_assert(subghz);
     return subghz->rx_key_state;
-}
-
-//#############Create  new Key##############
-#include <lib/subghz/protocols/protocol_items.h>
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/nice_flor_s.h>
-#include <lib/subghz/protocols/secplus_v1.h>
-#include <lib/subghz/protocols/secplus_v2.h>
-
-bool subghz_gen_data_protocol(
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    const char* protocol_name,
-    uint64_t key,
-    uint32_t bit) {
-    furi_assert(context);
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-    subghz->txrx->decoder_result =
-        subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, protocol_name);
-
-    if(subghz->txrx->decoder_result == NULL) {
-        furi_string_set(subghz->error_str, "Protocol not\nfound!");
-        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
-        return false;
-    }
-
-    do {
-        Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
-        stream_clean(fff_data_stream);
-        if(subghz_protocol_decoder_base_serialize(
-               subghz->txrx->decoder_result, subghz->txrx->fff_data, subghz->txrx->preset) !=
-           SubGhzProtocolStatusOk) {
-            FURI_LOG_E(TAG, "Unable to serialize");
-            break;
-        }
-        if(!flipper_format_update_uint32(subghz->txrx->fff_data, "Bit", &bit, 1)) {
-            FURI_LOG_E(TAG, "Unable to update Bit");
-            break;
-        }
-
-        uint8_t key_data[sizeof(uint64_t)] = {0};
-        for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (key >> (i * 8)) & 0xFF;
-        }
-        if(!flipper_format_update_hex(subghz->txrx->fff_data, "Key", key_data, sizeof(uint64_t))) {
-            FURI_LOG_E(TAG, "Unable to update Key");
-            break;
-        }
-        res = true;
-    } while(false);
-    return res;
-}
-
-bool subghz_gen_data_protocol_and_te(
-    SubGhz* subghz,
-    const char* preset_name,
-    uint32_t frequency,
-    const char* protocol_name,
-    uint64_t key,
-    uint32_t bit,
-    uint32_t te) {
-    furi_assert(subghz);
-    bool ret = false;
-    if(subghz_gen_data_protocol(subghz, preset_name, frequency, protocol_name, key, bit)) {
-        if(!flipper_format_update_uint32(subghz->txrx->fff_data, "TE", (uint32_t*)&te, 1)) {
-            FURI_LOG_E(TAG, "Unable to update Te");
-        } else {
-            ret = true;
-        }
-    }
-    return ret;
-}
-
-bool subghz_scene_set_type_submenu_gen_data_keeloq( //TODO rename
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    const char* manufacture_name) {
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz->txrx->transmitter =
-        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-
-    if(subghz->txrx->transmitter &&
-       subghz_protocol_keeloq_create_data(
-           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-           subghz->txrx->fff_data,
-           serial,
-           btn,
-           cnt,
-           manufacture_name,
-           subghz->txrx->preset)) {
-        flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", manufacture_name);
-        res = true;
-    }
-
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    return res;
-}
-
-bool subghz_scene_set_type_submenu_gen_data_keeloq_bft( //TODO rename
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    uint32_t seed,
-    const char* manufacture_name) {
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz->txrx->transmitter =
-        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-
-    if(subghz->txrx->transmitter &&
-       subghz_protocol_keeloq_bft_create_data(
-           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-           subghz->txrx->fff_data,
-           serial,
-           btn,
-           cnt,
-           seed,
-           manufacture_name,
-           subghz->txrx->preset)) {
-        res = true;
-    }
-
-    if(res) {
-        uint8_t seed_data[sizeof(uint32_t)] = {0};
-        for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-        }
-
-        flipper_format_write_hex(subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-
-        flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
-    }
-
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    return res;
-}
-
-bool subghz_scene_set_type_submenu_gen_data_nice_flor( //TODO rename
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    bool nice_one) {
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz->txrx->transmitter =
-        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-
-    if(subghz->txrx->transmitter &&
-       subghz_protocol_nice_flor_s_create_data(
-           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-           subghz->txrx->fff_data,
-           serial,
-           btn,
-           cnt,
-           subghz->txrx->preset,
-           nice_one)) {
-        res = true;
-    }
-
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    return res;
-}
-
-bool subghz_scene_set_type_submenu_gen_data_faac_slh( //TODO rename
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    uint32_t seed,
-    const char* manufacture_name) {
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz->txrx->transmitter =
-        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_FAAC_SLH_NAME);
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-
-    if(subghz->txrx->transmitter &&
-       subghz_protocol_faac_slh_create_data(
-           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-           subghz->txrx->fff_data,
-           serial,
-           btn,
-           cnt,
-           seed,
-           manufacture_name,
-           subghz->txrx->preset)) {
-        res = true;
-    }
-
-    if(res) {
-        uint8_t seed_data[sizeof(uint32_t)] = {0};
-        for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-        }
-
-        flipper_format_write_hex(subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-    }
-
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    return res;
-}
-
-bool subghz_scene_set_type_submenu_gen_data_alutech_at_4n( //TODO rename
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt) {
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz->txrx->transmitter = subghz_transmitter_alloc_init(
-        subghz->txrx->environment, SUBGHZ_PROTOCOL_ALUTECH_AT_4N_NAME);
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-
-    if(subghz->txrx->transmitter &&
-       subghz_protocol_alutech_at_4n_create_data(
-           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-           subghz->txrx->fff_data,
-           serial,
-           btn,
-           cnt,
-           subghz->txrx->preset)) {
-        res = true;
-    }
-
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    return res;
-}
-
-bool subghz_scene_set_type_submenu_gen_data_somfy_telis( //TODO rename
-    void* context,
-    const char* preset_name,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt) {
-    SubGhz* subghz = context;
-
-    bool res = false;
-
-    subghz->txrx->transmitter =
-        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_SOMFY_TELIS_NAME);
-    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
-
-    if(subghz->txrx->transmitter &&
-       subghz_protocol_somfy_telis_create_data(
-           subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-           subghz->txrx->fff_data,
-           serial,
-           btn,
-           cnt,
-           subghz->txrx->preset)) {
-        res = true;
-    }
-
-    subghz_transmitter_free(subghz->txrx->transmitter);
-
-    return res;
-}
-
-bool subghz_gen_secplus_v2_protocol(
-    SubGhz* subghz,
-    const char* name_preset,
-    uint32_t frequency,
-    uint32_t serial,
-    uint8_t btn,
-    uint32_t cnt) {
-    furi_assert(subghz);
-
-    bool ret = false;
-    subghz->txrx->transmitter =
-        subghz_transmitter_alloc_init(subghz->txrx->environment, SUBGHZ_PROTOCOL_SECPLUS_V2_NAME);
-    subghz_preset_init(subghz, name_preset, frequency, NULL, 0);
-    if(subghz->txrx->transmitter) {
-        subghz_protocol_secplus_v2_create_data(
-            subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-            subghz->txrx->fff_data,
-            serial,
-            btn,
-            cnt,
-            subghz->txrx->preset);
-        ret = true;
-    }
-    return ret;
-}
-
-bool subghz_gen_secplus_v1_protocol(SubGhz* subghz, const char* name_preset, uint32_t frequency) {
-    furi_assert(subghz);
-
-    bool ret = false;
-    uint32_t serial = subghz_random_serial();
-    while(!subghz_protocol_secplus_v1_check_fixed(serial)) {
-        serial = subghz_random_serial();
-    }
-    if(subghz_gen_data_protocol(
-           subghz,
-           name_preset,
-           frequency,
-           SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
-           (uint64_t)serial << 32 | 0xE6000000,
-           42)) {
-        ret = true;
-    }
-    return ret;
 }
