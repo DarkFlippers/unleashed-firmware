@@ -89,16 +89,6 @@ bool subghz_txrx_is_load_database(SubGhzTxRx* txrx) {
     return txrx->load_database;
 }
 
-void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state) {
-    furi_assert(txrx);
-    txrx->debug_pin_state = state;
-}
-
-bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx) {
-    furi_assert(txrx);
-    return txrx->debug_pin_state;
-}
-
 void subghz_set_preset(
     SubGhzTxRx* txrx,
     const char* preset_name,
@@ -110,28 +100,6 @@ void subghz_set_preset(
     txrx->preset->frequency = frequency;
     txrx->preset->data = preset_data;
     txrx->preset->data_size = preset_data_size;
-}
-
-void subghz_get_frequency_modulation(
-    SubGhzTxRx* txrx,
-    FuriString* frequency,
-    FuriString* modulation,
-    bool long_name) {
-    furi_assert(txrx);
-    if(frequency != NULL) {
-        furi_string_printf(
-            frequency,
-            "%03ld.%02ld",
-            txrx->preset->frequency / 1000000 % 1000,
-            txrx->preset->frequency / 10000 % 100);
-    }
-    if(modulation != NULL) {
-        if(long_name) {
-            furi_string_printf(modulation, "%s", furi_string_get_cstr(txrx->preset->name));
-        } else {
-            furi_string_printf(modulation, "%.2s", furi_string_get_cstr(txrx->preset->name));
-        }
-    }
 }
 
 const char* subghz_get_name_preset(SubGhzTxRx* txrx, const char* preset) {
@@ -156,6 +124,28 @@ const char* subghz_get_name_preset(SubGhzTxRx* txrx, const char* preset) {
 SubGhzRadioPreset subghz_get_preset(SubGhzTxRx* txrx) {
     furi_assert(txrx);
     return *txrx->preset;
+}
+
+void subghz_get_frequency_modulation(
+    SubGhzTxRx* txrx,
+    FuriString* frequency,
+    FuriString* modulation,
+    bool long_name) {
+    furi_assert(txrx);
+    if(frequency != NULL) {
+        furi_string_printf(
+            frequency,
+            "%03ld.%02ld",
+            txrx->preset->frequency / 1000000 % 1000,
+            txrx->preset->frequency / 10000 % 100);
+    }
+    if(modulation != NULL) {
+        if(long_name) {
+            furi_string_printf(modulation, "%s", furi_string_get_cstr(txrx->preset->name));
+        } else {
+            furi_string_printf(modulation, "%.2s", furi_string_get_cstr(txrx->preset->name));
+        }
+    }
 }
 
 static void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data) {
@@ -580,6 +570,16 @@ void subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
         (SubGhzProtocolEncoderRAW*)subghz_transmitter_get_protocol_instance(txrx->transmitter),
         callback,
         context);
+}
+
+void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state) {
+    furi_assert(txrx);
+    txrx->debug_pin_state = state;
+}
+
+bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return txrx->debug_pin_state;
 }
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* txrx) {

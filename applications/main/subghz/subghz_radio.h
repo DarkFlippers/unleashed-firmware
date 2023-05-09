@@ -17,9 +17,6 @@ SubGhzTxRx* subghz_txrx_alloc();
 void subghz_txrx_free(SubGhzTxRx* txrx);
 bool subghz_txrx_is_load_database(SubGhzTxRx* txrx);
 
-void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state);
-bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx);
-
 void subghz_set_preset(
     SubGhzTxRx* txrx,
     const char* preset_name,
@@ -36,7 +33,6 @@ void subghz_get_frequency_modulation(
     FuriString* modulation,
     bool long_name);
 bool subghz_tx_start(SubGhzTxRx* txrx, FlipperFormat* flipper_format);
-//void subghz_rx_end(SubGhzTxRx* txrx); //depricated
 void subghz_rx_start(SubGhzTxRx* txrx);
 void subghz_txrx_stop(SubGhzTxRx* txrx);
 void subghz_sleep(SubGhzTxRx* txrx);
@@ -75,6 +71,9 @@ void subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
     SubGhzTxRx* txrx,
     SubGhzProtocolEncoderRAWCallbackEnd callback,
     void* context);
+
+void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state);
+bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx);
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* txrx); // TODO use only in DecodeRaw
 
