@@ -18,7 +18,7 @@
 
 #define TAG "SubGhz"
 
-void subghz_set_defalut_preset(SubGhz* subghz) {
+void subghz_set_default_preset(SubGhz* subghz) {
     furi_assert(subghz);
     subghz_txrx_set_preset(
         subghz->txrx,

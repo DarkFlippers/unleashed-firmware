@@ -140,7 +140,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             } else {
                 //Restore default setting
                 if(subghz->raw_send_only) {
-                    subghz_set_defalut_preset(subghz);
+                    subghz_set_default_preset(subghz);
                 } else {
                     subghz_txrx_set_preset(
                         subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);

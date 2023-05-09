@@ -120,7 +120,7 @@ struct SubGhz {
     void* rpc_ctx;
 };
 
-void subghz_set_defalut_preset(SubGhz* subghz);
+void subghz_set_default_preset(SubGhz* subghz);
 void subghz_blink_start(SubGhz* subghz);
 void subghz_blink_stop(SubGhz* subghz);
 
