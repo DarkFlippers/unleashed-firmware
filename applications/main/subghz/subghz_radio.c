@@ -3,6 +3,33 @@
 
 #define TAG "SubGhz"
 
+struct SubGhzTxRx {
+    SubGhzWorker* worker;
+
+    SubGhzEnvironment* environment;
+    SubGhzReceiver* receiver;
+    SubGhzTransmitter* transmitter;
+    SubGhzProtocolDecoderBase* decoder_result;
+    FlipperFormat* fff_data;
+
+    SubGhzRadioPreset* preset;
+    SubGhzSetting* setting;
+
+    uint8_t hopper_timeout;
+    uint8_t hopper_idx_frequency;
+    bool load_database;
+    SubGhzHopperState hopper_state;
+
+    SubGhzTxRxState txrx_state;
+
+    SubGhzSpeakerState speaker_state;
+
+    SubGhzTxRxNeedSaveCallback need_save_callback;
+    void* need_save_context;
+
+    bool debug_pin_state;
+};
+
 SubGhzTxRx* subghz_txrx_alloc() {
     SubGhzTxRx* txrx = malloc(sizeof(SubGhzTxRx));
     txrx->setting = subghz_setting_alloc();
@@ -539,6 +566,25 @@ bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type) {
 void subghz_txrx_receiver_set_filter(SubGhzTxRx* txrx, SubGhzProtocolFlag filter) {
     furi_assert(txrx);
     subghz_receiver_set_filter(txrx->receiver, filter);
+}
+
+void subghz_txrx_set_rx_calback(SubGhzTxRx* txrx, SubGhzReceiverCallback callback, void* context) {
+    subghz_receiver_set_rx_callback(txrx->receiver, callback, context);
+}
+
+void subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
+    SubGhzTxRx* txrx,
+    SubGhzProtocolEncoderRAWCallbackEnd callback,
+    void* context) {
+    subghz_protocol_raw_file_encoder_worker_set_callback_end(
+        (SubGhzProtocolEncoderRAW*)subghz_transmitter_get_protocol_instance(txrx->transmitter),
+        callback,
+        context);
+}
+
+SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return txrx->receiver;
 }
 
 //#############Create  new Key##############

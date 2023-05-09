@@ -125,14 +125,14 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
 
 bool subghz_scene_decode_raw_next(SubGhz* subghz) {
     LevelDuration level_duration;
-
+    SubGhzReceiver* receiver = subghz_txrx_get_receiver(subghz->txrx);
     for(uint32_t read = SAMPLES_TO_READ_PER_TICK; read > 0; --read) {
         level_duration =
             subghz_file_encoder_worker_get_level_duration(subghz->decode_raw_file_worker_encoder);
         if(!level_duration_is_reset(level_duration)) {
             bool level = level_duration_get_level(level_duration);
             uint32_t duration = level_duration_get_duration(level_duration);
-            subghz_receiver_decode(subghz->txrx->receiver, level, duration);
+            subghz_receiver_decode(receiver, level, duration);
         } else {
             subghz->decode_raw_state = SubGhzDecodeRawStateLoaded;
             subghz->state_notifications = SubGhzNotificationStateIDLE;
@@ -167,8 +167,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
     subghz_view_receiver_set_callback(
         subghz->subghz_receiver, subghz_scene_decode_raw_callback, subghz);
 
-    subghz_receiver_set_rx_callback(
-        subghz->txrx->receiver, subghz_scene_add_to_history_callback, subghz);
+    subghz_txrx_set_rx_calback(subghz->txrx, subghz_scene_add_to_history_callback, subghz);
 
     subghz_txrx_receiver_set_filter(subghz->txrx, SubGhzProtocolFlag_Decodable);
 
@@ -214,7 +213,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             subghz->in_decoder_scene = false;
             subghz->in_decoder_scene_skip = false;
 
-            subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
+            subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
 
             if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
                 subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);

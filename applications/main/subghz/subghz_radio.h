@@ -5,37 +5,11 @@
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
+#include <lib/subghz/protocols/raw.h>
 
 #include "subghz_history.h"
 
 typedef void (*SubGhzTxRxNeedSaveCallback)(void* context);
-
-struct SubGhzTxRx {
-    SubGhzWorker* worker;
-
-    SubGhzEnvironment* environment;
-    SubGhzReceiver* receiver;
-    SubGhzTransmitter* transmitter;
-    SubGhzProtocolDecoderBase* decoder_result;
-    FlipperFormat* fff_data;
-
-    SubGhzRadioPreset* preset;
-    SubGhzSetting* setting;
-
-    uint8_t hopper_timeout;
-    uint8_t hopper_idx_frequency;
-    bool load_database;
-    SubGhzHopperState hopper_state;
-
-    SubGhzTxRxState txrx_state;
-
-    SubGhzSpeakerState speaker_state;
-
-    SubGhzTxRxNeedSaveCallback need_save_callback;
-    void* need_save_context;
-
-    bool debug_pin_state;
-};
 
 typedef struct SubGhzTxRx SubGhzTxRx;
 
@@ -95,6 +69,14 @@ bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* txrx);
 bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type);
 
 void subghz_txrx_receiver_set_filter(SubGhzTxRx* txrx, SubGhzProtocolFlag filter);
+
+void subghz_txrx_set_rx_calback(SubGhzTxRx* txrx, SubGhzReceiverCallback callback, void* context);
+void subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
+    SubGhzTxRx* txrx,
+    SubGhzProtocolEncoderRAWCallbackEnd callback,
+    void* context);
+
+SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* txrx); // TODO use only in DecodeRaw
 
 //#############Create  new Key##############
 bool subghz_gen_data_protocol(

@@ -228,11 +228,8 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                         DOLPHIN_DEED(DolphinDeedSubGhzSend);
                     }
                     // set callback end tx
-                    subghz_protocol_raw_file_encoder_worker_set_callback_end(
-                        (SubGhzProtocolEncoderRAW*)subghz_transmitter_get_protocol_instance(
-                            subghz->txrx->transmitter),
-                        subghz_scene_read_raw_callback_end_tx,
-                        subghz);
+                    subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
+                        subghz->txrx, subghz_scene_read_raw_callback_end_tx, subghz);
                     subghz->state_notifications = SubGhzNotificationStateTx;
                 }
             } else {

@@ -368,7 +368,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     subghz->gui = NULL;
 
     if(!alloc_for_tx_only) {
-        subghz_last_settings_free(subghz->last_settings);
+        subghz_last_settings_free(subghz->last_settings); //TODO always allocated
     }
 
     // threshold rssi

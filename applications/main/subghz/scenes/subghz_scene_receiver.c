@@ -153,32 +153,31 @@ void subghz_scene_receiver_on_enter(void* context) {
     subghz_scene_receiver_update_statusbar(subghz);
     subghz_view_receiver_set_callback(
         subghz->subghz_receiver, subghz_scene_receiver_callback, subghz);
-    subghz_receiver_set_rx_callback(
-        subghz->txrx->receiver, subghz_scene_add_to_history_callback, subghz);
+    subghz_txrx_set_rx_calback(subghz->txrx, subghz_scene_add_to_history_callback, subghz);
 
     // TODO: Replace with proper solution based on protocol flags, remove kostily and velosipedy from here
     // Needs to be done after subghz refactoring merge!!!
     if(subghz->ignore_starline == true) {
         if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Star Line")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
         }
     }
     if(subghz->ignore_auto_alarms == true) {
         if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "KIA Seed")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
         }
 
         if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Scher-Khan")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
         }
     }
     if(subghz->ignore_magellan == true) {
         if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Magellan")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
         }
     }
 
@@ -205,7 +204,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz_txrx_stop(subghz->txrx);
             subghz_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
             subghz->idx_menu_chosen = 0;
-            subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
+            subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
 
             if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateAddKey) {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateExit);
