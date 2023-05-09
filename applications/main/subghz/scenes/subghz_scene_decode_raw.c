@@ -29,7 +29,7 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
-        subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+        subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
 
         subghz_view_receiver_add_data_statusbar(
             subghz->subghz_receiver,
@@ -61,7 +61,7 @@ static void subghz_scene_add_to_history_callback(
     FuriString* item_name = furi_string_alloc();
     FuriString* item_time = furi_string_alloc();
     uint16_t idx = subghz_history_get_item(subghz->history);
-    SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
+    SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
 
     if(subghz_history_add_to_history(subghz->history, decoder_base, &preset)) {
         furi_string_reset(item_name);

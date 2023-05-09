@@ -1,84 +1,84 @@
 #pragma once
-//#include "subghz_i.h"
-#include "helpers/subghz_types.h"
+#include "subghz_types.h"
 #include <lib/subghz/subghz_worker.h>
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/protocols/raw.h>
 
-#include "subghz_history.h"
-
 typedef void (*SubGhzTxRxNeedSaveCallback)(void* context);
 
 typedef struct SubGhzTxRx SubGhzTxRx;
 
 SubGhzTxRx* subghz_txrx_alloc();
-void subghz_txrx_free(SubGhzTxRx* txrx);
-bool subghz_txrx_is_load_database(SubGhzTxRx* txrx);
+void subghz_txrx_free(SubGhzTxRx* instance);
+bool subghz_txrx_is_load_database(SubGhzTxRx* instance);
 
-void subghz_set_preset(
-    SubGhzTxRx* txrx,
+void subghz_txrx_set_preset(
+    SubGhzTxRx* instance,
     const char* preset_name,
     uint32_t frequency,
     uint8_t* preset_data,
     size_t preset_data_size);
 
-const char* subghz_get_name_preset(SubGhzTxRx* txrx, const char* preset);
-SubGhzRadioPreset subghz_get_preset(SubGhzTxRx* txrx);
+const char* subghz_txrx_get_name_preset(SubGhzTxRx* instance, const char* preset);
+SubGhzRadioPreset subghz_txrx_get_preset(SubGhzTxRx* instance);
 
-void subghz_get_frequency_modulation(
-    SubGhzTxRx* txrx,
+void subghz_txrx_get_frequency_modulation(
+    SubGhzTxRx* instance,
     FuriString* frequency,
     FuriString* modulation,
     bool long_name);
-bool subghz_tx_start(SubGhzTxRx* txrx, FlipperFormat* flipper_format);
-void subghz_rx_start(SubGhzTxRx* txrx);
-void subghz_txrx_stop(SubGhzTxRx* txrx);
-void subghz_sleep(SubGhzTxRx* txrx);
+bool subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat* flipper_format);
+void subghz_txrx_rx_start(SubGhzTxRx* instance);
+void subghz_txrx_stop(SubGhzTxRx* instance);
+void subghz_txrx_sleep(SubGhzTxRx* instance);
 
-SubGhzTxRxState subghz_txrx_get_state(SubGhzTxRx* txrx);
+SubGhzTxRxState subghz_txrx_get_state(SubGhzTxRx* instance);
 
-void subghz_hopper_update(SubGhzTxRx* txrx);
-SubGhzHopperState subghz_hopper_get_state(SubGhzTxRx* txrx);
-void subghz_hopper_set_state(SubGhzTxRx* txrx, SubGhzHopperState state);
-void subghz_hopper_remove_pause(SubGhzTxRx* txrx);
-void subghz_subghz_hopper_set_pause(SubGhzTxRx* txrx);
+void subghz_txrx_hopper_update(SubGhzTxRx* instance);
+SubGhzHopperState subghz_txrx_hopper_get_state(SubGhzTxRx* instance);
+void subghz_txrx_hopper_set_state(SubGhzTxRx* instance, SubGhzHopperState state);
+void subghz_txrx_hopper_remove_pause(SubGhzTxRx* instance);
+void subghz_txrx_hopper_set_pause(SubGhzTxRx* instance);
 
-void subghz_speaker_on(SubGhzTxRx* txrx);
-void subghz_speaker_off(SubGhzTxRx* txrx);
-void subghz_speaker_mute(SubGhzTxRx* txrx);
-void subghz_speaker_unmute(SubGhzTxRx* txrx);
-void subghz_speaker_set_state(SubGhzTxRx* txrx, SubGhzSpeakerState state);
-SubGhzSpeakerState subghz_speaker_get_state(SubGhzTxRx* txrx);
-bool subghz_txrx_load_decoder_by_name_protocol(SubGhzTxRx* txrx, const char* name_protocol);
-SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* txrx);
+void subghz_txrx_speaker_on(SubGhzTxRx* instance);
+void subghz_txrx_speaker_off(SubGhzTxRx* instance);
+void subghz_txrx_speaker_mute(SubGhzTxRx* instance);
+void subghz_txrx_speaker_unmute(SubGhzTxRx* instance);
+void subghz_txrx_speaker_set_state(SubGhzTxRx* instance, SubGhzSpeakerState state);
+SubGhzSpeakerState subghz_txrx_speaker_get_state(SubGhzTxRx* instance);
+bool subghz_txrx_load_decoder_by_name_protocol(SubGhzTxRx* instance, const char* name_protocol);
+SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* instance);
 
 void subghz_txrx_need_save_callback_set(
-    SubGhzTxRx* txrx,
+    SubGhzTxRx* instance,
     SubGhzTxRxNeedSaveCallback callback,
     void* context);
-FlipperFormat* subghz_txtx_get_fff_data(SubGhzTxRx* txrx);
-SubGhzSetting* subghz_txrx_get_setting(SubGhzTxRx* txrx);
+FlipperFormat* subghz_txtx_get_fff_data(SubGhzTxRx* instance);
+SubGhzSetting* subghz_txrx_get_setting(SubGhzTxRx* instance);
 
-bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* txrx);
-bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type);
+bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* instance);
+bool subghz_txrx_protocol_is_send(SubGhzTxRx* instance, bool check_type);
 
-void subghz_txrx_receiver_set_filter(SubGhzTxRx* txrx, SubGhzProtocolFlag filter);
+void subghz_txrx_receiver_set_filter(SubGhzTxRx* instance, SubGhzProtocolFlag filter);
 
-void subghz_txrx_set_rx_calback(SubGhzTxRx* txrx, SubGhzReceiverCallback callback, void* context);
+void subghz_txrx_set_rx_calback(
+    SubGhzTxRx* instance,
+    SubGhzReceiverCallback callback,
+    void* context);
 void subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
-    SubGhzTxRx* txrx,
+    SubGhzTxRx* instance,
     SubGhzProtocolEncoderRAWCallbackEnd callback,
     void* context);
 
-void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state);
-bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx);
+void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state);
+bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance);
 
-SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* txrx); // TODO use only in DecodeRaw
+SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw
 
 //#############Create  new Key##############
-bool subghz_gen_data_protocol(
+bool subghz_txrx_gen_data_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -86,8 +86,8 @@ bool subghz_gen_data_protocol(
     uint64_t key,
     uint32_t bit);
 
-bool subghz_gen_data_protocol_and_te(
-    SubGhzTxRx* txrx,
+bool subghz_txrx_gen_data_protocol_and_te(
+    SubGhzTxRx* instance,
     const char* preset_name,
     uint32_t frequency,
     const char* protocol_name,
@@ -149,7 +149,7 @@ bool subghz_scene_set_type_submenu_gen_data_somfy_telis( //TODO rename
     uint8_t btn,
     uint16_t cnt);
 
-bool subghz_gen_secplus_v2_protocol(
+bool subghz_txrx_gen_secplus_v2_protocol(
     SubGhzTxRx* txrx,
     const char* name_preset,
     uint32_t frequency,
@@ -157,4 +157,7 @@ bool subghz_gen_secplus_v2_protocol(
     uint8_t btn,
     uint32_t cnt);
 
-bool subghz_gen_secplus_v1_protocol(SubGhzTxRx* txrx, const char* name_preset, uint32_t frequency);
+bool subghz_txrx_gen_secplus_v1_protocol(
+    SubGhzTxRx* txrx,
+    const char* name_preset,
+    uint32_t frequency);

@@ -43,7 +43,7 @@
 
 #include "helpers/subghz_threshold_rssi.h"
 
-#include "subghz_radio.h"
+#include "helpers/subghz_txrx.h"
 
 #define SUBGHZ_MAX_LEN_NAME 64
 #define SUBGHZ_EXT_PRESET_NAME true
@@ -120,8 +120,8 @@ struct SubGhz {
     void* rpc_ctx;
 };
 
-void subghz_blink_start(SubGhz* instance);
-void subghz_blink_stop(SubGhz* instance);
+void subghz_blink_start(SubGhz* subghz);
+void subghz_blink_stop(SubGhz* subghz);
 
 void subghz_dialog_message_show_only_rx(SubGhz* subghz);
 bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog);

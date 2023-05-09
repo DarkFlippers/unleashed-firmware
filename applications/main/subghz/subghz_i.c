@@ -91,7 +91,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
 
         furi_string_set_str(
-            temp_str, subghz_get_name_preset(subghz->txrx, furi_string_get_cstr(temp_str)));
+            temp_str, subghz_txrx_get_name_preset(subghz->txrx, furi_string_get_cstr(temp_str)));
         if(temp_str == NULL) {
             break;
         }
@@ -112,7 +112,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
         size_t preset_index = subghz_setting_get_inx_preset_by_name(
             subghz_txrx_get_setting(subghz->txrx), furi_string_get_cstr(temp_str));
-        subghz_set_preset(
+        subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(temp_str),
             temp_data32,

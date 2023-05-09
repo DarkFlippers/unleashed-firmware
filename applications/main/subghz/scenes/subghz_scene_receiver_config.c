@@ -149,7 +149,7 @@ static void subghz_scene_receiver_config_set_frequency(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    if(subghz_hopper_get_state(subghz->txrx) == SubGhzHopperStateOFF) {
+    if(subghz_txrx_hopper_get_state(subghz->txrx) == SubGhzHopperStateOFF) {
         char text_buf[10] = {0};
         snprintf(
             text_buf,
@@ -161,16 +161,16 @@ static void subghz_scene_receiver_config_set_frequency(VariableItem* item) {
                 10000);
         variable_item_set_current_value_text(item, text_buf);
 
-        SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
+        SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
 
-        subghz_set_preset(
+        subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(preset.name),
             subghz_setting_get_frequency(subghz_txrx_get_setting(subghz->txrx), index),
             preset.data,
             preset.data_size);
 
-        preset = subghz_get_preset(subghz->txrx);
+        preset = subghz_txrx_get_preset(subghz->txrx);
 
         subghz->last_settings->frequency = preset.frequency;
         subghz_setting_set_default_frequency(
@@ -189,9 +189,9 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
         subghz_setting_get_preset_name(subghz_txrx_get_setting(subghz->txrx), index);
     variable_item_set_current_value_text(item, preset_name);
     //subghz->last_settings->preset = index;
-    SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
+    SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
 
-    subghz_set_preset(
+    subghz_txrx_set_preset(
         subghz->txrx,
         preset_name,
         preset.frequency,
@@ -218,8 +218,8 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
             (VariableItem*)scene_manager_get_scene_state(
                 subghz->scene_manager, SubGhzSceneReceiverConfig),
             text_buf);
-        SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
-        subghz_set_preset(
+        SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
+        subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(preset.name),
             subghz_setting_get_default_frequency(subghz_txrx_get_setting(subghz->txrx)),
@@ -240,7 +240,7 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
             subghz_setting_get_frequency_default_index(subghz_txrx_get_setting(subghz->txrx)));
     }
 
-    subghz_hopper_set_state(subghz->txrx, hopping_value[index]);
+    subghz_txrx_hopper_set_state(subghz->txrx, hopping_value[index]);
 }
 
 static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
@@ -248,7 +248,7 @@ static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, speaker_text[index]);
-    subghz_speaker_set_state(subghz->txrx, speaker_value[index]);
+    subghz_txrx_speaker_set_state(subghz->txrx, speaker_value[index]);
 }
 
 static void subghz_scene_receiver_config_set_bin_raw(VariableItem* item) {
@@ -305,7 +305,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     SubGhz* subghz = context;
     VariableItem* item;
     uint8_t value_index;
-    SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
+    SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
 
     item = variable_item_list_add(
         subghz->variable_item_list,
@@ -350,7 +350,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz_scene_receiver_config_set_hopping_running,
             subghz);
         value_index = subghz_scene_receiver_config_hopper_value_index(
-            subghz_hopper_get_state(subghz->txrx), hopping_value, HOPPING_COUNT, subghz);
+            subghz_txrx_hopper_get_state(subghz->txrx), hopping_value, HOPPING_COUNT, subghz);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, hopping_text[value_index]);
     }
@@ -412,7 +412,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         subghz_scene_receiver_config_set_speaker,
         subghz);
     value_index =
-        value_index_uint32(subghz_speaker_get_state(subghz->txrx), speaker_value, SPEAKER_COUNT);
+        value_index_uint32(subghz_txrx_speaker_get_state(subghz->txrx), speaker_value, SPEAKER_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, speaker_text[value_index]);
 

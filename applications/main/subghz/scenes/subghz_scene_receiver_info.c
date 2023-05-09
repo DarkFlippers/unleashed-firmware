@@ -34,7 +34,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
 
         SubGhzRadioPreset* preset =
             subghz_history_get_radio_preset(subghz->history, subghz->idx_menu_chosen);
-        subghz_set_preset(
+        subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(preset->name),
             preset->frequency,
@@ -52,7 +52,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
         FuriString* modulation_str = furi_string_alloc();
         FuriString* text = furi_string_alloc();
 
-        subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+        subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
         widget_add_string_element(
             subghz->widget,
             78,
@@ -118,17 +118,17 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
             //CC1101 Stop RX -> Start TX
-            subghz_subghz_hopper_set_pause(subghz->txrx);
+            subghz_txrx_hopper_set_pause(subghz->txrx);
 
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
 
-            if(!subghz_tx_start(
+            if(!subghz_txrx_tx_start(
                    subghz->txrx,
                    subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen))) {
-                subghz_rx_start(subghz->txrx);
-                subghz_hopper_remove_pause(subghz->txrx);
+                subghz_txrx_rx_start(subghz->txrx);
+                subghz_txrx_hopper_remove_pause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             } else {
                 subghz->state_notifications = SubGhzNotificationStateTx;
@@ -143,16 +143,16 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 
             subghz_txrx_stop(subghz->txrx);
             if(!subghz->in_decoder_scene) {
-                subghz_rx_start(subghz->txrx);
+                subghz_txrx_rx_start(subghz->txrx);
 
-                subghz_hopper_remove_pause(subghz->txrx);
+                subghz_txrx_hopper_remove_pause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
+            subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
 
             subghz_txrx_stop(subghz->txrx);
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
@@ -170,8 +170,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             return true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
-            subghz_hopper_update(subghz->txrx);
+        if(subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
+            subghz_txrx_hopper_update(subghz->txrx);
         }
         switch(subghz->state_notifications) {
         case SubGhzNotificationStateTx:

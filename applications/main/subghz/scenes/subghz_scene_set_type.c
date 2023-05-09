@@ -305,64 +305,64 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexPricenton433:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            generated_protocol = subghz_gen_data_protocol_and_te(
+            generated_protocol = subghz_txrx_gen_data_protocol_and_te(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_PRINCETON_NAME, key, 24, 400);
             break;
         case SubmenuIndexPricenton315:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            generated_protocol = subghz_gen_data_protocol_and_te(
+            generated_protocol = subghz_txrx_gen_data_protocol_and_te(
                 subghz->txrx, "AM650", 315000000, SUBGHZ_PROTOCOL_PRINCETON_NAME, key, 24, 400);
             break;
         case SubmenuIndexNiceFlo12bit:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_NICE_FLO_NAME, key, 12);
             break;
         case SubmenuIndexNiceFlo24bit:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_NICE_FLO_NAME, key, 24);
             break;
         case SubmenuIndexCAME12bit:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_CAME_NAME, key, 12);
             break;
         case SubmenuIndexCAME24bit:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_CAME_NAME, key, 24);
             break;
         case SubmenuIndexCAME12bit868:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 868350000, SUBGHZ_PROTOCOL_CAME_NAME, key, 12);
             break;
         case SubmenuIndexCAME24bit868:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 868350000, SUBGHZ_PROTOCOL_CAME_NAME, key, 24);
             break;
         case SubmenuIndexLinear_300_00:
             key = (key & 0x3FF);
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 300000000, SUBGHZ_PROTOCOL_LINEAR_NAME, key, 10);
             break;
         case SubmenuIndexBETT_433:
             key = (key & 0x0000FFF0);
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_BETT_NAME, key, 18);
             break;
         case SubmenuIndexCAMETwee:
             key = (key & 0x0FFFFFF0);
             key = 0x003FFF7200000000 | (key ^ 0xE0E0E0EE);
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_CAME_TWEE_NAME, key, 54);
             break;
         case SubmenuIndexGateTX:
             key = (key & 0x00F0FF00) | 0xF << 16 | 0x40; //btn 0xF, 0xC, 0xA, 0x6 (?)
             uint64_t rev_key = subghz_protocol_blocks_reverse_key(key, 24);
-            generated_protocol = subghz_gen_data_protocol(
+            generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_GATE_TX_NAME, rev_key, 24);
             break;
         case SubmenuIndexBeninca433:
@@ -613,28 +613,28 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexLiftMaster_315_00:
-            generated_protocol = subghz_gen_secplus_v1_protocol(subghz->txrx, "AM650", 315000000);
+            generated_protocol = subghz_txrx_gen_secplus_v1_protocol(subghz->txrx, "AM650", 315000000);
             break;
         case SubmenuIndexLiftMaster_390_00:
-            generated_protocol = subghz_gen_secplus_v1_protocol(subghz->txrx, "AM650", 390000000);
+            generated_protocol = subghz_txrx_gen_secplus_v1_protocol(subghz->txrx, "AM650", 390000000);
             break;
         case SubmenuIndexLiftMaster_433_00:
-            generated_protocol = subghz_gen_secplus_v1_protocol(subghz->txrx, "AM650", 433920000);
+            generated_protocol = subghz_txrx_gen_secplus_v1_protocol(subghz->txrx, "AM650", 433920000);
             break;
         case SubmenuIndexSecPlus_v2_310_00:
-            generated_protocol = subghz_gen_secplus_v2_protocol(
+            generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 310000000, key, 0x68, 0xE500000);
             break;
         case SubmenuIndexSecPlus_v2_315_00:
-            generated_protocol = subghz_gen_secplus_v2_protocol(
+            generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 315000000, key, 0x68, 0xE500000);
             break;
         case SubmenuIndexSecPlus_v2_390_00:
-            generated_protocol = subghz_gen_secplus_v2_protocol(
+            generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 390000000, key, 0x68, 0xE500000);
             break;
         case SubmenuIndexSecPlus_v2_433_00:
-            generated_protocol = subghz_gen_secplus_v2_protocol(
+            generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 433920000, key, 0x68, 0xE500000);
             break;
         default:

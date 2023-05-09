@@ -46,11 +46,12 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
 
 #ifdef SUBGHZ_EXT_PRESET_NAME
         if(subghz_history_get_last_index(subghz->history) > 0) {
-            subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+            subghz_txrx_get_frequency_modulation(
+                subghz->txrx, frequency_str, modulation_str, false);
         } else {
             FuriString* temp_str = furi_string_alloc();
 
-            subghz_get_frequency_modulation(subghz->txrx, frequency_str, temp_str, true);
+            subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, temp_str, true);
             furi_string_printf(
                 modulation_str,
                 "%s        Mod: %s",
@@ -59,7 +60,7 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_free(temp_str);
         }
 #else
-        subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+        subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
 #endif
 
         subghz_view_receiver_add_data_statusbar(
@@ -96,7 +97,7 @@ static void subghz_scene_add_to_history_callback(
     FuriString* item_time = furi_string_alloc();
     uint16_t idx = subghz_history_get_item(subghz->history);
 
-    SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
+    SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
     if(subghz_history_add_to_history(subghz->history, decoder_base, &preset)) {
         furi_string_reset(item_name);
         furi_string_reset(item_time);
@@ -126,7 +127,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
-        subghz_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz_txrx_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
         subghz_history_reset(subghz->history);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);
     }
@@ -183,7 +184,7 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     subghz->state_notifications = SubGhzNotificationStateRx;
     subghz_txrx_stop(subghz->txrx);
-    subghz_rx_start(subghz->txrx);
+    subghz_txrx_rx_start(subghz->txrx);
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
 
     //to use a universal decoder, we are looking for a link to it
@@ -202,7 +203,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz_txrx_stop(subghz->txrx);
-            subghz_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
+            subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
             subghz->idx_menu_chosen = 0;
             subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
 
@@ -211,7 +212,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
-                subghz_set_preset(
+                subghz_txrx_set_preset(
                     subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
@@ -254,8 +255,8 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
-            subghz_hopper_update(subghz->txrx);
+        if(subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
+            subghz_txrx_hopper_update(subghz->txrx);
             subghz_scene_receiver_update_statusbar(subghz);
         }
 

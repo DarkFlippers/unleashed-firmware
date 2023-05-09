@@ -51,14 +51,14 @@ static void subghz_rpc_command_callback(RpcAppSystemEvent event, void* context) 
     }
 }
 
-void subghz_blink_start(SubGhz* instance) {
-    furi_assert(instance);
-    notification_message(instance->notifications, &sequence_blink_start_magenta);
+void subghz_blink_start(SubGhz* subghz) {
+    furi_assert(subghz);
+    notification_message(subghz->notifications, &sequence_blink_start_magenta);
 }
 
-void subghz_blink_stop(SubGhz* instance) {
-    furi_assert(instance);
-    notification_message(instance->notifications, &sequence_blink_stop);
+void subghz_blink_stop(SubGhz* subghz) {
+    furi_assert(subghz);
+    notification_message(subghz->notifications, &sequence_blink_stop);
 }
 
 SubGhz* subghz_alloc(bool alloc_for_tx_only) {
@@ -262,7 +262,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     }
 
     if(!alloc_for_tx_only) {
-        subghz_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz_txrx_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
     }
 
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
@@ -295,9 +295,9 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
         subghz->rpc_ctx = NULL;
     }
 
-    subghz_speaker_off(subghz->txrx);
+    subghz_txrx_speaker_off(subghz->txrx);
     subghz_txrx_stop(subghz->txrx);
-    subghz_sleep(subghz->txrx);
+    subghz_txrx_sleep(subghz->txrx);
 
 #if FURI_DEBUG
     // Packet Test
