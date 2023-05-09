@@ -28,6 +28,7 @@
         "flipperformat",
         "toolbox",
         "nfc",
+        "pulse_reader",
         "microtar",
         "usb_stm32",
         "st25rfal002",
