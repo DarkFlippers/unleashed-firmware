@@ -46,12 +46,12 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
 
 #ifdef SUBGHZ_EXT_PRESET_NAME
         if(subghz_history_get_last_index(subghz->history) > 0) {
-            subghz_txrx_get_frequency_modulation(
+            subghz_txrx_get_frequency_and_modulation(
                 subghz->txrx, frequency_str, modulation_str, false);
         } else {
             FuriString* temp_str = furi_string_alloc();
 
-            subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, temp_str, true);
+            subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, temp_str, true);
             furi_string_printf(
                 modulation_str,
                 "%s        Mod: %s",
@@ -60,7 +60,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_free(temp_str);
         }
 #else
-        subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+        subghz_txrx_get_frequency_and_modulation(
+            subghz->txrx, frequency_str, modulation_str, false);
 #endif
 
         subghz_view_receiver_add_data_statusbar(

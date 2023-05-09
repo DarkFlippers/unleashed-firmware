@@ -265,7 +265,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     subghz->filter = SubGhzProtocolFlag_Decodable;
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
-    subghz_txrx_need_save_callback_set(subghz->txrx, subghz_save_to_file, subghz);
+    subghz_txrx_set_need_save_callback(subghz->txrx, subghz_save_to_file, subghz);
 
     //Init Error_str
     subghz->error_str = furi_string_alloc();
@@ -446,7 +446,7 @@ int32_t subghz_app(void* p) {
         view_dispatcher_attach_to_gui(
             subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
         furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
-        if(subghz_txrx_is_load_database(subghz->txrx)) {
+        if(subghz_txrx_is_database_loaded(subghz->txrx)) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);
         } else {
             scene_manager_set_scene_state(

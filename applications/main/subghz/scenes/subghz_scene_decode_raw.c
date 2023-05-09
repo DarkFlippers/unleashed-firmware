@@ -29,7 +29,7 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
-        subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+        subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str, false);
 
         subghz_view_receiver_add_data_statusbar(
             subghz->subghz_receiver,
@@ -88,13 +88,13 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
     FuriString* file_name = furi_string_alloc();
     bool success = false;
     do {
-        if(!flipper_format_rewind(subghz_txtx_get_fff_data(subghz->txrx))) {
+        if(!flipper_format_rewind(subghz_txrx_get_fff_data(subghz->txrx))) {
             FURI_LOG_E(TAG, "Rewind error");
             break;
         }
 
         if(!flipper_format_read_string(
-               subghz_txtx_get_fff_data(subghz->txrx), "File_name", file_name)) {
+               subghz_txrx_get_fff_data(subghz->txrx), "File_name", file_name)) {
             FURI_LOG_E(TAG, "Missing File_name");
             break;
         }

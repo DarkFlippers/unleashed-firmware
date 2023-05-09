@@ -37,7 +37,7 @@ void subghz_txrx_free(SubGhzTxRx* instance);
  * @param instance Pointer to a SubGhzTxRx
  * @return bool True if the database is loaded
  */
-bool subghz_txrx_is_load_database(SubGhzTxRx* instance);
+bool subghz_txrx_is_database_loaded(SubGhzTxRx* instance);
 
 /**
  * Set preset 
@@ -62,7 +62,7 @@ void subghz_txrx_set_preset(
  * @param preset String of preset 
  * @return const char*  Name of preset
  */
-const char* subghz_txrx_get_name_preset(SubGhzTxRx* instance, const char* preset);
+const char* subghz_txrx_get_preset_name(SubGhzTxRx* instance, const char* preset);
 
 /**
  * Get of preset
@@ -79,7 +79,7 @@ SubGhzRadioPreset subghz_txrx_get_preset(SubGhzTxRx* instance);
  * @param frequency Pointer to a string frequency
  * @param modulation Pointer to a string modulation
  */
-void subghz_txrx_get_frequency_modulation(
+void subghz_txrx_get_frequency_and_modulation(
     SubGhzTxRx* instance,
     FuriString* frequency,
     FuriString* modulation,
@@ -143,7 +143,7 @@ void subghz_txrx_hopper_set_state(SubGhzTxRx* instance, SubGhzHopperState state)
  * 
  * @param instance Pointer to a SubGhzTxRx
  */
-void subghz_txrx_hopper_remove_pause(SubGhzTxRx* instance);
+void subghz_txrx_hopper_unpause(SubGhzTxRx* instance);
 
 /**
  * Set pause hopper
@@ -220,7 +220,7 @@ SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* instance);
  * @param callback Callback for save data
  * @param context Context for callback
  */
-void subghz_txrx_need_save_callback_set(
+void subghz_txrx_set_need_save_callback(
     SubGhzTxRx* instance,
     SubGhzTxRxNeedSaveCallback callback,
     void* context);
@@ -231,7 +231,7 @@ void subghz_txrx_need_save_callback_set(
  * @param instance Pointer to a SubGhzTxRx
  * @return FlipperFormat* 
  */
-FlipperFormat* subghz_txtx_get_fff_data(SubGhzTxRx* instance);
+FlipperFormat* subghz_txrx_get_fff_data(SubGhzTxRx* instance);
 
 /**
  * Get pointer to a SugGhzSetting
@@ -247,7 +247,7 @@ SubGhzSetting* subghz_txrx_get_setting(SubGhzTxRx* instance);
  * @param instance Pointer to a SubGhzTxRx 
  * @return bool True if it is possible to save this protocol
  */
-bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* instance);
+bool subghz_txrx_protocol_is_serializable(SubGhzTxRx* instance);
 
 /**
  * Is it possible to send this protocol
@@ -255,7 +255,7 @@ bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* instance);
  * @param instance Pointer to a SubGhzTxRx 
  * @return bool True if it is possible to send this protocol
  */
-bool subghz_txrx_protocol_is_send(SubGhzTxRx* instance, bool check_type);
+bool subghz_txrx_protocol_is_transmittable(SubGhzTxRx* instance, bool check_type);
 
 /**
  * Set filter, what types of decoder to use 
@@ -284,7 +284,7 @@ void subghz_txrx_set_rx_calback(
  * @param callback Callback for Raw decoder, end of data transfer 
  * @param context Context for callback
  */
-void subghz_txrx_set_raw_file_encoder_worker_set_callback_end(
+void subghz_txrx_set_raw_file_encoder_worker_callback_end(
     SubGhzTxRx* instance,
     SubGhzProtocolEncoderRAWCallbackEnd callback,
     void* context);

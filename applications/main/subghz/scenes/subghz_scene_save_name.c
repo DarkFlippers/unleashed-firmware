@@ -147,7 +147,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                        SubGhzCustomEventManagerNoSet) {
                         subghz_save_protocol_to_file(
                             subghz,
-                            subghz_txtx_get_fff_data(subghz->txrx),
+                            subghz_txrx_get_fff_data(subghz->txrx),
                             furi_string_get_cstr(subghz->file_path));
                         scene_manager_set_scene_state(
                             subghz->scene_manager,
@@ -164,7 +164,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                 if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
                    SubGhzCustomEventManagerNoSet) {
                     subghz_protocol_raw_gen_fff_data(
-                        subghz_txtx_get_fff_data(subghz->txrx),
+                        subghz_txrx_get_fff_data(subghz->txrx),
                         furi_string_get_cstr(subghz->file_path));
                     scene_manager_set_scene_state(
                         subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);

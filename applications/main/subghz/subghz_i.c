@@ -79,7 +79,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     Stream* fff_data_stream =
-        flipper_format_get_raw_stream(subghz_txtx_get_fff_data(subghz->txrx));
+        flipper_format_get_raw_stream(subghz_txrx_get_fff_data(subghz->txrx));
 
     SubGhzLoadKeyState load_key_state = SubGhzLoadKeyStateParseErr;
     FuriString* temp_str = furi_string_alloc();
@@ -129,7 +129,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
 
         furi_string_set_str(
-            temp_str, subghz_txrx_get_name_preset(subghz->txrx, furi_string_get_cstr(temp_str)));
+            temp_str, subghz_txrx_get_preset_name(subghz->txrx, furi_string_get_cstr(temp_str)));
         if(temp_str == NULL) {
             break;
         }
@@ -164,7 +164,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        FlipperFormat* fff_data = subghz_txtx_get_fff_data(subghz->txrx);
+        FlipperFormat* fff_data = subghz_txrx_get_fff_data(subghz->txrx);
         if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
             //if RAW
             subghz->load_type_file = SubGhzLoadTypeFileRaw;
@@ -276,7 +276,7 @@ void subghz_save_to_file(void* context) {
     if(subghz_path_is_file(subghz->file_path)) {
         subghz_save_protocol_to_file(
             subghz,
-            subghz_txtx_get_fff_data(subghz->txrx),
+            subghz_txrx_get_fff_data(subghz->txrx),
             furi_string_get_cstr(subghz->file_path));
     }
 }
