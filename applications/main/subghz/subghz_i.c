@@ -163,21 +163,23 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             FURI_LOG_E(TAG, "Missing Protocol");
             break;
         }
+
+        FlipperFormat* fff_data = subghz_txtx_get_fff_data(subghz->txrx);
         if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
             //if RAW
             subghz->load_type_file = SubGhzLoadTypeFileRaw;
-            subghz_protocol_raw_gen_fff_data(subghz_txtx_get_fff_data(subghz->txrx), file_path);
+            subghz_protocol_raw_gen_fff_data(fff_data, file_path);
         } else {
             subghz->load_type_file = SubGhzLoadTypeFileKey;
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_data_file),
-                flipper_format_get_raw_stream(subghz_txtx_get_fff_data(subghz->txrx)));
+                flipper_format_get_raw_stream(fff_data));
         }
 
         if(subghz_txrx_load_decoder_by_name_protocol(
                subghz->txrx, furi_string_get_cstr(temp_str))) {
             SubGhzProtocolStatus status = subghz_protocol_decoder_base_deserialize(
-                subghz_txrx_get_decoder(subghz->txrx), subghz_txtx_get_fff_data(subghz->txrx));
+                subghz_txrx_get_decoder(subghz->txrx), fff_data);
             if(status != SubGhzProtocolStatusOk) {
                 load_key_state = SubGhzLoadKeyStateProtocolDescriptionErr;
                 break;
