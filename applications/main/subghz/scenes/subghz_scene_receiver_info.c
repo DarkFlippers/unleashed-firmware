@@ -78,8 +78,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
         furi_string_free(modulation_str);
         furi_string_free(text);
 
-        if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
-           SubGhzProtocolFlag_Save) {
+        if(subghz_txrx_protocol_is_preserved(subghz->txrx)) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeRight,
@@ -88,9 +87,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
                 subghz);
         }
         // Removed static check
-        if(((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
-            SubGhzProtocolFlag_Send) &&
-           subghz->txrx->decoder_result->protocol->encoder->deserialize) {
+        if(subghz_txrx_protocol_is_send(subghz->txrx, false)) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeCenter,
@@ -162,8 +159,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 return false;
             }
 
-            if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
-               SubGhzProtocolFlag_Save) {
+            if(subghz_txrx_protocol_is_preserved(subghz->txrx)) {
                 subghz_file_name_clear(subghz);
 
                 if(subghz->in_decoder_scene) {

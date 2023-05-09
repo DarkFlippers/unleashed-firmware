@@ -444,6 +444,28 @@ SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* txrx) {
     return txrx->decoder_result;
 }
 
+bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return (
+        (txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
+        SubGhzProtocolFlag_Save);
+}
+
+bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type) {
+    furi_assert(txrx);
+    if(check_type) {
+        return (
+            ((txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
+             SubGhzProtocolFlag_Send) &&
+            txrx->decoder_result->protocol->encoder->deserialize &&
+            txrx->decoder_result->protocol->type == SubGhzProtocolTypeStatic);
+    }
+    return (
+        ((txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
+         SubGhzProtocolFlag_Send) &&
+        txrx->decoder_result->protocol->encoder->deserialize);
+}
+
 //#############Create  new Key##############
 #include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/protocols/keeloq.h>

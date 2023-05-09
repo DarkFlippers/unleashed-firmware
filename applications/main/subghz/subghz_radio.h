@@ -84,6 +84,9 @@ void subghz_txrx_need_save_callback_set(
 FlipperFormat* subghz_txtx_get_fff_data(SubGhzTxRx* txrx);
 SubGhzSetting* subghz_txrx_get_setting(SubGhzTxRx* txrx);
 
+bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* txrx);
+bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type);
+
 //#############Create  new Key##############
 bool subghz_gen_data_protocol(
     void* context,

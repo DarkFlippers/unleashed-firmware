@@ -20,18 +20,11 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
-        bool show_button = false;
-
         if(subghz_protocol_decoder_base_deserialize(
                subghz_txrx_get_decoder(subghz->txrx), subghz_txtx_get_fff_data(subghz->txrx)) ==
            SubGhzProtocolStatusOk) {
             subghz_protocol_decoder_base_get_string(
                 subghz_txrx_get_decoder(subghz->txrx), key_str);
-
-            if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
-               SubGhzProtocolFlag_Send) {
-                show_button = true;
-            }
 
             subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
             subghz_view_transmitter_add_data_to_show(
@@ -39,7 +32,7 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
                 furi_string_get_cstr(key_str),
                 furi_string_get_cstr(frequency_str),
                 furi_string_get_cstr(modulation_str),
-                show_button);
+                subghz_txrx_protocol_is_send(subghz->txrx, false));
             ret = true;
         }
         furi_string_free(frequency_str);
