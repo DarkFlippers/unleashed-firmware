@@ -256,8 +256,8 @@ static void subghz_scene_receiver_config_set_bin_raw(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, bin_raw_text[index]);
-    subghz->txrx->filter = bin_raw_value[index];
-    subghz_receiver_set_filter(subghz->txrx->receiver, subghz->txrx->filter);
+    subghz->filter = bin_raw_value[index];
+    subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
 }
 
 static void subghz_scene_receiver_config_set_raw_threshold_rssi(VariableItem* item) {
@@ -363,7 +363,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             BIN_RAW_COUNT,
             subghz_scene_receiver_config_set_bin_raw,
             subghz);
-        value_index = value_index_uint32(subghz->txrx->filter, bin_raw_value, BIN_RAW_COUNT);
+        value_index = value_index_uint32(subghz->filter, bin_raw_value, BIN_RAW_COUNT);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, bin_raw_text[value_index]);
     }

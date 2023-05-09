@@ -170,7 +170,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
     subghz_receiver_set_rx_callback(
         subghz->txrx->receiver, subghz_scene_add_to_history_callback, subghz);
 
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_Decodable);
+    subghz_txrx_receiver_set_filter(subghz->txrx, SubGhzProtocolFlag_Decodable);
 
     if(subghz->decode_raw_state == SubGhzDecodeRawStateStart) {
         //Decode RAW to history

@@ -117,7 +117,7 @@ void subghz_scene_read_raw_on_enter(void* context) {
     furi_check(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, SUBGHZ_PROTOCOL_RAW_NAME));
 
     //set filter RAW feed
-    subghz_receiver_set_filter(subghz->txrx->receiver, SubGhzProtocolFlag_RAW);
+    subghz_txrx_receiver_set_filter(subghz->txrx, SubGhzProtocolFlag_RAW);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdReadRAW);
 }
 
@@ -359,5 +359,5 @@ void subghz_scene_read_raw_on_exit(void* context) {
     notification_message(subghz->notifications, &sequence_reset_rgb);
 
     //filter restoration
-    subghz_receiver_set_filter(subghz->txrx->receiver, subghz->txrx->filter);
+    subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
 }

@@ -94,6 +94,7 @@ struct SubGhz {
 #endif
     SubGhzLastSettings* last_settings;
 
+    SubGhzProtocolFlag filter;
     FuriString* error_str;
     SubGhzLock lock;
 

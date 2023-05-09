@@ -466,6 +466,11 @@ bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type) {
         txrx->decoder_result->protocol->encoder->deserialize);
 }
 
+void subghz_txrx_receiver_set_filter(SubGhzTxRx* txrx, SubGhzProtocolFlag filter) {
+    furi_assert(txrx);
+    subghz_receiver_set_filter(txrx->receiver, filter);
+}
+
 //#############Create  new Key##############
 #include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/protocols/keeloq.h>

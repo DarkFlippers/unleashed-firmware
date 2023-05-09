@@ -16,7 +16,6 @@ struct SubGhzTxRx {
     SubGhzEnvironment* environment;
     SubGhzReceiver* receiver;
     SubGhzTransmitter* transmitter;
-    SubGhzProtocolFlag filter;
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
 
@@ -86,6 +85,8 @@ SubGhzSetting* subghz_txrx_get_setting(SubGhzTxRx* txrx);
 
 bool subghz_txrx_protocol_is_preserved(SubGhzTxRx* txrx);
 bool subghz_txrx_protocol_is_send(SubGhzTxRx* txrx, bool check_type);
+
+void subghz_txrx_receiver_set_filter(SubGhzTxRx* txrx, SubGhzProtocolFlag filter);
 
 //#############Create  new Key##############
 bool subghz_gen_data_protocol(
