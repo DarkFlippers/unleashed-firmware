@@ -170,7 +170,6 @@ class Main(App):
             "update.dir",
             "sdk_headers.dir",
             "lib.dir",
-            "debug.dir",
             "scripts.dir",
         )
 

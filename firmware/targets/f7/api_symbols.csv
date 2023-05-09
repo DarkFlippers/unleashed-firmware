@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,26.0,,
+Version,+,26.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -178,6 +178,34 @@ Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_adc.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_bus.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_comp.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_cortex.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_crc.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_crs.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_dma.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_dmamux.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_exti.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_gpio.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_hsem.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_i2c.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_ipcc.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_iwdg.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_lptim.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_lpuart.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_pka.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_pwr.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_rcc.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_rng.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_rtc.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_spi.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_system.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_tim.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_usart.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_utils.h,,
+Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_wwdg.h,,
+Header,+,lib/pulse_reader/pulse_reader.h,,
 Header,+,lib/subghz/blocks/const.h,,
 Header,+,lib/subghz/blocks/decoder.h,,
 Header,+,lib/subghz/blocks/encoder.h,,
@@ -238,8 +266,8 @@ Function,-,LL_EXTI_StructInit,void,LL_EXTI_InitTypeDef*
 Function,-,LL_GPIO_DeInit,ErrorStatus,GPIO_TypeDef*
 Function,+,LL_GPIO_Init,ErrorStatus,"GPIO_TypeDef*, LL_GPIO_InitTypeDef*"
 Function,-,LL_GPIO_StructInit,void,LL_GPIO_InitTypeDef*
-Function,-,LL_I2C_DeInit,ErrorStatus,I2C_TypeDef*
-Function,+,LL_I2C_Init,ErrorStatus,"I2C_TypeDef*, LL_I2C_InitTypeDef*"
+Function,-,LL_I2C_DeInit,ErrorStatus,const I2C_TypeDef*
+Function,+,LL_I2C_Init,ErrorStatus,"I2C_TypeDef*, const LL_I2C_InitTypeDef*"
 Function,-,LL_I2C_StructInit,void,LL_I2C_InitTypeDef*
 Function,-,LL_Init1msTick,void,uint32_t
 Function,+,LL_LPTIM_DeInit,ErrorStatus,LPTIM_TypeDef*
@@ -762,6 +790,16 @@ Function,+,dialog_message_set_text,void,"DialogMessage*, const char*, uint8_t, u
 Function,+,dialog_message_show,DialogMessageButton,"DialogsApp*, const DialogMessage*"
 Function,+,dialog_message_show_storage_error,void,"DialogsApp*, const char*"
 Function,-,difftime,double,"time_t, time_t"
+Function,-,digital_sequence_add,void,"DigitalSequence*, uint8_t"
+Function,-,digital_sequence_alloc,DigitalSequence*,"uint32_t, const GpioPin*"
+Function,-,digital_sequence_clear,void,DigitalSequence*
+Function,-,digital_sequence_free,void,DigitalSequence*
+Function,-,digital_sequence_send,_Bool,DigitalSequence*
+Function,-,digital_sequence_set_sendtime,void,"DigitalSequence*, uint32_t"
+Function,-,digital_sequence_set_signal,void,"DigitalSequence*, uint8_t, DigitalSignal*"
+Function,-,digital_sequence_timebase_correction,void,"DigitalSequence*, float"
+Function,-,digital_signal_add,void,"DigitalSignal*, uint32_t"
+Function,-,digital_signal_add_pulse,void,"DigitalSignal*, uint32_t, _Bool"
 Function,-,digital_signal_alloc,DigitalSignal*,uint32_t
 Function,-,digital_signal_append,_Bool,"DigitalSignal*, DigitalSignal*"
 Function,-,digital_signal_free,void,DigitalSignal*
@@ -1028,6 +1066,7 @@ Function,+,furi_hal_bt_change_app,_Bool,"FuriHalBtProfile, GapEventCallback, voi
 Function,+,furi_hal_bt_clear_white_list,_Bool,
 Function,+,furi_hal_bt_dump_state,void,FuriString*
 Function,+,furi_hal_bt_ensure_c2_mode,_Bool,BleGlueC2Mode
+Function,-,furi_hal_bt_get_hardfault_info,const FuriHalBtHardfaultInfo*,
 Function,+,furi_hal_bt_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,furi_hal_bt_get_radio_stack,FuriHalBtStack,
 Function,+,furi_hal_bt_get_rssi,float,
@@ -2212,6 +2251,15 @@ Function,+,protocol_dict_render_brief_data,void,"ProtocolDict*, FuriString*, siz
 Function,+,protocol_dict_render_data,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_set_data,void,"ProtocolDict*, size_t, const uint8_t*, size_t"
 Function,-,pselect,int,"int, fd_set*, fd_set*, fd_set*, const timespec*, const sigset_t*"
+Function,-,pulse_reader_alloc,PulseReader*,"const GpioPin*, uint32_t"
+Function,-,pulse_reader_free,void,PulseReader*
+Function,-,pulse_reader_receive,uint32_t,"PulseReader*, int"
+Function,-,pulse_reader_samples,uint32_t,PulseReader*
+Function,-,pulse_reader_set_bittime,void,"PulseReader*, uint32_t"
+Function,-,pulse_reader_set_pull,void,"PulseReader*, GpioPull"
+Function,-,pulse_reader_set_timebase,void,"PulseReader*, PulseReaderUnit"
+Function,-,pulse_reader_start,void,PulseReader*
+Function,-,pulse_reader_stop,void,PulseReader*
 Function,-,putc,int,"int, FILE*"
 Function,-,putc_unlocked,int,"int, FILE*"
 Function,-,putchar,int,int

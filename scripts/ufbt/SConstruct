@@ -186,6 +186,33 @@ dist_env.PhonyTarget(
     FBT_FAP_DEBUG_ELF_ROOT=path_as_posix(dist_env.subst("$FBT_FAP_DEBUG_ELF_ROOT")),
 )
 
+# Debug alien elf
+debug_other_opts = [
+    "-ex",
+    "source ${FBT_DEBUG_DIR}/PyCortexMDebug/PyCortexMDebug.py",
+    "-ex",
+    "source ${FBT_DEBUG_DIR}/flipperversion.py",
+    "-ex",
+    "fw-version",
+]
+
+dist_env.PhonyTarget(
+    "debug_other",
+    "${GDBPYCOM}",
+    GDBOPTS="${GDBOPTS_BASE}",
+    GDBREMOTE="${OPENOCD_GDB_PIPE}",
+    GDBPYOPTS=debug_other_opts,
+)
+
+dist_env.PhonyTarget(
+    "debug_other_blackmagic",
+    "${GDBPYCOM}",
+    GDBOPTS="${GDBOPTS_BASE}  ${GDBOPTS_BLACKMAGIC}",
+    GDBREMOTE="${BLACKMAGIC_ADDR}",
+    GDBPYOPTS=debug_other_opts,
+)
+
+
 dist_env.PhonyTarget(
     "flash_blackmagic",
     "$GDB $GDBOPTS $SOURCES $GDBFLASH",

@@ -48,7 +48,6 @@ class HandleRegistry:
                 print("%d: %3s %16s" % (i, h, name))
 
     def FilterBy(self, qMode):
-
         """Retrieve a List of Mutex Queue Handles"""
         resp = []
         for i in range(self._minIndex, self._maxIndex):

@@ -1,0 +1,17 @@
+App(
+    appid="mfkey32",
+    name="Mfkey32",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="mfkey32_main",
+    requires=[
+        "gui",
+        "storage",
+    ],
+    stack_size=1 * 1024,
+    fap_icon="mfkey.png",
+    fap_category="Nfc",
+    fap_author="noproto",
+    fap_icon_assets="images",
+    fap_weburl="https://github.com/noproto/FlipperMfkey",
+)

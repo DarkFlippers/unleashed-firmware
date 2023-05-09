@@ -47,7 +47,6 @@ QueueMode.Map = QueueMap
 
 
 class QueueInspector:
-
     QueueType = gdb.lookup_type("Queue_t")
 
     def __init__(self, handle):

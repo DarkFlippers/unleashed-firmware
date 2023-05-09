@@ -224,6 +224,19 @@ uint32_t furi_hal_bt_get_transmitted_packets();
  */
 bool furi_hal_bt_ensure_c2_mode(BleGlueC2Mode mode);
 
+typedef struct {
+    uint32_t magic;
+    uint32_t source_pc;
+    uint32_t source_lr;
+    uint32_t source_sp;
+} FuriHalBtHardfaultInfo;
+
+/** Get hardfault info
+ *
+ * @return     hardfault info. NULL if no hardfault
+ */
+const FuriHalBtHardfaultInfo* furi_hal_bt_get_hardfault_info();
+
 #ifdef __cplusplus
 }
 #endif

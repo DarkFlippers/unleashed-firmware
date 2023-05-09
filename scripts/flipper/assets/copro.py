@@ -1,16 +1,14 @@
-import logging
 import json
-from io import BytesIO
-import tarfile
-import xml.etree.ElementTree as ET
-import posixpath
+import logging
 import os
+import posixpath
+import tarfile
+from io import BytesIO
 
-from flipper.utils import file_sha256, timestamp
 from flipper.assets.coprobin import CoproBinary, get_stack_type
+from flipper.utils import file_sha256, timestamp
 
-
-CUBE_COPRO_PATH = "Projects/STM32WB_Copro_Wireless_Binaries"
+CUBE_COPRO_PATH = "firmware"
 
 MANIFEST_TEMPLATE = {
     "manifest": {"version": 0, "timestamp": 0},
@@ -27,8 +25,7 @@ MANIFEST_TEMPLATE = {
 class Copro:
     COPRO_TAR_DIR = "core2_firmware"
 
-    def __init__(self, mcu):
-        self.mcu = mcu
+    def __init__(self):
         self.version = None
         self.cube_dir = None
         self.mcu_copro = None
@@ -38,20 +35,24 @@ class Copro:
         if not os.path.isdir(cube_dir):
             raise Exception(f'"{cube_dir}" doesn\'t exists')
         self.cube_dir = cube_dir
-        self.mcu_copro = os.path.join(self.cube_dir, CUBE_COPRO_PATH, self.mcu)
+        self.mcu_copro = os.path.join(self.cube_dir, CUBE_COPRO_PATH)
         if not os.path.isdir(self.mcu_copro):
             raise Exception(f'"{self.mcu_copro}" doesn\'t exists')
-        cube_manifest_file = os.path.join(self.cube_dir, "package.xml")
-        cube_manifest = ET.parse(cube_manifest_file)
-        cube_package = cube_manifest.find("PackDescription")
-        if not cube_package:
-            raise Exception("Unknown Cube manifest format")
-        cube_version = cube_package.get("Patch") or cube_package.get("Release")
-        if not cube_version or not cube_version.startswith("FW.WB"):
-            raise Exception("Incorrect Cube package or version info")
-        cube_version = cube_version.replace("FW.WB.", "", 1)
+        try:
+            cube_manifest_file = os.path.join(self.cube_dir, "VERSION")
+            with open(cube_manifest_file, "r") as cube_manifest:
+                cube_version = cube_manifest.read().strip()
+        except IOError:
+            raise Exception(f"Failed to read version from {cube_manifest_file}")
+
+        if not cube_version.startswith("v"):
+            raise Exception(f"Invalid cube version: {cube_version}")
+        cube_version = cube_version[1:]
+
         if cube_version != reference_cube_version:
-            raise Exception("Unsupported cube version")
+            raise Exception(
+                f"Unsupported cube version: {cube_version}, expecting {reference_cube_version}"
+            )
         self.version = cube_version
 
     def _getFileName(self, name):
