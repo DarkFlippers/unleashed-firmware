@@ -85,35 +85,6 @@ Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_version.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_vibro.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_adc.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_bus.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_comp.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_cortex.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_crc.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_crs.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_dma.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_dmamux.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_exti.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_gpio.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_hsem.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_i2c.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_ipcc.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_iwdg.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_lptim.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_lpuart.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_pka.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_pwr.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_rcc.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_rng.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_rtc.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_spi.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_tim.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_usart.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_utils.h,,
-Header,+,lib/STM32CubeWB/Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_wwdg.h,,
-Header,-,lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h,,
-Header,+,lib/STM32CubeWB/Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h,,
 Header,+,lib/flipper_application/api_hashtable/api_hashtable.h,,
 Header,+,lib/flipper_application/api_hashtable/compilesort.hpp,,
 Header,+,lib/flipper_application/flipper_application.h,,
@@ -178,6 +149,7 @@ Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
+Header,+,lib/pulse_reader/pulse_reader.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_adc.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_bus.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_comp.h,,
@@ -205,7 +177,6 @@ Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_tim.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_usart.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_utils.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_wwdg.h,,
-Header,+,lib/pulse_reader/pulse_reader.h,,
 Header,+,lib/subghz/blocks/const.h,,
 Header,+,lib/subghz/blocks/decoder.h,,
 Header,+,lib/subghz/blocks/encoder.h,,
@@ -4505,7 +4476,6 @@ Function,+,uECC_sign,int,"const uint8_t*, const uint8_t*, unsigned, uint8_t*, uE
 Function,-,uECC_sign_deterministic,int,"const uint8_t*, const uint8_t*, unsigned, const uECC_HashContext*, uint8_t*, uECC_Curve"
 Function,-,uECC_valid_public_key,int,"const uint8_t*, uECC_Curve"
 Function,-,uECC_verify,int,"const uint8_t*, const uint8_t*, unsigned, const uint8_t*, uECC_Curve"
-Function,-,ucStreamBufferGetStreamBufferType,uint8_t,StreamBufferHandle_t
 Function,+,uint8_to_hex_chars,void,"const uint8_t*, uint8_t*, int"
 Function,-,ulTaskGenericNotifyTake,uint32_t,"UBaseType_t, BaseType_t, TickType_t"
 Function,-,ulTaskGenericNotifyValueClear,uint32_t,"TaskHandle_t, UBaseType_t, uint32_t"
@@ -4517,7 +4487,6 @@ Function,-,usbd_poll,void,usbd_device*
 Function,-,utf8_show,void,
 Function,-,utoa,char*,"unsigned, char*, int"
 Function,-,uxListRemove,UBaseType_t,ListItem_t*
-Function,-,uxStreamBufferGetStreamBufferNumber,UBaseType_t,StreamBufferHandle_t
 Function,-,uxTaskGetNumberOfTasks,UBaseType_t,
 Function,-,uxTaskGetStackHighWaterMark,UBaseType_t,TaskHandle_t
 Function,-,uxTaskGetStackHighWaterMark2,uint16_t,TaskHandle_t
@@ -4542,8 +4511,6 @@ Function,-,vPortFree,void,void*
 Function,-,vPortGetHeapStats,void,HeapStats_t*
 Function,-,vPortInitialiseBlocks,void,
 Function,-,vPortSuppressTicksAndSleep,void,TickType_t
-Function,+,vStreamBufferDelete,void,StreamBufferHandle_t
-Function,-,vStreamBufferSetStreamBufferNumber,void,"StreamBufferHandle_t, UBaseType_t"
 Function,-,vTaskAllocateMPURegions,void,"TaskHandle_t, const MemoryRegion_t*"
 Function,-,vTaskDelay,void,const TickType_t
 Function,-,vTaskDelete,void,TaskHandle_t
@@ -4687,21 +4654,6 @@ Function,+,widget_reset,void,Widget*
 Function,-,xPortGetFreeHeapSize,size_t,
 Function,-,xPortGetMinimumEverFreeHeapSize,size_t,
 Function,-,xPortStartScheduler,BaseType_t,
-Function,-,xStreamBufferBytesAvailable,size_t,StreamBufferHandle_t
-Function,+,xStreamBufferGenericCreate,StreamBufferHandle_t,"size_t, size_t, BaseType_t"
-Function,-,xStreamBufferGenericCreateStatic,StreamBufferHandle_t,"size_t, size_t, BaseType_t, uint8_t*, StaticStreamBuffer_t*"
-Function,-,xStreamBufferIsEmpty,BaseType_t,StreamBufferHandle_t
-Function,-,xStreamBufferIsFull,BaseType_t,StreamBufferHandle_t
-Function,-,xStreamBufferNextMessageLengthBytes,size_t,StreamBufferHandle_t
-Function,+,xStreamBufferReceive,size_t,"StreamBufferHandle_t, void*, size_t, TickType_t"
-Function,-,xStreamBufferReceiveCompletedFromISR,BaseType_t,"StreamBufferHandle_t, BaseType_t*"
-Function,-,xStreamBufferReceiveFromISR,size_t,"StreamBufferHandle_t, void*, size_t, BaseType_t*"
-Function,-,xStreamBufferReset,BaseType_t,StreamBufferHandle_t
-Function,-,xStreamBufferSend,size_t,"StreamBufferHandle_t, const void*, size_t, TickType_t"
-Function,-,xStreamBufferSendCompletedFromISR,BaseType_t,"StreamBufferHandle_t, BaseType_t*"
-Function,+,xStreamBufferSendFromISR,size_t,"StreamBufferHandle_t, const void*, size_t, BaseType_t*"
-Function,-,xStreamBufferSetTriggerLevel,BaseType_t,"StreamBufferHandle_t, size_t"
-Function,-,xStreamBufferSpacesAvailable,size_t,StreamBufferHandle_t
 Function,-,xTaskAbortDelay,BaseType_t,TaskHandle_t
 Function,-,xTaskCallApplicationTaskHook,BaseType_t,"TaskHandle_t, void*"
 Function,-,xTaskCatchUpTicks,BaseType_t,TickType_t
