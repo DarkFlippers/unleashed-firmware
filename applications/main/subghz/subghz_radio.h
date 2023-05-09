@@ -21,7 +21,6 @@ struct SubGhzTxRx {
     FlipperFormat* fff_data;
 
     SubGhzRadioPreset* preset;
-    SubGhzHistory* history;
     SubGhzSetting* setting;
 
     uint8_t hopper_timeout;
@@ -40,26 +39,27 @@ struct SubGhzTxRx {
 
 typedef struct SubGhzTxRx SubGhzTxRx;
 
-void subghz_preset_init(
+void subghz_set_preset(
     SubGhzTxRx* txrx,
     const char* preset_name,
     uint32_t frequency,
     uint8_t* preset_data,
     size_t preset_data_size);
 
-const char* subghz_set_preset(SubGhzTxRx* txrx, const char* preset);
+const char* subghz_get_name_preset(SubGhzTxRx* txrx, const char* preset);
+SubGhzRadioPreset subghz_get_preset(SubGhzTxRx* txrx);
+
 void subghz_get_frequency_modulation(
     SubGhzTxRx* txrx,
     FuriString* frequency,
     FuriString* modulation,
     bool long_name);
-void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data);
-uint32_t subghz_rx(SubGhzTxRx* txrx, uint32_t frequency);
 bool subghz_tx_start(SubGhzTxRx* txrx, FlipperFormat* flipper_format);
 //void subghz_rx_end(SubGhzTxRx* txrx); //depricated
-//void subghz_sleep(SubGhzTxRx* txrx);
-
+void subghz_rx_start(SubGhzTxRx* txrx);
 void subghz_txrx_stop(SubGhzTxRx* txrx);
+void subghz_sleep(SubGhzTxRx* txrx);
+
 SubGhzTxRxState subghz_txrx_get_state(SubGhzTxRx* txrx);
 
 void subghz_hopper_update(SubGhzTxRx* txrx);

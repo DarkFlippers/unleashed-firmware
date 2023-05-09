@@ -156,7 +156,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                         subghz_save_protocol_to_file(
                             subghz,
                             subghz_history_get_raw_data(
-                                subghz->txrx->history, subghz->idx_menu_chosen),
+                                subghz->history, subghz->idx_menu_chosen),
                             furi_string_get_cstr(subghz->file_path));
                     }
                 }

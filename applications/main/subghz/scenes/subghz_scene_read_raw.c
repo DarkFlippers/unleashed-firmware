@@ -42,6 +42,7 @@ static void subghz_scene_read_raw_update_statusbar(void* context) {
 
 #ifdef SUBGHZ_EXT_PRESET_NAME
     subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, true);
+    //TODO if need subghz_get_preset
     //furi_string_printf(modulation_str, "%s", furi_string_get_cstr(subghz->txrx->preset->name));
 #else
     subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
@@ -139,14 +140,15 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             } else {
                 //Restore default setting
                 if(subghz->raw_send_only) {
-                    subghz_preset_init(
+                    subghz_set_preset(
                         subghz->txrx,
                         "AM650",
-                        subghz_setting_get_default_frequency(subghz->txrx->setting),
+                        subghz_setting_get_default_frequency(
+                            subghz_txrx_get_setting(subghz->txrx)),
                         NULL,
                         0);
                 } else {
-                    subghz_preset_init(
+                    subghz_set_preset(
                         subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
                 }
                 if(!scene_manager_search_and_switch_to_previous_scene(
@@ -281,18 +283,13 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             if(subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateIDLE) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
+                SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
                 if(subghz_protocol_raw_save_to_file_init(
                        (SubGhzProtocolDecoderRAW*)subghz_txrx_get_decoder(subghz->txrx),
                        RAW_FILE_NAME,
-                       subghz->txrx->preset)) {
+                       &preset)) {
                     DOLPHIN_DEED(DolphinDeedSubGhzRawRec);
-                    subghz_txrx_stop(subghz->txrx);
-                    subghz_begin(
-                        subghz->txrx,
-                        subghz_setting_get_preset_data_by_name(
-                            subghz->txrx->setting,
-                            furi_string_get_cstr(subghz->txrx->preset->name)));
-                    subghz_rx(subghz->txrx, subghz->txrx->preset->frequency);
+                    subghz_rx_start(subghz->txrx);
 
                     subghz->state_notifications = SubGhzNotificationStateRx;
                     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);

@@ -111,6 +111,7 @@ struct SubGhz {
 
     SubGhzThresholdRssi* threshold_rssi;
     SubGhzRxKeyState rx_key_state;
+    SubGhzHistory* history;
 
     uint16_t idx_menu_chosen;
     SubGhzLoadTypeFile load_type_file;

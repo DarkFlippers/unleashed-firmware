@@ -72,7 +72,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventViewTransmitterSendStart) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz_txrx_stop(subghz->txrx);
+
             if(subghz_tx_start(subghz->txrx, subghz_txtx_get_fff_data(subghz->txrx))) {
                 subghz->state_notifications = SubGhzNotificationStateTx;
                 subghz_scene_transmitter_update_data_show(subghz);

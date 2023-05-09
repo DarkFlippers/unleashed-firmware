@@ -25,7 +25,7 @@
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
     FuriString* history_stat_str = furi_string_alloc();
-    if(!subghz_history_get_text_space_left(subghz->txrx->history, history_stat_str)) {
+    if(!subghz_history_get_text_space_left(subghz->history, history_stat_str)) {
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
@@ -60,21 +60,22 @@ static void subghz_scene_add_to_history_callback(
     SubGhz* subghz = context;
     FuriString* item_name = furi_string_alloc();
     FuriString* item_time = furi_string_alloc();
-    uint16_t idx = subghz_history_get_item(subghz->txrx->history);
+    uint16_t idx = subghz_history_get_item(subghz->history);
+    SubGhzRadioPreset preset = subghz_get_preset(subghz->txrx);
 
-    if(subghz_history_add_to_history(subghz->txrx->history, decoder_base, subghz->txrx->preset)) {
+    if(subghz_history_add_to_history(subghz->history, decoder_base, &preset)) {
         furi_string_reset(item_name);
         furi_string_reset(item_time);
 
         subghz->state_notifications = SubGhzNotificationStateRxDone;
 
-        subghz_history_get_text_item_menu(subghz->txrx->history, item_name, idx);
-        subghz_history_get_time_item_menu(subghz->txrx->history, item_time, idx);
+        subghz_history_get_text_item_menu(subghz->history, item_name, idx);
+        subghz_history_get_time_item_menu(subghz->history, item_time, idx);
         subghz_view_receiver_add_item_to_menu(
             subghz->subghz_receiver,
             furi_string_get_cstr(item_name),
             furi_string_get_cstr(item_time),
-            subghz_history_get_type_protocol(subghz->txrx->history, idx));
+            subghz_history_get_type_protocol(subghz->history, idx));
 
         subghz_scene_receiver_update_statusbar(subghz);
     }
@@ -173,7 +174,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
 
     if(subghz->decode_raw_state == SubGhzDecodeRawStateStart) {
         //Decode RAW to history
-        subghz_history_reset(subghz->txrx->history);
+        subghz_history_reset(subghz->history);
         if(subghz_scene_decode_raw_start(subghz)) {
             subghz->decode_raw_state = SubGhzDecodeRawStateLoading;
             subghz->state_notifications = SubGhzNotificationStateRx;
@@ -181,16 +182,16 @@ void subghz_scene_decode_raw_on_enter(void* context) {
     } else {
         //Load history to receiver
         subghz_view_receiver_exit(subghz->subghz_receiver);
-        for(uint8_t i = 0; i < subghz_history_get_item(subghz->txrx->history); i++) {
+        for(uint8_t i = 0; i < subghz_history_get_item(subghz->history); i++) {
             furi_string_reset(item_name);
             furi_string_reset(item_time);
-            subghz_history_get_text_item_menu(subghz->txrx->history, item_name, i);
-            subghz_history_get_time_item_menu(subghz->txrx->history, item_time, i);
+            subghz_history_get_text_item_menu(subghz->history, item_name, i);
+            subghz_history_get_time_item_menu(subghz->history, item_time, i);
             subghz_view_receiver_add_item_to_menu(
                 subghz->subghz_receiver,
                 furi_string_get_cstr(item_name),
                 furi_string_get_cstr(item_time),
-                subghz_history_get_type_protocol(subghz->txrx->history, i));
+                subghz_history_get_type_protocol(subghz->history, i));
         }
         furi_string_free(item_name);
         furi_string_free(item_time);

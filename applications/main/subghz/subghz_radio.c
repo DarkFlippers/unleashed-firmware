@@ -2,7 +2,7 @@
 
 #define TAG "SubGhz"
 
-void subghz_preset_init(
+void subghz_set_preset(
     SubGhzTxRx* txrx,
     const char* preset_name,
     uint32_t frequency,
@@ -37,7 +37,7 @@ void subghz_get_frequency_modulation(
     }
 }
 
-const char* subghz_set_preset(SubGhzTxRx* txrx, const char* preset) {
+const char* subghz_get_name_preset(SubGhzTxRx* txrx, const char* preset) {
     UNUSED(txrx);
     const char* preset_name = NULL;
     if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
@@ -56,7 +56,12 @@ const char* subghz_set_preset(SubGhzTxRx* txrx, const char* preset) {
     return preset_name;
 }
 
-void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data) {
+SubGhzRadioPreset subghz_get_preset(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return *txrx->preset;
+}
+
+static void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data) {
     furi_assert(txrx);
     furi_hal_subghz_reset();
     furi_hal_subghz_idle();
@@ -65,7 +70,7 @@ void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data) {
     txrx->txrx_state = SubGhzTxRxStateIDLE;
 }
 
-uint32_t subghz_rx(SubGhzTxRx* txrx, uint32_t frequency) {
+static uint32_t subghz_rx(SubGhzTxRx* txrx, uint32_t frequency) {
     furi_assert(txrx);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
         furi_crash("SubGhz: Incorrect RX frequency.");
@@ -106,11 +111,11 @@ static void subghz_rx_end(SubGhzTxRx* txrx) {
     txrx->txrx_state = SubGhzTxRxStateIDLE;
 }
 
-// static void subghz_sleep(SubGhzTxRx* txrx) {
-//     furi_assert(txrx);
-//     furi_hal_subghz_sleep();
-//     txrx->txrx_state = SubGhzTxRxStateSleep;
-// }
+void subghz_sleep(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    furi_hal_subghz_sleep();
+    txrx->txrx_state = SubGhzTxRxStateSleep;
+}
 
 static bool subghz_tx(SubGhzTxRx* txrx, uint32_t frequency) {
     furi_assert(txrx);
@@ -133,6 +138,9 @@ static bool subghz_tx(SubGhzTxRx* txrx, uint32_t frequency) {
 
 bool subghz_tx_start(SubGhzTxRx* txrx, FlipperFormat* flipper_format) {
     furi_assert(txrx);
+    furi_assert(flipper_format);
+
+    subghz_txrx_stop(txrx);
 
     bool ret = false;
     FuriString* temp_str = furi_string_alloc();
@@ -198,6 +206,16 @@ bool subghz_tx_start(SubGhzTxRx* txrx, FlipperFormat* flipper_format) {
     } while(false);
     furi_string_free(temp_str);
     return ret;
+}
+
+void subghz_rx_start(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    subghz_txrx_stop(txrx);
+    subghz_begin(
+        txrx,
+        subghz_setting_get_preset_data_by_name(
+            subghz_txrx_get_setting(txrx), furi_string_get_cstr(txrx->preset->name)));
+    subghz_rx(txrx, txrx->preset->frequency);
 }
 
 void subghz_txrx_need_save_callback_set(
@@ -449,7 +467,7 @@ bool subghz_gen_data_protocol(
 
     bool res = false;
 
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
     txrx->decoder_result =
         subghz_receiver_search_decoder_base_by_name(txrx->receiver, protocol_name);
 
@@ -520,7 +538,7 @@ bool subghz_scene_set_type_submenu_gen_data_keeloq( //TODO rename
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
 
     if(txrx->transmitter && subghz_protocol_keeloq_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
@@ -552,7 +570,7 @@ bool subghz_scene_set_type_submenu_gen_data_keeloq_bft( //TODO rename
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
 
     if(txrx->transmitter && subghz_protocol_keeloq_bft_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
@@ -596,7 +614,7 @@ bool subghz_scene_set_type_submenu_gen_data_nice_flor( //TODO rename
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
 
     if(txrx->transmitter && subghz_protocol_nice_flor_s_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
@@ -629,7 +647,7 @@ bool subghz_scene_set_type_submenu_gen_data_faac_slh( //TODO rename
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_FAAC_SLH_NAME);
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
 
     if(txrx->transmitter && subghz_protocol_faac_slh_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
@@ -670,7 +688,7 @@ bool subghz_scene_set_type_submenu_gen_data_alutech_at_4n( //TODO rename
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_ALUTECH_AT_4N_NAME);
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
 
     if(txrx->transmitter && subghz_protocol_alutech_at_4n_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
@@ -700,7 +718,7 @@ bool subghz_scene_set_type_submenu_gen_data_somfy_telis( //TODO rename
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_SOMFY_TELIS_NAME);
-    subghz_preset_init(txrx, preset_name, frequency, NULL, 0);
+    subghz_set_preset(txrx, preset_name, frequency, NULL, 0);
 
     if(txrx->transmitter && subghz_protocol_somfy_telis_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
@@ -729,7 +747,7 @@ bool subghz_gen_secplus_v2_protocol(
     bool ret = false;
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_SECPLUS_V2_NAME);
-    subghz_preset_init(txrx, name_preset, frequency, NULL, 0);
+    subghz_set_preset(txrx, name_preset, frequency, NULL, 0);
     if(txrx->transmitter) {
         subghz_protocol_secplus_v2_create_data(
             subghz_transmitter_get_protocol_instance(txrx->transmitter),

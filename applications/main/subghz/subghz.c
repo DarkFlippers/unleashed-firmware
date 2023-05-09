@@ -272,9 +272,9 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->txrx->preset = malloc(sizeof(SubGhzRadioPreset));
     subghz->txrx->preset->name = furi_string_alloc();
     if(!alloc_for_tx_only) {
-        subghz_preset_init(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
     } else {
-        subghz_preset_init(
+        subghz_set_preset(
             subghz->txrx,
             "AM650",
             subghz_setting_get_default_frequency(subghz->txrx->setting),
@@ -287,7 +287,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
     subghz->txrx->debug_pin_state = false;
     if(!alloc_for_tx_only) {
-        subghz->txrx->history = subghz_history_alloc();
+        subghz->history = subghz_history_alloc();
     }
 
     subghz->txrx->worker = subghz_worker_alloc();
@@ -333,6 +333,8 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     }
 
     subghz_speaker_off(subghz->txrx);
+    subghz_txrx_stop(subghz->txrx);
+    subghz_sleep(subghz->txrx);
 
 #if FURI_DEBUG
     // Packet Test
@@ -421,7 +423,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
 
     flipper_format_free(subghz->txrx->fff_data);
     if(!alloc_for_tx_only) {
-        subghz_history_free(subghz->txrx->history);
+        subghz_history_free(subghz->history);
     }
     furi_string_free(subghz->txrx->preset->name);
     free(subghz->txrx->preset);
