@@ -40,7 +40,7 @@ void subghz_txrx_hopper_update(SubGhzTxRx* instance);
 SubGhzHopperState subghz_txrx_hopper_get_state(SubGhzTxRx* instance);
 void subghz_txrx_hopper_set_state(SubGhzTxRx* instance, SubGhzHopperState state);
 void subghz_txrx_hopper_remove_pause(SubGhzTxRx* instance);
-void subghz_txrx_hopper_set_pause(SubGhzTxRx* instance);
+void subghz_txrx_hopper_pause(SubGhzTxRx* instance);
 
 void subghz_txrx_speaker_on(SubGhzTxRx* instance);
 void subghz_txrx_speaker_off(SubGhzTxRx* instance);

@@ -51,16 +51,6 @@ static void subghz_rpc_command_callback(RpcAppSystemEvent event, void* context) 
     }
 }
 
-void subghz_blink_start(SubGhz* subghz) {
-    furi_assert(subghz);
-    notification_message(subghz->notifications, &sequence_blink_start_magenta);
-}
-
-void subghz_blink_stop(SubGhz* subghz) {
-    furi_assert(subghz);
-    notification_message(subghz->notifications, &sequence_blink_stop);
-}
-
 SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     SubGhz* subghz = malloc(sizeof(SubGhz));
 
@@ -274,9 +264,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->secure_data = malloc(sizeof(SecureData));
 
     subghz->filter = SubGhzProtocolFlag_Decodable;
-
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
-
     subghz_txrx_need_save_callback_set(subghz->txrx, subghz_save_to_file, subghz);
 
     //Init Error_str

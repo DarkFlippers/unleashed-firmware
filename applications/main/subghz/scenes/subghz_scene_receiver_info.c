@@ -117,13 +117,12 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
-            //CC1101 Stop RX -> Start TX
-            subghz_txrx_hopper_set_pause(subghz->txrx);
-
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
 
+            //CC1101 Stop RX -> Start TX
+            subghz_txrx_hopper_pause(subghz->txrx);
             if(!subghz_txrx_tx_start(
                    subghz->txrx,
                    subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen))) {

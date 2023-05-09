@@ -120,31 +120,30 @@ struct SubGhz {
     void* rpc_ctx;
 };
 
+void subghz_set_defalut_preset(SubGhz* subghz);
 void subghz_blink_start(SubGhz* subghz);
 void subghz_blink_stop(SubGhz* subghz);
 
 void subghz_dialog_message_show_only_rx(SubGhz* subghz);
+
 bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog);
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len);
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,
     FlipperFormat* flipper_format,
     const char* dev_file_name);
-
 void subghz_save_to_file(void* context);
-
 bool subghz_load_protocol_from_file(SubGhz* subghz);
 bool subghz_rename_file(SubGhz* subghz);
 bool subghz_file_available(SubGhz* subghz);
 bool subghz_delete_file(SubGhz* subghz);
 void subghz_file_name_clear(SubGhz* subghz);
 bool subghz_path_is_file(FuriString* path);
+SubGhzLoadTypeFile subghz_get_load_type_file(SubGhz* subghz);
 
 void subghz_lock(SubGhz* subghz);
 void subghz_unlock(SubGhz* subghz);
 bool subghz_is_locked(SubGhz* subghz);
-
-SubGhzLoadTypeFile subghz_get_load_type_file(SubGhz* subghz);
 
 void subghz_rx_key_state_set(SubGhz* subghz, SubGhzRxKeyState state);
 SubGhzRxKeyState subghz_rx_key_state_get(SubGhz* subghz);

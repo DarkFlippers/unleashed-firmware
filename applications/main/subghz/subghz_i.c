@@ -18,6 +18,27 @@
 
 #define TAG "SubGhz"
 
+void subghz_set_defalut_preset(SubGhz* subghz) {
+    furi_assert(subghz);
+    subghz_txrx_set_preset(
+        subghz->txrx,
+        "AM650",
+        subghz_setting_get_default_frequency(subghz_txrx_get_setting(subghz->txrx)),
+        NULL,
+        0);
+}
+
+void subghz_blink_start(SubGhz* subghz) {
+    furi_assert(subghz);
+    notification_message(subghz->notifications, &sequence_blink_stop);
+    notification_message(subghz->notifications, &sequence_blink_start_magenta);
+}
+
+void subghz_blink_stop(SubGhz* subghz) {
+    furi_assert(subghz);
+    notification_message(subghz->notifications, &sequence_blink_stop);
+}
+
 void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();

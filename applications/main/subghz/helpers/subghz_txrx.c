@@ -355,12 +355,10 @@ void subghz_txrx_stop(SubGhzTxRx* instance) {
     case SubGhzTxRxStateTx:
         subghz_txrx_tx_stop(instance);
         subghz_txrx_speaker_unmute(instance);
-        //subghz_txrx_sleep(txrx);
         break;
     case SubGhzTxRxStateRx:
         subghz_txrx_rx_end(instance);
         subghz_txrx_speaker_mute(instance);
-        //subghz_txrx_sleep(txrx);
         break;
 
     default:
@@ -439,7 +437,7 @@ void subghz_txrx_hopper_remove_pause(SubGhzTxRx* instance) {
     }
 }
 
-void subghz_txrx_hopper_set_pause(SubGhzTxRx* instance) {
+void subghz_txrx_hopper_pause(SubGhzTxRx* instance) {
     furi_assert(instance);
     if(instance->hopper_state == SubGhzHopperStateRunning) {
         instance->hopper_state = SubGhzHopperStatePause;
@@ -522,7 +520,6 @@ bool subghz_txrx_load_decoder_by_name_protocol(SubGhzTxRx* instance, const char*
     furi_assert(instance);
     furi_assert(name_protocol);
     bool res = false;
-    instance->decoder_result = NULL;
     instance->decoder_result =
         subghz_receiver_search_decoder_base_by_name(instance->receiver, name_protocol);
     if(instance->decoder_result) {
