@@ -1,4 +1,5 @@
 #include "../subghz_i.h"
+#include "../helpers/subghz_txrx_create_potocol_key.h"
 
 #define TAG "SubGhzSetSeed"
 
