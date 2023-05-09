@@ -362,11 +362,6 @@ void subghz_txrx_stop(SubGhzTxRx* instance) {
     }
 }
 
-SubGhzTxRxState subghz_txrx_get_state(SubGhzTxRx* instance) {
-    furi_assert(instance);
-    return instance->txrx_state;
-}
-
 void subghz_txrx_hopper_update(SubGhzTxRx* instance) {
     furi_assert(instance);
 
