@@ -225,13 +225,13 @@ static bool subghz_txrx_tx(SubGhzTxRx* instance, uint32_t frequency) {
     return ret;
 }
 
-bool subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat* flipper_format) {
+SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat* flipper_format) {
     furi_assert(instance);
     furi_assert(flipper_format);
 
     subghz_txrx_stop(instance);
 
-    bool ret = false;
+    SubGhzTxRxStartTxState ret = SubGhzTxRxStartTxStateErrorParserOthers;
     FuriString* temp_str = furi_string_alloc();
     uint32_t repeat = 200;
     do {
@@ -259,35 +259,31 @@ bool subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat* flipper_format) {
                         instance,
                         subghz_setting_get_preset_data_by_name(
                             instance->setting, furi_string_get_cstr(instance->preset->name)));
+                    if(instance->preset->frequency) {
+                        if(!subghz_txrx_tx(instance, instance->preset->frequency)) {
+                            FURI_LOG_E(TAG, "Only Rx");
+                            ret = SubGhzTxRxStartTxStateErrorOnlyRx;
+                        }
+                    } else {
+                        ret = SubGhzTxRxStartTxStateErrorParserOthers;
+                    }
                 } else {
                     FURI_LOG_E(
                         TAG,
                         "Unknown name preset \" %s \"",
                         furi_string_get_cstr(instance->preset->name));
-                    subghz_txrx_begin(
-                        instance,
-                        subghz_setting_get_preset_data_by_name(instance->setting, "AM650"));
+                    ret = SubGhzTxRxStartTxStateErrorParserOthers;
                 }
-                if(instance->preset->frequency) {
-                    ret = subghz_txrx_tx(instance, instance->preset->frequency);
-                } else {
-                    ret = subghz_txrx_tx(instance, 433920000);
-                }
-                if(ret) {
+                if(ret == SubGhzTxRxStartTxStateOk) {
                     //Start TX
                     furi_hal_subghz_start_async_tx(
                         subghz_transmitter_yield, instance->transmitter);
-                } else {
-                    //Todo: Show error
-                    //subghz_dialog_message_show_only_rx(subghz);
                 }
             } else {
-                //Todo: Show error
-                // dialog_message_show_storage_error(
-                //     dialogs, "Error in protocol\nparameters\ndescription");
+                ret = SubGhzTxRxStartTxStateErrorParserOthers;
             }
         }
-        if(!ret) {
+        if(ret != SubGhzTxRxStartTxStateOk) {
             subghz_transmitter_free(instance->transmitter);
             if(instance->txrx_state != SubGhzTxRxStateIDLE) {
                 subghz_txrx_idle(instance);

@@ -10,6 +10,12 @@ typedef void (*SubGhzTxRxNeedSaveCallback)(void* context);
 
 typedef struct SubGhzTxRx SubGhzTxRx;
 
+typedef enum {
+    SubGhzTxRxStartTxStateOk,
+    SubGhzTxRxStartTxStateErrorOnlyRx,
+    SubGhzTxRxStartTxStateErrorParserOthers,
+} SubGhzTxRxStartTxState;
+
 SubGhzTxRx* subghz_txrx_alloc();
 void subghz_txrx_free(SubGhzTxRx* instance);
 bool subghz_txrx_is_load_database(SubGhzTxRx* instance);
@@ -29,7 +35,7 @@ void subghz_txrx_get_frequency_modulation(
     FuriString* frequency,
     FuriString* modulation,
     bool long_name);
-bool subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat* flipper_format);
+SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat* flipper_format);
 void subghz_txrx_rx_start(SubGhzTxRx* instance);
 void subghz_txrx_stop(SubGhzTxRx* instance);
 void subghz_txrx_sleep(SubGhzTxRx* instance);

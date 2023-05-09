@@ -26,7 +26,8 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
             subghz_protocol_decoder_base_get_string(
                 subghz_txrx_get_decoder(subghz->txrx), key_str);
 
-            subghz_txrx_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+            subghz_txrx_get_frequency_modulation(
+                subghz->txrx, frequency_str, modulation_str, false);
             subghz_view_transmitter_add_data_to_show(
                 subghz->subghz_transmitter,
                 furi_string_get_cstr(key_str),
@@ -66,7 +67,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubGhzCustomEventViewTransmitterSendStart) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
 
-            if(subghz_txrx_tx_start(subghz->txrx, subghz_txtx_get_fff_data(subghz->txrx))) {
+            if(subghz_tx_start(subghz, subghz_txtx_get_fff_data(subghz->txrx))) {
                 subghz->state_notifications = SubGhzNotificationStateTx;
                 subghz_scene_transmitter_update_data_show(subghz);
                 DOLPHIN_DEED(DolphinDeedSubGhzSend);
@@ -82,7 +83,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 // Calling restore!
                 subghz_txrx_stop(subghz->txrx);
 
-                if(!subghz_txrx_tx_start(subghz->txrx, subghz_txtx_get_fff_data(subghz->txrx))) {
+                if(!subghz_tx_start(subghz, subghz_txtx_get_fff_data(subghz->txrx))) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                 }
 

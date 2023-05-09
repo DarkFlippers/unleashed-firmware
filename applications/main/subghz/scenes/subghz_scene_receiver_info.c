@@ -123,8 +123,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 
             //CC1101 Stop RX -> Start TX
             subghz_txrx_hopper_pause(subghz->txrx);
-            if(!subghz_txrx_tx_start(
-                   subghz->txrx,
+            if(!subghz_tx_start(
+                   subghz,
                    subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen))) {
                 subghz_txrx_rx_start(subghz->txrx);
                 subghz_txrx_hopper_remove_pause(subghz->txrx);
