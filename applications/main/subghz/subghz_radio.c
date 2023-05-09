@@ -1,6 +1,76 @@
 #include "subghz_radio.h"
+#include <lib/subghz/protocols/protocol_items.h>
 
 #define TAG "SubGhz"
+
+SubGhzTxRx* subghz_txrx_alloc() {
+    SubGhzTxRx* txrx = malloc(sizeof(SubGhzTxRx));
+    txrx->setting = subghz_setting_alloc();
+    subghz_setting_load(txrx->setting, EXT_PATH("subghz/assets/setting_user"));
+
+    txrx->preset = malloc(sizeof(SubGhzRadioPreset));
+    txrx->preset->name = furi_string_alloc();
+    subghz_set_preset(txrx, "AM650", subghz_setting_get_default_frequency(txrx->setting), NULL, 0);
+
+    txrx->txrx_state = SubGhzTxRxStateSleep;
+
+    subghz_hopper_set_state(txrx, SubGhzHopperStateOFF);
+    subghz_speaker_set_state(txrx, SubGhzSpeakerStateDisable);
+    subghz_txrx_set_debug_pin_state(txrx, false);
+
+    txrx->worker = subghz_worker_alloc();
+    txrx->fff_data = flipper_format_string_alloc();
+
+    txrx->environment = subghz_environment_alloc();
+    txrx->load_database = subghz_environment_load_keystore(
+        txrx->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
+    subghz_environment_load_keystore(
+        txrx->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+    subghz_environment_set_came_atomo_rainbow_table_file_name(
+        txrx->environment, EXT_PATH("subghz/assets/came_atomo"));
+    subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+        txrx->environment, EXT_PATH("subghz/assets/alutech_at_4n"));
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+        txrx->environment, EXT_PATH("subghz/assets/nice_flor_s"));
+    subghz_environment_set_protocol_registry(txrx->environment, (void*)&subghz_protocol_registry);
+    txrx->receiver = subghz_receiver_alloc_init(txrx->environment);
+
+    subghz_worker_set_overrun_callback(
+        txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
+    subghz_worker_set_pair_callback(
+        txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
+    subghz_worker_set_context(txrx->worker, txrx->receiver);
+
+    return txrx;
+}
+
+void subghz_txrx_free(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+
+    subghz_worker_free(txrx->worker);
+    subghz_receiver_free(txrx->receiver);
+    subghz_environment_free(txrx->environment);
+    flipper_format_free(txrx->fff_data);
+    furi_string_free(txrx->preset->name);
+    subghz_setting_free(txrx->setting);
+    free(txrx->preset);
+    free(txrx);
+}
+
+bool subghz_txrx_is_load_database(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return txrx->load_database;
+}
+
+void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state) {
+    furi_assert(txrx);
+    txrx->debug_pin_state = state;
+}
+
+bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return txrx->debug_pin_state;
+}
 
 void subghz_set_preset(
     SubGhzTxRx* txrx,

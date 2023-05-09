@@ -24,6 +24,7 @@ struct SubGhzTxRx {
 
     uint8_t hopper_timeout;
     uint8_t hopper_idx_frequency;
+    bool load_database;
     SubGhzHopperState hopper_state;
 
     SubGhzTxRxState txrx_state;
@@ -37,6 +38,13 @@ struct SubGhzTxRx {
 };
 
 typedef struct SubGhzTxRx SubGhzTxRx;
+
+SubGhzTxRx* subghz_txrx_alloc();
+void subghz_txrx_free(SubGhzTxRx* txrx);
+bool subghz_txrx_is_load_database(SubGhzTxRx* txrx);
+
+void subghz_txrx_set_debug_pin_state(SubGhzTxRx* txrx, bool state);
+bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* txrx);
 
 void subghz_set_preset(
     SubGhzTxRx* txrx,
