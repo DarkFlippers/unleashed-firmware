@@ -80,7 +80,7 @@ void subghz_txrx_set_preset(
 
 const char* subghz_txrx_get_preset_name(SubGhzTxRx* instance, const char* preset) {
     UNUSED(instance);
-    const char* preset_name = NULL;
+    const char* preset_name = "";
     if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
         preset_name = "AM270";
     } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
@@ -198,6 +198,7 @@ static bool subghz_txrx_tx(SubGhzTxRx* instance, uint32_t frequency) {
         subghz_txrx_speaker_on(instance);
         instance->txrx_state = SubGhzTxRxStateTx;
     }
+
     return ret;
 }
 
@@ -245,11 +246,13 @@ SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat*
                     } else {
                         ret = SubGhzTxRxStartTxStateErrorParserOthers;
                     }
+
                 } else {
                     FURI_LOG_E(
                         TAG, "Unknown name preset \" %s \"", furi_string_get_cstr(preset->name));
                     ret = SubGhzTxRxStartTxStateErrorParserOthers;
                 }
+
                 if(ret == SubGhzTxRxStartTxStateOk) {
                     //Start TX
                     furi_hal_subghz_start_async_tx(
@@ -258,6 +261,8 @@ SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat*
             } else {
                 ret = SubGhzTxRxStartTxStateErrorParserOthers;
             }
+        } else {
+            ret = SubGhzTxRxStartTxStateErrorParserOthers;
         }
         if(ret != SubGhzTxRxStartTxStateOk) {
             subghz_transmitter_free(instance->transmitter);

@@ -130,7 +130,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
 
         furi_string_set_str(
             temp_str, subghz_txrx_get_preset_name(subghz->txrx, furi_string_get_cstr(temp_str)));
-        if(temp_str == NULL) {
+        if(!strcmp(furi_string_get_cstr(temp_str), "")) {
             break;
         }
 
@@ -270,17 +270,6 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
     return res;
 }
 
-void subghz_save_to_file(void* context) {
-    furi_assert(context);
-    SubGhz* subghz = context;
-    if(subghz_path_is_file(subghz->file_path)) {
-        subghz_save_protocol_to_file(
-            subghz,
-            subghz_txrx_get_fff_data(subghz->txrx),
-            furi_string_get_cstr(subghz->file_path));
-    }
-}
-
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,
     FlipperFormat* flipper_format,
@@ -319,6 +308,17 @@ bool subghz_save_protocol_to_file(
     furi_string_free(file_dir);
     furi_record_close(RECORD_STORAGE);
     return saved;
+}
+
+void subghz_save_to_file(void* context) {
+    furi_assert(context);
+    SubGhz* subghz = context;
+    if(subghz_path_is_file(subghz->file_path)) {
+        subghz_save_protocol_to_file(
+            subghz,
+            subghz_txrx_get_fff_data(subghz->txrx),
+            furi_string_get_cstr(subghz->file_path));
+    }
 }
 
 bool subghz_load_protocol_from_file(SubGhz* subghz) {

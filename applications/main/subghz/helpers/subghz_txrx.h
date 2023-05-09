@@ -1,5 +1,7 @@
 #pragma once
+
 #include "subghz_types.h"
+
 #include <lib/subghz/subghz_worker.h>
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/receiver.h>
