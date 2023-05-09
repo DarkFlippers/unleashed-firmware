@@ -48,6 +48,7 @@ sources += Glob(
 )
 sources += Glob(
     "stm32wb_copro/wpan/interface/patterns/ble_thread/tl/*_tl*.c",
+    exclude="stm32wb_copro/wpan/interface/patterns/ble_thread/tl/shci_tl_if.c",
     source=True,
 )
 sources += [

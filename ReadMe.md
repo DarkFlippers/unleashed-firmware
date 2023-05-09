@@ -99,7 +99,6 @@ Make sure your Flipper is on, and your firmware is functioning. Connect your Fli
 - `applications`    - applications and services used in firmware
 - `assets`          - assets used by applications and services
 - `furi`            - Furi Core: OS-level primitives and helpers
-- `debug`           - debug tool: GDB plugins, an SVD file, etc.
 - `documentation`   - documentation generation system configs and input files
 - `firmware`        - firmware source code
 - `lib`             - our and 3rd party libraries, drivers, etc.
