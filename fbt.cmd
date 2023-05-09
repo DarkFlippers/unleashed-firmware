@@ -5,7 +5,7 @@ set SCONS_EP=python -m SCons
 
 if [%FBT_NO_SYNC%] == [] (
     if exist ".git" (
-        git submodule update --init --depth 1
+        git submodule update --init --depth 1 --jobs %NUMBER_OF_PROCESSORS%
     ) else (
         echo Not in a git repo, please clone with "git clone"
         exit /b 1

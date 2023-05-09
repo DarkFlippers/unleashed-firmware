@@ -61,7 +61,6 @@ class ShowQueueInfo(gdb.Command):
         if maxCount == 0:
             print(outputFmt % (q.GetName(), q.GetQueueMessagesWaiting(), "", ""))
         else:
-
             for i in range(0, maxCount):
                 txName = ""
                 if i < len(sendList):

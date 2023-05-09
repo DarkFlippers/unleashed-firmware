@@ -40,6 +40,9 @@ How to create a new application:
     2. Run `ufbt vscode_dist create APPID=myapp`
     3. In VSCode, open the folder and start editing.
     4. Run `ufbt launch` to build and upload your application.
+
+How to open a shell with toolchain environment and other build tools:
+    In your shell, type "source `ufbt -s env`". You can also use "." instead of "source".
 """
 
 

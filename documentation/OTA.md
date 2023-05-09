@@ -133,7 +133,7 @@ For example, to build a package only for installing BLE FULL stack:
 scripts/update.py generate \
   -t f7 -d r13.3_full -v "BLE FULL 13.3" \
   --stage dist/f7/flipper-z-f7-updater-*.bin \
-  --radio lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin \
+  --radio lib/stm32wb_copro/firmware/stm32wb5x_BLE_Stack_full_fw.bin \
   --radiotype ble_full
 ```
 

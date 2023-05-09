@@ -54,6 +54,26 @@ void ble_glue_set_key_storage_changed_callback(
     ble_glue->context = context;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+/* TL hook to catch hardfaults */
+
+int32_t ble_glue_TL_SYS_SendCmd(uint8_t* buffer, uint16_t size) {
+    if(furi_hal_bt_get_hardfault_info()) {
+        furi_crash("ST(R) Copro(R) HardFault");
+    }
+
+    return TL_SYS_SendCmd(buffer, size);
+}
+
+void shci_register_io_bus(tSHciIO* fops) {
+    /* Register IO bus services */
+    fops->Init = TL_SYS_Init;
+    fops->Send = ble_glue_TL_SYS_SendCmd;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void ble_glue_init() {
     ble_glue = malloc(sizeof(BleGlue));
     ble_glue->status = BleGlueStatusStartup;

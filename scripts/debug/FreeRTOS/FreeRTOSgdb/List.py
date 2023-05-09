@@ -56,7 +56,6 @@ class ListInspector:
            of some of the TCB Task lists.
         """
         if self._list != None:
-
             CastType = None
             if CastTypeStr != None:
                 if type(CastTypeStr) == str:
@@ -73,7 +72,6 @@ class ListInspector:
             index = self._list["pxIndex"]
 
             if numElems > 0 and numElems < 200:
-
                 if startElem == 0:
                     curr = index
                 else:

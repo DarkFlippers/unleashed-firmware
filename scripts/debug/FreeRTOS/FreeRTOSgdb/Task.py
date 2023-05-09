@@ -11,7 +11,6 @@ import gdb
 
 
 class TaskInspector:
-
     TCBType = gdb.lookup_type("TCB_t")
 
     def __init__(self, handle):
