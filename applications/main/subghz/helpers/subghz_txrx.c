@@ -1,5 +1,4 @@
 #include "subghz_txrx_i.h"
-#include "subghz_txrx.h"
 #include <lib/subghz/protocols/protocol_items.h>
 
 #define TAG "SubGhz"

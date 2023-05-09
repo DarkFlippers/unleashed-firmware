@@ -1,11 +1,6 @@
 
 #pragma once
-#include "subghz_types.h"
-#include "subghz_txrx_callbacks.h"
-#include <lib/subghz/subghz_worker.h>
-#include <lib/subghz/subghz_setting.h>
-#include <lib/subghz/receiver.h>
-#include <lib/subghz/transmitter.h>
+#include "subghz_txrx.h"
 
 struct SubGhzTxRx {
     SubGhzWorker* worker;
