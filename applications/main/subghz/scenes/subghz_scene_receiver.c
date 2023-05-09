@@ -46,17 +46,20 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
 
 #ifdef SUBGHZ_EXT_PRESET_NAME
         if(subghz_history_get_last_index(subghz->txrx->history) > 0) {
-            subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+            subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
         } else {
-            subghz_get_frequency_modulation(subghz, frequency_str, NULL);
+            FuriString* temp_str = furi_string_alloc();
+
+            subghz_get_frequency_modulation(subghz->txrx, frequency_str, temp_str, true);
             furi_string_printf(
                 modulation_str,
                 "%s        Mod: %s",
                 furi_hal_subghz_get_radio_type() ? "Ext" : "Int",
-                furi_string_get_cstr(subghz->txrx->preset->name));
+                furi_string_get_cstr(temp_str));
+            furi_string_free(temp_str);
         }
 #else
-        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+        subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
 #endif
 
         subghz_view_receiver_add_data_statusbar(
@@ -155,37 +158,26 @@ void subghz_scene_receiver_on_enter(void* context) {
     // TODO: Replace with proper solution based on protocol flags, remove kostily and velosipedy from here
     // Needs to be done after subghz refactoring merge!!!
     if(subghz->ignore_starline == true) {
-        SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
-        protocoldecoderbase =
-            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Star Line");
-        if(protocoldecoderbase) {
+        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Star Line")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                protocoldecoderbase, NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
         }
     }
     if(subghz->ignore_auto_alarms == true) {
-        SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
-        protocoldecoderbase =
-            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "KIA Seed");
-        if(protocoldecoderbase) {
+        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "KIA Seed")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                protocoldecoderbase, NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
         }
-        protocoldecoderbase = NULL;
-        protocoldecoderbase =
-            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Scher-Khan");
-        if(protocoldecoderbase) {
+
+        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Scher-Khan")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                protocoldecoderbase, NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
         }
     }
     if(subghz->ignore_magellan == true) {
-        SubGhzProtocolDecoderBase* protocoldecoderbase = NULL;
-        protocoldecoderbase =
-            subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "Magellan");
-        if(protocoldecoderbase) {
+        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Magellan")) {
             subghz_protocol_decoder_base_set_decoder_callback(
-                protocoldecoderbase, NULL, subghz->txrx->receiver);
+                subghz_txrx_get_decoder(subghz->txrx), NULL, subghz->txrx->receiver);
         }
     }
 
@@ -199,9 +191,8 @@ void subghz_scene_receiver_on_enter(void* context) {
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
 
     //to use a universal decoder, we are looking for a link to it
-    subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
-        subghz->txrx->receiver, SUBGHZ_PROTOCOL_BIN_RAW_NAME);
-    furi_assert(subghz->txrx->decoder_result);
+    furi_check(
+        subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, SUBGHZ_PROTOCOL_BIN_RAW_NAME));
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
 }
@@ -277,7 +268,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
 
         subghz_receiver_rssi(subghz->subghz_receiver, ret_rssi.rssi);
         subghz_protocol_decoder_bin_raw_data_input_rssi(
-            (SubGhzProtocolDecoderBinRAW*)subghz->txrx->decoder_result, ret_rssi.rssi);
+            (SubGhzProtocolDecoderBinRAW*)subghz_txrx_get_decoder(subghz->txrx), ret_rssi.rssi);
 
         switch(subghz->state_notifications) {
         case SubGhzNotificationStateRx:

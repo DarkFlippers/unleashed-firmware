@@ -47,7 +47,12 @@ void subghz_preset_init(
     uint8_t* preset_data,
     size_t preset_data_size);
 
-bool subghz_set_preset(SubGhzTxRx* txrx, const char* preset);
+const char* subghz_set_preset(SubGhzTxRx* txrx, const char* preset);
+void subghz_get_frequency_modulation(
+    SubGhzTxRx* txrx,
+    FuriString* frequency,
+    FuriString* modulation,
+    bool long_name);
 void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data);
 uint32_t subghz_rx(SubGhzTxRx* txrx, uint32_t frequency);
 bool subghz_tx_start(SubGhzTxRx* txrx, FlipperFormat* flipper_format);
@@ -69,6 +74,8 @@ void subghz_speaker_mute(SubGhzTxRx* txrx);
 void subghz_speaker_unmute(SubGhzTxRx* txrx);
 void subghz_speaker_set_state(SubGhzTxRx* txrx, SubGhzSpeakerState state);
 SubGhzSpeakerState subghz_speaker_get_state(SubGhzTxRx* txrx);
+bool subghz_txrx_load_decoder_by_name_protocol(SubGhzTxRx* txrx, const char* name_protocol);
+SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* txrx);
 
 void subghz_txrx_need_save_callback_set(
     SubGhzTxRx* txrx,

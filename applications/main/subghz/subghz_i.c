@@ -18,20 +18,6 @@
 
 #define TAG "SubGhz"
 
-void subghz_get_frequency_modulation(SubGhz* subghz, FuriString* frequency, FuriString* modulation) {
-    furi_assert(subghz);
-    if(frequency != NULL) {
-        furi_string_printf(
-            frequency,
-            "%03ld.%02ld",
-            subghz->txrx->preset->frequency / 1000000 % 1000,
-            subghz->txrx->preset->frequency / 10000 % 100);
-    }
-    if(modulation != NULL) {
-        furi_string_printf(modulation, "%.2s", furi_string_get_cstr(subghz->txrx->preset->name));
-    }
-}
-
 void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();
@@ -97,7 +83,6 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
-        //subghz->txrx->preset->frequency = temp_data32;
 
         //Load preset
         if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
@@ -105,31 +90,31 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        if(!subghz_set_preset(subghz->txrx, furi_string_get_cstr(temp_str))) {
+        furi_string_set_str(
+            temp_str, subghz_set_preset(subghz->txrx, furi_string_get_cstr(temp_str)));
+        if(temp_str == NULL) {
             break;
         }
 
-        if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+        if(!strcmp(furi_string_get_cstr(temp_str), "CUSTOM")) {
             //Todo add Custom_preset_module
             //delete preset if it already exists
             subghz_setting_delete_custom_preset(
-                subghz_txrx_get_setting(subghz->txrx),
-                furi_string_get_cstr(subghz->txrx->preset->name));
+                subghz_txrx_get_setting(subghz->txrx), furi_string_get_cstr(temp_str));
             //load custom preset from file
             if(!subghz_setting_load_custom_preset(
                    subghz_txrx_get_setting(subghz->txrx),
-                   furi_string_get_cstr(subghz->txrx->preset->name),
+                   furi_string_get_cstr(temp_str),
                    fff_data_file)) {
                 FURI_LOG_E(TAG, "Missing Custom preset");
                 break;
             }
         }
         size_t preset_index = subghz_setting_get_inx_preset_by_name(
-            subghz_txrx_get_setting(subghz->txrx),
-            furi_string_get_cstr(subghz->txrx->preset->name));
+            subghz_txrx_get_setting(subghz->txrx), furi_string_get_cstr(temp_str));
         subghz_preset_init(
             subghz->txrx,
-            furi_string_get_cstr(subghz->txrx->preset->name),
+            furi_string_get_cstr(temp_str),
             temp_data32,
             subghz_setting_get_preset_data(subghz_txrx_get_setting(subghz->txrx), preset_index),
             subghz_setting_get_preset_data_size(
@@ -151,11 +136,10 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
                 flipper_format_get_raw_stream(subghz_txtx_get_fff_data(subghz->txrx)));
         }
 
-        subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
-            subghz->txrx->receiver, furi_string_get_cstr(temp_str));
-        if(subghz->txrx->decoder_result) {
+        if(subghz_txrx_load_decoder_by_name_protocol(
+               subghz->txrx, furi_string_get_cstr(temp_str))) {
             SubGhzProtocolStatus status = subghz_protocol_decoder_base_deserialize(
-                subghz->txrx->decoder_result, subghz_txtx_get_fff_data(subghz->txrx));
+                subghz_txrx_get_decoder(subghz->txrx), subghz_txtx_get_fff_data(subghz->txrx));
             if(status != SubGhzProtocolStatusOk) {
                 load_key_state = SubGhzLoadKeyStateProtocolDescriptionErr;
                 break;

@@ -23,14 +23,13 @@ void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, v
 
 static bool subghz_scene_receiver_info_update_parser(void* context) {
     SubGhz* subghz = context;
-    subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
-        subghz->txrx->receiver,
-        subghz_history_get_protocol_name(subghz->txrx->history, subghz->idx_menu_chosen));
 
-    if(subghz->txrx->decoder_result) {
+    if(subghz_txrx_load_decoder_by_name_protocol(
+           subghz->txrx,
+           subghz_history_get_protocol_name(subghz->txrx->history, subghz->idx_menu_chosen))) {
         //todo we are trying to deserialize without checking for errors, since it is assumed that we just received this chignal
         subghz_protocol_decoder_base_deserialize(
-            subghz->txrx->decoder_result,
+            subghz_txrx_get_decoder(subghz->txrx),
             subghz_history_get_raw_data(subghz->txrx->history, subghz->idx_menu_chosen));
 
         SubGhzRadioPreset* preset =
@@ -53,7 +52,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
         FuriString* modulation_str = furi_string_alloc();
         FuriString* text = furi_string_alloc();
 
-        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+        subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
         widget_add_string_element(
             subghz->widget,
             78,
@@ -71,7 +70,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
             AlignTop,
             FontSecondary,
             furi_string_get_cstr(modulation_str));
-        subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, text);
+        subghz_protocol_decoder_base_get_string(subghz_txrx_get_decoder(subghz->txrx), text);
         widget_add_string_multiline_element(
             subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(text));
 

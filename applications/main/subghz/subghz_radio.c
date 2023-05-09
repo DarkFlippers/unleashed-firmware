@@ -15,22 +15,45 @@ void subghz_preset_init(
     txrx->preset->data_size = preset_data_size;
 }
 
-bool subghz_set_preset(SubGhzTxRx* txrx, const char* preset) {
+void subghz_get_frequency_modulation(
+    SubGhzTxRx* txrx,
+    FuriString* frequency,
+    FuriString* modulation,
+    bool long_name) {
+    furi_assert(txrx);
+    if(frequency != NULL) {
+        furi_string_printf(
+            frequency,
+            "%03ld.%02ld",
+            txrx->preset->frequency / 1000000 % 1000,
+            txrx->preset->frequency / 10000 % 100);
+    }
+    if(modulation != NULL) {
+        if(long_name) {
+            furi_string_printf(modulation, "%s", furi_string_get_cstr(txrx->preset->name));
+        } else {
+            furi_string_printf(modulation, "%.2s", furi_string_get_cstr(txrx->preset->name));
+        }
+    }
+}
+
+const char* subghz_set_preset(SubGhzTxRx* txrx, const char* preset) {
+    UNUSED(txrx);
+    const char* preset_name = NULL;
     if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
-        furi_string_set(txrx->preset->name, "AM270");
+        preset_name = "AM270";
     } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
-        furi_string_set(txrx->preset->name, "AM650");
+        preset_name = "AM650";
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev238Async")) {
-        furi_string_set(txrx->preset->name, "FM238");
+        preset_name = "FM238";
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
-        furi_string_set(txrx->preset->name, "FM476");
+        preset_name = "FM476";
     } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
-        furi_string_set(txrx->preset->name, "CUSTOM");
+        preset_name = "CUSTOM";
     } else {
         FURI_LOG_E(TAG, "Unknown preset");
-        return false;
     }
-    return true;
+    return preset_name;
 }
 
 void subghz_begin(SubGhzTxRx* txrx, uint8_t* preset_data) {
@@ -383,6 +406,24 @@ void subghz_speaker_set_state(SubGhzTxRx* txrx, SubGhzSpeakerState state) {
 SubGhzSpeakerState subghz_speaker_get_state(SubGhzTxRx* txrx) {
     furi_assert(txrx);
     return txrx->speaker_state;
+}
+
+bool subghz_txrx_load_decoder_by_name_protocol(SubGhzTxRx* txrx, const char* name_protocol) {
+    furi_assert(txrx);
+    furi_assert(name_protocol);
+    bool res = false;
+    txrx->decoder_result = NULL;
+    txrx->decoder_result =
+        subghz_receiver_search_decoder_base_by_name(txrx->receiver, name_protocol);
+    if(txrx->decoder_result) {
+        res = true;
+    }
+    return res;
+}
+
+SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* txrx) {
+    furi_assert(txrx);
+    return txrx->decoder_result;
 }
 
 //#############Create  new Key##############
