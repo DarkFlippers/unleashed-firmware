@@ -3,7 +3,6 @@
 #include <stm32wbxx_ll_lptim.h>
 #include <stm32wbxx_ll_bus.h>
 #include <stm32wbxx_ll_rcc.h>
-#include <stdint.h>
 
 // Timer used for tickless idle
 #define FURI_HAL_IDLE_TIMER_MAX 0xFFFF
