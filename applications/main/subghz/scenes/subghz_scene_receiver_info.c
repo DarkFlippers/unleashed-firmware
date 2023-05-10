@@ -52,7 +52,8 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
         FuriString* modulation_str = furi_string_alloc();
         FuriString* text = furi_string_alloc();
 
-        subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str, false);
+        subghz_txrx_get_frequency_and_modulation(
+            subghz->txrx, frequency_str, modulation_str, false);
         widget_add_string_element(
             subghz->widget,
             78,
@@ -120,7 +121,6 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
-
             //CC1101 Stop RX -> Start TX
             subghz_txrx_hopper_pause(subghz->txrx);
             if(!subghz_tx_start(
@@ -140,7 +140,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             widget_reset(subghz->widget);
             subghz_scene_receiver_info_draw_widget(subghz);
 
-            subghz_txrx_stop(subghz->txrx);
+            subghz_txrx_stop(subghz->txrx); //TODO this is probably a redundant call
             if(!subghz->in_decoder_scene) {
                 subghz_txrx_rx_start(subghz->txrx);
 

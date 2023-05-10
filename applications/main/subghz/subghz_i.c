@@ -133,30 +133,27 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         if(!strcmp(furi_string_get_cstr(temp_str), "")) {
             break;
         }
+        SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
         if(!strcmp(furi_string_get_cstr(temp_str), "CUSTOM")) {
             //Todo add Custom_preset_module
             //delete preset if it already exists
-            subghz_setting_delete_custom_preset(
-                subghz_txrx_get_setting(subghz->txrx), furi_string_get_cstr(temp_str));
+            subghz_setting_delete_custom_preset(setting, furi_string_get_cstr(temp_str));
             //load custom preset from file
             if(!subghz_setting_load_custom_preset(
-                   subghz_txrx_get_setting(subghz->txrx),
-                   furi_string_get_cstr(temp_str),
-                   fff_data_file)) {
+                   setting, furi_string_get_cstr(temp_str), fff_data_file)) {
                 FURI_LOG_E(TAG, "Missing Custom preset");
                 break;
             }
         }
-        size_t preset_index = subghz_setting_get_inx_preset_by_name(
-            subghz_txrx_get_setting(subghz->txrx), furi_string_get_cstr(temp_str));
+        size_t preset_index =
+            subghz_setting_get_inx_preset_by_name(setting, furi_string_get_cstr(temp_str));
         subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(temp_str),
             temp_data32,
-            subghz_setting_get_preset_data(subghz_txrx_get_setting(subghz->txrx), preset_index),
-            subghz_setting_get_preset_data_size(
-                subghz_txrx_get_setting(subghz->txrx), preset_index));
+            subghz_setting_get_preset_data(setting, preset_index),
+            subghz_setting_get_preset_data_size(setting, preset_index));
 
         //Load protocol
         if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {

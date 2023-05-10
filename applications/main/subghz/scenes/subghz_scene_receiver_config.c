@@ -92,9 +92,9 @@ const char* const magellan_text[MAGELLAN_COUNT] = {
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    uint8_t index = 0;
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
+    uint8_t index = 0;
     for(uint8_t i = 0; i < subghz_setting_get_frequency_count(setting); i++) {
         if(value == subghz_setting_get_frequency(setting, i)) {
             index = i;
@@ -186,7 +186,6 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
     variable_item_set_current_value_text(item, preset_name);
     //subghz->last_settings->preset = index;
     SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
-
     subghz_txrx_set_preset(
         subghz->txrx,
         preset_name,
@@ -309,12 +308,13 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         subghz->scene_manager, SubGhzSceneReceiverConfig, (uint32_t)item);
     variable_item_set_current_value_index(item, value_index);
     char text_buf[10] = {0};
+    uint32_t frequency = subghz_setting_get_frequency(setting, value_index);
     snprintf(
         text_buf,
         sizeof(text_buf),
         "%lu.%02lu",
-        subghz_setting_get_frequency(setting, value_index) / 1000000,
-        (subghz_setting_get_frequency(setting, value_index) % 1000000) / 10000);
+        frequency / 1000000,
+        (frequency % 1000000) / 10000);
     variable_item_set_current_value_text(item, text_buf);
 
     item = variable_item_list_add(

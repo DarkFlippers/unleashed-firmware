@@ -125,6 +125,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case SubGhzCustomEventViewReadRAWBack:
+
             subghz_txrx_stop(subghz->txrx);
             //Stop save file
             subghz_protocol_raw_save_to_file_stop(decoder_raw);
@@ -204,8 +205,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             if(subghz_file_available(subghz) && subghz_scene_read_raw_update_filename(subghz)) {
                 //start send
                 subghz->state_notifications = SubGhzNotificationStateIDLE;
-
-                subghz_txrx_stop(subghz->txrx);
                 if(!subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx))) {
                     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateBack);
                     subghz_read_raw_set_status(
@@ -273,7 +272,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 if(subghz_protocol_raw_save_to_file_init(decoder_raw, RAW_FILE_NAME, &preset)) {
                     DOLPHIN_DEED(DolphinDeedSubGhzRawRec);
                     subghz_txrx_rx_start(subghz->txrx);
-
                     subghz->state_notifications = SubGhzNotificationStateRx;
                     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
                 } else {
@@ -316,7 +314,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             subghz_read_raw_add_data_rssi(
                 subghz->subghz_read_raw, ret_rssi.rssi, ret_rssi.is_above);
             subghz_protocol_raw_save_to_file_pause(decoder_raw, !ret_rssi.is_above);
-
             break;
         case SubGhzNotificationStateTx:
             notification_message(subghz->notifications, &sequence_blink_magenta_10);
