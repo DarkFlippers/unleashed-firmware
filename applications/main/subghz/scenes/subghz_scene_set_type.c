@@ -535,7 +535,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexBFTMitto:
-            generated_protocol = subghz_scene_set_type_submenu_gen_data_keeloq_bft(
+            generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
                 subghz->txrx,
                 "AM650",
                 433920000,
@@ -551,7 +551,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexAlutechAT4N:
-            generated_protocol = subghz_scene_set_type_submenu_gen_data_alutech_at_4n(
+            generated_protocol = subghz_txrx_gen_alutech_at_4n_protocol(
                 subghz->txrx, "AM650", 433920000, (key & 0x000FFFFF) | 0x00100000, 0x44, 0x0003);
             if(!generated_protocol) {
                 furi_string_set(
@@ -560,7 +560,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexSomfyTelis:
-            generated_protocol = subghz_scene_set_type_submenu_gen_data_somfy_telis(
+            generated_protocol = subghz_txrx_gen_somfy_telis_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003);
             if(!generated_protocol) { //TODO does not use databases
                 furi_string_set(
@@ -587,7 +587,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexNiceFlorS_433_92:
-            generated_protocol = subghz_scene_set_type_submenu_gen_data_nice_flor(
+            generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x0FFFFFFF, 0x1, 0x0003, false);
             if(!generated_protocol) {
                 furi_string_set(
@@ -596,7 +596,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexNiceOne_433_92:
-            generated_protocol = subghz_scene_set_type_submenu_gen_data_nice_flor(
+            generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x0FFFFFFF, 0x1, 0x0003, true);
             if(!generated_protocol) {
                 furi_string_set(

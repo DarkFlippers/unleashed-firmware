@@ -63,7 +63,7 @@ bool subghz_txrx_gen_keeloq_protocol(
     uint16_t cnt,
     const char* manufacture_name);
 
-bool subghz_scene_set_type_submenu_gen_data_keeloq_bft( //TODO rename
+bool subghz_txrx_gen_keeloq_bft_protocol( //TODO rename
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -73,7 +73,7 @@ bool subghz_scene_set_type_submenu_gen_data_keeloq_bft( //TODO rename
     uint32_t seed,
     const char* manufacture_name);
 
-bool subghz_scene_set_type_submenu_gen_data_nice_flor( //TODO rename
+bool subghz_txrx_gen_nice_flor_s_protocol( //TODO rename
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -82,7 +82,7 @@ bool subghz_scene_set_type_submenu_gen_data_nice_flor( //TODO rename
     uint16_t cnt,
     bool nice_one);
 
-bool subghz_scene_set_type_submenu_gen_data_faac_slh( //TODO rename
+bool subghz_txrx_gen_faac_slh_protocol( //TODO rename
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -92,7 +92,7 @@ bool subghz_scene_set_type_submenu_gen_data_faac_slh( //TODO rename
     uint32_t seed,
     const char* manufacture_name);
 
-bool subghz_scene_set_type_submenu_gen_data_alutech_at_4n( //TODO rename
+bool subghz_txrx_gen_alutech_at_4n_protocol( //TODO rename
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -100,7 +100,7 @@ bool subghz_scene_set_type_submenu_gen_data_alutech_at_4n( //TODO rename
     uint8_t btn,
     uint16_t cnt);
 
-bool subghz_scene_set_type_submenu_gen_data_somfy_telis( //TODO rename
+bool subghz_txrx_gen_somfy_telis_protocol( //TODO rename
     void* context,
     const char* preset_name,
     uint32_t frequency,

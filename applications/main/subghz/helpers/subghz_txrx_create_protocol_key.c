@@ -116,7 +116,7 @@ bool subghz_txrx_gen_keeloq_protocol( //TODO lead to a general appearance
     return res;
 }
 
-bool subghz_scene_set_type_submenu_gen_data_keeloq_bft( //TODO rename & lead to a general appearance
+bool subghz_txrx_gen_keeloq_bft_protocol( //TODO rename & lead to a general appearance
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -161,7 +161,7 @@ bool subghz_scene_set_type_submenu_gen_data_keeloq_bft( //TODO rename & lead to 
     return res;
 }
 
-bool subghz_scene_set_type_submenu_gen_data_nice_flor( //TODO rename & lead to a general appearance
+bool subghz_txrx_gen_nice_flor_s_protocol( //TODO rename & lead to a general appearance
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -193,7 +193,7 @@ bool subghz_scene_set_type_submenu_gen_data_nice_flor( //TODO rename & lead to a
     return res;
 }
 
-bool subghz_scene_set_type_submenu_gen_data_faac_slh( //TODO rename & lead to a general appearance
+bool subghz_txrx_gen_faac_slh_protocol( //TODO rename & lead to a general appearance
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -236,7 +236,7 @@ bool subghz_scene_set_type_submenu_gen_data_faac_slh( //TODO rename & lead to a 
     return res;
 }
 
-bool subghz_scene_set_type_submenu_gen_data_alutech_at_4n( //TODO rename & lead to a general appearance
+bool subghz_txrx_gen_alutech_at_4n_protocol( //TODO rename & lead to a general appearance
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -266,7 +266,7 @@ bool subghz_scene_set_type_submenu_gen_data_alutech_at_4n( //TODO rename & lead 
     return res;
 }
 
-bool subghz_scene_set_type_submenu_gen_data_somfy_telis( //TODO rename & lead to a general appearance
+bool subghz_txrx_gen_somfy_telis_protocol( //TODO rename & lead to a general appearance
     void* context,
     const char* preset_name,
     uint32_t frequency,

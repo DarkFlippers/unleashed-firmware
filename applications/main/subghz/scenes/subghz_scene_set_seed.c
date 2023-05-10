@@ -45,7 +45,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                generated_protocol = subghz_scene_set_type_submenu_gen_data_keeloq_bft(
+                generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
                     subghz->txrx,
                     "AM650",
                     433920000,
@@ -74,7 +74,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
                 if(state == SubmenuIndexFaacSLH_433) {
-                    generated_protocol = subghz_scene_set_type_submenu_gen_data_faac_slh(
+                    generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",
                         433920000,
@@ -84,7 +84,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                         seed,
                         "FAAC_SLH");
                 } else if(state == SubmenuIndexFaacSLH_868) {
-                    generated_protocol = subghz_scene_set_type_submenu_gen_data_faac_slh(
+                    generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",
                         868350000,
