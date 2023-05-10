@@ -197,9 +197,7 @@ static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
     furi_assert(instance);
 
     // Gen new key
-    if(subghz_protocol_kinggates_stylo_4k_gen_data(instance, btn)) {
-        //ToDo if you need to add a callback to automatically update the data on the display
-    } else {
+    if(!subghz_protocol_kinggates_stylo_4k_gen_data(instance, btn)) {
         return false;
     }
 

@@ -7,6 +7,7 @@
 typedef enum {
     SubGhzRpcStateIdle,
     SubGhzRpcStateLoaded,
+    SubGhzRpcStateTx,
 } SubGhzRpcState;
 
 void subghz_scene_rpc_on_enter(void* context) {
@@ -42,9 +43,9 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             view_dispatcher_stop(subghz->view_dispatcher);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonPress) {
             bool result = false;
-            if((subghz->txrx->txrx_state == SubGhzTxRxStateSleep) &&
-               (state == SubGhzRpcStateLoaded)) {
-                result = subghz_tx_start(subghz, subghz->txrx->fff_data);
+            if((state == SubGhzRpcStateLoaded)) {
+                result = subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
+                state = SubGhzRpcStateTx;
                 if(result) subghz_blink_start(subghz);
             }
             if(!result) {
@@ -56,10 +57,10 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonPress, result);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonRelease) {
             bool result = false;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+            if(state == SubGhzRpcStateTx) {
+                subghz_txrx_stop(subghz->txrx);
                 subghz_blink_stop(subghz);
-                subghz_tx_stop(subghz);
-                subghz_sleep(subghz);
+                state = SubGhzRpcStateIdle;
                 result = true;
             }
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonRelease, result);
@@ -97,9 +98,9 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_rpc_on_exit(void* context) {
     SubGhz* subghz = context;
 
-    if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
-        subghz_tx_stop(subghz);
-        subghz_sleep(subghz);
+    SubGhzRpcState state = scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneRpc);
+    if(state != SubGhzRpcStateIdle) {
+        subghz_txrx_stop(subghz->txrx);
         subghz_blink_stop(subghz);
     }
 

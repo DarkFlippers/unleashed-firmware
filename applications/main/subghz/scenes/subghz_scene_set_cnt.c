@@ -24,7 +24,7 @@ void subghz_scene_set_cnt_on_enter(void* context) {
             subghz_scene_set_cnt_byte_input_callback,
             NULL,
             subghz,
-            subghz->txrx->secure_data->cnt,
+            subghz->secure_data->cnt,
             2);
         break;
     case SubmenuIndexFaacSLH_433:
@@ -35,7 +35,7 @@ void subghz_scene_set_cnt_on_enter(void* context) {
             subghz_scene_set_cnt_byte_input_callback,
             NULL,
             subghz,
-            subghz->txrx->secure_data->cnt,
+            subghz->secure_data->cnt,
             3);
         break;
     default:

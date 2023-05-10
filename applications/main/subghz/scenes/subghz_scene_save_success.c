@@ -27,10 +27,10 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
             if(!subghz->in_decoder_scene) {
                 if(!scene_manager_search_and_switch_to_previous_scene(
                        subghz->scene_manager, SubGhzSceneReceiver)) {
-                    subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWSave;
+                    subghz_rx_key_state_set(subghz, SubGhzRxKeyStateRAWSave);
                     if(!scene_manager_search_and_switch_to_previous_scene(
                            subghz->scene_manager, SubGhzSceneReadRAW)) {
-                        subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+                        subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
                         if(!scene_manager_search_and_switch_to_previous_scene(
                                subghz->scene_manager, SubGhzSceneSaved)) {
                             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
@@ -39,8 +39,8 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
                 }
             } else {
                 subghz->decode_raw_state = SubGhzDecodeRawStateStart;
-                subghz->txrx->idx_menu_chosen = 0;
-                subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);
+                subghz->idx_menu_chosen = 0;
+                subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
 
                 if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
                     subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);

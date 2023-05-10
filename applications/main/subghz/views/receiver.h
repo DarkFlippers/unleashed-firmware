@@ -14,7 +14,7 @@ void subghz_view_receiver_set_mode(
 
 void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi);
 
-void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock keyboard);
+void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, bool keyboard);
 
 void subghz_view_receiver_set_callback(
     SubGhzViewReceiver* subghz_receiver,
