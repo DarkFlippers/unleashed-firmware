@@ -208,10 +208,8 @@ static bool subghz_protocol_encoder_somfy_keytis_get_upload(
     uint8_t btn) {
     furi_assert(instance);
 
-    //gen new key
-    if(subghz_protocol_somfy_keytis_gen_data(instance, btn)) {
-        //ToDo if you need to add a callback to automatically update the data on the display
-    } else {
+    // Gen new key
+    if(!subghz_protocol_somfy_keytis_gen_data(instance, btn)) {
         return false;
     }
 

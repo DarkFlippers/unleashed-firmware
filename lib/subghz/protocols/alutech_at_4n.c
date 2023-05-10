@@ -429,10 +429,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     if((custom_btn_id == 0) && (original_btn_num != 0)) {
         btn = original_btn_num;
     }
-    //gen new key
-    if(subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
-        //ToDo if you need to add a callback to automatically update the data on the display
-    } else {
+    // Gen new key
+    if(!subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
         return false;
     }
 
