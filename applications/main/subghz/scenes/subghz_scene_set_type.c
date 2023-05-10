@@ -1,5 +1,5 @@
 #include "../subghz_i.h"
-#include "../helpers/subghz_txrx_create_potocol_key.h"
+#include "../helpers/subghz_txrx_create_protocol_key.h"
 #include <lib/subghz/blocks/math.h>
 #include <lib/subghz/protocols/protocol_items.h>
 
@@ -367,7 +367,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_GATE_TX_NAME, rev_key, 24);
             break;
         case SubmenuIndexBeninca433:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 433920000,
@@ -382,7 +382,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexBeninca868:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 868350000,
@@ -397,7 +397,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexAllmatic433:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 433920000,
@@ -412,7 +412,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexAllmatic868:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 868350000,
@@ -427,7 +427,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexElmesElectronic:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 433920000,
@@ -442,7 +442,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexANMotorsAT4:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 433920000,
@@ -457,7 +457,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexAprimatic:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx,
                 "AM650",
                 433920000,
@@ -472,7 +472,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexGibidi433:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Gibidi");
             if(!generated_protocol) {
                 furi_string_set(
@@ -481,7 +481,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexGSN:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x0FFFFFFF, 0x2, 0x0003, "GSN");
             if(!generated_protocol) {
                 furi_string_set(
@@ -490,7 +490,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexIronLogic:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFF0, 0x4, 0x0005, "IronLogic");
             if(!generated_protocol) {
                 furi_string_set(
@@ -499,7 +499,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexSommer_FM_434:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "FM476", 434420000, key & 0x0FFFFFFF, 0x4, 0x0003, "Sommer(fsk476)");
             if(!generated_protocol) {
                 furi_string_set(
@@ -508,7 +508,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexSommer_FM_868:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "FM476", 868800000, key & 0x0FFFFFFF, 0x4, 0x0003, "Sommer(fsk476)");
             if(!generated_protocol) {
                 furi_string_set(
@@ -517,7 +517,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexDTMNeo433:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x000FFFFF, 0x2, 0x0005, "DTM_Neo");
             if(!generated_protocol) {
                 furi_string_set(
@@ -526,7 +526,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexCAMESpace:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Came_Space");
             if(!generated_protocol) {
                 furi_string_set(
@@ -569,7 +569,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexDoorHan_433_92:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x0FFFFFFF, 0x2, 0x0003, "DoorHan");
             if(!generated_protocol) {
                 furi_string_set(
@@ -578,7 +578,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexDoorHan_315_00:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 315000000, key & 0x0FFFFFFF, 0x2, 0x0003, "DoorHan");
             if(!generated_protocol) {
                 furi_string_set(
@@ -605,7 +605,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexNiceSmilo_433_92:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "NICE_Smilo");
             if(!generated_protocol) {
                 furi_string_set(
