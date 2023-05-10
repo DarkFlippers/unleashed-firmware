@@ -355,9 +355,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     furi_record_close(RECORD_GUI);
     subghz->gui = NULL;
 
-    if(!alloc_for_tx_only) {
-        subghz_last_settings_free(subghz->last_settings); //TODO always allocated
-    }
+    subghz_last_settings_free(subghz->last_settings);
 
     // threshold rssi
     subghz_threshold_rssi_free(subghz->threshold_rssi);
