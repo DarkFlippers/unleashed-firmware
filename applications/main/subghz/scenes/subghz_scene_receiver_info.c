@@ -27,7 +27,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
     if(subghz_txrx_load_decoder_by_name_protocol(
            subghz->txrx,
            subghz_history_get_protocol_name(subghz->history, subghz->idx_menu_chosen))) {
-        //todo we are trying to deserialize without checking for errors, since it is assumed that we just received this chignal
+        //todo we are trying to deserialize without checking for errors, since it is assumed that we just received this signal
         subghz_protocol_decoder_base_deserialize(
             subghz_txrx_get_decoder(subghz->txrx),
             subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen));
@@ -140,7 +140,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             widget_reset(subghz->widget);
             subghz_scene_receiver_info_draw_widget(subghz);
 
-            subghz_txrx_stop(subghz->txrx); //TODO this is probably a redundant call
+            subghz_txrx_stop(subghz->txrx);
             if(!subghz->in_decoder_scene) {
                 subghz_txrx_rx_start(subghz->txrx);
 

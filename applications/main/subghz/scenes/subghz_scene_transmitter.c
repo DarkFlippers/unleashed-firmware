@@ -81,8 +81,6 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 uint8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
                 // Calling restore!
-                subghz_txrx_stop(subghz->txrx); //TODO this is probably a redundant call
-
                 if(!subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx))) {
                     scene_manager_next_scene(
                         subghz->scene_manager, SubGhzSceneShowOnlyRx); //TODO Is this necessary?

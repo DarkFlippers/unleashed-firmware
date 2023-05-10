@@ -7,21 +7,6 @@
 #define TAG "SubGhzDecodeRaw"
 #define SAMPLES_TO_READ_PER_TICK 400
 
-// TODO:
-// [X] Remember RAW file after decoding
-// [X] Decode in tick events instead of on_enter
-// [X] Make "Config" label optional in subghz_view_receiver_draw (../views/receiver.c)
-// [X] Make "Scanning..." label optional in subghz_view_receiver_draw (../views/receiver.c)
-// [X] Add Decoding logo
-// [ ] Design nicer Decoding logo
-// [X] Check progress in stream_buffer, instead of raw stream
-// [X] Blink led while decoding
-// [X] Stop rx blink (blue, fast) on history item view
-// [X] Don't reparse file on back
-// [X] Fix: RX animation+LED returning from decoded detail view
-// [X] Find good value for SAMPLES_TO_READ_PER_TICK
-// [X] Fix: read errors (slow flash) after aborting decode read
-
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
     FuriString* history_stat_str = furi_string_alloc();
@@ -163,7 +148,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     subghz_view_receiver_set_lock(
-        subghz->subghz_receiver, subghz_is_locked(subghz)); //TODO Doesn't matter in DecodeRAW
+        subghz->subghz_receiver, false); //TODO Doesn't matter in DecodeRAW
     subghz_view_receiver_set_mode(subghz->subghz_receiver, SubGhzViewReceiverModeFile);
     subghz_view_receiver_set_callback(
         subghz->subghz_receiver, subghz_scene_decode_raw_callback, subghz);
@@ -241,10 +226,6 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubGhzCustomEventViewReceiverOffDisplay:
             notification_message(subghz->notifications, &sequence_display_backlight_off);
-            consumed = true;
-            break;
-        case SubGhzCustomEventViewReceiverUnlock:
-            subghz_unlock(subghz); //TODO There is no such event in DecodeRAW
             consumed = true;
             break;
         default:

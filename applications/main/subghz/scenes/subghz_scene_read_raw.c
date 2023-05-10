@@ -42,10 +42,8 @@ static void subghz_scene_read_raw_update_statusbar(void* context) {
 
 #ifdef SUBGHZ_EXT_PRESET_NAME
     subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str, true);
-    //TODO if need subghz_txrx_get_preset
-    //furi_string_printf(modulation_str, "%s", furi_string_get_cstr(subghz->txrx->preset->name));
 #else
-    subghz_get_frequency_modulation(subghz->txrx, frequency_str, modulation_str, false);
+    subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str, false);
 #endif
     subghz_read_raw_add_data_statusbar(
         subghz->subghz_read_raw,
