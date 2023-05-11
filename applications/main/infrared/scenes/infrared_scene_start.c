@@ -3,10 +3,10 @@
 enum SubmenuIndex {
     SubmenuIndexUniversalRemotes,
     SubmenuIndexLearnNewRemote,
-    SubmenuIndexLearnNewRemoteRaw,
     SubmenuIndexSavedRemotes,
-    SubmenuIndexDebug,
-    SubmenuIndexDebugSettings
+    SubmenuIndexDebugSettings,
+    SubmenuIndexLearnNewRemoteRaw,
+    SubmenuIndexDebug
 };
 
 static void infrared_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -37,6 +37,12 @@ void infrared_scene_start_on_enter(void* context) {
         SubmenuIndexSavedRemotes,
         infrared_scene_start_submenu_callback,
         infrared);
+    submenu_add_item(
+        submenu,
+        "GPIO Settings",
+        SubmenuIndexDebugSettings,
+        infrared_scene_start_submenu_callback,
+        infrared);
 
     if(infrared->app_state.is_debug_enabled) {
         submenu_add_item(
@@ -49,12 +55,6 @@ void infrared_scene_start_on_enter(void* context) {
             submenu,
             "Debug RX",
             SubmenuIndexDebug,
-            infrared_scene_start_submenu_callback,
-            infrared);
-        submenu_add_item(
-            submenu,
-            "Debug Settings",
-            SubmenuIndexDebugSettings,
             infrared_scene_start_submenu_callback,
             infrared);
     }
