@@ -9,7 +9,6 @@
 #include "../views/desktop_view_main.h"
 #include "desktop_scene.h"
 #include "desktop_scene_i.h"
-#include "../helpers/pin_lock.h"
 
 #define TAG "DesktopSrv"
 
