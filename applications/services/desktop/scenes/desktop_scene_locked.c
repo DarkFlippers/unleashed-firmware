@@ -7,7 +7,7 @@
 
 #include "../desktop.h"
 #include "../desktop_i.h"
-#include "../helpers/pin_lock.h"
+#include "../helpers/pin.h"
 #include "../animations/animation_manager.h"
 #include "../views/desktop_events.h"
 #include "../views/desktop_view_pin_input.h"
@@ -45,7 +45,7 @@ void desktop_scene_locked_on_enter(void* context) {
     bool switch_to_timeout_scene = false;
     uint32_t state = scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLocked);
     if(state == SCENE_LOCKED_FIRST_ENTER) {
-        bool pin_locked = desktop_pin_lock_is_locked();
+        bool pin_locked = desktop->settings.pin_code.length > 0;
         view_port_enabled_set(desktop->lock_icon_viewport, true);
         Gui* gui = furi_record_open(RECORD_GUI);
         gui_set_lockdown(gui, true);

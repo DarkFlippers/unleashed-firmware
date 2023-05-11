@@ -10,8 +10,7 @@
 #define SCENE_EVENT_SELECT_FAVORITE_TERTIARY 2
 #define SCENE_EVENT_SELECT_PIN_SETUP 3
 #define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 4
-#define SCENE_EVENT_SELECT_AUTO_LOCK_PIN 5
-#define SCENE_EVENT_SELECT_BATTERY_DISPLAY 6
+#define SCENE_EVENT_SELECT_BATTERY_DISPLAY 5
 
 #define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -63,14 +62,6 @@ static void desktop_settings_scene_start_auto_lock_delay_changed(VariableItem* i
     app->settings.auto_lock_delay_ms = auto_lock_delay_value[index];
 }
 
-static void desktop_settings_scene_start_auto_lock_pin_changed(VariableItem* item) {
-    DesktopSettingsApp* app = variable_item_get_context(item);
-    uint8_t value = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, value ? "ON" : "OFF");
-    app->settings.auto_lock_with_pin = value;
-}
-
 void desktop_settings_scene_start_on_enter(void* context) {
     DesktopSettingsApp* app = context;
     VariableItemList* variable_item_list = app->variable_item_list;
@@ -99,16 +90,6 @@ void desktop_settings_scene_start_on_enter(void* context) {
         app->settings.auto_lock_delay_ms, auto_lock_delay_value, AUTO_LOCK_DELAY_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, auto_lock_delay_text[value_index]);
-
-    item = variable_item_list_add(
-        variable_item_list,
-        "Auto Lock Pin",
-        2,
-        desktop_settings_scene_start_auto_lock_pin_changed,
-        app);
-
-    variable_item_set_current_value_index(item, app->settings.auto_lock_with_pin);
-    variable_item_set_current_value_text(item, app->settings.auto_lock_with_pin ? "ON" : "OFF");
 
     item = variable_item_list_add(
         variable_item_list,
@@ -153,9 +134,6 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             consumed = true;
             break;
         case SCENE_EVENT_SELECT_AUTO_LOCK_DELAY:
-            consumed = true;
-            break;
-        case SCENE_EVENT_SELECT_AUTO_LOCK_PIN:
             consumed = true;
             break;
         case SCENE_EVENT_SELECT_BATTERY_DISPLAY:
