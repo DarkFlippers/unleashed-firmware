@@ -10,7 +10,7 @@
 #include "../views/desktop_view_lock_menu.h"
 #include "desktop_scene_i.h"
 #include "desktop_scene.h"
-#include "../helpers/pin_lock.h"
+#include "../helpers/pin.h"
 
 #define TAG "DesktopSceneLock"
 
@@ -25,7 +25,6 @@ void desktop_scene_lock_menu_on_enter(void* context) {
     DESKTOP_SETTINGS_LOAD(&desktop->settings);
     scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
     desktop_lock_menu_set_callback(desktop->lock_menu, desktop_scene_lock_menu_callback, desktop);
-    desktop_lock_menu_set_pin_state(desktop->lock_menu, desktop->settings.pin_code.length > 0);
     desktop_lock_menu_set_dummy_mode_state(desktop->lock_menu, desktop->settings.dummy_mode);
     desktop_lock_menu_set_stealth_mode_state(
         desktop->lock_menu, furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode));
@@ -44,7 +43,6 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
         if(check_pin_changed) {
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
             if(desktop->settings.pin_code.length > 0) {
-                desktop_lock_menu_set_pin_state(desktop->lock_menu, true);
                 scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
             }
         }
@@ -53,21 +51,6 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
         case DesktopLockMenuEventLock:
             scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
             desktop_lock(desktop);
-            consumed = true;
-            break;
-        case DesktopLockMenuEventPinLock:
-            if(desktop->settings.pin_code.length > 0) {
-                desktop_pin_lock(&desktop->settings);
-                desktop_lock(desktop);
-            } else {
-                LoaderStatus status =
-                    loader_start(desktop->loader, "Desktop", DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG);
-                if(status == LoaderStatusOk) {
-                    scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 1);
-                } else {
-                    FURI_LOG_E(TAG, "Unable to start desktop settings");
-                }
-            }
             consumed = true;
             break;
         case DesktopLockMenuEventDummyModeOn:
