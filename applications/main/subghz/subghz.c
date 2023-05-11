@@ -60,9 +60,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     // GUI
     subghz->gui = furi_record_open(RECORD_GUI);
 
-    subghz->in_decoder_scene = false;
-    subghz->in_decoder_scene_skip = false;
-
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(subghz->view_dispatcher);

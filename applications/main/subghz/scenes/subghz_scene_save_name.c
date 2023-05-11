@@ -127,7 +127,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         if(!(strcmp(subghz->file_name_tmp, "") == 0) ||
            scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
                SubGhzCustomEventManagerNoSet) {
-            if(!subghz->in_decoder_scene) {
+            if(!scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
                 furi_string_set(subghz->file_path, subghz->file_path_tmp);
             }
         }
