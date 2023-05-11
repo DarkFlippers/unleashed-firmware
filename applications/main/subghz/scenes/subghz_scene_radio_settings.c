@@ -104,7 +104,7 @@ static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* 
     subghz_last_settings_save(subghz->last_settings);
 }
 
-void subghz_scene_ext_module_settings_on_enter(void* context) {
+void subghz_scene_radio_settings_on_enter(void* context) {
     SubGhz* subghz = context;
 
     VariableItemList* variable_item_list = subghz->variable_item_list;
@@ -177,7 +177,7 @@ void subghz_scene_ext_module_settings_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdVariableItemList);
 }
 
-bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_radio_settings_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     UNUSED(subghz);
     UNUSED(event);
@@ -200,7 +200,7 @@ bool subghz_scene_ext_module_settings_on_event(void* context, SceneManagerEvent 
     return false;
 }
 
-void subghz_scene_ext_module_settings_on_exit(void* context) {
+void subghz_scene_radio_settings_on_exit(void* context) {
     SubGhz* subghz = context;
     variable_item_list_reset(subghz->variable_item_list);
 }
