@@ -120,7 +120,8 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
             uint32_t duration = level_duration_get_duration(level_duration);
             subghz_receiver_decode(receiver, level, duration);
         } else {
-            subghz->decode_raw_state = SubGhzDecodeRawStateLoaded;
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateLoaded);
             subghz->state_notifications = SubGhzNotificationStateIDLE;
 
             subghz_view_receiver_add_data_progress(subghz->subghz_receiver, "Done!");
@@ -155,11 +156,13 @@ void subghz_scene_decode_raw_on_enter(void* context) {
 
     subghz_txrx_receiver_set_filter(subghz->txrx, SubGhzProtocolFlag_Decodable);
 
-    if(subghz->decode_raw_state == SubGhzDecodeRawStateStart) {
+    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneDecodeRAW) ==
+       SubGhzDecodeRawStateStart) {
         //Decode RAW to history
         subghz_history_reset(subghz->history);
         if(subghz_scene_decode_raw_start(subghz)) {
-            subghz->decode_raw_state = SubGhzDecodeRawStateLoading;
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateLoading);
             subghz->state_notifications = SubGhzNotificationStateRx;
         }
     } else {
@@ -192,10 +195,9 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
-            subghz->decode_raw_state = SubGhzDecodeRawStateStart;
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateStart);
             subghz->idx_menu_chosen = 0;
-            subghz->in_decoder_scene = false;
-            subghz->in_decoder_scene_skip = false;
 
             subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
 
@@ -214,7 +216,6 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverOK:
             subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            subghz->in_decoder_scene = true;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
             consumed = true;
             break;
@@ -242,7 +243,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             break;
         }
 
-        switch(subghz->decode_raw_state) {
+        switch(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
         case SubGhzDecodeRawStateLoading:
             subghz_scene_decode_raw_next(subghz);
             break;
