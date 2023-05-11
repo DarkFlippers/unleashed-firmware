@@ -1,5 +1,5 @@
 #include "subghz_txrx_i.h"
-#include "subghz_txrx_create_potocol_key.h"
+#include "subghz_txrx_create_protocol_key.h"
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/protocols/protocol_items.h>
@@ -84,7 +84,7 @@ bool subghz_txrx_gen_data_protocol_and_te(
     return ret;
 }
 
-bool subghz_txrx_gen_keelog_protocol(
+bool subghz_txrx_gen_keeloq_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
     uint32_t frequency,

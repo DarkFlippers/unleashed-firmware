@@ -23,7 +23,7 @@ inline uint32_t subghz_protocol_keeloq_common_encrypt(const uint32_t data, const
 }
 
 /** Simple Learning Decrypt
- * @param data - keelog encrypt data
+ * @param data - keeloq encrypt data
  * @param key - manufacture (64bit)
  * @return 0xBSSSCCCC, B(4bit) key, S(10bit) serial&0x3FF, C(16bit) counter
  */

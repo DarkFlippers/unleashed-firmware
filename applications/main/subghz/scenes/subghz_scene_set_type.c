@@ -1,5 +1,5 @@
 #include "../subghz_i.h"
-#include "../helpers/subghz_txrx_create_potocol_key.h"
+#include "../helpers/subghz_txrx_create_protocol_key.h"
 #include <lib/subghz/blocks/math.h>
 #include <lib/subghz/protocols/protocol_items.h>
 
@@ -172,7 +172,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_GATE_TX_NAME, rev_key, 24);
             break;
         case SubmenuIndexDoorHan_433_92:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, "DoorHan", key, 0x2, 0x0003);
             if(!generated_protocol) {
                 furi_string_set(
@@ -181,7 +181,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexDoorHan_315_00:
-            generated_protocol = subghz_txrx_gen_keelog_protocol(
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 315000000, "DoorHan", key, 0x2, 0x0003);
             if(!generated_protocol) {
                 furi_string_set(

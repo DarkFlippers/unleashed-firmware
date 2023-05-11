@@ -54,7 +54,7 @@ bool subghz_txrx_gen_data_protocol_and_te(
  * @param cnt Counter
  * @return bool True if success
  */
-bool subghz_txrx_gen_keelog_protocol(
+bool subghz_txrx_gen_keeloq_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
     uint32_t frequency,
