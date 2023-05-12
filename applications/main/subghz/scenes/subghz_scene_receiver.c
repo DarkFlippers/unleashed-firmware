@@ -113,6 +113,9 @@ static void subghz_scene_add_to_history_callback(
             subghz_history_get_type_protocol(history, idx));
 
         subghz_scene_receiver_update_statusbar(subghz);
+        if(subghz_history_get_text_space_left(subghz->history, NULL)) {
+            notification_message(subghz->notifications, &sequence_error);
+        }
     }
     subghz_receiver_reset(receiver);
     furi_string_free(item_name);
@@ -183,7 +186,9 @@ void subghz_scene_receiver_on_enter(void* context) {
         }
     }
 
-    subghz->state_notifications = SubGhzNotificationStateRx;
+    if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
+        subghz->state_notifications = SubGhzNotificationStateRx;
+    }
     subghz_txrx_rx_start(subghz->txrx);
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
 
@@ -244,7 +249,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverConfig:
-            subghz->state_notifications = SubGhzNotificationStateIDLE;
+            // Actually signals are received but SubGhzNotificationStateRx is not working inside Config Scene
             subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzViewIdReceiver, SubGhzCustomEventManagerSet);
