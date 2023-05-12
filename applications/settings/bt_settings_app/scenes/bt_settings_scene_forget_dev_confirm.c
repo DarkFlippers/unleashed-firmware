@@ -30,6 +30,7 @@ bool bt_settings_scene_forget_dev_confirm_on_event(void* context, SceneManagerEv
         if(event.event == DialogExResultLeft) {
             consumed = scene_manager_previous_scene(app->scene_manager);
         } else if(event.event == DialogExResultRight) {
+            bt_keys_storage_set_default_path(app->bt);
             bt_forget_bonded_devices(app->bt);
 
             // Also remove keys of BadBT, Bluetooth Remote, TOTP Authenticator
