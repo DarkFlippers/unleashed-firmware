@@ -199,26 +199,39 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
             FURI_LOG_E(TAG, "Can't start Ble App - unsupported radio stack");
             break;
         }
-        // Set mac address
-        memcpy(
-            profile_config[profile].config.mac_address,
-            furi_hal_version_get_ble_mac(),
-            sizeof(profile_config[profile].config.mac_address));
-        // Set advertise name
-        strlcpy(
-            profile_config[profile].config.adv_name,
-            furi_hal_version_get_ble_local_device_name_ptr(),
-            FURI_HAL_VERSION_DEVICE_NAME_LENGTH);
-        // Configure GAP
         GapConfig* config = &profile_config[profile].config;
+        // Configure GAP
         if(profile == FuriHalBtProfileSerial) {
+            // Set mac address
+            memcpy(
+                config->mac_address, furi_hal_version_get_ble_mac(), sizeof(config->mac_address));
+            // Set advertise name
+            strlcpy(
+                config->adv_name,
+                furi_hal_version_get_ble_local_device_name_ptr(),
+                FURI_HAL_VERSION_DEVICE_NAME_LENGTH);
+
             config->adv_service_uuid |= furi_hal_version_get_hw_color();
         } else if(profile == FuriHalBtProfileHidKeyboard) {
             // Change MAC address for HID profile
-            config->mac_address[2]++;
+            uint8_t default_mac[sizeof(config->mac_address)] = FURI_HAL_BT_DEFAULT_MAC_ADDR;
+            const uint8_t* normal_mac = furi_hal_version_get_ble_mac();
+            if(memcmp(config->mac_address, default_mac, sizeof(config->mac_address)) == 0) {
+                memcpy(config->mac_address, normal_mac, sizeof(config->mac_address));
+            }
+            if(memcmp(config->mac_address, normal_mac, sizeof(config->mac_address)) == 0) {
+                config->mac_address[2]++;
+            }
             // Change name Flipper -> Control
-            const char* clicker_str = "Control";
-            memcpy(&config->adv_name[1], clicker_str, strlen(clicker_str));
+            if(strnlen(config->adv_name, FURI_HAL_VERSION_DEVICE_NAME_LENGTH) < 2 ||
+               strnlen(config->adv_name + 1, FURI_HAL_VERSION_DEVICE_NAME_LENGTH) < 1) {
+                snprintf(
+                    config->adv_name,
+                    FURI_HAL_VERSION_DEVICE_NAME_LENGTH,
+                    "%cControl %s",
+                    *furi_hal_version_get_ble_local_device_name_ptr(),
+                    furi_hal_version_get_ble_local_device_name_ptr() + 9);
+            }
         }
         if(!gap_init(config, event_cb, context)) {
             gap_thread_stop();
@@ -278,6 +291,10 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb,
 
 bool furi_hal_bt_is_active() {
     return gap_get_state() > GapStateIdle;
+}
+
+bool furi_hal_bt_is_connected() {
+    return gap_get_state() == GapStateConnected;
 }
 
 void furi_hal_bt_start_advertising() {
@@ -416,6 +433,67 @@ float furi_hal_bt_get_rssi() {
         val += (float)((417 * rssi + 18080) >> 10);
     }
     return val;
+}
+
+/** fill the RSSI of the remote host of the bt connection and returns the last 
+ *  time the RSSI was updated
+ * 
+*/
+uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi) {
+    int8_t ret_rssi = 0;
+    uint32_t since = gap_get_remote_conn_rssi(&ret_rssi);
+
+    if(ret_rssi == 127 || since == 0) return 0;
+
+    *rssi = (uint8_t)abs(ret_rssi);
+
+    return since;
+}
+
+void furi_hal_bt_set_profile_adv_name(
+    FuriHalBtProfile profile,
+    const char name[FURI_HAL_BT_ADV_NAME_LENGTH]) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    furi_assert(name);
+
+    if(strlen(name) == 0) {
+        memset(
+            &(profile_config[profile].config.adv_name[1]),
+            0,
+            strlen(&(profile_config[profile].config.adv_name[1])));
+    } else {
+        profile_config[profile].config.adv_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
+        memcpy(&(profile_config[profile].config.adv_name[1]), name, FURI_HAL_BT_ADV_NAME_LENGTH);
+    }
+}
+
+const char* furi_hal_bt_get_profile_adv_name(FuriHalBtProfile profile) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    return &(profile_config[profile].config.adv_name[1]);
+}
+
+void furi_hal_bt_set_profile_mac_addr(
+    FuriHalBtProfile profile,
+    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    furi_assert(mac_addr);
+
+    memcpy(profile_config[profile].config.mac_address, mac_addr, GAP_MAC_ADDR_SIZE);
+}
+
+const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    return profile_config[profile].config.mac_address;
+}
+
+void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    profile_config[profile].config.pairing_method = pairing_method;
+}
+
+GapPairing furi_hal_bt_get_profile_pairing_method(FuriHalBtProfile profile) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    return profile_config[profile].config.pairing_method;
 }
 
 uint32_t furi_hal_bt_get_transmitted_packets() {

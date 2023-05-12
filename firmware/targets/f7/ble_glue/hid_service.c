@@ -14,6 +14,11 @@ typedef struct {
     uint16_t report_map_char_handle;
     uint16_t info_char_handle;
     uint16_t ctrl_point_char_handle;
+    // led state
+    uint16_t led_state_char_handle;
+    uint16_t led_state_desc_handle;
+    HidLedStateEventCallback led_state_event_callback;
+    void* led_state_ctx;
 } HIDSvc;
 
 static HIDSvc* hid_svc = NULL;
@@ -30,6 +35,32 @@ static SVCCTL_EvtAckStatus_t hid_svc_event_handler(void* event) {
         } else if(blecore_evt->ecode == ACI_GATT_SERVER_CONFIRMATION_VSEVT_CODE) {
             // Process notification confirmation
             ret = SVCCTL_EvtAckFlowEnable;
+        } else if(blecore_evt->ecode == ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE) {
+            // Process write request
+            aci_gatt_write_permit_req_event_rp0* req =
+                (aci_gatt_write_permit_req_event_rp0*)blecore_evt->data;
+
+            furi_check(hid_svc->led_state_event_callback && hid_svc->led_state_ctx);
+
+            // this check is likely to be incorrect, it will actually work in our case
+            // but we need to investigate gatt api to see what is the rules
+            // that specify attibute handle value from char handle (or the reverse)
+            if(req->Attribute_Handle == (hid_svc->led_state_char_handle + 1)) {
+                hid_svc->led_state_event_callback(req->Data[0], hid_svc->led_state_ctx);
+                aci_gatt_write_resp(
+                    req->Connection_Handle,
+                    req->Attribute_Handle,
+                    0x00, /* write_status = 0 (no error))*/
+                    0x00, /* err_code */
+                    req->Data_Length,
+                    req->Data);
+                aci_gatt_write_char_value(
+                    req->Connection_Handle,
+                    hid_svc->led_state_char_handle,
+                    req->Data_Length,
+                    req->Data);
+                ret = SVCCTL_EvtAckFlowEnable;
+            }
         }
     }
     return ret;
@@ -55,8 +86,8 @@ void hid_svc_start() {
         PRIMARY_SERVICE,
         2 + /* protocol mode */
             (4 * HID_SVC_INPUT_REPORT_COUNT) + (3 * HID_SVC_OUTPUT_REPORT_COUNT) +
-            (3 * HID_SVC_FEATURE_REPORT_COUNT) + 1 + 2 + 2 +
-            2, /* Service + Report Map + HID Information + HID Control Point */
+            (3 * HID_SVC_FEATURE_REPORT_COUNT) + 1 + 2 + 2 + 2 +
+            4, /* Service + Report Map + HID Information + HID Control Point + LED state */
         &hid_svc->svc_handle);
     if(status) {
         FURI_LOG_E(TAG, "Failed to add HID service: %d", status);
@@ -198,6 +229,43 @@ void hid_svc_start() {
         }
     }
 #endif
+    // Add led state output report
+    char_uuid.Char_UUID_16 = REPORT_CHAR_UUID;
+    status = aci_gatt_add_char(
+        hid_svc->svc_handle,
+        UUID_TYPE_16,
+        &char_uuid,
+        1,
+        CHAR_PROP_READ | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE,
+        ATTR_PERMISSION_NONE,
+        GATT_NOTIFY_ATTRIBUTE_WRITE | GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP,
+        10,
+        CHAR_VALUE_LEN_CONSTANT,
+        &(hid_svc->led_state_char_handle));
+    if(status) {
+        FURI_LOG_E(TAG, "Failed to add led state characteristic: %d", status);
+    }
+
+    // Add led state char descriptor specifying it is an output report
+    uint8_t buf[2] = {HID_SVC_REPORT_COUNT + 1, 2};
+    desc_uuid.Char_UUID_16 = REPORT_REFERENCE_DESCRIPTOR_UUID;
+    status = aci_gatt_add_char_desc(
+        hid_svc->svc_handle,
+        hid_svc->led_state_char_handle,
+        UUID_TYPE_16,
+        &desc_uuid,
+        HID_SVC_REPORT_REF_LEN,
+        HID_SVC_REPORT_REF_LEN,
+        buf,
+        ATTR_PERMISSION_NONE,
+        ATTR_ACCESS_READ_WRITE,
+        GATT_DONT_NOTIFY_EVENTS,
+        MIN_ENCRY_KEY_SIZE,
+        CHAR_VALUE_LEN_CONSTANT,
+        &(hid_svc->led_state_desc_handle));
+    if(status) {
+        FURI_LOG_E(TAG, "Failed to add led state descriptor: %d", status);
+    }
     // Add Report Map characteristic
     char_uuid.Char_UUID_16 = REPORT_MAP_CHAR_UUID;
     status = aci_gatt_add_char(
@@ -247,6 +315,9 @@ void hid_svc_start() {
     if(status) {
         FURI_LOG_E(TAG, "Failed to add control point characteristic: %d", status);
     }
+
+    hid_svc->led_state_event_callback = NULL;
+    hid_svc->led_state_ctx = NULL;
 }
 
 bool hid_svc_update_report_map(const uint8_t* data, uint16_t len) {
@@ -288,6 +359,15 @@ bool hid_svc_update_info(uint8_t* data, uint16_t len) {
     return true;
 }
 
+void hid_svc_register_led_state_callback(HidLedStateEventCallback callback, void* context) {
+    furi_assert(hid_svc);
+    furi_assert(callback);
+    furi_assert(context);
+
+    hid_svc->led_state_event_callback = callback;
+    hid_svc->led_state_ctx = context;
+}
+
 bool hid_svc_is_started() {
     return hid_svc != NULL;
 }
@@ -319,6 +399,10 @@ void hid_svc_stop() {
         status = aci_gatt_del_char(hid_svc->svc_handle, hid_svc->ctrl_point_char_handle);
         if(status) {
             FURI_LOG_E(TAG, "Failed to delete Control Point characteristic: %d", status);
+        }
+        status = aci_gatt_del_char(hid_svc->svc_handle, hid_svc->led_state_char_handle);
+        if(status) {
+            FURI_LOG_E(TAG, "Failed to delete led state characteristic: %d", status);
         }
         // Delete service
         status = aci_gatt_del_service(hid_svc->svc_handle);

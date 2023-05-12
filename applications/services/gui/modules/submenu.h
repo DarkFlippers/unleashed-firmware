@@ -53,6 +53,26 @@ void submenu_add_item(
     SubmenuItemCallback callback,
     void* callback_context);
 
+/** Add lockable item to submenu
+ *
+ * @param      submenu           Submenu instance
+ * @param      label             menu item label
+ * @param      index             menu item index, used for callback, may be
+ *                               the same with other items
+ * @param      callback          menu item callback
+ * @param      callback_context  menu item callback context
+ * @param      locked            menu item locked status
+ * @param      locked_message    menu item locked message
+ */
+void submenu_add_lockable_item(
+    Submenu* submenu,
+    const char* label,
+    uint32_t index,
+    SubmenuItemCallback callback,
+    void* callback_context,
+    bool locked,
+    const char* locked_message);
+
 /** Remove all items from submenu
  *
  * @param      submenu  Submenu instance
