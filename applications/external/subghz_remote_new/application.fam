@@ -1,0 +1,15 @@
+App(
+    appid="subghz_remote_new",
+    name="SubRem new",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="subghz_remote_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    icon="A_SubGHzRemote_14",
+    stack_size=4 * 1024,
+    order=12,
+    fap_category="Debug",
+    fap_icon_assets="icons",
+)
