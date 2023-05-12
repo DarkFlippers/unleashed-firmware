@@ -134,6 +134,7 @@ void subghz_scene_receiver_on_enter(void* context) {
         subghz_txrx_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
         subghz_history_reset(history);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);
+        subghz->idx_menu_chosen = 0;
     }
 
     subghz_view_receiver_set_lock(subghz->subghz_receiver, subghz_is_locked(subghz));
@@ -209,7 +210,6 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz_txrx_stop(subghz->txrx);
             subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
-            subghz->idx_menu_chosen = 0;
             subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
 
             if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateAddKey) {
