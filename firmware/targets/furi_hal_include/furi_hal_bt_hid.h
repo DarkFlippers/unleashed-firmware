@@ -86,6 +86,13 @@ bool furi_hal_bt_hid_consumer_key_release(uint16_t button);
  */
 bool furi_hal_bt_hid_consumer_key_release_all();
 
+/** Retrieves LED state from remote BT HID host
+ * 
+ * @return (look at HID usage page to know what each bit of the returned byte means)
+ * NB: RFU bit has been shifted out in the returned octet so USB defines should work
+*/
+uint8_t furi_hal_bt_hid_get_led_state(void);
+
 #ifdef __cplusplus
 }
 #endif

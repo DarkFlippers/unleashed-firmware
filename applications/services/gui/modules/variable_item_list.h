@@ -95,6 +95,14 @@ void variable_item_set_values_count(VariableItem* item, uint8_t values_count);
  */
 void variable_item_set_current_value_text(VariableItem* item, const char* current_value_text);
 
+/** Set item locked state and text
+ *
+ * @param      item                VariableItem* instance
+ * @param      locked              Is item locked boolean
+ * @param      locked_message      The locked message text
+ */
+void variable_item_set_locked(VariableItem* item, bool locked, const char* locked_message);
+
 /** Get item current selected index
  *
  * @param      item  VariableItem* instance

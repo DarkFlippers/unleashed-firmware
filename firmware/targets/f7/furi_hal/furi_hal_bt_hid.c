@@ -20,6 +20,7 @@ enum HidReportId {
     ReportIdKeyboard = 1,
     ReportIdMouse = 2,
     ReportIdConsumer = 3,
+    ReportIdLEDState = 4,
 };
 // Report numbers corresponded to the report id with an offset of 1
 enum HidInputNumber {
@@ -77,6 +78,13 @@ static const uint8_t furi_hal_bt_hid_report_map_data[] = {
     HID_USAGE_MINIMUM(0),
     HID_USAGE_MAXIMUM(101),
     HID_INPUT(HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+    HID_REPORT_ID(ReportIdLEDState),
+    HID_USAGE_PAGE(HID_PAGE_LED),
+    HID_REPORT_COUNT(8),
+    HID_REPORT_SIZE(1),
+    HID_USAGE_MINIMUM(1),
+    HID_USAGE_MAXIMUM(8),
+    HID_OUTPUT(HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
     HID_END_COLLECTION,
     // Mouse Report
     HID_USAGE_PAGE(HID_PAGE_DESKTOP),
@@ -125,6 +133,63 @@ FuriHalBtHidKbReport* kb_report = NULL;
 FuriHalBtHidMouseReport* mouse_report = NULL;
 FuriHalBtHidConsumerReport* consumer_report = NULL;
 
+typedef struct {
+// shortcuts
+#define s_undefined data.bits.b_undefined
+#define s_num_lock data.bits.b_num_lock
+#define s_caps_lock data.bits.b_caps_lock
+#define s_scroll_lock data.bits.b_scroll_lock
+#define s_compose data.bits.b_compose
+#define s_kana data.bits.b_kana
+#define s_power data.bits.b_power
+#define s_shift data.bits.b_shift
+#define s_value data.value
+    union {
+        struct {
+            uint8_t b_undefined : 1;
+            uint8_t b_num_lock : 1;
+            uint8_t b_caps_lock : 1;
+            uint8_t b_scroll_lock : 1;
+            uint8_t b_compose : 1;
+            uint8_t b_kana : 1;
+            uint8_t b_power : 1;
+            uint8_t b_shift : 1;
+        } bits;
+        uint8_t value;
+    } data;
+} __attribute__((__packed__)) FuriHalBtHidLedState;
+
+FuriHalBtHidLedState hid_host_led_state = {.s_value = 0};
+
+uint16_t furi_hal_bt_hid_led_state_cb(uint8_t state, void* ctx) {
+    FuriHalBtHidLedState* led_state = (FuriHalBtHidLedState*)ctx;
+
+    //FURI_LOG_D("HalBtHid", "LED state updated !");
+
+    led_state->s_value = state;
+
+    return 0;
+}
+
+uint8_t furi_hal_bt_hid_get_led_state(void) {
+    /*FURI_LOG_D(
+        "HalBtHid",
+        "LED state: RFU=%d NUMLOCK=%d CAPSLOCK=%d SCROLLLOCK=%d COMPOSE=%d KANA=%d POWER=%d SHIFT=%d",
+        hid_host_led_state.s_undefined,
+        hid_host_led_state.s_num_lock,
+        hid_host_led_state.s_caps_lock,
+        hid_host_led_state.s_scroll_lock,
+        hid_host_led_state.s_compose,
+        hid_host_led_state.s_kana,
+        hid_host_led_state.s_power,
+        hid_host_led_state.s_shift);
+        */
+
+    return (hid_host_led_state.s_value >> 1); // bit 0 is undefined (after shift bit location
+        // match with HID led state bits defines)
+        // see bad_bt_script.c (ducky_numlock_on function)
+}
+
 void furi_hal_bt_hid_start() {
     // Start device info
     if(!dev_info_svc_is_started()) {
@@ -139,6 +204,8 @@ void furi_hal_bt_hid_start() {
         hid_svc_start();
     }
     // Configure HID Keyboard
+    hid_svc_register_led_state_callback(furi_hal_bt_hid_led_state_cb, &hid_host_led_state);
+
     kb_report = malloc(sizeof(FuriHalBtHidKbReport));
     mouse_report = malloc(sizeof(FuriHalBtHidMouseReport));
     consumer_report = malloc(sizeof(FuriHalBtHidConsumerReport));
@@ -160,6 +227,8 @@ void furi_hal_bt_hid_stop() {
     furi_assert(kb_report);
     furi_assert(mouse_report);
     furi_assert(consumer_report);
+
+    hid_svc_register_led_state_callback(NULL, NULL);
     // Stop all services
     if(dev_info_svc_is_started()) {
         dev_info_svc_stop();
@@ -180,11 +249,15 @@ void furi_hal_bt_hid_stop() {
 
 bool furi_hal_bt_hid_kb_press(uint16_t button) {
     furi_assert(kb_report);
-    for(uint8_t i = 0; i < FURI_HAL_BT_HID_KB_MAX_KEYS; i++) {
+    uint8_t i;
+    for(i = 0; i < FURI_HAL_BT_HID_KB_MAX_KEYS; i++) {
         if(kb_report->key[i] == 0) {
             kb_report->key[i] = button & 0xFF;
             break;
         }
+    }
+    if(i == FURI_HAL_BT_HID_KB_MAX_KEYS) {
+        return false;
     }
     kb_report->mods |= (button >> 8);
     return hid_svc_update_input_report(

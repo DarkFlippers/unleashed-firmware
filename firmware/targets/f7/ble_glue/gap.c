@@ -28,6 +28,8 @@ typedef struct {
     GapConfig* config;
     GapConnectionParams connection_params;
     GapState state;
+    int8_t conn_rssi;
+    uint32_t time_rssi_sample;
     FuriMutex* state_mutex;
     GapEventCallback on_event_cb;
     void* context;
@@ -55,6 +57,19 @@ static Gap* gap = NULL;
 
 static void gap_advertise_start(GapState new_state);
 static int32_t gap_app(void* context);
+
+/** function for updating rssi informations in global Gap object
+ * 
+*/
+static inline void fetch_rssi() {
+    uint8_t ret_rssi = 127;
+    if(hci_read_rssi(gap->service.connection_handle, &ret_rssi) == BLE_STATUS_SUCCESS) {
+        gap->conn_rssi = (int8_t)ret_rssi;
+        gap->time_rssi_sample = furi_get_tick();
+        return;
+    }
+    FURI_LOG_D(TAG, "Failed to read RSSI");
+}
 
 static void gap_verify_connection_parameters(Gap* gap) {
     furi_assert(gap);
@@ -128,6 +143,9 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             gap->connection_params.supervisor_timeout = event->Supervision_Timeout;
             FURI_LOG_I(TAG, "Connection parameters event complete");
             gap_verify_connection_parameters(gap);
+
+            // Save rssi for current connection
+            fetch_rssi();
             break;
         }
 
@@ -162,6 +180,9 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             gap->service.connection_handle = event->Connection_Handle;
 
             gap_verify_connection_parameters(gap);
+
+            // Save rssi for current connection
+            fetch_rssi();
             // Start pairing by sending security request
             aci_gap_slave_security_req(event->Connection_Handle);
         } break;
@@ -242,6 +263,9 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
                     pairing_complete->Status);
                 aci_gap_terminate(gap->service.connection_handle, 5);
             } else {
+                // Save RSSI
+                fetch_rssi();
+
                 FURI_LOG_I(TAG, "Pairing complete");
                 GapEvent event = {.type = GapEventTypeConnected};
                 gap->on_event_cb(event, gap->context); //-V595
@@ -310,7 +334,7 @@ static void gap_init_svc(Gap* gap) {
     // Initialize GATT interface
     aci_gatt_init();
     // Initialize GAP interface
-    // Skip fist symbol AD_TYPE_COMPLETE_LOCAL_NAME
+    // Skip first symbol AD_TYPE_COMPLETE_LOCAL_NAME
     char* name = gap->service.adv_name + 1;
     aci_gap_init(
         GAP_PERIPHERAL_ROLE,
@@ -345,21 +369,34 @@ static void gap_init_svc(Gap* gap) {
     hci_le_set_default_phy(ALL_PHYS_PREFERENCE, TX_2M_PREFERRED, RX_2M_PREFERRED);
     // Set I/O capability
     bool keypress_supported = false;
+    // New things below
+    uint8_t conf_mitm = CFG_MITM_PROTECTION;
+    uint8_t conf_used_fixed_pin = CFG_USED_FIXED_PIN;
+    bool conf_bonding = gap->config->bonding_mode;
+
     if(gap->config->pairing_method == GapPairingPinCodeShow) {
         aci_gap_set_io_capability(IO_CAP_DISPLAY_ONLY);
     } else if(gap->config->pairing_method == GapPairingPinCodeVerifyYesNo) {
         aci_gap_set_io_capability(IO_CAP_DISPLAY_YES_NO);
         keypress_supported = true;
+    } else if(gap->config->pairing_method == GapPairingNone) {
+        // Just works pairing method (IOS accept it, it seems android and linux doesn't)
+        conf_mitm = 0;
+        conf_used_fixed_pin = 0;
+        conf_bonding = false;
+        // if just works isn't supported, we want the numeric comparaison method
+        aci_gap_set_io_capability(IO_CAP_DISPLAY_YES_NO);
+        keypress_supported = true;
     }
     // Setup  authentication
     aci_gap_set_authentication_requirement(
-        gap->config->bonding_mode,
-        CFG_MITM_PROTECTION,
+        conf_bonding,
+        conf_mitm,
         CFG_SC_SUPPORT,
         keypress_supported,
         CFG_ENCRYPTION_KEY_SIZE_MIN,
         CFG_ENCRYPTION_KEY_SIZE_MAX,
-        CFG_USED_FIXED_PIN,
+        conf_used_fixed_pin, // 0x0 for no pin
         0,
         CFG_IDENTITY_ADDRESS);
     // Configure whitelist
@@ -488,6 +525,9 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->service.connection_handle = 0xFFFF;
     gap->enable_adv = true;
 
+    gap->conn_rssi = 127;
+    gap->time_rssi_sample = 0;
+
     // Thread configuration
     gap->thread = furi_thread_alloc_ex("BleGapDriver", 1024, gap_app, gap);
     furi_thread_start(gap->thread);
@@ -505,6 +545,17 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->on_event_cb = on_event_cb;
     gap->context = context;
     return true;
+}
+
+// Get RSSI
+uint32_t gap_get_remote_conn_rssi(int8_t* rssi) {
+    if(gap && gap->state == GapStateConnected) {
+        fetch_rssi();
+        *rssi = gap->conn_rssi;
+
+        if(gap->time_rssi_sample) return furi_get_tick() - gap->time_rssi_sample;
+    }
+    return 0;
 }
 
 GapState gap_get_state() {

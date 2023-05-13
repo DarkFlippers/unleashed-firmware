@@ -586,11 +586,20 @@ Function,+,ble_glue_start,_Bool,
 Function,+,ble_glue_thread_stop,void,
 Function,+,ble_glue_wait_for_c2_start,_Bool,int32_t
 Function,-,bsearch,void*,"const void*, const void*, size_t, size_t, __compar_fn_t"
+Function,+,bt_disable_peer_key_update,void,Bt*
 Function,+,bt_disconnect,void,Bt*
+Function,+,bt_enable_peer_key_update,void,Bt*
 Function,+,bt_forget_bonded_devices,void,Bt*
+Function,+,bt_get_profile_adv_name,const char*,Bt*
+Function,+,bt_get_profile_mac_address,const uint8_t*,Bt*
+Function,+,bt_get_profile_pairing_method,GapPairing,Bt*
 Function,+,bt_keys_storage_set_default_path,void,Bt*
 Function,+,bt_keys_storage_set_storage_path,void,"Bt*, const char*"
+Function,+,bt_remote_rssi,_Bool,"Bt*, uint8_t*"
 Function,+,bt_set_profile,_Bool,"Bt*, BtProfile"
+Function,+,bt_set_profile_adv_name,void,"Bt*, const char*, ..."
+Function,+,bt_set_profile_mac_address,void,"Bt*, const uint8_t[6]"
+Function,+,bt_set_profile_pairing_method,void,"Bt*, GapPairing"
 Function,+,bt_set_status_changed_callback,void,"Bt*, BtStatusChangedCallback, void*"
 Function,+,buffered_file_stream_alloc,Stream*,Storage*
 Function,+,buffered_file_stream_close,_Bool,Stream*
@@ -816,6 +825,7 @@ Function,+,elements_multiline_text_framed,void,"Canvas*, uint8_t, uint8_t, const
 Function,+,elements_progress_bar,void,"Canvas*, uint8_t, uint8_t, uint8_t, float"
 Function,+,elements_progress_bar_with_text,void,"Canvas*, uint8_t, uint8_t, uint8_t, float, const char*"
 Function,+,elements_scrollable_text_line,void,"Canvas*, uint8_t, uint8_t, uint8_t, FuriString*, size_t, _Bool"
+Function,+,elements_scrollable_text_line_str,void,"Canvas*, uint8_t, uint8_t, uint8_t, const char*, size_t, _Bool, _Bool"
 Function,+,elements_scrollbar,void,"Canvas*, uint16_t, uint16_t"
 Function,+,elements_scrollbar_pos,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint16_t, uint16_t"
 Function,+,elements_slightly_rounded_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
@@ -1037,14 +1047,19 @@ Function,+,furi_hal_bt_change_app,_Bool,"FuriHalBtProfile, GapEventCallback, voi
 Function,+,furi_hal_bt_clear_white_list,_Bool,
 Function,+,furi_hal_bt_dump_state,void,FuriString*
 Function,+,furi_hal_bt_ensure_c2_mode,_Bool,BleGlueC2Mode
+Function,+,furi_hal_bt_get_conn_rssi,uint32_t,uint8_t*
 Function,-,furi_hal_bt_get_hardfault_info,const FuriHalBtHardfaultInfo*,
 Function,+,furi_hal_bt_get_key_storage_buff,void,"uint8_t**, uint16_t*"
+Function,+,furi_hal_bt_get_profile_adv_name,const char*,FuriHalBtProfile
+Function,+,furi_hal_bt_get_profile_mac_addr,const uint8_t*,FuriHalBtProfile
+Function,+,furi_hal_bt_get_profile_pairing_method,GapPairing,FuriHalBtProfile
 Function,+,furi_hal_bt_get_radio_stack,FuriHalBtStack,
 Function,+,furi_hal_bt_get_rssi,float,
 Function,+,furi_hal_bt_get_transmitted_packets,uint32_t,
 Function,+,furi_hal_bt_hid_consumer_key_press,_Bool,uint16_t
 Function,+,furi_hal_bt_hid_consumer_key_release,_Bool,uint16_t
 Function,+,furi_hal_bt_hid_consumer_key_release_all,_Bool,
+Function,+,furi_hal_bt_hid_get_led_state,uint8_t,
 Function,+,furi_hal_bt_hid_kb_press,_Bool,uint16_t
 Function,+,furi_hal_bt_hid_kb_release,_Bool,uint16_t
 Function,+,furi_hal_bt_hid_kb_release_all,_Bool,
@@ -1059,6 +1074,7 @@ Function,-,furi_hal_bt_init,void,
 Function,+,furi_hal_bt_is_active,_Bool,
 Function,+,furi_hal_bt_is_alive,_Bool,
 Function,+,furi_hal_bt_is_ble_gatt_gap_supported,_Bool,
+Function,+,furi_hal_bt_is_connected,_Bool,
 Function,+,furi_hal_bt_is_testing_supported,_Bool,
 Function,+,furi_hal_bt_lock_core2,void,
 Function,+,furi_hal_bt_nvm_sram_sem_acquire,void,
@@ -1071,6 +1087,9 @@ Function,+,furi_hal_bt_serial_start,void,
 Function,+,furi_hal_bt_serial_stop,void,
 Function,+,furi_hal_bt_serial_tx,_Bool,"uint8_t*, uint16_t"
 Function,+,furi_hal_bt_set_key_storage_change_callback,void,"BleGlueKeyStorageChangedCallback, void*"
+Function,+,furi_hal_bt_set_profile_adv_name,void,"FuriHalBtProfile, const char[( 18 + 1 )]"
+Function,+,furi_hal_bt_set_profile_mac_addr,void,"FuriHalBtProfile, const uint8_t[( 6 )]"
+Function,+,furi_hal_bt_set_profile_pairing_method,void,"FuriHalBtProfile, GapPairing"
 Function,+,furi_hal_bt_start_advertising,void,
 Function,+,furi_hal_bt_start_app,_Bool,"FuriHalBtProfile, GapEventCallback, void*"
 Function,+,furi_hal_bt_start_packet_rx,void,"uint8_t, uint8_t"
@@ -1633,6 +1652,7 @@ Function,-,gamma,double,double
 Function,-,gamma_r,double,"double, int*"
 Function,-,gammaf,float,float
 Function,-,gammaf_r,float,"float, int*"
+Function,+,gap_get_remote_conn_rssi,uint32_t,int8_t*
 Function,-,gap_get_state,GapState,
 Function,-,gap_init,_Bool,"GapConfig*, GapEventCallback, void*"
 Function,-,gap_start_advertising,void,
@@ -3334,6 +3354,7 @@ Function,+,subghz_worker_set_pair_callback,void,"SubGhzWorker*, SubGhzWorkerPair
 Function,+,subghz_worker_start,void,SubGhzWorker*
 Function,+,subghz_worker_stop,void,SubGhzWorker*
 Function,+,submenu_add_item,void,"Submenu*, const char*, uint32_t, SubmenuItemCallback, void*"
+Function,+,submenu_add_lockable_item,void,"Submenu*, const char*, uint32_t, SubmenuItemCallback, void*, _Bool, const char*"
 Function,+,submenu_alloc,Submenu*,
 Function,+,submenu_free,void,Submenu*
 Function,+,submenu_get_view,View*,Submenu*
@@ -4557,6 +4578,7 @@ Function,+,variable_item_list_set_enter_callback,void,"VariableItemList*, Variab
 Function,+,variable_item_list_set_selected_item,void,"VariableItemList*, uint8_t"
 Function,+,variable_item_set_current_value_index,void,"VariableItem*, uint8_t"
 Function,+,variable_item_set_current_value_text,void,"VariableItem*, const char*"
+Function,+,variable_item_set_locked,void,"VariableItem*, _Bool, const char*"
 Function,+,variable_item_set_values_count,void,"VariableItem*, uint8_t"
 Function,-,vasiprintf,int,"char**, const char*, __gnuc_va_list"
 Function,-,vasniprintf,char*,"char*, size_t*, const char*, __gnuc_va_list"
