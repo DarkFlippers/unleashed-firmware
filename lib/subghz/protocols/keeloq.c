@@ -14,6 +14,10 @@
 
 #define TAG "SubGhzProtocolKeeloq"
 
+#define KEELOQ_PROG_MODE_OFF (0U)
+#define KEELOQ_PROG_MODE_BFT (1U)
+#define KEELOQ_PROG_MODE_APRIMATIC (2U)
+
 static const SubGhzBlockConst subghz_protocol_keeloq_const = {
     .te_short = 400,
     .te_long = 800,
@@ -92,10 +96,9 @@ static uint8_t klq_prog_mode;
 static uint16_t temp_counter;
 
 void keeloq_reset_original_btn() {
-    subghz_custom_btn_set_original(0);
-    subghz_custom_btn_set_max(0);
+    subghz_custom_btns_reset();
     temp_counter = 0;
-    klq_prog_mode = 0;
+    klq_prog_mode = KEELOQ_PROG_MODE_OFF;
 }
 
 void keeloq_reset_mfname() {
@@ -146,6 +149,7 @@ void subghz_protocol_encoder_keeloq_free(void* context) {
  * Key generation from simple data
  * @param instance Pointer to a SubGhzProtocolEncoderKeeloq* instance
  * @param btn Button number, 4 bit
+ * @param counter_up increasing the counter if the value is true
  */
 static bool subghz_protocol_keeloq_gen_data(
     SubGhzProtocolEncoderKeeloq* instance,
@@ -160,29 +164,30 @@ static bool subghz_protocol_keeloq_gen_data(
         instance->manufacture_name = "";
     }
 
-    // BFT programming mode on / off conditions
-    if((strcmp(instance->manufacture_name, "BFT") == 0) && (btn == 0xF)) {
-        klq_prog_mode = 1;
-    }
-    if((strcmp(instance->manufacture_name, "BFT") == 0) && (btn != 0xF) && (klq_prog_mode == 1)) {
-        klq_prog_mode = 0;
-    }
-    // Aprimatic programming mode on / off conditions
-    if((strcmp(instance->manufacture_name, "Aprimatic") == 0) && (btn == 0xF)) {
-        klq_prog_mode = 2;
-    }
-    if((strcmp(instance->manufacture_name, "Aprimatic") == 0) && (btn != 0xF) &&
-       (klq_prog_mode == 2)) {
-        klq_prog_mode = 0;
+    // programming mode on / off conditions
+    if(strcmp(instance->manufacture_name, "BFT") == 0) {
+        // BFT programming mode on / off conditions
+        if(btn == 0xF) {
+            klq_prog_mode = KEELOQ_PROG_MODE_BFT;
+        } else if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
+            klq_prog_mode = KEELOQ_PROG_MODE_OFF;
+        }
+    } else if(strcmp(instance->manufacture_name, "Aprimatic") == 0) {
+        // Aprimatic programming mode on / off conditions
+        if(btn == 0xF) {
+            klq_prog_mode = KEELOQ_PROG_MODE_APRIMATIC;
+        } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
+            klq_prog_mode = KEELOQ_PROG_MODE_OFF;
+        }
     }
     // If we using BFT programming mode we will trasmit its seed in hop part like original remote
-    if(klq_prog_mode == 1) {
+    if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
         hop = instance->generic.seed;
-    } else if(klq_prog_mode == 2) {
+    } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
         // If we using Aprimatic programming mode we will trasmit some strange looking hop value, why? cuz manufacturer did it this way :)
         hop = 0x1A2B3C4D;
     }
-    if(counter_up && klq_prog_mode == 0) {
+    if(counter_up && klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
         if(instance->generic.cnt < 0xFFFF) {
             if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
                 instance->generic.cnt = 0;
@@ -193,50 +198,8 @@ static bool subghz_protocol_keeloq_gen_data(
             instance->generic.cnt = 0;
         }
     }
-    if(klq_prog_mode == 0) {
-        uint32_t decrypt = (uint32_t)btn << 28 |
-                           (instance->generic.serial & 0x3FF)
-                               << 16 | //ToDo in some protocols the discriminator is 0
-                           instance->generic.cnt;
-
-        if(strcmp(instance->manufacture_name, "Aprimatic") == 0) {
-            // Aprimatic uses 12bit serial number + 2bit APR1 "parity" bit in front of it replacing first 2 bits of serial
-            // Thats in theory! We need to check if this is true for all Aprimatic remotes but we got only 3 recordings to test
-            // For now lets assume that this is true for all Aprimatic remotes, if not we will need to add some more code here
-            uint32_t apri_serial = instance->generic.serial;
-            uint8_t apr1 = 0;
-            for(uint16_t i = 1; i != 0b10000000000; i <<= 1) {
-                if(apri_serial & i) apr1++;
-            }
-            apri_serial &= 0b00001111111111;
-            if(apr1 % 2 == 0) {
-                apri_serial |= 0b110000000000;
-            }
-            decrypt = btn << 28 | (apri_serial & 0xFFF) << 16 | instance->generic.cnt;
-        }
-
-        // DTM Neo, Came_Space uses 12bit -> simple learning -- FAAC_RC,XT , Mutanco_Mutancode, Stilmatic(Schellenberg) -> 12bit normal learning
-        if((strcmp(instance->manufacture_name, "DTM_Neo") == 0) ||
-           (strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0) ||
-           (strcmp(instance->manufacture_name, "Mutanco_Mutancode") == 0) ||
-           (strcmp(instance->manufacture_name, "Stilmatic") == 0) ||
-           (strcmp(instance->manufacture_name, "Came_Space") == 0)) {
-            decrypt = btn << 28 | (instance->generic.serial & 0xFFF) << 16 | instance->generic.cnt;
-        }
-
-        // Nice Smilo, MHouse, JCM, Normstahl -> 8bit serial - simple learning
-        if((strcmp(instance->manufacture_name, "NICE_Smilo") == 0) ||
-           (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0) ||
-           (strcmp(instance->manufacture_name, "JCM_Tech") == 0) ||
-           (strcmp(instance->manufacture_name, "Normstahl") == 0)) {
-            decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
-        }
-
-        // Beninca / Allmatic -> no serial - simple XOR
-        if(strcmp(instance->manufacture_name, "Beninca") == 0) {
-            decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
-        }
-
+    if(klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
+        // Protocols that do not use encryption
         if(strcmp(instance->manufacture_name, "Unknown") == 0) {
             code_found_reverse = subghz_protocol_blocks_reverse_key(
                 instance->generic.data, instance->generic.data_count_bit);
@@ -247,6 +210,49 @@ static bool subghz_protocol_keeloq_gen_data(
         } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
             hop = instance->generic.cnt << 16 | (btn & 0xF) << 12 | 0x000;
         } else {
+            // Protocols that use encryption
+            uint32_t decrypt = (uint32_t)btn << 28 |
+                               (instance->generic.serial & 0x3FF)
+                                   << 16 | //ToDo in some protocols the discriminator is 0
+                               instance->generic.cnt;
+
+            if(strcmp(instance->manufacture_name, "Aprimatic") == 0) {
+                // Aprimatic uses 12bit serial number + 2bit APR1 "parity" bit in front of it replacing first 2 bits of serial
+                // Thats in theory! We need to check if this is true for all Aprimatic remotes but we got only 3 recordings to test
+                // For now lets assume that this is true for all Aprimatic remotes, if not we will need to add some more code here
+                uint32_t apri_serial = instance->generic.serial;
+                uint8_t apr1 = 0;
+                for(uint16_t i = 1; i != 0b10000000000; i <<= 1) {
+                    if(apri_serial & i) apr1++;
+                }
+                apri_serial &= 0b00001111111111;
+                if(apr1 % 2 == 0) {
+                    apri_serial |= 0b110000000000;
+                }
+                decrypt = btn << 28 | (apri_serial & 0xFFF) << 16 | instance->generic.cnt;
+            } else if(
+                (strcmp(instance->manufacture_name, "DTM_Neo") == 0) ||
+                (strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0) ||
+                (strcmp(instance->manufacture_name, "Mutanco_Mutancode") == 0) ||
+                (strcmp(instance->manufacture_name, "Stilmatic") == 0) ||
+                (strcmp(instance->manufacture_name, "Came_Space") == 0)) {
+                // DTM Neo, Came_Space uses 12bit serial -> simple learning
+                // FAAC_RC,XT , Mutanco_Mutancode, Stilmatic(Schellenberg) 12bit serial -> normal learning
+                decrypt = btn << 28 | (instance->generic.serial & 0xFFF) << 16 |
+                          instance->generic.cnt;
+            } else if(
+                (strcmp(instance->manufacture_name, "NICE_Smilo") == 0) ||
+                (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0) ||
+                (strcmp(instance->manufacture_name, "JCM_Tech") == 0) ||
+                (strcmp(instance->manufacture_name, "Normstahl") == 0)) {
+                // Nice Smilo, MHouse, JCM, Normstahl -> 8bit serial - simple learning
+                decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 |
+                          instance->generic.cnt;
+            } else if(strcmp(instance->manufacture_name, "Beninca") == 0) {
+                decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
+                // Beninca / Allmatic -> no serial - simple XOR
+            }
+
             for
                 M_EACH(
                     manufacture_code,
@@ -316,8 +322,8 @@ static bool subghz_protocol_keeloq_gen_data(
         uint64_t yek = (uint64_t)fix << 32 | hop;
         instance->generic.data =
             subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
-    }
-    return true;
+    } // What should happen if seed = 0 in bft programming mode
+    return true; // Always return true
 }
 
 bool subghz_protocol_keeloq_create_data(
@@ -385,9 +391,9 @@ static bool
     if(instance->manufacture_name == 0x0) {
         instance->manufacture_name = "";
     }
-    if(klq_prog_mode == 1) {
+    if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
         instance->manufacture_name = "BFT";
-    } else if(klq_prog_mode == 2) {
+    } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
         instance->manufacture_name = "Aprimatic";
     }
     uint8_t klq_last_custom_btn = 0xA;
@@ -673,7 +679,7 @@ void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
 
-    klq_prog_mode = 0;
+    klq_prog_mode = KEELOQ_PROG_MODE_OFF;
 
     return instance;
 }
@@ -1192,8 +1198,8 @@ static void subghz_protocol_keeloq_check_remote_controller(
     uint32_t key_fix = key >> 32;
     uint32_t key_hop = key & 0x00000000ffffffff;
 
-    // If we are in BFT programming mode we will set previous remembered counter and skip mf keys check
-    if(klq_prog_mode == 0) {
+    // If we are in BFT / Aprimatic programming mode we will set previous remembered counter and skip mf keys check
+    if(klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
         // Check key AN-Motors
         if((key_hop >> 24) == ((key_hop >> 16) & 0x00ff) &&
            (key_fix >> 28) == ((key_hop >> 12) & 0x0f) && (key_hop & 0xFFF) == 0x404) {
@@ -1210,11 +1216,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
         }
         temp_counter = instance->cnt;
 
-    } else if(klq_prog_mode == 1) {
+    } else if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
         *manufacture_name = "BFT";
         mfname = *manufacture_name;
         instance->cnt = temp_counter;
-    } else if(klq_prog_mode == 2) {
+    } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
         *manufacture_name = "Aprimatic";
         mfname = *manufacture_name;
         instance->cnt = temp_counter;
