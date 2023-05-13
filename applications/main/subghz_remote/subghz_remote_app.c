@@ -354,7 +354,7 @@ bool subghz_remote_key_load(
 
     bool res = false;
 
-    subghz_custom_btn_set(0);
+    subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
     keeloq_reset_original_btn();
     subghz_custom_btns_reset();
 

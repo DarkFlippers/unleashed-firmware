@@ -387,11 +387,15 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
     }
 
     uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_num = subghz_custom_btn_get_original();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(custom_btn_id == 1) {
-        switch(original_btn_num) {
+    // Basic set | 0x68 | 0x80 | 0x81 | 0xE2 |
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        instance->generic.btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
         case 0x68:
             instance->generic.btn = 0x80;
             break;
@@ -408,9 +412,8 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
         default:
             break;
         }
-    }
-    if(custom_btn_id == 2) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
         case 0x68:
             instance->generic.btn = 0x81;
             break;
@@ -427,9 +430,8 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
         default:
             break;
         }
-    }
-    if(custom_btn_id == 3) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
         case 0x68:
             instance->generic.btn = 0xE2;
             break;
@@ -447,9 +449,7 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
             break;
         }
     }
-    if((custom_btn_id == 0) && (original_btn_num != 0)) {
-        instance->generic.btn = original_btn_num;
-    }
+
     uint32_t fixed_1[1] = {instance->generic.btn << 12 | instance->generic.serial >> 20};
     uint32_t fixed_2[1] = {instance->generic.serial & 0xFFFFF};
     uint8_t rolling_digits[18] = {0};

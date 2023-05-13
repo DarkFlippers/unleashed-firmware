@@ -136,11 +136,15 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     }
 
     uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_num = subghz_custom_btn_get_original();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(custom_btn_id == 1) {
-        switch(original_btn_num) {
+    // Basic set | 0x1 | 0x2 | 0x4 | 0x8 |
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
         case 0x1:
             btn = 0x2;
             break;
@@ -157,9 +161,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         default:
             break;
         }
-    }
-    if(custom_btn_id == 2) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
         case 0x1:
             btn = 0x4;
             break;
@@ -176,9 +179,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         default:
             break;
         }
-    }
-    if(custom_btn_id == 3) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
         case 0x1:
             btn = 0x8;
             break;
@@ -195,10 +197,6 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         default:
             break;
         }
-    }
-
-    if((custom_btn_id == 0) && (original_btn_num != 0)) {
-        btn = original_btn_num;
     }
 
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);

@@ -76,8 +76,8 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubGhzCustomEventViewTransmitterSendStop) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz_txrx_stop(subghz->txrx);
-            if(subghz_custom_btn_get() != 0) {
-                subghz_custom_btn_set(0);
+            if(subghz_custom_btn_get() != SUBGHZ_CUSTOM_BTN_OK) {
+                subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
                 uint8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
                 // Calling restore!

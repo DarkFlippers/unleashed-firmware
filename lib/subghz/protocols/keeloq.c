@@ -397,10 +397,15 @@ static bool
     }
 
     uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_num = subghz_custom_btn_get_original();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+
     // Set custom button
-    if(custom_btn_id == 1) {
-        switch(original_btn_num) {
+    // Basic set | 0x1 | 0x2 | 0x4 | 0x8 | 0xA or Special Learning Code |
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
         case 0x1:
             btn = 0x2;
             break;
@@ -424,9 +429,8 @@ static bool
             btn = 0x1;
             break;
         }
-    }
-    if(custom_btn_id == 2) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
         case 0x1:
             btn = 0x4;
             break;
@@ -450,9 +454,8 @@ static bool
             btn = 0x4;
             break;
         }
-    }
-    if(custom_btn_id == 3) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
         case 0x1:
             btn = 0x8;
             break;
@@ -476,9 +479,8 @@ static bool
             btn = 0x8;
             break;
         }
-    }
-    if(custom_btn_id == 4) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
         case 0x1:
             btn = klq_last_custom_btn;
             break;
@@ -503,11 +505,8 @@ static bool
             break;
         }
     }
-    if((custom_btn_id == 0) && (original_btn_num != 0)) {
-        btn = original_btn_num;
-    }
+
     // Generate new key
-
     if(subghz_protocol_keeloq_gen_data(instance, btn, true)) {
         // OK
     } else {

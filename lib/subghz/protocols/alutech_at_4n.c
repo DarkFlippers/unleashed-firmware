@@ -334,11 +334,15 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     }
 
     uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_num = subghz_custom_btn_get_original();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
 
     // Set custom button
-    if(custom_btn_id == 1) {
-        switch(original_btn_num) {
+    // Basic set | 0x11 | 0x22 | 0xFF | 0x44 | 0x33 |
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
         case 0x11:
             btn = 0x22;
             break;
@@ -358,9 +362,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         default:
             break;
         }
-    }
-    if(custom_btn_id == 2) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
         case 0x11:
             btn = 0x44;
             break;
@@ -380,9 +383,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         default:
             break;
         }
-    }
-    if(custom_btn_id == 3) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
         case 0x11:
             btn = 0x33;
             break;
@@ -402,9 +404,8 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         default:
             break;
         }
-    }
-    if(custom_btn_id == 4) {
-        switch(original_btn_num) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
         case 0x11:
             btn = 0xFF;
             break;
@@ -426,9 +427,6 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         }
     }
 
-    if((custom_btn_id == 0) && (original_btn_num != 0)) {
-        btn = original_btn_num;
-    }
     // Gen new key
     if(!subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
         return false;
