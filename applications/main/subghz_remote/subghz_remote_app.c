@@ -12,7 +12,9 @@
 
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/path.h>
-#include <applications/main/subghz/subghz_i.h>
+#include <lib/subghz/receiver.h>
+#include <lib/subghz/transmitter.h>
+#include <lib/subghz/subghz_setting.h>
 
 #include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/protocols/protocol_items.h>

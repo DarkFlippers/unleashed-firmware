@@ -375,6 +375,14 @@ bool subghz_protocol_keeloq_bft_create_data(
 }
 
 /**
+ * Defines the button value for the current btn_id
+ * Basic set | 0x1 | 0x2 | 0x4 | 0x8 | 0xA or Special Learning Code |
+ * @param last_btn_code Candidate for the last button
+ * @return Button code
+ */
+static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code);
+
+/**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
  * @return true On success
@@ -402,115 +410,7 @@ static bool
         klq_last_custom_btn = 0xF;
     }
 
-    uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_code = subghz_custom_btn_get_original();
-
-    // Set custom button
-    // Basic set | 0x1 | 0x2 | 0x4 | 0x8 | 0xA or Special Learning Code |
-    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
-        // Restore original button code
-        btn = original_btn_code;
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
-        switch(original_btn_code) {
-        case 0x1:
-            btn = 0x2;
-            break;
-        case 0x2:
-            btn = 0x1;
-            break;
-        case 0xA:
-            btn = 0x1;
-            break;
-        case 0x4:
-            btn = 0x1;
-            break;
-        case 0x8:
-            btn = 0x1;
-            break;
-        case 0xF:
-            btn = 0x1;
-            break;
-
-        default:
-            btn = 0x1;
-            break;
-        }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
-        switch(original_btn_code) {
-        case 0x1:
-            btn = 0x4;
-            break;
-        case 0x2:
-            btn = 0x4;
-            break;
-        case 0xA:
-            btn = 0x4;
-            break;
-        case 0x4:
-            btn = klq_last_custom_btn;
-            break;
-        case 0x8:
-            btn = 0x4;
-            break;
-        case 0xF:
-            btn = 0x4;
-            break;
-
-        default:
-            btn = 0x4;
-            break;
-        }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
-        switch(original_btn_code) {
-        case 0x1:
-            btn = 0x8;
-            break;
-        case 0x2:
-            btn = 0x8;
-            break;
-        case 0xA:
-            btn = 0x8;
-            break;
-        case 0x4:
-            btn = 0x8;
-            break;
-        case 0x8:
-            btn = 0x2;
-            break;
-        case 0xF:
-            btn = 0x8;
-            break;
-
-        default:
-            btn = 0x8;
-            break;
-        }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
-        switch(original_btn_code) {
-        case 0x1:
-            btn = klq_last_custom_btn;
-            break;
-        case 0x2:
-            btn = klq_last_custom_btn;
-            break;
-        case 0xA:
-            btn = 0x2;
-            break;
-        case 0x4:
-            btn = 0x2;
-            break;
-        case 0x8:
-            btn = klq_last_custom_btn;
-            break;
-        case 0xF:
-            btn = 0x2;
-            break;
-
-        default:
-            btn = 0x2;
-            break;
-        }
-    }
+    btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
 
     // Generate new key
     if(subghz_protocol_keeloq_gen_data(instance, btn, true)) {
@@ -1328,6 +1228,125 @@ SubGhzProtocolStatus
     } while(false);
 
     return res;
+}
+
+static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code) {
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
+
+    if(last_btn_code == 0) {
+        last_btn_code = 0xA;
+    }
+
+    // Set custom button
+    // Basic set | 0x1 | 0x2 | 0x4 | 0x8 | 0xA or Special Learning Code |
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0xA:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+        case 0x8:
+            btn = 0x1;
+            break;
+        case 0xF:
+            btn = 0x1;
+            break;
+
+        default:
+            btn = 0x1;
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0xA:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = last_btn_code;
+            break;
+        case 0x8:
+            btn = 0x4;
+            break;
+        case 0xF:
+            btn = 0x4;
+            break;
+
+        default:
+            btn = 0x4;
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x8;
+            break;
+        case 0x2:
+            btn = 0x8;
+            break;
+        case 0xA:
+            btn = 0x8;
+            break;
+        case 0x4:
+            btn = 0x8;
+            break;
+        case 0x8:
+            btn = 0x2;
+            break;
+        case 0xF:
+            btn = 0x8;
+            break;
+
+        default:
+            btn = 0x8;
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = last_btn_code;
+            break;
+        case 0x2:
+            btn = last_btn_code;
+            break;
+        case 0xA:
+            btn = 0x2;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+        case 0x8:
+            btn = last_btn_code;
+            break;
+        case 0xF:
+            btn = 0x2;
+            break;
+
+        default:
+            btn = 0x2;
+            break;
+        }
+    }
+
+    return btn;
 }
 
 void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output) {

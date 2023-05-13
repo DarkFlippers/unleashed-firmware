@@ -319,6 +319,13 @@ bool subghz_protocol_alutech_at_4n_create_data(
 }
 
 /**
+ * Defines the button value for the current btn_id
+ * Basic set | 0x11 | 0x22 | 0xFF | 0x44 | 0x33 |
+ * @return Button code
+ */
+static uint8_t subghz_protocol_alutech_at_4n_get_btn_code();
+
+/**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderAlutech instance
  * @return true On success
@@ -333,99 +340,7 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
         subghz_custom_btn_set_original(btn);
     }
 
-    uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_code = subghz_custom_btn_get_original();
-
-    // Set custom button
-    // Basic set | 0x11 | 0x22 | 0xFF | 0x44 | 0x33 |
-    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
-        // Restore original button code
-        btn = original_btn_code;
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
-        switch(original_btn_code) {
-        case 0x11:
-            btn = 0x22;
-            break;
-        case 0x22:
-            btn = 0x11;
-            break;
-        case 0xFF:
-            btn = 0x11;
-            break;
-        case 0x44:
-            btn = 0x11;
-            break;
-        case 0x33:
-            btn = 0x11;
-            break;
-
-        default:
-            break;
-        }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
-        switch(original_btn_code) {
-        case 0x11:
-            btn = 0x44;
-            break;
-        case 0x22:
-            btn = 0x44;
-            break;
-        case 0xFF:
-            btn = 0x44;
-            break;
-        case 0x44:
-            btn = 0xFF;
-            break;
-        case 0x33:
-            btn = 0x44;
-            break;
-
-        default:
-            break;
-        }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
-        switch(original_btn_code) {
-        case 0x11:
-            btn = 0x33;
-            break;
-        case 0x22:
-            btn = 0x33;
-            break;
-        case 0xFF:
-            btn = 0x33;
-            break;
-        case 0x44:
-            btn = 0x33;
-            break;
-        case 0x33:
-            btn = 0x22;
-            break;
-
-        default:
-            break;
-        }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
-        switch(original_btn_code) {
-        case 0x11:
-            btn = 0xFF;
-            break;
-        case 0x22:
-            btn = 0xFF;
-            break;
-        case 0xFF:
-            btn = 0x22;
-            break;
-        case 0x44:
-            btn = 0x22;
-            break;
-        case 0x33:
-            btn = 0xFF;
-            break;
-
-        default:
-            break;
-        }
-    }
+    btn = subghz_protocol_alutech_at_4n_get_btn_code();
 
     // Gen new key
     if(!subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
@@ -784,6 +699,104 @@ SubGhzProtocolStatus subghz_protocol_decoder_alutech_at_4n_deserialize(
         }
     } while(false);
     return ret;
+}
+
+static uint8_t subghz_protocol_alutech_at_4n_get_btn_code() {
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
+
+    // Set custom button
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0x11:
+            btn = 0x22;
+            break;
+        case 0x22:
+            btn = 0x11;
+            break;
+        case 0xFF:
+            btn = 0x11;
+            break;
+        case 0x44:
+            btn = 0x11;
+            break;
+        case 0x33:
+            btn = 0x11;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0x11:
+            btn = 0x44;
+            break;
+        case 0x22:
+            btn = 0x44;
+            break;
+        case 0xFF:
+            btn = 0x44;
+            break;
+        case 0x44:
+            btn = 0xFF;
+            break;
+        case 0x33:
+            btn = 0x44;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x11:
+            btn = 0x33;
+            break;
+        case 0x22:
+            btn = 0x33;
+            break;
+        case 0xFF:
+            btn = 0x33;
+            break;
+        case 0x44:
+            btn = 0x33;
+            break;
+        case 0x33:
+            btn = 0x22;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
+        case 0x11:
+            btn = 0xFF;
+            break;
+        case 0x22:
+            btn = 0xFF;
+            break;
+        case 0xFF:
+            btn = 0x22;
+            break;
+        case 0x44:
+            btn = 0x22;
+            break;
+        case 0x33:
+            btn = 0xFF;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return btn;
 }
 
 void subghz_protocol_decoder_alutech_at_4n_get_string(void* context, FuriString* output) {
