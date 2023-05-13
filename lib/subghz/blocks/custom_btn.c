@@ -4,11 +4,13 @@ static uint8_t custom_btn_id = SUBGHZ_CUSTOM_BTN_OK;
 static uint8_t custom_btn_original = 0;
 static uint8_t custom_btn_max_btns = 0;
 
-void subghz_custom_btn_set(uint8_t btn_id) {
+bool subghz_custom_btn_set(uint8_t btn_id) {
     if(btn_id > custom_btn_max_btns) {
         custom_btn_id = SUBGHZ_CUSTOM_BTN_OK;
+        return false;
     } else {
         custom_btn_id = btn_id;
+        return true;
     }
 }
 
@@ -31,4 +33,8 @@ void subghz_custom_btn_set_max(uint8_t b) {
 void subghz_custom_btns_reset() {
     custom_btn_original = 0;
     custom_btn_max_btns = 0;
+}
+
+bool subghz_custom_btn_is_allowed() {
+    return custom_btn_max_btns != 0;
 }

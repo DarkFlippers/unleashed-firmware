@@ -11,7 +11,7 @@
 #define SUBGHZ_CUSTOM_BTN_LEFT (3U)
 #define SUBGHZ_CUSTOM_BTN_RIGHT (4U)
 
-void subghz_custom_btn_set(uint8_t btn_id);
+bool subghz_custom_btn_set(uint8_t btn_id);
 
 uint8_t subghz_custom_btn_get();
 
@@ -22,3 +22,5 @@ uint8_t subghz_custom_btn_get_original();
 void subghz_custom_btn_set_max(uint8_t b);
 
 void subghz_custom_btns_reset();
+
+bool subghz_custom_btn_is_allowed();
