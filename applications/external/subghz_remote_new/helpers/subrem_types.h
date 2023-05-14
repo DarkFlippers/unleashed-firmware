@@ -29,6 +29,18 @@ typedef enum {
     SubRemViewIDRemote,
     //SubRemViewChipDetect,
 } SubRemViewID;
+
+typedef enum {
+    // Loadin State
+    SubRemSubKeyTypeNoData = 0,
+    SubRemSubKeyTypeHaveFileName,
+
+    // Key Type
+    SubRemSubKeyTypeStaticKey = 100,
+    SubRemSubKeyTypeDynamicKey,
+    SubRemSubKeyTypeRawKey,
+} SubRemSubKeyType;
+
 /*
 typedef enum {
     SubRemErrorNoError,

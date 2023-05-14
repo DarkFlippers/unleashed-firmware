@@ -18,6 +18,12 @@
 #include <storage/storage.h>
 #include <gui/modules/popup.h>
 
+#include <lib/subghz/subghz_setting.h>
+#include <lib/subghz/receiver.h>
+#include <lib/subghz/transmitter.h>
+
+#include <flipper_format/flipper_format_i.h> // FIXME:
+
 // #include "views/subghz_remote_view_programmer.h"
 // #include "views/subghz_remote_view_reader.h"
 // #include "views/subghz_remote_view_writer.h"
@@ -26,6 +32,25 @@
 #define SUBREM_APP_EXTENSION ".txt"
 #define SUBREM_APP_FOLDER "/ext/subghz_remote"
 #define SUBGHZ_REMOTE_MAX_LEN_NAME 64
+#define SUBREM_MAX_SUB_KEY_COUNT (5U)
+
+typedef struct {
+    uint32_t frequency;
+    uint8_t* data;
+} FreqPreset;
+
+// Sub File preset
+typedef struct {
+    FlipperFormat* fff_data;
+    FreqPreset freq_preset;
+    FuriString* file_path;
+    FuriString* label;
+    SubRemSubKeyType type;
+} SubRemSubFilePreset;
+
+SubRemSubFilePreset* subrem_sub_file_preset_alloc();
+
+void subrem_sub_file_preset_free(SubRemSubFilePreset* sub_preset);
 
 typedef struct {
     Gui* gui;
@@ -41,6 +66,10 @@ typedef struct {
     char file_name_tmp[SUBGHZ_REMOTE_MAX_LEN_NAME];
 
     SubRemViewRemote* subrem_remote_view;
+
+    SubRemSubFilePreset* subs_preset[SUBREM_MAX_SUB_KEY_COUNT];
+
+    SubGhzSetting* setting;
 
     // AvrIspProgrammerView* subghz_remote_programmer_view;
     // AvrIspReaderView* subghz_remote_reader_view;

@@ -102,6 +102,13 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
         SubRemViewChipDetect,
         subghz_remote_chip_detect_view_get_view(app->subghz_remote_chip_detect_view));
 */
+    for(uint8_t i = 0; i < SUBREM_MAX_SUB_KEY_COUNT; i++) {
+        app->subs_preset[i] = subrem_sub_file_preset_alloc();
+    }
+
+    app->setting = subghz_setting_alloc();
+    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
+
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
 
     return app;
@@ -132,6 +139,12 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     // Remote view
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDRemote);
     subrem_view_remote_free(app->subrem_remote_view);
+
+    subghz_setting_free(app->setting);
+
+    for(uint8_t i = 0; i < SUBREM_MAX_SUB_KEY_COUNT; i++) {
+        subrem_sub_file_preset_free(app->subs_preset[i]);
+    }
 
     // // Reader view
     // view_dispatcher_remove_view(app->view_dispatcher, SubRemViewReader);
