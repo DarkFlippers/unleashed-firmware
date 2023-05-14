@@ -16,11 +16,11 @@ struct Version {
     const char* git_hash;
     const char* git_branch;
     const char* build_date;
-    const char* custom_flipper_name;
     const char* version;
     // Payload bits and pieces
     const uint8_t target;
     const bool build_is_dirty;
+    const char* custom_flipper_name;
 };
 
 /* version of current running firmware (bootloader/flipper) */
@@ -31,7 +31,6 @@ static Version version = {
     .git_hash = GIT_COMMIT,
     .git_branch = GIT_BRANCH,
     .build_date = BUILD_DATE,
-    .custom_flipper_name = NULL,
     .version = VERSION
 #ifdef FURI_RAM_EXEC
     " (RAM)"
@@ -39,6 +38,7 @@ static Version version = {
     ,
     .target = TARGET,
     .build_is_dirty = BUILD_DIRTY,
+    .custom_flipper_name = NULL,
 };
 
 const Version* version_get(void) {
