@@ -1,5 +1,19 @@
 ### New changes 
+* New way of changing device name -> **Now can be changed in Settings->Desktop** (by @xMasterX and @Willy-JL)
+* Plugins: BadBT plugin (BT version of BadKB) [(by Willy-JL, ClaraCrazy, XFW contributors)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/main/bad_kb)
+* Plugins: WiFi Marauder -> Added sniff pmkid on selected aps from 0.10.4 update (by @clipboard1)
+* Plugins: SubGHz Bruteforcer - Increase delay just a little bit to fix some cases when receiver will not get codes and decrease manual transmit delay
+* SubGHz: App refactoring (OFW code ported + our code was refactored/cleaned up too) (by @gid9798 and @xMasterX | PR #461)
+* SubGHz: Using scene manager functions in DecodeRAW (by @gid9798 | PR #462)
+* SubGHz: Protocols and custom buttons refactoring (by @gid9798 | PR #465)
+* SubGHz: Move `counter increase` setting out of debug, change max value
+* GUI: Submenu locked elements (by @Willy-JL and @giacomoferretti)
+* GUI: Text Input improvements, added cursor and ability to set minimal length (by @Willy-JL)
+* BT API: Functions that allow to change bt mac address and device broadcasted name (by @Willy-JL and XFW contributors)
+* Infrared: `External output` move out of debug and add power option for external modules
 * Extra pack: Some app fixes
+* OFW: Rpc: add desktop service. Desktop: refactor locking routine. 
+* OFW: Part 2 of hooking C2 IPC
 * OFW: ble: attempt to handle hardfaulted c2
 * OFW: Add Mfkey32 application
 * OFW: Added DigitalSequence and PulseReader
