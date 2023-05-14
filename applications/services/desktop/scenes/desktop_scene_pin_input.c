@@ -55,7 +55,6 @@ static void desktop_scene_pin_input_back_callback(void* context) {
 static void desktop_scene_pin_input_done_callback(const PinCode* pin_code, void* context) {
     Desktop* desktop = (Desktop*)context;
     if(desktop_pin_compare(&desktop->settings.pin_code, pin_code)) {
-        furi_hal_rtc_set_pin_fails(0);
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopPinInputEventUnlocked);
     } else {
         uint32_t pin_fails = furi_hal_rtc_get_pin_fails();

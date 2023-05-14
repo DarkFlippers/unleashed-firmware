@@ -135,7 +135,6 @@ static void desktop_auto_lock_inhibit(Desktop* desktop) {
 
 void desktop_lock(Desktop* desktop) {
     furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
-    furi_hal_rtc_set_pin_fails(0);
 
     if(desktop->settings.pin_code.length) {
         Cli* cli = furi_record_open(RECORD_CLI);
@@ -159,6 +158,7 @@ void desktop_unlock(Desktop* desktop) {
     scene_manager_search_and_switch_to_previous_scene(desktop->scene_manager, DesktopSceneMain);
     desktop_auto_lock_arm(desktop);
     furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
+    furi_hal_rtc_set_pin_fails(0);
 
     if(desktop->settings.pin_code.length) {
         Cli* cli = furi_record_open(RECORD_CLI);
