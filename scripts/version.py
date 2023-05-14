@@ -40,11 +40,6 @@ class GitVersion:
             or "unknown"
         )
 
-        custom_fz_name = (
-            os.environ.get("CUSTOM_FLIPPER_NAME", None)
-            or ""
-        )
-
         force_no_dirty = (
             os.environ.get("FORCE_NO_DIRTY", None)
             or ""
@@ -52,21 +47,12 @@ class GitVersion:
         if (force_no_dirty != ""):
             dirty = False
 
-        if (custom_fz_name != "") and (len(custom_fz_name) <= 8) and (custom_fz_name.isalnum()) and (custom_fz_name.isascii()):
-            return {
-                "GIT_COMMIT": commit,
-                "GIT_BRANCH": branch,
-                "FURI_CUSTOM_FLIPPER_NAME": custom_fz_name,
-                "VERSION": version,
-                "BUILD_DIRTY": dirty and 1 or 0,
-            }
-        else:
-            return {
-                "GIT_COMMIT": commit,
-                "GIT_BRANCH": branch,
-                "VERSION": version,
-                "BUILD_DIRTY": dirty and 1 or 0,
-            }
+        return {
+            "GIT_COMMIT": commit,
+            "GIT_BRANCH": branch,
+            "VERSION": version,
+            "BUILD_DIRTY": dirty and 1 or 0,
+        }
 
     def _exec_git(self, args):
         cmd = ["git"]

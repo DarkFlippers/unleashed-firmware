@@ -11,6 +11,7 @@
 #define SCENE_EVENT_SELECT_PIN_SETUP 3
 #define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 4
 #define SCENE_EVENT_SELECT_BATTERY_DISPLAY 5
+#define SCENE_EVENT_SELECT_CHANGE_NAME 6
 
 #define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -105,6 +106,8 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, battery_view_count_text[value_index]);
 
+    variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
+
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewVarItemList);
 }
 
@@ -137,6 +140,10 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             consumed = true;
             break;
         case SCENE_EVENT_SELECT_BATTERY_DISPLAY:
+            consumed = true;
+            break;
+        case SCENE_EVENT_SELECT_CHANGE_NAME:
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneChangeName);
             consumed = true;
             break;
         }

@@ -176,6 +176,10 @@ const char* furi_hal_version_get_device_name_ptr();
  */
 const char* furi_hal_version_get_ble_local_device_name_ptr();
 
+/** Set flipper name
+ */
+void furi_hal_version_set_name(const char* name);
+
 /** Get BLE MAC address
  *
  * @return     pointer to BLE MAC address

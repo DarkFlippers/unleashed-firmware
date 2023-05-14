@@ -20,7 +20,6 @@ variables_to_forward = [
     # CI/CD variables
     "WORKFLOW_BRANCH_OR_TAG",
     "DIST_SUFFIX",
-    "CUSTOM_FLIPPER_NAME",
     "FORCE_NO_DIRTY",
     # Python & other tools
     "HOME",
