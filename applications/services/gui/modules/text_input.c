@@ -155,10 +155,9 @@ static void text_input_backspace_cb(TextInputModel* model) {
         model->text_buffer[0] = 0;
         model->cursor_pos = 0;
     } else if(model->cursor_pos > 0) {
-        furi_string_set_str(model->temp_str, model->text_buffer);
-        furi_string_replace_at(model->temp_str, model->cursor_pos - 1, 1, "");
+        char* move = model->text_buffer + model->cursor_pos;
+        memmove(move - 1, move, strlen(move) + 1);
         model->cursor_pos--;
-        strcpy(model->text_buffer, furi_string_get_cstr(model->temp_str));
     }
 }
 
@@ -373,16 +372,16 @@ static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, I
                 if(shift != (text_length == 0)) {
                     selected = char_to_uppercase(selected);
                 }
-                const char replace[2] = {selected, 0};
                 if(model->clear_default_text) {
-                    furi_string_set_str(model->temp_str, replace);
+                    model->text_buffer[0] = selected;
+                    model->text_buffer[1] = '\0';
                     model->cursor_pos = 1;
                 } else {
-                    furi_string_set_str(model->temp_str, model->text_buffer);
-                    furi_string_replace_at(model->temp_str, model->cursor_pos, 0, replace);
+                    char* move = model->text_buffer + model->cursor_pos;
+                    memmove(move + 1, move, strlen(move) + 1);
+                    model->text_buffer[model->cursor_pos] = selected;
                     model->cursor_pos++;
                 }
-                strcpy(model->text_buffer, furi_string_get_cstr(model->temp_str));
             }
         }
         model->clear_default_text = false;
