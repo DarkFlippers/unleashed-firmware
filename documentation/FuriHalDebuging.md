@@ -1,6 +1,6 @@
 # Furi HAL Debugging
 
-Some Furi subsystem got additional debugging features that can be enabled by adding additional defines to firmware compilation.
+Some Furi subsystems got additional debugging features that can be enabled by adding additional defines to firmware compilation.
 Usually they are used for low level tracing and profiling or signal redirection/duplication.
 
 

@@ -8,7 +8,7 @@ App(
     stack_size=2 * 1024,
     fap_category="Examples",
     # Optional values
-    # fap_version=(0, 1),  # (major, minor)
+    # fap_version="0.1",
     fap_icon="@FBT_APPID@.png",  # 10x10 1-bit PNG
     # fap_description="A simple app",
     # fap_author="J. Doe",
