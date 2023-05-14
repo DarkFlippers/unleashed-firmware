@@ -534,7 +534,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
     }
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-            if(mf_not_set || strcmp(furi_string_get_cstr(manufacture_code->name), mfname)) {
+            if(mf_not_set || (strcmp(furi_string_get_cstr(manufacture_code->name), mfname) == 0)) {
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_SIMPLE:
                     // Simple Learning
