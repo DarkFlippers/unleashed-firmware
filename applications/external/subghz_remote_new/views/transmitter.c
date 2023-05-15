@@ -85,6 +85,15 @@ void subrem_view_remote_add_data_to_show(
         true);
 }
 
+void subrem_view_remote_set_state(SubRemViewRemote* subrem_view_remote, uint8_t state) {
+    furi_assert(subrem_view_remote);
+    with_view_model(
+        subrem_view_remote->view,
+        SubRemViewRemoteModel * model,
+        { model->pressed_btn = state; },
+        true);
+}
+
 void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -139,10 +148,10 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
         canvas_draw_icon_ex(canvas, 116, 17, &I_Pin_arrow_up_7x9, IconRotation180);
         break;
     case 3:
-        canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation90);
+        canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation270);
         break;
     case 4:
-        canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation270);
+        canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation90);
         break;
     case 5:
         canvas_draw_icon(canvas, 116, 18, &I_Pin_star_7x7);
@@ -177,28 +186,51 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
                 // furi_string_reset(model->ok_label);
             },
             false);
-        return false;
-    } else if(event->key == InputKeyUp) {
-        if(event->type == InputTypePress) {
-            with_view_model(
-                subrem_view_remote->view,
-                SubRemViewRemoteModel * model,
-                { model->pressed_btn = 1; },
-                true);
-            subrem_view_remote->callback(
-                SubRemCustomEventViewRemoteStartUP, subrem_view_remote->context);
-            return true;
-        } else if(event->type == InputTypeRelease) {
-            with_view_model(
-                subrem_view_remote->view,
-                SubRemViewRemoteModel * model,
-                { model->pressed_btn = 0; },
-                true);
-            subrem_view_remote->callback(
-                SubRemCustomEventViewRemoteStop, subrem_view_remote->context);
-            return true;
-        }
+        return false; // TODO: check
+    } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
+        with_view_model(
+            subrem_view_remote->view,
+            SubRemViewRemoteModel * model,
+            { model->pressed_btn = 0; },
+            true);
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteForceStop, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyBack) {
+        return true;
     }
+    // BACK button processing end
+
+    if(event->key == InputKeyUp && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartUP, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyDown && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartDOWN, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyLeft && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartLEFT, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyRight && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartRIGHT, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyOk && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartOK, subrem_view_remote->context);
+        return true;
+    } else if(event->type == InputTypeRelease) {
+        with_view_model(
+            subrem_view_remote->view,
+            SubRemViewRemoteModel * model,
+            { model->pressed_btn = 0; },
+            true);
+        subrem_view_remote->callback(SubRemCustomEventViewRemoteStop, subrem_view_remote->context);
+        return true;
+    }
+
     return true;
 }
 

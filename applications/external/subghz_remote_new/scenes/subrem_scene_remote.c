@@ -1,6 +1,8 @@
 #include "../subghz_remote_app_i.h"
 #include "../views/transmitter.h"
 
+#include <lib/subghz/protocols/raw.h>
+
 // TODO:
 // #include <lib/subghz/protocols/keeloq.h>
 // #include <lib/subghz/protocols/star_line.h>
@@ -11,6 +13,12 @@ void subrem_scene_remote_callback(SubRemCustomEvent event, void* context) {
     furi_assert(context);
     SubGhzRemoteApp* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
+}
+
+void subrem_scene_remote_raw_callback_end_tx(void* context) {
+    furi_assert(context);
+    SubGhzRemoteApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, SubRemCustomEventViewRemoteForceStop);
 }
 
 bool subrem_scene_remote_update_data_show(void* context) {
@@ -113,12 +121,65 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
                 app->scene_manager, SubRemSceneStart);
             return true;
         } else if(event.event == SubRemCustomEventViewRemoteStartUP) {
-            if(subghz_tx_start_sub(app, app->subs_preset[0])) {
+            if(subghz_tx_start_sub(
+                   app, app->subs_preset[0], subrem_scene_remote_raw_callback_end_tx)) {
+                app->chusen_sub = 0;
+                subrem_view_remote_set_state(app->subrem_remote_view, 1);
                 notification_message(app->notifications, &sequence_blink_start_magenta);
             }
-        } else if(event.event == SubRemCustomEventViewRemoteStop) {
-            subghz_tx_stop_sub(app, app->subs_preset[0]);
+            return true;
+        } else if(event.event == SubRemCustomEventViewRemoteStartDOWN) {
+            if(subghz_tx_start_sub(
+                   app, app->subs_preset[1], subrem_scene_remote_raw_callback_end_tx)) {
+                app->chusen_sub = 1;
+                subrem_view_remote_set_state(app->subrem_remote_view, 2);
+                notification_message(app->notifications, &sequence_blink_start_magenta);
+            }
+            return true;
+        } else if(event.event == SubRemCustomEventViewRemoteStartLEFT) {
+            if(subghz_tx_start_sub(
+                   app, app->subs_preset[2], subrem_scene_remote_raw_callback_end_tx)) {
+                app->chusen_sub = 2;
+                subrem_view_remote_set_state(app->subrem_remote_view, 3);
+                notification_message(app->notifications, &sequence_blink_start_magenta);
+            }
+            return true;
+        } else if(event.event == SubRemCustomEventViewRemoteStartRIGHT) {
+            if(subghz_tx_start_sub(
+                   app, app->subs_preset[3], subrem_scene_remote_raw_callback_end_tx)) {
+                app->chusen_sub = 3;
+                subrem_view_remote_set_state(app->subrem_remote_view, 4);
+                notification_message(app->notifications, &sequence_blink_start_magenta);
+            }
+            return true;
+        } else if(event.event == SubRemCustomEventViewRemoteStartOK) {
+            if(subghz_tx_start_sub(
+                   app, app->subs_preset[4], subrem_scene_remote_raw_callback_end_tx)) {
+                app->chusen_sub = 4;
+                subrem_view_remote_set_state(app->subrem_remote_view, 5);
+                notification_message(app->notifications, &sequence_blink_start_magenta);
+            }
+            return true;
+        } else if(event.event == SubRemCustomEventViewRemoteForceStop) {
+            if(app->tx_running) {
+                subghz_tx_stop_sub(app);
+                subrem_view_remote_set_state(app->subrem_remote_view, 0);
+            }
             notification_message(app->notifications, &sequence_blink_stop);
+            return true;
+        } else if(event.event == SubRemCustomEventViewRemoteStop) {
+            // if(app->tx_running &&
+            //    (app->subs_preset[app->chusen_sub]->type == SubRemSubKeyTypeRawKey)) {
+            //     subghz_tx_stop_sub(app);
+            //     subrem_view_remote_set_state(app->subrem_remote_view, 0);
+            // }
+            // notification_message(app->notifications, &sequence_blink_stop);
+            if(app->tx_running) {
+                subghz_tx_stop_sub(app);
+                subrem_view_remote_set_state(app->subrem_remote_view, 0);
+            }
+            notification_message(app->notifications, &sequence_blink_stop);
+            return true;
         }
         // notification_message(app->notification, &sequence_blink_stop);
 
