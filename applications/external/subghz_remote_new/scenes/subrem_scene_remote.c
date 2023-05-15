@@ -21,11 +21,18 @@ bool subrem_scene_remote_update_data_show(void* context) {
     subrem_view_remote_add_data_to_show(
         //app->subrem_remote_view, "N/A", "N/A", "N/A", "N/A", "N/A");
         app->subrem_remote_view,
-        "UP",
-        "DOWN",
-        "LEFT",
-        "RIGHT",
-        "OK");
+        // "UP",
+        // "DOWN",
+        // "LEFT",
+        // "RIGHT",
+        // "OK");
+
+        furi_string_get_cstr(app->subs_preset[0]->label),
+        furi_string_get_cstr(app->subs_preset[1]->label),
+        furi_string_get_cstr(app->subs_preset[2]->label),
+        furi_string_get_cstr(app->subs_preset[3]->label),
+        furi_string_get_cstr(app->subs_preset[4]->label));
+
     // SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(app->txrx);
 
     // if(decoder) {
@@ -105,7 +112,16 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
             scene_manager_search_and_switch_to_previous_scene(
                 app->scene_manager, SubRemSceneStart);
             return true;
+        } else if(event.event == SubRemCustomEventViewRemoteStartUP) {
+            if(subghz_tx_start_sub(app, app->subs_preset[0])) {
+                notification_message(app->notifications, &sequence_blink_start_magenta);
+            }
+        } else if(event.event == SubRemCustomEventViewRemoteStop) {
+            subghz_tx_stop_sub(app, app->subs_preset[0]);
+            notification_message(app->notifications, &sequence_blink_stop);
         }
+        // notification_message(app->notification, &sequence_blink_stop);
+
         // else if(event.event == SubGhzCustomEventViewTransmitterError) {
         //     furi_string_set(app->error_str, "Protocol not\nfound!");
         //     scene_manager_next_scene(app->scene_manager, SubGhzSceneShowErrorSub);

@@ -185,6 +185,8 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
                 SubRemViewRemoteModel * model,
                 { model->pressed_btn = 1; },
                 true);
+            subrem_view_remote->callback(
+                SubRemCustomEventViewRemoteStartUP, subrem_view_remote->context);
             return true;
         } else if(event->type == InputTypeRelease) {
             with_view_model(
@@ -192,6 +194,8 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
                 SubRemViewRemoteModel * model,
                 { model->pressed_btn = 0; },
                 true);
+            subrem_view_remote->callback(
+                SubRemCustomEventViewRemoteStop, subrem_view_remote->context);
             return true;
         }
     }

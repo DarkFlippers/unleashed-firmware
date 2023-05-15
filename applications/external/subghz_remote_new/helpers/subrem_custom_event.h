@@ -11,6 +11,13 @@ typedef enum {
 
     //SubRemCustomEvent
     SubRemCustomEventViewRemoteBack = 100,
+    SubRemCustomEventViewRemoteStartUP,
+    SubRemCustomEventViewRemoteStartDOWN,
+    SubRemCustomEventViewRemoteStartLEFT,
+    SubRemCustomEventViewRemoteStartRIGHT,
+    SubRemCustomEventViewRemoteStartOK,
+    SubRemCustomEventViewRemoteStop,
+
     // SubRemCustomEventSceneDeleteSuccess = 100,
     // SubRemCustomEventSceneDelete,
     // SubRemCustomEventSceneDeleteRAW,

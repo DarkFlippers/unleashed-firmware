@@ -44,6 +44,7 @@ typedef struct {
     FlipperFormat* fff_data;
     FreqPreset freq_preset;
     FuriString* file_path;
+    FuriString* protocaol_name;
     FuriString* label;
     SubRemSubKeyType type;
 } SubRemSubFilePreset;
@@ -70,6 +71,9 @@ typedef struct {
     SubRemSubFilePreset* subs_preset[SUBREM_MAX_SUB_KEY_COUNT];
 
     SubGhzSetting* setting;
+    SubGhzEnvironment* environment;
+    SubGhzReceiver* receiver;
+    SubGhzTransmitter* transmitter;
 
     // AvrIspProgrammerView* subghz_remote_programmer_view;
     // AvrIspReaderView* subghz_remote_reader_view;
@@ -80,3 +84,6 @@ typedef struct {
 } SubGhzRemoteApp;
 
 bool subrem_load_from_file(SubGhzRemoteApp* app);
+
+bool subghz_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
+void subghz_tx_stop_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);

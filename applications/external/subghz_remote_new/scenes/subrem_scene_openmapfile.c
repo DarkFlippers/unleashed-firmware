@@ -10,6 +10,7 @@ void subrem_scene_openmapfile_on_enter(void* context) {
         // } else {
         //     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSavedMenu);
         // }
+        scene_manager_next_scene(app->scene_manager, SubRemSceneRemote);
     } else {
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, SubRemSceneStart);
     }

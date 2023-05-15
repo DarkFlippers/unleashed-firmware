@@ -1,5 +1,7 @@
 #include "subghz_remote_app_i.h"
 
+#include <lib/subghz/protocols/protocol_items.h>
+
 static bool subghz_remote_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubGhzRemoteApp* app = context;
@@ -20,6 +22,17 @@ static void subghz_remote_app_tick_event_callback(void* context) {
 
 SubGhzRemoteApp* subghz_remote_app_alloc() {
     SubGhzRemoteApp* app = malloc(sizeof(SubGhzRemoteApp));
+
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
+    // Auto switch to internal radio if external radio is not available
+    furi_delay_ms(15);
+    if(!furi_hal_subghz_check_radio()) {
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
+    }
+
+    furi_hal_power_suppress_charge_enter();
 
     // // Enable 5v power, multiple attempts to avoid issues with power chip protection false triggering
     // uint8_t attempts = 0;
@@ -109,6 +122,21 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     app->setting = subghz_setting_alloc();
     subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
 
+    app->environment = subghz_environment_alloc();
+
+    subghz_environment_load_keystore(app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
+    subghz_environment_load_keystore(
+        app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+    subghz_environment_set_came_atomo_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/came_atomo"));
+    subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/alutech_at_4n"));
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+        app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
+    subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
+
+    app->receiver = subghz_receiver_alloc_init(app->environment);
+
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
 
     return app;
@@ -116,6 +144,13 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
 void subghz_remote_app_free(SubGhzRemoteApp* app) {
     furi_assert(app);
+
+    furi_hal_power_suppress_charge_exit();
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
+    // Reinit SPI handles for internal radio / nfc
+    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewSubmenu);
@@ -140,6 +175,8 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDRemote);
     subrem_view_remote_free(app->subrem_remote_view);
 
+    subghz_receiver_free(app->receiver);
+    subghz_environment_free(app->environment);
     subghz_setting_free(app->setting);
 
     for(uint8_t i = 0; i < SUBREM_MAX_SUB_KEY_COUNT; i++) {
