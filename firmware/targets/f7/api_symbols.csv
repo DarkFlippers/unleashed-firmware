@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,26.2,,
+Version,+,26.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -144,10 +144,12 @@ Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
 Header,+,lib/nfc/nfc_device.h,,
+Header,+,lib/nfc/protocols/nfc_util.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
+Header,+,lib/pulse_reader/pulse_reader.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_adc.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_bus.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_comp.h,,
@@ -175,7 +177,6 @@ Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_tim.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_usart.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_utils.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_wwdg.h,,
-Header,+,lib/pulse_reader/pulse_reader.h,,
 Header,+,lib/subghz/blocks/const.h,,
 Header,+,lib/subghz/blocks/decoder.h,,
 Header,+,lib/subghz/blocks/encoder.h,,
@@ -2064,6 +2065,11 @@ Function,+,nfc_device_save_shadow,_Bool,"NfcDevice*, const char*"
 Function,+,nfc_device_set_loading_callback,void,"NfcDevice*, NfcLoadingCallback, void*"
 Function,+,nfc_device_set_name,void,"NfcDevice*, const char*"
 Function,+,nfc_file_select,_Bool,NfcDevice*
+Function,+,nfc_util_bytes2num,uint64_t,"const uint8_t*, uint8_t"
+Function,+,nfc_util_even_parity32,uint8_t,uint32_t
+Function,+,nfc_util_num2bytes,void,"uint64_t, uint8_t, uint8_t*"
+Function,+,nfc_util_odd_parity,void,"const uint8_t*, uint8_t*, uint8_t"
+Function,+,nfc_util_odd_parity8,uint8_t,uint8_t
 Function,-,nfca_append_crc16,void,"uint8_t*, uint16_t"
 Function,-,nfca_emulation_handler,_Bool,"uint8_t*, uint16_t, uint8_t*, uint16_t*"
 Function,-,nfca_get_crc16,uint16_t,"uint8_t*, uint16_t"
