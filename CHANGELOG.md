@@ -18,6 +18,9 @@
 * Infrared: `External output` move out of debug and add power option for external modules
 * Extra pack: Some app fixes
 * FBT: Fix vscode example config for debug builds - please run `./fbt vscode_dist` again if you had issues with debug builds size
+* OFW PR 2658: Hitag (by @blackvault88) (with minor fixes, hitag excluded from add manually temporarily, + fixed lfrfid favourites start when key cannot be parsed)
+* OFW PR 2316: NFC V support (by @g3gg0 & @nvx)
+* OFW PR 2669: nfc: Fix MFUL tearing flags read (by @GMMan)
 * OFW: api: added lib/nfc/protocols/nfc_util.h
 * OFW: fix PIN retry count reset on reboot 
 * OFW: fbt: allow strings for fap_version field in app manifests
