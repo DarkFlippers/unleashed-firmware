@@ -68,6 +68,11 @@ Watch this videos to learn more (videos in Russian language): https://www.youtub
 6. Long press (Right Arrow) - (0xF button - Btn:F) on Flipper for like 3-5 sec
 7. Done?
 
+## CAME Atomo
+
+1. Use google to find instructions - `how to program new CAME Atomo remote into receiver`
+2. Watch this video to learn more (video in Russian language): https://www.youtube.com/watch?v=XeHUwfcSS30
+
 ## Nice Flor S
 
 - Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> Nice FloR-S 433Mhz
