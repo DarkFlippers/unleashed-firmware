@@ -2757,6 +2757,7 @@ Function,+,subghz_protocol_blocks_parity_bytes,uint8_t,"const uint8_t[], size_t"
 Function,+,subghz_protocol_blocks_reverse_key,uint64_t,"uint64_t, uint8_t"
 Function,+,subghz_protocol_blocks_set_bit_array,void,"_Bool, uint8_t[], size_t, size_t"
 Function,+,subghz_protocol_blocks_xor_bytes,uint8_t,"const uint8_t[], size_t"
+Function,-,subghz_protocol_came_atomo_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint16_t, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_alutech_at_4n_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_alutech_at_4n_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_alutech_at_4n_feed,void,"void*, _Bool, uint32_t"

@@ -266,6 +266,34 @@ bool subghz_txrx_gen_alutech_at_4n_protocol(
     return res;
 }
 
+bool subghz_txrx_gen_came_atomo_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_CAME_ATOMO_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_came_atomo_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
 bool subghz_txrx_gen_somfy_telis_protocol(
     void* context,
     const char* preset_name,

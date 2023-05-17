@@ -120,6 +120,46 @@ static LevelDuration
     return level_duration_make(data.level, data.duration);
 }
 
+bool subghz_protocol_came_atomo_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderCameAtomo* instance = context;
+    instance->generic.btn = 0x1;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->generic.cnt_2 = 0x7e;
+    instance->generic.data_count_bit = 62;
+    instance->generic.data_2 =
+        ((uint64_t)0x7e << 56 | (uint64_t)cnt << 40 | (uint64_t)serial << 8);
+
+    uint8_t pack[8] = {};
+
+    pack[0] = (instance->generic.cnt_2);
+    pack[1] = (instance->generic.cnt >> 8);
+    pack[2] = (instance->generic.cnt & 0xFF);
+    pack[3] = ((instance->generic.data_2 >> 32) & 0xFF);
+    pack[4] = ((instance->generic.data_2 >> 24) & 0xFF);
+    pack[5] = ((instance->generic.data_2 >> 16) & 0xFF);
+    pack[6] = ((instance->generic.data_2 >> 8) & 0xFF);
+    pack[7] = (instance->generic.data_2 & 0xFF);
+
+    atomo_encrypt(pack);
+    uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+    uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+    instance->generic.data = (uint64_t)hi << 32 | lo;
+
+    instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
+    instance->generic.data >>= 4;
+    instance->generic.data &= 0xFFFFFFFFFFFFFFF;
+
+    return SubGhzProtocolStatusOk ==
+           subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+}
+
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderCameAtomo instance
