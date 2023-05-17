@@ -7,6 +7,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn.h"
+
 #define TAG "SubGhzProtocoCameAtomo"
 
 static const SubGhzBlockConst subghz_protocol_came_atomo_const = {
@@ -70,6 +72,13 @@ const SubGhzProtocol subghz_protocol_came_atomo = {
 };
 
 static void subghz_protocol_came_atomo_remote_controller(SubGhzBlockGeneric* instance);
+
+/**
+ * Defines the button value for the current btn_id
+ * Basic set | 0x0 | 0x2 | 0x4 | 0x6 |
+ * @return Button code
+ */
+static uint8_t subghz_protocol_came_atomo_get_btn_code();
 
 void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
@@ -164,8 +173,9 @@ bool subghz_protocol_came_atomo_create_data(
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderCameAtomo instance
  */
-static void
-    subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderCameAtomo* instance) {
+static void subghz_protocol_encoder_came_atomo_get_upload(
+    SubGhzProtocolEncoderCameAtomo* instance,
+    uint8_t btn) {
     furi_assert(instance);
     size_t index = 0;
 
@@ -185,6 +195,23 @@ static void
         instance->generic.cnt = 0;
     }
 
+    // Save original button for later use
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(btn);
+    }
+
+    btn = subghz_protocol_came_atomo_get_btn_code();
+
+    if(btn == 0x1) {
+        btn = 0x0;
+    } else if(btn == 0x2) {
+        btn = 0x2;
+    } else if(btn == 0x3) {
+        btn = 0x4;
+    } else if(btn == 0x4) {
+        btn = 0x6;
+    }
+
     //Send header
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long * 15);
@@ -199,7 +226,7 @@ static void
         pack[4] = ((instance->generic.data_2 >> 24) & 0xFF);
         pack[5] = ((instance->generic.data_2 >> 16) & 0xFF);
         pack[6] = ((instance->generic.data_2 >> 8) & 0xFF);
-        pack[7] = (instance->generic.data_2 & 0xFF);
+        pack[7] = (btn << 4);
 
         if(pack[0] == 0x7F) {
             pack[0] = 0;
@@ -251,7 +278,7 @@ static void
     pack[4] = ((instance->generic.data_2 >> 24) & 0xFF);
     pack[5] = ((instance->generic.data_2 >> 16) & 0xFF);
     pack[6] = ((instance->generic.data_2 >> 8) & 0xFF);
-    pack[7] = (instance->generic.data_2 & 0xFF);
+    pack[7] = (btn << 4);
 
     atomo_encrypt(pack);
     uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
@@ -280,7 +307,7 @@ SubGhzProtocolStatus
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_came_atomo_remote_controller(&instance->generic);
-        subghz_protocol_encoder_came_atomo_get_upload(instance);
+        subghz_protocol_encoder_came_atomo_get_upload(instance, instance->generic.btn);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -527,20 +554,23 @@ static void subghz_protocol_came_atomo_remote_controller(SubGhzBlockGeneric* ins
     uint8_t btn_decode = (pack[7] >> 4);
     if(btn_decode == 0x0) {
         instance->btn = 0x1;
-    }
-    if(btn_decode == 0x2) {
+    } else if(btn_decode == 0x2) {
         instance->btn = 0x2;
-    }
-    if(btn_decode == 0x4) {
+    } else if(btn_decode == 0x4) {
         instance->btn = 0x3;
-    }
-    if(btn_decode == 0x6) {
+    } else if(btn_decode == 0x6) {
         instance->btn = 0x4;
     }
 
     uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
     uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
     instance->data_2 = (uint64_t)hi << 32 | lo;
+
+    // Save original button for later use
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
+    }
+    subghz_custom_btn_set_max(3);
 }
 
 void atomo_encrypt(uint8_t* buff) {
@@ -584,6 +614,74 @@ void atomo_decrypt(uint8_t* buff) {
     }
 }
 
+static uint8_t subghz_protocol_came_atomo_get_btn_code() {
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
+
+    // Set custom button
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0x3:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x3;
+            break;
+        case 0x2:
+            btn = 0x3;
+            break;
+        case 0x3:
+            btn = 0x2;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0x3:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0x3;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return btn;
+}
+
 uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderCameAtomo* instance = context;
@@ -621,7 +719,7 @@ void subghz_protocol_decoder_came_atomo_get_string(void* context, FuriString* ou
         output,
         "%s %db\r\n"
         "Key:0x%08lX%08lX\r\n"
-        "Sn:0x%08lX  Btn:0x%01X\r\n"
+        "Sn:0x%08lX       Btn:%01X\r\n"
         "Pcl_Cnt:0x%04lX\r\n"
         "Btn_Cnt:0x%02X",
 
