@@ -93,29 +93,8 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
         app->view_dispatcher,
         SubRemViewIDRemote,
         subrem_view_remote_get_view(app->subrem_remote_view));
-    /*
-    // Reader view
-    app->subghz_remote_reader_view = subghz_remote_reader_view_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher,
-        SubRemViewReader,
-        subghz_remote_reader_view_get_view(app->subghz_remote_reader_view));
 
-    // Writer view
-    app->subghz_remote_writer_view = subghz_remote_writer_view_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher,
-        SubRemViewWriter,
-        subghz_remote_writer_view_get_view(app->subghz_remote_writer_view));
-
-    // Chip detect view
-    app->subghz_remote_chip_detect_view = subghz_remote_chip_detect_view_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher,
-        SubRemViewChipDetect,
-        subghz_remote_chip_detect_view_get_view(app->subghz_remote_chip_detect_view));
-*/
-    for(uint8_t i = 0; i < SUBREM_MAX_SUB_KEY_COUNT; i++) {
+    for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
         app->subs_preset[i] = subrem_sub_file_preset_alloc();
     }
 
@@ -136,6 +115,8 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
 
     app->receiver = subghz_receiver_alloc_init(app->environment);
+
+    app->tx_running = false;
 
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
 
@@ -179,25 +160,9 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     subghz_environment_free(app->environment);
     subghz_setting_free(app->setting);
 
-    for(uint8_t i = 0; i < SUBREM_MAX_SUB_KEY_COUNT; i++) {
+    for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
         subrem_sub_file_preset_free(app->subs_preset[i]);
     }
-
-    // // Reader view
-    // view_dispatcher_remove_view(app->view_dispatcher, SubRemViewReader);
-    // subghz_remote_reader_view_free(app->subghz_remote_reader_view);
-
-    // // Writer view
-    // view_dispatcher_remove_view(app->view_dispatcher, SubRemViewWriter);
-    // subghz_remote_writer_view_free(app->subghz_remote_writer_view);
-
-    // // Chip detect view
-    // view_dispatcher_remove_view(app->view_dispatcher, SubRemViewChipDetect);
-    // subghz_remote_chip_detect_view_free(app->subghz_remote_chip_detect_view);
-
-    // // View dispatcher
-    // view_dispatcher_free(app->view_dispatcher);
-    // scene_manager_free(app->scene_manager);
 
     // Notifications
     furi_record_close(RECORD_NOTIFICATION);
@@ -208,11 +173,6 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
 
     // Path strings
     furi_string_free(app->file_path);
-
-    // Disable 5v power
-    // if(furi_hal_power_is_otg_enabled()) {
-    //     furi_hal_power_disable_otg();
-    // }
 
     free(app);
 }

@@ -6,69 +6,17 @@ typedef enum {
     // SubRemCustomEventManagerSetRAW,
 
     //SubmenuIndex
-    SubmenuIndexOpenMapFile,
-    SubmenuIndexOpenView, // TODO: temp debug
+    SubmenuIndexSubRemOpenMapFile,
+    SubmenuIndexSubRemRemoteView, // TODO: temp debug
+    SubmenuIndexSubRemAbout,
 
     //SubRemCustomEvent
-    SubRemCustomEventViewRemoteBack = 100,
-    SubRemCustomEventViewRemoteStartUP,
+    SubRemCustomEventViewRemoteStartUP = 100,
     SubRemCustomEventViewRemoteStartDOWN,
     SubRemCustomEventViewRemoteStartLEFT,
     SubRemCustomEventViewRemoteStartRIGHT,
     SubRemCustomEventViewRemoteStartOK,
+    SubRemCustomEventViewRemoteBack,
     SubRemCustomEventViewRemoteStop,
-
-    // SubRemCustomEventSceneDeleteSuccess = 100,
-    // SubRemCustomEventSceneDelete,
-    // SubRemCustomEventSceneDeleteRAW,
-    // SubRemCustomEventSceneDeleteRAWBack,
-
-    // SubRemCustomEventSceneReceiverInfoTxStart,
-    // SubRemCustomEventSceneReceiverInfoTxStop,
-    // SubRemCustomEventSceneReceiverInfoSave,
-    // SubRemCustomEventSceneSaveName,
-    // SubRemCustomEventSceneSaveSuccess,
-    // SubRemCustomEventSceneShowErrorBack,
-    // SubRemCustomEventSceneShowErrorOk,
-    // SubRemCustomEventSceneShowErrorSub,
-    // SubRemCustomEventSceneShowOnlyRX,
-    // SubRemCustomEventSceneAnalyzerLock,
-    // SubRemCustomEventSceneAnalyzerUnlock,
-    // SubRemCustomEventSceneSettingLock,
-
-    // SubRemCustomEventSceneExit,
-    // SubRemCustomEventSceneStay,
-
-    // SubRemCustomEventSceneRpcLoad,
-    // SubRemCustomEventSceneRpcButtonPress,
-    // SubRemCustomEventSceneRpcButtonRelease,
-    // SubRemCustomEventSceneRpcSessionClose,
-
-    // SubRemCustomEventViewReceiverOK,
-    // SubRemCustomEventViewReceiverConfig,
-    // SubRemCustomEventViewReceiverBack,
-    // SubRemCustomEventViewReceiverOffDisplay,
-    // SubRemCustomEventViewReceiverUnlock,
-    // SubRemCustomEventViewReceiverDeleteItem,
-
-    // SubRemCustomEventViewReadRAWBack,
-    // SubRemCustomEventViewReadRAWIDLE,
-    // SubRemCustomEventViewReadRAWREC,
-    // SubRemCustomEventViewReadRAWConfig,
-    // SubRemCustomEventViewReadRAWErase,
-    // SubRemCustomEventViewReadRAWSendStart,
-    // SubRemCustomEventViewReadRAWSendStop,
-    // SubRemCustomEventViewReadRAWSave,
-    // SubRemCustomEventViewReadRAWTXRXStop,
-    // SubRemCustomEventViewReadRAWMore,
-
-    // SubRemCustomEventViewTransmitterBack,
-    // SubRemCustomEventViewTransmitterSendStart,
-    // SubRemCustomEventViewTransmitterSendStop,
-    // SubRemCustomEventViewTransmitterError,
-
-    // SubRemCustomEventViewFreqAnalOkShort,
-    // SubRemCustomEventViewFreqAnalOkLong,
-
-    // SubRemCustomEventByteInputDone,
+    SubRemCustomEventViewRemoteForcedStop,
 } SubRemCustomEvent;

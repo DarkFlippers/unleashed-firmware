@@ -16,23 +16,17 @@ void subrem_scene_start_on_enter(void* context) {
     submenu_add_item(
         submenu,
         "Open Map File",
-        SubmenuIndexOpenMapFile,
+        SubmenuIndexSubRemOpenMapFile,
         subrem_scene_start_submenu_callback,
         app);
+#if FURI_DEBUG
     submenu_add_item(
-        submenu, "Remote", SubmenuIndexOpenView, subrem_scene_start_submenu_callback, app);
-    // submenu_add_item(
-    //     submenu,
-    //     "ISP Programmer",
-    //     SubmenuIndexSubGhzRemoteProgrammer,
-    //     subrem_scene_start_submenu_callback,
-    //     app);
-    // submenu_add_item(
-    //     submenu,
-    //     "Wiring",
-    //     SubmenuIndexAvrIsWiring,
-    //     subrem_scene_start_submenu_callback,
-    //     app);
+        submenu,
+        "Remote_Debug",
+        SubmenuIndexSubRemRemoteView,
+        subrem_scene_start_submenu_callback,
+        app);
+#endif
     // submenu_add_item(
     //     submenu,
     //     "About",
@@ -53,33 +47,21 @@ bool subrem_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubmenuIndexOpenMapFile) {
+        if(event.event == SubmenuIndexSubRemOpenMapFile) {
+            //scene_manager_set_scene_state(app->scene_manager, SubRemSceneStart, event.event);
             scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
             consumed = true;
-        } else if(event.event == SubmenuIndexOpenView) {
+        }
+        // } else if(event.event == SubmenuIndexSubRemAbout) {
+        //     scene_manager_next_scene(app->scene_manager, SubRemSceneAbout);
+        //     consumed = true;
+        // }
+#if FURI_DEBUG
+        else if(event.event == SubmenuIndexSubRemRemoteView) {
             scene_manager_next_scene(app->scene_manager, SubRemSceneRemote);
             consumed = true;
         }
-        // } else if(event.event == SubmenuIndexSubGhzRemoteProgrammer) {
-        //     scene_manager_set_scene_state(
-        //         app->scene_manager, SubRemSceneChipDetect, SubGhzRemoteViewProgrammer);
-        //     scene_manager_next_scene(app->scene_manager, SubRemSceneChipDetect);
-        //     consumed = true;
-        // } else if(event.event == SubmenuIndexSubGhzRemoteReader) {
-        //     scene_manager_set_scene_state(
-        //         app->scene_manager, SubRemSceneChipDetect, SubGhzRemoteViewReader);
-        //     scene_manager_next_scene(app->scene_manager, SubRemSceneChipDetect);
-        //     consumed = true;
-        // } else if(event.event == SubmenuIndexSubGhzRemoteWriter) {
-        //     scene_manager_set_scene_state(
-        //         app->scene_manager, SubRemSceneChipDetect, SubGhzRemoteViewWriter);
-        //     scene_manager_next_scene(app->scene_manager, SubRemSceneChipDetect);
-        //     consumed = true;
-        // } else if(event.event == SubmenuIndexAvrIsWiring) {
-        //     scene_manager_next_scene(app->scene_manager, SubRemSceneWiring);
-        //     consumed = true;
-        // }
-        scene_manager_set_scene_state(app->scene_manager, SubRemSceneStart, event.event);
+#endif
     }
 
     return consumed;

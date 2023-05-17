@@ -1,27 +1,18 @@
-#include "transmitter.h"
+#include "remote.h"
 #include "../subghz_remote_app_i.h"
 
 #include <input/input.h>
 #include <gui/elements.h>
 
 #define SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH 16
+
 struct SubRemViewRemote {
     View* view;
     SubRemViewRemoteCallback callback;
     void* context;
 };
-// FIXME: drop
-// static char* char_to_str(char* str, int i) {
-//     char* converted = malloc(sizeof(char) * i + 1);
-//     memcpy(converted, str, i);
-
-//     converted[i] = '\0';
-
-//     return converted;
-// }
 
 // TODO: model
-
 typedef struct {
     // FuriString* up_label;
     // FuriString* down_label;
@@ -34,6 +25,8 @@ typedef struct {
     char* left_label;
     char* right_label;
     char* ok_label;
+
+    SubRemViewRemoteState state;
 
     uint8_t pressed_btn;
     // bool show_button;
@@ -70,12 +63,6 @@ void subrem_view_remote_add_data_to_show(
             strncpy(model->right_label, right_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
             strncpy(model->ok_label, ok_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
 
-            // model->up_label = char_to_str((char*)up_label, 16);
-            // model->down_label = char_to_str((char*)down_label, 16);
-            // model->left_label = char_to_str((char*)left_label, 16);
-            // model->right_label = char_to_str((char*)right_label, 16);
-            // model->ok_label = char_to_str((char*)ok_label, 16);
-
             // furi_string_set(model->up_label, up_label);
             // furi_string_set(model->down_label, down_label);
             // furi_string_set(model->left_label, left_label);
@@ -83,6 +70,23 @@ void subrem_view_remote_add_data_to_show(
             // furi_string_set(model->ok_label, ok_label);
         },
         true);
+}
+
+void subrem_view_remote_set_presed_btn(SubRemViewRemote* subrem_view_remote, uint8_t presed_btn) {
+    furi_assert(subrem_view_remote);
+    with_view_model(
+        subrem_view_remote->view,
+        SubRemViewRemoteModel * model,
+        { model->pressed_btn = presed_btn; },
+        true);
+}
+
+void subrem_view_remote_set_state(
+    SubRemViewRemote* subrem_view_remote,
+    SubRemViewRemoteState state) {
+    furi_assert(subrem_view_remote);
+    with_view_model(
+        subrem_view_remote->view, SubRemViewRemoteModel * model, { model->state = state; }, true);
 }
 
 void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
@@ -126,29 +130,44 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
     canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Hold=Exit.");
 
     //Status text and indicator
-    // canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, app->send_status);
+
+    //canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, model->state);
 
     canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
-    switch(model->pressed_btn) {
-    case 0:
-        break;
-    case 1:
-        canvas_draw_icon(canvas, 116, 17, &I_Pin_arrow_up_7x9);
-        break;
-    case 2:
-        canvas_draw_icon_ex(canvas, 116, 17, &I_Pin_arrow_up_7x9, IconRotation180);
-        break;
-    case 3:
-        canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation90);
-        break;
-    case 4:
-        canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation270);
-        break;
-    case 5:
-        canvas_draw_icon(canvas, 116, 18, &I_Pin_star_7x7);
-        break;
-    }
 
+    if(model->state == SubRemViewRemoteStateIdle) {
+        canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Idle");
+    } else {
+        switch(model->state) {
+        case SubRemViewRemoteStateSending:
+            canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Send");
+            break;
+        case SubRemViewRemoteStateLoading:
+            canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Load");
+            break;
+        default:
+            canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Idle");
+            break;
+        }
+
+        switch(model->pressed_btn) {
+        case SubRemSubKeyNameUp:
+            canvas_draw_icon(canvas, 116, 17, &I_Pin_arrow_up_7x9);
+            break;
+        case SubRemSubKeyNameDown:
+            canvas_draw_icon_ex(canvas, 116, 17, &I_Pin_arrow_up_7x9, IconRotation180);
+            break;
+        case SubRemSubKeyNameLeft:
+            canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation270);
+            break;
+        case SubRemSubKeyNameRight:
+            canvas_draw_icon_ex(canvas, 115, 18, &I_Pin_arrow_up_7x9, IconRotation90);
+            break;
+        case SubRemSubKeyNameOk:
+            canvas_draw_icon(canvas, 116, 18, &I_Pin_star_7x7);
+            break;
+        }
+    }
     //Repeat indicator
     //canvas_draw_str_aligned(canvas, 125, 40, AlignRight, AlignBottom, "Repeat:");
     //canvas_draw_icon(canvas, 115, 39, &I_SubGHzRemote_Repeat_12x14);
@@ -160,6 +179,7 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
     SubRemViewRemote* subrem_view_remote = context;
 
     if(event->key == InputKeyBack && event->type == InputTypeLong) {
+        // TODO: remove reset Debug
         with_view_model(
             subrem_view_remote->view,
             SubRemViewRemoteModel * model,
@@ -177,28 +197,47 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
                 // furi_string_reset(model->ok_label);
             },
             false);
-        return false;
-    } else if(event->key == InputKeyUp) {
-        if(event->type == InputTypePress) {
-            with_view_model(
-                subrem_view_remote->view,
-                SubRemViewRemoteModel * model,
-                { model->pressed_btn = 1; },
-                true);
-            subrem_view_remote->callback(
-                SubRemCustomEventViewRemoteStartUP, subrem_view_remote->context);
-            return true;
-        } else if(event->type == InputTypeRelease) {
-            with_view_model(
-                subrem_view_remote->view,
-                SubRemViewRemoteModel * model,
-                { model->pressed_btn = 0; },
-                true);
-            subrem_view_remote->callback(
-                SubRemCustomEventViewRemoteStop, subrem_view_remote->context);
-            return true;
-        }
+        subrem_view_remote->callback(SubRemCustomEventViewRemoteBack, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
+        with_view_model(
+            subrem_view_remote->view,
+            SubRemViewRemoteModel * model,
+            { model->pressed_btn = 0; },
+            true);
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteForcedStop, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyBack) {
+        return true;
     }
+    // BACK button processing end
+
+    if(event->key == InputKeyUp && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartUP, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyDown && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartDOWN, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyLeft && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartLEFT, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyRight && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartRIGHT, subrem_view_remote->context);
+        return true;
+    } else if(event->key == InputKeyOk && event->type == InputTypePress) {
+        subrem_view_remote->callback(
+            SubRemCustomEventViewRemoteStartOK, subrem_view_remote->context);
+        return true;
+    } else if(event->type == InputTypeRelease) {
+        subrem_view_remote->callback(SubRemCustomEventViewRemoteStop, subrem_view_remote->context);
+        return true;
+    }
+
     return true;
 }
 
@@ -227,6 +266,8 @@ SubRemViewRemote* subrem_view_remote_alloc() {
         subrem_view_remote->view,
         SubRemViewRemoteModel * model,
         {
+            model->state = SubRemViewRemoteStateIdle;
+
             model->up_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
             model->down_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
             model->left_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);

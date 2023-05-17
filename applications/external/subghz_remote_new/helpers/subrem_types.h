@@ -2,50 +2,39 @@
 
 #include <furi.h>
 #include <furi_hal.h>
-/*
-#define AVR_ISP_VERSION_APP "0.1"
-#define AVR_ISP_DEVELOPED "SkorP"
-#define AVR_ISP_GITHUB "https://github.com/flipperdevices/flipperzero-firmware"
 
-#define AVR_ISP_APP_FILE_VERSION 1
-#define AVR_ISP_APP_FILE_TYPE "Flipper Dump AVR"
-#define AVR_ISP_APP_EXTENSION ".avr"
-*/
-
-// TODO: rename Filepath
-//#define SUBREMOTEMAP_FOLDER "/ext/subghz_remote"
-#define SUBGHZ_REMOTE_APP_EXTENSION ".txt"
-#define SUBGHZ_REMOTE_APP_PATH_PREFIX "/ext/subghz_remote"
+// #define SUBREM_APP_APP_FILE_VERSION 1
+// #define SUBREM_APP_APP_FILE_TYPE "Flipper SubRem Map file"
+#define SUBREM_APP_EXTENSION ".txt"
 
 typedef enum {
-    //SubRemViewVariableItemList,
+    SubRemSubKeyNameUp = (0U),
+    SubRemSubKeyNameDown,
+    SubRemSubKeyNameLeft,
+    SubRemSubKeyNameRight,
+    SubRemSubKeyNameOk,
+    SubRemSubKeyNameMaxCount,
+} SubRemSubKeyName;
+
+typedef enum {
     SubRemViewSubmenu,
-    //SubRemViewProgrammer,
-    //SubRemViewReader,
-    //SubRemViewWriter,
     SubRemViewWidget,
     SubRemViewPopup,
     SubRemViewTextInput,
     SubRemViewIDRemote,
-    //SubRemViewChipDetect,
 } SubRemViewID;
 
 typedef enum {
     // Loadin State
     SubRemSubKeyTypeNoData = 0,
-    SubRemSubKeyTypeHaveFileName,
+    // SubRemSubKeyTypeHaveFileName,
 
     // Key Type
     SubRemSubKeyTypeStaticKey = 100,
     SubRemSubKeyTypeDynamicKey,
     SubRemSubKeyTypeRawKey,
-} SubRemSubKeyType;
+} SubRemSubKeyType; // TODO: depricated
 
-/*
-typedef enum {
-    SubRemErrorNoError,
-    SubRemErrorReading,
-    SubRemErrorWriting,
-    SubRemErrorVerification,
-    SubRemErrorWritingFuse,
-} SubRemError;*/
+// typedef enum {
+//
+// } SubRemLoadMapState;

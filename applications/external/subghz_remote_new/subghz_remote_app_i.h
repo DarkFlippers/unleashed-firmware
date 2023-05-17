@@ -1,12 +1,12 @@
 #pragma once
 
 #include "helpers/subrem_types.h"
+#include <subghz_remote_new_icons.h> // TODO:
 
-#include "views/transmitter.h"
+#include "views/remote.h"
 
 #include "scenes/subrem_scene.h"
 
-#include <subghz_remote_new_icons.h> // TODO:
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
@@ -18,21 +18,16 @@
 #include <storage/storage.h>
 #include <gui/modules/popup.h>
 
+#include <lib/subghz/protocols/raw.h>
+
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 
 #include <flipper_format/flipper_format_i.h> // FIXME:
 
-// #include "views/subghz_remote_view_programmer.h"
-// #include "views/subghz_remote_view_reader.h"
-// #include "views/subghz_remote_view_writer.h"
-// #include "views/subghz_remote_view_chip_detect.h"
-
-#define SUBREM_APP_EXTENSION ".txt"
-#define SUBREM_APP_FOLDER "/ext/subghz_remote"
+#define SUBREM_APP_FOLDER ANY_PATH("subghz_remote")
 #define SUBGHZ_REMOTE_MAX_LEN_NAME 64
-#define SUBREM_MAX_SUB_KEY_COUNT (5U)
 
 typedef struct {
     uint32_t frequency;
@@ -46,7 +41,7 @@ typedef struct {
     FuriString* file_path;
     FuriString* protocaol_name;
     FuriString* label;
-    SubRemSubKeyType type;
+    SubGhzProtocolType type;
 } SubRemSubFilePreset;
 
 SubRemSubFilePreset* subrem_sub_file_preset_alloc();
@@ -68,22 +63,25 @@ typedef struct {
 
     SubRemViewRemote* subrem_remote_view;
 
-    SubRemSubFilePreset* subs_preset[SUBREM_MAX_SUB_KEY_COUNT];
+    SubRemSubFilePreset* subs_preset[SubRemSubKeyNameMaxCount];
 
     SubGhzSetting* setting;
     SubGhzEnvironment* environment;
     SubGhzReceiver* receiver;
     SubGhzTransmitter* transmitter;
 
-    // AvrIspProgrammerView* subghz_remote_programmer_view;
-    // AvrIspReaderView* subghz_remote_reader_view;
-    // AvrIspWriterView* subghz_remote_writer_view;
-    // AvrIspChipDetectView* subghz_remote_chip_detect_view;
+    bool tx_running;
 
-    // AvrIspError error;
+    uint8_t chusen_sub;
+
+    // TODO: LoadFileError
 } SubGhzRemoteApp;
 
 bool subrem_load_from_file(SubGhzRemoteApp* app);
 
-bool subghz_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
-void subghz_tx_stop_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
+bool subghz_tx_start_sub(
+    SubGhzRemoteApp* app,
+    SubRemSubFilePreset* sub_preset,
+    SubGhzProtocolEncoderRAWCallbackEnd callback);
+
+bool subghz_tx_stop_sub(SubGhzRemoteApp* app, bool forced);
