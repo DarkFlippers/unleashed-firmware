@@ -5,18 +5,6 @@ on:
   push:
 
 jobs:
-  checkout-with-submodules:
-    name: Checkout with submodules
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
-          clean: true
-          ref: dev-master
-
   build-dev-fw:
     needs:
       checkout-with-submodules
@@ -33,13 +21,155 @@ jobs:
         password: ${{ secrets.DOCKER_PASS }}
       ports:
         - 80
+      volumes:
+        - build-dev-fw:/opt/src
       options: --cpus 1
     steps:
       - name: Build dev FW
         run: |
           echo "Running Script"
+          cd /opt/src
           ./fbt COMPACT=1 DEBUG=0 updater_package
           mkdir artifacts-default
           mv dist/f7-C/* artifacts-default/
           ls -laS artifacts-default
           ls -laS artifacts-default/f7-update-${DIST_SUFFIX}
+
+  build-with-extra-apps:
+    needs:
+      checkout-with-extra-apps
+    name: Build dev FW
+    runs-on: ubuntu-latest
+    container:
+      image: hfdj/fztools      
+      env:
+        DIST_SUFFIX: ${{ vars.DRONE_BUILD_NUMBER }}e
+        WORKFLOW_BRANCH_OR_TAG: release-cfw
+        FBT_TOOLS_CUSTOM_LINK: fbt_link
+        FORCE_NO_DIRTY: yes
+      credentials:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+      ports:
+        - 80
+      options: --cpus 1
+      volumes:
+        - build-with-extra-apps:/opt/src
+    steps:
+      - name: Build extra apps FW
+        run: |
+          - cd /opt/src
+          - rm -f build/f7-firmware-C/toolbox/version.*
+          - ./fbt COMPACT=1 DEBUG=0 updater_package
+          - mkdir artifacts-extra-apps
+          - mv dist/f7-C/* artifacts-extra-apps/
+          - ls -laS artifacts-extra-apps
+          - ls -laS artifacts-extra-apps/f7-update-${DIST_SUFFIX}
+
+  updload-artifacts-dev-fw:
+    runs-on: ubuntu-latest
+    needs:
+      build-dev-fw      
+    env:
+      DRONE_TAG: ${{ vars.DRONE_BUILD_NUMBER }}
+    steps:
+      - name: Zip
+        run: |
+          - cd build-dev-fw
+          - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.tgz .
+          - cp artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.tgz .
+          - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
+          - zip -r artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.zip artifacts-extra-apps/f7-update-${DRONE_TAG}e
+          - zip -r artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}n
+          - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
+          - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts debug
+          - rm -rf artifacts-extra-apps/f7-update-${DRONE_TAG}
+          - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
+          - rm -rf artifacts-default/f7-update-${DRONE_TAG}
+          - ls -laS artifacts-extra-apps
+          - ls -laS artifacts-ofw-anims
+          - ls -laS artifacts-default
+          - mv artifacts-default/ ${DRONE_TAG}
+          - ls -laS ${DRONE_TAG}
+        
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: all-files
+          path: |
+            - ${DRONE_TAG}/*.tgz
+            - ${DRONE_TAG}/*.zip
+            - ${DRONE_TAG}/*.json
+            - ${DRONE_TAG}/*.elf
+            - ${DRONE_TAG}/*.dfu
+            - ${DRONE_TAG}/*.bin
+
+  updload-artifacts-extra-apps:
+    runs-on: ubuntu-latest
+    needs:
+      build-with-extra-apps
+    env:
+      DRONE_TAG: ${{ vars.DRONE_BUILD_NUMBER }}e
+    steps:
+      - name: Zip
+        run: |
+          - cd build-with-extra-apps
+          - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.tgz .
+          - cp artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.tgz .
+          - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
+          - zip -r artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.zip artifacts-extra-apps/f7-update-${DRONE_TAG}e
+          - zip -r artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}n
+          - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
+          - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts debug
+          - rm -rf artifacts-extra-apps/f7-update-${DRONE_TAG}
+          - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
+          - rm -rf artifacts-default/f7-update-${DRONE_TAG}
+          - ls -laS artifacts-extra-apps
+          - ls -laS artifacts-ofw-anims
+          - ls -laS artifacts-default
+          - mv artifacts-default/ ${DRONE_TAG}
+          - ls -laS ${DRONE_TAG}
+        
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: all-files
+          path: |
+            - ${DRONE_TAG}/*.tgz
+            - ${DRONE_TAG}/*.zip
+            - ${DRONE_TAG}/*.json
+            - ${DRONE_TAG}/*.elf
+            - ${DRONE_TAG}/*.dfu
+            - ${DRONE_TAG}/*.bin
+                      
+  checkout-with-submodules:
+    name: Checkout with submodules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: 'build-dev-fw'
+          submodules: true
+          fetch-depth: 0
+          clean: true
+          ref: dev-master
+
+  checkout-with-extra-apps:
+    name: Checkout with submodules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: 'build-with-extra-apps'
+          submodules: true
+          fetch-depth: 0
+          clean: true
+          ref: dev-master
+
+      - name: Another
+        uses: actions/checkout@v3
+        with:
+          path: 'build-with-extra-apps'
+          repository: 'https://github.com/xMasterX/all-the-plugins.git'
