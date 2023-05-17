@@ -23,6 +23,7 @@ typedef enum {
     LFRFIDWorkerReadTypeAuto,
     LFRFIDWorkerReadTypeASKOnly,
     LFRFIDWorkerReadTypePSKOnly,
+    LFRFIDWorkerReadTypeRTFOnly,
 } LFRFIDWorkerReadType;
 
 typedef enum {
@@ -32,6 +33,8 @@ typedef enum {
     LFRFIDWorkerReadSenseCardEnd,
     LFRFIDWorkerReadStartASK,
     LFRFIDWorkerReadStartPSK,
+    LFRFIDWorkerReadStartRTF,
+    LFRFIDWorkerReadSenseHitag, //TODO combine with sense carstart?
     LFRFIDWorkerReadDone,
 } LFRFIDWorkerReadResult;
 

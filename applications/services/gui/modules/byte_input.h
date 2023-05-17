@@ -55,7 +55,7 @@ void byte_input_set_result_callback(
     ByteChangedCallback changed_callback,
     void* callback_context,
     uint8_t* bytes,
-    uint8_t bytes_count);
+    uint16_t bytes_count);
 
 /** Set byte input header text
  *

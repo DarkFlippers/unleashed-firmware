@@ -16,6 +16,7 @@
 #include "protocol_pac_stanley.h"
 #include "protocol_keri.h"
 #include "protocol_gallagher.h"
+#include "protocol_hitag1.h"
 
 const ProtocolBase* lfrfid_protocols[] = {
     [LFRFIDProtocolEM4100] = &protocol_em4100,
@@ -35,4 +36,5 @@ const ProtocolBase* lfrfid_protocols[] = {
     [LFRFIDProtocolPACStanley] = &protocol_pac_stanley,
     [LFRFIDProtocolKeri] = &protocol_keri,
     [LFRFIDProtocolGallagher] = &protocol_gallagher,
+    [LFRFIDProtocolHitag1] = &protocol_hitag1,
 };

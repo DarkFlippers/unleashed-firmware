@@ -5,6 +5,7 @@
 typedef enum {
     LFRFIDFeatureASK = 1 << 0, /** ASK Demodulation */
     LFRFIDFeaturePSK = 1 << 1, /** PSK Demodulation */
+    LFRFIDFeatureRTF = 1 << 2, /** Reader Talks First: ASK Demodulation with 2 way communication */
 } LFRFIDFeature;
 
 typedef enum {
@@ -25,6 +26,7 @@ typedef enum {
     LFRFIDProtocolPACStanley,
     LFRFIDProtocolKeri,
     LFRFIDProtocolGallagher,
+    LFRFIDProtocolHitag1,
     LFRFIDProtocolMax,
 } LFRFIDProtocol;
 

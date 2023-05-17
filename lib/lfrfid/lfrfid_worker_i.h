@@ -8,6 +8,7 @@
 #include <furi.h>
 #include "lfrfid_worker.h"
 #include "lfrfid_raw_worker.h"
+#include "lfrfid_hitag_worker.h"
 #include "protocols/lfrfid_protocols.h"
 
 #ifdef __cplusplus
