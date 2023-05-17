@@ -278,7 +278,7 @@ SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc(void* cont
     furi_thread_set_callback(instance->thread, subghz_frequency_analyzer_worker_thread);
 
     SubGhz* subghz = context;
-    instance->setting = subghz->setting;
+    instance->setting = subghz_txrx_get_setting(subghz->txrx);
     instance->trigger_level = subghz->last_settings->frequency_analyzer_trigger;
     //instance->trigger_level = SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD;
     return instance;

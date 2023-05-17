@@ -407,7 +407,7 @@ MU_TEST(subghz_decoder_ido_test) {
         "Test decoder " SUBGHZ_PROTOCOL_IDO_NAME " error\r\n");
 }
 
-MU_TEST(subghz_decoder_keelog_test) {
+MU_TEST(subghz_decoder_keeloq_test) {
     mu_assert(
         subghz_decoder_test(
             EXT_PATH("unit_tests/subghz/doorhan_raw.sub"), SUBGHZ_PROTOCOL_KEELOQ_NAME),
@@ -676,7 +676,7 @@ MU_TEST(subghz_encoder_nice_flo_test) {
         "Test encoder " SUBGHZ_PROTOCOL_NICE_FLO_NAME " error\r\n");
 }
 
-MU_TEST(subghz_encoder_keelog_test) {
+MU_TEST(subghz_encoder_keeloq_test) {
     mu_assert(
         subghz_encoder_test(EXT_PATH("unit_tests/subghz/doorhan.sub")),
         "Test encoder " SUBGHZ_PROTOCOL_KEELOQ_NAME " error\r\n");
@@ -813,7 +813,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_gate_tx_test);
     MU_RUN_TEST(subghz_decoder_hormann_hsm_test);
     MU_RUN_TEST(subghz_decoder_ido_test);
-    MU_RUN_TEST(subghz_decoder_keelog_test);
+    MU_RUN_TEST(subghz_decoder_keeloq_test);
     MU_RUN_TEST(subghz_decoder_kia_seed_test);
     MU_RUN_TEST(subghz_decoder_nero_radio_test);
     MU_RUN_TEST(subghz_decoder_nero_sketch_test);
@@ -852,7 +852,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_came_twee_test);
     MU_RUN_TEST(subghz_encoder_gate_tx_test);
     MU_RUN_TEST(subghz_encoder_nice_flo_test);
-    MU_RUN_TEST(subghz_encoder_keelog_test);
+    MU_RUN_TEST(subghz_encoder_keeloq_test);
     MU_RUN_TEST(subghz_encoder_linear_test);
     MU_RUN_TEST(subghz_encoder_linear_delta3_test);
     MU_RUN_TEST(subghz_encoder_megacode_test);

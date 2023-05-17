@@ -14,7 +14,7 @@ void subghz_view_receiver_set_mode(
 
 void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi);
 
-void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock keyboard);
+void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, bool keyboard);
 
 void subghz_view_receiver_set_callback(
     SubGhzViewReceiver* subghz_receiver,
@@ -48,5 +48,9 @@ uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver);
 void subghz_view_receiver_set_idx_menu(SubGhzViewReceiver* subghz_receiver, uint16_t idx);
 
 void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_receiver);
+
+void subghz_view_receiver_enable_draw_callback(SubGhzViewReceiver* subghz_receiver);
+
+void subghz_view_receiver_disable_draw_callback(SubGhzViewReceiver* subghz_receiver);
 
 void subghz_view_receiver_exit(void* context);

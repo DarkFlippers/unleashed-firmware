@@ -376,7 +376,8 @@ bool mf_classic_is_value_block(MfClassicData* data, uint8_t block_num) {
 
 bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
     UNUSED(ATQA1);
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
+    if((ATQA0 == 0x44 || ATQA0 == 0x04) &&
+       (SAK == 0x08 || SAK == 0x88 || SAK == 0x09 || SAK == 0x89)) {
         return true;
     } else if((ATQA0 == 0x01) && (ATQA1 == 0x0F) && (SAK == 0x01)) {
         //skylanders support
@@ -393,7 +394,7 @@ MfClassicType mf_classic_get_classic_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t 
     if((ATQA0 == 0x44 || ATQA0 == 0x04)) {
         if((SAK == 0x08 || SAK == 0x88)) {
             return MfClassicType1k;
-        } else if(SAK == 0x09) {
+        } else if((SAK == 0x09 || SAK == 0x89)) {
             return MfClassicTypeMini;
         }
     } else if((ATQA0 == 0x01) && (ATQA1 == 0x0F) && (SAK == 0x01)) {

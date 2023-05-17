@@ -1,6 +1,5 @@
 #include "../subghz_i.h"
-#include <lib/subghz/protocols/faac_slh.h>
-#include <lib/subghz/protocols/keeloq.h>
+#include "../helpers/subghz_txrx_create_protocol_key.h"
 
 #define TAG "SubGhzSetSeed"
 
@@ -21,7 +20,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
         subghz_scene_set_seed_byte_input_callback,
         NULL,
         subghz,
-        subghz->txrx->secure_data->seed,
+        subghz->secure_data->seed,
         4);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
@@ -38,46 +37,23 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
             switch(state) {
             case SubmenuIndexBFTClone:
-                fix_part = subghz->txrx->secure_data->fix[0] << 24 |
-                           subghz->txrx->secure_data->fix[1] << 16 |
-                           subghz->txrx->secure_data->fix[2] << 8 |
-                           subghz->txrx->secure_data->fix[3];
+                fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
+                           subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
-                cnt = subghz->txrx->secure_data->cnt[0] << 8 | subghz->txrx->secure_data->cnt[1];
+                cnt = subghz->secure_data->cnt[0] << 8 | subghz->secure_data->cnt[1];
 
-                seed = subghz->txrx->secure_data->seed[0] << 24 |
-                       subghz->txrx->secure_data->seed[1] << 16 |
-                       subghz->txrx->secure_data->seed[2] << 8 |
-                       subghz->txrx->secure_data->seed[3];
+                seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
+                       subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                subghz->txrx->transmitter =
-                    subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
-                if(subghz->txrx->transmitter) {
-                    subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-                    subghz_protocol_keeloq_bft_create_data(
-                        subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                        subghz->txrx->fff_data,
-                        fix_part & 0x0FFFFFFF,
-                        fix_part >> 28,
-                        cnt,
-                        seed,
-                        "BFT",
-                        subghz->txrx->preset);
-
-                    uint8_t seed_data[sizeof(uint32_t)] = {0};
-                    for(size_t i = 0; i < sizeof(uint32_t); i++) {
-                        seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-                    }
-
-                    flipper_format_write_hex(
-                        subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-
-                    flipper_format_write_string_cstr(subghz->txrx->fff_data, "Manufacture", "BFT");
-
-                    generated_protocol = true;
-                }
-
-                subghz_transmitter_free(subghz->txrx->transmitter);
+                generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
+                    subghz->txrx,
+                    "AM650",
+                    433920000,
+                    fix_part & 0x0FFFFFFF,
+                    fix_part >> 28,
+                    cnt,
+                    seed,
+                    "BFT");
 
                 if(!generated_protocol) {
                     furi_string_set(
@@ -88,52 +64,36 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 break;
             case SubmenuIndexFaacSLH_433:
             case SubmenuIndexFaacSLH_868:
-                fix_part = subghz->txrx->secure_data->fix[0] << 24 |
-                           subghz->txrx->secure_data->fix[1] << 16 |
-                           subghz->txrx->secure_data->fix[2] << 8 |
-                           subghz->txrx->secure_data->fix[3];
+                fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
+                           subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
-                cnt = subghz->txrx->secure_data->cnt[0] << 16 |
-                      subghz->txrx->secure_data->cnt[1] << 8 | subghz->txrx->secure_data->cnt[2];
+                cnt = subghz->secure_data->cnt[0] << 16 | subghz->secure_data->cnt[1] << 8 |
+                      subghz->secure_data->cnt[2];
 
-                seed = subghz->txrx->secure_data->seed[0] << 24 |
-                       subghz->txrx->secure_data->seed[1] << 16 |
-                       subghz->txrx->secure_data->seed[2] << 8 |
-                       subghz->txrx->secure_data->seed[3];
+                seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
+                       subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                subghz->txrx->transmitter =
-                    subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
-                if(subghz->txrx->transmitter) {
-                    SubGhzCustomEvent state =
-                        scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType);
-
-                    if(state == SubmenuIndexFaacSLH_433) {
-                        subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
-                    } else if(state == SubmenuIndexFaacSLH_868) {
-                        subghz_preset_init(subghz, "AM650", 868350000, NULL, 0);
-                    }
-                    subghz_protocol_faac_slh_create_data(
-                        subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
-                        subghz->txrx->fff_data,
+                if(state == SubmenuIndexFaacSLH_433) {
+                    generated_protocol = subghz_txrx_gen_faac_slh_protocol(
+                        subghz->txrx,
+                        "AM650",
+                        433920000,
                         fix_part >> 4,
                         fix_part & 0xf,
                         (cnt & 0xFFFFF),
                         seed,
-                        "FAAC_SLH",
-                        subghz->txrx->preset);
-                    // RogueMaster dont steal!
-                    uint8_t seed_data[sizeof(uint32_t)] = {0};
-                    for(size_t i = 0; i < sizeof(uint32_t); i++) {
-                        seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-                    }
-
-                    flipper_format_write_hex(
-                        subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-
-                    generated_protocol = true;
+                        "FAAC_SLH");
+                } else if(state == SubmenuIndexFaacSLH_868) {
+                    generated_protocol = subghz_txrx_gen_faac_slh_protocol(
+                        subghz->txrx,
+                        "AM650",
+                        868350000,
+                        fix_part >> 4,
+                        fix_part & 0xf,
+                        (cnt & 0xFFFFF),
+                        seed,
+                        "FAAC_SLH");
                 }
-
-                subghz_transmitter_free(subghz->txrx->transmitter);
 
                 if(!generated_protocol) {
                     furi_string_set(

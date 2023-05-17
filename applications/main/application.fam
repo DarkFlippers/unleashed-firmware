@@ -24,9 +24,9 @@ App(
     name="Basic applications for main menu",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        "gpio",
+        #"gpio",
         #"ibutton",
-        "infrared",
+        #"infrared",
         "lfrfid",
         "nfc",
         "subghz",

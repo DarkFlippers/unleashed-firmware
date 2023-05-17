@@ -702,7 +702,7 @@ bool mf_ultralight_read_tearing_flags(FuriHalNfcTxRxContext* tx_rx, MfUltralight
     FURI_LOG_D(TAG, "Reading tearing flags");
     for(size_t i = 0; i < 3; i++) {
         tx_rx->tx_data[0] = MF_UL_CHECK_TEARING;
-        tx_rx->rx_data[1] = i;
+        tx_rx->tx_data[1] = i;
         tx_rx->tx_bits = 16;
         tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
         if(!furi_hal_nfc_tx_rx(tx_rx, 50)) {

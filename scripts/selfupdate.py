@@ -15,7 +15,7 @@ class Main(App):
 
         self.parser.add_argument("manifest_path", help="Manifest path")
         self.parser.add_argument(
-            "--pkg_dir_name", help="Update dir name", default="pcbundle", required=False
+            "--pkg_dir_name", help="Update dir name", default=None, required=False
         )
         self.parser.set_defaults(func=self.install)
 

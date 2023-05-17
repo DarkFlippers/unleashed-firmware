@@ -2,6 +2,7 @@
 #include "app_common.h"
 #include "ble_app.h"
 #include <ble/ble.h>
+#include <hci_tl.h>
 
 #include <interface/patterns/ble_thread/tl/tl.h>
 #include <interface/patterns/ble_thread/shci/shci.h>
@@ -53,6 +54,40 @@ void ble_glue_set_key_storage_changed_callback(
     ble_glue->callback = callback;
     ble_glue->context = context;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+/* TL hook to catch hardfaults */
+
+int32_t ble_glue_TL_SYS_SendCmd(uint8_t* buffer, uint16_t size) {
+    if(furi_hal_bt_get_hardfault_info()) {
+        furi_crash("ST(R) Copro(R) HardFault");
+    }
+
+    return TL_SYS_SendCmd(buffer, size);
+}
+
+void shci_register_io_bus(tSHciIO* fops) {
+    /* Register IO bus services */
+    fops->Init = TL_SYS_Init;
+    fops->Send = ble_glue_TL_SYS_SendCmd;
+}
+
+static int32_t ble_glue_TL_BLE_SendCmd(uint8_t* buffer, uint16_t size) {
+    if(furi_hal_bt_get_hardfault_info()) {
+        furi_crash("ST(R) Copro(R) HardFault");
+    }
+
+    return TL_BLE_SendCmd(buffer, size);
+}
+
+void hci_register_io_bus(tHciIO* fops) {
+    /* Register IO bus services */
+    fops->Init = TL_BLE_Init;
+    fops->Send = ble_glue_TL_BLE_SendCmd;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void ble_glue_init() {
     ble_glue = malloc(sizeof(BleGlue));

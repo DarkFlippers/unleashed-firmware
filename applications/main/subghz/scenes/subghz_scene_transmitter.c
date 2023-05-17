@@ -15,29 +15,25 @@ void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
 bool subghz_scene_transmitter_update_data_show(void* context) {
     SubGhz* subghz = context;
     bool ret = false;
-    if(subghz->txrx->decoder_result) {
+    SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(subghz->txrx);
+
+    if(decoder) {
         FuriString* key_str = furi_string_alloc();
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
-        bool show_button = false;
-
         if(subghz_protocol_decoder_base_deserialize(
-               subghz->txrx->decoder_result, subghz->txrx->fff_data) == SubGhzProtocolStatusOk) {
-            subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, key_str);
+               decoder, subghz_txrx_get_fff_data(subghz->txrx)) == SubGhzProtocolStatusOk) {
+            subghz_protocol_decoder_base_get_string(decoder, key_str);
 
-            if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
-               SubGhzProtocolFlag_Send) {
-                show_button = true;
-            }
-
-            subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+            subghz_txrx_get_frequency_and_modulation(
+                subghz->txrx, frequency_str, modulation_str, false);
             subghz_view_transmitter_add_data_to_show(
                 subghz->subghz_transmitter,
                 furi_string_get_cstr(key_str),
                 furi_string_get_cstr(frequency_str),
                 furi_string_get_cstr(modulation_str),
-                show_button);
+                subghz_txrx_protocol_is_transmittable(subghz->txrx, false));
             ret = true;
         }
         furi_string_free(frequency_str);
@@ -70,40 +66,23 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventViewTransmitterSendStart) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-                subghz_rx_end(subghz);
-            }
-            if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
-               (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
-                if(subghz_tx_start(subghz, subghz->txrx->fff_data)) {
-                    subghz->state_notifications = SubGhzNotificationStateTx;
-                    subghz_scene_transmitter_update_data_show(subghz);
-                    DOLPHIN_DEED(DolphinDeedSubGhzSend);
-                }
+
+            if(subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx))) {
+                subghz->state_notifications = SubGhzNotificationStateTx;
+                subghz_scene_transmitter_update_data_show(subghz);
+                DOLPHIN_DEED(DolphinDeedSubGhzSend);
             }
             return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterSendStop) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
-                subghz_tx_stop(subghz);
-                subghz_sleep(subghz);
-            }
-            if(subghz_custom_btn_get() != 0) {
-                subghz_custom_btn_set(0);
+            subghz_txrx_stop(subghz->txrx);
+            if(subghz_custom_btn_get() != SUBGHZ_CUSTOM_BTN_OK) {
+                subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
                 uint8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
                 // Calling restore!
-                if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-                    subghz_rx_end(subghz);
-                }
-                if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
-                   (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
-                    if(!subghz_tx_start(subghz, subghz->txrx->fff_data)) {
-                        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
-                    }
-                }
-                subghz_tx_stop(subghz);
-                subghz_sleep(subghz);
+                subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
+                subghz_txrx_stop(subghz->txrx);
                 furi_hal_subghz_set_rolling_counter_mult(tmp_counter);
             }
             return true;

@@ -124,7 +124,7 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
             },
             false);
         return false;
-    }
+    } // Finish "Back" key processing
 
     with_view_model(
         subghz_transmitter->view,
@@ -136,124 +136,67 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
         },
         true);
 
-    if(can_be_sent && event->key == InputKeyOk && event->type == InputTypePress) {
-        subghz_custom_btn_set(0);
-        with_view_model(
-            subghz_transmitter->view,
-            SubGhzViewTransmitterModel * model,
-            {
-                furi_string_reset(model->temp_button_id);
-                model->draw_temp_button = false;
-            },
-            true);
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
-        return true;
-    } else if(can_be_sent && event->key == InputKeyOk && event->type == InputTypeRelease) {
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
-        return true;
-    }
+    if(can_be_sent) {
+        if(event->key == InputKeyOk && event->type == InputTypePress) {
+            subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
+            with_view_model(
+                subghz_transmitter->view,
+                SubGhzViewTransmitterModel * model,
+                {
+                    furi_string_reset(model->temp_button_id);
+                    model->draw_temp_button = false;
+                },
+                true);
+            subghz_transmitter->callback(
+                SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
+            return true;
+        } else if(event->key == InputKeyOk && event->type == InputTypeRelease) {
+            subghz_transmitter->callback(
+                SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
+            return true;
+        } // Finish "OK" key processing
 
-    // Temp Buttons (UP)
-    if(can_be_sent && event->key == InputKeyUp && event->type == InputTypePress) {
-        subghz_custom_btn_set(1);
-        with_view_model(
-            subghz_transmitter->view,
-            SubGhzViewTransmitterModel * model,
-            {
-                furi_string_reset(model->temp_button_id);
-                if(subghz_custom_btn_get_original() != 0) {
-                    if(subghz_custom_btn_get() == 1) {
-                        furi_string_printf(
-                            model->temp_button_id, "%01X", subghz_custom_btn_get_original());
-                        model->draw_temp_button = true;
-                    }
-                }
-            },
-            true);
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
-        return true;
-    } else if(can_be_sent && event->key == InputKeyUp && event->type == InputTypeRelease) {
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
-        return true;
-    }
-    // Down
-    if(can_be_sent && event->key == InputKeyDown && event->type == InputTypePress) {
-        subghz_custom_btn_set(2);
-        with_view_model(
-            subghz_transmitter->view,
-            SubGhzViewTransmitterModel * model,
-            {
-                furi_string_reset(model->temp_button_id);
-                if(subghz_custom_btn_get_original() != 0) {
-                    if(subghz_custom_btn_get() == 2) {
-                        furi_string_printf(
-                            model->temp_button_id, "%01X", subghz_custom_btn_get_original());
-                        model->draw_temp_button = true;
-                    }
-                }
-            },
-            true);
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
-        return true;
-    } else if(can_be_sent && event->key == InputKeyDown && event->type == InputTypeRelease) {
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
-        return true;
-    }
-    // Left
-    if(can_be_sent && event->key == InputKeyLeft && event->type == InputTypePress) {
-        subghz_custom_btn_set(3);
-        with_view_model(
-            subghz_transmitter->view,
-            SubGhzViewTransmitterModel * model,
-            {
-                furi_string_reset(model->temp_button_id);
-                if(subghz_custom_btn_get_original() != 0) {
-                    if(subghz_custom_btn_get() == 3) {
-                        furi_string_printf(
-                            model->temp_button_id, "%01X", subghz_custom_btn_get_original());
-                        model->draw_temp_button = true;
-                    }
-                }
-            },
-            true);
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
-        return true;
-    } else if(can_be_sent && event->key == InputKeyLeft && event->type == InputTypeRelease) {
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
-        return true;
-    }
-    // Right
-    if(can_be_sent && event->key == InputKeyRight && event->type == InputTypePress) {
-        subghz_custom_btn_set(4);
-        with_view_model(
-            subghz_transmitter->view,
-            SubGhzViewTransmitterModel * model,
-            {
-                furi_string_reset(model->temp_button_id);
-                if(subghz_custom_btn_get_original() != 0) {
-                    if(subghz_custom_btn_get() == 4) {
-                        furi_string_printf(
-                            model->temp_button_id, "%01X", subghz_custom_btn_get_original());
-                        model->draw_temp_button = true;
-                    }
-                }
-            },
-            true);
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
-        return true;
-    } else if(can_be_sent && event->key == InputKeyRight && event->type == InputTypeRelease) {
-        subghz_transmitter->callback(
-            SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
-        return true;
+        if(subghz_custom_btn_is_allowed()) {
+            uint8_t temp_btn_id;
+            if(event->key == InputKeyUp) {
+                temp_btn_id = SUBGHZ_CUSTOM_BTN_UP;
+            } else if(event->key == InputKeyDown) {
+                temp_btn_id = SUBGHZ_CUSTOM_BTN_DOWN;
+            } else if(event->key == InputKeyLeft) {
+                temp_btn_id = SUBGHZ_CUSTOM_BTN_LEFT;
+            } else if(event->key == InputKeyRight) {
+                temp_btn_id = SUBGHZ_CUSTOM_BTN_RIGHT;
+            } else {
+                // Finish processing if the button is different
+                return true;
+            }
+
+            if(event->type == InputTypePress) {
+                with_view_model(
+                    subghz_transmitter->view,
+                    SubGhzViewTransmitterModel * model,
+                    {
+                        furi_string_reset(model->temp_button_id);
+                        if(subghz_custom_btn_get_original() != 0) {
+                            if(subghz_custom_btn_set(temp_btn_id)) {
+                                furi_string_printf(
+                                    model->temp_button_id,
+                                    "%01X",
+                                    subghz_custom_btn_get_original());
+                                model->draw_temp_button = true;
+                            }
+                        }
+                    },
+                    true);
+                subghz_transmitter->callback(
+                    SubGhzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
+                return true;
+            } else if(event->type == InputTypeRelease) {
+                subghz_transmitter->callback(
+                    SubGhzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
+                return true;
+            }
+        }
     }
 
     return true;

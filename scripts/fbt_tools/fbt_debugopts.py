@@ -18,7 +18,7 @@ def GetDevices(env):
 def generate(env, **kw):
     env.AddMethod(GetDevices)
     env.SetDefault(
-        FBT_DEBUG_DIR="${ROOT_DIR}/debug",
+        FBT_DEBUG_DIR="${FBT_SCRIPT_DIR}/debug",
     )
 
     if (adapter_serial := env.subst("$OPENOCD_ADAPTER_SERIAL")) != "auto":
@@ -40,9 +40,9 @@ def generate(env, **kw):
         ],
         GDBOPTS_BASE=[
             "-ex",
-            "target extended-remote ${GDBREMOTE}",
-            "-ex",
             "source ${FBT_DEBUG_DIR}/gdbinit",
+            "-ex",
+            "target extended-remote ${GDBREMOTE}",
         ],
         GDBOPTS_BLACKMAGIC=[
             "-q",
@@ -61,6 +61,8 @@ def generate(env, **kw):
             "-ex",
             "source ${FBT_DEBUG_DIR}/flipperapps.py",
             "-ex",
+            "source ${FBT_DEBUG_DIR}/flipperversion.py",
+            "-ex",
             "fap-set-debug-elf-root ${FBT_FAP_DEBUG_ELF_ROOT}",
             "-ex",
             "source ${FBT_DEBUG_DIR}/PyCortexMDebug/PyCortexMDebug.py",
@@ -68,6 +70,8 @@ def generate(env, **kw):
             "svd_load ${SVD_FILE}",
             "-ex",
             "compare-sections",
+            "-ex",
+            "fw-version",
         ],
         JFLASHPROJECT="${FBT_DEBUG_DIR}/fw.jflash",
     )

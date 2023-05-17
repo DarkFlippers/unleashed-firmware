@@ -218,11 +218,53 @@ float furi_hal_bt_get_rssi();
  */
 uint32_t furi_hal_bt_get_transmitted_packets();
 
+// BadBT stuff
+/** Modify profile advertisement name and restart bluetooth
+ * @param[in] profile   profile type
+ * @param[in] name      new adv name
+*/
+void furi_hal_bt_set_profile_adv_name(
+    FuriHalBtProfile profile,
+    const char name[FURI_HAL_BT_ADV_NAME_LENGTH]);
+
+const char* furi_hal_bt_get_profile_adv_name(FuriHalBtProfile profile);
+
+/** Modify profile mac address and restart bluetooth
+ * @param[in] profile   profile type
+ * @param[in] mac       new mac address
+*/
+void furi_hal_bt_set_profile_mac_addr(
+    FuriHalBtProfile profile,
+    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE]);
+
+const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile);
+
+uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi);
+
+void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method);
+
+GapPairing furi_hal_bt_get_profile_pairing_method(FuriHalBtProfile profile);
+
+bool furi_hal_bt_is_connected(void);
+
 /** Check & switch C2 to given mode
  *
  * @param[in]  mode  mode to switch into
  */
 bool furi_hal_bt_ensure_c2_mode(BleGlueC2Mode mode);
+
+typedef struct {
+    uint32_t magic;
+    uint32_t source_pc;
+    uint32_t source_lr;
+    uint32_t source_sp;
+} FuriHalBtHardfaultInfo;
+
+/** Get hardfault info
+ *
+ * @return     hardfault info. NULL if no hardfault
+ */
+const FuriHalBtHardfaultInfo* furi_hal_bt_get_hardfault_info();
 
 #ifdef __cplusplus
 }

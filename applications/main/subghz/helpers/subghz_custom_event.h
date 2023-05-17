@@ -36,12 +36,14 @@ typedef enum {
     SubmenuIndexCAME24bit868,
     SubmenuIndexCAMETwee,
     SubmenuIndexCAMESpace,
-    SubmenuIndexPricenton,
+    SubmenuIndexCameAtomo433,
+    SubmenuIndexCameAtomo868,
+    SubmenuIndexPricenton433,
     SubmenuIndexPricenton315,
     SubmenuIndexBETT_433,
     SubmenuIndexLinear_300_00,
-    SubmenuIndexNeroSketch,
-    SubmenuIndexNeroRadio,
+    SubmenuIndexNeroSketch, //Deleted in OFW
+    SubmenuIndexNeroRadio, //Deleted in OFW
     SubmenuIndexGateTX,
     SubmenuIndexDoorHan_315_00,
     SubmenuIndexDoorHan_433_92,

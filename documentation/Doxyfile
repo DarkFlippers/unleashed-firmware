@@ -929,7 +929,9 @@ RECURSIVE              = YES
 
 EXCLUDE = \
     lib/mlib \
-    lib/STM32CubeWB \
+    lib/stm32wb_cmsis \
+    lib/stm32wb_copro \
+    lib/stm32wb_hal_driver \
     lib/littlefs \
     lib/nanopb \
     assets/protobuf \

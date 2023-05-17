@@ -27,7 +27,7 @@
 #define FURI_HAL_FLASH_OPT_KEY2 0x4C5D6E7F
 #define FURI_HAL_FLASH_OB_TOTAL_WORDS (0x80 / (sizeof(uint32_t) * 2))
 
-/* lib/STM32CubeWB/Projects/P-NUCLEO-WB55.Nucleo/Applications/BLE/BLE_RfWithFlash/Core/Src/flash_driver.c
+/* STM32CubeWB/Projects/P-NUCLEO-WB55.Nucleo/Applications/BLE/BLE_RfWithFlash/Core/Src/flash_driver.c
  * ProcessSingleFlashOperation, quote:
   > In most BLE application, the flash should not be blocked by the CPU2 longer than FLASH_TIMEOUT_VALUE (1000ms)
   > However, it could be that for some marginal application, this time is longer.

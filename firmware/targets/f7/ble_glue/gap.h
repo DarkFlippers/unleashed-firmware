@@ -81,6 +81,8 @@ GapState gap_get_state();
 
 void gap_thread_stop();
 
+uint32_t gap_get_remote_conn_rssi(int8_t* rssi);
+
 #ifdef __cplusplus
 }
 #endif

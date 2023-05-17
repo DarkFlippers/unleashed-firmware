@@ -18,6 +18,22 @@ static void infrared_scene_debug_settings_changed(VariableItem* item) {
 
     furi_hal_infrared_set_debug_out(value_index_ir);
 }
+
+static void infrared_scene_debug_settings_power_changed(VariableItem* item) {
+    bool value = variable_item_get_current_value_index(item);
+    if(value) {
+        for(int i = 0; i < 5 && !furi_hal_power_is_otg_enabled(); i++) {
+            furi_hal_power_enable_otg();
+            furi_delay_ms(10);
+        }
+    } else {
+        if(furi_hal_power_is_otg_enabled()) {
+            furi_hal_power_disable_otg();
+        }
+    }
+    variable_item_set_current_value_text(item, value ? "ON" : "OFF");
+}
+
 static void infrared_debug_settings_start_var_list_enter_callback(void* context, uint32_t index) {
     Infrared* infrared = context;
     view_dispatcher_send_custom_event(infrared->view_dispatcher, index);
@@ -41,6 +57,16 @@ void infrared_scene_debug_settings_on_enter(void* context) {
 
     variable_item_set_current_value_index(item, value_index_ir);
     variable_item_set_current_value_text(item, infrared_debug_cfg_variables_text[value_index_ir]);
+
+    item = variable_item_list_add(
+        variable_item_list,
+        "Ext Module 5v",
+        2,
+        infrared_scene_debug_settings_power_changed,
+        infrared);
+    bool enabled = furi_hal_power_is_otg_enabled();
+    variable_item_set_current_value_index(item, enabled);
+    variable_item_set_current_value_text(item, enabled ? "ON" : "OFF");
 
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewVariableItemList);
 }

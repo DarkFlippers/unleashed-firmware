@@ -6,6 +6,7 @@
 #include <gui/scene_manager.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/variable_item_list.h>
+#include <gui/modules/text_input.h>
 #include <dialogs/dialogs.h>
 #include <assets_icons.h>
 
@@ -21,6 +22,7 @@ typedef enum {
     DesktopSettingsAppViewIdPinInput,
     DesktopSettingsAppViewIdPinSetupHowto,
     DesktopSettingsAppViewIdPinSetupHowto2,
+    DesktopSettingsAppViewTextInput,
 } DesktopSettingsAppView;
 
 typedef struct {
@@ -32,6 +34,7 @@ typedef struct {
     ViewDispatcher* view_dispatcher;
     VariableItemList* variable_item_list;
     Submenu* submenu;
+    TextInput* text_input;
     Popup* popup;
     DesktopViewPinInput* pin_input_view;
     DesktopSettingsViewPinSetupHowto* pin_setup_howto_view;
@@ -39,6 +42,9 @@ typedef struct {
 
     PinCode pincode_buffer;
     bool pincode_buffer_filled;
+
+    bool save_name;
+    char device_name[FURI_HAL_VERSION_ARRAY_NAME_LENGTH];
 
     uint8_t menu_idx;
 } DesktopSettingsApp;

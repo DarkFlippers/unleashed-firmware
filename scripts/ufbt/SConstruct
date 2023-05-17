@@ -186,6 +186,33 @@ dist_env.PhonyTarget(
     FBT_FAP_DEBUG_ELF_ROOT=path_as_posix(dist_env.subst("$FBT_FAP_DEBUG_ELF_ROOT")),
 )
 
+# Debug alien elf
+debug_other_opts = [
+    "-ex",
+    "source ${FBT_DEBUG_DIR}/PyCortexMDebug/PyCortexMDebug.py",
+    "-ex",
+    "source ${FBT_DEBUG_DIR}/flipperversion.py",
+    "-ex",
+    "fw-version",
+]
+
+dist_env.PhonyTarget(
+    "debug_other",
+    "${GDBPYCOM}",
+    GDBOPTS="${GDBOPTS_BASE}",
+    GDBREMOTE="${OPENOCD_GDB_PIPE}",
+    GDBPYOPTS=debug_other_opts,
+)
+
+dist_env.PhonyTarget(
+    "debug_other_blackmagic",
+    "${GDBPYCOM}",
+    GDBOPTS="${GDBOPTS_BASE}  ${GDBOPTS_BLACKMAGIC}",
+    GDBREMOTE="${BLACKMAGIC_ADDR}",
+    GDBPYOPTS=debug_other_opts,
+)
+
+
 dist_env.PhonyTarget(
     "flash_blackmagic",
     "$GDB $GDBOPTS $SOURCES $GDBFLASH",
@@ -380,8 +407,9 @@ dist_env.Alias("vscode_dist", vscode_dist)
 # Creating app from base template
 
 dist_env.SetDefault(FBT_APPID=appenv.subst("$APPID") or "template")
+app_template_dir = project_template_dir.Dir("app_template")
 app_template_dist = []
-for template_file in project_template_dir.Dir("app_template").glob("*"):
+for template_file in app_template_dir.glob("*"):
     dist_file_name = dist_env.subst(template_file.name)
     if template_file.name.endswith(".png"):
         app_template_dist.append(
@@ -397,12 +425,13 @@ for template_file in project_template_dir.Dir("app_template").glob("*"):
                 },
             )
         )
-
 AddPostAction(
     app_template_dist[-1],
     [
         Mkdir(original_app_dir.Dir("images")),
         Touch(original_app_dir.Dir("images").File(".gitkeep")),
+        # scons' glob ignores .dot directories, so we need to copy .github manually
+        Copy(original_app_dir.Dir(".github"), app_template_dir.Dir(".github")),
     ],
 )
 dist_env.Precious(app_template_dist)
@@ -440,3 +469,8 @@ else:
         raise UserError(f"Dolphin folder not found: {dolphin_src_dir}")
 
     dist_env.PhonyTarget("dolphin_ext", Action(missing_dolphin_folder, None))
+
+dist_env.PhonyTarget(
+    "env",
+    "@echo $( ${FBT_SCRIPT_DIR}/toolchain/fbtenv.sh $)",
+)

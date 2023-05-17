@@ -18,7 +18,7 @@ void nfc_scene_mfkey_complete_on_enter(void* context) {
         AlignCenter,
         AlignCenter,
         FontSecondary,
-        "Now use mfkey32v2\nto extract keys");
+        "Now use Mfkey32\nto extract keys");
     widget_add_button_element(
         nfc->widget, GuiButtonTypeCenter, "OK", nfc_scene_mfkey_complete_callback, nfc);
 

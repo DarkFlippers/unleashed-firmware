@@ -1,12 +1,13 @@
-import os
-import sys
-import serial
-import time
-import hashlib
-import math
-import logging
-import posixpath
 import enum
+import hashlib
+import logging
+import math
+import os
+import posixpath
+import sys
+import time
+
+import serial
 
 
 def timing(func):
@@ -236,6 +237,7 @@ class FlipperStorage:
             filesize = os.fstat(file.fileno()).st_size
 
             buffer_size = self.chunk_size
+            start_time = time.time()
             while True:
                 filedata = file.read(buffer_size)
                 size = len(filedata)
@@ -254,11 +256,13 @@ class FlipperStorage:
                 self.port.write(filedata)
                 self.read.until(self.CLI_PROMPT)
 
-                percent = str(math.ceil(file.tell() / filesize * 100))
+                ftell = file.tell()
+                percent = str(math.ceil(ftell / filesize * 100))
                 total_chunks = str(math.ceil(filesize / buffer_size))
-                current_chunk = str(math.ceil(file.tell() / buffer_size))
+                current_chunk = str(math.ceil(ftell / buffer_size))
+                approx_speed = ftell / (time.time() - start_time + 0.0001)
                 sys.stdout.write(
-                    f"\r{percent}%, chunk {current_chunk} of {total_chunks}"
+                    f"\r{percent}%, chunk {current_chunk} of {total_chunks} @ {approx_speed/1024:.2f} kb/s"
                 )
                 sys.stdout.flush()
         print()
@@ -323,7 +327,7 @@ class FlipperStorage:
                 return False
             raise FlipperStorageException.from_error_code(path, error_code)
 
-        return True
+        return response == b"Directory" or response.startswith(b"Storage")
 
     def exist_file(self, path: str):
         """Does file exist on Flipper"""

@@ -170,7 +170,6 @@ class Main(App):
             "update.dir",
             "sdk_headers.dir",
             "lib.dir",
-            "debug.dir",
             "scripts.dir",
         )
 
@@ -251,13 +250,6 @@ class Main(App):
             )
         bundle_args.extend(self.other_args)
         
-        log_custom_fz_name = (
-            environ.get("CUSTOM_FLIPPER_NAME", None)
-            or ""
-        )
-        if (log_custom_fz_name != "") and (len(log_custom_fz_name) <= 8) and (log_custom_fz_name.isalnum()) and (log_custom_fz_name.isascii()):
-            self.logger.info(f"Flipper Custom Name is set:\n\tName: {log_custom_fz_name} : length - {len(log_custom_fz_name)} chars")
-
         if (bundle_result := UpdateMain(no_exit=True)(bundle_args)) == 0:
             self.note_dist_component("update", "dir", bundle_dir)
             self.logger.info(

@@ -1,9 +1,6 @@
 [submodule "lib/mlib"]
 	path = lib/mlib
 	url = https://github.com/P-p-H-d/mlib.git
-[submodule "lib/STM32CubeWB"]
-	path = lib/STM32CubeWB
-	url = https://github.com/Flipper-Zero/STM32CubeWB.git
 [submodule "lib/littlefs"]
 	path = lib/littlefs
 	url = https://github.com/littlefs-project/littlefs.git
@@ -37,3 +34,12 @@
 [submodule "lib/heatshrink"]
 	path = lib/heatshrink
 	url = https://github.com/flipperdevices/heatshrink.git
+[submodule "lib/st_cmsis_device_wb"]
+	path = lib/stm32wb_cmsis
+	url = https://github.com/STMicroelectronics/cmsis_device_wb
+[submodule "lib/stm32wbxx_hal_driver"]
+	path = lib/stm32wb_hal
+	url = https://github.com/STMicroelectronics/stm32wbxx_hal_driver
+[submodule "lib/stm32wb_copro"]
+	path = lib/stm32wb_copro
+	url = https://github.com/flipperdevices/stm32wb_copro.git
