@@ -5,6 +5,7 @@
 * Plugins: WiFi Marauder -> Added sniff pmkid on selected aps from 0.10.4 update (by @clipboard1)
 * Plugins: SubGHz Bruteforcer -> Increase delay just a little bit to fix some cases when receiver will not get codes and decrease manual transmit delay
 * Plugins: UART Terminal -> Fix crashes on plugin load with RX connected
+* NFC: Mifare mini with SAK 0x89 support
 * SubGHz: **CAME Atomo - Add manually support and custom buttons support**
 * SubGHz: Fix crashes when deleting signals using right arrow button in `Read` mode
 * SubGHz: Restore Rx indication after deletion after Memory is FULL (by @wosk | PR #464)
@@ -16,6 +17,7 @@
 * GUI: Text Input improvements, added cursor and ability to set minimal length (by @Willy-JL)
 * BT API: Functions that allow to change bt mac address and device broadcasted name (by @Willy-JL and XFW contributors)
 * Infrared: `External output` move out of debug and add power option for external modules
+* Infrared: Updated universal remote assets (by @amec0e | PR #474)
 * Extra pack: Some app fixes
 * FBT: Fix vscode example config for debug builds - please run `./fbt vscode_dist` again if you had issues with debug builds size
 * OFW PR 2316: NFC V support (by @g3gg0 & @nvx)
