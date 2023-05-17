@@ -44,6 +44,7 @@ void nfc_scene_saved_menu_on_enter(void* context) {
         }
     } else if(
         nfc->dev->format == NfcDeviceSaveFormatMifareUl ||
+        nfc->dev->format == NfcDeviceSaveFormatNfcV ||
         nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
         submenu_add_item(
             submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_saved_menu_submenu_callback, nfc);
@@ -117,6 +118,8 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
             } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
+            } else if(nfc->dev->format == NfcDeviceSaveFormatNfcV) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcVEmulate);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }

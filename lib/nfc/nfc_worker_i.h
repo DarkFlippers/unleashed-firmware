@@ -12,6 +12,8 @@
 #include <lib/nfc/protocols/mifare_classic.h>
 #include <lib/nfc/protocols/mifare_desfire.h>
 #include <lib/nfc/protocols/nfca.h>
+#include <lib/nfc/protocols/nfcv.h>
+#include <lib/nfc/protocols/slix.h>
 #include <lib/nfc/helpers/reader_analyzer.h>
 
 struct NfcWorker {
