@@ -49,4 +49,8 @@ void subghz_view_receiver_set_idx_menu(SubGhzViewReceiver* subghz_receiver, uint
 
 void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_receiver);
 
+void subghz_view_receiver_enable_draw_callback(SubGhzViewReceiver* subghz_receiver);
+
+void subghz_view_receiver_disable_draw_callback(SubGhzViewReceiver* subghz_receiver);
+
 void subghz_view_receiver_exit(void* context);
