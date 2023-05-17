@@ -18,8 +18,6 @@
 #include <storage/storage.h>
 #include <gui/modules/popup.h>
 
-#include <lib/subghz/protocols/raw.h>
-
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
@@ -77,10 +75,6 @@ typedef struct {
     SubGhzReceiver* receiver;
     SubGhzTransmitter* transmitter;
 
-    bool tx_running;
-
-    uint8_t chusen_sub;
-
     // AvrIspProgrammerView* subghz_remote_programmer_view;
     // AvrIspReaderView* subghz_remote_reader_view;
     // AvrIspWriterView* subghz_remote_writer_view;
@@ -91,8 +85,5 @@ typedef struct {
 
 bool subrem_load_from_file(SubGhzRemoteApp* app);
 
-bool subghz_tx_start_sub(
-    SubGhzRemoteApp* app,
-    SubRemSubFilePreset* sub_preset,
-    SubGhzProtocolEncoderRAWCallbackEnd callback);
-void subghz_tx_stop_sub(SubGhzRemoteApp* app);
+bool subghz_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
+void subghz_tx_stop_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);

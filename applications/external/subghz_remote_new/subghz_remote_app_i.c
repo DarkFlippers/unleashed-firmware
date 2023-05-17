@@ -115,10 +115,7 @@ static bool subrem_sub_file_presets_load(SubGhzRemoteApp* app, FlipperFormat* ff
     return ret;
 }
 
-bool subghz_tx_start_sub(
-    SubGhzRemoteApp* app,
-    SubRemSubFilePreset* sub_preset,
-    SubGhzProtocolEncoderRAWCallbackEnd callback) {
+bool subghz_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset) {
     furi_assert(app);
     furi_assert(sub_preset);
     bool ret = false;
@@ -155,26 +152,19 @@ bool subghz_tx_start_sub(
                 break;
             }
 
-            if(sub_preset->type == SubRemSubKeyTypeRawKey) {
-                subghz_protocol_raw_file_encoder_worker_set_callback_end(
-                    (SubGhzProtocolEncoderRAW*)subghz_transmitter_get_protocol_instance(
-                        app->transmitter),
-                    callback,
-                    app);
-            }
-
             furi_hal_subghz_start_async_tx(subghz_transmitter_yield, app->transmitter);
 
             ret = true;
         }
     } while(false);
-    app->tx_running = ret; // TODO:
 
+    // ret = false; // TODO:
     return ret;
 }
 
-void subghz_tx_stop_sub(SubGhzRemoteApp* app) {
+void subghz_tx_stop_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset) {
     furi_assert(app);
+    furi_assert(sub_preset);
 
     //Stop TX
     furi_hal_subghz_stop_async_tx();
@@ -183,10 +173,7 @@ void subghz_tx_stop_sub(SubGhzRemoteApp* app) {
     subghz_transmitter_free(app->transmitter);
     furi_hal_subghz_idle();
 
-    // SubRemSubFilePreset* sub_preset = app->subs_preset[app->chusen_sub];
-
     // TODO: need saving logic
-    app->tx_running = false;
 }
 
 static bool subrem_sub_presets_check(SubGhzRemoteApp* app, FlipperFormat* fff_data_file) {

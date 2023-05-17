@@ -137,8 +137,6 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     app->receiver = subghz_receiver_alloc_init(app->environment);
 
-    app->tx_running = false;
-
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
 
     return app;

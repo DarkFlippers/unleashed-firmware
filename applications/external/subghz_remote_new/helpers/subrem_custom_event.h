@@ -17,7 +17,6 @@ typedef enum {
     SubRemCustomEventViewRemoteStartRIGHT,
     SubRemCustomEventViewRemoteStartOK,
     SubRemCustomEventViewRemoteStop,
-    SubRemCustomEventViewRemoteForceStop,
 
     // SubRemCustomEventSceneDeleteSuccess = 100,
     // SubRemCustomEventSceneDelete,
