@@ -21,13 +21,14 @@ jobs:
       ports:
         - 80
       volumes:
-        - build-dev-fw:/opt/src
+        - ./build-dev-fw:/opt/src
       options: --cpus 1
     steps:
       - name: Build dev FW
         run: |
-          echo "Running Script"
+          echo 'Running Script'
           cd /opt/src
+          ls -laS
           ./fbt COMPACT=1 DEBUG=0 updater_package
           mkdir artifacts-default
           mv dist/f7-C/* artifacts-default/
@@ -36,7 +37,7 @@ jobs:
 
   build-with-extra-apps:
     needs: checkout-with-extra-apps
-    name: Build dev FW
+    name: Build release FW
     runs-on: ubuntu-latest
     container:
       image: derskythe/github-runner-base
@@ -52,11 +53,12 @@ jobs:
         - 80
       options: --cpus 1
       volumes:
-        - build-with-extra-apps:/opt/src
+        - ./build-with-extra-apps:/opt/src
     steps:
       - name: Build extra apps FW
         run: |
           - cd /opt/src
+          - ls -laS
           - rm -f build/f7-firmware-C/toolbox/version.*
           - ./fbt COMPACT=1 DEBUG=0 updater_package
           - mkdir artifacts-extra-apps
