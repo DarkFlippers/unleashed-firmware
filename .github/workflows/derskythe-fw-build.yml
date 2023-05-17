@@ -25,7 +25,7 @@ jobs:
     container:
       image: hfdj/fztools      
       env:
-        DIST_SUFFIX: ${{ env.DRONE_BUILD_NUMBER }}
+        DIST_SUFFIX: ${{ vars.DRONE_BUILD_NUMBER }}
         WORKFLOW_BRANCH_OR_TAG: dev-cfw
         FBT_TOOLS_CUSTOM_LINK: fbt_link
       credentials:
