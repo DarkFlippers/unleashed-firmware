@@ -1,0 +1,45 @@
+name: Build Firmware
+# Manual trigger
+on: 
+  workflow_dispatch:
+  push:
+
+jobs:
+  checkout-with-submodules:
+    name: Checkout with submodules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+          clean: true
+          ref: dev-master
+
+  build-dev-fw:
+    needs:
+      checkout-with-submodules
+    name: Build dev FW
+    runs-on: ubuntu-latest
+    container:
+      image: hfdj/fztools      
+      env:
+        DIST_SUFFIX: ${{ env.DRONE_BUILD_NUMBER }}
+        WORKFLOW_BRANCH_OR_TAG: dev-cfw
+        FBT_TOOLS_CUSTOM_LINK: fbt_link
+      credentials:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+      ports:
+        - 80
+      options: --cpus 1
+    steps:
+      - name: Build dev FW
+        run: |
+          echo "Running Script"
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+          mkdir artifacts-default
+          mv dist/f7-C/* artifacts-default/
+          ls -laS artifacts-default
+          ls -laS artifacts-default/f7-update-${DIST_SUFFIX}
