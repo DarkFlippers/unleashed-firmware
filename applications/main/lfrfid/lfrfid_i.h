@@ -56,8 +56,6 @@ enum LfRfidCustomEvent {
     LfRfidEventReadSenseCardEnd,
     LfRfidEventReadStartASK,
     LfRfidEventReadStartPSK,
-    LfRfidEventReadStartRTF,
-    LfRfidEventReadSenseHitag, //TODO combine with sensecardstart?
     LfRfidEventReadDone,
     LfRfidEventReadOverrun,
     LfRfidEventReadError,

@@ -17,17 +17,17 @@ typedef struct {
 typedef struct {
     const char* header;
     uint8_t* bytes;
-    uint16_t bytes_count;
+    uint8_t bytes_count;
 
     ByteInputCallback input_callback;
     ByteChangedCallback changed_callback;
     void* callback_context;
 
     bool selected_high_nibble;
-    uint16_t selected_byte;
+    uint8_t selected_byte;
     int8_t selected_row; // row -1 - input, row 0 & 1 - keyboard
     uint8_t selected_column;
-    uint16_t first_visible_byte;
+    uint8_t first_visible_byte;
 } ByteInputModel;
 
 static const uint8_t keyboard_origin_x = 7;
@@ -164,7 +164,7 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
     canvas_draw_icon(canvas, 2, 19, &I_ButtonLeftSmall_3x5);
     canvas_draw_icon(canvas, 123, 19, &I_ButtonRightSmall_3x5);
 
-    for(uint16_t i = model->first_visible_byte;
+    for(uint8_t i = model->first_visible_byte;
         i < model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes);
         i++) {
         uint8_t byte_position = i - model->first_visible_byte;
@@ -253,7 +253,7 @@ static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model
     canvas_draw_icon(canvas, 2, 19, &I_ButtonLeftSmall_3x5);
     canvas_draw_icon(canvas, 122, 19, &I_ButtonRightSmall_3x5);
 
-    for(uint16_t i = model->first_visible_byte;
+    for(uint8_t i = model->first_visible_byte;
         i < model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes);
         i++) {
         uint8_t byte_position = i - model->first_visible_byte;
@@ -305,7 +305,7 @@ static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model
  * @param value char value
  * @param high_nibble set high nibble
  */
-static void byte_input_set_nibble(uint8_t* data, uint16_t position, char value, bool high_nibble) {
+static void byte_input_set_nibble(uint8_t* data, uint8_t position, char value, bool high_nibble) {
     switch(value) {
     case '0':
     case '1':
@@ -750,7 +750,7 @@ void byte_input_set_result_callback(
     ByteChangedCallback changed_callback,
     void* callback_context,
     uint8_t* bytes,
-    uint16_t bytes_count) {
+    uint8_t bytes_count) {
     with_view_model(
         byte_input->view,
         ByteInputModel * model,

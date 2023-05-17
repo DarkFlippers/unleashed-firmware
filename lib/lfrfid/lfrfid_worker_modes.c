@@ -94,7 +94,7 @@ typedef enum {
     LFRFIDWorkerReadTimeout,
 } LFRFIDWorkerReadState;
 
-static LFRFIDWorkerReadState lfrfid_worker_read_ttf( //tag talks first
+static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     LFRFIDWorker* worker,
     LFRFIDFeature feature,
     uint32_t timeout,
@@ -334,63 +334,6 @@ static LFRFIDWorkerReadState lfrfid_worker_read_ttf( //tag talks first
     return state;
 }
 
-static LFRFIDWorkerReadState lfrfid_worker_read_rtf( //reader talks first
-    LFRFIDWorker* worker,
-    LFRFIDFeature feature,
-    uint32_t timeout,
-    ProtocolId* result_protocol) {
-    UNUSED(feature);
-    LFRFIDWorkerReadState state = LFRFIDWorkerReadTimeout;
-
-    FURI_LOG_D(TAG, "Start RTF");
-    if(worker->read_cb) {
-        worker->read_cb(LFRFIDWorkerReadStartRTF, PROTOCOL_NO, worker->cb_ctx);
-    }
-    LFRFIDHitagWorker* hitag_worker = lfrfid_hitag_worker_alloc(worker->protocols);
-
-    lfrfid_hitag_worker_start(hitag_worker, LFRFIDHitagWorkerSettingRead);
-
-    FURI_LOG_D(TAG, "Read started");
-
-    //scan for hitag for a while and stay in hitag mode if card was detected
-    uint8_t delays = 0;
-    uint8_t delay_ms = 100;
-    bool notified = false;
-    while(1) {
-        furi_delay_ms(delay_ms);
-
-        if(lfrfid_worker_check_for_stop(worker)) {
-            state = LFRFIDWorkerReadExit;
-            *result_protocol = PROTOCOL_NO;
-            break;
-        }
-
-        if(lfrfid_hitag_worker_get_status(hitag_worker) == LFRFIDHitagStatusDetected) {
-            *result_protocol =
-                LFRFIDProtocolHitag1; //TODO get protocol ID from hitag_worker when expanding the worker to include other hitag protocols
-            if(!notified && worker->read_cb) {
-                worker->read_cb(LFRFIDWorkerReadSenseHitag, *result_protocol, worker->cb_ctx);
-                notified = true;
-            }
-        } else if(lfrfid_hitag_worker_get_status(hitag_worker) == LFRFIDHitagStatusRead) {
-            state = LFRFIDWorkerReadOK;
-            *result_protocol =
-                LFRFIDProtocolHitag1; //TODO get protocol ID from hitag_worker when expanding the worker to include other hitag protocols
-            break;
-        } else if(++delays >= timeout / delay_ms) {
-            state = LFRFIDWorkerReadTimeout;
-            break;
-        }
-    }
-
-    lfrfid_hitag_worker_stop(hitag_worker);
-    lfrfid_hitag_worker_free(hitag_worker);
-
-    FURI_LOG_D(TAG, "Read stopped");
-
-    return state;
-}
-
 static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
     ProtocolId read_result = PROTOCOL_NO;
     LFRFIDWorkerReadState state;
@@ -398,8 +341,6 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
 
     if(worker->read_type == LFRFIDWorkerReadTypePSKOnly) {
         feature = LFRFIDFeaturePSK;
-    } else if(worker->read_type == LFRFIDWorkerReadTypeRTFOnly) {
-        feature = LFRFIDFeatureRTF;
     } else {
         feature = LFRFIDFeatureASK;
     }
@@ -407,14 +348,8 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
     if(worker->read_type == LFRFIDWorkerReadTypeAuto) {
         while(1) {
             // read for a while
-
-            if(feature == LFRFIDFeatureASK || feature == LFRFIDFeaturePSK) {
-                state = lfrfid_worker_read_ttf(
-                    worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
-            } else if(feature == LFRFIDFeatureRTF) {
-                state = lfrfid_worker_read_rtf(
-                    worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
-            }
+            state = lfrfid_worker_read_internal(
+                worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
                 break;
@@ -423,9 +358,7 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
             // switch to next feature
             if(feature == LFRFIDFeatureASK) {
                 feature = LFRFIDFeaturePSK;
-            } else if(feature == LFRFIDFeaturePSK) {
-                feature = LFRFIDFeatureRTF;
-            } else if(feature == LFRFIDFeatureRTF) {
+            } else {
                 feature = LFRFIDFeatureASK;
             }
 
@@ -434,12 +367,10 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
     } else {
         while(1) {
             if(worker->read_type == LFRFIDWorkerReadTypeASKOnly) {
-                state = lfrfid_worker_read_ttf(worker, feature, UINT32_MAX, &read_result);
-            } else if(worker->read_type == LFRFIDWorkerReadTypePSKOnly) {
-                state = lfrfid_worker_read_ttf(
-                    worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
+                state = lfrfid_worker_read_internal(worker, feature, UINT32_MAX, &read_result);
             } else {
-                state = lfrfid_worker_read_rtf(worker, feature, UINT32_MAX, &read_result);
+                state = lfrfid_worker_read_internal(
+                    worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
             }
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
@@ -475,7 +406,7 @@ static void lfrfid_worker_emulate_dma_isr(bool half, void* context) {
     furi_stream_buffer_send(stream, &flag, sizeof(uint32_t), 0);
 }
 
-static void lfrfid_worker_emulate_ttf(LFRFIDWorker* worker) {
+static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
     LFRFIDWorkerEmulateBuffer* buffer = malloc(sizeof(LFRFIDWorkerEmulateBuffer));
     FuriStreamBuffer* stream = furi_stream_buffer_alloc(sizeof(uint32_t), sizeof(uint32_t));
     LFRFIDProtocol protocol = worker->protocol;
@@ -564,39 +495,6 @@ static void lfrfid_worker_emulate_ttf(LFRFIDWorker* worker) {
     pulse_glue_free(pulse_glue);
 }
 
-static void lfrfid_worker_emulate_rtf(LFRFIDWorker* worker) {
-    LFRFIDHitagWorker* hitag_worker = lfrfid_hitag_worker_alloc(
-        worker->protocols); //todo, pass protocols & protocol id when expanding the worker to include other hitag protocols
-
-    lfrfid_hitag_worker_start(hitag_worker, LFRFIDHitagWorkerSettingEmulate);
-    uint8_t delay_ms = 100;
-    while(1) {
-        furi_delay_ms(delay_ms);
-
-        if(lfrfid_worker_check_for_stop(worker)) {
-            break;
-        }
-    }
-
-    lfrfid_hitag_worker_stop(hitag_worker);
-    lfrfid_hitag_worker_free(hitag_worker);
-}
-
-static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
-    if(worker != NULL) {
-        if(worker->protocols != NULL) {
-            LFRFIDFeature feature =
-                protocol_dict_get_features(worker->protocols, worker->protocol);
-
-            if(feature == LFRFIDFeatureRTF) {
-                lfrfid_worker_emulate_rtf(worker);
-            } else {
-                lfrfid_worker_emulate_ttf(worker);
-            }
-        }
-    }
-}
-
 /**************************************************************************************************/
 /********************************************* WRITE **********************************************/
 /**************************************************************************************************/
@@ -623,7 +521,7 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
             t5577_write(&request->t5577);
 
             ProtocolId read_result = PROTOCOL_NO;
-            LFRFIDWorkerReadState state = lfrfid_worker_read_ttf(
+            LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
                 worker,
                 protocol_dict_get_features(worker->protocols, protocol),
                 LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
