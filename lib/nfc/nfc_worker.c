@@ -95,9 +95,13 @@ int32_t nfc_worker_task(void* context) {
         }
     } else if(nfc_worker->state == NfcWorkerStateUidEmulate) {
         nfc_worker_emulate_uid(nfc_worker);
-    } else if(nfc_worker->state == NfcWorkerStateEmulateApdu) {
+    }
+#if FURI_DEBUG
+    else if(nfc_worker->state == NfcWorkerStateEmulateApdu) {
         nfc_worker_emulate_apdu(nfc_worker);
-    } else if(nfc_worker->state == NfcWorkerStateMfUltralightEmulate) {
+    }
+#endif
+    else if(nfc_worker->state == NfcWorkerStateMfUltralightEmulate) {
         nfc_worker_emulate_mf_ultralight(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateMfClassicEmulate) {
         nfc_worker_emulate_mf_classic(nfc_worker);
@@ -741,7 +745,7 @@ void nfc_worker_emulate_uid(NfcWorker* nfc_worker) {
         }
     }
 }
-
+#if FURI_DEBUG
 void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
     FuriHalNfcTxRxContext tx_rx = {};
     FuriHalNfcDevData params = {
@@ -774,6 +778,7 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
         reader_analyzer_stop(nfc_worker->reader_analyzer);
     }
 }
+#endif
 
 void nfc_worker_mf_ultralight_auth_received_callback(MfUltralightAuth auth, void* context) {
     furi_assert(context);
