@@ -1,17 +1,16 @@
 name: Build Firmware
 # Manual trigger
-on: 
+on:
   workflow_dispatch:
   push:
 
 jobs:
   build-dev-fw:
-    needs:
-      checkout-with-submodules
+    needs: checkout-with-submodules
     name: Build dev FW
     runs-on: ubuntu-latest
     container:
-      image: hfdj/fztools      
+      image: derskythe/github-runner-base
       env:
         DIST_SUFFIX: ${{ vars.DRONE_BUILD_NUMBER }}
         WORKFLOW_BRANCH_OR_TAG: dev-cfw
@@ -36,12 +35,11 @@ jobs:
           ls -laS artifacts-default/f7-update-${DIST_SUFFIX}
 
   build-with-extra-apps:
-    needs:
-      checkout-with-extra-apps
+    needs: checkout-with-extra-apps
     name: Build dev FW
     runs-on: ubuntu-latest
     container:
-      image: hfdj/fztools      
+      image: derskythe/github-runner-base
       env:
         DIST_SUFFIX: ${{ vars.DRONE_BUILD_NUMBER }}e
         WORKFLOW_BRANCH_OR_TAG: release-cfw
@@ -68,8 +66,7 @@ jobs:
 
   updload-artifacts-dev-fw:
     runs-on: ubuntu-latest
-    needs:
-      build-dev-fw      
+    needs: [build-dev-fw, build-with-extra-apps]
     env:
       DRONE_TAG: ${{ vars.DRONE_BUILD_NUMBER }}
     steps:
@@ -91,7 +88,7 @@ jobs:
           - ls -laS artifacts-default
           - mv artifacts-default/ ${DRONE_TAG}
           - ls -laS ${DRONE_TAG}
-        
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -106,8 +103,7 @@ jobs:
 
   updload-artifacts-extra-apps:
     runs-on: ubuntu-latest
-    needs:
-      build-with-extra-apps
+    needs: build-with-extra-apps
     env:
       DRONE_TAG: ${{ vars.DRONE_BUILD_NUMBER }}e
     steps:
@@ -129,7 +125,7 @@ jobs:
           - ls -laS artifacts-default
           - mv artifacts-default/ ${DRONE_TAG}
           - ls -laS ${DRONE_TAG}
-        
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -141,7 +137,7 @@ jobs:
             - ${DRONE_TAG}/*.elf
             - ${DRONE_TAG}/*.dfu
             - ${DRONE_TAG}/*.bin
-                      
+
   checkout-with-submodules:
     name: Checkout with submodules
     runs-on: ubuntu-latest
@@ -149,7 +145,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          path: 'build-dev-fw'
+          path: "build-dev-fw"
           submodules: true
           fetch-depth: 0
           clean: true
@@ -162,7 +158,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          path: 'build-with-extra-apps'
+          path: "build-with-extra-apps"
           submodules: true
           fetch-depth: 0
           clean: true
@@ -171,5 +167,5 @@ jobs:
       - name: Another
         uses: actions/checkout@v3
         with:
-          path: 'build-with-extra-apps'
-          repository: 'xMasterX/all-the-plugins'
+          path: "build-with-extra-apps"
+          repository: "xMasterX/all-the-plugins"
