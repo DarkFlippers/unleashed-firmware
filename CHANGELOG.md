@@ -6,6 +6,8 @@
 * Plugins: SubGHz Bruteforcer -> Increase delay just a little bit to fix some cases when receiver will not get codes and decrease manual transmit delay
 * Plugins: UART Terminal -> Fix crashes on plugin load with RX connected
 * SubGHz: **CAME Atomo - Add manually support and custom buttons support**
+* SubGHz: Fix crashes when deleting signals using right arrow button in `Read` mode
+* SubGHz: Restore Rx indication after deletion after Memory is FULL (by @wosk | PR #464)
 * SubGHz: **App refactoring** (OFW code ported + our code was refactored/cleaned up too) (by @gid9798 and @xMasterX | PR #461)
 * SubGHz: Using scene manager functions in DecodeRAW (by @gid9798 | PR #462)
 * SubGHz: Protocols and custom buttons refactoring (by @gid9798 | PR #465)
