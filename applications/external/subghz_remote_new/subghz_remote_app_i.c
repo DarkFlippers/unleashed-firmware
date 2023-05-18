@@ -118,6 +118,43 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
     return ret;
 }
 
+bool subghz_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev_file_name) {
+    // furi_assert(subghz);
+    furi_assert(flipper_format);
+    furi_assert(dev_file_name);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    Stream* flipper_format_stream = flipper_format_get_raw_stream(flipper_format);
+
+    bool saved = false;
+    FuriString* file_dir = furi_string_alloc();
+
+    path_extract_dirname(dev_file_name, file_dir);
+    do {
+        //removing additional fields
+        flipper_format_delete_key(flipper_format, "Repeat");
+        //flipper_format_delete_key(flipper_format, "Manufacture");
+
+        // Create subghz folder directory if necessary
+        // if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {
+        //     dialog_message_show_storage_error(subghz->dialogs, "Cannot create\nfolder");
+        //     break;
+        // }
+
+        if(!storage_simply_remove(storage, dev_file_name)) {
+            break;
+        }
+        //ToDo check Write
+        stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
+        stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
+
+        saved = true;
+    } while(0);
+    furi_string_free(file_dir);
+    furi_record_close(RECORD_STORAGE);
+    return saved;
+}
+
 bool subghz_tx_start_sub(
     SubGhzRemoteApp* app,
     SubRemSubFilePreset* sub_preset,
@@ -196,11 +233,18 @@ static void subghz_tx_stop(SubGhzRemoteApp* app) {
 
 bool subghz_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
     furi_assert(app);
+    SubRemSubFilePreset* sub_preset = app->subs_preset[app->chusen_sub];
 
-    if(forced || (app->subs_preset[app->chusen_sub]->type != SubGhzProtocolTypeRAW)) {
+    if(forced || (sub_preset->type != SubGhzProtocolTypeRAW)) {
         // SubRemSubKeyTypeRawKey)) {
         if(app->tx_running) {
             subghz_tx_stop(app);
+
+            if(sub_preset->type == SubGhzProtocolTypeDynamic) {
+                subghz_save_protocol_to_file(
+                    sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
+            }
+
             app->tx_running = false;
             return true;
         }
