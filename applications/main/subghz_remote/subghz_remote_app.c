@@ -35,7 +35,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     furi_hal_power_suppress_charge_enter();
 
     app->file_path = furi_string_alloc();
-    furi_string_set(app->file_path, STORAGE_APP_DATA_PATH_PREFIX);
+    furi_string_set(app->file_path, SUBREM_APP_FOLDER);
 
     // GUI
     app->gui = furi_record_open(RECORD_GUI);
@@ -97,7 +97,11 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     app->tx_running = false;
 
+#ifdef SUBREM_LIGHT
+    scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
+#else
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
+#endif
 
     return app;
 }
