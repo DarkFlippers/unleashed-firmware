@@ -106,8 +106,7 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
 #if FURI_DEBUG
             FURI_LOG_W(TAG, "No Label for %s", map_file_labels[i][0]);
 #endif
-            // TODO: Standart name or part of name
-            furi_string_set_str(sub_preset->label, "N/A");
+            path_extract_filename(sub_preset->file_path, sub_preset->label, true);
         } else {
             FURI_LOG_I(
                 TAG,

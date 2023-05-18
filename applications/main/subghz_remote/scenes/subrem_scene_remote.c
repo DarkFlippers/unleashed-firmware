@@ -93,6 +93,7 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
                 notification_message(app->notifications, &sequence_blink_start_magenta);
             } else {
                 subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateIdle);
+                notification_message(app->notifications, &sequence_blink_stop);
             }
             return true;
         } else if(event.event == SubRemCustomEventViewRemoteForcedStop) {
