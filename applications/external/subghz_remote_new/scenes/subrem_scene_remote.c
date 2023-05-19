@@ -5,12 +5,6 @@
 
 #define TAG "SubRemScenRemote"
 
-// TODO:
-// #include <lib/subghz/protocols/keeloq.h>
-// #include <lib/subghz/protocols/star_line.h>
-
-// #include <lib/subghz/blocks/custom_btn.h>
-
 void subrem_scene_remote_callback(SubRemCustomEvent event, void* context) {
     furi_assert(context);
     SubGhzRemoteApp* app = context;
@@ -59,16 +53,10 @@ static bool subrem_scene_remote_update_data_show(void* context) {
 void subrem_scene_remote_on_enter(void* context) {
     SubGhzRemoteApp* app = context;
 
-    // TODO: init view data
+    subrem_scene_remote_update_data_show(app);
 
-    if(!subrem_scene_remote_update_data_show(app)) {
-        // view_dispatcher_send_custom_event(
-        //     app->view_dispatcher, SubGhzCustomEventViewTransmitterError);
-    }
     subrem_view_remote_set_callback(app->subrem_remote_view, subrem_scene_remote_callback, app);
 
-    // TODO: notifications
-    // app->state_notifications = SubGhzNotificationStateIDLE;
     view_dispatcher_switch_to_view(app->view_dispatcher, SubRemViewIDRemote);
 }
 
@@ -92,10 +80,10 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
             event.event == SubRemCustomEventViewRemoteStartRIGHT ||
             event.event == SubRemCustomEventViewRemoteStartOK) {
             // Start sending sub
-            subghz_tx_stop_sub(app, true);
+            subrem_tx_stop_sub(app, true);
             app->chusen_sub = subrem_scene_remote_event_to_index(event.event);
             subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateLoading);
-            if(subghz_tx_start_sub(
+            if(subrem_tx_start_sub(
                    app,
                    app->subs_preset[app->chusen_sub],
                    subrem_scene_remote_raw_callback_end_tx)) {
@@ -105,17 +93,18 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
                 notification_message(app->notifications, &sequence_blink_start_magenta);
             } else {
                 subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateIdle);
+                notification_message(app->notifications, &sequence_blink_stop);
             }
             return true;
         } else if(event.event == SubRemCustomEventViewRemoteForcedStop) {
-            subghz_tx_stop_sub(app, true);
+            subrem_tx_stop_sub(app, true);
             subrem_view_remote_set_presed_btn(app->subrem_remote_view, 0);
             subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateIdle);
 
             notification_message(app->notifications, &sequence_blink_stop);
             return true;
         } else if(event.event == SubRemCustomEventViewRemoteStop) {
-            if(subghz_tx_stop_sub(app, false)) {
+            if(subrem_tx_stop_sub(app, false)) {
                 subrem_view_remote_set_presed_btn(app->subrem_remote_view, 0);
                 subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateIdle);
 
@@ -132,19 +121,10 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
 void subrem_scene_remote_on_exit(void* context) {
     SubGhzRemoteApp* app = context;
 
-    subghz_tx_stop_sub(app, true);
+    subrem_tx_stop_sub(app, true);
 
     subrem_view_remote_set_presed_btn(app->subrem_remote_view, 0);
     subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateIdle);
 
     notification_message(app->notifications, &sequence_blink_stop);
-
-    // TODO: notifications and reset KL
-
-    // keeloq_reset_mfname();
-    // keeloq_reset_kl_type();
-    // keeloq_reset_original_btn();
-    // subghz_custom_btns_reset();
-    // star_line_reset_mfname();
-    // star_line_reset_kl_type();
 }

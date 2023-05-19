@@ -48,7 +48,6 @@ bool subrem_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexSubRemOpenMapFile) {
-            //scene_manager_set_scene_state(app->scene_manager, SubRemSceneStart, event.event);
             scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
             consumed = true;
         }

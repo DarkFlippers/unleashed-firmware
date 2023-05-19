@@ -2,8 +2,12 @@
 #include <lib/toolbox/path.h>
 #include <flipper_format/flipper_format_i.h>
 
-#include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/protocols/protocol_items.h>
+
+// #include <lib/subghz/protocols/keeloq.h>
+// #include <lib/subghz/protocols/star_line.h>
+
+#include <lib/subghz/blocks/custom_btn.h>
 
 #define TAG "SubGhzRemote"
 
@@ -91,7 +95,7 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
         sub_preset = app->subs_preset[i];
         if(!flipper_format_read_string(
                fff_data_file, map_file_labels[i][0], sub_preset->file_path)) {
-#if FURO_LOG
+#if FURI_DEBUG
             FURI_LOG_W(TAG, "No file patch for %s", map_file_labels[i][0]);
 #endif
             sub_preset->type = SubGhzProtocolTypeUnknown;
@@ -99,11 +103,10 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
             // Rewind error
         } else if(!flipper_format_read_string(
                       fff_data_file, map_file_labels[i][1], sub_preset->label)) {
-#if FURO_LOG
+#if FURI_DEBUG
             FURI_LOG_W(TAG, "No Label for %s", map_file_labels[i][0]);
 #endif
-            furi_string_set_str(sub_preset->label,
-                                "N/A"); // TODO: Standart name or part of name
+            path_extract_filename(sub_preset->file_path, sub_preset->label, true);
         } else {
             FURI_LOG_I(
                 TAG,
@@ -118,8 +121,7 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
     return ret;
 }
 
-bool subghz_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev_file_name) {
-    // furi_assert(subghz);
+bool subrem_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev_file_name) {
     furi_assert(flipper_format);
     furi_assert(dev_file_name);
 
@@ -135,12 +137,6 @@ bool subghz_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev
         flipper_format_delete_key(flipper_format, "Repeat");
         //flipper_format_delete_key(flipper_format, "Manufacture");
 
-        // Create subghz folder directory if necessary
-        // if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {
-        //     dialog_message_show_storage_error(subghz->dialogs, "Cannot create\nfolder");
-        //     break;
-        // }
-
         if(!storage_simply_remove(storage, dev_file_name)) {
             break;
         }
@@ -155,7 +151,7 @@ bool subghz_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev
     return saved;
 }
 
-bool subghz_tx_start_sub(
+bool subrem_tx_start_sub(
     SubGhzRemoteApp* app,
     SubRemSubFilePreset* sub_preset,
     SubGhzProtocolEncoderRAWCallbackEnd callback) {
@@ -163,7 +159,7 @@ bool subghz_tx_start_sub(
     furi_assert(sub_preset);
     bool ret = false;
 
-    subghz_tx_stop_sub(app, true);
+    subrem_tx_stop_sub(app, true);
 
     if(sub_preset->type == SubGhzProtocolTypeUnknown) {
         return false;
@@ -171,8 +167,12 @@ bool subghz_tx_start_sub(
 
     FURI_LOG_I(TAG, "Send %s", furi_string_get_cstr(sub_preset->label));
 
+    // subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
+    // keeloq_reset_original_btn();
+    // subghz_custom_btns_reset();
+
     do {
-        flipper_format_rewind(sub_preset->fff_data); // FIXME:
+        flipper_format_rewind(sub_preset->fff_data); //
 
         app->transmitter = subghz_transmitter_alloc_init(
             app->environment, furi_string_get_cstr(sub_preset->protocaol_name));
@@ -215,7 +215,7 @@ bool subghz_tx_start_sub(
         }
     } while(false);
 
-    app->tx_running = ret; // TODO:
+    app->tx_running = ret;
 
     return ret;
 }
@@ -231,7 +231,7 @@ static void subghz_tx_stop(SubGhzRemoteApp* app) {
     furi_hal_subghz_idle();
 }
 
-bool subghz_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
+bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
     furi_assert(app);
     SubRemSubFilePreset* sub_preset = app->subs_preset[app->chusen_sub];
 
@@ -241,8 +241,15 @@ bool subghz_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
             subghz_tx_stop(app);
 
             if(sub_preset->type == SubGhzProtocolTypeDynamic) {
-                subghz_save_protocol_to_file(
+                subrem_save_protocol_to_file(
                     sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
+
+                // keeloq_reset_mfname();
+                // keeloq_reset_kl_type();
+                // keeloq_reset_original_btn();
+                // subghz_custom_btns_reset();
+                // star_line_reset_mfname();
+                // star_line_reset_kl_type();
             }
 
             app->tx_running = false;
@@ -251,10 +258,6 @@ bool subghz_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
     }
 
     return false;
-
-    // SubRemSubFilePreset* sub_preset = app->subs_preset[app->chusen_sub];
-
-    // TODO: need saving logic
 }
 
 static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_data_file) {
@@ -408,7 +411,7 @@ bool subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
         }
     }
 
-    // TODO: Pop for error or return error type
+    // TODO: Popup for error or return error type
     if(!ret) {
         FURI_LOG_E(TAG, "Broken Map File");
     }
@@ -421,24 +424,25 @@ bool subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
     return ret;
 }
 
-bool subrem_load_from_file(SubGhzRemoteApp* app) {
+SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app) {
     furi_assert(app);
 
     FuriString* file_path = furi_string_alloc();
+    SubRemLoadMapState ret = SubRemLoadMapStateBack;
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, SUBREM_APP_EXTENSION, &I_sub1_10px);
     browser_options.base_path = SUBREM_APP_FOLDER;
 
     // Input events and views are managed by file_select
-    bool res =
-        dialog_file_browser_show(app->dialogs, app->file_path, app->file_path, &browser_options);
-
-    if(res) {
-        res = subrem_map_file_load(app, furi_string_get_cstr(app->file_path));
+    if(!dialog_file_browser_show(app->dialogs, app->file_path, app->file_path, &browser_options)) {
+    } else if(subrem_map_file_load(app, furi_string_get_cstr(app->file_path))) {
+        ret = SubRemLoadMapStateOK;
+    } else {
+        ret = SubRemLoadMapStateError;
     }
 
     furi_string_free(file_path);
 
-    return res;
+    return ret;
 }

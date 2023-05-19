@@ -1,13 +1,9 @@
 #pragma once
 
 typedef enum {
-    // SubRemCustomEventManagerNoSet = 0,
-    // SubRemCustomEventManagerSet,
-    // SubRemCustomEventManagerSetRAW,
-
     //SubmenuIndex
     SubmenuIndexSubRemOpenMapFile,
-    SubmenuIndexSubRemRemoteView, // TODO: temp debug
+    SubmenuIndexSubRemRemoteView,
     SubmenuIndexSubRemAbout,
 
     //SubRemCustomEvent

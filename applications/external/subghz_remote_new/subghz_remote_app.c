@@ -34,16 +34,8 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     furi_hal_power_suppress_charge_enter();
 
-    // // Enable 5v power, multiple attempts to avoid issues with power chip protection false triggering
-    // uint8_t attempts = 0;
-    // while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
-    //     furi_hal_power_enable_otg();
-    //     furi_delay_ms(10);
-    // }
-
     app->file_path = furi_string_alloc();
-    furi_string_set(app->file_path, STORAGE_APP_DATA_PATH_PREFIX);
-    //app->error = SubGhzRemoteErrorNoError;
+    furi_string_set(app->file_path, SUBREM_APP_FOLDER);
 
     // GUI
     app->gui = furi_record_open(RECORD_GUI);
@@ -70,19 +62,6 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     app->submenu = submenu_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, SubRemViewSubmenu, submenu_get_view(app->submenu));
-
-    // Widget
-    app->widget = widget_alloc();
-    view_dispatcher_add_view(app->view_dispatcher, SubRemViewWidget, widget_get_view(app->widget));
-
-    // Text Input
-    app->text_input = text_input_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher, SubRemViewTextInput, text_input_get_view(app->text_input));
-
-    // Popup
-    app->popup = popup_alloc();
-    view_dispatcher_add_view(app->view_dispatcher, SubRemViewPopup, popup_get_view(app->popup));
 
     //Dialog
     app->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -118,7 +97,11 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     app->tx_running = false;
 
+#ifdef SUBREM_LIGHT
+    scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
+#else
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
+#endif
 
     return app;
 }
@@ -136,18 +119,6 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewSubmenu);
     submenu_free(app->submenu);
-
-    //  Widget
-    view_dispatcher_remove_view(app->view_dispatcher, SubRemViewWidget);
-    widget_free(app->widget);
-
-    // TextInput
-    view_dispatcher_remove_view(app->view_dispatcher, SubRemViewTextInput);
-    text_input_free(app->text_input);
-
-    // Popup
-    view_dispatcher_remove_view(app->view_dispatcher, SubRemViewPopup);
-    popup_free(app->popup);
 
     //Dialog
     furi_record_close(RECORD_DIALOGS);

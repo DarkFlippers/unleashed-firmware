@@ -29,9 +29,6 @@ typedef struct {
     SubRemViewRemoteState state;
 
     uint8_t pressed_btn;
-    // bool show_button;
-    // FuriString* temp_button_id;
-    // bool draw_temp_button;
 } SubRemViewRemoteModel;
 
 void subrem_view_remote_set_callback(
@@ -93,17 +90,7 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    //map found, draw all the things
     canvas_clear(canvas);
-
-    //canvas_set_font(canvas, FontPrimary);
-    //canvas_draw_str(canvas, 0, 10, "U: ");
-    //canvas_draw_str(canvas, 0, 20, "L: ");
-    //canvas_draw_str(canvas, 0, 30, "R: ");
-    //canvas_draw_str(canvas, 0, 40, "D: ");
-    //canvas_draw_str(canvas, 0, 50, "Ok: ");
-
-    //PNGs are located in assets/icons/SubGHzRemote before compilation
 
     //Icons for Labels
     //canvas_draw_icon(canvas, 0, 0, &I_SubGHzRemote_LeftAlignedButtons_9x64);
@@ -121,6 +108,7 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
     canvas_draw_str(canvas, 10, 30, model->left_label);
     canvas_draw_str(canvas, 10, 40, model->right_label);
     canvas_draw_str(canvas, 10, 50, model->ok_label);
+
     // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
     // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
     // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
@@ -130,9 +118,6 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
     canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Hold=Exit.");
 
     //Status text and indicator
-
-    //canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, model->state);
-
     canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
 
     if(model->state == SubRemViewRemoteStateIdle) {
@@ -146,7 +131,9 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
             canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Load");
             break;
         default:
-            canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Idle");
+#if FURI_DEBUG
+            canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Wrong_state");
+#endif
             break;
         }
 
@@ -179,7 +166,6 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
     SubRemViewRemote* subrem_view_remote = context;
 
     if(event->key == InputKeyBack && event->type == InputTypeLong) {
-        // TODO: remove reset Debug
         with_view_model(
             subrem_view_remote->view,
             SubRemViewRemoteModel * model,
@@ -189,12 +175,6 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
                 strcpy(model->left_label, "N/A");
                 strcpy(model->right_label, "N/A");
                 strcpy(model->ok_label, "N/A");
-
-                // furi_string_reset(model->up_label);
-                // furi_string_reset(model->down_label);
-                // furi_string_reset(model->left_label);
-                // furi_string_reset(model->right_label);
-                // furi_string_reset(model->ok_label);
             },
             false);
         subrem_view_remote->callback(SubRemCustomEventViewRemoteBack, subrem_view_remote->context);
@@ -280,11 +260,11 @@ SubRemViewRemote* subrem_view_remote_alloc() {
             strcpy(model->right_label, "N/A");
             strcpy(model->ok_label, "N/A");
 
-            // model->up_label = furi_string_alloc();
-            // model->down_label = furi_string_alloc();
-            // model->left_label = furi_string_alloc();
-            // model->right_label = furi_string_alloc();
-            // model->ok_label = furi_string_alloc();
+            // model->up_label = furi_string_alloc_set_str("N/A");
+            // model->down_label = furi_string_alloc_set_str("N/A");
+            // model->left_label = furi_string_alloc_set_str("N/A");
+            // model->right_label = furi_string_alloc_set_str("N/A");
+            // model->ok_label = furi_string_alloc_set_str("N/A");
 
             model->pressed_btn = 0;
         },

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "helpers/subrem_types.h"
-#include <subghz_remote_new_icons.h> // TODO:
+#include <subrem_remote_fap_icons.h>
+
+// #include <assets_icons.h>
 
 #include "views/remote.h"
 
@@ -18,16 +20,16 @@
 #include <storage/storage.h>
 #include <gui/modules/popup.h>
 
+#include <flipper_format/flipper_format_i.h>
+
 #include <lib/subghz/protocols/raw.h>
 
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 
-#include <flipper_format/flipper_format_i.h> // FIXME:
-
-#define SUBREM_APP_FOLDER ANY_PATH("subghz_remote")
-#define SUBGHZ_REMOTE_MAX_LEN_NAME 64
+#define SUBREM_APP_FOLDER EXT_PATH("subghz_remote")
+#define SUBREM_MAX_LEN_NAME 64
 
 typedef struct {
     uint32_t frequency;
@@ -54,12 +56,9 @@ typedef struct {
     SceneManager* scene_manager;
     NotificationApp* notifications;
     DialogsApp* dialogs;
-    Popup* popup;
     Submenu* submenu;
-    Widget* widget;
-    TextInput* text_input;
     FuriString* file_path;
-    char file_name_tmp[SUBGHZ_REMOTE_MAX_LEN_NAME];
+    char file_name_tmp[SUBREM_MAX_LEN_NAME];
 
     SubRemViewRemote* subrem_remote_view;
 
@@ -77,11 +76,11 @@ typedef struct {
     // TODO: LoadFileError
 } SubGhzRemoteApp;
 
-bool subrem_load_from_file(SubGhzRemoteApp* app);
+SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app);
 
-bool subghz_tx_start_sub(
+bool subrem_tx_start_sub(
     SubGhzRemoteApp* app,
     SubRemSubFilePreset* sub_preset,
     SubGhzProtocolEncoderRAWCallbackEnd callback);
 
-bool subghz_tx_stop_sub(SubGhzRemoteApp* app, bool forced);
+bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced);
