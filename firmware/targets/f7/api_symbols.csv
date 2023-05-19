@@ -1825,8 +1825,6 @@ Function,-,j1f,float,float
 Function,-,jn,double,"int, double"
 Function,-,jnf,float,"int, float"
 Function,-,jrand48,long,unsigned short[3]
-Function,-,keeloq_reset_kl_type,void,
-Function,-,keeloq_reset_mfname,void,
 Function,-,keeloq_reset_original_btn,void,
 Function,-,l64a,char*,long
 Function,-,labs,long,long
@@ -2568,8 +2566,6 @@ Function,+,srand,void,unsigned
 Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
 Function,+,sscanf,int,"const char*, const char*, ..."
-Function,-,star_line_reset_kl_type,void,
-Function,-,star_line_reset_mfname,void,
 Function,+,storage_common_copy,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_exists,_Bool,"Storage*, const char*"
 Function,+,storage_common_fs_info,FS_Error,"Storage*, const char*, uint64_t*, uint64_t*"

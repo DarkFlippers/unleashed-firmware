@@ -11,10 +11,6 @@ extern const SubGhzProtocolDecoder subghz_protocol_star_line_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_star_line_encoder;
 extern const SubGhzProtocol subghz_protocol_star_line;
 
-void star_line_reset_mfname();
-
-void star_line_reset_kl_type();
-
 /**
  * Allocate SubGhzProtocolEncoderStarLine.
  * @param environment Pointer to a SubGhzEnvironment instance
