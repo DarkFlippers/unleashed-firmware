@@ -9,9 +9,6 @@
 #include <cli/cli.h>
 #include <cli/cli_vcp.h>
 
-#include <toolbox/namechanger.h>
-#include <bt/bt_service/bt.h>
-
 #include "animations/animation_manager.h"
 #include "desktop/scenes/desktop_scene.h"
 #include "desktop/scenes/desktop_scene_i.h"
@@ -427,26 +424,6 @@ int32_t desktop_srv(void* p) {
 
     if(furi_hal_rtc_get_fault_data()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFault);
-    }
-
-    // I added some very bydlo kod here, and thrown some delays to make it worse, pls don't look at it, it will make you cry from laugh
-    if(furi_hal_rtc_get_boot_mode() == FuriHalRtcBootModeNormal) {
-        if(NameChanger_Init()) {
-            Cli* cli = furi_record_open(RECORD_CLI);
-            cli_session_close(cli);
-            furi_delay_ms(2);
-            cli_session_open(cli, &cli_vcp);
-            furi_record_close(RECORD_CLI);
-
-            furi_delay_ms(3);
-            Bt* bt = furi_record_open(RECORD_BT);
-            if(!bt_set_profile(bt, BtProfileSerial)) {
-                FURI_LOG_D(TAG, "Failed to touch bluetooth to name change");
-            }
-            furi_record_close(RECORD_BT);
-            bt = NULL;
-            furi_delay_ms(3);
-        }
     }
 
     view_dispatcher_run(desktop->view_dispatcher);
