@@ -42,6 +42,7 @@ typedef struct {
     FuriString* protocaol_name;
     FuriString* label;
     SubGhzProtocolType type;
+    SubRemLoadSubState load_state;
 } SubRemSubFilePreset;
 
 SubRemSubFilePreset* subrem_sub_file_preset_alloc();
@@ -70,8 +71,6 @@ typedef struct {
     bool tx_running;
 
     uint8_t chusen_sub;
-
-    // TODO: LoadFileError
 } SubGhzRemoteApp;
 
 SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app);
