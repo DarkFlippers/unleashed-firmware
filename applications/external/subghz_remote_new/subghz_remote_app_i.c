@@ -51,6 +51,7 @@ SubRemSubFilePreset* subrem_sub_file_preset_alloc() {
     sub_preset->label = furi_string_alloc_set_str("N/A");
 
     sub_preset->type = SubGhzProtocolTypeUnknown;
+    sub_preset->load_state = SubRemLoadSubStateNotSet;
 
     return sub_preset;
 }
@@ -77,6 +78,7 @@ static void subrem_sub_file_preset_reset(SubRemSubFilePreset* sub_preset) {
     stream_clean(fff_data_stream);
 
     sub_preset->type = SubGhzProtocolTypeUnknown;
+    sub_preset->load_state = SubRemLoadSubStateNotSet;
 }
 
 void subrem_map_preset_reset(SubGhzRemoteApp* app) {
@@ -108,6 +110,7 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
 #endif
             path_extract_filename(sub_preset->file_path, sub_preset->label, true);
         } else {
+            // Preload seccesful
             FURI_LOG_I(
                 TAG,
                 "%-5s: %s %s",
@@ -115,6 +118,7 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
                 furi_string_get_cstr(sub_preset->label),
                 furi_string_get_cstr(sub_preset->file_path));
             ret = true;
+            sub_preset->load_state = SubRemLoadSubStatePreloaded;
         }
         flipper_format_rewind(fff_data_file);
     }
@@ -268,21 +272,23 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
     return false;
 }
 
-static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_data_file) {
+static SubRemLoadMapState
+    subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_data_file) {
     furi_assert(app);
     FuriString* temp_str = furi_string_alloc();
     uint32_t temp_data32;
-    bool ret = false;
-    bool sub_preset_loaded = false;
+    bool all_loaded = true;
+    SubRemLoadMapState ret = SubRemLoadMapStateErrorBrokenFile;
+    SubRemLoadSubState sub_preset_loaded;
     SubRemSubFilePreset* sub_preset;
     uint32_t repeat = 200;
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
         sub_preset = app->subs_preset[i];
-        sub_preset_loaded = false;
         if(furi_string_empty(sub_preset->file_path)) {
             // FURI_LOG_I(TAG, "Empty file path");
             continue;
         }
+        sub_preset_loaded = SubRemLoadSubStateErrorNoFile;
         repeat = 200;
         do {
             if(!flipper_format_file_open_existing(
@@ -305,6 +311,7 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
             }
 
             //Load frequency
+            sub_preset_loaded = SubRemLoadSubStateErrorFreq;
             if(!flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
                 FURI_LOG_W(TAG, "Cannot read frequency. Set default frequency");
                 sub_preset->freq_preset.frequency =
@@ -317,6 +324,7 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
             }
 
             //Load preset
+            sub_preset_loaded = SubRemLoadSubStateErrorMod;
             if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
                 FURI_LOG_E(TAG, "Missing Preset");
                 break;
@@ -329,6 +337,7 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
             }
 
             //Load protocol
+            sub_preset_loaded = SubRemLoadSubStateErrorProtocol;
             if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {
                 FURI_LOG_E(TAG, "Missing Protocol");
                 break;
@@ -375,8 +384,8 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
                 break;
             }
 
-            sub_preset_loaded = true;
-            ret |= true;
+            sub_preset_loaded = SubRemLoadSubStateOK;
+            ret = SubRemLoadMapStateNotAllOK;
 #if FURI_DEBUG
             FURI_LOG_I(TAG, "%-16s - protocol Loaded", furi_string_get_cstr(sub_preset->label));
 #endif
@@ -385,9 +394,15 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
         // TODO:
         // Load file state logic
         // Label depending on the state
+        // Move to remote scene
 
-        if(!sub_preset_loaded) {
+        if(sub_preset_loaded != SubRemLoadSubStateOK) {
             furi_string_set_str(sub_preset->label, "N/A");
+            all_loaded = false;
+        }
+
+        if(ret != SubRemLoadMapStateErrorBrokenFile && all_loaded) {
+            ret = SubRemLoadMapStateOK;
         }
 
         flipper_format_file_close(fff_data_file);
@@ -397,7 +412,7 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
     return ret;
 }
 
-bool subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
+SubRemLoadMapState subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
     furi_assert(app);
     furi_assert(file_path);
 #if FURI_DEBUG
@@ -405,7 +420,7 @@ bool subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
 #endif
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-    bool ret = false;
+    SubRemLoadMapState ret = SubRemLoadMapStateErrorOpenError;
 #if FURI_DEBUG
     FURI_LOG_I(TAG, "Open Map File..");
 #endif
@@ -413,20 +428,23 @@ bool subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
 
     if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
         FURI_LOG_E(TAG, "Could not open MAP file %s", file_path);
+        ret = SubRemLoadMapStateErrorOpenError;
     } else {
         if(!subrem_map_preset_load(app, fff_data_file)) {
             FURI_LOG_E(TAG, "Could no Sub file path in MAP file");
             // ret = // error for popup
-        } else if(
-            (flipper_format_file_close(fff_data_file)) &&
-            (subrem_map_preset_check(app, fff_data_file))) {
-            FURI_LOG_I(TAG, "Load Map File Seccesful");
-            ret = true;
+        } else if(!flipper_format_file_close(fff_data_file)) {
+            ret = SubRemLoadMapStateErrorOpenError;
+        } else {
+            ret = subrem_map_preset_check(app, fff_data_file);
         }
     }
 
-    // TODO: Popup for error or return error type
-    if(!ret) {
+    if(ret == SubRemLoadMapStateOK) {
+        FURI_LOG_I(TAG, "Load Map File Seccesful");
+    } else if(ret == SubRemLoadMapStateNotAllOK) {
+        FURI_LOG_I(TAG, "Load Map File Seccesful [Not all files]");
+    } else {
         FURI_LOG_E(TAG, "Broken Map File");
     }
 
@@ -434,7 +452,6 @@ bool subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path) {
     flipper_format_free(fff_data_file);
 
     furi_record_close(RECORD_STORAGE);
-
     return ret;
 }
 
@@ -450,10 +467,8 @@ SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app) {
 
     // Input events and views are managed by file_select
     if(!dialog_file_browser_show(app->dialogs, app->file_path, app->file_path, &browser_options)) {
-    } else if(subrem_map_file_load(app, furi_string_get_cstr(app->file_path))) {
-        ret = SubRemLoadMapStateOK;
     } else {
-        ret = SubRemLoadMapStateError;
+        ret = subrem_map_file_load(app, furi_string_get_cstr(app->file_path));
     }
 
     furi_string_free(file_path);

@@ -26,7 +26,22 @@ typedef enum {
 } SubRemViewID;
 
 typedef enum {
+    SubRemLoadSubStateNotSet,
+    SubRemLoadSubStatePreloaded,
+    SubRemLoadSubStateError,
+    SubRemLoadSubStateErrorNoFile,
+    SubRemLoadSubStateErrorFreq,
+    SubRemLoadSubStateErrorMod,
+    SubRemLoadSubStateErrorProtocol,
+    SubRemLoadSubStateOK,
+} SubRemLoadSubState;
+
+typedef enum {
     SubRemLoadMapStateBack = 0,
     SubRemLoadMapStateError,
+    SubRemLoadMapStateErrorOpenError,
+    SubRemLoadMapStateErrorStorage,
+    SubRemLoadMapStateErrorBrokenFile,
+    SubRemLoadMapStateNotAllOK,
     SubRemLoadMapStateOK,
 } SubRemLoadMapState;
