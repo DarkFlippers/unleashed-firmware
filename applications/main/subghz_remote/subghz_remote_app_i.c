@@ -129,23 +129,31 @@ bool subrem_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev
     Stream* flipper_format_stream = flipper_format_get_raw_stream(flipper_format);
 
     bool saved = false;
+    uint32_t repeat = 200;
     FuriString* file_dir = furi_string_alloc();
 
     path_extract_dirname(dev_file_name, file_dir);
     do {
-        //removing additional fields
+        // removing additional fields
         flipper_format_delete_key(flipper_format, "Repeat");
-        //flipper_format_delete_key(flipper_format, "Manufacture");
+        // flipper_format_delete_key(flipper_format, "Manufacture");
 
         if(!storage_simply_remove(storage, dev_file_name)) {
             break;
         }
+
         //ToDo check Write
         stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
         stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
 
+        if(!flipper_format_insert_or_update_uint32(flipper_format, "Repeat", &repeat, 1)) {
+            FURI_LOG_E(TAG, "Unable Repeat");
+            break;
+        }
+
         saved = true;
     } while(0);
+
     furi_string_free(file_dir);
     furi_record_close(RECORD_STORAGE);
     return saved;
@@ -267,7 +275,7 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
     bool ret = false;
     bool sub_preset_loaded = false;
     SubRemSubFilePreset* sub_preset;
-
+    uint32_t repeat = 200;
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
         sub_preset = app->subs_preset[i];
         sub_preset_loaded = false;
@@ -275,6 +283,7 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
             // FURI_LOG_I(TAG, "Empty file path");
             continue;
         }
+        repeat = 200;
         do {
             if(!flipper_format_file_open_existing(
                    fff_data_file, furi_string_get_cstr(sub_preset->file_path))) {
@@ -359,6 +368,11 @@ static bool subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_dat
                 furi_string_set(sub_preset->protocaol_name, temp_str);
             } else {
                 FURI_LOG_E(TAG, "Protocol does not support transmission");
+            }
+
+            if(!flipper_format_insert_or_update_uint32(fff_data, "Repeat", &repeat, 1)) {
+                FURI_LOG_E(TAG, "Unable Repeat");
+                break;
             }
 
             sub_preset_loaded = true;
