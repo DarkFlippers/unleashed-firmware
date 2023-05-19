@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,26.3,,
+Version,+,26.5,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2731,7 +2731,11 @@ Function,+,subghz_environment_get_keystore,SubGhzKeystore*,SubGhzEnvironment*
 Function,+,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char*,SubGhzEnvironment*
 Function,+,subghz_environment_get_protocol_name_registry,const char*,"SubGhzEnvironment*, size_t"
 Function,+,subghz_environment_get_protocol_registry,void*,SubGhzEnvironment*
+Function,-,subghz_environment_keeloq_get_kl_type,uint8_t,SubGhzEnvironment*
+Function,-,subghz_environment_keeloq_get_mf,const char*,SubGhzEnvironment*
+Function,-,subghz_environment_keeloq_set_mf,void,"SubGhzEnvironment*, const char*, uint8_t"
 Function,+,subghz_environment_load_keystore,_Bool,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_reset_keeloq,void,SubGhzEnvironment*
 Function,+,subghz_environment_set_alutech_at_4n_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"

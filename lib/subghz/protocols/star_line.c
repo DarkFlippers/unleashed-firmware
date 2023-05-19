@@ -82,18 +82,12 @@ const SubGhzProtocol subghz_protocol_star_line = {
     .decoder = &subghz_protocol_star_line_decoder,
     .encoder = &subghz_protocol_star_line_encoder,
 };
+// TODO:
+// static const char* mfname;
 
-static const char* mfname;
+// static int kl_type;
 
-static int kl_type;
-
-void star_line_reset_mfname() {
-    mfname = "";
-}
-
-void star_line_reset_kl_type() {
-    kl_type = 0;
-}
+static SubGhzEnvironment* kl_environment;
 
 /** 
  * Analysis of received data
@@ -112,6 +106,8 @@ void* subghz_protocol_encoder_star_line_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_star_line;
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
+
+    kl_environment = environment;
 
     instance->manufacture_from_file = furi_string_alloc();
 
@@ -163,6 +159,7 @@ static bool
             instance->generic.data, instance->generic.data_count_bit);
         hop = code_found_reverse & 0x00000000ffffffff;
     } else {
+        uint8_t kl_type_en = subghz_environment_keeloq_get_kl_type(kl_environment);
         for
             M_EACH(
                 manufacture_code,
@@ -184,11 +181,11 @@ static bool
                         hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                         break;
                     case KEELOQ_LEARNING_UNKNOWN:
-                        if(kl_type == 1) {
+                        if(kl_type_en == 1) {
                             hop = subghz_protocol_keeloq_common_encrypt(
                                 decrypt, manufacture_code->key);
                         }
-                        if(kl_type == 2) {
+                        if(kl_type_en == 2) {
                             man = subghz_protocol_keeloq_common_normal_learning(
                                 fix, manufacture_code->key);
                             hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
@@ -300,7 +297,15 @@ SubGhzProtocolStatus
         if(flipper_format_read_string(
                flipper_format, "Manufacture", instance->manufacture_from_file)) {
             instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
-            mfname = furi_string_get_cstr(instance->manufacture_from_file);
+            subghz_environment_keeloq_set_mf(
+                kl_environment,
+                furi_string_get_cstr(instance->manufacture_from_file),
+                subghz_environment_keeloq_get_kl_type(kl_environment));
+            // TODO:
+            FURI_LOG_W(
+                "MF encoder",
+                "Alloc enviro 0x%X",
+                (uintptr_t)subghz_environment_keeloq_get_mf(kl_environment));
         } else {
             FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
         }
@@ -366,6 +371,7 @@ void* subghz_protocol_decoder_star_line_alloc(SubGhzEnvironment* environment) {
     instance->manufacture_from_file = furi_string_alloc();
 
     instance->keystore = subghz_environment_get_keystore(environment);
+    kl_environment = environment;
 
     return instance;
 }
@@ -382,8 +388,7 @@ void subghz_protocol_decoder_star_line_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
     instance->decoder.parser_step = StarLineDecoderStepReset;
-    mfname = "";
-    kl_type = 0;
+    subghz_environment_reset_keeloq(kl_environment);
 }
 
 void subghz_protocol_decoder_star_line_feed(void* context, bool level, uint32_t duration) {
@@ -523,9 +528,15 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
     uint32_t decrypt = 0;
     uint64_t man_normal_learning;
     bool mf_not_set = false;
-    if(mfname == 0x0) {
-        mfname = "";
-    }
+    // TODO:
+    // if(mfname == 0x0) {
+    //     mfname = "";
+    // }
+
+    const char* mfname = subghz_environment_keeloq_get_mf(kl_environment);
+    uint8_t kl_type_en = subghz_environment_keeloq_get_kl_type(kl_environment);
+    // TODO:
+    FURI_LOG_W("RMcontroll", "MF NAME: %s", mfname);
 
     if(strcmp(mfname, "Unknown") == 0) {
         return 1;
@@ -542,7 +553,8 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                     if(subghz_protocol_star_line_check_decrypt(
                            instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        mfname = *manufacture_name;
+                        subghz_environment_keeloq_set_mf(
+                            kl_environment, *manufacture_name, kl_type_en);
                         return 1;
                     }
                     break;
@@ -555,7 +567,8 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                     if(subghz_protocol_star_line_check_decrypt(
                            instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        mfname = *manufacture_name;
+                        subghz_environment_keeloq_set_mf(
+                            kl_environment, *manufacture_name, kl_type_en);
                         return 1;
                     }
                     break;
@@ -565,8 +578,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                     if(subghz_protocol_star_line_check_decrypt(
                            instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        mfname = *manufacture_name;
-                        kl_type = 1;
+                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 1);
                         return 1;
                     }
                     // Check for mirrored man
@@ -580,8 +592,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                     if(subghz_protocol_star_line_check_decrypt(
                            instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        mfname = *manufacture_name;
-                        kl_type = 1;
+                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 1);
                         return 1;
                     }
                     //###########################
@@ -593,8 +604,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                     if(subghz_protocol_star_line_check_decrypt(
                            instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        mfname = *manufacture_name;
-                        kl_type = 2;
+                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 2);
                         return 1;
                     }
                     // Check for mirrored man
@@ -604,8 +614,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                     if(subghz_protocol_star_line_check_decrypt(
                            instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        mfname = *manufacture_name;
-                        kl_type = 2;
+                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 2);
                         return 1;
                     }
                     break;
@@ -614,7 +623,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
         }
 
     *manufacture_name = "Unknown";
-    mfname = "Unknown";
+    subghz_environment_keeloq_set_mf(kl_environment, "Unknown", kl_type_en);
     instance->cnt = 0;
 
     return 0;
@@ -690,7 +699,15 @@ SubGhzProtocolStatus
         if(flipper_format_read_string(
                flipper_format, "Manufacture", instance->manufacture_from_file)) {
             instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
-            mfname = furi_string_get_cstr(instance->manufacture_from_file);
+            subghz_environment_keeloq_set_mf(
+                kl_environment,
+                furi_string_get_cstr(instance->manufacture_from_file),
+                subghz_environment_keeloq_get_kl_type(kl_environment));
+            // TODO:
+            FURI_LOG_W(
+                "MF decoder",
+                "Alloc enviro 0x%X",
+                (uintptr_t)subghz_environment_keeloq_get_mf(kl_environment));
         } else {
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
         }

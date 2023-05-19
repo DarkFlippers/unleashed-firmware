@@ -191,10 +191,5 @@ void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
 
     widget_reset(subghz->widget);
-    keeloq_reset_mfname();
-    keeloq_reset_kl_type();
-    keeloq_reset_original_btn();
-    subghz_custom_btns_reset();
-    star_line_reset_mfname();
-    star_line_reset_kl_type();
+    subghz_txrx_reset_dynamic(subghz->txrx);
 }

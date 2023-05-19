@@ -110,6 +110,18 @@ void* subghz_environment_get_protocol_registry(SubGhzEnvironment* instance);
  */
 const char* subghz_environment_get_protocol_name_registry(SubGhzEnvironment* instance, size_t idx);
 
+/**
+ * Resetting the parameters used in the keeloq protocol.
+ * @param instance Pointer to a SubGhzEnvironment instance
+ */
+void subghz_environment_reset_keeloq(SubGhzEnvironment* instance);
+
+// Private
+
+const char* subghz_environment_keeloq_get_mf(SubGhzEnvironment* instance);
+uint8_t subghz_environment_keeloq_get_kl_type(SubGhzEnvironment* instance);
+void subghz_environment_keeloq_set_mf(SubGhzEnvironment* instance, const char* mf, uint8_t kl_type);
+
 #ifdef __cplusplus
 }
 #endif

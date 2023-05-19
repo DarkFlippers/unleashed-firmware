@@ -256,12 +256,9 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
                 subrem_save_protocol_to_file(
                     sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
 
-                keeloq_reset_mfname();
-                keeloq_reset_kl_type();
+                subghz_environment_reset_keeloq(app->environment);
                 keeloq_reset_original_btn();
                 subghz_custom_btns_reset();
-                star_line_reset_mfname();
-                star_line_reset_kl_type();
             }
 
             app->tx_running = false;

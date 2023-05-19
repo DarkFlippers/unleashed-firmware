@@ -107,10 +107,6 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_transmitter_on_exit(void* context) {
     SubGhz* subghz = context;
     subghz->state_notifications = SubGhzNotificationStateIDLE;
-    keeloq_reset_mfname();
-    keeloq_reset_kl_type();
-    keeloq_reset_original_btn();
-    subghz_custom_btns_reset();
-    star_line_reset_mfname();
-    star_line_reset_kl_type();
+
+    subghz_txrx_reset_dynamic(subghz->txrx);
 }

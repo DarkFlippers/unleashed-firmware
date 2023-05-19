@@ -13,10 +13,6 @@ extern const SubGhzProtocolDecoder subghz_protocol_keeloq_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_keeloq_encoder;
 extern const SubGhzProtocol subghz_protocol_keeloq;
 
-void keeloq_reset_mfname();
-
-void keeloq_reset_kl_type();
-
 void keeloq_reset_original_btn();
 
 /**

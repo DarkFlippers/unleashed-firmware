@@ -110,10 +110,5 @@ void subghz_scene_rpc_on_exit(void* context) {
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
 
-    keeloq_reset_mfname();
-    keeloq_reset_kl_type();
-    keeloq_reset_original_btn();
-    subghz_custom_btns_reset();
-    star_line_reset_mfname();
-    star_line_reset_kl_type();
+    subghz_txrx_reset_dynamic(subghz->txrx);
 }
