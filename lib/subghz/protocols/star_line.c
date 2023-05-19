@@ -82,10 +82,6 @@ const SubGhzProtocol subghz_protocol_star_line = {
     .decoder = &subghz_protocol_star_line_decoder,
     .encoder = &subghz_protocol_star_line_encoder,
 };
-// TODO:
-// static const char* mfname;
-
-// static int kl_type;
 
 static SubGhzEnvironment* kl_environment;
 
@@ -301,11 +297,6 @@ SubGhzProtocolStatus
                 kl_environment,
                 furi_string_get_cstr(instance->manufacture_from_file),
                 subghz_environment_keeloq_get_kl_type(kl_environment));
-            // TODO:
-            FURI_LOG_W(
-                "MF encoder",
-                "Alloc enviro 0x%X",
-                (uintptr_t)subghz_environment_keeloq_get_mf(kl_environment));
         } else {
             FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
         }
@@ -535,8 +526,6 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
 
     const char* mfname = subghz_environment_keeloq_get_mf(kl_environment);
     uint8_t kl_type_en = subghz_environment_keeloq_get_kl_type(kl_environment);
-    // TODO:
-    FURI_LOG_W("RMcontroll", "MF NAME: %s", mfname);
 
     if(strcmp(mfname, "Unknown") == 0) {
         return 1;
@@ -703,11 +692,6 @@ SubGhzProtocolStatus
                 kl_environment,
                 furi_string_get_cstr(instance->manufacture_from_file),
                 subghz_environment_keeloq_get_kl_type(kl_environment));
-            // TODO:
-            FURI_LOG_W(
-                "MF decoder",
-                "Alloc enviro 0x%X",
-                (uintptr_t)subghz_environment_keeloq_get_mf(kl_environment));
         } else {
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
         }
