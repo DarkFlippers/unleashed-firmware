@@ -31,6 +31,6 @@ App(
     appid="subghz_load_dangerous_settings",
     apptype=FlipperAppType.STARTUP,
     entry_point="subghz_dangerous_freq",
-    requires=["subghz"],
-    order=41,
+    requires=["storage", "subghz"],
+    order=500,
 )
