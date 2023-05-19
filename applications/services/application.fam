@@ -9,6 +9,6 @@ App(
         "desktop",
         "loader",
         "power",
-        "namechange_srv",
+        "namechanger_srv",
     ],
 )
