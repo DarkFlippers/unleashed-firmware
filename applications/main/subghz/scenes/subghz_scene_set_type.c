@@ -201,6 +201,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "CAME Atomo 433MHz",
+        SubmenuIndexCameAtomo433,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "CAME Atomo 868MHz",
+        SubmenuIndexCameAtomo868,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: CAME Space 433MHz",
         SubmenuIndexCAMESpace,
         subghz_scene_set_type_submenu_callback,
@@ -533,6 +545,14 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
+            break;
+        case SubmenuIndexCameAtomo433:
+            generated_protocol = subghz_txrx_gen_came_atomo_protocol(
+                subghz->txrx, "AM650", 433920000, (key & 0x0FFFFFFF) | 0x10000000, 0x0003);
+            break;
+        case SubmenuIndexCameAtomo868:
+            generated_protocol = subghz_txrx_gen_came_atomo_protocol(
+                subghz->txrx, "AM650", 868350000, (key & 0x0FFFFFFF) | 0x10000000, 0x0003);
             break;
         case SubmenuIndexBFTMitto:
             generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(

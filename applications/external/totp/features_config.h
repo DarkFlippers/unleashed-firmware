@@ -11,4 +11,4 @@
 // End of list
 
 // Target firmware to build for
-#define TOTP_TARGET_FIRMWARE TOTP_FIRMWARE_OFFICIAL_DEV
+#define TOTP_TARGET_FIRMWARE TOTP_FIRMWARE_XTREME

@@ -54,12 +54,6 @@ typedef struct {
     uint8_t seed[4];
 } SecureData;
 
-typedef enum {
-    SubGhzDecodeRawStateStart,
-    SubGhzDecodeRawStateLoading,
-    SubGhzDecodeRawStateLoaded,
-} SubGhzDecodeRawState;
-
 struct SubGhz {
     Gui* gui;
     NotificationApp* notifications;
@@ -98,16 +92,12 @@ struct SubGhz {
     FuriString* error_str;
     SubGhzLock lock;
 
-    bool in_decoder_scene;
-    bool in_decoder_scene_skip;
-
     bool ignore_starline;
     bool ignore_auto_alarms;
     bool ignore_magellan;
 
     SecureData* secure_data;
 
-    SubGhzDecodeRawState decode_raw_state;
     SubGhzFileEncoderWorker* decode_raw_file_worker_encoder;
 
     SubGhzThresholdRssi* threshold_rssi;

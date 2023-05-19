@@ -36,6 +36,8 @@ typedef enum {
     SubmenuIndexCAME24bit868,
     SubmenuIndexCAMETwee,
     SubmenuIndexCAMESpace,
+    SubmenuIndexCameAtomo433,
+    SubmenuIndexCameAtomo868,
     SubmenuIndexPricenton433,
     SubmenuIndexPricenton315,
     SubmenuIndexBETT_433,

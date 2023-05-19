@@ -108,6 +108,13 @@ bool subghz_txrx_gen_somfy_telis_protocol(
     uint8_t btn,
     uint16_t cnt);
 
+bool subghz_txrx_gen_came_atomo_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint16_t cnt);
+
 /**
  * Generate data SecPlus v2 protocol
  * 

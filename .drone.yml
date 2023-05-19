@@ -85,7 +85,7 @@ steps:
       - zip -r artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.zip artifacts-extra-apps/f7-update-${DRONE_TAG}e
       - zip -r artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}n
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
-      - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts debug
+      - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts
       - rm -rf artifacts-extra-apps/f7-update-${DRONE_TAG}
       - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}

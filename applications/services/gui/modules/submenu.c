@@ -1,11 +1,14 @@
 #include "submenu.h"
+#include <gui/canvas_i.h>
 
+#include <assets_icons.h>
 #include <gui/elements.h>
 #include <furi.h>
 #include <m-array.h>
 
 struct Submenu {
     View* view;
+    FuriTimer* locked_timer;
 };
 
 typedef struct {
@@ -13,6 +16,8 @@ typedef struct {
     uint32_t index;
     SubmenuItemCallback callback;
     void* callback_context;
+    bool locked;
+    FuriString* locked_message;
 } SubmenuItem;
 
 static void SubmenuItem_init(SubmenuItem* item) {
@@ -20,6 +25,8 @@ static void SubmenuItem_init(SubmenuItem* item) {
     item->index = 0;
     item->callback = NULL;
     item->callback_context = NULL;
+    item->locked = false;
+    item->locked_message = furi_string_alloc();
 }
 
 static void SubmenuItem_init_set(SubmenuItem* item, const SubmenuItem* src) {
@@ -27,6 +34,8 @@ static void SubmenuItem_init_set(SubmenuItem* item, const SubmenuItem* src) {
     item->index = src->index;
     item->callback = src->callback;
     item->callback_context = src->callback_context;
+    item->locked = src->locked;
+    item->locked_message = furi_string_alloc_set(src->locked_message);
 }
 
 static void SubmenuItem_set(SubmenuItem* item, const SubmenuItem* src) {
@@ -34,10 +43,13 @@ static void SubmenuItem_set(SubmenuItem* item, const SubmenuItem* src) {
     item->index = src->index;
     item->callback = src->callback;
     item->callback_context = src->callback_context;
+    item->locked = src->locked;
+    furi_string_set(item->locked_message, src->locked_message);
 }
 
 static void SubmenuItem_clear(SubmenuItem* item) {
     furi_string_free(item->label);
+    furi_string_free(item->locked_message);
 }
 
 ARRAY_DEF(
@@ -53,6 +65,7 @@ typedef struct {
     FuriString* header;
     size_t position;
     size_t window_position;
+    bool locked_message_visible;
 } SubmenuModel;
 
 static void submenu_process_up(Submenu* submenu);
@@ -63,7 +76,12 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
     SubmenuModel* model = _model;
 
     const uint8_t item_height = 16;
-    const uint8_t item_width = 123;
+    uint8_t item_width = 123;
+
+    if(canvas->orientation == CanvasOrientationVertical ||
+       canvas->orientation == CanvasOrientationVerticalFlip) {
+        item_width = 60;
+    }
 
     canvas_clear(canvas);
 
@@ -96,9 +114,18 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
                 canvas_set_color(canvas, ColorBlack);
             }
 
+            if(SubmenuItemArray_cref(it)->locked) {
+                canvas_draw_icon(
+                    canvas,
+                    110,
+                    y_offset + (item_position * item_height) + item_height - 12,
+                    &I_Lock_7x8);
+            }
+
             FuriString* disp_str;
             disp_str = furi_string_alloc_set(SubmenuItemArray_cref(it)->label);
-            elements_string_fit_width(canvas, disp_str, item_width - 11);
+            elements_string_fit_width(
+                canvas, disp_str, item_width - (SubmenuItemArray_cref(it)->locked ? 25 : 11));
 
             canvas_draw_str(
                 canvas,
@@ -113,6 +140,23 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
     }
 
     elements_scrollbar(canvas, model->position, SubmenuItemArray_size(model->items));
+
+    if(model->locked_message_visible) {
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, 8, 10, 110, 48);
+        canvas_set_color(canvas, ColorBlack);
+        canvas_draw_icon(canvas, 10, 14, &I_WarningDolphin_45x42);
+        canvas_draw_rframe(canvas, 8, 8, 112, 50, 3);
+        canvas_draw_rframe(canvas, 9, 9, 110, 48, 2);
+        elements_multiline_text_aligned(
+            canvas,
+            84,
+            32,
+            AlignCenter,
+            AlignCenter,
+            furi_string_get_cstr(
+                SubmenuItemArray_get(model->items, model->position)->locked_message));
+    }
 }
 
 static bool submenu_view_input_callback(InputEvent* event, void* context) {
@@ -120,7 +164,19 @@ static bool submenu_view_input_callback(InputEvent* event, void* context) {
     furi_assert(submenu);
     bool consumed = false;
 
-    if(event->type == InputTypeShort) {
+    bool locked_message_visible = false;
+    with_view_model(
+        submenu->view,
+        SubmenuModel * model,
+        { locked_message_visible = model->locked_message_visible; },
+        false);
+
+    if((!(event->type == InputTypePress) && !(event->type == InputTypeRelease)) &&
+       locked_message_visible) {
+        with_view_model(
+            submenu->view, SubmenuModel * model, { model->locked_message_visible = false; }, true);
+        consumed = true;
+    } else if(event->type == InputTypeShort) {
         switch(event->key) {
         case InputKeyUp:
             consumed = true;
@@ -150,6 +206,14 @@ static bool submenu_view_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
+void submenu_timer_callback(void* context) {
+    furi_assert(context);
+    Submenu* submenu = context;
+
+    with_view_model(
+        submenu->view, SubmenuModel * model, { model->locked_message_visible = false; }, true);
+}
+
 Submenu* submenu_alloc() {
     Submenu* submenu = malloc(sizeof(Submenu));
     submenu->view = view_alloc();
@@ -157,6 +221,8 @@ Submenu* submenu_alloc() {
     view_allocate_model(submenu->view, ViewModelTypeLocking, sizeof(SubmenuModel));
     view_set_draw_callback(submenu->view, submenu_view_draw_callback);
     view_set_input_callback(submenu->view, submenu_view_input_callback);
+
+    submenu->locked_timer = furi_timer_alloc(submenu_timer_callback, FuriTimerTypeOnce, submenu);
 
     with_view_model(
         submenu->view,
@@ -183,6 +249,8 @@ void submenu_free(Submenu* submenu) {
             SubmenuItemArray_clear(model->items);
         },
         true);
+    furi_timer_stop(submenu->locked_timer);
+    furi_timer_free(submenu->locked_timer);
     view_free(submenu->view);
     free(submenu);
 }
@@ -198,9 +266,23 @@ void submenu_add_item(
     uint32_t index,
     SubmenuItemCallback callback,
     void* callback_context) {
+    submenu_add_lockable_item(submenu, label, index, callback, callback_context, false, NULL);
+}
+
+void submenu_add_lockable_item(
+    Submenu* submenu,
+    const char* label,
+    uint32_t index,
+    SubmenuItemCallback callback,
+    void* callback_context,
+    bool locked,
+    const char* locked_message) {
     SubmenuItem* item = NULL;
     furi_assert(label);
     furi_assert(submenu);
+    if(locked) {
+        furi_assert(locked_message);
+    }
 
     with_view_model(
         submenu->view,
@@ -211,6 +293,10 @@ void submenu_add_item(
             item->index = index;
             item->callback = callback;
             item->callback_context = callback_context;
+            item->locked = locked;
+            if(locked) {
+                furi_string_set_str(item->locked_message, locked_message);
+            }
         },
         true);
 }
@@ -328,10 +414,14 @@ void submenu_process_ok(Submenu* submenu) {
             if(model->position < items_size) {
                 item = SubmenuItemArray_get(model->items, model->position);
             }
+            if(item && item->locked) {
+                model->locked_message_visible = true;
+                furi_timer_start(submenu->locked_timer, furi_kernel_get_tick_frequency() * 3);
+            }
         },
         true);
 
-    if(item && item->callback) {
+    if(item && !item->locked && item->callback) {
         item->callback(item->callback_context, item->index);
     }
 }

@@ -141,7 +141,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             subghz_scene_receiver_info_draw_widget(subghz);
 
             subghz_txrx_stop(subghz->txrx);
-            if(!subghz->in_decoder_scene) {
+            if(!scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
                 subghz_txrx_rx_start(subghz->txrx);
 
                 subghz_txrx_hopper_unpause(subghz->txrx);
@@ -161,9 +161,6 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz_txrx_protocol_is_serializable(subghz->txrx)) {
                 subghz_file_name_clear(subghz);
 
-                if(subghz->in_decoder_scene) {
-                    subghz->in_decoder_scene_skip = true;
-                }
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             return true;
@@ -192,9 +189,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
-    if(subghz->in_decoder_scene && !subghz->in_decoder_scene_skip) {
-        subghz->in_decoder_scene = false;
-    }
+
     widget_reset(subghz->widget);
     keeloq_reset_mfname();
     keeloq_reset_kl_type();

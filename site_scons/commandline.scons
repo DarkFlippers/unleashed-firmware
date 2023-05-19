@@ -101,11 +101,6 @@ vars.AddVariables(
         "${DIST_SUFFIX}",
     ),
     (
-        "CUSTOM_FLIPPER_NAME",
-        "Replaces OTP flipper name with custom string of 8 chars",
-        "",
-    ),
-    (
         "FORCE_NO_DIRTY",
         "Force disable dirty status of the build",
         "",

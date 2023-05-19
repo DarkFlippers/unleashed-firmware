@@ -13,7 +13,7 @@
             "label": "[Debug] Build",
             "group": "build",
             "type": "shell",
-            "command": "./fbt"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack"
         },
         {
             "label": "[Release] Flash (ST-Link)",
@@ -25,7 +25,7 @@
             "label": "[Debug] Flash (ST-Link)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FORCE=1 flash"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash"
         },
         {
             "label": "[Release] Flash (blackmagic)",
@@ -37,7 +37,7 @@
             "label": "[Debug] Flash (blackmagic)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FORCE=1 flash_blackmagic"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash_blackmagic"
         },
         {
             "label": "[Release] Flash (JLink)",
@@ -49,7 +49,7 @@
             "label": "[Debug] Flash (JLink)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FORCE=1 jflash"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 jflash"
         },
         {
             "label": "[Release] Build update bundle",
@@ -61,7 +61,7 @@
             "label": "[Debug] Build update bundle",
             "group": "build",
             "type": "shell",
-            "command": "./fbt updater_package"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack updater_package"
         },
         {
             "label": "[Release] Build updater",
@@ -73,13 +73,13 @@
             "label": "[Debug] Build updater",
             "group": "build",
             "type": "shell",
-            "command": "./fbt updater_all"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack updater_all"
         },
         {
             "label": "[Debug] Flash (USB, w/o resources)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FORCE=1 flash_usb"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash_usb"
         },
         {
             "label": "[Release] Flash (USB, w/o resources)",
@@ -97,7 +97,7 @@
             "label": "[Debug] Flash (USB, with resources)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FORCE=1 flash_usb_full"
+            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash_usb_full"
         },
         {
             "label": "[Release] Flash (USB, with resources)",
