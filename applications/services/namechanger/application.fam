@@ -1,0 +1,8 @@
+App(
+    appid="namechange_srv",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="namechange_on_system_start",
+    requires=["storage", "cli", "bt"],
+    conflicts=["updater"],
+    order=600,
+)

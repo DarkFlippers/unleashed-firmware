@@ -6,6 +6,20 @@
 
 bool NameChanger_Init() {
     Storage* storage = furi_record_open(RECORD_STORAGE);
+
+    // Kostil + velosiped = top ficha
+    uint8_t timeout = 0;
+    while(timeout < 11) {
+        if(storage_sd_status(storage) == FSE_OK) break;
+        furi_delay_ms(250);
+        timeout++;
+        /*if(timeout == 10) {
+            // Failed to init namechanger, SD card not ready
+            furi_record_close(RECORD_STORAGE);
+            return false;
+        }*/
+    }
+
     FuriString* str = furi_string_alloc();
     FlipperFormat* file = flipper_format_file_alloc(storage);
 
