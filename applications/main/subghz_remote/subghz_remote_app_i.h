@@ -26,7 +26,7 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 
-#define SUBREM_APP_FOLDER ANY_PATH("subghz_remote")
+#define SUBREM_APP_FOLDER EXT_PATH("subghz_remote")
 #define SUBREM_MAX_LEN_NAME 64
 
 typedef struct {
