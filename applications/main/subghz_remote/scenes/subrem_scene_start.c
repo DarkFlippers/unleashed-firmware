@@ -34,8 +34,10 @@ void subrem_scene_start_on_enter(void* context) {
     //     subrem_scene_start_submenu_callback,
     //     app);
 
-    submenu_set_selected_item(
-        submenu, scene_manager_get_scene_state(app->scene_manager, SubRemSceneStart));
+    // TODO: set scene state in subrem alloc
+    // submenu_set_selected_item(
+    //     submenu, scene_manager_get_scene_state(app->scene_manager, SubRemSceneStart));
+    submenu_set_selected_item(submenu, SubmenuIndexSubRemOpenMapFile);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, SubRemViewSubmenu);
 }

@@ -18,7 +18,7 @@ void subrem_scene_openmapfile_on_enter(void* context) {
         dialog_message_free(message);
 #endif
     }
-    if(load_state == SubRemLoadMapStateOK) {
+    if(load_state == SubRemLoadMapStateOK || load_state == SubRemLoadMapStateNotAllOK) {
         scene_manager_next_scene(app->scene_manager, SubRemSceneRemote);
     } else {
         // TODO: Map Preset Reset
