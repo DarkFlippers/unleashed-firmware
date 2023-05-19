@@ -1,7 +1,7 @@
 App(
     appid="subrem_remote_fap",
     name="Sub-GHz Remote",
-    apptype=FlipperAppType.APP,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="subghz_remote_app",
     cdefines=[
         "APP_SUBGHZREMOTE",
