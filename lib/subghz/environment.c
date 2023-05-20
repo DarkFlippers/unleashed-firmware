@@ -124,25 +124,5 @@ const char*
 void subghz_environment_reset_keeloq(SubGhzEnvironment* instance) {
     furi_assert(instance);
 
-    instance->mfname = "";
-    instance->kl_type = 0;
-}
-
-const char* subghz_environment_keeloq_get_mf(SubGhzEnvironment* instance) {
-    furi_assert(instance);
-
-    return instance->mfname;
-}
-
-uint8_t subghz_environment_keeloq_get_kl_type(SubGhzEnvironment* instance) {
-    furi_assert(instance);
-
-    return instance->kl_type;
-}
-
-void subghz_environment_keeloq_set_mf(SubGhzEnvironment* instance, const char* mf, uint8_t kl_type) {
-    furi_assert(instance);
-
-    instance->mfname = mf;
-    instance->kl_type = kl_type;
+    subghz_keystore_reset_kl(instance->keystore);
 }

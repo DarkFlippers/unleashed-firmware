@@ -11,6 +11,7 @@
 #include "../blocks/math.h"
 
 #include "../blocks/custom_btn.h"
+#include "../subghz_keystore_i.h"
 
 #define TAG "SubGhzProtocolKeeloq"
 
@@ -93,8 +94,6 @@ const SubGhzProtocol subghz_protocol_keeloq = {
 static uint8_t klq_prog_mode;
 static uint16_t temp_counter;
 
-static SubGhzEnvironment* kl_environment;
-
 void keeloq_reset_original_btn() {
     subghz_custom_btns_reset();
     temp_counter = 0;
@@ -118,8 +117,6 @@ void* subghz_protocol_encoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_keeloq;
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
-
-    kl_environment = environment;
 
     instance->encoder.repeat = 100;
     instance->encoder.size_upload = 256;
@@ -246,7 +243,7 @@ static bool subghz_protocol_keeloq_gen_data(
                 decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
                 // Beninca / Allmatic -> no serial - simple XOR
             }
-            uint8_t kl_type_en = subghz_environment_keeloq_get_kl_type(kl_environment);
+            uint8_t kl_type_en = instance->keystore->kl_type;
             for
                 M_EACH(
                     manufacture_code,
@@ -501,10 +498,7 @@ SubGhzProtocolStatus
         if(flipper_format_read_string(
                flipper_format, "Manufacture", instance->manufacture_from_file)) {
             instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
-            subghz_environment_keeloq_set_mf(
-                kl_environment,
-                furi_string_get_cstr(instance->manufacture_from_file),
-                subghz_environment_keeloq_get_kl_type(kl_environment));
+            instance->keystore->mfname = instance->manufacture_name;
         } else {
             FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
         }
@@ -576,7 +570,6 @@ void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
 
-    kl_environment = environment;
     klq_prog_mode = KEELOQ_PROG_MODE_OFF;
 
     return instance;
@@ -594,7 +587,9 @@ void subghz_protocol_decoder_keeloq_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
     instance->decoder.parser_step = KeeloqDecoderStepReset;
-    subghz_environment_reset_keeloq(kl_environment);
+    // TODO
+    instance->keystore->mfname = "";
+    instance->keystore->kl_type = 0;
 }
 
 void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t duration) {
@@ -742,8 +737,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
     //     mfname = "";
     // }
 
-    const char* mfname = subghz_environment_keeloq_get_mf(kl_environment);
-    uint8_t kl_type_en = subghz_environment_keeloq_get_kl_type(kl_environment);
+    const char* mfname = keystore->mfname;
 
     if(strcmp(mfname, "Unknown") == 0) {
         return 1;
@@ -759,8 +753,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -772,8 +765,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -783,8 +775,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -794,8 +785,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -805,8 +795,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -816,8 +805,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -827,8 +815,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(
-                            kl_environment, *manufacture_name, kl_type_en);
+                        keystore->mfname = *manufacture_name;
                         return 1;
                     }
                     break;
@@ -837,7 +824,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 1);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 1;
                         return 1;
                     }
 
@@ -852,7 +840,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_rev);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 1);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 1;
                         return 1;
                     }
 
@@ -864,7 +853,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 2);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 2;
                         return 1;
                     }
 
@@ -873,7 +863,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 2);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 2;
                         return 1;
                     }
 
@@ -883,7 +874,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 3);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 3;
                         return 1;
                     }
 
@@ -893,7 +885,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 3);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 3;
                         return 1;
                     }
 
@@ -903,7 +896,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 4);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 4;
                         return 1;
                     }
 
@@ -912,7 +906,8 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                     if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                         *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, 4);
+                        keystore->mfname = *manufacture_name;
+                        keystore->kl_type = 4;
                         return 1;
                     }
 
@@ -922,7 +917,7 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
         }
 
     *manufacture_name = "Unknown";
-    subghz_environment_keeloq_set_mf(kl_environment, "Unknown", kl_type_en);
+    keystore->mfname = "Unknown";
     instance->cnt = 0;
 
     return 0;
@@ -935,7 +930,6 @@ static void subghz_protocol_keeloq_check_remote_controller(
     uint64_t key = subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
     uint32_t key_fix = key >> 32;
     uint32_t key_hop = key & 0x00000000ffffffff;
-    uint8_t kl_type_en = subghz_environment_keeloq_get_kl_type(kl_environment);
 
     // If we are in BFT / Aprimatic programming mode we will set previous remembered counter and skip mf keys check
     if(klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
@@ -943,11 +937,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
         if((key_hop >> 24) == ((key_hop >> 16) & 0x00ff) &&
            (key_fix >> 28) == ((key_hop >> 12) & 0x0f) && (key_hop & 0xFFF) == 0x404) {
             *manufacture_name = "AN-Motors";
-            subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, kl_type_en);
+            keystore->mfname = *manufacture_name;
             instance->cnt = key_hop >> 16;
         } else if((key_hop & 0xFFF) == (0x000) && (key_fix >> 28) == ((key_hop >> 12) & 0x0f)) {
             *manufacture_name = "HCS101";
-            subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, kl_type_en);
+            keystore->mfname = *manufacture_name;
             instance->cnt = key_hop >> 16;
         } else {
             subghz_protocol_keeloq_check_remote_controller_selector(
@@ -957,11 +951,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
 
     } else if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
         *manufacture_name = "BFT";
-        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, kl_type_en);
+        keystore->mfname = *manufacture_name;
         instance->cnt = temp_counter;
     } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
         *manufacture_name = "Aprimatic";
-        subghz_environment_keeloq_set_mf(kl_environment, *manufacture_name, kl_type_en);
+        keystore->mfname = *manufacture_name;
         instance->cnt = temp_counter;
     }
 
@@ -1053,10 +1047,7 @@ SubGhzProtocolStatus
         if(flipper_format_read_string(
                flipper_format, "Manufacture", instance->manufacture_from_file)) {
             instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
-            subghz_environment_keeloq_set_mf(
-                kl_environment,
-                furi_string_get_cstr(instance->manufacture_from_file),
-                subghz_environment_keeloq_get_kl_type(kl_environment));
+            instance->keystore->mfname = instance->manufacture_name;
         } else {
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
         }
