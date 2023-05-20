@@ -288,7 +288,9 @@ static SubRemLoadMapState
             // FURI_LOG_I(TAG, "Empty file path");
             continue;
         }
+
         sub_preset_loaded = SubRemLoadSubStateErrorNoFile;
+
         repeat = 200;
         do {
             if(!flipper_format_file_open_existing(
@@ -386,6 +388,7 @@ static SubRemLoadMapState
 
             sub_preset_loaded = SubRemLoadSubStateOK;
             ret = SubRemLoadMapStateNotAllOK;
+
 #if FURI_DEBUG
             FURI_LOG_I(TAG, "%-16s - protocol Loaded", furi_string_get_cstr(sub_preset->label));
 #endif

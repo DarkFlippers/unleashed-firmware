@@ -42,6 +42,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     // View Dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
+
     app->scene_manager = scene_manager_alloc(&subrem_scene_handlers, app);
     view_dispatcher_enable_queue(app->view_dispatcher);
 
@@ -126,6 +127,9 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     // Remote view
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDRemote);
     subrem_view_remote_free(app->subrem_remote_view);
+
+    scene_manager_free(app->scene_manager);
+    view_dispatcher_free(app->view_dispatcher);
 
     subghz_receiver_free(app->receiver);
     subghz_environment_free(app->environment);
