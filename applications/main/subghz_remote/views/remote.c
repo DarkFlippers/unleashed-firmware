@@ -4,7 +4,7 @@
 #include <input/input.h>
 #include <gui/elements.h>
 
-#define SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH 16
+#define SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH 12
 
 struct SubRemViewRemote {
     View* view;

@@ -179,10 +179,11 @@ void subghz_scene_decode_raw_on_enter(void* context) {
                 furi_string_get_cstr(item_time),
                 subghz_history_get_type_protocol(subghz->history, i));
         }
-        furi_string_free(item_name);
-        furi_string_free(item_time);
         subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
     }
+
+    furi_string_free(item_name);
+    furi_string_free(item_time);
 
     subghz_scene_receiver_update_statusbar(subghz);
 
