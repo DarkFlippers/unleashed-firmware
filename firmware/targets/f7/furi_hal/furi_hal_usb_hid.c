@@ -436,7 +436,11 @@ static bool hid_send_report(uint8_t report_id) {
     if((hid_semaphore == NULL) || (hid_connected == false)) return false;
     if((boot_protocol == true) && (report_id != ReportIdKeyboard)) return false;
 
-    furi_check(furi_semaphore_acquire(hid_semaphore, FuriWaitForever) == FuriStatusOk);
+    FuriStatus status = furi_semaphore_acquire(hid_semaphore, HID_INTERVAL * 2);
+    if(status == FuriStatusErrorTimeout) {
+        return false;
+    }
+    furi_check(status == FuriStatusOk);
     if(hid_connected == false) {
         return false;
     }
