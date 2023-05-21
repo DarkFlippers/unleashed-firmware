@@ -3,6 +3,8 @@
 #include "helpers/subrem_types.h"
 #include "helpers/subrem_presets.h"
 
+#include "../subghz/helpers/subghz_txrx.h"
+
 #include <assets_icons.h>
 
 #include "views/remote.h"
@@ -32,9 +34,6 @@
 #define SUBREM_MAX_LEN_NAME 64
 
 typedef struct {
-    SubRemSubFilePreset* subs_preset[SubRemSubKeyNameMaxCount];
-} SubRemMapPreset;
-typedef struct {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
@@ -49,10 +48,7 @@ typedef struct {
 
     SubRemMapPreset* map_preset;
 
-    SubGhzSetting* setting;
-    SubGhzEnvironment* environment;
-    SubGhzReceiver* receiver;
-    SubGhzTransmitter* transmitter;
+    SubGhzTxRx* txrx;
 
     bool tx_running;
 
@@ -61,9 +57,8 @@ typedef struct {
 
 SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app);
 
-bool subrem_tx_start_sub(
-    SubGhzRemoteApp* app,
-    SubRemSubFilePreset* sub_preset,
-    SubGhzProtocolEncoderRAWCallbackEnd callback);
+bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
 
 bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced);
+
+void subrem_save_active_sub(void* context);
