@@ -23,6 +23,14 @@ static void subghz_remote_app_tick_event_callback(void* context) {
 SubGhzRemoteApp* subghz_remote_app_alloc() {
     SubGhzRemoteApp* app = malloc(sizeof(SubGhzRemoteApp));
 
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    storage_common_migrate(storage, EXT_PATH("unirf"), SUBREM_APP_FOLDER);
+
+    if(!storage_simply_mkdir(storage, SUBREM_APP_FOLDER)) {
+        //FURI_LOG_E(TAG, "Could not create folder %s", SUBREM_APP_FOLDER);
+    }
+    furi_record_close(RECORD_STORAGE);
+
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
     // Auto switch to internal radio if external radio is not available
