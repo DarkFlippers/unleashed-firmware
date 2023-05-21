@@ -154,10 +154,8 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
         const char* strInitializing = "Something wrong";
         canvas_draw_str(
             canvas,
-            (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
-                (canvas_string_width(canvas, strInitializing) / 2),
-            (u8g2_GetDisplayHeight(&canvas->fb) /
-             2) /* - (u8g2_GetMaxCharHeight(&canvas->fb) / 2)*/,
+            (128 / 2) - (canvas_string_width(canvas, strInitializing) / 2),
+            (64 / 2) /* - (canvas_current_font_height(canvas) / 2)*/,
             strInitializing);
     } break;
     case WaitingForModule:
@@ -170,10 +168,8 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
             const char* strInitializing = "Attach WiFi Deauther module";
             canvas_draw_str(
                 canvas,
-                (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
-                    (canvas_string_width(canvas, strInitializing) / 2),
-                (u8g2_GetDisplayHeight(&canvas->fb) /
-                 2) /* - (u8g2_GetMaxCharHeight(&canvas->fb) / 2)*/,
+                (128 / 2) - (canvas_string_width(canvas, strInitializing) / 2),
+                (64 / 2) /* - (canvas_current_font_height(canvas) / 2)*/,
                 strInitializing);
         }
 #endif
@@ -188,10 +184,8 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
             const char* strInitializing = "Initializing...";
             canvas_draw_str(
                 canvas,
-                (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
-                    (canvas_string_width(canvas, strInitializing) / 2),
-                (u8g2_GetDisplayHeight(&canvas->fb) / 2) -
-                    (u8g2_GetMaxCharHeight(&canvas->fb) / 2),
+                (128 / 2) - (canvas_string_width(canvas, strInitializing) / 2),
+                (64 / 2) - (canvas_current_font_height(canvas) / 2),
                 strInitializing);
         }
     }

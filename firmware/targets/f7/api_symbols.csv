@@ -3036,13 +3036,13 @@ Function,-,subghz_protocol_decoder_power_smart_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_power_smart_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_power_smart_reset,void,void*
 Function,-,subghz_protocol_decoder_power_smart_serialize,SubGhzProtocolStatus,"void*, FlipperFormat*, SubGhzRadioPreset*"
-Function,+,subghz_protocol_decoder_princeton_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_princeton_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_princeton_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
-Function,+,subghz_protocol_decoder_princeton_feed,void,"void*, _Bool, uint32_t"
-Function,+,subghz_protocol_decoder_princeton_free,void,void*
-Function,+,subghz_protocol_decoder_princeton_get_hash_data,uint8_t,void*
-Function,+,subghz_protocol_decoder_princeton_get_string,void,"void*, FuriString*"
-Function,+,subghz_protocol_decoder_princeton_reset,void,void*
+Function,-,subghz_protocol_decoder_princeton_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_princeton_free,void,void*
+Function,-,subghz_protocol_decoder_princeton_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_princeton_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_princeton_reset,void,void*
 Function,-,subghz_protocol_decoder_princeton_serialize,SubGhzProtocolStatus,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
 Function,+,subghz_protocol_decoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
@@ -3261,11 +3261,11 @@ Function,-,subghz_protocol_encoder_power_smart_deserialize,SubGhzProtocolStatus,
 Function,-,subghz_protocol_encoder_power_smart_free,void,void*
 Function,-,subghz_protocol_encoder_power_smart_stop,void,void*
 Function,-,subghz_protocol_encoder_power_smart_yield,LevelDuration,void*
-Function,+,subghz_protocol_encoder_princeton_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_princeton_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_princeton_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
-Function,+,subghz_protocol_encoder_princeton_free,void,void*
-Function,+,subghz_protocol_encoder_princeton_stop,void,void*
-Function,+,subghz_protocol_encoder_princeton_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_princeton_free,void,void*
+Function,-,subghz_protocol_encoder_princeton_stop,void,void*
+Function,-,subghz_protocol_encoder_princeton_yield,LevelDuration,void*
 Function,+,subghz_protocol_encoder_raw_alloc,void*,SubGhzEnvironment*
 Function,+,subghz_protocol_encoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
 Function,+,subghz_protocol_encoder_raw_free,void,void*
@@ -3457,7 +3457,7 @@ Function,-,u8g2_DrawExtendedUTF8,u8g2_uint_t,"u8g2_t*, u8g2_uint_t, u8g2_uint_t,
 Function,-,u8g2_DrawFilledEllipse,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, uint8_t"
 Function,-,u8g2_DrawFrame,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t"
 Function,-,u8g2_DrawGlyph,u8g2_uint_t,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, uint16_t"
-Function,+,u8g2_DrawHLine,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t"
+Function,-,u8g2_DrawHLine,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t"
 Function,-,u8g2_DrawHVLine,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, uint8_t"
 Function,-,u8g2_DrawHorizontalBitmap,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, const uint8_t*"
 Function,-,u8g2_DrawLine,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t"
@@ -3493,7 +3493,7 @@ Function,-,u8g2_SetBufferCurrTileRow,void,"u8g2_t*, uint8_t"
 Function,-,u8g2_SetClipWindow,void,"u8g2_t*, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t, u8g2_uint_t"
 Function,-,u8g2_SetDisplayRotation,void,"u8g2_t*, const u8g2_cb_t*"
 Function,-,u8g2_SetDrawColor,void,"u8g2_t*, uint8_t"
-Function,+,u8g2_SetFont,void,"u8g2_t*, const uint8_t*"
+Function,-,u8g2_SetFont,void,"u8g2_t*, const uint8_t*"
 Function,-,u8g2_SetFontDirection,void,"u8g2_t*, uint8_t"
 Function,-,u8g2_SetFontMode,void,"u8g2_t*, uint8_t"
 Function,-,u8g2_SetFontPosBaseline,void,u8g2_t*
@@ -4531,7 +4531,7 @@ Function,-,uxTaskGetStackHighWaterMark,UBaseType_t,TaskHandle_t
 Function,-,uxTaskGetStackHighWaterMark2,uint16_t,TaskHandle_t
 Function,-,uxTaskGetSystemState,UBaseType_t,"TaskStatus_t*, const UBaseType_t, uint32_t*"
 Function,-,uxTaskGetTaskNumber,UBaseType_t,TaskHandle_t
-Function,+,uxTaskPriorityGet,UBaseType_t,const TaskHandle_t
+Function,-,uxTaskPriorityGet,UBaseType_t,const TaskHandle_t
 Function,-,uxTaskPriorityGetFromISR,UBaseType_t,const TaskHandle_t
 Function,-,uxTaskResetEventItemValue,TickType_t,
 Function,-,uxTimerGetReloadMode,UBaseType_t,TimerHandle_t
@@ -5234,7 +5234,7 @@ Variable,-,u8g2_font_7x13B_mn,const uint8_t[],
 Variable,-,u8g2_font_7x13B_mr,const uint8_t[],
 Variable,-,u8g2_font_7x13B_tf,const uint8_t[],
 Variable,-,u8g2_font_7x13B_tn,const uint8_t[],
-Variable,+,u8g2_font_7x13B_tr,const uint8_t[],
+Variable,-,u8g2_font_7x13B_tr,const uint8_t[],
 Variable,-,u8g2_font_7x13O_mf,const uint8_t[],
 Variable,-,u8g2_font_7x13O_mn,const uint8_t[],
 Variable,-,u8g2_font_7x13O_mr,const uint8_t[],
@@ -5438,7 +5438,7 @@ Variable,-,u8g2_font_chroma48medium8_8n,const uint8_t[],
 Variable,-,u8g2_font_chroma48medium8_8r,const uint8_t[],
 Variable,-,u8g2_font_chroma48medium8_8u,const uint8_t[],
 Variable,-,u8g2_font_courB08_tf,const uint8_t[],
-Variable,+,u8g2_font_courB08_tn,const uint8_t[],
+Variable,-,u8g2_font_courB08_tn,const uint8_t[],
 Variable,-,u8g2_font_courB08_tr,const uint8_t[],
 Variable,-,u8g2_font_courB10_tf,const uint8_t[],
 Variable,-,u8g2_font_courB10_tn,const uint8_t[],
@@ -5788,7 +5788,7 @@ Variable,-,u8g2_font_inb24_mn,const uint8_t[],
 Variable,-,u8g2_font_inb24_mr,const uint8_t[],
 Variable,-,u8g2_font_inb27_mf,const uint8_t[],
 Variable,-,u8g2_font_inb27_mn,const uint8_t[],
-Variable,+,u8g2_font_inb27_mr,const uint8_t[],
+Variable,-,u8g2_font_inb27_mr,const uint8_t[],
 Variable,-,u8g2_font_inb30_mf,const uint8_t[],
 Variable,-,u8g2_font_inb30_mn,const uint8_t[],
 Variable,-,u8g2_font_inb30_mr,const uint8_t[],
@@ -6265,7 +6265,7 @@ Variable,-,u8g2_font_open_iconic_app_4x_t,const uint8_t[],
 Variable,-,u8g2_font_open_iconic_app_6x_t,const uint8_t[],
 Variable,-,u8g2_font_open_iconic_app_8x_t,const uint8_t[],
 Variable,-,u8g2_font_open_iconic_arrow_1x_t,const uint8_t[],
-Variable,+,u8g2_font_open_iconic_arrow_2x_t,const uint8_t[],
+Variable,-,u8g2_font_open_iconic_arrow_2x_t,const uint8_t[],
 Variable,-,u8g2_font_open_iconic_arrow_4x_t,const uint8_t[],
 Variable,-,u8g2_font_open_iconic_arrow_6x_t,const uint8_t[],
 Variable,-,u8g2_font_open_iconic_arrow_8x_t,const uint8_t[],
