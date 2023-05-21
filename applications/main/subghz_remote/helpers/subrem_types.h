@@ -26,7 +26,7 @@ typedef enum {
 } SubRemViewID;
 
 typedef enum {
-    SubRemLoadSubStateNotSet,
+    SubRemLoadSubStateNotSet = 0,
     SubRemLoadSubStatePreloaded,
     SubRemLoadSubStateError,
     SubRemLoadSubStateErrorNoFile,

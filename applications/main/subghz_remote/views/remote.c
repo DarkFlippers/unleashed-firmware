@@ -41,24 +41,18 @@ void subrem_view_remote_set_callback(
     subrem_view_remote->context = context;
 }
 
-void subrem_view_remote_add_data_to_show(
-    SubRemViewRemote* subrem_view_remote,
-    const char* up_label,
-    const char* down_label,
-    const char* left_label,
-    const char* right_label,
-    const char* ok_label) {
+void subrem_view_remote_add_data_to_show(SubRemViewRemote* subrem_view_remote, const char** labels) {
     furi_assert(subrem_view_remote);
 
     with_view_model(
         subrem_view_remote->view,
         SubRemViewRemoteModel * model,
         {
-            strncpy(model->up_label, up_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->down_label, down_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->left_label, left_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->right_label, right_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->ok_label, ok_label, SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
+            strncpy(model->up_label, labels[0], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
+            strncpy(model->down_label, labels[1], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
+            strncpy(model->left_label, labels[2], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
+            strncpy(model->right_label, labels[3], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
+            strncpy(model->ok_label, labels[4], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
 
             // furi_string_set(model->up_label, up_label);
             // furi_string_set(model->down_label, down_label);
@@ -69,21 +63,19 @@ void subrem_view_remote_add_data_to_show(
         true);
 }
 
-void subrem_view_remote_set_presed_btn(SubRemViewRemote* subrem_view_remote, uint8_t presed_btn) {
+void subrem_view_remote_set_state(
+    SubRemViewRemote* subrem_view_remote,
+    SubRemViewRemoteState state,
+    uint8_t presed_btn) {
     furi_assert(subrem_view_remote);
     with_view_model(
         subrem_view_remote->view,
         SubRemViewRemoteModel * model,
-        { model->pressed_btn = presed_btn; },
+        {
+            model->state = state;
+            model->pressed_btn = presed_btn;
+        },
         true);
-}
-
-void subrem_view_remote_set_state(
-    SubRemViewRemote* subrem_view_remote,
-    SubRemViewRemoteState state) {
-    furi_assert(subrem_view_remote);
-    with_view_model(
-        subrem_view_remote->view, SubRemViewRemoteModel * model, { model->state = state; }, true);
 }
 
 void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
