@@ -41,11 +41,11 @@ static bool subrem_scene_remote_update_data_show(void* context) {
 
     subrem_view_remote_add_data_to_show(
         app->subrem_remote_view,
-        furi_string_get_cstr(app->subs_preset[0]->label),
-        furi_string_get_cstr(app->subs_preset[1]->label),
-        furi_string_get_cstr(app->subs_preset[2]->label),
-        furi_string_get_cstr(app->subs_preset[3]->label),
-        furi_string_get_cstr(app->subs_preset[4]->label));
+        furi_string_get_cstr(app->map_preset->subs_preset[0]->label),
+        furi_string_get_cstr(app->map_preset->subs_preset[1]->label),
+        furi_string_get_cstr(app->map_preset->subs_preset[2]->label),
+        furi_string_get_cstr(app->map_preset->subs_preset[3]->label),
+        furi_string_get_cstr(app->map_preset->subs_preset[4]->label));
 
     return ret;
 }
@@ -85,7 +85,7 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
             subrem_view_remote_set_state(app->subrem_remote_view, SubRemViewRemoteStateLoading);
             if(subrem_tx_start_sub(
                    app,
-                   app->subs_preset[app->chusen_sub],
+                   app->map_preset->subs_preset[app->chusen_sub],
                    subrem_scene_remote_raw_callback_end_tx)) {
                 subrem_view_remote_set_presed_btn(app->subrem_remote_view, app->chusen_sub);
                 subrem_view_remote_set_state(

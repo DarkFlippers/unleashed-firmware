@@ -42,50 +42,11 @@ static bool
     return true;
 }
 
-SubRemSubFilePreset* subrem_sub_file_preset_alloc() {
-    SubRemSubFilePreset* sub_preset = malloc(sizeof(SubRemSubFilePreset));
-
-    sub_preset->fff_data = flipper_format_string_alloc();
-    sub_preset->file_path = furi_string_alloc();
-    sub_preset->protocaol_name = furi_string_alloc();
-    sub_preset->label = furi_string_alloc_set_str("N/A");
-
-    sub_preset->type = SubGhzProtocolTypeUnknown;
-    sub_preset->load_state = SubRemLoadSubStateNotSet;
-
-    return sub_preset;
-}
-
-void subrem_sub_file_preset_free(SubRemSubFilePreset* sub_preset) {
-    furi_assert(sub_preset);
-
-    furi_string_free(sub_preset->label);
-    furi_string_free(sub_preset->protocaol_name);
-    furi_string_free(sub_preset->file_path);
-    flipper_format_free(sub_preset->fff_data);
-
-    free(sub_preset);
-}
-
-static void subrem_sub_file_preset_reset(SubRemSubFilePreset* sub_preset) {
-    furi_assert(sub_preset);
-
-    furi_string_set_str(sub_preset->label, "N/A");
-    furi_string_reset(sub_preset->protocaol_name);
-    furi_string_reset(sub_preset->file_path);
-
-    Stream* fff_data_stream = flipper_format_get_raw_stream(sub_preset->fff_data);
-    stream_clean(fff_data_stream);
-
-    sub_preset->type = SubGhzProtocolTypeUnknown;
-    sub_preset->load_state = SubRemLoadSubStateNotSet;
-}
-
-void subrem_map_preset_reset(SubGhzRemoteApp* app) {
-    furi_assert(app);
+void subrem_map_preset_reset(SubRemMapPreset* map_preset) {
+    furi_assert(map_preset);
 
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        subrem_sub_file_preset_reset(app->subs_preset[i]);
+        subrem_sub_file_preset_reset(map_preset->subs_preset[i]);
     }
 }
 
@@ -94,7 +55,7 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
     bool ret = false;
     SubRemSubFilePreset* sub_preset;
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        sub_preset = app->subs_preset[i];
+        sub_preset = app->map_preset->subs_preset[i];
         if(!flipper_format_read_string(
                fff_data_file, map_file_labels[i][0], sub_preset->file_path)) {
 #if FURI_DEBUG
@@ -125,153 +86,6 @@ static bool subrem_map_preset_load(SubGhzRemoteApp* app, FlipperFormat* fff_data
     return ret;
 }
 
-bool subrem_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev_file_name) {
-    furi_assert(flipper_format);
-    furi_assert(dev_file_name);
-
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    Stream* flipper_format_stream = flipper_format_get_raw_stream(flipper_format);
-
-    bool saved = false;
-    uint32_t repeat = 200;
-    FuriString* file_dir = furi_string_alloc();
-
-    path_extract_dirname(dev_file_name, file_dir);
-    do {
-        // removing additional fields
-        flipper_format_delete_key(flipper_format, "Repeat");
-        // flipper_format_delete_key(flipper_format, "Manufacture");
-
-        if(!storage_simply_remove(storage, dev_file_name)) {
-            break;
-        }
-
-        //ToDo check Write
-        stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
-        stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
-
-        if(!flipper_format_insert_or_update_uint32(flipper_format, "Repeat", &repeat, 1)) {
-            FURI_LOG_E(TAG, "Unable Repeat");
-            break;
-        }
-
-        saved = true;
-    } while(0);
-
-    furi_string_free(file_dir);
-    furi_record_close(RECORD_STORAGE);
-    return saved;
-}
-
-bool subrem_tx_start_sub(
-    SubGhzRemoteApp* app,
-    SubRemSubFilePreset* sub_preset,
-    SubGhzProtocolEncoderRAWCallbackEnd callback) {
-    furi_assert(app);
-    furi_assert(sub_preset);
-    bool ret = false;
-
-    subrem_tx_stop_sub(app, true);
-
-    if(sub_preset->type == SubGhzProtocolTypeUnknown) {
-        return false;
-    }
-
-    FURI_LOG_I(TAG, "Send %s", furi_string_get_cstr(sub_preset->label));
-
-    subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
-    keeloq_reset_original_btn();
-    subghz_custom_btns_reset();
-
-    do {
-        flipper_format_rewind(sub_preset->fff_data); //
-
-        app->transmitter = subghz_transmitter_alloc_init(
-            app->environment, furi_string_get_cstr(sub_preset->protocaol_name));
-
-        if(app->transmitter) {
-            if(subghz_transmitter_deserialize(app->transmitter, sub_preset->fff_data) !=
-               SubGhzProtocolStatusOk) {
-                FURI_LOG_E(TAG, "Deserialize error!");
-                break;
-            }
-            furi_hal_subghz_reset();
-            furi_hal_subghz_idle();
-            furi_hal_subghz_load_custom_preset(sub_preset->freq_preset.data);
-            furi_hal_gpio_init(
-                furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
-
-            furi_hal_subghz_idle();
-
-            furi_hal_subghz_set_frequency_and_path(sub_preset->freq_preset.frequency);
-            furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, false);
-            furi_hal_gpio_init(
-                furi_hal_subghz.cc1101_g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-
-            if(!furi_hal_subghz_tx()) {
-                FURI_LOG_E(TAG, "Sending not allowed");
-                break;
-            }
-
-            if(sub_preset->type == SubGhzProtocolTypeRAW) {
-                subghz_protocol_raw_file_encoder_worker_set_callback_end(
-                    (SubGhzProtocolEncoderRAW*)subghz_transmitter_get_protocol_instance(
-                        app->transmitter),
-                    callback,
-                    app);
-            }
-
-            furi_hal_subghz_start_async_tx(subghz_transmitter_yield, app->transmitter);
-
-            ret = true;
-        }
-    } while(false);
-
-    app->tx_running = ret;
-
-    return ret;
-}
-
-static void subghz_tx_stop(SubGhzRemoteApp* app) {
-    furi_assert(app);
-
-    //Stop TX
-    furi_hal_subghz_stop_async_tx();
-
-    subghz_transmitter_stop(app->transmitter);
-    subghz_transmitter_free(app->transmitter);
-    furi_hal_subghz_idle();
-}
-
-bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
-    furi_assert(app);
-    SubRemSubFilePreset* sub_preset = app->subs_preset[app->chusen_sub];
-
-    if(forced || (sub_preset->type != SubGhzProtocolTypeRAW)) {
-        // SubRemSubKeyTypeRawKey)) {
-        if(app->tx_running) {
-            subghz_tx_stop(app);
-
-            if(sub_preset->type == SubGhzProtocolTypeDynamic) {
-                subrem_save_protocol_to_file(
-                    sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
-
-                keeloq_reset_mfname();
-                keeloq_reset_kl_type();
-                keeloq_reset_original_btn();
-                subghz_custom_btns_reset();
-                star_line_reset_mfname();
-                star_line_reset_kl_type();
-            }
-
-            app->tx_running = false;
-            return true;
-        }
-    }
-
-    return false;
-}
-
 static SubRemLoadMapState
     subrem_map_preset_check(SubGhzRemoteApp* app, FlipperFormat* fff_data_file) {
     furi_assert(app);
@@ -283,7 +97,7 @@ static SubRemLoadMapState
     SubRemSubFilePreset* sub_preset;
     uint32_t repeat = 200;
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        sub_preset = app->subs_preset[i];
+        sub_preset = app->map_preset->subs_preset[i];
         if(furi_string_empty(sub_preset->file_path)) {
             // FURI_LOG_I(TAG, "Empty file path");
             continue;
@@ -427,7 +241,7 @@ SubRemLoadMapState subrem_map_file_load(SubGhzRemoteApp* app, const char* file_p
 #if FURI_DEBUG
     FURI_LOG_I(TAG, "Open Map File..");
 #endif
-    subrem_map_preset_reset(app);
+    subrem_map_preset_reset(app->map_preset);
 
     if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
         FURI_LOG_E(TAG, "Could not open MAP file %s", file_path);
@@ -456,6 +270,153 @@ SubRemLoadMapState subrem_map_file_load(SubGhzRemoteApp* app, const char* file_p
 
     furi_record_close(RECORD_STORAGE);
     return ret;
+}
+
+bool subrem_save_protocol_to_file(FlipperFormat* flipper_format, const char* dev_file_name) {
+    furi_assert(flipper_format);
+    furi_assert(dev_file_name);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    Stream* flipper_format_stream = flipper_format_get_raw_stream(flipper_format);
+
+    bool saved = false;
+    uint32_t repeat = 200;
+    FuriString* file_dir = furi_string_alloc();
+
+    path_extract_dirname(dev_file_name, file_dir);
+    do {
+        // removing additional fields
+        flipper_format_delete_key(flipper_format, "Repeat");
+        // flipper_format_delete_key(flipper_format, "Manufacture");
+
+        if(!storage_simply_remove(storage, dev_file_name)) {
+            break;
+        }
+
+        //ToDo check Write
+        stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
+        stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
+
+        if(!flipper_format_insert_or_update_uint32(flipper_format, "Repeat", &repeat, 1)) {
+            FURI_LOG_E(TAG, "Unable Repeat");
+            break;
+        }
+
+        saved = true;
+    } while(0);
+
+    furi_string_free(file_dir);
+    furi_record_close(RECORD_STORAGE);
+    return saved;
+}
+
+bool subrem_tx_start_sub(
+    SubGhzRemoteApp* app,
+    SubRemSubFilePreset* sub_preset,
+    SubGhzProtocolEncoderRAWCallbackEnd callback) {
+    furi_assert(app);
+    furi_assert(sub_preset);
+    bool ret = false;
+
+    subrem_tx_stop_sub(app, true);
+
+    if(sub_preset->type == SubGhzProtocolTypeUnknown) {
+        return false;
+    }
+
+    FURI_LOG_I(TAG, "Send %s", furi_string_get_cstr(sub_preset->label));
+
+    subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
+    keeloq_reset_original_btn();
+    subghz_custom_btns_reset();
+
+    do {
+        flipper_format_rewind(sub_preset->fff_data); //
+
+        app->transmitter = subghz_transmitter_alloc_init(
+            app->environment, furi_string_get_cstr(sub_preset->protocaol_name));
+
+        if(app->transmitter) {
+            if(subghz_transmitter_deserialize(app->transmitter, sub_preset->fff_data) !=
+               SubGhzProtocolStatusOk) {
+                FURI_LOG_E(TAG, "Deserialize error!");
+                break;
+            }
+            furi_hal_subghz_reset();
+            furi_hal_subghz_idle();
+            furi_hal_subghz_load_custom_preset(sub_preset->freq_preset.data);
+            furi_hal_gpio_init(
+                furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+
+            furi_hal_subghz_idle();
+
+            furi_hal_subghz_set_frequency_and_path(sub_preset->freq_preset.frequency);
+            furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, false);
+            furi_hal_gpio_init(
+                furi_hal_subghz.cc1101_g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+
+            if(!furi_hal_subghz_tx()) {
+                FURI_LOG_E(TAG, "Sending not allowed");
+                break;
+            }
+
+            if(sub_preset->type == SubGhzProtocolTypeRAW) {
+                subghz_protocol_raw_file_encoder_worker_set_callback_end(
+                    (SubGhzProtocolEncoderRAW*)subghz_transmitter_get_protocol_instance(
+                        app->transmitter),
+                    callback,
+                    app);
+            }
+
+            furi_hal_subghz_start_async_tx(subghz_transmitter_yield, app->transmitter);
+
+            ret = true;
+        }
+    } while(false);
+
+    app->tx_running = ret;
+
+    return ret;
+}
+
+static void subghz_tx_stop(SubGhzRemoteApp* app) {
+    furi_assert(app);
+
+    //Stop TX
+    furi_hal_subghz_stop_async_tx();
+
+    subghz_transmitter_stop(app->transmitter);
+    subghz_transmitter_free(app->transmitter);
+    furi_hal_subghz_idle();
+}
+
+bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
+    furi_assert(app);
+    SubRemSubFilePreset* sub_preset = app->map_preset->subs_preset[app->chusen_sub];
+
+    if(forced || (sub_preset->type != SubGhzProtocolTypeRAW)) {
+        // SubRemSubKeyTypeRawKey)) {
+        if(app->tx_running) {
+            subghz_tx_stop(app);
+
+            if(sub_preset->type == SubGhzProtocolTypeDynamic) {
+                subrem_save_protocol_to_file(
+                    sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
+
+                keeloq_reset_mfname();
+                keeloq_reset_kl_type();
+                keeloq_reset_original_btn();
+                subghz_custom_btns_reset();
+                star_line_reset_mfname();
+                star_line_reset_kl_type();
+            }
+
+            app->tx_running = false;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app) {
