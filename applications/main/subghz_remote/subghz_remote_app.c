@@ -74,8 +74,9 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
         SubRemViewIDRemote,
         subrem_view_remote_get_view(app->subrem_remote_view));
 
+    app->map_preset = malloc(sizeof(SubRemMapPreset));
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        app->subs_preset[i] = subrem_sub_file_preset_alloc();
+        app->map_preset->subs_preset[i] = subrem_sub_file_preset_alloc();
     }
 
     app->setting = subghz_setting_alloc();
@@ -136,8 +137,9 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     subghz_setting_free(app->setting);
 
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        subrem_sub_file_preset_free(app->subs_preset[i]);
+        subrem_sub_file_preset_free(app->map_preset->subs_preset[i]);
     }
+    free(app->map_preset);
 
     // Notifications
     furi_record_close(RECORD_NOTIFICATION);

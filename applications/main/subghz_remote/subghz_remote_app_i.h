@@ -1,6 +1,8 @@
 #pragma once
 
 #include "helpers/subrem_types.h"
+#include "helpers/subrem_presets.h"
+
 #include <assets_icons.h>
 
 #include "views/remote.h"
@@ -30,25 +32,8 @@
 #define SUBREM_MAX_LEN_NAME 64
 
 typedef struct {
-    uint32_t frequency;
-    uint8_t* data;
-} FreqPreset;
-
-// Sub File preset
-typedef struct {
-    FlipperFormat* fff_data;
-    FreqPreset freq_preset;
-    FuriString* file_path;
-    FuriString* protocaol_name;
-    FuriString* label;
-    SubGhzProtocolType type;
-    SubRemLoadSubState load_state;
-} SubRemSubFilePreset;
-
-SubRemSubFilePreset* subrem_sub_file_preset_alloc();
-
-void subrem_sub_file_preset_free(SubRemSubFilePreset* sub_preset);
-
+    SubRemSubFilePreset* subs_preset[SubRemSubKeyNameMaxCount];
+} SubRemMapPreset;
 typedef struct {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
@@ -56,12 +41,13 @@ typedef struct {
     NotificationApp* notifications;
     DialogsApp* dialogs;
     Submenu* submenu;
+
     FuriString* file_path;
-    char file_name_tmp[SUBREM_MAX_LEN_NAME];
+    // char file_name_tmp[SUBREM_MAX_LEN_NAME];
 
     SubRemViewRemote* subrem_remote_view;
 
-    SubRemSubFilePreset* subs_preset[SubRemSubKeyNameMaxCount];
+    SubRemMapPreset* map_preset;
 
     SubGhzSetting* setting;
     SubGhzEnvironment* environment;
