@@ -74,10 +74,7 @@ static void gps_uart_parse_nmea(GpsUart* gps_uart, char* line) {
 static int32_t gps_uart_worker(void* context) {
     GpsUart* gps_uart = (GpsUart*)context;
 
-    gps_uart->rx_stream = furi_stream_buffer_alloc(RX_BUF_SIZE * 5, 1);
     size_t rx_offset = 0;
-
-    gps_uart_serial_init(gps_uart);
 
     while(1) {
         uint32_t events =
@@ -148,6 +145,8 @@ void gps_uart_init_thread(GpsUart* gps_uart) {
     gps_uart->status.time_minutes = 0;
     gps_uart->status.time_seconds = 0;
 
+    gps_uart->rx_stream = furi_stream_buffer_alloc(RX_BUF_SIZE * 5, 1);
+
     gps_uart->thread = furi_thread_alloc();
     furi_thread_set_name(gps_uart->thread, "GpsUartWorker");
     furi_thread_set_stack_size(gps_uart->thread, 1024);
@@ -155,6 +154,8 @@ void gps_uart_init_thread(GpsUart* gps_uart) {
     furi_thread_set_callback(gps_uart->thread, gps_uart_worker);
 
     furi_thread_start(gps_uart->thread);
+
+    gps_uart_serial_init(gps_uart);
 }
 
 void gps_uart_deinit_thread(GpsUart* gps_uart) {
