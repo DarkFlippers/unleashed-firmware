@@ -1048,12 +1048,12 @@ Function,+,furi_hal_bt_change_app,_Bool,"FuriHalBtProfile, GapEventCallback, voi
 Function,+,furi_hal_bt_clear_white_list,_Bool,
 Function,+,furi_hal_bt_dump_state,void,FuriString*
 Function,+,furi_hal_bt_ensure_c2_mode,_Bool,BleGlueC2Mode
-Function,+,furi_hal_bt_get_conn_rssi,uint32_t,uint8_t*
+Function,-,furi_hal_bt_get_conn_rssi,uint32_t,uint8_t*
 Function,-,furi_hal_bt_get_hardfault_info,const FuriHalBtHardfaultInfo*,
 Function,+,furi_hal_bt_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,furi_hal_bt_get_profile_adv_name,const char*,FuriHalBtProfile
 Function,+,furi_hal_bt_get_profile_mac_addr,const uint8_t*,FuriHalBtProfile
-Function,+,furi_hal_bt_get_profile_pairing_method,GapPairing,FuriHalBtProfile
+Function,-,furi_hal_bt_get_profile_pairing_method,GapPairing,FuriHalBtProfile
 Function,+,furi_hal_bt_get_radio_stack,FuriHalBtStack,
 Function,+,furi_hal_bt_get_rssi,float,
 Function,+,furi_hal_bt_get_transmitted_packets,uint32_t,
@@ -1416,7 +1416,7 @@ Function,+,furi_hal_subghz_get_rssi,float,
 Function,+,furi_hal_subghz_get_timestamp_file_names,_Bool,
 Function,+,furi_hal_subghz_idle,void,
 Function,-,furi_hal_subghz_init,void,
-Function,+,furi_hal_subghz_init_check,_Bool,
+Function,-,furi_hal_subghz_init_check,_Bool,
 Function,+,furi_hal_subghz_init_radio_type,_Bool,SubGhzRadioType
 Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
 Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
@@ -1436,8 +1436,8 @@ Function,+,furi_hal_subghz_set_external_power_disable,void,_Bool
 Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
-Function,+,furi_hal_subghz_set_rolling_counter_mult,void,uint8_t
-Function,+,furi_hal_subghz_set_timestamp_file_names,void,_Bool
+Function,-,furi_hal_subghz_set_rolling_counter_mult,void,uint8_t
+Function,-,furi_hal_subghz_set_timestamp_file_names,void,_Bool
 Function,-,furi_hal_subghz_shutdown,void,
 Function,+,furi_hal_subghz_sleep,void,
 Function,+,furi_hal_subghz_start_async_rx,void,"FuriHalSubGhzCaptureCallback, void*"
@@ -1654,7 +1654,7 @@ Function,-,gamma,double,double
 Function,-,gamma_r,double,"double, int*"
 Function,-,gammaf,float,float
 Function,-,gammaf_r,float,"float, int*"
-Function,+,gap_get_remote_conn_rssi,uint32_t,int8_t*
+Function,-,gap_get_remote_conn_rssi,uint32_t,int8_t*
 Function,-,gap_get_state,GapState,
 Function,-,gap_init,_Bool,"GapConfig*, GapEventCallback, void*"
 Function,-,gap_start_advertising,void,
