@@ -50,6 +50,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     // View Dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
+
     app->scene_manager = scene_manager_alloc(&subrem_scene_handlers, app);
     view_dispatcher_enable_queue(app->view_dispatcher);
 
@@ -81,27 +82,14 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
         SubRemViewIDRemote,
         subrem_view_remote_get_view(app->subrem_remote_view));
 
+    app->map_preset = malloc(sizeof(SubRemMapPreset));
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        app->subs_preset[i] = subrem_sub_file_preset_alloc();
+        app->map_preset->subs_preset[i] = subrem_sub_file_preset_alloc();
     }
 
-    app->setting = subghz_setting_alloc();
-    subghz_setting_load(app->setting, EXT_PATH("subghz/assets/setting_user"));
+    app->txrx = subghz_txrx_alloc();
 
-    app->environment = subghz_environment_alloc();
-
-    subghz_environment_load_keystore(app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
-    subghz_environment_load_keystore(
-        app->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
-    subghz_environment_set_came_atomo_rainbow_table_file_name(
-        app->environment, EXT_PATH("subghz/assets/came_atomo"));
-    subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
-        app->environment, EXT_PATH("subghz/assets/alutech_at_4n"));
-    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-        app->environment, EXT_PATH("subghz/assets/nice_flor_s"));
-    subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
-
-    app->receiver = subghz_receiver_alloc_init(app->environment);
+    subghz_txrx_set_need_save_callback(app->txrx, subrem_save_active_sub, app);
 
     app->tx_running = false;
 
@@ -135,13 +123,15 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDRemote);
     subrem_view_remote_free(app->subrem_remote_view);
 
-    subghz_receiver_free(app->receiver);
-    subghz_environment_free(app->environment);
-    subghz_setting_free(app->setting);
+    scene_manager_free(app->scene_manager);
+    view_dispatcher_free(app->view_dispatcher);
+
+    subghz_txrx_free(app->txrx);
 
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        subrem_sub_file_preset_free(app->subs_preset[i]);
+        subrem_sub_file_preset_free(app->map_preset->subs_preset[i]);
     }
+    free(app->map_preset);
 
     // Notifications
     furi_record_close(RECORD_NOTIFICATION);

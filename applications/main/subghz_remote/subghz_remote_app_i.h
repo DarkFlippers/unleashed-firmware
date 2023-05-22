@@ -1,6 +1,10 @@
 #pragma once
 
 #include "helpers/subrem_types.h"
+#include "helpers/subrem_presets.h"
+
+#include "../subghz/helpers/subghz_txrx.h"
+
 #include <assets_icons.h>
 
 #include "views/remote.h"
@@ -30,43 +34,21 @@
 #define SUBREM_MAX_LEN_NAME 64
 
 typedef struct {
-    uint32_t frequency;
-    uint8_t* data;
-} FreqPreset;
-
-// Sub File preset
-typedef struct {
-    FlipperFormat* fff_data;
-    FreqPreset freq_preset;
-    FuriString* file_path;
-    FuriString* protocaol_name;
-    FuriString* label;
-    SubGhzProtocolType type;
-    SubRemLoadSubState load_state;
-} SubRemSubFilePreset;
-
-SubRemSubFilePreset* subrem_sub_file_preset_alloc();
-
-void subrem_sub_file_preset_free(SubRemSubFilePreset* sub_preset);
-
-typedef struct {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
     NotificationApp* notifications;
     DialogsApp* dialogs;
     Submenu* submenu;
+
     FuriString* file_path;
-    char file_name_tmp[SUBREM_MAX_LEN_NAME];
+    // char file_name_tmp[SUBREM_MAX_LEN_NAME];
 
     SubRemViewRemote* subrem_remote_view;
 
-    SubRemSubFilePreset* subs_preset[SubRemSubKeyNameMaxCount];
+    SubRemMapPreset* map_preset;
 
-    SubGhzSetting* setting;
-    SubGhzEnvironment* environment;
-    SubGhzReceiver* receiver;
-    SubGhzTransmitter* transmitter;
+    SubGhzTxRx* txrx;
 
     bool tx_running;
 
@@ -75,9 +57,8 @@ typedef struct {
 
 SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app);
 
-bool subrem_tx_start_sub(
-    SubGhzRemoteApp* app,
-    SubRemSubFilePreset* sub_preset,
-    SubGhzProtocolEncoderRAWCallbackEnd callback);
+bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
 
 bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced);
+
+void subrem_save_active_sub(void* context);
