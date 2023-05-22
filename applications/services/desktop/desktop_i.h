@@ -71,6 +71,10 @@ struct Desktop {
     FuriPubSub* input_events_pubsub;
     FuriPubSubSubscription* input_events_subscription;
     FuriTimer* auto_lock_timer;
+    FuriTimer* update_clock_timer;
+
+    uint8_t hour;
+    uint8_t minute;
 
     bool in_transition;
 };

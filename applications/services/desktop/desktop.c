@@ -48,6 +48,16 @@ static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context)
     canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 }
 
+static uint8_t desktop_clock_get_num_w(uint8_t num) {
+    if(num == 1) {
+        return 3;
+    } else {
+        return 5;
+    }
+}
+
+static const char* digit[10] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+
 static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
     //UNUSED(context);
     furi_assert(context);
@@ -56,19 +66,19 @@ static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
     Desktop* desktop = context;
     // canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 
-    const char* s[4];
-
-    s[0] = "4";
-    s[1] = "4";
-    s[2] = "4";
-    s[3] = "1";
+    uint8_t d[4] = {
+        desktop->minute % 10,
+        desktop->minute / 10,
+        desktop->hour % 10,
+        desktop->hour / 10,
+    };
 
     canvas_set_font(canvas, FontPrimary);
 
-    uint8_t new_w = ((strcmp(s[0], "1") == 0) ? 3 : 5) + //c1
-                    ((strcmp(s[1], "1") == 0) ? 3 : 5) + //c2
-                    ((strcmp(s[2], "1") == 0) ? 3 : 5) + //c3
-                    ((strcmp(s[3], "1") == 0) ? 3 : 5) + //c4
+    uint8_t new_w = desktop_clock_get_num_w(d[0]) + //c1
+                    desktop_clock_get_num_w(d[1]) + //c2
+                    desktop_clock_get_num_w(d[2]) + //c3
+                    desktop_clock_get_num_w(d[3]) + //c4
                     2 + 4; // ":" + 4 separators
 
     view_port_set_width(desktop->clock_viewport, new_w);
@@ -77,20 +87,20 @@ static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
     uint8_t y = 8;
     uint8_t offset_r;
 
-    canvas_draw_str_aligned(canvas, x, y, AlignRight, AlignBottom, s[0]);
-    offset_r = (strcmp(s[0], "1") == 0) ? 3 : 5;
+    canvas_draw_str_aligned(canvas, x, y, AlignRight, AlignBottom, digit[d[0]]);
+    offset_r = desktop_clock_get_num_w(d[0]);
 
-    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, s[1]);
-    offset_r = (strcmp(s[1], "1") == 0) ? 3 : 5;
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, digit[d[1]]);
+    offset_r = desktop_clock_get_num_w(d[1]);
 
     canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y - 1, AlignRight, AlignBottom, ":");
     offset_r = 2;
 
-    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, s[2]);
-    offset_r = (strcmp(s[2], "1") == 0) ? 3 : 5;
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, digit[d[2]]);
+    offset_r = desktop_clock_get_num_w(d[2]);
 
-    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, s[3]);
-    offset_r = (strcmp(s[3], "1") == 0) ? 3 : 5;
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, digit[d[3]]);
+    offset_r = desktop_clock_get_num_w(d[3]);
 
     x -= (offset_r + 1);
 
@@ -182,6 +192,20 @@ static void desktop_auto_lock_inhibit(Desktop* desktop) {
         furi_pubsub_unsubscribe(desktop->input_events_pubsub, desktop->input_events_subscription);
         desktop->input_events_subscription = NULL;
     }
+}
+
+static void desktop_update_clock_timer_callback(void* context) {
+    furi_assert(context);
+    Desktop* desktop = context;
+
+    FuriHalRtcDateTime curr_dt;
+    furi_hal_rtc_get_datetime(&curr_dt);
+
+    desktop->hour = curr_dt.hour;
+    desktop->minute = curr_dt.minute;
+    view_port_update(desktop->clock_viewport);
+
+    // view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAutoLock);
 }
 
 void desktop_lock(Desktop* desktop) {
@@ -366,6 +390,17 @@ Desktop* desktop_alloc() {
     desktop->auto_lock_timer =
         furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
 
+    desktop->update_clock_timer =
+        furi_timer_alloc(desktop_update_clock_timer_callback, FuriTimerTypePeriodic, desktop);
+
+    FuriHalRtcDateTime curr_dt;
+    furi_hal_rtc_get_datetime(&curr_dt);
+
+    desktop->hour = curr_dt.hour;
+    desktop->minute = curr_dt.minute;
+
+    furi_timer_start(desktop->update_clock_timer, furi_ms_to_ticks(1000));
+
     furi_record_create(RECORD_DESKTOP, desktop);
 
     return desktop;
@@ -419,6 +454,7 @@ void desktop_free(Desktop* desktop) {
     furi_record_close("menu");
 
     furi_timer_free(desktop->auto_lock_timer);
+    furi_timer_free(desktop->update_clock_timer);
 
     free(desktop);
 }
