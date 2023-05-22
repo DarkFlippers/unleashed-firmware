@@ -11,8 +11,6 @@
 //#include <notification/notification_messages.h>
 //#include <stdlib.h>
 
-#include <u8g2.h>
-
 #include "FlipperZeroWiFiDeauthModuleDefines.h"
 
 #define DEAUTH_APP_DEBUG 0
@@ -192,8 +190,8 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
 #endif // ENABLE_MODULE_POWER
     break;
     case ModuleActive: {
-        uint8_t* buffer = canvas_get_buffer(canvas);
-        app->m_canvasSize = canvas_get_buffer_size(canvas);
+        uint8_t* buffer = canvas->fb.tile_buf_ptr;
+        app->m_canvasSize = gui_get_framebuffer_size(app->m_gui);
         memcpy(buffer, app->m_backBuffer, app->m_canvasSize);
     } break;
     default:
