@@ -11,8 +11,6 @@
 #include <notification/notification_messages.h>
 #include <stdlib.h>
 
-#include <u8g2.h>
-
 #include "FlipperZeroWiFiModuleDefines.h"
 
 #define WIFI_APP_DEBUG 0
@@ -531,7 +529,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
             //canvas_set_custom_u8g2_font(canvas, u8g2_font_inb27_mr);
             canvas_set_custom_u8g2_font(canvas, u8g2_font_inb27_mr);
             uint8_t fontHeight = canvas_current_font_height(canvas);
-            uint8_t fontWidth = u8g2_GetMaxCharWidth(&canvas->fb);
+            uint8_t fontWidth = canvas_current_font_width(canvas);
 
             if(app->m_currentAccesspointDescription.m_rssi == NA) {
                 offsetX += floor(128 / 2) - fontWidth - 10;
@@ -550,7 +548,7 @@ static void wifi_module_render_callback(Canvas* const canvas, void* ctx) {
             //canvas_set_font(canvas, FontPrimary);
             canvas_set_custom_u8g2_font(canvas, u8g2_font_7x13B_tr);
             fontHeight = canvas_current_font_height(canvas);
-            fontWidth = u8g2_GetMaxCharWidth(&canvas->fb);
+            fontWidth = canvas_current_font_width(canvas);
 
             offsetX = 5;
             offsetY = 64 - 7 - fontHeight;
