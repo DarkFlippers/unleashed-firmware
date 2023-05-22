@@ -48,6 +48,57 @@ static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context)
     canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 }
 
+static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
+    //UNUSED(context);
+    furi_assert(context);
+    furi_assert(canvas);
+
+    Desktop* desktop = context;
+    // canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
+
+    const char* s[4];
+
+    s[0] = "4";
+    s[1] = "4";
+    s[2] = "4";
+    s[3] = "1";
+
+    canvas_set_font(canvas, FontPrimary);
+
+    uint8_t new_w = ((strcmp(s[0], "1") == 0) ? 3 : 5) + //c1
+                    ((strcmp(s[1], "1") == 0) ? 3 : 5) + //c2
+                    ((strcmp(s[2], "1") == 0) ? 3 : 5) + //c3
+                    ((strcmp(s[3], "1") == 0) ? 3 : 5) + //c4
+                    2 + 4; // ":" + 4 separators
+
+    view_port_set_width(desktop->clock_viewport, new_w);
+    uint8_t x = new_w;
+
+    uint8_t y = 8;
+    uint8_t offset_r;
+
+    canvas_draw_str_aligned(canvas, x, y, AlignRight, AlignBottom, s[0]);
+    offset_r = (strcmp(s[0], "1") == 0) ? 3 : 5;
+
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, s[1]);
+    offset_r = (strcmp(s[1], "1") == 0) ? 3 : 5;
+
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y - 1, AlignRight, AlignBottom, ":");
+    offset_r = 2;
+
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, s[2]);
+    offset_r = (strcmp(s[2], "1") == 0) ? 3 : 5;
+
+    canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, s[3]);
+    offset_r = (strcmp(s[3], "1") == 0) ? 3 : 5;
+
+    x -= (offset_r + 1);
+
+    // canvas_set_font(canvas, FontSecondary);
+
+    // canvas_draw_str_aligned(canvas, 14, y - 1, AlignRight, AlignBottom, ":");
+}
+
 static void desktop_stealth_mode_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
@@ -278,6 +329,13 @@ Desktop* desktop_alloc() {
         desktop->dummy_mode_icon_viewport, desktop_dummy_mode_icon_draw_callback, desktop);
     view_port_enabled_set(desktop->dummy_mode_icon_viewport, false);
     gui_add_view_port(desktop->gui, desktop->dummy_mode_icon_viewport, GuiLayerStatusBarLeft);
+
+    // Clock
+    desktop->clock_viewport = view_port_alloc();
+    view_port_set_width(desktop->clock_viewport, 26);
+    view_port_draw_callback_set(desktop->clock_viewport, desktop_clock_draw_callback, desktop);
+    view_port_enabled_set(desktop->clock_viewport, true);
+    gui_add_view_port(desktop->gui, desktop->clock_viewport, GuiLayerStatusBarRight);
 
     // Stealth mode icon
     desktop->stealth_mode_icon_viewport = view_port_alloc();

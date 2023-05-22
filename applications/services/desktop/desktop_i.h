@@ -59,6 +59,7 @@ struct Desktop {
 
     ViewPort* lock_icon_viewport;
     ViewPort* dummy_mode_icon_viewport;
+    ViewPort* clock_viewport;
     ViewPort* stealth_mode_icon_viewport;
 
     AnimationManager* animation_manager;
