@@ -275,6 +275,8 @@ class Main(App):
                 # Strip uid and gid in case of overflow
                 def tar_filter(tarinfo):
                     tarinfo.uid = tarinfo.gid = 0
+                    tarinfo.mtime = 0
+                    tarinfo.uname = tarinfo.gname = "furippa"
                     return tarinfo
 
                 tar.add(bundle_dir, arcname=bundle_dir_name, filter=tar_filter)
