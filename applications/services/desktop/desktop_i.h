@@ -75,8 +75,9 @@ struct Desktop {
 
     uint8_t hour;
     uint8_t minute;
+    bool clock_type : 1; // true - 24h false - 12h
 
-    bool in_transition;
+    bool in_transition : 1;
 };
 
 Desktop* desktop_alloc();
