@@ -313,58 +313,6 @@ Desktop* desktop_alloc() {
     return desktop;
 }
 
-void desktop_free(Desktop* desktop) {
-    furi_assert(desktop);
-    furi_check(furi_record_destroy(RECORD_DESKTOP));
-
-    furi_pubsub_unsubscribe(
-        loader_get_pubsub(desktop->loader), desktop->app_start_stop_subscription);
-
-    if(desktop->input_events_subscription) {
-        furi_pubsub_unsubscribe(desktop->input_events_pubsub, desktop->input_events_subscription);
-        desktop->input_events_subscription = NULL;
-    }
-
-    desktop->loader = NULL;
-    desktop->input_events_pubsub = NULL;
-    furi_record_close(RECORD_LOADER);
-    furi_record_close(RECORD_NOTIFICATION);
-    furi_record_close(RECORD_INPUT_EVENTS);
-
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdMain);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLocked);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdDebug);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdHwMismatch);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdPinInput);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdPinTimeout);
-
-    view_dispatcher_free(desktop->view_dispatcher);
-    scene_manager_free(desktop->scene_manager);
-
-    animation_manager_free(desktop->animation_manager);
-    view_stack_free(desktop->main_view_stack);
-    desktop_main_free(desktop->main_view);
-    view_stack_free(desktop->locked_view_stack);
-    desktop_view_locked_free(desktop->locked_view);
-    desktop_lock_menu_free(desktop->lock_menu);
-    desktop_view_locked_free(desktop->locked_view);
-    desktop_debug_free(desktop->debug_view);
-    popup_free(desktop->hw_mismatch_popup);
-    desktop_view_pin_timeout_free(desktop->pin_timeout_view);
-
-    furi_record_close(RECORD_GUI);
-    desktop->gui = NULL;
-
-    furi_thread_free(desktop->scene_thread);
-
-    furi_record_close("menu");
-
-    furi_timer_free(desktop->auto_lock_timer);
-
-    free(desktop);
-}
-
 static bool desktop_check_file_flag(const char* flag_path) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     bool exists = storage_common_stat(storage, flag_path, NULL) == FSE_OK;
@@ -427,7 +375,8 @@ int32_t desktop_srv(void* p) {
     }
 
     view_dispatcher_run(desktop->view_dispatcher);
-    desktop_free(desktop);
+
+    furi_crash("That was unexpected");
 
     return 0;
 }
