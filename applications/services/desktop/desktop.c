@@ -51,6 +51,8 @@ static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context)
 static uint8_t desktop_clock_get_num_w(uint8_t num) {
     if(num == 1) {
         return 3;
+    } else if(num == 4) {
+        return 6;
     } else {
         return 5;
     }
@@ -59,12 +61,10 @@ static uint8_t desktop_clock_get_num_w(uint8_t num) {
 static const char* digit[10] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
 static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
-    //UNUSED(context);
     furi_assert(context);
     furi_assert(canvas);
 
     Desktop* desktop = context;
-    // canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 
     uint8_t d[4] = {
         desktop->minute % 10,
@@ -81,7 +81,8 @@ static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
                     desktop_clock_get_num_w(d[3]) + //c4
                     2 + 4; // ":" + 4 separators
 
-    view_port_set_width(desktop->clock_viewport, new_w);
+    view_port_set_width(desktop->clock_viewport, new_w - 1);
+
     uint8_t x = new_w;
 
     uint8_t y = 8;
@@ -100,13 +101,6 @@ static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
     offset_r = desktop_clock_get_num_w(d[2]);
 
     canvas_draw_str_aligned(canvas, x -= (offset_r + 1), y, AlignRight, AlignBottom, digit[d[3]]);
-    offset_r = desktop_clock_get_num_w(d[3]);
-
-    x -= (offset_r + 1);
-
-    // canvas_set_font(canvas, FontSecondary);
-
-    // canvas_draw_str_aligned(canvas, 14, y - 1, AlignRight, AlignBottom, ":");
 }
 
 static void desktop_stealth_mode_icon_draw_callback(Canvas* canvas, void* context) {
@@ -200,10 +194,11 @@ static void desktop_update_clock_timer_callback(void* context) {
 
     FuriHalRtcDateTime curr_dt;
     furi_hal_rtc_get_datetime(&curr_dt);
-
-    desktop->hour = curr_dt.hour;
-    desktop->minute = curr_dt.minute;
-    view_port_update(desktop->clock_viewport);
+    if(desktop->minute != curr_dt.minute) {
+        desktop->hour = curr_dt.hour;
+        desktop->minute = curr_dt.minute;
+        view_port_update(desktop->clock_viewport);
+    }
 
     // view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAutoLock);
 }
@@ -356,7 +351,7 @@ Desktop* desktop_alloc() {
 
     // Clock
     desktop->clock_viewport = view_port_alloc();
-    view_port_set_width(desktop->clock_viewport, 26);
+    view_port_set_width(desktop->clock_viewport, 25);
     view_port_draw_callback_set(desktop->clock_viewport, desktop_clock_draw_callback, desktop);
     view_port_enabled_set(desktop->clock_viewport, true);
     gui_add_view_port(desktop->gui, desktop->clock_viewport, GuiLayerStatusBarRight);
