@@ -7,7 +7,12 @@
 * Misc: Name changer code moved to proper place, load after system startup + extra checks
 * Plugins: NMEA GPS UART - stability fix
 * Plugins: Port XFW keyboard with extra symbols to WiFi Marauder instead of using UART Term keyboard (thanks to @Willy-JL)
+* Plugins: Update NMEA GPS UART [(by ezod)](https://github.com/ezod/flipperzero-gps)
 * Plugins: Update WiFi Marauder [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
+* OFW: Services: remove deallocator for persistent services
+* OFW: Storage: common_rename is now POSIX compliant
+* OFW: Removed user-specific data from tar artifacts
+* OFW: fbt: Fix tar uid overflow when packaging
 * OFW: fbt: Use union for old py (Fix builds if using older python versions)
 * OFW PR 2682: USB HID report timeout (by nminaylov)
 
