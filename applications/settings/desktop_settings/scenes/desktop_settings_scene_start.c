@@ -125,7 +125,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Clock on desktop",
+        "Show Clock",
         CLOCK_ENABLE_COUNT,
         desktop_settings_scene_start_clock_enable_changed, //
         app);
