@@ -211,6 +211,9 @@ class Main(App):
                 f"Cannot package resource: name '{tarinfo.name}' too long"
             )
             raise ValueError("Resource name too long")
+        tarinfo.gid = tarinfo.uid = 0
+        tarinfo.mtime = 0
+        tarinfo.uname = tarinfo.gname = "furippa"
         return tarinfo
 
     def package_resources(self, srcdir: str, dst_name: str):
