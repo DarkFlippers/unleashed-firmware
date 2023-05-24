@@ -89,15 +89,6 @@ Dolphin* dolphin_alloc() {
     return dolphin;
 }
 
-void dolphin_free(Dolphin* dolphin) {
-    furi_assert(dolphin);
-
-    dolphin_state_free(dolphin->state);
-    furi_message_queue_free(dolphin->event_queue);
-
-    free(dolphin);
-}
-
 void dolphin_event_send_async(Dolphin* dolphin, DolphinEvent* event) {
     furi_assert(dolphin);
     furi_assert(event);
@@ -204,7 +195,7 @@ int32_t dolphin_srv(void* p) {
         }
     }
 
-    dolphin_free(dolphin);
+    furi_crash("That was unexpected");
 
     return 0;
 }

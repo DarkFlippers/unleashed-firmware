@@ -422,7 +422,16 @@ FS_Error storage_common_remove(Storage* storage, const char* path) {
 }
 
 FS_Error storage_common_rename(Storage* storage, const char* old_path, const char* new_path) {
-    FS_Error error = storage_common_copy(storage, old_path, new_path);
+    FS_Error error;
+
+    if(storage_file_exists(storage, new_path)) {
+        error = storage_common_remove(storage, new_path);
+        if(error != FSE_OK) {
+            return error;
+        }
+    }
+
+    error = storage_common_copy(storage, old_path, new_path);
     if(error == FSE_OK) {
         if(!storage_simply_remove_recursive(storage, old_path)) {
             error = FSE_INTERNAL;
