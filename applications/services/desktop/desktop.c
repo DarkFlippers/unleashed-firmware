@@ -49,7 +49,7 @@ static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context)
     canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 }
 
-static void desktop_togle_clock_view(Desktop* desktop, bool is_enabled) {
+static void desktop_toggle_clock_view(Desktop* desktop, bool is_enabled) {
     furi_assert(desktop);
 
     // clock type upd after 1 minute
@@ -141,7 +141,7 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
         // locking and unlocking
         DESKTOP_SETTINGS_LOAD(&desktop->settings);
 
-        desktop_togle_clock_view(desktop, desktop->settings.display_clock);
+        desktop_toggle_clock_view(desktop, desktop->settings.display_clock);
 
         desktop_auto_lock_arm(desktop);
         return true;
@@ -470,7 +470,7 @@ int32_t desktop_srv(void* p) {
 
     view_port_enabled_set(desktop->dummy_mode_icon_viewport, desktop->settings.dummy_mode);
 
-    desktop_togle_clock_view(desktop, desktop->settings.display_clock);
+    desktop_toggle_clock_view(desktop, desktop->settings.display_clock);
 
     desktop_main_set_dummy_mode_state(desktop->main_view, desktop->settings.dummy_mode);
     animation_manager_set_dummy_mode_state(
