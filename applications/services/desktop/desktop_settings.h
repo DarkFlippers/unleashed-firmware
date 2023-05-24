@@ -8,7 +8,7 @@
 #include <toolbox/saved_struct.h>
 #include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (9)
+#define DESKTOP_SETTINGS_VER (10)
 
 #define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -63,4 +63,5 @@ typedef struct {
     uint32_t auto_lock_delay_ms;
     uint8_t displayBatteryPercentage;
     uint8_t dummy_mode;
+    uint8_t display_clock;
 } DesktopSettings;
