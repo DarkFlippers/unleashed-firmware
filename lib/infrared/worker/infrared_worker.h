@@ -130,9 +130,9 @@ void infrared_worker_tx_set_signal_sent_callback(
 /** Callback to pass to infrared_worker_tx_set_get_signal_callback() if signal
  * is steady and will not be changed between infrared_worker start and stop.
  * Before starting transmission, desired steady signal must be set with
- * infrared_worker_make_decoded_signal() or infrared_worker_make_raw_signal().
+ * infrared_worker_set_decoded_signal() or infrared_worker_set_raw_signal().
  *
- * This function should not be implicitly called.
+ * This function should not be called directly.
  *
  * @param[in]   context - context
  * @param[out]  instance - InfraredWorker instance
@@ -172,11 +172,15 @@ void infrared_worker_set_decoded_signal(InfraredWorker* instance, const Infrared
  * @param[out]  instance - InfraredWorker instance
  * @param[in]   timings - array of raw timings
  * @param[in]   timings_cnt - size of array of raw timings
+ * @param[in]   frequency - carrier frequency in Hertz
+ * @param[in]   duty_cycle - carrier duty cycle (0.0 - 1.0)
  */
 void infrared_worker_set_raw_signal(
     InfraredWorker* instance,
     const uint32_t* timings,
-    size_t timings_cnt);
+    size_t timings_cnt,
+    uint32_t frequency,
+    float duty_cycle);
 
 #ifdef __cplusplus
 }

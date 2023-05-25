@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,26.3,,
+Version,+,27.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1715,7 +1715,7 @@ Function,+,infrared_worker_rx_set_received_signal_callback,void,"InfraredWorker*
 Function,+,infrared_worker_rx_start,void,InfraredWorker*
 Function,+,infrared_worker_rx_stop,void,InfraredWorker*
 Function,+,infrared_worker_set_decoded_signal,void,"InfraredWorker*, const InfraredMessage*"
-Function,+,infrared_worker_set_raw_signal,void,"InfraredWorker*, const uint32_t*, size_t"
+Function,+,infrared_worker_set_raw_signal,void,"InfraredWorker*, const uint32_t*, size_t, uint32_t, float"
 Function,+,infrared_worker_signal_is_decoded,_Bool,const InfraredWorkerSignal*
 Function,+,infrared_worker_tx_get_signal_steady_callback,InfraredWorkerGetSignalResponse,"void*, InfraredWorker*"
 Function,+,infrared_worker_tx_set_get_signal_callback,void,"InfraredWorker*, InfraredWorkerGetSignalCallback, void*"

@@ -1,7 +1,6 @@
 #include <furi_hal_infrared.h>
 #include <core/check.h>
 #include "stm32wbxx_ll_dma.h"
-#include "sys/_stdint.h"
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
 
@@ -13,11 +12,10 @@
 #include <furi.h>
 #include <math.h>
 
-#define INFRARED_TX_DEBUG 0
+// #define INFRARED_TX_DEBUG
 
-#if INFRARED_TX_DEBUG == 1
-#define gpio_infrared_tx gpio_infrared_tx_debug
-const GpioPin gpio_infrared_tx_debug = {.port = GPIOA, .pin = GpioModeAnalog};
+#if defined INFRARED_TX_DEBUG
+#define gpio_infrared_tx gpio_ext_pa7
 #endif
 
 #define INFRARED_TIM_TX_DMA_BUFFER_SIZE 200
@@ -330,8 +328,6 @@ static void furi_hal_infrared_tx_dma_isr() {
 }
 
 static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cycle) {
-    /*    LL_DBGMCU_APB2_GRP1_FreezePeriph(LL_DBGMCU_APB2_GRP1_TIM1_STOP); */
-
     LL_TIM_DisableCounter(TIM1);
     LL_TIM_SetRepetitionCounter(TIM1, 0);
     LL_TIM_SetCounter(TIM1, 0);
@@ -340,7 +336,7 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
     LL_TIM_EnableARRPreload(TIM1);
     LL_TIM_SetAutoReload(
         TIM1, __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM1), freq));
-#if INFRARED_TX_DEBUG == 1
+#if defined INFRARED_TX_DEBUG
     LL_TIM_OC_SetCompareCH1(TIM1, ((LL_TIM_GetAutoReload(TIM1) + 1) * (1 - duty_cycle)));
     LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH1);
     /* LL_TIM_OCMODE_PWM2 set by DMA */
@@ -370,7 +366,7 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
 
 static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {
     LL_DMA_InitTypeDef dma_config = {0};
-#if INFRARED_TX_DEBUG == 1
+#if defined INFRARED_TX_DEBUG
     dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->CCMR1);
 #else
     dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->CCMR2);
