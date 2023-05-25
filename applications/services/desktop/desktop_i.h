@@ -71,6 +71,8 @@ struct Desktop {
     FuriPubSubSubscription* input_events_subscription;
     FuriTimer* auto_lock_timer;
 
+    FuriPubSub* status_pubsub;
+
     bool in_transition;
 };
 

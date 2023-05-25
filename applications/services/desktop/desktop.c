@@ -147,6 +147,9 @@ void desktop_lock(Desktop* desktop) {
         desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
     notification_message(desktop->notification, &sequence_display_backlight_off_delay_1000);
+
+    DesktopStatus status = {.locked = true};
+    furi_pubsub_publish(desktop->status_pubsub, &status);
 }
 
 void desktop_unlock(Desktop* desktop) {
@@ -165,6 +168,9 @@ void desktop_unlock(Desktop* desktop) {
         cli_session_open(cli, &cli_vcp);
         furi_record_close(RECORD_CLI);
     }
+
+    DesktopStatus status = {.locked = false};
+    furi_pubsub_publish(desktop->status_pubsub, &status);
 }
 
 void desktop_set_dummy_mode_state(Desktop* desktop, bool enabled) {
@@ -308,6 +314,8 @@ Desktop* desktop_alloc() {
     desktop->auto_lock_timer =
         furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
 
+    desktop->status_pubsub = furi_pubsub_alloc();
+
     furi_record_create(RECORD_DESKTOP, desktop);
 
     return desktop;
@@ -329,6 +337,11 @@ bool desktop_api_is_locked(Desktop* instance) {
 void desktop_api_unlock(Desktop* instance) {
     furi_assert(instance);
     view_dispatcher_send_custom_event(instance->view_dispatcher, DesktopLockedEventUnlocked);
+}
+
+FuriPubSub* desktop_api_get_status_pubsub(Desktop* instance) {
+    furi_assert(instance);
+    return instance->status_pubsub;
 }
 
 int32_t desktop_srv(void* p) {
