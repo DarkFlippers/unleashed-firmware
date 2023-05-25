@@ -36,8 +36,6 @@
 #define MIN_PIN_SIZE 4
 #define MAX_APP_LENGTH 128
 
-#define FAP_LOADER_APP_NAME "Applications"
-
 typedef struct {
     InputKey data[MAX_PIN_SIZE];
     uint8_t length;
