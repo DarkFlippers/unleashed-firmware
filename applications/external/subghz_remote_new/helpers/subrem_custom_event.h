@@ -2,7 +2,6 @@
 
 typedef enum {
     //SubmenuIndex
-    SubmenuIndexSubRemOpenMapFile,
     SubmenuIndexSubRemRemoteView,
     SubmenuIndexSubRemAbout,
 

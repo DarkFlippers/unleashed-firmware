@@ -76,10 +76,3 @@ typedef struct {
 } SubGhzRemoteApp;
 
 SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app);
-
-bool subrem_tx_start_sub(
-    SubGhzRemoteApp* app,
-    SubRemSubFilePreset* sub_preset,
-    SubGhzProtocolEncoderRAWCallbackEnd callback);
-
-bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced);

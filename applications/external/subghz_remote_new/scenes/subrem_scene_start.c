@@ -13,12 +13,6 @@ void subrem_scene_start_on_enter(void* context) {
 
     SubGhzRemoteApp* app = context;
     Submenu* submenu = app->submenu;
-    submenu_add_item(
-        submenu,
-        "Open Map File",
-        SubmenuIndexSubRemOpenMapFile,
-        subrem_scene_start_submenu_callback,
-        app);
 #if FURI_DEBUG
     submenu_add_item(
         submenu,
@@ -37,7 +31,7 @@ void subrem_scene_start_on_enter(void* context) {
     // TODO: set scene state in subrem alloc
     // submenu_set_selected_item(
     //     submenu, scene_manager_get_scene_state(app->scene_manager, SubRemSceneStart));
-    submenu_set_selected_item(submenu, SubmenuIndexSubRemOpenMapFile);
+    submenu_set_selected_item(submenu, 0);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, SubRemViewSubmenu);
 }
@@ -47,22 +41,12 @@ bool subrem_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     SubGhzRemoteApp* app = context;
     bool consumed = false;
-
+    UNUSED(app);
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubmenuIndexSubRemOpenMapFile) {
-            scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
-            consumed = true;
-        }
         // } else if(event.event == SubmenuIndexSubRemAbout) {
         //     scene_manager_next_scene(app->scene_manager, SubRemSceneAbout);
         //     consumed = true;
         // }
-#if FURI_DEBUG
-        else if(event.event == SubmenuIndexSubRemRemoteView) {
-            scene_manager_next_scene(app->scene_manager, SubRemSceneRemote);
-            consumed = true;
-        }
-#endif
     }
 
     return consumed;
