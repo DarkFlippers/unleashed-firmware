@@ -11,21 +11,23 @@ SubRemLoadSubState subrem_scene_open_sub_file_dialog(SubGhzRemoteApp* app) {
 
     SubRemSubFilePreset* sub = app->map_preset->subs_preset[app->chusen_sub];
 
-    FuriString* temp_file_path = furi_string_alloc_set(sub->file_path);
+    FuriString* temp_file_path = furi_string_alloc();
+
+    if(furi_string_empty(sub->file_path)) {
+        furi_string_set(temp_file_path, SUBGHZ_RAW_FOLDER);
+    } else {
+        furi_string_set(sub->file_path, SUBGHZ_RAW_FOLDER);
+    }
 
     SubRemLoadSubState ret = SubRemLoadSubStateNotSet;
 
     DialogsFileBrowserOptions browser_options;
 
     dialog_file_browser_set_basic_options(&browser_options, SUBGHZ_APP_EXTENSION, &I_sub1_10px);
-    browser_options.base_path = SUBGHZ_APP_FOLDER;
+    browser_options.base_path = SUBGHZ_RAW_FOLDER;
 
     // Input events and views are managed by file_select
-    if(!dialog_file_browser_show(
-           app->dialogs,
-           temp_file_path,
-           furi_string_empty(temp_file_path) ? NULL : temp_file_path,
-           &browser_options)) {
+    if(!dialog_file_browser_show(app->dialogs, temp_file_path, temp_file_path, &browser_options)) {
     } else {
         // Check sub file
         SubRemSubFilePreset* sub_candidate = subrem_sub_file_preset_alloc();
