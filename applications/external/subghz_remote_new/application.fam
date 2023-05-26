@@ -1,16 +1,16 @@
 App(
-    appid="subrem_remote_fap",
-    name="Sub-GHz Remote",
+    appid="subrem_configurator",
+    name="SubRem Configurator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="subghz_remote_app",
     requires=[
         "gui",
         "dialogs",
     ],
-    stack_size=3 * 1024,
+    stack_size=2 * 1024,
     order=50,
-    fap_description="Remote control for transmission multiple *.sub files",
-    fap_category="Debug", #"Sub-Ghz"
+    fap_description="File Editor for the SubGhz Remote app",
+    fap_category="Sub-Ghz",
     fap_icon_assets="icons",
     fap_icon="icons/subrem_10px.png",
 )
