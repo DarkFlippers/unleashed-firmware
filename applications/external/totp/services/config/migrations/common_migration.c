@@ -58,6 +58,15 @@ bool totp_config_migrate_to_latest(
 
         flipper_format_rewind(fff_backup_data_file);
 
+        // Font
+
+        if(flipper_format_read_string(
+               fff_backup_data_file, TOTP_CONFIG_KEY_SELECTED_FONT, temp_str)) {
+            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_SELECTED_FONT, temp_str);
+        }
+
+        flipper_format_rewind(fff_backup_data_file);
+
         while(true) {
             if(!flipper_format_read_string(
                    fff_backup_data_file, TOTP_CONFIG_KEY_TOKEN_NAME, temp_str)) {

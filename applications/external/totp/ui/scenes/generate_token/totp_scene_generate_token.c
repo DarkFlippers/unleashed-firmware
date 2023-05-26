@@ -142,19 +142,46 @@ static void draw_totp_code(Canvas* const canvas, const PluginState* const plugin
         totp_config_get_token_iterator_context(plugin_state);
     uint8_t code_length = totp_token_info_iterator_get_current_token(iterator_context)->digits;
     uint8_t offset_x = scene_state->ui_precalculated_dimensions.code_offset_x;
-    uint8_t char_width = TOTP_CODE_FONT_INFO.charInfo[0].width;
+    const FONT_INFO* current_font;
+    switch(plugin_state->selected_font) {
+    case 0:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    case 1:
+        current_font = &redHatMono_16ptFontInfo;
+        break;
+    case 2:
+        current_font = &bedstead_17ptFontInfo;
+        break;
+    case 3:
+        current_font = &zector_18ptFontInfo;
+        break;
+    case 4:
+        current_font = &_712Serif_24ptFontInfo;
+        break;
+    case 5:
+        current_font = &graph35pix_12ptFontInfo;
+        break;
+    case 6:
+        current_font = &karmaFuture_14ptFontInfo;
+        break;
+    default:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    }
+    uint8_t char_width = current_font->charInfo[0].width;
     uint8_t offset_x_inc = scene_state->ui_precalculated_dimensions.code_offset_x_inc;
     for(uint8_t i = 0; i < code_length; i++) {
         char ch = scene_state->last_code[i];
-        if(ch >= TOTP_CODE_FONT_INFO.startChar && ch <= TOTP_CODE_FONT_INFO.endChar) {
-            uint8_t char_index = ch - TOTP_CODE_FONT_INFO.startChar;
+        if(ch >= current_font->startChar && ch <= current_font->endChar) {
+            uint8_t char_index = ch - current_font->startChar;
             canvas_draw_xbm(
                 canvas,
                 offset_x,
                 scene_state->ui_precalculated_dimensions.code_offset_y,
                 char_width,
-                TOTP_CODE_FONT_INFO.height,
-                &TOTP_CODE_FONT_INFO.data[TOTP_CODE_FONT_INFO.charInfo[char_index].offset]);
+                current_font->height,
+                &current_font->data[current_font->charInfo[char_index].offset]);
         }
 
         offset_x += offset_x_inc;
@@ -172,15 +199,43 @@ static void on_new_token_code_generated(bool time_left, void* context) {
     SceneState* scene_state = plugin_state->current_scene_state;
     const TokenInfo* current_token = totp_token_info_iterator_get_current_token(iterator_context);
 
-    uint8_t char_width = TOTP_CODE_FONT_INFO.charInfo[0].width;
+    const FONT_INFO* current_font;
+    switch(plugin_state->selected_font) {
+    case 0:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    case 1:
+        current_font = &redHatMono_16ptFontInfo;
+        break;
+    case 2:
+        current_font = &bedstead_17ptFontInfo;
+        break;
+    case 3:
+        current_font = &zector_18ptFontInfo;
+        break;
+    case 4:
+        current_font = &_712Serif_24ptFontInfo;
+        break;
+    case 5:
+        current_font = &graph35pix_12ptFontInfo;
+        break;
+    case 6:
+        current_font = &karmaFuture_14ptFontInfo;
+        break;
+    default:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    }
+
+    uint8_t char_width = current_font->charInfo[0].width;
     scene_state->ui_precalculated_dimensions.code_total_length =
-        current_token->digits * (char_width + TOTP_CODE_FONT_INFO.spacePixels);
+        current_token->digits * (char_width + current_font->spacePixels);
     scene_state->ui_precalculated_dimensions.code_offset_x =
         (SCREEN_WIDTH - scene_state->ui_precalculated_dimensions.code_total_length) >> 1;
     scene_state->ui_precalculated_dimensions.code_offset_x_inc =
-        char_width + TOTP_CODE_FONT_INFO.spacePixels;
+        char_width + current_font->spacePixels;
     scene_state->ui_precalculated_dimensions.code_offset_y =
-        SCREEN_HEIGHT_CENTER - (TOTP_CODE_FONT_INFO.height >> 1);
+        SCREEN_HEIGHT_CENTER - (current_font->height >> 1);
 
     if(time_left) {
         notification_message(
