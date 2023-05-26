@@ -43,8 +43,6 @@
 #define DISPLAY_BATTERY_RETRO_5 4
 #define DISPLAY_BATTERY_BAR_PERCENT 5
 
-#define FAP_LOADER_APP_NAME "Applications"
-
 typedef struct {
     InputKey data[MAX_PIN_SIZE];
     uint8_t length;
