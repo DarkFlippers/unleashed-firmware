@@ -1,11 +1,25 @@
 #pragma once
 
 typedef enum {
-    //SubmenuIndex
+    SubRemEditMenuStateUP = 0,
+    SubRemEditMenuStateDOWN,
+    SubRemEditMenuStateLEFT,
+    SubRemEditMenuStateRIGHT,
+    SubRemEditMenuStateOK,
+} SubRemEditMenuState;
+
+typedef enum {
+    // SubmenuIndex
+    SubmenuIndexSubRemEditMapFile = 0,
+    SubmenuIndexSubRemNewMapFile,
     SubmenuIndexSubRemRemoteView,
     SubmenuIndexSubRemAbout,
 
-    //SubRemCustomEvent
+    // EditSubmenuIndex
+    EditSubmenuIndexEditLabel,
+    EditSubmenuIndexEditFile,
+
+    // SubRemCustomEvent
     SubRemCustomEventViewRemoteStartUP = 100,
     SubRemCustomEventViewRemoteStartDOWN,
     SubRemCustomEventViewRemoteStartLEFT,
@@ -14,4 +28,25 @@ typedef enum {
     SubRemCustomEventViewRemoteBack,
     SubRemCustomEventViewRemoteStop,
     SubRemCustomEventViewRemoteForcedStop,
+
+    SubRemCustomEventViewEditMenuBack,
+    SubRemCustomEventViewEditMenuUP,
+    SubRemCustomEventViewEditMenuDOWN,
+    SubRemCustomEventViewEditMenuEdit,
+    SubRemCustomEventViewEditMenuSave,
+
+    SubRemCustomEventSceneEditsubmenu,
+    SubRemCustomEventSceneEditLabelInputDone,
+    SubRemCustomEventSceneEditLabelWidgetAcces,
+    SubRemCustomEventSceneEditLabelWidgetBack,
+
+    SubRemCustomEventSceneEditOpenSubErrorPopup,
+
+    SubRemCustomEventSceneEditPreviewSaved,
+
+    SubRemCustomEventSceneNewName,
+
+    // // SceneStates
+    // SubRemSceneOpenMapFileStateOpen,
+    // SubRemSceneOpenMapFileStateEdit,
 } SubRemCustomEvent;

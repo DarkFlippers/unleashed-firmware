@@ -13,14 +13,18 @@ void subrem_scene_start_on_enter(void* context) {
 
     SubGhzRemoteApp* app = context;
     Submenu* submenu = app->submenu;
-#if FURI_DEBUG
     submenu_add_item(
         submenu,
-        "Remote_Debug",
-        SubmenuIndexSubRemRemoteView,
+        "Edit Map File",
+        SubmenuIndexSubRemEditMapFile,
         subrem_scene_start_submenu_callback,
         app);
-#endif
+    submenu_add_item(
+        submenu,
+        "New Map File",
+        SubmenuIndexSubRemNewMapFile,
+        subrem_scene_start_submenu_callback,
+        app);
     // submenu_add_item(
     //     submenu,
     //     "About",
@@ -28,12 +32,10 @@ void subrem_scene_start_on_enter(void* context) {
     //     subrem_scene_start_submenu_callback,
     //     app);
 
-    // TODO: set scene state in subrem alloc
-    // submenu_set_selected_item(
-    //     submenu, scene_manager_get_scene_state(app->scene_manager, SubRemSceneStart));
-    submenu_set_selected_item(submenu, 0);
+    submenu_set_selected_item(
+        submenu, scene_manager_get_scene_state(app->scene_manager, SubRemSceneStart));
 
-    view_dispatcher_switch_to_view(app->view_dispatcher, SubRemViewSubmenu);
+    view_dispatcher_switch_to_view(app->view_dispatcher, SubRemViewIDSubmenu);
 }
 
 bool subrem_scene_start_on_event(void* context, SceneManagerEvent event) {
@@ -41,8 +43,19 @@ bool subrem_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     SubGhzRemoteApp* app = context;
     bool consumed = false;
-    UNUSED(app);
+
     if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == SubmenuIndexSubRemEditMapFile) {
+            scene_manager_set_scene_state(
+                app->scene_manager, SubRemSceneStart, SubmenuIndexSubRemEditMapFile);
+            scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
+            consumed = true;
+        } else if(event.event == SubmenuIndexSubRemNewMapFile) {
+            scene_manager_set_scene_state(
+                app->scene_manager, SubRemSceneStart, SubmenuIndexSubRemNewMapFile);
+            scene_manager_next_scene(app->scene_manager, SubRemSceneEnterNewName);
+            consumed = true;
+        }
         // } else if(event.event == SubmenuIndexSubRemAbout) {
         //     scene_manager_next_scene(app->scene_manager, SubRemSceneAbout);
         //     consumed = true;

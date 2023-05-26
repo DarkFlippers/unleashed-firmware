@@ -2,11 +2,13 @@
 
 #include <gui/view.h>
 #include "../helpers/subrem_custom_event.h"
+#include "../helpers/subrem_presets.h"
 
 typedef enum {
     SubRemViewRemoteStateIdle,
     SubRemViewRemoteStateLoading,
     SubRemViewRemoteStateSending,
+    SubRemViewRemoteStateOFF,
 } SubRemViewRemoteState;
 
 typedef struct SubRemViewRemote SubRemViewRemote;
@@ -24,15 +26,11 @@ void subrem_view_remote_free(SubRemViewRemote* subrem_view_remote);
 
 View* subrem_view_remote_get_view(SubRemViewRemote* subrem_view_remote);
 
-void subrem_view_remote_add_data_to_show(
+void subrem_view_remote_update_data_labels(
     SubRemViewRemote* subrem_view_remote,
-    const char* up_label,
-    const char* down_label,
-    const char* left_label,
-    const char* right_label,
-    const char* ok_label);
+    SubRemSubFilePreset** subs_presets);
 
-void subrem_view_remote_set_presed_btn(SubRemViewRemote* subrem_view_remote, uint8_t presed_btn);
 void subrem_view_remote_set_state(
     SubRemViewRemote* subrem_view_remote,
-    SubRemViewRemoteState state);
+    SubRemViewRemoteState state,
+    uint8_t presed_btn);
