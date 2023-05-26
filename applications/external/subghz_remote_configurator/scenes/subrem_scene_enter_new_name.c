@@ -14,9 +14,8 @@ void subrem_scene_enter_new_name_on_enter(void* context) {
 
     // Setup view
     TextInput* text_input = app->text_input;
-    bool dev_name_empty = false;
 
-    strncpy(app->file_name_tmp, "subrem_", SUBREM_MAX_LEN_NAME);
+    //strncpy(app->file_name_tmp, "subrem_", SUBREM_MAX_LEN_NAME);
     text_input_set_header_text(text_input, "Map file Name");
     text_input_set_result_callback(
         text_input,
@@ -24,7 +23,7 @@ void subrem_scene_enter_new_name_on_enter(void* context) {
         app,
         app->file_name_tmp,
         25,
-        dev_name_empty);
+        false);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
         furi_string_get_cstr(app->file_path), SUBREM_APP_EXTENSION, "");
