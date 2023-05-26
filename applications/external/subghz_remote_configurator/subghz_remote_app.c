@@ -28,7 +28,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
         //FURI_LOG_E(TAG, "Could not create folder %s", SUBREM_APP_FOLDER);
     }
     furi_record_close(RECORD_STORAGE);
-
+    /*
     // Enable power for External CC1101 if it is connected
     furi_hal_subghz_enable_ext_power();
     // Auto switch to internal radio if external radio is not available
@@ -39,7 +39,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     }
 
     furi_hal_power_suppress_charge_enter();
-
+*/
     app->file_path = furi_string_alloc();
     furi_string_set(app->file_path, SUBREM_APP_FOLDER);
 
@@ -125,14 +125,14 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
 void subghz_remote_app_free(SubGhzRemoteApp* app) {
     furi_assert(app);
-
+    /*
     furi_hal_power_suppress_charge_exit();
 
     // Disable power for External CC1101 if it was enabled and module is connected
     furi_hal_subghz_disable_ext_power();
     // Reinit SPI handles for internal radio / nfc
     furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-
+*/
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDSubmenu);
     submenu_free(app->submenu);
@@ -183,7 +183,7 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     free(app);
 }
 
-int32_t subghz_remote_app(void* p) {
+int32_t subghz_remote_config_app(void* p) {
     UNUSED(p);
     SubGhzRemoteApp* subghz_remote_app = subghz_remote_app_alloc();
 
