@@ -1,6 +1,6 @@
 App(
     appid="subrem_configurator",
-    name="SubGHz Remote Configurator",
+    name="Remote Configurator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="subghz_remote_config_app",
     requires=[
