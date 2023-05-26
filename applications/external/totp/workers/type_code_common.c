@@ -47,11 +47,12 @@ void totp_type_code_worker_execute_automation(
     TokenAutomationFeature features) {
     furi_delay_ms(500);
     uint8_t i = 0;
+    char cb_char;
 
-    while(i < code_buffer_size && code_buffer[i] != 0) {
-        uint8_t char_index = CONVERT_CHAR_TO_DIGIT(code_buffer[i]);
+    while(i < code_buffer_size && (cb_char = code_buffer[i]) != 0) {
+        uint8_t char_index = CONVERT_CHAR_TO_DIGIT(cb_char);
         if(char_index > 9) {
-            char_index = code_buffer[i] - 0x41 + 10;
+            char_index = cb_char - 0x41 + 10;
         }
 
         if(char_index > 35) break;

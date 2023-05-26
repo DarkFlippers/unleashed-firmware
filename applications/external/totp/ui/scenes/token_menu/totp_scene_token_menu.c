@@ -82,38 +82,52 @@ bool totp_scene_token_menu_handle_event(const PluginEvent* const event, PluginSt
     }
 
     SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-    if(event->input.type != InputTypePress) {
-        return true;
-    }
-
-    switch(event->input.key) {
-    case InputKeyUp: {
-        const TokenInfoIteratorContext* iterator_context =
-            totp_config_get_token_iterator_context(plugin_state);
-        totp_roll_value_uint8_t(
-            &scene_state->selected_control, -1, AddNewToken, AppSettings, RollOverflowBehaviorRoll);
-        if(scene_state->selected_control == DeleteToken &&
-           totp_token_info_iterator_get_total_count(iterator_context) == 0) {
-            scene_state->selected_control--;
+    if(event->input.type == InputTypePress) {
+        switch(event->input.key) {
+        case InputKeyUp: {
+            const TokenInfoIteratorContext* iterator_context =
+                totp_config_get_token_iterator_context(plugin_state);
+            totp_roll_value_uint8_t(
+                &scene_state->selected_control,
+                -1,
+                AddNewToken,
+                AppSettings,
+                RollOverflowBehaviorRoll);
+            if(scene_state->selected_control == DeleteToken &&
+               totp_token_info_iterator_get_total_count(iterator_context) == 0) {
+                scene_state->selected_control--;
+            }
+            break;
         }
-        break;
-    }
-    case InputKeyDown: {
-        const TokenInfoIteratorContext* iterator_context =
-            totp_config_get_token_iterator_context(plugin_state);
-        totp_roll_value_uint8_t(
-            &scene_state->selected_control, 1, AddNewToken, AppSettings, RollOverflowBehaviorRoll);
-        if(scene_state->selected_control == DeleteToken &&
-           totp_token_info_iterator_get_total_count(iterator_context) == 0) {
-            scene_state->selected_control++;
+        case InputKeyDown: {
+            const TokenInfoIteratorContext* iterator_context =
+                totp_config_get_token_iterator_context(plugin_state);
+            totp_roll_value_uint8_t(
+                &scene_state->selected_control,
+                1,
+                AddNewToken,
+                AppSettings,
+                RollOverflowBehaviorRoll);
+            if(scene_state->selected_control == DeleteToken &&
+               totp_token_info_iterator_get_total_count(iterator_context) == 0) {
+                scene_state->selected_control++;
+            }
+            break;
         }
-        break;
-    }
-    case InputKeyRight:
-        break;
-    case InputKeyLeft:
-        break;
-    case InputKeyOk:
+        case InputKeyRight:
+            break;
+        case InputKeyLeft:
+            break;
+        case InputKeyOk:
+            break;
+        case InputKeyBack: {
+            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
+            break;
+        }
+        default:
+            break;
+        }
+    } else if(event->input.type == InputTypeRelease && event->input.key == InputKeyOk) {
         switch(scene_state->selected_control) {
         case AddNewToken: {
             totp_scene_director_activate_scene(plugin_state, TotpSceneAddNewToken);
@@ -153,13 +167,6 @@ bool totp_scene_token_menu_handle_event(const PluginEvent* const event, PluginSt
         default:
             break;
         }
-        break;
-    case InputKeyBack: {
-        totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
-        break;
-    }
-    default:
-        break;
     }
 
     return true;
