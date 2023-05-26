@@ -2,7 +2,7 @@
 
 
 # UPDATE!!!!!!
-## Now you can create and edit map files directly on flipper, go into Applications->Sub-GHz->Remote Configurator
+## Now you can create and edit map files directly on flipper, go into Applications->Sub-GHz->Remote Maker
 
 <br>
 <br>
