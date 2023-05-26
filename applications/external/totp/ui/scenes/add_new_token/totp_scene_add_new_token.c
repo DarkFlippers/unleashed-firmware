@@ -36,7 +36,7 @@ typedef struct {
     InputTextSceneContext* token_name_input_context;
     InputTextSceneContext* token_secret_input_context;
     InputTextSceneState* input_state;
-    uint32_t input_started_at;
+    bool text_input_mode;
     int16_t screen_y_offset;
     TokenHashAlgo algo;
     uint8_t digits_count_index;
@@ -56,7 +56,7 @@ static void on_token_name_user_comitted(InputTextSceneCallbackResult* result) {
     free(scene_state->token_name);
     scene_state->token_name = result->user_input;
     scene_state->token_name_length = result->user_input_length;
-    scene_state->input_started_at = 0;
+    scene_state->text_input_mode = false;
     free(result);
 }
 
@@ -65,7 +65,7 @@ static void on_token_secret_user_comitted(InputTextSceneCallbackResult* result) 
     free(scene_state->token_secret);
     scene_state->token_secret = result->user_input;
     scene_state->token_secret_length = result->user_input_length;
-    scene_state->input_started_at = 0;
+    scene_state->text_input_mode = false;
     free(result);
 }
 
@@ -127,8 +127,8 @@ void totp_scene_add_new_token_activate(PluginState* plugin_state) {
 }
 
 void totp_scene_add_new_token_render(Canvas* const canvas, PluginState* plugin_state) {
-    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-    if(scene_state->input_started_at > 0) {
+    SceneState* scene_state = plugin_state->current_scene_state;
+    if(scene_state->text_input_mode) {
         totp_input_text_render(canvas, scene_state->input_state);
         return;
     }
@@ -200,63 +200,81 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         return true;
     }
 
-    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-    if(scene_state->input_started_at > 0 &&
-       furi_get_tick() - scene_state->input_started_at > 300) {
+    SceneState* scene_state = plugin_state->current_scene_state;
+
+    if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
+        if(scene_state->text_input_mode) {
+            scene_state->text_input_mode = false;
+        } else {
+            return false;
+        }
+    }
+
+    if(scene_state->text_input_mode) {
+        if(event->input.type == InputTypeShort && event->input.key == InputKeyBack) {
+            PluginEvent long_back_cb_evt = {
+                .type = event->type, .input.key = InputKeyBack, .input.type = InputTypeLong};
+            return totp_input_text_handle_event(&long_back_cb_evt, scene_state->input_state);
+        }
+
         return totp_input_text_handle_event(event, scene_state->input_state);
     }
 
-    if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
-        return false;
-    }
-
-    if(event->input.type != InputTypePress) {
-        return true;
-    }
-
-    switch(event->input.key) {
-    case InputKeyUp:
-        totp_roll_value_uint8_t(
-            &scene_state->selected_control,
-            -1,
-            TokenNameTextBox,
-            ConfirmButton,
-            RollOverflowBehaviorStop);
-        update_screen_y_offset(scene_state);
-        break;
-    case InputKeyDown:
-        totp_roll_value_uint8_t(
-            &scene_state->selected_control,
-            1,
-            TokenNameTextBox,
-            ConfirmButton,
-            RollOverflowBehaviorStop);
-        update_screen_y_offset(scene_state);
-        break;
-    case InputKeyRight:
-        if(scene_state->selected_control == TokenAlgoSelect) {
-            totp_roll_value_uint8_t(&scene_state->algo, 1, SHA1, STEAM, RollOverflowBehaviorRoll);
-        } else if(scene_state->selected_control == TokenLengthSelect) {
+    if(event->input.type == InputTypePress) {
+        switch(event->input.key) {
+        case InputKeyUp:
             totp_roll_value_uint8_t(
-                &scene_state->digits_count_index, 1, 0, 2, RollOverflowBehaviorRoll);
-        } else if(scene_state->selected_control == TokenDurationSelect) {
-            totp_roll_value_uint8_t(&scene_state->duration, 15, 15, 255, RollOverflowBehaviorStop);
-            update_duration_text(scene_state);
+                &scene_state->selected_control,
+                -1,
+                TokenNameTextBox,
+                ConfirmButton,
+                RollOverflowBehaviorStop);
+            update_screen_y_offset(scene_state);
+            break;
+        case InputKeyDown:
+            totp_roll_value_uint8_t(
+                &scene_state->selected_control,
+                1,
+                TokenNameTextBox,
+                ConfirmButton,
+                RollOverflowBehaviorStop);
+            update_screen_y_offset(scene_state);
+            break;
+        case InputKeyRight:
+            if(scene_state->selected_control == TokenAlgoSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->algo, 1, SHA1, STEAM, RollOverflowBehaviorRoll);
+            } else if(scene_state->selected_control == TokenLengthSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->digits_count_index, 1, 0, 2, RollOverflowBehaviorRoll);
+            } else if(scene_state->selected_control == TokenDurationSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->duration, 15, 15, 255, RollOverflowBehaviorStop);
+                update_duration_text(scene_state);
+            }
+            break;
+        case InputKeyLeft:
+            if(scene_state->selected_control == TokenAlgoSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->algo, -1, SHA1, STEAM, RollOverflowBehaviorRoll);
+            } else if(scene_state->selected_control == TokenLengthSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->digits_count_index, -1, 0, 2, RollOverflowBehaviorRoll);
+            } else if(scene_state->selected_control == TokenDurationSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->duration, -15, 15, 255, RollOverflowBehaviorStop);
+                update_duration_text(scene_state);
+            }
+            break;
+        case InputKeyOk:
+            break;
+        case InputKeyBack:
+            totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
+            break;
+        default:
+            break;
         }
-        break;
-    case InputKeyLeft:
-        if(scene_state->selected_control == TokenAlgoSelect) {
-            totp_roll_value_uint8_t(&scene_state->algo, -1, SHA1, STEAM, RollOverflowBehaviorRoll);
-        } else if(scene_state->selected_control == TokenLengthSelect) {
-            totp_roll_value_uint8_t(
-                &scene_state->digits_count_index, -1, 0, 2, RollOverflowBehaviorRoll);
-        } else if(scene_state->selected_control == TokenDurationSelect) {
-            totp_roll_value_uint8_t(
-                &scene_state->duration, -15, 15, 255, RollOverflowBehaviorStop);
-            update_duration_text(scene_state);
-        }
-        break;
-    case InputKeyOk:
+    } else if(event->input.type == InputTypeRelease && event->input.key == InputKeyOk) {
         switch(scene_state->selected_control) {
         case TokenNameTextBox:
             if(scene_state->input_state != NULL) {
@@ -264,7 +282,8 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
             }
             scene_state->input_state =
                 totp_input_text_activate(scene_state->token_name_input_context);
-            scene_state->input_started_at = furi_get_tick();
+
+            scene_state->text_input_mode = true;
             break;
         case TokenSecretTextBox:
             if(scene_state->input_state != NULL) {
@@ -272,7 +291,8 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
             }
             scene_state->input_state =
                 totp_input_text_activate(scene_state->token_secret_input_context);
-            scene_state->input_started_at = furi_get_tick();
+
+            scene_state->text_input_mode = true;
             break;
         case TokenAlgoSelect:
             break;
@@ -313,12 +333,6 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         default:
             break;
         }
-        break;
-    case InputKeyBack:
-        totp_scene_director_activate_scene(plugin_state, TotpSceneGenerateToken);
-        break;
-    default:
-        break;
     }
 
     return true;

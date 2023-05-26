@@ -25,18 +25,21 @@ static const char* STEAM_ALGO_ALPHABET = "23456789BCDFGHJKMNPQRTVWXY";
 
 static void
     int_token_to_str(uint64_t i_token_code, char* str, TokenDigitsCount len, TokenHashAlgo algo) {
-    str[len] = '\0';
+    char* last_char = str + len;
+    *last_char = '\0';
     if(i_token_code == OTP_ERROR) {
-        memset(&str[0], '-', len);
+        memset(str, '-', len);
     } else {
         if(algo == STEAM) {
-            for(uint8_t i = 0; i < len; i++) {
-                str[i] = STEAM_ALGO_ALPHABET[i_token_code % 26];
+            char* s = str;
+            for(uint8_t i = 0; i < len; i++, s++) {
+                *s = STEAM_ALGO_ALPHABET[i_token_code % 26];
                 i_token_code = i_token_code / 26;
             }
         } else {
-            for(int8_t i = len - 1; i >= 0; i--) {
-                str[i] = CONVERT_DIGIT_TO_CHAR(i_token_code % 10);
+            char* s = --last_char;
+            for(int8_t i = len - 1; i >= 0; i--, s--) {
+                *s = CONVERT_DIGIT_TO_CHAR(i_token_code % 10);
                 i_token_code = i_token_code / 10;
             }
         }

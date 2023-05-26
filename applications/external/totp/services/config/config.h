@@ -45,6 +45,13 @@ bool totp_config_file_update_notification_method(const PluginState* plugin_state
 bool totp_config_file_update_automation_method(const PluginState* plugin_state);
 
 /**
+ * @brief Updates selected font in an application config file
+ * @param plugin_state application state
+ * @return Config file update result
+ */
+bool totp_config_file_update_selected_font(const PluginState* plugin_state);
+
+/**
  * @brief Updates application user settings
  * @param plugin_state application state
  * @return Config file update result

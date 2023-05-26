@@ -21,7 +21,12 @@ static void nfc_magic_scene_write_setup_view(NfcMagic* nfc_magic) {
 
     if(state == NfcMagicSceneWriteStateCardSearch) {
         popup_set_text(
-            nfc_magic->popup, "Apply card to\nthe back", 128, 32, AlignRight, AlignCenter);
+            nfc_magic->popup,
+            "Apply the\nsame card\nto the back",
+            128,
+            32,
+            AlignRight,
+            AlignCenter);
         popup_set_icon(nfc_magic->popup, 0, 8, &I_NFC_manual_60x50);
     } else {
         popup_set_icon(popup, 12, 23, &I_Loading_24);
@@ -42,7 +47,9 @@ void nfc_magic_scene_write_on_enter(void* context) {
     nfc_magic_worker_start(
         nfc_magic->worker,
         NfcMagicWorkerStateWrite,
-        &nfc_magic->nfc_dev->dev_data,
+        nfc_magic->dev,
+        &nfc_magic->source_dev->dev_data,
+        nfc_magic->new_password,
         nfc_magic_write_worker_callback,
         nfc_magic);
     nfc_magic_blink_start(nfc_magic);
