@@ -1,7 +1,6 @@
 #include <furi_hal_infrared.h>
 #include <core/check.h>
 #include "stm32wbxx_ll_dma.h"
-#include "sys/_stdint.h"
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
 
@@ -332,8 +331,6 @@ static void furi_hal_infrared_tx_dma_isr() {
 }
 
 static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cycle) {
-    /*    LL_DBGMCU_APB2_GRP1_FreezePeriph(LL_DBGMCU_APB2_GRP1_TIM1_STOP); */
-
     LL_TIM_DisableCounter(TIM1);
     LL_TIM_SetRepetitionCounter(TIM1, 0);
     LL_TIM_SetCounter(TIM1, 0);
