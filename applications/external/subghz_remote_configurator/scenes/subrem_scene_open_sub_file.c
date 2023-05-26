@@ -16,7 +16,7 @@ SubRemLoadSubState subrem_scene_open_sub_file_dialog(SubGhzRemoteApp* app) {
     if(furi_string_empty(sub->file_path)) {
         furi_string_set(temp_file_path, SUBGHZ_RAW_FOLDER);
     } else {
-        furi_string_set(sub->file_path, SUBGHZ_RAW_FOLDER);
+        furi_string_set(temp_file_path, sub->file_path);
     }
 
     SubRemLoadSubState ret = SubRemLoadSubStateNotSet;
