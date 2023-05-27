@@ -1,12 +1,12 @@
-#include "hid_ytshorts.h"
+#include "hid_tikshorts.h"
 #include "../hid.h"
 #include <gui/elements.h>
 
 #include "hid_icons.h"
 
-#define TAG "HidYTShorts"
+#define TAG "HidTikShorts"
 
-struct HidYTShorts {
+struct HidTikShorts {
     View* view;
     Hid* hid;
 };
@@ -21,11 +21,11 @@ typedef struct {
     bool is_cursor_set;
     bool back_mouse_pressed;
     HidTransport transport;
-} HidYTShortsModel;
+} HidTikShortsModel;
 
-static void hid_ytshorts_draw_callback(Canvas* canvas, void* context) {
+static void hid_tikshorts_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
-    HidYTShortsModel* model = context;
+    HidTikShortsModel* model = context;
 
     // Header
     if(model->transport == HidTransportBle) {
@@ -37,7 +37,8 @@ static void hid_ytshorts_draw_callback(Canvas* canvas, void* context) {
     }
 
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Shorts");
+    elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "TikTok /");
+    elements_multiline_text_aligned(canvas, 3, 18, AlignLeft, AlignTop, "YT Shorts");
     canvas_set_font(canvas, FontSecondary);
 
     // Keypad circles
@@ -109,22 +110,21 @@ static void hid_ytshorts_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Hold to exit");
 }
 
-static void hid_ytshorts_reset_cursor(HidYTShorts* hid_ytshorts) {
+static void hid_tikshorts_reset_cursor(HidTikShorts* hid_tikshorts) {
     // Set cursor to the phone's left up corner
     // Delays to guarantee one packet per connection interval
     for(size_t i = 0; i < 8; i++) {
-        hid_hal_mouse_move(hid_ytshorts->hid, -127, -127);
+        hid_hal_mouse_move(hid_tikshorts->hid, -127, -127);
         furi_delay_ms(50);
     }
     // Move cursor from the corner
-    hid_hal_mouse_move(hid_ytshorts->hid, 40, 120);
-    hid_hal_mouse_move(hid_ytshorts->hid, 0, 120);
+    hid_hal_mouse_move(hid_tikshorts->hid, 20, 120);
     furi_delay_ms(50);
 }
 
-static void hid_ytshorts_process_press(
-    HidYTShorts* hid_ytshorts,
-    HidYTShortsModel* model,
+static void hid_tikshorts_process_press(
+    HidTikShorts* hid_tikshorts,
+    HidTikShortsModel* model,
     InputEvent* event) {
     if(event->key == InputKeyUp) {
         model->up_pressed = true;
@@ -132,10 +132,10 @@ static void hid_ytshorts_process_press(
         model->down_pressed = true;
     } else if(event->key == InputKeyLeft) {
         model->left_pressed = true;
-        hid_hal_consumer_key_press(hid_ytshorts->hid, HID_CONSUMER_VOLUME_DECREMENT);
+        hid_hal_consumer_key_press(hid_tikshorts->hid, HID_CONSUMER_VOLUME_DECREMENT);
     } else if(event->key == InputKeyRight) {
         model->right_pressed = true;
-        hid_hal_consumer_key_press(hid_ytshorts->hid, HID_CONSUMER_VOLUME_INCREMENT);
+        hid_hal_consumer_key_press(hid_tikshorts->hid, HID_CONSUMER_VOLUME_INCREMENT);
     } else if(event->key == InputKeyOk) {
         model->ok_pressed = true;
     } else if(event->key == InputKeyBack) {
@@ -143,9 +143,9 @@ static void hid_ytshorts_process_press(
     }
 }
 
-static void hid_ytshorts_process_release(
-    HidYTShorts* hid_ytshorts,
-    HidYTShortsModel* model,
+static void hid_tikshorts_process_release(
+    HidTikShorts* hid_tikshorts,
+    HidTikShortsModel* model,
     InputEvent* event) {
     if(event->key == InputKeyUp) {
         model->up_pressed = false;
@@ -153,10 +153,10 @@ static void hid_ytshorts_process_release(
         model->down_pressed = false;
     } else if(event->key == InputKeyLeft) {
         model->left_pressed = false;
-        hid_hal_consumer_key_release(hid_ytshorts->hid, HID_CONSUMER_VOLUME_DECREMENT);
+        hid_hal_consumer_key_release(hid_tikshorts->hid, HID_CONSUMER_VOLUME_DECREMENT);
     } else if(event->key == InputKeyRight) {
         model->right_pressed = false;
-        hid_hal_consumer_key_release(hid_ytshorts->hid, HID_CONSUMER_VOLUME_INCREMENT);
+        hid_hal_consumer_key_release(hid_tikshorts->hid, HID_CONSUMER_VOLUME_INCREMENT);
     } else if(event->key == InputKeyOk) {
         model->ok_pressed = false;
     } else if(event->key == InputKeyBack) {
@@ -164,62 +164,61 @@ static void hid_ytshorts_process_release(
     }
 }
 
-static bool hid_ytshorts_input_callback(InputEvent* event, void* context) {
+static bool hid_tikshorts_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    HidYTShorts* hid_ytshorts = context;
+    HidTikShorts* hid_tikshorts = context;
     bool consumed = false;
 
     with_view_model(
-        hid_ytshorts->view,
-        HidYTShortsModel * model,
+        hid_tikshorts->view,
+        HidTikShortsModel * model,
         {
             if(event->type == InputTypePress) {
-                hid_ytshorts_process_press(hid_ytshorts, model, event);
+                hid_tikshorts_process_press(hid_tikshorts, model, event);
                 if(model->connected && !model->is_cursor_set) {
-                    hid_ytshorts_reset_cursor(hid_ytshorts);
+                    hid_tikshorts_reset_cursor(hid_tikshorts);
                     model->is_cursor_set = true;
                 }
                 consumed = true;
             } else if(event->type == InputTypeRelease) {
-                hid_ytshorts_process_release(hid_ytshorts, model, event);
+                hid_tikshorts_process_release(hid_tikshorts, model, event);
                 consumed = true;
             } else if(event->type == InputTypeShort) {
                 if(event->key == InputKeyOk) {
-                    hid_hal_mouse_press(hid_ytshorts->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
-                    hid_hal_mouse_release(hid_ytshorts->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
-                    hid_hal_mouse_press(hid_ytshorts->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
-                    hid_hal_mouse_release(hid_ytshorts->hid, HID_MOUSE_BTN_LEFT);
+                    hid_hal_mouse_press(hid_tikshorts->hid, HID_MOUSE_BTN_LEFT);
+                    furi_delay_ms(25);
+                    hid_hal_mouse_release(hid_tikshorts->hid, HID_MOUSE_BTN_LEFT);
+                    furi_delay_ms(100);
+                    hid_hal_mouse_press(hid_tikshorts->hid, HID_MOUSE_BTN_LEFT);
+                    furi_delay_ms(25);
+                    hid_hal_mouse_release(hid_tikshorts->hid, HID_MOUSE_BTN_LEFT);
                     consumed = true;
                 } else if(event->key == InputKeyDown) {
-                    // Swipe to new video
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, 6);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, 8);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, 10);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, 8);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, 6);
+                    // Swipe to next video
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, 6);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, 8);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, 10);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, 8);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, 6);
                     consumed = true;
                 } else if(event->key == InputKeyUp) {
                     // Swipe to previous video
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, -6);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, -8);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, -10);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, -8);
-                    hid_hal_mouse_scroll(hid_ytshorts->hid, -6);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, -6);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, -8);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, -10);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, -8);
+                    hid_hal_mouse_scroll(hid_tikshorts->hid, -6);
                     consumed = true;
                 } else if(event->key == InputKeyBack) {
                     // Pause
-                    hid_hal_mouse_press(hid_ytshorts->hid, HID_MOUSE_BTN_LEFT);
+                    hid_hal_mouse_press(hid_tikshorts->hid, HID_MOUSE_BTN_LEFT);
                     furi_delay_ms(50);
-                    hid_hal_mouse_release(hid_ytshorts->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(50);
+                    hid_hal_mouse_release(hid_tikshorts->hid, HID_MOUSE_BTN_LEFT);
                     consumed = true;
                 }
             } else if(event->type == InputTypeLong) {
                 if(event->key == InputKeyBack) {
-                    hid_hal_consumer_key_release_all(hid_ytshorts->hid);
+                    hid_hal_consumer_key_release_all(hid_tikshorts->hid);
                     model->is_cursor_set = false;
                     consumed = false;
                 }
@@ -230,40 +229,40 @@ static bool hid_ytshorts_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-HidYTShorts* hid_ytshorts_alloc(Hid* bt_hid) {
-    HidYTShorts* hid_ytshorts = malloc(sizeof(HidYTShorts));
-    hid_ytshorts->hid = bt_hid;
-    hid_ytshorts->view = view_alloc();
-    view_set_context(hid_ytshorts->view, hid_ytshorts);
-    view_allocate_model(hid_ytshorts->view, ViewModelTypeLocking, sizeof(HidYTShortsModel));
-    view_set_draw_callback(hid_ytshorts->view, hid_ytshorts_draw_callback);
-    view_set_input_callback(hid_ytshorts->view, hid_ytshorts_input_callback);
+HidTikShorts* hid_tikshorts_alloc(Hid* bt_hid) {
+    HidTikShorts* hid_tikshorts = malloc(sizeof(HidTikShorts));
+    hid_tikshorts->hid = bt_hid;
+    hid_tikshorts->view = view_alloc();
+    view_set_context(hid_tikshorts->view, hid_tikshorts);
+    view_allocate_model(hid_tikshorts->view, ViewModelTypeLocking, sizeof(HidTikShortsModel));
+    view_set_draw_callback(hid_tikshorts->view, hid_tikshorts_draw_callback);
+    view_set_input_callback(hid_tikshorts->view, hid_tikshorts_input_callback);
 
     with_view_model(
-        hid_ytshorts->view,
-        HidYTShortsModel * model,
+        hid_tikshorts->view,
+        HidTikShortsModel * model,
         { model->transport = bt_hid->transport; },
         true);
 
-    return hid_ytshorts;
+    return hid_tikshorts;
 }
 
-void hid_ytshorts_free(HidYTShorts* hid_ytshorts) {
-    furi_assert(hid_ytshorts);
-    view_free(hid_ytshorts->view);
-    free(hid_ytshorts);
+void hid_tikshorts_free(HidTikShorts* hid_tikshorts) {
+    furi_assert(hid_tikshorts);
+    view_free(hid_tikshorts->view);
+    free(hid_tikshorts);
 }
 
-View* hid_ytshorts_get_view(HidYTShorts* hid_ytshorts) {
-    furi_assert(hid_ytshorts);
-    return hid_ytshorts->view;
+View* hid_tikshorts_get_view(HidTikShorts* hid_tikshorts) {
+    furi_assert(hid_tikshorts);
+    return hid_tikshorts->view;
 }
 
-void hid_ytshorts_set_connected_status(HidYTShorts* hid_ytshorts, bool connected) {
-    furi_assert(hid_ytshorts);
+void hid_tikshorts_set_connected_status(HidTikShorts* hid_tikshorts, bool connected) {
+    furi_assert(hid_tikshorts);
     with_view_model(
-        hid_ytshorts->view,
-        HidYTShortsModel * model,
+        hid_tikshorts->view,
+        HidTikShortsModel * model,
         {
             model->connected = connected;
             model->is_cursor_set = false;
