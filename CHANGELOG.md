@@ -7,6 +7,7 @@
 * SubGHz Remote: Full refactoring, app was re-made from scratch (by @gid9798)
 * Archive: Fix rename, show error message to user
 * API: Cleanup, mini refactoring of some apps (+6k of free flash space)
+* SubGHz: Security+ 2.0 -> add extra custom button `0x78` - Fixes issue #469
 * SubGHz: Various fixes (by @gid9798)
 * SubGHz: Fix counter settings in debug
 * SubGHz: Move dangerous_settings check (by @gid9798 | PR #475)
