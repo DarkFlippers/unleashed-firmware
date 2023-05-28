@@ -215,12 +215,12 @@ void digital_signal_prepare_arr(DigitalSignal* signal) {
         uint32_t edge_scaled = (internals->factor * signal->edge_timings[pos]) / (1024 * 1024);
         uint32_t pulse_duration = edge_scaled + internals->reload_reg_remainder;
         if(pulse_duration < 10 || pulse_duration > 10000000) {
-            FURI_LOG_D(
+            /*FURI_LOG_D(
                 TAG,
                 "[prepare] pulse_duration out of range: %lu = %lu * %llu",
                 pulse_duration,
                 signal->edge_timings[pos],
-                internals->factor);
+                internals->factor);*/
             pulse_duration = 100;
         }
         uint32_t pulse_ticks = (pulse_duration + T_TIM_DIV2) / T_TIM;
@@ -482,13 +482,13 @@ static void digital_sequence_finish(DigitalSequence* sequence) {
                 prev_timer = DWT->CYCCNT;
             }
             if(DWT->CYCCNT - prev_timer > wait_ticks) {
-                FURI_LOG_D(
+                /*FURI_LOG_D(
                     TAG,
                     "[SEQ] hung %lu ms in finish (ARR 0x%08lx, read %lu, write %lu)",
                     wait_ms,
                     TIM2->ARR,
                     dma_buffer->read_pos,
-                    dma_buffer->write_pos);
+                    dma_buffer->write_pos);*/
                 break;
             }
         } while(1);
@@ -516,13 +516,13 @@ static void digital_sequence_queue_pulse(DigitalSequence* sequence, uint32_t len
                 prev_timer = DWT->CYCCNT;
             }
             if(DWT->CYCCNT - prev_timer > wait_ticks) {
-                FURI_LOG_D(
+                /*FURI_LOG_D(
                     TAG,
                     "[SEQ] hung %lu ms in queue (ARR 0x%08lx, read %lu, write %lu)",
                     wait_ms,
                     TIM2->ARR,
                     dma_buffer->read_pos,
-                    dma_buffer->write_pos);
+                    dma_buffer->write_pos);*/
                 break;
             }
         } while(1);

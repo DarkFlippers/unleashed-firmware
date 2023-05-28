@@ -52,7 +52,7 @@ ReturnCode nfcv_read_blocks(NfcVReader* reader, NfcVData* nfcv_data) {
     uint16_t received = 0;
     for(size_t block = 0; block < nfcv_data->block_num; block++) {
         uint8_t rxBuf[32];
-        FURI_LOG_D(TAG, "Reading block %d/%d", block, (nfcv_data->block_num - 1));
+        //FURI_LOG_D(TAG, "Reading block %d/%d", block, (nfcv_data->block_num - 1));
 
         ReturnCode ret = ERR_NONE;
         for(int tries = 0; tries < NFCV_COMMAND_RETRIES; tries++) {
@@ -64,18 +64,18 @@ ReturnCode nfcv_read_blocks(NfcVReader* reader, NfcVData* nfcv_data) {
             }
         }
         if(ret != ERR_NONE) {
-            FURI_LOG_D(TAG, "failed to read: %d", ret);
+            //FURI_LOG_D(TAG, "failed to read: %d", ret);
             return ret;
         }
         memcpy(
             &(nfcv_data->data[block * nfcv_data->block_size]), &rxBuf[1], nfcv_data->block_size);
-        FURI_LOG_D(
+        /*FURI_LOG_D(
             TAG,
             "  %02X %02X %02X %02X",
             nfcv_data->data[block * nfcv_data->block_size + 0],
             nfcv_data->data[block * nfcv_data->block_size + 1],
             nfcv_data->data[block * nfcv_data->block_size + 2],
-            nfcv_data->data[block * nfcv_data->block_size + 3]);
+            nfcv_data->data[block * nfcv_data->block_size + 3]);*/
     }
 
     return ERR_NONE;
@@ -86,7 +86,7 @@ ReturnCode nfcv_read_sysinfo(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
     uint16_t received = 0;
     ReturnCode ret = ERR_NONE;
 
-    FURI_LOG_D(TAG, "Read SYSTEM INFORMATION...");
+    //FURI_LOG_D(TAG, "Read SYSTEM INFORMATION...");
 
     for(int tries = 0; tries < NFCV_COMMAND_RETRIES; tries++) {
         /* TODO: needs proper abstraction via fury_hal(_ll)_* */
@@ -110,7 +110,7 @@ ReturnCode nfcv_read_sysinfo(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
         nfcv_data->block_num = rxBuf[NFCV_UID_LENGTH + 4] + 1;
         nfcv_data->block_size = rxBuf[NFCV_UID_LENGTH + 5] + 1;
         nfcv_data->ic_ref = rxBuf[NFCV_UID_LENGTH + 6];
-        FURI_LOG_D(
+        /*FURI_LOG_D(
             TAG,
             "  UID:          %02X %02X %02X %02X %02X %02X %02X %02X",
             nfc_data->uid[0],
@@ -128,10 +128,10 @@ ReturnCode nfcv_read_sysinfo(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
             nfcv_data->afi,
             nfcv_data->block_num,
             nfcv_data->block_size,
-            nfcv_data->ic_ref);
+            nfcv_data->ic_ref);*/
         return ret;
     }
-    FURI_LOG_D(TAG, "Failed: %d", ret);
+    //FURI_LOG_D(TAG, "Failed: %d", ret);
 
     return ret;
 }
@@ -1081,9 +1081,9 @@ void nfcv_emu_sniff_packet(
         break;
     }
 
-    if(strlen(nfcv_data->last_command) > 0) {
+    /*if(strlen(nfcv_data->last_command) > 0) {
         FURI_LOG_D(TAG, "Received command %s", nfcv_data->last_command);
-    }
+    }*/
 }
 
 void nfcv_emu_init(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
@@ -1137,7 +1137,7 @@ void nfcv_emu_init(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
         }
     }
 
-    FURI_LOG_D(TAG, "Starting NfcV emulation");
+    /*FURI_LOG_D(TAG, "Starting NfcV emulation");
     FURI_LOG_D(
         TAG,
         "  UID:          %02X %02X %02X %02X %02X %02X %02X %02X",
@@ -1148,7 +1148,7 @@ void nfcv_emu_init(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
         nfc_data->uid[4],
         nfc_data->uid[5],
         nfc_data->uid[6],
-        nfc_data->uid[7]);
+        nfc_data->uid[7]);*/
 
     switch(nfcv_data->sub_type) {
     case NfcVTypeSlixL:
