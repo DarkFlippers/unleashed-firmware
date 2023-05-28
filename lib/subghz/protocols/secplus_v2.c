@@ -345,7 +345,7 @@ static void
     if(subghz_custom_btn_get_original() == 0) {
         subghz_custom_btn_set_original(instance->btn);
     }
-    subghz_custom_btn_set_max(3);
+    subghz_custom_btn_set_max(4);
 }
 
 /** 
@@ -377,7 +377,7 @@ static uint64_t subghz_protocol_secplus_v2_encode_half(uint8_t roll_array[], uin
 
 /**
  * Defines the button value for the current btn_id
- * Basic set | 0x68 | 0x80 | 0x81 | 0xE2 |
+ * Basic set | 0x68 | 0x80 | 0x81 | 0xE2 | 0x78
  * @return Button code
  */
 static uint8_t subghz_protocol_secplus_v2_get_btn_code();
@@ -856,6 +856,9 @@ static uint8_t subghz_protocol_secplus_v2_get_btn_code() {
         case 0xE2:
             btn = 0x80;
             break;
+        case 0x78:
+            btn = 0x80;
+            break;
 
         default:
             break;
@@ -874,6 +877,9 @@ static uint8_t subghz_protocol_secplus_v2_get_btn_code() {
         case 0xE2:
             btn = 0x81;
             break;
+        case 0x78:
+            btn = 0x81;
+            break;
 
         default:
             break;
@@ -890,6 +896,30 @@ static uint8_t subghz_protocol_secplus_v2_get_btn_code() {
             btn = 0xE2;
             break;
         case 0xE2:
+            btn = 0x68;
+            break;
+        case 0x78:
+            btn = 0xE2;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
+        case 0x68:
+            btn = 0x78;
+            break;
+        case 0x80:
+            btn = 0x78;
+            break;
+        case 0x81:
+            btn = 0x78;
+            break;
+        case 0xE2:
+            btn = 0x78;
+            break;
+        case 0x78:
             btn = 0x68;
             break;
 

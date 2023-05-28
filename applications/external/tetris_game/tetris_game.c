@@ -367,11 +367,8 @@ int32_t tetris_game_app() {
 
     // Not doing this eventually causes issues with TimerSvc due to not sleeping/yielding enough in this task
     TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
-    TaskHandle_t curr_task = xTaskGetHandle("Tetris Game");
 
-    uint32_t origTimerPrio = uxTaskPriorityGet(timer_task);
-    uint32_t myPrio = uxTaskPriorityGet(curr_task);
-    vTaskPrioritySet(timer_task, myPrio + 1);
+    vTaskPrioritySet(timer_task, configMAX_PRIORITIES - 1);
 
     ViewPort* view_port = view_port_alloc();
     view_port_set_orientation(view_port, ViewPortOrientationVertical);
@@ -475,7 +472,7 @@ int32_t tetris_game_app() {
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
     furi_mutex_free(tetris_state->mutex);
-    vTaskPrioritySet(timer_task, origTimerPrio);
+    vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
     free(newPiece);
     free(tetris_state);
 

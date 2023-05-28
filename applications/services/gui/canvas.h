@@ -120,6 +120,14 @@ uint8_t canvas_height(const Canvas* canvas);
  */
 uint8_t canvas_current_font_height(const Canvas* canvas);
 
+/** Get current font width
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     width in pixels.
+ */
+uint8_t canvas_current_font_width(const Canvas* canvas);
+
 /** Get font parameters
  *
  * @param      canvas  Canvas instance

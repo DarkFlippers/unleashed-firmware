@@ -226,7 +226,7 @@ FS_Error storage_common_stat(Storage* storage, const char* path, FileInfo* filei
  */
 FS_Error storage_common_remove(Storage* storage, const char* path);
 
-/** Renames file/directory, file/directory must not be open
+/** Renames file/directory, file/directory must not be open. Will overwrite existing file.
  * @param app pointer to the api
  * @param old_path old path
  * @param new_path new path

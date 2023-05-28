@@ -83,38 +83,45 @@ bool totp_scene_authenticate_handle_event(
         return false;
     }
 
-    if(event->input.type != InputTypePress) {
-        return true;
-    }
-
-    SceneState* scene_state = (SceneState*)plugin_state->current_scene_state;
-
-    switch(event->input.key) {
-    case InputKeyUp:
-        if(scene_state->code_length < MAX_CODE_LENGTH) {
-            scene_state->code_input[scene_state->code_length] = PinCodeArrowUp;
-            scene_state->code_length++;
+    SceneState* scene_state = plugin_state->current_scene_state;
+    if(event->input.type == InputTypePress) {
+        switch(event->input.key) {
+        case InputKeyUp:
+            if(scene_state->code_length < MAX_CODE_LENGTH) {
+                scene_state->code_input[scene_state->code_length] = PinCodeArrowUp;
+                scene_state->code_length++;
+            }
+            break;
+        case InputKeyDown:
+            if(scene_state->code_length < MAX_CODE_LENGTH) {
+                scene_state->code_input[scene_state->code_length] = PinCodeArrowDown;
+                scene_state->code_length++;
+            }
+            break;
+        case InputKeyRight:
+            if(scene_state->code_length < MAX_CODE_LENGTH) {
+                scene_state->code_input[scene_state->code_length] = PinCodeArrowRight;
+                scene_state->code_length++;
+            }
+            break;
+        case InputKeyLeft:
+            if(scene_state->code_length < MAX_CODE_LENGTH) {
+                scene_state->code_input[scene_state->code_length] = PinCodeArrowLeft;
+                scene_state->code_length++;
+            }
+            break;
+        case InputKeyOk:
+            break;
+        case InputKeyBack:
+            if(scene_state->code_length > 0) {
+                scene_state->code_input[scene_state->code_length - 1] = 0;
+                scene_state->code_length--;
+            }
+            break;
+        default:
+            break;
         }
-        break;
-    case InputKeyDown:
-        if(scene_state->code_length < MAX_CODE_LENGTH) {
-            scene_state->code_input[scene_state->code_length] = PinCodeArrowDown;
-            scene_state->code_length++;
-        }
-        break;
-    case InputKeyRight:
-        if(scene_state->code_length < MAX_CODE_LENGTH) {
-            scene_state->code_input[scene_state->code_length] = PinCodeArrowRight;
-            scene_state->code_length++;
-        }
-        break;
-    case InputKeyLeft:
-        if(scene_state->code_length < MAX_CODE_LENGTH) {
-            scene_state->code_input[scene_state->code_length] = PinCodeArrowLeft;
-            scene_state->code_length++;
-        }
-        break;
-    case InputKeyOk: {
+    } else if(event->input.type == InputTypeRelease && event->input.key == InputKeyOk) {
         CryptoSeedIVResult seed_result = totp_crypto_seed_iv(
             plugin_state, &scene_state->code_input[0], scene_state->code_length);
 
@@ -145,16 +152,6 @@ bool totp_scene_authenticate_handle_event(
             dialog_message_show(plugin_state->dialogs_app, message);
             dialog_message_free(message);
         }
-        break;
-    }
-    case InputKeyBack:
-        if(scene_state->code_length > 0) {
-            scene_state->code_input[scene_state->code_length - 1] = 0;
-            scene_state->code_length--;
-        }
-        break;
-    default:
-        break;
     }
 
     return true;

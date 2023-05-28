@@ -1,7 +1,7 @@
 #include <furi.h>
 #include <gui/modules/popup.h>
 #include <gui/scene_manager.h>
-#include <toolbox/namechanger.h>
+#include <namechanger/namechanger.h>
 #include <flipper_format/flipper_format.h>
 #include <power/power_service/power.h>
 

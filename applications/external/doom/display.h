@@ -90,7 +90,7 @@ void drawVLine(uint8_t x, int8_t start_y, int8_t end_y, uint8_t intensity, Canva
 
 void setupDisplay(Canvas* canvas) {
     memset(zbuffer, 0xff, 128);
-    display_buf = (uint8_t*)canvas_get_buffer(canvas);
+    display_buf = (uint8_t*)canvas->fb.tile_buf_ptr;
     //display_buf = u8g2_GetBufferPtr(&canvas->fb);
 }
 

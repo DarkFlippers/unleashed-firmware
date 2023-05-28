@@ -1,0 +1,16 @@
+App(
+    appid="subrem_configurator",
+    name="Remote Maker",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="subghz_remote_config_app",
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=2 * 1024,
+    order=50,
+    fap_description="File Editor for the SubGhz Remote app",
+    fap_category="Sub-Ghz",
+    fap_icon_assets="icons",
+    fap_icon="icons/subrem_10px.png",
+)
