@@ -82,7 +82,9 @@ static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* app
     } else if(strlen(application->name_or_path) > 0) {
         status = loader_start(desktop->loader, application->name_or_path, NULL);
     } else {
-        status = loader_start(desktop->loader, FAP_LOADER_APP_NAME, NULL);
+        // No favourite app is set! So we skipping this part
+        return;
+        //status = loader_start(desktop->loader, FAP_LOADER_APP_NAME, NULL);
     }
 
     if(status != LoaderStatusOk) {

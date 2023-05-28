@@ -1,20 +1,38 @@
 ### New changes
+* !!! **Warning! After installing, Desktop settings (Favoutite apps, PIN Code, AutoLock time..) will be resetted to default due to settings changes, Please set your PIN code, Favourite apps again in Settings->Desktop** !!!
+* If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
+-----
+* Desktop: **Show clock on main screen** (Enable in Settings->Desktop->Show Clock) (by @gid9798 | PR #484)
+* SubGHz Remote: New plugin - Configurator (Remote Maker) - Now you can create and edit map files on flipper! (by @gid9798 | PR #487)
 * SubGHz Remote: Full refactoring, app was re-made from scratch (by @gid9798)
+* Archive: Fix rename, show error message to user
 * API: Cleanup, mini refactoring of some apps (+6k of free flash space)
 * SubGHz: Various fixes (by @gid9798)
 * SubGHz: Fix counter settings in debug
 * SubGHz: Move dangerous_settings check (by @gid9798 | PR #475)
+* Misc: Move NFC plugins into NFC folder
 * Misc: Name changer code moved to proper place, load after system startup + extra checks
+* Plugins: Merge tiktok and ytshorts remote into one (by @Willy-JL)
 * Plugins: NMEA GPS UART - stability fix
 * Plugins: Port XFW keyboard with extra symbols to WiFi Marauder instead of using UART Term keyboard (thanks to @Willy-JL)
-* Plugins: Update NMEA GPS UART [(by ezod)](https://github.com/ezod/flipperzero-gps)
+* Plugins: Moved from extra pack to main FW: Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested) - Works with PC and python app `FlipperNested`
+* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (+ Add option to set custom fonts)
+* Plugins: Update NMEA GPS UART [(by ezod)](https://github.com/ezod/flipperzero-gps) (GLL support)
 * Plugins: Update WiFi Marauder [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
+* OFW PR 2680: RFID - Add support for Nexkey/Nexwatch (by @mauimauer)
+* OFW: nfc: Mifare Ultralight C detection
+* OFW: api: added toolbox/api_lock.h
+* OFW: NFC: Add support for Gen4 "ultimate card" in Magic app
+* OFW: desktop: Refactor favorites settings and allow app browser in selection
+* OFW: Infrared: respect carrier frequency and duty cycle settings -> **Breaking API change, API version was changed from 26.x to 27.x** 
+* OFW: Desktop,Rpc: desktop status subscription
+* OFW: Storage, common_rename: check that old path is exists
 * OFW: Services: remove deallocator for persistent services
 * OFW: Storage: common_rename is now POSIX compliant
 * OFW: Removed user-specific data from tar artifacts
 * OFW: fbt: Fix tar uid overflow when packaging
 * OFW: fbt: Use union for old py (Fix builds if using older python versions)
-* OFW PR 2682: USB HID report timeout (by nminaylov)
+* OFW: USB HID report timeout
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 
