@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,28.0,,
+Version,+,28.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2945,6 +2945,8 @@ Function,-,vdprintf,int,"int, const char*, __gnuc_va_list"
 Function,+,version_get,const Version*,
 Function,+,version_get_builddate,const char*,const Version*
 Function,+,version_get_dirty_flag,_Bool,const Version*
+Function,+,version_get_firmware_origin,const char*,const Version*
+Function,+,version_get_git_origin,const char*,const Version*
 Function,+,version_get_gitbranch,const char*,const Version*
 Function,+,version_get_gitbranchnum,const char*,const Version*
 Function,+,version_get_githash,const char*,const Version*

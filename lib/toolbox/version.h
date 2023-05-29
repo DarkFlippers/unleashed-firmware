@@ -82,6 +82,17 @@ uint8_t version_get_target(const Version* v);
  */
 bool version_get_dirty_flag(const Version* v);
 
+/** 
+ * Get firmware origin. "Official" for mainline firmware, fork name for forks.
+ * Set by FIRMWARE_ORIGIN fbt argument.
+*/
+const char* version_get_firmware_origin(const Version* v);
+
+/** 
+ * Get git repo origin
+*/
+const char* version_get_git_origin(const Version* v);
+
 #ifdef __cplusplus
 }
 #endif
