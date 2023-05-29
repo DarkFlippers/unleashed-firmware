@@ -386,9 +386,9 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
 static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {
     LL_DMA_InitTypeDef dma_config = {0};
     if(infrared_external_output) {
-    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->CCMR1);
+        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->CCMR1);
     } else {
-    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->CCMR2);
+        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->CCMR2);
     }
     dma_config.MemoryOrM2MDstAddress = (uint32_t)NULL;
     dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
@@ -587,6 +587,7 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
         furi_hal_gpio_init(&gpio_ext_pa7, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
     } else {
         furi_hal_gpio_init(&gpio_infrared_tx, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
+    }
     furi_hal_interrupt_set_isr(INFRARED_DMA_CH1_IRQ, NULL, NULL);
     furi_hal_interrupt_set_isr(INFRARED_DMA_CH2_IRQ, NULL, NULL);
 
