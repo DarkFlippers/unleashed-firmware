@@ -14,9 +14,7 @@ void lfrfid_debug_scene_tune_on_enter(void* context) {
     furi_hal_rfid_comp_set_callback(comparator_trigger_callback, app);
     furi_hal_rfid_comp_start();
 
-    furi_hal_rfid_pins_read();
-    furi_hal_rfid_tim_read(125000, 0.5);
-    furi_hal_rfid_tim_read_start();
+    furi_hal_rfid_tim_read_start(125000, 0.5);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidDebugViewTune);
 }
@@ -43,6 +41,5 @@ void lfrfid_debug_scene_tune_on_exit(void* context) {
 
     furi_hal_gpio_init_simple(&gpio_ext_pa7, GpioModeAnalog);
     furi_hal_rfid_tim_read_stop();
-    furi_hal_rfid_tim_reset();
     furi_hal_rfid_pins_reset();
 }
