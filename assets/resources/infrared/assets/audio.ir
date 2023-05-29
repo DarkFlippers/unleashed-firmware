@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 14th Apr, 2023
-# Last Checked 17th May, 2023
+# Last Updated 29th May, 2023
+# Last Checked 29th May, 2023
 # 
 name: Power
 type: parsed
@@ -2176,3 +2176,395 @@ type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 46 00 00 00
+#
+# Soundbars
+# 
+name: Play
+type: parsed
+protocol: NECext
+address: 86 FF 00 00
+command: 2A D5 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 86 FF 00 00
+command: 13 EC 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: BA A0 00 00
+command: 56 A9 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 83 22 00 00
+command: 07 F8 00 00
+#
+name: Play
+type: parsed
+protocol: Samsung32
+address: 2C 00 00 00
+command: 4F 00 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: C8 91 00 00
+command: 21 DE 00 00
+#
+name: Next
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 4582 4465 551 454 550 455 550 455 549 456 549 1460 550 1460 549 457 548 456 549 1461 549 1461 548 1461 549 1460 549 457 549 456 548 457 548 457 548 4461 549 456 548 457 548 457 548 457 548 457 548 457 548 1462 548 1461 547 457 549 457 548 456 549 1460 549 1461 547 1461 549 457 547 457 548 1461 549 1461 548 1461 548 457 548 55436 4578 4464 549 455 549 456 549 455 549 456 550 1460 549 1460 549 456 550 455 550 1460 550 1460 549 1460 550 1460 549 456 549 457 548 457 548 457 549 4461 548 457 548 457 548 457 548 457 547 457 549 457 547 1462 548 1461 549 457 548 457 548 457 548 1461 548 1461 548 1462 548 457 548 457 549 1461 549 1461 548 1461 548 457 548
+#
+name: Play
+type: parsed
+protocol: SIRC20
+address: 3A 07 00 00
+command: 32 00 00 00
+#
+name: Pause
+type: parsed
+protocol: SIRC20
+address: 3A 07 00 00
+command: 39 00 00 00
+#
+name: Play
+type: parsed
+protocol: SIRC20
+address: 10 01 00 00
+command: 32 00 00 00
+#
+name: Pause
+type: parsed
+protocol: SIRC20
+address: 10 01 00 00
+command: 39 00 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 8E 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 8A 00 00 00
+#
+# CDPlayers
+#
+name: Play
+type: parsed
+protocol: NEC42
+address: 6E 00 00 00
+command: 40 00 00 00
+#
+name: Pause
+type: parsed
+protocol: NEC42
+address: 6E 00 00 00
+command: 44 00 00 00
+#
+name: Prev
+type: parsed
+protocol: Kaseikyo
+address: 51 54 32 01
+command: 47 00 00 00
+#
+name: Play
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: Pause
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: Prev
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 21 00 00 00
+#
+name: Play
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 8546 4227 563 511 563 1558 566 511 563 483 566 508 567 1558 566 509 566 1558 566 1586 564 483 566 1561 588 1558 566 1560 564 536 539 1558 566 535 539 1558 566 1586 564 1557 567 486 589 1560 564 511 563 510 539 508 567 485 589 484 565 508 567 1559 565 509 566 1560 564 1560 590 1585 539 25430 8575 4251 538 485 590 1557 567 486 588 511 538 536 539 1557 567 509 566 1558 566 1560 590 483 566 1560 589 1559 565 1562 562 536 539 1560 564 509 566 1558 566 1564 586 1586 538 484 590 1559 565 487 588 482 567 509 566 511 563 483 566 508 567 1558 566 509 566 1560 564 1559 591 1586 538
+#
+name: Pause
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 8571 4226 564 509 540 1587 563 510 539 510 565 510 564 1558 566 510 565 1584 540 1585 539 535 540 1587 537 1586 564 1585 539 510 564 1584 540 511 563 482 567 535 539 485 590 1584 540 1585 539 509 566 510 564 510 539 1586 564 1585 539 1585 539 536 539 510 564 1585 539 1557 567 1558 592 25434 8571 4199 591 510 539 1586 564 509 540 535 540 485 590 1585 539 484 591 1561 563 1584 540 507 568 1585 539 1586 564 1585 539 486 589 1585 539 484 591 425 624 535 540 486 589 1585 539 1585 539 511 564 511 563 486 563 1586 564 1558 566 1558 566 508 567 486 589 1560 564 1558 566 1561 589
+#
+name: Pause
+type: parsed
+protocol: NEC
+address: 4D 00 00 00
+command: 0F 00 00 00
+#
+name: Play
+type: parsed
+protocol: SIRC15
+address: 64 00 00 00
+command: 32 00 00 00
+#
+name: Pause
+type: parsed
+protocol: SIRC15
+address: 64 00 00 00
+command: 39 00 00 00
+#
+name: Play
+type: parsed
+protocol: SIRC
+address: 0F 00 00 00
+command: 2A 00 00 00
+#
+name: Pause
+type: parsed
+protocol: SIRC
+address: 0F 00 00 00
+command: 29 00 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 08 F7 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 05 FA 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 00 EF 00 00
+command: 01 FE 00 00
+#
+# Speakers
+#
+name: Prev
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 1046 1457 543 1458 542 454 546 450 539 1461 539 456 544 1458 542 1458 542 454 546 451 539 1461 539 1462 538 458 542 1459 541 454 546 451 539 1454 546 50538 1043 1461 539 1461 539 456 544 453 547 1454 546 449 541 1461 539 1462 538 457 543 453 547 1455 545 1455 545 451 539 1462 538 458 542 454 546 1447 543 50526 1044 1459 541 1459 541 455 545 451 539 1463 537 458 542 1459 541 1460 540 455 545 452 538 1463 537 1464 536 460 540 1461 539 456 544 453 536 1456 544
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: Pause
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 15 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: Next
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 13 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 0B 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 40 AF 00 00
+command: 12 ED 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 0D F2 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 25 DA 00 00
+#
+name: Play
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 9175 4433 644 1605 645 442 669 466 646 445 666 438 673 466 645 440 671 466 673 410 700 365 720 465 675 367 742 367 744 438 645 1604 675 1574 674 1549 702 1575 673 1576 646 1604 675 1574 676 1574 675 1576 644 1604 645 1606 672 1576 645 466 645 466 645 465 646 1575 675 1605 645 466 645 467 644 467 644 1605 644 1605 645 1606 644 467 644 467 644 1606 643 1578 672 1607 643
+#
+name: Prev
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 9144 4405 671 1607 642 469 642 469 642 469 642 470 641 365 747 469 641 443 669 469 642 468 643 446 665 469 642 469 642 470 642 1580 669 1607 643 1607 642 1608 641 1578 672 1580 670 1608 641 1608 641 1609 590 1660 590 1635 615 1660 590 1660 590 1632 618 1633 617 521 590 1660 590 521 590 521 618 493 590 521 590 520 591 519 592 1657 592 519 592 1658 617 1633 616 1633 615 23844 9114 4461 615
+#
+name: Play
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 2D D3 00 00
+command: 07 F8 00 00
+#
+# Audio Receivers
+#
+name: Pause
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 09 00 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 12 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 04 00 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 00 00 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1B E4 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1F E0 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 91 6E 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 8D 72 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 90 6F 00 00
+#
+name: Next
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 8F 70 00 00
+#
+name: Prev
+type: parsed
+protocol: Kaseikyo
+address: AC 02 20 01
+command: 91 00 00 00
+#
+name: Play
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 3467 1720 449 450 419 1296 443 455 425 446 423 447 422 449 420 451 418 452 417 454 426 445 424 447 422 448 421 450 419 1296 443 455 425 446 423 447 422 449 420 450 419 452 417 454 426 1290 449 448 421 1294 445 453 416 455 425 1291 448 1294 445 1297 453 418 451 447 422 448 421 423 446 1296 443 1300 450 448 421 422 447 424 445 425 444 427 453 418 451 1292 447 450 419 1297 442 1300 450 1292 447 451 418 1297 453 74912 3466 1722 447 424 445 1297 453 418 451 420 449 421 448 423 446 425 444 427 453 418 451 420 449 421 448 423 446 424 445 1297 453 419 450 420 449 422 447 424 445 425 444 427 453 418 451 1291 448 423 446 1296 443 428 452 419 450 1292 447 1295 444 1298 452 420 449 421 448 423 446 425 444 1298 452 1290 449 422 447 424 445 425 444 427 453 418 451 420 449 1293 446 425 444 1298 452 1290 449 1294 445 425 444 1298 452
+#
+name: Prev
+type: parsed
+protocol: Kaseikyo
+address: AC 02 20 00
+command: 21 00 00 00
+#
+name: Play
+type: parsed
+protocol: Kaseikyo
+address: AC 02 20 00
+command: 61 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 4D 00 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 59 00 00 00
+#
+name: Pause
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 18 00 00 00
+#
+name: Play
+type: parsed
+protocol: RC5X
+address: 0A 00 00 00
+command: 31 00 00 00
+#
+name: Pause
+type: parsed
+protocol: RC5X
+address: 0A 00 00 00
+command: 0F 00 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 78 00 00 00
+command: 02 00 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 7F 01 00 00
+command: 68 97 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: 7F 01 00 00
+command: 67 98 00 00
