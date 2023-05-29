@@ -6,6 +6,9 @@
 extern "C" {
 #endif
 
+/** Initialize random subsystem */
+void furi_hal_random_init();
+
 /** Get random value
  *
  * @return     random value

@@ -143,7 +143,7 @@ bool opal_parser_parse(NfcDeviceData* dev_data) {
         // sign separately, because then we can handle balances of -99..-1
         // cents, as the "dollars" division below would result in a positive
         // zero value.
-        o->balance = abs(o->balance);
+        o->balance = abs(o->balance); //-V1081
         sign = "-";
     }
     uint8_t cents = o->balance % 100;
@@ -164,7 +164,7 @@ bool opal_parser_parse(NfcDeviceData* dev_data) {
         o->mode = 4;
     }
 
-    const char* mode_str = (o->mode <= 4 ? opal_modes[o->mode] : opal_modes[3]);
+    const char* mode_str = (o->mode <= 4 ? opal_modes[o->mode] : opal_modes[3]); //-V547
     const char* usage_str = (o->usage <= 12 ? opal_usages[o->usage] : opal_usages[13]);
 
     furi_string_printf(

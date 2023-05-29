@@ -2,8 +2,8 @@
 #include <furi_hal_light.h>
 #include <furi_hal_debug.h>
 
-#include <stm32wbxx_ll_bus.h>
 #include <stm32wbxx_ll_pwr.h>
+#include <stm32wbxx_ll_bus.h>
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_rtc.h>
 #include <stm32wbxx_ll_utils.h>
