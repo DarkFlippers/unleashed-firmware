@@ -219,6 +219,19 @@ static bool nfc_worker_read_mf_desfire(NfcWorker* nfc_worker, FuriHalNfcTxRxCont
     do {
         if(!furi_hal_nfc_detect(&nfc_worker->dev_data->nfc_data, 300)) break;
         if(!mf_df_read_card(tx_rx, data)) break;
+        FURI_LOG_I(TAG, "Trying to parse a supported card ...");
+
+        // The model for parsing DESFire is a little different to other cards;
+        // we don't have parsers to provide encryption keys, so we can read the
+        // data normally, and then pass the read data to a parser.
+        //
+        // There are fully-protected DESFire cards, but providing keys for them
+        // is difficult (and unnessesary for many transit cards).
+        for(size_t i = 0; i < NfcSupportedCardTypeEnd; i++) {
+            if(nfc_supported_card[i].protocol == NfcDeviceProtocolMifareDesfire) {
+                if(nfc_supported_card[i].parse(nfc_worker->dev_data)) break;
+            }
+        }
         read_success = true;
     } while(false);
 

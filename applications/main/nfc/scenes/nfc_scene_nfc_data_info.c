@@ -40,7 +40,7 @@ void nfc_scene_nfc_data_info_on_enter(void* context) {
         furi_string_cat_printf(
             temp_str, "\e#%s\n", nfc_mf_classic_type(dev_data->mf_classic_data.type));
     } else if(protocol == NfcDeviceProtocolMifareDesfire) {
-        furi_string_cat_printf(temp_str, "\e#MIFARE DESfire\n");
+        furi_string_cat_printf(temp_str, "\e#MIFARE DESFire\n");
     } else {
         furi_string_cat_printf(temp_str, "\e#Unknown ISO tag\n");
     }
