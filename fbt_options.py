@@ -3,7 +3,7 @@ import posixpath
 
 # For more details on these options, run 'fbt -h'
 
-FIRMWARE_ORIGIN = "Official"
+FIRMWARE_ORIGIN = "Unleashed"
 
 # Default hardware target
 TARGET_HW = 7
