@@ -56,14 +56,7 @@ bool mifare_nested_scene_check_on_event(void* context, SceneManagerEvent event) 
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == MifareNestedWorkerEventNoncesCollected) {
-            scene_manager_next_scene(
-                mifare_nested->scene_manager, MifareNestedSceneNoncesCollected);
-            consumed = true;
-        } else if(event.event == MifareNestedWorkerEventAttackFailed) {
-            scene_manager_next_scene(mifare_nested->scene_manager, MifareNestedSceneFailed);
-            consumed = true;
-        } else if(event.event == MifareNestedWorkerEventCollecting) {
+        if(event.event == MifareNestedWorkerEventCollecting) {
             if(mifare_nested->run == NestedRunAttack) {
                 if(mifare_nested->settings->only_hardnested) {
                     FURI_LOG_I("MifareNested", "Using Hard Nested because user settings");

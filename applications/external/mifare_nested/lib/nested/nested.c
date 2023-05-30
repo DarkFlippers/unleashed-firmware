@@ -5,28 +5,6 @@
 #include "../../lib/crypto1/crypto1.h"
 #define TAG "Nested"
 
-void nfc_util_num2bytes(uint64_t src, uint8_t len, uint8_t* dest) {
-    furi_assert(dest);
-    furi_assert(len <= 8);
-
-    while(len--) {
-        dest[len] = (uint8_t)src;
-        src >>= 8;
-    }
-}
-
-uint64_t nfc_util_bytes2num(const uint8_t* src, uint8_t len) {
-    furi_assert(src);
-    furi_assert(len <= 8);
-
-    uint64_t res = 0;
-    while(len--) {
-        res = (res << 8) | (*src);
-        src++;
-    }
-    return res;
-}
-
 uint16_t nfca_get_crc16(uint8_t* buff, uint16_t len) {
     uint16_t crc = 0x6363; // NFCA_CRC_INIT
     uint8_t byte = 0;

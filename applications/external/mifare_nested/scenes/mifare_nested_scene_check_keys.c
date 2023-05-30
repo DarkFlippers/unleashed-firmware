@@ -84,13 +84,6 @@ bool mifare_nested_scene_check_keys_on_event(void* context, SceneManagerEvent ev
         if(event.event == GuiButtonTypeCenter) {
             scene_manager_search_and_switch_to_previous_scene(mifare_nested->scene_manager, 0);
             consumed = true;
-        } else if(event.event == MifareNestedWorkerEventNoncesCollected) {
-            scene_manager_next_scene(
-                mifare_nested->scene_manager, MifareNestedSceneNoncesCollected);
-            consumed = true;
-        } else if(event.event == MifareNestedWorkerEventNeedKey) {
-            scene_manager_next_scene(mifare_nested->scene_manager, MifareNestedSceneNoKeys);
-            consumed = true;
         } else if(event.event == MifareNestedWorkerEventKeysFound) {
             scene_manager_next_scene(mifare_nested->scene_manager, MifareNestedSceneAddedKeys);
             consumed = true;
