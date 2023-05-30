@@ -1,7 +1,5 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/star_line.h>
 
 #include <lib/subghz/blocks/custom_btn.h>
 
@@ -190,5 +188,5 @@ void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
 
     widget_reset(subghz->widget);
-    subghz_txrx_reset_dynamic(subghz->txrx);
+    subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);
 }

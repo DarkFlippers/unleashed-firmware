@@ -1,8 +1,6 @@
 #include "../subghz_i.h"
 #include "../views/transmitter.h"
 #include <dolphin/dolphin.h>
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/star_line.h>
 
 #include <lib/subghz/blocks/custom_btn.h>
 
@@ -107,5 +105,5 @@ void subghz_scene_transmitter_on_exit(void* context) {
     SubGhz* subghz = context;
     subghz->state_notifications = SubGhzNotificationStateIDLE;
 
-    subghz_txrx_reset_dynamic(subghz->txrx);
+    subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);
 }

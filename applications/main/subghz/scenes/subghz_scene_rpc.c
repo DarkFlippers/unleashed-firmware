@@ -1,6 +1,4 @@
 #include "../subghz_i.h"
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/star_line.h>
 
 #include <lib/subghz/blocks/custom_btn.h>
 
@@ -110,5 +108,5 @@ void subghz_scene_rpc_on_exit(void* context) {
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
 
-    subghz_txrx_reset_dynamic(subghz->txrx);
+    subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);
 }

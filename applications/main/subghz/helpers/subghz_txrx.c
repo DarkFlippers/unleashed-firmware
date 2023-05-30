@@ -558,7 +558,7 @@ bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance) {
     return instance->debug_pin_state;
 }
 
-void subghz_txrx_reset_dynamic(SubGhzTxRx* instance) {
+void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance) {
     furi_assert(instance);
     subghz_environment_reset_keeloq(instance->environment);
 
