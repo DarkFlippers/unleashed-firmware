@@ -1,0 +1,50 @@
+Filetype: Flipper Animation
+Version: 1
+
+Width: 128
+Height: 64
+Passive frames: 16
+Active frames: 60
+Frames order: 0 1 2 1 0 3 4 5 6 3 7 1 8 1 7 9 0 10 11 12 13 14 15 16 14 12 17 18 19 20 21 22 22 23 22 24 25 26 27 26 25 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 19 18 14 45 14 45 14 45 14 45 14 16 14 14 11 46 47 1
+Active cycles: 1
+Frame rate: 2
+Duration: 3600
+Active cooldown: 7
+
+Bubble slots: 1
+
+Slot: 0
+X: 83
+Y: 42
+Text: Sup
+AlignH: Left
+AlignV: Top
+StartFrame: 38
+EndFrame: 40
+
+Slot: 0
+X: 66
+Y: 35
+Text: What just
+AlignH: Left
+AlignV: Center
+StartFrame: 62
+EndFrame: 65
+
+Slot: 0
+X: 66
+Y: 35
+Text: happened?
+AlignH: Left
+AlignV: Center
+StartFrame: 66
+EndFrame: 68
+
+Slot: 0
+X: 87
+Y: 38
+Text: Idk
+AlignH: Left
+AlignV: Top
+StartFrame: 70
+EndFrame: 70
