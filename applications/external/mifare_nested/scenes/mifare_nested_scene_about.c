@@ -51,7 +51,7 @@ void mifare_nested_scene_about_on_enter(void* context) {
         14,
         AlignCenter,
         AlignBottom,
-        "\e#\e! Flipper (Mifare) Nested \e!\n",
+        "\e#\e! Flipper Nested \e!\n",
         false);
     widget_add_text_scroll_element(
         mifare_nested->widget, 0, 16, 128, 50, furi_string_get_cstr(temp_str));

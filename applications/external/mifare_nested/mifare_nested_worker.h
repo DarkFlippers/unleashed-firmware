@@ -22,6 +22,7 @@ typedef enum {
     MifareNestedWorkerEventReserved = 1000,
 
     MifareNestedWorkerEventNoTagDetected,
+    MifareNestedWorkerEventNoNoncesCollected,
     MifareNestedWorkerEventNoncesCollected,
     MifareNestedWorkerEventCollecting,
 
@@ -64,8 +65,9 @@ typedef struct {
     uint32_t target_nt[2];
     uint32_t target_ks[2];
     uint8_t parity[2][4];
-    bool collected;
     bool skipped;
+    bool invalid;
+    bool collected;
     bool hardnested;
 } Nonces;
 
@@ -87,3 +89,9 @@ typedef struct {
     uint32_t sector_keys;
     bool tag_lost;
 } KeyInfo_t;
+
+typedef struct {
+    uint32_t saved;
+    uint32_t invalid;
+    uint32_t skipped;
+} SaveNoncesResult_t;

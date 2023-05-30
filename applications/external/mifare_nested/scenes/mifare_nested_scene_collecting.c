@@ -120,6 +120,10 @@ bool mifare_nested_scene_collecting_on_event(void* context, SceneManagerEvent ev
             scene_manager_next_scene(
                 mifare_nested->scene_manager, MifareNestedSceneNoncesCollected);
             consumed = true;
+        } else if(event.event == MifareNestedWorkerEventNoNoncesCollected) {
+            scene_manager_next_scene(
+                mifare_nested->scene_manager, MifareNestedSceneNoNoncesCollected);
+            consumed = true;
         } else if(event.event == MifareNestedWorkerEventAttackFailed) {
             scene_manager_next_scene(mifare_nested->scene_manager, MifareNestedSceneFailed);
             consumed = true;
