@@ -8,7 +8,7 @@
 
 #ifdef APP_SUBGHZREMOTE
 #include <assets_icons.h>
-#elif
+#else
 #include <subrem_remote_fap_icons.h>
 #endif
 

@@ -252,11 +252,11 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
         if(sub_preset->type == SubGhzProtocolTypeDynamic) {
             keeloq_reset_mfname();
             keeloq_reset_kl_type();
-            keeloq_reset_original_btn();
-            subghz_custom_btns_reset();
             star_line_reset_mfname();
             star_line_reset_kl_type();
         }
+        keeloq_reset_original_btn();
+        subghz_custom_btns_reset();
 #endif
         return true;
     }
