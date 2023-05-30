@@ -147,8 +147,7 @@ SubRemLoadSubState subrem_sub_preset_load(
         if(protocol->flag & SubGhzProtocolFlag_Send) {
             if((protocol->type == SubGhzProtocolTypeStatic) ||
                (protocol->type == SubGhzProtocolTypeDynamic) ||
-               // TODO: BINRAW It probably works, but checks are needed.
-               // (protocol->type == SubGhzProtocolTypeBinRAW) ||
+               (protocol->type == SubGhzProtocolTypeBinRAW) ||
                (protocol->type == SubGhzProtocolTypeRAW)) {
                 sub_preset->type = protocol->type;
             } else {

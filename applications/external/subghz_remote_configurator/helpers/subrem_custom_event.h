@@ -9,11 +9,13 @@ typedef enum {
 } SubRemEditMenuState;
 
 typedef enum {
-    // SubmenuIndex
+    // StartSubmenuIndex
     SubmenuIndexSubRemEditMapFile = 0,
     SubmenuIndexSubRemNewMapFile,
+#if FURI_DEBUG
     SubmenuIndexSubRemRemoteView,
-    SubmenuIndexSubRemAbout,
+#endif
+    // SubmenuIndexSubRemAbout,
 
     // EditSubmenuIndex
     EditSubmenuIndexEditLabel,
@@ -45,8 +47,4 @@ typedef enum {
     SubRemCustomEventSceneEditPreviewSaved,
 
     SubRemCustomEventSceneNewName,
-
-    // // SceneStates
-    // SubRemSceneOpenMapFileStateOpen,
-    // SubRemSceneOpenMapFileStateEdit,
 } SubRemCustomEvent;

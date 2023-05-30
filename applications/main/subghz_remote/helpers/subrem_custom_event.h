@@ -1,7 +1,7 @@
 #pragma once
 
 typedef enum {
-    // SubmenuIndex
+    // StartSubmenuIndex
     SubmenuIndexSubRemOpenMapFile = 0,
 #if FURI_DEBUG
     SubmenuIndexSubRemRemoteView,
