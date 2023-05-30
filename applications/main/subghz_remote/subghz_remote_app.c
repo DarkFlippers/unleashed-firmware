@@ -1,7 +1,5 @@
 #include "subghz_remote_app_i.h"
 
-#include <lib/subghz/protocols/protocol_items.h>
-
 static bool subghz_remote_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubGhzRemoteApp* app = context;
@@ -70,9 +68,9 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     // SubMenu
     app->submenu = submenu_alloc();
     view_dispatcher_add_view(
-        app->view_dispatcher, SubRemViewSubmenu, submenu_get_view(app->submenu));
+        app->view_dispatcher, SubRemViewIDSubmenu, submenu_get_view(app->submenu));
 
-    //Dialog
+    // Dialog
     app->dialogs = furi_record_open(RECORD_DIALOGS);
 
     // Remote view
@@ -91,12 +89,12 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     subghz_txrx_set_need_save_callback(app->txrx, subrem_save_active_sub, app);
 
-    app->tx_running = false;
-
 #ifdef SUBREM_LIGHT
     scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
 #else
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
+    scene_manager_set_scene_state(
+        app->scene_manager, SubRemSceneStart, SubmenuIndexSubRemOpenMapFile);
 #endif
 
     return app;
@@ -113,10 +111,10 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     // Submenu
-    view_dispatcher_remove_view(app->view_dispatcher, SubRemViewSubmenu);
+    view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDSubmenu);
     submenu_free(app->submenu);
 
-    //Dialog
+    // Dialog
     furi_record_close(RECORD_DIALOGS);
 
     // Remote view

@@ -35,24 +35,10 @@ static uint8_t subrem_scene_remote_event_to_index(SubRemCustomEvent event_id) {
     return ret;
 }
 
-static bool subrem_scene_remote_update_data_show(void* context) {
-    SubGhzRemoteApp* app = context;
-
-    const char* labels[SubRemSubKeyNameMaxCount];
-
-    for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
-        labels[i] = furi_string_get_cstr(app->map_preset->subs_preset[i]->label);
-    }
-
-    subrem_view_remote_add_data_to_show(app->subrem_remote_view, labels);
-
-    return true;
-}
-
 void subrem_scene_remote_on_enter(void* context) {
     SubGhzRemoteApp* app = context;
 
-    subrem_scene_remote_update_data_show(app);
+    subrem_view_remote_update_data_labels(app->subrem_remote_view, app->map_preset->subs_preset);
 
     subrem_view_remote_set_callback(app->subrem_remote_view, subrem_scene_remote_callback, app);
 
