@@ -8,7 +8,7 @@ SubRemSubFilePreset* subrem_sub_file_preset_alloc() {
     sub_preset->fff_data = flipper_format_string_alloc();
     sub_preset->file_path = furi_string_alloc();
     sub_preset->protocaol_name = furi_string_alloc();
-    sub_preset->label = furi_string_alloc_set_str("N/A");
+    sub_preset->label = furi_string_alloc();
 
     sub_preset->freq_preset.name = furi_string_alloc();
 
@@ -34,7 +34,7 @@ void subrem_sub_file_preset_free(SubRemSubFilePreset* sub_preset) {
 void subrem_sub_file_preset_reset(SubRemSubFilePreset* sub_preset) {
     furi_assert(sub_preset);
 
-    furi_string_set_str(sub_preset->label, "N/A");
+    furi_string_set_str(sub_preset->label, "");
     furi_string_reset(sub_preset->protocaol_name);
     furi_string_reset(sub_preset->file_path);
 
@@ -77,7 +77,7 @@ SubRemLoadSubState subrem_sub_preset_load(
             break;
         }
 
-        SubGhzSetting* setting = subghz_txrx_get_setting(txrx); // txrx->setting;
+        SubGhzSetting* setting = subghz_txrx_get_setting(txrx);
 
         //Load frequency or using default from settings
         ret = SubRemLoadSubStateErrorFreq;
@@ -147,8 +147,7 @@ SubRemLoadSubState subrem_sub_preset_load(
         if(protocol->flag & SubGhzProtocolFlag_Send) {
             if((protocol->type == SubGhzProtocolTypeStatic) ||
                (protocol->type == SubGhzProtocolTypeDynamic) ||
-               // TODO: BINRAW It probably works, but checks are needed.
-               // (protocol->type == SubGhzProtocolTypeBinRAW) ||
+               (protocol->type == SubGhzProtocolTypeBinRAW) ||
                (protocol->type == SubGhzProtocolTypeRAW)) {
                 sub_preset->type = protocol->type;
             } else {
@@ -175,5 +174,6 @@ SubRemLoadSubState subrem_sub_preset_load(
     } while(false);
 
     furi_string_free(temp_str);
+    sub_preset->load_state = ret;
     return ret;
 }

@@ -4,7 +4,11 @@
 #include <input/input.h>
 #include <gui/elements.h>
 
-#define SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH 12
+#include <lib/toolbox/path.h>
+
+#define SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH 30
+#define SUBREM_VIEW_REMOTE_LEFT_OFFSET 10
+#define SUBREM_VIEW_REMOTE_RIGHT_OFFSET 22
 
 struct SubRemViewRemote {
     View* view;
@@ -12,19 +16,8 @@ struct SubRemViewRemote {
     void* context;
 };
 
-// TODO: model
 typedef struct {
-    // FuriString* up_label;
-    // FuriString* down_label;
-    // FuriString* left_label;
-    // FuriString* right_label;
-    // FuriString* ok_label;
-
-    char* up_label;
-    char* down_label;
-    char* left_label;
-    char* right_label;
-    char* ok_label;
+    char* labels[SubRemSubKeyNameMaxCount];
 
     SubRemViewRemoteState state;
 
@@ -41,26 +34,61 @@ void subrem_view_remote_set_callback(
     subrem_view_remote->context = context;
 }
 
-void subrem_view_remote_add_data_to_show(SubRemViewRemote* subrem_view_remote, const char** labels) {
+void subrem_view_remote_update_data_labels(
+    SubRemViewRemote* subrem_view_remote,
+    SubRemSubFilePreset** subs_presets) {
     furi_assert(subrem_view_remote);
+    furi_assert(subs_presets);
+
+    FuriString* labels[SubRemSubKeyNameMaxCount];
+    SubRemSubFilePreset* sub_preset;
+
+    for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
+        sub_preset = subs_presets[i];
+        switch(sub_preset->load_state) {
+        case SubRemLoadSubStateOK:
+            if(!furi_string_empty(sub_preset->label)) {
+                labels[i] = furi_string_alloc_set(sub_preset->label);
+            } else if(!furi_string_empty(sub_preset->file_path)) {
+                labels[i] = furi_string_alloc();
+                path_extract_filename(sub_preset->file_path, labels[i], true);
+            } else {
+                labels[i] = furi_string_alloc_set("Empty Label");
+            }
+            break;
+
+        case SubRemLoadSubStateErrorNoFile:
+            labels[i] = furi_string_alloc_set("[X] Can't open file");
+            break;
+
+        case SubRemLoadSubStateErrorFreq:
+        case SubRemLoadSubStateErrorMod:
+        case SubRemLoadSubStateErrorProtocol:
+            labels[i] = furi_string_alloc_set("[X] Error in .sub file");
+            break;
+
+        default:
+            labels[i] = furi_string_alloc_set("");
+            break;
+        }
+    }
 
     with_view_model(
         subrem_view_remote->view,
         SubRemViewRemoteModel * model,
         {
-            strncpy(model->up_label, labels[0], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->down_label, labels[1], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->left_label, labels[2], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->right_label, labels[3], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-            strncpy(model->ok_label, labels[4], SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
-
-            // furi_string_set(model->up_label, up_label);
-            // furi_string_set(model->down_label, down_label);
-            // furi_string_set(model->left_label, left_label);
-            // furi_string_set(model->right_label, right_label);
-            // furi_string_set(model->ok_label, ok_label);
+            for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
+                strncpy(
+                    model->labels[i],
+                    furi_string_get_cstr(labels[i]),
+                    SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH);
+            }
         },
         true);
+
+    for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
+        furi_string_free(labels[i]);
+    }
 }
 
 void subrem_view_remote_set_state(
@@ -95,24 +123,32 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
 
     //Labels
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 10, 10, model->up_label);
-    canvas_draw_str(canvas, 10, 20, model->down_label);
-    canvas_draw_str(canvas, 10, 30, model->left_label);
-    canvas_draw_str(canvas, 10, 40, model->right_label);
-    canvas_draw_str(canvas, 10, 50, model->ok_label);
+    uint8_t y = 0;
+    for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
+        elements_text_box(
+            canvas,
+            SUBREM_VIEW_REMOTE_LEFT_OFFSET,
+            y + 2,
+            126 - SUBREM_VIEW_REMOTE_LEFT_OFFSET - SUBREM_VIEW_REMOTE_RIGHT_OFFSET,
+            12,
+            AlignLeft,
+            AlignBottom,
+            model->labels[i],
+            false);
+        y += 10;
+    }
 
-    // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
-    // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
-    // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
-    // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
-    // canvas_draw_str(canvas, 10, 10, furi_string_get_cstr(model->up_label));
-
-    canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Hold=Exit.");
+    if(model->state == SubRemViewRemoteStateOFF) {
+        elements_button_left(canvas, "Back");
+        elements_button_right(canvas, "Save");
+    } else {
+        canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Hold=Exit.");
+    }
 
     //Status text and indicator
     canvas_draw_icon(canvas, 113, 15, &I_Pin_cell_13x13);
 
-    if(model->state == SubRemViewRemoteStateIdle) {
+    if(model->state == SubRemViewRemoteStateIdle || model->state == SubRemViewRemoteStateOFF) {
         canvas_draw_str_aligned(canvas, 126, 10, AlignRight, AlignBottom, "Idle");
     } else {
         switch(model->state) {
@@ -147,10 +183,6 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
             break;
         }
     }
-    //Repeat indicator
-    //canvas_draw_str_aligned(canvas, 125, 40, AlignRight, AlignBottom, "Repeat:");
-    //canvas_draw_icon(canvas, 115, 39, &I_SubGHzRemote_Repeat_12x14);
-    //canvas_draw_str_aligned(canvas, 125, 62, AlignRight, AlignBottom, int_to_char(app->repeat));
 }
 
 bool subrem_view_remote_input(InputEvent* event, void* context) {
@@ -158,17 +190,6 @@ bool subrem_view_remote_input(InputEvent* event, void* context) {
     SubRemViewRemote* subrem_view_remote = context;
 
     if(event->key == InputKeyBack && event->type == InputTypeLong) {
-        with_view_model(
-            subrem_view_remote->view,
-            SubRemViewRemoteModel * model,
-            {
-                strcpy(model->up_label, "N/A");
-                strcpy(model->down_label, "N/A");
-                strcpy(model->left_label, "N/A");
-                strcpy(model->right_label, "N/A");
-                strcpy(model->ok_label, "N/A");
-            },
-            false);
         subrem_view_remote->callback(SubRemCustomEventViewRemoteBack, subrem_view_remote->context);
         return true;
     } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
@@ -240,23 +261,10 @@ SubRemViewRemote* subrem_view_remote_alloc() {
         {
             model->state = SubRemViewRemoteStateIdle;
 
-            model->up_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
-            model->down_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
-            model->left_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
-            model->right_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
-            model->ok_label = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
-
-            strcpy(model->up_label, "N/A");
-            strcpy(model->down_label, "N/A");
-            strcpy(model->left_label, "N/A");
-            strcpy(model->right_label, "N/A");
-            strcpy(model->ok_label, "N/A");
-
-            // model->up_label = furi_string_alloc_set_str("N/A");
-            // model->down_label = furi_string_alloc_set_str("N/A");
-            // model->left_label = furi_string_alloc_set_str("N/A");
-            // model->right_label = furi_string_alloc_set_str("N/A");
-            // model->ok_label = furi_string_alloc_set_str("N/A");
+            for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
+                model->labels[i] = malloc(sizeof(char) * SUBREM_VIEW_REMOTE_MAX_LABEL_LENGTH + 1);
+                strcpy(model->labels[i], "");
+            }
 
             model->pressed_btn = 0;
         },
@@ -271,17 +279,9 @@ void subrem_view_remote_free(SubRemViewRemote* subghz_remote) {
         subghz_remote->view,
         SubRemViewRemoteModel * model,
         {
-            free(model->up_label);
-            free(model->down_label);
-            free(model->left_label);
-            free(model->right_label);
-            free(model->ok_label);
-
-            // furi_string_free(model->up_label);
-            // furi_string_free(model->down_label);
-            // furi_string_free(model->left_label);
-            // furi_string_free(model->right_label);
-            // furi_string_free(model->ok_label);
+            for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
+                free(model->labels[i]);
+            }
         },
         true);
     view_free(subghz_remote->view);

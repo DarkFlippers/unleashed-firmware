@@ -1,3 +1,5 @@
+#ifndef SUBREM_LIGHT
 ADD_SCENE(subrem, start, Start)
-ADD_SCENE(subrem, openmapfile, OpenMapFile)
+#endif
+ADD_SCENE(subrem, open_map_file, OpenMapFile)
 ADD_SCENE(subrem, remote, Remote)

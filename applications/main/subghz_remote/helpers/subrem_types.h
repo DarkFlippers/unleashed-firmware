@@ -3,9 +3,8 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-// TODO: File version/type logic
-// #define SUBREM_APP_APP_FILE_VERSION 1
-// #define SUBREM_APP_APP_FILE_TYPE "Flipper SubRem Map file"
+#define SUBREM_APP_APP_FILE_VERSION 1
+#define SUBREM_APP_APP_FILE_TYPE "Flipper SubRem Map file"
 #define SUBREM_APP_EXTENSION ".txt"
 
 typedef enum {
@@ -18,10 +17,7 @@ typedef enum {
 } SubRemSubKeyName;
 
 typedef enum {
-    SubRemViewSubmenu,
-    SubRemViewWidget,
-    SubRemViewPopup,
-    SubRemViewTextInput,
+    SubRemViewIDSubmenu,
     SubRemViewIDRemote,
 } SubRemViewID;
 
@@ -29,6 +25,7 @@ typedef enum {
     SubRemLoadSubStateNotSet = 0,
     SubRemLoadSubStatePreloaded,
     SubRemLoadSubStateError,
+    SubRemLoadSubStateErrorIncorectPath,
     SubRemLoadSubStateErrorNoFile,
     SubRemLoadSubStateErrorFreq,
     SubRemLoadSubStateErrorMod,

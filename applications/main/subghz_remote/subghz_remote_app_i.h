@@ -2,33 +2,30 @@
 
 #include "helpers/subrem_types.h"
 #include "helpers/subrem_presets.h"
+#include "scenes/subrem_scene.h"
 
-#include "../subghz/helpers/subghz_txrx.h"
+#include "helpers/txrx/subghz_txrx.h"
 
+#ifdef APP_SUBGHZREMOTE
 #include <assets_icons.h>
+#else
+#include <subrem_remote_fap_icons.h>
+#endif
 
 #include "views/remote.h"
-
-#include "scenes/subrem_scene.h"
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/widget.h>
-#include <notification/notification_messages.h>
 #include <gui/modules/text_input.h>
-#include <dialogs/dialogs.h>
-#include <storage/storage.h>
 #include <gui/modules/popup.h>
+#include <dialogs/dialogs.h>
+#include <notification/notification_messages.h>
+#include <storage/storage.h>
 
 #include <flipper_format/flipper_format_i.h>
-
-#include <lib/subghz/protocols/raw.h>
-
-#include <lib/subghz/subghz_setting.h>
-#include <lib/subghz/receiver.h>
-#include <lib/subghz/transmitter.h>
 
 #define SUBREM_APP_FOLDER EXT_PATH("subghz_remote")
 #define SUBREM_MAX_LEN_NAME 64
@@ -42,15 +39,12 @@ typedef struct {
     Submenu* submenu;
 
     FuriString* file_path;
-    // char file_name_tmp[SUBREM_MAX_LEN_NAME];
 
     SubRemViewRemote* subrem_remote_view;
 
     SubRemMapPreset* map_preset;
 
     SubGhzTxRx* txrx;
-
-    bool tx_running;
 
     uint8_t chusen_sub;
 } SubGhzRemoteApp;
