@@ -2,6 +2,7 @@
 #include <furi_hal_gpio.h>
 #include <furi_hal_resources.h>
 #include <furi_hal_power.h>
+#include <furi_hal_bus.h>
 
 #include <stm32wbxx_ll_tim.h>
 #include <furi_hal_cortex.h>
@@ -20,16 +21,11 @@ static FuriMutex* furi_hal_speaker_mutex = NULL;
 void furi_hal_speaker_init() {
     furi_assert(furi_hal_speaker_mutex == NULL);
     furi_hal_speaker_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-    FURI_CRITICAL_ENTER();
-    LL_TIM_DeInit(FURI_HAL_SPEAKER_TIMER);
-    FURI_CRITICAL_EXIT();
     FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_speaker_deinit() {
     furi_check(furi_hal_speaker_mutex != NULL);
-    LL_TIM_DeInit(FURI_HAL_SPEAKER_TIMER);
-    furi_hal_gpio_init(&gpio_speaker, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     furi_mutex_free(furi_hal_speaker_mutex);
     furi_hal_speaker_mutex = NULL;
 }
@@ -39,6 +35,7 @@ bool furi_hal_speaker_acquire(uint32_t timeout) {
 
     if(furi_mutex_acquire(furi_hal_speaker_mutex, timeout) == FuriStatusOk) {
         furi_hal_power_insomnia_enter();
+        furi_hal_bus_enable(FuriHalBusTIM16);
         furi_hal_gpio_init_ex(
             &gpio_speaker, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn14TIM16);
         return true;
@@ -53,6 +50,8 @@ void furi_hal_speaker_release() {
 
     furi_hal_speaker_stop();
     furi_hal_gpio_init(&gpio_speaker, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
+
+    furi_hal_bus_disable(FuriHalBusTIM16);
     furi_hal_power_insomnia_exit();
 
     furi_check(furi_mutex_release(furi_hal_speaker_mutex) == FuriStatusOk);

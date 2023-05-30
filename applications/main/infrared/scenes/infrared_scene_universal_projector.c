@@ -24,7 +24,7 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         &I_Power_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "POWER");
+    infrared_brute_force_add_record(brute_force, i++, "Power");
     button_panel_add_item(
         button_panel,
         i,
@@ -36,7 +36,7 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         &I_Mute_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "MUTE");
+    infrared_brute_force_add_record(brute_force, i++, "Mute");
     button_panel_add_item(
         button_panel,
         i,
@@ -48,7 +48,7 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         &I_Vol_up_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "VOL+");
+    infrared_brute_force_add_record(brute_force, i++, "Vol_up");
     button_panel_add_item(
         button_panel,
         i,
@@ -60,7 +60,7 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         &I_Vol_down_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "VOL-");
+    infrared_brute_force_add_record(brute_force, i++, "Vol_dn");
 
     button_panel_add_label(button_panel, 10, 11, FontPrimary, "Projector");
     button_panel_add_label(button_panel, 17, 60, FontSecondary, "Volume");

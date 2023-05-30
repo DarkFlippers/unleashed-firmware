@@ -14,9 +14,7 @@
 #define T5577_OPCODE_RESET 0b00
 
 static void t5577_start() {
-    furi_hal_rfid_tim_read(125000, 0.5);
-    furi_hal_rfid_pins_read();
-    furi_hal_rfid_tim_read_start();
+    furi_hal_rfid_tim_read_start(125000, 0.5);
 
     // do not ground the antenna
     furi_hal_rfid_pin_pull_release();
@@ -24,14 +22,13 @@ static void t5577_start() {
 
 static void t5577_stop() {
     furi_hal_rfid_tim_read_stop();
-    furi_hal_rfid_tim_reset();
     furi_hal_rfid_pins_reset();
 }
 
 static void t5577_write_gap(uint32_t gap_time) {
-    furi_hal_rfid_tim_read_stop();
+    furi_hal_rfid_tim_read_pause();
     furi_delay_us(gap_time * 8);
-    furi_hal_rfid_tim_read_start();
+    furi_hal_rfid_tim_read_continue();
 }
 
 static void t5577_write_bit(bool value) {

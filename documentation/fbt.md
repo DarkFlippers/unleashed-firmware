@@ -114,6 +114,8 @@ To run cleanup (think of `make clean`) for specified targets, add the `-c` optio
 Default configuration variables are set in the configuration file: `fbt_options.py`.
 Values set in the command line have higher precedence over the configuration file.
 
+You can also create a file called `fbt_options_local.py` that will be evaluated when loading default options file, enabling persisent overriding of  default options without modifying default configuration.
+
 You can find out available options with `./fbt -h`.
 
 ### Firmware application set

@@ -23,6 +23,10 @@ class VersionData:
     version: str
     target: int
     build_is_dirty: bool
+    # Since version 1.1
+    firmware_origin: str = ""
+    git_origin: str = ""
+    # More fields may be added in the future
     extra: Optional[Dict[str, str]] = field(default_factory=dict)
 
 
@@ -52,7 +56,7 @@ class VersionLoader:
 
         # Struct version 1.0
         extra_data = int(self.version_ptr[5].cast(self._uint_type))
-        return VersionData(
+        version_data = VersionData(
             git_hash=self.version_ptr[1].cast(self._cstr_type).string(),
             git_branch=self.version_ptr[2].cast(self._cstr_type).string(),
             build_date=self.version_ptr[3].cast(self._cstr_type).string(),
@@ -60,6 +64,12 @@ class VersionLoader:
             target=extra_data & 0xF,
             build_is_dirty=bool((extra_data >> 8) & 0xF),
         )
+        if minor >= 1:
+            version_data.firmware_origin = (
+                self.version_ptr[6].cast(self._cstr_type).string()
+            )
+            version_data.git_origin = self.version_ptr[7].cast(self._cstr_type).string()
+        return version_data
 
     def load_unversioned(self):
         """Parse an early version of the version struct."""
@@ -104,6 +114,10 @@ class FlipperFwVersion(gdb.Command):
         print(f"\tGit commit:  {v.version.git_hash}")
         print(f"\tDirty:       {v.version.build_is_dirty}")
         print(f"\tHW Target:   {v.version.target}")
+        if v.version.firmware_origin:
+            print(f"\tOrigin:      {v.version.firmware_origin}")
+        if v.version.git_origin:
+            print(f"\tGit origin:  {v.version.git_origin}")
 
 
 FlipperFwVersion()
