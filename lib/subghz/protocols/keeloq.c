@@ -10,14 +10,10 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#include "../blocks/custom_btn.h"
+#include "../blocks/custom_btn_i.h"
 #include "../subghz_keystore_i.h"
 
 #define TAG "SubGhzProtocolKeeloq"
-
-#define KEELOQ_PROG_MODE_OFF (0U)
-#define KEELOQ_PROG_MODE_BFT (1U)
-#define KEELOQ_PROG_MODE_APRIMATIC (2U)
 
 static const SubGhzBlockConst subghz_protocol_keeloq_const = {
     .te_short = 400,
@@ -91,15 +87,6 @@ const SubGhzProtocol subghz_protocol_keeloq = {
     .encoder = &subghz_protocol_keeloq_encoder,
 };
 
-static uint8_t klq_prog_mode;
-static uint16_t temp_counter;
-
-void keeloq_reset_original_btn() {
-    subghz_custom_btns_reset();
-    temp_counter = 0;
-    klq_prog_mode = KEELOQ_PROG_MODE_OFF;
-}
-
 /** 
  * Analysis of received data
  * @param instance Pointer to a SubGhzBlockGeneric* instance
@@ -156,29 +143,32 @@ static bool subghz_protocol_keeloq_gen_data(
     }
 
     // programming mode on / off conditions
+    ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
     if(strcmp(instance->manufacture_name, "BFT") == 0) {
         // BFT programming mode on / off conditions
         if(btn == 0xF) {
-            klq_prog_mode = KEELOQ_PROG_MODE_BFT;
-        } else if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
-            klq_prog_mode = KEELOQ_PROG_MODE_OFF;
+            prog_mode = PROG_MODE_KEELOQ_BFT;
+        } else if(prog_mode == PROG_MODE_KEELOQ_BFT) {
+            prog_mode = PROG_MODE_OFF;
         }
     } else if(strcmp(instance->manufacture_name, "Aprimatic") == 0) {
         // Aprimatic programming mode on / off conditions
         if(btn == 0xF) {
-            klq_prog_mode = KEELOQ_PROG_MODE_APRIMATIC;
-        } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
-            klq_prog_mode = KEELOQ_PROG_MODE_OFF;
+            prog_mode = PROG_MODE_KEELOQ_APRIMATIC;
+        } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
+            prog_mode = PROG_MODE_OFF;
         }
     }
+    subghz_custom_btn_set_prog_mode(prog_mode);
+
     // If we using BFT programming mode we will trasmit its seed in hop part like original remote
-    if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
+    if(prog_mode == PROG_MODE_KEELOQ_BFT) {
         hop = instance->generic.seed;
-    } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
+    } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         // If we using Aprimatic programming mode we will trasmit some strange looking hop value, why? cuz manufacturer did it this way :)
         hop = 0x1A2B3C4D;
     }
-    if(counter_up && klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
+    if(counter_up && prog_mode == PROG_MODE_OFF) {
         if(instance->generic.cnt < 0xFFFF) {
             if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
                 instance->generic.cnt = 0;
@@ -189,7 +179,7 @@ static bool subghz_protocol_keeloq_gen_data(
             instance->generic.cnt = 0;
         }
     }
-    if(klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
+    if(prog_mode == PROG_MODE_OFF) {
         // Protocols that do not use encryption
         if(strcmp(instance->manufacture_name, "Unknown") == 0) {
             code_found_reverse = subghz_protocol_blocks_reverse_key(
@@ -390,9 +380,10 @@ static bool
     if(instance->manufacture_name == 0x0) {
         instance->manufacture_name = "";
     }
-    if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
+    ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
+    if(prog_mode == PROG_MODE_KEELOQ_BFT) {
         instance->manufacture_name = "BFT";
-    } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
+    } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         instance->manufacture_name = "Aprimatic";
     }
     uint8_t klq_last_custom_btn = 0xA;
@@ -570,7 +561,7 @@ void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
 
-    klq_prog_mode = KEELOQ_PROG_MODE_OFF;
+    subghz_custom_btn_set_prog_mode(PROG_MODE_OFF);
 
     return instance;
 }
@@ -930,9 +921,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
     uint64_t key = subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
     uint32_t key_fix = key >> 32;
     uint32_t key_hop = key & 0x00000000ffffffff;
+    static uint16_t temp_counter = 0; // Be careful with prog_mode
 
     // If we are in BFT / Aprimatic programming mode we will set previous remembered counter and skip mf keys check
-    if(klq_prog_mode == KEELOQ_PROG_MODE_OFF) {
+    ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
+    if(prog_mode == PROG_MODE_OFF) {
         // Check key AN-Motors
         if((key_hop >> 24) == ((key_hop >> 16) & 0x00ff) &&
            (key_fix >> 28) == ((key_hop >> 12) & 0x0f) && (key_hop & 0xFFF) == 0x404) {
@@ -949,14 +942,17 @@ static void subghz_protocol_keeloq_check_remote_controller(
         }
         temp_counter = instance->cnt;
 
-    } else if(klq_prog_mode == KEELOQ_PROG_MODE_BFT) {
+    } else if(prog_mode == PROG_MODE_KEELOQ_BFT) {
         *manufacture_name = "BFT";
         keystore->mfname = *manufacture_name;
         instance->cnt = temp_counter;
-    } else if(klq_prog_mode == KEELOQ_PROG_MODE_APRIMATIC) {
+    } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         *manufacture_name = "Aprimatic";
         keystore->mfname = *manufacture_name;
         instance->cnt = temp_counter;
+    } else {
+        // Counter protection
+        furi_crash("Unsuported Prog Mode");
     }
 
     instance->serial = key_fix & 0x0FFFFFFF;

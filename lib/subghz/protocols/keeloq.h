@@ -2,8 +2,6 @@
 
 #include "base.h"
 
-#include "../blocks/custom_btn.h"
-
 #define SUBGHZ_PROTOCOL_KEELOQ_NAME "KeeLoq"
 
 typedef struct SubGhzProtocolDecoderKeeloq SubGhzProtocolDecoderKeeloq;
@@ -12,8 +10,6 @@ typedef struct SubGhzProtocolEncoderKeeloq SubGhzProtocolEncoderKeeloq;
 extern const SubGhzProtocolDecoder subghz_protocol_keeloq_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_keeloq_encoder;
 extern const SubGhzProtocol subghz_protocol_keeloq;
-
-void keeloq_reset_original_btn();
 
 /**
  * Allocate SubGhzProtocolEncoderKeeloq.

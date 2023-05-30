@@ -108,7 +108,6 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
 void subghz_scene_receiver_info_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    keeloq_reset_original_btn();
     subghz_custom_btns_reset();
 
     subghz_scene_receiver_info_draw_widget(subghz);

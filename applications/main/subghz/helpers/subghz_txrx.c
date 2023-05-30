@@ -1,5 +1,6 @@
 #include "subghz_txrx_i.h"
 #include <lib/subghz/protocols/protocol_items.h>
+#include <lib/subghz/blocks/custom_btn.h>
 
 #define TAG "SubGhz"
 
@@ -561,7 +562,6 @@ void subghz_txrx_reset_dynamic(SubGhzTxRx* instance) {
     furi_assert(instance);
     subghz_environment_reset_keeloq(instance->environment);
 
-    keeloq_reset_original_btn();
     subghz_custom_btns_reset();
 }
 

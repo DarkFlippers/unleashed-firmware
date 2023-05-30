@@ -5,7 +5,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#include "../blocks/custom_btn.h"
+#include "../blocks/custom_btn_i.h"
 
 #define TAG "SubGhzProtocoAlutech_at_4n"
 

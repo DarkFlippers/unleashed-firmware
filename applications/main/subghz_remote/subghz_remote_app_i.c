@@ -179,8 +179,6 @@ bool subrem_tx_start_sub(
 
     FURI_LOG_I(TAG, "Send %s", furi_string_get_cstr(sub_preset->label));
 
-    subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
-    keeloq_reset_original_btn();
     subghz_custom_btns_reset();
 
     do {
@@ -257,7 +255,6 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
                     sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
 
                 subghz_environment_reset_keeloq(app->environment);
-                keeloq_reset_original_btn();
                 subghz_custom_btns_reset();
             }
 
