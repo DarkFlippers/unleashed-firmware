@@ -221,7 +221,7 @@ bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset) 
         subghz_txrx_load_decoder_by_name_protocol(
             app->txrx, furi_string_get_cstr(sub_preset->protocaol_name));
 
-    subghz_custom_btns_reset();
+        subghz_custom_btns_reset();
         subghz_txrx_set_preset(
             app->txrx,
             furi_string_get_cstr(sub_preset->freq_preset.name),
@@ -251,7 +251,7 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
         subghz_txrx_stop(app->txrx);
 #ifdef APP_SUBGHZREMOTE
         if(sub_preset->type == SubGhzProtocolTypeDynamic) {
-                subghz_environment_reset_keeloq(app->environment);
+            subghz_environment_reset_keeloq(app->environment);
         }
         keeloq_reset_original_btn();
         subghz_custom_btns_reset();
