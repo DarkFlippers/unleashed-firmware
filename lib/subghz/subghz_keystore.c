@@ -1,4 +1,5 @@
 #include "subghz_keystore.h"
+#include "subghz_keystore_i.h"
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -26,16 +27,21 @@ typedef enum {
     SubGhzKeystoreEncryptionAES256,
 } SubGhzKeystoreEncryption;
 
-struct SubGhzKeystore {
-    SubGhzKeyArray_t data;
-};
-
 SubGhzKeystore* subghz_keystore_alloc() {
     SubGhzKeystore* instance = malloc(sizeof(SubGhzKeystore));
 
     SubGhzKeyArray_init(instance->data);
 
+    subghz_keystore_reset_kl(instance);
+
     return instance;
+}
+
+void subghz_keystore_reset_kl(SubGhzKeystore* instance) {
+    furi_assert(instance);
+
+    instance->mfname = "";
+    instance->kl_type = 0;
 }
 
 void subghz_keystore_free(SubGhzKeystore* instance) {

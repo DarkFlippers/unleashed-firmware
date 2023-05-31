@@ -1,5 +1,6 @@
 #include "subghz_txrx_i.h"
 #include <lib/subghz/protocols/protocol_items.h>
+#include <lib/subghz/blocks/custom_btn.h>
 
 #define TAG "SubGhz"
 
@@ -555,6 +556,13 @@ void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state) {
 bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance) {
     furi_assert(instance);
     return instance->debug_pin_state;
+}
+
+void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    subghz_environment_reset_keeloq(instance->environment);
+
+    subghz_custom_btns_reset();
 }
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance) {

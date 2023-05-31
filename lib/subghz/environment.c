@@ -7,6 +7,8 @@ struct SubGhzEnvironment {
     const char* came_atomo_rainbow_table_file_name;
     const char* nice_flor_s_rainbow_table_file_name;
     const char* alutech_at_4n_rainbow_table_file_name;
+    const char* mfname;
+    uint8_t kl_type;
 };
 
 SubGhzEnvironment* subghz_environment_alloc() {
@@ -17,6 +19,8 @@ SubGhzEnvironment* subghz_environment_alloc() {
     instance->came_atomo_rainbow_table_file_name = NULL;
     instance->nice_flor_s_rainbow_table_file_name = NULL;
     instance->alutech_at_4n_rainbow_table_file_name = NULL;
+    instance->mfname = "";
+    instance->kl_type = 0;
 
     return instance;
 }
@@ -115,4 +119,10 @@ const char*
     } else {
         return NULL;
     }
+}
+
+void subghz_environment_reset_keeloq(SubGhzEnvironment* instance) {
+    furi_assert(instance);
+
+    subghz_keystore_reset_kl(instance->keystore);
 }

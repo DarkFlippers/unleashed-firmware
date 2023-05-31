@@ -229,8 +229,6 @@ bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset) 
             0);
 
 #ifdef APP_SUBGHZREMOTE
-        subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
-        keeloq_reset_original_btn();
         subghz_custom_btns_reset();
 #endif
 
@@ -250,12 +248,8 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
         subghz_txrx_stop(app->txrx);
 #ifdef APP_SUBGHZREMOTE
         if(sub_preset->type == SubGhzProtocolTypeDynamic) {
-            keeloq_reset_mfname();
-            keeloq_reset_kl_type();
-            star_line_reset_mfname();
-            star_line_reset_kl_type();
+            subghz_txrx_reset_dynamic_and_custom_btns(app->txrx);
         }
-        keeloq_reset_original_btn();
         subghz_custom_btns_reset();
 #endif
         return true;

@@ -293,4 +293,6 @@ void subghz_txrx_set_raw_file_encoder_worker_callback_end(
 void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state);
 bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance);
 
+void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance);
+
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw
