@@ -12,3 +12,6 @@
 
 // Target firmware to build for
 #define TOTP_TARGET_FIRMWARE TOTP_FIRMWARE_UL_XFW
+
+// Max custom fonts value
+#define MAX_CUSTOM_FONTS (9)
