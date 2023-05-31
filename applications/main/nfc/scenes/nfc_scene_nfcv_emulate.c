@@ -8,7 +8,6 @@ enum {
 };
 
 bool nfc_scene_nfcv_emulate_worker_callback(NfcWorkerEvent event, void* context) {
-    UNUSED(event);
     furi_assert(context);
     Nfc* nfc = context;
 
