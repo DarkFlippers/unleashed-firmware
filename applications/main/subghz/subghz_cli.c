@@ -172,16 +172,19 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
 
     furi_hal_power_suppress_charge_enter();
 
-    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
+    if(furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter)) {
+        while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
+            printf(".");
+            fflush(stdout);
+            furi_delay_ms(333);
+        }
+        furi_hal_subghz_stop_async_tx();
 
-    while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
-        printf(".");
-        fflush(stdout);
-        furi_delay_ms(333);
+    } else {
+        printf("Transmission on this frequency is restricted in your region\r\n");
     }
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_sleep();
 
+    furi_hal_subghz_sleep();
     furi_hal_power_suppress_charge_exit();
 
     flipper_format_free(flipper_format);
