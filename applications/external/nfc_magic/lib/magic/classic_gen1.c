@@ -5,7 +5,6 @@
 #define TAG "Magic"
 
 #define MAGIC_CMD_WUPA (0x40)
-#define MAGIC_CMD_WIPE (0x41)
 #define MAGIC_CMD_ACCESS (0x43)
 
 #define MAGIC_MIFARE_READ_CMD (0x30)
@@ -143,33 +142,4 @@ bool magic_gen1_write_blk(uint8_t block_num, MfClassicBlock* data) {
     } while(false);
 
     return write_success;
-}
-
-bool magic_gen1_wipe() {
-    bool wipe_success = false;
-    uint8_t tx_data[MAGIC_BUFFER_SIZE] = {};
-    uint8_t rx_data[MAGIC_BUFFER_SIZE] = {};
-    uint16_t rx_len = 0;
-    FuriHalNfcReturn ret = 0;
-
-    do {
-        tx_data[0] = MAGIC_CMD_WIPE;
-        ret = furi_hal_nfc_ll_txrx_bits(
-            tx_data,
-            8,
-            rx_data,
-            sizeof(rx_data),
-            &rx_len,
-            FURI_HAL_NFC_LL_TXRX_FLAGS_CRC_TX_MANUAL | FURI_HAL_NFC_LL_TXRX_FLAGS_AGC_ON |
-                FURI_HAL_NFC_LL_TXRX_FLAGS_CRC_RX_KEEP,
-            furi_hal_nfc_ll_ms2fc(2000));
-
-        if(ret != FuriHalNfcReturnIncompleteByte) break;
-        if(rx_len != 4) break;
-        if(rx_data[0] != MAGIC_ACK) break;
-
-        wipe_success = true;
-    } while(false);
-
-    return wipe_success;
 }
