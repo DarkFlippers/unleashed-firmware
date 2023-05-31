@@ -5,7 +5,7 @@
 
 #define VERSION_MAGIC (0xBE40u)
 #define VERSION_MAJOR (0x1u)
-#define VERSION_MINOR (0x0u)
+#define VERSION_MINOR (0x1u)
 
 struct Version {
     // Header
@@ -20,6 +20,9 @@ struct Version {
     // Payload bits and pieces
     const uint8_t target;
     const bool build_is_dirty;
+    // v 1.1
+    const char* firmware_origin;
+    const char* git_origin;
     const char* custom_flipper_name;
 };
 
@@ -38,6 +41,8 @@ static Version version = {
     ,
     .target = TARGET,
     .build_is_dirty = BUILD_DIRTY,
+    .firmware_origin = FIRMWARE_ORIGIN,
+    .git_origin = GIT_ORIGIN,
     .custom_flipper_name = NULL,
 };
 
@@ -82,4 +87,12 @@ uint8_t version_get_target(const Version* v) {
 
 bool version_get_dirty_flag(const Version* v) {
     return v ? v->build_is_dirty : version.build_is_dirty;
+}
+
+const char* version_get_firmware_origin(const Version* v) {
+    return v ? v->firmware_origin : version.firmware_origin;
+}
+
+const char* version_get_git_origin(const Version* v) {
+    return v ? v->git_origin : version.git_origin;
 }

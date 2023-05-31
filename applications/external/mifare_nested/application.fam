@@ -1,0 +1,25 @@
+App(
+    appid="mifare_nested",
+    name="Mifare Nested",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="mifare_nested_app",
+    requires=[
+        "storage",
+        "gui",
+        "nfc"
+    ],
+    stack_size=4 * 1024,
+    order=30,
+    fap_icon="assets/icon.png",
+    fap_category="NFC",
+    fap_private_libs=[
+        Lib(name="nested"),
+        Lib(name="parity"),
+        Lib(name="crypto1")
+    ],
+    fap_icon_assets="assets",
+    fap_author="AloneLiberty",
+    fap_description="Recover Mifare Classic keys",
+    fap_weburl="https://github.com/AloneLiberty/FlipperNested",
+    fap_version="1.5.0"
+)

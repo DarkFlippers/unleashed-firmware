@@ -1,15 +1,11 @@
 #include <furi_hal_infrared.h>
-#include <core/check.h>
-#include "stm32wbxx_ll_dma.h"
-#include "sys/_stdint.h"
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
+#include <furi_hal_bus.h>
 
-#include <stdint.h>
 #include <stm32wbxx_ll_tim.h>
-#include <stm32wbxx_ll_gpio.h>
+#include <stm32wbxx_ll_dma.h>
 
-#include <stdio.h>
 #include <furi.h>
 #include <math.h>
 
@@ -22,13 +18,23 @@
     (TIM_CCMR2_OC3PE | LL_TIM_OCMODE_FORCED_INACTIVE) /* Space time - force low */
 
 /* DMA Channels definition */
-#define IR_DMA DMA2
-#define IR_DMA_CH1_CHANNEL LL_DMA_CHANNEL_1
-#define IR_DMA_CH2_CHANNEL LL_DMA_CHANNEL_2
-#define IR_DMA_CH1_IRQ FuriHalInterruptIdDma2Ch1
-#define IR_DMA_CH2_IRQ FuriHalInterruptIdDma2Ch2
-#define IR_DMA_CH1_DEF IR_DMA, IR_DMA_CH1_CHANNEL
-#define IR_DMA_CH2_DEF IR_DMA, IR_DMA_CH2_CHANNEL
+#define INFRARED_DMA DMA2
+#define INFRARED_DMA_CH1_CHANNEL LL_DMA_CHANNEL_1
+#define INFRARED_DMA_CH2_CHANNEL LL_DMA_CHANNEL_2
+#define INFRARED_DMA_CH1_IRQ FuriHalInterruptIdDma2Ch1
+#define INFRARED_DMA_CH2_IRQ FuriHalInterruptIdDma2Ch2
+#define INFRARED_DMA_CH1_DEF INFRARED_DMA, INFRARED_DMA_CH1_CHANNEL
+#define INFRARED_DMA_CH2_DEF INFRARED_DMA, INFRARED_DMA_CH2_CHANNEL
+
+/* Timers definition */
+#define INFRARED_RX_TIMER TIM2
+#define INFRARED_DMA_TIMER TIM1
+#define INFRARED_RX_TIMER_BUS FuriHalBusTIM2
+#define INFRARED_DMA_TIMER_BUS FuriHalBusTIM1
+
+/* Misc */
+#define INFRARED_RX_GPIO_ALT GpioAltFn1TIM2
+#define INFRARED_RX_IRQ FuriHalInterruptIdTIM2
 
 typedef struct {
     FuriHalInfraredRxCaptureCallback capture_callback;
@@ -95,8 +101,8 @@ static void furi_hal_infrared_tim_rx_isr() {
     static uint32_t previous_captured_ch2 = 0;
 
     /* Timeout */
-    if(LL_TIM_IsActiveFlag_CC3(TIM2)) {
-        LL_TIM_ClearFlag_CC3(TIM2);
+    if(LL_TIM_IsActiveFlag_CC3(INFRARED_RX_TIMER)) {
+        LL_TIM_ClearFlag_CC3(INFRARED_RX_TIMER);
         furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
 
         /* Timers CNT register starts to counting from 0 to ARR, but it is
@@ -112,13 +118,13 @@ static void furi_hal_infrared_tim_rx_isr() {
     }
 
     /* Rising Edge */
-    if(LL_TIM_IsActiveFlag_CC1(TIM2)) {
-        LL_TIM_ClearFlag_CC1(TIM2);
+    if(LL_TIM_IsActiveFlag_CC1(INFRARED_RX_TIMER)) {
+        LL_TIM_ClearFlag_CC1(INFRARED_RX_TIMER);
         furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
 
-        if(READ_BIT(TIM2->CCMR1, TIM_CCMR1_CC1S)) {
+        if(READ_BIT(INFRARED_RX_TIMER->CCMR1, TIM_CCMR1_CC1S)) {
             /* Low pin level is a Mark state of INFRARED signal. Invert level for further processing. */
-            uint32_t duration = LL_TIM_IC_GetCaptureCH1(TIM2) - previous_captured_ch2;
+            uint32_t duration = LL_TIM_IC_GetCaptureCH1(INFRARED_RX_TIMER) - previous_captured_ch2;
             if(infrared_tim_rx.capture_callback)
                 infrared_tim_rx.capture_callback(infrared_tim_rx.capture_context, 1, duration);
         } else {
@@ -127,13 +133,13 @@ static void furi_hal_infrared_tim_rx_isr() {
     }
 
     /* Falling Edge */
-    if(LL_TIM_IsActiveFlag_CC2(TIM2)) {
-        LL_TIM_ClearFlag_CC2(TIM2);
+    if(LL_TIM_IsActiveFlag_CC2(INFRARED_RX_TIMER)) {
+        LL_TIM_ClearFlag_CC2(INFRARED_RX_TIMER);
         furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
 
-        if(READ_BIT(TIM2->CCMR1, TIM_CCMR1_CC2S)) {
+        if(READ_BIT(INFRARED_RX_TIMER->CCMR1, TIM_CCMR1_CC2S)) {
             /* High pin level is a Space state of INFRARED signal. Invert level for further processing. */
-            uint32_t duration = LL_TIM_IC_GetCaptureCH2(TIM2);
+            uint32_t duration = LL_TIM_IC_GetCaptureCH2(INFRARED_RX_TIMER);
             previous_captured_ch2 = duration;
             if(infrared_tim_rx.capture_callback)
                 infrared_tim_rx.capture_callback(infrared_tim_rx.capture_context, 0, duration);
@@ -147,62 +153,66 @@ void furi_hal_infrared_async_rx_start(void) {
     furi_assert(furi_hal_infrared_state == InfraredStateIdle);
 
     furi_hal_gpio_init_ex(
-        &gpio_infrared_rx, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
+        &gpio_infrared_rx,
+        GpioModeAltFunctionPushPull,
+        GpioPullNo,
+        GpioSpeedLow,
+        INFRARED_RX_GPIO_ALT);
+
+    furi_hal_bus_enable(INFRARED_RX_TIMER_BUS);
 
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64 - 1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
     TIM_InitStruct.Autoreload = 0x7FFFFFFE;
     TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
-    LL_TIM_Init(TIM2, &TIM_InitStruct);
+    LL_TIM_Init(INFRARED_RX_TIMER, &TIM_InitStruct);
 
-    LL_TIM_SetClockSource(TIM2, LL_TIM_CLOCKSOURCE_INTERNAL);
-    LL_TIM_DisableARRPreload(TIM2);
-    LL_TIM_SetTriggerInput(TIM2, LL_TIM_TS_TI1FP1);
-    LL_TIM_SetSlaveMode(TIM2, LL_TIM_SLAVEMODE_RESET);
-    LL_TIM_CC_DisableChannel(TIM2, LL_TIM_CHANNEL_CH2);
-    LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
-    LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_FALLING);
-    LL_TIM_DisableIT_TRIG(TIM2);
-    LL_TIM_DisableDMAReq_TRIG(TIM2);
-    LL_TIM_SetTriggerOutput(TIM2, LL_TIM_TRGO_RESET);
-    LL_TIM_EnableMasterSlaveMode(TIM2);
-    LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
-    LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
-    LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
-    LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING);
-    LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_INDIRECTTI);
-    LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
+    LL_TIM_SetClockSource(INFRARED_RX_TIMER, LL_TIM_CLOCKSOURCE_INTERNAL);
+    LL_TIM_DisableARRPreload(INFRARED_RX_TIMER);
+    LL_TIM_SetTriggerInput(INFRARED_RX_TIMER, LL_TIM_TS_TI1FP1);
+    LL_TIM_SetSlaveMode(INFRARED_RX_TIMER, LL_TIM_SLAVEMODE_RESET);
+    LL_TIM_CC_DisableChannel(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH2);
+    LL_TIM_IC_SetFilter(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
+    LL_TIM_IC_SetPolarity(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_FALLING);
+    LL_TIM_DisableIT_TRIG(INFRARED_RX_TIMER);
+    LL_TIM_DisableDMAReq_TRIG(INFRARED_RX_TIMER);
+    LL_TIM_SetTriggerOutput(INFRARED_RX_TIMER, LL_TIM_TRGO_RESET);
+    LL_TIM_EnableMasterSlaveMode(INFRARED_RX_TIMER);
+    LL_TIM_IC_SetActiveInput(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
+    LL_TIM_IC_SetPrescaler(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
+    LL_TIM_IC_SetFilter(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
+    LL_TIM_IC_SetPolarity(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING);
+    LL_TIM_IC_SetActiveInput(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_INDIRECTTI);
+    LL_TIM_IC_SetPrescaler(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
 
-    furi_hal_interrupt_set_isr(FuriHalInterruptIdTIM2, furi_hal_infrared_tim_rx_isr, NULL);
+    furi_hal_interrupt_set_isr(INFRARED_RX_IRQ, furi_hal_infrared_tim_rx_isr, NULL);
     furi_hal_infrared_state = InfraredStateAsyncRx;
 
-    LL_TIM_EnableIT_CC1(TIM2);
-    LL_TIM_EnableIT_CC2(TIM2);
-    LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
-    LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
+    LL_TIM_EnableIT_CC1(INFRARED_RX_TIMER);
+    LL_TIM_EnableIT_CC2(INFRARED_RX_TIMER);
+    LL_TIM_CC_EnableChannel(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH1);
+    LL_TIM_CC_EnableChannel(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH2);
 
-    LL_TIM_SetCounter(TIM2, 0);
-    LL_TIM_EnableCounter(TIM2);
+    LL_TIM_SetCounter(INFRARED_RX_TIMER, 0);
+    LL_TIM_EnableCounter(INFRARED_RX_TIMER);
 }
 
 void furi_hal_infrared_async_rx_stop(void) {
     furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
 
     FURI_CRITICAL_ENTER();
-
-    LL_TIM_DeInit(TIM2);
-    furi_hal_interrupt_set_isr(FuriHalInterruptIdTIM2, NULL, NULL);
+    furi_hal_bus_disable(INFRARED_RX_TIMER_BUS);
+    furi_hal_interrupt_set_isr(INFRARED_RX_IRQ, NULL, NULL);
     furi_hal_infrared_state = InfraredStateIdle;
-
     FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_infrared_async_rx_set_timeout(uint32_t timeout_us) {
-    LL_TIM_OC_SetCompareCH3(TIM2, timeout_us);
-    LL_TIM_OC_SetMode(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_ACTIVE);
-    LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH3);
-    LL_TIM_EnableIT_CC3(TIM2);
+    LL_TIM_OC_SetCompareCH3(INFRARED_RX_TIMER, timeout_us);
+    LL_TIM_OC_SetMode(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_ACTIVE);
+    LL_TIM_CC_EnableChannel(INFRARED_RX_TIMER, LL_TIM_CHANNEL_CH3);
+    LL_TIM_EnableIT_CC3(INFRARED_RX_TIMER);
 }
 
 bool furi_hal_infrared_is_busy(void) {
@@ -224,16 +234,16 @@ void furi_hal_infrared_async_rx_set_timeout_isr_callback(
 }
 
 static void furi_hal_infrared_tx_dma_terminate(void) {
-    LL_DMA_DisableIT_TC(IR_DMA_CH1_DEF);
-    LL_DMA_DisableIT_HT(IR_DMA_CH2_DEF);
-    LL_DMA_DisableIT_TC(IR_DMA_CH2_DEF);
+    LL_DMA_DisableIT_TC(INFRARED_DMA_CH1_DEF);
+    LL_DMA_DisableIT_HT(INFRARED_DMA_CH2_DEF);
+    LL_DMA_DisableIT_TC(INFRARED_DMA_CH2_DEF);
 
     furi_assert(furi_hal_infrared_state == InfraredStateAsyncTxStopInProgress);
 
-    LL_DMA_DisableIT_TC(IR_DMA_CH1_DEF);
-    LL_DMA_DisableChannel(IR_DMA_CH2_DEF);
-    LL_DMA_DisableChannel(IR_DMA_CH1_DEF);
-    LL_TIM_DisableCounter(TIM1);
+    LL_DMA_DisableIT_TC(INFRARED_DMA_CH1_DEF);
+    LL_DMA_DisableChannel(INFRARED_DMA_CH2_DEF);
+    LL_DMA_DisableChannel(INFRARED_DMA_CH1_DEF);
+    LL_TIM_DisableCounter(INFRARED_DMA_TIMER);
     FuriStatus status = furi_semaphore_release(infrared_tim_tx.stop_semaphore);
     furi_check(status == FuriStatusOk);
     furi_hal_infrared_state = InfraredStateAsyncTxStopped;
@@ -241,7 +251,7 @@ static void furi_hal_infrared_tx_dma_terminate(void) {
 
 static uint8_t furi_hal_infrared_get_current_dma_tx_buffer(void) {
     uint8_t buf_num = 0;
-    uint32_t buffer_adr = LL_DMA_GetMemoryAddress(IR_DMA_CH2_DEF);
+    uint32_t buffer_adr = LL_DMA_GetMemoryAddress(INFRARED_DMA_CH2_DEF);
     if(buffer_adr == (uint32_t)infrared_tim_tx.buffer[0].data) {
         buf_num = 0;
     } else if(buffer_adr == (uint32_t)infrared_tim_tx.buffer[1].data) {
@@ -253,13 +263,13 @@ static uint8_t furi_hal_infrared_get_current_dma_tx_buffer(void) {
 }
 
 static void furi_hal_infrared_tx_dma_polarity_isr() {
-#if IR_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1
-    if(LL_DMA_IsActiveFlag_TE1(IR_DMA)) {
-        LL_DMA_ClearFlag_TE1(IR_DMA);
+#if INFRARED_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1
+    if(LL_DMA_IsActiveFlag_TE1(INFRARED_DMA)) {
+        LL_DMA_ClearFlag_TE1(INFRARED_DMA);
         furi_crash(NULL);
     }
-    if(LL_DMA_IsActiveFlag_TC1(IR_DMA) && LL_DMA_IsEnabledIT_TC(IR_DMA_CH1_DEF)) {
-        LL_DMA_ClearFlag_TC1(IR_DMA);
+    if(LL_DMA_IsActiveFlag_TC1(INFRARED_DMA) && LL_DMA_IsEnabledIT_TC(INFRARED_DMA_CH1_DEF)) {
+        LL_DMA_ClearFlag_TC1(INFRARED_DMA);
 
         furi_check(
             (furi_hal_infrared_state == InfraredStateAsyncTx) ||
@@ -275,23 +285,23 @@ static void furi_hal_infrared_tx_dma_polarity_isr() {
 }
 
 static void furi_hal_infrared_tx_dma_isr() {
-#if IR_DMA_CH2_CHANNEL == LL_DMA_CHANNEL_2
-    if(LL_DMA_IsActiveFlag_TE2(IR_DMA)) {
-        LL_DMA_ClearFlag_TE2(IR_DMA);
+#if INFRARED_DMA_CH2_CHANNEL == LL_DMA_CHANNEL_2
+    if(LL_DMA_IsActiveFlag_TE2(INFRARED_DMA)) {
+        LL_DMA_ClearFlag_TE2(INFRARED_DMA);
         furi_crash(NULL);
     }
-    if(LL_DMA_IsActiveFlag_HT2(IR_DMA) && LL_DMA_IsEnabledIT_HT(IR_DMA_CH2_DEF)) {
-        LL_DMA_ClearFlag_HT2(IR_DMA);
+    if(LL_DMA_IsActiveFlag_HT2(INFRARED_DMA) && LL_DMA_IsEnabledIT_HT(INFRARED_DMA_CH2_DEF)) {
+        LL_DMA_ClearFlag_HT2(INFRARED_DMA);
         uint8_t buf_num = furi_hal_infrared_get_current_dma_tx_buffer();
         uint8_t next_buf_num = !buf_num;
         if(infrared_tim_tx.buffer[buf_num].last_packet_end) {
-            LL_DMA_DisableIT_HT(IR_DMA_CH2_DEF);
+            LL_DMA_DisableIT_HT(INFRARED_DMA_CH2_DEF);
         } else if(
             !infrared_tim_tx.buffer[buf_num].packet_end ||
             (furi_hal_infrared_state == InfraredStateAsyncTx)) {
             furi_hal_infrared_tx_fill_buffer(next_buf_num, 0);
             if(infrared_tim_tx.buffer[next_buf_num].last_packet_end) {
-                LL_DMA_DisableIT_HT(IR_DMA_CH2_DEF);
+                LL_DMA_DisableIT_HT(INFRARED_DMA_CH2_DEF);
             }
         } else if(furi_hal_infrared_state == InfraredStateAsyncTxStopReq) {
             /* fallthrough */
@@ -299,8 +309,8 @@ static void furi_hal_infrared_tx_dma_isr() {
             furi_crash(NULL);
         }
     }
-    if(LL_DMA_IsActiveFlag_TC2(IR_DMA) && LL_DMA_IsEnabledIT_TC(IR_DMA_CH2_DEF)) {
-        LL_DMA_ClearFlag_TC2(IR_DMA);
+    if(LL_DMA_IsActiveFlag_TC2(INFRARED_DMA) && LL_DMA_IsEnabledIT_TC(INFRARED_DMA_CH2_DEF)) {
+        LL_DMA_ClearFlag_TC2(INFRARED_DMA);
         furi_check(
             (furi_hal_infrared_state == InfraredStateAsyncTxStopInProgress) ||
             (furi_hal_infrared_state == InfraredStateAsyncTxStopReq) ||
@@ -332,39 +342,42 @@ static void furi_hal_infrared_tx_dma_isr() {
 }
 
 static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cycle) {
-    /*    LL_DBGMCU_APB2_GRP1_FreezePeriph(LL_DBGMCU_APB2_GRP1_TIM1_STOP); */
-
-    LL_TIM_DisableCounter(TIM1);
-    LL_TIM_SetRepetitionCounter(TIM1, 0);
-    LL_TIM_SetCounter(TIM1, 0);
-    LL_TIM_SetPrescaler(TIM1, 0);
-    LL_TIM_SetCounterMode(TIM1, LL_TIM_COUNTERMODE_UP);
-    LL_TIM_EnableARRPreload(TIM1);
+    LL_TIM_DisableCounter(INFRARED_DMA_TIMER);
+    LL_TIM_SetRepetitionCounter(INFRARED_DMA_TIMER, 0);
+    LL_TIM_SetCounter(INFRARED_DMA_TIMER, 0);
+    LL_TIM_SetPrescaler(INFRARED_DMA_TIMER, 0);
+    LL_TIM_SetCounterMode(INFRARED_DMA_TIMER, LL_TIM_COUNTERMODE_UP);
+    LL_TIM_EnableARRPreload(INFRARED_DMA_TIMER);
     LL_TIM_SetAutoReload(
-        TIM1, __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM1), freq));
+        INFRARED_DMA_TIMER,
+        __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(INFRARED_DMA_TIMER), freq));
     if(infrared_external_output) {
-        LL_TIM_OC_SetCompareCH1(TIM1, ((LL_TIM_GetAutoReload(TIM1) + 1) * (1 - duty_cycle)));
-        LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH1);
+        LL_TIM_OC_SetCompareCH1(
+            INFRARED_DMA_TIMER,
+            ((LL_TIM_GetAutoReload(INFRARED_DMA_TIMER) + 1) * (1 - duty_cycle)));
+        LL_TIM_OC_EnablePreload(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1);
         /* LL_TIM_OCMODE_PWM2 set by DMA */
-        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_FORCED_INACTIVE);
-        LL_TIM_OC_SetPolarity(TIM1, LL_TIM_CHANNEL_CH1N, LL_TIM_OCPOLARITY_HIGH);
-        LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH1);
-        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH1N);
-        LL_TIM_DisableIT_CC1(TIM1);
+        LL_TIM_OC_SetMode(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_FORCED_INACTIVE);
+        LL_TIM_OC_SetPolarity(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1N, LL_TIM_OCPOLARITY_HIGH);
+        LL_TIM_OC_DisableFast(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1);
+        LL_TIM_CC_EnableChannel(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1N);
+        LL_TIM_DisableIT_CC1(INFRARED_DMA_TIMER);
     } else {
-        LL_TIM_OC_SetCompareCH3(TIM1, ((LL_TIM_GetAutoReload(TIM1) + 1) * (1 - duty_cycle)));
-        LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH3);
+        LL_TIM_OC_SetCompareCH3(
+            INFRARED_DMA_TIMER,
+            ((LL_TIM_GetAutoReload(INFRARED_DMA_TIMER) + 1) * (1 - duty_cycle)));
+        LL_TIM_OC_EnablePreload(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3);
         /* LL_TIM_OCMODE_PWM2 set by DMA */
-        LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_FORCED_INACTIVE);
-        LL_TIM_OC_SetPolarity(TIM1, LL_TIM_CHANNEL_CH3N, LL_TIM_OCPOLARITY_HIGH);
-        LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH3);
-        LL_TIM_CC_EnableChannel(TIM1, LL_TIM_CHANNEL_CH3N);
-        LL_TIM_DisableIT_CC3(TIM1);
+        LL_TIM_OC_SetMode(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_FORCED_INACTIVE);
+        LL_TIM_OC_SetPolarity(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3N, LL_TIM_OCPOLARITY_HIGH);
+        LL_TIM_OC_DisableFast(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3);
+        LL_TIM_CC_EnableChannel(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3N);
+        LL_TIM_DisableIT_CC3(INFRARED_DMA_TIMER);
     }
-    LL_TIM_DisableMasterSlaveMode(TIM1);
-    LL_TIM_EnableAllOutputs(TIM1);
-    LL_TIM_DisableIT_UPDATE(TIM1);
-    LL_TIM_EnableDMAReq_UPDATE(TIM1);
+    LL_TIM_DisableMasterSlaveMode(INFRARED_DMA_TIMER);
+    LL_TIM_EnableAllOutputs(INFRARED_DMA_TIMER);
+    LL_TIM_DisableIT_UPDATE(INFRARED_DMA_TIMER);
+    LL_TIM_EnableDMAReq_UPDATE(INFRARED_DMA_TIMER);
 
     NVIC_SetPriority(TIM1_UP_TIM16_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
@@ -373,9 +386,9 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
 static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {
     LL_DMA_InitTypeDef dma_config = {0};
     if(infrared_external_output) {
-        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->CCMR1);
+        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->CCMR1);
     } else {
-        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->CCMR2);
+        dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->CCMR2);
     }
     dma_config.MemoryOrM2MDstAddress = (uint32_t)NULL;
     dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
@@ -388,24 +401,25 @@ static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {
     dma_config.NbData = 0;
     dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM1_UP;
     dma_config.Priority = LL_DMA_PRIORITY_VERYHIGH;
-    LL_DMA_Init(IR_DMA_CH1_DEF, &dma_config);
+    LL_DMA_Init(INFRARED_DMA_CH1_DEF, &dma_config);
 
-#if IR_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1
-    LL_DMA_ClearFlag_TE1(IR_DMA);
-    LL_DMA_ClearFlag_TC1(IR_DMA);
+#if INFRARED_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1
+    LL_DMA_ClearFlag_TE1(INFRARED_DMA);
+    LL_DMA_ClearFlag_TC1(INFRARED_DMA);
 #else
 #error Update this code. Would you kindly?
 #endif
 
-    LL_DMA_EnableIT_TE(IR_DMA_CH1_DEF);
-    LL_DMA_EnableIT_TC(IR_DMA_CH1_DEF);
+    LL_DMA_EnableIT_TE(INFRARED_DMA_CH1_DEF);
+    LL_DMA_EnableIT_TC(INFRARED_DMA_CH1_DEF);
 
-    furi_hal_interrupt_set_isr_ex(IR_DMA_CH1_IRQ, 4, furi_hal_infrared_tx_dma_polarity_isr, NULL);
+    furi_hal_interrupt_set_isr_ex(
+        INFRARED_DMA_CH1_IRQ, 4, furi_hal_infrared_tx_dma_polarity_isr, NULL);
 }
 
 static void furi_hal_infrared_configure_tim_rcr_dma_tx(void) {
     LL_DMA_InitTypeDef dma_config = {0};
-    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->RCR);
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (INFRARED_DMA_TIMER->RCR);
     dma_config.MemoryOrM2MDstAddress = (uint32_t)NULL;
     dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
     dma_config.Mode = LL_DMA_MODE_NORMAL;
@@ -416,21 +430,21 @@ static void furi_hal_infrared_configure_tim_rcr_dma_tx(void) {
     dma_config.NbData = 0;
     dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM1_UP;
     dma_config.Priority = LL_DMA_PRIORITY_MEDIUM;
-    LL_DMA_Init(IR_DMA_CH2_DEF, &dma_config);
+    LL_DMA_Init(INFRARED_DMA_CH2_DEF, &dma_config);
 
-#if IR_DMA_CH2_CHANNEL == LL_DMA_CHANNEL_2
-    LL_DMA_ClearFlag_TC2(IR_DMA);
-    LL_DMA_ClearFlag_HT2(IR_DMA);
-    LL_DMA_ClearFlag_TE2(IR_DMA);
+#if INFRARED_DMA_CH2_CHANNEL == LL_DMA_CHANNEL_2
+    LL_DMA_ClearFlag_TC2(INFRARED_DMA);
+    LL_DMA_ClearFlag_HT2(INFRARED_DMA);
+    LL_DMA_ClearFlag_TE2(INFRARED_DMA);
 #else
 #error Update this code. Would you kindly?
 #endif
 
-    LL_DMA_EnableIT_TC(IR_DMA_CH2_DEF);
-    LL_DMA_EnableIT_HT(IR_DMA_CH2_DEF);
-    LL_DMA_EnableIT_TE(IR_DMA_CH2_DEF);
+    LL_DMA_EnableIT_TC(INFRARED_DMA_CH2_DEF);
+    LL_DMA_EnableIT_HT(INFRARED_DMA_CH2_DEF);
+    LL_DMA_EnableIT_TE(INFRARED_DMA_CH2_DEF);
 
-    furi_hal_interrupt_set_isr_ex(IR_DMA_CH2_IRQ, 5, furi_hal_infrared_tx_dma_isr, NULL);
+    furi_hal_interrupt_set_isr_ex(INFRARED_DMA_CH2_IRQ, 5, furi_hal_infrared_tx_dma_isr, NULL);
 }
 
 static void furi_hal_infrared_tx_fill_buffer_last(uint8_t buf_num) {
@@ -532,14 +546,14 @@ static void furi_hal_infrared_tx_dma_set_polarity(uint8_t buf_num, uint8_t polar
     furi_assert(buffer->polarity != NULL);
 
     FURI_CRITICAL_ENTER();
-    bool channel_enabled = LL_DMA_IsEnabledChannel(IR_DMA_CH1_DEF);
+    bool channel_enabled = LL_DMA_IsEnabledChannel(INFRARED_DMA_CH1_DEF);
     if(channel_enabled) {
-        LL_DMA_DisableChannel(IR_DMA_CH1_DEF);
+        LL_DMA_DisableChannel(INFRARED_DMA_CH1_DEF);
     }
-    LL_DMA_SetMemoryAddress(IR_DMA_CH1_DEF, (uint32_t)buffer->polarity);
-    LL_DMA_SetDataLength(IR_DMA_CH1_DEF, buffer->size + polarity_shift);
+    LL_DMA_SetMemoryAddress(INFRARED_DMA_CH1_DEF, (uint32_t)buffer->polarity);
+    LL_DMA_SetDataLength(INFRARED_DMA_CH1_DEF, buffer->size + polarity_shift);
     if(channel_enabled) {
-        LL_DMA_EnableChannel(IR_DMA_CH1_DEF);
+        LL_DMA_EnableChannel(INFRARED_DMA_CH1_DEF);
     }
     FURI_CRITICAL_EXIT();
 }
@@ -552,14 +566,14 @@ static void furi_hal_infrared_tx_dma_set_buffer(uint8_t buf_num) {
 
     /* non-circular mode requires disabled channel before setup */
     FURI_CRITICAL_ENTER();
-    bool channel_enabled = LL_DMA_IsEnabledChannel(IR_DMA_CH2_DEF);
+    bool channel_enabled = LL_DMA_IsEnabledChannel(INFRARED_DMA_CH2_DEF);
     if(channel_enabled) {
-        LL_DMA_DisableChannel(IR_DMA_CH2_DEF);
+        LL_DMA_DisableChannel(INFRARED_DMA_CH2_DEF);
     }
-    LL_DMA_SetMemoryAddress(IR_DMA_CH2_DEF, (uint32_t)buffer->data);
-    LL_DMA_SetDataLength(IR_DMA_CH2_DEF, buffer->size);
+    LL_DMA_SetMemoryAddress(INFRARED_DMA_CH2_DEF, (uint32_t)buffer->data);
+    LL_DMA_SetDataLength(INFRARED_DMA_CH2_DEF, buffer->size);
     if(channel_enabled) {
-        LL_DMA_EnableChannel(IR_DMA_CH2_DEF);
+        LL_DMA_EnableChannel(INFRARED_DMA_CH2_DEF);
     }
     FURI_CRITICAL_EXIT();
 }
@@ -574,9 +588,10 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
     } else {
         furi_hal_gpio_init(&gpio_infrared_tx, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
     }
-    furi_hal_interrupt_set_isr(IR_DMA_CH1_IRQ, NULL, NULL);
-    furi_hal_interrupt_set_isr(IR_DMA_CH2_IRQ, NULL, NULL);
-    LL_TIM_DeInit(TIM1);
+    furi_hal_interrupt_set_isr(INFRARED_DMA_CH1_IRQ, NULL, NULL);
+    furi_hal_interrupt_set_isr(INFRARED_DMA_CH2_IRQ, NULL, NULL);
+
+    furi_hal_bus_disable(INFRARED_DMA_TIMER_BUS);
 
     furi_semaphore_free(infrared_tim_tx.stop_semaphore);
     free(infrared_tim_tx.buffer[0].data);
@@ -617,6 +632,8 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
 
     furi_hal_infrared_tx_fill_buffer(0, INFRARED_POLARITY_SHIFT);
 
+    furi_hal_bus_enable(INFRARED_DMA_TIMER_BUS);
+
     furi_hal_infrared_configure_tim_pwm_tx(freq, duty_cycle);
     furi_hal_infrared_configure_tim_cmgr2_dma_tx();
     furi_hal_infrared_configure_tim_rcr_dma_tx();
@@ -625,11 +642,11 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
 
     furi_hal_infrared_state = InfraredStateAsyncTx;
 
-    LL_TIM_ClearFlag_UPDATE(TIM1);
-    LL_DMA_EnableChannel(IR_DMA_CH1_DEF);
-    LL_DMA_EnableChannel(IR_DMA_CH2_DEF);
+    LL_TIM_ClearFlag_UPDATE(INFRARED_DMA_TIMER);
+    LL_DMA_EnableChannel(INFRARED_DMA_CH1_DEF);
+    LL_DMA_EnableChannel(INFRARED_DMA_CH2_DEF);
     furi_delay_us(5);
-    LL_TIM_GenerateEvent_UPDATE(TIM1); /* DMA -> TIMx_RCR */
+    LL_TIM_GenerateEvent_UPDATE(INFRARED_DMA_TIMER); /* DMA -> TIMx_RCR */
     furi_delay_us(5);
     if(infrared_external_output) {
         LL_GPIO_ResetOutputPin(
@@ -649,8 +666,8 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
     }
 
     FURI_CRITICAL_ENTER();
-    LL_TIM_GenerateEvent_UPDATE(TIM1); /* TIMx_RCR -> Repetition counter */
-    LL_TIM_EnableCounter(TIM1);
+    LL_TIM_GenerateEvent_UPDATE(INFRARED_DMA_TIMER); /* TIMx_RCR -> Repetition counter */
+    LL_TIM_EnableCounter(INFRARED_DMA_TIMER);
     FURI_CRITICAL_EXIT();
 }
 

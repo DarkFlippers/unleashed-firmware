@@ -7,6 +7,7 @@
 #include <furi_hal_version.h>
 #include <furi_hal_bt_hid.h>
 #include <furi_hal_bt_serial.h>
+#include <furi_hal_bus.c>
 #include "battery_service.h"
 
 #include <furi.h>
@@ -80,6 +81,11 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
 FuriHalBtProfileConfig* current_profile = NULL;
 
 void furi_hal_bt_init() {
+    furi_hal_bus_enable(FuriHalBusHSEM);
+    furi_hal_bus_enable(FuriHalBusIPCC);
+    furi_hal_bus_enable(FuriHalBusAES2);
+    furi_hal_bus_enable(FuriHalBusPKA);
+
     if(!furi_hal_bt_core2_mtx) {
         furi_hal_bt_core2_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
         furi_assert(furi_hal_bt_core2_mtx);
@@ -268,6 +274,11 @@ void furi_hal_bt_reinit() {
 
     furi_delay_ms(100);
     ble_glue_thread_stop();
+
+    furi_hal_bus_disable(FuriHalBusHSEM);
+    furi_hal_bus_disable(FuriHalBusIPCC);
+    furi_hal_bus_disable(FuriHalBusAES2);
+    furi_hal_bus_disable(FuriHalBusPKA);
 
     FURI_LOG_I(TAG, "Start BT initialization");
     furi_hal_bt_init();

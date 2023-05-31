@@ -30,19 +30,9 @@ bindings/
 .mxproject
 Brewfile.lock.json
 
-# Visual Studio Code
-/.vscode/
-
 # Kate
 .kateproject
 .kateconfig
-
-# legendary cmake's
-build
-CMakeLists.txt
-
-# bundle output
-dist
 
 # kde
 .directory
@@ -50,8 +40,16 @@ null.d
 
 # SCons
 .sconsign.dblite
+
+
+# Visual Studio Code
+/.vscode
+
+# bundle output
+/dist
+
 # SCons build dir
-build/
+/build
 
 # Toolchain
 /toolchain
@@ -65,3 +63,5 @@ PVS-Studio.log
 *.PVS-Studio.*
 
 .gdbinit
+
+/fbt_options_local.py

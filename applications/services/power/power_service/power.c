@@ -268,30 +268,6 @@ Power* power_alloc() {
     return power;
 }
 
-void power_free(Power* power) {
-    furi_assert(power);
-
-    // Gui
-    view_dispatcher_remove_view(power->view_dispatcher, PowerViewOff);
-    power_off_free(power->power_off);
-    view_dispatcher_remove_view(power->view_dispatcher, PowerViewUnplugUsb);
-    power_unplug_usb_free(power->power_unplug_usb);
-
-    view_port_free(power->battery_view_port);
-
-    // State
-    furi_mutex_free(power->api_mtx);
-
-    // FuriPubSub
-    furi_pubsub_free(power->event_pubsub);
-
-    // Records
-    furi_record_close(RECORD_NOTIFICATION);
-    furi_record_close(RECORD_GUI);
-
-    free(power);
-}
-
 static void power_check_charging_state(Power* power) {
     if(furi_hal_power_is_charging()) {
         if((power->info.charge == 100) || (furi_hal_power_is_charging_done())) {
@@ -454,7 +430,7 @@ int32_t power_srv(void* p) {
         furi_delay_ms(1000);
     }
 
-    power_free(power);
+    furi_crash("That was unexpected");
 
     return 0;
 }

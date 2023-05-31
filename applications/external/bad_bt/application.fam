@@ -13,5 +13,4 @@ App(
     fap_category="Tools",
     fap_icon="images/badbt_10px.png",
     fap_icon_assets="images",
-    fap_icon_assets_symbol="bad_bt",
 )

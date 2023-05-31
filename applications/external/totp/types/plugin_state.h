@@ -81,6 +81,11 @@ typedef struct {
     NotificationMethod notification_method;
 
     /**
+     * @brief Numbers Font
+     */
+    uint8_t selected_font;
+
+    /**
      * @brief Main rendering loop mutex
      */
     FuriMutex* mutex;

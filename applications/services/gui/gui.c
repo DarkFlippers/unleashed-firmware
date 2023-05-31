@@ -17,6 +17,23 @@ ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
     return NULL;
 }
 
+uint8_t gui_get_count_of_enabled_view_port_in_layer(Gui* gui, GuiLayer layer) {
+    furi_assert(gui);
+    furi_check(layer < GuiLayerMAX);
+    uint8_t ret = 0;
+
+    ViewPortArray_it_t it;
+    ViewPortArray_it_last(it, gui->layers[layer]);
+    while(!ViewPortArray_end_p(it)) {
+        ViewPort* view_port = *ViewPortArray_ref(it);
+        if(view_port_is_enabled(view_port)) {
+            ret++;
+        }
+        ViewPortArray_previous(it);
+    }
+    return ret;
+}
+
 void gui_update(Gui* gui) {
     furi_assert(gui);
     if(!gui->direct_draw) furi_thread_flags_set(gui->thread_id, GUI_THREAD_FLAG_DRAW);

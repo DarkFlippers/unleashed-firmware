@@ -1,4 +1,5 @@
 #include <furi_hal_resources.h>
+#include <furi_hal_bus.h>
 #include <furi.h>
 
 #include <stm32wbxx_ll_rcc.h>
@@ -118,6 +119,13 @@ static void furi_hal_resources_init_input_pins(GpioMode mode) {
 }
 
 void furi_hal_resources_init_early() {
+    furi_hal_bus_enable(FuriHalBusGPIOA);
+    furi_hal_bus_enable(FuriHalBusGPIOB);
+    furi_hal_bus_enable(FuriHalBusGPIOC);
+    furi_hal_bus_enable(FuriHalBusGPIOD);
+    furi_hal_bus_enable(FuriHalBusGPIOE);
+    furi_hal_bus_enable(FuriHalBusGPIOH);
+
     furi_hal_resources_init_input_pins(GpioModeInput);
 
     // SD Card stepdown control
@@ -162,6 +170,12 @@ void furi_hal_resources_init_early() {
 
 void furi_hal_resources_deinit_early() {
     furi_hal_resources_init_input_pins(GpioModeAnalog);
+    furi_hal_bus_disable(FuriHalBusGPIOA);
+    furi_hal_bus_disable(FuriHalBusGPIOB);
+    furi_hal_bus_disable(FuriHalBusGPIOC);
+    furi_hal_bus_disable(FuriHalBusGPIOD);
+    furi_hal_bus_disable(FuriHalBusGPIOE);
+    furi_hal_bus_disable(FuriHalBusGPIOH);
 }
 
 void furi_hal_resources_init() {

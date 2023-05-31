@@ -29,7 +29,7 @@ void view_unlock_model(View* view) {
 
 static void commit_text_input_callback(void* context) {
     InputTextSceneState* text_input_state = (InputTextSceneState*)context;
-    if(text_input_state->callback != 0) {
+    if(text_input_state->callback != NULL) {
         InputTextSceneCallbackResult* result = malloc(sizeof(InputTextSceneCallbackResult));
         furi_check(result != NULL);
         result->user_input_length =

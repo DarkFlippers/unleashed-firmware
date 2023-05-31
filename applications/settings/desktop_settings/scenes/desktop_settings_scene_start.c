@@ -11,7 +11,8 @@
 #define SCENE_EVENT_SELECT_PIN_SETUP 3
 #define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 4
 #define SCENE_EVENT_SELECT_BATTERY_DISPLAY 5
-#define SCENE_EVENT_SELECT_CHANGE_NAME 6
+#define SCENE_EVENT_SELECT_CLOCK_DISPLAY 6
+#define SCENE_EVENT_SELECT_CHANGE_NAME 7
 
 #define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -28,6 +29,14 @@ const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
 
 const uint32_t auto_lock_delay_value[AUTO_LOCK_DELAY_COUNT] =
     {0, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000};
+
+#define CLOCK_ENABLE_COUNT 2
+const char* const clock_enable_text[CLOCK_ENABLE_COUNT] = {
+    "OFF",
+    "ON",
+};
+
+const uint32_t clock_enable_value[CLOCK_ENABLE_COUNT] = {0, 1};
 
 #define BATTERY_VIEW_COUNT 6
 
@@ -53,6 +62,14 @@ static void desktop_settings_scene_start_battery_view_changed(VariableItem* item
 
     variable_item_set_current_value_text(item, battery_view_count_text[index]);
     app->settings.displayBatteryPercentage = index;
+}
+
+static void desktop_settings_scene_start_clock_enable_changed(VariableItem* item) {
+    DesktopSettingsApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, clock_enable_text[index]);
+    app->settings.display_clock = index;
 }
 
 static void desktop_settings_scene_start_auto_lock_delay_changed(VariableItem* item) {
@@ -106,6 +123,18 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, battery_view_count_text[value_index]);
 
+    item = variable_item_list_add(
+        variable_item_list,
+        "Show Clock",
+        CLOCK_ENABLE_COUNT,
+        desktop_settings_scene_start_clock_enable_changed, //
+        app);
+
+    value_index =
+        value_index_uint32(app->settings.display_clock, clock_enable_value, CLOCK_ENABLE_COUNT);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, clock_enable_text[value_index]);
+
     variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewVarItemList);
@@ -140,6 +169,9 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             consumed = true;
             break;
         case SCENE_EVENT_SELECT_BATTERY_DISPLAY:
+            consumed = true;
+            break;
+        case SCENE_EVENT_SELECT_CLOCK_DISPLAY:
             consumed = true;
             break;
         case SCENE_EVENT_SELECT_CHANGE_NAME:

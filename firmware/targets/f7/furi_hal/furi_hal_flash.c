@@ -11,20 +11,20 @@
 #define TAG "FuriHalFlash"
 
 #define FURI_HAL_CRITICAL_MSG "Critical flash operation fail"
-#define FURI_HAL_FLASH_READ_BLOCK 8
-#define FURI_HAL_FLASH_WRITE_BLOCK 8
-#define FURI_HAL_FLASH_PAGE_SIZE 4096
-#define FURI_HAL_FLASH_CYCLES_COUNT 10000
-#define FURI_HAL_FLASH_TIMEOUT 1000
-#define FURI_HAL_FLASH_KEY1 0x45670123U
-#define FURI_HAL_FLASH_KEY2 0xCDEF89ABU
-#define FURI_HAL_FLASH_TOTAL_PAGES 256
+#define FURI_HAL_FLASH_READ_BLOCK (8U)
+#define FURI_HAL_FLASH_WRITE_BLOCK (8U)
+#define FURI_HAL_FLASH_PAGE_SIZE (4096U)
+#define FURI_HAL_FLASH_CYCLES_COUNT (10000U)
+#define FURI_HAL_FLASH_TIMEOUT (1000U)
+#define FURI_HAL_FLASH_KEY1 (0x45670123U)
+#define FURI_HAL_FLASH_KEY2 (0xCDEF89ABU)
+#define FURI_HAL_FLASH_TOTAL_PAGES (256U)
 #define FURI_HAL_FLASH_SR_ERRORS                                                               \
     (FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_SIZERR | \
      FLASH_SR_PGSERR | FLASH_SR_MISERR | FLASH_SR_FASTERR | FLASH_SR_RDERR | FLASH_SR_OPTVERR)
 
-#define FURI_HAL_FLASH_OPT_KEY1 0x08192A3B
-#define FURI_HAL_FLASH_OPT_KEY2 0x4C5D6E7F
+#define FURI_HAL_FLASH_OPT_KEY1 (0x08192A3BU)
+#define FURI_HAL_FLASH_OPT_KEY2 (0x4C5D6E7FU)
 #define FURI_HAL_FLASH_OB_TOTAL_WORDS (0x80 / (sizeof(uint32_t) * 2))
 
 /* STM32CubeWB/Projects/P-NUCLEO-WB55.Nucleo/Applications/BLE/BLE_RfWithFlash/Core/Src/flash_driver.c
@@ -35,7 +35,7 @@
   > If for any reason this test is never passed, this means there is a failure in the system and there is no other
   > way to recover than applying a device reset. 
  */
-#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS 3000u /* 3 seconds */
+#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (3000U) /* 3 seconds */
 
 #define IS_ADDR_ALIGNED_64BITS(__VALUE__) (((__VALUE__)&0x7U) == (0x00UL))
 #define IS_FLASH_PROGRAM_ADDRESS(__VALUE__)                                             \

@@ -98,6 +98,7 @@ env = core_env.Clone(
         "fbt_apps",
         "fbt_extapps",
         "fbt_assets",
+        "fbt_envhooks",
         ("compilation_db", {"COMPILATIONDB_COMSTR": "\tCDB\t${TARGET}"}),
     ],
     FBT_FAP_DEBUG_ELF_ROOT=ufbt_build_dir,
@@ -116,6 +117,8 @@ env = core_env.Clone(
 
 wrap_tempfile(env, "LINKCOM")
 wrap_tempfile(env, "ARCOM")
+
+env.PreConfigureUfbtEnvionment()
 
 # print(env.Dump())
 
@@ -474,3 +477,5 @@ dist_env.PhonyTarget(
     "env",
     "@echo $( ${FBT_SCRIPT_DIR}/toolchain/fbtenv.sh $)",
 )
+
+dist_env.PostConfigureUfbtEnvionment()

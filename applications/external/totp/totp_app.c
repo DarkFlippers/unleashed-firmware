@@ -107,6 +107,7 @@ static bool totp_activate_initial_scene(PluginState* const plugin_state) {
 }
 
 static bool totp_plugin_state_init(PluginState* const plugin_state) {
+    plugin_state->selected_font = 0;
     plugin_state->gui = furi_record_open(RECORD_GUI);
     plugin_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
     plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);

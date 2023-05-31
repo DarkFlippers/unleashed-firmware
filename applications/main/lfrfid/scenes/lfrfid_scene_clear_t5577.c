@@ -1,17 +1,7 @@
 #include "../lfrfid_i.h"
-#include "../helpers/rfid_writer.h"
-
-static void writer_initialize(T55xxTiming* t55xxtiming) {
-    t55xxtiming->wait_time = 400;
-    t55xxtiming->start_gap = 30;
-    t55xxtiming->write_gap = 18;
-    t55xxtiming->data_0 = 24;
-    t55xxtiming->data_1 = 56;
-    t55xxtiming->program = 700;
-}
+#define TAG "Clear T5577"
 
 static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
-    T55xxTiming* t55xxtiming = malloc(sizeof(T55xxTiming));
     Popup* popup = app->popup;
     char curr_buf[32] = {};
     //TODO: use .txt file in resources for passwords.
@@ -35,30 +25,27 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
         0x07d7bb0b, 0x9636ef8f, 0xb5f44686, 0x9E3779B9, 0xC6EF3720, 0x7854794A, 0xF1EA5EED,
         0x69314718, 0x57721566, 0x93C467E3, 0x27182818, 0x50415353};
     const uint8_t default_passwords_len = sizeof(default_passwords) / sizeof(uint32_t);
-    const uint32_t em_config_block_data =
-        0b00000000000101001000000001000000; //no pwd&aor config block
-
-    writer_initialize(t55xxtiming);
 
     popup_set_header(popup, "Removing\npassword", 90, 36, AlignCenter, AlignCenter);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
     popup_set_text(popup, curr_buf, 90, 56, AlignCenter, AlignCenter);
     notification_message(app->notifications, &sequence_blink_start_magenta);
 
+    LFRFIDT5577 data = {
+        .block[0] = 0b00000000000101001000000001000000,
+        .blocks_to_write = 1,
+    };
+
     for(uint8_t i = 0; i < default_passwords_len; i++) {
-        FURI_CRITICAL_ENTER();
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
         view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
-        writer_start();
-        write_block(t55xxtiming, 0, 0, false, em_config_block_data, true, default_passwords[i]);
-        write_reset(t55xxtiming);
-        writer_stop();
-        FURI_CRITICAL_EXIT();
+
+        t5577_write_with_pass(&data, default_passwords[i]);
         furi_delay_ms(8);
     }
+
     notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(app->popup);
-    free(t55xxtiming);
 }
 
 void lfrfid_scene_clear_t5577_on_enter(void* context) {

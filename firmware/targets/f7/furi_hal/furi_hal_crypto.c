@@ -1,8 +1,9 @@
 #include <furi_hal_crypto.h>
 #include <furi_hal_bt.h>
 #include <furi_hal_random.h>
+#include <furi_hal_bus.h>
+
 #include <stm32wbxx_ll_cortex.h>
-#include <stm32wbxx_ll_bus.h>
 #include <furi.h>
 #include <interface/patterns/ble_thread/shci/shci.h>
 
@@ -241,6 +242,8 @@ bool furi_hal_crypto_store_load_key(uint8_t slot, const uint8_t* iv) {
     furi_assert(furi_hal_crypto_mutex);
     furi_check(furi_mutex_acquire(furi_hal_crypto_mutex, FuriWaitForever) == FuriStatusOk);
 
+    furi_hal_bus_enable(FuriHalBusAES1);
+
     if(!furi_hal_bt_is_alive()) {
         return false;
     }
@@ -267,10 +270,7 @@ bool furi_hal_crypto_store_unload_key(uint8_t slot) {
     SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_UnloadUsrKey(slot);
     furi_assert(shci_state == SHCI_Success);
 
-    FURI_CRITICAL_ENTER();
-    LL_AHB2_GRP1_ForceReset(LL_AHB2_GRP1_PERIPH_AES1);
-    LL_AHB2_GRP1_ReleaseReset(LL_AHB2_GRP1_PERIPH_AES1);
-    FURI_CRITICAL_EXIT();
+    furi_hal_bus_disable(FuriHalBusAES1);
 
     furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
     return (shci_state == SHCI_Success);

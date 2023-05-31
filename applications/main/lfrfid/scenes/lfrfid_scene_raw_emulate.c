@@ -3,7 +3,6 @@
 #define TAG "ADC"
 
 typedef struct {
-    FuriString* string_file_name;
     bool error;
 } LfRfidEmulateRawState;
 
@@ -23,26 +22,15 @@ void lfrfid_scene_raw_emulate_on_enter(void* context) {
 
     LfRfidEmulateRawState* state = malloc(sizeof(LfRfidEmulateRawState));
     scene_manager_set_scene_state(app->scene_manager, LfRfidSceneRawEmulate, (uint32_t)state);
-    state->string_file_name = furi_string_alloc();
 
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinReceive_97x61);
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
     lfrfid_worker_start_thread(app->lfworker);
     lfrfid_make_app_folder(app);
 
-    furi_string_printf(
-        state->string_file_name,
-        "%s/%s%s",
-        LFRFID_SD_FOLDER,
-        furi_string_get_cstr(app->file_name),
-        LFRFID_APP_RAW_ASK_EXTENSION);
-    FURI_LOG_D(TAG, "raw_emulate->file_name=%s", furi_string_get_cstr(state->string_file_name));
-    popup_set_header(popup, "Emulating\nRAW RFID\nASK", 89, 30, AlignCenter, AlignTop);
+    popup_set_header(popup, "Emulating\nRAW RFID", 89, 30, AlignCenter, AlignTop);
     lfrfid_worker_emulate_raw_start(
-        app->lfworker,
-        furi_string_get_cstr(state->string_file_name),
-        lfrfid_raw_emulate_callback,
-        app);
+        app->lfworker, furi_string_get_cstr(app->file_path), lfrfid_raw_emulate_callback, app);
 
     notification_message(app->notifications, &sequence_blink_start_cyan);
 
@@ -63,7 +51,7 @@ bool lfrfid_scene_raw_emulate_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             state->error = true;
             popup_set_header(
-                popup, "Reading\nRAW RFID\nFile error", 89, 30, AlignCenter, AlignTop);
+                popup, "Emulating\nRAW RFID\nFile error", 89, 30, AlignCenter, AlignTop);
             notification_message(app->notifications, &sequence_blink_start_red);
         }
     }
@@ -81,6 +69,5 @@ void lfrfid_scene_raw_emulate_on_exit(void* context) {
     lfrfid_worker_stop(app->lfworker);
     lfrfid_worker_stop_thread(app->lfworker);
 
-    furi_string_free(state->string_file_name);
     free(state);
 }

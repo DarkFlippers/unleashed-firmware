@@ -1,8 +1,9 @@
 #include <furi_hal_random.h>
+#include <furi_hal_bus.h>
 #include <furi.h>
-#include <furi_hal.h>
 
 #include <stm32wbxx_ll_rng.h>
+#include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_hsem.h>
 
 #include <hw_conf.h>
@@ -32,6 +33,11 @@ static uint32_t furi_hal_random_read_rng() {
     return LL_RNG_ReadRandData32(RNG);
 }
 
+void furi_hal_random_init() {
+    furi_hal_bus_enable(FuriHalBusRNG);
+    LL_RCC_SetRNGClockSource(LL_RCC_RNG_CLKSOURCE_CLK48);
+}
+
 uint32_t furi_hal_random_get() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID))
         ;
@@ -40,6 +46,7 @@ uint32_t furi_hal_random_get() {
     const uint32_t random_val = furi_hal_random_read_rng();
 
     LL_RNG_Disable(RNG);
+    ;
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RNG_SEMID, 0);
 
     return random_val;
