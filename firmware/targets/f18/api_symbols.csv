@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,28.1,,
+Version,+,28.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -80,6 +80,7 @@ Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_version.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_vibro.h,,
+Header,+,lib/digital_signal/digital_signal.h,,
 Header,+,lib/flipper_application/api_hashtable/api_hashtable.h,,
 Header,+,lib/flipper_application/api_hashtable/compilesort.hpp,,
 Header,+,lib/flipper_application/flipper_application.h,,
@@ -617,6 +618,24 @@ Function,+,dialog_message_set_text,void,"DialogMessage*, const char*, uint8_t, u
 Function,+,dialog_message_show,DialogMessageButton,"DialogsApp*, const DialogMessage*"
 Function,+,dialog_message_show_storage_error,void,"DialogsApp*, const char*"
 Function,-,difftime,double,"time_t, time_t"
+Function,-,digital_sequence_add,void,"DigitalSequence*, uint8_t"
+Function,-,digital_sequence_alloc,DigitalSequence*,"uint32_t, const GpioPin*"
+Function,-,digital_sequence_clear,void,DigitalSequence*
+Function,-,digital_sequence_free,void,DigitalSequence*
+Function,-,digital_sequence_send,_Bool,DigitalSequence*
+Function,-,digital_sequence_set_sendtime,void,"DigitalSequence*, uint32_t"
+Function,-,digital_sequence_set_signal,void,"DigitalSequence*, uint8_t, DigitalSignal*"
+Function,-,digital_sequence_timebase_correction,void,"DigitalSequence*, float"
+Function,-,digital_signal_add,void,"DigitalSignal*, uint32_t"
+Function,-,digital_signal_add_pulse,void,"DigitalSignal*, uint32_t, _Bool"
+Function,-,digital_signal_alloc,DigitalSignal*,uint32_t
+Function,-,digital_signal_append,_Bool,"DigitalSignal*, DigitalSignal*"
+Function,-,digital_signal_free,void,DigitalSignal*
+Function,-,digital_signal_get_edge,uint32_t,"DigitalSignal*, uint32_t"
+Function,-,digital_signal_get_edges_cnt,uint32_t,DigitalSignal*
+Function,-,digital_signal_get_start_level,_Bool,DigitalSignal*
+Function,-,digital_signal_prepare_arr,void,DigitalSignal*
+Function,-,digital_signal_send,void,"DigitalSignal*, const GpioPin*"
 Function,-,diprintf,int,"int, const char*, ..."
 Function,+,dir_walk_alloc,DirWalk*,Storage*
 Function,+,dir_walk_close,void,DirWalk*
