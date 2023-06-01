@@ -28,6 +28,7 @@
         "flipperformat",
         "toolbox",
         "nfc",
+        "digital_signal",
         "pulse_reader",
         "microtar",
         "usb_stm32",

@@ -1,0 +1,20 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/digital_signal",
+    ],
+    SDK_HEADERS=[
+        File("digital_signal.h"),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="digital_signal")
+libenv.ApplyLibFlags()
+libenv.Append(CCFLAGS=["-O3", "-funroll-loops", "-Ofast"])
+
+sources = libenv.GlobRecursive("*.c*")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

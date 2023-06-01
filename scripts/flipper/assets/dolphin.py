@@ -49,11 +49,11 @@ class DolphinBubbleAnimation:
 
     def load(self, animation_directory: str):
         if not os.path.isdir(animation_directory):
-            raise Exception(f"Animation folder doesn't exists: { animation_directory }")
+            raise Exception(f"Animation folder doesn't exist: { animation_directory }")
 
         meta_filename = os.path.join(animation_directory, "meta.txt")
         if not os.path.isfile(meta_filename):
-            raise Exception(f"Animation meta file doesn't exists: { meta_filename }")
+            raise Exception(f"Animation meta file doesn't exist: { meta_filename }")
 
         self.logger.info(f"Loading meta from {meta_filename}")
         file = FlipperFormatFile()
