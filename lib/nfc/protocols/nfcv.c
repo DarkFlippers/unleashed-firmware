@@ -410,6 +410,9 @@ void nfcv_emu_free(NfcVData* nfcv_data) {
         digital_sequence_free(nfcv_data->emu_air.nfcv_signal);
     }
     if(nfcv_data->emu_air.reader_signal) {
+        // Stop pulse reader and disable bus before free
+        pulse_reader_stop(nfcv_data->emu_air.reader_signal);
+        // Free pulse reader
         pulse_reader_free(nfcv_data->emu_air.reader_signal);
     }
 
@@ -1372,13 +1375,15 @@ bool nfcv_emu_loop(
 
         pulse_reader_start(nfcv_data->emu_air.reader_signal);
         ret = true;
-    } else {
-        if(frame_state != NFCV_FRAME_STATE_SOF1) {
+
+    }
 #ifdef NFCV_VERBOSE
+    else {
+        if(frame_state != NFCV_FRAME_STATE_SOF1) {
             FURI_LOG_T(TAG, "leaving while in state: %lu", frame_state);
-#endif
         }
     }
+#endif
 
 #ifdef NFCV_DIAGNOSTIC_DUMPS
     if(period_buffer_pos) {
