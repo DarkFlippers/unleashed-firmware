@@ -4,12 +4,21 @@
 #include <input/input.h>
 #include <gui/elements.h>
 
+#include "../helpers/protocol.h"
+
+const char* main_menu_items[FuzzerMainMenuIndexMax] = {
+    [FuzzerMainMenuIndexDefaultValues] = "Default Values",
+    [FuzzerMainMenuIndexLoadFile] = "Load File",
+    [FuzzerMainMenuIndexLoadFileCustomUids] = "Load UIDs from file",
+};
+
 struct FuzzerViewMain {
     View* view;
     FuzzerViewMainCallback callback;
     void* context;
 };
 
+// TODO Furi string for procol name
 typedef struct {
     uint8_t proto_index;
     uint8_t menu_index;
@@ -26,8 +35,30 @@ void fuzzer_view_main_set_callback(
 }
 
 void fuzzer_view_main_draw(Canvas* canvas, FuzzerViewMainModel* model) {
-    UNUSED(canvas);
-    UNUSED(model);
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+
+    if(model->menu_index > 0) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas, 64, 24, AlignCenter, AlignTop, main_menu_items[model->menu_index - 1]);
+    }
+
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(
+        canvas, 64, 36, AlignCenter, AlignTop, main_menu_items[model->menu_index]);
+
+    if(model->menu_index < FuzzerMainMenuIndexMax) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas, 64, 48, AlignCenter, AlignTop, main_menu_items[model->menu_index + 1]);
+    }
+
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(canvas, 27, 4, AlignCenter, AlignTop, "<");
+    canvas_draw_str_aligned(
+        canvas, 64, 4, AlignCenter, AlignTop, fuzzer_proto_items[model->proto_index].name);
+    canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
 }
 
 bool fuzzer_view_main_input(InputEvent* event, void* context) {
@@ -37,6 +68,54 @@ bool fuzzer_view_main_input(InputEvent* event, void* context) {
     if(event->key == InputKeyBack &&
        (event->type == InputTypeLong || event->type == InputTypeShort)) {
         fuzzer_view_main->callback(FuzzerCustomEventViewMainBack, fuzzer_view_main->context);
+        return true;
+    } else if(event->key == InputKeyDown && event->type == InputTypeShort) {
+        with_view_model(
+            fuzzer_view_main->view,
+            FuzzerViewMainModel * model,
+            {
+                if(model->menu_index < (FuzzerMainMenuIndexMax - 1)) {
+                    model->menu_index++;
+                }
+            },
+            true);
+        return true;
+    } else if(event->key == InputKeyUp && event->type == InputTypeShort) {
+        with_view_model(
+            fuzzer_view_main->view,
+            FuzzerViewMainModel * model,
+            {
+                if(model->menu_index != 0) {
+                    model->menu_index--;
+                }
+            },
+            true);
+        return true;
+    } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
+        with_view_model(
+            fuzzer_view_main->view,
+            FuzzerViewMainModel * model,
+            {
+                if(model->proto_index != 0) {
+                    model->proto_index--;
+                } else {
+                    model->proto_index = (FuzzerProtoMax - 1);
+                }
+            },
+            true);
+        return true;
+    } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
+        with_view_model(
+            fuzzer_view_main->view,
+            FuzzerViewMainModel * model,
+            {
+                if(model->proto_index == (FuzzerProtoMax - 1)) {
+                    model->proto_index = 0;
+                } else {
+                    model->proto_index++;
+                }
+            },
+            true);
         return true;
     }
 
