@@ -2,7 +2,7 @@
 
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
-#include <Picopass_icons.h>
+#include <picopass_icons.h>
 
 #define TAG "PicopassDevice"
 

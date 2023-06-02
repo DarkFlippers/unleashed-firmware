@@ -15,7 +15,7 @@
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/stream/buffered_file_stream.h>
 
-#include <RFID_Fuzzer_icons.h>
+#include <rfid_fuzzer_icons.h>
 
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <lfrfid/protocols/lfrfid_protocols.h>
