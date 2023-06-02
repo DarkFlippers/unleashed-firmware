@@ -12,6 +12,7 @@
 * GUI Keyboard: Fix crash when renaming files with long file name (Fixed issue #489)
 * Misc: Fix APP_IDs to match new regex (regex check will be added in OFW soon)
 * Plugins: ESP8266 Deauther - Crash fix (Fixed issue #497)
+* Plugins: Update -> Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
 * Plugins: Update -> TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Update -> ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
 * Plugins: Update -> UART Terminal [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
