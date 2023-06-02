@@ -2,6 +2,7 @@
 * If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
 -----
 * SubGHz Remote: Fixed BinRAW support, + many other fixes (by @gid9798 | PR #492)
+* SubGHz: Fix KL: Stilmatic support + add manually support
 * SubGHz: Keeloq mfname refactoring (by @gid9798 | PR #479)
 * Desktop Clock: Some improvements and fixes (by @gid9798 | PR #490)
 * LF RFID: Cleanup duplicated code (by @gid9798 | PR #493)
@@ -11,11 +12,13 @@
 * Infrared: Update universal remote assets (by @amec0e)
 * GUI Keyboard: Fix crash when renaming files with long file name (Fixed issue #489)
 * Misc: Fix APP_IDs to match new regex (regex check will be added in OFW soon)
+* Plugins: Protoview, WAV Player, DTMF Dolphin - fixed all known crashes, ported to latest hal bus system
 * Plugins: ESP8266 Deauther - Crash fix (Fixed issue #497)
 * Plugins: Update -> Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
 * Plugins: Update -> TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Update -> ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
 * Plugins: Update -> UART Terminal [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
+* OFW: FuriHal: disable bus re-initialization on early init and extra asserts for AHB1,AHB2,AHB3 which must be left intact on entering to FUS -> **Fixes updater error 1-100**
 * OFW: NFC: fix MFC timings -> **Fixes issues with Mifare Classic emulation that could happen after unlshd-049 release**
 * OFW: Update dolphin.py
 * OFW: NFC Magic: Fix gen1 writing with invalid BCC (lost fix from PR 2511)

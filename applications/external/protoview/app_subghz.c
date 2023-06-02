@@ -173,6 +173,8 @@ void protoview_timer_isr(void* ctx) {
 void raw_sampling_worker_start(ProtoViewApp* app) {
     UNUSED(app);
 
+    furi_hal_bus_enable(FuriHalBusTIM2);
+
     LL_TIM_InitTypeDef tim_init = {
         .Prescaler = 63, /* CPU frequency is ~64Mhz. */
         .CounterMode = LL_TIM_COUNTERMODE_UP,
@@ -195,6 +197,6 @@ void raw_sampling_worker_stop(ProtoViewApp* app) {
     LL_TIM_DisableCounter(TIM2);
     LL_TIM_DisableIT_UPDATE(TIM2);
     furi_hal_interrupt_set_isr(FuriHalInterruptIdTIM2, NULL, NULL);
-    LL_TIM_DeInit(TIM2);
+    furi_hal_bus_disable(FuriHalBusTIM2);
     FURI_CRITICAL_EXIT();
 }

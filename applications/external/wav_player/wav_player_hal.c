@@ -17,6 +17,9 @@
 #define DMA_INSTANCE DMA1, LL_DMA_CHANNEL_1
 
 void wav_player_speaker_init(uint32_t sample_rate) {
+    // Enable bus
+    furi_hal_bus_enable(FuriHalBusTIM2);
+
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     //TIM_InitStruct.Prescaler = 4;
     TIM_InitStruct.Prescaler = 1;
@@ -54,6 +57,13 @@ void wav_player_speaker_init(uint32_t sample_rate) {
         GpioPullNo,
         GpioSpeedVeryHigh,
         GpioAltFn14TIM16);
+}
+
+void wav_player_hal_deinit() {
+    furi_hal_gpio_init(&gpio_ext_pa6, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+    // Disable bus
+    furi_hal_bus_disable(FuriHalBusTIM2);
 }
 
 void wav_player_speaker_start() {

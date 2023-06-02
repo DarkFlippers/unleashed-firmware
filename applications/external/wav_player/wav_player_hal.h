@@ -18,6 +18,8 @@ void wav_player_dma_start();
 
 void wav_player_dma_stop();
 
+void wav_player_hal_deinit();
+
 #ifdef __cplusplus
 }
 #endif
