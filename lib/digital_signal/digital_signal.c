@@ -9,7 +9,7 @@
 #include <stm32wbxx_ll_tim.h>
 
 /* must be on bank B */
-#define DEBUG_OUTPUT gpio_ext_pb3
+//#define DEBUG_OUTPUT gpio_ext_pb3
 
 struct ReloadBuffer {
     uint32_t* buffer; /* DMA ringbuffer */
