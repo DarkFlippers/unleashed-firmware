@@ -1,0 +1,19 @@
+App(
+    appid="pacs_fuzzer",
+    name="Fuzzer Gui",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="fuzzer_start",
+    requires=[
+        "gui", 
+        "storage",
+        "dialogs", 
+        "input", 
+        "notification",
+    ],
+    stack_size=2 * 1024,
+    order=15,
+    fap_icon="rfid_10px.png",
+    fap_category="Debug",
+    # fap_icon_assets="images",
+    # fap_icon_assets_symbol="fuzzer",
+)

@@ -1,0 +1,1 @@
+ADD_SCENE(fuzzer, main, Main)
