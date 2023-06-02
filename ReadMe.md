@@ -88,7 +88,7 @@ Encoders or sending made by @xMasterX:
 - Keeloq: Mutancode
 - Keeloq: Normstahl
 - Keeloq: Beninca + Allmatic
-- Keeloq: Stilmatic / Schellenberg
+- Keeloq: Stilmatic
 - Keeloq: CAME Space
 - Keeloq: Aprimatic (model TR and similar)
 
