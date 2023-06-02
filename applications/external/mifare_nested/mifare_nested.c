@@ -396,6 +396,7 @@ void mifare_nested_blink_stop(MifareNested* mifare_nested) {
 
 int32_t mifare_nested_app(void* p) {
     UNUSED(p);
+
     MifareNested* mifare_nested = mifare_nested_alloc();
 
     scene_manager_next_scene(mifare_nested->scene_manager, MifareNestedSceneStart);

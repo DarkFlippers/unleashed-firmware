@@ -27,6 +27,7 @@
 - `nfc`                 - NFC library, used by NFC application
 - `one_wire`            - OneWire library, used by iButton application
 - `print`               - Tiny printf implementation
+- `digital_signal`      - Digital Signal library used by NFC for software implemented protocols
 - `pulse_reader`        - Pulse Reader library used by NFC for software implemented protocols
 - `qrcode`              - QR-Code library
 - `stm32wb_cmsis`       - STM32WB series CMSIS headers, extends CMSIS Core

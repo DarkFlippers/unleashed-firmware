@@ -10,3 +10,6 @@
 #include "712serif/712serif.h"
 #include "graph35pix/graph35pix.h"
 #include "karma_future/karma_future.h"
+#include "funclimbing/funclimbing.h"
+#include "dpcomic/dpcomic.h"
+#include "pixelflag/pixelflag.h"

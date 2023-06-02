@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,27.0,,
+Version,+,28.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -36,8 +36,10 @@ Header,+,applications/services/notification/notification_messages.h,,
 Header,+,applications/services/power/power_service/power.h,,
 Header,+,applications/services/rpc/rpc_app.h,,
 Header,+,applications/services/storage/storage.h,,
+Header,+,firmware/targets/f7/furi_hal/furi_hal_bus.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_clock.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_console.h,,
+Header,+,firmware/targets/f7/furi_hal/furi_hal_dma.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_flash.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_gpio.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_i2c_config.h,,
@@ -84,6 +86,7 @@ Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_version.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_vibro.h,,
+Header,+,lib/digital_signal/digital_signal.h,,
 Header,+,lib/flipper_application/api_hashtable/api_hashtable.h,,
 Header,+,lib/flipper_application/api_hashtable/compilesort.hpp,,
 Header,+,lib/flipper_application/flipper_application.h,,
@@ -1090,6 +1093,12 @@ Function,+,furi_hal_bt_stop_tone_tx,void,
 Function,+,furi_hal_bt_unlock_core2,void,
 Function,+,furi_hal_bt_update_battery_level,void,uint8_t
 Function,+,furi_hal_bt_update_power_state,void,
+Function,+,furi_hal_bus_deinit_early,void,
+Function,+,furi_hal_bus_disable,void,FuriHalBus
+Function,+,furi_hal_bus_enable,void,FuriHalBus
+Function,+,furi_hal_bus_init_early,void,
+Function,+,furi_hal_bus_is_enabled,_Bool,FuriHalBus
+Function,+,furi_hal_bus_reset,void,FuriHalBus
 Function,+,furi_hal_cdc_get_ctrl_line_state,uint8_t,uint8_t
 Function,+,furi_hal_cdc_get_port_settings,usb_cdc_line_coding*,uint8_t
 Function,+,furi_hal_cdc_receive,int32_t,"uint8_t, uint8_t*, uint16_t"
@@ -1132,6 +1141,8 @@ Function,+,furi_hal_debug_disable,void,
 Function,+,furi_hal_debug_enable,void,
 Function,+,furi_hal_debug_is_gdb_session_active,_Bool,
 Function,-,furi_hal_deinit_early,void,
+Function,+,furi_hal_dma_deinit_early,void,
+Function,+,furi_hal_dma_init_early,void,
 Function,-,furi_hal_flash_erase,void,uint8_t
 Function,-,furi_hal_flash_get_base,size_t,
 Function,-,furi_hal_flash_get_cycles_count,size_t,
@@ -1300,6 +1311,7 @@ Function,+,furi_hal_pwm_start,void,"FuriHalPwmOutputId, uint32_t, uint8_t"
 Function,+,furi_hal_pwm_stop,void,FuriHalPwmOutputId
 Function,+,furi_hal_random_fill_buf,void,"uint8_t*, uint32_t"
 Function,+,furi_hal_random_get,uint32_t,
+Function,+,furi_hal_random_init,void,
 Function,+,furi_hal_region_get,const FuriHalRegion*,
 Function,+,furi_hal_region_get_band,const FuriHalRegionBand*,uint32_t
 Function,+,furi_hal_region_get_name,const char*,
@@ -1310,35 +1322,29 @@ Function,-,furi_hal_resources_deinit_early,void,
 Function,+,furi_hal_resources_get_ext_pin_number,int32_t,const GpioPin*
 Function,-,furi_hal_resources_init,void,
 Function,-,furi_hal_resources_init_early,void,
-Function,+,furi_hal_rfid_change_read_config,void,"float, float"
 Function,+,furi_hal_rfid_comp_set_callback,void,"FuriHalRfidCompCallback, void*"
 Function,+,furi_hal_rfid_comp_start,void,
 Function,+,furi_hal_rfid_comp_stop,void,
 Function,-,furi_hal_rfid_init,void,
 Function,+,furi_hal_rfid_pin_pull_pulldown,void,
 Function,+,furi_hal_rfid_pin_pull_release,void,
-Function,+,furi_hal_rfid_pins_emulate,void,
-Function,+,furi_hal_rfid_pins_read,void,
 Function,+,furi_hal_rfid_pins_reset,void,
-Function,+,furi_hal_rfid_set_emulate_period,void,uint32_t
-Function,+,furi_hal_rfid_set_emulate_pulse,void,uint32_t
 Function,+,furi_hal_rfid_set_read_period,void,uint32_t
 Function,+,furi_hal_rfid_set_read_pulse,void,uint32_t
-Function,+,furi_hal_rfid_tim_emulate,void,float
 Function,+,furi_hal_rfid_tim_emulate_dma_start,void,"uint32_t*, uint32_t*, size_t, FuriHalRfidDMACallback, void*"
 Function,+,furi_hal_rfid_tim_emulate_dma_stop,void,
-Function,+,furi_hal_rfid_tim_emulate_start,void,"FuriHalRfidEmulateCallback, void*"
-Function,+,furi_hal_rfid_tim_emulate_stop,void,
-Function,+,furi_hal_rfid_tim_read,void,"float, float"
 Function,+,furi_hal_rfid_tim_read_capture_start,void,"FuriHalRfidReadCaptureCallback, void*"
 Function,+,furi_hal_rfid_tim_read_capture_stop,void,
-Function,+,furi_hal_rfid_tim_read_start,void,
+Function,+,furi_hal_rfid_tim_read_continue,void,
+Function,+,furi_hal_rfid_tim_read_pause,void,
+Function,+,furi_hal_rfid_tim_read_start,void,"float, float"
 Function,+,furi_hal_rfid_tim_read_stop,void,
-Function,+,furi_hal_rfid_tim_reset,void,
 Function,+,furi_hal_rtc_datetime_to_timestamp,uint32_t,FuriHalRtcDateTime*
 Function,-,furi_hal_rtc_deinit_early,void,
 Function,+,furi_hal_rtc_get_boot_mode,FuriHalRtcBootMode,
 Function,+,furi_hal_rtc_get_datetime,void,FuriHalRtcDateTime*
+Function,+,furi_hal_rtc_get_days_per_month,uint8_t,"_Bool, uint8_t"
+Function,+,furi_hal_rtc_get_days_per_year,uint16_t,uint16_t
 Function,+,furi_hal_rtc_get_fault_data,uint32_t,
 Function,+,furi_hal_rtc_get_heap_track_mode,FuriHalRtcHeapTrackMode,
 Function,+,furi_hal_rtc_get_locale_dateformat,FuriHalRtcLocaleDateFormat,
@@ -1351,6 +1357,7 @@ Function,+,furi_hal_rtc_get_timestamp,uint32_t,
 Function,-,furi_hal_rtc_init,void,
 Function,-,furi_hal_rtc_init_early,void,
 Function,+,furi_hal_rtc_is_flag_set,_Bool,FuriHalRtcFlag
+Function,+,furi_hal_rtc_is_leap_year,_Bool,uint16_t
 Function,+,furi_hal_rtc_reset_flag,void,FuriHalRtcFlag
 Function,+,furi_hal_rtc_set_boot_mode,void,FuriHalRtcBootMode
 Function,+,furi_hal_rtc_set_datetime,void,FuriHalRtcDateTime*
@@ -1811,9 +1818,6 @@ Function,-,j1f,float,float
 Function,-,jn,double,"int, double"
 Function,-,jnf,float,"int, float"
 Function,-,jrand48,long,unsigned short[3]
-Function,-,keeloq_reset_kl_type,void,
-Function,-,keeloq_reset_mfname,void,
-Function,-,keeloq_reset_original_btn,void,
 Function,-,l64a,char*,long
 Function,-,labs,long,long
 Function,-,lcong48,void,unsigned short[7]
@@ -2039,6 +2043,8 @@ Function,-,mf_df_cat_key_settings,void,"MifareDesfireKeySettings*, FuriString*"
 Function,-,mf_df_cat_version,void,"MifareDesfireVersion*, FuriString*"
 Function,-,mf_df_check_card_type,_Bool,"uint8_t, uint8_t, uint8_t"
 Function,-,mf_df_clear,void,MifareDesfireData*
+Function,-,mf_df_get_application,MifareDesfireApplication*,"MifareDesfireData*, const uint8_t[3]*"
+Function,-,mf_df_get_file,MifareDesfireFile*,"MifareDesfireApplication*, uint8_t"
 Function,-,mf_df_parse_get_application_ids_response,_Bool,"uint8_t*, uint16_t, MifareDesfireApplication**"
 Function,-,mf_df_parse_get_file_ids_response,_Bool,"uint8_t*, uint16_t, MifareDesfireFile**"
 Function,-,mf_df_parse_get_file_settings_response,_Bool,"uint8_t*, uint16_t, MifareDesfireFile*"
@@ -2555,8 +2561,6 @@ Function,+,srand,void,unsigned
 Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
 Function,+,sscanf,int,"const char*, const char*, ..."
-Function,-,star_line_reset_kl_type,void,
-Function,-,star_line_reset_mfname,void,
 Function,+,storage_common_copy,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_exists,_Bool,"Storage*, const char*"
 Function,+,storage_common_fs_info,FS_Error,"Storage*, const char*, uint64_t*, uint64_t*"
@@ -2703,13 +2707,6 @@ Function,+,subghz_block_generic_deserialize,SubGhzProtocolStatus,"SubGhzBlockGen
 Function,+,subghz_block_generic_deserialize_check_count_bit,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, uint16_t"
 Function,+,subghz_block_generic_get_preset_name,void,"const char*, FuriString*"
 Function,+,subghz_block_generic_serialize,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, SubGhzRadioPreset*"
-Function,-,subghz_custom_btn_get,uint8_t,
-Function,-,subghz_custom_btn_get_original,uint8_t,
-Function,-,subghz_custom_btn_is_allowed,_Bool,
-Function,-,subghz_custom_btn_set,_Bool,uint8_t
-Function,-,subghz_custom_btn_set_max,void,uint8_t
-Function,-,subghz_custom_btn_set_original,void,uint8_t
-Function,-,subghz_custom_btns_reset,void,
 Function,+,subghz_environment_alloc,SubGhzEnvironment*,
 Function,+,subghz_environment_free,void,SubGhzEnvironment*
 Function,+,subghz_environment_get_alutech_at_4n_rainbow_table_file_name,const char*,SubGhzEnvironment*
@@ -2719,6 +2716,7 @@ Function,+,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char
 Function,+,subghz_environment_get_protocol_name_registry,const char*,"SubGhzEnvironment*, size_t"
 Function,+,subghz_environment_get_protocol_registry,void*,SubGhzEnvironment*
 Function,+,subghz_environment_load_keystore,_Bool,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_reset_keeloq,void,SubGhzEnvironment*
 Function,+,subghz_environment_set_alutech_at_4n_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
@@ -2729,6 +2727,7 @@ Function,-,subghz_keystore_get_data,SubGhzKeyArray_t*,SubGhzKeystore*
 Function,-,subghz_keystore_load,_Bool,"SubGhzKeystore*, const char*"
 Function,-,subghz_keystore_raw_encrypted_save,_Bool,"const char*, const char*, uint8_t*"
 Function,-,subghz_keystore_raw_get_data,_Bool,"const char*, size_t, uint8_t*, size_t"
+Function,-,subghz_keystore_reset_kl,void,SubGhzKeystore*
 Function,-,subghz_keystore_save,_Bool,"SubGhzKeystore*, const char*, uint8_t*"
 Function,-,subghz_protocol_alutech_at_4n_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_blocks_add_bit,void,"SubGhzBlockDecoder*, uint8_t"
@@ -3367,6 +3366,7 @@ Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
 Function,+,t5577_write,void,LFRFIDT5577*
+Function,-,t5577_write_with_pass,void,"LFRFIDT5577*, uint32_t"
 Function,-,tan,double,double
 Function,-,tanf,float,float
 Function,-,tanh,double,double
@@ -3539,6 +3539,8 @@ Function,+,version_get,const Version*,
 Function,+,version_get_builddate,const char*,const Version*
 Function,+,version_get_custom_name,const char*,const Version*
 Function,+,version_get_dirty_flag,_Bool,const Version*
+Function,+,version_get_firmware_origin,const char*,const Version*
+Function,+,version_get_git_origin,const char*,const Version*
 Function,+,version_get_gitbranch,const char*,const Version*
 Function,+,version_get_gitbranchnum,const char*,const Version*
 Function,+,version_get_githash,const char*,const Version*

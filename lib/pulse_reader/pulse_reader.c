@@ -135,6 +135,7 @@ void pulse_reader_stop(PulseReader* signal) {
     LL_DMA_DisableChannel(DMA1, signal->dma_channel + 1);
     LL_DMAMUX_DisableRequestGen(NULL, LL_DMAMUX_REQ_GEN_0);
     LL_TIM_DisableCounter(TIM2);
+    furi_hal_bus_disable(FuriHalBusTIM2);
     furi_hal_gpio_init_simple(signal->gpio, GpioModeAnalog);
 }
 
@@ -145,6 +146,8 @@ void pulse_reader_start(PulseReader* signal) {
     signal->dma_config_gpio.PeriphOrM2MSrcAddress = (uint32_t) & (signal->gpio->port->IDR);
     signal->dma_config_gpio.MemoryOrM2MDstAddress = (uint32_t)signal->gpio_buffer;
     signal->dma_config_gpio.NbData = signal->size;
+
+    furi_hal_bus_enable(FuriHalBusTIM2);
 
     /* start counter */
     LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP);

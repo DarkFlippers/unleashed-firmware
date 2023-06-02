@@ -1,5 +1,5 @@
 App(
-    appid="Multi_Converter",
+    appid="multi_converter",
     name="Multi Converter",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="multi_converter_app",

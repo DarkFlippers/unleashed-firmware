@@ -6,6 +6,7 @@
 #include "troika_4k_parser.h"
 #include "two_cities.h"
 #include "all_in_one.h"
+#include "opal.h"
 
 NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd] = {
     [NfcSupportedCardTypePlantain] =
@@ -50,6 +51,14 @@ NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd] = {
             .read = all_in_one_parser_read,
             .parse = all_in_one_parser_parse,
         },
+    [NfcSupportedCardTypeOpal] =
+        {
+            .protocol = NfcDeviceProtocolMifareDesfire,
+            .verify = stub_parser_verify_read,
+            .read = stub_parser_verify_read,
+            .parse = opal_parser_parse,
+        },
+
 };
 
 bool nfc_supported_card_verify_and_parse(NfcDeviceData* dev_data) {
@@ -64,4 +73,10 @@ bool nfc_supported_card_verify_and_parse(NfcDeviceData* dev_data) {
     }
 
     return card_parsed;
+}
+
+bool stub_parser_verify_read(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx) {
+    UNUSED(nfc_worker);
+    UNUSED(tx_rx);
+    return false;
 }

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include <FlappyBird_icons.h>
+#include <flappy_bird_icons.h>
 #include <furi.h>
 #include <gui/gui.h>
 #include <gui/icon_animation_i.h>

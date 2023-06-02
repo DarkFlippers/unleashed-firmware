@@ -16,10 +16,11 @@
     (((uint8_t)x < 128) ? (script->layout[(uint8_t)x]) : HID_KEYBOARD_NONE)
 
 typedef enum {
-    WorkerEvtToggle = (1 << 0),
-    WorkerEvtEnd = (1 << 1),
-    WorkerEvtConnect = (1 << 2),
-    WorkerEvtDisconnect = (1 << 3),
+    WorkerEvtStartStop = (1 << 0),
+    WorkerEvtPauseResume = (1 << 1),
+    WorkerEvtEnd = (1 << 2),
+    WorkerEvtConnect = (1 << 3),
+    WorkerEvtDisconnect = (1 << 4),
 } WorkerEvtFlags;
 
 static const char ducky_cmd_id[] = {"ID"};
@@ -372,6 +373,7 @@ static int32_t bad_usb_worker(void* context) {
     BadUsbScript* bad_usb = context;
 
     BadUsbWorkerState worker_state = BadUsbStateInit;
+    BadUsbWorkerState pause_state = BadUsbStateRunning;
     int32_t delay_val = 0;
 
     FURI_LOG_I(WORKER_TAG, "Init");
@@ -406,24 +408,24 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateNotConnected) { // State: USB not connected
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtToggle, FuriWaitForever);
+                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtStartStop, FuriWaitForever);
 
             if(flags & WorkerEvtEnd) {
                 break;
             } else if(flags & WorkerEvtConnect) {
                 worker_state = BadUsbStateIdle; // Ready to run
-            } else if(flags & WorkerEvtToggle) {
+            } else if(flags & WorkerEvtStartStop) {
                 worker_state = BadUsbStateWillRun; // Will run when USB is connected
             }
             bad_usb->st.state = worker_state;
 
         } else if(worker_state == BadUsbStateIdle) { // State: ready to start
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect, FuriWaitForever);
+                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtDisconnect, FuriWaitForever);
 
             if(flags & WorkerEvtEnd) {
                 break;
-            } else if(flags & WorkerEvtToggle) { // Start executing script
+            } else if(flags & WorkerEvtStartStop) { // Start executing script
                 DOLPHIN_DEED(DolphinDeedBadUsbPlayScript);
                 delay_val = 0;
                 bad_usb->buf_len = 0;
@@ -442,7 +444,7 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateWillRun) { // State: start on connection
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtToggle, FuriWaitForever);
+                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtStartStop, FuriWaitForever);
 
             if(flags & WorkerEvtEnd) {
                 break;
@@ -458,17 +460,17 @@ static int32_t bad_usb_worker(void* context) {
                 storage_file_seek(script_file, 0, true);
                 // extra time for PC to recognize Flipper as keyboard
                 flags = furi_thread_flags_wait(
-                    WorkerEvtEnd | WorkerEvtDisconnect | WorkerEvtToggle,
+                    WorkerEvtEnd | WorkerEvtDisconnect | WorkerEvtStartStop,
                     FuriFlagWaitAny | FuriFlagNoClear,
                     1500);
                 if(flags == (unsigned)FuriFlagErrorTimeout) {
                     // If nothing happened - start script execution
                     worker_state = BadUsbStateRunning;
-                } else if(flags & WorkerEvtToggle) {
+                } else if(flags & WorkerEvtStartStop) {
                     worker_state = BadUsbStateIdle;
-                    furi_thread_flags_clear(WorkerEvtToggle);
+                    furi_thread_flags_clear(WorkerEvtStartStop);
                 }
-            } else if(flags & WorkerEvtToggle) { // Cancel scheduled execution
+            } else if(flags & WorkerEvtStartStop) { // Cancel scheduled execution
                 worker_state = BadUsbStateNotConnected;
             }
             bad_usb->st.state = worker_state;
@@ -476,18 +478,23 @@ static int32_t bad_usb_worker(void* context) {
         } else if(worker_state == BadUsbStateRunning) { // State: running
             uint16_t delay_cur = (delay_val > 1000) ? (1000) : (delay_val);
             uint32_t flags = furi_thread_flags_wait(
-                WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect, FuriFlagWaitAny, delay_cur);
+                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                FuriFlagWaitAny,
+                delay_cur);
 
             delay_val -= delay_cur;
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
                     break;
-                } else if(flags & WorkerEvtToggle) {
+                } else if(flags & WorkerEvtStartStop) {
                     worker_state = BadUsbStateIdle; // Stop executing script
                     furi_hal_hid_kb_release_all();
                 } else if(flags & WorkerEvtDisconnect) {
                     worker_state = BadUsbStateNotConnected; // USB disconnected
                     furi_hal_hid_kb_release_all();
+                } else if(flags & WorkerEvtPauseResume) {
+                    pause_state = BadUsbStateRunning;
+                    worker_state = BadUsbStatePaused; // Pause
                 }
                 bad_usb->st.state = worker_state;
                 continue;
@@ -526,13 +533,13 @@ static int32_t bad_usb_worker(void* context) {
                 furi_check((flags & FuriFlagError) == 0);
             }
         } else if(worker_state == BadUsbStateWaitForBtn) { // State: Wait for button Press
-            uint16_t delay_cur = (delay_val > 1000) ? (1000) : (delay_val);
-            uint32_t flags = furi_thread_flags_wait(
-                WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect, FuriFlagWaitAny, delay_cur);
+            uint32_t flags = bad_usb_flags_get(
+                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                FuriWaitForever);
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
                     break;
-                } else if(flags & WorkerEvtToggle) {
+                } else if(flags & WorkerEvtStartStop) {
                     delay_val = 0;
                     worker_state = BadUsbStateRunning;
                 } else if(flags & WorkerEvtDisconnect) {
@@ -542,21 +549,55 @@ static int32_t bad_usb_worker(void* context) {
                 bad_usb->st.state = worker_state;
                 continue;
             }
+        } else if(worker_state == BadUsbStatePaused) { // State: Paused
+            uint32_t flags = bad_usb_flags_get(
+                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                FuriWaitForever);
+            if(!(flags & FuriFlagError)) {
+                if(flags & WorkerEvtEnd) {
+                    break;
+                } else if(flags & WorkerEvtStartStop) {
+                    worker_state = BadUsbStateIdle; // Stop executing script
+                    bad_usb->st.state = worker_state;
+                    furi_hal_hid_kb_release_all();
+                } else if(flags & WorkerEvtDisconnect) {
+                    worker_state = BadUsbStateNotConnected; // USB disconnected
+                    bad_usb->st.state = worker_state;
+                    furi_hal_hid_kb_release_all();
+                } else if(flags & WorkerEvtPauseResume) {
+                    if(pause_state == BadUsbStateRunning) {
+                        if(delay_val > 0) {
+                            bad_usb->st.state = BadUsbStateDelay;
+                            bad_usb->st.delay_remain = delay_val / 1000;
+                        } else {
+                            bad_usb->st.state = BadUsbStateRunning;
+                            delay_val = 0;
+                        }
+                        worker_state = BadUsbStateRunning; // Resume
+                    } else if(pause_state == BadUsbStateStringDelay) {
+                        bad_usb->st.state = BadUsbStateRunning;
+                        worker_state = BadUsbStateStringDelay; // Resume
+                    }
+                }
+                continue;
+            }
         } else if(worker_state == BadUsbStateStringDelay) { // State: print string with delays
-            uint32_t flags = furi_thread_flags_wait(
-                WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect,
-                FuriFlagWaitAny,
+            uint32_t flags = bad_usb_flags_get(
+                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
                 bad_usb->stringdelay);
 
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
                     break;
-                } else if(flags & WorkerEvtToggle) {
+                } else if(flags & WorkerEvtStartStop) {
                     worker_state = BadUsbStateIdle; // Stop executing script
                     furi_hal_hid_kb_release_all();
                 } else if(flags & WorkerEvtDisconnect) {
                     worker_state = BadUsbStateNotConnected; // USB disconnected
                     furi_hal_hid_kb_release_all();
+                } else if(flags & WorkerEvtPauseResume) {
+                    pause_state = BadUsbStateStringDelay;
+                    worker_state = BadUsbStatePaused; // Pause
                 }
                 bad_usb->st.state = worker_state;
                 continue;
@@ -651,9 +692,14 @@ void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layou
     storage_file_free(layout_file);
 }
 
-void bad_usb_script_toggle(BadUsbScript* bad_usb) {
+void bad_usb_script_start_stop(BadUsbScript* bad_usb) {
     furi_assert(bad_usb);
-    furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtToggle);
+    furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtStartStop);
+}
+
+void bad_usb_script_pause_resume(BadUsbScript* bad_usb) {
+    furi_assert(bad_usb);
+    furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtPauseResume);
 }
 
 BadUsbState* bad_usb_script_get_state(BadUsbScript* bad_usb) {

@@ -75,6 +75,8 @@ bool subghz_keystore_raw_encrypted_save(
  */
 bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t* data, size_t len);
 
+void subghz_keystore_reset_kl(SubGhzKeystore* instance);
+
 #ifdef __cplusplus
 }
 #endif

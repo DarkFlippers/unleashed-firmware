@@ -21,14 +21,6 @@ void furi_hal_rfid_init();
  */
 void furi_hal_rfid_pins_reset();
 
-/** Config rfid pins to emulate state
- */
-void furi_hal_rfid_pins_emulate();
-
-/** Config rfid pins to read state
- */
-void furi_hal_rfid_pins_read();
-
 /** Release rfid pull pin
  */
 void furi_hal_rfid_pin_pull_release();
@@ -37,32 +29,23 @@ void furi_hal_rfid_pin_pull_release();
  */
 void furi_hal_rfid_pin_pull_pulldown();
 
-/** Config rfid timer to read state
- *
+/** Start read timer
  * @param      freq        timer frequency
  * @param      duty_cycle  timer duty cycle, 0.0-1.0
  */
-void furi_hal_rfid_tim_read(float freq, float duty_cycle);
+void furi_hal_rfid_tim_read_start(float freq, float duty_cycle);
 
-/** Start read timer
+/** Pause read timer, to be able to continue later
  */
-void furi_hal_rfid_tim_read_start();
+void furi_hal_rfid_tim_read_pause();
+
+/** Continue read timer
+ */
+void furi_hal_rfid_tim_read_continue();
 
 /** Stop read timer
  */
 void furi_hal_rfid_tim_read_stop();
-
-/** Config rfid timer to emulate state
- *
- * @param      freq  timer frequency
- */
-void furi_hal_rfid_tim_emulate(float freq);
-
-typedef void (*FuriHalRfidEmulateCallback)(void* context);
-
-/** Start emulation timer
- */
-void furi_hal_rfid_tim_emulate_start(FuriHalRfidEmulateCallback callback, void* context);
 
 typedef void (*FuriHalRfidReadCaptureCallback)(bool level, uint32_t duration, void* context);
 
@@ -81,26 +64,6 @@ void furi_hal_rfid_tim_emulate_dma_start(
 
 void furi_hal_rfid_tim_emulate_dma_stop();
 
-/** Stop emulation timer
- */
-void furi_hal_rfid_tim_emulate_stop();
-
-/** Config rfid timers to reset state
- */
-void furi_hal_rfid_tim_reset();
-
-/** Set emulation timer period
- *
- * @param      period  overall duration
- */
-void furi_hal_rfid_set_emulate_period(uint32_t period);
-
-/** Set emulation timer pulse
- *
- * @param      pulse  duration of high level
- */
-void furi_hal_rfid_set_emulate_pulse(uint32_t pulse);
-
 /** Set read timer period
  *
  * @param      period  overall duration
@@ -112,13 +75,6 @@ void furi_hal_rfid_set_read_period(uint32_t period);
  * @param      pulse  duration of high level
  */
 void furi_hal_rfid_set_read_pulse(uint32_t pulse);
-
-/** Сhanges the configuration of the RFID timer "on a fly"
- *
- * @param      freq        new frequency
- * @param      duty_cycle  new duty cycle
- */
-void furi_hal_rfid_change_read_config(float freq, float duty_cycle);
 
 /** Start/Enable comparator */
 void furi_hal_rfid_comp_start();

@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#include <Music_Player_icons.h>
+#include <music_player_icons.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>

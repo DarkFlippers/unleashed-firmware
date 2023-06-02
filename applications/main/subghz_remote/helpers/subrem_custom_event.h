@@ -1,12 +1,14 @@
 #pragma once
 
 typedef enum {
-    //SubmenuIndex
-    SubmenuIndexSubRemOpenMapFile,
+    // StartSubmenuIndex
+    SubmenuIndexSubRemOpenMapFile = 0,
+#if FURI_DEBUG
     SubmenuIndexSubRemRemoteView,
-    SubmenuIndexSubRemAbout,
+#endif
+    // SubmenuIndexSubRemAbout,
 
-    //SubRemCustomEvent
+    // SubRemCustomEvent
     SubRemCustomEventViewRemoteStartUP = 100,
     SubRemCustomEventViewRemoteStartDOWN,
     SubRemCustomEventViewRemoteStartLEFT,

@@ -28,7 +28,7 @@ const UART_TerminalItem items[NUM_MENU_ITEMS] = {
      9,
      {"115200", "2400", "9600", "19200", "38400", "57600", "230400", "460800", "921600"},
      NO_ARGS,
-     FOCUS_CONSOLE_TOGGLE,
+     FOCUS_CONSOLE_END,
      NO_TIP},
     {"Send command", {""}, 1, {""}, INPUT_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Send AT command", {""}, 1, {"AT"}, INPUT_ARGS, FOCUS_CONSOLE_END, NO_TIP},

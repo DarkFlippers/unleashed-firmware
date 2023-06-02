@@ -11,6 +11,7 @@ typedef enum {
     NfcSupportedCardTypeTroika4K,
     NfcSupportedCardTypeTwoCities,
     NfcSupportedCardTypeAllInOne,
+    NfcSupportedCardTypeOpal,
 
     NfcSupportedCardTypeEnd,
 } NfcSupportedCardType;
@@ -31,3 +32,8 @@ typedef struct {
 extern NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd];
 
 bool nfc_supported_card_verify_and_parse(NfcDeviceData* dev_data);
+
+// stub_parser_verify_read does nothing, and always reports that it does not
+// support the card. This is needed for DESFire card parsers which can't
+// provide keys, and only use NfcSupportedCard->parse.
+bool stub_parser_verify_read(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx);

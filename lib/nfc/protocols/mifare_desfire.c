@@ -42,6 +42,30 @@ void mf_df_clear(MifareDesfireData* data) {
     data->app_head = NULL;
 }
 
+MifareDesfireApplication* mf_df_get_application(MifareDesfireData* data, const uint8_t (*aid)[3]) {
+    if(!data) {
+        return NULL;
+    }
+    for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
+        if(memcmp(aid, app->id, 3) == 0) {
+            return app;
+        }
+    }
+    return NULL;
+}
+
+MifareDesfireFile* mf_df_get_file(MifareDesfireApplication* app, uint8_t id) {
+    if(!app) {
+        return NULL;
+    }
+    for(MifareDesfireFile* file = app->file_head; file; file = file->next) {
+        if(file->id == id) {
+            return file;
+        }
+    }
+    return NULL;
+}
+
 void mf_df_cat_data(MifareDesfireData* data, FuriString* out) {
     mf_df_cat_card_info(data, out);
     for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {

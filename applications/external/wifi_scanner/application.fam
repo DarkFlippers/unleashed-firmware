@@ -1,5 +1,5 @@
 App(
-    appid="WiFi_Scanner",
+    appid="wifi_scanner",
     name="[WiFi] Scanner",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="wifi_scanner_app",

@@ -250,7 +250,7 @@ bool totp_scene_app_settings_handle_event(
 #endif
             else if(scene_state->selected_control == FontSelector) {
                 totp_roll_value_uint8_t(
-                    &scene_state->selected_font, 1, 0, 6, RollOverflowBehaviorStop);
+                    &scene_state->selected_font, 1, 0, MAX_CUSTOM_FONTS, RollOverflowBehaviorStop);
             }
             break;
         case InputKeyLeft:
@@ -274,7 +274,7 @@ bool totp_scene_app_settings_handle_event(
 #endif
             else if(scene_state->selected_control == FontSelector) {
                 totp_roll_value_uint8_t(
-                    &scene_state->selected_font, -1, 0, 6, RollOverflowBehaviorStop);
+                    &scene_state->selected_font, -1, 0, MAX_CUSTOM_FONTS, RollOverflowBehaviorStop);
             }
             break;
         case InputKeyOk:

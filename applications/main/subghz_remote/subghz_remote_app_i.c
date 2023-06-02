@@ -2,22 +2,17 @@
 #include <lib/toolbox/path.h>
 #include <flipper_format/flipper_format_i.h>
 
-#include <lib/subghz/protocols/protocol_items.h>
-
-#include "../subghz/helpers/subghz_txrx_i.h"
+#include "helpers/txrx/subghz_txrx.h"
 
 // #include <lib/subghz/protocols/keeloq.h>
 // #include <lib/subghz/protocols/star_line.h>
 
+#ifdef APP_SUBGHZREMOTE
+#include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/blocks/custom_btn.h>
+#endif
 
 #define TAG "SubGhzRemote"
-
-// XXX Using TxRx
-// [x] use TxRx preset subrem_sub_preset_load & subrem_tx_start_sub
-// [x] subrem_sub_preset_load & drop subrem_set_preset_data
-// [x] subrem_tx_start_sub
-// [x] subrem_tx_stop_sub
 
 static const char* map_file_labels[SubRemSubKeyNameMaxCount][2] = {
     [SubRemSubKeyNameUp] = {"UP", "ULABEL"},
@@ -45,30 +40,25 @@ static SubRemLoadMapState subrem_map_preset_check(
     bool all_loaded = true;
     SubRemLoadMapState ret = SubRemLoadMapStateErrorBrokenFile;
 
-    SubRemLoadSubState sub_preset_loaded;
+    SubRemLoadSubState sub_loadig_state;
     SubRemSubFilePreset* sub_preset;
 
     for(uint8_t i = 0; i < SubRemSubKeyNameMaxCount; i++) {
         sub_preset = map_preset->subs_preset[i];
 
-        sub_preset_loaded = SubRemLoadSubStateErrorNoFile;
+        sub_loadig_state = SubRemLoadSubStateErrorNoFile;
 
         if(furi_string_empty(sub_preset->file_path)) {
             // FURI_LOG_I(TAG, "Empty file path");
         } else if(!flipper_format_file_open_existing(
                       fff_data_file, furi_string_get_cstr(sub_preset->file_path))) {
+            sub_preset->load_state = SubRemLoadSubStateErrorNoFile;
             FURI_LOG_W(TAG, "Error open file %s", furi_string_get_cstr(sub_preset->file_path));
         } else {
-            sub_preset_loaded = subrem_sub_preset_load(sub_preset, txrx, fff_data_file);
+            sub_loadig_state = subrem_sub_preset_load(sub_preset, txrx, fff_data_file);
         }
 
-        // TODO:
-        // Load file state logic
-        // Label depending on the state
-        // Move to remote scene
-
-        if(sub_preset_loaded != SubRemLoadSubStateOK) {
-            furi_string_set_str(sub_preset->label, "N/A");
+        if(sub_loadig_state != SubRemLoadSubStateOK) {
             all_loaded = false;
         } else {
             ret = SubRemLoadMapStateNotAllOK;
@@ -96,6 +86,9 @@ static bool subrem_map_preset_load(SubRemMapPreset* map_preset, FlipperFormat* f
             FURI_LOG_W(TAG, "No file patch for %s", map_file_labels[i][0]);
 #endif
             sub_preset->type = SubGhzProtocolTypeUnknown;
+        } else if(!path_contains_only_ascii(furi_string_get_cstr(sub_preset->file_path))) {
+            FURI_LOG_E(TAG, "Incorrect characters in [%s] file path", map_file_labels[i][0]);
+            sub_preset->type = SubGhzProtocolTypeUnknown;
         } else if(!flipper_format_rewind(fff_data_file)) {
             // Rewind error
         } else if(!flipper_format_read_string(
@@ -103,8 +96,6 @@ static bool subrem_map_preset_load(SubRemMapPreset* map_preset, FlipperFormat* f
 #if FURI_DEBUG
             FURI_LOG_W(TAG, "No Label for %s", map_file_labels[i][0]);
 #endif
-            // TODO move to remote scene
-            path_extract_filename(sub_preset->file_path, sub_preset->label, true);
             ret = true;
         } else {
             ret = true;
@@ -237,16 +228,14 @@ bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset) 
             NULL,
             0);
 
-        subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
-        keeloq_reset_original_btn();
+#ifdef APP_SUBGHZREMOTE
         subghz_custom_btns_reset();
+#endif
 
         if(subghz_txrx_tx_start(app->txrx, sub_preset->fff_data) == SubGhzTxRxStartTxStateOk) {
             ret = true;
         }
     }
-
-    app->tx_running = ret;
 
     return ret;
 }
@@ -256,22 +245,14 @@ bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
     SubRemSubFilePreset* sub_preset = app->map_preset->subs_preset[app->chusen_sub];
 
     if(forced || (sub_preset->type != SubGhzProtocolTypeRAW)) {
-        // XXX drop app->tx_running
-        if(app->tx_running) {
-            subghz_txrx_stop(app->txrx);
-
-            if(sub_preset->type == SubGhzProtocolTypeDynamic) {
-                keeloq_reset_mfname();
-                keeloq_reset_kl_type();
-                keeloq_reset_original_btn();
-                subghz_custom_btns_reset();
-                star_line_reset_mfname();
-                star_line_reset_kl_type();
-            }
-
-            app->tx_running = false;
-            return true;
+        subghz_txrx_stop(app->txrx);
+#ifdef APP_SUBGHZREMOTE
+        if(sub_preset->type == SubGhzProtocolTypeDynamic) {
+            subghz_txrx_reset_dynamic_and_custom_btns(app->txrx);
         }
+        subghz_custom_btns_reset();
+#endif
+        return true;
     }
 
     return false;
@@ -284,7 +265,7 @@ SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app) {
     SubRemLoadMapState ret = SubRemLoadMapStateBack;
 
     DialogsFileBrowserOptions browser_options;
-    dialog_file_browser_set_basic_options(&browser_options, SUBREM_APP_EXTENSION, &I_sub1_10px);
+    dialog_file_browser_set_basic_options(&browser_options, SUBREM_APP_EXTENSION, &I_subrem_10px);
     browser_options.base_path = SUBREM_APP_FOLDER;
 
     // Input events and views are managed by file_select

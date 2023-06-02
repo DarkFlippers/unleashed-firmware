@@ -8,13 +8,14 @@ enum {
 };
 
 bool nfc_scene_nfcv_emulate_worker_callback(NfcWorkerEvent event, void* context) {
-    UNUSED(event);
     furi_assert(context);
     Nfc* nfc = context;
 
     switch(event) {
     case NfcWorkerEventNfcVCommandExecuted:
-        view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventUpdateLog);
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+            view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventUpdateLog);
+        }
         break;
     case NfcWorkerEventNfcVContentChanged:
         view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventSaveShadow);
@@ -46,9 +47,9 @@ static void nfc_scene_nfcv_emulate_widget_config(Nfc* nfc, bool data_received) {
     FuriString* info_str;
     info_str = furi_string_alloc();
 
-    widget_add_icon_element(widget, 0, 3, &I_RFIDDolphinSend_97x61);
-    widget_add_string_element(
-        widget, 89, 32, AlignCenter, AlignTop, FontPrimary, "Emulating NfcV");
+    widget_add_icon_element(widget, 0, 3, &I_NFC_dolphin_emulation_47x61);
+    widget_add_string_multiline_element(
+        widget, 87, 13, AlignCenter, AlignTop, FontPrimary, "Emulating\nNFC V");
     if(strcmp(nfc->dev->dev_name, "")) {
         furi_string_printf(info_str, "%s", nfc->dev->dev_name);
     } else {
@@ -58,11 +59,13 @@ static void nfc_scene_nfcv_emulate_widget_config(Nfc* nfc, bool data_received) {
     }
     furi_string_trim(info_str);
     widget_add_text_box_element(
-        widget, 56, 43, 70, 21, AlignCenter, AlignTop, furi_string_get_cstr(info_str), true);
+        widget, 52, 40, 70, 21, AlignCenter, AlignTop, furi_string_get_cstr(info_str), true);
     furi_string_free(info_str);
     if(data_received) {
-        widget_add_button_element(
-            widget, GuiButtonTypeCenter, "Log", nfc_scene_nfcv_emulate_widget_callback, nfc);
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+            widget_add_button_element(
+                widget, GuiButtonTypeCenter, "Log", nfc_scene_nfcv_emulate_widget_callback, nfc);
+        }
     }
 }
 
@@ -127,9 +130,11 @@ bool nfc_scene_nfcv_emulate_on_event(void* context, SceneManagerEvent event) {
             }
             consumed = true;
         } else if(event.event == GuiButtonTypeCenter && state == NfcSceneNfcVEmulateStateWidget) {
-            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
-            scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneNfcVEmulate, NfcSceneNfcVEmulateStateTextBox);
+            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
+                scene_manager_set_scene_state(
+                    nfc->scene_manager, NfcSceneNfcVEmulate, NfcSceneNfcVEmulateStateTextBox);
+            }
             consumed = true;
         } else if(event.event == NfcCustomEventViewExit && state == NfcSceneNfcVEmulateStateTextBox) {
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);

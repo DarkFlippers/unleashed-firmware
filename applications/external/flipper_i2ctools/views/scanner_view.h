@@ -1,7 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/gui.h>
-#include <i2cTools_icons.h>
+#include <i2c_tools_icons.h>
 #include "../i2cscanner.h"
 
 #define SCAN_TEXT "SCAN"

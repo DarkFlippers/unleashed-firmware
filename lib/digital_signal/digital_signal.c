@@ -9,7 +9,7 @@
 #include <stm32wbxx_ll_tim.h>
 
 /* must be on bank B */
-#define DEBUG_OUTPUT gpio_ext_pb3
+//#define DEBUG_OUTPUT gpio_ext_pb3
 
 struct ReloadBuffer {
     uint32_t* buffer; /* DMA ringbuffer */
@@ -212,15 +212,14 @@ void digital_signal_prepare_arr(DigitalSignal* signal) {
     internals->reload_reg_entries = 0;
 
     for(size_t pos = 0; pos < signal->edge_cnt; pos++) {
-        uint32_t edge_scaled = (internals->factor * signal->edge_timings[pos]) / (1024 * 1024);
-        uint32_t pulse_duration = edge_scaled + internals->reload_reg_remainder;
+        uint32_t pulse_duration = signal->edge_timings[pos] + internals->reload_reg_remainder;
         if(pulse_duration < 10 || pulse_duration > 10000000) {
-            FURI_LOG_D(
+            /*FURI_LOG_D(
                 TAG,
                 "[prepare] pulse_duration out of range: %lu = %lu * %llu",
                 pulse_duration,
                 signal->edge_timings[pos],
-                internals->factor);
+                internals->factor);*/
             pulse_duration = 100;
         }
         uint32_t pulse_ticks = (pulse_duration + T_TIM_DIV2) / T_TIM;
@@ -243,10 +242,12 @@ static void digital_signal_stop_timer() {
     LL_TIM_DisableCounter(TIM2);
     LL_TIM_DisableUpdateEvent(TIM2);
     LL_TIM_DisableDMAReq_UPDATE(TIM2);
+
+    furi_hal_bus_disable(FuriHalBusTIM2);
 }
 
 static void digital_signal_setup_timer() {
-    digital_signal_stop_timer();
+    furi_hal_bus_enable(FuriHalBusTIM2);
 
     LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetClockDivision(TIM2, LL_TIM_CLOCKDIVISION_DIV1);
@@ -482,13 +483,13 @@ static void digital_sequence_finish(DigitalSequence* sequence) {
                 prev_timer = DWT->CYCCNT;
             }
             if(DWT->CYCCNT - prev_timer > wait_ticks) {
-                FURI_LOG_D(
+                /*FURI_LOG_D(
                     TAG,
                     "[SEQ] hung %lu ms in finish (ARR 0x%08lx, read %lu, write %lu)",
                     wait_ms,
                     TIM2->ARR,
                     dma_buffer->read_pos,
-                    dma_buffer->write_pos);
+                    dma_buffer->write_pos);*/
                 break;
             }
         } while(1);
@@ -516,13 +517,13 @@ static void digital_sequence_queue_pulse(DigitalSequence* sequence, uint32_t len
                 prev_timer = DWT->CYCCNT;
             }
             if(DWT->CYCCNT - prev_timer > wait_ticks) {
-                FURI_LOG_D(
+                /*FURI_LOG_D(
                     TAG,
                     "[SEQ] hung %lu ms in queue (ARR 0x%08lx, read %lu, write %lu)",
                     wait_ms,
                     TIM2->ARR,
                     dma_buffer->read_pos,
-                    dma_buffer->write_pos);
+                    dma_buffer->write_pos);*/
                 break;
             }
         } while(1);

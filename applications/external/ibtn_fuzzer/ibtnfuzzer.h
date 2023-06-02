@@ -15,7 +15,7 @@
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/stream/buffered_file_stream.h>
 
-#include <iBtn_Fuzzer_icons.h>
+#include <ibtn_fuzzer_icons.h>
 
 #include <lib/ibutton/ibutton_worker.h>
 #include <lib/ibutton/ibutton_key.h>
