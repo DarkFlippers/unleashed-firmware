@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+#define FUZZ_TIME_DELAY_MIN (4)
+#define FUZZ_TIME_DELAY_DEFAULT (8)
+#define FUZZ_TIME_DELAY_MAX (80)
+
 typedef enum {
     DS1990,
     Metakom,

@@ -3,6 +3,9 @@
 typedef enum {
 
     // FuzzerCustomEvent
-    FuzzerCustomEventViewMainOk = 100,
-    FuzzerCustomEventViewMainBack,
+    FuzzerCustomEventViewMainBack = 100,
+    FuzzerCustomEventViewMainOk,
+
+    FuzzerCustomEventViewAttackBack,
+    FuzzerCustomEventViewAttackOk,
 } FuzzerCustomEvent;

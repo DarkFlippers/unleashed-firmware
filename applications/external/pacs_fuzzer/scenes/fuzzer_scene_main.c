@@ -13,6 +13,8 @@ void fuzzer_scene_main_on_enter(void* context) {
 
     fuzzer_view_main_set_callback(app->main_view, fuzzer_scene_main_callback, app);
 
+    fuzzer_view_main_update_data(app->main_view, app->fuzzer_state);
+
     view_dispatcher_switch_to_view(app->view_dispatcher, FuzzerViewIDMain);
 }
 
@@ -27,6 +29,10 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_stop(app->scene_manager);
                 view_dispatcher_stop(app->view_dispatcher);
             }
+            consumed = true;
+        } else if(event.event == FuzzerCustomEventViewMainOk) {
+            fuzzer_view_main_get_state(app->main_view, &app->fuzzer_state);
+            scene_manager_next_scene(app->scene_manager, FuzzerSceneAttack);
             consumed = true;
         }
     }

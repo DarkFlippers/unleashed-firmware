@@ -22,6 +22,9 @@ static void fuzzer_app_tick_event_callback(void* context) {
 PacsFuzzerApp* fuzzer_app_alloc() {
     PacsFuzzerApp* app = malloc(sizeof(PacsFuzzerApp));
 
+    app->fuzzer_state.menu_index = 0;
+    app->fuzzer_state.proto_index = 0;
+
     // GUI
     app->gui = furi_record_open(RECORD_GUI);
 
@@ -32,6 +35,11 @@ PacsFuzzerApp* fuzzer_app_alloc() {
     app->main_view = fuzzer_view_main_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, FuzzerViewIDMain, fuzzer_view_main_get_view(app->main_view));
+
+    // Attack view
+    app->attack_view = fuzzer_view_attack_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, FuzzerViewIDAttack, fuzzer_view_attack_get_view(app->attack_view));
 
     app->scene_manager = scene_manager_alloc(&fuzzer_scene_handlers, app);
     view_dispatcher_enable_queue(app->view_dispatcher);
@@ -57,6 +65,10 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
     // Remote view
     view_dispatcher_remove_view(app->view_dispatcher, FuzzerViewIDMain);
     fuzzer_view_main_free(app->main_view);
+
+    // Attack view
+    view_dispatcher_remove_view(app->view_dispatcher, FuzzerViewIDAttack);
+    fuzzer_view_attack_free(app->attack_view);
 
     scene_manager_free(app->scene_manager);
     view_dispatcher_free(app->view_dispatcher);
