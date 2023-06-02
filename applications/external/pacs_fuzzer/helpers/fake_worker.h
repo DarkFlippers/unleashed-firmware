@@ -1,0 +1,40 @@
+#pragma once
+
+#include <stdbool.h>
+
+#include "protocol.h"
+
+typedef enum {
+    FuzzerWorkerAttackTypeDefaultDict = 0,
+    FuzzerWorkerAttackTypeLoadFile,
+    FuzzerWorkerAttackTypeLoadFileCustomUids,
+
+    FuzzerWorkerAttackTypeMax,
+} FuzzerWorkerAttackType;
+
+typedef void (*FuzzerWorkerUidChagedCallback)(void* context);
+typedef void (*FuzzerWorkerEndCallback)(void* context);
+
+typedef struct FuzzerWorker FuzzerWorker;
+
+FuzzerWorker* fuzzer_worker_alloc();
+
+void fuzzer_worker_free(FuzzerWorker* worker);
+
+void fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay);
+
+void fuzzer_worker_stop(FuzzerWorker* worker);
+
+bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtos protocol_index);
+
+void fuzzer_worker_get_current_key(FuzzerWorker* worker, uint8_t* key);
+
+void fuzzer_worker_set_uid_chaged_callback(
+    FuzzerWorker* worker,
+    FuzzerWorkerUidChagedCallback callback,
+    void* context);
+
+void fuzzer_worker_set_end_callback(
+    FuzzerWorker* worker,
+    FuzzerWorkerEndCallback callback,
+    void* context);

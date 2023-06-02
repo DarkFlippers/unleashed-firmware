@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#define MAX_PAYLOAD_SIZE 8
+
 #define FUZZ_TIME_DELAY_MIN (4)
 #define FUZZ_TIME_DELAY_DEFAULT (8)
 #define FUZZ_TIME_DELAY_MAX (80)

@@ -24,4 +24,8 @@ void fuzzer_view_attack_reset_data(
     const char* protocol_name,
     uint8_t uid_size);
 
-void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid, bool attack);
+void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid);
+
+void fuzzer_view_attack_set_attack(FuzzerViewAttack* view, bool attack);
+
+uint8_t fuzzer_view_attack_get_time_delay(FuzzerViewAttack* view);

@@ -25,6 +25,8 @@ PacsFuzzerApp* fuzzer_app_alloc() {
     app->fuzzer_state.menu_index = 0;
     app->fuzzer_state.proto_index = 0;
 
+    app->worker = fuzzer_worker_alloc();
+
     // GUI
     app->gui = furi_record_open(RECORD_GUI);
 
@@ -75,6 +77,8 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
 
     // Close records
     furi_record_close(RECORD_GUI);
+
+    fuzzer_worker_free(app->worker);
 
     free(app);
 }

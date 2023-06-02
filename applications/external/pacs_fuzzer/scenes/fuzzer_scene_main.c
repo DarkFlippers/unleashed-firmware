@@ -1,6 +1,9 @@
 #include "../fuzzer_i.h"
 #include "../helpers/fuzzer_custom_event.h"
 
+#include "../helpers/protocol.h"
+#include "../helpers/gui_const.h"
+
 void fuzzer_scene_main_callback(FuzzerCustomEvent event, void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
@@ -32,6 +35,16 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == FuzzerCustomEventViewMainOk) {
             fuzzer_view_main_get_state(app->main_view, &app->fuzzer_state);
+
+            switch(app->fuzzer_state.menu_index) {
+            case FuzzerMainMenuIndexDefaultValues:
+                fuzzer_worker_attack_dict(app->worker, app->fuzzer_state.proto_index);
+                break;
+
+            default:
+                break;
+            }
+
             scene_manager_next_scene(app->scene_manager, FuzzerSceneAttack);
             consumed = true;
         }

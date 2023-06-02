@@ -42,7 +42,7 @@ void fuzzer_view_attack_reset_data(
         true);
 }
 
-void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid, bool attack) {
+void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid) {
     furi_assert(view);
 
     with_view_model(
@@ -61,9 +61,15 @@ void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid, bool
                 uid[5],
                 uid[6],
                 uid[7]);
-            model->attack_enabled = attack;
         },
         true);
+}
+
+void fuzzer_view_attack_set_attack(FuzzerViewAttack* view, bool attack) {
+    furi_assert(view);
+
+    with_view_model(
+        view->view, FuzzerViewAttackModel * model, { model->attack_enabled = attack; }, true);
 }
 
 void fuzzer_view_attack_set_callback(
@@ -96,6 +102,7 @@ void fuzzer_view_attack_draw(Canvas* canvas, FuzzerViewAttackModel* model) {
     }
     canvas_draw_str_aligned(canvas, 64, 38, AlignCenter, AlignTop, model->uid);
 
+    canvas_set_font(canvas, FontSecondary);
     if(model->attack_enabled) {
         elements_button_center(canvas, "Stop");
     } else {
@@ -209,4 +216,14 @@ void fuzzer_view_attack_free(FuzzerViewAttack* view_attack) {
 View* fuzzer_view_attack_get_view(FuzzerViewAttack* view_attack) {
     furi_assert(view_attack);
     return view_attack->view;
+}
+
+uint8_t fuzzer_view_attack_get_time_delay(FuzzerViewAttack* view) {
+    furi_assert(view);
+    uint8_t time_delay;
+
+    with_view_model(
+        view->view, FuzzerViewAttackModel * model, { time_delay = model->time_delay; }, false);
+
+    return time_delay;
 }

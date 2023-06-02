@@ -10,6 +10,7 @@
 #include "views/attack.h"
 
 #include "helpers/fuzzer_types.h"
+#include "helpers/fake_worker.h"
 
 #include <flipper_format/flipper_format_i.h>
 
@@ -22,4 +23,6 @@ typedef struct {
     FuzzerViewAttack* attack_view;
 
     FuzzerState fuzzer_state;
+
+    FuzzerWorker* worker;
 } PacsFuzzerApp;
