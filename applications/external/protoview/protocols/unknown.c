@@ -251,7 +251,7 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
         linecode = LineCodeManchester;
         start1 = tmp1;
         msgbits = manchester_bits * 2;
-        FURI_LOG_E(TAG, "MANCHESTER START: %lu", tmp1);
+        //FURI_LOG_T(TAG, "MANCHESTER START: %lu", tmp1);
     }
 
     if(linecode == LineCodeNone) return false;
@@ -284,11 +284,11 @@ static bool decode(uint8_t* bits, uint32_t numbytes, uint32_t numbits, ProtoView
                                * transfer all that is needed, like a message
                                * terminator (that we don't detect). */
 
-    if(preamble_found) FURI_LOG_E(TAG, "PREAMBLE AT: %lu", preamble_start);
-    FURI_LOG_E(TAG, "START: %lu", info->start_off);
-    FURI_LOG_E(TAG, "MSGBITS: %lu", msgbits);
-    FURI_LOG_E(TAG, "DATASTART: %lu", start1);
-    FURI_LOG_E(TAG, "PULSES: %lu", info->pulses_count);
+    /*if(preamble_found) FURI_LOG_T(TAG, "PREAMBLE AT: %lu", preamble_start);
+    FURI_LOG_T(TAG, "START: %lu", info->start_off);
+    FURI_LOG_T(TAG, "MSGBITS: %lu", msgbits);
+    FURI_LOG_T(TAG, "DATASTART: %lu", start1);
+    FURI_LOG_T(TAG, "PULSES: %lu", info->pulses_count);*/
 
     /* We think there is a message and we know where it starts and the
      * line code used. We can turn it into bits and bytes. */

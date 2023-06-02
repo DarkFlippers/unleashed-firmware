@@ -11,6 +11,7 @@
 * Infrared: Update universal remote assets (by @amec0e)
 * GUI Keyboard: Fix crash when renaming files with long file name (Fixed issue #489)
 * Misc: Fix APP_IDs to match new regex (regex check will be added in OFW soon)
+* Plugins: Protoview, WAV Player, DTMF Dolphin - fixed all known crashes, ported to latest hal bus system
 * Plugins: ESP8266 Deauther - Crash fix (Fixed issue #497)
 * Plugins: Update -> Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
 * Plugins: Update -> TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
