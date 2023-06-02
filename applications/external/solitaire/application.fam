@@ -1,5 +1,5 @@
 App(
-    appid="Solitaire",
+    appid="solitaire",
     name="Solitaire",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="solitaire_app",

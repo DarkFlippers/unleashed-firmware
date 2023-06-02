@@ -1,5 +1,5 @@
 App(
-    appid="Signal_Generator",
+    appid="signal_generator",
     name="Signal Generator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="signal_gen_app",

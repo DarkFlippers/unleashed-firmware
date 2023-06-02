@@ -1,5 +1,5 @@
 App(
-    appid="USB_Mouse",
+    appid="usb_mouse",
     name="USB Mouse",
     apptype=FlipperAppType.DEBUG,
     entry_point="usb_mouse_app",
