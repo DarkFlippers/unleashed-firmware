@@ -1,6 +1,9 @@
 ### New changes
 * If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
 -----
+* Only in release 052 -> **Multiple Extra pack apps was fixed!** -> TAMA P1, Flizzer Tracker, Video Player, Music Tracker
+* NFC V: Remove delay from emulation loop. This improves compatibility when the reader is Android.
+### Previous changes
 * SubGHz Remote: Fixed BinRAW support, + many other fixes (by @gid9798 | PR #492)
 * SubGHz: Fix KL: Stilmatic support + add manually support
 * SubGHz: Keeloq mfname refactoring (by @gid9798 | PR #479)
