@@ -1,25 +1,28 @@
 #include "fake_worker.h"
 
-#include <furi.h>
 #include <timer.h>
 
+#include <lib/toolbox/hex.h>
+#include <toolbox/stream/stream.h>
+#include <toolbox/stream/buffered_file_stream.h>
+
+#define TAG "Fuzzer worker"
+#define FUZZ_TIME_DELAY_DEFAULT (10)
+
 #if defined(RFID_125_PROTOCOL)
 
-#else
-
-#endif
-
-#if defined(RFID_125_PROTOCOL)
-
+#define MAX_PAYLOAD_SIZE 6
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <lfrfid/protocols/lfrfid_protocols.h>
 
 #else
 
+#define MAX_PAYLOAD_SIZE 8
 #include <lib/ibutton/ibutton_worker.h>
 #include <lib/ibutton/ibutton_key.h>
 
 #endif
+
 #include <toolbox/stream/stream.h>
 
 struct FuzzerWorker {
@@ -73,6 +76,42 @@ static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
             res = true;
         }
         break;
+
+    case FuzzerWorkerAttackTypeLoadFileCustomUids: {
+        uint8_t str_len = protocol->data_size * 2 + 1;
+        FuriString* data_str = furi_string_alloc();
+        while(true) {
+            furi_string_reset(data_str);
+            if(!stream_read_line(worker->uids_stream, data_str)) {
+                stream_rewind(worker->uids_stream);
+                // TODO Check empty file & close stream and storage
+                break;
+            } else if(furi_string_get_char(data_str, 0) == '#') {
+                // Skip comment string
+                continue;
+            } else if(furi_string_size(data_str) != str_len) {
+                // Ignore strin with bad length
+                FURI_LOG_W(TAG, "Bad string length");
+                continue;
+            } else {
+                FURI_LOG_D(TAG, "Uid candidate: \"%s\"", furi_string_get_cstr(data_str));
+                bool parse_ok = true;
+                for(uint8_t i = 0; i < protocol->data_size; i++) {
+                    if(!hex_char_to_uint8(
+                           furi_string_get_cstr(data_str)[i * 2],
+                           furi_string_get_cstr(data_str)[i * 2 + 1],
+                           &worker->payload[i])) {
+                        parse_ok = false;
+                        break;
+                    }
+                }
+                res = parse_ok;
+            }
+            break;
+        }
+    }
+
+    break;
 
     default:
         break;
@@ -134,20 +173,71 @@ void fuzzer_worker_get_current_key(FuzzerWorker* worker, uint8_t* key) {
 bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtos protocol_index) {
     furi_assert(worker);
 
+    bool res = false;
+
     worker->protocol = &fuzzer_proto_items[protocol_index];
-    // TODO iButtonProtocolIdInvalid check
 
 #if defined(RFID_125_PROTOCOL)
     worker->protocol_id =
         protocol_dict_get_protocol_by_name(worker->protocols_items, worker->protocol->name);
 #else
+    // TODO iButtonProtocolIdInvalid check
     worker->protocol_id =
         ibutton_protocols_get_id_by_name(worker->protocols_items, worker->protocol->name);
 #endif
     worker->attack_type = FuzzerWorkerAttackTypeDefaultDict;
     worker->index = 0;
 
-    return fuzzer_worker_load_key(worker, false);
+    if(!fuzzer_worker_load_key(worker, false)) {
+        worker->attack_type = FuzzerWorkerAttackTypeMax;
+    } else {
+        res = true;
+    }
+
+    return res;
+}
+
+bool fuzzer_worker_attack_file_dict(
+    FuzzerWorker* worker,
+    FuzzerProtos protocol_index,
+    FuriString* file_path) {
+    furi_assert(worker);
+    furi_assert(file_path);
+
+    bool res = false;
+
+    worker->protocol = &fuzzer_proto_items[protocol_index];
+
+#if defined(RFID_125_PROTOCOL)
+    worker->protocol_id =
+        protocol_dict_get_protocol_by_name(worker->protocols_items, worker->protocol->name);
+#else
+    // TODO iButtonProtocolIdInvalid check
+    worker->protocol_id =
+        ibutton_protocols_get_id_by_name(worker->protocols_items, worker->protocol->name);
+#endif
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    worker->uids_stream = buffered_file_stream_alloc(storage);
+
+    if(!buffered_file_stream_open(
+           worker->uids_stream, furi_string_get_cstr(file_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        buffered_file_stream_close(worker->uids_stream);
+        return res;
+    }
+
+    worker->attack_type = FuzzerWorkerAttackTypeLoadFileCustomUids;
+    worker->index = 0;
+
+    if(!fuzzer_worker_load_key(worker, false)) {
+        worker->attack_type = FuzzerWorkerAttackTypeMax;
+        buffered_file_stream_close(worker->uids_stream);
+        furi_record_close(RECORD_STORAGE);
+    } else {
+        res = true;
+    }
+
+    return res;
 }
 
 FuzzerWorker* fuzzer_worker_alloc() {
@@ -198,7 +288,7 @@ void fuzzer_worker_free(FuzzerWorker* worker) {
     free(worker);
 }
 
-void fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay) {
+bool fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay) {
     furi_assert(worker);
 
     if(worker->attack_type < FuzzerWorkerAttackTypeMax) {
@@ -214,7 +304,9 @@ void fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay) {
         ibutton_worker_start_thread(worker->proto_worker);
         ibutton_worker_emulate_start(worker->proto_worker, worker->key);
 #endif
+        return true;
     }
+    return false;
 }
 
 void fuzzer_worker_stop(FuzzerWorker* worker) {
@@ -231,6 +323,12 @@ void fuzzer_worker_stop(FuzzerWorker* worker) {
         ibutton_worker_stop_thread(worker->proto_worker);
 #endif
         worker->treead_running = false;
+    }
+
+    if(worker->attack_type == FuzzerWorkerAttackTypeLoadFileCustomUids) {
+        buffered_file_stream_close(worker->uids_stream);
+        furi_record_close(RECORD_STORAGE);
+        worker->attack_type = FuzzerWorkerAttackTypeMax;
     }
 
     // TODO  anything else

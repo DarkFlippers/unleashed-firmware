@@ -4,24 +4,6 @@
 
 // #define RFID_125_PROTOCOL
 
-#if defined(RFID_125_PROTOCOL)
-
-#define MAX_PAYLOAD_SIZE 6
-
-#define FUZZ_TIME_DELAY_MIN (5)
-#define FUZZ_TIME_DELAY_DEFAULT (10)
-#define FUZZ_TIME_DELAY_MAX (70)
-
-#else
-
-#define MAX_PAYLOAD_SIZE 8
-
-#define FUZZ_TIME_DELAY_MIN (4)
-#define FUZZ_TIME_DELAY_DEFAULT (8)
-#define FUZZ_TIME_DELAY_MAX (80)
-
-#endif
-
 typedef enum {
 
 #if defined(RFID_125_PROTOCOL)

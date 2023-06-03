@@ -10,6 +10,26 @@ void fuzzer_scene_main_callback(FuzzerCustomEvent event, void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
+static bool fuzzer_scene_main_load_custom_dict(void* context) {
+    furi_assert(context);
+    PacsFuzzerApp* app = context;
+
+    FuzzerConsts* consts = app->fuzzer_const;
+
+    furi_string_set_str(app->file_path, consts->custom_dict_folder);
+
+    DialogsFileBrowserOptions browser_options;
+    dialog_file_browser_set_basic_options(
+        &browser_options, consts->custom_dict_extension, &I_rfid_10px);
+    browser_options.base_path = consts->custom_dict_folder;
+    browser_options.hide_ext = false;
+
+    bool res =
+        dialog_file_browser_show(app->dialogs, app->file_path, app->file_path, &browser_options);
+
+    return res;
+}
+
 void fuzzer_scene_main_on_enter(void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
@@ -36,16 +56,35 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == FuzzerCustomEventViewMainOk) {
             fuzzer_view_main_get_state(app->main_view, &app->fuzzer_state);
 
+            // TODO error logic
+            bool loading_ok = false;
+
             switch(app->fuzzer_state.menu_index) {
             case FuzzerMainMenuIndexDefaultValues:
-                fuzzer_worker_attack_dict(app->worker, app->fuzzer_state.proto_index);
+
+                loading_ok = fuzzer_worker_attack_dict(app->worker, app->fuzzer_state.proto_index);
+
+                if(!loading_ok) {
+                    // error
+                }
+                break;
+
+            case FuzzerMainMenuIndexLoadFileCustomUids:
+                if(!fuzzer_scene_main_load_custom_dict(app)) {
+                    break;
+                } else {
+                    loading_ok = fuzzer_worker_attack_file_dict(
+                        app->worker, app->fuzzer_state.proto_index, app->file_path);
+                }
                 break;
 
             default:
                 break;
             }
 
-            scene_manager_next_scene(app->scene_manager, FuzzerSceneAttack);
+            if(loading_ok) {
+                scene_manager_next_scene(app->scene_manager, FuzzerSceneAttack);
+            }
             consumed = true;
         }
     }

@@ -27,8 +27,13 @@ PacsFuzzerApp* fuzzer_app_alloc() {
 
     app->worker = fuzzer_worker_alloc();
 
+    app->file_path = furi_string_alloc();
+
     // GUI
     app->gui = furi_record_open(RECORD_GUI);
+
+    // Dialog
+    app->dialogs = furi_record_open(RECORD_DIALOGS);
 
     // View Dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -75,17 +80,48 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
     scene_manager_free(app->scene_manager);
     view_dispatcher_free(app->view_dispatcher);
 
+    // Dialog
+    furi_record_close(RECORD_DIALOGS);
+
     // Close records
     furi_record_close(RECORD_GUI);
+
+    furi_string_free(app->file_path);
 
     fuzzer_worker_free(app->worker);
 
     free(app);
 }
 
-int32_t fuzzer_start(void* p) {
+int32_t fuzzer_start_ibtn(void* p) {
     UNUSED(p);
     PacsFuzzerApp* fuzzer_app = fuzzer_app_alloc();
+
+    FuzzerConsts app_const = {
+        .custom_dict_folder = "/ext/ibtnfuzzer",
+        .custom_dict_extension = ".txt",
+        .key_extension = ".ibtn",
+        .path_key_folder = "/ext/ibutton",
+    };
+    fuzzer_app->fuzzer_const = &app_const;
+
+    view_dispatcher_run(fuzzer_app->view_dispatcher);
+
+    fuzzer_app_free(fuzzer_app);
+    return 0;
+}
+
+int32_t fuzzer_start_rfid(void* p) {
+    UNUSED(p);
+    PacsFuzzerApp* fuzzer_app = fuzzer_app_alloc();
+
+    FuzzerConsts app_const = {
+        .custom_dict_folder = "/ext/rfidfuzzer",
+        .custom_dict_extension = ".txt",
+        .key_extension = ".rfid",
+        .path_key_folder = "/ext/lfrfid",
+    };
+    fuzzer_app->fuzzer_const = &app_const;
 
     view_dispatcher_run(fuzzer_app->view_dispatcher);
 

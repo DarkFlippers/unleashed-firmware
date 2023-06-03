@@ -2,7 +2,7 @@ App(
     appid="pacs_fuzzer",
     name="Fuzzer Gui",
     apptype=FlipperAppType.EXTERNAL,
-    entry_point="fuzzer_start",
+    entry_point="fuzzer_start_ibtn",
     requires=[
         "gui", 
         "storage",
@@ -28,7 +28,7 @@ App(
     appid="pacs_rfid_fuzzer",
     name="Fuzzer Gui rfid",
     apptype=FlipperAppType.EXTERNAL,
-    entry_point="fuzzer_start",
+    entry_point="fuzzer_start_rfid",
     requires=[
         "gui", 
         "storage",

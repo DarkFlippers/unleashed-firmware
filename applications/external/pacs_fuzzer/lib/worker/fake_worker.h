@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
+#include <furi.h>
 
 #include "protocol.h"
 
@@ -21,11 +21,16 @@ FuzzerWorker* fuzzer_worker_alloc();
 
 void fuzzer_worker_free(FuzzerWorker* worker);
 
-void fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay);
+bool fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay);
 
 void fuzzer_worker_stop(FuzzerWorker* worker);
 
 bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtos protocol_index);
+
+bool fuzzer_worker_attack_file_dict(
+    FuzzerWorker* worker,
+    FuzzerProtos protocol_index,
+    FuriString* file_path);
 
 void fuzzer_worker_get_current_key(FuzzerWorker* worker, uint8_t* key);
 
