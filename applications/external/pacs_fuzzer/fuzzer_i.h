@@ -12,6 +12,7 @@
 #include "scenes/fuzzer_scene.h"
 #include "views/main_menu.h"
 #include "views/attack.h"
+#include "views/field_editor.h"
 
 #include "helpers/fuzzer_types.h"
 #include "lib/worker/fake_worker.h"
@@ -37,6 +38,7 @@ typedef struct {
     DialogsApp* dialogs;
     FuzzerViewMain* main_view;
     FuzzerViewAttack* attack_view;
+    FuzzerViewFieldEditor* field_editor_view;
 
     FuriString* file_path;
 

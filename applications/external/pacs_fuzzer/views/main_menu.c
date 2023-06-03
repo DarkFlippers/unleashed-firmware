@@ -2,9 +2,7 @@
 #include "../fuzzer_i.h"
 
 #include <input/input.h>
-// #include <gui/elements.h>
 
-#include "../lib/worker/protocol.h"
 #include "../helpers/gui_const.h"
 
 struct FuzzerViewMain {

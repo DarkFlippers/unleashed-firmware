@@ -69,6 +69,12 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 }
                 break;
 
+            case FuzzerMainMenuIndexLoadFile:
+                // TODO Delete
+                scene_manager_next_scene(app->scene_manager, FuzzerSceneFieldEditor);
+
+                break;
+
             case FuzzerMainMenuIndexLoadFileCustomUids:
                 if(!fuzzer_scene_main_load_custom_dict(app)) {
                     break;

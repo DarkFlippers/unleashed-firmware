@@ -10,4 +10,7 @@ typedef enum {
     FuzzerCustomEventViewAttackOk,
     FuzzerCustomEventViewAttackTick,
     FuzzerCustomEventViewAttackEnd,
+
+    FuzzerCustomEventViewFieldEditorBack,
+    FuzzerCustomEventViewFieldEditorOk,
 } FuzzerCustomEvent;

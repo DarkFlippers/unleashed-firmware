@@ -48,6 +48,13 @@ PacsFuzzerApp* fuzzer_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, FuzzerViewIDAttack, fuzzer_view_attack_get_view(app->attack_view));
 
+    // FieldEditor view
+    app->field_editor_view = fuzzer_view_field_editor_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        FuzzerViewIDFieldEditor,
+        fuzzer_view_field_editor_get_view(app->field_editor_view));
+
     app->scene_manager = scene_manager_alloc(&fuzzer_scene_handlers, app);
     view_dispatcher_enable_queue(app->view_dispatcher);
 
@@ -76,6 +83,10 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
     // Attack view
     view_dispatcher_remove_view(app->view_dispatcher, FuzzerViewIDAttack);
     fuzzer_view_attack_free(app->attack_view);
+
+    // FieldEditor view
+    view_dispatcher_remove_view(app->view_dispatcher, FuzzerViewIDFieldEditor);
+    fuzzer_view_field_editor_free(app->field_editor_view);
 
     scene_manager_free(app->scene_manager);
     view_dispatcher_free(app->view_dispatcher);

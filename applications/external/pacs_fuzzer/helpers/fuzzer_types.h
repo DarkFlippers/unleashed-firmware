@@ -11,4 +11,5 @@ typedef struct {
 typedef enum {
     FuzzerViewIDMain,
     FuzzerViewIDAttack,
+    FuzzerViewIDFieldEditor,
 } FuzzerViewID;
