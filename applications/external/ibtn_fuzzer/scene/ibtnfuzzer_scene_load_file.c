@@ -10,6 +10,7 @@ bool ibtnfuzzer_load(iBtnFuzzerState* context, const char* file_path) {
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     FuriString* temp_str;
     temp_str = furi_string_alloc();
+    bool key_v2 = false;
     do {
         if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
             FURI_LOG_E(TAG, "Error open file %s", file_path);
@@ -30,10 +31,43 @@ bool ibtnfuzzer_load(iBtnFuzzerState* context, const char* file_path) {
 
         // Key type
         if(!flipper_format_read_string(fff_data_file, "Key type", temp_str)) {
-            FURI_LOG_E(TAG, "Missing or incorrect Key type");
-            furi_string_reset(context->notification_msg);
-            furi_string_set(context->notification_msg, "Missing or incorrect Key type");
-            break;
+            FURI_LOG_E(TAG, "Missing or incorrect Key type, checking for typ2..");
+
+            if(!flipper_format_rewind(fff_data_file)) {
+                FURI_LOG_E(TAG, "Failed to rewind file");
+                break;
+            }
+            if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {
+                furi_string_reset(context->notification_msg);
+                furi_string_set(
+                    context->notification_msg, "Missing or incorrect Protocol or Key type");
+                break;
+            }
+            FURI_LOG_I(TAG, "Key type V2: %s", furi_string_get_cstr(temp_str));
+            key_v2 = true;
+
+            if(context->proto == DS1990) {
+                if(strcmp(furi_string_get_cstr(temp_str), "DS1990") != 0) {
+                    FURI_LOG_E(TAG, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
+                    break;
+                }
+            } else if(context->proto == Cyfral) {
+                if(strcmp(furi_string_get_cstr(temp_str), "Cyfral") != 0) {
+                    FURI_LOG_E(TAG, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
+                    break;
+                }
+            } else {
+                if(strcmp(furi_string_get_cstr(temp_str), "Metakom") != 0) {
+                    FURI_LOG_E(TAG, "Unsupported Key type");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Unsupported Key type");
+                    break;
+                }
+            }
         } else {
             FURI_LOG_I(TAG, "Key type: %s", furi_string_get_cstr(temp_str));
 
@@ -60,46 +94,125 @@ bool ibtnfuzzer_load(iBtnFuzzerState* context, const char* file_path) {
                 }
             }
         }
-
-        // Data
-        if(!flipper_format_read_string(fff_data_file, "Data", context->data_str)) {
-            FURI_LOG_E(TAG, "Missing or incorrect Data");
-            furi_string_reset(context->notification_msg);
-            furi_string_set(context->notification_msg, "Missing or incorrect Key");
-            break;
-        } else {
-            FURI_LOG_I(TAG, "Key: %s", furi_string_get_cstr(context->data_str));
-
-            if(context->proto == DS1990) {
-                if(furi_string_size(context->data_str) != 23) {
-                    FURI_LOG_E(TAG, "Incorrect Key length");
-                    furi_string_reset(context->notification_msg);
-                    furi_string_set(context->notification_msg, "Incorrect Key length");
-                    break;
-                }
-            } else if(context->proto == Cyfral) {
-                if(furi_string_size(context->data_str) != 5) {
-                    FURI_LOG_E(TAG, "Incorrect Key length");
-                    furi_string_reset(context->notification_msg);
-                    furi_string_set(context->notification_msg, "Incorrect Key length");
-                    break;
-                }
+        if(!key_v2) {
+            // Data
+            if(!flipper_format_read_string(fff_data_file, "Data", context->data_str)) {
+                FURI_LOG_E(TAG, "Missing or incorrect Data");
+                furi_string_reset(context->notification_msg);
+                furi_string_set(context->notification_msg, "Missing or incorrect Key");
+                break;
             } else {
-                if(furi_string_size(context->data_str) != 11) {
-                    FURI_LOG_E(TAG, "Incorrect Key length");
-                    furi_string_reset(context->notification_msg);
-                    furi_string_set(context->notification_msg, "Incorrect Key length");
-                    break;
+                FURI_LOG_I(TAG, "Key: %s", furi_string_get_cstr(context->data_str));
+
+                if(context->proto == DS1990) {
+                    if(furi_string_size(context->data_str) != 23) {
+                        FURI_LOG_E(TAG, "Incorrect Key length");
+                        furi_string_reset(context->notification_msg);
+                        furi_string_set(context->notification_msg, "Incorrect Key length");
+                        break;
+                    }
+                } else if(context->proto == Cyfral) {
+                    if(furi_string_size(context->data_str) != 5) {
+                        FURI_LOG_E(TAG, "Incorrect Key length");
+                        furi_string_reset(context->notification_msg);
+                        furi_string_set(context->notification_msg, "Incorrect Key length");
+                        break;
+                    }
+                } else {
+                    if(furi_string_size(context->data_str) != 11) {
+                        FURI_LOG_E(TAG, "Incorrect Key length");
+                        furi_string_reset(context->notification_msg);
+                        furi_string_set(context->notification_msg, "Incorrect Key length");
+                        break;
+                    }
+                }
+
+                // String to uint8_t
+                for(uint8_t i = 0; i < 8; i++) {
+                    char temp_str2[3];
+                    temp_str2[0] = furi_string_get_cstr(context->data_str)[i * 3];
+                    temp_str2[1] = furi_string_get_cstr(context->data_str)[i * 3 + 1];
+                    temp_str2[2] = '\0';
+                    context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
                 }
             }
+        } else {
+            // Data
+            if(context->proto == DS1990) {
+                if(!flipper_format_read_string(fff_data_file, "Rom Data", context->data_str)) {
+                    FURI_LOG_E(TAG, "Missing or incorrect Rom Data");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Missing or incorrect Rom Data");
+                    break;
+                } else {
+                    FURI_LOG_I(TAG, "Key: %s", furi_string_get_cstr(context->data_str));
 
-            // String to uint8_t
-            for(uint8_t i = 0; i < 8; i++) {
-                char temp_str2[3];
-                temp_str2[0] = furi_string_get_cstr(context->data_str)[i * 3];
-                temp_str2[1] = furi_string_get_cstr(context->data_str)[i * 3 + 1];
-                temp_str2[2] = '\0';
-                context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
+                    if(furi_string_size(context->data_str) != 23) {
+                        FURI_LOG_E(TAG, "Incorrect Key length");
+                        furi_string_reset(context->notification_msg);
+                        furi_string_set(context->notification_msg, "Incorrect Key length");
+                        break;
+                    }
+
+                    // String to uint8_t
+                    for(uint8_t i = 0; i < 8; i++) {
+                        char temp_str2[3];
+                        temp_str2[0] = furi_string_get_cstr(context->data_str)[i * 3];
+                        temp_str2[1] = furi_string_get_cstr(context->data_str)[i * 3 + 1];
+                        temp_str2[2] = '\0';
+                        context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
+                    }
+                }
+            } else if(context->proto == Cyfral) {
+                if(!flipper_format_read_string(fff_data_file, "Data", context->data_str)) {
+                    FURI_LOG_E(TAG, "Missing or incorrect Data");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Missing or incorrect Data");
+                    break;
+                } else {
+                    FURI_LOG_I(TAG, "Key: %s", furi_string_get_cstr(context->data_str));
+
+                    if(furi_string_size(context->data_str) != 5) {
+                        FURI_LOG_E(TAG, "Incorrect Key length");
+                        furi_string_reset(context->notification_msg);
+                        furi_string_set(context->notification_msg, "Incorrect Key length");
+                        break;
+                    }
+
+                    // String to uint8_t
+                    for(uint8_t i = 0; i < 8; i++) {
+                        char temp_str2[3];
+                        temp_str2[0] = furi_string_get_cstr(context->data_str)[i * 3];
+                        temp_str2[1] = furi_string_get_cstr(context->data_str)[i * 3 + 1];
+                        temp_str2[2] = '\0';
+                        context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
+                    }
+                }
+            } else {
+                if(!flipper_format_read_string(fff_data_file, "Data", context->data_str)) {
+                    FURI_LOG_E(TAG, "Missing or incorrect Data");
+                    furi_string_reset(context->notification_msg);
+                    furi_string_set(context->notification_msg, "Missing or incorrect Data");
+                    break;
+                } else {
+                    FURI_LOG_I(TAG, "Key: %s", furi_string_get_cstr(context->data_str));
+
+                    if(furi_string_size(context->data_str) != 11) {
+                        FURI_LOG_E(TAG, "Incorrect Key length");
+                        furi_string_reset(context->notification_msg);
+                        furi_string_set(context->notification_msg, "Incorrect Key length");
+                        break;
+                    }
+
+                    // String to uint8_t
+                    for(uint8_t i = 0; i < 8; i++) {
+                        char temp_str2[3];
+                        temp_str2[0] = furi_string_get_cstr(context->data_str)[i * 3];
+                        temp_str2[1] = furi_string_get_cstr(context->data_str)[i * 3 + 1];
+                        temp_str2[2] = '\0';
+                        context->data[i] = (uint8_t)strtol(temp_str2, NULL, 16);
+                    }
+                }
             }
         }
 
