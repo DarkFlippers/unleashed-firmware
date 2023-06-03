@@ -3,6 +3,7 @@
 -----
 * Only in release 052 -> **Multiple Extra pack apps was fixed!** -> TAMA P1, Flizzer Tracker, Video Player, Music Tracker
 * NFC V: Remove delay from emulation loop. This improves compatibility when the reader is Android.
+* Plugins: iButton Fuzzer -> Fix v2 key files load (all new saved files)
 ### Previous changes
 * SubGHz Remote: Fixed BinRAW support, + many other fixes (by @gid9798 | PR #492)
 * SubGHz: Fix KL: Stilmatic support + add manually support
