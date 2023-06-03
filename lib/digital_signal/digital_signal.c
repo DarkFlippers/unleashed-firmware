@@ -243,11 +243,15 @@ static void digital_signal_stop_timer() {
     LL_TIM_DisableUpdateEvent(TIM2);
     LL_TIM_DisableDMAReq_UPDATE(TIM2);
 
-    furi_hal_bus_disable(FuriHalBusTIM2);
+    if(furi_hal_bus_is_enabled(FuriHalBusTIM2)) {
+        furi_hal_bus_disable(FuriHalBusTIM2);
+    }
 }
 
 static void digital_signal_setup_timer() {
-    furi_hal_bus_enable(FuriHalBusTIM2);
+    if(!furi_hal_bus_is_enabled(FuriHalBusTIM2)) {
+        furi_hal_bus_enable(FuriHalBusTIM2);
+    }
 
     LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetClockDivision(TIM2, LL_TIM_CLOCKDIVISION_DIV1);
