@@ -10,7 +10,7 @@
 #include "views/attack.h"
 
 #include "helpers/fuzzer_types.h"
-#include "helpers/fake_worker.h"
+#include "lib/worker/fake_worker.h"
 
 #include <flipper_format/flipper_format_i.h>
 

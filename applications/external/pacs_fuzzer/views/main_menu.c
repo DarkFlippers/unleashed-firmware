@@ -4,7 +4,7 @@
 #include <input/input.h>
 // #include <gui/elements.h>
 
-#include "../helpers/protocol.h"
+#include "../lib/worker/protocol.h"
 #include "../helpers/gui_const.h"
 
 struct FuzzerViewMain {

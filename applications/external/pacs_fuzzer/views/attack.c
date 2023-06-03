@@ -4,7 +4,7 @@
 #include <input/input.h>
 #include <gui/elements.h>
 
-#include "../helpers/protocol.h"
+#include "../lib/worker/protocol.h"
 
 #define ATTACK_SCENE_MAX_UID_LENGTH 25
 

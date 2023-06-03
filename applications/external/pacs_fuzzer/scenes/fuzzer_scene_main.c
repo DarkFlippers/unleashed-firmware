@@ -1,7 +1,7 @@
 #include "../fuzzer_i.h"
 #include "../helpers/fuzzer_custom_event.h"
 
-#include "../helpers/protocol.h"
+#include "../lib/worker/protocol.h"
 #include "../helpers/gui_const.h"
 
 void fuzzer_scene_main_callback(FuzzerCustomEvent event, void* context) {
