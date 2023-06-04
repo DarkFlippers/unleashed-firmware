@@ -204,6 +204,8 @@ size_t furi_hal_version_uid_size();
  */
 const uint8_t* furi_hal_version_uid();
 
+const uint8_t* furi_hal_version_uid_default();
+
 #ifdef __cplusplus
 }
 #endif

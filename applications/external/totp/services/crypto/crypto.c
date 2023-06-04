@@ -90,7 +90,7 @@ CryptoSeedIVResult
             max_i = uid_size;
         }
 
-        const uint8_t* uid = furi_hal_version_uid();
+        const uint8_t* uid = furi_hal_version_uid_default();
         for(uint8_t i = 0; i < max_i; i++) {
             plugin_state->iv[i] = plugin_state->iv[i] ^ uid[i];
         }
