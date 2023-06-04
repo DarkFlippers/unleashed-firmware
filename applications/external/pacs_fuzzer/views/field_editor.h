@@ -17,3 +17,12 @@ FuzzerViewFieldEditor* fuzzer_view_field_editor_alloc();
 void fuzzer_view_field_editor_free(FuzzerViewFieldEditor* view_attack);
 
 View* fuzzer_view_field_editor_get_view(FuzzerViewFieldEditor* view_attack);
+
+void fuzzer_view_field_editor_reset_data(
+    FuzzerViewFieldEditor* view_edit,
+    uint8_t* uid,
+    uint8_t uid_size);
+
+const uint8_t* fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit);
+
+uint8_t fuzzer_view_field_editor_get_index(FuzzerViewFieldEditor* view_edit);

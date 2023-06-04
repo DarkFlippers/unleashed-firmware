@@ -8,6 +8,8 @@
 #define UID_STR_LENGTH 25
 #define EDITOR_STRING_Y 50
 
+#define UID_MAX_SIZE 8 // TODO
+
 struct FuzzerViewFieldEditor {
     View* view;
     FuzzerViewFieldEditorCallback callback;
@@ -18,8 +20,10 @@ struct FuzzerViewFieldEditor {
 typedef struct {
     uint8_t* uid;
     uint8_t uid_size;
-    uint8_t index;
+
     FuriString* uid_str;
+
+    uint8_t index;
     bool lo;
 } FuzzerViewFieldEditorModel;
 
@@ -31,6 +35,40 @@ void fuzzer_view_field_editor_set_callback(
 
     view_edit->callback = callback;
     view_edit->context = context;
+}
+
+void fuzzer_view_field_editor_reset_data(
+    FuzzerViewFieldEditor* view_edit,
+    uint8_t* uid,
+    uint8_t uid_size) {
+    furi_assert(view_edit);
+
+    with_view_model(
+        view_edit->view,
+        FuzzerViewFieldEditorModel * model,
+        {
+            memcpy(model->uid, uid, uid_size);
+            model->index = 0;
+            model->lo = false;
+            model->uid_size = uid_size;
+        },
+        true);
+}
+
+const uint8_t* fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit) {
+    furi_assert(view_edit);
+    uint8_t* uid;
+    with_view_model(
+        view_edit->view, FuzzerViewFieldEditorModel * model, { uid = model->uid; }, true);
+    return uid;
+}
+
+uint8_t fuzzer_view_field_editor_get_index(FuzzerViewFieldEditor* view_edit) {
+    furi_assert(view_edit);
+    uint8_t index;
+    with_view_model(
+        view_edit->view, FuzzerViewFieldEditorModel * model, { index = model->index; }, true);
+    return index;
 }
 
 void fuzzer_view_field_editor_draw(Canvas* canvas, FuzzerViewFieldEditorModel* model) {
@@ -223,7 +261,7 @@ FuzzerViewFieldEditor* fuzzer_view_field_editor_alloc() {
         {
             model->uid_str = furi_string_alloc();
 
-            model->uid = malloc(8);
+            model->uid = malloc(UID_MAX_SIZE);
         },
         true);
 

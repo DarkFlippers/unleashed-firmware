@@ -30,6 +30,26 @@ static bool fuzzer_scene_main_load_custom_dict(void* context) {
     return res;
 }
 
+static bool fuzzer_scene_main_load_key(void* context) {
+    furi_assert(context);
+    PacsFuzzerApp* app = context;
+
+    FuzzerConsts* consts = app->fuzzer_const;
+
+    furi_string_set_str(app->file_path, consts->path_key_folder);
+
+    DialogsFileBrowserOptions browser_options;
+    dialog_file_browser_set_basic_options(
+        &browser_options, consts->key_extension, &I_rfid_10px); // TODO icon
+    browser_options.base_path = consts->path_key_folder;
+    browser_options.hide_ext = true;
+
+    bool res =
+        dialog_file_browser_show(app->dialogs, app->file_path, app->file_path, &browser_options);
+
+    return res;
+}
+
 void fuzzer_scene_main_on_enter(void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
@@ -70,9 +90,19 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 break;
 
             case FuzzerMainMenuIndexLoadFile:
-                // TODO Delete
-                scene_manager_next_scene(app->scene_manager, FuzzerSceneFieldEditor);
-
+                if(!fuzzer_scene_main_load_key(app)) {
+                    break;
+                } else {
+                    if(fuzzer_worker_load_key_from_file(
+                           app->worker,
+                           app->fuzzer_state.proto_index,
+                           furi_string_get_cstr(app->file_path))) {
+                        scene_manager_next_scene(app->scene_manager, FuzzerSceneFieldEditor);
+                        FURI_LOG_I("Scene", "Load ok");
+                    } else {
+                        FURI_LOG_W("Scene", "Load err");
+                    }
+                }
                 break;
 
             case FuzzerMainMenuIndexLoadFileCustomUids:

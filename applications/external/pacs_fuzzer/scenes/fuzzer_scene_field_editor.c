@@ -1,6 +1,8 @@
 #include "../fuzzer_i.h"
 #include "../helpers/fuzzer_custom_event.h"
 
+#define UID_MAX_SIZE 8 // TODO
+
 void fuzzer_scene_field_editor_callback(FuzzerCustomEvent event, void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
@@ -13,6 +15,17 @@ void fuzzer_scene_field_editor_on_enter(void* context) {
 
     fuzzer_view_field_editor_set_callback(
         app->field_editor_view, fuzzer_scene_field_editor_callback, app);
+
+    uint8_t uid[UID_MAX_SIZE];
+
+    uint8_t* uid_p = &uid[0];
+
+    fuzzer_worker_get_current_key(app->worker, uid_p);
+
+    fuzzer_view_field_editor_reset_data(
+        app->field_editor_view,
+        uid_p,
+        fuzzer_proto_items[app->fuzzer_state.proto_index].data_size); // TODO
 
     view_dispatcher_switch_to_view(app->view_dispatcher, FuzzerViewIDFieldEditor);
 }
@@ -29,6 +42,15 @@ bool fuzzer_scene_field_editor_on_event(void* context, SceneManagerEvent event) 
                 view_dispatcher_stop(app->view_dispatcher);
             }
             consumed = true;
+        } else if(event.event == FuzzerCustomEventViewFieldEditorOk) {
+            // TODO
+            if(fuzzer_worker_attack_bf_byte(
+                   app->worker,
+                   app->fuzzer_state.proto_index,
+                   fuzzer_view_field_editor_get_uid(app->field_editor_view),
+                   fuzzer_view_field_editor_get_index(app->field_editor_view))) {
+                scene_manager_next_scene(app->scene_manager, FuzzerSceneAttack);
+            }
         }
     }
 
