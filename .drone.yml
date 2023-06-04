@@ -64,7 +64,7 @@ steps:
     commands:
       - git apply .ci_files/rgb.patch
       - export DIST_SUFFIX=${DRONE_TAG}r
-      - export WORKFLOW_BRANCH_OR_TAG=release-cfw
+      - export WORKFLOW_BRANCH_OR_TAG=release-cfw-rgb
       - export FORCE_NO_DIRTY=yes
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
@@ -351,7 +351,7 @@ steps:
     commands:
       - git apply .ci_files/rgb.patch
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}r
-      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw-rgb
       - export FORCE_NO_DIRTY=yes
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
