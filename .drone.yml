@@ -480,7 +480,7 @@ steps:
         [-Version with RGB patch - Direct download-](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}r.tgz)
 
 
-        [-Version with extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}e)"
+        [-Version with Extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}e)"
 
   - name: "Send build to telegram"
     image: appleboy/drone-telegram
