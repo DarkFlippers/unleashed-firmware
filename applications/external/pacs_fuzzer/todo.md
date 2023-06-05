@@ -24,6 +24,7 @@
     - [x] Icon in dialog
     - [ ] Description and buttons in `field_editor` view
     - [ ] Protocol carousel in `main_menu`
+        - [x] prototype 
 - [x] UID
     - [x] Simplify the storage and exchange of `uids.data` `uid.data_size` in `views`
     - [x] `UID_MAX_SIZE`

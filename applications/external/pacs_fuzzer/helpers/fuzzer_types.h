@@ -1,7 +1,6 @@
 #pragma once
 
 #include <furi.h>
-#include <furi_hal.h>
 
 typedef struct {
     uint8_t menu_index;

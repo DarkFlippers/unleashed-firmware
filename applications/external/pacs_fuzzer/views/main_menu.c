@@ -5,6 +5,9 @@
 
 #include "../lib/worker/protocol.h"
 
+#define PROTOCOL_NAME_Y 12
+// #define PROTOCOL_CAROUSEL
+
 struct FuzzerViewMain {
     View* view;
     FuzzerViewMainCallback callback;
@@ -84,10 +87,36 @@ void fuzzer_view_main_draw(Canvas* canvas, FuzzerViewMainModel* model) {
     }
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 27, 4, AlignCenter, AlignTop, "<");
+    canvas_draw_str_aligned(canvas, 27, PROTOCOL_NAME_Y, AlignCenter, AlignBottom, "<");
     canvas_draw_str_aligned(
-        canvas, 64, 4, AlignCenter, AlignTop, fuzzer_proto_get_name(model->proto_index));
-    canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
+        canvas,
+        64,
+        PROTOCOL_NAME_Y,
+        AlignCenter,
+        AlignBottom,
+        fuzzer_proto_get_name(model->proto_index));
+    canvas_draw_str_aligned(canvas, 101, PROTOCOL_NAME_Y, AlignCenter, AlignBottom, ">");
+
+#ifdef PROTOCOL_CAROUSEL
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str_aligned(
+        canvas,
+        20,
+        PROTOCOL_NAME_Y,
+        AlignRight,
+        AlignBottom,
+        (model->proto_index > 0) ? fuzzer_proto_get_name(model->proto_index - 1) :
+                                   fuzzer_proto_get_name((model->proto_max - 1)));
+    canvas_draw_str_aligned(
+        canvas,
+        108,
+        PROTOCOL_NAME_Y,
+        AlignLeft,
+        AlignBottom,
+        (model->proto_index < (model->proto_max - 1)) ?
+            fuzzer_proto_get_name(model->proto_index + 1) :
+            fuzzer_proto_get_name(0));
+#endif
 }
 
 bool fuzzer_view_main_input(InputEvent* event, void* context) {
