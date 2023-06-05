@@ -77,9 +77,11 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
 
             // TODO error logic
             bool loading_ok = false;
+            uint8_t d_size = fuzzer_proto_get_max_data_size();
+            uint8_t* uid;
 
-            switch(app->fuzzer_state.menu_index) {
-            case FuzzerMainMenuIndexDefaultValues:
+            switch(fuzzer_proto_get_attack_id_by_index(app->fuzzer_state.menu_index)) {
+            case FuzzerAttackIdDefaultValues:
 
                 loading_ok =
                     fuzzer_worker_init_attack_dict(app->worker, app->fuzzer_state.proto_index);
@@ -88,8 +90,20 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                     // error
                 }
                 break;
+            case FuzzerAttackIdBFCustomerID:
+                uid = malloc(d_size);
+                memset(uid, 0x00, d_size);
 
-            case FuzzerMainMenuIndexLoadFile:
+                loading_ok = fuzzer_worker_init_attack_bf_byte(
+                    app->worker, app->fuzzer_state.proto_index, uid, 0);
+
+                free(uid);
+                if(!loading_ok) {
+                    // error
+                }
+                break;
+
+            case FuzzerAttackIdLoadFile:
                 if(!fuzzer_scene_main_load_key(app)) {
                     break;
                 } else {
@@ -105,7 +119,7 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 }
                 break;
 
-            case FuzzerMainMenuIndexLoadFileCustomUids:
+            case FuzzerAttackIdLoadFileCustomUids:
                 if(!fuzzer_scene_main_load_custom_dict(app)) {
                     break;
                 } else {

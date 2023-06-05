@@ -20,10 +20,11 @@ typedef enum {
 } FuzzerProtocolsID;
 
 typedef enum {
-    FuzzerMainMenuIndexDefaultValues = 0,
-    FuzzerMainMenuIndexLoadFile,
-    FuzzerMainMenuIndexLoadFileCustomUids,
-} FuzzerMainMenuIndex;
+    FuzzerAttackIdDefaultValues = 0,
+    FuzzerAttackIdLoadFile,
+    FuzzerAttackIdLoadFileCustomUids,
+    FuzzerAttackIdBFCustomerID,
+} FuzzerAttackId;
 
 struct FuzzerPayload {
     uint8_t* data;
@@ -54,7 +55,14 @@ uint8_t fuzzer_proto_get_count_of_protocols();
  * @param index menu index
  * @return pointer to a string containing the menu label
  */
-const char* fuzzer_proto_get_menu_label(FuzzerMainMenuIndex index);
+const char* fuzzer_proto_get_menu_label(uint8_t index);
+
+/**
+ * Get FuzzerAttackId based on its index
+ * @param index menu index
+ * @return FuzzerAttackId
+ */
+FuzzerAttackId fuzzer_proto_get_attack_id_by_index(uint8_t index);
 
 /**
  * Get number of menu items

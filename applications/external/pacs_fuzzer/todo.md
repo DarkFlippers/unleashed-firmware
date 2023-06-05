@@ -13,7 +13,7 @@
 
 #### App functionality
 
-- [ ] Add `BFCustomerID` attack
+- [x] Add `BFCustomerID` attack
 - [ ] Save key logic
 
 ## Code Improvement

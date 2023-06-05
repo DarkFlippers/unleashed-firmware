@@ -228,10 +228,18 @@ const FuzzerProtocol fuzzer_proto_items[] = {
 };
 #endif
 
-const char* fuzzer_attack_names[] = {
-    [FuzzerMainMenuIndexDefaultValues] = "Default Values",
-    [FuzzerMainMenuIndexLoadFile] = "Load File",
-    [FuzzerMainMenuIndexLoadFileCustomUids] = "Load UIDs from file",
+typedef struct {
+    const char* menu_label;
+    FuzzerAttackId attack_id;
+} FuzzerMenuItems;
+
+const FuzzerMenuItems fuzzer_menu_items[] = {
+    {"Default Values", FuzzerAttackIdDefaultValues},
+#ifdef RFID_125_PROTOCOL
+    {"BF Customer ID", FuzzerAttackIdBFCustomerID},
+#endif
+    {"Load File", FuzzerAttackIdLoadFile},
+    {"Load UIDs from file", FuzzerAttackIdLoadFileCustomUids},
 };
 
 const char* fuzzer_proto_get_name(FuzzerProtocolsID index) {
@@ -246,10 +254,14 @@ uint8_t fuzzer_proto_get_max_data_size() {
     return MAX_PAYLOAD_SIZE;
 }
 
-const char* fuzzer_proto_get_menu_label(FuzzerMainMenuIndex index) {
-    return fuzzer_attack_names[index];
+const char* fuzzer_proto_get_menu_label(uint8_t index) {
+    return fuzzer_menu_items[index].menu_label;
+}
+
+FuzzerAttackId fuzzer_proto_get_attack_id_by_index(uint8_t index) {
+    return fuzzer_menu_items[index].attack_id;
 }
 
 uint8_t fuzzer_proto_get_count_of_menu_items() {
-    return COUNT_OF(fuzzer_attack_names);
+    return COUNT_OF(fuzzer_menu_items);
 }

@@ -75,7 +75,7 @@ void fuzzer_view_main_draw(Canvas* canvas, FuzzerViewMainModel* model) {
     canvas_draw_str_aligned(
         canvas, 64, 36, AlignCenter, AlignTop, fuzzer_proto_get_menu_label(model->menu_index));
 
-    if(model->menu_index < model->menu_max) {
+    if(model->menu_index < (model->menu_max - 1)) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
             canvas,
