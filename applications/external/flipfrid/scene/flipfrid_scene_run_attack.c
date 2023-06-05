@@ -78,7 +78,7 @@ uint8_t id_list_h[14][3] = {
 };
 
 void flipfrid_scene_run_attack_on_enter(FlipFridState* context) {
-    context->time_between_cards = 10;
+    context->time_between_cards = 2;
     context->attack_step = 0;
     context->attack_stop_called = false;
     context->dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
@@ -516,7 +516,7 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
                 break;
             case InputKeyLeft:
                 if(!context->is_attacking) {
-                    if(context->time_between_cards > 5) {
+                    if(context->time_between_cards > 0) {
                         context->time_between_cards--;
                     }
                 }
@@ -568,7 +568,7 @@ void flipfrid_scene_run_attack_on_event(FlipFridEvent event, FlipFridState* cont
             case InputKeyLeft:
                 if(!context->is_attacking) {
                     if(context->time_between_cards > 0) {
-                        if((context->time_between_cards - 10) > 5) {
+                        if((context->time_between_cards - 10) > 0) {
                             context->time_between_cards -= 10;
                         }
                     }
