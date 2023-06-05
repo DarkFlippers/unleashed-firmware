@@ -81,7 +81,8 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
             switch(app->fuzzer_state.menu_index) {
             case FuzzerMainMenuIndexDefaultValues:
 
-                loading_ok = fuzzer_worker_attack_dict(app->worker, app->fuzzer_state.proto_index);
+                loading_ok =
+                    fuzzer_worker_init_attack_dict(app->worker, app->fuzzer_state.proto_index);
 
                 if(!loading_ok) {
                     // error
@@ -108,7 +109,7 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 if(!fuzzer_scene_main_load_custom_dict(app)) {
                     break;
                 } else {
-                    loading_ok = fuzzer_worker_attack_file_dict(
+                    loading_ok = fuzzer_worker_init_attack_file_dict(
                         app->worker, app->fuzzer_state.proto_index, app->file_path);
                 }
                 break;

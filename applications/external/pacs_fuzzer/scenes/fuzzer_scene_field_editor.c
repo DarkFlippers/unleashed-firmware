@@ -38,7 +38,7 @@ bool fuzzer_scene_field_editor_on_event(void* context, SceneManagerEvent event) 
             consumed = true;
         } else if(event.event == FuzzerCustomEventViewFieldEditorOk) {
             // TODO
-            if(fuzzer_worker_attack_bf_byte(
+            if(fuzzer_worker_init_attack_bf_byte(
                    app->worker,
                    app->fuzzer_state.proto_index,
                    fuzzer_view_field_editor_get_uid(app->field_editor_view),

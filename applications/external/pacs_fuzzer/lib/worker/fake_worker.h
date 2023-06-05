@@ -17,42 +17,121 @@ typedef void (*FuzzerWorkerEndCallback)(void* context);
 
 typedef struct FuzzerWorker FuzzerWorker;
 
+/**
+ * Allocate FuzzerWorker
+ * 
+ * @return FuzzerWorker* pointer to FuzzerWorker
+ */
 FuzzerWorker* fuzzer_worker_alloc();
 
-void fuzzer_worker_free(FuzzerWorker* worker);
+/**
+ * Free FuzzerWorker
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ */
+void fuzzer_worker_free(FuzzerWorker* instance);
 
-bool fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay);
+/**
+ * Start or continue emulation
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param timer_dellay Emulation time of one UID in tenths of a second
+ * @return bool True if emulation has started
+ */
+bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t timer_dellay);
 
-void fuzzer_worker_stop(FuzzerWorker* worker);
+/**
+ * Stop emulation and deinit worker
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ */
+void fuzzer_worker_stop(FuzzerWorker* instance);
 
-void fuzzer_worker_pause(FuzzerWorker* worker);
+/**
+ * Suspend emulation
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ */
+void fuzzer_worker_pause(FuzzerWorker* instance);
 
-bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtocolsID protocol_index);
+/**
+ * Init attack by default dictionary
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param protocol_index index of the selected protocol
+ * @return bool True if initialization is successful
+ */
+bool fuzzer_worker_init_attack_dict(FuzzerWorker* instance, FuzzerProtocolsID protocol_index);
 
-bool fuzzer_worker_attack_bf_byte(
-    FuzzerWorker* worker,
+/**
+ * Init attack by custom dictionary
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param protocol_index index of the selected protocol
+ * @param file_path file path to the dictionary
+ * @return bool True if initialization is successful
+ */
+bool fuzzer_worker_init_attack_file_dict(
+    FuzzerWorker* instance,
+    FuzzerProtocolsID protocol_index,
+    FuriString* file_path);
+
+/**
+ * Init attack brute force one of byte
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param protocol_index index of the selected protocol
+ * @param uid UID for brute force
+ * @param chosen index of chusen byte
+ * @return bool True if initialization is successful
+ */
+bool fuzzer_worker_init_attack_bf_byte(
+    FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
     const uint8_t* uid,
     uint8_t chusen);
 
-bool fuzzer_worker_attack_file_dict(
-    FuzzerWorker* worker,
-    FuzzerProtocolsID protocol_index,
-    FuriString* file_path);
+/**
+ * Get current UID
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param output_key Pointer to a FuzzerWorker, memory for data will be allocated 
+ */
+void fuzzer_worker_get_current_key(FuzzerWorker* instance, FuzzerPayload* output_key);
 
-void fuzzer_worker_get_current_key(FuzzerWorker* worker, FuzzerPayload* output_key);
-
+/**
+ * Load UID from Flipper Format Key file
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param protocol_index index of the selected protocol
+ * @param filename file path to the key file
+ * @return bool True if loading is successful
+ */
 bool fuzzer_worker_load_key_from_file(
-    FuzzerWorker* worker,
+    FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
     const char* filename);
 
+/**
+ * Set callback for uid changed
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param callback Callback for uid changed
+ * @param context Context for callback
+ */
 void fuzzer_worker_set_uid_chaged_callback(
-    FuzzerWorker* worker,
+    FuzzerWorker* instance,
     FuzzerWorkerUidChagedCallback callback,
     void* context);
 
+/**
+ * Set callback for end of emulation
+ * 
+ * @param instance Pointer to a FuzzerWorker
+ * @param callback Callback for end of emulation
+ * @param context Context for callback
+ */
 void fuzzer_worker_set_end_callback(
-    FuzzerWorker* worker,
+    FuzzerWorker* instance,
     FuzzerWorkerEndCallback callback,
     void* context);

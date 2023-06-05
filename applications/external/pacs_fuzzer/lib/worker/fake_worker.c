@@ -56,22 +56,22 @@ struct FuzzerWorker {
     void* end_context;
 };
 
-static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
-    furi_assert(worker);
-    furi_assert(worker->protocol);
+static bool fuzzer_worker_load_key(FuzzerWorker* instance, bool next) {
+    furi_assert(instance);
+    furi_assert(instance->protocol);
     bool res = false;
 
-    const FuzzerProtocol* protocol = worker->protocol;
+    const FuzzerProtocol* protocol = instance->protocol;
 
-    switch(worker->attack_type) {
+    switch(instance->attack_type) {
     case FuzzerWorkerAttackTypeDefaultDict:
         if(next) {
-            worker->index++;
+            instance->index++;
         }
-        if(worker->index < protocol->dict.len) {
+        if(instance->index < protocol->dict.len) {
             memcpy(
-                worker->payload,
-                &protocol->dict.val[worker->index * protocol->data_size],
+                instance->payload,
+                &protocol->dict.val[instance->index * protocol->data_size],
                 protocol->data_size);
             res = true;
         }
@@ -79,14 +79,14 @@ static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
 
     case FuzzerWorkerAttackTypeLoadFileCustomUids: {
         if(next) {
-            worker->index++;
+            instance->index++;
         }
         uint8_t str_len = protocol->data_size * 2 + 1;
         FuriString* data_str = furi_string_alloc();
         while(true) {
             furi_string_reset(data_str);
-            if(!stream_read_line(worker->uids_stream, data_str)) {
-                stream_rewind(worker->uids_stream);
+            if(!stream_read_line(instance->uids_stream, data_str)) {
+                stream_rewind(instance->uids_stream);
                 // TODO Check empty file & close stream and storage
                 break;
             } else if(furi_string_get_char(data_str, 0) == '#') {
@@ -103,7 +103,7 @@ static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
                     if(!hex_char_to_uint8(
                            furi_string_get_cstr(data_str)[i * 2],
                            furi_string_get_cstr(data_str)[i * 2 + 1],
-                           &worker->payload[i])) {
+                           &instance->payload[i])) {
                         parse_ok = false;
                         break;
                     }
@@ -117,8 +117,8 @@ static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
     break;
 
     case FuzzerWorkerAttackTypeLoadFile:
-        if(worker->payload[worker->index] != 0xFF) {
-            worker->payload[worker->index]++;
+        if(instance->payload[instance->index] != 0xFF) {
+            instance->payload[instance->index]++;
             res = true;
         }
 
@@ -129,15 +129,15 @@ static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
     }
 #if defined(RFID_125_PROTOCOL)
     protocol_dict_set_data(
-        worker->protocols_items, worker->protocol_id, worker->payload, MAX_PAYLOAD_SIZE);
+        instance->protocols_items, instance->protocol_id, instance->payload, MAX_PAYLOAD_SIZE);
 #else
-    ibutton_key_set_protocol_id(worker->key, worker->protocol_id);
+    ibutton_key_set_protocol_id(instance->key, instance->protocol_id);
     iButtonEditableData data;
-    ibutton_protocols_get_editable_data(worker->protocols_items, worker->key, &data);
+    ibutton_protocols_get_editable_data(instance->protocols_items, instance->key, &data);
 
     //  TODO  check data.size logic
     data.size = MAX_PAYLOAD_SIZE;
-    memcpy(data.ptr, worker->payload, MAX_PAYLOAD_SIZE); // data.size);
+    memcpy(data.ptr, instance->payload, MAX_PAYLOAD_SIZE); // data.size);
 #endif
     return res;
 }
@@ -145,69 +145,69 @@ static bool fuzzer_worker_load_key(FuzzerWorker* worker, bool next) {
 static void fuzzer_worker_on_tick_callback(void* context) {
     furi_assert(context);
 
-    FuzzerWorker* worker = context;
+    FuzzerWorker* instance = context;
 
-    if(worker->treead_running) {
+    if(instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
-        lfrfid_worker_stop(worker->proto_worker);
+        lfrfid_worker_stop(instance->proto_worker);
 #else
-        ibutton_worker_stop(worker->proto_worker);
+        ibutton_worker_stop(instance->proto_worker);
 #endif
     }
 
-    if(!fuzzer_worker_load_key(worker, true)) {
-        fuzzer_worker_pause(worker); // XXX
-        if(worker->end_callback) {
-            worker->end_callback(worker->end_context);
+    if(!fuzzer_worker_load_key(instance, true)) {
+        fuzzer_worker_pause(instance); // XXX
+        if(instance->end_callback) {
+            instance->end_callback(instance->end_context);
         }
     } else {
-        if(worker->treead_running) {
+        if(instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
-            lfrfid_worker_emulate_start(worker->proto_worker, worker->protocol_id);
+            lfrfid_worker_emulate_start(instance->proto_worker, instance->protocol_id);
 #else
-            ibutton_worker_emulate_start(worker->proto_worker, worker->key);
+            ibutton_worker_emulate_start(instance->proto_worker, instance->key);
 #endif
         }
-        if(worker->tick_callback) {
-            worker->tick_callback(worker->tick_context);
+        if(instance->tick_callback) {
+            instance->tick_callback(instance->tick_context);
         }
     }
 }
 
-void fuzzer_worker_get_current_key(FuzzerWorker* worker, FuzzerPayload* output_key) {
-    furi_assert(worker);
+void fuzzer_worker_get_current_key(FuzzerWorker* instance, FuzzerPayload* output_key) {
+    furi_assert(instance);
     furi_assert(output_key);
-    furi_assert(worker->protocol);
+    furi_assert(instance->protocol);
 
-    output_key->data_size = worker->protocol->data_size;
+    output_key->data_size = instance->protocol->data_size;
     output_key->data = malloc(sizeof(output_key->data_size));
-    memcpy(output_key->data, worker->payload, worker->protocol->data_size);
+    memcpy(output_key->data, instance->payload, instance->protocol->data_size);
 }
 
-static void fuzzer_worker_set_protocol(FuzzerWorker* worker, FuzzerProtocolsID protocol_index) {
-    worker->protocol = &fuzzer_proto_items[protocol_index];
+static void fuzzer_worker_set_protocol(FuzzerWorker* instance, FuzzerProtocolsID protocol_index) {
+    instance->protocol = &fuzzer_proto_items[protocol_index];
 
 #if defined(RFID_125_PROTOCOL)
-    worker->protocol_id =
-        protocol_dict_get_protocol_by_name(worker->protocols_items, worker->protocol->name);
+    instance->protocol_id =
+        protocol_dict_get_protocol_by_name(instance->protocols_items, instance->protocol->name);
 #else
     // TODO iButtonProtocolIdInvalid check
-    worker->protocol_id =
-        ibutton_protocols_get_id_by_name(worker->protocols_items, worker->protocol->name);
+    instance->protocol_id =
+        ibutton_protocols_get_id_by_name(instance->protocols_items, instance->protocol->name);
 #endif
 }
 
-bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtocolsID protocol_index) {
-    furi_assert(worker);
+bool fuzzer_worker_init_attack_dict(FuzzerWorker* instance, FuzzerProtocolsID protocol_index) {
+    furi_assert(instance);
 
     bool res = false;
-    fuzzer_worker_set_protocol(worker, protocol_index);
+    fuzzer_worker_set_protocol(instance, protocol_index);
 
-    worker->attack_type = FuzzerWorkerAttackTypeDefaultDict;
-    worker->index = 0;
+    instance->attack_type = FuzzerWorkerAttackTypeDefaultDict;
+    instance->index = 0;
 
-    if(!fuzzer_worker_load_key(worker, false)) {
-        worker->attack_type = FuzzerWorkerAttackTypeMax;
+    if(!fuzzer_worker_load_key(instance, false)) {
+        instance->attack_type = FuzzerWorkerAttackTypeMax;
     } else {
         res = true;
     }
@@ -215,31 +215,31 @@ bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtocolsID protocol_
     return res;
 }
 
-bool fuzzer_worker_attack_file_dict(
-    FuzzerWorker* worker,
+bool fuzzer_worker_init_attack_file_dict(
+    FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
     FuriString* file_path) {
-    furi_assert(worker);
+    furi_assert(instance);
     furi_assert(file_path);
 
     bool res = false;
-    fuzzer_worker_set_protocol(worker, protocol_index);
+    fuzzer_worker_set_protocol(instance, protocol_index);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    worker->uids_stream = buffered_file_stream_alloc(storage);
+    instance->uids_stream = buffered_file_stream_alloc(storage);
 
     if(!buffered_file_stream_open(
-           worker->uids_stream, furi_string_get_cstr(file_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        buffered_file_stream_close(worker->uids_stream);
+           instance->uids_stream, furi_string_get_cstr(file_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        buffered_file_stream_close(instance->uids_stream);
         return res;
     }
 
-    worker->attack_type = FuzzerWorkerAttackTypeLoadFileCustomUids;
-    worker->index = 0;
+    instance->attack_type = FuzzerWorkerAttackTypeLoadFileCustomUids;
+    instance->index = 0;
 
-    if(!fuzzer_worker_load_key(worker, false)) {
-        worker->attack_type = FuzzerWorkerAttackTypeMax;
-        buffered_file_stream_close(worker->uids_stream);
+    if(!fuzzer_worker_load_key(instance, false)) {
+        instance->attack_type = FuzzerWorkerAttackTypeMax;
+        buffered_file_stream_close(instance->uids_stream);
         furi_record_close(RECORD_STORAGE);
     } else {
         res = true;
@@ -248,20 +248,20 @@ bool fuzzer_worker_attack_file_dict(
     return res;
 }
 
-bool fuzzer_worker_attack_bf_byte(
-    FuzzerWorker* worker,
+bool fuzzer_worker_init_attack_bf_byte(
+    FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
     const uint8_t* uid,
     uint8_t chusen) {
-    furi_assert(worker);
+    furi_assert(instance);
 
     bool res = false;
-    fuzzer_worker_set_protocol(worker, protocol_index);
+    fuzzer_worker_set_protocol(instance, protocol_index);
 
-    worker->attack_type = FuzzerWorkerAttackTypeLoadFile;
-    worker->index = chusen;
+    instance->attack_type = FuzzerWorkerAttackTypeLoadFile;
+    instance->index = chusen;
 
-    memcpy(worker->payload, uid, worker->protocol->data_size);
+    memcpy(instance->payload, uid, instance->protocol->data_size);
 
     res = true;
 
@@ -270,49 +270,49 @@ bool fuzzer_worker_attack_bf_byte(
 
 // TODO make it protocol independent
 bool fuzzer_worker_load_key_from_file(
-    FuzzerWorker* worker,
+    FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
     const char* filename) {
-    furi_assert(worker);
+    furi_assert(instance);
 
     bool res = false;
-    fuzzer_worker_set_protocol(worker, protocol_index);
+    fuzzer_worker_set_protocol(instance, protocol_index);
 
 #if defined(RFID_125_PROTOCOL)
-    ProtocolId loaded_proto_id = lfrfid_dict_file_load(worker->protocols_items, filename);
+    ProtocolId loaded_proto_id = lfrfid_dict_file_load(instance->protocols_items, filename);
     if(loaded_proto_id == PROTOCOL_NO) {
         // Err Cant load file
         FURI_LOG_W(TAG, "Cant load file");
-    } else if(worker->protocol_id != loaded_proto_id) { // Err wrong protocol
+    } else if(instance->protocol_id != loaded_proto_id) { // Err wrong protocol
         FURI_LOG_W(TAG, "Wrong protocol");
         FURI_LOG_W(
             TAG,
             "Selected: %s Loaded: %s",
-            worker->protocol->name,
-            protocol_dict_get_name(worker->protocols_items, loaded_proto_id));
+            instance->protocol->name,
+            protocol_dict_get_name(instance->protocols_items, loaded_proto_id));
     } else {
         protocol_dict_get_data(
-            worker->protocols_items, worker->protocol_id, worker->payload, MAX_PAYLOAD_SIZE);
+            instance->protocols_items, instance->protocol_id, instance->payload, MAX_PAYLOAD_SIZE);
         res = true;
     }
 #else
-    if(!ibutton_protocols_load(worker->protocols_items, worker->key, filename)) {
+    if(!ibutton_protocols_load(instance->protocols_items, instance->key, filename)) {
         // Err Cant load file
         FURI_LOG_W(TAG, "Cant load file");
     } else {
-        if(worker->protocol_id != ibutton_key_get_protocol_id(worker->key)) {
+        if(instance->protocol_id != ibutton_key_get_protocol_id(instance->key)) {
             // Err wrong protocol
             FURI_LOG_W(TAG, "Wrong protocol");
             FURI_LOG_W(
                 TAG,
                 "Selected: %s Loaded: %s",
-                worker->protocol->name,
+                instance->protocol->name,
                 ibutton_protocols_get_name(
-                    worker->protocols_items, ibutton_key_get_protocol_id(worker->key)));
+                    instance->protocols_items, ibutton_key_get_protocol_id(instance->key)));
         } else {
             iButtonEditableData data;
-            ibutton_protocols_get_editable_data(worker->protocols_items, worker->key, &data);
-            memcpy(worker->payload, data.ptr, data.size);
+            ibutton_protocols_get_editable_data(instance->protocols_items, instance->key, &data);
+            memcpy(instance->payload, data.ptr, data.size);
             res = true;
         }
     }
@@ -322,140 +322,141 @@ bool fuzzer_worker_load_key_from_file(
 }
 
 FuzzerWorker* fuzzer_worker_alloc() {
-    FuzzerWorker* worker = malloc(sizeof(FuzzerWorker));
+    FuzzerWorker* instance = malloc(sizeof(FuzzerWorker));
 
 #if defined(RFID_125_PROTOCOL)
-    worker->protocols_items = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    instance->protocols_items = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
 
-    worker->proto_worker = lfrfid_worker_alloc(worker->protocols_items);
+    instance->proto_worker = lfrfid_worker_alloc(instance->protocols_items);
 #else
-    worker->protocols_items = ibutton_protocols_alloc();
-    worker->key = ibutton_key_alloc(ibutton_protocols_get_max_data_size(worker->protocols_items));
+    instance->protocols_items = ibutton_protocols_alloc();
+    instance->key =
+        ibutton_key_alloc(ibutton_protocols_get_max_data_size(instance->protocols_items));
 
-    worker->proto_worker = ibutton_worker_alloc(worker->protocols_items);
+    instance->proto_worker = ibutton_worker_alloc(instance->protocols_items);
 #endif
-    worker->attack_type = FuzzerWorkerAttackTypeMax;
-    worker->index = 0;
-    worker->treead_running = false;
+    instance->attack_type = FuzzerWorkerAttackTypeMax;
+    instance->index = 0;
+    instance->treead_running = false;
 
-    memset(worker->payload, 0x00, sizeof(worker->payload));
+    memset(instance->payload, 0x00, sizeof(instance->payload));
 
-    worker->timeer_delay = FUZZ_TIME_DELAY_DEFAULT;
+    instance->timeer_delay = FUZZ_TIME_DELAY_DEFAULT;
 
-    worker->timer =
-        furi_timer_alloc(fuzzer_worker_on_tick_callback, FuriTimerTypePeriodic, worker);
+    instance->timer =
+        furi_timer_alloc(fuzzer_worker_on_tick_callback, FuriTimerTypePeriodic, instance);
 
-    return worker;
+    return instance;
 }
 
-void fuzzer_worker_free(FuzzerWorker* worker) {
-    furi_assert(worker);
+void fuzzer_worker_free(FuzzerWorker* instance) {
+    furi_assert(instance);
 
-    fuzzer_worker_stop(worker);
+    fuzzer_worker_stop(instance);
 
-    furi_timer_free(worker->timer);
+    furi_timer_free(instance->timer);
 
 #if defined(RFID_125_PROTOCOL)
-    lfrfid_worker_free(worker->proto_worker);
+    lfrfid_worker_free(instance->proto_worker);
 
-    protocol_dict_free(worker->protocols_items);
+    protocol_dict_free(instance->protocols_items);
 #else
-    ibutton_worker_free(worker->proto_worker);
+    ibutton_worker_free(instance->proto_worker);
 
-    ibutton_key_free(worker->key);
-    ibutton_protocols_free(worker->protocols_items);
+    ibutton_key_free(instance->key);
+    ibutton_protocols_free(instance->protocols_items);
 #endif
 
-    free(worker);
+    free(instance);
 }
 
-bool fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay) {
-    furi_assert(worker);
+bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t timer_dellay) {
+    furi_assert(instance);
 
-    if(worker->attack_type < FuzzerWorkerAttackTypeMax) {
-        worker->timeer_delay = timer_dellay;
+    if(instance->attack_type < FuzzerWorkerAttackTypeMax) {
+        instance->timeer_delay = timer_dellay;
 
-        furi_timer_start(worker->timer, furi_ms_to_ticks(timer_dellay * 100));
+        furi_timer_start(instance->timer, furi_ms_to_ticks(timer_dellay * 100));
 
-        if(!worker->treead_running) {
+        if(!instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
-            lfrfid_worker_start_thread(worker->proto_worker);
+            lfrfid_worker_start_thread(instance->proto_worker);
 #else
-            ibutton_worker_start_thread(worker->proto_worker);
+            ibutton_worker_start_thread(instance->proto_worker);
 #endif
             FURI_LOG_D(TAG, "Worker Starting");
-            worker->treead_running = true;
+            instance->treead_running = true;
         } else {
             FURI_LOG_D(TAG, "Worker UnPaused");
         }
 
 #if defined(RFID_125_PROTOCOL)
-        // lfrfid_worker_start_thread(worker->proto_worker);
-        lfrfid_worker_emulate_start(worker->proto_worker, worker->protocol_id);
+        // lfrfid_worker_start_thread(instance->proto_worker);
+        lfrfid_worker_emulate_start(instance->proto_worker, instance->protocol_id);
 #else
-        // ibutton_worker_start_thread(worker->proto_worker);
-        ibutton_worker_emulate_start(worker->proto_worker, worker->key);
+        // ibutton_worker_start_thread(instance->proto_worker);
+        ibutton_worker_emulate_start(instance->proto_worker, instance->key);
 #endif
         return true;
     }
     return false;
 }
 
-void fuzzer_worker_pause(FuzzerWorker* worker) {
-    furi_assert(worker);
+void fuzzer_worker_pause(FuzzerWorker* instance) {
+    furi_assert(instance);
 
-    furi_timer_stop(worker->timer);
+    furi_timer_stop(instance->timer);
 
-    if(worker->treead_running) {
+    if(instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
-        lfrfid_worker_stop(worker->proto_worker);
+        lfrfid_worker_stop(instance->proto_worker);
 #else
-        ibutton_worker_stop(worker->proto_worker);
+        ibutton_worker_stop(instance->proto_worker);
 #endif
         FURI_LOG_D(TAG, "Worker Paused");
     }
 }
 
-void fuzzer_worker_stop(FuzzerWorker* worker) {
-    furi_assert(worker);
+void fuzzer_worker_stop(FuzzerWorker* instance) {
+    furi_assert(instance);
 
-    furi_timer_stop(worker->timer);
+    furi_timer_stop(instance->timer);
 
-    if(worker->treead_running) {
+    if(instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
-        lfrfid_worker_stop(worker->proto_worker);
-        lfrfid_worker_stop_thread(worker->proto_worker);
+        lfrfid_worker_stop(instance->proto_worker);
+        lfrfid_worker_stop_thread(instance->proto_worker);
 #else
-        ibutton_worker_stop(worker->proto_worker);
-        ibutton_worker_stop_thread(worker->proto_worker);
+        ibutton_worker_stop(instance->proto_worker);
+        ibutton_worker_stop_thread(instance->proto_worker);
 #endif
         FURI_LOG_D(TAG, "Worker Stopping");
-        worker->treead_running = false;
+        instance->treead_running = false;
     }
 
-    if(worker->attack_type == FuzzerWorkerAttackTypeLoadFileCustomUids) {
-        buffered_file_stream_close(worker->uids_stream);
+    if(instance->attack_type == FuzzerWorkerAttackTypeLoadFileCustomUids) {
+        buffered_file_stream_close(instance->uids_stream);
         furi_record_close(RECORD_STORAGE);
-        worker->attack_type = FuzzerWorkerAttackTypeMax;
+        instance->attack_type = FuzzerWorkerAttackTypeMax;
     }
 
     // TODO  anything else
 }
 
 void fuzzer_worker_set_uid_chaged_callback(
-    FuzzerWorker* worker,
+    FuzzerWorker* instance,
     FuzzerWorkerUidChagedCallback callback,
     void* context) {
-    furi_assert(worker);
-    worker->tick_callback = callback;
-    worker->tick_context = context;
+    furi_assert(instance);
+    instance->tick_callback = callback;
+    instance->tick_context = context;
 }
 
 void fuzzer_worker_set_end_callback(
-    FuzzerWorker* worker,
+    FuzzerWorker* instance,
     FuzzerWorkerEndCallback callback,
     void* context) {
-    furi_assert(worker);
-    worker->end_callback = callback;
-    worker->end_context = context;
+    furi_assert(instance);
+    instance->end_callback = callback;
+    instance->end_context = context;
 }
