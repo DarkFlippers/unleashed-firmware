@@ -100,25 +100,31 @@ jobs:
           cp build/f7-firmware-*/firmware.elf map_analyser_files/firmware.elf
           cp ${{ github.event_path }} map_analyser_files/event.json
 
-      - name: 'Upload map analyser files to storage'
+      - name: 'Analyse map file'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: prewk/s3-cp-action@v2
-        with:
-          aws_s3_endpoint: "${{ secrets.MAP_REPORT_AWS_ENDPOINT }}"
-          aws_access_key_id: "${{ secrets.MAP_REPORT_AWS_ACCESS_KEY }}"
-          aws_secret_access_key: "${{ secrets.MAP_REPORT_AWS_SECRET_KEY }}"
-          source: "./map_analyser_files/"
-          dest: "s3://${{ secrets.MAP_REPORT_AWS_BUCKET }}/${{steps.names.outputs.random_hash}}"
-          flags: "--recursive --acl public-read"
-
-      - name: 'Trigger map file reporter'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          repository: flipperdevices/flipper-map-reporter
-          token: ${{ secrets.REPOSITORY_DISPATCH_TOKEN }}
-          event-type: map-file-analyse
-          client-payload: '{"random_hash": "${{steps.names.outputs.random_hash}}", "event_type": "${{steps.names.outputs.event_type}}"}'
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          get_size()
+          {
+            SECTION="$1";
+            arm-none-eabi-size \
+              -A map_analyser_files/firmware.elf \
+              | grep "^$SECTION" | awk '{print $2}'
+          }
+          export BSS_SIZE="$(get_size ".bss")"
+          export TEXT_SIZE="$(get_size ".text")"
+          export RODATA_SIZE="$(get_size ".rodata")"
+          export DATA_SIZE="$(get_size ".data")"
+          export FREE_FLASH_SIZE="$(get_size ".free_flash")"
+          python3 -m pip install mariadb==1.1.6 cxxfilt==0.3.0
+          python3 scripts/map_parser.py map_analyser_files/firmware.elf.map map_analyser_files/firmware.elf.map.all
+          python3 scripts/map_mariadb_insert.py \
+              ${{ secrets.AMAP_MARIADB_USER }} \
+              ${{ secrets.AMAP_MARIADB_PASSWORD }} \
+              ${{ secrets.AMAP_MARIADB_HOST }} \
+              ${{ secrets.AMAP_MARIADB_PORT }} \
+              ${{ secrets.AMAP_MARIADB_DATABASE }} \
+              map_analyser_files/firmware.elf.map.all
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
