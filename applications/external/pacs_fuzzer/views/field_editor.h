@@ -2,6 +2,7 @@
 
 #include <gui/view.h>
 #include "../helpers/fuzzer_custom_event.h"
+#include "../lib/worker/protocol.h"
 
 typedef struct FuzzerViewFieldEditor FuzzerViewFieldEditor;
 
@@ -20,9 +21,9 @@ View* fuzzer_view_field_editor_get_view(FuzzerViewFieldEditor* view_attack);
 
 void fuzzer_view_field_editor_reset_data(
     FuzzerViewFieldEditor* view_edit,
-    uint8_t* uid,
-    uint8_t uid_size);
+    const FuzzerPayload new_uid);
 
+// TODO
 const uint8_t* fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit);
 
 uint8_t fuzzer_view_field_editor_get_index(FuzzerViewFieldEditor* view_edit);

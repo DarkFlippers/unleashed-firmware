@@ -1,8 +1,6 @@
 #include "../fuzzer_i.h"
 #include "../helpers/fuzzer_custom_event.h"
 
-#include "../helpers/gui_const.h"
-
 // TODO simlify callbacks and attack state
 
 void fuzzer_scene_attack_worker_tick_callback(void* context) {
@@ -23,30 +21,37 @@ void fuzzer_scene_attack_callback(FuzzerCustomEvent event, void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
+static void fuzzer_scene_attack_update_uid(PacsFuzzerApp* app) {
+    furi_assert(app);
+    furi_assert(app->worker);
+    furi_assert(app->attack_view);
+
+    FuzzerPayload uid;
+    fuzzer_worker_get_current_key(app->worker, &uid);
+
+    fuzzer_view_attack_set_uid(app->attack_view, uid);
+
+    free(uid.data);
+}
+
 void fuzzer_scene_attack_on_enter(void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
 
     fuzzer_view_attack_set_callback(app->attack_view, fuzzer_scene_attack_callback, app);
 
-    FuzzerProtocol proto = fuzzer_proto_items[app->fuzzer_state.proto_index];
-
     fuzzer_worker_set_uid_chaged_callback(
         app->worker, fuzzer_scene_attack_worker_tick_callback, app);
 
     fuzzer_worker_set_end_callback(app->worker, fuzzer_scene_attack_worker_end_callback, app);
 
-    uint8_t temp_uid[proto.data_size];
-
-    fuzzer_worker_get_current_key(app->worker, temp_uid);
-
     fuzzer_view_attack_reset_data(
         app->attack_view,
-        fuzzer_attack_names[app->fuzzer_state.menu_index],
-        proto.name,
-        proto.data_size);
+        fuzzer_proto_get_menu_label(app->fuzzer_state.menu_index),
+        fuzzer_proto_get_name(app->fuzzer_state.proto_index));
     fuzzer_view_attack_set_attack(app->attack_view, false);
-    fuzzer_view_attack_set_uid(app->attack_view, (uint8_t*)&temp_uid);
+
+    fuzzer_scene_attack_update_uid(app);
 
     scene_manager_set_scene_state(app->scene_manager, FuzzerSceneAttack, false);
 
@@ -84,11 +89,7 @@ bool fuzzer_scene_attack_on_event(void* context, SceneManagerEvent event) {
             }
             consumed = true;
         } else if(event.event == FuzzerCustomEventViewAttackTick) {
-            uint8_t temp_uid[fuzzer_proto_items[app->fuzzer_state.proto_index].data_size];
-
-            fuzzer_worker_get_current_key(app->worker, temp_uid);
-
-            fuzzer_view_attack_set_uid(app->attack_view, (uint8_t*)&temp_uid);
+            fuzzer_scene_attack_update_uid(app);
             consumed = true;
         } else if(event.event == FuzzerCustomEventViewAttackEnd) {
             scene_manager_set_scene_state(app->scene_manager, FuzzerSceneAttack, false);

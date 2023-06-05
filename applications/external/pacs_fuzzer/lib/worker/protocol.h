@@ -4,8 +4,9 @@
 
 // #define RFID_125_PROTOCOL
 
-typedef enum {
+typedef struct FuzzerPayload FuzzerPayload;
 
+typedef enum {
 #if defined(RFID_125_PROTOCOL)
     EM4100,
     HIDProx,
@@ -16,24 +17,25 @@ typedef enum {
     Metakom,
     Cyfral,
 #endif
+} FuzzerProtocolsID;
 
-    // Reserved
-    FuzzerProtoMax,
-} FuzzerProtos;
+typedef enum {
+    FuzzerMainMenuIndexDefaultValues = 0,
+    FuzzerMainMenuIndexLoadFile,
+    FuzzerMainMenuIndexLoadFileCustomUids,
+} FuzzerMainMenuIndex;
 
-struct ProtoDict {
-    const uint8_t* val;
-    const uint8_t len;
+struct FuzzerPayload {
+    uint8_t* data;
+    uint8_t data_size;
 };
 
-typedef struct ProtoDict ProtoDict;
+uint8_t fuzzer_proto_get_max_data_size();
 
-struct FuzzerProtocol {
-    const char* name;
-    const uint8_t data_size;
-    const ProtoDict dict;
-};
+const char* fuzzer_proto_get_name(FuzzerProtocolsID index);
 
-typedef struct FuzzerProtocol FuzzerProtocol;
+uint8_t fuzzer_proto_get_count_of_protocols();
 
-extern const FuzzerProtocol fuzzer_proto_items[];
+const char* fuzzer_proto_get_menu_label(FuzzerMainMenuIndex index);
+
+uint8_t fuzzer_proto_get_count_of_menu_items();

@@ -28,6 +28,7 @@ typedef struct {
     const char* custom_dict_folder;
     const char* key_extension;
     const char* path_key_folder;
+    const Icon* key_icon;
 } FuzzerConsts;
 
 typedef struct {

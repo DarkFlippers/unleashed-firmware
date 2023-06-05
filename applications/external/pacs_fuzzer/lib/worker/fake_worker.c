@@ -1,4 +1,5 @@
 #include "fake_worker.h"
+#include "protocol_i.h"
 
 #include <timer.h>
 
@@ -11,14 +12,12 @@
 
 #if defined(RFID_125_PROTOCOL)
 
-#define MAX_PAYLOAD_SIZE 6
 #include <lib/lfrfid/lfrfid_dict_file.h>
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <lfrfid/protocols/lfrfid_protocols.h>
 
 #else
 
-#define MAX_PAYLOAD_SIZE 8
 #include <lib/ibutton/ibutton_worker.h>
 #include <lib/ibutton/ibutton_key.h>
 
@@ -175,14 +174,17 @@ static void fuzzer_worker_on_tick_callback(void* context) {
     }
 }
 
-void fuzzer_worker_get_current_key(FuzzerWorker* worker, uint8_t* key) {
+void fuzzer_worker_get_current_key(FuzzerWorker* worker, FuzzerPayload* output_key) {
     furi_assert(worker);
+    furi_assert(output_key);
     furi_assert(worker->protocol);
 
-    memcpy(key, worker->payload, worker->protocol->data_size);
+    output_key->data_size = worker->protocol->data_size;
+    output_key->data = malloc(sizeof(output_key->data_size));
+    memcpy(output_key->data, worker->payload, worker->protocol->data_size);
 }
 
-static void fuzzer_worker_set_protocol(FuzzerWorker* worker, FuzzerProtos protocol_index) {
+static void fuzzer_worker_set_protocol(FuzzerWorker* worker, FuzzerProtocolsID protocol_index) {
     worker->protocol = &fuzzer_proto_items[protocol_index];
 
 #if defined(RFID_125_PROTOCOL)
@@ -195,7 +197,7 @@ static void fuzzer_worker_set_protocol(FuzzerWorker* worker, FuzzerProtos protoc
 #endif
 }
 
-bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtos protocol_index) {
+bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtocolsID protocol_index) {
     furi_assert(worker);
 
     bool res = false;
@@ -215,7 +217,7 @@ bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtos protocol_index
 
 bool fuzzer_worker_attack_file_dict(
     FuzzerWorker* worker,
-    FuzzerProtos protocol_index,
+    FuzzerProtocolsID protocol_index,
     FuriString* file_path) {
     furi_assert(worker);
     furi_assert(file_path);
@@ -248,7 +250,7 @@ bool fuzzer_worker_attack_file_dict(
 
 bool fuzzer_worker_attack_bf_byte(
     FuzzerWorker* worker,
-    FuzzerProtos protocol_index,
+    FuzzerProtocolsID protocol_index,
     const uint8_t* uid,
     uint8_t chusen) {
     furi_assert(worker);
@@ -269,7 +271,7 @@ bool fuzzer_worker_attack_bf_byte(
 // TODO make it protocol independent
 bool fuzzer_worker_load_key_from_file(
     FuzzerWorker* worker,
-    FuzzerProtos protocol_index,
+    FuzzerProtocolsID protocol_index,
     const char* filename) {
     furi_assert(worker);
 

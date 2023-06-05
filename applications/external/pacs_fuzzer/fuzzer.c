@@ -113,6 +113,7 @@ int32_t fuzzer_start_ibtn(void* p) {
         .custom_dict_extension = ".txt",
         .key_extension = ".ibtn",
         .path_key_folder = "/ext/ibutton",
+        .key_icon = &I_ibutt_10px,
     };
     fuzzer_app->fuzzer_const = &app_const;
 
@@ -131,6 +132,7 @@ int32_t fuzzer_start_rfid(void* p) {
         .custom_dict_extension = ".txt",
         .key_extension = ".rfid",
         .path_key_folder = "/ext/lfrfid",
+        .key_icon = &I_125_10px,
     };
     fuzzer_app->fuzzer_const = &app_const;
 

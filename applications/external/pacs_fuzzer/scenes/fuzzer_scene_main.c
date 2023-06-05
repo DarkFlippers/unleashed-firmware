@@ -2,7 +2,6 @@
 #include "../helpers/fuzzer_custom_event.h"
 
 #include "../lib/worker/protocol.h"
-#include "../helpers/gui_const.h"
 
 void fuzzer_scene_main_callback(FuzzerCustomEvent event, void* context) {
     furi_assert(context);
@@ -40,7 +39,7 @@ static bool fuzzer_scene_main_load_key(void* context) {
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(
-        &browser_options, consts->key_extension, &I_rfid_10px); // TODO icon
+        &browser_options, consts->key_extension, consts->key_icon);
     browser_options.base_path = consts->path_key_folder;
     browser_options.hide_ext = true;
 

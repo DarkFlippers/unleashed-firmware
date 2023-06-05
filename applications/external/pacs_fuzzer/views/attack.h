@@ -2,6 +2,7 @@
 
 #include <gui/view.h>
 #include "../helpers/fuzzer_custom_event.h"
+#include "../lib/worker/protocol.h"
 
 typedef struct FuzzerViewAttack FuzzerViewAttack;
 
@@ -21,10 +22,9 @@ View* fuzzer_view_attack_get_view(FuzzerViewAttack* view_attack);
 void fuzzer_view_attack_reset_data(
     FuzzerViewAttack* view,
     const char* attack_name,
-    const char* protocol_name,
-    uint8_t uid_size);
+    const char* protocol_name);
 
-void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid);
+void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload uid);
 
 void fuzzer_view_attack_set_attack(FuzzerViewAttack* view, bool attack);
 

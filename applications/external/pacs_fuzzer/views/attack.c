@@ -5,6 +5,7 @@
 #include <gui/elements.h>
 
 #define ATTACK_SCENE_MAX_UID_LENGTH 25
+#define UID_MAX_DISPLAYED_LEN (8U)
 
 struct FuzzerViewAttack {
     View* view;
@@ -18,14 +19,12 @@ typedef struct {
     const char* protocol_name;
     bool attack_enabled;
     char* uid;
-    uint8_t uid_size;
 } FuzzerViewAttackModel;
 
 void fuzzer_view_attack_reset_data(
     FuzzerViewAttack* view,
     const char* attack_name,
-    const char* protocol_name,
-    uint8_t uid_size) {
+    const char* protocol_name) {
     furi_assert(view);
 
     with_view_model(
@@ -35,13 +34,17 @@ void fuzzer_view_attack_reset_data(
             model->attack_name = attack_name;
             model->protocol_name = protocol_name;
             model->attack_enabled = false;
-            model->uid_size = uid_size;
+            strcpy(model->uid, "Not_set");
         },
         true);
 }
 
-void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid) {
+void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload uid) {
     furi_assert(view);
+
+    // TODO fix it
+    uint8_t* data = malloc(uid.data_size);
+    memcpy(data, uid.data, uid.data_size);
 
     with_view_model(
         view->view,
@@ -49,18 +52,20 @@ void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const uint8_t* uid) {
         {
             snprintf(
                 model->uid,
-                model->uid_size * 3,
+                uid.data_size * 3,
                 "%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X",
-                uid[0],
-                uid[1],
-                uid[2],
-                uid[3],
-                uid[4],
-                uid[5],
-                uid[6],
-                uid[7]);
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                data[4],
+                data[5],
+                data[6],
+                data[7]);
         },
         true);
+
+    free(data);
 }
 
 void fuzzer_view_attack_set_attack(FuzzerViewAttack* view, bool attack) {
@@ -175,6 +180,10 @@ void fuzzer_view_attack_exit(void* context) {
 }
 
 FuzzerViewAttack* fuzzer_view_attack_alloc() {
+    if(fuzzer_proto_get_max_data_size() > UID_MAX_DISPLAYED_LEN) {
+        furi_crash("Maximum of displayed bytes exceeded");
+    }
+
     FuzzerViewAttack* view_attack = malloc(sizeof(FuzzerViewAttack));
 
     // View allocation and configuration

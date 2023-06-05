@@ -1,4 +1,5 @@
-#include "protocol.h"
+#include "protocol_i.h"
+#include "furi.h"
 
 // #######################
 // ## Ibutton Protocols ##
@@ -156,32 +157,40 @@ const FuzzerProtocol fuzzer_proto_items[] = {
             .name = "EM4100",
             .data_size = EM4100_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_em4100,
-                 .len = sizeof(uid_list_em4100) / EM4100_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_em4100,
+                    .len = COUNT_OF(uid_list_em4100),
+                },
         },
     [HIDProx] =
         {
             .name = "HIDProx",
             .data_size = HIDProx_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_hid,
-                 .len = sizeof(uid_list_hid) / HIDProx_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_hid,
+                    .len = COUNT_OF(uid_list_hid),
+                },
         },
     [PAC] =
         {
             .name = "PAC/Stanley",
             .data_size = PAC_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_pac,
-                 .len = sizeof(uid_list_pac) / PAC_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_pac,
+                    .len = COUNT_OF(uid_list_pac),
+                },
         },
     [H10301] =
         {
             .name = "H10301",
             .data_size = H10301_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_h10301,
-                 .len = sizeof(uid_list_h10301) / H10301_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_h10301,
+                    .len = COUNT_OF(uid_list_h10301),
+                },
         },
 };
 #else
@@ -191,24 +200,56 @@ const FuzzerProtocol fuzzer_proto_items[] = {
             .name = "DS1990",
             .data_size = DS1990_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_ds1990,
-                 .len = sizeof(uid_list_ds1990) / DS1990_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_ds1990,
+                    .len = COUNT_OF(uid_list_ds1990),
+                },
         },
     [Metakom] =
         {
             .name = "Metakom",
             .data_size = Metakom_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_metakom,
-                 .len = sizeof(uid_list_metakom) / Metakom_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_metakom,
+                    .len = COUNT_OF(uid_list_metakom),
+                },
         },
     [Cyfral] =
         {
             .name = "Cyfral",
             .data_size = Cyfral_DATA_SIZE,
             .dict =
-                {.val = (const uint8_t*)&uid_list_cyfral,
-                 .len = sizeof(uid_list_cyfral) / Cyfral_DATA_SIZE},
+                {
+                    .val = (const uint8_t*)&uid_list_cyfral,
+                    .len = COUNT_OF(uid_list_cyfral),
+                },
         },
 };
 #endif
+
+const char* fuzzer_attack_names[] = {
+    [FuzzerMainMenuIndexDefaultValues] = "Default Values",
+    [FuzzerMainMenuIndexLoadFile] = "Load File",
+    [FuzzerMainMenuIndexLoadFileCustomUids] = "Load UIDs from file",
+};
+
+const char* fuzzer_proto_get_name(FuzzerProtocolsID index) {
+    return fuzzer_proto_items[index].name;
+}
+
+uint8_t fuzzer_proto_get_count_of_protocols() {
+    return COUNT_OF(fuzzer_proto_items);
+}
+
+uint8_t fuzzer_proto_get_max_data_size() {
+    return MAX_PAYLOAD_SIZE;
+}
+
+const char* fuzzer_proto_get_menu_label(FuzzerMainMenuIndex index) {
+    return fuzzer_attack_names[index];
+}
+
+uint8_t fuzzer_proto_get_count_of_menu_items() {
+    return COUNT_OF(fuzzer_attack_names);
+}

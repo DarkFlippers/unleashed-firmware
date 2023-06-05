@@ -3,7 +3,7 @@
 
 #include <input/input.h>
 
-#include "../helpers/gui_const.h"
+#include "../lib/worker/protocol.h"
 
 struct FuzzerViewMain {
     View* view;
@@ -15,6 +15,8 @@ struct FuzzerViewMain {
 typedef struct {
     uint8_t proto_index;
     uint8_t menu_index;
+    uint8_t proto_max;
+    uint8_t menu_max;
 } FuzzerViewMainModel;
 
 void fuzzer_view_main_update_data(FuzzerViewMain* view, FuzzerState state) {
@@ -58,23 +60,33 @@ void fuzzer_view_main_draw(Canvas* canvas, FuzzerViewMainModel* model) {
     if(model->menu_index > 0) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
-            canvas, 64, 24, AlignCenter, AlignTop, fuzzer_attack_names[model->menu_index - 1]);
+            canvas,
+            64,
+            24,
+            AlignCenter,
+            AlignTop,
+            fuzzer_proto_get_menu_label(model->menu_index - 1));
     }
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
-        canvas, 64, 36, AlignCenter, AlignTop, fuzzer_attack_names[model->menu_index]);
+        canvas, 64, 36, AlignCenter, AlignTop, fuzzer_proto_get_menu_label(model->menu_index));
 
-    if(model->menu_index < FuzzerMainMenuIndexMax) {
+    if(model->menu_index < model->menu_max) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
-            canvas, 64, 48, AlignCenter, AlignTop, fuzzer_attack_names[model->menu_index + 1]);
+            canvas,
+            64,
+            48,
+            AlignCenter,
+            AlignTop,
+            fuzzer_proto_get_menu_label(model->menu_index + 1));
     }
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 27, 4, AlignCenter, AlignTop, "<");
     canvas_draw_str_aligned(
-        canvas, 64, 4, AlignCenter, AlignTop, fuzzer_proto_items[model->proto_index].name);
+        canvas, 64, 4, AlignCenter, AlignTop, fuzzer_proto_get_name(model->proto_index));
     canvas_draw_str_aligned(canvas, 101, 4, AlignCenter, AlignTop, ">");
 }
 
@@ -94,7 +106,7 @@ bool fuzzer_view_main_input(InputEvent* event, void* context) {
             view->view,
             FuzzerViewMainModel * model,
             {
-                if(model->menu_index < (FuzzerMainMenuIndexMax - 1)) {
+                if(model->menu_index < (model->menu_max - 1)) {
                     model->menu_index++;
                 }
             },
@@ -119,7 +131,7 @@ bool fuzzer_view_main_input(InputEvent* event, void* context) {
                 if(model->proto_index != 0) {
                     model->proto_index--;
                 } else {
-                    model->proto_index = (FuzzerProtoMax - 1);
+                    model->proto_index = (model->proto_max - 1);
                 }
             },
             true);
@@ -129,7 +141,7 @@ bool fuzzer_view_main_input(InputEvent* event, void* context) {
             view->view,
             FuzzerViewMainModel * model,
             {
-                if(model->proto_index == (FuzzerProtoMax - 1)) {
+                if(model->proto_index == (model->proto_max - 1)) {
                     model->proto_index = 0;
                 } else {
                     model->proto_index++;
@@ -167,7 +179,9 @@ FuzzerViewMain* fuzzer_view_main_alloc() {
         FuzzerViewMainModel * model,
         {
             model->proto_index = 0;
+            model->proto_max = fuzzer_proto_get_count_of_protocols();
             model->menu_index = 0;
+            model->menu_max = fuzzer_proto_get_count_of_menu_items();
         },
         true);
     return view;

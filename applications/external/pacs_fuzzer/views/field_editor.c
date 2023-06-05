@@ -8,8 +8,6 @@
 #define UID_STR_LENGTH 25
 #define EDITOR_STRING_Y 50
 
-#define UID_MAX_SIZE 8 // TODO
-
 struct FuzzerViewFieldEditor {
     View* view;
     FuzzerViewFieldEditorCallback callback;
@@ -39,18 +37,17 @@ void fuzzer_view_field_editor_set_callback(
 
 void fuzzer_view_field_editor_reset_data(
     FuzzerViewFieldEditor* view_edit,
-    uint8_t* uid,
-    uint8_t uid_size) {
+    const FuzzerPayload new_uid) {
     furi_assert(view_edit);
 
     with_view_model(
         view_edit->view,
         FuzzerViewFieldEditorModel * model,
         {
-            memcpy(model->uid, uid, uid_size);
+            memcpy(model->uid, new_uid.data, new_uid.data_size);
             model->index = 0;
             model->lo = false;
-            model->uid_size = uid_size;
+            model->uid_size = new_uid.data_size;
         },
         true);
 }
@@ -260,8 +257,7 @@ FuzzerViewFieldEditor* fuzzer_view_field_editor_alloc() {
         FuzzerViewFieldEditorModel * model,
         {
             model->uid_str = furi_string_alloc();
-
-            model->uid = malloc(UID_MAX_SIZE);
+            model->uid = malloc(fuzzer_proto_get_max_data_size());
         },
         true);
 
