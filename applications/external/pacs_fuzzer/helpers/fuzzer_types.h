@@ -8,6 +8,14 @@ typedef struct {
 } FuzzerState;
 
 typedef enum {
+    FuzzerAttackStateOff = 0,
+    FuzzerAttackStateIdle,
+    FuzzerAttackStateRunning,
+    FuzzerAttackStateEnd,
+
+} FuzzerAttackState;
+
+typedef enum {
     FuzzerViewIDMain,
     FuzzerViewIDAttack,
     FuzzerViewIDFieldEditor,

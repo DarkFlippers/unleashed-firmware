@@ -17,7 +17,7 @@ typedef struct {
     uint8_t time_delay;
     const char* attack_name;
     const char* protocol_name;
-    bool attack_enabled;
+    FuzzerAttackState attack_state;
     char* uid;
 } FuzzerViewAttackModel;
 
@@ -33,7 +33,7 @@ void fuzzer_view_attack_reset_data(
         {
             model->attack_name = attack_name;
             model->protocol_name = protocol_name;
-            model->attack_enabled = false;
+            model->attack_state = FuzzerAttackStateIdle;
             strcpy(model->uid, "Not_set");
         },
         true);
@@ -68,11 +68,44 @@ void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload uid)
     free(data);
 }
 
-void fuzzer_view_attack_set_attack(FuzzerViewAttack* view, bool attack) {
+void fuzzer_view_attack_start(FuzzerViewAttack* view) {
     furi_assert(view);
 
     with_view_model(
-        view->view, FuzzerViewAttackModel * model, { model->attack_enabled = attack; }, true);
+        view->view,
+        FuzzerViewAttackModel * model,
+        { model->attack_state = FuzzerAttackStateRunning; },
+        true);
+}
+
+void fuzzer_view_attack_stop(FuzzerViewAttack* view) {
+    furi_assert(view);
+
+    with_view_model(
+        view->view,
+        FuzzerViewAttackModel * model,
+        { model->attack_state = FuzzerAttackStateOff; },
+        true);
+}
+
+void fuzzer_view_attack_pause(FuzzerViewAttack* view) {
+    furi_assert(view);
+
+    with_view_model(
+        view->view,
+        FuzzerViewAttackModel * model,
+        { model->attack_state = FuzzerAttackStateIdle; },
+        true);
+}
+
+void fuzzer_view_attack_end(FuzzerViewAttack* view) {
+    furi_assert(view);
+
+    with_view_model(
+        view->view,
+        FuzzerViewAttackModel * model,
+        { model->attack_state = FuzzerAttackStateEnd; },
+        true);
 }
 
 void fuzzer_view_attack_set_callback(
@@ -106,12 +139,15 @@ void fuzzer_view_attack_draw(Canvas* canvas, FuzzerViewAttackModel* model) {
     canvas_draw_str_aligned(canvas, 64, 38, AlignCenter, AlignTop, model->uid);
 
     canvas_set_font(canvas, FontSecondary);
-    if(model->attack_enabled) {
+    if(model->attack_state == FuzzerAttackStateRunning) {
         elements_button_center(canvas, "Stop");
-    } else {
+    } else if(model->attack_state == FuzzerAttackStateIdle) {
         elements_button_center(canvas, "Start");
         elements_button_left(canvas, "TD -");
         elements_button_right(canvas, "+ TD");
+    } else if(model->attack_state == FuzzerAttackStateEnd) {
+        // elements_button_center(canvas, "Restart"); // Reset
+        elements_button_left(canvas, "Exit");
     }
 }
 
@@ -130,7 +166,8 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
             view_attack->view,
             FuzzerViewAttackModel * model,
             {
-                if(!model->attack_enabled) {
+                if(model->attack_state == FuzzerAttackStateIdle) {
+                    // TimeDelay
                     if(event->type == InputTypeShort) {
                         if(model->time_delay > FUZZ_TIME_DELAY_MIN) {
                             model->time_delay--;
@@ -142,6 +179,11 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
                             model->time_delay = FUZZ_TIME_DELAY_MIN;
                         }
                     }
+                } else if(
+                    (model->attack_state == FuzzerAttackStateEnd) &&
+                    (event->type == InputTypeShort)) {
+                    // Exit if Ended
+                    view_attack->callback(FuzzerCustomEventViewAttackBack, view_attack->context);
                 }
             },
             true);
@@ -151,7 +193,8 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
             view_attack->view,
             FuzzerViewAttackModel * model,
             {
-                if(!model->attack_enabled) {
+                if(model->attack_state == FuzzerAttackStateIdle) {
+                    // TimeDelay
                     if(event->type == InputTypeShort) {
                         if(model->time_delay < FUZZ_TIME_DELAY_MAX) {
                             model->time_delay++;
@@ -162,6 +205,8 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
                             model->time_delay = FUZZ_TIME_DELAY_MAX;
                         }
                     }
+                } else {
+                    // Nothing
                 }
             },
             true);
@@ -201,7 +246,7 @@ FuzzerViewAttack* fuzzer_view_attack_alloc() {
         {
             model->time_delay = FUZZ_TIME_DELAY_MIN;
             model->uid = malloc(ATTACK_SCENE_MAX_UID_LENGTH + 1);
-            model->attack_enabled = false;
+            model->attack_state = FuzzerAttackStateOff;
 
             strcpy(model->uid, "Not_set");
             model->attack_name = "Not_set";

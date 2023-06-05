@@ -3,7 +3,7 @@
 #### Quality of life
 
 - [ ] Make the "Load File" independent of the current protocol
-- [ ] Add pause
+- [x] Add pause
     - [ ] Switching  UIDs if possible
 - [ ] Led and sound Notification
 - [ ] Error Notification
@@ -28,6 +28,6 @@
 - [x] UID
     - [x] Simplify the storage and exchange of `uids.data` `uid.data_size` in `views`
     - [x] `UID_MAX_SIZE`
-- [ ] Add pause
-    - [ ] Fix `Custom dict` attack when ended
+- [x] Add pause
+    - [x] Fix `Custom dict` attack when ended
 - [x] this can be simplified `fuzzer_proto_items`

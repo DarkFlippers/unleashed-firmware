@@ -25,6 +25,8 @@ bool fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay);
 
 void fuzzer_worker_stop(FuzzerWorker* worker);
 
+void fuzzer_worker_pause(FuzzerWorker* worker);
+
 bool fuzzer_worker_attack_dict(FuzzerWorker* worker, FuzzerProtocolsID protocol_index);
 
 bool fuzzer_worker_attack_bf_byte(

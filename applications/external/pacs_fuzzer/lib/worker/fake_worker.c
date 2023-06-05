@@ -156,7 +156,7 @@ static void fuzzer_worker_on_tick_callback(void* context) {
     }
 
     if(!fuzzer_worker_load_key(worker, true)) {
-        fuzzer_worker_stop(worker);
+        fuzzer_worker_pause(worker); // XXX
         if(worker->end_callback) {
             worker->end_callback(worker->end_context);
         }
@@ -377,17 +377,43 @@ bool fuzzer_worker_start(FuzzerWorker* worker, uint8_t timer_dellay) {
 
         furi_timer_start(worker->timer, furi_ms_to_ticks(timer_dellay * 100));
 
-        worker->treead_running = true;
+        if(!worker->treead_running) {
 #if defined(RFID_125_PROTOCOL)
-        lfrfid_worker_start_thread(worker->proto_worker);
+            lfrfid_worker_start_thread(worker->proto_worker);
+#else
+            ibutton_worker_start_thread(worker->proto_worker);
+#endif
+            FURI_LOG_D(TAG, "Worker Starting");
+            worker->treead_running = true;
+        } else {
+            FURI_LOG_D(TAG, "Worker UnPaused");
+        }
+
+#if defined(RFID_125_PROTOCOL)
+        // lfrfid_worker_start_thread(worker->proto_worker);
         lfrfid_worker_emulate_start(worker->proto_worker, worker->protocol_id);
 #else
-        ibutton_worker_start_thread(worker->proto_worker);
+        // ibutton_worker_start_thread(worker->proto_worker);
         ibutton_worker_emulate_start(worker->proto_worker, worker->key);
 #endif
         return true;
     }
     return false;
+}
+
+void fuzzer_worker_pause(FuzzerWorker* worker) {
+    furi_assert(worker);
+
+    furi_timer_stop(worker->timer);
+
+    if(worker->treead_running) {
+#if defined(RFID_125_PROTOCOL)
+        lfrfid_worker_stop(worker->proto_worker);
+#else
+        ibutton_worker_stop(worker->proto_worker);
+#endif
+        FURI_LOG_D(TAG, "Worker Paused");
+    }
 }
 
 void fuzzer_worker_stop(FuzzerWorker* worker) {
@@ -403,6 +429,7 @@ void fuzzer_worker_stop(FuzzerWorker* worker) {
         ibutton_worker_stop(worker->proto_worker);
         ibutton_worker_stop_thread(worker->proto_worker);
 #endif
+        FURI_LOG_D(TAG, "Worker Stopping");
         worker->treead_running = false;
     }
 
