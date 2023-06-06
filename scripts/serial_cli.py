@@ -9,7 +9,7 @@ from flipper.utils.cdc import resolve_port
 def main():
     logger = logging.getLogger()
     if not (port := resolve_port(logger, "auto")):
-        logger.error("Is Flipper connected over USB and is it not in DFU mode?")
+        logger.error("Is Flipper connected via USB and not in DFU mode?")
         return 1
     subprocess.call(
         [
