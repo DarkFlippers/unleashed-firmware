@@ -22,7 +22,7 @@
     - [x] Rewrite `gui_const` logic
     - [ ] Separate protocol name from `fuzzer_proto_items` 
     - [x] Icon in dialog
-    - [ ] Description and buttons in `field_editor` view
+    - [x] Description and buttons in `field_editor` view
     - [ ] Protocol carousel in `main_menu`
         - [x] prototype 
 - [x] UID

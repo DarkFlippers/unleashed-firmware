@@ -18,7 +18,7 @@ typedef struct {
     const char* attack_name;
     const char* protocol_name;
     FuzzerAttackState attack_state;
-    char* uid;
+    FuriString* uid_str;
 } FuzzerViewAttackModel;
 
 void fuzzer_view_attack_reset_data(
@@ -34,38 +34,25 @@ void fuzzer_view_attack_reset_data(
             model->attack_name = attack_name;
             model->protocol_name = protocol_name;
             model->attack_state = FuzzerAttackStateIdle;
-            strcpy(model->uid, "Not_set");
+            furi_string_set_str(model->uid_str, "Not_set");
         },
         true);
 }
 
 void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload uid) {
     furi_assert(view);
-
-    // TODO fix it
-    uint8_t* data = malloc(uid.data_size);
-    memcpy(data, uid.data, uid.data_size);
+    furi_assert(uid.data);
 
     with_view_model(
         view->view,
         FuzzerViewAttackModel * model,
         {
-            snprintf(
-                model->uid,
-                uid.data_size * 3,
-                "%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X",
-                data[0],
-                data[1],
-                data[2],
-                data[3],
-                data[4],
-                data[5],
-                data[6],
-                data[7]);
+            furi_string_printf(model->uid_str, "%02X", uid.data[0]);
+            for(uint8_t i = 1; i < uid.data_size; i++) {
+                furi_string_cat_printf(model->uid_str, ":%02X", uid.data[i]);
+            }
         },
         true);
-
-    free(data);
 }
 
 void fuzzer_view_attack_start(FuzzerViewAttack* view) {
@@ -133,10 +120,11 @@ void fuzzer_view_attack_draw(Canvas* canvas, FuzzerViewAttackModel* model) {
     canvas_draw_str_aligned(canvas, 64, 26, AlignCenter, AlignTop, model->protocol_name);
 
     canvas_set_font(canvas, FontPrimary);
-    if(128 < canvas_string_width(canvas, model->uid)) {
+    if(128 < canvas_string_width(canvas, furi_string_get_cstr(model->uid_str))) {
         canvas_set_font(canvas, FontSecondary);
     }
-    canvas_draw_str_aligned(canvas, 64, 38, AlignCenter, AlignTop, model->uid);
+    canvas_draw_str_aligned(
+        canvas, 64, 38, AlignCenter, AlignTop, furi_string_get_cstr(model->uid_str));
 
     canvas_set_font(canvas, FontSecondary);
     if(model->attack_state == FuzzerAttackStateRunning) {
@@ -245,10 +233,11 @@ FuzzerViewAttack* fuzzer_view_attack_alloc() {
         FuzzerViewAttackModel * model,
         {
             model->time_delay = FUZZ_TIME_DELAY_MIN;
-            model->uid = malloc(ATTACK_SCENE_MAX_UID_LENGTH + 1);
+            model->uid_str = furi_string_alloc_set_str("Not_set");
+            // malloc(ATTACK_SCENE_MAX_UID_LENGTH + 1);
             model->attack_state = FuzzerAttackStateOff;
 
-            strcpy(model->uid, "Not_set");
+            // strcpy(model->uid_str, "Not_set");
             model->attack_name = "Not_set";
             model->protocol_name = "Not_set";
         },
@@ -260,7 +249,10 @@ void fuzzer_view_attack_free(FuzzerViewAttack* view_attack) {
     furi_assert(view_attack);
 
     with_view_model(
-        view_attack->view, FuzzerViewAttackModel * model, { free(model->uid); }, true);
+        view_attack->view,
+        FuzzerViewAttackModel * model,
+        { furi_string_free(model->uid_str); },
+        true);
     view_free(view_attack->view);
     free(view_attack);
 }

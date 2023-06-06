@@ -14,7 +14,6 @@ struct FuzzerViewMain {
     void* context;
 };
 
-// TODO Furi string for procol name
 typedef struct {
     uint8_t proto_index;
     uint8_t menu_index;
