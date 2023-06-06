@@ -137,7 +137,7 @@ bool fuzzer_scene_attack_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_get_scene_state(app->scene_manager, FuzzerSceneAttack) ==
                 FuzzerAttackStateRunning) {
                 // Pause if attack running
-                fuzzer_worker_pause(app->worker); // XXX
+                fuzzer_worker_pause(app->worker);
 
                 fuzzer_scene_attack_set_state(app, FuzzerAttackStateIdle);
             }

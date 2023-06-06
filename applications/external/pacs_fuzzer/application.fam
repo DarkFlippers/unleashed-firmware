@@ -1,6 +1,6 @@
 App(
-    appid="pacs_fuzzer",
-    name="Fuzzer Gui",
+    appid="pacs_fuzzer_ibtn",
+    name="iButton Fuzzer [B]",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="fuzzer_start_ibtn",
     requires=[
@@ -10,8 +10,7 @@ App(
         "input", 
         "notification",
     ],
-    stack_size=2 * 1024,
-    order=15,
+    stack_size=1 * 1024,
     fap_icon="icons/rfid_10px.png",
     fap_category="Debug",
     fap_private_libs=[
@@ -25,8 +24,8 @@ App(
 )
 
 App(
-    appid="pacs_rfid_fuzzer",
-    name="Fuzzer Gui rfid",
+    appid="pacs_fuzzer_rfid",
+    name="RFID Fuzzer [B]",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="fuzzer_start_rfid",
     requires=[
@@ -36,8 +35,7 @@ App(
         "input", 
         "notification",
     ],
-    stack_size=2 * 1024,
-    order=15,
+    stack_size=1 * 1024,
     fap_icon="icons/125_10px.png",
     fap_category="Debug",
     fap_private_libs=[
