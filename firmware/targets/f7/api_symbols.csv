@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,28.3,,
+Version,+,28.4,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -323,6 +323,8 @@ Function,+,__errno,int*,
 Function,-,__fpclassifyd,int,double
 Function,-,__fpclassifyf,int,float
 Function,+,__furi_crash,void,
+Function,+,__furi_critical_enter,__FuriCriticalInfo,
+Function,+,__furi_critical_exit,void,__FuriCriticalInfo
 Function,+,__furi_halt,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
