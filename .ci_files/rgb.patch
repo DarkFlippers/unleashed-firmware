@@ -1,8 +1,8 @@
 diff --git a/applications/services/notification/notification_app.c b/applications/services/notification/notification_app.c
-index f91a73f32..b559a79ad 100644
+index 2f947fe..03c4c76 100644
 --- a/applications/services/notification/notification_app.c
 +++ b/applications/services/notification/notification_app.c
-@@ -6,6 +6,7 @@
+@@ -9,6 +9,7 @@
  #include "notification.h"
  #include "notification_messages.h"
  #include "notification_app.h"
@@ -10,7 +10,7 @@ index f91a73f32..b559a79ad 100644
  
  #define TAG "NotificationSrv"
  
-@@ -564,6 +565,7 @@ int32_t notification_srv(void* p) {
+@@ -579,6 +580,7 @@ int32_t notification_srv(void* p) {
              break;
          case SaveSettingsMessage:
              notification_save_settings(app);
@@ -19,7 +19,7 @@ index f91a73f32..b559a79ad 100644
          }
  
 diff --git a/applications/settings/notification_settings/notification_settings_app.c b/applications/settings/notification_settings/notification_settings_app.c
-index f5d7a82ca..930c0bd1f 100644
+index 565d4f1..bae9299 100644
 --- a/applications/settings/notification_settings/notification_settings_app.c
 +++ b/applications/settings/notification_settings/notification_settings_app.c
 @@ -3,6 +3,7 @@
@@ -30,15 +30,7 @@ index f5d7a82ca..930c0bd1f 100644
  
  #define MAX_NOTIFICATION_SETTINGS 4
  
-@@ -73,7 +74,6 @@ const bool vibro_value[VIBRO_COUNT] = {false, true};
- static void backlight_changed(VariableItem* item) {
-     NotificationAppSettings* app = variable_item_get_context(item);
-     uint8_t index = variable_item_get_current_value_index(item);
--
-     variable_item_set_current_value_text(item, backlight_text[index]);
-     app->notification->settings.display_brightness = backlight_value[index];
-     notification_message(app->notification, &sequence_display_backlight_on);
-@@ -125,6 +125,14 @@ static void vibro_changed(VariableItem* item) {
+@@ -162,6 +163,14 @@ static void vibro_changed(VariableItem* item) {
      notification_message(app->notification, &sequence_single_vibro);
  }
  
@@ -53,8 +45,8 @@ index f5d7a82ca..930c0bd1f 100644
  static uint32_t notification_app_settings_exit(void* context) {
      UNUSED(context);
      return VIEW_NONE;
-@@ -143,7 +151,13 @@ static NotificationAppSettings* alloc_settings() {
-     uint8_t value_index;
+@@ -187,7 +196,13 @@ static NotificationAppSettings* alloc_settings() {
+     variable_item_set_current_value_text(item, contrast_text[value_index]);
  
      item = variable_item_list_add(
 -        app->variable_item_list, "LCD Backlight", BACKLIGHT_COUNT, backlight_changed, app);
@@ -68,17 +60,9 @@ index f5d7a82ca..930c0bd1f 100644
      value_index = value_index_float(
          app->notification->settings.display_brightness, backlight_value, BACKLIGHT_COUNT);
      variable_item_set_current_value_index(item, value_index);
-@@ -215,6 +229,7 @@ int32_t notification_settings_app(void* p) {
-     NotificationAppSettings* app = alloc_settings();
-     view_dispatcher_run(app->view_dispatcher);
-     notification_message_save_settings(app->notification);
-+
-     free_settings(app);
-     return 0;
- }
 diff --git a/applications/settings/notification_settings/rgb_backlight.c b/applications/settings/notification_settings/rgb_backlight.c
 new file mode 100644
-index 000000000..269b544ae
+index 0000000..269b544
 --- /dev/null
 +++ b/applications/settings/notification_settings/rgb_backlight.c
 @@ -0,0 +1,171 @@
@@ -255,7 +239,7 @@ index 000000000..269b544ae
 +}
 diff --git a/applications/settings/notification_settings/rgb_backlight.h b/applications/settings/notification_settings/rgb_backlight.h
 new file mode 100644
-index 000000000..b63d223e6
+index 0000000..b63d223
 --- /dev/null
 +++ b/applications/settings/notification_settings/rgb_backlight.h
 @@ -0,0 +1,79 @@
@@ -340,7 +324,7 @@ index 000000000..b63d223e6
 +const char* rgb_backlight_get_color_text(uint8_t index);
 \ No newline at end of file
 diff --git a/firmware/targets/f7/furi_hal/furi_hal_light.c b/firmware/targets/f7/furi_hal/furi_hal_light.c
-index 83e1603b7..cad5b86cb 100644
+index 83e1603..cad5b86 100644
 --- a/firmware/targets/f7/furi_hal/furi_hal_light.c
 +++ b/firmware/targets/f7/furi_hal/furi_hal_light.c
 @@ -3,6 +3,7 @@
@@ -389,7 +373,7 @@ index 83e1603b7..cad5b86cb 100644
  void furi_hal_light_blink_start(Light light, uint8_t brightness, uint16_t on_time, uint16_t period) {
 diff --git a/lib/drivers/SK6805.c b/lib/drivers/SK6805.c
 new file mode 100644
-index 000000000..572e1df97
+index 0000000..572e1df
 --- /dev/null
 +++ b/lib/drivers/SK6805.c
 @@ -0,0 +1,101 @@
@@ -496,7 +480,7 @@ index 000000000..572e1df97
 +}
 diff --git a/lib/drivers/SK6805.h b/lib/drivers/SK6805.h
 new file mode 100644
-index 000000000..7c58956fa
+index 0000000..7c58956
 --- /dev/null
 +++ b/lib/drivers/SK6805.h
 @@ -0,0 +1,51 @@
@@ -551,6 +535,4 @@ index 000000000..7c58956fa
 +void SK6805_update(void);
 +
 +#endif /* SK6805_H_ */
-\ No newline at end of file
-
 \ No newline at end of file
