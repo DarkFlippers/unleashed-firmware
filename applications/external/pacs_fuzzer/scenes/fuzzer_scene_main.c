@@ -9,6 +9,12 @@ void fuzzer_scene_main_callback(FuzzerCustomEvent event, void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
+void fuzzer_scene_main_error_popup_callback(void* context) {
+    PacsFuzzerApp* app = context;
+    notification_message(app->notifications, &sequence_reset_rgb);
+    view_dispatcher_send_custom_event(app->view_dispatcher, FuzzerCustomEventViewMainPopupErr);
+}
+
 static bool fuzzer_scene_main_load_custom_dict(void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
@@ -49,6 +55,15 @@ static bool fuzzer_scene_main_load_key(void* context) {
     return res;
 }
 
+static void fuzzer_scene_main_show_error(void* context, const char* erre_str) {
+    furi_assert(context);
+    PacsFuzzerApp* app = context;
+    popup_set_header(app->popup, erre_str, 64, 20, AlignCenter, AlignTop);
+    notification_message(app->notifications, &sequence_set_red_255);
+    notification_message(app->notifications, &sequence_double_vibro);
+    view_dispatcher_switch_to_view(app->view_dispatcher, FuzzerViewIDPopup);
+}
+
 void fuzzer_scene_main_on_enter(void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
@@ -56,6 +71,14 @@ void fuzzer_scene_main_on_enter(void* context) {
     fuzzer_view_main_set_callback(app->main_view, fuzzer_scene_main_callback, app);
 
     fuzzer_view_main_update_data(app->main_view, app->fuzzer_state);
+
+    // Setup view
+    Popup* popup = app->popup;
+    // popup_set_icon(popup, 72, 17, &I_DolphinCommon_56x48);
+    popup_set_timeout(popup, 2500);
+    popup_set_context(popup, app);
+    popup_set_callback(popup, fuzzer_scene_main_error_popup_callback);
+    popup_enable_timeout(popup);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, FuzzerViewIDMain);
 }
@@ -71,6 +94,9 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_stop(app->scene_manager);
                 view_dispatcher_stop(app->view_dispatcher);
             }
+            consumed = true;
+        } else if(event.event == FuzzerCustomEventViewMainPopupErr) {
+            view_dispatcher_switch_to_view(app->view_dispatcher, FuzzerViewIDMain);
             consumed = true;
         } else if(event.event == FuzzerCustomEventViewMainOk) {
             fuzzer_view_main_get_state(app->main_view, &app->fuzzer_state);
@@ -88,9 +114,11 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
 
                 if(!loading_ok) {
                     // error
+                    fuzzer_scene_main_show_error(app, "Default dictionary\nis empty");
                 }
                 break;
             case FuzzerAttackIdBFCustomerID:
+                // TODO
                 uid = malloc(d_size);
                 memset(uid, 0x00, d_size);
 
@@ -114,6 +142,7 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                         scene_manager_next_scene(app->scene_manager, FuzzerSceneFieldEditor);
                         FURI_LOG_I("Scene", "Load ok");
                     } else {
+                        fuzzer_scene_main_show_error(app, "Unsupported protocol\nor broken file");
                         FURI_LOG_W("Scene", "Load err");
                     }
                 }
@@ -125,6 +154,10 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 } else {
                     loading_ok = fuzzer_worker_init_attack_file_dict(
                         app->worker, app->fuzzer_state.proto_index, app->file_path);
+                    if(!loading_ok) {
+                        fuzzer_scene_main_show_error(app, "Incorrect key format\nor length");
+                        // error
+                    }
                 }
                 break;
 

@@ -35,8 +35,15 @@ PacsFuzzerApp* fuzzer_app_alloc() {
     // Dialog
     app->dialogs = furi_record_open(RECORD_DIALOGS);
 
+    // Open Notification record
+    app->notifications = furi_record_open(RECORD_NOTIFICATION);
+
     // View Dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
+
+    // Popup
+    app->popup = popup_alloc();
+    view_dispatcher_add_view(app->view_dispatcher, FuzzerViewIDPopup, popup_get_view(app->popup));
 
     // Main view
     app->main_view = fuzzer_view_main_alloc();
@@ -88,6 +95,10 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, FuzzerViewIDFieldEditor);
     fuzzer_view_field_editor_free(app->field_editor_view);
 
+    // Popup
+    view_dispatcher_remove_view(app->view_dispatcher, FuzzerViewIDPopup);
+    popup_free(app->popup);
+
     scene_manager_free(app->scene_manager);
     view_dispatcher_free(app->view_dispatcher);
 
@@ -96,6 +107,10 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
 
     // Close records
     furi_record_close(RECORD_GUI);
+
+    // Notifications
+    furi_record_close(RECORD_NOTIFICATION);
+    app->notifications = NULL;
 
     furi_string_free(app->file_path);
 

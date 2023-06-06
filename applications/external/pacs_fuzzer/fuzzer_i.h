@@ -3,11 +3,13 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#include <stdint.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
+#include <gui/modules/popup.h>
+
 #include <dialogs/dialogs.h>
+#include <notification/notification_messages.h>
 
 #include "scenes/fuzzer_scene.h"
 #include "views/main_menu.h"
@@ -33,9 +35,12 @@ typedef struct {
 
 typedef struct {
     Gui* gui;
+    NotificationApp* notifications;
+
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
 
+    Popup* popup;
     DialogsApp* dialogs;
     FuzzerViewMain* main_view;
     FuzzerViewAttack* attack_view;

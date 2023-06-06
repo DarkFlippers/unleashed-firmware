@@ -5,10 +5,13 @@
 - [ ] Make the "Load File" independent of the current protocol
 - [x] Add pause
     - [ ] Switching  UIDs if possible
-- [ ] Led and sound Notification
-- [ ] Error Notification
-    - [ ] Custom UIDs dict loading 
-    - [ ] Key file loading
+- [x] Led and sound Notification
+    - [x] Led
+    - [x] Vibro
+    - [ ] Sound?
+- [x] Error Notification
+    - [x] Custom UIDs dict loading 
+    - [x] Key file loading
     - [ ] Anything else
 
 #### App functionality
@@ -20,7 +23,6 @@
 
 - [ ] GUI
     - [x] Rewrite `gui_const` logic
-    - [ ] Separate protocol name from `fuzzer_proto_items` 
     - [x] Icon in dialog
     - [x] Description and buttons in `field_editor` view
     - [ ] Protocol carousel in `main_menu`
@@ -30,4 +32,6 @@
     - [x] `UID_MAX_SIZE`
 - [x] Add pause
     - [x] Fix `Custom dict` attack when ended
-- [x] this can be simplified `fuzzer_proto_items`
+- [ ] Worker
+    - [ ] Use `prtocol_id` instead of protocol name
+    - [x] this can be simplified `fuzzer_proto_items`
