@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,28.4,,
+Version,+,29.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -189,6 +189,7 @@ Header,+,lib/subghz/environment.h,,
 Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
 Header,+,lib/subghz/registry.h,,
+Header,+,lib/subghz/subghz_protocol_registry.h,,
 Header,+,lib/subghz/subghz_setting.h,,
 Header,+,lib/subghz/subghz_tx_rx_worker.h,,
 Header,+,lib/subghz/subghz_worker.h,,
@@ -2662,12 +2663,12 @@ Function,+,subghz_environment_get_came_atomo_rainbow_table_file_name,const char*
 Function,+,subghz_environment_get_keystore,SubGhzKeystore*,SubGhzEnvironment*
 Function,+,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char*,SubGhzEnvironment*
 Function,+,subghz_environment_get_protocol_name_registry,const char*,"SubGhzEnvironment*, size_t"
-Function,+,subghz_environment_get_protocol_registry,void*,SubGhzEnvironment*
+Function,+,subghz_environment_get_protocol_registry,const SubGhzProtocolRegistry*,SubGhzEnvironment*
 Function,+,subghz_environment_load_keystore,_Bool,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_alutech_at_4n_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
-Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, void*"
+Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, const SubGhzProtocolRegistry*"
 Function,-,subghz_keystore_alloc,SubGhzKeystore*,
 Function,-,subghz_keystore_free,void,SubGhzKeystore*
 Function,-,subghz_keystore_get_data,SubGhzKeyArray_t*,SubGhzKeystore*
@@ -3361,6 +3362,7 @@ Variable,+,sequence_success,const NotificationSequence,
 Variable,+,subghz_protocol_raw,const SubGhzProtocol,
 Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
 Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
+Variable,+,subghz_protocol_registry,const SubGhzProtocolRegistry,
 Variable,-,suboptarg,char*,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,
 Variable,+,usb_cdc_single,FuriHalUsbInterface,

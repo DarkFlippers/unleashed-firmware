@@ -18,6 +18,7 @@ env.Append(
         File("blocks/generic.h"),
         File("blocks/math.h"),
         File("subghz_setting.h"),
+        File("subghz_protocol_registry.h"),
     ],
 )
 
