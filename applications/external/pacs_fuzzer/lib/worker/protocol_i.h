@@ -4,8 +4,12 @@
 
 #if defined(RFID_125_PROTOCOL)
 #define MAX_PAYLOAD_SIZE (6)
+#define PROTOCOL_MIN_IDLE_DELAY (5)
+#define PROTOCOL_TIME_DELAY_MIN PROTOCOL_MIN_IDLE_DELAY + 4
 #else
 #define MAX_PAYLOAD_SIZE (8)
+#define PROTOCOL_MIN_IDLE_DELAY (2)
+#define PROTOCOL_TIME_DELAY_MIN PROTOCOL_MIN_IDLE_DELAY + 2
 #endif
 
 typedef struct ProtoDict ProtoDict;

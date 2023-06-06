@@ -22,7 +22,6 @@
 #include <flipper_format/flipper_format_i.h>
 #include "fuzzer_icons.h"
 
-#define FUZZ_TIME_DELAY_MIN (5)
 #define FUZZ_TIME_DELAY_MAX (80)
 
 typedef struct {

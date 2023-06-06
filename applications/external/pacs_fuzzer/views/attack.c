@@ -15,6 +15,7 @@ struct FuzzerViewAttack {
 
 typedef struct {
     uint8_t time_delay;
+    uint8_t time_delay_min;
     const char* attack_name;
     const char* protocol_name;
     FuzzerAttackState attack_state;
@@ -157,14 +158,14 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
                 if(model->attack_state == FuzzerAttackStateIdle) {
                     // TimeDelay
                     if(event->type == InputTypeShort) {
-                        if(model->time_delay > FUZZ_TIME_DELAY_MIN) {
+                        if(model->time_delay > model->time_delay_min) {
                             model->time_delay--;
                         }
                     } else if(event->type == InputTypeLong) {
-                        if((model->time_delay - 10) >= FUZZ_TIME_DELAY_MIN) {
+                        if((model->time_delay - 10) >= model->time_delay_min) {
                             model->time_delay -= 10;
                         } else {
-                            model->time_delay = FUZZ_TIME_DELAY_MIN;
+                            model->time_delay = model->time_delay_min;
                         }
                     }
                 } else if(
@@ -232,7 +233,8 @@ FuzzerViewAttack* fuzzer_view_attack_alloc() {
         view_attack->view,
         FuzzerViewAttackModel * model,
         {
-            model->time_delay = FUZZ_TIME_DELAY_MIN;
+            model->time_delay_min = fuzzer_proto_get_min_delay();
+            model->time_delay = model->time_delay_min;
             model->uid_str = furi_string_alloc_set_str("Not_set");
             // malloc(ATTACK_SCENE_MAX_UID_LENGTH + 1);
             model->attack_state = FuzzerAttackStateOff;
