@@ -127,8 +127,11 @@ bool fuzzer_scene_attack_on_event(void* context, SceneManagerEvent event) {
             if(scene_manager_get_scene_state(app->scene_manager, FuzzerSceneAttack) ==
                FuzzerAttackStateIdle) {
                 // Start or Continue Attack
+                // TODO emu_time
                 if(fuzzer_worker_start(
-                       app->worker, fuzzer_view_attack_get_time_delay(app->attack_view))) {
+                       app->worker,
+                       fuzzer_view_attack_get_time_delay(app->attack_view),
+                       fuzzer_view_attack_get_emu_time(app->attack_view))) {
                     fuzzer_scene_attack_set_state(app, FuzzerAttackStateRunning);
                 } else {
                     // Error?

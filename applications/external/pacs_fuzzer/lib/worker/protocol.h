@@ -37,11 +37,9 @@ struct FuzzerPayload {
  */
 uint8_t fuzzer_proto_get_max_data_size();
 
-/**
- * Get minimum time delay for protocols
- * @return Minimum time delay
- */
-uint8_t fuzzer_proto_get_min_delay();
+// TODO add description
+uint8_t fuzzer_proto_get_def_emu_time();
+uint8_t fuzzer_proto_get_def_idle_time();
 
 /**
  * Get protocol name based on its index

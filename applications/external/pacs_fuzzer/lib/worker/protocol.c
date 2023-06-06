@@ -254,8 +254,12 @@ uint8_t fuzzer_proto_get_max_data_size() {
     return MAX_PAYLOAD_SIZE;
 }
 
-uint8_t fuzzer_proto_get_min_delay() {
-    return PROTOCOL_TIME_DELAY_MIN;
+uint8_t fuzzer_proto_get_def_emu_time() {
+    return PROTOCOL_DEF_EMU_TIME;
+}
+
+uint8_t fuzzer_proto_get_def_idle_time() {
+    return PROTOCOL_DEF_IDLE_TIME;
 }
 
 const char* fuzzer_proto_get_menu_label(uint8_t index) {

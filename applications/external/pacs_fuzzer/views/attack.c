@@ -4,8 +4,13 @@
 #include <input/input.h>
 #include <gui/elements.h>
 
+#define ATACK_VIEW_V2
+// #define ATACK_VIEW_V2_1
+#define ATACK_VIEW_V2_2
+
 #define ATTACK_SCENE_MAX_UID_LENGTH 25
 #define UID_MAX_DISPLAYED_LEN (8U)
+#define LIFT_RIGHT_OFFSET (3)
 
 struct FuzzerViewAttack {
     View* view;
@@ -14,8 +19,11 @@ struct FuzzerViewAttack {
 };
 
 typedef struct {
-    uint8_t time_delay;
-    uint8_t time_delay_min;
+    uint8_t time_delay; // 1 = 100ms
+    uint8_t time_delay_min; // 1 = 100ms
+    uint8_t emu_time; // 1 = 100ms
+    uint8_t emu_time_min; // 1 = 100ms
+    bool td_emt_cursor; // false - time_delay, true - emu_time
     const char* attack_name;
     const char* protocol_name;
     FuzzerAttackState attack_state;
@@ -107,8 +115,7 @@ void fuzzer_view_attack_set_callback(
 }
 
 void fuzzer_view_attack_draw(Canvas* canvas, FuzzerViewAttackModel* model) {
-    char time_delay[16];
-    snprintf(time_delay, sizeof(time_delay), "Time delay: %d", model->time_delay);
+    char temp_str[50];
 
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -116,8 +123,101 @@ void fuzzer_view_attack_draw(Canvas* canvas, FuzzerViewAttackModel* model) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, model->attack_name);
 
+#ifndef ATACK_VIEW_V2
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str_aligned(canvas, 64, 14, AlignCenter, AlignTop, time_delay);
+    snprintf(
+        temp_str,
+        sizeof(temp_str),
+        "Time delay: %d.%d",
+        model->time_delay / 10,
+        model->time_delay % 10);
+    canvas_draw_str_aligned(canvas, 64, 14, AlignCenter, AlignTop, temp_str);
+#elif defined(ATACK_VIEW_V2_1)
+
+    canvas_set_font(canvas, FontSecondary);
+    if(!model->td_emt_cursor) {
+        snprintf(
+            temp_str,
+            sizeof(temp_str),
+            "Time delay: %d.%d      EmT: %d.%d",
+            model->time_delay / 10,
+            model->time_delay % 10,
+            model->emu_time / 10,
+            model->emu_time % 10);
+    } else {
+        snprintf(
+            temp_str,
+            sizeof(temp_str),
+            "TD: %d.%d     Emulation time: %d.%d",
+            model->time_delay / 10,
+            model->time_delay % 10,
+            model->emu_time / 10,
+            model->emu_time % 10);
+    }
+    canvas_draw_str_aligned(canvas, 64, 21, AlignCenter, AlignBottom, temp_str);
+
+#elif defined(ATACK_VIEW_V2_2)
+
+    uint16_t crt;
+    canvas_set_font(canvas, FontPrimary);
+
+    if(!model->td_emt_cursor) {
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(temp_str, sizeof(temp_str), "Time delay:");
+        canvas_draw_str_aligned(canvas, LIFT_RIGHT_OFFSET, 21, AlignLeft, AlignBottom, temp_str);
+        crt = canvas_string_width(canvas, temp_str);
+
+        canvas_set_font(canvas, FontPrimary);
+        snprintf(
+            temp_str, sizeof(temp_str), "%d.%d", model->time_delay / 10, model->time_delay % 10);
+        canvas_draw_str_aligned(
+            canvas, crt + LIFT_RIGHT_OFFSET + 3, 21, AlignLeft, AlignBottom, temp_str);
+
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(
+            temp_str, sizeof(temp_str), "EmT: %d.%d", model->emu_time / 10, model->emu_time % 10);
+        canvas_draw_str_aligned(
+            canvas, 128 - LIFT_RIGHT_OFFSET, 21, AlignRight, AlignBottom, temp_str);
+
+    } else {
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(
+            temp_str,
+            sizeof(temp_str),
+            "TD: %d.%d",
+            model->time_delay / 10,
+            model->time_delay % 10);
+
+        canvas_draw_str_aligned(canvas, LIFT_RIGHT_OFFSET, 21, AlignLeft, AlignBottom, temp_str);
+
+        canvas_set_font(canvas, FontPrimary);
+        snprintf(temp_str, sizeof(temp_str), "%d.%d", model->emu_time / 10, model->emu_time % 10);
+        canvas_draw_str_aligned(
+            canvas, 128 - LIFT_RIGHT_OFFSET, 21, AlignRight, AlignBottom, temp_str);
+        crt = canvas_string_width(canvas, temp_str);
+
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(temp_str, sizeof(temp_str), "Emulation time:");
+        canvas_draw_str_aligned(
+            canvas, 128 - LIFT_RIGHT_OFFSET - crt - 3, 21, AlignRight, AlignBottom, temp_str);
+    }
+
+#else
+
+    canvas_set_font(canvas, FontSecondary);
+    snprintf(
+        temp_str,
+        sizeof(temp_str),
+        "Time delay: %d.%d Emu time: %d.%d",
+        model->time_delay / 10,
+        model->time_delay % 10,
+        model->emu_time / 10,
+        model->emu_time % 10);
+    canvas_draw_str_aligned(canvas, 64, 14, AlignCenter, AlignTop, temp_str);
+
+#endif
+
+    canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(canvas, 64, 26, AlignCenter, AlignTop, model->protocol_name);
 
     canvas_set_font(canvas, FontPrimary);
@@ -131,9 +231,21 @@ void fuzzer_view_attack_draw(Canvas* canvas, FuzzerViewAttackModel* model) {
     if(model->attack_state == FuzzerAttackStateRunning) {
         elements_button_center(canvas, "Stop");
     } else if(model->attack_state == FuzzerAttackStateIdle) {
+#ifndef ATACK_VIEW_V2
         elements_button_center(canvas, "Start");
         elements_button_left(canvas, "TD -");
         elements_button_right(canvas, "+ TD");
+#else
+        if(model->td_emt_cursor) {
+            elements_button_center(canvas, "Start");
+            elements_button_left(canvas, "EmT -");
+            elements_button_right(canvas, "+ EmT");
+        } else {
+            elements_button_center(canvas, "Start");
+            elements_button_left(canvas, "TD -");
+            elements_button_right(canvas, "+ TD");
+        }
+#endif
     } else if(model->attack_state == FuzzerAttackStateEnd) {
         // elements_button_center(canvas, "Restart"); // Reset
         elements_button_left(canvas, "Exit");
@@ -156,16 +268,31 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
             FuzzerViewAttackModel * model,
             {
                 if(model->attack_state == FuzzerAttackStateIdle) {
-                    // TimeDelay
-                    if(event->type == InputTypeShort) {
-                        if(model->time_delay > model->time_delay_min) {
-                            model->time_delay--;
+                    if(!model->td_emt_cursor) {
+                        // TimeDelay --
+                        if(event->type == InputTypeShort) {
+                            if(model->time_delay > model->time_delay_min) {
+                                model->time_delay--;
+                            }
+                        } else if(event->type == InputTypeLong) {
+                            if((model->time_delay - 10) >= model->time_delay_min) {
+                                model->time_delay -= 10;
+                            } else {
+                                model->time_delay = model->time_delay_min;
+                            }
                         }
-                    } else if(event->type == InputTypeLong) {
-                        if((model->time_delay - 10) >= model->time_delay_min) {
-                            model->time_delay -= 10;
-                        } else {
-                            model->time_delay = model->time_delay_min;
+                    } else {
+                        // EmuTime --
+                        if(event->type == InputTypeShort) {
+                            if(model->emu_time > model->emu_time_min) {
+                                model->emu_time--;
+                            }
+                        } else if(event->type == InputTypeLong) {
+                            if((model->emu_time - 10) >= model->emu_time_min) {
+                                model->emu_time -= 10;
+                            } else {
+                                model->emu_time = model->emu_time_min;
+                            }
                         }
                     }
                 } else if(
@@ -183,21 +310,44 @@ bool fuzzer_view_attack_input(InputEvent* event, void* context) {
             FuzzerViewAttackModel * model,
             {
                 if(model->attack_state == FuzzerAttackStateIdle) {
-                    // TimeDelay
-                    if(event->type == InputTypeShort) {
-                        if(model->time_delay < FUZZ_TIME_DELAY_MAX) {
-                            model->time_delay++;
+                    if(!model->td_emt_cursor) {
+                        // TimeDelay ++
+                        if(event->type == InputTypeShort) {
+                            if(model->time_delay < FUZZ_TIME_DELAY_MAX) {
+                                model->time_delay++;
+                            }
+                        } else if(event->type == InputTypeLong) {
+                            model->time_delay += 10;
+                            if(model->time_delay > FUZZ_TIME_DELAY_MAX) {
+                                model->time_delay = FUZZ_TIME_DELAY_MAX;
+                            }
                         }
-                    } else if(event->type == InputTypeLong) {
-                        model->time_delay += 10;
-                        if(model->time_delay > FUZZ_TIME_DELAY_MAX) {
-                            model->time_delay = FUZZ_TIME_DELAY_MAX;
+                    } else {
+                        // EmuTime ++
+                        if(event->type == InputTypeShort) {
+                            if(model->emu_time < FUZZ_TIME_DELAY_MAX) {
+                                model->emu_time++;
+                            }
+                        } else if(event->type == InputTypeLong) {
+                            model->emu_time += 10;
+                            if(model->emu_time > FUZZ_TIME_DELAY_MAX) {
+                                model->emu_time = FUZZ_TIME_DELAY_MAX;
+                            }
                         }
                     }
                 } else {
                     // Nothing
                 }
             },
+            true);
+        return true;
+    } else if(
+        (event->key == InputKeyUp || event->key == InputKeyDown) &&
+        event->type == InputTypeShort) {
+        with_view_model(
+            view_attack->view,
+            FuzzerViewAttackModel * model,
+            { model->td_emt_cursor = !model->td_emt_cursor; },
             true);
         return true;
     }
@@ -211,6 +361,9 @@ void fuzzer_view_attack_enter(void* context) {
 
 void fuzzer_view_attack_exit(void* context) {
     furi_assert(context);
+    FuzzerViewAttack* view_attack = context;
+    with_view_model(
+        view_attack->view, FuzzerViewAttackModel * model, { model->td_emt_cursor = false; }, true);
 }
 
 FuzzerViewAttack* fuzzer_view_attack_alloc() {
@@ -233,11 +386,17 @@ FuzzerViewAttack* fuzzer_view_attack_alloc() {
         view_attack->view,
         FuzzerViewAttackModel * model,
         {
-            model->time_delay_min = fuzzer_proto_get_min_delay();
-            model->time_delay = model->time_delay_min;
+            model->time_delay = fuzzer_proto_get_def_idle_time();
+            model->time_delay_min = 0; // model->time_delay;
+
+            model->emu_time = fuzzer_proto_get_def_emu_time();
+
+            model->emu_time_min = 2; // model->emu_time;
+
             model->uid_str = furi_string_alloc_set_str("Not_set");
             // malloc(ATTACK_SCENE_MAX_UID_LENGTH + 1);
             model->attack_state = FuzzerAttackStateOff;
+            model->td_emt_cursor = false;
 
             // strcpy(model->uid_str, "Not_set");
             model->attack_name = "Not_set";
@@ -272,4 +431,14 @@ uint8_t fuzzer_view_attack_get_time_delay(FuzzerViewAttack* view) {
         view->view, FuzzerViewAttackModel * model, { time_delay = model->time_delay; }, false);
 
     return time_delay;
+}
+
+uint8_t fuzzer_view_attack_get_emu_time(FuzzerViewAttack* view) {
+    furi_assert(view);
+    uint8_t emu_time;
+
+    with_view_model(
+        view->view, FuzzerViewAttackModel * model, { emu_time = model->emu_time; }, false);
+
+    return emu_time;
 }

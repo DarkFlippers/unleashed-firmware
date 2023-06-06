@@ -38,8 +38,8 @@ struct FuzzerWorker {
 
     const FuzzerProtocol* protocol;
     FuzzerWorkerAttackType attack_type;
-    uint8_t timer_idle_delay;
-    uint8_t timer_emu_delay;
+    uint8_t timer_idle_time;
+    uint8_t timer_emu_time;
 
     uint8_t payload[MAX_PAYLOAD_SIZE];
     Stream* uids_stream;
@@ -157,7 +157,7 @@ static void fuzzer_worker_on_tick_callback(void* context) {
 #endif
         }
         instance->in_emu_phase = false;
-        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_idle_delay * 100));
+        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_idle_time * 100));
     } else {
         if(!fuzzer_worker_load_key(instance, true)) {
             fuzzer_worker_pause(instance); // XXX
@@ -173,7 +173,7 @@ static void fuzzer_worker_on_tick_callback(void* context) {
 #endif
             }
             instance->in_emu_phase = true;
-            furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_delay * 100));
+            furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_time * 100));
             if(instance->tick_callback) {
                 instance->tick_callback(instance->tick_context);
             }
@@ -349,8 +349,8 @@ FuzzerWorker* fuzzer_worker_alloc() {
 
     memset(instance->payload, 0x00, sizeof(instance->payload));
 
-    instance->timer_idle_delay = PROTOCOL_MIN_IDLE_DELAY;
-    instance->timer_emu_delay = PROTOCOL_MIN_IDLE_DELAY;
+    instance->timer_idle_time = PROTOCOL_DEF_IDLE_TIME;
+    instance->timer_emu_time = PROTOCOL_DEF_EMU_TIME;
 
     instance->timer =
         furi_timer_alloc(fuzzer_worker_on_tick_callback, FuriTimerTypeOnce, instance);
@@ -379,19 +379,21 @@ void fuzzer_worker_free(FuzzerWorker* instance) {
     free(instance);
 }
 
-bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t timer_dellay) {
+bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t idle_time, uint8_t emu_time) {
     furi_assert(instance);
 
     if(instance->attack_type < FuzzerWorkerAttackTypeMax) {
-        uint8_t temp = timer_dellay / 2;
-        instance->timer_emu_delay = temp;
-        instance->timer_idle_delay = temp + timer_dellay % 2;
+        // if(emu_time == 0) {
+        //     uint8_t temp = idle_time / 2;
+        //     instance->timer_emu_time = temp;
+        //     instance->timer_idle_time = temp + idle_time % 2;
+        // } else {
+        instance->timer_idle_time = idle_time;
+        instance->timer_emu_time = emu_time;
+        // }
 
         FURI_LOG_D(
-            TAG,
-            "Emu_delay %u   Idle_delay %u",
-            instance->timer_emu_delay,
-            instance->timer_idle_delay);
+            TAG, "Emu_time %u   Idle_time %u", instance->timer_emu_time, instance->timer_idle_time);
 
         if(!instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
@@ -413,7 +415,7 @@ bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t timer_dellay) {
         ibutton_worker_emulate_start(instance->proto_worker, instance->key);
 #endif
         instance->in_emu_phase = true;
-        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_delay * 100));
+        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_time * 100));
         return true;
     }
     return false;

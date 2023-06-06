@@ -35,10 +35,11 @@ void fuzzer_worker_free(FuzzerWorker* instance);
  * Start or continue emulation
  * 
  * @param instance Pointer to a FuzzerWorker
- * @param timer_dellay Emulation time of one UID in tenths of a second
+ * @param idle_time Delay between emulations in tenths of a second
+ * @param emu_time Emulation time of one UID in tenths of a second
  * @return bool True if emulation has started
  */
-bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t timer_dellay);
+bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t idle_time, uint8_t emu_time);
 
 /**
  * Stop emulation and deinit worker
