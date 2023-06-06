@@ -75,6 +75,8 @@ typedef enum {
     NotificationMessageTypeForceDisplayBrightnessSetting,
 
     NotificationMessageTypeLedBrightnessSettingApply,
+
+    NotificationMessageTypeLcdContrastUpdate,
 } NotificationMessageType;
 
 typedef struct {
