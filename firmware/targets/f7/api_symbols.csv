@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,28.2,,
+Version,+,29.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -190,6 +190,7 @@ Header,+,lib/subghz/protocols/protocol_items.h,,
 Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
 Header,+,lib/subghz/registry.h,,
+Header,+,lib/subghz/subghz_protocol_registry.h,,
 Header,+,lib/subghz/subghz_setting.h,,
 Header,+,lib/subghz/subghz_tx_rx_worker.h,,
 Header,+,lib/subghz/subghz_worker.h,,
@@ -324,6 +325,8 @@ Function,+,__errno,int*,
 Function,-,__fpclassifyd,int,double
 Function,-,__fpclassifyf,int,float
 Function,+,__furi_crash,void,
+Function,+,__furi_critical_enter,__FuriCriticalInfo,
+Function,+,__furi_critical_exit,void,__FuriCriticalInfo
 Function,+,__furi_halt,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
@@ -2715,13 +2718,13 @@ Function,+,subghz_environment_get_came_atomo_rainbow_table_file_name,const char*
 Function,+,subghz_environment_get_keystore,SubGhzKeystore*,SubGhzEnvironment*
 Function,+,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char*,SubGhzEnvironment*
 Function,+,subghz_environment_get_protocol_name_registry,const char*,"SubGhzEnvironment*, size_t"
-Function,+,subghz_environment_get_protocol_registry,void*,SubGhzEnvironment*
+Function,+,subghz_environment_get_protocol_registry,const SubGhzProtocolRegistry*,SubGhzEnvironment*
 Function,+,subghz_environment_load_keystore,_Bool,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_reset_keeloq,void,SubGhzEnvironment*
 Function,+,subghz_environment_set_alutech_at_4n_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
-Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, void*"
+Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, const SubGhzProtocolRegistry*"
 Function,-,subghz_keystore_alloc,SubGhzKeystore*,
 Function,-,subghz_keystore_free,void,SubGhzKeystore*
 Function,-,subghz_keystore_get_data,SubGhzKeyArray_t*,SubGhzKeystore*
@@ -3515,6 +3518,7 @@ Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
 Function,+,value_index_bool,uint8_t,"const _Bool, const _Bool[], uint8_t"
 Function,+,value_index_float,uint8_t,"const float, const float[], uint8_t"
+Function,+,value_index_int32,uint8_t,"const int32_t, const int32_t[], uint8_t"
 Function,+,value_index_uint32,uint8_t,"const uint32_t, const uint32_t[], uint8_t"
 Function,+,variable_item_get_context,void*,VariableItem*
 Function,+,variable_item_get_current_value_index,uint8_t,VariableItem*
@@ -3795,6 +3799,7 @@ Variable,+,message_force_vibro_setting_off,const NotificationMessage,
 Variable,+,message_force_vibro_setting_on,const NotificationMessage,
 Variable,+,message_green_0,const NotificationMessage,
 Variable,+,message_green_255,const NotificationMessage,
+Variable,+,message_lcd_contrast_update,const NotificationMessage,
 Variable,+,message_note_a0,const NotificationMessage,
 Variable,+,message_note_a1,const NotificationMessage,
 Variable,+,message_note_a2,const NotificationMessage,
@@ -3938,6 +3943,7 @@ Variable,+,sequence_display_backlight_off_delay_1000,const NotificationSequence,
 Variable,+,sequence_display_backlight_on,const NotificationSequence,
 Variable,+,sequence_double_vibro,const NotificationSequence,
 Variable,+,sequence_error,const NotificationSequence,
+Variable,+,sequence_lcd_contrast_update,const NotificationSequence,
 Variable,+,sequence_not_charging,const NotificationSequence,
 Variable,+,sequence_reset_blue,const NotificationSequence,
 Variable,+,sequence_reset_display,const NotificationSequence,
@@ -4062,27 +4068,6 @@ Variable,+,subghz_protocol_raw,const SubGhzProtocol,
 Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
 Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
 Variable,+,subghz_protocol_registry,const SubGhzProtocolRegistry,
-Variable,-,subghz_protocol_scher_khan,const SubGhzProtocol,
-Variable,-,subghz_protocol_scher_khan_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_scher_khan_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_secplus_v1,const SubGhzProtocol,
-Variable,-,subghz_protocol_secplus_v1_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_secplus_v1_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_secplus_v2,const SubGhzProtocol,
-Variable,-,subghz_protocol_secplus_v2_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_secplus_v2_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_smc5326,const SubGhzProtocol,
-Variable,-,subghz_protocol_smc5326_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_smc5326_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_somfy_keytis,const SubGhzProtocol,
-Variable,-,subghz_protocol_somfy_keytis_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_somfy_keytis_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_somfy_telis,const SubGhzProtocol,
-Variable,-,subghz_protocol_somfy_telis_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_somfy_telis_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_star_line,const SubGhzProtocol,
-Variable,-,subghz_protocol_star_line_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_star_line_encoder,const SubGhzProtocolEncoder,
 Variable,-,suboptarg,char*,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,
 Variable,+,usb_cdc_single,FuriHalUsbInterface,

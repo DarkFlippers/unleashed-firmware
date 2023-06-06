@@ -58,14 +58,23 @@ class Copro:
     def _getFileName(self, name):
         return posixpath.join(self.COPRO_TAR_DIR, name)
 
+    def _addFileReadPermission(self, tarinfo):
+        tarinfo.mode = 0o644
+        return tarinfo
+
     def addFile(self, array, filename, **kwargs):
         source_file = os.path.join(self.mcu_copro, filename)
-        self.output_tar.add(source_file, arcname=self._getFileName(filename))
+        self.output_tar.add(
+            source_file,
+            arcname=self._getFileName(filename),
+            filter=self._addFileReadPermission,
+        )
         array.append({"name": filename, "sha256": file_sha256(source_file), **kwargs})
 
     def bundle(self, output_file, stack_file_name, stack_type, stack_addr=None):
         self.output_tar = tarfile.open(output_file, "w:gz", format=tarfile.USTAR_FORMAT)
         fw_directory = tarfile.TarInfo(self.COPRO_TAR_DIR)
+        fw_directory.mode = 0o755
         fw_directory.type = tarfile.DIRTYPE
         self.output_tar.addfile(fw_directory)
 
