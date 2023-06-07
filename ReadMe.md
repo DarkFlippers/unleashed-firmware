@@ -96,7 +96,7 @@ Encoders or sending made by @Eng1n33r(first implementation in Q2 2022) & @xMaste
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Nice Flor S -> How to create new remote - [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
-- Keeloq: BFT Mitto [External seed calculation required (For info contact me in Discord: Nano#8998)] -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
+- Keeloq: BFT Mitto -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Star Line
 - Security+ v1 & v2 (encoders was made in OFW)
 
