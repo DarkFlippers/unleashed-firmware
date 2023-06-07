@@ -24,6 +24,7 @@
 #define UT_TEMPERATURE 0b00000001
 #define UT_HUMIDITY 0b00000010
 #define UT_PRESSURE 0b00000100
+#define UT_CO2 0b00001000
 
 //Статусы опроса датчика
 typedef enum {
@@ -31,6 +32,7 @@ typedef enum {
     UT_DATA_TYPE_TEMP_HUM = UT_TEMPERATURE | UT_HUMIDITY,
     UT_DATA_TYPE_TEMP_PRESS = UT_TEMPERATURE | UT_PRESSURE,
     UT_DATA_TYPE_TEMP_HUM_PRESS = UT_TEMPERATURE | UT_HUMIDITY | UT_PRESSURE,
+    UT_DATA_TYPE_TEMP_HUM_CO2 = UT_TEMPERATURE | UT_HUMIDITY | UT_CO2,
 } SensorDataType;
 
 //Типы возвращаемых данных
@@ -121,6 +123,8 @@ typedef struct Sensor {
     float hum;
     //Атмосферное давление
     float pressure;
+    // Концентрация CO2
+    float co2;
     //Тип датчика
     const SensorType* type;
     //Статус последнего опроса датчика
@@ -329,4 +333,5 @@ const GPIO*
 #include "./sensors/HDC1080.h"
 #include "./sensors/MAX31855.h"
 #include "./sensors/MAX6675.h"
+#include "./sensors/SCD30.h"
 #endif
