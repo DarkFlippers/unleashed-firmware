@@ -159,6 +159,8 @@ static void _draw_pressure(Canvas* canvas, Sensor* sensor) {
         canvas_draw_str(canvas, x + 52, y + 13, "kPa");
     } else if(app->settings.pressure_unit == UT_PRESSURE_HPA) {
         canvas_draw_str(canvas, x + 67, y + 13, "hPa");
+    }
+}
 
 static void _draw_co2(Canvas* canvas, Sensor* sensor, Color color) {
     const uint8_t x = 29, y = 39;
