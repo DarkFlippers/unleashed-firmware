@@ -40,7 +40,7 @@
 //Имя приложения
 #define APP_NAME "Unitemp"
 //Версия приложения
-#define UNITEMP_APP_VER "1.2"
+#define UNITEMP_APP_VER "1.3"
 //Путь хранения файлов плагина
 #define APP_PATH_FOLDER "/ext/unitemp"
 //Имя файла с настройками
