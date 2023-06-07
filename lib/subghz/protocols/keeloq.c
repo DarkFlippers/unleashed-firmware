@@ -215,10 +215,9 @@ static bool subghz_protocol_keeloq_gen_data(
                 (strcmp(instance->manufacture_name, "DTM_Neo") == 0) ||
                 (strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0) ||
                 (strcmp(instance->manufacture_name, "Mutanco_Mutancode") == 0) ||
-                (strcmp(instance->manufacture_name, "Stilmatic") == 0) ||
                 (strcmp(instance->manufacture_name, "Came_Space") == 0)) {
                 // DTM Neo, Came_Space uses 12bit serial -> simple learning
-                // FAAC_RC,XT , Mutanco_Mutancode, Stilmatic(Schellenberg) 12bit serial -> normal learning
+                // FAAC_RC,XT , Mutanco_Mutancode 12bit serial -> normal learning
                 decrypt = btn << 28 | (instance->generic.serial & 0xFFF) << 16 |
                           instance->generic.cnt;
             } else if(

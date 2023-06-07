@@ -1,0 +1,538 @@
+diff --git a/applications/services/notification/notification_app.c b/applications/services/notification/notification_app.c
+index 2f947fe..03c4c76 100644
+--- a/applications/services/notification/notification_app.c
++++ b/applications/services/notification/notification_app.c
+@@ -9,6 +9,7 @@
+ #include "notification.h"
+ #include "notification_messages.h"
+ #include "notification_app.h"
++#include "applications/settings/notification_settings/rgb_backlight.h"
+ 
+ #define TAG "NotificationSrv"
+ 
+@@ -579,6 +580,7 @@ int32_t notification_srv(void* p) {
+             break;
+         case SaveSettingsMessage:
+             notification_save_settings(app);
++            rgb_backlight_save_settings();
+             break;
+         }
+ 
+diff --git a/applications/settings/notification_settings/notification_settings_app.c b/applications/settings/notification_settings/notification_settings_app.c
+index 565d4f1..bae9299 100644
+--- a/applications/settings/notification_settings/notification_settings_app.c
++++ b/applications/settings/notification_settings/notification_settings_app.c
+@@ -3,6 +3,7 @@
+ #include <gui/modules/variable_item_list.h>
+ #include <gui/view_dispatcher.h>
+ #include <lib/toolbox/value_index.h>
++#include <applications/settings/notification_settings/rgb_backlight.h>
+ 
+ #define MAX_NOTIFICATION_SETTINGS 4
+ 
+@@ -162,6 +163,14 @@ static void vibro_changed(VariableItem* item) {
+     notification_message(app->notification, &sequence_single_vibro);
+ }
+ 
++static void color_changed(VariableItem* item) {
++    NotificationAppSettings* app = variable_item_get_context(item);
++    uint8_t index = variable_item_get_current_value_index(item);
++    rgb_backlight_set_color(index);
++    variable_item_set_current_value_text(item, rgb_backlight_get_color_text(index));
++    notification_message(app->notification, &sequence_display_backlight_on);
++}
++
+ static uint32_t notification_app_settings_exit(void* context) {
+     UNUSED(context);
+     return VIEW_NONE;
+@@ -187,7 +196,13 @@ static NotificationAppSettings* alloc_settings() {
+     variable_item_set_current_value_text(item, contrast_text[value_index]);
+ 
+     item = variable_item_list_add(
+-        app->variable_item_list, "LCD Backlight", BACKLIGHT_COUNT, backlight_changed, app);
++        app->variable_item_list, "LCD Color", rgb_backlight_get_color_count(), color_changed, app);
++    value_index = rgb_backlight_get_settings()->display_color_index;
++    variable_item_set_current_value_index(item, value_index);
++    variable_item_set_current_value_text(item, rgb_backlight_get_color_text(value_index));
++
++    item = variable_item_list_add(
++        app->variable_item_list, "LCD Brightness", BACKLIGHT_COUNT, backlight_changed, app);
+     value_index = value_index_float(
+         app->notification->settings.display_brightness, backlight_value, BACKLIGHT_COUNT);
+     variable_item_set_current_value_index(item, value_index);
+diff --git a/applications/settings/notification_settings/rgb_backlight.c b/applications/settings/notification_settings/rgb_backlight.c
+new file mode 100644
+index 0000000..269b544
+--- /dev/null
++++ b/applications/settings/notification_settings/rgb_backlight.c
+@@ -0,0 +1,171 @@
++/*
++    RGB backlight FlipperZero driver
++    Copyright (C) 2022-2023 Victor Nikitchuk (https://github.com/quen0n)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program.  If not, see <https://www.gnu.org/licenses/>.
++*/
++
++#include "rgb_backlight.h"
++#include <furi_hal.h>
++#include <storage/storage.h>
++
++#define RGB_BACKLIGHT_SETTINGS_VERSION 5
++#define RGB_BACKLIGHT_SETTINGS_FILE_NAME ".rgb_backlight.settings"
++#define RGB_BACKLIGHT_SETTINGS_PATH EXT_PATH(RGB_BACKLIGHT_SETTINGS_FILE_NAME)
++
++#define COLOR_COUNT (sizeof(colors) / sizeof(RGBBacklightColor))
++
++#define TAG "RGB Backlight"
++
++static RGBBacklightSettings rgb_settings = {
++    .version = RGB_BACKLIGHT_SETTINGS_VERSION,
++    .display_color_index = 0,
++    .settings_is_loaded = false};
++
++static const RGBBacklightColor colors[] = {
++    {"Orange", 255, 79, 0},
++    {"Yellow", 255, 170, 0},
++    {"Spring", 167, 255, 0},
++    {"Lime", 0, 255, 0},
++    {"Aqua", 0, 255, 127},
++    {"Cyan", 0, 210, 210},
++    {"Azure", 0, 127, 255},
++    {"Blue", 0, 0, 255},
++    {"Purple", 127, 0, 255},
++    {"Magenta", 210, 0, 210},
++    {"Pink", 255, 0, 127},
++    {"Red", 255, 0, 0},
++    {"White", 140, 140, 140},
++};
++
++uint8_t rgb_backlight_get_color_count(void) {
++    return COLOR_COUNT;
++}
++
++const char* rgb_backlight_get_color_text(uint8_t index) {
++    return colors[index].name;
++}
++
++void rgb_backlight_load_settings(void) {
++    //Не загружать данные из внутренней памяти при загрузке в режиме DFU
++    FuriHalRtcBootMode bm = furi_hal_rtc_get_boot_mode();
++    if(bm == FuriHalRtcBootModeDfu) {
++        rgb_settings.settings_is_loaded = true;
++        return;
++    }
++
++    RGBBacklightSettings settings;
++    File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
++    const size_t settings_size = sizeof(RGBBacklightSettings);
++
++    FURI_LOG_I(TAG, "loading settings from \"%s\"", RGB_BACKLIGHT_SETTINGS_PATH);
++    bool fs_result =
++        storage_file_open(file, RGB_BACKLIGHT_SETTINGS_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
++
++    if(fs_result) {
++        uint16_t bytes_count = storage_file_read(file, &settings, settings_size);
++
++        if(bytes_count != settings_size) {
++            fs_result = false;
++        }
++    }
++
++    if(fs_result) {
++        FURI_LOG_I(TAG, "load success");
++        if(settings.version != RGB_BACKLIGHT_SETTINGS_VERSION) {
++            FURI_LOG_E(
++                TAG,
++                "version(%d != %d) mismatch",
++                settings.version,
++                RGB_BACKLIGHT_SETTINGS_VERSION);
++        } else {
++            memcpy(&rgb_settings, &settings, settings_size);
++        }
++    } else {
++        FURI_LOG_E(TAG, "load failed, %s", storage_file_get_error_desc(file));
++    }
++
++    storage_file_close(file);
++    storage_file_free(file);
++    furi_record_close(RECORD_STORAGE);
++    rgb_settings.settings_is_loaded = true;
++};
++
++void rgb_backlight_save_settings(void) {
++    RGBBacklightSettings settings;
++    File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
++    const size_t settings_size = sizeof(RGBBacklightSettings);
++
++    FURI_LOG_I(TAG, "saving settings to \"%s\"", RGB_BACKLIGHT_SETTINGS_PATH);
++
++    memcpy(&settings, &rgb_settings, settings_size);
++
++    bool fs_result =
++        storage_file_open(file, RGB_BACKLIGHT_SETTINGS_PATH, FSAM_WRITE, FSOM_CREATE_ALWAYS);
++
++    if(fs_result) {
++        uint16_t bytes_count = storage_file_write(file, &settings, settings_size);
++
++        if(bytes_count != settings_size) {
++            fs_result = false;
++        }
++    }
++
++    if(fs_result) {
++        FURI_LOG_I(TAG, "save success");
++    } else {
++        FURI_LOG_E(TAG, "save failed, %s", storage_file_get_error_desc(file));
++    }
++
++    storage_file_close(file);
++    storage_file_free(file);
++    furi_record_close(RECORD_STORAGE);
++};
++
++RGBBacklightSettings* rgb_backlight_get_settings(void) {
++    if(!rgb_settings.settings_is_loaded) {
++        rgb_backlight_load_settings();
++    }
++    return &rgb_settings;
++}
++
++void rgb_backlight_set_color(uint8_t color_index) {
++    if(color_index > (rgb_backlight_get_color_count() - 1)) color_index = 0;
++    rgb_settings.display_color_index = color_index;
++}
++
++void rgb_backlight_update(uint8_t brightness) {
++    if(!rgb_settings.settings_is_loaded) {
++        rgb_backlight_load_settings();
++    }
++
++    static uint8_t last_color_index = 255;
++    static uint8_t last_brightness = 123;
++
++    if(last_brightness == brightness && last_color_index == rgb_settings.display_color_index)
++        return;
++
++    last_brightness = brightness;
++    last_color_index = rgb_settings.display_color_index;
++
++    for(uint8_t i = 0; i < SK6805_get_led_count(); i++) {
++        uint8_t r = colors[rgb_settings.display_color_index].red * (brightness / 255.0f);
++        uint8_t g = colors[rgb_settings.display_color_index].green * (brightness / 255.0f);
++        uint8_t b = colors[rgb_settings.display_color_index].blue * (brightness / 255.0f);
++
++        SK6805_set_led_color(i, r, g, b);
++    }
++
++    SK6805_update();
++}
+diff --git a/applications/settings/notification_settings/rgb_backlight.h b/applications/settings/notification_settings/rgb_backlight.h
+new file mode 100644
+index 0000000..b63d223
+--- /dev/null
++++ b/applications/settings/notification_settings/rgb_backlight.h
+@@ -0,0 +1,79 @@
++/*
++    RGB backlight FlipperZero driver
++    Copyright (C) 2022-2023 Victor Nikitchuk (https://github.com/quen0n)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program.  If not, see <https://www.gnu.org/licenses/>.
++*/
++
++#include <furi.h>
++#include "SK6805.h"
++
++typedef struct {
++    char* name;
++    uint8_t red;
++    uint8_t green;
++    uint8_t blue;
++} RGBBacklightColor;
++
++typedef struct {
++    uint8_t version;
++    uint8_t display_color_index;
++    bool settings_is_loaded;
++} RGBBacklightSettings;
++
++/**
++ * @brief Получить текущие настройки RGB-подсветки
++ *
++ * @return Указатель на структуру настроек
++ */
++RGBBacklightSettings* rgb_backlight_get_settings(void);
++
++/**
++ * @brief Загрузить настройки подсветки с SD-карты
++ */
++void rgb_backlight_load_settings(void);
++
++/**
++ * @brief Сохранить текущие настройки RGB-подсветки
++ */
++void rgb_backlight_save_settings(void);
++
++/**
++ * @brief Применить текущие настройки RGB-подсветки
++ *
++ * @param brightness Яркость свечения (0-255)
++ */
++void rgb_backlight_update(uint8_t brightness);
++
++/**
++ * @brief Установить цвет RGB-подсветки
++ *
++ * @param color_index Индекс цвета (0 - rgb_backlight_get_color_count())
++ */
++void rgb_backlight_set_color(uint8_t color_index);
++
++/**
++ * @brief Получить количество доступных цветов
++ *
++ * @return Число доступных вариантов цвета
++ */
++uint8_t rgb_backlight_get_color_count(void);
++
++/**
++ * @brief Получить текстовое название цвета
++ *
++ * @param index Индекс из доступных вариантов цвета
++ * @return Указатель на строку с названием цвета
++ */
++const char* rgb_backlight_get_color_text(uint8_t index);
+\ No newline at end of file
+diff --git a/firmware/targets/f7/furi_hal/furi_hal_light.c b/firmware/targets/f7/furi_hal/furi_hal_light.c
+index 83e1603..cad5b86 100644
+--- a/firmware/targets/f7/furi_hal/furi_hal_light.c
++++ b/firmware/targets/f7/furi_hal/furi_hal_light.c
+@@ -3,6 +3,7 @@
+ #include <furi_hal_light.h>
+ #include <lp5562.h>
+ #include <stdint.h>
++#include <applications/settings/notification_settings/rgb_backlight.h>
+ 
+ #define LED_CURRENT_RED 50
+ #define LED_CURRENT_GREEN 50
+@@ -31,22 +32,21 @@ void furi_hal_light_init() {
+ }
+ 
+ void furi_hal_light_set(Light light, uint8_t value) {
+-    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+-    if(light & LightRed) {
+-        lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelRed, value);
+-    }
+-    if(light & LightGreen) {
+-        lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelGreen, value);
+-    }
+-    if(light & LightBlue) {
+-        lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelBlue, value);
+-    }
+     if(light & LightBacklight) {
+-        uint8_t prev = lp5562_get_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelWhite);
+-        lp5562_execute_ramp(
+-            &furi_hal_i2c_handle_power, LP5562Engine1, LP5562ChannelWhite, prev, value, 100);
++        rgb_backlight_update(value);
++    } else {
++        furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
++        if(light & LightRed) {
++            lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelRed, value);
++        }
++        if(light & LightGreen) {
++            lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelGreen, value);
++        }
++        if(light & LightBlue) {
++            lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelBlue, value);
++        }
++        furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+     }
+-    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+ }
+ 
+ void furi_hal_light_blink_start(Light light, uint8_t brightness, uint16_t on_time, uint16_t period) {
+diff --git a/lib/drivers/SK6805.c b/lib/drivers/SK6805.c
+new file mode 100644
+index 0000000..572e1df
+--- /dev/null
++++ b/lib/drivers/SK6805.c
+@@ -0,0 +1,101 @@
++/*
++    SK6805 FlipperZero driver
++    Copyright (C) 2022-2023 Victor Nikitchuk (https://github.com/quen0n)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program.  If not, see <https://www.gnu.org/licenses/>.
++*/
++
++#include "SK6805.h"
++#include <furi_hal.h>
++
++/* Настройки */
++#define SK6805_LED_COUNT 3 //Количество светодиодов на плате подсветки
++#define SK6805_LED_PIN &led_pin //Порт подключения светодиодов
++
++#ifdef FURI_DEBUG
++#define DEBUG_PIN &gpio_ext_pa7
++#define DEBUG_INIT() \
++    furi_hal_gpio_init(DEBUG_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh)
++#define DEBUG_SET_HIGH() furi_hal_gpio_write(DEBUG_PIN, true)
++#define DEBUG_SET_LOW() furi_hal_gpio_write(DEBUG_PIN, false)
++#else
++#define DEBUG_INIT()
++#define DEBUG_SET_HIGH()
++#define DEBUG_SET_LOW()
++#endif
++
++static const GpioPin led_pin = {.port = GPIOA, .pin = LL_GPIO_PIN_8};
++static uint8_t led_buffer[SK6805_LED_COUNT][3];
++
++void SK6805_init(void) {
++    DEBUG_INIT();
++    furi_hal_gpio_write(SK6805_LED_PIN, false);
++    furi_hal_gpio_init(SK6805_LED_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
++}
++
++uint8_t SK6805_get_led_count(void) {
++    return (const uint8_t)SK6805_LED_COUNT;
++}
++void SK6805_set_led_color(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b) {
++    furi_check(led_index < SK6805_LED_COUNT);
++
++    led_buffer[led_index][0] = g;
++    led_buffer[led_index][1] = r;
++    led_buffer[led_index][2] = b;
++}
++
++void SK6805_update(void) {
++    SK6805_init();
++    furi_kernel_lock();
++    uint32_t end;
++    /* Последовательная отправка цветов светодиодов */
++    for(uint8_t lednumber = 0; lednumber < SK6805_LED_COUNT; lednumber++) {
++        //Последовательная отправка цветов светодиода
++        for(uint8_t color = 0; color < 3; color++) {
++            //Последовательная отправка битов цвета
++            uint8_t i = 0b10000000;
++            while(i != 0) {
++                if(led_buffer[lednumber][color] & (i)) {
++                    furi_hal_gpio_write(SK6805_LED_PIN, true);
++                    DEBUG_SET_HIGH();
++                    end = DWT->CYCCNT + 30;
++                    //T1H 600 us (615 us)
++                    while(DWT->CYCCNT < end) {
++                    }
++                    furi_hal_gpio_write(SK6805_LED_PIN, false);
++                    DEBUG_SET_LOW();
++                    end = DWT->CYCCNT + 26;
++                    //T1L  600 us (587 us)
++                    while(DWT->CYCCNT < end) {
++                    }
++                } else {
++                    furi_hal_gpio_write(SK6805_LED_PIN, true);
++                    DEBUG_SET_HIGH();
++                    end = DWT->CYCCNT + 11;
++                    //T0H 300 ns (312 ns)
++                    while(DWT->CYCCNT < end) {
++                    }
++                    furi_hal_gpio_write(SK6805_LED_PIN, false);
++                    DEBUG_SET_LOW();
++                    end = DWT->CYCCNT + 43;
++                    //T0L 900 ns (890 ns)
++                    while(DWT->CYCCNT < end) {
++                    }
++                }
++                i >>= 1;
++            }
++        }
++    }
++    furi_kernel_unlock();
++}
+diff --git a/lib/drivers/SK6805.h b/lib/drivers/SK6805.h
+new file mode 100644
+index 0000000..7c58956
+--- /dev/null
++++ b/lib/drivers/SK6805.h
+@@ -0,0 +1,51 @@
++/*
++    SK6805 FlipperZero driver
++    Copyright (C) 2022-2023 Victor Nikitchuk (https://github.com/quen0n)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program.  If not, see <https://www.gnu.org/licenses/>.
++*/
++
++#ifndef SK6805_H_
++#define SK6805_H_
++
++#include <furi.h>
++
++/**
++ * @brief Инициализация линии управления подсветкой
++ */
++void SK6805_init(void);
++
++/**
++ * @brief Получить количество светодиодов в подсветке
++ *
++ * @return Количество светодиодов
++ */
++uint8_t SK6805_get_led_count(void);
++
++/**
++ * @brief Установить цвет свечения светодиода
++ *
++ * @param led_index номер светодиода (от 0 до SK6805_get_led_count())
++ * @param r значение красного (0-255)
++ * @param g значение зелёного (0-255)
++ * @param b значение синего (0-255)
++ */
++void SK6805_set_led_color(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b);
++
++/**
++ * @brief Обновление состояния подсветки дисплея
++ */
++void SK6805_update(void);
++
++#endif /* SK6805_H_ */
+\ No newline at end of file

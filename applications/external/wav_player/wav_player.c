@@ -12,7 +12,7 @@
 #include "wav_player_view.h"
 #include <math.h>
 
-#include <WAV_Player_icons.h>
+#include <wav_player_icons.h>
 
 #define TAG "WavPlayer"
 
@@ -357,12 +357,12 @@ static void app_run(WavPlayerApp* app) {
     bool eof = fill_data(app, 0);
     eof = fill_data(app, app->samples_count_half);
 
-    wav_player_speaker_init(app->sample_rate);
-    wav_player_dma_init((uint32_t)app->sample_buffer, app->samples_count);
-
-    furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, wav_player_dma_isr, app->queue);
-
     if(furi_hal_speaker_acquire(1000)) {
+        wav_player_speaker_init(app->sample_rate);
+        wav_player_dma_init((uint32_t)app->sample_buffer, app->samples_count);
+
+        furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, wav_player_dma_isr, app->queue);
+
         wav_player_dma_start();
         wav_player_speaker_start();
 
@@ -439,6 +439,9 @@ static void app_run(WavPlayerApp* app) {
         wav_player_dma_stop();
         furi_hal_speaker_release();
     }
+
+    // Reset GPIO pin and bus states
+    wav_player_hal_deinit();
 
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, NULL, NULL);
 }

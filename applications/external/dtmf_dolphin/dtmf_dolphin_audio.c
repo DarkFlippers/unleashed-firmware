@@ -214,12 +214,12 @@ bool dtmf_dolphin_audio_play_tones(
     generate_waveform(current_player, 0);
     generate_waveform(current_player, current_player->half_buffer_length);
 
-    dtmf_dolphin_speaker_init();
     dtmf_dolphin_dma_init((uint32_t)current_player->sample_buffer, current_player->buffer_length);
 
     furi_hal_interrupt_set_isr(
         FuriHalInterruptIdDma1Ch1, dtmf_dolphin_audio_dma_isr, current_player->queue);
     if(furi_hal_speaker_acquire(1000)) {
+        dtmf_dolphin_speaker_init();
         dtmf_dolphin_dma_start();
         dtmf_dolphin_speaker_start();
         current_player->playing = true;

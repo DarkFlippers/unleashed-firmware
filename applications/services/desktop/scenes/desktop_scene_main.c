@@ -200,23 +200,23 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
         }
         case DesktopMainEventOpenGameMenu: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/Snake.fap"));
+            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/snake.fap"));
             break;
         }
         case DesktopMainEventOpenTetris: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/Tetris.fap"));
+            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/tetris.fap"));
             break;
         }
         case DesktopMainEventOpenArkanoid: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/Arkanoid.fap"));
+            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/arkanoid.fap"));
             break;
         }
         case DesktopMainEventOpenDOOM: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/DOOM.fap"));
+            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/doom.fap"));
             break;
         }
         case DesktopMainEventOpenZombiez: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/Zombiez.fap"));
+            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/zombiez.fap"));
             break;
         }
         case DesktopMainEventOpenHeap: {

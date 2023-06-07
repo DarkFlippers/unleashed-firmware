@@ -1,5 +1,5 @@
 App(
-    appid="i2cTools",
+    appid="i2c_tools",
     name="[GPIO] i2c Tools",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="i2ctools_app",

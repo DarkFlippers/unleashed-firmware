@@ -70,7 +70,7 @@ bool nfc_scene_read_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == NfcWorkerEventReadNfcV) {
             notification_message(nfc->notifications, &sequence_success);
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcDataInfo);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcVReadSuccess);
             DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
             consumed = true;
         } else if(event.event == NfcWorkerEventReadMfUltralight) {

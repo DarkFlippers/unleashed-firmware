@@ -4,7 +4,7 @@
 #include <gui/canvas_i.h>
 #include "defines.h"
 #include "common/ui.h"
-#include "Solitaire_icons.h"
+#include "solitaire_icons.h"
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 void init(GameState* game_state);

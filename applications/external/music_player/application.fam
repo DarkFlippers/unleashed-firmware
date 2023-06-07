@@ -1,5 +1,5 @@
 App(
-    appid="Music_Player",
+    appid="music_player",
     name="Music Player",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="music_player_app",

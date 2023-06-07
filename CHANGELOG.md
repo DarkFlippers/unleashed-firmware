@@ -1,40 +1,38 @@
 ### New changes
-* !!! **Warning! After installing, Desktop settings (Favoutite apps, PIN Code, AutoLock time..) will be resetted to default due to settings changes, Please set your PIN code, Favourite apps again in Settings->Desktop** !!!
 * If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
 -----
-* Desktop: **Show clock on main screen** (Enable in Settings->Desktop->Show Clock) (by @gid9798 | PR #484)
-* SubGHz Remote: New plugin - Configurator (Remote Maker) - Now you can create and edit map files on flipper! (by @gid9798 | PR #487)
-* SubGHz Remote: Full refactoring, app was re-made from scratch (by @gid9798)
-* Archive: Fix rename, show error message to user
-* API: Cleanup, mini refactoring of some apps (+6k of free flash space)
-* LFRFID: Debug: Allow PSK RAW emulation in gui
-* SubGHz: Security+ 2.0 -> add extra custom button `0x78` - Fixes issue #469
-* SubGHz: Various fixes (by @gid9798)
-* SubGHz: Fix counter settings in debug
-* SubGHz: Move dangerous_settings check (by @gid9798 | PR #475)
-* Misc: Move NFC plugins into NFC folder
-* Misc: Name changer code moved to proper place, load after system startup + extra checks
-* Plugins: Merge tiktok and ytshorts remote into one (by @Willy-JL)
-* Plugins: NMEA GPS UART - stability fix
-* Plugins: Port XFW keyboard with extra symbols to WiFi Marauder instead of using UART Term keyboard (thanks to @Willy-JL)
-* Plugins: Moved from extra pack to main FW: Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested) - Works with PC and python app `FlipperNested`
-* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) (+ Add option to set custom fonts)
-* Plugins: Update NMEA GPS UART [(by ezod)](https://github.com/ezod/flipperzero-gps) (GLL support)
-* Plugins: Update WiFi Marauder [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
-* OFW PR 2680: RFID - Add support for Nexkey/Nexwatch (by @mauimauer)
-* OFW: nfc: Mifare Ultralight C detection
-* OFW: api: added toolbox/api_lock.h
-* OFW: NFC: Add support for Gen4 "ultimate card" in Magic app
-* OFW: desktop: Refactor favorites settings and allow app browser in selection
-* OFW: Infrared: respect carrier frequency and duty cycle settings -> **Breaking API change, API version was changed from 26.x to 27.x** 
-* OFW: Desktop,Rpc: desktop status subscription
-* OFW: Storage, common_rename: check that old path is exists
-* OFW: Services: remove deallocator for persistent services
-* OFW: Storage: common_rename is now POSIX compliant
-* OFW: Removed user-specific data from tar artifacts
-* OFW: fbt: Fix tar uid overflow when packaging
-* OFW: fbt: Use union for old py (Fix builds if using older python versions)
-* OFW: USB HID report timeout
+* Only in release 052 -> **Multiple Extra pack apps was fixed!** -> TAMA P1, Flizzer Tracker, Video Player, Music Tracker
+* NFC V: Remove delay from emulation loop. This improves compatibility when the reader is Android.
+* Plugins: iButton Fuzzer -> Fix v2 key files load (all new saved files)
+### Previous changes
+* SubGHz Remote: Fixed BinRAW support, + many other fixes (by @gid9798 | PR #492)
+* SubGHz: Fix KL: Stilmatic support + add manually support
+* SubGHz: Keeloq mfname refactoring (by @gid9798 | PR #479)
+* Desktop Clock: Some improvements and fixes (by @gid9798 | PR #490)
+* LF RFID: Cleanup duplicated code (by @gid9798 | PR #493)
+* NFC V: Code review fixes + some GUI rework (by @nvx & @xMasterX)
+* NFC V: Fixed crash when exiting emulation and starting it again
+* Infrared: Use Universal AC Remote from OFW, same for Audio remote, and rename buttons in OFW naming scheme
+* Infrared: Update universal remote assets (by @amec0e)
+* GUI Keyboard: Fix crash when renaming files with long file name (Fixed issue #489)
+* Misc: Fix APP_IDs to match new regex (regex check will be added in OFW soon)
+* Plugins: Protoview, WAV Player, DTMF Dolphin - fixed all known crashes, ported to latest hal bus system
+* Plugins: ESP8266 Deauther - Crash fix (Fixed issue #497)
+* Plugins: Update -> Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
+* Plugins: Update -> TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: Update -> ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
+* Plugins: Update -> UART Terminal [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
+* OFW: FuriHal: disable bus re-initialization on early init and extra asserts for AHB1,AHB2,AHB3 which must be left intact on entering to FUS -> **Fixes updater error 1-100**
+* OFW: NFC: fix MFC timings -> **Fixes issues with Mifare Classic emulation that could happen after unlshd-049 release**
+* OFW: Update dolphin.py
+* OFW: NFC Magic: Fix gen1 writing with invalid BCC (lost fix from PR 2511)
+* OFW: SubGhz: fix flipper crashes after exiting broadcast blocking message and crash cli
+* OFW: Dolphin: new animation
+* OFW: fbt: added hooks for build & dist environments; added FW_ORIGIN_* macro for apps & SDK 
+* OFW: FuriHal: add bus abstraction -> **Breaking API change, API version was changed from 27.x to 28.x** 
+* OFW: Implement support for reading Opal card (Sydney, Australia) 
+* OFW: BadUSB: script execution pause
+* OFW: IR Universal AC: Add Carrier 42QHB12D8S
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 

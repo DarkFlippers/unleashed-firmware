@@ -1,5 +1,5 @@
 App(
-    appid="Minesweeper",
+    appid="minesweeper",
     name="Minesweeper",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="minesweeper_app",

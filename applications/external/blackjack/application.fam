@@ -1,5 +1,5 @@
 App(
-    appid="Blackjack",
+    appid="blackjack",
     name="Blackjack",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="blackjack_app",

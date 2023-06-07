@@ -197,6 +197,10 @@ const NotificationMessage message_force_display_brightness_setting_1f = {
     .data.forced_settings.display_brightness = 1.0f,
 };
 
+const NotificationMessage message_lcd_contrast_update = {
+    .type = NotificationMessageTypeLcdContrastUpdate,
+};
+
 /****************************** Message sequences ******************************/
 
 // Reset
@@ -564,5 +568,10 @@ const NotificationSequence sequence_audiovisual_alert = {
 
     &message_sound_off,
     &message_vibro_off,
+    NULL,
+};
+
+const NotificationSequence sequence_lcd_contrast_update = {
+    &message_lcd_contrast_update,
     NULL,
 };

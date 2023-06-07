@@ -1,5 +1,5 @@
 App(
-    appid="ESP8266_Deauther",
+    appid="esp8266_deauther",
     name="[ESP8266] Deauther",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="esp8266_deauth_app",

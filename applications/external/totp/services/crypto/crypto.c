@@ -89,8 +89,11 @@ CryptoSeedIVResult
         } else {
             max_i = uid_size;
         }
-
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
+        const uint8_t* uid = furi_hal_version_uid_default();
+#else
         const uint8_t* uid = furi_hal_version_uid();
+#endif
         for(uint8_t i = 0; i < max_i; i++) {
             plugin_state->iv[i] = plugin_state->iv[i] ^ uid[i];
         }

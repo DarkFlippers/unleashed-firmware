@@ -179,7 +179,6 @@ void nfc_worker_nfcv_emulate(NfcWorker* nfc_worker) {
                 }
             }
         }
-        furi_delay_ms(10);
     }
     nfcv_emu_deinit(nfcv_data);
 
@@ -207,7 +206,6 @@ void nfc_worker_nfcv_sniff(NfcWorker* nfc_worker) {
                 nfc_worker->callback(NfcWorkerEventNfcVCommandExecuted, nfc_worker->context);
             }
         }
-        furi_delay_ms(10);
     }
     nfcv_emu_deinit(nfcv_data);
 
