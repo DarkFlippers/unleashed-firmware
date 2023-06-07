@@ -28,7 +28,7 @@
     - [ ] Protocol carousel in `main_menu`
         - [x] prototype 
     - [x] Add the ability to edit emulation time and downtime separately
-        - [ ] Decide on the display
+        - [x] Decide on the display
 - [x] UID
     - [x] Simplify the storage and exchange of `uids.data` `uid.data_size` in `views`
     - [x] Using `FuzzerPayload` to store the uid
