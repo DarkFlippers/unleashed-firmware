@@ -51,4 +51,5 @@ typedef struct {
     FuzzerConsts* fuzzer_const;
 
     FuzzerWorker* worker;
+    FuzzerPayload* payload;
 } PacsFuzzerApp;

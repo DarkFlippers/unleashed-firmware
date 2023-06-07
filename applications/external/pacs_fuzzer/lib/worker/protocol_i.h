@@ -19,7 +19,7 @@ typedef struct FuzzerProtocol FuzzerProtocol;
 
 struct ProtoDict {
     const uint8_t* val;
-    const uint8_t len; // TODO
+    const uint8_t len;
 };
 
 struct FuzzerProtocol {
@@ -34,20 +34,10 @@ struct FuzzerProtocol {
 // #define FUZZ_TIME_DELAY_DEFAULT (10)
 // #define FUZZ_TIME_DELAY_MAX (70)
 
-// #define FUZZER_APP_CUSTOM_DICT_EXTENSION ".txt"
-// #define FUZZER_APP_CUSTOM_DICT_FOLDER "/ext/rfidfuzzer"
-// #define FUZZER_APP_KEY_EXTENSION ".rfid"
-// #define FUZZER_APP_PATH_KEY_FOLDER "/ext/lfrfid"
-
 // #define MAX_PAYLOAD_SIZE 8
 
 // #define FUZZ_TIME_DELAY_MIN (4)
 // #define FUZZ_TIME_DELAY_DEFAULT (8)
 // #define FUZZ_TIME_DELAY_MAX (80)
-
-// #define FUZZER_APP_CUSTOM_DICT_EXTENSION ".txt"
-// #define FUZZER_APP_CUSTOM_DICT_FOLDER "/ext/ibtnfuzzer"
-// #define FUZZER_APP_KEY_EXTENSION ".ibtn"
-// #define FUZZER_APP_PATH_KEY_FOLDER "/ext/ibutton"
 
 extern const FuzzerProtocol fuzzer_proto_items[];

@@ -82,21 +82,21 @@ bool fuzzer_worker_init_attack_file_dict(
  * 
  * @param instance Pointer to a FuzzerWorker
  * @param protocol_index index of the selected protocol
- * @param uid UID for brute force
+ * @param new_uid Pointer to a FuzzerPayload with UID for brute force
  * @param chosen index of chusen byte
  * @return bool True if initialization is successful
  */
 bool fuzzer_worker_init_attack_bf_byte(
     FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
-    const uint8_t* uid,
+    const FuzzerPayload* new_uid,
     uint8_t chusen);
 
 /**
  * Get current UID
  * 
  * @param instance Pointer to a FuzzerWorker
- * @param output_key Pointer to a FuzzerWorker, memory for data will be allocated 
+ * @param output_key Pointer to a FuzzerPayload
  */
 void fuzzer_worker_get_current_key(FuzzerWorker* instance, FuzzerPayload* output_key);
 

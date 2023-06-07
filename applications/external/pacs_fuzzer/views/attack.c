@@ -48,17 +48,17 @@ void fuzzer_view_attack_reset_data(
         true);
 }
 
-void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload uid) {
+void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload* uid) {
     furi_assert(view);
-    furi_assert(uid.data);
+    furi_assert(uid->data);
 
     with_view_model(
         view->view,
         FuzzerViewAttackModel * model,
         {
-            furi_string_printf(model->uid_str, "%02X", uid.data[0]);
-            for(uint8_t i = 1; i < uid.data_size; i++) {
-                furi_string_cat_printf(model->uid_str, ":%02X", uid.data[i]);
+            furi_string_printf(model->uid_str, "%02X", uid->data[0]);
+            for(uint8_t i = 1; i < uid->data_size; i++) {
+                furi_string_cat_printf(model->uid_str, ":%02X", uid->data[i]);
             }
         },
         true);

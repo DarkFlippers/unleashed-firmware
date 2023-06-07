@@ -1,8 +1,6 @@
 #include "../fuzzer_i.h"
 #include "../helpers/fuzzer_custom_event.h"
 
-// TODO simlify callbacks and attack state
-
 const NotificationSequence sequence_one_green_50_on_blink_blue = {
     &message_red_255,
     &message_delay_50,
@@ -18,12 +16,9 @@ static void fuzzer_scene_attack_update_uid(PacsFuzzerApp* app) {
     furi_assert(app->worker);
     furi_assert(app->attack_view);
 
-    FuzzerPayload uid;
-    fuzzer_worker_get_current_key(app->worker, &uid);
+    fuzzer_worker_get_current_key(app->worker, app->payload);
 
-    fuzzer_view_attack_set_uid(app->attack_view, uid);
-
-    free(uid.data);
+    fuzzer_view_attack_set_uid(app->attack_view, app->payload);
 }
 
 static void fuzzer_scene_attack_set_state(PacsFuzzerApp* app, FuzzerAttackState state) {
@@ -127,7 +122,6 @@ bool fuzzer_scene_attack_on_event(void* context, SceneManagerEvent event) {
             if(scene_manager_get_scene_state(app->scene_manager, FuzzerSceneAttack) ==
                FuzzerAttackStateIdle) {
                 // Start or Continue Attack
-                // TODO emu_time
                 if(fuzzer_worker_start(
                        app->worker,
                        fuzzer_view_attack_get_time_delay(app->attack_view),
@@ -160,7 +154,8 @@ void fuzzer_scene_attack_on_exit(void* context) {
     furi_assert(context);
     PacsFuzzerApp* app = context;
 
-    // fuzzer_worker_stop(); // XXX
+    // XXX the scene has no descendants, and the return will be processed in on_event
+    // fuzzer_worker_stop();
 
     fuzzer_worker_set_uid_chaged_callback(app->worker, NULL, NULL);
     fuzzer_worker_set_end_callback(app->worker, NULL, NULL);

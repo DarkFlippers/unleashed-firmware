@@ -32,6 +32,20 @@ struct FuzzerPayload {
 };
 
 /**
+ * Allocate FuzzerPayload
+ * 
+ * @return FuzzerPayload* pointer to FuzzerPayload
+ */
+FuzzerPayload* fuzzer_payload_alloc();
+
+/**
+ * Free FuzzerPayload
+ * 
+ * @param instance Pointer to a FuzzerPayload
+ */
+void fuzzer_payload_free(FuzzerPayload*);
+
+/**
  * Get maximum length of UID among all supported protocols
  * @return Maximum length of UID
  */

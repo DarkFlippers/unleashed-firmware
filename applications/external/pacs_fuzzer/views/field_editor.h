@@ -21,9 +21,8 @@ View* fuzzer_view_field_editor_get_view(FuzzerViewFieldEditor* view_attack);
 
 void fuzzer_view_field_editor_reset_data(
     FuzzerViewFieldEditor* view_edit,
-    const FuzzerPayload new_uid);
+    const FuzzerPayload* new_uid);
 
-// TODO
-const uint8_t* fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit);
+void fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit, FuzzerPayload* output_uid);
 
 uint8_t fuzzer_view_field_editor_get_index(FuzzerViewFieldEditor* view_edit);

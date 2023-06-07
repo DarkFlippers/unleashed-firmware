@@ -27,7 +27,7 @@ void fuzzer_view_attack_reset_data(
     const char* attack_name,
     const char* protocol_name);
 
-void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload uid);
+void fuzzer_view_attack_set_uid(FuzzerViewAttack* view, const FuzzerPayload* uid);
 
 void fuzzer_view_attack_start(FuzzerViewAttack* view);
 

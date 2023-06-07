@@ -31,9 +31,13 @@
         - [ ] Decide on the display
 - [x] UID
     - [x] Simplify the storage and exchange of `uids.data` `uid.data_size` in `views`
+    - [x] Using `FuzzerPayload` to store the uid
     - [x] `UID_MAX_SIZE`
 - [x] Add pause
     - [x] Fix `Custom dict` attack when ended
+- [ ] Pause V2
+    - [ ] Save logic
+    - [ ] Switching  UIDs if possible
 - [ ] Worker
     - [ ] Use `prtocol_id` instead of protocol name
     - [x] this can be simplified `fuzzer_proto_items`

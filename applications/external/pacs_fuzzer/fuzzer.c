@@ -26,6 +26,7 @@ PacsFuzzerApp* fuzzer_app_alloc() {
     app->fuzzer_state.proto_index = 0;
 
     app->worker = fuzzer_worker_alloc();
+    app->payload = fuzzer_payload_alloc();
 
     app->file_path = furi_string_alloc();
 
@@ -114,6 +115,7 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
 
     furi_string_free(app->file_path);
 
+    fuzzer_payload_free(app->payload);
     fuzzer_worker_free(app->worker);
 
     free(app);

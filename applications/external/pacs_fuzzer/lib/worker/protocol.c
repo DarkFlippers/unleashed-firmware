@@ -242,6 +242,22 @@ const FuzzerMenuItems fuzzer_menu_items[] = {
     {"Load UIDs from file", FuzzerAttackIdLoadFileCustomUids},
 };
 
+FuzzerPayload* fuzzer_payload_alloc() {
+    FuzzerPayload* payload = malloc(sizeof(FuzzerPayload));
+    payload->data = malloc(sizeof(payload->data[0]) * MAX_PAYLOAD_SIZE);
+
+    return payload;
+}
+
+void fuzzer_payload_free(FuzzerPayload* payload) {
+    furi_assert(payload);
+
+    if(payload->data) {
+        free(payload->data);
+    }
+    free(payload);
+}
+
 const char* fuzzer_proto_get_name(FuzzerProtocolsID index) {
     return fuzzer_proto_items[index].name;
 }

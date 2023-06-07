@@ -49,27 +49,33 @@ void fuzzer_view_field_editor_set_callback(
 
 void fuzzer_view_field_editor_reset_data(
     FuzzerViewFieldEditor* view_edit,
-    const FuzzerPayload new_uid) {
+    const FuzzerPayload* new_uid) {
     furi_assert(view_edit);
+    furi_assert(new_uid->data);
 
     with_view_model(
         view_edit->view,
         FuzzerViewFieldEditorModel * model,
         {
-            memcpy(model->uid, new_uid.data, new_uid.data_size);
+            memcpy(model->uid, new_uid->data, new_uid->data_size);
             model->index = 0;
             model->lo = false;
-            model->uid_size = new_uid.data_size;
+            model->uid_size = new_uid->data_size;
         },
         true);
 }
 
-const uint8_t* fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit) {
+void fuzzer_view_field_editor_get_uid(FuzzerViewFieldEditor* view_edit, FuzzerPayload* output_uid) {
     furi_assert(view_edit);
-    uint8_t* uid;
+    furi_assert(output_uid);
     with_view_model(
-        view_edit->view, FuzzerViewFieldEditorModel * model, { uid = model->uid; }, true);
-    return uid;
+        view_edit->view,
+        FuzzerViewFieldEditorModel * model,
+        {
+            output_uid->data_size = model->uid_size;
+            memcpy(output_uid->data, model->uid, model->uid_size);
+        },
+        true);
 }
 
 uint8_t fuzzer_view_field_editor_get_index(FuzzerViewFieldEditor* view_edit) {

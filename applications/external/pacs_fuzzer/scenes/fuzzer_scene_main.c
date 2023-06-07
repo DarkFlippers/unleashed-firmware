@@ -103,8 +103,6 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
 
             // TODO error logic
             bool loading_ok = false;
-            uint8_t d_size = fuzzer_proto_get_max_data_size();
-            uint8_t* uid;
 
             switch(fuzzer_proto_get_attack_id_by_index(app->fuzzer_state.menu_index)) {
             case FuzzerAttackIdDefaultValues:
@@ -119,13 +117,12 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 break;
             case FuzzerAttackIdBFCustomerID:
                 // TODO
-                uid = malloc(d_size);
-                memset(uid, 0x00, d_size);
+                app->payload->data_size = fuzzer_proto_get_max_data_size();
+                memset(app->payload->data, 0x00, app->payload->data_size);
 
                 loading_ok = fuzzer_worker_init_attack_bf_byte(
-                    app->worker, app->fuzzer_state.proto_index, uid, 0);
+                    app->worker, app->fuzzer_state.proto_index, app->payload, 0);
 
-                free(uid);
                 if(!loading_ok) {
                     // error
                 }

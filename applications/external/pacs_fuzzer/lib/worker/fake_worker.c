@@ -38,8 +38,8 @@ struct FuzzerWorker {
 
     const FuzzerProtocol* protocol;
     FuzzerWorkerAttackType attack_type;
-    uint8_t timer_idle_time;
-    uint8_t timer_emu_time;
+    uint16_t timer_idle_time_ms;
+    uint16_t timer_emu_time_ms;
 
     uint8_t payload[MAX_PAYLOAD_SIZE];
     Stream* uids_stream;
@@ -157,7 +157,7 @@ static void fuzzer_worker_on_tick_callback(void* context) {
 #endif
         }
         instance->in_emu_phase = false;
-        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_idle_time * 100));
+        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_idle_time_ms));
     } else {
         if(!fuzzer_worker_load_key(instance, true)) {
             fuzzer_worker_pause(instance); // XXX
@@ -173,7 +173,7 @@ static void fuzzer_worker_on_tick_callback(void* context) {
 #endif
             }
             instance->in_emu_phase = true;
-            furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_time * 100));
+            furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_time_ms));
             if(instance->tick_callback) {
                 instance->tick_callback(instance->tick_context);
             }
@@ -187,7 +187,6 @@ void fuzzer_worker_get_current_key(FuzzerWorker* instance, FuzzerPayload* output
     furi_assert(instance->protocol);
 
     output_key->data_size = instance->protocol->data_size;
-    output_key->data = malloc(sizeof(output_key->data_size));
     memcpy(output_key->data, instance->payload, instance->protocol->data_size);
 }
 
@@ -258,7 +257,7 @@ bool fuzzer_worker_init_attack_file_dict(
 bool fuzzer_worker_init_attack_bf_byte(
     FuzzerWorker* instance,
     FuzzerProtocolsID protocol_index,
-    const uint8_t* uid,
+    const FuzzerPayload* new_uid,
     uint8_t chusen) {
     furi_assert(instance);
 
@@ -268,7 +267,7 @@ bool fuzzer_worker_init_attack_bf_byte(
     instance->attack_type = FuzzerWorkerAttackTypeLoadFile;
     instance->index = chusen;
 
-    memcpy(instance->payload, uid, instance->protocol->data_size);
+    memcpy(instance->payload, new_uid->data, instance->protocol->data_size);
 
     res = true;
 
@@ -349,8 +348,8 @@ FuzzerWorker* fuzzer_worker_alloc() {
 
     memset(instance->payload, 0x00, sizeof(instance->payload));
 
-    instance->timer_idle_time = PROTOCOL_DEF_IDLE_TIME;
-    instance->timer_emu_time = PROTOCOL_DEF_EMU_TIME;
+    instance->timer_idle_time_ms = PROTOCOL_DEF_IDLE_TIME * 100;
+    instance->timer_emu_time_ms = PROTOCOL_DEF_EMU_TIME * 100;
 
     instance->timer =
         furi_timer_alloc(fuzzer_worker_on_tick_callback, FuriTimerTypeOnce, instance);
@@ -383,17 +382,22 @@ bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t idle_time, uint8_t emu_
     furi_assert(instance);
 
     if(instance->attack_type < FuzzerWorkerAttackTypeMax) {
-        // if(emu_time == 0) {
-        //     uint8_t temp = idle_time / 2;
-        //     instance->timer_emu_time = temp;
-        //     instance->timer_idle_time = temp + idle_time % 2;
-        // } else {
-        instance->timer_idle_time = idle_time;
-        instance->timer_emu_time = emu_time;
-        // }
+        if(idle_time == 0) {
+            instance->timer_idle_time_ms = 10;
+        } else {
+            instance->timer_idle_time_ms = idle_time * 100;
+        }
+        if(emu_time == 0) {
+            instance->timer_emu_time_ms = 10;
+        } else {
+            instance->timer_emu_time_ms = emu_time * 100;
+        }
 
         FURI_LOG_D(
-            TAG, "Emu_time %u   Idle_time %u", instance->timer_emu_time, instance->timer_idle_time);
+            TAG,
+            "Emu_time %u ms  Idle_time %u ms",
+            instance->timer_emu_time_ms,
+            instance->timer_idle_time_ms);
 
         if(!instance->treead_running) {
 #if defined(RFID_125_PROTOCOL)
@@ -415,7 +419,7 @@ bool fuzzer_worker_start(FuzzerWorker* instance, uint8_t idle_time, uint8_t emu_
         ibutton_worker_emulate_start(instance->proto_worker, instance->key);
 #endif
         instance->in_emu_phase = true;
-        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_time * 100));
+        furi_timer_start(instance->timer, furi_ms_to_ticks(instance->timer_emu_time_ms));
         return true;
     }
     return false;
