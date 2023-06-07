@@ -134,7 +134,8 @@ You can support us by using links or addresses below:
 
 ### Community apps included:
 
-- **RFID Fuzzer** [(by Ganapati & @xMasterX)](https://github.com/DarkFlippers/unleashed-firmware/pull/54) & New protocols by @mvanzanten
+- **RFID Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/unleashed-firmware/pull/507) (original by Ganapati & xMasterX)
+- **iButton Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/unleashed-firmware/pull/507) (original by xMasterX)
 - **Sub-GHz bruteforcer** [(by @derskythe & xMasterX)](https://github.com/derskythe/flipperzero-subbrute) [(original by Ganapati & xMasterX)](https://github.com/DarkFlippers/unleashed-firmware/pull/57)
 - **Sub-GHz playlist** [(by darmiel)](https://github.com/DarkFlippers/unleashed-firmware/pull/62)
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
@@ -157,7 +158,6 @@ You can support us by using links or addresses below:
 - Morse Code [(by wh00hw)](https://github.com/wh00hw/MorseCodeFAP)
 - **Unitemp - Temperature sensors reader** (DHT11/22, DS18B20, BMP280, HTU21x and more) [(by quen0n)](https://github.com/quen0n/unitemp-flipperzero)
 - BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
-- **iButton Fuzzer** [(by xMasterX)](https://github.com/xMasterX/ibutton-fuzzer)
 - HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipper-zero-hex-viewer)
 - POCSAG Pager [(by xMasterX & Shmuma)](https://github.com/xMasterX/flipper-pager)
 - Text Viewer [(by kowalski7cc & kyhwana)](https://github.com/kowalski7cc/flipper-zero-text-viewer/tree/refactor-text-app)
