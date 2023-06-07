@@ -263,7 +263,7 @@ static bool loadFloat(uint8_t* buff, float* val) {
         buff += 3;
     }
     uint32_t tmpVal = load32_be(floatBuff);
-    *val = *(float*)&tmpVal;
+    memcpy(val, &tmpVal, sizeof(float));
     return true;
 }
 
