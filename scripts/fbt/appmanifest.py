@@ -1,7 +1,8 @@
 import os
+import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, ClassVar, List, Optional, Tuple, Union
 
 
 class FlipperManifestException(Exception):
@@ -23,6 +24,8 @@ class FlipperAppType(Enum):
 
 @dataclass
 class FlipperApplication:
+    APP_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^[a-z0-9_]+$")
+
     @dataclass
     class ExternallyBuiltFile:
         path: str
@@ -84,6 +87,10 @@ class FlipperApplication:
     def __post_init__(self):
         if self.apptype == FlipperAppType.PLUGIN:
             self.stack_size = 0
+        if not self.APP_ID_REGEX.match(self.appid):
+            raise FlipperManifestException(
+                f"Invalid appid '{self.appid}'. Must match regex '{self.APP_ID_REGEX}'"
+            )
         if isinstance(self.fap_version, str):
             try:
                 self.fap_version = tuple(int(v) for v in self.fap_version.split("."))
