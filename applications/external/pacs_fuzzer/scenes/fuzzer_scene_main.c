@@ -106,7 +106,6 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
 
             switch(fuzzer_proto_get_attack_id_by_index(app->fuzzer_state.menu_index)) {
             case FuzzerAttackIdDefaultValues:
-
                 loading_ok =
                     fuzzer_worker_init_attack_dict(app->worker, app->fuzzer_state.proto_index);
 
@@ -115,15 +114,21 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                     fuzzer_scene_main_show_error(app, "Default dictionary\nis empty");
                 }
                 break;
+
             case FuzzerAttackIdBFCustomerID:
                 // TODO
                 app->payload->data_size = fuzzer_proto_get_max_data_size();
                 memset(app->payload->data, 0x00, app->payload->data_size);
 
-                loading_ok = fuzzer_worker_init_attack_bf_byte(
-                    app->worker, app->fuzzer_state.proto_index, app->payload, 0);
+                if(fuzzer_worker_init_attack_bf_byte(
+                       app->worker, app->fuzzer_state.proto_index, app->payload, 0)) {
+                    scene_manager_set_scene_state(
+                        app->scene_manager,
+                        FuzzerSceneFieldEditor,
+                        FuzzerFieldEditorStateEditingOff);
+                    scene_manager_next_scene(app->scene_manager, FuzzerSceneFieldEditor);
 
-                if(!loading_ok) {
+                } else {
                     // error
                 }
                 break;
@@ -136,6 +141,10 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                            app->worker,
                            app->fuzzer_state.proto_index,
                            furi_string_get_cstr(app->file_path))) {
+                        scene_manager_set_scene_state(
+                            app->scene_manager,
+                            FuzzerSceneFieldEditor,
+                            FuzzerFieldEditorStateEditingOn);
                         scene_manager_next_scene(app->scene_manager, FuzzerSceneFieldEditor);
                         FURI_LOG_I("Scene", "Load ok");
                     } else {
@@ -159,6 +168,7 @@ bool fuzzer_scene_main_on_event(void* context, SceneManagerEvent event) {
                 break;
 
             default:
+                fuzzer_scene_main_show_error(app, "Unsuported attack");
                 break;
             }
 

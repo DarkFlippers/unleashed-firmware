@@ -16,7 +16,18 @@ void fuzzer_scene_field_editor_on_enter(void* context) {
 
     fuzzer_worker_get_current_key(app->worker, app->payload);
 
-    fuzzer_view_field_editor_reset_data(app->field_editor_view, app->payload);
+    switch(scene_manager_get_scene_state(app->scene_manager, FuzzerSceneFieldEditor)) {
+    case FuzzerFieldEditorStateEditingOn:
+        fuzzer_view_field_editor_reset_data(app->field_editor_view, app->payload, true);
+        break;
+
+    case FuzzerFieldEditorStateEditingOff:
+        fuzzer_view_field_editor_reset_data(app->field_editor_view, app->payload, false);
+        break;
+
+    default:
+        break;
+    }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, FuzzerViewIDFieldEditor);
 }

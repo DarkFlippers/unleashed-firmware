@@ -35,6 +35,7 @@ typedef struct {
 
     uint8_t index;
     bool lo;
+    bool allow_edit;
 } FuzzerViewFieldEditorModel;
 
 void fuzzer_view_field_editor_set_callback(
@@ -49,7 +50,8 @@ void fuzzer_view_field_editor_set_callback(
 
 void fuzzer_view_field_editor_reset_data(
     FuzzerViewFieldEditor* view_edit,
-    const FuzzerPayload* new_uid) {
+    const FuzzerPayload* new_uid,
+    bool allow_edit) {
     furi_assert(view_edit);
     furi_assert(new_uid->data);
 
@@ -61,6 +63,7 @@ void fuzzer_view_field_editor_reset_data(
             model->index = 0;
             model->lo = false;
             model->uid_size = new_uid->data_size;
+            model->allow_edit = allow_edit;
         },
         true);
 }
@@ -93,15 +96,20 @@ void fuzzer_view_field_editor_draw(Canvas* canvas, FuzzerViewFieldEditorModel* m
 #ifdef FIELD_EDITOR_V2
 
     canvas_set_font(canvas, FontSecondary);
+    if(model->allow_edit) {
+        canvas_draw_icon(canvas, 2, 4, &I_ButtonLeft_4x7);
+        canvas_draw_icon(canvas, 8, 4, &I_ButtonRight_4x7);
 
-    canvas_draw_icon(canvas, 2, 4, &I_ButtonLeft_4x7);
-    canvas_draw_icon(canvas, 8, 4, &I_ButtonRight_4x7);
+        canvas_draw_icon_ex(canvas, 62, 3, &I_Pin_arrow_up_7x9, IconRotation180);
+        canvas_draw_icon(canvas, 69, 3, &I_Pin_arrow_up_7x9);
 
-    canvas_draw_icon_ex(canvas, 62, 3, &I_Pin_arrow_up_7x9, IconRotation180);
-    canvas_draw_icon(canvas, 69, 3, &I_Pin_arrow_up_7x9);
-
-    canvas_draw_str(canvas, 14, 10, "select byte");
-    canvas_draw_str(canvas, 79, 10, "adjust byte");
+        canvas_draw_str(canvas, 14, 10, "select byte");
+        canvas_draw_str(canvas, 79, 10, "adjust byte");
+    } else {
+        canvas_draw_icon(canvas, 35, 4, &I_ButtonLeft_4x7);
+        canvas_draw_icon(canvas, 41, 4, &I_ButtonRight_4x7);
+        canvas_draw_str(canvas, 49, 10, "select byte");
+    }
 
     char msg_index[18];
     canvas_set_font(canvas, FontPrimary);
@@ -177,20 +185,29 @@ void fuzzer_view_field_editor_draw(Canvas* canvas, FuzzerViewFieldEditorModel* m
     w -= 11; // '<' & '>'
     w /= 2;
 
-    if(model->lo) {
-        canvas_draw_line(
-            canvas,
-            GUI_DISPLAY_HORIZONTAL_CENTER + 1,
-            EDITOR_STRING_Y + 2,
-            GUI_DISPLAY_HORIZONTAL_CENTER + w,
-            EDITOR_STRING_Y + 2);
+    if(model->allow_edit) {
+        if(model->lo) {
+            canvas_draw_line(
+                canvas,
+                GUI_DISPLAY_HORIZONTAL_CENTER + 1,
+                EDITOR_STRING_Y + 2,
+                GUI_DISPLAY_HORIZONTAL_CENTER + w,
+                EDITOR_STRING_Y + 2);
+        } else {
+            canvas_draw_line(
+                canvas,
+                GUI_DISPLAY_HORIZONTAL_CENTER - w,
+                EDITOR_STRING_Y + 2,
+                GUI_DISPLAY_HORIZONTAL_CENTER - 1,
+                EDITOR_STRING_Y + 2);
+        }
     } else {
-        canvas_draw_line(
-            canvas,
-            GUI_DISPLAY_HORIZONTAL_CENTER - w,
-            EDITOR_STRING_Y + 2,
-            GUI_DISPLAY_HORIZONTAL_CENTER - 1,
-            EDITOR_STRING_Y + 2);
+        // canvas_draw_line(
+        //     canvas,
+        //     GUI_DISPLAY_HORIZONTAL_CENTER - w,
+        //     EDITOR_STRING_Y + 2,
+        //     GUI_DISPLAY_HORIZONTAL_CENTER + w,
+        //     EDITOR_STRING_Y + 2);
     }
     // ####### Editor #######
 }
@@ -211,6 +228,9 @@ bool fuzzer_view_field_editor_input(InputEvent* event, void* context) {
             FuzzerViewFieldEditorModel * model,
             {
                 if(event->type == InputTypeShort) {
+                    if(!model->allow_edit) {
+                        model->lo = false;
+                    }
                     if(model->index > 0 || model->lo) {
                         if(!model->lo) {
                             model->index--;
@@ -230,6 +250,9 @@ bool fuzzer_view_field_editor_input(InputEvent* event, void* context) {
             FuzzerViewFieldEditorModel * model,
             {
                 if(event->type == InputTypeShort) {
+                    if(!model->allow_edit) {
+                        model->lo = true;
+                    }
                     if(model->index < (model->uid_size - 1) || !model->lo) {
                         if(model->lo) {
                             model->index++;
@@ -248,7 +271,7 @@ bool fuzzer_view_field_editor_input(InputEvent* event, void* context) {
             view_edit->view,
             FuzzerViewFieldEditorModel * model,
             {
-                if(event->type == InputTypeShort) {
+                if(event->type == InputTypeShort && model->allow_edit) {
                     if(model->lo) {
                         model->uid[model->index] = (model->uid[model->index] & 0xF0) |
                                                    ((model->uid[model->index] + 1) & 0x0F);
@@ -265,7 +288,7 @@ bool fuzzer_view_field_editor_input(InputEvent* event, void* context) {
             view_edit->view,
             FuzzerViewFieldEditorModel * model,
             {
-                if(event->type == InputTypeShort) {
+                if(event->type == InputTypeShort && model->allow_edit) {
                     if(model->lo) {
                         model->uid[model->index] = (model->uid[model->index] & 0xF0) |
                                                    ((model->uid[model->index] - 1) & 0x0F);

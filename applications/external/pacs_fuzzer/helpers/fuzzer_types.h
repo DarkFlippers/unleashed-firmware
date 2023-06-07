@@ -16,6 +16,12 @@ typedef enum {
 } FuzzerAttackState;
 
 typedef enum {
+    FuzzerFieldEditorStateEditingOn = 0,
+    FuzzerFieldEditorStateEditingOff,
+
+} FuzzerFieldEditorState;
+
+typedef enum {
     FuzzerViewIDPopup,
 
     FuzzerViewIDMain,

@@ -17,6 +17,7 @@
 #### App functionality
 
 - [x] Add `BFCustomerID` attack
+    - [x] Add the ability to select index
 - [ ] Save key logic
 
 ## Code Improvement
