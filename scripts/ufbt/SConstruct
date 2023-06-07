@@ -75,7 +75,7 @@ from fbt.util import (
     wrap_tempfile,
     path_as_posix,
 )
-from fbt.appmanifest import FlipperAppType
+from fbt.appmanifest import FlipperAppType, FlipperApplication
 from fbt.sdk.cache import SdkCache
 
 # Base environment with all tools loaded from SDK
@@ -410,6 +410,12 @@ dist_env.Alias("vscode_dist", vscode_dist)
 # Creating app from base template
 
 dist_env.SetDefault(FBT_APPID=appenv.subst("$APPID") or "template")
+if fbt_appid := dist_env.subst("$FBT_APPID"):
+    if not FlipperApplication.APP_ID_REGEX.match(fbt_appid):
+        raise UserError(
+            f"Invalid app id '{fbt_appid}'. App id must match {FlipperApplication.APP_ID_REGEX.pattern}"
+        )
+
 app_template_dir = project_template_dir.Dir("app_template")
 app_template_dist = []
 for template_file in app_template_dir.glob("*"):
