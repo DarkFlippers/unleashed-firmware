@@ -342,7 +342,7 @@ else:
 
 appenv.PhonyTarget(
     "cli",
-    '${PYTHON3} "${FBT_SCRIPT_DIR}/serial_cli.py"',
+    '${PYTHON3} "${FBT_SCRIPT_DIR}/serial_cli.py" -p ${FLIP_PORT}',
 )
 
 # Linter
@@ -469,7 +469,7 @@ if dolphin_src_dir.exists():
     )
     dist_env.PhonyTarget(
         "dolphin_ext",
-        '${PYTHON3} ${FBT_SCRIPT_DIR}/storage.py send "${SOURCE}" /ext/dolphin',
+        '${PYTHON3} ${FBT_SCRIPT_DIR}/storage.py -p ${FLIP_PORT} send "${SOURCE}" /ext/dolphin',
         source=ufbt_build_dir.Dir("dolphin"),
     )
 else:

@@ -71,6 +71,11 @@ vars.AddVariables(
         validator=PathVariable.PathIsDir,
         default="",
     ),
+    (
+        "FLIP_PORT",
+        "CDC Port of Flipper to use, if multiple are connected",
+        "auto",
+    ),
 )
 
 Return("vars")

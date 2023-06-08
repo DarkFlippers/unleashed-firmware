@@ -171,7 +171,7 @@ distenv.Depends(firmware_env["FW_RESOURCES"], external_apps_artifacts.resources_
 
 fap_deploy = distenv.PhonyTarget(
     "fap_deploy",
-    "${PYTHON3} ${ROOT_DIR}/scripts/storage.py send ${SOURCE} /ext/apps",
+    "${PYTHON3} ${FBT_SCRIPT_DIR}/storage.py -p ${FLIP_PORT} send ${SOURCE} /ext/apps",
     source=Dir("#/assets/resources/apps"),
 )
 
@@ -323,7 +323,9 @@ distenv.PhonyTarget(
 )
 
 # Start Flipper CLI via PySerial's miniterm
-distenv.PhonyTarget("cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py")
+distenv.PhonyTarget(
+    "cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py  -p ${FLIP_PORT}"
+)
 
 
 # Find blackmagic probe
