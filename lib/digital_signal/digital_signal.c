@@ -9,7 +9,7 @@
 #include <stm32wbxx_ll_tim.h>
 
 /* must be on bank B */
-//#define DEBUG_OUTPUT gpio_ext_pb3
+// For debugging purposes use `--extra-define=DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN=gpio_ext_pb3` fbt option
 
 struct ReloadBuffer {
     uint32_t* buffer; /* DMA ringbuffer */
@@ -194,9 +194,9 @@ void digital_signal_prepare_arr(DigitalSignal* signal) {
         uint32_t bit_set = internals->gpio->pin;
         uint32_t bit_reset = internals->gpio->pin << 16;
 
-#ifdef DEBUG_OUTPUT
-        bit_set |= DEBUG_OUTPUT.pin;
-        bit_reset |= DEBUG_OUTPUT.pin << 16;
+#ifdef DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN
+        bit_set |= DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN.pin;
+        bit_reset |= DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN.pin << 16;
 #endif
 
         if(signal->start_level) {
@@ -544,8 +544,9 @@ bool digital_sequence_send(DigitalSequence* sequence) {
     struct ReloadBuffer* dma_buffer = sequence->dma_buffer;
 
     furi_hal_gpio_init(sequence->gpio, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
-#ifdef DEBUG_OUTPUT
-    furi_hal_gpio_init(&DEBUG_OUTPUT, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+#ifdef DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN
+    furi_hal_gpio_init(
+        &DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
 #endif
 
     if(sequence->bake) {

@@ -381,7 +381,7 @@ void slix_prepare(NfcVData* nfcv_data) {
     ctx->emu_protocol_filter = &slix_protocol_filter;
 }
 
-bool slix2_protocol_filter(
+bool slix2_protocol_filter( // -V524
     FuriHalNfcTxRxContext* tx_rx,
     FuriHalNfcDevData* nfc_data,
     void* nfcv_data_in) {

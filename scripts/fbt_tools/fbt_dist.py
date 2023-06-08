@@ -132,7 +132,7 @@ def generate(env):
             "UsbInstall": Builder(
                 action=[
                     Action(
-                        '${PYTHON3} "${SELFUPDATE_SCRIPT}" ${UPDATE_BUNDLE_DIR}/update.fuf'
+                        '${PYTHON3} "${SELFUPDATE_SCRIPT}" -p ${FLIP_PORT} ${UPDATE_BUNDLE_DIR}/update.fuf'
                     ),
                     Touch("${TARGET}"),
                 ]
