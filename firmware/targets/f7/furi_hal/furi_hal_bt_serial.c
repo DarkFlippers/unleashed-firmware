@@ -1,7 +1,7 @@
 #include <furi_hal_bt_serial.h>
-#include "dev_info_service.h"
-#include "battery_service.h"
-#include "serial_service.h"
+#include <services/dev_info_service.h>
+#include <services/battery_service.h>
+#include <services/serial_service.h>
 
 #include <furi.h>
 

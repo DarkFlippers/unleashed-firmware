@@ -1,7 +1,7 @@
 #include "bt_i.h"
-#include "battery_service.h"
 #include "bt_keys_storage.h"
 
+#include <services/battery_service.h>
 #include <notification/notification_messages.h>
 #include <gui/elements.h>
 #include <assets_icons.h>
