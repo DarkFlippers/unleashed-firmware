@@ -50,11 +50,16 @@ static bool
     return false;
 }
 
+// LED Descriptor params for BadBT
+
+static uint8_t led_desc_context_buf[2] = {HID_SVC_REPORT_COUNT + 1, 2};
+
 static FlipperGattCharacteristicDescriptorParams hid_svc_char_descr_led = {
     .uuid_type = UUID_TYPE_16,
     .uuid.Char_UUID_16 = REPORT_REFERENCE_DESCRIPTOR_UUID,
     .max_length = HID_SVC_REPORT_REF_LEN,
     .data_callback.fn = hid_svc_char_desc_data_callback,
+    .data_callback.context = led_desc_context_buf,
     .security_permissions = ATTR_PERMISSION_NONE,
     .access_permissions = ATTR_ACCESS_READ_WRITE,
     .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
@@ -106,7 +111,8 @@ static const FlipperGattCharacteristicParams hid_svc_chars[HidSvcGattCharacteris
          .is_variable = CHAR_VALUE_LEN_CONSTANT},
     [HidSvcGattCharacteristicLed] =
         {
-            .name = "HID LED State",
+            .name =
+                "HID LED State", // LED Characteristic and descriptor for BadBT to get numlock state for altchars
             .data_prop_type = FlipperGattCharacteristicDataFixed,
             .data.fixed.length = 1,
             .uuid.Char_UUID_16 = REPORT_CHAR_UUID,
@@ -170,6 +176,8 @@ static SVCCTL_EvtAckStatus_t hid_svc_event_handler(void* event) {
             // Process notification confirmation
             ret = SVCCTL_EvtAckFlowEnable;
         } else if(blecore_evt->ecode == ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE) {
+            // LED Characteristic and descriptor for BadBT to get numlock state for altchars
+            //
             // Process write request
             aci_gatt_write_permit_req_event_rp0* req =
                 (aci_gatt_write_permit_req_event_rp0*)blecore_evt->data;
