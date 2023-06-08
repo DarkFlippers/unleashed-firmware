@@ -52,10 +52,8 @@ jobs:
 
       - name: 'Make artifacts directory'
         run: |
-          rm -rf artifacts
-          rm -rf map_analyser_files
-          mkdir artifacts
-          mkdir map_analyser_files
+          rm -rf artifacts map_analyser_files
+          mkdir artifacts map_analyser_files
 
       - name: 'Bundle scripts'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -66,27 +64,20 @@ jobs:
         run: |
           set -e
           for TARGET in ${TARGETS}; do
-            TARGET="$(echo "${TARGET}" | sed 's/f//')"; \
-            ./fbt TARGET_HW=$TARGET copro_dist updater_package \
-            ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
-          done
-
-      - name: 'Move upload files'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          set -e
-          for TARGET in ${TARGETS}; do
+            TARGET_HW="$(echo "${TARGET}" | sed 's/f//')"; \
+            ./fbt TARGET_HW=$TARGET_HW copro_dist updater_package \
+              ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
             mv dist/${TARGET}-*/* artifacts/
+            tar czpf "artifacts/flipper-z-${TARGET}-resources-${SUFFIX}.tgz" \
+              -C assets resources
+            ./fbt TARGET_HW=$TARGET_HW fap_dist
+            tar czpf "artifacts/flipper-z-${TARGET}-debugapps-${SUFFIX}.tgz" \
+              -C dist/${TARGET}-*/apps/Debug .
           done
 
       - name: "Check for uncommitted changes"
         run: |
           git diff --exit-code
-
-      - name: 'Bundle resources'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          tar czpf "artifacts/flipper-z-any-resources-${SUFFIX}.tgz" -C assets resources
 
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
