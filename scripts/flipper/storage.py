@@ -257,12 +257,12 @@ class FlipperStorage:
                 self.read.until(self.CLI_PROMPT)
 
                 ftell = file.tell()
-                percent = str(math.ceil(ftell / filesize * 100))
-                total_chunks = str(math.ceil(filesize / buffer_size))
-                current_chunk = str(math.ceil(ftell / buffer_size))
+                percent = math.ceil(ftell / filesize * 100)
+                total_chunks = math.ceil(filesize / buffer_size)
+                current_chunk = math.ceil(ftell / buffer_size)
                 approx_speed = ftell / (time.time() - start_time + 0.0001)
                 sys.stdout.write(
-                    f"\r{percent}%, chunk {current_chunk} of {total_chunks} @ {approx_speed/1024:.2f} kb/s"
+                    f"\r<{percent:3d}%, chunk {current_chunk:2d} of {total_chunks:2d} @ {approx_speed/1024:.2f} kb/s"
                 )
                 sys.stdout.flush()
         print()
@@ -270,6 +270,7 @@ class FlipperStorage:
     def read_file(self, filename: str):
         """Receive file from Flipper, and get filedata (bytes)"""
         buffer_size = self.chunk_size
+        start_time = time.time()
         self.send_and_wait_eol(
             'storage read_chunks "' + filename + '" ' + str(buffer_size) + "\r"
         )
@@ -290,10 +291,13 @@ class FlipperStorage:
             filedata.extend(self.port.read(chunk_size))
             read_size = read_size + chunk_size
 
-            percent = str(math.ceil(read_size / size * 100))
-            total_chunks = str(math.ceil(size / buffer_size))
-            current_chunk = str(math.ceil(read_size / buffer_size))
-            sys.stdout.write(f"\r{percent}%, chunk {current_chunk} of {total_chunks}")
+            percent = math.ceil(read_size / size * 100)
+            total_chunks = math.ceil(size / buffer_size)
+            current_chunk = math.ceil(read_size / buffer_size)
+            approx_speed = read_size / (time.time() - start_time + 0.0001)
+            sys.stdout.write(
+                f"\r>{percent:3d}%, chunk {current_chunk:2d} of {total_chunks:2d} @ {approx_speed/1024:.2f} kb/s"
+            )
             sys.stdout.flush()
         print()
         self.read.until(self.CLI_PROMPT)

@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  TARGETS: f7
+  TARGETS: f7 f18
   DEFAULT_TARGET: f7
   FBT_TOOLCHAIN_PATH: /runner/_work
 
@@ -96,8 +96,8 @@ jobs:
       - name: 'Copy map analyser files'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          cp build/f7-firmware-*/firmware.elf.map map_analyser_files/firmware.elf.map
-          cp build/f7-firmware-*/firmware.elf map_analyser_files/firmware.elf
+          cp build/${DEFAULT_TARGET}-firmware-*/firmware.elf.map map_analyser_files/firmware.elf.map
+          cp build/${DEFAULT_TARGET}-firmware-*/firmware.elf map_analyser_files/firmware.elf
           cp ${{ github.event_path }} map_analyser_files/event.json
 
       - name: 'Analyse map file'

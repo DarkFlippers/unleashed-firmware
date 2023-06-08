@@ -50,7 +50,7 @@ static void nfc_scene_nfcv_emulate_widget_config(Nfc* nfc, bool data_received) {
     widget_add_icon_element(widget, 0, 3, &I_NFC_dolphin_emulation_47x61);
     widget_add_string_multiline_element(
         widget, 87, 13, AlignCenter, AlignTop, FontPrimary, "Emulating\nNFC V");
-    if(strcmp(nfc->dev->dev_name, "")) {
+    if(strcmp(nfc->dev->dev_name, "") != 0) {
         furi_string_printf(info_str, "%s", nfc->dev->dev_name);
     } else {
         for(uint8_t i = 0; i < data->uid_len; i++) {

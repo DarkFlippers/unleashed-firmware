@@ -438,7 +438,7 @@ void nfcv_emu_send(
     furi_assert(nfcv);
 
     /* picked default value (0) to match the most common format */
-    if(!flags) {
+    if(flags == NfcVSendFlagsNormal) {
         flags = NfcVSendFlagsSof | NfcVSendFlagsCrc | NfcVSendFlagsEof |
                 NfcVSendFlagsOneSubcarrier | NfcVSendFlagsHighRate;
     }
@@ -1326,7 +1326,7 @@ bool nfcv_emu_loop(
             bits_received += 2;
 
             if(periods == 1) {
-                byte_value |= 0x00 << 6;
+                byte_value |= 0x00 << 6; // -V684
                 periods_previous = 6;
             } else if(periods == 3) {
                 byte_value |= 0x01 << 6;
