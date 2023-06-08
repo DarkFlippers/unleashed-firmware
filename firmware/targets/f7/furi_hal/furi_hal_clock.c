@@ -1,5 +1,6 @@
 #include <furi_hal_clock.h>
 #include <furi_hal_resources.h>
+#include <furi_hal_rtc.h>
 #include <furi.h>
 
 #include <stm32wbxx_ll_pwr.h>
@@ -48,6 +49,10 @@ void furi_hal_clock_init() {
     LL_RCC_LSI1_Enable();
     while(!LS_CLOCK_IS_READY())
         ;
+
+    /* RF wakeup */
+    LL_RCC_SetRFWKPClockSource(LL_RCC_RFWKP_CLKSOURCE_LSE);
+
     LL_EXTI_EnableIT_0_31(
         LL_EXTI_LINE_18); /* Why? Because that's why. See RM0434, Table 61. CPU1 vector table. */
     LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_18);
@@ -111,7 +116,7 @@ void furi_hal_clock_init() {
 
     LL_RCC_SetCLK48ClockSource(LL_RCC_CLK48_CLKSOURCE_PLLSAI1);
     LL_RCC_HSI_EnableInStopMode(); // Ensure that MR is capable of work in STOP0
-    LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSE);
+    LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSI);
     LL_RCC_SetSMPSPrescaler(LL_RCC_SMPS_DIV_1);
     LL_RCC_SetRFWKPClockSource(LL_RCC_RFWKP_CLKSOURCE_LSE);
 
@@ -124,8 +129,8 @@ void furi_hal_clock_switch_to_hsi() {
     while(!LL_RCC_HSI_IsReady())
         ;
 
-    LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSI);
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
+    furi_assert(LL_RCC_GetSMPSClockSource() == LL_RCC_SMPS_CLKSOURCE_HSI);
 
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
         ;
@@ -138,6 +143,7 @@ void furi_hal_clock_switch_to_hsi() {
 }
 
 void furi_hal_clock_switch_to_pll() {
+    uint32_t clock_start_time = DWT->CYCCNT;
     LL_RCC_HSE_Enable();
     LL_RCC_PLL_Enable();
     LL_RCC_PLLSAI1_Enable();
@@ -156,10 +162,15 @@ void furi_hal_clock_switch_to_pll() {
         ;
 
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
-    LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSE);
 
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
         ;
+
+    uint32_t total = DWT->CYCCNT - clock_start_time;
+    if(total > (20 * 0x148)) {
+        furi_hal_rtc_set_flag(FuriHalRtcFlagLegacySleep);
+        furi_crash("Slow HSE/PLL startup");
+    }
 }
 
 void furi_hal_clock_suspend_tick() {
