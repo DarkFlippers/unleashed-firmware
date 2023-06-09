@@ -46,7 +46,10 @@ class CoproFooterBase:
     _SIG_BIN_COMMON_SIZE = 2 * 4
 
     def get_version(self):
-        return f"Version {self.version_major}.{self.version_minor}.{self.version_sub}, branch {self.version_branch}, build {self.version_build} (magic {self.magic:X})"
+        return (
+            f"Version {self.version_major}.{self.version_minor}.{self.version_sub}, "
+            f"branch {self.version_branch}, build {self.version_build} (magic {self.magic:X})"
+        )
 
     def get_details(self):
         raise CoproException("Not implemented")

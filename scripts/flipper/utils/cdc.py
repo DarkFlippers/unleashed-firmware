@@ -6,7 +6,7 @@ def resolve_port(logger, portname: str = "auto"):
     if portname != "auto":
         return portname
     # Try guessing
-    flippers = list(list_ports.grep("flip"))
+    flippers = list(list_ports.grep("flip_"))
     if len(flippers) == 1:
         flipper = flippers[0]
         logger.info(f"Using {flipper.serial_number} on {flipper.device}")

@@ -431,7 +431,7 @@ def AddAppLaunchTarget(env, appname, launch_target_name):
     # print(deploy_sources, flipp_dist_paths)
     env.PhonyTarget(
         launch_target_name,
-        '${PYTHON3} "${APP_RUN_SCRIPT}" ${EXTRA_ARGS} -s ${SOURCES} -t ${FLIPPER_FILE_TARGETS}',
+        '${PYTHON3} "${APP_RUN_SCRIPT}" -p ${FLIP_PORT} ${EXTRA_ARGS} -s ${SOURCES} -t ${FLIPPER_FILE_TARGETS}',
         source=deploy_sources,
         FLIPPER_FILE_TARGETS=flipp_dist_paths,
         EXTRA_ARGS=run_script_extra_ars,
@@ -443,7 +443,6 @@ def generate(env, **kw):
     env.SetDefault(
         EXT_APPS_WORK_DIR="${FBT_FAP_DEBUG_ELF_ROOT}",
         APP_RUN_SCRIPT="${FBT_SCRIPT_DIR}/runfap.py",
-        STORAGE_SCRIPT="${FBT_SCRIPT_DIR}/storage.py",
     )
     if not env["VERBOSE"]:
         env.SetDefault(

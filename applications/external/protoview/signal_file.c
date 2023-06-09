@@ -48,8 +48,9 @@ bool save_signal(ProtoViewApp* app, const char* filename) {
             for(int j = 0; regs[j]; j += 2) {
                 furi_string_cat_printf(custom, "%02X %02X ", (int)regs[j], (int)regs[j + 1]);
             }
-            size_t len = furi_string_size(file_content);
-            furi_string_set_char(custom, len - 1, '\n');
+            //size_t len = furi_string_size(file_content);
+            //furi_string_set_char(custom, len - 1, '\n');
+            furi_string_cat(custom, "\n");
             furi_string_cat(file_content, custom);
             furi_string_free(custom);
         }

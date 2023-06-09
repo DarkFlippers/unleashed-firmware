@@ -1,0 +1,49 @@
+App(
+    appid="fuzzer_ibtn",
+    name="iButton Fuzzer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="fuzzer_start_ibtn",
+    requires=[
+        "gui", 
+        "storage",
+        "dialogs", 
+        "input", 
+        "notification",
+    ],
+    stack_size=2 * 1024,
+    fap_icon="icons/ibutt_10px.png",
+    fap_category="Tools",
+    fap_private_libs=[
+            Lib(
+                name="worker",
+                cdefines=["IBUTTON_PROTOCOL"],
+            ),
+        ],
+    fap_icon_assets="icons",
+    fap_icon_assets_symbol="fuzzer",
+)
+
+App(
+    appid="fuzzer_rfid",
+    name="RFID Fuzzer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="fuzzer_start_rfid",
+    requires=[
+        "gui", 
+        "storage",
+        "dialogs", 
+        "input", 
+        "notification",
+    ],
+    stack_size=2 * 1024,
+    fap_icon="icons/rfid_10px.png",
+    fap_category="Tools",
+    fap_private_libs=[
+            Lib(
+                name="worker",
+                cdefines=["RFID_125_PROTOCOL"],
+            ),
+        ],
+    fap_icon_assets="icons",
+    fap_icon_assets_symbol="fuzzer",
+)

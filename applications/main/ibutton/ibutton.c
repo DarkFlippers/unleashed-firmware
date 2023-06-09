@@ -282,14 +282,14 @@ int32_t ibutton_app(void* arg) {
         view_dispatcher_attach_to_gui(
             ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeDesktop);
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRpc);
-        DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
+        dolphin_deed(DolphinDeedIbuttonEmulate);
 
     } else {
         view_dispatcher_attach_to_gui(
             ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeFullscreen);
         if(key_loaded) { //-V547
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneEmulate);
-            DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
+            dolphin_deed(DolphinDeedIbuttonEmulate);
         } else {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneStart);
         }

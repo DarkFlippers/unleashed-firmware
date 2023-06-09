@@ -213,7 +213,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 } else {
                     if(scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneSaved) ||
                        !scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneStart)) {
-                        DOLPHIN_DEED(DolphinDeedSubGhzSend);
+                        dolphin_deed(DolphinDeedSubGhzSend);
                     }
                     // set callback end tx
                     subghz_txrx_set_raw_file_encoder_worker_callback_end(
@@ -268,7 +268,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             } else {
                 SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
                 if(subghz_protocol_raw_save_to_file_init(decoder_raw, RAW_FILE_NAME, &preset)) {
-                    DOLPHIN_DEED(DolphinDeedSubGhzRawRec);
+                    dolphin_deed(DolphinDeedSubGhzRawRec);
                     subghz_txrx_rx_start(subghz->txrx);
                     subghz->state_notifications = SubGhzNotificationStateRx;
                     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);

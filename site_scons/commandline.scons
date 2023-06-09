@@ -248,6 +248,11 @@ vars.AddVariables(
         " app can check what version it is being built for.",
         "Official",
     ),
+    (
+        "FLIP_PORT",
+        "Full port name of Flipper to use, if multiple Flippers are connected",
+        "auto",
+    ),
 )
 
 Return("vars")

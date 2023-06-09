@@ -301,10 +301,10 @@ void nfc_worker_nfcv_unlock(NfcWorker* nfc_worker) {
                     ret = slix_unlock(nfcv_data, 4);
                 } else {
                     key = 0x7FFD6E5B;
-                    key_data[0] = key >> 24;
-                    key_data[1] = key >> 16;
-                    key_data[2] = key >> 8;
-                    key_data[3] = key >> 0;
+                    key_data[0] = (key >> 24) & 0xFF;
+                    key_data[1] = (key >> 16) & 0xFF;
+                    key_data[2] = (key >> 8) & 0xFF;
+                    key_data[3] = (key >> 0) & 0xFF;
                     ret = slix_unlock(nfcv_data, 4);
 
                     if(ret != ERR_NONE) {
@@ -321,10 +321,10 @@ void nfc_worker_nfcv_unlock(NfcWorker* nfc_worker) {
                         }
 
                         key = 0x0F0F0F0F;
-                        key_data[0] = key >> 24;
-                        key_data[1] = key >> 16;
-                        key_data[2] = key >> 8;
-                        key_data[3] = key >> 0;
+                        key_data[0] = (key >> 24) & 0xFF;
+                        key_data[1] = (key >> 16) & 0xFF;
+                        key_data[2] = (key >> 8) & 0xFF;
+                        key_data[3] = (key >> 0) & 0xFF;
                         ret = slix_unlock(nfcv_data, 4);
                     }
                 }
@@ -1032,7 +1032,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     memcpy(current_key, &key, 6);
 
                     if(mf_classic_is_key_found(data, i, MfClassicKeyA) &&
-                       found_key == current_key) {
+                       memcmp(found_key, current_key, 6) == 0) {
                         mf_classic_set_key_not_found(data, i, MfClassicKeyA);
                         is_key_a_found = false;
                         FURI_LOG_D(TAG, "Key %dA not found in attack", i);
@@ -1058,7 +1058,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     memcpy(current_key, &key, 6);
 
                     if(mf_classic_is_key_found(data, i, MfClassicKeyB) &&
-                       found_key == current_key) {
+                       memcmp(found_key, current_key, 6) == 0) {
                         mf_classic_set_key_not_found(data, i, MfClassicKeyB);
                         is_key_b_found = false;
                         FURI_LOG_D(TAG, "Key %dB not found in attack", i);
@@ -1103,7 +1103,7 @@ void nfc_worker_emulate_mf_classic(NfcWorker* nfc_worker) {
     furi_hal_nfc_listen_start(nfc_data);
     while(nfc_worker->state == NfcWorkerStateMfClassicEmulate) { //-V1044
         if(furi_hal_nfc_listen_rx(&tx_rx, 300)) {
-            mf_classic_emulator(&emulator, &tx_rx);
+            mf_classic_emulator(&emulator, &tx_rx, false);
         }
     }
     if(emulator.data_changed) {
@@ -1390,7 +1390,7 @@ void nfc_worker_analyze_reader(NfcWorker* nfc_worker) {
             NfcProtocol protocol =
                 reader_analyzer_guess_protocol(reader_analyzer, tx_rx.rx_data, tx_rx.rx_bits / 8);
             if(protocol == NfcDeviceProtocolMifareClassic) {
-                mf_classic_emulator(&emulator, &tx_rx);
+                mf_classic_emulator(&emulator, &tx_rx, true);
             }
         } else {
             reader_no_data_received_cnt++;

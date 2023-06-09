@@ -76,7 +76,7 @@ void nfc_scene_nfcv_unlock_set_state(Nfc* nfc, NfcSceneNfcVUnlockState state) {
             popup_set_timeout(popup, 1500);
 
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
-            DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
+            dolphin_deed(DolphinDeedNfcReadSuccess);
 
         } else if(state == NfcSceneNfcVUnlockStateAlreadyUnlocked) {
             popup_reset(popup);

@@ -48,7 +48,7 @@ bool ibutton_scene_saved_key_menu_on_event(void* context, SceneManagerEvent even
         consumed = true;
         if(event.event == SubmenuIndexEmulate) {
             scene_manager_next_scene(scene_manager, iButtonSceneEmulate);
-            DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
+            dolphin_deed(DolphinDeedIbuttonEmulate);
         } else if(event.event == SubmenuIndexWriteBlank) {
             ibutton->write_mode = iButtonWriteModeBlank;
             scene_manager_next_scene(scene_manager, iButtonSceneWrite);

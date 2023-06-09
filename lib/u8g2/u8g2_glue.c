@@ -2,6 +2,9 @@
 
 #include <furi_hal.h>
 
+#define CONTRAST_ERC 32
+#define CONTRAST_MGG 31
+
 uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) {
     UNUSED(u8x8);
     UNUSED(arg_ptr);
@@ -207,6 +210,19 @@ void u8x8_d_st756x_init(u8x8_t* u8x8, uint8_t contrast, uint8_t regulation_ratio
     u8x8_cad_EndTransfer(u8x8);
 }
 
+void u8x8_d_st756x_set_contrast(u8x8_t* u8x8, int8_t contrast_offset) {
+    uint8_t contrast = (furi_hal_version_get_hw_display() == FuriHalVersionDisplayMgg) ?
+                           CONTRAST_MGG :
+                           CONTRAST_ERC;
+    contrast += contrast_offset;
+    contrast = contrast & 0b00111111;
+
+    u8x8_cad_StartTransfer(u8x8);
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_SET_EV);
+    u8x8_cad_SendArg(u8x8, contrast);
+    u8x8_cad_EndTransfer(u8x8);
+}
+
 uint8_t u8x8_d_st756x_flipper(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) {
     /* call common procedure first and handle messages there */
     if(u8x8_d_st756x_common(u8x8, msg, arg_int, arg_ptr) == 0) {
@@ -225,7 +241,7 @@ uint8_t u8x8_d_st756x_flipper(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* 
                  * RR = 10 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.88 is 6 (0b110)
                  * Bias = 1/9 (false)
                  */
-                u8x8_d_st756x_init(u8x8, 31, 0b110, false);
+                u8x8_d_st756x_init(u8x8, CONTRAST_MGG, 0b110, false);
             } else {
                 /* ERC v1(ST7565) and v2(ST7567)
                  * EV = 33
@@ -233,7 +249,7 @@ uint8_t u8x8_d_st756x_flipper(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* 
                  * RR = 9.3 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.47 is 5.5 (0b101)
                  * Bias = 1/9 (false)
                  */
-                u8x8_d_st756x_init(u8x8, 32, 0b101, false);
+                u8x8_d_st756x_init(u8x8, CONTRAST_ERC, 0b101, false);
             }
             break;
         case U8X8_MSG_DISPLAY_SET_FLIP_MODE:

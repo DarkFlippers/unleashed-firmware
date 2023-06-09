@@ -44,7 +44,7 @@ bool lfrfid_scene_read_key_menu_on_event(void* context, SceneManagerEvent event)
             consumed = true;
         } else if(event.event == SubmenuIndexEmulate) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneEmulate);
-            DOLPHIN_DEED(DolphinDeedRfidEmulate);
+            dolphin_deed(DolphinDeedRfidEmulate);
             consumed = true;
         }
         scene_manager_set_scene_state(app->scene_manager, LfRfidSceneReadKeyMenu, event.event);

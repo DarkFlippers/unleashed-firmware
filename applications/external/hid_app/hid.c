@@ -414,7 +414,7 @@ int32_t hid_usb_app(void* p) {
 
     bt_hid_connection_status_changed_callback(BtStatusConnected, app);
 
-    DOLPHIN_DEED(DolphinDeedPluginStart);
+    dolphin_deed(DolphinDeedPluginStart);
 
     view_dispatcher_run(app->view_dispatcher);
 
@@ -454,7 +454,7 @@ int32_t hid_ble_app(void* p) {
     furi_hal_bt_start_advertising();
     bt_set_status_changed_callback(app->bt, bt_hid_connection_status_changed_callback, app);
 
-    DOLPHIN_DEED(DolphinDeedPluginStart);
+    dolphin_deed(DolphinDeedPluginStart);
 
     view_dispatcher_run(app->view_dispatcher);
 
