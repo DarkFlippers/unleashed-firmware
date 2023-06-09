@@ -61,7 +61,7 @@ bool nfc_scene_mf_ultralight_unlock_warn_on_event(void* context, SceneManagerEve
         if(event.type == SceneManagerEventTypeCustom) {
             if(event.event == DialogExResultRight) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightReadAuth);
-                DOLPHIN_DEED(DolphinDeedNfcRead);
+                dolphin_deed(DolphinDeedNfcRead);
                 consumed = true;
             } else if(event.event == DialogExResultLeft) {
                 if(auth_method == MfUltralightAuthMethodAuto) {
@@ -79,7 +79,7 @@ bool nfc_scene_mf_ultralight_unlock_warn_on_event(void* context, SceneManagerEve
         if(event.type == SceneManagerEventTypeCustom) {
             if(event.event == DialogExResultCenter) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightReadAuth);
-                DOLPHIN_DEED(DolphinDeedNfcRead);
+                dolphin_deed(DolphinDeedNfcRead);
                 consumed = true;
             }
         }

@@ -8,7 +8,7 @@ void picopass_scene_save_success_popup_callback(void* context) {
 
 void picopass_scene_save_success_on_enter(void* context) {
     Picopass* picopass = context;
-    DOLPHIN_DEED(DolphinDeedNfcSave);
+    dolphin_deed(DolphinDeedNfcSave);
 
     // Setup view
     Popup* popup = picopass->popup;

@@ -163,7 +163,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReceiverOK:
             subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
-            DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
+            dolphin_deed(DolphinDeedSubGhzReceiverInfo);
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverConfig:

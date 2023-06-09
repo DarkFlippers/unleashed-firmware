@@ -45,7 +45,7 @@ bool nfc_scene_nfcv_unlock_menu_on_event(void* context, SceneManagerEvent event)
         } else if(event.event == SubmenuIndexNfcVUnlockMenuTonieBox) {
             nfc->dev->dev_data.nfcv_data.auth_method = NfcVAuthMethodTonieBox;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneNfcVUnlock);
-            DOLPHIN_DEED(DolphinDeedNfcRead);
+            dolphin_deed(DolphinDeedNfcRead);
             consumed = true;
         }
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneNfcVUnlockMenu, event.event);

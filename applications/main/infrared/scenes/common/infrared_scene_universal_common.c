@@ -70,7 +70,7 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
                 uint32_t record_count;
                 if(infrared_brute_force_start(
                        brute_force, infrared_custom_event_get_value(event.event), &record_count)) {
-                    DOLPHIN_DEED(DolphinDeedIrSend);
+                    dolphin_deed(DolphinDeedIrSend);
                     infrared_scene_universal_common_show_popup(infrared, record_count);
                 } else {
                     scene_manager_next_scene(scene_manager, InfraredSceneErrorDatabases);

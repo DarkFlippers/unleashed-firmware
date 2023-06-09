@@ -51,7 +51,7 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneStart, SubmenuIndexRead);
             nfc->dev->dev_data.read_mode = NfcReadModeAuto;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
-            DOLPHIN_DEED(DolphinDeedNfcRead);
+            dolphin_deed(DolphinDeedNfcRead);
             consumed = true;
         } else if(event.event == SubmenuIndexDetectReader) {
             scene_manager_set_scene_state(
@@ -60,7 +60,7 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
             if(sd_exist) {
                 nfc_device_data_clear(&nfc->dev->dev_data);
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
-                DOLPHIN_DEED(DolphinDeedNfcDetectReader);
+                dolphin_deed(DolphinDeedNfcDetectReader);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
             }
