@@ -464,7 +464,7 @@ int32_t game15_app() {
         FPS, (SandboxRenderCallback)render_callback, (SandboxEventHandler)game_event_handler);
 
     // Call dolphin deed on game start
-    DOLPHIN_DEED(DolphinDeedPluginGameStart);
+    dolphin_deed(DolphinDeedPluginGameStart);
 
     sandbox_loop();
     sandbox_free();

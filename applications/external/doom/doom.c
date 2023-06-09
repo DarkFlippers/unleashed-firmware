@@ -991,7 +991,7 @@ int32_t doom_app() {
     music_player_worker_start(plugin_state->music_instance->worker);
 #endif
     // Call dolphin deed on game start
-    DOLPHIN_DEED(DolphinDeedPluginGameStart);
+    dolphin_deed(DolphinDeedPluginGameStart);
 
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
