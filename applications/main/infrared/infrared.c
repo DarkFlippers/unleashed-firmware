@@ -333,7 +333,7 @@ void infrared_tx_start_signal(Infrared* infrared, InfraredSignal* signal) {
         infrared_worker_set_decoded_signal(infrared->worker, message);
     }
 
-    DOLPHIN_DEED(DolphinDeedIrSend);
+    dolphin_deed(DolphinDeedIrSend);
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 
     infrared_worker_tx_set_get_signal_callback(

@@ -38,7 +38,7 @@ bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
                 ibutton_notification_message(ibutton, iButtonNotificationMessageSuccess);
                 scene_manager_next_scene(scene_manager, iButtonSceneReadSuccess);
 
-                DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
+                dolphin_deed(DolphinDeedIbuttonReadSuccess);
 
             } else {
                 scene_manager_next_scene(scene_manager, iButtonSceneReadError);

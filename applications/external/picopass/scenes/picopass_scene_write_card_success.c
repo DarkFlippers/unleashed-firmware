@@ -18,7 +18,7 @@ void picopass_scene_write_card_success_on_enter(void* context) {
     Widget* widget = picopass->widget;
     FuriString* str = furi_string_alloc_set("Write Success!");
 
-    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
+    dolphin_deed(DolphinDeedNfcReadSuccess);
 
     // Send notification
     notification_message(picopass->notifications, &sequence_success);
