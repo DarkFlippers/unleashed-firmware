@@ -917,7 +917,8 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     if(mf_classic_authenticate_skip_activate(
                            &tx_rx, block_num, key, MfClassicKeyA, !deactivated, cuid)) {
                         mf_classic_set_key_found(data, i, MfClassicKeyA, key);
-                        FURI_LOG_D(TAG, "Key A found");
+                        FURI_LOG_D(
+                            TAG, "Key A found: %04lx%08lx", (uint32_t)(key >> 32), (uint32_t)key);
                         nfc_worker->callback(NfcWorkerEventFoundKeyA, nfc_worker->context);
 
                         uint64_t found_key;
@@ -939,8 +940,14 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     deactivated = true;
                 } else {
                     // If the key A is marked as found and matches the searching key, invalidate it
+                    uint8_t found_key[6];
+                    memcpy(found_key, data->block[i].value, 6);
+
+                    uint8_t current_key[6];
+                    memcpy(current_key, &key, 6);
+
                     if(mf_classic_is_key_found(data, i, MfClassicKeyA) &&
-                       data->block[i].value[0] == key) {
+                       memcmp(found_key, current_key, 6) == 0) {
                         mf_classic_set_key_not_found(data, i, MfClassicKeyA);
                         is_key_a_found = false;
                         FURI_LOG_D(TAG, "Key %dA not found in attack", i);
@@ -950,7 +957,8 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     is_key_b_found = mf_classic_is_key_found(data, i, MfClassicKeyB);
                     if(mf_classic_authenticate_skip_activate(
                            &tx_rx, block_num, key, MfClassicKeyB, !deactivated, cuid)) {
-                        FURI_LOG_D(TAG, "Key B found");
+                        FURI_LOG_D(
+                            TAG, "Key B found: %04lx%08lx", (uint32_t)(key >> 32), (uint32_t)key);
                         mf_classic_set_key_found(data, i, MfClassicKeyB, key);
                         nfc_worker->callback(NfcWorkerEventFoundKeyB, nfc_worker->context);
                         nfc_worker_mf_classic_key_attack(nfc_worker, key, &tx_rx, i + 1);
@@ -958,8 +966,14 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     deactivated = true;
                 } else {
                     // If the key B is marked as found and matches the searching key, invalidate it
+                    uint8_t found_key[6];
+                    memcpy(found_key, data->block[i].value + 10, 6);
+
+                    uint8_t current_key[6];
+                    memcpy(current_key, &key, 6);
+
                     if(mf_classic_is_key_found(data, i, MfClassicKeyB) &&
-                       data->block[i].value[10] == key) {
+                       memcmp(found_key, current_key, 6) == 0) {
                         mf_classic_set_key_not_found(data, i, MfClassicKeyB);
                         is_key_b_found = false;
                         FURI_LOG_D(TAG, "Key %dB not found in attack", i);
@@ -1004,7 +1018,7 @@ void nfc_worker_emulate_mf_classic(NfcWorker* nfc_worker) {
     furi_hal_nfc_listen_start(nfc_data);
     while(nfc_worker->state == NfcWorkerStateMfClassicEmulate) { //-V1044
         if(furi_hal_nfc_listen_rx(&tx_rx, 300)) {
-            mf_classic_emulator(&emulator, &tx_rx);
+            mf_classic_emulator(&emulator, &tx_rx, false);
         }
     }
     if(emulator.data_changed) {
@@ -1291,7 +1305,7 @@ void nfc_worker_analyze_reader(NfcWorker* nfc_worker) {
             NfcProtocol protocol =
                 reader_analyzer_guess_protocol(reader_analyzer, tx_rx.rx_data, tx_rx.rx_bits / 8);
             if(protocol == NfcDeviceProtocolMifareClassic) {
-                mf_classic_emulator(&emulator, &tx_rx);
+                mf_classic_emulator(&emulator, &tx_rx, true);
             }
         } else {
             reader_no_data_received_cnt++;
