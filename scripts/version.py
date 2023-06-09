@@ -40,12 +40,23 @@ class GitVersion:
         except subprocess.CalledProcessError:
             version = "unknown"
 
+        if "SOURCE_DATE_EPOCH" in os.environ:
+            commit_date = datetime.utcfromtimestamp(
+                int(os.environ["SOURCE_DATE_EPOCH"])
+            )
+        else:
+            commit_date = datetime.strptime(
+                self._exec_git("log -1 --format=%cd").strip(),
+                "%a %b %d %H:%M:%S %Y %z",
+            )
+
         return {
             "GIT_COMMIT": commit,
             "GIT_BRANCH": branch,
             "VERSION": version,
             "BUILD_DIRTY": dirty and 1 or 0,
             "GIT_ORIGIN": ",".join(self._get_git_origins()),
+            "GIT_COMMIT_DATE": commit_date,
         }
 
     def _get_git_origins(self):
@@ -102,10 +113,11 @@ class Main(App):
     def generate(self):
         current_info = GitVersion(self.args.sourcedir).get_version_info()
 
-        if "SOURCE_DATE_EPOCH" in os.environ:
-            build_date = datetime.utcfromtimestamp(int(os.environ["SOURCE_DATE_EPOCH"]))
-        else:
-            build_date = date.today()
+        build_date = (
+            date.today()
+            if current_info["BUILD_DIRTY"]
+            else current_info["GIT_COMMIT_DATE"]
+        )
 
         current_info.update(
             {
@@ -114,6 +126,8 @@ class Main(App):
                 "FIRMWARE_ORIGIN": self.args.firmware_origin,
             }
         )
+
+        del current_info["GIT_COMMIT_DATE"]
 
         version_values = []
         for key in current_info:
