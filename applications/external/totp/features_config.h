@@ -1,3 +1,8 @@
+// Application automatic lock timeout if user IDLE. (ticks)
+#ifndef TOTP_AUTO_LOCK_IDLE_TIMEOUT_SEC
+#define TOTP_AUTO_LOCK_IDLE_TIMEOUT_SEC (60)
+#endif
+
 // Include Bluetooth token input automation
 #define TOTP_BADBT_TYPE_ENABLED
 

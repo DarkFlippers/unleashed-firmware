@@ -6,6 +6,7 @@
 #include "../features_config.h"
 #include "../ui/totp_scenes_enum.h"
 #include "../services/config/config_file_context.h"
+#include "../services/idle_timeout/idle_timeout.h"
 #include "notification_method.h"
 #include "automation_method.h"
 #ifdef TOTP_BADBT_TYPE_ENABLED
@@ -48,6 +49,9 @@ typedef struct {
      */
     float timezone_offset;
 
+    /**
+     * @brief Config file context
+     */
     ConfigFileContext* config_file_context;
 
     /**
@@ -101,4 +105,9 @@ typedef struct {
      */
     TotpBtTypeCodeWorkerContext* bt_type_code_worker_context;
 #endif
+
+    /**
+     * @brief IDLE timeout context
+     */
+    IdleTimeoutContext* idle_timeout_context;
 } PluginState;

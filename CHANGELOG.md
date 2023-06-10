@@ -4,12 +4,13 @@
 -----
 * Plugins: **New RFID 125KHz and iButton Fuzzers (remake from scratch + new features)** (by @gid9798 | PR #507)
 * Plugins: SubGHz Bruteforcer -> Time delay (between signals) setting (hold Up in main screen(says Up to Save)) + allow more repeats (by @gid9798 & @xMasterX)
-* GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
-* Infrared: Update universal remote assets - add new ACs and TCL TV
-* SubGHz: Remove broken modulation that was causing buffer overrun (fixes issue #506)
-* SubGHz: Notifications fixes (by @wosk | PR #464)
+* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Unitemp SCD30 support (PR in unitemp repo by @divinebird / fixed by @xMasterX)
 * Plugins: Fix ProtoView issue #503 -> (Broken saved files with custom modulation)
+* SubGHz: Remove broken modulation that was causing buffer overrun (fixes issue #506)
+* SubGHz: Notifications fixes (by @wosk | PR #464)
+* GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
+* Infrared: Update universal remote assets - add new ACs and TCL TV
 * API: Add furi_hal_version_uid_default (+ Fix TOTP) (by @ClaraCrazy | PR #502)
 * OFW: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys
 * OFW: fbt: stable build dates
