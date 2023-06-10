@@ -12,6 +12,7 @@
 * GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
 * Infrared: Update universal remote assets - add new ACs and TCL TV
 * API: Add furi_hal_version_uid_default (+ Fix TOTP) (by @ClaraCrazy | PR #502)
+* OFW PR 2756: fix: make dialog_file_browser_set_basic_options initialize all fields (by JarvisCraft)
 * OFW: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys
 * OFW: fbt: stable build dates
 * OFW: weather_station: add oregon3 with THGR221
