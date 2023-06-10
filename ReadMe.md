@@ -65,6 +65,7 @@ Our Discord Community:
 * SubGHz -> BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc.. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis)
 * SubGHz -> Debug mode counter increase settings (+1 -> +5, +10, default: +1)
 * SubGHz -> Debug PIN output settings for protocol development
+* Infrared -> `RCA` Protocol
 * Infrared -> Debug TX PIN output settings
 * Other small fixes and changes throughout
 * See other changes in readme below
@@ -197,6 +198,8 @@ Games:
 ## [- How to change Flipper name](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/CustomFlipperName.md)
 
 ## [- How to use Mifare Nested plugin to recover keys](https://github.com/AloneLiberty/FlipperNested#how-to-use-it)
+
+## [- How to make captures to add them into Universal IR remotes](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/InfraredCaptures.md)
 
 ### **Sub-GHz**
 

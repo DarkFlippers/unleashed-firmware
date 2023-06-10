@@ -11,6 +11,7 @@
 #include "rc6/infrared_protocol_rc6.h"
 #include "sirc/infrared_protocol_sirc.h"
 #include "kaseikyo/infrared_protocol_kaseikyo.h"
+#include "rca/infrared_protocol_rca.h"
 
 typedef struct {
     InfraredAlloc alloc;
@@ -126,6 +127,20 @@ static const InfraredEncoderDecoder infrared_encoder_decoder[] = {
              .reset = infrared_encoder_kaseikyo_reset,
              .free = infrared_encoder_kaseikyo_free},
         .get_protocol_variant = infrared_protocol_kaseikyo_get_variant,
+    },
+    {
+        .decoder =
+            {.alloc = infrared_decoder_rca_alloc,
+             .decode = infrared_decoder_rca_decode,
+             .reset = infrared_decoder_rca_reset,
+             .check_ready = infrared_decoder_rca_check_ready,
+             .free = infrared_decoder_rca_free},
+        .encoder =
+            {.alloc = infrared_encoder_rca_alloc,
+             .encode = infrared_encoder_rca_encode,
+             .reset = infrared_encoder_rca_reset,
+             .free = infrared_encoder_rca_free},
+        .get_protocol_variant = infrared_protocol_rca_get_variant,
     },
 };
 
