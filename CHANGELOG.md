@@ -7,6 +7,7 @@
 * Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Unitemp SCD30 support (PR in unitemp repo by @divinebird / fixed by @xMasterX)
 * Plugins: Fix ProtoView issue #503 -> (Broken saved files with custom modulation)
+* SubGHz: Added 430, 431 MHz to default list
 * SubGHz: Remove broken modulation that was causing buffer overrun (fixes issue #506)
 * SubGHz: Notifications fixes (by @wosk | PR #464)
 * GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
