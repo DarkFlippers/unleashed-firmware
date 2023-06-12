@@ -779,6 +779,20 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
     FuriString* cmd = furi_string_alloc();
 
+    if(!furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_enable_otg();
+    }
+
+    furi_delay_ms(15);
+
+    furi_hal_subghz_select_radio_type(SubGhzRadioExternal);
+    furi_hal_subghz_init_radio_type(SubGhzRadioExternal);
+
+    if(!furi_hal_subghz_check_radio()) {
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
+    }
+
     do {
         if(!args_read_string_and_trim(args, cmd)) {
             subghz_cli_command_print_usage();
