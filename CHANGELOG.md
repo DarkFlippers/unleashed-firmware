@@ -12,6 +12,7 @@
 * SubGHz: Remove broken modulation that was causing buffer overrun (fixes issue #506)
 * SubGHz: Notifications fixes (by @wosk | PR #464)
 * GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
+* CI/CD: Provide builds with RGB patch for modded flippers (with special led board installed)
 * Infrared: `RCA` protocol support
 * Infrared: Update universal remote assets - add new ACs and TCL TV
 * API: Add furi_hal_version_uid_default (+ Fix TOTP) (by @ClaraCrazy | PR #502)
@@ -69,7 +70,7 @@ and all other great people who supported our project and me (xMasterX), thanks t
 ### What `n`, `e`, `r` means? What I need to download if I don't want to use Web updater?
 What means `n` or `e` in - `flipper-z-f7-update-(version)(n / e).tgz` ? - `n` means this build comes without our custom animations, only official flipper animations, 
 `e` means build has extra apps pack preinstalled,
-`r` means RGB patch for flippers with rgb backlight mod (this is hardware mod!) (Works only on modded flippers!)
+`r` means RGB patch (+ extra apps) for flippers with rgb backlight mod (this is hardware mod!) (Works only on modded flippers!)
 
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or download `.tgz` for mobile app / qFlipper / web
 
