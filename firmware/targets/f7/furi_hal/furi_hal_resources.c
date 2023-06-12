@@ -86,6 +86,7 @@ const GpioPinRecord gpio_pins[] = {
     /* Dangerous pins, may damage hardware */
     {.pin = &gpio_usart_rx, .name = "PB7", .debug = true},
     {.pin = &gpio_speaker, .name = "PB8", .debug = true},
+    {.pin = &gpio_infrared_tx, .name = "PB9", .debug = true},
 };
 
 const size_t gpio_pins_count = sizeof(gpio_pins) / sizeof(GpioPinRecord);

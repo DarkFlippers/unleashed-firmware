@@ -180,9 +180,9 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                     // Ditto, for RAW signals
                 } else if(scene_manager_has_previous_scene(
                               subghz->scene_manager, SubGhzSceneSetType)) {
-                    DOLPHIN_DEED(DolphinDeedSubGhzAddManually);
+                    dolphin_deed(DolphinDeedSubGhzAddManually);
                 } else {
-                    DOLPHIN_DEED(DolphinDeedSubGhzSave);
+                    dolphin_deed(DolphinDeedSubGhzSave);
                 }
                 return true;
             } else {

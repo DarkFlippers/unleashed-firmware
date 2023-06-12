@@ -10,7 +10,7 @@ void picopass_read_card_worker_callback(PicopassWorkerEvent event, void* context
 
 void picopass_scene_read_card_on_enter(void* context) {
     Picopass* picopass = context;
-    DOLPHIN_DEED(DolphinDeedNfcRead);
+    dolphin_deed(DolphinDeedNfcRead);
 
     // Setup view
     Popup* popup = picopass->popup;

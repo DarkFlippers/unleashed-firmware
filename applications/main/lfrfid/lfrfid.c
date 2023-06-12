@@ -183,14 +183,14 @@ int32_t lfrfid_app(void* p) {
             view_dispatcher_attach_to_gui(
                 app->view_dispatcher, app->gui, ViewDispatcherTypeDesktop);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRpc);
-            DOLPHIN_DEED(DolphinDeedRfidEmulate);
+            dolphin_deed(DolphinDeedRfidEmulate);
         } else {
             furi_string_set(app->file_path, args);
             if(lfrfid_load_key_data(app, app->file_path, true)) {
                 view_dispatcher_attach_to_gui(
                     app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
                 scene_manager_next_scene(app->scene_manager, LfRfidSceneEmulate);
-                DOLPHIN_DEED(DolphinDeedRfidEmulate);
+                dolphin_deed(DolphinDeedRfidEmulate);
             } else {
                 // TODO: exit properly
                 lfrfid_free(app);

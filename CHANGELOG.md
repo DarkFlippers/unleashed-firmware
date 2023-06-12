@@ -1,38 +1,42 @@
 ### New changes
 * If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
+* Settings->LCD and Notifications will be resetted to default due to new Contrast setting from OFW
 -----
-* Only in release 052 -> **Multiple Extra pack apps was fixed!** -> TAMA P1, Flizzer Tracker, Video Player, Music Tracker
-* NFC V: Remove delay from emulation loop. This improves compatibility when the reader is Android.
-* Plugins: iButton Fuzzer -> Fix v2 key files load (all new saved files)
-### Previous changes
-* SubGHz Remote: Fixed BinRAW support, + many other fixes (by @gid9798 | PR #492)
-* SubGHz: Fix KL: Stilmatic support + add manually support
-* SubGHz: Keeloq mfname refactoring (by @gid9798 | PR #479)
-* Desktop Clock: Some improvements and fixes (by @gid9798 | PR #490)
-* LF RFID: Cleanup duplicated code (by @gid9798 | PR #493)
-* NFC V: Code review fixes + some GUI rework (by @nvx & @xMasterX)
-* NFC V: Fixed crash when exiting emulation and starting it again
-* Infrared: Use Universal AC Remote from OFW, same for Audio remote, and rename buttons in OFW naming scheme
-* Infrared: Update universal remote assets (by @amec0e)
-* GUI Keyboard: Fix crash when renaming files with long file name (Fixed issue #489)
-* Misc: Fix APP_IDs to match new regex (regex check will be added in OFW soon)
-* Plugins: Protoview, WAV Player, DTMF Dolphin - fixed all known crashes, ported to latest hal bus system
-* Plugins: ESP8266 Deauther - Crash fix (Fixed issue #497)
-* Plugins: Update -> Mifare Nested [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
-* Plugins: Update -> TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Update -> ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
-* Plugins: Update -> UART Terminal [(by cool4uma)](https://github.com/cool4uma/UART_Terminal/tree/main)
-* OFW: FuriHal: disable bus re-initialization on early init and extra asserts for AHB1,AHB2,AHB3 which must be left intact on entering to FUS -> **Fixes updater error 1-100**
-* OFW: NFC: fix MFC timings -> **Fixes issues with Mifare Classic emulation that could happen after unlshd-049 release**
-* OFW: Update dolphin.py
-* OFW: NFC Magic: Fix gen1 writing with invalid BCC (lost fix from PR 2511)
-* OFW: SubGhz: fix flipper crashes after exiting broadcast blocking message and crash cli
+* Plugins: **New RFID 125KHz and iButton Fuzzers (remake from scratch + new features)** (by @gid9798 | PR #507)
+* Plugins: SubGHz Bruteforcer -> Time delay (between signals) setting (hold Up in main screen(says Up to Save)) + allow more repeats (by @gid9798 & @xMasterX)
+* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: Unitemp SCD30 support (PR in unitemp repo by @divinebird / fixed by @xMasterX)
+* Plugins: Fix ProtoView issue #503 -> (Broken saved files with custom modulation)
+* SubGHz: Added 430, 431 MHz to default list
+* SubGHz: Remove broken modulation that was causing buffer overrun (fixes issue #506)
+* SubGHz: Notifications fixes (by @wosk | PR #464)
+* GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
+* Infrared: `RCA` protocol support
+* Infrared: Update universal remote assets - add new ACs and TCL TV
+* API: Add furi_hal_version_uid_default (+ Fix TOTP) (by @ClaraCrazy | PR #502)
+* OFW PR 2760: NFC: Improvements to NFC Magic app (by AloneLiberty)
+* OFW PR 2756: fix: make dialog_file_browser_set_basic_options initialize all fields (by JarvisCraft)
+* OFW: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys
+* OFW: fbt: stable build dates
+* OFW: weather_station: add oregon3 with THGR221
+* OFW: Services: simplify api (DOLPHIN_DEED->dolphin_deed - function instead of macros + remake all apps in extra pack and main fw to use new API) -> **Breaking API change, API version was changed from 29.x to 30.x**
+* OFW: Core2, SRAM2: provide safety gap
+* OFW: FuriHal: always clock SMPS from HSI
+* OFW: ble: refactored bt gatt characteristics setup (+ remake of BT HID Led descriptor in new way to work with this changes)
+* OFW: Scripts: WiFi board updater
+* OFW: github: re-enabled f18 build
+* OFW: added ISO15693 (NfcV) (was already added before, so we just updated it with latest changes)
+* OFW: fbt: added Flipper selection when multiple are connected over USB
+* OFW: fbt, ufbt: added checks for appid in app manifests
+* OFW: Fix core2 permisions
+* OFW: SubGhz: add subghz_protocol_registry external API (was already in our API but in different way)
+* OFW: Furi: smaller critical enter and critical exit macro
+* OFW: Serial_CLI: Fixing serial cli logger error so it sounds more concise
+* OFW: Remove unused resources
 * OFW: Dolphin: new animation
-* OFW: fbt: added hooks for build & dist environments; added FW_ORIGIN_* macro for apps & SDK 
-* OFW: FuriHal: add bus abstraction -> **Breaking API change, API version was changed from 27.x to 28.x** 
-* OFW: Implement support for reading Opal card (Sydney, Australia) 
-* OFW: BadUSB: script execution pause
-* OFW: IR Universal AC: Add Carrier 42QHB12D8S
+* OFW: f7: add PB9 to debug pins
+* OFW: Settings: add contrast adjustment -> **Settings->LCD and Notifications will be resetted to default values one time after installing**
+* OFW: FuriHal: add system setting to device info, bump device info version
 
 #### [🎲 Download latest extra apps pack](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)
 

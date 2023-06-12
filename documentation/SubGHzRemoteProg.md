@@ -60,6 +60,8 @@ Watch this videos to learn more (videos in Russian language): https://www.youtub
 
 ## BFT Mitto 
 
+How to create new remote and bind it to receiver (will not conflict with original remotes):
+
 1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> BFT Mitto 433Mhz
 2. Open your new remote file
 3. You need to be in minimum 3 meters to receiver
@@ -67,6 +69,32 @@ Watch this videos to learn more (videos in Russian language): https://www.youtub
 5. Original Remote: Momentarily press button that opens device
 6. Long press (Right Arrow) - (0xF button - Btn:F) on Flipper for like 3-5 sec
 7. Done?
+
+OR
+
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> BFT Mitto 433Mhz
+2. Open your new remote file
+3. Open your receiver board box
+4. **Watch this video**: https://www.youtube.com/watch?v=5QXMBKI_-Ls
+5. Long press (Right Arrow) - (0xF button - Btn:F) on Flipper for like 3-5 sec -> Will act like holding Button 1 & 2 on original remote as shown on video
+6. Done?
+
+--
+
+How to get seed to make full clone of your remote (**will conflict with original remote!!!!!**):
+
+**WARNING!!!! This method can desync your original remote, please avoid using it! It can be used in rare cases like when your remote works poorly or has broken buttons and you want to replace it with flipper**
+
+1. Open `Read` in SubGHz on your flipper
+2. (ONLY FOR ORIGINAL REMOTES) Hold all buttons on your remote at same time, example -> for 2 button remote - press them both at same time and hold OR press hidden button on back of remote with a pin or paper clip
+3. You will receive signal on your flipper, open that signal and see `Fix:` value, it should start from `F` like `F00F1C9B`
+4. If `Fix:` is showing first `F` see `Hop:` value -> This is your remote Seed
+5. Write down Hop value
+6. Press button on your remote that you want to clone and receive its signal on your flipper
+7. Open and write down `Fix:` value where first digit will be same as your button ID `Btn:`
+8. Create new remote using BFT Mitto [Manual] - Enter FIX from step 7, enter counter `FF F9`, enter seed from step 5
+9. Using counter values like `FF F9` can help bypassing current original remote counter value, and in result it also can fully desync original remote, only one remote can work at same time using this method
+10. Throw away your original remote since now it needs to be re-added into receiver board :C
 
 ## CAME Atomo
 

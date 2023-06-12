@@ -20,6 +20,34 @@ static const NotificationSequence sequence_note_c = {
     NULL,
 };
 
+#define CONTRAST_COUNT 11
+const char* const contrast_text[CONTRAST_COUNT] = {
+    "-5",
+    "-4",
+    "-3",
+    "-2",
+    "-1",
+    "0",
+    "+1",
+    "+2",
+    "+3",
+    "+4",
+    "+5",
+};
+const int32_t contrast_value[CONTRAST_COUNT] = {
+    -5,
+    -4,
+    -3,
+    -2,
+    -1,
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+};
+
 #define BACKLIGHT_COUNT 5
 const char* const backlight_text[BACKLIGHT_COUNT] = {
     "0%",
@@ -69,6 +97,15 @@ const char* const vibro_text[VIBRO_COUNT] = {
     "ON",
 };
 const bool vibro_value[VIBRO_COUNT] = {false, true};
+
+static void contrast_changed(VariableItem* item) {
+    NotificationAppSettings* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, contrast_text[index]);
+    app->notification->settings.contrast = contrast_value[index];
+    notification_message(app->notification, &sequence_lcd_contrast_update);
+}
 
 static void backlight_changed(VariableItem* item) {
     NotificationAppSettings* app = variable_item_get_context(item);
@@ -141,6 +178,13 @@ static NotificationAppSettings* alloc_settings() {
 
     VariableItem* item;
     uint8_t value_index;
+
+    item = variable_item_list_add(
+        app->variable_item_list, "LCD Contrast", CONTRAST_COUNT, contrast_changed, app);
+    value_index =
+        value_index_int32(app->notification->settings.contrast, contrast_value, CONTRAST_COUNT);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, contrast_text[value_index]);
 
     item = variable_item_list_add(
         app->variable_item_list, "LCD Backlight", BACKLIGHT_COUNT, backlight_changed, app);

@@ -50,7 +50,7 @@ bool infrared_scene_learn_enter_name_on_event(void* context, SceneManagerEvent e
 
             if(success) {
                 scene_manager_next_scene(scene_manager, InfraredSceneLearnDone);
-                DOLPHIN_DEED(DolphinDeedIrSave);
+                dolphin_deed(DolphinDeedIrSave);
             } else {
                 dialog_message_show_storage_error(infrared->dialogs, "Failed to save file");
                 const uint32_t possible_scenes[] = {InfraredSceneRemoteList, InfraredSceneStart};

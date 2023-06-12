@@ -276,7 +276,7 @@ void tick(GameState* game_state, NotificationApp* notification) {
     if(game_state->state == GameStatePlay) {
         if(game_state->top_cards[0].character == 11 && game_state->top_cards[1].character == 11 &&
            game_state->top_cards[2].character == 11 && game_state->top_cards[3].character == 11) {
-            DOLPHIN_DEED(DolphinDeedPluginGameWin);
+            dolphin_deed(DolphinDeedPluginGameWin);
             game_state->state = GameStateAnimate;
             return;
         }
@@ -492,7 +492,7 @@ int32_t solitaire_app(void* p) {
     AppEvent event;
 
     // Call Dolphin deed on game start
-    DOLPHIN_DEED(DolphinDeedPluginGameStart);
+    dolphin_deed(DolphinDeedPluginGameStart);
 
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 150);

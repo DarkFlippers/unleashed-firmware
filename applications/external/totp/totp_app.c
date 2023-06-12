@@ -18,8 +18,6 @@
 #include "services/crypto/crypto.h"
 #include "cli/cli.h"
 
-#define IDLE_TIMEOUT (60000)
-
 static void render_callback(Canvas* const canvas, void* ctx) {
     furi_assert(ctx);
     PluginState* plugin_state = ctx;
@@ -106,6 +104,17 @@ static bool totp_activate_initial_scene(PluginState* const plugin_state) {
     return true;
 }
 
+static bool on_user_idle(void* context) {
+    PluginState* plugin_state = context;
+    if(plugin_state->current_scene != TotpSceneAuthentication &&
+       plugin_state->current_scene != TotpSceneStandby) {
+        totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication);
+        return true;
+    }
+
+    return false;
+}
+
 static bool totp_plugin_state_init(PluginState* const plugin_state) {
     plugin_state->selected_font = 0;
     plugin_state->gui = furi_record_open(RECORD_GUI);
@@ -128,10 +137,23 @@ static bool totp_plugin_state_init(PluginState* const plugin_state) {
     }
 #endif
 
+    if(plugin_state->pin_set) {
+        plugin_state->idle_timeout_context =
+            idle_timeout_alloc(TOTP_AUTO_LOCK_IDLE_TIMEOUT_SEC, &on_user_idle, plugin_state);
+        idle_timeout_start(plugin_state->idle_timeout_context);
+    } else {
+        plugin_state->idle_timeout_context = NULL;
+    }
+
     return true;
 }
 
 static void totp_plugin_state_free(PluginState* plugin_state) {
+    if(plugin_state->idle_timeout_context != NULL) {
+        idle_timeout_stop(plugin_state->idle_timeout_context);
+        idle_timeout_free(plugin_state->idle_timeout_context);
+    }
+
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_DIALOGS);
@@ -173,7 +195,7 @@ int32_t totp_app() {
     }
 
     // Affecting dolphin level
-    DOLPHIN_DEED(DolphinDeedPluginStart);
+    dolphin_deed(DolphinDeedPluginStart);
 
     // Set system callbacks
     ViewPort* view_port = view_port_alloc();
@@ -185,14 +207,13 @@ int32_t totp_app() {
 
     PluginEvent event;
     bool processing = true;
-    uint32_t last_user_interaction_time = furi_get_tick();
     while(processing) {
-        FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
+        FuriStatus event_status = furi_message_queue_get(event_queue, &event, FuriWaitForever);
 
         if(furi_mutex_acquire(plugin_state->mutex, FuriWaitForever) == FuriStatusOk) {
             if(event_status == FuriStatusOk) {
-                if(event.type == EventTypeKey) {
-                    last_user_interaction_time = furi_get_tick();
+                if(event.type == EventTypeKey && plugin_state->idle_timeout_context != NULL) {
+                    idle_timeout_report_activity(plugin_state->idle_timeout_context);
                 }
 
                 if(event.type == EventForceCloseApp) {
@@ -200,11 +221,6 @@ int32_t totp_app() {
                 } else {
                     processing = totp_scene_director_handle_event(&event, plugin_state);
                 }
-            } else if(
-                plugin_state->pin_set && plugin_state->current_scene != TotpSceneAuthentication &&
-                plugin_state->current_scene != TotpSceneStandby &&
-                furi_get_tick() - last_user_interaction_time > IDLE_TIMEOUT) {
-                totp_scene_director_activate_scene(plugin_state, TotpSceneAuthentication);
             }
 
             view_port_update(view_port);

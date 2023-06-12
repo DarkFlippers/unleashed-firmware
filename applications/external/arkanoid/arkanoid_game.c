@@ -399,7 +399,7 @@ int32_t arkanoid_game_app(void* p) {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     // Call dolphin deed on game start
-    DOLPHIN_DEED(DolphinDeedPluginGameStart);
+    dolphin_deed(DolphinDeedPluginGameStart);
 
     GameEvent event;
     for(bool processing = true; processing;) {

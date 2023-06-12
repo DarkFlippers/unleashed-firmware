@@ -14,3 +14,5 @@ void u8g2_Setup_st756x_flipper(
     u8x8_msg_cb gpio_and_delay_cb);
 
 void u8x8_d_st756x_init(u8x8_t* u8x8, uint8_t contrast, uint8_t regulation_ratio, bool bias);
+
+void u8x8_d_st756x_set_contrast(u8x8_t* u8x8, int8_t contrast_offset);

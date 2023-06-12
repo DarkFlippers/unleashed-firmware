@@ -9,6 +9,7 @@ extern "C" {
 typedef struct SubGhzEnvironment SubGhzEnvironment;
 
 typedef struct SubGhzProtocolRegistry SubGhzProtocolRegistry;
+typedef struct SubGhzProtocol SubGhzProtocol;
 
 struct SubGhzProtocolRegistry {
     const SubGhzProtocol** items;

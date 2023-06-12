@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,28.2,,
+Version,+,30.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -288,6 +288,8 @@ Function,+,__clear_cache,void,"void*, void*"
 Function,-,__eprintf,void,"const char*, const char*, unsigned int, const char*"
 Function,+,__errno,int*,
 Function,+,__furi_crash,void,
+Function,+,__furi_critical_enter,__FuriCriticalInfo,
+Function,+,__furi_critical_exit,void,__FuriCriticalInfo
 Function,+,__furi_halt,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
@@ -646,7 +648,7 @@ Function,+,dir_walk_read,DirWalkResult,"DirWalk*, FuriString*, FileInfo*"
 Function,+,dir_walk_set_filter_cb,void,"DirWalk*, DirWalkFilterCb, void*"
 Function,+,dir_walk_set_recursive,void,"DirWalk*, _Bool"
 Function,-,div,div_t,"int, int"
-Function,+,dolphin_deed,void,"Dolphin*, DolphinDeed"
+Function,+,dolphin_deed,void,DolphinDeed
 Function,+,dolphin_deed_get_app,DolphinApp,DolphinDeed
 Function,+,dolphin_deed_get_app_limit,uint8_t,DolphinApp
 Function,+,dolphin_deed_get_weight,uint8_t,DolphinDeed
@@ -1999,6 +2001,7 @@ Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
 Function,+,value_index_bool,uint8_t,"const _Bool, const _Bool[], uint8_t"
 Function,+,value_index_float,uint8_t,"const float, const float[], uint8_t"
+Function,+,value_index_int32,uint8_t,"const int32_t, const int32_t[], uint8_t"
 Function,+,value_index_uint32,uint8_t,"const uint32_t, const uint32_t[], uint8_t"
 Function,+,variable_item_get_context,void*,VariableItem*
 Function,+,variable_item_get_current_value_index,uint8_t,VariableItem*
@@ -2259,6 +2262,7 @@ Variable,+,message_force_vibro_setting_off,const NotificationMessage,
 Variable,+,message_force_vibro_setting_on,const NotificationMessage,
 Variable,+,message_green_0,const NotificationMessage,
 Variable,+,message_green_255,const NotificationMessage,
+Variable,+,message_lcd_contrast_update,const NotificationMessage,
 Variable,+,message_note_a0,const NotificationMessage,
 Variable,+,message_note_a1,const NotificationMessage,
 Variable,+,message_note_a2,const NotificationMessage,
@@ -2402,6 +2406,7 @@ Variable,+,sequence_display_backlight_off_delay_1000,const NotificationSequence,
 Variable,+,sequence_display_backlight_on,const NotificationSequence,
 Variable,+,sequence_double_vibro,const NotificationSequence,
 Variable,+,sequence_error,const NotificationSequence,
+Variable,+,sequence_lcd_contrast_update,const NotificationSequence,
 Variable,+,sequence_not_charging,const NotificationSequence,
 Variable,+,sequence_reset_blue,const NotificationSequence,
 Variable,+,sequence_reset_display,const NotificationSequence,

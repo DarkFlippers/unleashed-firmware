@@ -34,13 +34,13 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopDebugEventDeed:
-            dolphin_deed(dolphin, DolphinDeedTestRight);
+            dolphin_deed(DolphinDeedTestRight);
             desktop_debug_get_dolphin_data(desktop->debug_view);
             consumed = true;
             break;
 
         case DesktopDebugEventWrongDeed:
-            dolphin_deed(dolphin, DolphinDeedTestLeft);
+            dolphin_deed(DolphinDeedTestLeft);
             desktop_debug_get_dolphin_data(desktop->debug_view);
             consumed = true;
             break;

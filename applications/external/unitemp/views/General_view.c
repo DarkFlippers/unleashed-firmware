@@ -162,6 +162,35 @@ static void _draw_pressure(Canvas* canvas, Sensor* sensor) {
     }
 }
 
+static void _draw_co2(Canvas* canvas, Sensor* sensor, Color color) {
+    const uint8_t x = 29, y = 39;
+    //Рисование рамки
+    canvas_draw_rframe(canvas, x, y, 75, 20, 3);
+    if(color == ColorBlack) {
+        canvas_draw_rbox(canvas, x, y, 75, 19, 3);
+        canvas_invert_color(canvas);
+    } else {
+        canvas_draw_rframe(canvas, x, y, 75, 19, 3);
+    }
+
+    //Рисование иконки
+    canvas_draw_icon(canvas, x + 3, y + 3, &I_co2_11x14);
+
+    int16_t concentration_int = sensor->co2;
+    //    int8_t concentration_dec = (int16_t)(sensor->co2 * 10) % 10;
+
+    //Целая часть
+    if(concentration_int > 9999) {
+        snprintf(app->buff, BUFF_SIZE, "MAX  ");
+        canvas_set_font(canvas, FontPrimary);
+    } else {
+        snprintf(app->buff, BUFF_SIZE, "%d", concentration_int);
+        canvas_set_font(canvas, FontBigNumbers);
+    }
+
+    canvas_draw_str_aligned(canvas, x + 70, y + 10, AlignRight, AlignCenter, app->buff);
+}
+
 static void _draw_singleSensor(Canvas* canvas, Sensor* sensor, const uint8_t pos[2], Color color) {
     canvas_set_font(canvas, FontPrimary);
 
@@ -319,6 +348,17 @@ static void _draw_carousel_values(Canvas* canvas) {
         _draw_humidity(
             canvas, unitemp_sensor_getActive(generalview_sensor_index), hum_positions[1]);
         _draw_pressure(canvas, unitemp_sensor_getActive(generalview_sensor_index));
+        break;
+    case UT_DATA_TYPE_TEMP_HUM_CO2:
+        _draw_temperature(
+            canvas,
+            unitemp_sensor_getActive(generalview_sensor_index),
+            temp_positions[2][0],
+            temp_positions[2][1],
+            ColorWhite);
+        _draw_humidity(
+            canvas, unitemp_sensor_getActive(generalview_sensor_index), hum_positions[1]);
+        _draw_co2(canvas, unitemp_sensor_getActive(generalview_sensor_index), ColorWhite);
         break;
     }
 }

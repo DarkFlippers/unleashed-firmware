@@ -49,7 +49,7 @@ bool lfrfid_scene_start_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubmenuIndexRead) {
             scene_manager_set_scene_state(app->scene_manager, LfRfidSceneStart, SubmenuIndexRead);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
-            DOLPHIN_DEED(DolphinDeedRfidRead);
+            dolphin_deed(DolphinDeedRfidRead);
             consumed = true;
         } else if(event.event == SubmenuIndexSaved) {
             // Like in the other apps, explicitly save the scene state

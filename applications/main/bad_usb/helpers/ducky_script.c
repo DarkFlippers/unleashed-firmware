@@ -426,7 +426,7 @@ static int32_t bad_usb_worker(void* context) {
             if(flags & WorkerEvtEnd) {
                 break;
             } else if(flags & WorkerEvtStartStop) { // Start executing script
-                DOLPHIN_DEED(DolphinDeedBadUsbPlayScript);
+                dolphin_deed(DolphinDeedBadUsbPlayScript);
                 delay_val = 0;
                 bad_usb->buf_len = 0;
                 bad_usb->st.line_cur = 0;
@@ -449,7 +449,7 @@ static int32_t bad_usb_worker(void* context) {
             if(flags & WorkerEvtEnd) {
                 break;
             } else if(flags & WorkerEvtConnect) { // Start executing script
-                DOLPHIN_DEED(DolphinDeedBadUsbPlayScript);
+                dolphin_deed(DolphinDeedBadUsbPlayScript);
                 delay_val = 0;
                 bad_usb->buf_len = 0;
                 bad_usb->st.line_cur = 0;

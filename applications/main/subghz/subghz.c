@@ -211,7 +211,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
         flipper_format_free(temp_fm_preset3);
 
-        // # HND - FM presets
+        // # HND - FM preset
         FlipperFormat* temp_fm_preset4 = flipper_format_string_alloc();
         flipper_format_write_string_cstr(
             temp_fm_preset4,
@@ -221,16 +221,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz_setting_load_custom_preset(setting, (const char*)"HND_1", temp_fm_preset4);
 
         flipper_format_free(temp_fm_preset4);
-
-        FlipperFormat* temp_fm_preset5 = flipper_format_string_alloc();
-        flipper_format_write_string_cstr(
-            temp_fm_preset5,
-            (const char*)"Custom_preset_data",
-            (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 07 11 36 10 E9 15 32 18 18 19 16 1D 92 1C 40 1B 03 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
-        flipper_format_rewind(temp_fm_preset5);
-        subghz_setting_load_custom_preset(setting, (const char*)"HND_2", temp_fm_preset5);
-
-        flipper_format_free(temp_fm_preset5);
     }
     // custom presets loading - end
 

@@ -4,6 +4,9 @@
 
 #define TAG "FuriHalMemory"
 
+// STM(TM) Copro(TM) bug(TM) workaround size
+#define RAM2B_COPRO_GAP_SIZE_KB 2
+
 typedef enum {
     SRAM_A,
     SRAM_B,
@@ -30,53 +33,47 @@ void furi_hal_memory_init() {
         return;
     }
 
-    if(!ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT)) {
-        FURI_LOG_E(TAG, "C2 start timeout");
-        return;
-    }
-
     FuriHalMemory* memory = malloc(sizeof(FuriHalMemory));
 
-    const BleGlueC2Info* c2_ver = ble_glue_get_c2_info();
+    uint32_t sbrsa = (FLASH->SRRVR & FLASH_SRRVR_SBRSA_Msk) >> FLASH_SRRVR_SBRSA_Pos;
+    uint32_t snbrsa = (FLASH->SRRVR & FLASH_SRRVR_SNBRSA_Msk) >> FLASH_SRRVR_SNBRSA_Pos;
 
-    if(c2_ver->mode == BleGlueC2ModeStack) {
-        uint32_t sram2a_busy_size = (uint32_t)&__sram2a_free__ - (uint32_t)&__sram2a_start__;
-        uint32_t sram2a_unprotected_size = (32 - c2_ver->MemorySizeSram2A) * 1024;
-        uint32_t sram2b_unprotected_size = (32 - c2_ver->MemorySizeSram2B) * 1024;
+    uint32_t sram2a_busy_size = (uint32_t)&__sram2a_free__ - (uint32_t)&__sram2a_start__;
+    uint32_t sram2a_unprotected_size = (sbrsa)*1024;
+    uint32_t sram2b_unprotected_size = (snbrsa)*1024;
 
-        memory->region[SRAM_A].start = (uint8_t*)&__sram2a_free__;
-        memory->region[SRAM_B].start = (uint8_t*)&__sram2b_start__;
+    // STM(TM) Copro(TM) bug(TM) workaround
+    sram2b_unprotected_size -= 1024 * RAM2B_COPRO_GAP_SIZE_KB;
 
-        if(sram2a_unprotected_size > sram2a_busy_size) {
-            memory->region[SRAM_A].size = sram2a_unprotected_size - sram2a_busy_size;
-        } else {
-            memory->region[SRAM_A].size = 0;
+    memory->region[SRAM_A].start = (uint8_t*)&__sram2a_free__;
+    memory->region[SRAM_B].start = (uint8_t*)&__sram2b_start__;
+
+    if(sram2a_unprotected_size > sram2a_busy_size) {
+        memory->region[SRAM_A].size = sram2a_unprotected_size - sram2a_busy_size;
+    } else {
+        memory->region[SRAM_A].size = 0;
+    }
+    memory->region[SRAM_B].size = sram2b_unprotected_size;
+
+    FURI_LOG_I(
+        TAG, "SRAM2A: 0x%p, %lu", memory->region[SRAM_A].start, memory->region[SRAM_A].size);
+    FURI_LOG_I(
+        TAG, "SRAM2B: 0x%p, %lu", memory->region[SRAM_B].start, memory->region[SRAM_B].size);
+
+    if((memory->region[SRAM_A].size > 0) || (memory->region[SRAM_B].size > 0)) {
+        if((memory->region[SRAM_A].size > 0)) {
+            FURI_LOG_I(TAG, "SRAM2A clear");
+            memset(memory->region[SRAM_A].start, 0, memory->region[SRAM_A].size);
         }
-        memory->region[SRAM_B].size = sram2b_unprotected_size;
-
-        FURI_LOG_I(
-            TAG, "SRAM2A: 0x%p, %lu", memory->region[SRAM_A].start, memory->region[SRAM_A].size);
-        FURI_LOG_I(
-            TAG, "SRAM2B: 0x%p, %lu", memory->region[SRAM_B].start, memory->region[SRAM_B].size);
-
-        if((memory->region[SRAM_A].size > 0) || (memory->region[SRAM_B].size > 0)) {
-            if((memory->region[SRAM_A].size > 0)) {
-                FURI_LOG_I(TAG, "SRAM2A clear");
-                memset(memory->region[SRAM_A].start, 0, memory->region[SRAM_A].size);
-            }
-            if((memory->region[SRAM_B].size > 0)) {
-                FURI_LOG_I(TAG, "SRAM2B clear");
-                memset(memory->region[SRAM_B].start, 0, memory->region[SRAM_B].size);
-            }
-            furi_hal_memory = memory;
-            FURI_LOG_I(TAG, "Enabled");
-        } else {
-            free(memory);
-            FURI_LOG_E(TAG, "No SRAM2 available");
+        if((memory->region[SRAM_B].size > 0)) {
+            FURI_LOG_I(TAG, "SRAM2B clear");
+            memset(memory->region[SRAM_B].start, 0, memory->region[SRAM_B].size);
         }
+        furi_hal_memory = memory;
+        FURI_LOG_I(TAG, "Enabled");
     } else {
         free(memory);
-        FURI_LOG_E(TAG, "No Core2 available");
+        FURI_LOG_E(TAG, "No SRAM2 available");
     }
 }
 
@@ -89,15 +86,20 @@ void* furi_hal_memory_alloc(size_t size) {
         return NULL;
     }
 
+    void* allocated_memory = NULL;
+    FURI_CRITICAL_ENTER();
     for(int i = 0; i < SRAM_MAX; i++) {
         if(furi_hal_memory->region[i].size >= size) {
             void* ptr = furi_hal_memory->region[i].start;
             furi_hal_memory->region[i].start += size;
             furi_hal_memory->region[i].size -= size;
-            return ptr;
+            allocated_memory = ptr;
+            break;
         }
     }
-    return NULL;
+    FURI_CRITICAL_EXIT();
+
+    return allocated_memory;
 }
 
 size_t furi_hal_memory_get_free() {
