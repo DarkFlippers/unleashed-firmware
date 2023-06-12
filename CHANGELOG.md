@@ -10,13 +10,15 @@
 * SubGHz: Remove broken modulation that was causing buffer overrun (fixes issue #506)
 * SubGHz: Notifications fixes (by @wosk | PR #464)
 * GUI: `Byte input` new feature: editor without keyboard (press Up until you get into new input, then use up/down to input values) (by @gid9798 | PR #509)
+* Infrared: `RCA` protocol support
 * Infrared: Update universal remote assets - add new ACs and TCL TV
 * API: Add furi_hal_version_uid_default (+ Fix TOTP) (by @ClaraCrazy | PR #502)
+* OFW PR 2760: NFC: Improvements to NFC Magic app (by AloneLiberty)
 * OFW PR 2756: fix: make dialog_file_browser_set_basic_options initialize all fields (by JarvisCraft)
 * OFW: Fix reading Mifare Classic cards with unusual access conditions and fix emulation of unknown keys
 * OFW: fbt: stable build dates
 * OFW: weather_station: add oregon3 with THGR221
-* OFW: Services: simplify api (DOLPHIN_DEED->dolphin_deed - function instead of macros + remake all apps in extra pack and main fw to use new API)
+* OFW: Services: simplify api (DOLPHIN_DEED->dolphin_deed - function instead of macros + remake all apps in extra pack and main fw to use new API) -> **Breaking API change, API version was changed from 29.x to 30.x**
 * OFW: Core2, SRAM2: provide safety gap
 * OFW: FuriHal: always clock SMPS from HSI
 * OFW: ble: refactored bt gatt characteristics setup (+ remake of BT HID Led descriptor in new way to work with this changes)
