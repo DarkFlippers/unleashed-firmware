@@ -48,6 +48,8 @@ bool save_signal(ProtoViewApp* app, const char* filename) {
             for(int j = 0; regs[j]; j += 2) {
                 furi_string_cat_printf(custom, "%02X %02X ", (int)regs[j], (int)regs[j + 1]);
             }
+            // Add patable
+            furi_string_cat(custom, "00 00 C0 00 00 00 00 00 00 00 ");
             //size_t len = furi_string_size(file_content);
             //furi_string_set_char(custom, len - 1, '\n');
             furi_string_cat(custom, "\n");
