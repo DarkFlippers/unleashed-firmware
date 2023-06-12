@@ -1,6 +1,7 @@
 ### New changes
 * If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
 * Settings->LCD and Notifications will be resetted to default due to new Contrast setting from OFW
+* Core2 (Crash in idle) issues was reduced to current possible minimum, you can try using DeepSleep again (Sleep Method = Default) (+ more checks was added, if you get `Slow HSE/PLL startup` message more than one time, create issue with steps what to do to reproduce it again)
 -----
 * Plugins: **New RFID 125KHz and iButton Fuzzers (remake from scratch + new features)** (by @gid9798 | PR #507)
 * Plugins: SubGHz Bruteforcer -> Time delay (between signals) setting (hold Up in main screen(says Up to Save)) + allow more repeats (by @gid9798 & @xMasterX)
@@ -65,9 +66,11 @@ and all other great people who supported our project and me (xMasterX), thanks t
 
 **Recommended option - Web Updater**
 
+### What `n`, `e`, `r` means? What I need to download if I don't want to use Web updater?
 What means `n` or `e` in - `flipper-z-f7-update-(version)(n / e).tgz` ? - `n` means this build comes without our custom animations, only official flipper animations, 
-`e` means build has extra apps pack preinstalled
+`e` means build has extra apps pack preinstalled,
+`r` means RGB patch for flippers with rgb backlight mod (this is hardware mod!) (Works only on modded flippers!)
 
-Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or download `.tgz` for mobile app / qFlipper
+Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip` or download `.tgz` for mobile app / qFlipper / web
 
 
