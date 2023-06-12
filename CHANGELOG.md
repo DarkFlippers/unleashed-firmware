@@ -67,8 +67,8 @@ and all other great people who supported our project and me (xMasterX), thanks t
 
 **Recommended option - Web Updater**
 
-### What `n`, `e`, `r` means? What I need to download if I don't want to use Web updater?
-What means `n` or `e` in - `flipper-z-f7-update-(version)(n / e).tgz` ? - `n` means this build comes without our custom animations, only official flipper animations, 
+### What `n`, `r`, `e` means? What I need to download if I don't want to use Web updater?
+What means `n` or `e` in - `flipper-z-f7-update-(version)(n / r / e).tgz` ? - `n` means this build comes without our custom animations, only official flipper animations, 
 `e` means build has extra apps pack preinstalled,
 `r` means RGB patch (+ extra apps) for flippers with rgb backlight mod (this is hardware mod!) (Works only on modded flippers!)
 

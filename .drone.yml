@@ -26,14 +26,6 @@ steps:
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
       - ls -laS artifacts-default/f7-update-${DRONE_TAG}
-      - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
-      - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
-      - echo '' >> CHANGELOG.md
-      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)' >> CHANGELOG.md
-      - echo '' >> CHANGELOG.md
-      - echo '### [Version with RGB patch - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz&channel=release-cfw&version='${DRONE_TAG}'r)' >> CHANGELOG.md
-      - echo '' >> CHANGELOG.md
-      - echo '## [Version with Extra apps - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -94,6 +86,14 @@ steps:
       - mv dist/f7-C/* artifacts-ofw-anims/
       - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}n
+      - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
+      - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '' >> CHANGELOG.md
+      - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)' >> CHANGELOG.md
+      - echo '' >> CHANGELOG.md
+      - echo '### [Version with RGB patch - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz&channel=release-cfw&version='${DRONE_TAG}'r)' >> CHANGELOG.md
+      - echo '' >> CHANGELOG.md
+      - echo '## [Version with Extra apps - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
