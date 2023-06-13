@@ -71,20 +71,8 @@ const uint32_t bin_raw_value[BIN_RAW_COUNT] = {
     SubGhzProtocolFlag_Decodable,
     SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_BinRAW,
 };
-#define STARLINE_COUNT 2
-const char* const starline_text[STARLINE_COUNT] = {
-    "OFF",
-    "ON",
-};
-
-#define AUTO_ALARMS_COUNT 2
-const char* const auto_alarms_text[AUTO_ALARMS_COUNT] = {
-    "OFF",
-    "ON",
-};
-
-#define MAGELLAN_COUNT 2
-const char* const magellan_text[MAGELLAN_COUNT] = {
+#define PROTOCOL_IGNORE_COUNT 2
+const char* const protocol_ignore_text[PROTOCOL_IGNORE_COUNT] = {
     "OFF",
     "ON",
 };
@@ -257,28 +245,35 @@ static void subghz_scene_receiver_config_set_raw_threshold_rssi(VariableItem* it
     subghz_threshold_rssi_set(subghz->threshold_rssi, raw_threshold_rssi_value[index]);
 }
 
-static void subghz_scene_receiver_config_set_starline(VariableItem* item) {
+static inline void
+    subghz_scene_receiver_config_set_ignore_filter(VariableItem* item, SubGhzProtocolFlag filter) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
-    variable_item_set_current_value_text(item, starline_text[index]);
-    subghz->ignore_starline = (index == 1);
+    variable_item_set_current_value_text(item, protocol_ignore_text[index]);
+
+    if(index == 0) {
+        CLEAR_BIT(subghz->ignore_filter, filter);
+    } else {
+        SET_BIT(subghz->ignore_filter, filter);
+    }
+}
+static inline bool subghz_scene_receiver_config_ignore_filter_get_index(
+    SubGhzProtocolFlag filter,
+    SubGhzProtocolFlag flag) {
+    return READ_BIT(filter, flag) > 0;
+}
+
+static void subghz_scene_receiver_config_set_starline(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_StarLine);
 }
 
 static void subghz_scene_receiver_config_set_auto_alarms(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, auto_alarms_text[index]);
-    subghz->ignore_auto_alarms = (index == 1);
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_AutoAlarms);
 }
 
 static void subghz_scene_receiver_config_set_magellan(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, magellan_text[index]);
-    subghz->ignore_magellan = (index == 1);
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Magelan);
 }
 
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
@@ -362,35 +357,38 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         item = variable_item_list_add(
             subghz->variable_item_list,
             "Ignore Starline:",
-            STARLINE_COUNT,
+            PROTOCOL_IGNORE_COUNT,
             subghz_scene_receiver_config_set_starline,
             subghz);
 
-        value_index = subghz->ignore_starline;
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_StarLine);
         variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, starline_text[value_index]);
+        variable_item_set_current_value_text(item, protocol_ignore_text[value_index]);
 
         item = variable_item_list_add(
             subghz->variable_item_list,
             "Ignore Cars:",
-            AUTO_ALARMS_COUNT,
+            PROTOCOL_IGNORE_COUNT,
             subghz_scene_receiver_config_set_auto_alarms,
             subghz);
 
-        value_index = subghz->ignore_auto_alarms;
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_AutoAlarms);
         variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, auto_alarms_text[value_index]);
+        variable_item_set_current_value_text(item, protocol_ignore_text[value_index]);
 
         item = variable_item_list_add(
             subghz->variable_item_list,
             "Ignore Magellan:",
-            MAGELLAN_COUNT,
+            PROTOCOL_IGNORE_COUNT,
             subghz_scene_receiver_config_set_magellan,
             subghz);
 
-        value_index = subghz->ignore_magellan;
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_Magelan);
         variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, magellan_text[value_index]);
+        variable_item_set_current_value_text(item, protocol_ignore_text[value_index]);
     }
 
     // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)

@@ -242,6 +242,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->secure_data = malloc(sizeof(SecureData));
 
     subghz->filter = SubGhzProtocolFlag_Decodable;
+    subghz->ignore_filter = 0x0;
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
     subghz_txrx_set_need_save_callback(subghz->txrx, subghz_save_to_file, subghz);
 
