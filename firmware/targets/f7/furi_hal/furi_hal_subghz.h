@@ -332,14 +332,6 @@ void furi_hal_subghz_set_external_power_disable(bool state);
  */
 bool furi_hal_subghz_get_external_power_disable(void);
 
-/** If true - disable generation of random name and add timestamp to filenames instead
- */
-void furi_hal_subghz_set_timestamp_file_names(bool state);
-
-/** Get the current state of the timestamp instead of random name flag
- */
-bool furi_hal_subghz_get_timestamp_file_names(void);
-
 /** Set what radio module we will be using
  */
 void furi_hal_subghz_select_radio_type(SubGhzRadioType state);
