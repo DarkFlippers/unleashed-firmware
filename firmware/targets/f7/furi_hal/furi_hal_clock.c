@@ -1,6 +1,5 @@
 #include <furi_hal_clock.h>
 #include <furi_hal_resources.h>
-#include <furi_hal_rtc.h>
 #include <furi.h>
 
 #include <stm32wbxx_ll_pwr.h>
@@ -143,7 +142,10 @@ void furi_hal_clock_switch_to_hsi() {
 }
 
 void furi_hal_clock_switch_to_pll() {
+#ifdef FURI_HAL_CLOCK_TRACK_STARTUP
     uint32_t clock_start_time = DWT->CYCCNT;
+#endif
+
     LL_RCC_HSE_Enable();
     LL_RCC_PLL_Enable();
     LL_RCC_PLLSAI1_Enable();
@@ -166,11 +168,12 @@ void furi_hal_clock_switch_to_pll() {
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
         ;
 
+#ifdef FURI_HAL_CLOCK_TRACK_STARTUP
     uint32_t total = DWT->CYCCNT - clock_start_time;
     if(total > (20 * 0x148)) {
-        furi_hal_rtc_set_flag(FuriHalRtcFlagLegacySleep);
         furi_crash("Slow HSE/PLL startup");
     }
+#endif
 }
 
 void furi_hal_clock_suspend_tick() {
