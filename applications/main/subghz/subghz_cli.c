@@ -779,6 +779,15 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
     FuriString* cmd = furi_string_alloc();
 
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
+    // Auto switch to internal radio if external radio is not available
+    furi_delay_ms(15);
+    if(!furi_hal_subghz_check_radio()) {
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
+    }
+
     do {
         if(!args_read_string_and_trim(args, cmd)) {
             subghz_cli_command_print_usage();
@@ -834,6 +843,11 @@ static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
 
         subghz_cli_command_print_usage();
     } while(false);
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
+    // Reinit SPI handles for internal radio / nfc
+    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     furi_string_free(cmd);
 }
