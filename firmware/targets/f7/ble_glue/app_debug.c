@@ -196,14 +196,14 @@ static void APPD_SetCPU2GpioConfig(void) {
         gpio_config.Pin = gpiob_pin_list;
         LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOB);
         LL_GPIO_Init(GPIOB, &gpio_config);
-        LL_GPIO_ResetOutputPin(GPIOB, gpiob_pin_list);
+        LL_GPIO_ResetOutputPin(GPIOB, gpioa_pin_list);
     }
 
     if(gpioc_pin_list != 0) {
         gpio_config.Pin = gpioc_pin_list;
         LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOC);
         LL_GPIO_Init(GPIOC, &gpio_config);
-        LL_GPIO_ResetOutputPin(GPIOC, gpioc_pin_list);
+        LL_GPIO_ResetOutputPin(GPIOC, gpioa_pin_list);
     }
 }
 

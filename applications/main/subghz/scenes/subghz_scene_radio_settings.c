@@ -111,7 +111,6 @@ static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* 
 
     variable_item_set_current_value_text(item, timestamp_names_text[index]);
 
-    furi_hal_subghz_set_timestamp_file_names((index == 1));
     subghz->last_settings->timestamp_file_names = (index == 1);
     subghz_last_settings_save(subghz->last_settings);
 }
@@ -148,7 +147,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
         subghz);
-    value_index = furi_hal_subghz_get_timestamp_file_names();
+    value_index = subghz->last_settings->timestamp_file_names;
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, timestamp_names_text[value_index]);
 
