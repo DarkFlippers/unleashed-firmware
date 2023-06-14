@@ -1,6 +1,6 @@
 #pragma once
 
-#include <services/serial_service.h>
+#include "serial_service.h"
 
 #ifdef __cplusplus
 extern "C" {
