@@ -8,7 +8,8 @@
 #include <furi_hal_bt_hid.h>
 #include <furi_hal_bt_serial.h>
 #include <furi_hal_bus.c>
-#include <services/battery_service.h>
+#include "battery_service.h"
+
 #include <furi.h>
 
 #define TAG "FuriHalBt"
