@@ -10,24 +10,14 @@
 #define TAG "BtSerialSvc"
 
 typedef enum {
-    SerialSvcGattCharacteristicTx = 0,
-    SerialSvcGattCharacteristicRx,
+    SerialSvcGattCharacteristicRx = 0,
+    SerialSvcGattCharacteristicTx,
     SerialSvcGattCharacteristicFlowCtrl,
     SerialSvcGattCharacteristicStatus,
     SerialSvcGattCharacteristicCount,
 } SerialSvcGattCharacteristicId;
 
 static const FlipperGattCharacteristicParams serial_svc_chars[SerialSvcGattCharacteristicCount] = {
-    [SerialSvcGattCharacteristicTx] =
-        {.name = "TX",
-         .data_prop_type = FlipperGattCharacteristicDataFixed,
-         .data.fixed.length = SERIAL_SVC_DATA_LEN_MAX,
-         .uuid.Char_UUID_128 = SERIAL_SVC_TX_CHAR_UUID,
-         .uuid_type = UUID_TYPE_128,
-         .char_properties = CHAR_PROP_READ | CHAR_PROP_INDICATE,
-         .security_permissions = ATTR_PERMISSION_AUTHEN_READ,
-         .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
-         .is_variable = CHAR_VALUE_LEN_VARIABLE},
     [SerialSvcGattCharacteristicRx] =
         {.name = "RX",
          .data_prop_type = FlipperGattCharacteristicDataFixed,
@@ -37,6 +27,16 @@ static const FlipperGattCharacteristicParams serial_svc_chars[SerialSvcGattChara
          .char_properties = CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE | CHAR_PROP_READ,
          .security_permissions = ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
          .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE,
+         .is_variable = CHAR_VALUE_LEN_VARIABLE},
+    [SerialSvcGattCharacteristicTx] =
+        {.name = "TX",
+         .data_prop_type = FlipperGattCharacteristicDataFixed,
+         .data.fixed.length = SERIAL_SVC_DATA_LEN_MAX,
+         .uuid.Char_UUID_128 = SERIAL_SVC_TX_CHAR_UUID,
+         .uuid_type = UUID_TYPE_128,
+         .char_properties = CHAR_PROP_READ | CHAR_PROP_INDICATE,
+         .security_permissions = ATTR_PERMISSION_AUTHEN_READ,
+         .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
          .is_variable = CHAR_VALUE_LEN_VARIABLE},
     [SerialSvcGattCharacteristicFlowCtrl] =
         {.name = "Flow control",
