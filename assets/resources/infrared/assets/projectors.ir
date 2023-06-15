@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 2nd May, 2023
-# Last Checked 17th May, 2023
+# Last Updated 15th Jun, 2023
+# Last Checked 15th Jun, 2023
 #
 # ON
 name: Power
@@ -910,3 +910,51 @@ type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 00 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 04 B1 00 00
+command: 58 A7 00 00
+# 
+name: Mute
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 9107 4376 681 1573 681 472 655 472 654 474 652 475 652 476 651 476 652 476 651 476 651 1604 651 1604 651 1604 651 1603 652 1604 651 1604 651 1604 651 1604 650 476 651 477 650 477 650 476 651 477 651 1604 650 476 651 477 650 1604 651 1604 650 1604 651 1604 650 1604 651 477 650 1604 650 39498 9079 2178 651
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 8B CA 00 00
+command: 12 ED 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 8B CA 00 00
+command: 44 BB 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 8B CA 00 00
+command: 46 B9 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 8B CA 00 00
+command: 11 EE 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 81 03 00 00
+command: F0 0F 00 00
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 40 00 00 00
