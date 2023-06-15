@@ -9,10 +9,10 @@
 
 typedef enum {
     HidSvcGattCharacteristicProtocolMode = 0,
-    HidSvcGattCharacteristicLed,
     HidSvcGattCharacteristicReportMap,
     HidSvcGattCharacteristicInfo,
     HidSvcGattCharacteristicCtrlPoint,
+    HidSvcGattCharacteristicLed,
     HidSvcGattCharacteristicCount,
 } HidSvcGattCharacteristicId;
 
@@ -81,21 +81,6 @@ static const FlipperGattCharacteristicParams hid_svc_chars[HidSvcGattCharacteris
          .security_permissions = ATTR_PERMISSION_NONE,
          .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE,
          .is_variable = CHAR_VALUE_LEN_CONSTANT},
-    [HidSvcGattCharacteristicLed] =
-        {
-            .name =
-                "HID LED State", // LED Characteristic and descriptor for BadBT to get numlock state for altchars
-            .data_prop_type = FlipperGattCharacteristicDataFixed,
-            .data.fixed.length = 1,
-            .uuid.Char_UUID_16 = REPORT_CHAR_UUID,
-            .uuid_type = UUID_TYPE_16,
-            .char_properties = CHAR_PROP_READ | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE,
-            .security_permissions = ATTR_PERMISSION_NONE,
-            .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE |
-                             GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP,
-            .is_variable = CHAR_VALUE_LEN_CONSTANT,
-            .descriptor_params = &hid_svc_char_descr_led,
-        },
     [HidSvcGattCharacteristicReportMap] =
         {.name = "Report Map",
          .data_prop_type = FlipperGattCharacteristicDataCallback,
@@ -128,6 +113,21 @@ static const FlipperGattCharacteristicParams hid_svc_chars[HidSvcGattCharacteris
          .security_permissions = ATTR_PERMISSION_NONE,
          .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE,
          .is_variable = CHAR_VALUE_LEN_CONSTANT},
+    [HidSvcGattCharacteristicLed] =
+        {
+            .name =
+                "HID LED State", // LED Characteristic and descriptor for BadBT to get numlock state for altchars
+            .data_prop_type = FlipperGattCharacteristicDataFixed,
+            .data.fixed.length = 1,
+            .uuid.Char_UUID_16 = REPORT_CHAR_UUID,
+            .uuid_type = UUID_TYPE_16,
+            .char_properties = CHAR_PROP_READ | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE,
+            .security_permissions = ATTR_PERMISSION_NONE,
+            .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE |
+                             GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP,
+            .is_variable = CHAR_VALUE_LEN_CONSTANT,
+            .descriptor_params = &hid_svc_char_descr_led,
+        },
 };
 
 static const FlipperGattCharacteristicDescriptorParams hid_svc_char_descr_template = {
@@ -283,7 +283,7 @@ void hid_svc_start() {
     }
 
     // Setup remaining characteristics
-    for(size_t i = HidSvcGattCharacteristicLed; i < HidSvcGattCharacteristicCount; i++) {
+    for(size_t i = HidSvcGattCharacteristicReportMap; i < HidSvcGattCharacteristicCount; i++) {
         flipper_gatt_characteristic_init(
             hid_svc->svc_handle, &hid_svc_chars[i], &hid_svc->chars[i]);
     }
