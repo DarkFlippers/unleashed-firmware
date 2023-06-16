@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 15th Jun, 2023
-# Last Checked 15th Jun, 2023
+# Last Updated 16th Jun, 2023
+# Last Checked 16th Jun, 2023
 #
 name: Power
 type: raw
@@ -1767,3 +1767,15 @@ type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 19 00 00 00
+# 
+name: Timer
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 0C 00 00 00
+# 
+name: Mode
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 07 00 00 00
