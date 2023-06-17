@@ -6,15 +6,15 @@
 
 ### Welcome to the Flipper Zero Unleashed Firmware repo! 
 
-**This firmware is a fork from** [flipperdevices/flipperzero-firmware](https://github.com/flipperdevices/flipperzero-firmware)
+#### **This firmware is a fork from** [flipperdevices/flipperzero-firmware](https://github.com/flipperdevices/flipperzero-firmware)
 
 <br>
 
-Most stable custom firmware focused on new features and improvements of original firmware components, with almost no UI changes
+### Most stable custom firmware focused on new features and improvements of original firmware components, with almost no UI changes
 
 <br>
 
-### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also, this software is made without any support from Flipper Devices and is in no way related to the official devs. 
+##### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also, this software is made without any support from Flipper Devices and is in no way related to the official devs. 
 
 <br>
 Our Discord Community:
@@ -79,7 +79,7 @@ Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported man
 
 Encoders or sending made by @xMasterX:
 - Nero Radio 57bit (+ 56bit encoder improvements)
-- CAME 12bit/24bit encoder fixes (already merged in OFW)
+- CAME 12bit/24bit encoder fixes (Fixes now merged in OFW)
 - Keeloq: HCS101
 - Keeloq: AN-Motors
 - Keeloq: JCM Tech
@@ -97,7 +97,7 @@ Encoders or sending made by @xMasterX:
 Encoders or sending made by @Eng1n33r(first implementation in Q2 2022) & @xMasterX (current version):
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Nice Flor S -> How to create new remote - [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
-- FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: Nano#8998)] 
+- FAAC SLH (Spa) [External seed calculation required (For info contact me in Discord: @mmx7)] 
 - Keeloq: BFT Mitto -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Star Line
 - Security+ v1 & v2 (encoders was made in OFW)
