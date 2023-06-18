@@ -12,6 +12,8 @@
 #include <assets_icons.h>
 #include <float_tools.h>
 
+// TODO remove furi_hal_subghz
+
 #define TAG "frequency_analyzer"
 
 #define RSSI_MIN -97

@@ -7,6 +7,7 @@
 #include <lib/subghz/subghz_file_encoder_worker.h>
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
+#include <lib/subghz/devices/devices.h>
 
 #define TAG "SubGhz TEST"
 #define KEYSTORE_DIR_NAME EXT_PATH("subghz/assets/keeloq_mfcodes")
@@ -49,12 +50,15 @@ static void subghz_test_init(void) {
     subghz_environment_set_protocol_registry(
         environment_handler, (void*)&subghz_protocol_registry);
 
+    subghz_devices_init();
+
     receiver_handler = subghz_receiver_alloc_init(environment_handler);
     subghz_receiver_set_filter(receiver_handler, SubGhzProtocolFlag_Decodable);
     subghz_receiver_set_rx_callback(receiver_handler, subghz_test_rx_callback, NULL);
 }
 
 static void subghz_test_deinit(void) {
+    subghz_devices_deinit();
     subghz_receiver_free(receiver_handler);
     subghz_environment_free(environment_handler);
 }
@@ -68,7 +72,7 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
 
     if(decoder) {
         file_worker_encoder_handler = subghz_file_encoder_worker_alloc();
-        if(subghz_file_encoder_worker_start(file_worker_encoder_handler, path)) {
+        if(subghz_file_encoder_worker_start(file_worker_encoder_handler, path, NULL)) {
             // the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
 
@@ -108,7 +112,7 @@ static bool subghz_decode_random_test(const char* path) {
     uint32_t test_start = furi_get_tick();
 
     file_worker_encoder_handler = subghz_file_encoder_worker_alloc();
-    if(subghz_file_encoder_worker_start(file_worker_encoder_handler, path)) {
+    if(subghz_file_encoder_worker_start(file_worker_encoder_handler, path, NULL)) {
         // the worker needs a file in order to open and read part of the file
         furi_delay_ms(100);
 

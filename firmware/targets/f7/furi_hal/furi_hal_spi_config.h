@@ -27,12 +27,8 @@ extern FuriHalSpiBus furi_hal_spi_bus_r;
 /** Furi Hal Spi Bus D (Display, SdCard) */
 extern FuriHalSpiBus furi_hal_spi_bus_d;
 
-/** CC1101 on current SPI bus */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz;
 /** CC1101 on `furi_hal_spi_bus_r` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz_int;
-/** CC1101 on external `furi_hal_spi_bus_r` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz_ext;
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz;
 
 /** ST25R3916 on `furi_hal_spi_bus_r` */
 extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_nfc;

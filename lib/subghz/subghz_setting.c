@@ -4,7 +4,7 @@
 
 #include <furi.h>
 #include <m-list.h>
-#include <furi_hal_subghz_configs.h>
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #define TAG "SubGhzSetting"
 
@@ -195,23 +195,23 @@ static void subghz_setting_load_default_region(
     subghz_setting_load_default_preset(
         instance,
         "AM270",
-        (uint8_t*)furi_hal_subghz_preset_ook_270khz_async_regs,
-        furi_hal_subghz_preset_ook_async_patable);
+        (uint8_t*)subghz_device_cc1101_preset_ook_270khz_async_regs,
+        subghz_device_cc1101_preset_ook_async_patable);
     subghz_setting_load_default_preset(
         instance,
         "AM650",
-        (uint8_t*)furi_hal_subghz_preset_ook_650khz_async_regs,
-        furi_hal_subghz_preset_ook_async_patable);
+        (uint8_t*)subghz_device_cc1101_preset_ook_650khz_async_regs,
+        subghz_device_cc1101_preset_ook_async_patable);
     subghz_setting_load_default_preset(
         instance,
         "FM238",
-        (uint8_t*)furi_hal_subghz_preset_2fsk_dev2_38khz_async_regs,
-        furi_hal_subghz_preset_2fsk_async_patable);
+        (uint8_t*)subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs,
+        subghz_device_cc1101_preset_2fsk_async_patable);
     subghz_setting_load_default_preset(
         instance,
         "FM476",
-        (uint8_t*)furi_hal_subghz_preset_2fsk_dev47_6khz_async_regs,
-        furi_hal_subghz_preset_2fsk_async_patable);
+        (uint8_t*)subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs,
+        subghz_device_cc1101_preset_2fsk_async_patable);
 }
 
 // Region check removed
@@ -270,6 +270,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
             }
             while(flipper_format_read_uint32(
                 fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
+                //Todo: add a frequency support check depending on the selected radio device
                 if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
                     FURI_LOG_I(TAG, "Frequency loaded %lu", temp_data32);
                     FrequencyList_push_back(instance->frequencies, temp_data32);

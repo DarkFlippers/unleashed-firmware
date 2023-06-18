@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include <dolphin/dolphin.h>
 
+// TODO move RadioSettings to ExtraSettings
 #include <lib/subghz/protocols/raw.h>
 
 enum SubmenuIndex {
@@ -11,6 +12,7 @@ enum SubmenuIndex {
     SubmenuIndexFrequencyAnalyzer,
     SubmenuIndexReadRAW,
     SubmenuIndexExtSettings,
+    SubmenuIndexRadioSetting,
 };
 
 void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -52,6 +54,12 @@ void subghz_scene_start_on_enter(void* context) {
         SubmenuIndexExtSettings,
         subghz_scene_start_submenu_callback,
         subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Radio Settings2",
+        SubmenuIndexRadioSetting,
+        subghz_scene_start_submenu_callback,
+        subghz);
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         submenu_add_item(
             subghz->submenu, "Test", SubmenuIndexTest, subghz_scene_start_submenu_callback, subghz);
@@ -70,54 +78,48 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
         view_dispatcher_stop(subghz->view_dispatcher);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubmenuIndexExtSettings) {
+        if(event.event == SubmenuIndexReadRAW) {
             scene_manager_set_scene_state(
-                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexExtSettings);
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneExtModuleSettings);
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexReadRAW);
+            subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
+            return true;
+        } else if(event.event == SubmenuIndexRead) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRead);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);
+            return true;
+        } else if(event.event == SubmenuIndexSaved) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexSaved);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
             return true;
         } else if(event.event == SubmenuIndexAddManually) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexAddManually);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetType);
             return true;
-        } else {
-            furi_hal_subghz_enable_ext_power();
-
-            if(!furi_hal_subghz_check_radio()) {
-                furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-                furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-                subghz->last_settings->external_module_enabled = false;
-                furi_string_set(subghz->error_str, "Please connect\nexternal radio");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
-                return true;
-            } else if(event.event == SubmenuIndexReadRAW) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneStart, SubmenuIndexReadRAW);
-                subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
-                return true;
-            } else if(event.event == SubmenuIndexRead) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRead);
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);
-                return true;
-            } else if(event.event == SubmenuIndexSaved) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneStart, SubmenuIndexSaved);
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
-                return true;
-            } else if(event.event == SubmenuIndexFrequencyAnalyzer) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneStart, SubmenuIndexFrequencyAnalyzer);
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
-                dolphin_deed(DolphinDeedSubGhzFrequencyAnalyzer);
-                return true;
-            } else if(event.event == SubmenuIndexTest) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneStart, SubmenuIndexTest);
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTest);
-                return true;
-            }
+        } else if(event.event == SubmenuIndexFrequencyAnalyzer) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexFrequencyAnalyzer);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
+            dolphin_deed(DolphinDeedSubGhzFrequencyAnalyzer);
+            return true;
+        } else if(event.event == SubmenuIndexTest) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexTest);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTest);
+            return true;
+        } else if(event.event == SubmenuIndexExtSettings) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexExtSettings);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneExtModuleSettings);
+            return true;
+        } else if(event.event == SubmenuIndexRadioSetting) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRadioSetting);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneRadioSettings);
+            return true;
         }
     }
     return false;
