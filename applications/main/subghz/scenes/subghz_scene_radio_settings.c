@@ -132,7 +132,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     // variable_item_set_current_value_text(item, radio_modules_variables_text[value_index]);
 
     // item = variable_item_list_add(
-    //     subghz->variable_item_list,
+    //     variable_item_list,
     //     "Ext Radio 5v",
     //     EXT_MOD_POWER_COUNT,
     //     subghz_scene_receiver_config_set_ext_mod_power,
@@ -142,7 +142,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     // variable_item_set_current_value_text(item, ext_mod_power_text[value_index]);
 
     item = variable_item_list_add(
-        subghz->variable_item_list,
+        variable_item_list,
         "Time in names",
         TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
@@ -153,7 +153,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         item = variable_item_list_add(
-            subghz->variable_item_list,
+            variable_item_list,
             "Counter incr.",
             DEBUG_COUNTER_COUNT,
             subghz_scene_receiver_config_set_debug_counter,
@@ -182,7 +182,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         }
     } else {
         item = variable_item_list_add(
-            subghz->variable_item_list,
+            variable_item_list,
             "Counter incr.",
             3,
             subghz_scene_receiver_config_set_debug_counter,
@@ -209,7 +209,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         item = variable_item_list_add(
-            subghz->variable_item_list,
+            variable_item_list,
             "Debug Pin",
             DEBUG_P_COUNT,
             subghz_scene_receiver_config_set_debug_pin,
