@@ -24,16 +24,15 @@ SubGhzTxRx* subghz_txrx_alloc() {
     instance->fff_data = flipper_format_string_alloc();
 
     instance->environment = subghz_environment_alloc();
-    instance->is_database_loaded = subghz_environment_load_keystore(
-        instance->environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
-    subghz_environment_load_keystore(
-        instance->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
+    instance->is_database_loaded =
+        subghz_environment_load_keystore(instance->environment, SUBGHZ_KEYSTORE_DIR_NAME);
+    subghz_environment_load_keystore(instance->environment, SUBGHZ_KEYSTORE_DIR_USER_NAME);
     subghz_environment_set_came_atomo_rainbow_table_file_name(
-        instance->environment, EXT_PATH("subghz/assets/came_atomo"));
+        instance->environment, SUBGHZ_CAME_ATOMO_DIR_NAME);
     subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
-        instance->environment, EXT_PATH("subghz/assets/alutech_at_4n"));
+        instance->environment, SUBGHZ_ALUTECH_AT_4N_DIR_NAME);
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-        instance->environment, EXT_PATH("subghz/assets/nice_flor_s"));
+        instance->environment, SUBGHZ_NICE_FLOR_S_DIR_NAME);
     subghz_environment_set_protocol_registry(
         instance->environment, (void*)&subghz_protocol_registry);
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
@@ -56,6 +55,7 @@ void subghz_txrx_free(SubGhzTxRx* instance) {
     flipper_format_free(instance->fff_data);
     furi_string_free(instance->preset->name);
     subghz_setting_free(instance->setting);
+
     free(instance->preset);
     free(instance);
 }
