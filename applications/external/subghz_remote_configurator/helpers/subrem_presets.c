@@ -85,6 +85,7 @@ SubRemLoadSubState subrem_sub_preset_load(
             FURI_LOG_W(TAG, "Cannot read frequency. Set default frequency");
             sub_preset->freq_preset.frequency = subghz_setting_get_default_frequency(setting);
         } else if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
+            // TODO
             FURI_LOG_E(TAG, "This frequency can only be used for RX");
             break;
         }
@@ -124,7 +125,9 @@ SubRemLoadSubState subrem_sub_preset_load(
         if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
             //if RAW
             subghz_protocol_raw_gen_fff_data(
-                fff_data, furi_string_get_cstr(sub_preset->file_path));
+                fff_data,
+                furi_string_get_cstr(sub_preset->file_path),
+                subghz_txrx_radio_device_get_name(txrx));
         } else {
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_data_file),
