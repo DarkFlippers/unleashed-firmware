@@ -62,10 +62,10 @@ SubGhzTxRx* subghz_txrx_alloc() {
         instance->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
     subghz_worker_set_context(instance->worker, instance->receiver);
 
-    //set default device External
+    //set default device Internal
     subghz_devices_init();
     instance->radio_device_type =
-        subghz_txrx_radio_device_set(instance, SubGhzRadioDeviceTypeExternalCC1101);
+        subghz_txrx_radio_device_set(instance, SubGhzRadioDeviceTypeInternal);
 
     return instance;
 }
