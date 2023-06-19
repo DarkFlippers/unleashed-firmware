@@ -85,6 +85,8 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_flush_rx(&furi_hal_spi_bus_handle_subghz);
     cc1101_flush_tx(&furi_hal_spi_bus_handle_subghz);
+
+    // TODO probably can be used device.load_preset(FuriHalSubGhzPresetCustom, ...) for external cc1101
     cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW);
     cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_MDMCFG3,
                      0b01111111); // symbol rate

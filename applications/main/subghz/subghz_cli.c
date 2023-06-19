@@ -22,6 +22,11 @@
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
+// Tx/Rx Carrier | only internal module
+// Tx/Rx command | both
+// Rx RAW        | only internal module
+// Chat          | both
+
 static void subghz_cli_radio_device_power_on() {
     uint8_t attempts = 0;
     while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
@@ -57,7 +62,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, FuriString* args, void* context) {
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
-    // TODO external device
+
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
@@ -854,8 +859,6 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 
 static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
     FuriString* cmd = furi_string_alloc();
-
-    // TODO external
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
