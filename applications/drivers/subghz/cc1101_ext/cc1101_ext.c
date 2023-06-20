@@ -1,7 +1,6 @@
 #include "cc1101_ext.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
-#include <furi_hal_region.h>
 #include <furi_hal_version.h>
 #include <furi_hal_rtc.h>
 #include <furi_hal_spi.h>
@@ -19,6 +18,7 @@
 #define TAG "SubGhz_Device_CC1101_Ext"
 
 #define SUBGHZ_DEVICE_CC1101_EXT_TX_GPIO &gpio_ext_pb2
+#define SUBGHZ_DEVICE_CC1101_EXT_DANGEROUS_RANGE false
 
 /* DMA Channels definition */
 #define SUBGHZ_DEVICE_CC1101_EXT_DMA DMA2
@@ -428,9 +428,26 @@ uint8_t subghz_device_cc1101_ext_get_lqi() {
 }
 
 bool subghz_device_cc1101_ext_is_frequency_valid(uint32_t value) {
-    if(!(value >= 299999755 && value <= 348000335) &&
-       !(value >= 386999938 && value <= 464000000) &&
+    if(!(value >= 281000000 && value <= 361000000) &&
+       !(value >= 378000000 && value <= 481000000) &&
+       !(value >= 749000000 && value <= 962000000)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool subghz_device_cc1101_ext_is_tx_allowed(uint32_t value) {
+    if(!(SUBGHZ_DEVICE_CC1101_EXT_DANGEROUS_RANGE) &&
+       !(value >= 299999755 && value <= 350000335) && // was increased from 348 to 350
+       !(value >= 386999938 && value <= 467750000) && // was increased from 464 to 467.75
        !(value >= 778999847 && value <= 928000000)) {
+        FURI_LOG_I(TAG, "Frequency blocked - outside default range");
+        return false;
+    } else if(
+        (SUBGHZ_DEVICE_CC1101_EXT_DANGEROUS_RANGE) &&
+        !subghz_device_cc1101_ext_is_frequency_valid(value)) {
+        FURI_LOG_I(TAG, "Frequency blocked - outside dangerous range");
         return false;
     }
 
@@ -438,10 +455,10 @@ bool subghz_device_cc1101_ext_is_frequency_valid(uint32_t value) {
 }
 
 uint32_t subghz_device_cc1101_ext_set_frequency(uint32_t value) {
-    if(furi_hal_region_is_frequency_allowed(value)) {
+    if(subghz_device_cc1101_ext_is_tx_allowed(value)) {
         subghz_device_cc1101_ext->regulation = SubGhzDeviceCC1101ExtRegulationTxRx;
     } else {
-        subghz_device_cc1101_ext->regulation = SubGhzDeviceCC1101ExtRegulationOnlyRx;
+        subghz_device_cc1101_ext->regulation = SubGhzDeviceCC1101ExtRegulationTxRx;
     }
 
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
