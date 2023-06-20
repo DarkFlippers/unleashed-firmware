@@ -10,7 +10,8 @@
 
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
-#include <applications/main/subghz/subghz_i.h>
+
+#include "helpers/radio_device_loader.h"
 
 #include "flipper_format_stream.h"
 #include "flipper_format_stream_i.h"
@@ -58,6 +59,7 @@ typedef struct {
     DisplayMeta* meta;
 
     FuriString* file_path; // path to the playlist file
+    const SubGhzDevice* radio_device;
 
     bool ctl_request_exit; // can be set to true if the worker should exit
     bool ctl_pause; // can be set to true if the worker should pause
@@ -135,7 +137,9 @@ static int playlist_worker_process(
         FURI_LOG_W(TAG, "  (TX) Missing Frequency, defaulting to 433.92MHz");
         frequency = 433920000;
     }
-    if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+    if(!subghz_devices_is_frequency_valid(worker->radio_device, frequency)) {
+        FURI_LOG_E(
+            TAG, "  (TX) The SubGhz device used does not support the frequency %lu", frequency);
         return -2;
     }
 
@@ -152,12 +156,13 @@ static int playlist_worker_process(
     }
 
     if(!furi_string_cmp_str(protocol, "RAW")) {
-        subghz_protocol_raw_gen_fff_data(fff_data, path);
+        subghz_protocol_raw_gen_fff_data(
+            fff_data, path, subghz_devices_get_name(worker->radio_device));
     } else {
         stream_copy_full(
             flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
     }
-    flipper_format_free(fff_file);
+    flipper_format_file_close(fff_file);
 
     // (try to) send file
     SubGhzEnvironment* environment = subghz_environment_alloc();
@@ -167,16 +172,23 @@ static int playlist_worker_process(
 
     subghz_transmitter_deserialize(transmitter, fff_data);
 
-    furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(str_to_preset(preset));
+    subghz_devices_load_preset(worker->radio_device, str_to_preset(preset), NULL);
+    // there is no check for a custom preset
+    frequency = subghz_devices_set_frequency(worker->radio_device, frequency);
 
-    frequency = furi_hal_subghz_set_frequency_and_path(frequency);
-
+    // Set device to TX and check frequency is alowed to TX
+    if(!subghz_devices_set_tx(worker->radio_device)) {
+        FURI_LOG_E(
+            TAG,
+            "  (TX) The SubGhz device used does not support the frequency for transmitеing, %lu",
+            frequency);
+        return -5;
+    }
     FURI_LOG_D(TAG, "  (TX) Start sending ...");
     int status = 0;
 
-    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
-    while(!furi_hal_subghz_is_async_tx_complete()) {
+    subghz_devices_start_async_tx(worker->radio_device, subghz_transmitter_yield, transmitter);
+    while(!subghz_devices_is_async_complete_tx(worker->radio_device)) {
         if(worker->ctl_request_exit) {
             FURI_LOG_D(TAG, "    (TX) Requested to exit. Cancelling sending...");
             status = 2;
@@ -204,8 +216,8 @@ static int playlist_worker_process(
 
     FURI_LOG_D(TAG, "  (TX) Done sending.");
 
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_sleep();
+    subghz_devices_stop_async_tx(worker->radio_device);
+    subghz_devices_idle(worker->radio_device);
 
     subghz_transmitter_free(transmitter);
 
@@ -287,6 +299,7 @@ static bool playlist_worker_play_playlist_once(
 
             // if there was an error, fff_file is not already freed
             if(status < 0) {
+                flipper_format_file_close(fff_file);
                 flipper_format_free(fff_file);
             }
 
@@ -437,6 +450,14 @@ PlaylistWorker* playlist_worker_alloc(DisplayMeta* meta) {
 
     instance->file_path = furi_string_alloc();
 
+    subghz_devices_init();
+
+    instance->radio_device =
+        radio_device_loader_set(instance->radio_device, SubGhzRadioDeviceTypeExternalCC1101);
+
+    subghz_devices_reset(instance->radio_device);
+    subghz_devices_idle(instance->radio_device);
+
     return instance;
 }
 
@@ -444,6 +465,12 @@ void playlist_worker_free(PlaylistWorker* instance) {
     furi_assert(instance);
     furi_thread_free(instance->thread);
     furi_string_free(instance->file_path);
+
+    subghz_devices_sleep(instance->radio_device);
+    radio_device_loader_end(instance->radio_device);
+
+    subghz_devices_deinit();
+
     free(instance);
 }
 
@@ -711,15 +738,6 @@ int32_t playlist_app(void* p) {
     Playlist* app = playlist_alloc(meta);
     meta->view_port = app->view_port;
 
-    // Enable power for External CC1101 if it is connected
-    furi_hal_subghz_enable_ext_power();
-    // Auto switch to internal radio if external radio is not available
-    furi_delay_ms(15);
-    if(!furi_hal_subghz_check_radio()) {
-        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-    }
-
     furi_hal_power_suppress_charge_enter();
 
     // select playlist file
@@ -808,10 +826,6 @@ int32_t playlist_app(void* p) {
 exit_cleanup:
 
     furi_hal_power_suppress_charge_exit();
-    // Disable power for External CC1101 if it was enabled and module is connected
-    furi_hal_subghz_disable_ext_power();
-    // Reinit SPI handles for internal radio / nfc
-    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     if(app->worker != NULL) {
         if(playlist_worker_running(app->worker)) {
