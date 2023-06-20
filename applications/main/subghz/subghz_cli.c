@@ -227,8 +227,7 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
         subghz_devices_stop_async_tx(device);
 
     } else {
-        printf("Transmission on this frequency is restricted in your region\r\n");
-        // TODO region?
+        printf("Frequency is outside of default range. Check docs.\r\n");
     }
 
     subghz_devices_sleep(device);
