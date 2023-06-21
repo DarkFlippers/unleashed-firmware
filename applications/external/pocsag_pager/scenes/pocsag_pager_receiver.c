@@ -112,6 +112,8 @@ void pocsag_pager_scene_receiver_on_enter(void* context) {
     }
 
     pcsg_view_receiver_set_lock(app->pcsg_receiver, app->lock);
+    pcsg_view_receiver_set_ext_module_state(
+        app->pcsg_receiver, radio_device_loader_is_external(app->txrx->radio_device));
 
     //Load history to receiver
     pcsg_view_receiver_exit(app->pcsg_receiver);
@@ -136,6 +138,7 @@ void pocsag_pager_scene_receiver_on_enter(void* context) {
     };
     if((app->txrx->txrx_state == PCSGTxRxStateIDLE) ||
        (app->txrx->txrx_state == PCSGTxRxStateSleep)) {
+        // Start RX
         pcsg_begin(
             app,
             subghz_setting_get_preset_data_by_name(
@@ -157,7 +160,7 @@ bool pocsag_pager_scene_receiver_on_event(void* context, SceneManagerEvent event
             // Stop CC1101 Rx
             if(app->txrx->txrx_state == PCSGTxRxStateRx) {
                 pcsg_rx_end(app);
-                pcsg_sleep(app);
+                pcsg_idle(app);
             };
             app->txrx->hopper_state = PCSGHopperStateOFF;
             app->txrx->idx_menu_chosen = 0;
@@ -196,7 +199,7 @@ bool pocsag_pager_scene_receiver_on_event(void* context, SceneManagerEvent event
             pocsag_pager_scene_receiver_update_statusbar(app);
         }
         // Get current RSSI
-        float rssi = furi_hal_subghz_get_rssi();
+        float rssi = subghz_devices_get_rssi(app->txrx->radio_device);
         pcsg_receiver_rssi(app->pcsg_receiver, rssi);
 
         if(app->txrx->txrx_state == PCSGTxRxStateRx) {
