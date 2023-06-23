@@ -284,7 +284,7 @@ HidNumpad* hid_numpad_alloc(Hid* bt_hid) {
     hid_numpad->hid = bt_hid;
     view_set_context(hid_numpad->view, hid_numpad);
     view_allocate_model(hid_numpad->view, ViewModelTypeLocking, sizeof(HidNumpadModel));
-    view_set_orientation(hid_numpad->view, ViewOrientationVerticalFlip);
+    view_set_orientation(hid_numpad->view, ViewOrientationVertical);
     view_set_draw_callback(hid_numpad->view, hid_numpad_draw_callback);
     view_set_input_callback(hid_numpad->view, hid_numpad_input_callback);
 
