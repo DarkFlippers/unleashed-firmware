@@ -353,12 +353,18 @@ class AppBuildset:
 
 class ApplicationsCGenerator:
     APP_TYPE_MAP = {
-        FlipperAppType.SERVICE: ("FlipperApplication", "FLIPPER_SERVICES"),
-        FlipperAppType.SYSTEM: ("FlipperApplication", "FLIPPER_SYSTEM_APPS"),
-        FlipperAppType.APP: ("FlipperApplication", "FLIPPER_APPS"),
-        FlipperAppType.DEBUG: ("FlipperApplication", "FLIPPER_DEBUG_APPS"),
-        FlipperAppType.SETTINGS: ("FlipperApplication", "FLIPPER_SETTINGS_APPS"),
-        FlipperAppType.STARTUP: ("FlipperOnStartHook", "FLIPPER_ON_SYSTEM_START"),
+        FlipperAppType.SERVICE: ("FlipperInternalApplication", "FLIPPER_SERVICES"),
+        FlipperAppType.SYSTEM: ("FlipperInternalApplication", "FLIPPER_SYSTEM_APPS"),
+        FlipperAppType.APP: ("FlipperInternalApplication", "FLIPPER_APPS"),
+        FlipperAppType.DEBUG: ("FlipperInternalApplication", "FLIPPER_DEBUG_APPS"),
+        FlipperAppType.SETTINGS: (
+            "FlipperInternalApplication",
+            "FLIPPER_SETTINGS_APPS",
+        ),
+        FlipperAppType.STARTUP: (
+            "FlipperInternalOnStartHook",
+            "FLIPPER_ON_SYSTEM_START",
+        ),
     }
 
     def __init__(self, buildset: AppBuildset, autorun_app: str = ""):
@@ -379,7 +385,7 @@ class ApplicationsCGenerator:
      .appid = "{app.appid}", 
      .stack_size = {app.stack_size},
      .icon = {f"&{app.icon}" if app.icon else "NULL"},
-     .flags = {'|'.join(f"FlipperApplicationFlag{flag}" for flag in app.flags)} }}"""
+     .flags = {'|'.join(f"FlipperInternalApplicationFlag{flag}" for flag in app.flags)} }}"""
 
     def generate(self):
         contents = [
@@ -408,7 +414,7 @@ class ApplicationsCGenerator:
             contents.extend(
                 [
                     self.get_app_ep_forward(archive_app[0]),
-                    f"const FlipperApplication FLIPPER_ARCHIVE = {self.get_app_descr(archive_app[0])};",
+                    f"const FlipperInternalApplication FLIPPER_ARCHIVE = {self.get_app_descr(archive_app[0])};",
                 ]
             )
 

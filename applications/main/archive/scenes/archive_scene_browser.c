@@ -11,17 +11,28 @@
 #define SCENE_STATE_DEFAULT (0)
 #define SCENE_STATE_NEED_REFRESH (1)
 
-static const char* flipper_app_name[] = {
-    [ArchiveFileTypeIButton] = "iButton",
-    [ArchiveFileTypeNFC] = "NFC",
-    [ArchiveFileTypeSubGhz] = "Sub-GHz",
-    [ArchiveFileTypeLFRFID] = "125 kHz RFID",
-    [ArchiveFileTypeInfrared] = "Infrared",
-    [ArchiveFileTypeBadUsb] = "Bad USB",
-    [ArchiveFileTypeU2f] = "U2F",
-    [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
-    [ArchiveFileTypeApplication] = "Applications",
-};
+const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {
+    switch(file_type) {
+    case ArchiveFileTypeIButton:
+        return "iButton";
+    case ArchiveFileTypeNFC:
+        return "NFC";
+    case ArchiveFileTypeSubGhz:
+        return "Sub-GHz";
+    case ArchiveFileTypeLFRFID:
+        return "125 kHz RFID";
+    case ArchiveFileTypeInfrared:
+        return "Infrared";
+    case ArchiveFileTypeBadUsb:
+        return "Bad USB";
+    case ArchiveFileTypeU2f:
+        return "U2F";
+    case ArchiveFileTypeUpdateManifest:
+        return "UpdaterApp";
+    default:
+        return NULL;
+    }
+}
 
 static void archive_loader_callback(const void* message, void* context) {
     furi_assert(message);
@@ -39,20 +50,20 @@ static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selec
     UNUSED(browser);
     Loader* loader = furi_record_open(RECORD_LOADER);
 
-    LoaderStatus status;
-    if(selected->is_app) {
-        char* param = strrchr(furi_string_get_cstr(selected->path), '/');
-        if(param != NULL) {
-            param++;
-        }
-        status = loader_start(loader, flipper_app_name[selected->type], param);
-    } else {
-        status = loader_start(
-            loader, flipper_app_name[selected->type], furi_string_get_cstr(selected->path));
-    }
+    const char* app_name = archive_get_flipper_app_name(selected->type);
 
-    if(status != LoaderStatusOk) {
-        FURI_LOG_E(TAG, "loader_start failed: %d", status);
+    if(app_name) {
+        if(selected->is_app) {
+            char* param = strrchr(furi_string_get_cstr(selected->path), '/');
+            if(param != NULL) {
+                param++;
+            }
+            loader_start_with_gui_error(loader, app_name, param);
+        } else {
+            loader_start_with_gui_error(loader, app_name, furi_string_get_cstr(selected->path));
+        }
+    } else {
+        loader_start_with_gui_error(loader, furi_string_get_cstr(selected->path), NULL);
     }
 
     furi_record_close(RECORD_LOADER);

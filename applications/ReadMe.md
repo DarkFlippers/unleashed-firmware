@@ -26,7 +26,6 @@ Applications for main Flipper menu.
 
 - `archive`             - Archive and file manager 
 - `bad_usb`             - Bad USB application
-- `fap_loader`          - External applications loader
 - `gpio`                - GPIO application: includes USART bridge and GPIO control
 - `ibutton`             - iButton application, onewire keys and more
 - `infrared`            - Infrared application, controls your IR devices
