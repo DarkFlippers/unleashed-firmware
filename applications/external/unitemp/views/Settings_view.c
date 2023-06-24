@@ -26,6 +26,7 @@ static VariableItemList* variable_item_list;
 static const char states[2][9] = {"Auto", "Infinity"};
 static const char temp_units[UT_TEMP_COUNT][3] = {"*C", "*F"};
 static const char pressure_units[UT_PRESSURE_COUNT][6] = {"mm Hg", "in Hg", "kPa", "hPA"};
+static const char heat_index_bool[2][4] = {"OFF", "ON"};
 
 //Элемент списка - бесконечная подсветка
 VariableItem* infinity_backlight_item;
@@ -33,6 +34,8 @@ VariableItem* infinity_backlight_item;
 VariableItem* temperature_unit_item;
 //Единица измерения давления
 VariableItem* pressure_unit_item;
+
+VariableItem* heat_index_item;
 #define VIEW_ID UnitempViewSettings
 
 /**
@@ -57,6 +60,7 @@ static uint32_t _exit_callback(void* context) {
         (bool)variable_item_get_current_value_index(infinity_backlight_item);
     app->settings.temp_unit = variable_item_get_current_value_index(temperature_unit_item);
     app->settings.pressure_unit = variable_item_get_current_value_index(pressure_unit_item);
+    app->settings.heat_index = variable_item_get_current_value_index(heat_index_item);
     unitemp_saveSettings();
     unitemp_loadSettings();
 
@@ -90,6 +94,11 @@ static void _setting_change_callback(VariableItem* item) {
             pressure_unit_item,
             pressure_units[variable_item_get_current_value_index(pressure_unit_item)]);
     }
+    if(item == heat_index_item) {
+        variable_item_set_current_value_text(
+            heat_index_item,
+            heat_index_bool[variable_item_get_current_value_index(heat_index_item)]);
+    }
 }
 
 /**
@@ -106,6 +115,8 @@ void unitemp_Settings_alloc(void) {
         variable_item_list_add(variable_item_list, "Temp. unit", 2, _setting_change_callback, app);
     pressure_unit_item = variable_item_list_add(
         variable_item_list, "Press. unit", UT_PRESSURE_COUNT, _setting_change_callback, app);
+    heat_index_item = variable_item_list_add(
+        variable_item_list, "Calc. heat index", 2, _setting_change_callback, app);
 
     //Добавление колбека на нажатие средней кнопки
     variable_item_list_set_enter_callback(variable_item_list, _enter_callback, app);
@@ -138,6 +149,10 @@ void unitemp_Settings_switch(void) {
     variable_item_set_current_value_text(
         pressure_unit_item,
         pressure_units[variable_item_get_current_value_index(pressure_unit_item)]);
+
+    variable_item_set_current_value_index(heat_index_item, (uint8_t)app->settings.heat_index);
+    variable_item_set_current_value_text(
+        heat_index_item, heat_index_bool[variable_item_get_current_value_index(heat_index_item)]);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, VIEW_ID);
 }

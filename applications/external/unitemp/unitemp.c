@@ -28,8 +28,31 @@ Unitemp* app;
 
 void uintemp_celsiumToFarengate(Sensor* sensor) {
     sensor->temp = sensor->temp * (9.0 / 5.0) + 32;
+    sensor->heat_index = sensor->heat_index * (9.0 / 5.0) + 32;
 }
 
+static float heat_index_consts[9] = {
+    -42.379f,
+    2.04901523f,
+    10.14333127f,
+    -0.22475541f,
+    -0.00683783f,
+    -0.05481717f,
+    0.00122874f,
+    0.00085282f,
+    -0.00000199f};
+void unitemp_calculate_heat_index(Sensor* sensor) {
+    // temp should be in Celsius, heat index will be in Celsius
+    float temp = sensor->temp * (9.0 / 5.0) + 32.0f;
+    float hum = sensor->hum;
+    sensor->heat_index =
+        (heat_index_consts[0] + heat_index_consts[1] * temp + heat_index_consts[2] * hum +
+         heat_index_consts[3] * temp * hum + heat_index_consts[4] * temp * temp +
+         heat_index_consts[5] * hum * hum + heat_index_consts[6] * temp * temp * hum +
+         heat_index_consts[7] * temp * hum * hum + heat_index_consts[8] * temp * temp * hum * hum -
+         32.0f) *
+        (5.0 / 9.0);
+}
 void unitemp_pascalToMmHg(Sensor* sensor) {
     sensor->pressure = sensor->pressure * 0.007500638;
 }
@@ -71,6 +94,7 @@ bool unitemp_saveSettings(void) {
         app->file_stream, "INFINITY_BACKLIGHT %d\n", app->settings.infinityBacklight);
     stream_write_format(app->file_stream, "TEMP_UNIT %d\n", app->settings.temp_unit);
     stream_write_format(app->file_stream, "PRESSURE_UNIT %d\n", app->settings.pressure_unit);
+    stream_write_format(app->file_stream, "HEAT_INDEX %d\n", app->settings.heat_index);
 
     //Закрытие потока и освобождение памяти
     file_stream_close(app->file_stream);
@@ -166,6 +190,11 @@ bool unitemp_loadSettings(void) {
             int p = 0;
             sscanf(((char*)(file_buf + line_end)), "\nPRESSURE_UNIT %d", &p);
             app->settings.pressure_unit = p;
+        } else if(!strcmp(buff, "HEAT_INDEX")) {
+            //Чтение значения параметра
+            int p = 0;
+            sscanf(((char*)(file_buf + line_end)), "\nHEAT_INDEX %d", &p);
+            app->settings.heat_index = p;
         } else {
             FURI_LOG_W(APP_NAME, "Unknown settings parameter: %s", buff);
         }
@@ -203,6 +232,7 @@ static bool unitemp_alloc(void) {
     app->settings.infinityBacklight = true; //Подсветка горит всегда
     app->settings.temp_unit = UT_TEMP_CELSIUS; //Единица измерения температуры - градусы Цельсия
     app->settings.pressure_unit = UT_PRESSURE_MM_HG; //Единица измерения давления - мм рт. ст.
+    app->settings.heat_index = false;
 
     app->gui = furi_record_open(RECORD_GUI);
     //Диспетчер окон

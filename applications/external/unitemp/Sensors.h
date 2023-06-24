@@ -119,6 +119,7 @@ typedef struct Sensor {
     char* name;
     //Температура
     float temp;
+    float heat_index;
     //Относительная влажность
     float hum;
     //Атмосферное давление

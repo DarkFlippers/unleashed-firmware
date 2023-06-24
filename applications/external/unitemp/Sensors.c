@@ -624,11 +624,16 @@ UnitempStatus unitemp_sensor_updateData(Sensor* sensor) {
         UNITEMP_DEBUG("Sensor %s update status %d", sensor->name, sensor->status);
     }
 
-    if(app->settings.temp_unit == UT_TEMP_FAHRENHEIT && sensor->status == UT_SENSORSTATUS_OK) {
-        uintemp_celsiumToFarengate(sensor);
-    }
-
     if(sensor->status == UT_SENSORSTATUS_OK) {
+        if(app->settings.heat_index &&
+           ((sensor->type->datatype & (UT_TEMPERATURE | UT_HUMIDITY)) ==
+            (UT_TEMPERATURE | UT_HUMIDITY))) {
+            unitemp_calculate_heat_index(sensor);
+        }
+        if(app->settings.temp_unit == UT_TEMP_FAHRENHEIT) {
+            uintemp_celsiumToFarengate(sensor);
+        }
+
         sensor->temp += sensor->temp_offset / 10.f;
         if(app->settings.pressure_unit == UT_PRESSURE_MM_HG) {
             unitemp_pascalToMmHg(sensor);
