@@ -1,4 +1,5 @@
 ## New changes
+* Plugins: UniTemp update merged PRs -> Heat Index Feature (by @ClementGre) + Append carbon dioxide sensor (SCD40) (by @divinebird)
 * Plugins: Fix furi_hal_bus issues in AVR Programmer and Signal Generator (fixes issue #525)
 * Plugins: USB / BLE Remote - Updated UI in keynote vertical and numpad (by @gid9798 | PR #524)
 * Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
