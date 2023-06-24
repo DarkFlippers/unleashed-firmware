@@ -484,8 +484,8 @@ static void _draw_carousel_info(Canvas* canvas) {
                     ->currentI2CAdr >>
                 1);
         canvas_draw_str(canvas, 57, 35, app->buff);
-        canvas_draw_str(canvas, 54, 46, "15 (C0)");
-        canvas_draw_str(canvas, 54, 58, "16 (C1)");
+        canvas_draw_str(canvas, 54, 46, "15 (C1)");
+        canvas_draw_str(canvas, 54, 58, "16 (C0)");
     }
 }
 static void _draw_view_sensorsCarousel(Canvas* canvas) {
