@@ -140,11 +140,11 @@ static void hid_numpad_draw_callback(Canvas* canvas, void* context) {
             canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
         } else {
             canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+            elements_multiline_text_aligned(
+                canvas, 7, 60, AlignLeft, AlignBottom, "Waiting for\nConnection...");
         }
         elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Numpad");
 
-        elements_multiline_text_aligned(
-            canvas, 7, 60, AlignLeft, AlignBottom, "Waiting for\nConnection...");
     } else {
         elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Numpad");
     }
