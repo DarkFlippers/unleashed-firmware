@@ -52,10 +52,10 @@ void totp_type_code_worker_execute_automation(
     while(i < code_buffer_size && (cb_char = code_buffer[i]) != 0) {
         uint8_t char_index = CONVERT_CHAR_TO_DIGIT(cb_char);
         if(char_index > 9) {
-            char_index = cb_char - 0x41 + 10;
+            char_index = cb_char - 'A' + 10;
         }
 
-        if(char_index > 35) break;
+        if(char_index >= sizeof(hid_number_keys)) break;
 
         uint16_t hid_kb_key = hid_number_keys[char_index];
         if(char_index > 9) {
