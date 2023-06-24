@@ -60,7 +60,7 @@ static int32_t avr_isp_worker_rw_thread(void* context) {
     AvrIspWorkerRW* instance = context;
 
     /* start PWM on &gpio_ext_pa4 */
-    if(!furi_hal_bus_is_enabled(FuriHalBusLPTIM2)) {
+    if(!furi_hal_pwm_is_running(FuriHalPwmOutputIdLptim2PA4)) {
         furi_hal_pwm_start(FuriHalPwmOutputIdLptim2PA4, 4000000, 50);
     }
 
@@ -124,7 +124,7 @@ static int32_t avr_isp_worker_rw_thread(void* context) {
     }
     FURI_LOG_D(TAG, "Stop");
 
-    if(furi_hal_bus_is_enabled(FuriHalBusLPTIM2)) {
+    if(furi_hal_pwm_is_running(FuriHalPwmOutputIdLptim2PA4)) {
         furi_hal_pwm_stop(FuriHalPwmOutputIdLptim2PA4);
     }
 
@@ -141,7 +141,7 @@ bool avr_isp_worker_rw_detect_chip(AvrIspWorkerRW* instance) {
 
     /* start PWM on &gpio_ext_pa4 */
     bool was_pwm_enabled = false;
-    if(!furi_hal_bus_is_enabled(FuriHalBusLPTIM2)) {
+    if(!furi_hal_pwm_is_running(FuriHalPwmOutputIdLptim2PA4)) {
         furi_hal_pwm_start(FuriHalPwmOutputIdLptim2PA4, 4000000, 50);
     } else {
         was_pwm_enabled = true;
@@ -209,7 +209,7 @@ bool avr_isp_worker_rw_detect_chip(AvrIspWorkerRW* instance) {
 
     } while(0);
 
-    if(furi_hal_bus_is_enabled(FuriHalBusLPTIM2) && !was_pwm_enabled) {
+    if(furi_hal_pwm_is_running(FuriHalPwmOutputIdLptim2PA4) && !was_pwm_enabled) {
         furi_hal_pwm_stop(FuriHalPwmOutputIdLptim2PA4);
     }
 

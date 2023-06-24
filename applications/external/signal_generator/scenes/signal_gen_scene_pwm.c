@@ -34,7 +34,7 @@ void signal_gen_scene_pwm_on_enter(void* context) {
 
     signal_gen_pwm_set_params(app->pwm_view, 0, DEFAULT_FREQ, DEFAULT_DUTY);
 
-    if(!furi_hal_bus_is_enabled(FuriHalBusTIM1)) {
+    if(!furi_hal_pwm_is_running(pwm_ch_id[0])) {
         furi_hal_pwm_start(pwm_ch_id[0], DEFAULT_FREQ, DEFAULT_DUTY);
     } else {
         furi_hal_pwm_stop(pwm_ch_id[0]);
@@ -53,30 +53,16 @@ bool signal_gen_scene_pwm_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SignalGenPwmEventChannelChange) {
             consumed = true;
             // Stop previous channel PWM
-            if(app->pwm_ch_prev == FuriHalPwmOutputIdTim1PA7) {
-                if(furi_hal_bus_is_enabled(FuriHalBusTIM1)) {
-                    furi_hal_pwm_stop(app->pwm_ch_prev);
-                }
-            } else if(app->pwm_ch_prev == FuriHalPwmOutputIdLptim2PA4) {
-                if(furi_hal_bus_is_enabled(FuriHalBusLPTIM2)) {
-                    furi_hal_pwm_stop(app->pwm_ch_prev);
-                }
+            if(furi_hal_pwm_is_running(app->pwm_ch_prev)) {
+                furi_hal_pwm_stop(app->pwm_ch_prev);
             }
+
             // Start PWM and restart if it was starter already
-            if(app->pwm_ch == FuriHalPwmOutputIdTim1PA7) {
-                if(furi_hal_bus_is_enabled(FuriHalBusTIM1)) {
-                    furi_hal_pwm_stop(app->pwm_ch);
-                    furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
-                } else {
-                    furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
-                }
-            } else if(app->pwm_ch == FuriHalPwmOutputIdLptim2PA4) {
-                if(furi_hal_bus_is_enabled(FuriHalBusLPTIM2)) {
-                    furi_hal_pwm_stop(app->pwm_ch);
-                    furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
-                } else {
-                    furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
-                }
+            if(furi_hal_pwm_is_running(app->pwm_ch)) {
+                furi_hal_pwm_stop(app->pwm_ch);
+                furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
+            } else {
+                furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
             }
         }
     }
@@ -87,13 +73,7 @@ void signal_gen_scene_pwm_on_exit(void* context) {
     SignalGenApp* app = context;
     variable_item_list_reset(app->var_item_list);
 
-    if(app->pwm_ch == FuriHalPwmOutputIdTim1PA7) {
-        if(furi_hal_bus_is_enabled(FuriHalBusTIM1)) {
-            furi_hal_pwm_stop(app->pwm_ch);
-        }
-    } else if(app->pwm_ch == FuriHalPwmOutputIdLptim2PA4) {
-        if(furi_hal_bus_is_enabled(FuriHalBusLPTIM2)) {
-            furi_hal_pwm_stop(app->pwm_ch);
-        }
+    if(furi_hal_pwm_is_running(app->pwm_ch)) {
+        furi_hal_pwm_stop(app->pwm_ch);
     }
 }
