@@ -4,6 +4,7 @@
 
 #include <furi_hal_clock.h>
 #include <furi_hal_pwm.h>
+#include <furi_hal_bus.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
