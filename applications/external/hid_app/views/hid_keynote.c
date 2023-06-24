@@ -111,6 +111,91 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
     elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Back");
 }
 
+static void hid_keynote_draw_vertical_callback(Canvas* canvas, void* context) {
+    furi_assert(context);
+    HidKeynoteModel* model = context;
+
+    // Header
+    canvas_set_font(canvas, FontPrimary);
+    if(model->transport == HidTransportBle) {
+        if(model->connected) {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+        } else {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+        }
+
+        elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Keynote");
+    } else {
+        elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Keynote");
+    }
+
+    canvas_draw_icon(canvas, 2, 18, &I_Pin_back_arrow_10x8);
+    canvas_set_font(canvas, FontSecondary);
+    elements_multiline_text_aligned(canvas, 15, 19, AlignLeft, AlignTop, "Hold to exit");
+
+    const uint8_t x_2 = 23;
+    const uint8_t x_1 = 2;
+    const uint8_t x_3 = 44;
+
+    const uint8_t y_1 = 44;
+    const uint8_t y_2 = 65;
+
+    // Up
+    canvas_draw_icon(canvas, x_2, y_1, &I_Button_18x18);
+    if(model->up_pressed) {
+        elements_slightly_rounded_box(canvas, x_2 + 3, y_1 + 2, 13, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    hid_keynote_draw_arrow(canvas, x_2 + 9, y_1 + 6, CanvasDirectionBottomToTop);
+    canvas_set_color(canvas, ColorBlack);
+
+    // Down
+    canvas_draw_icon(canvas, x_2, y_2, &I_Button_18x18);
+    if(model->down_pressed) {
+        elements_slightly_rounded_box(canvas, x_2 + 3, y_2 + 2, 13, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    hid_keynote_draw_arrow(canvas, x_2 + 9, y_2 + 10, CanvasDirectionTopToBottom);
+    canvas_set_color(canvas, ColorBlack);
+
+    // Left
+    canvas_draw_icon(canvas, x_1, y_2, &I_Button_18x18);
+    if(model->left_pressed) {
+        elements_slightly_rounded_box(canvas, x_1 + 3, y_2 + 2, 13, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    hid_keynote_draw_arrow(canvas, x_1 + 7, y_2 + 8, CanvasDirectionRightToLeft);
+    canvas_set_color(canvas, ColorBlack);
+
+    // Right
+    canvas_draw_icon(canvas, x_3, y_2, &I_Button_18x18);
+    if(model->right_pressed) {
+        elements_slightly_rounded_box(canvas, x_3 + 3, y_2 + 2, 13, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    hid_keynote_draw_arrow(canvas, x_3 + 11, y_2 + 8, CanvasDirectionLeftToRight);
+    canvas_set_color(canvas, ColorBlack);
+
+    // Ok
+    canvas_draw_icon(canvas, 2, 86, &I_Space_60x18);
+    if(model->ok_pressed) {
+        elements_slightly_rounded_box(canvas, 5, 88, 55, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    canvas_draw_icon(canvas, 11, 90, &I_Ok_btn_9x9);
+    elements_multiline_text_aligned(canvas, 26, 98, AlignLeft, AlignBottom, "Space");
+    canvas_set_color(canvas, ColorBlack);
+
+    // Back
+    canvas_draw_icon(canvas, 2, 107, &I_Space_60x18);
+    if(model->back_pressed) {
+        elements_slightly_rounded_box(canvas, 5, 109, 55, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    canvas_draw_icon(canvas, 11, 111, &I_Pin_back_arrow_10x8);
+    elements_multiline_text_aligned(canvas, 26, 119, AlignLeft, AlignBottom, "Back");
+}
+
 static void hid_keynote_process(HidKeynote* hid_keynote, InputEvent* event) {
     with_view_model(
         hid_keynote->view,
@@ -211,4 +296,17 @@ void hid_keynote_set_connected_status(HidKeynote* hid_keynote, bool connected) {
     furi_assert(hid_keynote);
     with_view_model(
         hid_keynote->view, HidKeynoteModel * model, { model->connected = connected; }, true);
+}
+
+void hid_keynote_set_orientation(HidKeynote* hid_keynote, bool vertical) {
+    furi_assert(hid_keynote);
+
+    if(vertical) {
+        view_set_draw_callback(hid_keynote->view, hid_keynote_draw_vertical_callback);
+        view_set_orientation(hid_keynote->view, ViewOrientationVerticalFlip);
+
+    } else {
+        view_set_draw_callback(hid_keynote->view, hid_keynote_draw_callback);
+        view_set_orientation(hid_keynote->view, ViewOrientationHorizontal);
+    }
 }
