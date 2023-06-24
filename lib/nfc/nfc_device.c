@@ -657,178 +657,167 @@ bool nfc_device_load_mifare_df_data(FlipperFormat* file, NfcDevice* dev) {
     return parsed;
 }
 
-static bool nfc_device_save_slix_data(FlipperFormat* file, NfcDevice* dev) {
+static bool nfc_device_save_slix_data(
+    FlipperFormat* file,
+    NfcDevice* dev,
+    SlixTypeFeatures features,
+    const char* type) {
     bool saved = false;
     NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
 
     do {
-        if(!flipper_format_write_comment_cstr(file, "SLIX specific data")) break;
-        if(!flipper_format_write_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
+        char msg[64];
+        snprintf(msg, sizeof(msg), "%s specific data", type);
+        if(!flipper_format_write_comment_cstr(file, msg)) break;
+        if(!flipper_format_write_comment_cstr(
+               file, "Passwords are optional. If password is omitted, any password is accepted"))
             break;
+
+        if(features & SlixFeatureRead) {
+            if(data->flags & NfcVSlixDataFlagsHasKeyRead) {
+                if(!flipper_format_write_hex(
+                       file, "Password Read", data->key_read, sizeof(data->key_read)))
+                    break;
+            }
+        }
+        if(features & SlixFeatureWrite) {
+            if(data->flags & NfcVSlixDataFlagsHasKeyWrite) {
+                if(!flipper_format_write_hex(
+                       file, "Password Write", data->key_write, sizeof(data->key_write)))
+                    break;
+            }
+        }
+        if(features & SlixFeaturePrivacy) {
+            if(data->flags & NfcVSlixDataFlagsHasKeyPrivacy) {
+                if(!flipper_format_write_hex(
+                       file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
+                    break;
+            }
+        }
+        if(features & SlixFeatureDestroy) {
+            if(data->flags & NfcVSlixDataFlagsHasKeyDestroy) {
+                if(!flipper_format_write_hex(
+                       file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
+                    break;
+            }
+        }
+        if(features & SlixFeatureEas) {
+            if(data->flags & NfcVSlixDataFlagsHasKeyEas) {
+                if(!flipper_format_write_hex(
+                       file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
+                    break;
+            }
+        }
+        if(features & SlixFeatureSignature) {
+            if(!flipper_format_write_comment_cstr(
+                   file,
+                   "This is the card's secp128r1 elliptic curve signature. It can not be calculated without knowing NXP's private key."))
+                break;
+            if(!flipper_format_write_hex(
+                   file, "Signature", data->signature, sizeof(data->signature)))
+                break;
+        }
+        if(features & SlixFeaturePrivacy) {
+            bool privacy = (data->flags & NfcVSlixDataFlagsPrivacy) ? true : false;
+            if(!flipper_format_write_bool(file, "Privacy Mode", &privacy, 1)) break;
+        }
+        if(features & SlixFeatureProtection) {
+            if(!flipper_format_write_comment_cstr(file, "Protection pointer configuration")) break;
+            if(!flipper_format_write_hex(file, "Protection pointer", &data->pp_pointer, 1)) break;
+            if(!flipper_format_write_hex(file, "Protection condition", &data->pp_condition, 1))
+                break;
+        }
         saved = true;
     } while(false);
 
     return saved;
 }
 
-bool nfc_device_load_slix_data(FlipperFormat* file, NfcDevice* dev) {
+bool nfc_device_load_slix_data(FlipperFormat* file, NfcDevice* dev, SlixTypeFeatures features) {
     bool parsed = false;
     NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
     memset(data, 0, sizeof(NfcVSlixData));
 
     do {
-        if(!flipper_format_read_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
+        data->flags = 0;
 
-        parsed = true;
-    } while(false);
-
-    return parsed;
-}
-
-static bool nfc_device_save_slix_s_data(FlipperFormat* file, NfcDevice* dev) {
-    bool saved = false;
-    NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
-
-    do {
-        if(!flipper_format_write_comment_cstr(file, "SLIX-S specific data")) break;
-        if(!flipper_format_write_hex(file, "Password Read", data->key_read, sizeof(data->key_read)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Write", data->key_write, sizeof(data->key_write)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
-            break;
-        if(!flipper_format_write_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
-        if(!flipper_format_write_bool(file, "Privacy Mode", &data->privacy, 1)) break;
-        saved = true;
-    } while(false);
-
-    return saved;
-}
-
-bool nfc_device_load_slix_s_data(FlipperFormat* file, NfcDevice* dev) {
-    bool parsed = false;
-    NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
-    memset(data, 0, sizeof(NfcVSlixData));
-
-    do {
-        if(!flipper_format_read_hex(file, "Password Read", data->key_read, sizeof(data->key_read)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Write", data->key_write, sizeof(data->key_write)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
-            break;
-        if(!flipper_format_read_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
-        if(!flipper_format_read_bool(file, "Privacy Mode", &data->privacy, 1)) break;
-
-        parsed = true;
-    } while(false);
-
-    return parsed;
-}
-
-static bool nfc_device_save_slix_l_data(FlipperFormat* file, NfcDevice* dev) {
-    bool saved = false;
-    NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
-
-    do {
-        if(!flipper_format_write_comment_cstr(file, "SLIX-L specific data")) break;
-        if(!flipper_format_write_hex(
-               file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
-            break;
-        if(!flipper_format_write_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
-        if(!flipper_format_write_bool(file, "Privacy Mode", &data->privacy, 1)) break;
-        saved = true;
-    } while(false);
-
-    return saved;
-}
-
-bool nfc_device_load_slix_l_data(FlipperFormat* file, NfcDevice* dev) {
-    bool parsed = false;
-    NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
-    memset(data, 0, sizeof(NfcVSlixData));
-
-    do {
-        if(!flipper_format_read_hex(
-               file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
-            break;
-        if(!flipper_format_read_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
-        if(!flipper_format_read_bool(file, "Privacy Mode", &data->privacy, 1)) break;
-
-        parsed = true;
-    } while(false);
-
-    return parsed;
-}
-
-static bool nfc_device_save_slix2_data(FlipperFormat* file, NfcDevice* dev) {
-    bool saved = false;
-    NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
-
-    do {
-        if(!flipper_format_write_comment_cstr(file, "SLIX2 specific data")) break;
-        if(!flipper_format_write_hex(file, "Password Read", data->key_read, sizeof(data->key_read)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Write", data->key_write, sizeof(data->key_write)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
-            break;
-        if(!flipper_format_write_hex(
-               file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
-            break;
-        if(!flipper_format_write_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
-        if(!flipper_format_write_bool(file, "Privacy Mode", &data->privacy, 1)) break;
-        saved = true;
-    } while(false);
-
-    return saved;
-}
-
-bool nfc_device_load_slix2_data(FlipperFormat* file, NfcDevice* dev) { // -V524
-    bool parsed = false;
-    NfcVSlixData* data = &dev->dev_data.nfcv_data.sub_data.slix;
-    memset(data, 0, sizeof(NfcVSlixData));
-
-    do {
-        if(!flipper_format_read_hex(file, "Password Read", data->key_read, sizeof(data->key_read)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Write", data->key_write, sizeof(data->key_write)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy)))
-            break;
-        if(!flipper_format_read_hex(
-               file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy)))
-            break;
-        if(!flipper_format_read_hex(file, "Password EAS", data->key_eas, sizeof(data->key_eas)))
-            break;
-        if(!flipper_format_read_bool(file, "Privacy Mode", &data->privacy, 1)) break;
-
+        if(features & SlixFeatureRead) {
+            if(flipper_format_key_exist(file, "Password Read")) {
+                if(!flipper_format_read_hex(
+                       file, "Password Read", data->key_read, sizeof(data->key_read))) {
+                    FURI_LOG_D(TAG, "Failed reading Password Read");
+                    break;
+                }
+                data->flags |= NfcVSlixDataFlagsHasKeyRead;
+            }
+        }
+        if(features & SlixFeatureWrite) {
+            if(flipper_format_key_exist(file, "Password Write")) {
+                if(!flipper_format_read_hex(
+                       file, "Password Write", data->key_write, sizeof(data->key_write))) {
+                    FURI_LOG_D(TAG, "Failed reading Password Write");
+                    break;
+                }
+                data->flags |= NfcVSlixDataFlagsHasKeyWrite;
+            }
+        }
+        if(features & SlixFeaturePrivacy) {
+            if(flipper_format_key_exist(file, "Password Privacy")) {
+                if(!flipper_format_read_hex(
+                       file, "Password Privacy", data->key_privacy, sizeof(data->key_privacy))) {
+                    FURI_LOG_D(TAG, "Failed reading Password Privacy");
+                    break;
+                }
+                data->flags |= NfcVSlixDataFlagsHasKeyPrivacy;
+            }
+        }
+        if(features & SlixFeatureDestroy) {
+            if(flipper_format_key_exist(file, "Password Destroy")) {
+                if(!flipper_format_read_hex(
+                       file, "Password Destroy", data->key_destroy, sizeof(data->key_destroy))) {
+                    FURI_LOG_D(TAG, "Failed reading Password Destroy");
+                    break;
+                }
+                data->flags |= NfcVSlixDataFlagsHasKeyDestroy;
+            }
+        }
+        if(features & SlixFeatureEas) {
+            if(flipper_format_key_exist(file, "Password EAS")) {
+                if(!flipper_format_read_hex(
+                       file, "Password EAS", data->key_eas, sizeof(data->key_eas))) {
+                    FURI_LOG_D(TAG, "Failed reading Password EAS");
+                    break;
+                }
+                data->flags |= NfcVSlixDataFlagsHasKeyEas;
+            }
+        }
+        if(features & SlixFeatureSignature) {
+            if(!flipper_format_read_hex(
+                   file, "Signature", data->signature, sizeof(data->signature))) {
+                FURI_LOG_D(TAG, "Failed reading Signature");
+                break;
+            }
+        }
+        if(features & SlixFeaturePrivacy) {
+            bool privacy;
+            if(!flipper_format_read_bool(file, "Privacy Mode", &privacy, 1)) {
+                FURI_LOG_D(TAG, "Failed reading Privacy Mode");
+                break;
+            }
+            if(privacy) {
+                data->flags |= NfcVSlixDataFlagsPrivacy;
+            }
+        }
+        if(features & SlixFeatureProtection) {
+            if(!flipper_format_read_hex(file, "Protection pointer", &(data->pp_pointer), 1)) {
+                FURI_LOG_D(TAG, "Failed reading Protection pointer");
+                break;
+            }
+            if(!flipper_format_read_hex(file, "Protection condition", &(data->pp_condition), 1)) {
+                FURI_LOG_D(TAG, "Failed reading Protection condition");
+                break;
+            }
+        }
         parsed = true;
     } while(false);
 
@@ -859,7 +848,8 @@ static bool nfc_device_save_nfcv_data(FlipperFormat* file, NfcDevice* dev) {
                file, "Data Content", data->data, data->block_num * data->block_size))
             break;
         if(!flipper_format_write_comment_cstr(
-               file, "First byte: DSFID (0x01) / AFI (0x02) lock info, others: block lock info"))
+               file,
+               "First byte: DSFID (0x01) / AFI (0x02) / EAS (0x04) / PPL (0x08) lock info, others: block lock info"))
             break;
         if(!flipper_format_write_hex(
                file, "Security Status", data->security_status, 1 + data->block_num))
@@ -877,16 +867,16 @@ static bool nfc_device_save_nfcv_data(FlipperFormat* file, NfcDevice* dev) {
             saved = true;
             break;
         case NfcVTypeSlix:
-            saved = nfc_device_save_slix_data(file, dev);
+            saved = nfc_device_save_slix_data(file, dev, SlixFeatureSlix, "SLIX");
             break;
         case NfcVTypeSlixS:
-            saved = nfc_device_save_slix_s_data(file, dev);
+            saved = nfc_device_save_slix_data(file, dev, SlixFeatureSlixS, "SLIX-S");
             break;
         case NfcVTypeSlixL:
-            saved = nfc_device_save_slix_l_data(file, dev);
+            saved = nfc_device_save_slix_data(file, dev, SlixFeatureSlixL, "SLIX-L");
             break;
         case NfcVTypeSlix2:
-            saved = nfc_device_save_slix2_data(file, dev);
+            saved = nfc_device_save_slix_data(file, dev, SlixFeatureSlix2, "SLIX2");
             break;
         default:
             break;
@@ -906,23 +896,45 @@ bool nfc_device_load_nfcv_data(FlipperFormat* file, NfcDevice* dev) {
         uint32_t temp_uint32 = 0;
         uint8_t temp_value = 0;
 
-        if(!flipper_format_read_hex(file, "DSFID", &(data->dsfid), 1)) break;
-        if(!flipper_format_read_hex(file, "AFI", &(data->afi), 1)) break;
-        if(!flipper_format_read_hex(file, "IC Reference", &(data->ic_ref), 1)) break;
-        if(!flipper_format_read_uint32(file, "Block Count", &temp_uint32, 1)) break;
-        data->block_num = temp_uint32;
-        if(!flipper_format_read_hex(file, "Block Size", &(data->block_size), 1)) break;
-        if(!flipper_format_read_hex(
-               file, "Data Content", data->data, data->block_num * data->block_size))
+        if(!flipper_format_read_hex(file, "DSFID", &(data->dsfid), 1)) {
+            FURI_LOG_D(TAG, "Failed reading DSFID");
             break;
+        }
+        if(!flipper_format_read_hex(file, "AFI", &(data->afi), 1)) {
+            FURI_LOG_D(TAG, "Failed reading AFI");
+            break;
+        }
+        if(!flipper_format_read_hex(file, "IC Reference", &(data->ic_ref), 1)) {
+            FURI_LOG_D(TAG, "Failed reading IC Reference");
+            break;
+        }
+        if(!flipper_format_read_uint32(file, "Block Count", &temp_uint32, 1)) {
+            FURI_LOG_D(TAG, "Failed reading Block Count");
+            break;
+        }
+        data->block_num = temp_uint32;
+        if(!flipper_format_read_hex(file, "Block Size", &(data->block_size), 1)) {
+            FURI_LOG_D(TAG, "Failed reading Block Size");
+            break;
+        }
+        if(!flipper_format_read_hex(
+               file, "Data Content", data->data, data->block_num * data->block_size)) {
+            FURI_LOG_D(TAG, "Failed reading Data Content");
+            break;
+        }
 
         /* optional, as added later */
         if(flipper_format_key_exist(file, "Security Status")) {
             if(!flipper_format_read_hex(
-                   file, "Security Status", data->security_status, 1 + data->block_num))
+                   file, "Security Status", data->security_status, 1 + data->block_num)) {
+                FURI_LOG_D(TAG, "Failed reading Security Status");
                 break;
+            }
         }
-        if(!flipper_format_read_hex(file, "Subtype", &temp_value, 1)) break;
+        if(!flipper_format_read_hex(file, "Subtype", &temp_value, 1)) {
+            FURI_LOG_D(TAG, "Failed reading Subtype");
+            break;
+        }
         data->sub_type = temp_value;
 
         switch(data->sub_type) {
@@ -930,16 +942,16 @@ bool nfc_device_load_nfcv_data(FlipperFormat* file, NfcDevice* dev) {
             parsed = true;
             break;
         case NfcVTypeSlix:
-            parsed = nfc_device_load_slix_data(file, dev);
+            parsed = nfc_device_load_slix_data(file, dev, SlixFeatureSlix);
             break;
         case NfcVTypeSlixS:
-            parsed = nfc_device_load_slix_s_data(file, dev);
+            parsed = nfc_device_load_slix_data(file, dev, SlixFeatureSlixS);
             break;
         case NfcVTypeSlixL:
-            parsed = nfc_device_load_slix_l_data(file, dev);
+            parsed = nfc_device_load_slix_data(file, dev, SlixFeatureSlixL);
             break;
         case NfcVTypeSlix2:
-            parsed = nfc_device_load_slix2_data(file, dev);
+            parsed = nfc_device_load_slix_data(file, dev, SlixFeatureSlix2);
             break;
         default:
             break;
