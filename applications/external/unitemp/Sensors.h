@@ -334,4 +334,5 @@ const GPIO*
 #include "./sensors/MAX31855.h"
 #include "./sensors/MAX6675.h"
 #include "./sensors/SCD30.h"
+#include "./sensors/SCD40.h"
 #endif
