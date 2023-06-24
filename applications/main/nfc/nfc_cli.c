@@ -144,6 +144,10 @@ static void nfc_cli_apdu(Cli* cli, FuriString* args) {
                 break;
             }
             resp_size = (tx_rx.rx_bits / 8) * 2;
+            if(!resp_size) {
+                printf("No response\r\n");
+                break;
+            }
             resp_buffer = malloc(resp_size);
             uint8_to_hex_chars(tx_rx.rx_data, resp_buffer, resp_size);
             resp_buffer[resp_size] = 0;
