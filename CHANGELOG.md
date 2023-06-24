@@ -1,6 +1,11 @@
 ## New changes
-* Infrared: Updated universal remote asstes (by @amec0e | PR #522)
+* Plugins: Fix furi_hal_bus issues in AVR Programmer and Signal Generator (fixes issue #525)
+* Plugins: USB / BLE Remote - Updated UI in keynote vertical and numpad (by @gid9798 | PR #524)
+* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
 * Plugins: Fixed ESP32 WiFi Marauder crashes when reopening app
+* Infrared: Updated universal remote asstes (by @amec0e | PR #522)
+* OFW PR 2783: SLIX2 emulation support / practical use for Dymo printers (by @g3gg0)
+* OFW PR 2782: NFC: Fix key invalidation logic (by @AloneLiberty)
 * OFW: Debug: sync apps on attach, makes it possible to debug already started app that has crashed
 
 ----
