@@ -20,6 +20,7 @@
 #include "somfy_keytis.h"
 #include "scher_khan.h"
 #include "gate_tx.h"
+#include "fanimation.h"
 #include "raw.h"
 #include "linear.h"
 #include "linear_delta3.h"
