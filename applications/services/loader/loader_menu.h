@@ -7,23 +7,9 @@ extern "C" {
 
 typedef struct LoaderMenu LoaderMenu;
 
-LoaderMenu* loader_menu_alloc();
+LoaderMenu* loader_menu_alloc(void (*closed_cb)(void*), void* context);
 
 void loader_menu_free(LoaderMenu* loader_menu);
-
-void loader_menu_start(LoaderMenu* loader_menu);
-
-void loader_menu_stop(LoaderMenu* loader_menu);
-
-void loader_menu_set_closed_callback(
-    LoaderMenu* loader_menu,
-    void (*callback)(void*),
-    void* context);
-
-void loader_menu_set_click_callback(
-    LoaderMenu* loader_menu,
-    void (*callback)(const char*, void*),
-    void* context);
 
 #ifdef __cplusplus
 }

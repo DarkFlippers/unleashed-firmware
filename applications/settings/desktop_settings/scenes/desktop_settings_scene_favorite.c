@@ -3,7 +3,6 @@
 #include "desktop_settings_scene.h"
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
-#include <fap_loader/fap_loader_app.h>
 
 #define EXTERNAL_APPLICATION_NAME ("[External Application]")
 #define EXTERNAL_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 1)
@@ -77,7 +76,6 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         }
     }
 
-#ifdef APP_FAP_LOADER
     submenu_add_item(
         submenu,
         EXTERNAL_APPLICATION_NAME,
@@ -87,7 +85,6 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     if(curr_favorite_app->is_external) {
         pre_select_item = EXTERNAL_APPLICATION_INDEX;
     }
-#endif
 
     submenu_add_item(
         submenu,
