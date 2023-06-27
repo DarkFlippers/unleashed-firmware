@@ -30,6 +30,7 @@ jobs:
 
       - name: 'Flashing target firmware'
         id: first_full_flash
+        timeout-minutes: 5
         run: |
           source scripts/toolchain/fbtenv.sh
           ./fbt flash_usb_full PORT=${{steps.device.outputs.flipper}} FORCE=1
@@ -37,6 +38,7 @@ jobs:
 
       - name: 'Validating updater'
         id: second_full_flash
+        timeout-minutes: 5
         if: success()
         run: |
           source scripts/toolchain/fbtenv.sh
