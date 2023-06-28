@@ -345,11 +345,13 @@ static bool archive_view_input(InputEvent* event, void* context) {
 
                     if(event->key == InputKeyUp) {
                         if(model->item_idx < scroll_speed) {
-                            scroll_speed = model->item_idx;
+                            model->button_held_for_ticks = 0;
+                            model->item_idx = model->item_cnt - 1;
+                        } else {
+                            model->item_idx =
+                                ((model->item_idx - scroll_speed) + model->item_cnt) %
+                                model->item_cnt;
                         }
-
-                        model->item_idx =
-                            ((model->item_idx - scroll_speed) + model->item_cnt) % model->item_cnt;
                         if(is_file_list_load_required(model)) {
                             model->list_loading = true;
                             browser->callback(ArchiveBrowserEventLoadPrevItems, browser->context);
@@ -361,11 +363,12 @@ static bool archive_view_input(InputEvent* event, void* context) {
                         model->button_held_for_ticks += 1;
                     } else if(event->key == InputKeyDown) {
                         int32_t count = model->item_cnt;
-                        if(model->item_idx >= (count - scroll_speed)) {
-                            scroll_speed = model->item_cnt - model->item_idx - 1;
+                        if(model->item_idx + scroll_speed >= count) {
+                            model->button_held_for_ticks = 0;
+                            model->item_idx = 0;
+                        } else {
+                            model->item_idx = (model->item_idx + scroll_speed) % model->item_cnt;
                         }
-
-                        model->item_idx = (model->item_idx + scroll_speed) % model->item_cnt;
                         if(is_file_list_load_required(model)) {
                             model->list_loading = true;
                             browser->callback(ArchiveBrowserEventLoadNextItems, browser->context);

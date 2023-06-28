@@ -602,11 +602,13 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
 
                     if(event->key == InputKeyUp) {
                         if(model->item_idx < scroll_speed) {
-                            scroll_speed = model->item_idx;
+                            model->button_held_for_ticks = 0;
+                            model->item_idx = model->item_cnt - 1;
+                        } else {
+                            model->item_idx =
+                                ((model->item_idx - scroll_speed) + model->item_cnt) %
+                                model->item_cnt;
                         }
-
-                        model->item_idx =
-                            ((model->item_idx - scroll_speed) + model->item_cnt) % model->item_cnt;
                         if(browser_is_list_load_required(model)) {
                             model->list_loading = true;
                             int32_t load_offset = CLAMP(
@@ -622,10 +624,11 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                     } else if(event->key == InputKeyDown) {
                         int32_t count = model->item_cnt;
                         if(model->item_idx + scroll_speed >= count) {
-                            scroll_speed = count - model->item_idx - 1;
+                            model->button_held_for_ticks = 0;
+                            model->item_idx = 0;
+                        } else {
+                            model->item_idx = (model->item_idx + scroll_speed) % model->item_cnt;
                         }
-
-                        model->item_idx = (model->item_idx + scroll_speed) % model->item_cnt;
                         if(browser_is_list_load_required(model)) {
                             model->list_loading = true;
                             int32_t load_offset = CLAMP(
