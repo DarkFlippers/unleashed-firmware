@@ -51,8 +51,16 @@ struct DigitalSignalInternals {
 #define T_TIM 1562 /* 15.625 ns *100 */
 #define T_TIM_DIV2 781 /* 15.625 ns / 2 *100 */
 
+/* end marker in DMA ringbuffer, will get written into timer register at the end */
+#define SEQ_TIMER_MAX 0xFFFFFFFF
+
+/* time to wait in loops before returning */
+#define SEQ_LOCK_WAIT_MS 10UL
+#define SEQ_LOCK_WAIT_TICKS (SEQ_LOCK_WAIT_MS * 1000 * 64)
+
 /* maximum entry count of the sequence dma ring buffer */
-#define SEQUENCE_DMA_RINGBUFFER_SIZE 32
+#define RINGBUFFER_SIZE 128
+
 /* maximum number of DigitalSignals in a sequence */
 #define SEQUENCE_SIGNALS_SIZE 32
 /*
@@ -252,7 +260,7 @@ static void digital_signal_setup_timer() {
     LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetClockDivision(TIM2, LL_TIM_CLOCKDIVISION_DIV1);
     LL_TIM_SetPrescaler(TIM2, 0);
-    LL_TIM_SetAutoReload(TIM2, 0xFFFFFFFF);
+    LL_TIM_SetAutoReload(TIM2, SEQ_TIMER_MAX);
     LL_TIM_SetCounter(TIM2, 0);
 }
 
@@ -335,7 +343,7 @@ DigitalSequence* digital_sequence_alloc(uint32_t size, const GpioPin* gpio) {
     sequence->bake = false;
 
     sequence->dma_buffer = malloc(sizeof(struct ReloadBuffer));
-    sequence->dma_buffer->size = SEQUENCE_DMA_RINGBUFFER_SIZE;
+    sequence->dma_buffer->size = RINGBUFFER_SIZE;
     sequence->dma_buffer->buffer = malloc(sequence->dma_buffer->size * sizeof(uint32_t));
 
     sequence->dma_config_gpio.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
@@ -454,39 +462,23 @@ static DigitalSignal* digital_sequence_bake(DigitalSequence* sequence) {
     return ret;
 }
 
-static void digital_sequence_update_pos(DigitalSequence* sequence) {
-    struct ReloadBuffer* dma_buffer = sequence->dma_buffer;
-
-    dma_buffer->read_pos = dma_buffer->size - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_2);
-}
-
-static const uint32_t wait_ms = 10;
-static const uint32_t wait_ticks = wait_ms * 1000 * 64;
-
 static void digital_sequence_finish(DigitalSequence* sequence) {
     struct ReloadBuffer* dma_buffer = sequence->dma_buffer;
 
     if(dma_buffer->dma_active) {
         uint32_t prev_timer = DWT->CYCCNT;
-        uint32_t end_pos = (dma_buffer->write_pos + 1) % dma_buffer->size;
         do {
-            uint32_t last_pos = dma_buffer->read_pos;
-
-            digital_sequence_update_pos(sequence);
-
-            /* we are finished, when the DMA transferred the 0xFFFFFFFF-timer which is the current write_pos */
-            if(dma_buffer->read_pos == end_pos) {
+            /* we are finished, when the DMA transferred the SEQ_TIMER_MAX marker */
+            if(TIM2->ARR == SEQ_TIMER_MAX) {
                 break;
             }
-
-            if(last_pos != dma_buffer->read_pos) { //-V547
-                prev_timer = DWT->CYCCNT;
-            }
-            if(DWT->CYCCNT - prev_timer > wait_ticks) {
+            if(DWT->CYCCNT - prev_timer > SEQ_LOCK_WAIT_TICKS) {
+                dma_buffer->read_pos =
+                    RINGBUFFER_SIZE - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_2);
                 FURI_LOG_D(
                     TAG,
                     "[SEQ] hung %lu ms in finish (ARR 0x%08lx, read %lu, write %lu)",
-                    wait_ms,
+                    SEQ_LOCK_WAIT_MS,
                     TIM2->ARR,
                     dma_buffer->read_pos,
                     dma_buffer->write_pos);
@@ -504,23 +496,30 @@ static void digital_sequence_queue_pulse(DigitalSequence* sequence, uint32_t len
 
     if(dma_buffer->dma_active) {
         uint32_t prev_timer = DWT->CYCCNT;
-        uint32_t end_pos = (dma_buffer->write_pos + 1) % dma_buffer->size;
         do {
-            uint32_t last_pos = dma_buffer->read_pos;
-            digital_sequence_update_pos(sequence);
+            dma_buffer->read_pos = RINGBUFFER_SIZE - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_2);
 
-            if(dma_buffer->read_pos != end_pos) {
+            uint32_t free =
+                (RINGBUFFER_SIZE + dma_buffer->read_pos - dma_buffer->write_pos) % RINGBUFFER_SIZE;
+
+            if(free > 2) {
                 break;
             }
 
-            if(last_pos != dma_buffer->read_pos) { //-V547
-                prev_timer = DWT->CYCCNT;
-            }
-            if(DWT->CYCCNT - prev_timer > wait_ticks) {
+            if(DWT->CYCCNT - prev_timer > SEQ_LOCK_WAIT_TICKS) {
                 FURI_LOG_D(
                     TAG,
                     "[SEQ] hung %lu ms in queue (ARR 0x%08lx, read %lu, write %lu)",
-                    wait_ms,
+                    SEQ_LOCK_WAIT_MS,
+                    TIM2->ARR,
+                    dma_buffer->read_pos,
+                    dma_buffer->write_pos);
+                break;
+            }
+            if(TIM2->ARR == SEQ_TIMER_MAX) {
+                FURI_LOG_D(
+                    TAG,
+                    "[SEQ] buffer underrun in queue (ARR 0x%08lx, read %lu, write %lu)",
                     TIM2->ARR,
                     dma_buffer->read_pos,
                     dma_buffer->write_pos);
@@ -530,8 +529,9 @@ static void digital_sequence_queue_pulse(DigitalSequence* sequence, uint32_t len
     }
 
     dma_buffer->buffer[dma_buffer->write_pos] = length;
-    dma_buffer->write_pos = (dma_buffer->write_pos + 1) % dma_buffer->size;
-    dma_buffer->buffer[dma_buffer->write_pos] = 0xFFFFFFFF;
+    dma_buffer->write_pos++;
+    dma_buffer->write_pos %= RINGBUFFER_SIZE;
+    dma_buffer->buffer[dma_buffer->write_pos] = SEQ_TIMER_MAX;
 }
 
 bool digital_sequence_send(DigitalSequence* sequence) {
@@ -553,90 +553,97 @@ bool digital_sequence_send(DigitalSequence* sequence) {
         return true;
     }
 
-    int32_t remainder = 0;
-    bool traded_first = false;
+    if(!sequence->sequence_used) {
+        return false;
+    }
 
-    FURI_CRITICAL_ENTER();
+    int32_t remainder = 0;
+    uint32_t trade_for_next = 0;
+    uint32_t seq_pos_next = 1;
 
     dma_buffer->dma_active = false;
-    dma_buffer->buffer[0] = 0xFFFFFFFF;
+    dma_buffer->buffer[0] = SEQ_TIMER_MAX;
     dma_buffer->read_pos = 0;
     dma_buffer->write_pos = 0;
 
-    for(uint32_t seq_pos = 0; seq_pos < sequence->sequence_used; seq_pos++) {
-        uint8_t signal_index = sequence->sequence[seq_pos];
-        DigitalSignal* sig = sequence->signals[signal_index];
-        bool last_signal = ((seq_pos + 1) == sequence->sequence_used);
+    /* already prepare the current signal pointer */
+    DigitalSignal* sig = sequence->signals[sequence->sequence[0]];
+    DigitalSignal* sig_next = NULL;
+    /* re-use the GPIO buffer from the first signal */
+    sequence->gpio_buff = sig->internals->gpio_buff;
 
-        /* all signals are prepared and we can re-use the GPIO buffer from the fist signal */
-        if(seq_pos == 0) {
-            sequence->gpio_buff = sig->internals->gpio_buff;
+    FURI_CRITICAL_ENTER();
+
+    while(sig) {
+        bool last_signal = (seq_pos_next >= sequence->sequence_used);
+
+        if(!last_signal) {
+            sig_next = sequence->signals[sequence->sequence[seq_pos_next++]];
         }
 
         for(uint32_t pulse_pos = 0; pulse_pos < sig->internals->reload_reg_entries; pulse_pos++) {
-            if(traded_first) {
-                traded_first = false;
-                continue;
-            }
-            uint32_t pulse_length = 0;
-            bool last_pulse = ((pulse_pos + 1) == sig->internals->reload_reg_entries);
+            bool last_pulse = ((pulse_pos + 1) >= sig->internals->reload_reg_entries);
+            uint32_t pulse_length = sig->reload_reg_buff[pulse_pos] + trade_for_next;
 
-            pulse_length = sig->reload_reg_buff[pulse_pos];
+            trade_for_next = 0;
 
             /* when we are too late more than half a tick, make the first edge temporarily longer */
             if(remainder >= T_TIM_DIV2) {
                 remainder -= T_TIM;
                 pulse_length += 1;
             }
-            remainder += sig->internals->reload_reg_remainder;
 
-            /* last pulse in that signal and have a next signal? */
-            if(last_pulse) {
-                if((seq_pos + 1) < sequence->sequence_used) {
-                    DigitalSignal* sig_next = sequence->signals[sequence->sequence[seq_pos + 1]];
+            /* last pulse in current signal and have a next signal? */
+            if(last_pulse && sig_next) {
+                /* when a signal ends with the same level as the next signal begins, let the next signal generate the whole pulse.
+                   beware, we do not want the level after the last edge, but the last level before that edge */
+                bool end_level = sig->start_level ^ ((sig->edge_cnt % 2) == 0);
 
-                    /* when a signal ends with the same level as the next signal begins, let the fist signal generate the whole pulse */
-                    /* beware, we do not want the level after the last edge, but the last level before that edge */
-                    bool end_level = sig->start_level ^ ((sig->edge_cnt % 2) == 0);
-
-                    /* take from the next, add it to the current if they have the same level */
-                    if(end_level == sig_next->start_level) {
-                        pulse_length += sig_next->reload_reg_buff[0];
-                        traded_first = true;
-                    }
+                /* if they have the same level, pass the duration to the next pulse(s) */
+                if(end_level == sig_next->start_level) {
+                    trade_for_next = pulse_length;
                 }
             }
 
-            digital_sequence_queue_pulse(sequence, pulse_length);
+            /* if it was decided, that the next signal's first pulse shall also handle our "length", then do not queue here */
+            if(!trade_for_next) {
+                digital_sequence_queue_pulse(sequence, pulse_length);
 
-            /* start transmission when buffer was filled enough */
-            bool start_send = sequence->dma_buffer->write_pos >= (sequence->dma_buffer->size - 4);
+                if(!dma_buffer->dma_active) {
+                    /* start transmission when buffer was filled enough */
+                    bool start_send = sequence->dma_buffer->write_pos >= (RINGBUFFER_SIZE - 2);
 
-            /* or it was the last pulse */
-            if(last_pulse && last_signal) {
-                start_send = true;
-            }
+                    /* or it was the last pulse */
+                    if(last_pulse && last_signal) {
+                        start_send = true;
+                    }
 
-            /* start transmission */
-            if(start_send && !dma_buffer->dma_active) {
-                digital_sequence_setup_dma(sequence);
-                digital_signal_setup_timer();
+                    /* start transmission */
+                    if(start_send) {
+                        digital_sequence_setup_dma(sequence);
+                        digital_signal_setup_timer();
 
-                /* if the send time is specified, wait till the core timer passed beyond that time */
-                if(sequence->send_time_active) {
-                    sequence->send_time_active = false;
-                    while(sequence->send_time - DWT->CYCCNT < 0x80000000) {
+                        /* if the send time is specified, wait till the core timer passed beyond that time */
+                        if(sequence->send_time_active) {
+                            sequence->send_time_active = false;
+                            while(sequence->send_time - DWT->CYCCNT < 0x80000000) {
+                            }
+                        }
+                        digital_signal_start_timer();
+                        dma_buffer->dma_active = true;
                     }
                 }
-                digital_signal_start_timer();
-                dma_buffer->dma_active = true;
             }
         }
+
+        remainder += sig->internals->reload_reg_remainder;
+        sig = sig_next;
+        sig_next = NULL;
     }
 
     /* wait until last dma transaction was finished */
-    digital_sequence_finish(sequence);
     FURI_CRITICAL_EXIT();
+    digital_sequence_finish(sequence);
 
     return true;
 }

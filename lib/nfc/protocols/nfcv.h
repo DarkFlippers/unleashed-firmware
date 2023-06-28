@@ -139,8 +139,10 @@ typedef enum {
 } NfcVErrorcodes;
 
 typedef enum {
-    NfcVLockBitDsfid = 1,
-    NfcVLockBitAfi = 2,
+    NfcVLockBitDsfid = 1 << 0,
+    NfcVLockBitAfi = 1 << 1,
+    NfcVLockBitEas = 1 << 2,
+    NfcVLockBitPpl = 1 << 3,
 } NfcVLockBits;
 
 typedef enum {
@@ -168,14 +170,55 @@ typedef enum {
     NfcVSendFlagsHighRate = 1 << 4
 } NfcVSendFlags;
 
+/* SLIX specific config flags */
+typedef enum {
+    NfcVSlixDataFlagsNone = 0,
+    NfcVSlixDataFlagsHasKeyRead = 1 << 0,
+    NfcVSlixDataFlagsHasKeyWrite = 1 << 1,
+    NfcVSlixDataFlagsHasKeyPrivacy = 1 << 2,
+    NfcVSlixDataFlagsHasKeyDestroy = 1 << 3,
+    NfcVSlixDataFlagsHasKeyEas = 1 << 4,
+    NfcVSlixDataFlagsValidKeyRead = 1 << 8,
+    NfcVSlixDataFlagsValidKeyWrite = 1 << 9,
+    NfcVSlixDataFlagsValidKeyPrivacy = 1 << 10,
+    NfcVSlixDataFlagsValidKeyDestroy = 1 << 11,
+    NfcVSlixDataFlagsValidKeyEas = 1 << 12,
+    NfcVSlixDataFlagsPrivacy = 1 << 16,
+    NfcVSlixDataFlagsDestroyed = 1 << 17
+} NfcVSlixDataFlags;
+
+/* abstract the file read/write operations for all SLIX types to reduce duplicated code */
+typedef enum {
+    SlixFeatureRead = 1 << 0,
+    SlixFeatureWrite = 1 << 1,
+    SlixFeaturePrivacy = 1 << 2,
+    SlixFeatureDestroy = 1 << 3,
+    SlixFeatureEas = 1 << 4,
+    SlixFeatureSignature = 1 << 5,
+    SlixFeatureProtection = 1 << 6,
+
+    SlixFeatureSlix = SlixFeatureEas,
+    SlixFeatureSlixS =
+        (SlixFeatureRead | SlixFeatureWrite | SlixFeaturePrivacy | SlixFeatureDestroy |
+         SlixFeatureEas),
+    SlixFeatureSlixL = (SlixFeaturePrivacy | SlixFeatureDestroy | SlixFeatureEas),
+    SlixFeatureSlix2 =
+        (SlixFeatureRead | SlixFeatureWrite | SlixFeaturePrivacy | SlixFeatureDestroy |
+         SlixFeatureEas | SlixFeatureSignature | SlixFeatureProtection),
+} SlixTypeFeatures;
+
 typedef struct {
+    uint32_t flags;
     uint8_t key_read[4];
     uint8_t key_write[4];
     uint8_t key_privacy[4];
     uint8_t key_destroy[4];
     uint8_t key_eas[4];
     uint8_t rand[2];
-    bool privacy;
+    uint8_t signature[32];
+    /* SLIX2 options */
+    uint8_t pp_pointer;
+    uint8_t pp_condition;
 } NfcVSlixData;
 
 typedef union {
