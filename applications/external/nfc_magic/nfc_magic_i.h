@@ -46,6 +46,7 @@ enum NfcMagicCustomEvent {
 struct NfcMagicDevice {
     MagicType type;
     uint32_t cuid;
+    uint8_t uid_len;
     uint32_t password;
 };
 
