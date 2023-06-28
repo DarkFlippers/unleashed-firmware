@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
     FuriHalPwmOutputIdTim1PA7,
@@ -36,6 +37,13 @@ void furi_hal_pwm_stop(FuriHalPwmOutputId channel);
  * @param[in]  duty  Duty cycle value in %
 */
 void furi_hal_pwm_set_params(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty);
+
+/** Is PWM channel running?
+ * 
+ * @param[in]  channel  PWM channel (FuriHalPwmOutputId)
+ * @return bool - true if running
+*/
+bool furi_hal_pwm_is_running(FuriHalPwmOutputId channel);
 
 #ifdef __cplusplus
 }
