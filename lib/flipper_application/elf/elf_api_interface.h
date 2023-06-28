@@ -11,6 +11,6 @@ typedef struct ElfApiInterface {
     uint16_t api_version_minor;
     bool (*resolver_callback)(
         const struct ElfApiInterface* interface,
-        const char* name,
+        uint32_t hash,
         Elf32_Addr* address);
 } ElfApiInterface;

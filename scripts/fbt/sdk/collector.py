@@ -1,4 +1,5 @@
 from typing import List
+from .hashes import gnu_sym_hash
 
 from cxxheaderparser.parser import CxxParser
 from . import (
@@ -70,13 +71,6 @@ class SymbolManager:
 
     def add_header(self, header: str):
         self.api.headers.add(ApiHeader(header))
-
-
-def gnu_sym_hash(name: str):
-    h = 0x1505
-    for c in name:
-        h = (h << 5) + h + ord(c)
-    return str(hex(h))[-8:]
 
 
 class SdkCollector:
