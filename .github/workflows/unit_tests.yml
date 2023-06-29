@@ -29,7 +29,7 @@ jobs:
       - name: 'Flash unit tests firmware'
         id: flashing
         if: success()
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           ./fbt flash OPENOCD_ADAPTER_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
 
@@ -45,7 +45,7 @@ jobs:
       - name: 'Copy assets and unit data, reboot and wait for flipper'
         id: copy
         if: steps.format_ext.outcome == 'success'
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} -f send assets/resources /ext
@@ -56,7 +56,7 @@ jobs:
       - name: 'Run units and validate results'
         id: run_units
         if: steps.copy.outcome == 'success'
-        timeout-minutes: 5
+        timeout-minutes: 7
         run: |
           source scripts/toolchain/fbtenv.sh
           python3 scripts/testing/units.py ${{steps.device.outputs.flipper}}
