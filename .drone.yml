@@ -316,7 +316,7 @@ steps:
     commands:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
-      - ./fbt VERBOSE=1 COMPACT=1 DEBUG=0 updater_package
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
