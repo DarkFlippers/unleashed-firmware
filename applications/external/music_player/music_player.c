@@ -1,4 +1,4 @@
-#include "music_player_worker.h"
+#include <music_worker/music_worker.h>
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -34,7 +34,7 @@ typedef struct {
     ViewPort* view_port;
     Gui* gui;
 
-    MusicPlayerWorker* worker;
+    MusicWorker* worker;
 } MusicPlayer;
 
 static const float MUSIC_PLAYER_VOLUMES[] = {0, .25, .5, .75, 1};
@@ -218,7 +218,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     }
 }
 
-static void music_player_worker_callback(
+static void music_worker_callback(
     uint8_t semitone,
     uint8_t dots,
     uint8_t duration,
@@ -250,7 +250,7 @@ static void music_player_worker_callback(
 void music_player_clear(MusicPlayer* instance) {
     memset(instance->model->duration_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
     memset(instance->model->semitone_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
-    music_player_worker_clear(instance->worker);
+    music_worker_clear(instance->worker);
 }
 
 MusicPlayer* music_player_alloc() {
@@ -263,10 +263,9 @@ MusicPlayer* music_player_alloc() {
 
     instance->input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
 
-    instance->worker = music_player_worker_alloc();
-    music_player_worker_set_volume(
-        instance->worker, MUSIC_PLAYER_VOLUMES[instance->model->volume]);
-    music_player_worker_set_callback(instance->worker, music_player_worker_callback, instance);
+    instance->worker = music_worker_alloc();
+    music_worker_set_volume(instance->worker, MUSIC_PLAYER_VOLUMES[instance->model->volume]);
+    music_worker_set_callback(instance->worker, music_worker_callback, instance);
 
     music_player_clear(instance);
 
@@ -286,7 +285,7 @@ void music_player_free(MusicPlayer* instance) {
     furi_record_close(RECORD_GUI);
     view_port_free(instance->view_port);
 
-    music_player_worker_free(instance->worker);
+    music_worker_free(instance->worker);
 
     furi_message_queue_free(instance->input_queue);
 
@@ -330,12 +329,12 @@ int32_t music_player_app(void* p) {
             }
         }
 
-        if(!music_player_worker_load(music_player->worker, furi_string_get_cstr(file_path))) {
+        if(!music_worker_load(music_player->worker, furi_string_get_cstr(file_path))) {
             FURI_LOG_E(TAG, "Unable to load file");
             break;
         }
 
-        music_player_worker_start(music_player->worker);
+        music_worker_start(music_player->worker);
 
         InputEvent input;
         while(furi_message_queue_get(music_player->input_queue, &input, FuriWaitForever) ==
@@ -349,11 +348,11 @@ int32_t music_player_app(void* p) {
             } else if(input.key == InputKeyUp) {
                 if(music_player->model->volume < COUNT_OF(MUSIC_PLAYER_VOLUMES) - 1)
                     music_player->model->volume++;
-                music_player_worker_set_volume(
+                music_worker_set_volume(
                     music_player->worker, MUSIC_PLAYER_VOLUMES[music_player->model->volume]);
             } else if(input.key == InputKeyDown) {
                 if(music_player->model->volume > 0) music_player->model->volume--;
-                music_player_worker_set_volume(
+                music_worker_set_volume(
                     music_player->worker, MUSIC_PLAYER_VOLUMES[music_player->model->volume]);
             }
 
@@ -361,7 +360,7 @@ int32_t music_player_app(void* p) {
             view_port_update(music_player->view_port);
         }
 
-        music_player_worker_stop(music_player->worker);
+        music_worker_stop(music_player->worker);
         if(p && strlen(p)) break; // Exit instead of going to browser if launched with arg
         music_player_clear(music_player);
     } while(1);
