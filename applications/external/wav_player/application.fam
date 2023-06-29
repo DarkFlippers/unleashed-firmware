@@ -8,4 +8,7 @@ App(
     fap_icon="wav_10px.png",
     fap_category="Media",
     fap_icon_assets="images",
+    fap_author="@DrZlo13 & (ported, fixed by @xMasterX), (improved by @LTVA1)",
+    fap_version="1.0",
+    fap_description="Audio player for WAV files, recommended to convert files to unsigned 8-bit PCM stereo, but it may work with others too",
 )

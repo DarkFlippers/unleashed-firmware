@@ -8,4 +8,7 @@ App(
     fap_category="Games",
     fap_icon="minesweeper_icon.png",
     order=35,
+    fap_author="@panki27 & @xMasterX",
+    fap_version="1.0",
+    fap_description="Minesweeper Game",
 )

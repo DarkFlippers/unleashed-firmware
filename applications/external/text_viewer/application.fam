@@ -12,4 +12,7 @@ App(
     fap_icon="icons/text_10px.png",
     fap_category="Misc",
     fap_icon_assets="icons",
+    fap_author="@kowalski7cc & @kyhwana",
+    fap_version="1.0",
+    fap_description="Text viewer application",
 )
