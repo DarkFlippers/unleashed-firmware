@@ -6,6 +6,7 @@
 
 #define EXTERNAL_APPLICATION_NAME ("[External Application]")
 #define EXTERNAL_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 1)
+#define NONE_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 2)
 
 static bool favorite_fap_selector_item_callback(
     FuriString* file_path,
@@ -89,7 +90,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     submenu_add_item(
         submenu,
         "None (disable)",
-        FLIPPER_APPS_COUNT + 2,
+        NONE_APPLICATION_INDEX,
         desktop_settings_scene_favorite_submenu_callback,
         app);
 
@@ -154,6 +155,10 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                     MAX_APP_LENGTH);
                 consumed = true;
             }
+        } else if(event.event == NONE_APPLICATION_INDEX) {
+            curr_favorite_app->is_external = false;
+            strncpy(curr_favorite_app->name_or_path, "no", MAX_APP_LENGTH);
+            consumed = true;
         } else {
             curr_favorite_app->is_external = false;
             strncpy(

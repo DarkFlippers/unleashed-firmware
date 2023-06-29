@@ -70,7 +70,7 @@ static void desktop_scene_main_open_app_or_profile(Desktop* desktop, const char*
 }
 
 static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
-    if(strlen(application->name_or_path) > 0) {
+    if(strlen(application->name_or_path) > 4) {
         loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
     } else {
         // No favourite app is set! So we skipping this part
