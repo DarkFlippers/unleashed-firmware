@@ -1,13 +1,15 @@
 ## New changes
-* Plugins: UniTemp update merged PRs -> Heat Index Feature (by @ClementGre) + Append carbon dioxide sensor (SCD40) (by @divinebird)
-* Plugins: Fix furi_hal_bus issues in AVR Programmer and Signal Generator (fixes issue #525)
-* Plugins: USB / BLE Remote - Updated UI in keynote vertical and numpad (by @gid9798 | PR #524)
-* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Fixed ESP32 WiFi Marauder crashes when reopening app
-* Infrared: Updated universal remote asstes (by @amec0e | PR #522)
-* OFW PR 2783: SLIX2 emulation support / practical use for Dymo printers (by @g3gg0)
-* OFW PR 2782: NFC: Fix key invalidation logic (by @AloneLiberty)
-* OFW: Debug: sync apps on attach, makes it possible to debug already started app that has crashed
+* OFW PR: Update OFW PR 2782
+* OFW: Add Mitsubishi MSZ-AP25VGK universal ac remote
+* OFW: Fix roll-over in file browser and archive
+* OFW: Fix fr-FR-mac keylayout
+* OFW: NFC/RFID detector app
+* OFW: Fast FAP Loader
+* OFW: LF-RFID debug: make it work
+* OFW: Fix M*LIB usage
+* OFW: fix: make `dialog_file_browser_set_basic_options` initialize all fields
+* OFW: Scroll acceleration
+* OFW: Loader refaptoring: second encounter 
 
 ----
 
