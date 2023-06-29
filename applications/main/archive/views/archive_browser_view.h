@@ -102,6 +102,8 @@ typedef struct {
     int32_t array_offset;
     int32_t list_offset;
     size_t scroll_counter;
+
+    uint32_t button_held_for_ticks;
 } ArchiveBrowserViewModel;
 
 void archive_browser_set_callback(
