@@ -940,14 +940,14 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     deactivated = true;
                 } else {
                     // If the key A is marked as found and matches the searching key, invalidate it
-                    uint8_t found_key[6];
-                    memcpy(found_key, data->block[i].value, 6);
+                    MfClassicSectorTrailer* sec_trailer =
+                        mf_classic_get_sector_trailer_by_sector(data, i);
 
                     uint8_t current_key[6];
-                    memcpy(current_key, &key, 6);
+                    nfc_util_num2bytes(key, 6, current_key);
 
                     if(mf_classic_is_key_found(data, i, MfClassicKeyA) &&
-                       memcmp(found_key, current_key, 6) == 0) {
+                       memcmp(sec_trailer->key_a, current_key, 6) == 0) {
                         mf_classic_set_key_not_found(data, i, MfClassicKeyA);
                         is_key_a_found = false;
                         FURI_LOG_D(TAG, "Key %dA not found in attack", i);
@@ -966,14 +966,14 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     deactivated = true;
                 } else {
                     // If the key B is marked as found and matches the searching key, invalidate it
-                    uint8_t found_key[6];
-                    memcpy(found_key, data->block[i].value + 10, 6);
+                    MfClassicSectorTrailer* sec_trailer =
+                        mf_classic_get_sector_trailer_by_sector(data, i);
 
                     uint8_t current_key[6];
-                    memcpy(current_key, &key, 6);
+                    nfc_util_num2bytes(key, 6, current_key);
 
                     if(mf_classic_is_key_found(data, i, MfClassicKeyB) &&
-                       memcmp(found_key, current_key, 6) == 0) {
+                       memcmp(sec_trailer->key_b, current_key, 6) == 0) {
                         mf_classic_set_key_not_found(data, i, MfClassicKeyB);
                         is_key_b_found = false;
                         FURI_LOG_D(TAG, "Key %dB not found in attack", i);
@@ -989,7 +989,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                 }
                 if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;
             }
-            memcpy(&prev_key, &key, sizeof(key));
+            prev_key = key;
         }
         if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;
         mf_classic_read_sector(&tx_rx, data, i);
