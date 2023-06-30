@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,31.3,,
+Version,+,32.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -56,7 +56,6 @@ Header,+,firmware/targets/f7/furi_hal/furi_hal_rfid.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_spi_config.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_spi_types.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_subghz.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_subghz_configs.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_target_hw.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_uart.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_usb_cdc.h,,
@@ -186,6 +185,7 @@ Header,+,lib/subghz/blocks/decoder.h,,
 Header,+,lib/subghz/blocks/encoder.h,,
 Header,+,lib/subghz/blocks/generic.h,,
 Header,+,lib/subghz/blocks/math.h,,
+Header,+,lib/subghz/devices/cc1101_configs.h,,
 Header,+,lib/subghz/environment.h,,
 Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
@@ -317,6 +317,7 @@ Function,-,LL_mDelay,void,uint32_t
 Function,-,SystemCoreClockUpdate,void,
 Function,-,SystemInit,void,
 Function,-,_Exit,void,int
+Function,+,__aeabi_uldivmod,void*,"uint64_t, uint64_t"
 Function,-,__assert,void,"const char*, int, const char*"
 Function,+,__assert_func,void,"const char*, int, const char*, const char*"
 Function,+,__clear_cache,void,"void*, void*"
@@ -657,26 +658,6 @@ Function,+,canvas_width,uint8_t,const Canvas*
 Function,-,cbrt,double,double
 Function,-,cbrtf,float,float
 Function,-,cbrtl,long double,long double
-Function,+,cc1101_calibrate,void,FuriHalSpiBusHandle*
-Function,+,cc1101_flush_rx,void,FuriHalSpiBusHandle*
-Function,+,cc1101_flush_tx,void,FuriHalSpiBusHandle*
-Function,-,cc1101_get_partnumber,uint8_t,FuriHalSpiBusHandle*
-Function,+,cc1101_get_rssi,uint8_t,FuriHalSpiBusHandle*
-Function,+,cc1101_get_status,CC1101Status,FuriHalSpiBusHandle*
-Function,-,cc1101_get_version,uint8_t,FuriHalSpiBusHandle*
-Function,+,cc1101_read_fifo,uint8_t,"FuriHalSpiBusHandle*, uint8_t*, uint8_t*"
-Function,+,cc1101_read_reg,CC1101Status,"FuriHalSpiBusHandle*, uint8_t, uint8_t*"
-Function,+,cc1101_reset,void,FuriHalSpiBusHandle*
-Function,+,cc1101_set_frequency,uint32_t,"FuriHalSpiBusHandle*, uint32_t"
-Function,-,cc1101_set_intermediate_frequency,uint32_t,"FuriHalSpiBusHandle*, uint32_t"
-Function,+,cc1101_set_pa_table,void,"FuriHalSpiBusHandle*, const uint8_t[8]"
-Function,+,cc1101_shutdown,void,FuriHalSpiBusHandle*
-Function,+,cc1101_strobe,CC1101Status,"FuriHalSpiBusHandle*, uint8_t"
-Function,+,cc1101_switch_to_idle,void,FuriHalSpiBusHandle*
-Function,+,cc1101_switch_to_rx,void,FuriHalSpiBusHandle*
-Function,+,cc1101_switch_to_tx,void,FuriHalSpiBusHandle*
-Function,+,cc1101_write_fifo,uint8_t,"FuriHalSpiBusHandle*, const uint8_t*, uint8_t"
-Function,+,cc1101_write_reg,CC1101Status,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
 Function,-,ceil,double,double
 Function,-,ceilf,float,float
 Function,-,ceill,long double,long double
@@ -1383,6 +1364,7 @@ Function,+,furi_hal_spi_release,void,FuriHalSpiBusHandle*
 Function,-,furi_hal_subghz_dump_state,void,
 Function,+,furi_hal_subghz_flush_rx,void,
 Function,+,furi_hal_subghz_flush_tx,void,
+Function,+,furi_hal_subghz_get_data_gpio,const GpioPin*,
 Function,+,furi_hal_subghz_get_lqi,uint8_t,
 Function,+,furi_hal_subghz_get_rssi,float,
 Function,+,furi_hal_subghz_idle,void,
@@ -1390,10 +1372,9 @@ Function,-,furi_hal_subghz_init,void,
 Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
 Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
 Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
-Function,+,furi_hal_subghz_load_custom_preset,void,uint8_t*
+Function,+,furi_hal_subghz_load_custom_preset,void,const uint8_t*
 Function,+,furi_hal_subghz_load_patable,void,const uint8_t[8]
-Function,+,furi_hal_subghz_load_preset,void,FuriHalSubGhzPreset
-Function,+,furi_hal_subghz_load_registers,void,uint8_t*
+Function,+,furi_hal_subghz_load_registers,void,const uint8_t*
 Function,+,furi_hal_subghz_read_packet,void,"uint8_t*, uint8_t*"
 Function,+,furi_hal_subghz_reset,void,
 Function,+,furi_hal_subghz_rx,void,
@@ -1401,7 +1382,7 @@ Function,+,furi_hal_subghz_rx_pipe_not_empty,_Bool,
 Function,+,furi_hal_subghz_set_async_mirror_pin,void,const GpioPin*
 Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
-Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
+Function,-,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
 Function,-,furi_hal_subghz_shutdown,void,
 Function,+,furi_hal_subghz_sleep,void,
 Function,+,furi_hal_subghz_start_async_rx,void,"FuriHalSubGhzCaptureCallback, void*"
@@ -2686,6 +2667,36 @@ Function,+,subghz_block_generic_deserialize,SubGhzProtocolStatus,"SubGhzBlockGen
 Function,+,subghz_block_generic_deserialize_check_count_bit,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, uint16_t"
 Function,+,subghz_block_generic_get_preset_name,void,"const char*, FuriString*"
 Function,+,subghz_block_generic_serialize,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, SubGhzRadioPreset*"
+Function,+,subghz_devices_begin,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_deinit,void,
+Function,+,subghz_devices_end,void,const SubGhzDevice*
+Function,+,subghz_devices_flush_rx,void,const SubGhzDevice*
+Function,+,subghz_devices_flush_tx,void,const SubGhzDevice*
+Function,+,subghz_devices_get_by_name,const SubGhzDevice*,const char*
+Function,+,subghz_devices_get_data_gpio,const GpioPin*,const SubGhzDevice*
+Function,+,subghz_devices_get_lqi,uint8_t,const SubGhzDevice*
+Function,+,subghz_devices_get_name,const char*,const SubGhzDevice*
+Function,+,subghz_devices_get_rssi,float,const SubGhzDevice*
+Function,+,subghz_devices_idle,void,const SubGhzDevice*
+Function,+,subghz_devices_init,void,
+Function,+,subghz_devices_is_async_complete_tx,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_is_connect,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_is_frequency_valid,_Bool,"const SubGhzDevice*, uint32_t"
+Function,+,subghz_devices_is_rx_data_crc_valid,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_load_preset,void,"const SubGhzDevice*, FuriHalSubGhzPreset, uint8_t*"
+Function,+,subghz_devices_read_packet,void,"const SubGhzDevice*, uint8_t*, uint8_t*"
+Function,+,subghz_devices_reset,void,const SubGhzDevice*
+Function,+,subghz_devices_rx_pipe_not_empty,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_set_async_mirror_pin,void,"const SubGhzDevice*, const GpioPin*"
+Function,+,subghz_devices_set_frequency,uint32_t,"const SubGhzDevice*, uint32_t"
+Function,+,subghz_devices_set_rx,void,const SubGhzDevice*
+Function,+,subghz_devices_set_tx,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_sleep,void,const SubGhzDevice*
+Function,+,subghz_devices_start_async_rx,void,"const SubGhzDevice*, void*, void*"
+Function,+,subghz_devices_start_async_tx,_Bool,"const SubGhzDevice*, void*, void*"
+Function,+,subghz_devices_stop_async_rx,void,const SubGhzDevice*
+Function,+,subghz_devices_stop_async_tx,void,const SubGhzDevice*
+Function,+,subghz_devices_write_packet,void,"const SubGhzDevice*, const uint8_t*, uint8_t"
 Function,+,subghz_environment_alloc,SubGhzEnvironment*,
 Function,+,subghz_environment_free,void,SubGhzEnvironment*
 Function,+,subghz_environment_get_alutech_at_4n_rainbow_table_file_name,const char*,SubGhzEnvironment*
@@ -2744,7 +2755,7 @@ Function,+,subghz_protocol_encoder_raw_free,void,void*
 Function,+,subghz_protocol_encoder_raw_stop,void,void*
 Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
 Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
-Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*"
+Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*, const char*"
 Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
 Function,+,subghz_protocol_raw_save_to_file_init,_Bool,"SubGhzProtocolDecoderRAW*, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_raw_save_to_file_pause,void,"SubGhzProtocolDecoderRAW*, _Bool"
@@ -2788,7 +2799,7 @@ Function,+,subghz_tx_rx_worker_free,void,SubGhzTxRxWorker*
 Function,+,subghz_tx_rx_worker_is_running,_Bool,SubGhzTxRxWorker*
 Function,+,subghz_tx_rx_worker_read,size_t,"SubGhzTxRxWorker*, uint8_t*, size_t"
 Function,+,subghz_tx_rx_worker_set_callback_have_read,void,"SubGhzTxRxWorker*, SubGhzTxRxWorkerCallbackHaveRead, void*"
-Function,+,subghz_tx_rx_worker_start,_Bool,"SubGhzTxRxWorker*, uint32_t"
+Function,+,subghz_tx_rx_worker_start,_Bool,"SubGhzTxRxWorker*, const SubGhzDevice*, uint32_t"
 Function,+,subghz_tx_rx_worker_stop,void,SubGhzTxRxWorker*
 Function,+,subghz_tx_rx_worker_write,_Bool,"SubGhzTxRxWorker*, uint8_t*, size_t"
 Function,+,subghz_worker_alloc,SubGhzWorker*,
@@ -3389,6 +3400,12 @@ Variable,+,sequence_set_vibro_on,const NotificationSequence,
 Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
+Variable,+,subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_gfsk_9_99kb_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_msk_99_97kb_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_ook_270khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_ook_650khz_async_regs,const uint8_t[],
 Variable,+,subghz_protocol_raw,const SubGhzProtocol,
 Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
 Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,

@@ -1,6 +1,5 @@
 #include <furi_hal_subghz.h>
-#include <furi_hal_subghz_configs.h>
-
+#include <lib/subghz/devices/cc1101_configs.h>
 #include <furi_hal_region.h>
 #include <furi_hal_version.h>
 #include <furi_hal_rtc.h>
@@ -27,17 +26,36 @@ static uint32_t furi_hal_subghz_debug_gpio_buff[2];
 #define SUBGHZ_DMA_CH1_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH1_CHANNEL
 #define SUBGHZ_DMA_CH2_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH2_CHANNEL
 
+/** SubGhz state */
+typedef enum {
+    SubGhzStateInit, /**< Init pending */
+
+    SubGhzStateIdle, /**< Idle, energy save mode */
+
+    SubGhzStateAsyncRx, /**< Async RX started */
+
+    SubGhzStateAsyncTx, /**< Async TX started, DMA and timer is on */
+    SubGhzStateAsyncTxLast, /**< Async TX continue, DMA completed and timer got last value to go */
+    SubGhzStateAsyncTxEnd, /**< Async TX complete, cleanup needed */
+
+} SubGhzState;
+
+/** SubGhz regulation, receive transmission on the current frequency for the
+ * region */
+typedef enum {
+    SubGhzRegulationOnlyRx, /**only Rx*/
+    SubGhzRegulationTxRx, /**TxRx*/
+} SubGhzRegulation;
+
 typedef struct {
     volatile SubGhzState state;
     volatile SubGhzRegulation regulation;
-    volatile FuriHalSubGhzPreset preset;
     const GpioPin* async_mirror_pin;
 } FuriHalSubGhz;
 
 volatile FuriHalSubGhz furi_hal_subghz = {
     .state = SubGhzStateInit,
     .regulation = SubGhzRegulationTxRx,
-    .preset = FuriHalSubGhzPresetIDLE,
     .async_mirror_pin = NULL,
 };
 
@@ -45,10 +63,13 @@ void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {
     furi_hal_subghz.async_mirror_pin = pin;
 }
 
+const GpioPin* furi_hal_subghz_get_data_gpio() {
+    return &gpio_cc1101_g0;
+}
+
 void furi_hal_subghz_init() {
     furi_assert(furi_hal_subghz.state == SubGhzStateInit);
     furi_hal_subghz.state = SubGhzStateIdle;
-    furi_hal_subghz.preset = FuriHalSubGhzPresetIDLE;
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
 
@@ -102,8 +123,6 @@ void furi_hal_subghz_sleep() {
     cc1101_shutdown(&furi_hal_spi_bus_handle_subghz);
 
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
-
-    furi_hal_subghz.preset = FuriHalSubGhzPresetIDLE;
 }
 
 void furi_hal_subghz_dump_state() {
@@ -115,34 +134,7 @@ void furi_hal_subghz_dump_state() {
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 }
 
-void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
-    if(preset == FuriHalSubGhzPresetOok650Async) {
-        furi_hal_subghz_load_registers((uint8_t*)furi_hal_subghz_preset_ook_650khz_async_regs);
-        furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable);
-    } else if(preset == FuriHalSubGhzPresetOok270Async) {
-        furi_hal_subghz_load_registers((uint8_t*)furi_hal_subghz_preset_ook_270khz_async_regs);
-        furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable);
-    } else if(preset == FuriHalSubGhzPreset2FSKDev238Async) {
-        furi_hal_subghz_load_registers(
-            (uint8_t*)furi_hal_subghz_preset_2fsk_dev2_38khz_async_regs);
-        furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
-    } else if(preset == FuriHalSubGhzPreset2FSKDev476Async) {
-        furi_hal_subghz_load_registers(
-            (uint8_t*)furi_hal_subghz_preset_2fsk_dev47_6khz_async_regs);
-        furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
-    } else if(preset == FuriHalSubGhzPresetMSK99_97KbAsync) {
-        furi_hal_subghz_load_registers((uint8_t*)furi_hal_subghz_preset_msk_99_97kb_async_regs);
-        furi_hal_subghz_load_patable(furi_hal_subghz_preset_msk_async_patable);
-    } else if(preset == FuriHalSubGhzPresetGFSK9_99KbAsync) {
-        furi_hal_subghz_load_registers((uint8_t*)furi_hal_subghz_preset_gfsk_9_99kb_async_regs);
-        furi_hal_subghz_load_patable(furi_hal_subghz_preset_gfsk_async_patable);
-    } else {
-        furi_crash("SubGhz: Missing config.");
-    }
-    furi_hal_subghz.preset = preset;
-}
-
-void furi_hal_subghz_load_custom_preset(uint8_t* preset_data) {
+void furi_hal_subghz_load_custom_preset(const uint8_t* preset_data) {
     //load config
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_reset(&furi_hal_spi_bus_handle_subghz);
@@ -157,7 +149,6 @@ void furi_hal_subghz_load_custom_preset(uint8_t* preset_data) {
     //load pa table
     memcpy(&pa[0], &preset_data[i + 2], 8);
     furi_hal_subghz_load_patable(pa);
-    furi_hal_subghz.preset = FuriHalSubGhzPresetCustom;
 
     //show debug
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
@@ -173,7 +164,7 @@ void furi_hal_subghz_load_custom_preset(uint8_t* preset_data) {
     }
 }
 
-void furi_hal_subghz_load_registers(uint8_t* data) {
+void furi_hal_subghz_load_registers(const uint8_t* data) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_reset(&furi_hal_spi_bus_handle_subghz);
     uint32_t i = 0;

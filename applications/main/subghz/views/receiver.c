@@ -62,6 +62,7 @@ typedef struct {
     uint16_t history_item;
     SubGhzViewReceiverBarShow bar_show;
     uint8_t u_rssi;
+    SubGhzRadioDeviceType device_type;
 } SubGhzViewReceiverModel;
 
 void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi) {
@@ -173,6 +174,17 @@ void subghz_view_receiver_add_data_statusbar(
         true);
 }
 
+void subghz_view_receiver_set_radio_device_type(
+    SubGhzViewReceiver* subghz_receiver,
+    SubGhzRadioDeviceType device_type) {
+    furi_assert(subghz_receiver);
+    with_view_model(
+        subghz_receiver->view,
+        SubGhzViewReceiverModel * model,
+        { model->device_type = device_type; },
+        true);
+}
+
 static void subghz_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_box(canvas, 0, 0 + idx * FRAME_HEIGHT, scrollbar ? 122 : 127, FRAME_HEIGHT);
@@ -190,9 +202,9 @@ static void subghz_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool s
 static void subghz_view_rssi_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     for(uint8_t i = 1; i < model->u_rssi; i++) {
         if(i % 5) {
-            canvas_draw_dot(canvas, 46 + i, 50);
-            canvas_draw_dot(canvas, 47 + i, 51);
             canvas_draw_dot(canvas, 46 + i, 52);
+            canvas_draw_dot(canvas, 47 + i, 53);
+            canvas_draw_dot(canvas, 46 + i, 54);
         }
     }
 }
@@ -232,22 +244,28 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
-        canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+        canvas_draw_icon(canvas, 0, 0, &I_Scanning_short_96x52);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 63, 44, "Scanning...");
         canvas_set_font(canvas, FontSecondary);
     }
 
+    if(model->device_type == SubGhzRadioDeviceTypeInternal) {
+        canvas_draw_icon(canvas, 108, 0, &I_Internal_antenna_20x12);
+    } else {
+        canvas_draw_icon(canvas, 108, 0, &I_External_antenna_20x12);
+    }
+
     subghz_view_rssi_draw(canvas, model);
     switch(model->bar_show) {
     case SubGhzViewReceiverBarShowLock:
-        canvas_draw_icon(canvas, 64, 55, &I_Lock_7x8);
-        canvas_draw_str(canvas, 74, 62, "Locked");
+        canvas_draw_icon(canvas, 64, 56, &I_Lock_7x8);
+        canvas_draw_str(canvas, 74, 64, "Locked");
         break;
     case SubGhzViewReceiverBarShowToUnlockPress:
-        canvas_draw_str(canvas, 44, 62, furi_string_get_cstr(model->frequency_str));
-        canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
-        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
+        canvas_draw_str(canvas, 44, 64, furi_string_get_cstr(model->frequency_str));
+        canvas_draw_str(canvas, 79, 64, furi_string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 97, 64, furi_string_get_cstr(model->history_stat_str));
         canvas_set_font(canvas, FontSecondary);
         elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
         elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
@@ -258,13 +276,13 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         canvas_draw_dot(canvas, 17, 61);
         break;
     case SubGhzViewReceiverBarShowUnlock:
-        canvas_draw_icon(canvas, 64, 55, &I_Unlock_7x8);
-        canvas_draw_str(canvas, 74, 62, "Unlocked");
+        canvas_draw_icon(canvas, 64, 56, &I_Unlock_7x8);
+        canvas_draw_str(canvas, 74, 64, "Unlocked");
         break;
     default:
-        canvas_draw_str(canvas, 44, 62, furi_string_get_cstr(model->frequency_str));
-        canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
-        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
+        canvas_draw_str(canvas, 44, 64, furi_string_get_cstr(model->frequency_str));
+        canvas_draw_str(canvas, 79, 64, furi_string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 97, 64, furi_string_get_cstr(model->history_stat_str));
         break;
     }
 }

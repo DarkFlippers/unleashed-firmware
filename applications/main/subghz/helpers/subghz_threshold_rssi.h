@@ -38,6 +38,7 @@ float subghz_threshold_rssi_get(SubGhzThresholdRssi* instance);
 /** Check threshold
  * 
  * @param instance Pointer to a SubGhzThresholdRssi
+ * @param rssi Current RSSI
  * @return SubGhzThresholdRssiData 
  */
-SubGhzThresholdRssiData subghz_threshold_get_rssi_data(SubGhzThresholdRssi* instance);
+SubGhzThresholdRssiData subghz_threshold_get_rssi_data(SubGhzThresholdRssi* instance, float rssi);

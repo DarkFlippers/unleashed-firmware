@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <lib/subghz/devices/preset.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -20,18 +22,6 @@ extern "C" {
 #define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL / 2)
 #define API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME 999
 
-/** Radio Presets */
-typedef enum {
-    FuriHalSubGhzPresetIDLE, /**< default configuration */
-    FuriHalSubGhzPresetOok270Async, /**< OOK, bandwidth 270kHz, asynchronous */
-    FuriHalSubGhzPresetOok650Async, /**< OOK, bandwidth 650kHz, asynchronous */
-    FuriHalSubGhzPreset2FSKDev238Async, /**< FM, deviation 2.380371 kHz, asynchronous */
-    FuriHalSubGhzPreset2FSKDev476Async, /**< FM, deviation 47.60742 kHz, asynchronous */
-    FuriHalSubGhzPresetMSK99_97KbAsync, /**< MSK, deviation 47.60742 kHz, 99.97Kb/s, asynchronous */
-    FuriHalSubGhzPresetGFSK9_99KbAsync, /**< GFSK, deviation 19.042969 kHz, 9.996Kb/s, asynchronous */
-    FuriHalSubGhzPresetCustom, /**Custom Preset*/
-} FuriHalSubGhzPreset;
-
 /** Switchable Radio Paths */
 typedef enum {
     FuriHalSubGhzPathIsolate, /**< Isolate Radio from antenna */
@@ -39,27 +29,6 @@ typedef enum {
     FuriHalSubGhzPath315, /**< Center Frequency: 315MHz. Path 2: SW1RF2-SW2RF1, LCLCLCL */
     FuriHalSubGhzPath868, /**< Center Frequency: 868MHz. Path 3: SW1RF3-SW2RF3, LCLC */
 } FuriHalSubGhzPath;
-
-/** SubGhz state */
-typedef enum {
-    SubGhzStateInit, /**< Init pending */
-
-    SubGhzStateIdle, /**< Idle, energy save mode */
-
-    SubGhzStateAsyncRx, /**< Async RX started */
-
-    SubGhzStateAsyncTx, /**< Async TX started, DMA and timer is on */
-    SubGhzStateAsyncTxLast, /**< Async TX continue, DMA completed and timer got last value to go */
-    SubGhzStateAsyncTxEnd, /**< Async TX complete, cleanup needed */
-
-} SubGhzState;
-
-/** SubGhz regulation, receive transmission on the current frequency for the
- * region */
-typedef enum {
-    SubGhzRegulationOnlyRx, /**only Rx*/
-    SubGhzRegulationTxRx, /**TxRx*/
-} SubGhzRegulation;
 
 /* Mirror RX/TX async modulation signal to specified pin
  *
@@ -69,6 +38,12 @@ typedef enum {
  * @param[in]  pin   pointer to the gpio pin structure or NULL to disable
  */
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin);
+
+/** Get data GPIO
+ *
+ * @return     pointer to the gpio pin structure
+ */
+const GpioPin* furi_hal_subghz_get_data_gpio();
 
 /** Initialize and switch to power save mode Used by internal API-HAL
  * initialization routine Can be used to reinitialize device to safe state and
@@ -84,23 +59,17 @@ void furi_hal_subghz_sleep();
  */
 void furi_hal_subghz_dump_state();
 
-/** Load registers from preset by preset name
- *
- * @param      preset  to load
- */
-void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset);
-
 /** Load custom registers from preset
  *
  * @param      preset_data   registers to load
  */
-void furi_hal_subghz_load_custom_preset(uint8_t* preset_data);
+void furi_hal_subghz_load_custom_preset(const uint8_t* preset_data);
 
 /** Load registers
  *
  * @param      data  Registers data
  */
-void furi_hal_subghz_load_registers(uint8_t* data);
+void furi_hal_subghz_load_registers(const uint8_t* data);
 
 /** Load PATABLE
  *

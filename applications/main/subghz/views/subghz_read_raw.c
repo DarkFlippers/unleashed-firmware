@@ -29,6 +29,7 @@ typedef struct {
     uint8_t ind_sin;
     SubGhzReadRAWStatus status;
     float raw_threshold_rssi;
+    SubGhzRadioDeviceType device_type;
 } SubGhzReadRAWModel;
 
 void subghz_read_raw_set_callback(
@@ -54,6 +55,14 @@ void subghz_read_raw_add_data_statusbar(
             furi_string_set(model->preset_str, preset_str);
         },
         true);
+}
+
+void subghz_read_raw_set_radio_device_type(
+    SubGhzReadRAW* instance,
+    SubGhzRadioDeviceType device_type) {
+    furi_assert(instance);
+    with_view_model(
+        instance->view, SubGhzReadRAWModel * model, { model->device_type = device_type; }, true);
 }
 
 void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi, bool trace) {
@@ -279,11 +288,16 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
     uint8_t graphics_mode = 1;
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 5, 7, furi_string_get_cstr(model->frequency_str));
-    canvas_draw_str(canvas, 40, 7, furi_string_get_cstr(model->preset_str));
+    canvas_draw_str(canvas, 0, 9, furi_string_get_cstr(model->frequency_str));
+    canvas_draw_str(canvas, 35, 9, furi_string_get_cstr(model->preset_str));
     canvas_draw_str_aligned(
-        canvas, 126, 0, AlignRight, AlignTop, furi_string_get_cstr(model->sample_write));
+        canvas, 106, 2, AlignRight, AlignTop, furi_string_get_cstr(model->sample_write));
 
+    if(model->device_type == SubGhzRadioDeviceTypeInternal) {
+        canvas_draw_icon(canvas, 108, 0, &I_Internal_antenna_20x12);
+    } else {
+        canvas_draw_icon(canvas, 108, 0, &I_External_antenna_20x12);
+    }
     canvas_draw_line(canvas, 0, 14, 115, 14);
     canvas_draw_line(canvas, 0, 48, 115, 48);
     canvas_draw_line(canvas, 115, 14, 115, 48);

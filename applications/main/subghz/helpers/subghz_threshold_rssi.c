@@ -32,9 +32,8 @@ float subghz_threshold_rssi_get(SubGhzThresholdRssi* instance) {
     return instance->threshold_rssi;
 }
 
-SubGhzThresholdRssiData subghz_threshold_get_rssi_data(SubGhzThresholdRssi* instance) {
+SubGhzThresholdRssiData subghz_threshold_get_rssi_data(SubGhzThresholdRssi* instance, float rssi) {
     furi_assert(instance);
-    float rssi = furi_hal_subghz_get_rssi();
     SubGhzThresholdRssiData ret = {.rssi = rssi, .is_above = false};
 
     if(float_is_equal(instance->threshold_rssi, SUBGHZ_RAW_THRESHOLD_MIN)) {

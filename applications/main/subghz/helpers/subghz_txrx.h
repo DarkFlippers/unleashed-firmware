@@ -7,6 +7,7 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/protocols/raw.h>
+#include <lib/subghz/devices/devices.h>
 
 typedef struct SubGhzTxRx SubGhzTxRx;
 
@@ -288,3 +289,48 @@ void subghz_txrx_set_raw_file_encoder_worker_callback_end(
     SubGhzTxRx* instance,
     SubGhzProtocolEncoderRAWCallbackEnd callback,
     void* context);
+
+/* Checking if an external radio device is connected
+* 
+* @param instance Pointer to a SubGhzTxRx
+* @param name Name of external radio device
+* @return bool True if is connected to the external radio device
+*/
+bool subghz_txrx_radio_device_is_external_connected(SubGhzTxRx* instance, const char* name);
+
+/* Set the selected radio device to use
+*
+* @param instance Pointer to a SubGhzTxRx
+* @param radio_device_type Radio device type
+* @return SubGhzRadioDeviceType Type of installed radio device
+*/
+SubGhzRadioDeviceType
+    subghz_txrx_radio_device_set(SubGhzTxRx* instance, SubGhzRadioDeviceType radio_device_type);
+
+/* Get the selected radio device to use
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return SubGhzRadioDeviceType Type of installed radio device
+*/
+SubGhzRadioDeviceType subghz_txrx_radio_device_get(SubGhzTxRx* instance);
+
+/* Get RSSI the selected radio device to use
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return float RSSI
+*/
+float subghz_txrx_radio_device_get_rssi(SubGhzTxRx* instance);
+
+/* Get name the selected radio device to use
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return const char* Name of installed radio device
+*/
+const char* subghz_txrx_radio_device_get_name(SubGhzTxRx* instance);
+
+/* Get get intelligence whether frequency the selected radio device to use
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return bool True if the frequency is valid
+*/
+bool subghz_txrx_radio_device_is_frequecy_valid(SubGhzTxRx* instance, uint32_t frequency);

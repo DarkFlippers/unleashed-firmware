@@ -1,6 +1,7 @@
 #include "subghz_test_static.h"
 #include "../subghz_i.h"
 #include "../helpers/subghz_testing.h"
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #include <math.h>
 #include <furi.h>
@@ -141,7 +142,7 @@ void subghz_test_static_enter(void* context) {
     SubGhzTestStatic* instance = context;
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
 
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_write(&gpio_cc1101_g0, false);

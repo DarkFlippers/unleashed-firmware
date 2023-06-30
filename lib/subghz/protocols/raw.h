@@ -126,8 +126,12 @@ void subghz_protocol_raw_file_encoder_worker_set_callback_end(
  * File generation for RAW work.
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param file_path File path
+ * @param radio_dev_name Radio device name
  */
-void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char* file_path);
+void subghz_protocol_raw_gen_fff_data(
+    FlipperFormat* flipper_format,
+    const char* file_path,
+    const char* radio_dev_name);
 
 /**
  * Deserialize and generating an upload to send.

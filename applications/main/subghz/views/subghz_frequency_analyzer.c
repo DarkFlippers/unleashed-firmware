@@ -177,7 +177,8 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
         }
         subghz_frequency_analyzer_log_frequency_draw(canvas, model);
     } else {
-        canvas_draw_str(canvas, 20, 8, "Frequency Analyzer");
+        canvas_draw_str(canvas, 0, 8, "Frequency Analyzer");
+        canvas_draw_icon(canvas, 108, 0, &I_Internal_antenna_20x12);
         canvas_draw_str(canvas, 0, 64, "RSSI");
         subghz_frequency_analyzer_draw_rssi(canvas, model->rssi, 20, 64);
 
