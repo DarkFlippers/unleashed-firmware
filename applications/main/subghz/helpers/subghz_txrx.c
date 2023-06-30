@@ -552,7 +552,10 @@ bool subghz_txrx_radio_device_is_external_connected(SubGhzTxRx* instance, const 
         subghz_txrx_radio_device_power_on(instance);
     }
 
-    is_connect = subghz_devices_is_connect(subghz_devices_get_by_name(name));
+    const SubGhzDevice* device = subghz_devices_get_by_name(name);
+    if(device) {
+        is_connect = subghz_devices_is_connect(device);
+    }
 
     if(!is_otg_enabled) {
         subghz_txrx_radio_device_power_off(instance);
