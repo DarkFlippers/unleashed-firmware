@@ -13,6 +13,8 @@
  */
 #pragma once
 
+#include <m-core.h>
+
 #ifdef __cplusplus
 extern "C" {
 #define FURI_NORETURN [[noreturn]]
@@ -48,27 +50,46 @@ FURI_NORETURN void __furi_halt();
     } while(0)
 
 /** Check condition and crash if check failed */
-#define furi_check(__e)                            \
-    do {                                           \
-        if(!(__e)) {                               \
-            furi_crash(__FURI_CHECK_MESSAGE_FLAG); \
-        }                                          \
+#define __furi_check(__e, __m) \
+    do {                       \
+        if(!(__e)) {           \
+            furi_crash(__m);   \
+        }                      \
     } while(0)
+
+/** Check condition and crash if failed
+ *
+ * @param      condition to check
+ * @param      optional  message
+ */
+#define furi_check(...) \
+    M_APPLY(__furi_check, M_DEFAULT_ARGS(2, (__FURI_CHECK_MESSAGE_FLAG), __VA_ARGS__))
 
 /** Only in debug build: Assert condition and crash if assert failed  */
 #ifdef FURI_DEBUG
-#define furi_assert(__e)                            \
-    do {                                            \
-        if(!(__e)) {                                \
-            furi_crash(__FURI_ASSERT_MESSAGE_FLAG); \
-        }                                           \
+#define __furi_assert(__e, __m) \
+    do {                        \
+        if(!(__e)) {            \
+            furi_crash(__m);    \
+        }                       \
     } while(0)
 #else
-#define furi_assert(__e) \
-    do {                 \
-        ((void)(__e));   \
+#define __furi_assert(__e, __m) \
+    do {                        \
+        ((void)(__e));          \
+        ((void)(__m));          \
     } while(0)
 #endif
+
+/** Assert condition and crash if failed
+ *
+ * @warning    only will do check if firmware compiled in debug mode
+ *
+ * @param      condition to check
+ * @param      optional  message
+ */
+#define furi_assert(...) \
+    M_APPLY(__furi_assert, M_DEFAULT_ARGS(2, (__FURI_ASSERT_MESSAGE_FLAG), __VA_ARGS__))
 
 #ifdef __cplusplus
 }
