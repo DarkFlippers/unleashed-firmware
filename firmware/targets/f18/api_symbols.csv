@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,31.2,,
+Version,+,31.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -128,6 +128,7 @@ Header,+,lib/mlib/m-list.h,,
 Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
+Header,+,lib/music_worker/music_worker.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
@@ -1519,6 +1520,18 @@ Function,-,mkstemps,int,"char*, int"
 Function,-,mktemp,char*,char*
 Function,-,mktime,time_t,tm*
 Function,-,mrand48,long,
+Function,-,music_worker_alloc,MusicWorker*,
+Function,-,music_worker_clear,void,MusicWorker*
+Function,-,music_worker_free,void,MusicWorker*
+Function,-,music_worker_is_playing,_Bool,MusicWorker*
+Function,-,music_worker_load,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_fmf_from_file,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_rtttl_from_file,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_rtttl_from_string,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_set_callback,void,"MusicWorker*, MusicWorkerCallback, void*"
+Function,-,music_worker_set_volume,void,"MusicWorker*, float"
+Function,-,music_worker_start,void,MusicWorker*
+Function,-,music_worker_stop,void,MusicWorker*
 Function,+,notification_internal_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_internal_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,31.2,,
+Version,+,31.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -146,6 +146,7 @@ Header,+,lib/mlib/m-list.h,,
 Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
+Header,+,lib/music_worker/music_worker.h,,
 Header,+,lib/nfc/nfc_device.h,,
 Header,+,lib/nfc/protocols/nfc_util.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
@@ -1244,12 +1245,12 @@ Function,+,furi_hal_mpu_protect_disable,void,FuriHalMpuRegion
 Function,+,furi_hal_mpu_protect_no_access,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
 Function,+,furi_hal_mpu_protect_read_only,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
 Function,+,furi_hal_nfc_activate_nfca,_Bool,"uint32_t, uint32_t*"
-Function,+,furi_hal_nfc_field_is_present,_Bool,
-Function,+,furi_hal_nfc_field_detect_start,void,
 Function,+,furi_hal_nfc_deinit,void,
 Function,+,furi_hal_nfc_detect,_Bool,"FuriHalNfcDevData*, uint32_t"
 Function,+,furi_hal_nfc_emulate_nfca,_Bool,"uint8_t*, uint8_t, uint8_t*, uint8_t, FuriHalNfcEmulateCallback, void*, uint32_t"
 Function,+,furi_hal_nfc_exit_sleep,void,
+Function,+,furi_hal_nfc_field_detect_start,void,
+Function,+,furi_hal_nfc_field_is_present,_Bool,
 Function,+,furi_hal_nfc_field_off,void,
 Function,+,furi_hal_nfc_field_on,void,
 Function,+,furi_hal_nfc_init,void,
@@ -1330,9 +1331,9 @@ Function,-,furi_hal_resources_init_early,void,
 Function,+,furi_hal_rfid_comp_set_callback,void,"FuriHalRfidCompCallback, void*"
 Function,+,furi_hal_rfid_comp_start,void,
 Function,+,furi_hal_rfid_comp_stop,void,
-Function,+,furi_hal_rfid_field_is_present,_Bool,uint32_t*
 Function,+,furi_hal_rfid_field_detect_start,void,
 Function,+,furi_hal_rfid_field_detect_stop,void,
+Function,+,furi_hal_rfid_field_is_present,_Bool,uint32_t*
 Function,-,furi_hal_rfid_init,void,
 Function,+,furi_hal_rfid_pin_pull_pulldown,void,
 Function,+,furi_hal_rfid_pin_pull_release,void,
@@ -2104,6 +2105,18 @@ Function,-,modf,double,"double, double*"
 Function,-,modff,float,"float, float*"
 Function,-,modfl,long double,"long double, long double*"
 Function,-,mrand48,long,
+Function,-,music_worker_alloc,MusicWorker*,
+Function,-,music_worker_clear,void,MusicWorker*
+Function,-,music_worker_free,void,MusicWorker*
+Function,-,music_worker_is_playing,_Bool,MusicWorker*
+Function,-,music_worker_load,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_fmf_from_file,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_rtttl_from_file,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_rtttl_from_string,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_set_callback,void,"MusicWorker*, MusicWorkerCallback, void*"
+Function,-,music_worker_set_volume,void,"MusicWorker*, float"
+Function,-,music_worker_start,void,MusicWorker*
+Function,-,music_worker_stop,void,MusicWorker*
 Function,-,nan,double,const char*
 Function,-,nanf,float,const char*
 Function,-,nanl,long double,const char*
