@@ -21,8 +21,17 @@
 
 #define FURI_HAL_BT_HARDFAULT_INFO_MAGIC 0x1170FD0F
 
-FuriMutex* furi_hal_bt_core2_mtx = NULL;
-static FuriHalBtStack furi_hal_bt_stack = FuriHalBtStackUnknown;
+typedef struct {
+    FuriMutex* core2_mtx;
+    FuriTimer* hardfault_check_timer;
+    FuriHalBtStack stack;
+} FuriHalBt;
+
+static FuriHalBt furi_hal_bt = {
+    .core2_mtx = NULL,
+    .hardfault_check_timer = NULL,
+    .stack = FuriHalBtStackUnknown,
+};
 
 typedef void (*FuriHalBtProfileStart)(void);
 typedef void (*FuriHalBtProfileStop)(void);
@@ -79,6 +88,13 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
 };
 FuriHalBtProfileConfig* current_profile = NULL;
 
+static void furi_hal_bt_hardfault_check(void* context) {
+    UNUSED(context);
+    if(furi_hal_bt_get_hardfault_info()) {
+        furi_crash("ST(R) Copro(R) HardFault");
+    }
+}
+
 void furi_hal_bt_init() {
     furi_hal_bus_enable(FuriHalBusHSEM);
     furi_hal_bus_enable(FuriHalBusIPCC);
@@ -86,9 +102,15 @@ void furi_hal_bt_init() {
     furi_hal_bus_enable(FuriHalBusPKA);
     furi_hal_bus_enable(FuriHalBusCRC);
 
-    if(!furi_hal_bt_core2_mtx) {
-        furi_hal_bt_core2_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
-        furi_assert(furi_hal_bt_core2_mtx);
+    if(!furi_hal_bt.core2_mtx) {
+        furi_hal_bt.core2_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
+        furi_assert(furi_hal_bt.core2_mtx);
+    }
+
+    if(!furi_hal_bt.hardfault_check_timer) {
+        furi_hal_bt.hardfault_check_timer =
+            furi_timer_alloc(furi_hal_bt_hardfault_check, FuriTimerTypePeriodic, NULL);
+        furi_timer_start(furi_hal_bt.hardfault_check_timer, 5000);
     }
 
     // Explicitly tell that we are in charge of CLK48 domain
@@ -99,13 +121,13 @@ void furi_hal_bt_init() {
 }
 
 void furi_hal_bt_lock_core2() {
-    furi_assert(furi_hal_bt_core2_mtx);
-    furi_check(furi_mutex_acquire(furi_hal_bt_core2_mtx, FuriWaitForever) == FuriStatusOk);
+    furi_assert(furi_hal_bt.core2_mtx);
+    furi_check(furi_mutex_acquire(furi_hal_bt.core2_mtx, FuriWaitForever) == FuriStatusOk);
 }
 
 void furi_hal_bt_unlock_core2() {
-    furi_assert(furi_hal_bt_core2_mtx);
-    furi_check(furi_mutex_release(furi_hal_bt_core2_mtx) == FuriStatusOk);
+    furi_assert(furi_hal_bt.core2_mtx);
+    furi_check(furi_mutex_release(furi_hal_bt.core2_mtx) == FuriStatusOk);
 }
 
 static bool furi_hal_bt_radio_stack_is_supported(const BleGlueC2Info* info) {
@@ -113,26 +135,26 @@ static bool furi_hal_bt_radio_stack_is_supported(const BleGlueC2Info* info) {
     if(info->StackType == INFO_STACK_TYPE_BLE_LIGHT) {
         if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
            info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
-            furi_hal_bt_stack = FuriHalBtStackLight;
+            furi_hal_bt.stack = FuriHalBtStackLight;
             supported = true;
         }
     } else if(info->StackType == INFO_STACK_TYPE_BLE_FULL) {
         if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
            info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
-            furi_hal_bt_stack = FuriHalBtStackFull;
+            furi_hal_bt.stack = FuriHalBtStackFull;
             supported = true;
         }
     } else {
-        furi_hal_bt_stack = FuriHalBtStackUnknown;
+        furi_hal_bt.stack = FuriHalBtStackUnknown;
     }
     return supported;
 }
 
 bool furi_hal_bt_start_radio_stack() {
     bool res = false;
-    furi_assert(furi_hal_bt_core2_mtx);
+    furi_assert(furi_hal_bt.core2_mtx);
 
-    furi_mutex_acquire(furi_hal_bt_core2_mtx, FuriWaitForever);
+    furi_mutex_acquire(furi_hal_bt.core2_mtx, FuriWaitForever);
 
     // Explicitly tell that we are in charge of CLK48 domain
     furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
@@ -166,17 +188,17 @@ bool furi_hal_bt_start_radio_stack() {
         }
         res = true;
     } while(false);
-    furi_mutex_release(furi_hal_bt_core2_mtx);
+    furi_mutex_release(furi_hal_bt.core2_mtx);
 
     return res;
 }
 
 FuriHalBtStack furi_hal_bt_get_radio_stack() {
-    return furi_hal_bt_stack;
+    return furi_hal_bt.stack;
 }
 
 bool furi_hal_bt_is_ble_gatt_gap_supported() {
-    if(furi_hal_bt_stack == FuriHalBtStackLight || furi_hal_bt_stack == FuriHalBtStackFull) {
+    if(furi_hal_bt.stack == FuriHalBtStackLight || furi_hal_bt.stack == FuriHalBtStackFull) {
         return true;
     } else {
         return false;
@@ -184,7 +206,7 @@ bool furi_hal_bt_is_ble_gatt_gap_supported() {
 }
 
 bool furi_hal_bt_is_testing_supported() {
-    if(furi_hal_bt_stack == FuriHalBtStackFull) {
+    if(furi_hal_bt.stack == FuriHalBtStackFull) {
         return true;
     } else {
         return false;
