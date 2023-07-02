@@ -219,13 +219,6 @@ static void bt_cli(Cli* cli, FuriString* args, void* context) {
     } while(false);
 
     if(bt_settings.enabled) {
-        if(bt_settings.advertise_type != BtAdvAll) {
-            const char* advname = {0};
-            if(bt_settings.advertise_type == BtAdvName) {
-                advname = furi_hal_version_get_name_ptr();
-            }
-            furi_hal_bt_set_profile_adv_name(FuriHalBtProfileSerial, advname);
-        }
         furi_hal_bt_start_advertising();
     }
 

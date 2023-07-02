@@ -348,13 +348,6 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
         if(furi_hal_bt_change_app(furi_profile, bt_on_gap_event_callback, bt)) {
             FURI_LOG_I(TAG, "Bt App started");
             if(bt->bt_settings.enabled) {
-                if(bt->bt_settings.advertise_type != BtAdvAll) {
-                    const char* advname = {0};
-                    if(bt->bt_settings.advertise_type == BtAdvName) {
-                        advname = furi_hal_version_get_name_ptr();
-                    }
-                    furi_hal_bt_set_profile_adv_name(FuriHalBtProfileSerial, advname);
-                }
                 furi_hal_bt_start_advertising();
             }
             furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);

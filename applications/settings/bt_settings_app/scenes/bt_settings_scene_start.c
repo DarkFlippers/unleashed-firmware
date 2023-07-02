@@ -94,7 +94,10 @@ bool bt_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == BtSettingsCustomEventBtEnable) {
-            if(app->settings.advertise_type != BtAdvAll) {
+            if(app->settings.advertise_type == BtAdvAll) {
+                furi_hal_bt_set_profile_adv_name(
+                    FuriHalBtProfileSerial, furi_hal_version_get_device_name_ptr());
+            } else {
                 const char* advname = {0};
                 if(app->settings.advertise_type == BtAdvName) {
                     advname = furi_hal_version_get_name_ptr();
