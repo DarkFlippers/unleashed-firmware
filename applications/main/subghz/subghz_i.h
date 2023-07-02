@@ -89,12 +89,9 @@ struct SubGhz {
     SubGhzLastSettings* last_settings;
 
     SubGhzProtocolFlag filter;
+    SubGhzProtocolFlag ignore_filter;
     FuriString* error_str;
     SubGhzLock lock;
-
-    bool ignore_starline;
-    bool ignore_auto_alarms;
-    bool ignore_magellan;
 
     SecureData* secure_data;
 

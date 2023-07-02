@@ -92,35 +92,41 @@ static void subghz_scene_add_to_history_callback(
     void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    SubGhzHistory* history = subghz->history;
-    FuriString* item_name = furi_string_alloc();
-    FuriString* item_time = furi_string_alloc();
-    uint16_t idx = subghz_history_get_item(history);
 
-    SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
-    if(subghz_history_add_to_history(history, decoder_base, &preset)) {
-        furi_string_reset(item_name);
-        furi_string_reset(item_time);
+    // The check can be moved to /lib/subghz/receiver.c, but may result in false positives
+    if((decoder_base->protocol->flag & subghz->ignore_filter) == 0) {
+        SubGhzHistory* history = subghz->history;
+        FuriString* item_name = furi_string_alloc();
+        FuriString* item_time = furi_string_alloc();
+        uint16_t idx = subghz_history_get_item(history);
 
-        subghz->state_notifications = SubGhzNotificationStateRxDone;
+        SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
+        if(subghz_history_add_to_history(history, decoder_base, &preset)) {
+            furi_string_reset(item_name);
+            furi_string_reset(item_time);
 
-        subghz_history_get_text_item_menu(history, item_name, idx);
-        subghz_history_get_time_item_menu(history, item_time, idx);
-        subghz_view_receiver_add_item_to_menu(
-            subghz->subghz_receiver,
-            furi_string_get_cstr(item_name),
-            furi_string_get_cstr(item_time),
-            subghz_history_get_type_protocol(history, idx));
+            subghz->state_notifications = SubGhzNotificationStateRxDone;
 
-        subghz_scene_receiver_update_statusbar(subghz);
-        if(subghz_history_get_text_space_left(subghz->history, NULL)) {
-            notification_message(subghz->notifications, &sequence_error);
+            subghz_history_get_text_item_menu(history, item_name, idx);
+            subghz_history_get_time_item_menu(history, item_time, idx);
+            subghz_view_receiver_add_item_to_menu(
+                subghz->subghz_receiver,
+                furi_string_get_cstr(item_name),
+                furi_string_get_cstr(item_time),
+                subghz_history_get_type_protocol(history, idx));
+
+            subghz_scene_receiver_update_statusbar(subghz);
+            if(subghz_history_get_text_space_left(subghz->history, NULL)) {
+                notification_message(subghz->notifications, &sequence_error);
+            }
         }
+        subghz_receiver_reset(receiver);
+        furi_string_free(item_name);
+        furi_string_free(item_time);
+        subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
+    } else {
+        FURI_LOG_I(TAG, "%s protocol ignored", decoder_base->protocol->name);
     }
-    subghz_receiver_reset(receiver);
-    furi_string_free(item_name);
-    furi_string_free(item_time);
-    subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
 }
 
 void subghz_scene_receiver_on_enter(void* context) {
@@ -160,32 +166,6 @@ void subghz_scene_receiver_on_enter(void* context) {
     subghz_view_receiver_set_callback(
         subghz->subghz_receiver, subghz_scene_receiver_callback, subghz);
     subghz_txrx_set_rx_calback(subghz->txrx, subghz_scene_add_to_history_callback, subghz);
-
-    // TODO: Replace with proper solution based on protocol flags, remove kostily and velosipedy from here
-    // Needs to be done after subghz refactoring merge!!!
-    if(subghz->ignore_starline == true) {
-        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Star Line")) {
-            subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
-        }
-    }
-    if(subghz->ignore_auto_alarms == true) {
-        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "KIA Seed")) {
-            subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
-        }
-
-        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Scher-Khan")) {
-            subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
-        }
-    }
-    if(subghz->ignore_magellan == true) {
-        if(subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, "Magellan")) {
-            subghz_protocol_decoder_base_set_decoder_callback(
-                subghz_txrx_get_decoder(subghz->txrx), NULL, NULL);
-        }
-    }
 
     if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
         subghz->state_notifications = SubGhzNotificationStateRx;
