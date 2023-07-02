@@ -63,7 +63,7 @@ class Main(App):
                     storage_ops.recursive_send(fap_dst_path, fap_local_path, False)
 
                 fap_host_app = self.args.targets[0]
-                startup_command = f'"Applications" {fap_host_app}'
+                startup_command = f"{fap_host_app}"
                 if self.args.host_app:
                     startup_command = self.args.host_app
 

@@ -819,3 +819,17 @@ FuriHalNfcReturn furi_hal_nfc_ll_txrx_bits(
 void furi_hal_nfc_ll_poll() {
     rfalWorker();
 }
+
+void furi_hal_nfc_field_detect_start() {
+    st25r3916WriteRegister(
+        ST25R3916_REG_OP_CONTROL,
+        ST25R3916_REG_OP_CONTROL_en | ST25R3916_REG_OP_CONTROL_en_fd_mask);
+    st25r3916WriteRegister(ST25R3916_REG_MODE, ST25R3916_REG_MODE_targ | ST25R3916_REG_MODE_om0);
+}
+
+bool furi_hal_nfc_field_is_present() {
+    return st25r3916CheckReg(
+        ST25R3916_REG_AUX_DISPLAY,
+        ST25R3916_REG_AUX_DISPLAY_efd_o,
+        ST25R3916_REG_AUX_DISPLAY_efd_o);
+}

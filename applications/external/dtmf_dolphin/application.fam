@@ -12,4 +12,7 @@ App(
     stack_size=8 * 1024,
     order=20,
     fap_category="Tools",
+    fap_author="@litui & @xMasterX",
+    fap_version="1.0",
+    fap_description="DTMF (Dual-Tone Multi-Frequency) dialer, Bluebox, and Redbox.",
 )

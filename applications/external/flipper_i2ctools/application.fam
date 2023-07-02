@@ -9,4 +9,7 @@ App(
     fap_icon="i2ctools.png",
     fap_category="GPIO",
     fap_icon_assets="images",
+    fap_author="@NaejEL",
+    fap_version="1.0",
+    fap_description="Set of i2c tools",
 )

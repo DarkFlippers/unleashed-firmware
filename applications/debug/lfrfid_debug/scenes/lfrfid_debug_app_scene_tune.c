@@ -6,6 +6,11 @@ static void comparator_trigger_callback(bool level, void* comp_ctx) {
     furi_hal_gpio_write(&gpio_ext_pa7, !level);
 }
 
+void lfrfid_debug_view_tune_callback(void* context) {
+    LfRfidDebug* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, 0xBA);
+}
+
 void lfrfid_debug_scene_tune_on_enter(void* context) {
     LfRfidDebug* app = context;
 
@@ -15,6 +20,8 @@ void lfrfid_debug_scene_tune_on_enter(void* context) {
     furi_hal_rfid_comp_start();
 
     furi_hal_rfid_tim_read_start(125000, 0.5);
+
+    lfrfid_debug_view_tune_set_callback(app->tune_view, lfrfid_debug_view_tune_callback, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidDebugViewTune);
 }

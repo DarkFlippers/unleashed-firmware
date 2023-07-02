@@ -1029,7 +1029,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                         mf_classic_get_sector_trailer_by_sector(data, i);
 
                     uint8_t current_key[6];
-                    memcpy(current_key, &key, 6);
+                    nfc_util_num2bytes(key, 6, current_key);
 
                     if(mf_classic_is_key_found(data, i, MfClassicKeyA) &&
                        memcmp(sec_trailer->key_a, current_key, 6) == 0) {
@@ -1055,7 +1055,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                         mf_classic_get_sector_trailer_by_sector(data, i);
 
                     uint8_t current_key[6];
-                    memcpy(current_key, &key, 6);
+                    nfc_util_num2bytes(key, 6, current_key);
 
                     if(mf_classic_is_key_found(data, i, MfClassicKeyB) &&
                        memcmp(sec_trailer->key_b, current_key, 6) == 0) {
@@ -1074,7 +1074,7 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                 }
                 if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;
             }
-            memcpy(&prev_key, &key, sizeof(key));
+            prev_key = key;
         }
         if(nfc_worker->state != NfcWorkerStateMfClassicDictAttack) break;
         mf_classic_read_sector(&tx_rx, data, i);

@@ -1,0 +1,27 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/music_worker",
+    ],
+    SDK_HEADERS=[
+        File("music_worker.h"),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="music_worker")
+libenv.ApplyLibFlags()
+
+libenv.AppendUnique(
+    CCFLAGS=[
+        # Required for lib to be linkable with .faps
+        "-mword-relocations",
+        "-mlong-calls",
+    ],
+)
+
+sources = libenv.GlobRecursive("*.c*")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

@@ -15,6 +15,7 @@ env.Append(
         Dir("u8g2"),
         Dir("update_util"),
         Dir("print"),
+        Dir("music_worker"),
     ],
 )
 
@@ -100,6 +101,7 @@ libs = env.BuildModules(
         "misc",
         "lfrfid",
         "flipper_application",
+        "music_worker",
     ],
 )
 
