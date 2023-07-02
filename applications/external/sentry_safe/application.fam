@@ -8,4 +8,7 @@ App(
     order=80,
     fap_icon="safe_10px.png",
     fap_category="GPIO",
+    fap_author="@H4ckd4ddy & @xMasterX (ported to latest firmware)",
+    fap_version="1.0",
+    fap_description="App exploiting vulnerability to open any Sentry Safe and Master Lock electronic safe without any pin code via UART pins.",
 )

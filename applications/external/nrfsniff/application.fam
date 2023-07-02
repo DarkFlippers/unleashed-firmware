@@ -8,6 +8,9 @@ App(
     order=70,
     fap_icon="nrfsniff_10px.png",
     fap_category="GPIO",
+    fap_author="@mothball187 & @xMasterX",
+    fap_version="1.0",
+    fap_description="App captures addresses to use with NRF24 Mouse Jacker app to perform mousejack attacks",
     fap_private_libs=[
         Lib(
             name="nrf24",

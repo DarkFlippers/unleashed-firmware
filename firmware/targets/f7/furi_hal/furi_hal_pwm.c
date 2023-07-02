@@ -82,6 +82,15 @@ void furi_hal_pwm_stop(FuriHalPwmOutputId channel) {
     }
 }
 
+bool furi_hal_pwm_is_running(FuriHalPwmOutputId channel) {
+    if(channel == FuriHalPwmOutputIdTim1PA7) {
+        return furi_hal_bus_is_enabled(FuriHalBusTIM1);
+    } else if(channel == FuriHalPwmOutputIdLptim2PA4) {
+        return furi_hal_bus_is_enabled(FuriHalBusLPTIM2);
+    }
+    return false;
+}
+
 void furi_hal_pwm_set_params(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty) {
     furi_assert(freq > 0);
     uint32_t freq_div = 64000000LU / freq;

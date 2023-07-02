@@ -50,21 +50,11 @@ static void loader_cli_open(FuriString* args, Loader* loader) {
 
         const char* app_name_str = furi_string_get_cstr(app_name);
 
-        LoaderStatus status = loader_start(loader, app_name_str, args_str);
-
-        switch(status) {
-        case LoaderStatusOk:
-            break;
-        case LoaderStatusErrorAppStarted:
-            printf("Can't start, application is running");
-            break;
-        case LoaderStatusErrorUnknownApp:
-            printf("%s doesn't exists\r\n", app_name_str);
-            break;
-        case LoaderStatusErrorInternal:
-            printf("Internal error\r\n");
-            break;
+        FuriString* error_message = furi_string_alloc();
+        if(loader_start(loader, app_name_str, args_str, error_message) != LoaderStatusOk) {
+            printf("%s\r\n", furi_string_get_cstr(error_message));
         }
+        furi_string_free(error_message);
     } while(false);
 
     furi_string_free(app_name);

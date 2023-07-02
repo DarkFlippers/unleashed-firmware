@@ -20,4 +20,7 @@ App(
         ),
     ],
     fap_icon_assets="icons",
+    fap_author="@oleksiikutuzov",
+    fap_version="1.0",
+    fap_description="Lightmeter app for photography based on BH1750 sensor",
 )

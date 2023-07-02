@@ -184,6 +184,9 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     bool consumed = false;
     if(event.type == SceneManagerEventTypeCustom) {
+        // Save cursor position before going to any other dialog
+        subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
             // Stop CC1101 Rx
@@ -206,23 +209,21 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubGhzCustomEventViewReceiverOK:
             // Show file info, scene: receiver_info
-            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
             dolphin_deed(DolphinDeedSubGhzReceiverInfo);
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverDeleteItem:
             subghz->state_notifications = SubGhzNotificationStateRx;
-            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
 
             subghz_view_receiver_disable_draw_callback(subghz->subghz_receiver);
 
             subghz_history_delete_item(subghz->history, subghz->idx_menu_chosen);
             subghz_view_receiver_delete_element_callback(subghz->subghz_receiver);
-
             subghz_view_receiver_enable_draw_callback(subghz->subghz_receiver);
 
             subghz_scene_receiver_update_statusbar(subghz);
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             if(subghz_history_get_last_index(subghz->history) == 0) {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);
             }
@@ -230,7 +231,6 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubGhzCustomEventViewReceiverConfig:
             // Actually signals are received but SubGhzNotificationStateRx is not working inside Config Scene
-            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzViewIdReceiver, SubGhzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);

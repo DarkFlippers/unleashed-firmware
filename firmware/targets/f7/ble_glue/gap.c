@@ -354,6 +354,7 @@ static void gap_init_svc(Gap* gap) {
     if(status) {
         FURI_LOG_E(TAG, "Failed updating name characteristic: %d", status);
     }
+
     uint8_t gap_appearence_char_uuid[2] = {
         gap->config->appearance_char & 0xff, gap->config->appearance_char >> 8};
     status = aci_gatt_update_char_value(

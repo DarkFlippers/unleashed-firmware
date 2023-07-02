@@ -19,14 +19,16 @@ struct sym_entry {
 /**
  * @brief Resolver for API entries using a pre-sorted table with hashes
  * @param interface pointer to HashtableApiInterface
- * @param name function name
+ * @param hash gnu hash of function name
  * @param address output for function address
  * @return true if the table contains a function
  */
 bool elf_resolve_from_hashtable(
     const ElfApiInterface* interface,
-    const char* name,
+    uint32_t hash,
     Elf32_Addr* address);
+
+uint32_t elf_symbolname_hash(const char* s);
 
 #ifdef __cplusplus
 }
@@ -48,8 +50,10 @@ struct HashtableApiInterface : public ElfApiInterface {
         .hash = elf_gnu_hash(#x), .address = (uint32_t)(static_cast<ret_type(*) args_type>(x)) \
     }
 
-#define API_VARIABLE(x, var_type) \
-    sym_entry { .hash = elf_gnu_hash(#x), .address = (uint32_t)(&(x)), }
+#define API_VARIABLE(x, var_type)                              \
+    sym_entry {                                                \
+        .hash = elf_gnu_hash(#x), .address = (uint32_t)(&(x)), \
+    }
 
 constexpr bool operator<(const sym_entry& k1, const sym_entry& k2) {
     return k1.hash < k2.hash;
