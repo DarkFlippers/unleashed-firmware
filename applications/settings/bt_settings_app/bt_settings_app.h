@@ -19,6 +19,11 @@ enum BtSettingsCustomEvent {
     // Keep first 10 events reserved for button types and indexes
     BtSettingsCustomEventReserved = 10,
 
+    BtSettingsCustomEventBtEnable,
+    BtSettingsCustomEventBtDisable,
+    BtSettingsCustomEventAdvertiseAll,
+    BtSettingsCustomEventAdvertiseName,
+    BtSettingsCustomEventAdvertiseNone,
     BtSettingsCustomEventForgetDevices,
     BtSettingsCustomEventExitView,
 };

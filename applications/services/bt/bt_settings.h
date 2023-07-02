@@ -9,8 +9,16 @@
 extern "C" {
 #endif
 
+enum BtAdvType {
+    BtAdvAll, // Flipper + Name
+    BtAdvName, // Only Name
+    BtAdvNone, // Zero string
+    BtAdvNum,
+};
+
 typedef struct {
     bool enabled;
+    enum BtAdvType advertise_type;
 } BtSettings;
 
 bool bt_settings_load(BtSettings* bt_settings);

@@ -17,12 +17,30 @@ const char* const bt_settings_text[BtSettingNum] = {
     "ON",
 };
 
-static void bt_settings_scene_start_var_list_change_callback(VariableItem* item) {
+const char* const bt_advertise_text[BtAdvNum] = {
+    "All",
+    "Name",
+    "None",
+};
+
+static void bt_settings_scene_start_set_switch_callback(VariableItem* item) {
     BtSettingsApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, bt_settings_text[index]);
-    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+    if(index == BtSettingOff) {
+        view_dispatcher_send_custom_event(app->view_dispatcher, BtSettingsCustomEventBtDisable);
+    } else {
+        view_dispatcher_send_custom_event(app->view_dispatcher, BtSettingsCustomEventBtEnable);
+    }
+}
+
+static void bt_settings_scene_start_set_advertise_callback(VariableItem* item) {
+    BtSettingsApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, bt_advertise_text[index]);
+    app->settings.advertise_type = index;
+    view_dispatcher_send_custom_event(app->view_dispatcher, BtSettingsCustomEventBtEnable);
 }
 
 static void bt_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
@@ -44,15 +62,21 @@ void bt_settings_scene_start_on_enter(void* context) {
             var_item_list,
             "Bluetooth",
             BtSettingNum,
-            bt_settings_scene_start_var_list_change_callback,
+            bt_settings_scene_start_set_switch_callback,
             app);
-        if(app->settings.enabled) {
-            variable_item_set_current_value_index(item, BtSettingOn);
-            variable_item_set_current_value_text(item, bt_settings_text[BtSettingOn]);
-        } else {
-            variable_item_set_current_value_index(item, BtSettingOff);
-            variable_item_set_current_value_text(item, bt_settings_text[BtSettingOff]);
-        }
+        variable_item_set_current_value_index(item, app->settings.enabled);
+        variable_item_set_current_value_text(item, bt_settings_text[app->settings.enabled]);
+
+        item = variable_item_list_add(
+            var_item_list,
+            "Advertise:",
+            BtAdvNum,
+            bt_settings_scene_start_set_advertise_callback,
+            app);
+        variable_item_set_current_value_index(item, app->settings.advertise_type);
+        variable_item_set_current_value_text(
+            item, bt_advertise_text[app->settings.advertise_type]);
+
         variable_item_list_add(var_item_list, "Forget All Paired Devices", 1, NULL, NULL);
         variable_item_list_set_enter_callback(
             var_item_list, bt_settings_scene_start_var_list_enter_callback, app);
@@ -69,11 +93,18 @@ bool bt_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == BtSettingOn) {
+        if(event.event == BtSettingsCustomEventBtEnable) {
+            if(app->settings.advertise_type != BtAdvAll) {
+                const char* advname = {0};
+                if(app->settings.advertise_type == BtAdvName) {
+                    advname = furi_hal_version_get_name_ptr();
+                }
+                furi_hal_bt_set_profile_adv_name(FuriHalBtProfileSerial, advname);
+            }
             furi_hal_bt_start_advertising();
             app->settings.enabled = true;
             consumed = true;
-        } else if(event.event == BtSettingOff) {
+        } else if(event.event == BtSettingsCustomEventBtDisable) {
             app->settings.enabled = false;
             furi_hal_bt_stop_advertising();
             consumed = true;
