@@ -13,12 +13,12 @@ struct CompositeApiResolver {
 
 static bool composite_api_resolver_callback(
     const ElfApiInterface* interface,
-    const char* name,
+    uint32_t hash,
     Elf32_Addr* address) {
     CompositeApiResolver* resolver = (CompositeApiResolver*)interface;
     for
         M_EACH(interface, resolver->interfaces, ElfApiInterfaceList_t) {
-            if((*interface)->resolver_callback(*interface, name, address)) {
+            if((*interface)->resolver_callback(*interface, hash, address)) {
                 return true;
             }
         }

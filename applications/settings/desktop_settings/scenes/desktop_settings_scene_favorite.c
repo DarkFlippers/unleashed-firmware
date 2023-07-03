@@ -3,10 +3,10 @@
 #include "desktop_settings_scene.h"
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
-#include <fap_loader/fap_loader_app.h>
 
 #define EXTERNAL_APPLICATION_NAME ("[External Application]")
 #define EXTERNAL_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 1)
+#define NONE_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 2)
 
 static bool favorite_fap_selector_item_callback(
     FuriString* file_path,
@@ -77,7 +77,6 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         }
     }
 
-#ifdef APP_FAP_LOADER
     submenu_add_item(
         submenu,
         EXTERNAL_APPLICATION_NAME,
@@ -87,12 +86,11 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     if(curr_favorite_app->is_external) {
         pre_select_item = EXTERNAL_APPLICATION_INDEX;
     }
-#endif
 
     submenu_add_item(
         submenu,
         "None (disable)",
-        FLIPPER_APPS_COUNT + 2,
+        NONE_APPLICATION_INDEX,
         desktop_settings_scene_favorite_submenu_callback,
         app);
 
@@ -157,6 +155,10 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                     MAX_APP_LENGTH);
                 consumed = true;
             }
+        } else if(event.event == NONE_APPLICATION_INDEX) {
+            curr_favorite_app->is_external = false;
+            strncpy(curr_favorite_app->name_or_path, "no", MAX_APP_LENGTH);
+            consumed = true;
         } else {
             curr_favorite_app->is_external = false;
             strncpy(

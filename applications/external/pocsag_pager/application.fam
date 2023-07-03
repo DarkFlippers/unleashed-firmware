@@ -9,4 +9,7 @@ App(
     fap_icon="pocsag_pager_10px.png",
     fap_category="Sub-GHz",
     fap_icon_assets="images",
+    fap_author="@xMasterX & @Shmuma",
+    fap_version="1.0",
+    fap_description="App can capture POCSAG 1200 messages on CC1101 supported frequencies.",
 )

@@ -8,4 +8,7 @@ App(
     order=50,
     fap_icon="appicon.png",
     fap_category="Sub-GHz",
+    fap_author="@antirez & (fixes by @xMasterX)",
+    fap_version="1.0",
+    fap_description="Digital signal detection, visualization, editing and reply tool",
 )

@@ -106,14 +106,14 @@ const FlipperApplicationManifest* flipper_application_get_manifest(FlipperApplic
 FlipperApplicationLoadStatus flipper_application_map_to_memory(FlipperApplication* app);
 
 /**
- * @brief Create application thread at entry point address, using app name and
+ * @brief Allocate application thread at entry point address, using app name and
  * stack size from metadata. Returned thread isn't started yet. 
  * Can be only called once for application instance.
  * @param app Applicaiton pointer
- * @param args Object to pass to app's entry point
+ * @param args Args to pass to app's entry point
  * @return Created thread
  */
-FuriThread* flipper_application_spawn(FlipperApplication* app, void* args);
+FuriThread* flipper_application_alloc_thread(FlipperApplication* app, const char* args);
 
 /**
  * @brief Check if application is a plugin (not a runnable standalone app)
@@ -148,6 +148,21 @@ typedef const FlipperAppPluginDescriptor* (*FlipperApplicationPluginEntryPoint)(
  */
 const FlipperAppPluginDescriptor*
     flipper_application_plugin_get_descriptor(FlipperApplication* app);
+
+/**
+ * @brief Load name and icon from FAP file.
+ * 
+ * @param path Path to FAP file.
+ * @param storage Storage instance.
+ * @param icon_ptr Icon pointer.
+ * @param item_name Application name.
+ * @return true if icon and name were loaded successfully.
+ */
+bool flipper_application_load_name_and_icon(
+    FuriString* path,
+    Storage* storage,
+    uint8_t** icon_ptr,
+    FuriString* item_name);
 
 #ifdef __cplusplus
 }

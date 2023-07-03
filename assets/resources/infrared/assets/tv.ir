@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 16th Jun, 2023
-# Last Checked 16th Jun, 2023
+# Last Updated 1st Jul, 2023
+# Last Checked 1st Jul, 2023
 #
 name: Power
 type: parsed
@@ -2052,7 +2052,7 @@ protocol: Samsung32
 address: 3E 00 00 00
 command: 0D 00 00 00
 #
-# TCL LED49D2930
+# TCL LED49D2930 / Thomson Remote RC3000E02
 # 
 name: Power
 type: parsed

@@ -13,14 +13,18 @@ DICT_DEF2(AddressCache, int, M_DEFAULT_OPLIST, Elf32_Addr, M_DEFAULT_OPLIST)
  */
 typedef int32_t(entry_t)(void*);
 
-typedef struct {
+typedef struct ELFSection ELFSection;
+
+struct ELFSection {
     void* data;
-    uint16_t sec_idx;
     Elf32_Word size;
 
     size_t rel_count;
     Elf32_Off rel_offset;
-} ELFSection;
+    ELFSection* fast_rel;
+
+    uint16_t sec_idx;
+};
 
 DICT_DEF2(ELFSectionDict, const char*, M_CSTR_OPLIST, ELFSection, M_POD_OPLIST)
 

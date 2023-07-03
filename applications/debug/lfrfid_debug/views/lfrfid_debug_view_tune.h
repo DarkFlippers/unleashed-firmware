@@ -16,3 +16,8 @@ bool lfrfid_debug_view_tune_is_dirty(LfRfidTuneView* tune_view);
 uint32_t lfrfid_debug_view_tune_get_arr(LfRfidTuneView* tune_view);
 
 uint32_t lfrfid_debug_view_tune_get_ccr(LfRfidTuneView* tune_view);
+
+void lfrfid_debug_view_tune_set_callback(
+    LfRfidTuneView* tune_view,
+    void (*callback)(void* context),
+    void* context);

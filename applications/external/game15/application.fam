@@ -8,4 +8,7 @@ App(
     fap_icon="game15_10px.png",
     order=30,
     fap_category="Games",
+    fap_author="@x27",
+    fap_version="1.0",
+    fap_description="Logic Game",
 )

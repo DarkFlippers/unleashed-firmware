@@ -10,4 +10,7 @@ App(
     order=20,
     fap_icon="dist_sensor10px.png",
     fap_category="GPIO",
+    fap_author="@xMasterX (first implementation by @Sanqui)",
+    fap_version="1.0",
+    fap_description="HC-SR(04) Distance sensor reader",
 )

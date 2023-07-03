@@ -99,7 +99,7 @@ static void updater_start_app(void* context, uint32_t arg) {
      * So, accessing its record would cause a deadlock 
      */
     Loader* loader = furi_record_open(RECORD_LOADER);
-    loader_start(loader, "UpdaterApp", NULL);
+    loader_start(loader, "UpdaterApp", NULL, NULL);
     furi_record_close(RECORD_LOADER);
 }
 

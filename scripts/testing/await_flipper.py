@@ -8,6 +8,7 @@ import time
 def flp_serial_by_name(flp_name):
     if sys.platform == "darwin":  # MacOS
         flp_serial = "/dev/cu.usbmodemflip_" + flp_name + "1"
+        logging.info(f"Darwin, looking for {flp_serial}")
     elif sys.platform == "linux":  # Linux
         flp_serial = (
             "/dev/serial/by-id/usb-Flipper_Devices_Inc._Flipper_"
@@ -16,10 +17,12 @@ def flp_serial_by_name(flp_name):
             + flp_name
             + "-if00"
         )
+        logging.info(f"linux, looking for {flp_serial}")
 
     if os.path.exists(flp_serial):
         return flp_serial
     else:
+        logging.info(f"Couldn't find {logging.info} on this attempt.")
         if os.path.exists(flp_name):
             return flp_name
         else:
@@ -38,7 +41,7 @@ def main():
         level=logging.INFO,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-    logging.info("Waiting for Flipper to be ready...")
+    logging.info(f"Waiting for Flipper {flipper_name} to be ready...")
 
     while flipper == "" and elapsed < UPDATE_TIMEOUT:
         elapsed += 1
