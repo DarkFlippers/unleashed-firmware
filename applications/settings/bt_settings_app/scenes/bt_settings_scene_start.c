@@ -69,13 +69,14 @@ void bt_settings_scene_start_on_enter(void* context) {
 
         item = variable_item_list_add(
             var_item_list,
-            "Advertise:",
+            "Advertise",
             BtAdvNum,
             bt_settings_scene_start_set_advertise_callback,
             app);
         variable_item_set_current_value_index(item, app->settings.advertise_type);
         variable_item_set_current_value_text(
             item, bt_advertise_text[app->settings.advertise_type]);
+        variable_item_set_locked(item, !app->settings.enabled, "Enable BT!");
 
         variable_item_list_add(var_item_list, "Forget All Paired Devices", 1, NULL, NULL);
         variable_item_list_set_enter_callback(
@@ -104,12 +105,17 @@ bool bt_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
                 }
                 furi_hal_bt_set_profile_adv_name(FuriHalBtProfileSerial, advname);
             }
+            furi_hal_bt_stop_advertising();
             furi_hal_bt_start_advertising();
             app->settings.enabled = true;
+            scene_manager_previous_scene(app->scene_manager);
+            scene_manager_next_scene(app->scene_manager, BtSettingsAppSceneStart);
             consumed = true;
         } else if(event.event == BtSettingsCustomEventBtDisable) {
             app->settings.enabled = false;
             furi_hal_bt_stop_advertising();
+            scene_manager_previous_scene(app->scene_manager);
+            scene_manager_next_scene(app->scene_manager, BtSettingsAppSceneStart);
             consumed = true;
         } else if(event.event == BtSettingsCustomEventForgetDevices) {
             scene_manager_next_scene(app->scene_manager, BtSettingsAppSceneForgetDevConfirm);

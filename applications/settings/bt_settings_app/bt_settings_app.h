@@ -21,9 +21,6 @@ enum BtSettingsCustomEvent {
 
     BtSettingsCustomEventBtEnable,
     BtSettingsCustomEventBtDisable,
-    BtSettingsCustomEventAdvertiseAll,
-    BtSettingsCustomEventAdvertiseName,
-    BtSettingsCustomEventAdvertiseNone,
     BtSettingsCustomEventForgetDevices,
     BtSettingsCustomEventExitView,
 };
