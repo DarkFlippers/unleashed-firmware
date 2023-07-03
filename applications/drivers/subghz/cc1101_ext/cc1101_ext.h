@@ -54,12 +54,6 @@ void subghz_device_cc1101_ext_sleep();
  */
 void subghz_device_cc1101_ext_dump_state();
 
-/** Load registers from preset by preset name
- *
- * @param      preset  to load
- */
-void subghz_device_cc1101_ext_load_preset(FuriHalSubGhzPreset preset);
-
 /** Load custom registers from preset
  *
  * @param      preset_data   registers to load

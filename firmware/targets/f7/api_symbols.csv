@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,32.0,,
+Version,+,33.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -185,6 +185,7 @@ Header,+,lib/subghz/blocks/decoder.h,,
 Header,+,lib/subghz/blocks/encoder.h,,
 Header,+,lib/subghz/blocks/generic.h,,
 Header,+,lib/subghz/blocks/math.h,,
+Header,+,lib/subghz/devices/cc1101_configs.h,,
 Header,+,lib/subghz/environment.h,,
 Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
@@ -1398,7 +1399,6 @@ Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
 Function,+,furi_hal_subghz_is_tx_allowed,_Bool,uint32_t
 Function,+,furi_hal_subghz_load_custom_preset,void,uint8_t*
 Function,+,furi_hal_subghz_load_patable,void,const uint8_t[8]
-Function,+,furi_hal_subghz_load_preset,void,FuriHalSubGhzPreset
 Function,+,furi_hal_subghz_load_registers,void,uint8_t*
 Function,+,furi_hal_subghz_read_packet,void,"uint8_t*, uint8_t*"
 Function,+,furi_hal_subghz_reset,void,
@@ -3443,6 +3443,12 @@ Variable,+,sequence_set_vibro_on,const NotificationSequence,
 Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
+Variable,+,subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_gfsk_9_99kb_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_msk_99_97kb_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_ook_270khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_ook_650khz_async_regs,const uint8_t[],
 Variable,+,subghz_protocol_raw,const SubGhzProtocol,
 Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
 Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,

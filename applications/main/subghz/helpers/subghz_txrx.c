@@ -64,6 +64,7 @@ SubGhzTxRx* subghz_txrx_alloc() {
 
     //set default device External
     subghz_devices_init();
+    instance->radio_device_type = SubGhzRadioDeviceTypeInternal;
     instance->radio_device_type =
         subghz_txrx_radio_device_set(instance, SubGhzRadioDeviceTypeExternalCC1101);
 
@@ -604,9 +605,7 @@ SubGhzRadioDeviceType
     } else {
         subghz_txrx_radio_device_power_off(instance);
         if(instance->radio_device_type != SubGhzRadioDeviceTypeInternal) {
-            if(instance->radio_device) {
-                subghz_devices_end(instance->radio_device);
-            }
+            subghz_devices_end(instance->radio_device);
         }
         instance->radio_device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
         instance->radio_device_type = SubGhzRadioDeviceTypeInternal;

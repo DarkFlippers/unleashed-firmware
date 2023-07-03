@@ -19,6 +19,7 @@ env.Append(
         File("blocks/math.h"),
         File("subghz_setting.h"),
         File("subghz_protocol_registry.h"),
+        File("devices/cc1101_configs.h"),
     ],
 )
 

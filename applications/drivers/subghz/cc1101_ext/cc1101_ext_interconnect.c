@@ -1,5 +1,6 @@
 #include "cc1101_ext_interconnect.h"
 #include "cc1101_ext.h"
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #define TAG "SubGhzDeviceCC1101Ext"
 
@@ -29,9 +30,33 @@ static void subghz_device_cc1101_ext_interconnect_start_async_rx(void* callback,
 static void subghz_device_cc1101_ext_interconnect_load_preset(
     FuriHalSubGhzPreset preset,
     uint8_t* preset_data) {
-    if(preset != FuriHalSubGhzPresetCustom) {
-        subghz_device_cc1101_ext_load_preset(preset);
-    } else {
+    switch(preset) {
+    case FuriHalSubGhzPresetOok650Async:
+        subghz_device_cc1101_ext_load_custom_preset(
+            (uint8_t*)subghz_device_cc1101_preset_ook_650khz_async_regs);
+        break;
+    case FuriHalSubGhzPresetOok270Async:
+        subghz_device_cc1101_ext_load_custom_preset(
+            (uint8_t*)subghz_device_cc1101_preset_ook_270khz_async_regs);
+        break;
+    case FuriHalSubGhzPreset2FSKDev238Async:
+        subghz_device_cc1101_ext_load_custom_preset(
+            (uint8_t*)subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs);
+        break;
+    case FuriHalSubGhzPreset2FSKDev476Async:
+        subghz_device_cc1101_ext_load_custom_preset(
+            (uint8_t*)subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs);
+        break;
+    case FuriHalSubGhzPresetMSK99_97KbAsync:
+        subghz_device_cc1101_ext_load_custom_preset(
+            (uint8_t*)subghz_device_cc1101_preset_msk_99_97kb_async_regs);
+        break;
+    case FuriHalSubGhzPresetGFSK9_99KbAsync:
+        subghz_device_cc1101_ext_load_custom_preset(
+            (uint8_t*)subghz_device_cc1101_preset_gfsk_9_99kb_async_regs);
+        break;
+
+    default:
         subghz_device_cc1101_ext_load_custom_preset(preset_data);
     }
 }
