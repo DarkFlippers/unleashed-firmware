@@ -483,7 +483,7 @@ int32_t bt_srv(void* p) {
         } else {
             if(bt->bt_settings.enabled) {
                 if(bt->bt_settings.advertise_type != BtAdvAll) {
-                    const char* advname = {0};
+                    const char* advname = "\0";
                     if(bt->bt_settings.advertise_type == BtAdvName) {
                         advname = furi_hal_version_get_name_ptr();
                     }

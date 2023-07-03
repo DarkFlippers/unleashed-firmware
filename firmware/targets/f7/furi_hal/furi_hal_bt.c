@@ -491,7 +491,7 @@ void furi_hal_bt_set_profile_adv_name(
     furi_assert(profile < FuriHalBtProfileNumber);
     furi_assert(name);
 
-    if(strlen(name) == 0) {
+    if(!name || !strlen(name)) {
         memset(&(profile_config[profile].config.adv_name[1]), 0, FURI_HAL_BT_ADV_NAME_LENGTH - 1);
     } else {
         profile_config[profile].config.adv_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
