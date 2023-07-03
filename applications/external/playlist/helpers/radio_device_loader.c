@@ -24,7 +24,10 @@ bool radio_device_loader_is_connect_external(const char* name) {
         radio_device_loader_power_on();
     }
 
-    is_connect = subghz_devices_is_connect(subghz_devices_get_by_name(name));
+    const SubGhzDevice* device = subghz_devices_get_by_name(name);
+    if(device) {
+        is_connect = subghz_devices_is_connect(device);
+    }
 
     if(!is_otg_enabled) {
         radio_device_loader_power_off();
