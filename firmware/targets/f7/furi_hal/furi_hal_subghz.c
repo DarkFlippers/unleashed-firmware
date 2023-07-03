@@ -152,7 +152,7 @@ void furi_hal_subghz_dump_state() {
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 }
 
-void furi_hal_subghz_load_custom_preset(uint8_t* preset_data) {
+void furi_hal_subghz_load_custom_preset(const uint8_t* preset_data) {
     //load config
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_reset(&furi_hal_spi_bus_handle_subghz);
@@ -182,7 +182,7 @@ void furi_hal_subghz_load_custom_preset(uint8_t* preset_data) {
     }
 }
 
-void furi_hal_subghz_load_registers(uint8_t* data) {
+void furi_hal_subghz_load_registers(const uint8_t* data) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_reset(&furi_hal_spi_bus_handle_subghz);
     uint32_t i = 0;

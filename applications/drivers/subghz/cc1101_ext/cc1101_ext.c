@@ -226,7 +226,7 @@ void subghz_device_cc1101_ext_dump_state() {
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_load_custom_preset(uint8_t* preset_data) {
+void subghz_device_cc1101_ext_load_custom_preset(const uint8_t* preset_data) {
     //load config
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_reset(subghz_device_cc1101_ext->spi_bus_handle);
@@ -257,7 +257,7 @@ void subghz_device_cc1101_ext_load_custom_preset(uint8_t* preset_data) {
     }
 }
 
-void subghz_device_cc1101_ext_load_registers(uint8_t* data) {
+void subghz_device_cc1101_ext_load_registers(const uint8_t* data) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_reset(subghz_device_cc1101_ext->spi_bus_handle);
     uint32_t i = 0;

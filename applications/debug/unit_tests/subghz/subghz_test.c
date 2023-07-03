@@ -8,6 +8,7 @@
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/subghz/devices/devices.h>
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #define TAG "SubGhz TEST"
 #define KEYSTORE_DIR_NAME EXT_PATH("subghz/assets/keeloq_mfcodes")

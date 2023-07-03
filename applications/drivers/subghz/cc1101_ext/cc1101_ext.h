@@ -58,13 +58,13 @@ void subghz_device_cc1101_ext_dump_state();
  *
  * @param      preset_data   registers to load
  */
-void subghz_device_cc1101_ext_load_custom_preset(uint8_t* preset_data);
+void subghz_device_cc1101_ext_load_custom_preset(const uint8_t* preset_data);
 
 /** Load registers
  *
  * @param      data  Registers data
  */
-void subghz_device_cc1101_ext_load_registers(uint8_t* data);
+void subghz_device_cc1101_ext_load_registers(const uint8_t* data);
 
 /** Load PATABLE
  *

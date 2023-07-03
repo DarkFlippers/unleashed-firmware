@@ -30,28 +30,22 @@ static void subghz_device_cc1101_int_interconnect_load_preset(
     uint8_t* preset_data) {
     switch(preset) {
     case FuriHalSubGhzPresetOok650Async:
-        furi_hal_subghz_load_custom_preset(
-            (uint8_t*)subghz_device_cc1101_preset_ook_650khz_async_regs);
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
         break;
     case FuriHalSubGhzPresetOok270Async:
-        furi_hal_subghz_load_custom_preset(
-            (uint8_t*)subghz_device_cc1101_preset_ook_270khz_async_regs);
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_270khz_async_regs);
         break;
     case FuriHalSubGhzPreset2FSKDev238Async:
-        furi_hal_subghz_load_custom_preset(
-            (uint8_t*)subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs);
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs);
         break;
     case FuriHalSubGhzPreset2FSKDev476Async:
-        furi_hal_subghz_load_custom_preset(
-            (uint8_t*)subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs);
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs);
         break;
     case FuriHalSubGhzPresetMSK99_97KbAsync:
-        furi_hal_subghz_load_custom_preset(
-            (uint8_t*)subghz_device_cc1101_preset_msk_99_97kb_async_regs);
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_msk_99_97kb_async_regs);
         break;
     case FuriHalSubGhzPresetGFSK9_99KbAsync:
-        furi_hal_subghz_load_custom_preset(
-            (uint8_t*)subghz_device_cc1101_preset_gfsk_9_99kb_async_regs);
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_gfsk_9_99kb_async_regs);
         break;
 
     default:

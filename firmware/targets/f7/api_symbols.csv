@@ -1397,9 +1397,9 @@ Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
 Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
 Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
 Function,+,furi_hal_subghz_is_tx_allowed,_Bool,uint32_t
-Function,+,furi_hal_subghz_load_custom_preset,void,uint8_t*
+Function,+,furi_hal_subghz_load_custom_preset,void,const uint8_t*
 Function,+,furi_hal_subghz_load_patable,void,const uint8_t[8]
-Function,+,furi_hal_subghz_load_registers,void,uint8_t*
+Function,+,furi_hal_subghz_load_registers,void,const uint8_t*
 Function,+,furi_hal_subghz_read_packet,void,"uint8_t*, uint8_t*"
 Function,+,furi_hal_subghz_reset,void,
 Function,+,furi_hal_subghz_rx,void,

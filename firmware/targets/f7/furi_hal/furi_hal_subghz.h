@@ -64,13 +64,13 @@ void furi_hal_subghz_dump_state();
  *
  * @param      preset_data   registers to load
  */
-void furi_hal_subghz_load_custom_preset(uint8_t* preset_data);
+void furi_hal_subghz_load_custom_preset(const uint8_t* preset_data);
 
 /** Load registers
  *
  * @param      data  Registers data
  */
-void furi_hal_subghz_load_registers(uint8_t* data);
+void furi_hal_subghz_load_registers(const uint8_t* data);
 
 /** Load PATABLE
  *
