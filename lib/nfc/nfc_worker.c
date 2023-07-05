@@ -724,6 +724,8 @@ void nfc_worker_emulate_mf_ultralight(NfcWorker* nfc_worker) {
     emulator.auth_received_callback = nfc_worker_mf_ultralight_auth_received_callback;
     emulator.context = nfc_worker;
 
+    rfal_platform_spi_acquire();
+
     while(nfc_worker->state == NfcWorkerStateMfUltralightEmulate) {
         mf_ul_reset_emulation(&emulator, true);
         furi_hal_nfc_emulate_nfca(
@@ -743,6 +745,8 @@ void nfc_worker_emulate_mf_ultralight(NfcWorker* nfc_worker) {
             emulator.data_changed = false;
         }
     }
+
+    rfal_platform_spi_release();
 }
 
 static bool nfc_worker_mf_get_b_key_from_sector_trailer(
