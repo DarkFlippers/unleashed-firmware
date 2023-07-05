@@ -21,7 +21,6 @@ const char* const bt_settings_text[BtSettingNum] = {
 const char* const bt_advertise_text[BtAdvNum] = {
     "All",
     "Name",
-    "None",
 };
 
 static void bt_settings_scene_start_set_switch_callback(VariableItem* item) {

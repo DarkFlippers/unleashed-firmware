@@ -12,7 +12,6 @@ extern "C" {
 enum BtAdvType {
     BtAdvAll, // Flipper + Name
     BtAdvName, // Only Name
-    BtAdvNone, // Zero string
     BtAdvNum,
 };
 
