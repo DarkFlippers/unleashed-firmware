@@ -29,12 +29,7 @@ typedef enum {
     EventTypeKey,
 } EventType;
 
-typedef enum {
-    BirdState0 = 0,
-    BirdState1,
-    BirdState2,
-    BirdStateMAX
-} BirdState;
+typedef enum { BirdState0 = 0, BirdState1, BirdState2, BirdStateMAX } BirdState;
 
 const Icon* bird_states[BirdStateMAX] = {
     &I_bird_01,
