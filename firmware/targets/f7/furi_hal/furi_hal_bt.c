@@ -54,7 +54,6 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
                     .bonding_mode = true,
                     .pairing_method = GapPairingPinCodeShow,
                     .mac_address = FURI_HAL_BT_DEFAULT_MAC_ADDR,
-                    .adv_name = "\0",
                     .conn_param =
                         {
                             .conn_int_min = 0x18, // 30 ms
@@ -75,7 +74,6 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
                     .bonding_mode = true,
                     .pairing_method = GapPairingPinCodeVerifyYesNo,
                     .mac_address = FURI_HAL_BT_DEFAULT_MAC_ADDR,
-                    .adv_name = "\0",
                     .conn_param =
                         {
                             .conn_int_min = 0x18, // 30 ms
@@ -233,12 +231,11 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
             // Set mac address
             memcpy(
                 config->mac_address, furi_hal_version_get_ble_mac(), sizeof(config->mac_address));
-            // Set stock advertise name only once on bootup
-            if(!strnlen(config->adv_name, FURI_HAL_BT_ADV_NAME_LENGTH))
-                strlcpy(
-                    config->adv_name,
-                    furi_hal_version_get_ble_local_device_name_ptr(),
-                    FURI_HAL_BT_ADV_NAME_LENGTH);
+            // Set advertise name
+            strlcpy(
+                config->adv_name,
+                furi_hal_version_get_ble_local_device_name_ptr(),
+                FURI_HAL_BT_ADV_NAME_LENGTH);
 
             config->adv_service_uuid |= furi_hal_version_get_hw_color();
         } else if(profile == FuriHalBtProfileHidKeyboard) {
