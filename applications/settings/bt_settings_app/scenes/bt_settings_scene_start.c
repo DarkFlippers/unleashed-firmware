@@ -9,6 +9,7 @@ enum BtSetting {
 
 enum BtSettingIndex {
     BtSettingIndexSwitchBt,
+    BtSettingIndexSwitchAdv,
     BtSettingIndexForgetDev,
 };
 
