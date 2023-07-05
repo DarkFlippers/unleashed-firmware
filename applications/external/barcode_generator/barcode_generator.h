@@ -7,7 +7,7 @@
 #include <storage/storage.h>
 #include <toolbox/saved_struct.h>
 
-#define BARCODE_SETTINGS_FILE_NAME "apps/Misc/barcodegen.save"
+#define BARCODE_SETTINGS_FILE_NAME "apps/Tools/barcodegen.save"
 
 #define BARCODE_SETTINGS_VER (1)
 #define BARCODE_SETTINGS_PATH EXT_PATH(BARCODE_SETTINGS_FILE_NAME)
