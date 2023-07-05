@@ -93,6 +93,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "KL: Centurion 433MHz",
+        SubmenuIndexCenturion433,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: Sommer 434MHz",
         SubmenuIndexSommer_FM_434,
         subghz_scene_set_type_submenu_callback,
@@ -438,6 +444,15 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 0xC,
                 0x0005,
                 "Beninca");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexCenturion433:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, (key & 0x0000FFFF), 0x2, 0x0003, "Centurion");
             if(!generated_protocol) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");

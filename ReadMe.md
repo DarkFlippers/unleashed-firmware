@@ -93,6 +93,7 @@ Encoders or sending made by @xMasterX:
 - Keeloq: Stilmatic
 - Keeloq: CAME Space
 - Keeloq: Aprimatic (model TR and similar)
+- Keeloq: Centurion Nova (thanks Carlos !)
 
 Encoders or sending made by @Eng1n33r(first implementation in Q2 2022) & @xMasterX (current version):
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
