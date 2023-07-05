@@ -18,6 +18,12 @@
 #define FURI_HAL_BT_STACK_VERSION_MINOR (12)
 #define FURI_HAL_BT_C2_START_TIMEOUT 1000
 
+#define FURI_HAL_BT_EMPTY_MAC_ADDR \
+    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+
+#define FURI_HAL_BT_DEFAULT_MAC_ADDR \
+    { 0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72 }
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -218,7 +224,12 @@ float furi_hal_bt_get_rssi();
  */
 uint32_t furi_hal_bt_get_transmitted_packets();
 
-// BadBT stuff
+// BadBT Stuff
+/** Reverse a MAC address byte order in-place
+ * @param[in] mac       mac address to reverse
+*/
+void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]);
+
 /** Modify profile advertisement name and restart bluetooth
  * @param[in] profile   profile type
  * @param[in] name      new adv name

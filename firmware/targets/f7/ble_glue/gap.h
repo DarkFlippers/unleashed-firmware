@@ -67,7 +67,7 @@ typedef struct {
     bool bonding_mode;
     GapPairing pairing_method;
     uint8_t mac_address[GAP_MAC_ADDR_SIZE];
-    char adv_name[FURI_HAL_VERSION_DEVICE_NAME_LENGTH];
+    char adv_name[FURI_HAL_BT_ADV_NAME_LENGTH];
     GapConnectionParamsRequest conn_param;
 } GapConfig;
 
