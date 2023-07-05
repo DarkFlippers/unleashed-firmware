@@ -8,5 +8,22 @@ App(
     order=90,
     fap_icon="wifi_10px.png",
     fap_category="GPIO",
+    fap_private_libs=[
+            Lib(
+                name="esp-serial-flasher",
+                fap_include_paths=["include"],
+                sources=[
+                    "src/esp_loader.c",
+                    "src/esp_targets.c",
+                    "src/md5_hash.c",
+                    "src/protocol_common.c",
+                    "src/protocol_uart.c",
+                    "src/slip.c"
+                ],
+                cincludes=["lib/esp-serial-flasher/private_include"],
+                cdefines=["SERIAL_FLASHER_INTERFACE_UART=1", "MD5_ENABLED=1"],
+            ),
+        ],
+    cdefines=["SERIAL_FLASHER_INTERFACE_UART=1"],
     fap_icon_assets="assets",
 )
