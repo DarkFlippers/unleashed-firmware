@@ -1072,6 +1072,7 @@ Function,+,furi_hal_bt_lock_core2,void,
 Function,+,furi_hal_bt_nvm_sram_sem_acquire,void,
 Function,+,furi_hal_bt_nvm_sram_sem_release,void,
 Function,+,furi_hal_bt_reinit,void,
+Function,+,furi_hal_bt_reverse_mac_addr,void,uint8_t[( 6 )]
 Function,+,furi_hal_bt_serial_notify_buffer_is_empty,void,
 Function,+,furi_hal_bt_serial_set_event_callback,void,"uint16_t, FuriHalBtSerialCallback, void*"
 Function,+,furi_hal_bt_serial_set_rpc_status,void,FuriHalBtSerialRpcStatus

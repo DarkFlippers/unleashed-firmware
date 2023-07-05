@@ -1,5 +1,5 @@
-#ifndef __ARHA_FLIPPERAPP_DEMO
-#define __ARHA_FLIPPERAPP_DEMO
+#ifndef __SWD_PROBE_APP_H
+#define __SWD_PROBE_APP_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -18,10 +18,6 @@
 #include <dolphin/dolphin.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <lib/subghz/receiver.h>
-#include <lib/subghz/transmitter.h>
-#include <lib/subghz/subghz_file_encoder_worker.h>
-#include <notification/notification.h>
 
 #include "usb_uart.h"
 
