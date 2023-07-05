@@ -110,7 +110,9 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 }
 
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
-    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+    if(instance->generic.seed != 0x0) {
+        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+    }
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
     uint32_t hop = 0;
     uint32_t decrypt = 0;
@@ -499,21 +501,39 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
-    furi_string_cat_printf(
-        output,
-        "%s %dbit\r\n"
-        "Key:%lX%08lX\r\n"
-        "Fix:%08lX    Cnt:%05lX\r\n"
-        "Hop:%08lX    Btn:%X\r\n"
-        "Sn:%07lX Sd:%08lX",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
-        code_fix,
-        instance->generic.cnt,
-        code_hop,
-        instance->generic.btn,
-        instance->generic.serial,
-        instance->generic.seed);
+    if(instance->generic.seed == 0x0) {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%lX%08lX\r\n"
+            "Fix:%08lX\r\n"
+            "Hop:%08lX    Btn:%X\r\n"
+            "Sn:%07lX Sd:Unknown",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            (uint32_t)(instance->generic.data >> 32),
+            (uint32_t)instance->generic.data,
+            code_fix,
+            code_hop,
+            instance->generic.btn,
+            instance->generic.serial);
+    } else {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%lX%08lX\r\n"
+            "Fix:%08lX    Cnt:%05lX\r\n"
+            "Hop:%08lX    Btn:%X\r\n"
+            "Sn:%07lX Sd:%08lX",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            (uint32_t)(instance->generic.data >> 32),
+            (uint32_t)instance->generic.data,
+            code_fix,
+            instance->generic.cnt,
+            code_hop,
+            instance->generic.btn,
+            instance->generic.serial,
+            instance->generic.seed);
+    }
 }
