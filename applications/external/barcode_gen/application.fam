@@ -1,0 +1,16 @@
+App(
+    appid="barcode_app",
+    name="Barcode App",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="barcode_main",
+    requires=["gui", "storage"],
+    stack_size=2 * 1024,
+    fap_category="Tools",
+    fap_icon="images/barcode_10.png",
+    fap_icon_assets="images",
+    fap_icon_assets_symbol="barcode_app",
+    fap_author="@Kingal1337",
+    fap_weburl="https://github.com/Kingal1337/flipper-barcode-generator",
+    fap_version="1.0",
+    fap_description="App allows you to display various barcodes on flipper screen",
+)
