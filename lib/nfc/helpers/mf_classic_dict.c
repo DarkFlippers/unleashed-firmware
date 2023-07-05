@@ -336,8 +336,8 @@ bool mf_classic_dict_delete_index(MfClassicDict* dict, uint32_t target) {
         if(furi_string_get_char(next_line, 0) == '#') continue;
         if(furi_string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN) continue;
         if(index++ != target) continue;
-        stream_seek(dict->stream, -(NFC_MF_CLASSIC_KEY_LEN + 1), StreamOffsetFromCurrent);
-        if(!stream_delete(dict->stream, (NFC_MF_CLASSIC_KEY_LEN + 1))) break;
+        stream_seek(dict->stream, -NFC_MF_CLASSIC_KEY_LEN, StreamOffsetFromCurrent);
+        if(!stream_delete(dict->stream, NFC_MF_CLASSIC_KEY_LEN)) break;
         dict->total_keys--;
         key_removed = true;
     }
