@@ -5,8 +5,11 @@
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
 
+#define EXTERNAL_BROWSER_NAME ("Applications")
+#define EXTERNAL_BROWSER_INDEX (FLIPPER_APPS_COUNT + 1)
+
 #define EXTERNAL_APPLICATION_NAME ("[External Application]")
-#define EXTERNAL_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 1)
+#define EXTERNAL_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 2)
 
 static bool favorite_fap_selector_item_callback(
     FuriString* file_path,
@@ -58,14 +61,28 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         }
     }
 
+    // Special case: Application browser
+    submenu_add_item(
+        submenu,
+        EXTERNAL_BROWSER_NAME,
+        EXTERNAL_BROWSER_INDEX,
+        desktop_settings_scene_favorite_submenu_callback,
+        app);
+
+    // Special case: Specific application
     submenu_add_item(
         submenu,
         EXTERNAL_APPLICATION_NAME,
         EXTERNAL_APPLICATION_INDEX,
         desktop_settings_scene_favorite_submenu_callback,
         app);
+
     if(curr_favorite_app->is_external) {
-        pre_select_item = EXTERNAL_APPLICATION_INDEX;
+        if(curr_favorite_app->name_or_path[0] == '\0') {
+            pre_select_item = EXTERNAL_BROWSER_INDEX;
+        } else {
+            pre_select_item = EXTERNAL_APPLICATION_INDEX;
+        }
     }
 
     submenu_set_header(
@@ -86,7 +103,11 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                                                         &app->settings.favorite_secondary;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == EXTERNAL_APPLICATION_INDEX) {
+        if(event.event == EXTERNAL_BROWSER_INDEX) {
+            curr_favorite_app->is_external = true;
+            curr_favorite_app->name_or_path[0] = '\0';
+            consumed = true;
+        } else if(event.event == EXTERNAL_APPLICATION_INDEX) {
             const DialogsFileBrowserOptions browser_options = {
                 .extension = ".fap",
                 .icon = &I_unknown_10px,
