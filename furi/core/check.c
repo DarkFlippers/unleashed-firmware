@@ -36,7 +36,7 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[13] = {0};
  * 
  */
 #define RESTORE_REGISTERS_AND_HALT_MCU(debug)           \
-    register const bool r0 asm("r0") = debug;           \
+    register bool r0 asm("r0") = debug;                 \
     asm volatile("cbnz  r0, with_debugger%=         \n" \
                  "ldr   r12, =__furi_check_registers\n" \
                  "ldm   r12, {r0-r11}               \n" \
