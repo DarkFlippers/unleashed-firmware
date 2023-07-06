@@ -1,6 +1,6 @@
 #include "subghz_test_packet.h"
-#include "../subghz_i.h"
-#include "../helpers/subghz_testing.h"
+#include "../subghz_test_app_i.h"
+#include "../helpers/subghz_test_frequency.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
 #include <math.h>
@@ -8,7 +8,7 @@
 #include <furi_hal.h>
 #include <input/input.h>
 #include <toolbox/level_duration.h>
-#include <lib/subghz/protocols/princeton_for_testing.h>
+#include "../protocol/princeton_for_testing.h"
 
 #define SUBGHZ_TEST_PACKET_COUNT 500
 

@@ -9,10 +9,6 @@
 #include "views/subghz_frequency_analyzer.h"
 #include "views/subghz_read_raw.h"
 
-#include "views/subghz_test_static.h"
-#include "views/subghz_test_carrier.h"
-#include "views/subghz_test_packet.h"
-
 #include <gui/gui.h>
 #include <assets_icons.h>
 #include <dialogs/dialogs.h>
@@ -64,9 +60,6 @@ struct SubGhz {
 
     SubGhzFrequencyAnalyzer* subghz_frequency_analyzer;
     SubGhzReadRAW* subghz_read_raw;
-    SubGhzTestStatic* subghz_test_static;
-    SubGhzTestCarrier* subghz_test_carrier;
-    SubGhzTestPacket* subghz_test_packet;
 
     SubGhzProtocolFlag filter;
     FuriString* error_str;

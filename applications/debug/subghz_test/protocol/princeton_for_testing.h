@@ -1,6 +1,8 @@
 #pragma once
 
-#include "base.h"
+//#include "base.h"
+#include <furi.h>
+#include <lib/toolbox/level_duration.h>
 
 /** SubGhzDecoderPrinceton anonymous type */
 typedef struct SubGhzDecoderPrinceton SubGhzDecoderPrinceton;

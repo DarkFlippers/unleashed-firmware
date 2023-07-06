@@ -80,9 +80,6 @@ typedef enum {
     SubGhzViewIdFrequencyAnalyzer,
     SubGhzViewIdReadRAW,
 
-    SubGhzViewIdStatic,
-    SubGhzViewIdTestCarrier,
-    SubGhzViewIdTestPacket,
 } SubGhzViewId;
 
 /** SubGhz load type file */

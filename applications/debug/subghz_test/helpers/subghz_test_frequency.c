@@ -1,4 +1,4 @@
-#include "subghz_testing.h"
+#include "subghz_test_frequency.h"
 
 const uint32_t subghz_frequencies_testing[] = {
     /* 300 - 348 */

@@ -1,6 +1,6 @@
 #include "subghz_test_static.h"
-#include "../subghz_i.h"
-#include "../helpers/subghz_testing.h"
+#include "../subghz_test_app_i.h"
+#include "../helpers/subghz_test_frequency.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
 #include <math.h>
@@ -8,7 +8,7 @@
 #include <furi_hal.h>
 #include <input/input.h>
 #include <notification/notification_messages.h>
-#include <lib/subghz/protocols/princeton_for_testing.h>
+#include "../protocol/princeton_for_testing.h"
 
 #define TAG "SubGhzTestStatic"
 

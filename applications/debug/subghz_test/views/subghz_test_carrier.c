@@ -1,6 +1,6 @@
 #include "subghz_test_carrier.h"
-#include "../subghz_i.h"
-#include "../helpers/subghz_testing.h"
+#include "../subghz_test_app_i.h"
+#include "../helpers/subghz_test_frequency.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
 #include <math.h>

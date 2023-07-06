@@ -4,7 +4,6 @@
 enum SubmenuIndex {
     SubmenuIndexRead = 10,
     SubmenuIndexSaved,
-    SubmenuIndexTest,
     SubmenuIndexAddManually,
     SubmenuIndexFrequencyAnalyzer,
     SubmenuIndexReadRAW,
@@ -56,10 +55,6 @@ void subghz_scene_start_on_enter(void* context) {
         SubmenuIndexRadioSetting,
         subghz_scene_start_submenu_callback,
         subghz);
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        submenu_add_item(
-            subghz->submenu, "Test", SubmenuIndexTest, subghz_scene_start_submenu_callback, subghz);
-    }
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart));
 
@@ -100,11 +95,6 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexFrequencyAnalyzer);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
             dolphin_deed(DolphinDeedSubGhzFrequencyAnalyzer);
-            return true;
-        } else if(event.event == SubmenuIndexTest) {
-            scene_manager_set_scene_state(
-                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexTest);
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTest);
             return true;
         } else if(event.event == SubmenuIndexShowRegionInfo) {
             scene_manager_set_scene_state(
