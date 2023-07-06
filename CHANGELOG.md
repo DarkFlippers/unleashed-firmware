@@ -7,6 +7,8 @@
 * Infrared: Updated universal remote assets (by @amec0e | PR #529)
 * Plugins: Use correct categories for all plugins (extra pack too)
 * Plugins: Various fixes for uFBT (by @hedger)
+* Plugins: Added **NFC Maker** plugin (make tags with URLs, Wifi and other things) [(by Willy-JL)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/external/nfc_maker) 
+* Plugins: Added JetPack Joyride [(by timstrasser)](https://github.com/timstrasser)
 * Plugins: Moved Barcode Generator [(by Kingal1337)](https://github.com/Kingal1337/flipper-barcode-generator) from extra pack into base fw, old barcode generator was removed
 * Plugins: Updated ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
 * Plugins: Updated i2c Tools [(by NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
@@ -15,6 +17,8 @@
 * WIP OFW PR 2825: NFC: Improved MFC emulation on some readers (by AloneLiberty)
 * OFW PR 2829: Decode only supported Oregon 3 sensor (by @wosk)
 * OFW PR: Update OFW PR 2782
+* OFW: SubGhz: add "SubGhz test" external application and the ability to work "SubGhz" as an external application
+* OFW: API: explicitly add math.h
 * OFW: NFC: Mf Ultralight emulation optimization
 * OFW: Furi_Power: fix furi_hal_power_enable_otg 
 * OFW: FuriHal: allow nulling null isr
