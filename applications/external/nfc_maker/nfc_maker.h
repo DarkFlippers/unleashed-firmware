@@ -6,7 +6,7 @@
 #include <gui/modules/validators.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
-#include <assets_icons.h>
+#include "nfc_maker_icons.h"
 #include <gui/modules/submenu.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/byte_input.h>
@@ -16,6 +16,7 @@
 #include <lib/toolbox/random_name.h>
 #include <applications/main/nfc/nfc_i.h>
 #include <furi_hal_bt.h>
+#include "strnlen.h"
 
 #define TEXT_INPUT_LEN 248
 #define WIFI_INPUT_LEN 90
