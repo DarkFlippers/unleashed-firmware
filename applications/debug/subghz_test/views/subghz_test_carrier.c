@@ -1,6 +1,7 @@
 #include "subghz_test_carrier.h"
-#include "../subghz_i.h"
-#include "../helpers/subghz_testing.h"
+#include "../subghz_test_app_i.h"
+#include "../helpers/subghz_test_frequency.h"
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #include <math.h>
 #include <furi.h>
@@ -115,19 +116,14 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
             furi_hal_subghz_set_path(model->path);
 
             if(model->status == SubGhzTestCarrierModelStatusRx) {
-                furi_hal_gpio_init(
-                    furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
                 furi_hal_subghz_rx();
             } else {
                 furi_hal_gpio_init(
-                    furi_hal_subghz.cc1101_g0_pin,
-                    GpioModeOutputPushPull,
-                    GpioPullNo,
-                    GpioSpeedLow);
-                furi_hal_gpio_write(furi_hal_subghz.cc1101_g0_pin, true);
+                    &gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+                furi_hal_gpio_write(&gpio_cc1101_g0, true);
                 if(!furi_hal_subghz_tx()) {
-                    furi_hal_gpio_init(
-                        furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
                     subghz_test_carrier->callback(
                         SubGhzTestCarrierEventOnlyRx, subghz_test_carrier->context);
                 }
@@ -143,9 +139,9 @@ void subghz_test_carrier_enter(void* context) {
     SubGhzTestCarrier* subghz_test_carrier = context;
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
 
-    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     with_view_model(
         subghz_test_carrier->view,

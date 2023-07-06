@@ -6,7 +6,6 @@
 enum SubmenuIndex {
     SubmenuIndexRead = 10,
     SubmenuIndexSaved,
-    SubmenuIndexTest,
     SubmenuIndexAddManually,
     SubmenuIndexFrequencyAnalyzer,
     SubmenuIndexReadRAW,
@@ -52,10 +51,6 @@ void subghz_scene_start_on_enter(void* context) {
         SubmenuIndexExtSettings,
         subghz_scene_start_submenu_callback,
         subghz);
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        submenu_add_item(
-            subghz->submenu, "Test", SubmenuIndexTest, subghz_scene_start_submenu_callback, subghz);
-    }
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart));
 

@@ -1,13 +1,14 @@
 #include "subghz_test_packet.h"
-#include "../subghz_i.h"
-#include "../helpers/subghz_testing.h"
+#include "../subghz_test_app_i.h"
+#include "../helpers/subghz_test_frequency.h"
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #include <math.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
 #include <toolbox/level_duration.h>
-#include <lib/subghz/protocols/princeton_for_testing.h>
+#include "../protocol/princeton_for_testing.h"
 
 #define SUBGHZ_TEST_PACKET_COUNT 500
 
@@ -194,7 +195,7 @@ void subghz_test_packet_enter(void* context) {
     SubGhzTestPacket* instance = context;
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
 
     with_view_model(
         instance->view,
