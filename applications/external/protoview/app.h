@@ -19,6 +19,7 @@
 #include <lib/subghz/subghz_setting.h>
 #include <lib/subghz/registry.h>
 #include "raw_samples.h"
+#include "helpers/radio_device_loader.h"
 
 #define TAG "ProtoView"
 #define PROTOVIEW_RAW_VIEW_DEFAULT_SCALE 100 // 100us is 1 pixel by default
@@ -131,6 +132,8 @@ struct ProtoViewApp {
     /* Radio related. */
     ProtoViewTxRx* txrx; /* Radio state. */
     SubGhzSetting* setting; /* A list of valid frequencies. */
+
+    const SubGhzDevice* radio_device;
 
     /* Generic app state. */
     int running; /* Once false exists the app. */

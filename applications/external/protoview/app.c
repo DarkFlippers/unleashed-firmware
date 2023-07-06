@@ -118,6 +118,8 @@ static void app_switch_view(ProtoViewApp* app, ProtoViewCurrentView switchto) {
 /* Allocate the application state and initialize a number of stuff.
  * This is called in the entry point to create the application state. */
 ProtoViewApp* protoview_app_alloc() {
+    furi_hal_power_suppress_charge_enter();
+
     ProtoViewApp* app = malloc(sizeof(ProtoViewApp));
 
     // Init shared data structures
@@ -167,16 +169,14 @@ ProtoViewApp* protoview_app_alloc() {
     app->frequency = subghz_setting_get_default_frequency(app->setting);
     app->modulation = 0; /* Defaults to ProtoViewModulations[0]. */
 
-    // Enable power for External CC1101 if it is connected
-    furi_hal_subghz_enable_ext_power();
-    // Auto switch to internal radio if external radio is not available
-    furi_delay_ms(15);
-    if(!furi_hal_subghz_check_radio()) {
-        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-    }
+    // Init & set radio_device
+    subghz_devices_init();
+    app->radio_device =
+        radio_device_loader_set(app->radio_device, SubGhzRadioDeviceTypeExternalCC1101);
 
-    furi_hal_power_suppress_charge_enter();
+    subghz_devices_reset(app->radio_device);
+    subghz_devices_idle(app->radio_device);
+
     app->running = 1;
 
     return app;
@@ -188,13 +188,10 @@ ProtoViewApp* protoview_app_alloc() {
 void protoview_app_free(ProtoViewApp* app) {
     furi_assert(app);
 
-    // Put CC1101 on sleep, this also restores charging.
-    radio_sleep(app);
+    subghz_devices_sleep(app->radio_device);
+    radio_device_loader_end(app->radio_device);
 
-    // Disable power for External CC1101 if it was enabled and module is connected
-    furi_hal_subghz_disable_ext_power();
-    // Reinit SPI handles for internal radio / nfc
-    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
+    subghz_devices_deinit();
 
     // View related.
     view_port_enabled_set(app->view_port, false);
