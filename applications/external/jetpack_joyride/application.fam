@@ -1,0 +1,15 @@
+# For details & more options, see documentation/AppManifests.md in firmware repo
+
+App(
+    appid="jetpack_joyride",
+    name="Jetpack Joyride",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="jetpack_game_app",
+    cdefines=["APP_JETPACK_GAME"],
+    requires=["gui"],
+    stack_size=4 * 1024,
+    order=100,
+    fap_icon="icon.png",
+    fap_category="Games",
+    fap_icon_assets="assets",
+)
