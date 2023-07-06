@@ -37,7 +37,7 @@ App(
     ],
     stack_size=2 * 1024,
     fap_icon="icons/rfid_10px.png",
-    fap_category="RFID 125",
+    fap_category="RFID",
     fap_private_libs=[
         Lib(
             name="worker",
