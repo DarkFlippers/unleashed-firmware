@@ -107,11 +107,6 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
                 dolphin_deed(DolphinDeedSubGhzFrequencyAnalyzer);
                 return true;
-            } else if(event.event == SubmenuIndexTest) {
-                scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneStart, SubmenuIndexTest);
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTest);
-                return true;
             }
         }
     }
