@@ -11,6 +11,9 @@ void subghz_scene_test_carrier_on_enter(void* context) {
     SubGhz* subghz = context;
     subghz_test_carrier_set_callback(
         subghz->subghz_test_carrier, subghz_scene_test_carrier_callback, subghz);
+    subghz_test_carrier_set_radio(
+        subghz->subghz_test_carrier,
+        subghz_devices_get_by_name(subghz_txrx_radio_device_get_name(subghz->txrx)));
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdTestCarrier);
 }
 

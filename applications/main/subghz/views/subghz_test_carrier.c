@@ -8,12 +8,11 @@
 #include <furi_hal.h>
 #include <input/input.h>
 
-// TODO add external module
-
 struct SubGhzTestCarrier {
     View* view;
     FuriTimer* timer;
     SubGhzTestCarrierCallback callback;
+    const SubGhzDevice* radio_device;
     void* context;
 };
 
@@ -86,6 +85,7 @@ void subghz_test_carrier_draw(Canvas* canvas, SubGhzTestCarrierModel* model) {
 bool subghz_test_carrier_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubGhzTestCarrier* subghz_test_carrier = context;
+    const SubGhzDevice* radio_device = subghz_test_carrier->radio_device;
 
     if(event->key == InputKeyBack || event->type != InputTypeShort) {
         return false;
@@ -95,7 +95,8 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
         subghz_test_carrier->view,
         SubGhzTestCarrierModel * model,
         {
-            furi_hal_subghz_idle();
+            // furi_hal_subghz_idle();
+            subghz_devices_idle(radio_device);
 
             if(event->key == InputKeyLeft) {
                 if(model->frequency > 0) model->frequency--;
@@ -113,19 +114,33 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
                 }
             }
 
-            model->real_frequency =
-                furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
+            // model->real_frequency =
+            //     furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
             furi_hal_subghz_set_path(model->path);
+            model->real_frequency = subghz_devices_set_frequency(
+                radio_device, subghz_frequencies_testing[model->frequency]);
 
             if(model->status == SubGhzTestCarrierModelStatusRx) {
-                furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
-                furi_hal_subghz_rx();
+                // furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                // furi_hal_subghz_rx();
+                furi_hal_gpio_init(
+                    subghz_devices_get_data_gpio(radio_device),
+                    GpioModeInput,
+                    GpioPullNo,
+                    GpioSpeedLow);
+                subghz_devices_set_rx(radio_device);
             } else {
                 furi_hal_gpio_init(
                     &gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
                 furi_hal_gpio_write(&gpio_cc1101_g0, true);
-                if(!furi_hal_subghz_tx()) {
-                    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                // if(!furi_hal_subghz_tx()) {
+                //     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                if(!subghz_devices_set_tx(radio_device)) {
+                    furi_hal_gpio_init(
+                        subghz_devices_get_data_gpio(radio_device),
+                        GpioModeInput,
+                        GpioPullNo,
+                        GpioSpeedLow);
                     subghz_test_carrier->callback(
                         SubGhzTestCarrierEventOnlyRx, subghz_test_carrier->context);
                 }
@@ -139,26 +154,37 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
 void subghz_test_carrier_enter(void* context) {
     furi_assert(context);
     SubGhzTestCarrier* subghz_test_carrier = context;
+    furi_assert(subghz_test_carrier->radio_device);
+    const SubGhzDevice* radio_device = subghz_test_carrier->radio_device;
 
-    furi_hal_subghz_reset();
-    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
+    // furi_hal_subghz_reset();
+    // furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
 
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    // furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+
+    subghz_devices_reset(radio_device);
+    subghz_devices_load_preset(radio_device, FuriHalSubGhzPresetOok650Async, NULL);
+
+    furi_hal_gpio_init(
+        subghz_devices_get_data_gpio(radio_device), GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     with_view_model(
         subghz_test_carrier->view,
         SubGhzTestCarrierModel * model,
         {
             model->frequency = subghz_frequencies_433_92_testing; // 433
-            model->real_frequency =
-                furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
+            // model->real_frequency =
+            //     furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
+            model->real_frequency = subghz_devices_set_frequency(
+                radio_device, subghz_frequencies_testing[model->frequency]);
             model->path = FuriHalSubGhzPathIsolate; // isolate
             model->rssi = 0.0f;
             model->status = SubGhzTestCarrierModelStatusRx;
         },
         true);
 
-    furi_hal_subghz_rx();
+    // furi_hal_subghz_rx();
+    subghz_devices_set_rx(radio_device);
 
     furi_timer_start(subghz_test_carrier->timer, furi_kernel_get_tick_frequency() / 4);
 }
@@ -170,7 +196,8 @@ void subghz_test_carrier_exit(void* context) {
     furi_timer_stop(subghz_test_carrier->timer);
 
     // Reinitialize IC to default state
-    furi_hal_subghz_sleep();
+    // furi_hal_subghz_sleep();
+    subghz_devices_sleep(subghz_test_carrier->radio_device);
 }
 
 void subghz_test_carrier_rssi_timer_callback(void* context) {
@@ -182,7 +209,8 @@ void subghz_test_carrier_rssi_timer_callback(void* context) {
         SubGhzTestCarrierModel * model,
         {
             if(model->status == SubGhzTestCarrierModelStatusRx) {
-                model->rssi = furi_hal_subghz_get_rssi();
+                // model->rssi = furi_hal_subghz_get_rssi();
+                model->rssi = subghz_devices_get_rssi(subghz_test_carrier->radio_device);
             }
         },
         false);
@@ -217,4 +245,11 @@ void subghz_test_carrier_free(SubGhzTestCarrier* subghz_test_carrier) {
 View* subghz_test_carrier_get_view(SubGhzTestCarrier* subghz_test_carrier) {
     furi_assert(subghz_test_carrier);
     return subghz_test_carrier->view;
+}
+
+void subghz_test_carrier_set_radio(
+    SubGhzTestCarrier* subghz_test_carrier,
+    const SubGhzDevice* radio_device) {
+    furi_assert(subghz_test_carrier);
+    subghz_test_carrier->radio_device = radio_device;
 }

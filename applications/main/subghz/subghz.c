@@ -112,6 +112,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     // Open Notification record
     subghz->notifications = furi_record_open(RECORD_NOTIFICATION);
 
+    subghz->txrx = subghz_txrx_alloc();
+
     if(!alloc_for_tx_only) {
         // SubMenu
         subghz->submenu = submenu_alloc();
@@ -167,7 +169,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             variable_item_list_get_view(subghz->variable_item_list));
 
         // Frequency Analyzer
-        subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc();
+        // View knows too much
+        subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc(subghz->txrx);
         view_dispatcher_add_view(
             subghz->view_dispatcher,
             SubGhzViewIdFrequencyAnalyzer,
@@ -208,8 +211,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     //init TxRx & Protocol & History & KeyBoard
     subghz_unlock(subghz);
-
-    subghz->txrx = subghz_txrx_alloc();
 
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
