@@ -28,6 +28,14 @@ static void storage_move_to_sd_remove_region() {
     if(storage_common_exists(storage, INT_PATH(".region_data"))) {
         storage_common_remove(storage, INT_PATH(".region_data"));
     }
+    if(storage_common_exists(storage, EXT_PATH("apps/Misc/totp.conf"))) {
+        storage_common_rename(
+            storage, EXT_PATH("apps/Misc/totp.conf"), EXT_PATH("authenticator/totp.conf"));
+    }
+    if(storage_common_exists(storage, EXT_PATH("apps/Misc/barcodegen.save"))) {
+        storage_common_remove(storage, EXT_PATH("apps/Misc/barcodegen.save"));
+        storage_common_remove(storage, EXT_PATH("apps/Misc"));
+    }
 
     furi_record_close(RECORD_STORAGE);
 }

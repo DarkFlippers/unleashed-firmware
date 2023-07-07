@@ -14,7 +14,6 @@
 #include <input/input.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <gui/canvas_i.h>
 #include <dolphin/dolphin.h>
 
 #define Y_FIELD_SIZE 6

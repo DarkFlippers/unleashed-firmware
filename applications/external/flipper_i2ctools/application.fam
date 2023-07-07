@@ -1,5 +1,5 @@
 App(
-    appid="i2c_tools",
+    appid="i2ctools",
     name="[GPIO] i2c Tools",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="i2ctools_app",
@@ -10,6 +10,6 @@ App(
     fap_category="GPIO",
     fap_icon_assets="images",
     fap_author="@NaejEL",
-    fap_version="1.0",
+    fap_version="1.1",
     fap_description="Set of i2c tools",
 )

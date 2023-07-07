@@ -1,0 +1,14 @@
+App(
+    appid="subghz_test",
+    name="Sub-Ghz test",
+    apptype=FlipperAppType.DEBUG,
+    targets=["f7"],
+    entry_point="subghz_test_app",
+    requires=["gui"],
+    stack_size=4 * 1024,
+    order=50,
+    fap_icon="subghz_test_10px.png",
+    fap_category="Debug",
+    fap_icon_assets="images",
+    fap_version="0.1",
+)

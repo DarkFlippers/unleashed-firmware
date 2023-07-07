@@ -62,6 +62,7 @@ typedef struct {
     bool sio;
     bool biometrics;
     uint8_t key[8];
+    bool elite_kdf;
     uint8_t pin_length;
     PicopassEncryption encryption;
     uint8_t credential[8];

@@ -7,7 +7,7 @@ App(
     requires=["gui"],
     stack_size=2 * 1024,
     fap_icon="ir_scope.png",
-    fap_category="Tools",
+    fap_category="Infrared",
     fap_author="@kallanreed",
     fap_version="1.0",
     fap_description="App allows to see incoming IR signals.",

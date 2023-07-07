@@ -14,9 +14,6 @@
 
 #define TAG "FuriHalBt"
 
-#define FURI_HAL_BT_DEFAULT_MAC_ADDR \
-    { 0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72 }
-
 /* Time, in ms, to wait for mode transition before crashing */
 #define C2_MODE_SWITCH_TIMEOUT 10000
 
@@ -238,28 +235,29 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
             strlcpy(
                 config->adv_name,
                 furi_hal_version_get_ble_local_device_name_ptr(),
-                FURI_HAL_VERSION_DEVICE_NAME_LENGTH);
+                FURI_HAL_BT_ADV_NAME_LENGTH);
 
             config->adv_service_uuid |= furi_hal_version_get_hw_color();
         } else if(profile == FuriHalBtProfileHidKeyboard) {
             // Change MAC address for HID profile
-            uint8_t default_mac[sizeof(config->mac_address)] = FURI_HAL_BT_DEFAULT_MAC_ADDR;
             const uint8_t* normal_mac = furi_hal_version_get_ble_mac();
-            if(memcmp(config->mac_address, default_mac, sizeof(config->mac_address)) == 0) {
+            uint8_t empty_mac[sizeof(config->mac_address)] = FURI_HAL_BT_EMPTY_MAC_ADDR;
+            uint8_t default_mac[sizeof(config->mac_address)] = FURI_HAL_BT_DEFAULT_MAC_ADDR;
+            if(memcmp(config->mac_address, empty_mac, sizeof(config->mac_address)) == 0 ||
+               memcmp(config->mac_address, normal_mac, sizeof(config->mac_address)) == 0 ||
+               memcmp(config->mac_address, default_mac, sizeof(config->mac_address)) == 0) {
                 memcpy(config->mac_address, normal_mac, sizeof(config->mac_address));
-            }
-            if(memcmp(config->mac_address, normal_mac, sizeof(config->mac_address)) == 0) {
                 config->mac_address[2]++;
             }
             // Change name Flipper -> Control
-            if(strnlen(config->adv_name, FURI_HAL_VERSION_DEVICE_NAME_LENGTH) < 2 ||
-               strnlen(config->adv_name + 1, FURI_HAL_VERSION_DEVICE_NAME_LENGTH) < 1) {
+            if(strnlen(config->adv_name, FURI_HAL_BT_ADV_NAME_LENGTH) < 2 ||
+               strnlen(config->adv_name + 1, FURI_HAL_BT_ADV_NAME_LENGTH - 1) < 1) {
                 snprintf(
                     config->adv_name,
-                    FURI_HAL_VERSION_DEVICE_NAME_LENGTH,
+                    FURI_HAL_BT_ADV_NAME_LENGTH,
                     "%cControl %s",
-                    *furi_hal_version_get_ble_local_device_name_ptr(),
-                    furi_hal_version_get_ble_local_device_name_ptr() + 9);
+                    AD_TYPE_COMPLETE_LOCAL_NAME,
+                    furi_hal_version_get_name_ptr());
             }
         }
         if(!gap_init(config, event_cb, context)) {
@@ -485,6 +483,15 @@ uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi) {
     return since;
 }
 
+void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
+    uint8_t tmp;
+    for(size_t i = 0; i < GAP_MAC_ADDR_SIZE / 2; i++) {
+        tmp = mac_addr[i];
+        mac_addr[i] = mac_addr[GAP_MAC_ADDR_SIZE - 1 - i];
+        mac_addr[GAP_MAC_ADDR_SIZE - 1 - i] = tmp;
+    }
+}
+
 void furi_hal_bt_set_profile_adv_name(
     FuriHalBtProfile profile,
     const char name[FURI_HAL_BT_ADV_NAME_LENGTH]) {
@@ -492,13 +499,13 @@ void furi_hal_bt_set_profile_adv_name(
     furi_assert(name);
 
     if(strlen(name) == 0) {
-        memset(
-            &(profile_config[profile].config.adv_name[1]),
-            0,
-            strlen(&(profile_config[profile].config.adv_name[1])));
+        memset(&(profile_config[profile].config.adv_name[1]), 0, FURI_HAL_BT_ADV_NAME_LENGTH - 1);
     } else {
         profile_config[profile].config.adv_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
-        memcpy(&(profile_config[profile].config.adv_name[1]), name, FURI_HAL_BT_ADV_NAME_LENGTH);
+        strlcpy(
+            &(profile_config[profile].config.adv_name[1]),
+            name,
+            FURI_HAL_BT_ADV_NAME_LENGTH - 1 /* BLE symbol */);
     }
 }
 

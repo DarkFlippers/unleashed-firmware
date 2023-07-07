@@ -48,31 +48,25 @@ const int32_t contrast_value[CONTRAST_COUNT] = {
     5,
 };
 
-#define BACKLIGHT_COUNT 5
+#define BACKLIGHT_COUNT 21
 const char* const backlight_text[BACKLIGHT_COUNT] = {
-    "0%",
-    "25%",
-    "50%",
-    "75%",
-    "100%",
+    "0%",  "5%",  "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%",  "50%",
+    "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%",
 };
 const float backlight_value[BACKLIGHT_COUNT] = {
-    0.0f,
-    0.25f,
-    0.5f,
-    0.75f,
-    1.0f,
+    0.00f, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.30f, 0.35f, 0.40f, 0.45f, 0.50f,
+    0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f, 1.00f,
 };
 
-#define VOLUME_COUNT 5
+#define VOLUME_COUNT 21
 const char* const volume_text[VOLUME_COUNT] = {
-    "0%",
-    "25%",
-    "50%",
-    "75%",
-    "100%",
+    "0%",  "5%",  "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%",  "50%",
+    "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%",
 };
-const float volume_value[VOLUME_COUNT] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+const float volume_value[VOLUME_COUNT] = {
+    0.00f, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.30f, 0.35f, 0.40f, 0.45f, 0.50f,
+    0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f, 1.00f,
+};
 
 #define DELAY_COUNT 11
 const char* const delay_text[DELAY_COUNT] = {

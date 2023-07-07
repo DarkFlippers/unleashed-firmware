@@ -500,7 +500,7 @@ void gap_stop_advertising() {
     furi_mutex_release(gap->state_mutex);
 }
 
-static void gap_advetise_timer_callback(void* context) {
+static void gap_advertise_timer_callback(void* context) {
     UNUSED(context);
     GapCommand command = GapCommandAdvLowPower;
     furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
@@ -514,7 +514,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap = malloc(sizeof(Gap));
     gap->config = config;
     // Create advertising timer
-    gap->advertise_timer = furi_timer_alloc(gap_advetise_timer_callback, FuriTimerTypeOnce, NULL);
+    gap->advertise_timer = furi_timer_alloc(gap_advertise_timer_callback, FuriTimerTypeOnce, NULL);
     // Initialization of GATT & GAP layer
     gap->service.adv_name = config->adv_name;
     gap_init_svc(gap);

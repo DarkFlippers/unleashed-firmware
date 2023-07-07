@@ -6,7 +6,6 @@
 
 #include <notification/notification_messages.h>
 #include <dialogs/dialogs.h>
-#include <m-string.h>
 
 #include <dolphin/dolphin.h>
 
