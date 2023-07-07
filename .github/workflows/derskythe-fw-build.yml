@@ -9,20 +9,10 @@ jobs:
     needs: checkout-with-submodules
     name: Build dev FW
     runs-on: ubuntu-latest
-    container:
-      image: derskythe/github-runner-base
-      env:
+    env:
         DIST_SUFFIX: ${{ vars.DRONE_BUILD_NUMBER }}
         WORKFLOW_BRANCH_OR_TAG: dev-cfw
-        FBT_TOOLS_CUSTOM_LINK: fbt_link
-      credentials:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_PASS }}
-      ports:
-        - 80
-      volumes:
-        - ./build-dev-fw:/opt/src
-      options: --cpus 1
+        FBT_TOOLS_CUSTOM_LINK: fbt_link    
     steps:
       - name: Build dev FW
         run: |
@@ -39,21 +29,11 @@ jobs:
     needs: checkout-with-extra-apps
     name: Build release FW
     runs-on: ubuntu-latest
-    container:
-      image: derskythe/github-runner-base
-      env:
+    env:
         DIST_SUFFIX: ${{ vars.DRONE_BUILD_NUMBER }}e
         WORKFLOW_BRANCH_OR_TAG: release-cfw
         FBT_TOOLS_CUSTOM_LINK: fbt_link
         FORCE_NO_DIRTY: yes
-      credentials:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_PASS }}
-      ports:
-        - 80
-      options: --cpus 1
-      volumes:
-        - ./build-with-extra-apps:/opt/src
     steps:
       - name: Build extra apps FW
         run: |
