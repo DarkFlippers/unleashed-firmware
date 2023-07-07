@@ -18,3 +18,4 @@
 #define TOTP_CONFIG_KEY_PINSET "PinIsSet"
 #define TOTP_CONFIG_KEY_NOTIFICATION_METHOD "NotificationMethod"
 #define TOTP_CONFIG_KEY_AUTOMATION_METHOD "AutomationMethod"
+#define TOTP_CONFIG_KEY_SELECTED_FONT "SelectedFont"

@@ -326,13 +326,14 @@ void infrared_tx_start_signal(Infrared* infrared, InfraredSignal* signal) {
 
     if(infrared_signal_is_raw(signal)) {
         InfraredRawSignal* raw = infrared_signal_get_raw_signal(signal);
-        infrared_worker_set_raw_signal(infrared->worker, raw->timings, raw->timings_size);
+        infrared_worker_set_raw_signal(
+            infrared->worker, raw->timings, raw->timings_size, raw->frequency, raw->duty_cycle);
     } else {
         InfraredMessage* message = infrared_signal_get_message(signal);
         infrared_worker_set_decoded_signal(infrared->worker, message);
     }
 
-    DOLPHIN_DEED(DolphinDeedIrSend);
+    dolphin_deed(DolphinDeedIrSend);
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 
     infrared_worker_tx_set_get_signal_callback(

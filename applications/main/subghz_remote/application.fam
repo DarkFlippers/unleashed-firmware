@@ -3,12 +3,15 @@ App(
     name="Sub-GHz Remote",
     apptype=FlipperAppType.APP,
     entry_point="subghz_remote_app",
-    cdefines=["APP_SUBGHZREMOTE"],
+    cdefines=[
+        "APP_SUBGHZREMOTE",
+        "SUBREM_LIGHT",
+    ],
     requires=[
         "gui",
         "dialogs",
     ],
     icon="A_SubGHzRemote_14",
-    stack_size=4 * 1024,
+    stack_size=2 * 1024,
     order=11,
 )

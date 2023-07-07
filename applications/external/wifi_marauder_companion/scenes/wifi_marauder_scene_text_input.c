@@ -46,7 +46,9 @@ void wifi_marauder_scene_text_input_on_enter(void* context) {
     // Setup view
     WIFI_TextInput* text_input = app->text_input;
     // Add help message to header
-    if(app->special_case_input_step == 1) {
+    if(app->flash_mode) {
+        wifi_text_input_set_header_text(text_input, "Enter destination address");
+    } else if(app->special_case_input_step == 1) {
         wifi_text_input_set_header_text(text_input, "Enter source MAC");
     } else if(0 == strncmp("ssid -a -g", app->selected_tx_string, strlen("ssid -a -g"))) {
         wifi_text_input_set_header_text(text_input, "Enter # SSIDs to generate");

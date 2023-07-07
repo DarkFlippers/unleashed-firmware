@@ -42,7 +42,9 @@ void nfc_magic_scene_check_on_enter(void* context) {
     nfc_magic_worker_start(
         nfc_magic->worker,
         NfcMagicWorkerStateCheck,
-        &nfc_magic->nfc_dev->dev_data,
+        nfc_magic->dev,
+        &nfc_magic->source_dev->dev_data,
+        nfc_magic->new_password,
         nfc_magic_check_worker_callback,
         nfc_magic);
     nfc_magic_blink_start(nfc_magic);

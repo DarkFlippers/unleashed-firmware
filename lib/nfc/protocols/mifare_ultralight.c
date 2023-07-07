@@ -79,6 +79,8 @@ static MfUltralightFeatures mf_ul_get_features(MfUltralightType type) {
                MfUltralightSupportSectorSelect;
     case MfUltralightTypeNTAG203:
         return MfUltralightSupportCompatWrite | MfUltralightSupportCounterInMemory;
+    case MfUltralightTypeULC:
+        return MfUltralightSupportCompatWrite | MfUltralightSupport3DesAuth;
     default:
         // Assumed original MFUL 512-bit
         return MfUltralightSupportCompatWrite;
@@ -93,6 +95,11 @@ static void mf_ul_set_default_version(MfUltralightReader* reader, MfUltralightDa
 static void mf_ul_set_version_ntag203(MfUltralightReader* reader, MfUltralightData* data) {
     data->type = MfUltralightTypeNTAG203;
     reader->pages_to_read = 42;
+}
+
+static void mf_ul_set_version_ulc(MfUltralightReader* reader, MfUltralightData* data) {
+    data->type = MfUltralightTypeULC;
+    reader->pages_to_read = 48;
 }
 
 bool mf_ultralight_read_version(
@@ -175,7 +182,7 @@ bool mf_ultralight_authenticate(FuriHalNfcTxRxContext* tx_rx, uint32_t key, uint
 
     do {
         FURI_LOG_D(TAG, "Authenticating");
-        tx_rx->tx_data[0] = MF_UL_AUTH;
+        tx_rx->tx_data[0] = MF_UL_PWD_AUTH;
         nfc_util_num2bytes(key, 4, &tx_rx->tx_data[1]);
         tx_rx->tx_bits = 40;
         tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
@@ -702,7 +709,7 @@ bool mf_ultralight_read_tearing_flags(FuriHalNfcTxRxContext* tx_rx, MfUltralight
     FURI_LOG_D(TAG, "Reading tearing flags");
     for(size_t i = 0; i < 3; i++) {
         tx_rx->tx_data[0] = MF_UL_CHECK_TEARING;
-        tx_rx->rx_data[1] = i;
+        tx_rx->tx_data[1] = i;
         tx_rx->tx_bits = 16;
         tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
         if(!furi_hal_nfc_tx_rx(tx_rx, 50)) {
@@ -714,6 +721,21 @@ bool mf_ultralight_read_tearing_flags(FuriHalNfcTxRxContext* tx_rx, MfUltralight
     }
 
     return flag_read == 2;
+}
+
+static bool mf_ul_probe_3des_auth(FuriHalNfcTxRxContext* tx_rx) {
+    tx_rx->tx_data[0] = MF_UL_AUTHENTICATE_1;
+    tx_rx->tx_data[1] = 0;
+    tx_rx->tx_bits = 16;
+    tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
+    bool rc = furi_hal_nfc_tx_rx(tx_rx, 50) && tx_rx->rx_bits == 9 * 8 &&
+              tx_rx->rx_data[0] == 0xAF;
+
+    // Reset just in case, we're not going to finish authenticating and need to if tag doesn't support auth
+    furi_hal_nfc_sleep();
+    furi_hal_nfc_activate_nfca(300, NULL);
+
+    return rc;
 }
 
 bool mf_ul_read_card(
@@ -733,16 +755,20 @@ bool mf_ul_read_card(
             mf_ultralight_read_signature(tx_rx, data);
         }
     } else {
-        // No GET_VERSION command, check for NTAG203 by reading last page (41)
         uint8_t dummy[16];
-        if(mf_ultralight_read_pages_direct(tx_rx, 41, dummy)) {
+        // No GET_VERSION command, check if AUTHENTICATE command available (detect UL C).
+        if(mf_ul_probe_3des_auth(tx_rx)) {
+            mf_ul_set_version_ulc(reader, data);
+        } else if(mf_ultralight_read_pages_direct(tx_rx, 41, dummy)) {
+            // No AUTHENTICATE, check for NTAG203 by reading last page (41)
             mf_ul_set_version_ntag203(reader, data);
-            reader->supported_features = mf_ul_get_features(data->type);
         } else {
             // We're really an original Mifare Ultralight, reset tag for safety
             furi_hal_nfc_sleep();
             furi_hal_nfc_activate_nfca(300, NULL);
         }
+
+        reader->supported_features = mf_ul_get_features(data->type);
     }
 
     card_read = mf_ultralight_read_pages(tx_rx, reader, data);
@@ -1226,6 +1252,10 @@ static void mf_ul_emulate_write(
 
     memcpy(&emulator->data.data[write_page * 4], page_buff, 4);
     emulator->data_changed = true;
+}
+
+bool mf_ul_emulation_supported(MfUltralightData* data) {
+    return data->type != MfUltralightTypeULC;
 }
 
 void mf_ul_reset_emulation(MfUltralightEmulator* emulator, bool is_power_cycle) {
@@ -1732,7 +1762,7 @@ bool mf_ul_prepare_emulation_response(
                     }
                 }
             }
-        } else if(cmd == MF_UL_AUTH) {
+        } else if(cmd == MF_UL_PWD_AUTH) {
             if(emulator->supported_features & MfUltralightSupportAuth) {
                 if(buff_rx_len == (1 + 4) * 8) {
                     // Record password sent by PCD

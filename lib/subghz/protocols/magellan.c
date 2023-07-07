@@ -64,7 +64,8 @@ const SubGhzProtocol subghz_protocol_magellan = {
     .name = SUBGHZ_PROTOCOL_MAGELLAN_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send |
+            SubGhzProtocolFlag_Magelan,
 
     .decoder = &subghz_protocol_magellan_decoder,
     .encoder = &subghz_protocol_magellan_encoder,

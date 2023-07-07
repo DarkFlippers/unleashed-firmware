@@ -188,6 +188,7 @@ class FlipperAppStateHelper:
         )
         self.app_type_ptr = gdb.lookup_type("FlipperApplication").pointer()
         self.app_list_entry_type = gdb.lookup_type("struct FlipperApplicationList_s")
+        self._sync_apps()
 
     def handle_stop(self, event) -> None:
         self._sync_apps()

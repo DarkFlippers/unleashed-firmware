@@ -21,12 +21,12 @@
 #include <gui/modules/widget.h>
 #include "wifi_marauder_text_input.h"
 
-#include <ESP32_WiFi_Marauder_icons.h>
+#include <esp32_wifi_marauder_icons.h>
 #include <storage/storage.h>
 #include <lib/toolbox/path.h>
 #include <dialogs/dialogs.h>
 
-#define NUM_MENU_ITEMS (18)
+#define NUM_MENU_ITEMS (19)
 
 #define WIFI_MARAUDER_TEXT_BOX_STORE_SIZE (4096)
 #define WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE (512)
@@ -113,6 +113,13 @@ struct WifiMarauderApp {
     int special_case_input_step;
     char special_case_input_src_addr[20];
     char special_case_input_dst_addr[20];
+
+    // For flashing - TODO: put into its own struct?
+    char bin_file_path_boot[100];
+    char bin_file_path_part[100];
+    char bin_file_path_app[100];
+    FuriThread* flash_worker;
+    bool flash_mode;
 };
 
 // Supported commands:

@@ -21,6 +21,9 @@
 #define SUBGHZ_RAW_FILE_VERSION 1
 #define SUBGHZ_RAW_FILE_TYPE "Flipper SubGhz RAW File"
 
+typedef struct SubGhzProtocolRegistry SubGhzProtocolRegistry;
+typedef struct SubGhzEnvironment SubGhzEnvironment;
+
 // Radio Preset
 typedef struct {
     FuriString* name;
@@ -114,13 +117,16 @@ typedef enum {
     SubGhzProtocolFlag_Load = (1 << 8),
     SubGhzProtocolFlag_Send = (1 << 9),
     SubGhzProtocolFlag_BinRAW = (1 << 10),
+    SubGhzProtocolFlag_StarLine = (1 << 11),
+    SubGhzProtocolFlag_AutoAlarms = (1 << 12),
+    SubGhzProtocolFlag_Magelan = (1 << 13),
 } SubGhzProtocolFlag;
 
-typedef struct {
+struct SubGhzProtocol {
     const char* name;
     SubGhzProtocolType type;
     SubGhzProtocolFlag flag;
 
     const SubGhzProtocolEncoder* encoder;
     const SubGhzProtocolDecoder* decoder;
-} SubGhzProtocol;
+};

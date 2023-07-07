@@ -14,8 +14,7 @@
 
 #define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
 
-#define SCROLL_INTERVAL (606)
-#define SCROLL_DELAY (2)
+#define FLIP_TIMEOUT (500)
 
 typedef struct {
     FuriString* item_str;
@@ -55,7 +54,7 @@ struct SubGhzViewReceiver {
     View* view;
     SubGhzViewReceiverCallback callback;
     void* context;
-    FuriTimer* scroll_timer;
+    FuriTimer* flip_time_timer;
 };
 
 typedef struct {
@@ -70,7 +69,8 @@ typedef struct {
     SubGhzViewReceiverBarShow bar_show;
     SubGhzViewReceiverMode mode;
     uint8_t u_rssi;
-    size_t scroll_counter;
+    bool show_time;
+    bool nodraw;
 } SubGhzViewReceiverModel;
 
 void subghz_view_receiver_set_mode(
@@ -147,6 +147,24 @@ static void subghz_view_receiver_update_offset(SubGhzViewReceiver* subghz_receiv
         true);
 }
 
+static void subghz_view_receiver_show_time_moment(void* context) {
+    furi_assert(context);
+    SubGhzViewReceiver* subghz_receiver = context;
+    with_view_model(
+        subghz_receiver->view, SubGhzViewReceiverModel * model, { model->show_time = true; }, true);
+    furi_timer_start(subghz_receiver->flip_time_timer, FLIP_TIMEOUT);
+}
+
+static void subghz_view_receiver_flip_string_callback(void* context) {
+    furi_assert(context);
+    SubGhzViewReceiver* subghz_receiver = context;
+    with_view_model(
+        subghz_receiver->view,
+        SubGhzViewReceiverModel * model,
+        { model->show_time = false; },
+        true);
+}
+
 void subghz_view_receiver_add_item_to_menu(
     SubGhzViewReceiver* subghz_receiver,
     const char* name,
@@ -165,6 +183,7 @@ void subghz_view_receiver_add_item_to_menu(
             if((model->idx == model->history_item - 1)) {
                 model->history_item++;
                 model->idx++;
+                subghz_view_receiver_show_time_moment(subghz_receiver);
             } else {
                 model->history_item++;
             }
@@ -241,39 +260,36 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     bool scrollbar = model->history_item > 4;
     FuriString* str_buff = furi_string_alloc();
 
-    SubGhzReceiverMenuItem* item_menu;
+    if(!model->nodraw) {
+        SubGhzReceiverMenuItem* item_menu;
 
-    for(size_t i = 0; i < MIN(model->history_item, MENU_ITEMS); ++i) {
-        size_t idx = CLAMP((uint16_t)(i + model->list_offset), model->history_item, 0);
-        item_menu = SubGhzReceiverMenuItemArray_get(model->history->data, idx);
-        furi_string_set(str_buff, item_menu->item_str);
-        size_t scroll_counter = model->scroll_counter;
-        if(model->idx == idx) {
-            subghz_view_receiver_draw_frame(canvas, i, scrollbar);
-            if(scroll_counter < SCROLL_DELAY) {
-                // Show time of signal one moment
-                furi_string_set(str_buff, item_menu->time);
-                scroll_counter = 0;
-            } else {
-                scroll_counter -= SCROLL_DELAY;
+        for(size_t i = 0; i < MIN(model->history_item, MENU_ITEMS); ++i) {
+            size_t idx = CLAMP((uint16_t)(i + model->list_offset), model->history_item, 0);
+            item_menu = SubGhzReceiverMenuItemArray_get(model->history->data, idx);
+            if(item_menu == NULL) {
+                break;
             }
-        } else {
-            canvas_set_color(canvas, ColorBlack);
-            scroll_counter = 0;
+            if(item_menu->type == 0) {
+                break;
+            }
+            furi_string_set(str_buff, item_menu->item_str);
+            if(model->idx == idx) {
+                subghz_view_receiver_draw_frame(canvas, i, scrollbar);
+                if(model->show_time) {
+                    // Show time of signal one moment
+                    furi_string_set(str_buff, item_menu->time);
+                }
+            } else {
+                canvas_set_color(canvas, ColorBlack);
+            }
+            elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 7 : MAX_LEN_PX);
+            canvas_draw_icon(canvas, 4, 2 + i * FRAME_HEIGHT, ReceiverItemIcons[item_menu->type]);
+            canvas_draw_str(canvas, 15, 9 + i * FRAME_HEIGHT, furi_string_get_cstr(str_buff));
+            furi_string_reset(str_buff);
         }
-        canvas_draw_icon(canvas, 4, 2 + i * FRAME_HEIGHT, ReceiverItemIcons[item_menu->type]);
-        elements_scrollable_text_line(
-            canvas,
-            15,
-            9 + i * FRAME_HEIGHT,
-            (scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX),
-            str_buff,
-            scroll_counter,
-            (model->idx != idx));
-        furi_string_reset(str_buff);
-    }
-    if(scrollbar) {
-        elements_scrollbar_pos(canvas, 128, 0, 49, model->idx, model->history_item);
+        if(scrollbar) {
+            elements_scrollbar_pos(canvas, 128, 0, 49, model->idx, model->history_item);
+        }
     }
     furi_string_free(str_buff);
 
@@ -375,13 +391,6 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     }
 }
 
-static void subghz_view_receiver_scroll_timer_callback(void* context) {
-    furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
-    with_view_model(
-        subghz_receiver->view, SubGhzViewReceiverModel * model, { model->scroll_counter++; }, true);
-}
-
 static void subghz_view_receiver_timer_callback(void* context) {
     furi_assert(context);
     SubGhzViewReceiver* subghz_receiver = context;
@@ -441,7 +450,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
             SubGhzViewReceiverModel * model,
             {
                 if(model->idx != 0) model->idx--;
-                model->scroll_counter = 0;
+                subghz_view_receiver_show_time_moment(context);
             },
             true);
     } else if(
@@ -451,9 +460,10 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
             subghz_receiver->view,
             SubGhzViewReceiverModel * model,
             {
-                if((model->history_item != 0) && (model->idx != model->history_item - 1))
+                if((model->history_item != 0) && (model->idx != model->history_item - 1)) {
                     model->idx++;
-                model->scroll_counter = 0;
+                    subghz_view_receiver_show_time_moment(context);
+                }
             },
             true);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
@@ -464,29 +474,12 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
             SubGhzViewReceiverModel * model,
             {
                 if(model->history_item != 0) {
-                    SubGhzReceiverMenuItemArray_it_t it;
-                    // SubGhzReceiverMenuItem* target_item =
-                    //     SubGhzReceiverMenuItemArray_get(model->history->data, model->idx);
-                    SubGhzReceiverMenuItemArray_it_last(it, model->history->data);
-                    while(!SubGhzReceiverMenuItemArray_end_p(it)) {
-                        SubGhzReceiverMenuItem* item = SubGhzReceiverMenuItemArray_ref(it);
-
-                        if(it->index == (size_t)(model->idx)) {
-                            furi_string_free(item->item_str);
-                            furi_string_free(item->time);
-                            item->type = 0;
-                            SubGhzReceiverMenuItemArray_remove(model->history->data, it);
-                        }
-
-                        SubGhzReceiverMenuItemArray_previous(it);
-                    }
-
                     // Callback
                     subghz_receiver->callback(
                         SubGhzCustomEventViewReceiverDeleteItem, subghz_receiver->context);
                 }
             },
-            true);
+            false);
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(
             subghz_receiver->view,
@@ -507,13 +500,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
 
 void subghz_view_receiver_enter(void* context) {
     furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
-    with_view_model(
-        subghz_receiver->view,
-        SubGhzViewReceiverModel * model,
-        { model->scroll_counter = 0; },
-        true);
-    furi_timer_start(subghz_receiver->scroll_timer, SCROLL_INTERVAL);
+    subghz_view_receiver_show_time_moment(context);
 }
 
 void subghz_view_receiver_exit(void* context) {
@@ -537,10 +524,11 @@ void subghz_view_receiver_exit(void* context) {
                 model->idx = 0;
                 model->list_offset = 0;
                 model->history_item = 0;
+                model->nodraw = false;
         },
         false);
     furi_timer_stop(subghz_receiver->timer);
-    furi_timer_stop(subghz_receiver->scroll_timer);
+    furi_timer_stop(subghz_receiver->flip_time_timer);
 }
 
 SubGhzViewReceiver* subghz_view_receiver_alloc() {
@@ -559,8 +547,8 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
     view_set_enter_callback(subghz_receiver->view, subghz_view_receiver_enter);
     view_set_exit_callback(subghz_receiver->view, subghz_view_receiver_exit);
 
-    subghz_receiver->scroll_timer = furi_timer_alloc(
-        subghz_view_receiver_scroll_timer_callback, FuriTimerTypePeriodic, subghz_receiver);
+    subghz_receiver->flip_time_timer = furi_timer_alloc(
+        subghz_view_receiver_flip_string_callback, FuriTimerTypeOnce, subghz_receiver);
 
     with_view_model(
         subghz_receiver->view,
@@ -571,6 +559,7 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
             model->history_stat_str = furi_string_alloc();
             model->progress_str = furi_string_alloc();
             model->bar_show = SubGhzViewReceiverBarShowDefault;
+            model->nodraw = false;
             model->history = malloc(sizeof(SubGhzReceiverHistory));
             SubGhzReceiverMenuItemArray_init(model->history->data);
         },
@@ -583,7 +572,7 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
 void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver) {
     furi_assert(subghz_receiver);
 
-    furi_timer_free(subghz_receiver->scroll_timer);
+    furi_timer_free(subghz_receiver->flip_time_timer);
 
     with_view_model(
         subghz_receiver->view,
@@ -628,6 +617,23 @@ void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_rec
         subghz_receiver->view,
         SubGhzViewReceiverModel * model,
         {
+            SubGhzReceiverMenuItemArray_it_t it;
+            // SubGhzReceiverMenuItem* target_item =
+            //     SubGhzReceiverMenuItemArray_get(model->history->data, model->idx);
+            SubGhzReceiverMenuItemArray_it_last(it, model->history->data);
+            while(!SubGhzReceiverMenuItemArray_end_p(it)) {
+                SubGhzReceiverMenuItem* item = SubGhzReceiverMenuItemArray_ref(it);
+
+                if(it->index == (size_t)(model->idx)) {
+                    furi_string_free(item->item_str);
+                    furi_string_free(item->time);
+                    item->type = 0;
+                    SubGhzReceiverMenuItemArray_remove(model->history->data, it);
+                }
+
+                SubGhzReceiverMenuItemArray_previous(it);
+            }
+
             if(model->history_item == 5) {
                 if(model->idx >= 2) {
                     model->idx = model->history_item - 1;
@@ -640,7 +646,20 @@ void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_rec
             }
         },
         true);
-    furi_delay_ms(200);
+}
+
+void subghz_view_receiver_enable_draw_callback(SubGhzViewReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+
+    with_view_model(
+        subghz_receiver->view, SubGhzViewReceiverModel * model, { model->nodraw = false; }, true);
+}
+
+void subghz_view_receiver_disable_draw_callback(SubGhzViewReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+
+    with_view_model(
+        subghz_receiver->view, SubGhzViewReceiverModel * model, { model->nodraw = true; }, true);
 }
 
 void subghz_view_receiver_set_idx_menu(SubGhzViewReceiver* subghz_receiver, uint16_t idx) {

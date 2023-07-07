@@ -11,6 +11,8 @@ void bad_bt_scene_config_mac_byte_input_callback(void* context) {
 void bad_bt_scene_config_mac_on_enter(void* context) {
     BadBtApp* bad_bt = context;
 
+    furi_hal_bt_reverse_mac_addr(bad_bt->config.bt_mac);
+
     // Setup view
     ByteInput* byte_input = bad_bt->byte_input;
     byte_input_set_header_text(byte_input, "Set BT MAC address");
@@ -30,7 +32,6 @@ bool bad_bt_scene_config_mac_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == BadBtAppCustomEventByteInputDone) {
-            bt_set_profile_mac_address(bad_bt->bt, bad_bt->config.bt_mac);
             scene_manager_previous_scene(bad_bt->scene_manager);
             consumed = true;
         }
@@ -40,6 +41,10 @@ bool bad_bt_scene_config_mac_on_event(void* context, SceneManagerEvent event) {
 
 void bad_bt_scene_config_mac_on_exit(void* context) {
     BadBtApp* bad_bt = context;
+
+    furi_hal_bt_reverse_mac_addr(bad_bt->config.bt_mac);
+
+    bt_set_profile_mac_address(bad_bt->bt, bad_bt->config.bt_mac);
 
     // Clear view
     byte_input_set_result_callback(bad_bt->byte_input, NULL, NULL, NULL, NULL, 0);

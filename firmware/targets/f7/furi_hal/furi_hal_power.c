@@ -284,10 +284,15 @@ void furi_hal_power_reset() {
     NVIC_SystemReset();
 }
 
-void furi_hal_power_enable_otg() {
+bool furi_hal_power_enable_otg() {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bq25896_set_boost_lim(&furi_hal_i2c_handle_power, BoostLim_2150);
     bq25896_enable_otg(&furi_hal_i2c_handle_power);
+    furi_delay_ms(30);
+    bool ret = bq25896_is_otg_enabled(&furi_hal_i2c_handle_power);
+    bq25896_set_boost_lim(&furi_hal_i2c_handle_power, BoostLim_1400);
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 void furi_hal_power_disable_otg() {
@@ -315,6 +320,13 @@ void furi_hal_power_set_battery_charge_voltage_limit(float voltage) {
     // Adding 0.0005 is necessary because 4.016f is 4.015999794000, which gets truncated
     bq25896_set_vreg_voltage(&furi_hal_i2c_handle_power, (uint16_t)(voltage * 1000.0f + 0.0005f));
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
+bool furi_hal_power_check_otg_fault() {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bool ret = bq25896_check_otg_fault(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 void furi_hal_power_check_otg_status() {

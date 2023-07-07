@@ -1,6 +1,4 @@
 #include "../subghz_i.h"
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/star_line.h>
 
 #include <lib/subghz/blocks/custom_btn.h>
 
@@ -44,15 +42,26 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubGhzCustomEventSceneRpcButtonPress) {
             bool result = false;
             if((state == SubGhzRpcStateLoaded)) {
-                result = subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
-                state = SubGhzRpcStateTx;
-                if(result) subghz_blink_start(subghz);
-            }
-            if(!result) {
-                rpc_system_app_set_error_code(subghz->rpc_ctx, SubGhzErrorTypeOnlyRX);
-                rpc_system_app_set_error_text(
-                    subghz->rpc_ctx,
-                    "Transmission on this frequency is restricted in your settings");
+                switch(
+                    subghz_txrx_tx_start(subghz->txrx, subghz_txrx_get_fff_data(subghz->txrx))) {
+                case SubGhzTxRxStartTxStateErrorOnlyRx:
+                    rpc_system_app_set_error_code(subghz->rpc_ctx, SubGhzErrorTypeOnlyRX);
+                    rpc_system_app_set_error_text(
+                        subghz->rpc_ctx,
+                        "Transmission on this frequency is restricted in your settings");
+                    break;
+                case SubGhzTxRxStartTxStateErrorParserOthers:
+                    rpc_system_app_set_error_code(subghz->rpc_ctx, SubGhzErrorTypeParserOthers);
+                    rpc_system_app_set_error_text(
+                        subghz->rpc_ctx, "Error in protocol parameters description");
+                    break;
+
+                default: //if(SubGhzTxRxStartTxStateOk)
+                    result = true;
+                    subghz_blink_start(subghz);
+                    state = SubGhzRpcStateTx;
+                    break;
+                }
             }
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonPress, result);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonRelease) {
@@ -60,9 +69,9 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             if(state == SubGhzRpcStateTx) {
                 subghz_txrx_stop(subghz->txrx);
                 subghz_blink_stop(subghz);
-                state = SubGhzRpcStateIdle;
                 result = true;
             }
+            state = SubGhzRpcStateIdle;
             rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonRelease, result);
         } else if(event.event == SubGhzCustomEventSceneRpcLoad) {
             bool result = false;
@@ -99,7 +108,7 @@ void subghz_scene_rpc_on_exit(void* context) {
     SubGhz* subghz = context;
 
     SubGhzRpcState state = scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneRpc);
-    if(state != SubGhzRpcStateIdle) {
+    if(state == SubGhzRpcStateTx) {
         subghz_txrx_stop(subghz->txrx);
         subghz_blink_stop(subghz);
     }
@@ -110,10 +119,5 @@ void subghz_scene_rpc_on_exit(void* context) {
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
 
-    keeloq_reset_mfname();
-    keeloq_reset_kl_type();
-    keeloq_reset_original_btn();
-    subghz_custom_btns_reset();
-    star_line_reset_mfname();
-    star_line_reset_kl_type();
+    subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);
 }

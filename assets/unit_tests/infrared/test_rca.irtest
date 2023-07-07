@@ -1,0 +1,105 @@
+Filetype: IR tests file
+Version: 1
+#
+name: decoder_input1
+type: raw
+data: 1000000 3994 3969 552 1945 551 1945 552 1945 551 1945 552 946 551 947 550 1947 548 951 546 1953 542 979 518 1979 517 981 492 1006 491 1006 492 1006 492 1006 492 2005 492 2005 492 1006 492 2005 492 1006 492 2005 492 1006 492 2006 491 
+#
+name: decoder_expected1
+type: parsed_array
+count: 1
+#
+protocol: RCA
+address: 0F 00 00 00
+command: 54 00 00 00
+repeat: false
+#
+name: decoder_input2
+type: raw
+data: 1000000 4055 3941 605 1891 551 1947 550 1946 551 1946 551 947 551 947 550 1947 549 949 548 1951 545 1977 519 1978 519 1979 518 980 518 980 518 980 518 980 518 1979 518 1979 518 981 517 1979 518 980 518 980 518 980 518 980 518 
+#
+name: decoder_expected2
+type: parsed_array
+count: 1
+#
+protocol: RCA
+address: 0F 00 00 00
+command: F4 00 00 00
+repeat: false
+#
+name: decoder_input3
+type: raw
+data: 1000000 4027 3970 551 1946 550 1946 551 1946 551 1946 551 946 551 947 550 1947 549 949 547 1951 545 1978 518 1979 492 1006 492 1007 491 1006 492 1006 492 1006 492 2006 491 2006 491 1006 492 2006 491 1007 491 1007 491 1006 492 2006 491 
+#
+name: decoder_expected3
+type: parsed_array
+count: 1
+#
+protocol: RCA
+address: 0F 00 00 00
+command: 74 00 00 00
+repeat: false
+#
+name: decoder_input4
+type: raw
+data: 1000000 4021 3941 551 1946 550 1946 551 1946 551 1945 552 946 551 947 550 1947 549 950 547 1952 544 1977 519 979 519 1979 518 980 518 980 518 980 518 980 518 1979 518 1979 518 980 518 1979 518 980 518 980 518 1979 518 980 518 
+#
+name: decoder_expected4
+type: parsed_array
+count: 1
+#
+protocol: RCA
+address: 0F 00 00 00
+command: B4 00 00 00
+repeat: false
+#
+name: decoder_input5
+type: raw
+data: 1000000 4022 3941 551 1946 551 1946 577 1919 578 1919 578 920 552 946 551 1946 550 947 550 1949 547 1952 544 978 520 979 519 980 518 980 518 980 518 980 518 1979 518 1979 518 980 518 1979 518 980 518 980 518 1979 518 1980 517 
+#
+name: decoder_expected5
+type: parsed_array
+count: 1
+#
+protocol: RCA
+address: 0F 00 00 00
+command: 34 00 00 00
+repeat: false
+#
+name: decoder_input6
+type: raw
+data: 1000000 3995 3968 552 1944 552 1946 550 1946 550 1946 551 947 550 948 549 1947 549 1949 547 1952 544 1978 518 1979 492 2005 492 1006 492 1006 492 1006 492 1006 492 2005 492 2005 492 1006 492 1006 492 1006 492 1006 492 1006 492 1006 492 
+#
+name: decoder_expected6
+type: parsed_array
+count: 1
+#
+protocol: RCA
+address: 0F 00 00 00
+command: FC 00 00 00
+repeat: false
+#
+name: encoder_decoder_input1
+type: parsed_array
+count: 4
+#
+protocol: RCA
+address: 0F 00 00 00
+command: 74 00 00 00
+repeat: false
+#
+protocol: RCA
+address: 0F 00 00 00
+command: B4 00 00 00
+repeat: false
+#
+protocol: RCA
+address: 0F 00 00 00
+command: 34 00 00 00
+repeat: false
+#
+protocol: RCA
+address: 0F 00 00 00
+command: FC 00 00 00
+repeat: false
+#

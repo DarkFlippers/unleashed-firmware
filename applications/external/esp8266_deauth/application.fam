@@ -1,5 +1,5 @@
 App(
-    appid="ESP8266_Deauther",
+    appid="esp8266_deauther",
     name="[ESP8266] Deauther",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="esp8266_deauth_app",
@@ -8,4 +8,7 @@ App(
     order=100,
     fap_icon="wifi_10px.png",
     fap_category="GPIO",
+    fap_author="@SequoiaSan & @xMasterX",
+    fap_version="1.0",
+    fap_description="DSTIKE Deauther module interface, based on ESP8266",
 )

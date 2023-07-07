@@ -1,7 +1,9 @@
+from pathlib import Path
 import posixpath
 
 # For more details on these options, run 'fbt -h'
 
+FIRMWARE_ORIGIN = "Unleashed"
 
 # Default hardware target
 TARGET_HW = 7
@@ -88,3 +90,8 @@ FIRMWARE_APPS = {
 }
 
 FIRMWARE_APP_SET = "default"
+
+custom_options_fn = "fbt_options_local.py"
+
+if Path(custom_options_fn).exists():
+    exec(compile(Path(custom_options_fn).read_text(), custom_options_fn, "exec"))

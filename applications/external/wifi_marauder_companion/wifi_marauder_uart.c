@@ -106,6 +106,9 @@ void wifi_marauder_uart_free(WifiMarauderUart* uart) {
     furi_thread_free(uart->rx_thread);
 
     furi_hal_uart_set_irq_cb(uart->channel, NULL, NULL);
+    if(uart->channel == FuriHalUartIdLPUART1) {
+        furi_hal_uart_deinit(uart->channel);
+    }
     furi_hal_console_enable();
 
     free(uart);

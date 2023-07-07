@@ -6,7 +6,6 @@
 
 #include <notification/notification_messages.h>
 #include <dialogs/dialogs.h>
-#include <m-string.h>
 
 #include <dolphin/dolphin.h>
 
@@ -240,7 +239,7 @@ static bool game_won(Minesweeper* minesweeper_state) {
     dialog_message_set_buttons(message, NULL, "Play again", NULL);
 
     // Call dolphin deed when we win the game
-    DOLPHIN_DEED(DolphinDeedPluginGameWin);
+    dolphin_deed(DolphinDeedPluginGameWin);
 
     DialogMessageButton choice = dialog_message_show(minesweeper_state->dialogs, message);
     dialog_message_free(message);
@@ -397,7 +396,7 @@ int32_t minesweeper_app(void* p) {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     // Call dolphin deed on game start
-    DOLPHIN_DEED(DolphinDeedPluginGameStart);
+    dolphin_deed(DolphinDeedPluginGameStart);
 
     PluginEvent event;
     for(bool processing = true; processing;) {

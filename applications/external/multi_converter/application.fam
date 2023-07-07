@@ -1,5 +1,5 @@
 App(
-    appid="Multi_Converter",
+    appid="multi_converter",
     name="Multi Converter",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="multi_converter_app",
@@ -7,5 +7,8 @@ App(
     stack_size=1 * 1024,
     order=19,
     fap_icon="converter_10px.png",
-    fap_category="Misc",
+    fap_category="Tools",
+    fap_author="@theisolinearchip",
+    fap_version="1.0",
+    fap_description="A multi-unit converter written with an easy and expandable system for adding new units and conversion methods",
 )

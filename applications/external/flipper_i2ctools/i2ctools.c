@@ -22,6 +22,10 @@ void i2ctools_draw_callback(Canvas* canvas, void* ctx) {
         draw_sender_view(canvas, i2ctools->sender);
         break;
 
+    case INFOS_VIEW:
+        draw_infos_view(canvas);
+        break;
+
     default:
         break;
     }

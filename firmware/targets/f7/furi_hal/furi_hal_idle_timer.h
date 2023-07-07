@@ -1,8 +1,10 @@
 #pragma once
 
 #include <stm32wbxx_ll_lptim.h>
-#include <stm32wbxx_ll_bus.h>
 #include <stm32wbxx_ll_rcc.h>
+#include <stm32wbxx_ll_bus.h>
+
+#include <furi_hal_bus.h>
 
 // Timer used for tickless idle
 #define FURI_HAL_IDLE_TIMER_MAX 0xFFFF
@@ -10,6 +12,7 @@
 #define FURI_HAL_IDLE_TIMER_IRQ LPTIM1_IRQn
 
 static inline void furi_hal_idle_timer_init() {
+    furi_hal_bus_enable(FuriHalBusLPTIM1);
     // Configure clock source
     LL_RCC_SetLPTIMClockSource(LL_RCC_LPTIM1_CLKSOURCE_LSE);
     // There is a theoretical possibility that we need it
@@ -40,7 +43,7 @@ static inline void furi_hal_idle_timer_start(uint32_t count) {
 static inline void furi_hal_idle_timer_reset() {
     // Hard reset timer
     // THE ONLY RELIABLE WAY to stop it according to errata
-    LL_LPTIM_DeInit(FURI_HAL_IDLE_TIMER);
+    furi_hal_bus_reset(FuriHalBusLPTIM1);
     // Prevent IRQ handler call
     NVIC_ClearPendingIRQ(FURI_HAL_IDLE_TIMER_IRQ);
 }

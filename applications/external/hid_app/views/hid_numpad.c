@@ -39,26 +39,26 @@ typedef struct {
     int8_t y;
 } HidNumpadPoint;
 
-#define MARGIN_TOP 0
-#define MARGIN_LEFT 24
+#define MARGIN_TOP 32
+#define MARGIN_LEFT 1
 #define KEY_WIDTH 20
 #define KEY_HEIGHT 15
 #define KEY_PADDING 1
-#define ROW_COUNT 5
-#define COLUMN_COUNT 4
+#define ROW_COUNT 6
+#define COLUMN_COUNT 3
 
 const HidNumpadKey hid_numpad_keyset[ROW_COUNT][COLUMN_COUNT] = {
     {
         {.width = 1, .height = 1, .icon = NULL, .key = "NL", .value = HID_KEYPAD_NUMLOCK},
         {.width = 1, .height = 1, .icon = NULL, .key = "/", .value = HID_KEYPAD_SLASH},
         {.width = 1, .height = 1, .icon = NULL, .key = "*", .value = HID_KEYPAD_ASTERISK},
-        {.width = 1, .height = 1, .icon = NULL, .key = "-", .value = HID_KEYPAD_MINUS},
+        // {.width = 1, .height = 1, .icon = NULL, .key = "-", .value = HID_KEYPAD_MINUS},
     },
     {
         {.width = 1, .height = 1, .icon = NULL, .key = "7", .value = HID_KEYPAD_7},
         {.width = 1, .height = 1, .icon = NULL, .key = "8", .value = HID_KEYBOARD_8},
         {.width = 1, .height = 1, .icon = NULL, .key = "9", .value = HID_KEYBOARD_9},
-        {.width = 1, .height = 2, .icon = NULL, .key = "+", .value = HID_KEYPAD_PLUS},
+        // {.width = 1, .height = 2, .icon = NULL, .key = "+", .value = HID_KEYPAD_PLUS},
     },
     {
         {.width = 1, .height = 1, .icon = NULL, .key = "4", .value = HID_KEYPAD_4},
@@ -69,12 +69,17 @@ const HidNumpadKey hid_numpad_keyset[ROW_COUNT][COLUMN_COUNT] = {
         {.width = 1, .height = 1, .icon = NULL, .key = "1", .value = HID_KEYPAD_1},
         {.width = 1, .height = 1, .icon = NULL, .key = "2", .value = HID_KEYPAD_2},
         {.width = 1, .height = 1, .icon = NULL, .key = "3", .value = HID_KEYPAD_3},
-        {.width = 1, .height = 2, .icon = NULL, .key = "En", .value = HID_KEYPAD_ENTER},
+        // {.width = 1, .height = 2, .icon = NULL, .key = "En", .value = HID_KEYPAD_ENTER},
     },
     {
         {.width = 2, .height = 1, .icon = NULL, .key = "0", .value = HID_KEYBOARD_0},
         {.width = 0, .height = 0, .icon = NULL, .key = "0", .value = HID_KEYBOARD_0},
         {.width = 1, .height = 1, .icon = NULL, .key = ".", .value = HID_KEYPAD_DOT},
+    },
+    {
+        {.width = 1, .height = 1, .icon = NULL, .key = "En", .value = HID_KEYPAD_ENTER},
+        {.width = 1, .height = 1, .icon = NULL, .key = "-", .value = HID_KEYPAD_MINUS},
+        {.width = 1, .height = 1, .icon = NULL, .key = "+", .value = HID_KEYPAD_PLUS},
     },
 };
 
@@ -128,26 +133,36 @@ static void hid_numpad_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidNumpadModel* model = context;
 
-    if((!model->connected) && (model->transport == HidTransportBle)) {
-        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        canvas_set_font(canvas, FontPrimary);
-        elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Numpad");
+    // Header
+    canvas_set_font(canvas, FontPrimary);
+    if(model->transport == HidTransportBle) {
+        if(model->connected) {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+        } else {
+            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+            elements_multiline_text_aligned(
+                canvas, 7, 60, AlignLeft, AlignBottom, "Waiting for\nConnection...");
+        }
+        elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Numpad");
 
-        canvas_draw_icon(canvas, 68, 3, &I_Pin_back_arrow_10x8);
-        canvas_set_font(canvas, FontSecondary);
-        elements_multiline_text_aligned(canvas, 127, 4, AlignRight, AlignTop, "Hold to exit");
+    } else {
+        elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Numpad");
+    }
 
-        elements_multiline_text_aligned(
-            canvas, 4, 60, AlignLeft, AlignBottom, "Waiting for Connection...");
+    canvas_draw_icon(canvas, 3, 18, &I_Pin_back_arrow_10x8);
+    canvas_set_font(canvas, FontSecondary);
+    elements_multiline_text_aligned(canvas, 15, 19, AlignLeft, AlignTop, "Hold to exit");
+
+    if(!model->connected && (model->transport == HidTransportBle)) {
         return;
     }
 
     canvas_set_font(canvas, FontKeyboard);
-    uint8_t initY = model->y == 0 ? 0 : 1;
+    uint8_t initY = 0; // = model->y == 0 ? 0 : 1;
 
-    if(model->y > 5) {
-        initY = model->y - 4;
-    }
+    // if(model->y > ROW_COUNT) {
+    //     initY = model->y - (ROW_COUNT - 1);
+    // }
 
     for(uint8_t y = initY; y < ROW_COUNT; y++) {
         const HidNumpadKey* numpadKeyRow = hid_numpad_keyset[y];
@@ -269,6 +284,7 @@ HidNumpad* hid_numpad_alloc(Hid* bt_hid) {
     hid_numpad->hid = bt_hid;
     view_set_context(hid_numpad->view, hid_numpad);
     view_allocate_model(hid_numpad->view, ViewModelTypeLocking, sizeof(HidNumpadModel));
+    view_set_orientation(hid_numpad->view, ViewOrientationVertical);
     view_set_draw_callback(hid_numpad->view, hid_numpad_draw_callback);
     view_set_input_callback(hid_numpad->view, hid_numpad_input_callback);
 

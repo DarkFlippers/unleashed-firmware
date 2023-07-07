@@ -84,17 +84,6 @@ class Main(App):
             if exists(sdk_folder := join(obj_directory, foldertype)):
                 self.note_dist_component(foldertype, "dir", sdk_folder)
 
-        # TODO: remove this after everyone migrates to new uFBT
-        self.create_zip_stub("lib")
-
-    def create_zip_stub(self, foldertype):
-        with zipfile.ZipFile(
-            self.get_dist_path(self.get_dist_file_name(foldertype, "zip")),
-            "w",
-            zipfile.ZIP_DEFLATED,
-        ) as _:
-            pass
-
     def copy(self) -> int:
         self._dist_components: dict[str, str] = dict()
         self.projects: dict[str, ProjectDir] = dict(
@@ -271,7 +260,15 @@ class Main(App):
                 self.note_dist_component(
                     "update", "tgz", self.get_dist_path(bundle_tgz)
                 )
-                tar.add(bundle_dir, arcname=bundle_dir_name)
+
+                # Strip uid and gid in case of overflow
+                def tar_filter(tarinfo):
+                    tarinfo.uid = tarinfo.gid = 0
+                    tarinfo.mtime = 0
+                    tarinfo.uname = tarinfo.gname = "furippa"
+                    return tarinfo
+
+                tar.add(bundle_dir, arcname=bundle_dir_name, filter=tar_filter)
         return bundle_result
 
 

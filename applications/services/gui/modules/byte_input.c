@@ -25,7 +25,7 @@ typedef struct {
 
     bool selected_high_nibble;
     uint8_t selected_byte;
-    int8_t selected_row; // row -1 - input, row 0 & 1 - keyboard
+    int8_t selected_row; // row -2 - mini_editor, -1 - input, row 0 & 1 - keyboard
     uint8_t selected_column;
     uint8_t first_visible_byte;
 } ByteInputModel;
@@ -149,6 +149,8 @@ static char byte_input_get_nibble_text(uint8_t byte, bool high_nibble) {
     return byte;
 }
 
+const char num_to_char[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
 /**
  * @brief Draw input box (common view)
  * 
@@ -158,6 +160,10 @@ static char byte_input_get_nibble_text(uint8_t byte, bool high_nibble) {
 static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
     const uint8_t text_x = 8;
     const uint8_t text_y = 25;
+    const uint8_t text_y2 = 40;
+    const bool draw_index_line =
+        (model->selected_row == -2) &&
+        (model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes + 1) <= 100);
 
     elements_slightly_rounded_frame(canvas, 6, 14, 116, 15);
 
@@ -225,6 +231,27 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
                 text_y,
                 byte_input_get_nibble_text(model->bytes[i], false));
         }
+
+        if(draw_index_line) {
+            canvas_draw_glyph(
+                canvas, text_x + 2 + byte_position * 14, text_y2, num_to_char[(i + 1) / 10]);
+
+            canvas_draw_glyph(
+                canvas, text_x + 8 + byte_position * 14, text_y2, num_to_char[(i + 1) % 10]);
+        }
+    }
+
+    if((model->selected_row == -2) &&
+       (model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes + 1) > 100)) {
+        char str[20];
+
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(str, 20, "Selected index");
+        canvas_draw_str(canvas, text_x, text_y2, str);
+
+        canvas_set_font(canvas, FontPrimary);
+        snprintf(str, 20, "%u", (model->selected_byte + 1));
+        canvas_draw_str(canvas, text_x + 75, text_y2, str);
     }
 
     if(model->bytes_count - model->first_visible_byte > max_drawable_bytes) {
@@ -379,6 +406,17 @@ static void byte_input_inc_selected_byte(ByteInputModel* model) {
     }
 }
 
+static void byte_input_inc_selected_byte_mini(ByteInputModel* model) {
+    if((model->selected_byte < model->bytes_count - 1) || model->selected_high_nibble) {
+        if(!model->selected_high_nibble) {
+            model->selected_high_nibble = !model->selected_high_nibble;
+            byte_input_inc_selected_byte(model);
+        } else {
+            model->selected_high_nibble = !model->selected_high_nibble;
+        }
+    }
+}
+
 /**
  * @brief Decrease selected byte position
  * 
@@ -393,6 +431,17 @@ static void byte_input_dec_selected_byte(ByteInputModel* model) {
             if(model->first_visible_byte > 0) {
                 model->first_visible_byte--;
             }
+        }
+    }
+}
+
+static void byte_input_dec_selected_byte_mini(ByteInputModel* model) {
+    if(model->selected_byte > 0 || !model->selected_high_nibble) {
+        if(model->selected_high_nibble) {
+            model->selected_high_nibble = !model->selected_high_nibble;
+            byte_input_dec_selected_byte(model);
+        } else {
+            model->selected_high_nibble = !model->selected_high_nibble;
         }
     }
 }
@@ -436,8 +485,18 @@ static void byte_input_clear_selected_byte(ByteInputModel* model) {
  * @param model 
  */
 static void byte_input_handle_up(ByteInputModel* model) {
-    if(model->selected_row > -1) {
+    if(model->selected_row > -2) {
         model->selected_row -= 1;
+    } else if(model->selected_row == -2) {
+        if(!model->selected_high_nibble) {
+            model->bytes[model->selected_byte] = (model->bytes[model->selected_byte] & 0xF0) |
+                                                 ((model->bytes[model->selected_byte] + 1) & 0x0F);
+        } else {
+            model->bytes[model->selected_byte] =
+                ((model->bytes[model->selected_byte] + 0x10) & 0xF0) |
+                (model->bytes[model->selected_byte] & 0x0F);
+        }
+        byte_input_call_changed_callback(model);
     }
 }
 
@@ -447,12 +506,24 @@ static void byte_input_handle_up(ByteInputModel* model) {
  * @param model 
  */
 static void byte_input_handle_down(ByteInputModel* model) {
-    if(byte_input_keyboard_selected(model)) {
-        if(model->selected_row < keyboard_row_count - 1) {
-            model->selected_row += 1;
+    if(model->selected_row != -2) {
+        if(byte_input_keyboard_selected(model)) {
+            if(model->selected_row < keyboard_row_count - 1) {
+                model->selected_row += 1;
+            }
+        } else {
+            byte_input_transition_from_keyboard(model);
         }
     } else {
-        byte_input_transition_from_keyboard(model);
+        if(!model->selected_high_nibble) {
+            model->bytes[model->selected_byte] = (model->bytes[model->selected_byte] & 0xF0) |
+                                                 ((model->bytes[model->selected_byte] - 1) & 0x0F);
+        } else {
+            model->bytes[model->selected_byte] =
+                ((model->bytes[model->selected_byte] - 0x10) & 0xF0) |
+                (model->bytes[model->selected_byte] & 0x0F);
+        }
+        byte_input_call_changed_callback(model);
     }
 }
 
@@ -461,7 +532,7 @@ static void byte_input_handle_down(ByteInputModel* model) {
  * 
  * @param model 
  */
-static void byte_input_handle_left(ByteInputModel* model) {
+static void byte_input_handle_left(ByteInputModel* model) { // XXX
     if(byte_input_keyboard_selected(model)) {
         if(model->selected_column > 0) {
             model->selected_column -= 1;
@@ -469,7 +540,11 @@ static void byte_input_handle_left(ByteInputModel* model) {
             model->selected_column = byte_input_get_row_size(model->selected_row) - 1;
         }
     } else {
-        byte_input_dec_selected_byte(model);
+        if(model->selected_row != -2) {
+            byte_input_dec_selected_byte(model);
+        } else {
+            byte_input_dec_selected_byte_mini(model);
+        }
     }
 }
 
@@ -478,7 +553,7 @@ static void byte_input_handle_left(ByteInputModel* model) {
  * 
  * @param model 
  */
-static void byte_input_handle_right(ByteInputModel* model) {
+static void byte_input_handle_right(ByteInputModel* model) { // XXX
     if(byte_input_keyboard_selected(model)) {
         if(model->selected_column < byte_input_get_row_size(model->selected_row) - 1) {
             model->selected_column += 1;
@@ -486,7 +561,11 @@ static void byte_input_handle_right(ByteInputModel* model) {
             model->selected_column = 0;
         }
     } else {
-        byte_input_inc_selected_byte(model);
+        if(model->selected_row != -2) {
+            byte_input_inc_selected_byte(model);
+        } else {
+            byte_input_inc_selected_byte_mini(model);
+        }
     }
 }
 
@@ -514,6 +593,8 @@ static void byte_input_handle_ok(ByteInputModel* model) {
             }
             byte_input_call_changed_callback(model);
         }
+    } else if(model->selected_row == -2) {
+        byte_input_call_input_callback(model);
     } else {
         byte_input_transition_from_keyboard(model);
     }
@@ -541,68 +622,77 @@ static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
         byte_input_draw_input(canvas, model);
     }
 
-    for(uint8_t row = 0; row < keyboard_row_count; row++) {
-        const uint8_t column_count = byte_input_get_row_size(row);
-        const ByteInputKey* keys = byte_input_get_row(row);
+    if(model->selected_row == -2) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_icon(canvas, 3, 52, &I_Pin_back_arrow_10x8);
+        canvas_draw_str_aligned(canvas, 16, 60, AlignLeft, AlignBottom, "back to keyboard");
+    } else {
+        // Draw keyboard
+        for(uint8_t row = 0; row < keyboard_row_count; row++) {
+            const uint8_t column_count = byte_input_get_row_size(row);
+            const ByteInputKey* keys = byte_input_get_row(row);
 
-        for(size_t column = 0; column < column_count; column++) {
-            if(keys[column].value == enter_symbol) {
-                canvas_set_color(canvas, ColorBlack);
-                if(model->selected_row == row && model->selected_column == column) {
-                    canvas_draw_icon(
-                        canvas,
-                        keyboard_origin_x + keys[column].x,
-                        keyboard_origin_y + keys[column].y,
-                        &I_KeySaveSelected_24x11);
-                } else {
-                    canvas_draw_icon(
-                        canvas,
-                        keyboard_origin_x + keys[column].x,
-                        keyboard_origin_y + keys[column].y,
-                        &I_KeySave_24x11);
-                }
-            } else if(keys[column].value == backspace_symbol) {
-                canvas_set_color(canvas, ColorBlack);
-                if(model->selected_row == row && model->selected_column == column) {
-                    canvas_draw_icon(
-                        canvas,
-                        keyboard_origin_x + keys[column].x,
-                        keyboard_origin_y + keys[column].y,
-                        &I_KeyBackspaceSelected_16x9);
-                } else {
-                    canvas_draw_icon(
-                        canvas,
-                        keyboard_origin_x + keys[column].x,
-                        keyboard_origin_y + keys[column].y,
-                        &I_KeyBackspace_16x9);
-                }
-            } else {
-                if(model->selected_row == row && model->selected_column == column) {
+            for(size_t column = 0; column < column_count; column++) {
+                if(keys[column].value == enter_symbol) {
                     canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_box(
-                        canvas,
-                        keyboard_origin_x + keys[column].x - 3,
-                        keyboard_origin_y + keys[column].y - 10,
-                        11,
-                        13);
-                    canvas_set_color(canvas, ColorWhite);
-                } else if(model->selected_row == -1 && row == 0 && model->selected_column == column) {
+                    if(model->selected_row == row && model->selected_column == column) {
+                        canvas_draw_icon(
+                            canvas,
+                            keyboard_origin_x + keys[column].x,
+                            keyboard_origin_y + keys[column].y,
+                            &I_KeySaveSelected_24x11);
+                    } else {
+                        canvas_draw_icon(
+                            canvas,
+                            keyboard_origin_x + keys[column].x,
+                            keyboard_origin_y + keys[column].y,
+                            &I_KeySave_24x11);
+                    }
+                } else if(keys[column].value == backspace_symbol) {
                     canvas_set_color(canvas, ColorBlack);
-                    canvas_draw_frame(
-                        canvas,
-                        keyboard_origin_x + keys[column].x - 3,
-                        keyboard_origin_y + keys[column].y - 10,
-                        11,
-                        13);
+                    if(model->selected_row == row && model->selected_column == column) {
+                        canvas_draw_icon(
+                            canvas,
+                            keyboard_origin_x + keys[column].x,
+                            keyboard_origin_y + keys[column].y,
+                            &I_KeyBackspaceSelected_16x9);
+                    } else {
+                        canvas_draw_icon(
+                            canvas,
+                            keyboard_origin_x + keys[column].x,
+                            keyboard_origin_y + keys[column].y,
+                            &I_KeyBackspace_16x9);
+                    }
                 } else {
-                    canvas_set_color(canvas, ColorBlack);
-                }
+                    if(model->selected_row == row && model->selected_column == column) {
+                        canvas_set_color(canvas, ColorBlack);
+                        canvas_draw_box(
+                            canvas,
+                            keyboard_origin_x + keys[column].x - 3,
+                            keyboard_origin_y + keys[column].y - 10,
+                            11,
+                            13);
+                        canvas_set_color(canvas, ColorWhite);
+                    } else if(
+                        model->selected_row == -1 && row == 0 &&
+                        model->selected_column == column) {
+                        canvas_set_color(canvas, ColorBlack);
+                        canvas_draw_frame(
+                            canvas,
+                            keyboard_origin_x + keys[column].x - 3,
+                            keyboard_origin_y + keys[column].y - 10,
+                            11,
+                            13);
+                    } else {
+                        canvas_set_color(canvas, ColorBlack);
+                    }
 
-                canvas_draw_glyph(
-                    canvas,
-                    keyboard_origin_x + keys[column].x,
-                    keyboard_origin_y + keys[column].y,
-                    keys[column].value);
+                    canvas_draw_glyph(
+                        canvas,
+                        keyboard_origin_x + keys[column].x,
+                        keyboard_origin_y + keys[column].y,
+                        keys[column].value);
+                }
             }
         }
     }
@@ -654,6 +744,20 @@ static bool byte_input_view_input_callback(InputEvent* event, void* context) {
         default:
             break;
         }
+    }
+
+    if(event->type == InputTypeShort && event->key == InputKeyBack) {
+        // Back to keyboard
+        with_view_model(
+            byte_input->view,
+            ByteInputModel * model,
+            {
+                if(model->selected_row == -2) {
+                    model->selected_row += 1;
+                    consumed = true;
+                };
+            },
+            true);
     }
 
     if((event->type == InputTypeLong || event->type == InputTypeRepeat) &&

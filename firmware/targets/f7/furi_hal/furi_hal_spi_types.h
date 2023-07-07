@@ -6,8 +6,6 @@
 #include <furi_hal_gpio.h>
 
 #include <stm32wbxx_ll_spi.h>
-#include <stm32wbxx_ll_rcc.h>
-#include <stm32wbxx_ll_bus.h>
 
 #ifdef __cplusplus
 extern "C" {

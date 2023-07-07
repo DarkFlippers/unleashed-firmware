@@ -4,6 +4,7 @@
 #include <stm32wbxx_ll_usart.h>
 #include <stm32wbxx_ll_rcc.h>
 #include <furi_hal_resources.h>
+#include <furi_hal_bus.h>
 
 #include <furi.h>
 
@@ -13,6 +14,9 @@ static void (*irq_cb[2])(uint8_t ev, uint8_t data, void* context);
 static void* irq_ctx[2];
 
 static void furi_hal_usart_init(uint32_t baud) {
+    furi_hal_bus_enable(FuriHalBusUSART1);
+    LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
+
     furi_hal_gpio_init_ex(
         &gpio_usart_tx,
         GpioModeAltFunctionPushPull,
@@ -50,6 +54,9 @@ static void furi_hal_usart_init(uint32_t baud) {
 }
 
 static void furi_hal_lpuart_init(uint32_t baud) {
+    furi_hal_bus_enable(FuriHalBusLPUART1);
+    LL_RCC_SetLPUARTClockSource(LL_RCC_LPUART1_CLKSOURCE_PCLK1);
+
     furi_hal_gpio_init_ex(
         &gpio_ext_pc0,
         GpioModeAltFunctionPushPull,
@@ -86,10 +93,11 @@ static void furi_hal_lpuart_init(uint32_t baud) {
 }
 
 void furi_hal_uart_init(FuriHalUartId ch, uint32_t baud) {
-    if(ch == FuriHalUartIdLPUART1)
+    if(ch == FuriHalUartIdLPUART1) {
         furi_hal_lpuart_init(baud);
-    else if(ch == FuriHalUartIdUSART1)
+    } else if(ch == FuriHalUartIdUSART1) {
         furi_hal_usart_init(baud);
+    }
 }
 
 void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud) {
@@ -126,11 +134,15 @@ void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud) {
 void furi_hal_uart_deinit(FuriHalUartId ch) {
     furi_hal_uart_set_irq_cb(ch, NULL, NULL);
     if(ch == FuriHalUartIdUSART1) {
-        LL_USART_Disable(USART1);
+        if(furi_hal_bus_is_enabled(FuriHalBusUSART1)) {
+            furi_hal_bus_disable(FuriHalBusUSART1);
+        }
         furi_hal_gpio_init(&gpio_usart_tx, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
         furi_hal_gpio_init(&gpio_usart_rx, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     } else if(ch == FuriHalUartIdLPUART1) {
-        LL_LPUART_Disable(LPUART1);
+        if(furi_hal_bus_is_enabled(FuriHalBusLPUART1)) {
+            furi_hal_bus_disable(FuriHalBusLPUART1);
+        }
         furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
         furi_hal_gpio_init(&gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     }

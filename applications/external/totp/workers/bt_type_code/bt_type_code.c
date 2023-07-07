@@ -13,7 +13,7 @@
 #include "../type_code_common.h"
 #include "../../features_config.h"
 
-#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
 #define TOTP_BT_WORKER_BT_ADV_NAME_MAX_LEN FURI_HAL_BT_ADV_NAME_LENGTH
 #define TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN GAP_MAC_ADDR_SIZE
 #endif
@@ -29,7 +29,7 @@ struct TotpBtTypeCodeWorkerContext {
     Bt* bt;
     bool is_advertising;
     bool is_connected;
-#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
     char previous_bt_name[TOTP_BT_WORKER_BT_ADV_NAME_MAX_LEN];
     uint8_t previous_bt_mac[TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN];
 #endif
@@ -39,7 +39,7 @@ static inline bool totp_type_code_worker_stop_requested() {
     return furi_thread_flags_get() & TotpBtTypeCodeWorkerEventStop;
 }
 
-#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
 static void totp_type_code_worker_bt_set_app_mac(uint8_t* mac) {
     uint8_t max_i;
     size_t uid_size = furi_hal_version_uid_size();
@@ -161,7 +161,7 @@ TotpBtTypeCodeWorkerContext* totp_bt_type_code_worker_init() {
     furi_delay_ms(200);
     bt_keys_storage_set_storage_path(context->bt, HID_BT_KEYS_STORAGE_PATH);
 
-#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
     memcpy(
         &context->previous_bt_name[0],
         furi_hal_bt_get_profile_adv_name(FuriHalBtProfileHidKeyboard),
@@ -184,7 +184,7 @@ TotpBtTypeCodeWorkerContext* totp_bt_type_code_worker_init() {
 
     furi_hal_bt_start_advertising();
 
-#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
     bt_enable_peer_key_update(context->bt);
 #endif
 
@@ -211,7 +211,7 @@ void totp_bt_type_code_worker_free(TotpBtTypeCodeWorkerContext* context) {
     furi_delay_ms(200);
     bt_keys_storage_set_default_path(context->bt);
 
-#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME
+#if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_UL_XFW
     furi_hal_bt_set_profile_adv_name(FuriHalBtProfileHidKeyboard, context->previous_bt_name);
     furi_hal_bt_set_profile_mac_addr(FuriHalBtProfileHidKeyboard, context->previous_bt_mac);
 #endif

@@ -16,7 +16,8 @@
 #define MF_UL_COMP_WRITE (0xA0)
 #define MF_UL_READ_CNT (0x39)
 #define MF_UL_INC_CNT (0xA5)
-#define MF_UL_AUTH (0x1B)
+#define MF_UL_AUTHENTICATE_1 (0x1A)
+#define MF_UL_PWD_AUTH (0x1B)
 #define MF_UL_READ_SIG (0x3C)
 #define MF_UL_CHECK_TEARING (0x3E)
 #define MF_UL_READ_VCSL (0x4B)
@@ -41,6 +42,7 @@ typedef enum {
 typedef enum {
     MfUltralightTypeUnknown,
     MfUltralightTypeNTAG203,
+    MfUltralightTypeULC,
     // Below have config pages and GET_VERSION support
     MfUltralightTypeUL11,
     MfUltralightTypeUL21,
@@ -77,6 +79,7 @@ typedef enum {
     MfUltralightSupportAsciiMirror = 1 << 11,
     // NTAG203 counter that's in memory rather than through a command
     MfUltralightSupportCounterInMemory = 1 << 12,
+    MfUltralightSupport3DesAuth = 1 << 13,
 } MfUltralightFeatures;
 
 typedef enum {
@@ -236,6 +239,8 @@ bool mf_ul_read_card(
     FuriHalNfcTxRxContext* tx_rx,
     MfUltralightReader* reader,
     MfUltralightData* data);
+
+bool mf_ul_emulation_supported(MfUltralightData* data);
 
 void mf_ul_reset_emulation(MfUltralightEmulator* emulator, bool is_power_cycle);
 

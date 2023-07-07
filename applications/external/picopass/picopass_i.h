@@ -25,7 +25,7 @@
 
 #include <storage/storage.h>
 #include <lib/toolbox/path.h>
-#include <Picopass_icons.h>
+#include <picopass_icons.h>
 
 #define PICOPASS_TEXT_STORE_SIZE 128
 

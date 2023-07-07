@@ -18,6 +18,7 @@ env = ENV.Clone(
         "fbt_apps",
         "pvsstudio",
         "fbt_hwtarget",
+        "fbt_envhooks",
     ],
     COMPILATIONDB_USE_ABSPATH=False,
     BUILD_DIR=fw_build_meta["build_dir"],
@@ -72,6 +73,8 @@ env = ENV.Clone(
     _APP_ICONS=None,
 )
 
+env.PreConfigureFwEnvionment()
+
 if env["IS_BASE_FIRMWARE"]:
     env.Append(
         FIRMWARE_BUILD_CFG="firmware",
@@ -98,6 +101,13 @@ lib_targets = env.BuildModules(
         "firmware",
         "furi",
     ],
+)
+
+# Configure firmware origin definitions
+env.Append(
+    CPPDEFINES=[
+        env.subst("FW_ORIGIN_${FIRMWARE_ORIGIN}"),
+    ]
 )
 
 
@@ -271,5 +281,6 @@ if should_gen_cdb_and_link_dir(fwenv, BUILD_TARGETS):
 
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", fw_artifacts)
 
+env.PostConfigureFwEnvionment()
 
 Return("fwenv")

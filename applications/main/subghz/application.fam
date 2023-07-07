@@ -10,7 +10,10 @@ App(
         "cli",
         "dialogs",
     ],
-    provides=["subghz_start"],
+    provides=[
+        "subghz_start",
+        "subghz_load_dangerous_settings",
+    ],
     icon="A_Sub1ghz_14",
     stack_size=3 * 1024,
     order=10,
@@ -22,4 +25,12 @@ App(
     entry_point="subghz_on_system_start",
     requires=["subghz"],
     order=40,
+)
+
+App(
+    appid="subghz_load_dangerous_settings",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="subghz_dangerous_freq",
+    requires=["storage", "subghz"],
+    order=650,
 )

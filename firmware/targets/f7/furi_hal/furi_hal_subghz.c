@@ -7,6 +7,7 @@
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
 #include <furi_hal_power.h>
+#include <furi_hal_bus.h>
 
 #include <stm32wbxx_ll_dma.h>
 
@@ -40,7 +41,7 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .cc1101_g0_pin = &gpio_cc1101_g0,
     .rolling_counter_mult = 1,
     .ext_module_power_disabled = false,
-    .timestamp_file_names = false,
+    .dangerous_frequency_i = false,
 };
 
 void furi_hal_subghz_select_radio_type(SubGhzRadioType state) {
@@ -88,12 +89,8 @@ bool furi_hal_subghz_get_external_power_disable(void) {
     return furi_hal_subghz.ext_module_power_disabled;
 }
 
-void furi_hal_subghz_set_timestamp_file_names(bool state) {
-    furi_hal_subghz.timestamp_file_names = state;
-}
-
-bool furi_hal_subghz_get_timestamp_file_names(void) {
-    return furi_hal_subghz.timestamp_file_names;
+void furi_hal_subghz_set_dangerous_frequency(bool state_i) {
+    furi_hal_subghz.dangerous_frequency_i = state_i;
 }
 
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {
@@ -448,29 +445,19 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
 }
 
 bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
-    bool is_extended = false;
+    bool allow_extended_for_int = furi_hal_subghz.dangerous_frequency_i;
 
-    // TODO: !!! Move file check to another place
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-
-    if(flipper_format_file_open_existing(fff_data_file, "/ext/subghz/assets/dangerous_settings")) {
-        flipper_format_read_bool(
-            fff_data_file, "yes_i_want_to_destroy_my_flipper", &is_extended, 1);
-    }
-
-    flipper_format_free(fff_data_file);
-    furi_record_close(RECORD_STORAGE);
-
-    if(!(value >= 299999755 && value <= 350000335) && // was increased from 348 to 350
+    if(!(allow_extended_for_int) &&
+       !(value >= 299999755 && value <= 350000335) && // was increased from 348 to 350
        !(value >= 386999938 && value <= 467750000) && // was increased from 464 to 467.75
-       !(value >= 778999847 && value <= 928000000) && !(is_extended)) {
+       !(value >= 778999847 && value <= 928000000)) {
         FURI_LOG_I(TAG, "Frequency blocked - outside default range");
         return false;
     } else if(
+        (allow_extended_for_int) && //
         !(value >= 281000000 && value <= 361000000) &&
         !(value >= 378000000 && value <= 481000000) &&
-        !(value >= 749000000 && value <= 962000000) && is_extended) {
+        !(value >= 749000000 && value <= 962000000)) {
         FURI_LOG_I(TAG, "Frequency blocked - outside dangerous range");
         return false;
     }
@@ -601,6 +588,8 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
     furi_hal_subghz_capture_callback = callback;
     furi_hal_subghz_capture_callback_context = context;
 
+    furi_hal_bus_enable(FuriHalBusTIM2);
+
     // Timer: base
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64 - 1;
@@ -685,7 +674,7 @@ void furi_hal_subghz_stop_async_rx() {
     furi_hal_subghz_idle();
 
     FURI_CRITICAL_ENTER();
-    LL_TIM_DeInit(TIM2);
+    furi_hal_bus_disable(FuriHalBusTIM2);
 
     // Stop debug
     furi_hal_subghz_stop_debug();
@@ -864,6 +853,8 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     LL_DMA_EnableIT_HT(SUBGHZ_DMA_CH1_DEF);
     LL_DMA_EnableChannel(SUBGHZ_DMA_CH1_DEF);
 
+    furi_hal_bus_enable(FuriHalBusTIM2);
+
     // Configure TIM2
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64 - 1;
@@ -963,7 +954,7 @@ void furi_hal_subghz_stop_async_tx() {
 
     // Deinitialize Timer
     FURI_CRITICAL_ENTER();
-    LL_TIM_DeInit(TIM2);
+    furi_hal_bus_disable(FuriHalBusTIM2);
     furi_hal_interrupt_set_isr(FuriHalInterruptIdTIM2, NULL, NULL);
 
     // Deinitialize DMA

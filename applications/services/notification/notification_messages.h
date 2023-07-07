@@ -63,6 +63,9 @@ extern const NotificationMessage message_force_vibro_setting_on;
 extern const NotificationMessage message_force_vibro_setting_off;
 extern const NotificationMessage message_force_display_brightness_setting_1f;
 
+// LCD Messages
+extern const NotificationMessage message_lcd_contrast_update;
+
 /****************************** Message sequences ******************************/
 
 // Reset
@@ -137,6 +140,9 @@ extern const NotificationSequence sequence_double_vibro;
 extern const NotificationSequence sequence_success;
 extern const NotificationSequence sequence_error;
 extern const NotificationSequence sequence_audiovisual_alert;
+
+// LCD
+extern const NotificationSequence sequence_lcd_contrast_update;
 
 #ifdef __cplusplus
 }

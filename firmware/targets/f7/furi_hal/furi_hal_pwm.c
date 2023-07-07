@@ -1,8 +1,7 @@
 #include <furi_hal_pwm.h>
-#include <core/check.h>
 #include <furi_hal_resources.h>
+#include <furi_hal_bus.h>
 
-#include <stdint.h>
 #include <stm32wbxx_ll_tim.h>
 #include <stm32wbxx_ll_lptim.h>
 #include <stm32wbxx_ll_rcc.h>
@@ -29,9 +28,7 @@ void furi_hal_pwm_start(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty)
             GpioSpeedVeryHigh,
             GpioAltFn1TIM1);
 
-        FURI_CRITICAL_ENTER();
-        LL_TIM_DeInit(TIM1);
-        FURI_CRITICAL_EXIT();
+        furi_hal_bus_enable(FuriHalBusTIM1);
 
         LL_TIM_SetCounterMode(TIM1, LL_TIM_COUNTERMODE_UP);
         LL_TIM_SetRepetitionCounter(TIM1, 0);
@@ -58,9 +55,7 @@ void furi_hal_pwm_start(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty)
             GpioSpeedVeryHigh,
             GpioAltFn14LPTIM2);
 
-        FURI_CRITICAL_ENTER();
-        LL_LPTIM_DeInit(LPTIM2);
-        FURI_CRITICAL_EXIT();
+        furi_hal_bus_enable(FuriHalBusLPTIM2);
 
         LL_LPTIM_SetUpdateMode(LPTIM2, LL_LPTIM_UPDATE_MODE_ENDOFPERIOD);
         LL_RCC_SetLPTIMClockSource(LL_RCC_LPTIM2_CLKSOURCE_PCLK1);
@@ -80,15 +75,20 @@ void furi_hal_pwm_start(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty)
 void furi_hal_pwm_stop(FuriHalPwmOutputId channel) {
     if(channel == FuriHalPwmOutputIdTim1PA7) {
         furi_hal_gpio_init_simple(&gpio_ext_pa7, GpioModeAnalog);
-        FURI_CRITICAL_ENTER();
-        LL_TIM_DeInit(TIM1);
-        FURI_CRITICAL_EXIT();
+        furi_hal_bus_disable(FuriHalBusTIM1);
     } else if(channel == FuriHalPwmOutputIdLptim2PA4) {
         furi_hal_gpio_init_simple(&gpio_ext_pa4, GpioModeAnalog);
-        FURI_CRITICAL_ENTER();
-        LL_LPTIM_DeInit(LPTIM2);
-        FURI_CRITICAL_EXIT();
+        furi_hal_bus_disable(FuriHalBusLPTIM2);
     }
+}
+
+bool furi_hal_pwm_is_running(FuriHalPwmOutputId channel) {
+    if(channel == FuriHalPwmOutputIdTim1PA7) {
+        return furi_hal_bus_is_enabled(FuriHalBusTIM1);
+    } else if(channel == FuriHalPwmOutputIdLptim2PA4) {
+        return furi_hal_bus_is_enabled(FuriHalBusLPTIM2);
+    }
+    return false;
 }
 
 void furi_hal_pwm_set_params(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty) {

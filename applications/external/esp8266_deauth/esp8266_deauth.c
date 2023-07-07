@@ -11,8 +11,6 @@
 //#include <notification/notification_messages.h>
 //#include <stdlib.h>
 
-#include <u8g2.h>
-
 #include "FlipperZeroWiFiDeauthModuleDefines.h"
 
 #define DEAUTH_APP_DEBUG 0
@@ -154,10 +152,8 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
         const char* strInitializing = "Something wrong";
         canvas_draw_str(
             canvas,
-            (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
-                (canvas_string_width(canvas, strInitializing) / 2),
-            (u8g2_GetDisplayHeight(&canvas->fb) /
-             2) /* - (u8g2_GetMaxCharHeight(&canvas->fb) / 2)*/,
+            (128 / 2) - (canvas_string_width(canvas, strInitializing) / 2),
+            (64 / 2) /* - (canvas_current_font_height(canvas) / 2)*/,
             strInitializing);
     } break;
     case WaitingForModule:
@@ -170,10 +166,8 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
             const char* strInitializing = "Attach WiFi Deauther module";
             canvas_draw_str(
                 canvas,
-                (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
-                    (canvas_string_width(canvas, strInitializing) / 2),
-                (u8g2_GetDisplayHeight(&canvas->fb) /
-                 2) /* - (u8g2_GetMaxCharHeight(&canvas->fb) / 2)*/,
+                (128 / 2) - (canvas_string_width(canvas, strInitializing) / 2),
+                (64 / 2) /* - (canvas_current_font_height(canvas) / 2)*/,
                 strInitializing);
         }
 #endif
@@ -188,18 +182,16 @@ static void esp8266_deauth_module_render_callback(Canvas* const canvas, void* ct
             const char* strInitializing = "Initializing...";
             canvas_draw_str(
                 canvas,
-                (u8g2_GetDisplayWidth(&canvas->fb) / 2) -
-                    (canvas_string_width(canvas, strInitializing) / 2),
-                (u8g2_GetDisplayHeight(&canvas->fb) / 2) -
-                    (u8g2_GetMaxCharHeight(&canvas->fb) / 2),
+                (128 / 2) - (canvas_string_width(canvas, strInitializing) / 2),
+                (64 / 2) - (canvas_current_font_height(canvas) / 2),
                 strInitializing);
         }
     }
 #endif // ENABLE_MODULE_POWER
     break;
     case ModuleActive: {
-        uint8_t* buffer = canvas_get_buffer(canvas);
-        app->m_canvasSize = canvas_get_buffer_size(canvas);
+        uint8_t* buffer = canvas->fb.tile_buf_ptr;
+        app->m_canvasSize = gui_get_framebuffer_size(app->m_gui);
         memcpy(buffer, app->m_backBuffer, app->m_canvasSize);
     } break;
     default:
@@ -379,8 +371,8 @@ int32_t esp8266_deauth_app(void* p) {
     view_port_input_callback_set(view_port, esp8266_deauth_module_input_callback, event_queue);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open(RECORD_GUI);
-    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
+    app->m_gui = furi_record_open(RECORD_GUI);
+    gui_add_view_port(app->m_gui, view_port, GuiLayerFullscreen);
 
     //notification_message(app->notification, &sequence_set_only_blue_255);
 
@@ -521,7 +513,7 @@ int32_t esp8266_deauth_app(void* p) {
 
     view_port_enabled_set(view_port, false);
 
-    gui_remove_view_port(gui, view_port);
+    gui_remove_view_port(app->m_gui, view_port);
 
     // Close gui record
     furi_record_close(RECORD_GUI);

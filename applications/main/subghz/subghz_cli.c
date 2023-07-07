@@ -172,16 +172,19 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
 
     furi_hal_power_suppress_charge_enter();
 
-    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
+    if(furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter)) {
+        while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
+            printf(".");
+            fflush(stdout);
+            furi_delay_ms(333);
+        }
+        furi_hal_subghz_stop_async_tx();
 
-    while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
-        printf(".");
-        fflush(stdout);
-        furi_delay_ms(333);
+    } else {
+        printf("Transmission on this frequency is restricted in your region\r\n");
     }
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_sleep();
 
+    furi_hal_subghz_sleep();
     furi_hal_power_suppress_charge_exit();
 
     flipper_format_free(flipper_format);
@@ -776,6 +779,15 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
     FuriString* cmd = furi_string_alloc();
 
+    // Enable power for External CC1101 if it is connected
+    furi_hal_subghz_enable_ext_power();
+    // Auto switch to internal radio if external radio is not available
+    furi_delay_ms(15);
+    if(!furi_hal_subghz_check_radio()) {
+        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
+        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
+    }
+
     do {
         if(!args_read_string_and_trim(args, cmd)) {
             subghz_cli_command_print_usage();
@@ -831,6 +843,11 @@ static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
 
         subghz_cli_command_print_usage();
     } while(false);
+
+    // Disable power for External CC1101 if it was enabled and module is connected
+    furi_hal_subghz_disable_ext_power();
+    // Reinit SPI handles for internal radio / nfc
+    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     furi_string_free(cmd);
 }

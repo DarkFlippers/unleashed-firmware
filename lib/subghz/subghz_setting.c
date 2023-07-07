@@ -45,6 +45,9 @@ static const uint32_t subghz_frequency_list[] = {
     387000000,
     390000000,
     418000000,
+    430000000,
+    431000000,
+    431500000,
     433075000, /* LPD433 first */
     433220000,
     433420000,
@@ -478,4 +481,36 @@ uint32_t subghz_setting_get_default_frequency(SubGhzSetting* instance) {
     furi_assert(instance);
     return subghz_setting_get_frequency(
         instance, subghz_setting_get_frequency_default_index(instance));
+}
+
+uint8_t subghz_setting_customs_presets_to_log(SubGhzSetting* instance) {
+    furi_assert(instance);
+#ifndef FURI_DEBUG
+    FURI_LOG_I(TAG, "Logging loaded presets allow only Debug build");
+#else
+    uint8_t count = 0;
+    FuriString* temp = furi_string_alloc();
+
+    FURI_LOG_I(TAG, "Loaded presets");
+    for
+        M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
+            furi_string_reset(temp);
+
+            for(uint8_t i = 0; i < item->custom_preset_data_size; i++) {
+                furi_string_cat_printf(temp, "%02u ", item->custom_preset_data[i]);
+            }
+
+            FURI_LOG_I(
+                TAG, "%u  -  %s", count + 1, furi_string_get_cstr(item->custom_preset_name));
+            FURI_LOG_I(TAG, "  Size: %u", item->custom_preset_data_size);
+            FURI_LOG_I(TAG, "  Data: %s", furi_string_get_cstr(temp));
+
+            count++;
+        }
+
+    furi_string_free(temp);
+
+    return count;
+#endif
+    return 0;
 }

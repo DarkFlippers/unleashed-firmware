@@ -51,6 +51,8 @@ typedef struct {
  */
 void t5577_write(LFRFIDT5577* data);
 
+void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password);
+
 #ifdef __cplusplus
 }
 #endif

@@ -40,8 +40,12 @@ struct InfraredWorkerSignal {
     size_t timings_cnt;
     union {
         InfraredMessage message;
-        /* +1 is for pause we add at the beginning */
-        uint32_t timings[MAX_TIMINGS_AMOUNT + 1];
+        struct {
+            /* +1 is for pause we add at the beginning */
+            uint32_t timings[MAX_TIMINGS_AMOUNT + 1];
+            uint32_t frequency;
+            float duty_cycle;
+        } raw;
     };
 };
 
@@ -146,7 +150,7 @@ static void
         }
 
         if(instance->signal.timings_cnt < MAX_TIMINGS_AMOUNT) {
-            instance->signal.timings[instance->signal.timings_cnt] = duration;
+            instance->signal.raw.timings[instance->signal.timings_cnt] = duration;
             ++instance->signal.timings_cnt;
         } else {
             uint32_t flags_set = furi_thread_flags_set(
@@ -300,7 +304,7 @@ void infrared_worker_get_raw_signal(
     furi_assert(timings);
     furi_assert(timings_cnt);
 
-    *timings = signal->timings;
+    *timings = signal->raw.timings;
     *timings_cnt = signal->timings_cnt;
 }
 
@@ -390,8 +394,8 @@ static bool infrared_get_new_signal(InfraredWorker* instance) {
                 infrared_get_protocol_duty_cycle(instance->signal.message.protocol);
         } else {
             furi_assert(instance->signal.timings_cnt > 1);
-            new_tx_frequency = INFRARED_COMMON_CARRIER_FREQUENCY;
-            new_tx_duty_cycle = INFRARED_COMMON_DUTY_CYCLE;
+            new_tx_frequency = instance->signal.raw.frequency;
+            new_tx_duty_cycle = instance->signal.raw.duty_cycle;
         }
 
         instance->tx.tx_raw_cnt = 0;
@@ -426,7 +430,7 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
         if(instance->signal.decoded) {
             status = infrared_encode(instance->infrared_encoder, &timing.duration, &timing.level);
         } else {
-            timing.duration = instance->signal.timings[instance->tx.tx_raw_cnt];
+            timing.duration = instance->signal.raw.timings[instance->tx.tx_raw_cnt];
             /* raw always starts from Mark, but we fill it with space delay at start */
             timing.level = (instance->tx.tx_raw_cnt % 2);
             ++instance->tx.tx_raw_cnt;
@@ -597,15 +601,21 @@ void infrared_worker_set_decoded_signal(InfraredWorker* instance, const Infrared
 void infrared_worker_set_raw_signal(
     InfraredWorker* instance,
     const uint32_t* timings,
-    size_t timings_cnt) {
+    size_t timings_cnt,
+    uint32_t frequency,
+    float duty_cycle) {
     furi_assert(instance);
     furi_assert(timings);
     furi_assert(timings_cnt > 0);
-    size_t max_copy_num = COUNT_OF(instance->signal.timings) - 1;
+    furi_assert((frequency <= INFRARED_MAX_FREQUENCY) && (frequency >= INFRARED_MIN_FREQUENCY));
+    furi_assert((duty_cycle < 1.0f) && (duty_cycle > 0.0f));
+    size_t max_copy_num = COUNT_OF(instance->signal.raw.timings) - 1;
     furi_check(timings_cnt <= max_copy_num);
 
-    instance->signal.timings[0] = INFRARED_RAW_TX_TIMING_DELAY_US;
-    memcpy(&instance->signal.timings[1], timings, timings_cnt * sizeof(uint32_t));
+    instance->signal.raw.frequency = frequency;
+    instance->signal.raw.duty_cycle = duty_cycle;
+    instance->signal.raw.timings[0] = INFRARED_RAW_TX_TIMING_DELAY_US;
+    memcpy(&instance->signal.raw.timings[1], timings, timings_cnt * sizeof(uint32_t));
     instance->signal.decoded = false;
     instance->signal.timings_cnt = timings_cnt + 1;
 }

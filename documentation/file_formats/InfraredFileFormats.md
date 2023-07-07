@@ -1,5 +1,22 @@
 # Infrared Flipper File Formats
 
+
+## Supported protocols list for `type: parsed`
+```
+    NEC
+    NECext
+    NEC42
+    NEC42ext
+    Samsung32
+    RC6
+    RC5
+    RC5X
+    SIRC
+    SIRC15
+    SIRC20
+    Kaseikyo
+    RCA
+```
 ## Infrared Remote File Format
 
 ### Example

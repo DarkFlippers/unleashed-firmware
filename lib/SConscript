@@ -15,7 +15,7 @@ env.Append(
         Dir("u8g2"),
         Dir("update_util"),
         Dir("print"),
-        Dir("pulse_reader"),
+        Dir("music_worker"),
     ],
 )
 
@@ -44,7 +44,6 @@ env.Append(
                 "variant",
             )
         ),
-        File("u8g2/u8g2.h"),
     ],
     CPPDEFINES=[
         '"M_MEMORY_FULL(x)=abort()"',
@@ -96,11 +95,13 @@ libs = env.BuildModules(
         "mbedtls",
         "subghz",
         "nfc",
+        "digital_signal",
         "pulse_reader",
         "appframe",
         "misc",
         "lfrfid",
         "flipper_application",
+        "music_worker",
     ],
 )
 

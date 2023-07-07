@@ -3,6 +3,7 @@
 #include <furi_hal_version.h>
 #include <furi_hal_bt.h>
 #include <furi_hal_crypto.h>
+#include <furi_hal_rtc.h>
 
 #include <interface/patterns/ble_thread/shci/shci.h>
 #include <furi.h>
@@ -23,10 +24,10 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
     // Device Info version
     if(sep == '.') {
         property_value_out(&property_context, NULL, 2, "format", "major", "3");
-        property_value_out(&property_context, NULL, 2, "format", "minor", "1");
+        property_value_out(&property_context, NULL, 2, "format", "minor", "2");
     } else {
         property_value_out(&property_context, NULL, 3, "device", "info", "major", "2");
-        property_value_out(&property_context, NULL, 3, "device", "info", "minor", "1");
+        property_value_out(&property_context, NULL, 3, "device", "info", "minor", "3");
     }
 
     // Model name
@@ -173,6 +174,24 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
             &property_context, "%d", 3, "firmware", "api", "major", api_version_major);
         property_value_out(
             &property_context, "%d", 3, "firmware", "api", "minor", api_version_minor);
+
+        property_value_out(
+            &property_context,
+            NULL,
+            3,
+            "firmware",
+            "origin",
+            "fork",
+            version_get_firmware_origin(firmware_version));
+
+        property_value_out(
+            &property_context,
+            NULL,
+            3,
+            "firmware",
+            "origin",
+            "git",
+            version_get_git_origin(firmware_version));
     }
 
     if(furi_hal_bt_is_alive()) {
@@ -278,6 +297,18 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
     } else {
         property_value_out(&property_context, NULL, 2, "radio", "alive", "false");
     }
+
+    property_value_out(
+        &property_context,
+        "%u",
+        2,
+        "system",
+        "debug",
+        furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug));
+    property_value_out(
+        &property_context, "%u", 3, "system", "heap", "track", furi_hal_rtc_get_heap_track_mode());
+    property_value_out(
+        &property_context, "%u", 3, "system", "log", "level", furi_hal_rtc_get_log_level());
 
     property_value_out(
         &property_context, "%u", 3, "protobuf", "version", "major", PROTOBUF_MAJOR_VERSION);

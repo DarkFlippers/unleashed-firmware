@@ -100,6 +100,11 @@ uint8_t canvas_current_font_height(const Canvas* canvas) {
     return font_height;
 }
 
+uint8_t canvas_current_font_width(const Canvas* canvas) {
+    furi_assert(canvas);
+    return (uint8_t)u8g2_GetMaxCharWidth(&canvas->fb);
+}
+
 const CanvasFontParameters* canvas_get_font_params(const Canvas* canvas, Font font) {
     furi_assert(canvas);
     furi_assert(font < FontTotalNumber);

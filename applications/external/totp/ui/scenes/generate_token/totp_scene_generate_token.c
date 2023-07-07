@@ -16,7 +16,7 @@
 #ifdef TOTP_BADBT_TYPE_ENABLED
 #include "../../../workers/bt_type_code/bt_type_code.h"
 #endif
-#include "../../fonts/mode-nine/mode_nine.h"
+#include "../../fonts/active_font.h"
 
 #define PROGRESS_BAR_MARGIN (3)
 #define PROGRESS_BAR_HEIGHT (4)
@@ -142,19 +142,55 @@ static void draw_totp_code(Canvas* const canvas, const PluginState* const plugin
         totp_config_get_token_iterator_context(plugin_state);
     uint8_t code_length = totp_token_info_iterator_get_current_token(iterator_context)->digits;
     uint8_t offset_x = scene_state->ui_precalculated_dimensions.code_offset_x;
-    uint8_t char_width = modeNine_15ptFontInfo.charInfo[0].width;
+    const FONT_INFO* current_font;
+    switch(plugin_state->selected_font) {
+    case 0:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    case 1:
+        current_font = &redHatMono_16ptFontInfo;
+        break;
+    case 2:
+        current_font = &bedstead_17ptFontInfo;
+        break;
+    case 3:
+        current_font = &zector_18ptFontInfo;
+        break;
+    case 4:
+        current_font = &_712Serif_24ptFontInfo;
+        break;
+    case 5:
+        current_font = &graph35pix_12ptFontInfo;
+        break;
+    case 6:
+        current_font = &karmaFuture_14ptFontInfo;
+        break;
+    case 7:
+        current_font = &funclimbingDemo_18ptFontInfo;
+        break;
+    case 8:
+        current_font = &dPComic_18ptFontInfo;
+        break;
+    case 9:
+        current_font = &pixelFlag_18ptFontInfo;
+        break;
+    default:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    }
+    uint8_t char_width = current_font->charInfo[0].width;
     uint8_t offset_x_inc = scene_state->ui_precalculated_dimensions.code_offset_x_inc;
     for(uint8_t i = 0; i < code_length; i++) {
         char ch = scene_state->last_code[i];
-        if(ch >= modeNine_15ptFontInfo.startChar && ch <= modeNine_15ptFontInfo.endChar) {
-            uint8_t char_index = ch - modeNine_15ptFontInfo.startChar;
+        if(ch >= current_font->startChar && ch <= current_font->endChar) {
+            uint8_t char_index = ch - current_font->startChar;
             canvas_draw_xbm(
                 canvas,
                 offset_x,
                 scene_state->ui_precalculated_dimensions.code_offset_y,
                 char_width,
-                modeNine_15ptFontInfo.height,
-                &modeNine_15ptFontInfo.data[modeNine_15ptFontInfo.charInfo[char_index].offset]);
+                current_font->height,
+                &current_font->data[current_font->charInfo[char_index].offset]);
         }
 
         offset_x += offset_x_inc;
@@ -172,15 +208,52 @@ static void on_new_token_code_generated(bool time_left, void* context) {
     SceneState* scene_state = plugin_state->current_scene_state;
     const TokenInfo* current_token = totp_token_info_iterator_get_current_token(iterator_context);
 
-    uint8_t char_width = modeNine_15ptFontInfo.charInfo[0].width;
+    const FONT_INFO* current_font;
+    switch(plugin_state->selected_font) {
+    case 0:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    case 1:
+        current_font = &redHatMono_16ptFontInfo;
+        break;
+    case 2:
+        current_font = &bedstead_17ptFontInfo;
+        break;
+    case 3:
+        current_font = &zector_18ptFontInfo;
+        break;
+    case 4:
+        current_font = &_712Serif_24ptFontInfo;
+        break;
+    case 5:
+        current_font = &graph35pix_12ptFontInfo;
+        break;
+    case 6:
+        current_font = &karmaFuture_14ptFontInfo;
+        break;
+    case 7:
+        current_font = &funclimbingDemo_18ptFontInfo;
+        break;
+    case 8:
+        current_font = &dPComic_18ptFontInfo;
+        break;
+    case 9:
+        current_font = &pixelFlag_18ptFontInfo;
+        break;
+    default:
+        current_font = &modeNine_15ptFontInfo;
+        break;
+    }
+
+    uint8_t char_width = current_font->charInfo[0].width;
     scene_state->ui_precalculated_dimensions.code_total_length =
-        current_token->digits * (char_width + modeNine_15ptFontInfo.spacePixels);
+        current_token->digits * (char_width + current_font->spacePixels);
     scene_state->ui_precalculated_dimensions.code_offset_x =
         (SCREEN_WIDTH - scene_state->ui_precalculated_dimensions.code_total_length) >> 1;
     scene_state->ui_precalculated_dimensions.code_offset_x_inc =
-        char_width + modeNine_15ptFontInfo.spacePixels;
+        char_width + current_font->spacePixels;
     scene_state->ui_precalculated_dimensions.code_offset_y =
-        SCREEN_HEIGHT_CENTER - (modeNine_15ptFontInfo.height >> 1);
+        SCREEN_HEIGHT_CENTER - (current_font->height >> 1);
 
     if(time_left) {
         notification_message(
@@ -381,54 +454,51 @@ bool totp_scene_generate_token_handle_event(
             return true;
         }
 #endif
-    }
+    } else if(event->input.type == InputTypePress || event->input.type == InputTypeRepeat) {
+        switch(event->input.key) {
+        case InputKeyUp:
+            break;
+        case InputKeyDown:
+            break;
+        case InputKeyRight: {
+            const TokenInfoIteratorContext* iterator_context =
+                totp_config_get_token_iterator_context(plugin_state);
+            size_t current_token_index =
+                totp_token_info_iterator_get_current_token_index(iterator_context);
+            totp_roll_value_size_t(
+                &current_token_index,
+                1,
+                0,
+                totp_token_info_iterator_get_total_count(iterator_context) - 1,
+                RollOverflowBehaviorRoll);
 
-    if(event->input.type != InputTypePress && event->input.type != InputTypeRepeat) {
-        return true;
-    }
+            update_totp_params(plugin_state, current_token_index);
+            break;
+        }
+        case InputKeyLeft: {
+            const TokenInfoIteratorContext* iterator_context =
+                totp_config_get_token_iterator_context(plugin_state);
+            size_t current_token_index =
+                totp_token_info_iterator_get_current_token_index(iterator_context);
+            totp_roll_value_size_t(
+                &current_token_index,
+                -1,
+                0,
+                totp_token_info_iterator_get_total_count(iterator_context) - 1,
+                RollOverflowBehaviorRoll);
 
-    switch(event->input.key) {
-    case InputKeyUp:
-        break;
-    case InputKeyDown:
-        break;
-    case InputKeyRight: {
-        const TokenInfoIteratorContext* iterator_context =
-            totp_config_get_token_iterator_context(plugin_state);
-        size_t current_token_index =
-            totp_token_info_iterator_get_current_token_index(iterator_context);
-        totp_roll_value_size_t(
-            &current_token_index,
-            1,
-            0,
-            totp_token_info_iterator_get_total_count(iterator_context) - 1,
-            RollOverflowBehaviorRoll);
-
-        update_totp_params(plugin_state, current_token_index);
-        break;
-    }
-    case InputKeyLeft: {
-        const TokenInfoIteratorContext* iterator_context =
-            totp_config_get_token_iterator_context(plugin_state);
-        size_t current_token_index =
-            totp_token_info_iterator_get_current_token_index(iterator_context);
-        totp_roll_value_size_t(
-            &current_token_index,
-            -1,
-            0,
-            totp_token_info_iterator_get_total_count(iterator_context) - 1,
-            RollOverflowBehaviorRoll);
-
-        update_totp_params(plugin_state, current_token_index);
-        break;
-    }
-    case InputKeyOk:
+            update_totp_params(plugin_state, current_token_index);
+            break;
+        }
+        case InputKeyOk:
+            break;
+        case InputKeyBack:
+            break;
+        default:
+            break;
+        }
+    } else if(event->input.type == InputTypeRelease && event->input.key == InputKeyOk) {
         totp_scene_director_activate_scene(plugin_state, TotpSceneTokenMenu);
-        break;
-    case InputKeyBack:
-        break;
-    default:
-        break;
     }
 
     return true;

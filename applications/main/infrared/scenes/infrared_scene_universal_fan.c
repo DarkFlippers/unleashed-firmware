@@ -25,7 +25,7 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         &I_Power_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "POWER");
+    infrared_brute_force_add_record(brute_force, i++, "Power");
     button_panel_add_item(
         button_panel,
         i,
@@ -37,7 +37,7 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         &I_Mode_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "MODE");
+    infrared_brute_force_add_record(brute_force, i++, "Mode");
     button_panel_add_item(
         button_panel,
         i,
@@ -49,7 +49,7 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         &I_Vol_up_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "SPEED+");
+    infrared_brute_force_add_record(brute_force, i++, "Speed_up");
     button_panel_add_item(
         button_panel,
         i,
@@ -61,7 +61,7 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         &I_Vol_down_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "SPEED-");
+    infrared_brute_force_add_record(brute_force, i++, "Speed_dn");
     button_panel_add_item(
         button_panel,
         i,
@@ -73,7 +73,7 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         &I_Rotate_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "ROTATE");
+    infrared_brute_force_add_record(brute_force, i++, "Rotate");
     button_panel_add_item(
         button_panel,
         i,
@@ -85,7 +85,7 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         &I_Timer_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "TIMER");
+    infrared_brute_force_add_record(brute_force, i++, "Timer");
 
     button_panel_add_label(button_panel, 5, 11, FontPrimary, "Fan remote");
     button_panel_add_label(button_panel, 20, 63, FontSecondary, "Speed");

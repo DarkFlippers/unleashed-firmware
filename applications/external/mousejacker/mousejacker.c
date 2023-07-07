@@ -10,7 +10,7 @@
 #include <furi_hal_resources.h>
 #include <nrf24.h>
 #include "mousejacker_ducky.h"
-#include <NRF24_Mouse_Jacker_icons.h>
+#include <nrf24_mouse_jacker_icons.h>
 
 #define TAG "mousejacker"
 #define LOGITECH_MAX_CHANNEL 85

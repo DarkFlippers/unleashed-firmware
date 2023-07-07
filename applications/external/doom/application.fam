@@ -1,5 +1,5 @@
 App(
-    appid="DOOM",
+    appid="doom",
     name="DOOM",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="doom_app",

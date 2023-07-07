@@ -13,11 +13,10 @@ void nfc_magic_scene_not_magic_on_enter(void* context) {
 
     notification_message(nfc_magic->notifications, &sequence_error);
 
-    // widget_add_icon_element(widget, 73, 17, &I_DolphinCommon_56x48);
     widget_add_string_element(
         widget, 3, 4, AlignLeft, AlignTop, FontPrimary, "This is wrong card");
     widget_add_string_multiline_element(
-        widget, 4, 17, AlignLeft, AlignTop, FontSecondary, "Not a magic\ncard");
+        widget, 4, 17, AlignLeft, AlignTop, FontSecondary, "Not magic or unsupported\ncard");
     widget_add_button_element(
         widget, GuiButtonTypeLeft, "Retry", nfc_magic_scene_not_magic_widget_callback, nfc_magic);
 

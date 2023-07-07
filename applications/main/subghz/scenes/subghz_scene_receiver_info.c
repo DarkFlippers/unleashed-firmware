@@ -1,7 +1,5 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/star_line.h>
 
 #include <lib/subghz/blocks/custom_btn.h>
 
@@ -108,10 +106,13 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
 void subghz_scene_receiver_info_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    keeloq_reset_original_btn();
     subghz_custom_btns_reset();
 
     subghz_scene_receiver_info_draw_widget(subghz);
+
+    if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
+        subghz->state_notifications = SubGhzNotificationStateRx;
+    }
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
@@ -145,7 +146,9 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 subghz_txrx_rx_start(subghz->txrx);
 
                 subghz_txrx_hopper_unpause(subghz->txrx);
-                subghz->state_notifications = SubGhzNotificationStateRx;
+                if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
+                    subghz->state_notifications = SubGhzNotificationStateRx;
+                }
             }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
@@ -191,10 +194,5 @@ void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
 
     widget_reset(subghz->widget);
-    keeloq_reset_mfname();
-    keeloq_reset_kl_type();
-    keeloq_reset_original_btn();
-    subghz_custom_btns_reset();
-    star_line_reset_mfname();
-    star_line_reset_kl_type();
+    subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);
 }

@@ -14,7 +14,6 @@
 #include <input/input.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <gui/canvas_i.h>
 #include <dolphin/dolphin.h>
 
 #define Y_FIELD_SIZE 6
@@ -535,7 +534,7 @@ int32_t heap_defence_app(void* p) {
     game->animation = AnimationPause;
 
     // Call dolphin deed on game start
-    DOLPHIN_DEED(DolphinDeedPluginGameStart);
+    dolphin_deed(DolphinDeedPluginGameStart);
 
     GameEvent event = {0};
     while(event.input.key != InputKeyBack) {
