@@ -1,11 +1,14 @@
 ## New changes
-* SubGHz: Keeloq: Centurion Nova read and emulate support (+ add manually)
+* !!! **Warning! After installing, Desktop settings (Favoutite apps, PIN Code, AutoLock time..) will be resetted to default due to settings changes, Please set your PIN code, Favourite apps again in Settings->Desktop** !!!
+* If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
+-----
+* SubGHz: **Keeloq: Centurion Nova read and emulate support (+ add manually)**
 * SubGHz: FAAC SLH - UI Fixes, Fix sending signals with no seed
 * SubGHz: Code cleanup, proper handling of protocols ignore options (by @gid9798 | PR #516)
 * SubGHz: Various UI fixes (by @wosk | PR #527)
 * NFC: Fixed issue #532 (Mifare classic user dict - delete removes more than selected key)
 * Infrared: Updated universal remote assets (by @amec0e | PR #529)
-* Plugins: Use correct categories for all plugins (extra pack too)
+* Plugins: **Use correct categories (folders) for all plugins (extra pack too)**
 * Plugins: Various fixes for uFBT (by @hedger)
 * Plugins: Added **NFC Maker** plugin (make tags with URLs, Wifi and other things) [(by Willy-JL)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/external/nfc_maker) 
 * Plugins: Added JetPack Joyride [(by timstrasser)](https://github.com/timstrasser)
@@ -14,7 +17,7 @@
 * Plugins: Updated i2c Tools [(by NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
 * Settings: Change LED and volume settings by 5% steps (by @cokyrain)
 * BLE: BadBT fixes and furi_hal_bt cleanup (by @Willy-JL)
-* WIP OFW PR 2825: NFC: Improved MFC emulation on some readers (by AloneLiberty)
+* WIP OFW PR 2825: **NFC: Improved MFC emulation on some readers (by AloneLiberty)**
 * OFW PR 2829: Decode only supported Oregon 3 sensor (by @wosk)
 * OFW PR: Update OFW PR 2782
 * OFW: SubGhz: add "SubGhz test" external application and the ability to work "SubGhz" as an external application
