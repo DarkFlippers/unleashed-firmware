@@ -8,6 +8,7 @@
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/subghz/devices/devices.h>
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #define TAG "SubGhz TEST"
 #define KEYSTORE_DIR_NAME EXT_PATH("subghz/assets/keeloq_mfcodes")
@@ -322,7 +323,7 @@ bool subghz_hal_async_tx_test_run(SubGhzHalAsyncTxTestType type) {
     SubGhzHalAsyncTxTest test = {0};
     test.type = type;
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
     furi_hal_subghz_set_frequency_and_path(433920000);
 
     if(!furi_hal_subghz_start_async_tx(subghz_hal_async_tx_test_yield, &test)) {

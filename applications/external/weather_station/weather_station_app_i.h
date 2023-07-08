@@ -20,11 +20,14 @@
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/registry.h>
 
+#include "helpers/radio_device_loader.h"
+
 typedef struct WeatherStationApp WeatherStationApp;
 
 struct WeatherStationTxRx {
     SubGhzWorker* worker;
 
+    const SubGhzDevice* radio_device;
     SubGhzEnvironment* environment;
     SubGhzReceiver* receiver;
     SubGhzRadioPreset* preset;

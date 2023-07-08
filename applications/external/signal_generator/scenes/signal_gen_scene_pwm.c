@@ -33,7 +33,13 @@ void signal_gen_scene_pwm_on_enter(void* context) {
     signal_gen_pwm_set_callback(app->pwm_view, signal_gen_pwm_callback, app);
 
     signal_gen_pwm_set_params(app->pwm_view, 0, DEFAULT_FREQ, DEFAULT_DUTY);
-    furi_hal_pwm_start(pwm_ch_id[0], DEFAULT_FREQ, DEFAULT_DUTY);
+
+    if(!furi_hal_pwm_is_running(pwm_ch_id[0])) {
+        furi_hal_pwm_start(pwm_ch_id[0], DEFAULT_FREQ, DEFAULT_DUTY);
+    } else {
+        furi_hal_pwm_stop(pwm_ch_id[0]);
+        furi_hal_pwm_start(pwm_ch_id[0], DEFAULT_FREQ, DEFAULT_DUTY);
+    }
 }
 
 bool signal_gen_scene_pwm_on_event(void* context, SceneManagerEvent event) {
@@ -46,8 +52,18 @@ bool signal_gen_scene_pwm_on_event(void* context, SceneManagerEvent event) {
             furi_hal_pwm_set_params(app->pwm_ch, app->pwm_freq, app->pwm_duty);
         } else if(event.event == SignalGenPwmEventChannelChange) {
             consumed = true;
-            furi_hal_pwm_stop(app->pwm_ch_prev);
-            furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
+            // Stop previous channel PWM
+            if(furi_hal_pwm_is_running(app->pwm_ch_prev)) {
+                furi_hal_pwm_stop(app->pwm_ch_prev);
+            }
+
+            // Start PWM and restart if it was starter already
+            if(furi_hal_pwm_is_running(app->pwm_ch)) {
+                furi_hal_pwm_stop(app->pwm_ch);
+                furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
+            } else {
+                furi_hal_pwm_start(app->pwm_ch, app->pwm_freq, app->pwm_duty);
+            }
         }
     }
     return consumed;
@@ -56,5 +72,8 @@ bool signal_gen_scene_pwm_on_event(void* context, SceneManagerEvent event) {
 void signal_gen_scene_pwm_on_exit(void* context) {
     SignalGenApp* app = context;
     variable_item_list_reset(app->var_item_list);
-    furi_hal_pwm_stop(app->pwm_ch);
+
+    if(furi_hal_pwm_is_running(app->pwm_ch)) {
+        furi_hal_pwm_stop(app->pwm_ch);
+    }
 }

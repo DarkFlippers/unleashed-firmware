@@ -326,7 +326,7 @@ void subghz_txrx_set_raw_file_encoder_worker_callback_end(
 * @param name Name of external radio device
 * @return bool True if is connected to the external radio device
 */
-bool subghz_txrx_radio_device_is_connect_external(SubGhzTxRx* instance, const char* name);
+bool subghz_txrx_radio_device_is_external_connected(SubGhzTxRx* instance, const char* name);
 
 /* Set the selected radio device to use
 *

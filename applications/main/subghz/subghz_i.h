@@ -9,11 +9,6 @@
 #include "views/subghz_frequency_analyzer.h"
 #include "views/subghz_read_raw.h"
 
-#include "views/subghz_test_carrier.h"
-#if FURI_DEBUG
-#include "views/subghz_test_static.h"
-#include "views/subghz_test_packet.h"
-#endif
 #include <gui/gui.h>
 #include <assets_icons.h>
 #include <dialogs/dialogs.h>
@@ -81,20 +76,13 @@ struct SubGhz {
     SubGhzFrequencyAnalyzer* subghz_frequency_analyzer;
     SubGhzReadRAW* subghz_read_raw;
     bool raw_send_only;
-    SubGhzTestCarrier* subghz_test_carrier;
-#if FURI_DEBUG
-    SubGhzTestStatic* subghz_test_static;
-    SubGhzTestPacket* subghz_test_packet;
-#endif
+
     SubGhzLastSettings* last_settings;
 
     SubGhzProtocolFlag filter;
+    SubGhzProtocolFlag ignore_filter;
     FuriString* error_str;
     SubGhzLock lock;
-
-    bool ignore_starline;
-    bool ignore_auto_alarms;
-    bool ignore_magellan;
 
     SecureData* secure_data;
 

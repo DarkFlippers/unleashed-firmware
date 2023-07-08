@@ -231,6 +231,9 @@ static bool subghz_protocol_keeloq_gen_data(
             } else if(strcmp(instance->manufacture_name, "Beninca") == 0) {
                 decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
                 // Beninca / Allmatic -> no serial - simple XOR
+            } else if(strcmp(instance->manufacture_name, "Centurion") == 0) {
+                decrypt = btn << 28 | (0x1CE) << 16 | instance->generic.cnt;
+                // Centurion -> no serial in hop, uses fixed value 0x1CE - normal learning
             }
             uint8_t kl_type_en = instance->keystore->kl_type;
             for
@@ -302,7 +305,7 @@ static bool subghz_protocol_keeloq_gen_data(
         uint64_t yek = (uint64_t)fix << 32 | hop;
         instance->generic.data =
             subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
-    } // What should happen if seed = 0 in bft programming mode
+    } // What should happen if seed = 0 in bft programming mode -> collapse of the universe I think :)
     return true; // Always return true
 }
 
@@ -693,6 +696,33 @@ static inline bool subghz_protocol_keeloq_check_decrypt(
     if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0xFF) == end_serial) ||
                                   ((((uint16_t)(decrypt >> 16)) & 0xFF) == 0))) {
         instance->cnt = decrypt & 0x0000FFFF;
+        /*FURI_LOG_I(
+            "KL",
+            "decrypt: 0x%08lX, btn: %d, end_serial: 0x%03lX, cnt: %ld",
+            decrypt,
+            btn,
+            end_serial,
+            instance->cnt);*/
+        return true;
+    }
+    return false;
+}
+// Centurion specific check
+static inline bool subghz_protocol_keeloq_check_decrypt_centurion(
+    SubGhzBlockGeneric* instance,
+    uint32_t decrypt,
+    uint8_t btn) {
+    furi_assert(instance);
+
+    if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0x1CE))) {
+        instance->cnt = decrypt & 0x0000FFFF;
+        /*FURI_LOG_I(
+            "KL",
+            "decrypt: 0x%08lX, btn: %d, end_serial: 0x%03lX, cnt: %ld",
+            decrypt,
+            btn,
+            end_serial,
+            instance->cnt);*/
         return true;
     }
     return false;
@@ -753,10 +783,19 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     man =
                         subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
-                    if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        keystore->mfname = *manufacture_name;
-                        return 1;
+                    if((strcmp(furi_string_get_cstr(manufacture_code->name), "Centurion") == 0)) {
+                        if(subghz_protocol_keeloq_check_decrypt_centurion(instance, decrypt, btn)) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            return 1;
+                        }
+                    } else {
+                        if(subghz_protocol_keeloq_check_decrypt(
+                               instance, decrypt, btn, end_serial)) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            return 1;
+                        }
                     }
                     break;
                 case KEELOQ_LEARNING_SECURE:

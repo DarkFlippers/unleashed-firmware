@@ -16,7 +16,8 @@ typedef struct DialogsApp DialogsApp;
 /****************** FILE BROWSER ******************/
 
 /**
- * File browser dialog extra options
+ * File browser dialog extra options.
+ * This can be default-initialized using {@link dialog_file_browser_set_basic_options}.
  * @param extension file extension to be offered for selection
  * @param base_path root folder path for navigation with back key
  * @param skip_assets true - do not show assets folders
@@ -38,8 +39,10 @@ typedef struct {
 } DialogsFileBrowserOptions;
 
 /**
- * Initialize file browser dialog options
- * and set default values
+ * Initialize file browser dialog options and set default values.
+ * This is guaranteed to initialize all fields
+ * so it is safe to pass pointer to uninitialized {@code options}
+ * and assume that the data behind it becomes fully initialized after the call.
  * @param options pointer to options structure
  * @param extension file extension to filter
  * @param icon file icon pointer, NULL for default icon

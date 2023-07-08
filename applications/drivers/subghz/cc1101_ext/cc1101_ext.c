@@ -73,7 +73,6 @@ typedef struct {
 typedef struct {
     volatile SubGhzDeviceCC1101ExtState state;
     volatile SubGhzDeviceCC1101ExtRegulation regulation;
-    volatile FuriHalSubGhzPreset preset;
     const GpioPin* async_mirror_pin;
     FuriHalSpiBusHandle* spi_bus_handle;
     const GpioPin* g0_pin;
@@ -86,7 +85,6 @@ static SubGhzDeviceCC1101Ext* subghz_device_cc1101_ext = NULL;
 static bool subghz_device_cc1101_ext_check_init() {
     furi_assert(subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateInit);
     subghz_device_cc1101_ext->state = SubGhzDeviceCC1101ExtStateIdle;
-    subghz_device_cc1101_ext->preset = FuriHalSubGhzPresetIDLE;
 
     bool ret = false;
 
@@ -163,7 +161,6 @@ bool subghz_device_cc1101_ext_alloc() {
     subghz_device_cc1101_ext = malloc(sizeof(SubGhzDeviceCC1101Ext));
     subghz_device_cc1101_ext->state = SubGhzDeviceCC1101ExtStateInit;
     subghz_device_cc1101_ext->regulation = SubGhzDeviceCC1101ExtRegulationTxRx;
-    subghz_device_cc1101_ext->preset = FuriHalSubGhzPresetIDLE;
     subghz_device_cc1101_ext->async_mirror_pin = NULL;
     subghz_device_cc1101_ext->spi_bus_handle = &furi_hal_spi_bus_handle_external;
     subghz_device_cc1101_ext->g0_pin = SUBGHZ_DEVICE_CC1101_EXT_TX_GPIO;
@@ -218,8 +215,6 @@ void subghz_device_cc1101_ext_sleep() {
     cc1101_shutdown(subghz_device_cc1101_ext->spi_bus_handle);
 
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
-
-    subghz_device_cc1101_ext->preset = FuriHalSubGhzPresetIDLE;
 }
 
 void subghz_device_cc1101_ext_dump_state() {
@@ -231,38 +226,7 @@ void subghz_device_cc1101_ext_dump_state() {
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_load_preset(FuriHalSubGhzPreset preset) {
-    if(preset == FuriHalSubGhzPresetOok650Async) {
-        subghz_device_cc1101_ext_load_registers(
-            (uint8_t*)subghz_device_cc1101_preset_ook_650khz_async_regs);
-        subghz_device_cc1101_ext_load_patable(subghz_device_cc1101_preset_ook_async_patable);
-    } else if(preset == FuriHalSubGhzPresetOok270Async) {
-        subghz_device_cc1101_ext_load_registers(
-            (uint8_t*)subghz_device_cc1101_preset_ook_270khz_async_regs);
-        subghz_device_cc1101_ext_load_patable(subghz_device_cc1101_preset_ook_async_patable);
-    } else if(preset == FuriHalSubGhzPreset2FSKDev238Async) {
-        subghz_device_cc1101_ext_load_registers(
-            (uint8_t*)subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs);
-        subghz_device_cc1101_ext_load_patable(subghz_device_cc1101_preset_2fsk_async_patable);
-    } else if(preset == FuriHalSubGhzPreset2FSKDev476Async) {
-        subghz_device_cc1101_ext_load_registers(
-            (uint8_t*)subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs);
-        subghz_device_cc1101_ext_load_patable(subghz_device_cc1101_preset_2fsk_async_patable);
-    } else if(preset == FuriHalSubGhzPresetMSK99_97KbAsync) {
-        subghz_device_cc1101_ext_load_registers(
-            (uint8_t*)subghz_device_cc1101_preset_msk_99_97kb_async_regs);
-        subghz_device_cc1101_ext_load_patable(subghz_device_cc1101_preset_msk_async_patable);
-    } else if(preset == FuriHalSubGhzPresetGFSK9_99KbAsync) {
-        subghz_device_cc1101_ext_load_registers(
-            (uint8_t*)subghz_device_cc1101_preset_gfsk_9_99kb_async_regs);
-        subghz_device_cc1101_ext_load_patable(subghz_device_cc1101_preset_gfsk_async_patable);
-    } else {
-        furi_crash("SubGhz: Missing config.");
-    }
-    subghz_device_cc1101_ext->preset = preset;
-}
-
-void subghz_device_cc1101_ext_load_custom_preset(uint8_t* preset_data) {
+void subghz_device_cc1101_ext_load_custom_preset(const uint8_t* preset_data) {
     //load config
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_reset(subghz_device_cc1101_ext->spi_bus_handle);
@@ -278,7 +242,6 @@ void subghz_device_cc1101_ext_load_custom_preset(uint8_t* preset_data) {
     //load pa table
     memcpy(&pa[0], &preset_data[i + 2], 8);
     subghz_device_cc1101_ext_load_patable(pa);
-    subghz_device_cc1101_ext->preset = FuriHalSubGhzPresetCustom;
 
     //show debug
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
@@ -294,7 +257,7 @@ void subghz_device_cc1101_ext_load_custom_preset(uint8_t* preset_data) {
     }
 }
 
-void subghz_device_cc1101_ext_load_registers(uint8_t* data) {
+void subghz_device_cc1101_ext_load_registers(const uint8_t* data) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_reset(subghz_device_cc1101_ext->spi_bus_handle);
     uint32_t i = 0;

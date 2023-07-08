@@ -15,6 +15,7 @@ typedef enum {
     SubmenuIndexBeninca868,
     SubmenuIndexAllmatic433,
     SubmenuIndexAllmatic868,
+    SubmenuIndexCenturion433,
     SubmenuIndexIronLogic,
     SubmenuIndexElmesElectronic,
     SubmenuIndexSommer_FM_434,

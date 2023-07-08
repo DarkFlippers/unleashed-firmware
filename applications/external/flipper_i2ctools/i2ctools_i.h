@@ -10,6 +10,7 @@
 #include "views/sniffer_view.h"
 #include "views/scanner_view.h"
 #include "views/sender_view.h"
+#include "views/infos_view.h"
 
 // App datas
 typedef struct {

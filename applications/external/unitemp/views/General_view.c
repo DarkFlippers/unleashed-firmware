@@ -113,6 +113,33 @@ static void _draw_humidity(Canvas* canvas, Sensor* sensor, const uint8_t pos[2])
     canvas_draw_str(canvas, pos[0] + 27 + int_len / 2 + 4, pos[1] + 10 + 7, "%");
 }
 
+static void _draw_heat_index(Canvas* canvas, Sensor* sensor, const uint8_t pos[2]) {
+    canvas_draw_rframe(canvas, pos[0], pos[1], 54, 20, 3);
+    canvas_draw_rframe(canvas, pos[0], pos[1], 54, 19, 3);
+
+    canvas_draw_icon(canvas, pos[0] + 3, pos[1] + 3, &I_heat_index_11x14);
+
+    int16_t heat_index_int = sensor->heat_index;
+    int8_t heat_index_dec = abs((int16_t)(sensor->heat_index * 10) % 10);
+
+    snprintf(app->buff, BUFF_SIZE, "%d", heat_index_int);
+    canvas_set_font(canvas, FontBigNumbers);
+    canvas_draw_str_aligned(
+        canvas,
+        pos[0] + 27 + ((sensor->heat_index <= -10 || sensor->heat_index > 99) ? 5 : 0),
+        pos[1] + 10,
+        AlignCenter,
+        AlignCenter,
+        app->buff);
+
+    if(heat_index_int <= 99) {
+        uint8_t int_len = canvas_string_width(canvas, app->buff);
+        snprintf(app->buff, BUFF_SIZE, ".%d", heat_index_dec);
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str(canvas, pos[0] + 27 + int_len / 2 + 2, pos[1] + 10 + 7, app->buff);
+    }
+}
+
 static void _draw_pressure(Canvas* canvas, Sensor* sensor) {
     const uint8_t x = 29, y = 39;
     //Рисование рамки
@@ -320,12 +347,23 @@ static void _draw_carousel_values(Canvas* canvas) {
             ColorWhite);
         break;
     case UT_DATA_TYPE_TEMP_HUM:
-        _draw_temperature(
-            canvas,
-            unitemp_sensor_getActive(generalview_sensor_index),
-            temp_positions[1][0],
-            temp_positions[1][1],
-            ColorWhite);
+        if(!app->settings.heat_index) {
+            _draw_temperature(
+                canvas,
+                unitemp_sensor_getActive(generalview_sensor_index),
+                temp_positions[1][0],
+                temp_positions[1][1],
+                ColorWhite);
+        } else {
+            _draw_temperature(
+                canvas,
+                unitemp_sensor_getActive(generalview_sensor_index),
+                temp_positions[2][0],
+                temp_positions[2][1],
+                ColorWhite);
+            _draw_heat_index(
+                canvas, unitemp_sensor_getActive(generalview_sensor_index), hum_positions[1]);
+        }
         _draw_humidity(
             canvas, unitemp_sensor_getActive(generalview_sensor_index), hum_positions[0]);
         break;
@@ -446,8 +484,8 @@ static void _draw_carousel_info(Canvas* canvas) {
                     ->currentI2CAdr >>
                 1);
         canvas_draw_str(canvas, 57, 35, app->buff);
-        canvas_draw_str(canvas, 54, 46, "15 (C0)");
-        canvas_draw_str(canvas, 54, 58, "16 (C1)");
+        canvas_draw_str(canvas, 54, 46, "15 (C1)");
+        canvas_draw_str(canvas, 54, 58, "16 (C0)");
     }
 }
 static void _draw_view_sensorsCarousel(Canvas* canvas) {

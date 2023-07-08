@@ -121,6 +121,7 @@ const WifiMarauderItem items[NUM_MENU_ITEMS] = {
     {"Update", {"ota", "sd"}, 2, {"update -w", "update -s"}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Reboot", {""}, 1, {"reboot"}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Help", {""}, 1, {"help"}, NO_ARGS, FOCUS_CONSOLE_START, SHOW_STOPSCAN_TIP},
+    {"Reflash ESP32 (WIP)", {""}, 1, {""}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Scripts", {""}, 1, {""}, NO_ARGS, FOCUS_CONSOLE_END, NO_TIP},
     {"Save to flipper sdcard", // keep as last entry or change logic in callback below
      {""},
@@ -148,6 +149,17 @@ static void wifi_marauder_scene_start_var_list_enter_callback(void* context, uin
                                    (selected_option_index == 0) :
                                    item->focus_console;
     app->show_stopscan_tip = item->show_stopscan_tip;
+
+    // TODO cleanup
+    if(index == NUM_MENU_ITEMS - 3) {
+        // flasher
+        app->is_command = false;
+        app->flash_mode = true;
+        view_dispatcher_send_custom_event(app->view_dispatcher, WifiMarauderEventStartFlasher);
+        return;
+    }
+
+    app->flash_mode = false;
 
     if(!app->is_command && selected_option_index == 0) {
         // View Log from start
@@ -260,6 +272,10 @@ bool wifi_marauder_scene_start_on_event(void* context, SceneManagerEvent event) 
             scene_manager_set_scene_state(
                 app->scene_manager, WifiMarauderSceneStart, app->selected_menu_index);
             scene_manager_next_scene(app->scene_manager, WifiMarauderSceneSniffPmkidOptions);
+        } else if(event.event == WifiMarauderEventStartFlasher) {
+            scene_manager_set_scene_state(
+                app->scene_manager, WifiMarauderSceneStart, app->selected_menu_index);
+            scene_manager_next_scene(app->scene_manager, WifiMarauderSceneFlasher);
         }
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {

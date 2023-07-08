@@ -98,21 +98,20 @@ WeatherStationApp* weather_station_app_alloc() {
         app->txrx->environment, (void*)&weather_station_protocol_registry);
     app->txrx->receiver = subghz_receiver_alloc_init(app->txrx->environment);
 
+    subghz_devices_init();
+
+    app->txrx->radio_device =
+        radio_device_loader_set(app->txrx->radio_device, SubGhzRadioDeviceTypeExternalCC1101);
+
+    subghz_devices_reset(app->txrx->radio_device);
+    subghz_devices_idle(app->txrx->radio_device);
+
     subghz_receiver_set_filter(app->txrx->receiver, SubGhzProtocolFlag_Decodable);
     subghz_worker_set_overrun_callback(
         app->txrx->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
     subghz_worker_set_pair_callback(
         app->txrx->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
     subghz_worker_set_context(app->txrx->worker, app->txrx->receiver);
-
-    // Enable power for External CC1101 if it is connected
-    furi_hal_subghz_enable_ext_power();
-    // Auto switch to internal radio if external radio is not available
-    furi_delay_ms(15);
-    if(!furi_hal_subghz_check_radio()) {
-        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-    }
 
     furi_hal_power_suppress_charge_enter();
 
@@ -124,13 +123,10 @@ WeatherStationApp* weather_station_app_alloc() {
 void weather_station_app_free(WeatherStationApp* app) {
     furi_assert(app);
 
-    //CC1101 off
-    ws_sleep(app);
+    subghz_devices_sleep(app->txrx->radio_device);
+    radio_device_loader_end(app->txrx->radio_device);
 
-    // Disable power for External CC1101 if it was enabled and module is connected
-    furi_hal_subghz_disable_ext_power();
-    // Reinit SPI handles for internal radio / nfc
-    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
+    subghz_devices_deinit();
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, WeatherStationViewSubmenu);

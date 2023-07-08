@@ -16,6 +16,7 @@ PicopassDevice* picopass_device_alloc() {
     PicopassDevice* picopass_dev = malloc(sizeof(PicopassDevice));
     picopass_dev->dev_data.pacs.legacy = false;
     picopass_dev->dev_data.pacs.se_enabled = false;
+    picopass_dev->dev_data.pacs.elite_kdf = false;
     picopass_dev->dev_data.pacs.pin_length = 0;
     picopass_dev->storage = furi_record_open(RECORD_STORAGE);
     picopass_dev->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -77,6 +78,7 @@ static bool picopass_device_save_file(
                         break;
                 }
             }
+            // TODO: Add elite
             if(!flipper_format_write_comment_cstr(file, "Picopass blocks")) break;
             bool block_saved = true;
 
@@ -256,6 +258,7 @@ void picopass_device_data_clear(PicopassDeviceData* dev_data) {
     }
     dev_data->pacs.legacy = false;
     dev_data->pacs.se_enabled = false;
+    dev_data->pacs.elite_kdf = false;
     dev_data->pacs.pin_length = 0;
 }
 

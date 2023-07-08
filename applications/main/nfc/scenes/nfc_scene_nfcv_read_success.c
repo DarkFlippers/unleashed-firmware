@@ -16,7 +16,6 @@ void nfc_scene_nfcv_read_success_on_enter(void* context) {
     Nfc* nfc = context;
     NfcDeviceData* dev_data = &nfc->dev->dev_data;
     FuriHalNfcDevData* nfc_data = &nfc->dev->dev_data.nfc_data;
-    NfcVData* nfcv_data = &nfc->dev->dev_data.nfcv_data;
     // Setup view
     Widget* widget = nfc->widget;
     widget_add_button_element(
@@ -46,13 +45,12 @@ void nfc_scene_nfcv_read_success_on_enter(void* context) {
         furi_string_cat_printf(temp_str, "\e#ISO15693 (unknown)\n");
         break;
     }
-    furi_string_cat_printf(temp_str, "UID:");
+    furi_string_cat_printf(temp_str, "UID:\n");
     for(size_t i = 0; i < nfc_data->uid_len; i++) {
         furi_string_cat_printf(temp_str, " %02X", nfc_data->uid[i]);
     }
     furi_string_cat_printf(temp_str, "\n");
-    furi_string_cat_printf(temp_str, "Blocks: %02X\n", nfcv_data->block_num);
-    furi_string_cat_printf(temp_str, "Blocksize: %02X\n", nfcv_data->block_size);
+    furi_string_cat_printf(temp_str, "(see More->Info for details)\n");
 
     widget_add_text_scroll_element(widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
     furi_string_free(temp_str);
