@@ -44,7 +44,7 @@ ReturnCode slix2_read_nxp_sysinfo(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_da
         }
     }
 
-    if(ret != ERR_NONE || received != 8) {
+    if(ret != ERR_NONE || received != 8) { //-V560
         FURI_LOG_D(TAG, "Failed: %d, %d", ret, received);
         return ret;
     }
@@ -99,7 +99,7 @@ ReturnCode slix2_read_signature(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data
         }
     }
 
-    if(ret != ERR_NONE || received != 33) {
+    if(ret != ERR_NONE || received != 33) { //-V560
         FURI_LOG_D(TAG, "Failed: %d, %d", ret, received);
         return ret;
     }
@@ -649,7 +649,7 @@ bool slix2_protocol_filter( // -V524
                         ctr_new = (ctr_old & 0xFFFF0000) | ((ctr_old + 1) & 0xFFFF);
 
                         /* protection flag set? */
-                        if(ctr_old & 0x01000000) {
+                        if(ctr_old & 0x01000000) { //-V1051
                             allowed = nfcv_data->sub_data.slix.flags &
                                       NfcVSlixDataFlagsValidKeyRead;
                         }
@@ -659,7 +659,10 @@ bool slix2_protocol_filter( // -V524
                     }
 
                     if(allowed) {
-                        memcpy(&nfcv_data->data[nfcv_data->block_size * block_num], &ctr_new, 4);
+                        memcpy( //-V1086
+                            &nfcv_data->data[nfcv_data->block_size * block_num],
+                            &ctr_new,
+                            4);
                     } else {
                         /* incorrect read or write password */
                         ctx->response_buffer[0] = NFCV_RES_FLAG_ERROR;

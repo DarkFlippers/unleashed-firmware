@@ -38,6 +38,7 @@
         "assets",
         "one_wire",
         "ibutton",
+        "music_worker",
         "misc",
         "mbedtls",
         "lfrfid",

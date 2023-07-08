@@ -1,0 +1,11 @@
+App(
+    appid="speaker_debug",
+    name="Speaker Debug",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="speaker_debug_app",
+    requires=["gui", "notification"],
+    stack_size=2 * 1024,
+    order=10,
+    fap_category="Debug",
+    fap_libs=["music_worker"],
+)

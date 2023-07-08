@@ -10,7 +10,7 @@ App(
     stack_size=2 * 1024,
     order=70,
     fap_libs=["assets"],
-    fap_category="Tools",
+    fap_category="Bluetooth",
     fap_icon="images/badbt_10px.png",
     fap_icon_assets="images",
 )

@@ -5,7 +5,6 @@
 #include <input/input.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <gui/canvas_i.h>
 #include "bomberduck_icons.h"
 #include <dolphin/dolphin.h>
 

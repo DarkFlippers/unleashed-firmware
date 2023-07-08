@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,30.2,,
+Version,+,33.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -61,6 +61,7 @@ Header,+,firmware/targets/f7/furi_hal/furi_hal_target_hw.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_uart.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_usb_cdc.h,,
 Header,+,firmware/targets/f7/platform_specific/intrinsic_export.h,,
+Header,+,firmware/targets/f7/platform_specific/math_wrapper.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt_hid.h,,
@@ -146,6 +147,7 @@ Header,+,lib/mlib/m-list.h,,
 Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
+Header,+,lib/music_worker/music_worker.h,,
 Header,+,lib/nfc/nfc_device.h,,
 Header,+,lib/nfc/protocols/nfc_util.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
@@ -821,7 +823,8 @@ Function,+,elements_slightly_rounded_box,void,"Canvas*, uint8_t, uint8_t, uint8_
 Function,+,elements_slightly_rounded_frame,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,elements_string_fit_width,void,"Canvas*, FuriString*, uint8_t"
 Function,+,elements_text_box,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, Align, Align, const char*, _Bool"
-Function,+,elf_resolve_from_hashtable,_Bool,"const ElfApiInterface*, const char*, Elf32_Addr*"
+Function,+,elf_resolve_from_hashtable,_Bool,"const ElfApiInterface*, uint32_t, Elf32_Addr*"
+Function,+,elf_symbolname_hash,uint32_t,const char*
 Function,+,empty_screen_alloc,EmptyScreen*,
 Function,+,empty_screen_free,void,EmptyScreen*
 Function,+,empty_screen_get_view,View*,EmptyScreen*
@@ -905,9 +908,11 @@ Function,-,finitel,int,long double
 Function,-,fiprintf,int,"FILE*, const char*, ..."
 Function,-,fiscanf,int,"FILE*, const char*, ..."
 Function,+,flipper_application_alloc,FlipperApplication*,"Storage*, const ElfApiInterface*"
+Function,+,flipper_application_alloc_thread,FuriThread*,"FlipperApplication*, const char*"
 Function,+,flipper_application_free,void,FlipperApplication*
 Function,+,flipper_application_get_manifest,const FlipperApplicationManifest*,FlipperApplication*
 Function,+,flipper_application_is_plugin,_Bool,FlipperApplication*
+Function,+,flipper_application_load_name_and_icon,_Bool,"FuriString*, Storage*, uint8_t**, FuriString*"
 Function,+,flipper_application_load_status_to_string,const char*,FlipperApplicationLoadStatus
 Function,+,flipper_application_manifest_is_compatible,_Bool,"const FlipperApplicationManifest*, const ElfApiInterface*"
 Function,+,flipper_application_manifest_is_target_compatible,_Bool,const FlipperApplicationManifest*
@@ -917,7 +922,6 @@ Function,+,flipper_application_plugin_get_descriptor,const FlipperAppPluginDescr
 Function,+,flipper_application_preload,FlipperApplicationPreloadStatus,"FlipperApplication*, const char*"
 Function,+,flipper_application_preload_manifest,FlipperApplicationPreloadStatus,"FlipperApplication*, const char*"
 Function,+,flipper_application_preload_status_to_string,const char*,FlipperApplicationPreloadStatus
-Function,+,flipper_application_spawn,FuriThread*,"FlipperApplication*, void*"
 Function,+,flipper_format_buffered_file_alloc,FlipperFormat*,Storage*
 Function,+,flipper_format_buffered_file_close,_Bool,FlipperFormat*
 Function,+,flipper_format_buffered_file_open_always,_Bool,"FlipperFormat*, const char*"
@@ -1069,6 +1073,7 @@ Function,+,furi_hal_bt_lock_core2,void,
 Function,+,furi_hal_bt_nvm_sram_sem_acquire,void,
 Function,+,furi_hal_bt_nvm_sram_sem_release,void,
 Function,+,furi_hal_bt_reinit,void,
+Function,+,furi_hal_bt_reverse_mac_addr,void,uint8_t[( 6 )]
 Function,+,furi_hal_bt_serial_notify_buffer_is_empty,void,
 Function,+,furi_hal_bt_serial_set_event_callback,void,"uint16_t, FuriHalBtSerialCallback, void*"
 Function,+,furi_hal_bt_serial_set_rpc_status,void,FuriHalBtSerialRpcStatus
@@ -1076,7 +1081,7 @@ Function,+,furi_hal_bt_serial_start,void,
 Function,+,furi_hal_bt_serial_stop,void,
 Function,+,furi_hal_bt_serial_tx,_Bool,"uint8_t*, uint16_t"
 Function,+,furi_hal_bt_set_key_storage_change_callback,void,"BleGlueKeyStorageChangedCallback, void*"
-Function,+,furi_hal_bt_set_profile_adv_name,void,"FuriHalBtProfile, const char[( 18 + 1 )]"
+Function,+,furi_hal_bt_set_profile_adv_name,void,"FuriHalBtProfile, const char[( ( 1 + 8 + ( 8 + 1 ) ) + 1 )]"
 Function,+,furi_hal_bt_set_profile_mac_addr,void,"FuriHalBtProfile, const uint8_t[( 6 )]"
 Function,+,furi_hal_bt_set_profile_pairing_method,void,"FuriHalBtProfile, GapPairing"
 Function,+,furi_hal_bt_start_advertising,void,
@@ -1246,6 +1251,8 @@ Function,+,furi_hal_nfc_deinit,void,
 Function,+,furi_hal_nfc_detect,_Bool,"FuriHalNfcDevData*, uint32_t"
 Function,+,furi_hal_nfc_emulate_nfca,_Bool,"uint8_t*, uint8_t, uint8_t*, uint8_t, FuriHalNfcEmulateCallback, void*, uint32_t"
 Function,+,furi_hal_nfc_exit_sleep,void,
+Function,+,furi_hal_nfc_field_detect_start,void,
+Function,+,furi_hal_nfc_field_is_present,_Bool,
 Function,+,furi_hal_nfc_field_off,void,
 Function,+,furi_hal_nfc_field_on,void,
 Function,+,furi_hal_nfc_init,void,
@@ -1273,12 +1280,13 @@ Function,+,furi_hal_nfc_tx_rx,_Bool,"FuriHalNfcTxRxContext*, uint16_t"
 Function,+,furi_hal_nfc_tx_rx_full,_Bool,FuriHalNfcTxRxContext*
 Function,-,furi_hal_os_init,void,
 Function,+,furi_hal_os_tick,void,
+Function,+,furi_hal_power_check_otg_fault,_Bool,
 Function,+,furi_hal_power_check_otg_status,void,
 Function,+,furi_hal_power_debug_get,void,"PropertyValueCallback, void*"
 Function,+,furi_hal_power_disable_external_3_3v,void,
 Function,+,furi_hal_power_disable_otg,void,
 Function,+,furi_hal_power_enable_external_3_3v,void,
-Function,+,furi_hal_power_enable_otg,void,
+Function,+,furi_hal_power_enable_otg,_Bool,
 Function,+,furi_hal_power_gauge_is_ok,_Bool,
 Function,+,furi_hal_power_get_bat_health_pct,uint8_t,
 Function,+,furi_hal_power_get_battery_charge_voltage_limit,float,
@@ -1326,6 +1334,9 @@ Function,-,furi_hal_resources_init_early,void,
 Function,+,furi_hal_rfid_comp_set_callback,void,"FuriHalRfidCompCallback, void*"
 Function,+,furi_hal_rfid_comp_start,void,
 Function,+,furi_hal_rfid_comp_stop,void,
+Function,+,furi_hal_rfid_field_detect_start,void,
+Function,+,furi_hal_rfid_field_detect_stop,void,
+Function,+,furi_hal_rfid_field_is_present,_Bool,uint32_t*
 Function,-,furi_hal_rfid_init,void,
 Function,+,furi_hal_rfid_pin_pull_pulldown,void,
 Function,+,furi_hal_rfid_pin_pull_release,void,
@@ -1427,9 +1438,9 @@ Function,+,furi_hal_subghz_set_async_mirror_pin,void,const GpioPin*
 Function,+,furi_hal_subghz_set_external_power_disable,void,_Bool
 Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
-Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
 Function,-,furi_hal_subghz_set_rolling_counter_mult,void,uint8_t
-Function,-,furi_hal_subghz_shutdown,void,
+Function,+,furi_hal_subghz_shutdown,void,
+Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
 Function,+,furi_hal_subghz_sleep,void,
 Function,+,furi_hal_subghz_start_async_rx,void,"FuriHalSubGhzCaptureCallback, void*"
 Function,+,furi_hal_subghz_start_async_tx,_Bool,"FuriHalSubGhzAsyncTxCallback, void*"
@@ -1867,7 +1878,8 @@ Function,+,loader_get_pubsub,FuriPubSub*,Loader*
 Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
 Function,+,loader_show_menu,void,Loader*
-Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*"
+Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*, FuriString*"
+Function,+,loader_start_with_gui_error,LoaderStatus,"Loader*, const char*, const char*"
 Function,+,loader_unlock,void,Loader*
 Function,+,loading_alloc,Loading*,
 Function,+,loading_free,void,Loading*
@@ -2096,6 +2108,18 @@ Function,-,modf,double,"double, double*"
 Function,-,modff,float,"float, float*"
 Function,-,modfl,long double,"long double, long double*"
 Function,-,mrand48,long,
+Function,-,music_worker_alloc,MusicWorker*,
+Function,-,music_worker_clear,void,MusicWorker*
+Function,-,music_worker_free,void,MusicWorker*
+Function,-,music_worker_is_playing,_Bool,MusicWorker*
+Function,-,music_worker_load,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_fmf_from_file,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_rtttl_from_file,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_load_rtttl_from_string,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_set_callback,void,"MusicWorker*, MusicWorkerCallback, void*"
+Function,-,music_worker_set_volume,void,"MusicWorker*, float"
+Function,-,music_worker_start,void,MusicWorker*
+Function,-,music_worker_stop,void,MusicWorker*
 Function,-,nan,double,const char*
 Function,-,nanf,float,const char*
 Function,-,nanl,long double,const char*
@@ -2755,6 +2779,7 @@ Function,+,subghz_protocol_decoder_base_get_hash_data,uint8_t,SubGhzProtocolDeco
 Function,+,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderBase*, FuriString*"
 Function,+,subghz_protocol_decoder_base_serialize,SubGhzProtocolStatus,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_base_set_decoder_callback,void,"SubGhzProtocolDecoderBase*, SubGhzProtocolDecoderBaseRxCallback, void*"
+Function,+,subghz_protocol_decoder_bin_raw_data_input_rssi,void,"SubGhzProtocolDecoderBinRAW*, float"
 Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
 Function,+,subghz_protocol_decoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
 Function,+,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
@@ -2766,6 +2791,7 @@ Function,+,subghz_protocol_encoder_raw_deserialize,SubGhzProtocolStatus,"void*, 
 Function,+,subghz_protocol_encoder_raw_free,void,void*
 Function,+,subghz_protocol_encoder_raw_stop,void,void*
 Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
+Function,+,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
 Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*"
 Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
@@ -2775,6 +2801,8 @@ Function,+,subghz_protocol_raw_save_to_file_stop,void,SubGhzProtocolDecoderRAW*
 Function,+,subghz_protocol_registry_count,size_t,const SubGhzProtocolRegistry*
 Function,+,subghz_protocol_registry_get_by_index,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, size_t"
 Function,+,subghz_protocol_registry_get_by_name,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, const char*"
+Function,+,subghz_protocol_secplus_v1_check_fixed,_Bool,uint32_t
+Function,+,subghz_protocol_secplus_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, SubGhzRadioPreset*"
 Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
 Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"
 Function,+,subghz_receiver_free,void,SubGhzReceiver*
@@ -2783,6 +2811,7 @@ Function,+,subghz_receiver_search_decoder_base_by_name,SubGhzProtocolDecoderBase
 Function,+,subghz_receiver_set_filter,void,"SubGhzReceiver*, SubGhzProtocolFlag"
 Function,+,subghz_receiver_set_rx_callback,void,"SubGhzReceiver*, SubGhzReceiverCallback, void*"
 Function,+,subghz_setting_alloc,SubGhzSetting*,
+Function,-,subghz_setting_customs_presets_to_log,uint8_t,SubGhzSetting*
 Function,+,subghz_setting_delete_custom_preset,_Bool,"SubGhzSetting*, const char*"
 Function,+,subghz_setting_free,void,SubGhzSetting*
 Function,+,subghz_setting_get_default_frequency,uint32_t,SubGhzSetting*

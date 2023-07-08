@@ -119,7 +119,6 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
 
         instance->timestamp_file_names = temp_timestamp_file_names;
 
-        // Set globally
         if(instance->external_module_power_5v_disable) {
             furi_hal_subghz_set_external_power_disable(true);
             furi_hal_subghz_disable_ext_power();

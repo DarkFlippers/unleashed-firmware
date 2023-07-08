@@ -28,6 +28,14 @@ static void storage_move_to_sd_remove_region() {
     if(storage_common_exists(storage, INT_PATH(".region_data"))) {
         storage_common_remove(storage, INT_PATH(".region_data"));
     }
+    if(storage_common_exists(storage, EXT_PATH("apps/Misc/totp.conf"))) {
+        storage_common_rename(
+            storage, EXT_PATH("apps/Misc/totp.conf"), EXT_PATH("authenticator/totp.conf"));
+    }
+    if(storage_common_exists(storage, EXT_PATH("apps/Misc/barcodegen.save"))) {
+        storage_common_remove(storage, EXT_PATH("apps/Misc/barcodegen.save"));
+        storage_common_remove(storage, EXT_PATH("apps/Misc"));
+    }
 
     furi_record_close(RECORD_STORAGE);
 }
@@ -187,7 +195,7 @@ static void storage_move_to_sd_mount_callback(const void* message, void* context
 
     if(storage_event->type == StorageEventTypeCardMount) {
         Loader* loader = furi_record_open(RECORD_LOADER);
-        loader_start(loader, "StorageMoveToSd", NULL);
+        loader_start(loader, "StorageMoveToSd", NULL, NULL);
         furi_record_close(RECORD_LOADER);
     }
 }

@@ -9,4 +9,7 @@ App(
     fap_icon="playlist_10px.png",
     fap_category="Sub-GHz",
     fap_icon_assets="images",
+    fap_author="@darmiel",
+    fap_version="1.0",
+    fap_description="App works with list of sub-ghz files from .txt file that contains paths to target files.",
 )

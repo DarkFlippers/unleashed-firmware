@@ -61,7 +61,7 @@ void bq25896_init(FuriHalI2cBusHandle* handle) {
 
     // OTG power configuration
     bq25896_regs.r0A.BOOSTV = 0x8; // BOOST Voltage: 5.062V
-    bq25896_regs.r0A.BOOST_LIM = BOOST_LIM_1400; // BOOST Current limit: 1.4A
+    bq25896_regs.r0A.BOOST_LIM = BoostLim_1400; // BOOST Current limit: 1.4A
     furi_hal_i2c_write_reg_8(
         handle, BQ25896_ADDRESS, 0x0A, *(uint8_t*)&bq25896_regs.r0A, BQ25896_I2C_TIMEOUT);
 
@@ -72,6 +72,12 @@ void bq25896_init(FuriHalI2cBusHandle* handle) {
         (uint8_t*)&bq25896_regs,
         sizeof(bq25896_regs),
         BQ25896_I2C_TIMEOUT);
+}
+
+void bq25896_set_boost_lim(FuriHalI2cBusHandle* handle, BoostLim boost_lim) {
+    bq25896_regs.r0A.BOOST_LIM = boost_lim;
+    furi_hal_i2c_write_reg_8(
+        handle, BQ25896_ADDRESS, 0x0A, *(uint8_t*)&bq25896_regs.r0A, BQ25896_I2C_TIMEOUT);
 }
 
 void bq25896_poweroff(FuriHalI2cBusHandle* handle) {

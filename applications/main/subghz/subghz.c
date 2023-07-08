@@ -51,6 +51,42 @@ static void subghz_rpc_command_callback(RpcAppSystemEvent event, void* context) 
     }
 }
 
+static void subghz_load_custom_presets(SubGhzSetting* setting) {
+    furi_assert(setting);
+
+    const char* presets[][2] = {
+        {"FM95",
+         "02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 24 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00"},
+
+        // #2-FSK 200khz BW / 135kHz Filter/ 15.86Khz Deviation + Ramping
+        {"FM15k",
+         "02 0D 03 47 08 32 0B 06 15 32 14 00 13 00 12 00 11 32 10 A7 18 18 19 1D 1D 92 1C 00 1B 04 20 FB 22 17 21 B6 00 00 00 12 0E 34 60 C5 C1 C0"},
+
+        // Pagers
+        {"Pagers",
+         "02 0D 07 04 08 32 0B 06 10 64 11 93 12 0C 13 02 14 00 15 15 18 18 19 16 1B 07 1C 00 1D 91 20 FB 21 56 22 10 00 00 C0 00 00 00 00 00 00 00"},
+
+        // # HND - FM preset
+        {"HND_1",
+         "02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 36 10 69 15 32 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00"},
+    };
+
+    FlipperFormat* fff_temp = flipper_format_string_alloc();
+
+    for(uint8_t i = 0; i < COUNT_OF(presets); i++) {
+        flipper_format_insert_or_update_string_cstr(fff_temp, "Custom_preset_data", presets[i][1]);
+
+        flipper_format_rewind(fff_temp);
+        subghz_setting_load_custom_preset(setting, presets[i][0], fff_temp);
+    }
+
+    flipper_format_free(fff_temp);
+
+#ifdef FURI_DEBUG
+    subghz_setting_customs_presets_to_log(setting);
+#endif
+}
+
 SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     SubGhz* subghz = malloc(sizeof(SubGhz));
 
@@ -136,13 +172,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             subghz->view_dispatcher,
             SubGhzViewIdFrequencyAnalyzer,
             subghz_frequency_analyzer_get_view(subghz->subghz_frequency_analyzer));
-
-        // Carrier Test Module
-        subghz->subghz_test_carrier = subghz_test_carrier_alloc();
-        view_dispatcher_add_view(
-            subghz->view_dispatcher,
-            SubGhzViewIdTestCarrier,
-            subghz_test_carrier_get_view(subghz->subghz_test_carrier));
     }
     // Read RAW
     subghz->subghz_read_raw = subghz_read_raw_alloc(alloc_for_tx_only);
@@ -150,22 +179,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         subghz->view_dispatcher,
         SubGhzViewIdReadRAW,
         subghz_read_raw_get_view(subghz->subghz_read_raw));
-
-#if FURI_DEBUG
-    // Packet Test
-    subghz->subghz_test_packet = subghz_test_packet_alloc();
-    view_dispatcher_add_view(
-        subghz->view_dispatcher,
-        SubGhzViewIdTestPacket,
-        subghz_test_packet_get_view(subghz->subghz_test_packet));
-
-    // Static send
-    subghz->subghz_test_static = subghz_test_static_alloc();
-    view_dispatcher_add_view(
-        subghz->view_dispatcher,
-        SubGhzViewIdStatic,
-        subghz_test_static_get_view(subghz->subghz_test_static));
-#endif
 
     //init threshold rssi
     subghz->threshold_rssi = subghz_threshold_rssi_alloc();
@@ -177,52 +190,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
-    // Custom Presets load without using config file
-    if(!alloc_for_tx_only) {
-        FlipperFormat* temp_fm_preset = flipper_format_string_alloc();
-        flipper_format_write_string_cstr(
-            temp_fm_preset,
-            (const char*)"Custom_preset_data",
-            (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 24 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
-        flipper_format_rewind(temp_fm_preset);
-        subghz_setting_load_custom_preset(setting, (const char*)"FM95", temp_fm_preset);
-
-        flipper_format_free(temp_fm_preset);
-
-        // #2-FSK 200khz BW / 135kHz Filter/ 15.86Khz Deviation + Ramping
-        FlipperFormat* temp_fm_preset2 = flipper_format_string_alloc();
-        flipper_format_write_string_cstr(
-            temp_fm_preset2,
-            (const char*)"Custom_preset_data",
-            (const char*)"02 0D 03 47 08 32 0B 06 15 32 14 00 13 00 12 00 11 32 10 A7 18 18 19 1D 1D 92 1C 00 1B 04 20 FB 22 17 21 B6 00 00 00 12 0E 34 60 C5 C1 C0");
-        flipper_format_rewind(temp_fm_preset2);
-        subghz_setting_load_custom_preset(setting, (const char*)"FM15k", temp_fm_preset2);
-
-        flipper_format_free(temp_fm_preset2);
-
-        // Pagers
-        FlipperFormat* temp_fm_preset3 = flipper_format_string_alloc();
-        flipper_format_write_string_cstr(
-            temp_fm_preset3,
-            (const char*)"Custom_preset_data",
-            (const char*)"02 0D 07 04 08 32 0B 06 10 64 11 93 12 0C 13 02 14 00 15 15 18 18 19 16 1B 07 1C 00 1D 91 20 FB 21 56 22 10 00 00 C0 00 00 00 00 00 00 00");
-        flipper_format_rewind(temp_fm_preset3);
-        subghz_setting_load_custom_preset(setting, (const char*)"Pagers", temp_fm_preset3);
-
-        flipper_format_free(temp_fm_preset3);
-
-        // # HND - FM preset
-        FlipperFormat* temp_fm_preset4 = flipper_format_string_alloc();
-        flipper_format_write_string_cstr(
-            temp_fm_preset4,
-            (const char*)"Custom_preset_data",
-            (const char*)"02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 36 10 69 15 32 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00");
-        flipper_format_rewind(temp_fm_preset4);
-        subghz_setting_load_custom_preset(setting, (const char*)"HND_1", temp_fm_preset4);
-
-        flipper_format_free(temp_fm_preset4);
-    }
-    // custom presets loading - end
+    subghz_load_custom_presets(setting);
 
     // Load last used values for Read, Read RAW, etc. or default
     subghz->last_settings = subghz_last_settings_alloc();
@@ -251,6 +219,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->secure_data = malloc(sizeof(SecureData));
 
     subghz->filter = SubGhzProtocolFlag_Decodable;
+    subghz->ignore_filter = 0x0;
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
     subghz_txrx_set_need_save_callback(subghz->txrx, subghz_save_to_file, subghz);
 
@@ -274,21 +243,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     subghz_txrx_stop(subghz->txrx);
     subghz_txrx_sleep(subghz->txrx);
 
-#if FURI_DEBUG
-    // Packet Test
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestPacket);
-    subghz_test_packet_free(subghz->subghz_test_packet);
-
-    // Static
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdStatic);
-    subghz_test_static_free(subghz->subghz_test_static);
-#endif
-
     if(!alloc_for_tx_only) {
-        // Carrier Test
-        view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestCarrier);
-        subghz_test_carrier_free(subghz->subghz_test_carrier);
-
         // Receiver
         view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
         subghz_view_receiver_free(subghz->subghz_receiver);

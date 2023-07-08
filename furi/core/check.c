@@ -36,7 +36,7 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[13] = {0};
  * 
  */
 #define RESTORE_REGISTERS_AND_HALT_MCU(debug)           \
-    register const bool r0 asm("r0") = debug;           \
+    register bool r0 asm("r0") = debug;                 \
     asm volatile("cbnz  r0, with_debugger%=         \n" \
                  "ldr   r12, =__furi_check_registers\n" \
                  "ldm   r12, {r0-r11}               \n" \
@@ -166,7 +166,11 @@ FURI_NORETURN void __furi_crash() {
         RESTORE_REGISTERS_AND_HALT_MCU(true);
 #ifndef FURI_DEBUG
     } else {
-        furi_hal_rtc_set_fault_data((uint32_t)__furi_check_message);
+        uint32_t ptr = (uint32_t)__furi_check_message;
+        if(ptr < FLASH_BASE || ptr > (FLASH_BASE + FLASH_SIZE)) {
+            ptr = (uint32_t) "Check serial logs";
+        }
+        furi_hal_rtc_set_fault_data(ptr);
         furi_hal_console_puts("\r\nRebooting system.\r\n");
         furi_hal_console_puts("\033[0m\r\n");
         furi_hal_power_reset();

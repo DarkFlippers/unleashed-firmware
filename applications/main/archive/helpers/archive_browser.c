@@ -6,7 +6,7 @@
 #include <core/common_defines.h>
 #include <core/log.h>
 #include <gui/modules/file_browser_worker.h>
-#include <fap_loader/fap_loader_app.h>
+#include <flipper_application/flipper_application.h>
 #include <math.h>
 #include <furi_hal.h>
 
@@ -381,7 +381,7 @@ void archive_add_app_item(ArchiveBrowserView* browser, const char* name) {
 static bool archive_get_fap_meta(FuriString* file_path, FuriString* fap_name, uint8_t** icon_ptr) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     bool success = false;
-    if(fap_loader_load_name_and_icon(file_path, storage, icon_ptr, fap_name)) {
+    if(flipper_application_load_name_and_icon(file_path, storage, icon_ptr, fap_name)) {
         success = true;
     }
     furi_record_close(RECORD_STORAGE);

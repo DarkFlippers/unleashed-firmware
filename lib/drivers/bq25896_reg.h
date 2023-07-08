@@ -159,14 +159,16 @@ typedef struct {
 #define BOOSTV_128 (1 << 1)
 #define BOOSTV_64 (1 << 0)
 
-#define BOOST_LIM_500 (0b000)
-#define BOOST_LIM_750 (0b001)
-#define BOOST_LIM_1200 (0b010)
-#define BOOST_LIM_1400 (0b011)
-#define BOOST_LIM_1650 (0b100)
-#define BOOST_LIM_1875 (0b101)
-#define BOOST_LIM_2150 (0b110)
-#define BOOST_LIM_RSVD (0b111)
+typedef enum {
+    BoostLim_500 = 0b000,
+    BoostLim_750 = 0b001,
+    BoostLim_1200 = 0b010,
+    BoostLim_1400 = 0b011,
+    BoostLim_1650 = 0b100,
+    BoostLim_1875 = 0b101,
+    BoostLim_2150 = 0b110,
+    BoostLim_Rsvd = 0b111,
+} BoostLim;
 
 typedef struct {
     uint8_t BOOST_LIM : 3; // Boost Mode Current Limit

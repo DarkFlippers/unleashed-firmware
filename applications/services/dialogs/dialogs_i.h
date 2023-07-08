@@ -1,7 +1,7 @@
 #pragma once
 #include "dialogs.h"
 #include "dialogs_message.h"
-#include "view_holder.h"
+#include <gui/view_holder.h>
 #include <gui/modules/file_browser.h>
 
 #ifdef __cplusplus

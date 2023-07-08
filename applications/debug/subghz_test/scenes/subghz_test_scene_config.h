@@ -1,0 +1,6 @@
+ADD_SCENE(subghz_test, start, Start)
+ADD_SCENE(subghz_test, about, About)
+ADD_SCENE(subghz_test, carrier, Carrier)
+ADD_SCENE(subghz_test, packet, Packet)
+ADD_SCENE(subghz_test, static, Static)
+ADD_SCENE(subghz_test, show_only_rx, ShowOnlyRx)

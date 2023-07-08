@@ -13,6 +13,8 @@ typedef struct {
     uint32_t ARR;
     uint32_t CCR;
     int pos;
+    void (*update_callback)(void* context);
+    void* update_context;
 } LfRfidTuneViewModel;
 
 static void lfrfid_debug_view_tune_draw_callback(Canvas* canvas, void* _model) {
@@ -151,6 +153,18 @@ static bool lfrfid_debug_view_tune_input_callback(InputEvent* event, void* conte
             consumed = false;
             break;
         }
+
+        if(event->key == InputKeyLeft || event->key == InputKeyRight) {
+            with_view_model(
+                tune_view->view,
+                LfRfidTuneViewModel * model,
+                {
+                    if(model->update_callback) {
+                        model->update_callback(model->update_context);
+                    }
+                },
+                false);
+        }
     }
 
     return consumed;
@@ -161,19 +175,7 @@ LfRfidTuneView* lfrfid_debug_view_tune_alloc() {
     tune_view->view = view_alloc();
     view_set_context(tune_view->view, tune_view);
     view_allocate_model(tune_view->view, ViewModelTypeLocking, sizeof(LfRfidTuneViewModel));
-
-    with_view_model(
-        tune_view->view,
-        LfRfidTuneViewModel * model,
-        {
-            model->dirty = true;
-            model->fine = false;
-            model->ARR = 511;
-            model->CCR = 255;
-            model->pos = 0;
-        },
-        true);
-
+    lfrfid_debug_view_tune_clean(tune_view);
     view_set_draw_callback(tune_view->view, lfrfid_debug_view_tune_draw_callback);
     view_set_input_callback(tune_view->view, lfrfid_debug_view_tune_input_callback);
 
@@ -199,6 +201,8 @@ void lfrfid_debug_view_tune_clean(LfRfidTuneView* tune_view) {
             model->ARR = 511;
             model->CCR = 255;
             model->pos = 0;
+            model->update_callback = NULL;
+            model->update_context = NULL;
         },
         true);
 }
@@ -231,4 +235,18 @@ uint32_t lfrfid_debug_view_tune_get_ccr(LfRfidTuneView* tune_view) {
         tune_view->view, LfRfidTuneViewModel * model, { result = model->CCR; }, false);
 
     return result;
+}
+
+void lfrfid_debug_view_tune_set_callback(
+    LfRfidTuneView* tune_view,
+    void (*callback)(void* context),
+    void* context) {
+    with_view_model(
+        tune_view->view,
+        LfRfidTuneViewModel * model,
+        {
+            model->update_callback = callback;
+            model->update_context = context;
+        },
+        false);
 }

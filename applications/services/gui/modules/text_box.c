@@ -6,6 +6,8 @@
 
 struct TextBox {
     View* view;
+
+    uint16_t button_held_for_ticks;
 };
 
 typedef struct {
@@ -19,36 +21,52 @@ typedef struct {
     bool formatted;
 } TextBoxModel;
 
-static void text_box_process_down(TextBox* text_box) {
+static void text_box_process_down(TextBox* text_box, uint8_t lines) {
     with_view_model(
         text_box->view,
         TextBoxModel * model,
         {
-            if(model->scroll_pos < model->scroll_num - 1) {
-                model->scroll_pos++;
-                // Search next line start
-                while(*model->text_pos++ != '\n')
-                    ;
+            if(model->scroll_pos < model->scroll_num - lines) {
+                model->scroll_pos += lines;
+                for(uint8_t i = 0; i < lines; i++) {
+                    // Search next line start
+                    while(*model->text_pos++ != '\n')
+                        ;
+                }
+            } else if(lines > 1) {
+                lines = model->scroll_num - model->scroll_pos - 1;
+                model->scroll_pos = model->scroll_num - 1;
+                for(uint8_t i = 0; i < lines; i++) {
+                    // Search next line start
+                    while(*model->text_pos++ != '\n')
+                        ;
+                }
             }
         },
         true);
 }
 
-static void text_box_process_up(TextBox* text_box) {
+static void text_box_process_up(TextBox* text_box, uint8_t lines) {
     with_view_model(
         text_box->view,
         TextBoxModel * model,
         {
-            if(model->scroll_pos > 0) {
-                model->scroll_pos--;
-                // Reach last symbol of previous line
-                model->text_pos--;
-                // Search previous line start
-                while((model->text_pos != model->text) && (*(--model->text_pos) != '\n'))
-                    ;
-                if(*model->text_pos == '\n') {
-                    model->text_pos++;
+            if(model->scroll_pos > lines - 1) {
+                model->scroll_pos -= lines;
+                for(uint8_t i = 0; i < lines; i++) {
+                    // Reach last symbol of previous line
+                    model->text_pos--;
+                    // Search previous line start
+                    while((model->text_pos != model->text) && (*(--model->text_pos) != '\n'))
+                        ;
+                    if(*model->text_pos == '\n') {
+                        model->text_pos++;
+                    }
                 }
+            } else if(lines > 1) {
+                lines = model->scroll_pos;
+                model->scroll_pos = 0;
+                model->text_pos = (char*)model->text;
             }
         },
         true);
@@ -120,14 +138,28 @@ static bool text_box_view_input_callback(InputEvent* event, void* context) {
 
     TextBox* text_box = context;
     bool consumed = false;
-    if(event->type == InputTypeShort) {
+    if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
+        int32_t scroll_speed = 1;
+        if(text_box->button_held_for_ticks > 5) {
+            if(text_box->button_held_for_ticks % 2) {
+                scroll_speed = 0;
+            } else {
+                scroll_speed = text_box->button_held_for_ticks > 9 ? 5 : 3;
+            }
+        }
+
         if(event->key == InputKeyDown) {
-            text_box_process_down(text_box);
+            text_box_process_down(text_box, scroll_speed);
             consumed = true;
         } else if(event->key == InputKeyUp) {
-            text_box_process_up(text_box);
+            text_box_process_up(text_box, scroll_speed);
             consumed = true;
         }
+
+        text_box->button_held_for_ticks++;
+    } else if(event->type == InputTypeRelease) {
+        text_box->button_held_for_ticks = 0;
+        consumed = true;
     }
     return consumed;
 }

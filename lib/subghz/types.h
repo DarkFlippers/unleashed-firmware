@@ -117,6 +117,9 @@ typedef enum {
     SubGhzProtocolFlag_Load = (1 << 8),
     SubGhzProtocolFlag_Send = (1 << 9),
     SubGhzProtocolFlag_BinRAW = (1 << 10),
+    SubGhzProtocolFlag_StarLine = (1 << 11),
+    SubGhzProtocolFlag_AutoAlarms = (1 << 12),
+    SubGhzProtocolFlag_Magelan = (1 << 13),
 } SubGhzProtocolFlag;
 
 struct SubGhzProtocol {

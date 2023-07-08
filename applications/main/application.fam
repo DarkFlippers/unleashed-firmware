@@ -12,27 +12,26 @@ App(
         "subghz",
         "bad_usb",
         "u2f",
-        "fap_loader",
         "archive",
         "clock",
         "subghz_remote",
     ],
 )
 
+# Enable apps that you need in DEBUG firmware here:
 App(
     appid="main_apps_default",
     name="Basic applications for main menu",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        #"gpio",
-        #"ibutton",
-        #"infrared",
+        # "gpio",
+        # "ibutton",
+        # "infrared",
         "lfrfid",
-        "nfc",
+        # "nfc",
         "subghz",
-        #"bad_usb",
-        #"u2f",
-        "fap_loader",
+        # "bad_usb",
+        # "u2f",
         "archive",
     ],
 )

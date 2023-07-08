@@ -1,0 +1,15 @@
+App(
+    appid="nfc_maker",
+    name="NFC Maker",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="nfc_maker",
+    cdefines=["APP_NFC_MAKER"],
+    requires=[
+        "storage",
+        "gui",
+    ],
+    stack_size=1 * 1024,
+    fap_icon="nfc_maker_10px.png",
+    fap_category="NFC",
+    fap_icon_assets="assets",
+)
