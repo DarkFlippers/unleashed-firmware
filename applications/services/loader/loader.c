@@ -273,7 +273,7 @@ static LoaderStatus loader_start_external_app(
                     DialogMessage* message = dialog_message_alloc();
                     dialog_message_set_header(
                         message, "API Mismatch", 64, 0, AlignCenter, AlignTop);
-                    dialog_message_set_buttons(message, "Cancel", NULL, "Continue");
+                    dialog_message_set_buttons(message, NULL, NULL, "Continue");
                     dialog_message_set_text(
                         message,
                         "This app might not\nwork correctly\nContinue anyways?",
@@ -284,6 +284,9 @@ static LoaderStatus loader_start_external_app(
                     if(dialog_message_show(dialogs, message) == DialogMessageButtonRight) {
                         status = loader_make_status_error(
                             LoaderStatusErrorApiMismatch, error_message, "API Mismatch");
+                    } else {
+                        status = loader_make_status_error(
+                            LoaderStatusErrorApiMismatchExit, error_message, "API Mismatch");
                     }
                     dialog_message_free(message);
                     furi_record_close(RECORD_DIALOGS);

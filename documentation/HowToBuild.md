@@ -31,6 +31,9 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 
 ### Compile everything for development
 
+Edit this file to enable/disable Main apps that you need in DEBUG mode, flash space doesn't allows us to fit them all in DEBUG currently
+- `applications/main/application.fam`
+
 ```sh
 ./fbt FIRMWARE_APP_SET=debug_pack updater_package
 ```
@@ -51,6 +54,9 @@ Use **`flipper-z-{target}-update-{suffix}.tgz`** to flash your device.
 Check out `documentation/fbt.md` for details on building and flashing firmware. 
 
 ### Compile everything for development
+
+Edit this file to enable/disable Main apps that you need in DEBUG mode, flash space doesn't allows us to fit them all in DEBUG currently
+- `applications/main/application.fam`
 
 ```sh
 ./fbt.cmd FIRMWARE_APP_SET=debug_pack updater_package

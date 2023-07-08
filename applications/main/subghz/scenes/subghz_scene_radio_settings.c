@@ -1,17 +1,18 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
+#include <lib/toolbox/value_index.h>
+#include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 
-// #define EXT_MODULES_COUNT (sizeof(radio_modules_variables_text) / sizeof(char* const))
-// const char* const radio_modules_variables_text[] = {
-//     "Internal",
-//     "External",
-// };
+#define RADIO_DEVICE_COUNT 2
+const char* const radio_device_text[RADIO_DEVICE_COUNT] = {
+    "Internal",
+    "External",
+};
 
-// #define EXT_MOD_POWER_COUNT 2
-// const char* const ext_mod_power_text[EXT_MOD_POWER_COUNT] = {
-//     "ON",
-//     "OFF",
-// };
+const uint32_t radio_device_value[RADIO_DEVICE_COUNT] = {
+    SubGhzRadioDeviceTypeInternal,
+    SubGhzRadioDeviceTypeExternalCC1101,
+};
 
 #define TIMESTAMP_NAMES_COUNT 2
 const char* const timestamp_names_text[TIMESTAMP_NAMES_COUNT] = {
@@ -35,20 +36,19 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+10",
 };
 
-// static void subghz_scene_ext_module_changed(VariableItem* item) {
-//     SubGhz* subghz = variable_item_get_context(item);
-//     uint8_t value_index_exm = variable_item_get_current_value_index(item);
+static void subghz_scene_radio_settings_set_device(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
 
-//     variable_item_set_current_value_text(item, radio_modules_variables_text[value_index_exm]);
-
-//     subghz->last_settings->external_module_enabled = value_index_exm == 1;
-//     subghz_last_settings_save(subghz->last_settings);
-// }
-
-// static void subghz_ext_module_start_var_list_enter_callback(void* context, uint32_t index) {
-//     SubGhz* subghz = context;
-//     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
-// }
+    if(!subghz_txrx_radio_device_is_external_connected(
+           subghz->txrx, SUBGHZ_DEVICE_CC1101_EXT_NAME) &&
+       radio_device_value[index] == SubGhzRadioDeviceTypeExternalCC1101) {
+        //ToDo correct if there is more than 1 module
+        index = 0;
+    }
+    variable_item_set_current_value_text(item, radio_device_text[index]);
+    subghz_txrx_radio_device_set(subghz->txrx, radio_device_value[index]);
+}
 
 static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
@@ -122,24 +122,20 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     uint8_t value_index;
     VariableItem* item;
 
-    // VariableItem* item = variable_item_list_add(
-    //     variable_item_list, "Module", EXT_MODULES_COUNT, subghz_scene_ext_module_changed, subghz);
-
-    // variable_item_list_set_enter_callback(
-    //     variable_item_list, subghz_ext_module_start_var_list_enter_callback, subghz);
-    // value_index = furi_hal_subghz.radio_type;
-    // variable_item_set_current_value_index(item, value_index);
-    // variable_item_set_current_value_text(item, radio_modules_variables_text[value_index]);
-
-    // item = variable_item_list_add(
-    //     variable_item_list,
-    //     "Ext Radio 5v",
-    //     EXT_MOD_POWER_COUNT,
-    //     subghz_scene_receiver_config_set_ext_mod_power,
-    //     subghz);
-    // value_index = furi_hal_subghz_get_external_power_disable();
-    // variable_item_set_current_value_index(item, value_index);
-    // variable_item_set_current_value_text(item, ext_mod_power_text[value_index]);
+    uint8_t value_count_device = RADIO_DEVICE_COUNT;
+    if(subghz_txrx_radio_device_get(subghz->txrx) == SubGhzRadioDeviceTypeInternal &&
+       !subghz_txrx_radio_device_is_external_connected(subghz->txrx, SUBGHZ_DEVICE_CC1101_EXT_NAME))
+        value_count_device = 1; // Only 1 item if external disconnected
+    item = variable_item_list_add(
+        subghz->variable_item_list,
+        "Module",
+        value_count_device,
+        subghz_scene_radio_settings_set_device,
+        subghz);
+    value_index = value_index_uint32(
+        subghz_txrx_radio_device_get(subghz->txrx), radio_device_value, value_count_device);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, radio_device_text[value_index]);
 
     item = variable_item_list_add(
         variable_item_list,
@@ -227,25 +223,11 @@ bool subghz_scene_radio_settings_on_event(void* context, SceneManagerEvent event
     UNUSED(subghz);
     UNUSED(event);
 
-    // Set selected radio module
-    // furi_hal_subghz_select_radio_type(subghz->last_settings->external_module_enabled);
-    // furi_hal_subghz_init_radio_type(subghz->last_settings->external_module_enabled);
-
-    // furi_hal_subghz_enable_ext_power();
-
-    // Check if module is present, if no -> show error
-    // if(!furi_hal_subghz_check_radio()) {
-    //     subghz->last_settings->external_module_enabled = false;
-    //     furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-    //     furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-    //     furi_string_set(subghz->error_str, "Please connect\nexternal radio");
-    //     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
-    // }
-
     return false;
 }
 
 void subghz_scene_radio_settings_on_exit(void* context) {
     SubGhz* subghz = context;
+    variable_item_list_set_selected_item(subghz->variable_item_list, 0);
     variable_item_list_reset(subghz->variable_item_list);
 }

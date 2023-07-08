@@ -99,11 +99,15 @@ void furi_hal_power_reset();
 
 /** OTG enable
  */
-void furi_hal_power_enable_otg();
+bool furi_hal_power_enable_otg();
 
 /** OTG disable
  */
 void furi_hal_power_disable_otg();
+
+/** Check OTG status fault
+ */
+bool furi_hal_power_check_otg_fault();
 
 /** Check OTG status and disable it if falt happened
  */

@@ -14,6 +14,8 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
             canvas, SNIFF_MENU_X, SNIFF_MENU_Y, AlignLeft, AlignTop, SNIFF_MENU_TEXT);
         canvas_draw_str_aligned(
             canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);
+        canvas_draw_str_aligned(
+            canvas, INFOS_MENU_X, INFOS_MENU_Y, AlignLeft, AlignTop, INFOS_MENU_TEXT);
         canvas_draw_rbox(canvas, 80, SCAN_MENU_Y - 2, 43, 13, 3);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_str_aligned(
@@ -26,6 +28,8 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
             canvas, SCAN_MENU_X, SCAN_MENU_Y, AlignLeft, AlignTop, SCAN_MENU_TEXT);
         canvas_draw_str_aligned(
             canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);
+        canvas_draw_str_aligned(
+            canvas, INFOS_MENU_X, INFOS_MENU_Y, AlignLeft, AlignTop, INFOS_MENU_TEXT);
         canvas_draw_rbox(canvas, 80, SNIFF_MENU_Y - 2, 43, 13, 3);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_str_aligned(
@@ -38,10 +42,26 @@ void draw_main_view(Canvas* canvas, i2cMainView* main_view) {
             canvas, SCAN_MENU_X, SCAN_MENU_Y, AlignLeft, AlignTop, SCAN_MENU_TEXT);
         canvas_draw_str_aligned(
             canvas, SNIFF_MENU_X, SNIFF_MENU_Y, AlignLeft, AlignTop, SNIFF_MENU_TEXT);
+        canvas_draw_str_aligned(
+            canvas, INFOS_MENU_X, INFOS_MENU_Y, AlignLeft, AlignTop, INFOS_MENU_TEXT);
         canvas_draw_rbox(canvas, 80, SEND_MENU_Y - 2, 43, 13, 3);
         canvas_set_color(canvas, ColorWhite);
         canvas_draw_str_aligned(
             canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);
+        break;
+
+    case INFOS_VIEW:
+        canvas_set_color(canvas, ColorBlack);
+        canvas_draw_str_aligned(
+            canvas, SCAN_MENU_X, SCAN_MENU_Y, AlignLeft, AlignTop, SCAN_MENU_TEXT);
+        canvas_draw_str_aligned(
+            canvas, SNIFF_MENU_X, SNIFF_MENU_Y, AlignLeft, AlignTop, SNIFF_MENU_TEXT);
+        canvas_draw_str_aligned(
+            canvas, SEND_MENU_X, SEND_MENU_Y, AlignLeft, AlignTop, SEND_MENU_TEXT);
+        canvas_draw_rbox(canvas, 80, INFOS_MENU_Y - 2, 43, 13, 3);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_str_aligned(
+            canvas, INFOS_MENU_X, INFOS_MENU_Y, AlignLeft, AlignTop, INFOS_MENU_TEXT);
         break;
 
     default:

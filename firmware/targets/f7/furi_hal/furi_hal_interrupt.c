@@ -62,7 +62,7 @@ const IRQn_Type furi_hal_interrupt_irqn[FuriHalInterruptIdMax] = {
 
 __attribute__((always_inline)) static inline void
     furi_hal_interrupt_call(FuriHalInterruptId index) {
-    furi_assert(furi_hal_interrupt_isr[index].isr);
+    furi_check(furi_hal_interrupt_isr[index].isr);
     furi_hal_interrupt_isr[index].isr(furi_hal_interrupt_isr[index].context);
 }
 
@@ -127,16 +127,14 @@ void furi_hal_interrupt_set_isr_ex(
     uint16_t priority,
     FuriHalInterruptISR isr,
     void* context) {
-    furi_assert(index < FuriHalInterruptIdMax);
-    furi_assert(priority < 15);
-    furi_assert(furi_hal_interrupt_irqn[index]);
+    furi_check(index < FuriHalInterruptIdMax);
+    furi_check(priority <= 15);
 
     if(isr) {
         // Pre ISR set
-        furi_assert(furi_hal_interrupt_isr[index].isr == NULL);
+        furi_check(furi_hal_interrupt_isr[index].isr == NULL);
     } else {
         // Pre ISR clear
-        furi_assert(furi_hal_interrupt_isr[index].isr != NULL);
         furi_hal_interrupt_disable(index);
         furi_hal_interrupt_clear_pending(index);
     }

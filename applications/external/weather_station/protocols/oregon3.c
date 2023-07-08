@@ -116,9 +116,11 @@ static ManchesterEvent level_and_duration_to_event(bool level, uint32_t duration
 static uint8_t oregon3_sensor_id_var_bits(uint16_t sensor_id) {
     switch(sensor_id) {
     case ID_THGR221:
-    default:
         // nibbles: temp + hum + '0'
         return (4 + 2 + 1) * 4;
+    default:
+        FURI_LOG_D(TAG, "Unsupported sensor id 0x%x", sensor_id);
+        return 0;
     }
 }
 
@@ -198,10 +200,8 @@ void ws_protocol_decoder_oregon3_feed(void* context, bool level, uint32_t durati
                 oregon3_sensor_id_var_bits(OREGON3_SENSOR_ID(instance->generic.data));
 
             if(!instance->var_bits) {
-                // sensor is not supported, stop decoding, but showing the decoded fixed part
+                // sensor is not supported, stop decoding
                 instance->decoder.parser_step = Oregon3DecoderStepReset;
-                if(instance->base.callback)
-                    instance->base.callback(&instance->base, instance->base.context);
             } else {
                 instance->decoder.parser_step = Oregon3DecoderStepVarData;
             }

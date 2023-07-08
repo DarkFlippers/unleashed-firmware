@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,31.3,,
+Version,+,33.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -56,6 +56,7 @@ Header,+,firmware/targets/f7/furi_hal/furi_hal_spi_types.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_uart.h,,
 Header,+,firmware/targets/f7/furi_hal/furi_hal_usb_cdc.h,,
 Header,+,firmware/targets/f7/platform_specific/intrinsic_export.h,,
+Header,+,firmware/targets/f7/platform_specific/math_wrapper.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_bt_hid.h,,
@@ -288,12 +289,18 @@ Function,+,__assert_func,void,"const char*, int, const char*, const char*"
 Function,+,__clear_cache,void,"void*, void*"
 Function,-,__eprintf,void,"const char*, const char*, unsigned int, const char*"
 Function,+,__errno,int*,
+Function,-,__fpclassifyd,int,double
+Function,-,__fpclassifyf,int,float
 Function,+,__furi_crash,void,
 Function,+,__furi_critical_enter,__FuriCriticalInfo,
 Function,+,__furi_critical_exit,void,__FuriCriticalInfo
 Function,+,__furi_halt,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
+Function,-,__isinfd,int,double
+Function,-,__isinff,int,float
+Function,-,__isnand,int,double
+Function,-,__isnanf,int,float
 Function,-,__itoa,char*,"int, char*, int"
 Function,-,__locale_mb_cur_max,int,
 Function,+,__retarget_lock_acquire,void,_LOCK_T
@@ -306,6 +313,9 @@ Function,+,__retarget_lock_release,void,_LOCK_T
 Function,+,__retarget_lock_release_recursive,void,_LOCK_T
 Function,-,__retarget_lock_try_acquire,int,_LOCK_T
 Function,-,__retarget_lock_try_acquire_recursive,int,_LOCK_T
+Function,-,__signbitd,int,double
+Function,-,__signbitf,int,float
+Function,-,__signgam,int*,
 Function,-,__srget_r,int,"_reent*, FILE*"
 Function,-,__swbuf_r,int,"_reent*, int, FILE*"
 Function,-,__utoa,char*,"unsigned, char*, int"
@@ -458,6 +468,12 @@ Function,-,_wctomb_r,int,"_reent*, char*, wchar_t, _mbstate_t*"
 Function,-,a64l,long,const char*
 Function,+,abort,void,
 Function,-,abs,int,int
+Function,-,acos,double,double
+Function,-,acosf,float,float
+Function,-,acosh,double,double
+Function,-,acoshf,float,float
+Function,-,acoshl,long double,long double
+Function,-,acosl,long double,long double
 Function,-,aligned_alloc,void*,"size_t, size_t"
 Function,+,aligned_free,void,void*
 Function,+,aligned_malloc,void*,"size_t, size_t"
@@ -473,11 +489,26 @@ Function,+,args_read_probably_quoted_string_and_trim,_Bool,"FuriString*, FuriStr
 Function,+,args_read_string_and_trim,_Bool,"FuriString*, FuriString*"
 Function,-,asctime,char*,const tm*
 Function,-,asctime_r,char*,"const tm*, char*"
+Function,-,asin,double,double
+Function,-,asinf,float,float
+Function,-,asinh,double,double
+Function,-,asinhf,float,float
+Function,-,asinhl,long double,long double
+Function,-,asinl,long double,long double
 Function,-,asiprintf,int,"char**, const char*, ..."
 Function,-,asniprintf,char*,"char*, size_t*, const char*, ..."
 Function,-,asnprintf,char*,"char*, size_t*, const char*, ..."
 Function,-,asprintf,int,"char**, const char*, ..."
 Function,-,at_quick_exit,int,void (*)()
+Function,-,atan,double,double
+Function,-,atan2,double,"double, double"
+Function,-,atan2f,float,"float, float"
+Function,-,atan2l,long double,"long double, long double"
+Function,-,atanf,float,float
+Function,-,atanh,double,double
+Function,-,atanhf,float,float
+Function,-,atanhl,long double,long double
+Function,-,atanl,long double,long double
 Function,-,atexit,int,void (*)()
 Function,-,atof,double,const char*
 Function,-,atoff,float,const char*
@@ -570,6 +601,12 @@ Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
 Function,+,canvas_width,uint8_t,const Canvas*
+Function,-,cbrt,double,double
+Function,-,cbrtf,float,float
+Function,-,cbrtl,long double,long double
+Function,-,ceil,double,double
+Function,-,ceilf,float,float
+Function,-,ceill,long double,long double
 Function,-,cfree,void,void*
 Function,-,clearerr,void,FILE*
 Function,-,clearerr_unlocked,void,FILE*
@@ -590,6 +627,15 @@ Function,+,composite_api_resolver_add,void,"CompositeApiResolver*, const ElfApiI
 Function,+,composite_api_resolver_alloc,CompositeApiResolver*,
 Function,+,composite_api_resolver_free,void,CompositeApiResolver*
 Function,+,composite_api_resolver_get,const ElfApiInterface*,CompositeApiResolver*
+Function,-,copysign,double,"double, double"
+Function,-,copysignf,float,"float, float"
+Function,-,copysignl,long double,"long double, long double"
+Function,-,cos,double,double
+Function,-,cosf,float,float
+Function,-,cosh,double,double
+Function,-,coshf,float,float
+Function,-,coshl,long double,long double
+Function,-,cosl,long double,long double
 Function,+,crc32_calc_buffer,uint32_t,"uint32_t, const void*, size_t"
 Function,+,crc32_calc_file,uint32_t,"File*, const FileCrcProgressCb, void*"
 Function,-,ctermid,char*,char*
@@ -659,6 +705,8 @@ Function,+,dolphin_stats,DolphinStats,Dolphin*
 Function,+,dolphin_upgrade_level,void,Dolphin*
 Function,-,dprintf,int,"int, const char*, ..."
 Function,-,drand48,double,
+Function,-,drem,double,"double, double"
+Function,-,dremf,float,"float, float"
 Function,-,eTaskConfirmSleepModeStatus,eSleepModeStatus,
 Function,-,eTaskGetState,eTaskState,TaskHandle_t
 Function,+,elements_bold_rounded_frame,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
@@ -686,10 +734,33 @@ Function,+,empty_screen_alloc,EmptyScreen*,
 Function,+,empty_screen_free,void,EmptyScreen*
 Function,+,empty_screen_get_view,View*,EmptyScreen*
 Function,-,erand48,double,unsigned short[3]
+Function,-,erf,double,double
+Function,-,erfc,double,double
+Function,-,erfcf,float,float
+Function,-,erfcl,long double,long double
+Function,-,erff,float,float
+Function,-,erfl,long double,long double
 Function,-,exit,void,int
+Function,-,exp,double,double
+Function,-,exp10,double,double
+Function,-,exp10f,float,float
+Function,-,exp2,double,double
+Function,-,exp2f,float,float
+Function,-,exp2l,long double,long double
+Function,-,expf,float,float
+Function,-,expl,long double,long double
 Function,-,explicit_bzero,void,"void*, size_t"
+Function,-,expm1,double,double
+Function,-,expm1f,float,float
+Function,-,expm1l,long double,long double
+Function,-,fabs,double,double
+Function,-,fabsf,float,float
+Function,-,fabsl,long double,long double
 Function,-,fclose,int,FILE*
 Function,-,fcloseall,int,
+Function,-,fdim,double,"double, double"
+Function,-,fdimf,float,"float, float"
+Function,-,fdiml,long double,"long double, long double"
 Function,-,fdopen,FILE*,"int, const char*"
 Function,-,feof,int,FILE*
 Function,-,feof_unlocked,int,FILE*
@@ -734,6 +805,9 @@ Function,+,file_stream_open,_Bool,"Stream*, const char*, FS_AccessMode, FS_OpenM
 Function,-,fileno,int,FILE*
 Function,-,fileno_unlocked,int,FILE*
 Function,+,filesystem_api_error_get_desc,const char*,FS_Error
+Function,-,finite,int,double
+Function,-,finitef,int,float
+Function,-,finitel,int,long double
 Function,-,fiprintf,int,"FILE*, const char*, ..."
 Function,-,fiscanf,int,"FILE*, const char*, ..."
 Function,+,flipper_application_alloc,FlipperApplication*,"Storage*, const ElfApiInterface*"
@@ -811,10 +885,25 @@ Function,+,flipper_format_write_string_cstr,_Bool,"FlipperFormat*, const char*, 
 Function,+,flipper_format_write_uint32,_Bool,"FlipperFormat*, const char*, const uint32_t*, const uint16_t"
 Function,+,float_is_equal,_Bool,"float, float"
 Function,-,flockfile,void,FILE*
+Function,-,floor,double,double
+Function,-,floorf,float,float
+Function,-,floorl,long double,long double
 Function,-,fls,int,int
 Function,-,flsl,int,long
 Function,-,flsll,int,long long
+Function,-,fma,double,"double, double, double"
+Function,-,fmaf,float,"float, float, float"
+Function,-,fmal,long double,"long double, long double, long double"
+Function,-,fmax,double,"double, double"
+Function,-,fmaxf,float,"float, float"
+Function,-,fmaxl,long double,"long double, long double"
 Function,-,fmemopen,FILE*,"void*, size_t, const char*"
+Function,-,fmin,double,"double, double"
+Function,-,fminf,float,"float, float"
+Function,-,fminl,long double,"long double, long double"
+Function,-,fmod,double,"double, double"
+Function,-,fmodf,float,"float, float"
+Function,-,fmodl,long double,"long double, long double"
 Function,-,fopen,FILE*,"const char*, const char*"
 Function,-,fopencookie,FILE*,"void*, const char*, cookie_io_functions_t"
 Function,-,fprintf,int,"FILE*, const char*, ..."
@@ -827,6 +916,9 @@ Function,-,fread,size_t,"void*, size_t, size_t, FILE*"
 Function,-,fread_unlocked,size_t,"void*, size_t, size_t, FILE*"
 Function,+,free,void,void*
 Function,-,freopen,FILE*,"const char*, const char*, FILE*"
+Function,-,frexp,double,"double, int*"
+Function,-,frexpf,float,"float, int*"
+Function,-,frexpl,long double,"long double, int*"
 Function,-,fscanf,int,"FILE*, const char*, ..."
 Function,-,fseek,int,"FILE*, long, int"
 Function,-,fseeko,int,"FILE*, off_t, int"
@@ -1029,12 +1121,13 @@ Function,+,furi_hal_mpu_protect_no_access,void,"FuriHalMpuRegion, uint32_t, Furi
 Function,+,furi_hal_mpu_protect_read_only,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
 Function,-,furi_hal_os_init,void,
 Function,+,furi_hal_os_tick,void,
+Function,+,furi_hal_power_check_otg_fault,_Bool,
 Function,+,furi_hal_power_check_otg_status,void,
 Function,+,furi_hal_power_debug_get,void,"PropertyValueCallback, void*"
 Function,+,furi_hal_power_disable_external_3_3v,void,
 Function,+,furi_hal_power_disable_otg,void,
 Function,+,furi_hal_power_enable_external_3_3v,void,
-Function,+,furi_hal_power_enable_otg,void,
+Function,+,furi_hal_power_enable_otg,_Bool,
 Function,+,furi_hal_power_gauge_is_ok,_Bool,
 Function,+,furi_hal_power_get_bat_health_pct,uint8_t,
 Function,+,furi_hal_power_get_battery_charge_voltage_limit,float,
@@ -1336,6 +1429,10 @@ Function,+,furi_timer_start,FuriStatus,"FuriTimer*, uint32_t"
 Function,+,furi_timer_stop,FuriStatus,FuriTimer*
 Function,-,fwrite,size_t,"const void*, size_t, size_t, FILE*"
 Function,-,fwrite_unlocked,size_t,"const void*, size_t, size_t, FILE*"
+Function,-,gamma,double,double
+Function,-,gamma_r,double,"double, int*"
+Function,-,gammaf,float,float
+Function,-,gammaf_r,float,"float, int*"
 Function,-,gap_get_state,GapState,
 Function,-,gap_init,_Bool,"GapConfig*, GapEventCallback, void*"
 Function,-,gap_start_advertising,void,
@@ -1368,6 +1465,9 @@ Function,+,hex_char_to_hex_nibble,_Bool,"char, uint8_t*"
 Function,+,hex_char_to_uint8,_Bool,"char, char, uint8_t*"
 Function,+,hex_chars_to_uint64,_Bool,"const char*, uint64_t*"
 Function,+,hex_chars_to_uint8,_Bool,"const char*, uint8_t*"
+Function,-,hypot,double,"double, double"
+Function,-,hypotf,float,"float, float"
+Function,-,hypotl,long double,"long double, long double"
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
 Function,+,icon_animation_get_height,uint8_t,const IconAnimation*
@@ -1379,7 +1479,12 @@ Function,+,icon_animation_stop,void,IconAnimation*
 Function,+,icon_get_data,const uint8_t*,const Icon*
 Function,+,icon_get_height,uint8_t,const Icon*
 Function,+,icon_get_width,uint8_t,const Icon*
+Function,-,ilogb,int,double
+Function,-,ilogbf,int,float
+Function,-,ilogbl,int,long double
 Function,-,index,char*,"const char*, int"
+Function,-,infinity,double,
+Function,-,infinityf,float,
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
 Function,+,input_get_type_name,const char*,InputType
@@ -1399,8 +1504,12 @@ Function,-,isdigit,int,int
 Function,-,isdigit_l,int,"int, locale_t"
 Function,-,isgraph,int,int
 Function,-,isgraph_l,int,"int, locale_t"
+Function,-,isinf,int,double
+Function,-,isinff,int,float
 Function,-,islower,int,int
 Function,-,islower_l,int,"int, locale_t"
+Function,-,isnan,int,double
+Function,-,isnanf,int,float
 Function,-,isprint,int,int
 Function,-,isprint_l,int,"int, locale_t"
 Function,-,ispunct,int,int
@@ -1412,13 +1521,33 @@ Function,-,isupper_l,int,"int, locale_t"
 Function,-,isxdigit,int,int
 Function,-,isxdigit_l,int,"int, locale_t"
 Function,-,itoa,char*,"int, char*, int"
+Function,-,j0,double,double
+Function,-,j0f,float,float
+Function,-,j1,double,double
+Function,-,j1f,float,float
+Function,-,jn,double,"int, double"
+Function,-,jnf,float,"int, float"
 Function,-,jrand48,long,unsigned short[3]
 Function,-,l64a,char*,long
 Function,-,labs,long,long
 Function,-,lcong48,void,unsigned short[7]
+Function,-,ldexp,double,"double, int"
+Function,-,ldexpf,float,"float, int"
+Function,-,ldexpl,long double,"long double, int"
 Function,-,ldiv,ldiv_t,"long, long"
+Function,-,lgamma,double,double
+Function,-,lgamma_r,double,"double, int*"
+Function,-,lgammaf,float,float
+Function,-,lgammaf_r,float,"float, int*"
+Function,-,lgammal,long double,long double
 Function,-,llabs,long long,long long
 Function,-,lldiv,lldiv_t,"long long, long long"
+Function,-,llrint,long long int,double
+Function,-,llrintf,long long int,float
+Function,-,llrintl,long long int,long double
+Function,-,llround,long long int,double
+Function,-,llroundf,long long int,float
+Function,-,llroundl,long long int,long double
 Function,+,loader_get_pubsub,FuriPubSub*,Loader*
 Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
@@ -1441,7 +1570,28 @@ Function,+,locale_set_measurement_unit,void,LocaleMeasurementUnits
 Function,+,locale_set_time_format,void,LocaleTimeFormat
 Function,-,localtime,tm*,const time_t*
 Function,-,localtime_r,tm*,"const time_t*, tm*"
+Function,-,log,double,double
+Function,-,log10,double,double
+Function,-,log10f,float,float
+Function,-,log10l,long double,long double
+Function,-,log1p,double,double
+Function,-,log1pf,float,float
+Function,-,log1pl,long double,long double
+Function,-,log2,double,double
+Function,-,log2f,float,float
+Function,-,log2l,long double,long double
+Function,-,logb,double,double
+Function,-,logbf,float,float
+Function,-,logbl,long double,long double
+Function,-,logf,float,float
+Function,-,logl,long double,long double
 Function,-,lrand48,long,
+Function,-,lrint,long int,double
+Function,-,lrintf,long int,float
+Function,-,lrintl,long int,long double
+Function,-,lround,long int,double
+Function,-,lroundf,long int,float
+Function,-,lroundl,long,long double
 Function,+,malloc,void*,size_t
 Function,+,manchester_advance,_Bool,"ManchesterState, ManchesterEvent, ManchesterState*, _Bool*"
 Function,+,manchester_encoder_advance,_Bool,"ManchesterEncoderState*, const _Bool, ManchesterEncoderResult*"
@@ -1519,6 +1669,9 @@ Function,-,mkstemp,int,char*
 Function,-,mkstemps,int,"char*, int"
 Function,-,mktemp,char*,char*
 Function,-,mktime,time_t,tm*
+Function,-,modf,double,"double, double*"
+Function,-,modff,float,"float, float*"
+Function,-,modfl,long double,"long double, long double*"
 Function,-,mrand48,long,
 Function,-,music_worker_alloc,MusicWorker*,
 Function,-,music_worker_clear,void,MusicWorker*
@@ -1532,6 +1685,18 @@ Function,-,music_worker_set_callback,void,"MusicWorker*, MusicWorkerCallback, vo
 Function,-,music_worker_set_volume,void,"MusicWorker*, float"
 Function,-,music_worker_start,void,MusicWorker*
 Function,-,music_worker_stop,void,MusicWorker*
+Function,-,nan,double,const char*
+Function,-,nanf,float,const char*
+Function,-,nanl,long double,const char*
+Function,-,nearbyint,double,double
+Function,-,nearbyintf,float,float
+Function,-,nearbyintl,long double,long double
+Function,-,nextafter,double,"double, double"
+Function,-,nextafterf,float,"float, float"
+Function,-,nextafterl,long double,"long double, long double"
+Function,-,nexttoward,double,"double, long double"
+Function,-,nexttowardf,float,"float, long double"
+Function,-,nexttowardl,long double,"long double, long double"
 Function,+,notification_internal_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_internal_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
@@ -1599,12 +1764,17 @@ Function,+,popup_set_icon,void,"Popup*, uint8_t, uint8_t, const Icon*"
 Function,+,popup_set_text,void,"Popup*, const char*, uint8_t, uint8_t, Align, Align"
 Function,+,popup_set_timeout,void,"Popup*, uint32_t"
 Function,-,posix_memalign,int,"void**, size_t, size_t"
+Function,-,pow,double,"double, double"
+Function,-,pow10,double,double
+Function,-,pow10f,float,float
 Function,+,power_enable_low_battery_level_notification,void,"Power*, _Bool"
 Function,+,power_get_info,void,"Power*, PowerInfo*"
 Function,+,power_get_pubsub,FuriPubSub*,Power*
 Function,+,power_is_battery_healthy,_Bool,Power*
 Function,+,power_off,void,Power*
 Function,+,power_reboot,void,PowerBootMode
+Function,+,powf,float,"float, float"
+Function,-,powl,long double,"long double, long double"
 Function,+,pretty_format_bytes_hex_canonical,void,"FuriString*, size_t, const char*, const uint8_t*, size_t"
 Function,-,printf,int,"const char*, ..."
 Function,+,property_value_out,void,"PropertyValueContext*, const char*, unsigned int, ..."
@@ -1662,11 +1832,23 @@ Function,+,realloc,void*,"void*, size_t"
 Function,-,reallocarray,void*,"void*, size_t, size_t"
 Function,-,reallocf,void*,"void*, size_t"
 Function,-,realpath,char*,"const char*, char*"
+Function,-,remainder,double,"double, double"
+Function,-,remainderf,float,"float, float"
+Function,-,remainderl,long double,"long double, long double"
 Function,-,remove,int,const char*
+Function,-,remquo,double,"double, double, int*"
+Function,-,remquof,float,"float, float, int*"
+Function,-,remquol,long double,"long double, long double, int*"
 Function,-,rename,int,"const char*, const char*"
 Function,-,renameat,int,"int, const char*, int, const char*"
 Function,-,rewind,void,FILE*
 Function,-,rindex,char*,"const char*, int"
+Function,-,rint,double,double
+Function,-,rintf,float,float
+Function,-,rintl,long double,long double
+Function,-,round,double,double
+Function,+,roundf,float,float
+Function,-,roundl,long double,long double
 Function,+,rpc_session_close,void,RpcSession*
 Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, TickType_t"
 Function,+,rpc_session_get_available_size,size_t,RpcSession*
@@ -1691,6 +1873,12 @@ Function,-,rpmatch,int,const char*
 Function,+,saved_struct_get_payload_size,_Bool,"const char*, uint8_t, uint8_t, size_t*"
 Function,+,saved_struct_load,_Bool,"const char*, void*, size_t, uint8_t, uint8_t"
 Function,+,saved_struct_save,_Bool,"const char*, void*, size_t, uint8_t, uint8_t"
+Function,-,scalbln,double,"double, long int"
+Function,-,scalblnf,float,"float, long int"
+Function,-,scalblnl,long double,"long double, long"
+Function,-,scalbn,double,"double, int"
+Function,+,scalbnf,float,"float, int"
+Function,-,scalbnl,long double,"long double, int"
 Function,-,scanf,int,"const char*, ..."
 Function,+,scene_manager_alloc,SceneManager*,"const SceneManagerHandlers*, void*"
 Function,+,scene_manager_free,void,SceneManager*
@@ -1730,11 +1918,22 @@ Function,+,sha256_finish,void,"sha256_context*, unsigned char[32]"
 Function,+,sha256_process,void,sha256_context*
 Function,+,sha256_start,void,sha256_context*
 Function,+,sha256_update,void,"sha256_context*, const unsigned char*, unsigned int"
+Function,-,sin,double,double
+Function,-,sincos,void,"double, double*, double*"
+Function,-,sincosf,void,"float, float*, float*"
+Function,-,sinf,float,float
+Function,-,sinh,double,double
+Function,-,sinhf,float,float
+Function,-,sinhl,long double,long double
+Function,-,sinl,long double,long double
 Function,-,siprintf,int,"char*, const char*, ..."
 Function,-,siscanf,int,"const char*, const char*, ..."
 Function,-,sniprintf,int,"char*, size_t, const char*, ..."
 Function,+,snprintf,int,"char*, size_t, const char*, ..."
 Function,-,sprintf,int,"char*, const char*, ..."
+Function,-,sqrt,double,double
+Function,-,sqrtf,float,float
+Function,-,sqrtl,long double,long double
 Function,+,srand,void,unsigned
 Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
@@ -1889,6 +2088,12 @@ Function,+,submenu_reset,void,Submenu*
 Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
+Function,-,tan,double,double
+Function,-,tanf,float,float
+Function,-,tanh,double,double
+Function,-,tanhf,float,float
+Function,-,tanhl,long double,long double
+Function,-,tanl,long double,long double
 Function,+,tar_archive_add_dir,_Bool,"TarArchive*, const char*, const char*"
 Function,+,tar_archive_add_file,_Bool,"TarArchive*, const char*, const char*, const int32_t"
 Function,+,tar_archive_alloc,TarArchive*,Storage*
@@ -1921,6 +2126,9 @@ Function,+,text_input_reset,void,TextInput*
 Function,+,text_input_set_header_text,void,"TextInput*, const char*"
 Function,+,text_input_set_result_callback,void,"TextInput*, TextInputCallback, void*, char*, size_t, _Bool"
 Function,+,text_input_set_validator,void,"TextInput*, TextInputValidatorCallback, void*"
+Function,-,tgamma,double,double
+Function,-,tgammaf,float,float
+Function,-,tgammal,long double,long double
 Function,-,time,time_t,time_t*
 Function,-,timingsafe_bcmp,int,"const void*, const void*, size_t"
 Function,-,timingsafe_memcmp,int,"const void*, const void*, size_t"
@@ -1932,6 +2140,9 @@ Function,-,tolower,int,int
 Function,-,tolower_l,int,"int, locale_t"
 Function,-,toupper,int,int
 Function,-,toupper_l,int,"int, locale_t"
+Function,-,trunc,double,double
+Function,-,truncf,float,float
+Function,-,truncl,long double,long double
 Function,-,tzset,void,
 Function,-,uECC_compress,void,"const uint8_t*, uint8_t*, uECC_Curve"
 Function,+,uECC_compute_public_key,int,"const uint8_t*, uint8_t*, uECC_Curve"
@@ -2164,6 +2375,12 @@ Function,-,xTimerGetTimerDaemonTaskHandle,TaskHandle_t,
 Function,-,xTimerIsTimerActive,BaseType_t,TimerHandle_t
 Function,-,xTimerPendFunctionCall,BaseType_t,"PendedFunction_t, void*, uint32_t, TickType_t"
 Function,-,xTimerPendFunctionCallFromISR,BaseType_t,"PendedFunction_t, void*, uint32_t, BaseType_t*"
+Function,-,y0,double,double
+Function,-,y0f,float,float
+Function,-,y1,double,double
+Function,-,y1f,float,float
+Function,-,yn,double,"int, double"
+Function,-,ynf,float,"int, float"
 Variable,-,AHBPrescTable,const uint32_t[16],
 Variable,-,APBPrescTable,const uint32_t[8],
 Variable,-,ITM_RxBuffer,volatile int32_t,

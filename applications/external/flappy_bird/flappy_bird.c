@@ -3,7 +3,6 @@
 #include <flappy_bird_icons.h>
 #include <furi.h>
 #include <gui/gui.h>
-#include <gui/icon_animation_i.h>
 #include <input/input.h>
 #include <dolphin/dolphin.h>
 
@@ -30,6 +29,14 @@ typedef enum {
     EventTypeKey,
 } EventType;
 
+typedef enum { BirdState0 = 0, BirdState1, BirdState2, BirdStateMAX } BirdState;
+
+const Icon* bird_states[BirdStateMAX] = {
+    &I_bird_01,
+    &I_bird_02,
+    &I_bird_03,
+};
+
 typedef struct {
     int x;
     int y;
@@ -38,7 +45,6 @@ typedef struct {
 typedef struct {
     float gravity;
     POINT point;
-    IconAnimation* sprite;
 } BIRD;
 
 typedef struct {
@@ -93,7 +99,6 @@ static void flappy_game_state_init(GameState* const game_state) {
     bird.gravity = 0.0f;
     bird.point.x = 15;
     bird.point.y = 32;
-    bird.sprite = icon_animation_alloc(&A_bird);
 
     game_state->debug = DEBUG;
     game_state->bird = bird;
@@ -106,7 +111,6 @@ static void flappy_game_state_init(GameState* const game_state) {
 }
 
 static void flappy_game_state_free(GameState* const game_state) {
-    icon_animation_free(game_state->bird.sprite);
     free(game_state);
 }
 
@@ -224,14 +228,14 @@ static void flappy_game_render_callback(Canvas* const canvas, void* ctx) {
         }
 
         // Switch animation
-        game_state->bird.sprite->frame = 1;
+        BirdState bird_state = BirdState1;
         if(game_state->bird.gravity < -0.5)
-            game_state->bird.sprite->frame = 0;
+            bird_state = BirdState0;
         else if(game_state->bird.gravity > 0.5)
-            game_state->bird.sprite->frame = 2;
+            bird_state = BirdState2;
 
-        canvas_draw_icon_animation(
-            canvas, game_state->bird.point.x, game_state->bird.point.y, game_state->bird.sprite);
+        canvas_draw_icon(
+            canvas, game_state->bird.point.x, game_state->bird.point.y, bird_states[bird_state]);
 
         canvas_set_font(canvas, FontSecondary);
         char buffer[12];

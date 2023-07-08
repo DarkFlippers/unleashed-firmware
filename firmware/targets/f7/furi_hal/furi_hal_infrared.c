@@ -378,9 +378,6 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
     LL_TIM_EnableAllOutputs(INFRARED_DMA_TIMER);
     LL_TIM_DisableIT_UPDATE(INFRARED_DMA_TIMER);
     LL_TIM_EnableDMAReq_UPDATE(INFRARED_DMA_TIMER);
-
-    NVIC_SetPriority(TIM1_UP_TIM16_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
-    NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
 }
 
 static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {

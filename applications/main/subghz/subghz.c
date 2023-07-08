@@ -112,6 +112,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     // Open Notification record
     subghz->notifications = furi_record_open(RECORD_NOTIFICATION);
 
+    subghz->txrx = subghz_txrx_alloc();
+
     if(!alloc_for_tx_only) {
         // SubMenu
         subghz->submenu = submenu_alloc();
@@ -167,18 +169,12 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             variable_item_list_get_view(subghz->variable_item_list));
 
         // Frequency Analyzer
-        subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc();
+        // View knows too much
+        subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc(subghz->txrx);
         view_dispatcher_add_view(
             subghz->view_dispatcher,
             SubGhzViewIdFrequencyAnalyzer,
             subghz_frequency_analyzer_get_view(subghz->subghz_frequency_analyzer));
-
-        // Carrier Test Module
-        subghz->subghz_test_carrier = subghz_test_carrier_alloc();
-        view_dispatcher_add_view(
-            subghz->view_dispatcher,
-            SubGhzViewIdTestCarrier,
-            subghz_test_carrier_get_view(subghz->subghz_test_carrier));
     }
     // Read RAW
     subghz->subghz_read_raw = subghz_read_raw_alloc(alloc_for_tx_only);
@@ -187,29 +183,11 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
         SubGhzViewIdReadRAW,
         subghz_read_raw_get_view(subghz->subghz_read_raw));
 
-#if FURI_DEBUG
-    // Packet Test
-    subghz->subghz_test_packet = subghz_test_packet_alloc();
-    view_dispatcher_add_view(
-        subghz->view_dispatcher,
-        SubGhzViewIdTestPacket,
-        subghz_test_packet_get_view(subghz->subghz_test_packet));
-
-    // Static send
-    subghz->subghz_test_static = subghz_test_static_alloc();
-    view_dispatcher_add_view(
-        subghz->view_dispatcher,
-        SubGhzViewIdStatic,
-        subghz_test_static_get_view(subghz->subghz_test_static));
-#endif
-
     //init threshold rssi
     subghz->threshold_rssi = subghz_threshold_rssi_alloc();
 
     //init TxRx & Protocol & History & KeyBoard
     subghz_unlock(subghz);
-
-    subghz->txrx = subghz_txrx_alloc();
 
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
@@ -266,21 +244,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     subghz_txrx_stop(subghz->txrx);
     subghz_txrx_sleep(subghz->txrx);
 
-#if FURI_DEBUG
-    // Packet Test
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestPacket);
-    subghz_test_packet_free(subghz->subghz_test_packet);
-
-    // Static
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdStatic);
-    subghz_test_static_free(subghz->subghz_test_static);
-#endif
-
     if(!alloc_for_tx_only) {
-        // Carrier Test
-        view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestCarrier);
-        subghz_test_carrier_free(subghz->subghz_test_carrier);
-
         // Receiver
         view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
         subghz_view_receiver_free(subghz->subghz_receiver);

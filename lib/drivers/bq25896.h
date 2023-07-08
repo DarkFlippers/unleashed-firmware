@@ -9,6 +9,9 @@
 /** Initialize Driver */
 void bq25896_init(FuriHalI2cBusHandle* handle);
 
+/** Set boost lim*/
+void bq25896_set_boost_lim(FuriHalI2cBusHandle* handle, BoostLim boost_lim);
+
 /** Send device into shipping mode */
 void bq25896_poweroff(FuriHalI2cBusHandle* handle);
 
