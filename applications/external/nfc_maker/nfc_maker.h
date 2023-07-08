@@ -8,7 +8,7 @@
 #include <gui/scene_manager.h>
 #include "nfc_maker_icons.h"
 #include <gui/modules/submenu.h>
-#include <gui/modules/text_input.h>
+#include "nfc_maker_text_input.h"
 #include <gui/modules/byte_input.h>
 #include <gui/modules/popup.h>
 #include "scenes/nfc_maker_scene.h"
@@ -42,7 +42,7 @@ typedef struct {
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
     Submenu* submenu;
-    TextInput* text_input;
+    NFCMaker_TextInput* text_input;
     ByteInput* byte_input;
     Popup* popup;
 

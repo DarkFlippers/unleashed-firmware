@@ -22,7 +22,7 @@ void nfc_maker_scene_menu_on_enter(void* context) {
         submenu, "HTTPS Link", NfcMakerSceneHttps, nfc_maker_scene_menu_submenu_callback, app);
 
     submenu_add_item(
-        submenu, "Mail Address", NfcMakerSceneMail, nfc_maker_scene_menu_submenu_callback, app);
+        submenu, "Email Address", NfcMakerSceneMail, nfc_maker_scene_menu_submenu_callback, app);
 
     submenu_add_item(
         submenu, "Phone Number", NfcMakerScenePhone, nfc_maker_scene_menu_submenu_callback, app);
