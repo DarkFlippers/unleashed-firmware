@@ -389,14 +389,6 @@ void spectrum_analyzer_free(SpectrumAnalyzer* instance) {
 
     free(instance->model);
     free(instance);
-
-    furi_hal_subghz_idle();
-    furi_hal_subghz_sleep();
-
-    // Disable power for External CC1101 if it was enabled and module is connected
-    furi_hal_subghz_disable_ext_power();
-    // Reinit SPI handles for internal radio / nfc
-    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 }
 
 int32_t spectrum_analyzer_app(void* p) {
@@ -405,21 +397,18 @@ int32_t spectrum_analyzer_app(void* p) {
     SpectrumAnalyzer* spectrum_analyzer = spectrum_analyzer_alloc();
     InputEvent input;
 
-    // Enable power for External CC1101 if it is connected
-    furi_hal_subghz_enable_ext_power();
-    // Auto switch to internal radio if external radio is not available
-    furi_delay_ms(15);
-    if(!furi_hal_subghz_check_radio()) {
-        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-    }
-
     furi_hal_power_suppress_charge_enter();
 
     FURI_LOG_D("Spectrum", "Main Loop - Starting worker");
     furi_delay_ms(50);
 
     spectrum_analyzer_worker_start(spectrum_analyzer->worker);
+    spectrum_analyzer_calculate_frequencies(spectrum_analyzer->model);
+    spectrum_analyzer_worker_set_frequencies(
+        spectrum_analyzer->worker,
+        spectrum_analyzer->model->channel0_frequency,
+        spectrum_analyzer->model->spacing,
+        spectrum_analyzer->model->width);
 
     FURI_LOG_D("Spectrum", "Main Loop - Wait on queue");
     furi_delay_ms(50);

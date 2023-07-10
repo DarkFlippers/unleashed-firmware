@@ -5,12 +5,14 @@
 
 #pragma once
 
+#include <lib/subghz/devices/preset.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <toolbox/level_duration.h>
 #include <furi_hal_gpio.h>
-#include <furi_hal_spi_types.h>
+// #include <furi_hal_spi_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,18 +23,6 @@ extern "C" {
 #define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL / 2)
 #define API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME 999
 
-/** Radio Presets */
-typedef enum {
-    FuriHalSubGhzPresetIDLE, /**< default configuration */
-    FuriHalSubGhzPresetOok270Async, /**< OOK, bandwidth 270kHz, asynchronous */
-    FuriHalSubGhzPresetOok650Async, /**< OOK, bandwidth 650kHz, asynchronous */
-    FuriHalSubGhzPreset2FSKDev238Async, /**< FM, deviation 2.380371 kHz, asynchronous */
-    FuriHalSubGhzPreset2FSKDev476Async, /**< FM, deviation 47.60742 kHz, asynchronous */
-    FuriHalSubGhzPresetMSK99_97KbAsync, /**< MSK, deviation 47.60742 kHz, 99.97Kb/s, asynchronous */
-    FuriHalSubGhzPresetGFSK9_99KbAsync, /**< GFSK, deviation 19.042969 kHz, 9.996Kb/s, asynchronous */
-    FuriHalSubGhzPresetCustom, /**Custom Preset*/
-} FuriHalSubGhzPreset;
-
 /** Switchable Radio Paths */
 typedef enum {
     FuriHalSubGhzPathIsolate, /**< Isolate Radio from antenna */
@@ -40,50 +30,6 @@ typedef enum {
     FuriHalSubGhzPath315, /**< Center Frequency: 315MHz. Path 2: SW1RF2-SW2RF1, LCLCLCL */
     FuriHalSubGhzPath868, /**< Center Frequency: 868MHz. Path 3: SW1RF3-SW2RF3, LCLC */
 } FuriHalSubGhzPath;
-
-/** SubGhz state */
-typedef enum {
-    SubGhzStateInit, /**< Init pending */
-
-    SubGhzStateIdle, /**< Idle, energy save mode */
-
-    SubGhzStateAsyncRx, /**< Async RX started */
-
-    SubGhzStateAsyncTx, /**< Async TX started, DMA and timer is on */
-    SubGhzStateAsyncTxLast, /**< Async TX continue, DMA completed and timer got last value to go */
-    SubGhzStateAsyncTxEnd, /**< Async TX complete, cleanup needed */
-
-} SubGhzState;
-
-/** SubGhz regulation, receive transmission on the current frequency for the
- * region */
-typedef enum {
-    SubGhzRegulationOnlyRx, /**only Rx*/
-    SubGhzRegulationTxRx, /**TxRx*/
-} SubGhzRegulation;
-
-/** SubGhz radio types */
-typedef enum {
-    SubGhzRadioInternal,
-    SubGhzRadioExternal,
-} SubGhzRadioType;
-
-/** Structure for accessing SubGhz settings*/
-typedef struct {
-    volatile SubGhzState state;
-    volatile SubGhzRegulation regulation;
-    volatile FuriHalSubGhzPreset preset;
-    const GpioPin* async_mirror_pin;
-    SubGhzRadioType radio_type;
-    FuriHalSpiBusHandle* spi_bus_handle;
-    const GpioPin* cc1101_g0_pin;
-    uint8_t rolling_counter_mult;
-    bool ext_module_power_disabled : 1;
-    bool timestamp_file_names : 1;
-    bool dangerous_frequency_i : 1;
-} FuriHalSubGhz;
-
-extern volatile FuriHalSubGhz furi_hal_subghz;
 
 /* Mirror RX/TX async modulation signal to specified pin
  *
@@ -94,18 +40,17 @@ extern volatile FuriHalSubGhz furi_hal_subghz;
  */
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin);
 
+/** Get data GPIO
+ *
+ * @return     pointer to the gpio pin structure
+ */
+const GpioPin* furi_hal_subghz_get_data_gpio();
+
 /** Initialize and switch to power save mode Used by internal API-HAL
  * initialization routine Can be used to reinitialize device to safe state and
  * send it to sleep
  */
 void furi_hal_subghz_init();
-
-/** Initialize and switch to power save mode Used by internal API-HAL
- * initialization routine Can be used to reinitialize device to safe state and
- * send it to sleep
- * @return     true if initialisation is successfully
- */
-bool furi_hal_subghz_init_check(void);
 
 /** Send device to sleep mode
  */
@@ -115,23 +60,17 @@ void furi_hal_subghz_sleep();
  */
 void furi_hal_subghz_dump_state();
 
-/** Load registers from preset by preset name
- *
- * @param      preset  to load
- */
-void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset);
-
 /** Load custom registers from preset
  *
  * @param      preset_data   registers to load
  */
-void furi_hal_subghz_load_custom_preset(uint8_t* preset_data);
+void furi_hal_subghz_load_custom_preset(const uint8_t* preset_data);
 
 /** Load registers
  *
  * @param      data  Registers data
  */
-void furi_hal_subghz_load_registers(uint8_t* data);
+void furi_hal_subghz_load_registers(const uint8_t* data);
 
 /** Load PATABLE
  *
@@ -234,6 +173,16 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value);
  */
 bool furi_hal_subghz_is_tx_allowed(uint32_t value);
 
+/** Get the current rolling protocols counter ++ value
+ * @return    uint8_t current value
+ */
+uint8_t furi_hal_subghz_get_rolling_counter_mult(void);
+
+/** Set the current rolling protocols counter ++ value
+ * @param      mult uint8_t = 1, 2, 4, 8
+ */
+void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult);
+
 /** Set frequency
  *
  * @param      value  frequency in Hz
@@ -289,52 +238,49 @@ bool furi_hal_subghz_is_async_tx_complete();
  */
 void furi_hal_subghz_stop_async_tx();
 
-/** Switching between internal and external radio
- * @param      state SubGhzRadioInternal or SubGhzRadioExternal
- * @return     true if switching is successful
- */
-bool furi_hal_subghz_init_radio_type(SubGhzRadioType state);
+// /** Initialize and switch to power save mode Used by internal API-HAL
+//  * initialization routine Can be used to reinitialize device to safe state and
+//  * send it to sleep
+//  * @return     true if initialisation is successfully
+//  */
+// bool furi_hal_subghz_init_check(void);
 
-/** Get current radio
- * @return     SubGhzRadioInternal or SubGhzRadioExternal
- */
-SubGhzRadioType furi_hal_subghz_get_radio_type(void);
+// /** Switching between internal and external radio
+//  * @param      state SubGhzRadioInternal or SubGhzRadioExternal
+//  * @return     true if switching is successful
+//  */
+// bool furi_hal_subghz_init_radio_type(SubGhzRadioType state);
 
-/** Check for a radio module
- * @return     true if check is successful
- */
-bool furi_hal_subghz_check_radio(void);
+// /** Get current radio
+//  * @return     SubGhzRadioInternal or SubGhzRadioExternal
+//  */
+// SubGhzRadioType furi_hal_subghz_get_radio_type(void);
 
-/** Turn on the power of the external radio module
- * @return     true if power-up is successful
- */
-bool furi_hal_subghz_enable_ext_power(void);
+// /** Check for a radio module
+//  * @return     true if check is successful
+//  */
+// bool furi_hal_subghz_check_radio(void);
 
-/** Turn off the power of the external radio module
- */
-void furi_hal_subghz_disable_ext_power(void);
+// /** Turn on the power of the external radio module
+//  * @return     true if power-up is successful
+//  */
+// bool furi_hal_subghz_enable_ext_power(void);
 
-/** Get the current rolling protocols counter ++ value
- * @return    uint8_t current value
- */
-uint8_t furi_hal_subghz_get_rolling_counter_mult(void);
+// /** Turn off the power of the external radio module
+//  */
+// void furi_hal_subghz_disable_ext_power(void);
 
-/** Set the current rolling protocols counter ++ value
- * @param      mult uint8_t = 1, 2, 4, 8
- */
-void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult);
+// /** If true - disable 5v power of the external radio module
+//  */
+// void furi_hal_subghz_set_external_power_disable(bool state);
 
-/** If true - disable 5v power of the external radio module
- */
-void furi_hal_subghz_set_external_power_disable(bool state);
+// /** Get the current state of the external power disable flag
+//  */
+// bool furi_hal_subghz_get_external_power_disable(void);
 
-/** Get the current state of the external power disable flag
- */
-bool furi_hal_subghz_get_external_power_disable(void);
-
-/** Set what radio module we will be using
- */
-void furi_hal_subghz_select_radio_type(SubGhzRadioType state);
+// /** Set what radio module we will be using
+//  */
+// void furi_hal_subghz_select_radio_type(SubGhzRadioType state);
 
 #ifdef __cplusplus
 }

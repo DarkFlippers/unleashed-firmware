@@ -1,5 +1,6 @@
 #pragma once
 #include <errno.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

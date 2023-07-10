@@ -112,6 +112,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     // Open Notification record
     subghz->notifications = furi_record_open(RECORD_NOTIFICATION);
 
+    subghz->txrx = subghz_txrx_alloc();
+
     if(!alloc_for_tx_only) {
         // SubMenu
         subghz->submenu = submenu_alloc();
@@ -167,7 +169,8 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             variable_item_list_get_view(subghz->variable_item_list));
 
         // Frequency Analyzer
-        subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc();
+        // View knows too much
+        subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc(subghz->txrx);
         view_dispatcher_add_view(
             subghz->view_dispatcher,
             SubGhzViewIdFrequencyAnalyzer,
@@ -185,8 +188,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     //init TxRx & Protocol & History & KeyBoard
     subghz_unlock(subghz);
-
-    subghz->txrx = subghz_txrx_alloc();
 
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
@@ -342,15 +343,6 @@ int32_t subghz_app(void* p) {
         subghz->raw_send_only = false;
     }
 
-    // Call enable power for external module
-    furi_hal_subghz_enable_ext_power();
-
-    // Auto switch to internal radio if external radio is not available
-    if(!furi_hal_subghz_check_radio()) {
-        subghz->last_settings->external_module_enabled = false;
-        furi_hal_subghz_select_radio_type(SubGhzRadioInternal);
-        furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
-    }
     // Check argument and run corresponding scene
     if(p && strlen(p)) {
         uint32_t rpc_ctx = 0;
@@ -403,10 +395,6 @@ int32_t subghz_app(void* p) {
     view_dispatcher_run(subghz->view_dispatcher);
 
     furi_hal_power_suppress_charge_exit();
-    // Disable power for External CC1101 if it was enabled and module is connected
-    furi_hal_subghz_disable_ext_power();
-    // Reinit SPI handles for internal radio / nfc
-    furi_hal_subghz_init_radio_type(SubGhzRadioInternal);
 
     subghz_free(subghz, alloc_for_tx);
 

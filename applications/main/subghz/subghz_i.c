@@ -46,7 +46,7 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
             subghz->dialogs, "Error in protocol\nparameters\ndescription");
         break;
     case SubGhzTxRxStartTxStateErrorOnlyRx:
-        subghz_dialog_message_show_only_rx(subghz);
+        subghz_dialog_message_freq_error(subghz, true);
         break;
 
     default:
@@ -56,12 +56,16 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
     return false;
 }
 
-void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
+void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();
+    const char* header_text = "Frequency not supported";
+    const char* message_text = "Frequency\nis outside of\nsuported range.";
 
-    const char* header_text = "Transmission is blocked";
-    const char* message_text = "Frequency\nis outside of\ndefault range.\nCheck docs.";
+    if(only_rx) {
+        header_text = "Transmission is blocked";
+        message_text = "Frequency\nis outside of\ndefault range.\nCheck docs.";
+    }
 
     dialog_message_set_header(message, header_text, 63, 3, AlignCenter, AlignTop);
     dialog_message_set_text(message, message_text, 0, 17, AlignLeft, AlignTop);
@@ -111,13 +115,14 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        if(!furi_hal_subghz_is_frequency_valid(temp_data32)) {
-            FURI_LOG_E(TAG, "Frequency not supported");
+        if(!subghz_txrx_radio_device_is_frequecy_valid(subghz->txrx, temp_data32)) {
+            FURI_LOG_E(TAG, "Frequency not supported on chosen radio module");
+            load_key_state = SubGhzLoadKeyStateUnsuportedFreq;
             break;
         }
 
-        if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
-            FURI_LOG_E(TAG, "This frequency can only be used for RX");
+        if(!subghz_txrx_radio_device_is_tx_alowed(subghz->txrx, temp_data32)) {
+            FURI_LOG_E(TAG, "This frequency can only be used for RX on chosen radio module");
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
@@ -165,7 +170,8 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
             //if RAW
             subghz->load_type_file = SubGhzLoadTypeFileRaw;
-            subghz_protocol_raw_gen_fff_data(fff_data, file_path);
+            subghz_protocol_raw_gen_fff_data(
+                fff_data, file_path, subghz_txrx_radio_device_get_name(subghz->txrx));
         } else {
             subghz->load_type_file = SubGhzLoadTypeFileKey;
             stream_copy_full(
@@ -206,9 +212,15 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
         return false;
 
+    case SubGhzLoadKeyStateUnsuportedFreq:
+        if(show_dialog) {
+            subghz_dialog_message_freq_error(subghz, false);
+        }
+        return false;
+
     case SubGhzLoadKeyStateOnlyRx:
         if(show_dialog) {
-            subghz_dialog_message_show_only_rx(subghz);
+            subghz_dialog_message_freq_error(subghz, true);
         }
         return false;
 

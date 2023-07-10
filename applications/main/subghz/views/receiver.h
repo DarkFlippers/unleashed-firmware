@@ -33,6 +33,10 @@ void subghz_view_receiver_add_data_statusbar(
     const char* preset_str,
     const char* history_stat_str);
 
+void subghz_view_receiver_set_radio_device_type(
+    SubGhzViewReceiver* subghz_receiver,
+    SubGhzRadioDeviceType device_type);
+
 void subghz_view_receiver_add_data_progress(
     SubGhzViewReceiver* subghz_receiver,
     const char* progress_str);

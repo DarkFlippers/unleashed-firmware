@@ -55,7 +55,9 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_printf(
                 modulation_str,
                 "%s        Mod: %s",
-                furi_hal_subghz_get_radio_type() ? "Ext" : "Int",
+                (subghz_txrx_radio_device_get(subghz->txrx) == SubGhzRadioDeviceTypeInternal) ?
+                    "Int" :
+                    "Ext",
                 furi_string_get_cstr(temp_str));
             furi_string_free(temp_str);
         }
@@ -78,6 +80,9 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
     furi_string_free(history_stat_str);
+
+    subghz_view_receiver_set_radio_device_type(
+        subghz->subghz_receiver, subghz_txrx_radio_device_get(subghz->txrx));
 }
 
 void subghz_scene_receiver_callback(SubGhzCustomEvent event, void* context) {
@@ -253,8 +258,8 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz_scene_receiver_update_statusbar(subghz);
         }
 
-        //get RSSI
-        SubGhzThresholdRssiData ret_rssi = subghz_threshold_get_rssi_data(subghz->threshold_rssi);
+        SubGhzThresholdRssiData ret_rssi = subghz_threshold_get_rssi_data(
+            subghz->threshold_rssi, subghz_txrx_radio_device_get_rssi(subghz->txrx));
 
         subghz_receiver_rssi(subghz->subghz_receiver, ret_rssi.rssi);
         subghz_protocol_decoder_bin_raw_data_input_rssi(

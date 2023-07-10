@@ -10,8 +10,10 @@ typedef struct {
     int32_t preset;
     uint32_t frequency_analyzer_feedback_level;
     float frequency_analyzer_trigger;
+    // TODO not using but saved so as not to change the version
     bool external_module_enabled;
     bool external_module_power_5v_disable;
+    // saved so as not to change the version
     bool timestamp_file_names;
 } SubGhzLastSettings;
 
