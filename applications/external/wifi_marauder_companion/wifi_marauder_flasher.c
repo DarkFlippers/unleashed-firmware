@@ -43,7 +43,7 @@ static esp_loader_error_t _flash_file(WifiMarauderApp* app, char* filepath, uint
     loader_port_debug_print("Start programming\n");
     uint64_t last_updated = size;
     while(size > 0) {
-        if ((last_updated - size) > 50000) {
+        if((last_updated - size) > 50000) {
             // inform user every 50k bytes
             // TODO: draw a progress bar next update
             snprintf(user_msg, sizeof(user_msg), "%llu bytes left.\n", size);
@@ -85,23 +85,33 @@ static void _flash_all_files(WifiMarauderApp* app) {
     esp_loader_error_t err;
     const int num_steps = app->num_selected_flash_options;
 
-    #define NUM_FLASH_ITEMS 6
+#define NUM_FLASH_ITEMS 6
     FlashItem items[NUM_FLASH_ITEMS] = {
-        { SelectedFlashBoot, "bootloader", app->bin_file_path_boot, app->selected_flash_options[SelectedFlashS3Mode] ? ESP_ADDR_BOOT_S3 : ESP_ADDR_BOOT },
-        { SelectedFlashPart, "partition table", app->bin_file_path_part, ESP_ADDR_PART },
-        { SelectedFlashNvs, "NVS", app->bin_file_path_nvs, ESP_ADDR_NVS },
-        { SelectedFlashBootApp0, "boot_app0", app->bin_file_path_boot_app0, ESP_ADDR_BOOT_APP0 },
-        { SelectedFlashApp, "firmware", app->bin_file_path_app, ESP_ADDR_APP },
-        { SelectedFlashCustom, "custom data", app->bin_file_path_custom, 0x0 },
+        {SelectedFlashBoot,
+         "bootloader",
+         app->bin_file_path_boot,
+         app->selected_flash_options[SelectedFlashS3Mode] ? ESP_ADDR_BOOT_S3 : ESP_ADDR_BOOT},
+        {SelectedFlashPart, "partition table", app->bin_file_path_part, ESP_ADDR_PART},
+        {SelectedFlashNvs, "NVS", app->bin_file_path_nvs, ESP_ADDR_NVS},
+        {SelectedFlashBootApp0, "boot_app0", app->bin_file_path_boot_app0, ESP_ADDR_BOOT_APP0},
+        {SelectedFlashApp, "firmware", app->bin_file_path_app, ESP_ADDR_APP},
+        {SelectedFlashCustom, "custom data", app->bin_file_path_custom, 0x0},
         /* if you add more entries, update NUM_FLASH_ITEMS above! */
     };
 
     char user_msg[256];
 
     int current_step = 1;
-    for (FlashItem* item = &items[0]; item < &items[NUM_FLASH_ITEMS]; ++item) {
+    for(FlashItem* item = &items[0]; item < &items[NUM_FLASH_ITEMS]; ++item) {
         if(app->selected_flash_options[item->selected]) {
-            snprintf(user_msg, sizeof(user_msg), "Flashing %s (%d/%d) to address 0x%lx\n", item->description, current_step++, num_steps, item->addr);
+            snprintf(
+                user_msg,
+                sizeof(user_msg),
+                "Flashing %s (%d/%d) to address 0x%lx\n",
+                item->description,
+                current_step++,
+                num_steps,
+                item->addr);
             loader_port_debug_print(user_msg);
             err = _flash_file(app, item->path, item->addr);
             if(err) {
@@ -130,7 +140,7 @@ static int32_t wifi_marauder_flash_bin(void* context) {
         loader_port_debug_print(err_msg);
     }
 
-    #if 0 // still getting packet drops with this
+#if 0 // still getting packet drops with this
     // higher BR
     if(!err) {
         loader_port_debug_print("Increasing speed for faster flash\n");
@@ -146,15 +156,15 @@ static int32_t wifi_marauder_flash_bin(void* context) {
         }
         furi_hal_uart_set_br(FuriHalUartIdUSART1, 230400);
     }
-    #endif
+#endif
 
     if(!err) {
         loader_port_debug_print("Connected\n");
         _flash_all_files(app);
-        #if 0
+#if 0
         loader_port_debug_print("Restoring transmission rate\n");
         furi_hal_uart_set_br(FuriHalUartIdUSART1, 115200);
-        #endif
+#endif
         loader_port_debug_print("Done flashing. Please reset the board manually.\n");
     }
 
