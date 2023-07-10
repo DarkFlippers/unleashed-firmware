@@ -2731,6 +2731,11 @@ Function,+,subghz_block_generic_deserialize,SubGhzProtocolStatus,"SubGhzBlockGen
 Function,+,subghz_block_generic_deserialize_check_count_bit,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, uint16_t"
 Function,+,subghz_block_generic_get_preset_name,void,"const char*, FuriString*"
 Function,+,subghz_block_generic_serialize,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, SubGhzRadioPreset*"
+Function,+,subghz_custom_btn_get,uint8_t,
+Function,+,subghz_custom_btn_get_original,uint8_t,
+Function,+,subghz_custom_btn_is_allowed,_Bool,
+Function,+,subghz_custom_btn_set,_Bool,uint8_t
+Function,+,subghz_custom_btns_reset,void,
 Function,+,subghz_devices_begin,_Bool,const SubGhzDevice*
 Function,+,subghz_devices_deinit,void,
 Function,+,subghz_devices_end,void,const SubGhzDevice*
@@ -2761,11 +2766,6 @@ Function,+,subghz_devices_start_async_tx,_Bool,"const SubGhzDevice*, void*, void
 Function,+,subghz_devices_stop_async_rx,void,const SubGhzDevice*
 Function,+,subghz_devices_stop_async_tx,void,const SubGhzDevice*
 Function,+,subghz_devices_write_packet,void,"const SubGhzDevice*, const uint8_t*, uint8_t"
-Function,+,subghz_custom_btn_get,uint8_t,
-Function,+,subghz_custom_btn_get_original,uint8_t,
-Function,+,subghz_custom_btn_is_allowed,_Bool,
-Function,+,subghz_custom_btn_set,_Bool,uint8_t
-Function,+,subghz_custom_btns_reset,void,
 Function,+,subghz_environment_alloc,SubGhzEnvironment*,
 Function,+,subghz_environment_free,void,SubGhzEnvironment*
 Function,+,subghz_environment_get_alutech_at_4n_rainbow_table_file_name,const char*,SubGhzEnvironment*
@@ -2786,7 +2786,7 @@ Function,+,subghz_file_encoder_worker_free,void,SubGhzFileEncoderWorker*
 Function,+,subghz_file_encoder_worker_get_level_duration,LevelDuration,void*
 Function,+,subghz_file_encoder_worker_get_text_progress,void,"SubGhzFileEncoderWorker*, FuriString*"
 Function,+,subghz_file_encoder_worker_is_running,_Bool,SubGhzFileEncoderWorker*
-Function,+,subghz_file_encoder_worker_start,_Bool,"SubGhzFileEncoderWorker*, const char*"
+Function,+,subghz_file_encoder_worker_start,_Bool,"SubGhzFileEncoderWorker*, const char*, const char*"
 Function,+,subghz_file_encoder_worker_stop,void,SubGhzFileEncoderWorker*
 Function,-,subghz_keystore_alloc,SubGhzKeystore*,
 Function,-,subghz_keystore_free,void,SubGhzKeystore*
