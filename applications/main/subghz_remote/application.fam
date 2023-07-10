@@ -6,6 +6,7 @@ App(
     icon="A_SubGHzRemote_14",
     stack_size=2 * 1024,
     order=11,
+    fap_libs=["assets",],
     fap_icon="icon.png",
     fap_category="Sub-Ghz",
 )
