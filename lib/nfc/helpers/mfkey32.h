@@ -2,6 +2,10 @@
 
 #include <lib/nfc/protocols/mifare_classic.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Mfkey32 Mfkey32;
 
 typedef enum {
@@ -24,3 +28,7 @@ void mfkey32_process_data(
 void mfkey32_set_callback(Mfkey32* instance, Mfkey32ParseDataCallback callback, void* context);
 
 uint16_t mfkey32_get_auth_sectors(FuriString* string);
+
+#ifdef __cplusplus
+}
+#endif
