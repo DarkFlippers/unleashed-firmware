@@ -74,19 +74,6 @@ FIRMWARE_APPS = {
         "updater_app",
         "unit_tests",
     ],
-    "debug_pack": [
-        # Svc
-        "basic_services",
-        # Apps
-        "main_apps_default",
-        "system_apps",
-        # Settings
-        "settings_apps",
-        # Plugins
-        # "basic_plugins",
-        # Debug
-        # "debug_apps",
-    ],
 }
 
 FIRMWARE_APP_SET = "default"

@@ -17,6 +17,12 @@ typedef struct {
     const FlipperInternalApplicationFlag flags;
 } FlipperInternalApplication;
 
+typedef struct {
+    const char* name;
+    const Icon* icon;
+    const char* path;
+} FlipperExternalApplication;
+
 typedef void (*FlipperInternalOnStartHook)(void);
 
 extern const char* FLIPPER_AUTORUN_APP_NAME;
@@ -52,3 +58,9 @@ extern const FlipperInternalApplication FLIPPER_ARCHIVE;
  */
 extern const FlipperInternalApplication FLIPPER_SETTINGS_APPS[];
 extern const size_t FLIPPER_SETTINGS_APPS_COUNT;
+
+/* External Menu Apps list
+ * Spawned by loader
+ */
+extern const FlipperExternalApplication FLIPPER_EXTERNAL_APPS[];
+extern const size_t FLIPPER_EXTERNAL_APPS_COUNT;

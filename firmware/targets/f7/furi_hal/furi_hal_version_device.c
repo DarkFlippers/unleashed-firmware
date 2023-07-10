@@ -19,3 +19,7 @@ const char* furi_hal_version_get_fcc_id() {
 const char* furi_hal_version_get_ic_id() {
     return "27624-FZ";
 }
+
+const char* furi_hal_version_get_mic_id() {
+    return "210-175991";
+}

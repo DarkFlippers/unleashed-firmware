@@ -18,6 +18,7 @@ class FlipperAppType(Enum):
     SETTINGS = "Settings"
     STARTUP = "StartupHook"
     EXTERNAL = "External"
+    MENUEXTERNAL = "MenuExternal"
     METAPACKAGE = "Package"
     PLUGIN = "Plugin"
 
@@ -213,7 +214,7 @@ class AppBuildset:
         appmgr: AppManager,
         appnames: List[str],
         hw_target: str,
-        message_writer: Callable = None,
+        message_writer: Callable | None = None,
     ):
         self.appmgr = appmgr
         self.appnames = set(appnames)
@@ -367,6 +368,11 @@ class ApplicationsCGenerator:
         ),
     }
 
+    APP_EXTERNAL_TYPE = (
+        "FlipperExternalApplication",
+        "FLIPPER_EXTERNAL_APPS",
+    )
+
     def __init__(self, buildset: AppBuildset, autorun_app: str = ""):
         self.buildset = buildset
         self.autorun = autorun_app
@@ -386,6 +392,17 @@ class ApplicationsCGenerator:
      .stack_size = {app.stack_size},
      .icon = {f"&{app.icon}" if app.icon else "NULL"},
      .flags = {'|'.join(f"FlipperInternalApplicationFlag{flag}" for flag in app.flags)} }}"""
+
+    def get_external_app_descr(self, app: FlipperApplication):
+        app_path = "/ext/apps"
+        if app.fap_category:
+            app_path += f"/{app.fap_category}"
+        app_path += f"/{app.appid}.fap"
+        return f"""
+    {{
+     .name = "{app.name}",
+     .icon = {f"&{app.icon}" if app.icon else "NULL"},
+     .path = "{app_path}" }}"""
 
     def generate(self):
         contents = [
@@ -417,5 +434,12 @@ class ApplicationsCGenerator:
                     f"const FlipperInternalApplication FLIPPER_ARCHIVE = {self.get_app_descr(archive_app[0])};",
                 ]
             )
+
+        entry_type, entry_block = self.APP_EXTERNAL_TYPE
+        external_apps = self.buildset.get_apps_of_type(FlipperAppType.MENUEXTERNAL)
+        contents.append(f"const {entry_type} {entry_block}[] = {{")
+        contents.append(",\n".join(map(self.get_external_app_descr, external_apps)))
+        contents.append("};")
+        contents.append(f"const size_t {entry_block}_COUNT = COUNT_OF({entry_block});")
 
         return "\n".join(contents)
