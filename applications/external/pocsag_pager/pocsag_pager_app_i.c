@@ -36,29 +36,34 @@ void pcsg_get_frequency_modulation(
 
 void pcsg_begin(POCSAGPagerApp* app, uint8_t* preset_data) {
     furi_assert(app);
-    UNUSED(preset_data);
-    furi_hal_subghz_reset();
-    furi_hal_subghz_idle();
-    furi_hal_subghz_load_custom_preset(preset_data);
-    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+
+    subghz_devices_reset(app->txrx->radio_device);
+    subghz_devices_idle(app->txrx->radio_device);
+    subghz_devices_load_preset(app->txrx->radio_device, FuriHalSubGhzPresetCustom, preset_data);
+
+    // furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
     app->txrx->txrx_state = PCSGTxRxStateIDLE;
 }
 
 uint32_t pcsg_rx(POCSAGPagerApp* app, uint32_t frequency) {
     furi_assert(app);
-    if(!furi_hal_subghz_is_frequency_valid(frequency)) {
+    if(!subghz_devices_is_frequency_valid(app->txrx->radio_device, frequency)) {
         furi_crash("POCSAGPager: Incorrect RX frequency.");
     }
     furi_assert(
         app->txrx->txrx_state != PCSGTxRxStateRx && app->txrx->txrx_state != PCSGTxRxStateSleep);
 
-    furi_hal_subghz_idle();
-    uint32_t value = furi_hal_subghz_set_frequency_and_path(frequency);
-    furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
-    furi_hal_subghz_flush_rx();
-    furi_hal_subghz_rx();
+    subghz_devices_idle(app->txrx->radio_device);
+    uint32_t value = subghz_devices_set_frequency(app->txrx->radio_device, frequency);
 
-    furi_hal_subghz_start_async_rx(subghz_worker_rx_callback, app->txrx->worker);
+    // Not need. init in subghz_devices_start_async_tx
+    // furi_hal_gpio_init(furi_hal_subghz.cc1101_g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+
+    subghz_devices_flush_rx(app->txrx->radio_device);
+    subghz_devices_set_rx(app->txrx->radio_device);
+
+    subghz_devices_start_async_rx(
+        app->txrx->radio_device, subghz_worker_rx_callback, app->txrx->worker);
     subghz_worker_start(app->txrx->worker);
     app->txrx->txrx_state = PCSGTxRxStateRx;
     return value;
@@ -67,7 +72,7 @@ uint32_t pcsg_rx(POCSAGPagerApp* app, uint32_t frequency) {
 void pcsg_idle(POCSAGPagerApp* app) {
     furi_assert(app);
     furi_assert(app->txrx->txrx_state != PCSGTxRxStateSleep);
-    furi_hal_subghz_idle();
+    subghz_devices_idle(app->txrx->radio_device);
     app->txrx->txrx_state = PCSGTxRxStateIDLE;
 }
 
@@ -76,15 +81,15 @@ void pcsg_rx_end(POCSAGPagerApp* app) {
     furi_assert(app->txrx->txrx_state == PCSGTxRxStateRx);
     if(subghz_worker_is_running(app->txrx->worker)) {
         subghz_worker_stop(app->txrx->worker);
-        furi_hal_subghz_stop_async_rx();
+        subghz_devices_stop_async_rx(app->txrx->radio_device);
     }
-    furi_hal_subghz_idle();
+    subghz_devices_idle(app->txrx->radio_device);
     app->txrx->txrx_state = PCSGTxRxStateIDLE;
 }
 
 void pcsg_sleep(POCSAGPagerApp* app) {
     furi_assert(app);
-    furi_hal_subghz_sleep();
+    subghz_devices_sleep(app->txrx->radio_device);
     app->txrx->txrx_state = PCSGTxRxStateSleep;
 }
 
@@ -110,7 +115,7 @@ void pcsg_hopper_update(POCSAGPagerApp* app) {
     float rssi = -127.0f;
     if(app->txrx->hopper_state != PCSGHopperStateRSSITimeOut) {
         // See RSSI Calculation timings in CC1101 17.3 RSSI
-        rssi = furi_hal_subghz_get_rssi();
+        rssi = subghz_devices_get_rssi(app->txrx->radio_device);
 
         // Stay if RSSI is high enough
         if(rssi > -90.0f) {

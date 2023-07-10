@@ -12,6 +12,8 @@ void pcsg_receiver_rssi(PCSGReceiver* instance, float rssi);
 
 void pcsg_view_receiver_set_lock(PCSGReceiver* pcsg_receiver, PCSGLock keyboard);
 
+void pcsg_view_receiver_set_ext_module_state(PCSGReceiver* pcsg_receiver, bool is_external);
+
 void pcsg_view_receiver_set_callback(
     PCSGReceiver* pcsg_receiver,
     PCSGReceiverCallback callback,

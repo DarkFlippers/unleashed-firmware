@@ -87,6 +87,7 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
         app->view_dispatcher, WifiMarauderAppViewSubmenu, submenu_get_view(app->submenu));
 
     app->flash_mode = false;
+    app->flash_worker_busy = false;
 
     scene_manager_next_scene(app->scene_manager, WifiMarauderSceneStart);
 
