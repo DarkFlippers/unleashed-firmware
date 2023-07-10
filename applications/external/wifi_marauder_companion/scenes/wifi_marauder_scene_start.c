@@ -243,7 +243,6 @@ void wifi_marauder_scene_start_on_enter(void* context) {
 }
 
 bool wifi_marauder_scene_start_on_event(void* context, SceneManagerEvent event) {
-    UNUSED(context);
     WifiMarauderApp* app = context;
     bool consumed = false;
 
