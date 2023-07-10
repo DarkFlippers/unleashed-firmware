@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Default btn ID
 #define SUBGHZ_CUSTOM_BTN_OK (0U)
 #define SUBGHZ_CUSTOM_BTN_UP (1U)
@@ -20,3 +24,7 @@ uint8_t subghz_custom_btn_get_original();
 void subghz_custom_btns_reset();
 
 bool subghz_custom_btn_is_allowed();
+
+#ifdef __cplusplus
+}
+#endif
