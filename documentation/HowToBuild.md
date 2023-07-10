@@ -31,11 +31,9 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 
 ### Compile everything for development
 
-Edit this file to enable/disable Main apps that you need in DEBUG mode, flash space doesn't allows us to fit them all in DEBUG currently
-- `applications/main/application.fam`
 
 ```sh
-./fbt FIRMWARE_APP_SET=debug_pack updater_package
+./fbt updater_package
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
@@ -55,11 +53,9 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 
 ### Compile everything for development
 
-Edit this file to enable/disable Main apps that you need in DEBUG mode, flash space doesn't allows us to fit them all in DEBUG currently
-- `applications/main/application.fam`
 
 ```sh
-./fbt.cmd FIRMWARE_APP_SET=debug_pack updater_package
+./fbt.cmd updater_package
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
