@@ -1,27 +1,21 @@
 App(
     appid="lfrfid",
     name="125 kHz RFID",
-    apptype=FlipperAppType.APP,
+    apptype=FlipperAppType.MENUEXTERNAL,
     targets=["f7"],
     entry_point="lfrfid_app",
-    cdefines=["APP_LF_RFID"],
-    requires=[
-        "gui",
-        "dialogs",
-    ],
-    provides=[
-        "lfrfid_start",
-    ],
     icon="A_125khz_14",
     stack_size=2 * 1024,
     order=20,
     fap_libs=["assets"],
+    fap_icon="icon.png",
+    fap_category="RFID",
 )
 
 App(
     appid="lfrfid_start",
+    targets=["f7"],
     apptype=FlipperAppType.STARTUP,
     entry_point="lfrfid_on_system_start",
-    requires=["lfrfid"],
     order=50,
 )

@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     uint32_t odd;
     uint32_t even;
@@ -35,3 +39,7 @@ void crypto1_encrypt(
     uint16_t plain_data_bits,
     uint8_t* encrypted_data,
     uint8_t* encrypted_parity);
+
+#ifdef __cplusplus
+}
+#endif

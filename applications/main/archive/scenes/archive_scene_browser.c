@@ -5,13 +5,14 @@
 #include "../helpers/archive_browser.h"
 #include "../views/archive_browser_view.h"
 #include "archive/scenes/archive_scene.h"
+#include <applications.h>
 
 #define TAG "ArchiveSceneBrowser"
 
 #define SCENE_STATE_DEFAULT (0)
 #define SCENE_STATE_NEED_REFRESH (1)
 
-const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {
+static const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {
     switch(file_type) {
     case ArchiveFileTypeIButton:
         return "iButton";

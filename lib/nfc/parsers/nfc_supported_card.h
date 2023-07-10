@@ -4,6 +4,10 @@
 #include "../nfc_worker.h"
 #include "../nfc_device.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     NfcSupportedCardTypePlantain,
     NfcSupportedCardTypeTroika,
@@ -37,3 +41,7 @@ bool nfc_supported_card_verify_and_parse(NfcDeviceData* dev_data);
 // support the card. This is needed for DESFire card parsers which can't
 // provide keys, and only use NfcSupportedCard->parse.
 bool stub_parser_verify_read(NfcWorker* nfc_worker, FuriHalNfcTxRxContext* tx_rx);
+
+#ifdef __cplusplus
+}
+#endif
