@@ -6,6 +6,11 @@ env.Append(
     ],
     SDK_HEADERS=[
         File("nfc_device.h"),
+        File("nfc_worker.h"),
+        File("nfc_types.h"),
+        File("helpers/mfkey32.h"),
+        File("parsers/nfc_supported_card.h"),
+        File("helpers/nfc_generators.h"),
         File("protocols/nfc_util.h"),
     ],
 )

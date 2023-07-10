@@ -1,24 +1,21 @@
 App(
     appid="nfc",
     name="NFC",
-    apptype=FlipperAppType.APP,
+    apptype=FlipperAppType.MENUEXTERNAL,
     targets=["f7"],
     entry_point="nfc_app",
-    cdefines=["APP_NFC"],
-    requires=[
-        "gui",
-        "dialogs",
-    ],
-    provides=["nfc_start"],
     icon="A_NFC_14",
     stack_size=5 * 1024,
     order=30,
+    fap_libs=["assets"],
+    fap_icon="icon.png",
+    fap_category="NFC",
 )
 
 App(
     appid="nfc_start",
+    targets=["f7"],
     apptype=FlipperAppType.STARTUP,
     entry_point="nfc_on_system_start",
-    requires=["nfc"],
     order=30,
 )
