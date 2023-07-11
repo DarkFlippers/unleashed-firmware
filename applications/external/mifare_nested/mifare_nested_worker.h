@@ -66,6 +66,7 @@ typedef struct {
     uint32_t target_ks[2];
     uint8_t parity[2][4];
     bool skipped;
+    bool from_start;
     bool invalid;
     bool collected;
     bool hardnested;

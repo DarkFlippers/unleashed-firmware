@@ -18,12 +18,15 @@ bool mifare_nested_collecting_worker_callback(MifareNestedWorkerEvent event, voi
         mifare_nested_blink_nonce_collection_start(mifare_nested);
 
         uint8_t collected = 0;
+        uint8_t skip = 0;
         NonceList_t* nonces = mifare_nested->nonces;
         for(uint8_t tries = 0; tries < nonces->tries; tries++) {
             for(uint8_t sector = 0; sector < nonces->sector_count; sector++) {
                 for(uint8_t keyType = 0; keyType < 2; keyType++) {
                     Nonces* info = nonces->nonces[sector][keyType][tries];
-                    if(info->collected) {
+                    if(info->from_start) {
+                        skip++;
+                    } else if(info->collected) {
                         collected++;
                     }
                 }
@@ -37,7 +40,7 @@ bool mifare_nested_collecting_worker_callback(MifareNestedWorkerEvent event, voi
                 model->calibrating = false;
                 model->lost_tag = false;
                 model->nonces_collected = collected;
-                model->keys_count = nonces->sector_count * nonces->tries * 2;
+                model->keys_count = (nonces->sector_count * nonces->tries * 2) - skip;
             },
             true);
     } else if(event == MifareNestedWorkerEventNoTagDetected) {

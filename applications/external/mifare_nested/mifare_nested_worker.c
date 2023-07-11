@@ -578,6 +578,7 @@ bool mifare_nested_worker_check_initial_keys(
                 info->block = mifare_nested_worker_get_block_by_sector(sector);
                 info->collected = false;
                 info->skipped = true;
+                info->from_start = false;
 
                 nonces->nonces[sector][key_type][tries] = info;
             }
@@ -595,6 +596,7 @@ bool mifare_nested_worker_check_initial_keys(
                 Nonces* info = nonces->nonces[sector][0][tries];
                 info->collected = true;
                 info->skipped = true;
+                info->from_start = true;
 
                 nonces->nonces[sector][0][tries] = info;
             }
@@ -616,6 +618,7 @@ bool mifare_nested_worker_check_initial_keys(
                 Nonces* info = nonces->nonces[sector][1][tries];
                 info->collected = true;
                 info->skipped = true;
+                info->from_start = true;
 
                 nonces->nonces[sector][1][tries] = info;
             }
