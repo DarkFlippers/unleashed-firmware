@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,6 +87,23 @@ void furi_log_set_puts(FuriLogPuts puts);
  * @param[in]  timestamp  The timestamp callback
  */
 void furi_log_set_timestamp(FuriLogTimestamp timestamp);
+
+/** Log level to string
+ *
+ * @param[in]  level  The level
+ *
+ * @return     The string
+ */
+bool furi_log_level_to_string(FuriLogLevel level, const char** str);
+
+/** Log level from string
+ *
+ * @param[in]  str    The string
+ * @param      level  The level
+ * 
+ * @return     True if success, False otherwise
+ */
+bool furi_log_level_from_string(const char* str, FuriLogLevel* level);
 
 /** Log methods
  *
