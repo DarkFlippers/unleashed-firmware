@@ -1,4 +1,4 @@
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 #include "../helpers/camera_suite_custom_event.h"
 #include "../helpers/camera_suite_haptic.h"
 #include "../helpers/camera_suite_led.h"

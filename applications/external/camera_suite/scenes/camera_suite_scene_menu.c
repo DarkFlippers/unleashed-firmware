@@ -1,4 +1,4 @@
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 
 enum SubmenuIndex {
     /** Atkinson Dithering Algorithm. */

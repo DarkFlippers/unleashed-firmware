@@ -1,5 +1,5 @@
 #include "camera_suite_led.h"
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 
 void camera_suite_led_set_rgb(void* context, int red, int green, int blue) {
     CameraSuite* app = context;
@@ -34,5 +34,5 @@ void camera_suite_led_reset(void* context) {
     notification_message(app->notification, &sequence_reset_green);
     notification_message(app->notification, &sequence_reset_blue);
     //Delay, prevent removal from RAM before LED value set.
-    furi_thread_flags_wait(0, FuriFlagWaitAny, 300); 
+    furi_thread_flags_wait(0, FuriFlagWaitAny, 300);
 }

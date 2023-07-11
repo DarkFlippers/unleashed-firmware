@@ -1,4 +1,4 @@
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>

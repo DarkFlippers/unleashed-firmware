@@ -1,5 +1,5 @@
 #include "camera_suite_speaker.h"
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 
 #define NOTE_INPUT 587.33f
 

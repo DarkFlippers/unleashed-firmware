@@ -1,4 +1,4 @@
-#include "camera-suite.h"
+#include "camera_suite.h"
 #include <stdlib.h>
 
 bool camera_suite_custom_event_callback(void* context, uint32_t event) {

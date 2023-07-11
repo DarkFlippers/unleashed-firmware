@@ -1,35 +1,34 @@
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 #include "../helpers/camera_suite_custom_event.h"
-#include "../views/camera_suite_view_style_1.h"
+#include "../views/camera_suite_view_guide.h"
 
-static void camera_suite_view_style_1_callback(CameraSuiteCustomEvent event, void* context) {
+void camera_suite_view_guide_callback(CameraSuiteCustomEvent event, void* context) {
     furi_assert(context);
     CameraSuite* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
-void camera_suite_scene_style_1_on_enter(void* context) {
+void camera_suite_scene_guide_on_enter(void* context) {
     furi_assert(context);
     CameraSuite* app = context;
-    camera_suite_view_style_1_set_callback(
-        app->camera_suite_view_style_1, camera_suite_view_style_1_callback, app);
-    view_dispatcher_switch_to_view(app->view_dispatcher, CameraSuiteViewIdScene1);
+    camera_suite_view_guide_set_callback(
+        app->camera_suite_view_guide, camera_suite_view_guide_callback, app);
+    view_dispatcher_switch_to_view(app->view_dispatcher, CameraSuiteViewIdGuide);
 }
 
-bool camera_suite_scene_style_1_on_event(void* context, SceneManagerEvent event) {
+bool camera_suite_scene_guide_on_event(void* context, SceneManagerEvent event) {
     CameraSuite* app = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case CameraSuiteCustomEventSceneStyle1Left:
-        case CameraSuiteCustomEventSceneStyle1Right:
-        case CameraSuiteCustomEventSceneStyle1Up:
-        case CameraSuiteCustomEventSceneStyle1Down:
-        case CameraSuiteCustomEventSceneStyle1Ok:
+        case CameraSuiteCustomEventSceneGuideLeft:
+        case CameraSuiteCustomEventSceneGuideRight:
+        case CameraSuiteCustomEventSceneGuideUp:
+        case CameraSuiteCustomEventSceneGuideDown:
             // Do nothing.
             break;
-        case CameraSuiteCustomEventSceneStyle1Back:
+        case CameraSuiteCustomEventSceneGuideBack:
             notification_message(app->notification, &sequence_reset_red);
             notification_message(app->notification, &sequence_reset_green);
             notification_message(app->notification, &sequence_reset_blue);
@@ -46,7 +45,7 @@ bool camera_suite_scene_style_1_on_event(void* context, SceneManagerEvent event)
     return consumed;
 }
 
-void camera_suite_scene_style_1_on_exit(void* context) {
+void camera_suite_scene_guide_on_exit(void* context) {
     CameraSuite* app = context;
     UNUSED(app);
 }

@@ -1,5 +1,5 @@
 #include "camera_suite_haptic.h"
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 
 void camera_suite_play_happy_bump(void* context) {
     CameraSuite* app = context;

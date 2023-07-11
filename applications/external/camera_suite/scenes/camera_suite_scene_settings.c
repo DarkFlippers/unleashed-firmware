@@ -1,4 +1,4 @@
-#include "../camera-suite.h"
+#include "../camera_suite.h"
 #include <lib/toolbox/value_index.h>
 
 // Camera orientation, in degrees.
