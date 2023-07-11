@@ -175,24 +175,23 @@ void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* conte
     furi_stream_buffer_send(context, buffer, size, 0);
 }
 
-void cli_command_log_level_set_from_string(FuriString* level) {
-    if(furi_string_cmpi_str(level, "default") == 0) {
-        furi_log_set_level(FuriLogLevelDefault);
-    } else if(furi_string_cmpi_str(level, "none") == 0) {
-        furi_log_set_level(FuriLogLevelNone);
-    } else if(furi_string_cmpi_str(level, "error") == 0) {
-        furi_log_set_level(FuriLogLevelError);
-    } else if(furi_string_cmpi_str(level, "warn") == 0) {
-        furi_log_set_level(FuriLogLevelWarn);
-    } else if(furi_string_cmpi_str(level, "info") == 0) {
-        furi_log_set_level(FuriLogLevelInfo);
-    } else if(furi_string_cmpi_str(level, "debug") == 0) {
-        furi_log_set_level(FuriLogLevelDebug);
-    } else if(furi_string_cmpi_str(level, "trace") == 0) {
-        furi_log_set_level(FuriLogLevelTrace);
+bool cli_command_log_level_set_from_string(FuriString* level) {
+    FuriLogLevel log_level;
+    if(furi_log_level_from_string(furi_string_get_cstr(level), &log_level)) {
+        furi_log_set_level(log_level);
+        return true;
     } else {
-        printf("Unknown log level\r\n");
+        printf("<log> — start logging using the current level from the system settings\r\n");
+        printf("<log error> — only critical errors and other important messages\r\n");
+        printf("<log warn> — non-critical errors and warnings including <log error>\r\n");
+        printf("<log info> — non-critical information including <log warn>\r\n");
+        printf("<log default> — the default system log level (equivalent to <log info>)\r\n");
+        printf(
+            "<log debug> — debug information including <log info> (may impact system performance)\r\n");
+        printf(
+            "<log trace> — system traces including <log debug> (may impact system performance)\r\n");
     }
+    return false;
 }
 
 void cli_command_log(Cli* cli, FuriString* args, void* context) {
@@ -203,12 +202,20 @@ void cli_command_log(Cli* cli, FuriString* args, void* context) {
     bool restore_log_level = false;
 
     if(furi_string_size(args) > 0) {
-        cli_command_log_level_set_from_string(args);
+        if(!cli_command_log_level_set_from_string(args)) {
+            furi_stream_buffer_free(ring);
+            return;
+        }
         restore_log_level = true;
     }
 
+    const char* current_level;
+    furi_log_level_to_string(furi_log_get_level(), &current_level);
+    printf("Current log level: %s\r\n", current_level);
+
     furi_hal_console_set_tx_callback(cli_command_log_tx_callback, ring);
 
+    printf("Use <log ?> to list available log levels\r\n");
     printf("Press CTRL+C to stop...\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
         size_t ret = furi_stream_buffer_receive(ring, buffer, CLI_COMMAND_LOG_BUFFER_SIZE, 50);
