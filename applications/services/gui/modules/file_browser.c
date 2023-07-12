@@ -303,6 +303,12 @@ static bool browser_is_list_load_required(FileBrowserModel* model) {
     return false;
 }
 
+static void browser_list_rollover(FileBrowserModel* model) {
+    if(!model->list_loading && items_array_size(model->items) < model->item_cnt) {
+        items_array_reset(model->items);
+    }
+}
+
 static void browser_update_offset(FileBrowser* browser) {
     furi_assert(browser);
 
@@ -385,7 +391,7 @@ static void browser_list_load_cb(void* context, uint32_t list_load_offset) {
                 }
             }
         },
-        true);
+        false);
 
     BrowserItem_t_clear(&back_item);
 }
@@ -425,14 +431,15 @@ static void
                 (browser->hide_ext) && (item.type == BrowserItemTypeFile));
         }
 
+        // We shouldn't update screen on each item if custom callback is not set
+        // Otherwise it will cause screen flickering
+        bool instant_update = (browser->item_callback != NULL);
         with_view_model(
             browser->view,
             FileBrowserModel * model,
-            {
-                items_array_push_back(model->items, item);
-                // TODO: calculate if element is visible
-            },
-            true);
+            { items_array_push_back(model->items, item); },
+            instant_update);
+
         furi_string_free(item.display_name);
         furi_string_free(item.path);
         if(item.custom_icon_data) {
@@ -440,7 +447,18 @@ static void
         }
     } else {
         with_view_model(
-            browser->view, FileBrowserModel * model, { model->list_loading = false; }, true);
+            browser->view,
+            FileBrowserModel * model,
+            {
+                model->list_loading = false;
+                if(browser_is_list_load_required(model)) {
+                    model->list_loading = true;
+                    int32_t load_offset = CLAMP(
+                        model->item_idx - ITEM_LIST_LEN_MAX / 2, (int32_t)model->item_cnt, 0);
+                    file_browser_worker_load(browser->worker, load_offset, ITEM_LIST_LEN_MAX);
+                }
+            },
+            true);
     }
 }
 
@@ -604,11 +622,13 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
                         if(model->item_idx < scroll_speed) {
                             model->button_held_for_ticks = 0;
                             model->item_idx = model->item_cnt - 1;
+                            browser_list_rollover(model);
                         } else {
                             model->item_idx =
                                 ((model->item_idx - scroll_speed) + model->item_cnt) %
                                 model->item_cnt;
                         }
+
                         if(browser_is_list_load_required(model)) {
                             model->list_loading = true;
                             int32_t load_offset = CLAMP(
@@ -622,13 +642,14 @@ static bool file_browser_view_input_callback(InputEvent* event, void* context) {
 
                         model->button_held_for_ticks += 1;
                     } else if(event->key == InputKeyDown) {
-                        int32_t count = model->item_cnt;
-                        if(model->item_idx + scroll_speed >= count) {
+                        if(model->item_idx + scroll_speed >= (int32_t)model->item_cnt) {
                             model->button_held_for_ticks = 0;
                             model->item_idx = 0;
+                            browser_list_rollover(model);
                         } else {
                             model->item_idx = (model->item_idx + scroll_speed) % model->item_cnt;
                         }
+
                         if(browser_is_list_load_required(model)) {
                             model->list_loading = true;
                             int32_t load_offset = CLAMP(
