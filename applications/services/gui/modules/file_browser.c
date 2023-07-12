@@ -487,25 +487,33 @@ static void browser_list_item_cb(
             browser->view,
             FileBrowserModel * model,
             {
-                if(model->item_cnt <= BROWSER_SORT_THRESHOLD) {
-                    FuriString* selected = NULL;
-                    if(model->item_idx > 0) {
-                        selected = furi_string_alloc_set(
-                            items_array_get(model->items, model->item_idx)->path);
-                    }
+                model->list_loading = false;
+                if(browser_is_list_load_required(model)) {
+                    model->list_loading = true;
+                    int32_t load_offset = CLAMP(
+                        model->item_idx - ITEM_LIST_LEN_MAX / 2, (int32_t)model->item_cnt, 0);
+                    file_browser_worker_load(browser->worker, load_offset, ITEM_LIST_LEN_MAX);
 
-                    items_array_sort(model->items);
+                    if(model->item_cnt <= BROWSER_SORT_THRESHOLD) {
+                        FuriString* selected = NULL;
+                        if(model->item_idx > 0) {
+                            selected = furi_string_alloc_set(
+                                items_array_get(model->items, model->item_idx)->path);
+                        }
 
-                    if(selected != NULL) {
-                        for(uint32_t i = 0; i < model->item_cnt; i++) {
-                            if(!furi_string_cmp(items_array_get(model->items, i)->path, selected)) {
-                                model->item_idx = i;
-                                break;
+                        items_array_sort(model->items);
+
+                        if(selected != NULL) {
+                            for(uint32_t i = 0; i < model->item_cnt; i++) {
+                                if(!furi_string_cmp(
+                                       items_array_get(model->items, i)->path, selected)) {
+                                    model->item_idx = i;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-                model->list_loading = false;
             },
             false);
         browser_update_offset(browser);
