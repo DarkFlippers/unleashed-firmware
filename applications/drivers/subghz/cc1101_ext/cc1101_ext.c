@@ -87,6 +87,7 @@ static bool subghz_device_cc1101_ext_check_init() {
     subghz_device_cc1101_ext->state = SubGhzDeviceCC1101ExtStateIdle;
 
     bool ret = false;
+    CC1101Status cc1101_status = {0};
 
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     FuriHalCortexTimer timer = furi_hal_cortex_timer_get(100 * 1000);
@@ -94,16 +95,34 @@ static bool subghz_device_cc1101_ext_check_init() {
         // Reset
         furi_hal_gpio_init(
             subghz_device_cc1101_ext->g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-        cc1101_reset(subghz_device_cc1101_ext->spi_bus_handle);
-        cc1101_write_reg(
-            subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+        furi_hal_gpio_init(
+            subghz_device_cc1101_ext->spi_bus_handle->miso,
+            GpioModeInput,
+            GpioPullUp,
+            GpioSpeedLow);
 
+        cc1101_status = cc1101_reset(subghz_device_cc1101_ext->spi_bus_handle);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
+        cc1101_status = cc1101_write_reg(
+            subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
         // Prepare GD0 for power on self test
         furi_hal_gpio_init(
-            subghz_device_cc1101_ext->g0_pin, GpioModeInput, GpioPullNo, GpioSpeedLow);
+            subghz_device_cc1101_ext->g0_pin, GpioModeInput, GpioPullUp, GpioSpeedLow);
 
         // GD0 low
-        cc1101_write_reg(subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHW);
+        cc1101_status = cc1101_write_reg(
+            subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHW);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
         while(furi_hal_gpio_read(subghz_device_cc1101_ext->g0_pin) != false) {
             if(furi_hal_cortex_timer_is_expired(timer)) {
                 //timeout
@@ -116,10 +135,16 @@ static bool subghz_device_cc1101_ext_check_init() {
         }
 
         // GD0 high
-        cc1101_write_reg(
+        furi_hal_gpio_init(
+            subghz_device_cc1101_ext->g0_pin, GpioModeInput, GpioPullDown, GpioSpeedLow);
+        cc1101_status = cc1101_write_reg(
             subghz_device_cc1101_ext->spi_bus_handle,
             CC1101_IOCFG0,
             CC1101IocfgHW | CC1101_IOCFG_INV);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
         while(furi_hal_gpio_read(subghz_device_cc1101_ext->g0_pin) != true) {
             if(furi_hal_cortex_timer_is_expired(timer)) {
                 //timeout
@@ -132,17 +157,21 @@ static bool subghz_device_cc1101_ext_check_init() {
         }
 
         // Reset GD0 to floating state
-        cc1101_write_reg(
+        cc1101_status = cc1101_write_reg(
             subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
         furi_hal_gpio_init(
             subghz_device_cc1101_ext->g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 
-        // RF switches
-        furi_hal_gpio_init(&gpio_rf_sw_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-        cc1101_write_reg(subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHW);
-
         // Go to sleep
-        cc1101_shutdown(subghz_device_cc1101_ext->spi_bus_handle);
+        cc1101_status = cc1101_shutdown(subghz_device_cc1101_ext->spi_bus_handle);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
         ret = true;
     } while(false);
 
@@ -152,6 +181,8 @@ static bool subghz_device_cc1101_ext_check_init() {
         FURI_LOG_I(TAG, "Init OK");
     } else {
         FURI_LOG_E(TAG, "Init failed");
+        furi_hal_gpio_init(
+            subghz_device_cc1101_ext->g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     }
     return ret;
 }

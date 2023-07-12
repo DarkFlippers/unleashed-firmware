@@ -1,5 +1,4 @@
 #include "storage_processing.h"
-#include "storage_sorting.h"
 #include <m-list.h>
 #include <m-dict.h>
 
@@ -101,7 +100,7 @@ static FS_Error storage_get_data(Storage* app, FuriString* path, StorageData** s
 
 /******************* File Functions *******************/
 
-static bool storage_process_file_open(
+bool storage_process_file_open(
     Storage* app,
     File* file,
     FuriString* path,
@@ -128,7 +127,7 @@ static bool storage_process_file_open(
     return ret;
 }
 
-static bool storage_process_file_close(Storage* app, File* file) {
+bool storage_process_file_close(Storage* app, File* file) {
     bool ret = false;
     StorageData* storage = get_storage_by_file(file, app->storage);
 
@@ -261,149 +260,9 @@ static bool storage_process_file_eof(Storage* app, File* file) {
     return ret;
 }
 
-/*************** Sorting Dir Functions ***************/
-
-static bool storage_process_dir_rewind_internal(StorageData* storage, File* file);
-static bool storage_process_dir_read_internal(
-    StorageData* storage,
-    File* file,
-    FileInfo* fileinfo,
-    char* name,
-    const uint16_t name_length);
-
-static int storage_sorted_file_record_compare(const void* sorted_a, const void* sorted_b) {
-    SortedFileRecord* a = (SortedFileRecord*)sorted_a;
-    SortedFileRecord* b = (SortedFileRecord*)sorted_b;
-
-    if(a->info.flags & FSF_DIRECTORY && !(b->info.flags & FSF_DIRECTORY))
-        return -1;
-    else if(!(a->info.flags & FSF_DIRECTORY) && b->info.flags & FSF_DIRECTORY)
-        return 1;
-    else
-        return furi_string_cmpi(a->name, b->name);
-}
-
-static bool storage_sorted_dir_read_next(
-    SortedDir* dir,
-    FileInfo* fileinfo,
-    char* name,
-    const uint16_t name_length) {
-    bool ret = false;
-
-    if(dir->index < dir->count) {
-        SortedFileRecord* sorted = &dir->sorted[dir->index];
-        if(fileinfo) {
-            *fileinfo = sorted->info;
-        }
-        if(name) {
-            strncpy(name, furi_string_get_cstr(sorted->name), name_length);
-        }
-        dir->index++;
-        ret = true;
-    }
-
-    return ret;
-}
-
-static void storage_sorted_dir_rewind(SortedDir* dir) {
-    dir->index = 0;
-}
-
-static bool storage_sorted_dir_prepare(SortedDir* dir, StorageData* storage, File* file) {
-    bool ret = true;
-    dir->count = 0;
-    dir->index = 0;
-    FileInfo info;
-    char name[SORTING_MAX_NAME_LENGTH + 1] = {0};
-
-    furi_check(!dir->sorted);
-
-    while(storage_process_dir_read_internal(storage, file, &info, name, SORTING_MAX_NAME_LENGTH)) {
-        if(memmgr_get_free_heap() < SORTING_MIN_FREE_MEMORY) {
-            ret = false;
-            break;
-        }
-
-        if(dir->count == 0) { //-V547
-            dir->sorted = malloc(sizeof(SortedFileRecord));
-        } else {
-            // Our realloc actually mallocs a new block and copies the data over,
-            // so we need to check if we have enough memory for the new block
-            size_t size = sizeof(SortedFileRecord) * (dir->count + 1);
-            if(memmgr_heap_get_max_free_block() >= size) {
-                dir->sorted =
-                    realloc(dir->sorted, sizeof(SortedFileRecord) * (dir->count + 1)); //-V701
-            } else {
-                ret = false;
-                break;
-            }
-        }
-
-        dir->sorted[dir->count].name = furi_string_alloc_set(name);
-        dir->sorted[dir->count].info = info;
-        dir->count++;
-    }
-
-    return ret;
-}
-
-static void storage_sorted_dir_sort(SortedDir* dir) {
-    qsort(dir->sorted, dir->count, sizeof(SortedFileRecord), storage_sorted_file_record_compare);
-}
-
-static void storage_sorted_dir_clear_data(SortedDir* dir) {
-    if(dir->sorted != NULL) {
-        for(size_t i = 0; i < dir->count; i++) {
-            furi_string_free(dir->sorted[i].name);
-        }
-
-        free(dir->sorted);
-        dir->sorted = NULL;
-    }
-}
-
-static void storage_file_remove_sort_data(File* file) {
-    if(file->sort_data != NULL) {
-        storage_sorted_dir_clear_data(file->sort_data);
-        free(file->sort_data);
-        file->sort_data = NULL;
-    }
-}
-
-static void storage_file_add_sort_data(File* file, StorageData* storage) {
-    file->sort_data = malloc(sizeof(SortedDir));
-    if(storage_sorted_dir_prepare(file->sort_data, storage, file)) {
-        storage_sorted_dir_sort(file->sort_data);
-    } else {
-        storage_file_remove_sort_data(file);
-        storage_process_dir_rewind_internal(storage, file);
-    }
-}
-
-static bool storage_file_has_sort_data(File* file) {
-    return file->sort_data != NULL;
-}
-
 /******************* Dir Functions *******************/
 
-static bool storage_process_dir_read_internal(
-    StorageData* storage,
-    File* file,
-    FileInfo* fileinfo,
-    char* name,
-    const uint16_t name_length) {
-    bool ret = false;
-    FS_CALL(storage, dir.read(storage, file, fileinfo, name, name_length));
-    return ret;
-}
-
-static bool storage_process_dir_rewind_internal(StorageData* storage, File* file) {
-    bool ret = false;
-    FS_CALL(storage, dir.rewind(storage, file));
-    return ret;
-}
-
-static bool storage_process_dir_open(Storage* app, File* file, FuriString* path) {
+bool storage_process_dir_open(Storage* app, File* file, FuriString* path) {
     bool ret = false;
     StorageData* storage;
     file->error_id = storage_get_data(app, path, &storage);
@@ -414,17 +273,13 @@ static bool storage_process_dir_open(Storage* app, File* file, FuriString* path)
         } else {
             storage_push_storage_file(file, path, storage);
             FS_CALL(storage, dir.open(storage, file, cstr_path_without_vfs_prefix(path)));
-
-            if(file->error_id == FSE_OK) {
-                storage_file_add_sort_data(file, storage);
-            }
         }
     }
 
     return ret;
 }
 
-static bool storage_process_dir_close(Storage* app, File* file) {
+bool storage_process_dir_close(Storage* app, File* file) {
     bool ret = false;
     StorageData* storage = get_storage_by_file(file, app->storage);
 
@@ -432,7 +287,6 @@ static bool storage_process_dir_close(Storage* app, File* file) {
         file->error_id = FSE_INVALID_PARAMETER;
     } else {
         FS_CALL(storage, dir.close(storage, file));
-        storage_file_remove_sort_data(file);
         storage_pop_storage_file(file, storage);
 
         StorageEvent event = {.type = StorageEventTypeDirClose};
@@ -442,7 +296,7 @@ static bool storage_process_dir_close(Storage* app, File* file) {
     return ret;
 }
 
-static bool storage_process_dir_read(
+bool storage_process_dir_read(
     Storage* app,
     File* file,
     FileInfo* fileinfo,
@@ -454,34 +308,20 @@ static bool storage_process_dir_read(
     if(storage == NULL) {
         file->error_id = FSE_INVALID_PARAMETER;
     } else {
-        if(storage_file_has_sort_data(file)) {
-            ret = storage_sorted_dir_read_next(file->sort_data, fileinfo, name, name_length);
-            if(ret) {
-                file->error_id = FSE_OK;
-            } else {
-                file->error_id = FSE_NOT_EXIST;
-            }
-        } else {
-            ret = storage_process_dir_read_internal(storage, file, fileinfo, name, name_length);
-        }
+        FS_CALL(storage, dir.read(storage, file, fileinfo, name, name_length));
     }
 
     return ret;
 }
 
-static bool storage_process_dir_rewind(Storage* app, File* file) {
+bool storage_process_dir_rewind(Storage* app, File* file) {
     bool ret = false;
     StorageData* storage = get_storage_by_file(file, app->storage);
 
     if(storage == NULL) {
         file->error_id = FSE_INVALID_PARAMETER;
     } else {
-        if(storage_file_has_sort_data(file)) {
-            storage_sorted_dir_rewind(file->sort_data);
-            ret = true;
-        } else {
-            ret = storage_process_dir_rewind_internal(storage, file);
-        }
+        FS_CALL(storage, dir.rewind(storage, file));
     }
 
     return ret;
@@ -621,7 +461,7 @@ static FS_Error storage_process_sd_status(Storage* app) {
 
 /******************** Aliases processing *******************/
 
-static void storage_process_alias(
+void storage_process_alias(
     Storage* app,
     FuriString* path,
     FuriThreadId thread_id,
@@ -665,7 +505,7 @@ static void storage_process_alias(
 
 /****************** API calls processing ******************/
 
-static void storage_process_message_internal(Storage* app, StorageMessage* message) {
+void storage_process_message_internal(Storage* app, StorageMessage* message) {
     FuriString* path = NULL;
 
     switch(message->command) {

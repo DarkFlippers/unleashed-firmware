@@ -19,8 +19,7 @@ struct File {
     FileType type;
     FS_Error error_id; /**< Standard API error from FS_Error enum */
     int32_t internal_error_id; /**< Internal API error value */
-    void* storage; /**< Storage API pointer */
-    void* sort_data; /**< Sorted file list for directory */
+    void* storage;
 };
 
 /** File api structure
