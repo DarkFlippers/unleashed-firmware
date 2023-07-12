@@ -5,6 +5,9 @@
 
 #include <lib/digital_signal/digital_signal.h>
 
+#define NFCA_CMD_RATS (0xE0U)
+#define NFCA_CMD_HALT (0x50U)
+
 typedef struct {
     DigitalSignal* one;
     DigitalSignal* zero;
