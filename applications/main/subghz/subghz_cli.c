@@ -28,12 +28,20 @@
 
 #define SUBGHZ_REGION_FILENAME "/int/.region_data"
 
+#define TAG "SubGhz CLI"
+
 static void subghz_cli_radio_device_power_on() {
-    uint8_t attempts = 0;
-    while(!furi_hal_power_is_otg_enabled() && attempts++ < 5) {
-        furi_hal_power_enable_otg();
-        //CC1101 power-up time
-        furi_delay_ms(10);
+    uint8_t attempts = 5;
+    while(--attempts > 0) {
+        if(furi_hal_power_enable_otg()) break;
+    }
+    if(attempts == 0) {
+        if(furi_hal_power_get_usb_voltage() < 4.5f) {
+            FURI_LOG_E(
+                "TAG",
+                "Error power otg enable. BQ2589 check otg fault = %d",
+                furi_hal_power_check_otg_fault() ? 1 : 0);
+        }
     }
 }
 
@@ -126,9 +134,9 @@ void subghz_cli_command_rx_carrier(Cli* cli, FuriString* args, void* context) {
     furi_hal_subghz_sleep();
 }
 
-static const SubGhzDevice* subghz_cli_command_get_device(uint32_t device_ind) {
+static const SubGhzDevice* subghz_cli_command_get_device(uint32_t* device_ind) {
     const SubGhzDevice* device = NULL;
-    switch(device_ind) {
+    switch(*device_ind) {
     case 1:
         subghz_cli_radio_device_power_on();
         device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME);
@@ -137,6 +145,12 @@ static const SubGhzDevice* subghz_cli_command_get_device(uint32_t device_ind) {
     default:
         device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
         break;
+    }
+    //check if the device is connected
+    if(!subghz_devices_is_connect(device)) {
+        subghz_cli_radio_device_power_off();
+        device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+        *device_ind = 0;
     }
     return device;
 }
@@ -175,7 +189,7 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
         }
     }
     subghz_devices_init();
-    const SubGhzDevice* device = subghz_cli_command_get_device(device_ind);
+    const SubGhzDevice* device = subghz_cli_command_get_device(&device_ind);
     if(!subghz_devices_is_frequency_valid(device, frequency)) {
         printf(
             "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n", frequency);
@@ -295,7 +309,7 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
         }
     }
     subghz_devices_init();
-    const SubGhzDevice* device = subghz_cli_command_get_device(device_ind);
+    const SubGhzDevice* device = subghz_cli_command_get_device(&device_ind);
     if(!subghz_devices_is_frequency_valid(device, frequency)) {
         printf(
             "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n", frequency);
@@ -688,7 +702,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
         }
     }
     subghz_devices_init();
-    const SubGhzDevice* device = subghz_cli_command_get_device(device_ind);
+    const SubGhzDevice* device = subghz_cli_command_get_device(&device_ind);
     if(!subghz_devices_is_frequency_valid(device, frequency)) {
         printf(
             "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n", frequency);
