@@ -89,6 +89,14 @@ void cli_command_help(Cli* cli, FuriString* args, void* context) {
     }
 }
 
+void cli_command_uptime(Cli* cli, FuriString* args, void* context) {
+    UNUSED(cli);
+    UNUSED(args);
+    UNUSED(context);
+    uint32_t uptime = furi_get_tick() / furi_kernel_get_tick_frequency();
+    printf("Uptime: %luh%lum%lus", uptime / 60 / 60, uptime / 60 % 60, uptime % 60);
+}
+
 void cli_command_date(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
@@ -462,6 +470,7 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "?", CliCommandFlagParallelSafe, cli_command_help, NULL);
     cli_add_command(cli, "help", CliCommandFlagParallelSafe, cli_command_help, NULL);
 
+    cli_add_command(cli, "uptime", CliCommandFlagDefault, cli_command_uptime, NULL);
     cli_add_command(cli, "date", CliCommandFlagParallelSafe, cli_command_date, NULL);
     cli_add_command(cli, "log", CliCommandFlagParallelSafe, cli_command_log, NULL);
     cli_add_command(cli, "sysctl", CliCommandFlagDefault, cli_command_sysctl, NULL);

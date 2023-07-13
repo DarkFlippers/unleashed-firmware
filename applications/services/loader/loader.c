@@ -3,6 +3,7 @@
 #include <applications.h>
 #include <storage/storage.h>
 #include <furi_hal.h>
+#include <assets_icons.h>
 
 #include <dialogs/dialogs.h>
 #include <toolbox/path.h>
@@ -11,7 +12,20 @@
 
 #define TAG "Loader"
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
-// api
+
+// helpers
+
+static const char* loader_find_external_application_by_name(const char* app_name) {
+    for(size_t i = 0; i < FLIPPER_EXTERNAL_APPS_COUNT; i++) {
+        if(strcmp(FLIPPER_EXTERNAL_APPS[i].name, app_name) == 0) {
+            return FLIPPER_EXTERNAL_APPS[i].path;
+        }
+    }
+
+    return NULL;
+}
+
+// API
 
 LoaderStatus
     loader_start(Loader* loader, const char* name, const char* args, FuriString* error_message) {
@@ -33,17 +47,33 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
     FuriString* error_message = furi_string_alloc();
     LoaderStatus status = loader_start(loader, name, args, error_message);
 
-    // TODO: we have many places where we can emit a double start, ex: desktop, menu
-    // so i prefer to not show LoaderStatusErrorAppStarted error message for now
-    if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
+    if(status == LoaderStatusErrorUnknownApp &&
+       loader_find_external_application_by_name(name) != NULL) {
+        // Special case for external apps
+        DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
+        DialogMessage* message = dialog_message_alloc();
+        dialog_message_set_header(message, "Update needed", 64, 3, AlignCenter, AlignTop);
+        dialog_message_set_buttons(message, NULL, NULL, NULL);
+        dialog_message_set_icon(message, &I_DolphinCommon_56x48, 72, 17);
+        dialog_message_set_text(
+            message, "Update firmware\nto run this app", 3, 26, AlignLeft, AlignTop);
+        dialog_message_show(dialogs, message);
+        dialog_message_free(message);
+        furi_record_close(RECORD_DIALOGS);
+    } else if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
+        // TODO: we have many places where we can emit a double start, ex: desktop, menu
+        // so i prefer to not show LoaderStatusErrorAppStarted error message for now
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         DialogMessage* message = dialog_message_alloc();
         dialog_message_set_header(message, "Error", 64, 0, AlignCenter, AlignTop);
         dialog_message_set_buttons(message, NULL, NULL, NULL);
 
-        furi_string_replace(error_message, ":", "\n");
+        furi_string_replace(error_message, "/ext/apps/", "");
+        furi_string_replace(error_message, ", ", "\n");
+        furi_string_replace(error_message, ": ", "\n");
+
         dialog_message_set_text(
-            message, furi_string_get_cstr(error_message), 64, 32, AlignCenter, AlignCenter);
+            message, furi_string_get_cstr(error_message), 64, 35, AlignCenter, AlignCenter);
 
         dialog_message_show(dialogs, message);
         dialog_message_free(message);
@@ -168,16 +198,6 @@ static const FlipperInternalApplication* loader_find_application_by_name(const c
     }
 
     return application;
-}
-
-static const char* loader_find_external_application_by_name(const char* app_name) {
-    for(size_t i = 0; i < FLIPPER_EXTERNAL_APPS_COUNT; i++) {
-        if(strcmp(FLIPPER_EXTERNAL_APPS[i].name, app_name) == 0) {
-            return FLIPPER_EXTERNAL_APPS[i].path;
-        }
-    }
-
-    return NULL;
 }
 
 static void loader_start_app_thread(Loader* loader, FlipperInternalApplicationFlag flags) {
@@ -314,18 +334,16 @@ static LoaderStatus loader_start_external_app(
             }
         }
 
-        FURI_LOG_I(TAG, "Mapping");
         FlipperApplicationLoadStatus load_status =
             flipper_application_map_to_memory(loader->app.fap);
         if(load_status != FlipperApplicationLoadStatusSuccess) {
             const char* err_msg = flipper_application_load_status_to_string(load_status);
             status = loader_make_status_error(
-                LoaderStatusErrorInternal, error_message, "Load failed %s: %s", path, err_msg);
+                LoaderStatusErrorInternal, error_message, "Load failed, %s: %s", path, err_msg);
             break;
         }
 
         FURI_LOG_I(TAG, "Loaded in %zums", (size_t)(furi_get_tick() - start));
-        FURI_LOG_I(TAG, "Starting app");
 
         loader->app.thread = flipper_application_alloc_thread(loader->app.fap, args);
         FuriString* app_name = furi_string_alloc();
@@ -429,7 +447,7 @@ static LoaderStatus loader_do_start_by_name(
             }
         }
 
-        // check external apps
+        // check Faps
         {
             Storage* storage = furi_record_open(RECORD_STORAGE);
             if(storage_file_exists(storage, name)) {

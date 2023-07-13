@@ -72,7 +72,7 @@ static void desktop_scene_main_open_app_or_profile(Desktop* desktop, const char*
 static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
     if(strlen(application->name_or_path) > 2) {
         loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
-    } else if((strlen(application->name_or_path) < 2) && (application->is_external == true)) {
+    } else if(strlen(application->name_or_path) < 2) {
         loader_start(desktop->loader, LOADER_APPLICATIONS_NAME, NULL, NULL);
     }
 }

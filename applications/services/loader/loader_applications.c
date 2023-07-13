@@ -20,7 +20,7 @@ static int32_t loader_applications_thread(void* p);
 LoaderApplications* loader_applications_alloc(void (*closed_cb)(void*), void* context) {
     LoaderApplications* loader_applications = malloc(sizeof(LoaderApplications));
     loader_applications->thread =
-        furi_thread_alloc_ex(TAG, 512, loader_applications_thread, (void*)loader_applications);
+        furi_thread_alloc_ex(TAG, 768, loader_applications_thread, (void*)loader_applications);
     loader_applications->closed_cb = closed_cb;
     loader_applications->context = context;
     furi_thread_start(loader_applications->thread);
