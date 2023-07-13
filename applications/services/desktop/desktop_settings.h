@@ -8,7 +8,7 @@
 #include <toolbox/saved_struct.h>
 #include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (7)
+#define DESKTOP_SETTINGS_VER (8)
 
 #define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -42,7 +42,6 @@ typedef struct {
 } PinCode;
 
 typedef struct {
-    bool is_external;
     char name_or_path[MAX_APP_LENGTH];
 } FavoriteApp;
 

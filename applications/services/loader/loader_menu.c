@@ -60,7 +60,7 @@ static void loader_menu_apps_callback(void* context, uint32_t index) {
 
 static void loader_menu_external_apps_callback(void* context, uint32_t index) {
     UNUSED(context);
-    const char* path = FLIPPER_EXTERNAL_APPS[index].path;
+    const char* path = FLIPPER_EXTERNAL_APPS[index].name;
     loader_menu_start(path);
 }
 
