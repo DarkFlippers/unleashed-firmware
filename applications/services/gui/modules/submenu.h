@@ -93,6 +93,13 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index);
  */
 void submenu_set_header(Submenu* submenu, const char* header);
 
+/** Set Orientation
+ *
+ * @param      submenu  Submenu instance
+ * @param      orientation  either vertical or horizontal
+ */
+void submenu_set_orientation(Submenu* submenu, ViewOrientation orientation);
+
 #ifdef __cplusplus
 }
 #endif
