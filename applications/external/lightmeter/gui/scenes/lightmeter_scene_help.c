@@ -6,7 +6,8 @@ void lightmeter_scene_help_on_enter(void* context) {
     FuriString* temp_str;
     temp_str = furi_string_alloc();
     furi_string_printf(
-        temp_str, "App works with BH1750\nambient light sensor\nconnected via I2C interface\n\n");
+        temp_str,
+        "App works with BH1750 and MAX44409 ambient light sensor connected via I2C interface\n\n");
     furi_string_cat(temp_str, "\e#Pinout:\r\n");
     furi_string_cat(
         temp_str,

@@ -1,21 +1,17 @@
-# flipperzero-lightmeter 
+## Lightmeter app for photography
 
-[Original link](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
+An application that suggests settings for your manual camera based on the reading of the ambient light sensor. Can also be used in a pure lux meter mode.
 
+## Supported sensors
 
-<img src="images/framed_gui_main.png" width="500px">  
+- BH1750
+- MAX44009
 
 ## Wiring
 
-```
-VCC -> 3.3V
-GND -> GND
-SCL -> C0
-SDA -> C1
-```
-
-## TODO
-- [ ] Save settings to sd card
-
-## References
-App inspired by [lightmeter](https://github.com/vpominchuk/lightmeter) project for Arduino by [vpominchuk](https://github.com/vpominchuk).
+| Sensor | Flipper Zero |
+| ------ | ------------ |
+| VCC    | 3.3V         |
+| GND    | GND          |
+| SCL    | C0           |
+| SDA    | C1           |
