@@ -16,14 +16,14 @@ void nfc_maker_scene_wifi_on_enter(void* context) {
 
     nfc_maker_text_input_set_header_text(text_input, "Enter WiFi SSID:");
 
-    strlcpy(app->text_buf, "Bill Wi the Science Fi", WIFI_INPUT_LEN);
+    strlcpy(app->small_buf1, "Bill Wi the Science Fi", SMALL_INPUT_LEN);
 
     nfc_maker_text_input_set_result_callback(
         text_input,
         nfc_maker_scene_wifi_text_input_callback,
         app,
-        app->text_buf,
-        WIFI_INPUT_LEN,
+        app->small_buf1,
+        SMALL_INPUT_LEN,
         true);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, NfcMakerViewTextInput);
