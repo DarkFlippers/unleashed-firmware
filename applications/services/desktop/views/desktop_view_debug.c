@@ -38,19 +38,19 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 
     canvas_set_font(canvas, FontSecondary);
 
-        // Hardware version
-        const char* my_name = furi_hal_version_get_name_ptr();
-        snprintf(
-            buffer,
-            sizeof(buffer),
-            "%d.F%dB%dC%d %s %s",
-            furi_hal_version_get_hw_version(),
-            furi_hal_version_get_hw_target(),
-            furi_hal_version_get_hw_body(),
-            furi_hal_version_get_hw_connect(),
-            furi_hal_version_get_hw_region_name_otp(),
-            my_name ? my_name : "Unknown");
-        canvas_draw_str(canvas, 0, 19 + STATUS_BAR_Y_SHIFT, buffer);
+    // Hardware version
+    const char* my_name = furi_hal_version_get_name_ptr();
+    snprintf(
+        buffer,
+        sizeof(buffer),
+        "%d.F%dB%dC%d %s %s",
+        furi_hal_version_get_hw_version(),
+        furi_hal_version_get_hw_target(),
+        furi_hal_version_get_hw_body(),
+        furi_hal_version_get_hw_connect(),
+        furi_hal_version_get_hw_region_name_otp(),
+        my_name ? my_name : "Unknown");
+    canvas_draw_str(canvas, 0, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
     ver = furi_hal_version_get_firmware_version();
     const BleGlueC2Info* c2_ver = NULL;
