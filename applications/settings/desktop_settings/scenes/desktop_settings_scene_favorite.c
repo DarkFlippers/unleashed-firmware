@@ -13,7 +13,7 @@
 #define EXTERNAL_APPLICATION_NAME ("[External Application]")
 #define EXTERNAL_APPLICATION_INDEX (APPS_COUNT + 2)
 
-#define NONE_APPLICATION_INDEX (FLIPPER_APPS_COUNT + 3)
+#define NONE_APPLICATION_INDEX (APPS_COUNT + 3)
 
 #define PRESELECTED_SPECIAL 0xffffffff
 
@@ -181,7 +181,9 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                 consumed = true;
             }
         } else if(event.event == NONE_APPLICATION_INDEX) {
-            strncpy(curr_favorite_app->name_or_path, "n", MAX_APP_LENGTH);
+            // Clear favorite app path and set it to "d" (disabled)
+            memset(curr_favorite_app->name_or_path, 0, strlen(curr_favorite_app->name_or_path));
+            strncpy(curr_favorite_app->name_or_path, "d", MAX_APP_LENGTH);
             consumed = true;
         } else {
             const char* name = favorite_fap_get_app_name(event.event);
