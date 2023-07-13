@@ -43,3 +43,6 @@
 [submodule "lib/stm32wb_copro"]
 	path = lib/stm32wb_copro
 	url = https://github.com/flipperdevices/stm32wb_copro.git
+[submodule "applications/external/multi_fuzzer"]
+	path = applications/external/multi_fuzzer
+	url = https://github.com/DarkFlippers/Multi_Fuzzer.git
