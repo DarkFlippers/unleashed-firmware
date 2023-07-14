@@ -1,45 +1,29 @@
 ## New changes
 * !!! **Warning! After installing, Desktop settings (Favoutite apps, PIN Code, AutoLock time..) will be resetted to default due to settings changes, Please set your PIN code, Favourite apps again in Settings->Desktop** !!!
-* If you have copied any apps manually into `apps` folder - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!
+* This next text applies to you only **If you have copied any apps manually** into `apps` folder and don't know that you need to update those apps manually in same way you added them - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! **If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!**
 -----
-* SubGHz: **Keeloq: Centurion Nova read and emulate support (+ add manually)**
-* SubGHz: FAAC SLH - UI Fixes, Fix sending signals with no seed
-* SubGHz: Code cleanup, proper handling of protocols ignore options (by @gid9798 | PR #516)
-* SubGHz: Various UI fixes (by @wosk | PR #527)
-* NFC: Fixed issue #532 (Mifare classic user dict - delete removes more than selected key)
-* Infrared: Updated universal remote assets (by @amec0e | PR #529)
-* Plugins: **Use correct categories (folders) for all plugins (extra pack too)**
-* Plugins: Various fixes for uFBT (by @hedger)
-* Plugins: Added **NFC Maker** plugin (make tags with URLs, Wifi and other things) [(by Willy-JL)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/external/nfc_maker) 
-* Plugins: Added JetPack Joyride [(by timstrasser)](https://github.com/timstrasser)
-* Plugins: Moved Barcode Generator [(by Kingal1337)](https://github.com/Kingal1337/flipper-barcode-generator) from extra pack into base fw, old barcode generator was removed
+* SubGHz: Port latest OFW external radio driver, fix issues (now you can make drivers for other radio chips) (by @gid9798 | PR #539 #536 #535 #534)
+* GUI module: SubMenu fix vertical orientation (by @gid9798 | PR #543)
+* Apps: After merge fixes (by @gid9798 | PR #537)
+* Docs: Update docs for debug build and update vscode example, please remove `debug_pack` target if you had it in your workflow
+* Infrared: Updated universal remote assets (by @amec0e | PR #544)
+* Plugins: Added Camera Suite GPIO application for the ESP32-CAM module. [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite) (PR #541)
 * Plugins: Updated ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
-* Plugins: Updated i2c Tools [(by NaejEL)](https://github.com/NaejEL/flipperzero-i2ctools)
-* Settings: Change LED and volume settings by 5% steps (by @cokyrain)
-* BLE: BadBT fixes and furi_hal_bt cleanup (by @Willy-JL)
-* WIP OFW PR 2825: **NFC: Improved MFC emulation on some readers (by AloneLiberty)**
-* OFW PR 2829: Decode only supported Oregon 3 sensor (by @wosk)
-* OFW PR: Update OFW PR 2782
-* OFW: SubGhz: add "SubGhz test" external application and the ability to work "SubGhz" as an external application
-* OFW: API: explicitly add math.h
-* OFW: NFC: Mf Ultralight emulation optimization
-* OFW: Furi_Power: fix furi_hal_power_enable_otg 
-* OFW: FuriHal: allow nulling null isr
-* OFW: FuriHal, Infrared, Protobuf: various fixes and improvements 
-* OFW: Picopass fix ice
-* OFW: Desktop settings: show icon and name for external applications
-* OFW: Furi,FuriHal: various improvements
-* OFW: Debug apps: speaker, uart_echo with baudrate
-* OFW: Add Mitsubishi MSZ-AP25VGK universal ac remote
-* OFW: Fix roll-over in file browser and archive
-* OFW: Fix fr-FR-mac keylayout
-* OFW: NFC/RFID detector app
-* OFW: Fast FAP Loader
-* OFW: LF-RFID debug: make it work
-* OFW: Fix M*LIB usage
-* OFW: fix: make `dialog_file_browser_set_basic_options` initialize all fields
-* OFW: Scroll acceleration
-* OFW: Loader refaptoring: second encounter 
+* Plugins: Updated **NFC Maker** plugin (make tags with URLs, Wifi and other things) [(by Willy-JL)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/external/nfc_maker) 
+* Plugins: Updated **Mifare Nested** [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
+* Plugins: Updated Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
+* Plugins: Updated **Multi (RFID/iButton) Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/Multi_Fuzzer)
+* OFW: Loader: good looking error messages
+* OFW: Desktop,Cli: add uptime info
+* OFW: Archive and file browser fixes
+* OFW: Loader: exit animation fix
+* OFW: SubGhz: fix check connect cc1101_ext 
+* OFW: NFC: Improved MFC emulation on some readers
+* OFW: Dolphin: add new animation
+* OFW: Update toolchain to v23
+* OFW: More descriptive error messages for the log command
+* OFW: **External menu apps** -> now we have ton of free internal space
+* OFW: Device Info update
 
 ----
 
