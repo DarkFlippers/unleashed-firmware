@@ -81,16 +81,17 @@ static void updater_main_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_font(canvas, FontPrimary);
 
     if(model->failed) {
-        canvas_draw_str_aligned(canvas, 42, 16, AlignLeft, AlignTop, "Update Failed!");
+        canvas_draw_icon(canvas, 2, 22, &I_Warning_30x23);
+        canvas_draw_str_aligned(canvas, 40, 9, AlignLeft, AlignTop, "Update Failed!");
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(
-            canvas, 42, 32, AlignLeft, AlignTop, furi_string_get_cstr(model->status));
 
-        canvas_draw_icon(canvas, 7, 16, &I_Warning_30x23);
+        elements_multiline_text_aligned(
+            canvas, 75, 26, AlignCenter, AlignTop, furi_string_get_cstr(model->status));
+
         canvas_draw_str_aligned(
-            canvas, 18, 51, AlignLeft, AlignTop, "to retry, hold       to abort");
-        canvas_draw_icon(canvas, 7, 50, &I_Ok_btn_9x9);
-        canvas_draw_icon(canvas, 75, 51, &I_Pin_back_arrow_10x8);
+            canvas, 18, 55, AlignLeft, AlignTop, "to retry, hold       to abort");
+        canvas_draw_icon(canvas, 7, 54, &I_Ok_btn_9x9);
+        canvas_draw_icon(canvas, 75, 55, &I_Pin_back_arrow_10x8);
     } else {
         canvas_draw_str_aligned(canvas, 55, 14, AlignLeft, AlignTop, "UPDATING");
         canvas_set_font(canvas, FontSecondary);
