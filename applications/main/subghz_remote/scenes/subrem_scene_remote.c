@@ -41,7 +41,7 @@ void subrem_scene_remote_on_enter(void* context) {
     subrem_view_remote_update_data_labels(app->subrem_remote_view, app->map_preset->subs_preset);
     subrem_view_remote_set_radio(
         app->subrem_remote_view,
-        subghz_txrx_radio_device_get(app->txrx) == SubGhzRadioDeviceTypeExternalCC1101);
+        subghz_txrx_radio_device_get(app->txrx) != SubGhzRadioDeviceTypeInternal);
 
     subrem_view_remote_set_callback(app->subrem_remote_view, subrem_scene_remote_callback, app);
 
