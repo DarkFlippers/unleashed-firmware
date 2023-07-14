@@ -1,21 +1,15 @@
 #pragma once
 
-#define SUBREM_LIGHT 1
-#define APP_SUBGHZREMOTE 1
-
 #include "helpers/subrem_types.h"
 #include "helpers/subrem_presets.h"
 #include "scenes/subrem_scene.h"
 
 #include "helpers/txrx/subghz_txrx.h"
 
-#ifdef APP_SUBGHZREMOTE
 #include <assets_icons.h>
-#else
-#include <subrem_remote_fap_icons.h>
-#endif
 
 #include "views/remote.h"
+#include "views/edit_menu.h"
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
@@ -39,15 +33,22 @@ typedef struct {
     SceneManager* scene_manager;
     NotificationApp* notifications;
     DialogsApp* dialogs;
+    Widget* widget;
+    Popup* popup;
+    TextInput* text_input;
     Submenu* submenu;
 
     FuriString* file_path;
+    char file_name_tmp[SUBREM_MAX_LEN_NAME];
 
     SubRemViewRemote* subrem_remote_view;
+    SubRemViewEditMenu* subrem_edit_menu;
 
     SubRemMapPreset* map_preset;
 
     SubGhzTxRx* txrx;
+
+    bool map_not_saved;
 
     uint8_t chusen_sub;
 } SubGhzRemoteApp;
@@ -57,5 +58,11 @@ SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app);
 bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset);
 
 bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced);
+
+SubRemLoadMapState subrem_map_file_load(SubGhzRemoteApp* app, const char* file_path);
+
+void subrem_map_preset_reset(SubRemMapPreset* map_preset);
+
+bool subrem_save_map_to_file(SubGhzRemoteApp* app);
 
 void subrem_save_active_sub(void* context);

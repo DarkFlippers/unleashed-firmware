@@ -18,7 +18,11 @@ typedef enum {
 
 typedef enum {
     SubRemViewIDSubmenu,
+    SubRemViewIDWidget,
+    SubRemViewIDPopup,
+    SubRemViewIDTextInput,
     SubRemViewIDRemote,
+    SubRemViewIDEditMenu,
 } SubRemViewID;
 
 typedef enum {
