@@ -430,6 +430,20 @@ FS_Error storage_common_rename(Storage* storage, const char* old_path, const cha
             break;
         }
 
+        if(storage_dir_exists(storage, old_path)) {
+            FuriString* dir_path = furi_string_alloc_set_str(old_path);
+            if(!furi_string_end_with_str(dir_path, "/")) {
+                furi_string_cat_str(dir_path, "/");
+            }
+            const char* dir_path_s = furi_string_get_cstr(dir_path);
+            if(strncmp(new_path, dir_path_s, strlen(dir_path_s)) == 0) {
+                error = FSE_INVALID_NAME;
+                furi_string_free(dir_path);
+                break;
+            }
+            furi_string_free(dir_path);
+        }
+
         if(storage_file_exists(storage, new_path)) {
             storage_common_remove(storage, new_path);
         }
