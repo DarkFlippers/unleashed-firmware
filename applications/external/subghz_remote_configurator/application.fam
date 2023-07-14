@@ -9,8 +9,8 @@ App(
     ],
     stack_size=2 * 1024,
     order=50,
-    fap_description="File Editor for the SubGhz Remote app",
+    fap_libs=["assets",],
+    fap_icon="icon.png",
+    fap_description="SubGhz Remote, uses up to 5 .sub files",
     fap_category="Sub-Ghz",
-    fap_icon_assets="icons",
-    fap_icon="icons/subrem_10px.png",
 )

@@ -15,6 +15,8 @@ void subrem_scene_open_map_file_on_enter(void* context) {
     } else if(start_scene_state == SubmenuIndexSubRemEditMapFile) {
         scene_manager_set_scene_state(app->scene_manager, SubRemSceneEditMenu, SubRemSubKeyNameUp);
         scene_manager_next_scene(app->scene_manager, SubRemSceneEditMenu);
+    } else if(start_scene_state == SubmenuIndexSubRemOpenMapFile) {
+        scene_manager_next_scene(app->scene_manager, SubRemSceneRemote);
     }
 }
 

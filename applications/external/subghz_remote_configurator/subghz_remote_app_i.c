@@ -7,8 +7,8 @@
 // #include <lib/subghz/protocols/keeloq.h>
 // #include <lib/subghz/protocols/star_line.h>
 
-// #include <lib/subghz/protocols/protocol_items.h>
-// #include <lib/subghz/blocks/custom_btn.h>
+#include <lib/subghz/protocols/protocol_items.h>
+#include <lib/subghz/blocks/custom_btn.h>
 
 #define TAG "SubGhzRemote"
 
@@ -202,6 +202,56 @@ void subrem_save_active_sub(void* context) {
     SubRemSubFilePreset* sub_preset = app->map_preset->subs_preset[app->chusen_sub];
     subrem_save_protocol_to_file(
         sub_preset->fff_data, furi_string_get_cstr(sub_preset->file_path));
+}
+
+bool subrem_tx_start_sub(SubGhzRemoteApp* app, SubRemSubFilePreset* sub_preset) {
+    furi_assert(app);
+    furi_assert(sub_preset);
+    bool ret = false;
+
+    subrem_tx_stop_sub(app, true);
+
+    if(sub_preset->type == SubGhzProtocolTypeUnknown) {
+        ret = false;
+    } else {
+        FURI_LOG_I(TAG, "Send %s", furi_string_get_cstr(sub_preset->label));
+
+        subghz_txrx_load_decoder_by_name_protocol(
+            app->txrx, furi_string_get_cstr(sub_preset->protocaol_name));
+
+        subghz_txrx_set_preset(
+            app->txrx,
+            furi_string_get_cstr(sub_preset->freq_preset.name),
+            sub_preset->freq_preset.frequency,
+            NULL,
+            0);
+
+        subghz_custom_btns_reset();
+
+        if(subghz_txrx_tx_start(app->txrx, sub_preset->fff_data) == SubGhzTxRxStartTxStateOk) {
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
+bool subrem_tx_stop_sub(SubGhzRemoteApp* app, bool forced) {
+    furi_assert(app);
+    SubRemSubFilePreset* sub_preset = app->map_preset->subs_preset[app->chusen_sub];
+
+    if(forced || (sub_preset->type != SubGhzProtocolTypeRAW)) {
+        subghz_txrx_stop(app->txrx);
+
+        if(sub_preset->type == SubGhzProtocolTypeDynamic) {
+            subghz_txrx_reset_dynamic_and_custom_btns(app->txrx);
+        }
+        subghz_custom_btns_reset();
+
+        return true;
+    }
+
+    return false;
 }
 
 SubRemLoadMapState subrem_load_from_file(SubGhzRemoteApp* app) {

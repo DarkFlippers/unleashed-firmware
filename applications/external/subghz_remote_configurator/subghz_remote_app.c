@@ -29,7 +29,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
     }
     furi_record_close(RECORD_STORAGE);
 
-    // furi_hal_power_suppress_charge_enter();
+    furi_hal_power_suppress_charge_enter();
 
     app->file_path = furi_string_alloc();
     furi_string_set(app->file_path, SUBREM_APP_FOLDER);
@@ -103,13 +103,8 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     app->map_not_saved = false;
 
-#ifdef SUBREM_LIGHT
-    scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
-#else
     scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
-    scene_manager_set_scene_state(
-        app->scene_manager, SubRemSceneStart, SubmenuIndexSubRemEditMapFile);
-#endif
+    scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
 
     return app;
 }
@@ -117,7 +112,7 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 void subghz_remote_app_free(SubGhzRemoteApp* app) {
     furi_assert(app);
 
-    // furi_hal_power_suppress_charge_exit();
+    furi_hal_power_suppress_charge_exit();
 
     // Submenu
     view_dispatcher_remove_view(app->view_dispatcher, SubRemViewIDSubmenu);

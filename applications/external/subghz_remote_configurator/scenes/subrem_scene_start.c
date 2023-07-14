@@ -15,6 +15,20 @@ void subrem_scene_start_on_enter(void* context) {
     Submenu* submenu = app->submenu;
     submenu_add_item(
         submenu,
+        "Open Map File",
+        SubmenuIndexSubRemOpenMapFile,
+        subrem_scene_start_submenu_callback,
+        app);
+#if FURI_DEBUG
+    submenu_add_item(
+        submenu,
+        "Remote_Debug",
+        SubmenuIndexSubRemRemoteView,
+        subrem_scene_start_submenu_callback,
+        app);
+#endif
+    submenu_add_item(
+        submenu,
         "Edit Map File",
         SubmenuIndexSubRemEditMapFile,
         subrem_scene_start_submenu_callback,
@@ -45,7 +59,20 @@ bool subrem_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubmenuIndexSubRemEditMapFile) {
+        if(event.event == SubmenuIndexSubRemOpenMapFile) {
+            scene_manager_set_scene_state(
+                app->scene_manager, SubRemSceneStart, SubmenuIndexSubRemOpenMapFile);
+
+            scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
+            consumed = true;
+        }
+#if FURI_DEBUG
+        else if(event.event == SubmenuIndexSubRemRemoteView) {
+            scene_manager_next_scene(app->scene_manager, SubRemSceneRemote);
+            consumed = true;
+        }
+#endif
+        else if(event.event == SubmenuIndexSubRemEditMapFile) {
             scene_manager_set_scene_state(
                 app->scene_manager, SubRemSceneStart, SubmenuIndexSubRemEditMapFile);
             scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);

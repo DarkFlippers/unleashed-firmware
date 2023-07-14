@@ -10,7 +10,8 @@ typedef enum {
 
 typedef enum {
     // StartSubmenuIndex
-    SubmenuIndexSubRemEditMapFile = 0,
+    SubmenuIndexSubRemOpenMapFile = 0,
+    SubmenuIndexSubRemEditMapFile,
     SubmenuIndexSubRemNewMapFile,
 #if FURI_DEBUG
     SubmenuIndexSubRemRemoteView,
