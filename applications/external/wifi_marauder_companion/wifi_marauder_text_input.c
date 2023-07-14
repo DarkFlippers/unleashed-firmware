@@ -136,8 +136,8 @@ static const WIFI_TextInputKey symbol_keyboard_keys_row_3[] = {
     {SWITCH_KEYBOARD_KEY, 1, 23},
     {'.', 15, 32},
     {',', 29, 32},
-    {';', 41, 32},
-    {'`', 53, 32},
+    {':', 41, 32},
+    {'/', 53, 32},
     {'\'', 65, 32},
     {ENTER_KEY, 74, 23},
     {'7', 100, 32},
@@ -233,6 +233,12 @@ static bool char_is_lowercase(char letter) {
 static char char_to_uppercase(const char letter) {
     if(letter == '_') {
         return 0x20;
+    } else if(letter == ':') {
+        return 0x3B;
+    } else if(letter == '/') {
+        return 0x5C;
+    } else if(letter == '\'') {
+        return 0x60;
     } else if(char_is_lowercase(letter)) {
         return (letter - 0x20);
     } else {
