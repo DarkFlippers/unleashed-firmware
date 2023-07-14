@@ -8,8 +8,6 @@ void subrem_scene_open_map_file_on_enter(void* context) {
     uint32_t start_scene_state =
         scene_manager_get_scene_state(app->scene_manager, SubRemSceneStart);
 
-    // TODO if optimization
-
     if(load_state == SubRemLoadMapStateBack) {
         scene_manager_previous_scene(app->scene_manager);
     } else if(start_scene_state == SubmenuIndexSubRemEditMapFile) {

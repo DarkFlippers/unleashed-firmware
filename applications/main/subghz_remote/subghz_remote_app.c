@@ -18,16 +18,23 @@ static void subghz_remote_app_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(app->scene_manager);
 }
 
-SubGhzRemoteApp* subghz_remote_app_alloc() {
-    SubGhzRemoteApp* app = malloc(sizeof(SubGhzRemoteApp));
+static void subghz_remote_make_app_folder(SubGhzRemoteApp* app) {
+    furi_assert(app);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
+
+    // Migrate old users data
     storage_common_migrate(storage, EXT_PATH("unirf"), SUBREM_APP_FOLDER);
 
     if(!storage_simply_mkdir(storage, SUBREM_APP_FOLDER)) {
-        //FURI_LOG_E(TAG, "Could not create folder %s", SUBREM_APP_FOLDER);
+        // FURI_LOG_E(TAG, "Could not create folder %s", SUBREM_APP_FOLDER);
+        dialog_message_show_storage_error(app->dialogs, "Cannot create\napp folder");
     }
     furi_record_close(RECORD_STORAGE);
+}
+
+SubGhzRemoteApp* subghz_remote_app_alloc() {
+    SubGhzRemoteApp* app = malloc(sizeof(SubGhzRemoteApp));
 
     furi_hal_power_suppress_charge_enter();
 
@@ -103,9 +110,6 @@ SubGhzRemoteApp* subghz_remote_app_alloc() {
 
     app->map_not_saved = false;
 
-    scene_manager_next_scene(app->scene_manager, SubRemSceneStart);
-    scene_manager_next_scene(app->scene_manager, SubRemSceneOpenMapFile);
-
     return app;
 }
 
@@ -164,11 +168,33 @@ void subghz_remote_app_free(SubGhzRemoteApp* app) {
     free(app);
 }
 
-int32_t subghz_remote_app(void* p) {
-    UNUSED(p);
+int32_t subghz_remote_app(void* arg) {
     SubGhzRemoteApp* subghz_remote_app = subghz_remote_app_alloc();
 
-    furi_string_set(subghz_remote_app->file_path, SUBREM_APP_FOLDER);
+    subghz_remote_make_app_folder(subghz_remote_app);
+
+    bool map_loaded = false;
+
+    if((arg != NULL) && (strlen(arg) != 0)) {
+        furi_string_set(subghz_remote_app->file_path, (const char*)arg);
+        SubRemLoadMapState load_state = subrem_map_file_load(
+            subghz_remote_app, furi_string_get_cstr(subghz_remote_app->file_path));
+
+        if(load_state == SubRemLoadMapStateOK || load_state == SubRemLoadMapStateNotAllOK) {
+            map_loaded = true;
+        } else {
+            // TODO Replace
+            dialog_message_show_storage_error(subghz_remote_app->dialogs, "Cannot load\nmap file");
+        }
+    }
+
+    if(map_loaded) {
+        scene_manager_next_scene(subghz_remote_app->scene_manager, SubRemSceneRemote);
+    } else {
+        furi_string_set(subghz_remote_app->file_path, SUBREM_APP_FOLDER);
+        scene_manager_next_scene(subghz_remote_app->scene_manager, SubRemSceneStart);
+        scene_manager_next_scene(subghz_remote_app->scene_manager, SubRemSceneOpenMapFile);
+    }
 
     view_dispatcher_run(subghz_remote_app->view_dispatcher);
 

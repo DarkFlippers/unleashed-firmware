@@ -22,6 +22,7 @@ typedef struct {
     SubRemViewRemoteState state;
 
     uint8_t pressed_btn;
+    bool is_external;
 } SubRemViewRemoteModel;
 
 void subrem_view_remote_set_callback(
@@ -106,6 +107,15 @@ void subrem_view_remote_set_state(
         true);
 }
 
+void subrem_view_remote_set_radio(SubRemViewRemote* subrem_view_remote, bool external) {
+    furi_assert(subrem_view_remote);
+    with_view_model(
+        subrem_view_remote->view,
+        SubRemViewRemoteModel * model,
+        { model->is_external = external; },
+        true);
+}
+
 void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -143,6 +153,8 @@ void subrem_view_remote_draw(Canvas* canvas, SubRemViewRemoteModel* model) {
         elements_button_right(canvas, "Save");
     } else {
         canvas_draw_str_aligned(canvas, 11, 62, AlignLeft, AlignBottom, "Hold=Exit.");
+        canvas_draw_str_aligned(
+            canvas, 126, 62, AlignRight, AlignBottom, ((model->is_external) ? "Ext" : "Int"));
     }
 
     //Status text and indicator
@@ -267,6 +279,7 @@ SubRemViewRemote* subrem_view_remote_alloc() {
             }
 
             model->pressed_btn = 0;
+            model->is_external = false;
         },
         true);
     return subrem_view_remote;
