@@ -97,6 +97,7 @@ typedef struct {
     bool move_fav;
     bool list_loading;
     bool folder_loading;
+    bool filemang; // XXX
 
     uint32_t item_cnt;
     int32_t item_idx;

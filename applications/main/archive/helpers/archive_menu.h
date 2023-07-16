@@ -43,7 +43,7 @@ ARRAY_DEF(
 #pragma GCC diagnostic ignored "-Wunused-function"
 // Using in applications/archive/views/archive_browser_view.c
 static void
-    archive_menu_add_item(ArchiveContextMenuItem_t* obj, FuriString* text, uint32_t event) {
+    archive_menu_add_item(ArchiveContextMenuItem_t* obj, const char* text, uint32_t event) {
     obj->text = furi_string_alloc_set(text);
     obj->event = event;
 }

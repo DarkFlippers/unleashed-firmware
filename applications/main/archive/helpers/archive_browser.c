@@ -421,6 +421,7 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show) {
             if(show) {
                 if(archive_is_item_in_array(model, model->item_idx)) {
                     model->menu = true;
+                    model->filemang = false;
                     model->menu_idx = 0;
                     menu_array_reset(model->context_menu);
                     ArchiveFile_t* selected =
@@ -430,6 +431,7 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show) {
                 }
             } else {
                 model->menu = false;
+                model->filemang = false;
                 model->menu_idx = 0;
             }
         },
