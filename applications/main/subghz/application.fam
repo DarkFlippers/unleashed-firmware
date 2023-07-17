@@ -1,8 +1,9 @@
 App(
     appid="subghz",
     name="Sub-GHz",
-    apptype=FlipperAppType.MENUEXTERNAL,
+    apptype=FlipperAppType.APP,
     targets=["f7"],
+    cdefines=["APP_SUBGHZ"],
     entry_point="subghz_app",
     requires=[
         "gui",
@@ -26,6 +27,7 @@ App(
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,
     entry_point="subghz_on_system_start",
+    requires=["subghz"],
     order=40,
 )
 
