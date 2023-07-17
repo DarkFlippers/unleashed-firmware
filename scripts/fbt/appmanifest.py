@@ -325,7 +325,16 @@ class AppBuildset:
     def get_sdk_headers(self):
         sdk_headers = []
         for app in self.apps:
-            sdk_headers.extend([app._appdir.File(header) for header in app.sdk_headers])
+            sdk_headers.extend(
+                [
+                    src._appdir.File(header)
+                    for src in [
+                        app,
+                        *(plugin for plugin in app._plugins),
+                    ]
+                    for header in src.sdk_headers
+                ]
+            )
         return sdk_headers
 
     def get_apps_of_type(self, apptype: FlipperAppType, all_known: bool = False):
