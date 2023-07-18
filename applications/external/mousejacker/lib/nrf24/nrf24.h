@@ -361,6 +361,13 @@ void int32_to_bytes(uint32_t val, uint8_t* out, bool bigendian);
  */
 uint32_t bytes_to_int32(uint8_t* bytes, bool bigendian);
 
+/** Check if the nrf24 is connected
+ * @param      handle  - pointer to FuriHalSpiHandle
+ * 
+ * @return     true if connected, otherwise false
+*/
+bool nrf24_check_connected(FuriHalSpiBusHandle* handle);
+
 #ifdef __cplusplus
 }
 #endif

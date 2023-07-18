@@ -336,8 +336,10 @@ def ambiguous_app_call(**kw):
 
 if app_to_launch:
     appenv.AddAppLaunchTarget(app_to_launch, "launch")
+    appenv.AddAppBuildTarget(app_to_launch, "build")
 else:
     dist_env.PhonyTarget("launch", Action(ambiguous_app_call, None))
+    dist_env.PhonyTarget("build", Action(ambiguous_app_call, None))
 
 # cli handler
 

@@ -15,6 +15,7 @@
 
 #include <hw_conf.h>
 #include <bq27220.h>
+#include <bq27220_data_memory.h>
 #include <bq25896.h>
 
 #include <furi.h>
@@ -37,16 +38,18 @@ typedef struct {
     volatile uint8_t insomnia;
     volatile uint8_t suppress_charge;
 
-    uint8_t gauge_initialized;
-    uint8_t charger_initialized;
+    bool gauge_ok;
+    bool charger_ok;
 } FuriHalPower;
 
 static volatile FuriHalPower furi_hal_power = {
     .insomnia = 0,
     .suppress_charge = 0,
+    .gauge_ok = false,
+    .charger_ok = false,
 };
 
-#include <furi_hal_power_calibration.h>
+extern const BQ27220DMData furi_hal_power_gauge_data_memory[];
 
 void furi_hal_power_init() {
 #ifdef FURI_HAL_POWER_DEBUG
@@ -63,8 +66,13 @@ void furi_hal_power_init() {
     LL_C2_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
-    bq27220_init(&furi_hal_i2c_handle_power, &cedv);
-    bq25896_init(&furi_hal_i2c_handle_power);
+    // Find and init gauge
+    if(bq27220_init(&furi_hal_i2c_handle_power)) {
+        furi_hal_power.gauge_ok = bq27220_apply_data_memory(
+            &furi_hal_i2c_handle_power, furi_hal_power_gauge_data_memory);
+    }
+    // Find and init charger
+    furi_hal_power.charger_ok = bq25896_init(&furi_hal_i2c_handle_power);
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
     FURI_LOG_I(TAG, "Init OK");
@@ -78,14 +86,29 @@ bool furi_hal_power_gauge_is_ok() {
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
 
-    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) == BQ27220_ERROR ||
-       bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status) ==
-           BQ27220_ERROR) {
+    if(!bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) ||
+       !bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status)) {
         ret = false;
     } else {
         ret &= battery_status.BATTPRES;
         ret &= operation_status.INITCOMP;
-        ret &= (cedv.design_cap == bq27220_get_design_capacity(&furi_hal_i2c_handle_power));
+        ret &= furi_hal_power.gauge_ok;
+    }
+
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
+    return ret;
+}
+
+bool furi_hal_power_is_shutdown_requested() {
+    bool ret = false;
+
+    BatteryStatus battery_status;
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+
+    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) != BQ27220_ERROR) {
+        ret = battery_status.SYSDWN;
     }
 
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
@@ -576,9 +599,8 @@ void furi_hal_power_debug_get(PropertyValueCallback out, void* context) {
 
     const uint32_t ntc_mpct = bq25896_get_ntc_mpct(&furi_hal_i2c_handle_power);
 
-    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) != BQ27220_ERROR &&
-       bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status) !=
-           BQ27220_ERROR) {
+    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) &&
+       bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status)) {
         property_value_out(&property_context, "%lu", 2, "charger", "ntc", ntc_mpct);
         property_value_out(&property_context, "%d", 2, "gauge", "calmd", operation_status.CALMD);
         property_value_out(&property_context, "%d", 2, "gauge", "sec", operation_status.SEC);

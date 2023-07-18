@@ -300,6 +300,7 @@ static bool power_update_info(Power* power) {
 
     info.is_charging = furi_hal_power_is_charging();
     info.gauge_is_ok = furi_hal_power_gauge_is_ok();
+    info.is_shutdown_requested = furi_hal_power_is_shutdown_requested();
     info.charge = furi_hal_power_get_pct();
     info.health = furi_hal_power_get_bat_health_pct();
     info.capacity_remaining = furi_hal_power_get_battery_remaining_capacity();
@@ -328,7 +329,7 @@ static void power_check_low_battery(Power* power) {
     }
 
     // Check battery charge and vbus voltage
-    if((power->info.charge == 0) && (power->info.voltage_vbus < 4.0f) &&
+    if((power->info.is_shutdown_requested) && (power->info.voltage_vbus < 4.0f) &&
        power->show_low_bat_level_message) {
         if(!power->battery_low) {
             view_dispatcher_send_to_front(power->view_dispatcher);

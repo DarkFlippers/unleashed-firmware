@@ -12,15 +12,15 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
     widget_add_button_element(
         widget, GuiButtonTypeRight, "Delete", ibutton_widget_callback, context);
 
-    furi_string_printf(tmp, "Delete %s?", ibutton->key_name);
-    widget_add_string_element(
-        widget, 128 / 2, 0, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp));
+    furi_string_printf(tmp, "\e#Delete %s?\e#", ibutton->key_name);
+    widget_add_text_box_element(
+        widget, 0, 0, 128, 23, AlignCenter, AlignCenter, furi_string_get_cstr(tmp), false);
 
     furi_string_reset(tmp);
     ibutton_protocols_render_brief_data(ibutton->protocols, key, tmp);
 
     widget_add_string_multiline_element(
-        widget, 128 / 2, 16, AlignCenter, AlignTop, FontSecondary, furi_string_get_cstr(tmp));
+        widget, 128 / 2, 24, AlignCenter, AlignTop, FontSecondary, furi_string_get_cstr(tmp));
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
     furi_string_free(tmp);
