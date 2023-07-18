@@ -328,10 +328,7 @@ class AppBuildset:
             sdk_headers.extend(
                 [
                     src._appdir.File(header)
-                    for src in [
-                        app,
-                        *(plugin for plugin in app._plugins),
-                    ]
+                    for src in [app, *app._plugins]
                     for header in src.sdk_headers
                 ]
             )

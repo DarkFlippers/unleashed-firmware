@@ -4,13 +4,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[Release] Build",
+            "label": "[Release] Build Firmware",
             "group": "build",
             "type": "shell",
             "command": "./fbt COMPACT=1 DEBUG=0"
         },
         {
-            "label": "[Debug] Build",
+            "label": "[Debug] Build Firmware",
             "group": "build",
             "type": "shell",
             "command": "./fbt"
@@ -124,16 +124,28 @@
             "command": "./fbt COMPACT=1 DEBUG=0 fap_dist"
         },
         {
+            "label": "[Debug] Build App",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt build APPSRC=${relativeFileDirname}"
+        },
+        {
+            "label": "[Release] Build App",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 build APPSRC=${relativeFileDirname}"
+        },
+        {
             "label": "[Debug] Launch App on Flipper",
             "group": "build",
             "type": "shell",
-            "command": "./fbt launch_app APPSRC=${relativeFileDirname}"
+            "command": "./fbt launch APPSRC=${relativeFileDirname}"
         },
         {
             "label": "[Release] Launch App on Flipper",
             "group": "build",
             "type": "shell",
-            "command": "./fbt COMPACT=1 DEBUG=0 launch_app APPSRC=${relativeFileDirname}"
+            "command": "./fbt COMPACT=1 DEBUG=0 launch APPSRC=${relativeFileDirname}"
         },
         {
             "label": "[Debug] Launch App on Flipper with Serial Console",

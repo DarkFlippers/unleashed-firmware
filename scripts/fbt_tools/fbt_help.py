@@ -4,15 +4,16 @@ targets_help = """Configuration variables:
 tail_help = """
 
 TASKS:
-Building:
+Firmware & apps:
     firmware_all, fw_dist:
         Build firmware; create distribution package
     faps, fap_dist:
         Build all FAP apps
-    fap_{APPID}, launch_app APPSRC={APPID}:
+    fap_{APPID}, build APPSRC={APPID}; launch APPSRC={APPID}:
         Build FAP app with appid={APPID}; upload & start it over USB
     fap_deploy:
         Build and upload all FAP apps over USB
+    
 
 Flashing & debugging:
     flash, flash_blackmagic, jflash:
