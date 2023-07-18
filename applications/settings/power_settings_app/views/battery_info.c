@@ -54,8 +54,7 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
             (uint32_t)(data->vbus_voltage * 10) % 10,
             current);
     } else if(current < -5) {
-        // Often gauge reports anything in the range 1~5ma as 5ma
-        // That brings confusion, so we'll treat it as Napping
+        // 0-5ma deadband
         snprintf(
             emote,
             sizeof(emote),

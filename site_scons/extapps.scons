@@ -114,8 +114,20 @@ extapps.resources_dist = appenv.FapDist(appenv["RESOURCES_ROOT"], [])
 
 
 if appsrc := appenv.subst("$APPSRC"):
-    appenv.AddAppLaunchTarget(appsrc, "launch_app")
+    launch_target = appenv.AddAppLaunchTarget(appsrc, "launch")
+    Alias("launch_app", launch_target)
+    appenv.PhonyTarget(
+        "launch_app",
+        Action(
+            lambda **kw: warn(
+                WarningOnByDefault,
+                "The 'launch_app' target is deprecated. Use 'launch' instead.",
+            ),
+            None,
+        ),
+    )
 
+    appenv.AddAppBuildTarget(appsrc, "build")
 
 # SDK management
 
