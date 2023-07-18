@@ -177,15 +177,15 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
                                                                   CLIPBOARD_MODE_COPY);
             consumed = true;
             break;
-        case ArchiveBrowserEventFileMenuPast_Cut:
-        case ArchiveBrowserEventFileMenuPast_Copy:
+        case ArchiveBrowserEventFileMenuPaste_Cut:
+        case ArchiveBrowserEventFileMenuPaste_Copy:
             archive_show_file_menu(browser, false);
 
             FuriString* path_src = archive->fav_move_str;
             FuriString* path_dst = furi_string_alloc();
             FuriString* base = furi_string_alloc();
 
-            const bool copy = (event.event == ArchiveBrowserEventFileMenuPast_Copy);
+            const bool copy = (event.event == ArchiveBrowserEventFileMenuPaste_Copy);
 
             path_extract_basename(furi_string_get_cstr(path_src), base);
             path_concat(furi_string_get_cstr(browser->path), furi_string_get_cstr(base), path_dst);

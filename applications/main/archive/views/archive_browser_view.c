@@ -60,13 +60,13 @@ static void contex_menu_filemanager_init(ArchiveBrowserViewModel* model) {
         } else if(model->clipboard_mode == CLIPBOARD_MODE_CUT) {
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
-                "Past",
-                ArchiveBrowserEventFileMenuPast_Cut);
+                "Paste",
+                ArchiveBrowserEventFileMenuPaste_Cut);
         } else if(model->clipboard_mode == CLIPBOARD_MODE_COPY) {
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
-                "Past",
-                ArchiveBrowserEventFileMenuPast_Copy);
+                "Paste",
+                ArchiveBrowserEventFileMenuPaste_Copy);
         }
 
         archive_menu_add_item(
@@ -79,13 +79,13 @@ static void contex_menu_filemanager_init(ArchiveBrowserViewModel* model) {
         if(model->clipboard_mode == CLIPBOARD_MODE_CUT) {
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
-                "Past",
-                ArchiveBrowserEventFileMenuPast_Cut);
+                "Paste",
+                ArchiveBrowserEventFileMenuPaste_Cut);
         } else if(model->clipboard_mode == CLIPBOARD_MODE_COPY) {
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu),
-                "Past",
-                ArchiveBrowserEventFileMenuPast_Copy);
+                "Paste",
+                ArchiveBrowserEventFileMenuPaste_Copy);
         }
         archive_menu_add_item(
             menu_array_push_raw(model->context_menu), "NewDir", ArchiveBrowserEventFileMenuNewDir);
@@ -109,7 +109,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
             // Folder
             //FURI_LOG_D(TAG, "Directory type");
 
-            // { Copy/Cut, Past } NewDir, Rename, Delete
+            // { Copy/Cut, Paste } NewDir, Rename, Delete
             model->menu_file_manage = true;
             model->menu_can_switch = false;
 
@@ -119,7 +119,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
             //FURI_LOG_D(TAG, "Unknown type");
             model->menu_can_switch = true;
             if(model->menu_file_manage) {
-                // { Copy/Cut, Past } NewDir, Rename, Delete
+                // { Copy/Cut, Paste } NewDir, Rename, Delete
                 contex_menu_filemanager_init(model);
             } else {
                 // Info, [Show],
@@ -187,7 +187,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
 
             model->menu_can_switch = true;
             if(model->menu_file_manage) {
-                // { Copy/Cut, Past } NewDir, Rename, Delete
+                // { Copy/Cut, Paste } NewDir, Rename, Delete
                 contex_menu_filemanager_init(model);
             } else {
                 // Run, Pin, Info, [Show]
