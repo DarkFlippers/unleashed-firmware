@@ -16,6 +16,18 @@
             "command": "./fbt"
         },
         {
+            "label": "[FBT] Format",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt format"
+        },
+        {
+            "label": "[FBT] Clear",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt -c"
+        },
+        {
             "label": "[Release] Flash (ST-Link)",
             "group": "build",
             "type": "shell",
