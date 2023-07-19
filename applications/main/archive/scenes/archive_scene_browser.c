@@ -157,6 +157,77 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             }
             consumed = true;
             break;
+        case ArchiveBrowserEventFileMenuNewDir:
+            archive_show_file_menu(browser, false);
+            if(!favorites) {
+                scene_manager_set_scene_state(
+                    archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_NEED_REFRESH);
+                scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneNewDir);
+            }
+            consumed = true;
+            break;
+        case ArchiveBrowserEventFileMenuCut:
+        case ArchiveBrowserEventFileMenuCopy:
+            archive_show_file_menu(browser, false);
+            furi_string_set(archive->fav_move_str, selected->path);
+
+            archive_browser_clipboard_set_mode(
+                browser,
+                (event.event == ArchiveBrowserEventFileMenuCut) ? CLIPBOARD_MODE_CUT :
+                                                                  CLIPBOARD_MODE_COPY);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventFileMenuPaste_Cut:
+        case ArchiveBrowserEventFileMenuPaste_Copy:
+            archive_show_file_menu(browser, false);
+
+            FuriString* path_src = archive->fav_move_str;
+            FuriString* path_dst = furi_string_alloc();
+            FuriString* base = furi_string_alloc();
+
+            const bool copy = (event.event == ArchiveBrowserEventFileMenuPaste_Copy);
+
+            path_extract_basename(furi_string_get_cstr(path_src), base);
+            path_concat(furi_string_get_cstr(browser->path), furi_string_get_cstr(base), path_dst);
+
+            if(path_src && path_dst) {
+                view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewStack);
+                archive_show_loading_popup(archive, true);
+                FS_Error error = archive_rename_copy_file_or_dir(
+                    archive->browser,
+                    furi_string_get_cstr(path_src),
+                    furi_string_get_cstr(path_dst),
+                    copy);
+                archive_show_loading_popup(archive, false);
+
+                if(error != FSE_OK) {
+                    FuriString* dialog_msg;
+                    dialog_msg = furi_string_alloc();
+                    furi_string_cat_printf(
+                        dialog_msg,
+                        "Cannot %s:\n%s",
+                        copy ? "copy" : "move",
+                        storage_error_get_desc(error));
+                    dialog_message_show_storage_error(
+                        archive->dialogs, furi_string_get_cstr(dialog_msg));
+                    furi_string_free(dialog_msg);
+                } else {
+                    ArchiveFile_t* current = archive_get_current_file(archive->browser);
+                    if(current != NULL) furi_string_set(current->path, path_dst);
+                    view_dispatcher_send_custom_event(
+                        archive->view_dispatcher, ArchiveBrowserEventListRefresh);
+                }
+
+                view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewBrowser);
+            }
+
+            furi_string_free(base);
+            furi_string_free(path_dst);
+
+            archive_browser_clipboard_reset(browser);
+            furi_string_reset(path_src);
+
+            break;
         case ArchiveBrowserEventFileMenuInfo:
             archive_show_file_menu(browser, false);
             scene_manager_set_scene_state(
