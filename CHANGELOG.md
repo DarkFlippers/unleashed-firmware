@@ -2,6 +2,7 @@
 * !!! **Warning! After installing, Desktop settings (Favoutite apps, PIN Code, AutoLock time..) will be resetted to default due to settings changes, Please set your PIN code, Favourite apps again in Settings->Desktop** !!!
 * This next text applies to you only **If you have copied any apps manually** into `apps` folder and don't know that you need to update those apps manually in same way you added them - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! **If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!**
 -----
+* Archive (FileBrowser): Added Cut/Copy/Paste & NewDir options in new menu (original feature made by (@Willy-JL | XFW) - and ported by @gid9798)
 * SubGHz Remote: Merged SubGHz Remote and Remote maker in one app, **use back button to access remote maker** (by @gid9798 | PR #545)
 * SubGHz: Port latest OFW external radio driver, fix issues (now you can make drivers for other radio chips) (by @gid9798 | PR #539 #536 #535 #534)
 * GUI module: SubMenu fix vertical orientation (by @gid9798 | PR #543)
@@ -15,6 +16,8 @@
 * Plugins: Updated **Mifare Nested** [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
 * Plugins: Updated Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
 * Plugins: Updated **Multi (RFID/iButton) Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/Multi_Fuzzer)
+* OFW: Gauge initialization routine refactoring, new DataMemory layout, configuration update
+* OFW: fbt: `build` target for faps
 * OFW: IButton: on delete scene key name not fully display if so long
 * OFW: Radio headers in SDK
 * OFW: Loader: good looking error messages
