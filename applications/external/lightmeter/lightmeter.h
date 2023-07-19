@@ -18,6 +18,7 @@
 
 #include "lightmeter_config.h"
 #include <BH1750.h>
+#include <MAX44009.h>
 
 typedef struct {
     int iso;
@@ -26,6 +27,7 @@ typedef struct {
     int dome;
     int backlight;
     int lux_only;
+    int sensor_type;
 } LightMeterConfig;
 
 typedef struct {
@@ -55,4 +57,6 @@ typedef enum {
 
 void lightmeter_app_set_config(LightMeterApp* context, LightMeterConfig* config);
 
+void lightmeter_app_i2c_init_sensor(LightMeterApp* context);
+void lightmeter_app_i2c_deinit_sensor(LightMeterApp* context);
 void lightmeter_app_i2c_callback(LightMeterApp* context);

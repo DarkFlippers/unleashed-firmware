@@ -34,3 +34,5 @@ void subrem_view_remote_set_state(
     SubRemViewRemote* subrem_view_remote,
     SubRemViewRemoteState state,
     uint8_t presed_btn);
+
+void subrem_view_remote_set_radio(SubRemViewRemote* subrem_view_remote, bool external);

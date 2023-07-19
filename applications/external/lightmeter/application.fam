@@ -1,6 +1,6 @@
 App(
     appid="lightmeter",
-    name="[BH1750] Lightmeter",
+    name="Lightmeter",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="lightmeter_app",
     requires=[
@@ -8,6 +8,7 @@ App(
     ],
     stack_size=1 * 1024,
     order=90,
+    fap_version=(1, 1),
     fap_icon="lightmeter.png",
     fap_category="GPIO",
     fap_private_libs=[
@@ -18,9 +19,16 @@ App(
                 "BH1750.c",
             ],
         ),
+        Lib(
+            name="MAX44009",
+            cincludes=["."],
+            sources=[
+                "MAX44009.c",
+            ],
+        ),
     ],
+    fap_description="Lightmeter app for photography",
+    fap_author="Oleksii Kutuzov",
+    fap_weburl="https://github.com/oleksiikutuzov/flipperzero-lightmeter",
     fap_icon_assets="icons",
-    fap_author="@oleksiikutuzov",
-    fap_version="1.0",
-    fap_description="Lightmeter app for photography based on BH1750 sensor",
 )

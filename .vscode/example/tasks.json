@@ -4,16 +4,28 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[Release] Build",
+            "label": "[Release] Build Firmware",
             "group": "build",
             "type": "shell",
             "command": "./fbt COMPACT=1 DEBUG=0"
         },
         {
-            "label": "[Debug] Build",
+            "label": "[Debug] Build Firmware",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack"
+            "command": "./fbt"
+        },
+        {
+            "label": "[FBT] Format",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt format"
+        },
+        {
+            "label": "[FBT] Clear",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt -c"
         },
         {
             "label": "[Release] Flash (ST-Link)",
@@ -25,7 +37,7 @@
             "label": "[Debug] Flash (ST-Link)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash"
+            "command": "./fbt FORCE=1 flash"
         },
         {
             "label": "[Release] Flash (blackmagic)",
@@ -37,7 +49,7 @@
             "label": "[Debug] Flash (blackmagic)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash_blackmagic"
+            "command": "./fbt FORCE=1 flash_blackmagic"
         },
         {
             "label": "[Release] Flash (JLink)",
@@ -49,7 +61,7 @@
             "label": "[Debug] Flash (JLink)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 jflash"
+            "command": "./fbt FORCE=1 jflash"
         },
         {
             "label": "[Release] Build update bundle",
@@ -61,7 +73,7 @@
             "label": "[Debug] Build update bundle",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack updater_package"
+            "command": "./fbt updater_package"
         },
         {
             "label": "[Release] Build updater",
@@ -73,13 +85,13 @@
             "label": "[Debug] Build updater",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack updater_all"
+            "command": "./fbt updater_all"
         },
         {
             "label": "[Debug] Flash (USB, w/o resources)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash_usb"
+            "command": "./fbt FORCE=1 flash_usb"
         },
         {
             "label": "[Release] Flash (USB, w/o resources)",
@@ -97,7 +109,7 @@
             "label": "[Debug] Flash (USB, with resources)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=debug_pack FORCE=1 flash_usb_full"
+            "command": "./fbt FORCE=1 flash_usb_full"
         },
         {
             "label": "[Release] Flash (USB, with resources)",
@@ -124,16 +136,28 @@
             "command": "./fbt COMPACT=1 DEBUG=0 fap_dist"
         },
         {
+            "label": "[Debug] Build App",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt build APPSRC=${relativeFileDirname}"
+        },
+        {
+            "label": "[Release] Build App",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 build APPSRC=${relativeFileDirname}"
+        },
+        {
             "label": "[Debug] Launch App on Flipper",
             "group": "build",
             "type": "shell",
-            "command": "./fbt launch_app APPSRC=${relativeFileDirname}"
+            "command": "./fbt launch APPSRC=${relativeFileDirname}"
         },
         {
             "label": "[Release] Launch App on Flipper",
             "group": "build",
             "type": "shell",
-            "command": "./fbt COMPACT=1 DEBUG=0 launch_app APPSRC=${relativeFileDirname}"
+            "command": "./fbt COMPACT=1 DEBUG=0 launch APPSRC=${relativeFileDirname}"
         },
         {
             "label": "[Debug] Launch App on Flipper with Serial Console",

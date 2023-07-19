@@ -182,6 +182,11 @@ bool wifi_marauder_scene_console_output_on_event(void* context, SceneManagerEven
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         consumed = true;
+    } else {
+        if(app->flash_worker_busy) {
+            // ignore button presses while flashing
+            consumed = true;
+        }
     }
 
     return consumed;

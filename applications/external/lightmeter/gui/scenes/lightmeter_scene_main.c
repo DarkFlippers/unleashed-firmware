@@ -9,6 +9,7 @@ static void lightmeter_scene_main_on_left(void* context) {
 void lightmeter_scene_main_on_enter(void* context) {
     LightMeterApp* app = context;
 
+    lightmeter_app_i2c_init_sensor(context);
     lightmeter_main_view_set_left_callback(app->main_view, lightmeter_scene_main_on_left, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, LightMeterAppViewMainView);
 }
@@ -39,5 +40,5 @@ bool lightmeter_scene_main_on_event(void* context, SceneManagerEvent event) {
 }
 
 void lightmeter_scene_main_on_exit(void* context) {
-    UNUSED(context);
+    lightmeter_app_i2c_deinit_sensor(context);
 }

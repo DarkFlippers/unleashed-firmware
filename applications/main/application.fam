@@ -4,7 +4,6 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "gpio",
-        "onewire",
         "ibutton",
         "infrared",
         "lfrfid",
@@ -15,23 +14,20 @@ App(
         "archive",
         "clock",
         "subghz_remote",
+        "main_apps_on_start",
     ],
 )
 
-# Enable apps that you need in DEBUG firmware here:
 App(
-    appid="main_apps_default",
-    name="Basic applications for main menu",
+    appid="main_apps_on_start",
+    name="On start hooks",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        # "gpio",
-        # "ibutton",
-        # "infrared",
-        "lfrfid",
-        # "nfc",
-        "subghz",
-        # "bad_usb",
-        # "u2f",
-        "archive",
+        "ibutton_start",
+        "onewire_start",
+        "subghz_start",
+        "infrared_start",
+        "lfrfid_start",
+        "nfc_start",
     ],
 )

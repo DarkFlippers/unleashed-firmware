@@ -21,6 +21,10 @@ steps:
     commands:
       - export DIST_SUFFIX=${DRONE_TAG}
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
+      - rm -rf assets/resources/apps/
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf .sconsign.dblite
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
@@ -316,6 +320,10 @@ steps:
     commands:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - rm -rf assets/resources/apps/
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf .sconsign.dblite
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/

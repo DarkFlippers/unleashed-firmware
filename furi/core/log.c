@@ -14,6 +14,21 @@ typedef struct {
 
 static FuriLogParams furi_log;
 
+typedef struct {
+    const char* str;
+    FuriLogLevel level;
+} FuriLogLevelDescription;
+
+static const FuriLogLevelDescription FURI_LOG_LEVEL_DESCRIPTIONS[] = {
+    {"default", FuriLogLevelDefault},
+    {"none", FuriLogLevelNone},
+    {"error", FuriLogLevelError},
+    {"warn", FuriLogLevelWarn},
+    {"info", FuriLogLevelInfo},
+    {"debug", FuriLogLevelDebug},
+    {"trace", FuriLogLevelTrace},
+};
+
 void furi_log_init() {
     // Set default logging parameters
     furi_log.log_level = FURI_LOG_LEVEL_DEFAULT;
@@ -116,4 +131,24 @@ void furi_log_set_puts(FuriLogPuts puts) {
 void furi_log_set_timestamp(FuriLogTimestamp timestamp) {
     furi_assert(timestamp);
     furi_log.timestamp = timestamp;
+}
+
+bool furi_log_level_to_string(FuriLogLevel level, const char** str) {
+    for(size_t i = 0; i < COUNT_OF(FURI_LOG_LEVEL_DESCRIPTIONS); i++) {
+        if(level == FURI_LOG_LEVEL_DESCRIPTIONS[i].level) {
+            *str = FURI_LOG_LEVEL_DESCRIPTIONS[i].str;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool furi_log_level_from_string(const char* str, FuriLogLevel* level) {
+    for(size_t i = 0; i < COUNT_OF(FURI_LOG_LEVEL_DESCRIPTIONS); i++) {
+        if(strcmp(str, FURI_LOG_LEVEL_DESCRIPTIONS[i].str) == 0) {
+            *level = FURI_LOG_LEVEL_DESCRIPTIONS[i].level;
+            return true;
+        }
+    }
+    return false;
 }

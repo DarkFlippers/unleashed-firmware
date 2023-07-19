@@ -10,11 +10,11 @@
 
 #define LOGITECH_MAX_CHANNEL 85
 #define COUNT_THRESHOLD 2
-#define DEFAULT_SAMPLE_TIME 8000
+#define DEFAULT_SAMPLE_TIME 4000
 #define MAX_ADDRS 100
 #define MAX_CONFIRMED 32
 
-#define NRFSNIFF_APP_PATH_FOLDER "/ext/nrfsniff"
+#define NRFSNIFF_APP_PATH_FOLDER STORAGE_APP_DATA_PATH_PREFIX
 #define NRFSNIFF_APP_FILENAME "addresses.txt"
 #define TAG "nrfsniff"
 
@@ -341,6 +341,7 @@ int32_t nrfsniff_app(void* p) {
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
+    storage_common_migrate(storage, EXT_PATH("nrfsniff"), NRFSNIFF_APP_PATH_FOLDER);
     storage_common_mkdir(storage, NRFSNIFF_APP_PATH_FOLDER);
 
     PluginEvent event;
@@ -387,13 +388,19 @@ int32_t nrfsniff_app(void* p) {
                         break;
                     case InputKeyOk:
                         // toggle sniffing
-                        sniffing_state = !sniffing_state;
-                        if(sniffing_state) {
-                            clear_cache();
-                            start_sniffing();
-                            start = furi_get_tick();
-                        } else
-                            wrap_up(storage, notification);
+                        if(nrf24_check_connected(nrf24_HANDLE)) {
+                            sniffing_state = !sniffing_state;
+                            if(sniffing_state) {
+                                clear_cache();
+                                start_sniffing();
+                                start = furi_get_tick();
+                            } else {
+                                wrap_up(storage, notification);
+                            }
+                        } else {
+                            notification_message(notification, &sequence_error);
+                        }
+
                         break;
                     case InputKeyBack:
                         if(event.input.type == InputTypeLong) processing = false;

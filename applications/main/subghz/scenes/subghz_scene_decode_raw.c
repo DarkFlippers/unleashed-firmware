@@ -93,7 +93,9 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
 
         subghz->decode_raw_file_worker_encoder = subghz_file_encoder_worker_alloc();
         if(subghz_file_encoder_worker_start(
-               subghz->decode_raw_file_worker_encoder, furi_string_get_cstr(file_name))) {
+               subghz->decode_raw_file_worker_encoder,
+               furi_string_get_cstr(file_name),
+               subghz_txrx_radio_device_get_name(subghz->txrx))) {
             //the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
         } else {

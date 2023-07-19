@@ -1,6 +1,6 @@
 #pragma once
 
-#define LM_VERSION_APP "0.7"
+#define LM_VERSION_APP "1.1"
 #define LM_DEVELOPED "Oleksii Kutuzov"
 #define LM_GITHUB "https://github.com/oleksiikutuzov/flipperzero-lightmeter"
 
@@ -104,5 +104,10 @@ typedef enum {
     LUX_ONLY_OFF,
     LUX_ONLY_ON,
 } LightMeterLuxOnlyMode;
+
+typedef enum {
+    SENSOR_BH1750,
+    SENSOR_MAX44009,
+} LightMeterSensorType;
 
 typedef enum { BACKLIGHT_AUTO, BACKLIGHT_ON } LightMeterBacklight;

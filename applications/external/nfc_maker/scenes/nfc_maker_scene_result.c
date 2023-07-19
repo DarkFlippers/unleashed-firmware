@@ -17,20 +17,22 @@ void nfc_maker_scene_result_on_enter(void* context) {
 
     FlipperFormat* file = flipper_format_file_alloc(furi_record_open(RECORD_STORAGE));
     FuriString* path = furi_string_alloc();
-    furi_string_printf(path, NFC_APP_FOLDER "/%s" NFC_APP_EXTENSION, app->name_buf);
+    furi_string_printf(path, NFC_APP_FOLDER "/%s" NFC_APP_EXTENSION, app->save_buf);
+
+    uint32_t pages = 135;
+    size_t size = pages * 4;
+    uint8_t* buf = malloc(size);
     do {
         if(!flipper_format_file_open_new(file, furi_string_get_cstr(path))) break;
 
-        uint32_t pages = 42;
-        size_t size = pages * 4;
-        uint8_t* buf = malloc(size);
-
         if(!flipper_format_write_header_cstr(file, "Flipper NFC device", 3)) break;
-        if(!flipper_format_write_string_cstr(file, "Device type", "NTAG203")) break;
+        if(!flipper_format_write_string_cstr(file, "Device type", "NTAG215")) break;
 
         // Serial number
-        buf[0] = 0x04;
-        furi_hal_random_fill_buf(&buf[1], 8);
+        size_t i = 0;
+        buf[i++] = 0x04;
+        furi_hal_random_fill_buf(&buf[i], 8);
+        i += 8;
         uint8_t uid[7];
         memcpy(&uid[0], &buf[0], 3);
         memcpy(&uid[3], &buf[4], 4);
@@ -44,7 +46,7 @@ void nfc_maker_scene_result_on_enter(void* context) {
                "Signature",
                "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"))
             break;
-        if(!flipper_format_write_string_cstr(file, "Mifare version", "00 00 00 00 00 00 00 00"))
+        if(!flipper_format_write_string_cstr(file, "Mifare version", "00 04 04 02 01 00 11 03"))
             break;
 
         if(!flipper_format_write_string_cstr(file, "Counter 0", "0")) break;
@@ -56,233 +58,202 @@ void nfc_maker_scene_result_on_enter(void* context) {
         if(!flipper_format_write_uint32(file, "Pages total", &pages, 1)) break;
 
         // Static data
-        buf[9] = 0x48; // Internal
-        buf[10] = 0x00; // Lock bytes
-        buf[11] = 0x00; // ...
-        buf[12] = 0xE1; // Capability container
-        buf[13] = 0x10; // ...
-        buf[14] = 0x12; // ...
-        buf[15] = 0x00; // ...
-        buf[16] = 0x01; // ...
-        buf[17] = 0x03; // ...
-        buf[18] = 0xA0; // ...
-        buf[19] = 0x10; // ...
-        buf[20] = 0x44; // ...
-        buf[21] = 0x03; // Message flags
+        buf[i++] = 0x48; // Internal
+        buf[i++] = 0x00; // Lock bytes
+        buf[i++] = 0x00; // ...
 
-        size_t msg_len = 0;
-        switch(scene_manager_get_scene_state(app->scene_manager, NfcMakerSceneMenu)) {
+        buf[i++] = 0xE1; // Capability container
+        buf[i++] = 0x10; // ...
+        buf[i++] = 0x3E; // ...
+        buf[i++] = 0x00; // ...
+
+        buf[i++] = 0x03; // Container flags
+
+        // NDEF Docs: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/protocols/nfc/index.html#nfc-data-exchange-format-ndef
+        uint8_t tnf = 0x00;
+        const char* type = "";
+        uint8_t* payload = NULL;
+        size_t payload_len = 0;
+
+        size_t data_len = 0;
+        size_t j = 0;
+        switch(scene_manager_get_scene_state(app->scene_manager, NfcMakerSceneStart)) {
         case NfcMakerSceneBluetooth: {
-            msg_len = 0x2B;
+            tnf = 0x02; // Media-type [RFC 2046]
+            type = "application/vnd.bluetooth.ep.oob";
 
-            buf[23] = 0xD2;
-            buf[24] = 0x20;
-            buf[25] = 0x08;
-            buf[26] = 0x61;
-            buf[27] = 0x70;
+            data_len = MAC_INPUT_LEN;
+            payload_len = data_len + 2;
+            payload = malloc(payload_len);
 
-            buf[28] = 0x70;
-            buf[29] = 0x6C;
-            buf[30] = 0x69;
-            buf[31] = 0x63;
+            payload[j++] = 0x08;
+            payload[j++] = 0x00;
+            memcpy(&payload[j], app->mac_buf, data_len);
+            j += data_len;
+            break;
+        }
+        case NfcMakerSceneContact: {
+            tnf = 0x02; // Media-type [RFC 2046]
+            type = "text/vcard";
 
-            buf[32] = 0x61;
-            buf[33] = 0x74;
-            buf[34] = 0x69;
-            buf[35] = 0x6F;
+            FuriString* vcard = furi_string_alloc_set("BEGIN:VCARD\r\nVERSION:3.0\r\n");
+            furi_string_cat_printf(
+                vcard, "PRODID:-//Flipper Xtreme//%s//EN\r\n", version_get_version(NULL));
+            furi_string_cat_printf(vcard, "N:%s;%s;;;\r\n", app->small_buf2, app->small_buf1);
+            furi_string_cat_printf(
+                vcard,
+                "FN:%s%s%s\r\n",
+                app->small_buf1,
+                strnlen(app->small_buf2, SMALL_INPUT_LEN) ? " " : "",
+                app->small_buf2);
+            if(strnlen(app->mail_buf, MAIL_INPUT_LEN)) {
+                furi_string_cat_printf(vcard, "EMAIL:%s\r\n", app->mail_buf);
+            }
+            if(strnlen(app->phone_buf, PHONE_INPUT_LEN)) {
+                furi_string_cat_printf(vcard, "TEL:%s\r\n", app->phone_buf);
+            }
+            if(strnlen(app->big_buf, BIG_INPUT_LEN)) {
+                furi_string_cat_printf(vcard, "URL:%s\r\n", app->big_buf);
+            }
+            furi_string_cat_printf(vcard, "END:VCARD\r\n");
 
-            buf[36] = 0x6E;
-            buf[37] = 0x2F;
-            buf[38] = 0x76;
-            buf[39] = 0x6E;
-
-            buf[40] = 0x64;
-            buf[41] = 0x2E;
-            buf[42] = 0x62;
-            buf[43] = 0x6C;
-
-            buf[44] = 0x75;
-            buf[45] = 0x65;
-            buf[46] = 0x74;
-            buf[47] = 0x6F;
-
-            buf[48] = 0x6F;
-            buf[49] = 0x74;
-            buf[50] = 0x68;
-            buf[51] = 0x2E;
-
-            buf[52] = 0x65;
-            buf[53] = 0x70;
-            buf[54] = 0x2E;
-            buf[55] = 0x6F;
-
-            buf[56] = 0x6F;
-            buf[57] = 0x62;
-            buf[58] = 0x08;
-            buf[59] = 0x00;
-
-            memcpy(&buf[60], app->mac_buf, GAP_MAC_ADDR_SIZE);
+            payload_len = furi_string_size(vcard);
+            payload = malloc(payload_len);
+            memcpy(payload, furi_string_get_cstr(vcard), payload_len);
+            furi_string_free(vcard);
             break;
         }
         case NfcMakerSceneHttps: {
-            uint8_t data_len = strnlen(app->text_buf, TEXT_INPUT_LEN);
-            msg_len = data_len + 5;
+            tnf = 0x01; // NFC Forum well-known type [NFC RTD]
+            type = "\x55";
 
-            buf[23] = 0xD1;
-            buf[24] = 0x01;
-            buf[25] = data_len + 1;
-            buf[26] = 0x55;
+            data_len = strnlen(app->big_buf, BIG_INPUT_LEN);
+            payload_len = data_len + 1;
+            payload = malloc(payload_len);
 
-            buf[27] = 0x04; // Prepend "https://"
-            memcpy(&buf[28], app->text_buf, data_len);
+            payload[j++] = 0x04; // Prepend "https://"
+            memcpy(&payload[j], app->big_buf, data_len);
+            j += data_len;
             break;
         }
         case NfcMakerSceneMail: {
-            uint8_t data_len = strnlen(app->text_buf, TEXT_INPUT_LEN);
-            msg_len = data_len + 5;
+            tnf = 0x01; // NFC Forum well-known type [NFC RTD]
+            type = "\x55";
 
-            buf[23] = 0xD1;
-            buf[24] = 0x01;
-            buf[25] = data_len + 1;
-            buf[26] = 0x55;
+            data_len = strnlen(app->mail_buf, MAIL_INPUT_LEN);
+            payload_len = data_len + 1;
+            payload = malloc(payload_len);
 
-            buf[27] = 0x06; // Prepend "mailto:"
-            memcpy(&buf[28], app->text_buf, data_len);
+            payload[j++] = 0x06; // Prepend "mailto:"
+            memcpy(&payload[j], app->mail_buf, data_len);
+            j += data_len;
             break;
         }
         case NfcMakerScenePhone: {
-            uint8_t data_len = strnlen(app->text_buf, TEXT_INPUT_LEN);
-            msg_len = data_len + 5;
+            tnf = 0x01; // NFC Forum well-known type [NFC RTD]
+            type = "\x55";
 
-            buf[23] = 0xD1;
-            buf[24] = 0x01;
-            buf[25] = data_len + 1;
-            buf[26] = 0x55;
+            data_len = strnlen(app->phone_buf, PHONE_INPUT_LEN);
+            payload_len = data_len + 1;
+            payload = malloc(payload_len);
 
-            buf[27] = 0x05; // Prepend "tel:"
-            memcpy(&buf[28], app->text_buf, data_len);
+            payload[j++] = 0x05; // Prepend "tel:"
+            memcpy(&payload[j], app->phone_buf, data_len);
+            j += data_len;
             break;
         }
         case NfcMakerSceneText: {
-            uint8_t data_len = strnlen(app->text_buf, TEXT_INPUT_LEN);
-            msg_len = data_len + 7;
+            tnf = 0x01; // NFC Forum well-known type [NFC RTD]
+            type = "\x54";
 
-            buf[23] = 0xD1;
-            buf[24] = 0x01;
-            buf[25] = data_len + 3;
-            buf[26] = 0x54;
+            data_len = strnlen(app->big_buf, BIG_INPUT_LEN);
+            payload_len = data_len + 3;
+            payload = malloc(payload_len);
 
-            buf[27] = 0x02;
-            buf[28] = 0x65; // e
-            buf[29] = 0x6E; // n
-            memcpy(&buf[30], app->text_buf, data_len);
+            payload[j++] = 0x02;
+            payload[j++] = 0x65; // e
+            payload[j++] = 0x6E; // n
+            memcpy(&payload[j], app->big_buf, data_len);
+            j += data_len;
             break;
         }
         case NfcMakerSceneUrl: {
-            uint8_t data_len = strnlen(app->text_buf, TEXT_INPUT_LEN);
-            msg_len = data_len + 5;
+            tnf = 0x01; // NFC Forum well-known type [NFC RTD]
+            type = "\x55";
 
-            buf[23] = 0xD1;
-            buf[24] = 0x01;
-            buf[25] = data_len + 1;
-            buf[26] = 0x55;
+            data_len = strnlen(app->big_buf, BIG_INPUT_LEN);
+            payload_len = data_len + 1;
+            payload = malloc(payload_len);
 
-            buf[27] = 0x00; // No prepend
-            memcpy(&buf[28], app->text_buf, data_len);
+            payload[j++] = 0x00; // No prepend
+            memcpy(&payload[j], app->big_buf, data_len);
+            j += data_len;
             break;
         }
         case NfcMakerSceneWifi: {
-            uint8_t ssid_len = strnlen(app->text_buf, WIFI_INPUT_LEN);
-            uint8_t pass_len = strnlen(app->pass_buf, WIFI_INPUT_LEN);
+            tnf = 0x02; // Media-type [RFC 2046]
+            type = "application/vnd.wfa.wsc";
+
+            uint8_t ssid_len = strnlen(app->small_buf1, SMALL_INPUT_LEN);
+            uint8_t pass_len = strnlen(app->small_buf2, SMALL_INPUT_LEN);
             uint8_t data_len = ssid_len + pass_len;
-            msg_len = data_len + 73;
+            payload_len = data_len + 39;
+            payload = malloc(payload_len);
 
-            buf[23] = 0xD2;
-            buf[24] = 0x17;
-            buf[25] = data_len + 47;
-            buf[26] = 0x61;
-            buf[27] = 0x70;
+            payload[j++] = 0x10;
+            payload[j++] = 0x0E;
+            payload[j++] = 0x00;
 
-            buf[28] = 0x70;
-            buf[29] = 0x6C;
-            buf[30] = 0x69;
-            buf[31] = 0x63;
+            payload[j++] = data_len + 43;
+            payload[j++] = 0x10;
+            payload[j++] = 0x26;
+            payload[j++] = 0x00;
 
-            buf[32] = 0x61;
-            buf[33] = 0x74;
-            buf[34] = 0x69;
-            buf[35] = 0x6F;
+            payload[j++] = 0x01;
+            payload[j++] = 0x01;
+            payload[j++] = 0x10;
+            payload[j++] = 0x45;
 
-            buf[36] = 0x6E;
-            buf[37] = 0x2F;
-            buf[38] = 0x76;
-            buf[39] = 0x6E;
+            payload[j++] = 0x00;
+            payload[j++] = ssid_len;
+            memcpy(&payload[j], app->small_buf1, ssid_len);
+            j += ssid_len;
+            payload[j++] = 0x10;
+            payload[j++] = 0x03;
 
-            buf[40] = 0x64;
-            buf[41] = 0x2E;
-            buf[42] = 0x77;
-            buf[43] = 0x66;
-
-            buf[44] = 0x61;
-            buf[45] = 0x2E;
-            buf[46] = 0x77;
-            buf[47] = 0x73;
-
-            buf[48] = 0x63;
-            buf[49] = 0x10;
-            buf[50] = 0x0E;
-            buf[51] = 0x00;
-
-            buf[52] = data_len + 43;
-            buf[53] = 0x10;
-            buf[54] = 0x26;
-            buf[55] = 0x00;
-
-            buf[56] = 0x01;
-            buf[57] = 0x01;
-            buf[58] = 0x10;
-            buf[59] = 0x45;
-
-            buf[60] = 0x00;
-            buf[61] = ssid_len;
-            memcpy(&buf[62], app->text_buf, ssid_len);
-            size_t ssid = 62 + ssid_len;
-            buf[ssid + 0] = 0x10;
-            buf[ssid + 1] = 0x03;
-
-            buf[ssid + 2] = 0x00;
-            buf[ssid + 3] = 0x02;
-            buf[ssid + 4] = 0x00;
-            buf[ssid + 5] =
+            payload[j++] = 0x00;
+            payload[j++] = 0x02;
+            payload[j++] = 0x00;
+            payload[j++] =
                 scene_manager_get_scene_state(app->scene_manager, NfcMakerSceneWifiAuth);
 
-            buf[ssid + 6] = 0x10;
-            buf[ssid + 7] = 0x0F;
-            buf[ssid + 8] = 0x00;
-            buf[ssid + 9] = 0x02;
+            payload[j++] = 0x10;
+            payload[j++] = 0x0F;
+            payload[j++] = 0x00;
+            payload[j++] = 0x02;
 
-            buf[ssid + 10] = 0x00;
-            buf[ssid + 11] =
+            payload[j++] = 0x00;
+            payload[j++] =
                 scene_manager_get_scene_state(app->scene_manager, NfcMakerSceneWifiEncr);
-            buf[ssid + 12] = 0x10;
-            buf[ssid + 13] = 0x27;
+            payload[j++] = 0x10;
+            payload[j++] = 0x27;
 
-            buf[ssid + 14] = 0x00;
-            buf[ssid + 15] = pass_len;
-            memcpy(&buf[ssid + 16], app->pass_buf, pass_len);
-            size_t pass = ssid + 16 + pass_len;
-            buf[pass + 0] = 0x10;
-            buf[pass + 1] = 0x20;
+            payload[j++] = 0x00;
+            payload[j++] = pass_len;
+            memcpy(&payload[j], app->small_buf2, pass_len);
+            j += pass_len;
+            payload[j++] = 0x10;
+            payload[j++] = 0x20;
 
-            buf[pass + 2] = 0x00;
-            buf[pass + 3] = 0x06;
-            buf[pass + 4] = 0xFF;
-            buf[pass + 5] = 0xFF;
+            payload[j++] = 0x00;
+            payload[j++] = 0x06;
+            payload[j++] = 0xFF;
+            payload[j++] = 0xFF;
 
-            buf[pass + 6] = 0xFF;
-            buf[pass + 7] = 0xFF;
-            buf[pass + 8] = 0xFF;
-            buf[pass + 9] = 0xFF;
+            payload[j++] = 0xFF;
+            payload[j++] = 0xFF;
+            payload[j++] = 0xFF;
+            payload[j++] = 0xFF;
 
             break;
         }
@@ -290,16 +261,85 @@ void nfc_maker_scene_result_on_enter(void* context) {
             break;
         }
 
-        // Message length and terminator
-        buf[22] = msg_len;
-        size_t msg_end = 23 + msg_len;
-        buf[msg_end] = 0xFE;
+        // Record header
+        uint8_t flags = 0;
+        flags |= 1 << 7; // MB (Message Begin)
+        flags |= 1 << 6; // ME (Message End)
+        flags |= tnf; // TNF (Type Name Format)
+        size_t type_len = strlen(type);
 
-        // Padding
-        for(size_t i = msg_end + 1; i < size; i++) {
+        size_t header_len = 0;
+        header_len += 1; // Flags and TNF
+        header_len += 1; // Type length
+        if(payload_len < 0xFF) {
+            flags |= 1 << 4; // SR (Short Record)
+            header_len += 1; // Payload length
+        } else {
+            header_len += 4; // Payload length
+        }
+        header_len += type_len; // Payload type
+
+        size_t record_len = header_len + payload_len;
+        if(record_len < 0xFF) {
+            buf[i++] = record_len; // Record length
+        } else {
+            buf[i++] = 0xFF; // Record length
+            buf[i++] = record_len >> 8; // ...
+            buf[i++] = record_len & 0xFF; // ...
+        }
+        buf[i++] = flags; // Flags and TNF
+        buf[i++] = type_len; // Type length
+        if(flags & 1 << 4) { // SR (Short Record)
+            buf[i++] = payload_len; // Payload length
+        } else {
+            buf[i++] = 0x00; // Payload length
+            buf[i++] = 0x00; // ...
+            buf[i++] = payload_len >> 8; // ...
+            buf[i++] = payload_len & 0xFF; // ...
+        }
+        memcpy(&buf[i], type, type_len); // Payload type
+        i += type_len;
+
+        // Record payload
+        memcpy(&buf[i], payload, payload_len);
+        i += payload_len;
+        free(payload);
+
+        // Record terminator
+        buf[i++] = 0xFE;
+
+        // Padding until last 5 pages
+        for(; i < size - 20; i++) {
             buf[i] = 0x00;
         }
 
+        // Last 5 static pages
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+        buf[i++] = 0xBD;
+
+        buf[i++] = 0x04;
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+        buf[i++] = 0xFF;
+
+        buf[i++] = 0x00;
+        buf[i++] = 0x05;
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+
+        buf[i++] = 0xFF;
+        buf[i++] = 0xFF;
+        buf[i++] = 0xFF;
+        buf[i++] = 0xFF;
+
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+        buf[i++] = 0x00;
+
+        // Write pages
         char str[16];
         bool ok = true;
         for(size_t page = 0; page < pages; page++) {
@@ -311,10 +351,11 @@ void nfc_maker_scene_result_on_enter(void* context) {
         }
         if(!ok) break;
 
-        free(buf);
         success = true;
 
     } while(false);
+    free(buf);
+
     furi_string_free(path);
     flipper_format_free(file);
     furi_record_close(RECORD_STORAGE);
@@ -343,7 +384,7 @@ bool nfc_maker_scene_result_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case PopupEventExit:
             scene_manager_search_and_switch_to_previous_scene(
-                app->scene_manager, NfcMakerSceneMenu);
+                app->scene_manager, NfcMakerSceneStart);
             break;
         default:
             break;

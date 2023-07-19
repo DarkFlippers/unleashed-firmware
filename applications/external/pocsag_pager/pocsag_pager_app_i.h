@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helpers/pocsag_pager_types.h"
+#include "helpers/radio_device_loader.h"
 
 #include "scenes/pocsag_pager_scene.h"
 #include <gui/gui.h>
@@ -19,6 +20,7 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/registry.h>
+#include <lib/subghz/devices/devices.h>
 
 typedef struct POCSAGPagerApp POCSAGPagerApp;
 
@@ -35,6 +37,8 @@ struct POCSAGPagerTxRx {
     uint8_t hopper_timeout;
     uint8_t hopper_idx_frequency;
     PCSGRxKeyState rx_key_state;
+
+    const SubGhzDevice* radio_device;
 };
 
 typedef struct POCSAGPagerTxRx POCSAGPagerTxRx;

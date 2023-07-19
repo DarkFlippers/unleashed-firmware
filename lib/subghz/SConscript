@@ -10,6 +10,7 @@ env.Append(
         File("registry.h"),
         File("subghz_worker.h"),
         File("subghz_tx_rx_worker.h"),
+        File("subghz_file_encoder_worker.h"),
         File("transmitter.h"),
         File("protocols/raw.h"),
         File("blocks/const.h"),
@@ -17,8 +18,11 @@ env.Append(
         File("blocks/encoder.h"),
         File("blocks/generic.h"),
         File("blocks/math.h"),
+        File("blocks/custom_btn.h"),
         File("subghz_setting.h"),
         File("subghz_protocol_registry.h"),
+        File("devices/cc1101_configs.h"),
+        File("devices/cc1101_int/cc1101_int_interconnect.h"),
     ],
 )
 

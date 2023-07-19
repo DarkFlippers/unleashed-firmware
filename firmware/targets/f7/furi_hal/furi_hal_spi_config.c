@@ -3,7 +3,6 @@
 #include <furi_hal_spi.h>
 #include <furi_hal_bus.h>
 #include <furi.h>
-#include <furi_hal_subghz.h>
 
 #define TAG "FuriHalSpiConfig"
 
@@ -91,7 +90,7 @@ void furi_hal_spi_config_deinit_early() {
 void furi_hal_spi_config_init() {
     furi_hal_spi_bus_init(&furi_hal_spi_bus_r);
 
-    furi_hal_spi_bus_handle_init(furi_hal_subghz.spi_bus_handle);
+    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_subghz);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_nfc);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_slow);
@@ -193,6 +192,52 @@ inline static void furi_hal_spi_bus_r_handle_event_callback(
     }
 }
 
+inline static void furi_hal_spi_bus_external_handle_event_callback(
+    FuriHalSpiBusHandle* handle,
+    FuriHalSpiBusHandleEvent event,
+    const LL_SPI_InitTypeDef* preset) {
+    if(event == FuriHalSpiBusHandleEventInit) {
+        furi_hal_gpio_write(handle->cs, true);
+        furi_hal_gpio_init(handle->cs, GpioModeOutputPushPull, GpioPullUp, GpioSpeedVeryHigh);
+    } else if(event == FuriHalSpiBusHandleEventDeinit) {
+        furi_hal_gpio_write(handle->cs, true);
+        furi_hal_gpio_init(handle->cs, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    } else if(event == FuriHalSpiBusHandleEventActivate) {
+        LL_SPI_Init(handle->bus->spi, (LL_SPI_InitTypeDef*)preset);
+        LL_SPI_SetRxFIFOThreshold(handle->bus->spi, LL_SPI_RX_FIFO_TH_QUARTER);
+        LL_SPI_Enable(handle->bus->spi);
+
+        furi_hal_gpio_init_ex(
+            handle->miso,
+            GpioModeAltFunctionPushPull,
+            GpioPullDown,
+            GpioSpeedVeryHigh,
+            GpioAltFn5SPI1);
+        furi_hal_gpio_init_ex(
+            handle->mosi,
+            GpioModeAltFunctionPushPull,
+            GpioPullDown,
+            GpioSpeedVeryHigh,
+            GpioAltFn5SPI1);
+        furi_hal_gpio_init_ex(
+            handle->sck,
+            GpioModeAltFunctionPushPull,
+            GpioPullDown,
+            GpioSpeedVeryHigh,
+            GpioAltFn5SPI1);
+
+        furi_hal_gpio_write(handle->cs, false);
+    } else if(event == FuriHalSpiBusHandleEventDeactivate) {
+        furi_hal_gpio_write(handle->cs, true);
+
+        furi_hal_gpio_init(handle->miso, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+        furi_hal_gpio_init(handle->mosi, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+        furi_hal_gpio_init(handle->sck, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+        LL_SPI_Disable(handle->bus->spi);
+    }
+}
+
 inline static void furi_hal_spi_bus_nfc_handle_event_callback(
     FuriHalSpiBusHandle* handle,
     FuriHalSpiBusHandleEvent event,
@@ -265,15 +310,6 @@ static void furi_hal_spi_bus_handle_subghz_event_callback(
     furi_hal_spi_bus_r_handle_event_callback(handle, event, &furi_hal_spi_preset_1edge_low_8m);
 }
 
-FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz_int = {
-    .bus = &furi_hal_spi_bus_r,
-    .callback = furi_hal_spi_bus_handle_subghz_event_callback,
-    .miso = &gpio_spi_r_miso,
-    .mosi = &gpio_spi_r_mosi,
-    .sck = &gpio_spi_r_sck,
-    .cs = &gpio_subghz_cs,
-};
-
 FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz = {
     .bus = &furi_hal_spi_bus_r,
     .callback = furi_hal_spi_bus_handle_subghz_event_callback,
@@ -281,15 +317,6 @@ FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz = {
     .mosi = &gpio_spi_r_mosi,
     .sck = &gpio_spi_r_sck,
     .cs = &gpio_subghz_cs,
-};
-
-FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz_ext = {
-    .bus = &furi_hal_spi_bus_r,
-    .callback = furi_hal_spi_bus_handle_subghz_event_callback,
-    .miso = &gpio_ext_pa6,
-    .mosi = &gpio_ext_pa7,
-    .sck = &gpio_ext_pb3,
-    .cs = &gpio_ext_pa4,
 };
 
 static void furi_hal_spi_bus_handle_nfc_event_callback(
@@ -310,7 +337,8 @@ FuriHalSpiBusHandle furi_hal_spi_bus_handle_nfc = {
 static void furi_hal_spi_bus_handle_external_event_callback(
     FuriHalSpiBusHandle* handle,
     FuriHalSpiBusHandleEvent event) {
-    furi_hal_spi_bus_r_handle_event_callback(handle, event, &furi_hal_spi_preset_1edge_low_2m);
+    furi_hal_spi_bus_external_handle_event_callback(
+        handle, event, &furi_hal_spi_preset_1edge_low_2m);
 }
 
 FuriHalSpiBusHandle furi_hal_spi_bus_handle_external = {

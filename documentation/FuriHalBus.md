@@ -78,9 +78,9 @@ The system will take over any given peripheral only when the respective feature 
 | ADC           |           |                                       |
 | QUADSPI       |           |                                       |
 | TIM1          | yes       | subghz, lfrfid, nfc, infrared, etc... |
-| TIM2          | yes       | --                                    |
+| TIM2          | yes       | subghz, infrared, etc...              |
 | TIM16         | yes       | speaker                               |
-| TIM17         |           |                                       |
+| TIM17         | yes       | cc1101_ext                            |
 | LPTIM1        | yes       | tickless idle timer                   |
 | LPTIM2        | yes       | pwm                                   |
 | SAI1          |           |                                       |
@@ -104,10 +104,10 @@ Below is the list of DMA channels and their usage by the system.
 |  --   | 5         |           |                           |
 |  --   | 6         |           |                           |
 |  --   | 7         |           |                           |
-| DMA2  | 1         | yes       | infrared, lfrfid, subghz  |
+| DMA2  | 1         | yes       | infrared, lfrfid, subghz, |
 |  --   | 2         | yes       | --                        |
-|  --   | 3         | yes       | SPI                       |
-|  --   | 4         | yes       | SPI                       |
-|  --   | 5         |           |                           |
-|  --   | 6         |           |                           |
-|  --   | 7         |           |                           |
+|  --   | 3         | yes       | cc1101_ext                |
+|  --   | 4         | yes       | cc1101_ext                |
+|  --   | 5         | yes       | cc1101_ext                |
+|  --   | 6         | yes       | SPI                       |
+|  --   | 7         | yes       | SPI                       |

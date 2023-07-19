@@ -65,8 +65,8 @@ bool nfc_maker_scene_wifi_auth_on_event(void* context, SceneManagerEvent event) 
         if(event.event == WifiAuthenticationOpen) {
             scene_manager_set_scene_state(
                 app->scene_manager, NfcMakerSceneWifiEncr, WifiEncryptionNone);
-            strcpy(app->pass_buf, "");
-            scene_manager_next_scene(app->scene_manager, NfcMakerSceneName);
+            strcpy(app->small_buf2, "");
+            scene_manager_next_scene(app->scene_manager, NfcMakerSceneSave);
         } else {
             scene_manager_set_scene_state(
                 app->scene_manager, NfcMakerSceneWifiEncr, WifiEncryptionAes);

@@ -52,6 +52,9 @@ static void subghz_scene_read_raw_update_statusbar(void* context) {
 
     furi_string_free(frequency_str);
     furi_string_free(modulation_str);
+
+    subghz_read_raw_set_radio_device_type(
+        subghz->subghz_read_raw, subghz_txrx_radio_device_get(subghz->txrx));
 }
 
 void subghz_scene_read_raw_callback(SubGhzCustomEvent event, void* context) {
@@ -247,7 +250,9 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             furi_string_printf(
                 temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, RAW_FILE_NAME, SUBGHZ_APP_EXTENSION);
             subghz_protocol_raw_gen_fff_data(
-                subghz_txrx_get_fff_data(subghz->txrx), furi_string_get_cstr(temp_str));
+                subghz_txrx_get_fff_data(subghz->txrx),
+                furi_string_get_cstr(temp_str),
+                subghz_txrx_radio_device_get_name(subghz->txrx));
             furi_string_free(temp_str);
 
             if(spl_count > 0) {
@@ -307,8 +312,8 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             subghz_read_raw_update_sample_write(
                 subghz->subghz_read_raw, subghz_protocol_raw_get_sample_write(decoder_raw));
 
-            SubGhzThresholdRssiData ret_rssi =
-                subghz_threshold_get_rssi_data(subghz->threshold_rssi);
+            SubGhzThresholdRssiData ret_rssi = subghz_threshold_get_rssi_data(
+                subghz->threshold_rssi, subghz_txrx_radio_device_get_rssi(subghz->txrx));
             subghz_read_raw_add_data_rssi(
                 subghz->subghz_read_raw, ret_rssi.rssi, ret_rssi.is_above);
             subghz_protocol_raw_save_to_file_pause(decoder_raw, !ret_rssi.is_above);

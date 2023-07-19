@@ -13,7 +13,8 @@ FAPs are created and developed the same way as internal applications that are pa
 To build your application as a FAP, create a folder with your app's source code in `applications_user`, then write its code the way you'd do when creating a regular built-in application. Then configure its `application.fam` manifest, and set its _apptype_ to FlipperAppType.EXTERNAL. See [Application Manifests](./AppManifests.md#application-definition) for more details.
 
 - To build your application, run `./fbt fap_{APPID}`, where APPID is your application's ID in its manifest.
-- To build your app and upload it over USB to run on Flipper, use `./fbt launch_app APPSRC=applications_user/path/to/app`. This command is configured in the default [VS Code profile](../.vscode/ReadMe.md) as a "Launch App on Flipper" build action (Ctrl+Shift+B menu).
+- To build your app and upload it over USB to run on Flipper, use `./fbt launch APPSRC=applications_user/path/to/app`. This command is configured in the default [VS Code profile](../.vscode/ReadMe.md) as a "Launch App on Flipper" build action (Ctrl+Shift+B menu).
+- To build an app without uploading it to Flipper, use `./fbt build APPSRC=applications_user/path/to/app`. This command is also availabe in VSCode configuration as "Build App".
 - To build all FAPs, run `./fbt faps` or `./fbt fap_dist`.
 
 ## FAP assets

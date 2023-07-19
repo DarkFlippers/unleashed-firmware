@@ -45,8 +45,11 @@ void subghz_frequency_analyzer_worker_set_pair_callback(
 /** Start SubGhzFrequencyAnalyzerWorker
  * 
  * @param instance SubGhzFrequencyAnalyzerWorker instance
+ * @param txrx pointer to SubGhzTxRx
  */
-void subghz_frequency_analyzer_worker_start(SubGhzFrequencyAnalyzerWorker* instance);
+void subghz_frequency_analyzer_worker_start(
+    SubGhzFrequencyAnalyzerWorker* instance,
+    SubGhzTxRx* txrx);
 
 /** Stop SubGhzFrequencyAnalyzerWorker
  * 

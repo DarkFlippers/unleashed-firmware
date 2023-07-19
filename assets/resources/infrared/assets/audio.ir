@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 1st Jul, 2023
-# Last Checked 1st Jul, 2023
+# Last Updated 13th Jul, 2023
+# Last Checked 13th Jul, 2023
 # 
 name: Power
 type: parsed
@@ -3680,3 +3680,51 @@ type: parsed
 protocol: NEC
 address: 80 00 00 00
 command: 02 00 00 00
+# 
+name: Power
+type: parsed
+protocol: RC5
+address: 15 00 00 00
+command: 0C 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: RC5
+address: 15 00 00 00
+command: 0D 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 15 00 00 00
+command: 10 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 15 00 00 00
+command: 11 00 00 00
+# 
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 40 00 00 00
+# 
+name: Next
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 43 00 00 00
+#
+name: Play
+type: parsed
+protocol: RC5
+address: 15 00 00 00
+command: 35 00 00 00
+#
+name: Pause
+type: parsed
+protocol: RC5
+address: 15 00 00 00
+command: 35 00 00 00

@@ -47,60 +47,17 @@ typedef struct {
 
 _Static_assert(sizeof(OperationStatus) == 2, "Incorrect structure size");
 
-typedef struct {
-    // Low byte, Low bit first
-    bool CCT : 1;
-    bool CSYNC : 1;
-    bool RSVD0 : 1;
-    bool EDV_CMP : 1;
-    bool SC : 1;
-    bool FIXED_EDV0 : 1;
-    uint8_t RSVD1 : 2;
-    // High byte, Low bit first
-    bool FCC_LIM : 1;
-    bool RSVD2 : 1;
-    bool FC_FOR_VDQ : 1;
-    bool IGNORE_SD : 1;
-    bool SME0 : 1;
-    uint8_t RSVD3 : 3;
-} GaugingConfig;
-
-_Static_assert(sizeof(GaugingConfig) == 2, "Incorrect structure size");
-
-typedef struct {
-    union {
-        GaugingConfig gauge_conf;
-        uint16_t gauge_conf_raw;
-    } cedv_conf;
-    uint16_t full_charge_cap;
-    uint16_t design_cap;
-    uint16_t EDV0;
-    uint16_t EDV1;
-    uint16_t EDV2;
-    uint16_t EMF;
-    uint16_t C0;
-    uint16_t R0;
-    uint16_t T0;
-    uint16_t R1;
-    uint8_t TC;
-    uint8_t C1;
-    uint16_t DOD0;
-    uint16_t DOD10;
-    uint16_t DOD20;
-    uint16_t DOD30;
-    uint16_t DOD40;
-    uint16_t DOD50;
-    uint16_t DOD60;
-    uint16_t DOD70;
-    uint16_t DOD80;
-    uint16_t DOD90;
-    uint16_t DOD100;
-} ParamCEDV;
+typedef struct BQ27220DMData BQ27220DMData;
 
 /** Initialize Driver
  * @return true on success, false otherwise
  */
-bool bq27220_init(FuriHalI2cBusHandle* handle, const ParamCEDV* cedv);
+bool bq27220_init(FuriHalI2cBusHandle* handle);
+
+/** Initialize Driver
+ * @return true on success, false otherwise
+ */
+bool bq27220_apply_data_memory(FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory);
 
 /** Get battery voltage in mV or error */
 uint16_t bq27220_get_voltage(FuriHalI2cBusHandle* handle);
@@ -109,11 +66,10 @@ uint16_t bq27220_get_voltage(FuriHalI2cBusHandle* handle);
 int16_t bq27220_get_current(FuriHalI2cBusHandle* handle);
 
 /** Get battery status */
-uint8_t bq27220_get_battery_status(FuriHalI2cBusHandle* handle, BatteryStatus* battery_status);
+bool bq27220_get_battery_status(FuriHalI2cBusHandle* handle, BatteryStatus* battery_status);
 
 /** Get operation status */
-uint8_t
-    bq27220_get_operation_status(FuriHalI2cBusHandle* handle, OperationStatus* operation_status);
+bool bq27220_get_operation_status(FuriHalI2cBusHandle* handle, OperationStatus* operation_status);
 
 /** Get temperature in units of 0.1°K */
 uint16_t bq27220_get_temperature(FuriHalI2cBusHandle* handle);

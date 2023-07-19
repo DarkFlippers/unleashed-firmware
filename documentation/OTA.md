@@ -87,9 +87,12 @@ Even if something goes wrong, updater allows you to retry failed operations and 
 |  Uninstalling radio FW  |  **4** | **0**      | SHCI Delete command error                  |
 |                         |        | **80**     | Error awaiting command status              |
 |    Writing radio FW     |  **5** | **0-100**  | Block read/write error                     |
-|   Installing radio FW   |  **6** | **0**      | SHCI Install command error                 |
+|   Installing radio FW   |  **6** | **10**     | SHCI Install command error                 |
 |                         |        | **80**     | Error awaiting command status              |
-|    Radio is updating    |  **7** | **10**     | Error waiting for operation completion     |
+|      Core2 is busy      |  **7** | **10**     | Couldn't start C2                          |
+|                         |        | **20**     | Failed to switch C2 to FUS mode            |
+|                         |        | **30**     | Error in FUS operation                     |
+|                         |        | **50**     | Failed to switch C2 to stack mode          |
 |  Validating opt. bytes  |  **8** | **yy**     | Option byte code                           |
 |    Checking DFU file    |  **9** | **0**      | Error opening DFU file                     |
 |                         |        | **1-98**   | Error reading DFU file                     |

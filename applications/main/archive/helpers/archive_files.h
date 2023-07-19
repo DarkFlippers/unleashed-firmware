@@ -12,6 +12,7 @@ typedef enum {
     ArchiveFileTypeIButton,
     ArchiveFileTypeNFC,
     ArchiveFileTypeSubGhz,
+    ArchiveFileTypeSubGhzRemote,
     ArchiveFileTypeLFRFID,
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
@@ -112,4 +113,8 @@ void archive_file_append(const char* path, const char* format, ...)
     _ATTRIBUTE((__format__(__printf__, 2, 3)));
 void archive_delete_file(void* context, const char* format, ...)
     _ATTRIBUTE((__format__(__printf__, 2, 3)));
-FS_Error archive_rename_file_or_dir(void* context, const char* src_path, const char* dst_path);
+FS_Error archive_rename_copy_file_or_dir(
+    void* context,
+    const char* src_path,
+    const char* dst_path,
+    bool copy);
