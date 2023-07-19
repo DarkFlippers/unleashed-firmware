@@ -3,6 +3,12 @@
 * This next text applies to you only **If you have copied any apps manually** into `apps` folder and don't know that you need to update those apps manually in same way you added them - remove `apps` folder or that specific apps you copied on your microSD before installing this release to avoid issues due to OFW API version update! **If you using regular builds or extra pack builds (e) without your manually added apps, all included apps will be installed automatically, no extra actions needed!**
 -----
 * Archive (FileBrowser): Added Cut/Copy/Paste & NewDir options in new menu (original feature made by (@Willy-JL | XFW) - and ported by @gid9798)
+* Plugins: SubGHz Bruteforcer (3.7 update) - New extra settings menu (by @gid9798)
+```
+- Added the ability to change repeats
+- Added the ability to change Te for protocols that use it
+- The settings will be reset after returning to the main menu
+```
 * SubGHz Remote: Merged SubGHz Remote and Remote maker in one app, **use back button to access remote maker** (by @gid9798 | PR #545)
 * SubGHz: Port latest OFW external radio driver, fix issues (now you can make drivers for other radio chips) (by @gid9798 | PR #539 #536 #535 #534)
 * GUI module: SubMenu fix vertical orientation (by @gid9798 | PR #543)
