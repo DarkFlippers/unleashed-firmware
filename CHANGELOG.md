@@ -10,6 +10,7 @@
 - The settings will be reset after returning to the main menu
 ```
 * SubGHz Remote: Merged SubGHz Remote and Remote maker in one app, **use back button to access remote maker** (by @gid9798 | PR #545)
+* SubGHz: Replace FM15k with AM_Q in default modulations
 * SubGHz: Port latest OFW external radio driver, fix issues (now you can make drivers for other radio chips) (by @gid9798 | PR #539 #536 #535 #534)
 * GUI module: SubMenu fix vertical orientation (by @gid9798 | PR #543)
 * Apps: After merge fixes (by @gid9798 | PR #537)
