@@ -58,9 +58,9 @@ static void subghz_load_custom_presets(SubGhzSetting* setting) {
         {"FM95",
          "02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 24 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00"},
 
-        // #2-FSK 200khz BW / 135kHz Filter/ 15.86Khz Deviation + Ramping
-        {"FM15k",
-         "02 0D 03 47 08 32 0B 06 15 32 14 00 13 00 12 00 11 32 10 A7 18 18 19 1D 1D 92 1C 00 1B 04 20 FB 22 17 21 B6 00 00 00 12 0E 34 60 C5 C1 C0"},
+        // AM_Q
+        {"AM_Q",
+         "02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 22 10 1C 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00"},
 
         // Pagers
         {"Pagers",

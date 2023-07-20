@@ -10,11 +10,13 @@
 - The settings will be reset after returning to the main menu
 ```
 * SubGHz Remote: Merged SubGHz Remote and Remote maker in one app, **use back button to access remote maker** (by @gid9798 | PR #545)
+* SubGHz: Replace FM15k with AM_Q in default modulations
 * SubGHz: Port latest OFW external radio driver, fix issues (now you can make drivers for other radio chips) (by @gid9798 | PR #539 #536 #535 #534)
 * GUI module: SubMenu fix vertical orientation (by @gid9798 | PR #543)
 * Apps: After merge fixes (by @gid9798 | PR #537)
 * Docs: Update docs for debug build and update vscode example, please remove `debug_pack` target if you had it in your workflow
 * Infrared: Updated universal remote assets (by @amec0e | PR #544 #546)
+* Plugins: Barcode app - embed assets (encoding tables) in plugin
 * Plugins: NRF24 plugins -> Updates by @Sil333033 with some changes by @xMasterX -> furi_hal_speaker direct calls was removed and replaced with notification service to avoid bypassing of user set silent mode -> What was changed - NRF24 connection check added, app folders was moved (uses migrate, all done automatically), and mousejacker now uses badusb folder for badusb scripts
 * Plugins: Added Camera Suite GPIO application for the ESP32-CAM module. [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite) (PR #541)
 * Plugins: Updated ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
@@ -22,6 +24,7 @@
 * Plugins: Updated **Mifare Nested** [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested)
 * Plugins: Updated Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
 * Plugins: Updated **Multi (RFID/iButton) Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/Multi_Fuzzer)
+* OFW PR: faploader: always create app dir, even if it doesn't have subdirs (by @hedger)
 * OFW: Gauge initialization routine refactoring, new DataMemory layout, configuration update
 * OFW: fbt: `build` target for faps
 * OFW: IButton: on delete scene key name not fully display if so long

@@ -42,7 +42,7 @@ static void hid_tikshorts_draw_callback(Canvas* canvas, void* context) {
     canvas_set_font(canvas, FontSecondary);
 
     // Keypad circles
-    canvas_draw_icon(canvas, 58, 3, &I_OutCircles);
+    canvas_draw_icon(canvas, 58, 3, &I_OutCircles_70x51);
 
     // Pause
     if(model->back_mouse_pressed) {
@@ -57,7 +57,7 @@ static void hid_tikshorts_draw_callback(Canvas* canvas, void* context) {
     // Up
     if(model->up_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 68, 6, &I_S_UP);
+        canvas_draw_icon(canvas, 68, 6, &I_S_UP_31x15);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
@@ -67,7 +67,7 @@ static void hid_tikshorts_draw_callback(Canvas* canvas, void* context) {
     // Down
     if(model->down_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 68, 36, &I_S_DOWN);
+        canvas_draw_icon(canvas, 68, 36, &I_S_DOWN_31x15);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
@@ -77,7 +77,7 @@ static void hid_tikshorts_draw_callback(Canvas* canvas, void* context) {
     // Left
     if(model->left_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 61, 13, &I_S_LEFT);
+        canvas_draw_icon(canvas, 61, 13, &I_S_LEFT_15x31);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
@@ -87,7 +87,7 @@ static void hid_tikshorts_draw_callback(Canvas* canvas, void* context) {
     // Right
     if(model->right_pressed) {
         canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 91, 13, &I_S_RIGHT);
+        canvas_draw_icon(canvas, 91, 13, &I_S_RIGHT_15x31);
         canvas_set_bitmap_mode(canvas, 0);
         canvas_set_color(canvas, ColorWhite);
     }
