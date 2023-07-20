@@ -84,20 +84,20 @@ void spectrum_analyzer_draw_scale(Canvas* canvas, const SpectrumAnalyzerModel* m
     canvas_set_font(canvas, FontSecondary);
     switch(model->width) {
     case PRECISE:
-        snprintf(temp_str, 18, "%.1f", ((double)tag_left)/1000);
+        snprintf(temp_str, 18, "%.1f", ((double)tag_left) / 1000);
         canvas_draw_str_aligned(canvas, FREQ_START_X, 63, AlignCenter, AlignBottom, temp_str);
-        snprintf(temp_str, 18, "%.1f", ((double)tag_center)/1000);
+        snprintf(temp_str, 18, "%.1f", ((double)tag_center) / 1000);
         canvas_draw_str_aligned(canvas, 128 / 2, 63, AlignCenter, AlignBottom, temp_str);
-        snprintf(temp_str, 18, "%.1f", ((double)tag_right)/1000);
+        snprintf(temp_str, 18, "%.1f", ((double)tag_right) / 1000);
         canvas_draw_str_aligned(
             canvas, FREQ_START_X + FREQ_LENGTH_X - 1, 63, AlignCenter, AlignBottom, temp_str);
         break;
     default:
-        snprintf(temp_str, 18, "%lu", tag_left/1000);
+        snprintf(temp_str, 18, "%lu", tag_left / 1000);
         canvas_draw_str_aligned(canvas, FREQ_START_X, 63, AlignCenter, AlignBottom, temp_str);
-        snprintf(temp_str, 18, "%lu", tag_center/1000);
+        snprintf(temp_str, 18, "%lu", tag_center / 1000);
         canvas_draw_str_aligned(canvas, 128 / 2, 63, AlignCenter, AlignBottom, temp_str);
-        snprintf(temp_str, 18, "%lu", tag_right/1000);
+        snprintf(temp_str, 18, "%lu", tag_right / 1000);
         canvas_draw_str_aligned(
             canvas, FREQ_START_X + FREQ_LENGTH_X - 1, 63, AlignCenter, AlignBottom, temp_str);
     }
