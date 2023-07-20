@@ -41,7 +41,7 @@
 #define WIDE_STEP 5000
 #define NARROW_STEP 1000
 #define ULTRAWIDE_STEP 20000
-#define ULTRANARROW_STEP 1000
+#define ULTRANARROW_STEP 500
 #define PRECISE_STEP 100
 
 /* margin in KHz */

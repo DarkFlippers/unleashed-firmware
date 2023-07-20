@@ -10,7 +10,7 @@
 #include "spectrum_analyzer_worker.h"
 
 typedef struct {
-    uint16_t center_freq;
+    uint32_t center_freq;
     uint8_t width;
     uint8_t band;
     uint8_t vscroll;
@@ -447,7 +447,7 @@ int32_t spectrum_analyzer_app(void* p) {
         SpectrumAnalyzerModel* model = spectrum_analyzer->model;
 
         uint8_t vstep = VERTICAL_SHORT_STEP;
-        uint8_t hstep;
+        uint32_t hstep;
 
         bool exit_loop = false;
 
