@@ -84,6 +84,7 @@ void spectrum_analyzer_draw_scale(Canvas* canvas, const SpectrumAnalyzerModel* m
     canvas_set_font(canvas, FontSecondary);
     switch(model->width) {
     case PRECISE:
+    case ULTRANARROW:
         snprintf(temp_str, 18, "%.1f", ((double)tag_left) / 1000);
         canvas_draw_str_aligned(canvas, FREQ_START_X, 63, AlignCenter, AlignBottom, temp_str);
         snprintf(temp_str, 18, "%.1f", ((double)tag_center) / 1000);
@@ -460,6 +461,9 @@ int32_t spectrum_analyzer_app(void* p) {
             break;
         case ULTRAWIDE:
             hstep = ULTRAWIDE_STEP;
+            break;
+        case PRECISE:
+            hstep = PRECISE_STEP;
             break;
         default:
             hstep = WIDE_STEP;
