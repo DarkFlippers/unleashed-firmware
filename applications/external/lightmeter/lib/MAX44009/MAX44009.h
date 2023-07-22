@@ -23,4 +23,5 @@
 #define MAX44009_REG_INT_TIME 0x07
 
 void max44009_init();
+void max44009_init_with_addr(uint8_t addr);
 int max44009_read_light(float* result);

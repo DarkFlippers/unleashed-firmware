@@ -56,6 +56,22 @@ static const char* sensor_type[] = {
     [SENSOR_MAX44009] = "MAX44009",
 };
 
+static const char* measurement_resolution[] = {
+    [LOW_RES] = "Low",
+    [HIGH_RES] = "High",
+    [HIGH_RES2] = "High2",
+};
+
+static const char* device_addr_bh1750[] = {
+    [ADDR_LOW] = "0x23",
+    [ADDR_HIGH] = "0x5C",
+};
+
+static const char* device_addr_max44009[] = {
+    [ADDR_LOW] = "0x4A",
+    [ADDR_HIGH] = "0x4B",
+};
+
 enum LightMeterSubmenuIndex {
     LightMeterSubmenuIndexISO,
     LightMeterSubmenuIndexND,
@@ -63,6 +79,8 @@ enum LightMeterSubmenuIndex {
     LightMeterSubmenuIndexBacklight,
     LightMeterSubmenuIndexLuxMeter,
     LightMeterSubmenuIndexSensorType,
+    LightMeterSubmenuIndexMeasurementResolution,
+    LightMeterSubmenuIndexI2CAddress,
     LightMeterSubmenuIndexHelp,
     LightMeterSubmenuIndexAbout,
 };
@@ -133,6 +151,60 @@ static void lux_only_cb(VariableItem* item) {
     lightmeter_app_set_config(app, config);
 }
 
+static void measurement_resolution_cb(VariableItem* item) {
+    LightMeterApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, measurement_resolution[index]);
+
+    LightMeterConfig* config = app->config;
+    config->measurement_resolution = index;
+    lightmeter_app_set_config(app, config);
+
+    lightmeter_app_i2c_init_sensor(app);
+}
+
+static void update_item_addr(LightMeterApp* app) {
+    VariableItem* item = app->var_item_addr;
+    switch(app->config->sensor_type) {
+    case SENSOR_BH1750:
+        variable_item_set_current_value_index(item, app->config->device_addr);
+        variable_item_set_current_value_text(item, device_addr_bh1750[app->config->device_addr]);
+        break;
+    case SENSOR_MAX44009:
+        variable_item_set_current_value_index(item, app->config->device_addr);
+        variable_item_set_current_value_text(item, device_addr_max44009[app->config->device_addr]);
+        break;
+    default:
+        FURI_LOG_E(TAG, "Invalid sensor type %ld", app->config->sensor_type);
+        return;
+    }
+}
+
+static void device_addr_cb(VariableItem* item) {
+    LightMeterApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    switch(app->config->sensor_type) {
+    case SENSOR_BH1750:
+        variable_item_set_current_value_text(item, device_addr_bh1750[index]);
+        break;
+    case SENSOR_MAX44009:
+        variable_item_set_current_value_text(item, device_addr_max44009[index]);
+        break;
+    default:
+        FURI_LOG_E(TAG, "Invalid sensor type %ld", app->config->sensor_type);
+        return;
+    }
+    // variable_item_set_current_value_text(item, device_addr[index]);
+
+    LightMeterConfig* config = app->config;
+    config->device_addr = index;
+    lightmeter_app_set_config(app, config);
+
+    lightmeter_app_i2c_init_sensor(app);
+}
+
 static void sensor_type_cb(VariableItem* item) {
     LightMeterApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
@@ -141,6 +213,9 @@ static void sensor_type_cb(VariableItem* item) {
 
     LightMeterConfig* config = app->config;
     config->sensor_type = index;
+
+    update_item_addr(app);
+
     lightmeter_app_set_config(app, config);
 }
 
@@ -195,6 +270,36 @@ void lightmeter_scene_config_on_enter(void* context) {
     variable_item_set_current_value_index(item, config->sensor_type);
     variable_item_set_current_value_text(item, sensor_type[config->sensor_type]);
 
+    item = variable_item_list_add(
+        var_item_list,
+        "Resolution",
+        COUNT_OF(measurement_resolution),
+        measurement_resolution_cb,
+        app);
+    variable_item_set_current_value_index(item, config->measurement_resolution);
+    variable_item_set_current_value_text(
+        item, measurement_resolution[config->measurement_resolution]);
+
+    switch(config->sensor_type) {
+    case SENSOR_BH1750:
+        item = variable_item_list_add(
+            var_item_list, "I2C address", COUNT_OF(device_addr_bh1750), device_addr_cb, app);
+        variable_item_set_current_value_index(item, config->device_addr);
+        variable_item_set_current_value_text(item, device_addr_bh1750[config->device_addr]);
+        break;
+    case SENSOR_MAX44009:
+        item = variable_item_list_add(
+            var_item_list, "I2C address", COUNT_OF(device_addr_max44009), device_addr_cb, app);
+        variable_item_set_current_value_index(item, config->device_addr);
+        variable_item_set_current_value_text(item, device_addr_max44009[config->device_addr]);
+        break;
+    default:
+        FURI_LOG_E(TAG, "Invalid sensor type %ld", config->sensor_type);
+        return;
+    }
+    app->var_item_addr = item;
+    update_item_addr(app);
+
     item = variable_item_list_add(var_item_list, "Help and Pinout", 0, NULL, NULL);
     item = variable_item_list_add(var_item_list, "About", 0, NULL, NULL);
 
@@ -235,4 +340,5 @@ void lightmeter_scene_config_on_exit(void* context) {
     main_view_set_nd(app->main_view, app->config->nd);
     main_view_set_dome(app->main_view, app->config->dome);
     main_view_set_lux_only(app->main_view, app->config->lux_only);
+    main_view_set_measurement_resolution(app->main_view, app->config->measurement_resolution);
 }
