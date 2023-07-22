@@ -15,7 +15,7 @@
  * wide mode (default): 20 MHz on screen, 196 kHz per channel
  * narrow mode: 4 MHz on screen, 39 kHz per channel
  * ultranarrow mode: 2 MHz on screen, 19 kHz per channel
- * pricse mode: 400 KHz on screen, 3.92 kHz per channel
+ * precise mode: 400 KHz on screen, 3.92 kHz per channel
  */
 #define WIDE 0
 #define NARROW 1
