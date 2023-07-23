@@ -1,9 +1,8 @@
 #include <gui/gui.h>
-#include <gui/canvas_i.h>
 #include <furi_hal.h>
-#include <u8g2_glue.h>
 #include "constants.h"
-#include "compiled/assets_icons.h"
+#include <doom_icons.h>
+#include "assets.h"
 
 #define CHECK_BIT(var, pos) ((var) & (1 << (pos)))
 
@@ -50,14 +49,12 @@ void fadeScreen(uint8_t intensity, bool color, Canvas* const canvas);
 bool getGradientPixel(uint8_t x, uint8_t y, uint8_t i);
 double getActualFps();
 void fps();
-void setupDisplay(Canvas* canvas);
 uint8_t reverse_bits(uint8_t num);
 
 // FPS control
 double delta = 1;
 uint32_t lastFrameTime = 0;
 uint8_t zbuffer[128]; /// 128 = screen width & REMOVE WHEN DISPLAY.H IMPLEMENTED
-uint8_t* display_buf = NULL;
 
 void drawGun(
     int16_t x,
@@ -88,12 +85,6 @@ void drawVLine(uint8_t x, int8_t start_y, int8_t end_y, uint8_t intensity, Canva
     }
 }
 
-void setupDisplay(Canvas* canvas) {
-    memset(zbuffer, 0xff, 128);
-    display_buf = (uint8_t*)canvas->fb.tile_buf_ptr;
-    //display_buf = u8g2_GetBufferPtr(&canvas->fb);
-}
-
 void drawBitmap(
     int16_t x,
     int16_t y,
@@ -102,13 +93,20 @@ void drawBitmap(
     int16_t h,
     uint16_t color,
     Canvas* const canvas) {
-    UNUSED(color);
-    canvas_draw_icon_bitmap(canvas, x, y, w, h, i);
+    UNUSED(w);
+    UNUSED(h);
+    if(!color) {
+        canvas_invert_color(canvas);
+    }
+    canvas_draw_icon(canvas, x, y, i);
+    if(!color) {
+        canvas_invert_color(canvas);
+    }
 }
 
 void drawText(uint8_t x, uint8_t y, uint8_t num, Canvas* const canvas) {
     char buf[4];
-    itoa(num, buf, 10);
+    snprintf(buf, 4, "%d", num);
     drawTextSpace(x, y, buf, 1, canvas);
 }
 
