@@ -20,7 +20,7 @@ typedef struct {
     uint32_t spacing;
 
     bool mode_change;
-    bool mod_change;
+    bool modulation_change;
 
     float max_rssi;
     uint8_t max_rssi_dec;
@@ -150,7 +150,7 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_str_aligned(canvas, 127, 4, AlignRight, AlignTop, tmp_str);
     }
 
-    if(model->mod_change) {
+    if(model->modulation_change) {
         char temp_mod_str[12];
         switch(model->modulation) {
         case NARROW_MODULATION:
@@ -570,12 +570,12 @@ int32_t spectrum_analyzer_app(void* p) {
                     break;
                 }
 
-                model->mod_change = true;
+                model->modulation_change = true;
                 view_port_update(spectrum_analyzer->view_port);
 
                 furi_delay_ms(1000);
 
-                model->mod_change = false;
+                model->modulation_change = false;
                 spectrum_analyzer_worker_set_modulation(
                     spectrum_analyzer->worker,
                     spectrum_analyzer->model->modulation);
