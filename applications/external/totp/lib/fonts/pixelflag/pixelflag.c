@@ -1105,6 +1105,7 @@ const FONT_CHAR_INFO pixelFlag_18ptDescriptors[] = {
 
 /* Font information for {PixelFlag} 18pt */
 const FONT_INFO pixelFlag_18ptFontInfo = {
+    "Pixel Flag",
     17, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

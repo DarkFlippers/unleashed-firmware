@@ -58,11 +58,12 @@ bool totp_config_migrate_to_latest(
 
         flipper_format_rewind(fff_backup_data_file);
 
-        // Font
-
-        if(flipper_format_read_string(
-               fff_backup_data_file, TOTP_CONFIG_KEY_SELECTED_FONT, temp_str)) {
-            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_SELECTED_FONT, temp_str);
+        if(flipper_format_read_string(fff_backup_data_file, TOTP_CONFIG_KEY_FONT, temp_str)) {
+            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_FONT, temp_str);
+        } else {
+            uint32_t default_font_index = 0;
+            flipper_format_write_uint32(
+                fff_data_file, TOTP_CONFIG_KEY_FONT, &default_font_index, 1);
         }
 
         flipper_format_rewind(fff_backup_data_file);
@@ -84,13 +85,13 @@ bool totp_config_migrate_to_latest(
                     fff_backup_data_file, TOTP_CONFIG_KEY_TOKEN_ALGO, temp_str);
 
                 if(current_version < 5) {
-                    uint32_t algo_as_uint32t = SHA1;
-                    if(furi_string_cmpi_str(temp_str, TOTP_TOKEN_ALGO_SHA256_NAME) == 0) {
-                        algo_as_uint32t = SHA256;
-                    } else if(furi_string_cmpi_str(temp_str, TOTP_TOKEN_ALGO_SHA512_NAME) == 0) {
-                        algo_as_uint32t = SHA512;
-                    } else if(furi_string_cmpi_str(temp_str, TOTP_TOKEN_ALGO_STEAM_NAME) == 0) {
-                        algo_as_uint32t = STEAM;
+                    uint32_t algo_as_uint32t = TokenHashAlgoDefault;
+                    if(furi_string_cmpi_str(temp_str, TOKEN_HASH_ALGO_SHA256_NAME) == 0) {
+                        algo_as_uint32t = TokenHashAlgoSha256;
+                    } else if(furi_string_cmpi_str(temp_str, TOKEN_HASH_ALGO_SHA512_NAME) == 0) {
+                        algo_as_uint32t = TokenHashAlgoSha512;
+                    } else if(furi_string_cmpi_str(temp_str, TOKEN_HASH_ALGO_STEAM_NAME) == 0) {
+                        algo_as_uint32t = TokenHashAlgoSteam;
                     }
 
                     flipper_format_write_uint32(
@@ -104,10 +105,10 @@ bool totp_config_migrate_to_latest(
                     fff_backup_data_file, TOTP_CONFIG_KEY_TOKEN_DIGITS, temp_str);
                 flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_TOKEN_DIGITS, temp_str);
             } else {
-                const uint32_t default_algo = SHA1;
+                const uint32_t default_algo = TokenHashAlgoDefault;
                 flipper_format_write_uint32(
                     fff_data_file, TOTP_CONFIG_KEY_TOKEN_ALGO, &default_algo, 1);
-                const uint32_t default_digits = TotpSixDigitsCount;
+                const uint32_t default_digits = TokenDigitsCountSix;
                 flipper_format_write_uint32(
                     fff_data_file, TOTP_CONFIG_KEY_TOKEN_DIGITS, &default_digits, 1);
             }
@@ -118,7 +119,7 @@ bool totp_config_migrate_to_latest(
                 flipper_format_write_string(
                     fff_data_file, TOTP_CONFIG_KEY_TOKEN_DURATION, temp_str);
             } else {
-                const uint32_t default_duration = TOTP_TOKEN_DURATION_DEFAULT;
+                const uint32_t default_duration = TokenDurationDefault;
                 flipper_format_write_uint32(
                     fff_data_file, TOTP_CONFIG_KEY_TOKEN_DURATION, &default_duration, 1);
             }

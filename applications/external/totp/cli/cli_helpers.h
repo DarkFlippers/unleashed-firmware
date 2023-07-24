@@ -22,10 +22,7 @@ extern const char* TOTP_CLI_COLOR_INFO;
 #define TOTP_CLI_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 
 #define TOTP_CLI_PRINTF_COLORFUL(color, format, ...) \
-    printf("\e[%s", color);                          \
-    printf(format, ##__VA_ARGS__);                   \
-    printf("\e[0m");                                 \
-    fflush(stdout)
+    TOTP_CLI_PRINTF("\e[%s" format "\e[0m", color, ##__VA_ARGS__)
 
 #define TOTP_CLI_PRINTF_ERROR(format, ...) \
     TOTP_CLI_PRINTF_COLORFUL(TOTP_CLI_COLOR_ERROR, format, ##__VA_ARGS__)

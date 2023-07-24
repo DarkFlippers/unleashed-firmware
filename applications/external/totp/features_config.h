@@ -4,19 +4,21 @@
 #endif
 
 // Include Bluetooth token input automation
+#ifndef TOTP_NO_BADBT_TYPE
 #define TOTP_BADBT_TYPE_ENABLED
+#endif
 
 // Include token input automation icons on the main screen
+#ifndef TOTP_NO_AUTOMATION_ICONS
 #define TOTP_AUTOMATION_ICONS_ENABLED
+#endif
 
 // List of compatible firmwares
-#define TOTP_FIRMWARE_OFFICIAL_STABLE 1
-#define TOTP_FIRMWARE_OFFICIAL_DEV 2
-#define TOTP_FIRMWARE_UL_XFW 3 // XFW and UL now has same bluetooth mac/advname changing API
+#define TOTP_FIRMWARE_OFFICIAL_STABLE (1)
+#define TOTP_FIRMWARE_OFFICIAL_DEV (2)
+#define TOTP_FIRMWARE_XTREME_UL (3)
 // End of list
 
-// Target firmware to build for
-#define TOTP_TARGET_FIRMWARE TOTP_FIRMWARE_UL_XFW
-
-// Max custom fonts value
-#define MAX_CUSTOM_FONTS (9)
+#ifndef TOTP_TARGET_FIRMWARE
+#define TOTP_TARGET_FIRMWARE TOTP_FIRMWARE_XTREME_UL
+#endif

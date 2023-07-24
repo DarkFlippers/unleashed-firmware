@@ -1,6 +1,8 @@
 #include "totp_app_settings.h"
 #include <math.h>
 #include <totp_icons.h>
+#include <available_fonts.h>
+#include "../../canvas_extensions.h"
 #include "../../ui_controls.h"
 #include "../../common_dialogs.h"
 #include "../../scene_director.h"
@@ -14,18 +16,20 @@
 #include "../../../workers/bt_type_code/bt_type_code.h"
 #endif
 
-char* YES_NO_LIST[] = {"NO", "YES"};
-char* ON_OFF_LIST[] = {"OFF", "ON"};
+static const char* YES_NO_LIST[] = {"NO", "YES"};
+static const char* ON_OFF_LIST[] = {"OFF", "ON"};
+static const char* FONT_TEST_STR = "0123BCD";
+static const uint8_t FONT_TEST_STR_LENGTH = 7;
 
 typedef enum {
     HoursInput,
     MinutesInput,
-    Sound,
-    Vibro,
-    FontSelector,
-    BadUsb,
+    FontSelect,
+    SoundSwitch,
+    VibroSwitch,
+    BadUsbSwitch,
 #ifdef TOTP_BADBT_TYPE_ENABLED
-    BadBt,
+    BadBtSwitch,
 #endif
     ConfirmButton
 } Control;
@@ -35,13 +39,13 @@ typedef struct {
     uint8_t tz_offset_minutes;
     bool notification_sound;
     bool notification_vibro;
-    uint8_t selected_font;
     bool badusb_enabled;
 #ifdef TOTP_BADBT_TYPE_ENABLED
     bool badbt_enabled;
 #endif
     uint8_t y_offset;
     Control selected_control;
+    uint8_t active_font;
 } SceneState;
 
 void totp_scene_app_settings_activate(PluginState* plugin_state) {
@@ -56,10 +60,10 @@ void totp_scene_app_settings_activate(PluginState* plugin_state) {
     scene_state->notification_sound = plugin_state->notification_method & NotificationMethodSound;
     scene_state->notification_vibro = plugin_state->notification_method & NotificationMethodVibro;
     scene_state->badusb_enabled = plugin_state->automation_method & AutomationMethodBadUsb;
-    scene_state->selected_font = plugin_state->selected_font;
 #ifdef TOTP_BADBT_TYPE_ENABLED
     scene_state->badbt_enabled = plugin_state->automation_method & AutomationMethodBadBt;
 #endif
+    scene_state->active_font = plugin_state->active_font_index;
 }
 
 static void two_digit_to_str(int8_t num, char* str) {
@@ -113,75 +117,87 @@ void totp_scene_app_settings_render(Canvas* const canvas, const PluginState* plu
         &I_totp_arrow_bottom_10x5);
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(
-        canvas, 0, 64 - scene_state->y_offset, AlignLeft, AlignTop, "Notifications / UI");
+    canvas_draw_str_aligned(canvas, 0, 64 - scene_state->y_offset, AlignLeft, AlignTop, "Font");
     canvas_set_font(canvas, FontSecondary);
 
-    canvas_draw_str_aligned(canvas, 0, 78 - scene_state->y_offset, AlignLeft, AlignTop, "Sound:");
+    const FONT_INFO* const font = available_fonts[scene_state->active_font];
     ui_control_select_render(
         canvas,
-        36,
-        71 - scene_state->y_offset,
-        SCREEN_WIDTH - 36,
-        YES_NO_LIST[scene_state->notification_sound],
-        scene_state->selected_control == Sound);
+        0,
+        74 - scene_state->y_offset,
+        SCREEN_WIDTH,
+        font->name,
+        scene_state->selected_control == FontSelect);
 
-    canvas_draw_str_aligned(canvas, 0, 94 - scene_state->y_offset, AlignLeft, AlignTop, "Vibro:");
-    ui_control_select_render(
-        canvas,
-        36,
-        87 - scene_state->y_offset,
-        SCREEN_WIDTH - 36,
-        YES_NO_LIST[scene_state->notification_vibro],
-        scene_state->selected_control == Vibro);
-
-    two_digit_to_str(scene_state->selected_font, &tmp_str[0]);
-    canvas_draw_str_aligned(
-        canvas, 0, 110 - scene_state->y_offset, AlignLeft, AlignTop, "UI Font:");
-    ui_control_select_render(
-        canvas,
-        36,
-        103 - scene_state->y_offset,
-        SCREEN_WIDTH - 36,
-        &tmp_str[0],
-        scene_state->selected_control == FontSelector);
+    uint8_t font_x_offset =
+        SCREEN_WIDTH_CENTER -
+        (((font->charInfo[0].width + font->spacePixels) * FONT_TEST_STR_LENGTH) >> 1);
+    uint8_t font_y_offset = 108 - scene_state->y_offset - (font->height >> 1);
+    canvas_draw_str_ex(
+        canvas, font_x_offset, font_y_offset, FONT_TEST_STR, FONT_TEST_STR_LENGTH, font);
 
     canvas_draw_icon(
         canvas, SCREEN_WIDTH_CENTER - 5, 123 - scene_state->y_offset, &I_totp_arrow_bottom_10x5);
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(
-        canvas, 0, 128 - scene_state->y_offset, AlignLeft, AlignTop, "Automation");
+        canvas, 0, 128 - scene_state->y_offset, AlignLeft, AlignTop, "Notifications");
     canvas_set_font(canvas, FontSecondary);
 
-    canvas_draw_str_aligned(
-        canvas, 0, 145 - scene_state->y_offset, AlignLeft, AlignTop, "BadUSB:");
+    canvas_draw_str_aligned(canvas, 0, 145 - scene_state->y_offset, AlignLeft, AlignTop, "Sound:");
     ui_control_select_render(
         canvas,
         36,
         138 - scene_state->y_offset,
         SCREEN_WIDTH - 36,
-        ON_OFF_LIST[scene_state->badusb_enabled],
-        scene_state->selected_control == BadUsb);
+        YES_NO_LIST[scene_state->notification_sound],
+        scene_state->selected_control == SoundSwitch);
 
-#ifdef TOTP_BADBT_TYPE_ENABLED
-    canvas_draw_str_aligned(canvas, 0, 163 - scene_state->y_offset, AlignLeft, AlignTop, "BadBT:");
+    canvas_draw_str_aligned(canvas, 0, 163 - scene_state->y_offset, AlignLeft, AlignTop, "Vibro:");
     ui_control_select_render(
         canvas,
         36,
         156 - scene_state->y_offset,
         SCREEN_WIDTH - 36,
+        YES_NO_LIST[scene_state->notification_vibro],
+        scene_state->selected_control == VibroSwitch);
+
+    canvas_draw_icon(
+        canvas, SCREEN_WIDTH_CENTER - 5, 187 - scene_state->y_offset, &I_totp_arrow_bottom_10x5);
+
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(
+        canvas, 0, 192 - scene_state->y_offset, AlignLeft, AlignTop, "Automation");
+    canvas_set_font(canvas, FontSecondary);
+
+    canvas_draw_str_aligned(
+        canvas, 0, 209 - scene_state->y_offset, AlignLeft, AlignTop, "BadUSB:");
+    ui_control_select_render(
+        canvas,
+        36,
+        202 - scene_state->y_offset,
+        SCREEN_WIDTH - 36,
+        ON_OFF_LIST[scene_state->badusb_enabled],
+        scene_state->selected_control == BadUsbSwitch);
+
+#ifdef TOTP_BADBT_TYPE_ENABLED
+    canvas_draw_str_aligned(canvas, 0, 227 - scene_state->y_offset, AlignLeft, AlignTop, "BadBT:");
+    ui_control_select_render(
+        canvas,
+        36,
+        220 - scene_state->y_offset,
+        SCREEN_WIDTH - 36,
         ON_OFF_LIST[scene_state->badbt_enabled],
-        scene_state->selected_control == BadBt);
+        scene_state->selected_control == BadBtSwitch);
 #endif
 
     ui_control_button_render(
         canvas,
         SCREEN_WIDTH_CENTER - 24,
 #ifdef TOTP_BADBT_TYPE_ENABLED
-        178 - scene_state->y_offset,
+        242 - scene_state->y_offset,
 #else
-        165 - scene_state->y_offset,
+        229 - scene_state->y_offset,
 #endif
         48,
         13,
@@ -206,10 +222,12 @@ bool totp_scene_app_settings_handle_event(
                 HoursInput,
                 ConfirmButton,
                 RollOverflowBehaviorStop);
-            if(scene_state->selected_control > FontSelector) {
-                scene_state->y_offset = 128;
+            if(scene_state->selected_control > VibroSwitch) {
+                scene_state->y_offset = SCREEN_HEIGHT * 3;
+            } else if(scene_state->selected_control > FontSelect) {
+                scene_state->y_offset = SCREEN_HEIGHT * 2;
             } else if(scene_state->selected_control > MinutesInput) {
-                scene_state->y_offset = 64;
+                scene_state->y_offset = SCREEN_HEIGHT;
             } else {
                 scene_state->y_offset = 0;
             }
@@ -221,10 +239,12 @@ bool totp_scene_app_settings_handle_event(
                 HoursInput,
                 ConfirmButton,
                 RollOverflowBehaviorStop);
-            if(scene_state->selected_control > FontSelector) {
-                scene_state->y_offset = 128;
+            if(scene_state->selected_control > VibroSwitch) {
+                scene_state->y_offset = SCREEN_HEIGHT * 3;
+            } else if(scene_state->selected_control > FontSelect) {
+                scene_state->y_offset = SCREEN_HEIGHT * 2;
             } else if(scene_state->selected_control > MinutesInput) {
-                scene_state->y_offset = 64;
+                scene_state->y_offset = SCREEN_HEIGHT;
             } else {
                 scene_state->y_offset = 0;
             }
@@ -236,22 +256,25 @@ bool totp_scene_app_settings_handle_event(
             } else if(scene_state->selected_control == MinutesInput) {
                 totp_roll_value_uint8_t(
                     &scene_state->tz_offset_minutes, 15, 0, 45, RollOverflowBehaviorRoll);
-            } else if(scene_state->selected_control == Sound) {
+            } else if(scene_state->selected_control == FontSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->active_font,
+                    1,
+                    0,
+                    AVAILABLE_FONTS_COUNT - 1,
+                    RollOverflowBehaviorRoll);
+            } else if(scene_state->selected_control == SoundSwitch) {
                 scene_state->notification_sound = !scene_state->notification_sound;
-            } else if(scene_state->selected_control == Vibro) {
+            } else if(scene_state->selected_control == VibroSwitch) {
                 scene_state->notification_vibro = !scene_state->notification_vibro;
-            } else if(scene_state->selected_control == BadUsb) {
+            } else if(scene_state->selected_control == BadUsbSwitch) {
                 scene_state->badusb_enabled = !scene_state->badusb_enabled;
             }
 #ifdef TOTP_BADBT_TYPE_ENABLED
-            else if(scene_state->selected_control == BadBt) {
+            else if(scene_state->selected_control == BadBtSwitch) {
                 scene_state->badbt_enabled = !scene_state->badbt_enabled;
             }
 #endif
-            else if(scene_state->selected_control == FontSelector) {
-                totp_roll_value_uint8_t(
-                    &scene_state->selected_font, 1, 0, MAX_CUSTOM_FONTS, RollOverflowBehaviorStop);
-            }
             break;
         case InputKeyLeft:
             if(scene_state->selected_control == HoursInput) {
@@ -260,22 +283,25 @@ bool totp_scene_app_settings_handle_event(
             } else if(scene_state->selected_control == MinutesInput) {
                 totp_roll_value_uint8_t(
                     &scene_state->tz_offset_minutes, -15, 0, 45, RollOverflowBehaviorRoll);
-            } else if(scene_state->selected_control == Sound) {
+            } else if(scene_state->selected_control == FontSelect) {
+                totp_roll_value_uint8_t(
+                    &scene_state->active_font,
+                    -1,
+                    0,
+                    AVAILABLE_FONTS_COUNT - 1,
+                    RollOverflowBehaviorRoll);
+            } else if(scene_state->selected_control == SoundSwitch) {
                 scene_state->notification_sound = !scene_state->notification_sound;
-            } else if(scene_state->selected_control == Vibro) {
+            } else if(scene_state->selected_control == VibroSwitch) {
                 scene_state->notification_vibro = !scene_state->notification_vibro;
-            } else if(scene_state->selected_control == BadUsb) {
+            } else if(scene_state->selected_control == BadUsbSwitch) {
                 scene_state->badusb_enabled = !scene_state->badusb_enabled;
             }
 #ifdef TOTP_BADBT_TYPE_ENABLED
-            else if(scene_state->selected_control == BadBt) {
+            else if(scene_state->selected_control == BadBtSwitch) {
                 scene_state->badbt_enabled = !scene_state->badbt_enabled;
             }
 #endif
-            else if(scene_state->selected_control == FontSelector) {
-                totp_roll_value_uint8_t(
-                    &scene_state->selected_font, -1, 0, MAX_CUSTOM_FONTS, RollOverflowBehaviorStop);
-            }
             break;
         case InputKeyOk:
             break;
@@ -302,7 +328,8 @@ bool totp_scene_app_settings_handle_event(
         plugin_state->automation_method |= scene_state->badbt_enabled ? AutomationMethodBadBt :
                                                                         AutomationMethodNone;
 #endif
-        plugin_state->selected_font = scene_state->selected_font;
+
+        plugin_state->active_font_index = scene_state->active_font;
 
         if(!totp_config_file_update_user_settings(plugin_state)) {
             totp_dialogs_config_updating_error(plugin_state);

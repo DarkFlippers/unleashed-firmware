@@ -1105,6 +1105,7 @@ const FONT_CHAR_INFO dPComic_18ptDescriptors[] = {
 
 /* Font information for DPComic 18pt */
 const FONT_INFO dPComic_18ptFontInfo = {
+    "DP Comic",
     17, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

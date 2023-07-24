@@ -21,7 +21,7 @@ struct TotpGenerateCodeWorkerContext {
     void* on_code_lifetime_changed_handler_context;
 };
 
-static const char* STEAM_ALGO_ALPHABET = "23456789BCDFGHJKMNPQRTVWXY";
+static const char STEAM_ALGO_ALPHABET[] = "23456789BCDFGHJKMNPQRTVWXY";
 
 static void
     int_token_to_str(uint64_t i_token_code, char* str, TokenDigitsCount len, TokenHashAlgo algo) {
@@ -30,7 +30,7 @@ static void
     if(i_token_code == OTP_ERROR) {
         memset(str, '-', len);
     } else {
-        if(algo == STEAM) {
+        if(algo == TokenHashAlgoSteam) {
             char* s = str;
             for(uint8_t i = 0; i < len; i++, s++) {
                 *s = STEAM_ALGO_ALPHABET[i_token_code % 26];
@@ -48,12 +48,12 @@ static void
 
 static TOTP_ALGO get_totp_algo_impl(TokenHashAlgo algo) {
     switch(algo) {
-    case SHA1:
-    case STEAM:
+    case TokenHashAlgoSha1:
+    case TokenHashAlgoSteam:
         return TOTP_ALGO_SHA1;
-    case SHA256:
+    case TokenHashAlgoSha256:
         return TOTP_ALGO_SHA256;
-    case SHA512:
+    case TokenHashAlgoSha512:
         return TOTP_ALGO_SHA512;
     default:
         break;

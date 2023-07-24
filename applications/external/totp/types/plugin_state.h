@@ -85,11 +85,6 @@ typedef struct {
     NotificationMethod notification_method;
 
     /**
-     * @brief Numbers Font
-     */
-    uint8_t selected_font;
-
-    /**
      * @brief Main rendering loop mutex
      */
     FuriMutex* mutex;
@@ -110,4 +105,9 @@ typedef struct {
      * @brief IDLE timeout context
      */
     IdleTimeoutContext* idle_timeout_context;
+
+    /**
+     * @brief Font index to be used to draw TOTP token
+     */
+    uint8_t active_font_index;
 } PluginState;

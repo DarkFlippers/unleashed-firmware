@@ -3,7 +3,9 @@
 #include <notification/notification_messages.h>
 #include <totp_icons.h>
 #include <roll_value.h>
+#include <available_fonts.h>
 #include "totp_scene_generate_token.h"
+#include "../../canvas_extensions.h"
 #include "../../../types/token_info.h"
 #include "../../../types/common.h"
 #include "../../constants.h"
@@ -16,7 +18,6 @@
 #ifdef TOTP_BADBT_TYPE_ENABLED
 #include "../../../workers/bt_type_code/bt_type_code.h"
 #endif
-#include "../../fonts/active_font.h"
 
 #define PROGRESS_BAR_MARGIN (3)
 #define PROGRESS_BAR_HEIGHT (4)
@@ -26,18 +27,18 @@ typedef struct {
     uint8_t progress_bar_width;
     uint8_t code_total_length;
     uint8_t code_offset_x;
-    uint8_t code_offset_x_inc;
     uint8_t code_offset_y;
 } UiPrecalculatedDimensions;
 
 typedef struct {
-    char last_code[TOTP_TOKEN_DIGITS_MAX_COUNT + 1];
+    char last_code[TokenDigitsCountMax + 1];
     TotpUsbTypeCodeWorkerContext* usb_type_code_worker_context;
     NotificationMessage const** notification_sequence_new_token;
     NotificationMessage const** notification_sequence_automation;
     FuriMutex* last_code_update_sync;
     TotpGenerateCodeWorkerContext* generate_code_worker_context;
     UiPrecalculatedDimensions ui_precalculated_dimensions;
+    const FONT_INFO* active_font;
 } SceneState;
 
 static const NotificationSequence*
@@ -141,60 +142,14 @@ static void draw_totp_code(Canvas* const canvas, const PluginState* const plugin
     const TokenInfoIteratorContext* iterator_context =
         totp_config_get_token_iterator_context(plugin_state);
     uint8_t code_length = totp_token_info_iterator_get_current_token(iterator_context)->digits;
-    uint8_t offset_x = scene_state->ui_precalculated_dimensions.code_offset_x;
-    const FONT_INFO* current_font;
-    switch(plugin_state->selected_font) {
-    case 0:
-        current_font = &modeNine_15ptFontInfo;
-        break;
-    case 1:
-        current_font = &redHatMono_16ptFontInfo;
-        break;
-    case 2:
-        current_font = &bedstead_17ptFontInfo;
-        break;
-    case 3:
-        current_font = &zector_18ptFontInfo;
-        break;
-    case 4:
-        current_font = &_712Serif_24ptFontInfo;
-        break;
-    case 5:
-        current_font = &graph35pix_12ptFontInfo;
-        break;
-    case 6:
-        current_font = &karmaFuture_14ptFontInfo;
-        break;
-    case 7:
-        current_font = &funclimbingDemo_18ptFontInfo;
-        break;
-    case 8:
-        current_font = &dPComic_18ptFontInfo;
-        break;
-    case 9:
-        current_font = &pixelFlag_18ptFontInfo;
-        break;
-    default:
-        current_font = &modeNine_15ptFontInfo;
-        break;
-    }
-    uint8_t char_width = current_font->charInfo[0].width;
-    uint8_t offset_x_inc = scene_state->ui_precalculated_dimensions.code_offset_x_inc;
-    for(uint8_t i = 0; i < code_length; i++) {
-        char ch = scene_state->last_code[i];
-        if(ch >= current_font->startChar && ch <= current_font->endChar) {
-            uint8_t char_index = ch - current_font->startChar;
-            canvas_draw_xbm(
-                canvas,
-                offset_x,
-                scene_state->ui_precalculated_dimensions.code_offset_y,
-                char_width,
-                current_font->height,
-                &current_font->data[current_font->charInfo[char_index].offset]);
-        }
 
-        offset_x += offset_x_inc;
-    }
+    canvas_draw_str_ex(
+        canvas,
+        scene_state->ui_precalculated_dimensions.code_offset_x,
+        scene_state->ui_precalculated_dimensions.code_offset_y,
+        scene_state->last_code,
+        code_length,
+        scene_state->active_font);
 }
 
 static void on_new_token_code_generated(bool time_left, void* context) {
@@ -207,53 +162,15 @@ static void on_new_token_code_generated(bool time_left, void* context) {
 
     SceneState* scene_state = plugin_state->current_scene_state;
     const TokenInfo* current_token = totp_token_info_iterator_get_current_token(iterator_context);
+    const FONT_INFO* const font = scene_state->active_font;
 
-    const FONT_INFO* current_font;
-    switch(plugin_state->selected_font) {
-    case 0:
-        current_font = &modeNine_15ptFontInfo;
-        break;
-    case 1:
-        current_font = &redHatMono_16ptFontInfo;
-        break;
-    case 2:
-        current_font = &bedstead_17ptFontInfo;
-        break;
-    case 3:
-        current_font = &zector_18ptFontInfo;
-        break;
-    case 4:
-        current_font = &_712Serif_24ptFontInfo;
-        break;
-    case 5:
-        current_font = &graph35pix_12ptFontInfo;
-        break;
-    case 6:
-        current_font = &karmaFuture_14ptFontInfo;
-        break;
-    case 7:
-        current_font = &funclimbingDemo_18ptFontInfo;
-        break;
-    case 8:
-        current_font = &dPComic_18ptFontInfo;
-        break;
-    case 9:
-        current_font = &pixelFlag_18ptFontInfo;
-        break;
-    default:
-        current_font = &modeNine_15ptFontInfo;
-        break;
-    }
-
-    uint8_t char_width = current_font->charInfo[0].width;
+    uint8_t char_width = font->charInfo[0].width;
     scene_state->ui_precalculated_dimensions.code_total_length =
-        current_token->digits * (char_width + current_font->spacePixels);
+        current_token->digits * (char_width + font->spacePixels);
     scene_state->ui_precalculated_dimensions.code_offset_x =
         (SCREEN_WIDTH - scene_state->ui_precalculated_dimensions.code_total_length) >> 1;
-    scene_state->ui_precalculated_dimensions.code_offset_x_inc =
-        char_width + current_font->spacePixels;
     scene_state->ui_precalculated_dimensions.code_offset_y =
-        SCREEN_HEIGHT_CENTER - (current_font->height >> 1);
+        SCREEN_HEIGHT_CENTER - (font->height >> 1);
 
     if(time_left) {
         notification_message(
@@ -283,10 +200,10 @@ void totp_scene_generate_token_activate(PluginState* plugin_state) {
     scene_state->last_code_update_sync = furi_mutex_alloc(FuriMutexTypeNormal);
     if(plugin_state->automation_method & AutomationMethodBadUsb) {
         scene_state->usb_type_code_worker_context = totp_usb_type_code_worker_start(
-            scene_state->last_code,
-            TOTP_TOKEN_DIGITS_MAX_COUNT + 1,
-            scene_state->last_code_update_sync);
+            scene_state->last_code, TokenDigitsCountMax + 1, scene_state->last_code_update_sync);
     }
+
+    scene_state->active_font = available_fonts[plugin_state->active_font_index];
 
 #ifdef TOTP_BADBT_TYPE_ENABLED
 
@@ -297,7 +214,7 @@ void totp_scene_generate_token_activate(PluginState* plugin_state) {
         totp_bt_type_code_worker_start(
             plugin_state->bt_type_code_worker_context,
             scene_state->last_code,
-            TOTP_TOKEN_DIGITS_MAX_COUNT + 1,
+            TokenDigitsCountMax + 1,
             scene_state->last_code_update_sync);
     }
 #endif

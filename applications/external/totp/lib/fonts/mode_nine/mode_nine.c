@@ -932,6 +932,7 @@ const FONT_CHAR_INFO modeNine_15ptDescriptors[] = {
 
 /* Font information for ModeNine 15pt */
 const FONT_INFO modeNine_15ptFontInfo = {
+    "Mode Nine",
     14, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

@@ -1047,6 +1047,7 @@ const FONT_CHAR_INFO bedstead_17ptDescriptors[] = {
 
 /* Font information for Bedstead 17pt */
 const FONT_INFO bedstead_17ptFontInfo = {
+    "Bedstead",
     16, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

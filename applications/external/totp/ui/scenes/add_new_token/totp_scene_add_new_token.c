@@ -13,9 +13,9 @@
 char* TOKEN_ALGO_LIST[] = {"SHA1", "SHA256", "SHA512", "Steam"};
 char* TOKEN_DIGITS_TEXT_LIST[] = {"5 digits", "6 digits", "8 digits"};
 TokenDigitsCount TOKEN_DIGITS_VALUE_LIST[] = {
-    TotpFiveDigitsCount,
-    TotpSixDigitsCount,
-    TotpEightDigitsCount};
+    TokenDigitsCountFive,
+    TokenDigitsCountSix,
+    TokenDigitsCountEight};
 
 typedef enum {
     TokenNameTextBox,
@@ -33,10 +33,6 @@ typedef struct {
     size_t token_secret_length;
     bool saved;
     Control selected_control;
-    InputTextSceneContext* token_name_input_context;
-    InputTextSceneContext* token_secret_input_context;
-    InputTextSceneState* input_state;
-    bool text_input_mode;
     int16_t screen_y_offset;
     TokenHashAlgo algo;
     uint8_t digits_count_index;
@@ -50,24 +46,6 @@ struct TotpAddContext {
 };
 
 enum TotpIteratorUpdateTokenResultsEx { TotpIteratorUpdateTokenResultInvalidSecret = 1 };
-
-static void on_token_name_user_comitted(InputTextSceneCallbackResult* result) {
-    SceneState* scene_state = result->callback_data;
-    free(scene_state->token_name);
-    scene_state->token_name = result->user_input;
-    scene_state->token_name_length = result->user_input_length;
-    scene_state->text_input_mode = false;
-    free(result);
-}
-
-static void on_token_secret_user_comitted(InputTextSceneCallbackResult* result) {
-    SceneState* scene_state = result->callback_data;
-    free(scene_state->token_secret);
-    scene_state->token_secret = result->user_input;
-    scene_state->token_secret_length = result->user_input_length;
-    scene_state->text_input_mode = false;
-    free(result);
-}
 
 static void update_duration_text(SceneState* scene_state) {
     furi_string_printf(scene_state->duration_text, "%d sec.", scene_state->duration);
@@ -95,6 +73,26 @@ static TotpIteratorUpdateTokenResult add_token_handler(TokenInfo* tokenInfo, con
     return TotpIteratorUpdateTokenResultSuccess;
 }
 
+static void ask_user_input(
+    const PluginState* plugin_state,
+    const char* header,
+    char** user_input,
+    size_t* user_input_length) {
+    InputTextResult input_result;
+    if(*user_input != NULL) {
+        strlcpy(input_result.user_input, *user_input, INPUT_BUFFER_SIZE);
+    }
+
+    totp_input_text(plugin_state->gui, header, &input_result);
+    if(input_result.success) {
+        if(*user_input != NULL) {
+            free(*user_input);
+        }
+        *user_input = strdup(input_result.user_input);
+        *user_input_length = input_result.user_input_length;
+    }
+}
+
 void totp_scene_add_new_token_activate(PluginState* plugin_state) {
     SceneState* scene_state = malloc(sizeof(SceneState));
     furi_check(scene_state != NULL);
@@ -104,34 +102,17 @@ void totp_scene_add_new_token_activate(PluginState* plugin_state) {
     scene_state->token_secret = "Secret";
     scene_state->token_secret_length = strlen(scene_state->token_secret);
 
-    scene_state->token_name_input_context = malloc(sizeof(InputTextSceneContext));
-    furi_check(scene_state->token_name_input_context != NULL);
-    scene_state->token_name_input_context->header_text = "Enter token name";
-    scene_state->token_name_input_context->callback_data = scene_state;
-    scene_state->token_name_input_context->callback = on_token_name_user_comitted;
-
-    scene_state->token_secret_input_context = malloc(sizeof(InputTextSceneContext));
-    furi_check(scene_state->token_secret_input_context != NULL);
-    scene_state->token_secret_input_context->header_text = "Enter token secret";
-    scene_state->token_secret_input_context->callback_data = scene_state;
-    scene_state->token_secret_input_context->callback = on_token_secret_user_comitted;
-
     scene_state->screen_y_offset = 0;
 
     scene_state->digits_count_index = 1;
 
-    scene_state->input_state = NULL;
-    scene_state->duration = TOTP_TOKEN_DURATION_DEFAULT;
+    scene_state->duration = TokenDurationDefault;
     scene_state->duration_text = furi_string_alloc();
     update_duration_text(scene_state);
 }
 
-void totp_scene_add_new_token_render(Canvas* const canvas, PluginState* plugin_state) {
-    SceneState* scene_state = plugin_state->current_scene_state;
-    if(scene_state->text_input_mode) {
-        totp_input_text_render(canvas, scene_state->input_state);
-        return;
-    }
+void totp_scene_add_new_token_render(Canvas* const canvas, const PluginState* plugin_state) {
+    const SceneState* scene_state = plugin_state->current_scene_state;
 
     ui_control_text_box_render(
         canvas,
@@ -195,30 +176,14 @@ void update_screen_y_offset(SceneState* scene_state) {
     }
 }
 
-bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState* plugin_state) {
+bool totp_scene_add_new_token_handle_event(
+    const PluginEvent* const event,
+    PluginState* plugin_state) {
     if(event->type != EventTypeKey) {
         return true;
     }
 
     SceneState* scene_state = plugin_state->current_scene_state;
-
-    if(event->input.type == InputTypeLong && event->input.key == InputKeyBack) {
-        if(scene_state->text_input_mode) {
-            scene_state->text_input_mode = false;
-        } else {
-            return false;
-        }
-    }
-
-    if(scene_state->text_input_mode) {
-        if(event->input.type == InputTypeShort && event->input.key == InputKeyBack) {
-            PluginEvent long_back_cb_evt = {
-                .type = event->type, .input.key = InputKeyBack, .input.type = InputTypeLong};
-            return totp_input_text_handle_event(&long_back_cb_evt, scene_state->input_state);
-        }
-
-        return totp_input_text_handle_event(event, scene_state->input_state);
-    }
 
     if(event->input.type == InputTypePress) {
         switch(event->input.key) {
@@ -243,7 +208,11 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         case InputKeyRight:
             if(scene_state->selected_control == TokenAlgoSelect) {
                 totp_roll_value_uint8_t(
-                    &scene_state->algo, 1, SHA1, STEAM, RollOverflowBehaviorRoll);
+                    &scene_state->algo,
+                    1,
+                    TokenHashAlgoSha1,
+                    TokenHashAlgoSteam,
+                    RollOverflowBehaviorRoll);
             } else if(scene_state->selected_control == TokenLengthSelect) {
                 totp_roll_value_uint8_t(
                     &scene_state->digits_count_index, 1, 0, 2, RollOverflowBehaviorRoll);
@@ -256,7 +225,11 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
         case InputKeyLeft:
             if(scene_state->selected_control == TokenAlgoSelect) {
                 totp_roll_value_uint8_t(
-                    &scene_state->algo, -1, SHA1, STEAM, RollOverflowBehaviorRoll);
+                    &scene_state->algo,
+                    -1,
+                    TokenHashAlgoSha1,
+                    TokenHashAlgoSteam,
+                    RollOverflowBehaviorRoll);
             } else if(scene_state->selected_control == TokenLengthSelect) {
                 totp_roll_value_uint8_t(
                     &scene_state->digits_count_index, -1, 0, 2, RollOverflowBehaviorRoll);
@@ -277,22 +250,18 @@ bool totp_scene_add_new_token_handle_event(PluginEvent* const event, PluginState
     } else if(event->input.type == InputTypeRelease && event->input.key == InputKeyOk) {
         switch(scene_state->selected_control) {
         case TokenNameTextBox:
-            if(scene_state->input_state != NULL) {
-                totp_input_text_free(scene_state->input_state);
-            }
-            scene_state->input_state =
-                totp_input_text_activate(scene_state->token_name_input_context);
-
-            scene_state->text_input_mode = true;
+            ask_user_input(
+                plugin_state,
+                "Token name",
+                &scene_state->token_name,
+                &scene_state->token_name_length);
             break;
         case TokenSecretTextBox:
-            if(scene_state->input_state != NULL) {
-                totp_input_text_free(scene_state->input_state);
-            }
-            scene_state->input_state =
-                totp_input_text_activate(scene_state->token_secret_input_context);
-
-            scene_state->text_input_mode = true;
+            ask_user_input(
+                plugin_state,
+                "Token secret",
+                &scene_state->token_secret,
+                &scene_state->token_secret_length);
             break;
         case TokenAlgoSelect:
             break;
@@ -344,17 +313,7 @@ void totp_scene_add_new_token_deactivate(PluginState* plugin_state) {
     free(scene_state->token_name);
     free(scene_state->token_secret);
 
-    free(scene_state->token_name_input_context->header_text);
-    free(scene_state->token_name_input_context);
-
-    free(scene_state->token_secret_input_context->header_text);
-    free(scene_state->token_secret_input_context);
-
     furi_string_free(scene_state->duration_text);
-
-    if(scene_state->input_state != NULL) {
-        totp_input_text_free(scene_state->input_state);
-    }
 
     free(plugin_state->current_scene_state);
     plugin_state->current_scene_state = NULL;

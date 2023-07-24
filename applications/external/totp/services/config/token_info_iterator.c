@@ -496,19 +496,19 @@ bool totp_token_info_iterator_go_to(TokenInfoIteratorContext* context, size_t to
     if(!flipper_format_read_uint32(
            context->config_file, TOTP_CONFIG_KEY_TOKEN_ALGO, &temp_data32, 1) ||
        !token_info_set_algo_from_int(tokenInfo, temp_data32)) {
-        tokenInfo->algo = SHA1;
+        tokenInfo->algo = TokenHashAlgoDefault;
     }
 
     if(!flipper_format_read_uint32(
            context->config_file, TOTP_CONFIG_KEY_TOKEN_DIGITS, &temp_data32, 1) ||
        !token_info_set_digits_from_int(tokenInfo, temp_data32)) {
-        tokenInfo->digits = TotpSixDigitsCount;
+        tokenInfo->digits = TokenDigitsCountSix;
     }
 
     if(!flipper_format_read_uint32(
            context->config_file, TOTP_CONFIG_KEY_TOKEN_DURATION, &temp_data32, 1) ||
        !token_info_set_duration_from_int(tokenInfo, temp_data32)) {
-        tokenInfo->duration = TOTP_TOKEN_DURATION_DEFAULT;
+        tokenInfo->duration = TokenDurationDefault;
     }
 
     if(flipper_format_read_uint32(
