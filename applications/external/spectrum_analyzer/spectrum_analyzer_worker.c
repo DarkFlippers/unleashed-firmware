@@ -88,29 +88,17 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         CC1101_MDMCFG4,
         0x6C, // Rx BW filter is 270.83 kHz
 
-        /* Main Radio Control State Machine */
-        // CC1101_MCSM0,
-        // 0x18, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
-
         /* Frequency Offset Compensation Configuration */
         // CC1101_FOCCFG,
         // 0x18, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
 
         /* Automatic Gain Control */
-        // CC1101_AGCTRL0,0x40, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
-        // CC1101_AGCTRL1,0x00, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
-        // CC1101_AGCCTRL2, 0x03, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
-        //MAGN_TARGET for RX filter BW =< 100 kHz is 0x3. For higher RX filter BW's MAGN_TARGET is 0x7.
         // CC1101_AGCCTRL0,
         // 0x91, // 10 - Medium hysteresis, medium asymmetric dead zone, medium gain ; 01 - 16 samples agc; 00 - Normal AGC, 01 - 8dB boundary
         // CC1101_AGCCTRL1,
         // 0x0, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
         CC1101_AGCCTRL2,
         0xC0, // 03 - The 3 highest DVGA gain settings can not be used; 000 - MAX LNA+LNA2; 000 - MAIN_TARGET 24 dB
-
-        /* Wake on radio and timeouts control */
-        // CC1101_WORCTRL,
-        // 0xFB, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours
 
         /* Frontend configuration */
         // CC1101_FREND0,
@@ -161,29 +149,17 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         CC1101_MDMCFG4,
         0xFC, // Rx BW filter is 58.04 kHz
 
-        /* Main Radio Control State Machine */
-        // CC1101_MCSM0,
-        // 0x18, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
-
         /* Frequency Offset Compensation Configuration */
         // CC1101_FOCCFG,
         // 0x18, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
 
         /* Automatic Gain Control */
-        // CC1101_AGCTRL0,0x40, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
-        // CC1101_AGCTRL1,0x00, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
-        // CC1101_AGCCTRL2, 0x03, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
-        //MAGN_TARGET for RX filter BW =< 100 kHz is 0x3. For higher RX filter BW's MAGN_TARGET is 0x7.
         CC1101_AGCCTRL0,
-        0x30, // 00 - NO hysteresis, ymmetric dead zone, high gain ; 11 - 32 samples agc; 00 - Normal AGC, 00 - 8dB boundary
+        0x30, // 00 - NO hysteresis, symmetric dead zone, high gain ; 11 - 32 samples agc; 00 - Normal AGC, 00 - 8dB boundary
         CC1101_AGCCTRL1,
         0x0, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
         CC1101_AGCCTRL2,
         0x84, // 02 - The 2 highest DVGA gain settings can not be used; 000 - MAX LNA+LNA2; 100 - MAIN_TARGET 36 dB
-
-        /* Wake on radio and timeouts control */
-        // CC1101_WORCTRL,
-        // 0xFB, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours
 
         /* Frontend configuration */
         // CC1101_FREND0,
