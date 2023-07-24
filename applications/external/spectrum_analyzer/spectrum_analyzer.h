@@ -80,5 +80,5 @@
 #define LOWER(a, b, c) ((((a) + (b)) / (c)) * (c))
 
 /* Modulation references */
-#define DEFAULT_MOD 0
-#define NARROW_MOD 1
+#define DEFAULT_MODULATION 0
+#define NARROW_MODULATION 1

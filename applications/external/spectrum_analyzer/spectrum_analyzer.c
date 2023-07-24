@@ -12,7 +12,7 @@
 typedef struct {
     uint32_t center_freq;
     uint8_t width;
-    uint8_t mod;
+    uint8_t modulation;
     uint8_t band;
     uint8_t vscroll;
 
@@ -152,8 +152,8 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
 
     if(model->mod_change) {
         char temp_mod_str[12];
-        switch(model->mod) {
-        case NARROW_MOD:
+        switch(model->modulation) {
+        case NARROW_MODULATION:
             strncpy(temp_mod_str, "NARROW", 12);
             break;
         default:
@@ -396,7 +396,7 @@ SpectrumAnalyzer* spectrum_analyzer_alloc() {
 
     model->center_freq = DEFAULT_FREQ;
     model->width = WIDE;
-    model->mod = DEFAULT_MOD;
+    model->modulation = DEFAULT_MODULATION;
     model->band = BAND_400;
 
     model->vscroll = DEFAULT_VSCROLL;
@@ -560,13 +560,13 @@ int32_t spectrum_analyzer_app(void* p) {
             switch(input.key) {
             case InputKeyOk:
                 FURI_LOG_D("Spectrum", "InputTypeLong");
-                switch(model->mod) {
-                case NARROW_MOD:
-                    model->mod = DEFAULT_MOD;
+                switch(model->modulation) {
+                case NARROW_MODULATION:
+                    model->modulation = DEFAULT_MODULATION;
                     break;
-                case DEFAULT_MOD:
+                case DEFAULT_MODULATION:
                 default:
-                    model->mod = NARROW_MOD;
+                    model->modulation = NARROW_MODULATION;
                     break;
                 }
 
@@ -578,7 +578,7 @@ int32_t spectrum_analyzer_app(void* p) {
                 model->mod_change = false;
                 spectrum_analyzer_worker_set_modulation(
                     spectrum_analyzer->worker,
-                    spectrum_analyzer->model->mod);
+                    spectrum_analyzer->model->modulation);
                 break;
             }
             break;
