@@ -12,6 +12,7 @@
 typedef struct {
     uint32_t center_freq;
     uint8_t width;
+    uint8_t mod;
     uint8_t band;
     uint8_t vscroll;
 
@@ -19,6 +20,7 @@ typedef struct {
     uint32_t spacing;
 
     bool mode_change;
+    bool mod_change;
 
     float max_rssi;
     uint8_t max_rssi_dec;
@@ -147,6 +149,24 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
         snprintf(tmp_str, 21, "Mode: %s", temp_mode_str);
         canvas_draw_str_aligned(canvas, 127, 4, AlignRight, AlignTop, tmp_str);
     }
+
+    if(model->mod_change) {
+        char temp_mod_str[12];
+        switch(model->mod) {
+        case NARROW_MOD:
+            strncpy(temp_mod_str, "NARROW", 12);
+            break;
+        default:
+            strncpy(temp_mod_str, "DEFAULT", 12);
+            break;
+        }
+
+        // Current modulation label
+        char tmp_str[27];
+        snprintf(tmp_str, 27, "Modulation: %s", temp_mod_str);
+        canvas_draw_str_aligned(canvas, 127, 4, AlignRight, AlignTop, tmp_str);
+    }
+
     // Draw cross and label
     if(model->max_rssi > PEAK_THRESHOLD) {
         // Compress height to max of 64 values (255>>2)
@@ -194,8 +214,8 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
 
 static void spectrum_analyzer_input_callback(InputEvent* input_event, void* ctx) {
     SpectrumAnalyzer* spectrum_analyzer = ctx;
-    // Only handle short presses
-    if(input_event->type == InputTypeShort) {
+    // Handle short and long presses
+    if(input_event->type == InputTypeShort || input_event->type == InputTypeLong) {
         furi_message_queue_put(spectrum_analyzer->event_queue, input_event, FuriWaitForever);
     }
 }
@@ -376,6 +396,7 @@ SpectrumAnalyzer* spectrum_analyzer_alloc() {
 
     model->center_freq = DEFAULT_FREQ;
     model->width = WIDE;
+    model->mod = DEFAULT_MOD;
     model->band = BAND_400;
 
     model->vscroll = DEFAULT_VSCROLL;
@@ -469,66 +490,97 @@ int32_t spectrum_analyzer_app(void* p) {
             hstep = WIDE_STEP;
             break;
         }
+        
+        switch(input.type) {
+        case InputTypeShort:
+            switch(input.key) {
+            case InputKeyUp:
+                model->vscroll = MAX(model->vscroll - vstep, MIN_VSCROLL);
+                FURI_LOG_D("Spectrum", "Vscroll: %u", model->vscroll);
+                break;
+            case InputKeyDown:
+                model->vscroll = MIN(model->vscroll + vstep, MAX_VSCROLL);
+                FURI_LOG_D("Spectrum", "Vscroll: %u", model->vscroll);
+                break;
+            case InputKeyRight:
+                model->center_freq += hstep;
+                FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
+                spectrum_analyzer_calculate_frequencies(model);
+                spectrum_analyzer_worker_set_frequencies(
+                    spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
+                break;
+            case InputKeyLeft:
+                model->center_freq -= hstep;
+                spectrum_analyzer_calculate_frequencies(model);
+                spectrum_analyzer_worker_set_frequencies(
+                    spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
+                FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
+                break;
+            case InputKeyOk: {
+                switch(model->width) {
+                case WIDE:
+                    model->width = NARROW;
+                    break;
+                case NARROW:
+                    model->width = ULTRANARROW;
+                    break;
+                case ULTRANARROW:
+                    model->width = PRECISE;
+                    break;
+                case PRECISE:
+                    model->width = ULTRAWIDE;
+                    break;
+                case ULTRAWIDE:
+                    model->width = WIDE;
+                    break;
+                default:
+                    model->width = WIDE;
+                    break;
+                }
+            }
+                model->mode_change = true;
+                view_port_update(spectrum_analyzer->view_port);
 
-        switch(input.key) {
-        case InputKeyUp:
-            model->vscroll = MAX(model->vscroll - vstep, MIN_VSCROLL);
-            FURI_LOG_D("Spectrum", "Vscroll: %u", model->vscroll);
-            break;
-        case InputKeyDown:
-            model->vscroll = MIN(model->vscroll + vstep, MAX_VSCROLL);
-            FURI_LOG_D("Spectrum", "Vscroll: %u", model->vscroll);
-            break;
-        case InputKeyRight:
-            model->center_freq += hstep;
-            FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
-            spectrum_analyzer_calculate_frequencies(model);
-            spectrum_analyzer_worker_set_frequencies(
-                spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
-            break;
-        case InputKeyLeft:
-            model->center_freq -= hstep;
-            spectrum_analyzer_calculate_frequencies(model);
-            spectrum_analyzer_worker_set_frequencies(
-                spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
-            FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
-            break;
-        case InputKeyOk: {
-            switch(model->width) {
-            case WIDE:
-                model->width = NARROW;
+                furi_delay_ms(1000);
+
+                model->mode_change = false;
+                spectrum_analyzer_calculate_frequencies(model);
+                spectrum_analyzer_worker_set_frequencies(
+                    spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
+                FURI_LOG_D("Spectrum", "Width: %u", model->width);
                 break;
-            case NARROW:
-                model->width = ULTRANARROW;
-                break;
-            case ULTRANARROW:
-                model->width = PRECISE;
-                break;
-            case PRECISE:
-                model->width = ULTRAWIDE;
-                break;
-            case ULTRAWIDE:
-                model->width = WIDE;
+            case InputKeyBack:
+                exit_loop = true;
                 break;
             default:
-                model->width = WIDE;
                 break;
             }
-        }
-
-            model->mode_change = true;
-            view_port_update(spectrum_analyzer->view_port);
-
-            furi_delay_ms(1000);
-
-            model->mode_change = false;
-            spectrum_analyzer_calculate_frequencies(model);
-            spectrum_analyzer_worker_set_frequencies(
-                spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
-            FURI_LOG_D("Spectrum", "Width: %u", model->width);
             break;
-        case InputKeyBack:
-            exit_loop = true;
+        case InputTypeLong:
+            switch(input.key) {
+            case InputKeyOk:
+                FURI_LOG_D("Spectrum", "InputTypeLong");
+                switch(model->mod) {
+                case NARROW_MOD:
+                    model->mod = DEFAULT_MOD;
+                    break;
+                case DEFAULT_MOD:
+                default:
+                    model->mod = NARROW_MOD;
+                    break;
+                }
+
+                model->mod_change = true;
+                view_port_update(spectrum_analyzer->view_port);
+
+                furi_delay_ms(1000);
+
+                model->mod_change = false;
+                spectrum_analyzer_worker_set_modulation(
+                    spectrum_analyzer->worker,
+                    spectrum_analyzer->model->mod);
+                break;
+            }
             break;
         default:
             break;
