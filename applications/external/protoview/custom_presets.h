@@ -1,4 +1,4 @@
-#include <cc1101.h>
+#include <cc1101_regs.h>
 /* ========================== DATA RATE SETTINGS ===============================
  *
  * This is how to configure registers MDMCFG3 and MDMCFG4.

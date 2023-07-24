@@ -41,12 +41,6 @@
 #define GRADIENT_WHITE 7
 #define GRADIENT_BLACK 0
 
-// Inverted icons
-extern const Icon I_fire_inv;
-extern const Icon I_gun_inv;
-extern const Icon I_gun_mask_inv;
-extern const Icon I_logo_inv;
-
 // Fonts
 extern const uint8_t zero[];
 extern const uint8_t one[];
