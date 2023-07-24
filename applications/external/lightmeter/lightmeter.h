@@ -3,6 +3,9 @@
 #include <furi.h>
 #include <furi_hal.h>
 
+#include <stream/stream.h>
+#include <flipper_format/flipper_format_i.h>
+
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
@@ -20,14 +23,19 @@
 #include <BH1750.h>
 #include <MAX44009.h>
 
+#define APP_PATH_DIR STORAGE_APP_DATA_PATH_PREFIX
+#define APP_PATH_CFG "config.txt"
+
 typedef struct {
-    int iso;
-    int nd;
-    int aperture;
-    int dome;
-    int backlight;
-    int lux_only;
-    int sensor_type;
+    int32_t iso;
+    int32_t nd;
+    int32_t aperture;
+    int32_t dome;
+    int32_t backlight;
+    int32_t lux_only;
+    int32_t sensor_type;
+    int32_t measurement_resolution;
+    int32_t device_addr;
 } LightMeterConfig;
 
 typedef struct {
@@ -36,9 +44,13 @@ typedef struct {
     ViewDispatcher* view_dispatcher;
     MainView* main_view;
     VariableItemList* var_item_list;
+    VariableItem* var_item_addr;
     LightMeterConfig* config;
     NotificationApp* notifications;
     Widget* widget;
+
+    Storage* storage;
+    FuriString* cfg_path;
 } LightMeterApp;
 
 typedef enum {
@@ -50,6 +62,7 @@ typedef enum {
 } LightMeterAppView;
 
 typedef enum {
+    LightMeterAppCustomEventReset,
     LightMeterAppCustomEventConfig,
     LightMeterAppCustomEventHelp,
     LightMeterAppCustomEventAbout,
@@ -58,5 +71,9 @@ typedef enum {
 void lightmeter_app_set_config(LightMeterApp* context, LightMeterConfig* config);
 
 void lightmeter_app_i2c_init_sensor(LightMeterApp* context);
+
 void lightmeter_app_i2c_deinit_sensor(LightMeterApp* context);
+
 void lightmeter_app_i2c_callback(LightMeterApp* context);
+
+void lightmeter_app_reset_callback(LightMeterApp* context);

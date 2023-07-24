@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include "sound.h"
 #include "display.h"
-#include "compiled/assets_icons.h"
+#include "assets.h"
 #include "constants.h"
 #include "entities.h"
 #include "types.h"
@@ -226,12 +226,12 @@ UID detectCollision(
     bool only_walls,
     PluginState* const plugin_state) {
     // Wall collision
-    uint8_t round_x = (int)pos->x + (int)relative_x;
-    uint8_t round_y = (int)pos->y + (int)relative_y;
+    uint8_t round_x = (int)(pos->x + relative_x);
+    uint8_t round_y = (int)(pos->y + relative_y);
     uint8_t block = getBlockAt(level, round_x, round_y);
 
     if(block == E_WALL) {
-        //playSound(hit_wall_snd, HIT_WALL_SND_LEN);
+        // playSound(hit_wall_snd, HIT_WALL_SND_LEN);
         return create_uid(block, round_x, round_y);
     }
 
@@ -769,7 +769,6 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     furi_assert(ctx);
     PluginState* plugin_state = ctx;
     furi_mutex_acquire(plugin_state->mutex, FuriWaitForever);
-    if(plugin_state->init) setupDisplay(canvas);
 
     canvas_set_font(canvas, FontPrimary);
 
@@ -855,7 +854,6 @@ static void doom_game_update_timer_callback(FuriMessageQueue* event_queue) {
 static void doom_game_tick(PluginState* const plugin_state) {
     if(plugin_state->scene == GAME_PLAY) {
         //fps();
-        memset(display_buf, 0, SCREEN_WIDTH * (RENDER_HEIGHT / 8));
         //player is alive
         if(plugin_state->player.health > 0) {
             if(plugin_state->up) {
@@ -983,7 +981,7 @@ int32_t doom_app() {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     //////////////////////////////////
-    if(display_buf != NULL) plugin_state->init = false;
+    plugin_state->init = false;
 
     PluginEvent event;
 #ifdef SOUND

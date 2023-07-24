@@ -2,7 +2,7 @@
  * See the LICENSE file for information about the license. */
 
 #include "app.h"
-#include <cc1101.h>
+#include <cc1101_regs.h>
 
 static void direct_sampling_timer_start(ProtoViewApp* app);
 static void direct_sampling_timer_stop(ProtoViewApp* app);

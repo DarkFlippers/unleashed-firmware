@@ -1,4 +1,5 @@
 #include "main_view.h"
+#include <math.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/elements.h>
@@ -72,6 +73,7 @@ const float speed_numbers[] = {
 struct MainView {
     View* view;
     LightMeterMainViewButtonCallback cb_left;
+    LightMeterMainViewButtonCallback cb_right;
     void* cb_context;
 };
 
@@ -85,6 +87,21 @@ void lightmeter_main_view_set_left_callback(
         {
             UNUSED(model);
             lightmeter_main_view->cb_left = callback;
+            lightmeter_main_view->cb_context = context;
+        },
+        true);
+}
+
+void lightmeter_main_view_set_right_callback(
+    MainView* lightmeter_main_view,
+    LightMeterMainViewButtonCallback callback,
+    void* context) {
+    with_view_model(
+        lightmeter_main_view->view,
+        MainViewModel * model,
+        {
+            UNUSED(model);
+            lightmeter_main_view->cb_right = callback;
             lightmeter_main_view->cb_context = context;
         },
         true);
@@ -125,6 +142,7 @@ static void main_view_draw_callback(Canvas* canvas, void* context) {
         // draw mode indicator
         draw_mode_indicator(canvas, model);
     } else {
+        elements_button_right(canvas, "Reset");
         draw_lux_only_mode(canvas, model);
     }
 }
@@ -190,6 +208,11 @@ static bool main_view_input_callback(InputEvent* event, void* context) {
             main_view->cb_left(main_view->cb_context);
         }
         consumed = true;
+    } else if(event->type == InputTypeShort && event->key == InputKeyRight) {
+        if(main_view->cb_right) {
+            main_view->cb_right(main_view->cb_context);
+        }
+        consumed = true;
     } else if(event->type == InputTypeShort && event->key == InputKeyBack) {
     } else {
         main_view_process(main_view, event);
@@ -224,7 +247,22 @@ View* main_view_get_view(MainView* main_view) {
 void main_view_set_lux(MainView* main_view, float val) {
     furi_assert(main_view);
     with_view_model(
-        main_view->view, MainViewModel * model, { model->lux = val; }, true);
+        main_view->view,
+        MainViewModel * model,
+        {
+            model->lux = val;
+            model->peakLux = fmax(model->peakLux, val);
+
+            model->luxHistogram[model->luxHistogramIndex++] = val;
+            model->luxHistogramIndex %= LUX_HISTORGRAM_LENGTH;
+        },
+        true);
+}
+
+void main_view_reset_lux(MainView* main_view) {
+    furi_assert(main_view);
+    with_view_model(
+        main_view->view, MainViewModel * model, { model->peakLux = 0; }, true);
 }
 
 void main_view_set_EV(MainView* main_view, float val) {
@@ -273,6 +311,27 @@ void main_view_set_lux_only(MainView* main_view, bool lux_only) {
     furi_assert(main_view);
     with_view_model(
         main_view->view, MainViewModel * model, { model->lux_only = lux_only; }, true);
+}
+
+void main_view_set_measurement_resolution(MainView* main_view, int measurement_resolution) {
+    furi_assert(main_view);
+    with_view_model(
+        main_view->view,
+        MainViewModel * model,
+        { model->measurement_resolution = measurement_resolution; },
+        true);
+}
+
+void main_view_set_device_addr(MainView* main_view, int device_addr) {
+    furi_assert(main_view);
+    with_view_model(
+        main_view->view, MainViewModel * model, { model->device_addr = device_addr; }, true);
+}
+
+void main_view_set_sensor_type(MainView* main_view, int sensor_type) {
+    furi_assert(main_view);
+    with_view_model(
+        main_view->view, MainViewModel * model, { model->sensor_type = sensor_type; }, true);
 }
 
 bool main_view_get_dome(MainView* main_view) {
@@ -462,9 +521,28 @@ void draw_lux_only_mode(Canvas* canvas, MainViewModel* context) {
 
         canvas_set_font(canvas, FontBigNumbers);
         snprintf(str, sizeof(str), "%.0f", (double)model->lux);
-        canvas_draw_str_aligned(canvas, 80, 32, AlignRight, AlignCenter, str);
+        canvas_draw_str_aligned(canvas, 80, 22, AlignRight, AlignCenter, str);
 
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 85, 39, AlignLeft, AlignBottom, "Lux");
+        canvas_draw_str_aligned(canvas, 85, 29, AlignLeft, AlignBottom, "Lux now");
+
+        canvas_set_font(canvas, FontPrimary);
+        snprintf(str, sizeof(str), "%.0f", (double)model->peakLux);
+        canvas_draw_str_aligned(canvas, 80, 39, AlignRight, AlignCenter, str);
+
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(canvas, 85, 43, AlignLeft, AlignBottom, "Lux peak");
+
+        for(int i = 0; i < LUX_HISTORGRAM_LENGTH; i++) {
+            float lux =
+                model->luxHistogram[(i + model->luxHistogramIndex) % LUX_HISTORGRAM_LENGTH];
+            int barHeight = log10(lux) / log10(LUX_HISTORGRAM_LOGBASE);
+            canvas_draw_line(
+                canvas,
+                LUX_HISTORGRAM_LEFT + i,
+                LUX_HISTORGRAM_BOTTOM,
+                LUX_HISTORGRAM_LEFT + i,
+                LUX_HISTORGRAM_BOTTOM - barHeight);
+        }
     }
 }
