@@ -229,53 +229,58 @@ int32_t hex_viewer_app(void* p) {
         hex_viewer_read_file(hex_viewer);
 
         InputEvent input;
-        while(furi_message_queue_get(hex_viewer->input_queue, &input, FuriWaitForever) ==
-              FuriStatusOk) {
-            if(input.key == InputKeyBack) {
-                break;
-            } else if(input.key == InputKeyUp) {
-                furi_check(furi_mutex_acquire(hex_viewer->mutex, FuriWaitForever) == FuriStatusOk);
-                if(hex_viewer->model->file_offset > 0) {
-                    hex_viewer->model->file_offset -= HEX_VIEWER_BYTES_PER_LINE;
-                    if(!hex_viewer_read_file(hex_viewer)) break;
+        while(1) {
+            if(furi_message_queue_get(hex_viewer->input_queue, &input, 100) == FuriStatusOk) {
+                if(input.key == InputKeyBack) {
+                    break;
+                } else if(input.key == InputKeyUp) {
+                    furi_check(
+                        furi_mutex_acquire(hex_viewer->mutex, FuriWaitForever) == FuriStatusOk);
+                    if(hex_viewer->model->file_offset > 0) {
+                        hex_viewer->model->file_offset -= HEX_VIEWER_BYTES_PER_LINE;
+                        if(!hex_viewer_read_file(hex_viewer)) break;
+                    }
+                    furi_mutex_release(hex_viewer->mutex);
+                } else if(input.key == InputKeyDown) {
+                    furi_check(
+                        furi_mutex_acquire(hex_viewer->mutex, FuriWaitForever) == FuriStatusOk);
+                    uint32_t last_byte_on_screen =
+                        hex_viewer->model->file_offset + hex_viewer->model->file_read_bytes;
+
+                    if(hex_viewer->model->file_size > last_byte_on_screen) {
+                        hex_viewer->model->file_offset += HEX_VIEWER_BYTES_PER_LINE;
+                        if(!hex_viewer_read_file(hex_viewer)) break;
+                    }
+                    furi_mutex_release(hex_viewer->mutex);
+                } else if(input.key == InputKeyLeft) {
+                    furi_check(
+                        furi_mutex_acquire(hex_viewer->mutex, FuriWaitForever) == FuriStatusOk);
+                    hex_viewer->model->mode = !hex_viewer->model->mode;
+                    furi_mutex_release(hex_viewer->mutex);
+                } else if(input.key == InputKeyRight) {
+                    FuriString* buffer;
+                    buffer = furi_string_alloc();
+                    furi_string_printf(
+                        buffer,
+                        "File path: %s\nFile size: %lu (0x%lX)",
+                        furi_string_get_cstr(file_path),
+                        hex_viewer->model->file_size,
+                        hex_viewer->model->file_size);
+
+                    DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
+                    DialogMessage* message = dialog_message_alloc();
+                    dialog_message_set_header(
+                        message, "Hex Viewer v1.1", 16, 2, AlignLeft, AlignTop);
+                    dialog_message_set_icon(message, &I_hex_10px, 3, 2);
+                    dialog_message_set_text(
+                        message, furi_string_get_cstr(buffer), 3, 16, AlignLeft, AlignTop);
+                    dialog_message_set_buttons(message, NULL, NULL, "Back");
+                    dialog_message_show(dialogs, message);
+
+                    furi_string_free(buffer);
+                    dialog_message_free(message);
+                    furi_record_close(RECORD_DIALOGS);
                 }
-                furi_mutex_release(hex_viewer->mutex);
-            } else if(input.key == InputKeyDown) {
-                furi_check(furi_mutex_acquire(hex_viewer->mutex, FuriWaitForever) == FuriStatusOk);
-                uint32_t last_byte_on_screen =
-                    hex_viewer->model->file_offset + hex_viewer->model->file_read_bytes;
-
-                if(hex_viewer->model->file_size > last_byte_on_screen) {
-                    hex_viewer->model->file_offset += HEX_VIEWER_BYTES_PER_LINE;
-                    if(!hex_viewer_read_file(hex_viewer)) break;
-                }
-                furi_mutex_release(hex_viewer->mutex);
-            } else if(input.key == InputKeyLeft) {
-                furi_check(furi_mutex_acquire(hex_viewer->mutex, FuriWaitForever) == FuriStatusOk);
-                hex_viewer->model->mode = !hex_viewer->model->mode;
-                furi_mutex_release(hex_viewer->mutex);
-            } else if(input.key == InputKeyRight) {
-                FuriString* buffer;
-                buffer = furi_string_alloc();
-                furi_string_printf(
-                    buffer,
-                    "File path: %s\nFile size: %lu (0x%lX)",
-                    furi_string_get_cstr(file_path),
-                    hex_viewer->model->file_size,
-                    hex_viewer->model->file_size);
-
-                DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
-                DialogMessage* message = dialog_message_alloc();
-                dialog_message_set_header(message, "Hex Viewer v1.1", 16, 2, AlignLeft, AlignTop);
-                dialog_message_set_icon(message, &I_hex_10px, 3, 2);
-                dialog_message_set_text(
-                    message, furi_string_get_cstr(buffer), 3, 16, AlignLeft, AlignTop);
-                dialog_message_set_buttons(message, NULL, NULL, "Back");
-                dialog_message_show(dialogs, message);
-
-                furi_string_free(buffer);
-                dialog_message_free(message);
-                furi_record_close(RECORD_DIALOGS);
             }
 
             view_port_update(hex_viewer->view_port);

@@ -140,30 +140,31 @@ int32_t ir_scope_app(void* p) {
 
     InputEvent event;
     bool processing = true;
-    while(processing &&
-          furi_message_queue_get(event_queue, &event, FuriWaitForever) == FuriStatusOk) {
-        if(event.type == InputTypeRelease) {
-            furi_mutex_acquire(state.mutex, FuriWaitForever);
+    while(processing) {
+        if(furi_message_queue_get(event_queue, &event, 100) == FuriStatusOk) {
+            if(event.type == InputTypeRelease) {
+                furi_mutex_acquire(state.mutex, FuriWaitForever);
 
-            if(event.key == InputKeyBack) {
-                processing = false;
-            } else if(event.key == InputKeyUp) {
-                state.us_per_sample = MIN(1000, state.us_per_sample + 25);
-                state.autoscale = false;
-            } else if(event.key == InputKeyDown) {
-                state.us_per_sample = MAX(25, state.us_per_sample - 25);
-                state.autoscale = false;
-            } else if(event.key == InputKeyOk) {
-                state.autoscale = !state.autoscale;
-                if(state.autoscale)
-                    state_set_autoscale(&state);
-                else
-                    state.us_per_sample = 200;
+                if(event.key == InputKeyBack) {
+                    processing = false;
+                } else if(event.key == InputKeyUp) {
+                    state.us_per_sample = MIN(1000, state.us_per_sample + 25);
+                    state.autoscale = false;
+                } else if(event.key == InputKeyDown) {
+                    state.us_per_sample = MAX(25, state.us_per_sample - 25);
+                    state.autoscale = false;
+                } else if(event.key == InputKeyOk) {
+                    state.autoscale = !state.autoscale;
+                    if(state.autoscale)
+                        state_set_autoscale(&state);
+                    else
+                        state.us_per_sample = 200;
+                }
+
+                furi_mutex_release(state.mutex);
             }
-
-            view_port_update(view_port);
-            furi_mutex_release(state.mutex);
         }
+        view_port_update(view_port);
     }
 
     // Clean up.

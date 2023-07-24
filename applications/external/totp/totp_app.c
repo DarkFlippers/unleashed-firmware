@@ -207,7 +207,7 @@ int32_t totp_app() {
     PluginEvent event;
     bool processing = true;
     while(processing) {
-        FuriStatus event_status = furi_message_queue_get(event_queue, &event, FuriWaitForever);
+        FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
         if(furi_mutex_acquire(plugin_state->mutex, FuriWaitForever) == FuriStatusOk) {
             if(event_status == FuriStatusOk) {
