@@ -27,11 +27,11 @@ const uint8_t BAD_BT_EMPTY_MAC_ADDRESS[BAD_BT_MAC_ADDRESS_LEN] =
  * Delays for waiting between HID key press and key release
 */
 const uint8_t bt_hid_delays[LevelRssiNum] = {
-    30, // LevelRssi122_100
-    25, // LevelRssi99_80
-    20, // LevelRssi79_60
-    17, // LevelRssi59_40
-    14, // LevelRssi39_0
+    60, // LevelRssi122_100
+    55, // LevelRssi99_80
+    50, // LevelRssi79_60
+    47, // LevelRssi59_40
+    34, // LevelRssi39_0
 };
 
 uint8_t bt_timeout = 0;

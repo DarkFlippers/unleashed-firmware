@@ -1163,6 +1163,7 @@ const FONT_CHAR_INFO karmaFuture_14ptDescriptors[] = {
 
 /* Font information for Karma Future 14pt */
 const FONT_INFO karmaFuture_14ptFontInfo = {
+    "Karma Future",
     18, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 16th Jun, 2023
-# Last Checked 13th Jul, 2023
+# Last Updated 24th Jul, 2023
+# Last Checked 24th Jul, 2023
 #
 # ON
 name: Power
@@ -988,3 +988,93 @@ type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 11 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 51 AE 00 00
+# 
+name: Pause
+type: parsed
+protocol: NECext
+address: 00 30 00 00
+command: A8 57 00 00
+# 
+name: Play
+type: parsed
+protocol: NECext
+address: 00 30 00 00
+command: A9 56 00 00
+# 
+name: Play
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 5E A1 00 00
+# 
+name: Pause
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 5B A4 00 00
+# 
+name: Play
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 93 00 00 00
+# 
+name: Pause
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 93 00 00 00
+# 
+name: Play
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 15 00 00 00
+# 
+name: Pause
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 15 00 00 00
+# 
+name: Play
+type: parsed
+protocol: NECext
+address: B8 57 00 00
+command: 18 E7 00 00
+# 
+name: Play
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 8981 4411 532 1616 557 1592 557 465 556 465 556 466 555 467 554 468 554 1595 554 467 554 468 554 1595 554 467 580 1569 581 1568 581 1568 581 1569 580 441 581 1569 580 442 580 1570 579 1594 555 467 555 443 579 442 580 1594 554 467 555 1594 555 467 555 468 554 1595 554 1595 528 1620 529 42169 9008 2106 531
+# 
+name: Pause
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 8981 4411 532 1616 557 1592 557 465 556 465 556 466 555 467 554 468 554 1595 554 467 554 468 554 1595 554 467 580 1569 581 1568 581 1568 581 1569 580 441 581 1569 580 442 580 1570 579 1594 555 467 555 443 579 442 580 1594 554 467 555 1594 555 467 555 468 554 1595 554 1595 528 1620 529 42169 9008 2106 531
+# 
+name: Play
+type: parsed
+protocol: NEC
+address: 31 00 00 00
+command: 41 00 00 00
+# 
+name: Pause
+type: parsed
+protocol: NEC
+address: 31 00 00 00
+command: 41 00 00 00
+# 
+name: Play
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 03 00 00 00

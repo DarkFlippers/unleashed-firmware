@@ -1047,6 +1047,7 @@ const FONT_CHAR_INFO zector_18ptDescriptors[] = {
 
 /* Font information for Zector 18pt */
 const FONT_INFO zector_18ptFontInfo = {
+    "Zector",
     16, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

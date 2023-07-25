@@ -1048,6 +1048,7 @@ const FONT_CHAR_INFO redHatMono_16ptDescriptors[] = {
 
 /* Font information for Red Hat Mono 16pt */
 const FONT_INFO redHatMono_16ptFontInfo = {
+    "RedHat Mono",
     16, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

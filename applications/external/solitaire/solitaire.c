@@ -497,7 +497,6 @@ int32_t solitaire_app(void* p) {
     for(bool processing = true; processing;) {
         FuriStatus event_status = furi_message_queue_get(event_queue, &event, 150);
         furi_mutex_acquire(game_state->mutex, FuriWaitForever);
-        bool hadChange = false;
         if(event_status == FuriStatusOk) {
             if(event.type == EventTypeKey) {
                 if(event.input.type == InputTypeLong) {
@@ -528,7 +527,6 @@ int32_t solitaire_app(void* p) {
                             game_state->state = GameStatePlay;
                             init(game_state);
                         } else {
-                            hadChange = true;
                             game_state->input = event.input.key;
                         }
                         break;
@@ -546,11 +544,8 @@ int32_t solitaire_app(void* p) {
                 processing = game_state->processing;
                 game_state->input = InputKeyMAX;
             }
-        } else {
-            //FURI_LOG_W(APP_NAME, "osMessageQueue: event timeout");
-            // event timeout
         }
-        if(hadChange || game_state->state == GameStateAnimate) view_port_update(view_port);
+        view_port_update(view_port);
         furi_mutex_release(game_state->mutex);
     }
 

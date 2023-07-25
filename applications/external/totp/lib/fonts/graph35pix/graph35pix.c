@@ -931,6 +931,7 @@ const FONT_CHAR_INFO graph35pix_12ptDescriptors[] = {
 
 /* Font information for Graph 35+ pix 12pt */
 const FONT_INFO graph35pix_12ptFontInfo = {
+    "Graph 35pix",
     14, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

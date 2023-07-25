@@ -15,9 +15,6 @@
 #define CONFIG_FILE_PATH CONFIG_FILE_DIRECTORY_PATH "/totp.conf"
 #define CONFIG_FILE_BACKUP_DIR CONFIG_FILE_DIRECTORY_PATH "/backups"
 #define CONFIG_FILE_BACKUP_BASE_PATH CONFIG_FILE_BACKUP_DIR "/totp.conf"
-#define CONFIG_FILE_TEMP_PATH CONFIG_FILE_PATH ".tmp"
-#define CONFIG_FILE_ORIG_PATH CONFIG_FILE_PATH ".orig"
-#define CONFIG_FILE_PATH_PREVIOUS EXT_PATH("apps/Misc") "/totp.conf"
 
 struct ConfigFileContext {
     /**
@@ -120,26 +117,6 @@ static bool totp_open_config_file(Storage* storage, FlipperFormat** file) {
             totp_close_config_file(fff_data_file);
             return false;
         }
-    } else if(storage_common_stat(storage, CONFIG_FILE_PATH_PREVIOUS, NULL) == FSE_OK) {
-        FURI_LOG_D(LOGGING_TAG, "Old config file %s found", CONFIG_FILE_PATH_PREVIOUS);
-        if(storage_common_stat(storage, CONFIG_FILE_DIRECTORY_PATH, NULL) == FSE_NOT_EXIST) {
-            FURI_LOG_D(
-                LOGGING_TAG,
-                "Directory %s doesn't exist. Will create new.",
-                CONFIG_FILE_DIRECTORY_PATH);
-            if(!storage_simply_mkdir(storage, CONFIG_FILE_DIRECTORY_PATH)) {
-                FURI_LOG_E(LOGGING_TAG, "Error creating directory %s", CONFIG_FILE_DIRECTORY_PATH);
-                totp_close_config_file(fff_data_file);
-                return false;
-            }
-        }
-        if(storage_common_rename(storage, CONFIG_FILE_PATH_PREVIOUS, CONFIG_FILE_PATH) != FSE_OK) {
-            FURI_LOG_E(LOGGING_TAG, "Error moving config to %s", CONFIG_FILE_PATH);
-            totp_close_config_file(fff_data_file);
-            return false;
-        }
-        FURI_LOG_I(LOGGING_TAG, "Applied config file path migration");
-        return totp_open_config_file(storage, file);
     } else {
         FURI_LOG_D(LOGGING_TAG, "Config file %s is not found. Will create new.", CONFIG_FILE_PATH);
         if(storage_common_stat(storage, CONFIG_FILE_DIRECTORY_PATH, NULL) == FSE_NOT_EXIST) {
@@ -177,9 +154,8 @@ static bool totp_open_config_file(Storage* storage, FlipperFormat** file) {
         flipper_format_write_uint32(
             fff_data_file, TOTP_CONFIG_KEY_AUTOMATION_METHOD, &tmp_uint32, 1);
 
-        // Default Font = 0
         tmp_uint32 = 0;
-        flipper_format_write_uint32(fff_data_file, TOTP_CONFIG_KEY_SELECTED_FONT, &tmp_uint32, 1);
+        flipper_format_write_uint32(fff_data_file, TOTP_CONFIG_KEY_FONT, &tmp_uint32, 1);
 
         if(!flipper_format_rewind(fff_data_file)) {
             totp_close_config_file(fff_data_file);
@@ -263,24 +239,6 @@ bool totp_config_file_update_automation_method(const PluginState* plugin_state) 
     return update_result;
 }
 
-bool totp_config_file_update_selected_font(const PluginState* plugin_state) {
-    FlipperFormat* file = plugin_state->config_file_context->config_file;
-    flipper_format_rewind(file);
-    bool update_result = false;
-
-    do {
-        uint32_t tmp_uint32 = plugin_state->selected_font;
-        if(!flipper_format_insert_or_update_uint32(
-               file, TOTP_CONFIG_KEY_SELECTED_FONT, &tmp_uint32, 1)) {
-            break;
-        }
-
-        update_result = true;
-    } while(false);
-
-    return update_result;
-}
-
 bool totp_config_file_update_user_settings(const PluginState* plugin_state) {
     FlipperFormat* file = plugin_state->config_file_context->config_file;
     flipper_format_rewind(file);
@@ -302,9 +260,8 @@ bool totp_config_file_update_user_settings(const PluginState* plugin_state) {
             break;
         }
 
-        tmp_uint32 = plugin_state->selected_font;
-        if(!flipper_format_insert_or_update_uint32(
-               file, TOTP_CONFIG_KEY_SELECTED_FONT, &tmp_uint32, 1)) {
+        tmp_uint32 = plugin_state->active_font_index;
+        if(!flipper_format_insert_or_update_uint32(file, TOTP_CONFIG_KEY_FONT, &tmp_uint32, 1)) {
             break;
         }
 
@@ -456,15 +413,11 @@ bool totp_config_file_load(PluginState* const plugin_state) {
 
         plugin_state->automation_method = tmp_uint32;
 
-        // Load selected font
-        flipper_format_rewind(fff_data_file);
-
-        if(!flipper_format_read_uint32(
-               fff_data_file, TOTP_CONFIG_KEY_SELECTED_FONT, &tmp_uint32, 1)) {
+        if(!flipper_format_read_uint32(fff_data_file, TOTP_CONFIG_KEY_FONT, &tmp_uint32, 1)) {
             tmp_uint32 = 0;
         }
 
-        plugin_state->selected_font = tmp_uint32;
+        plugin_state->active_font_index = tmp_uint32;
 
         plugin_state->config_file_context = malloc(sizeof(ConfigFileContext));
         furi_check(plugin_state->config_file_context != NULL);

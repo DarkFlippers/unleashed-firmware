@@ -116,7 +116,6 @@ static bool on_user_idle(void* context) {
 }
 
 static bool totp_plugin_state_init(PluginState* const plugin_state) {
-    plugin_state->selected_font = 0;
     plugin_state->gui = furi_record_open(RECORD_GUI);
     plugin_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
     plugin_state->dialogs_app = furi_record_open(RECORD_DIALOGS);
@@ -208,7 +207,7 @@ int32_t totp_app() {
     PluginEvent event;
     bool processing = true;
     while(processing) {
-        FuriStatus event_status = furi_message_queue_get(event_queue, &event, FuriWaitForever);
+        FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
 
         if(furi_mutex_acquire(plugin_state->mutex, FuriWaitForever) == FuriStatusOk) {
             if(event_status == FuriStatusOk) {

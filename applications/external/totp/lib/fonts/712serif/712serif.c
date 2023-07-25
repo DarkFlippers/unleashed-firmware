@@ -931,6 +931,7 @@ const FONT_CHAR_INFO _712Serif_24ptDescriptors[] = {
 
 /* Font information for 7:12 Serif 24pt */
 const FONT_INFO _712Serif_24ptFontInfo = {
+    "712 Serif",
     14, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

@@ -20,6 +20,7 @@ struct SpectrumAnalyzerWorker {
     uint32_t channel0_frequency;
     uint32_t spacing;
     uint8_t width;
+    uint8_t modulation;
     float max_rssi;
     uint8_t max_rssi_dec;
     uint8_t max_rssi_channel;
@@ -66,18 +67,45 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
     subghz_devices_flush_rx(instance->radio_device);
     subghz_devices_set_rx(instance->radio_device);
 
-    const uint8_t radio_config[] = {
+    // Default modulation
+    const uint8_t default_modulation[] = {
 
+        /* Frequency Synthesizer Control */
         CC1101_FSCTRL0,
         0x00,
         CC1101_FSCTRL1,
-        0x12,
+        0x12, // IF = (26*10^6) / (2^10) * 0x12 = 304687.5 Hz
 
-        CC1101_AGCCTRL2,
-        0xC0,
-
+        // Modem Configuration
+        // CC1101_MDMCFG0,
+        // 0x00, // Channel spacing is 25kHz
+        // CC1101_MDMCFG1,
+        // 0x00, // Channel spacing is 25kHz
+        // CC1101_MDMCFG2,
+        // 0x30, // Format ASK/OOK, No preamble/sync
+        // CC1101_MDMCFG3,
+        // 0x32, // Data rate is 121.399 kBaud
         CC1101_MDMCFG4,
-        0x6C,
+        0x6C, // Rx BW filter is 270.83 kHz
+
+        /* Frequency Offset Compensation Configuration */
+        // CC1101_FOCCFG,
+        // 0x18, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
+
+        /* Automatic Gain Control */
+        // CC1101_AGCCTRL0,
+        // 0x91, // 10 - Medium hysteresis, medium asymmetric dead zone, medium gain ; 01 - 16 samples agc; 00 - Normal AGC, 01 - 8dB boundary
+        // CC1101_AGCCTRL1,
+        // 0x0, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
+        CC1101_AGCCTRL2,
+        0xC0, // 03 - The 3 highest DVGA gain settings can not be used; 000 - MAX LNA+LNA2; 000 - MAIN_TARGET 24 dB
+
+        /* Frontend configuration */
+        // CC1101_FREND0,
+        // 0x11, // Adjusts current TX LO buffer + high is PATABLE[1]
+        // CC1101_FREND1,
+        // 0xB6, //
+
         CC1101_TEST2,
         0x88,
         CC1101_TEST1,
@@ -97,8 +125,69 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         0x00,
         0x00,
         0x00,
+        0x00};
+
+    // Narrow modulation
+    const uint8_t narrow_modulation[] = {
+
+        /* Frequency Synthesizer Control */
+        CC1101_FSCTRL0,
         0x00,
-    };
+        CC1101_FSCTRL1,
+        0x00, // IF = (26*10^6) / (2^10) * 0x00 = 0 Hz
+
+        // Modem Configuration
+        // CC1101_MDMCFG0,
+        // 0x00, // Channel spacing is 25kHz
+        // CC1101_MDMCFG1,
+        // 0x00, // Channel spacing is 25kHz
+        // CC1101_MDMCFG2,
+        // 0x30, // Format ASK/OOK, No preamble/sync
+        // CC1101_MDMCFG3,
+        // 0x32, // Data rate is 121.399 kBaud
+        CC1101_MDMCFG4,
+        0xFC, // Rx BW filter is 58.04 kHz
+
+        /* Frequency Offset Compensation Configuration */
+        // CC1101_FOCCFG,
+        // 0x18, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
+
+        /* Automatic Gain Control */
+        CC1101_AGCCTRL0,
+        0x30, // 00 - NO hysteresis, symmetric dead zone, high gain ; 11 - 32 samples agc; 00 - Normal AGC, 00 - 8dB boundary
+        CC1101_AGCCTRL1,
+        0x0, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
+        CC1101_AGCCTRL2,
+        0x84, // 02 - The 2 highest DVGA gain settings can not be used; 000 - MAX LNA+LNA2; 100 - MAIN_TARGET 36 dB
+
+        /* Frontend configuration */
+        // CC1101_FREND0,
+        // 0x11, // Adjusts current TX LO buffer + high is PATABLE[1]
+        // CC1101_FREND1,
+        // 0xB6, //
+
+        CC1101_TEST2,
+        0x88,
+        CC1101_TEST1,
+        0x31,
+        CC1101_TEST0,
+        0x09,
+
+        /* End  */
+        0,
+        0,
+
+        // ook_async_patable
+        0x00,
+        0xC0, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00};
+
+    const uint8_t* modulations[] = {default_modulation, narrow_modulation};
 
     while(instance->should_work) {
         furi_delay_ms(50);
@@ -106,7 +195,12 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         // FURI_LOG_T("SpectrumWorker", "spectrum_analyzer_worker_thread: Worker Loop");
         subghz_devices_idle(instance->radio_device);
         subghz_devices_load_preset(
-            instance->radio_device, FuriHalSubGhzPresetCustom, (uint8_t*)radio_config);
+            instance->radio_device,
+            FuriHalSubGhzPresetCustom,
+            (uint8_t*)modulations[instance->modulation]);
+        //subghz_devices_load_preset(
+        //    instance->radio_device, FuriHalSubGhzPresetCustom, (uint8_t*)default_modulation);
+        //furi_hal_subghz_load_custom_preset(modulations[instance->modulation]);
 
         // TODO: Check filter!
         // spectrum_analyzer_worker_set_filter(instance);
@@ -220,6 +314,15 @@ void spectrum_analyzer_worker_set_frequencies(
     instance->channel0_frequency = channel0_frequency;
     instance->spacing = spacing;
     instance->width = width;
+}
+
+void spectrum_analyzer_worker_set_modulation(SpectrumAnalyzerWorker* instance, uint8_t modulation) {
+    furi_assert(instance);
+
+    FURI_LOG_D(
+        "SpectrumWorker", "spectrum_analyzer_worker_set_modulation - modulation = %u", modulation);
+
+    instance->modulation = modulation;
 }
 
 void spectrum_analyzer_worker_start(SpectrumAnalyzerWorker* instance) {

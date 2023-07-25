@@ -28,6 +28,8 @@ void spectrum_analyzer_worker_set_frequencies(
     uint32_t spacing,
     uint8_t width);
 
+void spectrum_analyzer_worker_set_modulation(SpectrumAnalyzerWorker* instance, uint8_t modulation);
+
 void spectrum_analyzer_worker_start(SpectrumAnalyzerWorker* instance);
 
 void spectrum_analyzer_worker_stop(SpectrumAnalyzerWorker* instance);

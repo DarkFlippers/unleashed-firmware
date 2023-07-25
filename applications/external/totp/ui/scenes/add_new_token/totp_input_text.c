@@ -1,81 +1,52 @@
 #include "totp_input_text.h"
-#include <gui/view_i.h>
 
-void view_draw(View* view, Canvas* canvas) {
-    furi_assert(view);
-    if(view->draw_callback) {
-        void* data = view_get_model(view);
-        view->draw_callback(canvas, data);
-        view_unlock_model(view);
-    }
+#include <gui/view_dispatcher.h>
+#include <gui/modules/text_input.h>
+
+typedef struct {
+    InputTextResult* result;
+    ViewDispatcher* view_dispatcher;
+} InputTextContext;
+
+static void commit_text_input_callback(void* ctx) {
+    InputTextContext* context = ctx;
+    context->result->user_input_length = strnlen(context->result->user_input, INPUT_BUFFER_SIZE);
+    context->result->success = true;
+    view_dispatcher_stop(context->view_dispatcher);
 }
 
-bool view_input(View* view, InputEvent* event) {
-    furi_assert(view);
-    if(view->input_callback) {
-        return view->input_callback(event, view->context);
-    } else {
-        return false;
-    }
+static bool back_event_callback(void* ctx) {
+    InputTextContext* context = ctx;
+    context->result->success = false;
+    view_dispatcher_stop(context->view_dispatcher);
+    return false;
 }
 
-void view_unlock_model(View* view) {
-    furi_assert(view);
-    if(view->model_type == ViewModelTypeLocking) {
-        ViewModelLocking* model = (ViewModelLocking*)(view->model);
-        furi_check(furi_mutex_release(model->mutex) == FuriStatusOk);
-    }
-}
-
-static void commit_text_input_callback(void* context) {
-    InputTextSceneState* text_input_state = (InputTextSceneState*)context;
-    if(text_input_state->callback != NULL) {
-        InputTextSceneCallbackResult* result = malloc(sizeof(InputTextSceneCallbackResult));
-        furi_check(result != NULL);
-        result->user_input_length =
-            strnlen(text_input_state->text_input_buffer, INPUT_BUFFER_SIZE);
-        result->user_input = malloc(result->user_input_length + 1);
-        furi_check(result->user_input != NULL);
-        result->callback_data = text_input_state->callback_data;
-        strlcpy(
-            result->user_input,
-            text_input_state->text_input_buffer,
-            result->user_input_length + 1);
-        text_input_state->callback(result);
-    }
-}
-
-InputTextSceneState* totp_input_text_activate(InputTextSceneContext* context) {
-    InputTextSceneState* text_input_state = malloc(sizeof(InputTextSceneState));
-    furi_check(text_input_state != NULL);
-    text_input_state->text_input = text_input_alloc();
-    text_input_state->text_input_view = text_input_get_view(text_input_state->text_input);
-    text_input_state->callback = context->callback;
-    text_input_state->callback_data = context->callback_data;
-    text_input_set_header_text(text_input_state->text_input, context->header_text);
+void totp_input_text(Gui* gui, const char* header_text, InputTextResult* result) {
+    ViewDispatcher* view_dispatcher = view_dispatcher_alloc();
+    TextInput* text_input = text_input_alloc();
+    InputTextContext context = {.result = result, .view_dispatcher = view_dispatcher};
+    text_input_set_header_text(text_input, header_text);
     text_input_set_result_callback(
-        text_input_state->text_input,
+        text_input,
         commit_text_input_callback,
-        text_input_state,
-        &text_input_state->text_input_buffer[0],
+        &context,
+        result->user_input,
         INPUT_BUFFER_SIZE,
         true);
-    return text_input_state;
-}
 
-void totp_input_text_render(Canvas* const canvas, InputTextSceneState* text_input_state) {
-    view_draw(text_input_state->text_input_view, canvas);
-}
+    view_dispatcher_enable_queue(view_dispatcher);
+    view_dispatcher_add_view(view_dispatcher, 0, text_input_get_view(text_input));
 
-bool totp_input_text_handle_event(PluginEvent* const event, InputTextSceneState* text_input_state) {
-    if(event->type == EventTypeKey) {
-        view_input(text_input_state->text_input_view, &event->input);
-    }
+    view_dispatcher_attach_to_gui(view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
-    return true;
-}
+    view_dispatcher_set_navigation_event_callback(view_dispatcher, &back_event_callback);
+    view_dispatcher_set_event_callback_context(view_dispatcher, &context);
+    view_dispatcher_switch_to_view(view_dispatcher, 0);
 
-void totp_input_text_free(InputTextSceneState* state) {
-    text_input_free(state->text_input);
-    free(state);
+    view_dispatcher_run(view_dispatcher);
+
+    view_dispatcher_remove_view(view_dispatcher, 0);
+    view_dispatcher_free(view_dispatcher);
+    text_input_free(text_input);
 }

@@ -1163,6 +1163,7 @@ const FONT_CHAR_INFO funclimbingDemo_18ptDescriptors[] = {
 
 /* Font information for fun climbing (Demo) 18pt */
 const FONT_INFO funclimbingDemo_18ptFontInfo = {
+    "Fun Climbing",
     18, /*  Character height */
     '-', /*  Start character */
     'Y', /*  End character */

@@ -1,14 +1,10 @@
 ## New changes
-* SubGHz: OFW PR: change the operation of the TIM17 timer in CC1101_ext to 2µs -> **CAME Atomo and other protocols issues with external module should be fixed now**
-* SubGHz: Temporatily revert new AM_Q in default modulations due to external CC1101 module issues
-* Plugins: NRF24 MouseJacker -> Fixed issue #551 - Wrong folder path
-* Plugins: Spectrum Analyzer -> Add a Precise mode and other small changes (by @ALEEF02 | PR #550 #553)
-* Plugins: Updated Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
-* Plugins: Various uFBT fixes (by @hedger) 
-* Infrared: Universal remote assets - Add Xiaomi TV and (Daikin AC from OFW PR 2913 by minchogaydarov)
-* OFW PR 2912: NFC: Fix key invalidation (again) (by AloneLiberty)
-* OFW PR 2907: Fix about screen (by andzhr)
-* OFW PR 2896: BadUSB - Added French Canadian layout (by francis2054)
+* Plugins: **22+ plugins was fixed (UI update issues) in extra pack and in base firmware pack**
+* Plugins: Spectrum Analyzer - Modulation switching (hold OK) (by @ALEEF02 | PR #557)
+* Plugins: BadBT -> Temp fix for macOS
+* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) -> + added fix for UI update too
+* Infrared: Add Play / Pause in universal projector remote
+* Infrared: Update Universal remote assets (by @amec0e)
 
 ----
 

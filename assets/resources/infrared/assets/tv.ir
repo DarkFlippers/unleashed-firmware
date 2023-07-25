@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
 # Last Updated 24th Jul, 2023
-# Last Checked 13th Jul, 2023
+# Last Checked 24th Jul, 2023
 #
 name: Power
 type: parsed
@@ -2275,7 +2275,7 @@ type: parsed
 protocol: NEC
 address: A0 00 00 00
 command: 5F 00 00 00
-#
+# 
 # Xiaomi TV
 # 
 name: Power
@@ -2307,3 +2307,41 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 1119 528 675 1154 647 558 674 841 675 1153 675 531 673 532 673 843 673 1155 675 1153 674 531 673 12312 1120 505 672 1156 673 532 673 844 673 1155 673 532 671 534 672 842 675 1155 670 1158 673 530 674 12312 1093 532 671 1156 675 530 672 845 672 1156 673 533 671 533 670 846 672 1156 674 1154 674 529 675 12312 1093 557 646 1182 646 532 674 843 673 1181 646 534 672 532 674 842 673 1158 670 1156 674 530 673 12315 1091 530 674 1155 673 530 673 844 673 1157 644 559 673 532 672 844 670 1157 672 1158 672 532 672 12313 1093 533 671 1157 672 532 673 845 671 1157 670 558 647 532 646 871 672 1157 671 1181 646 534 671
+# 
+# Daewoo TV
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 82 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 9F 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 8B 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 9B 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 8F 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: D0 00 00 00
