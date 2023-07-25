@@ -2328,13 +2328,13 @@ protocol: NEC
 address: 80 00 00 00
 command: 8B 00 00 00
 # 
-name: Ch_up
+name: Ch_next
 type: parsed
 protocol: NEC
 address: 80 00 00 00
 command: 9B 00 00 00
 # 
-name: Ch_dn
+name: Ch_prev
 type: parsed
 protocol: NEC
 address: 80 00 00 00
