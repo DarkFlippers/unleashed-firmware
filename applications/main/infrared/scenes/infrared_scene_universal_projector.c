@@ -11,7 +11,7 @@ void infrared_scene_universal_projector_on_enter(void* context) {
 
     infrared_brute_force_set_db_filename(brute_force, EXT_PATH("infrared/assets/projectors.ir"));
     //TODO Improve Projectors universal remote
-    button_panel_reserve(button_panel, 2, 2);
+    button_panel_reserve(button_panel, 2, 3);
     uint32_t i = 0;
     button_panel_add_item(
         button_panel,
@@ -61,6 +61,30 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Vol_dn");
+    button_panel_add_item(
+        button_panel,
+        i,
+        0,
+        2,
+        3,
+        101,
+        &I_Play_25x27,
+        &I_Play_hvr_25x27,
+        infrared_scene_universal_common_item_callback,
+        context);
+    infrared_brute_force_add_record(brute_force, i++, "Play");
+    button_panel_add_item(
+        button_panel,
+        i,
+        1,
+        2,
+        36,
+        101,
+        &I_Pause_25x27,
+        &I_Pause_hvr_25x27,
+        infrared_scene_universal_common_item_callback,
+        context);
+    infrared_brute_force_add_record(brute_force, i++, "Pause");
 
     button_panel_add_label(button_panel, 10, 11, FontPrimary, "Projector");
     button_panel_add_label(button_panel, 17, 60, FontSecondary, "Volume");
