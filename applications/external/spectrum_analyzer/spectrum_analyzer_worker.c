@@ -125,8 +125,7 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         0x00,
         0x00,
         0x00,
-        0x00
-    };
+        0x00};
 
     // Narrow modulation
     const uint8_t narrow_modulation[] = {
@@ -186,8 +185,7 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         0x00,
         0x00,
         0x00,
-        0x00
-    };
+        0x00};
 
     const uint8_t* modulations[] = {default_modulation, narrow_modulation};
 
@@ -197,7 +195,9 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
         // FURI_LOG_T("SpectrumWorker", "spectrum_analyzer_worker_thread: Worker Loop");
         subghz_devices_idle(instance->radio_device);
         subghz_devices_load_preset(
-            instance->radio_device, FuriHalSubGhzPresetCustom, (uint8_t*)modulations[instance->modulation]);
+            instance->radio_device,
+            FuriHalSubGhzPresetCustom,
+            (uint8_t*)modulations[instance->modulation]);
         //subghz_devices_load_preset(
         //    instance->radio_device, FuriHalSubGhzPresetCustom, (uint8_t*)default_modulation);
         //furi_hal_subghz_load_custom_preset(modulations[instance->modulation]);
@@ -316,15 +316,11 @@ void spectrum_analyzer_worker_set_frequencies(
     instance->width = width;
 }
 
-void spectrum_analyzer_worker_set_modulation(
-    SpectrumAnalyzerWorker* instance,
-    uint8_t modulation) {
+void spectrum_analyzer_worker_set_modulation(SpectrumAnalyzerWorker* instance, uint8_t modulation) {
     furi_assert(instance);
 
     FURI_LOG_D(
-        "SpectrumWorker",
-        "spectrum_analyzer_worker_set_modulation - modulation = %u",
-        modulation);
+        "SpectrumWorker", "spectrum_analyzer_worker_set_modulation - modulation = %u", modulation);
 
     instance->modulation = modulation;
 }

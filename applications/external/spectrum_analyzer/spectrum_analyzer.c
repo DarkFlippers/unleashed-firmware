@@ -490,7 +490,7 @@ int32_t spectrum_analyzer_app(void* p) {
             hstep = WIDE_STEP;
             break;
         }
-        
+
         switch(input.type) {
         case InputTypeShort:
             switch(input.key) {
@@ -507,13 +507,19 @@ int32_t spectrum_analyzer_app(void* p) {
                 FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
                 spectrum_analyzer_calculate_frequencies(model);
                 spectrum_analyzer_worker_set_frequencies(
-                    spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
+                    spectrum_analyzer->worker,
+                    model->channel0_frequency,
+                    model->spacing,
+                    model->width);
                 break;
             case InputKeyLeft:
                 model->center_freq -= hstep;
                 spectrum_analyzer_calculate_frequencies(model);
                 spectrum_analyzer_worker_set_frequencies(
-                    spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
+                    spectrum_analyzer->worker,
+                    model->channel0_frequency,
+                    model->spacing,
+                    model->width);
                 FURI_LOG_D("Spectrum", "center_freq: %lu", model->center_freq);
                 break;
             case InputKeyOk: {
@@ -546,7 +552,10 @@ int32_t spectrum_analyzer_app(void* p) {
                 model->mode_change = false;
                 spectrum_analyzer_calculate_frequencies(model);
                 spectrum_analyzer_worker_set_frequencies(
-                    spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
+                    spectrum_analyzer->worker,
+                    model->channel0_frequency,
+                    model->spacing,
+                    model->width);
                 FURI_LOG_D("Spectrum", "Width: %u", model->width);
                 break;
             case InputKeyBack:
@@ -577,8 +586,9 @@ int32_t spectrum_analyzer_app(void* p) {
 
                 model->modulation_change = false;
                 spectrum_analyzer_worker_set_modulation(
-                    spectrum_analyzer->worker,
-                    spectrum_analyzer->model->modulation);
+                    spectrum_analyzer->worker, spectrum_analyzer->model->modulation);
+                break;
+            default:
                 break;
             }
             break;
