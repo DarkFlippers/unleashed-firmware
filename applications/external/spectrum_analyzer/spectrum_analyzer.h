@@ -78,3 +78,7 @@
 
 #define UPPER(a, b, c) ((((a) - (b) + ((c) / 2)) / (c)) * (c))
 #define LOWER(a, b, c) ((((a) + (b)) / (c)) * (c))
+
+/* Modulation references */
+#define DEFAULT_MODULATION 0
+#define NARROW_MODULATION 1
