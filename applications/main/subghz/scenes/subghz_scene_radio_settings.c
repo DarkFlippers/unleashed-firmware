@@ -20,6 +20,12 @@ const char* const timestamp_names_text[TIMESTAMP_NAMES_COUNT] = {
     "ON",
 };
 
+#define EXT_MOD_POWER_AMP_COUNT 2
+const char* const ext_mod_power_amp_text[EXT_MOD_POWER_AMP_COUNT] = {
+    "OFF",
+    "ON",
+};
+
 #define DEBUG_P_COUNT 2
 const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "OFF",
@@ -105,6 +111,22 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
 //     subghz_last_settings_save(subghz->last_settings);
 // }
 
+static void subghz_scene_reciever_config_set_ext_mod_power_amp_text(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, ext_mod_power_amp_text[index]);
+
+    if(index == 1) {
+        furi_hal_gpio_init_simple(&gpio_ext_pc3, GpioModeOutputPushPull);
+    } else {
+        furi_hal_gpio_init_simple(&gpio_ext_pc3, GpioModeAnalog);
+    }
+
+    subghz->last_settings->external_module_power_amp = index == 1;
+    subghz_last_settings_save(subghz->last_settings);
+}
+
 static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
@@ -136,6 +158,16 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         subghz_txrx_radio_device_get(subghz->txrx), radio_device_value, value_count_device);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, radio_device_text[value_index]);
+
+ item = variable_item_list_add(
+        variable_item_list,
+        "Ext High Power",
+        EXT_MOD_POWER_AMP_COUNT,
+        subghz_scene_reciever_config_set_ext_mod_power_amp_text,
+        subghz);
+    value_index = subghz->last_settings->external_module_power_amp ? 1 : 0;
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, ext_mod_power_amp_text[value_index]);
 
     item = variable_item_list_add(
         variable_item_list,
