@@ -71,6 +71,12 @@ typedef enum {
     SubGhzLockOn,
 } SubGhzLock;
 
+/** SubGhz RAW Autosave */
+typedef enum {
+    AutosaveOff,
+    AutosaveOn,
+} SubGhzAutosaveState;
+
 typedef enum {
     SubGhzViewIdMenu,
     SubGhzViewIdReceiver,

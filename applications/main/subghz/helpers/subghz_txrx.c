@@ -512,6 +512,16 @@ SubGhzSpeakerState subghz_txrx_speaker_get_state(SubGhzTxRx* instance) {
     return instance->speaker_state;
 }
 
+void subghz_txrx_autosave_set_state(SubGhzTxRx* instance, SubGhzAutosaveState state) {
+    furi_assert(instance);
+    instance->autosave_state = state;
+}
+
+SubGhzAutosaveState subghz_txrx_autosave_get_state(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    return instance->autosave_state;
+}
+
 bool subghz_txrx_load_decoder_by_name_protocol(SubGhzTxRx* instance, const char* name_protocol) {
     furi_assert(instance);
     furi_assert(name_protocol);

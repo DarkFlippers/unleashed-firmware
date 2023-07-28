@@ -199,6 +199,22 @@ void subghz_txrx_speaker_set_state(SubGhzTxRx* instance, SubGhzSpeakerState stat
 SubGhzSpeakerState subghz_txrx_speaker_get_state(SubGhzTxRx* instance);
 
 /**
+ * Set state autosave
+ * 
+ * @param instance Pointer to a SubGhzTxRx 
+ * @param state State autosave
+ */
+void subghz_txrx_autosave_set_state(SubGhzTxRx* instance, SubGhzAutosaveState state);
+
+/**
+ * Get state autosave
+ * 
+ * @param instance Pointer to a SubGhzTxRx 
+ * @return SubGhzAutosaveState 
+ */
+SubGhzAutosaveState subghz_txrx_autosave_get_state(SubGhzTxRx* instance);
+
+/**
  * load decoder by name protocol
  * 
  * @param instance Pointer to a SubGhzTxRx

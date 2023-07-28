@@ -24,6 +24,8 @@ struct SubGhzTxRx {
     const SubGhzDevice* radio_device;
     SubGhzRadioDeviceType radio_device_type;
 
+    SubGhzAutosaveState autosave_state;
+
     SubGhzTxRxNeedSaveCallback need_save_callback;
     void* need_save_context;
 

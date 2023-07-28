@@ -62,6 +62,7 @@ const uint32_t speaker_value[SPEAKER_COUNT] = {
     SubGhzSpeakerStateShutdown,
     SubGhzSpeakerStateEnable,
 };
+
 #define BIN_RAW_COUNT 2
 const char* const bin_raw_text[BIN_RAW_COUNT] = {
     "OFF",
@@ -71,10 +72,21 @@ const uint32_t bin_raw_value[BIN_RAW_COUNT] = {
     SubGhzProtocolFlag_Decodable,
     SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_BinRAW,
 };
+
 #define PROTOCOL_IGNORE_COUNT 2
 const char* const protocol_ignore_text[PROTOCOL_IGNORE_COUNT] = {
     "OFF",
     "ON",
+};
+
+#define AUTOSAVE_COUNT 2
+const char* const autosave_text[AUTOSAVE_COUNT] = {
+    "OFF",
+    "ON",
+};
+const uint32_t autosave_value[AUTOSAVE_COUNT] = {
+    AutosaveOff,
+    AutosaveOn,
 };
 
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
@@ -276,6 +288,10 @@ static void subghz_scene_receiver_config_set_magellan(VariableItem* item) {
     subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Magelan);
 }
 
+static void subghz_scene_receiver_config_set_autosave(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Autosave);
+}
+
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -389,6 +405,18 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz->ignore_filter, SubGhzProtocolFlag_Magelan);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, protocol_ignore_text[value_index]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Autosave RAW:",
+            AUTOSAVE_COUNT,
+            subghz_scene_receiver_config_set_autosave,
+            subghz);
+
+        value_index = value_index_uint32(
+            subghz_txrx_autosave_get_state(subghz->txrx), autosave_value, AUTOSAVE_COUNT);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, autosave_text[value_index]);
     }
 
     // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)
