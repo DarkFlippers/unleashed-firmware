@@ -154,7 +154,7 @@ bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* out
         if(output != NULL) furi_string_printf(output, "    Free heap LOW");
         return true;
     }
-    if(instance->last_index_write == SUBGHZ_HISTORY_MAX && SubGhzProtocolFlag_Autosave) {
+    if(instance->last_index_write == SUBGHZ_HISTORY_MAX) {
         if(output != NULL) furi_string_printf(output, "   Memory is FULL");
         return true;
     }
