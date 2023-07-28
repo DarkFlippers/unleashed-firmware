@@ -1,6 +1,5 @@
 ADD_SCENE(camera_suite, start, Start)
 ADD_SCENE(camera_suite, menu, Menu)
-ADD_SCENE(camera_suite, style_1, Style_1)
-ADD_SCENE(camera_suite, style_2, Style_2)
+ADD_SCENE(camera_suite, camera, Camera)
 ADD_SCENE(camera_suite, guide, Guide)
 ADD_SCENE(camera_suite, settings, Settings)
