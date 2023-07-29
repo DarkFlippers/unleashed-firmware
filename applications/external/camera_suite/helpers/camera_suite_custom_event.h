@@ -8,20 +8,13 @@ typedef enum {
     CameraSuiteCustomEventStartRight,
     CameraSuiteCustomEventStartOk,
     CameraSuiteCustomEventStartBack,
-    // Scene events: Camera style 1
-    CameraSuiteCustomEventSceneStyle1Up,
-    CameraSuiteCustomEventSceneStyle1Down,
-    CameraSuiteCustomEventSceneStyle1Left,
-    CameraSuiteCustomEventSceneStyle1Right,
-    CameraSuiteCustomEventSceneStyle1Ok,
-    CameraSuiteCustomEventSceneStyle1Back,
-    // Scene events: Camera style 2
-    CameraSuiteCustomEventSceneStyle2Up,
-    CameraSuiteCustomEventSceneStyle2Down,
-    CameraSuiteCustomEventSceneStyle2Left,
-    CameraSuiteCustomEventSceneStyle2Right,
-    CameraSuiteCustomEventSceneStyle2Ok,
-    CameraSuiteCustomEventSceneStyle2Back,
+    // Scene events: Camera
+    CameraSuiteCustomEventSceneCameraUp,
+    CameraSuiteCustomEventSceneCameraDown,
+    CameraSuiteCustomEventSceneCameraLeft,
+    CameraSuiteCustomEventSceneCameraRight,
+    CameraSuiteCustomEventSceneCameraOk,
+    CameraSuiteCustomEventSceneCameraBack,
     // Scene events: Guide
     CameraSuiteCustomEventSceneGuideUp,
     CameraSuiteCustomEventSceneGuideDown,

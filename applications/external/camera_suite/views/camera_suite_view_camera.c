@@ -8,23 +8,19 @@
 #include "../helpers/camera_suite_speaker.h"
 #include "../helpers/camera_suite_led.h"
 
-static CameraSuiteViewStyle1* current_instance = NULL;
-// Dithering type:
-//    0 = Floyd Steinberg (default)
-//    1 = Atkinson
-static int current_dithering = 0;
+static CameraSuiteViewCamera* current_instance = NULL;
 
-struct CameraSuiteViewStyle1 {
-    CameraSuiteViewStyle1Callback callback;
+struct CameraSuiteViewCamera {
+    CameraSuiteViewCameraCallback callback;
     FuriStreamBuffer* rx_stream;
     FuriThread* worker_thread;
     View* view;
     void* context;
 };
 
-void camera_suite_view_style_1_set_callback(
-    CameraSuiteViewStyle1* instance,
-    CameraSuiteViewStyle1Callback callback,
+void camera_suite_view_camera_set_callback(
+    CameraSuiteViewCamera* instance,
+    CameraSuiteViewCameraCallback callback,
     void* context) {
     furi_assert(instance);
     furi_assert(callback);
@@ -32,7 +28,29 @@ void camera_suite_view_style_1_set_callback(
     instance->context = context;
 }
 
-static void camera_suite_view_style_1_draw(Canvas* canvas, UartDumpModel* model) {
+// Function to draw pixels on the canvas based on camera orientation
+static void draw_pixel_by_orientation(Canvas* canvas, uint8_t x, uint8_t y, uint8_t orientation) {
+    switch(orientation) {
+    case 0: // Camera rotated 0 degrees (right side up, default)
+        canvas_draw_dot(canvas, x, y);
+        break;
+    case 1: // Camera rotated 90 degrees
+        canvas_draw_dot(canvas, y, FRAME_WIDTH - 1 - x);
+        break;
+    case 2: // Camera rotated 180 degrees (upside down)
+        canvas_draw_dot(canvas, FRAME_WIDTH - 1 - x, FRAME_HEIGHT - 1 - y);
+        break;
+    case 3: // Camera rotated 270 degrees
+        canvas_draw_dot(canvas, FRAME_HEIGHT - 1 - y, x);
+        break;
+    default:
+        break;
+    }
+}
+
+static void camera_suite_view_camera_draw(Canvas* canvas, void* _model) {
+    UartDumpModel* model = _model;
+
     // Clear the screen.
     canvas_set_color(canvas, ColorBlack);
 
@@ -41,60 +59,17 @@ static void camera_suite_view_style_1_draw(Canvas* canvas, UartDumpModel* model)
 
     CameraSuite* app = current_instance->context;
 
-    // Draw the pixels with rotation.
     for(size_t p = 0; p < FRAME_BUFFER_LENGTH; ++p) {
         uint8_t x = p % ROW_BUFFER_LENGTH; // 0 .. 15
         uint8_t y = p / ROW_BUFFER_LENGTH; // 0 .. 63
 
-        // Apply rotation
-        int16_t rotated_x, rotated_y;
-        switch(app->orientation) {
-        case 1: // 90 degrees
-            rotated_x = y;
-            rotated_y = FRAME_WIDTH - 1 - x;
-            break;
-        case 2: // 180 degrees
-            rotated_x = FRAME_WIDTH - 1 - x;
-            rotated_y = FRAME_HEIGHT - 1 - y;
-            break;
-        case 3: // 270 degrees
-            rotated_x = FRAME_HEIGHT - 1 - y;
-            rotated_y = x;
-            break;
-        case 0: // 0 degrees
-        default:
-            rotated_x = x;
-            rotated_y = y;
-            break;
-        }
-
         for(uint8_t i = 0; i < 8; ++i) {
-            if((model->pixels[p] & (1 << i)) != 0) {
-                // Adjust the coordinates based on the new screen dimensions
-                uint16_t screen_x, screen_y;
-                switch(app->orientation) {
-                case 1: // 90 degrees
-                    screen_x = rotated_x;
-                    screen_y = FRAME_HEIGHT - 8 + (rotated_y * 8) + i;
-                    break;
-                case 2: // 180 degrees
-                    screen_x = FRAME_WIDTH - 8 + (rotated_x * 8) + i;
-                    screen_y = FRAME_HEIGHT - 1 - rotated_y;
-                    break;
-                case 3: // 270 degrees
-                    screen_x = FRAME_WIDTH - 1 - rotated_x;
-                    screen_y = rotated_y * 8 + i;
-                    break;
-                case 0: // 0 degrees
-                default:
-                    screen_x = rotated_x * 8 + i;
-                    screen_y = rotated_y;
-                    break;
-                }
-                canvas_draw_dot(canvas, screen_x, screen_y);
+            if((model->pixels[p] & (1 << (7 - i))) != 0) {
+                draw_pixel_by_orientation(canvas, (x * 8) + i, y, app->orientation);
             }
         }
     }
+
     // Draw the guide if the camera is not initialized.
     if(!model->initialized) {
         canvas_draw_icon(canvas, 74, 16, &I_DolphinCommon_56x48);
@@ -107,15 +82,15 @@ static void camera_suite_view_style_1_draw(Canvas* canvas, UartDumpModel* model)
     }
 }
 
-static void camera_suite_view_style_1_model_init(UartDumpModel* const model) {
+static void camera_suite_view_camera_model_init(UartDumpModel* const model) {
     for(size_t i = 0; i < FRAME_BUFFER_LENGTH; i++) {
         model->pixels[i] = 0;
     }
 }
 
-static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
+static bool camera_suite_view_camera_input(InputEvent* event, void* context) {
     furi_assert(context);
-    CameraSuiteViewStyle1* instance = context;
+    CameraSuiteViewCamera* instance = context;
     if(event->type == InputTypeRelease) {
         switch(event->key) {
         default: // Stop all sounds, reset the LED.
@@ -144,7 +119,7 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
                 UartDumpModel * model,
                 {
                     UNUSED(model);
-                    instance->callback(CameraSuiteCustomEventSceneStyle1Back, instance->context);
+                    instance->callback(CameraSuiteCustomEventSceneCameraBack, instance->context);
                 },
                 true);
             break;
@@ -159,7 +134,7 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
                     camera_suite_play_happy_bump(instance->context);
                     camera_suite_play_input_sound(instance->context);
                     camera_suite_led_set_rgb(instance->context, 0, 0, 255);
-                    instance->callback(CameraSuiteCustomEventSceneStyle1Left, instance->context);
+                    instance->callback(CameraSuiteCustomEventSceneCameraLeft, instance->context);
                 },
                 true);
             break;
@@ -174,7 +149,7 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
                     camera_suite_play_happy_bump(instance->context);
                     camera_suite_play_input_sound(instance->context);
                     camera_suite_led_set_rgb(instance->context, 0, 0, 255);
-                    instance->callback(CameraSuiteCustomEventSceneStyle1Right, instance->context);
+                    instance->callback(CameraSuiteCustomEventSceneCameraRight, instance->context);
                 },
                 true);
             break;
@@ -189,7 +164,7 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
                     camera_suite_play_happy_bump(instance->context);
                     camera_suite_play_input_sound(instance->context);
                     camera_suite_led_set_rgb(instance->context, 0, 0, 255);
-                    instance->callback(CameraSuiteCustomEventSceneStyle1Up, instance->context);
+                    instance->callback(CameraSuiteCustomEventSceneCameraUp, instance->context);
                 },
                 true);
             break;
@@ -204,18 +179,13 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
                     camera_suite_play_happy_bump(instance->context);
                     camera_suite_play_input_sound(instance->context);
                     camera_suite_led_set_rgb(instance->context, 0, 0, 255);
-                    instance->callback(CameraSuiteCustomEventSceneStyle1Down, instance->context);
+                    instance->callback(CameraSuiteCustomEventSceneCameraDown, instance->context);
                 },
                 true);
             break;
         case InputKeyOk:
-            if(current_dithering == 0) {
-                data[0] = 'd'; // Update to Floyd Steinberg dithering.
-                current_dithering = 1;
-            } else {
-                data[0] = 'D'; // Update to Atkinson dithering.
-                current_dithering = 0;
-            }
+            // Switch dithering types.
+            data[0] = 'D';
             with_view_model(
                 instance->view,
                 UartDumpModel * model,
@@ -224,7 +194,7 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
                     camera_suite_play_happy_bump(instance->context);
                     camera_suite_play_input_sound(instance->context);
                     camera_suite_led_set_rgb(instance->context, 0, 0, 255);
-                    instance->callback(CameraSuiteCustomEventSceneStyle1Ok, instance->context);
+                    instance->callback(CameraSuiteCustomEventSceneCameraOk, instance->context);
                 },
                 true);
             break;
@@ -237,16 +207,16 @@ static bool camera_suite_view_style_1_input(InputEvent* event, void* context) {
     return true;
 }
 
-static void camera_suite_view_style_1_exit(void* context) {
+static void camera_suite_view_camera_exit(void* context) {
     furi_assert(context);
 }
 
-static void camera_suite_view_style_1_enter(void* context) {
+static void camera_suite_view_camera_enter(void* context) {
     // Check `context` for null. If it is null, abort program, else continue.
     furi_assert(context);
 
-    // Cast `context` to `CameraSuiteViewStyle1*` and store it in `instance`.
-    CameraSuiteViewStyle1* instance = (CameraSuiteViewStyle1*)context;
+    // Cast `context` to `CameraSuiteViewCamera*` and store it in `instance`.
+    CameraSuiteViewCamera* instance = (CameraSuiteViewCamera*)context;
 
     // Assign the current instance to the global variable
     current_instance = instance;
@@ -259,7 +229,7 @@ static void camera_suite_view_style_1_enter(void* context) {
     with_view_model(
         instance->view,
         UartDumpModel * model,
-        { camera_suite_view_style_1_model_init(model); },
+        { camera_suite_view_camera_model_init(model); },
         true);
 }
 
@@ -267,8 +237,8 @@ static void camera_on_irq_cb(UartIrqEvent uartIrqEvent, uint8_t data, void* cont
     // Check `context` for null. If it is null, abort program, else continue.
     furi_assert(context);
 
-    // Cast `context` to `CameraSuiteViewStyle1*` and store it in `instance`.
-    CameraSuiteViewStyle1* instance = context;
+    // Cast `context` to `CameraSuiteViewCamera*` and store it in `instance`.
+    CameraSuiteViewCamera* instance = context;
 
     // If `uartIrqEvent` is `UartIrqEventRXNE`, send the data to the
     // `rx_stream` and set the `WorkerEventRx` flag.
@@ -319,7 +289,7 @@ static void process_ringbuffer(UartDumpModel* model, uint8_t byte) {
 
 static int32_t camera_worker(void* context) {
     furi_assert(context);
-    CameraSuiteViewStyle1* instance = context;
+    CameraSuiteViewCamera* instance = context;
 
     while(1) {
         uint32_t events =
@@ -348,14 +318,17 @@ static int32_t camera_worker(void* context) {
                         false);
                 }
             } while(length > 0);
+
+            with_view_model(
+                instance->view, UartDumpModel * model, { UNUSED(model); }, true);
         }
     }
 
     return 0;
 }
 
-CameraSuiteViewStyle1* camera_suite_view_style_1_alloc() {
-    CameraSuiteViewStyle1* instance = malloc(sizeof(CameraSuiteViewStyle1));
+CameraSuiteViewCamera* camera_suite_view_camera_alloc() {
+    CameraSuiteViewCamera* instance = malloc(sizeof(CameraSuiteViewCamera));
 
     instance->view = view_alloc();
 
@@ -364,15 +337,15 @@ CameraSuiteViewStyle1* camera_suite_view_style_1_alloc() {
     // Set up views
     view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(UartDumpModel));
     view_set_context(instance->view, instance); // furi_assert crashes in events without this
-    view_set_draw_callback(instance->view, (ViewDrawCallback)camera_suite_view_style_1_draw);
-    view_set_input_callback(instance->view, camera_suite_view_style_1_input);
-    view_set_enter_callback(instance->view, camera_suite_view_style_1_enter);
-    view_set_exit_callback(instance->view, camera_suite_view_style_1_exit);
+    view_set_draw_callback(instance->view, (ViewDrawCallback)camera_suite_view_camera_draw);
+    view_set_input_callback(instance->view, camera_suite_view_camera_input);
+    view_set_enter_callback(instance->view, camera_suite_view_camera_enter);
+    view_set_exit_callback(instance->view, camera_suite_view_camera_exit);
 
     with_view_model(
         instance->view,
         UartDumpModel * model,
-        { camera_suite_view_style_1_model_init(model); },
+        { camera_suite_view_camera_model_init(model); },
         true);
 
     instance->worker_thread = furi_thread_alloc_ex("UsbUartWorker", 2048, camera_worker, instance);
@@ -386,7 +359,7 @@ CameraSuiteViewStyle1* camera_suite_view_style_1_alloc() {
     return instance;
 }
 
-void camera_suite_view_style_1_free(CameraSuiteViewStyle1* instance) {
+void camera_suite_view_camera_free(CameraSuiteViewCamera* instance) {
     furi_assert(instance);
 
     with_view_model(
@@ -395,7 +368,7 @@ void camera_suite_view_style_1_free(CameraSuiteViewStyle1* instance) {
     free(instance);
 }
 
-View* camera_suite_view_style_1_get_view(CameraSuiteViewStyle1* instance) {
+View* camera_suite_view_camera_get_view(CameraSuiteViewCamera* instance) {
     furi_assert(instance);
     return instance->view;
 }
