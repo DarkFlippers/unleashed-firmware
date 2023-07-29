@@ -5,6 +5,8 @@
 
 #include <flipper_format/flipper_format_i.h>
 
+#include <subghz/subghz_last_settings.h>
+
 void subghz_dangerous_freq() {
     bool is_extended_i = false;
 
@@ -19,5 +21,16 @@ void subghz_dangerous_freq() {
     furi_hal_subghz_set_dangerous_frequency(is_extended_i);
 
     flipper_format_free(fff_data_file);
+
+    // Load external module power amp setting (TODO: move to other place)
+    // TODO: Disable this when external module is not CC1101 E07
+    SubGhzLastSettings* last_settings = subghz_last_settings_alloc();
+    subghz_last_settings_load(last_settings, 0);
+
+    // Set globally in furi hal
+    furi_hal_subghz_set_ext_power_amp(last_settings->external_module_power_amp);
+
+    subghz_last_settings_free(last_settings);
+
     furi_record_close(RECORD_STORAGE);
 }
