@@ -30,6 +30,13 @@ bool subghz_devices_begin(const SubGhzDevice* device) {
     bool ret = false;
     furi_assert(device);
     if(device->interconnect->begin) {
+        // TODO: Remake this check and move this code
+        if(strcmp("cc1101_ext", device->name) == 0) {
+            if(furi_hal_subghz_get_ext_power_amp()) {
+                furi_hal_gpio_init_simple(&gpio_ext_pc3, GpioModeOutputPushPull);
+            }
+        }
+
         ret = device->interconnect->begin();
     }
     return ret;
@@ -38,6 +45,12 @@ bool subghz_devices_begin(const SubGhzDevice* device) {
 void subghz_devices_end(const SubGhzDevice* device) {
     furi_assert(device);
     if(device->interconnect->end) {
+        // TODO: Remake this check and move this code
+        if(strcmp("cc1101_ext", device->name) == 0) {
+            if(furi_hal_subghz_get_ext_power_amp()) {
+                furi_hal_gpio_init_simple(&gpio_ext_pc3, GpioModeAnalog);
+            }
+        }
         device->interconnect->end();
     }
 }
@@ -69,6 +82,12 @@ void subghz_devices_idle(const SubGhzDevice* device) {
     furi_assert(device);
     if(device->interconnect->idle) {
         device->interconnect->idle();
+        // TODO: Remake this check and move this code
+        if(strcmp("cc1101_ext", device->name) == 0) {
+            if(furi_hal_subghz_get_ext_power_amp()) {
+                furi_hal_gpio_write(&gpio_ext_pc3, 0);
+            }
+        }
     }
 }
 
@@ -121,6 +140,13 @@ bool subghz_devices_set_tx(const SubGhzDevice* device) {
     furi_assert(device);
     if(device->interconnect->set_tx) {
         ret = device->interconnect->set_tx();
+
+        // TODO: Remake this check and move this code
+        if(strcmp("cc1101_ext", device->name) == 0) {
+            if(furi_hal_subghz_get_ext_power_amp()) {
+                furi_hal_gpio_write(&gpio_ext_pc3, 1);
+            }
+        }
     }
     return ret;
 }
@@ -161,6 +187,13 @@ void subghz_devices_set_rx(const SubGhzDevice* device) {
     furi_assert(device);
     if(device->interconnect->set_rx) {
         device->interconnect->set_rx();
+
+        // TODO: Remake this check and move this code
+        if(strcmp("cc1101_ext", device->name) == 0) {
+            if(furi_hal_subghz_get_ext_power_amp()) {
+                furi_hal_gpio_write(&gpio_ext_pc3, 0);
+            }
+        }
     }
 }
 
