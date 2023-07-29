@@ -26,7 +26,7 @@
 #include <lib/toolbox/path.h>
 #include <dialogs/dialogs.h>
 
-#define NUM_MENU_ITEMS (19)
+#define NUM_MENU_ITEMS (20)
 
 #define WIFI_MARAUDER_TEXT_BOX_STORE_SIZE (4096)
 #define WIFI_MARAUDER_TEXT_INPUT_STORE_SIZE (512)
@@ -47,17 +47,6 @@ typedef enum WifiMarauderUserInputType {
     WifiMarauderUserInputTypeNumber,
     WifiMarauderUserInputTypeFileName
 } WifiMarauderUserInputType;
-
-typedef enum SelectedFlashOptions {
-    SelectedFlashS3Mode,
-    SelectedFlashBoot,
-    SelectedFlashPart,
-    SelectedFlashNvs,
-    SelectedFlashBootApp0,
-    SelectedFlashApp,
-    SelectedFlashCustom,
-    NUM_FLASH_OPTIONS
-} SelectedFlashOptions;
 
 struct WifiMarauderApp {
     Gui* gui;
@@ -124,19 +113,6 @@ struct WifiMarauderApp {
     int special_case_input_step;
     char special_case_input_src_addr[20];
     char special_case_input_dst_addr[20];
-
-    // For flashing - TODO: put into its own struct?
-    bool selected_flash_options[NUM_FLASH_OPTIONS];
-    int num_selected_flash_options;
-    char bin_file_path_boot[100];
-    char bin_file_path_part[100];
-    char bin_file_path_nvs[100];
-    char bin_file_path_boot_app0[100];
-    char bin_file_path_app[100];
-    char bin_file_path_custom[100];
-    FuriThread* flash_worker;
-    bool flash_worker_busy;
-    bool flash_mode;
 };
 
 // Supported commands:

@@ -1,5 +1,0 @@
-name: esp-flasher
-
-build:
-  cmake: zephyr
-  kconfig: zephyr/Kconfig
