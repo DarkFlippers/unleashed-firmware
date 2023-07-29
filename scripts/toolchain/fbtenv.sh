@@ -38,11 +38,11 @@ fbtenv_wget()
 fbtenv_restore_env()
 {
     TOOLCHAIN_ARCH_DIR_SED="$(echo "$TOOLCHAIN_ARCH_DIR" | sed 's/\//\\\//g')"
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/python\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/python\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
     if [ -n "${PS1:-""}" ]; then
         PS1="$(echo "$PS1" | sed 's/\[fbt\]//g')";
     elif [ -n "${PROMPT:-""}" ]; then
@@ -104,8 +104,6 @@ fbtenv_check_if_sourced_multiple_times()
             return 0;
         fi
     fi
-    echo "Warning! FBT environment script was sourced more than once!";
-    echo "You might be doing things wrong, please open a new shell!";
     return 1;
 }
 
@@ -170,7 +168,7 @@ fbtenv_get_kernel_type()
 fbtenv_check_rosetta()
 {
     if [ "$ARCH_TYPE" = "arm64" ]; then
-        if ! /usr/bin/pgrep -q oahd; then
+        if ! pgrep -q oahd; then
             echo "Flipper Zero Toolchain needs Rosetta2 to run under Apple Silicon";
             echo "Please instal it by typing 'softwareupdate --install-rosetta --agree-to-license'";
             return 1;
@@ -322,7 +320,9 @@ fbtenv_main()
         fbtenv_restore_env;
         return 0;
     fi
-    fbtenv_check_if_sourced_multiple_times;
+    if ! fbtenv_check_if_sourced_multiple_times; then
+        return 0;
+    fi;
     fbtenv_check_env_vars || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
