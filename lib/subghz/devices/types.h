@@ -12,12 +12,13 @@
 #include <flipper_application/flipper_application.h>
 
 #define SUBGHZ_RADIO_DEVICE_PLUGIN_APP_ID "subghz_radio_device"
-#define SUBGHZ_RADIO_DEVICE_PLUGIN_API_VERSION 1
+#define SUBGHZ_RADIO_DEVICE_PLUGIN_API_VERSION 2
 
 typedef struct SubGhzDeviceRegistry SubGhzDeviceRegistry;
 typedef struct SubGhzDevice SubGhzDevice;
+typedef struct SubGhzDeviceConf SubGhzDeviceConf;
 
-typedef bool (*SubGhzBegin)(void);
+typedef bool (*SubGhzBegin)(SubGhzDeviceConf* conf);
 typedef void (*SubGhzEnd)(void);
 typedef bool (*SubGhzIsConnect)(void);
 typedef void (*SubGhzReset)(void);
@@ -88,4 +89,10 @@ typedef struct {
 struct SubGhzDevice {
     const char* name;
     const SubGhzDeviceInterconnect* interconnect;
+};
+
+struct SubGhzDeviceConf {
+    uint8_t ver;
+    bool extended_range;
+    bool power_amp;
 };
