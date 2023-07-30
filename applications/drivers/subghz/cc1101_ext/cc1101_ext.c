@@ -205,7 +205,7 @@ bool subghz_device_cc1101_ext_alloc(SubGhzDeviceConf* conf) {
     if(conf) {
         if(conf->ver == SUBGHZ_DEVICE_CC1101_CONFIG_VER) {
             subghz_device_cc1101_ext->power_amp = conf->power_amp;
-            subghz_device_cc1101_ext->extended_range = conf->extented_range;
+            subghz_device_cc1101_ext->extended_range = conf->extended_range;
         } else {
             FURI_LOG_E(TAG, "Config version mismatch");
         }
