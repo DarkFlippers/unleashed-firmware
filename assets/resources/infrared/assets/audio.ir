@@ -328,3 +328,52 @@ type: parsed
 protocol: NECext
 address: 30 FC 00 00
 command: 0C F3 00 00
+# 
+# Model: Panasonic SA-PM193
+name: Power
+type: parsed
+protocol: Kaseikyo
+address: AC 02 20 00
+command: D1 03 00 00
+# CD play/pause, tape play also exists but probably less commonly used
+name: Play
+type: parsed
+protocol: Kaseikyo
+address: AA 02 20 00
+command: A0 00 00 00
+# same as above
+name: Pause
+type: parsed
+protocol: Kaseikyo
+address: AA 02 20 00
+command: A0 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: Kaseikyo
+address: A0 02 20 00
+command: 00 02 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: Kaseikyo
+address: A0 02 20 00
+command: 10 02 00 00
+# 
+name: Next
+type: parsed
+protocol: Kaseikyo
+address: AC 02 20 01
+command: A1 00 00 00
+# 
+name: Prev
+type: parsed
+protocol: Kaseikyo
+address: AC 02 20 01
+command: 91 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: Kaseikyo
+address: A0 02 20 00
+command: 20 03 00 00
