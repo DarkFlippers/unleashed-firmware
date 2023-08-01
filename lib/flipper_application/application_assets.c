@@ -157,14 +157,6 @@ static bool flipper_application_assets_process_dirs(
     FuriString* full_path = flipper_application_assets_alloc_app_full_path(app_name);
 
     do {
-        if(!storage_simply_mkdir(storage, APPS_ASSETS_PATH)) {
-            break;
-        }
-
-        if(!storage_simply_mkdir(storage, furi_string_get_cstr(full_path))) {
-            break;
-        }
-
         FuriString* dir_path = furi_string_alloc();
         char* path = NULL;
 
@@ -279,6 +271,8 @@ bool flipper_application_assets_load(File* file, const char* elf_path, size_t of
 
     FURI_LOG_D(TAG, "Loading assets for %s", furi_string_get_cstr(app_name));
 
+    FuriString* full_path = flipper_application_assets_alloc_app_full_path(app_name);
+
     do {
         if(!storage_file_seek(file, offset, true)) {
             break;
@@ -319,13 +313,23 @@ bool flipper_application_assets_load(File* file, const char* elf_path, size_t of
             FURI_LOG_D(TAG, "Assets removed");
         }
 
+        if(!storage_simply_mkdir(storage, APPS_ASSETS_PATH)) {
+            break;
+        }
+
+        if(!storage_simply_mkdir(storage, furi_string_get_cstr(full_path))) {
+            break;
+        }
+
         // process directories
-        if(!flipper_application_assets_process_dirs(storage, file, app_name, header.dirs_count)) {
+        if(header.dirs_count &&
+           !flipper_application_assets_process_dirs(storage, file, app_name, header.dirs_count)) {
             break;
         }
 
         // process files
-        if(!flipper_application_assets_process_files(storage, file, app_name, header.files_count)) {
+        if(header.files_count && !flipper_application_assets_process_files(
+                                     storage, file, app_name, header.files_count)) {
             break;
         }
 
@@ -353,6 +357,7 @@ bool flipper_application_assets_load(File* file, const char* elf_path, size_t of
     }
 
     furi_record_close(RECORD_STORAGE);
+    furi_string_free(full_path);
     furi_string_free(app_name);
 
     FURI_LOG_D(TAG, "Assets loading %s", result ? "success" : "failed");
