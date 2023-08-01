@@ -7,7 +7,7 @@
 
 #define TAG "U2F"
 
-#define U2F_DATA_FOLDER ANY_PATH("u2f/")
+#define U2F_DATA_FOLDER EXT_PATH("u2f/")
 #define U2F_CERT_FILE U2F_DATA_FOLDER "assets/cert.der"
 #define U2F_CERT_KEY_FILE U2F_DATA_FOLDER "assets/cert_key.u2f"
 #define U2F_KEY_FILE U2F_DATA_FOLDER "key.u2f"
