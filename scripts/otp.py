@@ -17,6 +17,7 @@ OTP_COLORS = {
     "unknown": 0x00,
     "black": 0x01,
     "white": 0x02,
+    "transparent": 0x03,
 }
 
 OTP_REGIONS = {
