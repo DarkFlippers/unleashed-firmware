@@ -5,7 +5,7 @@
 #include <input/input.h>
 #include <gui/gui_i.h>
 #include <u8g2_glue.h>
-
+#include <lib/toolbox/float_tools.h>
 #include "notification.h"
 #include "notification_messages.h"
 #include "notification_app.h"
@@ -104,7 +104,10 @@ static void notification_reset_notification_led_layer(NotificationLedLayer* laye
     furi_hal_light_set(layer->light, layer->value[LayerInternal]);
 }
 
-static void notification_reset_notification_layer(NotificationApp* app, uint8_t reset_mask) {
+static void notification_reset_notification_layer(
+    NotificationApp* app,
+    uint8_t reset_mask,
+    float display_brightness_set) {
     if(reset_mask & reset_blink_mask) {
         furi_hal_light_blink_stop();
     }
@@ -124,6 +127,9 @@ static void notification_reset_notification_layer(NotificationApp* app, uint8_t 
         notification_sound_off();
     }
     if(reset_mask & reset_display_mask) {
+        if(!float_is_equal(display_brightness_set, app->settings.display_brightness)) {
+            furi_hal_light_set(LightBacklight, app->settings.display_brightness * 0xFF);
+        }
         furi_timer_start(app->display_timer, notification_settings_display_off_delay_ticks(app));
     }
 }
@@ -212,13 +218,14 @@ static void notification_process_notification_message(
                 notification_apply_notification_led_layer(
                     &app->display,
                     notification_message->data.led.value * display_brightness_setting);
+                reset_mask |= reset_display_mask;
             } else {
+                reset_mask &= ~reset_display_mask;
                 notification_reset_notification_led_layer(&app->display);
                 if(furi_timer_is_running(app->display_timer)) {
                     furi_timer_stop(app->display_timer);
                 }
             }
-            reset_mask |= reset_display_mask;
             break;
         case NotificationMessageTypeLedDisplayBacklightEnforceOn:
             furi_assert(app->display_led_lock < UINT8_MAX);
@@ -370,7 +377,7 @@ static void notification_process_notification_message(
     }
 
     if(reset_notifications) {
-        notification_reset_notification_layer(app, reset_mask);
+        notification_reset_notification_layer(app, reset_mask, display_brightness_setting);
     }
 }
 

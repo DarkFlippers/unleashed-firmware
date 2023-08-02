@@ -1,7 +1,6 @@
 #include "hid.h"
 #include "views.h"
 #include <notification/notification_messages.h>
-#include <dolphin/dolphin.h>
 
 #define TAG "HidApp"
 
@@ -404,8 +403,6 @@ int32_t hid_usb_app(void* p) {
 
     bt_hid_connection_status_changed_callback(BtStatusConnected, app);
 
-    dolphin_deed(DolphinDeedPluginStart);
-
     view_dispatcher_run(app->view_dispatcher);
 
     furi_hal_usb_set_config(usb_mode_prev, NULL);
@@ -443,8 +440,6 @@ int32_t hid_ble_app(void* p) {
 
     furi_hal_bt_start_advertising();
     bt_set_status_changed_callback(app->bt, bt_hid_connection_status_changed_callback, app);
-
-    dolphin_deed(DolphinDeedPluginStart);
 
     view_dispatcher_run(app->view_dispatcher);
 

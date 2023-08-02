@@ -564,7 +564,7 @@ void subghz_device_cc1101_ext_start_async_rx(
     furi_hal_bus_enable(FuriHalBusTIM17);
 
     // Configure TIM
-    //Set the timer resolution to 2 �s
+    //Set the timer resolution to 2 us
     LL_TIM_SetPrescaler(TIM17, (64 << 1) - 1);
     LL_TIM_SetCounterMode(TIM17, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetAutoReload(TIM17, 0xFFFF);
@@ -745,7 +745,7 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
     furi_hal_bus_enable(FuriHalBusTIM17);
 
     // Configure TIM
-    // Set the timer resolution to 2 �s
+    // Set the timer resolution to 2 us
     LL_TIM_SetPrescaler(TIM17, (64 << 1) - 1);
     LL_TIM_SetCounterMode(TIM17, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetAutoReload(TIM17, 0xFFFF);

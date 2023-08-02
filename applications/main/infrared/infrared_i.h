@@ -61,6 +61,8 @@ typedef enum {
     InfraredEditModeNone,
     InfraredEditModeRename,
     InfraredEditModeDelete,
+    InfraredEditModeMove,
+    InfraredEditModeMoveSelectDest
 } InfraredEditMode;
 
 typedef struct {
@@ -70,6 +72,7 @@ typedef struct {
     InfraredEditTarget edit_target : 8;
     InfraredEditMode edit_mode : 8;
     int32_t current_button_index;
+    int32_t current_button_index_move_orig;
     uint32_t last_transmit_time;
 } InfraredAppState;
 
