@@ -82,6 +82,9 @@ fbtenv_restore_env()
 
 fbtenv_check_sourced()
 {
+    if [ -n "${FBT_SKIP_CHECK_SOURCED:-""}" ]; then
+        return 0;
+    fi
     case "${ZSH_EVAL_CONTEXT:-""}" in *:file:*)
         setopt +o nomatch;  # disabling 'no match found' warning in zsh
         return 0;;
@@ -210,7 +213,7 @@ fbtenv_download_toolchain_tar()
     return 0;
 }
 
-fbtenv_remove_old_tooclhain()
+fbtenv_remove_old_toolchain()
 {
     printf "Removing old toolchain..";
     rm -rf "${TOOLCHAIN_ARCH_DIR:?}";
@@ -241,12 +244,14 @@ fbtenv_unpack_toolchain()
 
 fbtenv_cleanup()
 {
-    printf "Cleaning up..";
     if [ -n "${FBT_TOOLCHAIN_PATH:-""}" ]; then
-        rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.tar.gz;
+        printf "Cleaning up..";
         rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.part;
+        if [ -z "${FBT_PRESERVE_TAR:-""}" ]; then
+            rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.tar.gz;
+        fi
+        echo "done";
     fi
-    echo "done";
     trap - 2;
     return 0;
 }
@@ -299,16 +304,22 @@ fbtenv_download_toolchain()
         fbtenv_curl_wget_check || return 1;
         fbtenv_download_toolchain_tar || return 1;
     fi
-    fbtenv_remove_old_tooclhain;
+    fbtenv_remove_old_toolchain;
     fbtenv_unpack_toolchain || return 1;
     fbtenv_cleanup;
     return 0;
 }
 
-fbtenv_print_version()
+fbtenv_print_config()
 {
-    if [ -n "$FBT_VERBOSE" ]; then
+    if [ -n "${FBT_VERBOSE:-""}" ]; then
         echo "FBT: using toolchain version $(cat "$TOOLCHAIN_ARCH_DIR/VERSION")";
+        if [ -n "${FBT_SKIP_CHECK_SOURCED:-""}" ]; then
+            echo "FBT: fbtenv will not check if it is sourced or not";
+        fi
+        if [ -n "${FBT_PRESERVE_TAR:-""}" ]; then
+            echo "FBT: toolchain archives will be saved";
+        fi
     fi
 }
 
@@ -326,7 +337,7 @@ fbtenv_main()
     fbtenv_check_env_vars || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
-    fbtenv_print_version;
+    fbtenv_print_config;
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
