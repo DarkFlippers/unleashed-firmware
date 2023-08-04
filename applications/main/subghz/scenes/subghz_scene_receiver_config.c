@@ -1,6 +1,8 @@
 #include "../subghz_i.h"
 #include <lib/toolbox/value_index.h>
 
+#define TAG "SubGhzSceneReceiverConfig"
+
 enum SubGhzSettingIndex {
     SubGhzSettingIndexFrequency,
     SubGhzSettingIndexHopping,
@@ -13,6 +15,10 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexLock,
     SubGhzSettingIndexRAWThresholdRSSI,
 };
+
+static inline const char* bool_to_char(bool value) {
+    return value ? "ON" : "OFF";
+}
 
 #define RAW_THRESHOLD_RSSI_COUNT 11
 const char* const raw_threshold_rssi_text[RAW_THRESHOLD_RSSI_COUNT] = {
@@ -111,23 +117,18 @@ uint8_t subghz_scene_receiver_config_next_preset(const char* preset_name, void* 
     return index;
 }
 
-uint8_t subghz_scene_receiver_config_hopper_value_index(
-    const uint32_t value,
-    const uint32_t values[],
-    uint8_t values_count,
-    void* context) {
+SubGhzHopperState subghz_scene_receiver_config_hopper_value_index(void* context) {
     furi_assert(context);
-    UNUSED(values_count);
     SubGhz* subghz = context;
 
-    if(value == values[0]) {
-        return 0;
+    if(subghz_txrx_hopper_get_state(subghz->txrx) == SubGhzHopperStateOFF) {
+        return SubGhzHopperStateOFF;
     } else {
         variable_item_set_current_value_text(
             (VariableItem*)scene_manager_get_scene_state(
                 subghz->scene_manager, SubGhzSceneReceiverConfig),
             " -----");
-        return 1;
+        return SubGhzHopperStateRunning;
     }
 }
 
@@ -184,13 +185,14 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
 
 static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
+    SubGhzHopperState index = variable_item_get_current_value_index(item);
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
     VariableItem* frequency_item = (VariableItem*)scene_manager_get_scene_state(
         subghz->scene_manager, SubGhzSceneReceiverConfig);
 
-    variable_item_set_current_value_text(item, hopping_text[index]);
-    if(hopping_value[index] == SubGhzHopperStateOFF) {
+    variable_item_set_current_value_text(item, hopping_text[(uint8_t)index]);
+
+    if(index == SubGhzHopperStateOFF) {
         char text_buf[10] = {0};
         uint32_t frequency = subghz_setting_get_default_frequency(setting);
         SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
@@ -203,6 +205,7 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
             (frequency % 1000000) / 10000);
         variable_item_set_current_value_text(frequency_item, text_buf);
 
+        // Maybe better add one more function with only with the frequency argument?
         subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(preset.name),
@@ -216,8 +219,11 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
         variable_item_set_current_value_index(
             frequency_item, subghz_setting_get_frequency_default_index(setting));
     }
-
-    subghz_txrx_hopper_set_state(subghz->txrx, hopping_value[index]);
+    subghz->last_settings->enable_hopping = index != SubGhzHopperStateOFF;
+#ifdef FURI_DEBUG
+    subghz_last_settings_log(subghz->last_settings);
+#endif
+    subghz_txrx_hopper_set_state(subghz->txrx, index);
 }
 
 static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
@@ -333,8 +339,8 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             HOPPING_COUNT,
             subghz_scene_receiver_config_set_hopping_running,
             subghz);
-        value_index = subghz_scene_receiver_config_hopper_value_index(
-            subghz_txrx_hopper_get_state(subghz->txrx), hopping_value, HOPPING_COUNT, subghz);
+        value_index = subghz_scene_receiver_config_hopper_value_index(subghz);
+
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, hopping_text[value_index]);
     }

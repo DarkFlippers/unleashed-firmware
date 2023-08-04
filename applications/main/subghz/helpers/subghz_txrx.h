@@ -274,7 +274,7 @@ void subghz_txrx_receiver_set_filter(SubGhzTxRx* instance, SubGhzProtocolFlag fi
  * @param callback Callback for receive data
  * @param context Context for callback
  */
-void subghz_txrx_set_rx_calback(
+void subghz_txrx_set_rx_callback(
     SubGhzTxRx* instance,
     SubGhzReceiverCallback callback,
     void* context);
@@ -334,9 +334,9 @@ const char* subghz_txrx_radio_device_get_name(SubGhzTxRx* instance);
 * @param instance Pointer to a SubGhzTxRx
 * @return bool True if the frequency is valid
 */
-bool subghz_txrx_radio_device_is_frequecy_valid(SubGhzTxRx* instance, uint32_t frequency);
+bool subghz_txrx_radio_device_is_frequency_valid(SubGhzTxRx* instance, uint32_t frequency);
 
-bool subghz_txrx_radio_device_is_tx_alowed(SubGhzTxRx* instance, uint32_t frequency);
+bool subghz_txrx_radio_device_is_tx_allowed(SubGhzTxRx* instance, uint32_t frequency);
 
 void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state);
 bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance);

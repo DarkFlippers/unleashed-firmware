@@ -315,7 +315,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     uint32_t frequency_candidate = model->history_frequency[model->selected_index];
                     if(frequency_candidate == 0 ||
                        // !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
-                       !subghz_txrx_radio_device_is_frequecy_valid(
+                       !subghz_txrx_radio_device_is_frequency_valid(
                            instance->txrx, frequency_candidate) ||
                        prev_freq_to_save == frequency_candidate) {
                         frequency_candidate = 0;
@@ -339,7 +339,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     uint32_t frequency_candidate = subghz_frequency_find_correct(model->frequency);
                     if(frequency_candidate == 0 ||
                        // !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
-                       !subghz_txrx_radio_device_is_frequecy_valid(
+                       !subghz_txrx_radio_device_is_frequency_valid(
                            instance->txrx, frequency_candidate) ||
                        prev_freq_to_save == frequency_candidate) {
                         frequency_candidate = 0;
@@ -356,7 +356,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     uint32_t frequency_candidate = subghz_frequency_find_correct(model->frequency);
                     if(frequency_candidate == 0 ||
                        // !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
-                       !subghz_txrx_radio_device_is_frequecy_valid(
+                       !subghz_txrx_radio_device_is_frequency_valid(
                            instance->txrx, frequency_candidate) ||
                        prev_freq_to_save == frequency_candidate) {
                         frequency_candidate = 0;

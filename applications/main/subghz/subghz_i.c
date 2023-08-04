@@ -115,13 +115,13 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        if(!subghz_txrx_radio_device_is_frequecy_valid(subghz->txrx, temp_data32)) {
+        if(!subghz_txrx_radio_device_is_frequency_valid(subghz->txrx, temp_data32)) {
             FURI_LOG_E(TAG, "Frequency not supported on chosen radio module");
             load_key_state = SubGhzLoadKeyStateUnsuportedFreq;
             break;
         }
 
-        if(!subghz_txrx_radio_device_is_tx_alowed(subghz->txrx, temp_data32)) {
+        if(!subghz_txrx_radio_device_is_tx_allowed(subghz->txrx, temp_data32)) {
             FURI_LOG_E(TAG, "This frequency can only be used for RX on chosen radio module");
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;

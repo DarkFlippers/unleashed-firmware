@@ -473,6 +473,7 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "uptime", CliCommandFlagDefault, cli_command_uptime, NULL);
     cli_add_command(cli, "date", CliCommandFlagParallelSafe, cli_command_date, NULL);
     cli_add_command(cli, "log", CliCommandFlagParallelSafe, cli_command_log, NULL);
+    cli_add_command(cli, "l", CliCommandFlagParallelSafe, cli_command_log, NULL);
     cli_add_command(cli, "sysctl", CliCommandFlagDefault, cli_command_sysctl, NULL);
     cli_add_command(cli, "ps", CliCommandFlagParallelSafe, cli_command_ps, NULL);
     cli_add_command(cli, "free", CliCommandFlagParallelSafe, cli_command_free, NULL);

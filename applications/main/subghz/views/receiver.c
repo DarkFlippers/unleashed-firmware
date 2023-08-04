@@ -62,6 +62,7 @@ typedef struct {
     FuriString* preset_str;
     FuriString* history_stat_str;
     FuriString* progress_str;
+    bool hopping_enabled;
     SubGhzReceiverHistory* history;
     uint16_t idx;
     uint16_t list_offset;
@@ -200,7 +201,8 @@ void subghz_view_receiver_add_data_statusbar(
     SubGhzViewReceiver* subghz_receiver,
     const char* frequency_str,
     const char* preset_str,
-    const char* history_stat_str) {
+    const char* history_stat_str,
+    bool hopping_enabled) {
     furi_assert(subghz_receiver);
     with_view_model(
         subghz_receiver->view,
@@ -209,6 +211,7 @@ void subghz_view_receiver_add_data_statusbar(
             furi_string_set(model->frequency_str, frequency_str);
             furi_string_set(model->preset_str, preset_str);
             furi_string_set(model->history_stat_str, history_stat_str);
+            model->hopping_enabled = hopping_enabled;
         },
         true);
 }
@@ -311,7 +314,6 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
-        // TODO
         if(model->mode == SubGhzViewReceiverModeLive) {
             canvas_draw_icon(
                 canvas,
@@ -323,6 +325,12 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
             canvas_draw_str(canvas, 63, 46, "Scanning...");
             //canvas_draw_line(canvas, 46, 51, 125, 51);
             canvas_set_font(canvas, FontSecondary);
+
+            if(model->hopping_enabled) {
+                const uint8_t vertical_offset = 7;
+                const uint8_t horizontal_offset = 3;
+                canvas_draw_icon(canvas, horizontal_offset, vertical_offset, &I_Dynamic_9x7);
+            }
         } else {
             canvas_draw_icon(
                 canvas,

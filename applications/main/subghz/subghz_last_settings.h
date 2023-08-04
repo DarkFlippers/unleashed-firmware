@@ -16,6 +16,7 @@ typedef struct {
     bool external_module_power_amp;
     // saved so as not to change the version
     bool timestamp_file_names;
+    bool enable_hopping;
 } SubGhzLastSettings;
 
 SubGhzLastSettings* subghz_last_settings_alloc(void);
@@ -25,3 +26,5 @@ void subghz_last_settings_free(SubGhzLastSettings* instance);
 void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count);
 
 bool subghz_last_settings_save(SubGhzLastSettings* instance);
+
+void subghz_last_settings_log(SubGhzLastSettings* instance);

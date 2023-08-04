@@ -42,7 +42,7 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
                     subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateStart);
 
                 subghz->idx_menu_chosen = 0;
-                subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
+                subghz_txrx_set_rx_callback(subghz->txrx, NULL, subghz);
 
                 if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
                     subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);

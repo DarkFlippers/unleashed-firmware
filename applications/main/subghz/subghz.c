@@ -197,25 +197,13 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->last_settings = subghz_last_settings_alloc();
     subghz_last_settings_load(subghz->last_settings, 0);
     if(!alloc_for_tx_only) {
-#if FURI_DEBUG
-        FURI_LOG_D(
-            TAG,
-            "last frequency: %ld, preset: %ld",
-            subghz->last_settings->frequency,
-            subghz->last_settings->preset);
-#endif
         subghz_setting_set_default_frequency(setting, subghz->last_settings->frequency);
-    }
 
-    if(!alloc_for_tx_only) {
         subghz_txrx_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz->history = subghz_history_alloc();
     }
 
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
-
-    if(!alloc_for_tx_only) {
-        subghz->history = subghz_history_alloc();
-    }
 
     subghz->secure_data = malloc(sizeof(SecureData));
 

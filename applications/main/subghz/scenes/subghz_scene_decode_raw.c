@@ -21,13 +21,14 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             subghz->subghz_receiver,
             furi_string_get_cstr(frequency_str),
             furi_string_get_cstr(modulation_str),
-            furi_string_get_cstr(history_stat_str));
+            furi_string_get_cstr(history_stat_str),
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
 
         furi_string_free(frequency_str);
         furi_string_free(modulation_str);
     } else {
         subghz_view_receiver_add_data_statusbar(
-            subghz->subghz_receiver, furi_string_get_cstr(history_stat_str), "", "");
+            subghz->subghz_receiver, furi_string_get_cstr(history_stat_str), "", "", false);
     }
     furi_string_free(history_stat_str);
 }
@@ -154,7 +155,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
     subghz_view_receiver_set_callback(
         subghz->subghz_receiver, subghz_scene_decode_raw_callback, subghz);
 
-    subghz_txrx_set_rx_calback(subghz->txrx, subghz_scene_add_to_history_callback, subghz);
+    subghz_txrx_set_rx_callback(subghz->txrx, subghz_scene_add_to_history_callback, subghz);
 
     subghz_txrx_receiver_set_filter(subghz->txrx, SubGhzProtocolFlag_Decodable);
 
@@ -202,7 +203,7 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateStart);
             subghz->idx_menu_chosen = 0;
 
-            subghz_txrx_set_rx_calback(subghz->txrx, NULL, subghz);
+            subghz_txrx_set_rx_callback(subghz->txrx, NULL, subghz);
 
             if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
                 subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
