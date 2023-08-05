@@ -8,9 +8,7 @@ enum SubmenuIndex {
     SubmenuIndexSaved,
     SubmenuIndexExtraAction,
     SubmenuIndexAddManually,
-#if FURI_DEBUG
     SubmenuIndexDebug,
-#endif
 };
 
 void nfc_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -31,12 +29,12 @@ void nfc_scene_start_on_enter(void* context) {
         submenu, "Extra Actions", SubmenuIndexExtraAction, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Add Manually", SubmenuIndexAddManually, nfc_scene_start_submenu_callback, nfc);
-#if FURI_DEBUG
+
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         submenu_add_item(
             submenu, "Debug", SubmenuIndexDebug, nfc_scene_start_submenu_callback, nfc);
     }
-#endif
+
     submenu_set_selected_item(
         submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneStart));
 
@@ -84,14 +82,11 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
                 nfc->scene_manager, NfcSceneStart, SubmenuIndexAddManually);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetType);
             consumed = true;
-        }
-#if FURI_DEBUG
-        else if(event.event == SubmenuIndexDebug) {
+        } else if(event.event == SubmenuIndexDebug) {
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneStart, SubmenuIndexDebug);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDebug);
             consumed = true;
         }
-#endif
     }
     return consumed;
 }

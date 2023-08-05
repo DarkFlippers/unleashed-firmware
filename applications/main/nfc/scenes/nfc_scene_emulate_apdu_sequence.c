@@ -1,4 +1,3 @@
-#if FURI_DEBUG
 #include "../nfc_i.h"
 #include <core/common_defines.h>
 
@@ -33,4 +32,3 @@ void nfc_scene_emulate_apdu_sequence_on_exit(void* context) {
 
     nfc_blink_stop(nfc);
 }
-#endif
