@@ -114,9 +114,10 @@ Encoders made by @assasinfil & @xMasterX:
 The majority of this project is developed and maintained by me, @xMasterX.
 I'm unemployed, and the only income I receive is from your donations.
 Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.
-- @assasinfil - SubGHz
+- @gid9798 - SubGHz, Plugins, many other things
+- @assasinfil - SubGHz protocols
 - @Svaarich - UI design and animations
-- @Amec0e - Infrared assets
+- @amec0e & @Leptopt1los - Infrared assets
 - Community moderators in Telegram, Discord, and Reddit
 - And of course our GitHub community. Your PRs are a very important part of this firmware and open-source development.
 
