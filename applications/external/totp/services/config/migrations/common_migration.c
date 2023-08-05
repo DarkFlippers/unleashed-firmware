@@ -1,6 +1,7 @@
 #include "common_migration.h"
 #include "../constants.h"
 #include "../../../types/token_info.h"
+#include "../../../types/automation_kb_layout.h"
 #include <flipper_format/flipper_format_i.h>
 
 bool totp_config_migrate_to_latest(
@@ -16,6 +17,28 @@ bool totp_config_migrate_to_latest(
         if(!flipper_format_read_header(fff_backup_data_file, temp_str, &current_version)) {
             break;
         }
+
+        if(flipper_format_read_string(
+               fff_backup_data_file, TOTP_CONFIG_KEY_CRYPTO_VERSION, temp_str)) {
+            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_CRYPTO_VERSION, temp_str);
+        } else {
+            uint32_t old_crypto_version = 1;
+            flipper_format_write_uint32(
+                fff_data_file, TOTP_CONFIG_KEY_CRYPTO_VERSION, &old_crypto_version, 1);
+        }
+
+        flipper_format_rewind(fff_backup_data_file);
+
+        if(flipper_format_read_string(
+               fff_backup_data_file, TOTP_CONFIG_KEY_CRYPTO_KEY_SLOT, temp_str)) {
+            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_CRYPTO_KEY_SLOT, temp_str);
+        } else {
+            uint32_t default_old_key_slot = 2;
+            flipper_format_write_uint32(
+                fff_data_file, TOTP_CONFIG_KEY_CRYPTO_KEY_SLOT, &default_old_key_slot, 1);
+        }
+
+        flipper_format_rewind(fff_backup_data_file);
 
         if(flipper_format_read_string(fff_backup_data_file, TOTP_CONFIG_KEY_BASE_IV, temp_str)) {
             flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_BASE_IV, temp_str);
@@ -64,6 +87,21 @@ bool totp_config_migrate_to_latest(
             uint32_t default_font_index = 0;
             flipper_format_write_uint32(
                 fff_data_file, TOTP_CONFIG_KEY_FONT, &default_font_index, 1);
+        }
+
+        flipper_format_rewind(fff_backup_data_file);
+
+        if(flipper_format_read_string(
+               fff_backup_data_file, TOTP_CONFIG_KEY_AUTOMATION_KB_LAYOUT, temp_str)) {
+            flipper_format_write_string(
+                fff_data_file, TOTP_CONFIG_KEY_AUTOMATION_KB_LAYOUT, temp_str);
+        } else {
+            uint32_t default_automation_kb_layout = AutomationKeyboardLayoutQWERTY;
+            flipper_format_write_uint32(
+                fff_data_file,
+                TOTP_CONFIG_KEY_AUTOMATION_KB_LAYOUT,
+                &default_automation_kb_layout,
+                1);
         }
 
         flipper_format_rewind(fff_backup_data_file);

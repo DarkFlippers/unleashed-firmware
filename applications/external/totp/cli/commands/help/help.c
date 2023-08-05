@@ -64,4 +64,6 @@ void totp_cli_command_help_handle() {
     totp_cli_command_add_docopt_options();
     totp_cli_command_update_docopt_options();
     totp_cli_command_delete_docopt_options();
+    totp_cli_command_pin_docopt_options();
+    totp_cli_command_automation_docopt_options();
 }

@@ -1,4 +1,6 @@
-#include "crypto.h"
+#include "crypto_v1.h"
+#include <stdlib.h>
+#include <furi.h>
 #include <furi_hal_crypto.h>
 #include <furi_hal_random.h>
 #include <furi_hal_version.h>
@@ -8,13 +10,14 @@
 #define CRYPTO_KEY_SLOT (2)
 #define CRYPTO_VERIFY_KEY_LENGTH (16)
 #define CRYPTO_ALIGNMENT_FACTOR (16)
+#define TOTP_IV_SIZE (16)
 
 static const char* CRYPTO_VERIFY_KEY = "FFF_Crypto_pass";
 
-uint8_t* totp_crypto_encrypt(
+uint8_t* totp_crypto_encrypt_v1(
     const uint8_t* plain_data,
     const size_t plain_data_length,
-    const uint8_t* iv,
+    const CryptoSettings* crypto_settings,
     size_t* encrypted_data_length) {
     uint8_t* encrypted_data;
     size_t remain = plain_data_length % CRYPTO_ALIGNMENT_FACTOR;
@@ -29,7 +32,7 @@ uint8_t* totp_crypto_encrypt(
         furi_check(encrypted_data != NULL);
         *encrypted_data_length = plain_data_aligned_length;
 
-        furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, iv);
+        furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, crypto_settings->iv);
         furi_hal_crypto_encrypt(plain_data_aligned, encrypted_data, plain_data_aligned_length);
         furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
 
@@ -40,7 +43,7 @@ uint8_t* totp_crypto_encrypt(
         furi_check(encrypted_data != NULL);
         *encrypted_data_length = plain_data_length;
 
-        furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, iv);
+        furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, crypto_settings->iv);
         furi_hal_crypto_encrypt(plain_data, encrypted_data, plain_data_length);
         furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
     }
@@ -48,29 +51,31 @@ uint8_t* totp_crypto_encrypt(
     return encrypted_data;
 }
 
-uint8_t* totp_crypto_decrypt(
+uint8_t* totp_crypto_decrypt_v1(
     const uint8_t* encrypted_data,
     const size_t encrypted_data_length,
-    const uint8_t* iv,
+    const CryptoSettings* crypto_settings,
     size_t* decrypted_data_length) {
     *decrypted_data_length = encrypted_data_length;
     uint8_t* decrypted_data = malloc(*decrypted_data_length);
     furi_check(decrypted_data != NULL);
-    furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, iv);
+    furi_hal_crypto_store_load_key(CRYPTO_KEY_SLOT, crypto_settings->iv);
     furi_hal_crypto_decrypt(encrypted_data, decrypted_data, encrypted_data_length);
     furi_hal_crypto_store_unload_key(CRYPTO_KEY_SLOT);
     return decrypted_data;
 }
 
-CryptoSeedIVResult
-    totp_crypto_seed_iv(PluginState* plugin_state, const uint8_t* pin, uint8_t pin_length) {
+CryptoSeedIVResult totp_crypto_seed_iv_v1(
+    CryptoSettings* crypto_settings,
+    const uint8_t* pin,
+    uint8_t pin_length) {
     CryptoSeedIVResult result;
-    if(plugin_state->crypto_verify_data == NULL) {
+    if(crypto_settings->crypto_verify_data == NULL) {
         FURI_LOG_I(LOGGING_TAG, "Generating new IV");
-        furi_hal_random_fill_buf(&plugin_state->base_iv[0], TOTP_IV_SIZE);
+        furi_hal_random_fill_buf(&crypto_settings->base_iv[0], TOTP_IV_SIZE);
     }
 
-    memcpy(&plugin_state->iv[0], &plugin_state->base_iv[0], TOTP_IV_SIZE);
+    memcpy(&crypto_settings->iv[0], &crypto_settings->base_iv[0], TOTP_IV_SIZE);
     if(pin != NULL && pin_length > 0) {
         uint8_t max_i;
         if(pin_length > TOTP_IV_SIZE) {
@@ -80,7 +85,7 @@ CryptoSeedIVResult
         }
 
         for(uint8_t i = 0; i < max_i; i++) {
-            plugin_state->iv[i] = plugin_state->iv[i] ^ (uint8_t)(pin[i] * (i + 1));
+            crypto_settings->iv[i] = crypto_settings->iv[i] ^ (uint8_t)(pin[i] * (i + 1));
         }
     } else {
         uint8_t max_i;
@@ -93,24 +98,24 @@ CryptoSeedIVResult
 
         const uint8_t* uid = (const uint8_t*)UID64_BASE; //-V566
         for(uint8_t i = 0; i < max_i; i++) {
-            plugin_state->iv[i] = plugin_state->iv[i] ^ uid[i];
+            crypto_settings->iv[i] = crypto_settings->iv[i] ^ uid[i];
         }
     }
 
     result = CryptoSeedIVResultFlagSuccess;
-    if(plugin_state->crypto_verify_data == NULL) {
+    if(crypto_settings->crypto_verify_data == NULL) {
         FURI_LOG_I(LOGGING_TAG, "Generating crypto verify data");
-        plugin_state->crypto_verify_data = malloc(CRYPTO_VERIFY_KEY_LENGTH);
-        furi_check(plugin_state->crypto_verify_data != NULL);
-        plugin_state->crypto_verify_data_length = CRYPTO_VERIFY_KEY_LENGTH;
+        crypto_settings->crypto_verify_data = malloc(CRYPTO_VERIFY_KEY_LENGTH);
+        furi_check(crypto_settings->crypto_verify_data != NULL);
+        crypto_settings->crypto_verify_data_length = CRYPTO_VERIFY_KEY_LENGTH;
 
-        plugin_state->crypto_verify_data = totp_crypto_encrypt(
+        crypto_settings->crypto_verify_data = totp_crypto_encrypt_v1(
             (const uint8_t*)CRYPTO_VERIFY_KEY,
             CRYPTO_VERIFY_KEY_LENGTH,
-            &plugin_state->iv[0],
-            &plugin_state->crypto_verify_data_length);
+            crypto_settings,
+            &crypto_settings->crypto_verify_data_length);
 
-        plugin_state->pin_set = pin != NULL && pin_length > 0;
+        crypto_settings->pin_required = pin != NULL && pin_length > 0;
 
         result |= CryptoSeedIVResultFlagNewCryptoVerifyData;
     }
@@ -118,12 +123,12 @@ CryptoSeedIVResult
     return result;
 }
 
-bool totp_crypto_verify_key(const PluginState* plugin_state) {
+bool totp_crypto_verify_key_v1(const CryptoSettings* crypto_settings) {
     size_t decrypted_key_length;
-    uint8_t* decrypted_key = totp_crypto_decrypt(
-        plugin_state->crypto_verify_data,
-        plugin_state->crypto_verify_data_length,
-        &plugin_state->iv[0],
+    uint8_t* decrypted_key = totp_crypto_decrypt_v1(
+        crypto_settings->crypto_verify_data,
+        crypto_settings->crypto_verify_data_length,
+        crypto_settings,
         &decrypted_key_length);
 
     bool key_valid = true;

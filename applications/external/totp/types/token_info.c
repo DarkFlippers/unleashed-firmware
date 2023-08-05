@@ -1,9 +1,10 @@
 #include "token_info.h"
+#include <furi/core/check.h>
 #include <base32.h>
 #include <base64.h>
 #include <memset_s.h>
 #include "common.h"
-#include "../services/crypto/crypto.h"
+#include "../services/crypto/crypto_facade.h"
 
 TokenInfo* token_info_alloc() {
     TokenInfo* tokenInfo = malloc(sizeof(TokenInfo));
@@ -25,7 +26,7 @@ bool token_info_set_secret(
     const char* plain_token_secret,
     size_t token_secret_length,
     PlainTokenSecretEncoding plain_token_secret_encoding,
-    const uint8_t* iv) {
+    const CryptoSettings* crypto_settings) {
     if(token_secret_length == 0) return false;
     uint8_t* plain_secret;
     size_t plain_secret_length;
@@ -54,8 +55,8 @@ bool token_info_set_secret(
             free(token_info->token);
         }
 
-        token_info->token =
-            totp_crypto_encrypt(plain_secret, plain_secret_length, iv, &token_info->token_length);
+        token_info->token = totp_crypto_encrypt(
+            plain_secret, plain_secret_length, crypto_settings, &token_info->token_length);
         result = true;
     } else {
         result = false;

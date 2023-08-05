@@ -15,7 +15,7 @@
 #include "../../../features_config.h"
 #include "../../../workers/generate_totp_code/generate_totp_code.h"
 #include "../../../workers/usb_type_code/usb_type_code.h"
-#ifdef TOTP_BADBT_TYPE_ENABLED
+#ifdef TOTP_BADBT_AUTOMATION_ENABLED
 #include "../../../workers/bt_type_code/bt_type_code.h"
 #endif
 
@@ -33,50 +33,40 @@ typedef struct {
 typedef struct {
     char last_code[TokenDigitsCountMax + 1];
     TotpUsbTypeCodeWorkerContext* usb_type_code_worker_context;
-    NotificationMessage const** notification_sequence_new_token;
-    NotificationMessage const** notification_sequence_automation;
+    NotificationMessage const* notification_sequence_new_token[8];
+    NotificationMessage const* notification_sequence_automation[11];
     FuriMutex* last_code_update_sync;
     TotpGenerateCodeWorkerContext* generate_code_worker_context;
     UiPrecalculatedDimensions ui_precalculated_dimensions;
     const FONT_INFO* active_font;
+    NotificationApp* notification_app;
 } SceneState;
 
 static const NotificationSequence*
     get_notification_sequence_new_token(const PluginState* plugin_state, SceneState* scene_state) {
-    if(scene_state->notification_sequence_new_token == NULL) {
-        uint8_t i = 0;
-        uint8_t length = 4;
+    if(scene_state->notification_sequence_new_token[0] == NULL) {
+        NotificationMessage const** sequence = &scene_state->notification_sequence_new_token[0];
+        *(sequence++) = &message_display_backlight_on;
+        *(sequence++) = &message_green_255;
         if(plugin_state->notification_method & NotificationMethodVibro) {
-            length += 2;
+            *(sequence++) = &message_vibro_on;
         }
 
         if(plugin_state->notification_method & NotificationMethodSound) {
-            length += 2;
+            *(sequence++) = &message_note_c5;
         }
 
-        scene_state->notification_sequence_new_token = malloc(sizeof(void*) * length);
-        furi_check(scene_state->notification_sequence_new_token != NULL);
-        scene_state->notification_sequence_new_token[i++] = &message_display_backlight_on;
-        scene_state->notification_sequence_new_token[i++] = &message_green_255;
+        *(sequence++) = &message_delay_50;
+
         if(plugin_state->notification_method & NotificationMethodVibro) {
-            scene_state->notification_sequence_new_token[i++] = &message_vibro_on;
+            *(sequence++) = &message_vibro_off;
         }
 
         if(plugin_state->notification_method & NotificationMethodSound) {
-            scene_state->notification_sequence_new_token[i++] = &message_note_c5;
+            *(sequence++) = &message_sound_off;
         }
 
-        scene_state->notification_sequence_new_token[i++] = &message_delay_50;
-
-        if(plugin_state->notification_method & NotificationMethodVibro) {
-            scene_state->notification_sequence_new_token[i++] = &message_vibro_off;
-        }
-
-        if(plugin_state->notification_method & NotificationMethodSound) {
-            scene_state->notification_sequence_new_token[i++] = &message_sound_off;
-        }
-
-        scene_state->notification_sequence_new_token[i++] = NULL;
+        *(sequence++) = NULL;
     }
 
     return (NotificationSequence*)scene_state->notification_sequence_new_token;
@@ -84,44 +74,33 @@ static const NotificationSequence*
 
 static const NotificationSequence*
     get_notification_sequence_automation(const PluginState* plugin_state, SceneState* scene_state) {
-    if(scene_state->notification_sequence_automation == NULL) {
-        uint8_t i = 0;
-        uint8_t length = 3;
+    if(scene_state->notification_sequence_automation[0] == NULL) {
+        NotificationMessage const** sequence = &scene_state->notification_sequence_automation[0];
+
+        *(sequence++) = &message_blue_255;
         if(plugin_state->notification_method & NotificationMethodVibro) {
-            length += 2;
+            *(sequence++) = &message_vibro_on;
         }
 
         if(plugin_state->notification_method & NotificationMethodSound) {
-            length += 6;
+            *(sequence++) = &message_note_d5; //-V525
+            *(sequence++) = &message_delay_50;
+            *(sequence++) = &message_note_e4;
+            *(sequence++) = &message_delay_50;
+            *(sequence++) = &message_note_f3;
         }
 
-        scene_state->notification_sequence_automation = malloc(sizeof(void*) * length);
-        furi_check(scene_state->notification_sequence_automation != NULL);
+        *(sequence++) = &message_delay_50;
 
-        scene_state->notification_sequence_automation[i++] = &message_blue_255;
         if(plugin_state->notification_method & NotificationMethodVibro) {
-            scene_state->notification_sequence_automation[i++] = &message_vibro_on;
+            *(sequence++) = &message_vibro_off;
         }
 
         if(plugin_state->notification_method & NotificationMethodSound) {
-            scene_state->notification_sequence_automation[i++] = &message_note_d5; //-V525
-            scene_state->notification_sequence_automation[i++] = &message_delay_50;
-            scene_state->notification_sequence_automation[i++] = &message_note_e4;
-            scene_state->notification_sequence_automation[i++] = &message_delay_50;
-            scene_state->notification_sequence_automation[i++] = &message_note_f3;
+            *(sequence++) = &message_sound_off;
         }
 
-        scene_state->notification_sequence_automation[i++] = &message_delay_50;
-
-        if(plugin_state->notification_method & NotificationMethodVibro) {
-            scene_state->notification_sequence_automation[i++] = &message_vibro_off;
-        }
-
-        if(plugin_state->notification_method & NotificationMethodSound) {
-            scene_state->notification_sequence_automation[i++] = &message_sound_off;
-        }
-
-        scene_state->notification_sequence_automation[i++] = NULL;
+        *(sequence++) = NULL;
     }
 
     return (NotificationSequence*)scene_state->notification_sequence_automation;
@@ -153,7 +132,7 @@ static void draw_totp_code(Canvas* const canvas, const PluginState* const plugin
 }
 
 static void on_new_token_code_generated(bool time_left, void* context) {
-    const PluginState* plugin_state = context;
+    PluginState* const plugin_state = context;
     const TokenInfoIteratorContext* iterator_context =
         totp_config_get_token_iterator_context(plugin_state);
     if(totp_token_info_iterator_get_total_count(iterator_context) == 0) {
@@ -174,13 +153,16 @@ static void on_new_token_code_generated(bool time_left, void* context) {
 
     if(time_left) {
         notification_message(
-            plugin_state->notification_app,
-            get_notification_sequence_new_token(plugin_state, plugin_state->current_scene_state));
+            scene_state->notification_app,
+            get_notification_sequence_new_token(plugin_state, scene_state));
     }
+
+    totp_scene_director_force_redraw(plugin_state);
 }
 
 static void on_code_lifetime_updated_generated(float code_lifetime_percent, void* context) {
-    SceneState* scene_state = context;
+    PluginState* const plugin_state = context;
+    SceneState* scene_state = plugin_state->current_scene_state;
     scene_state->ui_precalculated_dimensions.progress_bar_width =
         (uint8_t)((float)(SCREEN_WIDTH - (PROGRESS_BAR_MARGIN << 1)) * code_lifetime_percent);
     scene_state->ui_precalculated_dimensions.progress_bar_x =
@@ -188,6 +170,7 @@ static void on_code_lifetime_updated_generated(float code_lifetime_percent, void
           scene_state->ui_precalculated_dimensions.progress_bar_width) >>
          1) +
         PROGRESS_BAR_MARGIN;
+    totp_scene_director_force_redraw(plugin_state);
 }
 
 void totp_scene_generate_token_activate(PluginState* plugin_state) {
@@ -200,12 +183,18 @@ void totp_scene_generate_token_activate(PluginState* plugin_state) {
     scene_state->last_code_update_sync = furi_mutex_alloc(FuriMutexTypeNormal);
     if(plugin_state->automation_method & AutomationMethodBadUsb) {
         scene_state->usb_type_code_worker_context = totp_usb_type_code_worker_start(
-            scene_state->last_code, TokenDigitsCountMax + 1, scene_state->last_code_update_sync);
+            scene_state->last_code,
+            TokenDigitsCountMax + 1,
+            scene_state->last_code_update_sync,
+            plugin_state->automation_kb_layout);
     }
 
     scene_state->active_font = available_fonts[plugin_state->active_font_index];
+    scene_state->notification_app = furi_record_open(RECORD_NOTIFICATION);
+    scene_state->notification_sequence_automation[0] = NULL;
+    scene_state->notification_sequence_new_token[0] = NULL;
 
-#ifdef TOTP_BADBT_TYPE_ENABLED
+#ifdef TOTP_BADBT_AUTOMATION_ENABLED
 
     if(plugin_state->automation_method & AutomationMethodBadBt) {
         if(plugin_state->bt_type_code_worker_context == NULL) {
@@ -215,7 +204,8 @@ void totp_scene_generate_token_activate(PluginState* plugin_state) {
             plugin_state->bt_type_code_worker_context,
             scene_state->last_code,
             TokenDigitsCountMax + 1,
-            scene_state->last_code_update_sync);
+            scene_state->last_code_update_sync,
+            plugin_state->automation_kb_layout);
     }
 #endif
     const TokenInfoIteratorContext* iterator_context =
@@ -225,7 +215,7 @@ void totp_scene_generate_token_activate(PluginState* plugin_state) {
         totp_token_info_iterator_get_current_token(iterator_context),
         scene_state->last_code_update_sync,
         plugin_state->timezone_offset,
-        plugin_state->iv);
+        &plugin_state->crypto_settings);
 
     totp_generate_code_worker_set_code_generated_handler(
         scene_state->generate_code_worker_context, &on_new_token_code_generated, plugin_state);
@@ -233,7 +223,7 @@ void totp_scene_generate_token_activate(PluginState* plugin_state) {
     totp_generate_code_worker_set_lifetime_changed_handler(
         scene_state->generate_code_worker_context,
         &on_code_lifetime_updated_generated,
-        scene_state);
+        plugin_state);
 
     update_totp_params(
         plugin_state, totp_token_info_iterator_get_current_token_index(iterator_context));
@@ -297,11 +287,10 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             canvas, SCREEN_WIDTH - 8, SCREEN_HEIGHT_CENTER - 24, &I_totp_arrow_right_8x9);
     }
 
-#ifdef TOTP_AUTOMATION_ICONS_ENABLED
     if(plugin_state->automation_method & AutomationMethodBadUsb) {
         canvas_draw_icon(
             canvas,
-#ifdef TOTP_BADBT_TYPE_ENABLED
+#ifdef TOTP_BADBT_AUTOMATION_ENABLED
             SCREEN_WIDTH_CENTER -
                 (plugin_state->automation_method & AutomationMethodBadBt ? 33 : 15),
 #else
@@ -312,7 +301,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             &I_hid_usb_31x9);
     }
 
-#ifdef TOTP_BADBT_TYPE_ENABLED
+#ifdef TOTP_BADBT_AUTOMATION_ENABLED
     if(plugin_state->automation_method & AutomationMethodBadBt &&
        plugin_state->bt_type_code_worker_context != NULL &&
        totp_bt_type_code_worker_is_advertising(plugin_state->bt_type_code_worker_context)) {
@@ -323,7 +312,6 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             SCREEN_HEIGHT_CENTER + 12,
             &I_hid_ble_31x9);
     }
-#endif
 #endif
 }
 
@@ -350,11 +338,11 @@ bool totp_scene_generate_token_handle_event(
                 TotpUsbTypeCodeWorkerEventType,
                 totp_token_info_iterator_get_current_token(iterator_context)->automation_features);
             notification_message(
-                plugin_state->notification_app,
+                scene_state->notification_app,
                 get_notification_sequence_automation(plugin_state, scene_state));
             return true;
         }
-#ifdef TOTP_BADBT_TYPE_ENABLED
+#ifdef TOTP_BADBT_AUTOMATION_ENABLED
         else if(
             event->input.key == InputKeyUp &&
             plugin_state->automation_method & AutomationMethodBadBt) {
@@ -366,7 +354,7 @@ bool totp_scene_generate_token_handle_event(
                 TotpBtTypeCodeWorkerEventType,
                 totp_token_info_iterator_get_current_token(iterator_context)->automation_features);
             notification_message(
-                plugin_state->notification_app,
+                scene_state->notification_app,
                 get_notification_sequence_automation(plugin_state, scene_state));
             return true;
         }
@@ -427,22 +415,16 @@ void totp_scene_generate_token_deactivate(PluginState* plugin_state) {
 
     totp_generate_code_worker_stop(scene_state->generate_code_worker_context);
 
+    furi_record_close(RECORD_NOTIFICATION);
+
     if(plugin_state->automation_method & AutomationMethodBadUsb) {
         totp_usb_type_code_worker_stop(scene_state->usb_type_code_worker_context);
     }
-#ifdef TOTP_BADBT_TYPE_ENABLED
+#ifdef TOTP_BADBT_AUTOMATION_ENABLED
     if(plugin_state->automation_method & AutomationMethodBadBt) {
         totp_bt_type_code_worker_stop(plugin_state->bt_type_code_worker_context);
     }
 #endif
-
-    if(scene_state->notification_sequence_new_token != NULL) {
-        free(scene_state->notification_sequence_new_token);
-    }
-
-    if(scene_state->notification_sequence_automation != NULL) {
-        free(scene_state->notification_sequence_automation);
-    }
 
     furi_mutex_free(scene_state->last_code_update_sync);
 

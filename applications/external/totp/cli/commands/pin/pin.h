@@ -8,3 +8,4 @@
 void totp_cli_command_pin_handle(PluginState* plugin_state, FuriString* args, Cli* cli);
 void totp_cli_command_pin_docopt_commands();
 void totp_cli_command_pin_docopt_usage();
+void totp_cli_command_pin_docopt_options();

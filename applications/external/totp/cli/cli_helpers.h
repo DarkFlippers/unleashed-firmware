@@ -33,12 +33,14 @@ extern const char* TOTP_CLI_COLOR_INFO;
 #define TOTP_CLI_PRINTF_INFO(format, ...) \
     TOTP_CLI_PRINTF_COLORFUL(TOTP_CLI_COLOR_INFO, format, ##__VA_ARGS__)
 
-#define TOTP_CLI_LOCK_UI(plugin_state)                    \
-    Scene __previous_scene = plugin_state->current_scene; \
-    totp_scene_director_activate_scene(plugin_state, TotpSceneStandby)
+#define TOTP_CLI_LOCK_UI(plugin_state)                                  \
+    Scene __previous_scene = plugin_state->current_scene;               \
+    totp_scene_director_activate_scene(plugin_state, TotpSceneStandby); \
+    totp_scene_director_force_redraw(plugin_state)
 
-#define TOTP_CLI_UNLOCK_UI(plugin_state) \
-    totp_scene_director_activate_scene(plugin_state, __previous_scene)
+#define TOTP_CLI_UNLOCK_UI(plugin_state)                                \
+    totp_scene_director_activate_scene(plugin_state, __previous_scene); \
+    totp_scene_director_force_redraw(plugin_state)
 
 /**
  * @brief Checks whether user is authenticated and entered correct PIN.
@@ -109,6 +111,6 @@ void totp_cli_print_error_updating_config_file();
 void totp_cli_print_error_loading_token_info();
 
 /**
- * @brief Prints message to let user knwo that command is processing now
+ * @brief Prints message to let user know that command is processing now
  */
 void totp_cli_print_processing();
