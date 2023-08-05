@@ -1,10 +1,25 @@
 ## New changes
-* Plugins: **22+ plugins was fixed (UI update issues) in extra pack and in base firmware pack**
-* Plugins: Spectrum Analyzer - Modulation switching (hold OK) (by @ALEEF02 | PR #557)
-* Plugins: BadBT -> Temp fix for macOS
-* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator) -> + added fix for UI update too
-* Infrared: Add Play / Pause in universal projector remote
-* Infrared: Update Universal remote assets (by @amec0e)
+* SubGHz: Support for Ebyte E07 module power amp switch (works with TehRabbitt's Flux Capacitor Board) (by @Sil333033) (PR #559 by @Z3BRO) -> Remade by @xMasterX -> Driver code fixed and reworked by @gid9798
+* Infrared: Update universal remote assets (by @amec0e | PR #570)
+* Infrared: Update universal AC asset (by @Leptopt1los | PR #569)
+* Plugins: Add * in NFC Maker keyboard (hold `.`)
+* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
+* Plugins: Update ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
+* Plugins: Update ESP32-CAM -> Camera Suite [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite) -> (PR #562 by @CodyTolene)
+* OFW PR 2949: IR: buttons move feature rework (by nminaylov)
+* OFW PR 2941: FDX-B temperature now uses system units (by Astrrra)
+* OFW: fbtenv: add additional environ variable to control execution flow
+* OFW: NFC CLI: Fix multiple apdu commands from not working when one of them gives an empty response
+* OFW: NFC: Fix MFC key invalidation
+* OFW: Rename Applications to Apps 
+* OFW: Fix about screen
+* OFW: change FuriThreadPriorityIsr to 31 (configMAX_PRIORITIES-1)
+* OFW: External apps icounter
+* OFW: Overly missed feature: Infrared: move button (change button order in a remote)
+* OFW: Move U2F path to ext
+* OFW: New RTC flags in device info
+* OFW: Backlight notification fix
+* OFW: Fix fbtenv restore
 
 ----
 

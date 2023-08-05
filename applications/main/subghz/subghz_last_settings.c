@@ -20,6 +20,7 @@
 #define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_ENABLED "External"
 #define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER "ExtPower"
 #define SUBGHZ_LAST_SETTING_FIELD_TIMESTAMP_FILE_NAMES "TimestampNames"
+#define SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER_AMP "ExtPowerAmp"
 
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
@@ -46,6 +47,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     float temp_frequency_analyzer_trigger = 0;
     bool temp_external_module_enabled = false;
     bool temp_external_module_power_5v_disable = false;
+    bool temp_external_module_power_amp = false;
     bool temp_timestamp_file_names = false;
     //int32_t temp_preset = 0;
     bool frequency_analyzer_feedback_level_was_read = false;
@@ -83,6 +85,11 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             SUBGHZ_LAST_SETTING_FIELD_TIMESTAMP_FILE_NAMES,
             (bool*)&temp_timestamp_file_names,
             1);
+        flipper_format_read_bool(
+            fff_data_file,
+            SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER_AMP,
+            (bool*)&temp_external_module_power_amp,
+            1);
 
     } else {
         FURI_LOG_E(TAG, "Error open file %s", SUBGHZ_LAST_SETTINGS_PATH);
@@ -97,6 +104,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->frequency_analyzer_trigger = SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
         instance->external_module_enabled = false;
         instance->timestamp_file_names = false;
+        instance->external_module_power_amp = false;
 
     } else {
         instance->frequency = temp_frequency;
@@ -118,6 +126,12 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->external_module_power_5v_disable = temp_external_module_power_5v_disable;
 
         instance->timestamp_file_names = temp_timestamp_file_names;
+
+        // External power amp CC1101
+        instance->external_module_power_amp = temp_external_module_power_amp;
+
+        // Set globally in furi hal
+        furi_hal_subghz_set_ext_power_amp(instance->external_module_power_amp);
 
         /*/} else {
             instance->preset = temp_preset;
@@ -193,6 +207,13 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
                file,
                SUBGHZ_LAST_SETTING_FIELD_TIMESTAMP_FILE_NAMES,
                &instance->timestamp_file_names,
+               1)) {
+            break;
+        }
+        if(!flipper_format_insert_or_update_bool(
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_EXTERNAL_MODULE_POWER_AMP,
+               &instance->external_module_power_amp,
                1)) {
             break;
         }

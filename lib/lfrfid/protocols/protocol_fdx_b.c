@@ -4,6 +4,7 @@
 #include <toolbox/manchester_decoder.h>
 #include <lfrfid/tools/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include <furi_hal_rtc.h>
 
 #define FDX_B_ENCODED_BIT_SIZE (128)
 #define FDX_B_ENCODED_BYTE_SIZE (((FDX_B_ENCODED_BIT_SIZE) / 8))
@@ -323,8 +324,12 @@ void protocol_fdx_b_render_brief_data(ProtocolFDXB* protocol, FuriString* result
 
     float temperature;
     if(protocol_fdx_b_get_temp(protocol->data, &temperature)) {
-        float temperature_c = (temperature - 32) / 1.8;
-        furi_string_cat_printf(result, "T: %.2fC", (double)temperature_c);
+        if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+            float temperature_c = (temperature - 32) / 1.8;
+            furi_string_cat_printf(result, "T: %.2fC", (double)temperature_c);
+        } else {
+            furi_string_cat_printf(result, "T: %.2fF", (double)temperature);
+        }
     } else {
         furi_string_cat_printf(result, "T: ---");
     }

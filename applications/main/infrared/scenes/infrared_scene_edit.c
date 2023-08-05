@@ -3,6 +3,7 @@
 typedef enum {
     SubmenuIndexAddButton,
     SubmenuIndexRenameButton,
+    SubmenuIndexMoveButton,
     SubmenuIndexDeleteButton,
     SubmenuIndexRenameRemote,
     SubmenuIndexDeleteRemote,
@@ -28,6 +29,12 @@ void infrared_scene_edit_on_enter(void* context) {
         submenu,
         "Rename Button",
         SubmenuIndexRenameButton,
+        infrared_scene_edit_submenu_callback,
+        context);
+    submenu_add_item(
+        submenu,
+        "Move Button",
+        SubmenuIndexMoveButton,
         infrared_scene_edit_submenu_callback,
         context);
     submenu_add_item(
@@ -73,6 +80,9 @@ bool infrared_scene_edit_on_event(void* context, SceneManagerEvent event) {
             infrared->app_state.edit_target = InfraredEditTargetButton;
             infrared->app_state.edit_mode = InfraredEditModeRename;
             scene_manager_next_scene(scene_manager, InfraredSceneEditButtonSelect);
+            consumed = true;
+        } else if(submenu_index == SubmenuIndexMoveButton) {
+            scene_manager_next_scene(scene_manager, InfraredSceneEditMove);
             consumed = true;
         } else if(submenu_index == SubmenuIndexDeleteButton) {
             infrared->app_state.edit_target = InfraredEditTargetButton;

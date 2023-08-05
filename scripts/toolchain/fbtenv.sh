@@ -38,11 +38,11 @@ fbtenv_wget()
 fbtenv_restore_env()
 {
     TOOLCHAIN_ARCH_DIR_SED="$(echo "$TOOLCHAIN_ARCH_DIR" | sed 's/\//\\\//g')"
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/python\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
-    PATH="$(echo "$PATH" | /usr/bin/sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/python\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
+    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
     if [ -n "${PS1:-""}" ]; then
         PS1="$(echo "$PS1" | sed 's/\[fbt\]//g')";
     elif [ -n "${PROMPT:-""}" ]; then
@@ -82,6 +82,9 @@ fbtenv_restore_env()
 
 fbtenv_check_sourced()
 {
+    if [ -n "${FBT_SKIP_CHECK_SOURCED:-""}" ]; then
+        return 0;
+    fi
     case "${ZSH_EVAL_CONTEXT:-""}" in *:file:*)
         setopt +o nomatch;  # disabling 'no match found' warning in zsh
         return 0;;
@@ -104,8 +107,6 @@ fbtenv_check_if_sourced_multiple_times()
             return 0;
         fi
     fi
-    echo "Warning! FBT environment script was sourced more than once!";
-    echo "You might be doing things wrong, please open a new shell!";
     return 1;
 }
 
@@ -170,7 +171,7 @@ fbtenv_get_kernel_type()
 fbtenv_check_rosetta()
 {
     if [ "$ARCH_TYPE" = "arm64" ]; then
-        if ! /usr/bin/pgrep -q oahd; then
+        if ! pgrep -q oahd; then
             echo "Flipper Zero Toolchain needs Rosetta2 to run under Apple Silicon";
             echo "Please instal it by typing 'softwareupdate --install-rosetta --agree-to-license'";
             return 1;
@@ -212,7 +213,7 @@ fbtenv_download_toolchain_tar()
     return 0;
 }
 
-fbtenv_remove_old_tooclhain()
+fbtenv_remove_old_toolchain()
 {
     printf "Removing old toolchain..";
     rm -rf "${TOOLCHAIN_ARCH_DIR:?}";
@@ -243,12 +244,14 @@ fbtenv_unpack_toolchain()
 
 fbtenv_cleanup()
 {
-    printf "Cleaning up..";
     if [ -n "${FBT_TOOLCHAIN_PATH:-""}" ]; then
-        rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.tar.gz;
+        printf "Cleaning up..";
         rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.part;
+        if [ -z "${FBT_PRESERVE_TAR:-""}" ]; then
+            rm -rf "${FBT_TOOLCHAIN_PATH:?}/toolchain/"*.tar.gz;
+        fi
+        echo "done";
     fi
-    echo "done";
     trap - 2;
     return 0;
 }
@@ -301,16 +304,22 @@ fbtenv_download_toolchain()
         fbtenv_curl_wget_check || return 1;
         fbtenv_download_toolchain_tar || return 1;
     fi
-    fbtenv_remove_old_tooclhain;
+    fbtenv_remove_old_toolchain;
     fbtenv_unpack_toolchain || return 1;
     fbtenv_cleanup;
     return 0;
 }
 
-fbtenv_print_version()
+fbtenv_print_config()
 {
-    if [ -n "$FBT_VERBOSE" ]; then
+    if [ -n "${FBT_VERBOSE:-""}" ]; then
         echo "FBT: using toolchain version $(cat "$TOOLCHAIN_ARCH_DIR/VERSION")";
+        if [ -n "${FBT_SKIP_CHECK_SOURCED:-""}" ]; then
+            echo "FBT: fbtenv will not check if it is sourced or not";
+        fi
+        if [ -n "${FBT_PRESERVE_TAR:-""}" ]; then
+            echo "FBT: toolchain archives will be saved";
+        fi
     fi
 }
 
@@ -322,11 +331,13 @@ fbtenv_main()
         fbtenv_restore_env;
         return 0;
     fi
-    fbtenv_check_if_sourced_multiple_times;
+    if ! fbtenv_check_if_sourced_multiple_times; then
+        return 0;
+    fi;
     fbtenv_check_env_vars || return 1;
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
-    fbtenv_print_version;
+    fbtenv_print_config;
     PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";

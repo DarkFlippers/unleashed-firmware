@@ -205,8 +205,6 @@ const AboutDialogScreen about_screens[] = {
     hw_version_screen,
     fw_version_screen};
 
-const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScreen);
-
 int32_t about_settings_app(void* p) {
     UNUSED(p);
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
@@ -227,7 +225,7 @@ int32_t about_settings_app(void* p) {
     view_dispatcher_switch_to_view(view_dispatcher, empty_screen_index);
 
     while(1) {
-        if(screen_index >= about_screens_count - 1) {
+        if(screen_index >= COUNT_OF(about_screens) - 1) {
             dialog_message_set_buttons(message, "Back", NULL, NULL);
         } else {
             dialog_message_set_buttons(message, "Back", NULL, "Next");
@@ -242,7 +240,7 @@ int32_t about_settings_app(void* p) {
                 screen_index--;
             }
         } else if(screen_result == DialogMessageButtonRight) {
-            if(screen_index < about_screens_count - 1) {
+            if(screen_index < COUNT_OF(about_screens) - 1) {
                 screen_index++;
             }
         } else if(screen_result == DialogMessageButtonBack) {

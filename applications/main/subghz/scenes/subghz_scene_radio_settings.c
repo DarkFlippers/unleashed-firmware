@@ -20,6 +20,12 @@ const char* const timestamp_names_text[TIMESTAMP_NAMES_COUNT] = {
     "ON",
 };
 
+#define EXT_MOD_POWER_AMP_COUNT 2
+const char* const ext_mod_power_amp_text[EXT_MOD_POWER_AMP_COUNT] = {
+    "OFF",
+    "ON",
+};
+
 #define DEBUG_P_COUNT 2
 const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "OFF",
@@ -34,6 +40,14 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+4",
     "+5",
     "+10",
+};
+const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
+    1,
+    2,
+    3,
+    4,
+    5,
+    10,
 };
 
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
@@ -63,47 +77,29 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, debug_counter_text[index]);
-
-    switch(index) {
-    case 0:
-        furi_hal_subghz_set_rolling_counter_mult(1);
-        break;
-    case 1:
-        furi_hal_subghz_set_rolling_counter_mult(2);
-        break;
-    case 2:
-        furi_hal_subghz_set_rolling_counter_mult(3);
-        break;
-    case 3:
-        furi_hal_subghz_set_rolling_counter_mult(4);
-        break;
-    case 4:
-        furi_hal_subghz_set_rolling_counter_mult(5);
-        break;
-    case 5:
-        furi_hal_subghz_set_rolling_counter_mult(10);
-        break;
-    default:
-        break;
-    }
+    furi_hal_subghz_set_rolling_counter_mult(debug_counter_val[index]);
 }
 
-// static void subghz_scene_receiver_config_set_ext_mod_power(VariableItem* item) {
-//     SubGhz* subghz = variable_item_get_context(item);
-//     uint8_t index = variable_item_get_current_value_index(item);
+static void subghz_scene_reciever_config_set_ext_mod_power_amp_text(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
 
-//     variable_item_set_current_value_text(item, ext_mod_power_text[index]);
+    variable_item_set_current_value_text(item, ext_mod_power_amp_text[index]);
 
-//     furi_hal_subghz_set_external_power_disable(index == 1);
-//     if(index == 1) {
-//         furi_hal_subghz_disable_ext_power();
-//     } else {
-//         furi_hal_subghz_enable_ext_power();
-//     }
+    subghz->last_settings->external_module_power_amp = index == 1;
 
-//     subghz->last_settings->external_module_power_5v_disable = index == 1;
-//     subghz_last_settings_save(subghz->last_settings);
-// }
+    // Set globally in furi hal
+    furi_hal_subghz_set_ext_power_amp(subghz->last_settings->external_module_power_amp);
+
+    subghz_last_settings_save(subghz->last_settings);
+
+    // reinit external device
+    const SubGhzRadioDeviceType current = subghz_txrx_radio_device_get(subghz->txrx);
+    if(current != SubGhzRadioDeviceTypeInternal) {
+        subghz_txrx_radio_device_set(subghz->txrx, SubGhzRadioDeviceTypeInternal);
+        subghz_txrx_radio_device_set(subghz->txrx, current);
+    }
+}
 
 static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
@@ -139,7 +135,17 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Time in names",
+        "Ext Power Amp",
+        EXT_MOD_POWER_AMP_COUNT,
+        subghz_scene_reciever_config_set_ext_mod_power_amp_text,
+        subghz);
+    value_index = subghz->last_settings->external_module_power_amp ? 1 : 0;
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, ext_mod_power_amp_text[value_index]);
+
+    item = variable_item_list_add(
+        variable_item_list,
+        "Time In Names",
         TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
         subghz);
@@ -147,59 +153,18 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, timestamp_names_text[value_index]);
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        item = variable_item_list_add(
-            variable_item_list,
-            "Counter incr.",
-            DEBUG_COUNTER_COUNT,
-            subghz_scene_receiver_config_set_debug_counter,
-            subghz);
-        switch(furi_hal_subghz_get_rolling_counter_mult()) {
-        case 1:
-            value_index = 0;
-            break;
-        case 2:
-            value_index = 1;
-            break;
-        case 3:
-            value_index = 2;
-            break;
-        case 4:
-            value_index = 3;
-            break;
-        case 5:
-            value_index = 4;
-            break;
-        case 10:
-            value_index = 5;
-            break;
-        default:
-            break;
-        }
-    } else {
-        item = variable_item_list_add(
-            variable_item_list,
-            "Counter incr.",
-            3,
-            subghz_scene_receiver_config_set_debug_counter,
-            subghz);
-        switch(furi_hal_subghz_get_rolling_counter_mult()) {
-        case 1:
-            value_index = 0;
-            break;
-        case 2:
-            value_index = 1;
-            break;
-        case 3:
-            value_index = 2;
-            break;
-        default:
-            // Reset to default value
-            value_index = 0;
-            furi_hal_subghz_set_rolling_counter_mult(1);
-            break;
-        }
-    }
+    item = variable_item_list_add(
+        variable_item_list,
+        "Counter Incr.",
+        furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3,
+        subghz_scene_receiver_config_set_debug_counter,
+        subghz);
+    value_index = value_index_uint32(
+        furi_hal_subghz_get_rolling_counter_mult(),
+        debug_counter_val,
+        furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3);
+    furi_hal_subghz_set_rolling_counter_mult(debug_counter_val[value_index]);
+
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, debug_counter_text[value_index]);
 

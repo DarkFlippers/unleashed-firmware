@@ -30,7 +30,13 @@ bool subghz_devices_begin(const SubGhzDevice* device) {
     bool ret = false;
     furi_assert(device);
     if(device->interconnect->begin) {
-        ret = device->interconnect->begin();
+        SubGhzDeviceConf conf = {
+            .ver = 1,
+            .extended_range = false, // TODO
+            .power_amp = furi_hal_subghz_get_ext_power_amp(),
+        };
+
+        ret = device->interconnect->begin(&conf);
     }
     return ret;
 }

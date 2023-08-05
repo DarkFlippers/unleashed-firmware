@@ -95,13 +95,9 @@ int32_t nfc_worker_task(void* context) {
         }
     } else if(nfc_worker->state == NfcWorkerStateUidEmulate) {
         nfc_worker_emulate_uid(nfc_worker);
-    }
-#if FURI_DEBUG
-    else if(nfc_worker->state == NfcWorkerStateEmulateApdu) {
+    } else if(nfc_worker->state == NfcWorkerStateEmulateApdu) {
         nfc_worker_emulate_apdu(nfc_worker);
-    }
-#endif
-    else if(nfc_worker->state == NfcWorkerStateMfUltralightEmulate) {
+    } else if(nfc_worker->state == NfcWorkerStateMfUltralightEmulate) {
         nfc_worker_emulate_mf_ultralight(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateMfClassicEmulate) {
         nfc_worker_emulate_mf_classic(nfc_worker);
@@ -755,7 +751,7 @@ void nfc_worker_emulate_uid(NfcWorker* nfc_worker) {
         }
     }
 }
-#if FURI_DEBUG
+
 void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
     FuriHalNfcTxRxContext tx_rx = {};
     FuriHalNfcDevData params = {
@@ -788,7 +784,6 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
         reader_analyzer_stop(nfc_worker->reader_analyzer);
     }
 }
-#endif
 
 void nfc_worker_mf_ultralight_auth_received_callback(MfUltralightAuth auth, void* context) {
     furi_assert(context);
@@ -1030,30 +1025,14 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     deactivated = true;
                 }
                 if(!mf_classic_is_key_found(data, i, MfClassicKeyB)) {
-                    if(mf_classic_is_key_found(data, i, MfClassicKeyA)) {
-                        uint64_t found_key;
-                        if(nfc_worker_mf_get_b_key_from_sector_trailer(
-                               &tx_rx, i, key, &found_key)) {
-                            FURI_LOG_D(TAG, "Found B key via reading sector %d", i);
-                            mf_classic_set_key_found(data, i, MfClassicKeyB, found_key);
-
-                            if(nfc_worker->state == NfcWorkerStateMfClassicDictAttack) {
-                                nfc_worker->callback(NfcWorkerEventFoundKeyB, nfc_worker->context);
-                            }
-
-                            nfc_worker_mf_classic_key_attack(nfc_worker, found_key, &tx_rx, i + 1);
-                            break;
-                        }
-                    }
-
                     if(mf_classic_authenticate_skip_activate(
-                           &tx_rx, block_num, key, MfClassicKeyB, !deactivated, cuid)) {
+                           &tx_rx, block_num, key, MfClassicKeyB, !deactivated, cuid)) { //-V547
                         FURI_LOG_D(TAG, "Key B found: %012llX", key);
                         mf_classic_set_key_found(data, i, MfClassicKeyB, key);
                         nfc_worker->callback(NfcWorkerEventFoundKeyB, nfc_worker->context);
                         nfc_worker_mf_classic_key_attack(nfc_worker, key, &tx_rx, i + 1);
                     }
-                    deactivated = true;
+                    deactivated = true; //-V1048
                 } else {
                     // If the key B is marked as found and matches the searching key, invalidate it
                     MfClassicSectorTrailer* sec_trailer =
@@ -1065,12 +1044,12 @@ void nfc_worker_mf_classic_dict_attack(NfcWorker* nfc_worker) {
                     if(mf_classic_is_key_found(data, i, MfClassicKeyB) &&
                        memcmp(sec_trailer->key_b, current_key, 6) == 0) {
                         if(!mf_classic_authenticate_skip_activate(
-                               &tx_rx, block_num, key, MfClassicKeyB, !deactivated, cuid)) {
+                               &tx_rx, block_num, key, MfClassicKeyB, !deactivated, cuid)) { //-V547
                             mf_classic_set_key_not_found(data, i, MfClassicKeyB);
                             FURI_LOG_D(TAG, "Key %dB not found in attack", i);
                         }
                         furi_hal_nfc_sleep();
-                        deactivated = true;
+                        deactivated = true; //-V1048
                     }
                 }
                 if(mf_classic_is_key_found(data, i, MfClassicKeyA) &&

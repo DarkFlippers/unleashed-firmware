@@ -9,3 +9,4 @@ void totp_cli_command_automation_handle(PluginState* plugin_state, FuriString* a
 void totp_cli_command_automation_docopt_commands();
 void totp_cli_command_automation_docopt_usage();
 void totp_cli_command_automation_docopt_arguments();
+void totp_cli_command_automation_docopt_options();

@@ -112,3 +112,27 @@ void ui_control_button_render(
         canvas_set_color(canvas, ColorBlack);
     }
 }
+
+void ui_control_vscroll_render(
+    Canvas* const canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t height,
+    uint8_t position,
+    uint8_t max_position) {
+    canvas_draw_line(canvas, x, y, x, y + height);
+    uint8_t block_height = height / MIN(10, max_position);
+    uint8_t block_position_y =
+        height * ((float)position / (float)max_position) - (block_height >> 1);
+    uint8_t block_position_y_abs = y + block_position_y;
+    if(block_position_y_abs + block_height > height) {
+        block_position_y_abs = height - block_height;
+    }
+
+    canvas_draw_box(
+        canvas,
+        x - (UI_CONTROL_VSCROLL_WIDTH >> 1),
+        block_position_y_abs,
+        UI_CONTROL_VSCROLL_WIDTH,
+        block_height);
+}

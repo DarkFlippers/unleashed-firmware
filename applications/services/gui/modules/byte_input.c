@@ -4,6 +4,7 @@
 #include <furi.h>
 #include <assets_icons.h>
 
+/** ByteInput type */
 struct ByteInput {
     View* view;
 };
@@ -61,11 +62,11 @@ static const ByteInputKey keyboard_keys_row_2[] = {
     {enter_symbol, 95, 17},
 };
 
-/**
- * @brief Get row size
- * 
- * @param row_index Index of row 
- * @return uint8_t Row size
+/** Get row size
+ *
+ * @param      row_index  Index of row
+ *
+ * @return     uint8_t Row size
  */
 static uint8_t byte_input_get_row_size(uint8_t row_index) {
     uint8_t row_size = 0;
@@ -84,11 +85,11 @@ static uint8_t byte_input_get_row_size(uint8_t row_index) {
     return row_size;
 }
 
-/**
- * @brief Get row pointer
- * 
- * @param row_index Index of row 
- * @return const ByteInputKey* Row pointer
+/** Get row pointer
+ *
+ * @param      row_index  Index of row
+ *
+ * @return     const ByteInputKey* Row pointer
  */
 static const ByteInputKey* byte_input_get_row(uint8_t row_index) {
     const ByteInputKey* row = NULL;
@@ -107,12 +108,12 @@ static const ByteInputKey* byte_input_get_row(uint8_t row_index) {
     return row;
 }
 
-/**
- * @brief Get text from nibble
- * 
- * @param byte byte value
- * @param high_nibble Get from high nibble, otherwise low nibble
- * @return char nibble text
+/** Get text from nibble
+ *
+ * @param      byte         byte value
+ * @param      high_nibble  Get from high nibble, otherwise low nibble
+ *
+ * @return     char nibble text
  */
 static char byte_input_get_nibble_text(uint8_t byte, bool high_nibble) {
     if(high_nibble) {
@@ -151,11 +152,10 @@ static char byte_input_get_nibble_text(uint8_t byte, bool high_nibble) {
 
 const char num_to_char[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
-/**
- * @brief Draw input box (common view)
- * 
- * @param canvas 
- * @param model 
+/** Draw input box (common view)
+ *
+ * @param      canvas  The canvas
+ * @param      model   The model
  */
 static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
     const uint8_t text_x = 8;
@@ -263,11 +263,10 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
     }
 }
 
-/**
- * @brief Draw input box (selected view)
- * 
- * @param canvas 
- * @param model 
+/** Draw input box (selected view)
+ *
+ * @param      canvas  The canvas
+ * @param      model   The model
  */
 static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model) {
     const uint8_t text_x = 7;
@@ -324,13 +323,12 @@ static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model
     canvas_invert_color(canvas);
 }
 
-/**
- * @brief Set nibble at position
- * 
- * @param data where to set nibble
- * @param position byte position
- * @param value char value
- * @param high_nibble set high nibble
+/** Set nibble at position
+ *
+ * @param      data         where to set nibble
+ * @param      position     byte position
+ * @param      value        char value
+ * @param      high_nibble  set high nibble
  */
 static void byte_input_set_nibble(uint8_t* data, uint8_t position, char value, bool high_nibble) {
     switch(value) {
@@ -368,29 +366,28 @@ static void byte_input_set_nibble(uint8_t* data, uint8_t position, char value, b
     }
 }
 
-/**
- * @brief What currently selected
- * 
- * @return true - keyboard selected, false - input selected
+/** What currently selected
+ *
+ * @param      model  The model
+ *
+ * @return     true - keyboard selected, false - input selected
  */
 static bool byte_input_keyboard_selected(ByteInputModel* model) {
     return model->selected_row >= 0;
 }
 
-/**
- * @brief Do transition from keyboard
- * 
- * @param model 
+/** Do transition from keyboard
+ *
+ * @param      model  The model
  */
 static void byte_input_transition_from_keyboard(ByteInputModel* model) {
     model->selected_row += 1;
     model->selected_high_nibble = true;
 }
 
-/**
- * @brief Increase selected byte position
- * 
- * @param model 
+/** Increase selected byte position
+ *
+ * @param      model  The model
  */
 static void byte_input_inc_selected_byte(ByteInputModel* model) {
     if(model->selected_byte < model->bytes_count - 1) {
@@ -409,18 +406,17 @@ static void byte_input_inc_selected_byte(ByteInputModel* model) {
 static void byte_input_inc_selected_byte_mini(ByteInputModel* model) {
     if((model->selected_byte < model->bytes_count - 1) || model->selected_high_nibble) {
         if(!model->selected_high_nibble) {
-            model->selected_high_nibble = !model->selected_high_nibble;
+            model->selected_high_nibble = !model->selected_high_nibble; //-V547
             byte_input_inc_selected_byte(model);
         } else {
-            model->selected_high_nibble = !model->selected_high_nibble;
+            model->selected_high_nibble = !model->selected_high_nibble; //-V547
         }
     }
 }
 
-/**
- * @brief Decrease selected byte position
- * 
- * @param model 
+/** Decrease selected byte position
+ *
+ * @param      model  The model
  */
 static void byte_input_dec_selected_byte(ByteInputModel* model) {
     if(model->selected_byte > 0) {
@@ -438,18 +434,17 @@ static void byte_input_dec_selected_byte(ByteInputModel* model) {
 static void byte_input_dec_selected_byte_mini(ByteInputModel* model) {
     if(model->selected_byte > 0 || !model->selected_high_nibble) {
         if(model->selected_high_nibble) {
-            model->selected_high_nibble = !model->selected_high_nibble;
+            model->selected_high_nibble = !model->selected_high_nibble; //-V547
             byte_input_dec_selected_byte(model);
         } else {
-            model->selected_high_nibble = !model->selected_high_nibble;
+            model->selected_high_nibble = !model->selected_high_nibble; //-V547
         }
     }
 }
 
-/**
- * @brief Call input callback
- * 
- * @param model 
+/** Call input callback
+ *
+ * @param      model  The model
  */
 static void byte_input_call_input_callback(ByteInputModel* model) {
     if(model->input_callback != NULL) {
@@ -457,10 +452,9 @@ static void byte_input_call_input_callback(ByteInputModel* model) {
     }
 }
 
-/**
- * @brief Call changed callback
- * 
- * @param model 
+/** Call changed callback
+ *
+ * @param      model  The model
  */
 static void byte_input_call_changed_callback(ByteInputModel* model) {
     if(model->changed_callback != NULL) {
@@ -468,8 +462,9 @@ static void byte_input_call_changed_callback(ByteInputModel* model) {
     }
 }
 
-/**
- * @brief Clear selected byte 
+/** Clear selected byte
+ *
+ * @param      model  The model
  */
 
 static void byte_input_clear_selected_byte(ByteInputModel* model) {
@@ -479,10 +474,9 @@ static void byte_input_clear_selected_byte(ByteInputModel* model) {
     byte_input_call_changed_callback(model);
 }
 
-/**
- * @brief Handle up button
- * 
- * @param model 
+/** Handle up button
+ *
+ * @param      model  The model
  */
 static void byte_input_handle_up(ByteInputModel* model) {
     if(model->selected_row > -2) {
@@ -500,10 +494,9 @@ static void byte_input_handle_up(ByteInputModel* model) {
     }
 }
 
-/**
- * @brief Handle down button
- * 
- * @param model 
+/** Handle down button
+ *
+ * @param      model  The model
  */
 static void byte_input_handle_down(ByteInputModel* model) {
     if(model->selected_row != -2) {
@@ -527,10 +520,9 @@ static void byte_input_handle_down(ByteInputModel* model) {
     }
 }
 
-/**
- * @brief Handle left button
- * 
- * @param model 
+/** Handle left button
+ *
+ * @param      model  The model
  */
 static void byte_input_handle_left(ByteInputModel* model) { // XXX
     if(byte_input_keyboard_selected(model)) {
@@ -548,10 +540,9 @@ static void byte_input_handle_left(ByteInputModel* model) { // XXX
     }
 }
 
-/**
- * @brief Handle right button
- * 
- * @param model 
+/** Handle right button
+ *
+ * @param      model  The model
  */
 static void byte_input_handle_right(ByteInputModel* model) { // XXX
     if(byte_input_keyboard_selected(model)) {
@@ -569,10 +560,9 @@ static void byte_input_handle_right(ByteInputModel* model) { // XXX
     }
 }
 
-/**
- * @brief Handle OK button
- * 
- * @param model 
+/** Handle OK button
+ *
+ * @param      model  The model
  */
 static void byte_input_handle_ok(ByteInputModel* model) {
     if(byte_input_keyboard_selected(model)) {
@@ -600,11 +590,10 @@ static void byte_input_handle_ok(ByteInputModel* model) {
     }
 }
 
-/**
- * @brief Draw callback
- * 
- * @param canvas 
- * @param _model 
+/** Draw callback
+ *
+ * @param      canvas  The canvas
+ * @param      _model  The model
  */
 static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
     ByteInputModel* model = _model;
@@ -698,13 +687,13 @@ static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
     }
 }
 
-/**
- * @brief Input callback
- * 
- * @param event 
- * @param context 
- * @return true 
- * @return false 
+/** Input callback
+ *
+ * @param      event    The event
+ * @param      context  The context
+ *
+ * @return     true
+ * @return     false
  */
 static bool byte_input_view_input_callback(InputEvent* event, void* context) {
     ByteInput* byte_input = context;
@@ -773,10 +762,9 @@ static bool byte_input_view_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-/**
- * @brief Reset all input-related data in model
- * 
- * @param model ByteInputModel
+/** Reset all input-related data in model
+ *
+ * @param      model  The model
  */
 static void byte_input_reset_model_input_data(ByteInputModel* model) {
     model->bytes = NULL;
@@ -788,11 +776,6 @@ static void byte_input_reset_model_input_data(ByteInputModel* model) {
     model->first_visible_byte = 0;
 }
 
-/** 
- * @brief Allocate and initialize byte input. This byte input is used to enter bytes.
- * 
- * @return ByteInput instance pointer
- */
 ByteInput* byte_input_alloc() {
     ByteInput* byte_input = malloc(sizeof(ByteInput));
     byte_input->view = view_alloc();
@@ -816,38 +799,17 @@ ByteInput* byte_input_alloc() {
     return byte_input;
 }
 
-/** 
- * @brief Deinitialize and free byte input
- * 
- * @param byte_input Byte input instance
- */
 void byte_input_free(ByteInput* byte_input) {
     furi_assert(byte_input);
     view_free(byte_input->view);
     free(byte_input);
 }
 
-/** 
- * @brief Get byte input view
- * 
- * @param byte_input byte input instance
- * @return View instance that can be used for embedding
- */
 View* byte_input_get_view(ByteInput* byte_input) {
     furi_assert(byte_input);
     return byte_input->view;
 }
 
-/** 
- * @brief Deinitialize and free byte input
- * 
- * @param byte_input byte input instance
- * @param input_callback input callback fn
- * @param changed_callback changed callback fn
- * @param callback_context callback context
- * @param bytes buffer to use
- * @param bytes_count buffer length
- */
 void byte_input_set_result_callback(
     ByteInput* byte_input,
     ByteInputCallback input_callback,
@@ -869,12 +831,6 @@ void byte_input_set_result_callback(
         true);
 }
 
-/**
- * @brief Set byte input header text
- * 
- * @param byte_input byte input instance
- * @param text text to be shown
- */
 void byte_input_set_header_text(ByteInput* byte_input, const char* text) {
     with_view_model(
         byte_input->view, ByteInputModel * model, { model->header = text; }, true);

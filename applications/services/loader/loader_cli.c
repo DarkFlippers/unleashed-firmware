@@ -14,7 +14,7 @@ static void loader_cli_print_usage() {
 }
 
 static void loader_cli_list() {
-    printf("Applications:\r\n");
+    printf("Apps:\r\n");
     for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
         printf("\t%s\r\n", FLIPPER_APPS[i].name);
     }

@@ -16,6 +16,10 @@
 #include "commands/automation/automation.h"
 #include "commands/details/details.h"
 
+struct TotpCliContext {
+    PluginState* plugin_state;
+};
+
 static void totp_cli_print_unknown_command(const FuriString* unknown_command) {
     TOTP_CLI_PRINTF_ERROR(
         "Command \"%s\" is unknown. Use \"" TOTP_CLI_COMMAND_HELP
@@ -63,7 +67,7 @@ static void totp_cli_handler(Cli* cli, FuriString* args, void* context) {
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_AUTOMATION) == 0) {
         totp_cli_command_automation_handle(plugin_state, args, cli);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_RESET) == 0) {
-        totp_cli_command_reset_handle(plugin_state, cli, cli_context->event_queue);
+        totp_cli_command_reset_handle(plugin_state, cli);
     } else if(furi_string_cmp_str(cmd, TOTP_CLI_COMMAND_UPDATE) == 0) {
         totp_cli_command_update_handle(plugin_state, args, cli);
     } else if(
@@ -77,13 +81,11 @@ static void totp_cli_handler(Cli* cli, FuriString* args, void* context) {
     furi_string_free(cmd);
 }
 
-TotpCliContext*
-    totp_cli_register_command_handler(PluginState* plugin_state, FuriMessageQueue* event_queue) {
+TotpCliContext* totp_cli_register_command_handler(PluginState* plugin_state) {
     Cli* cli = furi_record_open(RECORD_CLI);
     TotpCliContext* context = malloc(sizeof(TotpCliContext));
     furi_check(context != NULL);
     context->plugin_state = plugin_state;
-    context->event_queue = event_queue;
     cli_add_command(
         cli, TOTP_CLI_COMMAND_NAME, CliCommandFlagParallelSafe, totp_cli_handler, context);
     furi_record_close(RECORD_CLI);

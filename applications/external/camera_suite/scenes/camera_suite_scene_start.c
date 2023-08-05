@@ -24,9 +24,9 @@ bool camera_suite_scene_start_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case CameraSuiteCustomEventStartLeft:
         case CameraSuiteCustomEventStartRight:
-            break;
         case CameraSuiteCustomEventStartUp:
         case CameraSuiteCustomEventStartDown:
+            // Do nothing.
             break;
         case CameraSuiteCustomEventStartOk:
             scene_manager_next_scene(app->scene_manager, CameraSuiteSceneMenu);

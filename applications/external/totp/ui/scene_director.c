@@ -116,3 +116,8 @@ bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* con
 
     return processing;
 }
+
+void totp_scene_director_force_redraw(PluginState* const plugin_state) {
+    PluginEvent event = {.type = EventForceRedraw};
+    furi_message_queue_put(plugin_state->event_queue, &event, FuriWaitForever);
+}

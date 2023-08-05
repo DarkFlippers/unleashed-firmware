@@ -238,6 +238,8 @@ static char char_to_uppercase(const char letter) {
         return 0x5C;
     } else if(letter == '\'') {
         return 0x60;
+    } else if(letter == '.') {
+        return 0x2A;
     } else if(char_is_lowercase(letter)) {
         return (letter - 0x20);
     } else {
