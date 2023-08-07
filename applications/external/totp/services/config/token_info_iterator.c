@@ -4,6 +4,7 @@
 #include <flipper_format/flipper_format_stream.h>
 #include <toolbox/stream/file_stream.h>
 #include "../../types/common.h"
+#include "../../types/crypto_settings.h"
 
 #define CONFIG_FILE_PART_FILE_PATH CONFIG_FILE_DIRECTORY_PATH "/totp.conf.part"
 #define STREAM_COPY_BUFFER_SIZE 128
@@ -15,7 +16,7 @@ struct TokenInfoIteratorContext {
     size_t last_seek_index;
     TokenInfo* current_token;
     FlipperFormat* config_file;
-    uint8_t* iv;
+    CryptoSettings* crypto_settings;
     Storage* storage;
 };
 
@@ -237,8 +238,10 @@ static bool
     return result;
 }
 
-TokenInfoIteratorContext*
-    totp_token_info_iterator_alloc(Storage* storage, FlipperFormat* config_file, uint8_t* iv) {
+TokenInfoIteratorContext* totp_token_info_iterator_alloc(
+    Storage* storage,
+    FlipperFormat* config_file,
+    CryptoSettings* crypto_settings) {
     Stream* stream = flipper_format_get_raw_stream(config_file);
     stream_rewind(stream);
     size_t tokens_count = 0;
@@ -256,7 +259,7 @@ TokenInfoIteratorContext*
     context->total_count = tokens_count;
     context->current_token = token_info_alloc();
     context->config_file = config_file;
-    context->iv = iv;
+    context->crypto_settings = crypto_settings;
     context->storage = storage;
     return context;
 }
@@ -453,7 +456,7 @@ bool totp_token_info_iterator_go_to(TokenInfoIteratorContext* context, size_t to
                    furi_string_get_cstr(temp_str),
                    furi_string_size(temp_str),
                    PlainTokenSecretEncodingBase32,
-                   context->iv)) {
+                   context->crypto_settings)) {
                 FURI_LOG_W(
                     LOGGING_TAG,
                     "Token \"%s\" has plain secret",

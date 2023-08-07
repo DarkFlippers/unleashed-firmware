@@ -12,13 +12,14 @@
 #include "../../types/token_info.h"
 #include "../type_code_common.h"
 #include "../../features_config.h"
+#include "../../services/config/constants.h"
 
 #if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME_UL
 #define TOTP_BT_WORKER_BT_ADV_NAME_MAX_LEN FURI_HAL_BT_ADV_NAME_LENGTH
 #define TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN GAP_MAC_ADDR_SIZE
 #endif
 
-#define HID_BT_KEYS_STORAGE_PATH EXT_PATH("authenticator/.bt_hid.keys")
+#define HID_BT_KEYS_STORAGE_PATH CONFIG_FILE_DIRECTORY_PATH "/.bt_hid.keys"
 
 struct TotpBtTypeCodeWorkerContext {
     char* code_buffer;
@@ -33,6 +34,7 @@ struct TotpBtTypeCodeWorkerContext {
     char previous_bt_name[TOTP_BT_WORKER_BT_ADV_NAME_MAX_LEN];
     uint8_t previous_bt_mac[TOTP_BT_WORKER_BT_MAC_ADDRESS_LEN];
 #endif
+    AutomationKeyboardLayout keyboard_layout;
 };
 
 static inline bool totp_type_code_worker_stop_requested() {
@@ -73,7 +75,8 @@ static void totp_type_code_worker_type_code(TotpBtTypeCodeWorkerContext* context
             &furi_hal_bt_hid_kb_release,
             context->code_buffer,
             context->code_buffer_size,
-            context->flags);
+            context->flags,
+            context->keyboard_layout);
         furi_mutex_release(context->code_buffer_sync);
     }
 }
@@ -119,11 +122,13 @@ void totp_bt_type_code_worker_start(
     TotpBtTypeCodeWorkerContext* context,
     char* code_buffer,
     uint8_t code_buffer_size,
-    FuriMutex* code_buffer_sync) {
+    FuriMutex* code_buffer_sync,
+    AutomationKeyboardLayout keyboard_layout) {
     furi_check(context != NULL);
     context->code_buffer = code_buffer;
     context->code_buffer_size = code_buffer_size;
     context->code_buffer_sync = code_buffer_sync;
+    context->keyboard_layout = keyboard_layout;
     context->thread = furi_thread_alloc();
     furi_thread_set_name(context->thread, "TOTPBtHidWorker");
     furi_thread_set_stack_size(context->thread, 1024);

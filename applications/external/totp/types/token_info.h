@@ -1,8 +1,9 @@
 #pragma once
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <furi/core/string.h>
+#include "crypto_settings.h"
 
 #define TOKEN_HASH_ALGO_SHA1_NAME "sha1"
 #define TOKEN_HASH_ALGO_STEAM_NAME "steam"
@@ -200,7 +201,7 @@ void token_info_free(TokenInfo* token_info);
  * @param plain_token_secret plain token secret
  * @param token_secret_length plain token secret length
  * @param plain_token_secret_encoding plain token secret encoding
- * @param iv initialization vecor (IV) to be used for encryption
+ * @param crypto_settings crypto settings
  * @return \c true if token successfully set; \c false otherwise
  */
 bool token_info_set_secret(
@@ -208,7 +209,7 @@ bool token_info_set_secret(
     const char* plain_token_secret,
     size_t token_secret_length,
     PlainTokenSecretEncoding plain_token_secret_encoding,
-    const uint8_t* iv);
+    const CryptoSettings* crypto_settings);
 
 /**
  * @brief Sets token digits count from \c uint8_t value

@@ -11,23 +11,9 @@ void infrared_scene_edit_button_select_on_enter(void* context) {
     InfraredRemote* remote = infrared->remote;
     InfraredAppState* app_state = &infrared->app_state;
 
-    const char* header = NULL;
-    switch(infrared->app_state.edit_mode) {
-    case InfraredEditModeRename:
-        header = "Rename Button:";
-        break;
-    case InfraredEditModeDelete:
-        header = "Delete Button:";
-        break;
-    case InfraredEditModeMove:
-        header = "Select Button to Move:";
-        break;
-    case InfraredEditModeMoveSelectDest:
-    case InfraredEditModeNone:
-    default:
-        header = "Move Button Before:";
-        break;
-    }
+    const char* header = infrared->app_state.edit_mode == InfraredEditModeRename ?
+                             "Rename Button:" :
+                             "Delete Button:";
     submenu_set_header(submenu, header);
 
     const size_t button_count = infrared_remote_get_button_count(remote);
@@ -37,14 +23,6 @@ void infrared_scene_edit_button_select_on_enter(void* context) {
             submenu,
             infrared_remote_button_get_name(button),
             i,
-            infrared_scene_edit_button_select_submenu_callback,
-            context);
-    }
-    if(infrared->app_state.edit_mode == InfraredEditModeMoveSelectDest) {
-        submenu_add_item(
-            submenu,
-            "-- Move to the end --",
-            button_count,
             infrared_scene_edit_button_select_submenu_callback,
             context);
     }
@@ -69,12 +47,6 @@ bool infrared_scene_edit_button_select_on_event(void* context, SceneManagerEvent
             scene_manager_next_scene(scene_manager, InfraredSceneEditRename);
         } else if(edit_mode == InfraredEditModeDelete) {
             scene_manager_next_scene(scene_manager, InfraredSceneEditDelete);
-        } else if(edit_mode == InfraredEditModeMove) {
-            app_state->current_button_index_move_orig = event.event;
-            app_state->edit_mode = InfraredEditModeMoveSelectDest;
-            scene_manager_next_scene(scene_manager, InfraredSceneEditButtonSelect);
-        } else if(edit_mode == InfraredEditModeMoveSelectDest) {
-            scene_manager_next_scene(scene_manager, InfraredSceneEditMove);
         } else {
             furi_assert(0);
         }

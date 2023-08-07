@@ -12,8 +12,6 @@
 
 #define TAG "DesktopSrv"
 
-#define FAP_LOADER_APP_NAME "Applications"
-
 static void desktop_scene_main_new_idle_animation_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;

@@ -33,3 +33,9 @@ void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_
  * @return \c true if event handled and applilcation should continue; \c false if application should be closed
  */
 bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* const plugin_state);
+
+/**
+ * @brief Forces screen to be redraw\updated
+ * @param plugin_state application state
+ */
+void totp_scene_director_force_redraw(PluginState* const plugin_state);

@@ -4,13 +4,8 @@
 #endif
 
 // Include Bluetooth token input automation
-#ifndef TOTP_NO_BADBT_TYPE
-#define TOTP_BADBT_TYPE_ENABLED
-#endif
-
-// Include token input automation icons on the main screen
-#ifndef TOTP_NO_AUTOMATION_ICONS
-#define TOTP_AUTOMATION_ICONS_ENABLED
+#ifndef TOTP_NO_BADBT_AUTOMATION
+#define TOTP_BADBT_AUTOMATION_ENABLED
 #endif
 
 // List of compatible firmwares
@@ -19,6 +14,7 @@
 #define TOTP_FIRMWARE_XTREME_UL (3)
 // End of list
 
+// Target firmware
 #ifndef TOTP_TARGET_FIRMWARE
 #define TOTP_TARGET_FIRMWARE TOTP_FIRMWARE_XTREME_UL
 #endif
