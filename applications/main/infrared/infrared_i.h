@@ -30,6 +30,7 @@
 #include "scenes/infrared_scene.h"
 #include "views/infrared_progress_view.h"
 #include "views/infrared_debug_view.h"
+#include "views/infrared_move_view.h"
 
 #include "rpc/rpc_app.h"
 
@@ -60,8 +61,6 @@ typedef enum {
     InfraredEditModeNone,
     InfraredEditModeRename,
     InfraredEditModeDelete,
-    InfraredEditModeMove,
-    InfraredEditModeMoveSelectDest
 } InfraredEditMode;
 
 typedef struct {
@@ -96,6 +95,7 @@ struct Infrared {
 
     ViewStack* view_stack;
     InfraredDebugView* debug_view;
+    InfraredMoveView* move_view;
 
     ButtonPanel* button_panel;
     Loading* loading;
@@ -116,6 +116,7 @@ typedef enum {
     InfraredViewPopup,
     InfraredViewStack,
     InfraredViewDebugView,
+    InfraredViewMove,
 } InfraredView;
 
 typedef enum {

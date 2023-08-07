@@ -165,6 +165,10 @@ static Infrared* infrared_alloc() {
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewStack, view_stack_get_view(infrared->view_stack));
 
+    infrared->move_view = infrared_move_view_alloc();
+    view_dispatcher_add_view(
+        view_dispatcher, InfraredViewMove, infrared_move_view_get_view(infrared->move_view));
+
     if(app_state->is_debug_enabled) {
         infrared->debug_view = infrared_debug_view_alloc();
         view_dispatcher_add_view(
@@ -208,6 +212,9 @@ static void infrared_free(Infrared* infrared) {
 
     view_dispatcher_remove_view(view_dispatcher, InfraredViewStack);
     view_stack_free(infrared->view_stack);
+
+    view_dispatcher_remove_view(view_dispatcher, InfraredViewMove);
+    infrared_move_view_free(infrared->move_view);
 
     if(app_state->is_debug_enabled) {
         view_dispatcher_remove_view(view_dispatcher, InfraredViewDebugView);

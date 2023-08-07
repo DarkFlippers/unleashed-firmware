@@ -82,9 +82,7 @@ bool infrared_scene_edit_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(scene_manager, InfraredSceneEditButtonSelect);
             consumed = true;
         } else if(submenu_index == SubmenuIndexMoveButton) {
-            infrared->app_state.edit_target = InfraredEditTargetButton;
-            infrared->app_state.edit_mode = InfraredEditModeMove;
-            scene_manager_next_scene(scene_manager, InfraredSceneEditButtonSelect);
+            scene_manager_next_scene(scene_manager, InfraredSceneEditMove);
             consumed = true;
         } else if(submenu_index == SubmenuIndexDeleteButton) {
             infrared->app_state.edit_target = InfraredEditTargetButton;

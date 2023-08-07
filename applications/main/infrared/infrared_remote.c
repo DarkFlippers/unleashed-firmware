@@ -108,19 +108,13 @@ bool infrared_remote_delete_button(InfraredRemote* remote, size_t index) {
     return infrared_remote_store(remote);
 }
 
-bool infrared_remote_move_button(InfraredRemote* remote, size_t index_orig, size_t index_dest) {
+void infrared_remote_move_button(InfraredRemote* remote, size_t index_orig, size_t index_dest) {
     furi_assert(index_orig < InfraredButtonArray_size(remote->buttons));
-    furi_assert(index_dest <= InfraredButtonArray_size(remote->buttons));
-    if(index_orig == index_dest) {
-        return true;
-    }
+    furi_assert(index_dest < InfraredButtonArray_size(remote->buttons));
+
     InfraredRemoteButton* button;
     InfraredButtonArray_pop_at(&button, remote->buttons, index_orig);
-    if(index_orig > index_dest)
-        InfraredButtonArray_push_at(remote->buttons, index_dest, button);
-    else
-        InfraredButtonArray_push_at(remote->buttons, index_dest - 1, button);
-    return infrared_remote_store(remote);
+    InfraredButtonArray_push_at(remote->buttons, index_dest, button);
 }
 
 bool infrared_remote_store(InfraredRemote* remote) {
