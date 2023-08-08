@@ -2138,6 +2138,7 @@ Function,+,nfc_device_set_loading_callback,void,"NfcDevice*, NfcLoadingCallback,
 Function,+,nfc_device_set_name,void,"NfcDevice*, const char*"
 Function,+,nfc_file_select,_Bool,NfcDevice*
 Function,-,nfc_generate_mf_classic,void,"NfcDeviceData*, uint8_t, MfClassicType"
+Function,+,nfc_generate_mf_classic_ext,void,"NfcDeviceData*, uint8_t, MfClassicType, _Bool, uint8_t*"
 Function,+,nfc_get_dev_type,const char*,FuriHalNfcType
 Function,-,nfc_guess_protocol,const char*,NfcProtocol
 Function,+,nfc_mf_classic_type,const char*,MfClassicType

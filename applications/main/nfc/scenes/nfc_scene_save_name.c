@@ -67,6 +67,9 @@ bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                 if(!scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
                     // Nothing, do not count editing as saving
                 } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
+                    scene_manager_set_scene_state(
+                        nfc->scene_manager, NfcSceneSetUid, NfcSceneSetUidStateNotSet);
+
                     dolphin_deed(DolphinDeedNfcAddSave);
                 } else {
                     dolphin_deed(DolphinDeedNfcSave);
