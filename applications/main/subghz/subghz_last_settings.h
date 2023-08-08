@@ -34,4 +34,4 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
 
 bool subghz_last_settings_save(SubGhzLastSettings* instance);
 
-void subghz_last_settings_log(SubGhzLastSettings* instance, SubGhzProtocolFlag ignore_filter);
+void subghz_last_settings_log(SubGhzLastSettings* instance);

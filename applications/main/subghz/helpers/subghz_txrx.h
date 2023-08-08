@@ -345,7 +345,21 @@ void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance);
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw
 
+/**
+ * @brief Set current preset AM650 without additional params
+ * 
+ * @param instance - instance Pointer to a SubGhzTxRx
+ * @param frequency - frequency of preset, if pass 0 then taking default frequency 433.92MHz
+ */
 void subghz_txrx_set_default_preset(SubGhzTxRx* instance, uint32_t frequency);
 
+/**
+ * @brief Set current preset by index
+ * 
+ * @param instance  - instance Pointer to a SubGhzTxRx
+ * @param frequency - frequency of new preset
+ * @param index - index of preset taken from SubGhzSetting
+ * @return const char* -  name of preset
+ */
 const char*
     subghz_txrx_set_preset_internal(SubGhzTxRx* instance, uint32_t frequency, uint8_t index);

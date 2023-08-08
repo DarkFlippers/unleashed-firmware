@@ -43,7 +43,7 @@ void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();
     const char* header_text = "Frequency not supported";
-    const char* message_text = "Frequency\nis outside of\nsuported range.";
+    const char* message_text = "Frequency\nis outside of\nsupported range.";
 
     if(only_rx) {
         header_text = "Transmission is blocked";

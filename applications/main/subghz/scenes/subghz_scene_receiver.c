@@ -146,15 +146,16 @@ void subghz_scene_receiver_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
-        subghz->filter = subghz->last_settings->filter;
-        subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
-        subghz->ignore_filter = subghz->last_settings->ignore_filter;
         subghz_txrx_set_preset_internal(
             subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
         subghz_txrx_speaker_set_state(
             subghz->txrx,
             subghz->last_settings->sound == 0 ? SubGhzSpeakerStateShutdown :
                                                 SubGhzSpeakerStateEnable);
+
+        subghz->filter = subghz->last_settings->filter;
+        subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
+        subghz->ignore_filter = subghz->last_settings->ignore_filter;
 
         subghz_history_reset(history);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);

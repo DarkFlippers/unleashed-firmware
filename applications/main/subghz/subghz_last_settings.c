@@ -55,12 +55,17 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     uint32_t temp_sound = 0;
     float temp_rssi = 0;
     uint32_t temp_preset = 0;
+
+    bool preset_was_read = false;
+    bool rssi_was_read = false;
+    bool filter_was_read = false;
+    bool ignore_filter_was_read = false;
     bool frequency_analyzer_feedback_level_was_read = false;
     bool frequency_analyzer_trigger_was_read = false;
 
     if(FSE_OK == storage_sd_status(storage) && SUBGHZ_LAST_SETTINGS_PATH &&
        flipper_format_file_open_existing(fff_data_file, SUBGHZ_LAST_SETTINGS_PATH)) {
-        flipper_format_read_uint32(
+        preset_was_read = flipper_format_read_uint32(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_PRESET, (uint32_t*)&temp_preset, 1);
         flipper_format_read_uint32(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_FREQUENCY, (uint32_t*)&temp_frequency, 1);
@@ -99,16 +104,16 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
             SUBGHZ_LAST_SETTING_FIELD_HOPPING_ENABLE,
             (bool*)&temp_enable_hopping,
             1);
-        flipper_format_read_float(
+        rssi_was_read = flipper_format_read_float(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_RSSI_THRESHOLD, (float*)&temp_rssi, 1);
         flipper_format_read_uint32(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_SOUND, (uint32_t*)&temp_sound, 1);
-        flipper_format_read_uint32(
+        ignore_filter_was_read = flipper_format_read_uint32(
             fff_data_file,
             SUBGHZ_LAST_SETTING_FIELD_IGNORE_FILTER,
             (uint32_t*)&temp_ignore_filter,
             1);
-        flipper_format_read_uint32(
+        filter_was_read = flipper_format_read_uint32(
             fff_data_file, SUBGHZ_LAST_SETTING_FIELD_FILTER, (uint32_t*)&temp_filter, 1);
 
     } else {
@@ -143,7 +148,10 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
                                                    temp_frequency_analyzer_trigger :
                                                    SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
 
-        if(temp_preset > (uint32_t)preset_count - 1) {
+        if(!preset_was_read) {
+            FURI_LOG_W(TAG, "Preset was not read. Set default");
+            instance->preset_index = SUBGHZ_LAST_SETTING_DEFAULT_PRESET;
+        } else if(temp_preset > (uint32_t)preset_count - 1) {
             FURI_LOG_W(
                 TAG,
                 "Last used preset out of range. Preset to set: %ld, Max index: %ld. Set default",
@@ -162,17 +170,13 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         // External power amp CC1101
         instance->external_module_power_amp = temp_external_module_power_amp;
 
-        instance->rssi = temp_rssi;
+        instance->rssi = rssi_was_read ? temp_rssi : SUBGHZ_RAW_THRESHOLD_MIN;
         instance->enable_hopping = temp_enable_hopping;
-        instance->ignore_filter = temp_ignore_filter;
-        instance->filter = temp_filter;
+        instance->ignore_filter = ignore_filter_was_read ? temp_ignore_filter : 0x00;
+        instance->filter = filter_was_read ? temp_filter : SubGhzProtocolFlag_Decodable;
         instance->sound = temp_sound;
         // Set globally in furi hal
         furi_hal_subghz_set_ext_power_amp(instance->external_module_power_amp);
-
-        /*/} else {
-            instance->preset = temp_preset;
-        }*/
     }
 
     flipper_format_file_close(fff_data_file);
@@ -295,9 +299,8 @@ static inline const char* bool_to_char(bool value) {
     return value ? LOG_ON : LOG_OFF;
 }
 
-void subghz_last_settings_log(SubGhzLastSettings* instance, SubGhzProtocolFlag ignore_filter) {
+void subghz_last_settings_log(SubGhzLastSettings* instance) {
     furi_assert(instance);
-    UNUSED(ignore_filter);
 
     FURI_LOG_I(
         TAG,

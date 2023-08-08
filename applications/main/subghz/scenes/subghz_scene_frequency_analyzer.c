@@ -61,7 +61,7 @@ bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent e
             if(frequency > 0) {
                 subghz->last_settings->frequency = frequency;
 #ifdef FURI_DEBUG
-                subghz_last_settings_log(subghz->last_settings, subghz->ignore_filter);
+                subghz_last_settings_log(subghz->last_settings);
 #endif
                 subghz_last_settings_save(subghz->last_settings);
             }

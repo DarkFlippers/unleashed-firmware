@@ -447,7 +447,7 @@ void subghz_scene_receiver_config_on_exit(void* context) {
     variable_item_list_set_selected_item(subghz->variable_item_list, 0);
     variable_item_list_reset(subghz->variable_item_list);
 #ifdef FURI_DEBUG
-    subghz_last_settings_log(subghz->last_settings, subghz->ignore_filter);
+    subghz_last_settings_log(subghz->last_settings);
 #endif
     subghz_last_settings_save(subghz->last_settings);
     scene_manager_set_scene_state(

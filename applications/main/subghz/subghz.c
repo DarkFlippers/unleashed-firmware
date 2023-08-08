@@ -3,6 +3,7 @@
 #include <furi/core/log.h>
 #include <subghz/types.h>
 #include <lib/toolbox/path.h>
+#include <float_tools.h>
 #include "subghz_i.h"
 
 #define TAG "SubGhzApp"
@@ -198,7 +199,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     size_t preset_count = subghz_setting_get_preset_count(setting);
     subghz_last_settings_load(subghz->last_settings, preset_count);
 #ifdef FURI_DEBUG
-    subghz_last_settings_log(subghz->last_settings, subghz->last_settings->ignore_filter);
+    subghz_last_settings_log(subghz->last_settings);
 #endif
     if(!alloc_for_tx_only) {
         subghz_txrx_set_preset_internal(
@@ -210,6 +211,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
 
     subghz->secure_data = malloc(sizeof(SecureData));
+
     if(!alloc_for_tx_only) {
         subghz->ignore_filter = subghz->last_settings->ignore_filter;
         subghz->filter = subghz->last_settings->filter;
@@ -221,7 +223,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz_txrx_set_need_save_callback(subghz->txrx, subghz_save_to_file, subghz);
 
     if(!alloc_for_tx_only) {
-        if(subghz->last_settings->rssi != 0) {
+        if(!float_is_equal(subghz->last_settings->rssi, 0)) {
             subghz_threshold_rssi_set(subghz->threshold_rssi, subghz->last_settings->rssi);
         } else {
             subghz->last_settings->rssi = SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
@@ -229,10 +231,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     }
     //Init Error_str
     subghz->error_str = furi_string_alloc();
-
-#ifdef FURI_DEBUG
-    subghz_last_settings_log(subghz->last_settings, subghz->ignore_filter);
-#endif
 
     return subghz;
 }
