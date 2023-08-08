@@ -1,8 +1,4 @@
 #include "../subghz_i.h"
-#include "../views/receiver.h"
-#include <lib/subghz/protocols/raw.h>
-
-#include <lib/subghz/subghz_file_encoder_worker.h>
 
 #define TAG "SubGhzDecodeRaw"
 #define SAMPLES_TO_READ_PER_TICK 400
@@ -28,7 +24,11 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         furi_string_free(modulation_str);
     } else {
         subghz_view_receiver_add_data_statusbar(
-            subghz->subghz_receiver, furi_string_get_cstr(history_stat_str), "", "", false);
+            subghz->subghz_receiver,
+            furi_string_get_cstr(history_stat_str),
+            "",
+            "",
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
     }
     furi_string_free(history_stat_str);
 }
@@ -171,7 +171,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
     } else {
         //Load history to receiver
         subghz_view_receiver_exit(subghz->subghz_receiver);
-        for(uint8_t i = 0; i < subghz_history_get_item(subghz->history); i++) {
+        for(uint16_t i = 0; i < subghz_history_get_item(subghz->history); i++) {
             furi_string_reset(item_name);
             furi_string_reset(item_time);
             subghz_history_get_text_item_menu(subghz->history, item_name, i);

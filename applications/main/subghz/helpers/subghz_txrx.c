@@ -29,8 +29,7 @@ SubGhzTxRx* subghz_txrx_alloc() {
 
     instance->preset = malloc(sizeof(SubGhzRadioPreset));
     instance->preset->name = furi_string_alloc();
-    subghz_txrx_set_preset(
-        instance, "AM650", subghz_setting_get_default_frequency(instance->setting), NULL, 0);
+    subghz_txrx_set_default_preset(instance, 0);
 
     instance->txrx_state = SubGhzTxRxStateSleep;
 
@@ -636,7 +635,7 @@ bool subghz_txrx_radio_device_is_frequency_valid(SubGhzTxRx* instance, uint32_t 
 
 bool subghz_txrx_radio_device_is_tx_allowed(SubGhzTxRx* instance, uint32_t frequency) {
     furi_assert(instance);
-    furi_assert(instance->txrx_state != SubGhzTxRxStateSleep);
+    //furi_assert(instance->txrx_state != SubGhzTxRxStateSleep);
 
     subghz_devices_idle(instance->radio_device);
     subghz_devices_set_frequency(instance->radio_device, frequency);
@@ -667,4 +666,32 @@ void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance) {
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance) {
     furi_assert(instance);
     return instance->receiver;
+}
+
+void subghz_txrx_set_default_preset(SubGhzTxRx* instance, uint32_t frequency) {
+    furi_assert(instance);
+
+    const char* default_modulation = "AM650";
+    if(frequency == 0) {
+        frequency = subghz_setting_get_default_frequency(subghz_txrx_get_setting(instance));
+    }
+    subghz_txrx_set_preset(instance, default_modulation, frequency, NULL, 0);
+}
+
+const char*
+    subghz_txrx_set_preset_internal(SubGhzTxRx* instance, uint32_t frequency, uint8_t index) {
+    furi_assert(instance);
+
+    SubGhzSetting* setting = subghz_txrx_get_setting(instance);
+    const char* preset_name = subghz_setting_get_preset_name(setting, index);
+    subghz_setting_set_default_frequency(setting, frequency);
+
+    subghz_txrx_set_preset(
+        instance,
+        preset_name,
+        frequency,
+        subghz_setting_get_preset_data(setting, index),
+        subghz_setting_get_preset_data_size(setting, index));
+
+    return preset_name;
 }

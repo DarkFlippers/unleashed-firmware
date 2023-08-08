@@ -4,29 +4,12 @@
 #include "subghz/types.h"
 #include <math.h>
 #include <furi.h>
-#include <furi_hal.h>
-#include <input/input.h>
-#include <gui/elements.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <flipper_format/flipper_format.h>
-#include "views/receiver.h"
-
 #include <flipper_format/flipper_format_i.h>
-#include <lib/toolbox/stream/stream.h>
-#include <lib/subghz/protocols/raw.h>
 
 #define TAG "SubGhz"
-
-void subghz_set_default_preset(SubGhz* subghz) {
-    furi_assert(subghz);
-    subghz_txrx_set_preset(
-        subghz->txrx,
-        "AM650",
-        subghz_setting_get_default_frequency(subghz_txrx_get_setting(subghz->txrx)),
-        NULL,
-        0);
-}
 
 void subghz_blink_start(SubGhz* subghz) {
     furi_assert(subghz);

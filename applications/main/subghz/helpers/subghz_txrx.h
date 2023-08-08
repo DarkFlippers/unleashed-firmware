@@ -329,7 +329,7 @@ float subghz_txrx_radio_device_get_rssi(SubGhzTxRx* instance);
 */
 const char* subghz_txrx_radio_device_get_name(SubGhzTxRx* instance);
 
-/* Get get intelligence whether frequency the selected radio device to use
+/* Get intelligence whether frequency the selected radio device to use
 *
 * @param instance Pointer to a SubGhzTxRx
 * @return bool True if the frequency is valid
@@ -344,3 +344,8 @@ bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance);
 void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance);
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw
+
+void subghz_txrx_set_default_preset(SubGhzTxRx* instance, uint32_t frequency);
+
+const char*
+    subghz_txrx_set_preset_internal(SubGhzTxRx* instance, uint32_t frequency, uint8_t index);

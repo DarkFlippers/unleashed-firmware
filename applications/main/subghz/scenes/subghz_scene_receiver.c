@@ -1,5 +1,4 @@
 #include "../subghz_i.h"
-#include "../views/receiver.h"
 #include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/bin_raw.h>
 
@@ -77,7 +76,11 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         furi_string_free(modulation_str);
     } else {
         subghz_view_receiver_add_data_statusbar(
-            subghz->subghz_receiver, furi_string_get_cstr(history_stat_str), "", "", false);
+            subghz->subghz_receiver,
+            furi_string_get_cstr(history_stat_str),
+            "",
+            "",
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
     furi_string_free(history_stat_str);
@@ -143,7 +146,16 @@ void subghz_scene_receiver_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
-        subghz_txrx_set_preset(subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+        subghz->filter = subghz->last_settings->filter;
+        subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
+        subghz->ignore_filter = subghz->last_settings->ignore_filter;
+        subghz_txrx_set_preset_internal(
+            subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
+        subghz_txrx_speaker_set_state(
+            subghz->txrx,
+            subghz->last_settings->sound == 0 ? SubGhzSpeakerStateShutdown :
+                                                SubGhzSpeakerStateEnable);
+
         subghz_history_reset(history);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);
         subghz->idx_menu_chosen = 0;
@@ -154,7 +166,7 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     // Load history to receiver
     subghz_view_receiver_exit(subghz->subghz_receiver);
-    for(uint8_t i = 0; i < subghz_history_get_item(history); i++) {
+    for(uint16_t i = 0; i < subghz_history_get_item(history); i++) {
         furi_string_reset(item_name);
         furi_string_reset(item_time);
         subghz_history_get_text_item_menu(history, item_name, i);
@@ -178,11 +190,10 @@ void subghz_scene_receiver_on_enter(void* context) {
     }
 
     // Check if hopping was enabled
-#ifdef FURI_DEBUG
-    subghz_last_settings_log(subghz->last_settings);
-#endif
     if(subghz->last_settings->enable_hopping) {
         subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateRunning);
+    } else {
+        subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
     }
 
     subghz_scene_receiver_update_statusbar(subghz);
@@ -216,8 +227,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
-                subghz_txrx_set_preset(
-                    subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+                subghz_txrx_set_default_preset(subghz->txrx, subghz->last_settings->frequency);
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
             }

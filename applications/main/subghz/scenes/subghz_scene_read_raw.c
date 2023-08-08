@@ -104,8 +104,17 @@ void subghz_scene_read_raw_on_enter(void* context) {
 
     if(subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateBack) {
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
+        if(furi_string_empty(file_name)) {
+            subghz_txrx_set_preset_internal(
+                subghz->txrx,
+                subghz->last_settings->frequency,
+                subghz->last_settings->preset_index);
+            subghz_txrx_speaker_set_state(
+                subghz->txrx,
+                subghz->last_settings->sound == 0 ? SubGhzSpeakerStateShutdown :
+                                                    SubGhzSpeakerStateEnable);
+        }
     }
-    furi_string_free(file_name);
     subghz_scene_read_raw_update_statusbar(subghz);
 
     //set callback view raw
@@ -115,6 +124,8 @@ void subghz_scene_read_raw_on_enter(void* context) {
 
     //set filter RAW feed
     subghz_txrx_receiver_set_filter(subghz->txrx, SubGhzProtocolFlag_RAW);
+    furi_string_free(file_name);
+
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdReadRAW);
 }
 
@@ -139,10 +150,9 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             } else {
                 //Restore default setting
                 if(subghz->raw_send_only) {
-                    subghz_set_default_preset(subghz);
+                    subghz_txrx_set_default_preset(subghz->txrx, 0);
                 } else {
-                    subghz_txrx_set_preset(
-                        subghz->txrx, "AM650", subghz->last_settings->frequency, NULL, 0);
+                    subghz_txrx_set_default_preset(subghz->txrx, subghz->last_settings->frequency);
                 }
                 if(!scene_manager_search_and_switch_to_previous_scene(
                        subghz->scene_manager, SubGhzSceneSaved)) {
