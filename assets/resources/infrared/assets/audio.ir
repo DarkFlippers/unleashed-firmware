@@ -377,3 +377,51 @@ type: parsed
 protocol: Kaseikyo
 address: A0 02 20 00
 command: 20 03 00 00
+#
+# Model: NAD C316BEE
+name: Power
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 25 DA 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 94 6B 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 88 77 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8C 73 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 01 FE 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 4A B5 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 05 FA 00 00
+#
+name: Next
+type: parsed
+protocol: NECext
+address: 87 7C 00 0
