@@ -892,7 +892,7 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
             ELFSectionDict_itref_t* itref = ELFSectionDict_ref(it);
             total_size += itref->value.size;
         }
-        FURI_LOG_I(TAG, "Total size of loaded sections: %u", total_size); //-V576
+        FURI_LOG_I(TAG, "Total size of loaded sections: %zu", total_size);
     }
 
     return status;
