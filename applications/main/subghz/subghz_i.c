@@ -121,12 +121,6 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        if(!subghz_txrx_radio_device_is_tx_alowed(subghz->txrx, temp_data32)) {
-            FURI_LOG_E(TAG, "This frequency can only be used for RX on chosen radio module");
-            load_key_state = SubGhzLoadKeyStateOnlyRx;
-            break;
-        }
-
         //Load preset
         if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
             FURI_LOG_E(TAG, "Missing Preset");

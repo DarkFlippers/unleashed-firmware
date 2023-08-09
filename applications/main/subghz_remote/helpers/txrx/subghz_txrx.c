@@ -634,19 +634,6 @@ bool subghz_txrx_radio_device_is_frequecy_valid(SubGhzTxRx* instance, uint32_t f
     return subghz_devices_is_frequency_valid(instance->radio_device, frequency);
 }
 
-bool subghz_txrx_radio_device_is_tx_alowed(SubGhzTxRx* instance, uint32_t frequency) {
-    furi_assert(instance);
-    furi_assert(instance->txrx_state != SubGhzTxRxStateSleep);
-
-    subghz_devices_idle(instance->radio_device);
-    subghz_devices_set_frequency(instance->radio_device, frequency);
-
-    bool ret = subghz_devices_set_tx(instance->radio_device);
-    subghz_devices_idle(instance->radio_device);
-
-    return ret;
-}
-
 void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state) {
     furi_assert(instance);
     instance->debug_pin_state = state;
