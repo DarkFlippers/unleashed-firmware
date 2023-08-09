@@ -201,7 +201,7 @@ jobs:
 
       - name: Build example & external apps with uFBT
         run: |
-          for appdir in 'applications/external' 'applications/examples'; do
+          for appdir in 'applications/examples'; do
             for app in $(find "$appdir" -maxdepth 1 -mindepth 1 -type d); do
               pushd $app
               TARGETS_FAM=$(grep "targets" application.fam || echo "${{ matrix.target }}")
