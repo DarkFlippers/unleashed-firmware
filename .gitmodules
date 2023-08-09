@@ -10,6 +10,7 @@
 [submodule "assets/protobuf"]
 	path = assets/protobuf
 	url = https://github.com/flipperdevices/flipperzero-protobuf.git
+	shallow = false
 [submodule "lib/libusb_stm32"]
 	path = lib/libusb_stm32
 	url = https://github.com/flipperdevices/libusb_stm32.git

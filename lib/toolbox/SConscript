@@ -10,6 +10,7 @@ env.Append(
     SDK_HEADERS=[
         File("api_lock.h"),
         File("value_index.h"),
+        File("compress.h"),
         File("manchester_decoder.h"),
         File("manchester_encoder.h"),
         File("path.h"),

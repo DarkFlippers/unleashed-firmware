@@ -244,7 +244,9 @@ bool subghz_file_encoder_worker_start(
 
     furi_stream_buffer_reset(instance->stream);
     furi_string_set(instance->file_path, file_path);
-    instance->device = subghz_devices_get_by_name(radio_device_name);
+    if(radio_device_name) {
+        instance->device = subghz_devices_get_by_name(radio_device_name);
+    }
     instance->worker_running = true;
     furi_thread_start(instance->thread);
 
