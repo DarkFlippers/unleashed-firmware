@@ -327,6 +327,9 @@ distenv.PhonyTarget(
     "cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py  -p ${FLIP_PORT}"
 )
 
+# Update WiFi devboard firmware
+distenv.PhonyTarget("devboard_flash", "${PYTHON3} ${FBT_SCRIPT_DIR}/wifi_board.py")
+
 
 # Find blackmagic probe
 distenv.PhonyTarget(
