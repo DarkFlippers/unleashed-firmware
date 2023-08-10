@@ -27,10 +27,7 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
     bool consumed = false;
 
-    if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_set_scene_state(
-            nfc->scene_manager, NfcSceneSetUid, NfcSceneSetUidStateNotSet);
-    } else if(event.type == SceneManagerEventTypeCustom) {
+    if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventByteInputDone) {
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
                 nfc->dev->dev_data.nfc_data = nfc->dev_edit_data;
@@ -38,50 +35,24 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
                     consumed = true;
                 }
-            } else {
-                switch(scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSetUid)) {
-                case NfcSceneSetUidStateMFClassic1k:
-                    nfc_generate_mf_classic_ext(
-                        &nfc->dev->dev_data,
-                        nfc->dev_edit_data.uid_len,
-                        MfClassicType1k,
-                        false,
-                        nfc->dev_edit_data.uid);
-                    scene_manager_next_scene(nfc->scene_manager, NfcSceneGenerateInfo);
-                    consumed = true;
-                    break;
-
-                case NfcSceneSetUidStateMFClassic4k:
-                    nfc_generate_mf_classic_ext(
-                        &nfc->dev->dev_data,
-                        nfc->dev_edit_data.uid_len,
-                        MfClassicType4k,
-                        false,
-                        nfc->dev_edit_data.uid);
-                    scene_manager_next_scene(nfc->scene_manager, NfcSceneGenerateInfo);
-                    consumed = true;
-                    break;
-
-                case NfcSceneSetUidStateMFClassicMini:
-                    nfc_generate_mf_classic_ext(
-                        &nfc->dev->dev_data,
-                        nfc->dev_edit_data.uid_len,
-                        MfClassicTypeMini,
-                        false,
-                        nfc->dev_edit_data.uid);
-                    scene_manager_next_scene(nfc->scene_manager, NfcSceneGenerateInfo);
-                    consumed = true;
-                    break;
-
-                case NfcSceneSetUidStateNotSet:
-                    scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
-                    consumed = true;
-                    break;
-
-                default:
+            } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetTypeMfUid)) {
+                MfClassicType mf_type =
+                    scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSetTypeMfUid);
+                if(mf_type > MfClassicTypeMini) {
                     furi_crash("Nfc unknown type");
-                    break;
                 }
+                nfc_generate_mf_classic_ext(
+                    &nfc->dev->dev_data,
+                    nfc->dev_edit_data.uid_len,
+                    mf_type,
+                    false,
+                    nfc->dev_edit_data.uid);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneGenerateInfo);
+                consumed = true;
+
+            } else {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
+                consumed = true;
             }
         }
     }

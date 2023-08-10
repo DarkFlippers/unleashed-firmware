@@ -15,10 +15,3 @@ enum NfcCustomEvent {
     NfcCustomEventUpdateLog,
     NfcCustomEventSaveShadow,
 };
-
-enum NfcSceneSetUidState {
-    NfcSceneSetUidStateNotSet,
-    NfcSceneSetUidStateMFClassic1k,
-    NfcSceneSetUidStateMFClassic4k,
-    NfcSceneSetUidStateMFClassicMini,
-};
