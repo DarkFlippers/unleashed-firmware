@@ -1717,3 +1717,41 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 3981 3992 495 1994 495 1995 496 1996 494 1996 495 1005 495 1006 494 1995 495 1997 494 1996 495 1996 494 1997 494 1996 495 1006 494 1005 495 1004 496 1005 495 1995 496 1994 496 1005 495 1004 496 1005 495 1006 494 1004 496 1006 494 8466 3978 3991 495 1994 495 1997 493 1994 496 1995 495 1004 496 1004 496 1996 494 1997 493 1996 494 1995 495 1995 495 1997 493 1004 495 1004 495 1006 494 1005 494 1998 491 1996 494 1006 494 1004 496 1006 494 1006 493 1005 495 1005 571
+# 
+# Thomson Remote
+# Model RC3000E02
+name: Power
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: 54 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: F4 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: 74 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: B4 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: 34 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: FC 00 00 00
