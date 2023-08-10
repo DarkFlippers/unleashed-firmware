@@ -161,3 +161,10 @@ Max butthurt: 10
 Min level: 3
 Max level: 3
 Weight: 3
+
+Name: L1_Sad_song_128x64
+Min butthurt: 8
+Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 4
