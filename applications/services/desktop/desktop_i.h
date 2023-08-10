@@ -59,6 +59,7 @@ struct Desktop {
 
     ViewPort* lock_icon_viewport;
     ViewPort* dummy_mode_icon_viewport;
+    ViewPort* clock_viewport;
     ViewPort* stealth_mode_icon_viewport;
 
     AnimationManager* animation_manager;
@@ -70,10 +71,15 @@ struct Desktop {
     FuriPubSub* input_events_pubsub;
     FuriPubSubSubscription* input_events_subscription;
     FuriTimer* auto_lock_timer;
+    FuriTimer* update_clock_timer;
 
     FuriPubSub* status_pubsub;
 
-    bool in_transition;
+    uint8_t time_hour;
+    uint8_t time_minute;
+    bool time_format_12 : 1; // 1 - 12 hour, 0 - 24H
+
+    bool in_transition : 1;
 };
 
 Desktop* desktop_alloc();

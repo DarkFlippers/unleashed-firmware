@@ -1,6 +1,7 @@
 #include <storage/storage.h>
 #include <assets_icons.h>
 #include <gui/gui.h>
+#include <gui/gui_i.h>
 #include <gui/view_stack.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
@@ -8,6 +9,7 @@
 #include <furi_hal.h>
 #include <cli/cli.h>
 #include <cli/cli_vcp.h>
+#include <locale/locale.h>
 
 #include "animations/animation_manager.h"
 #include "desktop/scenes/desktop_scene.h"
@@ -36,7 +38,6 @@ static void desktop_loader_callback(const void* message, void* context) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }
-
 static void desktop_lock_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
@@ -47,6 +48,65 @@ static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context)
     UNUSED(context);
     furi_assert(canvas);
     canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
+}
+
+static void desktop_clock_update(Desktop* desktop) {
+    furi_assert(desktop);
+
+    FuriHalRtcDateTime curr_dt;
+    furi_hal_rtc_get_datetime(&curr_dt);
+    bool time_format_12 = locale_get_time_format() == LocaleTimeFormat12h;
+
+    if(desktop->time_hour != curr_dt.hour || desktop->time_minute != curr_dt.minute ||
+       desktop->time_format_12 != time_format_12) {
+        desktop->time_format_12 = time_format_12;
+        desktop->time_hour = curr_dt.hour;
+        desktop->time_minute = curr_dt.minute;
+        view_port_update(desktop->clock_viewport);
+    }
+}
+
+static void desktop_clock_reconfigure(Desktop* desktop) {
+    furi_assert(desktop);
+
+    desktop_clock_update(desktop);
+
+    if(desktop->settings.display_clock) {
+        furi_timer_start(desktop->update_clock_timer, furi_ms_to_ticks(1000));
+    } else {
+        furi_timer_stop(desktop->update_clock_timer);
+    }
+
+    view_port_enabled_set(desktop->clock_viewport, desktop->settings.display_clock);
+}
+
+static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
+    furi_assert(context);
+    furi_assert(canvas);
+
+    Desktop* desktop = context;
+
+    canvas_set_font(canvas, FontPrimary);
+
+    uint8_t hour = desktop->time_hour;
+    if(desktop->time_format_12) {
+        if(hour > 12) {
+            hour -= 12;
+        }
+        if(hour == 0) {
+            hour = 12;
+        }
+    }
+
+    char buffer[20];
+    snprintf(buffer, sizeof(buffer), "%02u:%02u", hour, desktop->time_minute);
+
+    // ToDo: never do that, may cause visual glitches
+    view_port_set_width(
+        desktop->clock_viewport,
+        canvas_string_width(canvas, buffer) - 1 + (desktop->time_minute % 10 == 1));
+
+    canvas_draw_str_aligned(canvas, 0, 8, AlignLeft, AlignBottom, buffer);
 }
 
 static void desktop_stealth_mode_icon_draw_callback(Canvas* canvas, void* context) {
@@ -69,6 +129,9 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
         // TODO: Implement a message mechanism for loading settings and (optionally)
         // locking and unlocking
         DESKTOP_SETTINGS_LOAD(&desktop->settings);
+
+        desktop_clock_reconfigure(desktop);
+
         desktop_auto_lock_arm(desktop);
         return true;
     case DesktopGlobalAutoLock:
@@ -131,6 +194,19 @@ static void desktop_auto_lock_inhibit(Desktop* desktop) {
     if(desktop->input_events_subscription) {
         furi_pubsub_unsubscribe(desktop->input_events_pubsub, desktop->input_events_subscription);
         desktop->input_events_subscription = NULL;
+    }
+}
+
+static void desktop_clock_timer_callback(void* context) {
+    furi_assert(context);
+    Desktop* desktop = context;
+
+    if(gui_active_view_port_count(desktop->gui, GuiLayerStatusBarLeft) < 6) {
+        desktop_clock_update(desktop);
+
+        view_port_enabled_set(desktop->clock_viewport, true);
+    } else {
+        view_port_enabled_set(desktop->clock_viewport, false);
     }
 }
 
@@ -286,6 +362,13 @@ Desktop* desktop_alloc() {
     view_port_enabled_set(desktop->dummy_mode_icon_viewport, false);
     gui_add_view_port(desktop->gui, desktop->dummy_mode_icon_viewport, GuiLayerStatusBarLeft);
 
+    // Clock
+    desktop->clock_viewport = view_port_alloc();
+    view_port_set_width(desktop->clock_viewport, 25);
+    view_port_draw_callback_set(desktop->clock_viewport, desktop_clock_draw_callback, desktop);
+    view_port_enabled_set(desktop->clock_viewport, false);
+    gui_add_view_port(desktop->gui, desktop->clock_viewport, GuiLayerStatusBarRight);
+
     // Stealth mode icon
     desktop->stealth_mode_icon_viewport = view_port_alloc();
     view_port_set_width(desktop->stealth_mode_icon_viewport, icon_get_width(&I_Muted_8x8));
@@ -316,6 +399,9 @@ Desktop* desktop_alloc() {
         furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
 
     desktop->status_pubsub = furi_pubsub_alloc();
+
+    desktop->update_clock_timer =
+        furi_timer_alloc(desktop_clock_timer_callback, FuriTimerTypePeriodic, desktop);
 
     furi_record_create(RECORD_DESKTOP, desktop);
 
@@ -362,6 +448,9 @@ int32_t desktop_srv(void* p) {
     }
 
     view_port_enabled_set(desktop->dummy_mode_icon_viewport, desktop->settings.dummy_mode);
+
+    desktop_clock_reconfigure(desktop);
+
     desktop_main_set_dummy_mode_state(desktop->main_view, desktop->settings.dummy_mode);
     animation_manager_set_dummy_mode_state(
         desktop->animation_manager, desktop->settings.dummy_mode);
