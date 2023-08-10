@@ -27,5 +27,9 @@ class Programmer(ABC):
         pass
 
     @abstractmethod
+    def option_bytes_recover(self) -> bool:
+        pass
+
+    @abstractmethod
     def otp_write(self, address: int, file_path: str) -> bool:
         pass

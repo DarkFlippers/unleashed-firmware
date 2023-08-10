@@ -500,7 +500,7 @@ bool furi_hal_crypto_ctr(
     size_t length) {
     /* prepare IV and counter */
     uint8_t iv_and_counter[CRYPTO_CTR_IV_LEN + CRYPTO_CTR_CTR_LEN];
-    memcpy(iv_and_counter, iv, CRYPTO_CTR_IV_LEN);
+    memcpy(iv_and_counter, iv, CRYPTO_CTR_IV_LEN); //-V1086
     furi_hal_crypto_ctr_prep_iv(iv_and_counter);
 
     /* load key and IV and set the mode to CTR */
@@ -648,7 +648,7 @@ bool furi_hal_crypto_gcm(
 
     /* prepare IV and counter */
     uint8_t iv_and_counter[CRYPTO_GCM_IV_LEN + CRYPTO_GCM_CTR_LEN];
-    memcpy(iv_and_counter, iv, CRYPTO_GCM_IV_LEN);
+    memcpy(iv_and_counter, iv, CRYPTO_GCM_IV_LEN); //-V1086
     furi_hal_crypto_gcm_prep_iv(iv_and_counter);
 
     /* load key and IV and set the mode to CTR */
