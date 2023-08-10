@@ -8,11 +8,14 @@ from SCons.Errors import StopError
 
 
 def icons_emitter(target, source, env):
+    icons_src = env.GlobRecursive("*.png", env["ICON_SRC_DIR"])
+    icons_src += env.GlobRecursive("frame_rate", env["ICON_SRC_DIR"])
+
     target = [
         target[0].File(env.subst("${ICON_FILE_NAME}.c")),
         target[0].File(env.subst("${ICON_FILE_NAME}.h")),
     ]
-    return target, source
+    return target, icons_src
 
 
 def proto_emitter(target, source, env):
@@ -104,17 +107,12 @@ def proto_ver_generator(target, source, env):
 
 
 def CompileIcons(env, target_dir, source_dir, *, icon_bundle_name="assets_icons"):
-    # Gathering icons sources
-    icons_src = env.GlobRecursive("*.png", source_dir)
-    icons_src += env.GlobRecursive("frame_rate", source_dir)
-
-    icons = env.IconBuilder(
+    return env.IconBuilder(
         target_dir,
-        source_dir,
+        None,
+        ICON_SRC_DIR=source_dir,
         ICON_FILE_NAME=icon_bundle_name,
     )
-    env.Depends(icons, icons_src)
-    return icons
 
 
 def generate(env):
@@ -137,7 +135,7 @@ def generate(env):
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} ${ASSETS_COMPILER} icons ${ABSPATHGETTERFUNC(SOURCE)} ${TARGET.dir} --filename "${ICON_FILE_NAME}"',
+                    '${PYTHON3} ${ASSETS_COMPILER} icons ${ICON_SRC_DIR} ${TARGET.dir} --filename "${ICON_FILE_NAME}"',
                     "${ICONSCOMSTR}",
                 ),
                 emitter=icons_emitter,
