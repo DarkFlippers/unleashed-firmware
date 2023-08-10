@@ -348,6 +348,9 @@ appenv.PhonyTarget(
     '${PYTHON3} "${FBT_SCRIPT_DIR}/serial_cli.py" -p ${FLIP_PORT}',
 )
 
+# Update WiFi devboard firmware
+dist_env.PhonyTarget("devboard_flash", "${PYTHON3} ${FBT_SCRIPT_DIR}/wifi_board.py")
+
 # Linter
 
 dist_env.PhonyTarget(
