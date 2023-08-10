@@ -283,7 +283,7 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
         // Signature verification
         uint8_t enclave_keys = 0;
         uint8_t enclave_valid_keys = 0;
-        bool enclave_valid = furi_hal_crypto_verify_enclave(&enclave_keys, &enclave_valid_keys);
+        bool enclave_valid = furi_hal_crypto_enclave_verify(&enclave_keys, &enclave_valid_keys);
         if(sep == '.') {
             property_value_out(
                 &property_context, "%d", 3, "enclave", "keys", "valid", enclave_valid_keys);

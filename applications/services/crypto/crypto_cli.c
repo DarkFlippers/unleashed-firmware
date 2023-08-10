@@ -33,7 +33,7 @@ void crypto_cli_encrypt(Cli* cli, FuriString* args) {
             break;
         }
 
-        if(!furi_hal_crypto_store_load_key(key_slot, iv)) {
+        if(!furi_hal_crypto_enclave_load_key(key_slot, iv)) {
             printf("Unable to load key from slot %d", key_slot);
             break;
         }
@@ -88,7 +88,7 @@ void crypto_cli_encrypt(Cli* cli, FuriString* args) {
     } while(0);
 
     if(key_loaded) {
-        furi_hal_crypto_store_unload_key(key_slot);
+        furi_hal_crypto_enclave_unload_key(key_slot);
     }
 }
 
@@ -108,7 +108,7 @@ void crypto_cli_decrypt(Cli* cli, FuriString* args) {
             break;
         }
 
-        if(!furi_hal_crypto_store_load_key(key_slot, iv)) {
+        if(!furi_hal_crypto_enclave_load_key(key_slot, iv)) {
             printf("Unable to load key from slot %d", key_slot);
             break;
         }
@@ -160,7 +160,7 @@ void crypto_cli_decrypt(Cli* cli, FuriString* args) {
     } while(0);
 
     if(key_loaded) {
-        furi_hal_crypto_store_unload_key(key_slot);
+        furi_hal_crypto_enclave_unload_key(key_slot);
     }
 }
 
@@ -175,14 +175,14 @@ void crypto_cli_has_key(Cli* cli, FuriString* args) {
             break;
         }
 
-        if(!furi_hal_crypto_store_load_key(key_slot, iv)) {
+        if(!furi_hal_crypto_enclave_load_key(key_slot, iv)) {
             printf("Unable to load key from slot %d", key_slot);
             break;
         }
 
         printf("Successfully loaded key from slot %d", key_slot);
 
-        furi_hal_crypto_store_unload_key(key_slot);
+        furi_hal_crypto_enclave_unload_key(key_slot);
     } while(0);
 }
 
@@ -251,25 +251,25 @@ void crypto_cli_store_key(Cli* cli, FuriString* args) {
         if(key_slot > 0) {
             uint8_t iv[16] = {0};
             if(key_slot > 1) {
-                if(!furi_hal_crypto_store_load_key(key_slot - 1, iv)) {
+                if(!furi_hal_crypto_enclave_load_key(key_slot - 1, iv)) {
                     printf(
                         "Slot %d before %d is empty, which is not allowed",
                         key_slot - 1,
                         key_slot);
                     break;
                 }
-                furi_hal_crypto_store_unload_key(key_slot - 1);
+                furi_hal_crypto_enclave_unload_key(key_slot - 1);
             }
 
-            if(furi_hal_crypto_store_load_key(key_slot, iv)) {
-                furi_hal_crypto_store_unload_key(key_slot);
+            if(furi_hal_crypto_enclave_load_key(key_slot, iv)) {
+                furi_hal_crypto_enclave_unload_key(key_slot);
                 printf("Key slot %d is already used", key_slot);
                 break;
             }
         }
 
         uint8_t slot;
-        if(furi_hal_crypto_store_add_key(&key, &slot)) {
+        if(furi_hal_crypto_enclave_store_key(&key, &slot)) {
             printf("Success. Stored to slot: %d", slot);
         } else {
             printf("Failure");
