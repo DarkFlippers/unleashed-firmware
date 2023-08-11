@@ -3,7 +3,7 @@ from fbt.util import (
     tempfile_arg_esc_func,
     single_quote,
     wrap_tempfile,
-    extract_abs_dir_path,
+    resolve_real_dir_node,
 )
 
 import os
@@ -59,7 +59,7 @@ coreenv = VAR_ENV.Clone(
     PROGSUFFIX=".elf",
     ENV=forward_os_env,
     SINGLEQUOTEFUNC=single_quote,
-    ABSPATHGETTERFUNC=extract_abs_dir_path,
+    ABSPATHGETTERFUNC=resolve_real_dir_node,
     # Setting up temp file parameters - to overcome command line length limits
     TEMPFILEARGESCFUNC=tempfile_arg_esc_func,
     ROOT_DIR=Dir("#"),

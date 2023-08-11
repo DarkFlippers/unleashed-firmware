@@ -1,0 +1,284 @@
+Filetype: Flipper Animation
+Version: 1
+
+Width: 128
+Height: 64
+Passive frames: 31
+Active frames: 55
+Frames order: 0 1 2 3 4 5 0 1 6 7 8 5 9 10 11 12 13 14 15 0 1 2 3 4 5 0 1 6 7 8 5 9 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 53 54 53 55 56 57 58 59 60 61 62 4 5
+Active cycles: 1
+Frame rate: 2
+Duration: 3600
+Active cooldown: 6
+
+Bubble slots: 4
+
+Slot: 0
+X: 65
+Y: 14
+Text: All by myself
+AlignH: Left
+AlignV: Bottom
+StartFrame: 45
+EndFrame: 51
+
+Slot: 0
+X: 5
+Y: 16
+Text: Don't want
+AlignH: Right
+AlignV: Bottom
+StartFrame: 56
+EndFrame: 58
+
+Slot: 0
+X: 15
+Y: 15
+Text: to be
+AlignH: Right
+AlignV: Bottom
+StartFrame: 59
+EndFrame: 60
+
+Slot: 0
+X: 14
+Y: 14
+Text: All by myself
+AlignH: Right
+AlignV: Bottom
+StartFrame: 63
+EndFrame: 69
+
+Slot: 0
+X: 81
+Y: 25
+Text: anymore
+AlignH: Left
+AlignV: Bottom
+StartFrame: 72
+EndFrame: 74
+
+Slot: 1
+X: 65
+Y: 14
+Text: Nevermind
+AlignH: Left
+AlignV: Bottom
+StartFrame: 45
+EndFrame: 48
+
+Slot: 1
+X: 65
+Y: 14
+Text: I'll find
+AlignH: Left
+AlignV: Bottom
+StartFrame: 49
+EndFrame: 52
+
+Slot: 1
+X: 2
+Y: 16
+Text: Someone like
+AlignH: Right
+AlignV: Bottom
+StartFrame: 56
+EndFrame: 58
+
+Slot: 1
+X: 11
+Y: 16
+Text: youuuuu
+AlignH: Right
+AlignV: Bottom
+StartFrame: 59
+EndFrame: 60
+
+Slot: 1
+X: 3
+Y: 14
+Text: I wish nothing
+AlignH: Right
+AlignV: Bottom
+StartFrame: 64
+EndFrame: 66
+
+Slot: 1
+X: 6
+Y: 14
+Text: but the best
+AlignH: Right
+AlignV: Bottom
+StartFrame: 67
+EndFrame: 70
+
+Slot: 1
+X: 81
+Y: 25
+Text: for you
+AlignH: Left
+AlignV: Bottom
+StartFrame: 72
+EndFrame: 74
+
+Slot: 2
+X: 65
+Y: 14
+Text: What have I
+AlignH: Left
+AlignV: Bottom
+StartFrame: 45
+EndFrame: 48
+
+Slot: 2
+X: 65
+Y: 14
+Text: become
+AlignH: Left
+AlignV: Bottom
+StartFrame: 47
+EndFrame: 51
+
+Slot: 2
+X: 6
+Y: 16
+Text: My dearest
+AlignH: Right
+AlignV: Bottom
+StartFrame: 56
+EndFrame: 58
+
+Slot: 2
+X: 14
+Y: 16
+Text: friend
+AlignH: Right
+AlignV: Bottom
+StartFrame: 59
+EndFrame: 60
+
+Slot: 2
+X: 17
+Y: 14
+Text: Everyone
+AlignH: Right
+AlignV: Bottom
+StartFrame: 63
+EndFrame: 64
+
+Slot: 2
+X: 17
+Y: 14
+Text: I know
+AlignH: Right
+AlignV: Bottom
+StartFrame: 65
+EndFrame: 67
+
+Slot: 2
+X: 17
+Y: 14
+Text: goes away
+AlignH: Right
+AlignV: Bottom
+StartFrame: 68
+EndFrame: 70
+
+Slot: 2
+X: 81
+Y: 25
+Text: in the\n end
+AlignH: Left
+AlignV: Bottom
+StartFrame: 72
+EndFrame: 74
+
+Slot: 3
+X: 73
+Y: 14
+Text: We could\n have been
+AlignH: Left
+AlignV: Bottom
+StartFrame: 45
+EndFrame: 48
+
+Slot: 3
+X: 73
+Y: 14
+Text: so good\n together
+AlignH: Left
+AlignV: Bottom
+StartFrame: 49
+EndFrame: 51
+
+Slot: 3
+X: 7
+Y: 17
+Text: We could\n have lived
+AlignH: Right
+AlignV: Bottom
+StartFrame: 55
+EndFrame: 57
+
+Slot: 3
+X: 7
+Y: 17
+Text: this dance\n forever
+AlignH: Right
+AlignV: Bottom
+StartFrame: 58
+EndFrame: 60
+
+Slot: 3
+X: 12
+Y: 14
+Text: But now
+AlignH: Right
+AlignV: Bottom
+StartFrame: 64
+EndFrame: 65
+
+Slot: 3
+X: 5
+Y: 14
+Text: who's gonna
+AlignH: Right
+AlignV: Bottom
+StartFrame: 66
+EndFrame: 67
+
+Slot: 3
+X: 7
+Y: 14
+Text: dance with
+AlignH: Right
+AlignV: Bottom
+StartFrame: 68
+EndFrame: 69
+
+Slot: 3
+X: 26
+Y: 14
+Text: me?
+AlignH: Right
+AlignV: Bottom
+StartFrame: 70
+EndFrame: 70
+
+Slot: 3
+X: 81
+Y: 25
+Text: Please
+AlignH: Left
+AlignV: Bottom
+StartFrame: 72
+EndFrame: 74
+
+Slot: 3
+X: 81
+Y: 25
+Text: stay
+AlignH: Left
+AlignV: Bottom
+StartFrame: 74
+EndFrame: 75

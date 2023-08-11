@@ -11,7 +11,7 @@ from fbt.appmanifest import FlipperApplication, FlipperAppType, FlipperManifestE
 from fbt.elfmanifest import assemble_manifest_data
 from fbt.fapassets import FileBundler
 from fbt.sdk.cache import SdkCache
-from fbt.util import extract_abs_dir_path
+from fbt.util import resolve_real_dir_node
 from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Errors import UserError
@@ -50,7 +50,8 @@ class AppBuilder:
 
     def _setup_app_env(self):
         self.app_env = self.fw_env.Clone(
-            FAP_SRC_DIR=self.app._appdir, FAP_WORK_DIR=self.app_work_dir
+            FAP_SRC_DIR=self.app._appdir,
+            FAP_WORK_DIR=self.app_work_dir,
         )
         self.app_env.VariantDir(self.app_work_dir, self.app._appdir, duplicate=False)
 
@@ -119,7 +120,7 @@ class AppBuilder:
             CPPDEFINES=lib_def.cdefines,
             CPPPATH=list(
                 map(
-                    lambda cpath: extract_abs_dir_path(self.app._appdir.Dir(cpath)),
+                    lambda cpath: resolve_real_dir_node(self.app._appdir.Dir(cpath)),
                     lib_def.cincludes,
                 )
             ),
@@ -133,7 +134,7 @@ class AppBuilder:
     def _build_app(self):
         self.app_env.Append(
             LIBS=[*self.app.fap_libs, *self.private_libs],
-            CPPPATH=self.app_env.Dir(self.app_work_dir),
+            CPPPATH=[self.app_env.Dir(self.app_work_dir), self.app._appdir],
         )
 
         app_sources = list(
