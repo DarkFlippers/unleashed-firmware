@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../config/app/config.h"
+
 typedef uint8_t Scene;
 
 /**
@@ -21,10 +23,12 @@ enum Scenes {
      */
     TotpSceneGenerateToken,
 
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
     /**
      * @brief Scene where user can add new token 
      */
     TotpSceneAddNewToken,
+#endif
 
     /**
      * @brief Scene with a menu for given token, allowing user to do multiple actions

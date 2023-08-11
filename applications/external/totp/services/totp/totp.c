@@ -4,12 +4,16 @@
 #include <stdint.h>
 #include <math.h>
 #include <timezone_utils.h>
-#include "../hmac/hmac_sha1.h"
-#include "../hmac/hmac_sha256.h"
-#include "../hmac/hmac_sha512.h"
-#include "../hmac/byteswap.h"
+#include "../../config/wolfssl/config.h"
+#include <wolfssl/wolfcrypt/hmac.h>
 
-#define HMAC_MAX_RESULT_SIZE HMAC_SHA512_RESULT_SIZE
+#define HMAC_MAX_RESULT_SIZE WC_SHA512_DIGEST_SIZE
+
+static uint64_t swap_uint64(uint64_t val) {
+    val = ((val << 8) & 0xFF00FF00FF00FF00ULL) | ((val >> 8) & 0x00FF00FF00FF00FFULL);
+    val = ((val << 16) & 0xFFFF0000FFFF0000ULL) | ((val >> 16) & 0x0000FFFF0000FFFFULL);
+    return (val << 32) | (val >> 32);
+}
 
 /**
  * @brief Generates the timeblock for a time in seconds.
@@ -68,14 +72,34 @@ uint64_t totp_at(
         algo, plain_secret, plain_secret_length, totp_timecode(interval, for_time_adjusted));
 }
 
+static int totp_algo_common(
+    int type,
+    const uint8_t* key,
+    size_t key_length,
+    const uint8_t* input,
+    size_t input_length,
+    uint8_t* output) {
+    Hmac hmac;
+    int ret = wc_HmacSetKey(&hmac, type, key, key_length);
+    if(ret == 0) {
+        ret = wc_HmacUpdate(&hmac, input, input_length);
+    }
+
+    if(ret == 0) {
+        ret = wc_HmacFinal(&hmac, output);
+    }
+
+    wc_HmacFree(&hmac);
+    return ret == 0 ? wc_HmacSizeByType(type) : 0;
+}
+
 static int totp_algo_sha1(
     const uint8_t* key,
     size_t key_length,
     const uint8_t* input,
     size_t input_length,
     uint8_t* output) {
-    hmac_sha1(key, key_length, input, input_length, output);
-    return HMAC_SHA1_RESULT_SIZE;
+    return totp_algo_common(WC_SHA, key, key_length, input, input_length, output);
 }
 
 static int totp_algo_sha256(
@@ -84,8 +108,7 @@ static int totp_algo_sha256(
     const uint8_t* input,
     size_t input_length,
     uint8_t* output) {
-    hmac_sha256(key, key_length, input, input_length, output);
-    return HMAC_SHA256_RESULT_SIZE;
+    return totp_algo_common(WC_SHA256, key, key_length, input, input_length, output);
 }
 
 static int totp_algo_sha512(
@@ -94,8 +117,7 @@ static int totp_algo_sha512(
     const uint8_t* input,
     size_t input_length,
     uint8_t* output) {
-    hmac_sha512(key, key_length, input, input_length, output);
-    return HMAC_SHA512_RESULT_SIZE;
+    return totp_algo_common(WC_SHA512, key, key_length, input, input_length, output);
 }
 
 const TOTP_ALGO TOTP_ALGO_SHA1 = (TOTP_ALGO)(&totp_algo_sha1);

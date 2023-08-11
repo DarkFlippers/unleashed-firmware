@@ -4,6 +4,8 @@
 #include "../../../types/automation_kb_layout.h"
 #include <flipper_format/flipper_format_i.h>
 
+#define TOTP_OLD_CONFIG_KEY_BASE_IV "BaseIV"
+
 bool totp_config_migrate_to_latest(
     FlipperFormat* fff_data_file,
     FlipperFormat* fff_backup_data_file) {
@@ -40,8 +42,13 @@ bool totp_config_migrate_to_latest(
 
         flipper_format_rewind(fff_backup_data_file);
 
-        if(flipper_format_read_string(fff_backup_data_file, TOTP_CONFIG_KEY_BASE_IV, temp_str)) {
-            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_BASE_IV, temp_str);
+        if(flipper_format_read_string(fff_backup_data_file, TOTP_CONFIG_KEY_SALT, temp_str)) {
+            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_SALT, temp_str);
+        } else if(
+            flipper_format_rewind(fff_backup_data_file) &&
+            flipper_format_read_string(
+                fff_backup_data_file, TOTP_OLD_CONFIG_KEY_BASE_IV, temp_str)) {
+            flipper_format_write_string(fff_data_file, TOTP_CONFIG_KEY_SALT, temp_str);
         }
 
         flipper_format_rewind(fff_backup_data_file);

@@ -7,7 +7,7 @@
 #include "../../types/crypto_settings.h"
 
 #define CONFIG_FILE_PART_FILE_PATH CONFIG_FILE_DIRECTORY_PATH "/totp.conf.part"
-#define STREAM_COPY_BUFFER_SIZE 128
+#define STREAM_COPY_BUFFER_SIZE (128)
 
 struct TokenInfoIteratorContext {
     size_t total_count;
@@ -547,4 +547,6 @@ void totp_token_info_iterator_attach_to_config_file(
     TokenInfoIteratorContext* context,
     FlipperFormat* config_file) {
     context->config_file = config_file;
+    Stream* stream = flipper_format_get_raw_stream(context->config_file);
+    stream_seek(stream, context->last_seek_offset, StreamOffsetFromStart);
 }

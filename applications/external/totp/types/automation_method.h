@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../features_config.h"
+#include "../config/app/config.h"
 
 typedef uint8_t AutomationMethod;
 

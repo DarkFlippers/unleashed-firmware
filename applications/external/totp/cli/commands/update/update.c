@@ -107,6 +107,7 @@ static TotpIteratorUpdateTokenResult
     return TotpIteratorUpdateTokenResultSuccess;
 }
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_update_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_UPDATE "           Update existing token\r\n");
 }
@@ -129,6 +130,7 @@ void totp_cli_command_update_docopt_options() {
     TOTP_CLI_PRINTF("  " DOCOPT_SWITCH(
         TOTP_CLI_COMMAND_UPDATE_ARG_SECRET_PREFIX) "             Update token secret\r\n");
 }
+#endif
 
 void totp_cli_command_update_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
     if(!totp_cli_ensure_authenticated(plugin_state, cli)) {

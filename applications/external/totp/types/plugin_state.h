@@ -3,7 +3,7 @@
 #include <notification/notification.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
-#include "../features_config.h"
+#include "../config/app/config.h"
 #include "../ui/totp_scenes_enum.h"
 #include "../services/config/config_file_context.h"
 #include "../services/idle_timeout/idle_timeout.h"

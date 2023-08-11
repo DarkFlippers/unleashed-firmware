@@ -10,6 +10,7 @@
 
 #define TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX "new_index"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_move_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_MOVE ", " TOTP_CLI_COMMAND_MOVE_ALT
                     "         Move token\r\n");
@@ -26,6 +27,7 @@ void totp_cli_command_move_docopt_arguments() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_MOVE_ARG_NEW_INDEX
                     "     New token index in the list\r\n");
 }
+#endif
 
 void totp_cli_command_move_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
     if(!totp_cli_ensure_authenticated(plugin_state, cli)) {

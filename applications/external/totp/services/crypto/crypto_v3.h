@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../../config/app/config.h"
-#ifdef TOTP_OBSOLETE_CRYPTO_V1_COMPATIBILITY_ENABLED
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,7 +14,7 @@
  * @param[out] encrypted_data_length encrypted data length
  * @return Encrypted data
  */
-uint8_t* totp_crypto_encrypt_v1(
+uint8_t* totp_crypto_encrypt_v3(
     const uint8_t* plain_data,
     const size_t plain_data_length,
     const CryptoSettings* crypto_settings,
@@ -30,7 +28,7 @@ uint8_t* totp_crypto_encrypt_v1(
  * @param[out] decrypted_data_length decrypted data length
  * @return Decrypted data
  */
-uint8_t* totp_crypto_decrypt_v1(
+uint8_t* totp_crypto_decrypt_v3(
     const uint8_t* encrypted_data,
     const size_t encrypted_data_length,
     const CryptoSettings* crypto_settings,
@@ -44,12 +42,11 @@ uint8_t* totp_crypto_decrypt_v1(
  * @return Results of seeding IV
  */
 CryptoSeedIVResult
-    totp_crypto_seed_iv_v1(CryptoSettings* crypto_settings, const uint8_t* pin, uint8_t pin_length);
+    totp_crypto_seed_iv_v3(CryptoSettings* crypto_settings, const uint8_t* pin, uint8_t pin_length);
 
 /**
  * @brief Verifies whether cryptographic information (certificate + IV) is valid and can be used for encryption and decryption
  * @param crypto_settings crypto settings
  * @return \c true if cryptographic information is valid; \c false otherwise
  */
-bool totp_crypto_verify_key_v1(const CryptoSettings* crypto_settings);
-#endif
+bool totp_crypto_verify_key_v3(const CryptoSettings* crypto_settings);

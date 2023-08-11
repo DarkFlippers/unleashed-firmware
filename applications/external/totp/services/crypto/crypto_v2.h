@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../config/app/config.h"
+#ifdef TOTP_OBSOLETE_CRYPTO_V2_COMPATIBILITY_ENABLED
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -50,3 +52,4 @@ CryptoSeedIVResult
  * @return \c true if cryptographic information is valid; \c false otherwise
  */
 bool totp_crypto_verify_key_v2(const CryptoSettings* crypto_settings);
+#endif

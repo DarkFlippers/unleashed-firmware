@@ -1,5 +1,6 @@
 #include "totp_input_text.h"
 
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
 #include <gui/view_dispatcher.h>
 #include <gui/modules/text_input.h>
 
@@ -50,3 +51,4 @@ void totp_input_text(Gui* gui, const char* header_text, InputTextResult* result)
     view_dispatcher_free(view_dispatcher);
     text_input_free(text_input);
 }
+#endif

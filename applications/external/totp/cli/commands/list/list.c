@@ -6,6 +6,7 @@
 #include "../../../ui/scene_director.h"
 #include "../../cli_helpers.h"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_list_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_LIST ", " TOTP_CLI_COMMAND_LIST_ALT
                     "         List all available tokens\r\n");
@@ -15,6 +16,7 @@ void totp_cli_command_list_docopt_usage() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_NAME " " DOCOPT_REQUIRED(
         TOTP_CLI_COMMAND_LIST " | " TOTP_CLI_COMMAND_LIST_ALT) "\r\n");
 }
+#endif
 
 void totp_cli_command_list_handle(PluginState* plugin_state, Cli* cli) {
     if(!totp_cli_ensure_authenticated(plugin_state, cli)) {

@@ -10,6 +10,7 @@
 
 #define TOTP_CLI_COMMAND_DELETE_ARG_FORCE_PREFIX "-f"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_delete_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_DELETE ", " TOTP_CLI_COMMAND_DELETE_ALT
                     "       Delete existing token\r\n");
@@ -30,6 +31,7 @@ void totp_cli_command_delete_docopt_options() {
     TOTP_CLI_PRINTF("  " DOCOPT_SWITCH(
         TOTP_CLI_COMMAND_DELETE_ARG_FORCE_PREFIX) "             Force command to do not ask user for interactive confirmation\r\n");
 }
+#endif
 
 void totp_cli_command_delete_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
     if(!totp_cli_ensure_authenticated(plugin_state, cli)) {

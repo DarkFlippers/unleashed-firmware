@@ -12,6 +12,7 @@
 #include "../automation/automation.h"
 #include "../details/details.h"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_help_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_HELP ", " TOTP_CLI_COMMAND_HELP_ALT
                     ", " TOTP_CLI_COMMAND_HELP_ALT2 "       Show command usage help\r\n");
@@ -22,8 +23,10 @@ void totp_cli_command_help_docopt_usage() {
         TOTP_CLI_COMMAND_HELP " | " TOTP_CLI_COMMAND_HELP_ALT
                               " | " TOTP_CLI_COMMAND_HELP_ALT2) "\r\n");
 }
+#endif
 
 void totp_cli_command_help_handle() {
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
     TOTP_CLI_PRINTF("Usage:\r\n");
     totp_cli_command_help_docopt_usage();
     totp_cli_command_list_docopt_usage();
@@ -66,4 +69,8 @@ void totp_cli_command_help_handle() {
     totp_cli_command_delete_docopt_options();
     totp_cli_command_pin_docopt_options();
     totp_cli_command_automation_docopt_options();
+#else
+    TOTP_CLI_PRINTF(
+        "All the TOTP CLI commands, their arguments, options and usage can be found here https://t.ly/_6pJG");
+#endif
 }

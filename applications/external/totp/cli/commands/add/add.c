@@ -79,6 +79,7 @@ static TotpIteratorUpdateTokenResult
     return TotpIteratorUpdateTokenResultSuccess;
 }
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_add_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_ADD ", " TOTP_CLI_COMMAND_ADD_ALT
                     ", " TOTP_CLI_COMMAND_ADD_ALT2 "     Add new token\r\n");
@@ -155,6 +156,7 @@ void totp_cli_command_add_docopt_options() {
     TOTP_CLI_PRINTF("                 # " TOKEN_AUTOMATION_FEATURE_TYPE_SLOWER_NAME
                     " - Type slower\r\n");
 }
+#endif
 
 void totp_cli_command_add_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
     if(!totp_cli_ensure_authenticated(plugin_state, cli)) {

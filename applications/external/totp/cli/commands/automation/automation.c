@@ -15,6 +15,7 @@
 #define TOTP_CLI_COMMAND_AUTOMATION_ARG_KB_LAYOUT_PREFIX "-k"
 #define TOTP_CLI_COMMAND_AUTOMATION_ARG_KB_LAYOUT "layout"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_automation_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_AUTOMATION "       Get or set automation settings\r\n");
 }
@@ -45,6 +46,7 @@ void totp_cli_command_automation_docopt_options() {
                                                         ", " TOTP_CLI_COMMAND_AUTOMATION_LAYOUT_AZERTY
                                                         "\r\n");
 }
+#endif
 
 static void print_method(AutomationMethod method, const char* color) {
 #ifdef TOTP_BADBT_AUTOMATION_ENABLED

@@ -1,4 +1,5 @@
 #include "totp_scene_add_new_token.h"
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
 #include "../../../types/common.h"
 #include "../../constants.h"
 #include "../../scene_director.h"
@@ -8,7 +9,6 @@
 #include "../../ui_controls.h"
 #include "../../common_dialogs.h"
 #include <roll_value.h>
-#include "../generate_token/totp_scene_generate_token.h"
 
 char* TOKEN_ALGO_LIST[] = {"SHA1", "SHA256", "SHA512", "Steam"};
 char* TOKEN_DIGITS_TEXT_LIST[] = {"5 digits", "6 digits", "8 digits"};
@@ -318,3 +318,4 @@ void totp_scene_add_new_token_deactivate(PluginState* plugin_state) {
     free(plugin_state->current_scene_state);
     plugin_state->current_scene_state = NULL;
 }
+#endif

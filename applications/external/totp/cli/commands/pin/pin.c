@@ -15,6 +15,7 @@
 #define TOTP_CLI_COMMAND_PIN_ARG_NEW_CRYPTO_KEY_SLOT_PREFIX "-c"
 #define TOTP_CLI_COMMAND_PIN_ARG_NEW_CRYPTO_KEY_SLOT "slot"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_pin_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_PIN "              Set\\change\\remove PIN\r\n");
 }
@@ -37,6 +38,7 @@ void totp_cli_command_pin_docopt_options() {
         ACCEPTABLE_CRYPTO_KEY_SLOT_START,
         ACCEPTABLE_CRYPTO_KEY_SLOT_END);
 }
+#endif
 
 static inline uint8_t totp_cli_key_to_pin_code(uint8_t key) {
     uint8_t code = 0;

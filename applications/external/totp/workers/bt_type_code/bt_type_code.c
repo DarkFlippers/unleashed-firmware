@@ -11,7 +11,7 @@
 #include "../../types/common.h"
 #include "../../types/token_info.h"
 #include "../type_code_common.h"
-#include "../../features_config.h"
+#include "../../config/app/config.h"
 #include "../../services/config/constants.h"
 
 #if TOTP_TARGET_FIRMWARE == TOTP_FIRMWARE_XTREME_UL

@@ -37,6 +37,7 @@ static void print_automation_features(const TokenInfo* token_info) {
     }
 }
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_details_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_DETAILS ", " TOTP_CLI_COMMAND_DETAILS_ALT
                     "      Displays token details\r\n");
@@ -47,6 +48,7 @@ void totp_cli_command_details_docopt_usage() {
         TOTP_CLI_COMMAND_DETAILS
         " | " TOTP_CLI_COMMAND_DETAILS_ALT) " " DOCOPT_ARGUMENT(TOTP_CLI_COMMAND_ARG_INDEX) "\r\n");
 }
+#endif
 
 void totp_cli_command_details_handle(PluginState* plugin_state, FuriString* args, Cli* cli) {
     if(!totp_cli_ensure_authenticated(plugin_state, cli)) {

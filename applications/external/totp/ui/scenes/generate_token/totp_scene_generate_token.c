@@ -1,18 +1,17 @@
+#include "totp_scene_generate_token.h"
 #include <gui/gui.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <totp_icons.h>
 #include <roll_value.h>
 #include <available_fonts.h>
-#include "totp_scene_generate_token.h"
 #include "../../canvas_extensions.h"
 #include "../../../types/token_info.h"
 #include "../../../types/common.h"
 #include "../../constants.h"
 #include "../../../services/config/config.h"
 #include "../../scene_director.h"
-#include "../token_menu/totp_scene_token_menu.h"
-#include "../../../features_config.h"
+#include "../../../config/app/config.h"
 #include "../../../workers/generate_totp_code/generate_totp_code.h"
 #include "../../../workers/usb_type_code/usb_type_code.h"
 #ifdef TOTP_BADBT_AUTOMATION_ENABLED
@@ -246,7 +245,7 @@ void totp_scene_generate_token_render(Canvas* const canvas, PluginState* plugin_
             SCREEN_HEIGHT_CENTER + 10,
             AlignCenter,
             AlignCenter,
-            "Press OK button to add");
+            "Press OK button to access menu");
         return;
     }
 

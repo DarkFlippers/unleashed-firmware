@@ -7,9 +7,7 @@
 #include "../../scene_director.h"
 #include "../../../services/config/config.h"
 #include "../../../types/token_info.h"
-#include "../generate_token/totp_scene_generate_token.h"
-#include "../add_new_token/totp_scene_add_new_token.h"
-#include "../app_settings/totp_app_settings.h"
+#include "../../../config/app/config.h"
 #include <roll_value.h>
 
 #define SCREEN_HEIGHT_THIRD (SCREEN_HEIGHT / 3)
@@ -130,7 +128,22 @@ bool totp_scene_token_menu_handle_event(const PluginEvent* const event, PluginSt
     } else if(event->input.type == InputTypeRelease && event->input.key == InputKeyOk) {
         switch(scene_state->selected_control) {
         case AddNewToken: {
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
             totp_scene_director_activate_scene(plugin_state, TotpSceneAddNewToken);
+#else
+            DialogMessage* message = dialog_message_alloc();
+            dialog_message_set_buttons(message, "Back", NULL, NULL);
+            dialog_message_set_header(message, "Information", 0, 0, AlignLeft, AlignTop);
+            dialog_message_set_text(
+                message,
+                "Read here\nhttps://t.ly/8ZOtj\n how to add new token",
+                SCREEN_WIDTH_CENTER,
+                SCREEN_HEIGHT_CENTER,
+                AlignCenter,
+                AlignCenter);
+            dialog_message_show(plugin_state->dialogs_app, message);
+            dialog_message_free(message);
+#endif
             break;
         }
         case DeleteToken: {

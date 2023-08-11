@@ -1,8 +1,11 @@
 #include "../types/common.h"
+#include "../config/app/config.h"
 #include "scene_director.h"
 #include "scenes/authenticate/totp_scene_authenticate.h"
 #include "scenes/generate_token/totp_scene_generate_token.h"
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
 #include "scenes/add_new_token/totp_scene_add_new_token.h"
+#endif
 #include "scenes/token_menu/totp_scene_token_menu.h"
 #include "scenes/app_settings/totp_app_settings.h"
 #include "scenes/standby/standby.h"
@@ -16,9 +19,11 @@ void totp_scene_director_activate_scene(PluginState* const plugin_state, Scene s
     case TotpSceneAuthentication:
         totp_scene_authenticate_activate(plugin_state);
         break;
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
     case TotpSceneAddNewToken:
         totp_scene_add_new_token_activate(plugin_state);
         break;
+#endif
     case TotpSceneTokenMenu:
         totp_scene_token_menu_activate(plugin_state);
         break;
@@ -45,9 +50,11 @@ void totp_scene_director_deactivate_active_scene(PluginState* const plugin_state
     case TotpSceneAuthentication:
         totp_scene_authenticate_deactivate(plugin_state);
         break;
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
     case TotpSceneAddNewToken:
         totp_scene_add_new_token_deactivate(plugin_state);
         break;
+#endif
     case TotpSceneTokenMenu:
         totp_scene_token_menu_deactivate(plugin_state);
         break;
@@ -70,9 +77,11 @@ void totp_scene_director_render(Canvas* const canvas, PluginState* const plugin_
     case TotpSceneAuthentication:
         totp_scene_authenticate_render(canvas, plugin_state);
         break;
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
     case TotpSceneAddNewToken:
         totp_scene_add_new_token_render(canvas, plugin_state);
         break;
+#endif
     case TotpSceneTokenMenu:
         totp_scene_token_menu_render(canvas, plugin_state);
         break;
@@ -98,9 +107,11 @@ bool totp_scene_director_handle_event(PluginEvent* const event, PluginState* con
     case TotpSceneAuthentication:
         processing = totp_scene_authenticate_handle_event(event, plugin_state);
         break;
+#ifdef TOTP_UI_ADD_NEW_TOKEN_ENABLED
     case TotpSceneAddNewToken:
         processing = totp_scene_add_new_token_handle_event(event, plugin_state);
         break;
+#endif
     case TotpSceneTokenMenu:
         processing = totp_scene_token_menu_handle_event(event, plugin_state);
         break;

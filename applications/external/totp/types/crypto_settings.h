@@ -20,9 +20,9 @@ typedef struct {
     uint8_t iv[CRYPTO_IV_LENGTH];
 
     /**
-     * @brief Basic randomly-generated initialization vector (IV)
+     * @brief Randomly-generated salt
      */
-    uint8_t base_iv[CRYPTO_IV_LENGTH];
+    uint8_t salt[CRYPTO_SALT_LENGTH];
 
     /**
      * @brief Encrypted well-known data

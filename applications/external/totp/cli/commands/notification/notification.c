@@ -9,6 +9,7 @@
 #define TOTP_CLI_COMMAND_NOTIFICATION_METHOD_SOUND "sound"
 #define TOTP_CLI_COMMAND_NOTIFICATION_METHOD_VIBRO "vibro"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_notification_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_NOTIFICATION
                     "           Get or set notification method\r\n");
@@ -27,6 +28,7 @@ void totp_cli_command_notification_docopt_arguments() {
         ", " TOTP_CLI_COMMAND_NOTIFICATION_METHOD_SOUND
         ", " TOTP_CLI_COMMAND_NOTIFICATION_METHOD_VIBRO "\r\n");
 }
+#endif
 
 static void
     totp_cli_command_notification_print_method(NotificationMethod method, const char* color) {

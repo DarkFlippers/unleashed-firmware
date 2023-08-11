@@ -8,6 +8,7 @@
 
 #define TOTP_CLI_RESET_CONFIRMATION_KEYWORD "YES"
 
+#ifdef TOTP_CLI_RICH_HELP_ENABLED
 void totp_cli_command_reset_docopt_commands() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_RESET
                     "            Reset application to default settings\r\n");
@@ -16,6 +17,7 @@ void totp_cli_command_reset_docopt_commands() {
 void totp_cli_command_reset_docopt_usage() {
     TOTP_CLI_PRINTF("  " TOTP_CLI_COMMAND_NAME " " TOTP_CLI_COMMAND_RESET "\r\n");
 }
+#endif
 
 void totp_cli_command_reset_handle(PluginState* plugin_state, Cli* cli) {
     TOTP_CLI_LOCK_UI(plugin_state);

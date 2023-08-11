@@ -47,3 +47,6 @@
 [submodule "applications/external/multi_fuzzer"]
 	path = applications/external/multi_fuzzer
 	url = https://github.com/DarkFlippers/Multi_Fuzzer.git
+[submodule "applications/external/totp/lib/wolfssl"]
+	path = applications/external/totp/lib/wolfssl
+	url = https://github.com/wolfSSL/wolfssl.git

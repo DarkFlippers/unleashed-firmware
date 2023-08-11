@@ -8,7 +8,7 @@
 #include <memset_s.h>
 #include "../../types/common.h"
 #include "../../types/token_info.h"
-#include "../../features_config.h"
+#include "../../config/app/config.h"
 #include "../crypto/crypto_facade.h"
 #include "../crypto/constants.h"
 #include "migrations/common_migration.h"
@@ -112,7 +112,8 @@ static bool totp_open_config_file(Storage* storage, FlipperFormat** file) {
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
     bool conf_file_exists = storage_common_stat(storage, CONFIG_FILE_PATH, NULL) == FSE_OK;
-    if(!conf_file_exists) {
+    if(!conf_file_exists &&
+       storage_common_stat(storage, EXT_PATH("authenticator"), NULL) == FSE_OK) {
         FURI_LOG_I(LOGGING_TAG, "Application catalog needs to be migrated");
         FS_Error migration_result =
             storage_common_migrate(storage, EXT_PATH("authenticator"), CONFIG_FILE_DIRECTORY_PATH);
@@ -148,7 +149,7 @@ static bool totp_open_config_file(Storage* storage, FlipperFormat** file) {
 
         flipper_format_write_comment_cstr(
             fff_data_file,
-            "Config file format specification can be found here: https://github.com/akopachov/flipper-zero_authenticator/blob/master/docs/conf-file_description.md");
+            "Config file format specification can be found here: https://t.ly/zwQjE");
 
         float tmp_tz = 0;
         flipper_format_write_float(fff_data_file, TOTP_CONFIG_KEY_TIMEZONE, &tmp_tz, 1);
@@ -396,10 +397,10 @@ bool totp_config_file_load(PluginState* const plugin_state) {
 
         if(!flipper_format_read_hex(
                fff_data_file,
-               TOTP_CONFIG_KEY_BASE_IV,
-               &plugin_state->crypto_settings.base_iv[0],
-               CRYPTO_IV_LENGTH)) {
-            FURI_LOG_D(LOGGING_TAG, "Missing base IV");
+               TOTP_CONFIG_KEY_SALT,
+               &plugin_state->crypto_settings.salt[0],
+               CRYPTO_SALT_LENGTH)) {
+            FURI_LOG_D(LOGGING_TAG, "Missing salt");
         }
 
         if(!flipper_format_rewind(fff_data_file)) {
@@ -529,9 +530,9 @@ bool totp_config_file_update_crypto_signatures(const PluginState* plugin_state) 
 
         if(!flipper_format_insert_or_update_hex(
                config_file,
-               TOTP_CONFIG_KEY_BASE_IV,
-               plugin_state->crypto_settings.base_iv,
-               CRYPTO_IV_LENGTH)) {
+               TOTP_CONFIG_KEY_SALT,
+               &plugin_state->crypto_settings.salt[0],
+               CRYPTO_SALT_LENGTH)) {
             break;
         }
 
@@ -592,7 +593,7 @@ bool totp_config_file_update_encryption(
     CryptoSettings old_crypto_settings = plugin_state->crypto_settings;
 
     memset(&plugin_state->crypto_settings.iv[0], 0, CRYPTO_IV_LENGTH);
-    memset(&plugin_state->crypto_settings.base_iv[0], 0, CRYPTO_IV_LENGTH);
+    memset(&plugin_state->crypto_settings.salt[0], 0, CRYPTO_SALT_LENGTH);
     if(plugin_state->crypto_settings.crypto_verify_data != NULL) {
         free(plugin_state->crypto_settings.crypto_verify_data);
         plugin_state->crypto_settings.crypto_verify_data = NULL;
