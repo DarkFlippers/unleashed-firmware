@@ -167,12 +167,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             break;
         case SCENE_EVENT_SELECT_AUTO_LOCK_DELAY:
         case SCENE_EVENT_SELECT_CLOCK_DISPLAY:
-            consumed = true;
-            break;
         case SCENE_EVENT_SELECT_BATTERY_DISPLAY:
-            consumed = true;
-            break;
-        case SCENE_EVENT_SELECT_CLOCK_DISPLAY:
             consumed = true;
             break;
         case SCENE_EVENT_SELECT_CHANGE_NAME:
