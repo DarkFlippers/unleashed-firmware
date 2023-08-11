@@ -1678,7 +1678,6 @@ Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, voi
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
 Function,+,gui_direct_draw_acquire,Canvas*,Gui*
 Function,+,gui_direct_draw_release,void,Gui*
-Function,-,gui_active_view_port_count,size_t,"Gui*, GuiLayer"
 Function,+,gui_get_framebuffer_size,size_t,const Gui*
 Function,+,gui_remove_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
