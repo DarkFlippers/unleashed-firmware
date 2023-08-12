@@ -21,10 +21,16 @@ steps:
     commands:
       - export DIST_SUFFIX=${DRONE_TAG}
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
+      - export FORCE_NO_DIRTY=yes
       - rm -rf assets/resources/apps/
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+      - tar zxvf all-the-apps-base.tgz
+      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - rm -rf base_pack_build
+      - rm -rf all-the-apps-base.tgz
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
@@ -38,9 +44,10 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone https://github.com/xMasterX/all-the-plugins.git
-      - cp -R all-the-plugins/apps/* assets/resources/apps/
-      - rm -rf all-the-plugins
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
+      - tar zxvf all-the-apps-extra.tgz
+      - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
+      - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
@@ -85,6 +92,11 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
       - export FORCE_NO_DIRTY=yes
       - rm -f build/f7-firmware-C/toolbox/version.*
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+      - tar zxvf all-the-apps-base.tgz
+      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - rm -rf base_pack_build
+      - rm -rf all-the-apps-base.tgz
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-ofw-anims
       - mv dist/f7-C/* artifacts-ofw-anims/
@@ -320,10 +332,16 @@ steps:
     commands:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - export FORCE_NO_DIRTY=yes
       - rm -rf assets/resources/apps/
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+      - tar zxvf all-the-apps-base.tgz
+      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - rm -rf base_pack_build
+      - rm -rf all-the-apps-base.tgz
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
@@ -337,9 +355,10 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone --branch dev https://github.com/xMasterX/all-the-plugins.git
-      - cp -R all-the-plugins/apps/* assets/resources/apps/
-      - rm -rf all-the-plugins
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
+      - tar zxvf all-the-apps-extra.tgz
+      - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
+      - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
