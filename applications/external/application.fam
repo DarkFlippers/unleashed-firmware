@@ -1,6 +1,0 @@
-# Placeholder
-App(
-    appid="external_apps",
-    name="External apps bundle",
-    apptype=FlipperAppType.METAPACKAGE,
-)
