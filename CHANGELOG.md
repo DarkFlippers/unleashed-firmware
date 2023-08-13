@@ -1,4 +1,5 @@
 ## New changes
+* RGB Patch: Fix colors
 * Builds: New build (clean) `c` - comes only with main apps, use in case you don't want preinstalled apps pack
 * Plugins: Moved into one repo - https://github.com/xMasterX/all-the-plugins
 * OFW: Add the Sad song animation
