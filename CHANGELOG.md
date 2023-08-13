@@ -1,25 +1,21 @@
 ## New changes
-* SubGHz: Support for Ebyte E07 module power amp switch (works with TehRabbitt's Flux Capacitor Board) (by @Sil333033) (PR #559 by @Z3BRO) -> Remade by @xMasterX -> Driver code fixed and reworked by @gid9798
-* Infrared: Update universal remote assets (by @amec0e | PR #570)
-* Infrared: Update universal AC asset (by @Leptopt1los | PR #569)
-* Plugins: Add * in NFC Maker keyboard (hold `.`)
-* Plugins: Update TOTP (Authenticator) [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Update ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
-* Plugins: Update ESP32-CAM -> Camera Suite [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite) -> (PR #562 by @CodyTolene)
-* OFW PR 2949: IR: buttons move feature rework (by nminaylov)
-* OFW PR 2941: FDX-B temperature now uses system units (by Astrrra)
-* OFW: fbtenv: add additional environ variable to control execution flow
-* OFW: NFC CLI: Fix multiple apdu commands from not working when one of them gives an empty response
-* OFW: NFC: Fix MFC key invalidation
-* OFW: Rename Applications to Apps 
-* OFW: Fix about screen
-* OFW: change FuriThreadPriorityIsr to 31 (configMAX_PRIORITIES-1)
-* OFW: External apps icounter
-* OFW: Overly missed feature: Infrared: move button (change button order in a remote)
-* OFW: Move U2F path to ext
-* OFW: New RTC flags in device info
-* OFW: Backlight notification fix
-* OFW: Fix fbtenv restore
+* Builds: New build (clean) `c` - comes only with main apps, use in case you don't want preinstalled apps pack
+* Plugins: Moved into one repo - https://github.com/xMasterX/all-the-plugins
+* OFW: Add the Sad song animation
+* OFW: ufbt: fixed FAP_SRC_DIR
+* OFW: UI: Clock on Desktop -> Refactoring of our desktop clock
+* OFW: uFBT: devboard_flash to update WiFi devboard 
+* OFW: FBT: devboard_flash to update WiFi devboard
+* OFW: Scripts: OB recovery
+* OFW: Expose additional functions of the crypto engine to user -> **Breaking API change 34.x -> 35.x**
+* OFW: External apps removed -> In our case - moved into extra plugins repo to separate plugins and firmware
+* OFW: BadUSB: qFlipper install script for MacOS
+* OFW: Add compressor.h to the SDK
+* OFW: fbt: Fix building using path with space
+* OFW: RPC: md5 in storage list
+* OFW: Fixes 2957 - subghz decode_raw
+* OFW: FDX-B temperature in system units
+* OFW: Infrared: buttons move feature rework
 
 ----
 
@@ -47,12 +43,14 @@ and all other great people who supported our project and me (xMasterX), thanks t
 
 ## **Recommended update option - Web Updater**
 
-### What `n`, `r`, `e` means? What I need to download if I don't want to use Web updater?
-What build I should download and what this name means - `flipper-z-f7-update-(version)(n / r / e).tgz` ? <br>
+### What `n`, `r`, `e`, ` `, `c` means? What I need to download if I don't want to use Web updater?
+What build I should download and what this name means - `flipper-z-f7-update-(version)(n / r / e / c).tgz` ? <br>
 `flipper-z` = for Flipper Zero device<br>
 `f7` = Hardware version - same for all flipper zero devices<br>
 `update` = Update package, contains updater, all assets (plugins, IR libs, etc.), and firmware itself<br>
 `(version)` = Firmware version<br>
+` ` = this build comes with 3 custom animations, and default apps preinstalled<br>
+`c` = this build comes with 3 custom animations, and only main apps (Clean build)<br>
 `n` = this build comes without our custom animations (we have only 3 of them), only official flipper animations<br>
 `e` = build has 🎲 [extra apps pack](https://github.com/xMasterX/all-the-plugins) preinstalled<br>
 `r` = RGB patch (+ extra apps) for flippers with rgb backlight mod (this is hardware mod!) (Works only on modded flippers!) (do not install on non modded device!)
