@@ -225,6 +225,21 @@ steps:
         from_secret: dep_target_extra
       source: flipper-z-f7-update-${DRONE_TAG}r.tgz
 
+  - name: "Upload clean version to updates srv"
+    image: appleboy/drone-scp:linux-amd64
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target_extra
+      source: flipper-z-f7-update-${DRONE_TAG}c.tgz
+
   - name: "Do Github release"
     image: ddplugins/github-release
     pull: never
