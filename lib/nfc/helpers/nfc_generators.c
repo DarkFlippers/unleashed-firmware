@@ -348,8 +348,15 @@ void nfc_generate_mf_classic_ext(
     nfc_generate_mf_classic_common(data, uid_len, type);
 
     // Set the UID
-    for(int i = 0; i < uid_len; i++) {
-        data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+    if(random_uid) {
+        data->nfc_data.uid[0] = NXP_MANUFACTURER_ID;
+        for(int i = 1; i < uid_len; i++) {
+            data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+        }
+    } else {
+        for(int i = 0; i < uid_len; i++) {
+            data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+        }
     }
 
     MfClassicData* mfc = &data->mf_classic_data;
