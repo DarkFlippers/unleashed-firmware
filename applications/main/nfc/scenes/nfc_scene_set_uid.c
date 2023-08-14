@@ -35,6 +35,21 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
                     consumed = true;
                 }
+            } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetTypeMfUid)) {
+                MfClassicType mf_type =
+                    scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSetTypeMfUid);
+                if(mf_type > MfClassicTypeMini) {
+                    furi_crash("Nfc unknown type");
+                }
+                nfc_generate_mf_classic_ext(
+                    &nfc->dev->dev_data,
+                    nfc->dev_edit_data.uid_len,
+                    mf_type,
+                    false,
+                    nfc->dev_edit_data.uid);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneGenerateInfo);
+                consumed = true;
+
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
                 consumed = true;
