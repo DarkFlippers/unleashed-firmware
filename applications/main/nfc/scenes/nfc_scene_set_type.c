@@ -57,7 +57,7 @@ bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
             consumed = true;
         } else if(event.event == SubmenuIndexMFClassicCustomUID) {
-            nfc->dev->format = NfcDeviceSaveFormatMifareClassic;
+            nfc_device_clear(nfc->dev);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetTypeMfUid);
             consumed = true;
         } else {
