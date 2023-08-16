@@ -27,12 +27,12 @@ static uint8_t subghz_scene_radio_settings_next_index_connect_ext_device(
     SubGhz* subghz,
     uint8_t current_index) {
     uint8_t index = 0;
-    for(index = current_index; index < RADIO_DEVICE_COUNT + 1; index++) {
+    for(index = current_index; index < RADIO_DEVICE_COUNT; index++) {
         if(subghz_txrx_radio_device_is_external_connected(subghz->txrx, radio_device_name[index])) {
             break;
         }
     }
-    if(index > RADIO_DEVICE_COUNT) index = 0;
+    if(index == RADIO_DEVICE_COUNT) index = 0;
     return index;
 }
 
