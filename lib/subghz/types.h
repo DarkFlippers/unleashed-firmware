@@ -57,6 +57,7 @@ typedef enum {
     // Encoder issue
     SubGhzProtocolStatusErrorEncoderGetUpload = (-12), ///< Payload encoder failure
     // Special Values
+    SubGhzProtocolStatusErrorProtocolNotFound = (-13), ///< Protocol not found
     SubGhzProtocolStatusReserved = 0x7FFFFFFF, ///< Prevents enum down-size compiler optimization.
 } SubGhzProtocolStatus;
 

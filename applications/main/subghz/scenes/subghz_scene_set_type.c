@@ -118,7 +118,7 @@ void subghz_scene_set_type_on_enter(void* context) {
 
 bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
-    bool generated_protocol = false;
+    SubGhzProtocolStatus generated_protocol = SubGhzProtocolStatusError;
 
     if(event.type == SceneManagerEventTypeCustom) {
         uint32_t key = (uint32_t)rand();
@@ -216,7 +216,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
         scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSetType, event.event);
 
-        if(generated_protocol) {
+        if(generated_protocol == SubGhzProtocolStatusOk) {
             subghz_file_name_clear(subghz);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             return true;

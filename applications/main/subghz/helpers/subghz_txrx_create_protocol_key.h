@@ -11,9 +11,9 @@
  * @param protocol_name Name of protocol
  * @param key Key
  * @param bit Bit
- * @return bool True if success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_txrx_gen_data_protocol(
+SubGhzProtocolStatus subghz_txrx_gen_data_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -31,9 +31,9 @@ bool subghz_txrx_gen_data_protocol(
  * @param key Key
  * @param bit Bit
  * @param te Te
- * @return bool True if success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_txrx_gen_data_protocol_and_te(
+SubGhzProtocolStatus subghz_txrx_gen_data_protocol_and_te(
     SubGhzTxRx* instance,
     const char* preset_name,
     uint32_t frequency,
@@ -52,9 +52,9 @@ bool subghz_txrx_gen_data_protocol_and_te(
  * @param serial Serial number
  * @param btn Button
  * @param cnt Counter
- * @return bool True if success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_txrx_gen_keeloq_protocol(
+SubGhzProtocolStatus subghz_txrx_gen_keeloq_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
     uint32_t frequency,
@@ -72,9 +72,9 @@ bool subghz_txrx_gen_keeloq_protocol(
  * @param serial Serial number
  * @param btn Button
  * @param cnt Counter
- * @return bool True if success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_txrx_gen_secplus_v2_protocol(
+SubGhzProtocolStatus subghz_txrx_gen_secplus_v2_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
     uint32_t frequency,
@@ -88,9 +88,9 @@ bool subghz_txrx_gen_secplus_v2_protocol(
  * @param instance Pointer to a SubGhzTxRx
  * @param name_preset Name of preset
  * @param frequency Frequency in Hz
- * @return bool True if success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_txrx_gen_secplus_v1_protocol(
+SubGhzProtocolStatus subghz_txrx_gen_secplus_v1_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
     uint32_t frequency);
