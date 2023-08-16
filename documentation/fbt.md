@@ -46,6 +46,8 @@ To run cleanup (think of `make clean`) for specified targets, add the `-c` optio
 
 `fbt` includes basic development environment configuration for VS Code. Run `./fbt vscode_dist` to deploy it. That will copy the initial environment configuration to the `.vscode` folder. After that, you can use that configuration by starting VS Code and choosing the firmware root folder in the "File > Open Folder" menu.
 
+To use language servers other than the default VS Code C/C++ language server, use `./fbt vscode_dist LANG_SERVER=<language-server>` instead. Currently `fbt` supports the default language server (`cpptools`) and `clangd`.
+
 - On the first start, you'll be prompted to install recommended plugins. We highly recommend installing them for the best development experience. _You can find a list of them in `.vscode/extensions.json`._
 - Basic build tasks are invoked in the Ctrl+Shift+B menu.
 - Debugging requires a supported probe. That includes:

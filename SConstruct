@@ -45,6 +45,7 @@ distenv = coreenv.Clone(
     ],
     ENV=os.environ,
     UPDATE_BUNDLE_DIR="dist/${DIST_DIR}/f${TARGET_HW}-update-${DIST_SUFFIX}",
+    VSCODE_LANG_SERVER=ARGUMENTS.get("LANG_SERVER", "cpptools"),
 )
 
 firmware_env = distenv.AddFwProject(
@@ -348,7 +349,14 @@ distenv.PhonyTarget(
 )
 
 # Prepare vscode environment
-vscode_dist = distenv.Install("#.vscode", distenv.Glob("#.vscode/example/*"))
+VSCODE_LANG_SERVER = cmd_environment["LANG_SERVER"]
+vscode_dist = distenv.Install(
+    "#.vscode",
+    [
+        distenv.Glob("#.vscode/example/*.json"),
+        distenv.Glob(f"#.vscode/example/{VSCODE_LANG_SERVER}/*.json"),
+    ],
+)
 distenv.Precious(vscode_dist)
 distenv.NoClean(vscode_dist)
 distenv.Alias("vscode_dist", vscode_dist)
