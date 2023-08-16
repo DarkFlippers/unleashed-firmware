@@ -253,6 +253,15 @@ vars.AddVariables(
         "Full port name of Flipper to use, if multiple Flippers are connected",
         "auto",
     ),
+    EnumVariable(
+        "LANG_SERVER",
+        help="Language server type for vscode_dist.",
+        default="cpptools",
+        allowed_values=[
+            "cpptools",
+            "clangd",
+        ],
+    ),
 )
 
 Return("vars")
