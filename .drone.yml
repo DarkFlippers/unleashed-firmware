@@ -108,6 +108,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
       - export FORCE_NO_DIRTY=yes
       - rm -f build/f7-firmware-C/toolbox/version.*
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
