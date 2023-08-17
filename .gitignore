@@ -51,6 +51,7 @@ null.d
 /artifacts-ofw-anims
 /artifacts-rgb-patch
 /artifacts-extra-apps
+/artifacts-clean
 
 # SCons build dir
 /build
