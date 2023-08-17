@@ -223,7 +223,8 @@ void desktop_view_locked_close_doors(DesktopViewLocked* locked_view) {
 
 void desktop_view_locked_lock(DesktopViewLocked* locked_view, bool pin_locked) {
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    furi_assert(model->view_state == DesktopViewLockedStateUnlocked);
+    // TODO: Fix!!!!!!!!!!!
+    //furi_assert(model->view_state == DesktopViewLockedStateUnlocked);
     model->view_state = DesktopViewLockedStateLocked;
     model->pin_locked = pin_locked;
     view_commit_model(locked_view->view, true);

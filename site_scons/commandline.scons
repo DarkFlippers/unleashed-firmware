@@ -231,7 +231,6 @@ vars.AddVariables(
             ("applications/settings", False),
             ("applications/system", False),
             ("applications/debug", False),
-            ("applications/external", False),
             ("applications/examples", False),
             ("applications/drivers", False),
             ("applications_user", False),
@@ -253,6 +252,15 @@ vars.AddVariables(
         "FLIP_PORT",
         "Full port name of Flipper to use, if multiple Flippers are connected",
         "auto",
+    ),
+    EnumVariable(
+        "LANG_SERVER",
+        help="Language server type for vscode_dist.",
+        default="cpptools",
+        allowed_values=[
+            "cpptools",
+            "clangd",
+        ],
     ),
 )
 

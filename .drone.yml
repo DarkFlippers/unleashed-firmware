@@ -15,16 +15,38 @@ steps:
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
-  - name: "Build firmware"
+  - name: "Build clean"
+    image: hfdj/fztools
+    pull: never
+    commands:
+      - export DIST_SUFFIX=${DRONE_TAG}c
+      - export WORKFLOW_BRANCH_OR_TAG=release-cfw
+      - export FORCE_NO_DIRTY=yes
+      - rm -rf assets/resources/apps/
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf .sconsign.dblite
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir artifacts-clean
+      - mv dist/f7-C/* artifacts-clean/
+      - ls -laS artifacts-clean
+      - ls -laS artifacts-clean/f7-update-${DRONE_TAG}c
+    environment:
+      FBT_TOOLS_CUSTOM_LINK:
+        from_secret: fbt_link
+
+  - name: "Build default"
     image: hfdj/fztools
     pull: never
     commands:
       - export DIST_SUFFIX=${DRONE_TAG}
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
-      - rm -rf assets/resources/apps/
-      - rm -rf build/
-      - rm -rf dist/
-      - rm -rf .sconsign.dblite
+      - export FORCE_NO_DIRTY=yes
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+      - tar zxvf all-the-apps-base.tgz
+      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - rm -rf base_pack_build
+      - rm -rf all-the-apps-base.tgz
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
@@ -38,9 +60,10 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone https://github.com/xMasterX/all-the-plugins.git
-      - cp -R all-the-plugins/apps/* assets/resources/apps/
-      - rm -rf all-the-plugins
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
+      - tar zxvf all-the-apps-extra.tgz
+      - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
+      - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
@@ -85,6 +108,11 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
       - export FORCE_NO_DIRTY=yes
       - rm -f build/f7-firmware-C/toolbox/version.*
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+      - tar zxvf all-the-apps-base.tgz
+      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - rm -rf base_pack_build
+      - rm -rf all-the-apps-base.tgz
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-ofw-anims
       - mv dist/f7-C/* artifacts-ofw-anims/
@@ -92,6 +120,8 @@ steps:
       - ls -laS artifacts-ofw-anims/f7-update-${DRONE_TAG}n
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
       - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '' >> CHANGELOG.md
+      - echo '### [Version with only main apps - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&channel=release-cfw&version='${DRONE_TAG}'c)' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
       - echo '### [Version without custom animations - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
@@ -107,19 +137,23 @@ steps:
     commands:
       - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.tgz .
       - cp artifacts-rgb-patch/flipper-z-f7-update-${DRONE_TAG}r.tgz .
+      - cp artifacts-clean/flipper-z-f7-update-${DRONE_TAG}c.tgz .
       - cp artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
       - zip -r artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.zip artifacts-extra-apps/f7-update-${DRONE_TAG}e
       - zip -r artifacts-rgb-patch/flipper-z-f7-update-${DRONE_TAG}r.zip artifacts-rgb-patch/f7-update-${DRONE_TAG}r
+      - zip -r artifacts-clean/flipper-z-f7-update-${DRONE_TAG}c.zip artifacts-clean/f7-update-${DRONE_TAG}c
       - zip -r artifacts-ofw-anims/flipper-z-f7-update-${DRONE_TAG}n.zip artifacts-ofw-anims/f7-update-${DRONE_TAG}n
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
       - tar czpf artifacts-default/flipper-z-any-scripts-${DRONE_TAG}.tgz scripts
       - rm -rf artifacts-extra-apps/f7-update-${DRONE_TAG}
       - rm -rf artifacts-rgb-patch/f7-update-${DRONE_TAG}
+      - rm -rf artifacts-clean/f7-update-${DRONE_TAG}
       - rm -rf artifacts-ofw-anims/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
       - ls -laS artifacts-extra-apps
       - ls -laS artifacts-rgb-patch
+      - ls -laS artifacts-clean
       - ls -laS artifacts-ofw-anims
       - ls -laS artifacts-default
       - mv artifacts-default/ ${DRONE_TAG}
@@ -191,6 +225,21 @@ steps:
         from_secret: dep_target_extra
       source: flipper-z-f7-update-${DRONE_TAG}r.tgz
 
+  - name: "Upload clean version to updates srv"
+    image: appleboy/drone-scp:linux-amd64
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target_extra
+      source: flipper-z-f7-update-${DRONE_TAG}c.tgz
+
   - name: "Do Github release"
     image: ddplugins/github-release
     pull: never
@@ -206,6 +255,7 @@ steps:
         - artifacts-ofw-anims/*.tgz
         - artifacts-extra-apps/*.tgz
         - artifacts-rgb-patch/*.tgz
+        - artifacts-clean/*.tgz
       title: ${DRONE_TAG}
       note: CHANGELOG.md
       checksum:
@@ -253,6 +303,9 @@ steps:
         [-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-${DRONE_TAG}.tgz&channel=release-cfw&version=${DRONE_TAG})
 
 
+        [-Version with only main apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_TAG}c.tgz&channel=release-cfw&version=${DRONE_TAG}c)
+
+
         [-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-${DRONE_TAG}n.tgz&channel=release-cfw&version=${DRONE_TAG}n)
 
 
@@ -275,7 +328,19 @@ steps:
     commands:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
       - chmod +x ./discord.sh
-      - ./discord.sh --text 'New Unleashed firmware released!\n\nVersion - '${DRONE_TAG}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[[Github - Changelog]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')\n\n[-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)\n\n[-Download latest extra apps pack-](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)\n\n[-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/'${DRONE_TAG}'/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')\n\n[-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)\n\n[-Version with RGB patch - only for hardware mod! - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz&channel=release-cfw&version='${DRONE_TAG}'r)\n\n[-Version with RGB patch - only for hardware mod! - Direct download-](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz)\n\n[-Version with Extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)'
+      - ./discord.sh --text 'New Unleashed firmware released!\n\nVersion - '${DRONE_TAG}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[[Github - Changelog]](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')\n\n[-How to install firmware-](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)\n\n[-Download latest extra apps pack-](https://github.com/xMasterX/all-the-plugins/archive/refs/heads/main.zip)\n\n[-Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/'${DRONE_TAG}'/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')\n\n[-Version with only main apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&channel=release-cfw&version='${DRONE_TAG}'c)\n\n[-Version without custom animations - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_no_anim/flipper-z-f7-update-'${DRONE_TAG}'n.tgz&channel=release-cfw&version='${DRONE_TAG}'n)\n\n[-Version with RGB patch - only for hardware mod! - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz&channel=release-cfw&version='${DRONE_TAG}'r)\n\n[-Version with RGB patch - only for hardware mod! - Direct download-](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz)\n\n[-Version with Extra apps - Install FW via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)'
+
+  - name: "Send clean build to telegram"
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: tgtoken
+      to:
+        from_secret: tgid
+      format: markdown
+      message: "Build with only main apps:"
+      document:
+        - flipper-z-f7-update-${DRONE_TAG}c.tgz
 
   - name: "Send extra pack build to telegram"
     image: appleboy/drone-telegram
@@ -314,16 +379,39 @@ steps:
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
-  - name: "Build dev FW"
+  - name: "Build dev clean"
+    image: hfdj/fztools
+    pull: never
+    commands:
+      - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}c
+      - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
+      - export FORCE_NO_DIRTY=yes
+      - rm -rf assets/resources/apps/
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf .sconsign.dblite
+      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir artifacts-clean
+      - mv dist/f7-C/* artifacts-clean/
+      - ls -laS artifacts-clean
+      - ls -laS artifacts-clean/f7-update-${DRONE_BUILD_NUMBER}c
+    environment:
+      FBT_TOOLS_CUSTOM_LINK:
+        from_secret: fbt_link
+
+
+  - name: "Build dev default"
     image: hfdj/fztools
     pull: never
     commands:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
-      - rm -rf assets/resources/apps/
-      - rm -rf build/
-      - rm -rf dist/
-      - rm -rf .sconsign.dblite
+      - export FORCE_NO_DIRTY=yes
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+      - tar zxvf all-the-apps-base.tgz
+      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - rm -rf base_pack_build
+      - rm -rf all-the-apps-base.tgz
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
@@ -337,9 +425,10 @@ steps:
     image: hfdj/fztools
     pull: never
     commands:
-      - git clone --branch dev https://github.com/xMasterX/all-the-plugins.git
-      - cp -R all-the-plugins/apps/* assets/resources/apps/
-      - rm -rf all-the-plugins
+      - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
+      - tar zxvf all-the-apps-extra.tgz
+      - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
+      - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
@@ -376,6 +465,7 @@ steps:
     commands:
       - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz .
       - cp artifacts-rgb-patch/flipper-z-f7-update-${DRONE_BUILD_NUMBER}r.tgz .
+      - cp artifacts-clean/flipper-z-f7-update-${DRONE_BUILD_NUMBER}c.tgz .
       - cp artifacts-default/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz .
       - rm -rf artifacts-default/f7-update-${DRONE_BUILD_NUMBER}
       - ls -laS artifacts-default
@@ -448,6 +538,21 @@ steps:
         from_secret: dep_target_extra
       source: flipper-z-f7-update-${DRONE_BUILD_NUMBER}r.tgz
 
+  - name: "Upload clean version to updates srv"
+    image: appleboy/drone-scp:linux-amd64
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target_extra
+      source: flipper-z-f7-update-${DRONE_BUILD_NUMBER}c.tgz
+
   - name: "Trigger update server reindex"
     image: hfdj/fztools
     pull: never
@@ -482,6 +587,9 @@ steps:
         [-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER})
         
 
+        [-Version with only main apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}c.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}c)
+        
+
         [-Version with RGB patch - only for hardware mod! - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}r.tgz&channel=dev-cfw&version=${DRONE_BUILD_NUMBER}r)
 
 
@@ -501,6 +609,18 @@ steps:
       message: "Regular Build:"
       document:
         - dev/flipper-z-f7-update-${DRONE_BUILD_NUMBER}.tgz
+
+  - name: "Send clean build to telegram"
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: tgtoken
+      to:
+        from_secret: tgid_dev
+      format: markdown
+      message: "Clean (Main apps only) Build:"
+      document:
+        - flipper-z-f7-update-${DRONE_BUILD_NUMBER}c.tgz
 
   - name: "Send extra pack build to telegram"
     image: appleboy/drone-telegram
@@ -523,7 +643,7 @@ steps:
     commands:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/e1dc1a7595efad2cad8f072f0b3531c470f5b7c8/discord.sh"
       - chmod +x ./discord.sh
-      - ./discord.sh --text 'Unleashed firmware dev build successful!\n\nBuild - '${DRONE_BUILD_NUMBER}'\n\nCommit - https://github.com/DarkFlippers/unleashed-firmware/commit/'${DRONE_COMMIT_SHA}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[-Version with Extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'e.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'e)\n\n[-Version with RGB patch - only for hardware mod! - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'r.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'r)\n\n[-Version with RGB patch - only for hardware mod! - Direct download-](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'r.tgz)\n\n[-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}')'
+      - ./discord.sh --text 'Unleashed firmware dev build successful!\n\nBuild - '${DRONE_BUILD_NUMBER}'\n\nCommit - https://github.com/DarkFlippers/unleashed-firmware/commit/'${DRONE_COMMIT_SHA}'\n\n[-> Sponsor our project](https://boosty.to/mmxdev)\n\n[-Version with Extra apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'e.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'e)\n\n[-Version with only main apps - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'c.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'c)\n\n[-Version with RGB patch - only for hardware mod! - Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'r.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}'r)\n\n[-Version with RGB patch - only for hardware mod! - Direct download-](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'r.tgz)\n\n[-Install via Web Updater-](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-'${DRONE_BUILD_NUMBER}'.tgz&channel=dev-cfw&version='${DRONE_BUILD_NUMBER}')'
 
 trigger:
   branch:
