@@ -206,6 +206,26 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             desktop_scene_main_open_app_or_profile(
                 desktop, &desktop->settings.dummy_apps[DummyAppOk]);
             break;
+        case DesktopDummyEventOpenUpLong:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppUpLong]);
+            break;
+        case DesktopDummyEventOpenDownLong:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppDownLong]);
+            break;
+        case DesktopDummyEventOpenLeftLong:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppLeftLong]);
+            break;
+        case DesktopDummyEventOpenRightLong:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppRightLong]);
+            break;
+        case DesktopDummyEventOpenOkLong:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppOkLong]);
+            break;
 
         case DesktopLockedEventUpdate:
             desktop_view_locked_update(desktop->locked_view);

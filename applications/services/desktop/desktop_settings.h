@@ -54,9 +54,14 @@ typedef enum {
 
 typedef enum {
     DummyAppLeft = 0,
+    DummyAppLeftLong,
     DummyAppRight,
+    DummyAppRightLong,
+    DummyAppUpLong,
     DummyAppDown,
+    DummyAppDownLong,
     DummyAppOk,
+    DummyAppOkLong,
 
     DummyAppNumber,
 } DummyAppShortcut;

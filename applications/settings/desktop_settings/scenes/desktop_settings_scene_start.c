@@ -17,9 +17,14 @@ typedef enum {
     DesktopSettingsFavoriteRightShort,
     DesktopSettingsFavoriteRightLong,
     DesktopSettingsDummyLeft,
+    DesktopSettingsDummyLeftLong,
     DesktopSettingsDummyRight,
+    DesktopSettingsDummyRightLong,
+    DesktopSettingsDummyUpLong,
     DesktopSettingsDummyDown,
+    DesktopSettingsDummyDownLong,
     DesktopSettingsDummyOk,
+    DesktopSettingsDummyOkLong,
 } DesktopSettingsEntry;
 
 #define AUTO_LOCK_DELAY_COUNT 9
@@ -142,10 +147,15 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_list_add(variable_item_list, "Favorite App - Right Short", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Right Long", 1, NULL, NULL);
 
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Left", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Right", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Down", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Ok", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Left", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Left Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Right", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Right Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Up Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Down", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Down Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Ok", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode App - Ok Long", 1, NULL, NULL);
 
     variable_item_list_set_enter_callback(
         variable_item_list, desktop_settings_scene_start_var_list_enter_callback, app);
@@ -208,11 +218,32 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
                 SCENE_STATE_SET_DUMMY_APP | DummyAppLeft);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
+        case DesktopSettingsDummyLeftLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_DUMMY_APP | DummyAppLeftLong);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
         case DesktopSettingsDummyRight:
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
                 SCENE_STATE_SET_DUMMY_APP | DummyAppRight);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
+        case DesktopSettingsDummyRightLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_DUMMY_APP | DummyAppRightLong);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
+        case DesktopSettingsDummyUpLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_DUMMY_APP | DummyAppUpLong);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
         case DesktopSettingsDummyDown:
@@ -222,11 +253,25 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
                 SCENE_STATE_SET_DUMMY_APP | DummyAppDown);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
+        case DesktopSettingsDummyDownLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_DUMMY_APP | DummyAppDownLong);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
         case DesktopSettingsDummyOk:
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
                 SCENE_STATE_SET_DUMMY_APP | DummyAppOk);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
+        case DesktopSettingsDummyOkLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_DUMMY_APP | DummyAppOkLong);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
 

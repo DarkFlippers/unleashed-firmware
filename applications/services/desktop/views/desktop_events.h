@@ -15,11 +15,11 @@ typedef enum {
     DesktopDummyEventOpenLeft,
     DesktopDummyEventOpenDown,
     DesktopDummyEventOpenOk,
-
-    // TODO add long press in Dummy mode & RightLong
     DesktopDummyEventOpenUpLong,
     DesktopDummyEventOpenDownLong,
     DesktopDummyEventOpenLeftLong,
+    DesktopDummyEventOpenRightLong,
+    DesktopDummyEventOpenOkLong,
 
     DesktopLockedEventUnlocked,
     DesktopLockedEventUpdate,

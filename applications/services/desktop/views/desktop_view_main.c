@@ -91,15 +91,19 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
             // Right key short is handled by animation manager
         } else if(event->type == InputTypeLong) {
             if(event->key == InputKeyOk) {
-                if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                    main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
-                }
+                // Not working in DummyMode
+                // if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                //     main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
+                // }
+                main_view->callback(DesktopDummyEventOpenOkLong, main_view->context);
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopDummyEventOpenUpLong, main_view->context);
             } else if(event->key == InputKeyDown) {
                 main_view->callback(DesktopDummyEventOpenDownLong, main_view->context);
             } else if(event->key == InputKeyLeft) {
                 main_view->callback(DesktopDummyEventOpenLeftLong, main_view->context);
+            } else if(event->key == InputKeyRight) {
+                main_view->callback(DesktopDummyEventOpenRightLong, main_view->context);
             }
         }
     }
