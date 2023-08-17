@@ -1,7 +1,7 @@
 ## New changes
 * NFC: Add manually MF Classic with custom UID (by @gid9798 | PR #571)
 * Infrared: Fix crash when frequency is outside of supported range, allow sending broken files by setting frequency to nearest border
-* Infrared: Updated AC unversal asset (Legion LE-F30RH-IN added and other changes) (by @Leptopt1los | PR #577)
+* Infrared: Updated AC universal asset (Legion LE-F30RH-IN added and other changes) (by @Leptopt1los | PR #577)
 * SubGHz: Fix Somfy Telis wrong frequency in add manually
 * SubGHz: Fix frequency out of bounds check causing crash/freeze
 * RGB Patch: Fix colors
