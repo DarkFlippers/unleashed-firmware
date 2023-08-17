@@ -61,17 +61,23 @@ static void
 }
 #endif
 
-static void desktop_scene_main_open_app_or_profile(Desktop* desktop, const char* path) {
-    if(loader_start_with_gui_error(desktop->loader, path, NULL) != LoaderStatusOk) {
+static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp* application) {
+    bool load_ok = false;
+    if(strlen(application->name_or_path) > 0) {
+        if(loader_start(desktop->loader, application->name_or_path, NULL, NULL) ==
+           LoaderStatusOk) {
+            load_ok = true;
+        }
+    }
+    if(!load_ok) {
         loader_start(desktop->loader, "Passport", NULL, NULL);
     }
 }
 
 static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
-    if(strlen(application->name_or_path) > 2) {
+    if(strlen(application->name_or_path) > 0) {
         loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
-    } else if(
-        (strlen(application->name_or_path) < 2) && (strcmp(application->name_or_path, "d") != 0)) {
+    } else {
         loader_start(desktop->loader, LOADER_APPLICATIONS_NAME, NULL, NULL);
     }
 }
@@ -112,6 +118,12 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } break;
 
+        case DesktopMainEventLock:
+            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
+            desktop_lock(desktop);
+            consumed = true;
+            break;
+
         case DesktopMainEventOpenLockMenu:
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneLockMenu);
             consumed = true;
@@ -119,12 +131,6 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case DesktopMainEventOpenDebug:
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneDebug);
-            consumed = true;
-            break;
-
-        case DesktopMainEventLock:
-            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
-            desktop_lock(desktop);
             consumed = true;
             break;
 
@@ -141,21 +147,31 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
         }
 
-        case DesktopMainEventOpenFavoritePrimary:
+        case DesktopMainEventOpenFavoriteLeftShort:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            desktop_scene_main_start_favorite(desktop, &desktop->settings.favorite_primary);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppLeftShort]);
             consumed = true;
             break;
-        case DesktopMainEventOpenFavoriteSecondary:
+        case DesktopMainEventOpenFavoriteLeftLong:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            desktop_scene_main_start_favorite(desktop, &desktop->settings.favorite_secondary);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppLeftLong]);
             consumed = true;
             break;
-        case DesktopMainEventOpenFavoriteTertiary:
+        case DesktopMainEventOpenFavoriteRightShort:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            desktop_scene_main_start_favorite(desktop, &desktop->settings.favorite_tertiary);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppRightShort]);
             consumed = true;
             break;
+        case DesktopMainEventOpenFavoriteRightLong:
+            DESKTOP_SETTINGS_LOAD(&desktop->settings);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppRightLong]);
+            consumed = true;
+            break;
+
         case DesktopAnimationEventCheckAnimation:
             animation_manager_check_blocking_process(desktop->animation_manager);
             consumed = true;
@@ -166,39 +182,31 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
         case DesktopAnimationEventInteractAnimation:
             if(!animation_manager_interact_process(desktop->animation_manager)) {
-                loader_start(desktop->loader, "Passport", NULL, NULL);
+                DESKTOP_SETTINGS_LOAD(&desktop->settings);
+                if(!desktop->settings.dummy_mode) {
+                    desktop_scene_main_open_app_or_profile(
+                        desktop, &desktop->settings.favorite_apps[FavoriteAppRightShort]);
+                } else {
+                    desktop_scene_main_open_app_or_profile(
+                        desktop, &desktop->settings.dummy_apps[DummyAppRight]);
+                }
             }
             consumed = true;
             break;
-        case DesktopMainEventOpenPassport: {
-            loader_start(desktop->loader, "Passport", NULL, NULL);
-            break;
-        }
-        case DesktopMainEventOpenGameMenu: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/snake.fap"));
-            break;
-        }
-        case DesktopMainEventOpenTetris: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/tetris.fap"));
-            break;
-        }
-        case DesktopMainEventOpenArkanoid: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/arkanoid.fap"));
-            break;
-        }
-        case DesktopMainEventOpenDOOM: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/doom.fap"));
-            break;
-        }
-        case DesktopMainEventOpenZombiez: {
-            desktop_scene_main_open_app_or_profile(desktop, EXT_PATH("/apps/Games/zombiez.fap"));
-            break;
-        }
-        case DesktopMainEventOpenHeap: {
+
+        case DesktopDummyEventOpenLeft:
             desktop_scene_main_open_app_or_profile(
-                desktop, EXT_PATH("/apps/Games/heap_defence.fap"));
+                desktop, &desktop->settings.dummy_apps[DummyAppLeft]);
             break;
-        }
+        case DesktopDummyEventOpenDown:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppDown]);
+            break;
+        case DesktopDummyEventOpenOk:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppOk]);
+            break;
+
         case DesktopLockedEventUpdate:
             desktop_view_locked_update(desktop->locked_view);
             consumed = true;

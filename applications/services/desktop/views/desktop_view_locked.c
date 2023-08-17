@@ -99,6 +99,7 @@ void desktop_view_locked_update(DesktopViewLocked* locked_view) {
 
     if(view_state == DesktopViewLockedStateDoorsClosing &&
        !desktop_view_locked_doors_move(model)) {
+        locked_view->callback(DesktopLockedEventDoorsClosed, locked_view->context);
         model->view_state = DesktopViewLockedStateLocked;
     } else if(view_state == DesktopViewLockedStateLockedHintShown) {
         model->view_state = DesktopViewLockedStateLocked;
