@@ -110,6 +110,11 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
         if(generated_protocol) {
             subghz_file_name_clear(subghz);
+            // Reset Seed, Fix, Cnt in secure data on generated_protocol true
+            memset(subghz->secure_data->seed, 0, sizeof(subghz->secure_data->seed));
+            memset(subghz->secure_data->cnt, 0, sizeof(subghz->secure_data->cnt));
+            memset(subghz->secure_data->fix, 0, sizeof(subghz->secure_data->fix));
+
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneSetType, SubGhzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
