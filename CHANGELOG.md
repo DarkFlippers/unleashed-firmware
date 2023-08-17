@@ -1,7 +1,16 @@
 ## New changes
+* NFC: Add manually MF Classic with custom UID (by @gid9798 | PR #571)
+* Infrared: Fix crash when frequency is outside of supported range, allow sending broken files by setting frequency to nearest border
+* Infrared: Updated AC unversal asset (Legion LE-F30RH-IN added and other changes) (by @Leptopt1los | PR #577)
+* SubGHz: Fix Somfy Telis wrong frequency in add manually
+* SubGHz: Fix frequency out of bounds check causing crash/freeze
 * RGB Patch: Fix colors
 * Builds: New build (clean) `c` - comes only with main apps, use in case you don't want preinstalled apps pack
 * Plugins: Moved into one repo - https://github.com/xMasterX/all-the-plugins
+* OFW PR 2984: (only buffer changes was merged, other will be later) SubGhz: fix todo (by Skorpionm)
+* OFW PR 2980: Properly reset the NFC device data (by Astrrra)
+* OFW: SubGhz: add timeout to subghz_hal_async_tx_test_run 
+* OFW: Improve vscode clangd experience
 * OFW: Add the Sad song animation
 * OFW: ufbt: fixed FAP_SRC_DIR
 * OFW: UI: Clock on Desktop -> Refactoring of our desktop clock
