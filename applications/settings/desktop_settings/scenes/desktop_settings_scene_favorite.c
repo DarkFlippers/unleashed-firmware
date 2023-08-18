@@ -12,8 +12,14 @@
 #define EXTERNAL_BROWSER_NAME ("Apps Menu (Default)")
 #define PASSPORT_NAME ("Passport (Default)")
 
-#define EXTERNAL_APPLICATION_INDEX (1)
+#define NONE_APPLICATION_INDEX (1)
+#define NONE_APPLICATION_NAME "None (disable)"
+#define LOCK_APPLICATION_NAME "Lock Flipper"
+
+#define EXTERNAL_APPLICATION_INDEX (2)
 #define EXTERNAL_APPLICATION_NAME ("[Select App]")
+
+#define MAIN_LIST_APPLICATION_OFFSET (3)
 
 #define PRESELECTED_SPECIAL 0xffffffff
 
@@ -63,6 +69,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     FavoriteApp* curr_favorite_app = NULL;
     bool is_dummy_app = false;
     bool default_passport = false;
+    bool lock_if_none = false;
 
     if((favorite_id & SCENE_STATE_SET_DUMMY_APP) == 0) {
         furi_assert(favorite_id < FavoriteAppNumber);
@@ -76,6 +83,9 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         curr_favorite_app = &app->settings.dummy_apps[favorite_id];
         is_dummy_app = true;
         default_passport = true;
+        if(favorite_id == DummyAppUpLong) {
+            lock_if_none = true;
+        }
     }
 
     // Special case: Application browser
@@ -83,6 +93,14 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         submenu,
         default_passport ? (PASSPORT_NAME) : (EXTERNAL_BROWSER_NAME),
         DEFAULT_INDEX,
+        desktop_settings_scene_favorite_submenu_callback,
+        app);
+
+    // Special case: None (disable) or Lock Flipper
+    submenu_add_item(
+        submenu,
+        lock_if_none ? (LOCK_APPLICATION_NAME) : (NONE_APPLICATION_NAME),
+        NONE_APPLICATION_INDEX,
         desktop_settings_scene_favorite_submenu_callback,
         app);
 
@@ -99,11 +117,15 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
             const char* name = favorite_fap_get_app_name(i);
 
             submenu_add_item(
-                submenu, name, i + 2, desktop_settings_scene_favorite_submenu_callback, app);
+                submenu,
+                name,
+                i + MAIN_LIST_APPLICATION_OFFSET,
+                desktop_settings_scene_favorite_submenu_callback,
+                app);
 
             // Select favorite item in submenu
             if(!strcmp(name, curr_favorite_app->name_or_path)) {
-                pre_select_item = i + 2;
+                pre_select_item = i + MAIN_LIST_APPLICATION_OFFSET;
             }
         }
     }
@@ -111,6 +133,10 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     if(pre_select_item == PRESELECTED_SPECIAL) {
         if(curr_favorite_app->name_or_path[0] == '\0') {
             pre_select_item = DEFAULT_INDEX;
+        } else if(
+            (curr_favorite_app->name_or_path[1] == '\0') &&
+            (curr_favorite_app->name_or_path[0] == '?')) {
+            pre_select_item = NONE_APPLICATION_INDEX;
         } else {
             pre_select_item = EXTERNAL_APPLICATION_INDEX;
         }
@@ -143,6 +169,10 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
         if(event.event == DEFAULT_INDEX) {
             curr_favorite_app->name_or_path[0] = '\0';
             consumed = true;
+        } else if(event.event == NONE_APPLICATION_INDEX) {
+            curr_favorite_app->name_or_path[0] = '?';
+            curr_favorite_app->name_or_path[1] = '\0';
+            consumed = true;
         } else if(event.event == EXTERNAL_APPLICATION_INDEX) {
             const DialogsFileBrowserOptions browser_options = {
                 .extension = ".fap",
@@ -168,7 +198,7 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                 consumed = true;
             }
         } else {
-            size_t app_index = event.event - 2;
+            size_t app_index = event.event - MAIN_LIST_APPLICATION_OFFSET;
             const char* name = favorite_fap_get_app_name(app_index);
             if(name) strncpy(curr_favorite_app->name_or_path, name, MAX_APP_LENGTH);
             consumed = true;

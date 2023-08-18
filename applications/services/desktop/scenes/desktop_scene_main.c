@@ -61,11 +61,19 @@ static void
 }
 #endif
 
+static inline bool desktop_scene_main_check_none(const char* str) {
+    return (str[1] == '\0' && str[0] == '?');
+}
+
 static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp* application) {
     bool load_ok = false;
     if(strlen(application->name_or_path) > 0) {
-        if(loader_start(desktop->loader, application->name_or_path, NULL, NULL) ==
-           LoaderStatusOk) {
+        if(desktop_scene_main_check_none(application->name_or_path)) {
+            // skip loading
+            load_ok = true;
+        } else if(
+            loader_start(desktop->loader, application->name_or_path, NULL, NULL) ==
+            LoaderStatusOk) {
             load_ok = true;
         }
     }
@@ -76,7 +84,9 @@ static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp
 
 static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
     if(strlen(application->name_or_path) > 0) {
-        loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
+        if(!desktop_scene_main_check_none(application->name_or_path)) {
+            loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
+        }
     } else {
         loader_start(desktop->loader, LOADER_APPLICATIONS_NAME, NULL, NULL);
     }
@@ -207,8 +217,14 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
                 desktop, &desktop->settings.dummy_apps[DummyAppOk]);
             break;
         case DesktopDummyEventOpenUpLong:
-            desktop_scene_main_open_app_or_profile(
-                desktop, &desktop->settings.dummy_apps[DummyAppUpLong]);
+            if(!desktop_scene_main_check_none(
+                   desktop->settings.dummy_apps[DummyAppUpLong].name_or_path)) {
+                desktop_scene_main_open_app_or_profile(
+                    desktop, &desktop->settings.dummy_apps[DummyAppUpLong]);
+            } else {
+                scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
+                desktop_lock(desktop);
+            }
             break;
         case DesktopDummyEventOpenDownLong:
             desktop_scene_main_open_app_or_profile(
