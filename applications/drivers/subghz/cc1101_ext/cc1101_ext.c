@@ -357,7 +357,8 @@ bool subghz_device_cc1101_ext_rx_pipe_not_empty() {
         (CC1101_STATUS_RXBYTES) | CC1101_BURST,
         (uint8_t*)status);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
-    if((status->NUM_RXBYTES > 0) || (status->RXFIFO_OVERFLOW == 0)) {
+    // TODO: Find reason why RXFIFO_OVERFLOW doesnt work correctly
+    if(status->NUM_RXBYTES > 0) {
         return true;
     } else {
         return false;
