@@ -45,13 +45,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                if(seed == 0) {
-                    furi_string_set(subghz->error_str, "Seed value\ncan not be 0.");
-                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
-                    consumed = true;
-                    break;
-                }
-
                 generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
                     subghz->txrx,
                     "AM650",
@@ -80,12 +73,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                if(seed == 0) {
-                    furi_string_set(subghz->error_str, "Seed value\ncan not be 0.");
-                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
-                    consumed = true;
-                    break;
-                }
                 if(state == SubmenuIndexFaacSLH_433) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
