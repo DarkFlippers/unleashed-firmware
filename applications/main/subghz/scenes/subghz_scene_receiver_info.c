@@ -3,6 +3,8 @@
 
 #include <lib/subghz/blocks/custom_btn.h>
 
+#define TAG "SubGhzSceneReceiverInfo"
+
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;

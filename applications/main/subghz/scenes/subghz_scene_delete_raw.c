@@ -1,3 +1,4 @@
+#include "../subghz.h"
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 

@@ -98,7 +98,6 @@ struct SubGhz {
     void* rpc_ctx;
 };
 
-void subghz_set_default_preset(SubGhz* subghz);
 void subghz_blink_start(SubGhz* subghz);
 void subghz_blink_stop(SubGhz* subghz);
 
@@ -106,6 +105,7 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format);
 void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx);
 
 bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog);
+// Not used
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len);
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,
