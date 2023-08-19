@@ -1,11 +1,10 @@
-from SCons.Platform import TempFileMunge
-from SCons.Node import FS
-from SCons.Errors import UserError
-
-
-import os
 import multiprocessing
+import os
 import pathlib
+
+from SCons.Errors import UserError
+from SCons.Node import FS
+from SCons.Platform import TempFileMunge
 
 SetOption("num_jobs", multiprocessing.cpu_count())
 SetOption("max_drift", 1)
@@ -67,16 +66,15 @@ core_env.Append(CPPDEFINES=GetOption("extra_defines"))
 
 # Now we can import stuff bundled with SDK - it was added to sys.path by ufbt_state
 
-from fbt.util import (
-    tempfile_arg_esc_func,
-    single_quote,
-    extract_abs_dir,
-    extract_abs_dir_path,
-    wrap_tempfile,
-    path_as_posix,
-)
-from fbt.appmanifest import FlipperAppType, FlipperApplication
+from fbt.appmanifest import FlipperApplication, FlipperAppType
 from fbt.sdk.cache import SdkCache
+from fbt.util import (
+    path_as_posix,
+    resolve_real_dir_node,
+    single_quote,
+    tempfile_arg_esc_func,
+    wrap_tempfile,
+)
 
 # Base environment with all tools loaded from SDK
 env = core_env.Clone(
@@ -107,7 +105,7 @@ env = core_env.Clone(
     PROGSUFFIX=".elf",
     TEMPFILEARGESCFUNC=tempfile_arg_esc_func,
     SINGLEQUOTEFUNC=single_quote,
-    ABSPATHGETTERFUNC=extract_abs_dir_path,
+    ABSPATHGETTERFUNC=resolve_real_dir_node,
     APPS=[],
     UFBT_API_VERSION=SdkCache(
         core_env.subst("$SDK_DEFINITION"), load_version_only=True
@@ -277,7 +275,7 @@ for app in known_extapps:
         continue
 
     app_artifacts = appenv.BuildAppElf(app)
-    app_src_dir = extract_abs_dir(app_artifacts.app._appdir)
+    app_src_dir = resolve_real_dir_node(app_artifacts.app._appdir)
     app_artifacts.installer = [
         appenv.Install(app_src_dir.Dir("dist"), app_artifacts.compact),
         appenv.Install(app_src_dir.Dir("dist").Dir("debug"), app_artifacts.debug),
@@ -347,6 +345,9 @@ appenv.PhonyTarget(
     "cli",
     '${PYTHON3} "${FBT_SCRIPT_DIR}/serial_cli.py" -p ${FLIP_PORT}',
 )
+
+# Update WiFi devboard firmware
+dist_env.PhonyTarget("devboard_flash", "${PYTHON3} ${FBT_SCRIPT_DIR}/wifi_board.py")
 
 # Linter
 

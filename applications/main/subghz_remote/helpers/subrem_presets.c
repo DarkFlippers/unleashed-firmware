@@ -84,7 +84,7 @@ SubRemLoadSubState subrem_sub_preset_load(
         if(!flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
             FURI_LOG_W(TAG, "Cannot read frequency. Set default frequency");
             sub_preset->freq_preset.frequency = subghz_setting_get_default_frequency(setting);
-        } else if(!subghz_txrx_radio_device_is_frequecy_valid(txrx, temp_data32)) {
+        } else if(!subghz_txrx_radio_device_is_frequency_valid(txrx, temp_data32)) {
             FURI_LOG_E(TAG, "Frequency not supported on chosen radio module");
             break;
         }

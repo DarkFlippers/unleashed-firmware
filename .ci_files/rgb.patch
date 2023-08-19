@@ -102,8 +102,8 @@ index 0000000..269b544
 +    .settings_is_loaded = false};
 +
 +static const RGBBacklightColor colors[] = {
-+    {"Orange", 255, 79, 0},
-+    {"Yellow", 255, 170, 0},
++    {"Orange", 255, 60, 0},
++    {"Yellow", 255, 150, 0},
 +    {"Spring", 167, 255, 0},
 +    {"Lime", 0, 255, 0},
 +    {"Aqua", 0, 255, 127},
@@ -114,7 +114,7 @@ index 0000000..269b544
 +    {"Magenta", 210, 0, 210},
 +    {"Pink", 255, 0, 127},
 +    {"Red", 255, 0, 0},
-+    {"White", 140, 140, 140},
++    {"White", 150, 150, 110},
 +};
 +
 +uint8_t rgb_backlight_get_color_count(void) {

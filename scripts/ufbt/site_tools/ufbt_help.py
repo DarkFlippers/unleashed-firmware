@@ -26,6 +26,8 @@ Flashing & debugging:
         Install firmware using self-update package
     debug, debug_other, blackmagic:
         Start GDB
+    devboard_flash:
+        Update WiFi dev board with the latest firmware
 
 Other:
     cli:

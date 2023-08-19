@@ -16,6 +16,7 @@ class Register32:
         self.names = [definition.name for definition in definition_list]  # typecheck
         self.address = address
         self.definition_list = definition_list
+        self.openocd = None
 
         # Validate that the definitions are not overlapping
         for i in range(len(definition_list)):
@@ -76,6 +77,14 @@ class Register32:
     def __dir__(self):
         return self.names
 
+    def set_openocd(self, openocd: OpenOCD):
+        self.openocd = openocd
+
+    def get_openocd(self) -> OpenOCD:
+        if self.openocd is None:
+            raise RuntimeError("OpenOCD is not installed")
+        return self.openocd
+
     def set(self, value: int):
         for definition in self.definition_list:
             definition.value = (value >> definition.offset) & (
@@ -88,8 +97,8 @@ class Register32:
             value |= definition.value << definition.offset
         return value
 
-    def load(self, openocd: OpenOCD):
-        self.set(openocd.read_32(self.address))
+    def load(self):
+        self.set(self.get_openocd().read_32(self.address))
 
-    def store(self, openocd: OpenOCD):
-        openocd.write_32(self.address, self.get())
+    def store(self):
+        self.get_openocd().write_32(self.address, self.get())

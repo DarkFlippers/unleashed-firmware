@@ -29,7 +29,7 @@ if [ -z "$FBT_NO_SYNC" ]; then
         echo "\".git\" directory not found, please clone repo via \"git clone\"";
         exit 1;
     fi
-    git submodule update --init --depth 1 --jobs "$N_GIT_THREADS";
+    git submodule update --init --jobs "$N_GIT_THREADS";
 fi
 
 $SCONS_EP $SCONS_DEFAULT_FLAGS "$@"

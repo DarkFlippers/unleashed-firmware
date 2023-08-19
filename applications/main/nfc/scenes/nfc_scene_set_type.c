@@ -4,6 +4,7 @@
 enum SubmenuIndex {
     SubmenuIndexNFCA4,
     SubmenuIndexNFCA7,
+    SubmenuIndexMFClassicCustomUID,
     SubmenuIndexGeneratorsStart,
 };
 
@@ -23,6 +24,12 @@ void nfc_scene_set_type_on_enter(void* context) {
         submenu, "NFC-A 7-bytes UID", SubmenuIndexNFCA7, nfc_scene_set_type_submenu_callback, nfc);
     submenu_add_item(
         submenu, "NFC-A 4-bytes UID", SubmenuIndexNFCA4, nfc_scene_set_type_submenu_callback, nfc);
+    submenu_add_item(
+        submenu,
+        "Mifare Classic Custom UID",
+        SubmenuIndexMFClassicCustomUID,
+        nfc_scene_set_type_submenu_callback,
+        nfc);
 
     // Generators
     int i = SubmenuIndexGeneratorsStart;
@@ -48,6 +55,10 @@ bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             nfc->dev->dev_data.nfc_data.uid_len = 4;
             nfc->dev->format = NfcDeviceSaveFormatUid;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
+            consumed = true;
+        } else if(event.event == SubmenuIndexMFClassicCustomUID) {
+            nfc_device_clear(nfc->dev);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetTypeMfUid);
             consumed = true;
         } else {
             nfc_device_clear(nfc->dev);

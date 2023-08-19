@@ -330,7 +330,12 @@ bool subghz_hal_async_tx_test_run(SubGhzHalAsyncTxTestType type) {
         return false;
     }
 
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(30000000);
+
     while(!furi_hal_subghz_is_async_tx_complete()) {
+        if(furi_hal_cortex_timer_is_expired(timer)) {
+            return false;
+        }
         furi_delay_ms(10);
     }
     furi_hal_subghz_stop_async_tx();

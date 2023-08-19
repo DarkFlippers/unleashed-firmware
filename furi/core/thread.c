@@ -92,10 +92,10 @@ static void furi_thread_body(void* context) {
     if(thread->heap_trace_enabled == true) {
         furi_delay_ms(33);
         thread->heap_size = memmgr_heap_get_thread_memory((FuriThreadId)task_handle);
-        furi_log_print_format( //-V576
+        furi_log_print_format(
             thread->heap_size ? FuriLogLevelError : FuriLogLevelInfo,
             TAG,
-            "%s allocation balance: %u",
+            "%s allocation balance: %zu",
             thread->name ? thread->name : "Thread",
             thread->heap_size);
         memmgr_heap_disable_thread_trace((FuriThreadId)task_handle);

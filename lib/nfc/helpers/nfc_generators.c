@@ -333,15 +333,30 @@ static void nfc_generate_ntag_i2c_plus_2k(NfcDeviceData* data) {
     mful->version.storage_size = 0x15;
 }
 
-void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType type) {
+void nfc_generate_mf_classic_ext(
+    NfcDeviceData* data,
+    uint8_t uid_len,
+    MfClassicType type,
+    bool random_uid,
+    uint8_t* uid) {
     nfc_generate_common_start(data);
-    nfc_generate_mf_classic_uid(data->mf_classic_data.block[0].value, uid_len);
+    if(random_uid) {
+        nfc_generate_mf_classic_uid(data->mf_classic_data.block[0].value, uid_len);
+    } else {
+        memcpy(data->mf_classic_data.block[0].value, uid, uid_len);
+    }
     nfc_generate_mf_classic_common(data, uid_len, type);
 
     // Set the UID
-    data->nfc_data.uid[0] = NXP_MANUFACTURER_ID;
-    for(int i = 1; i < uid_len; i++) {
-        data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+    if(random_uid) {
+        data->nfc_data.uid[0] = NXP_MANUFACTURER_ID;
+        for(int i = 1; i < uid_len; i++) {
+            data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+        }
+    } else {
+        for(int i = 0; i < uid_len; i++) {
+            data->nfc_data.uid[i] = data->mf_classic_data.block[0].value[i];
+        }
     }
 
     MfClassicData* mfc = &data->mf_classic_data;
@@ -393,6 +408,11 @@ void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType
         data->nfc_data.atqa[1]);
 
     mfc->type = type;
+}
+
+void nfc_generate_mf_classic(NfcDeviceData* data, uint8_t uid_len, MfClassicType type) {
+    uint8_t uid = 0;
+    nfc_generate_mf_classic_ext(data, uid_len, type, true, &uid);
 }
 
 static void nfc_generate_mf_mini(NfcDeviceData* data) {
