@@ -131,8 +131,9 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
         DESKTOP_SETTINGS_LOAD(&desktop->settings);
 
         desktop_clock_reconfigure(desktop);
-
-        desktop_auto_lock_arm(desktop);
+        if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
+            desktop_auto_lock_arm(desktop);
+        }
         return true;
     case DesktopGlobalAutoLock:
         if(!loader_is_locked(desktop->loader)) {

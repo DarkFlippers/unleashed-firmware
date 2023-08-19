@@ -59,18 +59,18 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
             } else if(event->key == InputKeyDown) {
                 main_view->callback(DesktopMainEventOpenArchive, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenFavoritePrimary, main_view->context);
+                main_view->callback(DesktopMainEventOpenFavoriteLeftShort, main_view->context);
             }
-            // Right key is handled by animation manager
+            // Right key short is handled by animation manager
         } else if(event->type == InputTypeLong) {
-            if(event->key == InputKeyDown) {
+            if(event->key == InputKeyUp) {
+                main_view->callback(DesktopMainEventLock, main_view->context);
+            } else if(event->key == InputKeyDown) {
                 main_view->callback(DesktopMainEventOpenDebug, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenFavoriteSecondary, main_view->context);
+                main_view->callback(DesktopMainEventOpenFavoriteLeftLong, main_view->context);
             } else if(event->key == InputKeyRight) {
-                main_view->callback(DesktopMainEventOpenFavoriteTertiary, main_view->context);
-            } else if(event->key == InputKeyUp) {
-                main_view->callback(DesktopMainEventLock, main_view->context);
+                main_view->callback(DesktopMainEventOpenFavoriteRightLong, main_view->context);
             } else if(event->key == InputKeyOk) {
                 if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
                     main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
@@ -80,31 +80,30 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyOk) {
-                main_view->callback(
-                    DesktopMainEventOpenGameMenu, main_view->context); // OPENS Snake
+                main_view->callback(DesktopDummyEventOpenOk, main_view->context);
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
             } else if(event->key == InputKeyDown) {
-                main_view->callback(
-                    DesktopMainEventOpenTetris, main_view->context); // OPENS Tetris
+                main_view->callback(DesktopDummyEventOpenDown, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(
-                    DesktopMainEventOpenArkanoid, main_view->context); // OPENS Arkanoid
+                main_view->callback(DesktopDummyEventOpenLeft, main_view->context);
             }
-            // Right key is handled by animation manager
+            // Right key short is handled by animation manager
         } else if(event->type == InputTypeLong) {
             if(event->key == InputKeyOk) {
-                if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                    main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
-                }
+                // Not working in DummyMode
+                // if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                //     main_view->callback(DesktopAnimationEventNewIdleAnimation, main_view->context);
+                // }
+                main_view->callback(DesktopDummyEventOpenOkLong, main_view->context);
             } else if(event->key == InputKeyUp) {
-                main_view->callback(DesktopMainEventOpenDOOM, main_view->context); // OPENS DOOM
+                main_view->callback(DesktopDummyEventOpenUpLong, main_view->context);
             } else if(event->key == InputKeyDown) {
-                main_view->callback(
-                    DesktopMainEventOpenZombiez, main_view->context); // OPENS Zombiez
+                main_view->callback(DesktopDummyEventOpenDownLong, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(
-                    DesktopMainEventOpenHeap, main_view->context); // OPENS Heap Defence
+                main_view->callback(DesktopDummyEventOpenLeftLong, main_view->context);
+            } else if(event->key == InputKeyRight) {
+                main_view->callback(DesktopDummyEventOpenRightLong, main_view->context);
             }
         }
     }

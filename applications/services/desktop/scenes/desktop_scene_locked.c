@@ -87,6 +87,10 @@ bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
             desktop_unlock(desktop);
             consumed = true;
             break;
+        case DesktopLockedEventDoorsClosed:
+            notification_message(desktop->notification, &sequence_display_backlight_off);
+            consumed = true;
+            break;
         case DesktopLockedEventUpdate:
             if(desktop_view_locked_is_locked_hint_visible(desktop->locked_view)) {
                 notification_message(desktop->notification, &sequence_display_backlight_off);
