@@ -99,6 +99,7 @@ void desktop_view_locked_update(DesktopViewLocked* locked_view) {
 
     if(view_state == DesktopViewLockedStateDoorsClosing &&
        !desktop_view_locked_doors_move(model)) {
+        locked_view->callback(DesktopLockedEventDoorsClosed, locked_view->context);
         model->view_state = DesktopViewLockedStateLocked;
     } else if(view_state == DesktopViewLockedStateLockedHintShown) {
         model->view_state = DesktopViewLockedStateLocked;
@@ -223,8 +224,7 @@ void desktop_view_locked_close_doors(DesktopViewLocked* locked_view) {
 
 void desktop_view_locked_lock(DesktopViewLocked* locked_view, bool pin_locked) {
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    // TODO: Fix!!!!!!!!!!!
-    //furi_assert(model->view_state == DesktopViewLockedStateUnlocked);
+    furi_assert(model->view_state == DesktopViewLockedStateUnlocked);
     model->view_state = DesktopViewLockedStateLocked;
     model->pin_locked = pin_locked;
     view_commit_model(locked_view->view, true);

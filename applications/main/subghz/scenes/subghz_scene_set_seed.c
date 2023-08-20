@@ -45,6 +45,13 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
+                if(seed == 0) {
+                    furi_string_set(subghz->error_str, "Seed value\ncan not be 0.");
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+                    consumed = true;
+                    break;
+                }
+
                 generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
                     subghz->txrx,
                     "AM650",
@@ -73,6 +80,12 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
+                if(seed == 0) {
+                    furi_string_set(subghz->error_str, "Seed value\ncan not be 0.");
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+                    consumed = true;
+                    break;
+                }
                 if(state == SubmenuIndexFaacSLH_433) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
@@ -108,8 +121,14 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
             }
         }
 
+        // Reset Seed, Fix, Cnt in secure data after successful or unsuccessful generation
+        memset(subghz->secure_data->seed, 0, sizeof(subghz->secure_data->seed));
+        memset(subghz->secure_data->cnt, 0, sizeof(subghz->secure_data->cnt));
+        memset(subghz->secure_data->fix, 0, sizeof(subghz->secure_data->fix));
+
         if(generated_protocol) {
             subghz_file_name_clear(subghz);
+
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneSetType, SubGhzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);

@@ -112,6 +112,9 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
     if(instance->generic.seed != 0x0) {
         instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+    } else {
+        // Do not generate new data, send data from buffer
+        return true;
     }
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
     uint32_t hop = 0;
@@ -433,6 +436,9 @@ SubGhzProtocolStatus subghz_protocol_decoder_faac_slh_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
+
+    // Reset seed leftover from previous decoded signal
+    instance->generic.seed = 0x0;
 
     SubGhzProtocolStatus res =
         subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
