@@ -147,15 +147,15 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_list_add(variable_item_list, "Favorite App - Right Short", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Right Long", 1, NULL, NULL);
 
-    variable_item_list_add(variable_item_list, "DummyMode App - Left", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Left Long", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Right", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Right Long", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Up Long", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Down", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Down Long", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Ok", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "DummyMode App - Ok Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Left", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Left Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Right", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Right Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Up Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Down", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Down Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Ok", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "DummyMode - Ok Long", 1, NULL, NULL);
 
     variable_item_list_set_enter_callback(
         variable_item_list, desktop_settings_scene_start_var_list_enter_callback, app);
