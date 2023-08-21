@@ -10,6 +10,8 @@
 
 #define TAG "SubGhzProtocolFaacSLH"
 
+bool bvalid;
+
 static const SubGhzBlockConst subghz_protocol_faac_slh_const = {
     .te_short = 255,
     .te_long = 595,
@@ -110,7 +112,14 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 }
 
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
-    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+    if(bvalid) {
+        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+        FURI_LOG_I(TAG, "[gen_data] TRUE : %i", bvalid);
+    } else {
+        // Do not generate new data, send data from buffer
+        FURI_LOG_I(TAG, "[gen_data] FALSE : %i", bvalid);
+        //return true;
+    }
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
     uint32_t hop = 0;
     uint32_t decrypt = 0;
@@ -237,6 +246,14 @@ SubGhzProtocolStatus
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
+        FuriString* valid = furi_string_alloc();
+        if(flipper_format_read_string(flipper_format, "Valid", valid)) {
+            bvalid = true;
+            FURI_LOG_I(TAG, "[encoder_des] Valid : %i", bvalid);
+        } else {
+            bvalid = false;
+        }
+        furi_string_free(valid);
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
 
@@ -481,6 +498,14 @@ SubGhzProtocolStatus
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
+        FuriString* valid = furi_string_alloc();
+        if(flipper_format_read_string(flipper_format, "Valid", valid)) {
+            bvalid = true;
+            FURI_LOG_I(TAG, "[decoder_des] Valid : %i", bvalid);
+        } else {
+            bvalid = false;
+        }
+        furi_string_free(valid);
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
 
@@ -502,21 +527,39 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
-    furi_string_cat_printf(
-        output,
-        "%s %dbit\r\n"
-        "Key:%lX%08lX\r\n"
-        "Fix:%08lX    Cnt:%05lX\r\n"
-        "Hop:%08lX    Btn:%X\r\n"
-        "Sn:%07lX Sd:%08lX",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
-        code_fix,
-        instance->generic.cnt,
-        code_hop,
-        instance->generic.btn,
-        instance->generic.serial,
-        instance->generic.seed);
+    if(bvalid == false) {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%lX%08lX\r\n"
+            "Fix:%08lX\r\n"
+            "Hop:%08lX    Btn:%X\r\n"
+            "Sn:%07lX Sd:Unknown",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            (uint32_t)(instance->generic.data >> 32),
+            (uint32_t)instance->generic.data,
+            code_fix,
+            code_hop,
+            instance->generic.btn,
+            instance->generic.serial);
+    } else {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%lX%08lX\r\n"
+            "Fix:%08lX    Cnt:%05lX\r\n"
+            "Hop:%08lX    Btn:%X\r\n"
+            "Sn:%07lX Sd:%08lX",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            (uint32_t)(instance->generic.data >> 32),
+            (uint32_t)instance->generic.data,
+            code_fix,
+            instance->generic.cnt,
+            code_hop,
+            instance->generic.btn,
+            instance->generic.serial,
+            instance->generic.seed);
+    }
 }
