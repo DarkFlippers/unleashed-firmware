@@ -41,9 +41,9 @@
 
 # What's changed
 - **Sub-GHz** *lib & hal*
-	- regional TX restrictions removed
+	- Regional TX restrictions removed
 	- Extra Sub-GHz frequencies
-	- frequency range can be extended in settings file (Warning: It can damage Flipper's hardware)
+	- Frequency range can be extended in settings file (Warning: It can damage Flipper's hardware)
 	- Many rolling code [protocols](https://github.com/DarkFlippers/unleashed-firmware#current-modified-and-new-sub-ghz-protocols-list) now have the ability to save & send captured signals
 	- FAAC SLH (Spa) & BFT Mitto (keeloq secure with seed) manual creation
 	- External CC1101 module support [(by quen0n)](https://github.com/DarkFlippers/unleashed-firmware/pull/307)
