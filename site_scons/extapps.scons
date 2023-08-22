@@ -23,18 +23,14 @@ appenv.Replace(
 
 appenv.AppendUnique(
     CCFLAGS=[
-        "-ggdb3",
         "-mword-relocations",
         "-mlong-calls",
         "-fno-common",
         "-nostdlib",
-        "-fvisibility=hidden",
     ],
     LINKFLAGS=[
         "-Ur",
         "-Wl,-Ur",
-        # "-Wl,--orphan-handling=error",
-        "-Bsymbolic",
         "-nostartfiles",
         "-mlong-calls",
         "-fno-common",

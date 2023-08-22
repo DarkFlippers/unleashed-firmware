@@ -64,7 +64,7 @@ jobs:
       - name: 'Flash last release'
         if: failure()
         run: |
-          ./fbt flash OPENOCD_ADAPTER_SERIAL=${{steps.device.outputs.stlink}} FORCE=1
+          ./fbt flash SWD_TRANSPORT_SERIAL=${{steps.device.outputs.stlink}} FORCE=1
 
       - name: 'Wait for flipper and format ext'
         if: failure()

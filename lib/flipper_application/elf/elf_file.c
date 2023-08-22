@@ -1,3 +1,4 @@
+#include "storage/storage.h"
 #include <elf.h>
 #include "elf_file.h"
 #include "elf_file_i.h"
@@ -56,6 +57,13 @@ static void address_cache_put(AddressCache_t cache, int symEntry, Elf32_Addr sym
 /**************************************************************************************************/
 /********************************************** ELF ***********************************************/
 /**************************************************************************************************/
+
+static void elf_file_maybe_release_fd(ELFFile* elf) {
+    if(elf->fd) {
+        storage_file_free(elf->fd);
+        elf->fd = NULL;
+    }
+}
 
 static ELFSection* elf_file_get_section(ELFFile* elf, const char* name) {
     return ELFSectionDict_get(elf->sections, name);
@@ -764,7 +772,7 @@ void elf_file_free(ELFFile* elf) {
         free(elf->debug_link_info.debug_link);
     }
 
-    storage_file_free(elf->fd);
+    elf_file_maybe_release_fd(elf);
     free(elf);
 }
 
@@ -855,6 +863,7 @@ ElfProcessSectionResult elf_process_section(
 }
 
 ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
+    furi_check(elf->fd != NULL);
     ELFFileLoadStatus status = ELFFileLoadStatusSuccess;
     ELFSectionDict_it_t it;
 
@@ -895,6 +904,7 @@ ELFFileLoadStatus elf_file_load_sections(ELFFile* elf) {
         FURI_LOG_I(TAG, "Total size of loaded sections: %zu", total_size);
     }
 
+    elf_file_maybe_release_fd(elf);
     return status;
 }
 

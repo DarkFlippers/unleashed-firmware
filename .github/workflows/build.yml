@@ -58,7 +58,7 @@ jobs:
       - name: 'Bundle scripts'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts
+          tar czpf "artifacts/flipper-z-any-scripts-${SUFFIX}.tgz" scripts
 
       - name: 'Build the firmware'
         run: |
@@ -73,6 +73,8 @@ jobs:
             ./fbt TARGET_HW=$TARGET_HW fap_dist
             tar czpf "artifacts/flipper-z-${TARGET}-debugapps-${SUFFIX}.tgz" \
               -C dist/${TARGET}-*/apps/Debug .
+            tar czpf "artifacts/flipper-z-${TARGET}-appsymbols-${SUFFIX}.tgz" \
+              -C dist/${TARGET}-*/debug_elf .
           done
 
       - name: "Check for uncommitted changes"
