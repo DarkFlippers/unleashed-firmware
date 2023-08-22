@@ -59,7 +59,6 @@ int __wrap_fflush(FILE* stream) {
 __attribute__((__noreturn__)) void __wrap___assert(const char* file, int line, const char* e) {
     UNUSED(file);
     UNUSED(line);
-    // TODO: message file and line number
     furi_crash(e);
 }
 
@@ -68,6 +67,5 @@ __attribute__((__noreturn__)) void
     UNUSED(file);
     UNUSED(line);
     UNUSED(func);
-    // TODO: message file and line number
     furi_crash(e);
 }

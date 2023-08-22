@@ -142,7 +142,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
         if(!strcmp(furi_string_get_cstr(temp_str), "CUSTOM")) {
-            //Todo add Custom_preset_module
+            //TODO FL-3551: add Custom_preset_module
             //delete preset if it already exists
             subghz_setting_delete_custom_preset(setting, furi_string_get_cstr(temp_str));
             //load custom preset from file

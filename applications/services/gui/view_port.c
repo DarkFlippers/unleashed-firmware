@@ -7,7 +7,7 @@
 #include "gui.h"
 #include "gui_i.h"
 
-// TODO add mutex to view_port ops
+// TODO FL-3498: add mutex to view_port ops
 
 _Static_assert(ViewPortOrientationMAX == 4, "Incorrect ViewPortOrientation count");
 _Static_assert(

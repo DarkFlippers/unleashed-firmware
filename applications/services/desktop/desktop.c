@@ -101,7 +101,7 @@ static void desktop_clock_draw_callback(Canvas* canvas, void* context) {
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%02u:%02u", hour, desktop->time_minute);
 
-    // ToDo: never do that, may cause visual glitches
+    // TODO FL-3515: never do that, may cause visual glitches
     view_port_set_width(
         desktop->clock_viewport,
         canvas_string_width(canvas, buffer) - 1 + (desktop->time_minute % 10 == 1));
@@ -126,7 +126,7 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
         return true;
     case DesktopGlobalAfterAppFinished:
         animation_manager_load_and_continue_animation(desktop->animation_manager);
-        // TODO: Implement a message mechanism for loading settings and (optionally)
+        // TODO FL-3497: Implement a message mechanism for loading settings and (optionally)
         // locking and unlocking
         DESKTOP_SETTINGS_LOAD(&desktop->settings);
 
@@ -382,12 +382,7 @@ Desktop* desktop_alloc() {
     }
     gui_add_view_port(desktop->gui, desktop->stealth_mode_icon_viewport, GuiLayerStatusBarLeft);
 
-    // Special case: autostart application is already running
     desktop->loader = furi_record_open(RECORD_LOADER);
-    if(loader_is_locked(desktop->loader) &&
-       animation_manager_is_animation_loaded(desktop->animation_manager)) {
-        animation_manager_unload_and_stall_animation(desktop->animation_manager);
-    }
 
     desktop->notification = furi_record_open(RECORD_NOTIFICATION);
     desktop->app_start_stop_subscription = furi_pubsub_subscribe(
@@ -476,6 +471,12 @@ int32_t desktop_srv(void* p) {
 
     if(furi_hal_rtc_get_fault_data()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFault);
+    }
+
+    // Special case: autostart application is already running
+    if(loader_is_locked(desktop->loader) &&
+       animation_manager_is_animation_loaded(desktop->animation_manager)) {
+        animation_manager_unload_and_stall_animation(desktop->animation_manager);
     }
 
     view_dispatcher_run(desktop->view_dispatcher);

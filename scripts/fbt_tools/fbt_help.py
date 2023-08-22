@@ -16,8 +16,8 @@ Firmware & apps:
     
 
 Flashing & debugging:
-    flash, flash_blackmagic, jflash:
-        Flash firmware to target using debug probe
+    flash, jflash:
+        Flash firmware to target using SWD probe. See also SWD_TRANSPORT, SWD_TRANSPORT_SERIAL
     flash_usb, flash_usb_full: 
         Install firmware using self-update package
     debug, debug_other, blackmagic: 

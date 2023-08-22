@@ -21,7 +21,7 @@ def generate(env, **kw):
         FBT_DEBUG_DIR="${FBT_SCRIPT_DIR}/debug",
     )
 
-    if (adapter_serial := env.subst("$OPENOCD_ADAPTER_SERIAL")) != "auto":
+    if (adapter_serial := env.subst("$SWD_TRANSPORT_SERIAL")) != "auto":
         env.Append(
             OPENOCD_OPTS=[
                 "-c",

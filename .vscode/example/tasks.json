@@ -28,28 +28,16 @@
             "command": "./fbt -c"
         },
         {
-            "label": "[Release] Flash (ST-Link)",
+            "label": "[Release] Flash (SWD)",
             "group": "build",
             "type": "shell",
             "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash"
         },
         {
-            "label": "[Debug] Flash (ST-Link)",
+            "label": "[Debug] Flash (SWD)",
             "group": "build",
             "type": "shell",
             "command": "./fbt FORCE=1 flash"
-        },
-        {
-            "label": "[Release] Flash (blackmagic)",
-            "group": "build",
-            "type": "shell",
-            "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_blackmagic"
-        },
-        {
-            "label": "[Debug] Flash (blackmagic)",
-            "group": "build",
-            "type": "shell",
-            "command": "./fbt FORCE=1 flash_blackmagic"
         },
         {
             "label": "[Release] Flash (JLink)",

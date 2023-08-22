@@ -237,6 +237,7 @@ class SdkCache:
         removed_entries = known_set - new_set
         if removed_entries:
             print(f"Removed: {removed_entries}")
+            self.loaded_dirty_version = True
             known_set -= removed_entries
             # If any of removed entries was a part of active API, that's a major bump
             if update_version and any(

@@ -225,7 +225,7 @@ void furi_hal_resources_init() {
 }
 
 int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio) {
-    // TODO: describe second ROW
+    // TODO FL-3500: describe second ROW
     if(gpio == &gpio_ext_pa7)
         return 2;
     else if(gpio == &gpio_ext_pa6)

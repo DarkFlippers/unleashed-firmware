@@ -55,9 +55,21 @@ vars.AddVariables(
         "Blackmagic probe location",
         "auto",
     ),
+    EnumVariable(
+        "SWD_TRANSPORT",
+        help="SWD interface adapter type",
+        default="auto",
+        allowed_values=[
+            "auto",
+            "cmsis-dap",
+            "stlink",
+            "blackmagic_usb",
+            "blackmagic_wifi",
+        ],
+    ),
     (
-        "OPENOCD_ADAPTER_SERIAL",
-        "OpenOCD adapter serial number",
+        "SWD_TRANSPORT_SERIAL",
+        "SWD interface adapter serial number",
         "auto",
     ),
     (
