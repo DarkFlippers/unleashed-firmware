@@ -1625,6 +1625,9 @@ void nfc_device_data_clear(NfcDeviceData* dev_data) {
     } else if(dev_data->protocol == NfcDeviceProtocolEMV) {
         memset(&dev_data->emv_data, 0, sizeof(EmvData));
     }
+
+    furi_string_reset(dev_data->parsed_data);
+
     memset(&dev_data->nfc_data, 0, sizeof(FuriHalNfcDevData));
     dev_data->protocol = NfcDeviceProtocolUnknown;
     furi_string_reset(dev_data->parsed_data);
