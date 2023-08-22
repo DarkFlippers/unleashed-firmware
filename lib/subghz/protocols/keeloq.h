@@ -12,6 +12,13 @@ extern const SubGhzProtocolEncoder subghz_protocol_keeloq_encoder;
 extern const SubGhzProtocol subghz_protocol_keeloq;
 
 /**
+ * Edit counter function
+ * @param context Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @param cnt Counter
+ */ 
+bool subghz_protocol_keeloq_edit_cnt(void* context, uint32_t cnt);
+
+/**
  * Allocate SubGhzProtocolEncoderKeeloq.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolEncoderKeeloq* pointer to a SubGhzProtocolEncoderKeeloq instance

@@ -170,7 +170,7 @@ static bool subghz_protocol_keeloq_gen_data(
     }
     if(counter_up && prog_mode == PROG_MODE_OFF) {
         if(instance->generic.cnt < 0xFFFF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
                 instance->generic.cnt = 0;
             } else {
                 instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
@@ -451,6 +451,14 @@ static bool
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_short * 40);
 
+    return true;
+}
+
+bool subghz_protocol_keeloq_edit_cnt(void* context, uint32_t cnt) {
+    furi_assert(context);
+    SubGhzProtocolEncoderKeeloq* instance = context;
+    instance->generic.cnt = cnt;
+    FURI_LOG_I(TAG, "edit_cnt value : %08lX", cnt);
     return true;
 }
 
