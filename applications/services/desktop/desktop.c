@@ -381,12 +381,7 @@ Desktop* desktop_alloc() {
     }
     gui_add_view_port(desktop->gui, desktop->stealth_mode_icon_viewport, GuiLayerStatusBarLeft);
 
-    // Special case: autostart application is already running
     desktop->loader = furi_record_open(RECORD_LOADER);
-    if(loader_is_locked(desktop->loader) &&
-       animation_manager_is_animation_loaded(desktop->animation_manager)) {
-        animation_manager_unload_and_stall_animation(desktop->animation_manager);
-    }
 
     desktop->notification = furi_record_open(RECORD_NOTIFICATION);
     desktop->app_start_stop_subscription = furi_pubsub_subscribe(
@@ -475,6 +470,12 @@ int32_t desktop_srv(void* p) {
 
     if(furi_hal_rtc_get_fault_data()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFault);
+    }
+
+    // Special case: autostart application is already running
+    if(loader_is_locked(desktop->loader) &&
+       animation_manager_is_animation_loaded(desktop->animation_manager)) {
+        animation_manager_unload_and_stall_animation(desktop->animation_manager);
     }
 
     view_dispatcher_run(desktop->view_dispatcher);
