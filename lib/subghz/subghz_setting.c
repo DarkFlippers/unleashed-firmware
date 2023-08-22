@@ -344,7 +344,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
             }
             while(flipper_format_read_uint32(
                 fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
-                //Todo: add a frequency support check depending on the selected radio device
+                //Todo FL-3535: add a frequency support check depending on the selected radio device
                 if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
                     FURI_LOG_I(TAG, "Frequency loaded %lu", temp_data32);
                     FrequencyList_push_back(instance->frequencies, temp_data32);

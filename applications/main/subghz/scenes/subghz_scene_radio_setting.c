@@ -24,7 +24,7 @@ static void subghz_scene_radio_settings_set_device(VariableItem* item) {
     if(!subghz_txrx_radio_device_is_external_connected(
            subghz->txrx, SUBGHZ_DEVICE_CC1101_EXT_NAME) &&
        radio_device_value[index] == SubGhzRadioDeviceTypeExternalCC1101) {
-        //ToDo correct if there is more than 1 module
+        // TODO FL-3501: correct if there is more than 1 module
         index = 0;
     }
     variable_item_set_current_value_text(item, radio_device_text[index]);

@@ -247,7 +247,7 @@ class STM32WB55:
 
     def flash_wait_for_operation(self):
         # Wait for flash operation to complete
-        # TODO: timeout
+        # TODO FL-3537: timeout
         while True:
             self.FLASH_SR.load()
             if self.FLASH_SR.BSY == 0:

@@ -62,7 +62,7 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
         dialog_message_free(message);
         furi_record_close(RECORD_DIALOGS);
     } else if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
-        // TODO: we have many places where we can emit a double start, ex: desktop, menu
+        // TODO FL-3522: we have many places where we can emit a double start, ex: desktop, menu
         // so i prefer to not show LoaderStatusErrorAppStarted error message for now
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         DialogMessage* message = dialog_message_alloc();

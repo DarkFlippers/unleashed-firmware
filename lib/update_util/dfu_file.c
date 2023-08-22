@@ -55,7 +55,7 @@ uint8_t dfu_file_validate_headers(File* dfuf, const DfuValidationParams* referen
     if((dfu_suffix.bLength != sizeof(DfuSuffix)) || (dfu_suffix.bcdDFU != DFU_SUFFIX_VERSION)) {
         return 0;
     }
-    /* TODO: check DfuSignature?.. */
+    /* TODO FL-3561: check DfuSignature?.. */
 
     if((dfu_suffix.idVendor != reference_params->vendor) ||
        (dfu_suffix.idProduct != reference_params->product) ||
@@ -137,7 +137,7 @@ bool dfu_file_process_targets(const DfuUpdateTask* task, File* dfuf, const uint8
             return UpdateBlockResult_Failed;
         }
 
-        /* TODO: look into TargetPrefix and validate/filter?.. */
+        /* TODO FL-3562: look into TargetPrefix and validate/filter?.. */
         for(uint32_t i_element = 0; i_element < target_prefix.dwNbElements; ++i_element) {
             bytes_read = storage_file_read(dfuf, &image_element, sizeof(ImageElementHeader));
             if(bytes_read != sizeof(ImageElementHeader)) {

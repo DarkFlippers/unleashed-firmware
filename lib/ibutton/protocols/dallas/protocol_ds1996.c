@@ -159,7 +159,7 @@ static bool dallas_ds1996_command_callback(uint8_t command, void* context) {
 
     case DALLAS_COMMON_CMD_MATCH_ROM:
     case DALLAS_COMMON_CMD_OVERDRIVE_MATCH_ROM:
-        /* TODO: Match ROM command support */
+        /* TODO FL-3533: Match ROM command support */
     default:
         return false;
     }

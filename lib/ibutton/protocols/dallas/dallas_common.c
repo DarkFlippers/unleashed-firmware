@@ -149,7 +149,7 @@ bool dallas_common_emulate_search_rom(OneWireSlave* bus, const DallasCommonRomDa
             if(!onewire_slave_send_bit(bus, !bit)) return false;
 
             onewire_slave_receive_bit(bus);
-            // TODO: check for errors and return if any
+            // TODO FL-3530: check for errors and return if any
         }
     }
 

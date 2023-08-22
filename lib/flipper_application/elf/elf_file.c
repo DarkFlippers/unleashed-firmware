@@ -507,7 +507,7 @@ static SectionType elf_preload_section(
 #endif
 
     // ignore .ARM and .rel.ARM sections
-    // TODO: how to do it not by name?
+    // TODO FL-3525: how to do it not by name?
     // .ARM: type 0x70000001, flags SHF_ALLOC | SHF_LINK_ORDER
     // .rel.ARM: type 0x9, flags SHT_REL
     if(str_prefix(name, ".ARM.") || str_prefix(name, ".rel.ARM.") ||
@@ -792,7 +792,7 @@ bool elf_file_load_section_table(ELFFile* elf) {
     FuriString* name = furi_string_alloc();
 
     FURI_LOG_D(TAG, "Scan ELF indexs...");
-    // TODO: why we start from 1?
+    // TODO FL-3526: why we start from 1?
     for(size_t section_idx = 1; section_idx < elf->sections_count; section_idx++) {
         Elf32_Shdr section_header;
 
@@ -828,7 +828,7 @@ ElfProcessSectionResult elf_process_section(
     Elf32_Shdr section_header;
 
     // find section
-    // TODO: why we start from 1?
+    // TODO FL-3526: why we start from 1?
     for(size_t section_idx = 1; section_idx < elf->sections_count; section_idx++) {
         furi_string_reset(section_name);
         if(!elf_read_section(elf, section_idx, &section_header, section_name)) {

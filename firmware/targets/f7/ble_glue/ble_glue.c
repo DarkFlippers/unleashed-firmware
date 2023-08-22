@@ -222,7 +222,7 @@ bool ble_glue_wait_for_c2_start(int32_t timeout) {
     bool started = false;
 
     do {
-        // TODO: use mutex?
+        // TODO FL-3505: use mutex?
         started = ble_glue->status == BleGlueStatusC2Started;
         if(!started) {
             timeout--;
