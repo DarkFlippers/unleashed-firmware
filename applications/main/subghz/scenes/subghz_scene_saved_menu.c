@@ -4,7 +4,7 @@ enum SubmenuIndex {
     SubmenuIndexEmulate,
     SubmenuIndexEdit,
     SubmenuIndexDelete,
-    SubmenuIndesEditCnt,
+    SubmenuIndexEditCnt,
 };
 
 void subghz_scene_saved_menu_submenu_callback(void* context, uint32_t index) {
@@ -20,7 +20,7 @@ void subghz_scene_saved_menu_on_enter(void* context) {
         SubmenuIndexEmulate,
         subghz_scene_saved_menu_submenu_callback,
         subghz);
-    
+
     submenu_add_item(
         subghz->submenu,
         "Edit counter",
