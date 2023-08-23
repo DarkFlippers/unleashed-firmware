@@ -128,8 +128,8 @@ static bool bubble_animation_input_callback(InputEvent* event, void* context) {
 
     if(event->key == InputKeyRight) {
         /* Right button reserved for animation activation, so consume */
-        consumed = true;
         if(event->type == InputTypeShort) {
+            consumed = true;
             if(animation_view->interact_callback) {
                 animation_view->interact_callback(animation_view->interact_callback_context);
             }

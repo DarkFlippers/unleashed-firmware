@@ -59,28 +59,32 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
             } else if(event->key == InputKeyDown) {
                 main_view->callback(DesktopMainEventOpenArchive, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenFavoritePrimary, main_view->context);
+                main_view->callback(DesktopMainEventOpenFavoriteLeftShort, main_view->context);
             }
-            // Right key is handled by animation manager
+            // Right key short is handled by animation manager
         } else if(event->type == InputTypeLong) {
-            if(event->key == InputKeyDown) {
+            if(event->key == InputKeyUp) {
+                main_view->callback(DesktopMainEventLock, main_view->context);
+            } else if(event->key == InputKeyDown) {
                 main_view->callback(DesktopMainEventOpenDebug, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenFavoriteSecondary, main_view->context);
+                main_view->callback(DesktopMainEventOpenFavoriteLeftLong, main_view->context);
+            } else if(event->key == InputKeyRight) {
+                main_view->callback(DesktopMainEventOpenFavoriteRightLong, main_view->context);
             }
         }
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyOk) {
-                main_view->callback(DesktopMainEventOpenGame, main_view->context);
+                main_view->callback(DesktopDummyEventOpenOk, main_view->context);
             } else if(event->key == InputKeyUp) {
                 main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
             } else if(event->key == InputKeyDown) {
-                main_view->callback(DesktopMainEventOpenMusicPlayer, main_view->context);
+                main_view->callback(DesktopDummyEventOpenDown, main_view->context);
             } else if(event->key == InputKeyLeft) {
-                main_view->callback(DesktopMainEventOpenClock, main_view->context);
+                main_view->callback(DesktopDummyEventOpenLeft, main_view->context);
             }
-            // Right key is handled by animation manager
+            // Right key short is handled by animation manager
         }
     }
 

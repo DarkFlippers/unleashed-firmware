@@ -8,7 +8,7 @@
 #include <toolbox/saved_struct.h>
 #include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (9)
+#define DESKTOP_SETTINGS_VER (10)
 
 #define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -36,6 +36,22 @@
 #define MIN_PIN_SIZE 4
 #define MAX_APP_LENGTH 128
 
+typedef enum {
+    FavoriteAppLeftShort = 0,
+    FavoriteAppLeftLong,
+    FavoriteAppRightShort,
+    FavoriteAppRightLong,
+    FavoriteAppNumber,
+} FavoriteAppShortcut;
+
+typedef enum {
+    DummyAppLeft = 0,
+    DummyAppRight,
+    DummyAppDown,
+    DummyAppOk,
+    DummyAppNumber,
+} DummyAppShortcut;
+
 typedef struct {
     InputKey data[MAX_PIN_SIZE];
     uint8_t length;
@@ -46,10 +62,10 @@ typedef struct {
 } FavoriteApp;
 
 typedef struct {
-    FavoriteApp favorite_primary;
-    FavoriteApp favorite_secondary;
     PinCode pin_code;
     uint32_t auto_lock_delay_ms;
     uint8_t dummy_mode;
     uint8_t display_clock;
+    FavoriteApp favorite_apps[FavoriteAppNumber];
+    FavoriteApp dummy_apps[DummyAppNumber];
 } DesktopSettings;

@@ -12,10 +12,6 @@
 
 #define TAG "DesktopSrv"
 
-#define MUSIC_PLAYER_APP EXT_PATH("/apps/Media/music_player.fap")
-#define SNAKE_GAME_APP EXT_PATH("/apps/Games/snake_game.fap")
-#define CLOCK_APP EXT_PATH("/apps/Tools/clock.fap")
-
 static void desktop_scene_main_new_idle_animation_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;
@@ -65,8 +61,15 @@ static void
 }
 #endif
 
-static void desktop_scene_main_open_app_or_profile(Desktop* desktop, const char* path) {
-    if(loader_start_with_gui_error(desktop->loader, path, NULL) != LoaderStatusOk) {
+static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp* application) {
+    bool load_ok = false;
+    if(strlen(application->name_or_path) > 0) {
+        if(loader_start(desktop->loader, application->name_or_path, NULL, NULL) ==
+           LoaderStatusOk) {
+            load_ok = true;
+        }
+    }
+    if(!load_ok) {
         loader_start(desktop->loader, "Passport", NULL, NULL);
     }
 }
@@ -115,6 +118,11 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } break;
 
+        case DesktopMainEventLock:
+            desktop_lock(desktop);
+            consumed = true;
+            break;
+
         case DesktopMainEventOpenLockMenu:
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneLockMenu);
             consumed = true;
@@ -138,16 +146,31 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
         }
 
-        case DesktopMainEventOpenFavoritePrimary:
+        case DesktopMainEventOpenFavoriteLeftShort:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            desktop_scene_main_start_favorite(desktop, &desktop->settings.favorite_primary);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppLeftShort]);
             consumed = true;
             break;
-        case DesktopMainEventOpenFavoriteSecondary:
+        case DesktopMainEventOpenFavoriteLeftLong:
             DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            desktop_scene_main_start_favorite(desktop, &desktop->settings.favorite_secondary);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppLeftLong]);
             consumed = true;
             break;
+        case DesktopMainEventOpenFavoriteRightShort:
+            DESKTOP_SETTINGS_LOAD(&desktop->settings);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppRightShort]);
+            consumed = true;
+            break;
+        case DesktopMainEventOpenFavoriteRightLong:
+            DESKTOP_SETTINGS_LOAD(&desktop->settings);
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppRightLong]);
+            consumed = true;
+            break;
+
         case DesktopAnimationEventCheckAnimation:
             animation_manager_check_blocking_process(desktop->animation_manager);
             consumed = true;
@@ -158,26 +181,31 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
         case DesktopAnimationEventInteractAnimation:
             if(!animation_manager_interact_process(desktop->animation_manager)) {
-                loader_start(desktop->loader, "Passport", NULL, NULL);
+                DESKTOP_SETTINGS_LOAD(&desktop->settings);
+                if(!desktop->settings.dummy_mode) {
+                    desktop_scene_main_open_app_or_profile(
+                        desktop, &desktop->settings.favorite_apps[FavoriteAppRightShort]);
+                } else {
+                    desktop_scene_main_open_app_or_profile(
+                        desktop, &desktop->settings.dummy_apps[DummyAppRight]);
+                }
             }
             consumed = true;
             break;
-        case DesktopMainEventOpenPassport: {
-            loader_start(desktop->loader, "Passport", NULL, NULL);
+
+        case DesktopDummyEventOpenLeft:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppLeft]);
             break;
-        }
-        case DesktopMainEventOpenGame: {
-            desktop_scene_main_open_app_or_profile(desktop, SNAKE_GAME_APP);
+        case DesktopDummyEventOpenDown:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppDown]);
             break;
-        }
-        case DesktopMainEventOpenClock: {
-            desktop_scene_main_open_app_or_profile(desktop, CLOCK_APP);
+        case DesktopDummyEventOpenOk:
+            desktop_scene_main_open_app_or_profile(
+                desktop, &desktop->settings.dummy_apps[DummyAppOk]);
             break;
-        }
-        case DesktopMainEventOpenMusicPlayer: {
-            desktop_scene_main_open_app_or_profile(desktop, MUSIC_PLAYER_APP);
-            break;
-        }
+
         case DesktopLockedEventUpdate:
             desktop_view_locked_update(desktop->locked_view);
             consumed = true;
