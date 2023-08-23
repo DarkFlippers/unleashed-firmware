@@ -114,7 +114,6 @@ void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t re
                 ButtonArray_t* array = ButtonMatrix_get(model->button_matrix, i);
                 ButtonArray_init(*array);
                 ButtonArray_reserve(*array, reserve_x);
-                // TODO: do we need to clear allocated memory of ptr-s to ButtonItem ??
             }
             LabelList_init(model->labels);
         },

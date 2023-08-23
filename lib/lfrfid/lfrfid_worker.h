@@ -26,8 +26,8 @@ typedef enum {
 } LFRFIDWorkerReadType;
 
 typedef enum {
-    LFRFIDWorkerReadSenseStart, // TODO: not implemented
-    LFRFIDWorkerReadSenseEnd, // TODO: not implemented
+    LFRFIDWorkerReadSenseStart, // TODO FL-3516: not implemented
+    LFRFIDWorkerReadSenseEnd, // TODO FL-3516: not implemented
     LFRFIDWorkerReadSenseCardStart,
     LFRFIDWorkerReadSenseCardEnd,
     LFRFIDWorkerReadStartASK,

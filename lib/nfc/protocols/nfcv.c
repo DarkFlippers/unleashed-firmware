@@ -29,7 +29,7 @@ ReturnCode nfcv_inventory(uint8_t* uid) {
     ReturnCode ret = ERR_NONE;
 
     for(int tries = 0; tries < NFCV_COMMAND_RETRIES; tries++) {
-        /* TODO: needs proper abstraction via fury_hal(_ll)_* */
+        /* TODO: needs proper abstraction via furi_hal(_ll)_* */
         ret = rfalNfcvPollerInventory(RFAL_NFCV_NUM_SLOTS_1, 0, NULL, &res, &received);
 
         if(ret == ERR_NONE) {
@@ -89,7 +89,7 @@ ReturnCode nfcv_read_sysinfo(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
     FURI_LOG_D(TAG, "Read SYSTEM INFORMATION...");
 
     for(int tries = 0; tries < NFCV_COMMAND_RETRIES; tries++) {
-        /* TODO: needs proper abstraction via fury_hal(_ll)_* */
+        /* TODO: needs proper abstraction via furi_hal(_ll)_* */
         ret = rfalNfcvPollerGetSystemInformation(
             RFAL_NFCV_REQ_FLAG_DEFAULT, NULL, rxBuf, sizeof(rxBuf), &received);
 

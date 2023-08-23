@@ -73,7 +73,7 @@ bool dallas_ds1992_read(OneWireHost* host, iButtonProtocolData* protocol_data) {
 
 bool dallas_ds1992_write_blank(OneWireHost* host, iButtonProtocolData* protocol_data) {
     DS1992ProtocolData* data = protocol_data;
-    // TODO: Make this work, currently broken
+    // TODO FL-3532: Make this work, currently broken
     return tm2004_write(host, (uint8_t*)data, sizeof(DallasCommonRomData) + DS1992_SRAM_DATA_SIZE);
 }
 

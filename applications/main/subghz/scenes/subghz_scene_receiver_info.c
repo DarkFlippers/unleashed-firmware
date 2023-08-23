@@ -25,7 +25,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
     if(subghz_txrx_load_decoder_by_name_protocol(
            subghz->txrx,
            subghz_history_get_protocol_name(subghz->history, subghz->idx_menu_chosen))) {
-        //todo we are trying to deserialize without checking for errors, since it is assumed that we just received this signal
+        // we are trying to deserialize without checking for errors, since it is assumed that we just received this chignal
         subghz_protocol_decoder_base_deserialize(
             subghz_txrx_get_decoder(subghz->txrx),
             subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen));

@@ -6,14 +6,17 @@ import subprocess
 import time
 import typing
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from flipper.app import App
 
 
+# When adding an interface, also add it to SWD_TRANSPORT in fbt options
+
+
 class Programmer(ABC):
     @abstractmethod
-    def flash(self, bin: str) -> bool:
+    def flash(self, file_path: str, do_verify: bool) -> bool:
         pass
 
     @abstractmethod
@@ -32,9 +35,9 @@ class Programmer(ABC):
 @dataclass
 class OpenOCDInterface:
     name: str
-    file: str
+    config_file: str
     serial_cmd: str
-    additional_args: typing.Optional[list[str]] = None
+    additional_args: typing.Optional[list[str]] = field(default_factory=list)
 
 
 class OpenOCDProgrammer(Programmer):
@@ -44,12 +47,10 @@ class OpenOCDProgrammer(Programmer):
         self.serial: typing.Optional[str] = None
 
     def _add_file(self, params: list[str], file: str):
-        params.append("-f")
-        params.append(file)
+        params += ["-f", file]
 
     def _add_command(self, params: list[str], command: str):
-        params.append("-c")
-        params.append(command)
+        params += ["-c", command]
 
     def _add_serial(self, params: list[str], serial: str):
         self._add_command(params, f"{self.interface.serial_cmd} {serial}")
@@ -57,22 +58,27 @@ class OpenOCDProgrammer(Programmer):
     def set_serial(self, serial: str):
         self.serial = serial
 
-    def flash(self, bin: str) -> bool:
-        i = self.interface
-
+    def flash(self, file_path: str, do_verify: bool) -> bool:
         if os.altsep:
-            bin = bin.replace(os.sep, os.altsep)
+            file_path = file_path.replace(os.sep, os.altsep)
 
         openocd_launch_params = ["openocd"]
-        self._add_file(openocd_launch_params, i.file)
+        self._add_file(openocd_launch_params, self.interface.config_file)
         if self.serial:
             self._add_serial(openocd_launch_params, self.serial)
-        if i.additional_args:
-            for a in i.additional_args:
-                self._add_command(openocd_launch_params, a)
+        for additional_arg in self.interface.additional_args:
+            self._add_command(openocd_launch_params, additional_arg)
         self._add_file(openocd_launch_params, "target/stm32wbx.cfg")
         self._add_command(openocd_launch_params, "init")
-        self._add_command(openocd_launch_params, f"program {bin} reset exit 0x8000000")
+        program_params = [
+            "program",
+            f'"{file_path}"',
+            "verify" if do_verify else "",
+            "reset",
+            "exit",
+            "0x8000000" if file_path.endswith(".bin") else "",
+        ]
+        self._add_command(openocd_launch_params, " ".join(program_params))
 
         # join the list of parameters into a string, but add quote if there are spaces
         openocd_launch_params_string = " ".join(
@@ -105,7 +111,7 @@ class OpenOCDProgrammer(Programmer):
         i = self.interface
 
         openocd_launch_params = ["openocd"]
-        self._add_file(openocd_launch_params, i.file)
+        self._add_file(openocd_launch_params, i.config_file)
         if self.serial:
             self._add_serial(openocd_launch_params, self.serial)
         if i.additional_args:
@@ -187,7 +193,7 @@ def _resolve_hostname(hostname):
 
 
 def blackmagic_find_networked(serial: str):
-    if not serial:
+    if not serial or serial == "auto":
         serial = "blackmagic.local"
 
     # remove the tcp: prefix if it's there
@@ -234,7 +240,7 @@ class BlackmagicProgrammer(Programmer):
         else:
             self.port = serial
 
-    def flash(self, bin: str) -> bool:
+    def flash(self, file_path: str, do_verify: bool) -> bool:
         if not self.port:
             if not self.probe():
                 return False
@@ -242,12 +248,14 @@ class BlackmagicProgrammer(Programmer):
         # We can convert .bin to .elf with objcopy:
         # arm-none-eabi-objcopy -I binary -O elf32-littlearm --change-section-address=.data=0x8000000 -B arm -S app.bin app.elf
         # But I choose to use the .elf file directly because we are flashing our own firmware and it always has an elf predecessor.
-        elf = bin.replace(".bin", ".elf")
-        if not os.path.exists(elf):
-            self.logger.error(
-                f"Sorry, but Blackmagic can't flash .bin file, and {elf} doesn't exist"
-            )
-            return False
+
+        if file_path.endswith(".bin"):
+            file_path = file_path[:-4] + ".elf"
+            if not os.path.exists(file_path):
+                self.logger.error(
+                    f"Sorry, but Blackmagic can't flash .bin file, and {file_path} doesn't exist"
+                )
+                return False
 
         # arm-none-eabi-gdb build/f7-firmware-D/firmware.bin
         # -ex 'set pagination off'
@@ -260,7 +268,7 @@ class BlackmagicProgrammer(Programmer):
         # -ex 'compare-sections'
         # -ex 'quit'
 
-        gdb_launch_params = ["arm-none-eabi-gdb", elf]
+        gdb_launch_params = ["arm-none-eabi-gdb", file_path]
         self._add_command(gdb_launch_params, f"target extended-remote {self.port}")
         self._add_command(gdb_launch_params, "set pagination off")
         self._add_command(gdb_launch_params, "set confirm off")
@@ -268,7 +276,8 @@ class BlackmagicProgrammer(Programmer):
         self._add_command(gdb_launch_params, "attach 1")
         self._add_command(gdb_launch_params, "set mem inaccessible-by-default off")
         self._add_command(gdb_launch_params, "load")
-        self._add_command(gdb_launch_params, "compare-sections")
+        if do_verify:
+            self._add_command(gdb_launch_params, "compare-sections")
         self._add_command(gdb_launch_params, "quit")
 
         self.logger.debug(f"Launching: {' '.join(gdb_launch_params)}")
@@ -314,7 +323,9 @@ class BlackmagicProgrammer(Programmer):
         return self.name
 
 
-programmers: list[Programmer] = [
+####################
+
+local_flash_interfaces: list[Programmer] = [
     OpenOCDProgrammer(
         OpenOCDInterface(
             "cmsis-dap",
@@ -325,47 +336,64 @@ programmers: list[Programmer] = [
     ),
     OpenOCDProgrammer(
         OpenOCDInterface(
-            "stlink", "interface/stlink.cfg", "hla_serial", ["transport select hla_swd"]
+            "stlink",
+            "interface/stlink.cfg",
+            "hla_serial",
+            ["transport select hla_swd"],
         ),
     ),
     BlackmagicProgrammer(blackmagic_find_serial, "blackmagic_usb"),
 ]
 
-network_programmers = [
+network_flash_interfaces: list[Programmer] = [
     BlackmagicProgrammer(blackmagic_find_networked, "blackmagic_wifi")
 ]
 
+all_flash_interfaces = [*local_flash_interfaces, *network_flash_interfaces]
+
+####################
+
 
 class Main(App):
+    AUTO_INTERFACE = "auto"
+
     def init(self):
-        self.subparsers = self.parser.add_subparsers(help="sub-command help")
-        self.parser_flash = self.subparsers.add_parser("flash", help="Flash a binary")
-        self.parser_flash.add_argument(
-            "bin",
+        self.parser.add_argument(
+            "filename",
             type=str,
-            help="Binary to flash",
+            help="File to flash",
         )
-        interfaces = [i.get_name() for i in programmers]
-        interfaces.extend([i.get_name() for i in network_programmers])
-        self.parser_flash.add_argument(
+        self.parser.add_argument(
+            "--verify",
+            "-v",
+            action="store_true",
+            help="Verify flash after programming",
+            default=False,
+        )
+        self.parser.add_argument(
             "--interface",
-            choices=interfaces,
+            choices=(
+                self.AUTO_INTERFACE,
+                *[i.get_name() for i in all_flash_interfaces],
+            ),
             type=str,
+            default=self.AUTO_INTERFACE,
             help="Interface to use",
         )
-        self.parser_flash.add_argument(
+        self.parser.add_argument(
             "--serial",
             type=str,
+            default=self.AUTO_INTERFACE,
             help="Serial number or port of the programmer",
         )
-        self.parser_flash.set_defaults(func=self.flash)
+        self.parser.set_defaults(func=self.flash)
 
-    def _search_interface(self, serial: typing.Optional[str]) -> list[Programmer]:
+    def _search_interface(self, interface_list: list[Programmer]) -> list[Programmer]:
         found_programmers = []
 
-        for p in programmers:
+        for p in interface_list:
             name = p.get_name()
-            if serial:
+            if (serial := self.args.serial) != self.AUTO_INTERFACE:
                 p.set_serial(serial)
                 self.logger.debug(f"Trying {name} with {serial}")
             else:
@@ -373,29 +401,7 @@ class Main(App):
 
             if p.probe():
                 self.logger.debug(f"Found {name}")
-                found_programmers += [p]
-            else:
-                self.logger.debug(f"Failed to probe {name}")
-
-        return found_programmers
-
-    def _search_network_interface(
-        self, serial: typing.Optional[str]
-    ) -> list[Programmer]:
-        found_programmers = []
-
-        for p in network_programmers:
-            name = p.get_name()
-
-            if serial:
-                p.set_serial(serial)
-                self.logger.debug(f"Trying {name} with {serial}")
-            else:
-                self.logger.debug(f"Trying {name}")
-
-            if p.probe():
-                self.logger.debug(f"Found {name}")
-                found_programmers += [p]
+                found_programmers.append(p)
             else:
                 self.logger.debug(f"Failed to probe {name}")
 
@@ -403,55 +409,60 @@ class Main(App):
 
     def flash(self):
         start_time = time.time()
-        bin_path = os.path.abspath(self.args.bin)
+        file_path = os.path.abspath(self.args.filename)
 
-        if not os.path.exists(bin_path):
-            self.logger.error(f"Binary file not found: {bin_path}")
+        if not os.path.exists(file_path):
+            self.logger.error(f"Binary file not found: {file_path}")
             return 1
 
-        if self.args.interface:
-            i_name = self.args.interface
-            interfaces = [p for p in programmers if p.get_name() == i_name]
-            if len(interfaces) == 0:
-                interfaces = [p for p in network_programmers if p.get_name() == i_name]
-        else:
-            self.logger.info("Probing for interfaces...")
-            interfaces = self._search_interface(self.args.serial)
+        if self.args.interface != self.AUTO_INTERFACE:
+            available_interfaces = list(
+                filter(
+                    lambda p: p.get_name() == self.args.interface,
+                    all_flash_interfaces,
+                )
+            )
 
-            if len(interfaces) == 0:
+        else:
+            self.logger.info("Probing for local interfaces...")
+            available_interfaces = self._search_interface(local_flash_interfaces)
+
+            if not available_interfaces:
                 # Probe network blackmagic
                 self.logger.info("Probing for network interfaces...")
-                interfaces = self._search_network_interface(self.args.serial)
+                available_interfaces = self._search_interface(network_flash_interfaces)
 
-            if len(interfaces) == 0:
+            if not available_interfaces:
                 self.logger.error("No interface found")
                 return 1
-
-            if len(interfaces) > 1:
+            elif len(available_interfaces) > 1:
                 self.logger.error("Multiple interfaces found: ")
                 self.logger.error(
-                    f"Please specify '--interface={[i.get_name() for i in interfaces]}'"
+                    f"Please specify '--interface={[i.get_name() for i in available_interfaces]}'"
                 )
                 return 1
 
-        interface = interfaces[0]
+        interface = available_interfaces.pop(0)
 
-        if self.args.serial:
+        if self.args.serial != self.AUTO_INTERFACE:
             interface.set_serial(self.args.serial)
             self.logger.info(
-                f"Flashing {bin_path} via {interface.get_name()} with {self.args.serial}"
+                f"Flashing {file_path} via {interface.get_name()} with {self.args.serial}"
             )
         else:
-            self.logger.info(f"Flashing {bin_path} via {interface.get_name()}")
+            self.logger.info(f"Flashing {file_path} via {interface.get_name()}")
 
-        if not interface.flash(bin_path):
+        if not interface.flash(file_path, self.args.verify):
             self.logger.error(f"Failed to flash via {interface.get_name()}")
             return 1
 
         flash_time = time.time() - start_time
-        bin_size = os.path.getsize(bin_path)
         self.logger.info(f"Flashed successfully in {flash_time:.2f}s")
-        self.logger.info(f"Effective speed: {bin_size / flash_time / 1024:.2f} KiB/s")
+        if file_path.endswith(".bin"):
+            bin_size = os.path.getsize(file_path)
+            self.logger.info(
+                f"Effective speed: {bin_size / flash_time / 1024:.2f} KiB/s"
+            )
         return 0
 
 

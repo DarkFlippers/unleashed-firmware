@@ -53,6 +53,11 @@ class AppBuilder:
             FAP_SRC_DIR=self.app._appdir,
             FAP_WORK_DIR=self.app_work_dir,
         )
+        self.app_env.Append(
+            CPPDEFINES=[
+                ("FAP_VERSION", f'"{".".join(map(str, self.app.fap_version))}"')
+            ],
+        )
         self.app_env.VariantDir(self.app_work_dir, self.app._appdir, duplicate=False)
 
     def _build_external_files(self):
