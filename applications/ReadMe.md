@@ -33,9 +33,6 @@ Applications for main Flipper menu.
 - `nfc`                 - NFC application, HF rfid, EMV and etc
 - `subghz`              - SubGhz application, 433 fobs and etc
 - `u2f`                 - U2F Application
-- `clock`               - Clock application
-- `music_player`        - Music player app (demo)
-- `snake_game`          - Snake game application
 
 
 ## services
