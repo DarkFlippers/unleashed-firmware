@@ -454,14 +454,6 @@ static bool
     return true;
 }
 
-bool subghz_protocol_keeloq_edit_cnt(void* context, uint32_t cnt) {
-    furi_assert(context);
-    SubGhzProtocolEncoderKeeloq* instance = context;
-    instance->generic.cnt = cnt;
-    FURI_LOG_I(TAG, "edit_cnt value : %08lX", cnt);
-    return true;
-}
-
 SubGhzProtocolStatus
     subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);

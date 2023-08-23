@@ -4,7 +4,6 @@ enum SubmenuIndex {
     SubmenuIndexEmulate,
     SubmenuIndexEdit,
     SubmenuIndexDelete,
-    SubmenuIndexEditCnt,
 };
 
 void subghz_scene_saved_menu_submenu_callback(void* context, uint32_t index) {
@@ -18,13 +17,6 @@ void subghz_scene_saved_menu_on_enter(void* context) {
         subghz->submenu,
         "Emulate",
         SubmenuIndexEmulate,
-        subghz_scene_saved_menu_submenu_callback,
-        subghz);
-
-    submenu_add_item(
-        subghz->submenu,
-        "Edit counter",
-        SubmenuIndexEditCnt,
         subghz_scene_saved_menu_submenu_callback,
         subghz);
 
@@ -67,11 +59,6 @@ bool subghz_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneSavedMenu, SubmenuIndexEdit);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
-            return true;
-        } else if(event.event == SubmenuIndexEditCnt) {
-            scene_manager_set_scene_state(
-                subghz->scene_manager, SubGhzSceneSavedMenu, SubmenuIndexEditCnt);
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneEditCnt);
             return true;
         }
     }

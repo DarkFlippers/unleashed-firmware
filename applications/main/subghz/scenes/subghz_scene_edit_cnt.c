@@ -36,10 +36,7 @@ bool subghz_scene_edit_cnt_on_event(void* context, SceneManagerEvent event) {
             cnt = subghz->secure_data->cnt[0] << 24 | subghz->secure_data->cnt[1] << 16 |
                            subghz->secure_data->cnt[2] << 8 | subghz->secure_data->cnt[3];
             FURI_LOG_I(TAG, "cnt = %08lX", cnt);
-            if(subghz_protocol_keeloq_edit_cnt(subghz->txrx, cnt)) {
-                FURI_LOG_I(TAG, "Hook func from scene to protocol OK");
-            };
-            
+            // TO DO
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
             consumed = true;
         }

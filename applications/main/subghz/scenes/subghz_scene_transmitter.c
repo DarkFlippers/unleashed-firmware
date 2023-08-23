@@ -85,6 +85,10 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 furi_hal_subghz_set_rolling_counter_mult(tmp_counter);
             }
             return true;
+        } else if(event.event == SubGhzCustomEventViewTransmitterEditCnt) {
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneEditCnt);
+            return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterBack) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             scene_manager_search_and_switch_to_previous_scene(
