@@ -122,7 +122,7 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
     uint32_t fix = (uint32_t)btn << 28 | instance->generic.serial;
     uint32_t decrypt = (uint32_t)btn << 28 |
                        (instance->generic.serial & 0x3FF)
-                           << 16 | //TODO FL-3558: in some protocols the discriminator is 0
+                           << 16 | // In some protocols the discriminator is 0
                        instance->generic.cnt;
     uint32_t hop = 0;
     uint64_t man = 0;
@@ -149,7 +149,8 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
                 case KEELOQ_LEARNING_UNKNOWN:
-                    hop = 0; //TODO FL-3559
+                    //Invalid or missing encoding type in keeloq_mfcodes
+                    hop = 0;
                     break;
                 }
                 break;
@@ -199,9 +200,7 @@ static bool
     furi_assert(instance);
 
     //gen new key
-    if(subghz_protocol_keeloq_gen_data(instance, btn)) {
-        //TODO FL-3560: if you need to add a callback to automatically update the data on the display
-    } else {
+    if(!subghz_protocol_keeloq_gen_data(instance, btn)) {
         return false;
     }
 

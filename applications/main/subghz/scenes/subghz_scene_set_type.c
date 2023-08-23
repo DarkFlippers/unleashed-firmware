@@ -118,7 +118,7 @@ void subghz_scene_set_type_on_enter(void* context) {
 
 bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
-    bool generated_protocol = false;
+    SubGhzProtocolStatus generated_protocol = SubGhzProtocolStatusError;
 
     if(event.type == SceneManagerEventTypeCustom) {
         uint32_t key = (uint32_t)rand();
@@ -174,7 +174,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexDoorHan_433_92:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, "DoorHan", key, 0x2, 0x0003);
-            if(!generated_protocol) {
+            if(generated_protocol != SubGhzProtocolStatusOk) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
@@ -183,7 +183,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexDoorHan_315_00:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 315000000, "DoorHan", key, 0x2, 0x0003);
-            if(!generated_protocol) {
+            if(generated_protocol != SubGhzProtocolStatusOk) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
@@ -216,7 +216,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
         scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSetType, event.event);
 
-        if(generated_protocol) {
+        if(generated_protocol == SubGhzProtocolStatusOk) {
             subghz_file_name_clear(subghz);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             return true;

@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include <lib/toolbox/value_index.h>
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
+#include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
 
 enum SubGhzRadioSettingIndex {
     SubGhzRadioSettingIndexDevice,
@@ -17,16 +18,29 @@ const uint32_t radio_device_value[RADIO_DEVICE_COUNT] = {
     SubGhzRadioDeviceTypeExternalCC1101,
 };
 
+const char* const radio_device_name[RADIO_DEVICE_COUNT] = {
+    SUBGHZ_DEVICE_CC1101_INT_NAME,
+    SUBGHZ_DEVICE_CC1101_EXT_NAME,
+};
+
+static uint8_t subghz_scene_radio_settings_next_index_connect_ext_device(
+    SubGhz* subghz,
+    uint8_t current_index) {
+    uint8_t index = 0;
+    for(index = current_index; index < RADIO_DEVICE_COUNT; index++) {
+        if(subghz_txrx_radio_device_is_external_connected(subghz->txrx, radio_device_name[index])) {
+            break;
+        }
+    }
+    if(index == RADIO_DEVICE_COUNT) index = 0;
+    return index;
+}
+
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    if(!subghz_txrx_radio_device_is_external_connected(
-           subghz->txrx, SUBGHZ_DEVICE_CC1101_EXT_NAME) &&
-       radio_device_value[index] == SubGhzRadioDeviceTypeExternalCC1101) {
-        // TODO FL-3501: correct if there is more than 1 module
-        index = 0;
-    }
+    uint8_t current_index = variable_item_get_current_value_index(item);
+    uint8_t index =
+        subghz_scene_radio_settings_next_index_connect_ext_device(subghz, current_index);
     variable_item_set_current_value_text(item, radio_device_text[index]);
     subghz_txrx_radio_device_set(subghz->txrx, radio_device_value[index]);
 }
@@ -37,9 +51,11 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     uint8_t value_index;
 
     uint8_t value_count_device = RADIO_DEVICE_COUNT;
+
     if(subghz_txrx_radio_device_get(subghz->txrx) == SubGhzRadioDeviceTypeInternal &&
-       !subghz_txrx_radio_device_is_external_connected(subghz->txrx, SUBGHZ_DEVICE_CC1101_EXT_NAME))
+       !subghz_scene_radio_settings_next_index_connect_ext_device(subghz, 1))
         value_count_device = 1;
+
     item = variable_item_list_add(
         subghz->variable_item_list,
         "Module",

@@ -165,7 +165,6 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
                     SUBGHZ_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF);
                 subghz_tx_rx_worker_tx(instance, data, SUBGHZ_TXRX_WORKER_MAX_TXRX_SIZE);
             } else {
-                //TODO FL-3554: checking that it managed to write all the data to the TX buffer
                 furi_stream_buffer_receive(
                     instance->stream_tx, &data, size_tx, SUBGHZ_TXRX_WORKER_TIMEOUT_READ_WRITE_BUF);
                 subghz_tx_rx_worker_tx(instance, data, size_tx);
@@ -178,7 +177,6 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
                        furi_stream_buffer_bytes_available(instance->stream_rx) == 0) {
                         callback_rx = true;
                     }
-                    //TODO FL-3554: checking that it managed to write all the data to the RX buffer
                     furi_stream_buffer_send(
                         instance->stream_rx,
                         &data,
@@ -189,7 +187,7 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
                         callback_rx = false;
                     }
                 } else {
-                    //TODO FL-3555: RX buffer overflow
+                    FURI_LOG_E(TAG, "Receive buffer overflow, over-the-air transmission too fast");
                 }
             }
         }

@@ -289,9 +289,12 @@ bool subghz_save_protocol_to_file(
         if(!storage_simply_remove(storage, dev_file_name)) {
             break;
         }
-        //TODO FL-3552: check Write
         stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
         stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
+
+        if(storage_common_stat(storage, dev_file_name, NULL) != FSE_OK) {
+            break;
+        }
 
         saved = true;
     } while(0);
