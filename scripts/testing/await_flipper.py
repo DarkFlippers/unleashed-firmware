@@ -22,14 +22,14 @@ def flp_serial_by_name(flp_name):
     if os.path.exists(flp_serial):
         return flp_serial
     else:
-        logging.info(f"Couldn't find {logging.info} on this attempt.")
+        logging.info(f"Couldn't find {flp_name} on this attempt.")
         if os.path.exists(flp_name):
             return flp_name
         else:
             return ""
 
 
-UPDATE_TIMEOUT = 60 * 4  # 4 minutes
+UPDATE_TIMEOUT = 30 * 4  # 4 minutes
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
 
     if flipper == "":
         logging.error("Flipper not found!")
-        sys.exit(1)
+        exit(1)
 
     logging.info(f"Found Flipper at {flipper}")
 
