@@ -45,9 +45,10 @@ jobs:
       - name: 'Copy assets and unit data, reboot and wait for flipper'
         id: copy
         if: steps.format_ext.outcome == 'success'
-        timeout-minutes: 5
+        timeout-minutes: 7
         run: |
           source scripts/toolchain/fbtenv.sh
+          python3 scripts/testing/await_flipper.py ${{steps.device.outputs.flipper}}
           python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} -f send assets/resources /ext
           python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} -f send assets/unit_tests /ext/unit_tests
           python3 scripts/power.py -p ${{steps.device.outputs.flipper}} reboot
