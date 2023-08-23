@@ -128,19 +128,22 @@ void furi_hal_resources_init_early() {
 
     furi_hal_resources_init_input_pins(GpioModeInput);
 
+    // Explicit, surviving reset, pulls
+    LL_PWR_EnablePUPDCfg();
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_8); // gpio_vibro
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_8); // gpio_speaker
+
     // SD Card stepdown control
     furi_hal_gpio_write(&gpio_periph_power, 1);
     furi_hal_gpio_init(&gpio_periph_power, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 
     // Display pins
-    furi_hal_gpio_write(&gpio_display_rst_n, 1);
+    furi_hal_gpio_write(&gpio_display_rst_n, 0);
     furi_hal_gpio_init_simple(&gpio_display_rst_n, GpioModeOutputPushPull);
-    furi_hal_gpio_init(&gpio_display_di, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-
-    // Pullup display reset pin for shutdown
-    SET_BIT(PWR->PUCRB, gpio_display_rst_n.pin);
-    CLEAR_BIT(PWR->PDCRB, gpio_display_rst_n.pin);
-    SET_BIT(PWR->CR3, PWR_CR3_APC);
+    LL_PWR_EnableGPIOPullUp(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_0); // gpio_display_rst_n
+    furi_hal_gpio_write(&gpio_display_di, 0);
+    furi_hal_gpio_init_simple(&gpio_display_di, GpioModeOutputPushPull);
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_1); // gpio_display_di
 
     // Hard reset USB
     furi_hal_gpio_write(&gpio_usb_dm, 1);
@@ -181,18 +184,6 @@ void furi_hal_resources_deinit_early() {
 void furi_hal_resources_init() {
     // Button pins
     furi_hal_resources_init_input_pins(GpioModeInterruptRiseFall);
-
-    // Explicit pulls pins
-    LL_PWR_EnablePUPDCfg();
-    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_8); // gpio_speaker
-    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_8); // gpio_vibro
-
-    // Display pins
-    furi_hal_gpio_init(&gpio_display_rst_n, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_write(&gpio_display_rst_n, 0);
-
-    furi_hal_gpio_init(&gpio_display_di, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_write(&gpio_display_di, 0);
 
     // SD pins
     furi_hal_gpio_init(&gpio_sdcard_cd, GpioModeInput, GpioPullNo, GpioSpeedLow);
