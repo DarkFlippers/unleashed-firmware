@@ -224,7 +224,6 @@ void desktop_lock(Desktop* desktop) {
     scene_manager_set_scene_state(
         desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
-    notification_message(desktop->notification, &sequence_display_backlight_off_delay_1000);
 
     DesktopStatus status = {.locked = true};
     furi_pubsub_publish(desktop->status_pubsub, &status);
