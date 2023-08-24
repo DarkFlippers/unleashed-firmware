@@ -16,6 +16,7 @@
 ## Please support development of the project
 |Service|Remark|Link/Wallet|
 |-|-|-|
+|**Patreon**||https://patreon.com/mmxdev|
 |**Boosty**|patreon alternative|https://boosty.to/mmxdev|
 |cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
 |YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|

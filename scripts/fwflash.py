@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import os
+import re
 import socket
 import subprocess
 import time
@@ -10,11 +11,12 @@ from dataclasses import dataclass, field
 
 from flipper.app import App
 
-
-# When adding an interface, also add it to SWD_TRANSPORT in fbt options
+# When adding an interface, also add it to SWD_TRANSPORT in fbt/ufbt options
 
 
 class Programmer(ABC):
+    root_logger = logging.getLogger("Programmer")
+
     @abstractmethod
     def flash(self, file_path: str, do_verify: bool) -> bool:
         pass
@@ -31,6 +33,26 @@ class Programmer(ABC):
     def set_serial(self, serial: str):
         pass
 
+    @classmethod
+    def _spawn_and_await(cls, process_params, show_progress: bool = False):
+        cls.root_logger.debug(f"Launching: {' '.join(process_params)}")
+
+        process = subprocess.Popen(
+            process_params,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
+        if show_progress:
+            while process.poll() is None:
+                time.sleep(0.25)
+                print(".", end="", flush=True)
+            print()
+        else:
+            process.wait()
+
+        return process
+
 
 @dataclass
 class OpenOCDInterface:
@@ -43,7 +65,7 @@ class OpenOCDInterface:
 class OpenOCDProgrammer(Programmer):
     def __init__(self, interface: OpenOCDInterface):
         self.interface = interface
-        self.logger = logging.getLogger("OpenOCD")
+        self.logger = self.root_logger.getChild("OpenOCD")
         self.serial: typing.Optional[str] = None
 
     def _add_file(self, params: list[str], file: str):
@@ -87,17 +109,7 @@ class OpenOCDProgrammer(Programmer):
 
         self.logger.debug(f"Launching: {openocd_launch_params_string}")
 
-        process = subprocess.Popen(
-            openocd_launch_params,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-
-        while process.poll() is None:
-            time.sleep(0.25)
-            print(".", end="", flush=True)
-        print()
-
+        process = self._spawn_and_await(openocd_launch_params, True)
         success = process.returncode == 0
 
         if not success:
@@ -108,35 +120,41 @@ class OpenOCDProgrammer(Programmer):
         return success
 
     def probe(self) -> bool:
-        i = self.interface
-
         openocd_launch_params = ["openocd"]
-        self._add_file(openocd_launch_params, i.config_file)
+        self._add_file(openocd_launch_params, self.interface.config_file)
         if self.serial:
             self._add_serial(openocd_launch_params, self.serial)
-        if i.additional_args:
-            for a in i.additional_args:
-                self._add_command(openocd_launch_params, a)
+        for additional_arg in self.interface.additional_args:
+            self._add_command(openocd_launch_params, additional_arg)
         self._add_file(openocd_launch_params, "target/stm32wbx.cfg")
         self._add_command(openocd_launch_params, "init")
         self._add_command(openocd_launch_params, "exit")
 
-        self.logger.debug(f"Launching: {' '.join(openocd_launch_params)}")
+        process = self._spawn_and_await(openocd_launch_params)
+        success = process.returncode == 0
 
-        process = subprocess.Popen(
-            openocd_launch_params,
-            stderr=subprocess.STDOUT,
-            stdout=subprocess.PIPE,
-        )
+        output = process.stdout.read().decode("utf-8").strip() if process.stdout else ""
+        self.logger.debug(output)
+        # Find target voltage using regex
+        if match := re.search(r"Target voltage: (\d+\.\d+)", output):
+            voltage = float(match.group(1))
+            if not success:
+                if voltage < 1:
+                    self.logger.warning(
+                        f"Found {self.get_name()}, but device is not connected"
+                    )
+                else:
+                    self.logger.warning(
+                        f"Device is connected, but {self.get_name()} failed to attach. Is System>Debug enabled?"
+                    )
 
-        # Wait for OpenOCD to end and get the return code
-        process.wait()
-        found = process.returncode == 0
+        if "cannot read IDR" in output:
+            self.logger.warning(
+                f"Found {self.get_name()}, but failed to attach. Is device connected and is System>Debug enabled?"
+            )
+            success = False
 
-        if process.stdout:
-            self.logger.debug(process.stdout.read().decode("utf-8").strip())
-
-        return found
+        return success
 
     def get_name(self) -> str:
         return self.interface.name
@@ -218,7 +236,7 @@ class BlackmagicProgrammer(Programmer):
     ):
         self.port_resolver = port_resolver
         self.name = name
-        self.logger = logging.getLogger("BlackmagicUSB")
+        self.logger = self.root_logger.getChild(f"Blackmagic{name}")
         self.port: typing.Optional[str] = None
 
     def _add_command(self, params: list[str], command: str):
@@ -239,6 +257,14 @@ class BlackmagicProgrammer(Programmer):
             self.port = f"{ip}:2345"
         else:
             self.port = serial
+
+    def _get_gdb_core_params(self) -> list[str]:
+        gdb_launch_params = ["arm-none-eabi-gdb"]
+        self._add_command(gdb_launch_params, f"target extended-remote {self.port}")
+        self._add_command(gdb_launch_params, "set pagination off")
+        self._add_command(gdb_launch_params, "set confirm off")
+        self._add_command(gdb_launch_params, "monitor swdp_scan")
+        return gdb_launch_params
 
     def flash(self, file_path: str, do_verify: bool) -> bool:
         if not self.port:
@@ -268,43 +294,25 @@ class BlackmagicProgrammer(Programmer):
         # -ex 'compare-sections'
         # -ex 'quit'
 
-        gdb_launch_params = ["arm-none-eabi-gdb", file_path]
-        self._add_command(gdb_launch_params, f"target extended-remote {self.port}")
-        self._add_command(gdb_launch_params, "set pagination off")
-        self._add_command(gdb_launch_params, "set confirm off")
-        self._add_command(gdb_launch_params, "monitor swdp_scan")
+        gdb_launch_params = self._get_gdb_core_params()
         self._add_command(gdb_launch_params, "attach 1")
         self._add_command(gdb_launch_params, "set mem inaccessible-by-default off")
         self._add_command(gdb_launch_params, "load")
         if do_verify:
             self._add_command(gdb_launch_params, "compare-sections")
         self._add_command(gdb_launch_params, "quit")
+        gdb_launch_params.append(file_path)
 
-        self.logger.debug(f"Launching: {' '.join(gdb_launch_params)}")
-
-        process = subprocess.Popen(
-            gdb_launch_params,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-
-        while process.poll() is None:
-            time.sleep(0.5)
-            print(".", end="", flush=True)
-        print()
-
+        process = self._spawn_and_await(gdb_launch_params, True)
         if not process.stdout:
             return False
 
         output = process.stdout.read().decode("utf-8").strip()
-        flashed = "Loading section .text," in output
-
-        # Check flash verification
-        if "MIS-MATCHED!" in output:
-            flashed = False
-
-        if "target image does not match the loaded file" in output:
-            flashed = False
+        flashed = (
+            "Loading section .text," in output
+            and "MIS-MATCHED!" not in output
+            and "target image does not match the loaded file" not in output
+        )
 
         if not flashed:
             self.logger.error("Blackmagic failed to flash")
@@ -317,6 +325,20 @@ class BlackmagicProgrammer(Programmer):
             return False
 
         self.port = port
+
+        gdb_launch_params = self._get_gdb_core_params()
+        self._add_command(gdb_launch_params, "quit")
+
+        process = self._spawn_and_await(gdb_launch_params)
+        if not process.stdout or process.returncode != 0:
+            return False
+
+        output = process.stdout.read().decode("utf-8").strip()
+        if "SW-DP scan failed!" in output:
+            self.logger.warning(
+                f"Found {self.get_name()} at {self.port}, but failed to attach. Is device connected and is System>Debug enabled?"
+            )
+            return False
         return True
 
     def get_name(self) -> str:
@@ -358,6 +380,8 @@ class Main(App):
     AUTO_INTERFACE = "auto"
 
     def init(self):
+        Programmer.root_logger = self.logger
+
         self.parser.add_argument(
             "filename",
             type=str,
@@ -433,10 +457,10 @@ class Main(App):
                 available_interfaces = self._search_interface(network_flash_interfaces)
 
             if not available_interfaces:
-                self.logger.error("No interface found")
+                self.logger.error("No availiable interfaces")
                 return 1
             elif len(available_interfaces) > 1:
-                self.logger.error("Multiple interfaces found: ")
+                self.logger.error("Multiple interfaces found:")
                 self.logger.error(
                     f"Please specify '--interface={[i.get_name() for i in available_interfaces]}'"
                 )
@@ -446,11 +470,10 @@ class Main(App):
 
         if self.args.serial != self.AUTO_INTERFACE:
             interface.set_serial(self.args.serial)
-            self.logger.info(
-                f"Flashing {file_path} via {interface.get_name()} with {self.args.serial}"
-            )
+            self.logger.info(f"Using {interface.get_name()} with {self.args.serial}")
         else:
-            self.logger.info(f"Flashing {file_path} via {interface.get_name()}")
+            self.logger.info(f"Using {interface.get_name()}")
+        self.logger.info(f"Flashing {file_path}")
 
         if not interface.flash(file_path, self.args.verify):
             self.logger.error(f"Failed to flash via {interface.get_name()}")

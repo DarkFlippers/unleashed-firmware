@@ -1,6 +1,7 @@
 #include "../infrared_i.h"
 
 #include "common/infrared_scene_universal_common.h"
+#include <furi_hal_rtc.h>
 
 void infrared_scene_universal_ac_on_enter(void* context) {
     infrared_scene_universal_common_on_enter(context);
@@ -18,24 +19,26 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         i,
         0,
         0,
-        3,
-        22,
-        &I_Off_25x27,
-        &I_Off_hvr_25x27,
+        6,
+        15,
+        &I_power_19x20,
+        &I_power_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
+    button_panel_add_icon(button_panel, 4, 37, &I_power_text_24x5);
     infrared_brute_force_add_record(brute_force, i++, "Off");
     button_panel_add_item(
         button_panel,
         i,
         1,
         0,
-        36,
-        22,
-        &I_Dehumidify_25x27,
-        &I_Dehumidify_hvr_25x27,
+        39,
+        15,
+        &I_dry_19x20,
+        &I_dry_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
+    button_panel_add_icon(button_panel, 41, 37, &I_dry_text_15x5);
     infrared_brute_force_add_record(brute_force, i++, "Dh");
     button_panel_add_item(
         button_panel,
@@ -43,9 +46,9 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         0,
         1,
         3,
-        59,
-        &I_CoolHi_25x27,
-        &I_CoolHi_hvr_25x27,
+        49,
+        &I_max_24x23,
+        &I_max_hover_24x23,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Cool_hi");
@@ -54,39 +57,71 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         i,
         1,
         1,
-        36,
-        59,
-        &I_HeatHi_25x27,
-        &I_HeatHi_hvr_25x27,
+        37,
+        49,
+        &I_max_24x23,
+        &I_max_hover_24x23,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Heat_hi");
-    button_panel_add_item(
-        button_panel,
-        i,
-        0,
-        2,
-        3,
-        91,
-        &I_CoolLo_25x27,
-        &I_CoolLo_hvr_25x27,
-        infrared_scene_universal_common_item_callback,
-        context);
+    if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+        button_panel_add_item(
+            button_panel,
+            i,
+            0,
+            2,
+            3,
+            100,
+            &I_celsius_24x23,
+            &I_celsius_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    } else {
+        button_panel_add_item(
+            button_panel,
+            i,
+            0,
+            2,
+            3,
+            100,
+            &I_fahren_24x23,
+            &I_fahren_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    }
     infrared_brute_force_add_record(brute_force, i++, "Cool_lo");
-    button_panel_add_item(
-        button_panel,
-        i,
-        1,
-        2,
-        36,
-        91,
-        &I_HeatLo_25x27,
-        &I_HeatLo_hvr_25x27,
-        infrared_scene_universal_common_item_callback,
-        context);
+
+    if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+        button_panel_add_item(
+            button_panel,
+            i,
+            1,
+            2,
+            37,
+            100,
+            &I_celsius_24x23,
+            &I_celsius_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    } else {
+        button_panel_add_item(
+            button_panel,
+            i,
+            1,
+            2,
+            37,
+            100,
+            &I_fahren_24x23,
+            &I_fahren_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    }
     infrared_brute_force_add_record(brute_force, i++, "Heat_lo");
 
-    button_panel_add_label(button_panel, 6, 10, FontPrimary, "AC remote");
+    button_panel_add_icon(button_panel, 0, 60, &I_cool_30x51);
+    button_panel_add_icon(button_panel, 34, 60, &I_heat_30x51);
+
+    button_panel_add_label(button_panel, 4, 10, FontPrimary, "AC remote");
 
     view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);

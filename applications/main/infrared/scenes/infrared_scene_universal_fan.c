@@ -19,34 +19,38 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         i,
         0,
         0,
-        3,
+        6,
         24,
-        &I_Power_25x27,
-        &I_Power_hvr_25x27,
+        &I_power_19x20,
+        &I_power_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Power");
+    button_panel_add_icon(button_panel, 4, 46, &I_power_text_24x5);
+
     button_panel_add_item(
         button_panel,
         i,
         1,
         0,
-        36,
+        39,
         24,
-        &I_Mode_25x27,
-        &I_Mode_hvr_25x27,
+        &I_mode_19x20,
+        &I_mode_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Mode");
+    button_panel_add_icon(button_panel, 39, 46, &I_mode_text_20x5);
+
     button_panel_add_item(
         button_panel,
         i,
-        0,
         1,
-        3,
-        66,
-        &I_Vol_up_25x27,
-        &I_Vol_up_hvr_25x27,
+        1,
+        37,
+        55,
+        &I_volup_24x21,
+        &I_volup_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Speed_up");
@@ -54,11 +58,11 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         button_panel,
         i,
         1,
-        1,
-        36,
-        66,
-        &I_Vol_down_25x27,
-        &I_Vol_down_hvr_25x27,
+        2,
+        37,
+        89,
+        &I_voldown_24x21,
+        &I_voldown_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Speed_dn");
@@ -66,31 +70,32 @@ void infrared_scene_universal_fan_on_enter(void* context) {
         button_panel,
         i,
         0,
-        2,
-        3,
-        98,
-        &I_Rotate_25x27,
-        &I_Rotate_hvr_25x27,
+        1,
+        6,
+        58,
+        &I_rotate_19x20,
+        &I_rotate_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Rotate");
+    button_panel_add_icon(button_panel, 4, 80, &I_rotate_text_24x5);
+
     button_panel_add_item(
         button_panel,
         i,
-        1,
+        0,
         2,
-        36,
-        98,
-        &I_Timer_25x27,
-        &I_Timer_hvr_25x27,
+        6,
+        87,
+        &I_timer_19x20,
+        &I_timer_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Timer");
+    button_panel_add_icon(button_panel, 4, 109, &I_timer_text_23x5);
 
     button_panel_add_label(button_panel, 5, 11, FontPrimary, "Fan remote");
-    button_panel_add_label(button_panel, 20, 63, FontSecondary, "Speed");
-    button_panel_add_label(button_panel, 8, 23, FontSecondary, "Pwr");
-    button_panel_add_label(button_panel, 40, 23, FontSecondary, "Mod");
+    button_panel_add_icon(button_panel, 34, 68, &I_speed_text_30x30);
 
     view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);

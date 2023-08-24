@@ -148,6 +148,7 @@ Also, regarding our releases, every build has and always will be free and open-s
 You can support us by using links or addresses below:
 |Service|Remark|Link/Wallet|
 |-|-|-|
+|**Patreon**||https://patreon.com/mmxdev|
 |**Boosty**|patreon alternative|https://boosty.to/mmxdev|
 |cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
 |YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
