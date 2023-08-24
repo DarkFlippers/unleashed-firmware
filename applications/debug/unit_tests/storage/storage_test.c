@@ -582,6 +582,49 @@ MU_TEST(test_storage_common_migrate) {
     furi_record_close(RECORD_STORAGE);
 }
 
+#define MD5_HASH_SIZE (16)
+#include <lib/toolbox/md5_calc.h>
+
+MU_TEST(test_md5_calc) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* file = storage_file_alloc(storage);
+
+    const char* path = UNIT_TESTS_PATH("storage/md5.txt");
+    const char* md5_cstr = "2a456fa43e75088fdde41c93159d62a2";
+    const uint8_t md5[MD5_HASH_SIZE] = {
+        0x2a,
+        0x45,
+        0x6f,
+        0xa4,
+        0x3e,
+        0x75,
+        0x08,
+        0x8f,
+        0xdd,
+        0xe4,
+        0x1c,
+        0x93,
+        0x15,
+        0x9d,
+        0x62,
+        0xa2,
+    };
+
+    uint8_t md5_output[MD5_HASH_SIZE];
+    FuriString* md5_output_str = furi_string_alloc();
+    memset(md5_output, 0, MD5_HASH_SIZE);
+
+    mu_check(md5_calc_file(file, path, md5_output, NULL));
+    mu_check(md5_string_calc_file(file, path, md5_output_str, NULL));
+
+    mu_assert_mem_eq(md5, md5_output, MD5_HASH_SIZE);
+    mu_assert_string_eq(md5_cstr, furi_string_get_cstr(md5_output_str));
+
+    storage_file_free(file);
+    furi_string_free(md5_output_str);
+    furi_record_close(RECORD_STORAGE);
+}
+
 MU_TEST_SUITE(test_data_path) {
     MU_RUN_TEST(test_storage_data_path);
     MU_RUN_TEST(test_storage_data_path_apps);
@@ -591,11 +634,16 @@ MU_TEST_SUITE(test_storage_common) {
     MU_RUN_TEST(test_storage_common_migrate);
 }
 
+MU_TEST_SUITE(test_md5_calc_suite) {
+    MU_RUN_TEST(test_md5_calc);
+}
+
 int run_minunit_test_storage() {
     MU_RUN_SUITE(storage_file);
     MU_RUN_SUITE(storage_dir);
     MU_RUN_SUITE(storage_rename);
     MU_RUN_SUITE(test_data_path);
     MU_RUN_SUITE(test_storage_common);
+    MU_RUN_SUITE(test_md5_calc_suite);
     return MU_EXIT_CODE;
 }

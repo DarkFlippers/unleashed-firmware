@@ -10,6 +10,7 @@
 
 int run_minunit_test_furi();
 int run_minunit_test_furi_hal();
+int run_minunit_test_furi_hal_crypto();
 int run_minunit_test_furi_string();
 int run_minunit_test_infrared();
 int run_minunit_test_rpc();
@@ -39,6 +40,7 @@ typedef struct {
 const UnitTest unit_tests[] = {
     {.name = "furi", .entry = run_minunit_test_furi},
     {.name = "furi_hal", .entry = run_minunit_test_furi_hal},
+    {.name = "furi_hal_crypto", .entry = run_minunit_test_furi_hal_crypto},
     {.name = "furi_string", .entry = run_minunit_test_furi_string},
     {.name = "storage", .entry = run_minunit_test_storage},
     {.name = "stream", .entry = run_minunit_test_stream},
@@ -88,7 +90,7 @@ void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     Loader* loader = furi_record_open(RECORD_LOADER);
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
 
-    // TODO: lock device while test running
+    // TODO FL-3491: lock device while test running
     if(loader_is_locked(loader)) {
         printf("RPC: stop all applications to run tests\r\n");
         notification_message(notification, &sequence_blink_magenta_100);

@@ -4,6 +4,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, ClassVar, List, Optional, Tuple, Union
 
+try:
+    from fbt.util import resolve_real_dir_node
+except ImportError:
+    # When running outside of SCons, we don't have access to SCons.Node
+    def resolve_real_dir_node(node):
+        return node
+
 
 class FlipperManifestException(Exception):
     pass
@@ -152,7 +159,7 @@ class AppManager:
                 FlipperApplication(
                     *args,
                     **kw,
-                    _appdir=app_dir_node,
+                    _appdir=resolve_real_dir_node(app_dir_node),
                     _apppath=os.path.dirname(app_manifest_path),
                     _appmanager=self,
                 ),

@@ -23,7 +23,7 @@ env.Append(
 env.Append(
     CPPPATH=[
         "#/",
-        "#/lib",  # TODO: remove!
+        "#/lib",  # TODO FL-3553: remove!
         "#/lib/mlib",
         # Ugly hack
         Dir("../assets/compiled"),

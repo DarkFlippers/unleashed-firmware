@@ -283,7 +283,7 @@ static SdSpiCmdAnswer
         cmd_answer.r1 = sd_spi_wait_for_data_and_read();
         break;
     case SdSpiCmdAnswerTypeR1B:
-        // TODO: can be wrong, at least for SD_CMD12_STOP_TRANSMISSION you need to purge one byte before reading R1
+        // TODO FL-3507: can be wrong, at least for SD_CMD12_STOP_TRANSMISSION you need to purge one byte before reading R1
         cmd_answer.r1 = sd_spi_wait_for_data_and_read();
 
         // In general this shenenigans seems suspicious, please double check SD specs if you are using SdSpiCmdAnswerTypeR1B
@@ -322,7 +322,7 @@ static SdSpiDataResponce sd_spi_get_data_response(uint32_t timeout_ms) {
 
     switch(responce & 0x1F) {
     case SdSpiDataResponceOK:
-        // TODO: check timings
+        // TODO FL-3508: check timings
         sd_spi_deselect_card();
         sd_spi_select_card();
 
@@ -684,7 +684,7 @@ static SdSpiStatus sd_spi_cmd_write_blocks(
         }
 
         // Send dummy byte for NWR timing : one byte between CMD_WRITE and TOKEN
-        // TODO: check bytes count
+        // TODO FL-3509: check bytes count
         sd_spi_write_byte(SD_DUMMY_BYTE);
         sd_spi_write_byte(SD_DUMMY_BYTE);
 

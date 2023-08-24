@@ -134,7 +134,7 @@ static size_t file_stream_size(FileStream* stream) {
 }
 
 static size_t file_stream_write(FileStream* stream, const uint8_t* data, size_t size) {
-    // TODO cache
+    // TODO FL-3545: cache
     size_t need_to_write = size;
     while(need_to_write > 0) {
         uint16_t was_written =
@@ -148,7 +148,7 @@ static size_t file_stream_write(FileStream* stream, const uint8_t* data, size_t 
 }
 
 static size_t file_stream_read(FileStream* stream, uint8_t* data, size_t size) {
-    // TODO cache
+    // TODO FL-3545: cache
     size_t need_to_read = size;
     while(need_to_read > 0) {
         uint16_t was_read =
@@ -172,7 +172,7 @@ static bool file_stream_delete_and_insert(
     // open scratchpad
     Stream* scratch_stream = file_stream_alloc(_stream->storage);
 
-    // TODO: we need something like "storage_open_tmpfile and storage_close_tmpfile"
+    // TODO FL-3546: we need something like "storage_open_tmpfile and storage_close_tmpfile"
     FuriString* scratch_name;
     FuriString* tmp_name;
     tmp_name = furi_string_alloc();

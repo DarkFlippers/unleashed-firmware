@@ -46,6 +46,8 @@ To run cleanup (think of `make clean`) for specified targets, add the `-c` optio
 
 `fbt` includes basic development environment configuration for VS Code. Run `./fbt vscode_dist` to deploy it. That will copy the initial environment configuration to the `.vscode` folder. After that, you can use that configuration by starting VS Code and choosing the firmware root folder in the "File > Open Folder" menu.
 
+To use language servers other than the default VS Code C/C++ language server, use `./fbt vscode_dist LANG_SERVER=<language-server>` instead. Currently `fbt` supports the default language server (`cpptools`) and `clangd`.
+
 - On the first start, you'll be prompted to install recommended plugins. We highly recommend installing them for the best development experience. _You can find a list of them in `.vscode/extensions.json`._
 - Basic build tasks are invoked in the Ctrl+Shift+B menu.
 - Debugging requires a supported probe. That includes:
@@ -64,15 +66,16 @@ To run cleanup (think of `make clean`) for specified targets, add the `-c` optio
 - `fap_dist` - build external plugins & publish to the `dist` folder.
 - `updater_package`, `updater_minpackage` - build a self-update package. The minimal version only includes the firmware's DFU file; the full version also includes a radio stack & resources for the SD card.
 - `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper.
-- `flash` - flash the attached device with OpenOCD over ST-Link.
+- `flash` - flash the attached device over SWD interface with supported probes. Probe is detected automatically; you can override it with `SWD_TRANSPORT=...` variable. If multiple probes are attached, you can specify the serial number of the probe to use with `SWD_TRANSPORT_SERIAL=...`.
 - `flash_usb`, `flash_usb_full` - build, upload and install the update package to the device over USB. See details on `updater_package` and `updater_minpackage`.
 - `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded.
 - `debug_other`, `debug_other_blackmagic` - attach GDB without loading any `.elf`. It will allow you to manually add external `.elf` files with `add-symbol-file` in GDB.
 - `updater_debug` - attach GDB with the updater's `.elf` loaded.
+- `devboard_flash` - update WiFi dev board with the latest firmware.
 - `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board).
 - `openocd` - just start OpenOCD.
 - `get_blackmagic` - output the blackmagic address in the GDB remote format. Useful for IDE integration.
-- `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `OPENOCD_ADAPTER_SERIAL=...`.
+- `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `SWD_TRANSPORT_SERIAL=...`.
 - `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs.
 - `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests.
 - `firmware_pvs` - generate a PVS Studio report for the firmware. Requires PVS Studio to be available on your system's `PATH`.
@@ -85,9 +88,8 @@ To run cleanup (think of `make clean`) for specified targets, add the `-c` optio
   - `fap_snake_game`, etc. - build single app as `.fap` by its application ID.
   - Check out [`--extra-ext-apps`](#command-line-parameters) for force adding extra apps to external build.
   - `fap_snake_game_list`, etc - generate source + assembler listing for app's `.fap`.
-- `flash`, `firmware_flash` - flash the current version to the attached device with OpenOCD over ST-Link.
+- `flash`, `firmware_flash` - flash the current version to the attached device over SWD.
 - `jflash` - flash the current version to the attached device with JFlash using a J-Link probe. The JFlash executable must be on your `$PATH`.
-- `flash_blackmagic` - flash the current version to the attached device with a Blackmagic probe.
 - `firmware_all`, `updater_all` - build a basic set of binaries.
 - `firmware_list`, `updater_list` - generate source + assembler listing.
 - `firmware_cdb`, `updater_cdb` - generate a `compilation_database.json` file for external tools and IDEs. It can be created without actually building the firmware.

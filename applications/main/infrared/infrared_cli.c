@@ -85,7 +85,7 @@ static void infrared_cli_print_usage(void) {
     printf("\tir decode <input_file> [<output_file>]\r\n");
     printf("\tir universal <remote_name> <signal_name>\r\n");
     printf("\tir universal list <remote_name>\r\n");
-    // TODO: Do not hardcode universal remote names
+    // TODO FL-3496: Do not hardcode universal remote names
     printf("\tAvailable universal remotes: tv audio ac projector\r\n");
 }
 
@@ -211,7 +211,7 @@ static bool infrared_cli_decode_raw_signal(
 
     size_t i;
     for(i = 0; i < raw_signal->timings_size; ++i) {
-        // TODO: Any infrared_check_decoder_ready() magic?
+        // TODO FL-3523: Any infrared_check_decoder_ready() magic?
         const InfraredMessage* message = infrared_decode(decoder, level, raw_signal->timings[i]);
 
         if(message) {

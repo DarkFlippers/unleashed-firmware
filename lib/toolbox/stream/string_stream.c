@@ -106,7 +106,7 @@ static size_t string_stream_size(StringStream* stream) {
 }
 
 static size_t string_stream_write(StringStream* stream, const char* data, size_t size) {
-    // TODO: can be optimized for edge cases
+    // TODO FL-3544: can be optimized for edge cases
     size_t i;
     for(i = 0; i < size; i++) {
         string_stream_write_char(stream, data[i]);

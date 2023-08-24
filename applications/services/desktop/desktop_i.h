@@ -74,9 +74,10 @@ struct Desktop {
     FuriTimer* update_clock_timer;
 
     FuriPubSub* status_pubsub;
-    uint8_t hour;
-    uint8_t minute;
-    bool clock_type : 1; // true - 24h false - 12h
+
+    uint8_t time_hour;
+    uint8_t time_minute;
+    bool time_format_12 : 1; // 1 - 12 hour, 0 - 24H
 
     bool in_transition : 1;
 };

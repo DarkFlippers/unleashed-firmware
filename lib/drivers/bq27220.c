@@ -69,7 +69,7 @@ static bool bq27220_parameter_check(
 
             uint8_t checksum = bq27220_get_checksum(buffer, size + 2);
             buffer[0] = checksum;
-            buffer[1] = 4 + size; // TODO: why 4?
+            buffer[1] = 4 + size; // TODO FL-3519: why 4?
             if(!furi_hal_i2c_write_mem(
                    handle, BQ27220_ADDRESS, CommandMACDataSum, buffer, 2, BQ27220_I2C_TIMEOUT)) {
                 FURI_LOG_I(TAG, "CRC write failed");

@@ -325,7 +325,7 @@ void protocol_fdx_b_render_brief_data(ProtocolFDXB* protocol, FuriString* result
     float temperature;
     if(protocol_fdx_b_get_temp(protocol->data, &temperature)) {
         if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
-            float temperature_c = (temperature - 32) / 1.8;
+            float temperature_c = (temperature - 32.0f) / 1.8f;
             furi_string_cat_printf(result, "T: %.2fC", (double)temperature_c);
         } else {
             furi_string_cat_printf(result, "T: %.2fF", (double)temperature);

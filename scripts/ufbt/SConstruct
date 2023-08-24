@@ -1,11 +1,10 @@
-from SCons.Platform import TempFileMunge
-from SCons.Node import FS
-from SCons.Errors import UserError
-
-
-import os
 import multiprocessing
+import os
 import pathlib
+
+from SCons.Errors import UserError
+from SCons.Node import FS
+from SCons.Platform import TempFileMunge
 
 SetOption("num_jobs", multiprocessing.cpu_count())
 SetOption("max_drift", 1)
@@ -67,16 +66,15 @@ core_env.Append(CPPDEFINES=GetOption("extra_defines"))
 
 # Now we can import stuff bundled with SDK - it was added to sys.path by ufbt_state
 
-from fbt.util import (
-    tempfile_arg_esc_func,
-    single_quote,
-    extract_abs_dir,
-    extract_abs_dir_path,
-    wrap_tempfile,
-    path_as_posix,
-)
-from fbt.appmanifest import FlipperAppType, FlipperApplication
+from fbt.appmanifest import FlipperApplication, FlipperAppType
 from fbt.sdk.cache import SdkCache
+from fbt.util import (
+    path_as_posix,
+    resolve_real_dir_node,
+    single_quote,
+    tempfile_arg_esc_func,
+    wrap_tempfile,
+)
 
 # Base environment with all tools loaded from SDK
 env = core_env.Clone(
@@ -107,7 +105,7 @@ env = core_env.Clone(
     PROGSUFFIX=".elf",
     TEMPFILEARGESCFUNC=tempfile_arg_esc_func,
     SINGLEQUOTEFUNC=single_quote,
-    ABSPATHGETTERFUNC=extract_abs_dir_path,
+    ABSPATHGETTERFUNC=resolve_real_dir_node,
     APPS=[],
     UFBT_API_VERSION=SdkCache(
         core_env.subst("$SDK_DEFINITION"), load_version_only=True
@@ -146,24 +144,20 @@ dist_env = env.Clone(
     ],
 )
 
-openocd_target = dist_env.OpenOCDFlash(
+flash_target = dist_env.FwFlash(
     dist_env["UFBT_STATE_DIR"].File("flash"),
-    dist_env["FW_BIN"],
-    OPENOCD_COMMAND=[
-        "-c",
-        "program ${SOURCE.posix} reset exit 0x08000000",
-    ],
+    dist_env["FW_ELF"],
 )
-dist_env.Alias("firmware_flash", openocd_target)
-dist_env.Alias("flash", openocd_target)
+dist_env.Alias("firmware_flash", flash_target)
+dist_env.Alias("flash", flash_target)
 if env["FORCE"]:
-    env.AlwaysBuild(openocd_target)
+    env.AlwaysBuild(flash_target)
 
 
 firmware_jflash = dist_env.JFlash(
     dist_env["UFBT_STATE_DIR"].File("jflash"),
     dist_env["FW_BIN"],
-    JFLASHADDR="0x20000000",
+    JFLASHADDR="0x08000000",
 )
 dist_env.Alias("firmware_jflash", firmware_jflash)
 dist_env.Alias("jflash", firmware_jflash)
@@ -215,21 +209,6 @@ dist_env.PhonyTarget(
     GDBPYOPTS=debug_other_opts,
 )
 
-
-dist_env.PhonyTarget(
-    "flash_blackmagic",
-    "$GDB $GDBOPTS $SOURCES $GDBFLASH",
-    source=dist_env["FW_ELF"],
-    GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
-    GDBREMOTE="${BLACKMAGIC_ADDR}",
-    GDBFLASH=[
-        "-ex",
-        "load",
-        "-ex",
-        "quit",
-    ],
-)
-
 flash_usb_full = dist_env.UsbInstall(
     dist_env["UFBT_STATE_DIR"].File("usbinstall"),
     [],
@@ -277,7 +256,7 @@ for app in known_extapps:
         continue
 
     app_artifacts = appenv.BuildAppElf(app)
-    app_src_dir = extract_abs_dir(app_artifacts.app._appdir)
+    app_src_dir = resolve_real_dir_node(app_artifacts.app._appdir)
     app_artifacts.installer = [
         appenv.Install(app_src_dir.Dir("dist"), app_artifacts.compact),
         appenv.Install(app_src_dir.Dir("dist").Dir("debug"), app_artifacts.debug),
@@ -347,6 +326,9 @@ appenv.PhonyTarget(
     "cli",
     '${PYTHON3} "${FBT_SCRIPT_DIR}/serial_cli.py" -p ${FLIP_PORT}',
 )
+
+# Update WiFi devboard firmware
+dist_env.PhonyTarget("devboard_flash", "${PYTHON3} ${FBT_SCRIPT_DIR}/wifi_board.py")
 
 # Linter
 

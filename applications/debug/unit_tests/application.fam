@@ -3,6 +3,7 @@ App(
     apptype=FlipperAppType.STARTUP,
     entry_point="unit_tests_on_system_start",
     cdefines=["APP_UNIT_TESTS"],
+    requires=["system_settings"],
     provides=["delay_test"],
     order=100,
 )

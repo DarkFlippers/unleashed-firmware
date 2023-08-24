@@ -104,8 +104,10 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        if(!subghz_txrx_radio_device_is_tx_allowed(subghz->txrx, temp_data32)) {
-            FURI_LOG_E(TAG, "This frequency can only be used for RX on chosen radio module");
+        // TODO: use different frequency allowed lists for differnet modules (non cc1101)
+        if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
+            FURI_LOG_E(TAG, "This frequency can only be used for RX");
+
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
@@ -124,7 +126,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
         if(!strcmp(furi_string_get_cstr(temp_str), "CUSTOM")) {
-            //Todo add Custom_preset_module
+            //TODO FL-3551: add Custom_preset_module
             //delete preset if it already exists
             subghz_setting_delete_custom_preset(setting, furi_string_get_cstr(temp_str));
             //load custom preset from file
@@ -291,9 +293,13 @@ bool subghz_save_protocol_to_file(
         if(!storage_simply_remove(storage, dev_file_name)) {
             break;
         }
-        //ToDo check Write
+
         stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
         stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
+
+        if(storage_common_stat(storage, dev_file_name, NULL) != FSE_OK) {
+            break;
+        }
 
         saved = true;
     } while(0);

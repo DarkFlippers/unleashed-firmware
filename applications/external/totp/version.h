@@ -1,5 +1,0 @@
-#pragma once
-
-#define TOTP_APP_VERSION_MAJOR (3)
-#define TOTP_APP_VERSION_MINOR (2)
-#define TOTP_APP_VERSION_PATCH (0)

@@ -180,9 +180,21 @@ vars.AddVariables(
         "Blackmagic probe location",
         "auto",
     ),
+    EnumVariable(
+        "SWD_TRANSPORT",
+        help="SWD interface adapter type",
+        default="auto",
+        allowed_values=[
+            "auto",
+            "cmsis-dap",
+            "stlink",
+            "blackmagic_usb",
+            "blackmagic_wifi",
+        ],
+    ),
     (
-        "OPENOCD_ADAPTER_SERIAL",
-        "OpenOCD adapter serial number",
+        "SWD_TRANSPORT_SERIAL",
+        "SWD interface adapter serial number",
         "auto",
     ),
     (
@@ -231,7 +243,6 @@ vars.AddVariables(
             ("applications/settings", False),
             ("applications/system", False),
             ("applications/debug", False),
-            ("applications/external", False),
             ("applications/examples", False),
             ("applications/drivers", False),
             ("applications_user", False),
@@ -253,6 +264,15 @@ vars.AddVariables(
         "FLIP_PORT",
         "Full port name of Flipper to use, if multiple Flippers are connected",
         "auto",
+    ),
+    EnumVariable(
+        "LANG_SERVER",
+        help="Language server type for vscode_dist.",
+        default="cpptools",
+        allowed_values=[
+            "cpptools",
+            "clangd",
+        ],
     ),
 )
 

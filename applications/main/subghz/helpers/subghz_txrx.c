@@ -334,7 +334,6 @@ static void subghz_txrx_tx_stop(SubGhzTxRx* instance) {
     }
     subghz_txrx_idle(instance);
     subghz_txrx_speaker_off(instance);
-    //Todo: Show message
 }
 
 FlipperFormat* subghz_txrx_get_fff_data(SubGhzTxRx* instance) {
@@ -634,8 +633,11 @@ bool subghz_txrx_radio_device_is_frequency_valid(SubGhzTxRx* instance, uint32_t 
 }
 
 bool subghz_txrx_radio_device_is_tx_allowed(SubGhzTxRx* instance, uint32_t frequency) {
+    // TODO: Remake this function to check if the frequency is allowed on specific module - for modules not based on CC1101
     furi_assert(instance);
-    //furi_assert(instance->txrx_state != SubGhzTxRxStateSleep);
+    UNUSED(frequency);
+    /*
+    furi_assert(instance->txrx_state != SubGhzTxRxStateSleep);
 
     subghz_devices_idle(instance->radio_device);
     subghz_devices_set_frequency(instance->radio_device, frequency);
@@ -644,6 +646,8 @@ bool subghz_txrx_radio_device_is_tx_allowed(SubGhzTxRx* instance, uint32_t frequ
     subghz_devices_idle(instance->radio_device);
 
     return ret;
+    */
+    return true;
 }
 
 void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state) {
