@@ -28,7 +28,7 @@ static void loader_cli_info(Loader* loader) {
     if(!loader_is_locked(loader)) {
         printf("No application is running\r\n");
     } else {
-        // TODO: print application name ???
+        // TODO FL-3513: print application name ???
         printf("Application is running\r\n");
     }
 }

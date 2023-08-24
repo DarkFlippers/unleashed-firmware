@@ -13,5 +13,5 @@ App(
     fap_libs=["assets",],
     fap_icon="icon.png",
     fap_description="SubGhz Remote, uses up to 5 .sub files",
-    fap_category="Sub-Ghz",
+    fap_category="Sub-GHz",
 )

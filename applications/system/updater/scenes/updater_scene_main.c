@@ -80,7 +80,7 @@ bool updater_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case UpdaterCustomEventSdUnmounted:
-            // TODO: error out, stop worker (it's probably dead actually)
+            // TODO FL-3499: error out, stop worker (it's probably dead actually)
             break;
         default:
             break;

@@ -481,7 +481,7 @@ void* pvPortMalloc(size_t xWantedSize) {
 
     configASSERT((((size_t)pvReturn) & (size_t)portBYTE_ALIGNMENT_MASK) == 0);
 
-    furi_check(pvReturn);
+    furi_check(pvReturn, "out of memory");
     pvReturn = memset(pvReturn, 0, to_wipe);
     return pvReturn;
 }

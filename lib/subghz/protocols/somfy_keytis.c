@@ -131,7 +131,7 @@ static bool
     instance->generic.serial = data & 0xFFFFFF;
 
     if(instance->generic.cnt < 0xFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
+        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
             instance->generic.cnt = 0;
         } else {
             instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();

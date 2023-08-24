@@ -16,7 +16,7 @@ extern "C" {
 #define FAP_MANIFEST_SUPPORTED_VERSION 1
 
 #define FAP_MANIFEST_MAX_APP_NAME_LENGTH 32
-#define FAP_MANIFEST_MAX_ICON_SIZE 32 // TODO: reduce size?
+#define FAP_MANIFEST_MAX_ICON_SIZE 32 // TODO FL-3524: reduce size?
 
 #pragma pack(push, 1)
 

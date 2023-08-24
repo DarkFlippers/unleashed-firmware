@@ -54,7 +54,7 @@ static bool
 
     FuriString* filetype;
 
-    // TODO: compare filetype?
+    // TODO FL-3543: compare filetype?
     filetype = furi_string_alloc();
     update_manifest->valid =
         flipper_format_read_header(flipper_file, filetype, &update_manifest->manifest_version) &&

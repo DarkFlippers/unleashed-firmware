@@ -2,8 +2,14 @@ import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from fbt.util import resolve_real_dir_node
 from typing import Callable, ClassVar, List, Optional, Tuple, Union
+
+try:
+    from fbt.util import resolve_real_dir_node
+except ImportError:
+    # When running outside of SCons, we don't have access to SCons.Node
+    def resolve_real_dir_node(node):
+        return node
 
 
 class FlipperManifestException(Exception):

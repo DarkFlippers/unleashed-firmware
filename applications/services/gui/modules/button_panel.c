@@ -29,6 +29,9 @@ typedef struct {
     const Icon* name_selected;
 } IconElement;
 
+LIST_DEF(IconList, IconElement, M_POD_OPLIST)
+#define M_OPL_IconList_t() LIST_OPLIST(IconList)
+
 typedef struct ButtonItem {
     uint32_t index;
     ButtonItemCallback callback;
@@ -47,6 +50,7 @@ struct ButtonPanel {
 
 typedef struct {
     ButtonMatrix_t button_matrix;
+    IconList_t icons;
     LabelList_t labels;
     uint16_t reserve_x;
     uint16_t reserve_y;
@@ -114,7 +118,6 @@ void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t re
                 ButtonArray_t* array = ButtonMatrix_get(model->button_matrix, i);
                 ButtonArray_init(*array);
                 ButtonArray_reserve(*array, reserve_x);
-                // TODO: do we need to clear allocated memory of ptr-s to ButtonItem ??
             }
             LabelList_init(model->labels);
         },
@@ -158,6 +161,7 @@ void button_panel_reset(ButtonPanel* button_panel) {
             model->selected_item_x = 0;
             model->selected_item_y = 0;
             LabelList_reset(model->labels);
+            IconList_reset(model->icons);
             ButtonMatrix_reset(model->button_matrix);
         },
         true);
@@ -220,9 +224,17 @@ static void button_panel_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
+    for
+        M_EACH(icon, model->icons, IconList_t) {
+            canvas_draw_icon(canvas, icon->x, icon->y, icon->name);
+        }
+
     for(size_t x = 0; x < model->reserve_x; ++x) {
         for(size_t y = 0; y < model->reserve_y; ++y) {
             ButtonItem* button_item = *button_panel_get_item(model, x, y);
+            if(!button_item) {
+                continue;
+            }
             const Icon* icon_name = button_item->icon.name;
             if((model->selected_item_x == x) && (model->selected_item_y == y)) {
                 icon_name = button_item->icon.name_selected;
@@ -415,6 +427,27 @@ void button_panel_add_label(
             label->y = y;
             label->font = font;
             label->str = label_str;
+        },
+        true);
+}
+
+// Draw an icon but don't make it a button.
+void button_panel_add_icon(
+    ButtonPanel* button_panel,
+    uint16_t x,
+    uint16_t y,
+    const Icon* icon_name) {
+    furi_assert(button_panel);
+
+    with_view_model( //-V773
+        button_panel->view,
+        ButtonPanelModel * model,
+        {
+            IconElement* icon = IconList_push_raw(model->icons);
+            icon->x = x;
+            icon->y = y;
+            icon->name = icon_name;
+            icon->name_selected = icon_name;
         },
         true);
 }

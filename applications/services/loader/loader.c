@@ -1,4 +1,5 @@
 #include "loader.h"
+#include "core/core_defines.h"
 #include "loader_i.h"
 #include <applications.h>
 #include <storage/storage.h>
@@ -61,7 +62,7 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
         dialog_message_free(message);
         furi_record_close(RECORD_DIALOGS);
     } else if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
-        // TODO: we have many places where we can emit a double start, ex: desktop, menu
+        // TODO FL-3522: we have many places where we can emit a double start, ex: desktop, menu
         // so i prefer to not show LoaderStatusErrorAppStarted error message for now
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         DialogMessage* message = dialog_message_alloc();
@@ -186,18 +187,25 @@ static FlipperInternalApplication const* loader_find_application_by_name_in_list
 }
 
 static const FlipperInternalApplication* loader_find_application_by_name(const char* name) {
-    const FlipperInternalApplication* application = NULL;
-    application = loader_find_application_by_name_in_list(name, FLIPPER_APPS, FLIPPER_APPS_COUNT);
-    if(!application) {
-        application = loader_find_application_by_name_in_list(
-            name, FLIPPER_SETTINGS_APPS, FLIPPER_SETTINGS_APPS_COUNT);
-    }
-    if(!application) {
-        application = loader_find_application_by_name_in_list(
-            name, FLIPPER_SYSTEM_APPS, FLIPPER_SYSTEM_APPS_COUNT);
+    const struct {
+        const FlipperInternalApplication* list;
+        const uint32_t count;
+    } lists[] = {
+        {FLIPPER_APPS, FLIPPER_APPS_COUNT},
+        {FLIPPER_SETTINGS_APPS, FLIPPER_SETTINGS_APPS_COUNT},
+        {FLIPPER_SYSTEM_APPS, FLIPPER_SYSTEM_APPS_COUNT},
+        {FLIPPER_DEBUG_APPS, FLIPPER_DEBUG_APPS_COUNT},
+    };
+
+    for(size_t i = 0; i < COUNT_OF(lists); i++) {
+        const FlipperInternalApplication* application =
+            loader_find_application_by_name_in_list(name, lists[i].list, lists[i].count);
+        if(application) {
+            return application;
+        }
     }
 
-    return application;
+    return NULL;
 }
 
 static void loader_start_app_thread(Loader* loader, FlipperInternalApplicationFlag flags) {
@@ -253,9 +261,7 @@ static void loader_log_status_error(
         furi_string_vprintf(error_message, format, args);
         FURI_LOG_E(TAG, "Status [%d]: %s", status, furi_string_get_cstr(error_message));
     } else {
-        FuriString* tmp = furi_string_alloc();
-        FURI_LOG_E(TAG, "Status [%d]: %s", status, furi_string_get_cstr(tmp));
-        furi_string_free(tmp);
+        FURI_LOG_E(TAG, "Status [%d]", status);
     }
 }
 
@@ -527,7 +533,9 @@ int32_t loader_srv(void* p) {
         FLIPPER_ON_SYSTEM_START[i]();
     }
 
-    if(FLIPPER_AUTORUN_APP_NAME && strlen(FLIPPER_AUTORUN_APP_NAME)) {
+    if((furi_hal_rtc_get_boot_mode() == FuriHalRtcBootModeNormal) && FLIPPER_AUTORUN_APP_NAME &&
+       strlen(FLIPPER_AUTORUN_APP_NAME)) {
+        FURI_LOG_I(TAG, "Starting autorun app: %s", FLIPPER_AUTORUN_APP_NAME);
         loader_do_start_by_name(loader, FLIPPER_AUTORUN_APP_NAME, NULL, NULL);
     }
 

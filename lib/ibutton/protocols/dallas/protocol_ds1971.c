@@ -53,7 +53,7 @@ const iButtonProtocolDallasBase ibutton_protocol_ds1971 = {
     .name = DS1971_FAMILY_NAME,
 
     .read = dallas_ds1971_read,
-    .write_blank = NULL, // TODO: Implement writing to blank
+    .write_blank = NULL, // TODO FL-3531: Implement writing to blank
     .write_copy = dallas_ds1971_write_copy,
     .emulate = dallas_ds1971_emulate,
     .save = dallas_ds1971_save,
