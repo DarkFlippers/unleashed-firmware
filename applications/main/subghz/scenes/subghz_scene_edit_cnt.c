@@ -1,7 +1,6 @@
 #include "../subghz_i.h"
-#include <lib/subghz/protocols/keeloq.h>
 
-#define TAG "SubGhzEditCnt"
+#define TAG "subghz_scene_edit_cnt"
 
 void subghz_scene_edit_cnt_byte_input_callback(void* context) {
     SubGhz* subghz = context;
@@ -29,14 +28,9 @@ void subghz_scene_edit_cnt_on_enter(void* context) {
 bool subghz_scene_edit_cnt_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     bool consumed = false;
-    uint32_t cnt;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventByteInputDone) {
-            cnt = subghz->secure_data->cnt[0] << 24 | subghz->secure_data->cnt[1] << 16 |
-                           subghz->secure_data->cnt[2] << 8 | subghz->secure_data->cnt[3];
-            FURI_LOG_I(TAG, "cnt = %08lX", cnt);
-            // TO DO
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
             consumed = true;
         }

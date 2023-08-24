@@ -183,6 +183,16 @@ uint8_t furi_hal_subghz_get_rolling_counter_mult(void);
  */
 void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult);
 
+/** Get the current rolling protocols counter value
+ * @return    uint32_t current value
+ */
+uint32_t furi_hal_subghz_get_rolling_counter_value(void);
+
+/** Set the current rolling protocols counter value
+ * @param      value uint32_t = 0xFFFF / 0xFFFFF / 0xFFFFFFFF
+ */
+void furi_hal_subghz_set_rolling_counter_value(uint32_t value);
+
 /** Set frequency
  *
  * @param      value  frequency in Hz

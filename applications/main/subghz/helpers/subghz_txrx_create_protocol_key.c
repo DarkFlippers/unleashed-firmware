@@ -229,7 +229,7 @@ bool subghz_txrx_gen_faac_slh_protocol(
         }
 
         flipper_format_write_hex(txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-        flipper_format_write_string_cstr(txrx->fff_data, "Valid", "1\n");
+        flipper_format_write_string_cstr(txrx->fff_data, "Valid", "1\r\n");
         FURI_LOG_I(TAG, "Flag write to SD is OK");
     }
 

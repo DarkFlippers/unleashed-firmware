@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,35.1,,
+Version,+,35.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -1419,6 +1419,7 @@ Function,+,furi_hal_subghz_get_data_gpio,const GpioPin*,
 Function,+,furi_hal_subghz_get_ext_power_amp,_Bool,
 Function,+,furi_hal_subghz_get_lqi,uint8_t,
 Function,+,furi_hal_subghz_get_rolling_counter_mult,uint8_t,
+Function,+,furi_hal_subghz_get_rolling_counter_value,uint32_t,
 Function,+,furi_hal_subghz_get_rssi,float,
 Function,+,furi_hal_subghz_idle,void,
 Function,-,furi_hal_subghz_init,void,
@@ -1439,6 +1440,7 @@ Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
 Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
 Function,+,furi_hal_subghz_set_rolling_counter_mult,void,uint8_t
+Function,+,furi_hal_subghz_set_rolling_counter_value,void,uint32_t
 Function,+,furi_hal_subghz_shutdown,void,
 Function,+,furi_hal_subghz_sleep,void,
 Function,+,furi_hal_subghz_start_async_rx,void,"FuriHalSubGhzCaptureCallback, void*"
