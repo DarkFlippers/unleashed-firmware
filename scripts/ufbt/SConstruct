@@ -144,24 +144,20 @@ dist_env = env.Clone(
     ],
 )
 
-openocd_target = dist_env.OpenOCDFlash(
+flash_target = dist_env.FwFlash(
     dist_env["UFBT_STATE_DIR"].File("flash"),
-    dist_env["FW_BIN"],
-    OPENOCD_COMMAND=[
-        "-c",
-        "program ${SOURCE.posix} reset exit 0x08000000",
-    ],
+    dist_env["FW_ELF"],
 )
-dist_env.Alias("firmware_flash", openocd_target)
-dist_env.Alias("flash", openocd_target)
+dist_env.Alias("firmware_flash", flash_target)
+dist_env.Alias("flash", flash_target)
 if env["FORCE"]:
-    env.AlwaysBuild(openocd_target)
+    env.AlwaysBuild(flash_target)
 
 
 firmware_jflash = dist_env.JFlash(
     dist_env["UFBT_STATE_DIR"].File("jflash"),
     dist_env["FW_BIN"],
-    JFLASHADDR="0x20000000",
+    JFLASHADDR="0x08000000",
 )
 dist_env.Alias("firmware_jflash", firmware_jflash)
 dist_env.Alias("jflash", firmware_jflash)
@@ -211,21 +207,6 @@ dist_env.PhonyTarget(
     GDBOPTS="${GDBOPTS_BASE}  ${GDBOPTS_BLACKMAGIC}",
     GDBREMOTE="${BLACKMAGIC_ADDR}",
     GDBPYOPTS=debug_other_opts,
-)
-
-
-dist_env.PhonyTarget(
-    "flash_blackmagic",
-    "$GDB $GDBOPTS $SOURCES $GDBFLASH",
-    source=dist_env["FW_ELF"],
-    GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
-    GDBREMOTE="${BLACKMAGIC_ADDR}",
-    GDBFLASH=[
-        "-ex",
-        "load",
-        "-ex",
-        "quit",
-    ],
 )
 
 flash_usb_full = dist_env.UsbInstall(

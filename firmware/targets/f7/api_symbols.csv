@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,35.0,,
+Version,+,35.1,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -629,6 +629,7 @@ Function,+,button_menu_get_view,View*,ButtonMenu*
 Function,+,button_menu_reset,void,ButtonMenu*
 Function,+,button_menu_set_header,void,"ButtonMenu*, const char*"
 Function,+,button_menu_set_selected_item,void,"ButtonMenu*, uint32_t"
+Function,+,button_panel_add_icon,void,"ButtonPanel*, uint16_t, uint16_t, const Icon*"
 Function,+,button_panel_add_item,void,"ButtonPanel*, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t, const Icon*, const Icon*, ButtonItemCallback, void*"
 Function,+,button_panel_add_label,void,"ButtonPanel*, uint16_t, uint16_t, Font, const char*"
 Function,+,button_panel_alloc,ButtonPanel*,
@@ -1134,18 +1135,18 @@ Function,+,furi_hal_cortex_timer_is_expired,_Bool,FuriHalCortexTimer
 Function,+,furi_hal_cortex_timer_wait,void,FuriHalCortexTimer
 Function,+,furi_hal_crypto_ctr,_Bool,"const uint8_t*, const uint8_t*, const uint8_t*, uint8_t*, size_t"
 Function,+,furi_hal_crypto_decrypt,_Bool,"const uint8_t*, uint8_t*, size_t"
+Function,+,furi_hal_crypto_enclave_ensure_key,_Bool,uint8_t
+Function,+,furi_hal_crypto_enclave_load_key,_Bool,"uint8_t, const uint8_t*"
+Function,+,furi_hal_crypto_enclave_store_key,_Bool,"FuriHalCryptoKey*, uint8_t*"
+Function,+,furi_hal_crypto_enclave_unload_key,_Bool,uint8_t
+Function,+,furi_hal_crypto_enclave_verify,_Bool,"uint8_t*, uint8_t*"
 Function,+,furi_hal_crypto_encrypt,_Bool,"const uint8_t*, uint8_t*, size_t"
 Function,+,furi_hal_crypto_gcm,_Bool,"const uint8_t*, const uint8_t*, const uint8_t*, size_t, const uint8_t*, uint8_t*, size_t, uint8_t*, _Bool"
 Function,+,furi_hal_crypto_gcm_decrypt_and_verify,FuriHalCryptoGCMState,"const uint8_t*, const uint8_t*, const uint8_t*, size_t, const uint8_t*, uint8_t*, size_t, const uint8_t*"
 Function,+,furi_hal_crypto_gcm_encrypt_and_tag,FuriHalCryptoGCMState,"const uint8_t*, const uint8_t*, const uint8_t*, size_t, const uint8_t*, uint8_t*, size_t, uint8_t*"
 Function,-,furi_hal_crypto_init,void,
 Function,+,furi_hal_crypto_load_key,_Bool,"const uint8_t*, const uint8_t*"
-Function,+,furi_hal_crypto_enclave_store_key,_Bool,"FuriHalCryptoKey*, uint8_t*"
-Function,+,furi_hal_crypto_enclave_load_key,_Bool,"uint8_t, const uint8_t*"
-Function,+,furi_hal_crypto_enclave_unload_key,_Bool,uint8_t
 Function,+,furi_hal_crypto_unload_key,_Bool,
-Function,+,furi_hal_crypto_enclave_verify,_Bool,"uint8_t*, uint8_t*"
-Function,+,furi_hal_crypto_enclave_ensure_key,_Bool,uint8_t
 Function,+,furi_hal_debug_disable,void,
 Function,+,furi_hal_debug_enable,void,
 Function,+,furi_hal_debug_is_gdb_session_active,_Bool,

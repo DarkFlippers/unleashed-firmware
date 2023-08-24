@@ -265,7 +265,7 @@ SubGhzProtocolStatus
     furi_assert(context);
     UNUSED(context);
     UNUSED(flipper_format);
-    //ToDo stub, for backwards compatibility
+    // stub, for backwards compatibility
     return SubGhzProtocolStatusOk;
 }
 
@@ -273,7 +273,6 @@ void subghz_protocol_decoder_raw_get_string(void* context, FuriString* output) {
     furi_assert(context);
     //SubGhzProtocolDecoderRAW* instance = context;
     UNUSED(context);
-    //ToDo no use
     furi_string_cat_printf(output, "RAW Data");
 }
 

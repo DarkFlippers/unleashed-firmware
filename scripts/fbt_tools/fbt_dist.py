@@ -52,22 +52,16 @@ def AddFwProject(env, base_env, fw_type, fw_env_key):
     return project_env
 
 
-def AddOpenOCDFlashTarget(env, targetenv, **kw):
-    openocd_target = env.OpenOCDFlash(
-        "#build/oocd-${BUILD_CFG}-flash.flag",
-        targetenv["FW_BIN"],
-        OPENOCD_COMMAND=[
-            "-c",
-            "program ${SOURCE.posix} reset exit ${BASE_ADDRESS}",
-        ],
-        BUILD_CFG=targetenv.subst("$FIRMWARE_BUILD_CFG"),
-        BASE_ADDRESS=targetenv.subst("$IMAGE_BASE_ADDRESS"),
+def AddFwFlashTarget(env, targetenv, **kw):
+    fwflash_target = env.FwFlash(
+        "#build/flash.flag",
+        targetenv["FW_ELF"],
         **kw,
     )
-    env.Alias(targetenv.subst("${FIRMWARE_BUILD_CFG}_flash"), openocd_target)
+    env.Alias(targetenv.subst("${FIRMWARE_BUILD_CFG}_flash"), fwflash_target)
     if env["FORCE"]:
-        env.AlwaysBuild(openocd_target)
-    return openocd_target
+        env.AlwaysBuild(fwflash_target)
+    return fwflash_target
 
 
 def AddJFlashTarget(env, targetenv, **kw):
@@ -115,7 +109,7 @@ def generate(env):
         env.SetDefault(COPROCOMSTR="\tCOPRO\t${TARGET}")
     env.AddMethod(AddFwProject)
     env.AddMethod(DistCommand)
-    env.AddMethod(AddOpenOCDFlashTarget)
+    env.AddMethod(AddFwFlashTarget)
     env.AddMethod(GetProjectDirName)
     env.AddMethod(AddJFlashTarget)
     env.AddMethod(AddUsbFlashTarget)
@@ -125,30 +119,53 @@ def generate(env):
         SELFUPDATE_SCRIPT="${FBT_SCRIPT_DIR}/selfupdate.py",
         DIST_SCRIPT="${FBT_SCRIPT_DIR}/sconsdist.py",
         COPRO_ASSETS_SCRIPT="${FBT_SCRIPT_DIR}/assets.py",
+        FW_FLASH_SCRIPT="${FBT_SCRIPT_DIR}/fwflash.py",
     )
 
     env.Append(
         BUILDERS={
+            "FwFlash": Builder(
+                action=[
+                    [
+                        "${PYTHON3}",
+                        "${FW_FLASH_SCRIPT}",
+                        "-d" if env["VERBOSE"] else "",
+                        "--interface=${SWD_TRANSPORT}",
+                        "--serial=${SWD_TRANSPORT_SERIAL}",
+                        "${SOURCE}",
+                    ],
+                    Touch("${TARGET}"),
+                ]
+            ),
             "UsbInstall": Builder(
                 action=[
-                    Action(
-                        '${PYTHON3} "${SELFUPDATE_SCRIPT}" -p ${FLIP_PORT} ${UPDATE_BUNDLE_DIR}/update.fuf'
-                    ),
+                    [
+                        "${PYTHON3}",
+                        "${SELFUPDATE_SCRIPT}",
+                        "-p",
+                        "${FLIP_PORT}",
+                        "${UPDATE_BUNDLE_DIR}/update.fuf",
+                    ],
                     Touch("${TARGET}"),
                 ]
             ),
             "CoproBuilder": Builder(
                 action=Action(
                     [
-                        '${PYTHON3} "${COPRO_ASSETS_SCRIPT}" '
-                        "copro ${COPRO_CUBE_DIR} "
-                        "${TARGET} ${COPRO_MCU_FAMILY} "
-                        "--cube_ver=${COPRO_CUBE_VERSION} "
-                        "--stack_type=${COPRO_STACK_TYPE} "
-                        '--stack_file="${COPRO_STACK_BIN}" '
-                        "--stack_addr=${COPRO_STACK_ADDR} ",
+                        [
+                            "${PYTHON3}",
+                            "${COPRO_ASSETS_SCRIPT}",
+                            "copro",
+                            "${COPRO_CUBE_DIR}",
+                            "${TARGET}",
+                            "${COPRO_MCU_FAMILY}",
+                            "--cube_ver=${COPRO_CUBE_VERSION}",
+                            "--stack_type=${COPRO_STACK_TYPE}",
+                            "--stack_file=${COPRO_STACK_BIN}",
+                            "--stack_addr=${COPRO_STACK_ADDR}",
+                        ]
                     ],
-                    "$COPROCOMSTR",
+                    "${COPROCOMSTR}",
                 )
             ),
         }

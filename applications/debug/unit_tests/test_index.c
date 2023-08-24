@@ -90,7 +90,7 @@ void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     Loader* loader = furi_record_open(RECORD_LOADER);
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
 
-    // TODO: lock device while test running
+    // TODO FL-3491: lock device while test running
     if(loader_is_locked(loader)) {
         printf("RPC: stop all applications to run tests\r\n");
         notification_message(notification, &sequence_blink_magenta_100);

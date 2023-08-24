@@ -1,7 +1,7 @@
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-# TODO: fix
+# TODO FL-3536: fix path to download_dir
 $download_dir = (Get-Item "$PSScriptRoot\..\..").FullName
 $toolchain_version = $args[0]
 $toolchain_target_path = $args[1]

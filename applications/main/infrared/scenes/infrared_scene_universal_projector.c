@@ -18,46 +18,49 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         i,
         0,
         0,
-        3,
-        19,
-        &I_Power_25x27,
-        &I_Power_hvr_25x27,
+        6,
+        24,
+        &I_power_19x20,
+        &I_power_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
+    button_panel_add_icon(button_panel, 4, 46, &I_power_text_24x5);
     infrared_brute_force_add_record(brute_force, i++, "Power");
     button_panel_add_item(
         button_panel,
         i,
         1,
         0,
-        36,
-        19,
-        &I_Mute_25x27,
-        &I_Mute_hvr_25x27,
+        39,
+        24,
+        &I_mute_19x20,
+        &I_mute_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
+    button_panel_add_icon(button_panel, 39, 46, &I_mute_text_19x5);
     infrared_brute_force_add_record(brute_force, i++, "Mute");
     button_panel_add_item(
         button_panel,
         i,
-        0,
         1,
-        3,
-        64,
-        &I_Vol_up_25x27,
-        &I_Vol_up_hvr_25x27,
+        1,
+        37,
+        55,
+        &I_volup_24x21,
+        &I_volup_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Vol_up");
+
     button_panel_add_item(
         button_panel,
         i,
         1,
-        1,
-        36,
-        64,
-        &I_Vol_down_25x27,
-        &I_Vol_down_hvr_25x27,
+        2,
+        37,
+        89,
+        &I_voldown_24x21,
+        &I_voldown_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Vol_dn");
@@ -65,29 +68,31 @@ void infrared_scene_universal_projector_on_enter(void* context) {
         button_panel,
         i,
         0,
-        2,
-        3,
-        101,
-        &I_Play_25x27,
-        &I_Play_hvr_25x27,
+        1,
+        6,
+        58,
+        &I_play_19x20,
+        &I_play_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Play");
+    button_panel_add_icon(button_panel, 6, 80, &I_play_text_19x5);
     button_panel_add_item(
         button_panel,
         i,
-        1,
+        0,
         2,
-        36,
-        101,
-        &I_Pause_25x27,
-        &I_Pause_hvr_25x27,
+        6,
+        87,
+        &I_pause_19x20,
+        &I_pause_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Pause");
+    button_panel_add_icon(button_panel, 4, 109, &I_pause_text_23x5);
 
-    button_panel_add_label(button_panel, 10, 11, FontPrimary, "Projector");
-    button_panel_add_label(button_panel, 17, 60, FontSecondary, "Volume");
+    button_panel_add_label(button_panel, 3, 11, FontPrimary, "Proj. remote");
+    button_panel_add_icon(button_panel, 34, 68, &I_vol_ac_text_30x30);
 
     view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
