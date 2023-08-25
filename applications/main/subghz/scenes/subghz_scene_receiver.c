@@ -70,7 +70,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_get_cstr(frequency_str),
             furi_string_get_cstr(modulation_str),
             furi_string_get_cstr(history_stat_str),
-            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF,
+            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0);
 
         furi_string_free(frequency_str);
         furi_string_free(modulation_str);
@@ -80,7 +81,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_get_cstr(history_stat_str),
             "",
             "",
-            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF,
+            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0);
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
     furi_string_free(history_stat_str);
@@ -146,12 +148,12 @@ void subghz_scene_receiver_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
+#if SUBGHZ_LAST_SETTING_SAVE_PRESET
         subghz_txrx_set_preset_internal(
             subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
-        subghz_txrx_speaker_set_state(
-            subghz->txrx,
-            subghz->last_settings->sound == 0 ? SubGhzSpeakerStateShutdown :
-                                                SubGhzSpeakerStateEnable);
+#else
+        subghz_txrx_set_default_preset(subghz->txrx, subghz->last_settings->frequency);
+#endif
 
         subghz->filter = subghz->last_settings->filter;
         subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);

@@ -230,8 +230,6 @@ static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
 
     variable_item_set_current_value_text(item, combobox_text[index]);
     subghz_txrx_speaker_set_state(subghz->txrx, speaker_value[index]);
-
-    subghz->last_settings->sound = index;
 }
 
 static void subghz_scene_receiver_config_set_bin_raw(VariableItem* item) {
@@ -242,6 +240,7 @@ static void subghz_scene_receiver_config_set_bin_raw(VariableItem* item) {
     subghz->filter = bin_raw_value[index];
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
 
+    // We can set here, but during subghz_last_settings_save filter was changed to ignore BinRAW
     subghz->last_settings->filter = subghz->filter;
 }
 

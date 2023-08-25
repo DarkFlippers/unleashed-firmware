@@ -7,6 +7,8 @@
 #include <lib/subghz/types.h>
 
 #define SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER (-93.0f)
+#define SUBGHZ_LAST_SETTING_SAVE_BIN_RAW true
+#define SUBGHZ_LAST_SETTING_SAVE_PRESET true
 
 typedef struct {
     uint32_t frequency;
@@ -22,7 +24,6 @@ typedef struct {
     bool enable_hopping;
     uint32_t ignore_filter;
     uint32_t filter;
-    uint32_t sound;
     float rssi;
 } SubGhzLastSettings;
 

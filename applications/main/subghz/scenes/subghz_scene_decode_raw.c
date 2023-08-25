@@ -18,7 +18,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_get_cstr(frequency_str),
             furi_string_get_cstr(modulation_str),
             furi_string_get_cstr(history_stat_str),
-            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF,
+            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0);
 
         furi_string_free(frequency_str);
         furi_string_free(modulation_str);
@@ -28,7 +29,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_get_cstr(history_stat_str),
             "",
             "",
-            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF);
+            subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF,
+            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0);
     }
     furi_string_free(history_stat_str);
 }

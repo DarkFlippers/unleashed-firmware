@@ -104,16 +104,14 @@ void subghz_scene_read_raw_on_enter(void* context) {
 
     if(subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateBack) {
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
+#if SUBGHZ_LAST_SETTING_SAVE_PRESET
         if(furi_string_empty(file_name)) {
             subghz_txrx_set_preset_internal(
                 subghz->txrx,
                 subghz->last_settings->frequency,
                 subghz->last_settings->preset_index);
-            subghz_txrx_speaker_set_state(
-                subghz->txrx,
-                subghz->last_settings->sound == 0 ? SubGhzSpeakerStateShutdown :
-                                                    SubGhzSpeakerStateEnable);
         }
+#endif
     }
     subghz_scene_read_raw_update_statusbar(subghz);
 
