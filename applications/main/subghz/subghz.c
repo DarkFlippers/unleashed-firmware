@@ -112,7 +112,9 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     // Open Notification record
     subghz->notifications = furi_record_open(RECORD_NOTIFICATION);
-
+#ifdef SUBGHZ_MEASURE_LOADING
+    uint32_t load_ticks = furi_get_tick();
+#endif
     subghz->txrx = subghz_txrx_alloc();
 
     if(!alloc_for_tx_only) {
@@ -229,6 +231,10 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             subghz->last_settings->rssi = SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_TRIGGER;
         }
     }
+#ifdef SUBGHZ_MEASURE_LOADING
+    load_ticks = furi_get_tick() - load_ticks;
+    FURI_LOG_I(TAG, "Loaded: %ld ms.", load_ticks);
+#endif
     //Init Error_str
     subghz->error_str = furi_string_alloc();
 
