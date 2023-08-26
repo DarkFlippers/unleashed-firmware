@@ -13,13 +13,30 @@ env:
   DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}
   ZIP_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.zip"
   TGZ_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
+  ZIP_TAG: ""
+  TGZ_TAG: ""
 
 jobs:
   build-with-extra-apps:
-    needs: checkout-with-extra-apps
     name: Build release FW
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout FW
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+          clean: true
+
+      - name: Checkout SubBruteForce
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+          clean: true
+          repository: "derskythe/flipperzero-subbrute"
+          path: applications_user/subbrute
+
       - name: Remove other apps
         shell: pwsh # rm to remove problem FAP which includes non-existent files
         run: |
@@ -28,13 +45,13 @@ jobs:
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
 
       - name: Pre Build
-        shell: pwsh
+        shell: bash
         run: |
-          ls -a
           tar -zxvf all-the-apps-extra.tgz
-          Copy-Item -Force -Recurse "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
-          Remove-Item -Force -Recurse "extra_pack_build"
-          Remove-Item -Force -Recurse "build/f7-firmware-C/toolbox/version.*"
+          ls -lha assets/resources
+          cp -rf extra_pack_build/artifacts-extra/* assets/resources/apps/
+          rm -rf extra_pack_build
+          rm -rf build/f7-firmware-C/toolbox/version.*
 
       - name: Build with extra apps
         shell: bash
@@ -42,15 +59,15 @@ jobs:
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
       - name: Post Build
-        shell: pwsh
+        shell: bash
         run: |
           mkdir artifacts-extra-apps
-          Move-Item -Force "dist/f7-C/*" "artifacts-extra-apps/"
+          mv -f dist/f7-C/* artifacts-extra-apps/
           ls -laS artifacts-extra-apps
           ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e"
 
       - name: Bundle Self-update package
-        shell: pwsh
+        shell: bash
         run: |
           cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
           zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
@@ -59,17 +76,6 @@ jobs:
           mv artifacts-default/ ${{ vars.FIRMWARE_VERSION }}
           ls -laS ${{ vars.FIRMWARE_VERSION }}
 
-  updload-artifacts-extra-apps:
-    name: Upload artifacts and create release
-    runs-on: ubuntu-latest
-    needs: build-with-extra-apps
-    env:
-      DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}
-      ZIP_NAME: ""
-      TGZ_NAME: ""
-      ZIP_TAG: ""
-      TGZ_TAG: ""
-    steps:
       - name: Upload production artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -105,23 +111,3 @@ jobs:
             '${{ env.ZIP_NAME }}#${{ env.ZIP_TAG }}' '${{ env.TGZ_NAME }}#${{ env.TGZ_TAG }}' \
             -R ${{ github.repository }}
           gh release edit 'v${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
-
-  checkout-with-extra-apps:
-    name: Checkout with extra apps
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout FW
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
-          clean: true
-
-      - name: Checkout SubBruteForce
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
-          clean: true
-          repository: "derskythe/flipperzero-subbrute"
-          path: applications_user/subbrute
