@@ -31,13 +31,11 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           url: https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
-          dir: ./
+          dir: ${{ github.workspace }}
           filename: all-the-apps-extra.tgz
 
       - name: Pre Build
         run: |
-          # - apt install wget -y
-          # - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
           - tar zxvf all-the-apps-extra.tgz
           - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
           - rm -rf extra_pack_build
