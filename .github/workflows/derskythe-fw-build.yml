@@ -32,7 +32,7 @@ jobs:
         run: |
           ls -a
           tar -zxvf all-the-apps-extra.tgz
-          Copy-Item -Recurse "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
+          Copy-Item -Force -Recurse "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
           Remove-Item -Force -Recurse "extra_pack_build"
           Remove-Item -Force -Recurse "build/f7-firmware-C/toolbox/version.*"
 
