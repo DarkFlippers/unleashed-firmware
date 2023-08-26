@@ -7,18 +7,28 @@ on:
     branches: ["github-actions"]
 
 env:
+  FBT_NO_SYNC: 0
   WORKFLOW_BRANCH_OR_TAG: "dev-cfw"
+  DEV_NAME: "dev"
   FORCE_NO_DIRTY: yes
   URL_FW: "https://github.com/${{ vars.REPO_UNLEASHED }}.git"
   DIST_SUFFIX: "${{ vars.FIRMWARE_VERSION }}"
-  ZIP_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
-  TGZ_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
+  TGZ_NAME_EXTRA_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
+  ZIP_NAME_DEFAULT_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
+  TGZ_NAME_DEFAULT_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
   ARTIFACTS_EXTRA_APPS: "artifacts-extra-apps"
-  TGZ_FULL_NAME: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
-  ZIP_FULL_NAME: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
-  ARTIFACTS_DIR: "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
-  ZIP_TAG: ""
-  TGZ_TAG: ""
+  ARTIFACTS_DEFAULT_APPS: "artifacts-default"
+  # Extra
+  TGZ_FULL_NAME_EXTRA_APPS: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
+  ZIP_FULL_NAME_EXTRA_APPS: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.zip"
+  # Default
+  TGZ_FULL_NAME_DEFAULT_APPS: "artifacts-default/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
+  ZIP_FULL_NAME_DEFAULT_APPS: "artifacts-default/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
+  ARTIFACTS_EXTRA_APPS_DIR: "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ARTIFACTS_DEFAULT_APPS_DIR: "artifacts-default/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ZIP_TAG_DEFAULT_APPS: ""
+  TGZ_TAG_DEFAULT_APPS: ""
+  TGZ_TAG_EXTRA_APPS: ""
 
 jobs:
   build-with-extra-apps:
@@ -48,62 +58,121 @@ jobs:
           Remove-Item -Force -Recurse ./applications/debug -ErrorAction SilentlyContinue
           Remove-Item -Force -Recurse ./applications/examples -ErrorAction SilentlyContinue
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
+          Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz -OutFile all-the-apps-base.tgz
 
-      - name: Pre Build
+      - name: Build dev clean
+        run: |
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+
+      - name: Pre Build default
+        shell: bash
+        run: |
+          echo "List `pwd`"
+          ls -lha
+          tar -zxvf all-the-apps-base.tgz
+          cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+          rm -rf base_pack_build
+          rm -rf all-the-apps-base.tgz
+
+      - name: Build FIRMWARE for default
+        shell: bash
+        run: |
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+
+      - name: Post Build default
+        shell: bash
+        run: |
+          mkdir ${{ env.ARTIFACTS_DEFAULT_APPS }}
+          mv -f dist/f7-C/* ${{ env.ARTIFACTS_DEFAULT_APPS }}/
+          echo 'List ${{ env.ARTIFACTS_DEFAULT_APPS }}'
+          ls -laS ${{ env.ARTIFACTS_DEFAULT_APPS }}
+          echo 'List ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}' 
+          ls -laS "${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}"
+
+      - name: Pre Build extra apps
         shell: bash
         run: |
           echo "List `pwd`"
           ls -lha
           tar -zxvf all-the-apps-extra.tgz
           echo "List assets/resources"
-          ls -lha assets/resources
-          mkdir -p assets/resources/apps/ 2>/dev/null || true
           cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
           rm -rf extra_pack_build
           rm -rf build/f7-firmware-C/toolbox/version.*
 
-      - name: Build FIRMWARE
+      - name: Build FIRMWARE for extra apps
         shell: bash
         run: |
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
-      - name: Post Build
+      - name: Post Build extra apps
         shell: bash
         run: |
           mkdir ${{ env.ARTIFACTS_EXTRA_APPS }}
           mv -f dist/f7-C/* ${{ env.ARTIFACTS_EXTRA_APPS }}/
           echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}'
           ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
-          echo 'List ${{ env.ARTIFACTS_DIR }}' 
-          ls -laS "${{ env.ARTIFACTS_DIR }}"
+          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}' 
+          ls -laS "${{ env.ARTIFACTS_EXTRA_APPS_DIR }}"
 
-      - name: Bundle Self-update package
+      - name: "Bundle self-update packages"
         shell: bash
         run: |
-          cp ${{ env.TGZ_FULL_NAME }} ${{ env.ARTIFACTS_EXTRA_APPS }}
-          zip -r ${{ env.ZIP_FULL_NAME }} ${{ env.ARTIFACTS_DIR }}
-          rm -rf ${{ env.ARTIFACTS_DIR }}
-          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}' 
+          cp ${{ env.TGZ_FULL_NAME_EXTRA_APPS }} .
+          cp ${{ env.TGZ_FULL_NAME_DEFAULT_APPS }} .
+          zip -r ${{ env.TGZ_FULL_NAME_EXTRA_APPS }} ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}
+          zip -r ${{ env.TGZ_FULL_NAME_DEFAULT_APPS }} ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
+          tar -czpf artifacts-default/flipper-z-any-scripts-${{ vars.FIRMWARE_VERSION }}.tgz scripts
+          rm -rf ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}
+          rm -rf ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
+          ls -laS ${{ env.ARTIFACTS_DEFAULT_APPS }}
           ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
+          mv ${{ env.ARTIFACTS_DEFAULT_APPS }}/ ${{ vars.FIRMWARE_VERSION }}
+          ls -laS ${{ vars.FIRMWARE_VERSION }}
 
       - name: Upload production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: all-files
           path: |
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.zip
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.json
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.elf
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.dfu
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.bin
+            - ${{ vars.FIRMWARE_VERSION }}/*.tgz
+            - ${{ vars.FIRMWARE_VERSION }}/*.zip
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}.tgz
+      #      - name: Bundle Self-update package
+      #        shell: bash
+      #        run: |
+      #          cp ${{ env.TGZ_FULL_NAME_EXTRA_APPS }} .
+      #          cp ${{ env.TGZ_FULL_NAME_DEFAULT_APPS }} .
+      #          rm -rf ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
+      #          mv ${{ env.ARTIFACTS_DEFAULT_APPS }}/ ${{ env.DEV_NAME }}
+      #          ls -laS ${{ env.DEV_NAME }}
+
+      #          zip -r ${{ env.ZIP_FULL_NAME_EXTRA_APPS }} ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}
+      #          zip -r ${{ env.ZIP_FULL_NAME_DEFAULT_APPS }} ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
+      #          tar czpf artifacts-default/flipper-z-any-scripts-${{ vars.FIRMWARE_VERSION }}.tgz scripts
+      #          rm -rf ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}
+      #          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}'
+      #          ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
+
+      #      - name: Upload production artifacts
+      #        uses: actions/upload-artifact@v3
+      #        with:
+      #          name: all-files
+      #          path: |
+      #            - ${{ env.DEV_NAME }}/*.tgz
+      #            - ${{ env.DEV_NAME }}/*.zip
+      #            - ${{ env.DEV_NAME }}/*.json
+      #            - ${{ env.DEV_NAME }}/*.elf
+      #            - ${{ env.DEV_NAME }}/*.dfu
+      #            - ${{ env.DEV_NAME }}/*.bin
+      #            - ${{ env.TGZ_FULL_NAME_EXTRA_APPS }}
 
       - name: Create tags for assets
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
         run: |
-          ./.github/create-assets-tag.ps1 '${{ env.ZIP_NAME }}' '${{ env.TGZ_NAME }}' '${{ env.ARTIFACTS_EXTRA_APPS }}' 1 | %{ Write-Output($_) >> $Env:GITHUB_ENV }
+          ./.github/create-assets-tag.ps1 '${{ env.TGZ_NAME_EXTRA_APPS }}' '${{ env.ZIP_NAME_DEFAULT_APPS }}' '${{ env.TGZ_NAME_DEFAULT_APPS }}' '${{ vars.FIRMWARE_VERSION }}' 1 | %{ Write-Output($_) >> $Env:GITHUB_ENV }
 
       - name: Create assets and release
         if: ${{ success() }}
@@ -112,6 +181,8 @@ jobs:
         shell: bash
         run: |
           gh release upload '${{ vars.FIRMWARE_VERSION }}' --clobber \
-            '${{ env.ZIP_NAME }}#${{ env.ZIP_TAG }}' '${{ env.TGZ_NAME }}#${{ env.TGZ_TAG }}' \
+            '${{ env.ZIP_NAME_DEFAULT_APPS }}#${{ env.ZIP_TAG_DEFAULT_APPS }}' \
+            '${{ env.TGZ_NAME_DEFAULT_APPS }}#${{ env.ZIP_TAG_DEFAULT_APPS }}' \
+            '${{ env.TGZ_NAME_EXTRA_APPS }}#${{ env.TGZ_TAG_EXTRA_APPS }}' \
             -R ${{ github.repository }}
           gh release edit '${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
