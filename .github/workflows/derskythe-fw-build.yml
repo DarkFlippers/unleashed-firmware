@@ -4,21 +4,21 @@ run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
 on:
   workflow_dispatch:
   push:
-    branches: ["github-actions"]
+    branches: [ "github-actions" ]
 
 env:
   WORKFLOW_BRANCH_OR_TAG: "dev-cfw"
-  FBT_TOOLS_CUSTOM_LINK: "fbt_link"
   FORCE_NO_DIRTY: yes
-  DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}
-  ZIP_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.zip"
-  TGZ_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
+  URL_FW: 'https://github.com/${{ vars.REPO_UNLEASHED }}.git'
+  DIST_SUFFIX: '${{ vars.FIRMWARE_VERSION }}'
+  ZIP_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
+  TGZ_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
   ZIP_TAG: ''
   TGZ_TAG: ''
 
 jobs:
   build-with-extra-apps:
-    needs: checkout-with-extra-apps
+    #needs: checkout-with-extra-apps
     name: Build release FW
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +50,8 @@ jobs:
         run: |
           ls -lha
           tar -zxvf all-the-apps-extra.tgz
-          ls -lha assets/resources/apps
+          ls -lha assets/resources
+          mkdir -p assets/resources/apps/ 2>/dev/null || true
           cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
           rm -rf extra_pack_build
           rm -rf build/f7-firmware-C/toolbox/version.*
@@ -66,25 +67,17 @@ jobs:
           mkdir artifacts-extra-apps
           mv -f dist/f7-C/* artifacts-extra-apps/
           ls -laS artifacts-extra-apps
-          ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e"
+          ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
 
       - name: Bundle Self-update package
         shell: bash
         run: |
           cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
-          zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
+          zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}
           rm -rf artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}
           ls -laS artifacts-extra-apps
-          mv artifacts-default/ ${{ vars.FIRMWARE_VERSION }}
           ls -laS ${{ vars.FIRMWARE_VERSION }}
 
-  updload-artifacts-extra-apps:
-    name: Upload artifacts and create release
-    runs-on: ubuntu-latest
-    needs: build-with-extra-apps
-    env:
-      DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}
-    steps:
       - name: Upload production artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -119,24 +112,21 @@ jobs:
           gh release upload '${{ vars.FIRMWARE_VERSION }}' --clobber \
             '${{ env.ZIP_NAME }}#${{ env.ZIP_TAG }}' '${{ env.TGZ_NAME }}#${{ env.TGZ_TAG }}' \
             -R ${{ github.repository }}
-          gh release edit 'v${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
+          gh release edit '${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
 
-  checkout-with-extra-apps:
-    name: Checkout with extra apps
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout FW
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
-          clean: true
-
-      - name: Checkout SubBruteForce
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
-          clean: true
-          repository: "derskythe/flipperzero-subbrute"
-          path: applications_user/subbrute
+#
+#      - name: Checkout FW
+#        uses: actions/checkout@v3
+#        with:
+#          submodules: true
+#          fetch-depth: 0
+#          clean: true
+#
+#      - name: Checkout SubBruteForce
+#        uses: actions/checkout@v3
+#        with:
+#          submodules: true
+#          fetch-depth: 0
+#          clean: true
+#          repository: "derskythe/flipperzero-subbrute"
+#          path: applications_user/subbrute
