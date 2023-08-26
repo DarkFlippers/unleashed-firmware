@@ -49,8 +49,8 @@ jobs:
         shell: bash
         run: |
           tar -zxvf all-the-apps-extra.tgz
-          ls -lha assets/resources
-          cp -rf extra_pack_build/artifacts-extra/* assets/resources/apps/
+          ls -lha assets/resources/apps
+          cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
           rm -rf extra_pack_build
           rm -rf build/f7-firmware-C/toolbox/version.*
 
