@@ -30,34 +30,34 @@ jobs:
       - name: Pre Build
         shell: pwsh
         run: |
-          - ls -a
-          - tar -zxvf all-the-apps-extra.tgz
-          - Copy-Item -Recurse "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
-          - Remove-Item -Force -Recurse "extra_pack_build"
-          - Remove-Item -Force -Recurse "build/f7-firmware-C/toolbox/version.*"
+          ls -a
+          tar -zxvf all-the-apps-extra.tgz
+          Copy-Item -Recurse "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
+          Remove-Item -Force -Recurse "extra_pack_build"
+          Remove-Item -Force -Recurse "build/f7-firmware-C/toolbox/version.*"
 
       - name: Build with extra apps
         shell: bash
         run: |
-          - ./fbt COMPACT=1 DEBUG=0 updater_package
+          ./fbt COMPACT=1 DEBUG=0 updater_package
 
       - name: Post Build
         shell: pwsh
         run: |
-          - mkdir artifacts-extra-apps
-          - Move-Item -Force "dist/f7-C/*" "artifacts-extra-apps/"
-          - ls -laS artifacts-extra-apps
-          - ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e"
+          mkdir artifacts-extra-apps
+          Move-Item -Force "dist/f7-C/*" "artifacts-extra-apps/"
+          ls -laS artifacts-extra-apps
+          ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e"
 
       - name: Bundle Self-update package
         shell: pwsh
         run: |
-          - cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
-          - zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
-          - rm -rf artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}
-          - ls -laS artifacts-extra-apps
-          - mv artifacts-default/ ${{ vars.FIRMWARE_VERSION }}
-          - ls -laS ${{ vars.FIRMWARE_VERSION }}
+          cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
+          zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
+          rm -rf artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}
+          ls -laS artifacts-extra-apps
+          mv artifacts-default/ ${{ vars.FIRMWARE_VERSION }}
+          ls -laS ${{ vars.FIRMWARE_VERSION }}
 
   updload-artifacts-extra-apps:
     name: Upload artifacts and create release
