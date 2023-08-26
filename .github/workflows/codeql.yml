@@ -85,7 +85,7 @@ jobs:
           upload-database: false
           upload: "failure-only" # disable the upload here - we will upload in a different action
 
-      - name: filter-sarif
+      - name: Filter dirs for SARIF
         uses: advanced-security/filter-sarif@v1
         with:
           # filter out all test files unless they contain a sql-injection vulnerability
