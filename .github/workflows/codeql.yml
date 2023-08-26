@@ -68,14 +68,7 @@ jobs:
         uses: github/codeql-action/resolve-environment@v2
         with:
           language: ${{ matrix.language }}
-
           #debug: true
-          # If you wish to specify custom queries, you can do so here or in a config file.
-          # By default, queries listed here will override any specified in a config file.
-          # Prefix the list here with "+" to use these queries and those in the config file.
-
-          # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-          # queries: security-extended,security-and-quality
 
       - name: Build Firmware
         shell: bash
@@ -90,7 +83,18 @@ jobs:
           category: "${{ env.LANG_CATEGORY }}"
           output: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
           upload-database: false
-          upload: "failure-only"
+          upload: "failure-only" # disable the upload here - we will upload in a different action
+
+      - name: filter-sarif
+        uses: advanced-security/filter-sarif@v1
+        with:
+          # filter out all test files unless they contain a sql-injection vulnerability
+          patterns: |
+            -build/*
+            -dist/*
+            -toolchain/*
+          input: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
+          output: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
 
       - name: Upload CodeQL SARIF
         uses: github/codeql-action/upload-sarif@v2
@@ -98,3 +102,11 @@ jobs:
         with:
           category: "${{ env.LANG_CATEGORY }}"
           sarif_file: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
+      
+      # optional: for debugging the uploaded sarif
+      # - name: Upload loc as a Build Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: sarif-results
+      #     path: sarif-results
+      #     retention-days: 1
