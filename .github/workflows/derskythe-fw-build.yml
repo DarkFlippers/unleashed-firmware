@@ -56,7 +56,7 @@ jobs:
           - ls -laS ${{ vars.FIRMWARE_VERSION }}
 
   updload-artifacts-extra-apps:
-    nane: Upload artifacts and create release
+    name: Upload artifacts and create release
     runs-on: ubuntu-latest
     needs: build-with-extra-apps
     env:
