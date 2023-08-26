@@ -4,17 +4,21 @@ run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
 on:
   workflow_dispatch:
   push:
-    branches: [ "github-actions" ]
+    branches: ["github-actions"]
 
 env:
   WORKFLOW_BRANCH_OR_TAG: "dev-cfw"
   FORCE_NO_DIRTY: yes
-  URL_FW: 'https://github.com/${{ vars.REPO_UNLEASHED }}.git'
-  DIST_SUFFIX: '${{ vars.FIRMWARE_VERSION }}'
+  URL_FW: "https://github.com/${{ vars.REPO_UNLEASHED }}.git"
+  DIST_SUFFIX: "${{ vars.FIRMWARE_VERSION }}"
   ZIP_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
   TGZ_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
-  ZIP_TAG: ''
-  TGZ_TAG: ''
+  ARTIFACTS_EXTRA_APPS: "artifacts-extra-apps"
+  TGZ_FULL_NAME: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
+  ZIP_FULL_NAME: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
+  ARTIFACTS_DIR: "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ZIP_TAG: ""
+  TGZ_TAG: ""
 
 jobs:
   build-with-extra-apps:
@@ -48,15 +52,17 @@ jobs:
       - name: Pre Build
         shell: bash
         run: |
+          echo "List `pwd`"
           ls -lha
           tar -zxvf all-the-apps-extra.tgz
+          echo "List assets/resources"
           ls -lha assets/resources
           mkdir -p assets/resources/apps/ 2>/dev/null || true
           cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
           rm -rf extra_pack_build
           rm -rf build/f7-firmware-C/toolbox/version.*
 
-      - name: Build with extra apps
+      - name: Build FIRMWARE
         shell: bash
         run: |
           ./fbt COMPACT=1 DEBUG=0 updater_package
@@ -64,44 +70,40 @@ jobs:
       - name: Post Build
         shell: bash
         run: |
-          mkdir artifacts-extra-apps
-          mv -f dist/f7-C/* artifacts-extra-apps/
-          ls -laS artifacts-extra-apps
-          ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
+          mkdir ${{ env.ARTIFACTS_EXTRA_APPS }}
+          mv -f dist/f7-C/* ${{ env.ARTIFACTS_EXTRA_APPS }}/
+          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}'
+          ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
+          echo 'List ${{ env.ARTIFACTS_DIR }}' 
+          ls -laS "${{ env.ARTIFACTS_DIR }}"
 
       - name: Bundle Self-update package
         shell: bash
         run: |
-          cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
-          zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}
-          rm -rf artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}
-          ls -laS artifacts-extra-apps
-          ls -laS ${{ vars.FIRMWARE_VERSION }}
+          cp ${{ env.TGZ_FULL_NAME }} ${{ env.ARTIFACTS_EXTRA_APPS }}
+          zip -r ${{ env.ZIP_FULL_NAME }} ${{ env.ARTIFACTS_DIR }}
+          rm -rf ${{ env.ARTIFACTS_DIR }}
+          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}' 
+          ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
 
       - name: Upload production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: all-files
           path: |
-            - ${{ vars.FIRMWARE_VERSION }}/*.tgz
-            - ${{ vars.FIRMWARE_VERSION }}/*.zip
-            - ${{ vars.FIRMWARE_VERSION }}/*.json
-            - ${{ vars.FIRMWARE_VERSION }}/*.elf
-            - ${{ vars.FIRMWARE_VERSION }}/*.dfu
-            - ${{ vars.FIRMWARE_VERSION }}/*.bin
-
-      # - name: Export to env file name
-      #   shell: pwsh
-      #   run: |
-      #     Write-Output ('ZIP_NAME={0}' -f 'flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.zip') >> $env:GITHUB_ENV
-      #     Write-Output ('TGZ_NAME={0}' -f 'flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz' ) >> $env:GITHUB_ENV
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.zip
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.json
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.elf
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.dfu
+            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.bin
 
       - name: Create tags for assets
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
         run: |
-          ./.github/create-assets-tag.ps1 '${{ env.ZIP_NAME }}' '${{ env.TGZ_NAME }}' '${{ vars.FIRMWARE_VERSION }}' 1 | %{ Write-Output($_) >> $Env:GITHUB_ENV }
+          ./.github/create-assets-tag.ps1 '${{ env.ZIP_NAME }}' '${{ env.TGZ_NAME }}' '${{ env.ARTIFACTS_EXTRA_APPS }}' 1 | %{ Write-Output($_) >> $Env:GITHUB_ENV }
 
       - name: Create assets and release
         if: ${{ success() }}
@@ -113,20 +115,3 @@ jobs:
             '${{ env.ZIP_NAME }}#${{ env.ZIP_TAG }}' '${{ env.TGZ_NAME }}#${{ env.TGZ_TAG }}' \
             -R ${{ github.repository }}
           gh release edit '${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
-
-#
-#      - name: Checkout FW
-#        uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          fetch-depth: 0
-#          clean: true
-#
-#      - name: Checkout SubBruteForce
-#        uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          fetch-depth: 0
-#          clean: true
-#          repository: "derskythe/flipperzero-subbrute"
-#          path: applications_user/subbrute
