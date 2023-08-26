@@ -13,8 +13,8 @@ env:
   DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}
   ZIP_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.zip"
   TGZ_NAME: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
-  ZIP_TAG: ""
-  TGZ_TAG: ""
+  ZIP_TAG: ''
+  TGZ_TAG: ''
 
 jobs:
   build-with-extra-apps:
@@ -48,6 +48,7 @@ jobs:
       - name: Pre Build
         shell: bash
         run: |
+          ls -lha
           tar -zxvf all-the-apps-extra.tgz
           ls -lha assets/resources/apps
           cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
