@@ -193,11 +193,11 @@ int32_t lfrfid_app(void* p) {
                 dolphin_deed(DolphinDeedRfidEmulate);
             } else {
                 // TODO: exit properly
+                view_dispatcher_stop(app->view_dispatcher);
                 lfrfid_free(app);
                 return 0;
             }
         }
-
     } else {
         view_dispatcher_attach_to_gui(
             app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
