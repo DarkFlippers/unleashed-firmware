@@ -30,7 +30,7 @@ bool subghz_txrx_gen_data_protocol(
         subghz_receiver_search_decoder_base_by_name(instance->receiver, protocol_name);
 
     if(instance->decoder_result == NULL) {
-        //TODO: Error
+        //TODO FL-3502: Error
         // furi_string_set(error_str, "Protocol not\nfound!");
         // scene_manager_next_scene(scene_manager, SubGhzSceneShowErrorSub);
         FURI_LOG_E(TAG, "Protocol not found!");
@@ -199,7 +199,7 @@ bool subghz_txrx_gen_faac_slh_protocol(
     uint32_t frequency,
     uint32_t serial,
     uint8_t btn,
-    uint16_t cnt,
+    uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name) {
     SubGhzTxRx* txrx = context;

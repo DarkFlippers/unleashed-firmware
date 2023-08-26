@@ -174,7 +174,7 @@ bool WIEGAND::DoWiegandConversion() {
                     return false;
                 }
 
-                // TODO: Handle validation failure case!
+                // TODO FL-3490: Handle validation failure case!
             } else if(4 == _bitCount) {
                 // 4-bit Wiegand codes have no data integrity check so we just
                 // read the LOW nibble.

@@ -419,10 +419,12 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show) {
         ArchiveBrowserViewModel * model,
         {
             if(show) {
+                model->menu = true;
+                model->menu_idx = 0;
+                menu_array_reset(model->context_menu);
                 if(archive_is_item_in_array(model, model->item_idx)) {
-                    model->menu = true;
-                    model->menu_idx = 0;
-                    menu_array_reset(model->context_menu);
+                    model->menu_file_manage = false;
+
                     ArchiveFile_t* selected =
                         files_array_get(model->files, model->item_idx - model->array_offset);
                     selected->fav =
@@ -430,7 +432,10 @@ void archive_show_file_menu(ArchiveBrowserView* browser, bool show) {
                 }
             } else {
                 model->menu = false;
+                model->menu_file_manage = false;
                 model->menu_idx = 0;
+                model->menu_can_switch = false;
+                menu_array_reset(model->context_menu);
             }
         },
         true);

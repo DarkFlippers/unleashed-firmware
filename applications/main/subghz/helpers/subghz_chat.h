@@ -1,5 +1,6 @@
 #pragma once
 #include "../subghz_i.h"
+#include <lib/subghz/devices/devices.h>
 #include <cli/cli.h>
 
 typedef struct SubGhzChatWorker SubGhzChatWorker;
@@ -20,7 +21,10 @@ typedef struct {
 
 SubGhzChatWorker* subghz_chat_worker_alloc(Cli* cli);
 void subghz_chat_worker_free(SubGhzChatWorker* instance);
-bool subghz_chat_worker_start(SubGhzChatWorker* instance, uint32_t frequency);
+bool subghz_chat_worker_start(
+    SubGhzChatWorker* instance,
+    const SubGhzDevice* device,
+    uint32_t frequency);
 void subghz_chat_worker_stop(SubGhzChatWorker* instance);
 bool subghz_chat_worker_is_running(SubGhzChatWorker* instance);
 SubGhzChatEvent subghz_chat_worker_get_event_chat(SubGhzChatWorker* instance);

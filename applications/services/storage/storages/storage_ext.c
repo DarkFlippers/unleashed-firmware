@@ -100,7 +100,7 @@ FS_Error sd_unmount_card(StorageData* storage) {
     storage->status = StorageStatusNotReady;
     error = FR_DISK_ERR;
 
-    // TODO do i need to close the files?
+    // TODO FL-3522: do i need to close the files?
     f_mount(0, sd_data->path, 0);
 
     return storage_ext_parse_error(error);

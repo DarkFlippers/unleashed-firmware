@@ -38,7 +38,7 @@ static bool flipper_update_mount_sd() {
 }
 
 static bool flipper_update_init() {
-    // TODO: Configure missing peripherals properly
+    // TODO FL-3504: Configure missing peripherals properly
     furi_hal_bus_enable(FuriHalBusHSEM);
     furi_hal_bus_enable(FuriHalBusIPCC);
     furi_hal_bus_enable(FuriHalBusRNG);

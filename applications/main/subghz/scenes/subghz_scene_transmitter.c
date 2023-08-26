@@ -38,6 +38,8 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
         furi_string_free(modulation_str);
         furi_string_free(key_str);
     }
+    subghz_view_transmitter_set_radio_device_type(
+        subghz->subghz_transmitter, subghz_txrx_radio_device_get(subghz->txrx));
     return ret;
 }
 

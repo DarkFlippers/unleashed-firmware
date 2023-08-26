@@ -88,7 +88,7 @@ bool subghz_txrx_gen_faac_slh_protocol(
     uint32_t frequency,
     uint32_t serial,
     uint8_t btn,
-    uint16_t cnt,
+    uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name);
 

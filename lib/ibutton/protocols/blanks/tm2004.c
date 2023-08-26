@@ -21,7 +21,7 @@ bool tm2004_write(OneWireHost* host, const uint8_t* data, size_t data_size) {
 
         onewire_host_write(host, data[i]);
         answer = onewire_host_read(host);
-        // TODO: check answer CRC
+        // TODO FL-3529: check answer CRC
 
         // pulse indicating that data is correct
         furi_delay_us(600);
@@ -37,6 +37,6 @@ bool tm2004_write(OneWireHost* host, const uint8_t* data, size_t data_size) {
         }
     }
 
-    // TODO: Better error handling
+    // TODO FL-3529: Better error handling
     return i == data_size;
 }

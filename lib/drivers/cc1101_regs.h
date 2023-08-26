@@ -14,7 +14,7 @@ extern "C" {
 #define CC1101_IFDIV 0x400
 
 /* IO Bus constants */
-#define CC1101_TIMEOUT 500
+#define CC1101_TIMEOUT 250
 
 /* Bits and pieces */
 #define CC1101_READ (1 << 7) /** Read Bit */

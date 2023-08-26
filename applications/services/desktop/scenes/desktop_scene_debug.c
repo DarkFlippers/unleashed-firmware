@@ -14,8 +14,6 @@ void desktop_scene_debug_callback(DesktopEvent event, void* context) {
 void desktop_scene_debug_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
 
-    desktop_debug_get_dolphin_data(desktop->debug_view);
-
     desktop_debug_set_callback(desktop->debug_view, desktop_scene_debug_callback, desktop);
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdDebug);
 }
@@ -32,24 +30,6 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
             dolphin_flush(dolphin);
             consumed = true;
             break;
-
-        case DesktopDebugEventDeed:
-            dolphin_deed(DolphinDeedTestRight);
-            desktop_debug_get_dolphin_data(desktop->debug_view);
-            consumed = true;
-            break;
-
-        case DesktopDebugEventWrongDeed:
-            dolphin_deed(DolphinDeedTestLeft);
-            desktop_debug_get_dolphin_data(desktop->debug_view);
-            consumed = true;
-            break;
-
-        case DesktopDebugEventSaveState:
-            dolphin_flush(dolphin);
-            consumed = true;
-            break;
-
         default:
             break;
         }
@@ -60,6 +40,5 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
 }
 
 void desktop_scene_debug_on_exit(void* context) {
-    Desktop* desktop = (Desktop*)context;
-    desktop_debug_reset_screen_idx(desktop->debug_view);
+    UNUSED(context);
 }

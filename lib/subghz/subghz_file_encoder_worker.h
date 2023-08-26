@@ -2,6 +2,10 @@
 
 #include <furi_hal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*SubGhzFileEncoderWorkerCallbackEnd)(void* context);
 
 typedef struct SubGhzFileEncoderWorker SubGhzFileEncoderWorker;
@@ -47,9 +51,14 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context);
 /** 
  * Start SubGhzFileEncoderWorker.
  * @param instance Pointer to a SubGhzFileEncoderWorker instance
+ * @param file_path File path
+ * @param radio_device_name Radio device name
  * @return bool - true if ok
  */
-bool subghz_file_encoder_worker_start(SubGhzFileEncoderWorker* instance, const char* file_path);
+bool subghz_file_encoder_worker_start(
+    SubGhzFileEncoderWorker* instance,
+    const char* file_path,
+    const char* radio_device_name);
 
 /** 
  * Stop SubGhzFileEncoderWorker
@@ -63,3 +72,7 @@ void subghz_file_encoder_worker_stop(SubGhzFileEncoderWorker* instance);
  * @return bool - true if running
  */
 bool subghz_file_encoder_worker_is_running(SubGhzFileEncoderWorker* instance);
+
+#ifdef __cplusplus
+}
+#endif

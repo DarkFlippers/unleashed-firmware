@@ -22,6 +22,7 @@ static ArchiveApp* archive_alloc() {
     ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
     archive->fav_move_str = furi_string_alloc();
+    archive->dst_path = furi_string_alloc();
 
     archive->scene_manager = scene_manager_alloc(&archive_scene_handlers, archive);
     archive->view_dispatcher = view_dispatcher_alloc();
@@ -82,6 +83,7 @@ void archive_free(ArchiveApp* archive) {
 
     browser_free(archive->browser);
     furi_string_free(archive->fav_move_str);
+    furi_string_free(archive->dst_path);
 
     furi_record_close(RECORD_DIALOGS);
     archive->dialogs = NULL;

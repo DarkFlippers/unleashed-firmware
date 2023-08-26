@@ -39,6 +39,9 @@ void subrem_scene_remote_on_enter(void* context) {
     SubGhzRemoteApp* app = context;
 
     subrem_view_remote_update_data_labels(app->subrem_remote_view, app->map_preset->subs_preset);
+    subrem_view_remote_set_radio(
+        app->subrem_remote_view,
+        subghz_txrx_radio_device_get(app->txrx) != SubGhzRadioDeviceTypeInternal);
 
     subrem_view_remote_set_callback(app->subrem_remote_view, subrem_scene_remote_callback, app);
 
@@ -80,7 +83,7 @@ bool subrem_scene_remote_on_event(void* context, SceneManagerEvent event) {
             } else {
                 subrem_view_remote_set_state(
                     app->subrem_remote_view, SubRemViewRemoteStateIdle, 0);
-                notification_message(app->notifications, &sequence_blink_stop);
+                notification_message(app->notifications, &sequence_blink_red_100);
             }
             return true;
         } else if(event.event == SubRemCustomEventViewRemoteForcedStop) {

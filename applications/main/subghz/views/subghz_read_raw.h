@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gui/view.h>
+#include "../helpers/subghz_types.h"
 #include "../helpers/subghz_custom_event.h"
 
 #define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
@@ -35,6 +36,10 @@ void subghz_read_raw_add_data_statusbar(
     SubGhzReadRAW* instance,
     const char* frequency_str,
     const char* preset_str);
+
+void subghz_read_raw_set_radio_device_type(
+    SubGhzReadRAW* instance,
+    SubGhzRadioDeviceType device_type);
 
 void subghz_read_raw_update_sample_write(SubGhzReadRAW* instance, size_t sample);
 

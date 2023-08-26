@@ -14,7 +14,7 @@ static void loader_cli_print_usage() {
 }
 
 static void loader_cli_list() {
-    printf("Applications:\r\n");
+    printf("Apps:\r\n");
     for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
         printf("\t%s\r\n", FLIPPER_APPS[i].name);
     }
@@ -28,7 +28,7 @@ static void loader_cli_info(Loader* loader) {
     if(!loader_is_locked(loader)) {
         printf("No application is running\r\n");
     } else {
-        // TODO: print application name ???
+        // TODO FL-3513: print application name ???
         printf("Application is running\r\n");
     }
 }

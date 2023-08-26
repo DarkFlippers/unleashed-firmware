@@ -399,7 +399,7 @@ static FS_Error storage_process_common_fs_info(
 }
 
 /****************** Raw SD API ******************/
-// TODO think about implementing a custom storage API to split that kind of api linkage
+// TODO FL-3521: think about implementing a custom storage API to split that kind of api linkage
 #include "storages/storage_ext.h"
 
 static FS_Error storage_process_sd_format(Storage* app) {

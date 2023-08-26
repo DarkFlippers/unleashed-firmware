@@ -22,6 +22,12 @@ class Main(App):
         self.parser_set = self.subparsers.add_parser("set", help="Set Option Bytes")
         self._add_args(self.parser_set)
         self.parser_set.set_defaults(func=self.set)
+        # Set command
+        self.parser_recover = self.subparsers.add_parser(
+            "recover", help="Recover Option Bytes"
+        )
+        self._add_args(self.parser_recover)
+        self.parser_recover.set_defaults(func=self.recover)
 
     def _add_args(self, parser):
         parser.add_argument(
@@ -74,6 +80,20 @@ class Main(App):
             return_code = 0
 
         return return_code
+
+    def recover(self):
+        self.logger.info("Setting Option Bytes")
+
+        # OpenOCD
+        openocd = OpenOCDProgrammer(
+            self.args.interface,
+            self.args.port_base,
+            self.args.serial,
+        )
+
+        openocd.option_bytes_recover()
+
+        return 0
 
 
 if __name__ == "__main__":

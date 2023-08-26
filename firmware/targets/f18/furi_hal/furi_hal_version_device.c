@@ -5,17 +5,21 @@ bool furi_hal_version_do_i_belong_here() {
 }
 
 const char* furi_hal_version_get_model_name() {
-    return "Komi";
+    return "Flipper Nano";
 }
 
 const char* furi_hal_version_get_model_code() {
-    return "N/A";
+    return "FN.1";
 }
 
 const char* furi_hal_version_get_fcc_id() {
-    return "N/A";
+    return "Pending";
 }
 
 const char* furi_hal_version_get_ic_id() {
-    return "N/A";
+    return "Pending";
+}
+
+const char* furi_hal_version_get_mic_id() {
+    return "Pending";
 }

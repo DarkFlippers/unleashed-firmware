@@ -14,11 +14,9 @@ const GpioPin gpio_vibro = {.port = VIBRO_GPIO_Port, .pin = VIBRO_Pin};
 const GpioPin gpio_ibutton = {.port = iBTN_GPIO_Port, .pin = iBTN_Pin};
 
 const GpioPin gpio_cc1101_g0 = {.port = CC1101_G0_GPIO_Port, .pin = CC1101_G0_Pin};
-const GpioPin gpio_cc1101_g0_ext = {.port = GPIOB, .pin = LL_GPIO_PIN_2};
 const GpioPin gpio_rf_sw_0 = {.port = RF_SW_0_GPIO_Port, .pin = RF_SW_0_Pin};
 
 const GpioPin gpio_subghz_cs = {.port = CC1101_CS_GPIO_Port, .pin = CC1101_CS_Pin};
-const GpioPin gpio_subghz_cs_ext = {.port = GPIOA, .pin = LL_GPIO_PIN_4};
 const GpioPin gpio_display_cs = {.port = DISPLAY_CS_GPIO_Port, .pin = DISPLAY_CS_Pin};
 const GpioPin gpio_display_rst_n = {.port = DISPLAY_RST_GPIO_Port, .pin = DISPLAY_RST_Pin};
 const GpioPin gpio_display_di = {.port = DISPLAY_DI_GPIO_Port, .pin = DISPLAY_DI_Pin};
@@ -39,9 +37,6 @@ const GpioPin gpio_spi_d_sck = {.port = SPI_D_SCK_GPIO_Port, .pin = SPI_D_SCK_Pi
 const GpioPin gpio_spi_r_miso = {.port = SPI_R_MISO_GPIO_Port, .pin = SPI_R_MISO_Pin};
 const GpioPin gpio_spi_r_mosi = {.port = SPI_R_MOSI_GPIO_Port, .pin = SPI_R_MOSI_Pin};
 const GpioPin gpio_spi_r_sck = {.port = SPI_R_SCK_GPIO_Port, .pin = SPI_R_SCK_Pin};
-const GpioPin gpio_spi_r_miso_ext = {.port = GPIOA, .pin = LL_GPIO_PIN_6};
-const GpioPin gpio_spi_r_mosi_ext = {.port = GPIOA, .pin = LL_GPIO_PIN_7};
-const GpioPin gpio_spi_r_sck_ext = {.port = GPIOB, .pin = LL_GPIO_PIN_3};
 
 const GpioPin gpio_ext_pc0 = {.port = GPIOC, .pin = LL_GPIO_PIN_0};
 const GpioPin gpio_ext_pc1 = {.port = GPIOC, .pin = LL_GPIO_PIN_1};
@@ -122,19 +117,23 @@ void furi_hal_resources_init_early() {
 
     furi_hal_resources_init_input_pins(GpioModeInput);
 
+    // Explicit, surviving reset, pulls
+    LL_PWR_EnablePUPDCfg();
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_8); // gpio_vibro
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_8); // gpio_speaker
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_9); // gpio_infrared_tx
+
     // SD Card stepdown control
     furi_hal_gpio_write(&gpio_periph_power, 1);
     furi_hal_gpio_init(&gpio_periph_power, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 
     // Display pins
-    furi_hal_gpio_write(&gpio_display_rst_n, 1);
+    furi_hal_gpio_write(&gpio_display_rst_n, 0);
     furi_hal_gpio_init_simple(&gpio_display_rst_n, GpioModeOutputPushPull);
+    LL_PWR_EnableGPIOPullUp(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_0); // gpio_display_rst_n
+    furi_hal_gpio_write(&gpio_display_di, 0);
     furi_hal_gpio_init_simple(&gpio_display_di, GpioModeOutputPushPull);
-
-    // Alternative pull configuration for shutdown
-    SET_BIT(PWR->PUCRB, DISPLAY_RST_Pin);
-    CLEAR_BIT(PWR->PDCRB, DISPLAY_RST_Pin);
-    SET_BIT(PWR->CR3, PWR_CR3_APC);
+    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_1); // gpio_display_di
 
     // Hard reset USB
     furi_hal_gpio_write(&gpio_usb_dm, 1);
@@ -175,19 +174,6 @@ void furi_hal_resources_deinit_early() {
 void furi_hal_resources_init() {
     // Button pins
     furi_hal_resources_init_input_pins(GpioModeInterruptRiseFall);
-
-    // Explicit, surviving reset, pulls
-    LL_PWR_EnablePUPDCfg();
-    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_9); // gpio_infrared_tx
-    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_8); // gpio_speaker
-    LL_PWR_EnableGPIOPullDown(LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_8); // gpio_vibro
-
-    // Display pins
-    furi_hal_gpio_init(&gpio_display_rst_n, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_write(&gpio_display_rst_n, 0);
-
-    furi_hal_gpio_init(&gpio_display_di, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_write(&gpio_display_di, 0);
 
     // SD pins
     furi_hal_gpio_init(&gpio_sdcard_cd, GpioModeInput, GpioPullNo, GpioSpeedLow);

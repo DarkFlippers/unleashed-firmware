@@ -26,7 +26,6 @@ void infrared_scene_edit_button_select_on_enter(void* context) {
             infrared_scene_edit_button_select_submenu_callback,
             context);
     }
-
     if(button_count && app_state->current_button_index != InfraredButtonIndexNone) {
         submenu_set_selected_item(submenu, app_state->current_button_index);
         app_state->current_button_index = InfraredButtonIndexNone;

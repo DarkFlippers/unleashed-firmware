@@ -156,7 +156,7 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
     instance->generic.cnt = decrypt & 0xFFFF;
 
     if(instance->generic.cnt < 0xFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
+        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
             instance->generic.cnt = 0;
         } else {
             instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();

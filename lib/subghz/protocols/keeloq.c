@@ -170,7 +170,7 @@ static bool subghz_protocol_keeloq_gen_data(
     }
     if(counter_up && prog_mode == PROG_MODE_OFF) {
         if(instance->generic.cnt < 0xFFFF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >= 0xFFFF) {
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
                 instance->generic.cnt = 0;
             } else {
                 instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();

@@ -1,5 +1,4 @@
 #include "submenu.h"
-#include <gui/canvas_i.h>
 
 #include <assets_icons.h>
 #include <gui/elements.h>
@@ -66,22 +65,23 @@ typedef struct {
     size_t position;
     size_t window_position;
     bool locked_message_visible;
+    bool is_vertical;
 } SubmenuModel;
 
 static void submenu_process_up(Submenu* submenu);
 static void submenu_process_down(Submenu* submenu);
 static void submenu_process_ok(Submenu* submenu);
 
+static size_t submenu_items_on_screen(bool header, bool vertical) {
+    size_t res = (vertical) ? 8 : 4;
+    return (header) ? res - 1 : res;
+}
+
 static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
     SubmenuModel* model = _model;
 
     const uint8_t item_height = 16;
-    uint8_t item_width = 123;
-
-    if(canvas->orientation == CanvasOrientationVertical ||
-       canvas->orientation == CanvasOrientationVerticalFlip) {
-        item_width = 60;
-    }
+    uint8_t item_width = canvas_width(canvas) - 5;
 
     canvas_clear(canvas);
 
@@ -97,7 +97,8 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
     for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
         SubmenuItemArray_next(it)) {
         const size_t item_position = position - model->window_position;
-        const size_t items_on_screen = furi_string_empty(model->header) ? 4 : 3;
+        const size_t items_on_screen =
+            submenu_items_on_screen(!furi_string_empty(model->header), model->is_vertical);
         uint8_t y_offset = furi_string_empty(model->header) ? 0 : 16;
 
         if(item_position < items_on_screen) {
@@ -117,7 +118,7 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
             if(SubmenuItemArray_cref(it)->locked) {
                 canvas_draw_icon(
                     canvas,
-                    110,
+                    item_width - 10,
                     y_offset + (item_position * item_height) + item_height - 12,
                     &I_Lock_7x8);
             }
@@ -125,7 +126,7 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
             FuriString* disp_str;
             disp_str = furi_string_alloc_set(SubmenuItemArray_cref(it)->label);
             elements_string_fit_width(
-                canvas, disp_str, item_width - (SubmenuItemArray_cref(it)->locked ? 25 : 11));
+                canvas, disp_str, item_width - (SubmenuItemArray_cref(it)->locked ? 21 : 11));
 
             canvas_draw_str(
                 canvas,
@@ -142,20 +143,39 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
     elements_scrollbar(canvas, model->position, SubmenuItemArray_size(model->items));
 
     if(model->locked_message_visible) {
+        const uint8_t frame_x = 7;
+        const uint8_t frame_width = canvas_width(canvas) - frame_x * 2;
+        const uint8_t frame_y = 7;
+        const uint8_t frame_height = canvas_height(canvas) - frame_y * 2;
+
         canvas_set_color(canvas, ColorWhite);
-        canvas_draw_box(canvas, 8, 10, 110, 48);
+        canvas_draw_box(canvas, frame_x + 2, frame_y + 2, frame_width - 4, frame_height - 4);
+
         canvas_set_color(canvas, ColorBlack);
-        canvas_draw_icon(canvas, 10, 14, &I_WarningDolphin_45x42);
-        canvas_draw_rframe(canvas, 8, 8, 112, 50, 3);
-        canvas_draw_rframe(canvas, 9, 9, 110, 48, 2);
-        elements_multiline_text_aligned(
-            canvas,
-            84,
-            32,
-            AlignCenter,
-            AlignCenter,
-            furi_string_get_cstr(
-                SubmenuItemArray_get(model->items, model->position)->locked_message));
+        canvas_draw_icon(
+            canvas, frame_x + 2, canvas_height(canvas) - frame_y - 2 - 42, &I_WarningDolphin_45x42);
+
+        canvas_draw_rframe(canvas, frame_x, frame_y, frame_width, frame_height, 3);
+        canvas_draw_rframe(canvas, frame_x + 1, frame_y + 1, frame_width - 2, frame_height - 2, 2);
+        if(model->is_vertical) {
+            elements_multiline_text_aligned(
+                canvas,
+                32,
+                42,
+                AlignCenter,
+                AlignCenter,
+                furi_string_get_cstr(
+                    SubmenuItemArray_get(model->items, model->position)->locked_message));
+        } else {
+            elements_multiline_text_aligned(
+                canvas,
+                84,
+                32,
+                AlignCenter,
+                AlignCenter,
+                furi_string_get_cstr(
+                    SubmenuItemArray_get(model->items, model->position)->locked_message));
+        }
     }
 }
 
@@ -303,6 +323,7 @@ void submenu_add_lockable_item(
 
 void submenu_reset(Submenu* submenu) {
     furi_assert(submenu);
+    view_set_orientation(submenu->view, ViewOrientationHorizontal);
 
     with_view_model(
         submenu->view,
@@ -311,6 +332,7 @@ void submenu_reset(Submenu* submenu) {
             SubmenuItemArray_reset(model->items);
             model->position = 0;
             model->window_position = 0;
+            model->is_vertical = false;
             furi_string_reset(model->header);
         },
         true);
@@ -344,7 +366,8 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
                 model->window_position -= 1;
             }
 
-            const size_t items_on_screen = furi_string_empty(model->header) ? 4 : 3;
+            const size_t items_on_screen =
+                submenu_items_on_screen(!furi_string_empty(model->header), model->is_vertical);
 
             if(items_size <= items_on_screen) {
                 model->window_position = 0;
@@ -363,7 +386,8 @@ void submenu_process_up(Submenu* submenu) {
         submenu->view,
         SubmenuModel * model,
         {
-            const size_t items_on_screen = furi_string_empty(model->header) ? 4 : 3;
+            const size_t items_on_screen =
+                submenu_items_on_screen(!furi_string_empty(model->header), model->is_vertical);
             const size_t items_size = SubmenuItemArray_size(model->items);
 
             if(model->position > 0) {
@@ -386,7 +410,8 @@ void submenu_process_down(Submenu* submenu) {
         submenu->view,
         SubmenuModel * model,
         {
-            const size_t items_on_screen = furi_string_empty(model->header) ? 4 : 3;
+            const size_t items_on_screen =
+                submenu_items_on_screen(!furi_string_empty(model->header), model->is_vertical);
             const size_t items_size = SubmenuItemArray_size(model->items);
 
             if(model->position < items_size - 1) {
@@ -437,6 +462,51 @@ void submenu_set_header(Submenu* submenu, const char* header) {
                 furi_string_reset(model->header);
             } else {
                 furi_string_set_str(model->header, header);
+            }
+        },
+        true);
+}
+
+void submenu_set_orientation(Submenu* submenu, ViewOrientation orientation) {
+    furi_assert(submenu);
+    const bool is_vertical =
+        (orientation == ViewOrientationVertical || orientation == ViewOrientationVerticalFlip) ?
+            true :
+            false;
+
+    view_set_orientation(submenu->view, orientation);
+
+    with_view_model(
+        submenu->view,
+        SubmenuModel * model,
+        {
+            model->is_vertical = is_vertical;
+
+            // Recalculating the position
+            // Need if _set_orientation is called after _set_selected_item
+            size_t position = model->position;
+            const size_t items_size = SubmenuItemArray_size(model->items);
+            const size_t items_on_screen =
+                submenu_items_on_screen(!furi_string_empty(model->header), model->is_vertical);
+
+            if(position >= items_size) {
+                position = 0;
+            }
+
+            model->position = position;
+            model->window_position = position;
+
+            if(model->window_position > 0) {
+                model->window_position -= 1;
+            }
+
+            if(items_size <= items_on_screen) {
+                model->window_position = 0;
+            } else {
+                const size_t pos = items_size - items_on_screen;
+                if(model->window_position > pos) {
+                    model->window_position = pos;
+                }
             }
         },
         true);

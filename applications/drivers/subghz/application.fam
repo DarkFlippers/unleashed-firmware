@@ -1,0 +1,9 @@
+App(
+    appid="radio_device_cc1101_ext",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="subghz_device_cc1101_ext_ep",
+    requires=["subghz"],
+    sdk_headers=["cc1101_ext/cc1101_ext_interconnect.h"],
+    fap_libs=["hwdrivers"],
+)

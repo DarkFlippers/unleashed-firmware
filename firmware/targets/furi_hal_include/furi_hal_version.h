@@ -35,6 +35,7 @@ typedef enum {
     FuriHalVersionColorUnknown = 0x00,
     FuriHalVersionColorBlack = 0x01,
     FuriHalVersionColorWhite = 0x02,
+    FuriHalVersionColorTransparent = 0x03,
 } FuriHalVersionColor;
 
 /** Device Regions */
@@ -86,6 +87,12 @@ const char* furi_hal_version_get_fcc_id();
  * @return     IC id as C-string
  */
 const char* furi_hal_version_get_ic_id();
+
+/** Get MIC id
+ *
+ * @return     MIC id as C-string
+ */
+const char* furi_hal_version_get_mic_id();
 
 /** Get OTP version
  *

@@ -611,7 +611,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexSomfyTelis:
             generated_protocol = subghz_txrx_gen_somfy_telis_protocol(
-                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003);
+                subghz->txrx, "AM650", 433420000, key & 0x00FFFFFF, 0x2, 0x0003);
             break;
         case SubmenuIndexDoorHan_433_92:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(

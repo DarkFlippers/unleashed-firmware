@@ -78,7 +78,7 @@ class OpenOCD:
 
     def _wait_for_openocd_tcl(self):
         """Wait for OpenOCD to start"""
-        # TODO: timeout
+        # TODO Fl-3538: timeout
         while True:
             stderr = self.process.stderr
             if not stderr:
@@ -128,7 +128,7 @@ class OpenOCD:
 
     def _recv(self):
         """Read from the stream until the token (\x1a) was received."""
-        # TODO: timeout
+        # TODO FL-3538: timeout
         data = bytes()
         while True:
             chunk = self.socket.recv(4096)

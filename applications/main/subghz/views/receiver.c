@@ -69,7 +69,11 @@ typedef struct {
     SubGhzViewReceiverBarShow bar_show;
     SubGhzViewReceiverMode mode;
     uint8_t u_rssi;
+
+    SubGhzRadioDeviceType device_type;
+
     bool show_time;
+
     bool nodraw;
 } SubGhzViewReceiverModel;
 
@@ -220,6 +224,17 @@ void subghz_view_receiver_add_data_progress(
         true);
 }
 
+void subghz_view_receiver_set_radio_device_type(
+    SubGhzViewReceiver* subghz_receiver,
+    SubGhzRadioDeviceType device_type) {
+    furi_assert(subghz_receiver);
+    with_view_model(
+        subghz_receiver->view,
+        SubGhzViewReceiverModel * model,
+        { model->device_type = device_type; },
+        true);
+}
+
 static void subghz_view_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_box(canvas, 0, 0 + idx * FRAME_HEIGHT, scrollbar ? 122 : 127, FRAME_HEIGHT);
@@ -296,12 +311,14 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
+        // TODO
         if(model->mode == SubGhzViewReceiverModeLive) {
             canvas_draw_icon(
                 canvas,
                 0,
                 0,
-                furi_hal_subghz_get_radio_type() ? &I_Fishing_123x52 : &I_Scanning_123x52);
+                (model->device_type == SubGhzRadioDeviceTypeInternal) ? &I_Scanning_123x52 :
+                                                                        &I_Fishing_123x52);
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str(canvas, 63, 46, "Scanning...");
             //canvas_draw_line(canvas, 46, 51, 125, 51);
@@ -311,7 +328,8 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
                 canvas,
                 0,
                 0,
-                furi_hal_subghz_get_radio_type() ? &I_Fishing_123x52 : &I_Scanning_123x52);
+                (model->device_type == SubGhzRadioDeviceTypeInternal) ? &I_Scanning_123x52 :
+                                                                        &I_Fishing_123x52);
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str(canvas, 63, 46, "Decoding...");
             canvas_set_font(canvas, FontSecondary);

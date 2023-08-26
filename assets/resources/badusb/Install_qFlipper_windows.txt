@@ -1,0 +1,42 @@
+REM Written by @dexv
+DELAY 2000
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 1000
+STRING $url = "https://update.flipperzero.one/qFlipper/release/windows-amd64/portable"
+ENTER
+STRING $output = "$env:USERPROFILE\Documents\qFlipper.zip"
+ENTER
+STRING $destination = "$env:USERPROFILE\Documents\qFlipper"
+ENTER
+STRING $shortcutPath = "$env:USERPROFILE\Desktop\qFlipper.lnk"
+ENTER
+STRING $scriptPath = "$env:USERPROFILE\Documents\qFlipperInstall.ps1"
+ENTER
+STRING $driverPath = "$destination\STM32 Driver"
+ENTER
+STRING $installBat = "$driverPath\install.bat"
+ENTER
+STRING (New-Object System.Net.WebClient).DownloadFile($url, $output)
+ENTER
+STRING Expand-Archive -Path $output -DestinationPath $destination -Force
+ENTER
+STRING Set-Location -Path $destination
+ENTER
+STRING Start-Process -FilePath ".\qFlipper.exe"
+ENTER
+STRING Start-Process -Wait -FilePath "cmd.exe" -ArgumentList "/c $installBat"
+ENTER
+STRING $shell = New-Object -ComObject WScript.Shell
+ENTER
+STRING $shortcut = $shell.CreateShortcut($shortcutPath)
+ENTER
+STRING $shortcut.TargetPath = "$destination\qFlipper.exe"
+ENTER
+STRING $shortcut.Save()
+ENTER
+DELAY 500
+STRING "powershell -ExecutionPolicy Bypass -File $scriptPath"
+ENTER

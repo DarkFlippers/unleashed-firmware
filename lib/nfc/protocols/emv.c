@@ -44,7 +44,7 @@ const PDOLValue* const pdol_values[] = {
     &pdol_transaction_cert,
     &pdol_unpredict_number,
 };
-#if FURI_DEBUG
+
 static const uint8_t select_ppse_ans[] = {0x6F, 0x29, 0x84, 0x0E, 0x32, 0x50, 0x41, 0x59, 0x2E,
                                           0x53, 0x59, 0x53, 0x2E, 0x44, 0x44, 0x46, 0x30, 0x31,
                                           0xA5, 0x17, 0xBF, 0x0C, 0x14, 0x61, 0x12, 0x4F, 0x07,
@@ -61,7 +61,7 @@ static const uint8_t pdol_ans[] = {0x77, 0x40, 0x82, 0x02, 0x20, 0x00, 0x57, 0x1
                                    0x00, 0x9F, 0x26, 0x08, 0x7A, 0x65, 0x7F, 0xD3, 0x52, 0x96,
                                    0xC9, 0x85, 0x9F, 0x27, 0x01, 0x00, 0x9F, 0x36, 0x02, 0x06,
                                    0x0C, 0x9F, 0x6C, 0x02, 0x10, 0x00, 0x90, 0x00};
-#endif
+
 static void emv_trace(FuriHalNfcTxRxContext* tx_rx, const char* message) {
     if(furi_log_get_level() == FuriLogLevelTrace) {
         FURI_LOG_T(TAG, "%s", message);
@@ -409,7 +409,6 @@ bool emv_read_bank_card(FuriHalNfcTxRxContext* tx_rx, EmvApplication* emv_app) {
     return card_num_read;
 }
 
-#if FURI_DEBUG
 bool emv_card_emulation(FuriHalNfcTxRxContext* tx_rx) {
     furi_assert(tx_rx);
     bool emulation_complete = false;
@@ -443,4 +442,3 @@ bool emv_card_emulation(FuriHalNfcTxRxContext* tx_rx) {
 
     return emulation_complete;
 }
-#endif

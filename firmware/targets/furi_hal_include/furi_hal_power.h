@@ -34,6 +34,12 @@ void furi_hal_power_init();
  */
 bool furi_hal_power_gauge_is_ok();
 
+/** Check if gauge requests system shutdown
+ * 
+ * @return true if system shutdown requested
+ */
+bool furi_hal_power_is_shutdown_requested();
+
 /** Get current insomnia level
  *
  * @return     insomnia level: 0 - no insomnia, >0 - insomnia, bearer count.

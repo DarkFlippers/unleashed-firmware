@@ -4,7 +4,7 @@
 #define CRC_DATA_BUFFER_MAX_LEN 512
 
 uint32_t crc32_calc_buffer(uint32_t crc, const void* buffer, size_t size) {
-    // TODO: consider removing dependency on LFS
+    // TODO FL-3547: consider removing dependency on LFS
     return ~lfs_crc(~crc, buffer, size);
 }
 

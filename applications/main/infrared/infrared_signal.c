@@ -208,6 +208,21 @@ void infrared_signal_set_raw_signal(
     float duty_cycle) {
     infrared_signal_clear_timings(signal);
 
+    // If the frequency is out of bounds, set it to the closest bound same for duty cycle
+    // TODO: Should we return error instead? Also infrared_signal_is_valid is used only in CLI for some reason?!
+    if(frequency > INFRARED_MAX_FREQUENCY) {
+        frequency = INFRARED_MAX_FREQUENCY;
+    } else if(frequency < INFRARED_MIN_FREQUENCY) {
+        frequency = INFRARED_MIN_FREQUENCY;
+    }
+    if((duty_cycle <= (float)0) || (duty_cycle > (float)1)) {
+        duty_cycle = (float)0.33;
+    }
+    // In case of timings out of bounds we just call return
+    if((timings_size <= 0) || (timings_size > MAX_TIMINGS_AMOUNT)) {
+        return;
+    }
+
     signal->is_raw = true;
 
     signal->payload.raw.timings_size = timings_size;

@@ -18,77 +18,82 @@ void infrared_scene_universal_tv_on_enter(void* context) {
         i,
         0,
         0,
-        3,
-        19,
-        &I_Power_25x27,
-        &I_Power_hvr_25x27,
+        6,
+        16,
+        &I_power_19x20,
+        &I_power_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
+    button_panel_add_icon(button_panel, 4, 38, &I_power_text_24x5);
     infrared_brute_force_add_record(brute_force, i++, "Power");
     button_panel_add_item(
         button_panel,
         i,
         1,
         0,
-        36,
-        19,
-        &I_Mute_25x27,
-        &I_Mute_hvr_25x27,
+        39,
+        16,
+        &I_mute_19x20,
+        &I_mute_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
+    button_panel_add_icon(button_panel, 39, 38, &I_mute_text_19x5);
+
+    button_panel_add_icon(button_panel, 0, 66, &I_ch_text_31x34);
+    button_panel_add_icon(button_panel, 35, 66, &I_vol_tv_text_29x34);
+
     infrared_brute_force_add_record(brute_force, i++, "Mute");
+    button_panel_add_item(
+        button_panel,
+        i,
+        1,
+        1,
+        38,
+        53,
+        &I_volup_24x21,
+        &I_volup_hover_24x21,
+        infrared_scene_universal_common_item_callback,
+        context);
+
+    infrared_brute_force_add_record(brute_force, i++, "Vol_up");
     button_panel_add_item(
         button_panel,
         i,
         0,
         1,
         3,
-        66,
-        &I_Vol_up_25x27,
-        &I_Vol_up_hvr_25x27,
-        infrared_scene_universal_common_item_callback,
-        context);
-    infrared_brute_force_add_record(brute_force, i++, "Vol_up");
-    button_panel_add_item(
-        button_panel,
-        i,
-        1,
-        1,
-        36,
-        66,
-        &I_Up_25x27,
-        &I_Up_hvr_25x27,
+        53,
+        &I_ch_up_24x21,
+        &I_ch_up_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Ch_next");
     button_panel_add_item(
         button_panel,
         i,
-        0,
+        1,
         2,
-        3,
-        98,
-        &I_Vol_down_25x27,
-        &I_Vol_down_hvr_25x27,
+        38,
+        91,
+        &I_voldown_24x21,
+        &I_voldown_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Vol_dn");
     button_panel_add_item(
         button_panel,
         i,
-        1,
+        0,
         2,
-        36,
-        98,
-        &I_Down_25x27,
-        &I_Down_hvr_25x27,
+        3,
+        91,
+        &I_ch_down_24x21,
+        &I_ch_down_hover_24x21,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "Ch_prev");
 
-    button_panel_add_label(button_panel, 6, 11, FontPrimary, "TV remote");
-    button_panel_add_label(button_panel, 9, 64, FontSecondary, "Vol");
-    button_panel_add_label(button_panel, 43, 64, FontSecondary, "Ch");
+    button_panel_add_label(button_panel, 5, 10, FontPrimary, "TV remote");
 
     view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);

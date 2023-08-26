@@ -165,7 +165,8 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                    SubGhzCustomEventManagerNoSet) {
                     subghz_protocol_raw_gen_fff_data(
                         subghz_txrx_get_fff_data(subghz->txrx),
-                        furi_string_get_cstr(subghz->file_path));
+                        furi_string_get_cstr(subghz->file_path),
+                        subghz_txrx_radio_device_get_name(subghz->txrx));
                     scene_manager_set_scene_state(
                         subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
                 } else {

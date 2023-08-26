@@ -10,6 +10,7 @@
 [submodule "assets/protobuf"]
 	path = assets/protobuf
 	url = https://github.com/flipperdevices/flipperzero-protobuf.git
+	shallow = false
 [submodule "lib/libusb_stm32"]
 	path = lib/libusb_stm32
 	url = https://github.com/flipperdevices/libusb_stm32.git
@@ -25,12 +26,6 @@
 [submodule "lib/cxxheaderparser"]
 	path = lib/cxxheaderparser
 	url = https://github.com/robotpy/cxxheaderparser.git
-[submodule "applications/external/dap_link/lib/free-dap"]
-	path = applications/external/dap_link/lib/free-dap
-	url = https://github.com/ataradov/free-dap.git
-[submodule "applications/external/subbrute"]
-	path = applications/external/subbrute
-	url = https://github.com/DarkFlippers/flipperzero-subbrute.git
 [submodule "lib/heatshrink"]
 	path = lib/heatshrink
 	url = https://github.com/flipperdevices/heatshrink.git
