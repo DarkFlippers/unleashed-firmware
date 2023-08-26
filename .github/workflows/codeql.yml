@@ -14,9 +14,9 @@ run-name: "CodeQL Analyze ${{ github.ref_name }} by @${{ github.ACTOR }}"
 
 on:
   push:
-    branches: ["master", "feat/codeql-revision"]
+    branches: ["dev-master", "feat/codeql-revision"]
   pull_request:
-    branches: ["master"]
+    branches: ["dev-master"]
   workflow_dispatch:
 
 jobs:
@@ -89,6 +89,7 @@ jobs:
 
       - name: Filter dirs for SARIF
         uses: advanced-security/filter-sarif@v1
+        if: ${{ success() }}
         with:
           # filter out all test files unless they contain a sql-injection vulnerability
           patterns: |
