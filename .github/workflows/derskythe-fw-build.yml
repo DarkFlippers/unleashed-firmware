@@ -30,6 +30,7 @@ jobs:
       - name: Pre Build
         shell: bash
         run: |
+          - ls -alh
           - tar -zxvf all-the-apps-extra.tgz
           - cp -R "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
           - rm -rf "extra_pack_build"
