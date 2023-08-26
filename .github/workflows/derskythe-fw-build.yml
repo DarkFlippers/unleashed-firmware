@@ -28,13 +28,13 @@ jobs:
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
 
       - name: Pre Build
-        shell: bash
+        shell: pwsh
         run: |
-          - ls -alh
+          - ls -a
           - tar -zxvf all-the-apps-extra.tgz
-          - cp -R "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
-          - rm -rf "extra_pack_build"
-          - rm -f "build/f7-firmware-C/toolbox/version.*"
+          - Copy-Item -Recurse "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
+          - Remove-Item -Force -Recurse "extra_pack_build"
+          - Remove-Item -Force -Recurse "build/f7-firmware-C/toolbox/version.*"
 
       - name: Build with extra apps
         shell: bash
@@ -42,15 +42,15 @@ jobs:
           - ./fbt COMPACT=1 DEBUG=0 updater_package
 
       - name: Post Build
-        shell: bash
+        shell: pwsh
         run: |
           - mkdir artifacts-extra-apps
-          - mv -f "dist/f7-C/*" "artifacts-extra-apps/"
+          - Move-Item -Force "dist/f7-C/*" "artifacts-extra-apps/"
           - ls -laS artifacts-extra-apps
           - ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e"
 
       - name: Bundle Self-update package
-        shell: bash
+        shell: pwsh
         run: |
           - cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
           - zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
