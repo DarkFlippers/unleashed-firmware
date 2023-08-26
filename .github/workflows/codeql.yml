@@ -51,10 +51,6 @@ jobs:
       LANG_CATEGORY: "/language:${{matrix.language}}"
 
     steps:
-      - name: Set correct value for PATH_SARIF_FILE
-        run: |
-          echo 'PATH_SARIF_FILE=${{ env.PATH_SARIF_DIR }}/${{ env.PATH_SARIF_FILE }}' >> $GITHUB_ENV
-
       - name: Checkout Firmware Files
         uses: actions/checkout@v3
         with:
