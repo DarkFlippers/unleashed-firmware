@@ -43,13 +43,18 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
     env:
       # TOKEN: ${{ secrets.DPENDABOT }}
-      PATH_SARIF_FILE: ".github/results.sarif"
+      PATH_SARIF_DIR: ".github/results.sarif"
+      PATH_SARIF_FILE: ".github/results.sarif/${{ matrix.language }}.sarif"
       FBT_NO_SYNC: 0
       DIST_SUFFIX: "codeql"
       WORKFLOW_BRANCH_OR_TAG: release-cfw
       LANG_CATEGORY: "/language:${{matrix.language}}"
 
     steps:
+      - name: Set correct value for PATH_SARIF_FILE
+        run: |
+          echo 'PATH_SARIF_FILE=${{ env.PATH_SARIF_DIR }}/${{ env.PATH_SARIF_FILE }}' >> $GITHUB_ENV
+
       - name: Checkout Firmware Files
         uses: actions/checkout@v3
         with:
@@ -81,7 +86,7 @@ jobs:
         if: ${{ success() }}
         with:
           category: "${{ env.LANG_CATEGORY }}"
-          output: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
+          output: "${{ env.PATH_SARIF_DIR }}"
           upload-database: false
           upload: "failure-only" # disable the upload here - we will upload in a different action
 
@@ -90,19 +95,20 @@ jobs:
         with:
           # filter out all test files unless they contain a sql-injection vulnerability
           patterns: |
-            -build/*
-            -dist/*
-            -toolchain/*
-          input: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
-          output: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
+            -build/**
+            -dist/**
+            -toolchain/**
+            -lib/**
+          input: "${{ env.PATH_SARIF_FILE }}"
+          output: "${{ env.PATH_SARIF_FILE }}"
 
       - name: Upload CodeQL SARIF
         uses: github/codeql-action/upload-sarif@v2
         if: ${{ success() }}
         with:
           category: "${{ env.LANG_CATEGORY }}"
-          sarif_file: "${{ github.workspace }}/${{ env.PATH_SARIF_FILE }}"
-      
+          sarif_file: "${{ env.PATH_SARIF_FILE }}"
+
       # optional: for debugging the uploaded sarif
       # - name: Upload loc as a Build Artifact
       #   uses: actions/upload-artifact@v3
