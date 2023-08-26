@@ -30,10 +30,10 @@ jobs:
       - name: Pre Build
         shell: bash
         run: |
-          - tar zxvf all-the-apps-extra.tgz
-          - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
-          - rm -rf extra_pack_build
-          - rm -f build/f7-firmware-C/toolbox/version.*
+          - tar -zxvf all-the-apps-extra.tgz
+          - cp -R "extra_pack_build/artifacts-extra/*" "assets/resources/apps/"
+          - rm -rf "extra_pack_build"
+          - rm -f "build/f7-firmware-C/toolbox/version.*"
 
       - name: Build with extra apps
         shell: bash
@@ -44,9 +44,9 @@ jobs:
         shell: bash
         run: |
           - mkdir artifacts-extra-apps
-          - mv dist/f7-C/* artifacts-extra-apps/
+          - mv -f "dist/f7-C/*" "artifacts-extra-apps/"
           - ls -laS artifacts-extra-apps
-          - ls -laS artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
+          - ls -laS "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e"
 
       - name: Bundle Self-update package
         shell: bash
