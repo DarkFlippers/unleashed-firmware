@@ -55,7 +55,6 @@ jobs:
         with:
           clean: "true"
           submodules: "true"
-          ref: "dev"
           fetch-depth: "0"
 
       # Initializes the CodeQL tools for scanning.
