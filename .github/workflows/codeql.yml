@@ -10,6 +10,7 @@
 # supported CodeQL languages.
 #
 name: "CodeQL"
+run-name: "CodeQL Analyze ${{ github.ref_name }} by @${{ github.ACTOR }}"
 
 on:
   push:
@@ -26,8 +27,8 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners
     # Consider using larger runners for possible analysis time improvements.
-    runs-on: "ubuntu-latest"
-    timeout-minutes: 360
+    runs-on: [ "ubuntu-latest" ]
+    timeout-minutes: 60
     permissions:
       actions: read
       contents: read
@@ -42,7 +43,6 @@ jobs:
         # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
     env:
-      # TOKEN: ${{ secrets.DPENDABOT }}
       PATH_SARIF_DIR: ".github/results.sarif"
       PATH_SARIF_FILE: ".github/results.sarif/${{ matrix.language }}.sarif"
       FBT_NO_SYNC: 0
@@ -81,6 +81,7 @@ jobs:
         uses: github/codeql-action/analyze@v2
         if: ${{ success() }}
         with:
+          threads: 4
           category: "${{ env.LANG_CATEGORY }}"
           output: "${{ env.PATH_SARIF_DIR }}"
           upload-database: false
