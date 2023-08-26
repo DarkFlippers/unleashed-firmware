@@ -28,6 +28,7 @@ jobs:
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
 
       - name: Pre Build
+        shell: bash
         run: |
           - tar zxvf all-the-apps-extra.tgz
           - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
@@ -35,10 +36,12 @@ jobs:
           - rm -f build/f7-firmware-C/toolbox/version.*
 
       - name: Build with extra apps
+        shell: bash
         run: |
           - ./fbt COMPACT=1 DEBUG=0 updater_package
 
       - name: Post Build
+        shell: bash
         run: |
           - mkdir artifacts-extra-apps
           - mv dist/f7-C/* artifacts-extra-apps/
@@ -46,6 +49,7 @@ jobs:
           - ls -laS artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
 
       - name: Bundle Self-update package
+        shell: bash
         run: |
           - cp artifacts-extra-apps/${{ env.TGZ_NAME }} .
           - zip -r artifacts-extra-apps/${{ env.ZIP_NAME }} artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}e
@@ -94,6 +98,7 @@ jobs:
         if: ${{ success() }}
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
+        shell: bash
         run: |
           gh release upload '${{ vars.FIRMWARE_VERSION }}' --clobber \
             '${{ env.ZIP_NAME }}#${{ env.ZIP_TAG }}' '${{ env.TGZ_NAME }}#${{ env.TGZ_TAG }}' \
