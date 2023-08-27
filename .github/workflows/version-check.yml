@@ -46,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
           OWNER: ${{ github.repository_owner }}
         run: |
-          gh variable set FIRMWARE_VERSION -b ${{ env.FIRMWARE_VERSION }} -R ${{ env.REPO_SELF }}
+          gh variable set FIRMWARE_VERSION -b ${{ env.REMOTE_TAG_INFO }} -R ${{ env.REPO_SELF }}
           curl -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \
