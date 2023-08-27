@@ -31,7 +31,8 @@ jobs:
         with:
           repository: "${{ env.REPO_SELF }}"
           clean: "true"
-          submodules: "false"
+          submodules: "true"
+          fetch-depth: 0
           ref: "${{ github.ref_name }}"
 
       - name: Check firmware release
