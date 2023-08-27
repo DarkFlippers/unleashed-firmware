@@ -4,8 +4,6 @@
 
 #include <lib/subghz/blocks/custom_btn.h>
 
-#define TAG "subghz_scene_transmitter"
-
 void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -22,15 +20,6 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
-        if(scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneEditCnt)) {
-            FURI_LOG_I(TAG, "<transmitter> has previous scene <EditCnt>");
-            uint32_t cnt_temp;
-            cnt_temp = subghz->secure_data->cnt[0] << 24 | subghz->secure_data->cnt[1] << 16 |
-                            subghz->secure_data->cnt[2] << 8 | subghz->secure_data->cnt[3];
-            FURI_LOG_I(TAG, "cnt = %08lX", cnt_temp);
-            furi_hal_subghz_set_rolling_counter_value(cnt_temp);
-            FURI_LOG_I(TAG, "furi_hal_subghz.rolling_counter_value == %08lX", cnt_temp);
-        }
 
         if(subghz_protocol_decoder_base_deserialize(
                decoder, subghz_txrx_get_fff_data(subghz->txrx)) == SubGhzProtocolStatusOk) {
@@ -89,7 +78,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
             subghz_txrx_stop(subghz->txrx);
             if(subghz_custom_btn_get() != SUBGHZ_CUSTOM_BTN_OK) {
                 subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
-                uint8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
+                int8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
                 // Calling restore!
                 subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
