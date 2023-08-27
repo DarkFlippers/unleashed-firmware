@@ -170,7 +170,7 @@ jobs:
       #            - ${{ env.DEV_NAME }}/*.bin
       #            - ${{ env.TGZ_FULL_NAME_EXTRA_APPS }}
 
-      - name: Create or update RELEASE with assets
+      - name: Create or update RELEASE ${{ vars.FIRMWARE_VERSION }} with assets
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
