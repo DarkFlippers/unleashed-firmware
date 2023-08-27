@@ -1,13 +1,13 @@
 name: "Version check for NEW release"
-run-name: " Version check for NEW release ${{ inputs.DEPLOY_TARGET }} by @${{ github.ACTOR }}"
+run-name: "Version check for NEW release ${{ inputs.DEPLOY_TARGET }} by @${{ github.ACTOR }}"
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - master
-  schedule:
-    - cron: "*/30 * * * *"
+      - custom
+#  schedule:
+#    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
@@ -22,49 +22,33 @@ jobs:
       REPO_UNLEASHED: ${{ vars.REPO_UNLEASHED }}
       CURRENT_TAG: ${{ vars.FIRMWARE_VERSION }}
       REMOTE_TAG_INFO: ""
-      RELEASE_VERSION: ${{ vars.RELEASE_VERSION }}
       FIRMWARE_VERSION: ${{ vars.FIRMWARE_VERSION }}
       REPO_SELF: ${{ vars.REPO_SELF }}
-      CHECKOUT_DIR: "firmware"
       RELEASE_TYPE: 0
     steps:
-      - name: Copy Repo Files
-        uses: actions/checkout@v3
-        with:
-          repository: "${{ env.REPO_SELF }}"
-          clean: "true"
-          submodules: "true"
-          token: ${{ secrets.FLIPPER_ZERO_FW }}
-
       - name: Check firmware release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./.github/check-version.ps1 '${{ env.FIRMWARE_VERSION }}' '${{ env.RELEASE_VERSION }}' '${{ env.REPO_SELF }}' '${{ env.REPO_UNLEASHED }}' | %{ Write-Output($_) >> $Env:GITHUB_ENV }
+          ./.github/simple-check-version.ps1 '${{ env.FIRMWARE_VERSION }}' '${{ env.REPO_UNLEASHED }}' | %{ Write-Output($_) >> $Env:GITHUB_ENV }
 
       - name: Print env values
         run: env
 
-      # - name: Create release if necessary
-      #   if: ${{ success() && (env.RELEASE_TYPE == 2  || env.RELEASE_TYPE == 1 )}}
-      #   uses: ./.github/actions/make-release
-      #   with:
-      #     gh_token: ${{ secrets.FLIPPER_ZERO_FW }}
-      #     release_type: ${{ env.RELEASE_TYPE }}
-      #     release_version: ${{ env.RELEASE_VERSION }}
-      #     firmware_version: ${{ env.REMOTE_TAG_INFO }}
-      #     repo_self: ${{ env.REPO_SELF }}
-      #     owner: ${{ github.repository_owner }}
-      #     current_tag: ${{ env.CURRENT_TAG }}
-      #     remote_tag_info: ${{ env.REMOTE_TAG_INFO }}
-
-      - name: Current settings in repo invalid. Changing
-        if: ${{ success() && env.RELEASE_TYPE > 2 }}
+      - name: Change stored version number and call workflow_dispatch
+        if: ${{ success() && env.RELEASE_TYPE > 0 }}
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
           OWNER: ${{ github.repository_owner }}
         run: |
-          gh variable set RELEASE_VERSION -b ${{ env.RELEASE_VERSION }} -R ${{ env.REPO_SELF }}
+          # gh variable set FIRMWARE_VERSION -b ${{ env.FIRMWARE_VERSION }} -R ${{ env.REPO_SELF }}
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ env.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ vars.REPO_SELF }}/actions/workflows/derskythe-fw-build.yml/dispatches \
+            -d '{"ref":"${{ github.ref_name }}"}'
 
 # EOF
