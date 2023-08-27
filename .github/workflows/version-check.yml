@@ -6,14 +6,14 @@ on:
   push:
     branches:
       - custom
-#  schedule:
-#    - cron: "*/30 * * * *"
+  schedule:
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
 
 jobs:
-  pull-request:
+  check-version:
     concurrency:
       group: check-for-new-versions
       cancel-in-progress: false
@@ -26,15 +26,19 @@ jobs:
       REPO_SELF: ${{ vars.REPO_SELF }}
       RELEASE_TYPE: 0
     steps:
+      - name: Copy Repo Files
+        uses: actions/checkout@v3
+        with:
+          repository: "${{ env.REPO_SELF }}"
+          clean: "true"
+          submodules: "false"
+
       - name: Check firmware release
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
         run: |
           ./.github/simple-check-version.ps1 '${{ env.FIRMWARE_VERSION }}' '${{ env.REPO_UNLEASHED }}' | %{ Write-Output($_) >> $Env:GITHUB_ENV }
-
-      - name: Print env values
-        run: env
 
       - name: Change stored version number and call workflow_dispatch
         if: ${{ success() && env.RELEASE_TYPE > 0 }}
@@ -42,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
           OWNER: ${{ github.repository_owner }}
         run: |
-          # gh variable set FIRMWARE_VERSION -b ${{ env.FIRMWARE_VERSION }} -R ${{ env.REPO_SELF }}
+          gh variable set FIRMWARE_VERSION -b ${{ env.FIRMWARE_VERSION }} -R ${{ env.REPO_SELF }}
           curl -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \
