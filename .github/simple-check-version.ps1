@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"        #
 
 [string]$FirmwareVersion = $args[0]
 [string]$RepoUnleashed = $args[1]
-[bool]$ForGithubActions = $false
+[bool]$ForGithubActions = $true
 
 ################################################################################################################################
 function CleanInput

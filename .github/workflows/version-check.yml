@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  pull-request:
+  check-version:
     concurrency:
       group: check-for-new-versions
       cancel-in-progress: false
@@ -39,9 +39,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
         run: |
           ./.github/simple-check-version.ps1 '${{ env.FIRMWARE_VERSION }}' '${{ env.REPO_UNLEASHED }}' | %{ Write-Output($_) >> $Env:GITHUB_ENV }
-
-      - name: Print env values
-        run: env
 
       - name: Change stored version number and call workflow_dispatch
         if: ${{ success() && env.RELEASE_TYPE > 0 }}
