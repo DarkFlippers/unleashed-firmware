@@ -42,22 +42,37 @@ $Output = @{
     ZIP_TAG_DEFAULT_APPS = ''
 }
 
-if (!(Test-Path -Path "$AppDir/$DefaultZipName" -PathType Leaf) -or !(Test-Path -Path "$AppDir/$ExtraTgzName" -PathType Leaf) -or !(Test-Path -Path "$AppDir/$DefaultTgzName" -PathType Leaf))
+if (!(Test-Path -Path "$AppDir/$DefaultZipName" -PathType Leaf))
 {
-    Write-Error '::error title=Files not found::Cannot find files in location'
+    Write-Error ('::error title=Files not found::Cannot find files in location: {0}/{1}' -f $AppDir, $DefaultZipName)
+    exit 1
+}
+if (!(Test-Path -Path "$AppDir/$DefaultTgzName" -PathType Leaf))
+{
+    Write-Error ('::error title=Files not found::Cannot find files in location: {0}/{1}' -f $AppDir, $DefaultTgzName)
+    exit 1
+}
+if (!(Test-Path -Path "$AppDir/$ExtraTgzName" -PathType Leaf))
+{
+    Write-Error ('::error title=Files not found::Cannot find files in location: {0}/{1}' -f $AppDir, $ExtraTgzName)
     exit 1
 }
 
-$Size = (Get-Item -Path "$AppDir/$DefaultZipName" | Get-ItemPropertyValue -Name Length)
-Write-Output ('Filesize: {0}' -f (Format-Bytes $Size))
+#$Size = (Get-Item -Path "$AppDir/$DefaultZipName" | Get-ItemPropertyValue -Name Length)
+#Write-Output ('File: {0}, Size: {0}' -f $DefaultZipName,(Format-Bytes $Size))
 
-$DefaultZipSize = Format-Bytes (Get-Item -Path "$AppDir/$DefaultZipName").Length
-$DefaultTgzSize = Format-Bytes (Get-Item -Path "$AppDir/$DefaultTgzName").Length
-$ExtraTgzSize = Format-Bytes (Get-Item -Path "$AppDir/$ExtraTgzName").Length
+$SizeDefaultZip = Format-Bytes (Get-Item -Path "$AppDir/$DefaultZipName").Length
+Write-Information ('File: {0}, Size: {1}' -f $DefaultZipName, $SizeDefaultZip)
 
-$Output.ZIP_TAG_DEFAULT_APPS = '{0} ({1})' -f $DefaultZipName, $DefaultZipSize
-$Output.TGZ_TAG_DEFAULT_APPS = '{0} ({1})' -f $DefaultTgzName, $DefaultTgzSize
-$Output.TGZ_TAG_EXTRA_APPS = '{0} ({1})' -f $ExtraTgzName, $ExtraTgzSize
+$SizeDefaultTgz = Format-Bytes (Get-Item -Path "$AppDir/$DefaultTgzName").Length
+Write-Information ('File: {0}, Size: {1}' -f $DefaultTgzName, $SizeDefaultTgz)
+
+$SizeExtraTgz = Format-Bytes (Get-Item -Path "$AppDir/$ExtraTgzName").Length
+Write-Information ('File: {0}, Size: {1}' -f $ExtraTgzName, $SizeExtraTgz)
+
+$Output.ZIP_TAG_DEFAULT_APPS = '{0} ({1})' -f $DefaultZipName, $SizeDefaultZip
+$Output.TGZ_TAG_DEFAULT_APPS = '{0} ({1})' -f $DefaultTgzName, $SizeDefaultTgz
+$Output.TGZ_TAG_EXTRA_APPS = '{0} ({1})' -f $ExtraTgzName, $SizeExtraTgz
 
 if ($ForGithubActions)
 {
