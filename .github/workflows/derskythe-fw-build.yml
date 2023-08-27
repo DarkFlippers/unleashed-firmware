@@ -4,7 +4,7 @@ run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
 on:
   workflow_dispatch:
   push:
-    branches: [ "github-actions" ]
+    branches: ["github-actions"]
 
 env:
   FBT_NO_SYNC: 0
@@ -36,7 +36,7 @@ jobs:
     name: Build release FW
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout FW
+      - name: Checkout firmware repo
         uses: actions/checkout@v3
         with:
           submodules: true
@@ -124,13 +124,12 @@ jobs:
           cp ${{ env.TGZ_FULL_NAME_DEFAULT_APPS }} .
           zip -r ${{ env.ZIP_FULL_NAME_DEFAULT_APPS }} ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
           tar -czpf artifacts-default/flipper-z-any-scripts-${{ vars.FIRMWARE_VERSION }}.tgz scripts
-          rm -rf ${{ env.ARTIFACTS_EXTRA_APPS_DIR }} 2>/dev/null || true
-          rm -rf ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
-          echo "List: ${{ env.ARTIFACTS_DEFAULT_APPS }}"
-          ls -laS ${{ env.ARTIFACTS_DEFAULT_APPS }}
-          echo "List: ${{ env.ARTIFACTS_EXTRA_APPS }}"
-          ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
-          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/* ${{ vars.FIRMWARE_VERSION }}
+
+          mkdir -p ${{ vars.FIRMWARE_VERSION }}
+          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_EXTRA_APPS }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
           echo "List: ${{ vars.FIRMWARE_VERSION }}"
           ls -laS ${{ vars.FIRMWARE_VERSION }}
 
@@ -141,7 +140,7 @@ jobs:
           path: |
             - ${{ vars.FIRMWARE_VERSION }}/*.tgz
             - ${{ vars.FIRMWARE_VERSION }}/*.zip
-            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz
+      #            - ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz
       #      - name: Bundle Self-update package
       #        shell: bash
       #        run: |
@@ -171,22 +170,29 @@ jobs:
       #            - ${{ env.DEV_NAME }}/*.bin
       #            - ${{ env.TGZ_FULL_NAME_EXTRA_APPS }}
 
-      - name: Create tags for assets
+      - name: Create or update RELEASE with assets
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
         run: |
-          ./.github/create-assets-tag.ps1 '${{ env.TGZ_NAME_EXTRA_APPS }}' '${{ env.ZIP_NAME_DEFAULT_APPS }}' '${{ env.TGZ_NAME_DEFAULT_APPS }}' '${{ vars.FIRMWARE_VERSION }}' 1 | %{ Write-Output($_) >> $Env:GITHUB_ENV }
+          ./.github/create-or-update-release-with-assets.ps1 ${{ vars.FIRMWARE_VERSION }} ${{ vars.FIRMWARE_VERSION }} ${{ github.repository }}
 
-      - name: Create assets and release
-        if: ${{ success() }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
-        shell: bash
-        run: |
-          gh release upload '${{ vars.FIRMWARE_VERSION }}' --clobber \
-            '${{ env.ZIP_NAME_DEFAULT_APPS }}#${{ env.ZIP_TAG_DEFAULT_APPS }}' \
-            '${{ env.TGZ_NAME_DEFAULT_APPS }}#${{ env.TGZ_TAG_DEFAULT_APPS }}' \
-            '${{ env.TGZ_NAME_EXTRA_APPS }}#${{ env.TGZ_TAG_EXTRA_APPS }}' \
-            -R ${{ github.repository }}
-          gh release edit '${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
+#      - name: Create tags for assets
+#        shell: pwsh
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
+#        run: |
+#          ./.github/create-assets-tag.ps1 '${{ env.TGZ_NAME_EXTRA_APPS }}' '${{ env.ZIP_NAME_DEFAULT_APPS }}' '${{ env.TGZ_NAME_DEFAULT_APPS }}' '${{ vars.FIRMWARE_VERSION }}' 1 | %{ Write-Output($_) >> $Env:GITHUB_ENV }
+#
+#      - name: Create assets and release
+#        if: ${{ success() }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
+#        shell: bash
+#        run: |
+#          gh release upload '${{ vars.FIRMWARE_VERSION }}' --clobber \
+#            '${{ env.ZIP_NAME_DEFAULT_APPS }}#${{ env.ZIP_TAG_DEFAULT_APPS }}' \
+#            '${{ env.TGZ_NAME_DEFAULT_APPS }}#${{ env.TGZ_TAG_DEFAULT_APPS }}' \
+#            '${{ env.TGZ_NAME_EXTRA_APPS }}#${{ env.TGZ_TAG_EXTRA_APPS }}' \
+#            -R ${{ github.repository }}
+#          gh release edit '${{ vars.FIRMWARE_VERSION }}' --draft=false -R ${{ github.repository }}
