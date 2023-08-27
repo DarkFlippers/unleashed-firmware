@@ -26,6 +26,13 @@ jobs:
       REPO_SELF: ${{ vars.REPO_SELF }}
       RELEASE_TYPE: 0
     steps:
+      - name: Copy Repo Files
+        uses: actions/checkout@v3
+        with:
+          repository: "${{ env.REPO_SELF }}"
+          clean: "true"
+          submodules: "false"
+
       - name: Check firmware release
         shell: pwsh
         env:
