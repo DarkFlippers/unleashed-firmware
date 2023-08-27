@@ -12,6 +12,7 @@ $ErrorActionPreference = "Stop"        #
 [string]$InputDir = $args[0]
 [string]$FirmwareVersion = $args[1]
 [string]$Repo = $args[2]
+[string]$Branch = $args[3]
 
 $Files = @(Get-ChildItem -Path "$InputDir/*" -File -Include "*.tgz", "*.zip" -ErrorAction SilentlyContinue)
 if ($Files.Count -eq 0)
@@ -21,7 +22,7 @@ if ($Files.Count -eq 0)
 }
 
 Write-Host "Check if release exists"
-gh release create $FirmwareVersion -R $Repo --generate-notes
+gh release create $FirmwareVersion -R $Repo --generate-notes --target $Branch --title "$FirmwareVersion branch $Branch"
 if ($LASTEXITCODE -gt 1)
 {
     Write-Error ('::error title=Cannot create or check release::Tag: {0}, Repo: {1}, ErrorCode: {2}' -f $FirmwareVersion, $Repo, $LASTEXITCODE)
@@ -36,6 +37,6 @@ $Files | ForEach-Object {
 }
 
 Write-Host "Release edit"
-gh release edit $FirmwareVersion -R $Repo --latest
+gh release edit $FirmwareVersion -R $Repo --latest --target $Branch
 
 cd -
