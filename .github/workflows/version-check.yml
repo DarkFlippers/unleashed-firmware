@@ -32,6 +32,7 @@ jobs:
           repository: "${{ env.REPO_SELF }}"
           clean: "true"
           submodules: "false"
+          ref: "${{ github.ref_name }}"
 
       - name: Check firmware release
         shell: pwsh
@@ -40,11 +41,21 @@ jobs:
         run: |
           ./.github/simple-check-version.ps1 '${{ env.FIRMWARE_VERSION }}' '${{ env.REPO_UNLEASHED }}' | %{ Write-Output($_) >> $Env:GITHUB_ENV }
 
-      - name: Change stored version number and call workflow_dispatch
+      - name: Pull (Fast-Forward) upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v2.1
         if: ${{ success() && env.RELEASE_TYPE > 0 }}
+        with:
+          upstream_repository: ${{ env.REPO_UNLEASHED }}
+          upstream_branch: dev
+          target_branch: ${{ github.ref_name }}
+          git_pull_args: --ff-only                    # optional arg use, defaults to simple 'pull'
+          github_token: ${{ secrets.FLIPPER_ZERO_FW }}   # optional, for accessing repos that require authentication
+
+      - name: Change stored version number and call workflow_dispatch
+        if: steps.sync.outputs.has_new_commits
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
-          OWNER: ${{ github.repository_owner }}
         run: |
           gh variable set FIRMWARE_VERSION -b ${{ env.REMOTE_TAG_INFO }} -R ${{ env.REPO_SELF }}
           curl -L \
