@@ -192,12 +192,9 @@ int32_t lfrfid_app(void* p) {
                 scene_manager_next_scene(app->scene_manager, LfRfidSceneEmulate);
                 dolphin_deed(DolphinDeedRfidEmulate);
             } else {
-                // TODO: exit properly
-                lfrfid_free(app);
-                return 0;
+                view_dispatcher_stop(app->view_dispatcher);
             }
         }
-
     } else {
         view_dispatcher_attach_to_gui(
             app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
