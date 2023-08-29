@@ -701,7 +701,9 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
         rfalNfcWorker();
         state = rfalNfcGetState();
         ret = rfalNfcDataExchangeGetStatus();
-        if(ret == ERR_BUSY) {
+        if(ret == ERR_WRONG_STATE) {
+            return false;
+        } else if(ret == ERR_BUSY) {
             if(DWT->CYCCNT - start > timeout_ms * clocks_in_ms) {
                 FURI_LOG_D(TAG, "Timeout during data exchange");
                 return false;
