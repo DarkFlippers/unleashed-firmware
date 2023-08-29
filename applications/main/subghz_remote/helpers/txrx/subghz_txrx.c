@@ -1,10 +1,12 @@
 #include "subghz_txrx_i.h"
 
-#include <lib/subghz/protocols/protocol_items.h>
+#include <lib/subghz/subghz_protocol_registry.h>
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 #include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
 
+#ifndef FW_ORIGIN_Official
 #include <lib/subghz/blocks/custom_btn.h>
+#endif
 
 #define TAG "SubGhz"
 
@@ -657,12 +659,14 @@ bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance) {
     return instance->debug_pin_state;
 }
 
+#ifndef FW_ORIGIN_Official
 void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance) {
     furi_assert(instance);
     subghz_environment_reset_keeloq(instance->environment);
 
     subghz_custom_btns_reset();
 }
+#endif
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance) {
     furi_assert(instance);
