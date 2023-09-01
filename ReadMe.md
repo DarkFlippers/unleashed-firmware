@@ -36,6 +36,10 @@ Finally, open a [Pull Request](https://github.com/flipperdevices/flipperzero-fir
 
 Flipper Zero Firmware is written in C, with some bits and pieces written in C++ and armv7m assembly languages. An intermediate level of C knowledge is recommended for comfortable programming. C, C++, and armv7m assembly languages are supported for Flipper applications.
 
+# Firmware RoadMap
+
+[Firmware RoadMap Miro Board](https://miro.com/app/board/uXjVO_3D6xU=/)
+
 ## Requirements
 
 Supported development platforms:
