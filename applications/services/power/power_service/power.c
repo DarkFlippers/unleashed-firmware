@@ -30,7 +30,7 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
         if(power->state == PowerStateCharging) {
             canvas_set_bitmap_mode(canvas, 1);
             canvas_set_color(canvas, ColorWhite);
-            // TODO FL-3510: replace -1 magic for uint8_t with re-framing
+            // -1 used here to overflow u8 number and render is outside of the area
             canvas_draw_icon(canvas, 8, -1, &I_Charging_lightning_mask_9x10);
             canvas_set_color(canvas, ColorBlack);
             canvas_draw_icon(canvas, 8, -1, &I_Charging_lightning_9x10);

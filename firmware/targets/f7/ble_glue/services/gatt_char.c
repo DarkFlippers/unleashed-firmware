@@ -14,7 +14,6 @@ void flipper_gatt_characteristic_init(
     furi_assert(char_instance);
 
     // Copy the descriptor to the instance, since it may point to stack memory
-    // TODO FL-3506: only copy if really comes from stack
     char_instance->characteristic = malloc(sizeof(FlipperGattCharacteristicParams));
     memcpy(
         (void*)char_instance->characteristic,
