@@ -2,7 +2,6 @@
 
 #include <furi.h>
 #include <furi_hal.h>
-#include <furi_hal_rtc.h>
 
 #include "gui.h"
 #include "gui_i.h"

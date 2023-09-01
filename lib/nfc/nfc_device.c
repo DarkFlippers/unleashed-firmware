@@ -1360,7 +1360,7 @@ void nfc_device_set_name(NfcDevice* dev, const char* name) {
 static void nfc_device_get_path_without_ext(FuriString* orig_path, FuriString* shadow_path) {
     // TODO: this won't work if there is ".nfc" anywhere in the path other than
     // at the end
-    size_t ext_start = furi_string_search(orig_path, NFC_APP_EXTENSION);
+    size_t ext_start = furi_string_search(orig_path, NFC_APP_FILENAME_EXTENSION);
     furi_string_set_n(shadow_path, orig_path, 0, ext_start);
 }
 
@@ -1587,7 +1587,7 @@ bool nfc_file_select(NfcDevice* dev) {
     // Input events and views are managed by file_browser
 
     const DialogsFileBrowserOptions browser_options = {
-        .extension = NFC_APP_EXTENSION,
+        .extension = NFC_APP_FILENAME_EXTENSION,
         .skip_assets = true,
         .hide_dot_files = true,
         .icon = &I_Nfc_10px,
@@ -1659,7 +1659,7 @@ bool nfc_device_delete(NfcDevice* dev, bool use_load_path) {
                 "%s/%s%s",
                 furi_string_get_cstr(dev->folder),
                 dev->dev_name,
-                NFC_APP_EXTENSION);
+                NFC_APP_FILENAME_EXTENSION);
         }
         if(!storage_simply_remove(dev->storage, furi_string_get_cstr(file_path))) break;
         // Delete shadow file if it exists
@@ -1717,7 +1717,7 @@ bool nfc_device_restore(NfcDevice* dev, bool use_load_path) {
                 "%s/%s%s",
                 furi_string_get_cstr(dev->folder),
                 dev->dev_name,
-                NFC_APP_EXTENSION);
+                NFC_APP_FILENAME_EXTENSION);
         }
         if(!nfc_device_load_data(dev, path, true)) break;
         restored = true;

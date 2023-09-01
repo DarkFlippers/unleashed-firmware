@@ -238,7 +238,7 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
             storage,
             furi_string_get_cstr(file_path),
             furi_string_get_cstr(file_name),
-            SUBGHZ_APP_EXTENSION,
+            SUBGHZ_APP_FILENAME_EXTENSION,
             file_name,
             max_len);
 
@@ -247,7 +247,7 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
             "%s/%s%s",
             furi_string_get_cstr(file_path),
             furi_string_get_cstr(file_name),
-            SUBGHZ_APP_EXTENSION);
+            SUBGHZ_APP_FILENAME_EXTENSION);
         furi_string_set(subghz->file_path, temp_str);
         res = true;
     }
@@ -320,7 +320,8 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
     FuriString* file_path = furi_string_alloc();
 
     DialogsFileBrowserOptions browser_options;
-    dialog_file_browser_set_basic_options(&browser_options, SUBGHZ_APP_EXTENSION, &I_sub1_10px);
+    dialog_file_browser_set_basic_options(
+        &browser_options, SUBGHZ_APP_FILENAME_EXTENSION, &I_sub1_10px);
     browser_options.base_path = SUBGHZ_APP_FOLDER;
 
     // Input events and views are managed by file_select
@@ -394,7 +395,7 @@ void subghz_file_name_clear(SubGhz* subghz) {
 }
 
 bool subghz_path_is_file(FuriString* path) {
-    return furi_string_end_with(path, SUBGHZ_APP_EXTENSION);
+    return furi_string_end_with(path, SUBGHZ_APP_FILENAME_EXTENSION);
 }
 
 void subghz_lock(SubGhz* subghz) {

@@ -4,7 +4,6 @@
 
 #include <furi.h>
 #include <furi_hal.h>
-#include <furi_hal_rtc.h>
 #include <stdint.h>
 #include <u8g2_glue.h>
 

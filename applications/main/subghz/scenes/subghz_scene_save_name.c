@@ -1,10 +1,10 @@
 #include "../subghz_i.h"
 #include "subghz/types.h"
-#include <lib/toolbox/random_name.h>
 #include "../helpers/subghz_custom_event.h"
 #include <lib/subghz/protocols/raw.h>
 #include <gui/modules/validators.h>
 #include <dolphin/dolphin.h>
+#include <toolbox/name_generator.h>
 
 #define MAX_TEXT_INPUT_LEN 22
 
@@ -40,7 +40,9 @@ void subghz_scene_save_name_on_enter(void* context) {
 
     if(!subghz_path_is_file(subghz->file_path)) {
         char file_name_buf[SUBGHZ_MAX_LEN_NAME] = {0};
-        set_random_name(file_name_buf, SUBGHZ_MAX_LEN_NAME);
+
+        name_generator_make_auto(file_name_buf, SUBGHZ_MAX_LEN_NAME, SUBGHZ_APP_FILENAME_PREFIX);
+
         furi_string_set(file_name, file_name_buf);
         furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
         //highlighting the entire filename by default
@@ -71,7 +73,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         dev_name_empty);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        furi_string_get_cstr(subghz->file_path), SUBGHZ_APP_EXTENSION, "");
+        furi_string_get_cstr(subghz->file_path), SUBGHZ_APP_FILENAME_EXTENSION, "");
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     furi_string_free(file_name);
@@ -94,7 +96,10 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubGhzCustomEventSceneSaveName) {
             if(strcmp(subghz->file_name_tmp, "") != 0) {
                 furi_string_cat_printf(
-                    subghz->file_path, "/%s%s", subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
+                    subghz->file_path,
+                    "/%s%s",
+                    subghz->file_name_tmp,
+                    SUBGHZ_APP_FILENAME_EXTENSION);
                 if(subghz_path_is_file(subghz->file_path_tmp)) {
                     if(!subghz_rename_file(subghz)) {
                         return false;

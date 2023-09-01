@@ -1,7 +1,6 @@
 #include "../infrared_i.h"
 
 #include "common/infrared_scene_universal_common.h"
-#include <furi_hal_rtc.h>
 
 void infrared_scene_universal_ac_on_enter(void* context) {
     infrared_scene_universal_common_on_enter(context);

@@ -223,7 +223,11 @@ void nfc_blink_stop(Nfc* nfc) {
 
 bool nfc_save_file(Nfc* nfc) {
     furi_string_printf(
-        nfc->dev->load_path, "%s/%s%s", NFC_APP_FOLDER, nfc->dev->dev_name, NFC_APP_EXTENSION);
+        nfc->dev->load_path,
+        "%s/%s%s",
+        NFC_APP_FOLDER,
+        nfc->dev->dev_name,
+        NFC_APP_FILENAME_EXTENSION);
     bool file_saved = nfc_device_save(nfc->dev, furi_string_get_cstr(nfc->dev->load_path));
     return file_saved;
 }
