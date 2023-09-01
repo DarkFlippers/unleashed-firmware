@@ -10,7 +10,7 @@ env:
 
 jobs:
   merge_report:
-    runs-on: [self-hosted,FlipperZeroShell]
+    runs-on: [self-hosted, FlipperZeroShell]
     steps:
       - name: 'Wipe workspace'
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;

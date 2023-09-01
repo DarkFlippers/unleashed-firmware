@@ -7,7 +7,7 @@ on:
 jobs:
   reindex:
     name: 'Reindex updates'
-    runs-on: [self-hosted,FlipperZeroShell]
+    runs-on: [self-hosted, FlipperZeroShell]
     steps:
       - name: Trigger reindex
         run: |
