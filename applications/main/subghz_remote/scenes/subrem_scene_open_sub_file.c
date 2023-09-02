@@ -23,7 +23,8 @@ SubRemLoadSubState subrem_scene_open_sub_file_dialog(SubGhzRemoteApp* app) {
 
     DialogsFileBrowserOptions browser_options;
 
-    dialog_file_browser_set_basic_options(&browser_options, SUBGHZ_APP_EXTENSION, &I_sub1_10px);
+    dialog_file_browser_set_basic_options(
+        &browser_options, SUBGHZ_APP_FILENAME_EXTENSION, &I_sub1_10px);
     browser_options.base_path = SUBGHZ_RAW_FOLDER;
 
     // Input events and views are managed by file_select

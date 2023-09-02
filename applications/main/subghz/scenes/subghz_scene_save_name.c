@@ -79,8 +79,9 @@ void subghz_scene_save_name_on_enter(void* context) {
                 subghz_scene_save_name_get_timefilename(file_name, "S", true);
             }
         } else {
-        name_generator_make_auto(file_name_buf, SUBGHZ_MAX_LEN_NAME, SUBGHZ_APP_FILENAME_PREFIX);
-        furi_string_set(file_name, file_name_buf);
+            name_generator_make_auto(
+                file_name_buf, SUBGHZ_MAX_LEN_NAME, SUBGHZ_APP_FILENAME_PREFIX);
+            furi_string_set(file_name, file_name_buf);
         }
         furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
         //highlighting the entire filename by default
