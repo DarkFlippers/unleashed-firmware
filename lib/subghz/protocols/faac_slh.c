@@ -10,8 +10,6 @@
 
 #define TAG "SubGhzProtocolFaacSLH"
 
-bool bvalid;
-
 static const SubGhzBlockConst subghz_protocol_faac_slh_const = {
     .te_short = 255,
     .te_long = 595,
@@ -112,21 +110,10 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 }
 
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
-    //FuriString* valid = furi_string_alloc();
-    //if(flipper_format_read_string(flipper_format, "Valid", valid)) {
-        //bvalid = true;
-        //FURI_LOG_I(TAG, "[gen_data] is valid ? : %i", bvalid);
-    //} else {
-        //bvalid = false;
-        //FURI_LOG_I(TAG, "[gen_data] is valid ? : %i", bvalid);
-    //}
-    //furi_string_free(valid);
-    if(bvalid) {
+    if(instance->generic.allow_zero_seed) {
         instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-        FURI_LOG_I(TAG, "[gen_data] TRUE : %i", bvalid);
     } else {
         // Do not generate new data, send data from buffer
-        FURI_LOG_I(TAG, "[gen_data] FALSE : %i", bvalid);
         return true;
     }
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
@@ -255,15 +242,13 @@ SubGhzProtocolStatus
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
-        FuriString* valid = furi_string_alloc();
-        if(flipper_format_read_string(flipper_format, "Valid", valid)) {
-            bvalid = true;
-            FURI_LOG_I(TAG, "[encoder_des] True : %i", bvalid);
+        bool allow_zero_seed;
+        if(flipper_format_read_bool(flipper_format, "AllowZeroSeed", &allow_zero_seed, 1)) {
+            instance->generic.allow_zero_seed = true;
         } else {
-            bvalid = false;
-            FURI_LOG_I(TAG, "[encoder_des] False : %i", bvalid);
+            instance->generic.allow_zero_seed = false;
         }
-        furi_string_free(valid);
+
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
 
@@ -508,15 +493,12 @@ SubGhzProtocolStatus
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
-        FuriString* valid = furi_string_alloc();
-        if(flipper_format_read_string(flipper_format, "Valid", valid)) {
-            bvalid = true;
-            FURI_LOG_I(TAG, "[decoder_des] TRUE : %i", bvalid);
+        bool allow_zero_seed;
+        if(flipper_format_read_bool(flipper_format, "AllowZeroSeed", &allow_zero_seed, 1)) {
+            instance->generic.allow_zero_seed = true;
         } else {
-            bvalid = false;
-            FURI_LOG_I(TAG, "[decoder_des] FALSE : %i", bvalid);
+            instance->generic.allow_zero_seed = false;
         }
-        furi_string_free(valid);
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
                                  seed_data[3];
 
@@ -538,7 +520,7 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
-    if(bvalid == false) {
+    if(instance->generic.allow_zero_seed == false) {
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
