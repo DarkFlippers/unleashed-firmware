@@ -215,13 +215,16 @@ bool lfrfid_save_key(LfRfid* app) {
 
     lfrfid_make_app_folder(app);
 
-    if(furi_string_end_with(app->file_path, LFRFID_APP_EXTENSION)) {
+    if(furi_string_end_with(app->file_path, LFRFID_APP_FILENAME_EXTENSION)) {
         size_t filename_start = furi_string_search_rchar(app->file_path, '/');
         furi_string_left(app->file_path, filename_start);
     }
 
     furi_string_cat_printf(
-        app->file_path, "/%s%s", furi_string_get_cstr(app->file_name), LFRFID_APP_EXTENSION);
+        app->file_path,
+        "/%s%s",
+        furi_string_get_cstr(app->file_name),
+        LFRFID_APP_FILENAME_EXTENSION);
 
     result = lfrfid_save_key_data(app, app->file_path);
     return result;
@@ -231,7 +234,8 @@ bool lfrfid_load_key_from_file_select(LfRfid* app) {
     furi_assert(app);
 
     DialogsFileBrowserOptions browser_options;
-    dialog_file_browser_set_basic_options(&browser_options, LFRFID_APP_EXTENSION, &I_125_10px);
+    dialog_file_browser_set_basic_options(
+        &browser_options, LFRFID_APP_FILENAME_EXTENSION, &I_125_10px);
     browser_options.base_path = LFRFID_APP_FOLDER;
 
     // Input events and views are managed by file_browser

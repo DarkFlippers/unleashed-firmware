@@ -69,22 +69,32 @@ const GpioPin gpio_usb_dm = {.port = GPIOA, .pin = LL_GPIO_PIN_11};
 const GpioPin gpio_usb_dp = {.port = GPIOA, .pin = LL_GPIO_PIN_12};
 
 const GpioPinRecord gpio_pins[] = {
-    {.pin = &gpio_ext_pa7, .name = "PA7", .debug = false},
-    {.pin = &gpio_ext_pa6, .name = "PA6", .debug = false},
-    {.pin = &gpio_ext_pa4, .name = "PA4", .debug = false},
-    {.pin = &gpio_ext_pb3, .name = "PB3", .debug = false},
-    {.pin = &gpio_ext_pb2, .name = "PB2", .debug = false},
-    {.pin = &gpio_ext_pc3, .name = "PC3", .debug = false},
-    {.pin = &gpio_ext_pc1, .name = "PC1", .debug = false},
-    {.pin = &gpio_ext_pc0, .name = "PC0", .debug = false},
+    // 5V: 1
+    {.pin = &gpio_ext_pa7, .name = "PA7", .number = 2, .debug = false},
+    {.pin = &gpio_ext_pa6, .name = "PA6", .number = 3, .debug = false},
+    {.pin = &gpio_ext_pa4, .name = "PA4", .number = 4, .debug = false},
+    {.pin = &gpio_ext_pb3, .name = "PB3", .number = 5, .debug = false},
+    {.pin = &gpio_ext_pb2, .name = "PB2", .number = 6, .debug = false},
+    {.pin = &gpio_ext_pc3, .name = "PC3", .number = 7, .debug = false},
+    // GND: 8
+    // Space
+    // 3v3: 9
+    {.pin = &gpio_swclk, .name = "PA14", .number = 10, .debug = true},
+    // GND: 11
+    {.pin = &gpio_swdio, .name = "PA13", .number = 12, .debug = true},
+    {.pin = &gpio_usart_tx, .name = "PB6", .number = 13, .debug = true},
+    {.pin = &gpio_usart_rx, .name = "PB7", .number = 14, .debug = true},
+    {.pin = &gpio_ext_pc1, .name = "PC1", .number = 15, .debug = false},
+    {.pin = &gpio_ext_pc0, .name = "PC0", .number = 16, .debug = false},
+    {.pin = &gpio_ibutton, .name = "PB14", .number = 17, .debug = true},
+    // GND: 18
 
     /* Dangerous pins, may damage hardware */
-    {.pin = &gpio_usart_rx, .name = "PB7", .debug = true},
     {.pin = &gpio_speaker, .name = "PB8", .debug = true},
     {.pin = &gpio_infrared_tx, .name = "PB9", .debug = true},
 };
 
-const size_t gpio_pins_count = sizeof(gpio_pins) / sizeof(GpioPinRecord);
+const size_t gpio_pins_count = COUNT_OF(gpio_pins);
 
 const InputPin input_pins[] = {
     {.gpio = &gpio_button_up, .key = InputKeyUp, .inverted = true, .name = "Up"},
@@ -95,7 +105,7 @@ const InputPin input_pins[] = {
     {.gpio = &gpio_button_back, .key = InputKeyBack, .inverted = true, .name = "Back"},
 };
 
-const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
+const size_t input_pins_count = COUNT_OF(input_pins);
 
 static void furi_hal_resources_init_input_pins(GpioMode mode) {
     for(size_t i = 0; i < input_pins_count; i++) {
@@ -210,24 +220,10 @@ void furi_hal_resources_init() {
 }
 
 int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio) {
-    if(gpio == &gpio_ext_pa7)
-        return 2;
-    else if(gpio == &gpio_ext_pa6)
-        return 3;
-    else if(gpio == &gpio_ext_pa4)
-        return 4;
-    else if(gpio == &gpio_ext_pb3)
-        return 5;
-    else if(gpio == &gpio_ext_pb2)
-        return 6;
-    else if(gpio == &gpio_ext_pc3)
-        return 7;
-    else if(gpio == &gpio_ext_pc1)
-        return 15;
-    else if(gpio == &gpio_ext_pc0)
-        return 16;
-    else if(gpio == &gpio_ibutton)
-        return 17;
-    else
-        return -1;
+    for(size_t i = 0; i < gpio_pins_count; i++) {
+        if(gpio_pins[i].pin == gpio) {
+            return gpio_pins[i].number;
+        }
+    }
+    return -1;
 }

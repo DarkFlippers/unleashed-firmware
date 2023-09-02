@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 24th Jul, 2023
-# Last Checked 19th Aug, 2023
+# Last Updated 1st Sept, 2023
+# Last Checked 1st Sept, 2023
 #
 name: Power
 type: parsed
@@ -2345,3 +2345,27 @@ type: parsed
 protocol: NEC
 address: 80 00 00 00
 command: D0 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 48 B7 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 44 BB 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 0A F5 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 06 F9 00 00
