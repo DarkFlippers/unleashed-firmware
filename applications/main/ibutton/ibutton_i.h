@@ -29,7 +29,8 @@
 #include "scenes/ibutton_scene.h"
 
 #define IBUTTON_APP_FOLDER ANY_PATH("ibutton")
-#define IBUTTON_APP_EXTENSION ".ibtn"
+#define IBUTTON_APP_FILENAME_PREFIX "iBtn"
+#define IBUTTON_APP_FILENAME_EXTENSION ".ibtn"
 
 #define IBUTTON_KEY_NAME_SIZE 22
 

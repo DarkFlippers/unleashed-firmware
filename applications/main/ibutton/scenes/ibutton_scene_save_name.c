@@ -1,6 +1,6 @@
 #include "../ibutton_i.h"
 
-#include <toolbox/random_name.h>
+#include <toolbox/name_generator.h>
 #include <toolbox/path.h>
 
 #include <dolphin/dolphin.h>
@@ -17,7 +17,8 @@ void ibutton_scene_save_name_on_enter(void* context) {
     const bool is_new_file = furi_string_empty(ibutton->file_path);
 
     if(is_new_file) {
-        set_random_name(ibutton->key_name, IBUTTON_KEY_NAME_SIZE);
+        name_generator_make_auto(
+            ibutton->key_name, IBUTTON_KEY_NAME_SIZE, IBUTTON_APP_FILENAME_PREFIX);
     }
 
     text_input_set_header_text(text_input, "Name the key");
@@ -29,8 +30,8 @@ void ibutton_scene_save_name_on_enter(void* context) {
         IBUTTON_KEY_NAME_SIZE,
         is_new_file);
 
-    ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(IBUTTON_APP_FOLDER, IBUTTON_APP_EXTENSION, ibutton->key_name);
+    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
+        IBUTTON_APP_FOLDER, IBUTTON_APP_FILENAME_EXTENSION, ibutton->key_name);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewTextInput);
@@ -48,7 +49,7 @@ bool ibutton_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                 "%s/%s%s",
                 IBUTTON_APP_FOLDER,
                 ibutton->key_name,
-                IBUTTON_APP_EXTENSION);
+                IBUTTON_APP_FILENAME_EXTENSION);
 
             if(ibutton_save_key(ibutton)) {
                 scene_manager_next_scene(ibutton->scene_manager, iButtonSceneSaveSuccess);
