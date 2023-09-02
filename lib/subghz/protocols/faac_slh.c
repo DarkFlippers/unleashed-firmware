@@ -110,7 +110,7 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 }
 
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
-    if(instance->generic.allow_zero_seed) {
+    if(instance->generic.allow_zero_seed || (instance->generic.seed != 0x0)) {
         instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
     } else {
         // Do not generate new data, send data from buffer
