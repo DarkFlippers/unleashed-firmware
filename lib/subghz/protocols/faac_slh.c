@@ -112,6 +112,43 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
     if(instance->generic.allow_zero_seed || (instance->generic.seed != 0x0)) {
         instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+    } else if(instance->generic.prg_mode == true) {
+        uint8_t data_tmp = 0;
+        uint8_t data_prg[8];
+
+        instance->generic.cnt_2++;
+
+        data_prg[0] = 0x00;
+
+        data_prg[1] = instance->generic.cnt_2;
+
+        data_prg[2] = (uint8_t)(instance->generic.seed & 0xFF);
+        data_prg[3] = (uint8_t)(instance->generic.seed >> 8 & 0xFF);
+        data_prg[4] = (uint8_t)(instance->generic.seed >> 16 & 0xFF);
+        data_prg[5] = (uint8_t)(instance->generic.seed >> 24);
+
+        data_prg[2] ^= data_prg[1];
+        data_prg[3] ^= data_prg[1];
+        data_prg[4] ^= data_prg[1];
+        data_prg[5] ^= data_prg[1];
+
+        for(uint8_t i=data_prg[1]  & 0x0F ; i!=0; i--) {
+        data_tmp = data_prg[5];
+
+        data_prg[5] = ((data_prg[5] << 1) & 0xFF) | (data_prg[4]  & 0x80) >> 7;
+        data_prg[4] = ((data_prg[4] << 1) & 0xFF) | (data_prg[3]  & 0x80) >> 7;
+        data_prg[3] = ((data_prg[3] << 1) & 0xFF) | (data_prg[2]  & 0x80) >> 7;
+        data_prg[2] = ((data_prg[2] << 1) & 0xFF) | (data_tmp & 0x80) >> 7;
+    }
+        data_prg[6] = 0x0F;
+        data_prg[7] = 0x52;
+
+        uint32_t enc_prg_1 = data_prg[7] << 24 | data_prg[6] << 16 | data_prg[5] << 8 | data_prg[4];
+        uint32_t enc_prg_2 = data_prg[3] << 24 | data_prg[2] << 16 | data_prg[1] << 8 | data_prg[0];
+        instance->generic.data = (uint64_t)enc_prg_1 << 32 | enc_prg_2;
+        FURI_LOG_I(TAG, "New MasterKey encrypted : %016llX\r", instance->generic.data);
+
+        return true;
     } else {
         // Do not generate new data, send data from buffer
         return true;
@@ -415,6 +452,48 @@ static void subghz_protocol_faac_slh_check_remote_controller(
     uint32_t decrypt = 0;
     uint64_t man;
 
+    uint8_t data_tmp = 0;
+    uint8_t data_prg[8];
+    data_prg[0] = (code_hop & 0xFF);
+    data_prg[1] = ((code_hop >> 8) & 0xFF);
+    data_prg[2] = ((code_hop >> 16) & 0xFF);
+    data_prg[3] = (code_hop >> 24);
+    data_prg[4] = (code_fix & 0xFF);
+    data_prg[5] = ((code_fix >> 8) & 0xFF);
+    data_prg[6] = ((code_fix >> 16) & 0xFF);
+    data_prg[7] = (code_fix >> 24);
+
+    if( (data_prg[7] == 0x52) && (data_prg[6] == 0x0F) && (data_prg[0] == 0x00) )  {
+        instance->prg_mode = true;
+        // ProgMode ON
+        FURI_LOG_I(TAG, "Master Key detected!");
+
+        for(uint8_t i = data_prg[1] & 0xF; i != 0; i--) {
+
+         data_tmp = data_prg[2];
+
+         data_prg[2] = data_prg[2] >> 1 | (data_prg[3] & 1) << 7;
+         data_prg[3] = data_prg[3] >> 1 | (data_prg[4] & 1) << 7;
+         data_prg[4] = data_prg[4] >> 1 | (data_prg[5] & 1) << 7;
+         data_prg[5] = data_prg[5] >> 1 | (data_tmp & 1) << 7;
+
+       }
+       data_prg[2] ^= data_prg[1];
+       data_prg[3] ^= data_prg[1];
+       data_prg[4] ^= data_prg[1];
+       data_prg[5] ^= data_prg[1];
+       FURI_LOG_I(TAG, "Got SEED value!");
+       instance->seed = data_prg[5] << 24 | data_prg[4] << 16 | data_prg[3] << 8 | data_prg[2];
+       FURI_LOG_I(TAG, "SEED = %08lX", instance->seed);
+       uint32_t dec_prg_1 = data_prg[7] << 24 | data_prg[6] << 16 | data_prg[5] << 8 | data_prg[4];
+       uint32_t dec_prg_2 = data_prg[3] << 24 | data_prg[2] << 16 | data_prg[1] << 8 | data_prg[0];
+       instance->data_2 = (uint64_t)dec_prg_1 << 32 | dec_prg_2;
+       FURI_LOG_I(TAG, "MasterKey decrypted : %016llX\r", instance->data_2);
+       instance->cnt_2 = data_prg[1];
+    } else {
+        instance->prg_mode = false;
+        }
+
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
             switch(manufacture_code->type) {
@@ -520,7 +599,22 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
-    if(instance->generic.allow_zero_seed == false) {
+    if(instance->generic.prg_mode == true) {
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Ke:%lX%08lX\r\n"
+            "Kd:%lX%08lX\r\n"
+            "Seed:%08lX mCnt:%02X",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            (uint32_t)(instance->generic.data >> 32),
+            (uint32_t)instance->generic.data,
+            (uint32_t)(instance->generic.data_2 >> 32),
+            (uint32_t)instance->generic.data_2,
+            instance->generic.seed,
+            instance->generic.cnt_2); 
+    } else if(instance->generic.allow_zero_seed == false) {
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
