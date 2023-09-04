@@ -1,6 +1,8 @@
 #include "storage_glue.h"
 #include <furi_hal.h>
 
+#define TAG "StorageGlue"
+
 /****************** storage file ******************/
 
 void storage_file_init(StorageFile* obj) {
@@ -148,4 +150,9 @@ bool storage_pop_storage_file(File* file, StorageData* storage) {
     }
 
     return result;
+}
+
+size_t storage_open_files_count(StorageData* storage) {
+    size_t count = StorageFileList_size(storage->files);
+    return count;
 }

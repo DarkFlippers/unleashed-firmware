@@ -24,7 +24,7 @@ static FS_Error storage_ext_parse_error(SDError error);
 
 /******************* Core Functions *******************/
 
-static bool sd_mount_card(StorageData* storage, bool notify) {
+static bool sd_mount_card_internal(StorageData* storage, bool notify) {
     bool result = false;
     uint8_t counter = sd_max_mount_retry_count();
     uint8_t bsp_result;
@@ -104,6 +104,32 @@ FS_Error sd_unmount_card(StorageData* storage) {
     f_mount(0, sd_data->path, 0);
 
     return storage_ext_parse_error(error);
+}
+
+FS_Error sd_mount_card(StorageData* storage, bool notify) {
+    sd_mount_card_internal(storage, notify);
+    FS_Error error;
+
+    if(storage->status != StorageStatusOK) {
+        FURI_LOG_E(TAG, "sd init error: %s", storage_data_status_text(storage));
+        if(notify) {
+            NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+            sd_notify_error(notification);
+            furi_record_close(RECORD_NOTIFICATION);
+        }
+        error = FSE_INTERNAL;
+    } else {
+        FURI_LOG_I(TAG, "card mounted");
+        if(notify) {
+            NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+            sd_notify_success(notification);
+            furi_record_close(RECORD_NOTIFICATION);
+        }
+
+        error = FSE_OK;
+    }
+
+    return error;
 }
 
 FS_Error sd_format_card(StorageData* storage) {
@@ -222,25 +248,8 @@ static void storage_ext_tick_internal(StorageData* storage, bool notify) {
     if(sd_data->sd_was_present) {
         if(hal_sd_detect()) {
             FURI_LOG_I(TAG, "card detected");
-            sd_mount_card(storage, notify);
-
-            if(storage->status != StorageStatusOK) {
-                FURI_LOG_E(TAG, "sd init error: %s", storage_data_status_text(storage));
-                if(notify) {
-                    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-                    sd_notify_error(notification);
-                    furi_record_close(RECORD_NOTIFICATION);
-                }
-            } else {
-                FURI_LOG_I(TAG, "card mounted");
-                if(notify) {
-                    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-                    sd_notify_success(notification);
-                    furi_record_close(RECORD_NOTIFICATION);
-                }
-            }
-
             sd_data->sd_was_present = false;
+            sd_mount_card(storage, notify);
 
             if(!hal_sd_detect()) {
                 FURI_LOG_I(TAG, "card removed while mounting");

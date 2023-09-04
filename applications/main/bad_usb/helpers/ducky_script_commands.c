@@ -171,7 +171,7 @@ static const DuckyCmd ducky_commands[] = {
     {"WAIT_FOR_BUTTON_PRESS", ducky_fnc_waitforbutton, -1},
 };
 
-#define TAG "BadUSB"
+#define TAG "BadUsb"
 #define WORKER_TAG TAG "Worker"
 
 int32_t ducky_execute_cmd(BadUsbScript* bad_usb, const char* line) {
