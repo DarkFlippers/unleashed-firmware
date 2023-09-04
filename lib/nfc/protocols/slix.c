@@ -7,7 +7,7 @@
 #include "furi_hal_nfc.h"
 #include <furi_hal_random.h>
 
-#define TAG "SLIX"
+#define TAG "Slix"
 
 ReturnCode slix2_read_nxp_sysinfo(FuriHalNfcDevData* nfc_data, NfcVData* nfcv_data) {
     furi_assert(nfc_data);

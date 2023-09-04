@@ -242,6 +242,23 @@ static void rpc_system_storage_list_root(const PB_Main* request, void* context) 
     rpc_send_and_release(session, &response);
 }
 
+static bool rpc_system_storage_list_filter(
+    const PB_Storage_ListRequest* request,
+    const FileInfo* fileinfo,
+    const char* name) {
+    bool result = false;
+
+    do {
+        if(!path_contains_only_ascii(name)) break;
+        if(request->filter_max_size) {
+            if(fileinfo->size > request->filter_max_size) break;
+        }
+        result = true;
+    } while(false);
+
+    return result;
+}
+
 static void rpc_system_storage_list_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
@@ -253,9 +270,11 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
 
+    const PB_Storage_ListRequest* list_request = &request->content.storage_list_request;
+
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
-    if(!strcmp(request->content.storage_list_request.path, "/")) {
+    if(!strcmp(list_request->path, "/")) {
         rpc_system_storage_list_root(request, context);
         return;
     }
@@ -271,7 +290,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
     };
     PB_Storage_ListResponse* list = &response.content.storage_list_response;
 
-    bool include_md5 = request->content.storage_list_request.include_md5;
+    bool include_md5 = list_request->include_md5;
     FuriString* md5 = furi_string_alloc();
     FuriString* md5_path = furi_string_alloc();
     File* file = storage_file_alloc(fs_api);
@@ -279,7 +298,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
     bool finish = false;
     int i = 0;
 
-    if(!storage_dir_open(dir, request->content.storage_list_request.path)) {
+    if(!storage_dir_open(dir, list_request->path)) {
         response.command_status = rpc_system_storage_get_file_error(dir);
         response.which_content = PB_Main_empty_tag;
         finish = true;
@@ -289,7 +308,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
         FileInfo fileinfo;
         char* name = malloc(MAX_NAME_LENGTH + 1);
         if(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
-            if(path_contains_only_ascii(name)) {
+            if(rpc_system_storage_list_filter(list_request, &fileinfo, name)) {
                 if(i == COUNT_OF(list->file)) {
                     list->file_count = i;
                     response.has_next = true;
@@ -303,11 +322,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
                 list->file[i].name = name;
 
                 if(include_md5 && !file_info_is_dir(&fileinfo)) {
-                    furi_string_printf( //-V576
-                        md5_path,
-                        "%s/%s",
-                        request->content.storage_list_request.path,
-                        name);
+                    furi_string_printf(md5_path, "%s/%s", list_request->path, name); //-V576
 
                     if(md5_string_calc_file(file, furi_string_get_cstr(md5_path), md5, NULL)) {
                         char* md5sum = list->file[i].md5sum;

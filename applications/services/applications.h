@@ -51,6 +51,12 @@ extern const size_t FLIPPER_ON_SYSTEM_START_COUNT;
 extern const FlipperInternalApplication FLIPPER_SYSTEM_APPS[];
 extern const size_t FLIPPER_SYSTEM_APPS_COUNT;
 
+/* Debug apps 
+ * Can only be spawned by loader by name
+ */
+extern const FlipperInternalApplication FLIPPER_DEBUG_APPS[];
+extern const size_t FLIPPER_DEBUG_APPS_COUNT;
+
 extern const FlipperInternalApplication FLIPPER_ARCHIVE;
 
 /* Settings list

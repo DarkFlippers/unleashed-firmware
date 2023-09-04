@@ -18,10 +18,12 @@ GPIOItems* gpio_items_alloc() {
     }
 
     items->pins = malloc(sizeof(GpioPinRecord) * items->count);
-    for(size_t i = 0; i < items->count; i++) {
+    size_t index = 0;
+    for(size_t i = 0; i < gpio_pins_count; i++) {
         if(!gpio_pins[i].debug) {
-            items->pins[i].pin = gpio_pins[i].pin;
-            items->pins[i].name = gpio_pins[i].name;
+            items->pins[index].pin = gpio_pins[i].pin;
+            items->pins[index].name = gpio_pins[i].name;
+            index++;
         }
     }
     return items;

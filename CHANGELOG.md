@@ -16,6 +16,7 @@
 ## Please support development of the project
 |Service|Remark|Link/Wallet|
 |-|-|-|
+|**Patreon**||https://patreon.com/mmxdev|
 |**Boosty**|patreon alternative|https://boosty.to/mmxdev|
 |cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
 |YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
@@ -41,11 +42,15 @@ What build I should download and what this name means - `flipper-z-f7-update-(ve
 `f7` = Hardware version - same for all flipper zero devices<br>
 `update` = Update package, contains updater, all assets (plugins, IR libs, etc.), and firmware itself<br>
 `(version)` = Firmware version<br>
-` ` = this build comes with 3 custom animations, and default apps preinstalled (base pack)<br>
-`c` = this build comes with 3 custom animations, and only main apps (Clean build like latest OFW)<br>
-`n` = this build comes without our custom animations (we have only 3 of them), only official flipper animations, and base pack apps<br>
-`e` = build has 🎲 [extra apps pack](https://github.com/xMasterX/all-the-plugins) preinstalled, our custom animations, and base pack apps too<br>
-`r` = RGB patch (+ extra apps) for flippers with rgb backlight mod (this is hardware mod!) (Works only on modded flippers!) (do not install on non modded device!)
+| Designation | 3 Custom Animation | [Base Apps](https://github.com/xMasterX/all-the-plugins#default-pack) | [Extra Apps](https://github.com/xMasterX/all-the-plugins#extra-pack) | ⚠️RGB mode* |
+|-----|:---:|:---:|:---:|:---:|
+| ` ` | ✅ | ✅ |  |  |
+| `c` | ✅ |  |  |  |
+| `n` |  | ✅ |  |  |
+| `e` | ✅ | ✅ | ✅ |  |
+| `r` | ✅ | ✅ | ✅ | ✅ |
+
+⚠️This is [hardware mod](https://github.com/quen0n/flipperzero-firmware-rgb#readme), works only on modded flippers! do not install on non modded device!
 
 Firmware Self-update package (update from microSD) - `flipper-z-f7-update-(version).tgz` for mobile app / qFlipper / web<br>
 Archive of `scripts` folder (contains scripts for FW/plugins development) - `flipper-z-any-scripts-(version).tgz`<br>

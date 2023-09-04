@@ -336,7 +336,6 @@ static void subghz_txrx_tx_stop(SubGhzTxRx* instance) {
     }
     subghz_txrx_idle(instance);
     subghz_txrx_speaker_off(instance);
-    //Todo: Show message
 }
 
 FlipperFormat* subghz_txrx_get_fff_data(SubGhzTxRx* instance) {

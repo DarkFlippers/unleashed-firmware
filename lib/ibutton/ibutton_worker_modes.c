@@ -127,7 +127,7 @@ void ibutton_worker_mode_write_blank_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
 
     const bool success = ibutton_protocols_write_blank(worker->protocols, worker->key);
-    // TODO: pass a proper result to the callback
+    // TODO FL-3527: pass a proper result to the callback
     const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
                                                       iButtonWorkerWriteNoDetect;
     if(worker->write_cb != NULL) {
@@ -139,7 +139,7 @@ void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
 
     const bool success = ibutton_protocols_write_copy(worker->protocols, worker->key);
-    // TODO: pass a proper result to the callback
+    // TODO FL-3527: pass a proper result to the callback
     const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
                                                       iButtonWorkerWriteNoDetect;
     if(worker->write_cb != NULL) {

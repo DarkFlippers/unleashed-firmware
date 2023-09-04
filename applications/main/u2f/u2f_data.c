@@ -5,7 +5,7 @@
 #include <furi_hal_random.h>
 #include <flipper_format/flipper_format.h>
 
-#define TAG "U2F"
+#define TAG "U2f"
 
 #define U2F_DATA_FOLDER EXT_PATH("u2f/")
 #define U2F_CERT_FILE U2F_DATA_FOLDER "assets/cert.der"

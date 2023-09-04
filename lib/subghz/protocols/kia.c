@@ -6,7 +6,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocoKIA"
+#define TAG "SubGhzProtocoKia"
 
 static const SubGhzBlockConst subghz_protocol_kia_const = {
     .te_short = 250,

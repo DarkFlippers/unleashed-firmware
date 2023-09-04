@@ -12,7 +12,7 @@
  *
  */
 
-#define TAG "SubGhzProtocolHoltek_HT12X"
+#define TAG "SubGhzProtocolHoltekHt12x"
 
 #define DIP_PATTERN "%c%c%c%c%c%c%c%c"
 #define CNT_TO_DIP(dip)                                                                     \

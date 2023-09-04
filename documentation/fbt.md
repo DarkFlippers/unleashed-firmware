@@ -66,7 +66,7 @@ To use language servers other than the default VS Code C/C++ language server, us
 - `fap_dist` - build external plugins & publish to the `dist` folder.
 - `updater_package`, `updater_minpackage` - build a self-update package. The minimal version only includes the firmware's DFU file; the full version also includes a radio stack & resources for the SD card.
 - `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper.
-- `flash` - flash the attached device with OpenOCD over ST-Link.
+- `flash` - flash the attached device over SWD interface with supported probes. Probe is detected automatically; you can override it with `SWD_TRANSPORT=...` variable. If multiple probes are attached, you can specify the serial number of the probe to use with `SWD_TRANSPORT_SERIAL=...`.
 - `flash_usb`, `flash_usb_full` - build, upload and install the update package to the device over USB. See details on `updater_package` and `updater_minpackage`.
 - `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded.
 - `debug_other`, `debug_other_blackmagic` - attach GDB without loading any `.elf`. It will allow you to manually add external `.elf` files with `add-symbol-file` in GDB.
@@ -75,7 +75,7 @@ To use language servers other than the default VS Code C/C++ language server, us
 - `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board).
 - `openocd` - just start OpenOCD.
 - `get_blackmagic` - output the blackmagic address in the GDB remote format. Useful for IDE integration.
-- `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `OPENOCD_ADAPTER_SERIAL=...`.
+- `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `SWD_TRANSPORT_SERIAL=...`.
 - `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs.
 - `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests.
 - `firmware_pvs` - generate a PVS Studio report for the firmware. Requires PVS Studio to be available on your system's `PATH`.
@@ -88,9 +88,8 @@ To use language servers other than the default VS Code C/C++ language server, us
   - `fap_snake_game`, etc. - build single app as `.fap` by its application ID.
   - Check out [`--extra-ext-apps`](#command-line-parameters) for force adding extra apps to external build.
   - `fap_snake_game_list`, etc - generate source + assembler listing for app's `.fap`.
-- `flash`, `firmware_flash` - flash the current version to the attached device with OpenOCD over ST-Link.
+- `flash`, `firmware_flash` - flash the current version to the attached device over SWD.
 - `jflash` - flash the current version to the attached device with JFlash using a J-Link probe. The JFlash executable must be on your `$PATH`.
-- `flash_blackmagic` - flash the current version to the attached device with a Blackmagic probe.
 - `firmware_all`, `updater_all` - build a basic set of binaries.
 - `firmware_list`, `updater_list` - generate source + assembler listing.
 - `firmware_cdb`, `updater_cdb` - generate a `compilation_database.json` file for external tools and IDEs. It can be created without actually building the firmware.

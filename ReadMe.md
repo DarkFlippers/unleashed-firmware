@@ -3,6 +3,20 @@
 <img src="https://user-images.githubusercontent.com/10697207/186202043-26947e28-b1cc-459a-8f20-ffcc7fc0c71c.png" align="center" alt="fzCUSTOM" border="0">
 </a>
 </h3>
+<div align="center" id="badges">
+	<a href="https://discord.unleashedflip.com">
+		<img src="https://img.shields.io/discord/937479784148115456?style=flat-square&logo=discord&label=Discord&color=%237289DA&link=https%3A%2F%2Fdiscord.unleashedflip.com%2F" alt="Discord server"/>
+	</a>
+	<a href="https://t.me/flipperzero_unofficial">
+		<img src="https://img.shields.io/endpoint?label=EN%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial" alt="EN TG channel"/>
+	</a>
+	<a href="https://t.me/flipperzero_unofficial_ru">
+		<img src="https://img.shields.io/endpoint?label=RU%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial_ru" alt="RU TG channel"/>	
+	</a>
+	<a href="https://t.me/flipperzero_unofficial_ua">
+		<img src="https://img.shields.io/endpoint?label=UA%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial_ua" alt="UA TG channel"/>
+	</a>
+</div>
 
 ### Welcome to the Flipper Zero Unleashed Firmware repo! 
 
@@ -16,13 +30,7 @@
 
 ##### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also, this software is made without any support from Flipper Devices and is in no way related to the official devs. 
 
-<br>
-Our Discord Community:
-<br>
-<a href="https://discord.unleashedflip.com"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community" target="_blank"></a>
 
-<br>
-<br>
 <br>
 
 ## Dev builds (unstable)
@@ -33,9 +41,9 @@ Our Discord Community:
 
 # What's changed
 - **Sub-GHz** *lib & hal*
-	- regional TX restrictions removed
+	- Regional TX restrictions removed
 	- Extra Sub-GHz frequencies
-	- frequency range can be extended in settings file (Warning: It can damage Flipper's hardware)
+	- Frequency range can be extended in settings file (Warning: It can damage Flipper's hardware)
 	- Many rolling code [protocols](https://github.com/DarkFlippers/unleashed-firmware#current-modified-and-new-sub-ghz-protocols-list) now have the ability to save & send captured signals
 	- FAAC SLH (Spa) & BFT Mitto (keeloq secure with seed) manual creation
 	- External CC1101 module support [(by quen0n)](https://github.com/DarkFlippers/unleashed-firmware/pull/307)
@@ -140,6 +148,7 @@ Also, regarding our releases, every build has and always will be free and open-s
 You can support us by using links or addresses below:
 |Service|Remark|Link/Wallet|
 |-|-|-|
+|**Patreon**||https://patreon.com/mmxdev|
 |**Boosty**|patreon alternative|https://boosty.to/mmxdev|
 |cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
 |YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|

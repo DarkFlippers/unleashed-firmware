@@ -17,7 +17,7 @@
 
 #define BUFFER_SIZE 512
 
-#define TAG "fap_assets"
+#define TAG "FapAssets"
 
 #pragma pack(push, 1)
 

@@ -6,7 +6,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocol_iDo_117/111"
+#define TAG "SubGhzProtocolIdo117/111"
 
 static const SubGhzBlockConst subghz_protocol_ido_const = {
     .te_short = 450,

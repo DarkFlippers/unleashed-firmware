@@ -10,6 +10,7 @@
 
 struct ViewPort {
     Gui* gui;
+    FuriMutex* mutex;
     bool is_enabled;
     ViewPortOrientation orientation;
 
