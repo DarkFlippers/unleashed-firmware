@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <algorithm>
 
-#define TAG "hashtable_api"
+#define TAG "ApiHashtable"
 
 bool elf_resolve_from_hashtable(
     const ElfApiInterface* interface,

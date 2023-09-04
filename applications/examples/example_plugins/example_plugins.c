@@ -11,7 +11,7 @@
 #include <loader/firmware_api/firmware_api.h>
 #include <storage/storage.h>
 
-#define TAG "example_plugins"
+#define TAG "ExamplePlugins"
 
 int32_t example_plugins_app(void* p) {
     UNUSED(p);

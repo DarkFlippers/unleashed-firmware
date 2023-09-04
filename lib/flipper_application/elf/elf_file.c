@@ -5,7 +5,7 @@
 #include "elf_api_interface.h"
 #include "../api_hashtable/api_hashtable.h"
 
-#define TAG "elf"
+#define TAG "Elf"
 
 #define ELF_NAME_BUFFER_LEN 32
 #define SECTION_OFFSET(e, n) ((e)->section_table + (n) * sizeof(Elf32_Shdr))

@@ -7,7 +7,7 @@
 #include "tools/varint_pair.h"
 #include "tools/bit_lib.h"
 
-#define TAG "LFRFIDWorker"
+#define TAG "LfRfidWorker"
 
 /**
  * if READ_DEBUG_GPIO is defined:

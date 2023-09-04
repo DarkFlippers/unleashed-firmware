@@ -6,7 +6,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolHormannHSM"
+#define TAG "SubGhzProtocolHormannHsm"
 
 #define HORMANN_HSM_PATTERN 0xFF000000003
 

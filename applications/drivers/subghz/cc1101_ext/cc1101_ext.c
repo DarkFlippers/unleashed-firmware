@@ -15,7 +15,7 @@
 #include <cc1101.h>
 #include <stdio.h>
 
-#define TAG "SubGhz_Device_CC1101_Ext"
+#define TAG "SubGhzDeviceCc1101Ext"
 
 #define SUBGHZ_DEVICE_CC1101_EXT_TX_GPIO &gpio_ext_pb2
 #define SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO &gpio_ext_pc3
