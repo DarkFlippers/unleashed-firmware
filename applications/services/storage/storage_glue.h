@@ -68,6 +68,8 @@ void* storage_get_storage_file_data(const File* file, StorageData* storage);
 void storage_push_storage_file(File* file, FuriString* path, StorageData* storage);
 bool storage_pop_storage_file(File* file, StorageData* storage);
 
+size_t storage_open_files_count(StorageData* storage);
+
 #ifdef __cplusplus
 }
 #endif

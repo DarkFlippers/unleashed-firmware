@@ -8,7 +8,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocoKingGates_stylo_4k"
+#define TAG "SubGhzProtocoKingGatesStylo4k"
 
 static const SubGhzBlockConst subghz_protocol_kinggates_stylo_4k_const = {
     .te_short = 400,

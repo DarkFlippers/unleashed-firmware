@@ -3,7 +3,7 @@
 #include <toolbox/path.h>
 #include <dolphin/dolphin.h>
 
-#define TAG "iButtonApp"
+#define TAG "IButtonApp"
 
 static const NotificationSequence sequence_blink_set_yellow = {
     &message_blink_set_color_yellow,

@@ -5,7 +5,7 @@
 #include <lib/toolbox/path.h>
 
 #define RAW_FILE_NAME "Raw_signal_"
-#define TAG "SubGhzSceneReadRAW"
+#define TAG "SubGhzSceneReadRaw"
 
 bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
     bool ret = false;

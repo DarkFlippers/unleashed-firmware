@@ -11,7 +11,7 @@
 
 #include <furi.h>
 
-#define TAG "example_plugins"
+#define TAG "ExamplePlugins"
 
 int32_t example_plugins_multi_app(void* p) {
     UNUSED(p);

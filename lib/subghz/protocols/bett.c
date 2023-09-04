@@ -7,7 +7,7 @@
 #include "../blocks/math.h"
 
 // protocol BERNER / ELKA / TEDSEN / TELETASTER
-#define TAG "SubGhzProtocolBETT"
+#define TAG "SubGhzProtocolBett"
 
 #define DIP_P 0b11 //(+)
 #define DIP_O 0b10 //(0)

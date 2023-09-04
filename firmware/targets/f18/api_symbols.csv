@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,36.0,,
+Version,+,36.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2002,6 +2002,7 @@ Function,+,storage_int_backup,FS_Error,"Storage*, const char*"
 Function,+,storage_int_restore,FS_Error,"Storage*, const char*, Storage_name_converter"
 Function,+,storage_sd_format,FS_Error,Storage*
 Function,+,storage_sd_info,FS_Error,"Storage*, SDInfo*"
+Function,+,storage_sd_mount,FS_Error,Storage*
 Function,+,storage_sd_status,FS_Error,Storage*
 Function,+,storage_sd_unmount,FS_Error,Storage*
 Function,+,storage_simply_mkdir,_Bool,"Storage*, const char*"

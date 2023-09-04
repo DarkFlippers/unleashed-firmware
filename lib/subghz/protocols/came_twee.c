@@ -13,7 +13,7 @@
  *
  */
 
-#define TAG "SubGhzProtocolCAME_Twee"
+#define TAG "SubGhzProtocolCameTwee"
 
 #define DIP_PATTERN "%c%c%c%c%c%c%c%c%c%c"
 #define CNT_TO_DIP(dip)                                                                     \

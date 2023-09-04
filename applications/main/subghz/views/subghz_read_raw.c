@@ -9,7 +9,7 @@
 
 #include <assets_icons.h>
 #define SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE 100
-#define TAG "SubGhzReadRAW"
+#define TAG "SubGhzReadRaw"
 
 struct SubGhzReadRAW {
     View* view;

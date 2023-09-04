@@ -11,7 +11,7 @@
 * https://github.com/merbanan/rtl_433/blob/master/src/devices/secplus_v1.c
 */
 
-#define TAG "SubGhzProtocoSecPlus_v1"
+#define TAG "SubGhzProtocoSecPlusV1"
 
 #define SECPLUS_V1_BIT_ERR -1 //0b0000
 #define SECPLUS_V1_BIT_0 0 //0b0001

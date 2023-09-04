@@ -10,7 +10,7 @@
 #define RFID_DATA_BUFFER_SIZE 2048
 #define READ_DATA_BUFFER_COUNT 4
 
-#define TAG_EMULATE "RAW EMULATE"
+#define TAG_EMULATE "RawEmulate"
 
 // emulate mode
 typedef struct {

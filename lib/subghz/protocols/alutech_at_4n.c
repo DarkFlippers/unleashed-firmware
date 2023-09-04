@@ -5,7 +5,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocoAlutech_at_4n"
+#define TAG "SubGhzProtocoAlutechAt4n"
 
 #define SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE 0xFFFFFFFF
 

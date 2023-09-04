@@ -5,7 +5,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolNiceFLO"
+#define TAG "SubGhzProtocolNiceFlo"
 
 static const SubGhzBlockConst subghz_protocol_nice_flo_const = {
     .te_short = 700,

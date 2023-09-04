@@ -9,7 +9,7 @@
 #include <lib/toolbox/stream/stream.h>
 #include <lib/flipper_format/flipper_format_i.h>
 
-#define TAG "SubGhzProtocolBinRAW"
+#define TAG "SubGhzProtocolBinRaw"
 
 //change very carefully, RAM ends at the most inopportune moment
 #define BIN_RAW_BUF_RAW_SIZE 2048

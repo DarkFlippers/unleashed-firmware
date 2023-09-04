@@ -28,7 +28,7 @@
 
 #define SUBGHZ_REGION_FILENAME "/int/.region_data"
 
-#define TAG "SubGhz CLI"
+#define TAG "SubGhzCli"
 
 static void subghz_cli_radio_device_power_on() {
     uint8_t attempts = 5;

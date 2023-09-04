@@ -6,7 +6,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolFaacSHL"
+#define TAG "SubGhzProtocolFaacShl"
 
 static const SubGhzBlockConst subghz_protocol_faac_slh_const = {
     .te_short = 255,
