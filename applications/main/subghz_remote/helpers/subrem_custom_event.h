@@ -48,4 +48,11 @@ typedef enum {
     SubRemCustomEventSceneEditPreviewSaved,
 
     SubRemCustomEventSceneNewName,
+
+#ifdef FW_ORIGIN_Official
+    SubRemCustomEventSceneFwWarningExit,
+    SubRemCustomEventSceneFwWarningNext,
+    SubRemCustomEventSceneFwWarningContinue,
+#endif
+
 } SubRemCustomEvent;
