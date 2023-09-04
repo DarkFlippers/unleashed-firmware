@@ -369,7 +369,7 @@ bool subghz_txrx_radio_device_is_tx_allowed(SubGhzTxRx* instance, uint32_t frequ
 
 void subghz_txrx_set_debug_pin_state(SubGhzTxRx* instance, bool state);
 bool subghz_txrx_get_debug_pin_state(SubGhzTxRx* instance);
-
+#ifndef FW_ORIGIN_Official
 void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance);
-
+#endif
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw

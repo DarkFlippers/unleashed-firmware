@@ -53,9 +53,9 @@ void subrem_scene_edit_label_on_enter(void* context) {
         app->file_name_tmp,
         25,
         false);
-
+#ifndef FW_ORIGIN_Official
     text_input_set_minimum_length(app->text_input, 0);
-
+#endif
     widget_add_string_element(
         app->widget, 63, 12, AlignCenter, AlignCenter, FontPrimary, "Empty Label Name");
     widget_add_string_element(
