@@ -95,7 +95,6 @@ Make sure your Flipper is on, and your firmware is functioning. Connect your Fli
 - [Hardware combos and Un-bricking](/documentation/KeyCombo.md) - recovering your Flipper from the most nasty situations
 - [Flipper File Formats](/documentation/file_formats) - everything about how Flipper stores your data and how you can work with it
 - [Universal Remotes](/documentation/UniversalRemotes.md) - contributing your infrared remote to the universal remote database
-- [Firmware Roadmap](/documentation/RoadMap.md)
 - And much more in the [documentation](/documentation) folder
 
 # Project structure
