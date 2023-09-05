@@ -173,15 +173,15 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value);
  */
 bool furi_hal_subghz_is_tx_allowed(uint32_t value);
 
-/** Get the current rolling protocols counter ++ value
- * @return    uint8_t current value
+/** Get the current rolling protocols counter ++/-- value
+ * @return    int8_t current value
  */
-uint8_t furi_hal_subghz_get_rolling_counter_mult(void);
+int8_t furi_hal_subghz_get_rolling_counter_mult(void);
 
-/** Set the current rolling protocols counter ++ value
- * @param      mult uint8_t = 1, 2, 4, 8
+/** Set the current rolling protocols counter ++/-- value
+ * @param      mult int8_t = -1, -10, -100, 0, 1, 10, 100 
  */
-void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult);
+void furi_hal_subghz_set_rolling_counter_mult(int8_t mult);
 
 /** Set frequency
  *

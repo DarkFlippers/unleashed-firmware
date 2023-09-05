@@ -189,7 +189,7 @@ bool subghz_protocol_somfy_telis_create_data(
 
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @param instance Pointer to a SubGhzProtocolEncoderSomfyTelis instance
  * @return true On success
  */
 static bool subghz_protocol_encoder_somfy_telis_get_upload(
