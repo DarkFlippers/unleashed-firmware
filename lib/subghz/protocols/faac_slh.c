@@ -139,7 +139,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         button_for_programming = true;
     }
     // If we are using UP button - generate programming mode key and send it, otherwise - send regular key if possible
-    if(button_for_programming) {
+    if(button_for_programming && !(!allow_zero_seed && (instance->generic.seed == 0x0))) {
         uint8_t data_tmp = 0;
         uint8_t data_prg[8];
 
