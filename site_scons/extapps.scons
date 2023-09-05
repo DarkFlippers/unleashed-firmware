@@ -60,40 +60,12 @@ class FlipperExtAppBuildArtifacts:
     sdk_tree: NodeList = field(default_factory=NodeList)
 
 
-apps_to_build_as_faps = [
-    FlipperAppType.PLUGIN,
-    FlipperAppType.EXTERNAL,
-    FlipperAppType.MENUEXTERNAL,
-    FlipperAppType.DEBUG,
-]
-
-known_extapps = [
-    app
-    for apptype in apps_to_build_as_faps
-    for app in appenv["APPBUILD"].get_apps_of_type(apptype, True)
-]
-
-# Ugly access to global option
-if extra_app_list := GetOption("extra_ext_apps"):
-    known_extapps.extend(map(appenv["APPMGR"].get, extra_app_list.split(",")))
-
-incompatible_apps = []
-for app in known_extapps:
-    if not app.supports_hardware_target(appenv.subst("f${TARGET_HW}")):
-        incompatible_apps.append(app)
-        continue
-
+for app in appenv["APPBUILD"].get_ext_apps():
     appenv.BuildAppElf(app)
 
 extapps = FlipperExtAppBuildArtifacts()
 extapps.application_map = appenv["EXT_APPS"]
 
-if incompatible_apps:
-    warn(
-        WarningOnByDefault,
-        f"Skipping build of {len(incompatible_apps)} incompatible app(s): "
-        + ", ".join(f"'{app.name}' (id '{app.appid}')" for app in incompatible_apps),
-    )
 
 if appenv["FORCE"]:
     appenv.AlwaysBuild(
