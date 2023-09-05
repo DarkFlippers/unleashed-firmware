@@ -32,7 +32,7 @@ const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "17(1W)",
 };
 
-#define DEBUG_COUNTER_COUNT 6
+#define DEBUG_COUNTER_COUNT 13
 const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+1",
     "+2",
@@ -40,6 +40,13 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+4",
     "+5",
     "+10",
+    "0",
+    "-1",
+    "-2",
+    "-3",
+    "-4",
+    "-5",
+    "-10",
 };
 const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     1,
@@ -48,6 +55,13 @@ const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     4,
     5,
     10,
+    0,
+    -1,
+    -2,
+    -3,
+    -4,
+    -5,
+    -10,
 };
 
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {

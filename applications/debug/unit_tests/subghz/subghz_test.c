@@ -42,8 +42,6 @@ static void subghz_test_rx_callback(
 
 static void subghz_test_init(void) {
     environment_handler = subghz_environment_alloc();
-    subghz_environment_set_came_atomo_rainbow_table_file_name(
-        environment_handler, CAME_ATOMO_DIR_NAME);
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         environment_handler, NICE_FLOR_S_DIR_NAME);
     subghz_environment_set_alutech_at_4n_rainbow_table_file_name(

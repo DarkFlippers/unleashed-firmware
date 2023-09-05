@@ -14,7 +14,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;
-    byte_input_set_header_text(byte_input, "Enter SEED in hex");
+    byte_input_set_header_text(byte_input, "Enter SEED in Hex");
     byte_input_set_result_callback(
         byte_input,
         subghz_scene_set_seed_byte_input_callback,
@@ -45,13 +45,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                if(seed == 0) {
-                    furi_string_set(subghz->error_str, "Seed value\ncan not be 0.");
-                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
-                    consumed = true;
-                    break;
-                }
-
                 generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
                     subghz->txrx,
                     "AM650",
@@ -69,8 +62,8 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 }
                 consumed = true;
                 break;
-            case SubmenuIndexFaacSLH_433:
-            case SubmenuIndexFaacSLH_868:
+            case SubmenuIndexFaacSLH_Manual_433:
+            case SubmenuIndexFaacSLH_Manual_868:
                 fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
                            subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
@@ -80,13 +73,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                if(seed == 0) {
-                    furi_string_set(subghz->error_str, "Seed value\ncan not be 0.");
-                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
-                    consumed = true;
-                    break;
-                }
-                if(state == SubmenuIndexFaacSLH_433) {
+                if(state == SubmenuIndexFaacSLH_Manual_433) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",
@@ -96,7 +83,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                         (cnt & 0xFFFFF),
                         seed,
                         "FAAC_SLH");
-                } else if(state == SubmenuIndexFaacSLH_868) {
+                } else if(state == SubmenuIndexFaacSLH_Manual_868) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",

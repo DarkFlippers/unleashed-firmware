@@ -200,7 +200,7 @@ bool subghz_protocol_somfy_keytis_create_data(
 
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @param instance Pointer to a SubGhzProtocolEncoderSomfyKeytis instance
  * @return true On success
  */
 static bool subghz_protocol_encoder_somfy_keytis_get_upload(
