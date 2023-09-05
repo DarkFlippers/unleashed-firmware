@@ -290,7 +290,8 @@ void elements_multiline_text_aligned(
         } else if((y + font_height) > canvas_height(canvas)) {
             line = furi_string_alloc_printf("%.*s...\n", chars_fit, start);
         } else {
-            line = furi_string_alloc_printf("%.*s-\n", chars_fit, start);
+            // Account for the added "-" in length
+            line = furi_string_alloc_printf("%.*s-\n", chars_fit - 1, start);
         }
         canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, furi_string_get_cstr(line));
         furi_string_free(line);
