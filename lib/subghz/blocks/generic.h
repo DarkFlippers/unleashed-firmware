@@ -25,8 +25,6 @@ struct SubGhzBlockGeneric {
     uint32_t cnt;
     uint8_t cnt_2;
     uint32_t seed;
-    bool prg_mode : 1;
-    bool allow_zero_seed : 1;
 };
 
 /**
