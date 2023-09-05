@@ -16,6 +16,7 @@ jobs:
   main:
     runs-on: [self-hosted, FlipperZeroShell]
     strategy:
+      fail-fast: false
       matrix:
         target: [f7, f18]    
     steps:
