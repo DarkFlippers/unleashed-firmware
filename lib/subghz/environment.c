@@ -49,14 +49,15 @@ SubGhzKeystore* subghz_environment_get_keystore(SubGhzEnvironment* instance) {
 void subghz_environment_set_came_atomo_rainbow_table_file_name(
     SubGhzEnvironment* instance,
     const char* filename) {
-    furi_assert(instance);
+    UNUSED(instance);
+    UNUSED(filename);
     // Do nothing :)
     return;
 }
 
 const char*
     subghz_environment_get_came_atomo_rainbow_table_file_name(SubGhzEnvironment* instance) {
-    furi_assert(instance);
+    UNUSED(instance);
     // No table, sorry
     return "";
 }
