@@ -252,6 +252,9 @@ const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile);
 
 uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi);
 
+// API for BLE Beacon plugin
+void furi_hal_bt_set_custom_adv_data(const uint8_t* adv_data, size_t adv_len);
+
 void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method);
 
 GapPairing furi_hal_bt_get_profile_pairing_method(FuriHalBtProfile profile);

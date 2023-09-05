@@ -483,6 +483,13 @@ uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi) {
     return since;
 }
 
+// API for BLE beacon plugin
+void furi_hal_bt_set_custom_adv_data(const uint8_t* adv_data, size_t adv_len) {
+    gap_set_custom_adv_data(adv_len, adv_data);
+    furi_hal_bt_stop_advertising();
+    furi_hal_bt_start_advertising();
+}
+
 void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
     uint8_t tmp;
     for(size_t i = 0; i < GAP_MAC_ADDR_SIZE / 2; i++) {
