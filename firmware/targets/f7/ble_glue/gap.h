@@ -83,8 +83,6 @@ void gap_thread_stop();
 
 uint32_t gap_get_remote_conn_rssi(int8_t* rssi);
 
-void gap_set_custom_adv_data(size_t adv_len, const uint8_t* adv_data);
-
 #ifdef __cplusplus
 }
 #endif

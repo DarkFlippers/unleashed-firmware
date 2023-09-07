@@ -253,7 +253,35 @@ const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile);
 uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi);
 
 // API for BLE Beacon plugin
-void furi_hal_bt_set_custom_adv_data(const uint8_t* adv_data, size_t adv_len);
+/** Set custom advertisement packet data
+ * @param[in] adv_data  pointer to advertisement data
+ * @param[in] adv_len   length of advertisement data
+ *
+ * @return              true on success
+*/
+bool furi_hal_bt_custom_adv_set(const uint8_t* adv_data, size_t adv_len);
+
+/** Start custom advertisement beacon
+ * @param[in] min_interval      minimum advertisement interval (20 - 10240 ms)
+ * @param[in] max_interval      maximum advertisement interval (20 - 10240 ms)
+ * @param[in] mac_type          type of mac address (0x00 public, 0x01 static random)
+ * @param[in] mac_addr          pointer to mac address
+ * @param[in] power_amp_level   amplifier level (output dBm) (0x00 - 0x1F)
+ *
+ * @return                      true on success
+*/
+bool furi_hal_bt_custom_adv_start(
+    uint16_t min_interval,
+    uint16_t max_interval,
+    uint8_t mac_type,
+    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE],
+    uint8_t power_amp_level);
+
+/** Stop custom advertisement beacon
+ *
+ * @return  true on success
+*/
+bool furi_hal_bt_custom_adv_stop();
 
 void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method);
 

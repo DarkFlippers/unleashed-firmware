@@ -37,9 +37,6 @@ typedef struct {
     FuriThread* thread;
     FuriMessageQueue* command_queue;
     bool enable_adv;
-    // API for BLE beacon plugin
-    size_t custom_adv_len;
-    const uint8_t* custom_adv_data;
 } Gap;
 
 typedef enum {
@@ -433,36 +430,18 @@ static void gap_advertise_start(GapState new_state) {
         }
     }
     // Configure advertising
-    // API For BLE beacon plugin
-    if(gap->custom_adv_data) {
-        // Custom adv logic from https://techryptic.github.io/2023/09/01/Annoying-Apple-Fans/
-        static const uint16_t gap_appearance = 0x0000; //GAP_APPEARANCE_UNKNOWN
-        status = aci_gatt_update_char_value(
-            gap->service.gap_svc_handle,
-            gap->service.gap_svc_handle,
-            0,
-            sizeof(gap_appearance),
-            (uint8_t*)&gap_appearance);
-        status = aci_gap_set_discoverable(
-            ADV_IND, min_interval, max_interval, CFG_IDENTITY_ADDRESS, 0, 0, NULL, 0, NULL, 0, 0);
-        status = aci_gap_delete_ad_type(AD_TYPE_FLAGS);
-        status = aci_gap_delete_ad_type(AD_TYPE_TX_POWER_LEVEL);
-        status = aci_gap_update_adv_data(gap->custom_adv_len, gap->custom_adv_data);
-    } else {
-        // Default adv logic
-        status = aci_gap_set_discoverable(
-            ADV_IND,
-            min_interval,
-            max_interval,
-            CFG_IDENTITY_ADDRESS,
-            0,
-            strlen(gap->service.adv_name),
-            (uint8_t*)gap->service.adv_name,
-            gap->service.adv_svc_uuid_len,
-            gap->service.adv_svc_uuid,
-            0,
-            0);
-    }
+    status = aci_gap_set_discoverable(
+        ADV_IND,
+        min_interval,
+        max_interval,
+        CFG_IDENTITY_ADDRESS,
+        0,
+        strlen(gap->service.adv_name),
+        (uint8_t*)gap->service.adv_name,
+        gap->service.adv_svc_uuid_len,
+        gap->service.adv_svc_uuid,
+        0,
+        0);
     if(status) {
         FURI_LOG_E(TAG, "set_discoverable failed %d", status);
     }
@@ -578,13 +557,6 @@ uint32_t gap_get_remote_conn_rssi(int8_t* rssi) {
         if(gap->time_rssi_sample) return furi_get_tick() - gap->time_rssi_sample;
     }
     return 0;
-}
-
-// API For BLE beacon plugin
-
-void gap_set_custom_adv_data(size_t adv_len, const uint8_t* adv_data) {
-    gap->custom_adv_len = adv_len;
-    gap->custom_adv_data = adv_data;
 }
 
 GapState gap_get_state() {
