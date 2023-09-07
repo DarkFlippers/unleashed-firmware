@@ -15,13 +15,13 @@ void subghz_scene_set_type_on_enter(void* context) {
 
     submenu_add_item(
         subghz->submenu,
-        "Faac SLH [Man.] 868MHz",
+        "FAAC SLH [Man.] 868MHz",
         SubmenuIndexFaacSLH_Manual_868,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Faac SLH [Man.] 433MHz",
+        "FAAC SLH [Man.] 433MHz",
         SubmenuIndexFaacSLH_Manual_433,
         subghz_scene_set_type_submenu_callback,
         subghz);
@@ -33,13 +33,13 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Faac SLH 868MHz",
+        "FAAC SLH 868MHz",
         SubmenuIndexFaacSLH_868,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Faac SLH 433MHz",
+        "FAAC SLH 433MHz",
         SubmenuIndexFaacSLH_433,
         subghz_scene_set_type_submenu_callback,
         subghz);

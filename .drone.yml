@@ -47,6 +47,7 @@ steps:
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
+      - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
@@ -414,6 +415,7 @@ steps:
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
+      - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
