@@ -12,7 +12,7 @@
 #define ICON_SD_MOUNTED &I_SDcardMounted_11x8
 #define ICON_SD_ERROR &I_SDcardFail_11x8
 
-#define TAG RECORD_STORAGE
+#define TAG "Storage"
 
 static void storage_app_sd_icon_draw_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);

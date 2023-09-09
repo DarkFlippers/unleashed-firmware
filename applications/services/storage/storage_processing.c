@@ -418,12 +418,38 @@ static FS_Error storage_process_sd_format(Storage* app) {
 static FS_Error storage_process_sd_unmount(Storage* app) {
     FS_Error ret = FSE_OK;
 
-    if(storage_data_status(&app->storage[ST_EXT]) == StorageStatusNotReady) {
-        ret = FSE_NOT_READY;
-    } else {
-        sd_unmount_card(&app->storage[ST_EXT]);
-        storage_data_timestamp(&app->storage[ST_EXT]);
-    }
+    do {
+        StorageData* storage = &app->storage[ST_EXT];
+        if(storage_data_status(storage) == StorageStatusNotReady) {
+            ret = FSE_NOT_READY;
+            break;
+        }
+
+        if(storage_open_files_count(storage)) {
+            ret = FSE_DENIED;
+            break;
+        }
+
+        sd_unmount_card(storage);
+        storage_data_timestamp(storage);
+    } while(false);
+
+    return ret;
+}
+
+static FS_Error storage_process_sd_mount(Storage* app) {
+    FS_Error ret = FSE_OK;
+
+    do {
+        StorageData* storage = &app->storage[ST_EXT];
+        if(storage_data_status(storage) != StorageStatusNotReady) {
+            ret = FSE_NOT_READY;
+            break;
+        }
+
+        ret = sd_mount_card(storage, true);
+        storage_data_timestamp(storage);
+    } while(false);
 
     return ret;
 }
@@ -629,6 +655,9 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     case StorageCommandSDUnmount:
         message->return_data->error_value = storage_process_sd_unmount(app);
+        break;
+    case StorageCommandSDMount:
+        message->return_data->error_value = storage_process_sd_mount(app);
         break;
     case StorageCommandSDInfo:
         message->return_data->error_value =

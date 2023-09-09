@@ -272,7 +272,6 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
             } else if(view_dispatcher->navigation_event_callback) {
                 // Dispatch navigation event
                 if(!view_dispatcher->navigation_event_callback(view_dispatcher->event_context)) {
-                    // TODO FL-3514: should we allow view_dispatcher to stop without navigation_event_callback?
                     view_dispatcher_stop(view_dispatcher);
                     return;
                 }

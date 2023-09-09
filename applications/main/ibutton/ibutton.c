@@ -3,7 +3,7 @@
 #include <toolbox/path.h>
 #include <dolphin/dolphin.h>
 
-#define TAG "iButtonApp"
+#define TAG "IButtonApp"
 
 static const NotificationSequence sequence_blink_set_yellow = {
     &message_blink_set_color_yellow,
@@ -195,16 +195,23 @@ bool ibutton_load_key(iButton* ibutton) {
 
 bool ibutton_select_and_load_key(iButton* ibutton) {
     DialogsFileBrowserOptions browser_options;
-    dialog_file_browser_set_basic_options(&browser_options, IBUTTON_APP_EXTENSION, &I_ibutt_10px);
+    bool success = false;
+    dialog_file_browser_set_basic_options(
+        &browser_options, IBUTTON_APP_FILENAME_EXTENSION, &I_ibutt_10px);
     browser_options.base_path = IBUTTON_APP_FOLDER;
 
     if(furi_string_empty(ibutton->file_path)) {
         furi_string_set(ibutton->file_path, browser_options.base_path);
     }
 
-    return dialog_file_browser_show(
-               ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options) &&
-           ibutton_load_key(ibutton);
+    do {
+        if(!dialog_file_browser_show(
+               ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options))
+            break;
+        success = ibutton_load_key(ibutton);
+    } while(!success);
+
+    return success;
 }
 
 bool ibutton_save_key(iButton* ibutton) {

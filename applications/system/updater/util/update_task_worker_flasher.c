@@ -11,7 +11,7 @@
 #include <toolbox/tar/tar_archive.h>
 #include <toolbox/crc32_calc.h>
 
-#define TAG "UpdWorkerRAM"
+#define TAG "UpdWorkerRam"
 
 #define STM_DFU_VENDOR_ID 0x0483
 #define STM_DFU_PRODUCT_ID 0xDF11

@@ -199,13 +199,14 @@ void subghz_scene_receiver_on_enter(void* context) {
         subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
     }
 
-    subghz_scene_receiver_update_statusbar(subghz);
     subghz_txrx_rx_start(subghz->txrx);
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
 
     //to use a universal decoder, we are looking for a link to it
     furi_check(
         subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, SUBGHZ_PROTOCOL_BIN_RAW_NAME));
+
+    subghz_scene_receiver_update_statusbar(subghz);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdReceiver);
 }

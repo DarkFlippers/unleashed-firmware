@@ -107,6 +107,7 @@ env = core_env.Clone(
     SINGLEQUOTEFUNC=single_quote,
     ABSPATHGETTERFUNC=resolve_real_dir_node,
     APPS=[],
+    EXTRA_EXT_APPS=[],
     UFBT_API_VERSION=SdkCache(
         core_env.subst("$SDK_DEFINITION"), load_version_only=True
     ).version,

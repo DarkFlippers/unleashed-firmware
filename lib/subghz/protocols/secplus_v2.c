@@ -15,7 +15,7 @@
 * https://github.com/merbanan/rtl_433/blob/master/src/devices/secplus_v2.c
 */
 
-#define TAG "SubGhzProtocoSecPlus_v2"
+#define TAG "SubGhzProtocoSecPlusV2"
 
 #define SECPLUS_V2_HEADER 0x3C0000000000
 #define SECPLUS_V2_HEADER_MASK 0xFFFF3C0000000000

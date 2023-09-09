@@ -54,6 +54,10 @@ static bool bq27220_parameter_check(
         }
 
         if(update) {
+            // Datasheet contains incorrect procedure for memory update, more info:
+            // https://e2e.ti.com/support/power-management-group/power-management/f/power-management-forum/719878/bq27220-technical-reference-manual-sluubd4-is-missing-extended-data-commands-chapter
+
+            // 2. Write the address AND the parameter data to 0x3E+ (auto increment)
             if(!furi_hal_i2c_write_mem(
                    handle,
                    BQ27220_ADDRESS,
@@ -67,9 +71,12 @@ static bool bq27220_parameter_check(
 
             furi_delay_us(10000);
 
+            // 3. Calculate the check sum: 0xFF - (sum of address and data) OR 0xFF
             uint8_t checksum = bq27220_get_checksum(buffer, size + 2);
+            // 4. Write the check sum to 0x60 and the total length of (address + parameter data + check sum + length) to 0x61
             buffer[0] = checksum;
-            buffer[1] = 4 + size; // TODO FL-3519: why 4?
+            // 2 bytes address, `size` bytes data, 1 byte check sum, 1 byte length
+            buffer[1] = 2 + size + 1 + 1;
             if(!furi_hal_i2c_write_mem(
                    handle, BQ27220_ADDRESS, CommandMACDataSum, buffer, 2, BQ27220_I2C_TIMEOUT)) {
                 FURI_LOG_I(TAG, "CRC write failed");

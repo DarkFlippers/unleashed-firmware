@@ -2,7 +2,7 @@
 #include <storage/storage.h>
 
 // Define log tag
-#define TAG "example_apps_data"
+#define TAG "ExampleAppsData"
 
 // Application entry point
 int32_t example_apps_data_main(void* p) {
