@@ -11,7 +11,7 @@
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
 
-#define TAG "SubGhzProtocolRAW"
+#define TAG "SubGhzProtocolRaw"
 #define SUBGHZ_DOWNLOAD_MAX_SIZE 512
 
 static const SubGhzBlockConst subghz_protocol_raw_const = {
@@ -108,7 +108,8 @@ bool subghz_protocol_raw_save_to_file_init(
 
         furi_string_set(instance->file_name, dev_name);
         // First remove subghz device file if it was saved
-        furi_string_printf(temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, dev_name, SUBGHZ_APP_EXTENSION);
+        furi_string_printf(
+            temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, dev_name, SUBGHZ_APP_FILENAME_EXTENSION);
 
         if(!storage_simply_remove(instance->storage, furi_string_get_cstr(temp_str))) {
             break;

@@ -31,12 +31,24 @@ void storage_settings_scene_start_on_enter(void* context) {
         StorageSettingsStartSubmenuIndexSDInfo,
         storage_settings_scene_start_submenu_callback,
         app);
-    submenu_add_item(
-        submenu,
-        "Unmount SD Card",
-        StorageSettingsStartSubmenuIndexUnmount,
-        storage_settings_scene_start_submenu_callback,
-        app);
+
+    FS_Error sd_status = storage_sd_status(app->fs_api);
+    if(sd_status != FSE_OK) {
+        submenu_add_item(
+            submenu,
+            "Mount SD Card",
+            StorageSettingsStartSubmenuIndexUnmount,
+            storage_settings_scene_start_submenu_callback,
+            app);
+    } else {
+        submenu_add_item(
+            submenu,
+            "Unmount SD Card",
+            StorageSettingsStartSubmenuIndexUnmount,
+            storage_settings_scene_start_submenu_callback,
+            app);
+    }
+
     submenu_add_item(
         submenu,
         "Format SD Card",

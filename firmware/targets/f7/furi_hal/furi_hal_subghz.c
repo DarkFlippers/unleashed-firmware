@@ -52,7 +52,7 @@ typedef struct {
     volatile SubGhzRegulation regulation;
     const GpioPin* async_mirror_pin;
 
-    uint8_t rolling_counter_mult;
+    int8_t rolling_counter_mult;
     bool ext_power_amp : 1;
     bool dangerous_frequency_i : 1;
 } FuriHalSubGhz;
@@ -66,11 +66,11 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .dangerous_frequency_i = false,
 };
 
-uint8_t furi_hal_subghz_get_rolling_counter_mult(void) {
+int8_t furi_hal_subghz_get_rolling_counter_mult(void) {
     return furi_hal_subghz.rolling_counter_mult;
 }
 
-void furi_hal_subghz_set_rolling_counter_mult(uint8_t mult) {
+void furi_hal_subghz_set_rolling_counter_mult(int8_t mult) {
     furi_hal_subghz.rolling_counter_mult = mult;
 }
 

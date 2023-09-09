@@ -41,6 +41,7 @@ typedef struct {
 typedef struct {
     const GpioPin* pin;
     const char* name;
+    const uint8_t number;
     const bool debug;
 } GpioPinRecord;
 

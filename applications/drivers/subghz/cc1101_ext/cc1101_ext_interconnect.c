@@ -2,7 +2,7 @@
 #include "cc1101_ext.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
-#define TAG "SubGhzDeviceCC1101Ext"
+#define TAG "SubGhzDeviceCc1101Ext"
 
 static bool subghz_device_cc1101_ext_interconnect_is_frequency_valid(uint32_t frequency) {
     bool ret = subghz_device_cc1101_ext_is_frequency_valid(frequency);

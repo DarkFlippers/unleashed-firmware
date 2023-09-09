@@ -3,6 +3,32 @@
 ### If your system is not added here that doesn't mean flipper don't support it! Look into add manually menu, and search for your manufacturers inscturctions!
 ### Also many supported systems can be used only from `Read` mode, `Add Manually` is used only to make new remotes that can be binded with receiver
 
+## FAAC SLH (NEW!)
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> FAAC SLH (select your frequency)
+2. Open your new remote file
+3. Open your receiver box, find programming button on the receiver board.
+4. Hold Up arrow button on the flipper to send programming signal - at same time press and hold programming button on the receiver board.
+5. Led on the receiver board will light on, then off, then on, then off again then on again
+6. Release all buttons
+7. Press send button on the flipper couple times holding it for 1-3 seconds
+8. Done!
+Watch this video to learn more : https://www.youtube.com/watch?v=NfZmMy37XUs
+
+...
+How to get Seed value from your original remote or bind new remote using existing (master) remote? 
+1. Go to SubGHz -> Read - Select frequency 868.35 or 433.92 and modulation AM650
+2. Hold two buttons on the original master remote until led turns on
+3. Click one button that you want to get seed from (Seed is unique for each button on original remote!)
+4. You will get signal in the read screen on flipper, open that and see your original remote seed for button you used
+5. You can create new remote using that seed and bind that to receiver without opening the box! Faac has procedure that allows to bind new remotes using master remote, you can use flipper for that 
+6. Go to SubGHz -> Add Manually -> FAAC SLH Man. (your Freq)
+7. Enter those values -> REPLACE `R` with any random digits like 1,2,3..
+FIX -> A0 RR RR R6
+COUNTER -> 00 00 02
+SEED -> Your seed from the remote button you got earlier
+8. Flipper will act as new remote, press Send button couple times near the receiver to register new remote
+9. Done!
+
 ## AN-Motors AT4
 
 **This instruction for older boards, if your has no** `Learn` **button but has buttons** `F`, `CL`, `+`, `-` **read instruction from Alutech AT4N**
@@ -137,6 +163,7 @@ garage/gate.
 #### Follow links below to find more detailed instructions!!!
 
 #### Materials used:
+- [FAAC SLH](https://www.youtube.com/watch?v=NfZmMy37XUs)
 - [Somfy Telis](https://pushstack.wordpress.com/somfy-rts-protocol/)
 - [BFT Mitto](https://www.retroremotes.com.au/wp-content/uploads/2017/03/BFT-MITTO-2-4-19-6-17.pdf)
 - [NICE FLOX2R Receiver Programming](https://apollogateopeners.com/store/pdf/apollo-flor-s-receiver-programming-guide.pdf)

@@ -336,7 +336,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
             if(model->bin_raw_enabled) {
                 const uint8_t vertical_offset = 17;
                 const uint8_t horizontal_offset = 118;
-                canvas_draw_icon(canvas, horizontal_offset, vertical_offset, &I_Raw_9x7);
+                canvas_draw_icon(canvas, horizontal_offset, vertical_offset, &I_Cos_9x7);
             }
         } else {
             canvas_draw_icon(

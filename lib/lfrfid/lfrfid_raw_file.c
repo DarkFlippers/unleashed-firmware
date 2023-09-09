@@ -6,7 +6,7 @@
 #define LFRFID_RAW_FILE_MAGIC 0x4C464952
 #define LFRFID_RAW_FILE_VERSION 1
 
-#define TAG "RFID RAW File"
+#define TAG "LfRfidRawFile"
 
 typedef struct {
     uint32_t magic;

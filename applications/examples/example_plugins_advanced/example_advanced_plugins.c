@@ -8,7 +8,7 @@
 
 #include <loader/firmware_api/firmware_api.h>
 
-#define TAG "example_advanced_plugins"
+#define TAG "ExampleAdvancedPlugins"
 
 int32_t example_advanced_plugins_app(void* p) {
     UNUSED(p);

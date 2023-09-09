@@ -1,10 +1,10 @@
 #include "../subghz_i.h"
 #include "subghz/types.h"
-#include <lib/toolbox/random_name.h>
 #include "../helpers/subghz_custom_event.h"
 #include <lib/subghz/protocols/raw.h>
 #include <gui/modules/validators.h>
 #include <dolphin/dolphin.h>
+#include <toolbox/name_generator.h>
 
 #define MAX_TEXT_INPUT_LEN 23
 
@@ -79,7 +79,8 @@ void subghz_scene_save_name_on_enter(void* context) {
                 subghz_scene_save_name_get_timefilename(file_name, "S", true);
             }
         } else {
-            set_random_name(file_name_buf, SUBGHZ_MAX_LEN_NAME);
+            name_generator_make_auto(
+                file_name_buf, SUBGHZ_MAX_LEN_NAME, SUBGHZ_APP_FILENAME_PREFIX);
             furi_string_set(file_name, file_name_buf);
         }
         furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
@@ -112,7 +113,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         dev_name_empty);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        furi_string_get_cstr(subghz->file_path), SUBGHZ_APP_EXTENSION, "");
+        furi_string_get_cstr(subghz->file_path), SUBGHZ_APP_FILENAME_EXTENSION, "");
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     furi_string_free(file_name);
@@ -131,13 +132,24 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                 furi_string_set(subghz->file_path, subghz->file_path_tmp);
             }
         }
-        scene_manager_previous_scene(subghz->scene_manager);
+        if(scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneSetSeed)) {
+            scene_manager_search_and_switch_to_previous_scene(
+                subghz->scene_manager, SubGhzSceneSetType);
+        } else {
+            scene_manager_previous_scene(subghz->scene_manager);
+        }
+        // Set file path to default
+        furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
+
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneSaveName) {
             if(strcmp(subghz->file_name_tmp, "") != 0) {
                 furi_string_cat_printf(
-                    subghz->file_path, "/%s%s", subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
+                    subghz->file_path,
+                    "/%s%s",
+                    subghz->file_name_tmp,
+                    SUBGHZ_APP_FILENAME_EXTENSION);
                 if(subghz_path_is_file(subghz->file_path_tmp)) {
                     if(!subghz_rename_file(subghz)) {
                         return false;

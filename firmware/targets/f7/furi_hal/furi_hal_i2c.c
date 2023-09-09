@@ -8,7 +8,7 @@
 #include <stm32wbxx_ll_cortex.h>
 #include <furi.h>
 
-#define TAG "FuriHalI2C"
+#define TAG "FuriHalI2c"
 
 void furi_hal_i2c_init_early() {
     furi_hal_i2c_bus_power.callback(&furi_hal_i2c_bus_power, FuriHalI2cBusEventInit);

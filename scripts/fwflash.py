@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from flipper.app import App
+from serial.tools.list_ports_common import ListPortInfo
 
 # When adding an interface, also add it to SWD_TRANSPORT in fbt/ufbt options
 
@@ -88,8 +89,9 @@ class OpenOCDProgrammer(Programmer):
         self._add_file(openocd_launch_params, self.interface.config_file)
         if self.serial:
             self._add_serial(openocd_launch_params, self.serial)
-        for additional_arg in self.interface.additional_args:
-            self._add_command(openocd_launch_params, additional_arg)
+        if self.interface.additional_args:
+            for additional_arg in self.interface.additional_args:
+                self._add_command(openocd_launch_params, additional_arg)
         self._add_file(openocd_launch_params, "target/stm32wbx.cfg")
         self._add_command(openocd_launch_params, "init")
         program_params = [
@@ -124,8 +126,9 @@ class OpenOCDProgrammer(Programmer):
         self._add_file(openocd_launch_params, self.interface.config_file)
         if self.serial:
             self._add_serial(openocd_launch_params, self.serial)
-        for additional_arg in self.interface.additional_args:
-            self._add_command(openocd_launch_params, additional_arg)
+        if self.interface.additional_args:
+            for additional_arg in self.interface.additional_args:
+                self._add_command(openocd_launch_params, additional_arg)
         self._add_file(openocd_launch_params, "target/stm32wbx.cfg")
         self._add_command(openocd_launch_params, "init")
         self._add_command(openocd_launch_params, "exit")
@@ -167,7 +170,9 @@ def blackmagic_find_serial(serial: str):
         if not serial.startswith("\\\\.\\"):
             serial = f"\\\\.\\{serial}"
 
-    ports = list(list_ports.grep("blackmagic"))
+    # idk why, but python thinks that list_ports.grep returns tuple[str, str, str]
+    ports: list[ListPortInfo] = list(list_ports.grep("blackmagic"))  # type: ignore
+
     if len(ports) == 0:
         return None
     elif len(ports) > 2:

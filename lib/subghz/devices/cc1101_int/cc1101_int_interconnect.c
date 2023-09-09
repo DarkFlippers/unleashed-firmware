@@ -2,7 +2,7 @@
 #include <furi_hal.h>
 #include "../cc1101_configs.h"
 
-#define TAG "SubGhzDeviceCC1101Int"
+#define TAG "SubGhzDeviceCc1101Int"
 
 static bool subghz_device_cc1101_int_interconnect_is_frequency_valid(uint32_t frequency) {
     bool ret = furi_hal_subghz_is_frequency_valid(frequency);

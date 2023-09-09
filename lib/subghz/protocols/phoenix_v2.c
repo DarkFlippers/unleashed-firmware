@@ -6,7 +6,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolPhoenix_V2"
+#define TAG "SubGhzProtocolPhoenixV2"
 
 //transmission only static mode
 

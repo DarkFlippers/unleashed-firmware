@@ -8,6 +8,9 @@ from fbt_extra.util import (
     link_elf_dir_as_latest,
 )
 
+from fbt.sdk.cache import LazySdkVersionLoader
+
+
 Import("ENV", "fw_build_meta")
 
 # Building initial C environment for libs
@@ -71,6 +74,8 @@ env = ENV.Clone(
     },
     FW_API_TABLE=None,
     _APP_ICONS=None,
+    APPS=_.split(",") if (_ := GetOption("extra_int_apps")) else [],
+    EXTRA_EXT_APPS=_.split(",") if (_ := GetOption("extra_ext_apps")) else [],
 )
 
 env.PreConfigureFwEnvionment()
@@ -125,9 +130,6 @@ if env["IS_BASE_FIRMWARE"]:
 else:
     fwenv.Append(APPS=["updater"])
 
-if extra_int_apps := GetOption("extra_int_apps"):
-    fwenv.Append(APPS=extra_int_apps.split(","))
-
 
 for app_dir, _ in fwenv["APPDIRS"]:
     app_dir_node = env.Dir("#").Dir(app_dir)
@@ -135,7 +137,6 @@ for app_dir, _ in fwenv["APPDIRS"]:
     for entry in app_dir_node.glob("*"):
         if isinstance(entry, FS.Dir) and not str(entry).startswith("."):
             fwenv.LoadAppManifest(entry)
-
 
 fwenv.PrepareApplicationsBuild()
 
@@ -148,6 +149,11 @@ if env["IS_BASE_FIRMWARE"]:
     )
     fw_artifacts.append(fwenv["FW_EXTAPPS"].sdk_tree)
 
+    fwenv.Append(FBT_API_VERSION=LazySdkVersionLoader(fwenv.subst("$SDK_DEFINITION")))
+    fwenv.PhonyTarget(
+        "get_apiversion",
+        "@echo $( ${FBT_API_VERSION} $)",
+    )
 
 # Add preprocessor definitions for current set of apps
 fwenv.Append(

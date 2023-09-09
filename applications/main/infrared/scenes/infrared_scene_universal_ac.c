@@ -1,7 +1,6 @@
 #include "../infrared_i.h"
 
 #include "common/infrared_scene_universal_common.h"
-#include <furi_hal_rtc.h>
 
 void infrared_scene_universal_ac_on_enter(void* context) {
     infrared_scene_universal_common_on_enter(context);
@@ -21,11 +20,11 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         0,
         6,
         15,
-        &I_power_19x20,
-        &I_power_hover_19x20,
+        &I_off_19x20,
+        &I_off_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
-    button_panel_add_icon(button_panel, 4, 37, &I_power_text_24x5);
+    button_panel_add_icon(button_panel, 10, 37, &I_off_text_12x5);
     infrared_brute_force_add_record(brute_force, i++, "Off");
     button_panel_add_item(
         button_panel,
