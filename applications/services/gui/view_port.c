@@ -174,7 +174,7 @@ void view_port_input_callback_set(
 
 void view_port_update(ViewPort* view_port) {
     furi_assert(view_port);
-    // TODO: Find out why this mutex is needed here and why it causes deadlock in SOME apps, on radnom basis
+    // TODO: Uncomment when all apps are verified to be fixed !!!!!!!!!!!!!!!!!!!!!!!
     //furi_check(furi_mutex_acquire(view_port->mutex, FuriWaitForever) == FuriStatusOk);
     if(view_port->gui && view_port->is_enabled) gui_update(view_port->gui);
     //furi_check(furi_mutex_release(view_port->mutex) == FuriStatusOk);
