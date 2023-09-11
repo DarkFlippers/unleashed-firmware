@@ -185,10 +185,11 @@ static uint32_t subghz_txrx_rx(SubGhzTxRx* instance, uint32_t frequency) {
 
 static void subghz_txrx_idle(SubGhzTxRx* instance) {
     furi_assert(instance);
-    furi_assert(instance->txrx_state != SubGhzTxRxStateSleep);
-    subghz_devices_idle(instance->radio_device);
-    subghz_txrx_speaker_off(instance);
-    instance->txrx_state = SubGhzTxRxStateIDLE;
+    if(instance->txrx_state != SubGhzTxRxStateSleep) {
+        subghz_devices_idle(instance->radio_device);
+        subghz_txrx_speaker_off(instance);
+        instance->txrx_state = SubGhzTxRxStateIDLE;
+    }
 }
 
 static void subghz_txrx_rx_end(SubGhzTxRx* instance) {
