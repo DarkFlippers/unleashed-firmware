@@ -48,7 +48,7 @@ jobs:
         run: |
           set +e;
           git diff --unified=0 --no-color ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -E '^\+' | grep -i -E '(TODO|HACK|FIXME|XXX)[ :]' | grep -v -- '-nofl' > lines.log;
-          MISSING_TICKETS=$( grep -v -E '\[FL-[0-9]+\]' lines.log );
+          MISSING_TICKETS=$( grep -v -E 'FL-[0-9]+' lines.log );
           if [ -n "$MISSING_TICKETS" ]; then
             echo "Error: Missing ticket number in \`TODO\` comment(s)" >> $GITHUB_STEP_SUMMARY;
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY;

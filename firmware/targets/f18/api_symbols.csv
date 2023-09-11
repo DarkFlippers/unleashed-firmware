@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,37.0,,
+Version,+,38.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1224,6 +1224,14 @@ Function,+,furi_hal_rtc_set_pin_fails,void,uint32_t
 Function,+,furi_hal_rtc_set_register,void,"FuriHalRtcRegister, uint32_t"
 Function,+,furi_hal_rtc_sync_shadow,void,
 Function,+,furi_hal_rtc_validate_datetime,_Bool,FuriHalRtcDateTime*
+Function,+,furi_hal_sd_get_card_state,FuriStatus,
+Function,+,furi_hal_sd_info,FuriStatus,FuriHalSdInfo*
+Function,+,furi_hal_sd_init,FuriStatus,_Bool
+Function,+,furi_hal_sd_is_present,_Bool,
+Function,+,furi_hal_sd_max_mount_retry_count,uint8_t,
+Function,+,furi_hal_sd_presence_init,void,
+Function,+,furi_hal_sd_read_blocks,FuriStatus,"uint32_t*, uint32_t, uint32_t"
+Function,+,furi_hal_sd_write_blocks,FuriStatus,"const uint32_t*, uint32_t, uint32_t"
 Function,+,furi_hal_speaker_acquire,_Bool,uint32_t
 Function,-,furi_hal_speaker_deinit,void,
 Function,-,furi_hal_speaker_init,void,
@@ -1479,9 +1487,6 @@ Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
 Function,+,gui_set_lockdown,void,"Gui*, _Bool"
 Function,-,gui_view_port_send_to_back,void,"Gui*, ViewPort*"
 Function,+,gui_view_port_send_to_front,void,"Gui*, ViewPort*"
-Function,+,hal_sd_detect,_Bool,
-Function,+,hal_sd_detect_init,void,
-Function,+,hal_sd_detect_set_low,void,
 Function,+,hex_char_to_hex_nibble,_Bool,"char, uint8_t*"
 Function,+,hex_char_to_uint8,_Bool,"char, char, uint8_t*"
 Function,+,hex_chars_to_uint64,_Bool,"const char*, uint64_t*"
@@ -2425,7 +2430,6 @@ Variable,+,furi_hal_i2c_bus_external,FuriHalI2cBus,
 Variable,+,furi_hal_i2c_bus_power,FuriHalI2cBus,
 Variable,+,furi_hal_i2c_handle_external,FuriHalI2cBusHandle,
 Variable,+,furi_hal_i2c_handle_power,FuriHalI2cBusHandle,
-Variable,+,furi_hal_sd_spi_handle,FuriHalSpiBusHandle*,
 Variable,+,furi_hal_spi_bus_d,FuriHalSpiBus,
 Variable,+,furi_hal_spi_bus_handle_display,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_external,FuriHalSpiBusHandle,
