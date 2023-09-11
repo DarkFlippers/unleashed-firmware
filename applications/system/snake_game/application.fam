@@ -1,0 +1,13 @@
+App(
+    appid="snake_game",
+    name="Snake Game",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="snake_game_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    targets=["f7"],
+    fap_version="1.0",
+    fap_description="Classic Snake Game",
+    fap_icon="snake_10px.png",
+    fap_category="Games",
+)
