@@ -303,7 +303,8 @@ static LoaderStatus loader_start_external_app(
         FlipperApplicationPreloadStatus preload_res =
             flipper_application_preload(loader->app.fap, path);
         if(preload_res != FlipperApplicationPreloadStatusSuccess) {
-            if(preload_res == FlipperApplicationPreloadStatusApiMismatch) {
+            if((preload_res == FlipperApplicationPreloadStatusApiTooOld) ||
+               (preload_res == FlipperApplicationPreloadStatusApiTooNew)) {
                 if(!ignore_mismatch) {
                     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
                     DialogMessage* message = dialog_message_alloc();
