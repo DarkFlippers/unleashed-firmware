@@ -390,8 +390,8 @@ int32_t snake_game_app(void* p) {
             // event timeout
         }
 
-        view_port_update(view_port);
         furi_mutex_release(snake_state->mutex);
+        view_port_update(view_port);
     }
 
     // Return backlight to normal state
