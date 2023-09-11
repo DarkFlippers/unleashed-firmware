@@ -85,9 +85,8 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
                 // Only left text, no right text
                 canvas_draw_str(canvas, 6, item_text_y, item->label);
             } else {
-                if((furi_string_size(item->current_value_text) < (size_t)4) &&
-                   (strlen(item->label) > (size_t)16)) {
-                    temp_x_default = 77;
+                if(furi_string_size(item->current_value_text) < (size_t)4) {
+                    temp_x_default = 82;
                     temp_w_default = 71;
                 }
                 elements_scrollable_text_line_str(
@@ -110,7 +109,7 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
 
                 elements_scrollable_text_line_str(
                     canvas,
-                    (115 + 73) / 2 + 1,
+                    (115 + temp_x_default) / 2 + 1,
                     item_text_y,
                     37,
                     furi_string_get_cstr(item->current_value_text),
