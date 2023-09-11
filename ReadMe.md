@@ -166,13 +166,13 @@ You can support us by using links or addresses below:
 ### [🎲 Download Extra plugins for Unleashed](https://github.com/xMasterX/all-the-plugins/releases/latest)
 ### [List of Extra pack](https://github.com/xMasterX/all-the-plugins/tree/dev#extra-pack) | [List of Base *(Deafult)* pack](https://github.com/xMasterX/all-the-plugins/tree/dev#default-pack)
 
-See full list and sources here: [xMasterX/all-the-plugin](https://github.com/xMasterX/all-the-plugins/tree/dev)
+See full list and sources here: [xMasterX/all-the-plugins](https://github.com/xMasterX/all-the-plugins/tree/dev)
 
 ### Official Flipper Zero Apps Catalog [web version](https://lab.flipper.net/apps) or mobile app
 
 # Instructions
 ## First lock official docs [docs.flipper.net](https://docs.flipper.net/)
-## [How to install](/documentation/HowToInstall.md) - [versions info](/CHANGELOG.md#what-n-r-e--c-means-what-i-need-to-download-if-i-dont-want-to-use-web-updater): `n`,` `,`e`...
+## [How to install](/documentation/HowToInstall.md) - [versions info](/CHANGELOG.md#recommended-update-option---web-updater): `n`,` `,`e`...
 ## Firmware & Development
 
 ### - **[How to build](/documentation/HowToBuild.md#how-to-build-by-yourself) | [Project-structure](#project-structure)**
