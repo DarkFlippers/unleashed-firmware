@@ -32,16 +32,18 @@ jobs:
       - name: 'Get commit details'
         id: names
         run: |
+          BUILD_TYPE='DEBUG=1 COMPACT=0'
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
             TYPE="pull"
           elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
             TYPE="tag"
-            echo 'FBT_BUILD_TYPE="DEBUG=0 COMPACT=1"' >> $GITHUB_ENV
+            BUILD_TYPE='DEBUG=0 COMPACT=1'
           else
             TYPE="other"
           fi
           python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
           echo "event_type=$TYPE" >> $GITHUB_OUTPUT
+          echo "FBT_BUILD_TYPE=$BUILD_TYPE" >> $GITHUB_ENV
           echo "TARGET=${{ matrix.target }}" >> $GITHUB_ENV
           echo "TARGET_HW=$(echo "${{ matrix.target }}" | sed 's/f//')" >> $GITHUB_ENV
 
