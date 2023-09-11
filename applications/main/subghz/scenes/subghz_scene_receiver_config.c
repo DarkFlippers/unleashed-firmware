@@ -11,6 +11,7 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexIgnoreStarline,
     SubGhzSettingIndexIgnoreCars,
     SubGhzSettingIndexIgnoreMagellan,
+    SubGhzSettingIndexIgnorePrinceton,
     SubGhzSettingIndexSound,
     SubGhzSettingIndexResetToDefault,
     SubGhzSettingIndexLock,
