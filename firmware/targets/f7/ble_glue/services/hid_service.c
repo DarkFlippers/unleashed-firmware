@@ -23,6 +23,10 @@ typedef struct {
 
 static_assert(sizeof(HidSvcReportId) == sizeof(uint16_t), "HidSvcReportId must be 2 bytes");
 
+static const Service_UUID_t hid_svc_uuid = {
+    .Service_UUID_16 = HUMAN_INTERFACE_DEVICE_SERVICE_UUID,
+};
+
 static bool
     hid_svc_char_desc_data_callback(const void* context, const uint8_t** data, uint16_t* data_len) {
     const HidSvcReportId* report_id = context;
@@ -211,18 +215,15 @@ static SVCCTL_EvtAckStatus_t hid_svc_event_handler(void* event) {
 void hid_svc_start() {
     tBleStatus status;
     hid_svc = malloc(sizeof(HIDSvc));
-    Service_UUID_t svc_uuid = {};
 
     // Register event handler
     SVCCTL_RegisterSvcHandler(hid_svc_event_handler);
-    // Add service
-    svc_uuid.Service_UUID_16 = HUMAN_INTERFACE_DEVICE_SERVICE_UUID;
     /**
      *  Add Human Interface Device Service
      */
     status = aci_gatt_add_service(
         UUID_TYPE_16,
-        &svc_uuid,
+        &hid_svc_uuid,
         PRIMARY_SERVICE,
         2 + /* protocol mode */
             (4 * HID_SVC_INPUT_REPORT_COUNT) + (3 * HID_SVC_OUTPUT_REPORT_COUNT) +
