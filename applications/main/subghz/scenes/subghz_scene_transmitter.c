@@ -4,6 +4,8 @@
 
 #include <lib/subghz/blocks/custom_btn.h>
 
+#define TAG "SubGhzSceneTransmitter"
+
 void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;

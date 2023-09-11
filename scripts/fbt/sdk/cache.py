@@ -255,3 +255,18 @@ class SdkCache:
         self.sync_sets(self.sdk.headers, api.headers, False)
         self.sync_sets(self.sdk.functions, api.functions)
         self.sync_sets(self.sdk.variables, api.variables)
+
+
+class LazySdkVersionLoader:
+    def __init__(self, sdk_path: str):
+        self.sdk_path = sdk_path
+        self._version = None
+
+    @property
+    def version(self) -> SdkVersion:
+        if self._version is None:
+            self._version = SdkCache(self.sdk_path, load_version_only=True).version
+        return self._version
+
+    def __str__(self) -> str:
+        return str(self.version)

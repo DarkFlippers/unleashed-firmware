@@ -26,11 +26,11 @@ static FS_Error storage_ext_parse_error(SDError error);
 
 static bool sd_mount_card_internal(StorageData* storage, bool notify) {
     bool result = false;
-    uint8_t counter = sd_max_mount_retry_count();
+    uint8_t counter = furi_hal_sd_max_mount_retry_count();
     uint8_t bsp_result;
     SDData* sd_data = storage->data;
 
-    while(result == false && counter > 0 && hal_sd_detect()) {
+    while(result == false && counter > 0 && furi_hal_sd_is_present()) {
         if(notify) {
             NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
             sd_notify_wait(notification);
@@ -39,9 +39,9 @@ static bool sd_mount_card_internal(StorageData* storage, bool notify) {
 
         if((counter % 2) == 0) {
             // power reset sd card
-            bsp_result = sd_init(true);
+            bsp_result = furi_hal_sd_init(true);
         } else {
-            bsp_result = sd_init(false);
+            bsp_result = furi_hal_sd_init(false);
         }
 
         if(bsp_result) {
@@ -225,18 +225,18 @@ FS_Error sd_card_info(StorageData* storage, SDInfo* sd_info) {
 #endif
     }
 
-    SD_CID cid;
-    SdSpiStatus status = sd_get_cid(&cid);
+    FuriHalSdInfo info;
+    FuriStatus status = furi_hal_sd_info(&info);
 
-    if(status == SdSpiStatusOK) {
-        sd_info->manufacturer_id = cid.ManufacturerID;
-        memcpy(sd_info->oem_id, cid.OEM_AppliID, sizeof(cid.OEM_AppliID));
-        memcpy(sd_info->product_name, cid.ProdName, sizeof(cid.ProdName));
-        sd_info->product_revision_major = cid.ProdRev >> 4;
-        sd_info->product_revision_minor = cid.ProdRev & 0x0F;
-        sd_info->product_serial_number = cid.ProdSN;
-        sd_info->manufacturing_year = 2000 + cid.ManufactYear;
-        sd_info->manufacturing_month = cid.ManufactMonth;
+    if(status == FuriStatusOk) {
+        sd_info->manufacturer_id = info.manufacturer_id;
+        memcpy(sd_info->oem_id, info.oem_id, sizeof(info.oem_id));
+        memcpy(sd_info->product_name, info.product_name, sizeof(info.product_name));
+        sd_info->product_revision_major = info.product_revision_major;
+        sd_info->product_revision_minor = info.product_revision_minor;
+        sd_info->product_serial_number = info.product_serial_number;
+        sd_info->manufacturing_year = info.manufacturing_year;
+        sd_info->manufacturing_month = info.manufacturing_month;
     }
 
     return storage_ext_parse_error(error);
@@ -246,19 +246,19 @@ static void storage_ext_tick_internal(StorageData* storage, bool notify) {
     SDData* sd_data = storage->data;
 
     if(sd_data->sd_was_present) {
-        if(hal_sd_detect()) {
+        if(furi_hal_sd_is_present()) {
             FURI_LOG_I(TAG, "card detected");
             sd_data->sd_was_present = false;
             sd_mount_card(storage, notify);
 
-            if(!hal_sd_detect()) {
+            if(!furi_hal_sd_is_present()) {
                 FURI_LOG_I(TAG, "card removed while mounting");
                 sd_unmount_card(storage);
                 sd_data->sd_was_present = true;
             }
         }
     } else {
-        if(!hal_sd_detect()) {
+        if(!furi_hal_sd_is_present()) {
             FURI_LOG_I(TAG, "card removed");
             sd_data->sd_was_present = true;
 
@@ -639,7 +639,7 @@ void storage_ext_init(StorageData* storage) {
     storage->api.tick = storage_ext_tick;
     storage->fs_api = &fs_api;
 
-    hal_sd_detect_init();
+    furi_hal_sd_presence_init();
 
     // do not notify on first launch, notifications app is waiting for our thread to read settings
     storage_ext_tick_internal(storage, false);

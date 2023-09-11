@@ -1,0 +1,114 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL"
+run-name: "CodeQL Analyze ${{ github.ref_name }} by @${{ github.ACTOR }}"
+
+on:
+  push:
+    branches: ["dev"]
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners
+    # Consider using larger runners for possible analysis time improvements.
+    runs-on: [ "ubuntu-latest" ]
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["cpp"]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'swift' ]
+        # Use only 'java' to analyze code written in Java, Kotlin or both
+        # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
+        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+    env:
+      PATH_SARIF_DIR: ".github/results.sarif"
+      PATH_SARIF_FILE: ".github/results.sarif/${{ matrix.language }}.sarif"
+      FBT_NO_SYNC: 0
+      DIST_SUFFIX: "codeql"
+      WORKFLOW_BRANCH_OR_TAG: release-cfw
+      LANG_CATEGORY: "/language:${{matrix.language}}"
+
+    steps:
+      - name: Checkout Firmware Files
+        uses: actions/checkout@v3
+        with:
+          clean: "true"
+          submodules: "true"
+          fetch-depth: "0"
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          setup-python-dependencies: true
+
+      - name: Resolve CodeQL Build Env
+        uses: github/codeql-action/resolve-environment@v2
+        with:
+          language: ${{ matrix.language }}
+          #debug: true
+
+      - name: Build Firmware
+        shell: bash
+        if: ${{ success() }}
+        run: |
+          ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC=${{ env.FBT_NO_SYNC }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        if: ${{ success() }}
+        with:
+          threads: 4
+          category: "${{ env.LANG_CATEGORY }}"
+          output: "${{ env.PATH_SARIF_DIR }}"
+          upload-database: false
+          upload: "failure-only" # disable the upload here - we will upload in a different action
+
+      - name: Filter dirs for SARIF
+        uses: advanced-security/filter-sarif@v1
+        if: ${{ success() }}
+        with:
+          # filter out all test files unless they contain a sql-injection vulnerability
+          patterns: |
+            -build/**
+            -dist/**
+            -toolchain/**
+            -lib/**
+          input: "${{ env.PATH_SARIF_FILE }}"
+          output: "${{ env.PATH_SARIF_FILE }}"
+
+      - name: Upload CodeQL SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        if: ${{ success() }}
+        with:
+          category: "${{ env.LANG_CATEGORY }}"
+          sarif_file: "${{ env.PATH_SARIF_FILE }}"
+
+      # optional: for debugging the uploaded sarif
+      # - name: Upload loc as a Build Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: sarif-results
+      #     path: sarif-results
+      #     retention-days: 1

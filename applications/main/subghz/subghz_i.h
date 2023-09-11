@@ -42,6 +42,8 @@
 
 #define SUBGHZ_MAX_LEN_NAME 64
 #define SUBGHZ_EXT_PRESET_NAME true
+#define SUBGHZ_RAW_THRESHOLD_MIN (-90.0f)
+#define SUBGHZ_MEASURE_LOADING false
 
 typedef struct {
     uint8_t fix[4];
@@ -98,7 +100,6 @@ struct SubGhz {
     void* rpc_ctx;
 };
 
-void subghz_set_default_preset(SubGhz* subghz);
 void subghz_blink_start(SubGhz* subghz);
 void subghz_blink_stop(SubGhz* subghz);
 

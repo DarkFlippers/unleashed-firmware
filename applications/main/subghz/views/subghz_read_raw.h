@@ -4,8 +4,6 @@
 #include "../helpers/subghz_types.h"
 #include "../helpers/subghz_custom_event.h"
 
-#define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
-
 typedef struct SubGhzReadRAW SubGhzReadRAW;
 
 typedef void (*SubGhzReadRAWCallback)(SubGhzCustomEvent event, void* context);

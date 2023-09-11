@@ -138,6 +138,9 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         } else {
             scene_manager_previous_scene(subghz->scene_manager);
         }
+        // Set file path to default
+        furi_string_set(subghz->file_path, SUBGHZ_APP_FOLDER);
+
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneSaveName) {

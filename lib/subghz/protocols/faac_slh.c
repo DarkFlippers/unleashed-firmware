@@ -130,16 +130,10 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     }
 
     uint8_t custom_btn_id = subghz_custom_btn_get();
-    bool button_for_programming = false;
 
-    // If custom button left is pressed, enable programming mode and disable it on Ok button
-    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK)) {
-        button_for_programming = false;
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
-        button_for_programming = true;
-    }
     // If we are using UP button - generate programming mode key and send it, otherwise - send regular key if possible
-    if(button_for_programming && !(!allow_zero_seed && (instance->generic.seed == 0x0))) {
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) &&
+       !(!allow_zero_seed && (instance->generic.seed == 0x0))) {
         uint8_t data_tmp = 0;
         uint8_t data_prg[8];
 
@@ -683,7 +677,7 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
             (uint32_t)instance->generic.data_2,
             instance->generic.seed,
             (uint8_t)(instance->generic.cnt & 0xFF));
-    } else if(allow_zero_seed == false) {
+    } else if((allow_zero_seed == false) && (instance->generic.seed == 0x0)) {
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
