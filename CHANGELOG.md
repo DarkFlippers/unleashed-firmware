@@ -2,17 +2,25 @@
 * **Apple BLE Spam app** (by @Willy-JL | Plus research from ECTO-1A, xMasterX and techryptic) -> (app can be found in builds ` `, `e`, `n`, `r`)
 * SubGHz: **FAAC SLH - Programming mode** (by @xMasterX & @Eng1n33r (full research and PoC by @Skorpionm)| PR #585) -> [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 * SubGHz: FAAC SLH -> Add manually new options
+* SubGHz: **Ignore Princeton** option
+* SubGHz: **Save all settings, option to reset config to default** (by @derskythe | PR #590)
 * SubGHz: Fix 0xFFFF counter value being skipped
 * SubGHz: Fix path reset on save name scene exit
 * SubGHz: Various fixes
+* SubGHz Remote: New design (by @Svaarich) - Implemented by @gid9798
 * SubGHz Remote: Fix Sub-GHz Remote folder name (by @OperKH | PR #583)
 * SubGHz Remote: submodule (by @gid9798 | PR #592)
 * Infrared: Updated universal assets (by @amec0e | PR #594)
 * Infrared: Remake custom universal remotes to use new design (New icons by @Svaarich)
 * UI: Keyboard ok to toggle select all in cursor mode (by @Willy-JL)
+* CI/CD: CodeQL for internal usage
 * CI/CD: Fixed regular builds having `c` in version name in the device info while not being actual `c` build
 * Docs: New FAAC SLH instructions
-* Docs: Readme & Changelog fixes (by @gid9798 | PR #586)
+* Docs: Readme & Changelog fixes (by @gid9798 | PR #586 #600)
+* OFW: Sub-GHz: fix incorrect key parsing crash
+* OFW: fbt: added FW_CFG_name with build configuration
+* OFW: SD-Card: proper HAL -> **Breaking API change, API 37.x -> API 38.x** - **Update your apps!**
+* OFW: Various Fixes and Improvements -> **Breaking API change, API 36.x -> API 37.x** - **Update your apps!**
 * OFW: iButton: Return to the file selection if file is corrupted
 * OFW: Account for the "-" in line carry-over
 * OFW: github: workflow improvements
