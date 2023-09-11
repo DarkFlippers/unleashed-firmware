@@ -270,7 +270,11 @@ static void subghz_scene_receiver_config_set_auto_alarms(VariableItem* item) {
 }
 
 static void subghz_scene_receiver_config_set_magellan(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Magelan);
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Magellan);
+}
+
+static void subghz_scene_receiver_config_set_princeton(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Princeton);
 }
 
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
@@ -424,7 +428,19 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz);
 
         value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_Magelan);
+            subghz->ignore_filter, SubGhzProtocolFlag_Magellan);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, combobox_text[value_index]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Ignore Princeton:",
+            COMBO_BOX_COUNT,
+            subghz_scene_receiver_config_set_princeton,
+            subghz);
+
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_Princeton);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
     }
