@@ -1,0 +1,54 @@
+name: Submit SDK to Catalog
+author: hedger
+description: |
+  This action checks if SDK exists in the catalog and if not, adds and/or publishes it.
+
+inputs:
+  catalog-url:
+    description: The URL of the Catalog API
+    required: true
+  catalog-token:
+    description: The token to use to authenticate with the Catalog API
+    required: true
+  firmware-api:
+    description: Fimware's API version, major.minor
+    required: true
+  firmware-target:
+    description: Firmware's target, e.g. f7/f18
+    required: true
+  firmware-version:
+    description: Firmware's version, e.g. 0.13.37-rc3
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Submit SDK
+      run: |
+        curl -sX 'GET' \
+          '${{ inputs.catalog-url }}/api/v0/0/sdk?length=500' \
+          -H 'Accept: application/json' > sdk_versions.json
+        if jq -r -e ".[] | select((.api == \"${{ inputs.firmware-api }}\") and .target == \"${{ inputs.firmware-target }}\")" sdk_versions.json > found_sdk.json ; then
+          echo "API version ${{ inputs.firmware-api }} already exists in catalog"
+          if [ $(jq -r -e ".released_at" found_sdk.json) != "null" ] ; then
+            echo "API version is already released"
+            exit 0
+          fi
+          if ! echo "${{ inputs.firmware-version }}" | grep -q "-rc" ; then
+            SDK_ID=$(jq -r ._id found_sdk.json)
+            echo "Marking SDK $SDK_ID as released"
+            curl -X 'POST' \
+              "${{ inputs.catalog-url }}/api/v0/0/sdk/${SDK_ID}/release" \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer ${{ inputs.catalog-token }}' \
+              -d ''
+          fi
+        else
+          echo "API version ${{ inputs.firmware-api }} doesn't exist in catalog, adding"
+          curl -X 'POST' \
+            '${{ inputs.catalog-url }}/api/v0/0/sdk' \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer ${{ inputs.catalog-token }}' \
+            -H 'Content-Type: application/json' \
+            -d "{\"name\": \"${{ inputs.firmware-version }}\", \"target\": \"${{ inputs.firmware-target }}\", \"api\": \"${{ inputs.firmware-api }}\"}\"
+        fi

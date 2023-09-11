@@ -57,8 +57,10 @@ jobs:
           fi
 
       - name: 'Build the firmware and apps'
+        id: build-fw
         run: |
           ./fbt TARGET_HW=$TARGET_HW $FBT_BUILD_TYPE copro_dist updater_package fap_dist
+          echo "firmware_api=$(./fbt TARGET_HW=$TARGET_HW get_apiversion)" >> $GITHUB_OUTPUT
 
       - name: 'Check for uncommitted changes'
         run: |
@@ -144,34 +146,22 @@ jobs:
             - [☁️ Web/App updater](https://lab.flipper.net/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.branch_name}}&version=${{steps.names.outputs.commit_sha}})
           edit-mode: replace
 
-      - name: 'Check if API version exists'
+      - name: 'SDK submission to dev catalog'
         if: ${{ steps.names.outputs.event_type == 'tag' && matrix.target == env.DEFAULT_TARGET }}
-        run: |
-          FIRMWARE_API=$(./fbt TARGET_HW=$TARGET_HW get_apiversion)
-          curl -sX 'GET' \
-            '${{ secrets.CATALOG_URL }}/api/v0/0/sdk?length=200' \
-            -H 'Accept: application/json' > sdk_versions.json
-          if jq -r -e ".[] | select((.api == \"${FIRMWARE_API}\") and .target == \"f${TARGET_HW}\")" sdk_versions.json > found_sdk.json ; then
-            echo "API version $FIRMWARE_API already exists in catalog"
-            if [ $(jq -r -e ".released_at" found_sdk.json) != "null" ] ; then
-              echo "API version is already released"
-              exit 0
-            fi
-            if ! echo "$SUFFIX" | grep -q "-rc" ; then
-              SDK_ID=$(jq -r ._id found_sdk.json)
-              echo "Marking SDK $SDK_ID as released"
-              curl -X 'POST' \
-                "${{ secrets.CATALOG_URL }}/api/v0/0/sdk/${SDK_ID}/release" \
-                -H 'Accept: application/json' \
-                -H 'Authorization: Bearer ${{ secrets.CATALOG_API_TOKEN }}' \
-                -d ''
-            fi
-          else
-            echo "API version $FIRMWARE_API doesn't exist in catalog, adding"
-            curl -X 'POST' \
-              '${{ secrets.CATALOG_URL }}/api/v0/0/sdk' \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer ${{ secrets.CATALOG_API_TOKEN }}' \
-              -H 'Content-Type: application/json' \
-              -d "{\"name\": \"${SUFFIX}\", \"target\": \"f${TARGET_HW}\", \"api\": \"${FIRMWARE_API}\"}\"
-          fi
+        uses: ./.github/actions/submit_sdk
+        with:
+          catalog-url: ${{ secrets.CATALOG_STAGING_URL }}
+          catalog-api-token: ${{ secrets.CATALOG_STAGING_API_TOKEN }}
+          firmware-api: ${{ steps.build-fw.outputs.firmware_api }}
+          firwmare-target: ${{ matrix.target }}
+          firmware-version: ${{ steps.names.outputs.suffix }}
+
+      - name: 'SDK submission to prod catalog'
+        if: ${{ steps.names.outputs.event_type == 'tag' && matrix.target == env.DEFAULT_TARGET }}
+        uses: ./.github/actions/submit_sdk
+        with:
+          catalog-url: ${{ secrets.CATALOG_URL }}
+          catalog-api-token: ${{ secrets.CATALOG_API_TOKEN }}
+          firmware-api: ${{ steps.build-fw.outputs.firmware_api }}
+          firwmare-target: ${{ matrix.target }}
+          firmware-version: ${{ steps.names.outputs.suffix }}
