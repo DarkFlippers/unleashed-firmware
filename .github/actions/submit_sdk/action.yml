@@ -24,6 +24,7 @@ runs:
   using: composite
   steps:
     - name: Submit SDK
+      shell: bash
       run: |
         curl -sX 'GET' \
           '${{ inputs.catalog-url }}/api/v0/0/sdk?length=500' \
