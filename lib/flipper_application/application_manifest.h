@@ -54,14 +54,25 @@ typedef FlipperApplicationManifestV1 FlipperApplicationManifest;
  */
 bool flipper_application_manifest_is_valid(const FlipperApplicationManifest* manifest);
 
-/**
- * @brief Check if manifest is compatible with current ELF API interface
- * 
- * @param manifest 
- * @param api_interface 
- * @return bool 
+/** Check if API Version declared in manifest is older than firmware ELF API interface
+ *
+ * @param      manifest       The manifest
+ * @param      api_interface  The api interface
+ *
+ * @return     bool
  */
-bool flipper_application_manifest_is_compatible(
+bool flipper_application_manifest_is_too_old(
+    const FlipperApplicationManifest* manifest,
+    const ElfApiInterface* api_interface);
+
+/** Check if API Version declared in manifest is newer than firmware ELF API interface
+ *
+ * @param      manifest       The manifest
+ * @param      api_interface  The api interface
+ *
+ * @return     bool
+ */
+bool flipper_application_manifest_is_too_new(
     const FlipperApplicationManifest* manifest,
     const ElfApiInterface* api_interface);
 
