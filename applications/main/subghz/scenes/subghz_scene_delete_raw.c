@@ -1,5 +1,5 @@
+#include "../subghz.h"
 #include "../subghz_i.h"
-#include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_delete_raw_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);

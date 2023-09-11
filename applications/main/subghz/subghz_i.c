@@ -4,29 +4,12 @@
 #include "subghz/types.h"
 #include <math.h>
 #include <furi.h>
-#include <furi_hal.h>
-#include <input/input.h>
-#include <gui/elements.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 #include <flipper_format/flipper_format.h>
-#include "views/receiver.h"
-
 #include <flipper_format/flipper_format_i.h>
-#include <lib/toolbox/stream/stream.h>
-#include <lib/subghz/protocols/raw.h>
 
 #define TAG "SubGhz"
-
-void subghz_set_default_preset(SubGhz* subghz) {
-    furi_assert(subghz);
-    subghz_txrx_set_preset(
-        subghz->txrx,
-        "AM650",
-        subghz_setting_get_default_frequency(subghz_txrx_get_setting(subghz->txrx)),
-        NULL,
-        0);
-}
 
 void subghz_blink_start(SubGhz* subghz) {
     furi_assert(subghz);
@@ -60,7 +43,7 @@ void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();
     const char* header_text = "Frequency not supported";
-    const char* message_text = "Frequency\nis outside of\nsuported range.";
+    const char* message_text = "Frequency\nis outside of\nsupported range.";
 
     if(only_rx) {
         header_text = "Transmission is blocked";
@@ -124,6 +107,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         // TODO: use different frequency allowed lists for differnet modules (non cc1101)
         if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
             FURI_LOG_E(TAG, "This frequency can only be used for RX");
+
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }

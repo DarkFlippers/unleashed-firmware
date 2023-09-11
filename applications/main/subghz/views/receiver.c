@@ -12,7 +12,7 @@
 #define MENU_ITEMS 4u
 #define UNLOCK_CNT 3
 
-#define SUBGHZ_RAW_THRESHOLD_MIN -90.0f
+// #define SUBGHZ_RAW_THRESHOLD_MIN (-90.0f)
 
 #define FLIP_TIMEOUT (500)
 
@@ -62,6 +62,8 @@ typedef struct {
     FuriString* preset_str;
     FuriString* history_stat_str;
     FuriString* progress_str;
+    bool hopping_enabled;
+    bool bin_raw_enabled;
     SubGhzReceiverHistory* history;
     uint16_t idx;
     uint16_t list_offset;
@@ -200,7 +202,9 @@ void subghz_view_receiver_add_data_statusbar(
     SubGhzViewReceiver* subghz_receiver,
     const char* frequency_str,
     const char* preset_str,
-    const char* history_stat_str) {
+    const char* history_stat_str,
+    bool hopping_enabled,
+    bool bin_raw_enabled) {
     furi_assert(subghz_receiver);
     with_view_model(
         subghz_receiver->view,
@@ -209,6 +213,8 @@ void subghz_view_receiver_add_data_statusbar(
             furi_string_set(model->frequency_str, frequency_str);
             furi_string_set(model->preset_str, preset_str);
             furi_string_set(model->history_stat_str, history_stat_str);
+            model->hopping_enabled = hopping_enabled;
+            model->bin_raw_enabled = bin_raw_enabled;
         },
         true);
 }
@@ -311,7 +317,6 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(model->history_item == 0) {
-        // TODO
         if(model->mode == SubGhzViewReceiverModeLive) {
             canvas_draw_icon(
                 canvas,
@@ -320,9 +325,19 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
                 (model->device_type == SubGhzRadioDeviceTypeInternal) ? &I_Scanning_123x52 :
                                                                         &I_Fishing_123x52);
             canvas_set_font(canvas, FontPrimary);
-            canvas_draw_str(canvas, 63, 46, "Scanning...");
+            if(model->hopping_enabled) {
+                canvas_draw_str(canvas, 59, 46, "Hopper scan...");
+            } else {
+                canvas_draw_str(canvas, 59, 46, "Fixed scan...");
+            }
             //canvas_draw_line(canvas, 46, 51, 125, 51);
             canvas_set_font(canvas, FontSecondary);
+
+            if(model->bin_raw_enabled) {
+                const uint8_t vertical_offset = 17;
+                const uint8_t horizontal_offset = 118;
+                canvas_draw_icon(canvas, horizontal_offset, vertical_offset, &I_Cos_9x7);
+            }
         } else {
             canvas_draw_icon(
                 canvas,
@@ -458,8 +473,10 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
         return true;
     }
 
+    bool consumed = false;
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
         subghz_receiver->callback(SubGhzCustomEventViewReceiverBack, subghz_receiver->context);
+        consumed = true;
     } else if(
         event->key == InputKeyUp &&
         (event->type == InputTypeShort || event->type == InputTypeRepeat)) {
@@ -471,6 +488,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 subghz_view_receiver_show_time_moment(context);
             },
             true);
+        consumed = true;
     } else if(
         event->key == InputKeyDown &&
         (event->type == InputTypeShort || event->type == InputTypeRepeat)) {
@@ -484,8 +502,10 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 }
             },
             true);
+        consumed = true;
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
         subghz_receiver->callback(SubGhzCustomEventViewReceiverConfig, subghz_receiver->context);
+        consumed = true;
     } else if(event->key == InputKeyRight && event->type == InputTypeLong) {
         with_view_model(
             subghz_receiver->view,
@@ -498,6 +518,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 }
             },
             false);
+        consumed = true;
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(
             subghz_receiver->view,
@@ -509,11 +530,13 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 }
             },
             false);
+        consumed = true;
     }
 
-    subghz_view_receiver_update_offset(subghz_receiver);
-
-    return true;
+    if(consumed) {
+        subghz_view_receiver_update_offset(subghz_receiver);
+    }
+    return consumed;
 }
 
 void subghz_view_receiver_enter(void* context) {
@@ -543,6 +566,8 @@ void subghz_view_receiver_exit(void* context) {
                 model->list_offset = 0;
                 model->history_item = 0;
                 model->nodraw = false;
+                model->hopping_enabled = false;
+                model->bin_raw_enabled = false;
         },
         false);
     furi_timer_stop(subghz_receiver->timer);
@@ -579,6 +604,8 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
             model->bar_show = SubGhzViewReceiverBarShowDefault;
             model->nodraw = false;
             model->history = malloc(sizeof(SubGhzReceiverHistory));
+            model->hopping_enabled = false;
+            model->bin_raw_enabled = false;
             SubGhzReceiverMenuItemArray_init(model->history->data);
         },
         true);
@@ -622,7 +649,7 @@ View* subghz_view_receiver_get_view(SubGhzViewReceiver* subghz_receiver) {
 
 uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver) {
     furi_assert(subghz_receiver);
-    uint16_t idx = 0;
+    uint16_t idx;
     with_view_model(
         subghz_receiver->view, SubGhzViewReceiverModel * model, { idx = model->idx; }, false);
     return idx;
