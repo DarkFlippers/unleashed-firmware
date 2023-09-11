@@ -79,19 +79,33 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
                 canvas_set_color(canvas, ColorBlack);
             }
 
+            uint8_t temp_x_default = 73;
+            uint8_t temp_w_default = 66;
             if(item->current_value_index == 0 && furi_string_empty(item->current_value_text)) {
                 // Only left text, no right text
                 canvas_draw_str(canvas, 6, item_text_y, item->label);
             } else {
+                if((furi_string_size(item->current_value_text) < (size_t)4) &&
+                   (strlen(item->label) > (size_t)16)) {
+                    temp_x_default = 77;
+                    temp_w_default = 71;
+                }
                 elements_scrollable_text_line_str(
-                    canvas, 6, item_text_y, 66, item->label, scroll_counter, false, false);
+                    canvas,
+                    6,
+                    item_text_y,
+                    temp_w_default,
+                    item->label,
+                    scroll_counter,
+                    false,
+                    false);
             }
 
             if(item->locked) {
                 canvas_draw_icon(canvas, 110, item_text_y - 8, &I_Lock_7x8);
             } else {
                 if(item->current_value_index > 0) {
-                    canvas_draw_str(canvas, 73, item_text_y, "<");
+                    canvas_draw_str(canvas, temp_x_default, item_text_y, "<");
                 }
 
                 elements_scrollable_text_line_str(
