@@ -175,15 +175,13 @@ See full list and sources here: [xMasterX/all-the-plugin](https://github.com/xMa
 ## [How to install](/documentation/HowToInstall.md) - [versions info](/CHANGELOG.md#what-n-r-e--c-means-what-i-need-to-download-if-i-dont-want-to-use-web-updater): `n`,` `,`e`...
 ## Firmware & Development
 
-**[How to build](/documentation/HowToBuild.md#how-to-build-by-yourself)
-| [Project-structure](#project-structure)**
+### - **[How to build](/documentation/HowToBuild.md#how-to-build-by-yourself) | [Project-structure](#project-structure)**
 
-**CLion IDE** - How to setup workspace for flipper firmware development [by Savely Krasovsky](https://krasovs.ky/2022/11/01/flipper-zero-clion.html)
+### - **CLion IDE** - How to setup workspace for flipper firmware development [by Savely Krasovsky](https://krasovs.ky/2022/11/01/flipper-zero-clion.html)
 
-**"Hello world!"** - plugin tutorial [English<sub> by DroomOne</sub> ](https://github.com/DroomOne/Flipper-Plugin-Tutorial)
-| [Russian<sub> by Pavel Yakovlev</sub>](https://yakovlev.me/hello-flipper-zero/)
+### - **"Hello world!"** - plugin tutorial [English<sub> by DroomOne</sub> ](https://github.com/DroomOne/Flipper-Plugin-Tutorial) | [Russian<sub> by Pavel Yakovlev</sub>](https://yakovlev.me/hello-flipper-zero/)
 
-Docs by atmanos: [How to write your own app](https://flipper.atmanos.com/docs/overview/intro) **⚠️outdated API**
+### - [How to write your own app](https://flipper.atmanos.com/docs/overview/intro). Docs by atmanos **⚠️outdated API**
 
 ## Firmware & main Apps feature
 
@@ -195,7 +193,7 @@ Docs by atmanos: [How to write your own app](https://flipper.atmanos.com/docs/ov
 
 ## **Sub-GHz**
 
-### - External Radiom: [How to connect CC1101 module](https://github.com/quen0n/flipperzero-ext-cc1101)
+### - External Radio: [How to connect CC1101 module](https://github.com/quen0n/flipperzero-ext-cc1101)
 
 ### - Transmission is blocked? [How to extend Sub-GHz frequency range](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/DangerousSettings.md)
 
@@ -207,39 +205,40 @@ Docs by atmanos: [How to write your own app](https://flipper.atmanos.com/docs/ov
 
 ## **Plugins**
 
-### TOTP (Authenticator): [config description](https://github.com/akopachov/flipper-zero_authenticator/blob/master/docs/conf-file_description.md)
+### - TOTP (Authenticator): [config description](https://github.com/akopachov/flipper-zero_authenticator/blob/master/docs/conf-file_description.md)
 
-### Mifare Nested plugin: [How to recover keys](https://github.com/AloneLiberty/FlipperNested#how-to-use-it)
+### - Mifare Nested plugin: [How to recover keys](https://github.com/AloneLiberty/FlipperNested#how-to-use-it)
 
-### Barcode Generator: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/BarcodeGenerator.md)
+### - Barcode Generator: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/BarcodeGenerator.md)
 
-### Multi Converter: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/MultiConverter.md)
+### - Multi Converter: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/MultiConverter.md)
 
-### WAV Player: [sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
+### - WAV Player: [sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
 
-### Sub-GHz playlist: [generator script](https://github.com/darmiel/flipper-scripts/blob/main/playlist/playlist_creator_by_chunk.py)
+### - Sub-GHz playlist: [generator script](https://github.com/darmiel/flipper-scripts/blob/main/playlist/playlist_creator_by_chunk.py)
 
 ## **Plugins that works with external hardware** [GPIO]
 
-### Unitemp - Temperature sensors reader: [How to use & supported sensors](https://github.com/quen0n/unitemp-flipperzero#readme)
+### - Unitemp - Temperature sensors reader: [How to use & supported sensors](https://github.com/quen0n/unitemp-flipperzero#readme)
 
-### [NMEA] GPS: [How to use](https://github.com/xMasterX/all-the-plugins/blob/dev/base_pack/gps_nmea_uart/README.md)
+### - [NMEA] GPS: [How to use](https://github.com/xMasterX/all-the-plugins/blob/dev/base_pack/gps_nmea_uart/README.md)
 
-### i2c Tools [How to use](https://github.com/xMasterX/all-the-plugins/blob/dev/base_pack/flipper_i2ctools/README.md)
+### - i2c Tools [How to use](https://github.com/xMasterX/all-the-plugins/blob/dev/base_pack/flipper_i2ctools/README.md)
 
-### [NRF24] plugins: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/NRF24.md)
+### - [NRF24] plugins: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/NRF24.md)
 
-### [WiFi] Scanner: [How to use](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module#readme) | [Web Flasher](https://sequoiasan.github.io/FlipperZero-WiFi-Scanner_Module/)
 
-### [ESP8266] Deauther: [How to use](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module#readme) | [Web Flasher](https://sequoiasan.github.io/FlipperZero-Wifi-ESP8266-Deauther-Module/)
+### - [WiFi] Scanner: [How to use](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module#readme) | [Web Flasher](https://sequoiasan.github.io/FlipperZero-WiFi-Scanner_Module/)
 
-### [ESP32] WiFi Marauder: [How to use](https://github.com/UberGuidoZ/Flipper/tree/main/Wifi_DevBoard)<sub> docs by UberGuidoZ</sub> | [Marauder repo](https://github.com/justcallmekoko/ESP32Marauder)
+### - [ESP8266] Deauther: [How to use](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module#readme) | [Web Flasher](https://sequoiasan.github.io/FlipperZero-Wifi-ESP8266-Deauther-Module/)
 
-### [ESP32-CAM] Camera Suite: [How to use](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite)
+### - [ESP32] WiFi Marauder: [How to use](https://github.com/UberGuidoZ/Flipper/tree/main/Wifi_DevBoard)<sub> docs by UberGuidoZ</sub> | [Marauder repo](https://github.com/justcallmekoko/ESP32Marauder)
 
-### How to Upload `.bin` to ESP32/ESP8266: [Windows](https://github.com/SequoiaSan/Guide-How-To-Upload-bin-to-ESP8266-ESP32) | [FAP "ESP flasher"](https://github.com/0xchocolate/flipperzero-esp-flasher)
+### - [ESP32-CAM] Camera Suite: [How to use](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite)
 
-### [GPIO] SentrySafe plugin: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SentrySafe.md)
+### - How to Upload `.bin` to ESP32/ESP8266: [Windows](https://github.com/SequoiaSan/Guide-How-To-Upload-bin-to-ESP8266-ESP32) | [FAP "ESP flasher"](https://github.com/0xchocolate/flipperzero-esp-flasher)
+
+### - [GPIO] SentrySafe plugin: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SentrySafe.md)
 
 <br>
 <br>
