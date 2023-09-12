@@ -7,7 +7,7 @@ inputs:
   catalog-url:
     description: The URL of the Catalog API
     required: true
-  catalog-token:
+  catalog-api-token:
     description: The token to use to authenticate with the Catalog API
     required: true
   firmware-api:
@@ -41,7 +41,7 @@ runs:
             curl -X 'POST' \
               "${{ inputs.catalog-url }}/api/v0/0/sdk/${SDK_ID}/release" \
               -H 'Accept: application/json' \
-              -H 'Authorization: Bearer ${{ inputs.catalog-token }}' \
+              -H 'Authorization: Bearer ${{ inputs.catalog-api-token }}' \
               -d ''
           fi
         else
@@ -49,7 +49,7 @@ runs:
           curl -X 'POST' \
             '${{ inputs.catalog-url }}/api/v0/0/sdk' \
             -H 'Accept: application/json' \
-            -H 'Authorization: Bearer ${{ inputs.catalog-token }}' \
+            -H 'Authorization: Bearer ${{ inputs.catalog-api-token }}' \
             -H 'Content-Type: application/json' \
-            -d "{\"name\": \"${{ inputs.firmware-version }}\", \"target\": \"${{ inputs.firmware-target }}\", \"api\": \"${{ inputs.firmware-api }}\"}\"
+            -d "{\"name\": \"${{ inputs.firmware-version }}\", \"target\": \"${{ inputs.firmware-target }}\", \"api\": \"${{ inputs.firmware-api }}\"}"
         fi
