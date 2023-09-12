@@ -1,5 +1,6 @@
 ## New changes
 * **Apple BLE Spam app** (by @Willy-JL | Plus research from ECTO-1A, xMasterX and techryptic) -> (app can be found in builds ` `, `e`, `n`, `r`)
+* Plugins -> Note for new users: **PicoPass emulation is available** in (Apps -> NFC -> PicoPass) + Latest PicoPass emulation fixes (by nvx) -> (app can be found in builds ` `, `e`, `n`, `r`)
 * SubGHz: **FAAC SLH - Programming mode** (by @xMasterX & @Eng1n33r (full research and PoC by @Skorpionm)| PR #585) -> [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 * SubGHz: FAAC SLH -> Add manually new options
 * SubGHz: **Ignore Princeton** option
