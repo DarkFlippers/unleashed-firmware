@@ -5,10 +5,10 @@ description: |
 
 inputs:
   catalog-url:
-    description: The URL of the Catalog API
+    description: The URL of the Catalog API. Must not be empty or end with a /.
     required: true
   catalog-api-token:
-    description: The token to use to authenticate with the Catalog API
+    description: The token to use to authenticate with the Catalog API. Must not be empty.
     required: true
   firmware-api:
     description: Fimware's API version, major.minor
@@ -17,12 +17,35 @@ inputs:
     description: Firmware's target, e.g. f7/f18
     required: true
   firmware-version:
-    description: Firmware's version, e.g. 0.13.37-rc3
+    description: Firmware's version, e.g. 0.13.37-rc3, or 0.13.37
     required: true
 
 runs:
   using: composite
   steps:
+    - name: Check inputs
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.catalog-url }}" ] ; then
+          echo "Invalid catalog-url: ${{ inputs.catalog-url }}"
+          exit 1
+        fi
+        if [ -z "${{ inputs.catalog-api-token }}" ] ; then
+          echo "Invalid catalog-api-token: ${{ inputs.catalog-api-token }}"
+          exit 1
+        fi
+        if ! echo "${{ inputs.firmware-api }}" | grep -q "^[0-9]\+\.[0-9]\+$" ; then
+          echo "Invalid firmware-api: ${{ inputs.firmware-api }}"
+          exit 1
+        fi
+        if ! echo "${{ inputs.firmware-target }}" | grep -q "^f[0-9]\+$" ; then
+          echo "Invalid firmware-target: ${{ inputs.firmware-target }}"
+          exit 1
+        fi
+        if ! echo "${{ inputs.firmware-version }}" | grep -q "^[0-9]\+\.[0-9]\+\.[0-9]\+\(-rc\)\?\([0-9]\+\)\?$" ; then
+          echo "Invalid firmware-version: ${{ inputs.firmware-version }}"
+          exit 1
+        fi
     - name: Submit SDK
       shell: bash
       run: |

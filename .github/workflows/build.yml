@@ -165,5 +165,5 @@ jobs:
           catalog-url: ${{ secrets.CATALOG_URL }}
           catalog-api-token: ${{ secrets.CATALOG_API_TOKEN }}
           firmware-api: ${{ steps.build-fw.outputs.firmware_api }}
-          firwmare-target: ${{ matrix.target }}
+          firmware-target: ${{ matrix.target }}
           firmware-version: ${{ steps.names.outputs.suffix }}
