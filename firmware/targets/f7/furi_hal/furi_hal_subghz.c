@@ -207,7 +207,7 @@ bool furi_hal_subghz_rx_pipe_not_empty() {
     cc1101_read_reg(
         &furi_hal_spi_bus_handle_subghz, (CC1101_STATUS_RXBYTES) | CC1101_BURST, (uint8_t*)status);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
-    if((status->NUM_RXBYTES > 0) || (status->RXFIFO_OVERFLOW == 0)) {
+    if(status->NUM_RXBYTES > 0) {
         return true;
     } else {
         return false;
