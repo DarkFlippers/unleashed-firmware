@@ -283,7 +283,7 @@ bool furi_hal_spi_bus_trx_dma(
         if(tx_buffer == NULL) {
             // RX mode, use dummy data instead of TX buffer
             tx_buffer = (uint8_t*)&dma_dummy_u32;
-            tx_mem_increase_mode = LL_DMA_PERIPH_NOINCREMENT;
+            tx_mem_increase_mode = LL_DMA_MEMORY_NOINCREMENT;
         } else {
             tx_mem_increase_mode = LL_DMA_MEMORY_INCREMENT;
         }
