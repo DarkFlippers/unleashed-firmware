@@ -32,8 +32,6 @@ typedef struct {
     uint32_t product_serial_number;
     uint8_t manufacturing_month;
     uint16_t manufacturing_year;
-
-    FS_Error error;
 } SDInfo;
 
 const char* sd_api_get_fs_type_text(SDFsType fs_type);

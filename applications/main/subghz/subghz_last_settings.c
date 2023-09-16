@@ -320,6 +320,6 @@ void subghz_last_settings_log(SubGhzLastSettings* instance) {
         subghz_last_settings_log_filter_get_index(
             instance->ignore_filter, SubGhzProtocolFlag_AutoAlarms),
         subghz_last_settings_log_filter_get_index(
-            instance->ignore_filter, SubGhzProtocolFlag_Magelan),
+            instance->ignore_filter, SubGhzProtocolFlag_Magellan),
         subghz_last_settings_log_filter_get_index(instance->filter, SubGhzProtocolFlag_BinRAW));
 }

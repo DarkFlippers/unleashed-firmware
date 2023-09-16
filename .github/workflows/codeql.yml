@@ -14,9 +14,7 @@ run-name: "CodeQL Analyze ${{ github.ref_name }} by @${{ github.ACTOR }}"
 
 on:
   push:
-    branches: ["dev-master", "feat/codeql-revision"]
-  pull_request:
-    branches: ["dev-master"]
+    branches: ["dev"]
   workflow_dispatch:
 
 jobs:

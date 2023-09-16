@@ -93,6 +93,7 @@ else:
             "FURI_RAM_EXEC",
         ],
     )
+env.AppendUnique(CPPDEFINES=["FW_CFG_${FIRMWARE_APP_SET}"])
 
 env.ConfigureForTarget(env.subst("${TARGET_HW}"))
 
