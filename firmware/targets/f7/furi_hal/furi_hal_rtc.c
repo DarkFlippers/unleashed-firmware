@@ -429,3 +429,32 @@ bool furi_hal_rtc_is_leap_year(uint16_t year) {
 uint8_t furi_hal_rtc_get_days_per_month(bool leap_year, uint8_t month) {
     return furi_hal_rtc_days_per_month[leap_year ? 1 : 0][month - 1];
 }
+
+void furi_hal_rtc_timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
+    datetime->year = timestamp / (60 * 60 * 24 * 366) + FURI_HAL_RTC_EPOCH_START_YEAR;
+    uint16_t extra_days = (datetime->year - FURI_HAL_RTC_EPOCH_START_YEAR - 1) / 4;
+    uint16_t days_since_epoch = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
+    uint16_t days_since_epoch_without_extra_days = days_since_epoch - extra_days;
+    uint16_t days_in_this_year =
+        days_since_epoch_without_extra_days % furi_hal_rtc_days_per_year[0] + 1;
+    while(days_in_this_year > furi_hal_rtc_days_per_month[0][datetime->month]) {
+        days_in_this_year -= furi_hal_rtc_days_per_month[0][datetime->month];
+        datetime->month++;
+    }
+    datetime->month++;
+    if(furi_hal_rtc_is_leap_year(datetime->year)) {
+        datetime->day = days_in_this_year - 1;
+    } else {
+        datetime->day = days_in_this_year;
+    }
+    // uint16_t seconds_in_this_day =
+    // timestamp - (days_since_epoch * FURI_HAL_RTC_SECONDS_PER_DAY);
+    // datetime->hour = seconds_in_this_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
+    // uint16_t minutes_in_this_day =
+    // seconds_in_this_day - (datetime->hour * FURI_HAL_RTC_SECONDS_PER_HOUR);
+    // datetime->minute = minutes_in_this_day / FURI_HAL_RTC_SECONDS_PER_MINUTE;
+    // datetime->second = minutes_in_this_day - (datetime->minute * FURI_HAL_RTC_SECONDS_PER_MINUTE);
+    datetime->second = timestamp % 60;
+    datetime->minute = timestamp / 60 % 60;
+    datetime->hour = timestamp / (60 * 60) % 24;
+}

@@ -50,14 +50,14 @@ void nfc_device_free(NfcDevice* nfc_dev) {
 static void nfc_device_prepare_format_string(NfcDevice* dev, FuriString* format_string) {
     if(dev->format == NfcDeviceSaveFormatUid) {
         furi_string_set(format_string, "UID");
-    } else if(dev->format == NfcDeviceSaveFormatBankCard) {
-        furi_string_set(format_string, "Bank card");
     } else if(dev->format == NfcDeviceSaveFormatMifareUl) {
         furi_string_set(format_string, nfc_mf_ul_type(dev->dev_data.mf_ul_data.type, true));
     } else if(dev->format == NfcDeviceSaveFormatMifareClassic) {
         furi_string_set(format_string, "Mifare Classic");
     } else if(dev->format == NfcDeviceSaveFormatMifareDesfire) {
         furi_string_set(format_string, "Mifare DESFire");
+    } else if(dev->format == NfcDeviceSaveFormatBankCard) {
+        furi_string_set(format_string, "Bank card");
     } else if(dev->format == NfcDeviceSaveFormatNfcV) {
         furi_string_set(format_string, "ISO15693");
     } else {
@@ -69,11 +69,6 @@ static bool nfc_device_parse_format_string(NfcDevice* dev, FuriString* format_st
     if(furi_string_start_with_str(format_string, "UID")) {
         dev->format = NfcDeviceSaveFormatUid;
         dev->dev_data.protocol = NfcDeviceProtocolUnknown;
-        return true;
-    }
-    if(furi_string_start_with_str(format_string, "Bank card")) {
-        dev->format = NfcDeviceSaveFormatBankCard;
-        dev->dev_data.protocol = NfcDeviceProtocolEMV;
         return true;
     }
     // Check Mifare Ultralight types
@@ -93,6 +88,11 @@ static bool nfc_device_parse_format_string(NfcDevice* dev, FuriString* format_st
     if(furi_string_start_with_str(format_string, "Mifare DESFire")) {
         dev->format = NfcDeviceSaveFormatMifareDesfire;
         dev->dev_data.protocol = NfcDeviceProtocolMifareDesfire;
+        return true;
+    }
+    if(furi_string_start_with_str(format_string, "Bank card")) {
+        dev->format = NfcDeviceSaveFormatBankCard;
+        dev->dev_data.protocol = NfcDeviceProtocolEMV;
         return true;
     }
     if(furi_string_start_with_str(format_string, "ISO15693")) {

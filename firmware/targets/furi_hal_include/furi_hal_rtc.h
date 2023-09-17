@@ -280,6 +280,13 @@ bool furi_hal_rtc_is_leap_year(uint16_t year);
  */
 uint8_t furi_hal_rtc_get_days_per_month(bool leap_year, uint8_t month);
 
+/** Convert UNIX timestamp to DateTime
+ * @param      timestamp  The UNIX timestamp
+ * 
+ * @param      datetime  The datetime
+ */
+void furi_hal_rtc_timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime);
+
 #ifdef __cplusplus
 }
 #endif

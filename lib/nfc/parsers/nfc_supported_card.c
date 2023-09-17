@@ -3,10 +3,10 @@
 #include "plantain_parser.h"
 #include "troika_parser.h"
 #include "plantain_4k_parser.h"
-#include "troika_4k_parser.h"
 #include "two_cities.h"
 #include "all_in_one.h"
 #include "opal.h"
+#include "social_card_moscow_parser.h"
 
 NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd] = {
     [NfcSupportedCardTypePlantain] =
@@ -23,19 +23,19 @@ NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd] = {
             .read = troika_parser_read,
             .parse = troika_parser_parse,
         },
+    [NfcSupportedCardTypeSocialCardMoscow] =
+        {
+            .protocol = NfcDeviceProtocolMifareClassic,
+            .verify = social_card_moscow_parser_verify,
+            .read = social_card_moscow_parser_read,
+            .parse = social_card_moscow_parser_parse,
+        },
     [NfcSupportedCardTypePlantain4K] =
         {
             .protocol = NfcDeviceProtocolMifareClassic,
             .verify = plantain_4k_parser_verify,
             .read = plantain_4k_parser_read,
             .parse = plantain_4k_parser_parse,
-        },
-    [NfcSupportedCardTypeTroika4K] =
-        {
-            .protocol = NfcDeviceProtocolMifareClassic,
-            .verify = troika_4k_parser_verify,
-            .read = troika_4k_parser_read,
-            .parse = troika_4k_parser_parse,
         },
     [NfcSupportedCardTypeTwoCities] =
         {
@@ -58,7 +58,6 @@ NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd] = {
             .read = stub_parser_verify_read,
             .parse = opal_parser_parse,
         },
-
 };
 
 bool nfc_supported_card_verify_and_parse(NfcDeviceData* dev_data) {

@@ -29,20 +29,20 @@ typedef void (*NfcLoadingCallback)(void* context, bool state);
 
 typedef enum {
     NfcDeviceProtocolUnknown,
-    NfcDeviceProtocolEMV,
     NfcDeviceProtocolMifareUl,
     NfcDeviceProtocolMifareClassic,
     NfcDeviceProtocolMifareDesfire,
-    NfcDeviceProtocolNfcV
+    NfcDeviceProtocolNfcV,
+    NfcDeviceProtocolEMV,
 } NfcProtocol;
 
 typedef enum {
     NfcDeviceSaveFormatUid,
-    NfcDeviceSaveFormatBankCard,
     NfcDeviceSaveFormatMifareUl,
     NfcDeviceSaveFormatMifareClassic,
     NfcDeviceSaveFormatMifareDesfire,
     NfcDeviceSaveFormatNfcV,
+    NfcDeviceSaveFormatBankCard,
 } NfcDeviceSaveFormat;
 
 typedef struct {

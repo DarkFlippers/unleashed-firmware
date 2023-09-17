@@ -11,8 +11,8 @@ extern "C" {
 typedef enum {
     NfcSupportedCardTypePlantain,
     NfcSupportedCardTypeTroika,
+    NfcSupportedCardTypeSocialCardMoscow,
     NfcSupportedCardTypePlantain4K,
-    NfcSupportedCardTypeTroika4K,
     NfcSupportedCardTypeTwoCities,
     NfcSupportedCardTypeAllInOne,
     NfcSupportedCardTypeOpal,
