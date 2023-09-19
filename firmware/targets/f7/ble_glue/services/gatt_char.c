@@ -62,7 +62,7 @@ void flipper_gatt_characteristic_init(
             char_data_descriptor->security_permissions,
             char_data_descriptor->access_permissions,
             char_data_descriptor->gatt_evt_mask,
-            GATT_MIN_READ_KEY_SIZE,
+            MIN_ENCRY_KEY_SIZE,
             char_data_descriptor->is_variable,
             &char_instance->descriptor_handle);
         if(status) {
