@@ -64,7 +64,6 @@ sources += [
     "stm32wb_copro/wpan/ble/core/auto/ble_l2cap_aci.c",
     "stm32wb_copro/wpan/ble/core/template/osal.c",
     "stm32wb_copro/wpan/utilities/dbg_trace.c",
-    "stm32wb_copro/wpan/utilities/otp.c",
     "stm32wb_copro/wpan/utilities/stm_list.c",
 ]
 

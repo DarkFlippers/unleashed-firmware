@@ -77,6 +77,8 @@ if GetOption("fullenv") or any(
         "${COPRO_DISCLAIMER}",
         "--obdata",
         '"${ROOT_DIR.abspath}/${COPRO_OB_DATA}"',
+        "--stackversion",
+        "${COPRO_CUBE_VERSION}",
     ]
     dist_resource_arguments = [
         "-r",
