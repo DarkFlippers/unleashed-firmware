@@ -12,6 +12,7 @@ typedef enum {
     HidSvcGattCharacteristicReportMap,
     HidSvcGattCharacteristicInfo,
     HidSvcGattCharacteristicCtrlPoint,
+    HidSvcGattCharacteristicLed,
     HidSvcGattCharacteristicCount,
 } HidSvcGattCharacteristicId;
 
@@ -52,6 +53,22 @@ static bool
     }
     return false;
 }
+
+// LED Descriptor params for BadBT
+
+static uint8_t led_desc_context_buf[2] = {HID_SVC_REPORT_COUNT + 1, 2};
+
+static FlipperGattCharacteristicDescriptorParams hid_svc_char_descr_led = {
+    .uuid_type = UUID_TYPE_16,
+    .uuid.Char_UUID_16 = REPORT_REFERENCE_DESCRIPTOR_UUID,
+    .max_length = HID_SVC_REPORT_REF_LEN,
+    .data_callback.fn = hid_svc_char_desc_data_callback,
+    .data_callback.context = led_desc_context_buf,
+    .security_permissions = ATTR_PERMISSION_NONE,
+    .access_permissions = ATTR_ACCESS_READ_WRITE,
+    .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
+    .is_variable = CHAR_VALUE_LEN_CONSTANT,
+};
 
 static const FlipperGattCharacteristicParams hid_svc_chars[HidSvcGattCharacteristicCount] = {
     [HidSvcGattCharacteristicProtocolMode] =
@@ -96,6 +113,21 @@ static const FlipperGattCharacteristicParams hid_svc_chars[HidSvcGattCharacteris
          .security_permissions = ATTR_PERMISSION_NONE,
          .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE,
          .is_variable = CHAR_VALUE_LEN_CONSTANT},
+    [HidSvcGattCharacteristicLed] =
+        {
+            .name =
+                "HID LED State", // LED Characteristic and descriptor for BadBT to get numlock state for altchars
+            .data_prop_type = FlipperGattCharacteristicDataFixed,
+            .data.fixed.length = 1,
+            .uuid.Char_UUID_16 = REPORT_CHAR_UUID,
+            .uuid_type = UUID_TYPE_16,
+            .char_properties = CHAR_PROP_READ | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE,
+            .security_permissions = ATTR_PERMISSION_NONE,
+            .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE |
+                             GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP,
+            .is_variable = CHAR_VALUE_LEN_CONSTANT,
+            .descriptor_params = &hid_svc_char_descr_led,
+        },
 };
 
 static const FlipperGattCharacteristicDescriptorParams hid_svc_char_descr_template = {
@@ -128,6 +160,9 @@ typedef struct {
     FlipperGattCharacteristicInstance input_report_chars[HID_SVC_INPUT_REPORT_COUNT];
     FlipperGattCharacteristicInstance output_report_chars[HID_SVC_OUTPUT_REPORT_COUNT];
     FlipperGattCharacteristicInstance feature_report_chars[HID_SVC_FEATURE_REPORT_COUNT];
+    // led state
+    HidLedStateEventCallback led_state_event_callback;
+    void* led_state_ctx;
 } HIDSvc;
 
 static HIDSvc* hid_svc = NULL;
@@ -144,6 +179,34 @@ static SVCCTL_EvtAckStatus_t hid_svc_event_handler(void* event) {
         } else if(blecore_evt->ecode == ACI_GATT_SERVER_CONFIRMATION_VSEVT_CODE) {
             // Process notification confirmation
             ret = SVCCTL_EvtAckFlowEnable;
+        } else if(blecore_evt->ecode == ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE) {
+            // LED Characteristic and descriptor for BadBT to get numlock state for altchars
+            //
+            // Process write request
+            aci_gatt_write_permit_req_event_rp0* req =
+                (aci_gatt_write_permit_req_event_rp0*)blecore_evt->data;
+
+            furi_check(hid_svc->led_state_event_callback && hid_svc->led_state_ctx);
+
+            // this check is likely to be incorrect, it will actually work in our case
+            // but we need to investigate gatt api to see what is the rules
+            // that specify attibute handle value from char handle (or the reverse)
+            if(req->Attribute_Handle == (hid_svc->chars[HidSvcGattCharacteristicLed].handle + 1)) {
+                hid_svc->led_state_event_callback(req->Data[0], hid_svc->led_state_ctx);
+                aci_gatt_write_resp(
+                    req->Connection_Handle,
+                    req->Attribute_Handle,
+                    0x00, /* write_status = 0 (no error))*/
+                    0x00, /* err_code */
+                    req->Data_Length,
+                    req->Data);
+                aci_gatt_write_char_value(
+                    req->Connection_Handle,
+                    hid_svc->chars[HidSvcGattCharacteristicLed].handle,
+                    req->Data_Length,
+                    req->Data);
+                ret = SVCCTL_EvtAckFlowEnable;
+            }
         }
     }
     return ret;
@@ -164,19 +227,17 @@ void hid_svc_start() {
         PRIMARY_SERVICE,
         2 + /* protocol mode */
             (4 * HID_SVC_INPUT_REPORT_COUNT) + (3 * HID_SVC_OUTPUT_REPORT_COUNT) +
-            (3 * HID_SVC_FEATURE_REPORT_COUNT) + 1 + 2 + 2 +
-            2, /* Service + Report Map + HID Information + HID Control Point */
+            (3 * HID_SVC_FEATURE_REPORT_COUNT) + 1 + 2 + 2 + 2 +
+            4, /* Service + Report Map + HID Information + HID Control Point + LED state */
         &hid_svc->svc_handle);
     if(status) {
         FURI_LOG_E(TAG, "Failed to add HID service: %d", status);
     }
 
-    // Maintain previously defined characteristic order
-    flipper_gatt_characteristic_init(
-        hid_svc->svc_handle,
-        &hid_svc_chars[HidSvcGattCharacteristicProtocolMode],
-        &hid_svc->chars[HidSvcGattCharacteristicProtocolMode]);
-
+    for(size_t i = 0; i < HidSvcGattCharacteristicCount; i++) {
+        flipper_gatt_characteristic_init(
+            hid_svc->svc_handle, &hid_svc_chars[i], &hid_svc->chars[i]);
+    }
     uint8_t protocol_mode = 1;
     flipper_gatt_characteristic_update(
         hid_svc->svc_handle,
@@ -218,12 +279,6 @@ void hid_svc_start() {
                 &hid_report_chars[report_type_idx].chars[report_idx]);
         }
     }
-
-    // Setup remaining characteristics
-    for(size_t i = HidSvcGattCharacteristicReportMap; i < HidSvcGattCharacteristicCount; i++) {
-        flipper_gatt_characteristic_init(
-            hid_svc->svc_handle, &hid_svc_chars[i], &hid_svc->chars[i]);
-    }
 }
 
 bool hid_svc_update_report_map(const uint8_t* data, uint16_t len) {
@@ -257,6 +312,15 @@ bool hid_svc_update_info(uint8_t* data) {
 
     return flipper_gatt_characteristic_update(
         hid_svc->svc_handle, &hid_svc->chars[HidSvcGattCharacteristicInfo], &data);
+}
+
+void hid_svc_register_led_state_callback(HidLedStateEventCallback callback, void* context) {
+    furi_assert(hid_svc);
+    furi_assert(callback);
+    furi_assert(context);
+
+    hid_svc->led_state_event_callback = callback;
+    hid_svc->led_state_ctx = context;
 }
 
 bool hid_svc_is_started() {

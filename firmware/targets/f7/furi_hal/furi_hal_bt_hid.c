@@ -204,7 +204,7 @@ void furi_hal_bt_hid_start() {
         hid_svc_start();
     }
     // Configure HID Keyboard
-    //hid_svc_register_led_state_callback(furi_hal_bt_hid_led_state_cb, &hid_host_led_state);
+    hid_svc_register_led_state_callback(furi_hal_bt_hid_led_state_cb, &hid_host_led_state);
 
     kb_report = malloc(sizeof(FuriHalBtHidKbReport));
     mouse_report = malloc(sizeof(FuriHalBtHidMouseReport));
@@ -228,7 +228,7 @@ void furi_hal_bt_hid_stop() {
     furi_assert(mouse_report);
     furi_assert(consumer_report);
 
-    //hid_svc_register_led_state_callback(NULL, NULL);
+    hid_svc_register_led_state_callback(NULL, NULL);
     // Stop all services
     if(dev_info_svc_is_started()) {
         dev_info_svc_stop();
