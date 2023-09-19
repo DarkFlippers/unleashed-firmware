@@ -73,6 +73,9 @@ class Main(App):
         self.parser_generate.add_argument(
             "--I-understand-what-I-am-doing", dest="disclaimer", required=False
         )
+        self.parser_generate.add_argument(
+            "--stackversion", dest="stack_version", required=False, default=""
+        )
 
         self.parser_generate.set_defaults(func=self.generate)
 
@@ -93,6 +96,13 @@ class Main(App):
             if not self.args.radiotype:
                 raise ValueError("Missing --radiotype")
             radio_meta = CoproBinary(self.args.radiobin)
+            if self.args.stack_version:
+                actual_stack_version_str = f"{radio_meta.img_sig.version_major}.{radio_meta.img_sig.version_minor}.{radio_meta.img_sig.version_sub}"
+                if actual_stack_version_str != self.args.stack_version:
+                    self.logger.error(
+                        f"Stack version mismatch: expected {self.args.stack_version}, actual {actual_stack_version_str}"
+                    )
+                    return 1
             radio_version = self.copro_version_as_int(radio_meta, self.args.radiotype)
             if (
                 get_stack_type(self.args.radiotype) not in self.WHITELISTED_STACK_TYPES

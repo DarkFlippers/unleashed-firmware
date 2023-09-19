@@ -2,7 +2,11 @@
 
 #include <ble/ble.h>
 #include <interface/patterns/ble_thread/shci/shci.h>
+
 #include <stm32wbxx.h>
+#include <stm32wbxx_ll_hsem.h>
+
+#include <hsem_map.h>
 
 #include <furi_hal_version.h>
 #include <furi_hal_bt_hid.h>

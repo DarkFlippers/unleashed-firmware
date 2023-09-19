@@ -13,7 +13,7 @@
 #include <stm32wbxx_ll_cortex.h>
 #include <stm32wbxx_ll_gpio.h>
 
-#include <hw_conf.h>
+#include <hsem_map.h>
 #include <bq27220.h>
 #include <bq27220_data_memory.h>
 #include <bq25896.h>
@@ -162,6 +162,11 @@ static inline void furi_hal_power_resume_aux_periphs() {
 static inline void furi_hal_power_deep_sleep() {
     furi_hal_power_suspend_aux_periphs();
 
+    if(!furi_hal_clock_switch_pll2hse()) {
+        // Hello core2 my old friend
+        return;
+    }
+
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
         ;
 
@@ -171,13 +176,13 @@ static inline void furi_hal_power_deep_sleep() {
             LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
 
             // The switch on HSI before entering Stop Mode is required
-            furi_hal_clock_switch_to_hsi();
+            furi_hal_clock_switch_hse2hsi();
         }
     } else {
         /**
          * The switch on HSI before entering Stop Mode is required 
          */
-        furi_hal_clock_switch_to_hsi();
+        furi_hal_clock_switch_hse2hsi();
     }
 
     /* Release RCC semaphore */
@@ -201,11 +206,13 @@ static inline void furi_hal_power_deep_sleep() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
         ;
 
-    if(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {
-        furi_hal_clock_switch_to_pll();
+    if(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSE) {
+        furi_hal_clock_switch_hsi2hse();
     }
 
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
+
+    furi_check(furi_hal_clock_switch_hse2pll());
 
     furi_hal_power_resume_aux_periphs();
     furi_hal_rtc_sync_shadow();
