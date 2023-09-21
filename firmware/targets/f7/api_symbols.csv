@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,38.0,,
+Version,+,39.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -1176,14 +1176,16 @@ Function,-,furi_hal_i2c_deinit_early,void,
 Function,-,furi_hal_i2c_init,void,
 Function,-,furi_hal_i2c_init_early,void,
 Function,+,furi_hal_i2c_is_device_ready,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint32_t"
-Function,+,furi_hal_i2c_read_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint8_t, uint32_t"
+Function,+,furi_hal_i2c_read_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, size_t, uint32_t"
 Function,+,furi_hal_i2c_read_reg_16,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint16_t*, uint32_t"
 Function,+,furi_hal_i2c_read_reg_8,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint32_t"
 Function,+,furi_hal_i2c_release,void,FuriHalI2cBusHandle*
-Function,+,furi_hal_i2c_rx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, uint8_t*, const uint8_t, uint32_t"
-Function,+,furi_hal_i2c_trx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, const uint8_t*, const uint8_t, uint8_t*, const uint8_t, uint32_t"
-Function,+,furi_hal_i2c_tx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, const uint8_t*, const uint8_t, uint32_t"
-Function,+,furi_hal_i2c_write_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint8_t, uint32_t"
+Function,+,furi_hal_i2c_rx,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_i2c_rx_ext,_Bool,"FuriHalI2cBusHandle*, uint16_t, _Bool, uint8_t*, size_t, FuriHalI2cBegin, FuriHalI2cEnd, uint32_t"
+Function,+,furi_hal_i2c_trx,_Bool,"FuriHalI2cBusHandle*, uint8_t, const uint8_t*, size_t, uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_i2c_tx,_Bool,"FuriHalI2cBusHandle*, uint8_t, const uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_i2c_tx_ext,_Bool,"FuriHalI2cBusHandle*, uint16_t, _Bool, const uint8_t*, size_t, FuriHalI2cBegin, FuriHalI2cEnd, uint32_t"
+Function,+,furi_hal_i2c_write_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, const uint8_t*, size_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_16,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint16_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_8,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t, uint32_t"
 Function,+,furi_hal_ibutton_emulate_set_next,void,uint32_t
