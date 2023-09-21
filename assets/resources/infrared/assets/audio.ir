@@ -424,4 +424,5 @@ command: 05 FA 00 00
 name: Next
 type: parsed
 protocol: NECext
-address: 87 7C 00 0
+address: 87 7C 00 00
+command: 06 F9 00 00
