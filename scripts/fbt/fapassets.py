@@ -1,7 +1,7 @@
 import hashlib
 import os
 import struct
-from typing import TypedDict
+from typing import TypedDict, List
 
 
 class File(TypedDict):
@@ -32,20 +32,19 @@ class FileBundler:
       u8[] file_content
     """
 
-    def __init__(self, directory_path: str):
-        self.directory_path = directory_path
-        self.file_list: list[File] = []
-        self.directory_list: list[Dir] = []
-        self._gather()
+    def __init__(self, assets_dirs: List[object]):
+        self.src_dirs = list(assets_dirs)
 
-    def _gather(self):
-        for root, dirs, files in os.walk(self.directory_path):
+    def _gather(self, directory_path: str):
+        if not os.path.isdir(directory_path):
+            raise Exception(f"Assets directory {directory_path} does not exist")
+        for root, dirs, files in os.walk(directory_path):
             for file_info in files:
                 file_path = os.path.join(root, file_info)
                 file_size = os.path.getsize(file_path)
                 self.file_list.append(
                     {
-                        "path": os.path.relpath(file_path, self.directory_path),
+                        "path": os.path.relpath(file_path, directory_path),
                         "size": file_size,
                         "content_path": file_path,
                     }
@@ -57,15 +56,20 @@ class FileBundler:
                 #     os.path.getsize(os.path.join(dir_path, f)) for f in os.listdir(dir_path)
                 # )
                 self.directory_list.append(
-                    {
-                        "path": os.path.relpath(dir_path, self.directory_path),
-                    }
+                    {"path": os.path.relpath(dir_path, directory_path)}
                 )
 
         self.file_list.sort(key=lambda f: f["path"])
         self.directory_list.sort(key=lambda d: d["path"])
 
+    def _process_src_dirs(self):
+        self.file_list: list[File] = []
+        self.directory_list: list[Dir] = []
+        for directory_path in self.src_dirs:
+            self._gather(directory_path)
+
     def export(self, target_path: str):
+        self._process_src_dirs()
         self._md5_hash = hashlib.md5()
         with open(target_path, "wb") as f:
             # Write header magic and version
