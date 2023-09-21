@@ -43,6 +43,11 @@ GpioApp* gpio_app_alloc() {
 
     app->notifications = furi_record_open(RECORD_NOTIFICATION);
 
+    // Dialog view
+    app->dialog = dialog_ex_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, GpioAppViewExitConfirm, dialog_ex_get_view(app->dialog));
+
     app->var_item_list = variable_item_list_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher,
@@ -79,10 +84,12 @@ void gpio_app_free(GpioApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewUsbUart);
     view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewUsbUartCfg);
     view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewUsbUartCloseRpc);
+    view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewExitConfirm);
     variable_item_list_free(app->var_item_list);
     widget_free(app->widget);
     gpio_test_free(app->gpio_test);
     gpio_usb_uart_free(app->gpio_usb_uart);
+    dialog_ex_free(app->dialog);
 
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);

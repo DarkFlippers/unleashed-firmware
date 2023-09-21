@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,38.0,,
+Version,+,39.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -76,6 +76,7 @@ Header,+,firmware/targets/furi_hal_include/furi_hal_sd.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_speaker.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_spi.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb.h,,
+Header,+,firmware/targets/furi_hal_include/furi_hal_usb_ccid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_version.h,,
@@ -105,6 +106,7 @@ Header,+,lib/libusb_stm32/inc/hid_usage_telephony.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_vr.h,,
 Header,-,lib/libusb_stm32/inc/stm32_compat.h,,
 Header,+,lib/libusb_stm32/inc/usb.h,,
+Header,+,lib/libusb_stm32/inc/usb_ccid.h,,
 Header,+,lib/libusb_stm32/inc/usb_cdc.h,,
 Header,+,lib/libusb_stm32/inc/usb_cdca.h,,
 Header,+,lib/libusb_stm32/inc/usb_cdce.h,,
@@ -1007,6 +1009,9 @@ Function,+,furi_hal_bus_enable,void,FuriHalBus
 Function,+,furi_hal_bus_init_early,void,
 Function,+,furi_hal_bus_is_enabled,_Bool,FuriHalBus
 Function,+,furi_hal_bus_reset,void,FuriHalBus
+Function,+,furi_hal_ccid_ccid_insert_smartcard,void,
+Function,+,furi_hal_ccid_ccid_remove_smartcard,void,
+Function,+,furi_hal_ccid_set_callbacks,void,CcidCallbacks*
 Function,+,furi_hal_cdc_get_ctrl_line_state,uint8_t,uint8_t
 Function,+,furi_hal_cdc_get_port_settings,usb_cdc_line_coding*,uint8_t
 Function,+,furi_hal_cdc_receive,int32_t,"uint8_t, uint8_t*, uint16_t"
@@ -1104,14 +1109,16 @@ Function,-,furi_hal_i2c_deinit_early,void,
 Function,-,furi_hal_i2c_init,void,
 Function,-,furi_hal_i2c_init_early,void,
 Function,+,furi_hal_i2c_is_device_ready,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint32_t"
-Function,+,furi_hal_i2c_read_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint8_t, uint32_t"
+Function,+,furi_hal_i2c_read_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, size_t, uint32_t"
 Function,+,furi_hal_i2c_read_reg_16,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint16_t*, uint32_t"
 Function,+,furi_hal_i2c_read_reg_8,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint32_t"
 Function,+,furi_hal_i2c_release,void,FuriHalI2cBusHandle*
-Function,+,furi_hal_i2c_rx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, uint8_t*, const uint8_t, uint32_t"
-Function,+,furi_hal_i2c_trx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, const uint8_t*, const uint8_t, uint8_t*, const uint8_t, uint32_t"
-Function,+,furi_hal_i2c_tx,_Bool,"FuriHalI2cBusHandle*, const uint8_t, const uint8_t*, const uint8_t, uint32_t"
-Function,+,furi_hal_i2c_write_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t*, uint8_t, uint32_t"
+Function,+,furi_hal_i2c_rx,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_i2c_rx_ext,_Bool,"FuriHalI2cBusHandle*, uint16_t, _Bool, uint8_t*, size_t, FuriHalI2cBegin, FuriHalI2cEnd, uint32_t"
+Function,+,furi_hal_i2c_trx,_Bool,"FuriHalI2cBusHandle*, uint8_t, const uint8_t*, size_t, uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_i2c_tx,_Bool,"FuriHalI2cBusHandle*, uint8_t, const uint8_t*, size_t, uint32_t"
+Function,+,furi_hal_i2c_tx_ext,_Bool,"FuriHalI2cBusHandle*, uint16_t, _Bool, const uint8_t*, size_t, FuriHalI2cBegin, FuriHalI2cEnd, uint32_t"
+Function,+,furi_hal_i2c_write_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, const uint8_t*, size_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_16,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint16_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_8,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t, uint32_t"
 Function,+,furi_hal_info_get,void,"PropertyValueCallback, char, void*"
@@ -2689,6 +2696,7 @@ Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
 Variable,-,suboptarg,char*,
+Variable,+,usb_ccid,FuriHalUsbInterface,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,
 Variable,+,usb_cdc_single,FuriHalUsbInterface,
 Variable,+,usb_hid,FuriHalUsbInterface,
