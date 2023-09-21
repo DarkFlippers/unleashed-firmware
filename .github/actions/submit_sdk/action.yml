@@ -58,7 +58,7 @@ runs:
             echo "API version is already released"
             exit 0
           fi
-          if ! echo "${{ inputs.firmware-version }}" | grep -q "-rc" ; then
+          if ! echo "${{ inputs.firmware-version }}" | grep -q -- "-rc" ; then
             SDK_ID=$(jq -r ._id found_sdk.json)
             echo "Marking SDK $SDK_ID as released"
             curl -X 'POST' \
