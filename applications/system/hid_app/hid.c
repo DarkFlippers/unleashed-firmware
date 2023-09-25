@@ -422,9 +422,7 @@ int32_t hid_ble_app(void* p) {
 
     furi_record_close(RECORD_STORAGE);
 
-    if(!bt_set_profile(app->bt, BtProfileHidKeyboard)) {
-        FURI_LOG_E(TAG, "Failed to switch to HID profile");
-    }
+    furi_check(bt_set_profile(app->bt, BtProfileHidKeyboard));
 
     furi_hal_bt_start_advertising();
     bt_set_status_changed_callback(app->bt, bt_hid_connection_status_changed_callback, app);
@@ -442,9 +440,7 @@ int32_t hid_ble_app(void* p) {
 
     bt_keys_storage_set_default_path(app->bt);
 
-    if(!bt_set_profile(app->bt, BtProfileSerial)) {
-        FURI_LOG_E(TAG, "Failed to switch to Serial profile");
-    }
+    furi_check(bt_set_profile(app->bt, BtProfileSerial));
 
     hid_free(app);
 

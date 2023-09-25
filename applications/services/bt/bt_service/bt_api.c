@@ -6,11 +6,14 @@ bool bt_set_profile(Bt* bt, BtProfile profile) {
     // Send message
     bool result = false;
     BtMessage message = {
-        .type = BtMessageTypeSetProfile, .data.profile = profile, .result = &result};
+        .lock = api_lock_alloc_locked(),
+        .type = BtMessageTypeSetProfile,
+        .data.profile = profile,
+        .result = &result};
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     // Wait for unlock
-    furi_event_flag_wait(bt->api_event, BT_API_UNLOCK_EVENT, FuriFlagWaitAny, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message.lock);
 
     return result;
 }
@@ -19,11 +22,11 @@ void bt_disconnect(Bt* bt) {
     furi_assert(bt);
 
     // Send message
-    BtMessage message = {.type = BtMessageTypeDisconnect};
+    BtMessage message = {.lock = api_lock_alloc_locked(), .type = BtMessageTypeDisconnect};
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     // Wait for unlock
-    furi_event_flag_wait(bt->api_event, BT_API_UNLOCK_EVENT, FuriFlagWaitAny, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message.lock);
 }
 
 void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, void* context) {
