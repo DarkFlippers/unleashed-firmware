@@ -181,9 +181,11 @@ static void ble_app_hci_event_handler(void* pPayload) {
 
 static void ble_app_hci_status_not_handler(HCI_TL_CmdStatus_t status) {
     if(status == HCI_TL_CmdBusy) {
+        furi_hal_power_insomnia_enter();
         furi_mutex_acquire(ble_app->hci_mtx, FuriWaitForever);
     } else if(status == HCI_TL_CmdAvailable) {
         furi_mutex_release(ble_app->hci_mtx);
+        furi_hal_power_insomnia_exit();
     }
 }
 
