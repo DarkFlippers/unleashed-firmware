@@ -359,13 +359,13 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
             *message->result = false;
         }
     }
-    api_lock_unlock(message->lock);
+    if(message->lock) api_lock_unlock(message->lock);
 }
 
 static void bt_close_connection(Bt* bt, BtMessage* message) {
     bt_close_rpc_connection(bt);
     furi_hal_bt_stop_advertising();
-    api_lock_unlock(message->lock);
+    if(message->lock) api_lock_unlock(message->lock);
 }
 
 int32_t bt_srv(void* p) {
