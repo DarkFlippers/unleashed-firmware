@@ -5,7 +5,7 @@ REM Author: 47LeCoste
 REM Version 1.0 (Flipper Ducky)
 REM Target: macOS
 DELAY 3000
-F4
+GUI SPACE
 DELAY 2500
 STRING Terminal
 DELAY 2500
