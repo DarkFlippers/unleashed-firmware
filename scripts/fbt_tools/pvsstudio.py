@@ -48,7 +48,6 @@ def generate(env):
             "@.pvsoptions",
             "-j${PVSNCORES}",
             # "--incremental", # kinda broken on PVS side
-            "--disableLicenseExpirationCheck",
         ],
         PVSCONVOPTIONS=[
             "-a",
