@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 1st Sept, 2023
-# Last Checked 14th Sept, 2023
+# Last Updated 1st Oct, 2023
+# Last Checked 1st Oct, 2023
 #
 name: Power
 type: parsed
@@ -2369,3 +2369,27 @@ type: parsed
 protocol: NECext
 address: 00 7F 00 00
 command: 06 F9 00 00
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 01 FE 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0A F5 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0B F4 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0E F1 00 00
