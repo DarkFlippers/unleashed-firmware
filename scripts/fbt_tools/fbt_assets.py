@@ -9,7 +9,7 @@ from SCons.Errors import StopError
 
 def icons_emitter(target, source, env):
     icons_src = env.GlobRecursive("*.png", env["ICON_SRC_DIR"])
-    icons_src += env.GlobRecursive("frame_rate", env["ICON_SRC_DIR"])
+    icons_src += env.GlobRecursive("**/frame_rate", env["ICON_SRC_DIR"])
 
     target = [
         target[0].File(env.subst("${ICON_FILE_NAME}.c")),
