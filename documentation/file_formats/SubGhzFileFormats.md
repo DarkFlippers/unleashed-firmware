@@ -6,9 +6,9 @@ Flipper uses `.sub` files to store SubGhz transmissions. These are text files in
 
 A `.sub` files consist of 3 parts:
 
-- **header**: contains file type, version, and frequency
-- **preset information**: preset type and, in case of a custom preset, transceiver configuration data
-- **protocol and its data**: contains protocol name and its specific data, such as key, bit length, etc., or RAW data
+- **header**, contains file type, version, and frequency
+- **preset information**, preset type and, in case of a custom preset, transceiver configuration data
+- **protocol and its data**, contains protocol name and its specific data, such as key, bit length, etc., or RAW data
 
 Flipper's SubGhz subsystem uses presets to configure the radio transceiver. Presets are used to configure modulation, bandwidth, filters, etc. There are several presets available in stock firmware, and there is a way to create custom presets. See [SubGhz Presets](#adding-a-custom-preset) for more details.
 
@@ -45,10 +45,10 @@ Built-in presets:
 
 Transceiver configuration data is a string of bytes, encoded in hex format, separated by spaces. For CC1101 data structure is: `XX YY XX YY .. 00 00 ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ`, where:
 
-- XX holds register address,
-- YY contains register value,
-- 00 00: marks register block end,
-- `ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ`: 8 byte PA table (Power amplifier ramp table).
+- **XX**, holds register address,
+- **YY**, contains register value,
+- **00 00**, marks register block end,
+- **ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ**, 8 byte PA table (Power amplifier ramp table).
 
 You can find more details in the [CC1101 datasheet](https://www.ti.com/lit/ds/symlink/cc1101.pdf) and `furi_hal_subghz` code.
 
@@ -87,8 +87,8 @@ RAW `.sub` files contain raw signal data that is not processed through protocol-
 
 For RAW files, 2 fields are required:
 
-- `Protocol`, must be `RAW`
-- `RAW_Data`, contains an array of timings, specified in microseconds Values must be non-zero, start with a positive number, and interleaved (change sign with each value). Up to 512 values per line. Can be specified multiple times to store multiple lines of data.
+- **Protocol**, must be `RAW`
+- **RAW_Data**, contains an array of timings, specified in microseconds Values must be non-zero, start with a positive number, and interleaved (change sign with each value). Up to 512 values per line. Can be specified multiple times to store multiple lines of data.
 
 Example of RAW data:
 
@@ -96,6 +96,43 @@ Example of RAW data:
     RAW_Data: 29262 361 -68 2635 -66 24113 -66 11 ...
 
 Long payload not fitting into internal memory buffer and consisting of short duration timings (< 10us) may not be read fast enough from the SD card. That might cause the signal transmission to stop before reaching the end of the payload. Ensure that your SD Card has good performance before transmitting long or complex RAW payloads.
+
+### BIN_RAW Files
+
+BinRAW `.sub` files and `RAW` files both contain data that has not been decoded by any protocol. However, unlike `RAW`, `BinRAW` files only record a useful repeating sequence of durations with a restored byte transfer rate and without broadcast noise. These files can emulate nearly all static protocols, whether Flipper knows them or not.
+
+- Usually, you have to receive the signal a little longer so that Flipper accumulates sufficient data for correct analysis.
+
+For `BinRAW` files, the following parameters are required and must be aligned to the left:
+
+- **Protocol**, must be `BinRAW`.
+- **Bit**, is the length of the payload of the entire file, in bits (max 4096).
+- **TE**, is the quantization interval, in us.
+- **Bit_RAW**, is the length of the payload in the next Data_RAW parameter, in bits.
+- **Data_RAW**, is an encoded sequence of durations, where each bit in the sequence encodes one TE interval: 1 - high level (there is a carrier), 0 - low (no carrier).
+    For example, TE=100, Bit_RAW=8, Data_RAW=0x37 => 0b00110111, that is, `-200 200 -100 300` will be transmitted.
+    When sending uploads, `Bit_RAW` and `Data_RAW` form a repeating block. Several such blocks are necessary if you want to send different sequences sequentially. However, usually, there will be only one block.
+
+Example data from a `BinRAW` file:
+
+```
+...
+Protocol: BinRAW
+Bit: 1572
+TE: 597
+Bit_RAW: 260
+Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0F 4A B5 55 4C B3 52 AC D5 2D 53 52 AD 4A D5 35 00
+Bit_RAW: 263
+Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 04 D5 32 D2 AB 2B 33 32 CB 2C CC B3 52 D3 00
+Bit_RAW: 259
+Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 03 4A AB 55 34 D5 2D 4C CD 33 4A CD 55 4C D2 B3 00
+Bit_RAW: 263
+Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0F 7F 4A AA D5 2A CC B2 B4 CB 34 CC AA AB 4D 53 53 00
+Bit_RAW: 264
+Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 FC 00 00 15 2C CB 34 D3 35 35 4D 4B 32 B2 D3 33 00
+Bit_RAW: 263
+Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 DE 02 D3 54 D5 4C D2 CC AD 4B 2C B2 B5 54 CC AB 00
+```
 
 ## File examples
 
