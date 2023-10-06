@@ -177,6 +177,12 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
 
         if(i == model->selected_byte) {
             canvas_draw_frame(canvas, text_x + byte_position * 14, text_y - 9, 15, 11);
+            if(model->selected_row == -2) {
+                canvas_draw_icon(
+                    canvas, text_x + 6 + byte_position * 14, text_y - 14, &I_arrow_nano_up);
+                canvas_draw_icon(
+                    canvas, text_x + 6 + byte_position * 14, text_y + 5, &I_arrow_nano_down);
+            }
 
             if(model->selected_high_nibble) {
                 canvas_draw_glyph(
@@ -233,6 +239,7 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
         }
 
         if(draw_index_line) {
+            canvas_draw_icon(canvas, 1, text_y + 8, &I_Hashmark_7x7);
             canvas_draw_glyph(
                 canvas, text_x + 2 + byte_position * 14, text_y2, num_to_char[(i + 1) / 10]);
 
@@ -600,9 +607,6 @@ static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
-
-    canvas_draw_str(canvas, 2, 9, model->header);
-
     canvas_set_font(canvas, FontKeyboard);
 
     if(model->selected_row == -1) {
@@ -613,9 +617,19 @@ static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
 
     if(model->selected_row == -2) {
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_icon(canvas, 3, 52, &I_Pin_back_arrow_10x8);
-        canvas_draw_str_aligned(canvas, 16, 60, AlignLeft, AlignBottom, "back to keyboard");
+        canvas_draw_icon(canvas, 3, 1, &I_Pin_back_arrow_10x8);
+        canvas_draw_str_aligned(canvas, 16, 9, AlignLeft, AlignBottom, "back to keyboard");
+        elements_button_center(canvas, "Save");
     } else {
+        // Draw the header
+        canvas_set_font(canvas, FontSecondary);
+        if(model->selected_row == -1) {
+            canvas_draw_str(canvas, 10, 9, "Move up for alternate input");
+            canvas_draw_icon(canvas, 3, 4, &I_SmallArrowUp_3x5);
+        } else {
+            canvas_draw_str(canvas, 2, 9, model->header);
+        }
+        canvas_set_font(canvas, FontKeyboard);
         // Draw keyboard
         for(uint8_t row = 0; row < keyboard_row_count; row++) {
             const uint8_t column_count = byte_input_get_row_size(row);
