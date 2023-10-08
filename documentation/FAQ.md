@@ -7,19 +7,20 @@
 ## How do I install Unleashed firmware?
 https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md
 ### What version I should install? What do letters `e`, `r`, `c`... mean?
-Follow this link for details:
+Follow this link for details:<br>
 https://github.com/DarkFlippers/unleashed-firmware/blob/dev/CHANGELOG.md#recommended-update-option---web-updater
 
 
 **INSTALLED UNLEASHED AND NOW BACKLIGHT DOESNT WORK?** 
-You’ve installed a version made for custom RGB modded flippers. The version ending in `“r”` is specifically for “RGB” modded flippers. Please do not use that version if your flipper isn’t modded!
+You’ve installed a version made for custom RGB modded flippers. The version ending in `“r”` is specifically for “RGB” modded flippers. <br>
+Please do not use that version if your flipper isn’t modded!
   
 ## What apps (plugins) are included with Unleashed FW?
-See default pack and extra pack (for `e` build) list here:
+See default pack and extra pack (for `e` build) list here:<br>
 https://github.com/xMasterX/all-the-plugins/tree/dev
 
 ## Where I can find differences between original (official) firmware and Unleashed firmware?
-Right here:
+Right here:<br>
 https://github.com/DarkFlippers/unleashed-firmware#whats-changed
 
 ## How to use SubGHz Remote app?
@@ -31,7 +32,7 @@ https://github.com/DarkFlippers/unleashed-firmware#whats-changed
 
 
 ## How to build (compile) firmware?
-Follow this link:
+Follow this link:<br>
 https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToBuild.md#how-to-build-by-yourself
 
 ## I installed Unleashed firmware and now my mobile app doesn't connect to flipper ( OR I changed flipper device name and my mobile app now doesn't connect to flipper )
@@ -45,30 +46,30 @@ https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToB
 Just configure that settings again, all is fine, and make sure you seen changelogs for the releases that came out after your previous version, when settings struct is changed, settings file are reset after update, this happens only when struct changes is required, so don't assume that settings will be reset in every release, this will happen only in specific ones
 
 ## Why is flipper not connecting to chrome?
-The most common cause of the flipper not connecting to google chrome is having qFlipper open while trying to connect your flipper. Or having second flipper lab page open at same time.
+The most common cause of the flipper not connecting to google chrome is having qFlipper open while trying to connect your flipper. Or having second flipper lab page open at same time.<br>
 
 You must close qFlipper (or other flipper lab web pages) before attempting to connect your flipper to chrome.
     
 ## Flipper doesn't work! How to restore firmware???
 
-Follow this guide:
+Follow this guide:<br>
 https://docs.flipper.net/basics/firmware-update/firmware-recovery
 
 
 ## Useful links and files
-Flipper Awesome - place where you can find almost all links that you might need:
+Flipper Awesome - place where you can find almost all links that you might need:<br>
 https://github.com/djsime1/awesome-flipperzero
  
-Dict files for iButton Fuzzer and RFID Fuzzer:
-https://t.me/flipperzero_unofficial_ru/37058
+Dict files for iButton Fuzzer and RFID Fuzzer:<br>
+https://t.me/flipperzero_unofficial_ru/37058 <br>
 https://t.me/flipperzero_unofficial_ru/37072
 
-UL Releases in Telegram:
-https://t.me/unleashed_fw
-UL Dev Builds in Telegram:
-https://t.me/kotnehleb
+UL Releases in Telegram:<br>
+https://t.me/unleashed_fw <br>
+UL Dev Builds in Telegram:<br>
+https://t.me/kotnehleb <br>
 
-Our Discord: 
+Our Discord: <br>
 https://discord.unleashedflip.com
 
 ## How to change flipper name?
@@ -85,33 +86,35 @@ How to reset name to default:
 4. Done, name is reset to original one.  
 
 ## How do I copy files from Github to my Flipper Zero?
-Follow this detailed guide: 
+Follow this detailed guide: <br>
 https://github.com/wrenchathome/flipperfiles/blob/main/_Guides/How2Flipper.pdf
 
 
 ## Where can I find “This file” or “That file” for my flipper?
     
-These 2 repos will cover most(99.9%) of your needs :  https://github.com/UberGuidoZ/Flipper/tree/main
-
+These 2 repos will cover most(99.9%) of your needs:<br>
+https://github.com/UberGuidoZ/Flipper/tree/main
+<br>
 https://github.com/UberGuidoZ/Flipper-IRDB/tree/main
  
 ## How can I support Unleashed firmware project?
 https://github.com/DarkFlippers/unleashed-firmware#please-support-development-of-the-project
 
 ## What are the dev builds? Where I can get latest build for dev branch?
-This is an automatic assembly of the latest commits from the repository that have not yet been released, the previous build is deleted when a new one is uploaded and old remains only as file in the telegram channel 
+This is an automatic assembly of the latest commits from the repository that have not yet been released, the previous build is deleted when a new one is uploaded and old remains only as file in the telegram channel <br>
 Be aware that this is not release ready builds! They may have bugs and issues, if you are using dev build and found issue, report it! In github issues
+<br>
 
 Dev builds is available in Discord, ⁠in channel - `unleashed-development` 
 Builds also can be found here - https://t.me/kotnehleb
 And here - https://dev.unleashedflip.com/
 
 ## What is the update server?
-We have our own update server https://up.unleashedflip.com/directory.json 
-It is identical to the official one, it is impossible to change it in applications without rebuilding the application, it is hardcoded there
-If you want to use it, you need to patch or build your own build of the application you are interested in 
+We have our own update server https://up.unleashedflip.com/directory.json  <br>
+It is identical to the official one, it is impossible to change it in applications without rebuilding the application, it is hardcoded there <br>
+If you want to use it, you need to patch or build your own build of the application you are interested in <br>
 
-Also you can use it with uFBT to build apps for UL SDK, uFBT will accept that link as one of args
+Also you can use it with uFBT to build apps for UL SDK, uFBT will accept that link as one of args<br>
 
 The server will remain active and will be automatically updated
 
@@ -127,9 +130,9 @@ https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHz
 ## How Can I Unlock/Remove SubGHz restriction?
 If you are using Unleashed firmware - **all region locks are removed by default**!
 
-Also there is a way to go outside of frequencies stated in CC1101 datasheet, but transmission on those frequencies may cause chip damage, make sure you know what you are doing! Do not edit this settings to bypass region lock since there is no region locks in unleashed, all chip supported frequencies will work without any extra steps.
-But, if you know that you need to bypass subghz chip safety restriction you can unlock the safety restriction which will allow you to go outside the chips supported frequency. 
-This covers how to do it and information regarding the risks of damage to the flipper by doing so 
+Also there is a way to go outside of frequencies stated in CC1101 datasheet, but transmission on those frequencies may cause chip damage, make sure you know what you are doing! Do not edit this settings to bypass region lock since there is no region locks in unleashed, all chip supported frequencies will work without any extra steps.<br>
+But, if you know that you need to bypass subghz chip safety restriction you can unlock the safety restriction which will allow you to go outside the chips supported frequency. <br>
+This covers how to do it and information regarding the risks of damage to the flipper by doing so <br>
 https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/DangerousSettings.md
 
 ## Can I clone a car key fob for my own car to use flipper as a key?
@@ -182,10 +185,10 @@ Reboot it by holding Left + Back buttons
 3. Done, internal memory (dolphin level, settings, pin code, is erased to default settings)
 
 ## What are the differences between x, y and z firmware?
-If you just got your flipper and not sure what will work better for you, start with original official firmware, if you think you need more features or want to remove subghz region locks then
-Try installing Unleashed firmware, which is fork of official firmware with many new features and preinstalled plugins (check out `e` build)
-In other case If you want to experiment more with UI and other things look for existing forks of Unleashed firmware
-Or create your own fork with your own customisations
+If you just got your flipper and not sure what will work better for you, start with original official firmware, if you think you need more features or want to remove subghz region locks then<br>
+Try installing Unleashed firmware, which is fork of official firmware with many new features and preinstalled plugins (check out `e` build)<br>
+In other case If you want to experiment more with UI and other things look for existing forks of Unleashed firmware<br>
+Or create your own fork with your own customisations<br>
 Also before reporting any found issue make sure you are in correct repo, if you are using not Unleashed but different fork or original firmware, do not report issue in Unleashed firmware repo or UL communities (telegram, discord, etc..)
 
 
@@ -197,7 +200,7 @@ https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/Infrar
 
 
 # NFC/RFID FAQ
-From our good friend `@Equip` and  `@np0`
+From our good friend `@Equip` and  `@np0` <br>
 **------------------------------------------------------**
 
 ### MIFARE Ultralight
@@ -312,6 +315,9 @@ If you have exhausted all options of scanning via NFC/RFID/PICOPASS then take a 
   On the Flipper, open the settings, go to System, and set Log Level to Debug. <em>(You can keep Debug set to off unless someone asks you to turn it on)</em>
   Once you have the CLI open, type <code>log</code> and press enter to start watching logs. Press <code>Ctrl-C</code> or <code>Cmd-C</code> to exit log mode.
 </blockquote>
+
+<br>
+<br>
 
 **CLI FAQ Source + Check out this FAQ for more info:**
 https://github.com/djsime1/awesome-flipperzero/blob/main/FAQ.md
