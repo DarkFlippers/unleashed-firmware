@@ -105,9 +105,9 @@ This is an automatic assembly of the latest commits from the repository that hav
 Be aware that this is not release ready builds! They may have bugs and issues, if you are using dev build and found issue, report it! In github issues
 <br>
 
-Dev builds is available in Discord, ⁠in channel - `unleashed-development` 
-Builds also can be found here - https://t.me/kotnehleb
-And here - https://dev.unleashedflip.com/
+Dev builds is available in Discord, ⁠in channel - `unleashed-development` <br>
+Builds also can be found here - https://t.me/kotnehleb <br>
+And here - https://dev.unleashedflip.com/ <br>
 
 ## What is the update server?
 We have our own update server https://up.unleashedflip.com/directory.json  <br>
