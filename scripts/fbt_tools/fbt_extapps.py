@@ -157,6 +157,11 @@ class AppBuilder:
                 for source_type in self.app.sources
             )
         )
+        if not app_sources:
+            raise UserError(f"No source files found for {self.app.appid}")
+
+        ## Uncomment for debug
+        # print(f"App sources for {self.app.appid}: {list(f.path for f in app_sources)}")
 
         app_artifacts = FlipperExternalAppInfo(self.app)
         app_artifacts.debug = self.app_env.Program(
@@ -239,9 +244,10 @@ class AppBuilder:
 
         # Add dependencies on file assets
         for assets_dir in self.app._assets_dirs:
+            glob_res = self.app_env.GlobRecursive("*", assets_dir)
             self.app_env.Depends(
                 app_artifacts.compact,
-                (assets_dir, self.app_env.GlobRecursive("*", assets_dir)),
+                (*glob_res, assets_dir),
             )
 
         # Always run the validator for the app's binary when building the app
