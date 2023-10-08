@@ -11,7 +11,7 @@ Follow this link for details:<br>
 https://github.com/DarkFlippers/unleashed-firmware/blob/dev/CHANGELOG.md#recommended-update-option---web-updater
 
 
-**INSTALLED UNLEASHED AND NOW BACKLIGHT DOESNT WORK?** 
+**INSTALLED UNLEASHED AND NOW BACKLIGHT DOESNT WORK?**  <br>
 You’ve installed a version made for custom RGB modded flippers. The version ending in `“r”` is specifically for “RGB” modded flippers. <br>
 Please do not use that version if your flipper isn’t modded!
   
