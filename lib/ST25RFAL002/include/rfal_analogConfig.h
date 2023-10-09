@@ -337,7 +337,7 @@ ReturnCode rfalAnalogConfigListWriteRaw(const uint8_t* configTbl, uint16_t confi
  * 
  * \param[in]  more: 0x00 indicates it is last Configuration ID settings; 
  *                   0x01 indicates more Configuration ID setting(s) are coming.
- * \param[in]  *config: reference to the configuration list of current Configuraiton ID.
+ * \param[in]  *config: reference to the configuration list of current Configuration ID.
  *                          
  * \return ERR_PARAM   : if Configuration ID or parameter is invalid
  * \return ERR_NOMEM   : if LUT is full      

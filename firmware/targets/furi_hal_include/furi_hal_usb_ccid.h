@@ -18,7 +18,12 @@ typedef struct {
 
 typedef struct {
     void (*icc_power_on_callback)(uint8_t* dataBlock, uint32_t* dataBlockLen, void* context);
-    void (*xfr_datablock_callback)(uint8_t* dataBlock, uint32_t* dataBlockLen, void* context);
+    void (*xfr_datablock_callback)(
+        const uint8_t* dataBlock,
+        uint32_t dataBlockLen,
+        uint8_t* responseDataBlock,
+        uint32_t* responseDataBlockLen,
+        void* context);
 } CcidCallbacks;
 
 void furi_hal_ccid_set_callbacks(CcidCallbacks* cb);

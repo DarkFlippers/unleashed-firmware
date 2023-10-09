@@ -189,7 +189,7 @@ typedef struct {
 
 /*! Discovery parameters                                                                                           */
 typedef struct {
-    rfalComplianceMode compMode; /*!< Compliancy mode to be used                            */
+    rfalComplianceMode compMode; /*!< Compliance mode to be used                            */
     uint16_t techs2Find; /*!< Technologies to search for                            */
     uint16_t totalDuration; /*!< Duration of a whole Poll + Listen cycle               */
     uint8_t devLimit; /*!< Max number of devices                                 */
@@ -211,7 +211,7 @@ typedef struct {
     bool wakeupConfigDefault; /*!< Wake-Up mode default configuration                    */
     rfalWakeUpConfig wakeupConfig; /*!< Wake-Up mode configuration                            */
 
-    bool activate_after_sak; // Set device to Active mode after SAK responce
+    bool activate_after_sak; // Set device to Active mode after SAK response
 } rfalNfcDiscoverParam;
 
 /*! Buffer union, only one interface is used at a time                                                             */
@@ -323,7 +323,7 @@ ReturnCode rfalNfcGetActiveDevice(rfalNfcDevice** dev);
  *  
  * It selects the device to be activated.
  * It shall be called when more than one device has been identified to 
- * indiacte which device shall be actived
+ * indiacte which device shall be active
  * 
  * \param[in]  devIdx       : device index to be activated
  *

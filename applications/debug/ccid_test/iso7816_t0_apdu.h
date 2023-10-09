@@ -6,18 +6,18 @@
 struct ISO7816_Command_APDU {
     //header
     uint8_t CLA;
-    uint32_t INS;
+    uint8_t INS;
     uint8_t P1;
     uint8_t P2;
 
     //body
-    uint8_t Nc;
-    uint8_t Ne;
+    uint8_t Lc;
+    uint8_t Le;
 } __attribute__((packed));
 
 struct ISO7816_Response_APDU {
     uint8_t SW1;
-    uint32_t SW2;
+    uint8_t SW2;
 } __attribute__((packed));
 
 void iso7816_answer_to_reset(uint8_t* atrBuffer, uint32_t* atrlen);

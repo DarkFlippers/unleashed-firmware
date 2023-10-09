@@ -509,7 +509,7 @@ ReturnCode rfalSt25tbPollerWriteBlock(uint8_t blockAddress, const rfalSt25tbBloc
             return ret;
         }
 
-        /* If a transmission error occurred (maybe noise while commiting data) wait maximum programming time and verify data afterwards */
+        /* If a transmission error occurred (maybe noise while committing data) wait maximum programming time and verify data afterwards */
         rfalSetGT((RFAL_ST25TB_FWT + RFAL_ST25TB_TW));
         rfalFieldOnAndStartGT();
     }
