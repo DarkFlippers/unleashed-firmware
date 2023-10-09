@@ -117,7 +117,7 @@ struct st25r3916StreamConfig {
 #define ST25R3916_CMD_AM_MOD_STATE_CHANGE \
     0xD2U /*!< AM Modulation state change                              */
 #define ST25R3916_CMD_MEASURE_AMPLITUDE \
-    0xD3U /*!< Measure singal amplitude on RFI inputs                  */
+    0xD3U /*!< Measure signal amplitude on RFI inputs                  */
 #define ST25R3916_CMD_RESET_RXGAIN \
     0xD5U /*!< Reset RX Gain                                           */
 #define ST25R3916_CMD_ADJUST_REGULATORS \
@@ -299,7 +299,7 @@ ReturnCode st25r3916SetBitrate(uint8_t txrate, uint8_t rxrate);
  *
  *  This function the power level is measured in maximum load conditions and
  *  the regulated voltage reference is set to 250mV below this level.
- *  Execution of this function lasts arround 5ms. 
+ *  Execution of this function lasts around 5ms. 
  *
  *  The regulated voltages will be set to the result of Adjust Regulators
  *  

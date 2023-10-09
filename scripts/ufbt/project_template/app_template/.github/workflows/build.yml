@@ -5,7 +5,7 @@ name: "FAP: Build for multiple SDK sources"
 
 on:
   push:
-    ## put your main branch name under "braches"
+    ## put your main branch name under "branches"
     #branches: 
     #  - master 
   pull_request:

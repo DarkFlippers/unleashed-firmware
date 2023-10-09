@@ -616,7 +616,7 @@ bool rfalIsoDepIsAttrib(const uint8_t* buf, uint8_t bufLen);
  *  \param[in] atsParam       : reference to ATS parameters
  *  \param[in] attribResParam : reference to ATTRIB_RES parameters
  *  \param[in] buf            : reference to buffer containing RATS or ATTRIB
- *  \param[in] bufLen         : length in bytes of the given bufffer
+ *  \param[in] bufLen         : length in bytes of the given buffer
  *  \param[in] actParam       : reference to incoming reception information will be placed
  *  
  *  
@@ -940,7 +940,7 @@ ReturnCode rfalIsoDepPollBHandleActivation(
  *****************************************************************************
  *  \brief  ISO-DEP Poller Handle S(Parameters)
  *   
- *  This checks if PICC supports S(PARAMETERS), retieves PICC's
+ *  This checks if PICC supports S(PARAMETERS), retrieves PICC's
  *  capabilities and sets the Bit Rate at the highest supported by both
  *  devices
  *   

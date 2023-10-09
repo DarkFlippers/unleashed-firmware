@@ -90,14 +90,14 @@ typedef struct {
     rfalNfcDevice* activeDev; /* Active device pointer                           */
     rfalNfcDiscoverParam disc; /* Discovery parameters                            */
     rfalNfcDevice devList[RFAL_NFC_MAX_DEVICES]; /*!< Location of device list          */
-    uint8_t devCnt; /* Decices found counter                           */
+    uint8_t devCnt; /* Devices found counter                           */
     uint32_t discTmr; /* Discovery Total duration timer                  */
     ReturnCode dataExErr; /* Last Data Exchange error                        */
     bool discRestart; /* Restart discover after deactivation flag        */
     bool isRxChaining; /* Flag indicating Other device is chaining        */
     uint32_t lmMask; /* Listen Mode mask                                */
     bool isTechInit; /* Flag indicating technology has been set         */
-    bool isOperOngoing; /* Flag indicating opration is ongoing             */
+    bool isOperOngoing; /* Flag indicating operation is ongoing             */
 
     rfalNfcBuffer txBuf; /* Tx buffer for Data Exchange                     */
     rfalNfcBuffer rxBuf; /* Rx buffer for Data Exchange                     */
@@ -674,7 +674,7 @@ ReturnCode rfalNfcDataExchangeStart(
             break;
         }
 
-        /* If a transceive has succesfully started flag Data Exchange as ongoing */
+        /* If a transceive has successfuly started flag Data Exchange as ongoing */
         if(err == ERR_NONE) {
             gNfcDev.dataExErr = ERR_BUSY;
             gNfcDev.state = RFAL_NFC_STATE_DATAEXCHANGE;
@@ -814,7 +814,7 @@ ReturnCode rfalNfcDataExchangeCustomStart(
             break;
         }
 
-        /* If a transceive has succesfully started flag Data Exchange as ongoing */
+        /* If a transceive has successfuly started flag Data Exchange as ongoing */
         if(err == ERR_NONE) {
             gNfcDev.dataExErr = ERR_BUSY;
             gNfcDev.state = RFAL_NFC_STATE_DATAEXCHANGE;
@@ -897,7 +897,7 @@ ReturnCode rfalNfcDataExchangeGetStatus(void) {
                     sizeof(gNfcDev.rxBuf.rfBuf),
                     &gNfcDev.rxLen));
 
-            /* If set Sleep was succesfull keep restore the Sleep request signal */
+            /* If set Sleep was successful keep restore the Sleep request signal */
             gNfcDev.dataExErr = ERR_SLEEP_REQ;
         }
 #endif /* RFAL_FEATURE_LISTEN_MODE */
@@ -924,7 +924,7 @@ static ReturnCode rfalNfcPollTechDetetection(void) {
 
     err = ERR_NONE;
 
-    /* Supress warning when specific RFAL features have been disabled */
+    /* Suppress warning when specific RFAL features have been disabled */
     NO_WARNING(err);
 
     /*******************************************************************************/
@@ -1154,7 +1154,7 @@ static ReturnCode rfalNfcPollCollResolution(void) {
     err = ERR_NONE;
     i = 0;
 
-    /* Supress warning when specific RFAL features have been disabled */
+    /* Suppress warning when specific RFAL features have been disabled */
     NO_WARNING(err);
     NO_WARNING(devCnt);
     NO_WARNING(i);
@@ -1415,7 +1415,7 @@ static ReturnCode rfalNfcPollActivation(uint8_t devIt) {
 
     err = ERR_NONE;
 
-    /* Supress warning when specific RFAL features have been disabled */
+    /* Suppress warning when specific RFAL features have been disabled */
     NO_WARNING(err);
 
     if(devIt > gNfcDev.devCnt) {
@@ -1428,7 +1428,7 @@ static ReturnCode rfalNfcPollActivation(uint8_t devIt) {
         /*******************************************************************************/
 #if RFAL_FEATURE_NFC_DEP
     case RFAL_NFC_LISTEN_TYPE_AP2P:
-        /* Activation has already been perfomed (ATR_REQ) */
+        /* Activation has already been performed (ATR_REQ) */
 
         gNfcDev.devList[devIt].nfcid =
             gNfcDev.devList[devIt].proto.nfcDep.activation.Target.ATR_RES.NFCID3;
@@ -1971,7 +1971,7 @@ static ReturnCode rfalNfcNfcDepActivate(
     uint16_t atrReqLen) {
     rfalNfcDepAtrParam initParam;
 
-    /* Supress warnings if Listen mode is disabled */
+    /* Suppress warnings if Listen mode is disabled */
     NO_WARNING(atrReq);
     NO_WARNING(atrReqLen);
 

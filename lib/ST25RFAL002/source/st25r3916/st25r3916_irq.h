@@ -161,7 +161,7 @@
  *  \param[in] tmo : time in milliseconds until timeout occurs. If set to 0
  *                   the functions waits forever.
  *
- *  \return : 0 if timeout occured otherwise a mask indicating the cleared
+ *  \return : 0 if timeout occurred otherwise a mask indicating the cleared
  *              interrupts.
  *
  *****************************************************************************
@@ -173,7 +173,7 @@ uint32_t st25r3916WaitForInterruptsTimed(uint32_t mask, uint16_t tmo);
  *  \brief  Get status for the given interrupt
  *
  *  This function is used to check whether the interrupt given by \a mask
- *  has occured. If yes the interrupt gets cleared. This function returns
+ *  has occurred. If yes the interrupt gets cleared. This function returns
  *  only status bits which are inside \a mask.
  *
  *  \param[in] mask : mask indicating the interrupt to check for.
@@ -189,7 +189,7 @@ uint32_t st25r3916GetInterrupt(uint32_t mask);
  *  \brief  Init the 3916 interrupt
  *
  *  This function is used to check whether the interrupt given by \a mask
- *  has occured. 
+ *  has occurred. 
  *
  *****************************************************************************
  */
@@ -220,7 +220,7 @@ void st25r3916CheckForReceivedInterrupts(void);
  *****************************************************************************
  *  \brief  ISR Service routine
  *
- *  This function modiefies the interupt
+ *  This function modiefies the interrupt
  *****************************************************************************
  */
 void st25r3916Isr(void);
