@@ -39,15 +39,25 @@ void icc_power_on_callback(uint8_t* atrBuffer, uint32_t* atrlen, void* context) 
     iso7816_answer_to_reset(atrBuffer, atrlen);
 }
 
-void xfr_datablock_callback(uint8_t* dataBlock, uint32_t* dataBlockLen, void* context) {
+//dataBlock points to the buffer
+//dataBlockLen tells reader how nany bytes should be read
+void xfr_datablock_callback(
+    const uint8_t* dataBlock,
+    uint32_t dataBlockLen,
+    uint8_t* responseDataBlock,
+    uint32_t* responseDataBlockLen,
+    void* context) {
     UNUSED(context);
+
+    struct ISO7816_Command_APDU commandAPDU;
+    iso7816_read_command_apdu(&commandAPDU, dataBlock, dataBlockLen);
 
     struct ISO7816_Response_APDU responseAPDU;
     //class not supported
     responseAPDU.SW1 = 0x6E;
     responseAPDU.SW2 = 0x00;
 
-    iso7816_write_response_apdu(&responseAPDU, dataBlock, dataBlockLen);
+    iso7816_write_response_apdu(&responseAPDU, responseDataBlock, responseDataBlockLen);
 }
 
 static const CcidCallbacks ccid_cb = {
@@ -66,7 +76,7 @@ static void ccid_test_app_render_callback(Canvas* canvas, void* ctx) {
     canvas_draw_str(canvas, 0, 63, "Hold [back] to exit");
 }
 
-static void ccid_test_app__input_callback(InputEvent* input_event, void* ctx) {
+static void ccid_test_app_input_callback(InputEvent* input_event, void* ctx) {
     FuriMessageQueue* event_queue = ctx;
 
     CcidTestAppEvent event;
@@ -94,7 +104,7 @@ CcidTestApp* ccid_test_app_alloc() {
     //message queue
     app->event_queue = furi_message_queue_alloc(8, sizeof(CcidTestAppEvent));
     furi_check(app->event_queue);
-    view_port_input_callback_set(app->view_port, ccid_test_app__input_callback, app->event_queue);
+    view_port_input_callback_set(app->view_port, ccid_test_app_input_callback, app->event_queue);
 
     return app;
 }
