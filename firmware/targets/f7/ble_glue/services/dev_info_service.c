@@ -39,7 +39,7 @@ static bool dev_info_char_firmware_rev_callback(
     const uint8_t** data,
     uint16_t* data_len) {
     const DevInfoSvc* dev_info_svc = *(DevInfoSvc**)context;
-    *data_len = sizeof(dev_info_svc->hardware_revision);
+    *data_len = strlen(dev_info_svc->hardware_revision);
     if(data) {
         *data = (const uint8_t*)&dev_info_svc->hardware_revision;
     }
@@ -155,17 +155,19 @@ void dev_info_svc_start() {
 void dev_info_svc_stop() {
     tBleStatus status;
     if(dev_info_svc) {
-        furi_string_free(dev_info_svc->version_string);
         // Delete service characteristics
         for(size_t i = 0; i < DevInfoSvcGattCharacteristicCount; i++) {
             flipper_gatt_characteristic_delete(
                 dev_info_svc->service_handle, &dev_info_svc->characteristics[i]);
         }
+
         // Delete service
         status = aci_gatt_del_service(dev_info_svc->service_handle);
         if(status) {
             FURI_LOG_E(TAG, "Failed to delete device info service: %d", status);
         }
+
+        furi_string_free(dev_info_svc->version_string);
         free(dev_info_svc);
         dev_info_svc = NULL;
     }

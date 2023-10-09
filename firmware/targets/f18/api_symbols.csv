@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,39.1,,
+Version,+,39.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -2007,7 +2007,7 @@ Function,+,storage_file_open,_Bool,"File*, const char*, FS_AccessMode, FS_OpenMo
 Function,+,storage_file_read,uint16_t,"File*, void*, uint16_t"
 Function,+,storage_file_seek,_Bool,"File*, uint32_t, _Bool"
 Function,+,storage_file_size,uint64_t,File*
-Function,-,storage_file_sync,_Bool,File*
+Function,+,storage_file_sync,_Bool,File*
 Function,+,storage_file_tell,uint64_t,File*
 Function,+,storage_file_truncate,_Bool,File*
 Function,+,storage_file_write,uint16_t,"File*, const void*, uint16_t"
