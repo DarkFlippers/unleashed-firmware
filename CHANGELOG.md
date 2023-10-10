@@ -1,50 +1,29 @@
 ## New changes
-* **Apple BLE Spam app** (by @Willy-JL | Plus research from ECTO-1A, xMasterX and techryptic) -> (app can be found in builds ` `, `e`, `n`, `r`)
-* Plugins -> Note for new users: **PicoPass emulation is available** in (Apps -> NFC -> PicoPass) + Latest PicoPass emulation fixes (by nvx) -> (app can be found in builds ` `, `e`, `n`, `r`)
-* SubGHz: **FAAC SLH - Programming mode** (by @xMasterX & @Eng1n33r (full research and PoC by @Skorpionm)| PR #585) -> [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
-* SubGHz: FAAC SLH -> Add manually new options
-* SubGHz: **Ignore Princeton** option
-* SubGHz: **Save all settings, option to reset config to default** (by @derskythe | PR #590)
-* SubGHz: Fix 0xFFFF counter value being skipped
-* SubGHz: Fix path reset on save name scene exit
-* SubGHz: Various fixes
-* SubGHz Remote: New design (by @Svaarich) - Implemented by @gid9798
-* SubGHz Remote: Fix Sub-GHz Remote folder name (by @OperKH | PR #583)
-* SubGHz Remote: submodule (by @gid9798 | PR #592)
-* Infrared: Updated universal assets (by @amec0e | PR #594)
-* Infrared: Remake custom universal remotes to use new design (New icons by @Svaarich)
-* UI: Keyboard ok to toggle select all in cursor mode (by @Willy-JL)
-* CI/CD: CodeQL for internal usage
-* CI/CD: Fixed regular builds having `c` in version name in the device info while not being actual `c` build
-* Docs: New FAAC SLH instructions
-* Docs: Readme & Changelog fixes (by @gid9798 | PR #586 #600)
-* OFW: Sub-GHz: fix incorrect key parsing crash
-* OFW: fbt: added FW_CFG_name with build configuration
-* OFW: SD-Card: proper HAL -> **Breaking API change, API 37.x -> API 38.x** - **Update your apps!**
-* OFW: Various Fixes and Improvements -> **Breaking API change, API 36.x -> API 37.x** - **Update your apps!**
-* OFW: iButton: Return to the file selection if file is corrupted
-* OFW: Account for the "-" in line carry-over
-* OFW: github: workflow improvements
-* OFW: Storage: force mount
-* OFW: Add File Naming setting for more detailed naming -> **Breaking API change, API 35.x -> API 36.x** - **Update your apps!**
-* OFW: Disconnect from BLE on protobuf error
-* OFW: Add support for Mifare Classic 4k SAK 0x38 ATQA 0x02, 0x04, 0x08
-* OFW: Undo some TODO
-* OFW: Check the filetype of the update manifest
-* OFW: StorageListRequest: size filter 
-* OFW: SubGhz: heap overflow text error 
-* OFW: nfc: add rfal wrong state error handling
-* OFW: Rfid: fix crash on broken key launch from archive (fix was already done in UL in similar way)
-* OFW: AC OFF button
-* OFW: New IR universal remote graphics
-* OFW: Intelligent probing with warnings for fwflash.py
-* OFW: FuriHal: explicitly pull display pins at early init stage, move PUPD config to early stage 
-* OFW: Fix display last symbol in multiline text
-* OFW: Properly reset the NFC device data
-* OFW: fbt: various improvements and bug fixes
-* OFW: Littlefs updated to v2.7.0
-* OFW: loader: restored support for debug apps
-* OFW: Removed explicit dependency on scons for external scripting
+**Summary: BLE Core2 (Copro) crashes should be fixed with this update, Apple BLE Spam app and other apps updated to the latest versions, NFC file sort crashes has been fixed, other fixes and improvements see below:**
+* SubGHz: Nice Flor S - added custom button code 0x3
+* NFC: Fixes out of memory crash if we open folder with more than 300 files in it
+* LF RFID: Fixed logic in `t5577_write_with_pass` (by @baugp | PR #612)
+* Infrared: Updated universal assets (by @amec0e | PR #607 #619)
+* **Apple BLE Spam app** updated to latest version (by @Willy-JL) -> (app can be found in builds ` `, `e`, `n`, `r`)
+* OFW: Fix spelling across some project files
+* OFW: CCID: Support PC To Reader Transfer Block data
+* OFW: Firmware: bigger thread name storage. Notification app: better BacklightEnforce edge cases handling. 
+* OFW: Lib: update stm32wb_copro to 1.17.3 release
+* OFW: FuriHal ble: length fix for fw version prop 
+* OFW: add documentation SubGhz Bin_RAW file format
+* OFW: fbt: glob improvements
+* OFW: HEX input UI improvements
+* OFW: Ble: fix null-ptr dereference in bt_change_profile
+* OFW: Add the coding in the shell animation
+* OFW: FuriHal,BleGlue: prevent sleep while HCI command executed, proper bt api rpc locking. Fixes random system lockups.
+* OFW: fbt: reworked tool path handling
+* OFW: Gui: handle view port lockup and notify developer about it
+* OFW: Added `fal_embedded` parameter for PLUGIN apps
+* OFW: Fix multiline aligned text going out of bounds (again)
+* OFW: Add Initial CCID support 
+* OFW: Add confirmation before exiting USB-UART
+* OFW: Add extended I2C HAL functions -> **Breaking API change 38.x -> 39.x**
+* OFW: New clock switch schema, **fixes random core2 crashes**
 
 ----
 

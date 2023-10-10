@@ -25,7 +25,7 @@ https://github.com/DarkFlippers/unleashed-firmware#whats-changed
 
 ## How to use SubGHz Remote app?
 1. Open app, press Back button, select New map file
-2. Configure signal files and their names for every button (you add only one signal and make other buttons empty - just don't select any files for them in config)
+2. Configure signal files and their names for every button (also you can add only one signal and make other buttons empty - just don't select any files for them in config)
 3. Save new map file
 4. Open map file and select your previously created file
 5. Use buttons to send subghz signal files that you selected in map config at step 2
