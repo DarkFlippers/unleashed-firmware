@@ -170,27 +170,35 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
         return;
     }
 
+    // Core2 shenanigans takes extra time, so we want to compensate tick skew by reducing sleep duration by 1 tick
+    TickType_t unexpected_idle_ticks = expected_idle_ticks - 1;
+
     // Limit amount of ticks to maximum that timer can count
-    if(expected_idle_ticks > FURI_HAL_OS_MAX_SLEEP) {
-        expected_idle_ticks = FURI_HAL_OS_MAX_SLEEP;
+    if(unexpected_idle_ticks > FURI_HAL_OS_MAX_SLEEP) {
+        unexpected_idle_ticks = FURI_HAL_OS_MAX_SLEEP;
     }
 
     // Stop IRQ handling, no one should disturb us till we finish
     __disable_irq();
+    do {
+        // Confirm OS that sleep is still possible
+        if(eTaskConfirmSleepModeStatus() == eAbortSleep || furi_hal_os_is_pending_irq()) {
+            break;
+        }
 
-    // Confirm OS that sleep is still possible
-    if(eTaskConfirmSleepModeStatus() == eAbortSleep || furi_hal_os_is_pending_irq()) {
-        __enable_irq();
-        return;
-    }
-
-    // Sleep and track how much ticks we spent sleeping
-    uint32_t completed_ticks = furi_hal_os_sleep(expected_idle_ticks);
-    // Notify system about time spent in sleep
-    if(completed_ticks > 0) {
-        vTaskStepTick(MIN(completed_ticks, expected_idle_ticks));
-    }
-
+        // Sleep and track how much ticks we spent sleeping
+        uint32_t completed_ticks = furi_hal_os_sleep(unexpected_idle_ticks);
+        // Notify system about time spent in sleep
+        if(completed_ticks > 0) {
+            if(completed_ticks > expected_idle_ticks) {
+#ifdef FURI_HAL_OS_DEBUG
+                furi_hal_console_printf(">%lu\r\n", completed_ticks - expected_idle_ticks);
+#endif
+                completed_ticks = expected_idle_ticks;
+            }
+            vTaskStepTick(completed_ticks);
+        }
+    } while(0);
     // Reenable IRQ
     __enable_irq();
 }

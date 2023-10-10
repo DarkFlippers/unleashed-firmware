@@ -1,7 +1,7 @@
 #include "bt_i.h"
-#include "battery_service.h"
 #include "bt_keys_storage.h"
 
+#include <services/battery_service.h>
 #include <notification/notification_messages.h>
 #include <gui/elements.h>
 #include <assets_icons.h>
@@ -367,13 +367,13 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
             *message->result = false;
         }
     }
-    furi_event_flag_set(bt->api_event, BT_API_UNLOCK_EVENT);
+    if(message->lock) api_lock_unlock(message->lock);
 }
 
-static void bt_close_connection(Bt* bt) {
+static void bt_close_connection(Bt* bt, BtMessage* message) {
     bt_close_rpc_connection(bt);
     furi_hal_bt_stop_advertising();
-    furi_event_flag_set(bt->api_event, BT_API_UNLOCK_EVENT);
+    if(message->lock) api_lock_unlock(message->lock);
 }
 
 static inline FuriHalBtProfile get_hal_bt_profile(BtProfile profile) {
@@ -520,7 +520,7 @@ int32_t bt_srv(void* p) {
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
         } else if(message.type == BtMessageTypeDisconnect) {
-            bt_close_connection(bt);
+            bt_close_connection(bt, &message);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
             bt_keys_storage_delete(bt->keys_storage);
         }

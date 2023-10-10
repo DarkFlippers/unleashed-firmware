@@ -45,6 +45,7 @@ steps:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - cp -R base_pack_build/apps_data/* assets/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -113,6 +114,7 @@ steps:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - cp -R base_pack_build/apps_data/* assets/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -413,6 +415,7 @@ steps:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+      - cp -R base_pack_build/apps_data/* assets/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*

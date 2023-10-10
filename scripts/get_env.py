@@ -72,10 +72,10 @@ def get_details(event, args):
 
 
 def add_env(name, value, file):
-    delimeter = id_gen()
-    print(f"{name}<<{delimeter}", file=file)
+    delimiter = id_gen()
+    print(f"{name}<<{delimiter}", file=file)
     print(f"{value}", file=file)
-    print(f"{delimeter}", file=file)
+    print(f"{delimiter}", file=file)
 
 
 def add_set_output_var(name, value, file):

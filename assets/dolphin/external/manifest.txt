@@ -169,6 +169,12 @@ Min level: 1
 Max level: 3
 Weight: 4
 
+Name: L2_Coding_in_the_shell_128x64
+Min butthurt: 0
+Max butthurt: 12
+Min level: 2
+Max level: 3
+Weight: 4
 
 Name: L3_Fireplace_128x64
 Min butthurt: 0

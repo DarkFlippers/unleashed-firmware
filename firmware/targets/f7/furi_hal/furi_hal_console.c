@@ -5,8 +5,6 @@
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_ll_usart.h>
 
-#include <utilities_conf.h>
-
 #include <furi.h>
 
 #define TAG "FuriHalConsole"

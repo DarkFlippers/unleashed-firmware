@@ -186,8 +186,8 @@ extern ReturnCode iso15693VCDCode(
  *  \param[in] ignoreBits : number of bits in the beginning where collisions will be ignored
  *  \param[in] picopassMode :  if set to true, the decoding will be according to Picopass
  *
- *  \return ERR_COLLISION : collision occured, data uncorrect
- *  \return ERR_CRC : CRC error, data uncorrect
+ *  \return ERR_COLLISION : collision occurred, data incorrect
+ *  \return ERR_CRC : CRC error, data incorrect
  *  \return ERR_TIMEOUT : timeout waiting for data.
  *  \return ERR_NONE : No error.
  *

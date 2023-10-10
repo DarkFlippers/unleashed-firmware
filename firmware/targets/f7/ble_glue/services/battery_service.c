@@ -1,17 +1,13 @@
 #include "battery_service.h"
 #include "app_common.h"
+#include "gatt_char.h"
+
 #include <ble/ble.h>
 
 #include <furi.h>
 #include <furi_hal_power.h>
 
 #define TAG "BtBatterySvc"
-
-typedef struct {
-    uint16_t svc_handle;
-    uint16_t battery_level_char_handle;
-    uint16_t power_state_char_handle;
-} BatterySvc;
 
 enum {
     // Common states
@@ -40,13 +36,44 @@ typedef struct {
 
 _Static_assert(sizeof(BattrySvcPowerState) == 1, "Incorrect structure size");
 
-static BatterySvc* battery_svc = NULL;
-
 #define BATTERY_POWER_STATE (0x2A1A)
 
 static const uint16_t service_uuid = BATTERY_SERVICE_UUID;
-static const uint16_t battery_level_char_uuid = BATTERY_LEVEL_CHAR_UUID;
-static const uint16_t power_state_char_uuid = BATTERY_POWER_STATE;
+
+typedef enum {
+    BatterySvcGattCharacteristicBatteryLevel = 0,
+    BatterySvcGattCharacteristicPowerState,
+    BatterySvcGattCharacteristicCount,
+} BatterySvcGattCharacteristicId;
+
+static const FlipperGattCharacteristicParams battery_svc_chars[BatterySvcGattCharacteristicCount] =
+    {[BatterySvcGattCharacteristicBatteryLevel] =
+         {.name = "Battery Level",
+          .data_prop_type = FlipperGattCharacteristicDataFixed,
+          .data.fixed.length = 1,
+          .uuid.Char_UUID_16 = BATTERY_LEVEL_CHAR_UUID,
+          .uuid_type = UUID_TYPE_16,
+          .char_properties = CHAR_PROP_READ | CHAR_PROP_NOTIFY,
+          .security_permissions = ATTR_PERMISSION_AUTHEN_READ,
+          .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
+          .is_variable = CHAR_VALUE_LEN_CONSTANT},
+     [BatterySvcGattCharacteristicPowerState] = {
+         .name = "Power State",
+         .data_prop_type = FlipperGattCharacteristicDataFixed,
+         .data.fixed.length = 1,
+         .uuid.Char_UUID_16 = BATTERY_POWER_STATE,
+         .uuid_type = UUID_TYPE_16,
+         .char_properties = CHAR_PROP_READ | CHAR_PROP_NOTIFY,
+         .security_permissions = ATTR_PERMISSION_AUTHEN_READ,
+         .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
+         .is_variable = CHAR_VALUE_LEN_CONSTANT}};
+
+typedef struct {
+    uint16_t svc_handle;
+    FlipperGattCharacteristicInstance chars[BatterySvcGattCharacteristicCount];
+} BatterySvc;
+
+static BatterySvc* battery_svc = NULL;
 
 void battery_svc_start() {
     battery_svc = malloc(sizeof(BatterySvc));
@@ -58,53 +85,19 @@ void battery_svc_start() {
     if(status) {
         FURI_LOG_E(TAG, "Failed to add Battery service: %d", status);
     }
-    // Add Battery level characteristic
-    status = aci_gatt_add_char(
-        battery_svc->svc_handle,
-        UUID_TYPE_16,
-        (Char_UUID_t*)&battery_level_char_uuid,
-        1,
-        CHAR_PROP_READ | CHAR_PROP_NOTIFY,
-        ATTR_PERMISSION_AUTHEN_READ,
-        GATT_DONT_NOTIFY_EVENTS,
-        10,
-        CHAR_VALUE_LEN_CONSTANT,
-        &battery_svc->battery_level_char_handle);
-    if(status) {
-        FURI_LOG_E(TAG, "Failed to add Battery level characteristic: %d", status);
+    for(size_t i = 0; i < BatterySvcGattCharacteristicCount; i++) {
+        flipper_gatt_characteristic_init(
+            battery_svc->svc_handle, &battery_svc_chars[i], &battery_svc->chars[i]);
     }
-    // Add Power state characteristic
-    status = aci_gatt_add_char(
-        battery_svc->svc_handle,
-        UUID_TYPE_16,
-        (Char_UUID_t*)&power_state_char_uuid,
-        1,
-        CHAR_PROP_READ | CHAR_PROP_NOTIFY,
-        ATTR_PERMISSION_AUTHEN_READ,
-        GATT_DONT_NOTIFY_EVENTS,
-        10,
-        CHAR_VALUE_LEN_CONSTANT,
-        &battery_svc->power_state_char_handle);
-    if(status) {
-        FURI_LOG_E(TAG, "Failed to add Battery level characteristic: %d", status);
-    }
-    // Update power state charachteristic
+
     battery_svc_update_power_state();
 }
 
 void battery_svc_stop() {
     tBleStatus status;
     if(battery_svc) {
-        // Delete Battery level characteristic
-        status =
-            aci_gatt_del_char(battery_svc->svc_handle, battery_svc->battery_level_char_handle);
-        if(status) {
-            FURI_LOG_E(TAG, "Failed to delete Battery level characteristic: %d", status);
-        }
-        // Delete Power state characteristic
-        status = aci_gatt_del_char(battery_svc->svc_handle, battery_svc->power_state_char_handle);
-        if(status) {
-            FURI_LOG_E(TAG, "Failed to delete Battery level characteristic: %d", status);
+        for(size_t i = 0; i < BatterySvcGattCharacteristicCount; i++) {
+            flipper_gatt_characteristic_delete(battery_svc->svc_handle, &battery_svc->chars[i]);
         }
         // Delete Battery service
         status = aci_gatt_del_service(battery_svc->svc_handle);
@@ -126,13 +119,10 @@ bool battery_svc_update_level(uint8_t battery_charge) {
         return false;
     }
     // Update battery level characteristic
-    FURI_LOG_D(TAG, "Updating battery level characteristic");
-    tBleStatus result = aci_gatt_update_char_value(
-        battery_svc->svc_handle, battery_svc->battery_level_char_handle, 0, 1, &battery_charge);
-    if(result) {
-        FURI_LOG_E(TAG, "Failed updating RX characteristic: %d", result);
-    }
-    return result != BLE_STATUS_SUCCESS;
+    return flipper_gatt_characteristic_update(
+        battery_svc->svc_handle,
+        &battery_svc->chars[BatterySvcGattCharacteristicBatteryLevel],
+        &battery_charge);
 }
 
 bool battery_svc_update_power_state() {
@@ -152,15 +142,9 @@ bool battery_svc_update_power_state() {
         power_state.charging = BatterySvcPowerStateNotCharging;
         power_state.discharging = BatterySvcPowerStateDischarging;
     }
-    FURI_LOG_D(TAG, "Updating power state characteristic");
-    tBleStatus result = aci_gatt_update_char_value(
+
+    return flipper_gatt_characteristic_update(
         battery_svc->svc_handle,
-        battery_svc->power_state_char_handle,
-        0,
-        1,
-        (uint8_t*)&power_state);
-    if(result) {
-        FURI_LOG_E(TAG, "Failed updating Power state characteristic: %d", result);
-    }
-    return result != BLE_STATUS_SUCCESS;
+        &battery_svc->chars[BatterySvcGattCharacteristicPowerState],
+        &power_state);
 }

@@ -462,7 +462,7 @@ class Main(App):
                 available_interfaces = self._search_interface(network_flash_interfaces)
 
             if not available_interfaces:
-                self.logger.error("No availiable interfaces")
+                self.logger.error("No available interfaces")
                 return 1
             elif len(available_interfaces) > 1:
                 self.logger.error("Multiple interfaces found:")

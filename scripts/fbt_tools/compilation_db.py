@@ -29,21 +29,25 @@ which is the name that most clang tools search for by default.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import json
-import itertools
 import fnmatch
+import itertools
+import json
+from shlex import quote
+
 import SCons
-
-from SCons.Tool.cxx import CXXSuffixes
+from SCons.Tool.asm import ASPPSuffixes, ASSuffixes
 from SCons.Tool.cc import CSuffixes
-from SCons.Tool.asm import ASSuffixes, ASPPSuffixes
+from SCons.Tool.cxx import CXXSuffixes
 
-# TODO FL-3542: Is there a better way to do this than this global? Right now this exists so that the
+# TODO: (-nofl) Is there a better way to do this than this global? Right now this exists so that the
 # emitter we add can record all of the things it emits, so that the scanner for the top level
 # compilation database can access the complete list, and also so that the writer has easy
 # access to write all of the files. But it seems clunky. How can the emitter and the scanner
 # communicate more gracefully?
 __COMPILATION_DB_ENTRIES = []
+
+# We cache the tool path lookups to avoid doing them over and over again.
+_TOOL_PATH_CACHE = {}
 
 
 # We make no effort to avoid rebuilding the entries. Someday, perhaps we could and even
@@ -91,7 +95,7 @@ def make_emit_compilation_DB_entry(comstr):
             __COMPILATIONDB_ENV=env,
         )
 
-        # TODO FL-3541: Technically, these next two lines should not be required: it should be fine to
+        # TODO: (-nofl) Technically, these next two lines should not be required: it should be fine to
         # cache the entries. However, they don't seem to update properly. Since they are quick
         # to re-generate disable caching and sidestep this problem.
         env.AlwaysBuild(entry)
@@ -121,6 +125,17 @@ def compilation_db_entry_action(target, source, env, **kw):
         source=env["__COMPILATIONDB_USOURCE"],
         env=env["__COMPILATIONDB_ENV"],
     )
+
+    # We assume first non-space character is the executable
+    executable = command.split(" ", 1)[0]
+    if not (tool_path := _TOOL_PATH_CACHE.get(executable, None)):
+        tool_path = env.WhereIs(executable) or executable
+        _TOOL_PATH_CACHE[executable] = tool_path
+    # If there are spaces in the executable path, we need to quote it
+    if " " in tool_path:
+        tool_path = quote(tool_path)
+    # Replacing the executable with the full path
+    command = tool_path + command[len(executable) :]
 
     entry = {
         "directory": env.Dir("#").abspath,
@@ -242,10 +257,7 @@ def generate(env, **kwargs):
     for entry in components_by_suffix:
         suffix = entry[0]
         builder, base_emitter, command = entry[1]
-
-        # Assumes a dictionary emitter
-        emitter = builder.emitter.get(suffix, False)
-        if emitter:
+        if emitter := builder.emitter.get(suffix, False):
             # We may not have tools installed which initialize all or any of
             # cxx, cc, or assembly. If not skip resetting the respective emitter.
             builder.emitter[suffix] = SCons.Builder.ListEmitter(

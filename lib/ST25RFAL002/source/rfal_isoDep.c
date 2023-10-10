@@ -434,7 +434,7 @@
  ******************************************************************************
  */
 
-/*! Internal structure to be used in handling of S(PARAMETRS) only */
+/*! Internal structure to be used in handling of S(PARAMETERS) only */
 typedef struct {
     uint8_t pcb; /*!< PCB byte                      */
     rfalIsoDepSParameter sParam; /*!< S(PARAMETERS)                 */
@@ -1053,7 +1053,7 @@ static ReturnCode isoDepDataExchangePCD(uint16_t* outActRxLen, bool* outIsChaini
                     }
                     return ERR_TIMEOUT; /* NFC Forum mandates timeout or transmission error depending on previous errors */
                 }
-            } else /* Unexcpected R-Block */
+            } else /* Unexpected R-Block */
             {
                 return ERR_PROTO;
             }
@@ -1899,7 +1899,7 @@ static ReturnCode isoDepDataExchangePICC(void) {
                     return ERR_BUSY;
                 }
 
-                /* Rule E -  R(ACK) with not current bn -> toogle bn */
+                /* Rule E -  R(ACK) with not current bn -> toggle bn */
                 isoDep_ToggleBN(gIsoDep.blockNumber);
 
                 /* This block has been transmitted and acknowledged, perform WTX until next data is provided  */
@@ -2336,7 +2336,7 @@ ReturnCode rfalIsoDepPollAGetActivationStatus(void) {
                     rfalSetGT(rfalGetFDTPoll());
                     rfalFieldOnAndStartGT();
 
-                    /* Send RATS retransmission */ /* PRQA S 4342 1 # MISRA 10.5 - Layout of enum rfalIsoDepFSxI is guaranteed whithin 4bit range */
+                    /* Send RATS retransmission */ /* PRQA S 4342 1 # MISRA 10.5 - Layout of enum rfalIsoDepFSxI is guaranteed within 4bit range */
                     EXIT_ON_ERR(
                         ret,
                         rfalIsoDepStartRATS(

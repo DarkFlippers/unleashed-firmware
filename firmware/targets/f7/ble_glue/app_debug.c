@@ -6,6 +6,9 @@
 #include <utilities/dbg_trace.h>
 #include <utilities/utilities_common.h>
 
+#include "stm32wbxx_ll_bus.h"
+#include "stm32wbxx_ll_pwr.h"
+
 #include <furi_hal.h>
 
 typedef PACKED_STRUCT {
@@ -108,10 +111,6 @@ static void APPD_SetCPU2GpioConfig(void);
 static void APPD_BleDtbCfg(void);
 
 void APPD_Init() {
-#if(CFG_DEBUG_TRACE != 0)
-    DbgTraceInit();
-#endif
-
     APPD_SetCPU2GpioConfig();
     APPD_BleDtbCfg();
 }
@@ -196,14 +195,14 @@ static void APPD_SetCPU2GpioConfig(void) {
         gpio_config.Pin = gpiob_pin_list;
         LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOB);
         LL_GPIO_Init(GPIOB, &gpio_config);
-        LL_GPIO_ResetOutputPin(GPIOB, gpioa_pin_list);
+        LL_GPIO_ResetOutputPin(GPIOB, gpiob_pin_list);
     }
 
     if(gpioc_pin_list != 0) {
         gpio_config.Pin = gpioc_pin_list;
         LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOC);
         LL_GPIO_Init(GPIOC, &gpio_config);
-        LL_GPIO_ResetOutputPin(GPIOC, gpioa_pin_list);
+        LL_GPIO_ResetOutputPin(GPIOC, gpioc_pin_list);
     }
 }
 
@@ -252,13 +251,3 @@ static void APPD_BleDtbCfg(void) {
     }
 #endif
 }
-
-#if(CFG_DEBUG_TRACE != 0)
-void DbgOutputInit(void) {
-}
-
-void DbgOutputTraces(uint8_t* p_data, uint16_t size, void (*cb)(void)) {
-    furi_hal_console_tx(p_data, size);
-    cb();
-}
-#endif

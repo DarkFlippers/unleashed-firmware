@@ -33,6 +33,9 @@
 
 <br>
 
+## FAQ (frequently asked questions)
+[Follow this link to find answers to most asked questions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/FAQ.md)
+
 ## Dev builds (unstable)
 - https://dev.unleashedflip.com/
 - https://t.me/kotnehleb

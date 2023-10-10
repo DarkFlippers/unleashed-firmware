@@ -6,7 +6,7 @@
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_hsem.h>
 
-#include <hw_conf.h>
+#include <hsem_map.h>
 
 #define TAG "FuriHalRandom"
 
