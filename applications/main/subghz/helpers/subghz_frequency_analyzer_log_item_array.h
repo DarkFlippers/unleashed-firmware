@@ -19,7 +19,7 @@ typedef enum {
 const char*
     subghz_frequency_analyzer_log_get_order_name(SubGhzFrequencyAnalyzerLogOrderBy order_by);
 
-TUPLE_DEF2(
+TUPLE_DEF2( //-V1048
     SubGhzFrequencyAnalyzerLogItem,
     (seq, uint8_t),
     (frequency, uint32_t),
