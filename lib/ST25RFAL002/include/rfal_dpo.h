@@ -81,7 +81,7 @@ typedef struct {
     uint8_t dec; /*!< Threshold for decrementing the output power */
 } rfalDpoEntry;
 
-/*! Function pointer to methode doing the reference measurement */
+/*! Function pointer to method doing the reference measurement */
 typedef ReturnCode (*rfalDpoMeasureFunc)(uint8_t*);
 
 /*
@@ -103,7 +103,7 @@ void rfalDpoInitialize(void);
 
 /*! 
  *****************************************************************************
- * \brief  Set the measurement methode
+ * \brief  Set the measurement method
  *  
  * This function sets the measurement method used for reference measurement.
  * Based on the measurement the power will then be adjusted

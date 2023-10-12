@@ -1,17 +1,67 @@
 #include "serial_service.h"
 #include "app_common.h"
 #include <ble/ble.h>
+#include "gatt_char.h"
 
 #include <furi.h>
 
+#include "serial_service_uuid.inc"
+
 #define TAG "BtSerialSvc"
+
+typedef enum {
+    SerialSvcGattCharacteristicRx = 0,
+    SerialSvcGattCharacteristicTx,
+    SerialSvcGattCharacteristicFlowCtrl,
+    SerialSvcGattCharacteristicStatus,
+    SerialSvcGattCharacteristicCount,
+} SerialSvcGattCharacteristicId;
+
+static const FlipperGattCharacteristicParams serial_svc_chars[SerialSvcGattCharacteristicCount] = {
+    [SerialSvcGattCharacteristicRx] =
+        {.name = "RX",
+         .data_prop_type = FlipperGattCharacteristicDataFixed,
+         .data.fixed.length = SERIAL_SVC_DATA_LEN_MAX,
+         .uuid.Char_UUID_128 = SERIAL_SVC_RX_CHAR_UUID,
+         .uuid_type = UUID_TYPE_128,
+         .char_properties = CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE | CHAR_PROP_READ,
+         .security_permissions = ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
+         .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE,
+         .is_variable = CHAR_VALUE_LEN_VARIABLE},
+    [SerialSvcGattCharacteristicTx] =
+        {.name = "TX",
+         .data_prop_type = FlipperGattCharacteristicDataFixed,
+         .data.fixed.length = SERIAL_SVC_DATA_LEN_MAX,
+         .uuid.Char_UUID_128 = SERIAL_SVC_TX_CHAR_UUID,
+         .uuid_type = UUID_TYPE_128,
+         .char_properties = CHAR_PROP_READ | CHAR_PROP_INDICATE,
+         .security_permissions = ATTR_PERMISSION_AUTHEN_READ,
+         .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
+         .is_variable = CHAR_VALUE_LEN_VARIABLE},
+    [SerialSvcGattCharacteristicFlowCtrl] =
+        {.name = "Flow control",
+         .data_prop_type = FlipperGattCharacteristicDataFixed,
+         .data.fixed.length = sizeof(uint32_t),
+         .uuid.Char_UUID_128 = SERIAL_SVC_FLOW_CONTROL_UUID,
+         .uuid_type = UUID_TYPE_128,
+         .char_properties = CHAR_PROP_READ | CHAR_PROP_NOTIFY,
+         .security_permissions = ATTR_PERMISSION_AUTHEN_READ,
+         .gatt_evt_mask = GATT_DONT_NOTIFY_EVENTS,
+         .is_variable = CHAR_VALUE_LEN_CONSTANT},
+    [SerialSvcGattCharacteristicStatus] = {
+        .name = "RPC status",
+        .data_prop_type = FlipperGattCharacteristicDataFixed,
+        .data.fixed.length = sizeof(SerialServiceRpcStatus),
+        .uuid.Char_UUID_128 = SERIAL_SVC_RPC_STATUS_UUID,
+        .uuid_type = UUID_TYPE_128,
+        .char_properties = CHAR_PROP_READ | CHAR_PROP_WRITE | CHAR_PROP_NOTIFY,
+        .security_permissions = ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
+        .gatt_evt_mask = GATT_NOTIFY_ATTRIBUTE_WRITE,
+        .is_variable = CHAR_VALUE_LEN_CONSTANT}};
 
 typedef struct {
     uint16_t svc_handle;
-    uint16_t rx_char_handle;
-    uint16_t tx_char_handle;
-    uint16_t flow_ctrl_char_handle;
-    uint16_t rpc_status_char_handle;
+    FlipperGattCharacteristicInstance chars[SerialSvcGattCharacteristicCount];
     FuriMutex* buff_size_mtx;
     uint32_t buff_size;
     uint16_t bytes_ready_to_receive;
@@ -21,17 +71,6 @@ typedef struct {
 
 static SerialSvc* serial_svc = NULL;
 
-static const uint8_t service_uuid[] =
-    {0x00, 0x00, 0xfe, 0x60, 0xcc, 0x7a, 0x48, 0x2a, 0x98, 0x4a, 0x7f, 0x2e, 0xd5, 0xb3, 0xe5, 0x8f};
-static const uint8_t char_tx_uuid[] =
-    {0x00, 0x00, 0xfe, 0x61, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
-static const uint8_t char_rx_uuid[] =
-    {0x00, 0x00, 0xfe, 0x62, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
-static const uint8_t flow_ctrl_uuid[] =
-    {0x00, 0x00, 0xfe, 0x63, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
-static const uint8_t rpc_status_uuid[] =
-    {0x00, 0x00, 0xfe, 0x64, 0x8e, 0x22, 0x45, 0x41, 0x9d, 0x4c, 0x21, 0xed, 0xae, 0x82, 0xed, 0x19};
-
 static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
     SVCCTL_EvtAckStatus_t ret = SVCCTL_EvtNotAck;
     hci_event_pckt* event_pckt = (hci_event_pckt*)(((hci_uart_pckt*)event)->data);
@@ -40,11 +79,14 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
     if(event_pckt->evt == HCI_VENDOR_SPECIFIC_DEBUG_EVT_CODE) {
         if(blecore_evt->ecode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE) {
             attribute_modified = (aci_gatt_attribute_modified_event_rp0*)blecore_evt->data;
-            if(attribute_modified->Attr_Handle == serial_svc->rx_char_handle + 2) {
+            if(attribute_modified->Attr_Handle ==
+               serial_svc->chars[SerialSvcGattCharacteristicRx].handle + 2) {
                 // Descriptor handle
                 ret = SVCCTL_EvtAckFlowEnable;
                 FURI_LOG_D(TAG, "RX descriptor event");
-            } else if(attribute_modified->Attr_Handle == serial_svc->rx_char_handle + 1) {
+            } else if(
+                attribute_modified->Attr_Handle ==
+                serial_svc->chars[SerialSvcGattCharacteristicRx].handle + 1) {
                 FURI_LOG_D(TAG, "Received %d bytes", attribute_modified->Attr_Data_Length);
                 if(serial_svc->callback) {
                     furi_check(
@@ -70,7 +112,9 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
                     furi_check(furi_mutex_release(serial_svc->buff_size_mtx) == FuriStatusOk);
                 }
                 ret = SVCCTL_EvtAckFlowEnable;
-            } else if(attribute_modified->Attr_Handle == serial_svc->rpc_status_char_handle + 1) {
+            } else if(
+                attribute_modified->Attr_Handle ==
+                serial_svc->chars[SerialSvcGattCharacteristicStatus].handle + 1) {
                 SerialServiceRpcStatus* rpc_status =
                     (SerialServiceRpcStatus*)attribute_modified->Attr_Data;
                 if(*rpc_status == SerialServiceRpcStatusNotActive) {
@@ -97,18 +141,12 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
 }
 
 static void serial_svc_update_rpc_char(SerialServiceRpcStatus status) {
-    tBleStatus ble_status = aci_gatt_update_char_value(
-        serial_svc->svc_handle,
-        serial_svc->rpc_status_char_handle,
-        0,
-        sizeof(SerialServiceRpcStatus),
-        (uint8_t*)&status);
-    if(ble_status) {
-        FURI_LOG_E(TAG, "Failed to update RPC status char: %d", ble_status);
-    }
+    flipper_gatt_characteristic_update(
+        serial_svc->svc_handle, &serial_svc->chars[SerialSvcGattCharacteristicStatus], &status);
 }
 
 void serial_svc_start() {
+    UNUSED(serial_svc_chars);
     tBleStatus status;
     serial_svc = malloc(sizeof(SerialSvc));
     // Register event handler
@@ -116,72 +154,17 @@ void serial_svc_start() {
 
     // Add service
     status = aci_gatt_add_service(
-        UUID_TYPE_128, (Service_UUID_t*)service_uuid, PRIMARY_SERVICE, 12, &serial_svc->svc_handle);
+        UUID_TYPE_128, &service_uuid, PRIMARY_SERVICE, 12, &serial_svc->svc_handle);
     if(status) {
         FURI_LOG_E(TAG, "Failed to add Serial service: %d", status);
     }
 
-    // Add RX characteristics
-    status = aci_gatt_add_char(
-        serial_svc->svc_handle,
-        UUID_TYPE_128,
-        (const Char_UUID_t*)char_rx_uuid,
-        SERIAL_SVC_DATA_LEN_MAX,
-        CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE | CHAR_PROP_READ,
-        ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
-        GATT_NOTIFY_ATTRIBUTE_WRITE,
-        10,
-        CHAR_VALUE_LEN_VARIABLE,
-        &serial_svc->rx_char_handle);
-    if(status) {
-        FURI_LOG_E(TAG, "Failed to add RX characteristic: %d", status);
+    // Add characteristics
+    for(uint8_t i = 0; i < SerialSvcGattCharacteristicCount; i++) {
+        flipper_gatt_characteristic_init(
+            serial_svc->svc_handle, &serial_svc_chars[i], &serial_svc->chars[i]);
     }
 
-    // Add TX characteristic
-    status = aci_gatt_add_char(
-        serial_svc->svc_handle,
-        UUID_TYPE_128,
-        (const Char_UUID_t*)char_tx_uuid,
-        SERIAL_SVC_DATA_LEN_MAX,
-        CHAR_PROP_READ | CHAR_PROP_INDICATE,
-        ATTR_PERMISSION_AUTHEN_READ,
-        GATT_DONT_NOTIFY_EVENTS,
-        10,
-        CHAR_VALUE_LEN_VARIABLE,
-        &serial_svc->tx_char_handle);
-    if(status) {
-        FURI_LOG_E(TAG, "Failed to add TX characteristic: %d", status);
-    }
-    // Add Flow Control characteristic
-    status = aci_gatt_add_char(
-        serial_svc->svc_handle,
-        UUID_TYPE_128,
-        (const Char_UUID_t*)flow_ctrl_uuid,
-        sizeof(uint32_t),
-        CHAR_PROP_READ | CHAR_PROP_NOTIFY,
-        ATTR_PERMISSION_AUTHEN_READ,
-        GATT_DONT_NOTIFY_EVENTS,
-        10,
-        CHAR_VALUE_LEN_CONSTANT,
-        &serial_svc->flow_ctrl_char_handle);
-    if(status) {
-        FURI_LOG_E(TAG, "Failed to add Flow Control characteristic: %d", status);
-    }
-    // Add RPC status characteristic
-    status = aci_gatt_add_char(
-        serial_svc->svc_handle,
-        UUID_TYPE_128,
-        (const Char_UUID_t*)rpc_status_uuid,
-        sizeof(SerialServiceRpcStatus),
-        CHAR_PROP_READ | CHAR_PROP_WRITE | CHAR_PROP_NOTIFY,
-        ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
-        GATT_NOTIFY_ATTRIBUTE_WRITE,
-        10,
-        CHAR_VALUE_LEN_CONSTANT,
-        &serial_svc->rpc_status_char_handle);
-    if(status) {
-        FURI_LOG_E(TAG, "Failed to add RPC status characteristic: %d", status);
-    }
     serial_svc_update_rpc_char(SerialServiceRpcStatusNotActive);
     // Allocate buffer size mutex
     serial_svc->buff_size_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -196,13 +179,12 @@ void serial_svc_set_callbacks(
     serial_svc->context = context;
     serial_svc->buff_size = buff_size;
     serial_svc->bytes_ready_to_receive = buff_size;
+
     uint32_t buff_size_reversed = REVERSE_BYTES_U32(serial_svc->buff_size);
-    aci_gatt_update_char_value(
+    flipper_gatt_characteristic_update(
         serial_svc->svc_handle,
-        serial_svc->flow_ctrl_char_handle,
-        0,
-        sizeof(uint32_t),
-        (uint8_t*)&buff_size_reversed);
+        &serial_svc->chars[SerialSvcGattCharacteristicFlowCtrl],
+        &buff_size_reversed);
 }
 
 void serial_svc_notify_buffer_is_empty() {
@@ -213,13 +195,12 @@ void serial_svc_notify_buffer_is_empty() {
     if(serial_svc->bytes_ready_to_receive == 0) {
         FURI_LOG_D(TAG, "Buffer is empty. Notifying client");
         serial_svc->bytes_ready_to_receive = serial_svc->buff_size;
+
         uint32_t buff_size_reversed = REVERSE_BYTES_U32(serial_svc->buff_size);
-        aci_gatt_update_char_value(
+        flipper_gatt_characteristic_update(
             serial_svc->svc_handle,
-            serial_svc->flow_ctrl_char_handle,
-            0,
-            sizeof(uint32_t),
-            (uint8_t*)&buff_size_reversed);
+            &serial_svc->chars[SerialSvcGattCharacteristicFlowCtrl],
+            &buff_size_reversed);
     }
     furi_check(furi_mutex_release(serial_svc->buff_size_mtx) == FuriStatusOk);
 }
@@ -227,22 +208,8 @@ void serial_svc_notify_buffer_is_empty() {
 void serial_svc_stop() {
     tBleStatus status;
     if(serial_svc) {
-        // Delete characteristics
-        status = aci_gatt_del_char(serial_svc->svc_handle, serial_svc->tx_char_handle);
-        if(status) {
-            FURI_LOG_E(TAG, "Failed to delete TX characteristic: %d", status);
-        }
-        status = aci_gatt_del_char(serial_svc->svc_handle, serial_svc->rx_char_handle);
-        if(status) {
-            FURI_LOG_E(TAG, "Failed to delete RX characteristic: %d", status);
-        }
-        status = aci_gatt_del_char(serial_svc->svc_handle, serial_svc->flow_ctrl_char_handle);
-        if(status) {
-            FURI_LOG_E(TAG, "Failed to delete Flow Control characteristic: %d", status);
-        }
-        status = aci_gatt_del_char(serial_svc->svc_handle, serial_svc->rpc_status_char_handle);
-        if(status) {
-            FURI_LOG_E(TAG, "Failed to delete RPC Status characteristic: %d", status);
+        for(uint8_t i = 0; i < SerialSvcGattCharacteristicCount; i++) {
+            flipper_gatt_characteristic_delete(serial_svc->svc_handle, &serial_svc->chars[i]);
         }
         // Delete service
         status = aci_gatt_del_service(serial_svc->svc_handle);
@@ -273,7 +240,7 @@ bool serial_svc_update_tx(uint8_t* data, uint16_t data_len) {
         tBleStatus result = aci_gatt_update_char_value_ext(
             0,
             serial_svc->svc_handle,
-            serial_svc->tx_char_handle,
+            serial_svc->chars[SerialSvcGattCharacteristicTx].handle,
             remained ? 0x00 : 0x02,
             data_len,
             value_offset,

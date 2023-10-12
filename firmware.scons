@@ -143,7 +143,7 @@ fwenv.PrepareApplicationsBuild()
 
 # Build external apps + configure SDK
 if env["IS_BASE_FIRMWARE"]:
-    fwenv.SetDefault(FBT_FAP_DEBUG_ELF_ROOT="${BUILD_DIR}/.extapps")
+    fwenv.SetDefault(FBT_FAP_DEBUG_ELF_ROOT=fwenv["BUILD_DIR"].Dir(".extapps"))
     fwenv["FW_EXTAPPS"] = SConscript(
         "site_scons/extapps.scons",
         exports={"ENV": fwenv},

@@ -110,7 +110,7 @@ void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password) {
     t5577_start();
     FURI_CRITICAL_ENTER();
     for(size_t i = 0; i < data->blocks_to_write; i++) {
-        t5577_write_block_pass(0, false, data->block[i], true, password);
+        t5577_write_block_pass(i, false, data->block[i], true, password);
     }
     t5577_write_reset();
     FURI_CRITICAL_EXIT();

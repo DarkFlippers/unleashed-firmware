@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define BROWSER_SORT_THRESHOLD 400
+#define BROWSER_SORT_THRESHOLD 220
 
 typedef struct BrowserWorker BrowserWorker;
 typedef void (*BrowserWorkerFolderOpenCallback)(

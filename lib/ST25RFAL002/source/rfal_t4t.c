@@ -113,7 +113,7 @@ ReturnCode rfalT4TPollerComposeCAPDU(const rfalT4tCApduParam* apduParam) {
     /* Check if Data is present */
     if(apduParam->LcFlag) {
         if(apduParam->Lc == 0U) {
-            /* Extented field coding not supported */
+            /* Extended field coding not supported */
             return ERR_PARAM;
         }
 

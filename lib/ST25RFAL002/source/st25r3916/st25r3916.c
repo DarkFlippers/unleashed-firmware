@@ -274,7 +274,7 @@ ReturnCode st25r3916Initialize(void) {
 void st25r3916Deinitialize(void) {
     st25r3916DisableInterrupts(ST25R3916_IRQ_MASK_ALL);
 
-    /* Disabe Tx and Rx, Keep OSC On */
+    /* Disable Tx and Rx, Keep OSC On */
     st25r3916TxRxOff();
 
     return;
@@ -418,7 +418,7 @@ ReturnCode st25r3916CalibrateCapacitiveSensor(uint8_t* result) {
         ST25R3916_TOUT_CALIBRATE_CAP_SENSOR,
         &res);
 
-    /* Check wether the calibration was successull */
+    /* Check whether the calibration was successull */
     if(((res & ST25R3916_REG_CAP_SENSOR_RESULT_cs_cal_end) !=
         ST25R3916_REG_CAP_SENSOR_RESULT_cs_cal_end) ||
        ((res & ST25R3916_REG_CAP_SENSOR_RESULT_cs_cal_err) ==

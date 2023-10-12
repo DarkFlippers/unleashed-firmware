@@ -52,7 +52,7 @@
 
 /*
  ******************************************************************************
- * ENABLE SWITCHS
+ * ENABLE SWITCHES
  ******************************************************************************
  */
 
@@ -137,7 +137,7 @@ typedef struct {
 /*! Struct that holds counters to control the FIFO on Tx and Rx                                                                          */
 typedef struct {
     uint16_t
-        expWL; /*!< The amount of bytes expected to be Tx when a WL interrupt occours                          */
+        expWL; /*!< The amount of bytes expected to be Tx when a WL interrupt occurs                          */
     uint16_t
         bytesTotal; /*!< Total bytes to be transmitted OR the total bytes received                                  */
     uint16_t
@@ -398,7 +398,7 @@ typedef union { /*  PRQA S 0750 # MISRA 19.2 - Both members are of the same type
  * ISO15693 2000  8.4  t1 MIN = 4192/fc
  * ISO15693 2009  9.1  t1 MIN = 4320/fc
  * Digital 2.1 B.5 FDTV,LISTEN,MIN  = 4310/fc
- * Set FDT Listen one step earlier than on the more recent spec versions for greater interoprability
+ * Set FDT Listen one step earlier than on the more recent spec versions for greater interoperability
  */
 #define RFAL_FDT_LISTEN_V_ADJUSTMENT 64U
 
@@ -1958,7 +1958,7 @@ static void rfalPrepareTransceive(void) {
              ST25R3916_IRQ_MASK_WU_F); /* Enable external Field interrupts to detect Link Loss and SENF_REQ auto responses */
     }
 
-    /* In Active comms enable also External Field interrupts and set RF Collsion Avoindance */
+    /* In Active comms enable also External Field interrupts and set RF Collision Avoindance */
     if(rfalIsModeActiveComm(gRFAL.mode)) {
         maskInterrupts |=
             (ST25R3916_IRQ_MASK_EOF | ST25R3916_IRQ_MASK_EON | ST25R3916_IRQ_MASK_PPON2 |
@@ -1990,7 +1990,7 @@ static void rfalTransceiveTx(void) {
     uint16_t tmp;
     ReturnCode ret;
 
-    /* Supress warning in case NFC-V feature is disabled */
+    /* Suppress warning in case NFC-V feature is disabled */
     ret = ERR_NONE;
     NO_WARNING(ret);
 
@@ -2370,7 +2370,7 @@ static void rfalTransceiveRx(void) {
         }
 
         if((irqs & ST25R3916_IRQ_MASK_RX_REST) != 0U) {
-            /* RX_REST indicates that Receiver has been reseted due to EMD, therefore a RXS + RXE should *
+            /* RX_REST indicates that Receiver has been reset due to EMD, therefore a RXS + RXE should *
                  * follow if a good reception is followed within the valid initial timeout                   */
 
             /* Check whether NRT has expired already, if so signal a timeout */
@@ -2917,7 +2917,7 @@ ReturnCode rfalISO14443ATransceiveAnticollisionFrame(
     }
 
     /*******************************************************************************/
-    /* Set speficic Analog Config for Anticolission if needed */
+    /* Set specific Analog Config for Anticolission if needed */
     rfalSetAnalogConfig(
         (RFAL_ANALOG_CONFIG_POLL | RFAL_ANALOG_CONFIG_TECH_NFCA |
          RFAL_ANALOG_CONFIG_BITRATE_COMMON | RFAL_ANALOG_CONFIG_ANTICOL));
@@ -3030,7 +3030,7 @@ ReturnCode rfalISO15693TransceiveAnticollisionFrame(
     }
 
     /*******************************************************************************/
-    /* Set speficic Analog Config for Anticolission if needed */
+    /* Set specific Analog Config for Anticolission if needed */
     rfalSetAnalogConfig(
         (RFAL_ANALOG_CONFIG_POLL | RFAL_ANALOG_CONFIG_TECH_NFCV |
          RFAL_ANALOG_CONFIG_BITRATE_COMMON | RFAL_ANALOG_CONFIG_ANTICOL));
@@ -4053,7 +4053,7 @@ ReturnCode rfalListenSetState(rfalLmState newSt) {
                        ST25R3916_REG_AUX_DISPLAY,
                        ST25R3916_REG_AUX_DISPLAY_osc_ok,
                        ST25R3916_REG_AUX_DISPLAY_osc_ok)) {
-                    /* Wait for Oscilator ready */
+                    /* Wait for Oscillator ready */
                     if(st25r3916WaitForInterruptsTimed(
                            ST25R3916_IRQ_MASK_OSC, ST25R3916_TOUT_OSC_STABLE) == 0U) {
                         ret = ERR_IO;
@@ -4074,7 +4074,7 @@ ReturnCode rfalListenSetState(rfalLmState newSt) {
                  * Ensure that when upper layer calls SetState(IDLE), it restores initial 
                  * configuration and that check whether an external Field is still present     */
             if((gRFAL.Lm.mdMask & RFAL_LM_MASK_ACTIVE_P2P) != 0U) {
-                /* Ensure nfc_ar is reseted and back to only after Rx */
+                /* Ensure nfc_ar is reset and back to only after Rx */
                 st25r3916ExecuteCommand(ST25R3916_CMD_STOP);
                 st25r3916ChangeRegisterBits(
                     ST25R3916_REG_MODE,
@@ -4443,7 +4443,7 @@ static uint16_t rfalWakeUpModeFilter(uint16_t curRef, uint16_t curVal, uint8_t w
 
     /* Perform the averaging|filter as describded in ST25R3916 DS */
 
-    /* Avoid signed arithmetics by spliting in two cases */
+    /* Avoid signed arithmetics by splitting in two cases */
     if(curVal > curRef) {
         newRef = curRef + ((curVal - curRef) / weight);
 

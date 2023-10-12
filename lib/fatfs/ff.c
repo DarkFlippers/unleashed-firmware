@@ -1927,7 +1927,7 @@ DWORD xsum32 (
 
 static
 void get_xdir_info (
-	BYTE* dirb,			/* Pointer to the direcotry entry block 85+C0+C1s */
+	BYTE* dirb,			/* Pointer to the directory entry block 85+C0+C1s */
 	FILINFO* fno		/* Buffer to store the extracted file information */
 )
 {
@@ -1971,17 +1971,17 @@ void get_xdir_info (
 
 
 /*-----------------------------------*/
-/* exFAT: Get a directry entry block */
+/* exFAT: Get a directory entry block */
 /*-----------------------------------*/
 
 static
 FRESULT load_xdir (	/* FR_INT_ERR: invalid entry block */
-	DIR* dp			/* Pointer to the reading direcotry object pointing the 85 entry */
+	DIR* dp			/* Pointer to the reading directory object pointing the 85 entry */
 )
 {
 	FRESULT res;
 	UINT i, sz_ent;
-	BYTE* dirb = dp->obj.fs->dirbuf;	/* Pointer to the on-memory direcotry entry block 85+C0+C1s */
+	BYTE* dirb = dp->obj.fs->dirbuf;	/* Pointer to the on-memory directory entry block 85+C0+C1s */
 
 
 	/* Load 85 entry */
@@ -2026,7 +2026,7 @@ FRESULT load_xdir (	/* FR_INT_ERR: invalid entry block */
 /*------------------------------------------------*/
 static
 FRESULT load_obj_dir (
-	DIR* dp,			/* Blank directory object to be used to access containing direcotry */
+	DIR* dp,			/* Blank directory object to be used to access containing directory */
 	const _FDID* obj	/* Object with its containing directory information */
 )
 {
@@ -2054,12 +2054,12 @@ FRESULT load_obj_dir (
 /*-----------------------------------------------*/
 static
 FRESULT store_xdir (
-	DIR* dp				/* Pointer to the direcotry object */
+	DIR* dp				/* Pointer to the directory object */
 )
 {
 	FRESULT res;
 	UINT nent;
-	BYTE* dirb = dp->obj.fs->dirbuf;	/* Pointer to the direcotry entry block 85+C0+C1s */
+	BYTE* dirb = dp->obj.fs->dirbuf;	/* Pointer to the directory entry block 85+C0+C1s */
 
 	/* Create set sum */
 	st_word(dirb + XDIR_SetSum, xdir_sum(dirb));
@@ -2087,7 +2087,7 @@ FRESULT store_xdir (
 
 static
 void create_xdir (
-	BYTE* dirb,			/* Pointer to the direcotry entry block buffer */
+	BYTE* dirb,			/* Pointer to the directory entry block buffer */
 	const WCHAR* lfn	/* Pointer to the nul terminated file name */
 )
 {

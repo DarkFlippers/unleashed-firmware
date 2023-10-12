@@ -42,6 +42,9 @@ bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
         scene_manager_set_scene_state(app->scene_manager, GpioSceneUsbUart, 1);
         scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCfg);
         return true;
+    } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_next_scene(app->scene_manager, GpioSceneExitConfirm);
+        return true;
     } else if(event.type == SceneManagerEventTypeTick) {
         uint32_t tx_cnt_last = scene_usb_uart->state.tx_cnt;
         uint32_t rx_cnt_last = scene_usb_uart->state.rx_cnt;

@@ -89,7 +89,7 @@ fbtenv_check_sourced()
         setopt +o nomatch;  # disabling 'no match found' warning in zsh
         return 0;;
     esac
-    if [ ${0##*/} = "fbtenv.sh" ]; then  # exluding script itself
+    if [ ${0##*/} = "fbtenv.sh" ]; then  # excluding script itself
         fbtenv_show_usage;
         return 1;
     fi
@@ -173,7 +173,7 @@ fbtenv_check_rosetta()
     if [ "$ARCH_TYPE" = "arm64" ]; then
         if ! pgrep -q oahd; then
             echo "Flipper Zero Toolchain needs Rosetta2 to run under Apple Silicon";
-            echo "Please instal it by typing 'softwareupdate --install-rosetta --agree-to-license'";
+            echo "Please install it by typing 'softwareupdate --install-rosetta --agree-to-license'";
             return 1;
         fi
     fi

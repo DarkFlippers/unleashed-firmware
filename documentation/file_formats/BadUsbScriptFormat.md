@@ -4,7 +4,7 @@ BadUsb app uses extended Duckyscript syntax. It is compatible with classic USB R
 
 # Script file format
 
-BadUsb app can execute only text scrips from `.txt` files, no compilation is required. Both `\n` and `\r\n` line endings are supported. Empty lines are allowed. You can use spaces or tabs for line indentation.
+BadUsb app can execute only text scripts from `.txt` files, no compilation is required. Both `\n` and `\r\n` line endings are supported. Empty lines are allowed. You can use spaces or tabs for line indentation.
 
 # Command set
 
@@ -72,10 +72,10 @@ Can be combined with a special key command or a single character.
 ## Key hold and release
 
 Up to 5 keys can be hold simultaneously.
-| Command | Parameters                      | Notes                                     |
-| ------- | ------------------------------- | ----------------------------------------- |
-| HOLD    | Special key or single character | Press and hold key untill RELEASE command |
-| RELEASE | Special key or single character | Release key                               |
+| Command | Parameters                      | Notes                                    |
+| ------- | ------------------------------- | ---------------------------------------- |
+| HOLD    | Special key or single character | Press and hold key until RELEASE command |
+| RELEASE | Special key or single character | Release key                              |
 
 ## Wait for button press
 

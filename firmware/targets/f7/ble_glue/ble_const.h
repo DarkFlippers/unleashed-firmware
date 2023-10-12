@@ -1,22 +1,4 @@
-/*****************************************************************************
- * @file    ble_const.h
- * @author  MDG
- * @brief   This file contains the definitions which are compiler dependent.
- *****************************************************************************
- * @attention
- *
- * Copyright (c) 2018-2022 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- *****************************************************************************
- */
-
-#ifndef BLE_CONST_H__
-#define BLE_CONST_H__
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
@@ -115,5 +97,3 @@ extern int hci_send_req(struct hci_request* req, uint8_t async);
 #ifndef MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
-
-#endif /* BLE_CONST_H__ */

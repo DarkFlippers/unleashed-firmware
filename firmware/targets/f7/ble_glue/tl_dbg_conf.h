@@ -1,38 +1,11 @@
-/* USER CODE BEGIN Header */
-/**
- ******************************************************************************
-  * File Name          : App/tl_dbg_conf.h
-  * Description        : Debug configuration file for stm32wpan transport layer interface.
-  *
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
+#pragma once
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TL_DBG_CONF_H
-#define __TL_DBG_CONF_H
+#include "app_conf.h" /* required as some configuration used in dbg_trace.h are set there */
+#include "dbg_trace.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* USER CODE BEGIN Tl_Conf */
-
-/* Includes ------------------------------------------------------------------*/
-#include "app_conf.h" /* required as some configuration used in dbg_trace.h are set there */
-#include "dbg_trace.h"
-#include "hw_if.h"
 
 /**
  * Enable or Disable traces
@@ -124,12 +97,6 @@ extern "C" {
 #define TL_MM_DBG_MSG(...)
 #endif
 
-/* USER CODE END Tl_Conf */
-
 #ifdef __cplusplus
 }
 #endif
-
-#endif /*__TL_DBG_CONF_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

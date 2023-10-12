@@ -1,25 +1,4 @@
-/*****************************************************************************
- * @file    osal.h
- * @author  MDG
- * @brief   This header file defines the OS abstraction layer used by
- *          the BLE stack. OSAL defines the set of functions which needs to be
- *          ported to target operating system and target platform.
- *          Actually, only memset, memcpy and memcmp wrappers are defined.
- *****************************************************************************
- * @attention
- *
- * Copyright (c) 2018-2022 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- *****************************************************************************
- */
-
-#ifndef OSAL_H__
-#define OSAL_H__
+#pragma once
 
 /**
  * This function copies size number of bytes from a 
@@ -59,5 +38,3 @@ extern void* Osal_MemSet(void* ptr, int value, unsigned int size);
  * @return  0 if the two buffers are equal, 1 otherwise
  */
 extern int Osal_MemCmp(const void* s1, const void* s2, unsigned int size);
-
-#endif /* OSAL_H__ */

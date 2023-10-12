@@ -7,6 +7,9 @@
 #include <interface/patterns/ble_thread/shci/shci.h>
 
 #include <stm32wbxx.h>
+#include <stm32wbxx_ll_hsem.h>
+
+#include <hsem_map.h>
 
 #define TAG "FuriHalFlash"
 

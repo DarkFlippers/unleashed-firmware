@@ -19,6 +19,6 @@ We recommend to use the `APP_DATA_PATH` macro to get the path to the Apps Data f
 
 ## What is the difference between the Apps Assets folder and the Apps Data folder?
 
-The Apps Assets folder is used to store the data <u>provided</u> with the application. For example, if you want to create a game, you can store game levels (contant data) in the Apps Assets folder.
+The Apps Assets folder is used to store the data <u>provided</u> with the application. For example, if you want to create a game, you can store game levels (content data) in the Apps Assets folder.
 
 The Apps Data folder is used to store data <u>generated</u> by the application. For example, if you want to create a game, you can save the progress of the game (user-generated data) in the Apps Data folder.
