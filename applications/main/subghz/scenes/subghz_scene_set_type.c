@@ -351,7 +351,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx, "AM650", 315000000, SUBGHZ_PROTOCOL_PRINCETON_NAME, key, 24, 400);
             break;
         case SubmenuIndexNiceFlo12bit:
-            key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
+            key = (key & 0x00000FF0) | 0x1; //btn 0x1, 0x2, 0x4
             generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_NICE_FLO_NAME, key, 12);
             break;
@@ -361,7 +361,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_NICE_FLO_NAME, key, 24);
             break;
         case SubmenuIndexCAME12bit:
-            key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
+            key = (key & 0x00000FF0) | 0x1; //btn 0x1, 0x2, 0x4
             generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx, "AM650", 433920000, SUBGHZ_PROTOCOL_CAME_NAME, key, 12);
             break;
@@ -715,14 +715,17 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz_txrx_gen_secplus_v1_protocol(subghz->txrx, "AM650", 433920000);
             break;
         case SubmenuIndexSecPlus_v2_310_00:
+            key = (key & 0x7FFFF3FC); // 850LM pairing
             generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 310000000, key, 0x68, 0xE500000);
             break;
         case SubmenuIndexSecPlus_v2_315_00:
+            key = (key & 0x7FFFF3FC); // 850LM pairing
             generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 315000000, key, 0x68, 0xE500000);
             break;
         case SubmenuIndexSecPlus_v2_390_00:
+            key = (key & 0x7FFFF3FC); // 850LM pairing
             generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 390000000, key, 0x68, 0xE500000);
             break;

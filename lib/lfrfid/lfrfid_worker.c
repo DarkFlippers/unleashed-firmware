@@ -118,7 +118,6 @@ void lfrfid_worker_start_thread(LFRFIDWorker* worker) {
 }
 
 void lfrfid_worker_stop_thread(LFRFIDWorker* worker) {
-    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
     furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventStopThread);
     furi_thread_join(worker->thread);
 }

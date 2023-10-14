@@ -82,7 +82,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str_aligned(canvas, 127, 33, AlignRight, AlignBottom, "ERROR:");
         canvas_set_font(canvas, FontSecondary);
-        furi_string_printf(disp_str, "line %u", model->state.error_line);
+        furi_string_printf(disp_str, "line %zu", model->state.error_line);
         canvas_draw_str_aligned(
             canvas, 127, 46, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
         furi_string_reset(disp_str);
@@ -105,7 +105,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         }
         canvas_set_font(canvas, FontBigNumbers);
         furi_string_printf(
-            disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
+            disp_str, "%zu", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
             canvas, 114, 40, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
         furi_string_reset(disp_str);
@@ -124,7 +124,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         }
         canvas_set_font(canvas, FontBigNumbers);
         furi_string_printf(
-            disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
+            disp_str, "%zu", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
             canvas, 114, 40, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
         furi_string_reset(disp_str);
@@ -142,7 +142,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         }
         canvas_set_font(canvas, FontBigNumbers);
         furi_string_printf(
-            disp_str, "%u", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
+            disp_str, "%zu", ((model->state.line_cur - 1) * 100) / model->state.line_nb);
         canvas_draw_str_aligned(
             canvas, 114, 40, AlignRight, AlignBottom, furi_string_get_cstr(disp_str));
         furi_string_reset(disp_str);

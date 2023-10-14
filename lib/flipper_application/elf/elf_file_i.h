@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-DICT_DEF2(AddressCache, int, M_DEFAULT_OPLIST, Elf32_Addr, M_DEFAULT_OPLIST)
+DICT_DEF2(AddressCache, int, M_DEFAULT_OPLIST, Elf32_Addr, M_DEFAULT_OPLIST) //-V1048
 
 /**
  * Callable elf entry type
