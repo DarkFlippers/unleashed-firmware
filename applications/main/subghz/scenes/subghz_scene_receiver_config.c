@@ -451,7 +451,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore NiceFloRS",
+            "Ignore NiceFlorS / Nice One",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_niceflors,
             subghz);
@@ -465,7 +465,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)
     item = variable_item_list_add(
         subghz->variable_item_list,
-        "Sound:",
+        "Sound",
         COMBO_BOX_COUNT,
         subghz_scene_receiver_config_set_speaker,
         subghz);
