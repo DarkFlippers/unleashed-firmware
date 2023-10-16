@@ -69,6 +69,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "KL: HCS101 433MHz",
+        SubmenuIndexHCS101_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: DoorHan 315MHz",
         SubmenuIndexDoorHan_315_00,
         subghz_scene_set_type_submenu_callback,
@@ -161,6 +167,24 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz->submenu,
         "KL: Elmes (PL) 433MHz",
         SubmenuIndexElmesElectronic,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: Normstahl 433MHz",
+        SubmenuIndexNormstahl_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: JCM Tech 433MHz",
+        SubmenuIndexJCM_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: Nice Mhouse 433MHz",
+        SubmenuIndexNiceMHouse_433_92,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -696,6 +720,42 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexNiceSmilo_433_92:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "NICE_Smilo");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexNiceMHouse_433_92:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "NICE_MHOUSE");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexJCM_433_92:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "JCM_Tech");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexNormstahl_433_92:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Normstahl");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexHCS101_433_92:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, key & 0x000FFFFF, 0x2, 0x0003, "HCS101");
             if(!generated_protocol) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
