@@ -65,6 +65,10 @@ void furi_hal_power_init() {
     LL_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
     LL_C2_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
 
+#if FURI_HAL_POWER_STOP_MODE == LL_PWR_MODE_STOP0
+    LL_RCC_HSI_EnableInStopMode(); // Ensure that MR is capable of work in STOP0
+#endif
+
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     // Find and init gauge
     if(bq27220_init(&furi_hal_i2c_handle_power)) {
@@ -206,8 +210,11 @@ static inline void furi_hal_power_deep_sleep() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
         ;
 
-    if(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSE) {
+    if(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSI) {
         furi_hal_clock_switch_hsi2hse();
+    } else {
+        // Ensure that we are already on HSE
+        furi_check(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSE);
     }
 
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);

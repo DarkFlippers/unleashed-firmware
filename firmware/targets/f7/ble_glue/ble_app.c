@@ -19,7 +19,7 @@ PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint32_t ble_app_nvm[BLE_NVM_SRAM_SI
 
 _Static_assert(
     sizeof(SHCI_C2_Ble_Init_Cmd_Packet_t) == 58,
-    "Ble stack config structure size mismatch (check new config options - last updated for v.1.17.2)");
+    "Ble stack config structure size mismatch (check new config options - last updated for v.1.17.3)");
 
 typedef struct {
     FuriMutex* hci_mtx;

@@ -869,7 +869,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
 
         while(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
             if(file_info_is_dir(&fileinfo)) {
-                furi_string_cat_printf(cur_dir, "/%s", name);
+                furi_string_cat_printf(cur_dir, "/%s", name); //-V576
                 go_deeper = true;
                 break;
             }

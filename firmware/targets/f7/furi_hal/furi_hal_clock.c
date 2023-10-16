@@ -118,7 +118,6 @@ void furi_hal_clock_init() {
     NVIC_EnableIRQ(SysTick_IRQn);
 
     LL_RCC_SetCLK48ClockSource(LL_RCC_CLK48_CLKSOURCE_PLLSAI1);
-    LL_RCC_HSI_EnableInStopMode(); // Ensure that MR is capable of work in STOP0
     LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSI);
     LL_RCC_SetSMPSPrescaler(LL_RCC_SMPS_DIV_1);
     LL_RCC_SetRFWKPClockSource(LL_RCC_RFWKP_CLKSOURCE_LSE);
@@ -133,7 +132,7 @@ void furi_hal_clock_switch_hse2hsi() {
         ;
 
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
-    furi_assert(LL_RCC_GetSMPSClockSource() == LL_RCC_SMPS_CLKSOURCE_HSI);
+    furi_assert(LL_RCC_GetSMPSClockSelection() == LL_RCC_SMPS_CLKSOURCE_HSI);
 
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
         ;

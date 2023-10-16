@@ -137,7 +137,7 @@ static const struct {
         .stage = UpdateTaskStageRadioBusy,
         .percent_min = 11,
         .percent_max = 20,
-        .descr = "C2 FUS swich failed",
+        .descr = "C2 FUS switch failed",
     },
     {
         .stage = UpdateTaskStageRadioBusy,

@@ -332,7 +332,7 @@ ReturnCode
  * This method executes anti collision loop and select the device with higher NFCID1
  * 
  * When devLimit = 0 it is configured to perform collision detection only. Once a collision 
- * is detected the collision resolution is aborted immidiatly. If only one device is found
+ * is detected the collision resolution is aborted immediately. If only one device is found
  * with no collisions, it will properly resolved. 
  *
  * \param[in]  devLimit    : device limit value (CON_DEVICES_LIMIT)
@@ -374,7 +374,7 @@ ReturnCode rfalNfcaPollerSingleCollisionResolution(
  *  
  *  
  * When devLimit = 0 it is configured to perform collision detection only. Once a collision 
- * is detected the collision resolution is aborted immidiatly. If only one device is found
+ * is detected the collision resolution is aborted immediately. If only one device is found
  * with no collisions, it will properly resolved.
  *
  *
@@ -436,7 +436,7 @@ ReturnCode rfalNfcaPollerSleepFullCollisionResolution(
  *  
  *  
  * When devLimit = 0 it is configured to perform collision detection only. Once a collision 
- * is detected the collision resolution is aborted immidiatly. If only one device is found
+ * is detected the collision resolution is aborted immediately. If only one device is found
  * with no collisions, it will properly resolved.
  *
  *

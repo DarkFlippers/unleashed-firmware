@@ -1053,7 +1053,7 @@ ReturnCode st25r3916ReadRegister(uint8_t reg, uint8_t* val);
  *  auto-increment feature. That is, after each read the address pointer
  *  inside the ST25R3916 gets incremented automatically.
  *
- *  \param[in]  reg: Address of the frist register to read from.
+ *  \param[in]  reg: Address of the first register to read from.
  *  \param[in]  values: pointer to a buffer where the result shall be written to.
  *  \param[in]  length: Number of registers to be read out.
  *
@@ -1088,7 +1088,7 @@ ReturnCode st25r3916WriteRegister(uint8_t reg, uint8_t val);
  *  auto-increment feature. That is, after each write the address pointer
  *  inside the ST25R3916 gets incremented automatically.
  *
- *  \param[in]  reg: Address of the frist register to write.
+ *  \param[in]  reg: Address of the first register to write.
  *  \param[in]  values: pointer to a buffer containing the values to be written.
  *  \param[in]  length: Number of values to be written.
  *

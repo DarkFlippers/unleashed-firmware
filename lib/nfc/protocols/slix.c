@@ -197,7 +197,7 @@ ReturnCode slix_get_random(NfcVData* data) {
 }
 
 ReturnCode slix_unlock(NfcVData* data, uint32_t password_id) {
-    furi_assert(rand);
+    furi_assert(data);
 
     uint16_t received = 0;
     uint8_t rxBuf[32];

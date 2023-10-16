@@ -1,5 +1,5 @@
 diff --git a/applications/services/notification/notification_app.c b/applications/services/notification/notification_app.c
-index 2f947fe..03c4c76 100644
+index 5769ced..c5d3088 100644
 --- a/applications/services/notification/notification_app.c
 +++ b/applications/services/notification/notification_app.c
 @@ -9,6 +9,7 @@
@@ -10,7 +10,7 @@ index 2f947fe..03c4c76 100644
  
  #define TAG "NotificationSrv"
  
-@@ -579,6 +580,7 @@ int32_t notification_srv(void* p) {
+@@ -589,6 +590,7 @@ int32_t notification_srv(void* p) {
              break;
          case SaveSettingsMessage:
              notification_save_settings(app);
@@ -19,7 +19,7 @@ index 2f947fe..03c4c76 100644
          }
  
 diff --git a/applications/settings/notification_settings/notification_settings_app.c b/applications/settings/notification_settings/notification_settings_app.c
-index 565d4f1..bae9299 100644
+index 1955012..19d953d 100644
 --- a/applications/settings/notification_settings/notification_settings_app.c
 +++ b/applications/settings/notification_settings/notification_settings_app.c
 @@ -3,6 +3,7 @@
@@ -30,10 +30,20 @@ index 565d4f1..bae9299 100644
  
  #define MAX_NOTIFICATION_SETTINGS 4
  
-@@ -162,6 +163,14 @@ static void vibro_changed(VariableItem* item) {
+@@ -20,6 +21,8 @@ static const NotificationSequence sequence_note_c = {
+     NULL,
+ };
+ 
++static VariableItem* temp_item;
++
+ #define CONTRAST_COUNT 11
+ const char* const contrast_text[CONTRAST_COUNT] = {
+     "-5",
+@@ -156,6 +159,59 @@ static void vibro_changed(VariableItem* item) {
      notification_message(app->notification, &sequence_single_vibro);
  }
  
++// Set RGB backlight color
 +static void color_changed(VariableItem* item) {
 +    NotificationAppSettings* app = variable_item_get_context(item);
 +    uint8_t index = variable_item_get_current_value_index(item);
@@ -42,30 +52,101 @@ index 565d4f1..bae9299 100644
 +    notification_message(app->notification, &sequence_display_backlight_on);
 +}
 +
++// TODO: refactor and fix this
++static void color_set_custom_red(VariableItem* item) {
++    NotificationAppSettings* app = variable_item_get_context(item);
++    uint8_t index = variable_item_get_current_value_index(item);
++    rgb_backlight_set_custom_color(index, 0);
++    char valtext[4] = {};
++    snprintf(valtext, sizeof(valtext), "%d", index);
++    variable_item_set_current_value_text(item, valtext);
++    rgb_backlight_set_color(13);
++    rgb_backlight_update(app->notification->settings.display_brightness * 0xFF, true);
++    // Set to custom color explicitly
++    variable_item_set_current_value_index(temp_item, 13);
++    variable_item_set_current_value_text(temp_item, rgb_backlight_get_color_text(13));
++    notification_message(app->notification, &sequence_display_backlight_on);
++}
++static void color_set_custom_green(VariableItem* item) {
++    NotificationAppSettings* app = variable_item_get_context(item);
++    uint8_t index = variable_item_get_current_value_index(item);
++    rgb_backlight_set_custom_color(index, 1);
++    char valtext[4] = {};
++    snprintf(valtext, sizeof(valtext), "%d", index);
++    variable_item_set_current_value_text(item, valtext);
++    rgb_backlight_set_color(13);
++    rgb_backlight_update(app->notification->settings.display_brightness * 0xFF, true);
++    // Set to custom color explicitly
++    variable_item_set_current_value_index(temp_item, 13);
++    variable_item_set_current_value_text(temp_item, rgb_backlight_get_color_text(13));
++    notification_message(app->notification, &sequence_display_backlight_on);
++}
++static void color_set_custom_blue(VariableItem* item) {
++    NotificationAppSettings* app = variable_item_get_context(item);
++    uint8_t index = variable_item_get_current_value_index(item);
++    rgb_backlight_set_custom_color(index, 2);
++    char valtext[4] = {};
++    snprintf(valtext, sizeof(valtext), "%d", index);
++    variable_item_set_current_value_text(item, valtext);
++    rgb_backlight_set_color(13);
++    rgb_backlight_update(app->notification->settings.display_brightness * 0xFF, true);
++    // Set to custom color explicitly
++    variable_item_set_current_value_index(temp_item, 13);
++    variable_item_set_current_value_text(temp_item, rgb_backlight_get_color_text(13));
++    notification_message(app->notification, &sequence_display_backlight_on);
++}
++
  static uint32_t notification_app_settings_exit(void* context) {
      UNUSED(context);
      return VIEW_NONE;
-@@ -187,7 +196,13 @@ static NotificationAppSettings* alloc_settings() {
+@@ -180,8 +236,40 @@ static NotificationAppSettings* alloc_settings() {
+     variable_item_set_current_value_index(item, value_index);
      variable_item_set_current_value_text(item, contrast_text[value_index]);
  
-     item = variable_item_list_add(
--        app->variable_item_list, "LCD Backlight", BACKLIGHT_COUNT, backlight_changed, app);
++    // RGB Colors
++    item = variable_item_list_add(
 +        app->variable_item_list, "LCD Color", rgb_backlight_get_color_count(), color_changed, app);
 +    value_index = rgb_backlight_get_settings()->display_color_index;
 +    variable_item_set_current_value_index(item, value_index);
 +    variable_item_set_current_value_text(item, rgb_backlight_get_color_text(value_index));
++    temp_item = item;
++
++    // Custom Color - REFACTOR THIS
++    item = variable_item_list_add(
++        app->variable_item_list, "Custom Red", 255, color_set_custom_red, app);
++    value_index = rgb_backlight_get_settings()->custom_r;
++    variable_item_set_current_value_index(item, value_index);
++    char valtext[4] = {};
++    snprintf(valtext, sizeof(valtext), "%d", value_index);
++    variable_item_set_current_value_text(item, valtext);
 +
 +    item = variable_item_list_add(
++        app->variable_item_list, "Custom Green", 255, color_set_custom_green, app);
++    value_index = rgb_backlight_get_settings()->custom_g;
++    variable_item_set_current_value_index(item, value_index);
++    snprintf(valtext, sizeof(valtext), "%d", value_index);
++    variable_item_set_current_value_text(item, valtext);
++
++    item = variable_item_list_add(
++        app->variable_item_list, "Custom Blue", 255, color_set_custom_blue, app);
++    value_index = rgb_backlight_get_settings()->custom_b;
++    variable_item_set_current_value_index(item, value_index);
++    snprintf(valtext, sizeof(valtext), "%d", value_index);
++    variable_item_set_current_value_text(item, valtext);
++    // End of RGB
++
+     item = variable_item_list_add(
+-        app->variable_item_list, "LCD Backlight", BACKLIGHT_COUNT, backlight_changed, app);
 +        app->variable_item_list, "LCD Brightness", BACKLIGHT_COUNT, backlight_changed, app);
      value_index = value_index_float(
          app->notification->settings.display_brightness, backlight_value, BACKLIGHT_COUNT);
      variable_item_set_current_value_index(item, value_index);
 diff --git a/applications/settings/notification_settings/rgb_backlight.c b/applications/settings/notification_settings/rgb_backlight.c
 new file mode 100644
-index 0000000..269b544
+index 0000000..98f0d3a
 --- /dev/null
 +++ b/applications/settings/notification_settings/rgb_backlight.c
-@@ -0,0 +1,171 @@
+@@ -0,0 +1,217 @@
 +/*
 +    RGB backlight FlipperZero driver
 +    Copyright (C) 2022-2023 Victor Nikitchuk (https://github.com/quen0n)
@@ -88,9 +169,9 @@ index 0000000..269b544
 +#include <furi_hal.h>
 +#include <storage/storage.h>
 +
-+#define RGB_BACKLIGHT_SETTINGS_VERSION 5
++#define RGB_BACKLIGHT_SETTINGS_VERSION 6
 +#define RGB_BACKLIGHT_SETTINGS_FILE_NAME ".rgb_backlight.settings"
-+#define RGB_BACKLIGHT_SETTINGS_PATH EXT_PATH(RGB_BACKLIGHT_SETTINGS_FILE_NAME)
++#define RGB_BACKLIGHT_SETTINGS_PATH INT_PATH(RGB_BACKLIGHT_SETTINGS_FILE_NAME)
 +
 +#define COLOR_COUNT (sizeof(colors) / sizeof(RGBBacklightColor))
 +
@@ -99,11 +180,14 @@ index 0000000..269b544
 +static RGBBacklightSettings rgb_settings = {
 +    .version = RGB_BACKLIGHT_SETTINGS_VERSION,
 +    .display_color_index = 0,
++    .custom_r = 254,
++    .custom_g = 254,
++    .custom_b = 254,
 +    .settings_is_loaded = false};
 +
 +static const RGBBacklightColor colors[] = {
 +    {"Orange", 255, 60, 0},
-+    {"Yellow", 255, 150, 0},
++    {"Yellow", 255, 144, 0},
 +    {"Spring", 167, 255, 0},
 +    {"Lime", 0, 255, 0},
 +    {"Aqua", 0, 255, 127},
@@ -114,7 +198,8 @@ index 0000000..269b544
 +    {"Magenta", 210, 0, 210},
 +    {"Pink", 255, 0, 127},
 +    {"Red", 255, 0, 0},
-+    {"White", 150, 150, 110},
++    {"White", 254, 210, 200},
++    {"Custom", 0, 0, 0},
 +};
 +
 +uint8_t rgb_backlight_get_color_count(void) {
@@ -126,18 +211,28 @@ index 0000000..269b544
 +}
 +
 +void rgb_backlight_load_settings(void) {
-+    //Не загружать данные из внутренней памяти при загрузке в режиме DFU
-+    FuriHalRtcBootMode bm = furi_hal_rtc_get_boot_mode();
-+    if(bm == FuriHalRtcBootModeDfu) {
++    // Do not load settings if we are in other boot modes than normal
++    if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
 +        rgb_settings.settings_is_loaded = true;
 +        return;
++    }
++
++    // Wait for all required services to start and create their records
++    uint8_t timeout = 0;
++    while(!furi_record_exists(RECORD_STORAGE)) {
++        timeout++;
++        if(timeout > 150) {
++            rgb_settings.settings_is_loaded = true;
++            return;
++        }
++        furi_delay_ms(5);
 +    }
 +
 +    RGBBacklightSettings settings;
 +    File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
 +    const size_t settings_size = sizeof(RGBBacklightSettings);
 +
-+    FURI_LOG_I(TAG, "loading settings from \"%s\"", RGB_BACKLIGHT_SETTINGS_PATH);
++    FURI_LOG_D(TAG, "loading settings from \"%s\"", RGB_BACKLIGHT_SETTINGS_PATH);
 +    bool fs_result =
 +        storage_file_open(file, RGB_BACKLIGHT_SETTINGS_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 +
@@ -150,7 +245,7 @@ index 0000000..269b544
 +    }
 +
 +    if(fs_result) {
-+        FURI_LOG_I(TAG, "load success");
++        FURI_LOG_D(TAG, "load success");
 +        if(settings.version != RGB_BACKLIGHT_SETTINGS_VERSION) {
 +            FURI_LOG_E(
 +                TAG,
@@ -175,7 +270,7 @@ index 0000000..269b544
 +    File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
 +    const size_t settings_size = sizeof(RGBBacklightSettings);
 +
-+    FURI_LOG_I(TAG, "saving settings to \"%s\"", RGB_BACKLIGHT_SETTINGS_PATH);
++    FURI_LOG_D(TAG, "saving settings to \"%s\"", RGB_BACKLIGHT_SETTINGS_PATH);
 +
 +    memcpy(&settings, &rgb_settings, settings_size);
 +
@@ -191,7 +286,7 @@ index 0000000..269b544
 +    }
 +
 +    if(fs_result) {
-+        FURI_LOG_I(TAG, "save success");
++        FURI_LOG_D(TAG, "save success");
 +    } else {
 +        FURI_LOG_E(TAG, "save failed, %s", storage_file_get_error_desc(file));
 +    }
@@ -213,36 +308,68 @@ index 0000000..269b544
 +    rgb_settings.display_color_index = color_index;
 +}
 +
-+void rgb_backlight_update(uint8_t brightness) {
++void rgb_backlight_set_custom_color(uint8_t color, uint8_t index) {
++    if(index > 2) return;
++    if(index == 0) {
++        rgb_settings.custom_r = color;
++    } else if(index == 1) {
++        rgb_settings.custom_g = color;
++    } else if(index == 2) {
++        rgb_settings.custom_b = color;
++    }
++}
++
++void rgb_backlight_update(uint8_t brightness, bool bypass) {
 +    if(!rgb_settings.settings_is_loaded) {
 +        rgb_backlight_load_settings();
 +    }
 +
-+    static uint8_t last_color_index = 255;
-+    static uint8_t last_brightness = 123;
++    if(!bypass) {
++        static uint8_t last_color_index = 255;
++        static uint8_t last_brightness = 123;
 +
-+    if(last_brightness == brightness && last_color_index == rgb_settings.display_color_index)
-+        return;
++        if(last_brightness == brightness && last_color_index == rgb_settings.display_color_index) {
++            return;
++        }
 +
-+    last_brightness = brightness;
-+    last_color_index = rgb_settings.display_color_index;
++        last_brightness = brightness;
++        last_color_index = rgb_settings.display_color_index;
++    }
 +
 +    for(uint8_t i = 0; i < SK6805_get_led_count(); i++) {
-+        uint8_t r = colors[rgb_settings.display_color_index].red * (brightness / 255.0f);
-+        uint8_t g = colors[rgb_settings.display_color_index].green * (brightness / 255.0f);
-+        uint8_t b = colors[rgb_settings.display_color_index].blue * (brightness / 255.0f);
++        if(rgb_settings.display_color_index == 13) {
++            uint8_t r = rgb_settings.custom_r * (brightness / 255.0f);
++            uint8_t g = rgb_settings.custom_g * (brightness / 255.0f);
++            uint8_t b = rgb_settings.custom_b * (brightness / 255.0f);
 +
-+        SK6805_set_led_color(i, r, g, b);
++            SK6805_set_led_color(i, r, g, b);
++        } else {
++            if((colors[rgb_settings.display_color_index].red == 0) &&
++               (colors[rgb_settings.display_color_index].green == 0) &&
++               (colors[rgb_settings.display_color_index].blue == 0)) {
++                uint8_t r = colors[0].red * (brightness / 255.0f);
++                uint8_t g = colors[0].green * (brightness / 255.0f);
++                uint8_t b = colors[0].blue * (brightness / 255.0f);
++
++                SK6805_set_led_color(i, r, g, b);
++            } else {
++                uint8_t r = colors[rgb_settings.display_color_index].red * (brightness / 255.0f);
++                uint8_t g = colors[rgb_settings.display_color_index].green * (brightness / 255.0f);
++                uint8_t b = colors[rgb_settings.display_color_index].blue * (brightness / 255.0f);
++
++                SK6805_set_led_color(i, r, g, b);
++            }
++        }
 +    }
 +
 +    SK6805_update();
 +}
 diff --git a/applications/settings/notification_settings/rgb_backlight.h b/applications/settings/notification_settings/rgb_backlight.h
 new file mode 100644
-index 0000000..b63d223
+index 0000000..68dacda
 --- /dev/null
 +++ b/applications/settings/notification_settings/rgb_backlight.h
-@@ -0,0 +1,79 @@
+@@ -0,0 +1,91 @@
 +/*
 +    RGB backlight FlipperZero driver
 +    Copyright (C) 2022-2023 Victor Nikitchuk (https://github.com/quen0n)
@@ -274,6 +401,9 @@ index 0000000..b63d223
 +typedef struct {
 +    uint8_t version;
 +    uint8_t display_color_index;
++    uint8_t custom_r;
++    uint8_t custom_g;
++    uint8_t custom_b;
 +    bool settings_is_loaded;
 +} RGBBacklightSettings;
 +
@@ -298,8 +428,9 @@ index 0000000..b63d223
 + * @brief Применить текущие настройки RGB-подсветки
 + *
 + * @param brightness Яркость свечения (0-255)
++ * @param bypass Применить настройки принудительно
 + */
-+void rgb_backlight_update(uint8_t brightness);
++void rgb_backlight_update(uint8_t brightness, bool bypass);
 +
 +/**
 + * @brief Установить цвет RGB-подсветки
@@ -307,6 +438,14 @@ index 0000000..b63d223
 + * @param color_index Индекс цвета (0 - rgb_backlight_get_color_count())
 + */
 +void rgb_backlight_set_color(uint8_t color_index);
++
++/**
++ * @brief Set custom color values by index - 0=R 1=G 2=B
++ *
++ * @param color - color value (0-255)
++ * @param index - color index (0-2) 0=R 1=G 2=B
++ */
++void rgb_backlight_set_custom_color(uint8_t color, uint8_t index);
 +
 +/**
 + * @brief Получить количество доступных цветов
@@ -324,7 +463,7 @@ index 0000000..b63d223
 +const char* rgb_backlight_get_color_text(uint8_t index);
 \ No newline at end of file
 diff --git a/firmware/targets/f7/furi_hal/furi_hal_light.c b/firmware/targets/f7/furi_hal/furi_hal_light.c
-index 83e1603..cad5b86 100644
+index 83e1603..45798ca 100644
 --- a/firmware/targets/f7/furi_hal/furi_hal_light.c
 +++ b/firmware/targets/f7/furi_hal/furi_hal_light.c
 @@ -3,6 +3,7 @@
@@ -353,7 +492,7 @@ index 83e1603..cad5b86 100644
 -        uint8_t prev = lp5562_get_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelWhite);
 -        lp5562_execute_ramp(
 -            &furi_hal_i2c_handle_power, LP5562Engine1, LP5562ChannelWhite, prev, value, 100);
-+        rgb_backlight_update(value);
++        rgb_backlight_update(value, false);
 +    } else {
 +        furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
 +        if(light & LightRed) {

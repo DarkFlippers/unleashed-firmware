@@ -81,8 +81,8 @@
 #define RFAL_NFCF_SENSF_PARAMS_TSN_POS 3U /*!< Time Slot Number position in the SENSF_REQ        */
 #define RFAL_NFCF_POLL_MAXCARDS 16U /*!< Max number slots/cards 16                         */
 
-#define RFAL_NFCF_CMD_POS 0U /*!< Command/Responce code length                      */
-#define RFAL_NFCF_CMD_LEN 1U /*!< Command/Responce code length                      */
+#define RFAL_NFCF_CMD_POS 0U /*!< Command/Response code length                      */
+#define RFAL_NFCF_CMD_LEN 1U /*!< Command/Response code length                      */
 #define RFAL_NFCF_LENGTH_LEN 1U /*!< LEN field length                                  */
 #define RFAL_NFCF_HEADER_LEN (RFAL_NFCF_LENGTH_LEN + RFAL_NFCF_CMD_LEN) /*!< Header length*/
 
@@ -315,8 +315,8 @@ ReturnCode rfalNfcfPollerCollisionResolution(
  *****************************************************************************
  * \brief  NFC-F Poller Check/Read
  *  
- * It computes a Check / Read command accoring to T3T 1.0 and JIS X6319-4 and 
- * sends it to PICC. If sucessfully, the rxBuf will contain the the number of 
+ * It computes a Check / Read command according to T3T 1.0 and JIS X6319-4 and 
+ * sends it to PICC. If successfully, the rxBuf will contain the the number of 
  * blocks in the first byte followed by the blocks data.
  *
  * \param[in]  nfcid2      : nfcid2 of the device
@@ -344,7 +344,7 @@ ReturnCode rfalNfcfPollerCheck(
  *****************************************************************************
  * \brief  NFC-F Poller Update/Write
  *  
- * It computes a Update / Write command accoring to T3T 1.0 and JIS X6319-4 and 
+ * It computes a Update / Write command according to T3T 1.0 and JIS X6319-4 and 
  * sends it to PICC.
  *
  * \param[in]  nfcid2      : nfcid2 of the device
@@ -381,7 +381,7 @@ ReturnCode rfalNfcfPollerUpdate(
  * 
  * \param[in]   buf : buffer holding Initiator's received command
  * \param[in]   bufLen : length of received command in bytes
- * \param[out]  nfcid2 : pointer to where the NFCID2 may be outputed, 
+ * \param[out]  nfcid2 : pointer to where the NFCID2 may be outputted, 
  *                       nfcid2 has NFCF_SENSF_NFCID2_LEN as length
  *                       Pass NULL if output parameter not desired 
  * 

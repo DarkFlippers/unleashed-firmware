@@ -14,7 +14,7 @@ To build your application as a FAP, create a folder with your app's source code 
 
 - To build your application, run `./fbt fap_{APPID}`, where APPID is your application's ID in its manifest.
 - To build your app and upload it over USB to run on Flipper, use `./fbt launch APPSRC=applications_user/path/to/app`. This command is configured in the default [VS Code profile](../.vscode/ReadMe.md) as a "Launch App on Flipper" build action (Ctrl+Shift+B menu).
-- To build an app without uploading it to Flipper, use `./fbt build APPSRC=applications_user/path/to/app`. This command is also availabe in VSCode configuration as "Build App".
+- To build an app without uploading it to Flipper, use `./fbt build APPSRC=applications_user/path/to/app`. This command is also available in VSCode configuration as "Build App".
 - To build all FAPs, run `./fbt faps` or `./fbt fap_dist`.
 
 ## FAP assets
