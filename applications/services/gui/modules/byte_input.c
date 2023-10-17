@@ -226,16 +226,33 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
                 canvas_invert_color(canvas);
             }
         } else {
-            canvas_draw_glyph(
-                canvas,
-                text_x + 2 + byte_position * 14,
-                text_y,
-                byte_input_get_nibble_text(model->bytes[i], true));
-            canvas_draw_glyph(
-                canvas,
-                text_x + 8 + byte_position * 14,
-                text_y,
-                byte_input_get_nibble_text(model->bytes[i], false));
+            if(model->first_visible_byte > 0 && i == model->first_visible_byte) {
+                canvas_draw_icon(
+                    canvas,
+                    text_x + 2 + byte_position * 14,
+                    text_y - 7,
+                    &I_More_data_placeholder_5x7);
+            } else {
+                canvas_draw_glyph(
+                    canvas,
+                    text_x + 2 + byte_position * 14,
+                    text_y,
+                    byte_input_get_nibble_text(model->bytes[i], true));
+            }
+            if(model->bytes_count - model->first_visible_byte > max_drawable_bytes &&
+               i == model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes) - 1) {
+                canvas_draw_icon(
+                    canvas,
+                    text_x + 8 + byte_position * 14,
+                    text_y - 7,
+                    &I_More_data_placeholder_5x7);
+            } else {
+                canvas_draw_glyph(
+                    canvas,
+                    text_x + 8 + byte_position * 14,
+                    text_y,
+                    byte_input_get_nibble_text(model->bytes[i], false));
+            }
         }
 
         if(draw_index_line) {
@@ -259,14 +276,6 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
         canvas_set_font(canvas, FontPrimary);
         snprintf(str, 20, "%u", (model->selected_byte + 1));
         canvas_draw_str(canvas, text_x + 75, text_y2, str);
-    }
-
-    if(model->bytes_count - model->first_visible_byte > max_drawable_bytes) {
-        canvas_draw_icon(canvas, 123, 21, &I_ButtonRightSmall_3x5);
-    }
-
-    if(model->first_visible_byte > 0) {
-        canvas_draw_icon(canvas, 1, 21, &I_ButtonLeftSmall_3x5);
     }
 }
 
@@ -306,25 +315,34 @@ static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model
                 byte_input_get_nibble_text(model->bytes[i], false));
             canvas_invert_color(canvas);
         } else {
-            canvas_draw_glyph(
-                canvas,
-                text_x + 2 + byte_position * 14,
-                text_y,
-                byte_input_get_nibble_text(model->bytes[i], true));
-            canvas_draw_glyph(
-                canvas,
-                text_x + 8 + byte_position * 14,
-                text_y,
-                byte_input_get_nibble_text(model->bytes[i], false));
+            if(model->first_visible_byte > 0 && i == model->first_visible_byte) {
+                canvas_draw_icon(
+                    canvas,
+                    text_x + 2 + byte_position * 14,
+                    text_y - 7,
+                    &I_More_data_placeholder_5x7);
+            } else {
+                canvas_draw_glyph(
+                    canvas,
+                    text_x + 2 + byte_position * 14,
+                    text_y,
+                    byte_input_get_nibble_text(model->bytes[i], true));
+            }
+            if(model->bytes_count - model->first_visible_byte > max_drawable_bytes &&
+               i == model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes) - 1) {
+                canvas_draw_icon(
+                    canvas,
+                    text_x + 8 + byte_position * 14,
+                    text_y - 7,
+                    &I_More_data_placeholder_5x7);
+            } else {
+                canvas_draw_glyph(
+                    canvas,
+                    text_x + 8 + byte_position * 14,
+                    text_y,
+                    byte_input_get_nibble_text(model->bytes[i], false));
+            }
         }
-    }
-
-    if(model->bytes_count - model->first_visible_byte > max_drawable_bytes) {
-        canvas_draw_icon(canvas, 123, 21, &I_ButtonRightSmall_3x5);
-    }
-
-    if(model->first_visible_byte > 0) {
-        canvas_draw_icon(canvas, 1, 21, &I_ButtonLeftSmall_3x5);
     }
 
     canvas_invert_color(canvas);

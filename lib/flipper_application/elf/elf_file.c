@@ -853,7 +853,7 @@ ElfProcessSectionResult elf_process_section(
         if(process_section(elf->fd, section_header.sh_offset, section_header.sh_size, context)) {
             result = ElfProcessSectionResultSuccess;
         } else {
-            result = ElfProcessSectionResultCannotProcess;
+            result = ElfProcessSectionResultCannotProcess; //-V1048
         }
     }
 
