@@ -278,6 +278,10 @@ static void subghz_scene_receiver_config_set_princeton(VariableItem* item) {
     subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Princeton);
 }
 
+static void subghz_scene_receiver_config_set_niceflors(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_NiceFlorS);
+}
+
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -336,7 +340,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 
     item = variable_item_list_add(
         subghz->variable_item_list,
-        "Frequency:",
+        "Frequency",
         subghz_setting_get_frequency_count(setting),
         subghz_scene_receiver_config_set_frequency,
         subghz);
@@ -356,7 +360,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 
     item = variable_item_list_add(
         subghz->variable_item_list,
-        "Modulation:",
+        "Modulation",
         subghz_setting_get_preset_count(setting),
         subghz_scene_receiver_config_set_preset,
         subghz);
@@ -371,7 +375,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         // Hopping
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Hopping:",
+            "Hopping",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_hopping_running,
             subghz);
@@ -385,7 +389,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
        SubGhzCustomEventManagerSet) {
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Bin RAW:",
+            "Bin RAW",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_bin_raw,
             subghz);
@@ -399,7 +403,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
        SubGhzCustomEventManagerSet) {
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Starline:",
+            "Ignore Starline",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_starline,
             subghz);
@@ -411,7 +415,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Cars:",
+            "Ignore Cars",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_auto_alarms,
             subghz);
@@ -423,7 +427,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Magellan:",
+            "Ignore Magellan",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_magellan,
             subghz);
@@ -435,7 +439,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Princeton:",
+            "Ignore Princeton",
             COMBO_BOX_COUNT,
             subghz_scene_receiver_config_set_princeton,
             subghz);
@@ -444,12 +448,24 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz->ignore_filter, SubGhzProtocolFlag_Princeton);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Ignore NiceFlorS / Nice One",
+            COMBO_BOX_COUNT,
+            subghz_scene_receiver_config_set_niceflors,
+            subghz);
+
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_NiceFlorS);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, combobox_text[value_index]);
     }
 
     // Enable speaker, will send all incoming noises and signals to speaker so you can listen how your remote sounds like :)
     item = variable_item_list_add(
         subghz->variable_item_list,
-        "Sound:",
+        "Sound",
         COMBO_BOX_COUNT,
         subghz_scene_receiver_config_set_speaker,
         subghz);
