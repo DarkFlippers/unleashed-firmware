@@ -558,7 +558,7 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
             }
         }
 
-        printf("\r\nPackets received \033[0;32m%u\033[0m\r\n", instance->packet_count);
+        printf("\r\nPackets received \033[0;32m%zu\033[0m\r\n", instance->packet_count);
 
         // Cleanup
         subghz_receiver_free(receiver);

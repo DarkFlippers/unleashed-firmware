@@ -70,7 +70,8 @@ static bool flipper_update_load_stage(const FuriString* work_dir, UpdateManifest
 
     if((f_stat(furi_string_get_cstr(loader_img_path), &stat) != FR_OK) ||
        (f_open(&file, furi_string_get_cstr(loader_img_path), FA_OPEN_EXISTING | FA_READ) !=
-        FR_OK)) {
+        FR_OK) ||
+       (stat.fsize == 0)) {
         furi_string_free(loader_img_path);
         return false;
     }
@@ -83,7 +84,7 @@ static bool flipper_update_load_stage(const FuriString* work_dir, UpdateManifest
     uint32_t crc = 0;
     do {
         uint16_t size_read = 0;
-        if(f_read(&file, img + bytes_read, MAX_READ, &size_read) != FR_OK) {
+        if(f_read(&file, img + bytes_read, MAX_READ, &size_read) != FR_OK) { //-V769
             break;
         }
         crc = crc32_calc_buffer(crc, img + bytes_read, size_read);
