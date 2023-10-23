@@ -20,10 +20,9 @@ def GlobRecursive(env, pattern, node=".", exclude=[]):
             source=True,
             exclude=exclude,
         )
-    # Otherwise, just check if that's an existing file path
-    # NB: still creates "virtual" nodes as part of existence check
-    elif (file_node := node.File(pattern)).exists() or file_node.rexists():
-        results.append(file_node)
+    # Otherwise, just assume that file at path exists
+    else:
+        results.append(node.File(pattern))
     # print(f"Glob result for {pattern} from {node}: {results}")
     return results
 

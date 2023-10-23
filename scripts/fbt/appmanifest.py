@@ -100,6 +100,10 @@ class FlipperApplication:
     def is_default_deployable(self):
         return self.apptype != FlipperAppType.DEBUG and self.fap_category != "Examples"
 
+    @property
+    def do_strict_import_checks(self):
+        return self.apptype != FlipperAppType.PLUGIN
+
     def __post_init__(self):
         if self.apptype == FlipperAppType.PLUGIN:
             self.stack_size = 0

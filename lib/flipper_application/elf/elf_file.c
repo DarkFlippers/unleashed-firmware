@@ -613,10 +613,31 @@ static Elf32_Addr elf_address_of_by_hash(ELFFile* elf, uint32_t hash) {
     return ELF_INVALID_ADDRESS;
 }
 
+static bool elf_file_find_string_by_hash(ELFFile* elf, uint32_t hash, FuriString* out) {
+    bool result = false;
+
+    FuriString* symbol_name = furi_string_alloc();
+    Elf32_Sym sym;
+    for(size_t i = 0; i < elf->symbol_count; i++) {
+        furi_string_reset(symbol_name);
+        if(elf_read_symbol(elf, i, &sym, symbol_name)) {
+            if(elf_symbolname_hash(furi_string_get_cstr(symbol_name)) == hash) {
+                furi_string_set(out, symbol_name);
+                result = true;
+                break;
+            }
+        }
+    }
+    furi_string_free(symbol_name);
+
+    return result;
+}
+
 static bool elf_relocate_fast(ELFFile* elf, ELFSection* s) {
     UNUSED(elf);
     const uint8_t* start = s->fast_rel->data;
     const uint8_t version = *start;
+    bool no_errors = true;
 
     if(version != FAST_RELOCATION_VERSION) {
         FURI_LOG_E(TAG, "Unsupported fast relocation version %d", version);
@@ -664,16 +685,30 @@ static bool elf_relocate_fast(ELFFile* elf, ELFSection* s) {
         }
 
         if(address == ELF_INVALID_ADDRESS) {
-            FURI_LOG_E(TAG, "Failed to resolve address for hash %lX", hash_or_section_index);
-            return false;
-        }
+            FuriString* symbol_name = furi_string_alloc();
+            if(elf_file_find_string_by_hash(elf, hash_or_section_index, symbol_name)) {
+                FURI_LOG_E(
+                    TAG,
+                    "Failed to resolve address for symbol %s (hash %lX)",
+                    furi_string_get_cstr(symbol_name),
+                    hash_or_section_index);
+            } else {
+                FURI_LOG_E(
+                    TAG,
+                    "Failed to resolve address for hash %lX (string not found)",
+                    hash_or_section_index);
+            }
+            furi_string_free(symbol_name);
 
-        for(uint32_t j = 0; j < offsets_count; j++) {
-            uint32_t offset = *((uint32_t*)start) & 0x00FFFFFF;
-            start += 3;
-            // FURI_LOG_I(TAG, "  Fast relocation offset %ld: %ld", j, offset);
-            Elf32_Addr relAddr = ((Elf32_Addr)s->data) + offset;
-            elf_relocate_symbol(elf, relAddr, type, address);
+            no_errors = false;
+            start += 3 * offsets_count;
+        } else {
+            for(uint32_t j = 0; j < offsets_count; j++) {
+                uint32_t offset = *((uint32_t*)start) & 0x00FFFFFF;
+                start += 3;
+                Elf32_Addr relAddr = ((Elf32_Addr)s->data) + offset;
+                elf_relocate_symbol(elf, relAddr, type, address);
+            }
         }
     }
 
@@ -681,7 +716,7 @@ static bool elf_relocate_fast(ELFFile* elf, ELFSection* s) {
     free(s->fast_rel);
     s->fast_rel = NULL;
 
-    return true;
+    return no_errors;
 }
 
 static bool elf_relocate_section(ELFFile* elf, ELFSection* section) {

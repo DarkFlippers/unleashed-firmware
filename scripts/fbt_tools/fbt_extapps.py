@@ -42,6 +42,7 @@ class AppBuilder:
         self.ext_apps_work_dir = env["EXT_APPS_WORK_DIR"]
         self.app_work_dir = self.get_app_work_dir(env, app)
         self.app_alias = f"fap_{self.app.appid}"
+        self.icons_src = None
         self.externally_built_files = []
         self.private_libs = []
 
@@ -93,6 +94,7 @@ class AppBuilder:
         )
         self.app_env.Alias("_fap_icons", fap_icons)
         self.fw_env.Append(_APP_ICONS=[fap_icons])
+        self.icons_src = next(filter(lambda n: n.path.endswith(".c"), fap_icons))
 
     def _build_private_libs(self):
         for lib_def in self.app.fap_private_libs:
@@ -160,6 +162,10 @@ class AppBuilder:
         if not app_sources:
             raise UserError(f"No source files found for {self.app.appid}")
 
+        # Ensure that icons are included in the build, regardless of user-configured sources
+        if self.icons_src and not self.icons_src in app_sources:
+            app_sources.append(self.icons_src)
+
         ## Uncomment for debug
         # print(f"App sources for {self.app.appid}: {list(f.path for f in app_sources)}")
 
@@ -180,7 +186,9 @@ class AppBuilder:
             self.app._assets_dirs.append(self.app_work_dir.Dir("assets"))
 
         app_artifacts.validator = self.app_env.ValidateAppImports(
-            app_artifacts.compact
+            app_artifacts.compact,
+            _CHECK_APP=self.app.do_strict_import_checks
+            and self.app_env.get("STRICT_FAP_IMPORT_CHECK"),
         )[0]
 
         if self.app.apptype == FlipperAppType.PLUGIN:
@@ -300,7 +308,10 @@ def validate_app_imports(target, source, env):
                 + fg.brightmagenta(f"{disabled_api_syms}")
                 + fg.brightyellow(")")
             )
-        SCons.Warnings.warn(SCons.Warnings.LinkWarning, warning_msg),
+        if env.get("_CHECK_APP"):
+            raise UserError(warning_msg)
+        else:
+            SCons.Warnings.warn(SCons.Warnings.LinkWarning, warning_msg),
 
 
 def GetExtAppByIdOrPath(env, app_dir):
