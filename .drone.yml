@@ -22,6 +22,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_TAG}c
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -rf assets/resources/apps/
       - rm -rf build/
       - rm -rf dist/
@@ -42,6 +43,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_TAG}
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
@@ -69,6 +71,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-extra-apps
@@ -87,6 +90,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_TAG}r
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw-rgb
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-rgb-patch
@@ -109,6 +113,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_TAG}n
       - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
@@ -391,6 +396,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}c
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -rf assets/resources/apps/
       - rm -rf build/
       - rm -rf dist/
@@ -412,6 +418,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
       - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
@@ -439,6 +446,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-extra-apps
@@ -457,6 +465,7 @@ steps:
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}r
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw-rgb
       - export FORCE_NO_DIRTY=yes
+      - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - mkdir artifacts-rgb-patch
