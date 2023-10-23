@@ -5,6 +5,7 @@ on:
 
 env:
   FBT_TOOLCHAIN_PATH: /runner/_work
+  FBT_GIT_SUBMODULE_SHALLOW: 1
 
 jobs:
   compact:
