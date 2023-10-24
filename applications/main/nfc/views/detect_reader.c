@@ -163,7 +163,10 @@ void detect_reader_set_nonces_collected(DetectReader* detect_reader, uint16_t no
     with_view_model(
         detect_reader->view,
         DetectReaderViewModel * model,
-        { model->nonces = nonces_collected; },
+        {
+            model->nonces = nonces_collected;
+            model->state = DetectReaderStateReaderDetected;
+        },
         false);
 }
 

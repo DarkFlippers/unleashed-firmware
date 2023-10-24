@@ -1,50 +1,55 @@
-#include "../nfc_i.h"
-#include "lib/nfc/helpers/nfc_generators.h"
+#include "../nfc_app_i.h"
 
-void nfc_scene_generate_info_dialog_callback(DialogExResult result, void* context) {
-    Nfc* nfc = context;
+void nfc_scene_generate_info_widget_callback(GuiButtonType result, InputType type, void* context) {
+    NfcApp* instance = context;
 
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    if(type == InputTypeShort) {
+        if(result == GuiButtonTypeRight) {
+            view_dispatcher_send_custom_event(instance->view_dispatcher, result);
+        }
+    }
 }
 
 void nfc_scene_generate_info_on_enter(void* context) {
-    Nfc* nfc = context;
+    NfcApp* instance = context;
+
+    NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
+    furi_assert((protocol == NfcProtocolMfUltralight) || (protocol == NfcProtocolMfClassic));
+
+    const Iso14443_3aData* iso14443_3a_data =
+        nfc_device_get_data(instance->nfc_device, NfcProtocolIso14443_3a);
 
     // Setup dialog view
-    FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;
-    DialogEx* dialog_ex = nfc->dialog_ex;
-    dialog_ex_set_right_button_text(dialog_ex, "More");
+    Widget* widget = instance->widget;
+    widget_add_button_element(
+        widget, GuiButtonTypeRight, "More", nfc_scene_generate_info_widget_callback, instance);
 
     // Create info text
-    FuriString* info_str = furi_string_alloc_printf(
-        "%s\n%s\nUID:", nfc->generator->name, nfc_get_dev_type(data->type));
+    NfcDataGeneratorType type =
+        scene_manager_get_scene_state(instance->scene_manager, NfcSceneGenerateInfo);
+    const char* name = nfc_data_generator_get_name(type);
+    widget_add_string_element(widget, 0, 0, AlignLeft, AlignTop, FontPrimary, name);
+    widget_add_string_element(widget, 0, 13, AlignLeft, AlignTop, FontSecondary, "NFC-A");
 
+    FuriString* temp_str = furi_string_alloc_printf("UID:");
     // Append UID
-    for(int i = 0; i < data->uid_len; ++i) {
-        furi_string_cat_printf(info_str, " %02X", data->uid[i]);
+    for(int i = 0; i < iso14443_3a_data->uid_len; i++) {
+        furi_string_cat_printf(temp_str, " %02X", iso14443_3a_data->uid[i]);
     }
-    nfc_text_store_set(nfc, furi_string_get_cstr(info_str));
-    furi_string_free(info_str);
+    widget_add_string_element(
+        widget, 0, 25, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));
+    furi_string_free(temp_str);
 
-    dialog_ex_set_text(dialog_ex, nfc->text_store, 0, 0, AlignLeft, AlignTop);
-    dialog_ex_set_context(dialog_ex, nfc);
-    dialog_ex_set_result_callback(dialog_ex, nfc_scene_generate_info_dialog_callback);
-
-    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewWidget);
 }
 
 bool nfc_scene_generate_info_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = context;
+    NfcApp* instance = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == DialogExResultRight) {
-            // Switch either to NfcSceneMfClassicMenu or NfcSceneMfUltralightMenu
-            if(nfc->dev->dev_data.protocol == NfcDeviceProtocolMifareClassic) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicMenu);
-            } else if(nfc->dev->dev_data.protocol == NfcDeviceProtocolMifareUl) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightMenu);
-            }
+        if(event.event == GuiButtonTypeRight) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneReadMenu);
             consumed = true;
         }
     }
@@ -53,8 +58,8 @@ bool nfc_scene_generate_info_on_event(void* context, SceneManagerEvent event) {
 }
 
 void nfc_scene_generate_info_on_exit(void* context) {
-    Nfc* nfc = context;
+    NfcApp* instance = context;
 
     // Clean views
-    dialog_ex_reset(nfc->dialog_ex);
+    widget_reset(instance->widget);
 }

@@ -30,9 +30,9 @@
         "nfc",
         "digital_signal",
         "pulse_reader",
+        "signal_reader",
         "microtar",
         "usb_stm32",
-        "st25rfal002",
         "infrared",
         "appframe",
         "assets",
@@ -44,6 +44,7 @@
         "lfrfid",
         "flipper_application",
         "flipperformat",
-        "toolbox"
+        "toolbox",
+        "flipper7"
     ]
 }

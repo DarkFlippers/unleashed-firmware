@@ -1,7 +1,6 @@
 #include <furi.h>
 #include <FreeRTOS.h>
 #include <portmacro.h>
-#include <timer.h>
 #include <gui/scene_manager.h>
 
 #include "../desktop_i.h"

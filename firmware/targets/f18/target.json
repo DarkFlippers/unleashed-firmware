@@ -20,6 +20,8 @@
         "littlefs",
         "flipperformat",
         "toolbox",
+        "digital_signal",
+        "signal_reader",
         "microtar",
         "usb_stm32",
         "appframe",
@@ -31,10 +33,18 @@
         "flipperformat",
         "toolbox",
         "flipper18"
+
     ],
     "excluded_sources": [
         "furi_hal_infrared.c",
         "furi_hal_nfc.c",
+        "furi_hal_nfc_timer.c",
+        "furi_hal_nfc_irq.c",
+        "furi_hal_nfc_event.c",
+        "furi_hal_nfc_iso15693.c",
+        "furi_hal_nfc_iso14443a.c",
+        "furi_hal_nfc_iso14443b.c",
+        "furi_hal_nfc_felica.c",
         "furi_hal_rfid.c",
         "furi_hal_subghz.c"
     ],
@@ -51,7 +61,6 @@
         "lfrfid",
         "subghz",
         "ibutton",
-        "infrared",
-        "st25rfal002"
+        "infrared"
     ]
 }
