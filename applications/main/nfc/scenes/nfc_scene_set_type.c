@@ -53,10 +53,6 @@ bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             nfc_scene_set_type_init_edit_data(instance->iso14443_3a_edit_data, 4);
             scene_manager_next_scene(instance->scene_manager, NfcSceneSetSak);
             consumed = true;
-        } else if(event.event == SubmenuIndexMFClassicCustomUID) {
-            nfc_device_clear(nfc->dev);
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetTypeMfUid);
-            consumed = true;
         } else {
             nfc_data_generator_fill_data(event.event, instance->nfc_device);
             scene_manager_set_scene_state(
