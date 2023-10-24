@@ -31,6 +31,8 @@ env.Append(
         File("protocols/protocol_dict.h"),
         File("pretty_format.h"),
         File("hex.h"),
+        File("simple_array.h"),
+        File("bit_buffer.h"),
     ],
 )
 

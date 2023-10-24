@@ -15,6 +15,9 @@ env.Append(
     ],
     SDK_HEADERS=[
         File("micro-ecc/uECC.h"),
+        File("nanopb/pb.h"),
+        File("nanopb/pb_decode.h"),
+        File("nanopb/pb_encode.h"),
     ],
 )
 

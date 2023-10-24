@@ -32,7 +32,7 @@ jobs:
         if: success()
         timeout-minutes: 10
         run: |
-          ./fbt flash SWD_TRANSPORT_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
+          ./fbt flash SWD_TRANSPORT_SERIAL=2A0906016415303030303032 LIB_DEBUG=1 FIRMWARE_APP_SET=unit_tests FORCE=1
 
       - name: 'Wait for flipper and format ext'
         id: format_ext
@@ -66,4 +66,4 @@ jobs:
       - name: 'Check GDB output'
         if: failure()
         run: |
-          ./fbt gdb_trace_all SWD_TRANSPORT_SERIAL=2A0906016415303030303032 FIRMWARE_APP_SET=unit_tests FORCE=1
+          ./fbt gdb_trace_all SWD_TRANSPORT_SERIAL=2A0906016415303030303032 LIB_DEBUG=1 FIRMWARE_APP_SET=unit_tests FORCE=1

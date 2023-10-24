@@ -1,103 +1,93 @@
-#include "../nfc_i.h"
+#include "../nfc_app_i.h"
 
-#define TAG "NfcSceneMfDesfireApp"
+#include "../helpers/protocol_support/mf_desfire/mf_desfire_render.h"
 
 enum SubmenuIndex {
     SubmenuIndexAppInfo,
     SubmenuIndexDynamic, // dynamic indexes start here
 };
 
-void nfc_scene_mf_desfire_popup_callback(void* context) {
-    furi_assert(context);
-
-    Nfc* nfc = context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);
-}
-
-MifareDesfireApplication* nfc_scene_mf_desfire_app_get_app(Nfc* nfc) {
-    uint32_t app_idx = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireApp) >>
-                       1;
-    MifareDesfireApplication* app = nfc->dev->dev_data.mf_df_data.app_head;
-    for(uint32_t i = 0; i < app_idx && app; i++) {
-        app = app->next;
-    }
-    return app;
-}
-
-void nfc_scene_mf_desfire_app_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = context;
+static void nfc_scene_mf_desfire_app_submenu_callback(void* context, uint32_t index) {
+    NfcApp* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_mf_desfire_app_on_enter(void* context) {
-    Nfc* nfc = context;
-    MifareDesfireApplication* app = nfc_scene_mf_desfire_app_get_app(nfc);
-    if(!app) {
-        popup_set_icon(nfc->popup, 5, 5, &I_WarningDolphin_45x42);
-        popup_set_header(nfc->popup, "Empty card!", 55, 12, AlignLeft, AlignBottom);
-        popup_set_callback(nfc->popup, nfc_scene_mf_desfire_popup_callback);
-        popup_set_context(nfc->popup, nfc);
-        popup_set_timeout(nfc->popup, 3000);
-        popup_enable_timeout(nfc->popup);
-        popup_set_text(nfc->popup, "No application\nfound.", 55, 15, AlignLeft, AlignTop);
-        view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
-    } else {
-        text_box_set_font(nfc->text_box, TextBoxFontHex);
+    NfcApp* nfc = context;
+
+    text_box_set_font(nfc->text_box, TextBoxFontHex);
+    submenu_add_item(
+        nfc->submenu,
+        "App info",
+        SubmenuIndexAppInfo,
+        nfc_scene_mf_desfire_app_submenu_callback,
+        nfc);
+
+    const uint32_t app_idx =
+        scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireApp) >> 1;
+
+    const MfDesfireData* data = nfc_device_get_data(nfc->nfc_device, NfcProtocolMfDesfire);
+    const MfDesfireApplication* app = simple_array_cget(data->applications, app_idx);
+
+    FuriString* label = furi_string_alloc();
+
+    for(uint32_t i = 0; i < simple_array_get_count(app->file_ids); ++i) {
+        const MfDesfireFileId file_id =
+            *(const MfDesfireFileId*)simple_array_cget(app->file_ids, i);
+        furi_string_printf(label, "File %d", file_id);
         submenu_add_item(
             nfc->submenu,
-            "App info",
-            SubmenuIndexAppInfo,
+            furi_string_get_cstr(label),
+            i + SubmenuIndexDynamic,
             nfc_scene_mf_desfire_app_submenu_callback,
             nfc);
-
-        FuriString* label = furi_string_alloc();
-        int idx = SubmenuIndexDynamic;
-        for(MifareDesfireFile* file = app->file_head; file; file = file->next) {
-            furi_string_printf(label, "File %d", file->id);
-            submenu_add_item(
-                nfc->submenu,
-                furi_string_get_cstr(label),
-                idx++,
-                nfc_scene_mf_desfire_app_submenu_callback,
-                nfc);
-        }
-        furi_string_free(label);
-
-        view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
     }
+
+    furi_string_free(label);
+
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
 bool nfc_scene_mf_desfire_app_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = context;
+    NfcApp* nfc = context;
     bool consumed = false;
-    uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireApp);
+
+    const uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireApp);
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventViewExit) {
             consumed = scene_manager_previous_scene(nfc->scene_manager);
         } else {
-            MifareDesfireApplication* app = nfc_scene_mf_desfire_app_get_app(nfc);
+            const MfDesfireData* data = nfc_device_get_data(nfc->nfc_device, NfcProtocolMfDesfire);
+
+            const uint32_t app_index =
+                scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfDesfireApp) >> 1;
+            const MfDesfireApplication* app = simple_array_cget(data->applications, app_index);
+
             TextBox* text_box = nfc->text_box;
             furi_string_reset(nfc->text_box_store);
             if(event.event == SubmenuIndexAppInfo) {
-                mf_df_cat_application_info(app, nfc->text_box_store);
+                const MfDesfireApplicationId* app_id =
+                    simple_array_cget(data->application_ids, app_index);
+                nfc_render_mf_desfire_application_id(app_id, nfc->text_box_store);
+                nfc_render_mf_desfire_application(app, nfc->text_box_store);
             } else {
-                uint16_t index = event.event - SubmenuIndexDynamic;
-                MifareDesfireFile* file = app->file_head;
-                for(int i = 0; file && i < index; i++) {
-                    file = file->next;
-                }
-                if(!file) {
-                    return false;
-                }
-                mf_df_cat_file(file, nfc->text_box_store);
+                const uint32_t file_index = event.event - SubmenuIndexDynamic;
+                const MfDesfireFileId* file_id = simple_array_cget(app->file_ids, file_index);
+                const MfDesfireFileSettings* file_settings =
+                    simple_array_cget(app->file_settings, file_index);
+                const MfDesfireFileData* file_data = simple_array_cget(app->file_data, file_index);
+                nfc_render_mf_desfire_file_id(file_id, nfc->text_box_store);
+                nfc_render_mf_desfire_file_settings_data(
+                    file_settings, file_data, nfc->text_box_store);
             }
             text_box_set_text(text_box, furi_string_get_cstr(nfc->text_box_store));
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfDesfireApp, state | 1);
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
             consumed = true;
         }
+
     } else if(event.type == SceneManagerEventTypeBack) {
         if(state & 1) {
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
@@ -110,10 +100,9 @@ bool nfc_scene_mf_desfire_app_on_event(void* context, SceneManagerEvent event) {
 }
 
 void nfc_scene_mf_desfire_app_on_exit(void* context) {
-    Nfc* nfc = context;
+    NfcApp* nfc = context;
 
     // Clear views
-    popup_reset(nfc->popup);
     text_box_reset(nfc->text_box);
     furi_string_reset(nfc->text_box_store);
     submenu_reset(nfc->submenu);

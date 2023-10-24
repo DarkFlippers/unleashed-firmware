@@ -1,5 +1,4 @@
-#include "../nfc_i.h"
-#include "nfc_worker_i.h"
+#include "../nfc_app_i.h"
 #include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
@@ -12,14 +11,19 @@ enum SubmenuIndex {
 };
 
 void nfc_scene_start_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = context;
+    NfcApp* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_start_on_enter(void* context) {
-    Nfc* nfc = context;
+    NfcApp* nfc = context;
     Submenu* submenu = nfc->submenu;
+
+    // Clear file name and device contents
+    furi_string_reset(nfc->file_name);
+    nfc_device_clear(nfc->nfc_device);
+    iso14443_3a_reset(nfc->iso14443_3a_edit_data);
 
     submenu_add_item(submenu, "Read", SubmenuIndexRead, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
@@ -38,32 +42,23 @@ void nfc_scene_start_on_enter(void* context) {
     submenu_set_selected_item(
         submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneStart));
 
-    nfc_device_clear(nfc->dev);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
 bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = context;
+    NfcApp* nfc = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexRead) {
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneStart, SubmenuIndexRead);
-            nfc->dev->dev_data.read_mode = NfcReadModeAuto;
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneDetect);
             dolphin_deed(DolphinDeedNfcRead);
             consumed = true;
         } else if(event.event == SubmenuIndexDetectReader) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneStart, SubmenuIndexDetectReader);
-            bool sd_exist = storage_sd_status(nfc->dev->storage) == FSE_OK;
-            if(sd_exist) {
-                nfc_device_data_clear(&nfc->dev->dev_data);
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneDetectReader);
-                dolphin_deed(DolphinDeedNfcDetectReader);
-            } else {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneDictNotFound);
-            }
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDetectReader);
             consumed = true;
         } else if(event.event == SubmenuIndexSaved) {
             // Save the scene state explicitly in each branch, so that
@@ -92,7 +87,7 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
 }
 
 void nfc_scene_start_on_exit(void* context) {
-    Nfc* nfc = context;
+    NfcApp* nfc = context;
 
     submenu_reset(nfc->submenu);
 }

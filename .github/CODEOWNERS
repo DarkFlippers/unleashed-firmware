@@ -52,7 +52,6 @@
 /scripts/toolchain/ @skotopes @DrZlo13 @hedger @drunkbatya
 
 # Lib
-/lib/ST25RFAL002/ @skotopes @DrZlo13 @hedger @gornekich
 /lib/stm32wb_copro/ @skotopes @DrZlo13 @hedger @gornekich
 /lib/digital_signal/ @skotopes @DrZlo13 @hedger @gornekich
 /lib/infrared/ @skotopes @DrZlo13 @hedger @gsurkov

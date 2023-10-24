@@ -12,6 +12,56 @@ App(
     fap_category="NFC",
 )
 
+# Parser plugins
+
+App(
+    appid="all_in_one_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="all_in_one_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+)
+
+App(
+    appid="opal_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="opal_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+)
+
+App(
+    appid="myki_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="myki_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+)
+
+App(
+    appid="troika_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="troika_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+)
+
+App(
+    appid="plantain_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="plantain_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+)
+
+App(
+    appid="two_cities_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="two_cities_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+)
+
 App(
     appid="nfc_start",
     targets=["f7"],

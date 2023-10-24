@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,39.2,,
+Version,+,40.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -81,6 +81,7 @@ Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_version.h,,
 Header,+,firmware/targets/furi_hal_include/furi_hal_vibro.h,,
+Header,+,lib/digital_signal/digital_sequence.h,,
 Header,+,lib/digital_signal/digital_signal.h,,
 Header,+,lib/drivers/cc1101_regs.h,,
 Header,+,lib/flipper_application/api_hashtable/api_hashtable.h,,
@@ -132,11 +133,15 @@ Header,+,lib/mlib/m-rbtree.h,,
 Header,+,lib/mlib/m-tuple.h,,
 Header,+,lib/mlib/m-variant.h,,
 Header,+,lib/music_worker/music_worker.h,,
+Header,+,lib/nanopb/pb.h,,
+Header,+,lib/nanopb/pb_decode.h,,
+Header,+,lib/nanopb/pb_encode.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
 Header,+,lib/pulse_reader/pulse_reader.h,,
+Header,+,lib/signal_reader/signal_reader.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_adc.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_bus.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_comp.h,,
@@ -166,6 +171,7 @@ Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_utils.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_wwdg.h,,
 Header,+,lib/toolbox/api_lock.h,,
 Header,+,lib/toolbox/args.h,,
+Header,+,lib/toolbox/bit_buffer.h,,
 Header,+,lib/toolbox/compress.h,,
 Header,+,lib/toolbox/crc32_calc.h,,
 Header,+,lib/toolbox/dir_walk.h,,
@@ -180,6 +186,7 @@ Header,+,lib/toolbox/pretty_format.h,,
 Header,+,lib/toolbox/protocols/protocol_dict.h,,
 Header,+,lib/toolbox/saved_struct.h,,
 Header,+,lib/toolbox/sha256.h,,
+Header,+,lib/toolbox/simple_array.h,,
 Header,+,lib/toolbox/stream/buffered_file_stream.h,,
 Header,+,lib/toolbox/stream/file_stream.h,,
 Header,+,lib/toolbox/stream/stream.h,,
@@ -522,6 +529,36 @@ Function,-,atoll,long long,const char*
 Function,-,basename,char*,const char*
 Function,-,bcmp,int,"const void*, const void*, size_t"
 Function,-,bcopy,void,"const void*, void*, size_t"
+Function,+,bit_buffer_alloc,BitBuffer*,size_t
+Function,+,bit_buffer_append,void,"BitBuffer*, const BitBuffer*"
+Function,+,bit_buffer_append_bit,void,"BitBuffer*, _Bool"
+Function,+,bit_buffer_append_byte,void,"BitBuffer*, uint8_t"
+Function,+,bit_buffer_append_bytes,void,"BitBuffer*, const uint8_t*, size_t"
+Function,+,bit_buffer_append_right,void,"BitBuffer*, const BitBuffer*, size_t"
+Function,+,bit_buffer_copy,void,"BitBuffer*, const BitBuffer*"
+Function,+,bit_buffer_copy_bits,void,"BitBuffer*, const uint8_t*, size_t"
+Function,+,bit_buffer_copy_bytes,void,"BitBuffer*, const uint8_t*, size_t"
+Function,+,bit_buffer_copy_bytes_with_parity,void,"BitBuffer*, const uint8_t*, size_t"
+Function,+,bit_buffer_copy_left,void,"BitBuffer*, const BitBuffer*, size_t"
+Function,+,bit_buffer_copy_right,void,"BitBuffer*, const BitBuffer*, size_t"
+Function,+,bit_buffer_free,void,BitBuffer*
+Function,+,bit_buffer_get_byte,uint8_t,"const BitBuffer*, size_t"
+Function,+,bit_buffer_get_byte_from_bit,uint8_t,"const BitBuffer*, size_t"
+Function,+,bit_buffer_get_capacity_bytes,size_t,const BitBuffer*
+Function,+,bit_buffer_get_data,const uint8_t*,const BitBuffer*
+Function,+,bit_buffer_get_parity,const uint8_t*,const BitBuffer*
+Function,+,bit_buffer_get_size,size_t,const BitBuffer*
+Function,+,bit_buffer_get_size_bytes,size_t,const BitBuffer*
+Function,+,bit_buffer_has_partial_byte,_Bool,const BitBuffer*
+Function,+,bit_buffer_reset,void,BitBuffer*
+Function,+,bit_buffer_set_byte,void,"BitBuffer*, size_t, uint8_t"
+Function,+,bit_buffer_set_byte_with_parity,void,"BitBuffer*, size_t, uint8_t, _Bool"
+Function,+,bit_buffer_set_size,void,"BitBuffer*, size_t"
+Function,+,bit_buffer_set_size_bytes,void,"BitBuffer*, size_t"
+Function,+,bit_buffer_starts_with_byte,_Bool,"const BitBuffer*, uint8_t"
+Function,+,bit_buffer_write_bytes,void,"const BitBuffer*, void*, size_t"
+Function,+,bit_buffer_write_bytes_mid,void,"const BitBuffer*, void*, size_t, size_t"
+Function,+,bit_buffer_write_bytes_with_parity,void,"const BitBuffer*, void*, size_t, size_t*"
 Function,+,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,ble_app_init,_Bool,
 Function,+,ble_app_thread_stop,void,
@@ -679,24 +716,19 @@ Function,+,dialog_message_set_text,void,"DialogMessage*, const char*, uint8_t, u
 Function,+,dialog_message_show,DialogMessageButton,"DialogsApp*, const DialogMessage*"
 Function,+,dialog_message_show_storage_error,void,"DialogsApp*, const char*"
 Function,-,difftime,double,"time_t, time_t"
-Function,-,digital_sequence_add,void,"DigitalSequence*, uint8_t"
+Function,+,digital_sequence_add_signal,void,"DigitalSequence*, uint8_t"
 Function,-,digital_sequence_alloc,DigitalSequence*,"uint32_t, const GpioPin*"
 Function,-,digital_sequence_clear,void,DigitalSequence*
 Function,-,digital_sequence_free,void,DigitalSequence*
-Function,-,digital_sequence_send,_Bool,DigitalSequence*
-Function,-,digital_sequence_set_sendtime,void,"DigitalSequence*, uint32_t"
-Function,-,digital_sequence_set_signal,void,"DigitalSequence*, uint8_t, DigitalSignal*"
-Function,-,digital_sequence_timebase_correction,void,"DigitalSequence*, float"
-Function,-,digital_signal_add,void,"DigitalSignal*, uint32_t"
-Function,-,digital_signal_add_pulse,void,"DigitalSignal*, uint32_t, _Bool"
+Function,+,digital_sequence_register_signal,void,"DigitalSequence*, uint8_t, const DigitalSignal*"
+Function,+,digital_sequence_transmit,void,DigitalSequence*
+Function,+,digital_signal_add_period,void,"DigitalSignal*, uint32_t"
+Function,+,digital_signal_add_period_with_level,void,"DigitalSignal*, uint32_t, _Bool"
 Function,-,digital_signal_alloc,DigitalSignal*,uint32_t
-Function,-,digital_signal_append,_Bool,"DigitalSignal*, DigitalSignal*"
 Function,-,digital_signal_free,void,DigitalSignal*
-Function,-,digital_signal_get_edge,uint32_t,"DigitalSignal*, uint32_t"
-Function,-,digital_signal_get_edges_cnt,uint32_t,DigitalSignal*
-Function,-,digital_signal_get_start_level,_Bool,DigitalSignal*
-Function,-,digital_signal_prepare_arr,void,DigitalSignal*
-Function,-,digital_signal_send,void,"DigitalSignal*, const GpioPin*"
+Function,+,digital_signal_get_size,uint32_t,const DigitalSignal*
+Function,+,digital_signal_get_start_level,_Bool,const DigitalSignal*
+Function,+,digital_signal_set_start_level,void,"DigitalSignal*, _Bool"
 Function,-,diprintf,int,"int, const char*, ..."
 Function,+,dir_walk_alloc,DirWalk*,Storage*
 Function,+,dir_walk_close,void,DirWalk*
@@ -1777,6 +1809,35 @@ Function,+,path_extract_dirname,void,"const char*, FuriString*"
 Function,+,path_extract_extension,void,"FuriString*, char*, size_t"
 Function,+,path_extract_filename,void,"FuriString*, FuriString*, _Bool"
 Function,+,path_extract_filename_no_ext,void,"const char*, FuriString*"
+Function,+,pb_close_string_substream,_Bool,"pb_istream_t*, pb_istream_t*"
+Function,+,pb_decode,_Bool,"pb_istream_t*, const pb_msgdesc_t*, void*"
+Function,+,pb_decode_bool,_Bool,"pb_istream_t*, _Bool*"
+Function,+,pb_decode_ex,_Bool,"pb_istream_t*, const pb_msgdesc_t*, void*, unsigned int"
+Function,+,pb_decode_fixed32,_Bool,"pb_istream_t*, void*"
+Function,+,pb_decode_fixed64,_Bool,"pb_istream_t*, void*"
+Function,+,pb_decode_svarint,_Bool,"pb_istream_t*, int64_t*"
+Function,+,pb_decode_tag,_Bool,"pb_istream_t*, pb_wire_type_t*, uint32_t*, _Bool*"
+Function,+,pb_decode_varint,_Bool,"pb_istream_t*, uint64_t*"
+Function,+,pb_decode_varint32,_Bool,"pb_istream_t*, uint32_t*"
+Function,+,pb_default_field_callback,_Bool,"pb_istream_t*, pb_ostream_t*, const pb_field_t*"
+Function,+,pb_encode,_Bool,"pb_ostream_t*, const pb_msgdesc_t*, const void*"
+Function,+,pb_encode_ex,_Bool,"pb_ostream_t*, const pb_msgdesc_t*, const void*, unsigned int"
+Function,+,pb_encode_fixed32,_Bool,"pb_ostream_t*, const void*"
+Function,+,pb_encode_fixed64,_Bool,"pb_ostream_t*, const void*"
+Function,+,pb_encode_string,_Bool,"pb_ostream_t*, const pb_byte_t*, size_t"
+Function,+,pb_encode_submessage,_Bool,"pb_ostream_t*, const pb_msgdesc_t*, const void*"
+Function,+,pb_encode_svarint,_Bool,"pb_ostream_t*, int64_t"
+Function,+,pb_encode_tag,_Bool,"pb_ostream_t*, pb_wire_type_t, uint32_t"
+Function,+,pb_encode_tag_for_field,_Bool,"pb_ostream_t*, const pb_field_iter_t*"
+Function,+,pb_encode_varint,_Bool,"pb_ostream_t*, uint64_t"
+Function,+,pb_get_encoded_size,_Bool,"size_t*, const pb_msgdesc_t*, const void*"
+Function,+,pb_istream_from_buffer,pb_istream_t,"const pb_byte_t*, size_t"
+Function,+,pb_make_string_substream,_Bool,"pb_istream_t*, pb_istream_t*"
+Function,+,pb_ostream_from_buffer,pb_ostream_t,"pb_byte_t*, size_t"
+Function,+,pb_read,_Bool,"pb_istream_t*, pb_byte_t*, size_t"
+Function,+,pb_release,void,"const pb_msgdesc_t*, void*"
+Function,+,pb_skip_field,_Bool,"pb_istream_t*, pb_wire_type_t"
+Function,+,pb_write,_Bool,"pb_ostream_t*, const pb_byte_t*, size_t"
 Function,-,pcTaskGetName,char*,TaskHandle_t
 Function,-,pcTimerGetName,const char*,TimerHandle_t
 Function,-,pclose,int,FILE*
@@ -1955,6 +2016,25 @@ Function,+,sha256_finish,void,"sha256_context*, unsigned char[32]"
 Function,+,sha256_process,void,sha256_context*
 Function,+,sha256_start,void,sha256_context*
 Function,+,sha256_update,void,"sha256_context*, const unsigned char*, unsigned int"
+Function,+,signal_reader_alloc,SignalReader*,"const GpioPin*, uint32_t"
+Function,+,signal_reader_free,void,SignalReader*
+Function,+,signal_reader_set_polarity,void,"SignalReader*, SignalReaderPolarity"
+Function,+,signal_reader_set_pull,void,"SignalReader*, GpioPull"
+Function,+,signal_reader_set_sample_rate,void,"SignalReader*, SignalReaderTimeUnit, uint32_t"
+Function,+,signal_reader_set_trigger,void,"SignalReader*, SignalReaderTrigger"
+Function,+,signal_reader_start,void,"SignalReader*, SignalReaderCallback, void*"
+Function,+,signal_reader_stop,void,SignalReader*
+Function,+,simple_array_alloc,SimpleArray*,const SimpleArrayConfig*
+Function,+,simple_array_cget,const SimpleArrayElement*,"const SimpleArray*, uint32_t"
+Function,+,simple_array_cget_data,const SimpleArrayData*,const SimpleArray*
+Function,+,simple_array_copy,void,"SimpleArray*, const SimpleArray*"
+Function,+,simple_array_free,void,SimpleArray*
+Function,+,simple_array_get,SimpleArrayElement*,"SimpleArray*, uint32_t"
+Function,+,simple_array_get_count,uint32_t,const SimpleArray*
+Function,+,simple_array_get_data,SimpleArrayData*,SimpleArray*
+Function,+,simple_array_init,void,"SimpleArray*, uint32_t"
+Function,+,simple_array_is_equal,_Bool,"const SimpleArray*, const SimpleArray*"
+Function,+,simple_array_reset,void,SimpleArray*
 Function,-,sin,double,double
 Function,-,sincos,void,"double, double*, double*"
 Function,-,sincosf,void,"float, float*, float*"
@@ -2696,6 +2776,7 @@ Variable,+,sequence_set_vibro_on,const NotificationSequence,
 Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
+Variable,+,simple_array_config_uint8_t,const SimpleArrayConfig,
 Variable,-,suboptarg,char*,
 Variable,+,usb_ccid,FuriHalUsbInterface,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,
