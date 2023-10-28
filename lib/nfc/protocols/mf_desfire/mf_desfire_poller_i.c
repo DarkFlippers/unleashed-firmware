@@ -59,7 +59,15 @@ MfDesfireError mf_desfire_send_chunks(
                 break;
             }
 
-            bit_buffer_append_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
+            const size_t rx_size = bit_buffer_get_size_bytes(instance->rx_buffer);
+            const size_t rx_capacity_remaining =
+                bit_buffer_get_capacity_bytes(rx_buffer) - bit_buffer_get_size_bytes(rx_buffer);
+
+            if(rx_size <= rx_capacity_remaining) {
+                bit_buffer_append_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
+            } else {
+                FURI_LOG_W(TAG, "RX buffer overflow: ignoring %zu bytes", rx_size);
+            }
         }
     } while(false);
 
@@ -353,7 +361,7 @@ MfDesfireError mf_desfire_poller_async_read_file_records(
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
-    bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_DATA);
+    bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_RECORDS);
     bit_buffer_append_byte(instance->input_buffer, id);
     bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&offset, 3);
     bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&size, 3);

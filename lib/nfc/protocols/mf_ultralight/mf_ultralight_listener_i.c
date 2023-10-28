@@ -518,6 +518,8 @@ static uint16_t mf_ultralight_get_upper_page_bound(MfUltralightType type) {
         upper_page_bound = 511;
     else if(type == MfUltralightTypeNTAGI2C2K)
         upper_page_bound = 479;
+    else if(type == MfUltralightTypeNTAGI2C1K)
+        upper_page_bound = 225;
     else {
         upper_page_bound = mf_ultralight_get_config_page_num(type) - 2;
     }

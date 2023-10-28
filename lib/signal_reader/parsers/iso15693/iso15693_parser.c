@@ -68,7 +68,7 @@ Iso15693Parser* iso15693_parser_alloc(const GpioPin* pin, size_t max_frame_size)
     signal_reader_set_sample_rate(
         instance->signal_reader, SignalReaderTimeUnit64Mhz, ISO15693_PARSER_BITRATE_F64MHZ);
     signal_reader_set_pull(instance->signal_reader, GpioPullDown);
-    signal_reader_set_polarity(instance->signal_reader, SignalReaderPolarityInverted);
+    signal_reader_set_polarity(instance->signal_reader, SignalReaderPolarityNormal);
     signal_reader_set_trigger(instance->signal_reader, SignalReaderTriggerRisingFallingEdge);
 
     return instance;

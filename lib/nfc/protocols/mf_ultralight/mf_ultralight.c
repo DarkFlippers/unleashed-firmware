@@ -297,7 +297,7 @@ bool mf_ultralight_load(MfUltralightData* data, FlipperFormat* ff, uint32_t vers
         uint32_t pages_total = 0;
         if(!flipper_format_read_uint32(ff, MF_ULTRALIGHT_PAGES_TOTAL_KEY, &pages_total, 1)) break;
         uint32_t pages_read = 0;
-        if(data_format_version < mf_ultralight_data_format_version) {
+        if(data_format_version < mf_ultralight_data_format_version) { //-V547
             pages_read = pages_total;
         } else {
             if(!flipper_format_read_uint32(ff, MF_ULTRALIGHT_PAGES_READ_KEY, &pages_read, 1))

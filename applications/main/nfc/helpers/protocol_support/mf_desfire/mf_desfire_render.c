@@ -190,6 +190,8 @@ void nfc_render_mf_desfire_file_settings_data(
     uint32_t record_count = 1;
     uint32_t record_size = 0;
 
+    const uint32_t total_size = simple_array_get_count(data->data);
+
     switch(settings->type) {
     case MfDesfireFileTypeStandard:
     case MfDesfireFileTypeBackup:
@@ -197,6 +199,7 @@ void nfc_render_mf_desfire_file_settings_data(
         furi_string_cat_printf(str, "size %lu\n", record_size);
         break;
     case MfDesfireFileTypeValue:
+        record_size = MF_DESFIRE_VALUE_SIZE;
         furi_string_cat_printf(
             str, "lo %lu hi %lu\n", settings->value.lo_limit, settings->value.hi_limit);
         furi_string_cat_printf(
@@ -219,9 +222,20 @@ void nfc_render_mf_desfire_file_settings_data(
     }
 
     for(uint32_t rec = 0; rec < record_count; rec++) {
-        furi_string_cat_printf(str, "record %lu\n", rec);
+        const uint32_t size_offset = rec * record_size;
+        const uint32_t size_remaining = total_size > size_offset ? total_size - size_offset : 0;
+
+        if(size_remaining < record_size) {
+            furi_string_cat_printf(
+                str, "record %lu (partial %lu of %lu)\n", rec, size_remaining, record_size);
+            record_size = size_remaining;
+        } else {
+            furi_string_cat_printf(str, "record %lu\n", rec);
+        }
+
         for(uint32_t ch = 0; ch < record_size; ch += 4) {
             furi_string_cat_printf(str, "%03lx|", ch);
+
             for(uint32_t i = 0; i < 4; i++) {
                 if(ch + i < record_size) {
                     const uint32_t data_index = rec * record_size + ch + i;
@@ -232,6 +246,7 @@ void nfc_render_mf_desfire_file_settings_data(
                     furi_string_cat_printf(str, "   ");
                 }
             }
+
             for(uint32_t i = 0; i < 4 && ch + i < record_size; i++) {
                 const uint32_t data_index = rec * record_size + ch + i;
                 const uint8_t data_byte =
@@ -242,8 +257,10 @@ void nfc_render_mf_desfire_file_settings_data(
                     furi_string_cat_printf(str, ".");
                 }
             }
+
             furi_string_push_back(str, '\n');
         }
+
         furi_string_push_back(str, '\n');
     }
 }

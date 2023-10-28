@@ -29,6 +29,7 @@ extern "C" {
 #define MF_DESFIRE_UID_SIZE (7)
 #define MF_DESFIRE_BATCH_SIZE (5)
 #define MF_DESFIRE_APP_ID_SIZE (3)
+#define MF_DESFIRE_VALUE_SIZE (4)
 
 typedef struct {
     uint8_t hw_vendor;
