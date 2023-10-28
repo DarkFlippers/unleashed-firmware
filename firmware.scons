@@ -71,15 +71,6 @@ env = ENV.Clone(
                 "FURI_DEBUG" if ENV["DEBUG"] else "FURI_NDEBUG",
             ],
         },
-        "nfc": {
-            "CCFLAGS": [
-                "-Og",
-            ],
-            "CPPDEFINES": [
-                "NDEBUG",
-                "FURI_DEBUG",
-            ],
-        },
     },
     FW_API_TABLE=None,
     _APP_ICONS=None,
