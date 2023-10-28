@@ -197,6 +197,7 @@ void nfc_render_mf_desfire_file_settings_data(
         furi_string_cat_printf(str, "size %lu\n", record_size);
         break;
     case MfDesfireFileTypeValue:
+        record_size = MF_DESFIRE_VALUE_SIZE;
         furi_string_cat_printf(
             str, "lo %lu hi %lu\n", settings->value.lo_limit, settings->value.hi_limit);
         furi_string_cat_printf(

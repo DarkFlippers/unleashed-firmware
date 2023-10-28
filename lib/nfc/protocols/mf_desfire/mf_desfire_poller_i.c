@@ -353,7 +353,7 @@ MfDesfireError mf_desfire_poller_async_read_file_records(
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
-    bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_DATA);
+    bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_RECORDS);
     bit_buffer_append_byte(instance->input_buffer, id);
     bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&offset, 3);
     bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&size, 3);
