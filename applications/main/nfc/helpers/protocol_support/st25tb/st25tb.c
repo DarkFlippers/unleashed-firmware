@@ -95,6 +95,11 @@ const NfcProtocolSupportBase nfc_protocol_support_st25tb = {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_scene_saved_menu_on_event_st25tb,
         },
+    .scene_save_name =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
     .scene_emulate =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
