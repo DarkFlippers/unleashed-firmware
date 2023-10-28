@@ -59,7 +59,15 @@ MfDesfireError mf_desfire_send_chunks(
                 break;
             }
 
-            bit_buffer_append_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
+            const size_t rx_size = bit_buffer_get_size_bytes(instance->rx_buffer);
+            const size_t rx_capacity_remaining =
+                bit_buffer_get_capacity_bytes(rx_buffer) - bit_buffer_get_size_bytes(rx_buffer);
+
+            if(rx_size <= rx_capacity_remaining) {
+                bit_buffer_append_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
+            } else {
+                FURI_LOG_W(TAG, "RX buffer overflow: ignoring %zu bytes", rx_size);
+            }
         }
     } while(false);
 
