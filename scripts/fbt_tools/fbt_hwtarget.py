@@ -2,9 +2,9 @@ import json
 
 
 class HardwareTargetLoader:
-    def __init__(self, env, target_scons_dir, target_id):
+    def __init__(self, env, root_target_scons_dir, target_id):
         self.env = env
-        self.target_scons_dir = target_scons_dir
+        self.all_targets_root_dir = root_target_scons_dir
         self.target_dir = self._getTargetDir(target_id)
         # self.target_id = target_id
         self.layered_target_dirs = []
@@ -23,7 +23,7 @@ class HardwareTargetLoader:
         self._processTargetDefinitions(target_id)
 
     def _getTargetDir(self, target_id):
-        return self.target_scons_dir.Dir(f"f{target_id}")
+        return self.all_targets_root_dir.Dir(f"f{target_id}")
 
     def _loadDescription(self, target_id):
         target_json_file = self._getTargetDir(target_id).File("target.json")
@@ -34,14 +34,14 @@ class HardwareTargetLoader:
             return vals
 
     def _processTargetDefinitions(self, target_id):
-        self.layered_target_dirs.append(f"targets/f{target_id}")
+        target_dir = self._getTargetDir(target_id)
+        self.layered_target_dirs.append(target_dir)
 
         config = self._loadDescription(target_id)
 
         for path_list in ("include_paths", "sdk_header_paths"):
             getattr(self, path_list).extend(
-                f"#/firmware/targets/f{target_id}/{p}"
-                for p in config.get(path_list, [])
+                target_dir.Dir(p) for p in config.get(path_list, [])
             )
 
         self.excluded_sources.extend(config.get("excluded_sources", []))
@@ -50,7 +50,7 @@ class HardwareTargetLoader:
 
         file_attrs = (
             # (name, use_src_node)
-            ("startup_script", False),
+            ("startup_script", True),
             ("linker_script_flash", True),
             ("linker_script_ram", True),
             ("linker_script_app", True),
@@ -59,9 +59,10 @@ class HardwareTargetLoader:
 
         for attr_name, use_src_node in file_attrs:
             if (val := config.get(attr_name)) and not getattr(self, attr_name):
-                node = self.env.File(f"firmware/targets/f{target_id}/{val}")
+                node = target_dir.File(val)
                 if use_src_node:
                     node = node.srcnode()
+                # print(f"Got node {node}, {node.path} for {attr_name}")
                 setattr(self, attr_name, node)
 
         for attr_name in ("linker_dependencies",):
@@ -84,8 +85,8 @@ class HardwareTargetLoader:
             )
             seen_filenames.update(f.name for f in accepted_sources)
             sources.extend(accepted_sources)
-        # print(f"Found {len(sources)} sources: {list(f.name for f in sources)}")
-        return sources
+        # print(f"Found {len(sources)} sources: {list(f.path for f in sources)}")
+        return list(f.get_path(self.all_targets_root_dir) for f in sources)
 
     def gatherSdkHeaders(self):
         sdk_headers = []
@@ -101,7 +102,7 @@ class HardwareTargetLoader:
 
 
 def ConfigureForTarget(env, target_id):
-    target_loader = HardwareTargetLoader(env, env.Dir("#/firmware/targets"), target_id)
+    target_loader = HardwareTargetLoader(env, env["TARGETS_ROOT"], target_id)
     env.Replace(
         TARGET_CFG=target_loader,
         SDK_DEFINITION=target_loader.sdk_symbols,

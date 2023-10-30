@@ -17,7 +17,7 @@ jobs:
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           submodules: false
@@ -56,7 +56,7 @@ jobs:
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout latest release'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: failure()
         with:
           fetch-depth: 1

@@ -25,7 +25,7 @@ jobs:
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout code'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
@@ -51,11 +51,11 @@ jobs:
       - name: 'Check API versions for consistency between targets'
         run: |
           set -e
-          N_API_HEADER_SIGNATURES=`ls -1 firmware/targets/f*/api_symbols.csv | xargs -I {} sh -c "head -n2 {} | md5sum" | sort -u | wc -l`
+          N_API_HEADER_SIGNATURES=`ls -1 targets/f*/api_symbols.csv | xargs -I {} sh -c "head -n2 {} | md5sum" | sort -u | wc -l`
           if [ $N_API_HEADER_SIGNATURES != 1 ] ; then
             echo API versions aren\'t matching for available targets. Please update!
             echo API versions are:
-            head -n2 firmware/targets/f*/api_symbols.csv
+            head -n2 targets/f*/api_symbols.csv
             exit 1
           fi
 
@@ -76,7 +76,7 @@ jobs:
           mkdir artifacts map_analyser_files
           cp dist/${TARGET}-*/* artifacts/ || true
           tar czpf "artifacts/flipper-z-${TARGET}-resources-${SUFFIX}.tgz" \
-            -C assets resources
+            -C build/latest resources
           tar czpf "artifacts/flipper-z-${TARGET}-debugapps-${SUFFIX}.tgz" \
             -C dist/${TARGET}-*/apps/Debug .
           tar czpf "artifacts/flipper-z-${TARGET}-appsymbols-${SUFFIX}.tgz" \

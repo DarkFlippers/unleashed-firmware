@@ -64,6 +64,7 @@ class FlipperApplication:
     order: int = 0
     sdk_headers: List[str] = field(default_factory=list)
     targets: List[str] = field(default_factory=lambda: ["all"])
+    resources: Optional[str] = None
 
     # .fap-specific
     sources: List[str] = field(default_factory=lambda: ["*.c*"])
@@ -272,10 +273,14 @@ class AppBuildset:
         self._check_unsatisfied()  # unneeded?
         self._check_target_match()
         self._group_plugins()
-        self.apps = sorted(
+        self._apps = sorted(
             list(map(self.appmgr.get, self.appnames)),
             key=lambda app: app.appid,
         )
+
+    @property
+    def apps(self):
+        return list(self._apps)
 
     def _is_missing_dep(self, dep_name: str):
         return dep_name not in self.appnames
@@ -385,13 +390,13 @@ class AppBuildset:
 
     def get_apps_cdefs(self):
         cdefs = set()
-        for app in self.apps:
+        for app in self._apps:
             cdefs.update(app.cdefines)
         return sorted(list(cdefs))
 
     def get_sdk_headers(self):
         sdk_headers = []
-        for app in self.apps:
+        for app in self._apps:
             sdk_headers.extend(
                 [
                     src._appdir.File(header)
@@ -405,14 +410,14 @@ class AppBuildset:
         return sorted(
             filter(
                 lambda app: app.apptype == apptype,
-                self.appmgr.known_apps.values() if all_known else self.apps,
+                self.appmgr.known_apps.values() if all_known else self._apps,
             ),
             key=lambda app: app.order,
         )
 
     def get_builtin_apps(self):
         return list(
-            filter(lambda app: app.apptype in self.BUILTIN_APP_TYPES, self.apps)
+            filter(lambda app: app.apptype in self.BUILTIN_APP_TYPES, self._apps)
         )
 
     def get_builtin_app_folders(self):

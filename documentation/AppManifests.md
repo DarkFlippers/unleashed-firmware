@@ -41,6 +41,7 @@ Only two parameters are mandatory: **_appid_** and **_apptype_**. Others are opt
 - **order**: order of an application within its group when sorting entries in it. The lower the order is, the closer to the start of the list the item is placed. _Used for ordering startup hooks and menu entries._
 - **sdk_headers**: list of C header files from this app's code to include in API definitions for external applications.
 - **targets**: list of strings and target names with which this application is compatible. If not specified, the application is built for all targets. The default value is `["all"]`.
+- **resources**: name of a folder within the application's source folder to be used for packacking SD card resources for this application. They will only be used if application is included in build configuration. The default value is `""`, meaning no resources are packaged.
 
 #### Parameters for external applications
 

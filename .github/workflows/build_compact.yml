@@ -19,7 +19,7 @@ jobs:
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: 'Checkout code'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           submodules: false
@@ -46,7 +46,7 @@ jobs:
           echo "hw-target-code=$TARGET" >> $GITHUB_OUTPUT
 
       - name: Deploy uFBT with SDK
-        uses: flipperdevices/flipperzero-ufbt-action@v0.1.0
+        uses: flipperdevices/flipperzero-ufbt-action@v0.1
         with:
           task: setup
           sdk-file: ${{ steps.build-fw.outputs.sdk-file }}

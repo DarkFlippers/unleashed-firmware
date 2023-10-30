@@ -42,10 +42,10 @@
 /applications/examples/example_thermo/ @skotopes @DrZlo13 @hedger @gsurkov
 
 # Firmware targets
-/firmware/ @skotopes @DrZlo13 @hedger @nminaylov
+/targets/ @skotopes @DrZlo13 @hedger @nminaylov
 
 # Assets
-/assets/resources/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
+/applications/main/infrared/resources/ @skotopes @DrZlo13 @hedger @gsurkov
 
 # Documentation
 /documentation/ @skotopes @DrZlo13 @hedger @drunkbatya

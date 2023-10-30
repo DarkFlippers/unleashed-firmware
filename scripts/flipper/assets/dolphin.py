@@ -55,7 +55,7 @@ class DolphinBubbleAnimation:
         if not os.path.isfile(meta_filename):
             raise Exception(f"Animation meta file doesn't exist: { meta_filename }")
 
-        self.logger.info(f"Loading meta from {meta_filename}")
+        self.logger.debug(f"Loading meta from {meta_filename}")
         file = FlipperFormatFile()
         file.load(meta_filename)
 
