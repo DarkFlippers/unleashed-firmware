@@ -1,4 +1,4 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 #include <gui/canvas.h>
 
 typedef enum {
@@ -8,7 +8,7 @@ typedef enum {
 } InfraredRpcState;
 
 void infrared_scene_rpc_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
 
     popup_set_header(popup, "Infrared", 89, 42, AlignCenter, AlignBottom);
@@ -27,7 +27,7 @@ void infrared_scene_rpc_on_enter(void* context) {
 }
 
 bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -43,7 +43,8 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             const char* arg = rpc_system_app_get_data(infrared->rpc_ctx);
             if(arg && (state == InfraredRpcStateIdle)) {
                 furi_string_set(infrared->file_path, arg);
-                result = infrared_remote_load(infrared->remote, infrared->file_path);
+                result = infrared_remote_load(
+                    infrared->remote, furi_string_get_cstr(infrared->file_path));
                 if(result) {
                     scene_manager_set_scene_state(
                         infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateLoaded);
@@ -61,7 +62,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             const char* arg = rpc_system_app_get_data(infrared->rpc_ctx);
             if(arg && (state == InfraredRpcStateLoaded)) {
                 size_t button_index = 0;
-                if(infrared_remote_find_button_by_name(infrared->remote, arg, &button_index)) {
+                if(infrared_remote_get_signal_index(infrared->remote, arg, &button_index)) {
                     infrared_tx_start_button_index(infrared, button_index);
                     result = true;
                     scene_manager_set_scene_state(
@@ -91,7 +92,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_rpc_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     if(scene_manager_get_scene_state(infrared->scene_manager, InfraredSceneRpc) ==
        InfraredRpcStateSending) {
         infrared_tx_stop(infrared);

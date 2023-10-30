@@ -1,20 +1,21 @@
-#include "../../infrared_i.h"
+#include "../../infrared_app_i.h"
 
 #include <dolphin/dolphin.h>
 
 void infrared_scene_universal_common_item_callback(void* context, uint32_t index) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     uint32_t event = infrared_custom_event_pack(InfraredCustomEventTypeButtonSelected, index);
     view_dispatcher_send_custom_event(infrared->view_dispatcher, event);
 }
 
 static void infrared_scene_universal_common_progress_back_callback(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     uint32_t event = infrared_custom_event_pack(InfraredCustomEventTypeBackPressed, -1);
     view_dispatcher_send_custom_event(infrared->view_dispatcher, event);
 }
 
-static void infrared_scene_universal_common_show_popup(Infrared* infrared, uint32_t record_count) {
+static void
+    infrared_scene_universal_common_show_popup(InfraredApp* infrared, uint32_t record_count) {
     ViewStack* view_stack = infrared->view_stack;
     InfraredProgressView* progress = infrared->progress;
     infrared_progress_view_set_progress_total(progress, record_count);
@@ -24,7 +25,7 @@ static void infrared_scene_universal_common_show_popup(Infrared* infrared, uint3
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 }
 
-static void infrared_scene_universal_common_hide_popup(Infrared* infrared) {
+static void infrared_scene_universal_common_hide_popup(InfraredApp* infrared) {
     ViewStack* view_stack = infrared->view_stack;
     InfraredProgressView* progress = infrared->progress;
     view_stack_remove_view(view_stack, infrared_progress_view_get_view(progress));
@@ -32,12 +33,12 @@ static void infrared_scene_universal_common_hide_popup(Infrared* infrared) {
 }
 
 void infrared_scene_universal_common_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     view_stack_add_view(infrared->view_stack, button_panel_get_view(infrared->button_panel));
 }
 
 bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
     InfraredBruteForce* brute_force = infrared->brute_force;
     bool consumed = false;
@@ -84,7 +85,7 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
 }
 
 void infrared_scene_universal_common_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     ButtonPanel* button_panel = infrared->button_panel;
     view_stack_remove_view(infrared->view_stack, button_panel_get_view(button_panel));
     infrared_brute_force_reset(infrared->brute_force);
