@@ -48,7 +48,7 @@ void infrared_encoder_nec_reset(void* encoder_ptr, const InfraredMessage* messag
         *data2 = (message->command & 0xFFC0) >> 6;
         encoder->bits_to_encode = 42;
     } else {
-        furi_assert(0);
+        furi_crash();
     }
 }
 

@@ -604,7 +604,7 @@ static void furi_hal_subghz_async_tx_timer_isr() {
                 furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullDown, GpioSpeedLow);
                 LL_TIM_DisableCounter(TIM2);
             } else {
-                furi_crash(NULL);
+                furi_crash();
             }
         }
     }

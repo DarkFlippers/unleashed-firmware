@@ -232,7 +232,7 @@ static size_t
     } else if(horizontal == AlignRight) {
         px_left = x;
     } else {
-        furi_assert(0);
+        furi_crash();
     }
 
     if(len_px > px_left) {

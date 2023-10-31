@@ -135,7 +135,7 @@ void canvas_set_font(Canvas* canvas, Font font) {
     } else if(font == FontBigNumbers) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -175,7 +175,7 @@ void canvas_draw_str_aligned(
         x -= (u8g2_GetStrWidth(&canvas->fb, str) / 2);
         break;
     default:
-        furi_crash(NULL);
+        furi_crash();
         break;
     }
 
@@ -189,7 +189,7 @@ void canvas_draw_str_aligned(
         y += (u8g2_GetAscent(&canvas->fb) / 2);
         break;
     default:
-        furi_crash(NULL);
+        furi_crash();
         break;
     }
 
@@ -530,7 +530,7 @@ void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation) {
             rotate_cb = U8G2_R1;
             break;
         default:
-            furi_assert(0);
+            furi_crash();
         }
 
         if(need_swap) FURI_SWAP(canvas->width, canvas->height);

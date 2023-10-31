@@ -42,7 +42,7 @@ void infrared_scene_edit_rename_on_enter(void* context) {
 
         furi_string_free(folder_path);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 
     text_input_set_result_callback(
@@ -81,7 +81,7 @@ bool infrared_scene_edit_rename_on_event(void* context, SceneManagerEvent event)
             } else if(edit_target == InfraredEditTargetRemote) {
                 success = infrared_rename_current_remote(infrared, infrared->text_store[0]);
             } else {
-                furi_crash(NULL);
+                furi_crash();
             }
 
             if(success) {

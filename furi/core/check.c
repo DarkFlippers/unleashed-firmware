@@ -128,7 +128,7 @@ static void __furi_print_name(bool isr) {
     }
 }
 
-FURI_NORETURN void __furi_crash() {
+FURI_NORETURN void __furi_crash_implementation() {
     __disable_irq();
     GET_MESSAGE_AND_STORE_REGISTERS();
 
@@ -179,7 +179,7 @@ FURI_NORETURN void __furi_crash() {
     __builtin_unreachable();
 }
 
-FURI_NORETURN void __furi_halt() {
+FURI_NORETURN void __furi_halt_implementation() {
     __disable_irq();
     GET_MESSAGE_AND_STORE_REGISTERS();
 

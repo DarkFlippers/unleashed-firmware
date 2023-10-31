@@ -60,7 +60,7 @@ void infrared_scene_edit_delete_on_enter(void* context) {
             infrared_remote_get_name(remote),
             infrared_remote_get_signal_count(remote));
     } else {
-        furi_assert(0);
+        furi_crash();
     }
 
     dialog_ex_set_text(dialog_ex, infrared->text_store[0], 64, 31, AlignCenter, AlignCenter);
@@ -101,7 +101,7 @@ bool infrared_scene_edit_delete_on_event(void* context, SceneManagerEvent event)
                 success = infrared_remote_remove(remote);
                 app_state->current_button_index = InfraredButtonIndexNone;
             } else {
-                furi_crash(NULL);
+                furi_crash();
             }
 
             if(success) {

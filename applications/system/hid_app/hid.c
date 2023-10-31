@@ -264,7 +264,7 @@ void hid_hal_keyboard_press(Hid* instance, uint16_t event) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_kb_press(event);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -275,7 +275,7 @@ void hid_hal_keyboard_release(Hid* instance, uint16_t event) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_kb_release(event);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -286,7 +286,7 @@ void hid_hal_keyboard_release_all(Hid* instance) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_kb_release_all();
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -297,7 +297,7 @@ void hid_hal_consumer_key_press(Hid* instance, uint16_t event) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_consumer_key_press(event);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -308,7 +308,7 @@ void hid_hal_consumer_key_release(Hid* instance, uint16_t event) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_consumer_key_release(event);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -319,7 +319,7 @@ void hid_hal_consumer_key_release_all(Hid* instance) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_kb_release_all();
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -330,7 +330,7 @@ void hid_hal_mouse_move(Hid* instance, int8_t dx, int8_t dy) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_mouse_move(dx, dy);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -341,7 +341,7 @@ void hid_hal_mouse_scroll(Hid* instance, int8_t delta) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_mouse_scroll(delta);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -352,7 +352,7 @@ void hid_hal_mouse_press(Hid* instance, uint16_t event) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_mouse_press(event);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -363,7 +363,7 @@ void hid_hal_mouse_release(Hid* instance, uint16_t event) {
     } else if(instance->transport == HidTransportUsb) {
         furi_hal_hid_mouse_release(event);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 
@@ -375,7 +375,7 @@ void hid_hal_mouse_release_all(Hid* instance) {
         furi_hal_hid_mouse_release(HID_MOUSE_BTN_LEFT);
         furi_hal_hid_mouse_release(HID_MOUSE_BTN_RIGHT);
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 }
 

@@ -367,10 +367,11 @@ static FuriHalInfraredTxGetDataState
         *duration = timing.duration;
         state = timing.state;
     } else {
-        furi_assert(0);
+        // Why bother if we crash anyway?..
         *level = 0;
         *duration = 100;
         state = FuriHalInfraredTxGetDataStateDone;
+        furi_crash();
     }
 
     uint32_t flags_set = furi_thread_flags_set(
@@ -414,7 +415,7 @@ static bool infrared_get_new_signal(InfraredWorker* instance) {
     } else if(response == InfraredWorkerGetSignalResponseStop) {
         new_signal_obtained = false;
     } else {
-        furi_assert(0);
+        furi_crash();
     }
 
     return new_signal_obtained;
@@ -443,9 +444,8 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
         }
 
         if(status == InfraredStatusError) {
-            furi_assert(0);
             new_data_available = false;
-            break;
+            furi_crash();
         } else if(status == InfraredStatusOk) {
             timing.state = FuriHalInfraredTxGetDataStateOk;
         } else if(status == InfraredStatusDone) {
@@ -456,7 +456,7 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
                 timing.state = FuriHalInfraredTxGetDataStateLastDone;
             }
         } else {
-            furi_assert(0);
+            furi_crash();
         }
         uint32_t written_size =
             furi_stream_buffer_send(instance->stream, &timing, sizeof(InfraredWorkerTiming), 0);
@@ -548,7 +548,7 @@ static int32_t infrared_worker_tx_thread(void* thread_context) {
 
             break;
         default:
-            furi_assert(0);
+            furi_crash();
             break;
         }
     }

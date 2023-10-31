@@ -125,7 +125,7 @@ static void furi_hal_infrared_tim_rx_isr() {
             if(infrared_tim_rx.capture_callback)
                 infrared_tim_rx.capture_callback(infrared_tim_rx.capture_context, 1, duration);
         } else {
-            furi_assert(0);
+            furi_crash();
         }
     }
 
@@ -141,7 +141,7 @@ static void furi_hal_infrared_tim_rx_isr() {
             if(infrared_tim_rx.capture_callback)
                 infrared_tim_rx.capture_callback(infrared_tim_rx.capture_context, 0, duration);
         } else {
-            furi_assert(0);
+            furi_crash();
         }
     }
 }
@@ -254,7 +254,7 @@ static uint8_t furi_hal_infrared_get_current_dma_tx_buffer(void) {
     } else if(buffer_adr == (uint32_t)infrared_tim_tx.buffer[1].data) {
         buf_num = 1;
     } else {
-        furi_assert(0);
+        furi_crash();
     }
     return buf_num;
 }
@@ -263,7 +263,7 @@ static void furi_hal_infrared_tx_dma_polarity_isr() {
 #if INFRARED_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1
     if(LL_DMA_IsActiveFlag_TE1(INFRARED_DMA)) {
         LL_DMA_ClearFlag_TE1(INFRARED_DMA);
-        furi_crash(NULL);
+        furi_crash();
     }
     if(LL_DMA_IsActiveFlag_TC1(INFRARED_DMA) && LL_DMA_IsEnabledIT_TC(INFRARED_DMA_CH1_DEF)) {
         LL_DMA_ClearFlag_TC1(INFRARED_DMA);
@@ -285,7 +285,7 @@ static void furi_hal_infrared_tx_dma_isr() {
 #if INFRARED_DMA_CH2_CHANNEL == LL_DMA_CHANNEL_2
     if(LL_DMA_IsActiveFlag_TE2(INFRARED_DMA)) {
         LL_DMA_ClearFlag_TE2(INFRARED_DMA);
-        furi_crash(NULL);
+        furi_crash();
     }
     if(LL_DMA_IsActiveFlag_HT2(INFRARED_DMA) && LL_DMA_IsEnabledIT_HT(INFRARED_DMA_CH2_DEF)) {
         LL_DMA_ClearFlag_HT2(INFRARED_DMA);
@@ -303,7 +303,7 @@ static void furi_hal_infrared_tx_dma_isr() {
         } else if(furi_hal_infrared_state == InfraredStateAsyncTxStopReq) {
             /* fallthrough */
         } else {
-            furi_crash(NULL);
+            furi_crash();
         }
     }
     if(LL_DMA_IsActiveFlag_TC2(INFRARED_DMA) && LL_DMA_IsEnabledIT_TC(INFRARED_DMA_CH2_DEF)) {
@@ -596,7 +596,7 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
 void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
     if((duty_cycle > 1) || (duty_cycle <= 0) || (freq > INFRARED_MAX_FREQUENCY) ||
        (freq < INFRARED_MIN_FREQUENCY) || (infrared_tim_tx.data_callback == NULL)) {
-        furi_crash(NULL);
+        furi_crash();
     }
 
     furi_assert(furi_hal_infrared_state == InfraredStateIdle);

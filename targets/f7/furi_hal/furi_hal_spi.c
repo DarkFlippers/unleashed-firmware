@@ -221,7 +221,7 @@ bool furi_hal_spi_bus_trx_dma(
         dma_rx_req = LL_DMAMUX_REQ_SPI2_RX;
         dma_tx_req = LL_DMAMUX_REQ_SPI2_TX;
     } else {
-        furi_crash(NULL);
+        furi_crash();
     }
 
     if(rx_buffer == NULL) {

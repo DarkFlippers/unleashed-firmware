@@ -28,7 +28,7 @@ void bt_test_alloc() {
 }
 
 void bt_test_free() {
-    furi_assert(bt_test);
+    furi_check(bt_test);
     free(bt_test->nvm_ram_buff_ref);
     free(bt_test->nvm_ram_buff_dut);
     bt_keys_storage_free(bt_test->bt_keys_storage);
@@ -89,7 +89,7 @@ static void bt_test_keys_remove_test_file() {
 }
 
 MU_TEST(bt_test_keys_storage_serial_profile) {
-    furi_assert(bt_test);
+    furi_check(bt_test);
 
     bt_test_keys_remove_test_file();
     bt_test_keys_storage_profile();

@@ -48,7 +48,7 @@ bool infrared_scene_edit_button_select_on_event(void* context, SceneManagerEvent
         } else if(edit_mode == InfraredEditModeDelete) {
             scene_manager_next_scene(scene_manager, InfraredSceneEditDelete);
         } else {
-            furi_assert(0);
+            furi_crash();
         }
         consumed = true;
     }

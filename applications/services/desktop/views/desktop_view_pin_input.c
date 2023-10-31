@@ -78,7 +78,7 @@ static bool desktop_view_pin_input_input(InputEvent* event, void* context) {
             }
             break;
         default:
-            furi_assert(0);
+            furi_crash();
             break;
         }
     }
@@ -129,7 +129,7 @@ static void desktop_view_pin_input_draw_cells(Canvas* canvas, DesktopViewPinInpu
                     canvas_draw_icon_ex(canvas, x + 2, y + 3, &I_Pin_arrow_up_7x9, IconRotation90);
                     break;
                 default:
-                    furi_assert(0);
+                    furi_crash();
                     break;
                 }
             }

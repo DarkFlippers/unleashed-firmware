@@ -187,7 +187,7 @@ void furi_hal_version_init() {
         furi_hal_version_load_otp_v2();
         break;
     default:
-        furi_crash(NULL);
+        furi_crash();
     }
 
     furi_hal_rtc_set_register(FuriHalRtcRegisterVersion, (uint32_t)version_get());

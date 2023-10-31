@@ -33,7 +33,7 @@ bool infrared_scene_edit_delete_done_on_event(void* context, SceneManagerEvent e
                     view_dispatcher_stop(infrared->view_dispatcher);
                 }
             } else {
-                furi_assert(0);
+                furi_crash();
             }
             consumed = true;
         }

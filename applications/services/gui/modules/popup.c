@@ -98,7 +98,7 @@ void popup_start_timer(void* context) {
         if(timer_period == 0) timer_period = 1;
 
         if(furi_timer_start(popup->timer, timer_period) != FuriStatusOk) {
-            furi_assert(0);
+            furi_crash();
         };
     }
 }
