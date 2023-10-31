@@ -30,24 +30,26 @@ def _proto_emitter(target, source, env):
 
 def _dolphin_emitter(target, source, env):
     res_root_dir = source[0].Dir(env["DOLPHIN_RES_TYPE"])
-    source = [res_root_dir]
+    source = list()
     source.extend(env.GlobRecursive("*.*", res_root_dir.srcnode()))
 
     target_base_dir = target[0]
     env.Replace(_DOLPHIN_OUT_DIR=target[0])
+    env.Replace(_DOLPHIN_SRC_DIR=res_root_dir)
 
     if env["DOLPHIN_RES_TYPE"] == "external":
         target = [target_base_dir.File("manifest.txt")]
         ## A detailed list of files to be generated
+        # Not used ATM, becasuse it inflates the internal dependency graph too much
         # Preserve original paths, do .png -> .bm conversion
-        target.extend(
-            map(
-                lambda node: target_base_dir.File(
-                    res_root_dir.rel_path(node).replace(".png", ".bm")
-                ),
-                filter(lambda node: isinstance(node, File), source),
-            )
-        )
+        # target.extend(
+        #     map(
+        #         lambda node: target_base_dir.File(
+        #             res_root_dir.rel_path(node).replace(".png", ".bm")
+        #         ),
+        #         filter(lambda node: isinstance(node, File), source),
+        #     )
+        # )
     else:
         asset_basename = f"assets_dolphin_{env['DOLPHIN_RES_TYPE']}"
         target = [
@@ -55,7 +57,7 @@ def _dolphin_emitter(target, source, env):
             target_base_dir.File(asset_basename + ".h"),
         ]
 
-    # Debug output
+    ## Debug output
     # print(
     #     f"Dolphin res type: {env['DOLPHIN_RES_TYPE']},\ntarget files:",
     #     list(f.path for f in target),
@@ -176,7 +178,7 @@ def generate(env):
                             "dolphin",
                             "-s",
                             "dolphin_${DOLPHIN_RES_TYPE}",
-                            "${SOURCE}",
+                            "${_DOLPHIN_SRC_DIR}",
                             "${_DOLPHIN_OUT_DIR}",
                         ],
                     ],
@@ -191,7 +193,7 @@ def generate(env):
                             "${PYTHON3}",
                             "${ASSETS_COMPILER}",
                             "dolphin",
-                            "${SOURCE}",
+                            "${_DOLPHIN_SRC_DIR}",
                             "${_DOLPHIN_OUT_DIR}",
                         ],
                     ],

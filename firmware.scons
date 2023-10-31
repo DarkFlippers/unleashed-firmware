@@ -148,15 +148,11 @@ if env["IS_BASE_FIRMWARE"]:
     )
     fw_artifacts.append(fw_extapps.sdk_tree)
 
-    # Resources for SD card
-    resources = fwenv.ResourcesDist(
-        _EXTRA_DIST=[fwenv["DOLPHIN_EXTERNAL_OUT_DIR"]],
-    )
-
+    # Resources & manifest for SD card
     manifest = fwenv.ManifestBuilder(
         "${RESOURCES_ROOT}/Manifest",
-        source=resources,
         GIT_UNIX_TIMESTAMP=get_git_commit_unix_timestamp(),
+        _EXTRA_DIST=[fwenv["DOLPHIN_EXTERNAL_OUT_DIR"]],
     )
     fwenv.Replace(FW_RESOURCES_MANIFEST=manifest)
     fwenv.Alias("resources", manifest)
