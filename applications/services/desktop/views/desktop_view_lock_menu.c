@@ -60,13 +60,13 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
             str = "Lock";
         } else if(i == DesktopLockMenuIndexStealth) {
             if(m->stealth_mode) {
-                str = "Sound Mode";
+                str = "Unmute";
             } else {
-                str = "Stealth Mode";
+                str = "Mute";
             }
         } else if(i == DesktopLockMenuIndexDummy) { //-V547
             if(m->dummy_mode) {
-                str = "Brainiac Mode";
+                str = "Default Mode";
             } else {
                 str = "Dummy Mode";
             }
