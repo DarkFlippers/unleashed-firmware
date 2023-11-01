@@ -51,7 +51,7 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
     callb = (TimerCallback_t*)((uint32_t)callb | 1U);
     // TimerCallback function is always provided as a callback and is used to call application
     // specified function with its context both stored in structure callb.
-    hTimer = xTimerCreate(NULL, 1, reload, callb, TimerCallback);
+    hTimer = xTimerCreate(NULL, portMAX_DELAY, reload, callb, TimerCallback);
     furi_check(hTimer);
 
     /* Return timer ID */
@@ -83,6 +83,7 @@ void furi_timer_free(FuriTimer* instance) {
 FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks) {
     furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
+    furi_assert(ticks < portMAX_DELAY);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;
     FuriStatus stat;
@@ -97,14 +98,16 @@ FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks) {
     return (stat);
 }
 
-FuriStatus furi_timer_restart(FuriTimer* instance) {
+FuriStatus furi_timer_restart(FuriTimer* instance, uint32_t ticks) {
     furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
+    furi_assert(ticks < portMAX_DELAY);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;
     FuriStatus stat;
 
-    if(xTimerReset(hTimer, portMAX_DELAY) == pdPASS) {
+    if(xTimerChangePeriod(hTimer, ticks, portMAX_DELAY) == pdPASS &&
+       xTimerReset(hTimer, portMAX_DELAY) == pdPASS) {
         stat = FuriStatusOk;
     } else {
         stat = FuriStatusErrorResource;
@@ -163,7 +166,9 @@ void furi_timer_pending_callback(FuriTimerPendigCallback callback, void* context
 
 void furi_timer_set_thread_priority(FuriTimerThreadPriority priority) {
     furi_assert(!furi_kernel_is_irq_or_masked());
-    TaskHandle_t task_handle = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
+
+    TaskHandle_t task_handle = xTimerGetTimerDaemonTaskHandle();
+    furi_check(task_handle); // Don't call this method before timer task start
 
     if(priority == FuriTimerThreadPriorityNormal) {
         vTaskPrioritySet(task_handle, configTIMER_TASK_PRIORITY);

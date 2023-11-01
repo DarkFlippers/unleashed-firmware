@@ -155,9 +155,9 @@ int32_t dolphin_srv(void* p) {
     furi_record_create(RECORD_DOLPHIN, dolphin);
 
     dolphin_state_load(dolphin->state);
-    furi_timer_stop(dolphin->butthurt_timer);
+    furi_timer_restart(dolphin->butthurt_timer, HOURS_IN_TICKS(2 * 24));
     dolphin_update_clear_limits_timer_period(dolphin);
-    furi_timer_stop(dolphin->clear_limits_timer);
+    furi_timer_restart(dolphin->clear_limits_timer, HOURS_IN_TICKS(24));
 
     DolphinEvent event;
     while(1) {
@@ -167,8 +167,8 @@ int32_t dolphin_srv(void* p) {
                 dolphin_state_on_deed(dolphin->state, event.deed);
                 DolphinPubsubEvent event = DolphinPubsubEventUpdate;
                 furi_pubsub_publish(dolphin->pubsub, &event);
-                furi_timer_restart(dolphin->butthurt_timer);
-                furi_timer_restart(dolphin->flush_timer);
+                furi_timer_restart(dolphin->butthurt_timer, HOURS_IN_TICKS(2 * 24));
+                furi_timer_restart(dolphin->flush_timer, 30 * 1000);
             } else if(event.type == DolphinEventTypeStats) {
                 event.stats->icounter = dolphin->state->data.icounter;
                 event.stats->butthurt = dolphin->state->data.butthurt;

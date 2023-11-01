@@ -34,7 +34,7 @@ void furi_timer_free(FuriTimer* instance);
 /** Start timer
  *
  * @param      instance  The pointer to FuriTimer instance
- * @param[in]  ticks     The ticks
+ * @param[in]  ticks     The interval in ticks
  *
  * @return     The furi status.
  */
@@ -43,10 +43,11 @@ FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks);
 /** Restart timer with previous timeout value
  *
  * @param      instance  The pointer to FuriTimer instance
+ * @param[in]  ticks     The interval in ticks
  *
  * @return     The furi status.
  */
-FuriStatus furi_timer_restart(FuriTimer* instance);
+FuriStatus furi_timer_restart(FuriTimer* instance, uint32_t ticks);
 
 /** Stop timer
  *

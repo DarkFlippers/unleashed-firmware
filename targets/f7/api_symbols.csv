@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,43.2,,
+Version,+,44.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -1688,7 +1688,7 @@ Function,+,furi_timer_free,void,FuriTimer*
 Function,+,furi_timer_get_expire_time,uint32_t,FuriTimer*
 Function,+,furi_timer_is_running,uint32_t,FuriTimer*
 Function,+,furi_timer_pending_callback,void,"FuriTimerPendigCallback, void*, uint32_t"
-Function,+,furi_timer_restart,FuriStatus,FuriTimer*
+Function,+,furi_timer_restart,FuriStatus,"FuriTimer*, uint32_t"
 Function,+,furi_timer_set_thread_priority,void,FuriTimerThreadPriority
 Function,+,furi_timer_start,FuriStatus,"FuriTimer*, uint32_t"
 Function,+,furi_timer_stop,FuriStatus,FuriTimer*
