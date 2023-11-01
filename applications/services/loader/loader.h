@@ -31,7 +31,7 @@ typedef struct {
 /**
  * @brief Start application
  * @param[in] instance loader instance
- * @param[in] name application name
+ * @param[in] name application name or id
  * @param[in] args application arguments
  * @param[out] error_message detailed error message, can be NULL
  * @return LoaderStatus 
@@ -42,7 +42,7 @@ LoaderStatus
 /**
  * @brief Start application with GUI error message
  * @param[in] instance loader instance
- * @param[in] name application name
+ * @param[in] name application name or id
  * @param[in] args application arguments
  * @return LoaderStatus 
  */

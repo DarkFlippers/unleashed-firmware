@@ -17,6 +17,12 @@ App(
     icon="A_Sub1ghz_14",
     stack_size=3 * 1024,
     order=1,
+    sources=[
+        "*.c",
+        "!subghz_cli.c",
+        "!helpers/subghz_chat.c",
+    ],
+    resources="resources",
     fap_libs=["assets", "hwdrivers"],
     fap_icon="icon.png",
     fap_category="Sub-GHz",
@@ -27,7 +33,7 @@ App(
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,
     entry_point="subghz_on_system_start",
-    requires=["subghz"],
+    sources=["subghz_cli.c", "helpers/subghz_chat.c"],
     order=40,
 )
 

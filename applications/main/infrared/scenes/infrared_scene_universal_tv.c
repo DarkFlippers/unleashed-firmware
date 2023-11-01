@@ -1,11 +1,11 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 #include "common/infrared_scene_universal_common.h"
 
 void infrared_scene_universal_tv_on_enter(void* context) {
     infrared_scene_universal_common_on_enter(context);
 
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     ButtonPanel* button_panel = infrared->button_panel;
     InfraredBruteForce* brute_force = infrared->brute_force;
 

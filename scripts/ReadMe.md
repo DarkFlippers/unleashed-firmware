@@ -52,10 +52,10 @@ ob.py set
 
 # Assets delivery
 
-Run in the root folder of the repo:
+Build the firmware and run in the root folder of the repo:
 
 ```bash
-python scripts/storage.py -p <flipper_cli_port> send assets/resources /ext
+python scripts/storage.py -p <flipper_cli_port> send build/latest/resources /ext
 ```
 
 

@@ -15,7 +15,6 @@ IconAnimation* icon_animation_alloc(const Icon* icon) {
 void icon_animation_free(IconAnimation* instance) {
     furi_assert(instance);
     icon_animation_stop(instance);
-    while(xTimerIsTimerActive(instance->timer) == pdTRUE) furi_delay_tick(1);
     furi_timer_free(instance->timer);
     free(instance);
 }
@@ -67,10 +66,9 @@ void icon_animation_start(IconAnimation* instance) {
         instance->animating = true;
         furi_assert(instance->icon->frame_rate);
         furi_check(
-            xTimerChangePeriod(
+            furi_timer_start(
                 instance->timer,
-                (furi_kernel_get_tick_frequency() / instance->icon->frame_rate),
-                portMAX_DELAY) == pdPASS);
+                (furi_kernel_get_tick_frequency() / instance->icon->frame_rate)) == FuriStatusOk);
     }
 }
 
@@ -78,7 +76,7 @@ void icon_animation_stop(IconAnimation* instance) {
     furi_assert(instance);
     if(instance->animating) {
         instance->animating = false;
-        furi_check(xTimerStop(instance->timer, portMAX_DELAY) == pdPASS);
+        furi_timer_stop(instance->timer);
         instance->frame = 0;
     }
 }

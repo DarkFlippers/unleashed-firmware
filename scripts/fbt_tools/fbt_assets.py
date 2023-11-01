@@ -5,9 +5,10 @@ from ansi.color import fg
 from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Errors import StopError
+from SCons.Node.FS import File
 
 
-def icons_emitter(target, source, env):
+def _icons_emitter(target, source, env):
     icons_src = env.GlobRecursive("*.png", env["ICON_SRC_DIR"])
     icons_src += env.GlobRecursive("**/frame_rate", env["ICON_SRC_DIR"])
 
@@ -18,7 +19,7 @@ def icons_emitter(target, source, env):
     return target, icons_src
 
 
-def proto_emitter(target, source, env):
+def _proto_emitter(target, source, env):
     target = []
     for src in source:
         basename = os.path.splitext(src.name)[0]
@@ -27,25 +28,26 @@ def proto_emitter(target, source, env):
     return target, source
 
 
-def dolphin_emitter(target, source, env):
+def _dolphin_emitter(target, source, env):
     res_root_dir = source[0].Dir(env["DOLPHIN_RES_TYPE"])
-    source = [res_root_dir]
+    source = list()
     source.extend(env.GlobRecursive("*.*", res_root_dir.srcnode()))
 
     target_base_dir = target[0]
     env.Replace(_DOLPHIN_OUT_DIR=target[0])
+    env.Replace(_DOLPHIN_SRC_DIR=res_root_dir)
 
     if env["DOLPHIN_RES_TYPE"] == "external":
         target = [target_base_dir.File("manifest.txt")]
         ## A detailed list of files to be generated
-        ## works better if we just leave target the folder
-        # target = []
+        # Not used ATM, becasuse it inflates the internal dependency graph too much
+        # Preserve original paths, do .png -> .bm conversion
         # target.extend(
         #     map(
         #         lambda node: target_base_dir.File(
         #             res_root_dir.rel_path(node).replace(".png", ".bm")
         #         ),
-        #         filter(lambda node: isinstance(node, SCons.Node.FS.File), source),
+        #         filter(lambda node: isinstance(node, File), source),
         #     )
         # )
     else:
@@ -55,7 +57,7 @@ def dolphin_emitter(target, source, env):
             target_base_dir.File(asset_basename + ".h"),
         ]
 
-    # Debug output
+    ## Debug output
     # print(
     #     f"Dolphin res type: {env['DOLPHIN_RES_TYPE']},\ntarget files:",
     #     list(f.path for f in target),
@@ -65,7 +67,7 @@ def dolphin_emitter(target, source, env):
     return target, source
 
 
-def _invoke_git(args, source_dir):
+def __invoke_git(args, source_dir):
     cmd = ["git"]
     cmd.extend(args)
     return (
@@ -75,11 +77,11 @@ def _invoke_git(args, source_dir):
     )
 
 
-def proto_ver_generator(target, source, env):
+def _proto_ver_generator(target, source, env):
     target_file = target[0]
     src_dir = source[0].dir.abspath
     try:
-        _invoke_git(
+        __invoke_git(
             ["fetch", "--tags"],
             source_dir=src_dir,
         )
@@ -88,7 +90,7 @@ def proto_ver_generator(target, source, env):
         print(fg.boldred("Git: fetch failed"))
 
     try:
-        git_describe = _invoke_git(
+        git_describe = __invoke_git(
             ["describe", "--tags", "--abbrev=0"],
             source_dir=src_dir,
         )
@@ -127,7 +129,6 @@ def generate(env):
             ICONSCOMSTR="\tICONS\t${TARGET}",
             PROTOCOMSTR="\tPROTO\t${SOURCE}",
             DOLPHINCOMSTR="\tDOLPHIN\t${DOLPHIN_RES_TYPE}",
-            RESMANIFESTCOMSTR="\tMANIFEST\t${TARGET}",
             PBVERCOMSTR="\tPBVER\t${TARGET}",
         )
 
@@ -135,37 +136,74 @@ def generate(env):
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} ${ASSETS_COMPILER} icons ${ICON_SRC_DIR} ${TARGET.dir} --filename "${ICON_FILE_NAME}"',
+                    [
+                        [
+                            "${PYTHON3}",
+                            "${ASSETS_COMPILER}",
+                            "icons",
+                            "${ICON_SRC_DIR}",
+                            "${TARGET.dir}",
+                            "--filename",
+                            "${ICON_FILE_NAME}",
+                        ],
+                    ],
                     "${ICONSCOMSTR}",
                 ),
-                emitter=icons_emitter,
+                emitter=_icons_emitter,
             ),
             "ProtoBuilder": Builder(
                 action=Action(
-                    "${PYTHON3} ${NANOPB_COMPILER} -q -I${SOURCE.dir.posix} -D${TARGET.dir.posix} ${SOURCES.posix}",
+                    [
+                        [
+                            "${PYTHON3}",
+                            "${NANOPB_COMPILER}",
+                            "-q",
+                            "-I${SOURCE.dir.posix}",
+                            "-D${TARGET.dir.posix}",
+                            "${SOURCES.posix}",
+                        ],
+                    ],
                     "${PROTOCOMSTR}",
                 ),
-                emitter=proto_emitter,
+                emitter=_proto_emitter,
                 suffix=".pb.c",
                 src_suffix=".proto",
             ),
             "DolphinSymBuilder": Builder(
                 action=Action(
-                    "${PYTHON3} ${ASSETS_COMPILER} dolphin -s dolphin_${DOLPHIN_RES_TYPE} ${SOURCE} ${_DOLPHIN_OUT_DIR}",
+                    [
+                        [
+                            "${PYTHON3}",
+                            "${ASSETS_COMPILER}",
+                            "dolphin",
+                            "-s",
+                            "dolphin_${DOLPHIN_RES_TYPE}",
+                            "${_DOLPHIN_SRC_DIR}",
+                            "${_DOLPHIN_OUT_DIR}",
+                        ],
+                    ],
                     "${DOLPHINCOMSTR}",
                 ),
-                emitter=dolphin_emitter,
+                emitter=_dolphin_emitter,
             ),
             "DolphinExtBuilder": Builder(
                 action=Action(
-                    "${PYTHON3} ${ASSETS_COMPILER} dolphin ${SOURCE} ${_DOLPHIN_OUT_DIR}",
+                    [
+                        [
+                            "${PYTHON3}",
+                            "${ASSETS_COMPILER}",
+                            "dolphin",
+                            "${_DOLPHIN_SRC_DIR}",
+                            "${_DOLPHIN_OUT_DIR}",
+                        ],
+                    ],
                     "${DOLPHINCOMSTR}",
                 ),
-                emitter=dolphin_emitter,
+                emitter=_dolphin_emitter,
             ),
             "ProtoVerBuilder": Builder(
                 action=Action(
-                    proto_ver_generator,
+                    _proto_ver_generator,
                     "${PBVERCOMSTR}",
                 ),
             ),

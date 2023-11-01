@@ -202,7 +202,7 @@ static bool
 }
 
 static bool infrared_cli_decode_raw_signal(
-    InfraredRawSignal* raw_signal,
+    const InfraredRawSignal* raw_signal,
     InfraredDecoderHandler* decoder,
     FlipperFormat* output_file,
     const char* signal_name) {
@@ -274,7 +274,7 @@ static bool infrared_cli_decode_file(FlipperFormat* input_file, FlipperFormat* o
                 continue;
             }
         }
-        InfraredRawSignal* raw_signal = infrared_signal_get_raw_signal(signal);
+        const InfraredRawSignal* raw_signal = infrared_signal_get_raw_signal(signal);
         printf(
             "Raw signal: %s, %zu samples\r\n",
             furi_string_get_cstr(tmp),

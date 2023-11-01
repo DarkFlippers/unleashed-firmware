@@ -1,8 +1,8 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 #include <dolphin/dolphin.h>
 
 void infrared_scene_learn_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
     InfraredWorker* worker = infrared->worker;
 
@@ -21,7 +21,7 @@ void infrared_scene_learn_on_enter(void* context) {
 }
 
 bool infrared_scene_learn_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -37,7 +37,7 @@ bool infrared_scene_learn_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_learn_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
     infrared_worker_rx_set_received_signal_callback(infrared->worker, NULL, NULL);
     infrared_worker_rx_stop(infrared->worker);

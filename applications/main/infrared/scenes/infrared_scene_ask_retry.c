@@ -1,12 +1,12 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 static void infrared_scene_dialog_result_callback(DialogExResult result, void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     view_dispatcher_send_custom_event(infrared->view_dispatcher, result);
 }
 
 void infrared_scene_ask_retry_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     DialogEx* dialog_ex = infrared->dialog_ex;
 
     dialog_ex_set_header(dialog_ex, "Retry Reading?", 64, 11, AlignCenter, AlignTop);
@@ -23,7 +23,7 @@ void infrared_scene_ask_retry_on_enter(void* context) {
 }
 
 bool infrared_scene_ask_retry_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
     bool consumed = false;
 
@@ -43,6 +43,6 @@ bool infrared_scene_ask_retry_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_ask_retry_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     dialog_ex_reset(infrared->dialog_ex);
 }

@@ -1,5 +1,6 @@
 entry,status,name,type,params
-Version,+,40.1,,
+Version,+,44.0,,
+Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -36,51 +37,6 @@ Header,+,applications/services/notification/notification_messages.h,,
 Header,+,applications/services/power/power_service/power.h,,
 Header,+,applications/services/rpc/rpc_app.h,,
 Header,+,applications/services/storage/storage.h,,
-Header,+,firmware/targets/f18/furi_hal/furi_hal_resources.h,,
-Header,+,firmware/targets/f18/furi_hal/furi_hal_spi_config.h,,
-Header,+,firmware/targets/f18/furi_hal/furi_hal_target_hw.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_bus.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_clock.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_console.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_dma.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_flash.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_gpio.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_i2c_config.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_i2c_types.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_idle_timer.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_interrupt.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_os.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_pwm.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_spi_types.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_uart.h,,
-Header,+,firmware/targets/f7/furi_hal/furi_hal_usb_cdc.h,,
-Header,+,firmware/targets/f7/platform_specific/intrinsic_export.h,,
-Header,+,firmware/targets/f7/platform_specific/math_wrapper.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_bt.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_bt_hid.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_bt_serial.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_cortex.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_crypto.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_debug.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_i2c.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_info.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_light.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_memory.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_mpu.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_power.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_random.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_region.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_rtc.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_sd.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_speaker.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_spi.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_usb.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_usb_ccid.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_version.h,,
-Header,+,firmware/targets/furi_hal_include/furi_hal_vibro.h,,
 Header,+,lib/digital_signal/digital_sequence.h,,
 Header,+,lib/digital_signal/digital_signal.h,,
 Header,+,lib/drivers/cc1101_regs.h,,
@@ -92,6 +48,18 @@ Header,+,lib/flipper_application/plugins/plugin_manager.h,,
 Header,+,lib/flipper_format/flipper_format.h,,
 Header,+,lib/flipper_format/flipper_format_i.h,,
 Header,+,lib/flipper_format/flipper_format_stream.h,,
+Header,+,lib/ibutton/ibutton_key.h,,
+Header,+,lib/ibutton/ibutton_protocols.h,,
+Header,+,lib/ibutton/ibutton_worker.h,,
+Header,+,lib/infrared/encoder_decoder/infrared.h,,
+Header,+,lib/infrared/worker/infrared_transmit.h,,
+Header,+,lib/infrared/worker/infrared_worker.h,,
+Header,+,lib/lfrfid/lfrfid_dict_file.h,,
+Header,+,lib/lfrfid/lfrfid_raw_file.h,,
+Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
+Header,+,lib/lfrfid/lfrfid_worker.h,,
+Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
+Header,+,lib/lfrfid/tools/bit_lib.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_button.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_consumer.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_desktop.h,,
@@ -136,6 +104,40 @@ Header,+,lib/music_worker/music_worker.h,,
 Header,+,lib/nanopb/pb.h,,
 Header,+,lib/nanopb/pb_decode.h,,
 Header,+,lib/nanopb/pb_encode.h,,
+Header,+,lib/nfc/helpers/iso13239_crc.h,,
+Header,+,lib/nfc/helpers/iso14443_crc.h,,
+Header,+,lib/nfc/helpers/nfc_data_generator.h,,
+Header,+,lib/nfc/helpers/nfc_dict.h,,
+Header,+,lib/nfc/helpers/nfc_util.h,,
+Header,+,lib/nfc/nfc.h,,
+Header,+,lib/nfc/nfc_device.h,,
+Header,+,lib/nfc/nfc_listener.h,,
+Header,+,lib/nfc/nfc_poller.h,,
+Header,+,lib/nfc/nfc_scanner.h,,
+Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a.h,,
+Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h,,
+Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller.h,,
+Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller_sync_api.h,,
+Header,+,lib/nfc/protocols/iso14443_3b/iso14443_3b.h,,
+Header,+,lib/nfc/protocols/iso14443_3b/iso14443_3b_poller.h,,
+Header,+,lib/nfc/protocols/iso14443_4a/iso14443_4a.h,,
+Header,+,lib/nfc/protocols/iso14443_4a/iso14443_4a_listener.h,,
+Header,+,lib/nfc/protocols/iso14443_4a/iso14443_4a_poller.h,,
+Header,+,lib/nfc/protocols/iso14443_4b/iso14443_4b.h,,
+Header,+,lib/nfc/protocols/iso14443_4b/iso14443_4b_poller.h,,
+Header,+,lib/nfc/protocols/mf_classic/mf_classic.h,,
+Header,+,lib/nfc/protocols/mf_classic/mf_classic_listener.h,,
+Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller.h,,
+Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller_sync_api.h,,
+Header,+,lib/nfc/protocols/mf_desfire/mf_desfire.h,,
+Header,+,lib/nfc/protocols/mf_desfire/mf_desfire_poller.h,,
+Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight.h,,
+Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h,,
+Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h,,
+Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller_sync_api.h,,
+Header,+,lib/nfc/protocols/slix/slix.h,,
+Header,+,lib/nfc/protocols/st25tb/st25tb.h,,
+Header,+,lib/nfc/protocols/st25tb/st25tb_poller.h,,
 Header,+,lib/one_wire/maxim_crc.h,,
 Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
@@ -169,6 +171,23 @@ Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_tim.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_usart.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_utils.h,,
 Header,+,lib/stm32wb_hal/Inc/stm32wbxx_ll_wwdg.h,,
+Header,+,lib/subghz/blocks/const.h,,
+Header,+,lib/subghz/blocks/decoder.h,,
+Header,+,lib/subghz/blocks/encoder.h,,
+Header,+,lib/subghz/blocks/generic.h,,
+Header,+,lib/subghz/blocks/math.h,,
+Header,+,lib/subghz/devices/cc1101_configs.h,,
+Header,+,lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h,,
+Header,+,lib/subghz/environment.h,,
+Header,+,lib/subghz/protocols/public_api.h,,
+Header,+,lib/subghz/protocols/raw.h,,
+Header,+,lib/subghz/receiver.h,,
+Header,+,lib/subghz/registry.h,,
+Header,+,lib/subghz/subghz_protocol_registry.h,,
+Header,+,lib/subghz/subghz_setting.h,,
+Header,+,lib/subghz/subghz_tx_rx_worker.h,,
+Header,+,lib/subghz/subghz_worker.h,,
+Header,+,lib/subghz/transmitter.h,,
 Header,+,lib/toolbox/api_lock.h,,
 Header,+,lib/toolbox/args.h,,
 Header,+,lib/toolbox/bit_buffer.h,,
@@ -194,6 +213,56 @@ Header,+,lib/toolbox/stream/string_stream.h,,
 Header,+,lib/toolbox/tar/tar_archive.h,,
 Header,+,lib/toolbox/value_index.h,,
 Header,+,lib/toolbox/version.h,,
+Header,+,targets/f7/furi_hal/furi_hal_bus.h,,
+Header,+,targets/f7/furi_hal/furi_hal_clock.h,,
+Header,+,targets/f7/furi_hal/furi_hal_console.h,,
+Header,+,targets/f7/furi_hal/furi_hal_dma.h,,
+Header,+,targets/f7/furi_hal/furi_hal_flash.h,,
+Header,+,targets/f7/furi_hal/furi_hal_gpio.h,,
+Header,+,targets/f7/furi_hal/furi_hal_i2c_config.h,,
+Header,+,targets/f7/furi_hal/furi_hal_i2c_types.h,,
+Header,+,targets/f7/furi_hal/furi_hal_ibutton.h,,
+Header,+,targets/f7/furi_hal/furi_hal_idle_timer.h,,
+Header,+,targets/f7/furi_hal/furi_hal_interrupt.h,,
+Header,+,targets/f7/furi_hal/furi_hal_os.h,,
+Header,+,targets/f7/furi_hal/furi_hal_pwm.h,,
+Header,+,targets/f7/furi_hal/furi_hal_resources.h,,
+Header,+,targets/f7/furi_hal/furi_hal_rfid.h,,
+Header,+,targets/f7/furi_hal/furi_hal_spi_config.h,,
+Header,+,targets/f7/furi_hal/furi_hal_spi_types.h,,
+Header,+,targets/f7/furi_hal/furi_hal_subghz.h,,
+Header,+,targets/f7/furi_hal/furi_hal_target_hw.h,,
+Header,+,targets/f7/furi_hal/furi_hal_uart.h,,
+Header,+,targets/f7/furi_hal/furi_hal_usb_cdc.h,,
+Header,+,targets/f7/platform_specific/intrinsic_export.h,,
+Header,+,targets/f7/platform_specific/math_wrapper.h,,
+Header,+,targets/furi_hal_include/furi_hal.h,,
+Header,+,targets/furi_hal_include/furi_hal_bt.h,,
+Header,+,targets/furi_hal_include/furi_hal_bt_hid.h,,
+Header,+,targets/furi_hal_include/furi_hal_bt_serial.h,,
+Header,+,targets/furi_hal_include/furi_hal_cortex.h,,
+Header,+,targets/furi_hal_include/furi_hal_crypto.h,,
+Header,+,targets/furi_hal_include/furi_hal_debug.h,,
+Header,+,targets/furi_hal_include/furi_hal_i2c.h,,
+Header,+,targets/furi_hal_include/furi_hal_info.h,,
+Header,+,targets/furi_hal_include/furi_hal_infrared.h,,
+Header,+,targets/furi_hal_include/furi_hal_light.h,,
+Header,+,targets/furi_hal_include/furi_hal_memory.h,,
+Header,+,targets/furi_hal_include/furi_hal_mpu.h,,
+Header,+,targets/furi_hal_include/furi_hal_nfc.h,,
+Header,+,targets/furi_hal_include/furi_hal_power.h,,
+Header,+,targets/furi_hal_include/furi_hal_random.h,,
+Header,+,targets/furi_hal_include/furi_hal_region.h,,
+Header,+,targets/furi_hal_include/furi_hal_rtc.h,,
+Header,+,targets/furi_hal_include/furi_hal_sd.h,,
+Header,+,targets/furi_hal_include/furi_hal_speaker.h,,
+Header,+,targets/furi_hal_include/furi_hal_spi.h,,
+Header,+,targets/furi_hal_include/furi_hal_usb.h,,
+Header,+,targets/furi_hal_include/furi_hal_usb_ccid.h,,
+Header,+,targets/furi_hal_include/furi_hal_usb_hid.h,,
+Header,+,targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
+Header,+,targets/furi_hal_include/furi_hal_version.h,,
+Header,+,targets/furi_hal_include/furi_hal_vibro.h,,
 Function,-,LL_ADC_CommonDeInit,ErrorStatus,ADC_Common_TypeDef*
 Function,-,LL_ADC_CommonInit,ErrorStatus,"ADC_Common_TypeDef*, const LL_ADC_CommonInitTypeDef*"
 Function,-,LL_ADC_CommonStructInit,void,LL_ADC_CommonInitTypeDef*
@@ -274,7 +343,7 @@ Function,-,LL_SetFlashLatency,ErrorStatus,uint32_t
 Function,+,LL_SetSystemCoreClock,void,uint32_t
 Function,-,LL_TIM_BDTR_Init,ErrorStatus,"TIM_TypeDef*, const LL_TIM_BDTR_InitTypeDef*"
 Function,-,LL_TIM_BDTR_StructInit,void,LL_TIM_BDTR_InitTypeDef*
-Function,-,LL_TIM_DeInit,ErrorStatus,TIM_TypeDef*
+Function,+,LL_TIM_DeInit,ErrorStatus,TIM_TypeDef*
 Function,-,LL_TIM_ENCODER_Init,ErrorStatus,"TIM_TypeDef*, const LL_TIM_ENCODER_InitTypeDef*"
 Function,-,LL_TIM_ENCODER_StructInit,void,LL_TIM_ENCODER_InitTypeDef*
 Function,-,LL_TIM_HALLSENSOR_Init,ErrorStatus,"TIM_TypeDef*, const LL_TIM_HALLSENSOR_InitTypeDef*"
@@ -294,6 +363,7 @@ Function,-,LL_mDelay,void,uint32_t
 Function,-,SystemCoreClockUpdate,void,
 Function,-,SystemInit,void,
 Function,-,_Exit,void,int
+Function,+,__aeabi_uldivmod,void*,"uint64_t, uint64_t"
 Function,-,__assert,void,"const char*, int, const char*"
 Function,+,__assert_func,void,"const char*, int, const char*, const char*"
 Function,+,__clear_cache,void,"void*, void*"
@@ -301,10 +371,10 @@ Function,-,__eprintf,void,"const char*, const char*, unsigned int, const char*"
 Function,+,__errno,int*,
 Function,-,__fpclassifyd,int,double
 Function,-,__fpclassifyf,int,float
-Function,+,__furi_crash,void,
+Function,+,__furi_crash_implementation,void,
 Function,+,__furi_critical_enter,__FuriCriticalInfo,
 Function,+,__furi_critical_exit,void,__FuriCriticalInfo
-Function,+,__furi_halt,void,
+Function,+,__furi_halt_implementation,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
 Function,-,__isinfd,int,double
@@ -416,7 +486,6 @@ Function,-,_perror_r,void,"_reent*, const char*"
 Function,-,_printf_r,int,"_reent*, const char*, ..."
 Function,-,_putc_r,int,"_reent*, int, FILE*"
 Function,-,_putc_unlocked_r,int,"_reent*, int, FILE*"
-Function,-,_putchar,void,char
 Function,-,_putchar_r,int,"_reent*, int"
 Function,-,_putchar_unlocked_r,int,"_reent*, int"
 Function,-,_putenv_r,int,"_reent*, char*"
@@ -558,6 +627,26 @@ Function,+,bit_buffer_starts_with_byte,_Bool,"const BitBuffer*, uint8_t"
 Function,+,bit_buffer_write_bytes,void,"const BitBuffer*, void*, size_t"
 Function,+,bit_buffer_write_bytes_mid,void,"const BitBuffer*, void*, size_t, size_t"
 Function,+,bit_buffer_write_bytes_with_parity,void,"const BitBuffer*, void*, size_t, size_t*"
+Function,+,bit_lib_add_parity,size_t,"const uint8_t*, size_t, uint8_t*, size_t, uint8_t, uint8_t, BitLibParity"
+Function,+,bit_lib_copy_bits,void,"uint8_t*, size_t, size_t, const uint8_t*, size_t"
+Function,+,bit_lib_crc16,uint16_t,"const uint8_t*, size_t, uint16_t, uint16_t, _Bool, _Bool, uint16_t"
+Function,+,bit_lib_crc8,uint16_t,"const uint8_t*, size_t, uint8_t, uint8_t, _Bool, _Bool, uint8_t"
+Function,+,bit_lib_get_bit,_Bool,"const uint8_t*, size_t"
+Function,+,bit_lib_get_bit_count,uint8_t,uint32_t
+Function,+,bit_lib_get_bits,uint8_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_16,uint16_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_32,uint32_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_print_bits,void,"const uint8_t*, size_t"
+Function,+,bit_lib_print_regions,void,"const BitLibRegion*, size_t, const uint8_t*, size_t"
+Function,+,bit_lib_push_bit,void,"uint8_t*, size_t, _Bool"
+Function,+,bit_lib_remove_bit_every_nth,size_t,"uint8_t*, size_t, uint8_t, uint8_t"
+Function,+,bit_lib_reverse_16_fast,uint16_t,uint16_t
+Function,+,bit_lib_reverse_8_fast,uint8_t,uint8_t
+Function,+,bit_lib_reverse_bits,void,"uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_set_bit,void,"uint8_t*, size_t, _Bool"
+Function,+,bit_lib_set_bits,void,"uint8_t*, size_t, uint8_t, uint8_t"
+Function,+,bit_lib_test_parity,_Bool,"const uint8_t*, size_t, uint8_t, BitLibParity, uint8_t"
+Function,+,bit_lib_test_parity_32,_Bool,"uint32_t, BitLibParity"
 Function,+,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,ble_app_init,_Bool,
 Function,+,ble_app_thread_stop,void,
@@ -750,8 +839,6 @@ Function,-,dprintf,int,"int, const char*, ..."
 Function,-,drand48,double,
 Function,-,drem,double,"double, double"
 Function,-,dremf,float,"float, float"
-Function,-,eTaskConfirmSleepModeStatus,eSleepModeStatus,
-Function,-,eTaskGetState,eTaskState,TaskHandle_t
 Function,+,elements_bold_rounded_frame,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,elements_bubble,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,elements_bubble_str,void,"Canvas*, uint8_t, uint8_t, const char*, Align, Align"
@@ -1153,8 +1240,26 @@ Function,+,furi_hal_i2c_tx_ext,_Bool,"FuriHalI2cBusHandle*, uint16_t, _Bool, con
 Function,+,furi_hal_i2c_write_mem,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, const uint8_t*, size_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_16,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint16_t, uint32_t"
 Function,+,furi_hal_i2c_write_reg_8,_Bool,"FuriHalI2cBusHandle*, uint8_t, uint8_t, uint8_t, uint32_t"
+Function,+,furi_hal_ibutton_emulate_set_next,void,uint32_t
+Function,+,furi_hal_ibutton_emulate_start,void,"uint32_t, FuriHalIbuttonEmulateCallback, void*"
+Function,+,furi_hal_ibutton_emulate_stop,void,
+Function,-,furi_hal_ibutton_init,void,
+Function,+,furi_hal_ibutton_pin_configure,void,
+Function,+,furi_hal_ibutton_pin_reset,void,
+Function,+,furi_hal_ibutton_pin_write,void,const _Bool
 Function,+,furi_hal_info_get,void,"PropertyValueCallback, char, void*"
 Function,+,furi_hal_info_get_api_version,void,"uint16_t*, uint16_t*"
+Function,+,furi_hal_infrared_async_rx_set_capture_isr_callback,void,"FuriHalInfraredRxCaptureCallback, void*"
+Function,+,furi_hal_infrared_async_rx_set_timeout,void,uint32_t
+Function,+,furi_hal_infrared_async_rx_set_timeout_isr_callback,void,"FuriHalInfraredRxTimeoutCallback, void*"
+Function,+,furi_hal_infrared_async_rx_start,void,
+Function,+,furi_hal_infrared_async_rx_stop,void,
+Function,+,furi_hal_infrared_async_tx_set_data_isr_callback,void,"FuriHalInfraredTxGetDataISRCallback, void*"
+Function,+,furi_hal_infrared_async_tx_set_signal_sent_isr_callback,void,"FuriHalInfraredTxSignalSentISRCallback, void*"
+Function,+,furi_hal_infrared_async_tx_start,void,"uint32_t, float"
+Function,+,furi_hal_infrared_async_tx_stop,void,
+Function,+,furi_hal_infrared_async_tx_wait_termination,void,
+Function,+,furi_hal_infrared_is_busy,_Bool,
 Function,-,furi_hal_init,void,
 Function,-,furi_hal_init_early,void,
 Function,-,furi_hal_interrupt_init,void,
@@ -1176,6 +1281,44 @@ Function,-,furi_hal_mpu_init,void,
 Function,+,furi_hal_mpu_protect_disable,void,FuriHalMpuRegion
 Function,+,furi_hal_mpu_protect_no_access,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
 Function,+,furi_hal_mpu_protect_read_only,void,"FuriHalMpuRegion, uint32_t, FuriHalMPURegionSize"
+Function,+,furi_hal_nfc_abort,FuriHalNfcError,
+Function,+,furi_hal_nfc_acquire,FuriHalNfcError,
+Function,+,furi_hal_nfc_event_start,FuriHalNfcError,
+Function,+,furi_hal_nfc_event_stop,FuriHalNfcError,
+Function,+,furi_hal_nfc_field_detect_start,FuriHalNfcError,
+Function,+,furi_hal_nfc_field_detect_stop,FuriHalNfcError,
+Function,+,furi_hal_nfc_field_is_present,_Bool,
+Function,+,furi_hal_nfc_init,FuriHalNfcError,
+Function,+,furi_hal_nfc_is_hal_ready,FuriHalNfcError,
+Function,+,furi_hal_nfc_iso14443a_listener_set_col_res_data,FuriHalNfcError,"uint8_t*, uint8_t, uint8_t*, uint8_t"
+Function,+,furi_hal_nfc_iso14443a_listener_tx_custom_parity,FuriHalNfcError,"const uint8_t*, const uint8_t*, size_t"
+Function,+,furi_hal_nfc_iso14443a_poller_trx_short_frame,FuriHalNfcError,FuriHalNfcaShortFrame
+Function,+,furi_hal_nfc_iso14443a_poller_tx_custom_parity,FuriHalNfcError,"const uint8_t*, size_t"
+Function,+,furi_hal_nfc_iso14443a_rx_sdd_frame,FuriHalNfcError,"uint8_t*, size_t, size_t*"
+Function,+,furi_hal_nfc_iso14443a_tx_sdd_frame,FuriHalNfcError,"const uint8_t*, size_t"
+Function,+,furi_hal_nfc_iso15693_listener_tx_sof,FuriHalNfcError,
+Function,+,furi_hal_nfc_listener_enable_rx,FuriHalNfcError,
+Function,+,furi_hal_nfc_listener_idle,FuriHalNfcError,
+Function,+,furi_hal_nfc_listener_rx,FuriHalNfcError,"uint8_t*, size_t, size_t*"
+Function,+,furi_hal_nfc_listener_sleep,FuriHalNfcError,
+Function,+,furi_hal_nfc_listener_tx,FuriHalNfcError,"const uint8_t*, size_t"
+Function,+,furi_hal_nfc_listener_wait_event,FuriHalNfcEvent,uint32_t
+Function,+,furi_hal_nfc_low_power_mode_start,FuriHalNfcError,
+Function,+,furi_hal_nfc_low_power_mode_stop,FuriHalNfcError,
+Function,+,furi_hal_nfc_poller_field_on,FuriHalNfcError,
+Function,+,furi_hal_nfc_poller_rx,FuriHalNfcError,"uint8_t*, size_t, size_t*"
+Function,+,furi_hal_nfc_poller_tx,FuriHalNfcError,"const uint8_t*, size_t"
+Function,+,furi_hal_nfc_poller_wait_event,FuriHalNfcEvent,uint32_t
+Function,+,furi_hal_nfc_release,FuriHalNfcError,
+Function,+,furi_hal_nfc_reset_mode,FuriHalNfcError,
+Function,+,furi_hal_nfc_set_mode,FuriHalNfcError,"FuriHalNfcMode, FuriHalNfcTech"
+Function,+,furi_hal_nfc_timer_block_tx_is_running,_Bool,
+Function,+,furi_hal_nfc_timer_block_tx_start,void,uint32_t
+Function,+,furi_hal_nfc_timer_block_tx_start_us,void,uint32_t
+Function,+,furi_hal_nfc_timer_block_tx_stop,void,
+Function,+,furi_hal_nfc_timer_fwt_start,void,uint32_t
+Function,+,furi_hal_nfc_timer_fwt_stop,void,
+Function,+,furi_hal_nfc_trx_reset,FuriHalNfcError,
 Function,-,furi_hal_os_init,void,
 Function,+,furi_hal_os_tick,void,
 Function,+,furi_hal_power_check_otg_fault,_Bool,
@@ -1231,6 +1374,26 @@ Function,-,furi_hal_resources_deinit_early,void,
 Function,+,furi_hal_resources_get_ext_pin_number,int32_t,const GpioPin*
 Function,-,furi_hal_resources_init,void,
 Function,-,furi_hal_resources_init_early,void,
+Function,+,furi_hal_rfid_comp_set_callback,void,"FuriHalRfidCompCallback, void*"
+Function,+,furi_hal_rfid_comp_start,void,
+Function,+,furi_hal_rfid_comp_stop,void,
+Function,+,furi_hal_rfid_field_detect_start,void,
+Function,+,furi_hal_rfid_field_detect_stop,void,
+Function,+,furi_hal_rfid_field_is_present,_Bool,uint32_t*
+Function,-,furi_hal_rfid_init,void,
+Function,+,furi_hal_rfid_pin_pull_pulldown,void,
+Function,+,furi_hal_rfid_pin_pull_release,void,
+Function,+,furi_hal_rfid_pins_reset,void,
+Function,+,furi_hal_rfid_set_read_period,void,uint32_t
+Function,+,furi_hal_rfid_set_read_pulse,void,uint32_t
+Function,+,furi_hal_rfid_tim_emulate_dma_start,void,"uint32_t*, uint32_t*, size_t, FuriHalRfidDMACallback, void*"
+Function,+,furi_hal_rfid_tim_emulate_dma_stop,void,
+Function,+,furi_hal_rfid_tim_read_capture_start,void,"FuriHalRfidReadCaptureCallback, void*"
+Function,+,furi_hal_rfid_tim_read_capture_stop,void,
+Function,+,furi_hal_rfid_tim_read_continue,void,
+Function,+,furi_hal_rfid_tim_read_pause,void,
+Function,+,furi_hal_rfid_tim_read_start,void,"float, float"
+Function,+,furi_hal_rfid_tim_read_stop,void,
 Function,+,furi_hal_rtc_datetime_to_timestamp,uint32_t,FuriHalRtcDateTime*
 Function,-,furi_hal_rtc_deinit_early,void,
 Function,+,furi_hal_rtc_get_boot_mode,FuriHalRtcBootMode,
@@ -1294,6 +1457,36 @@ Function,-,furi_hal_spi_config_init,void,
 Function,-,furi_hal_spi_config_init_early,void,
 Function,-,furi_hal_spi_dma_init,void,
 Function,+,furi_hal_spi_release,void,FuriHalSpiBusHandle*
+Function,-,furi_hal_subghz_dump_state,void,
+Function,+,furi_hal_subghz_flush_rx,void,
+Function,+,furi_hal_subghz_flush_tx,void,
+Function,+,furi_hal_subghz_get_data_gpio,const GpioPin*,
+Function,+,furi_hal_subghz_get_lqi,uint8_t,
+Function,+,furi_hal_subghz_get_rssi,float,
+Function,+,furi_hal_subghz_idle,void,
+Function,-,furi_hal_subghz_init,void,
+Function,+,furi_hal_subghz_is_async_tx_complete,_Bool,
+Function,+,furi_hal_subghz_is_frequency_valid,_Bool,uint32_t
+Function,+,furi_hal_subghz_is_rx_data_crc_valid,_Bool,
+Function,+,furi_hal_subghz_load_custom_preset,void,const uint8_t*
+Function,+,furi_hal_subghz_load_patable,void,const uint8_t[8]
+Function,+,furi_hal_subghz_load_registers,void,const uint8_t*
+Function,+,furi_hal_subghz_read_packet,void,"uint8_t*, uint8_t*"
+Function,+,furi_hal_subghz_reset,void,
+Function,+,furi_hal_subghz_rx,void,
+Function,+,furi_hal_subghz_rx_pipe_not_empty,_Bool,
+Function,+,furi_hal_subghz_set_async_mirror_pin,void,const GpioPin*
+Function,+,furi_hal_subghz_set_frequency,uint32_t,uint32_t
+Function,+,furi_hal_subghz_set_frequency_and_path,uint32_t,uint32_t
+Function,+,furi_hal_subghz_set_path,void,FuriHalSubGhzPath
+Function,+,furi_hal_subghz_shutdown,void,
+Function,+,furi_hal_subghz_sleep,void,
+Function,+,furi_hal_subghz_start_async_rx,void,"FuriHalSubGhzCaptureCallback, void*"
+Function,+,furi_hal_subghz_start_async_tx,_Bool,"FuriHalSubGhzAsyncTxCallback, void*"
+Function,+,furi_hal_subghz_stop_async_rx,void,
+Function,+,furi_hal_subghz_stop_async_tx,void,
+Function,+,furi_hal_subghz_tx,_Bool,
+Function,+,furi_hal_subghz_write_packet,void,"const uint8_t*, uint8_t"
 Function,+,furi_hal_switch,void,void*
 Function,+,furi_hal_uart_deinit,void,FuriHalUartId
 Function,+,furi_hal_uart_init,void,"FuriHalUartId, uint32_t"
@@ -1341,6 +1534,7 @@ Function,+,furi_hal_vibro_on,void,_Bool
 Function,-,furi_init,void,
 Function,+,furi_kernel_get_tick_frequency,uint32_t,
 Function,+,furi_kernel_is_irq_or_masked,_Bool,
+Function,+,furi_kernel_is_running,_Bool,
 Function,+,furi_kernel_lock,int32_t,
 Function,+,furi_kernel_restore_lock,int32_t,int32_t
 Function,+,furi_kernel_unlock,int32_t,
@@ -1451,7 +1645,6 @@ Function,+,furi_string_utf8_push,void,"FuriString*, FuriStringUnicodeValue"
 Function,+,furi_string_vprintf,int,"FuriString*, const char[], va_list"
 Function,+,furi_thread_alloc,FuriThread*,
 Function,+,furi_thread_alloc_ex,FuriThread*,"const char*, uint32_t, FuriThreadCallback, void*"
-Function,+,furi_thread_catch,void,
 Function,-,furi_thread_disable_heap_trace,void,FuriThread*
 Function,+,furi_thread_enable_heap_trace,void,FuriThread*
 Function,+,furi_thread_enumerate,uint32_t,"FuriThreadId*, uint32_t"
@@ -1492,8 +1685,11 @@ Function,+,furi_thread_suspend,void,FuriThreadId
 Function,+,furi_thread_yield,void,
 Function,+,furi_timer_alloc,FuriTimer*,"FuriTimerCallback, FuriTimerType, void*"
 Function,+,furi_timer_free,void,FuriTimer*
+Function,+,furi_timer_get_expire_time,uint32_t,FuriTimer*
 Function,+,furi_timer_is_running,uint32_t,FuriTimer*
 Function,+,furi_timer_pending_callback,void,"FuriTimerPendigCallback, void*, uint32_t"
+Function,+,furi_timer_restart,FuriStatus,"FuriTimer*, uint32_t"
+Function,+,furi_timer_set_thread_priority,void,FuriTimerThreadPriority
 Function,+,furi_timer_start,FuriStatus,"FuriTimer*, uint32_t"
 Function,+,furi_timer_stop,FuriStatus,FuriTimer*
 Function,-,fwrite,size_t,"const void*, size_t, size_t, FILE*"
@@ -1534,6 +1730,44 @@ Function,+,hex_chars_to_uint8,_Bool,"const char*, uint8_t*"
 Function,-,hypot,double,"double, double"
 Function,-,hypotf,float,"float, float"
 Function,-,hypotl,long double,"long double, long double"
+Function,+,ibutton_key_alloc,iButtonKey*,size_t
+Function,+,ibutton_key_free,void,iButtonKey*
+Function,+,ibutton_key_get_protocol_id,iButtonProtocolId,const iButtonKey*
+Function,+,ibutton_key_reset,void,iButtonKey*
+Function,+,ibutton_key_set_protocol_id,void,"iButtonKey*, iButtonProtocolId"
+Function,+,ibutton_protocols_alloc,iButtonProtocols*,
+Function,+,ibutton_protocols_apply_edits,void,"iButtonProtocols*, const iButtonKey*"
+Function,+,ibutton_protocols_emulate_start,void,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_emulate_stop,void,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_free,void,iButtonProtocols*
+Function,+,ibutton_protocols_get_editable_data,void,"iButtonProtocols*, const iButtonKey*, iButtonEditableData*"
+Function,+,ibutton_protocols_get_features,uint32_t,"iButtonProtocols*, iButtonProtocolId"
+Function,+,ibutton_protocols_get_id_by_name,iButtonProtocolId,"iButtonProtocols*, const char*"
+Function,+,ibutton_protocols_get_manufacturer,const char*,"iButtonProtocols*, iButtonProtocolId"
+Function,+,ibutton_protocols_get_max_data_size,size_t,iButtonProtocols*
+Function,+,ibutton_protocols_get_name,const char*,"iButtonProtocols*, iButtonProtocolId"
+Function,+,ibutton_protocols_get_protocol_count,uint32_t,
+Function,+,ibutton_protocols_is_valid,_Bool,"iButtonProtocols*, const iButtonKey*"
+Function,+,ibutton_protocols_load,_Bool,"iButtonProtocols*, iButtonKey*, const char*"
+Function,+,ibutton_protocols_read,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_render_brief_data,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
+Function,+,ibutton_protocols_render_data,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
+Function,+,ibutton_protocols_render_error,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
+Function,+,ibutton_protocols_save,_Bool,"iButtonProtocols*, const iButtonKey*, const char*"
+Function,+,ibutton_protocols_write_blank,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_write_copy,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_worker_alloc,iButtonWorker*,iButtonProtocols*
+Function,+,ibutton_worker_emulate_set_callback,void,"iButtonWorker*, iButtonWorkerEmulateCallback, void*"
+Function,+,ibutton_worker_emulate_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_free,void,iButtonWorker*
+Function,+,ibutton_worker_read_set_callback,void,"iButtonWorker*, iButtonWorkerReadCallback, void*"
+Function,+,ibutton_worker_read_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_start_thread,void,iButtonWorker*
+Function,+,ibutton_worker_stop,void,iButtonWorker*
+Function,+,ibutton_worker_stop_thread,void,iButtonWorker*
+Function,+,ibutton_worker_write_blank_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_write_copy_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
 Function,+,icon_animation_get_height,uint8_t,const IconAnimation*
@@ -1551,6 +1785,43 @@ Function,-,ilogbl,int,long double
 Function,-,index,char*,"const char*, int"
 Function,-,infinity,double,
 Function,-,infinityf,float,
+Function,+,infrared_alloc_decoder,InfraredDecoderHandler*,
+Function,+,infrared_alloc_encoder,InfraredEncoderHandler*,
+Function,+,infrared_check_decoder_ready,const InfraredMessage*,InfraredDecoderHandler*
+Function,+,infrared_decode,const InfraredMessage*,"InfraredDecoderHandler*, _Bool, uint32_t"
+Function,+,infrared_encode,InfraredStatus,"InfraredEncoderHandler*, uint32_t*, _Bool*"
+Function,+,infrared_free_decoder,void,InfraredDecoderHandler*
+Function,+,infrared_free_encoder,void,InfraredEncoderHandler*
+Function,+,infrared_get_protocol_address_length,uint8_t,InfraredProtocol
+Function,+,infrared_get_protocol_by_name,InfraredProtocol,const char*
+Function,+,infrared_get_protocol_command_length,uint8_t,InfraredProtocol
+Function,+,infrared_get_protocol_duty_cycle,float,InfraredProtocol
+Function,+,infrared_get_protocol_frequency,uint32_t,InfraredProtocol
+Function,+,infrared_get_protocol_min_repeat_count,size_t,InfraredProtocol
+Function,+,infrared_get_protocol_name,const char*,InfraredProtocol
+Function,+,infrared_is_protocol_valid,_Bool,InfraredProtocol
+Function,+,infrared_reset_decoder,void,InfraredDecoderHandler*
+Function,+,infrared_reset_encoder,void,"InfraredEncoderHandler*, const InfraredMessage*"
+Function,+,infrared_send,void,"const InfraredMessage*, int"
+Function,+,infrared_send_raw,void,"const uint32_t[], uint32_t, _Bool"
+Function,+,infrared_send_raw_ext,void,"const uint32_t[], uint32_t, _Bool, uint32_t, float"
+Function,+,infrared_worker_alloc,InfraredWorker*,
+Function,+,infrared_worker_free,void,InfraredWorker*
+Function,+,infrared_worker_get_decoded_signal,const InfraredMessage*,const InfraredWorkerSignal*
+Function,+,infrared_worker_get_raw_signal,void,"const InfraredWorkerSignal*, const uint32_t**, size_t*"
+Function,+,infrared_worker_rx_enable_blink_on_receiving,void,"InfraredWorker*, _Bool"
+Function,+,infrared_worker_rx_enable_signal_decoding,void,"InfraredWorker*, _Bool"
+Function,+,infrared_worker_rx_set_received_signal_callback,void,"InfraredWorker*, InfraredWorkerReceivedSignalCallback, void*"
+Function,+,infrared_worker_rx_start,void,InfraredWorker*
+Function,+,infrared_worker_rx_stop,void,InfraredWorker*
+Function,+,infrared_worker_set_decoded_signal,void,"InfraredWorker*, const InfraredMessage*"
+Function,+,infrared_worker_set_raw_signal,void,"InfraredWorker*, const uint32_t*, size_t, uint32_t, float"
+Function,+,infrared_worker_signal_is_decoded,_Bool,const InfraredWorkerSignal*
+Function,+,infrared_worker_tx_get_signal_steady_callback,InfraredWorkerGetSignalResponse,"void*, InfraredWorker*"
+Function,+,infrared_worker_tx_set_get_signal_callback,void,"InfraredWorker*, InfraredWorkerGetSignalCallback, void*"
+Function,+,infrared_worker_tx_set_signal_sent_callback,void,"InfraredWorker*, InfraredWorkerMessageSentCallback, void*"
+Function,+,infrared_worker_tx_start,void,InfraredWorker*
+Function,+,infrared_worker_tx_stop,void,InfraredWorker*
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
 Function,+,input_get_type_name,const char*,InputType
@@ -1576,6 +1847,97 @@ Function,-,islower,int,int
 Function,-,islower_l,int,"int, locale_t"
 Function,-,isnan,int,double
 Function,-,isnanf,int,float
+Function,+,iso13239_crc_append,void,"Iso13239CrcType, BitBuffer*"
+Function,+,iso13239_crc_check,_Bool,"Iso13239CrcType, const BitBuffer*"
+Function,+,iso13239_crc_trim,void,BitBuffer*
+Function,+,iso14443_3a_alloc,Iso14443_3aData*,
+Function,+,iso14443_3a_copy,void,"Iso14443_3aData*, const Iso14443_3aData*"
+Function,+,iso14443_3a_free,void,Iso14443_3aData*
+Function,+,iso14443_3a_get_atqa,void,"const Iso14443_3aData*, uint8_t[2]"
+Function,+,iso14443_3a_get_base_data,Iso14443_3aData*,const Iso14443_3aData*
+Function,+,iso14443_3a_get_cuid,uint32_t,const Iso14443_3aData*
+Function,+,iso14443_3a_get_device_name,const char*,"const Iso14443_3aData*, NfcDeviceNameType"
+Function,+,iso14443_3a_get_sak,uint8_t,const Iso14443_3aData*
+Function,+,iso14443_3a_get_uid,const uint8_t*,"const Iso14443_3aData*, size_t*"
+Function,+,iso14443_3a_is_equal,_Bool,"const Iso14443_3aData*, const Iso14443_3aData*"
+Function,+,iso14443_3a_load,_Bool,"Iso14443_3aData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_3a_poller_read,Iso14443_3aError,"Nfc*, Iso14443_3aData*"
+Function,+,iso14443_3a_poller_send_standard_frame,Iso14443_3aError,"Iso14443_3aPoller*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,iso14443_3a_poller_txrx,Iso14443_3aError,"Iso14443_3aPoller*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,iso14443_3a_reset,void,Iso14443_3aData*
+Function,+,iso14443_3a_save,_Bool,"const Iso14443_3aData*, FlipperFormat*"
+Function,+,iso14443_3a_set_atqa,void,"Iso14443_3aData*, const uint8_t[2]"
+Function,+,iso14443_3a_set_sak,void,"Iso14443_3aData*, uint8_t"
+Function,+,iso14443_3a_set_uid,_Bool,"Iso14443_3aData*, const uint8_t*, size_t"
+Function,+,iso14443_3a_supports_iso14443_4,_Bool,const Iso14443_3aData*
+Function,+,iso14443_3a_verify,_Bool,"Iso14443_3aData*, const FuriString*"
+Function,+,iso14443_3b_alloc,Iso14443_3bData*,
+Function,+,iso14443_3b_copy,void,"Iso14443_3bData*, const Iso14443_3bData*"
+Function,+,iso14443_3b_free,void,Iso14443_3bData*
+Function,+,iso14443_3b_get_application_data,const uint8_t*,"const Iso14443_3bData*, size_t*"
+Function,+,iso14443_3b_get_base_data,Iso14443_3bData*,const Iso14443_3bData*
+Function,+,iso14443_3b_get_device_name,const char*,"const Iso14443_3bData*, NfcDeviceNameType"
+Function,+,iso14443_3b_get_frame_size_max,uint16_t,const Iso14443_3bData*
+Function,+,iso14443_3b_get_fwt_fc_max,uint32_t,const Iso14443_3bData*
+Function,+,iso14443_3b_get_uid,const uint8_t*,"const Iso14443_3bData*, size_t*"
+Function,+,iso14443_3b_is_equal,_Bool,"const Iso14443_3bData*, const Iso14443_3bData*"
+Function,+,iso14443_3b_load,_Bool,"Iso14443_3bData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_3b_reset,void,Iso14443_3bData*
+Function,+,iso14443_3b_save,_Bool,"const Iso14443_3bData*, FlipperFormat*"
+Function,+,iso14443_3b_set_uid,_Bool,"Iso14443_3bData*, const uint8_t*, size_t"
+Function,+,iso14443_3b_supports_bit_rate,_Bool,"const Iso14443_3bData*, Iso14443_3bBitRate"
+Function,+,iso14443_3b_supports_frame_option,_Bool,"const Iso14443_3bData*, Iso14443_3bFrameOption"
+Function,+,iso14443_3b_supports_iso14443_4,_Bool,const Iso14443_3bData*
+Function,+,iso14443_3b_verify,_Bool,"Iso14443_3bData*, const FuriString*"
+Function,+,iso14443_4a_alloc,Iso14443_4aData*,
+Function,+,iso14443_4a_copy,void,"Iso14443_4aData*, const Iso14443_4aData*"
+Function,+,iso14443_4a_free,void,Iso14443_4aData*
+Function,+,iso14443_4a_get_base_data,Iso14443_3aData*,const Iso14443_4aData*
+Function,+,iso14443_4a_get_device_name,const char*,"const Iso14443_4aData*, NfcDeviceNameType"
+Function,+,iso14443_4a_get_frame_size_max,uint16_t,const Iso14443_4aData*
+Function,+,iso14443_4a_get_fwt_fc_max,uint32_t,const Iso14443_4aData*
+Function,+,iso14443_4a_get_historical_bytes,const uint8_t*,"const Iso14443_4aData*, uint32_t*"
+Function,+,iso14443_4a_get_uid,const uint8_t*,"const Iso14443_4aData*, size_t*"
+Function,+,iso14443_4a_is_equal,_Bool,"const Iso14443_4aData*, const Iso14443_4aData*"
+Function,+,iso14443_4a_load,_Bool,"Iso14443_4aData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_4a_reset,void,Iso14443_4aData*
+Function,+,iso14443_4a_save,_Bool,"const Iso14443_4aData*, FlipperFormat*"
+Function,+,iso14443_4a_set_uid,_Bool,"Iso14443_4aData*, const uint8_t*, size_t"
+Function,+,iso14443_4a_supports_bit_rate,_Bool,"const Iso14443_4aData*, Iso14443_4aBitRate"
+Function,+,iso14443_4a_supports_frame_option,_Bool,"const Iso14443_4aData*, Iso14443_4aFrameOption"
+Function,+,iso14443_4a_verify,_Bool,"Iso14443_4aData*, const FuriString*"
+Function,+,iso14443_4b_alloc,Iso14443_4bData*,
+Function,+,iso14443_4b_copy,void,"Iso14443_4bData*, const Iso14443_4bData*"
+Function,+,iso14443_4b_free,void,Iso14443_4bData*
+Function,+,iso14443_4b_get_base_data,Iso14443_3bData*,const Iso14443_4bData*
+Function,+,iso14443_4b_get_device_name,const char*,"const Iso14443_4bData*, NfcDeviceNameType"
+Function,+,iso14443_4b_get_uid,const uint8_t*,"const Iso14443_4bData*, size_t*"
+Function,+,iso14443_4b_is_equal,_Bool,"const Iso14443_4bData*, const Iso14443_4bData*"
+Function,+,iso14443_4b_load,_Bool,"Iso14443_4bData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_4b_reset,void,Iso14443_4bData*
+Function,+,iso14443_4b_save,_Bool,"const Iso14443_4bData*, FlipperFormat*"
+Function,+,iso14443_4b_set_uid,_Bool,"Iso14443_4bData*, const uint8_t*, size_t"
+Function,+,iso14443_4b_verify,_Bool,"Iso14443_4bData*, const FuriString*"
+Function,+,iso14443_crc_append,void,"Iso14443CrcType, BitBuffer*"
+Function,+,iso14443_crc_check,_Bool,"Iso14443CrcType, const BitBuffer*"
+Function,+,iso14443_crc_trim,void,BitBuffer*
+Function,+,iso15693_3_alloc,Iso15693_3Data*,
+Function,+,iso15693_3_copy,void,"Iso15693_3Data*, const Iso15693_3Data*"
+Function,+,iso15693_3_free,void,Iso15693_3Data*
+Function,+,iso15693_3_get_base_data,Iso15693_3Data*,const Iso15693_3Data*
+Function,+,iso15693_3_get_block_count,uint16_t,const Iso15693_3Data*
+Function,+,iso15693_3_get_block_data,const uint8_t*,"const Iso15693_3Data*, uint8_t"
+Function,+,iso15693_3_get_block_size,uint8_t,const Iso15693_3Data*
+Function,+,iso15693_3_get_device_name,const char*,"const Iso15693_3Data*, NfcDeviceNameType"
+Function,+,iso15693_3_get_manufacturer_id,uint8_t,const Iso15693_3Data*
+Function,+,iso15693_3_get_uid,const uint8_t*,"const Iso15693_3Data*, size_t*"
+Function,+,iso15693_3_is_block_locked,_Bool,"const Iso15693_3Data*, uint8_t"
+Function,+,iso15693_3_is_equal,_Bool,"const Iso15693_3Data*, const Iso15693_3Data*"
+Function,+,iso15693_3_load,_Bool,"Iso15693_3Data*, FlipperFormat*, uint32_t"
+Function,+,iso15693_3_reset,void,Iso15693_3Data*
+Function,+,iso15693_3_save,_Bool,"const Iso15693_3Data*, FlipperFormat*"
+Function,+,iso15693_3_set_uid,_Bool,"Iso15693_3Data*, const uint8_t*, size_t"
+Function,+,iso15693_3_verify,_Bool,"Iso15693_3Data*, const FuriString*"
 Function,-,isprint,int,int
 Function,-,isprint_l,int,"int, locale_t"
 Function,-,ispunct,int,int
@@ -1601,6 +1963,31 @@ Function,-,ldexp,double,"double, int"
 Function,-,ldexpf,float,"float, int"
 Function,-,ldexpl,long double,"long double, int"
 Function,-,ldiv,ldiv_t,"long, long"
+Function,+,lfrfid_dict_file_load,ProtocolId,"ProtocolDict*, const char*"
+Function,+,lfrfid_dict_file_save,_Bool,"ProtocolDict*, ProtocolId, const char*"
+Function,+,lfrfid_raw_file_alloc,LFRFIDRawFile*,Storage*
+Function,+,lfrfid_raw_file_free,void,LFRFIDRawFile*
+Function,+,lfrfid_raw_file_open_read,_Bool,"LFRFIDRawFile*, const char*"
+Function,+,lfrfid_raw_file_open_write,_Bool,"LFRFIDRawFile*, const char*"
+Function,+,lfrfid_raw_file_read_header,_Bool,"LFRFIDRawFile*, float*, float*"
+Function,+,lfrfid_raw_file_read_pair,_Bool,"LFRFIDRawFile*, uint32_t*, uint32_t*, _Bool*"
+Function,+,lfrfid_raw_file_write_buffer,_Bool,"LFRFIDRawFile*, uint8_t*, size_t"
+Function,+,lfrfid_raw_file_write_header,_Bool,"LFRFIDRawFile*, float, float, uint32_t"
+Function,+,lfrfid_raw_worker_alloc,LFRFIDRawWorker*,
+Function,+,lfrfid_raw_worker_free,void,LFRFIDRawWorker*
+Function,+,lfrfid_raw_worker_start_emulate,void,"LFRFIDRawWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
+Function,+,lfrfid_raw_worker_start_read,void,"LFRFIDRawWorker*, const char*, float, float, LFRFIDWorkerReadRawCallback, void*"
+Function,+,lfrfid_raw_worker_stop,void,LFRFIDRawWorker*
+Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
+Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
+Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
+Function,+,lfrfid_worker_free,void,LFRFIDWorker*
+Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
+Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
+Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
+Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
+Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,-,lgamma,double,double
 Function,-,lgamma_r,double,"double, int*"
 Function,-,lgammaf,float,float
@@ -1686,7 +2073,7 @@ Function,-,mbedtls_des_setkey_enc,int,"mbedtls_des_context*, const unsigned char
 Function,-,mbedtls_internal_sha1_process,int,"mbedtls_sha1_context*, const unsigned char[64]"
 Function,-,mbedtls_platform_gmtime_r,tm*,"const mbedtls_time_t*, tm*"
 Function,-,mbedtls_platform_zeroize,void,"void*, size_t"
-Function,-,mbedtls_sha1,int,"const unsigned char*, size_t, unsigned char[20]"
+Function,+,mbedtls_sha1,int,"const unsigned char*, size_t, unsigned char[20]"
 Function,-,mbedtls_sha1_clone,void,"mbedtls_sha1_context*, const mbedtls_sha1_context*"
 Function,-,mbedtls_sha1_finish,int,"mbedtls_sha1_context*, unsigned char[20]"
 Function,-,mbedtls_sha1_free,void,mbedtls_sha1_context*
@@ -1728,6 +2115,93 @@ Function,+,menu_free,void,Menu*
 Function,+,menu_get_view,View*,Menu*
 Function,+,menu_reset,void,Menu*
 Function,+,menu_set_selected_item,void,"Menu*, uint32_t"
+Function,+,mf_classic_alloc,MfClassicData*,
+Function,+,mf_classic_block_to_value,_Bool,"const MfClassicBlock*, int32_t*, uint8_t*"
+Function,+,mf_classic_copy,void,"MfClassicData*, const MfClassicData*"
+Function,+,mf_classic_free,void,MfClassicData*
+Function,+,mf_classic_get_base_data,Iso14443_3aData*,const MfClassicData*
+Function,+,mf_classic_get_blocks_num_in_sector,uint8_t,uint8_t
+Function,+,mf_classic_get_device_name,const char*,"const MfClassicData*, NfcDeviceNameType"
+Function,+,mf_classic_get_first_block_num_of_sector,uint8_t,uint8_t
+Function,+,mf_classic_get_read_sectors_and_keys,void,"const MfClassicData*, uint8_t*, uint8_t*"
+Function,+,mf_classic_get_sector_by_block,uint8_t,uint8_t
+Function,+,mf_classic_get_sector_trailer_by_sector,MfClassicSectorTrailer*,"const MfClassicData*, uint8_t"
+Function,+,mf_classic_get_sector_trailer_num_by_block,uint8_t,uint8_t
+Function,+,mf_classic_get_sector_trailer_num_by_sector,uint8_t,uint8_t
+Function,+,mf_classic_get_total_block_num,uint16_t,MfClassicType
+Function,+,mf_classic_get_total_sectors_num,uint8_t,MfClassicType
+Function,+,mf_classic_get_uid,const uint8_t*,"const MfClassicData*, size_t*"
+Function,+,mf_classic_is_allowed_access,_Bool,"MfClassicData*, uint8_t, MfClassicKeyType, MfClassicAction"
+Function,+,mf_classic_is_allowed_access_data_block,_Bool,"MfClassicSectorTrailer*, uint8_t, MfClassicKeyType, MfClassicAction"
+Function,+,mf_classic_is_block_read,_Bool,"const MfClassicData*, uint8_t"
+Function,+,mf_classic_is_card_read,_Bool,const MfClassicData*
+Function,+,mf_classic_is_equal,_Bool,"const MfClassicData*, const MfClassicData*"
+Function,+,mf_classic_is_key_found,_Bool,"const MfClassicData*, uint8_t, MfClassicKeyType"
+Function,+,mf_classic_is_sector_read,_Bool,"const MfClassicData*, uint8_t"
+Function,+,mf_classic_is_sector_trailer,_Bool,uint8_t
+Function,+,mf_classic_is_value_block,_Bool,"MfClassicSectorTrailer*, uint8_t"
+Function,+,mf_classic_load,_Bool,"MfClassicData*, FlipperFormat*, uint32_t"
+Function,+,mf_classic_poller_auth,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*"
+Function,+,mf_classic_poller_change_value,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, int32_t, int32_t*"
+Function,+,mf_classic_poller_collect_nt,MfClassicError,"Nfc*, uint8_t, MfClassicKeyType, MfClassicNt*"
+Function,+,mf_classic_poller_detect_type,MfClassicError,"Nfc*, MfClassicType*"
+Function,+,mf_classic_poller_read,MfClassicError,"Nfc*, const MfClassicDeviceKeys*, MfClassicData*"
+Function,+,mf_classic_poller_read_block,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicBlock*"
+Function,+,mf_classic_poller_read_value,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, int32_t*"
+Function,+,mf_classic_poller_write_block,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicBlock*"
+Function,+,mf_classic_reset,void,MfClassicData*
+Function,+,mf_classic_save,_Bool,"const MfClassicData*, FlipperFormat*"
+Function,+,mf_classic_set_block_read,void,"MfClassicData*, uint8_t, MfClassicBlock*"
+Function,+,mf_classic_set_key_found,void,"MfClassicData*, uint8_t, MfClassicKeyType, uint64_t"
+Function,+,mf_classic_set_key_not_found,void,"MfClassicData*, uint8_t, MfClassicKeyType"
+Function,+,mf_classic_set_uid,_Bool,"MfClassicData*, const uint8_t*, size_t"
+Function,+,mf_classic_value_to_block,void,"int32_t, uint8_t, MfClassicBlock*"
+Function,+,mf_classic_verify,_Bool,"MfClassicData*, const FuriString*"
+Function,+,mf_desfire_alloc,MfDesfireData*,
+Function,+,mf_desfire_copy,void,"MfDesfireData*, const MfDesfireData*"
+Function,+,mf_desfire_free,void,MfDesfireData*
+Function,+,mf_desfire_get_application,const MfDesfireApplication*,"const MfDesfireData*, const MfDesfireApplicationId*"
+Function,+,mf_desfire_get_base_data,Iso14443_4aData*,const MfDesfireData*
+Function,+,mf_desfire_get_device_name,const char*,"const MfDesfireData*, NfcDeviceNameType"
+Function,+,mf_desfire_get_file_data,const MfDesfireFileData*,"const MfDesfireApplication*, const MfDesfireFileId*"
+Function,+,mf_desfire_get_file_settings,const MfDesfireFileSettings*,"const MfDesfireApplication*, const MfDesfireFileId*"
+Function,+,mf_desfire_get_uid,const uint8_t*,"const MfDesfireData*, size_t*"
+Function,+,mf_desfire_is_equal,_Bool,"const MfDesfireData*, const MfDesfireData*"
+Function,+,mf_desfire_load,_Bool,"MfDesfireData*, FlipperFormat*, uint32_t"
+Function,+,mf_desfire_reset,void,MfDesfireData*
+Function,+,mf_desfire_save,_Bool,"const MfDesfireData*, FlipperFormat*"
+Function,+,mf_desfire_set_uid,_Bool,"MfDesfireData*, const uint8_t*, size_t"
+Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
+Function,+,mf_ultralight_alloc,MfUltralightData*,
+Function,+,mf_ultralight_copy,void,"MfUltralightData*, const MfUltralightData*"
+Function,+,mf_ultralight_detect_protocol,_Bool,const Iso14443_3aData*
+Function,+,mf_ultralight_free,void,MfUltralightData*
+Function,+,mf_ultralight_get_base_data,Iso14443_3aData*,const MfUltralightData*
+Function,+,mf_ultralight_get_config_page,_Bool,"const MfUltralightData*, MfUltralightConfigPages**"
+Function,+,mf_ultralight_get_config_page_num,uint16_t,MfUltralightType
+Function,+,mf_ultralight_get_device_name,const char*,"const MfUltralightData*, NfcDeviceNameType"
+Function,+,mf_ultralight_get_feature_support_set,uint32_t,MfUltralightType
+Function,+,mf_ultralight_get_pages_total,uint16_t,MfUltralightType
+Function,+,mf_ultralight_get_pwd_page_num,uint8_t,MfUltralightType
+Function,+,mf_ultralight_get_type_by_version,MfUltralightType,MfUltralightVersion*
+Function,+,mf_ultralight_get_uid,const uint8_t*,"const MfUltralightData*, size_t*"
+Function,+,mf_ultralight_is_all_data_read,_Bool,const MfUltralightData*
+Function,+,mf_ultralight_is_counter_configured,_Bool,const MfUltralightData*
+Function,+,mf_ultralight_is_equal,_Bool,"const MfUltralightData*, const MfUltralightData*"
+Function,+,mf_ultralight_is_page_pwd_or_pack,_Bool,"MfUltralightType, uint16_t"
+Function,+,mf_ultralight_load,_Bool,"MfUltralightData*, FlipperFormat*, uint32_t"
+Function,+,mf_ultralight_poller_read_card,MfUltralightError,"Nfc*, MfUltralightData*"
+Function,+,mf_ultralight_poller_read_counter,MfUltralightError,"Nfc*, uint8_t, MfUltralightCounter*"
+Function,+,mf_ultralight_poller_read_page,MfUltralightError,"Nfc*, uint16_t, MfUltralightPage*"
+Function,+,mf_ultralight_poller_read_signature,MfUltralightError,"Nfc*, MfUltralightSignature*"
+Function,+,mf_ultralight_poller_read_tearing_flag,MfUltralightError,"Nfc*, uint8_t, MfUltralightTearingFlag*"
+Function,+,mf_ultralight_poller_read_version,MfUltralightError,"Nfc*, MfUltralightVersion*"
+Function,+,mf_ultralight_poller_write_page,MfUltralightError,"Nfc*, uint16_t, MfUltralightPage*"
+Function,+,mf_ultralight_reset,void,MfUltralightData*
+Function,+,mf_ultralight_save,_Bool,"const MfUltralightData*, FlipperFormat*"
+Function,+,mf_ultralight_set_uid,_Bool,"MfUltralightData*, const uint8_t*, size_t"
+Function,+,mf_ultralight_support_feature,_Bool,"const uint32_t, const uint32_t"
+Function,+,mf_ultralight_verify,_Bool,"MfUltralightData*, const FuriString*"
 Function,-,mkdtemp,char*,char*
 Function,-,mkostemp,int,"char*, int"
 Function,-,mkostemps,int,"char*, int, int"
@@ -1766,6 +2240,76 @@ Function,-,nextafterl,long double,"long double, long double"
 Function,-,nexttoward,double,"double, long double"
 Function,-,nexttowardf,float,"float, long double"
 Function,-,nexttowardl,long double,"long double, long double"
+Function,+,nfc_alloc,Nfc*,
+Function,+,nfc_config,void,"Nfc*, NfcMode, NfcTech"
+Function,+,nfc_data_generator_fill_data,void,"NfcDataGeneratorType, NfcDevice*"
+Function,+,nfc_data_generator_get_name,const char*,NfcDataGeneratorType
+Function,+,nfc_device_alloc,NfcDevice*,
+Function,+,nfc_device_clear,void,NfcDevice*
+Function,+,nfc_device_copy_data,void,"const NfcDevice*, NfcProtocol, NfcDeviceData*"
+Function,+,nfc_device_free,void,NfcDevice*
+Function,+,nfc_device_get_data,const NfcDeviceData*,"const NfcDevice*, NfcProtocol"
+Function,+,nfc_device_get_name,const char*,"const NfcDevice*, NfcDeviceNameType"
+Function,+,nfc_device_get_protocol,NfcProtocol,const NfcDevice*
+Function,+,nfc_device_get_protocol_name,const char*,NfcProtocol
+Function,+,nfc_device_get_uid,const uint8_t*,"const NfcDevice*, size_t*"
+Function,+,nfc_device_is_equal,_Bool,"const NfcDevice*, const NfcDevice*"
+Function,+,nfc_device_is_equal_data,_Bool,"const NfcDevice*, NfcProtocol, const NfcDeviceData*"
+Function,+,nfc_device_load,_Bool,"NfcDevice*, const char*"
+Function,+,nfc_device_reset,void,NfcDevice*
+Function,+,nfc_device_save,_Bool,"NfcDevice*, const char*"
+Function,+,nfc_device_set_data,void,"NfcDevice*, NfcProtocol, const NfcDeviceData*"
+Function,+,nfc_device_set_loading_callback,void,"NfcDevice*, NfcLoadingCallback, void*"
+Function,+,nfc_device_set_uid,_Bool,"NfcDevice*, const uint8_t*, size_t"
+Function,+,nfc_dict_add_key,_Bool,"NfcDict*, const uint8_t*, size_t"
+Function,+,nfc_dict_alloc,NfcDict*,"const char*, NfcDictMode, size_t"
+Function,+,nfc_dict_check_presence,_Bool,const char*
+Function,+,nfc_dict_delete_key,_Bool,"NfcDict*, const uint8_t*, size_t"
+Function,+,nfc_dict_free,void,NfcDict*
+Function,+,nfc_dict_get_next_key,_Bool,"NfcDict*, uint8_t*, size_t"
+Function,+,nfc_dict_get_total_keys,uint32_t,NfcDict*
+Function,+,nfc_dict_is_key_present,_Bool,"NfcDict*, const uint8_t*, size_t"
+Function,+,nfc_dict_rewind,_Bool,NfcDict*
+Function,+,nfc_free,void,Nfc*
+Function,+,nfc_iso14443a_listener_set_col_res_data,NfcError,"Nfc*, uint8_t*, uint8_t, uint8_t*, uint8_t"
+Function,+,nfc_iso14443a_listener_tx_custom_parity,NfcError,"Nfc*, const BitBuffer*"
+Function,+,nfc_iso14443a_poller_trx_custom_parity,NfcError,"Nfc*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,nfc_iso14443a_poller_trx_sdd_frame,NfcError,"Nfc*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,nfc_iso14443a_poller_trx_short_frame,NfcError,"Nfc*, NfcIso14443aShortFrame, BitBuffer*, uint32_t"
+Function,+,nfc_iso15693_listener_tx_sof,NfcError,Nfc*
+Function,+,nfc_listener_alloc,NfcListener*,"Nfc*, NfcProtocol, const NfcDeviceData*"
+Function,+,nfc_listener_free,void,NfcListener*
+Function,+,nfc_listener_get_data,const NfcDeviceData*,"const NfcListener*, NfcProtocol"
+Function,+,nfc_listener_get_protocol,NfcProtocol,const NfcListener*
+Function,+,nfc_listener_start,void,"NfcListener*, NfcGenericCallback, void*"
+Function,+,nfc_listener_stop,void,NfcListener*
+Function,+,nfc_listener_tx,NfcError,"Nfc*, const BitBuffer*"
+Function,+,nfc_poller_alloc,NfcPoller*,"Nfc*, NfcProtocol"
+Function,+,nfc_poller_detect,_Bool,NfcPoller*
+Function,+,nfc_poller_free,void,NfcPoller*
+Function,+,nfc_poller_get_data,const NfcDeviceData*,const NfcPoller*
+Function,+,nfc_poller_get_protocol,NfcProtocol,const NfcPoller*
+Function,+,nfc_poller_start,void,"NfcPoller*, NfcGenericCallback, void*"
+Function,+,nfc_poller_stop,void,NfcPoller*
+Function,+,nfc_poller_trx,NfcError,"Nfc*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,nfc_protocol_get_parent,NfcProtocol,NfcProtocol
+Function,+,nfc_protocol_has_parent,_Bool,"NfcProtocol, NfcProtocol"
+Function,+,nfc_scanner_alloc,NfcScanner*,Nfc*
+Function,+,nfc_scanner_free,void,NfcScanner*
+Function,+,nfc_scanner_start,void,"NfcScanner*, NfcScannerCallback, void*"
+Function,+,nfc_scanner_stop,void,NfcScanner*
+Function,+,nfc_set_fdt_listen_fc,void,"Nfc*, uint32_t"
+Function,+,nfc_set_fdt_poll_fc,void,"Nfc*, uint32_t"
+Function,+,nfc_set_fdt_poll_poll_us,void,"Nfc*, uint32_t"
+Function,+,nfc_set_guard_time_us,void,"Nfc*, uint32_t"
+Function,+,nfc_set_mask_receive_time_fc,void,"Nfc*, uint32_t"
+Function,+,nfc_start,void,"Nfc*, NfcEventCallback, void*"
+Function,+,nfc_stop,void,Nfc*
+Function,+,nfc_util_bytes2num,uint64_t,"const uint8_t*, uint8_t"
+Function,+,nfc_util_even_parity32,uint8_t,uint32_t
+Function,+,nfc_util_num2bytes,void,"uint64_t, uint8_t, uint8_t*"
+Function,+,nfc_util_odd_parity,void,"const uint8_t*, uint8_t*, uint8_t"
+Function,+,nfc_util_odd_parity8,uint8_t,uint8_t
 Function,+,notification_internal_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_internal_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
@@ -1837,8 +2381,6 @@ Function,+,pb_read,_Bool,"pb_istream_t*, pb_byte_t*, size_t"
 Function,+,pb_release,void,"const pb_msgdesc_t*, void*"
 Function,+,pb_skip_field,_Bool,"pb_istream_t*, pb_wire_type_t"
 Function,+,pb_write,_Bool,"pb_ostream_t*, const pb_byte_t*, size_t"
-Function,-,pcTaskGetName,char*,TaskHandle_t
-Function,-,pcTimerGetName,const char*,TimerHandle_t
 Function,-,pclose,int,FILE*
 Function,-,perror,void,const char*
 Function,+,plugin_manager_alloc,PluginManager*,"const char*, uint32_t, const ElfApiInterface*"
@@ -1913,12 +2455,6 @@ Function,-,putchar_unlocked,int,int
 Function,-,putenv,int,char*
 Function,-,puts,int,const char*
 Function,-,putw,int,"int, FILE*"
-Function,-,pvPortCalloc,void*,"size_t, size_t"
-Function,-,pvPortMalloc,void*,size_t
-Function,-,pvTaskGetThreadLocalStoragePointer,void*,"TaskHandle_t, BaseType_t"
-Function,-,pvTaskIncrementMutexHeldCount,TaskHandle_t,
-Function,-,pvTimerGetTimerID,void*,const TimerHandle_t
-Function,-,pxPortInitialiseStack,StackType_t*,"StackType_t*, TaskFunction_t, void*"
 Function,-,qsort,void,"void*, size_t, size_t, __compar_fn_t"
 Function,-,qsort_r,void,"void*, size_t, size_t, int (*)(const void*, const void*, void*), void*"
 Function,-,quick_exit,void,int
@@ -1948,7 +2484,7 @@ Function,-,round,double,double
 Function,+,roundf,float,float
 Function,-,roundl,long double,long double
 Function,+,rpc_session_close,void,RpcSession*
-Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, TickType_t"
+Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, uint32_t"
 Function,+,rpc_session_get_available_size,size_t,RpcSession*
 Function,+,rpc_session_get_owner,RpcOwner,RpcSession*
 Function,+,rpc_session_open,RpcSession*,"Rpc*, RpcOwner"
@@ -2044,6 +2580,26 @@ Function,-,sinhl,long double,long double
 Function,-,sinl,long double,long double
 Function,-,siprintf,int,"char*, const char*, ..."
 Function,-,siscanf,int,"const char*, const char*, ..."
+Function,+,slix_alloc,SlixData*,
+Function,+,slix_copy,void,"SlixData*, const SlixData*"
+Function,+,slix_free,void,SlixData*
+Function,+,slix_get_base_data,const Iso15693_3Data*,const SlixData*
+Function,+,slix_get_counter,uint16_t,const SlixData*
+Function,+,slix_get_device_name,const char*,"const SlixData*, NfcDeviceNameType"
+Function,+,slix_get_password,SlixPassword,"const SlixData*, SlixPasswordType"
+Function,+,slix_get_type,SlixType,const SlixData*
+Function,+,slix_get_uid,const uint8_t*,"const SlixData*, size_t*"
+Function,+,slix_is_block_protected,_Bool,"const SlixData*, SlixPasswordType, uint8_t"
+Function,+,slix_is_counter_increment_protected,_Bool,const SlixData*
+Function,+,slix_is_equal,_Bool,"const SlixData*, const SlixData*"
+Function,+,slix_is_privacy_mode,_Bool,const SlixData*
+Function,+,slix_load,_Bool,"SlixData*, FlipperFormat*, uint32_t"
+Function,+,slix_reset,void,SlixData*
+Function,+,slix_save,_Bool,"const SlixData*, FlipperFormat*"
+Function,+,slix_set_uid,_Bool,"SlixData*, const uint8_t*, size_t"
+Function,+,slix_type_has_features,_Bool,"SlixType, SlixTypeFeatures"
+Function,+,slix_type_supports_password,_Bool,"SlixType, SlixPasswordType"
+Function,+,slix_verify,_Bool,"SlixData*, const FuriString*"
 Function,-,sniprintf,int,"char*, size_t, const char*, ..."
 Function,+,snprintf,int,"char*, size_t, const char*, ..."
 Function,-,sprintf,int,"char*, const char*, ..."
@@ -2054,6 +2610,19 @@ Function,+,srand,void,unsigned
 Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
 Function,+,sscanf,int,"const char*, const char*, ..."
+Function,+,st25tb_alloc,St25tbData*,
+Function,+,st25tb_copy,void,"St25tbData*, const St25tbData*"
+Function,+,st25tb_free,void,St25tbData*
+Function,+,st25tb_get_base_data,St25tbData*,const St25tbData*
+Function,+,st25tb_get_block_count,uint8_t,St25tbType
+Function,+,st25tb_get_device_name,const char*,"const St25tbData*, NfcDeviceNameType"
+Function,+,st25tb_get_uid,const uint8_t*,"const St25tbData*, size_t*"
+Function,+,st25tb_is_equal,_Bool,"const St25tbData*, const St25tbData*"
+Function,+,st25tb_load,_Bool,"St25tbData*, FlipperFormat*, uint32_t"
+Function,+,st25tb_reset,void,St25tbData*
+Function,+,st25tb_save,_Bool,"const St25tbData*, FlipperFormat*"
+Function,+,st25tb_set_uid,_Bool,"St25tbData*, const uint8_t*, size_t"
+Function,+,st25tb_verify,_Bool,"St25tbData*, const FuriString*"
 Function,+,storage_common_copy,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_exists,_Bool,"Storage*, const char*"
 Function,+,storage_common_fs_info,FS_Error,"Storage*, const char*, uint64_t*, uint64_t*"
@@ -2197,6 +2766,160 @@ Function,-,strupr,char*,char*
 Function,-,strverscmp,int,"const char*, const char*"
 Function,-,strxfrm,size_t,"char*, const char*, size_t"
 Function,-,strxfrm_l,size_t,"char*, const char*, size_t, locale_t"
+Function,+,subghz_block_generic_deserialize,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*"
+Function,+,subghz_block_generic_deserialize_check_count_bit,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, uint16_t"
+Function,+,subghz_block_generic_get_preset_name,void,"const char*, FuriString*"
+Function,+,subghz_block_generic_serialize,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_device_cc1101_ext_ep,const FlipperAppPluginDescriptor*,
+Function,+,subghz_devices_begin,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_deinit,void,
+Function,+,subghz_devices_end,void,const SubGhzDevice*
+Function,+,subghz_devices_flush_rx,void,const SubGhzDevice*
+Function,+,subghz_devices_flush_tx,void,const SubGhzDevice*
+Function,+,subghz_devices_get_by_name,const SubGhzDevice*,const char*
+Function,+,subghz_devices_get_data_gpio,const GpioPin*,const SubGhzDevice*
+Function,+,subghz_devices_get_lqi,uint8_t,const SubGhzDevice*
+Function,+,subghz_devices_get_name,const char*,const SubGhzDevice*
+Function,+,subghz_devices_get_rssi,float,const SubGhzDevice*
+Function,+,subghz_devices_idle,void,const SubGhzDevice*
+Function,+,subghz_devices_init,void,
+Function,+,subghz_devices_is_async_complete_tx,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_is_connect,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_is_frequency_valid,_Bool,"const SubGhzDevice*, uint32_t"
+Function,+,subghz_devices_is_rx_data_crc_valid,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_load_preset,void,"const SubGhzDevice*, FuriHalSubGhzPreset, uint8_t*"
+Function,+,subghz_devices_read_packet,void,"const SubGhzDevice*, uint8_t*, uint8_t*"
+Function,+,subghz_devices_reset,void,const SubGhzDevice*
+Function,+,subghz_devices_rx_pipe_not_empty,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_set_async_mirror_pin,void,"const SubGhzDevice*, const GpioPin*"
+Function,+,subghz_devices_set_frequency,uint32_t,"const SubGhzDevice*, uint32_t"
+Function,+,subghz_devices_set_rx,void,const SubGhzDevice*
+Function,+,subghz_devices_set_tx,_Bool,const SubGhzDevice*
+Function,+,subghz_devices_sleep,void,const SubGhzDevice*
+Function,+,subghz_devices_start_async_rx,void,"const SubGhzDevice*, void*, void*"
+Function,+,subghz_devices_start_async_tx,_Bool,"const SubGhzDevice*, void*, void*"
+Function,+,subghz_devices_stop_async_rx,void,const SubGhzDevice*
+Function,+,subghz_devices_stop_async_tx,void,const SubGhzDevice*
+Function,+,subghz_devices_write_packet,void,"const SubGhzDevice*, const uint8_t*, uint8_t"
+Function,+,subghz_environment_alloc,SubGhzEnvironment*,
+Function,+,subghz_environment_free,void,SubGhzEnvironment*
+Function,+,subghz_environment_get_alutech_at_4n_rainbow_table_file_name,const char*,SubGhzEnvironment*
+Function,+,subghz_environment_get_came_atomo_rainbow_table_file_name,const char*,SubGhzEnvironment*
+Function,+,subghz_environment_get_keystore,SubGhzKeystore*,SubGhzEnvironment*
+Function,+,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char*,SubGhzEnvironment*
+Function,+,subghz_environment_get_protocol_name_registry,const char*,"SubGhzEnvironment*, size_t"
+Function,+,subghz_environment_get_protocol_registry,const SubGhzProtocolRegistry*,SubGhzEnvironment*
+Function,+,subghz_environment_load_keystore,_Bool,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_alutech_at_4n_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, const SubGhzProtocolRegistry*"
+Function,-,subghz_keystore_alloc,SubGhzKeystore*,
+Function,-,subghz_keystore_free,void,SubGhzKeystore*
+Function,-,subghz_keystore_get_data,SubGhzKeyArray_t*,SubGhzKeystore*
+Function,-,subghz_keystore_load,_Bool,"SubGhzKeystore*, const char*"
+Function,-,subghz_keystore_raw_encrypted_save,_Bool,"const char*, const char*, uint8_t*"
+Function,-,subghz_keystore_raw_get_data,_Bool,"const char*, size_t, uint8_t*, size_t"
+Function,-,subghz_keystore_save,_Bool,"SubGhzKeystore*, const char*, uint8_t*"
+Function,+,subghz_protocol_blocks_add_bit,void,"SubGhzBlockDecoder*, uint8_t"
+Function,+,subghz_protocol_blocks_add_bytes,uint8_t,"const uint8_t[], size_t"
+Function,+,subghz_protocol_blocks_add_to_128_bit,void,"SubGhzBlockDecoder*, uint8_t, uint64_t*"
+Function,+,subghz_protocol_blocks_crc16,uint16_t,"const uint8_t[], size_t, uint16_t, uint16_t"
+Function,+,subghz_protocol_blocks_crc16lsb,uint16_t,"const uint8_t[], size_t, uint16_t, uint16_t"
+Function,+,subghz_protocol_blocks_crc4,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_crc7,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_crc8,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_crc8le,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_get_bit_array,_Bool,"uint8_t[], size_t"
+Function,+,subghz_protocol_blocks_get_hash_data,uint8_t,"SubGhzBlockDecoder*, size_t"
+Function,+,subghz_protocol_blocks_get_parity,uint8_t,"uint64_t, uint8_t"
+Function,+,subghz_protocol_blocks_get_upload_from_bit_array,size_t,"uint8_t[], size_t, LevelDuration*, size_t, uint32_t, SubGhzProtocolBlockAlignBit"
+Function,+,subghz_protocol_blocks_lfsr_digest16,uint16_t,"const uint8_t[], size_t, uint16_t, uint16_t"
+Function,+,subghz_protocol_blocks_lfsr_digest8,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_lfsr_digest8_reflect,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_parity8,uint8_t,uint8_t
+Function,+,subghz_protocol_blocks_parity_bytes,uint8_t,"const uint8_t[], size_t"
+Function,+,subghz_protocol_blocks_reverse_key,uint64_t,"uint64_t, uint8_t"
+Function,+,subghz_protocol_blocks_set_bit_array,void,"_Bool, uint8_t[], size_t, size_t"
+Function,+,subghz_protocol_blocks_xor_bytes,uint8_t,"const uint8_t[], size_t"
+Function,+,subghz_protocol_decoder_base_deserialize,SubGhzProtocolStatus,"SubGhzProtocolDecoderBase*, FlipperFormat*"
+Function,+,subghz_protocol_decoder_base_get_hash_data,uint8_t,SubGhzProtocolDecoderBase*
+Function,+,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderBase*, FuriString*"
+Function,+,subghz_protocol_decoder_base_serialize,SubGhzProtocolStatus,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_base_set_decoder_callback,void,"SubGhzProtocolDecoderBase*, SubGhzProtocolDecoderBaseRxCallback, void*"
+Function,+,subghz_protocol_decoder_bin_raw_data_input_rssi,void,"SubGhzProtocolDecoderBinRAW*, float"
+Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_decoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
+Function,+,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
+Function,+,subghz_protocol_decoder_raw_free,void,void*
+Function,+,subghz_protocol_decoder_raw_get_string,void,"void*, FuriString*"
+Function,+,subghz_protocol_decoder_raw_reset,void,void*
+Function,+,subghz_protocol_encoder_raw_alloc,void*,SubGhzEnvironment*
+Function,+,subghz_protocol_encoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
+Function,+,subghz_protocol_encoder_raw_free,void,void*
+Function,+,subghz_protocol_encoder_raw_stop,void,void*
+Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
+Function,+,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
+Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*, const char*"
+Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
+Function,+,subghz_protocol_raw_save_to_file_init,_Bool,"SubGhzProtocolDecoderRAW*, const char*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_raw_save_to_file_pause,void,"SubGhzProtocolDecoderRAW*, _Bool"
+Function,+,subghz_protocol_raw_save_to_file_stop,void,SubGhzProtocolDecoderRAW*
+Function,+,subghz_protocol_registry_count,size_t,const SubGhzProtocolRegistry*
+Function,+,subghz_protocol_registry_get_by_index,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, size_t"
+Function,+,subghz_protocol_registry_get_by_name,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, const char*"
+Function,+,subghz_protocol_secplus_v1_check_fixed,_Bool,uint32_t
+Function,+,subghz_protocol_secplus_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, SubGhzRadioPreset*"
+Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
+Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"
+Function,+,subghz_receiver_free,void,SubGhzReceiver*
+Function,+,subghz_receiver_reset,void,SubGhzReceiver*
+Function,+,subghz_receiver_search_decoder_base_by_name,SubGhzProtocolDecoderBase*,"SubGhzReceiver*, const char*"
+Function,+,subghz_receiver_set_filter,void,"SubGhzReceiver*, SubGhzProtocolFlag"
+Function,+,subghz_receiver_set_rx_callback,void,"SubGhzReceiver*, SubGhzReceiverCallback, void*"
+Function,+,subghz_setting_alloc,SubGhzSetting*,
+Function,+,subghz_setting_delete_custom_preset,_Bool,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_free,void,SubGhzSetting*
+Function,+,subghz_setting_get_default_frequency,uint32_t,SubGhzSetting*
+Function,+,subghz_setting_get_frequency,uint32_t,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_frequency_count,size_t,SubGhzSetting*
+Function,+,subghz_setting_get_frequency_default_index,uint32_t,SubGhzSetting*
+Function,+,subghz_setting_get_hopper_frequency,uint32_t,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_hopper_frequency_count,size_t,SubGhzSetting*
+Function,+,subghz_setting_get_inx_preset_by_name,int,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_get_preset_count,size_t,SubGhzSetting*
+Function,+,subghz_setting_get_preset_data,uint8_t*,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_preset_data_by_name,uint8_t*,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_get_preset_data_size,size_t,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_preset_name,const char*,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_load,void,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_load_custom_preset,_Bool,"SubGhzSetting*, const char*, FlipperFormat*"
+Function,+,subghz_transmitter_alloc_init,SubGhzTransmitter*,"SubGhzEnvironment*, const char*"
+Function,+,subghz_transmitter_deserialize,SubGhzProtocolStatus,"SubGhzTransmitter*, FlipperFormat*"
+Function,+,subghz_transmitter_free,void,SubGhzTransmitter*
+Function,+,subghz_transmitter_get_protocol_instance,SubGhzProtocolEncoderBase*,SubGhzTransmitter*
+Function,+,subghz_transmitter_stop,_Bool,SubGhzTransmitter*
+Function,+,subghz_transmitter_yield,LevelDuration,void*
+Function,+,subghz_tx_rx_worker_alloc,SubGhzTxRxWorker*,
+Function,+,subghz_tx_rx_worker_available,size_t,SubGhzTxRxWorker*
+Function,+,subghz_tx_rx_worker_free,void,SubGhzTxRxWorker*
+Function,+,subghz_tx_rx_worker_is_running,_Bool,SubGhzTxRxWorker*
+Function,+,subghz_tx_rx_worker_read,size_t,"SubGhzTxRxWorker*, uint8_t*, size_t"
+Function,+,subghz_tx_rx_worker_set_callback_have_read,void,"SubGhzTxRxWorker*, SubGhzTxRxWorkerCallbackHaveRead, void*"
+Function,+,subghz_tx_rx_worker_start,_Bool,"SubGhzTxRxWorker*, const SubGhzDevice*, uint32_t"
+Function,+,subghz_tx_rx_worker_stop,void,SubGhzTxRxWorker*
+Function,+,subghz_tx_rx_worker_write,_Bool,"SubGhzTxRxWorker*, uint8_t*, size_t"
+Function,+,subghz_worker_alloc,SubGhzWorker*,
+Function,+,subghz_worker_free,void,SubGhzWorker*
+Function,+,subghz_worker_is_running,_Bool,SubGhzWorker*
+Function,+,subghz_worker_rx_callback,void,"_Bool, uint32_t, void*"
+Function,+,subghz_worker_set_context,void,"SubGhzWorker*, void*"
+Function,+,subghz_worker_set_filter,void,"SubGhzWorker*, uint16_t"
+Function,+,subghz_worker_set_overrun_callback,void,"SubGhzWorker*, SubGhzWorkerOverrunCallback"
+Function,+,subghz_worker_set_pair_callback,void,"SubGhzWorker*, SubGhzWorkerPairCallback"
+Function,+,subghz_worker_start,void,SubGhzWorker*
+Function,+,subghz_worker_stop,void,SubGhzWorker*
 Function,+,submenu_add_item,void,"Submenu*, const char*, uint32_t, SubmenuItemCallback, void*"
 Function,+,submenu_alloc,Submenu*,
 Function,+,submenu_free,void,Submenu*
@@ -2205,6 +2928,7 @@ Function,+,submenu_reset,void,Submenu*
 Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
+Function,+,t5577_write,void,LFRFIDT5577*
 Function,-,tan,double,double
 Function,-,tanf,float,float
 Function,-,tanh,double,double
@@ -2280,67 +3004,10 @@ Function,-,uECC_sign_deterministic,int,"const uint8_t*, const uint8_t*, unsigned
 Function,-,uECC_valid_public_key,int,"const uint8_t*, uECC_Curve"
 Function,-,uECC_verify,int,"const uint8_t*, const uint8_t*, unsigned, const uint8_t*, uECC_Curve"
 Function,+,uint8_to_hex_chars,void,"const uint8_t*, uint8_t*, int"
-Function,-,ulTaskGenericNotifyTake,uint32_t,"UBaseType_t, BaseType_t, TickType_t"
-Function,-,ulTaskGenericNotifyValueClear,uint32_t,"TaskHandle_t, UBaseType_t, uint32_t"
-Function,-,ulTaskGetIdleRunTimeCounter,uint32_t,
-Function,-,ulTaskGetIdleRunTimePercent,uint32_t,
 Function,-,ungetc,int,"int, FILE*"
 Function,-,unsetenv,int,const char*
 Function,-,usbd_poll,void,usbd_device*
 Function,-,utoa,char*,"unsigned, char*, int"
-Function,-,uxListRemove,UBaseType_t,ListItem_t*
-Function,-,uxTaskGetNumberOfTasks,UBaseType_t,
-Function,-,uxTaskGetStackHighWaterMark,UBaseType_t,TaskHandle_t
-Function,-,uxTaskGetStackHighWaterMark2,uint16_t,TaskHandle_t
-Function,-,uxTaskGetSystemState,UBaseType_t,"TaskStatus_t*, const UBaseType_t, uint32_t*"
-Function,-,uxTaskGetTaskNumber,UBaseType_t,TaskHandle_t
-Function,-,uxTaskPriorityGet,UBaseType_t,const TaskHandle_t
-Function,-,uxTaskPriorityGetFromISR,UBaseType_t,const TaskHandle_t
-Function,-,uxTaskResetEventItemValue,TickType_t,
-Function,-,uxTimerGetReloadMode,UBaseType_t,TimerHandle_t
-Function,-,uxTimerGetTimerNumber,UBaseType_t,TimerHandle_t
-Function,-,vApplicationGetIdleTaskMemory,void,"StaticTask_t**, StackType_t**, uint32_t*"
-Function,-,vApplicationGetTimerTaskMemory,void,"StaticTask_t**, StackType_t**, uint32_t*"
-Function,-,vListInitialise,void,List_t*
-Function,-,vListInitialiseItem,void,ListItem_t*
-Function,-,vListInsert,void,"List_t*, ListItem_t*"
-Function,-,vListInsertEnd,void,"List_t*, ListItem_t*"
-Function,-,vPortDefineHeapRegions,void,const HeapRegion_t*
-Function,-,vPortEndScheduler,void,
-Function,+,vPortEnterCritical,void,
-Function,+,vPortExitCritical,void,
-Function,-,vPortFree,void,void*
-Function,-,vPortGetHeapStats,void,HeapStats_t*
-Function,-,vPortInitialiseBlocks,void,
-Function,-,vPortSuppressTicksAndSleep,void,TickType_t
-Function,-,vTaskAllocateMPURegions,void,"TaskHandle_t, const MemoryRegion_t*"
-Function,-,vTaskDelay,void,const TickType_t
-Function,-,vTaskDelete,void,TaskHandle_t
-Function,-,vTaskEndScheduler,void,
-Function,-,vTaskGenericNotifyGiveFromISR,void,"TaskHandle_t, UBaseType_t, BaseType_t*"
-Function,-,vTaskGetInfo,void,"TaskHandle_t, TaskStatus_t*, BaseType_t, eTaskState"
-Function,-,vTaskGetRunTimeStats,void,char*
-Function,-,vTaskInternalSetTimeOutState,void,TimeOut_t*
-Function,-,vTaskList,void,char*
-Function,-,vTaskMissedYield,void,
-Function,-,vTaskPlaceOnEventList,void,"List_t*, const TickType_t"
-Function,-,vTaskPlaceOnEventListRestricted,void,"List_t*, TickType_t, const BaseType_t"
-Function,-,vTaskPlaceOnUnorderedEventList,void,"List_t*, const TickType_t, const TickType_t"
-Function,-,vTaskPriorityDisinheritAfterTimeout,void,"const TaskHandle_t, UBaseType_t"
-Function,+,vTaskPrioritySet,void,"TaskHandle_t, UBaseType_t"
-Function,-,vTaskRemoveFromUnorderedEventList,void,"ListItem_t*, const TickType_t"
-Function,-,vTaskResume,void,TaskHandle_t
-Function,-,vTaskSetTaskNumber,void,"TaskHandle_t, const UBaseType_t"
-Function,-,vTaskSetThreadLocalStoragePointer,void,"TaskHandle_t, BaseType_t, void*"
-Function,-,vTaskSetTimeOutState,void,TimeOut_t*
-Function,-,vTaskStartScheduler,void,
-Function,-,vTaskStepTick,void,TickType_t
-Function,-,vTaskSuspend,void,TaskHandle_t
-Function,-,vTaskSuspendAll,void,
-Function,-,vTaskSwitchContext,void,
-Function,-,vTimerSetReloadMode,void,"TimerHandle_t, const BaseType_t"
-Function,-,vTimerSetTimerID,void,"TimerHandle_t, void*"
-Function,-,vTimerSetTimerNumber,void,"TimerHandle_t, UBaseType_t"
 Function,+,validator_is_file_alloc_init,ValidatorIsFile*,"const char*, const char*, const char*"
 Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
@@ -2455,43 +3122,6 @@ Function,+,widget_alloc,Widget*,
 Function,+,widget_free,void,Widget*
 Function,+,widget_get_view,View*,Widget*
 Function,+,widget_reset,void,Widget*
-Function,-,xPortGetFreeHeapSize,size_t,
-Function,-,xPortGetMinimumEverFreeHeapSize,size_t,
-Function,-,xPortStartScheduler,BaseType_t,
-Function,-,xTaskAbortDelay,BaseType_t,TaskHandle_t
-Function,-,xTaskCallApplicationTaskHook,BaseType_t,"TaskHandle_t, void*"
-Function,-,xTaskCatchUpTicks,BaseType_t,TickType_t
-Function,-,xTaskCheckForTimeOut,BaseType_t,"TimeOut_t*, TickType_t*"
-Function,-,xTaskCreate,BaseType_t,"TaskFunction_t, const char*, const uint16_t, void*, UBaseType_t, TaskHandle_t*"
-Function,-,xTaskCreateStatic,TaskHandle_t,"TaskFunction_t, const char*, const uint32_t, void*, UBaseType_t, StackType_t*, StaticTask_t*"
-Function,-,xTaskDelayUntil,BaseType_t,"TickType_t*, const TickType_t"
-Function,-,xTaskGenericNotify,BaseType_t,"TaskHandle_t, UBaseType_t, uint32_t, eNotifyAction, uint32_t*"
-Function,-,xTaskGenericNotifyFromISR,BaseType_t,"TaskHandle_t, UBaseType_t, uint32_t, eNotifyAction, uint32_t*, BaseType_t*"
-Function,-,xTaskGenericNotifyStateClear,BaseType_t,"TaskHandle_t, UBaseType_t"
-Function,-,xTaskGenericNotifyWait,BaseType_t,"UBaseType_t, uint32_t, uint32_t, uint32_t*, TickType_t"
-Function,-,xTaskGetCurrentTaskHandle,TaskHandle_t,
-Function,+,xTaskGetHandle,TaskHandle_t,const char*
-Function,-,xTaskGetIdleTaskHandle,TaskHandle_t,
-Function,+,xTaskGetSchedulerState,BaseType_t,
-Function,+,xTaskGetTickCount,TickType_t,
-Function,-,xTaskGetTickCountFromISR,TickType_t,
-Function,-,xTaskIncrementTick,BaseType_t,
-Function,-,xTaskPriorityDisinherit,BaseType_t,const TaskHandle_t
-Function,-,xTaskPriorityInherit,BaseType_t,const TaskHandle_t
-Function,-,xTaskRemoveFromEventList,BaseType_t,const List_t*
-Function,-,xTaskResumeAll,BaseType_t,
-Function,-,xTaskResumeFromISR,BaseType_t,TaskHandle_t
-Function,-,xTimerCreate,TimerHandle_t,"const char*, const TickType_t, const BaseType_t, void*, TimerCallbackFunction_t"
-Function,-,xTimerCreateStatic,TimerHandle_t,"const char*, const TickType_t, const BaseType_t, void*, TimerCallbackFunction_t, StaticTimer_t*"
-Function,-,xTimerCreateTimerTask,BaseType_t,
-Function,-,xTimerGenericCommand,BaseType_t,"TimerHandle_t, const BaseType_t, const TickType_t, BaseType_t*, const TickType_t"
-Function,-,xTimerGetExpiryTime,TickType_t,TimerHandle_t
-Function,-,xTimerGetPeriod,TickType_t,TimerHandle_t
-Function,-,xTimerGetReloadMode,BaseType_t,TimerHandle_t
-Function,-,xTimerGetTimerDaemonTaskHandle,TaskHandle_t,
-Function,-,xTimerIsTimerActive,BaseType_t,TimerHandle_t
-Function,-,xTimerPendFunctionCall,BaseType_t,"PendedFunction_t, void*, uint32_t, TickType_t"
-Function,-,xTimerPendFunctionCallFromISR,BaseType_t,"PendedFunction_t, void*, uint32_t, BaseType_t*"
 Function,-,y0,double,double
 Function,-,y0f,float,float
 Function,-,y1,double,double
@@ -2521,8 +3151,10 @@ Variable,+,furi_hal_i2c_handle_power,FuriHalI2cBusHandle,
 Variable,+,furi_hal_spi_bus_d,FuriHalSpiBus,
 Variable,+,furi_hal_spi_bus_handle_display,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_external,FuriHalSpiBusHandle,
+Variable,+,furi_hal_spi_bus_handle_nfc,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_sd_fast,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_handle_sd_slow,FuriHalSpiBusHandle,
+Variable,+,furi_hal_spi_bus_handle_subghz,FuriHalSpiBusHandle,
 Variable,+,furi_hal_spi_bus_r,FuriHalSpiBus,
 Variable,+,furi_hal_spi_preset_1edge_low_16m,const LL_SPI_InitTypeDef,
 Variable,+,furi_hal_spi_preset_1edge_low_2m,const LL_SPI_InitTypeDef,
@@ -2535,42 +3167,42 @@ Variable,+,gpio_button_left,const GpioPin,
 Variable,+,gpio_button_ok,const GpioPin,
 Variable,+,gpio_button_right,const GpioPin,
 Variable,+,gpio_button_up,const GpioPin,
+Variable,+,gpio_cc1101_g0,const GpioPin,
 Variable,+,gpio_display_cs,const GpioPin,
 Variable,+,gpio_display_di,const GpioPin,
 Variable,+,gpio_display_rst_n,const GpioPin,
-Variable,+,gpio_ext_pa0,const GpioPin,
-Variable,+,gpio_ext_pa1,const GpioPin,
-Variable,+,gpio_ext_pa15,const GpioPin,
-Variable,+,gpio_ext_pa2,const GpioPin,
 Variable,+,gpio_ext_pa4,const GpioPin,
-Variable,+,gpio_ext_pa5,const GpioPin,
 Variable,+,gpio_ext_pa6,const GpioPin,
 Variable,+,gpio_ext_pa7,const GpioPin,
-Variable,+,gpio_ext_pb13,const GpioPin,
 Variable,+,gpio_ext_pb2,const GpioPin,
 Variable,+,gpio_ext_pb3,const GpioPin,
-Variable,+,gpio_ext_pb4,const GpioPin,
-Variable,+,gpio_ext_pb5,const GpioPin,
-Variable,+,gpio_ext_pb9,const GpioPin,
 Variable,+,gpio_ext_pc0,const GpioPin,
 Variable,+,gpio_ext_pc1,const GpioPin,
 Variable,+,gpio_ext_pc3,const GpioPin,
-Variable,+,gpio_ext_pc4,const GpioPin,
-Variable,+,gpio_ext_pc5,const GpioPin,
-Variable,+,gpio_ext_pd0,const GpioPin,
-Variable,+,gpio_ext_pe4,const GpioPin,
 Variable,+,gpio_i2c_power_scl,const GpioPin,
 Variable,+,gpio_i2c_power_sda,const GpioPin,
 Variable,+,gpio_ibutton,const GpioPin,
+Variable,+,gpio_infrared_rx,const GpioPin,
+Variable,+,gpio_infrared_tx,const GpioPin,
+Variable,+,gpio_nfc_cs,const GpioPin,
+Variable,+,gpio_nfc_irq_rfid_pull,const GpioPin,
 Variable,+,gpio_periph_power,const GpioPin,
 Variable,+,gpio_pins,const GpioPinRecord[],
 Variable,+,gpio_pins_count,const size_t,
+Variable,+,gpio_rf_sw_0,const GpioPin,
+Variable,+,gpio_rfid_carrier,const GpioPin,
+Variable,+,gpio_rfid_carrier_out,const GpioPin,
+Variable,+,gpio_rfid_data_in,const GpioPin,
 Variable,+,gpio_sdcard_cd,const GpioPin,
 Variable,+,gpio_sdcard_cs,const GpioPin,
 Variable,+,gpio_speaker,const GpioPin,
 Variable,+,gpio_spi_d_miso,const GpioPin,
 Variable,+,gpio_spi_d_mosi,const GpioPin,
 Variable,+,gpio_spi_d_sck,const GpioPin,
+Variable,+,gpio_spi_r_miso,const GpioPin,
+Variable,+,gpio_spi_r_mosi,const GpioPin,
+Variable,+,gpio_spi_r_sck,const GpioPin,
+Variable,+,gpio_subghz_cs,const GpioPin,
 Variable,+,gpio_swclk,const GpioPin,
 Variable,+,gpio_swdio,const GpioPin,
 Variable,+,gpio_usart_rx,const GpioPin,
@@ -2580,6 +3212,7 @@ Variable,+,gpio_usb_dp,const GpioPin,
 Variable,+,gpio_vibro,const GpioPin,
 Variable,+,input_pins,const InputPin[],
 Variable,+,input_pins_count,const size_t,
+Variable,+,lfrfid_protocols,const ProtocolBase*[],
 Variable,+,message_blink_set_color_blue,const NotificationMessage,
 Variable,+,message_blink_set_color_cyan,const NotificationMessage,
 Variable,+,message_blink_set_color_green,const NotificationMessage,
@@ -2726,6 +3359,10 @@ Variable,+,message_red_255,const NotificationMessage,
 Variable,+,message_sound_off,const NotificationMessage,
 Variable,+,message_vibro_off,const NotificationMessage,
 Variable,+,message_vibro_on,const NotificationMessage,
+Variable,-,nfc_device_mf_classic,const NfcDeviceBase,
+Variable,-,nfc_device_mf_desfire,const NfcDeviceBase,
+Variable,-,nfc_device_mf_ultralight,const NfcDeviceBase,
+Variable,-,nfc_device_st25tb,const NfcDeviceBase,
 Variable,+,sequence_audiovisual_alert,const NotificationSequence,
 Variable,+,sequence_blink_blue_10,const NotificationSequence,
 Variable,+,sequence_blink_blue_100,const NotificationSequence,
@@ -2776,6 +3413,17 @@ Variable,+,sequence_single_vibro,const NotificationSequence,
 Variable,+,sequence_solid_yellow,const NotificationSequence,
 Variable,+,sequence_success,const NotificationSequence,
 Variable,+,simple_array_config_uint8_t,const SimpleArrayConfig,
+Variable,-,subghz_device_cc1101_int,const SubGhzDevice,
+Variable,+,subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_gfsk_9_99kb_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_msk_99_97kb_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_ook_270khz_async_regs,const uint8_t[],
+Variable,+,subghz_device_cc1101_preset_ook_650khz_async_regs,const uint8_t[],
+Variable,+,subghz_protocol_raw,const SubGhzProtocol,
+Variable,+,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
+Variable,+,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
+Variable,+,subghz_protocol_registry,const SubGhzProtocolRegistry,
 Variable,-,suboptarg,char*,
 Variable,+,usb_ccid,FuriHalUsbInterface,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,

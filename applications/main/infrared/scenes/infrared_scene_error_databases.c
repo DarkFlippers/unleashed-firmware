@@ -1,7 +1,7 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 void infrared_scene_error_databases_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
 
     popup_set_icon(popup, 5, 11, &I_SDQuestion_35x43);
@@ -16,7 +16,7 @@ void infrared_scene_error_databases_on_enter(void* context) {
 }
 
 bool infrared_scene_error_databases_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -31,7 +31,7 @@ bool infrared_scene_error_databases_on_event(void* context, SceneManagerEvent ev
 }
 
 void infrared_scene_error_databases_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     popup_reset(infrared->popup);
     infrared_play_notification_message(infrared, InfraredNotificationMessageYellowOff);
 }

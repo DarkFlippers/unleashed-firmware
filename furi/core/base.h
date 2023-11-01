@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <furi_config.h>
 
 #ifdef __cplusplus
 extern "C" {

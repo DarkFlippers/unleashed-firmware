@@ -5,6 +5,9 @@
 
 #include <furi_hal.h>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 #include CMSIS_device_header
 
 bool furi_kernel_is_irq_or_masked() {
@@ -29,6 +32,10 @@ bool furi_kernel_is_irq_or_masked() {
 
     /* Return context, 0: thread context, 1: IRQ context */
     return (irq);
+}
+
+bool furi_kernel_is_running() {
+    return xTaskGetSchedulerState() != taskSCHEDULER_RUNNING;
 }
 
 int32_t furi_kernel_lock() {

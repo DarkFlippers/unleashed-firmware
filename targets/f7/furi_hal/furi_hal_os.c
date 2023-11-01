@@ -10,6 +10,9 @@
 
 #include <furi.h>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 #define TAG "FuriHalOs"
 
 #define FURI_HAL_IDLE_TIMER_CLK_HZ 32768

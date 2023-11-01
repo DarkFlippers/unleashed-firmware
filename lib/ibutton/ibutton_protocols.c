@@ -48,7 +48,7 @@ static void ibutton_protocols_get_group_by_id(
             local_id -= ibutton_protocol_groups[i]->protocol_count;
         }
     }
-    furi_crash(NULL);
+    furi_crash();
 }
 
 iButtonProtocols* ibutton_protocols_alloc() {

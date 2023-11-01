@@ -1,8 +1,9 @@
 #include "kernel.h"
 #include "message_queue.h"
+#include "check.h"
+
 #include <FreeRTOS.h>
 #include <queue.h>
-#include "check.h"
 
 FuriMessageQueue* furi_message_queue_alloc(uint32_t msg_count, uint32_t msg_size) {
     furi_assert((furi_kernel_is_irq_or_masked() == 0U) && (msg_count > 0U) && (msg_size > 0U));

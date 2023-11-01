@@ -32,10 +32,7 @@ Good starting point: https://docs.unrealengine.com/4.27/en-US/ProductionPipeline
 Don't include assets that you are not using, compiler is not going to strip unused assets.
 
 # Structure
-- `compiled`            - Output folder made for compiled assets, after building project, in `build` directory.
 - `dolphin`             - Dolphin game assets sources. Goes to `compiled` and `resources` folders in `build` directory.
 - `icons`               - Icons sources. Goes to `compiled` folder in `build` directory.
 - `protobuf`            - Protobuf sources. Goes to `compiled` folder in `build` directory.
-- `resources`           - Assets that is going to be provisioned to SD card.
 - `slideshow`           - One-time slideshows for desktop
-- `unit_tests`          - Some pre-defined signals for testing purposes.

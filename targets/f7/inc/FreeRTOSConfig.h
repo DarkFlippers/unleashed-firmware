@@ -3,12 +3,13 @@
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
 #include <stdint.h>
 #pragma GCC diagnostic ignored "-Wredundant-decls"
-extern uint32_t SystemCoreClock;
 #endif
 
 #ifndef CMSIS_device_header
 #define CMSIS_device_header "stm32wbxx.h"
 #endif /* CMSIS_device_header */
+
+#include CMSIS_device_header
 
 #define configENABLE_FPU 1
 #define configENABLE_MPU 0

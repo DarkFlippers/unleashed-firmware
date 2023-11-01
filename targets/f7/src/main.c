@@ -2,7 +2,6 @@
 #include <furi_hal.h>
 #include <flipper.h>
 #include <alt_boot.h>
-#include <semphr.h>
 #include <update_util/update_operation.h>
 
 #define TAG "Main"

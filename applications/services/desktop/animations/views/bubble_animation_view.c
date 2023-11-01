@@ -23,7 +23,7 @@ typedef struct {
     uint8_t active_bubbles;
     uint8_t passive_bubbles;
     uint8_t active_shift;
-    TickType_t active_ended_at;
+    uint32_t active_ended_at;
     Icon* freeze_frame;
 } BubbleAnimationViewModel;
 
@@ -152,7 +152,7 @@ static void bubble_animation_activate(BubbleAnimationView* view, bool force) {
     if(model->current != NULL) {
         if(!force) {
             if((model->active_ended_at + model->current->active_cooldown * 1000) >
-               xTaskGetTickCount()) {
+               furi_get_tick()) {
                 activate = false;
             } else if(model->active_shift) {
                 activate = false;
@@ -213,7 +213,7 @@ static void bubble_animation_next_frame(BubbleAnimationViewModel* model) {
             model->active_cycle = 0;
             model->current_frame = 0;
             model->current_bubble = bubble_animation_pick_bubble(model, false);
-            model->active_ended_at = xTaskGetTickCount();
+            model->active_ended_at = furi_get_tick();
         }
 
         if(model->current_bubble) {
@@ -353,7 +353,7 @@ void bubble_animation_view_set_animation(
     furi_assert(model);
     model->current = new_animation;
 
-    model->active_ended_at = xTaskGetTickCount() - (model->current->active_cooldown * 1000);
+    model->active_ended_at = furi_get_tick() - (model->current->active_cooldown * 1000);
     model->active_bubbles = 0;
     model->passive_bubbles = 0;
     for(int i = 0; i < new_animation->frame_bubble_sequences_count; ++i) {

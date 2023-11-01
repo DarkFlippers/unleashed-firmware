@@ -8,6 +8,9 @@
 #include "base.h"
 #include "common_defines.h"
 
+#include <stdint.h>
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,7 +31,8 @@ typedef enum {
     FuriThreadPriorityNormal = 16, /**< Normal */
     FuriThreadPriorityHigh = 17, /**< High */
     FuriThreadPriorityHighest = 18, /**< Highest */
-    FuriThreadPriorityIsr = (configMAX_PRIORITIES - 1), /**< Deferred ISR (highest possible) */
+    FuriThreadPriorityIsr =
+        (FURI_CONFIG_THREAD_MAX_PRIORITIES - 1), /**< Deferred ISR (highest possible) */
 } FuriThreadPriority;
 
 /** FuriThread anonymous structure */

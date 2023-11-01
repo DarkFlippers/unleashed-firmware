@@ -11,6 +11,9 @@
 
 #include <hsem_map.h>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 #define TAG "FuriHalFlash"
 
 #define FURI_HAL_CRITICAL_MSG "Critical flash operation fail"

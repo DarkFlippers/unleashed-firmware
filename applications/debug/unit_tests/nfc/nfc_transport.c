@@ -122,7 +122,7 @@ Nfc* nfc_alloc() {
 }
 
 void nfc_free(Nfc* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     free(instance);
 }
@@ -165,9 +165,9 @@ NfcError nfc_iso14443a_listener_set_col_res_data(
     uint8_t uid_len,
     uint8_t* atqa,
     uint8_t sak) {
-    furi_assert(instance);
-    furi_assert(uid);
-    furi_assert(atqa);
+    furi_check(instance);
+    furi_check(uid);
+    furi_check(atqa);
 
     nfc_prepare_col_res_data(instance, uid, uid_len, atqa, sak);
 
@@ -176,7 +176,7 @@ NfcError nfc_iso14443a_listener_set_col_res_data(
 
 static int32_t nfc_worker_poller(void* context) {
     Nfc* instance = context;
-    furi_assert(instance->callback);
+    furi_check(instance->callback);
 
     instance->state = NfcStateReady;
     NfcCommand command = NfcCommandContinue;
@@ -196,7 +196,7 @@ static int32_t nfc_worker_poller(void* context) {
 }
 
 static void nfc_worker_listener_pass_col_res(Nfc* instance, uint8_t* rx_data, uint16_t rx_bits) {
-    furi_assert(instance->col_res_status != Iso14443_3aColResStatusDone);
+    furi_check(instance->col_res_status != Iso14443_3aColResStatusDone);
     BitBuffer* tx_buffer = bit_buffer_alloc(NFC_MAX_BUFFER_SIZE);
 
     bool processed = false;
@@ -255,7 +255,7 @@ static void nfc_worker_listener_pass_col_res(Nfc* instance, uint8_t* rx_data, ui
 
 static int32_t nfc_worker_listener(void* context) {
     Nfc* instance = context;
-    furi_assert(instance->callback);
+    furi_check(instance->callback);
 
     NfcMessage message = {};
 
@@ -295,17 +295,17 @@ static int32_t nfc_worker_listener(void* context) {
 }
 
 void nfc_start(Nfc* instance, NfcEventCallback callback, void* context) {
-    furi_assert(instance);
-    furi_assert(instance->worker_thread == NULL);
+    furi_check(instance);
+    furi_check(instance->worker_thread == NULL);
 
     if(instance->mode == NfcModeListener) {
-        furi_assert(listener_queue == NULL);
+        furi_check(listener_queue == NULL);
         // Check that poller didn't start
-        furi_assert(poller_queue == NULL);
+        furi_check(poller_queue == NULL);
     } else {
-        furi_assert(poller_queue == NULL);
+        furi_check(poller_queue == NULL);
         // Check that poller is started after listener
-        furi_assert(listener_queue);
+        furi_check(listener_queue);
     }
 
     instance->callback = callback;
@@ -334,8 +334,8 @@ void nfc_start(Nfc* instance, NfcEventCallback callback, void* context) {
 }
 
 void nfc_stop(Nfc* instance) {
-    furi_assert(instance);
-    furi_assert(instance->worker_thread);
+    furi_check(instance);
+    furi_check(instance->worker_thread);
 
     if(instance->mode == NfcModeListener) {
         NfcMessage message = {.type = NfcMessageTypeAbort};
@@ -361,10 +361,10 @@ void nfc_stop(Nfc* instance) {
 // Called from worker thread
 
 NfcError nfc_listener_tx(Nfc* instance, const BitBuffer* tx_buffer) {
-    furi_assert(instance);
-    furi_assert(poller_queue);
-    furi_assert(listener_queue);
-    furi_assert(tx_buffer);
+    furi_check(instance);
+    furi_check(poller_queue);
+    furi_check(listener_queue);
+    furi_check(tx_buffer);
 
     NfcMessage message = {};
     message.type = NfcMessageTypeTx;
@@ -382,11 +382,11 @@ NfcError nfc_iso14443a_listener_tx_custom_parity(Nfc* instance, const BitBuffer*
 
 NfcError
     nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt) {
-    furi_assert(instance);
-    furi_assert(tx_buffer);
-    furi_assert(rx_buffer);
-    furi_assert(poller_queue);
-    furi_assert(listener_queue);
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
+    furi_check(poller_queue);
+    furi_check(listener_queue);
     UNUSED(fwt);
 
     NfcError error = NfcErrorNone;
@@ -396,7 +396,7 @@ NfcError
     message.data.data_bits = bit_buffer_get_size(tx_buffer);
     bit_buffer_write_bytes(tx_buffer, message.data.data, bit_buffer_get_size_bytes(tx_buffer));
     // Tx
-    furi_assert(furi_message_queue_put(listener_queue, &message, FuriWaitForever) == FuriStatusOk);
+    furi_check(furi_message_queue_put(listener_queue, &message, FuriWaitForever) == FuriStatusOk);
     // Rx
     FuriStatus status = furi_message_queue_get(poller_queue, &message, 50);
 
