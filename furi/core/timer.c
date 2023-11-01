@@ -97,6 +97,23 @@ FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks) {
     return (stat);
 }
 
+FuriStatus furi_timer_restart(FuriTimer* instance) {
+    furi_assert(!furi_kernel_is_irq_or_masked());
+    furi_assert(instance);
+
+    TimerHandle_t hTimer = (TimerHandle_t)instance;
+    FuriStatus stat;
+
+    if(xTimerReset(hTimer, portMAX_DELAY) == pdPASS) {
+        stat = FuriStatusOk;
+    } else {
+        stat = FuriStatusErrorResource;
+    }
+
+    /* Return execution status */
+    return (stat);
+}
+
 FuriStatus furi_timer_stop(FuriTimer* instance) {
     furi_assert(!furi_kernel_is_irq_or_masked());
     furi_assert(instance);
@@ -125,6 +142,15 @@ uint32_t furi_timer_is_running(FuriTimer* instance) {
     return (uint32_t)xTimerIsTimerActive(hTimer);
 }
 
+uint32_t furi_timer_get_expire_time(FuriTimer* instance) {
+    furi_assert(!furi_kernel_is_irq_or_masked());
+    furi_assert(instance);
+
+    TimerHandle_t hTimer = (TimerHandle_t)instance;
+
+    return (uint32_t)xTimerGetExpiryTime(hTimer);
+}
+
 void furi_timer_pending_callback(FuriTimerPendigCallback callback, void* context, uint32_t arg) {
     BaseType_t ret = pdFAIL;
     if(furi_kernel_is_irq_or_masked()) {
@@ -133,4 +159,17 @@ void furi_timer_pending_callback(FuriTimerPendigCallback callback, void* context
         ret = xTimerPendFunctionCall(callback, context, arg, FuriWaitForever);
     }
     furi_check(ret == pdPASS);
+}
+
+void furi_timer_set_thread_priority(FuriTimerThreadPriority priority) {
+    furi_assert(!furi_kernel_is_irq_or_masked());
+    TaskHandle_t task_handle = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
+
+    if(priority == FuriTimerThreadPriorityNormal) {
+        vTaskPrioritySet(task_handle, configTIMER_TASK_PRIORITY);
+    } else if(priority == FuriTimerThreadPriorityElevated) {
+        vTaskPrioritySet(task_handle, configMAX_PRIORITIES - 1);
+    } else {
+        furi_crash();
+    }
 }

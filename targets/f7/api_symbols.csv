@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,41.0,,
+Version,+,43.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -179,6 +179,7 @@ Header,+,lib/subghz/blocks/math.h,,
 Header,+,lib/subghz/devices/cc1101_configs.h,,
 Header,+,lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h,,
 Header,+,lib/subghz/environment.h,,
+Header,+,lib/subghz/protocols/public_api.h,,
 Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
 Header,+,lib/subghz/registry.h,,
@@ -485,7 +486,6 @@ Function,-,_perror_r,void,"_reent*, const char*"
 Function,-,_printf_r,int,"_reent*, const char*, ..."
 Function,-,_putc_r,int,"_reent*, int, FILE*"
 Function,-,_putc_unlocked_r,int,"_reent*, int, FILE*"
-Function,-,_putchar,void,char
 Function,-,_putchar_r,int,"_reent*, int"
 Function,-,_putchar_unlocked_r,int,"_reent*, int"
 Function,-,_putenv_r,int,"_reent*, char*"
@@ -839,8 +839,6 @@ Function,-,dprintf,int,"int, const char*, ..."
 Function,-,drand48,double,
 Function,-,drem,double,"double, double"
 Function,-,dremf,float,"float, float"
-Function,-,eTaskConfirmSleepModeStatus,eSleepModeStatus,
-Function,-,eTaskGetState,eTaskState,TaskHandle_t
 Function,+,elements_bold_rounded_frame,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,elements_bubble,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t"
 Function,+,elements_bubble_str,void,"Canvas*, uint8_t, uint8_t, const char*, Align, Align"
@@ -1536,6 +1534,7 @@ Function,+,furi_hal_vibro_on,void,_Bool
 Function,-,furi_init,void,
 Function,+,furi_kernel_get_tick_frequency,uint32_t,
 Function,+,furi_kernel_is_irq_or_masked,_Bool,
+Function,+,furi_kernel_is_running,_Bool,
 Function,+,furi_kernel_lock,int32_t,
 Function,+,furi_kernel_restore_lock,int32_t,int32_t
 Function,+,furi_kernel_unlock,int32_t,
@@ -1646,7 +1645,6 @@ Function,+,furi_string_utf8_push,void,"FuriString*, FuriStringUnicodeValue"
 Function,+,furi_string_vprintf,int,"FuriString*, const char[], va_list"
 Function,+,furi_thread_alloc,FuriThread*,
 Function,+,furi_thread_alloc_ex,FuriThread*,"const char*, uint32_t, FuriThreadCallback, void*"
-Function,+,furi_thread_catch,void,
 Function,-,furi_thread_disable_heap_trace,void,FuriThread*
 Function,+,furi_thread_enable_heap_trace,void,FuriThread*
 Function,+,furi_thread_enumerate,uint32_t,"FuriThreadId*, uint32_t"
@@ -1687,8 +1685,11 @@ Function,+,furi_thread_suspend,void,FuriThreadId
 Function,+,furi_thread_yield,void,
 Function,+,furi_timer_alloc,FuriTimer*,"FuriTimerCallback, FuriTimerType, void*"
 Function,+,furi_timer_free,void,FuriTimer*
+Function,+,furi_timer_get_expire_time,uint32_t,FuriTimer*
 Function,+,furi_timer_is_running,uint32_t,FuriTimer*
 Function,+,furi_timer_pending_callback,void,"FuriTimerPendigCallback, void*, uint32_t"
+Function,+,furi_timer_restart,FuriStatus,FuriTimer*
+Function,+,furi_timer_set_thread_priority,void,FuriTimerThreadPriority
 Function,+,furi_timer_start,FuriStatus,"FuriTimer*, uint32_t"
 Function,+,furi_timer_stop,FuriStatus,FuriTimer*
 Function,-,fwrite,size_t,"const void*, size_t, size_t, FILE*"
@@ -2380,8 +2381,6 @@ Function,+,pb_read,_Bool,"pb_istream_t*, pb_byte_t*, size_t"
 Function,+,pb_release,void,"const pb_msgdesc_t*, void*"
 Function,+,pb_skip_field,_Bool,"pb_istream_t*, pb_wire_type_t"
 Function,+,pb_write,_Bool,"pb_ostream_t*, const pb_byte_t*, size_t"
-Function,-,pcTaskGetName,char*,TaskHandle_t
-Function,-,pcTimerGetName,const char*,TimerHandle_t
 Function,-,pclose,int,FILE*
 Function,-,perror,void,const char*
 Function,+,plugin_manager_alloc,PluginManager*,"const char*, uint32_t, const ElfApiInterface*"
@@ -2456,12 +2455,6 @@ Function,-,putchar_unlocked,int,int
 Function,-,putenv,int,char*
 Function,-,puts,int,const char*
 Function,-,putw,int,"int, FILE*"
-Function,-,pvPortCalloc,void*,"size_t, size_t"
-Function,-,pvPortMalloc,void*,size_t
-Function,-,pvTaskGetThreadLocalStoragePointer,void*,"TaskHandle_t, BaseType_t"
-Function,-,pvTaskIncrementMutexHeldCount,TaskHandle_t,
-Function,-,pvTimerGetTimerID,void*,const TimerHandle_t
-Function,-,pxPortInitialiseStack,StackType_t*,"StackType_t*, TaskFunction_t, void*"
 Function,-,qsort,void,"void*, size_t, size_t, __compar_fn_t"
 Function,-,qsort_r,void,"void*, size_t, size_t, int (*)(const void*, const void*, void*), void*"
 Function,-,quick_exit,void,int
@@ -2491,7 +2484,7 @@ Function,-,round,double,double
 Function,+,roundf,float,float
 Function,-,roundl,long double,long double
 Function,+,rpc_session_close,void,RpcSession*
-Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, TickType_t"
+Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, uint32_t"
 Function,+,rpc_session_get_available_size,size_t,RpcSession*
 Function,+,rpc_session_get_owner,RpcOwner,RpcSession*
 Function,+,rpc_session_open,RpcSession*,"Rpc*, RpcOwner"
@@ -3011,67 +3004,10 @@ Function,-,uECC_sign_deterministic,int,"const uint8_t*, const uint8_t*, unsigned
 Function,-,uECC_valid_public_key,int,"const uint8_t*, uECC_Curve"
 Function,-,uECC_verify,int,"const uint8_t*, const uint8_t*, unsigned, const uint8_t*, uECC_Curve"
 Function,+,uint8_to_hex_chars,void,"const uint8_t*, uint8_t*, int"
-Function,-,ulTaskGenericNotifyTake,uint32_t,"UBaseType_t, BaseType_t, TickType_t"
-Function,-,ulTaskGenericNotifyValueClear,uint32_t,"TaskHandle_t, UBaseType_t, uint32_t"
-Function,-,ulTaskGetIdleRunTimeCounter,uint32_t,
-Function,-,ulTaskGetIdleRunTimePercent,uint32_t,
 Function,-,ungetc,int,"int, FILE*"
 Function,-,unsetenv,int,const char*
 Function,-,usbd_poll,void,usbd_device*
 Function,-,utoa,char*,"unsigned, char*, int"
-Function,-,uxListRemove,UBaseType_t,ListItem_t*
-Function,-,uxTaskGetNumberOfTasks,UBaseType_t,
-Function,-,uxTaskGetStackHighWaterMark,UBaseType_t,TaskHandle_t
-Function,-,uxTaskGetStackHighWaterMark2,uint16_t,TaskHandle_t
-Function,-,uxTaskGetSystemState,UBaseType_t,"TaskStatus_t*, const UBaseType_t, uint32_t*"
-Function,-,uxTaskGetTaskNumber,UBaseType_t,TaskHandle_t
-Function,-,uxTaskPriorityGet,UBaseType_t,const TaskHandle_t
-Function,-,uxTaskPriorityGetFromISR,UBaseType_t,const TaskHandle_t
-Function,-,uxTaskResetEventItemValue,TickType_t,
-Function,-,uxTimerGetReloadMode,UBaseType_t,TimerHandle_t
-Function,-,uxTimerGetTimerNumber,UBaseType_t,TimerHandle_t
-Function,-,vApplicationGetIdleTaskMemory,void,"StaticTask_t**, StackType_t**, uint32_t*"
-Function,-,vApplicationGetTimerTaskMemory,void,"StaticTask_t**, StackType_t**, uint32_t*"
-Function,-,vListInitialise,void,List_t*
-Function,-,vListInitialiseItem,void,ListItem_t*
-Function,-,vListInsert,void,"List_t*, ListItem_t*"
-Function,-,vListInsertEnd,void,"List_t*, ListItem_t*"
-Function,-,vPortDefineHeapRegions,void,const HeapRegion_t*
-Function,-,vPortEndScheduler,void,
-Function,+,vPortEnterCritical,void,
-Function,+,vPortExitCritical,void,
-Function,-,vPortFree,void,void*
-Function,-,vPortGetHeapStats,void,HeapStats_t*
-Function,-,vPortInitialiseBlocks,void,
-Function,-,vPortSuppressTicksAndSleep,void,TickType_t
-Function,-,vTaskAllocateMPURegions,void,"TaskHandle_t, const MemoryRegion_t*"
-Function,-,vTaskDelay,void,const TickType_t
-Function,-,vTaskDelete,void,TaskHandle_t
-Function,-,vTaskEndScheduler,void,
-Function,-,vTaskGenericNotifyGiveFromISR,void,"TaskHandle_t, UBaseType_t, BaseType_t*"
-Function,-,vTaskGetInfo,void,"TaskHandle_t, TaskStatus_t*, BaseType_t, eTaskState"
-Function,-,vTaskGetRunTimeStats,void,char*
-Function,-,vTaskInternalSetTimeOutState,void,TimeOut_t*
-Function,-,vTaskList,void,char*
-Function,-,vTaskMissedYield,void,
-Function,-,vTaskPlaceOnEventList,void,"List_t*, const TickType_t"
-Function,-,vTaskPlaceOnEventListRestricted,void,"List_t*, TickType_t, const BaseType_t"
-Function,-,vTaskPlaceOnUnorderedEventList,void,"List_t*, const TickType_t, const TickType_t"
-Function,-,vTaskPriorityDisinheritAfterTimeout,void,"const TaskHandle_t, UBaseType_t"
-Function,+,vTaskPrioritySet,void,"TaskHandle_t, UBaseType_t"
-Function,-,vTaskRemoveFromUnorderedEventList,void,"ListItem_t*, const TickType_t"
-Function,-,vTaskResume,void,TaskHandle_t
-Function,-,vTaskSetTaskNumber,void,"TaskHandle_t, const UBaseType_t"
-Function,-,vTaskSetThreadLocalStoragePointer,void,"TaskHandle_t, BaseType_t, void*"
-Function,-,vTaskSetTimeOutState,void,TimeOut_t*
-Function,-,vTaskStartScheduler,void,
-Function,-,vTaskStepTick,void,TickType_t
-Function,-,vTaskSuspend,void,TaskHandle_t
-Function,-,vTaskSuspendAll,void,
-Function,-,vTaskSwitchContext,void,
-Function,-,vTimerSetReloadMode,void,"TimerHandle_t, const BaseType_t"
-Function,-,vTimerSetTimerID,void,"TimerHandle_t, void*"
-Function,-,vTimerSetTimerNumber,void,"TimerHandle_t, UBaseType_t"
 Function,+,validator_is_file_alloc_init,ValidatorIsFile*,"const char*, const char*, const char*"
 Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
@@ -3186,43 +3122,6 @@ Function,+,widget_alloc,Widget*,
 Function,+,widget_free,void,Widget*
 Function,+,widget_get_view,View*,Widget*
 Function,+,widget_reset,void,Widget*
-Function,-,xPortGetFreeHeapSize,size_t,
-Function,-,xPortGetMinimumEverFreeHeapSize,size_t,
-Function,-,xPortStartScheduler,BaseType_t,
-Function,-,xTaskAbortDelay,BaseType_t,TaskHandle_t
-Function,-,xTaskCallApplicationTaskHook,BaseType_t,"TaskHandle_t, void*"
-Function,-,xTaskCatchUpTicks,BaseType_t,TickType_t
-Function,-,xTaskCheckForTimeOut,BaseType_t,"TimeOut_t*, TickType_t*"
-Function,-,xTaskCreate,BaseType_t,"TaskFunction_t, const char*, const uint16_t, void*, UBaseType_t, TaskHandle_t*"
-Function,-,xTaskCreateStatic,TaskHandle_t,"TaskFunction_t, const char*, const uint32_t, void*, UBaseType_t, StackType_t*, StaticTask_t*"
-Function,-,xTaskDelayUntil,BaseType_t,"TickType_t*, const TickType_t"
-Function,-,xTaskGenericNotify,BaseType_t,"TaskHandle_t, UBaseType_t, uint32_t, eNotifyAction, uint32_t*"
-Function,-,xTaskGenericNotifyFromISR,BaseType_t,"TaskHandle_t, UBaseType_t, uint32_t, eNotifyAction, uint32_t*, BaseType_t*"
-Function,-,xTaskGenericNotifyStateClear,BaseType_t,"TaskHandle_t, UBaseType_t"
-Function,-,xTaskGenericNotifyWait,BaseType_t,"UBaseType_t, uint32_t, uint32_t, uint32_t*, TickType_t"
-Function,-,xTaskGetCurrentTaskHandle,TaskHandle_t,
-Function,+,xTaskGetHandle,TaskHandle_t,const char*
-Function,-,xTaskGetIdleTaskHandle,TaskHandle_t,
-Function,+,xTaskGetSchedulerState,BaseType_t,
-Function,+,xTaskGetTickCount,TickType_t,
-Function,-,xTaskGetTickCountFromISR,TickType_t,
-Function,-,xTaskIncrementTick,BaseType_t,
-Function,-,xTaskPriorityDisinherit,BaseType_t,const TaskHandle_t
-Function,-,xTaskPriorityInherit,BaseType_t,const TaskHandle_t
-Function,-,xTaskRemoveFromEventList,BaseType_t,const List_t*
-Function,-,xTaskResumeAll,BaseType_t,
-Function,-,xTaskResumeFromISR,BaseType_t,TaskHandle_t
-Function,-,xTimerCreate,TimerHandle_t,"const char*, const TickType_t, const BaseType_t, void*, TimerCallbackFunction_t"
-Function,-,xTimerCreateStatic,TimerHandle_t,"const char*, const TickType_t, const BaseType_t, void*, TimerCallbackFunction_t, StaticTimer_t*"
-Function,-,xTimerCreateTimerTask,BaseType_t,
-Function,-,xTimerGenericCommand,BaseType_t,"TimerHandle_t, const BaseType_t, const TickType_t, BaseType_t*, const TickType_t"
-Function,-,xTimerGetExpiryTime,TickType_t,TimerHandle_t
-Function,-,xTimerGetPeriod,TickType_t,TimerHandle_t
-Function,-,xTimerGetReloadMode,BaseType_t,TimerHandle_t
-Function,-,xTimerGetTimerDaemonTaskHandle,TaskHandle_t,
-Function,-,xTimerIsTimerActive,BaseType_t,TimerHandle_t
-Function,-,xTimerPendFunctionCall,BaseType_t,"PendedFunction_t, void*, uint32_t, TickType_t"
-Function,-,xTimerPendFunctionCallFromISR,BaseType_t,"PendedFunction_t, void*, uint32_t, BaseType_t*"
 Function,-,y0,double,double
 Function,-,y0f,float,float
 Function,-,y1,double,double

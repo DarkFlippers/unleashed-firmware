@@ -55,8 +55,6 @@ PLACE_IN_SECTION("MB_MEM2") uint32_t __furi_check_registers[13] = {0};
                  : "memory");
 
 extern size_t xPortGetTotalHeapSize(void);
-extern size_t xPortGetFreeHeapSize(void);
-extern size_t xPortGetMinimumEverFreeHeapSize(void);
 
 static void __furi_put_uint32_as_text(uint32_t data) {
     char tmp_str[] = "-2147483648";

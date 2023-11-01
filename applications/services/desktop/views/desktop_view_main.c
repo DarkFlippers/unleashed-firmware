@@ -13,14 +13,14 @@ struct DesktopMainView {
     View* view;
     DesktopMainViewCallback callback;
     void* context;
-    TimerHandle_t poweroff_timer;
+    FuriTimer* poweroff_timer;
     bool dummy_mode;
 };
 
 #define DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT 5000
 
-static void desktop_main_poweroff_timer_callback(TimerHandle_t timer) {
-    DesktopMainView* main_view = pvTimerGetTimerID(timer);
+static void desktop_main_poweroff_timer_callback(void* context) {
+    DesktopMainView* main_view = context;
     main_view->callback(DesktopMainEventOpenPowerOff, main_view->context);
 }
 
@@ -90,12 +90,9 @@ bool desktop_main_input_callback(InputEvent* event, void* context) {
 
     if(event->key == InputKeyBack) {
         if(event->type == InputTypePress) {
-            xTimerChangePeriod(
-                main_view->poweroff_timer,
-                pdMS_TO_TICKS(DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT),
-                portMAX_DELAY);
+            furi_timer_start(main_view->poweroff_timer, DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT);
         } else if(event->type == InputTypeRelease) {
-            xTimerStop(main_view->poweroff_timer, portMAX_DELAY);
+            furi_timer_stop(main_view->poweroff_timer);
         }
     }
 
@@ -109,12 +106,8 @@ DesktopMainView* desktop_main_alloc() {
     view_set_context(main_view->view, main_view);
     view_set_input_callback(main_view->view, desktop_main_input_callback);
 
-    main_view->poweroff_timer = xTimerCreate(
-        NULL,
-        pdMS_TO_TICKS(DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT),
-        pdFALSE,
-        main_view,
-        desktop_main_poweroff_timer_callback);
+    main_view->poweroff_timer =
+        furi_timer_alloc(desktop_main_poweroff_timer_callback, FuriTimerTypeOnce, main_view);
 
     return main_view;
 }

@@ -384,18 +384,17 @@ void infrared_play_notification_message(
 }
 
 void infrared_show_loading_popup(const InfraredApp* infrared, bool show) {
-    TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
     ViewStack* view_stack = infrared->view_stack;
     Loading* loading = infrared->loading;
 
     if(show) {
         // Raise timer priority so that animations can play
-        vTaskPrioritySet(timer_task, configMAX_PRIORITIES - 1);
+        furi_timer_set_thread_priority(FuriTimerThreadPriorityElevated);
         view_stack_add_view(view_stack, loading_get_view(loading));
     } else {
         view_stack_remove_view(view_stack, loading_get_view(loading));
         // Restore default timer priority
-        vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
+        furi_timer_set_thread_priority(FuriTimerThreadPriorityNormal);
     }
 }
 

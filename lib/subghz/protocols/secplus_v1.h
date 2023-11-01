@@ -1,5 +1,7 @@
 #pragma once
+
 #include "base.h"
+#include "public_api.h"
 
 #define SUBGHZ_PROTOCOL_SECPLUS_V1_NAME "Security+ 1.0"
 
@@ -99,13 +101,6 @@ SubGhzProtocolStatus subghz_protocol_decoder_secplus_v1_serialize(
  */
 SubGhzProtocolStatus
     subghz_protocol_decoder_secplus_v1_deserialize(void* context, FlipperFormat* flipper_format);
-
-/**
- * Validation of fixed parts SubGhzProtocolDecoderSecPlus_v1.
- * @param fixed fixed parts
- * @return true On success
- */
-bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed);
 
 /**
  * Getting a textual representation of the received data.

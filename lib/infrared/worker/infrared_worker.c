@@ -165,7 +165,7 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
     InfraredWorker* instance = thread_context;
     uint32_t events = 0;
     LevelDuration level_duration;
-    TickType_t last_blink_time = 0;
+    uint32_t last_blink_time = 0;
 
     while(1) {
         events = furi_thread_flags_wait(INFRARED_WORKER_ALL_RX_EVENTS, 0, FuriWaitForever);
@@ -173,8 +173,8 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
 
         if(events & INFRARED_WORKER_RX_RECEIVED) {
             if(!instance->rx.overrun && instance->blink_enable &&
-               ((xTaskGetTickCount() - last_blink_time) > 80)) {
-                last_blink_time = xTaskGetTickCount();
+               ((furi_get_tick() - last_blink_time) > 80)) {
+                last_blink_time = furi_get_tick();
                 notification_message(instance->notification, &sequence_blink_blue_10);
             }
             if(instance->signal.timings_cnt == 0)

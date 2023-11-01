@@ -459,10 +459,10 @@ void furi_hal_power_disable_external_3_3v() {
 }
 
 void furi_hal_power_suppress_charge_enter() {
-    vTaskSuspendAll();
+    FURI_CRITICAL_ENTER();
     bool disable_charging = furi_hal_power.suppress_charge == 0;
     furi_hal_power.suppress_charge++;
-    xTaskResumeAll();
+    FURI_CRITICAL_EXIT();
 
     if(disable_charging) {
         furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
@@ -472,10 +472,10 @@ void furi_hal_power_suppress_charge_enter() {
 }
 
 void furi_hal_power_suppress_charge_exit() {
-    vTaskSuspendAll();
+    FURI_CRITICAL_ENTER();
     furi_hal_power.suppress_charge--;
     bool enable_charging = furi_hal_power.suppress_charge == 0;
-    xTaskResumeAll();
+    FURI_CRITICAL_EXIT();
 
     if(enable_charging) {
         furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);

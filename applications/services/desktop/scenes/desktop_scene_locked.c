@@ -3,7 +3,6 @@
 #include <gui/scene_manager.h>
 #include <gui/view_stack.h>
 #include <stdint.h>
-#include <portmacro.h>
 
 #include "../desktop.h"
 #include "../desktop_i.h"

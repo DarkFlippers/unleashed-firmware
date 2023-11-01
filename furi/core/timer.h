@@ -40,6 +40,14 @@ void furi_timer_free(FuriTimer* instance);
  */
 FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks);
 
+/** Restart timer with previous timeout value
+ *
+ * @param      instance  The pointer to FuriTimer instance
+ *
+ * @return     The furi status.
+ */
+FuriStatus furi_timer_restart(FuriTimer* instance);
+
 /** Stop timer
  *
  * @param      instance  The pointer to FuriTimer instance
@@ -56,9 +64,28 @@ FuriStatus furi_timer_stop(FuriTimer* instance);
  */
 uint32_t furi_timer_is_running(FuriTimer* instance);
 
+/** Get timer expire time
+ *
+ * @param      instance  The Timer instance
+ *
+ * @return     expire tick
+ */
+uint32_t furi_timer_get_expire_time(FuriTimer* instance);
+
 typedef void (*FuriTimerPendigCallback)(void* context, uint32_t arg);
 
 void furi_timer_pending_callback(FuriTimerPendigCallback callback, void* context, uint32_t arg);
+
+typedef enum {
+    FuriTimerThreadPriorityNormal, /**< Lower then other threads */
+    FuriTimerThreadPriorityElevated, /**< Same as other threads */
+} FuriTimerThreadPriority;
+
+/** Set Timer thread priority
+ *
+ * @param[in]  priority  The priority
+ */
+void furi_timer_set_thread_priority(FuriTimerThreadPriority priority);
 
 #ifdef __cplusplus
 }

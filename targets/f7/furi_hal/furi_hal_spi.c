@@ -200,7 +200,7 @@ bool furi_hal_spi_bus_trx_dma(
     furi_assert(size > 0);
 
     // If scheduler is not running, use blocking mode
-    if(xTaskGetSchedulerState() != taskSCHEDULER_RUNNING) {
+    if(furi_kernel_is_running()) {
         return furi_hal_spi_bus_trx(handle, tx_buffer, rx_buffer, size, timeout_ms);
     }
 

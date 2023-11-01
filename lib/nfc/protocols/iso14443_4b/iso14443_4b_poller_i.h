@@ -40,8 +40,6 @@ struct Iso14443_4bPoller {
     void* context;
 };
 
-Iso14443_4bError iso14443_4b_process_error(Iso14443_3bError error);
-
 const Iso14443_4bData* iso14443_4b_poller_get_data(Iso14443_4bPoller* instance);
 
 Iso14443_4bError iso14443_4b_poller_halt(Iso14443_4bPoller* instance);

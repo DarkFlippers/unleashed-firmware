@@ -91,7 +91,7 @@ void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, bool loc
             SubGhzViewReceiverModel * model,
             { model->bar_show = SubGhzViewReceiverBarShowLock; },
             true);
-        furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(1000));
+        furi_timer_start(subghz_receiver->timer, 1000);
     } else {
         with_view_model(
             subghz_receiver->view,
@@ -316,7 +316,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
             { model->bar_show = SubGhzViewReceiverBarShowToUnlockPress; },
             true);
         if(subghz_receiver->lock_count == 0) {
-            furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(1000));
+            furi_timer_start(subghz_receiver->timer, 1000);
         }
         if(event->key == InputKeyBack && event->type == InputTypeShort) {
             subghz_receiver->lock_count++;
@@ -330,7 +330,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 { model->bar_show = SubGhzViewReceiverBarShowUnlock; },
                 true);
             //subghz_receiver->lock = false;
-            furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(650));
+            furi_timer_start(subghz_receiver->timer, 650);
         }
 
         return true;
