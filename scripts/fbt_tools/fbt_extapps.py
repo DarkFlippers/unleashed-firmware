@@ -147,16 +147,10 @@ class AppBuilder:
             CPPPATH=[self.app_work_dir, self.app._appdir],
         )
 
-        app_sources = list(
-            itertools.chain.from_iterable(
-                self.app_env.GlobRecursive(
-                    source_type,
-                    self.app_work_dir,
-                    exclude="lib",
-                )
-                for source_type in self.app.sources
-            )
+        app_sources = self.app_env.GatherSources(
+            [self.app.sources, "!lib"], self.app_work_dir
         )
+
         if not app_sources:
             raise UserError(f"No source files found for {self.app.appid}")
 
