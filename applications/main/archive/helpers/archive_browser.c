@@ -160,7 +160,7 @@ void archive_update_focus(ArchiveBrowserView* browser, const char* target) {
             browser->view,
             ArchiveBrowserViewModel * model,
             {
-                uint16_t idx = 0;
+                size_t idx = 0;
                 while(idx < files_array_size(model->files)) {
                     ArchiveFile_t* current = files_array_get(model->files, idx);
                     if(!furi_string_search(current->path, target)) {

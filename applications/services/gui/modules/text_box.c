@@ -101,7 +101,7 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     model->text_pos = (char*)model->text;
     if(model->focus == TextBoxFocusEnd && line_num > 5) {
         // Set text position to 5th line from the end
-        for(uint8_t i = 0; i < line_num - 5; i++) {
+        for(size_t i = 0; i < line_num - 5; i++) {
             while(*model->text_pos++ != '\n') {
             };
         }
