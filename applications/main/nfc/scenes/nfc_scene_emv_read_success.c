@@ -43,7 +43,7 @@ void nfc_scene_emv_read_success_on_enter(void* context) {
             furi_string_cat_printf(temp_str, "AID: %s", furi_string_get_cstr(aid_name));
         } else {
             furi_string_cat_printf(temp_str, "AID: ");
-            for(uint8_t i = 0; i < emv_data->aid_len; i++) {
+            for(uint16_t i = 0; i < emv_data->aid_len; i++) {
                 furi_string_cat_printf(temp_str, "%02X", emv_data->aid[i]);
             }
         }

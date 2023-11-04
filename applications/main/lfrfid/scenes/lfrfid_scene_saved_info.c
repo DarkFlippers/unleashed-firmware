@@ -16,7 +16,7 @@ void lfrfid_scene_saved_info_on_enter(void* context) {
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     uint8_t* data = (uint8_t*)malloc(size);
     protocol_dict_get_data(app->dict, app->protocol_id, data, size);
-    for(uint8_t i = 0; i < size; i++) {
+    for(size_t i = 0; i < size; i++) {
         if(i != 0) {
             furi_string_cat_printf(tmp_string, ":");
         }
