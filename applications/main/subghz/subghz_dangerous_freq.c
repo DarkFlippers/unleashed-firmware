@@ -1,7 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#include <firmware/targets/f7/furi_hal/furi_hal_subghz_i.h>
+#include <targets/f7/furi_hal/furi_hal_subghz_i.h>
 
 #include <flipper_format/flipper_format_i.h>
 

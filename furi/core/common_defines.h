@@ -2,6 +2,8 @@
 
 #include "core_defines.h"
 #include <stdbool.h>
+#include <FreeRTOS.h>
+#include <task.h>
 
 #ifdef __cplusplus
 extern "C" {
