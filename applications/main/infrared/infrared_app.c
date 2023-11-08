@@ -158,6 +158,12 @@ static InfraredApp* infrared_alloc() {
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewDialogEx, dialog_ex_get_view(infrared->dialog_ex));
 
+    infrared->variable_item_list = variable_item_list_alloc();
+    view_dispatcher_add_view(
+        infrared->view_dispatcher,
+        InfraredViewVariableItemList,
+        variable_item_list_get_view(infrared->variable_item_list));
+
     infrared->button_menu = button_menu_alloc();
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewButtonMenu, button_menu_get_view(infrared->button_menu));
@@ -207,6 +213,9 @@ static void infrared_free(InfraredApp* infrared) {
 
     view_dispatcher_remove_view(view_dispatcher, InfraredViewDialogEx);
     dialog_ex_free(infrared->dialog_ex);
+
+    view_dispatcher_remove_view(infrared->view_dispatcher, InfraredViewVariableItemList);
+    variable_item_list_free(infrared->variable_item_list);
 
     view_dispatcher_remove_view(view_dispatcher, InfraredViewButtonMenu);
     button_menu_free(infrared->button_menu);
