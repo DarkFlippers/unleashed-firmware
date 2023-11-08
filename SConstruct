@@ -185,6 +185,7 @@ fap_deploy = distenv.PhonyTarget(
     ],
     source=firmware_env.Dir(("${RESOURCES_ROOT}/apps")),
 )
+Depends(fap_deploy, firmware_env["FW_RESOURCES_MANIFEST"])
 
 
 # Target for bundling core2 package for qFlipper

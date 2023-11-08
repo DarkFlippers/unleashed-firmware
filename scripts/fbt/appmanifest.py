@@ -240,12 +240,12 @@ class AppBuildset:
         FlipperAppType.SETTINGS,
         FlipperAppType.STARTUP,
     )
-    EXTERNAL_APP_TYPES = (
-        FlipperAppType.EXTERNAL,
-        FlipperAppType.MENUEXTERNAL,
-        FlipperAppType.PLUGIN,
-        FlipperAppType.DEBUG,
-    )
+    EXTERNAL_APP_TYPES_MAP = {
+        FlipperAppType.EXTERNAL: True,
+        FlipperAppType.PLUGIN: True,
+        FlipperAppType.DEBUG: True,
+        FlipperAppType.MENUEXTERNAL: False,
+    }
 
     @staticmethod
     def print_writer(message):
@@ -318,8 +318,8 @@ class AppBuildset:
     def _process_ext_apps(self):
         extapps = [
             app
-            for apptype in self.EXTERNAL_APP_TYPES
-            for app in self.get_apps_of_type(apptype, True)
+            for (apptype, global_lookup) in self.EXTERNAL_APP_TYPES_MAP.items()
+            for app in self.get_apps_of_type(apptype, global_lookup)
         ]
         extapps.extend(map(self.appmgr.get, self._extra_ext_appnames))
 
@@ -407,10 +407,14 @@ class AppBuildset:
         return sdk_headers
 
     def get_apps_of_type(self, apptype: FlipperAppType, all_known: bool = False):
+        """Looks up apps of given type in current app set. If all_known is true,
+        ignores app set and checks all loaded apps' manifests."""
         return sorted(
             filter(
                 lambda app: app.apptype == apptype,
-                self.appmgr.known_apps.values() if all_known else self._apps,
+                self.appmgr.known_apps.values()
+                if all_known
+                else map(self.appmgr.get, self.appnames),
             ),
             key=lambda app: app.order,
         )

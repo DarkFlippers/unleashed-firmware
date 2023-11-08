@@ -21,8 +21,13 @@ def LoadAppManifest(env, entry):
         APP_MANIFEST_NAME = "application.fam"
         manifest_glob = entry.glob(APP_MANIFEST_NAME)
         if len(manifest_glob) == 0:
+            try:
+                disk_node = next(filter(lambda d: d.exists(), entry.get_all_rdirs()))
+            except Exception:
+                disk_node = entry
+
             raise FlipperManifestException(
-                f"Folder {entry}: manifest {APP_MANIFEST_NAME} is missing"
+                f"App folder '{disk_node.abspath}': missing manifest ({APP_MANIFEST_NAME})"
             )
 
         app_manifest_file_path = manifest_glob[0].rfile().abspath
