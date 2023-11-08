@@ -1,0 +1,5 @@
+# Example file, it will not work, you need to add paths to your files!
+sub: /ext/subghz/Vehicles/Tesla/Tesla_charge_AM270.sub
+sub: /ext/subghz/Vehicles/Tesla/Tesla_charge_AM650.sub
+sub: /ext/subghz/Test1.sub
+sub: /ext/subghz/Test2.sub

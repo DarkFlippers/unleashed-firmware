@@ -1,0 +1,7 @@
+beep 1
+goto l2
+.label l1
+beep 0
+.label l2
+beep 1
+goto l1

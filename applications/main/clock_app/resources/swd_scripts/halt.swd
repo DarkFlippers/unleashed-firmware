@@ -1,0 +1,11 @@
+
+# make sure errors do not cause a script abort
+errors ignore
+
+message 0 "HAMMER TIME! Trying to halt CPU"
+ap_select 0
+
+# loop writing the halt bits
+.label l1
+mem_write 0xE000EDF0 0xA05F0003
+goto l1
