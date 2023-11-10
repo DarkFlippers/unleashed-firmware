@@ -30,7 +30,7 @@ void ibutton_scene_write_on_enter(void* context) {
         ibutton_protocols_get_name(ibutton->protocols, protocol_id));
 
     widget_add_text_box_element(
-        widget, 52, 38, 75, 26, AlignCenter, AlignCenter, furi_string_get_cstr(tmp), true);
+        widget, 52, 30, 75, 40, AlignCenter, AlignCenter, furi_string_get_cstr(tmp), true);
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
 
@@ -46,7 +46,7 @@ void ibutton_scene_write_on_enter(void* context) {
     }
 
     widget_add_string_multiline_element(
-        widget, 88, 10, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp));
+        widget, 88, 5, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp));
 
     ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
