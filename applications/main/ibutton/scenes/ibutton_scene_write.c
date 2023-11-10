@@ -25,9 +25,9 @@ void ibutton_scene_write_on_enter(void* context) {
 
     furi_string_printf(
         tmp,
-        "%s\n[%s]",
-        ibutton->key_name,
-        ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+        "[%s]\n%s",
+        ibutton_protocols_get_name(ibutton->protocols, protocol_id),
+        ibutton->key_name);
 
     widget_add_text_box_element(
         widget, 52, 30, 75, 40, AlignCenter, AlignCenter, furi_string_get_cstr(tmp), true);
