@@ -13,21 +13,23 @@ static bool lfrfid_debug_back_event_callback(void* context) {
     return scene_manager_handle_back_event(app->scene_manager);
 }
 
-static void rpc_command_callback(RpcAppSystemEvent rpc_event, void* context) {
+static void rpc_command_callback(const RpcAppSystemEvent* event, void* context) {
     furi_assert(context);
     LfRfid* app = (LfRfid*)context;
 
-    if(rpc_event == RpcAppEventSessionClose) {
+    if(event->type == RpcAppEventTypeSessionClose) {
         view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventRpcSessionClose);
         // Detach RPC
         rpc_system_app_set_callback(app->rpc_ctx, NULL, NULL);
         app->rpc_ctx = NULL;
-    } else if(rpc_event == RpcAppEventAppExit) {
+    } else if(event->type == RpcAppEventTypeAppExit) {
         view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventExit);
-    } else if(rpc_event == RpcAppEventLoadFile) {
+    } else if(event->type == RpcAppEventTypeLoadFile) {
+        furi_assert(event->data.type == RpcAppSystemEventDataTypeString);
+        furi_string_set(app->file_path, event->data.string);
         view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventRpcLoadFile);
     } else {
-        rpc_system_app_confirm(app->rpc_ctx, rpc_event, false);
+        rpc_system_app_confirm(app->rpc_ctx, false);
     }
 }
 

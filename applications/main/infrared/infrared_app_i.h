@@ -121,6 +121,7 @@ struct InfraredApp {
     InfraredProgressView* progress; /**< Custom view for showing brute force progress. */
 
     FuriString* file_path; /**< Full path to the currently loaded file. */
+    FuriString* button_name; /** Name of the button requested in RPC mode. */
     /** Arbitrary text storage for various inputs. */
     char text_store[INFRARED_TEXT_STORE_NUM][INFRARED_TEXT_STORE_SIZE + 1];
     InfraredAppState app_state; /**< Application state. */

@@ -23,7 +23,7 @@ jobs:
 
       - name: 'Check protobuf branch'
         run: |
-          git submodule update --init
+          git submodule update --init;
           SUB_PATH="assets/protobuf";
           SUB_BRANCH="dev";
           SUB_COMMITS_MIN=40;

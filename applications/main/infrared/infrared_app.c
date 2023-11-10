@@ -44,30 +44,42 @@ static void infrared_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(infrared->scene_manager);
 }
 
-static void infrared_rpc_command_callback(RpcAppSystemEvent event, void* context) {
+static void infrared_rpc_command_callback(const RpcAppSystemEvent* event, void* context) {
     furi_assert(context);
     InfraredApp* infrared = context;
     furi_assert(infrared->rpc_ctx);
 
-    if(event == RpcAppEventSessionClose) {
+    if(event->type == RpcAppEventTypeSessionClose) {
         view_dispatcher_send_custom_event(
             infrared->view_dispatcher, InfraredCustomEventTypeRpcSessionClose);
         rpc_system_app_set_callback(infrared->rpc_ctx, NULL, NULL);
         infrared->rpc_ctx = NULL;
-    } else if(event == RpcAppEventAppExit) {
+    } else if(event->type == RpcAppEventTypeAppExit) {
         view_dispatcher_send_custom_event(
             infrared->view_dispatcher, InfraredCustomEventTypeRpcExit);
-    } else if(event == RpcAppEventLoadFile) {
+    } else if(event->type == RpcAppEventTypeLoadFile) {
+        furi_assert(event->data.type == RpcAppSystemEventDataTypeString);
+        furi_string_set(infrared->file_path, event->data.string);
         view_dispatcher_send_custom_event(
-            infrared->view_dispatcher, InfraredCustomEventTypeRpcLoad);
-    } else if(event == RpcAppEventButtonPress) {
-        view_dispatcher_send_custom_event(
-            infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPress);
-    } else if(event == RpcAppEventButtonRelease) {
+            infrared->view_dispatcher, InfraredCustomEventTypeRpcLoadFile);
+    } else if(event->type == RpcAppEventTypeButtonPress) {
+        furi_assert(
+            event->data.type == RpcAppSystemEventDataTypeString ||
+            event->data.type == RpcAppSystemEventDataTypeInt32);
+        if(event->data.type == RpcAppSystemEventDataTypeString) {
+            furi_string_set(infrared->button_name, event->data.string);
+            view_dispatcher_send_custom_event(
+                infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPressName);
+        } else {
+            infrared->app_state.current_button_index = event->data.i32;
+            view_dispatcher_send_custom_event(
+                infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPressIndex);
+        }
+    } else if(event->type == RpcAppEventTypeButtonRelease) {
         view_dispatcher_send_custom_event(
             infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonRelease);
     } else {
-        rpc_system_app_confirm(infrared->rpc_ctx, event, false);
+        rpc_system_app_confirm(infrared->rpc_ctx, false);
     }
 }
 
@@ -117,6 +129,7 @@ static InfraredApp* infrared_alloc() {
     InfraredApp* infrared = malloc(sizeof(InfraredApp));
 
     infrared->file_path = furi_string_alloc();
+    infrared->button_name = furi_string_alloc();
 
     InfraredAppState* app_state = &infrared->app_state;
     app_state->is_learning_new_remote = false;
@@ -247,6 +260,7 @@ static void infrared_free(InfraredApp* infrared) {
     infrared->gui = NULL;
 
     furi_string_free(infrared->file_path);
+    furi_string_free(infrared->button_name);
 
     free(infrared);
 }

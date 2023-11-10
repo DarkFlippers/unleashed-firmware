@@ -266,19 +266,37 @@ bool infrared_signal_read_name(FlipperFormat* ff, FuriString* name) {
     return flipper_format_read_string(ff, INFRARED_SIGNAL_NAME_KEY, name);
 }
 
-bool infrared_signal_search_and_read(InfraredSignal* signal, FlipperFormat* ff, const char* name) {
+bool infrared_signal_search_by_name_and_read(
+    InfraredSignal* signal,
+    FlipperFormat* ff,
+    const char* name) {
     bool success = false;
     FuriString* tmp = furi_string_alloc();
 
-    do {
-        bool is_name_found = false;
-        while(!is_name_found && infrared_signal_read_name(ff, tmp)) { //-V560
-            is_name_found = furi_string_equal(tmp, name);
+    while(infrared_signal_read_name(ff, tmp)) {
+        if(furi_string_equal(tmp, name)) {
+            success = infrared_signal_read_body(signal, ff);
+            break;
         }
-        if(!is_name_found) break; //-V547
-        if(!infrared_signal_read_body(signal, ff)) break; //-V779
-        success = true;
-    } while(false);
+    }
+
+    furi_string_free(tmp);
+    return success;
+}
+
+bool infrared_signal_search_by_index_and_read(
+    InfraredSignal* signal,
+    FlipperFormat* ff,
+    size_t index) {
+    bool success = false;
+    FuriString* tmp = furi_string_alloc();
+
+    for(uint32_t i = 0; infrared_signal_read_name(ff, tmp); ++i) {
+        if(i == index) {
+            success = infrared_signal_read_body(signal, ff);
+            break;
+        }
+    }
 
     furi_string_free(tmp);
     return success;
