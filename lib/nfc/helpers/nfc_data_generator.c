@@ -28,6 +28,7 @@ static const uint8_t default_config_ntag_i2c[] = {0x01, 0x00, 0xF8, 0x48, 0x08, 
 static void nfc_generate_mf_ul_uid(uint8_t* uid) {
     uid[0] = NXP_MANUFACTURER_ID;
     furi_hal_random_fill_buf(&uid[1], 6);
+    uid[3] |= 0x01; // To avoid forbidden 0x88 value
     // I'm not sure how this is generated, but the upper nybble always seems to be 8
     uid[6] &= 0x0F;
     uid[6] |= 0x80;
@@ -322,6 +323,7 @@ static void nfc_generate_ntag_i2c_plus_2k(NfcDevice* nfc_device) {
 static void nfc_generate_mf_classic_uid(uint8_t* uid, uint8_t length) {
     uid[0] = NXP_MANUFACTURER_ID;
     furi_hal_random_fill_buf(&uid[1], length - 1);
+    uid[3] |= 0x01; // To avoid forbidden 0x88 value
 }
 
 static void

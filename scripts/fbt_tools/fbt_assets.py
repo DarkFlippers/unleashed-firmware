@@ -80,22 +80,35 @@ def __invoke_git(args, source_dir):
 def _proto_ver_generator(target, source, env):
     target_file = target[0]
     src_dir = source[0].dir.abspath
-    try:
-        __invoke_git(
-            ["fetch", "--tags"],
-            source_dir=src_dir,
-        )
-    except (subprocess.CalledProcessError, EnvironmentError):
-        # Not great, not terrible
-        print(fg.boldred("Git: fetch failed"))
 
-    try:
-        git_describe = __invoke_git(
-            ["describe", "--tags", "--abbrev=0"],
-            source_dir=src_dir,
-        )
-    except (subprocess.CalledProcessError, EnvironmentError):
-        raise StopError("Git: describe failed")
+    def fetch(unshallow=False):
+        git_args = ["fetch", "--tags"]
+        if unshallow:
+            git_args.append("--unshallow")
+
+        try:
+            __invoke_git(git_args, source_dir=src_dir)
+        except (subprocess.CalledProcessError, EnvironmentError):
+            # Not great, not terrible
+            print(fg.boldred("Git: fetch failed"))
+
+    def describe():
+        try:
+            return __invoke_git(
+                ["describe", "--tags", "--abbrev=0"],
+                source_dir=src_dir,
+            )
+        except (subprocess.CalledProcessError, EnvironmentError):
+            return None
+
+    fetch()
+    git_describe = describe()
+    if not git_describe:
+        fetch(unshallow=True)
+        git_describe = describe()
+
+    if not git_describe:
+        raise StopError("Failed to process git tags for protobuf versioning")
 
     git_major, git_minor = git_describe.split(".")
     version_file_data = (

@@ -477,12 +477,15 @@ void rpc_send_and_release(RpcSession* session, PB_Main* message) {
 }
 
 void rpc_send_and_release_empty(RpcSession* session, uint32_t command_id, PB_CommandStatus status) {
+    furi_assert(session);
+
     PB_Main message = {
         .command_id = command_id,
         .command_status = status,
         .has_next = false,
         .which_content = PB_Main_empty_tag,
     };
+
     rpc_send_and_release(session, &message);
     pb_release(&PB_Main_msg, &message);
 }

@@ -162,7 +162,26 @@ bool infrared_signal_read_name(FlipperFormat* ff, FuriString* name);
  * @param[in] name pointer to a zero-terminated string containing the requested signal name.
  * @returns true if a signal was found and successfully read, false otherwise (e.g. the signal was not found).
  */
-bool infrared_signal_search_and_read(InfraredSignal* signal, FlipperFormat* ff, const char* name);
+bool infrared_signal_search_by_name_and_read(
+    InfraredSignal* signal,
+    FlipperFormat* ff,
+    const char* name);
+
+/**
+ * @brief Read a signal with a particular index from a FlipperFormat file into an InfraredSignal instance.
+ *
+ * This function will look for a signal with the given index and if found, attempt to read it.
+ * Same considerations apply as to infrared_signal_read().
+ *
+ * @param[in,out] signal pointer to the instance to be read into.
+ * @param[in,out] ff pointer to the FlipperFormat file instance to read from.
+ * @param[in] index the requested signal index.
+ * @returns true if a signal was found and successfully read, false otherwise (e.g. the signal was not found).
+ */
+bool infrared_signal_search_by_index_and_read(
+    InfraredSignal* signal,
+    FlipperFormat* ff,
+    size_t index);
 
 /**
  * @brief Save a signal contained in an InfraredSignal instance to a FlipperFormat file.

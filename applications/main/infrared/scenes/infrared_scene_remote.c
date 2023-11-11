@@ -1,7 +1,7 @@
 #include "../infrared_app_i.h"
 
 typedef enum {
-    ButtonIndexPlus = -2,
+    ButtonIndexLearn = -2,
     ButtonIndexEdit = -1,
     ButtonIndexNA = 0,
 } ButtonIndex;
@@ -44,7 +44,7 @@ void infrared_scene_remote_on_enter(void* context) {
     button_menu_add_item(
         button_menu,
         "+",
-        ButtonIndexPlus,
+        ButtonIndexLearn,
         infrared_scene_remote_button_menu_callback,
         ButtonMenuItemTypeControl,
         context);
@@ -95,7 +95,7 @@ bool infrared_scene_remote_on_event(void* context, SceneManagerEvent event) {
             if(is_transmitter_idle) {
                 scene_manager_set_scene_state(
                     scene_manager, InfraredSceneRemote, (unsigned)button_index);
-                if(button_index == ButtonIndexPlus) {
+                if(button_index == ButtonIndexLearn) {
                     infrared->app_state.is_learning_new_remote = false;
                     scene_manager_next_scene(scene_manager, InfraredSceneLearn);
                     consumed = true;
