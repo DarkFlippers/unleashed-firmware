@@ -18,6 +18,8 @@
 #include <cli/cli.h>
 #include <loader/loader.h>
 #include <protobuf_version.h>
+
+#include <FreeRTOS.h>
 #include <semphr.h>
 
 LIST_DEF(MsgList, PB_Main, M_POD_OPLIST)
@@ -36,7 +38,7 @@ typedef struct {
     FuriStreamBuffer* output_stream;
     SemaphoreHandle_t close_session_semaphore;
     SemaphoreHandle_t terminate_semaphore;
-    TickType_t timeout;
+    uint32_t timeout;
 } RpcSessionContext;
 
 static RpcSessionContext rpc_session[TEST_RPC_SESSIONS];
@@ -544,7 +546,7 @@ static bool test_rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_
     RpcSessionContext* session_context = istream->state;
     size_t bytes_received = 0;
 
-    TickType_t now = xTaskGetTickCount();
+    uint32_t now = furi_get_tick();
     int32_t time_left = session_context->timeout - now;
     time_left = MAX(time_left, 0);
     bytes_received =
@@ -688,7 +690,7 @@ static void test_rpc_decode_and_compare(MsgList_t expected_msg_list, uint8_t ses
     furi_check(!MsgList_empty_p(expected_msg_list));
     furi_check(session < TEST_RPC_SESSIONS);
 
-    rpc_session[session].timeout = xTaskGetTickCount() + MAX_RECEIVE_OUTPUT_TIMEOUT;
+    rpc_session[session].timeout = furi_get_tick() + MAX_RECEIVE_OUTPUT_TIMEOUT;
     pb_istream_t istream = {
         .callback = test_rpc_pb_stream_read,
         .state = &rpc_session[session],
@@ -712,7 +714,7 @@ static void test_rpc_decode_and_compare(MsgList_t expected_msg_list, uint8_t ses
             pb_release(&PB_Main_msg, &result);
         }
 
-    rpc_session[session].timeout = xTaskGetTickCount() + 50;
+    rpc_session[session].timeout = furi_get_tick() + 50;
     if(pb_decode_ex(&istream, &PB_Main_msg, &result, PB_DECODE_DELIMITED)) {
         mu_fail("decoded more than expected");
     }

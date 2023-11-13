@@ -6,7 +6,6 @@
 
 #include <storage.pb.h>
 #include <flipper.pb.h>
-#include <portmacro.h>
 
 #include <furi.h>
 
@@ -162,7 +161,7 @@ void rpc_session_set_terminated_callback(
  * odd: client sends close request and sends command after.
  */
 size_t
-    rpc_session_feed(RpcSession* session, uint8_t* encoded_bytes, size_t size, TickType_t timeout) {
+    rpc_session_feed(RpcSession* session, uint8_t* encoded_bytes, size_t size, uint32_t timeout) {
     furi_assert(session);
     furi_assert(encoded_bytes);
 
@@ -478,12 +477,15 @@ void rpc_send_and_release(RpcSession* session, PB_Main* message) {
 }
 
 void rpc_send_and_release_empty(RpcSession* session, uint32_t command_id, PB_CommandStatus status) {
+    furi_assert(session);
+
     PB_Main message = {
         .command_id = command_id,
         .command_status = status,
         .has_next = false,
         .which_content = PB_Main_empty_tag,
     };
+
     rpc_send_and_release(session, &message);
     pb_release(&PB_Main_msg, &message);
 }

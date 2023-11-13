@@ -67,22 +67,22 @@ if GetOption("fullenv") or any(
     # Target for self-update package
     dist_basic_arguments = [
         "--bundlever",
-        '"${UPDATE_VERSION_STRING}"',
+        "${UPDATE_VERSION_STRING}",
     ]
     dist_radio_arguments = [
         "--radio",
-        '"${ROOT_DIR.abspath}/${COPRO_STACK_BIN_DIR}/${COPRO_STACK_BIN}"',
+        "${ROOT_DIR.abspath}/${COPRO_STACK_BIN_DIR}/${COPRO_STACK_BIN}",
         "--radiotype",
         "${COPRO_STACK_TYPE}",
         "${COPRO_DISCLAIMER}",
         "--obdata",
-        '"${ROOT_DIR.abspath}/${COPRO_OB_DATA}"',
+        "${ROOT_DIR.abspath}/${COPRO_OB_DATA}",
         "--stackversion",
         "${COPRO_CUBE_VERSION}",
     ]
     dist_resource_arguments = [
         "-r",
-        '"${ROOT_DIR.abspath}/assets/resources"',
+        firmware_env.subst("${RESOURCES_ROOT}"),
     ]
     dist_splash_arguments = (
         [
@@ -95,7 +95,7 @@ if GetOption("fullenv") or any(
 
     selfupdate_dist = distenv.DistCommand(
         "updater_package",
-        (distenv["DIST_DEPENDS"], firmware_env["FW_RESOURCES"]),
+        (distenv["DIST_DEPENDS"], firmware_env["FW_RESOURCES_MANIFEST"]),
         DIST_EXTRA=[
             *dist_basic_arguments,
             *dist_radio_arguments,
@@ -128,7 +128,8 @@ if GetOption("fullenv") or any(
 
     # Installation over USB & CLI
     usb_update_package = distenv.AddUsbFlashTarget(
-        "#build/usbinstall.flag", (firmware_env["FW_RESOURCES"], selfupdate_dist)
+        "#build/usbinstall.flag",
+        (firmware_env["FW_RESOURCES_MANIFEST"], selfupdate_dist),
     )
     distenv.Alias("flash_usb_full", usb_update_package)
 
@@ -166,17 +167,25 @@ Depends(
     list(app_artifact.validator for app_artifact in external_app_list),
 )
 Alias("fap_dist", fap_dist)
-# distenv.Default(fap_dist)
-
-distenv.Depends(firmware_env["FW_RESOURCES"], external_apps_artifacts.resources_dist)
 
 # Copy all faps to device
 
 fap_deploy = distenv.PhonyTarget(
     "fap_deploy",
-    "${PYTHON3} ${FBT_SCRIPT_DIR}/storage.py -p ${FLIP_PORT} send ${SOURCE} /ext/apps",
-    source=Dir("#/assets/resources/apps"),
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/storage.py",
+            "-p",
+            "${FLIP_PORT}",
+            "send",
+            "${SOURCE}",
+            "/ext/apps",
+        ]
+    ],
+    source=firmware_env.Dir(("${RESOURCES_ROOT}/apps")),
 )
+Depends(fap_deploy, firmware_env["FW_RESOURCES_MANIFEST"])
 
 
 # Target for bundling core2 package for qFlipper
@@ -314,9 +323,7 @@ distenv.PhonyTarget(
 )
 
 # Start Flipper CLI via PySerial's miniterm
-distenv.PhonyTarget(
-    "cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py  -p ${FLIP_PORT}"
-)
+distenv.PhonyTarget("cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py -p ${FLIP_PORT}")
 
 # Update WiFi devboard firmware
 distenv.PhonyTarget("devboard_flash", "${PYTHON3} ${FBT_SCRIPT_DIR}/wifi_board.py")

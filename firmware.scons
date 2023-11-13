@@ -1,15 +1,10 @@
-from SCons.Errors import UserError
-from SCons.Node import FS
-
 import itertools
 
-from fbt_extra.util import (
-    should_gen_cdb_and_link_dir,
-    link_elf_dir_as_latest,
-)
-
 from fbt.sdk.cache import LazySdkVersionLoader
-
+from fbt.version import get_git_commit_unix_timestamp
+from fbt_extra.util import link_elf_dir_as_latest, should_gen_cdb_and_link_dir
+from SCons.Errors import UserError
+from SCons.Node import FS
 
 Import("ENV", "fw_build_meta")
 
@@ -22,12 +17,15 @@ env = ENV.Clone(
         "pvsstudio",
         "fbt_hwtarget",
         "fbt_envhooks",
+        "fbt_resources",
     ],
     COMPILATIONDB_USE_ABSPATH=False,
     BUILD_DIR=fw_build_meta["build_dir"],
     IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
     FW_FLAVOR=fw_build_meta["flavor"],
     LIB_DIST_DIR=fw_build_meta["build_dir"].Dir("lib"),
+    RESOURCES_ROOT=fw_build_meta["build_dir"].Dir("resources"),
+    TARGETS_ROOT=Dir("#/targets"),
     LINT_SOURCES=[
         Dir("applications"),
     ],
@@ -37,7 +35,7 @@ env = ENV.Clone(
     CPPPATH=[
         "#/furi",
         *(f"#/{app_dir[0]}" for app_dir in ENV["APPDIRS"] if app_dir[1]),
-        "#/firmware/targets/furi_hal_include",
+        "#/targets/furi_hal_include",
     ],
     # Specific flags for building libraries - always do optimized builds
     FW_LIB_OPTS={
@@ -104,7 +102,7 @@ lib_targets = env.BuildModules(
     [
         "lib",
         "assets",
-        "firmware",
+        "targets",
         "furi",
     ],
 )
@@ -144,12 +142,22 @@ fwenv.PrepareApplicationsBuild()
 # Build external apps + configure SDK
 if env["IS_BASE_FIRMWARE"]:
     fwenv.SetDefault(FBT_FAP_DEBUG_ELF_ROOT=fwenv["BUILD_DIR"].Dir(".extapps"))
-    fwenv["FW_EXTAPPS"] = SConscript(
+    fw_extapps = fwenv["FW_EXTAPPS"] = SConscript(
         "site_scons/extapps.scons",
         exports={"ENV": fwenv},
     )
-    fw_artifacts.append(fwenv["FW_EXTAPPS"].sdk_tree)
+    fw_artifacts.append(fw_extapps.sdk_tree)
 
+    # Resources & manifest for SD card
+    manifest = fwenv.ManifestBuilder(
+        "${RESOURCES_ROOT}/Manifest",
+        GIT_UNIX_TIMESTAMP=get_git_commit_unix_timestamp(),
+        _EXTRA_DIST=[fwenv["DOLPHIN_EXTERNAL_OUT_DIR"]],
+    )
+    fwenv.Replace(FW_RESOURCES_MANIFEST=manifest)
+    fwenv.Alias("resources", manifest)
+
+    # API getter
     fwenv.Append(FBT_API_VERSION=LazySdkVersionLoader(fwenv.subst("$SDK_DEFINITION")))
     fwenv.PhonyTarget(
         "get_apiversion",
@@ -189,7 +197,7 @@ sources = [apps_c]
 # Gather sources only from app folders in current configuration
 sources.extend(
     itertools.chain.from_iterable(
-        fwenv.GlobRecursive(source_type, appdir.relpath, exclude=["lib"])
+        fwenv.GatherSources([source_type, "!lib"], appdir.relpath)
         for appdir, source_type in fwenv["APPBUILD"].get_builtin_app_folders()
     )
 )

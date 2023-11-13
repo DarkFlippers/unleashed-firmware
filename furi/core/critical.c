@@ -1,5 +1,8 @@
 #include "common_defines.h"
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 __FuriCriticalInfo __furi_critical_enter(void) {
     __FuriCriticalInfo info;
 

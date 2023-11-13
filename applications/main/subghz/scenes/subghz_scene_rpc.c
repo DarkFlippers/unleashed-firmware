@@ -35,13 +35,13 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubGhzCustomEventSceneExit) {
             scene_manager_stop(subghz->scene_manager);
             view_dispatcher_stop(subghz->view_dispatcher);
-            rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventAppExit, true);
+            rpc_system_app_confirm(subghz->rpc_ctx, true);
         } else if(event.event == SubGhzCustomEventSceneRpcSessionClose) {
             scene_manager_stop(subghz->scene_manager);
             view_dispatcher_stop(subghz->view_dispatcher);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonPress) {
             bool result = false;
-            if((state == SubGhzRpcStateLoaded)) {
+            if(state == SubGhzRpcStateLoaded) {
                 switch(
                     subghz_txrx_tx_start(subghz->txrx, subghz_txrx_get_fff_data(subghz->txrx))) {
                 case SubGhzTxRxStartTxStateErrorOnlyRx:
@@ -63,7 +63,7 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                     break;
                 }
             }
-            rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonPress, result);
+            rpc_system_app_confirm(subghz->rpc_ctx, result);
         } else if(event.event == SubGhzCustomEventSceneRpcButtonRelease) {
             bool result = false;
             if(state == SubGhzRpcStateTx) {
@@ -72,15 +72,13 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                 result = true;
             }
             state = SubGhzRpcStateIdle;
-            rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventButtonRelease, result);
+            rpc_system_app_confirm(subghz->rpc_ctx, result);
         } else if(event.event == SubGhzCustomEventSceneRpcLoad) {
             bool result = false;
-            const char* arg = rpc_system_app_get_data(subghz->rpc_ctx);
-            if(arg && (state == SubGhzRpcStateIdle)) {
-                if(subghz_key_load(subghz, arg, false)) {
+            if(state == SubGhzRpcStateIdle) {
+                if(subghz_key_load(subghz, furi_string_get_cstr(subghz->file_path), false)) {
                     scene_manager_set_scene_state(
                         subghz->scene_manager, SubGhzSceneRpc, SubGhzRpcStateLoaded);
-                    furi_string_set(subghz->file_path, arg);
                     result = true;
                     FuriString* file_name = furi_string_alloc();
                     path_extract_filename(subghz->file_path, file_name, true);
@@ -98,7 +96,7 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                     rpc_system_app_set_error_text(subghz->rpc_ctx, "Cannot parse file");
                 }
             }
-            rpc_system_app_confirm(subghz->rpc_ctx, RpcAppEventLoadFile, result);
+            rpc_system_app_confirm(subghz->rpc_ctx, result);
         }
     }
     return consumed;

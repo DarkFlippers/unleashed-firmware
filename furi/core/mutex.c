@@ -2,6 +2,7 @@
 #include "check.h"
 #include "common_defines.h"
 
+#include <FreeRTOS.h>
 #include <semphr.h>
 
 FuriMutex* furi_mutex_alloc(FuriMutexType type) {

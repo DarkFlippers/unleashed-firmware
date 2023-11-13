@@ -1,46 +1,50 @@
 #pragma once
+
 #include <stdint.h>
 #include <gui/view.h>
-#include <gui/modules/widget.h>
 
-#include <lib/nfc/protocols/mifare_classic.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct DictAttack DictAttack;
 
-typedef void (*DictAttackCallback)(void* context);
+typedef enum {
+    DictAttackEventSkipPressed,
+} DictAttackEvent;
+
+typedef void (*DictAttackCallback)(DictAttackEvent event, void* context);
 
 DictAttack* dict_attack_alloc();
 
-void dict_attack_free(DictAttack* dict_attack);
+void dict_attack_free(DictAttack* instance);
 
-void dict_attack_reset(DictAttack* dict_attack);
+void dict_attack_reset(DictAttack* instance);
 
-View* dict_attack_get_view(DictAttack* dict_attack);
+View* dict_attack_get_view(DictAttack* instance);
 
-void dict_attack_set_callback(DictAttack* dict_attack, DictAttackCallback callback, void* context);
+void dict_attack_set_callback(DictAttack* instance, DictAttackCallback callback, void* context);
 
-void dict_attack_set_header(DictAttack* dict_attack, const char* header);
+void dict_attack_set_header(DictAttack* instance, const char* header);
 
-void dict_attack_set_card_detected(DictAttack* dict_attack, MfClassicType type);
+void dict_attack_set_card_state(DictAttack* instance, bool detected);
 
-void dict_attack_set_card_removed(DictAttack* dict_attack);
+void dict_attack_set_sectors_total(DictAttack* instance, uint8_t sectors_total);
 
-bool dict_attack_get_card_state(DictAttack* dict_attack);
+void dict_attack_set_sectors_read(DictAttack* instance, uint8_t sectors_read);
 
-void dict_attack_set_sector_read(DictAttack* dict_attack, uint8_t sec_read);
+void dict_attack_set_keys_found(DictAttack* instance, uint8_t keys_found);
 
-void dict_attack_set_keys_found(DictAttack* dict_attack, uint8_t keys_found);
+void dict_attack_set_current_sector(DictAttack* instance, uint8_t curr_sec);
 
-void dict_attack_set_current_sector(DictAttack* dict_attack, uint8_t curr_sec);
+void dict_attack_set_total_dict_keys(DictAttack* instance, size_t dict_keys_total);
 
-void dict_attack_inc_current_sector(DictAttack* dict_attack);
+void dict_attack_set_current_dict_key(DictAttack* instance, size_t cur_key_num);
 
-void dict_attack_inc_keys_found(DictAttack* dict_attack);
+void dict_attack_set_key_attack(DictAttack* instance, uint8_t sector);
 
-void dict_attack_set_total_dict_keys(DictAttack* dict_attack, uint16_t dict_keys_total);
+void dict_attack_reset_key_attack(DictAttack* instance);
 
-void dict_attack_inc_current_dict_key(DictAttack* dict_attack, uint16_t keys_tried);
-
-void dict_attack_set_key_attack(DictAttack* dict_attack, bool is_key_attack, uint8_t sector);
-
-void dict_attack_inc_key_attack_current_sector(DictAttack* dict_attack);
+#ifdef __cplusplus
+}
+#endif

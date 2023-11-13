@@ -5,6 +5,8 @@
 #include <furi_hal_memory.h>
 #include <furi_hal_rtc.h>
 
+#include <FreeRTOS.h>
+
 #define TAG "Flipper"
 
 static void flipper_print_version(const char* target, const Version* version) {

@@ -333,11 +333,9 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
             if(buffer_size) {
                 uint8_t* buffer = malloc(buffer_size);
 
-                for(uint32_t i = 0; i < buffer_size; i++) {
-                    buffer[i] = cli_getc(cli);
-                }
+                size_t read_bytes = cli_read(cli, buffer, buffer_size);
 
-                uint16_t written_size = storage_file_write(file, buffer, buffer_size);
+                uint16_t written_size = storage_file_write(file, buffer, read_bytes);
 
                 if(written_size != buffer_size) {
                     storage_cli_print_error(storage_file_get_error(file));

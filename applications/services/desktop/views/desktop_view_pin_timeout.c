@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <FreeRTOS.h>
-#include <portmacro.h>
 #include <projdefs.h>
 #include <input/input.h>
 #include <gui/canvas.h>
@@ -13,7 +12,7 @@
 
 struct DesktopViewPinTimeout {
     View* view;
-    TimerHandle_t timer;
+    FuriTimer* timer;
     DesktopViewPinTimeoutDoneCallback callback;
     void* context;
 };
@@ -32,8 +31,8 @@ void desktop_view_pin_timeout_set_callback(
     instance->context = context;
 }
 
-static void desktop_view_pin_timeout_timer_callback(TimerHandle_t timer) {
-    DesktopViewPinTimeout* instance = pvTimerGetTimerID(timer);
+static void desktop_view_pin_timeout_timer_callback(void* context) {
+    DesktopViewPinTimeout* instance = context;
     bool stop = false;
 
     DesktopViewPinTimeoutModel* model = view_get_model(instance->view);
@@ -45,7 +44,7 @@ static void desktop_view_pin_timeout_timer_callback(TimerHandle_t timer) {
     view_commit_model(instance->view, true);
 
     if(stop) {
-        xTimerStop(instance->timer, portMAX_DELAY);
+        furi_timer_stop(instance->timer);
         instance->callback(instance->context);
     }
 }
@@ -73,15 +72,15 @@ static void desktop_view_pin_timeout_draw(Canvas* canvas, void* _model) {
 
 void desktop_view_pin_timeout_free(DesktopViewPinTimeout* instance) {
     view_free(instance->view);
-    xTimerDelete(instance->timer, portMAX_DELAY);
+    furi_timer_free(instance->timer);
 
     free(instance);
 }
 
 DesktopViewPinTimeout* desktop_view_pin_timeout_alloc(void) {
     DesktopViewPinTimeout* instance = malloc(sizeof(DesktopViewPinTimeout));
-    instance->timer = xTimerCreate(
-        NULL, pdMS_TO_TICKS(1000), pdTRUE, instance, desktop_view_pin_timeout_timer_callback);
+    instance->timer =
+        furi_timer_alloc(desktop_view_pin_timeout_timer_callback, FuriTimerTypePeriodic, instance);
 
     instance->view = view_alloc();
     view_allocate_model(instance->view, ViewModelTypeLockFree, sizeof(DesktopViewPinTimeoutModel));
@@ -101,7 +100,7 @@ void desktop_view_pin_timeout_start(DesktopViewPinTimeout* instance, uint32_t ti
     model->time_left = time_left;
     view_commit_model(instance->view, true);
 
-    xTimerStart(instance->timer, portMAX_DELAY);
+    furi_timer_start(instance->timer, 1000);
 }
 
 View* desktop_view_pin_timeout_get_view(DesktopViewPinTimeout* instance) {

@@ -23,7 +23,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
-      - rm -rf assets/resources/apps/
+      - rm -rf applications/main/clock_app/resources/apps/
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
@@ -46,8 +46,8 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
-      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
-      - cp -R base_pack_build/apps_data/* assets/resources/apps_data/
+      - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
+      - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -66,7 +66,7 @@ steps:
     commands:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
       - tar zxvf all-the-apps-extra.tgz
-      - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
+      - cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
       - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
@@ -109,7 +109,7 @@ steps:
       - git checkout -- .
       - rm -f assets/dolphin/external/manifest.txt
       - cp .ci_files/anims_ofw.txt assets/dolphin/external/manifest.txt
-      - rm -rf assets/resources/apps/
+      - rm -rf applications/main/clock_app/resources/apps/
       - export DIST_SUFFIX=${DRONE_TAG}n
       - export WORKFLOW_BRANCH_OR_TAG=no-custom-anims
       - export FORCE_NO_DIRTY=yes
@@ -118,8 +118,8 @@ steps:
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
-      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
-      - cp -R base_pack_build/apps_data/* assets/resources/apps_data/
+      - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
+      - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -397,7 +397,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
-      - rm -rf assets/resources/apps/
+      - rm -rf applications/main/clock_app/resources/apps/
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
@@ -421,8 +421,8 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
-      - cp -R base_pack_build/artifacts-base/* assets/resources/apps/
-      - cp -R base_pack_build/apps_data/* assets/resources/apps_data/
+      - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
+      - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -441,7 +441,7 @@ steps:
     commands:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
       - tar zxvf all-the-apps-extra.tgz
-      - cp -R extra_pack_build/artifacts-extra/* assets/resources/apps/
+      - cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
       - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw

@@ -22,7 +22,7 @@ MU_TEST(manifest_iteration_test) {
     ResourceManifestReader* manifest_reader = resource_manifest_reader_alloc(storage);
     do {
         // Open manifest file
-        if(!resource_manifest_reader_open(manifest_reader, EXT_PATH("unit_tests/Manifest"))) {
+        if(!resource_manifest_reader_open(manifest_reader, EXT_PATH("unit_tests/Manifest_test"))) {
             result = false;
             break;
         }

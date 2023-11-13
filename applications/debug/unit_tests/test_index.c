@@ -65,8 +65,8 @@ const UnitTest unit_tests[] = {
 void minunit_print_progress() {
     static const char progress[] = {'\\', '|', '/', '-'};
     static uint8_t progress_counter = 0;
-    static TickType_t last_tick = 0;
-    TickType_t current_tick = xTaskGetTickCount();
+    static uint32_t last_tick = 0;
+    uint32_t current_tick = furi_get_tick();
     if(current_tick - last_tick > 20) {
         last_tick = current_tick;
         printf("[%c]\033[3D", progress[++progress_counter % COUNT_OF(progress)]);

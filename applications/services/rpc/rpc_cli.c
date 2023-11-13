@@ -2,7 +2,6 @@
 #include <furi.h>
 #include <rpc/rpc.h>
 #include <furi_hal.h>
-#include <semphr.h>
 
 #define TAG "RpcCli"
 

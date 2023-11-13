@@ -6,6 +6,7 @@ env.Append(
     ],
     SDK_HEADERS=[
         File("digital_signal.h"),
+        File("digital_sequence.h"),
     ],
 )
 

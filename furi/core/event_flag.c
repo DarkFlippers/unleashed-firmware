@@ -2,6 +2,7 @@
 #include "common_defines.h"
 #include "check.h"
 
+#include <FreeRTOS.h>
 #include <event_groups.h>
 
 #define FURI_EVENT_FLAG_MAX_BITS_EVENT_GROUPS 24U

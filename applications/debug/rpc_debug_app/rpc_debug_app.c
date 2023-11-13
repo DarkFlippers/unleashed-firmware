@@ -21,22 +21,51 @@ static void rpc_debug_app_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(app->scene_manager);
 }
 
-static void rpc_debug_app_rpc_command_callback(RpcAppSystemEvent event, void* context) {
+static void
+    rpc_debug_app_format_hex(const uint8_t* data, size_t data_size, char* buf, size_t buf_size) {
+    if(data == NULL || data_size == 0) {
+        strncpy(buf, "<Data empty>", buf_size);
+        return;
+    }
+
+    const size_t byte_width = 3;
+    const size_t line_width = 7;
+
+    data_size = MIN(data_size, buf_size / (byte_width + 1));
+
+    for(size_t i = 0; i < data_size; ++i) {
+        char* p = buf + (i * byte_width);
+        char sep = !((i + 1) % line_width) ? '\n' : ' ';
+        snprintf(p, byte_width + 1, "%02X%c", data[i], sep);
+    }
+
+    buf[buf_size - 1] = '\0';
+}
+
+static void rpc_debug_app_rpc_command_callback(const RpcAppSystemEvent* event, void* context) {
     furi_assert(context);
     RpcDebugApp* app = context;
     furi_assert(app->rpc);
 
-    if(event == RpcAppEventSessionClose) {
+    if(event->type == RpcAppEventTypeSessionClose) {
         scene_manager_stop(app->scene_manager);
         view_dispatcher_stop(app->view_dispatcher);
         rpc_system_app_set_callback(app->rpc, NULL, NULL);
         app->rpc = NULL;
-    } else if(event == RpcAppEventAppExit) {
+    } else if(event->type == RpcAppEventTypeAppExit) {
         scene_manager_stop(app->scene_manager);
         view_dispatcher_stop(app->view_dispatcher);
-        rpc_system_app_confirm(app->rpc, RpcAppEventAppExit, true);
+        rpc_system_app_confirm(app->rpc, true);
+    } else if(event->type == RpcAppEventTypeDataExchange) {
+        furi_assert(event->data.type == RpcAppSystemEventDataTypeBytes);
+
+        rpc_debug_app_format_hex(
+            event->data.bytes.ptr, event->data.bytes.size, app->text_store, TEXT_STORE_SIZE);
+
+        view_dispatcher_send_custom_event(
+            app->view_dispatcher, RpcDebugAppCustomEventRpcDataExchange);
     } else {
-        rpc_system_app_confirm(app->rpc, event, false);
+        rpc_system_app_confirm(app->rpc, false);
     }
 }
 

@@ -5,7 +5,6 @@
 #include <gui/view_dispatcher.h>
 #include <furi.h>
 #include <furi_hal.h>
-#include <portmacro.h>
 #include <stdint.h>
 
 static bool updater_custom_event_callback(void* context, uint32_t event) {

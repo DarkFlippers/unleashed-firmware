@@ -69,7 +69,7 @@ bool buffer_stream_send_from_isr(BufferStream* buffer_stream, const uint8_t* dat
  * @param timeout 
  * @return Buffer* 
  */
-Buffer* buffer_stream_receive(BufferStream* buffer_stream, TickType_t timeout);
+Buffer* buffer_stream_receive(BufferStream* buffer_stream, uint32_t timeout);
 
 /**
  * @brief Get stream overrun count

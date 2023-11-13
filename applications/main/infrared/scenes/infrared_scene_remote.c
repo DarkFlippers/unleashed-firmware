@@ -1,14 +1,14 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 typedef enum {
-    ButtonIndexPlus = -2,
+    ButtonIndexLearn = -2,
     ButtonIndexEdit = -1,
     ButtonIndexNA = 0,
 } ButtonIndex;
 
 static void
     infrared_scene_remote_button_menu_callback(void* context, int32_t index, InputType type) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
 
     uint16_t custom_type;
     if(type == InputTypePress) {
@@ -26,17 +26,15 @@ static void
 }
 
 void infrared_scene_remote_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     InfraredRemote* remote = infrared->remote;
     ButtonMenu* button_menu = infrared->button_menu;
     SceneManager* scene_manager = infrared->scene_manager;
 
-    size_t button_count = infrared_remote_get_button_count(remote);
-    for(size_t i = 0; i < button_count; ++i) {
-        InfraredRemoteButton* button = infrared_remote_get_button(remote, i);
+    for(size_t i = 0; i < infrared_remote_get_signal_count(remote); ++i) {
         button_menu_add_item(
             button_menu,
-            infrared_remote_button_get_name(button),
+            infrared_remote_get_signal_name(remote, i),
             i,
             infrared_scene_remote_button_menu_callback,
             ButtonMenuItemTypeCommon,
@@ -46,7 +44,7 @@ void infrared_scene_remote_on_enter(void* context) {
     button_menu_add_item(
         button_menu,
         "+",
-        ButtonIndexPlus,
+        ButtonIndexLearn,
         infrared_scene_remote_button_menu_callback,
         ButtonMenuItemTypeControl,
         context);
@@ -68,7 +66,7 @@ void infrared_scene_remote_on_enter(void* context) {
 }
 
 bool infrared_scene_remote_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
     const bool is_transmitter_idle = !infrared->app_state.is_transmitting;
     bool consumed = false;
@@ -97,7 +95,7 @@ bool infrared_scene_remote_on_event(void* context, SceneManagerEvent event) {
             if(is_transmitter_idle) {
                 scene_manager_set_scene_state(
                     scene_manager, InfraredSceneRemote, (unsigned)button_index);
-                if(button_index == ButtonIndexPlus) {
+                if(button_index == ButtonIndexLearn) {
                     infrared->app_state.is_learning_new_remote = false;
                     scene_manager_next_scene(scene_manager, InfraredSceneLearn);
                     consumed = true;
@@ -116,6 +114,6 @@ bool infrared_scene_remote_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_remote_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     button_menu_reset(infrared->button_menu);
 }

@@ -1,7 +1,7 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 void infrared_scene_edit_delete_done_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
 
     popup_set_icon(popup, 0, 2, &I_DolphinMafia_115x62);
@@ -16,7 +16,7 @@ void infrared_scene_edit_delete_done_on_enter(void* context) {
 }
 
 bool infrared_scene_edit_delete_done_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
     bool consumed = false;
 
@@ -33,7 +33,7 @@ bool infrared_scene_edit_delete_done_on_event(void* context, SceneManagerEvent e
                     view_dispatcher_stop(infrared->view_dispatcher);
                 }
             } else {
-                furi_assert(0);
+                furi_crash();
             }
             consumed = true;
         }
@@ -43,6 +43,6 @@ bool infrared_scene_edit_delete_done_on_event(void* context, SceneManagerEvent e
 }
 
 void infrared_scene_edit_delete_done_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     UNUSED(infrared);
 }

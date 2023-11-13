@@ -5,13 +5,46 @@ env.Append(
         "#/lib/nfc",
     ],
     SDK_HEADERS=[
+        # Main
+        File("nfc.h"),
         File("nfc_device.h"),
-        File("nfc_worker.h"),
-        File("nfc_types.h"),
-        File("helpers/mfkey32.h"),
-        File("parsers/nfc_supported_card.h"),
-        File("helpers/nfc_generators.h"),
-        File("protocols/nfc_util.h"),
+        File("nfc_listener.h"),
+        File("nfc_poller.h"),
+        File("nfc_scanner.h"),
+        # Protocols
+        File("protocols/iso14443_3a/iso14443_3a.h"),
+        File("protocols/iso14443_3b/iso14443_3b.h"),
+        File("protocols/iso14443_4a/iso14443_4a.h"),
+        File("protocols/iso14443_4b/iso14443_4b.h"),
+        File("protocols/mf_ultralight/mf_ultralight.h"),
+        File("protocols/mf_classic/mf_classic.h"),
+        File("protocols/mf_desfire/mf_desfire.h"),
+        File("protocols/slix/slix.h"),
+        File("protocols/st25tb/st25tb.h"),
+        # Pollers
+        File("protocols/iso14443_3a/iso14443_3a_poller.h"),
+        File("protocols/iso14443_3b/iso14443_3b_poller.h"),
+        File("protocols/iso14443_4a/iso14443_4a_poller.h"),
+        File("protocols/iso14443_4b/iso14443_4b_poller.h"),
+        File("protocols/mf_ultralight/mf_ultralight_poller.h"),
+        File("protocols/mf_classic/mf_classic_poller.h"),
+        File("protocols/mf_desfire/mf_desfire_poller.h"),
+        File("protocols/st25tb/st25tb_poller.h"),
+        # Listeners
+        File("protocols/iso14443_3a/iso14443_3a_listener.h"),
+        File("protocols/iso14443_4a/iso14443_4a_listener.h"),
+        File("protocols/mf_ultralight/mf_ultralight_listener.h"),
+        File("protocols/mf_classic/mf_classic_listener.h"),
+        # Sync API
+        File("protocols/iso14443_3a/iso14443_3a_poller_sync_api.h"),
+        File("protocols/mf_ultralight/mf_ultralight_poller_sync_api.h"),
+        File("protocols/mf_classic/mf_classic_poller_sync_api.h"),
+        # Misc
+        File("helpers/nfc_util.h"),
+        File("helpers/iso14443_crc.h"),
+        File("helpers/iso13239_crc.h"),
+        File("helpers/nfc_data_generator.h"),
+        File("helpers/nfc_dict.h"),
     ],
 )
 

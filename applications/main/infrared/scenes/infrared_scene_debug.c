@@ -1,7 +1,7 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 void infrared_scene_debug_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     InfraredWorker* worker = infrared->worker;
 
     infrared_worker_rx_set_received_signal_callback(
@@ -14,16 +14,16 @@ void infrared_scene_debug_on_enter(void* context) {
 }
 
 bool infrared_scene_debug_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypeSignalReceived) {
             InfraredDebugView* debug_view = infrared->debug_view;
-            InfraredSignal* signal = infrared->received_signal;
+            InfraredSignal* signal = infrared->current_signal;
 
             if(infrared_signal_is_raw(signal)) {
-                InfraredRawSignal* raw = infrared_signal_get_raw_signal(signal);
+                const InfraredRawSignal* raw = infrared_signal_get_raw_signal(signal);
                 infrared_debug_view_set_text(debug_view, "RAW\n%d samples\n", raw->timings_size);
 
                 printf("RAW, %zu samples:\r\n", raw->timings_size);
@@ -33,7 +33,7 @@ bool infrared_scene_debug_on_event(void* context, SceneManagerEvent event) {
                 printf("\r\n");
 
             } else {
-                InfraredMessage* message = infrared_signal_get_message(signal);
+                const InfraredMessage* message = infrared_signal_get_message(signal);
                 infrared_debug_view_set_text(
                     debug_view,
                     "%s\nA:0x%0*lX\nC:0x%0*lX\n%s\n",
@@ -61,7 +61,7 @@ bool infrared_scene_debug_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_debug_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     InfraredWorker* worker = infrared->worker;
     infrared_worker_rx_stop(worker);
     infrared_worker_rx_enable_blink_on_receiving(worker, false);

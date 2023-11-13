@@ -5,7 +5,6 @@
 #include <gui/icon.h>
 #include <gui/view.h>
 #include <assets_icons.h>
-#include <portmacro.h>
 
 #include <desktop/desktop_settings.h>
 #include "../desktop_i.h"
@@ -29,7 +28,7 @@ struct DesktopViewLocked {
     DesktopViewLockedCallback callback;
     void* context;
 
-    TimerHandle_t timer;
+    FuriTimer* timer;
     uint8_t lock_count;
     uint32_t lock_lastpress;
 };
@@ -58,8 +57,8 @@ void desktop_view_locked_set_callback(
     locked_view->context = context;
 }
 
-static void locked_view_timer_callback(TimerHandle_t timer) {
-    DesktopViewLocked* locked_view = pvTimerGetTimerID(timer);
+static void locked_view_timer_callback(void* context) {
+    DesktopViewLocked* locked_view = context;
     locked_view->callback(DesktopLockedEventUpdate, locked_view->context);
 }
 
@@ -90,7 +89,7 @@ static void desktop_view_locked_update_hint_icon_timeout(DesktopViewLocked* lock
         model->view_state = DesktopViewLockedStateLockedHintShown;
     }
     view_commit_model(locked_view->view, change_state);
-    xTimerChangePeriod(locked_view->timer, pdMS_TO_TICKS(LOCKED_HINT_TIMEOUT_MS), portMAX_DELAY);
+    furi_timer_start(locked_view->timer, LOCKED_HINT_TIMEOUT_MS);
 }
 
 void desktop_view_locked_update(DesktopViewLocked* locked_view) {
@@ -110,7 +109,7 @@ void desktop_view_locked_update(DesktopViewLocked* locked_view) {
     view_commit_model(locked_view->view, true);
 
     if(view_state != DesktopViewLockedStateDoorsClosing) {
-        xTimerStop(locked_view->timer, portMAX_DELAY);
+        furi_timer_stop(locked_view->timer);
     }
 }
 
@@ -148,7 +147,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
     furi_assert(context);
 
     bool is_changed = false;
-    const uint32_t press_time = xTaskGetTickCount();
+    const uint32_t press_time = furi_get_tick();
     DesktopViewLocked* locked_view = context;
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
     if(model->view_state == DesktopViewLockedStateUnlockedHintShown &&
@@ -196,7 +195,7 @@ DesktopViewLocked* desktop_view_locked_alloc() {
     DesktopViewLocked* locked_view = malloc(sizeof(DesktopViewLocked));
     locked_view->view = view_alloc();
     locked_view->timer =
-        xTimerCreate(NULL, 1000 / 16, pdTRUE, locked_view, locked_view_timer_callback);
+        furi_timer_alloc(locked_view_timer_callback, FuriTimerTypePeriodic, locked_view);
 
     view_allocate_model(locked_view->view, ViewModelTypeLocking, sizeof(DesktopViewLockedModel));
     view_set_context(locked_view->view, locked_view);
@@ -219,7 +218,7 @@ void desktop_view_locked_close_doors(DesktopViewLocked* locked_view) {
     model->view_state = DesktopViewLockedStateDoorsClosing;
     model->door_offset = DOOR_OFFSET_START;
     view_commit_model(locked_view->view, true);
-    xTimerChangePeriod(locked_view->timer, pdMS_TO_TICKS(DOOR_MOVING_INTERVAL_MS), portMAX_DELAY);
+    furi_timer_start(locked_view->timer, DOOR_MOVING_INTERVAL_MS);
 }
 
 void desktop_view_locked_lock(DesktopViewLocked* locked_view, bool pin_locked) {
@@ -236,7 +235,7 @@ void desktop_view_locked_unlock(DesktopViewLocked* locked_view) {
     model->view_state = DesktopViewLockedStateUnlockedHintShown;
     model->pin_locked = false;
     view_commit_model(locked_view->view, true);
-    xTimerChangePeriod(locked_view->timer, pdMS_TO_TICKS(UNLOCKED_HINT_TIMEOUT_MS), portMAX_DELAY);
+    furi_timer_start(locked_view->timer, UNLOCKED_HINT_TIMEOUT_MS);
 }
 
 bool desktop_view_locked_is_locked_hint_visible(DesktopViewLocked* locked_view) {
