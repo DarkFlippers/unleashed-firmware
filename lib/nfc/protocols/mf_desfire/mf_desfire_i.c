@@ -201,7 +201,7 @@ bool mf_desfire_file_settings_parse(MfDesfireFileSettings* data, const BitBuffer
 
             data->value.lo_limit = layout.value.lo_limit;
             data->value.hi_limit = layout.value.hi_limit;
-            data->value.limited_credit_value = layout.value.hi_limit;
+            data->value.limited_credit_value = layout.value.limited_credit_value;
             data->value.limited_credit_enabled = layout.value.limited_credit_enabled;
 
         } else if(
