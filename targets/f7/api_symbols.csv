@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,44.0,,
+Version,+,45.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -40,6 +40,8 @@ Header,+,applications/services/storage/storage.h,,
 Header,+,lib/digital_signal/digital_sequence.h,,
 Header,+,lib/digital_signal/digital_signal.h,,
 Header,+,lib/drivers/cc1101_regs.h,,
+Header,+,lib/drivers/st25r3916.h,,
+Header,+,lib/drivers/st25r3916_reg.h,,
 Header,+,lib/flipper_application/api_hashtable/api_hashtable.h,,
 Header,+,lib/flipper_application/api_hashtable/compilesort.hpp,,
 Header,+,lib/flipper_application/flipper_application.h,,
@@ -117,7 +119,7 @@ Header,+,lib/nfc/nfc_scanner.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller.h,,
-Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller_sync_api.h,,
+Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller_sync.h,,
 Header,+,lib/nfc/protocols/iso14443_3b/iso14443_3b.h,,
 Header,+,lib/nfc/protocols/iso14443_3b/iso14443_3b_poller.h,,
 Header,+,lib/nfc/protocols/iso14443_4a/iso14443_4a.h,,
@@ -128,13 +130,13 @@ Header,+,lib/nfc/protocols/iso14443_4b/iso14443_4b_poller.h,,
 Header,+,lib/nfc/protocols/mf_classic/mf_classic.h,,
 Header,+,lib/nfc/protocols/mf_classic/mf_classic_listener.h,,
 Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller.h,,
-Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller_sync_api.h,,
+Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller_sync.h,,
 Header,+,lib/nfc/protocols/mf_desfire/mf_desfire.h,,
 Header,+,lib/nfc/protocols/mf_desfire/mf_desfire_poller.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h,,
-Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller_sync_api.h,,
+Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller_sync.h,,
 Header,+,lib/nfc/protocols/slix/slix.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller.h,,
@@ -1861,9 +1863,13 @@ Function,+,iso14443_3a_get_sak,uint8_t,const Iso14443_3aData*
 Function,+,iso14443_3a_get_uid,const uint8_t*,"const Iso14443_3aData*, size_t*"
 Function,+,iso14443_3a_is_equal,_Bool,"const Iso14443_3aData*, const Iso14443_3aData*"
 Function,+,iso14443_3a_load,_Bool,"Iso14443_3aData*, FlipperFormat*, uint32_t"
-Function,+,iso14443_3a_poller_read,Iso14443_3aError,"Nfc*, Iso14443_3aData*"
+Function,+,iso14443_3a_poller_activate,Iso14443_3aError,"Iso14443_3aPoller*, Iso14443_3aData*"
+Function,+,iso14443_3a_poller_check_presence,Iso14443_3aError,Iso14443_3aPoller*
+Function,+,iso14443_3a_poller_halt,Iso14443_3aError,Iso14443_3aPoller*
 Function,+,iso14443_3a_poller_send_standard_frame,Iso14443_3aError,"Iso14443_3aPoller*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,iso14443_3a_poller_sync_read,Iso14443_3aError,"Nfc*, Iso14443_3aData*"
 Function,+,iso14443_3a_poller_txrx,Iso14443_3aError,"Iso14443_3aPoller*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,iso14443_3a_poller_txrx_custom_parity,Iso14443_3aError,"Iso14443_3aPoller*, const BitBuffer*, BitBuffer*, uint32_t"
 Function,+,iso14443_3a_reset,void,Iso14443_3aData*
 Function,+,iso14443_3a_save,_Bool,"const Iso14443_3aData*, FlipperFormat*"
 Function,+,iso14443_3a_set_atqa,void,"Iso14443_3aData*, const uint8_t[2]"
@@ -1882,6 +1888,9 @@ Function,+,iso14443_3b_get_fwt_fc_max,uint32_t,const Iso14443_3bData*
 Function,+,iso14443_3b_get_uid,const uint8_t*,"const Iso14443_3bData*, size_t*"
 Function,+,iso14443_3b_is_equal,_Bool,"const Iso14443_3bData*, const Iso14443_3bData*"
 Function,+,iso14443_3b_load,_Bool,"Iso14443_3bData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_3b_poller_activate,Iso14443_3bError,"Iso14443_3bPoller*, Iso14443_3bData*"
+Function,+,iso14443_3b_poller_halt,Iso14443_3bError,Iso14443_3bPoller*
+Function,+,iso14443_3b_poller_send_frame,Iso14443_3bError,"Iso14443_3bPoller*, const BitBuffer*, BitBuffer*"
 Function,+,iso14443_3b_reset,void,Iso14443_3bData*
 Function,+,iso14443_3b_save,_Bool,"const Iso14443_3bData*, FlipperFormat*"
 Function,+,iso14443_3b_set_uid,_Bool,"Iso14443_3bData*, const uint8_t*, size_t"
@@ -1900,6 +1909,9 @@ Function,+,iso14443_4a_get_historical_bytes,const uint8_t*,"const Iso14443_4aDat
 Function,+,iso14443_4a_get_uid,const uint8_t*,"const Iso14443_4aData*, size_t*"
 Function,+,iso14443_4a_is_equal,_Bool,"const Iso14443_4aData*, const Iso14443_4aData*"
 Function,+,iso14443_4a_load,_Bool,"Iso14443_4aData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_4a_poller_halt,Iso14443_4aError,Iso14443_4aPoller*
+Function,+,iso14443_4a_poller_read_ats,Iso14443_4aError,"Iso14443_4aPoller*, Iso14443_4aAtsData*"
+Function,+,iso14443_4a_poller_send_block,Iso14443_4aError,"Iso14443_4aPoller*, const BitBuffer*, BitBuffer*"
 Function,+,iso14443_4a_reset,void,Iso14443_4aData*
 Function,+,iso14443_4a_save,_Bool,"const Iso14443_4aData*, FlipperFormat*"
 Function,+,iso14443_4a_set_uid,_Bool,"Iso14443_4aData*, const uint8_t*, size_t"
@@ -1914,6 +1926,8 @@ Function,+,iso14443_4b_get_device_name,const char*,"const Iso14443_4bData*, NfcD
 Function,+,iso14443_4b_get_uid,const uint8_t*,"const Iso14443_4bData*, size_t*"
 Function,+,iso14443_4b_is_equal,_Bool,"const Iso14443_4bData*, const Iso14443_4bData*"
 Function,+,iso14443_4b_load,_Bool,"Iso14443_4bData*, FlipperFormat*, uint32_t"
+Function,+,iso14443_4b_poller_halt,Iso14443_4bError,Iso14443_4bPoller*
+Function,+,iso14443_4b_poller_send_block,Iso14443_4bError,"Iso14443_4bPoller*, const BitBuffer*, BitBuffer*"
 Function,+,iso14443_4b_reset,void,Iso14443_4bData*
 Function,+,iso14443_4b_save,_Bool,"const Iso14443_4bData*, FlipperFormat*"
 Function,+,iso14443_4b_set_uid,_Bool,"Iso14443_4bData*, const uint8_t*, size_t"
@@ -2141,14 +2155,21 @@ Function,+,mf_classic_is_sector_read,_Bool,"const MfClassicData*, uint8_t"
 Function,+,mf_classic_is_sector_trailer,_Bool,uint8_t
 Function,+,mf_classic_is_value_block,_Bool,"MfClassicSectorTrailer*, uint8_t"
 Function,+,mf_classic_load,_Bool,"MfClassicData*, FlipperFormat*, uint32_t"
-Function,+,mf_classic_poller_auth,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*"
-Function,+,mf_classic_poller_change_value,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, int32_t, int32_t*"
-Function,+,mf_classic_poller_collect_nt,MfClassicError,"Nfc*, uint8_t, MfClassicKeyType, MfClassicNt*"
-Function,+,mf_classic_poller_detect_type,MfClassicError,"Nfc*, MfClassicType*"
-Function,+,mf_classic_poller_read,MfClassicError,"Nfc*, const MfClassicDeviceKeys*, MfClassicData*"
-Function,+,mf_classic_poller_read_block,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicBlock*"
-Function,+,mf_classic_poller_read_value,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, int32_t*"
-Function,+,mf_classic_poller_write_block,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicBlock*"
+Function,+,mf_classic_poller_auth,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*"
+Function,+,mf_classic_poller_get_nt,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKeyType, MfClassicNt*"
+Function,+,mf_classic_poller_halt,MfClassicError,MfClassicPoller*
+Function,+,mf_classic_poller_read_block,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicBlock*"
+Function,+,mf_classic_poller_sync_auth,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*"
+Function,+,mf_classic_poller_sync_change_value,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, int32_t, int32_t*"
+Function,+,mf_classic_poller_sync_collect_nt,MfClassicError,"Nfc*, uint8_t, MfClassicKeyType, MfClassicNt*"
+Function,+,mf_classic_poller_sync_detect_type,MfClassicError,"Nfc*, MfClassicType*"
+Function,+,mf_classic_poller_sync_read,MfClassicError,"Nfc*, const MfClassicDeviceKeys*, MfClassicData*"
+Function,+,mf_classic_poller_sync_read_block,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicBlock*"
+Function,+,mf_classic_poller_sync_read_value,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, int32_t*"
+Function,+,mf_classic_poller_sync_write_block,MfClassicError,"Nfc*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicBlock*"
+Function,+,mf_classic_poller_value_cmd,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicValueCommand, int32_t"
+Function,+,mf_classic_poller_value_transfer,MfClassicError,"MfClassicPoller*, uint8_t"
+Function,+,mf_classic_poller_write_block,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicBlock*"
 Function,+,mf_classic_reset,void,MfClassicData*
 Function,+,mf_classic_save,_Bool,"const MfClassicData*, FlipperFormat*"
 Function,+,mf_classic_set_block_read,void,"MfClassicData*, uint8_t, MfClassicBlock*"
@@ -2168,8 +2189,24 @@ Function,+,mf_desfire_get_file_settings,const MfDesfireFileSettings*,"const MfDe
 Function,+,mf_desfire_get_uid,const uint8_t*,"const MfDesfireData*, size_t*"
 Function,+,mf_desfire_is_equal,_Bool,"const MfDesfireData*, const MfDesfireData*"
 Function,+,mf_desfire_load,_Bool,"MfDesfireData*, FlipperFormat*, uint32_t"
+Function,+,mf_desfire_poller_read_application,MfDesfireError,"MfDesfirePoller*, MfDesfireApplication*"
+Function,+,mf_desfire_poller_read_application_ids,MfDesfireError,"MfDesfirePoller*, SimpleArray*"
+Function,+,mf_desfire_poller_read_applications,MfDesfireError,"MfDesfirePoller*, const SimpleArray*, SimpleArray*"
+Function,+,mf_desfire_poller_read_file_data,MfDesfireError,"MfDesfirePoller*, MfDesfireFileId, uint32_t, size_t, MfDesfireFileData*"
+Function,+,mf_desfire_poller_read_file_data_multi,MfDesfireError,"MfDesfirePoller*, const SimpleArray*, const SimpleArray*, SimpleArray*"
+Function,+,mf_desfire_poller_read_file_ids,MfDesfireError,"MfDesfirePoller*, SimpleArray*"
+Function,+,mf_desfire_poller_read_file_records,MfDesfireError,"MfDesfirePoller*, MfDesfireFileId, uint32_t, size_t, MfDesfireFileData*"
+Function,+,mf_desfire_poller_read_file_settings,MfDesfireError,"MfDesfirePoller*, MfDesfireFileId, MfDesfireFileSettings*"
+Function,+,mf_desfire_poller_read_file_settings_multi,MfDesfireError,"MfDesfirePoller*, const SimpleArray*, SimpleArray*"
+Function,+,mf_desfire_poller_read_file_value,MfDesfireError,"MfDesfirePoller*, MfDesfireFileId, MfDesfireFileData*"
+Function,+,mf_desfire_poller_read_free_memory,MfDesfireError,"MfDesfirePoller*, MfDesfireFreeMemory*"
+Function,+,mf_desfire_poller_read_key_settings,MfDesfireError,"MfDesfirePoller*, MfDesfireKeySettings*"
+Function,+,mf_desfire_poller_read_key_versions,MfDesfireError,"MfDesfirePoller*, SimpleArray*, uint32_t"
+Function,+,mf_desfire_poller_read_version,MfDesfireError,"MfDesfirePoller*, MfDesfireVersion*"
+Function,+,mf_desfire_poller_select_application,MfDesfireError,"MfDesfirePoller*, const MfDesfireApplicationId*"
 Function,+,mf_desfire_reset,void,MfDesfireData*
 Function,+,mf_desfire_save,_Bool,"const MfDesfireData*, FlipperFormat*"
+Function,+,mf_desfire_send_chunks,MfDesfireError,"MfDesfirePoller*, const BitBuffer*, BitBuffer*"
 Function,+,mf_desfire_set_uid,_Bool,"MfDesfireData*, const uint8_t*, size_t"
 Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
 Function,+,mf_ultralight_alloc,MfUltralightData*,
@@ -2190,13 +2227,22 @@ Function,+,mf_ultralight_is_counter_configured,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_equal,_Bool,"const MfUltralightData*, const MfUltralightData*"
 Function,+,mf_ultralight_is_page_pwd_or_pack,_Bool,"MfUltralightType, uint16_t"
 Function,+,mf_ultralight_load,_Bool,"MfUltralightData*, FlipperFormat*, uint32_t"
-Function,+,mf_ultralight_poller_read_card,MfUltralightError,"Nfc*, MfUltralightData*"
-Function,+,mf_ultralight_poller_read_counter,MfUltralightError,"Nfc*, uint8_t, MfUltralightCounter*"
-Function,+,mf_ultralight_poller_read_page,MfUltralightError,"Nfc*, uint16_t, MfUltralightPage*"
-Function,+,mf_ultralight_poller_read_signature,MfUltralightError,"Nfc*, MfUltralightSignature*"
-Function,+,mf_ultralight_poller_read_tearing_flag,MfUltralightError,"Nfc*, uint8_t, MfUltralightTearingFlag*"
-Function,+,mf_ultralight_poller_read_version,MfUltralightError,"Nfc*, MfUltralightVersion*"
-Function,+,mf_ultralight_poller_write_page,MfUltralightError,"Nfc*, uint16_t, MfUltralightPage*"
+Function,+,mf_ultralight_poller_auth_pwd,MfUltralightError,"MfUltralightPoller*, MfUltralightPollerAuthContext*"
+Function,+,mf_ultralight_poller_authenticate,MfUltralightError,MfUltralightPoller*
+Function,+,mf_ultralight_poller_read_counter,MfUltralightError,"MfUltralightPoller*, uint8_t, MfUltralightCounter*"
+Function,+,mf_ultralight_poller_read_page,MfUltralightError,"MfUltralightPoller*, uint8_t, MfUltralightPageReadCommandData*"
+Function,+,mf_ultralight_poller_read_page_from_sector,MfUltralightError,"MfUltralightPoller*, uint8_t, uint8_t, MfUltralightPageReadCommandData*"
+Function,+,mf_ultralight_poller_read_signature,MfUltralightError,"MfUltralightPoller*, MfUltralightSignature*"
+Function,+,mf_ultralight_poller_read_tearing_flag,MfUltralightError,"MfUltralightPoller*, uint8_t, MfUltralightTearingFlag*"
+Function,+,mf_ultralight_poller_read_version,MfUltralightError,"MfUltralightPoller*, MfUltralightVersion*"
+Function,+,mf_ultralight_poller_sync_read_card,MfUltralightError,"Nfc*, MfUltralightData*"
+Function,+,mf_ultralight_poller_sync_read_counter,MfUltralightError,"Nfc*, uint8_t, MfUltralightCounter*"
+Function,+,mf_ultralight_poller_sync_read_page,MfUltralightError,"Nfc*, uint16_t, MfUltralightPage*"
+Function,+,mf_ultralight_poller_sync_read_signature,MfUltralightError,"Nfc*, MfUltralightSignature*"
+Function,+,mf_ultralight_poller_sync_read_tearing_flag,MfUltralightError,"Nfc*, uint8_t, MfUltralightTearingFlag*"
+Function,+,mf_ultralight_poller_sync_read_version,MfUltralightError,"Nfc*, MfUltralightVersion*"
+Function,+,mf_ultralight_poller_sync_write_page,MfUltralightError,"Nfc*, uint16_t, MfUltralightPage*"
+Function,+,mf_ultralight_poller_write_page,MfUltralightError,"MfUltralightPoller*, uint8_t, const MfUltralightPage*"
 Function,+,mf_ultralight_reset,void,MfUltralightData*
 Function,+,mf_ultralight_save,_Bool,"const MfUltralightData*, FlipperFormat*"
 Function,+,mf_ultralight_set_uid,_Bool,"MfUltralightData*, const uint8_t*, size_t"
@@ -2290,6 +2336,7 @@ Function,+,nfc_poller_free,void,NfcPoller*
 Function,+,nfc_poller_get_data,const NfcDeviceData*,const NfcPoller*
 Function,+,nfc_poller_get_protocol,NfcProtocol,const NfcPoller*
 Function,+,nfc_poller_start,void,"NfcPoller*, NfcGenericCallback, void*"
+Function,+,nfc_poller_start_ex,void,"NfcPoller*, NfcGenericCallbackEx, void*"
 Function,+,nfc_poller_stop,void,NfcPoller*
 Function,+,nfc_poller_trx,NfcError,"Nfc*, const BitBuffer*, BitBuffer*, uint32_t"
 Function,+,nfc_protocol_get_parent,NfcProtocol,NfcProtocol
@@ -2608,6 +2655,29 @@ Function,+,srand,void,unsigned
 Function,-,srand48,void,long
 Function,-,srandom,void,unsigned
 Function,+,sscanf,int,"const char*, const char*, ..."
+Function,+,st25r3916_change_reg_bits,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t, uint8_t"
+Function,+,st25r3916_change_test_reg_bits,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t, uint8_t"
+Function,+,st25r3916_check_reg,_Bool,"FuriHalSpiBusHandle*, uint8_t, uint8_t, uint8_t"
+Function,+,st25r3916_clear_reg_bits,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
+Function,+,st25r3916_direct_cmd,void,"FuriHalSpiBusHandle*, uint8_t"
+Function,+,st25r3916_get_irq,uint32_t,FuriHalSpiBusHandle*
+Function,+,st25r3916_mask_irq,void,"FuriHalSpiBusHandle*, uint32_t"
+Function,+,st25r3916_modify_reg,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t, uint8_t"
+Function,+,st25r3916_read_burst_regs,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t*, uint8_t"
+Function,+,st25r3916_read_fifo,_Bool,"FuriHalSpiBusHandle*, uint8_t*, size_t, size_t*"
+Function,+,st25r3916_read_pta_mem,void,"FuriHalSpiBusHandle*, uint8_t*, size_t"
+Function,+,st25r3916_read_reg,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t*"
+Function,+,st25r3916_read_test_reg,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t*"
+Function,+,st25r3916_reg_read_fifo,void,"FuriHalSpiBusHandle*, uint8_t*, size_t"
+Function,+,st25r3916_reg_write_fifo,void,"FuriHalSpiBusHandle*, const uint8_t*, size_t"
+Function,+,st25r3916_set_reg_bits,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
+Function,+,st25r3916_write_burst_regs,void,"FuriHalSpiBusHandle*, uint8_t, const uint8_t*, uint8_t"
+Function,+,st25r3916_write_fifo,void,"FuriHalSpiBusHandle*, const uint8_t*, size_t"
+Function,+,st25r3916_write_pta_mem,void,"FuriHalSpiBusHandle*, const uint8_t*, size_t"
+Function,+,st25r3916_write_ptf_mem,void,"FuriHalSpiBusHandle*, const uint8_t*, size_t"
+Function,+,st25r3916_write_pttsn_mem,void,"FuriHalSpiBusHandle*, uint8_t*, size_t"
+Function,+,st25r3916_write_reg,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
+Function,+,st25r3916_write_test_reg,void,"FuriHalSpiBusHandle*, uint8_t, uint8_t"
 Function,+,st25tb_alloc,St25tbData*,
 Function,+,st25tb_copy,void,"St25tbData*, const St25tbData*"
 Function,+,st25tb_free,void,St25tbData*
@@ -2617,6 +2687,12 @@ Function,+,st25tb_get_device_name,const char*,"const St25tbData*, NfcDeviceNameT
 Function,+,st25tb_get_uid,const uint8_t*,"const St25tbData*, size_t*"
 Function,+,st25tb_is_equal,_Bool,"const St25tbData*, const St25tbData*"
 Function,+,st25tb_load,_Bool,"St25tbData*, FlipperFormat*, uint32_t"
+Function,+,st25tb_poller_activate,St25tbError,"St25tbPoller*, St25tbData*"
+Function,+,st25tb_poller_get_uid,St25tbError,"St25tbPoller*, uint8_t*"
+Function,+,st25tb_poller_halt,St25tbError,St25tbPoller*
+Function,+,st25tb_poller_initiate,St25tbError,"St25tbPoller*, uint8_t*"
+Function,+,st25tb_poller_read_block,St25tbError,"St25tbPoller*, uint32_t*, uint8_t"
+Function,+,st25tb_poller_send_frame,St25tbError,"St25tbPoller*, const BitBuffer*, BitBuffer*, uint32_t"
 Function,+,st25tb_reset,void,St25tbData*
 Function,+,st25tb_save,_Bool,"const St25tbData*, FlipperFormat*"
 Function,+,st25tb_set_uid,_Bool,"St25tbData*, const uint8_t*, size_t"

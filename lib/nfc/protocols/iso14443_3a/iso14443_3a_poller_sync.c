@@ -1,4 +1,4 @@
-#include "iso14443_3a_poller_sync_api.h"
+#include "iso14443_3a_poller_sync.h"
 
 #include "iso14443_3a_poller_i.h"
 #include <nfc/nfc_poller.h>
@@ -34,7 +34,7 @@ NfcCommand iso14443_3a_poller_read_callback(NfcGenericEvent event, void* context
     return NfcCommandStop;
 }
 
-Iso14443_3aError iso14443_3a_poller_read(Nfc* nfc, Iso14443_3aData* iso14443_3a_data) {
+Iso14443_3aError iso14443_3a_poller_sync_read(Nfc* nfc, Iso14443_3aData* iso14443_3a_data) {
     furi_assert(nfc);
     furi_assert(iso14443_3a_data);
 

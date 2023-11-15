@@ -61,9 +61,9 @@
  *             |                                 |
  *             +- protocol_name_listener_defs.h  |
  *             |
- *             +- protocol_name_sync_api.h       |
+ *             +- protocol_name_sync.h           |
  *             |                                 |- add for synchronous API support
- *             +- protocol_name_sync_api.c       |
+ *             +- protocol_name_sync.c           |
  *             |
  * ```
  *
@@ -83,8 +83,8 @@
  * | protocol_name_listener.h      | Protocol-specific listener and associated functions declarations. Optional, needed for emulation support. |
  * | protocol_name_listener.c      | Implementation of functions declared in `protocol_name_listener.h`. Optional, needed for emulation support. |
  * | protocol_name_listener_defs.h | Declarations for use by the NfcListener library. See nfc_listener_base.h for more info. Optional, needed for emulation support. |
- * | protocol_name_sync_api.h      | Synchronous API declarations. (See below for sync API explanation). Optional.|
- * | protocol_name_sync_api.c      | Synchronous API implementation. Optional. |
+ * | protocol_name_sync.h          | Synchronous API declarations. (See below for sync API explanation). Optional.|
+ * | protocol_name_sync.c          | Synchronous API implementation. Optional. |
  *
  * ## 3 Implement the code
  *
@@ -145,7 +145,7 @@
  *    `protocol_name_poller_defs` structure under the appropriate index.
  * 5. (Optional) If emulation support was implemented, do the step 4, but for the listener.
  * 6. Add `protocol_name.h`, `protocol_name_poller.h`, and optionally, `protocol_name_listener.h`
- *    and `protocol_name_sync_api.h` into the `SDK_HEADERS` list in the SConscript file.
+ *    and `protocol_name_sync.h` into the `SDK_HEADERS` list in the SConscript file.
  *    This will export the protocol's types and functions for use by the applications.
  * 7. Done!
  *

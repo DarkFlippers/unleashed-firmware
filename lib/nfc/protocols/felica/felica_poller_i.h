@@ -48,12 +48,10 @@ typedef struct {
 
 const FelicaData* felica_poller_get_data(FelicaPoller* instance);
 
-FelicaError felica_poller_async_polling(
+FelicaError felica_poller_polling(
     FelicaPoller* instance,
     const FelicaPollerPollingCommand* cmd,
     FelicaPollerPollingResponse* resp);
-
-FelicaError felica_poller_async_activate(FelicaPoller* instance, FelicaData* data);
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,8 @@
 
 #include <nfc/protocols/iso14443_3a/iso14443_3a.h>
 
+#include <lib/toolbox/simple_array.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,7 +30,19 @@ typedef enum {
     Iso14443_4aFrameOptionCid,
 } Iso14443_4aFrameOption;
 
-typedef struct Iso14443_4aData Iso14443_4aData;
+typedef struct {
+    uint8_t tl;
+    uint8_t t0;
+    uint8_t ta_1;
+    uint8_t tb_1;
+    uint8_t tc_1;
+    SimpleArray* t1_tk;
+} Iso14443_4aAtsData;
+
+typedef struct {
+    Iso14443_3aData* iso14443_3a_data;
+    Iso14443_4aAtsData ats_data;
+} Iso14443_4aData;
 
 // Virtual methods
 

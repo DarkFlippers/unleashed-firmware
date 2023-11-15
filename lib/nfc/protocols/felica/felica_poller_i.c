@@ -49,7 +49,7 @@ static FelicaError felica_poller_frame_exchange(
     return ret;
 }
 
-FelicaError felica_poller_async_polling(
+FelicaError felica_poller_polling(
     FelicaPoller* instance,
     const FelicaPollerPollingCommand* cmd,
     FelicaPollerPollingResponse* resp) {
@@ -93,7 +93,7 @@ FelicaError felica_poller_async_polling(
     return error;
 }
 
-FelicaError felica_poller_async_activate(FelicaPoller* instance, FelicaData* data) {
+FelicaError felica_poller_activate(FelicaPoller* instance, FelicaData* data) {
     furi_assert(instance);
 
     felica_reset(data);
@@ -112,7 +112,7 @@ FelicaError felica_poller_async_activate(FelicaPoller* instance, FelicaData* dat
         };
         FelicaPollerPollingResponse polling_resp = {};
 
-        ret = felica_poller_async_polling(instance, &polling_cmd, &polling_resp);
+        ret = felica_poller_polling(instance, &polling_cmd, &polling_resp);
 
         if(ret != FelicaErrorNone) {
             FURI_LOG_T(TAG, "Activation failed error: %d", ret);

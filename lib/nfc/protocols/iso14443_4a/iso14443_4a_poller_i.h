@@ -45,16 +45,6 @@ struct Iso14443_4aPoller {
 
 const Iso14443_4aData* iso14443_4a_poller_get_data(Iso14443_4aPoller* instance);
 
-Iso14443_4aError iso14443_4a_poller_halt(Iso14443_4aPoller* instance);
-
-Iso14443_4aError
-    iso14443_4a_poller_async_read_ats(Iso14443_4aPoller* instance, Iso14443_4aAtsData* data);
-
-Iso14443_4aError iso14443_4a_poller_send_block(
-    Iso14443_4aPoller* instance,
-    const BitBuffer* tx_buffer,
-    BitBuffer* rx_buffer);
-
 #ifdef __cplusplus
 }
 #endif

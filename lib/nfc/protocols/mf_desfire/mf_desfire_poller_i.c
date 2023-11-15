@@ -74,8 +74,7 @@ MfDesfireError mf_desfire_send_chunks(
     return error;
 }
 
-MfDesfireError
-    mf_desfire_poller_async_read_version(MfDesfirePoller* instance, MfDesfireVersion* data) {
+MfDesfireError mf_desfire_poller_read_version(MfDesfirePoller* instance, MfDesfireVersion* data) {
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
@@ -97,7 +96,7 @@ MfDesfireError
 }
 
 MfDesfireError
-    mf_desfire_poller_async_read_free_memory(MfDesfirePoller* instance, MfDesfireFreeMemory* data) {
+    mf_desfire_poller_read_free_memory(MfDesfirePoller* instance, MfDesfireFreeMemory* data) {
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
@@ -118,9 +117,8 @@ MfDesfireError
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_key_settings(
-    MfDesfirePoller* instance,
-    MfDesfireKeySettings* data) {
+MfDesfireError
+    mf_desfire_poller_read_key_settings(MfDesfirePoller* instance, MfDesfireKeySettings* data) {
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
@@ -141,7 +139,7 @@ MfDesfireError mf_desfire_poller_async_read_key_settings(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_key_versions(
+MfDesfireError mf_desfire_poller_read_key_versions(
     MfDesfirePoller* instance,
     SimpleArray* data,
     uint32_t count) {
@@ -172,7 +170,7 @@ MfDesfireError mf_desfire_poller_async_read_key_versions(
 }
 
 MfDesfireError
-    mf_desfire_poller_async_read_application_ids(MfDesfirePoller* instance, SimpleArray* data) {
+    mf_desfire_poller_read_application_ids(MfDesfirePoller* instance, SimpleArray* data) {
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
@@ -203,7 +201,7 @@ MfDesfireError
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_select_application(
+MfDesfireError mf_desfire_poller_select_application(
     MfDesfirePoller* instance,
     const MfDesfireApplicationId* id) {
     furi_assert(instance);
@@ -219,8 +217,7 @@ MfDesfireError mf_desfire_poller_async_select_application(
     return error;
 }
 
-MfDesfireError
-    mf_desfire_poller_async_read_file_ids(MfDesfirePoller* instance, SimpleArray* data) {
+MfDesfireError mf_desfire_poller_read_file_ids(MfDesfirePoller* instance, SimpleArray* data) {
     furi_assert(instance);
 
     bit_buffer_reset(instance->input_buffer);
@@ -250,7 +247,7 @@ MfDesfireError
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_file_settings(
+MfDesfireError mf_desfire_poller_read_file_settings(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
     MfDesfireFileSettings* data) {
@@ -275,7 +272,7 @@ MfDesfireError mf_desfire_poller_async_read_file_settings(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_file_settings_multi(
+MfDesfireError mf_desfire_poller_read_file_settings_multi(
     MfDesfirePoller* instance,
     const SimpleArray* file_ids,
     SimpleArray* data) {
@@ -290,15 +287,14 @@ MfDesfireError mf_desfire_poller_async_read_file_settings_multi(
 
     for(uint32_t i = 0; i < file_id_count; ++i) {
         const MfDesfireFileId file_id = *(const MfDesfireFileId*)simple_array_cget(file_ids, i);
-        error = mf_desfire_poller_async_read_file_settings(
-            instance, file_id, simple_array_get(data, i));
+        error = mf_desfire_poller_read_file_settings(instance, file_id, simple_array_get(data, i));
         if(error != MfDesfireErrorNone) break;
     }
 
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_file_data(
+MfDesfireError mf_desfire_poller_read_file_data(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
     uint32_t offset,
@@ -327,7 +323,7 @@ MfDesfireError mf_desfire_poller_async_read_file_data(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_file_value(
+MfDesfireError mf_desfire_poller_read_file_value(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
     MfDesfireFileData* data) {
@@ -352,7 +348,7 @@ MfDesfireError mf_desfire_poller_async_read_file_value(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_file_records(
+MfDesfireError mf_desfire_poller_read_file_records(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
     uint32_t offset,
@@ -381,7 +377,7 @@ MfDesfireError mf_desfire_poller_async_read_file_records(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_file_data_multi(
+MfDesfireError mf_desfire_poller_read_file_data_multi(
     MfDesfirePoller* instance,
     const SimpleArray* file_ids,
     const SimpleArray* file_settings,
@@ -404,14 +400,14 @@ MfDesfireError mf_desfire_poller_async_read_file_data_multi(
         MfDesfireFileData* file_data = simple_array_get(data, i);
 
         if(file_type == MfDesfireFileTypeStandard || file_type == MfDesfireFileTypeBackup) {
-            error = mf_desfire_poller_async_read_file_data(
+            error = mf_desfire_poller_read_file_data(
                 instance, file_id, 0, file_settings_cur->data.size, file_data);
         } else if(file_type == MfDesfireFileTypeValue) {
-            error = mf_desfire_poller_async_read_file_value(instance, file_id, file_data);
+            error = mf_desfire_poller_read_file_value(instance, file_id, file_data);
         } else if(
             file_type == MfDesfireFileTypeLinearRecord ||
             file_type == MfDesfireFileTypeCyclicRecord) {
-            error = mf_desfire_poller_async_read_file_records(
+            error = mf_desfire_poller_read_file_records(
                 instance, file_id, 0, file_settings_cur->data.size, file_data);
         }
 
@@ -421,30 +417,29 @@ MfDesfireError mf_desfire_poller_async_read_file_data_multi(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_application(
-    MfDesfirePoller* instance,
-    MfDesfireApplication* data) {
+MfDesfireError
+    mf_desfire_poller_read_application(MfDesfirePoller* instance, MfDesfireApplication* data) {
     furi_assert(instance);
     furi_assert(data);
 
     MfDesfireError error;
 
     do {
-        error = mf_desfire_poller_async_read_key_settings(instance, &data->key_settings);
+        error = mf_desfire_poller_read_key_settings(instance, &data->key_settings);
         if(error != MfDesfireErrorNone) break;
 
-        error = mf_desfire_poller_async_read_key_versions(
+        error = mf_desfire_poller_read_key_versions(
             instance, data->key_versions, data->key_settings.max_keys);
         if(error != MfDesfireErrorNone) break;
 
-        error = mf_desfire_poller_async_read_file_ids(instance, data->file_ids);
+        error = mf_desfire_poller_read_file_ids(instance, data->file_ids);
         if(error != MfDesfireErrorNone) break;
 
-        error = mf_desfire_poller_async_read_file_settings_multi(
+        error = mf_desfire_poller_read_file_settings_multi(
             instance, data->file_ids, data->file_settings);
         if(error != MfDesfireErrorNone) break;
 
-        error = mf_desfire_poller_async_read_file_data_multi(
+        error = mf_desfire_poller_read_file_data_multi(
             instance, data->file_ids, data->file_settings, data->file_data);
         if(error != MfDesfireErrorNone) break;
 
@@ -453,7 +448,7 @@ MfDesfireError mf_desfire_poller_async_read_application(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_async_read_applications(
+MfDesfireError mf_desfire_poller_read_applications(
     MfDesfirePoller* instance,
     const SimpleArray* app_ids,
     SimpleArray* data) {
@@ -468,12 +463,11 @@ MfDesfireError mf_desfire_poller_async_read_applications(
 
     for(uint32_t i = 0; i < app_id_count; ++i) {
         do {
-            error = mf_desfire_poller_async_select_application(
-                instance, simple_array_cget(app_ids, i));
+            error = mf_desfire_poller_select_application(instance, simple_array_cget(app_ids, i));
             if(error != MfDesfireErrorNone) break;
 
             MfDesfireApplication* current_app = simple_array_get(data, i);
-            error = mf_desfire_poller_async_read_application(instance, current_app);
+            error = mf_desfire_poller_read_application(instance, current_app);
 
         } while(false);
     }

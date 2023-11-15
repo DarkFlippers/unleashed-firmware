@@ -34,23 +34,6 @@ struct St25tbPoller {
 
 const St25tbData* st25tb_poller_get_data(St25tbPoller* instance);
 
-St25tbError st25tb_poller_async_initiate(St25tbPoller* instance, uint8_t* chip_id);
-
-St25tbError st25tb_poller_async_activate(St25tbPoller* instance, St25tbData* data);
-
-St25tbError st25tb_poller_async_get_uid(St25tbPoller* instance, uint8_t uid[ST25TB_UID_SIZE]);
-
-St25tbError
-    st25tb_poller_async_read_block(St25tbPoller* instance, uint32_t* block, uint8_t block_number);
-
-St25tbError st25tb_poller_halt(St25tbPoller* instance);
-
-St25tbError st25tb_poller_send_frame(
-    St25tbPoller* instance,
-    const BitBuffer* tx_buffer,
-    BitBuffer* rx_buffer,
-    uint32_t fwt);
-
 #ifdef __cplusplus
 }
 #endif

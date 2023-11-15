@@ -39,15 +39,9 @@ typedef enum {
     Iso14443_3aPollerStateActivated,
 } Iso14443_3aPollerState;
 
-typedef enum {
-    Iso14443_3aPollerConfigStateIdle,
-    Iso14443_3aPollerConfigStateDone,
-} Iso14443_3aPollerConfigState;
-
 struct Iso14443_3aPoller {
     Nfc* nfc;
     Iso14443_3aPollerState state;
-    Iso14443_3aPollerConfigState config_state;
     Iso14443_3aPollerColRes col_res;
     Iso14443_3aData* data;
     BitBuffer* tx_buffer;
@@ -61,20 +55,6 @@ struct Iso14443_3aPoller {
 };
 
 const Iso14443_3aData* iso14443_3a_poller_get_data(Iso14443_3aPoller* instance);
-
-Iso14443_3aError iso14443_3a_poller_check_presence(Iso14443_3aPoller* instance);
-
-Iso14443_3aError iso14443_3a_poller_async_activate(
-    Iso14443_3aPoller* instance,
-    Iso14443_3aData* iso14443_3a_data);
-
-Iso14443_3aError iso14443_3a_poller_halt(Iso14443_3aPoller* instance);
-
-Iso14443_3aError iso14443_3a_poller_txrx_custom_parity(
-    Iso14443_3aPoller* instance,
-    const BitBuffer* tx_buffer,
-    BitBuffer* rx_buffer,
-    uint32_t fwt);
 
 #ifdef __cplusplus
 }

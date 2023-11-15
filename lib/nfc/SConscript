@@ -36,9 +36,9 @@ env.Append(
         File("protocols/mf_ultralight/mf_ultralight_listener.h"),
         File("protocols/mf_classic/mf_classic_listener.h"),
         # Sync API
-        File("protocols/iso14443_3a/iso14443_3a_poller_sync_api.h"),
-        File("protocols/mf_ultralight/mf_ultralight_poller_sync_api.h"),
-        File("protocols/mf_classic/mf_classic_poller_sync_api.h"),
+        File("protocols/iso14443_3a/iso14443_3a_poller_sync.h"),
+        File("protocols/mf_ultralight/mf_ultralight_poller_sync.h"),
+        File("protocols/mf_classic/mf_classic_poller_sync.h"),
         # Misc
         File("helpers/nfc_util.h"),
         File("helpers/iso14443_crc.h"),

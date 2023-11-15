@@ -169,37 +169,6 @@ MfClassicPoller* mf_classic_poller_alloc(Iso14443_3aPoller* iso14443_3a_poller);
 
 void mf_classic_poller_free(MfClassicPoller* instance);
 
-MfClassicError mf_classic_async_get_nt(
-    MfClassicPoller* instance,
-    uint8_t block_num,
-    MfClassicKeyType key_type,
-    MfClassicNt* nt);
-
-MfClassicError mf_classic_async_auth(
-    MfClassicPoller* instance,
-    uint8_t block_num,
-    MfClassicKey* key,
-    MfClassicKeyType key_type,
-    MfClassicAuthContext* data);
-
-MfClassicError mf_classic_async_halt(MfClassicPoller* instance);
-
-MfClassicError
-    mf_classic_async_read_block(MfClassicPoller* instance, uint8_t block_num, MfClassicBlock* data);
-
-MfClassicError mf_classic_async_write_block(
-    MfClassicPoller* instance,
-    uint8_t block_num,
-    MfClassicBlock* data);
-
-MfClassicError mf_classic_async_value_cmd(
-    MfClassicPoller* instance,
-    uint8_t block_num,
-    MfClassicValueCommand cmd,
-    int32_t data);
-
-MfClassicError mf_classic_async_value_transfer(MfClassicPoller* instance, uint8_t block_num);
-
 #ifdef __cplusplus
 }
 #endif

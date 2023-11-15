@@ -36,7 +36,7 @@ static Iso15693_3Error iso15693_3_poller_prepare_trx(Iso15693_3Poller* instance)
     furi_assert(instance);
 
     if(instance->state == Iso15693_3PollerStateIdle) {
-        return iso15693_3_poller_async_activate(instance, NULL);
+        return iso15693_3_poller_activate(instance, NULL);
     }
 
     return Iso15693_3ErrorNone;
@@ -80,8 +80,7 @@ static Iso15693_3Error iso15693_3_poller_frame_exchange(
     return ret;
 }
 
-Iso15693_3Error
-    iso15693_3_poller_async_activate(Iso15693_3Poller* instance, Iso15693_3Data* data) {
+Iso15693_3Error iso15693_3_poller_activate(Iso15693_3Poller* instance, Iso15693_3Data* data) {
     furi_assert(instance);
     furi_assert(instance->nfc);
 
@@ -93,7 +92,7 @@ Iso15693_3Error
         instance->state = Iso15693_3PollerStateColResInProgress;
 
         // Inventory: Mandatory command
-        ret = iso15693_3_poller_async_inventory(instance, data->uid);
+        ret = iso15693_3_poller_inventory(instance, data->uid);
         if(ret != Iso15693_3ErrorNone) {
             instance->state = Iso15693_3PollerStateColResFailed;
             break;
@@ -103,7 +102,7 @@ Iso15693_3Error
 
         // Get system info: Optional command
         Iso15693_3SystemInfo* system_info = &data->system_info;
-        ret = iso15693_3_poller_async_get_system_info(instance, system_info);
+        ret = iso15693_3_poller_get_system_info(instance, system_info);
         if(ret != Iso15693_3ErrorNone) {
             ret = iso15693_3_poller_filter_error(ret);
             break;
@@ -111,7 +110,7 @@ Iso15693_3Error
 
         // Read blocks: Optional command
         simple_array_init(data->block_data, system_info->block_count * system_info->block_size);
-        ret = iso15693_3_poller_async_read_blocks(
+        ret = iso15693_3_poller_read_blocks(
             instance,
             simple_array_get_data(data->block_data),
             system_info->block_count,
@@ -124,7 +123,7 @@ Iso15693_3Error
         // Get block security status: Optional command
         simple_array_init(data->block_security, system_info->block_count);
 
-        ret = iso15693_3_poller_async_get_blocks_security(
+        ret = iso15693_3_poller_get_blocks_security(
             instance, simple_array_get_data(data->block_security), system_info->block_count);
         if(ret != Iso15693_3ErrorNone) {
             ret = iso15693_3_poller_filter_error(ret);
@@ -136,7 +135,7 @@ Iso15693_3Error
     return ret;
 }
 
-Iso15693_3Error iso15693_3_poller_async_inventory(Iso15693_3Poller* instance, uint8_t* uid) {
+Iso15693_3Error iso15693_3_poller_inventory(Iso15693_3Poller* instance, uint8_t* uid) {
     furi_assert(instance);
     furi_assert(instance->nfc);
     furi_assert(uid);
@@ -165,9 +164,8 @@ Iso15693_3Error iso15693_3_poller_async_inventory(Iso15693_3Poller* instance, ui
     return ret;
 }
 
-Iso15693_3Error iso15693_3_poller_async_get_system_info(
-    Iso15693_3Poller* instance,
-    Iso15693_3SystemInfo* data) {
+Iso15693_3Error
+    iso15693_3_poller_get_system_info(Iso15693_3Poller* instance, Iso15693_3SystemInfo* data) {
     furi_assert(instance);
     furi_assert(data);
 
@@ -193,7 +191,7 @@ Iso15693_3Error iso15693_3_poller_async_get_system_info(
     return ret;
 }
 
-Iso15693_3Error iso15693_3_poller_async_read_block(
+Iso15693_3Error iso15693_3_poller_read_block(
     Iso15693_3Poller* instance,
     uint8_t* data,
     uint8_t block_number,
@@ -222,7 +220,7 @@ Iso15693_3Error iso15693_3_poller_async_read_block(
     return ret;
 }
 
-Iso15693_3Error iso15693_3_poller_async_read_blocks(
+Iso15693_3Error iso15693_3_poller_read_blocks(
     Iso15693_3Poller* instance,
     uint8_t* data,
     uint16_t block_count,
@@ -235,14 +233,14 @@ Iso15693_3Error iso15693_3_poller_async_read_blocks(
     Iso15693_3Error ret = Iso15693_3ErrorNone;
 
     for(uint32_t i = 0; i < block_count; ++i) {
-        ret = iso15693_3_poller_async_read_block(instance, &data[block_size * i], i, block_size);
+        ret = iso15693_3_poller_read_block(instance, &data[block_size * i], i, block_size);
         if(ret != Iso15693_3ErrorNone) break;
     }
 
     return ret;
 }
 
-Iso15693_3Error iso15693_3_poller_async_get_blocks_security(
+Iso15693_3Error iso15693_3_poller_get_blocks_security(
     Iso15693_3Poller* instance,
     uint8_t* data,
     uint16_t block_count) {

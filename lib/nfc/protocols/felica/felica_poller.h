@@ -9,21 +9,49 @@
 extern "C" {
 #endif
 
+/**
+ * @brief FelicaPoller opaque type definition.
+ */
 typedef struct FelicaPoller FelicaPoller;
 
+/**
+ * @brief Enumeration of possible Felica poller event types.
+ */
 typedef enum {
-    FelicaPollerEventTypeError,
-    FelicaPollerEventTypeReady,
+    FelicaPollerEventTypeError, /**< The card was activated by the poller. */
+    FelicaPollerEventTypeReady, /**< An error occured during activation procedure. */
 } FelicaPollerEventType;
 
-typedef struct {
-    FelicaError error;
+/**
+ * @brief Felica poller event data.
+ */
+typedef union {
+    FelicaError error; /**< Error code indicating card activation fail reason. */
 } FelicaPollerEventData;
 
+/**
+ * @brief FelicaPoller poller event structure.
+ *
+ * Upon emission of an event, an instance of this struct will be passed to the callback.
+ */
 typedef struct {
-    FelicaPollerEventType type;
-    FelicaPollerEventData* data;
+    FelicaPollerEventType type; /**< Type of emmitted event. */
+    FelicaPollerEventData* data; /**< Pointer to event specific data. */
 } FelicaPollerEvent;
+
+/**
+ * @brief Perform collision resolution procedure.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * Perfoms the collision resolution procedure as defined in FeliCa standars. The data
+ * field will be filled with Felica data on success.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[out] data pointer to the Felica data structure to be filled.
+ * @return FelicaErrorNone on success, an error code on failure.
+ */
+FelicaError felica_poller_activate(FelicaPoller* instance, FelicaData* data);
 
 #ifdef __cplusplus
 }

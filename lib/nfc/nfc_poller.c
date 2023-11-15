@@ -28,6 +28,9 @@ struct NfcPoller {
     NfcPollerList list;
     NfcPollerSessionState session_state;
     bool protocol_detected;
+
+    NfcGenericCallbackEx callback;
+    void* context;
 };
 
 static void nfc_poller_list_alloc(NfcPoller* instance) {
@@ -125,6 +128,75 @@ void nfc_poller_start(NfcPoller* instance, NfcGenericCallback callback, void* co
 
     instance->session_state = NfcPollerSessionStateActive;
     nfc_start(instance->nfc, nfc_poller_start_callback, instance);
+}
+
+static NfcCommand nfc_poller_start_ex_tail_callback(NfcGenericEvent event, void* context) {
+    furi_assert(context);
+    furi_assert(event.protocol != NfcProtocolInvalid);
+
+    NfcPoller* instance = context;
+    NfcCommand command = NfcCommandContinue;
+
+    NfcGenericEventEx poller_event = {
+        .poller = instance->list.tail->poller,
+        .parent_event_data = event.event_data,
+    };
+
+    command = instance->callback(poller_event, instance->context);
+
+    return command;
+}
+
+static NfcCommand nfc_poller_start_ex_head_callback(NfcEvent event, void* context) {
+    furi_assert(context);
+
+    NfcCommand command = NfcCommandContinue;
+    NfcPoller* instance = context;
+
+    NfcProtocol parent_protocol = nfc_protocol_get_parent(instance->protocol);
+
+    if(parent_protocol == NfcProtocolInvalid) {
+        NfcGenericEventEx poller_event = {
+            .poller = instance->list.tail->poller,
+            .parent_event_data = &event,
+        };
+
+        command = instance->callback(poller_event, instance->context);
+    } else {
+        NfcGenericEvent poller_event = {
+            .protocol = NfcProtocolInvalid,
+            .instance = instance->nfc,
+            .event_data = &event,
+        };
+        NfcPollerListElement* head_poller = instance->list.head;
+        command = head_poller->poller_api->run(poller_event, head_poller->poller);
+    }
+
+    if(instance->session_state == NfcPollerSessionStateStopRequest) {
+        command = NfcCommandStop;
+    }
+
+    return command;
+}
+
+void nfc_poller_start_ex(NfcPoller* instance, NfcGenericCallbackEx callback, void* context) {
+    furi_assert(instance);
+    furi_assert(callback);
+    furi_assert(instance->session_state == NfcPollerSessionStateIdle);
+
+    instance->callback = callback;
+    instance->context = context;
+
+    NfcProtocol parent_protocol = nfc_protocol_get_parent(instance->protocol);
+    if(parent_protocol != NfcProtocolInvalid) {
+        NfcPollerListElement* iter = instance->list.head;
+        while(iter->protocol != parent_protocol) iter = iter->child;
+
+        iter->poller_api->set_callback(iter->poller, nfc_poller_start_ex_tail_callback, instance);
+    }
+
+    instance->session_state = NfcPollerSessionStateActive;
+    nfc_start(instance->nfc, nfc_poller_start_ex_head_callback, instance);
 }
 
 void nfc_poller_stop(NfcPoller* instance) {
