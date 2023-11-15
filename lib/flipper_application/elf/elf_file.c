@@ -101,7 +101,7 @@ static bool elf_read_string_from_offset(ELFFile* elf, off_t offset, FuriString* 
         buffer[ELF_NAME_BUFFER_LEN] = 0;
 
         while(true) {
-            uint16_t read = storage_file_read(elf->fd, buffer, ELF_NAME_BUFFER_LEN);
+            size_t read = storage_file_read(elf->fd, buffer, ELF_NAME_BUFFER_LEN);
             furi_string_cat(name, buffer);
             if(strlen(buffer) < ELF_NAME_BUFFER_LEN) {
                 result = true;

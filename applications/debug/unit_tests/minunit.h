@@ -81,6 +81,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
 
 void minunit_print_progress(void);
 void minunit_print_fail(const char* error);
+void minunit_printf_warning(const char* format, ...);
 
 /*  Definitions */
 #define MU_TEST(method_name) static void method_name(void)
@@ -149,6 +150,10 @@ void minunit_print_fail(const char* error);
                        minunit_end_real_timer - minunit_real_timer,                      \
                        minunit_end_proc_timer - minunit_proc_timer);)
 #define MU_EXIT_CODE minunit_fail
+
+/* Warnings */
+#define mu_warn(message) \
+    MU__SAFE_BLOCK(minunit_printf_warning("%s:%d: %s", __FILE__, __LINE__, message);)
 
 /*  Assertions */
 #define mu_check(test)                       \

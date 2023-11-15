@@ -78,6 +78,16 @@ void minunit_print_fail(const char* str) {
     printf(_FURI_LOG_CLR_E "%s\r\n" _FURI_LOG_CLR_RESET, str);
 }
 
+void minunit_printf_warning(const char* format, ...) {
+    FuriString* str = furi_string_alloc();
+    va_list args;
+    va_start(args, format);
+    furi_string_vprintf(str, format, args);
+    va_end(args);
+    printf(_FURI_LOG_CLR_W "%s\r\n" _FURI_LOG_CLR_RESET, furi_string_get_cstr(str));
+    furi_string_free(str);
+}
+
 void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(args);

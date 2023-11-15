@@ -5,13 +5,13 @@ bool md5_calc_file(File* file, const char* path, unsigned char output[16], FS_Er
     bool result = storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING);
 
     if(result) {
-        const uint16_t size_to_read = 512;
+        const size_t size_to_read = 512;
         uint8_t* data = malloc(size_to_read);
         md5_context* md5_ctx = malloc(sizeof(md5_context));
 
         md5_starts(md5_ctx);
         while(true) {
-            uint16_t read_size = storage_file_read(file, data, size_to_read);
+            size_t read_size = storage_file_read(file, data, size_to_read);
             if(read_size == 0) break;
             md5_update(md5_ctx, data, read_size);
         }

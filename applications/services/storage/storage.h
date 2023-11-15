@@ -123,7 +123,7 @@ bool storage_file_is_dir(File* file);
  * @param bytes_to_read number of bytes to read. Must be less than or equal to the size of the buffer.
  * @return actual number of bytes read (may be fewer than requested).
  */
-uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read);
+size_t storage_file_read(File* file, void* buff, size_t bytes_to_read);
 
 /**
  * @brief Write bytes from a buffer to a file.
@@ -133,7 +133,7 @@ uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read);
  * @param bytes_to_write number of bytes to write. Must be less than or equal to the size of the buffer.
  * @return actual number of bytes written (may be fewer than requested).
  */
-uint16_t storage_file_write(File* file, const void* buff, uint16_t bytes_to_write);
+size_t storage_file_write(File* file, const void* buff, size_t bytes_to_write);
 
 /**
  * @brief Change the current access position in a file.
@@ -207,7 +207,7 @@ bool storage_file_exists(Storage* storage, const char* path);
  * @param size data size to be copied, in bytes.
  * @return true if the data was successfully copied, false otherwise.
  */
-bool storage_file_copy_to_file(File* source, File* destination, uint32_t size);
+bool storage_file_copy_to_file(File* source, File* destination, size_t size);
 
 /******************* Directory Functions *******************/
 
