@@ -26,7 +26,7 @@ bool ibutton_scene_rpc_on_event(void* context, SceneManagerEvent event) {
         if(event.event == iButtonCustomEventRpcLoadFile) {
             bool result = false;
 
-            if(ibutton_load_key(ibutton)) {
+            if(ibutton_load_key(ibutton, false)) {
                 popup_set_text(popup, ibutton->key_name, 82, 32, AlignCenter, AlignTop);
                 view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
 
