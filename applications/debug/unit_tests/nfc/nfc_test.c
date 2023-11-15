@@ -203,10 +203,21 @@ static void mf_ultralight_reader_test(const char* path) {
     NfcDevice* nfc_device = nfc_device_alloc();
     mu_assert(nfc_device_load(nfc_device, path), "nfc_device_load() failed\r\n");
 
-    NfcListener* mfu_listener = nfc_listener_alloc(
-        listener,
-        NfcProtocolMfUltralight,
-        nfc_device_get_data(nfc_device, NfcProtocolMfUltralight));
+    MfUltralightData* data =
+        (MfUltralightData*)nfc_device_get_data(nfc_device, NfcProtocolMfUltralight);
+
+    uint32_t features = mf_ultralight_get_feature_support_set(data->type);
+    bool pwd_supported =
+        mf_ultralight_support_feature(features, MfUltralightFeatureSupportPasswordAuth);
+    uint8_t pwd_num = mf_ultralight_get_pwd_page_num(data->type);
+    const uint8_t zero_pwd[4] = {0, 0, 0, 0};
+
+    if(pwd_supported && !memcmp(data->page[pwd_num].data, zero_pwd, sizeof(zero_pwd))) {
+        data->pages_read -= 2;
+    }
+
+    NfcListener* mfu_listener = nfc_listener_alloc(listener, NfcProtocolMfUltralight, data);
+
     nfc_listener_start(mfu_listener, NULL, NULL);
 
     MfUltralightData* mfu_data = mf_ultralight_alloc();
