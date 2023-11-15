@@ -3,7 +3,6 @@ App(
     name="Vibro Test",
     apptype=FlipperAppType.DEBUG,
     entry_point="vibro_test_app",
-    cdefines=["APP_VIBRO_TEST"],
     requires=["gui"],
     stack_size=1 * 1024,
     order=20,

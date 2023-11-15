@@ -27,6 +27,8 @@ variables_to_forward = [
     "PYTHONNOUSERSITE",
     "TMP",
     "TEMP",
+    # ccache
+    "CCACHE_DISABLE",
     # Colors for tools
     "TERM",
 ]
@@ -62,7 +64,7 @@ coreenv = VAR_ENV.Clone(
     # Setting up temp file parameters - to overcome command line length limits
     TEMPFILEARGESCFUNC=tempfile_arg_esc_func,
     ROOT_DIR=Dir("#"),
-    FBT_SCRIPT_DIR="${ROOT_DIR}/scripts",
+    FBT_SCRIPT_DIR=Dir("#/scripts"),
 )
 
 # If DIST_SUFFIX is set in environment, is has precedence (set by CI)

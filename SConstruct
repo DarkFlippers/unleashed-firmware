@@ -172,17 +172,19 @@ Alias("fap_dist", fap_dist)
 
 fap_deploy = distenv.PhonyTarget(
     "fap_deploy",
-    [
+    Action(
         [
-            "${PYTHON3}",
-            "${FBT_SCRIPT_DIR}/storage.py",
-            "-p",
-            "${FLIP_PORT}",
-            "send",
-            "${SOURCE}",
-            "/ext/apps",
+            [
+                "${PYTHON3}",
+                "${FBT_SCRIPT_DIR}/storage.py",
+                "-p",
+                "${FLIP_PORT}",
+                "send",
+                "${SOURCE}",
+                "/ext/apps",
+            ]
         ]
-    ],
+    ),
     source=firmware_env.Dir(("${RESOURCES_ROOT}/apps")),
 )
 Depends(fap_deploy, firmware_env["FW_RESOURCES_MANIFEST"])
@@ -261,7 +263,7 @@ distenv.PhonyTarget(
 distenv.PhonyTarget(
     "debug_other_blackmagic",
     "${GDBPYCOM}",
-    GDBOPTS="${GDBOPTS_BASE}  ${GDBOPTS_BLACKMAGIC}",
+    GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
     GDBREMOTE="${BLACKMAGIC_ADDR}",
     GDBPYOPTS=debug_other_opts,
 )
@@ -276,13 +278,13 @@ distenv.PhonyTarget(
 # Linter
 distenv.PhonyTarget(
     "lint",
-    "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py check ${LINT_SOURCES}",
+    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "check", "${LINT_SOURCES}"]],
     LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
 distenv.PhonyTarget(
     "format",
-    "${PYTHON3} ${FBT_SCRIPT_DIR}/lint.py format ${LINT_SOURCES}",
+    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "format", "${LINT_SOURCES}"]],
     LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
@@ -323,10 +325,14 @@ distenv.PhonyTarget(
 )
 
 # Start Flipper CLI via PySerial's miniterm
-distenv.PhonyTarget("cli", "${PYTHON3} ${FBT_SCRIPT_DIR}/serial_cli.py -p ${FLIP_PORT}")
+distenv.PhonyTarget(
+    "cli", [["${PYTHON3}", "${FBT_SCRIPT_DIR}/serial_cli.py", "-p", "${FLIP_PORT}"]]
+)
 
 # Update WiFi devboard firmware
-distenv.PhonyTarget("devboard_flash", "${PYTHON3} ${FBT_SCRIPT_DIR}/wifi_board.py")
+distenv.PhonyTarget(
+    "devboard_flash", [["${PYTHON3}", "${FBT_SCRIPT_DIR}/wifi_board.py"]]
+)
 
 
 # Find blackmagic probe
@@ -361,5 +367,5 @@ distenv.Alias("vscode_dist", vscode_dist)
 # Configure shell with build tools
 distenv.PhonyTarget(
     "env",
-    "@echo $( ${FBT_SCRIPT_DIR}/toolchain/fbtenv.sh $)",
+    "@echo $( ${FBT_SCRIPT_DIR.abspath}/toolchain/fbtenv.sh $)",
 )

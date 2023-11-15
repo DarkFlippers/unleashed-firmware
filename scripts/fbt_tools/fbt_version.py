@@ -19,10 +19,22 @@ def generate(env):
         BUILDERS={
             "VersionBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${VERSION_SCRIPT}" generate '
-                    "-t ${TARGET_HW} -fw-origin ${FIRMWARE_ORIGIN} "
-                    '-o ${TARGET.dir.posix} --dir "${ROOT_DIR}"',
-                    "${VERSIONCOMSTR}",
+                    [
+                        [
+                            "${PYTHON3}",
+                            "${VERSION_SCRIPT}",
+                            "generate",
+                            "-t",
+                            "${TARGET_HW}",
+                            "--fw-origin",
+                            "${FIRMWARE_ORIGIN}",
+                            "-o",
+                            "${TARGET.dir.posix}",
+                            "--dir",
+                            "${ROOT_DIR}",
+                            "${VERSIONCOMSTR}",
+                        ]
+                    ]
                 ),
                 emitter=_version_emitter,
             ),

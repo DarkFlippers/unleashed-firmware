@@ -3,7 +3,6 @@ App(
     name="UART Echo",
     apptype=FlipperAppType.DEBUG,
     entry_point="uart_echo_app",
-    cdefines=["APP_UART_ECHO"],
     requires=["gui"],
     stack_size=2 * 1024,
     order=70,

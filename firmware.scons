@@ -219,7 +219,7 @@ AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
 AddPostAction(
     fwelf,
     Action(
-        '${PYTHON3} "${BIN_SIZE_SCRIPT}" elf ${TARGET}',
+        [["${PYTHON3}", "${BIN_SIZE_SCRIPT}", "elf", "${TARGET}"]],
         "Firmware size",
     ),
 )
@@ -229,7 +229,7 @@ fwhex = fwenv["FW_HEX"] = fwenv.HEXBuilder("${FIRMWARE_BUILD_CFG}")
 fwbin = fwenv["FW_BIN"] = fwenv.BINBuilder("${FIRMWARE_BUILD_CFG}")
 AddPostAction(
     fwbin,
-    Action('@${PYTHON3} "${BIN_SIZE_SCRIPT}" bin ${TARGET}'),
+    Action([["@${PYTHON3}", "${BIN_SIZE_SCRIPT}", "bin", "${TARGET}"]]),
 )
 
 fwdfu = fwenv["FW_DFU"] = fwenv.DFUBuilder("${FIRMWARE_BUILD_CFG}")

@@ -6,13 +6,12 @@ def generate(env):
     env.SetDefault(
         OBJDUMP="objdump",
         OBJDUMPFLAGS=[],
-        OBJDUMPCOM="$OBJDUMP $OBJDUMPFLAGS -S $SOURCES > $TARGET",
     )
     env.Append(
         BUILDERS={
             "ObjDump": Builder(
                 action=Action(
-                    "${OBJDUMPCOM}",
+                    [["$OBJDUMP", "$OBJDUMPFLAGS", "-S", "$SOURCES", ">", "$TARGET"]],
                     "${OBJDUMPCOMSTR}",
                 ),
                 suffix=".lst",

@@ -3,7 +3,6 @@ App(
     name="CCID Debug",
     apptype=FlipperAppType.DEBUG,
     entry_point="ccid_test_app",
-    cdefines=["CCID_TEST"],
     requires=[
         "gui",
     ],

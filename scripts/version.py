@@ -101,7 +101,7 @@ class Main(App):
             required=True,
         )
         self.parser_generate.add_argument(
-            "-fw-origin",
+            "--fw-origin",
             dest="firmware_origin",
             type=str,
             help="firmware origin",
