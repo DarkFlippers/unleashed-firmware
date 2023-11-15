@@ -431,17 +431,22 @@ FS_Error storage_common_rename(Storage* storage, const char* old_path, const cha
         }
 
         if(storage_dir_exists(storage, old_path)) {
-            FuriString* dir_path = furi_string_alloc_set_str(old_path);
-            if(!furi_string_end_with_str(dir_path, "/")) {
-                furi_string_cat_str(dir_path, "/");
-            }
-            const char* dir_path_s = furi_string_get_cstr(dir_path);
-            if(strncmp(new_path, dir_path_s, strlen(dir_path_s)) == 0) {
+            // Cannot overwrite a file with a directory
+            if(storage_file_exists(storage, new_path)) {
                 error = FSE_INVALID_NAME;
-                furi_string_free(dir_path);
                 break;
             }
-            furi_string_free(dir_path);
+
+            // Cannot rename a directory to itself or to a nested directory
+            if(storage_common_equivalent_path(storage, old_path, new_path, true)) {
+                error = FSE_INVALID_NAME;
+                break;
+            }
+
+            // Renaming a regular file to itself does nothing and always succeeds
+        } else if(storage_common_equivalent_path(storage, old_path, new_path, false)) {
+            error = FSE_OK;
+            break;
         }
 
         if(storage_file_exists(storage, new_path)) {
@@ -740,6 +745,27 @@ FS_Error storage_common_migrate(Storage* storage, const char* source, const char
 bool storage_common_exists(Storage* storage, const char* path) {
     FileInfo file_info;
     return storage_common_stat(storage, path, &file_info) == FSE_OK;
+}
+
+bool storage_common_equivalent_path(
+    Storage* storage,
+    const char* path1,
+    const char* path2,
+    bool truncate) {
+    S_API_PROLOGUE;
+
+    SAData data = {
+        .cequivpath = {
+            .path1 = path1,
+            .path2 = path2,
+            .truncate = truncate,
+            .thread_id = furi_thread_get_current_id(),
+        }};
+
+    S_API_MESSAGE(StorageCommandCommonEquivalentPath);
+    S_API_EPILOGUE;
+
+    return S_RETURN_BOOL;
 }
 
 /****************** ERROR ******************/
