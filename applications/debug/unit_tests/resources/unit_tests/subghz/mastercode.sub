@@ -1,0 +1,7 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok270Async
+Protocol: Mastercode
+Bit: 36
+Key: 00 00 00 0B 7E 00 3C 08
