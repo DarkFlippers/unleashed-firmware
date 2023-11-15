@@ -4,6 +4,7 @@
 #include <furi_hal_version.h>
 #include <furi_hal_rtc.h>
 #include <furi_hal_spi.h>
+#include <furi_hal_cortex.h>
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
 #include <furi_hal_bus.h>
@@ -29,7 +30,7 @@ static uint32_t furi_hal_subghz_debug_gpio_buff[2];
 /** SubGhz state */
 typedef enum {
     SubGhzStateInit, /**< Init pending */
-
+    SubGhzStateBroken, /**< Chip power-on self test failed */
     SubGhzStateIdle, /**< Idle, energy save mode */
 
     SubGhzStateAsyncRx, /**< Async RX started */
@@ -69,46 +70,67 @@ const GpioPin* furi_hal_subghz_get_data_gpio() {
 
 void furi_hal_subghz_init() {
     furi_assert(furi_hal_subghz.state == SubGhzStateInit);
-    furi_hal_subghz.state = SubGhzStateIdle;
+    furi_hal_subghz.state = SubGhzStateBroken;
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-
+    do {
 #ifdef FURI_HAL_SUBGHZ_TX_GPIO
-    furi_hal_gpio_init(&FURI_HAL_SUBGHZ_TX_GPIO, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+        furi_hal_gpio_init(
+            &FURI_HAL_SUBGHZ_TX_GPIO, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
 #endif
 
-    // Reset
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    cc1101_reset(&furi_hal_spi_bus_handle_subghz);
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+        // Reset
+        furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+        cc1101_reset(&furi_hal_spi_bus_handle_subghz);
+        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHighImpedance);
 
-    // Prepare GD0 for power on self test
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+        // Prepare GD0 for power on self test
+        furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
-    // GD0 low
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW);
-    while(furi_hal_gpio_read(&gpio_cc1101_g0) != false)
-        ;
+        // GD0 low
+        FuriHalCortexTimer timeout = furi_hal_cortex_timer_get(10000);
+        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW);
+        while(furi_hal_gpio_read(&gpio_cc1101_g0) != false &&
+              !furi_hal_cortex_timer_is_expired(timeout))
+            ;
 
-    // GD0 high
-    cc1101_write_reg(
-        &furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
-    while(furi_hal_gpio_read(&gpio_cc1101_g0) != true)
-        ;
+        if(furi_hal_gpio_read(&gpio_cc1101_g0) != false) {
+            break;
+        }
 
-    // Reset GD0 to floating state
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHighImpedance);
-    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+        // GD0 high
+        timeout = furi_hal_cortex_timer_get(10000);
+        cc1101_write_reg(
+            &furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
+        while(furi_hal_gpio_read(&gpio_cc1101_g0) != true &&
+              !furi_hal_cortex_timer_is_expired(timeout))
+            ;
 
-    // RF switches
-    furi_hal_gpio_init(&gpio_rf_sw_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW);
+        if(furi_hal_gpio_read(&gpio_cc1101_g0) != true) {
+            break;
+        }
 
-    // Go to sleep
-    cc1101_shutdown(&furi_hal_spi_bus_handle_subghz);
+        // Reset GD0 to floating state
+        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+        furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+        // RF switches
+        furi_hal_gpio_init(&gpio_rf_sw_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW);
+
+        // Go to sleep
+        cc1101_shutdown(&furi_hal_spi_bus_handle_subghz);
+
+        furi_hal_subghz.state = SubGhzStateIdle;
+    } while(false);
 
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
-    FURI_LOG_I(TAG, "Init OK");
+
+    if(furi_hal_subghz.state == SubGhzStateIdle) {
+        FURI_LOG_I(TAG, "Init OK");
+    } else {
+        FURI_LOG_E(TAG, "Init Fail");
+    }
 }
 
 void furi_hal_subghz_sleep() {

@@ -33,6 +33,9 @@ void furi_timer_free(FuriTimer* instance);
 
 /** Start timer
  *
+ * @warning    This is asynchronous call, real operation will happen as soon as
+ *             timer service process this request.
+ *
  * @param      instance  The pointer to FuriTimer instance
  * @param[in]  ticks     The interval in ticks
  *
@@ -41,6 +44,9 @@ void furi_timer_free(FuriTimer* instance);
 FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks);
 
 /** Restart timer with previous timeout value
+ *
+ * @warning    This is asynchronous call, real operation will happen as soon as
+ *             timer service process this request.
  *
  * @param      instance  The pointer to FuriTimer instance
  * @param[in]  ticks     The interval in ticks
@@ -51,6 +57,9 @@ FuriStatus furi_timer_restart(FuriTimer* instance, uint32_t ticks);
 
 /** Stop timer
  *
+ * @warning    This is asynchronous call, real operation will happen as soon as
+ *             timer service process this request.
+ *
  * @param      instance  The pointer to FuriTimer instance
  *
  * @return     The furi status.
@@ -58,6 +67,10 @@ FuriStatus furi_timer_restart(FuriTimer* instance, uint32_t ticks);
 FuriStatus furi_timer_stop(FuriTimer* instance);
 
 /** Is timer running
+ *
+ * @warning    This cal may and will return obsolete timer state if timer
+ *             commands are still in the queue. Please read FreeRTOS timer
+ *             documentation first.
  *
  * @param      instance  The pointer to FuriTimer instance
  *
