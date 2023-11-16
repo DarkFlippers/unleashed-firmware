@@ -46,6 +46,8 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
+      - mkdir -p applications/main/clock_app/resources/apps
+      - mkdir -p applications/main/clock_app/resources/apps_data
       - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
       - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
       - rm -rf base_pack_build
@@ -66,6 +68,7 @@ steps:
     commands:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
       - tar zxvf all-the-apps-extra.tgz
+      - mkdir -p applications/main/clock_app/resources/apps
       - cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
       - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_TAG}e
@@ -118,6 +121,8 @@ steps:
       - ./fbt COMPACT=1 DEBUG=0 updater_package
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
+      - mkdir -p applications/main/clock_app/resources/apps
+      - mkdir -p applications/main/clock_app/resources/apps_data
       - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
       - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
       - rm -rf base_pack_build
@@ -421,6 +426,8 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxvf all-the-apps-base.tgz
+      - mkdir -p applications/main/clock_app/resources/apps
+      - mkdir -p applications/main/clock_app/resources/apps_data
       - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
       - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
       - rm -rf base_pack_build
@@ -441,6 +448,7 @@ steps:
     commands:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
       - tar zxvf all-the-apps-extra.tgz
+      - mkdir -p applications/main/clock_app/resources/apps
       - cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
       - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
