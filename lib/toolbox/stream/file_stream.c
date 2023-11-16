@@ -134,31 +134,11 @@ static size_t file_stream_size(FileStream* stream) {
 }
 
 static size_t file_stream_write(FileStream* stream, const uint8_t* data, size_t size) {
-    // TODO FL-3545: cache
-    size_t need_to_write = size;
-    while(need_to_write > 0) {
-        uint16_t was_written =
-            storage_file_write(stream->file, data + (size - need_to_write), need_to_write);
-        need_to_write -= was_written;
-
-        if(was_written == 0) break;
-    }
-
-    return size - need_to_write;
+    return storage_file_write(stream->file, data, size);
 }
 
 static size_t file_stream_read(FileStream* stream, uint8_t* data, size_t size) {
-    // TODO FL-3545: cache
-    size_t need_to_read = size;
-    while(need_to_read > 0) {
-        uint16_t was_read =
-            storage_file_read(stream->file, data + (size - need_to_read), need_to_read);
-        need_to_read -= was_read;
-
-        if(was_read == 0) break;
-    }
-
-    return size - need_to_read;
+    return storage_file_read(stream->file, data, size);
 }
 
 static bool file_stream_delete_and_insert(

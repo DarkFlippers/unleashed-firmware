@@ -32,7 +32,7 @@ SlixError slix_poller_send_frame(
     return slix_process_iso15693_3_error(iso15693_3_error);
 }
 
-SlixError slix_poller_async_get_nxp_system_info(SlixPoller* instance, SlixSystemInfo* data) {
+SlixError slix_poller_get_nxp_system_info(SlixPoller* instance, SlixSystemInfo* data) {
     furi_assert(instance);
     furi_assert(data);
 
@@ -50,7 +50,7 @@ SlixError slix_poller_async_get_nxp_system_info(SlixPoller* instance, SlixSystem
     return error;
 }
 
-SlixError slix_poller_async_read_signature(SlixPoller* instance, SlixSignature* data) {
+SlixError slix_poller_read_signature(SlixPoller* instance, SlixSignature* data) {
     furi_assert(instance);
     furi_assert(data);
 

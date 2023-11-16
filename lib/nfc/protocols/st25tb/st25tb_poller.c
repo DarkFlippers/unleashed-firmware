@@ -71,7 +71,7 @@ static NfcCommand st25tb_poller_run(NfcGenericEvent event, void* context) {
 
     if(nfc_event->type == NfcEventTypePollerReady) {
         if(instance->state != St25tbPollerStateActivated) {
-            St25tbError error = st25tb_poller_async_activate(instance, instance->data);
+            St25tbError error = st25tb_poller_activate(instance, instance->data);
 
             if(error == St25tbErrorNone) {
                 instance->st25tb_event.type = St25tbPollerEventTypeReady;
@@ -106,7 +106,7 @@ static bool st25tb_poller_detect(NfcGenericEvent event, void* context) {
     furi_assert(instance->state == St25tbPollerStateIdle);
 
     if(nfc_event->type == NfcEventTypePollerReady) {
-        St25tbError error = st25tb_poller_async_initiate(instance, NULL);
+        St25tbError error = st25tb_poller_initiate(instance, NULL);
         protocol_detected = (error == St25tbErrorNone);
     }
 

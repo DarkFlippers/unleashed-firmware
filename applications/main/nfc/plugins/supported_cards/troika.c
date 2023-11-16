@@ -4,7 +4,7 @@
 
 #include <nfc/nfc_device.h>
 #include <nfc/helpers/nfc_util.h>
-#include <nfc/protocols/mf_classic/mf_classic_poller_sync_api.h>
+#include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #define TAG "Troika"
 
@@ -91,7 +91,7 @@ static bool troika_verify_type(Nfc* nfc, MfClassicType type) {
 
         MfClassicAuthContext auth_context;
         MfClassicError error =
-            mf_classic_poller_auth(nfc, block_num, &key, MfClassicKeyTypeA, &auth_context);
+            mf_classic_poller_sync_auth(nfc, block_num, &key, MfClassicKeyTypeA, &auth_context);
         if(error != MfClassicErrorNone) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
@@ -118,7 +118,7 @@ static bool troika_read(Nfc* nfc, NfcDevice* device) {
 
     do {
         MfClassicType type = MfClassicTypeMini;
-        MfClassicError error = mf_classic_poller_detect_type(nfc, &type);
+        MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
 
         data->type = type;
@@ -136,7 +136,7 @@ static bool troika_read(Nfc* nfc, NfcDevice* device) {
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
-        error = mf_classic_poller_read(nfc, &keys, data);
+        error = mf_classic_poller_sync_read(nfc, &keys, data);
         if(error != MfClassicErrorNone) {
             FURI_LOG_W(TAG, "Failed to read data");
             break;

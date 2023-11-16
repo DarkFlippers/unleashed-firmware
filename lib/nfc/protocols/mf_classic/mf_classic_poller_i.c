@@ -33,7 +33,7 @@ MfClassicError mf_classic_process_error(Iso14443_3aError error) {
     return ret;
 }
 
-MfClassicError mf_classic_async_get_nt(
+MfClassicError mf_classic_poller_get_nt(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKeyType key_type,
@@ -69,7 +69,7 @@ MfClassicError mf_classic_async_get_nt(
     return ret;
 }
 
-MfClassicError mf_classic_async_auth(
+MfClassicError mf_classic_poller_auth(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKey* key,
@@ -84,7 +84,7 @@ MfClassicError mf_classic_async_auth(
             iso14443_3a_poller_get_data(instance->iso14443_3a_poller));
 
         MfClassicNt nt = {};
-        ret = mf_classic_async_get_nt(instance, block_num, key_type, &nt);
+        ret = mf_classic_poller_get_nt(instance, block_num, key_type, &nt);
         if(ret != MfClassicErrorNone) break;
         if(data) {
             data->nt = nt;
@@ -130,7 +130,7 @@ MfClassicError mf_classic_async_auth(
     return ret;
 }
 
-MfClassicError mf_classic_async_halt(MfClassicPoller* instance) {
+MfClassicError mf_classic_poller_halt(MfClassicPoller* instance) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -158,7 +158,7 @@ MfClassicError mf_classic_async_halt(MfClassicPoller* instance) {
     return ret;
 }
 
-MfClassicError mf_classic_async_read_block(
+MfClassicError mf_classic_poller_read_block(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicBlock* data) {
@@ -204,7 +204,7 @@ MfClassicError mf_classic_async_read_block(
     return ret;
 }
 
-MfClassicError mf_classic_async_write_block(
+MfClassicError mf_classic_poller_write_block(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicBlock* data) {
@@ -275,7 +275,7 @@ MfClassicError mf_classic_async_write_block(
     return ret;
 }
 
-MfClassicError mf_classic_async_value_cmd(
+MfClassicError mf_classic_poller_value_cmd(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicValueCommand cmd,
@@ -345,7 +345,7 @@ MfClassicError mf_classic_async_value_cmd(
     return ret;
 }
 
-MfClassicError mf_classic_async_value_transfer(MfClassicPoller* instance, uint8_t block_num) {
+MfClassicError mf_classic_poller_value_transfer(MfClassicPoller* instance, uint8_t block_num) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 

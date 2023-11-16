@@ -104,7 +104,7 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
 
     update_task_set_progress(update_task, UpdateTaskStageRadioWrite, 0);
     uint8_t* fw_block = malloc(FLASH_PAGE_SIZE);
-    uint16_t bytes_read = 0;
+    size_t bytes_read = 0;
     uint32_t element_offs = 0;
 
     while(element_offs < stack_size) {

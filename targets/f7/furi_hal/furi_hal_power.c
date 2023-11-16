@@ -71,12 +71,37 @@ void furi_hal_power_init() {
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     // Find and init gauge
-    if(bq27220_init(&furi_hal_i2c_handle_power)) {
-        furi_hal_power.gauge_ok = bq27220_apply_data_memory(
-            &furi_hal_i2c_handle_power, furi_hal_power_gauge_data_memory);
+    size_t retry = 2;
+    while(retry > 0) {
+        furi_hal_power.gauge_ok = bq27220_init(&furi_hal_i2c_handle_power);
+        if(furi_hal_power.gauge_ok) {
+            furi_hal_power.gauge_ok = bq27220_apply_data_memory(
+                &furi_hal_i2c_handle_power, furi_hal_power_gauge_data_memory);
+        }
+        if(furi_hal_power.gauge_ok) {
+            break;
+        } else {
+            // Normal startup time is 250ms
+            // But if we try to access gauge at that stage it will become unresponsive
+            // 2 seconds timeout needed to restart communication
+            furi_delay_us(2020202);
+        }
+        retry--;
     }
     // Find and init charger
-    furi_hal_power.charger_ok = bq25896_init(&furi_hal_i2c_handle_power);
+    retry = 2;
+    while(retry > 0) {
+        furi_hal_power.charger_ok = bq25896_init(&furi_hal_i2c_handle_power);
+        if(furi_hal_power.charger_ok) {
+            break;
+        } else {
+            // Most likely I2C communication error
+            // 2 seconds should be enough for all chips on the line to timeout
+            // Also timing out here is very abnormal
+            furi_delay_us(2020202);
+        }
+        retry--;
+    }
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
     FURI_LOG_I(TAG, "Init OK");

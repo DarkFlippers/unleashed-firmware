@@ -101,7 +101,7 @@ void furi_hal_flash_init() {
     // WRITE_REG(FLASH->SR, FLASH_SR_OPTVERR);
     /* Actually, reset all error flags on start */
     if(READ_BIT(FLASH->SR, FURI_HAL_FLASH_SR_ERRORS)) {
-        FURI_LOG_E(TAG, "FLASH->SR 0x%08lX", FLASH->SR);
+        FURI_LOG_W(TAG, "FLASH->SR 0x%08lX(Known ERRATA)", FLASH->SR);
         WRITE_REG(FLASH->SR, FURI_HAL_FLASH_SR_ERRORS);
     }
 }

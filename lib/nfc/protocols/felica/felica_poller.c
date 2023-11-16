@@ -66,7 +66,7 @@ static NfcCommand felica_poller_run(NfcGenericEvent event, void* context) {
 
     if(nfc_event->type == NfcEventTypePollerReady) {
         if(instance->state != FelicaPollerStateActivated) {
-            FelicaError error = felica_poller_async_activate(instance, instance->data);
+            FelicaError error = felica_poller_activate(instance, instance->data);
             if(error == FelicaErrorNone) {
                 instance->felica_event.type = FelicaPollerEventTypeReady;
                 instance->felica_event_data.error = error;
@@ -100,7 +100,7 @@ static bool felica_poller_detect(NfcGenericEvent event, void* context) {
     furi_assert(instance->state == FelicaPollerStateIdle);
 
     if(nfc_event->type == NfcEventTypePollerReady) {
-        FelicaError error = felica_poller_async_activate(instance, instance->data);
+        FelicaError error = felica_poller_activate(instance, instance->data);
         protocol_detected = (error == FelicaErrorNone);
     }
 

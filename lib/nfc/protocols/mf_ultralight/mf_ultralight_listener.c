@@ -122,7 +122,7 @@ static MfUltralightCommand
     uint16_t pages_total = instance->data->pages_total;
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_D(TAG, "CMD_READ: %d", start_page);
+    FURI_LOG_T(TAG, "CMD_READ: %d", start_page);
 
     do {
         bool do_i2c_check = mf_ultralight_is_i2c_tag(instance->data->type);
@@ -154,7 +154,7 @@ static MfUltralightCommand
 static MfUltralightCommand
     mf_ultralight_listener_fast_read_handler(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
-    FURI_LOG_D(TAG, "CMD_FAST_READ");
+    FURI_LOG_T(TAG, "CMD_FAST_READ");
 
     do {
         if(!mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportFastRead))
@@ -206,7 +206,7 @@ static MfUltralightCommand
     uint16_t pages_total = instance->data->pages_total;
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_D(TAG, "CMD_WRITE");
+    FURI_LOG_T(TAG, "CMD_WRITE");
 
     do {
         bool do_i2c_check = mf_ultralight_is_i2c_tag(instance->data->type);
@@ -235,7 +235,7 @@ static MfUltralightCommand
 static MfUltralightCommand
     mf_ultralight_listener_fast_write_handler(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
-    FURI_LOG_D(TAG, "CMD_FAST_WRITE");
+    FURI_LOG_T(TAG, "CMD_FAST_WRITE");
 
     do {
         if(!mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportFastWrite))
@@ -261,7 +261,7 @@ static MfUltralightCommand
     UNUSED(buffer);
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
 
-    FURI_LOG_D(TAG, "CMD_GET_VERSION");
+    FURI_LOG_T(TAG, "CMD_GET_VERSION");
 
     if(mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportReadVersion)) {
         bit_buffer_copy_bytes(
@@ -280,7 +280,7 @@ static MfUltralightCommand mf_ultralight_listener_read_signature_handler(
     UNUSED(buffer);
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
 
-    FURI_LOG_D(TAG, "CMD_READ_SIG");
+    FURI_LOG_T(TAG, "CMD_READ_SIG");
 
     if(mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportReadSignature)) {
         bit_buffer_copy_bytes(
@@ -297,7 +297,7 @@ static MfUltralightCommand
     mf_ultralight_listener_read_counter_handler(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_D(TAG, "CMD_READ_CNT");
+    FURI_LOG_T(TAG, "CMD_READ_CNT");
 
     do {
         uint8_t counter_num = bit_buffer_get_byte(buffer, 1);
@@ -338,7 +338,7 @@ static MfUltralightCommand mf_ultralight_listener_increase_counter_handler(
     BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_D(TAG, "CMD_INCR_CNT");
+    FURI_LOG_T(TAG, "CMD_INCR_CNT");
 
     do {
         if(!mf_ultralight_support_feature(
@@ -374,7 +374,7 @@ static MfUltralightCommand mf_ultralight_listener_check_tearing_handler(
     BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_D(TAG, "CMD_CHECK_TEARING");
+    FURI_LOG_T(TAG, "CMD_CHECK_TEARING");
 
     do {
         uint8_t tearing_flag_num = bit_buffer_get_byte(buffer, 1);
@@ -410,7 +410,7 @@ static MfUltralightCommand
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
     UNUSED(instance);
     UNUSED(buffer);
-    FURI_LOG_D(TAG, "CMD_VCSL");
+    FURI_LOG_T(TAG, "CMD_VCSL");
     do {
         if(!mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportVcsl))
             break;
@@ -432,7 +432,7 @@ static MfUltralightCommand
     mf_ultralight_listener_auth_handler(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_D(TAG, "CMD_AUTH");
+    FURI_LOG_T(TAG, "CMD_AUTH");
 
     do {
         if(!mf_ultralight_support_feature(
@@ -474,7 +474,7 @@ static MfUltralightCommand
 static MfUltralightCommand
     mf_ultralight_comp_write_handler_p2(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
-    FURI_LOG_D(TAG, "CMD_CM_WR_2");
+    FURI_LOG_T(TAG, "CMD_CM_WR_2");
 
     do {
         if(bit_buffer_get_size_bytes(buffer) != 16) break;
@@ -492,7 +492,7 @@ static MfUltralightCommand
     mf_ultralight_comp_write_handler_p1(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
 
-    FURI_LOG_D(TAG, "CMD_CM_WR_1");
+    FURI_LOG_T(TAG, "CMD_CM_WR_1");
 
     do {
         if(!mf_ultralight_support_feature(
@@ -532,7 +532,7 @@ static MfUltralightCommand
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
     UNUSED(instance);
     UNUSED(buffer);
-    FURI_LOG_D(TAG, "CMD_SEC_SEL_2");
+    FURI_LOG_T(TAG, "CMD_SEC_SEL_2");
 
     do {
         if(bit_buffer_get_size_bytes(buffer) != 4) break;
@@ -550,7 +550,7 @@ static MfUltralightCommand
     mf_ultralight_sector_select_handler_p1(MfUltralightListener* instance, BitBuffer* buffer) {
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
     UNUSED(buffer);
-    FURI_LOG_D(TAG, "CMD_SEC_SEL_1");
+    FURI_LOG_T(TAG, "CMD_SEC_SEL_1");
 
     do {
         if(!mf_ultralight_support_feature(

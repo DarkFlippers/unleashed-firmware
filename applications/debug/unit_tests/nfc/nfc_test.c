@@ -7,10 +7,10 @@
 #include <nfc/nfc_poller.h>
 #include <nfc/nfc_listener.h>
 #include <nfc/protocols/iso14443_3a/iso14443_3a.h>
-#include <nfc/protocols/iso14443_3a/iso14443_3a_poller_sync_api.h>
+#include <nfc/protocols/iso14443_3a/iso14443_3a_poller_sync.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
-#include <nfc/protocols/mf_ultralight/mf_ultralight_poller_sync_api.h>
-#include <nfc/protocols/mf_classic/mf_classic_poller_sync_api.h>
+#include <nfc/protocols/mf_ultralight/mf_ultralight_poller_sync.h>
+#include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #include <nfc/helpers/nfc_dict.h>
 #include <nfc/nfc.h>
@@ -182,8 +182,8 @@ MU_TEST(iso14443_3a_reader) {
 
     Iso14443_3aData iso14443_3a_poller_data = {};
     mu_assert(
-        iso14443_3a_poller_read(poller, &iso14443_3a_poller_data) == Iso14443_3aErrorNone,
-        "iso14443_3a_poller_read() failed");
+        iso14443_3a_poller_sync_read(poller, &iso14443_3a_poller_data) == Iso14443_3aErrorNone,
+        "iso14443_3a_poller_sync_read() failed");
 
     nfc_listener_stop(iso3_listener);
     mu_assert(
@@ -203,15 +203,26 @@ static void mf_ultralight_reader_test(const char* path) {
     NfcDevice* nfc_device = nfc_device_alloc();
     mu_assert(nfc_device_load(nfc_device, path), "nfc_device_load() failed\r\n");
 
-    NfcListener* mfu_listener = nfc_listener_alloc(
-        listener,
-        NfcProtocolMfUltralight,
-        nfc_device_get_data(nfc_device, NfcProtocolMfUltralight));
+    MfUltralightData* data =
+        (MfUltralightData*)nfc_device_get_data(nfc_device, NfcProtocolMfUltralight);
+
+    uint32_t features = mf_ultralight_get_feature_support_set(data->type);
+    bool pwd_supported =
+        mf_ultralight_support_feature(features, MfUltralightFeatureSupportPasswordAuth);
+    uint8_t pwd_num = mf_ultralight_get_pwd_page_num(data->type);
+    const uint8_t zero_pwd[4] = {0, 0, 0, 0};
+
+    if(pwd_supported && !memcmp(data->page[pwd_num].data, zero_pwd, sizeof(zero_pwd))) {
+        data->pages_read -= 2;
+    }
+
+    NfcListener* mfu_listener = nfc_listener_alloc(listener, NfcProtocolMfUltralight, data);
+
     nfc_listener_start(mfu_listener, NULL, NULL);
 
     MfUltralightData* mfu_data = mf_ultralight_alloc();
-    MfUltralightError error = mf_ultralight_poller_read_card(poller, mfu_data);
-    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_read_card() failed");
+    MfUltralightError error = mf_ultralight_poller_sync_read_card(poller, mfu_data);
+    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_sync_read_card() failed");
 
     nfc_listener_stop(mfu_listener);
     nfc_listener_free(mfu_listener);
@@ -259,8 +270,8 @@ MU_TEST(ntag_213_locked_reader) {
     nfc_listener_start(mfu_listener, NULL, NULL);
 
     MfUltralightData* mfu_data = mf_ultralight_alloc();
-    MfUltralightError error = mf_ultralight_poller_read_card(poller, mfu_data);
-    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_read_card() failed");
+    MfUltralightError error = mf_ultralight_poller_sync_read_card(poller, mfu_data);
+    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_sync_read_card() failed");
 
     nfc_listener_stop(mfu_listener);
     nfc_listener_free(mfu_listener);
@@ -297,8 +308,8 @@ static void mf_ultralight_write() {
     MfUltralightData* mfu_data = mf_ultralight_alloc();
 
     // Initial read
-    MfUltralightError error = mf_ultralight_poller_read_card(poller, mfu_data);
-    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_read_card() failed");
+    MfUltralightError error = mf_ultralight_poller_sync_read_card(poller, mfu_data);
+    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_sync_read_card() failed");
 
     mu_assert(
         mf_ultralight_is_equal(mfu_data, nfc_device_get_data(nfc_device, NfcProtocolMfUltralight)),
@@ -310,13 +321,13 @@ static void mf_ultralight_write() {
         FURI_LOG_D(TAG, "Writing page %d", i);
         furi_hal_random_fill_buf(page.data, sizeof(MfUltralightPage));
         mfu_data->page[i] = page;
-        error = mf_ultralight_poller_write_page(poller, i, &page);
-        mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_write_page() failed");
+        error = mf_ultralight_poller_sync_write_page(poller, i, &page);
+        mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_sync_write_page() failed");
     }
 
     // Verification read
-    error = mf_ultralight_poller_read_card(poller, mfu_data);
-    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_read_card() failed");
+    error = mf_ultralight_poller_sync_read_card(poller, mfu_data);
+    mu_assert(error == MfUltralightErrorNone, "mf_ultralight_poller_sync_read_card() failed");
 
     nfc_listener_stop(mfu_listener);
     const MfUltralightData* mfu_listener_data =
@@ -344,7 +355,7 @@ static void mf_classic_reader() {
     MfClassicBlock block = {};
     MfClassicKey key = {.data = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 
-    mf_classic_poller_read_block(poller, 0, &key, MfClassicKeyTypeA, &block);
+    mf_classic_poller_sync_read_block(poller, 0, &key, MfClassicKeyTypeA, &block);
 
     nfc_listener_stop(mfc_listener);
     nfc_listener_free(mfc_listener);
@@ -372,8 +383,8 @@ static void mf_classic_write() {
     furi_hal_random_fill_buf(block_write.data, sizeof(MfClassicBlock));
     MfClassicKey key = {.data = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 
-    mf_classic_poller_write_block(poller, 1, &key, MfClassicKeyTypeA, &block_write);
-    mf_classic_poller_read_block(poller, 1, &key, MfClassicKeyTypeA, &block_read);
+    mf_classic_poller_sync_write_block(poller, 1, &key, MfClassicKeyTypeA, &block_write);
+    mf_classic_poller_sync_read_block(poller, 1, &key, MfClassicKeyTypeA, &block_read);
 
     nfc_listener_stop(mfc_listener);
     nfc_listener_free(mfc_listener);
@@ -402,16 +413,18 @@ static void mf_classic_value_block() {
     mf_classic_value_to_block(value, 1, &block_write);
 
     MfClassicError error = MfClassicErrorNone;
-    error = mf_classic_poller_write_block(poller, 1, &key, MfClassicKeyTypeA, &block_write);
+    error = mf_classic_poller_sync_write_block(poller, 1, &key, MfClassicKeyTypeA, &block_write);
     mu_assert(error == MfClassicErrorNone, "Write failed");
 
     int32_t data = 200;
     int32_t new_value = 0;
-    error = mf_classic_poller_change_value(poller, 1, &key, MfClassicKeyTypeA, data, &new_value);
+    error =
+        mf_classic_poller_sync_change_value(poller, 1, &key, MfClassicKeyTypeA, data, &new_value);
     mu_assert(error == MfClassicErrorNone, "Value increment failed");
     mu_assert(new_value == value + data, "Value not match");
 
-    error = mf_classic_poller_change_value(poller, 1, &key, MfClassicKeyTypeA, -data, &new_value);
+    error =
+        mf_classic_poller_sync_change_value(poller, 1, &key, MfClassicKeyTypeA, -data, &new_value);
     mu_assert(error == MfClassicErrorNone, "Value decrement failed");
     mu_assert(new_value == value, "Value not match");
 

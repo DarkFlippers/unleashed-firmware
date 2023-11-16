@@ -85,7 +85,7 @@ bool update_operation_get_current_package_manifest_path(Storage* storage, FuriSt
                    upd_file, UPDATE_FILE_POINTER_FN, FSAM_READ, FSOM_OPEN_EXISTING)) {
                 break;
             }
-            uint16_t bytes_read =
+            size_t bytes_read =
                 storage_file_read(upd_file, manifest_name_buffer, UPDATE_MANIFEST_MAX_PATH_LEN);
             if((bytes_read == 0) || (bytes_read == UPDATE_MANIFEST_MAX_PATH_LEN)) {
                 break;

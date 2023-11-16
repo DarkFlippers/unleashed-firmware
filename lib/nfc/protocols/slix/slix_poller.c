@@ -50,8 +50,7 @@ static NfcCommand slix_poller_handler_idle(SlixPoller* instance) {
 }
 
 static NfcCommand slix_poller_handler_get_nfc_system_info(SlixPoller* instance) {
-    instance->error =
-        slix_poller_async_get_nxp_system_info(instance, &instance->data->system_info);
+    instance->error = slix_poller_get_nxp_system_info(instance, &instance->data->system_info);
     if(instance->error == SlixErrorNone) {
         instance->poller_state = SlixPollerStateReadSignature;
     } else {
@@ -62,7 +61,7 @@ static NfcCommand slix_poller_handler_get_nfc_system_info(SlixPoller* instance) 
 }
 
 static NfcCommand slix_poller_handler_read_signature(SlixPoller* instance) {
-    instance->error = slix_poller_async_read_signature(instance, &instance->data->signature);
+    instance->error = slix_poller_read_signature(instance, &instance->data->signature);
     if(instance->error == SlixErrorNone) {
         instance->poller_state = SlixPollerStateReady;
     } else {
@@ -141,7 +140,7 @@ static bool slix_poller_detect(NfcGenericEvent event, void* context) {
     if(iso15693_3_event->type == Iso15693_3PollerEventTypeReady) {
         if(slix_get_type(instance->data) < SlixTypeCount) {
             SlixSystemInfo system_info = {};
-            SlixError error = slix_poller_async_get_nxp_system_info(instance, &system_info);
+            SlixError error = slix_poller_get_nxp_system_info(instance, &system_info);
             protocol_detected = (error == SlixErrorNone);
         }
     }

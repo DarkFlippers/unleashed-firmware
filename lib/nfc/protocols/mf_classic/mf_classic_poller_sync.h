@@ -7,41 +7,41 @@
 extern "C" {
 #endif
 
-MfClassicError mf_classic_poller_collect_nt(
+MfClassicError mf_classic_poller_sync_collect_nt(
     Nfc* nfc,
     uint8_t block_num,
     MfClassicKeyType key_type,
     MfClassicNt* nt);
 
-MfClassicError mf_classic_poller_auth(
+MfClassicError mf_classic_poller_sync_auth(
     Nfc* nfc,
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicAuthContext* data);
 
-MfClassicError mf_classic_poller_read_block(
+MfClassicError mf_classic_poller_sync_read_block(
     Nfc* nfc,
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicBlock* data);
 
-MfClassicError mf_classic_poller_write_block(
+MfClassicError mf_classic_poller_sync_write_block(
     Nfc* nfc,
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicBlock* data);
 
-MfClassicError mf_classic_poller_read_value(
+MfClassicError mf_classic_poller_sync_read_value(
     Nfc* nfc,
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
     int32_t* value);
 
-MfClassicError mf_classic_poller_change_value(
+MfClassicError mf_classic_poller_sync_change_value(
     Nfc* nfc,
     uint8_t block_num,
     MfClassicKey* key,
@@ -49,10 +49,10 @@ MfClassicError mf_classic_poller_change_value(
     int32_t data,
     int32_t* new_value);
 
-MfClassicError mf_classic_poller_detect_type(Nfc* nfc, MfClassicType* type);
+MfClassicError mf_classic_poller_sync_detect_type(Nfc* nfc, MfClassicType* type);
 
 MfClassicError
-    mf_classic_poller_read(Nfc* nfc, const MfClassicDeviceKeys* keys, MfClassicData* data);
+    mf_classic_poller_sync_read(Nfc* nfc, const MfClassicDeviceKeys* keys, MfClassicData* data);
 
 #ifdef __cplusplus
 }

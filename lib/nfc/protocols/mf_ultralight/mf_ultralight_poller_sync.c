@@ -1,3 +1,4 @@
+#include "mf_ultralight_poller_sync.h"
 #include "mf_ultralight_poller_i.h"
 
 #include <nfc/nfc_poller.h>
@@ -31,40 +32,39 @@ typedef MfUltralightError (*MfUltralightPollerCmdHandler)(
 MfUltralightError mf_ultralight_poller_read_page_handler(
     MfUltralightPoller* poller,
     MfUltralightPollerContextData* data) {
-    return mf_ultralight_poller_async_read_page(
-        poller, data->read_cmd.start_page, &data->read_cmd.data);
+    return mf_ultralight_poller_read_page(poller, data->read_cmd.start_page, &data->read_cmd.data);
 }
 
 MfUltralightError mf_ultralight_poller_write_page_handler(
     MfUltralightPoller* poller,
     MfUltralightPollerContextData* data) {
-    return mf_ultralight_poller_async_write_page(
+    return mf_ultralight_poller_write_page(
         poller, data->write_cmd.page_to_write, &data->write_cmd.page);
 }
 
 MfUltralightError mf_ultralight_poller_read_version_handler(
     MfUltralightPoller* poller,
     MfUltralightPollerContextData* data) {
-    return mf_ultralight_poller_async_read_version(poller, &data->version);
+    return mf_ultralight_poller_read_version(poller, &data->version);
 }
 
 MfUltralightError mf_ultralight_poller_read_signature_handler(
     MfUltralightPoller* poller,
     MfUltralightPollerContextData* data) {
-    return mf_ultralight_poller_async_read_signature(poller, &data->signature);
+    return mf_ultralight_poller_read_signature(poller, &data->signature);
 }
 
 MfUltralightError mf_ultralight_poller_read_counter_handler(
     MfUltralightPoller* poller,
     MfUltralightPollerContextData* data) {
-    return mf_ultralight_poller_async_read_counter(
+    return mf_ultralight_poller_read_counter(
         poller, data->counter_cmd.counter_num, &data->counter_cmd.data);
 }
 
 MfUltralightError mf_ultralight_poller_read_tearing_flag_handler(
     MfUltralightPoller* poller,
     MfUltralightPollerContextData* data) {
-    return mf_ultralight_poller_async_read_tearing_flag(
+    return mf_ultralight_poller_read_tearing_flag(
         poller, data->tearing_flag_cmd.tearing_flag_num, &data->tearing_flag_cmd.data);
 }
 
@@ -79,16 +79,14 @@ static const MfUltralightPollerCmdHandler
             mf_ultralight_poller_read_tearing_flag_handler,
 };
 
-static NfcCommand mf_ultralight_poller_cmd_callback(NfcGenericEvent event, void* context) {
-    furi_assert(event.instance);
-    furi_assert(event.protocol == NfcProtocolIso14443_3a);
-    furi_assert(event.event_data);
+static NfcCommand mf_ultralight_poller_cmd_callback(NfcGenericEventEx event, void* context) {
+    furi_assert(event.poller);
+    furi_assert(event.parent_event_data);
     furi_assert(context);
 
     MfUltralightPollerContext* poller_context = context;
-    Iso14443_3aPollerEvent* iso14443_3a_event = event.event_data;
-    Iso14443_3aPoller* iso14443_3a_poller = event.instance;
-    MfUltralightPoller* mfu_poller = mf_ultralight_poller_alloc(iso14443_3a_poller);
+    Iso14443_3aPollerEvent* iso14443_3a_event = event.parent_event_data;
+    MfUltralightPoller* mfu_poller = event.poller;
 
     if(iso14443_3a_event->type == Iso14443_3aPollerEventTypeReady) {
         poller_context->error = mf_ultralight_poller_cmd_handlers[poller_context->cmd_type](
@@ -99,8 +97,6 @@ static NfcCommand mf_ultralight_poller_cmd_callback(NfcGenericEvent event, void*
 
     furi_thread_flags_set(poller_context->thread_id, MF_ULTRALIGHT_POLLER_COMPLETE_EVENT);
 
-    mf_ultralight_poller_free(mfu_poller);
-
     return NfcCommandStop;
 }
 
@@ -110,8 +106,8 @@ static MfUltralightError
 
     poller_ctx->thread_id = furi_thread_get_current_id();
 
-    NfcPoller* poller = nfc_poller_alloc(nfc, NfcProtocolIso14443_3a);
-    nfc_poller_start(poller, mf_ultralight_poller_cmd_callback, poller_ctx);
+    NfcPoller* poller = nfc_poller_alloc(nfc, NfcProtocolMfUltralight);
+    nfc_poller_start_ex(poller, mf_ultralight_poller_cmd_callback, poller_ctx);
     furi_thread_flags_wait(MF_ULTRALIGHT_POLLER_COMPLETE_EVENT, FuriFlagWaitAny, FuriWaitForever);
     furi_thread_flags_clear(MF_ULTRALIGHT_POLLER_COMPLETE_EVENT);
 
@@ -121,7 +117,8 @@ static MfUltralightError
     return poller_ctx->error;
 }
 
-MfUltralightError mf_ultralight_poller_read_page(Nfc* nfc, uint16_t page, MfUltralightPage* data) {
+MfUltralightError
+    mf_ultralight_poller_sync_read_page(Nfc* nfc, uint16_t page, MfUltralightPage* data) {
     furi_assert(nfc);
     furi_assert(data);
 
@@ -140,7 +137,7 @@ MfUltralightError mf_ultralight_poller_read_page(Nfc* nfc, uint16_t page, MfUltr
 }
 
 MfUltralightError
-    mf_ultralight_poller_write_page(Nfc* nfc, uint16_t page, MfUltralightPage* data) {
+    mf_ultralight_poller_sync_write_page(Nfc* nfc, uint16_t page, MfUltralightPage* data) {
     furi_assert(nfc);
     furi_assert(data);
 
@@ -158,7 +155,7 @@ MfUltralightError
     return error;
 }
 
-MfUltralightError mf_ultralight_poller_read_version(Nfc* nfc, MfUltralightVersion* data) {
+MfUltralightError mf_ultralight_poller_sync_read_version(Nfc* nfc, MfUltralightVersion* data) {
     furi_assert(nfc);
     furi_assert(data);
 
@@ -175,7 +172,7 @@ MfUltralightError mf_ultralight_poller_read_version(Nfc* nfc, MfUltralightVersio
     return error;
 }
 
-MfUltralightError mf_ultralight_poller_read_signature(Nfc* nfc, MfUltralightSignature* data) {
+MfUltralightError mf_ultralight_poller_sync_read_signature(Nfc* nfc, MfUltralightSignature* data) {
     furi_assert(nfc);
     furi_assert(data);
 
@@ -192,8 +189,10 @@ MfUltralightError mf_ultralight_poller_read_signature(Nfc* nfc, MfUltralightSign
     return error;
 }
 
-MfUltralightError
-    mf_ultralight_poller_read_counter(Nfc* nfc, uint8_t counter_num, MfUltralightCounter* data) {
+MfUltralightError mf_ultralight_poller_sync_read_counter(
+    Nfc* nfc,
+    uint8_t counter_num,
+    MfUltralightCounter* data) {
     furi_assert(nfc);
     furi_assert(data);
 
@@ -211,7 +210,7 @@ MfUltralightError
     return error;
 }
 
-MfUltralightError mf_ultralight_poller_read_tearing_flag(
+MfUltralightError mf_ultralight_poller_sync_read_tearing_flag(
     Nfc* nfc,
     uint8_t flag_num,
     MfUltralightTearingFlag* data) {
@@ -261,7 +260,7 @@ static NfcCommand mf_ultralight_poller_read_callback(NfcGenericEvent event, void
     return command;
 }
 
-MfUltralightError mf_ultralight_poller_read_card(Nfc* nfc, MfUltralightData* data) {
+MfUltralightError mf_ultralight_poller_sync_read_card(Nfc* nfc, MfUltralightData* data) {
     furi_assert(nfc);
     furi_assert(data);
 

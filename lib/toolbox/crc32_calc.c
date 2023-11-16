@@ -14,7 +14,7 @@ uint32_t crc32_calc_file(File* file, const FileCrcProgressCb progress_cb, void* 
     uint32_t file_crc = 0;
 
     uint8_t* data_buffer = malloc(CRC_DATA_BUFFER_MAX_LEN);
-    uint16_t data_buffer_valid_len;
+    size_t data_buffer_valid_len;
 
     uint32_t file_size = storage_file_size(file);
 

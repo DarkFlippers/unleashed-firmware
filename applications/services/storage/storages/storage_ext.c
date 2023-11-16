@@ -596,6 +596,16 @@ static FS_Error storage_ext_common_fs_info(
 #endif
 }
 
+static bool storage_ext_common_equivalent_path(const char* path1, const char* path2) {
+#ifdef FURI_RAM_EXEC
+    UNUSED(path1);
+    UNUSED(path2);
+    return false;
+#else
+    return strcasecmp(path1, path2) == 0;
+#endif
+}
+
 /******************* Init Storage *******************/
 static const FS_Api fs_api = {
     .file =
@@ -624,6 +634,7 @@ static const FS_Api fs_api = {
             .mkdir = storage_ext_common_mkdir,
             .remove = storage_ext_common_remove,
             .fs_info = storage_ext_common_fs_info,
+            .equivalent_path = storage_ext_common_equivalent_path,
         },
 };
 

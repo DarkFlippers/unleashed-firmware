@@ -33,16 +33,6 @@ struct SlixPoller {
     void* context;
 };
 
-SlixError slix_poller_send_frame(
-    SlixPoller* instance,
-    const BitBuffer* tx_data,
-    BitBuffer* rx_data,
-    uint32_t fwt);
-
-SlixError slix_poller_async_get_nxp_system_info(SlixPoller* instance, SlixSystemInfo* data);
-
-SlixError slix_poller_async_read_signature(SlixPoller* instance, SlixSignature* data);
-
 #ifdef __cplusplus
 }
 #endif

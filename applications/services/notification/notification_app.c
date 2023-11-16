@@ -444,7 +444,7 @@ static bool notification_load_settings(NotificationApp* app) {
         storage_file_open(file, NOTIFICATION_SETTINGS_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 
     if(fs_result) {
-        uint16_t bytes_count = storage_file_read(file, &settings, settings_size);
+        size_t bytes_count = storage_file_read(file, &settings, settings_size);
 
         if(bytes_count != settings_size) {
             fs_result = false;
@@ -488,7 +488,7 @@ static bool notification_save_settings(NotificationApp* app) {
         storage_file_open(file, NOTIFICATION_SETTINGS_PATH, FSAM_WRITE, FSOM_CREATE_ALWAYS);
 
     if(fs_result) {
-        uint16_t bytes_count = storage_file_write(file, &settings, settings_size);
+        size_t bytes_count = storage_file_write(file, &settings, settings_size);
 
         if(bytes_count != settings_size) {
             fs_result = false;

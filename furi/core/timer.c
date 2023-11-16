@@ -122,17 +122,10 @@ FuriStatus furi_timer_stop(FuriTimer* instance) {
     furi_assert(instance);
 
     TimerHandle_t hTimer = (TimerHandle_t)instance;
-    FuriStatus stat;
 
-    if(xTimerIsTimerActive(hTimer) == pdFALSE) {
-        stat = FuriStatusErrorResource;
-    } else {
-        furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
-        stat = FuriStatusOk;
-    }
+    furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
 
-    /* Return execution status */
-    return (stat);
+    return FuriStatusOk;
 }
 
 uint32_t furi_timer_is_running(FuriTimer* instance) {

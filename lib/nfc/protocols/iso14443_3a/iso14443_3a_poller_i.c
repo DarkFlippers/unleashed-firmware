@@ -94,9 +94,8 @@ Iso14443_3aError iso14443_3a_poller_halt(Iso14443_3aPoller* instance) {
     return Iso14443_3aErrorNone;
 }
 
-Iso14443_3aError iso14443_3a_poller_async_activate(
-    Iso14443_3aPoller* instance,
-    Iso14443_3aData* iso14443_3a_data) {
+Iso14443_3aError
+    iso14443_3a_poller_activate(Iso14443_3aPoller* instance, Iso14443_3aData* iso14443_3a_data) {
     furi_assert(instance);
     furi_assert(instance->nfc);
     furi_assert(instance->tx_buffer);

@@ -22,7 +22,7 @@ static St25tbError st25tb_poller_prepare_trx(St25tbPoller* instance) {
     furi_assert(instance);
 
     if(instance->state == St25tbPollerStateIdle) {
-        return st25tb_poller_async_activate(instance, NULL);
+        return st25tb_poller_activate(instance, NULL);
     }
 
     return St25tbErrorNone;
@@ -85,7 +85,7 @@ St25tbType st25tb_get_type_from_uid(const uint8_t uid[ST25TB_UID_SIZE]) {
     }
 }
 
-St25tbError st25tb_poller_async_initiate(St25tbPoller* instance, uint8_t* chip_id) {
+St25tbError st25tb_poller_initiate(St25tbPoller* instance, uint8_t* chip_id) {
     // Send Initiate()
     furi_assert(instance);
     furi_assert(instance->nfc);
@@ -117,7 +117,7 @@ St25tbError st25tb_poller_async_initiate(St25tbPoller* instance, uint8_t* chip_i
     return ret;
 }
 
-St25tbError st25tb_poller_async_activate(St25tbPoller* instance, St25tbData* data) {
+St25tbError st25tb_poller_activate(St25tbPoller* instance, St25tbData* data) {
     furi_assert(instance);
     furi_assert(instance->nfc);
 
@@ -126,7 +126,7 @@ St25tbError st25tb_poller_async_activate(St25tbPoller* instance, St25tbData* dat
     St25tbError ret;
 
     do {
-        ret = st25tb_poller_async_initiate(instance, &data->chip_id);
+        ret = st25tb_poller_initiate(instance, &data->chip_id);
         if(ret != St25tbErrorNone) {
             break;
         }
@@ -162,7 +162,7 @@ St25tbError st25tb_poller_async_activate(St25tbPoller* instance, St25tbData* dat
         }
         instance->state = St25tbPollerStateActivated;
 
-        ret = st25tb_poller_async_get_uid(instance, data->uid);
+        ret = st25tb_poller_get_uid(instance, data->uid);
         if(ret != St25tbErrorNone) {
             instance->state = St25tbPollerStateActivationFailed;
             break;
@@ -171,7 +171,7 @@ St25tbError st25tb_poller_async_activate(St25tbPoller* instance, St25tbData* dat
 
         bool read_blocks = true;
         for(uint8_t i = 0; i < st25tb_get_block_count(data->type); i++) {
-            ret = st25tb_poller_async_read_block(instance, &data->blocks[i], i);
+            ret = st25tb_poller_read_block(instance, &data->blocks[i], i);
             if(ret != St25tbErrorNone) {
                 read_blocks = false;
                 break;
@@ -180,14 +180,13 @@ St25tbError st25tb_poller_async_activate(St25tbPoller* instance, St25tbData* dat
         if(!read_blocks) {
             break;
         }
-        ret = st25tb_poller_async_read_block(
-            instance, &data->system_otp_block, ST25TB_SYSTEM_OTP_BLOCK);
+        ret = st25tb_poller_read_block(instance, &data->system_otp_block, ST25TB_SYSTEM_OTP_BLOCK);
     } while(false);
 
     return ret;
 }
 
-St25tbError st25tb_poller_async_get_uid(St25tbPoller* instance, uint8_t uid[ST25TB_UID_SIZE]) {
+St25tbError st25tb_poller_get_uid(St25tbPoller* instance, uint8_t* uid) {
     furi_assert(instance);
     furi_assert(instance->nfc);
 
@@ -221,7 +220,7 @@ St25tbError st25tb_poller_async_get_uid(St25tbPoller* instance, uint8_t uid[ST25
 }
 
 St25tbError
-    st25tb_poller_async_read_block(St25tbPoller* instance, uint32_t* block, uint8_t block_number) {
+    st25tb_poller_read_block(St25tbPoller* instance, uint32_t* block, uint8_t block_number) {
     furi_assert(instance);
     furi_assert(instance->nfc);
     furi_assert(block);

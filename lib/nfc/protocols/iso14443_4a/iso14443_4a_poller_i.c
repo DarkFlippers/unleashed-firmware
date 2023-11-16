@@ -18,7 +18,7 @@ Iso14443_4aError iso14443_4a_poller_halt(Iso14443_4aPoller* instance) {
 }
 
 Iso14443_4aError
-    iso14443_4a_poller_async_read_ats(Iso14443_4aPoller* instance, Iso14443_4aAtsData* data) {
+    iso14443_4a_poller_read_ats(Iso14443_4aPoller* instance, Iso14443_4aAtsData* data) {
     furi_assert(instance);
 
     bit_buffer_reset(instance->tx_buffer);

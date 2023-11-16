@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-Iso14443_3aError iso14443_3a_poller_read(Nfc* nfc, Iso14443_3aData* iso14443_3a_data);
+Iso14443_3aError iso14443_3a_poller_sync_read(Nfc* nfc, Iso14443_3aData* iso14443_3a_data);
 
 #ifdef __cplusplus
 }

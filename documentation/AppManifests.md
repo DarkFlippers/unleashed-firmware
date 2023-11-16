@@ -32,7 +32,7 @@ Only two parameters are mandatory: **_appid_** and **_apptype_**. Others are opt
 - **name**: name displayed in menus.
 - **entry_point**: C function to be used as the application's entry point. Note that C++ function names are mangled, so you need to wrap them in `extern "C"` to use them as entry points.
 - **flags**: internal flags for system apps. Do not use.
-- **cdefines**: C preprocessor definitions to declare globally for other apps when the current application is included in the active build configuration.
+- **cdefines**: C preprocessor definitions to declare globally for other apps when the current application is included in the active build configuration. **For external applications**: specified definitions are used when building the application itself.
 - **requires**: list of application IDs to include in the build configuration when the current application is referenced in the list of applications to build.
 - **conflicts**: list of application IDs with which the current application conflicts. If any of them is found in the constructed application list, **`fbt`** will abort the firmware build process.
 - **provides**: functionally identical to **_requires_** field.

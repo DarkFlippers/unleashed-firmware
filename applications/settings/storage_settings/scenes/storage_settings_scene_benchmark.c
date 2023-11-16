@@ -44,7 +44,7 @@ static bool storage_settings_scene_bench_write(
 }
 
 static bool
-    storage_settings_scene_bench_read(Storage* api, uint16_t size, uint8_t* data, uint32_t* speed) {
+    storage_settings_scene_bench_read(Storage* api, size_t size, uint8_t* data, uint32_t* speed) {
     File* file = storage_file_alloc(api);
     bool result = true;
     *speed = -1;
@@ -82,7 +82,7 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
         bench_data[i] = (uint8_t)i;
     }
 
-    uint16_t bench_size[BENCH_COUNT] = {1, 8, 32, 256, 512, 1024};
+    size_t bench_size[BENCH_COUNT] = {1, 8, 32, 256, 512, 1024};
     uint32_t bench_w_speed[BENCH_COUNT] = {0, 0, 0, 0, 0, 0};
     uint32_t bench_r_speed[BENCH_COUNT] = {0, 0, 0, 0, 0, 0};
 

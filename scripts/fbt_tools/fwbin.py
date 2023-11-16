@@ -25,7 +25,7 @@ def generate(env):
         BUILDERS={
             "HEXBuilder": Builder(
                 action=Action(
-                    '${OBJCOPY} -O ihex "${SOURCE}" "${TARGET}"',
+                    [["${OBJCOPY}", "-O", "ihex", "${SOURCE}", "${TARGET}"]],
                     "${HEXCOMSTR}",
                 ),
                 suffix=".hex",
@@ -33,7 +33,7 @@ def generate(env):
             ),
             "BINBuilder": Builder(
                 action=Action(
-                    '${OBJCOPY} -O binary -S "${SOURCE}" "${TARGET}"',
+                    [["${OBJCOPY}", "-O", "binary", "-S", "${SOURCE}", "${TARGET}"]],
                     "${BINCOMSTR}",
                 ),
                 suffix=".bin",
@@ -41,7 +41,20 @@ def generate(env):
             ),
             "DFUBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${BIN2DFU}" -i "${SOURCE}" -o "${TARGET}" -a ${IMAGE_BASE_ADDRESS} -l "Flipper Zero F${TARGET_HW}"',
+                    [
+                        [
+                            "${PYTHON3}",
+                            "${BIN2DFU}",
+                            "-i",
+                            "${SOURCE}",
+                            "-o",
+                            "${TARGET}",
+                            "-a",
+                            "${IMAGE_BASE_ADDRESS}",
+                            "-l",
+                            "Flipper Zero F${TARGET_HW}",
+                        ]
+                    ],
                     "${DFUCOMSTR}",
                 ),
                 suffix=".dfu",

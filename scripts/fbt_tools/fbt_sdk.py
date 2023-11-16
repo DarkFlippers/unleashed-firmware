@@ -285,7 +285,20 @@ def generate(env, **kw):
                         "$SDK_AMALGAMATE_HEADER_COMSTR",
                     ),
                     Action(
-                        "$CC -o $TARGET -E -P $CCFLAGS $_CCCOMCOM $SDK_PP_FLAGS -MMD ${TARGET}.c",
+                        [
+                            [
+                                "$CC",
+                                "-o",
+                                "$TARGET",
+                                "-E",
+                                "-P",
+                                "$CCFLAGS",
+                                "$_CCCOMCOM",
+                                "$SDK_PP_FLAGS",
+                                "-MMD",
+                                "${TARGET}.c",
+                            ]
+                        ],
                         "$SDK_AMALGAMATE_PP_COMSTR",
                     ),
                 ],

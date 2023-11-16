@@ -165,6 +165,13 @@ typedef struct {
  *      @param total_space pointer to total space value
  *      @param free_space pointer to free space value
  *      @return FS_Error error info
+ *
+ *  @var FS_Common_Api::equivalent_path
+ *      @brief Test whether two paths are equivalent (e.g differing case on a case-insensitive fs)
+ *      @param path1 first path to be compared
+ *      @param path2 second path to be compared
+ *      @param truncate if set to true, compare only up to the path1's length
+ *      @return true if path1 and path2 are considered equivalent
  */
 typedef struct {
     FS_Error (*const stat)(void* context, const char* path, FileInfo* fileinfo);
@@ -175,6 +182,7 @@ typedef struct {
         const char* fs_path,
         uint64_t* total_space,
         uint64_t* free_space);
+    bool (*const equivalent_path)(const char* path1, const char* path2);
 } FS_Common_Api;
 
 /** Full filesystem api structure */
