@@ -3,7 +3,9 @@
 #include <flipper_application/flipper_application.h>
 
 #include <nfc/nfc_device.h>
+#include <core/string.h>
 #include <nfc/helpers/nfc_util.h>
+#include <nfc/helpers/transport.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #define TAG "Troika"
@@ -171,22 +173,33 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != cfg.keys[cfg.data_sector].a) break;
 
-        // Parse data
-        const uint8_t start_block_num = mf_classic_get_first_block_num_of_sector(cfg.data_sector);
+        // // Parse data
+        // const uint8_t start_block_num = mf_classic_get_first_block_num_of_sector(cfg.data_sector);
 
-        const uint8_t* temp_ptr = &data->block[start_block_num + 1].data[5];
-        uint16_t balance = ((temp_ptr[0] << 8) | temp_ptr[1]) / 25;
-        temp_ptr = &data->block[start_block_num].data[2];
+        // const uint8_t* temp_ptr = &data->block[start_block_num + 1].data[5];
+        // uint16_t balance = ((temp_ptr[0] << 8) | temp_ptr[1]) / 25;
+        // temp_ptr = &data->block[start_block_num].data[2];
 
-        uint32_t number = 0;
-        for(size_t i = 1; i < 5; i++) {
-            number <<= 8;
-            number |= temp_ptr[i];
-        }
-        number >>= 4;
-        number |= (temp_ptr[0] & 0xf) << 28;
+        // uint32_t number = 0;
+        // for(size_t i = 1; i < 5; i++) {
+        //     number <<= 8;
+        //     number |= temp_ptr[i];
+        // }
+        // number >>= 4;
+        // number |= (temp_ptr[0] & 0xf) << 28;
 
-        furi_string_printf(parsed_data, "\e#Troika\nNum: %lu\nBalance: %u RUR", number, balance);
+        // furi_string_printf(parsed_data, "\e#Troika\nNum: %lu\nBalance: %u RUR", number, balance);
+        FuriString* metro_result = furi_string_alloc();
+        FuriString* ground_result = furi_string_alloc();
+        parse_transport_block(&data->block[32], metro_result);
+        parse_transport_block(&data->block[28], ground_result);
+        furi_string_printf(
+            parsed_data,
+            "\e#Troika\n%s\n%s",
+            furi_string_get_cstr(metro_result),
+            furi_string_get_cstr(ground_result));
+        furi_string_free(metro_result);
+        furi_string_free(ground_result);
         parsed = true;
     } while(false);
 
