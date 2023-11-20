@@ -1,34 +1,30 @@
 #include "transport.h"
 #include <furi_hal_rtc.h>
+#include <stdint.h>
 #define TAG "Transport parser"
 
-void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) { //Rewrite need
-    datetime->year = timestamp / (60 * 60 * 24 * 366) + FURI_HAL_RTC_EPOCH_START_YEAR;
-    uint16_t extra_days = (datetime->year - FURI_HAL_RTC_EPOCH_START_YEAR - 1) / 4;
-    uint16_t days_since_epoch = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
-    uint16_t days_since_epoch_without_extra_days = days_since_epoch - extra_days;
-    uint16_t days_in_this_year =
-        days_since_epoch_without_extra_days % furi_hal_rtc_days_per_year[0] + 1;
-    while(days_in_this_year > furi_hal_rtc_get_days_per_month(0, datetime->month + 1)) {
-        days_in_this_year -= furi_hal_rtc_get_days_per_month(0, datetime->month + 1);
-        datetime->month++;
+void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
+    uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
+    uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
+
+    uint16_t year = FURI_HAL_RTC_EPOCH_START_YEAR;
+
+    while(days >= furi_hal_rtc_get_days_per_year(year)) {
+        days -= furi_hal_rtc_get_days_per_year(year);
+        (year)++;
     }
-    datetime->month++;
-    if(FURI_HAL_RTC_IS_LEAP_YEAR(datetime->year)) {
-        datetime->day = days_in_this_year - 1;
-    } else {
-        datetime->day = days_in_this_year;
+
+    uint8_t month = 1;
+    while(days >= furi_hal_rtc_get_days_per_month(FURI_HAL_RTC_IS_LEAP_YEAR(year), month)) {
+        days -= furi_hal_rtc_get_days_per_month(FURI_HAL_RTC_IS_LEAP_YEAR(year), month);
+        (month)++;
     }
-    // uint16_t seconds_in_this_day =
-    // timestamp - (days_since_epoch * FURI_HAL_RTC_SECONDS_PER_DAY);
-    // datetime->hour = seconds_in_this_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
-    // uint16_t minutes_in_this_day =
-    // seconds_in_this_day - (datetime->hour * FURI_HAL_RTC_SECONDS_PER_HOUR);
-    // datetime->minute = minutes_in_this_day / FURI_HAL_RTC_SECONDS_PER_MINUTE;
-    // datetime->second = minutes_in_this_day - (datetime->minute * FURI_HAL_RTC_SECONDS_PER_MINUTE);
-    datetime->second = timestamp % 60;
-    datetime->minute = timestamp / 60 % 60;
-    datetime->hour = timestamp / (60 * 60) % 24;
+
+    datetime->day = days + 1;
+    datetime->hour = seconds_in_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
+    datetime->minute =
+        (seconds_in_day % FURI_HAL_RTC_SECONDS_PER_HOUR) / FURI_HAL_RTC_SECONDS_PER_MINUTE;
+    datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
 }
 
 void from_days_to_datetime(uint16_t days, FuriHalRtcDateTime* datetime, uint16_t start_year) {
