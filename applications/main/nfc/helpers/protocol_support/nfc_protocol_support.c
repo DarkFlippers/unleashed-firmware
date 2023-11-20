@@ -579,6 +579,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
         widget_add_string_element(widget, 90, 13, AlignCenter, AlignTop, FontPrimary, "Emulating");
         furi_string_set(
             temp_str, nfc_device_get_name(instance->nfc_device, NfcDeviceNameTypeFull));
+        furi_string_cat_printf(temp_str, "\n%s", furi_string_get_cstr(instance->file_name));
     }
 
     widget_add_text_box_element(
