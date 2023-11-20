@@ -649,11 +649,11 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_crc16_2);
         card_validator = card_validator1 * 1024 + card_validator2;
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_valid_by_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_valid_by_date, &card_use_before_date_s, 1992);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date - 1) * 24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -711,7 +711,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_valid_from_date,
             card_rfu3);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
 
         furi_string_printf(
             result,
@@ -1483,7 +1483,8 @@ static bool social_moscow_verify_type(Nfc* nfc, MfClassicType type) {
 }
 
 static bool social_moscow_verify(Nfc* nfc) {
-    return social_moscow_verify_type(nfc, MfClassicType4k);
+    return social_moscow_verify_type(nfc, MfClassicType1k) ||
+           social_moscow_verify_type(nfc, MfClassicType4k);
 }
 
 static bool social_moscow_read(Nfc* nfc, NfcDevice* device) {
@@ -1546,27 +1547,29 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
 
         FuriString* metro_result = furi_string_alloc();
         FuriString* ground_result = furi_string_alloc();
-
-        parse_transport_block(&data->block[4], metro_result);
-        parse_transport_block(&data->block[16], ground_result);
-
-        furi_string_printf(
-            parsed_data,
-            "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n%s\n%s",
-            card_code,
-            card_region,
-            card_number,
-            card_control,
-            omc_number,
-            month,
-            year,
-            data->block[60].data[13],
-            data->block[60].data[14],
-            furi_string_get_cstr(metro_result),
-            furi_string_get_cstr(ground_result));
-        furi_string_free(metro_result);
-        furi_string_free(ground_result);
-        parsed = true;
+        bool result1 = parse_transport_block(&data->block[4], metro_result);
+        bool result2 = parse_transport_block(&data->block[16], ground_result);
+        if(result1 || result2) {
+            furi_string_printf(
+                parsed_data,
+                "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n\e#Metro\n%s\n\e#Ground\n%s",
+                card_code,
+                card_region,
+                card_number,
+                card_control,
+                omc_number,
+                month,
+                year,
+                data->block[60].data[13],
+                data->block[60].data[14],
+                furi_string_get_cstr(metro_result),
+                furi_string_get_cstr(ground_result));
+            furi_string_free(metro_result);
+            furi_string_free(ground_result);
+            parsed = true;
+        } else {
+            return false;
+        }
     } while(false);
 
     return parsed;

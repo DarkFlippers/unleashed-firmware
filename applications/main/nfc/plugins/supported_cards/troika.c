@@ -1276,8 +1276,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 2019);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
-        from_minutes_to_datetime(
-            card_start_trip_minutes - (24 * 60), &card_start_trip_minutes_s, 2019);
+        from_minutes_to_datetime(card_start_trip_minutes, &card_start_trip_minutes_s, 2019);
         furi_string_printf(
             result,
             "Number: %010lu\nValid for: %02d.%02d.%04d\nBalance: %ld rub\nTrip from: %02d.%02d.%04d %02d:%02d\nValidator: %05d",
@@ -1340,11 +1339,11 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_route,
             card_hash);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 2019);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 2019);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            card_valid_from_date + card_valid_for_minutes - card_start_trip_neg_minutes - 24 * 60,
+            card_valid_from_date + card_valid_for_minutes - card_start_trip_neg_minutes,
             &card_start_trip_minutes_s,
             2019); //-time
         furi_string_printf(
@@ -1465,10 +1464,10 @@ static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type)
     bool success = true;
 
     if(type == MfClassicType1k) {
-        config->data_sector = 8;
+        config->data_sector = 11;
         config->keys = troika_1k_keys;
     } else if(type == MfClassicType4k) {
-        config->data_sector = 4;
+        config->data_sector = 11;
         config->keys = troika_4k_keys;
     } else {
         success = false;
@@ -1574,16 +1573,20 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         FuriString* metro_result = furi_string_alloc();
         FuriString* ground_result = furi_string_alloc();
-        parse_transport_block(&data->block[32], metro_result);
-        parse_transport_block(&data->block[28], ground_result);
-        furi_string_printf(
-            parsed_data,
-            "\e#Troika\n%s\n%s",
-            furi_string_get_cstr(metro_result),
-            furi_string_get_cstr(ground_result));
-        furi_string_free(metro_result);
-        furi_string_free(ground_result);
-        parsed = true;
+        bool result1 = parse_transport_block(&data->block[32], metro_result);
+        bool result2 = parse_transport_block(&data->block[28], ground_result);
+        if(result1 || result2) {
+            furi_string_printf(
+                parsed_data,
+                "\e#Troika\n%s\n\e#Ediniy\n%s\n\e#TAT\n",
+                furi_string_get_cstr(metro_result),
+                furi_string_get_cstr(ground_result));
+            furi_string_free(metro_result);
+            furi_string_free(ground_result);
+            parsed = true;
+        } else {
+            return false;
+        }
     } while(false);
 
     return parsed;
