@@ -57,6 +57,15 @@ App(
 )
 
 App(
+    appid="social_moscow_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="social_moscow_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/social_moscow.c"],
+)
+
+App(
     appid="plantain_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="plantain_plugin_ep",
