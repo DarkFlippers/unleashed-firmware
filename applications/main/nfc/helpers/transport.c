@@ -7,17 +7,19 @@ void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
     uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
     uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
 
-    uint16_t year = FURI_HAL_RTC_EPOCH_START_YEAR;
+    datetime->year = FURI_HAL_RTC_EPOCH_START_YEAR;
 
-    while(days >= furi_hal_rtc_get_days_per_year(year)) {
-        days -= furi_hal_rtc_get_days_per_year(year);
-        (year)++;
+    while(days >= furi_hal_rtc_get_days_per_year(datetime->year)) {
+        days -= furi_hal_rtc_get_days_per_year(datetime->year);
+        (datetime->year)++;
     }
 
-    uint8_t month = 1;
-    while(days >= furi_hal_rtc_get_days_per_month(FURI_HAL_RTC_IS_LEAP_YEAR(year), month)) {
-        days -= furi_hal_rtc_get_days_per_month(FURI_HAL_RTC_IS_LEAP_YEAR(year), month);
-        (month)++;
+    datetime->month = 1;
+    while(days >= furi_hal_rtc_get_days_per_month(
+                      FURI_HAL_RTC_IS_LEAP_YEAR(datetime->year), datetime->month)) {
+        days -= furi_hal_rtc_get_days_per_month(
+            FURI_HAL_RTC_IS_LEAP_YEAR(datetime->year), datetime->month);
+        (datetime->month)++;
     }
 
     datetime->day = days + 1;
