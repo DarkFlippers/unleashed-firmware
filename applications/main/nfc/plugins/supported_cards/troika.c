@@ -1486,10 +1486,10 @@ static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type)
     bool success = true;
 
     if(type == MfClassicType1k) {
-        config->data_sector = 4;
+        config->data_sector = 11;
         config->keys = troika_1k_keys;
     } else if(type == MfClassicType4k) {
-        config->data_sector = 8;
+        config->data_sector = 11;
         config->keys = troika_4k_keys;
     } else {
         success = false;
@@ -1518,7 +1518,7 @@ static bool troika_verify_type(Nfc* nfc, MfClassicType type) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
         }
-
+        FURI_LOG_D(TAG, "Verify success!");
         verified = true;
     } while(false);
 

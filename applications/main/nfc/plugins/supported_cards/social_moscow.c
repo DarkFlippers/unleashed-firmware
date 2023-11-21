@@ -10,7 +10,7 @@
 #include <furi_hal_rtc.h>
 #include <core/check.h>
 
-#define TAG "Social Moscow"
+#define TAG "Social_Moscow"
 
 typedef struct {
     uint64_t a;
@@ -1463,10 +1463,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 static bool social_moscow_get_card_config(SocialMoscowCardConfig* config, MfClassicType type) {
     bool success = true;
     if(type == MfClassicType1k) {
-        config->data_sector = 32;
+        config->data_sector = 15;
         config->keys = social_moscow_1k_keys;
     } else if(type == MfClassicType4k) {
-        config->data_sector = 32;
+        config->data_sector = 15;
         config->keys = social_moscow_4k_keys;
     } else {
         success = false;
@@ -1495,7 +1495,7 @@ static bool social_moscow_verify_type(Nfc* nfc, MfClassicType type) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
         }
-
+        FURI_LOG_D(TAG, "Verify success!");
         verified = true;
     } while(false);
 
@@ -1517,7 +1517,7 @@ static bool social_moscow_read(Nfc* nfc, NfcDevice* device) {
     nfc_device_copy_data(device, NfcProtocolMfClassic, data);
 
     do {
-        MfClassicType type = MfClassicTypeMini;
+        MfClassicType type = MfClassicType4k;
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
 
