@@ -1446,7 +1446,7 @@ static bool social_moscow_get_card_config(SocialMoscowCardConfig* config, MfClas
     bool success = true;
 
     if(type == MfClassicType4k) {
-        config->data_sector = 15;
+        config->data_sector = 32;
         config->keys = social_moscow_4k_keys;
     } else {
         success = false;
@@ -1536,6 +1536,17 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
     bool parsed = false;
 
     do {
+        // Verify card type
+        SocialMoscowCardConfig cfg = {};
+        if(!social_moscow_get_card_config(&cfg, data->type)) break;
+
+        // Verify key
+        const MfClassicSectorTrailer* sec_tr =
+            mf_classic_get_sector_trailer_by_sector(data, cfg.data_sector);
+
+        const uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+        if(key != cfg.keys[cfg.data_sector].a) break;
+
         uint32_t card_code = bit_lib_get_bits_32(data->block[60].data, 8, 24);
         uint8_t card_region = bit_lib_get_bits(data->block[60].data, 32, 8);
         uint64_t card_number = bit_lib_get_bits_64(data->block[60].data, 40, 40);
@@ -1548,28 +1559,29 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         FuriString* ground_result = furi_string_alloc();
         bool result1 = parse_transport_block(&data->block[4], metro_result);
         bool result2 = parse_transport_block(&data->block[16], ground_result);
-        if(result1 || result2) {
-            furi_string_printf(
-                parsed_data,
-                "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n\e#Metro\n%s\n\e#Ground\n%s",
-                card_code,
-                card_region,
-                card_number,
-                card_control,
-                omc_number,
-                month,
-                year,
-                data->block[60].data[13],
-                data->block[60].data[14],
-                furi_string_get_cstr(metro_result),
-                furi_string_get_cstr(ground_result));
-
-            parsed = true;
-        } else {
-            parsed = false;
+        furi_string_cat_printf(
+            parsed_data,
+            "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n",
+            card_code,
+            card_region,
+            card_number,
+            card_control,
+            omc_number,
+            month,
+            year,
+            data->block[60].data[13],
+            data->block[60].data[14]);
+        if(result1) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Metro\n%s\n", furi_string_get_cstr(metro_result));
+        }
+        if(result2) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Ground\n%s\n", furi_string_get_cstr(ground_result));
         }
         furi_string_free(ground_result);
         furi_string_free(metro_result);
+        parsed = result1 || result2;
     } while(false);
 
     return parsed;

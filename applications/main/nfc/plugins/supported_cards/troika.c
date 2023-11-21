@@ -1599,30 +1599,17 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
         bool result1 = parse_transport_block(&data->block[32], metro_result);
         bool result2 = parse_transport_block(&data->block[28], ground_result);
         bool result3 = parse_transport_block(&data->block[16], tat_result);
-        furi_string_printf(parsed_data, "#Troyka\n");
+        furi_string_cat_printf(parsed_data, "\e#Troyka card\n");
         if(result1) {
-            furi_string_printf(
-                parsed_data,
-                "%s\n\e#Metro\n%s\n",
-                furi_string_get_cstr(parsed_data),
-                furi_string_get_cstr(metro_result));
-            FURI_LOG_D(TAG, "Metro branch");
+            furi_string_cat_printf(
+                parsed_data, "\e#Metro\n%s\n", furi_string_get_cstr(metro_result));
         }
         if(result2) {
-            furi_string_printf(
-                parsed_data,
-                "%s\e#Ediniy\n%s\n",
-                furi_string_get_cstr(parsed_data),
-                furi_string_get_cstr(ground_result));
-            FURI_LOG_D(TAG, "Ediny branch");
+            furi_string_cat_printf(
+                parsed_data, "\e#Ediniy\n%s\n", furi_string_get_cstr(ground_result));
         }
         if(result3) {
-            furi_string_printf(
-                parsed_data,
-                "%s\e#TAT\n%s\n",
-                furi_string_get_cstr(parsed_data),
-                furi_string_get_cstr(tat_result));
-            FURI_LOG_D(TAG, "TAT branch");
+            furi_string_cat_printf(parsed_data, "\e#TAT\n%s\n", furi_string_get_cstr(tat_result));
         }
         furi_string_free(tat_result);
         furi_string_free(ground_result);
