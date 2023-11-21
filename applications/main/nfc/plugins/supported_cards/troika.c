@@ -530,7 +530,7 @@ void from_minutes_to_datetime(uint32_t minutes, FuriHalRtcDateTime* datetime, ui
 bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
     uint16_t transport_departament = bit_lib_get_bits_16(block->data, 0, 10);
 
-    FURI_LOG_D(TAG, "Transport departament: %x", transport_departament);
+    FURI_LOG_I(TAG, "Transport departament: %x", transport_departament);
 
     uint16_t layout_type = bit_lib_get_bits_16(block->data, 52, 4);
     if(layout_type == 0xE) {
@@ -539,7 +539,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         layout_type = bit_lib_get_bits_16(block->data, 52, 14);
     }
 
-    FURI_LOG_D(TAG, "Layout type %x", layout_type);
+    FURI_LOG_I(TAG, "Layout type %x", layout_type);
 
     uint16_t card_view = 0;
     uint16_t card_type = 0;
@@ -612,6 +612,31 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_write_enabled,
             card_rfu2,
             card_crc16_2);
+        if(card_valid_by_date == 0) {
+            return false;
+        }
+        FuriHalRtcDateTime card_use_before_date_s = {0};
+        from_days_to_datetime(card_valid_by_date, &card_use_before_date_s, 1992);
+
+        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        from_minutes_to_datetime(
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
+            &card_start_trip_minutes_s,
+            1992);
+        furi_string_printf(
+            result,
+            "Number: %010lu\nValid for: %02d.%02d.%04d\nTrips: %d\nTrip from: %02d.%02d.%04d %02d:%02d\nValidator: %05d",
+            card_number,
+            card_use_before_date_s.day,
+            card_use_before_date_s.month,
+            card_use_before_date_s.year,
+            card_total_trips,
+            card_start_trip_minutes_s.day,
+            card_start_trip_minutes_s.month,
+            card_start_trip_minutes_s.year,
+            card_start_trip_minutes_s.hour,
+            card_start_trip_minutes_s.minute,
+            card_validator);
         break;
     }
     case 0x06: {
@@ -668,11 +693,11 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_crc16_2);
         card_validator = card_validator1 * 1024 + card_validator2;
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_valid_by_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_valid_by_date, &card_use_before_date_s, 1992);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date - 1) * 24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -730,7 +755,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_valid_from_date,
             card_rfu3);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
 
         furi_string_printf(
             result,
@@ -783,11 +808,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_transport_type4,
             card_hash);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 2016);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 2016);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
-        from_minutes_to_datetime(
-            card_start_trip_minutes - (2 * 24 * 60), &card_start_trip_minutes_s, 2016);
+        from_minutes_to_datetime(card_start_trip_minutes, &card_start_trip_minutes_s, 2016);
         furi_string_printf(
             result,
             "Number: %010lu\nValid for: %02d.%02d.%04d\nTrip from: %02d.%02d.%04d %02d:%02d\nTrips left: %d\nValidator: %05d",
@@ -844,10 +868,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_rfu3,
             card_transfer_in_metro);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date - 1) * 24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -925,10 +949,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_rfu5,
             card_transfer_in_metro);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date - 1) * 24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -995,11 +1019,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_zoo,
             card_hash);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
-        from_minutes_to_datetime(
-            card_start_trip_minutes - (2 * 24 * 60), &card_start_trip_minutes_s, 1992);
+        from_minutes_to_datetime(card_start_trip_minutes, &card_start_trip_minutes_s, 1992);
         furi_string_printf(
             result,
             "Number: %010lu\nValid for: %02d.%02d.%04d\nTrip from: %02d.%02d.%04d %02d:%02d\nValidator: %05d",
@@ -1065,12 +1088,11 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_extended,
             card_hash);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 2016);
+        from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 2016);
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_valid_to_date - 1) * 24 * 60 + card_valid_for_minutes -
-                card_start_trip_neg_minutes,
+            (card_valid_to_date) * 24 * 60 + card_valid_for_minutes - card_start_trip_neg_minutes,
             &card_start_trip_minutes_s,
             2016); //-time
         furi_string_printf(
@@ -1405,7 +1427,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_type4,
             card_hash);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_valid_by_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_valid_by_date, &card_use_before_date_s, 1992);
 
         furi_string_printf(
             result,
@@ -1441,7 +1463,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_valid_by_date,
             card_hash);
         FuriHalRtcDateTime card_use_before_date_s = {0};
-        from_days_to_datetime(card_valid_by_date - 1, &card_use_before_date_s, 1992);
+        from_days_to_datetime(card_valid_by_date, &card_use_before_date_s, 1992);
 
         furi_string_printf(
             result,
@@ -1496,7 +1518,7 @@ static bool troika_verify_type(Nfc* nfc, MfClassicType type) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
         }
-
+        FURI_LOG_D(TAG, "Verify success!");
         verified = true;
     } while(false);
 
@@ -1573,20 +1595,26 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         FuriString* metro_result = furi_string_alloc();
         FuriString* ground_result = furi_string_alloc();
+        FuriString* tat_result = furi_string_alloc();
         bool result1 = parse_transport_block(&data->block[32], metro_result);
         bool result2 = parse_transport_block(&data->block[28], ground_result);
-        if(result1 || result2) {
-            furi_string_printf(
-                parsed_data,
-                "\e#Troika\n%s\n\e#Ediniy\n%s\n\e#TAT\n",
-                furi_string_get_cstr(metro_result),
-                furi_string_get_cstr(ground_result));
-            furi_string_free(metro_result);
-            furi_string_free(ground_result);
-            parsed = true;
-        } else {
-            return false;
+        bool result3 = parse_transport_block(&data->block[16], tat_result);
+        furi_string_cat_printf(parsed_data, "\e#Troyka card\n");
+        if(result1) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Metro\n%s\n", furi_string_get_cstr(metro_result));
         }
+        if(result2) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Ediniy\n%s\n", furi_string_get_cstr(ground_result));
+        }
+        if(result3) {
+            furi_string_cat_printf(parsed_data, "\e#TAT\n%s\n", furi_string_get_cstr(tat_result));
+        }
+        furi_string_free(tat_result);
+        furi_string_free(ground_result);
+        furi_string_free(metro_result);
+        parsed = result1 || result2 || result3;
     } while(false);
 
     return parsed;

@@ -10,7 +10,7 @@
 #include <furi_hal_rtc.h>
 #include <core/check.h>
 
-#define TAG "Social Moscow"
+#define TAG "Social_Moscow"
 
 typedef struct {
     uint64_t a;
@@ -21,6 +21,24 @@ typedef struct {
     const MfClassicKeyPair* keys;
     uint32_t data_sector;
 } SocialMoscowCardConfig;
+
+static const MfClassicKeyPair social_moscow_1k_keys[] = {
+    {.a = 0xa0a1a2a3a4a5, .b = 0x7de02a7f6025},
+    {.a = 0x2735fc181807, .b = 0xbf23a53c1f63},
+    {.a = 0x2aba9519f574, .b = 0xcb9a1f2d7368},
+    {.a = 0x84fd7f7a12b6, .b = 0xc7c0adb3284f},
+    {.a = 0x73068f118c13, .b = 0x2b7f3253fac5},
+    {.a = 0x186d8c4b93f9, .b = 0x9f131d8c2057},
+    {.a = 0x3a4bba8adaf0, .b = 0x67362d90f973},
+    {.a = 0x8765b17968a2, .b = 0x6202a38f69e2},
+    {.a = 0x40ead80721ce, .b = 0x100533b89331},
+    {.a = 0x0db5e6523f7c, .b = 0x653a87594079},
+    {.a = 0x51119dae5216, .b = 0xd8a274b2e026},
+    {.a = 0x51119dae5216, .b = 0xd8a274b2e026},
+    {.a = 0x51119dae5216, .b = 0xd8a274b2e026},
+    {.a = 0x2aba9519f574, .b = 0xcb9a1f2d7368},
+    {.a = 0x84fd7f7a12b6, .b = 0xc7c0adb3284f},
+    {.a = 0xa0a1a2a3a4a5, .b = 0x7de02a7f6025}};
 
 static const MfClassicKeyPair social_moscow_4k_keys[] = {
     {.a = 0xa0a1a2a3a4a5, .b = 0x7de02a7f6025}, {.a = 0x2735fc181807, .b = 0xbf23a53c1f63},
@@ -511,7 +529,7 @@ void from_minutes_to_datetime(uint32_t minutes, FuriHalRtcDateTime* datetime, ui
 bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
     uint16_t transport_departament = bit_lib_get_bits_16(block->data, 0, 10);
 
-    FURI_LOG_D(TAG, "Transport departament: %x", transport_departament);
+    FURI_LOG_I(TAG, "Transport departament: %x", transport_departament);
 
     uint16_t layout_type = bit_lib_get_bits_16(block->data, 52, 4);
     if(layout_type == 0xE) {
@@ -520,7 +538,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         layout_type = bit_lib_get_bits_16(block->data, 52, 14);
     }
 
-    FURI_LOG_D(TAG, "Layout type %x", layout_type);
+    FURI_LOG_I(TAG, "Layout type %x", layout_type);
 
     uint16_t card_view = 0;
     uint16_t card_type = 0;
@@ -1444,8 +1462,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 
 static bool social_moscow_get_card_config(SocialMoscowCardConfig* config, MfClassicType type) {
     bool success = true;
-
-    if(type == MfClassicType4k) {
+    if(type == MfClassicType1k) {
+        config->data_sector = 15;
+        config->keys = social_moscow_1k_keys;
+    } else if(type == MfClassicType4k) {
         config->data_sector = 15;
         config->keys = social_moscow_4k_keys;
     } else {
@@ -1475,7 +1495,7 @@ static bool social_moscow_verify_type(Nfc* nfc, MfClassicType type) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
         }
-
+        FURI_LOG_D(TAG, "Verify success!");
         verified = true;
     } while(false);
 
@@ -1497,7 +1517,7 @@ static bool social_moscow_read(Nfc* nfc, NfcDevice* device) {
     nfc_device_copy_data(device, NfcProtocolMfClassic, data);
 
     do {
-        MfClassicType type = MfClassicTypeMini;
+        MfClassicType type = MfClassicType4k;
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
 
@@ -1537,6 +1557,17 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
     bool parsed = false;
 
     do {
+        // Verify card type
+        SocialMoscowCardConfig cfg = {};
+        if(!social_moscow_get_card_config(&cfg, data->type)) break;
+
+        // Verify key
+        const MfClassicSectorTrailer* sec_tr =
+            mf_classic_get_sector_trailer_by_sector(data, cfg.data_sector);
+
+        const uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+        if(key != cfg.keys[cfg.data_sector].a) break;
+
         uint32_t card_code = bit_lib_get_bits_32(data->block[60].data, 8, 24);
         uint8_t card_region = bit_lib_get_bits(data->block[60].data, 32, 8);
         uint64_t card_number = bit_lib_get_bits_64(data->block[60].data, 40, 40);
@@ -1549,27 +1580,29 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         FuriString* ground_result = furi_string_alloc();
         bool result1 = parse_transport_block(&data->block[4], metro_result);
         bool result2 = parse_transport_block(&data->block[16], ground_result);
-        if(result1 || result2) {
-            furi_string_printf(
-                parsed_data,
-                "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n\e#Metro\n%s\n\e#Ground\n%s",
-                card_code,
-                card_region,
-                card_number,
-                card_control,
-                omc_number,
-                month,
-                year,
-                data->block[60].data[13],
-                data->block[60].data[14],
-                furi_string_get_cstr(metro_result),
-                furi_string_get_cstr(ground_result));
-            furi_string_free(metro_result);
-            furi_string_free(ground_result);
-            parsed = true;
-        } else {
-            return false;
+        furi_string_cat_printf(
+            parsed_data,
+            "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n",
+            card_code,
+            card_region,
+            card_number,
+            card_control,
+            omc_number,
+            month,
+            year,
+            data->block[60].data[13],
+            data->block[60].data[14]);
+        if(result1) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Metro\n%s\n", furi_string_get_cstr(metro_result));
         }
+        if(result2) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Ground\n%s\n", furi_string_get_cstr(ground_result));
+        }
+        furi_string_free(ground_result);
+        furi_string_free(metro_result);
+        parsed = result1 || result2;
     } while(false);
 
     return parsed;
