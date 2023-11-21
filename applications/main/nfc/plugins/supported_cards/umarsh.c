@@ -64,7 +64,7 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Data parsing from block 1
         block_start_ptr = &data->block[ticket_sector_start_block_number + 1].data[0];
         uint8_t region_number = (((block_start_ptr[8] >> 5) & 0x07) << 4) |
-                                (block_start_ptr[12] & 0x0f);
+                                (block_start_ptr[12] & 0x0F);
         uint32_t card_number = (block_start_ptr[8] << 24 | block_start_ptr[9] << 16 |
                                 block_start_ptr[10] << 8 | block_start_ptr[11]) &
                                0x3FFFFFFF;
@@ -78,7 +78,8 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint32_t terminal_number =
             (block_start_ptr[3] << 16 | block_start_ptr[4] << 8 | block_start_ptr[5]);
         uint16_t last_refill_date = (block_start_ptr[6] << 8 | block_start_ptr[7]);
-        uint16_t balance = (block_start_ptr[8] << 8 | block_start_ptr[9]) & 0x7FFF;
+        uint16_t balance_rub = (block_start_ptr[8] << 8 | block_start_ptr[9]) & 0x7FFF;
+        uint8_t balance_kop = block_start_ptr[10] & 0x7F;
 
         FuriHalRtcDateTime expiry_datetime;
         expiry_datetime.year = 2000 + (expiry_date >> 9);
@@ -92,10 +93,11 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         furi_string_printf(
             parsed_data,
-            "\e#Umarsh\nCard number: %lu\nRegion: %02u\nBalance: %u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u",
+            "\e#Umarsh\nCard number: %lu\nRegion: %02u\nBalance: %u.%u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u",
             card_number,
             region_number,
-            balance,
+            balance_rub,
+            balance_kop,
             terminal_number,
             refill_counter,
             last_refill_datetime.day,
