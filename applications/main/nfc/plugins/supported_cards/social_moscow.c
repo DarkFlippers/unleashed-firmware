@@ -22,6 +22,24 @@ typedef struct {
     uint32_t data_sector;
 } SocialMoscowCardConfig;
 
+static const MfClassicKeyPair social_moscow_1k_keys[] = {
+    {.a = 0xa0a1a2a3a4a5, .b = 0x7de02a7f6025},
+    {.a = 0x2735fc181807, .b = 0xbf23a53c1f63},
+    {.a = 0x2aba9519f574, .b = 0xcb9a1f2d7368},
+    {.a = 0x84fd7f7a12b6, .b = 0xc7c0adb3284f},
+    {.a = 0x73068f118c13, .b = 0x2b7f3253fac5},
+    {.a = 0x186d8c4b93f9, .b = 0x9f131d8c2057},
+    {.a = 0x3a4bba8adaf0, .b = 0x67362d90f973},
+    {.a = 0x8765b17968a2, .b = 0x6202a38f69e2},
+    {.a = 0x40ead80721ce, .b = 0x100533b89331},
+    {.a = 0x0db5e6523f7c, .b = 0x653a87594079},
+    {.a = 0x51119dae5216, .b = 0xd8a274b2e026},
+    {.a = 0x51119dae5216, .b = 0xd8a274b2e026},
+    {.a = 0x51119dae5216, .b = 0xd8a274b2e026},
+    {.a = 0x2aba9519f574, .b = 0xcb9a1f2d7368},
+    {.a = 0x84fd7f7a12b6, .b = 0xc7c0adb3284f},
+    {.a = 0xa0a1a2a3a4a5, .b = 0x7de02a7f6025}};
+
 static const MfClassicKeyPair social_moscow_4k_keys[] = {
     {.a = 0xa0a1a2a3a4a5, .b = 0x7de02a7f6025}, {.a = 0x2735fc181807, .b = 0xbf23a53c1f63},
     {.a = 0x2aba9519f574, .b = 0xcb9a1f2d7368}, {.a = 0x84fd7f7a12b6, .b = 0xc7c0adb3284f},
@@ -1444,8 +1462,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 
 static bool social_moscow_get_card_config(SocialMoscowCardConfig* config, MfClassicType type) {
     bool success = true;
-
-    if(type == MfClassicType4k) {
+    if(type == MfClassicType1k) {
+        config->data_sector = 32;
+        config->keys = social_moscow_1k_keys;
+    } else if(type == MfClassicType4k) {
         config->data_sector = 32;
         config->keys = social_moscow_4k_keys;
     } else {
@@ -1483,7 +1503,8 @@ static bool social_moscow_verify_type(Nfc* nfc, MfClassicType type) {
 }
 
 static bool social_moscow_verify(Nfc* nfc) {
-    return social_moscow_verify_type(nfc, MfClassicType4k);
+    return social_moscow_verify_type(nfc, MfClassicType1k) ||
+           social_moscow_verify_type(nfc, MfClassicType4k);
 }
 
 static bool social_moscow_read(Nfc* nfc, NfcDevice* device) {
