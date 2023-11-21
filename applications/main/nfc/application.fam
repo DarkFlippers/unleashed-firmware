@@ -84,6 +84,15 @@ App(
 )
 
 App(
+    appid="umarsh_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="umarsh_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/umarsh.c"],
+)
+
+App(
     appid="nfc_start",
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,
