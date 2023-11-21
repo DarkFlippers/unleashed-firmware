@@ -55,7 +55,7 @@
 	- New frequency analyzer [(by ClusterM)](https://github.com/DarkFlippers/unleashed-firmware/pull/43)
 	- Press OK in frequency analyzer to use detected frequency in Read modes [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/77)
 	- Long press OK button in Sub-GHz Frequency analyzer to switch to Read menu [(by derskythe)](https://github.com/DarkFlippers/unleashed-firmware/pull/79)
-	- New option to use timestamps + protocol name when you saving file, instead of random name - Enable in `Radio Settings -> Time in names = ON`
+	- New option to use timestamps + protocol name when you saving file, instead of random name or timestamp only - Enable in `Radio Settings -> Protocol Names = ON`
 	- Read mode UI improvements (shows time when signal was received) (by @wosk)
 	- External CC1101 module support (Hardware SPI used)
 	- **Hold right in received signal list to delete selected signal**
@@ -140,9 +140,9 @@ The majority of this project is developed and maintained by me, @xMasterX.
 I'm unemployed, and the only income I receive is from your donations.
 Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.
 - @gid9798 - SubGHz, Plugins, many other things
-- @assasinfil - SubGHz protocols
+- @assasinfil - SubGHz protocols, NFC parsers (working with @Leptopt1los)
 - @Svaarich - UI design and animations
-- @amec0e & @Leptopt1los - Infrared assets
+- @amec0e & @Leptopt1los (only ACs) - Infrared assets
 - Community moderators in Telegram, Discord, and Reddit
 - And of course our GitHub community. Your PRs are a very important part of this firmware and open-source development.
 
@@ -174,7 +174,7 @@ See full list and sources here: [xMasterX/all-the-plugins](https://github.com/xM
 ### Official Flipper Zero Apps Catalog [web version](https://lab.flipper.net/apps) or mobile app
 
 # Instructions
-## First lock official docs [docs.flipper.net](https://docs.flipper.net/)
+## First look at official docs [docs.flipper.net](https://docs.flipper.net/)
 ## [How to install](/documentation/HowToInstall.md) - [versions info](/CHANGELOG.md#recommended-update-option---web-updater): `n`,` `,`e`...
 ## Firmware & Development
 
