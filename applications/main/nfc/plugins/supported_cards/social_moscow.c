@@ -511,7 +511,7 @@ void from_minutes_to_datetime(uint32_t minutes, FuriHalRtcDateTime* datetime, ui
 bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
     uint16_t transport_departament = bit_lib_get_bits_16(block->data, 0, 10);
 
-    FURI_LOG_D(TAG, "Transport departament: %x", transport_departament);
+    FURI_LOG_I(TAG, "Transport departament: %x", transport_departament);
 
     uint16_t layout_type = bit_lib_get_bits_16(block->data, 52, 4);
     if(layout_type == 0xE) {
@@ -520,7 +520,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         layout_type = bit_lib_get_bits_16(block->data, 52, 14);
     }
 
-    FURI_LOG_D(TAG, "Layout type %x", layout_type);
+    FURI_LOG_I(TAG, "Layout type %x", layout_type);
 
     uint16_t card_view = 0;
     uint16_t card_type = 0;
@@ -1483,8 +1483,7 @@ static bool social_moscow_verify_type(Nfc* nfc, MfClassicType type) {
 }
 
 static bool social_moscow_verify(Nfc* nfc) {
-    return social_moscow_verify_type(nfc, MfClassicType1k) ||
-           social_moscow_verify_type(nfc, MfClassicType4k);
+    return social_moscow_verify_type(nfc, MfClassicType4k);
 }
 
 static bool social_moscow_read(Nfc* nfc, NfcDevice* device) {
@@ -1564,12 +1563,13 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
                 data->block[60].data[14],
                 furi_string_get_cstr(metro_result),
                 furi_string_get_cstr(ground_result));
-            furi_string_free(metro_result);
-            furi_string_free(ground_result);
+
             parsed = true;
         } else {
-            return false;
+            parsed = false;
         }
+        furi_string_free(ground_result);
+        furi_string_free(metro_result);
     } while(false);
 
     return parsed;
