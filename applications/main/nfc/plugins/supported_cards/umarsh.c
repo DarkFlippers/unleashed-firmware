@@ -59,7 +59,7 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         uint32_t header = block_start_ptr[0] << 24 | block_start_ptr[1] << 16 |
                           block_start_ptr[2] << 8 | block_start_ptr[3];
-        if(header != 0xFFFFFF7F && header != 0xFEFFFF7F && header != 0xE3FFFF7F) break;
+        if((header & 0xFFFFFF) != 0xFFFF7F) break;
 
         // Data parsing from block 1
         block_start_ptr = &data->block[ticket_sector_start_block_number + 1].data[0];
