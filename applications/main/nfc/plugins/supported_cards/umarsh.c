@@ -57,9 +57,11 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         //Validate specific for Umarsh ticket sector header
         const uint8_t* block_start_ptr = &data->block[ticket_sector_start_block_number].data[0];
 
-        uint32_t header = block_start_ptr[0] << 24 | block_start_ptr[1] << 16 |
-                          block_start_ptr[2] << 8 | block_start_ptr[3];
-        if((header & 0xFFFFFF) != 0xFFFF7F) break;
+        uint32_t header_part_0 = block_start_ptr[0] << 24 | block_start_ptr[1] << 16 |
+                                 block_start_ptr[2] << 8 | block_start_ptr[3];
+        uint32_t header_part_1 = block_start_ptr[4] << 24 | block_start_ptr[5] << 16 |
+                                 block_start_ptr[6] << 8 | block_start_ptr[7];
+        if((header_part_0 + header_part_1) != 0xFFFFFFFF) break;
 
         // Data parsing from block 1
         block_start_ptr = &data->block[ticket_sector_start_block_number + 1].data[0];
