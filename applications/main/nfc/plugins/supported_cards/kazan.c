@@ -59,7 +59,7 @@ static const MfClassicKeyPair kazan_1k_keys[] = {
 enum SubscriptionType {
     SUBSCRIPTION_TYPE_UNKNOWN,
     SUBSCRIPTION_TYPE_PURSE,
-    SUBSCRIPTION_TYPE_UNLIMITED,
+    SUBSCRIPTION_TYPE_ABONNEMENT,
 };
 
 enum SubscriptionType get_subscription_type(uint8_t value) {
@@ -68,7 +68,7 @@ enum SubscriptionType get_subscription_type(uint8_t value) {
     case 0x60:
     case 0x67:
     case 0x0F:
-        return SUBSCRIPTION_TYPE_UNLIMITED;
+        return SUBSCRIPTION_TYPE_ABONNEMENT;
     case 0x53:
         return SUBSCRIPTION_TYPE_PURSE;
     default:
@@ -223,10 +223,10 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
                 valid_to.year);
         }
 
-        if(subscription_type == SUBSCRIPTION_TYPE_UNLIMITED) {
+        if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: unlimited\nTrips left: %lu\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                "Type: abonnement\nTrips left: %lu\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
                 trip_counter,
                 valid_from.day,
                 valid_from.month,
@@ -239,7 +239,7 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(subscription_type == SUBSCRIPTION_TYPE_UNKNOWN) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: Unknown\nBalance: %lu RUR\nValid from: %02u.%02u.%u\nValid to: %02u.%02u.%u",
+                "Type: unknown\nBalance: %lu RUR\nValid from: %02u.%02u.%u\nValid to: %02u.%02u.%u",
                 trip_counter,
                 valid_from.day,
                 valid_from.month,
