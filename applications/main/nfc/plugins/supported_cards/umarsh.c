@@ -38,6 +38,13 @@
 
 #define TAG "Umarsh"
 
+bool parse_datetime(uint16_t date, FuriHalRtcDateTime* result) {
+    result->year = 2000 + (date >> 9);
+    result->month = date >> 5 & 0x0F;
+    result->day = date & 0x1F;
+    return (date != 0);
+}
+
 static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
 
@@ -49,63 +56,78 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Verify card type
         if(data->type != MfClassicType1k) break;
 
-        const uint32_t ticket_sector = 8;
+        const uint8_t ticket_sector = 8;
 
         const uint8_t ticket_sector_start_block_number =
             mf_classic_get_first_block_num_of_sector(ticket_sector);
 
-        //Validate specific for Umarsh ticket sector header
+        // Validate specific for Umarsh ticket sector header
         const uint8_t* block_start_ptr = &data->block[ticket_sector_start_block_number].data[0];
 
-        uint32_t header = block_start_ptr[0] << 24 | block_start_ptr[1] << 16 |
-                          block_start_ptr[2] << 8 | block_start_ptr[3];
-        if(header != 0xFFFFFF7F && header != 0xFEFFFF7F && header != 0xE3FFFF7F) break;
+        const uint32_t header_part_0 = nfc_util_bytes2num(block_start_ptr, 4);
+        const uint32_t header_part_1 = nfc_util_bytes2num(block_start_ptr + 4, 4);
+        if((header_part_0 + header_part_1) != 0xFFFFFFFF) break;
 
         // Data parsing from block 1
         block_start_ptr = &data->block[ticket_sector_start_block_number + 1].data[0];
-        uint8_t region_number = (((block_start_ptr[8] >> 5) & 0x07) << 4) |
-                                (block_start_ptr[12] & 0x0F);
-        uint32_t card_number = (block_start_ptr[8] << 24 | block_start_ptr[9] << 16 |
-                                block_start_ptr[10] << 8 | block_start_ptr[11]) &
-                               0x3FFFFFFF;
-        uint8_t refill_counter = (block_start_ptr[7]);
+        const uint16_t expiry_date = nfc_util_bytes2num(block_start_ptr + 1, 2);
+        const uint8_t region_number = (((block_start_ptr[8] >> 5) & 0x07) << 4) |
+                                      (block_start_ptr[12] & 0x0F);
+        const uint8_t refill_counter = nfc_util_bytes2num(block_start_ptr + 7, 1);
+        const uint32_t card_number = nfc_util_bytes2num(block_start_ptr + 8, 4) & 0x3FFFFFFF;
 
         if(card_number == 0) break;
 
         // Data parsing from block 2
         block_start_ptr = &data->block[ticket_sector_start_block_number + 2].data[0];
-        uint16_t expiry_date = (block_start_ptr[0] << 8 | block_start_ptr[1]);
-        uint32_t terminal_number =
-            (block_start_ptr[3] << 16 | block_start_ptr[4] << 8 | block_start_ptr[5]);
-        uint16_t last_refill_date = (block_start_ptr[6] << 8 | block_start_ptr[7]);
-        uint16_t balance_rub = (block_start_ptr[8] << 8 | block_start_ptr[9]) & 0x7FFF;
-        uint8_t balance_kop = block_start_ptr[10] & 0x7F;
+        const uint16_t valid_to = nfc_util_bytes2num(block_start_ptr, 2);
+        const uint32_t terminal_number = nfc_util_bytes2num(block_start_ptr + 3, 3);
+        const uint16_t last_refill_date = nfc_util_bytes2num(block_start_ptr + 6, 2);
+        const uint16_t balance_rub = (nfc_util_bytes2num(block_start_ptr + 8, 2)) & 0x7FFF;
+        const uint8_t balance_kop = nfc_util_bytes2num(block_start_ptr + 10, 1) & 0x7F;
 
         FuriHalRtcDateTime expiry_datetime;
-        expiry_datetime.year = 2000 + (expiry_date >> 9);
-        expiry_datetime.month = expiry_date >> 5 & 0x0F;
-        expiry_datetime.day = expiry_date & 0x1F;
+        bool is_expiry_datetime_valid = parse_datetime(expiry_date, &expiry_datetime);
+
+        FuriHalRtcDateTime valid_to_datetime;
+        bool is_valid_to_datetime_valid = parse_datetime(valid_to, &valid_to_datetime);
 
         FuriHalRtcDateTime last_refill_datetime;
-        last_refill_datetime.year = 2000 + (last_refill_date >> 9);
-        last_refill_datetime.month = last_refill_date >> 5 & 0x0F;
-        last_refill_datetime.day = last_refill_date & 0x1F;
+        bool is_last_refill_datetime_valid =
+            parse_datetime(last_refill_date, &last_refill_datetime);
 
-        furi_string_printf(
+        furi_string_cat_printf(
             parsed_data,
-            "\e#Umarsh\nCard number: %lu\nRegion: %02u\nBalance: %u.%u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u",
+            "\e#Umarsh\nCard number: %lu\nRegion: %02u\nTerminal number: %lu\nRefill counter: %u\nBalance: %u.%02u RUR",
             card_number,
             region_number,
-            balance_rub,
-            balance_kop,
             terminal_number,
             refill_counter,
-            last_refill_datetime.day,
-            last_refill_datetime.month,
-            last_refill_datetime.year,
-            expiry_datetime.day,
-            expiry_datetime.month,
-            expiry_datetime.year);
+            balance_rub,
+            balance_kop);
+
+        if(is_expiry_datetime_valid)
+            furi_string_cat_printf(
+                parsed_data,
+                "\nExpires: %02u.%02u.%u",
+                expiry_datetime.day,
+                expiry_datetime.month,
+                expiry_datetime.year);
+        if(is_valid_to_datetime_valid)
+            furi_string_cat_printf(
+                parsed_data,
+                "\nValid to: %02u.%02u.%u",
+                valid_to_datetime.day,
+                valid_to_datetime.month,
+                valid_to_datetime.year);
+        if(is_last_refill_datetime_valid)
+            furi_string_cat_printf(
+                parsed_data,
+                "\nLast refill: %02u.%02u.%u",
+                last_refill_datetime.day,
+                last_refill_datetime.month,
+                last_refill_datetime.year);
+
         parsed = true;
     } while(false);
 
