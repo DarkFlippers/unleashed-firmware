@@ -329,9 +329,23 @@ static void nfc_generate_mf_classic_uid(uint8_t* uid, uint8_t length) {
 static void
     nfc_generate_mf_classic_common(MfClassicData* data, uint8_t uid_len, MfClassicType type) {
     data->iso14443_3a_data->uid_len = uid_len;
-    data->iso14443_3a_data->atqa[0] = 0x44;
+    data->iso14443_3a_data->atqa[0] = 0x00;
     data->iso14443_3a_data->atqa[1] = 0x00;
-    data->iso14443_3a_data->sak = 0x08;
+    data->iso14443_3a_data->sak = 0x00;
+    // Calculate the proper ATQA and SAK
+    if(uid_len == 7) {
+        data->iso14443_3a_data->atqa[0] |= 0x40;
+    }
+    if(type == MfClassicType1k) {
+        data->iso14443_3a_data->atqa[0] |= 0x04;
+        data->iso14443_3a_data->sak = 0x08;
+    } else if(type == MfClassicType4k) {
+        data->iso14443_3a_data->atqa[0] |= 0x02;
+        data->iso14443_3a_data->sak = 0x18;
+    } else if(type == MfClassicTypeMini) {
+        data->iso14443_3a_data->atqa[0] |= 0x08;
+        data->iso14443_3a_data->sak = 0x09;
+    }
     data->type = type;
 }
 
@@ -342,6 +356,11 @@ static void nfc_generate_mf_classic_sector_trailer(MfClassicData* data, uint8_t 
     sec_tr->access_bits.data[1] = 0x07;
     sec_tr->access_bits.data[2] = 0x80;
     sec_tr->access_bits.data[3] = 0x69; // Nice
+
+    for(int i = 0; i < 6; i++) {
+        sec_tr->key_a.data[i] = 0xFF;
+        sec_tr->key_b.data[i] = 0xFF;
+    }
 
     mf_classic_set_block_read(data, block, &data->block[block]);
     mf_classic_set_key_found(
@@ -396,41 +415,35 @@ static void nfc_generate_mf_classic(NfcDevice* nfc_device, uint8_t uid_len, MfCl
 
     uint16_t block_num = mf_classic_get_total_block_num(type);
     if(type == MfClassicType4k) {
-        // Set every block to 0xFF
+        // Set every block to 0x00
         for(uint16_t i = 1; i < block_num; i++) {
             if(mf_classic_is_sector_trailer(i)) {
                 nfc_generate_mf_classic_sector_trailer(mfc_data, i);
             } else {
-                memset(&mfc_data->block[i].data, 0xFF, 16);
+                memset(&mfc_data->block[i].data, 0x00, 16);
             }
             mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
         }
-        // Set SAK to 18
-        mfc_data->iso14443_3a_data->sak = 0x18;
     } else if(type == MfClassicType1k) {
-        // Set every block to 0xFF
+        // Set every block to 0x00
         for(uint16_t i = 1; i < block_num; i++) {
             if(mf_classic_is_sector_trailer(i)) {
                 nfc_generate_mf_classic_sector_trailer(mfc_data, i);
             } else {
-                memset(&mfc_data->block[i].data, 0xFF, 16);
+                memset(&mfc_data->block[i].data, 0x00, 16);
             }
             mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
         }
-        // Set SAK to 08
-        mfc_data->iso14443_3a_data->sak = 0x08;
     } else if(type == MfClassicTypeMini) {
-        // Set every block to 0xFF
+        // Set every block to 0x00
         for(uint16_t i = 1; i < block_num; i++) {
             if(mf_classic_is_sector_trailer(i)) {
                 nfc_generate_mf_classic_sector_trailer(mfc_data, i);
             } else {
-                memset(&mfc_data->block[i].data, 0xFF, 16);
+                memset(&mfc_data->block[i].data, 0x00, 16);
             }
             mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
         }
-        // Set SAK to 09
-        mfc_data->iso14443_3a_data->sak = 0x09;
     }
 
     nfc_generate_mf_classic_block_0(
