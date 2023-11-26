@@ -455,4 +455,19 @@ NfcError nfc_iso15693_listener_tx_sof(Nfc* instance) {
     return NfcErrorNone;
 }
 
+NfcError nfc_felica_listener_set_sensf_res_data(
+    Nfc* instance,
+    const uint8_t* idm,
+    const uint8_t idm_len,
+    const uint8_t* pmm,
+    const uint8_t pmm_len) {
+    furi_assert(instance);
+    furi_assert(idm);
+    furi_assert(pmm);
+    furi_assert(idm_len == 8);
+    furi_assert(pmm_len == 8);
+
+    return NfcErrorNone;
+}
+
 #endif
