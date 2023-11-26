@@ -452,6 +452,23 @@ FuriHalNfcError furi_hal_nfc_iso14443a_listener_tx_custom_parity(
 */
 FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof();
 
+/**
+ * @brief Set FeliCa collision resolution parameters in listener mode.
+ * 
+ * Configures the NFC hardware for automatic collision resolution.
+ *
+ * @param[in] idm pointer to a byte array containing the IDm.
+ * @param[in] idm_len IDm length in bytes.
+ * @param[in] pmm pointer to a byte array containing the PMm.
+ * @param[in] pmm_len PMm length in bytes.
+ * @returns NfcErrorNone on success, any other error code on failure.
+*/
+FuriHalNfcError furi_hal_nfc_felica_listener_set_sensf_res_data(
+    const uint8_t* idm,
+    const uint8_t idm_len,
+    const uint8_t* pmm,
+    const uint8_t pmm_len);
+
 #ifdef __cplusplus
 }
 #endif

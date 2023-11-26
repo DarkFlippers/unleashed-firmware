@@ -606,6 +606,7 @@ static bool mf_classic_is_allowed_access_sector_trailer(
     uint8_t* access_bits_arr = sec_tr->access_bits.data;
     uint8_t AC = ((access_bits_arr[1] >> 5) & 0x04) | ((access_bits_arr[2] >> 2) & 0x02) |
                  ((access_bits_arr[2] >> 7) & 0x01);
+    FURI_LOG_T("NFC", "AC: %02X", AC);
 
     switch(action) {
     case MfClassicActionKeyARead: {
@@ -615,20 +616,20 @@ static bool mf_classic_is_allowed_access_sector_trailer(
     case MfClassicActionKeyBWrite: {
         return (
             (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x01)) ||
-            (key_type == MfClassicKeyTypeB && (AC == 0x04 || AC == 0x03)));
+            (key_type == MfClassicKeyTypeB &&
+             (AC == 0x00 || AC == 0x04 || AC == 0x03 || AC == 0x01)));
     }
     case MfClassicActionKeyBRead: {
-        return (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x02 || AC == 0x01));
+        return (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x02 || AC == 0x01)) ||
+               (key_type == MfClassicKeyTypeB && (AC == 0x00 || AC == 0x02 || AC == 0x01));
     }
     case MfClassicActionACRead: {
-        return (
-            (key_type == MfClassicKeyTypeA) ||
-            (key_type == MfClassicKeyTypeB && !(AC == 0x00 || AC == 0x02 || AC == 0x01)));
+        return ((key_type == MfClassicKeyTypeA) || (key_type == MfClassicKeyTypeB));
     }
     case MfClassicActionACWrite: {
         return (
             (key_type == MfClassicKeyTypeA && (AC == 0x01)) ||
-            (key_type == MfClassicKeyTypeB && (AC == 0x03 || AC == 0x05)));
+            (key_type == MfClassicKeyTypeB && (AC == 0x01 || AC == 0x03 || AC == 0x05)));
     }
     default:
         return false;

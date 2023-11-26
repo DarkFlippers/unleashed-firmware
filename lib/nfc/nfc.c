@@ -76,7 +76,7 @@ static const FuriHalNfcTech nfc_tech_table[NfcModeNum][NfcTechNum] = {
             [NfcTechIso14443a] = FuriHalNfcTechIso14443a,
             [NfcTechIso14443b] = FuriHalNfcTechInvalid,
             [NfcTechIso15693] = FuriHalNfcTechIso15693,
-            [NfcTechFelica] = FuriHalNfcTechInvalid,
+            [NfcTechFelica] = FuriHalNfcTechFelica,
         },
 };
 
@@ -644,6 +644,22 @@ NfcError nfc_iso15693_listener_tx_sof(Nfc* instance) {
     NfcError ret = nfc_process_hal_error(error);
 
     return ret;
+}
+
+NfcError nfc_felica_listener_set_sensf_res_data(
+    Nfc* instance,
+    const uint8_t* idm,
+    const uint8_t idm_len,
+    const uint8_t* pmm,
+    const uint8_t pmm_len) {
+    furi_assert(instance);
+    furi_assert(idm);
+    furi_assert(pmm);
+
+    FuriHalNfcError error =
+        furi_hal_nfc_felica_listener_set_sensf_res_data(idm, idm_len, pmm, pmm_len);
+    instance->comm_state = NfcCommStateIdle;
+    return nfc_process_hal_error(error);
 }
 
 #endif // APP_UNIT_TESTS

@@ -42,6 +42,7 @@ struct MfClassicListener {
 
     // Value operation data
     int32_t transfer_value;
+    bool transfer_valid;
     MfClassicValueCommand value_cmd;
 
     NfcGenericEvent generic_event;

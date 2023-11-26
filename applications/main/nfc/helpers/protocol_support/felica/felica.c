@@ -67,8 +67,14 @@ static bool nfc_scene_saved_menu_on_event_felica(NfcApp* instance, uint32_t even
     return false;
 }
 
+static void nfc_scene_emulate_on_enter_felica(NfcApp* instance) {
+    const FelicaData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolFelica);
+    instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolFelica, data);
+    nfc_listener_start(instance->listener, NULL, NULL);
+}
+
 const NfcProtocolSupportBase nfc_protocol_support_felica = {
-    .features = NfcProtocolFeatureNone,
+    .features = NfcProtocolFeatureEmulateUid,
 
     .scene_info =
         {
@@ -102,7 +108,7 @@ const NfcProtocolSupportBase nfc_protocol_support_felica = {
         },
     .scene_emulate =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_enter = nfc_scene_emulate_on_enter_felica,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
 };
