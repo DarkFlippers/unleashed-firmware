@@ -42,7 +42,7 @@ void ibutton_scene_write_on_enter(void* context) {
 
     furi_string_printf(
         tmp,
-        "[%s]\n%s",
+        "[%s]\n%s ",
         ibutton_protocols_get_name(ibutton->protocols, protocol_id),
         ibutton->key_name);
 
