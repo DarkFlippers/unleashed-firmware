@@ -4,8 +4,7 @@ void infrared_scene_edit_rename_done_on_enter(void* context) {
     InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
 
-    popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
-    popup_set_header(popup, "Saved!", 5, 7, AlignLeft, AlignTop);
+    popup_set_icon(popup, 15, 5, &I_DolphinSaved_113x58);
 
     popup_set_callback(popup, infrared_popup_closed_callback);
     popup_set_context(popup, context);
