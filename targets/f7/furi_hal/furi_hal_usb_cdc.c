@@ -35,13 +35,13 @@ struct CdcIadDescriptor {
 struct CdcConfigDescriptorSingle {
     struct usb_config_descriptor config;
     struct CdcIadDescriptor iad_0;
-} __attribute__((packed));
+} FURI_PACKED;
 
 struct CdcConfigDescriptorDual {
     struct usb_config_descriptor config;
     struct CdcIadDescriptor iad_0;
     struct CdcIadDescriptor iad_1;
-} __attribute__((packed));
+} FURI_PACKED;
 
 static const struct usb_string_descriptor dev_manuf_desc = USB_STRING_DESC("Flipper Devices Inc.");
 

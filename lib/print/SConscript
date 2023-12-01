@@ -100,6 +100,9 @@ env.Append(
     SDK_HEADERS=[
         File("wrappers.h"),
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
 )
 
 libenv = env.Clone(FW_LIB_NAME="print")

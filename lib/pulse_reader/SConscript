@@ -7,6 +7,9 @@ env.Append(
     SDK_HEADERS=[
         File("pulse_reader.h"),
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
 )
 
 libenv = env.Clone(FW_LIB_NAME="pulse_reader")

@@ -4,7 +4,7 @@ App(
     apptype=FlipperAppType.DEBUG,
     entry_point="display_test_app",
     requires=["gui"],
-    fap_libs=["misc"],
+    fap_libs=["u8g2"],
     stack_size=1 * 1024,
     order=120,
     fap_category="Debug",

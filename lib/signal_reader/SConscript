@@ -7,11 +7,14 @@ env.Append(
     SDK_HEADERS=[
         File("signal_reader.h"),
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
 )
 
 libenv = env.Clone(FW_LIB_NAME="signal_reader")
 libenv.ApplyLibFlags()
-libenv.Append(CCFLAGS=["-O3", "-funroll-loops", "-Ofast"])
+libenv.AppendUnique(CCFLAGS=["-O3", "-funroll-loops", "-Ofast"])
 
 sources = libenv.GlobRecursive("*.c*")
 

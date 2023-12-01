@@ -1,8 +1,8 @@
 #include "storage_move_to_sd.h"
+
 #include <core/common_defines.h>
 #include <core/log.h>
-#include "loader/loader.h"
-#include <stdint.h>
+#include <loader/loader.h>
 #include <toolbox/dir_walk.h>
 #include <toolbox/path.h>
 

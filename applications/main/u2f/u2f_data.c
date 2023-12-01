@@ -37,7 +37,7 @@ typedef struct {
     uint32_t counter;
     uint8_t random_salt[24];
     uint32_t control;
-} __attribute__((packed)) U2fCounterData;
+} FURI_PACKED U2fCounterData;
 
 bool u2f_data_check(bool cert_only) {
     bool state = false;
