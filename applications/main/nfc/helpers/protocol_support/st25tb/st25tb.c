@@ -29,7 +29,9 @@ static NfcCommand nfc_scene_read_poller_callback_st25tb(NfcGenericEvent event, v
     NfcApp* instance = context;
     const St25tbPollerEvent* st25tb_event = event.event_data;
 
-    if(st25tb_event->type == St25tbPollerEventTypeReady) {
+    if(st25tb_event->type == St25tbPollerEventTypeRequestMode) {
+        st25tb_event->data->mode_request.mode = St25tbPollerModeRead;
+    } else if(st25tb_event->type == St25tbPollerEventTypeSuccess) {
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolSt25tb, nfc_poller_get_data(instance->poller));
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);

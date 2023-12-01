@@ -4,6 +4,9 @@ env.Append(
     CPPPATH=[
         "#/lib/nfc",
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
     SDK_HEADERS=[
         # Main
         File("nfc.h"),
@@ -39,6 +42,7 @@ env.Append(
         File("protocols/iso14443_3a/iso14443_3a_poller_sync.h"),
         File("protocols/mf_ultralight/mf_ultralight_poller_sync.h"),
         File("protocols/mf_classic/mf_classic_poller_sync.h"),
+        File("protocols/st25tb/st25tb_poller_sync.h"),
         # Misc
         File("helpers/nfc_util.h"),
         File("helpers/iso14443_crc.h"),

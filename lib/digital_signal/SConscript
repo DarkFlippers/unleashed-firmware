@@ -8,6 +8,9 @@ env.Append(
         File("digital_signal.h"),
         File("digital_sequence.h"),
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
 )
 
 libenv = env.Clone(FW_LIB_NAME="digital_signal")

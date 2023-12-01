@@ -4,6 +4,9 @@ env.Append(
     CPPPATH=[
         "#/lib/subghz",
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
     SDK_HEADERS=[
         File("environment.h"),
         File("receiver.h"),

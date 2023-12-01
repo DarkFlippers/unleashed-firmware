@@ -24,7 +24,7 @@ struct HidIntfDescriptor {
 struct HidConfigDescriptor {
     struct usb_config_descriptor config;
     struct HidIntfDescriptor intf_0;
-} __attribute__((packed));
+} FURI_PACKED;
 
 enum HidReportId {
     ReportIdKeyboard = 1,
@@ -199,7 +199,7 @@ struct HidReportMouse {
     int8_t x;
     int8_t y;
     int8_t wheel;
-} __attribute__((packed));
+} FURI_PACKED;
 
 struct HidReportKB {
     uint8_t report_id;
@@ -208,23 +208,23 @@ struct HidReportKB {
         uint8_t reserved;
         uint8_t btn[HID_KB_MAX_KEYS];
     } boot;
-} __attribute__((packed));
+} FURI_PACKED;
 
 struct HidReportConsumer {
     uint8_t report_id;
     uint16_t btn[HID_CONSUMER_MAX_KEYS];
-} __attribute__((packed));
+} FURI_PACKED;
 
 struct HidReportLED {
     uint8_t report_id;
     uint8_t led_state;
-} __attribute__((packed));
+} FURI_PACKED;
 
 static struct HidReport {
     struct HidReportKB keyboard;
     struct HidReportMouse mouse;
     struct HidReportConsumer consumer;
-} __attribute__((packed)) hid_report;
+} FURI_PACKED hid_report;
 
 static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx);
 static void hid_deinit(usbd_device* dev);

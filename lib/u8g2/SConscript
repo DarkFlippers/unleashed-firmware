@@ -2,19 +2,18 @@ Import("env")
 
 env.Append(
     CPPPATH=[
-        "#/lib/microtar/src",
+        "#/lib/u8g2",
+    ],
+    LINT_SOURCES=[
+        Dir("."),
     ],
 )
 
 
-libenv = env.Clone(FW_LIB_NAME="microtar")
+libenv = env.Clone(FW_LIB_NAME="u8g2")
 libenv.ApplyLibFlags()
 
-libenv.Append(
-    CPPDEFINES=["MICROTAR_DISABLE_API_CHECKS"],
-)
-
-sources = [File("microtar/src/microtar.c")]
+sources = libenv.GlobRecursive("*.c")
 
 lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
 libenv.Install("${LIB_DIST_DIR}", lib)
