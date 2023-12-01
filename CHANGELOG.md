@@ -11,7 +11,7 @@
 **If you want to help with making this apps work again please send PR to the repo at link below**
 - Current list of affected apps: https://github.com/xMasterX/all-the-plugins/tree/dev/apps_broken_by_last_refactors
 - Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack <br>
-**API was updated to v47.x** 
+**API was updated to v49.x** 
 ## New changes
 * NFC: Added new parsers for transport cards - Umarsh, Kazan, Moscow, Metromoney(Tbilisi), and fixes for OFW parsers (by @assasinfil and @Leptopt1los) (special thanks for users who provided various dumps of those cards for research)
 * NFC: Added simple key name display to UI to fix regression
@@ -24,6 +24,9 @@
 * Apps: **Bluetooth Remote / USB Keyboard & Mouse** - `Movie` and `PTT` modes by @hryamzik
 * Apps: **BLE Spam app** updated to latest version (New devices support, + Menu by holding Start) (by @Willy-JL) -> (app can be found in builds ` `, `e`, `n`, `r`)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: Mifare Classic nested auth support
+* OFW: ST25TB poller refining + write support
+* OFW: Libraries cleanup; u2f crypto rework to use mbedtls
 * OFW: Add the secret door animation
 * OFW: Allows you to use UCS-2 in canvas_glyph_width
 * OFW: Mifare Classic fixes
