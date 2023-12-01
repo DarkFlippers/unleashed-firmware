@@ -179,6 +179,25 @@ MfClassicError mf_classic_poller_get_nt(
     MfClassicNt* nt);
 
 /**
+ * @brief Collect tag nonce during nested authentication.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * Starts nested authentication procedure and collects tag nonce.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] block_num block number for authentication.
+ * @param[in] key_type key type to be used for authentication.
+ * @param[out] nt pointer to the MfClassicNt structure to be filled with nonce data.
+ * @return MfClassicErrorNone on success, an error code on failure.
+ */
+MfClassicError mf_classic_poller_get_nt_nested(
+    MfClassicPoller* instance,
+    uint8_t block_num,
+    MfClassicKeyType key_type,
+    MfClassicNt* nt);
+
+/**
  * @brief Perform authentication.
  *
  * Must ONLY be used inside the callback function.
@@ -194,6 +213,27 @@ MfClassicError mf_classic_poller_get_nt(
  * @return MfClassicErrorNone on success, an error code on failure.
  */
 MfClassicError mf_classic_poller_auth(
+    MfClassicPoller* instance,
+    uint8_t block_num,
+    MfClassicKey* key,
+    MfClassicKeyType key_type,
+    MfClassicAuthContext* data);
+
+/**
+ * @brief Perform nested authentication.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * Perform nested  authentication as specified in Mf Classic protocol.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] block_num block number for authentication.
+ * @param[in] key key to be used for authentication.
+ * @param[in] key_type key type to be used for authentication.
+ * @param[out] data pointer to MfClassicAuthContext structure to be filled with authentication data.
+ * @return MfClassicErrorNone on success, an error code on failure.
+ */
+MfClassicError mf_classic_poller_auth_nested(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKey* key,

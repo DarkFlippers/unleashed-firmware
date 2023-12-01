@@ -35,7 +35,8 @@ void crypto1_encrypt_reader_nonce(
     uint32_t cuid,
     uint8_t* nt,
     uint8_t* nr,
-    BitBuffer* out);
+    BitBuffer* out,
+    bool is_nested);
 
 uint32_t prng_successor(uint32_t x, uint32_t n);
 

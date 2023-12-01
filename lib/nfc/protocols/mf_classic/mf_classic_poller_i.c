@@ -33,11 +33,12 @@ MfClassicError mf_classic_process_error(Iso14443_3aError error) {
     return ret;
 }
 
-MfClassicError mf_classic_poller_get_nt(
+static MfClassicError mf_classic_poller_get_nt_common(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKeyType key_type,
-    MfClassicNt* nt) {
+    MfClassicNt* nt,
+    bool is_nested) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -47,14 +48,29 @@ MfClassicError mf_classic_poller_get_nt(
         uint8_t auth_cmd[2] = {auth_type, block_num};
         bit_buffer_copy_bytes(instance->tx_plain_buffer, auth_cmd, sizeof(auth_cmd));
 
-        error = iso14443_3a_poller_send_standard_frame(
-            instance->iso14443_3a_poller,
-            instance->tx_plain_buffer,
-            instance->rx_plain_buffer,
-            MF_CLASSIC_FWT_FC);
-        if(error != Iso14443_3aErrorWrongCrc) {
-            ret = mf_classic_process_error(error);
-            break;
+        if(is_nested) {
+            iso14443_crc_append(Iso14443CrcTypeA, instance->tx_plain_buffer);
+            crypto1_encrypt(
+                instance->crypto, NULL, instance->tx_plain_buffer, instance->tx_encrypted_buffer);
+            error = iso14443_3a_poller_txrx_custom_parity(
+                instance->iso14443_3a_poller,
+                instance->tx_encrypted_buffer,
+                instance->rx_plain_buffer, // NT gets decrypted by mf_classic_async_auth
+                MF_CLASSIC_FWT_FC);
+            if(error != Iso14443_3aErrorNone) {
+                ret = mf_classic_process_error(error);
+                break;
+            }
+        } else {
+            error = iso14443_3a_poller_send_standard_frame(
+                instance->iso14443_3a_poller,
+                instance->tx_plain_buffer,
+                instance->rx_plain_buffer,
+                MF_CLASSIC_FWT_FC);
+            if(error != Iso14443_3aErrorWrongCrc) {
+                ret = mf_classic_process_error(error);
+                break;
+            }
         }
         if(bit_buffer_get_size_bytes(instance->rx_plain_buffer) != sizeof(MfClassicNt)) {
             ret = MfClassicErrorProtocol;
@@ -69,12 +85,29 @@ MfClassicError mf_classic_poller_get_nt(
     return ret;
 }
 
-MfClassicError mf_classic_poller_auth(
+MfClassicError mf_classic_poller_get_nt(
+    MfClassicPoller* instance,
+    uint8_t block_num,
+    MfClassicKeyType key_type,
+    MfClassicNt* nt) {
+    return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, false);
+}
+
+MfClassicError mf_classic_poller_get_nt_nested(
+    MfClassicPoller* instance,
+    uint8_t block_num,
+    MfClassicKeyType key_type,
+    MfClassicNt* nt) {
+    return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, true);
+}
+
+static MfClassicError mf_classic_poller_auth_common(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
-    MfClassicAuthContext* data) {
+    MfClassicAuthContext* data,
+    bool is_nested) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -84,7 +117,11 @@ MfClassicError mf_classic_poller_auth(
             iso14443_3a_poller_get_data(instance->iso14443_3a_poller));
 
         MfClassicNt nt = {};
-        ret = mf_classic_poller_get_nt(instance, block_num, key_type, &nt);
+        if(is_nested) {
+            ret = mf_classic_poller_get_nt_nested(instance, block_num, key_type, &nt);
+        } else {
+            ret = mf_classic_poller_get_nt(instance, block_num, key_type, &nt);
+        }
         if(ret != MfClassicErrorNone) break;
         if(data) {
             data->nt = nt;
@@ -96,7 +133,13 @@ MfClassicError mf_classic_poller_auth(
         furi_hal_random_fill_buf(nr.data, sizeof(MfClassicNr));
 
         crypto1_encrypt_reader_nonce(
-            instance->crypto, key_num, cuid, nt.data, nr.data, instance->tx_encrypted_buffer);
+            instance->crypto,
+            key_num,
+            cuid,
+            nt.data,
+            nr.data,
+            instance->tx_encrypted_buffer,
+            is_nested);
         error = iso14443_3a_poller_txrx_custom_parity(
             instance->iso14443_3a_poller,
             instance->tx_encrypted_buffer,
@@ -128,6 +171,24 @@ MfClassicError mf_classic_poller_auth(
     }
 
     return ret;
+}
+
+MfClassicError mf_classic_poller_auth(
+    MfClassicPoller* instance,
+    uint8_t block_num,
+    MfClassicKey* key,
+    MfClassicKeyType key_type,
+    MfClassicAuthContext* data) {
+    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, false);
+}
+
+MfClassicError mf_classic_poller_auth_nested(
+    MfClassicPoller* instance,
+    uint8_t block_num,
+    MfClassicKey* key,
+    MfClassicKeyType key_type,
+    MfClassicAuthContext* data) {
+    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, true);
 }
 
 MfClassicError mf_classic_poller_halt(MfClassicPoller* instance) {
