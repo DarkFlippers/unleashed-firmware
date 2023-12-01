@@ -28,7 +28,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <furi_hal_rtc.h>
-#include "md5.h"
 
 #define TAG "Kazan"
 
