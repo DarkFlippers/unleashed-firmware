@@ -5,21 +5,27 @@
 - Mifare Mini clones reading is broken (OFW)
 - Mifare Classic dict attack fast skip causes glitches/incorrect reading (OFW)
 - EMV simple data parser was removed with protocol with refactoring (OFW)
+- NFC V(Slix), Mifare Classic Emulation issues (unconfirmed) (OFW)
+- Option to unlock Slix-L (NFC V) with preset or custom password was removed with refactoring (OFW)
 ### Some apps that was made for old nfc stack is now not compatible with the new API and require complete remake:
 **If you want to help with making this apps work again please send PR to the repo at link below**
 - Current list of affected apps: https://github.com/xMasterX/all-the-plugins/tree/dev/apps_broken_by_last_refactors
-- Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack
-**API was updated to v46.x** 
+- Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack <br>
+**API was updated to v47.x** 
 ## New changes
 * NFC: Added new parsers for transport cards - Umarsh, Kazan, Moscow, Metromoney(Tbilisi), and fixes for OFW parsers (by @assasinfil and @Leptopt1los) (special thanks for users who provided various dumps of those cards for research)
 * NFC: Added simple key name display to UI to fix regression
 * iButton: Fix UI text - protocol name getting out of screen bounds when key name is too large, and other related issues (by @krolchonok | PR #649)
 * SubGHz: Fixed feature naming in menu
 * SubGHz: Added honeywell protocol [(by @htotoo)](https://github.com/Flipper-XFW/Xtreme-Firmware/commit/ceee551befa0cb8fd8514a4f8a1250fd9e0997ee)
+* SubGHz: Add 303.9 Mhz to default frequency list
+* API: Add new get function for varitemlist (by @Willy-JL)
 * Misc code cleanup
 * Apps: **Bluetooth Remote / USB Keyboard & Mouse** - `Movie` and `PTT` modes by @hryamzik
 * Apps: **BLE Spam app** updated to latest version (New devices support, + Menu by holding Start) (by @Willy-JL) -> (app can be found in builds ` `, `e`, `n`, `r`)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: Add the secret door animation
+* OFW: Allows you to use UCS-2 in canvas_glyph_width
 * OFW: Mifare Classic fixes
 * OFW: NFC: Felica UID emulation
 * OFW: 64k does not enough
