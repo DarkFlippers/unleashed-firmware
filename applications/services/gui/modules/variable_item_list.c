@@ -499,6 +499,23 @@ VariableItem* variable_item_list_add(
     return item;
 }
 
+VariableItem* variable_item_list_get(VariableItemList* variable_item_list, uint8_t position) {
+    VariableItem* item = NULL;
+    furi_assert(variable_item_list);
+
+    with_view_model(
+        variable_item_list->view,
+        VariableItemListModel * model,
+        {
+            if(position < VariableItemArray_size(model->items)) {
+                item = VariableItemArray_get(model->items, position);
+            }
+        },
+        true);
+
+    return item;
+}
+
 void variable_item_list_set_enter_callback(
     VariableItemList* variable_item_list,
     VariableItemListEnterCallback callback,

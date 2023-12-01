@@ -3166,6 +3166,7 @@ Function,+,variable_item_get_current_value_index,uint8_t,VariableItem*
 Function,+,variable_item_list_add,VariableItem*,"VariableItemList*, const char*, uint8_t, VariableItemChangeCallback, void*"
 Function,+,variable_item_list_alloc,VariableItemList*,
 Function,+,variable_item_list_free,void,VariableItemList*
+Function,+,variable_item_list_get,VariableItem*,"VariableItemList*, uint8_t"
 Function,+,variable_item_list_get_selected_item_index,uint8_t,VariableItemList*
 Function,+,variable_item_list_get_view,View*,VariableItemList*
 Function,+,variable_item_list_reset,void,VariableItemList*
