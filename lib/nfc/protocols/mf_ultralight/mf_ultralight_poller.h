@@ -16,12 +16,26 @@ typedef struct MfUltralightPoller MfUltralightPoller;
  * @brief Enumeration of possible MfUltralight poller event types.
  */
 typedef enum {
+    MfUltralightPollerEventTypeRequestMode, /**< Poller requests for operating mode. */
     MfUltralightPollerEventTypeAuthRequest, /**< Poller requests to fill authentication context. */
     MfUltralightPollerEventTypeAuthSuccess, /**< Authentication succeeded. */
     MfUltralightPollerEventTypeAuthFailed, /**< Authentication failed. */
     MfUltralightPollerEventTypeReadSuccess, /**< Poller read card successfully. */
     MfUltralightPollerEventTypeReadFailed, /**< Poller failed to read card. */
+    MfUltralightPollerEventTypeRequestWriteData, /**< Poller request card data for write operation. */
+    MfUltralightPollerEventTypeCardMismatch, /**< Type of card for writing differs from presented one. */
+    MfUltralightPollerEventTypeCardLocked, /**< Presented card is locked by password, AUTH0 or lock bytes. */
+    MfUltralightPollerEventTypeWriteSuccess, /**< Poller wrote card successfully. */
+    MfUltralightPollerEventTypeWriteFail, /**< Poller failed to write card. */
 } MfUltralightPollerEventType;
+
+/**
+ * @brief Enumeration of possible MfUltralight poller operating modes.
+ */
+typedef enum {
+    MfUltralightPollerModeRead, /**< Poller will only read card. It's a default mode. */
+    MfUltralightPollerModeWrite, /**< Poller will write already saved card to another presented card. */
+} MfUltralightPollerMode;
 
 /**
  * @brief MfUltralight poller authentication context.
@@ -39,6 +53,8 @@ typedef struct {
 typedef union {
     MfUltralightPollerAuthContext auth_context; /**< Authentication context. */
     MfUltralightError error; /**< Error code indicating reading fail reason. */
+    const MfUltralightData* write_data;
+    MfUltralightPollerMode poller_mode;
 } MfUltralightPollerEventData;
 
 /**

@@ -224,9 +224,22 @@ static NfcCommand mf_ultralight_poller_handler_idle(MfUltralightPoller* instance
     instance->tearing_flag_read = 0;
     instance->tearing_flag_total = 3;
     instance->pages_read = 0;
-    instance->state = MfUltralightPollerStateReadVersion;
-
+    instance->state = MfUltralightPollerStateRequestMode;
+    instance->current_page = 0;
     return NfcCommandContinue;
+}
+
+static NfcCommand mf_ultralight_poller_handler_request_mode(MfUltralightPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+
+    instance->mfu_event.type = MfUltralightPollerEventTypeRequestMode;
+    instance->mfu_event.data->poller_mode = MfUltralightPollerModeRead;
+
+    command = instance->callback(instance->general_event, instance->context);
+    instance->mode = instance->mfu_event.data->poller_mode;
+
+    instance->state = MfUltralightPollerStateReadVersion;
+    return command;
 }
 
 static NfcCommand mf_ultralight_poller_handler_read_version(MfUltralightPoller* instance) {
@@ -259,6 +272,7 @@ static NfcCommand mf_ultralight_poller_handler_check_ultralight_c(MfUltralightPo
 }
 
 static NfcCommand mf_ultralight_poller_handler_check_ntag_203(MfUltralightPoller* instance) {
+    MfUltralightPollerState next_state = MfUltralightPollerStateGetFeatureSet;
     MfUltralightPageReadCommandData data = {};
     instance->error = mf_ultralight_poller_read_page(instance, 41, &data);
     if(instance->error == MfUltralightErrorNone) {
@@ -268,8 +282,13 @@ static NfcCommand mf_ultralight_poller_handler_check_ntag_203(MfUltralightPoller
         FURI_LOG_D(TAG, "Original Ultralight detected");
         iso14443_3a_poller_halt(instance->iso14443_3a_poller);
         instance->data->type = MfUltralightTypeUnknown;
+        if(instance->mode == MfUltralightPollerModeWrite) {
+            instance->mfu_event.type = MfUltralightPollerEventTypeCardMismatch;
+            instance->callback(instance->general_event, instance->context);
+            next_state = MfUltralightPollerStateWriteFail;
+        }
     }
-    instance->state = MfUltralightPollerStateGetFeatureSet;
+    instance->state = next_state;
 
     return NfcCommandContinue;
 }
@@ -508,6 +527,7 @@ static NfcCommand mf_ultralight_poller_handler_try_default_pass(MfUltralightPoll
 static NfcCommand mf_ultralight_poller_handler_read_fail(MfUltralightPoller* instance) {
     FURI_LOG_D(TAG, "Read Failed");
     iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+    instance->mfu_event.type = MfUltralightPollerEventTypeReadFailed;
     instance->mfu_event.data->error = instance->error;
     NfcCommand command = instance->callback(instance->general_event, instance->context);
     instance->state = MfUltralightPollerStateIdle;
@@ -516,8 +536,113 @@ static NfcCommand mf_ultralight_poller_handler_read_fail(MfUltralightPoller* ins
 
 static NfcCommand mf_ultralight_poller_handler_read_success(MfUltralightPoller* instance) {
     FURI_LOG_D(TAG, "Read success");
-    iso14443_3a_poller_halt(instance->iso14443_3a_poller);
     instance->mfu_event.type = MfUltralightPollerEventTypeReadSuccess;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+
+    if(instance->mode == MfUltralightPollerModeRead) {
+        iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+        instance->state = MfUltralightPollerStateIdle;
+    } else {
+        instance->state = MfUltralightPollerStateRequestWriteData;
+    }
+
+    return command;
+}
+
+static NfcCommand mf_ultralight_poller_handler_request_write_data(MfUltralightPoller* instance) {
+    FURI_LOG_D(TAG, "Check writing capability");
+    NfcCommand command = NfcCommandContinue;
+    MfUltralightPollerState next_state = MfUltralightPollerStateWritePages;
+    instance->current_page = 4;
+
+    instance->mfu_event.type = MfUltralightPollerEventTypeRequestWriteData;
+    instance->callback(instance->general_event, instance->context);
+
+    const MfUltralightData* write_data = instance->mfu_event.data->write_data;
+    const MfUltralightData* tag_data = instance->data;
+    uint32_t features = mf_ultralight_get_feature_support_set(tag_data->type);
+
+    bool check_passed = false;
+    do {
+        if(write_data->type != tag_data->type) {
+            FURI_LOG_D(TAG, "Incorrect tag type");
+            instance->mfu_event.type = MfUltralightPollerEventTypeCardMismatch;
+            break;
+        }
+
+        if(!instance->auth_context.auth_success) {
+            FURI_LOG_D(TAG, "Unknown password");
+            instance->mfu_event.type = MfUltralightPollerEventTypeCardLocked;
+            break;
+        }
+
+        const MfUltralightPage staticlock_page = tag_data->page[2];
+        if(staticlock_page.data[2] != 0 || staticlock_page.data[3] != 0) {
+            FURI_LOG_D(TAG, "Static lock bits are set");
+            instance->mfu_event.type = MfUltralightPollerEventTypeCardLocked;
+            break;
+        }
+
+        if(mf_ultralight_support_feature(features, MfUltralightFeatureSupportDynamicLock)) {
+            uint8_t dynlock_num = mf_ultralight_get_config_page_num(tag_data->type) - 1;
+            const MfUltralightPage dynlock_page = tag_data->page[dynlock_num];
+            if(dynlock_page.data[0] != 0 || dynlock_page.data[1] != 0) {
+                FURI_LOG_D(TAG, "Dynamic lock bits are set");
+                instance->mfu_event.type = MfUltralightPollerEventTypeCardLocked;
+                break;
+            }
+        }
+
+        check_passed = true;
+    } while(false);
+
+    if(!check_passed) {
+        iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+        command = instance->callback(instance->general_event, instance->context);
+        next_state = MfUltralightPollerStateWriteFail;
+    }
+
+    instance->state = next_state;
+    return command;
+}
+
+static NfcCommand mf_ultralight_poller_handler_write_pages(MfUltralightPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+
+    do {
+        const MfUltralightData* write_data = instance->mfu_event.data->write_data;
+        uint8_t end_page = mf_ultralight_get_config_page_num(write_data->type) - 1;
+        if(instance->current_page == end_page) {
+            instance->state = MfUltralightPollerStateWriteSuccess;
+            break;
+        }
+        FURI_LOG_D(TAG, "Writing page %d", instance->current_page);
+        MfUltralightError error = mf_ultralight_poller_write_page(
+            instance, instance->current_page, &write_data->page[instance->current_page]);
+        if(error != MfUltralightErrorNone) {
+            instance->state = MfUltralightPollerStateWriteFail;
+            instance->error = error;
+            break;
+        }
+        instance->current_page++;
+    } while(false);
+
+    return command;
+}
+
+static NfcCommand mf_ultralight_poller_handler_write_fail(MfUltralightPoller* instance) {
+    FURI_LOG_D(TAG, "Write failed");
+    iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+    instance->mfu_event.data->error = instance->error;
+    instance->mfu_event.type = MfUltralightPollerEventTypeWriteFail;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+    return command;
+}
+
+static NfcCommand mf_ultralight_poller_handler_write_success(MfUltralightPoller* instance) {
+    FURI_LOG_D(TAG, "Write success");
+    iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+    instance->mfu_event.type = MfUltralightPollerEventTypeWriteSuccess;
     NfcCommand command = instance->callback(instance->general_event, instance->context);
     return command;
 }
@@ -525,6 +650,7 @@ static NfcCommand mf_ultralight_poller_handler_read_success(MfUltralightPoller* 
 static const MfUltralightPollerReadHandler
     mf_ultralight_poller_read_handler[MfUltralightPollerStateNum] = {
         [MfUltralightPollerStateIdle] = mf_ultralight_poller_handler_idle,
+        [MfUltralightPollerStateRequestMode] = mf_ultralight_poller_handler_request_mode,
         [MfUltralightPollerStateReadVersion] = mf_ultralight_poller_handler_read_version,
         [MfUltralightPollerStateDetectMfulC] = mf_ultralight_poller_handler_check_ultralight_c,
         [MfUltralightPollerStateDetectNtag203] = mf_ultralight_poller_handler_check_ntag_203,
@@ -538,6 +664,11 @@ static const MfUltralightPollerReadHandler
         [MfUltralightPollerStateReadPages] = mf_ultralight_poller_handler_read_pages,
         [MfUltralightPollerStateReadFailed] = mf_ultralight_poller_handler_read_fail,
         [MfUltralightPollerStateReadSuccess] = mf_ultralight_poller_handler_read_success,
+        [MfUltralightPollerStateRequestWriteData] =
+            mf_ultralight_poller_handler_request_write_data,
+        [MfUltralightPollerStateWritePages] = mf_ultralight_poller_handler_write_pages,
+        [MfUltralightPollerStateWriteFail] = mf_ultralight_poller_handler_write_fail,
+        [MfUltralightPollerStateWriteSuccess] = mf_ultralight_poller_handler_write_success,
 
 };
 
