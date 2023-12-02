@@ -108,28 +108,30 @@ Iso15693_3Error iso15693_3_poller_activate(Iso15693_3Poller* instance, Iso15693_
             break;
         }
 
-        // Read blocks: Optional command
-        simple_array_init(data->block_data, system_info->block_count * system_info->block_size);
-        ret = iso15693_3_poller_read_blocks(
-            instance,
-            simple_array_get_data(data->block_data),
-            system_info->block_count,
-            system_info->block_size);
-        if(ret != Iso15693_3ErrorNone) {
-            ret = iso15693_3_poller_filter_error(ret);
-            break;
+        if(system_info->block_count > 0) {
+            // Read blocks: Optional command
+            simple_array_init(
+                data->block_data, system_info->block_count * system_info->block_size);
+            ret = iso15693_3_poller_read_blocks(
+                instance,
+                simple_array_get_data(data->block_data),
+                system_info->block_count,
+                system_info->block_size);
+            if(ret != Iso15693_3ErrorNone) {
+                ret = iso15693_3_poller_filter_error(ret);
+                break;
+            }
+
+            // Get block security status: Optional command
+            simple_array_init(data->block_security, system_info->block_count);
+
+            ret = iso15693_3_poller_get_blocks_security(
+                instance, simple_array_get_data(data->block_security), system_info->block_count);
+            if(ret != Iso15693_3ErrorNone) {
+                ret = iso15693_3_poller_filter_error(ret);
+                break;
+            }
         }
-
-        // Get block security status: Optional command
-        simple_array_init(data->block_security, system_info->block_count);
-
-        ret = iso15693_3_poller_get_blocks_security(
-            instance, simple_array_get_data(data->block_security), system_info->block_count);
-        if(ret != Iso15693_3ErrorNone) {
-            ret = iso15693_3_poller_filter_error(ret);
-            break;
-        }
-
     } while(false);
 
     return ret;
