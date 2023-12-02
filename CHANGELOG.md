@@ -19,11 +19,15 @@
 * SubGHz: Fixed feature naming in menu
 * SubGHz: Added honeywell protocol [(by @htotoo)](https://github.com/Flipper-XFW/Xtreme-Firmware/commit/ceee551befa0cb8fd8514a4f8a1250fd9e0997ee)
 * SubGHz: Add 303.9 Mhz to default frequency list
+* SubGHz: Fix Keeloq decoding order bug (random switch to HCS101 or anmotors)
 * API: Add new get function for varitemlist (by @Willy-JL)
 * Misc code cleanup
 * Apps: **Bluetooth Remote / USB Keyboard & Mouse** - `Movie` and `PTT` modes by @hryamzik
 * Apps: **BLE Spam app** updated to latest version (New devices support, + Menu by holding Start) (by @Willy-JL) -> (app can be found in builds ` `, `e`, `n`, `r`)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: SubGhz: fix count bit for detect gate_tx protocol 
+* OFW: Fixed a zero allocation error when reading an iso15693 nfc tag with no additional blocks. 
+* OFW: Ntag21x write
 * OFW: Mifare Classic nested auth support
 * OFW: ST25TB poller refining + write support
 * OFW: Libraries cleanup; u2f crypto rework to use mbedtls
