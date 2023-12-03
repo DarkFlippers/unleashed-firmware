@@ -979,6 +979,13 @@ static void subghz_protocol_keeloq_check_remote_controller(
     // If we are in BFT / Aprimatic programming mode we will set previous remembered counter and skip mf keys check
     ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
     if(prog_mode == PROG_MODE_OFF) {
+        if(keystore->mfname == 0x0) {
+            keystore->mfname = "";
+        }
+        if(*manufacture_name == 0x0) {
+            *manufacture_name = "";
+        }
+
         // Case when we have no mf name means that we are checking for the first time and we have to check all conditions
         if((strlen(keystore->mfname) < 1) && strlen(*manufacture_name) < 1) {
             // Check key AN-Motors
