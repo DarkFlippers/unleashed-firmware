@@ -55,7 +55,7 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
         DialogMessage* message = dialog_message_alloc();
         dialog_message_set_header(message, "Update needed", 64, 3, AlignCenter, AlignTop);
         dialog_message_set_buttons(message, NULL, NULL, NULL);
-        dialog_message_set_icon(message, &I_DolphinCommon_56x48, 72, 17);
+        dialog_message_set_icon(message, &I_WarningDolphinFlip_45x42, 83, 22);
         dialog_message_set_text(
             message, "Update firmware\nto run this app", 3, 26, AlignLeft, AlignTop);
         dialog_message_show(dialogs, message);
