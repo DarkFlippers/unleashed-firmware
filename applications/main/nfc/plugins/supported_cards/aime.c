@@ -120,10 +120,15 @@ static bool aime_parse(const NfcDevice* device, FuriString* parsed_data) {
             aime_accesscode[9]);
 
         // validate decimal hex representation
+        bool code_is_hex = true;
         for(int i = 0; i < 24; i++) {
             if(aime_accesscode_str[i] == ' ') continue;
-            if(aime_accesscode_str[i] < '0' || aime_accesscode_str[i] > '9') return false;
+            if(aime_accesscode_str[i] < '0' || aime_accesscode_str[i] > '9') {
+                code_is_hex = false;
+                break;
+            }
         }
+        if(!code_is_hex) break;
 
         // Note: Aime access code has some other self-check algorithms that are not public.
         // This parser does not try to verify the number.
