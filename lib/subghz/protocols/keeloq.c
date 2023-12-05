@@ -987,7 +987,7 @@ static void subghz_protocol_keeloq_check_remote_controller(
         }
 
         // Case when we have no mf name means that we are checking for the first time and we have to check all conditions
-        if((strlen(keystore->mfname) < 1) && strlen(*manufacture_name) < 1) {
+        if(strlen(keystore->mfname) < 1) {
             // Check key AN-Motors
             if((key_hop >> 24) == ((key_hop >> 16) & 0x00ff) &&
                (key_fix >> 28) == ((key_hop >> 12) & 0x0f) && (key_hop & 0xFFF) == 0x404) {
@@ -1004,20 +1004,16 @@ static void subghz_protocol_keeloq_check_remote_controller(
             }
         } else {
             // If we have mfname and its one of AN-Motors or HCS101 we should preform only check for this system
-            if((strcmp(keystore->mfname, "AN-Motors") == 0) ||
-               (strcmp(keystore->mfname, "HCS101") == 0)) {
-                // Check key AN-Motors
-                if((key_hop >> 24) == ((key_hop >> 16) & 0x00ff) &&
-                   (key_fix >> 28) == ((key_hop >> 12) & 0x0f) && (key_hop & 0xFFF) == 0x404) {
-                    *manufacture_name = "AN-Motors";
-                    keystore->mfname = *manufacture_name;
-                    instance->cnt = key_hop >> 16;
-                } else if(
-                    (key_hop & 0xFFF) == (0x000) && (key_fix >> 28) == ((key_hop >> 12) & 0x0f)) {
-                    *manufacture_name = "HCS101";
-                    keystore->mfname = *manufacture_name;
-                    instance->cnt = key_hop >> 16;
-                }
+            if(strcmp(keystore->mfname, "AN-Motors") == 0) {
+                // Force key to AN-Motors
+                *manufacture_name = "AN-Motors";
+                keystore->mfname = *manufacture_name;
+                instance->cnt = key_hop >> 16;
+            } else if(strcmp(keystore->mfname, "HCS101") == 0) {
+                // Force key to HCS101
+                *manufacture_name = "HCS101";
+                keystore->mfname = *manufacture_name;
+                instance->cnt = key_hop >> 16;
             } else {
                 // Else we have mfname that is not AN-Motors or HCS101 we should check it via default selector
                 subghz_protocol_keeloq_check_remote_controller_selector(
