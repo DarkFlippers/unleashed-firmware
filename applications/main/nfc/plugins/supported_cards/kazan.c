@@ -85,6 +85,9 @@ enum SubscriptionType {
 
 enum SubscriptionType get_subscription_type(uint8_t value, FuriString* tariff_name) {
     switch(value) {
+    case 0x51:
+        furi_string_printf(tariff_name, "Social. Adult");
+        return SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME;
     case 0x67:
         furi_string_printf(tariff_name, "Ground electric transport. 1 month");
         return SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME;
