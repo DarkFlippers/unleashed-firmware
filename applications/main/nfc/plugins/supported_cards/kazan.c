@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "core/core_defines.h"
 #include "core/log.h"
+#include "core/string.h"
 #include "nfc_supported_card_plugin.h"
 
 #include "protocols/mf_classic/mf_classic.h"
@@ -36,7 +38,7 @@ typedef struct {
     uint64_t b;
 } MfClassicKeyPair;
 
-static const MfClassicKeyPair kazan_1k_keys[] = {
+static const MfClassicKeyPair kazan_1k_keys_standart[] = {
     {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
     {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
     {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
@@ -55,22 +57,51 @@ static const MfClassicKeyPair kazan_1k_keys[] = {
     {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
 };
 
+static const MfClassicKeyPair kazan_1k_keys_old[] = {
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0x2058EAEE8446, .b = 0xCB9B23815F87},
+    {.a = 0x492F3744A1DC, .b = 0x6B770AADA274},
+    {.a = 0xF7A545095C49, .b = 0x6862FD600F78},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF},
+};
+
 enum SubscriptionType {
     SUBSCRIPTION_TYPE_UNKNOWN,
     SUBSCRIPTION_TYPE_PURSE,
-    SUBSCRIPTION_TYPE_ABONNEMENT,
+    SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME,
+    SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS,
 };
 
-enum SubscriptionType get_subscription_type(uint8_t value) {
+enum SubscriptionType get_subscription_type(uint8_t value, FuriString* tariff_name) {
     switch(value) {
-    case 0:
-    case 0x60:
+    case 0x51:
+        furi_string_printf(tariff_name, "Social. Adult");
+        return SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME;
     case 0x67:
+        furi_string_printf(tariff_name, "Ground electric transport. 1 month");
+        return SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME;
     case 0x0F:
-        return SUBSCRIPTION_TYPE_ABONNEMENT;
+        furi_string_printf(tariff_name, "Underground only");
+        return SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS;
+    case 0x6D:
+        furi_string_printf(tariff_name, "Tram. 60 minutes. Transfer. 10 trips");
+        return SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS;
     case 0x53:
+        furi_string_printf(tariff_name, "Standart purse");
         return SUBSCRIPTION_TYPE_PURSE;
     default:
+        furi_string_printf(tariff_name, "Unknown");
         return SUBSCRIPTION_TYPE_UNKNOWN;
     }
 }
@@ -79,25 +110,25 @@ static bool kazan_verify(Nfc* nfc) {
     bool verified = false;
 
     do {
-        const uint8_t ticket_sector_number = 8;
-        const uint8_t ticket_block_number =
-            mf_classic_get_first_block_num_of_sector(ticket_sector_number) + 1;
-        FURI_LOG_D(TAG, "Verifying sector %u", ticket_sector_number);
+        const uint8_t verification_sector_number = 10;
+        const uint8_t verification_block_number =
+            mf_classic_get_first_block_num_of_sector(verification_sector_number) + 1;
+        FURI_LOG_D(TAG, "Verifying sector %u", verification_sector_number);
 
         MfClassicKey key = {0};
-        nfc_util_num2bytes(kazan_1k_keys[ticket_sector_number].a, COUNT_OF(key.data), key.data);
+        nfc_util_num2bytes(
+            kazan_1k_keys_standart[verification_sector_number].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_context;
         MfClassicError error = mf_classic_poller_sync_auth(
-            nfc, ticket_block_number, &key, MfClassicKeyTypeA, &auth_context);
+            nfc, verification_block_number, &key, MfClassicKeyTypeA, &auth_context);
         if(error != MfClassicErrorNone) {
-            FURI_LOG_D(TAG, "Failed to read block %u: %d", ticket_block_number, error);
+            FURI_LOG_D(TAG, "Failed to read block %u: %d", verification_block_number, error);
             break;
         }
 
         verified = true;
     } while(false);
-
     return verified;
 }
 
@@ -122,17 +153,39 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
             .key_a_mask = 0,
             .key_b_mask = 0,
         };
+
+        MfClassicDeviceKeys keys_old = {
+            .key_a_mask = 0,
+            .key_b_mask = 0,
+        };
+
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(kazan_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            nfc_util_num2bytes(
+                kazan_1k_keys_standart[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            nfc_util_num2bytes(
+                kazan_1k_keys_old[i].a, sizeof(MfClassicKey), keys_old.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(kazan_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            FURI_BIT_SET(keys_old.key_a_mask, i);
+
+            nfc_util_num2bytes(
+                kazan_1k_keys_standart[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            nfc_util_num2bytes(
+                kazan_1k_keys_old[i].b, sizeof(MfClassicKey), keys_old.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
+            FURI_BIT_SET(keys_old.key_b_mask, i);
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
         if(error != MfClassicErrorNone) {
-            FURI_LOG_W(TAG, "Failed to read data");
+            FURI_LOG_W(TAG, "Failed to read data: standart keys");
             break;
+        }
+        if(!mf_classic_is_card_read(data)) {
+            error = mf_classic_poller_sync_read(nfc, &keys_old, data);
+            if(error != MfClassicErrorNone) {
+                FURI_LOG_W(TAG, "Failed to read data: old keys");
+                break;
+            }
         }
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
@@ -153,25 +206,30 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
     bool parsed = false;
 
     do {
+        const uint8_t verification_sector_number = 10;
         const uint8_t ticket_sector_number = 8;
         const uint8_t balance_sector_number = 9;
 
         // Verify keys
         MfClassicKeyPair keys = {};
         const MfClassicSectorTrailer* sec_tr =
-            mf_classic_get_sector_trailer_by_sector(data, ticket_sector_number);
+            mf_classic_get_sector_trailer_by_sector(data, verification_sector_number);
 
         keys.a = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
-        keys.b = nfc_util_bytes2num(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
 
-        if((keys.a != 0xE954024EE754) && (keys.b != 0x0CD464CDC100)) break;
+        if(keys.a != 0xF7A545095C49) {
+            FURI_LOG_D(TAG, "Parser: Failed to verify key a: %llu", keys.a);
+            break;
+        }
 
         // Parse data
         uint8_t start_block_num = mf_classic_get_first_block_num_of_sector(ticket_sector_number);
 
         const uint8_t* block_start_ptr = &data->block[start_block_num].data[6];
 
-        enum SubscriptionType subscription_type = get_subscription_type(block_start_ptr[0]);
+        FuriString* tariff_name = furi_string_alloc();
+        enum SubscriptionType subscription_type =
+            get_subscription_type(block_start_ptr[0], tariff_name);
 
         FuriHalRtcDateTime valid_from;
         valid_from.year = 2000 + block_start_ptr[1];
@@ -222,10 +280,25 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
                 valid_to.year);
         }
 
-        if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT) {
+        if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: abonnement\nTrips left: %lu\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                "Type: abonnement\nTariff: %s\nTrips left: %lu\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                furi_string_get_cstr(tariff_name),
+                trip_counter,
+                valid_from.day,
+                valid_from.month,
+                valid_from.year,
+                valid_to.day,
+                valid_to.month,
+                valid_to.year);
+        }
+
+        if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME) {
+            furi_string_cat_printf(
+                parsed_data,
+                "Type: abonnement\nTariff: %s\nTotal valid time: %lu days\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                furi_string_get_cstr(tariff_name),
                 trip_counter,
                 valid_from.day,
                 valid_from.month,
@@ -238,7 +311,8 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(subscription_type == SUBSCRIPTION_TYPE_UNKNOWN) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: unknown\nBalance: %lu RUR\nValid from: %02u.%02u.%u\nValid to: %02u.%02u.%u",
+                "Type: unknown\nTariff: %s\nCounter: %lu\nValid from: %02u.%02u.%u\nValid to: %02u.%02u.%u",
+                furi_string_get_cstr(tariff_name),
                 trip_counter,
                 valid_from.day,
                 valid_from.month,
