@@ -52,11 +52,12 @@ bool nfc_scene_mf_ultralight_unlock_warn_on_event(void* context, SceneManagerEve
 
     bool consumed = false;
 
-    nfc->protocols_detected[0] = nfc_device_get_protocol(nfc->nfc_device);
     MfUltralightAuthType type = nfc->mf_ul_auth->type;
     if((type == MfUltralightAuthTypeReader) || (type == MfUltralightAuthTypeManual)) {
         if(event.type == SceneManagerEventTypeCustom) {
             if(event.event == DialogExResultRight) {
+                const NfcProtocol mfu_protocol[] = {NfcProtocolMfUltralight};
+                nfc_app_set_detected_protocols(nfc, mfu_protocol, COUNT_OF(mfu_protocol));
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
                 dolphin_deed(DolphinDeedNfcRead);
                 consumed = true;

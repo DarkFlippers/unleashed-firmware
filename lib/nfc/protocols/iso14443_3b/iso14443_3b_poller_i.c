@@ -131,9 +131,18 @@ Iso14443_3bError iso14443_3b_poller_activate(Iso14443_3bPoller* instance, Iso144
             break;
         }
 
-        if(bit_buffer_get_size_bytes(instance->rx_buffer) != 1 ||
-           bit_buffer_get_byte(instance->rx_buffer, 0) != 0) {
-            FURI_LOG_D(TAG, "Unexpected ATTRIB response");
+        if(bit_buffer_get_size_bytes(instance->rx_buffer) != 1) {
+            FURI_LOG_W(
+                TAG,
+                "Unexpected ATTRIB response length: %zu",
+                bit_buffer_get_size_bytes(instance->rx_buffer));
+        }
+
+        if(bit_buffer_get_byte(instance->rx_buffer, 0) != 0) {
+            FURI_LOG_D(
+                TAG,
+                "Incorrect CID in ATTRIB response: %02X",
+                bit_buffer_get_byte(instance->rx_buffer, 0));
             instance->state = Iso14443_3bPollerStateActivationFailed;
             ret = Iso14443_3bErrorCommunication;
             break;

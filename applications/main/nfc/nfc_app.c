@@ -400,15 +400,16 @@ bool nfc_load_from_file_select(NfcApp* instance) {
     browser_options.base_path = NFC_APP_FOLDER;
     browser_options.hide_dot_files = true;
 
-    // Input events and views are managed by file_browser
-    bool result = dialog_file_browser_show(
-        instance->dialogs, instance->file_path, instance->file_path, &browser_options);
+    bool success = false;
+    do {
+        // Input events and views are managed by file_browser
+        if(!dialog_file_browser_show(
+               instance->dialogs, instance->file_path, instance->file_path, &browser_options))
+            break;
+        success = nfc_load_file(instance, instance->file_path, true);
+    } while(!success);
 
-    if(result) {
-        result = nfc_load_file(instance, instance->file_path, true);
-    }
-
-    return result;
+    return success;
 }
 
 void nfc_show_loading_popup(void* context, bool show) {
