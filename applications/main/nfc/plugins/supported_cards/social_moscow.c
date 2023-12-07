@@ -1565,8 +1565,11 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         const MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, cfg.data_sector);
 
-        const uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
-        if(key != cfg.keys[cfg.data_sector].a) break;
+        const uint64_t key_a =
+            nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+        const uint64_t key_b =
+            nfc_util_bytes2num(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
+        if((key_a != cfg.keys[cfg.data_sector].a) || (key_b != cfg.keys[cfg.data_sector].b)) break;
 
         uint32_t card_code = bit_lib_get_bits_32(data->block[60].data, 8, 24);
         uint8_t card_region = bit_lib_get_bits(data->block[60].data, 32, 8);
