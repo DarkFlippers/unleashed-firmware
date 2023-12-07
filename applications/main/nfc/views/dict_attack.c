@@ -125,7 +125,6 @@ void dict_attack_reset(DictAttack* instance) {
         instance->view,
         DictAttackViewModel * model,
         {
-            model->card_detected = false;
             model->sectors_total = 0;
             model->sectors_read = 0;
             model->current_sector = 0;

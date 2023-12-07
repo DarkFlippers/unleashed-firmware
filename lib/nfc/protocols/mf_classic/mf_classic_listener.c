@@ -482,6 +482,13 @@ static const MfClassicListenerCmd mf_classic_listener_cmd_handlers[] = {
         .handler = mf_classic_listener_halt_handlers,
     },
     {
+        // This crutch is necessary since some devices (like Pixel) send 15-bit "HALT" command ...
+        .cmd_start_byte = MF_CLASSIC_CMD_HALT_MSB,
+        .cmd_len_bits = 15,
+        .command_num = COUNT_OF(mf_classic_listener_halt_handlers),
+        .handler = mf_classic_listener_halt_handlers,
+    },
+    {
         .cmd_start_byte = MF_CLASSIC_CMD_AUTH_KEY_A,
         .cmd_len_bits = 2 * 8,
         .command_num = COUNT_OF(mf_classic_listener_auth_key_a_handlers),
