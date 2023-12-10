@@ -159,7 +159,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Time In Names",
+        "Protocol Names",
         TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
         subghz);

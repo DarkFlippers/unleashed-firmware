@@ -7,6 +7,8 @@ App(
     icon="A_Infrared_14",
     stack_size=3 * 1024,
     order=40,
+    sources=["*.c", "!infrared_cli.c"],
+    resources="resources",
     fap_libs=["assets"],
     fap_icon="icon.png",
     fap_category="Infrared",
@@ -17,5 +19,10 @@ App(
     apptype=FlipperAppType.STARTUP,
     targets=["f7"],
     entry_point="infrared_on_system_start",
+    sources=[
+        "infrared_cli.c",
+        "infrared_brute_force.c",
+        "infrared_signal.c",
+    ],
     order=20,
 )

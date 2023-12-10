@@ -5,6 +5,7 @@ App(
     entry_point="example_advanced_plugins_app",
     stack_size=2 * 1024,
     fap_category="Examples",
+    sources=["*.c*", "!plugin*.c"],
 )
 
 App(
@@ -13,6 +14,7 @@ App(
     entry_point="advanced_plugin1_ep",
     requires=["example_advanced_plugins"],
     sources=["plugin1.c"],
+    fal_embedded=True,
 )
 
 App(
@@ -21,4 +23,5 @@ App(
     entry_point="advanced_plugin2_ep",
     requires=["example_advanced_plugins"],
     sources=["plugin2.c"],
+    fal_embedded=True,
 )

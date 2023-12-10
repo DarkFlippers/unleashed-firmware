@@ -6,13 +6,12 @@ def generate(env):
     env.SetDefault(
         STRIP="strip",
         STRIPFLAGS=[],
-        STRIPCOM="$STRIP $STRIPFLAGS $SOURCES -o $TARGET",
     )
     env.Append(
         BUILDERS={
             "ELFStripper": Builder(
                 action=Action(
-                    "${STRIPCOM}",
+                    [["$STRIP", "$STRIPFLAGS", "$SOURCES", "-o", "$TARGET"]],
                     "${STRIPCOMSTR}",
                 ),
                 suffix=".elf",

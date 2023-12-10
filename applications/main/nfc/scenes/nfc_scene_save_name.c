@@ -1,94 +1,13 @@
-#include "../nfc_i.h"
-#include <lib/toolbox/name_generator.h>
-#include <gui/modules/validators.h>
-#include <toolbox/path.h>
-#include <dolphin/dolphin.h>
-
-void nfc_scene_save_name_text_input_callback(void* context) {
-    Nfc* nfc = context;
-
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventTextInputDone);
-}
+#include "../helpers/protocol_support/nfc_protocol_support.h"
 
 void nfc_scene_save_name_on_enter(void* context) {
-    Nfc* nfc = context;
-
-    // Setup view
-    TextInput* text_input = nfc->text_input;
-    bool dev_name_empty = false;
-    if(!strcmp(nfc->dev->dev_name, "")) {
-        name_generator_make_auto(nfc->text_store, NFC_DEV_NAME_MAX_LEN, NFC_APP_FILENAME_PREFIX);
-        dev_name_empty = true;
-    } else {
-        nfc_text_store_set(nfc, nfc->dev->dev_name);
-    }
-    text_input_set_header_text(text_input, "Name the card");
-    text_input_set_result_callback(
-        text_input,
-        nfc_scene_save_name_text_input_callback,
-        nfc,
-        nfc->text_store,
-        NFC_DEV_NAME_MAX_LEN,
-        dev_name_empty);
-
-    FuriString* folder_path;
-    folder_path = furi_string_alloc();
-
-    if(furi_string_end_with(nfc->dev->load_path, NFC_APP_FILENAME_EXTENSION)) {
-        path_extract_dirname(furi_string_get_cstr(nfc->dev->load_path), folder_path);
-    } else {
-        furi_string_set(folder_path, NFC_APP_FOLDER);
-    }
-
-    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        furi_string_get_cstr(folder_path), NFC_APP_FILENAME_EXTENSION, nfc->dev->dev_name);
-    text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
-
-    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextInput);
-
-    furi_string_free(folder_path);
+    nfc_protocol_support_on_enter(NfcProtocolSupportSceneSaveName, context);
 }
 
 bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = context;
-    bool consumed = false;
-
-    if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == NfcCustomEventTextInputDone) {
-            if(strcmp(nfc->dev->dev_name, "") != 0) {
-                nfc_device_delete(nfc->dev, true);
-            }
-            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetUid) &&
-               (!scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetTypeMfUid))) {
-                nfc->dev->dev_data.nfc_data = nfc->dev_edit_data;
-            }
-            strlcpy(nfc->dev->dev_name, nfc->text_store, strlen(nfc->text_store) + 1);
-            if(nfc_save_file(nfc)) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
-                if(!scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
-                    // Nothing, do not count editing as saving
-                } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
-                    dolphin_deed(DolphinDeedNfcAddSave);
-                } else {
-                    dolphin_deed(DolphinDeedNfcSave);
-                }
-                consumed = true;
-            } else {
-                consumed = scene_manager_search_and_switch_to_previous_scene(
-                    nfc->scene_manager, NfcSceneStart);
-            }
-        }
-    }
-    return consumed;
+    return nfc_protocol_support_on_event(NfcProtocolSupportSceneSaveName, context, event);
 }
 
 void nfc_scene_save_name_on_exit(void* context) {
-    Nfc* nfc = context;
-
-    // Clear view
-    void* validator_context = text_input_get_validator_callback_context(nfc->text_input);
-    text_input_set_validator(nfc->text_input, NULL, NULL);
-    validator_is_file_free(validator_context);
-
-    text_input_reset(nfc->text_input);
+    nfc_protocol_support_on_exit(NfcProtocolSupportSceneSaveName, context);
 }

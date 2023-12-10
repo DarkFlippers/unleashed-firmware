@@ -1,5 +1,6 @@
 from SCons.Builder import Builder
 from SCons.Defaults import Touch
+from SCons.Action import Action
 
 
 def generate(env):
@@ -9,13 +10,21 @@ def generate(env):
             "-auto",
             "-exit",
         ],
-        JFLASHCOM="${JFLASH} -openprj${JFLASHPROJECT} -open${SOURCE},${JFLASHADDR} ${JFLASHFLAGS}",
     )
     env.Append(
         BUILDERS={
             "JFlash": Builder(
                 action=[
-                    "${JFLASHCOM}",
+                    Action(
+                        [
+                            [
+                                "${JFLASH}",
+                                "-openprj${JFLASHPROJECT}",
+                                "-open${SOURCE},${JFLASHADDR}",
+                                "${JFLASHFLAGS}",
+                            ]
+                        ]
+                    ),
                     Touch("${TARGET}"),
                 ],
             ),

@@ -24,17 +24,15 @@ bool lfrfid_scene_rpc_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == LfRfidEventExit) {
-            rpc_system_app_confirm(app->rpc_ctx, RpcAppEventAppExit, true);
+            rpc_system_app_confirm(app->rpc_ctx, true);
             scene_manager_stop(app->scene_manager);
             view_dispatcher_stop(app->view_dispatcher);
         } else if(event.event == LfRfidEventRpcSessionClose) {
             scene_manager_stop(app->scene_manager);
             view_dispatcher_stop(app->view_dispatcher);
         } else if(event.event == LfRfidEventRpcLoadFile) {
-            const char* arg = rpc_system_app_get_data(app->rpc_ctx);
             bool result = false;
-            if(arg && (app->rpc_state == LfRfidRpcStateIdle)) {
-                furi_string_set(app->file_path, arg);
+            if(app->rpc_state == LfRfidRpcStateIdle) {
                 if(lfrfid_load_key_data(app, app->file_path, false)) {
                     lfrfid_worker_start_thread(app->lfworker);
                     lfrfid_worker_emulate_start(app->lfworker, (LFRFIDProtocol)app->protocol_id);
@@ -48,7 +46,7 @@ bool lfrfid_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                     result = true;
                 }
             }
-            rpc_system_app_confirm(app->rpc_ctx, RpcAppEventLoadFile, result);
+            rpc_system_app_confirm(app->rpc_ctx, result);
         }
     }
     return consumed;

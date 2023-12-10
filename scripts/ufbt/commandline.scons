@@ -88,6 +88,11 @@ vars.AddVariables(
         "CDC Port of Flipper to use, if multiple are connected",
         "auto",
     ),
+    BoolVariable(
+        "STRICT_FAP_IMPORT_CHECK",
+        help="Enable strict import check for .faps",
+        default=True,
+    ),
 )
 
 Return("vars")

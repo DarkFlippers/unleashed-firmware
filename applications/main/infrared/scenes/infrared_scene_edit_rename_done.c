@@ -1,7 +1,7 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 void infrared_scene_edit_rename_done_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Popup* popup = infrared->popup;
 
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
@@ -16,7 +16,7 @@ void infrared_scene_edit_rename_done_on_enter(void* context) {
 }
 
 bool infrared_scene_edit_rename_done_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -33,6 +33,6 @@ bool infrared_scene_edit_rename_done_on_event(void* context, SceneManagerEvent e
 }
 
 void infrared_scene_edit_rename_done_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     UNUSED(infrared);
 }

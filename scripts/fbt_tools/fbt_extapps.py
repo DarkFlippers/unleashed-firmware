@@ -1,7 +1,5 @@
 import itertools
-import os
 import pathlib
-import shutil
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -42,6 +40,7 @@ class AppBuilder:
         self.ext_apps_work_dir = env["EXT_APPS_WORK_DIR"]
         self.app_work_dir = self.get_app_work_dir(env, app)
         self.app_alias = f"fap_{self.app.appid}"
+        self.icons_src = None
         self.externally_built_files = []
         self.private_libs = []
 
@@ -59,7 +58,8 @@ class AppBuilder:
         )
         self.app_env.Append(
             CPPDEFINES=[
-                ("FAP_VERSION", f'"{".".join(map(str, self.app.fap_version))}"')
+                ("FAP_VERSION", f'\\"{".".join(map(str, self.app.fap_version))}\\"'),
+                *self.app.cdefines,
             ],
         )
         self.app_env.VariantDir(self.app_work_dir, self.app._appdir, duplicate=False)
@@ -93,6 +93,7 @@ class AppBuilder:
         )
         self.app_env.Alias("_fap_icons", fap_icons)
         self.fw_env.Append(_APP_ICONS=[fap_icons])
+        self.icons_src = next(filter(lambda n: n.path.endswith(".c"), fap_icons))
 
     def _build_private_libs(self):
         for lib_def in self.app.fap_private_libs:
@@ -143,22 +144,20 @@ class AppBuilder:
             self.app._assets_dirs = [self.app._appdir.Dir(self.app.fap_file_assets)]
 
         self.app_env.Append(
-            LIBS=[*self.app.fap_libs, *self.private_libs],
-            CPPPATH=[self.app_work_dir, self.app._appdir],
+            LIBS=[*self.app.fap_libs, *self.private_libs, *self.app.fap_libs],
+            CPPPATH=[self.app_env.Dir(self.app_work_dir), self.app._appdir],
         )
 
-        app_sources = list(
-            itertools.chain.from_iterable(
-                self.app_env.GlobRecursive(
-                    source_type,
-                    self.app_work_dir,
-                    exclude="lib",
-                )
-                for source_type in self.app.sources
-            )
+        app_sources = self.app_env.GatherSources(
+            [self.app.sources, "!lib"], self.app_work_dir
         )
+
         if not app_sources:
             raise UserError(f"No source files found for {self.app.appid}")
+
+        # Ensure that icons are included in the build, regardless of user-configured sources
+        if self.icons_src and not self.icons_src in app_sources:
+            app_sources.append(self.icons_src)
 
         ## Uncomment for debug
         # print(f"App sources for {self.app.appid}: {list(f.path for f in app_sources)}")
@@ -180,7 +179,9 @@ class AppBuilder:
             self.app._assets_dirs.append(self.app_work_dir.Dir("assets"))
 
         app_artifacts.validator = self.app_env.ValidateAppImports(
-            app_artifacts.compact
+            app_artifacts.compact,
+            _CHECK_APP=self.app.do_strict_import_checks
+            and self.app_env.get("STRICT_FAP_IMPORT_CHECK"),
         )[0]
 
         if self.app.apptype == FlipperAppType.PLUGIN:
@@ -282,7 +283,7 @@ def prepare_app_metadata(target, source, env):
         )
 
 
-def validate_app_imports(target, source, env):
+def _validate_app_imports(target, source, env):
     sdk_cache = SdkCache(env["SDK_DEFINITION"].path, load_version_only=False)
     app_syms = set()
     with open(target[0].path, "rt") as f:
@@ -300,7 +301,10 @@ def validate_app_imports(target, source, env):
                 + fg.brightmagenta(f"{disabled_api_syms}")
                 + fg.brightyellow(")")
             )
-        SCons.Warnings.warn(SCons.Warnings.LinkWarning, warning_msg),
+        if env.get("_CHECK_APP"):
+            raise UserError(warning_msg)
+        else:
+            SCons.Warnings.warn(SCons.Warnings.LinkWarning, warning_msg),
 
 
 def GetExtAppByIdOrPath(env, app_dir):
@@ -331,35 +335,7 @@ def GetExtAppByIdOrPath(env, app_dir):
     return app_artifacts
 
 
-def resources_fap_dist_emitter(target, source, env):
-    # Initially we have a single target - target dir
-    # Here we inject pairs of (target, source) for each file
-    resources_root = target[0]
-
-    target = []
-    for app_artifacts in env["EXT_APPS"].values():
-        for _, dist_path in filter(
-            lambda dist_entry: dist_entry[0], app_artifacts.dist_entries
-        ):
-            source.append(app_artifacts.compact)
-            target.append(resources_root.File(dist_path))
-
-    assert len(target) == len(source)
-    return (target, source)
-
-
-def resources_fap_dist_action(target, source, env):
-    # FIXME: find a proper way to remove stale files
-    target_dir = env.Dir("${RESOURCES_ROOT}/apps")
-    shutil.rmtree(target_dir.path, ignore_errors=True)
-
-    # Iterate over pairs generated in emitter
-    for src, target in zip(source, target):
-        os.makedirs(os.path.dirname(target.path), exist_ok=True)
-        shutil.copy(src.path, target.path)
-
-
-def embed_app_metadata_emitter(target, source, env):
+def _embed_app_metadata_emitter(target, source, env):
     app = env["APP"]
 
     # Hack: change extension for fap libs
@@ -396,33 +372,52 @@ def generate_embed_app_metadata_actions(source, target, env, for_signature):
         Action(prepare_app_metadata, "$APPMETA_COMSTR"),
     ]
 
-    objcopy_str = (
-        "${OBJCOPY} "
-        "--remove-section .ARM.attributes "
-        "--add-section ${_FAP_META_SECTION}=${APP._section_fapmeta} "
-    )
+    objcopy_args = [
+        "${OBJCOPY}",
+        "--remove-section",
+        ".ARM.attributes",
+        "--add-section",
+        "${_FAP_META_SECTION}=${APP._section_fapmeta}",
+        "--set-section-flags",
+        "${_FAP_META_SECTION}=contents,noload,readonly,data",
+    ]
 
     if app._section_fapfileassets:
         actions.append(Action(prepare_app_file_assets, "$APPFILE_COMSTR"))
-        objcopy_str += (
-            "--add-section ${_FAP_FILEASSETS_SECTION}=${APP._section_fapfileassets} "
+        objcopy_args.extend(
+            (
+                "--add-section",
+                "${_FAP_FILEASSETS_SECTION}=${APP._section_fapfileassets}",
+                "--set-section-flags",
+                "${_FAP_FILEASSETS_SECTION}=contents,noload,readonly,data",
+            )
         )
 
-    objcopy_str += (
-        "--set-section-flags ${_FAP_META_SECTION}=contents,noload,readonly,data "
-        "--strip-debug --strip-unneeded "
-        "--add-gnu-debuglink=${SOURCE} "
-        "${SOURCES} ${TARGET}"
+    objcopy_args.extend(
+        (
+            "--strip-debug",
+            "--strip-unneeded",
+            "--add-gnu-debuglink=${SOURCE}",
+            "${SOURCES}",
+            "${TARGET}",
+        )
     )
 
     actions.extend(
         (
             Action(
-                objcopy_str,
+                [objcopy_args],
                 "$APPMETAEMBED_COMSTR",
             ),
             Action(
-                "${PYTHON3} ${FBT_SCRIPT_DIR}/fastfap.py ${TARGET} ${OBJCOPY}",
+                [
+                    [
+                        "${PYTHON3}",
+                        "${FBT_SCRIPT_DIR}/fastfap.py",
+                        "${TARGET}",
+                        "${OBJCOPY}",
+                    ]
+                ],
                 "$FASTFAP_COMSTR",
             ),
         )
@@ -478,7 +473,19 @@ def AddAppLaunchTarget(env, appname, launch_target_name):
     components = _gather_app_components(env, appname)
     target = env.PhonyTarget(
         launch_target_name,
-        '${PYTHON3} "${APP_RUN_SCRIPT}" -p ${FLIP_PORT} ${EXTRA_ARGS} -s ${SOURCES} -t ${FLIPPER_FILE_TARGETS}',
+        [
+            [
+                "${PYTHON3}",
+                "${APP_RUN_SCRIPT}",
+                "-p",
+                "${FLIP_PORT}",
+                "${EXTRA_ARGS}",
+                "-s",
+                "${SOURCES}",
+                "-t",
+                "${FLIPPER_FILE_TARGETS}",
+            ]
+        ],
         source=components.deploy_sources.values(),
         FLIPPER_FILE_TARGETS=components.deploy_sources.keys(),
         EXTRA_ARGS=components.extra_launch_args,
@@ -500,7 +507,6 @@ def generate(env, **kw):
     )
     if not env["VERBOSE"]:
         env.SetDefault(
-            FAPDISTCOMSTR="\tFAPDIST\t${TARGET}",
             APPMETA_COMSTR="\tAPPMETA\t${TARGET}",
             APPFILE_COMSTR="\tAPPFILE\t${TARGET}",
             APPMETAEMBED_COMSTR="\tFAP\t${TARGET}",
@@ -523,18 +529,11 @@ def generate(env, **kw):
 
     env.Append(
         BUILDERS={
-            "FapDist": Builder(
-                action=Action(
-                    resources_fap_dist_action,
-                    "$FAPDISTCOMSTR",
-                ),
-                emitter=resources_fap_dist_emitter,
-            ),
             "EmbedAppMetadata": Builder(
                 generator=generate_embed_app_metadata_actions,
                 suffix=".fap",
                 src_suffix=".elf",
-                emitter=embed_app_metadata_emitter,
+                emitter=_embed_app_metadata_emitter,
             ),
             "ValidateAppImports": Builder(
                 action=[
@@ -543,7 +542,7 @@ def generate(env, **kw):
                         None,  # "$APPDUMP_COMSTR",
                     ),
                     Action(
-                        validate_app_imports,
+                        _validate_app_imports,
                         "$APPCHECK_COMSTR",
                     ),
                 ],

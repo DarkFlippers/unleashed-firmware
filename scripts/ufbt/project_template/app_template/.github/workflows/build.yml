@@ -27,9 +27,9 @@ jobs:
     name: 'ufbt: Build for ${{ matrix.name }}'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build with ufbt
-        uses: flipperdevices/flipperzero-ufbt-action@v0.1.1
+        uses: flipperdevices/flipperzero-ufbt-action@v0.1
         id: build-app
         with:
           sdk-channel: ${{ matrix.sdk-channel }}

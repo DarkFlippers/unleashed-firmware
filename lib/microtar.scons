@@ -14,7 +14,7 @@ libenv.Append(
     CPPDEFINES=["MICROTAR_DISABLE_API_CHECKS"],
 )
 
-sources = libenv.GlobRecursive("*.c", "microtar/src")
+sources = [File("microtar/src/microtar.c")]
 
 lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
 libenv.Install("${LIB_DIST_DIR}", lib)

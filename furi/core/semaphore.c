@@ -2,6 +2,7 @@
 #include "check.h"
 #include "common_defines.h"
 
+#include <FreeRTOS.h>
 #include <semphr.h>
 
 FuriSemaphore* furi_semaphore_alloc(uint32_t max_count, uint32_t initial_count) {

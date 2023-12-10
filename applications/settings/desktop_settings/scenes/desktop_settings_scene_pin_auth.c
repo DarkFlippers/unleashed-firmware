@@ -68,7 +68,7 @@ bool desktop_settings_scene_pin_auth_on_event(void* context, SceneManagerEvent e
             } else if(state == SCENE_STATE_PIN_AUTH_DISABLE) {
                 scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinDisable);
             } else {
-                furi_assert(0);
+                furi_crash();
             }
             consumed = true;
             break;

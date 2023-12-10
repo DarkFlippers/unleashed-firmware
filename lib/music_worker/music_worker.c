@@ -396,7 +396,7 @@ bool music_worker_load_rtttl_from_file(MusicWorker* instance, const char* file_p
             break;
         };
 
-        uint16_t ret = 0;
+        size_t ret = 0;
         do {
             uint8_t buffer[65] = {0};
             ret = storage_file_read(file, buffer, sizeof(buffer) - 1);

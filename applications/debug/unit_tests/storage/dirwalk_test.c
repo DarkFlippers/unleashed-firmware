@@ -139,7 +139,7 @@ static bool write_file_13DA(Storage* storage, const char* path) {
     File* file = storage_file_alloc(storage);
     bool result = false;
     if(storage_file_open(file, path, FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
-        result = storage_file_write(file, "13DA", 4) == 4;
+        result = (storage_file_write(file, "13DA", 4) == 4);
     }
     storage_file_close(file);
     storage_file_free(file);

@@ -3,18 +3,29 @@
 #include <furi.h>
 #include "../minunit.h"
 
-void test_furi_create_open() {
-    // 1. Create record
-    uint8_t test_data = 0;
-    furi_record_create("test/holding", (void*)&test_data);
+#define TEST_RECORD_NAME "test/holding"
 
-    // 2. Open it
-    void* record = furi_record_open("test/holding");
+void test_furi_create_open() {
+    // Test that record does not exist
+    mu_check(furi_record_exists(TEST_RECORD_NAME) == false);
+
+    // Create record
+    uint8_t test_data = 0;
+    furi_record_create(TEST_RECORD_NAME, (void*)&test_data);
+
+    // Test that record exists
+    mu_check(furi_record_exists(TEST_RECORD_NAME) == true);
+
+    // Open it
+    void* record = furi_record_open(TEST_RECORD_NAME);
     mu_assert_pointers_eq(record, &test_data);
 
-    // 3. Close it
-    furi_record_close("test/holding");
+    // Close it
+    furi_record_close(TEST_RECORD_NAME);
 
-    // 4. Clean up
-    furi_record_destroy("test/holding");
+    // Clean up
+    furi_record_destroy(TEST_RECORD_NAME);
+
+    // Test that record does not exist
+    mu_check(furi_record_exists(TEST_RECORD_NAME) == false);
 }

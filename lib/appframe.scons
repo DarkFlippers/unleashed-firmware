@@ -5,6 +5,9 @@ env.Append(
         "#/lib/app-scened-template",
         "#/lib/callback-connector",
     ],
+    LINT_SOURCES=[
+        Dir("app-scened-template"),
+    ],
 )
 
 

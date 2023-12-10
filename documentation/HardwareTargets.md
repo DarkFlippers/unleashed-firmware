@@ -2,7 +2,7 @@
 
 Flipper's firmware is modular and supports different hardware configurations in a common code base. It encapsulates hardware-specific differences in `furi_hal`, board initialization code, linker files, SDK data and other information in a _target definition_.
 
-Target-specific files are placed in a single sub-folder in `firmware/targets`. It must contain a target definition file, `target.json`, and may contain other files if they are referenced by current target's definition. By default, `fbt` gathers all source files in target folder, unless they are explicitly excluded.
+Target-specific files are placed in a single sub-folder in `targets`. It must contain a target definition file, `target.json`, and may contain other files if they are referenced by current target's definition. By default, `fbt` gathers all source files in target folder, unless they are explicitly excluded.
 
 Targets can inherit most code parts from other targets, to reduce common code duplication.
 

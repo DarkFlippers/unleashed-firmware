@@ -23,7 +23,7 @@ void infrared_encoder_sirc_reset(void* encoder_ptr, const InfraredMessage* messa
         *data |= (message->address & 0x1FFF) << 7;
         encoder->bits_to_encode = 20;
     } else {
-        furi_assert(0);
+        furi_crash();
     }
 }
 
