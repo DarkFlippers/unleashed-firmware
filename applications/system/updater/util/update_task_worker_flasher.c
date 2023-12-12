@@ -343,7 +343,7 @@ int32_t update_task_worker_flash_writer(void* context) {
 
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePostUpdate);
         // Format LFS before restoring backup on next boot
-        furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
+        furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
 #ifdef FURI_NDEBUG
         // Production
         furi_hal_rtc_set_log_level(FuriLogLevelDefault);

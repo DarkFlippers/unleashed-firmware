@@ -179,7 +179,8 @@ static void rpc_system_system_factory_reset_process(const PB_Main* request, void
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
-    furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
+    furi_hal_rtc_reset_registers();
+    furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
     power_reboot(PowerBootModeNormal);
 
     (void)session;
