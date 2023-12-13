@@ -371,11 +371,14 @@ static NfcCommand mf_ultralight_poller_handler_read_counters(MfUltralightPoller*
 }
 
 static NfcCommand mf_ultralight_poller_handler_read_tearing_flags(MfUltralightPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+
     if(mf_ultralight_support_feature(
            instance->feature_set,
            MfUltralightFeatureSupportCheckTearingFlag | MfUltralightFeatureSupportSingleCounter)) {
         if(instance->tearing_flag_read == instance->tearing_flag_total) {
             instance->state = MfUltralightPollerStateTryDefaultPass;
+            command = NfcCommandReset;
         } else {
             bool single_counter = mf_ultralight_support_feature(
                 instance->feature_set, MfUltralightFeatureSupportSingleCounter);
@@ -391,6 +394,7 @@ static NfcCommand mf_ultralight_poller_handler_read_tearing_flags(MfUltralightPo
             } else if(instance->error != MfUltralightErrorNone) {
                 FURI_LOG_D(TAG, "Reading tearing flag %d failed", instance->tearing_flag_read);
                 instance->state = MfUltralightPollerStateTryDefaultPass;
+                command = NfcCommandReset;
             } else {
                 instance->tearing_flag_read++;
             }
@@ -398,9 +402,10 @@ static NfcCommand mf_ultralight_poller_handler_read_tearing_flags(MfUltralightPo
     } else {
         FURI_LOG_D(TAG, "Skip reading tearing flags");
         instance->state = MfUltralightPollerStateTryDefaultPass;
+        command = NfcCommandReset;
     }
 
-    return NfcCommandContinue;
+    return command;
 }
 
 static NfcCommand mf_ultralight_poller_handler_auth(MfUltralightPoller* instance) {
