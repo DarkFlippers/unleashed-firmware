@@ -118,7 +118,8 @@ void cli_motd() {
            "|_|  |____||___||_|  |_|  |___||_|_\\   \\___||____||___|\r\n"
            "\r\n"
            "Welcome to Flipper Zero Command Line Interface!\r\n"
-           "Read Manual https://docs.flipperzero.one\r\n"
+           "Read the manual: https://docs.flipper.net/development/cli\r\n"
+           "Run `help` or `?` to list available commands\r\n"
            "\r\n");
 
     const Version* firmware_version = furi_hal_version_get_firmware_version();
