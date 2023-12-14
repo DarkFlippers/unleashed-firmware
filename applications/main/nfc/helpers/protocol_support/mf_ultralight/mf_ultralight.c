@@ -167,7 +167,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
     .scene_read =
         {
             .on_enter = nfc_scene_read_on_enter_mf_ultralight,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_read_on_event_mf_ultralight,
         },
     .scene_read_menu =
         {
