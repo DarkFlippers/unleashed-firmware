@@ -90,8 +90,49 @@ static NfcCommand
     return NfcCommandContinue;
 }
 
+enum {
+    NfcSceneMfUltralightReadMenuStateCardSearch,
+    NfcSceneMfUltralightReadMenuStateCardFound,
+};
+
+static void nfc_scene_read_setup_view(NfcApp* instance) {
+    Popup* popup = instance->popup;
+    popup_reset(popup);
+    uint32_t state = scene_manager_get_scene_state(instance->scene_manager, NfcSceneRead);
+
+    if(state == NfcSceneMfUltralightReadMenuStateCardSearch) {
+        popup_set_icon(instance->popup, 0, 8, &I_NFC_manual_60x50);
+        popup_set_header(instance->popup, "Unlocking", 97, 15, AlignCenter, AlignTop);
+        popup_set_text(
+            instance->popup, "Apply card to\nFlipper's back", 97, 27, AlignCenter, AlignTop);
+    } else {
+        popup_set_header(instance->popup, "Don't move", 85, 27, AlignCenter, AlignTop);
+        popup_set_icon(instance->popup, 12, 20, &A_Loading_24);
+    }
+
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
+}
+
 static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
+    bool unlocking =
+        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneMfUltralightUnlockWarn);
+
+    uint32_t state = unlocking ? NfcSceneMfUltralightReadMenuStateCardSearch :
+                                 NfcSceneMfUltralightReadMenuStateCardFound;
+
+    scene_manager_set_scene_state(instance->scene_manager, NfcSceneRead, state);
+
+    nfc_scene_read_setup_view(instance);
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
+}
+
+bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, uint32_t event) {
+    if(event == NfcCustomEventCardDetected) {
+        scene_manager_set_scene_state(
+            instance->scene_manager, NfcSceneRead, NfcSceneMfUltralightReadMenuStateCardFound);
+        nfc_scene_read_setup_view(instance);
+    }
+    return true;
 }
 
 static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instance) {
