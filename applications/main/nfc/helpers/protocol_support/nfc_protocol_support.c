@@ -197,6 +197,10 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
                     instance->scene_manager, NfcSceneDetect);
             }
             consumed = true;
+        } else if(event.event == NfcCustomEventCardDetected) {
+            const NfcProtocol protocol =
+                instance->protocols_detected[instance->protocols_detected_selected_idx];
+            consumed = nfc_protocol_support[protocol]->scene_read.on_event(instance, event.event);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         nfc_poller_stop(instance->poller);
