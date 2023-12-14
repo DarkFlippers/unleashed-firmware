@@ -39,6 +39,15 @@ App(
 )
 
 App(
+    appid="mykey_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="mykey_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/mykey.c"],
+)
+
+App(
     appid="myki_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="myki_plugin_ep",
