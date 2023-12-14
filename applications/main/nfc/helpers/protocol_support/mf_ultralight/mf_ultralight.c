@@ -54,6 +54,7 @@ static NfcCommand
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
         return NfcCommandStop;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthRequest) {
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfUltralight, nfc_poller_get_data(instance->poller));
         const MfUltralightData* data =
