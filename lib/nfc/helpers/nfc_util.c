@@ -35,6 +35,19 @@ uint64_t nfc_util_bytes2num(const uint8_t* src, uint8_t len) {
     return res;
 }
 
+uint64_t nfc_util_bytes2num_little_endian(const uint8_t* src, uint8_t len) {
+    furi_assert(src);
+    furi_assert(len <= 8);
+
+    uint64_t res = 0;
+    uint8_t shift = 0;
+    while(len--) {
+        res |= ((uint64_t)*src) << (8 * shift++);
+        src++;
+    }
+    return res;
+}
+
 uint8_t nfc_util_even_parity32(uint32_t data) {
     // data ^= data >> 16;
     // data ^= data >> 8;

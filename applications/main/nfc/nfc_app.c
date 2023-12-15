@@ -51,6 +51,7 @@ NfcApp* nfc_app_alloc() {
 
     instance->mf_ul_auth = mf_ultralight_auth_alloc();
     instance->mfc_key_cache = mf_classic_key_cache_alloc();
+    instance->nfc_supported_cards = nfc_supported_cards_alloc();
 
     // Nfc device
     instance->nfc_device = nfc_device_alloc();
@@ -110,7 +111,6 @@ NfcApp* nfc_app_alloc() {
         instance->view_dispatcher, NfcViewWidget, widget_get_view(instance->widget));
 
     // Dict attack
-
     instance->dict_attack = dict_attack_alloc();
     view_dispatcher_add_view(
         instance->view_dispatcher, NfcViewDictAttack, dict_attack_get_view(instance->dict_attack));
@@ -141,6 +141,7 @@ void nfc_app_free(NfcApp* instance) {
 
     mf_ultralight_auth_free(instance->mf_ul_auth);
     mf_classic_key_cache_free(instance->mfc_key_cache);
+    nfc_supported_cards_free(instance->nfc_supported_cards);
 
     // Nfc device
     nfc_device_free(instance->nfc_device);
@@ -338,6 +339,8 @@ bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog) {
     furi_assert(instance);
     furi_assert(path);
     bool result = false;
+
+    nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     FuriString* load_path = furi_string_alloc();
     if(nfc_has_shadow_file_internal(instance, path)) {
