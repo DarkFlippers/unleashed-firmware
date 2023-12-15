@@ -42,7 +42,7 @@ uint64_t nfc_util_bytes2num_little_endian(const uint8_t* src, uint8_t len) {
     uint64_t res = 0;
     uint8_t shift = 0;
     while(len--) {
-        res |= *src << (8 * shift++);
+        res |= ((uint64_t)*src) << (8 * shift++);
         src++;
     }
     return res;

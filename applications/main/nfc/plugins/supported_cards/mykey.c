@@ -52,7 +52,7 @@ static bool mykey_parse(const NfcDevice* device, FuriString* parsed_data) {
     }
 
     bool is_blank = mykey_is_blank(data);
-    furi_string_cat_printf(parsed_data, "Serial#: %08lX\n", __bswap32(data->blocks[7]));
+    furi_string_cat_printf(parsed_data, "Serial#: %08lX\n", (uint32_t)__bswap32(data->blocks[7]));
     furi_string_cat_printf(parsed_data, "Blank: %s\n", is_blank ? "yes" : "no");
     furi_string_cat_printf(parsed_data, "LockID: %s\n", mykey_has_lockid(data) ? "maybe" : "no");
 
@@ -66,7 +66,7 @@ static bool mykey_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     if(!is_blank) {
         furi_string_cat_printf(
-            parsed_data, "\nOp. count: %ld\n", __bswap32(data->blocks[0x12] & 0xFFFFFF00));
+            parsed_data, "\nOp. count: %zu\n", (size_t)__bswap32(data->blocks[0x12] & 0xFFFFFF00));
 
         uint32_t block3C = data->blocks[0x3C];
         if(block3C == 0xFFFFFFFF) {
@@ -75,7 +75,7 @@ static bool mykey_parse(const NfcDevice* device, FuriString* parsed_data) {
             block3C ^= data->blocks[0x07];
             uint32_t startingOffset = ((block3C & 0x30000000) >> 28) |
                                       ((block3C & 0x00100000) >> 18);
-            furi_check(startingOffset < 8);
+            furi_check(startingOffset < 8); //-V547
             for(int txnOffset = 8; txnOffset > 0; txnOffset--) {
                 uint32_t txnBlock =
                     __bswap32(data->blocks[0x34 + ((startingOffset + txnOffset) % 8)]);
