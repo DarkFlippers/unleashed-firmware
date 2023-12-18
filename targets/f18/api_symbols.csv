@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,49.3,,
+Version,+,50.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -139,6 +139,7 @@ Header,+,lib/toolbox/crc32_calc.h,,
 Header,+,lib/toolbox/dir_walk.h,,
 Header,+,lib/toolbox/float_tools.h,,
 Header,+,lib/toolbox/hex.h,,
+Header,+,lib/toolbox/keys_dict.h,,
 Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
 Header,+,lib/toolbox/name_generator.h,,
@@ -1592,6 +1593,15 @@ Function,-,j1f,float,float
 Function,-,jn,double,"int, double"
 Function,-,jnf,float,"int, float"
 Function,-,jrand48,long,unsigned short[3]
+Function,+,keys_dict_add_key,_Bool,"KeysDict*, const uint8_t*, size_t"
+Function,+,keys_dict_alloc,KeysDict*,"const char*, KeysDictMode, size_t"
+Function,+,keys_dict_check_presence,_Bool,const char*
+Function,+,keys_dict_delete_key,_Bool,"KeysDict*, const uint8_t*, size_t"
+Function,+,keys_dict_free,void,KeysDict*
+Function,+,keys_dict_get_next_key,_Bool,"KeysDict*, uint8_t*, size_t"
+Function,+,keys_dict_get_total_keys,size_t,KeysDict*
+Function,+,keys_dict_is_key_present,_Bool,"KeysDict*, const uint8_t*, size_t"
+Function,+,keys_dict_rewind,_Bool,KeysDict*
 Function,-,l64a,char*,long
 Function,-,labs,long,long
 Function,-,lcong48,void,unsigned short[7]
